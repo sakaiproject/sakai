@@ -34,10 +34,14 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.text.ParseException;
+import java.math.BigDecimal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.apache.commons.math.complex.Complex;
+import org.apache.commons.math.complex.ComplexFormat;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -1383,117 +1387,98 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  
   public boolean getFINResult(ItemGradingIfc data,  ItemDataIfc itemdata, HashMap publishedAnswerHash)
   {
-	  // this method checks if the FIN answer is correct.  
-    String studentanswer = "";
-    boolean range;
-    boolean matchresult = false;
-    float studentAnswerNum,answer1Num,answer2Num,answerNum;
+	  String studentanswer = "";
+	  boolean range;
+	  boolean matchresult = false;
+	  ComplexFormat complexFormat = new ComplexFormat();
+	  Complex answerComplex = null;
+	  Complex studentAnswerComplex = null;
+	  BigDecimal answerNum = null, answer1Num = null, answer2Num = null, studentAnswerNum = null;
 
-    if (data.getPublishedAnswerId() == null) {
-    	return false;
-    }
+	  if (data.getPublishedAnswerId() == null) {
+		  return false;
+	  }
 
-    AnswerIfc answerIfc = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
-    if (answerIfc == null) {
-    	return matchresult;
-    }
-    String answertext = answerIfc.getText();
-    //Long itemId = itemdata.getItemId();
+	  String answertext = ((AnswerIfc)publishedAnswerHash.get(data.getPublishedAnswerId())).getText();
 
-      //Set answerSet = new HashSet();
+	  if (answertext != null)
+	  {
+		  StringTokenizer st = new StringTokenizer(answertext, "|");
+		  range = false;
+		  if (st.countTokens() > 1) {
+			  range = true;
+		  }
 
-    
 
-    if (answertext != null)
-    {
-      StringTokenizer st = new StringTokenizer(answertext, "|");
-      range=false;
-      if (st.countTokens()>1){
-    	  range=true;
-      }
-      if (range)
-    	  
-      {
-    	
-        String answer1 = st.nextToken().trim();
-        String answer2 = st.nextToken().trim();
-        if (answer1 != null){
-            answer1= answer1.trim().replace(',','.');  // in Spain, comma is used as a decimal point
-           }
-    
-        try{
-        	answer1Num = Float.valueOf(answer1).floatValue();
-        }catch(NumberFormatException ex){
-        	answer1Num =  Float.NaN;
-        }
-        log.debug("answer1Num= " + answer1Num);
-        if (answer2 != null){
-            answer2= answer2.trim().replace(',','.');  // in Spain, comma is used as a decimal point
-           }        
-    
-        try{
-        	answer2Num = Float.valueOf(answer2).floatValue();
-        }catch(NumberFormatException ex){
-        	answer2Num =  Float.NaN;
-        }
-        
-        log.debug("answer2Num= " + answer2Num);      
-        // Can accept increasing and decreasing ranges
-        if (answer1Num > answer2Num) {
-          float swap = answer1Num;
-          answer1Num = answer2Num;
-          answer2Num = swap;
-        }
-        
-          if (data.getAnswerText() != null){
-    	    studentanswer= data.getAnswerText().trim().replace(',','.');    // in Spain, comma is used as a decimal point
-    	    try{
-    	    	studentAnswerNum = Float.valueOf(studentanswer).floatValue();   	    	
-            }catch(NumberFormatException ex){
-            	studentAnswerNum =  Float.NaN;
-            	//Temporal. Directamente contar\? como mala.
-            }
-            log.debug("studentAnswerNum= " + studentAnswerNum);  	   
-            if (!(Float.isNaN(studentAnswerNum) || Float.isNaN(answer1Num) || Float.isNaN(answer2Num))){ 	   
-            matchresult=((answer1Num <= studentAnswerNum) && (answer2Num >= studentAnswerNum)) ;
-          	}
-            
-          }
-      }else{ //range
-    	  String answer = st.nextToken().trim();
-    	  if (answer != null){
-    	       answer= answer.trim().replace(',','.');  // in Spain, comma is used as a decimal point
-    	  }
+		  if (range) {
 
-      try{
-      	answerNum = Float.valueOf(answer).floatValue(); 
-      }catch(NumberFormatException ex){
-      	answerNum =  Float.NaN;
-//      	should not go here
-      }
-      log.debug("answerNum= " +  answerNum);
-      
-      
-        if (data.getAnswerText() != null){
-  	    studentanswer= data.getAnswerText().trim().replace(',','.');  // in Spain, comma is used as a decimal point
-	    try{
-  	    	studentAnswerNum = Float.valueOf(studentanswer).floatValue(); 	    	
-          }catch(NumberFormatException ex){
-          	studentAnswerNum =  Float.NaN;
-          }
-          log.debug("studentAnswerNum= " + studentAnswerNum);  	   
-          if (!(Float.isNaN(studentAnswerNum) || Float.isNaN(answerNum))){ 	   
-          matchresult=(answerNum == studentAnswerNum) ;
-          }
-        }
-      }
-      
-       
-     
-    }
-    return matchresult;
-  }
-  
+			  String answer1 = st.nextToken().trim();
+			  String answer2 = st.nextToken().trim();
+
+			  try {
+				  answer1Num = new BigDecimal(answer1);
+				  answer2Num = new BigDecimal(answer2);
+			  } catch (Exception e) {
+				  log.debug("Number is not BigDecimal: " + answer1 + " or " + answer2);
+			  }
+
+
+			  if (data.getAnswerText() != null) {
+				  try {
+					  studentAnswerNum = new BigDecimal(data.getAnswerText().trim());
+				  } catch (Exception e) {
+					  log.debug("Number is not BigDecimal: " + studentAnswerNum);
+				  }
+
+				  matchresult = (answer1Num != null && answer2Num != null && studentAnswerNum != null &&
+						  (answer1Num.compareTo(studentAnswerNum) <= 0) && (answer2Num.compareTo(studentAnswerNum) >= 0));
+			  }
+		  }
+		  else { //range
+			  String answer = st.nextToken().trim();
+
+			  try {
+				  answerNum = new BigDecimal(answer); 
+			  } catch(NumberFormatException ex) {
+				  log.debug("Number is not BigDecimal: " + answer);
+			  }
+
+			  try {
+				  answerComplex = complexFormat.parse(answer);
+			  } catch(ParseException ex) {
+				  log.debug("Number is not Complex: " + answer);
+			  }
+
+			  if (data.getAnswerText() != null) {
+
+				  studentanswer = data.getAnswerText().trim();
+				  if (answerNum != null) {
+
+					  try {
+						  studentAnswerNum = new BigDecimal(studentanswer);
+						  log.debug("studentAnswerNum= " + studentAnswerNum);
+					  } catch(NumberFormatException ex) {
+						  log.debug("Number is not BigDecimal: " + studentanswer);
+					  }
+
+					  matchresult = (studentAnswerNum != null && answerNum.compareTo(studentAnswerNum) == 0);
+				  }
+				  else if (answerComplex != null) {
+					  try {
+						  studentAnswerComplex = complexFormat.parse(studentanswer);
+						  log.debug("studentAnswerComplex= " + studentAnswerComplex.getReal() + "+" + studentAnswerComplex.getImaginary() + "i");
+					  } catch(ParseException ex) {
+						  log.debug("Number is not Complex: " + studentanswer);
+					  }
+
+					  matchresult = (studentAnswerComplex != null && answerComplex.equals(studentAnswerComplex));
+				  }
+			  }
+		  }
+
+	  }
+	  return matchresult;
+  }  
   
   public float getTotalCorrectScore(ItemGradingIfc data, HashMap publishedAnswerHash)
   {

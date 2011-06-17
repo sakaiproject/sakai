@@ -44,7 +44,10 @@ should be included in file importing DeliveryMessages
 	  <h:inputText size="10" rendered="#{answer.hasInput 
 		&& delivery.actionString !='gradeAssessment' 
 		&& delivery.actionString !='reviewAssessment'}"
-		 value="#{answer.response}" onkeypress="return noenter()"/>
+		 value="#{answer.response}" onkeypress="return noenter()">
+		<f:validator validatorId="finResponseValidator" />
+ 	  </h:inputText>
+
       <h:outputText style="text-decoration: underline" 
 		rendered="#{delivery.actionString=='gradeAssessment' 
 			|| delivery.actionString=='reviewAssessment'}"

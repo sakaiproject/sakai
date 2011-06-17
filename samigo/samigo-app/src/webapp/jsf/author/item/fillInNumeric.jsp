@@ -89,11 +89,20 @@
   <br/>
   <h:outputText value="#{authorMessages.for_example_pipe_fin}" />
   <br/>
+  <h:outputText value="#{authorMessages.science_format_fin}" />
+  <br/>
+  <h:outputText value="#{authorMessages.science_format_fin_sample}" />
+  <br/>
+  <h:outputText value="#{authorMessages.complex_format_fin}" />
+  <br/>
+  <h:outputText value="#{authorMessages.complex_format_fin_sample}" />
+  <br/>  
   
   <h:panelGrid>
    <samigo:wysiwyg
      rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes">
     <f:validateLength maximum="60000"/>
+    <f:validator validatorId="finQuestionValidator"/>
    </samigo:wysiwyg>
   </h:panelGrid>
  <br />
