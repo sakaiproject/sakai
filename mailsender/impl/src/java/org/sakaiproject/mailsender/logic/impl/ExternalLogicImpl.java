@@ -65,12 +65,21 @@ import org.apache.commons.mail.SimpleEmail;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.email.api.AddressValidationException;
+import org.sakaiproject.email.api.Attachment;
+import org.sakaiproject.email.api.ContentType;
+import org.sakaiproject.email.api.EmailAddress;
+import org.sakaiproject.email.api.EmailAddress.RecipientType;
+import org.sakaiproject.email.api.EmailMessage;
+import org.sakaiproject.email.api.EmailService;
+import org.sakaiproject.email.api.NoRecipientsException;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.mailarchive.api.MailArchiveChannel;
 import org.sakaiproject.mailarchive.api.MailArchiveMessageEdit;
 import org.sakaiproject.mailarchive.api.MailArchiveMessageHeaderEdit;
 import org.sakaiproject.mailarchive.api.MailArchiveService;
+import org.sakaiproject.mailsender.AttachmentException;
 import org.sakaiproject.mailsender.MailsenderException;
 import org.sakaiproject.mailsender.logic.ConfigLogic;
 import org.sakaiproject.mailsender.logic.ExternalLogic;
@@ -133,6 +142,7 @@ public class ExternalLogicImpl implements ExternalLogic
     private ConfigLogic configLogic;
     private ServerConfigurationService configService;
     private TimeService timeService;
+    private EmailService emailService;
 
 	/**
 	 * Place any code that should run when this class is initialized by spring here
@@ -417,156 +427,94 @@ public class ExternalLogicImpl implements ExternalLogic
 		return retval;
 	}
 
-    public List<String> sendEmail(ConfigEntry config, String fromEmail, String fromName,
+	public List<String> sendEmail(ConfigEntry config, String fromEmail, String fromName,
 			Map<String, String> to, String subject, String content,
-			Map<String, MultipartFile> attachments) throws MailsenderException
+			Map<String, MultipartFile> attachments) throws MailsenderException, AttachmentException
 	{
-		// validate inputs
-		if (fromEmail == null || fromEmail.trim().length() == 0)
+		ArrayList<EmailAddress> tos = new ArrayList<EmailAddress>();
+		for (Entry<String, String> entry : to.entrySet())
 		{
-			throw new MailsenderException("invalid.from_replyto.address", fromEmail);
-		}
-		else if (to == null || to.isEmpty())
-		{
-			throw new MailsenderException().addMessage("error.no.recipients");
+			tos.add(new EmailAddress(entry.getKey(), entry.getValue()));
 		}
 
-		ArrayList<String> invalids = new ArrayList<String>();
+		EmailMessage msg = new EmailMessage();
+
+		String replyToName = null;
+		String replyToEmail = null;
+		// set the "reply to" based on config
+		if (ConfigEntry.ReplyTo.no_reply_to.name().equals(config.getReplyTo()))
+		{
+			replyToName = getCurrentSiteTitle();
+			replyToEmail = "";
+		}
+		else
+		{
+			replyToName = fromName;
+			replyToEmail = fromEmail;
+		}
+
+		msg.setFrom(new EmailAddress(replyToEmail, replyToName));
+
+		msg.setSubject(subject);
+		// set content type based on editor used
+		if (config.useRichTextEditor())
+		{
+			msg.setContentType(ContentType.TEXT_HTML);
+		}
+		else
+		{
+			msg.setContentType(ContentType.TEXT_PLAIN);
+		}
+		msg.setBody(content);
+
+		for (Entry<String, MultipartFile> entry : attachments.entrySet())
+		{
+			MultipartFile mf = entry.getValue();
+			String filename = mf.getOriginalFilename();
+			try
+			{
+				File f = File.createTempFile(filename, null);
+				mf.transferTo(f);
+				Attachment attachment = new Attachment(f, filename);
+				msg.addAttachment(attachment);
+			}
+			catch (IOException ioe)
+			{
+				throw new AttachmentException(ioe.getMessage());
+			}
+		}
+
+		// send a copy
+		if (config.isSendMeACopy())
+		{
+			msg.addRecipient(RecipientType.CC, fromName, fromEmail);
+		}
+
+		// add all recipients to the bcc field
+		msg.addRecipients(RecipientType.BCC, tos);
+
+		// add a special header for tracking
+		msg.addHeader("X-Mailer", "sakai-mailsender");
+		msg.addHeader("Content-Transfer-Encoding", "quoted-printable");
 
 		try
 		{
-			// gather attachments first to help determine the type of message to create
-			String attachmentDirectory = configLogic.getUploadDirectory();
-			LinkedList<EmailAttachment> emailAttachments = null;
-			if (attachments != null && !attachments.isEmpty())
-			{
-				emailAttachments = new LinkedList<EmailAttachment>();
-				for (MultipartFile file : attachments.values())
-				{
-					// store the file for permanence
-					File f = new File(attachmentDirectory + "/" + file.getOriginalFilename());
-					file.transferTo(f);
-
-					EmailAttachment attachment = new EmailAttachment();
-					attachment.setName(f.getName());
-					attachment.setDisposition(EmailAttachment.ATTACHMENT);
-					attachment.setPath(f.getPath());
-
-					emailAttachments.add(attachment);
-				}
-			}
-
-			Email emailMsg = null;
-			// add text part first if HTML
-			if (config.useRichTextEditor()) {
-				Source source = new Source(content);
-				String txtContent = source.getRenderer().toString();
-				emailMsg = buildMessage(txtContent, content, emailAttachments);
-			} else {
-				emailMsg = buildMessage(content, null, emailAttachments);
-			}
-
-			// set the simple stuff
-			emailMsg.setCharset(UTF_8);
-			emailMsg.setHostName(smtpHost);
-			emailMsg.setSmtpPort(smtpPort);
-			emailMsg.setSubject(subject);
-			emailMsg.setDebug(smtpDebug);
-
-			// gather the sender
-			setFrom(config, fromEmail, fromName, emailMsg);
-
-			// add recipients
-			setRecipients(to, invalids, emailMsg);
-
-			if (invalids.size() == to.size())
-			{
-				throw new MailsenderException().addMessage("error.no.valid.recipients");
-			}
-
-			// add the sender, if requested. no need to validate the fromEmail as that happened when
-			// setting the sender of the message
-			if (config.isSendMeACopy())
-			{
-				emailMsg.addCc(fromEmail);
-			}
-
-			// add an identifier to the message for debugging later.
-			// this helps differentiate messages sent from mail sender.
-			emailMsg.addHeader("X-Mailer", "sakai-mailsender");
-
-			// log message for debugging purposes
-			if (log.isDebugEnabled())
-			{
-				// String addresses = InternetAddress.toString(internetAddresses);
-				// TODO Add addresses
-				String addresses = "TODO Add addresses";
-				String logMsg = "EmailBean.sendEmail(): [SITE: " + getSiteID() + "], [From: "
-						+ getCurrentUserId() + "-" + fromEmail + "], [Bcc: " + addresses
-						+ "], [Subject: " + subject + "]";
-				log.debug(logMsg);
-			}
-
-			// send if not in test mode
-			if (!configLogic.isEmailTestMode())
-			{
-				if (StringUtils.isNotBlank(smtpUser) && StringUtils.isNotBlank(smtpPassword))
-				{
-					emailMsg.setAuthentication(smtpUser, smtpPassword);
-				}
-
-				emailMsg.setSSL(useSsl);
-				if (useSsl) {
-					emailMsg.setSslSmtpPort(Integer.toString(smtpPort));
-				}
-
-				emailMsg.setTLS(useTls);
-
-				// set some properties used during sending (partial send, connection timeout,
-				// timeout)
-				Session session = emailMsg.getMailSession();
-				Properties sessionProps = session.getProperties();
-				if (StringUtils.isNotBlank(connectionTimeout)) {
-					sessionProps.put(propName(MAIL_CONNECTIONTIMEOUT), Integer.valueOf(connectionTimeout));
-				}
-
-				if (StringUtils.isNotBlank(timeout)) {
-					sessionProps.put(propName(MAIL_TIMEOUT), Integer.valueOf(timeout));
-				}
-
-				sessionProps.put(propName(MAIL_SENDPARTIAL), Boolean.valueOf(sendPartial));
-
-				// send if transport is allowed
-				if (allowTransport)
-				{
-					emailMsg.send();
-				}
-			}
-			// log if in test mode
-			else
-			{
-				logMessage(emailMsg);
-			}
-
-			return invalids;
+			List<EmailAddress> invalids = emailService.send(msg);
+			List<String> rets = EmailAddress.toStringList(invalids);
+			return rets;
 		}
-		catch (EmailException ee)
+		catch (AddressValidationException e)
 		{
-			String msg = ee.getMessage();
-			log.error(ee.getMessage(), ee);
-			throw new MailsenderException("exception.generic", msg);
+			MailsenderException me = new MailsenderException(e.getMessage(), e);
+			me.addMessage("invalid.email.addresses", EmailAddress.toString(e
+					.getInvalidEmailAddresses()));
+			throw me;
 		}
-		catch (MessagingException msge)
+		catch (NoRecipientsException e)
 		{
-			String msg = msge.getMessage();
-			log.error(msge.getMessage(), msge);
-			throw new MailsenderException("exception.generic", msg);
-		}
-		catch (IOException ie)
-		{
-			String msg = ie.getMessage();
-			log.error(ie.getMessage(), ie);
-			throw new MailsenderException("exception.generic", msg);
+			MailsenderException me = new MailsenderException(e.getMessage(), e);
+			me.addMessage("error.no.valid.recipients", "");
+			throw me;
 		}
 	}
 
@@ -600,6 +548,7 @@ public class ExternalLogicImpl implements ExternalLogic
 	{
 		String replyToName = null;
 		String replyToEmail = "no-reply@" + configService.getServerName();
+		
 
 		if (ConfigEntry.ReplyTo.no_reply_to.name().equals(config.getReplyTo()))
 		{
@@ -834,5 +783,10 @@ public class ExternalLogicImpl implements ExternalLogic
 	{
 		String formattedName = String.format(propNameTemplate, protocol);
 		return formattedName;
+	}
+
+	public void setEmailService(EmailService emailService)
+	{
+		this.emailService = emailService;
 	}
 }
