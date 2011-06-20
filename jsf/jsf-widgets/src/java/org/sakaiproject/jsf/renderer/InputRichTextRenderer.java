@@ -172,8 +172,8 @@ public class InputRichTextRenderer extends Renderer
 
     try
     {
-      Integer cols = (Integer) RendererUtil.getAttribute(context, component, "cols");
-      Integer rows = (Integer) RendererUtil.getAttribute(context, component, "rows");
+      Integer cols = Integer.parseInt("" + RendererUtil.getAttribute(context, component, "cols"));
+      Integer rows = Integer.parseInt("" + RendererUtil.getAttribute(context, component, "rows"));
       if (cols != null) textareaColumns = cols.intValue();
       if (rows != null) textareaRows = rows.intValue();
       
@@ -215,7 +215,7 @@ public class InputRichTextRenderer extends Renderer
     
     if (!"true".equals(textareaOnly))
     {
-    writer.write("<script type=\"text/javascript\">sakai.editor.launch('" + clientId + "_inputRichText');</script>");
+    writer.write("<script type=\"text/javascript\">sakai.editor.launch('" + clientId + "_inputRichText', '', '" + widthPx + "','" + heightPx + "');</script>");
     }
 
     writer.write("</td></tr></table>\n");
