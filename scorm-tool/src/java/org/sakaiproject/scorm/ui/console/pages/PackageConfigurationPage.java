@@ -212,11 +212,26 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 	private String unlimitedMessage;
 
 	public PackageConfigurationPage(PageParameters params) {
+	    super(params);
 		long contentPackageId = params.getLong("contentPackageId");
 
 		final ContentPackage contentPackage = contentService.getContentPackage(contentPackageId);
 		final GradebookSetup gradebookSetup = getAssessmentSetup(contentPackage);
 
+		final Class pageSubmit;
+        final Class pageCancel;
+
+        // @NOTE this is a hack that allows us to change the destination we
+        // are redirected to after form submission depending on where we come from
+        // I'm sure there's a more reliable way to do this is Wicket but it's not trivial to figure it out.
+        if((null != params) && (params.getBoolean("no-toolbar"))) {
+            pageSubmit = DisplayDesignatedPackage.class;
+            pageCancel = DisplayDesignatedPackage.class;
+        } else {
+            pageSubmit = PackageListPage.class;
+            pageCancel = PackageListPage.class;
+        }
+		
 		Form form = new Form("configurationForm") {
 			private static final long serialVersionUID = 1L;
 
@@ -241,7 +256,7 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 					}
 				}
 				contentService.updateContentPackage(contentPackage);
-				setResponsePage(PackageListPage.class);
+				setResponsePage(pageSubmit);
 			}
 
 			protected String getItemTitle(AssessmentSetup assessmentSetup, String context) {
@@ -299,7 +314,7 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 		});
 		scos.setVisible(gradebookSetup.isGradebookDefined() && !gradebookSetup.getAssessments().isEmpty());
 
-		form.add(new CancelButton("cancel", PackageListPage.class));
+		form.add(new CancelButton("cancel", pageCancel));
 		add(form);
 	}
 

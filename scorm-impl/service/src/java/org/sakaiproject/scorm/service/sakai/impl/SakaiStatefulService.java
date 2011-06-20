@@ -48,7 +48,7 @@ public abstract class SakaiStatefulService implements LearningManagementSystem, 
 	}
 	
 	public boolean canModify(String context) {
-		return canConfigure(context) || canDelete(context) || canViewResults(context);
+		return canConfigure(context) || canDelete(context) || canGrade(context);
 	}
 	
 	public boolean canConfigure(String context) {
@@ -71,9 +71,13 @@ public abstract class SakaiStatefulService implements LearningManagementSystem, 
 		return hasPermission(context, "scorm.validate");
 	}
 
-	public boolean canViewResults(String context) {
+	public boolean canGrade(String context) {
 		return hasPermission(context, "scorm.grade");
 	}
+
+    public boolean canViewResults(String context) {
+        return hasPermission(context, "scorm.view.results");
+    }
 	
 	public boolean isOwner() {
 		return true;

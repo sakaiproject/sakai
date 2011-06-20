@@ -3,7 +3,7 @@
 
 <beans>
 
-	<!-- setup wicket application -->
+	<!-- SCORM multi-package player tool -->
 	<bean id="toolWicketApplication" class="org.sakaiproject.scorm.ui.player.ScormTool">
 		<property name="resourceService"><ref bean="org.sakaiproject.scorm.service.api.ScormResourceService"/></property>
 	</bean>
@@ -19,5 +19,9 @@
     	<property name="providerManager"><ref bean="org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager"/></property>
     </bean>
     
+	<!-- SCORM single-package player tool -->
+    <bean id="scormSinglePackageApplication" class="org.sakaiproject.scorm.ui.player.SingleScormPackageApplication">
+			<property name="resourceService"><ref bean="org.sakaiproject.scorm.service.api.ScormResourceService"/></property>
+    </bean>
     
 </beans>
