@@ -43,6 +43,15 @@
 			<scope>provided</scope>
 		</dependency>
 
+		<!--  EDIA dependencies -->
+		<!-- 
+		<dependency>
+			<artifactId>edia-sakai-utils-base</artifactId>
+			<groupId>nl.edia</groupId>
+			<version>1.2.2</version>
+		</dependency>
+    -->
+    
 		<!-- Sakai dependencies -->
 		<dependency>
 			<groupId>org.sakaiproject.kernel</groupId>

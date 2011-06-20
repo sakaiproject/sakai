@@ -74,7 +74,8 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 		
 		final String context = lms.currentContext();
 		final boolean canConfigure = lms.canConfigure(context);
-		final boolean canViewResults = lms.canViewResults(context);
+		final boolean canGrade = lms.canGrade(context);
+        final boolean canViewResults = lms.canViewResults(context);
 		final boolean canLaunch = lms.canLaunch(context);
 		final boolean canDelete = lms.canDelete(context);
 		
@@ -121,21 +122,24 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 		if (lms.canLaunchNewWindow()) {
 			launchAction.setPopupWindowName("ScormPlayer");
 		}
-		
+
 		if (canConfigure)
 			actionColumn.addAction(new Action(new ResourceModel("column.action.edit.label"), PackageConfigurationPage.class, paramPropertyExpressions));
 			
-		if (canViewResults)
+		if (canGrade)
 			actionColumn.addAction(new Action(new StringResourceModel("column.action.grade.label", this, null), ResultsListPage.class, paramPropertyExpressions));
-				
-		columns.add(actionColumn);
+
+        if (canViewResults) {
+            actionColumn.addAction(new Action(new StringResourceModel("column.action.grade.label", this, null), LearnerResultsPage.class, paramPropertyExpressions));
+        }
 		
+		columns.add(actionColumn);
+
 		columns.add(new StatusColumn(new StringResourceModel("column.header.status", this, null), "status"));
 		
 		columns.add(new DecoratedDatePropertyColumn(new StringResourceModel("column.header.releaseOn", this, null), "releaseOn", "releaseOn"));
 
 		columns.add(new DecoratedDatePropertyColumn(new StringResourceModel("column.header.dueOn", this, null), "dueOn", "dueOn"));
-
 		
 		if (canDelete)
 			columns.add(new ImageLinkColumn(new Model("Remove"), PackageRemovePage.class, paramPropertyExpressions, deleteIconReference));

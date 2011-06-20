@@ -17,6 +17,8 @@ public interface LearningManagementSystem {
 	
 	public boolean canConfigure(String context);
 	
+	public boolean canGrade(String context);
+	
 	public boolean canViewResults(String context);
 	
 	public boolean canLaunch(String context);

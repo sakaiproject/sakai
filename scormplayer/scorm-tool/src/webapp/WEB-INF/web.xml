@@ -51,6 +51,22 @@
 	    <dispatcher>FORWARD</dispatcher>
 	    <dispatcher>INCLUDE</dispatcher>
 	</filter-mapping>
+
+  	<filter-mapping>
+	    <filter-name>security.filter</filter-name>
+	    <servlet-name>sakai.scorm.singlepackage.tool</servlet-name>
+	    <dispatcher>REQUEST</dispatcher>
+	    <dispatcher>FORWARD</dispatcher>
+	    <dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
+  	
+  	<filter-mapping>
+	    <filter-name>sakai.request</filter-name>
+	    <servlet-name>sakai.scorm.singlepackage.tool</servlet-name>
+	    <dispatcher>REQUEST</dispatcher>
+	    <dispatcher>FORWARD</dispatcher>
+	    <dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
   	
   	<!--filter-mapping>
 	    <filter-name>hibernate.filter</filter-name>
@@ -73,6 +89,27 @@
 			<param-value>toolWicketApplication</param-value>
 		</init-param>
   	</servlet>
+
+  	<servlet>
+	    <servlet-name>sakai.scorm.singlepackage.tool</servlet-name>
+	    <servlet-class>org.apache.wicket.protocol.http.WicketServlet</servlet-class>
+	    <!--  <servlet-class>org.sakaiproject.wicket.tool.SakaiWicketServlet</servlet-class>  -->
+
+			<!-- 	    
+			<init-param>
+				<param-name>first-page</param-name>
+				<param-value>/tool-single</param-value>
+			</init-param>
+			 -->
+	    <init-param>
+	      	<param-name>applicationFactoryClassName</param-name>
+	      	<param-value>org.apache.wicket.spring.SpringWebApplicationFactory</param-value>
+	    </init-param>
+	    <init-param>
+				<param-name>applicationBean</param-name>
+				<param-value>scormSinglePackageApplication</param-value>
+			</init-param>
+  	</servlet>
   	
   	<servlet>
 	    <servlet-name>sakai.scorm.access</servlet-name>
@@ -91,6 +128,11 @@
 	<servlet-mapping>
 		<servlet-name>sakai.scorm.tool</servlet-name>
 		<url-pattern>/tool/*</url-pattern>		
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>sakai.scorm.singlepackage.tool</servlet-name>
+		<url-pattern>/tool-single/*</url-pattern>		
 	</servlet-mapping>
 		
 	<servlet-mapping>

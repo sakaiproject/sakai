@@ -24,6 +24,7 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.resources.CompressedResourceReference;
@@ -69,33 +70,41 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
 		final boolean canUpload = lms.canUpload(context);
 		final boolean canValidate = lms.canValidate(context);
 		
+		WebMarkupContainer wmc = new MaydayWebMarkupContainer("toolbar-administration");
+		if( (null != params) && (params.containsKey("no-toolbar")) ) {
+	        wmc.setVisible(false);
+		}
+		
+        NavIntraLink listLink = new NavIntraLink("listLink", new ResourceModel("link.list"), PackageListPage.class);
+        NavIntraLink uploadLink = new NavIntraLink("uploadLink", new ResourceModel("link.upload"), UploadPage.class);
+        NavIntraLink validateLink = new NavIntraLink("validateLink", new ResourceModel("link.validate"), ValidationPage.class);
+        
+        listLink.setVisible(canUpload || canValidate);
+        uploadLink.setVisible(canUpload);
+        validateLink.setVisible(canValidate);
+        
+        wmc.add(listLink);
+        wmc.add(uploadLink);
+        wmc.add(validateLink);
+        
+        Icon listIcon = new Icon("listIcon", LIST_ICON);
+        Icon uploadIcon = new Icon("uploadIcon", UPLOAD_ICON);
+        Icon validateIcon = new Icon("validateIcon", VALIDATE_ICON);
+        
+        listIcon.setVisible(canUpload || canValidate);
+        uploadIcon.setVisible(canUpload);
+        validateIcon.setVisible(canValidate);
+        
+        wmc.add(listIcon);
+        wmc.add(uploadIcon);
+        wmc.add(validateIcon);
+
+        // add the toolbar container
+        add(wmc);
+        
 		add(newPageTitleLabel(params));
 		add(feedback = new SakaiFeedbackPanel("feedback"));
 		add(breadcrumbs = new BreadcrumbPanel("breadcrumbs"));
-		
-		NavIntraLink listLink = new NavIntraLink("listLink", new ResourceModel("link.list"), PackageListPage.class);
-		NavIntraLink uploadLink = new NavIntraLink("uploadLink", new ResourceModel("link.upload"), UploadPage.class);
-		NavIntraLink validateLink = new NavIntraLink("validateLink", new ResourceModel("link.validate"), ValidationPage.class);
-		
-		listLink.setVisible(canUpload || canValidate);
-		uploadLink.setVisible(canUpload);
-		validateLink.setVisible(canValidate);
-		
-		add(listLink);
-		add(uploadLink);
-		add(validateLink);
-		
-		Icon listIcon = new Icon("listIcon", LIST_ICON);
-		Icon uploadIcon = new Icon("uploadIcon", UPLOAD_ICON);
-		Icon validateIcon = new Icon("validateIcon", VALIDATE_ICON);
-		
-		listIcon.setVisible(canUpload || canValidate);
-		uploadIcon.setVisible(canUpload);
-		validateIcon.setVisible(canValidate);
-		
-		add(listIcon);
-		add(uploadIcon);
-		add(validateIcon);
 		
 		Icon pageIcon = new Icon("pageIcon", getPageIconReference());
 		pageIcon.setVisible(getPageIconReference() != null);
