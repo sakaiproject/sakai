@@ -17,6 +17,14 @@
   <inceptionYear>2003</inceptionYear>
   <packaging>jar</packaging>
   <build>
-    <resources/>
+    <resources>
+      <resource>
+        <directory>${basedir}/resources</directory>
+        <includes>
+          <include>**/*.properties</include>
+	  <include>**/*.metaprops</include>
+        </includes>
+      </resource>
+    </resources>
   </build>
 </project>
