@@ -45,9 +45,13 @@ import java.text.DateFormat;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.File;
+import java.io.IOException;
 
 import java.net.URL;
 import java.net.URLEncoder;
+import java.net.HttpURLConnection;
+import java.net.ProtocolException;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -72,6 +76,8 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
+
+import org.sakaiproject.util.ResourceLoader;
 
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
@@ -1049,7 +1055,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if (itemList.size() == 0) {
 			if (canEditPage) {
 			    UIOutput.make(tofill, "startupHelp").
-				decorate(new UIFreeAttributeDecorator("src", "/sakai-lessonbuildertool-tool/" + messageLocator.getMessage("simplepage.startup_help"))).
+				decorate(new UIFreeAttributeDecorator("src", "/sakai-lessonbuildertool-tool/" + getLocalizedURL("templates/instructions/general.html"))).
 				decorate(new UIFreeAttributeDecorator("id","iframe"));
 			    UIOutput.make(tofill, "iframeJavascript");
 
@@ -1327,8 +1333,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createToolBarLink(ForumPickerProducer.VIEW_ID, toolBar, "add-forum", "simplepage.forum", currentPage, "simplepage.forum");
 		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar, "add-multimedia", "simplepage.multimedia", true, currentPage, "simplepage.multimedia.tooltip");
 		createToolBarLink(PermissionsHelperProducer.VIEW_ID, toolBar, "permissions", "simplepage.permissions", currentPage, "simplepage.permissions.tooltip");
-		UILink.make(toolBar, "help", messageLocator.getMessage("simplepage.help"), messageLocator.getMessage("simplepage.general-instructions"));
-
+		UILink.make(toolBar, "help", messageLocator.getMessage("simplepage.help"), "/sakai-lessonbuildertool-tool/" + getLocalizedURL("templates/instructions/general.html"));
 	}
 
 	private GeneralViewParameters createToolBarLink(String viewID, UIContainer tofill, String ID, String message, SimplePage currentPage, String tooltip) {
@@ -1768,4 +1773,59 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIOutput.make(container, "status-td");
 		UIOutput.make(container, imageId).decorate(new UIFreeAttributeDecorator("src", imagePath)).decorate(new UIFreeAttributeDecorator("alt", imageAlt)).decorate(new UITooltipDecorator(imageAlt));
 	}
+
+private String getLocalizedURL(String defaultPath) {
+
+	if ( defaultPath == null || defaultPath.trim().length()==0 )
+                        return defaultPath;
+                else
+                        defaultPath = defaultPath.trim();
+
+	Locale locale = new ResourceLoader().getLocale();
+
+        int suffixIndex = defaultPath.lastIndexOf(".") >= 0 ? defaultPath.lastIndexOf(".") : defaultPath.length()-1;
+        String suffix = defaultPath.substring(suffixIndex);
+        String prefix = defaultPath.substring(0,suffixIndex);
+
+	String [] localeDetails = locale.toString().split("_");
+	int localeSize = localeDetails.length;
+	String filePath =  null;
+	String localizedPath =  null;
+
+	if (localeSize > 2) {
+		localizedPath = prefix + "_" + locale.toString() + suffix;
+		filePath = myUrl()+"/sakai-lessonbuildertool-tool/"+localizedPath;
+		if ( UrlOk(filePath) ) return localizedPath;
+	}
+
+	if (localeSize > 1) {
+		localizedPath = prefix + "_" + locale.getLanguage() + "_" + locale.getCountry() + suffix;
+		filePath = myUrl()+"/sakai-lessonbuildertool-tool/"+localizedPath;
+		if ( UrlOk(filePath) ) return localizedPath;
+	}
+
+	if (localeSize > 0) {
+		localizedPath = prefix + "_" + locale.getLanguage() + suffix;
+		filePath = myUrl()+"/sakai-lessonbuildertool-tool/"+localizedPath;
+		if ( UrlOk(filePath) ) return localizedPath;
+	}
+
+	return defaultPath;
+
+}
+
+private boolean UrlOk(String url) {
+	try {
+		HttpURLConnection.setFollowRedirects(false);
+		HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
+		con.setRequestMethod("HEAD");
+		return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
+	} catch (ProtocolException e) {
+		return false;
+	} catch (IOException e) {
+		return false;
+	}
+}
+
+
 }
