@@ -536,7 +536,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     for (Iterator iter = recipients.iterator(); iter.hasNext();)
     {
       PrivateMessageRecipient element = (PrivateMessageRecipient) iter.next();
-      LOG.info("element.getTypeUuid(): "+element.getTypeUuid()+", oldTopicTypeUuid: "+oldTopicTypeUuid+", element.getUserId(): "+element.getUserId()+ ", getCurrentUser(): "+getCurrentUser());
+      LOG.debug("element.getTypeUuid(): "+element.getTypeUuid()+", oldTopicTypeUuid: "+oldTopicTypeUuid+", element.getUserId(): "+element.getUserId()+ ", getCurrentUser(): "+getCurrentUser());
       if (element.getTypeUuid().equals(oldTopicTypeUuid) && (element.getUserId().equals(getCurrentUser())))
       {
         element.setTypeUuid(newTopicTypeUuid);
@@ -557,7 +557,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     message.setCreated(new Date());
     message.setCreatedBy(getCurrentUser());
 
-    LOG.info("message " + message.getUuid() + " created successfully");
+    LOG.debug("message " + message.getUuid() + " created successfully");
     return message;
   }
 

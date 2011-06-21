@@ -1168,7 +1168,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         message.setDraft(Boolean.FALSE);
         message.setHasAttachments(Boolean.FALSE);
         
-        LOG.info("message " + message.getUuid() + " created successfully");
+        LOG.debug("message " + message.getUuid() + " created successfully");
         return message;        
     }
 
@@ -1189,7 +1189,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         message.setDraft(Boolean.FALSE);
         message.setHasAttachments(Boolean.FALSE);
 
-        LOG.info("message " + message.getUuid() + " created successfully");
+        LOG.debug("message " + message.getUuid() + " created successfully");
         return message;        
     }
 
@@ -1201,7 +1201,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         attachment.setModified(new Date());
         attachment.setModifiedBy(getCurrentUser());
 
-        LOG.info("attachment " + attachment.getUuid() + " created successfully");
+        LOG.debug("attachment " + attachment.getUuid() + " created successfully");
         return attachment;        
     }
 
@@ -1280,7 +1280,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         	}           
         }
         
-        LOG.info("message " + message.getId() + " saved successfully");
+        LOG.debug("message " + message.getId() + " saved successfully");
         
     }
 
@@ -1319,7 +1319,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         } catch (Exception e) {
             e.printStackTrace();
         }
-        LOG.info("message " + id + " deleted successfully");
+        LOG.debug("message " + id + " deleted successfully");
     }
     
     public Message getMessageById(final Long messageId) {        
