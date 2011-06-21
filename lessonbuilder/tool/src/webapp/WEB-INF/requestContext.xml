@@ -45,6 +45,7 @@
 		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
                 <property name="localeGetter" ref="requestLocaleProxy" />
 		<property name="httpServletRequest" ref="httpServletRequest" />
+		<property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
 	</bean>
 	
 	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.ReorderProducer" >

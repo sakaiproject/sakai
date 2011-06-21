@@ -77,6 +77,10 @@ import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
 
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.CacheRefresher;
+import org.sakaiproject.memory.api.MemoryService;
+
 import org.sakaiproject.util.ResourceLoader;
 
 import uk.org.ponder.localeutil.LocaleGetter;
@@ -136,6 +140,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	public static final String VIEW_ID = "ShowPage";
 	private static final String DEFAULT_TYPES="mp4,mov,m2v,3gp,wmv,mp3,swf,wav";
         private static String[] multimediaTypes = null;
+
+        private static List urlCacheLock = new ArrayList();
+        private static Cache urlCache = null;
+
+        protected static final int DEFAULT_EXPIRATION = 10 * 60;
 
 	public String getViewID() {
 		return VIEW_ID;
@@ -1055,7 +1064,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if (itemList.size() == 0) {
 			if (canEditPage) {
 			    UIOutput.make(tofill, "startupHelp").
-				decorate(new UIFreeAttributeDecorator("src", "/sakai-lessonbuildertool-tool/" + getLocalizedURL("templates/instructions/general.html"))).
+				decorate(new UIFreeAttributeDecorator("src", getLocalizedURL("general.html"))).
 				decorate(new UIFreeAttributeDecorator("id","iframe"));
 			    UIOutput.make(tofill, "iframeJavascript");
 
@@ -1311,6 +1320,23 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			assignmentEntity = e;
 	}
 
+	static MemoryService memoryService = null;
+	public void setMemoryService(MemoryService m) {
+	    memoryService = m;
+	    // do this here rather than in an initializer because we need memoryservice
+	    // slight race condition possible on outer test, so have to test again
+	    // when we have the lock
+	    if (urlCache == null) {
+		synchronized(urlCacheLock) {
+		    if (urlCache == null) 
+			urlCache = memoryService
+			    .newCache("org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer.url.cache");
+		}
+	    }
+	    
+	}
+
+
 	public ViewParameters getViewParameters() {
 		return new GeneralViewParameters();
 	}
@@ -1333,7 +1359,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createToolBarLink(ForumPickerProducer.VIEW_ID, toolBar, "add-forum", "simplepage.forum", currentPage, "simplepage.forum");
 		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar, "add-multimedia", "simplepage.multimedia", true, currentPage, "simplepage.multimedia.tooltip");
 		createToolBarLink(PermissionsHelperProducer.VIEW_ID, toolBar, "permissions", "simplepage.permissions", currentPage, "simplepage.permissions.tooltip");
-		UILink.make(toolBar, "help", messageLocator.getMessage("simplepage.help"), "/sakai-lessonbuildertool-tool/" + getLocalizedURL("templates/instructions/general.html"));
+		UILink.make(toolBar, "help", messageLocator.getMessage("simplepage.help"), getLocalizedURL("general.html"));
 	}
 
 	private GeneralViewParameters createToolBarLink(String viewID, UIContainer tofill, String ID, String message, SimplePage currentPage, String tooltip) {
@@ -1774,18 +1800,51 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIOutput.make(container, imageId).decorate(new UIFreeAttributeDecorator("src", imagePath)).decorate(new UIFreeAttributeDecorator("alt", imageAlt)).decorate(new UITooltipDecorator(imageAlt));
 	}
 
-private String getLocalizedURL(String defaultPath) {
+private String getLocalizedURL(String fileName) {
 
-	if ( defaultPath == null || defaultPath.trim().length()==0 )
-                        return defaultPath;
-                else
-                        defaultPath = defaultPath.trim();
+	if ( fileName == null || fileName.trim().length()==0 )
+	    return fileName;
+	else
+	    fileName = fileName.trim();
 
 	Locale locale = new ResourceLoader().getLocale();
 
-        int suffixIndex = defaultPath.lastIndexOf(".") >= 0 ? defaultPath.lastIndexOf(".") : defaultPath.length()-1;
-        String suffix = defaultPath.substring(suffixIndex);
-        String prefix = defaultPath.substring(0,suffixIndex);
+	String helploc = ServerConfigurationService.getString("lessonbuilder.helpfolder", null);
+
+	// we need to test the localized URL and return the initial one if it doesn't exists
+	// defaultPath will be the one to use if the localized one doesn't exist
+	String defaultPath = null;
+	// this is the part up to where we add the locale
+	String prefix = null;
+	// this is the part after the locale
+	String suffix = null;
+	// this is an additional prefix needed to make a full URL, for testing
+	String testPrefix = null;
+
+	int suffixIndex = fileName.lastIndexOf(".");
+	if (suffixIndex >= 0) {
+	    prefix = fileName.substring(0,suffixIndex);
+	    suffix = fileName.substring(suffixIndex);
+	} else {
+	    prefix = fileName;
+	    suffix = "";
+	}
+
+
+	if (helploc != null) {
+	    // user has specified a base URL. Will be absolute, but may not have http and hostname
+	    defaultPath = helploc + fileName;
+	    prefix = helploc + prefix;
+	    if (helploc.startsWith("http:") ||
+		helploc.startsWith("https:"))
+		testPrefix = "";  // absolute, can test as is
+	    else
+		testPrefix = myUrl(); // relative, need to make absolute
+	} else {
+	    defaultPath = "/sakai-lessonbuildertool-tool/templates/instructions/" + fileName;
+	    prefix = "/sakai-lessonbuildertool-tool/templates/instructions/" + prefix;
+	    testPrefix = myUrl();
+	}
 
 	String [] localeDetails = locale.toString().split("_");
 	int localeSize = localeDetails.length;
@@ -1794,19 +1853,19 @@ private String getLocalizedURL(String defaultPath) {
 
 	if (localeSize > 2) {
 		localizedPath = prefix + "_" + locale.toString() + suffix;
-		filePath = myUrl()+"/sakai-lessonbuildertool-tool/"+localizedPath;
+		filePath = testPrefix + localizedPath;
 		if ( UrlOk(filePath) ) return localizedPath;
 	}
 
 	if (localeSize > 1) {
 		localizedPath = prefix + "_" + locale.getLanguage() + "_" + locale.getCountry() + suffix;
-		filePath = myUrl()+"/sakai-lessonbuildertool-tool/"+localizedPath;
+		filePath = testPrefix + localizedPath;
 		if ( UrlOk(filePath) ) return localizedPath;
 	}
 
 	if (localeSize > 0) {
 		localizedPath = prefix + "_" + locale.getLanguage() + suffix;
-		filePath = myUrl()+"/sakai-lessonbuildertool-tool/"+localizedPath;
+		filePath = testPrefix + localizedPath;
 		if ( UrlOk(filePath) ) return localizedPath;
 	}
 
@@ -1815,16 +1874,26 @@ private String getLocalizedURL(String defaultPath) {
 }
 
 private boolean UrlOk(String url) {
+	Boolean cached = (Boolean)urlCache.get(url);
+	if (cached != null) {
+	    return (boolean)cached;
+	}
+
 	try {
 		HttpURLConnection.setFollowRedirects(false);
 		HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
 		con.setRequestMethod("HEAD");
-		return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
+		boolean ret = (con.getResponseCode() == HttpURLConnection.HTTP_OK);
+		urlCache.put(url, (Boolean)ret);
+		return ret;
 	} catch (ProtocolException e) {
+		urlCache.put(url, (Boolean)false);
 		return false;
 	} catch (IOException e) {
+		urlCache.put(url, (Boolean)false);
 		return false;
 	}
+
 }
 
 
