@@ -67,6 +67,7 @@
 			#end
 			</p>	
 #if ($incPw)
+  #if(!$!superUser)
       <p class="shorttext">
 				<label for="pwcur">
 					$tlang.getString("usecre.vercurpass")
@@ -77,7 +78,7 @@
 				&nbsp;
 			#end
 			</p>
-
+  #end
 			<p class="shorttext">
 				<label for="pw">
 					$tlang.getString("usecre.crenewpass")

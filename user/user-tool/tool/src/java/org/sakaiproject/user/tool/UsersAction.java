@@ -1013,11 +1013,13 @@ public class UsersAction extends PagedResourceActionII
 			user.setEmail(email);
 			if (type != null) user.setType(type);
 			
-            // make sure the old password matches
+      // make sure the old password matches, but don't check for super users
+      if (!SecurityService.isSuperUser()) {
             if (!user.checkPassword(pwcur)) {
               addAlert(state, rb.getString("usecre.curpass"));
                       return false;
             }
+      }
 
 			// make sure we have matching password fields
 			if (StringUtil.different(pw, pwConfirm))
