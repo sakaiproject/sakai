@@ -355,6 +355,8 @@ public class DiscussionForumTool
   
   private boolean needToPostFirst;
 
+  private String editorRows;
+  
    /**
    * 
    */
@@ -8383,6 +8385,14 @@ public class DiscussionForumTool
         }
         
         return threadHead;
+	}
+
+	public String getEditorRows() {
+		return ServerConfigurationService.getString("msgcntr.editor.rows", "22");
+	}
+
+	public void setEditorRows(String editorRows) {
+		this.editorRows = editorRows;
 	}
 
 }

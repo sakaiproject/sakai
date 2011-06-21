@@ -84,7 +84,7 @@
 			<%--RTEditor area - if enabled--%>
 		<h:panelGroup rendered="#{! ForumTool.disableLongDesc}">
 				<h:outputText id="outputLabel2"   value="#{msgs.cdfm_fullDescription}" style="display:block;padding:.5em 0"/>
-			<sakai:inputRichText textareaOnly="#{PrivateMessagesTool.mobileSession}" rows="12" cols="120" id="topic_description" value="#{ForumTool.selectedTopic.topic.extendedDescription}">
+			<sakai:inputRichText textareaOnly="#{PrivateMessagesTool.mobileSession}" rows="#{ForumTool.editorRows}" cols="120" id="topic_description" value="#{ForumTool.selectedTopic.topic.extendedDescription}">
 				<f:validateLength maximum="65000"/>
 			</sakai:inputRichText>
 		</h:panelGroup>
