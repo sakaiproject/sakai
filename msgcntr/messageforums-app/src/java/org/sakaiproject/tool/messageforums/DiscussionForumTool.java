@@ -7949,18 +7949,18 @@ public class DiscussionForumTool
 		params.put("messageId", msgId);
 		params.put("topicId", topicId);
 		params.put("forumId", forumId);
-		LOG.info("message: " + msgId + " topic: " + topicId + " forum: " + forumId);
+		LOG.debug("message: " + msgId + " topic: " + topicId + " forum: " + forumId);
 		
 		String context = SiteService.siteReference(ToolManager.getCurrentPlacement().getContext());
-		LOG.info("context: " + context);
+		LOG.debug("context: " + context);
 		
 		developerHelperService = getDevelperHelperService();
 		String url = "";
 		try{
 			url = developerHelperService.getToolViewURL("sakai.forums", path, params, context);
-			LOG.info("url: " + url);
+			LOG.debug("url: " + url);
 		}catch (Exception e) {
-			LOG.info(e);
+			LOG.warn(e);
 		}
 		return url;
 	}
