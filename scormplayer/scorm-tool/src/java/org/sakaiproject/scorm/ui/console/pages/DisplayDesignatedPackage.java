@@ -26,6 +26,7 @@ import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.ui.player.pages.PlayerPage;
+import org.sakaiproject.scorm.ui.reporting.pages.LearnerResultsPage;
 import org.sakaiproject.scorm.ui.reporting.pages.ResultsListPage;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.wicket.markup.html.SakaiPortletWebPage;
@@ -103,6 +104,15 @@ public class DisplayDesignatedPackage extends SakaiPortletWebPage implements IHe
         return params;
     }
     
+    protected PageParameters getParametersForPersonalResults(ContentPackage pkg) {
+        PageParameters params = new PageParameters();
+        params.add("contentPackageId", ""+pkg.getContentPackageId());
+        params.add("learnerId", lms.currentLearnerId());
+        params.add("no-toolbar", "true");
+        
+        return params;
+    }
+    
     public DisplayDesignatedPackage() {
         log.debug("DisplayDesignatedPackage page entered...");
         ComponentStrings strs = new ComponentStrings();
@@ -161,7 +171,12 @@ public class DisplayDesignatedPackage extends SakaiPortletWebPage implements IHe
         };
         
         // the following link points to the results page for the designated package
-        Link lnkResults = new BookmarkablePageLink("lnk_results", ResultsListPage.class, params) {
+        /*
+        if (canViewResults) {
+            actionColumn.addAction(new Action(new StringResourceModel("column.action.grade.label", this, null), LearnerResultsPage.class, paramPropertyExpressions));
+        }
+        */
+        Link lnkResults = new BookmarkablePageLink("lnk_results", LearnerResultsPage.class, getParametersForPersonalResults(pkg) ) {
             public boolean isVisible() {
                 String context = lms.currentContext();
                 return lms.canViewResults(context);

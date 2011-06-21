@@ -12,5 +12,6 @@
 	<function name="scorm.upload" />
 	<function name="scorm.validate" />
 	<function name="scorm.grade" />		
+	<function name="scorm.view.results" />
 	
 </registration>

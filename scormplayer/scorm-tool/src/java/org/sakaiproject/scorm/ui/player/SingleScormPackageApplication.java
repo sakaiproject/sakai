@@ -24,7 +24,6 @@ public class SingleScormPackageApplication extends SakaiWebApplication {
     
     @Override
     public Class getHomePage() {
-        log.debug(">>> Getting homepage DisplayDesignatedPackage.class");
         return DisplayDesignatedPackage.class;
     }
     
