@@ -5360,7 +5360,7 @@ public class DiscussionForumTool
 	  
 	  currMessage.setTopic((DiscussionTopic) forumManager
               .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
-      forumManager.saveMessage(currMessage);
+      forumManager.saveMessage(currMessage, true, true);
 	  
 	  if (displayDeniedMsg) // only displayed if from Deny & Comment path
 	  {

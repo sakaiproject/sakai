@@ -40,6 +40,16 @@ public interface MessageForumsMessageManager {
     public void saveMessage(Message message);
 
     public void saveMessage(Message message, boolean logEvent);
+    
+    /**
+     * 
+     * @param message
+     * @param logEvent
+     * @param ignoreLockedTopicForum set true if you want to allow the message
+     * to be updated even if the topic or forum is locked (ie marking as read or
+     * commenting on a moderated message)
+     */
+    public void saveMessage(Message message, boolean logEvent, boolean ignoreLockedTopicForum);
 
     public void deleteMessage(Message message);
 

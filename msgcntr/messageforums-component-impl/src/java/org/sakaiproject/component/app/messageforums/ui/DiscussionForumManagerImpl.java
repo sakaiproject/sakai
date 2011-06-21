@@ -424,7 +424,11 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 	  saveMessage(message, true);
   }
   
-  public void saveMessage(Message message, boolean logEvent)
+  public void saveMessage(Message message, boolean logEvent) {
+      saveMessage(message, logEvent, false);
+  }
+  
+  public void saveMessage(Message message, boolean logEvent, boolean ignoreLockedTopicForum)
   {
     if (LOG.isDebugEnabled())
     {
@@ -443,7 +447,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     	message.setModifiedBy(".anon");
     }
     
-    messageManager.saveMessage(message, logEvent);
+    messageManager.saveMessage(message, logEvent, ignoreLockedTopicForum);
   }
 
   /*

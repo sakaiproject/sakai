@@ -1213,6 +1213,10 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     	saveMessage(message, logEvent, ToolManager.getCurrentTool().getId(), getCurrentUser(), getContextId());
     }
     
+    public void saveMessage(Message message, boolean logEvent, boolean ignoreLockedTopicForum) {
+        saveMessage(message, logEvent, ToolManager.getCurrentTool().getId(), getCurrentUser(), getContextId(), ignoreLockedTopicForum);
+    }
+    
     public void saveMessage(Message message, boolean logEvent, String toolId, String userId, String contextId){
     	saveMessage(message, logEvent, toolId, userId, contextId, false);
     }

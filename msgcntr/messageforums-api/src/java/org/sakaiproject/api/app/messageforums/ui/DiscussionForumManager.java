@@ -106,6 +106,14 @@ public interface DiscussionForumManager
    */
   void saveMessage(Message message);
   void saveMessage(Message message, boolean logEvent);
+  /**
+   * 
+   * @param message
+   * @param logEvent
+   * @param ignoreLockedTopicForum set true if you want to allow the message
+     * to be updated even if the topic or forum is locked
+   */
+  public void saveMessage(Message message, boolean logEvent, boolean ignoreLockedTopicForum);
 
   /**
    * @param message
