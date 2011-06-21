@@ -854,9 +854,11 @@ public class UsersAction extends PagedResourceActionII
 		String email = StringUtils.trimToNull(data.getParameters().getString("email"));
 		state.setAttribute("valueEmail", email);
 		String pw = StringUtils.trimToNull(data.getParameters().getString("pw"));
-		String pwConfirm = StringUtils.trimToNull(data.getParameters().getString("pw0"));
+        String pwConfirm = StringUtils.trimToNull(data.getParameters().getString("pw0"));
 
-		String mode = (String) state.getAttribute("mode");
+        String pwcur = StringUtils.trimToNull(data.getParameters().getString("pwcur"));
+
+        String mode = (String) state.getAttribute("mode");
 		boolean singleUser = ((Boolean) state.getAttribute("single-user")).booleanValue();
 		boolean createUser = ((Boolean) state.getAttribute("create-user")).booleanValue();
 
@@ -1011,6 +1013,12 @@ public class UsersAction extends PagedResourceActionII
 			user.setEmail(email);
 			if (type != null) user.setType(type);
 			
+            // make sure the old password matches
+            if (!user.checkPassword(pwcur)) {
+              addAlert(state, rb.getString("usecre.curpass"));
+                      return false;
+            }
+
 			// make sure we have matching password fields
 			if (StringUtil.different(pw, pwConfirm))
 			{

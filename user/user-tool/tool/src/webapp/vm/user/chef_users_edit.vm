@@ -67,6 +67,17 @@
 			#end
 			</p>	
 #if ($incPw)
+      <p class="shorttext">
+				<label for="pwcur">
+					$tlang.getString("usecre.vercurpass")
+				</label>
+			#if ($service.allowUpdateUserPassword($user.Id) || !$user)
+				<input type="password" name="pwcur" id="pwcur" />
+			#else
+				&nbsp;
+			#end
+			</p>
+
 			<p class="shorttext">
 				<label for="pw">
 					$tlang.getString("usecre.crenewpass")
