@@ -147,6 +147,7 @@ public class DeliveryBean
   private String errorMessage;
   private SettingsDeliveryBean settings;
   private java.util.Date dueDate;
+  private java.util.Date retractDate;
   private boolean statsAvailable;
   private boolean submitted;
   private boolean graded;
@@ -1008,7 +1009,17 @@ public class DeliveryBean
   {
     this.dueDate = dueDate;
   }
+  
+  public java.util.Date getRetractDate()
+  {
+    return retractDate;
+  }
 
+  public void setRetractDate(java.util.Date retractDate)
+  {
+    this.retractDate = retractDate;
+  }
+  
   public boolean isStatsAvailable()
   {
     return statsAvailable;
@@ -1346,7 +1357,7 @@ public class DeliveryBean
 	  if (this.actionMode == PREVIEW_ASSESSMENT) {
 		  return "editAssessment";
 	  }	  
-	  String nextAction = checkBeforeProceed(true);
+	  String nextAction = checkBeforeProceed(true, isFromTimer);
 	  log.debug("***** next Action="+nextAction);
 	  if (!("safeToProceed").equals(nextAction)){
 		  return nextAction;
@@ -2742,8 +2753,8 @@ public class DeliveryBean
   {
 	  this.noQuestions = noQuestions;
   }
-
-  public String checkBeforeProceed(boolean isSubmitForGrade){
+  
+  public String checkBeforeProceed(boolean isSubmitForGrade, boolean isFromTimer){
     // public method, who know if publishedAssessment is set, so check
     // to be sure
     if (getPublishedAssessment() == null){
@@ -2777,7 +2788,7 @@ public class DeliveryBean
     
     log.debug("check 2");
     // check 2: is it still available?
-    if (isRetracted(isSubmitForGrade)){
+    if (!isFromTimer && isRetracted(isSubmitForGrade)){
      return "isRetracted";
     }
     
@@ -2862,7 +2873,7 @@ public class DeliveryBean
   }
   
   public String checkBeforeProceed(){
-	  return checkBeforeProceed(false);
+	  return checkBeforeProceed(false, false);
   }
 
   private boolean getHasSubmissionLeft(int totalSubmitted, int numberRetake){
@@ -3094,13 +3105,21 @@ public class DeliveryBean
         log.debug("numberRetake = " + numberRetake);
         actualNumberRetake = gradingService.getActualNumberRetake(publishedAssessment.getPublishedAssessmentId(), AgentFacade.getAgentString());
 		log.debug("actualNumberRetake =" + actualNumberRetake);
-  	    if (!("previewAssessment").equals(actionString) && 
-  	    	(this.dueDate != null && !acceptLateSubmission && actualNumberRetake >= numberRetake)) {
-  	    	int timeBeforeDue  = Math.round((float)(this.dueDate.getTime() - (new Date()).getTime())/1000.0f); //in sec
-			if (timeBeforeDue < Integer.parseInt(timeLimit)) {
-				return String.valueOf(timeBeforeDue);
+		if (!("previewAssessment").equals(actionString) && actualNumberRetake >= numberRetake) { 
+			if (dueDate != null && !acceptLateSubmission) {
+				int timeBeforeDue  = Math.round((float)(dueDate.getTime() - (new Date()).getTime())/1000.0f); //in sec
+				if (timeBeforeDue < Integer.parseInt(timeLimit)) {
+					return String.valueOf(timeBeforeDue);
+				}
+			}
+			if (retractDate != null) {
+				int timeBeforeRetract  = Math.round((float)(retractDate.getTime() - (new Date()).getTime())/1000.0f); //in sec
+				if (timeBeforeRetract < Integer.parseInt(timeLimit)) {
+					return String.valueOf(timeBeforeRetract);
+				}
 			}
 		}
+		
 		return timeLimit;
 	  }
 	  

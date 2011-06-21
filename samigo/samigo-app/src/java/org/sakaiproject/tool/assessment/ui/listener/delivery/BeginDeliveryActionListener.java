@@ -253,6 +253,7 @@ public class BeginDeliveryActionListener implements ActionListener
     delivery.setBeginTime(null);
     delivery.setFeedbackOnDate(false);
     delivery.setDueDate(control.getDueDate());
+    delivery.setRetractDate(control.getRetractDate());
     
     if (control.getMarkForReview() != null && (Integer.valueOf(1)).equals(control.getMarkForReview())) {
     	delivery.setDisplayMardForReview(true);

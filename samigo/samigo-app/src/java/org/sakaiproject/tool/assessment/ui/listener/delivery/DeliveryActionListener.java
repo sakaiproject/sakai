@@ -2161,11 +2161,20 @@ public class DeliveryActionListener
 	    AssessmentGradingData ag = delivery.getAssessmentGrading();
 	    //boolean zeroTimeElapsed = false;
 	    boolean acceptLateSubmission = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(delivery.getPublishedAssessment().getAssessmentAccessControl().getLateHandling());
+	    int timeLimit = Integer.parseInt(delivery.getPublishedAssessment().getAssessmentAccessControl().getTimeLimit().toString());
+		// due date
 	    if (delivery.getDueDate() != null && !acceptLateSubmission) {
 	    	int timeBeforeDue  = Math.round((float)(delivery.getDueDate().getTime() - (new Date()).getTime())/1000.0f); //in sec
-	    	int timeLimit = Integer.parseInt(delivery.getPublishedAssessment().getAssessmentAccessControl().getTimeLimit().toString());
-			if (timeBeforeDue < timeLimit && fromBeginAssessment) {
-				//zeroTimeElapsed = true;
+	    	if (timeBeforeDue < timeLimit && fromBeginAssessment) {
+				delivery.setTimeElapse("0");
+				timedAG.setBeginDate(new Date());
+				return;
+			}
+	    }
+	    // retract date
+	    if (delivery.getRetractDate() != null) {
+	    	int timeBeforeRetract  = Math.round((float)(delivery.getRetractDate().getTime() - (new Date()).getTime())/1000.0f); //in sec
+	    	if (timeBeforeRetract < timeLimit && fromBeginAssessment) {
 				delivery.setTimeElapse("0");
 				timedAG.setBeginDate(new Date());
 				return;
