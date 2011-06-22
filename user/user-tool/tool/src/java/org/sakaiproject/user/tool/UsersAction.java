@@ -325,6 +325,8 @@ public class UsersAction extends PagedResourceActionII
 
 		context.put("incType", Boolean.valueOf(true));
 
+    context.put("superUser", Boolean.valueOf(SecurityService.isSuperUser()));
+
 		String value = (String) state.getAttribute("valueEid");
 		if (value != null) context.put("valueEid", value);
 
