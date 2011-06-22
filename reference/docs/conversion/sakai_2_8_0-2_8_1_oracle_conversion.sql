@@ -12,3 +12,6 @@ update ANNOUNCEMENT_MESSAGE set MESSAGE_ORDER='1', XML=REPLACE(XML, ' subject=',
 DELETE FROM SAKAI_CLUSTER;
 -- Change the datatype
 ALTER TABLE SAKAI_CLUSTER MODIFY (UPDATE_TIME TIMESTAMP WITH TIME ZONE); 
+
+-- SAK-20717 mailarchive messages need updating with new field
+UPDATE mailarchive_message SET xml = REPLACE(XML, ' mail-from="', ' message_order="1" mail-from="') WHERE xml NOT LIKE '% message_order="1" %';

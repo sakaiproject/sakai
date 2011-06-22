@@ -4,3 +4,6 @@ update ANNOUNCEMENT_MESSAGE set MESSAGE_ORDER='1', XML=REPLACE(XML, ' subject=',
 
 -- KNL-725 use a column type that stores the timezone
 alter table SAKAI_CLUSTER change UPDATE_TIME UPDATE_TIME TIMESTAMP;
+
+-- SAK-20717 mailarchive messages need updating with new field
+UPDATE mailarchive_message SET xml = REPLACE(XML, ' mail-from="', ' message_order="1" mail-from="') WHERE xml NOT LIKE '% message_order="1" %';
