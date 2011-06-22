@@ -319,6 +319,8 @@ public class CPValidator extends ADLSCORMValidator implements IValidator
       {
          rootDirectory = mBaseDirectory = getPathOfFile(iFileName);
       }
+      
+      try {
 
       // Create the absolute URL for the location of the imsmanifest.xml
       String imsManifestFile = mBaseDirectory + "imsmanifest.xml";
@@ -474,6 +476,11 @@ public class CPValidator extends ADLSCORMValidator implements IValidator
       mLogger.debug("CPValidator validate()");
 
       return validateResult;
+      } finally {
+          if ( new File(mBaseDirectory).exists() ) {
+              cleanImportDirectory(mBaseDirectory);
+          }
+      }
    }
 
    /**
