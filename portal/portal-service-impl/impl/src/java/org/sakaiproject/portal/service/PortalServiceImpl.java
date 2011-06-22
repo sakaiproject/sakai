@@ -416,7 +416,7 @@ public class PortalServiceImpl implements PortalService
 		return getHandlerMap(portal.getPortalContext(), true);
 	}
 
-	@SuppressWarnings("unchecked")
+	
 	private Map<String, PortalHandler> getHandlerMap(String portalContext, boolean create)
 	{
 		Map<String, PortalHandler> handlerMap = handlerMaps.get(portalContext);
