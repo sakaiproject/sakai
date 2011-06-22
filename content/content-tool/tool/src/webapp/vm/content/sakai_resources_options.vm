@@ -22,7 +22,7 @@
 		<input type="hidden" name="siteId" id="siteId" value="$siteId" />
 		######################## ================ Title Bar for Item ================ ########################
 		<h4>
-			$title
+			$validator.escapeHtml($title)
 		</h4>
 		#if ($itemAlertMessage)
 			<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
