@@ -48,39 +48,6 @@ function toPoint(id)
   document.getElementById(id).value=x.replace(',','.')
 }
 
-function clickEmailLink(field){
-var emaillinkid= field.id.replace("createEmail", "hiddenlink");
-
-var newindex = 0;
-for (i=0; i<document.links.length; i++) {
-  if(document.links[i].id == emaillinkid)
-  {
-    newindex = i;
-    break;
-  }
-}
-
-document.links[newindex].onclick();
-window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height=600,scrollbars=yes, resizable=yes');
-}
-
-function clickEmailLink(field, fromName, fromEmailAddress, toName, toEmailAddress, assessmentName){
-var emaillinkid= field.id.replace("createEmail", "hiddenlink");
-var newindex = 0;
-for (i=0; i<document.links.length; i++) {
-  if(document.links[i].id == emaillinkid)
-  {
-    newindex = i;
-    break;
-  }
-}
-
-document.links[newindex].onclick();
-window.open("../evaluation/createNewEmail.faces?fromEmailLinkClick=true&fromName=" + fromName + "&fromEmailAddress=" + fromEmailAddress + "&toName=" + toName + "&toEmailAddress=" + toEmailAddress +  "&assessmentName=" + assessmentName,'createEmail','width=600,height=600,scrollbars=yes, resizable=yes');
-
-document.location='../evaluation/gradeStudentResult';
-}
-
 </script>
 
  <div class="portletBody">
@@ -278,14 +245,14 @@ document.location='../evaluation/gradeStudentResult';
 <h:outputText value="#{author.updateFormTime}" />
 <h:inputHidden value="#{author.currentFormTime}" />
 
-<h:outputLink tabindex="-1" id="createEmail1" onclick="clickEmailLink(this, \"#{totalScores.graderName}\", \"#{totalScores.graderEmailInfo}\", \"#{studentScores.firstName} #{studentScores.lastName}\", \"#{studentScores.email}\", \"#{totalScores.assessmentName}\");" value="#"> 
-  <h:outputText value="  #{evaluationMessages.email} #{studentScores.firstName}" rendered="#{studentScores.email != null && studentScores.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != '' && totalScores.anonymous ne 'true'}" />
-</h:outputLink>
-
-<h:commandLink tabindex="-1" id="hiddenlink1" value="" action="studentScores">
-  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.util.EmailListener" />
-  <f:param name="toUserId" value="#{studentScores.studentId}" />
-</h:commandLink>
+<h:panelGroup rendered="#{studentScores.email != null && studentScores.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
+  <h:outputText value="<a href=\"mailto:" escape="false" />
+  <h:outputText value="#{studentScores.email}" escape="false" />
+  <h:outputText value="?subject=" escape="false" />
+  <h:outputText value="#{totalScores.assessmentName} #{commonMessages.feedback}\">" escape="false" />
+  <h:outputText value="  #{evaluationMessages.email} #{studentScores.firstName}" escape="false"/>
+  <h:outputText value="</a>" escape="false" />
+</h:panelGroup>
 
 <p class="act">
    <h:commandButton styleClass="active" value="#{evaluationMessages.save_cont}" action="totalScores" type="submit">

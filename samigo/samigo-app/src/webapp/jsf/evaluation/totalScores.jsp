@@ -53,24 +53,6 @@ function toPoint(id)
   document.getElementById(id).value=x.replace(',','.')
 }
 
-function clickEmailLink(field, fromName, fromEmailAddress, toName, toEmailAddress, assessmentName){
-var emaillinkid= field.id.replace("createEmail", "hiddenlink");
-var newindex = 0;
-for (i=0; i<document.links.length; i++) {
-  if(document.links[i].id == emaillinkid)
-  {
-    newindex = i;
-    break;
-  }
-}
-
-document.links[newindex].onclick();
-pause(500);
-window.open("../evaluation/createNewEmail.faces?fromEmailLinkClick=true&fromName=" + fromName + "&fromEmailAddress=" + fromEmailAddress + "&toName=" + toName + "&toEmailAddress=" + toEmailAddress +  "&assessmentName=" + assessmentName,'createEmail','width=600,height=600,scrollbars=yes, resizable=yes');
-
-document.location='../evaluation/totalScores';
-}
-
 function pause(numberMillis)
 {
 var now = new Date();
@@ -335,16 +317,17 @@ function disableIt()
      </h:panelGroup>
      <f:verbatim><br/></f:verbatim>
 	 <span class="itemAction">
-	   <h:outputLink id="createEmail1" onclick="clickEmailLink(this, \"#{totalScores.graderName}\", \"#{totalScores.graderEmailInfo}\", \"#{description.firstName} #{description.lastName}\", \"#{description.email}\", \"#{totalScores.assessmentName}\");" value="#">
-	     <h:outputText value="  #{evaluationMessages.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
-	   </h:outputLink>
+	   <h:panelGroup rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
+		 <h:outputText value="<a href=\"mailto:" escape="false" />
+	     <h:outputText value="#{description.email}" escape="false" />
+	     <h:outputText value="?subject=" escape="false" />
+		 <h:outputText value="#{totalScores.assessmentName} #{commonMessages.feedback}\">" escape="false" />
+         <h:outputText value="  #{evaluationMessages.email}" escape="false"/>
+         <h:outputText value="</a>" escape="false" />
+	   </h:panelGroup>
 	 </span>
-
    	</span>
-	<h:commandLink id="hiddenlink1" value="" action="totalScores">
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.util.EmailListener" />
-		  <f:param name="toUserId" value="#{description.idString}" />
-	</h:commandLink>
+	
     </h:column>
 
     <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType eq 'lastName' && totalScores.sortAscending}">
@@ -383,15 +366,17 @@ function disableIt()
      </h:panelGroup>
      <f:verbatim><br/></f:verbatim>
 	 <span class="itemAction">
-	   <h:outputLink id="createEmail2" onclick="clickEmailLink(this, \"#{totalScores.graderName}\", \"#{totalScores.graderEmailInfo}\", \"#{description.firstName} #{description.lastName}\", \"#{description.email}\", \"#{totalScores.assessmentName}\");" value="#">
-	     <h:outputText value="  #{evaluationMessages.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
-	   </h:outputLink>
+	   <h:panelGroup rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
+		 <h:outputText value="<a href=\"mailto:" escape="false" />
+	     <h:outputText value="#{description.email}" escape="false" />
+	     <h:outputText value="?subject=" escape="false" />
+		 <h:outputText value="#{totalScores.assessmentName} #{commonMessages.feedback}\">" escape="false" />
+         <h:outputText value="  #{evaluationMessages.email}" escape="false"/>
+         <h:outputText value="</a>" escape="false" />
+	   </h:panelGroup>
 	 </span>
    	</span>
-	<h:commandLink id="hiddenlink2" value="" action="totalScores">
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.util.EmailListener" />
-		  <f:param name="toUserId" value="#{description.idString}" />
-	</h:commandLink>
+	
     </h:column>
 
     <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType eq 'lastName' && !totalScores.sortAscending}">
@@ -428,19 +413,20 @@ function disableIt()
          <f:param name="gradingData" value="#{description.assessmentGradingId}" />
        </h:commandLink>
      </h:panelGroup>
+
      <f:verbatim><br/></f:verbatim>
-     <f:verbatim><br/></f:verbatim>
+
 	 <span class="itemAction">
-	   <h:outputLink id="createEmail3" onclick="clickEmailLink(this, \"#{totalScores.graderName}\", \"#{totalScores.graderEmailInfo}\", \"#{description.firstName} #{description.lastName}\", \"#{description.email}\", \"#{totalScores.assessmentName}\");" value="#">
-	     <h:outputText value="  #{evaluationMessages.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
-	  </h:outputLink>
+	  <h:panelGroup rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
+		 <h:outputText value="<a href=\"mailto:" escape="false" />
+	     <h:outputText value="#{description.email}" escape="false" />
+	     <h:outputText value="?subject=" escape="false" />
+		 <h:outputText value="#{totalScores.assessmentName} #{commonMessages.feedback}\">" escape="false" />
+         <h:outputText value="  #{evaluationMessages.email}" escape="false"/>
+         <h:outputText value="</a>" escape="false" />
+	   </h:panelGroup>
 	  </span>
    	</span>
-
-	<h:commandLink id="hiddenlink3" value="" action="totalScores">
-          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.util.EmailListener" />
-		  <f:param name="toUserId" value="#{description.idString}" />
-	</h:commandLink>
 	</h:column>
     
 
