@@ -1320,7 +1320,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			assignmentEntity = e;
 	}
 
-	static MemoryService memoryService = null;
+	private MemoryService memoryService = null;
 	public void setMemoryService(MemoryService m) {
 	    memoryService = m;
 	    // do this here rather than in an initializer because we need memoryservice
@@ -1328,9 +1328,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	    // when we have the lock
 	    if (urlCache == null) {
 		synchronized(urlCacheLock) {
-		    if (urlCache == null) 
+		    if (urlCache == null) {
 			urlCache = memoryService
 			    .newCache("org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer.url.cache");
+		    }
 		}
 	    }
 	    
