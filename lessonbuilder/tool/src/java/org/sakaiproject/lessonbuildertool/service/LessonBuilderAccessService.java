@@ -197,6 +197,13 @@ public class LessonBuilderAccessService
     /**
      * {@inheritDoc}
      */
+    // understand /access/lessonbuilder/item/MMM/group/NNNN/name.html
+    // we do Lesson Builder access control in item MMM, and resources control on /group...
+    // The problem is that HTML can refer to other content, so without parsing all the HTML we have no real way to
+    // know whether a reference actually comes from an item or not. So it the user makes up a reference using an
+    // item number they have access to, they can access any item they're allowed to read. There's no obvious way
+    // to do better without a *LOT* of work
+
     public HttpAccess getHttpAccess() {
 	return new HttpAccess() {
 
@@ -208,13 +215,20 @@ public class LessonBuilderAccessService
 		String refId = ref.getId();
 		if (refId == null) refId = "";
 		
-		if (!refId.startsWith("/item"))
+		if (!refId.startsWith("/item")) {
 		    throw new EntityNotDefinedException(ref.getReference());
+		}
 		
 		String itemString = refId.substring("/item/".length());
-		int i = itemString.lastIndexOf(".");
-		if (i >= 0)
-		    itemString = itemString.substring(0, i);
+		// string is of form /item/NNN/url. get the number
+		int i = itemString.indexOf("/");
+		if (i < 0) {
+		    throw new EntityNotDefinedException(ref.getReference());
+		}
+
+		String id = itemString.substring(i);
+		itemString = itemString.substring(0, i);
+
 		Long itemId = 0L;
 		try {
 		    itemId = (Long)Long.parseLong(itemString);
@@ -223,14 +237,14 @@ public class LessonBuilderAccessService
 		}
 
 		SimplePageItem item = simplePageToolDao.findItem(itemId.longValue());
-		if (item == null || (item.getType() != SimplePageItem.RESOURCE && item.getType() != SimplePageItem.MULTIMEDIA))
+		if (item == null || (item.getType() != SimplePageItem.RESOURCE && item.getType() != SimplePageItem.MULTIMEDIA)) {
 		    throw new EntityNotDefinedException(ref.getReference());
+		}
 
-		String id = item.getSakaiId();
-
-		if (!allowGetResource(id))
+		if (!allowGetResource(id)) {
 		    throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), ContentHostingService.AUTH_RESOURCE_READ, ref.getReference());
-		
+		}		
+
 		if (item.isPrerequisite()) {
 		    // computing requirements is so messy that it's worth instantiating
 		    // a SimplePageBean to do it. Otherwise we have to duplicate lots of

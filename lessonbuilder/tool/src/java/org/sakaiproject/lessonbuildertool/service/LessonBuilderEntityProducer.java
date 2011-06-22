@@ -726,7 +726,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
        i = id.indexOf("/", 1);
        type = id.substring(1, i);
        String numstring = id.substring(i+1);
-       i = numstring.indexOf(".");
+       i = numstring.indexOf("/");
        if (i >= 0)
 	   numstring = numstring.substring(0, i);
 
