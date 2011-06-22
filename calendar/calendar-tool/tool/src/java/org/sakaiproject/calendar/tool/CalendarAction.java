@@ -2327,7 +2327,7 @@ extends VelocityPortletStateAction
 		{
 			stateName = portlet.getPortletConfig().getInitParameter(PORTLET_CONFIG_DEFAULT_VIEW);
 			if (stateName == null) 
-				stateName = "week";
+				stateName = ServerConfigurationService.getString("calendar.default.view", "week");
 			state.setState(stateName);
 		}
 		
