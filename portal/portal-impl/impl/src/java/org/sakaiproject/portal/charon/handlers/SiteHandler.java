@@ -475,12 +475,6 @@ public class SiteHandler extends WorksiteHandler
 		{
 
 			String skin = getSiteSkin(siteId);
-
-			if (skin == null)
-			{
-				skin = ServerConfigurationService.getString("skin.default");
-			}
-			
 			String skinRepo = ServerConfigurationService.getString("skin.repo");
 			rcontext.put("logoSkin", skin);
 			rcontext.put("logoSkinRepo", skinRepo);
@@ -521,6 +515,14 @@ public class SiteHandler extends WorksiteHandler
 				// Ignore
 			}
 		}
+
+		if (skin == null)
+		{
+			skin = ServerConfigurationService.getString("skin.default");
+		}
+		String templates = ServerConfigurationService.getString("portal.templates", "neoskin");
+		String prefix = ServerConfigurationService.getString("portal.neoprefix", "neo-");
+		if ( "neoskin".equals(templates) ) skin = prefix + skin;
 		return skin;
 	}
 

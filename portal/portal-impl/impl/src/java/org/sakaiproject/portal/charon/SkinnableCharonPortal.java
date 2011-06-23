@@ -1370,6 +1370,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// js includes, etc).
 		if (skin == null || skin.length() == 0)
 			skin = ServerConfigurationService.getString("skin.default");
+
+		// Adjust skin name if we are in the neo Portal
+		String templates = ServerConfigurationService.getString("portal.templates", "neoskin");
+		String prefix = ServerConfigurationService.getString("portal.neoprefix", "neo-");
+		if ( "neoskin".equals(templates) ) skin = prefix + skin;
+
 		String skinRepo = ServerConfigurationService.getString("skin.repo");
 		String headCssToolBase = "<link href=\""
 			+ skinRepo
@@ -2076,6 +2082,24 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Do the getSiteSkin, adjusting for the overall skin/templates for the portal.
+	 * 
+	 * @return The skin
+	 */
+	protected String getSiteSkin(String siteId)
+	{
+		String skin = SiteService.getSiteSkin(siteId);
+		if (skin == null)
+		{
+			skin = ServerConfigurationService.getString("skin.default");
+		}
+		String templates = ServerConfigurationService.getString("portal.templates", "neoskin");
+		String prefix = ServerConfigurationService.getString("portal.neoprefix", "neo-");
+		if ( "neoskin".equals(templates) ) skin = prefix + skin;
+		return skin;
 	}
 
 }

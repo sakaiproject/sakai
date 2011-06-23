@@ -309,7 +309,7 @@ public class CharonPortal extends HttpServlet
 	protected void doGalleryTabs(HttpServletRequest req, HttpServletResponse res,
 			Session session, String siteId) throws IOException
 	{
-		String skin = SiteService.getSiteSkin(siteId);
+		String skin = getSiteSkin(siteId);
 
 		// start the response
 		PrintWriter out = startResponse(res, "Site Navigation", skin, false);
@@ -1376,7 +1376,7 @@ public class CharonPortal extends HttpServlet
 			Session session, String siteId) throws IOException
 	{
 		// get the site's skin
-		String skin = SiteService.getSiteSkin(siteId);
+		String skin = getSiteSkin(siteId);
 
 		// start the response
 		PrintWriter out = startResponse(res, "Site Navigation", skin, false);
@@ -1888,11 +1888,7 @@ public class CharonPortal extends HttpServlet
 	protected void includeLogo(PrintWriter out, HttpServletRequest req, Session session,
 			String siteId) throws IOException
 	{
-		String skin = SiteService.getSiteSkin(siteId);
-		if (skin == null)
-		{
-			skin = ServerConfigurationService.getString("skin.default");
-		}
+		String skin = getSiteSkin(siteId);
 		String skinRepo = ServerConfigurationService.getString("skin.repo");
 
 		String logo = skinRepo + "/" + skin + "/images/logo_inst.gif";
@@ -3113,4 +3109,23 @@ public class CharonPortal extends HttpServlet
 			throw e;
 		}
 	}
+
+	/**
+	 * Do the getSiteSkin, adjusting for the overall skin/templates for the portal.
+	 * 
+	 * @return The skin
+	 */
+	protected String getSiteSkin(String siteId)
+	{
+		String skin = SiteService.getSiteSkin(siteId);
+		if (skin == null)
+		{
+			skin = ServerConfigurationService.getString("skin.default");
+		}
+		String templates = ServerConfigurationService.getString("portal.templates", "neoskin");
+		String prefix = ServerConfigurationService.getString("portal.neoprefix", "neo-");
+		if ( "neoskin".equals(templates) ) skin = prefix + skin;
+		return skin;
+	}
+
 }
