@@ -7172,7 +7172,7 @@ public class DiscussionForumTool
       return totalGroupsUsersList;
     }
          
-    courseMemberMap = membershipManager.getAllCourseMembers(true, false, false);
+    courseMemberMap = membershipManager.getAllCourseMembers(true, false, false, null);
  
     List members = membershipManager.convertMemberMapToList(courseMemberMap);
     totalGroupsUsersList = new ArrayList();

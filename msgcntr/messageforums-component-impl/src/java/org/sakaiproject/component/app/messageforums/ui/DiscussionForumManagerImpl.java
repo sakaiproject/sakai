@@ -2102,7 +2102,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     }
     if (courseMemberMap == null)
     {
-      courseMemberMap = membershipManager.getAllCourseMembers(true, false, true);
+      courseMemberMap = membershipManager.getAllCourseMembers(true, false, true, null);
     }
     return courseMemberMap;
   }

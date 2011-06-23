@@ -119,4 +119,8 @@ public interface Area extends MutableEntity {
     public Boolean getPostFirst();
     
     public void setPostFirst(Boolean postFirst);
+    
+    public Set getHiddenGroups();
+       
+    public void setHiddenGroups(Set hiddenGroups);
 }

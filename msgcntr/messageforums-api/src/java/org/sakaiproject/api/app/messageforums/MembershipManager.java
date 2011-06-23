@@ -30,22 +30,26 @@ public interface MembershipManager {
    * Return hash map for direct access to members via id
    * (used in UI when for selected list items)<br>
    * Filter roles/groups which do not have members
+   * To ignore hidden groups, pass in a null value
    * @param filterFerpa
+   * @param hiddenGroups
    * @return map of members
    */
-  public Map getFilteredCourseMembers(boolean filterFerpa);
+  public Map getFilteredCourseMembers(boolean filterFerpa, List<String> hiddenGroups);
   
     
   /**
    * Get members for course all/user/role/group<br>
    * Return hash map for direct access to members via id
    * (used in UI when for selected list items)<br>
+   * To ignore hidden groups, pass in a null value
    * @param filterFerpa
    * @param includeRoles
    * @param includeAllParticipantsMember
+   * @param hiddenGroups
    * @return map of members
    */
-  public Map getAllCourseMembers(boolean filterFerpa, boolean includeRoles, boolean includeAllParticipantsMember);
+  public Map getAllCourseMembers(boolean filterFerpa, boolean includeRoles, boolean includeAllParticipantsMember, List<String> hiddenGroups);
   
   /**
    * get all users for course w/o filtering of FERPA enabled members

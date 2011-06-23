@@ -23,6 +23,7 @@ package org.sakaiproject.tool.messageforums;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -47,8 +48,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.DefaultPermissionsManager;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
+import org.sakaiproject.api.app.messageforums.HiddenGroup;
 import org.sakaiproject.api.app.messageforums.MembershipManager;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
@@ -66,6 +69,7 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.HiddenGroupImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -74,6 +78,8 @@ import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.ToolSession;
@@ -81,6 +87,7 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.messageforums.ui.DecoratedAttachment;
+import org.sakaiproject.tool.messageforums.ui.PermissionBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateForumDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateMessageDecoratedBean;
 import org.sakaiproject.tool.messageforums.ui.PrivateTopicDecoratedBean;
@@ -323,6 +330,14 @@ public class PrivateMessagesTool
   
   private boolean instructor = false;
   
+  private List<SelectItem> nonHiddenGroups = new ArrayList<SelectItem>();
+  private List<HiddenGroup> hiddenGroups = new ArrayList();
+  private static final String DEFAULT_NON_HIDDEN_GROUP_ID = "-1";
+  private String DEFAULT_NON_HIDDEN_GROUP_TITLE = "hiddenGroups_selectGroup";
+  private String selectedNonHiddenGroup = DEFAULT_NON_HIDDEN_GROUP_ID;
+  private static final String PARAM_GROUP_ID = "groupId";
+  private boolean currentSiteHasGroups = false;
+  
   public PrivateMessagesTool()
   {    
   }
@@ -388,7 +403,14 @@ public class PrivateMessagesTool
       activatePvtMsg = (Boolean.TRUE.equals(area.getEnabled())) ? SET_AS_YES : SET_AS_NO;
       sendEmailOut = (Boolean.TRUE.equals(area.getSendEmailOut())) ? SET_AS_YES : SET_AS_NO;
       forwardPvtMsg = (Boolean.TRUE.equals(pf.getAutoForward())) ? SET_AS_YES : SET_AS_NO;
-      forwardPvtMsgEmail = pf.getAutoForwardEmail();     
+      forwardPvtMsgEmail = pf.getAutoForwardEmail();
+      hiddenGroups = new ArrayList<HiddenGroup>();
+      if(area != null && area.getHiddenGroups() != null){
+	for(Iterator itor = area.getHiddenGroups().iterator(); itor.hasNext();){
+    	  HiddenGroup group = (HiddenGroup) itor.next();
+    	  hiddenGroups.add(group);
+	}
+      }
     } 
   }
   
@@ -905,7 +927,7 @@ public class PrivateMessagesTool
     
     totalComposeToListRecipients = new ArrayList();
  
-    courseMemberMap = membershipManager.getFilteredCourseMembers(true);
+    courseMemberMap = membershipManager.getFilteredCourseMembers(true, getHiddenGroupIds(area.getHiddenGroups()));
 //    courseMemberMap = membershipManager.getAllCourseMembers(true, true, true);
     List members = membershipManager.convertMemberMapToList(courseMemberMap);
 
@@ -930,6 +952,19 @@ public class PrivateMessagesTool
 	}
 
 	return selectItemList;       
+  }
+  
+  private List<String> getHiddenGroupIds(Set hiddenGroups){
+	  List<String> returnList = new ArrayList<String>();
+	  
+	  if(hiddenGroups != null){
+		  for(Iterator itor = hiddenGroups.iterator(); itor.hasNext();){
+	    	  HiddenGroup group = (HiddenGroup) itor.next();
+	    	  returnList.add(group.getGroupId());
+		  }
+	  }
+	  
+	  return returnList;
   }
   
   /**
@@ -3715,6 +3750,8 @@ private   int   getNum(char letter,   String   a)
       else{
         forum.setAutoForwardEmail(null);  
       }
+      
+      area.setHiddenGroups(new HashSet(hiddenGroups));
              
       prtMsgManager.saveAreaAndForumSettings(area, forum);
 
@@ -4959,4 +4996,118 @@ private   int   getNum(char letter,   String   a)
 		String rv = session.getAttribute("is_wireless_device") != null && ((Boolean) session.getAttribute("is_wireless_device")).booleanValue()?"true":"false"; 
 		return rv;
 	}
+	
+	public boolean getCurrentSiteHasGroups(){
+		Site currentSite = getCurrentSite();
+		if(currentSite != null){
+			return currentSite.hasGroups();
+		}else{
+			return false;
+		}
+	}
+	
+	public Site getCurrentSite(){
+		try{
+			return SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+		} catch (IdUnusedException e) {
+			LOG.error(e);
+		}
+		return null;
+	}
+	
+	public List<SelectItem> getNonHiddenGroups(){
+		nonHiddenGroups = new ArrayList<SelectItem>();
+		nonHiddenGroups.add(new SelectItem(DEFAULT_NON_HIDDEN_GROUP_ID, getResourceBundleString(DEFAULT_NON_HIDDEN_GROUP_TITLE)));
+		
+		Site currentSite = getCurrentSite();   
+		if(currentSite.hasGroups()){
+	      
+			Collection groups = currentSite.getGroups();
+
+			groups = sortGroups(groups);
+
+			for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
+			{
+				Group currentGroup = (Group) groupIterator.next();
+				if(!isGroupHidden(currentGroup.getTitle())){
+					nonHiddenGroups.add(new SelectItem(currentGroup.getTitle(), currentGroup.getTitle()));
+				}				
+			}		
+		}
+		
+		return nonHiddenGroups;		
+	}
+	
+	private boolean isGroupHidden(String groupName){
+		for (HiddenGroup hiddenGroup : getHiddenGroups()) {
+			if(hiddenGroup.getGroupId().equals(groupName)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public List<HiddenGroup> getHiddenGroups(){
+		return hiddenGroups;
+	}
+	
+	public void setHiddenGroups(List<HiddenGroup> hiddenGroups){
+		this.hiddenGroups = hiddenGroups;
+	}
+	
+	/**
+	   * Takes groups defined and sorts them alphabetically by title
+	   * so will be in some order when displayed on permission widget.
+	   * 
+	   * @param groups
+	   * 			Collection of groups to be sorted
+	   * 
+	   * @return
+	   * 		Collection of groups in sorted order
+	   */
+	  private Collection sortGroups(Collection groups) {
+		  List sortGroupsList = new ArrayList();
+
+		  sortGroupsList.addAll(groups);
+		  
+		  final GroupComparator groupComparator = new GroupComparator("title", true);
+		  
+		  Collections.sort(sortGroupsList, groupComparator);
+		  
+		  groups.clear();
+		  
+		  groups.addAll(sortGroupsList);
+		  
+		  return groups;
+	  }
+	  
+	  public String getSelectedNonHiddenGroup(){
+		  return selectedNonHiddenGroup;
+	  }
+	  
+	  public void setSelectedNonHiddenGroup(String selectedNonHiddenGroup){
+		  this.selectedNonHiddenGroup = selectedNonHiddenGroup;
+	  }
+	  
+	  public void processActionAddHiddenGroup(ValueChangeEvent event){
+		  String selectedGroup = (String) event.getNewValue();
+		  if(!DEFAULT_NON_HIDDEN_GROUP_ID.equals(selectedGroup) && !isGroupHidden(selectedGroup)){
+			  getHiddenGroups().add(new HiddenGroupImpl(selectedGroup));
+			  selectedNonHiddenGroup = DEFAULT_NON_HIDDEN_GROUP_ID;
+		  }
+	  }
+	  
+	  public String processActionRemoveHiddenGroup(){
+		  String groupId = getExternalParameterByKey(PARAM_GROUP_ID);
+		  if(groupId != null && !"".equals(PARAM_GROUP_ID)){
+			  for (HiddenGroup hiddenGroup : getHiddenGroups()) {
+				  if(hiddenGroup.getGroupId().equals(groupId)){
+					  getHiddenGroups().remove(hiddenGroup);
+					  break;
+				  }
+			  }
+		  }
+		  
+		  return null;
+	  }
 }

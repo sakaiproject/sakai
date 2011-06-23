@@ -1673,6 +1673,23 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       return false;
   }
   
+  public boolean isAllowToViewHiddenGroups() {
+	  LOG.debug("isAllowToViewHiddenGroups()");
+	  return isAllowToViewHiddenGroups(UserDirectoryService.getCurrentUser());
+  }
+  
+  private boolean isAllowToViewHiddenGroups(User user)
+  {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("isAllowToViewHiddenGroups(User " + user + ")");
+    }
+    if (user != null)
+      return SecurityService.unlock(user, DefaultPermissionsManager.MESSAGE_FUNCTION_VIEW_HIDDEN_GROUPS, getContextSiteId());
+    else
+      return false;
+  } 
+  
 
   /**
    * @return siteId

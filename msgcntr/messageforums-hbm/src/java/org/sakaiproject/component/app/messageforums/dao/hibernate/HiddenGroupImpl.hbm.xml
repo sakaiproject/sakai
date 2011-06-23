@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+  <class 
+      name="org.sakaiproject.component.app.messageforums.dao.hibernate.HiddenGroupImpl"
+      table="MFR_HIDDEN_GROUPS_T" 
+      optimistic-lock="version">
+      
+          <!-- Inherited fields from MutableEntity -->
+	    <id name="id">
+	      <column name="ID" not-null="true" length="19" />
+	      <generator class="native">
+	        <param name="sequence">MFR_HIDDEN_GROUPS_S</param>
+	      </generator>
+	    </id>
+	       
+		<!--  Version number used for optimistic locking -->
+	    <version name="version" column="VERSION" />
+
+	    <many-to-one name="area" column="a_surrogateKey"
+	      class="org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl"
+	      not-null="false" index="MFR_HIDDEN_GROUPS_PARENT_I" cascade="none" />
+	      
+
+	    <property name="groupId">
+	      <column name="GROUP_ID" length="255" not-null="true" />
+	    </property>
+    </class>
+    
+</hibernate-mapping>

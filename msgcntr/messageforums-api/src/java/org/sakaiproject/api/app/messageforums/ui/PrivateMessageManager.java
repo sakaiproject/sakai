@@ -194,6 +194,7 @@ public interface PrivateMessageManager {
     public boolean isAllowToFieldGroups();
     public boolean isAllowToFieldAllParticipants();
     public boolean isAllowToFieldRoles();
+    public boolean isAllowToViewHiddenGroups();
     
     public PrivateMessage getNextMessage(PrivateMessage message);
     public PrivateMessage getPreviousMessage(PrivateMessage message);

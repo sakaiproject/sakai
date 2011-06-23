@@ -72,10 +72,29 @@
 							             disabled="#{PrivateMessagesTool.forwardPvtMsg == 'no'}" />
 				  </h:panelGroup>
 				  
-			  </h:panelGrid>
-			
-		
-
+			    <h:panelGroup styleClass="shorttext" rendered="#{PrivateMessagesTool.currentSiteHasGroups && PrivateMessagesTool.instructor}">
+			    	<h:outputText value="#{msgs.hiddenGroups_hiddenGroups}"/>
+			    </h:panelGroup>
+			    <h:panelGroup styleClass="shorttext" rendered="#{PrivateMessagesTool.currentSiteHasGroups && PrivateMessagesTool.instructor}">
+			    	<h:outputText value="#{msgs.hiddenGroups_addGroup}: "/>
+			    	<h:selectOneListbox size="1" id="nonHiddenGroup" value ="#{PrivateMessagesTool.selectedNonHiddenGroup}" onchange="this.form.submit();"
+						                  valueChangeListener="#{PrivateMessagesTool.processActionAddHiddenGroup}">
+				      <f:selectItems value="#{PrivateMessagesTool.nonHiddenGroups}"/>
+				    </h:selectOneListbox>
+				    
+				    <h:dataTable styleClass="listHier lines nolines" id="hiddenGroups" value="#{PrivateMessagesTool.hiddenGroups}" var="hiddenGroup" rendered="#{!empty PrivateMessagesTool.hiddenGroups}"
+				    	cellpadding="0" cellspacing="0">
+			  			<h:column>			  				
+	  						<h:outputText value="#{hiddenGroup.groupId}"/>
+	  						<h:commandLink action="#{PrivateMessagesTool.processActionRemoveHiddenGroup}">
+				      			<f:param value="#{hiddenGroup.groupId}" name="groupId"/>
+				      			<h:graphicImage url="/images/silk/cross.png" title="#{msgs.hiddenGroups_remove}" alt="#{msgs.hiddenGroups_remove}" style="margin-left:.5em"/>
+				      		</h:commandLink>
+	  					</h:column>
+	  				</h:dataTable>
+			    </h:panelGroup>
+			</h:panelGrid>
+						
 
 			<sakai:button_bar>
 				<sakai:button_bar_item	action="#{PrivateMessagesTool.processPvtMsgSettingsSave}"

@@ -134,7 +134,7 @@ public class MembershipManagerImpl implements MembershipManager{
   /**
    * @see org.sakaiproject.api.app.messageforums.MembershipManager#getFilteredCourseMembers(boolean)
    */
-  public Map getFilteredCourseMembers(boolean filterFerpa){
+  public Map getFilteredCourseMembers(boolean filterFerpa, List<String> hiddenGroups){
 
     List allCourseUsers = getAllCourseUsers();
     
@@ -151,7 +151,7 @@ public class MembershipManagerImpl implements MembershipManager{
     }
     
     /** filter member map */
-    Map memberMap = getAllCourseMembers(filterFerpa, true, true);
+    Map memberMap = getAllCourseMembers(filterFerpa, true, true, hiddenGroups);
     
 //    if (filterFerpa) {
 //    	memberMap = setPrivacyStatus(allCourseUsers, memberMap);
@@ -185,7 +185,7 @@ public class MembershipManagerImpl implements MembershipManager{
   /**
    * @see org.sakaiproject.api.app.messageforums.MembershipManager#getAllCourseMembers(boolean, boolean, boolean)
    */
-  public Map getAllCourseMembers(boolean filterFerpa, boolean includeRoles, boolean includeAllParticipantsMember)
+  public Map getAllCourseMembers(boolean filterFerpa, boolean includeRoles, boolean includeAllParticipantsMember, List<String> hiddenGroups)
   {   
     Map returnMap = new HashMap();    
     String realmId = getContextSiteId();
@@ -220,18 +220,22 @@ public class MembershipManagerImpl implements MembershipManager{
 	}
         
     if(getPrtMsgManager().isAllowToFieldGroups()){
+    	boolean viewHiddenGroups = getPrtMsgManager().isAllowToViewHiddenGroups();
     	/** handle groups */
     	if (currentSite == null)
     		throw new IllegalStateException("Site currentSite == null!");
     	Collection groups = currentSite.getGroups();    
     	for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();){
-    		Group currentGroup = (Group) groupIterator.next();      
-    		MembershipItem member = MembershipItem.getInstance();
-    		member.setType(MembershipItem.TYPE_GROUP);
-    		//member.setName(currentGroup.getTitle() + " Group");
-    		member.setName(currentGroup.getTitle() + " " + rl.getFormattedMessage("participants_group_desc",new Object[]{currentGroup.getTitle()}));
-    		member.setGroup(currentGroup);
-    		returnMap.put(member.getId(), member);
+    		Group currentGroup = (Group) groupIterator.next();     
+    		//only show groups the user has access to
+    		if(viewHiddenGroups || !containsId(currentGroup.getTitle(), hiddenGroups)){
+    			MembershipItem member = MembershipItem.getInstance();
+    			member.setType(MembershipItem.TYPE_GROUP);
+    			//member.setName(currentGroup.getTitle() + " Group");
+    			member.setName(currentGroup.getTitle() + " " + rl.getFormattedMessage("participants_group_desc",new Object[]{currentGroup.getTitle()}));
+    			member.setGroup(currentGroup);
+    			returnMap.put(member.getId(), member);
+    		}
     	}
     }
     if(getPrtMsgManager().isAllowToFieldRoles()){
@@ -303,6 +307,16 @@ public class MembershipManagerImpl implements MembershipManager{
     // set FERPA status for all items in map - allCourseUsers
     // needed by PrivacyManager to determine status
     return setPrivacyStatus(getAllCourseUsers(), returnMap);
+  }
+  
+  private boolean containsId(String searchId, List<String> ids){
+	  if(ids != null && searchId != null){
+		  for (String id : ids) {
+			  if(id.equals(searchId))
+				  return true;
+		  }
+	  }
+	  return false;
   }
   
     

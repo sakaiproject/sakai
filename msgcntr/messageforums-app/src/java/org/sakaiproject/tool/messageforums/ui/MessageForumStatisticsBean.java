@@ -662,7 +662,7 @@ public class MessageForumStatisticsBean {
 
 		// now process the users from the list of site members to add display information
 		// this will also prune the list of members so only the papropriate ones are displayed
-		courseMemberMap = membershipManager.getAllCourseMembers(true,false,false);
+		courseMemberMap = membershipManager.getAllCourseMembers(true,false,false,null);
 		List members = membershipManager.convertMemberMapToList(courseMemberMap);
 		final List<DecoratedCompiledMessageStatistics> statistics = new ArrayList<DecoratedCompiledMessageStatistics>();
 
@@ -786,7 +786,7 @@ public class MessageForumStatisticsBean {
 
 			// now process the users from the list of site members to add display information
 			// this will also prune the list of members so only the papropriate ones are displayed
-			courseMemberMap = membershipManager.getAllCourseMembers(true,false,false);
+			courseMemberMap = membershipManager.getAllCourseMembers(true,false,false,null);
 			Map convertedMap = convertMemberMapToUserIdMap(courseMemberMap);
 			Map<String, DecoratedGradebookAssignment> studentGradesMap = getGradebookAssignment();
 			List<DecoratedUser> dUsers = new ArrayList();
@@ -2074,7 +2074,7 @@ public class MessageForumStatisticsBean {
 	public Map<String, String> getUserIdName() {
 		Map<String, String> idNameMap = new LinkedHashMap<String, String>();
 		
-		Map courseMemberMap = membershipManager.getAllCourseMembers(true,false,false);
+		Map courseMemberMap = membershipManager.getAllCourseMembers(true,false,false,null);
 		List members = membershipManager.convertMemberMapToList(courseMemberMap);		
 
 		for (Iterator i = members.iterator(); i.hasNext();) {
