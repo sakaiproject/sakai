@@ -249,6 +249,12 @@ public interface ContentReviewService {
 	public String getLocalizedStatusMessage(String messageCode);
 	
 	/**
+	 * Get a error report for a Specific method
+	 * @param contentId
+	 * @return
+	 */
+	public String getReviewError(String contentId);
+	/**
 	 * Get a status message for a submission in the locale specified
 	 * @param messageCode
 	 * @param locale
