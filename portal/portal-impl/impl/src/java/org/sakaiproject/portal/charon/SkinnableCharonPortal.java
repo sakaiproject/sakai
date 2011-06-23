@@ -695,22 +695,24 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		toolMap.put("toolRenderResult", result);
 		toolMap.put("hasRenderResult", Boolean.valueOf(true));
 		toolMap.put("toolUrl", toolUrl);
+
+		boolean allowNeo = ServerConfigurationService.getBoolean("portal.allow.neo.portlet", true);
+		Session s = SessionManager.getCurrentSession();
+		ToolSession ts = s.getToolSession(placement.getId());
+		ts.removeAttribute(SAKAI_PORTAL_BREADCRUMBS);
+		ts.removeAttribute(SAKAI_PORTAL_SUPPRESSTITLE);
+		if ( allowNeo ) {
+			ts.setAttribute(SAKAI_PORTAL_ALLOW_NEO,"true");
+			ts.setAttribute(SAKAI_PORTAL_HELP_ACTION,helpActionUrl);
+			ts.setAttribute(SAKAI_PORTAL_RESET_ACTION,resetActionUrl);
+		}
+
 		if (isPortletPlacement(placement))
 		{
 			// If the tool has requested it, pre-fetch render output.
 			String doPreFetch  = placement.getConfig().getProperty(Portal.JSR_168_PRE_RENDER);
 			if ( ! "false".equals(doPreFetch) ) 
 			{
-				boolean allowNeo = ServerConfigurationService.getBoolean("portal.allow.neo.portlet", true);
-				Session s = SessionManager.getCurrentSession();
-				ToolSession ts = s.getToolSession(placement.getId());
-				ts.removeAttribute(SAKAI_PORTAL_BREADCRUMBS);
-				ts.removeAttribute(SAKAI_PORTAL_SUPPRESSTITLE);
-				if ( allowNeo ) {
-					ts.setAttribute(SAKAI_PORTAL_ALLOW_NEO,"true");
-					ts.setAttribute(SAKAI_PORTAL_HELP_ACTION,helpActionUrl);
-					ts.setAttribute(SAKAI_PORTAL_RESET_ACTION,resetActionUrl);
-				}
 				try {
 					result.getContent();
 				} catch (Throwable t) {
@@ -731,6 +733,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 		else
 		{
+			String suppressTitleLegacy  = placement.getConfig().getProperty(SAKAI_PORTAL_SUPPRESSTITLE);
+			if ( "true".equals(suppressTitleLegacy) ) toolMap.put("suppressTitle", Boolean.TRUE);
+
 			toolMap.put("toolPlacementIDJS", Web.escapeJavascript("Main"
 					+ placement.getId()));
 		}
