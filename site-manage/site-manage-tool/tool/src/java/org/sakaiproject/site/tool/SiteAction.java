@@ -1888,8 +1888,22 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("include", Boolean.valueOf(site.isPubView()));
 
 				// site contact information
-				context.put("contactName", siteInfo.site_contact_name);
-				context.put("contactEmail", siteInfo.site_contact_email);
+				String contactName = siteProperties.getProperty(Site.PROP_SITE_CONTACT_NAME);
+				String contactEmail = siteProperties.getProperty(Site.PROP_SITE_CONTACT_EMAIL);
+				if (contactName == null && contactEmail == null) {
+					User u = site.getCreatedBy();
+					String email = u.getEmail();
+					if (email != null) {
+						contactEmail = u.getEmail();
+					}
+					contactName = u.getDisplayName();
+				}
+				if (contactName != null) {
+					context.put("contactName", contactName);
+				}
+				if (contactEmail != null) {
+					context.put("contactEmail", contactEmail);
+				}
 				
 				if (siteType != null && siteType.equalsIgnoreCase(courseSiteType)) {
 					context.put("isCourseSite", Boolean.TRUE);
