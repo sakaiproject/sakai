@@ -26,7 +26,7 @@
 								<input type="text" size="40"
 									name="$!{tag.fullname}${DOT}$i" 
 									id="$validator.escapeJavascript("$!{tag.fullname}")${DOT}$i" 
-									value="$!tag.value" 
+									value="$validator.escapeHtml("$!tag.value")" 
 								/>
 							#elseif("$!tag.widget" == "$!TEXTAREA")
 								<label for ="$validator.escapeJavascript("$!{tag.fullname}")${DOT}${i}">
@@ -40,7 +40,7 @@
 									$tag.label
 								</label>
 								#if($!tag.value)
-									#set($theValue = $!tag.value)
+									#set($theValue = $validator.escapeHtml("$!tag.value"))
 								#else
 									#set($theValue = $today)
 								#end 
@@ -51,7 +51,7 @@
 									$tag.label
 								</label>
 								#if($!tag.value)
-									#set($theValue = $!tag.value)
+									#set($theValue = $validator.escapeHtml("$!tag.value"))
 								#else
 									#set($theValue = $today)
 								#end 
@@ -63,7 +63,7 @@
 									$tag.label
 								</label>
 								#if($!tag.value)
-									#set($theValue = $!tag.value)
+									#set($theValue = $validator.escapeHtml("$!tag.value"))
 								#else
 									#set($theValue = $today)
 								#end 
@@ -73,7 +73,7 @@
 							#else
 								$tag.fullname<br />
 								$tag.widget<br />
-								$!tag.value<br />
+								$validator.escapeHtml("$!tag.value")<br />
 							#end
 						</p>
 					#end
