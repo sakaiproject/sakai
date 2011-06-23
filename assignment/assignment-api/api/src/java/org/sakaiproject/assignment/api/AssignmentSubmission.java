@@ -245,5 +245,10 @@ public interface AssignmentSubmission extends Entity
 	 * @return
 	 */
 	public String getReviewIconUrl();
-	
+
+    /**
+     *
+     * @return error string, if any, returned from review service
+     */
+    public String getReviewError();
 }

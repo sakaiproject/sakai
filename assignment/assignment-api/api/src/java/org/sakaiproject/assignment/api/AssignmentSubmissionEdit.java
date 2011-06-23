@@ -187,6 +187,14 @@ public interface AssignmentSubmissionEdit extends AssignmentSubmission, Edit
 	 * @param status
 	 */
 	public void setReviewStatus(String status);
+
+
+    /**
+     *
+     * @param error
+     */
+    public void setReviewError(String error);
+
 	/**
 	 * Set whether the grade has been released.
 	 * 

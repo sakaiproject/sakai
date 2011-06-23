@@ -288,7 +288,7 @@ function submitform(id)
 						</th>
 							<td>
 							#if ($submission.getReviewReport().equalsIgnoreCase("Error"))
-								$tlang.getString("review.notavail")
+								<div class="alertMessage" >$!submission.getReviewError()</div>
 							#else
 								<img src="$submission.getReviewIconUrl()" alt="$submission.getReviewScore()">
 							

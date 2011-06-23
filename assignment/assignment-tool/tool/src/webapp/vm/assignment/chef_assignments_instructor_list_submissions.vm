@@ -575,8 +575,10 @@
 							#end	
 							#if ($allowReviewService && $assignment.getContent().AllowReviewService)
 								<td headers="reviewService">
-								 #if ($submission.getReviewScore() == -1 || $submission.getReviewScore() == -2)
-								 	$tlang.getString("review.noreport")
+								 #if ($submission.getReviewScore() == -1)
+                                     <div class="alertMessage" >$!submission.getReviewError()</div>
+                                 #elseif ($submission.getReviewScore() == -2)
+                                     $tlang.getString("review.noreport")  
 								 #else
 								 <a href="$submission.getReviewReport()" target="_blank" title="View report: score $submission.getReviewScore()">
 								 <img src="$submission.getReviewIconUrl()" alt="$submission.getReviewScore()">

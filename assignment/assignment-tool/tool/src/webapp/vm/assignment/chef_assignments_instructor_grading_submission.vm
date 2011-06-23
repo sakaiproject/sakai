@@ -189,8 +189,10 @@ function handleEnterKeyPress(ev)
 							$tlang.getString("review.report")
 						</th>
 							<td>
-							#if (!$submission || $submission.getReviewReport().equalsIgnoreCase("Error"))
-								$tlang.getString("review.notavail")
+							#if (!$submission)
+                                				$tlang.getString("review.notavail")
+                            				#elseif ($submission.getReviewReport().equals("Error"))
+								<div class="alertMessage" >$!submission.getReviewError()</div>
 							#else
 								<img src="$submission.getReviewIconUrl()" alt="$submission.getReviewScore()">
 							
