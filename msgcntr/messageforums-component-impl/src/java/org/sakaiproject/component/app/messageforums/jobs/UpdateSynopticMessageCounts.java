@@ -76,6 +76,8 @@ public class UpdateSynopticMessageCounts implements Job{
 															"Where area.ID = forum.surrogateKey and forum.ID = topic.of_surrogateKey";
 	
 	private boolean updateNewMembersOnly = ServerConfigurationService.getBoolean("msgcntr.synoptic.updateMessageCounts.updateNewMembersOnly", false);
+	//by default, this job only updates/adds the counts when the counts for forums or messages isn't 0, this overrides that and forces updates for all items no matter what
+	private boolean addItemsWhenNoUnreadCounts = ServerConfigurationService.getBoolean("msgcntr.synoptic.updateMessageCounts.addItemsWhenNoUnreadCounts", false);
 	
 	public void init() {
 		
@@ -386,7 +388,7 @@ public class UpdateSynopticMessageCounts implements Job{
 				}
 
 				//update synoptic tool info:
-				if(unreadPrivate != 0 || unreadForum != 0 || updateNewMembersOnly){
+				if(unreadPrivate != 0 || unreadForum != 0 || updateNewMembersOnly || addItemsWhenNoUnreadCounts){
 					SynopticMsgcntrManagerCover.createOrUpdateSynopticToolInfo(userId, siteId, siteTitle, unreadPrivate, unreadForum);
 				}
 			}
