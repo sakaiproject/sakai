@@ -94,9 +94,6 @@ addconf.username..text.md5=KZrgmUHsjqCl2Fb9sMGqYg\=\=
 adddif.choose..text.author=cyril
 adddif.choose..text.changed=20090425090039
 adddif.choose..text.md5=WHaWUrEdvKzp/+0pGDCFkg\=\=
-adddif.chroles..text.author=cyril
-adddif.chroles..text.changed=20090425090043
-adddif.chroles..text.md5=PtVKJ3HeHy8FChx1MnRmWg\=\=
 adddif.please..text.author=cyril
 adddif.please..text.changed=20090425090048
 adddif.please..text.md5=eKR6b0sGJGMbrYPfh/Ml5g\=\=
@@ -148,9 +145,6 @@ addrem.list.toolname..text.md5=zjVb4EO7NWjAfH47+8aA8g\=\=
 addrem.revising..text.author=cyril
 addrem.revising..text.changed=20090425090201
 addrem.revising..text.md5=DkDtspeAHfxfV/VloAw4eA\=\=
-addsame.choose..text.author=cyril
-addsame.choose..text.changed=20090425090204
-addsame.choose..text.md5=WmDDYFTdAhVzgNIno5obbA\=\=
 addsame.participants..text.author=cyril
 addsame.participants..text.changed=20090425090206
 addsame.participants..text.md5=UQqMtxFJW/3QTHktL8Sw/g\=\=
