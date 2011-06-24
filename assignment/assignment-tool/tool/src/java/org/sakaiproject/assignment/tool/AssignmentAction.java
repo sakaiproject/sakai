@@ -12343,6 +12343,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doAttachUpload(RunData data)
 	{
+		// save the current input before leaving the page
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		saveSubmitInputs(state, data.getParameters ());
+		
 		doAttachUpload(data, false);
 	}
 	
