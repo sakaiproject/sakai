@@ -208,4 +208,10 @@ public interface ExternalLogic {
 	 */
 	public boolean isMobileBrowser();
 	
+	/**
+	 * Get a list of the permission keys for the tool
+	 * @return
+	 */
+	public List<String> getPermissionKeys();
+	
 }

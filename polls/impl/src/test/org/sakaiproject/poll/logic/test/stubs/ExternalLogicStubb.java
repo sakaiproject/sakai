@@ -190,4 +190,9 @@ public class ExternalLogicStubb implements ExternalLogic {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	public List<String> getPermissionKeys() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

@@ -22,6 +22,7 @@
 package org.sakaiproject.poll.tool.producers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -99,6 +100,15 @@ public class PermissionsProducer implements ViewComponentProducer,NavigationCase
 	    session.setAttribute(PermissionsHelper.DESCRIPTION, messageLocator.getMessage("set.perms", new Object[]{site.getTitle()}));
 	    session.setAttribute(PermissionsHelper.PREFIX, PERMISSION_PREFIX + ".");
 	    
+	    List<String> perms = externalLogic.getPermissionKeys();
+	    HashMap<String, String> pRbValues = new HashMap<String, String>();
+	    for (int i = 0 ; i < perms.size(); i++) {
+	    	String perm = perms.get(i);
+	    	String descr = messageLocator.getMessage("desc-" + perm);
+	    	pRbValues.put("desc-" + perm, descr);
+	    }
+	    
+	    session.setAttribute("permissionDescriptions",  pRbValues);
 	    UIOutput.make(tofill, HelperViewParameters.HELPER_ID, HELPER);
 	    UICommand.make(tofill, HelperViewParameters.POST_HELPER_BINDING, "", null);
 
