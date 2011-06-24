@@ -53,12 +53,6 @@ var dhtml_view_sites = function(){
     // first time through set up the DOM
     jQuery('#selectSite').appendTo('#linkNav').addClass('dhtml_more_tabs'); // move the selectSite in the DOM
     jQuery('.more-tab').position();
-    jQuery('#selectSite').css('top', '38px'); // set its top position
-    jQuery('#selectSite').css('left', '4px');
-    jQuery('#selectSite').css('margin', '0 auto');
-    jQuery('#selectSite').css('width', '70%');
-    jQuery('#selectSite').css('z-index', 9900); // explicitely set the z-index
-    //	jQuery('.more-tab').css('z-index',9800);                                  //  " for the More Tabs div element
     
     // then recast the function to the post initialized state which will run from then on
     dhtml_view_sites = function(){
