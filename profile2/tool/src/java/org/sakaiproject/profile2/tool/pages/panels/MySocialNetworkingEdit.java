@@ -22,6 +22,7 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -32,11 +33,14 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.validation.validator.UrlValidator;
 import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
+import org.sakaiproject.profile2.tool.components.ComponentVisualErrorBehaviour;
+import org.sakaiproject.profile2.tool.components.FeedbackLabel;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -91,7 +95,7 @@ public class MySocialNetworkingEdit extends Panel {
 		//facebook
 		WebMarkupContainer facebookContainer = new WebMarkupContainer("facebookContainer");
 		facebookContainer.add(new Label("facebookLabel", new ResourceModel("profile.socialnetworking.facebook.edit")));
-		TextField<String> facebookUrl = new TextField<String>("facebookUrl", new PropertyModel<String>(userProfile, "socialInfo.facebookUrl")) {
+		final TextField<String> facebookUrl = new TextField<String>("facebookUrl", new PropertyModel<String>(userProfile, "socialInfo.facebookUrl")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -99,14 +103,22 @@ public class MySocialNetworkingEdit extends Panel {
 				validateUrl(this);
 			}
 		};
+		facebookUrl.add(new UrlValidator());
 		facebookContainer.add(facebookUrl);
 		facebookContainer.add(new IconWithClueTip("facebookToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.profile.facebook.tooltip")));
+		
+		//feedback
+        final FeedbackLabel facebookUrlFeedback = new FeedbackLabel("facebookUrlFeedback", facebookUrl);
+        facebookUrlFeedback.setOutputMarkupId(true);
+        facebookContainer.add(facebookUrlFeedback);
+        facebookUrl.add(new ComponentVisualErrorBehaviour("onblur", facebookUrlFeedback));
+		
 		form.add(facebookContainer);
 		
 		//linkedin
 		WebMarkupContainer linkedinContainer = new WebMarkupContainer("linkedinContainer");
 		linkedinContainer.add(new Label("linkedinLabel", new ResourceModel("profile.socialnetworking.linkedin.edit")));
-		TextField<String> linkedinUrl = new TextField<String>("linkedinUrl", new PropertyModel<String>(userProfile, "socialInfo.linkedinUrl")) {
+		final TextField<String> linkedinUrl = new TextField<String>("linkedinUrl", new PropertyModel<String>(userProfile, "socialInfo.linkedinUrl")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -114,15 +126,22 @@ public class MySocialNetworkingEdit extends Panel {
 				validateUrl(this);
 			}
 		};
+		linkedinUrl.add(new UrlValidator());
 		linkedinContainer.add(linkedinUrl);
-		
 		linkedinContainer.add(new IconWithClueTip("linkedinToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.profile.linkedin.tooltip")));
+		
+		//feedback
+		final FeedbackLabel linkedinUrlFeedback = new FeedbackLabel("linkedinUrlFeedback", linkedinUrl);
+		linkedinUrlFeedback.setOutputMarkupId(true);
+		linkedinContainer.add(linkedinUrlFeedback);
+		linkedinUrl.add(new ComponentVisualErrorBehaviour("onblur", linkedinUrlFeedback));
+		
 		form.add(linkedinContainer);
 		
 		//myspace
 		WebMarkupContainer myspaceContainer = new WebMarkupContainer("myspaceContainer");
 		myspaceContainer.add(new Label("myspaceLabel", new ResourceModel("profile.socialnetworking.myspace.edit")));
-		TextField<String> myspaceUrl = new TextField<String>("myspaceUrl", new PropertyModel<String>(userProfile, "socialInfo.myspaceUrl")) {
+		final TextField<String> myspaceUrl = new TextField<String>("myspaceUrl", new PropertyModel<String>(userProfile, "socialInfo.myspaceUrl")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -130,14 +149,22 @@ public class MySocialNetworkingEdit extends Panel {
 				validateUrl(this);
 			}
 		};
+		myspaceUrl.add(new UrlValidator());
 		myspaceContainer.add(myspaceUrl);
 		myspaceContainer.add(new IconWithClueTip("myspaceToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.profile.myspace.tooltip")));
+		
+		//feedback
+		final FeedbackLabel myspaceUrlFeedback = new FeedbackLabel("myspaceUrlFeedback", myspaceUrl);
+		myspaceUrlFeedback.setOutputMarkupId(true);
+		myspaceContainer.add(myspaceUrlFeedback);
+		myspaceUrl.add(new ComponentVisualErrorBehaviour("onblur", myspaceUrlFeedback));
+		
 		form.add(myspaceContainer);
 		
 		//twitter
 		WebMarkupContainer twitterContainer = new WebMarkupContainer("twitterContainer");
 		twitterContainer.add(new Label("twitterLabel", new ResourceModel("profile.socialnetworking.twitter.edit")));
-		TextField<String> twitterUrl = new TextField<String>("twitterUrl", new PropertyModel<String>(userProfile, "socialInfo.twitterUrl")) {
+		final TextField<String> twitterUrl = new TextField<String>("twitterUrl", new PropertyModel<String>(userProfile, "socialInfo.twitterUrl")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -145,8 +172,16 @@ public class MySocialNetworkingEdit extends Panel {
 				validateUrl(this);
 			}
 		};
+		twitterUrl.add(new UrlValidator());
 		twitterContainer.add(twitterUrl);
 		twitterContainer.add(new IconWithClueTip("twitterToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.profile.twitter.tooltip")));
+		
+		//feedback
+		final FeedbackLabel twitterUrlFeedback = new FeedbackLabel("twitterUrlFeedback", twitterUrl);
+		twitterUrlFeedback.setOutputMarkupId(true);
+		twitterContainer.add(twitterUrlFeedback);
+		twitterUrl.add(new ComponentVisualErrorBehaviour("onblur", twitterUrlFeedback));
+		
 		form.add(twitterContainer);
 		
 		//skype
@@ -187,6 +222,35 @@ public class MySocialNetworkingEdit extends Panel {
 					target.addComponent(formFeedback);
 				}
 			}
+			
+			// This is called if the form validation fails, ie Javascript turned off, 
+			//or we had preexisting invalid data before this fix was introduced
+			protected void onError(AjaxRequestTarget target, Form form) {
+				
+				//check which item didn't validate and update the class and feedback model for that component
+				if(!facebookUrl.isValid()) {
+					facebookUrl.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
+					target.addComponent(facebookUrl);
+					target.addComponent(facebookUrlFeedback);
+				}
+				if(!linkedinUrl.isValid()) {
+					linkedinUrl.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
+					target.addComponent(linkedinUrl);
+					target.addComponent(linkedinUrlFeedback);
+				}
+				if(!myspaceUrl.isValid()) {
+					myspaceUrl.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
+					target.addComponent(myspaceUrl);
+					target.addComponent(myspaceUrlFeedback);
+				}
+				if(!twitterUrl.isValid()) {
+					twitterUrl.add(new AttributeAppender("class", new Model<String>("invalid"), " "));
+					target.addComponent(twitterUrl);
+					target.addComponent(twitterUrlFeedback);
+				}
+			}
+			
+			
 		};
 		form.add(submitButton);
 
@@ -206,6 +270,7 @@ public class MySocialNetworkingEdit extends Panel {
 				}
 
 			}
+			
 		};
 		cancelButton.setDefaultFormProcessing(false);
 		form.add(cancelButton);
