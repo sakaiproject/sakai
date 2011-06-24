@@ -197,13 +197,10 @@ site types are a local setting - adjust */
 /*depending on site type - different border-bottoms for the site menu parent block
 site types are a local setting - adjust */
 .workspace .siteNavWrap{
-	border-bottom:3px solid #aaa;
 }
 .course .siteNavWrap{
-	border-bottom:3px solid #fc6;
 }
 .project .siteNavWrap{
-	border-bottom:3px solid #9cf;
 }
 #siteNavWrapper{
 	margin: 0;
@@ -371,7 +368,7 @@ a#loginLink1:hover, a#loginUser:hover{
 so for example <div class="tabHolder workspace"> so that different site types can be treated differently via inheritance - children are #siteNavWrap and #navBottom*/
 
 .siteNavWrap {
-	position: relative;
+	position: absolute;
     background-color:transparent;
     color:#000000;
 	width: 100%;
@@ -688,7 +685,9 @@ also hide if are going to be using icon links (as background of <a> nad <li>
 
 
 #toolMenu li span, #subSites li span{
-
+    background-repeat:no-repeat;
+    padding-right:22px;
+    background-position:center right;
 }
 
 #toolMenu li.selectedTool span, #toolMenu li.selectedTool a{
@@ -703,7 +702,7 @@ also hide if are going to be using icon links (as background of <a> nad <li>
 	display: block;
 	text-decoration: none;
 	color: #333;
-    font:1.1em bold Helvetica, 'Helvetica Neue', Arial;
+    font:1em bold Helvetica, 'Helvetica Neue', Arial;
 	padding-bottom : 2px;
     padding-top : 2px;
     margin-bottom : 0px;

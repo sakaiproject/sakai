@@ -43,7 +43,7 @@ body{
 
 /*site hierarchy breadcrumb*/
 #siteHierarchy{
-	margin-top:108px;
+	margin-top:103px;
     z-index:1200;
     position:fixed;
     top:0px;
@@ -63,7 +63,7 @@ body{
     margin-top:140px;
 }
 #headerMax + #container{
-margin-top:120px;
+margin-top:110px;
 }
 #headerMin + #container{
     margin-top:65px;
@@ -87,15 +87,6 @@ a.lastBreadCrumb{
         text-decoration:none;
 }
 #tabBottom{
-/*
-    position:absolute;
-    left:0;
-    right:0;
-    top:38px;
-    background: transparent url(images/container-grad.png) 0 100% repeat-x ;
-    height: 9px;
-    margin: 0;
-*/
     display:none;
 }
 #headerMin #tabBottom{
@@ -103,11 +94,9 @@ a.lastBreadCrumb{
     }
 /*wrapper for site content (includes as children #toolMenuWrap,#content and #footer)*/
 #container{
-    position:absolute;
-    left:100px;
-    right:100px;
-    bottom:0;
-    top:0;    
+   position:absolute;
+   left:100px;
+   right:100px;
    padding-top:10px;
    background: #fff;
    -moz-border-radius: 10px;
@@ -118,7 +107,6 @@ a.lastBreadCrumb{
    -webkit-box-shadow:0px 0px 10px #000;
    -moz-box-shadow:0px 0px 10px #000000;
    min-height:100%;
-
 }
 
 /*wrapper for #toolMenu - children are #worsiteLogo,#toolMenu*/
@@ -193,13 +181,10 @@ site types are a local setting - adjust */
 /*depending on site type - different border-bottoms for the site menu parent block
 site types are a local setting - adjust */
 .workspace .siteNavWrap{
-	border-bottom:3px solid #aaa;
 }
 .course .siteNavWrap{
-	border-bottom:3px solid #fc6;
 }
 .project .siteNavWrap{
-	border-bottom:3px solid #9cf;
 }
 #siteNavWrapper{
 	margin: 0;
@@ -352,11 +337,12 @@ position:absolute;
 so for example <div class="tabHolder workspace"> so that different site types can be treated differently via inheritance - children are #siteNavWrap and #navBottom*/
 
 .siteNavWrap {
-	position: relative;
+	position: absolute;
     background-color:transparent;
     color:#000000;
 	width: 100%;
-	font-size: 100%;
+    top:65px;
+	font-size: 90%;
 	line-height: normal;
 	z-index: 2000;
     padding:0;
@@ -399,7 +385,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 /*wrapper for the site <select> that is displayed when more than x sites are in the link list*/
 #selectSite {
     position:absolute;
-    top:40px;
+    top:38px;
     left:4px;
     margin:auto;
     width:70%;
@@ -669,7 +655,7 @@ also hide if are going to be using icon links (as background of <a> nad <li>
 
 
 #toolMenu li span, #subSites li span{
-
+    background:none;
 }
 
 #toolMenu li.selectedTool span, #toolMenu li.selectedTool a{
@@ -684,7 +670,7 @@ also hide if are going to be using icon links (as background of <a> nad <li>
 	display: block;
 	text-decoration: none;
 	color: #333;
-    font:1.1em bold Helvetica, 'Helvetica Neue', Arial;
+    font:1em bold Helvetica, 'Helvetica Neue', Arial;
 	padding-bottom : 2px;
     padding-top : 2px;
     margin-bottom : 0px;
@@ -1541,7 +1527,6 @@ ul.topnav {
 	float: left;
     background: #222 url(images/topnav_bg.gif) repeat-x;
 	font-size: 1.1em;
-
 }
 ul.topnav li {
 	background: #222 url(images/topnav_bg.gif) repeat-x;
@@ -1673,16 +1658,21 @@ ul.subnav span.addTool{
     color:#FDBA4E;
     }
 span.topnav li ul.subnav li{
-	margin: 0; padding: 0;
+	margin: 0; padding: 5px;
 	clear: both;
 	width: 210px;
+}
+ul.nav-submenu li.submenuitem{
+    padding:10px
 }
 ul.nav-submenu li.submenuitem a, #mastLogin  li.submenuitem a {
     background-position: 3px center !important;
     background-repeat: no-repeat !important;
-    outline:none;
+    
     text-decoration:none;
+    padding:0;
 	width: 170px;
+    outline: 1x solid lime;
 	padding-left: 25px;
 }
 #mastLogin  li.submenuitem{
