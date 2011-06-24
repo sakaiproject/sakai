@@ -3293,6 +3293,10 @@ public class ListItem
 
 	public String getModifiedBy() 
 	{
+		if (modifiedBy == null)
+		{
+			modifiedBy = "";
+		}
 		return modifiedBy;
 	}
 
