@@ -157,41 +157,35 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 		}
 
 		// ensure site id is unique
-		String siteId = idManager.createUuid();
-		while (true == siteService.siteExists(siteId)) {
-			siteId = idManager.createUuid();
+		String siteId = sakaiProxy.createUuid();
+		while (true == sakaiProxy.checkForSite(siteId)) {
+			siteId = sakaiProxy.createUuid();
 		}
 
 		try {
 			final Site site = siteService.addSite(siteId, SITE_TYPE_PROJECT);
 			
-			try {
-				User user = userDirectoryService.getUser(ownerId);
-				if (null != user) {
-					// false == provided
-					site.addMember(ownerId, ROLE_MAINTAIN, true, false);					
-				}
-			} catch (UserNotDefinedException e) {
-				log .warn("unknown user " + ownerId + " tried to create worksite");
-				e.printStackTrace();
+			User owner = sakaiProxy.getUserById(ownerId);
+			if (null != owner) {
+				// false == provided
+				site.addMember(ownerId, ROLE_MAINTAIN, true, false);					
+			} else {
+				log.warn("unknown user " + ownerId + " tried to create worksite");
 				return false;
 			}
 
 			// user could create worksite without any connections
 			if (null != members) {
 				for (Person member : members) {
-					try {
-						User user = userDirectoryService.getUser(member.getUuid());
-						if (null != user) {
+					User user = sakaiProxy.getUserById(member.getUuid());
+					if (null != user) {
 							
-							// TODO privacy/preference check if/when added?
+						// TODO privacy/preference check if/when added?
 							
-							// false == provided
-							site.addMember(member.getUuid(), ROLE_ACCESS, true, false);
-						}
-					} catch (UserNotDefinedException e) {
+						// false == provided
+						site.addMember(member.getUuid(), ROLE_ACCESS, true, false);
+					} else {
 						log .warn("attempt to add unknown user " + member.getUuid() + " to worksite");
-						e.printStackTrace();
 					}
 				}
 			}
@@ -375,16 +369,10 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 	private SakaiProxy sakaiProxy;
 	
 	@Setter
-	private IdManager idManager;
-	
-	@Setter
 	private SiteService siteService;
 	
 	@Setter
 	private ToolManager toolManager;
-	
-	@Setter
-	private UserDirectoryService userDirectoryService;
 	
 	@Setter
 	private ServerConfigurationService serverConfigurationService;
