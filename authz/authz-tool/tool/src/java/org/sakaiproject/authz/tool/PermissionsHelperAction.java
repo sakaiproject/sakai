@@ -384,7 +384,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 			
 			// get function description from passed in HashMap
 			// output permission descriptions
-			HashMap<String, String> functionDescriptions = (HashMap<String, String>) state.getAttribute(STATE_PERMISSION_DESCRIPTIONS);
+			Map<String, String> functionDescriptions = (Map<String, String>) state.getAttribute(STATE_PERMISSION_DESCRIPTIONS);
 			if (functionDescriptions != null)
 			{
 				Set keySet = functionDescriptions.keySet();
