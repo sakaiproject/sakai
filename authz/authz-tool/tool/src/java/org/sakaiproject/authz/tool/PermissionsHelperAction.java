@@ -110,9 +110,6 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 	/** State attribute for permission description */
 	public static final String STATE_PERMISSION_DESCRIPTIONS = "permission.descriptions";
 
-	/** the prefix to permission title for permission description entry in bundle file */
-	public static final String PREFIX_PERMISSION_DESCRIPTION = "desc-";
-
 	/** Modes. */
 	public static final String MODE_MAIN = "main";
 
@@ -197,6 +194,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		String targetRef = (String) toolSession.getAttribute(PermissionsHelper.TARGET_REF);
 		String description = (String) toolSession.getAttribute(PermissionsHelper.DESCRIPTION);
 		String rolesRef = (String) toolSession.getAttribute(PermissionsHelper.ROLES_REF);
+		
 		if (rolesRef == null) rolesRef = targetRef;
 
 		toolSession.setAttribute(STARTED, Boolean.valueOf(true));
@@ -214,7 +212,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		state.setAttribute(STATE_PREFIX, prefix);
 
 		// ... set the ResourceLoader object
-		state.setAttribute(STATE_PERMISSION_DESCRIPTIONS, toolSession.getAttribute("permissionDescriptions"));
+		state.setAttribute(STATE_PERMISSION_DESCRIPTIONS, toolSession.getAttribute(PermissionsHelper.PERMISSION_DESCRIPTION));
 		
 		// start the helper
 		state.setAttribute(STATE_MODE, MODE_MAIN);
@@ -393,7 +391,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 				for(Object function : functions)
 				{
 					String desc = (String) function;
-					String descKey = PREFIX_PERMISSION_DESCRIPTION + function;
+					String descKey = PermissionsHelper.PREFIX_PERMISSION_DESCRIPTION + function;
 					if (keySet.contains(descKey))
 					{
 						// use function description
