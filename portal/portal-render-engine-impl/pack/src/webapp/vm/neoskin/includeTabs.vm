@@ -151,12 +151,12 @@
 
          <div id="otherSiteSearch"> 
 		#if($tabsSites.tabsMoreSites.size() > ${showSearchWhen})
-         	<label for="txtSearch">Search sites in this drawer</label> <input type="text" id="txtSearch" name="txtSearch" maxlength="50" />
-	        <a id="imgSearch" href="#" style="display:none"><img src="${pageSkinRepo}/${pageSkin}/images/cancel.png" alt="Cancel Search" title="Cancel Search" /></a>
-			<span id="noSearchResults" style="display:none">No search results found</span>
+         	<label for="txtSearch">${rloader.sit_search}</label> <input type="text" id="txtSearch" name="txtSearch" maxlength="50" />
+	        <a id="imgSearch" href="#" style="display:none"><img src="${pageSkinRepo}/${pageSkin}/images/cancel.png" alt="${rloader.sit_search_cancel}" title="${rloader.sit_search_cancel}" /></a>
+			<span id="noSearchResults" style="display:none">${rloader.sit_search_none}</span>
 		##end
 		#else
-		<h4>Sites in drawer</h4>
+		<h4>${rloader.sit_drawer}</h4>
 		#end
 		</div>	
 			#if (${tabsSites.worksiteToolUrl})
