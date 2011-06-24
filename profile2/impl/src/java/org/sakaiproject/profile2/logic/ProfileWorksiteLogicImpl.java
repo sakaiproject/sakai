@@ -10,7 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
+import lombok.Setter;
+
 import org.apache.log4j.Logger;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdInvalidException;
@@ -30,6 +31,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Implementation of ProfileWorksiteLogic API
@@ -369,34 +371,22 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 				ProfileConstants.EMAIL_TEMPLATE_KEY_WORKSITE_NEW, replacementValues);
 	}
 
-	// API injections
+	@Setter
 	private SakaiProxy sakaiProxy;
-	public void setSakaiProxy(SakaiProxy sakaiProxy) {
-		this.sakaiProxy = sakaiProxy;
-	}
 	
+	@Setter
 	private IdManager idManager;
-	public void setIdManager(IdManager idManager) {
-		this.idManager = idManager;
-	}
 	
+	@Setter
 	private SiteService siteService;
-	public void setSiteService(SiteService siteService) {
-		this.siteService = siteService;
-	}
 	
+	@Setter
 	private ToolManager toolManager;
-	public void setToolManager(ToolManager toolManager) {
-		this.toolManager = toolManager;
-	}
 	
+	@Setter
 	private UserDirectoryService userDirectoryService;
-	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-		this.userDirectoryService = userDirectoryService;
-	}
 	
+	@Setter
 	private ServerConfigurationService serverConfigurationService;
-	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-		this.serverConfigurationService = serverConfigurationService;
-	}
+	
 }

@@ -16,10 +16,12 @@
 
 package org.sakaiproject.profile2.legacy;
 
+import lombok.Data;
+
 import org.sakaiproject.api.app.profile.Profile;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 
-
+@Data
 public class ProfileImpl implements Profile
 {
 	private String userId;
@@ -42,117 +44,18 @@ public class ProfileImpl implements Profile
 	private Boolean hidePublicInfo; //set to default of false because Profile2 Privacy is used
 	
 	
+	/** getters/setters that have odd signatures so we explicity declare them **/
 	public String getUserId() {
-		return userId;
+		return this.userId;
 	}
-
 	public void setUserID(String arg0) {
 		this.userId = arg0;
-		
-	}
-	
-	public String getDepartment() {
-		return department;
-	}
-	public void setDepartment(String department) {
-		this.department = department;
-	}
-	public String getEmail() {
-		return email;
-	}
-	public void setEmail(String email) {
-		this.email = email;
-	}
-	public String getFirstName() {
-		return firstName;
-	}
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-	public String getLastName() {
-		return lastName;
-	}
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
-	public String getNickName() {
-		return nickName;
-	}
-	public void setNickName(String nickName) {
-		this.nickName = nickName;
-	}
-	public String getHomePhone() {
-		return homePhone;
-	}
-	public void setHomePhone(String homePhone) {
-		this.homePhone = homePhone;
-	}
-	public String getHomepage() {
-		return homepage;
-	}
-	public void setHomepage(String homepage) {
-		this.homepage = homepage;
-	}
-	public String getOtherInformation() {
-		return otherInformation;
-	}
-	public void setOtherInformation(String otherInformation) {
-		this.otherInformation = otherInformation;
-	}
-	public String getPictureUrl() {
-		return pictureUrl;
-	}
-	public void setPictureUrl(String pictureUrl) {
-		this.pictureUrl = pictureUrl;
-	}
-	public String getPosition() {
-		return position;
-	}
-	public void setPosition(String position) {
-		this.position = position;
-	}
-	public String getRoom() {
-		return room;
-	}
-	public void setRoom(String room) {
-		this.room = room;
-	}
-	public String getSchool() {
-		return school;
-	}
-	public void setSchool(String school) {
-		this.school = school;
-	}
-	public String getWorkPhone() {
-		return workPhone;
-	}
-	public void setWorkPhone(String workPhone) {
-		this.workPhone = workPhone;
 	}
 	public Boolean isInstitutionalPictureIdPreferred() {
 		return institutionalPictureIdPreferred;
 	}
-	public void setInstitutionalPictureIdPreferred(
-			Boolean institutionalPictureIdPreferred) {
+	public void setInstitutionalPictureIdPreferred(Boolean institutionalPictureIdPreferred) {
 		this.institutionalPictureIdPreferred = institutionalPictureIdPreferred;
-	}
-	public byte[] getInstitutionalPicture() {
-		return institutionalPicture;
-	}
-	public void setInstitutionalPicture(byte[] institutionalPicture) {
-		this.institutionalPicture = institutionalPicture;
-	}
-	public Boolean getHidePrivateInfo() {
-		return hidePrivateInfo;
-	}
-	public void setHidePrivateInfo(Boolean hidePrivateInfo) {
-		this.hidePrivateInfo = hidePrivateInfo;
-	}
-	public Boolean getHidePublicInfo() {
-		return hidePublicInfo;
-	}
-	public void setHidePublicInfo(Boolean hidePublicInfo) {
-		this.hidePublicInfo = hidePublicInfo;
 	}
 	
 	

@@ -3,6 +3,8 @@ package org.sakaiproject.profile2.logic;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import lombok.Setter;
+
 import org.apache.log4j.Logger;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.profile2.cache.CacheManager;
@@ -82,17 +84,10 @@ public class ProfileKudosLogicImpl implements ProfileKudosLogic {
 		cache = cacheManager.createCache(CACHE_NAME);
 	}
 	
-	
+	@Setter
 	private ProfileDao dao;
-	public void setDao(ProfileDao dao) {
-		this.dao = dao;
-	}
 	
+	@Setter
 	private CacheManager cacheManager;
-	public void setCacheManager(CacheManager cacheManager) {
-		this.cacheManager = cacheManager;
-	}
-
-	
 	
 }

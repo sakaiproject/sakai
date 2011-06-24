@@ -3,6 +3,8 @@ package org.sakaiproject.profile2.logic;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.Setter;
+
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
@@ -222,10 +224,7 @@ public class ProfileLinkLogicImpl implements ProfileLinkLogic {
 		return base.toString();
 	}
 	
-	
+	@Setter
 	private SakaiProxy sakaiProxy;
-	public void setSakaiProxy(SakaiProxy sakaiProxy) {
-		this.sakaiProxy = sakaiProxy;
-	}
 	
 }

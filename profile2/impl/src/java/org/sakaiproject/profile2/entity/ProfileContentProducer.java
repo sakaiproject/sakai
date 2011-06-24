@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.io.Reader;
 
+import lombok.Setter;
+
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.api.common.edu.person.SakaiPersonManager;
 import org.sakaiproject.entity.api.Entity;
@@ -24,30 +26,21 @@ import org.apache.log4j.Logger;
 
 public class ProfileContentProducer implements EntityContentProducer {
 	
+	@Setter
 	private ProfileLogic profileLogic = null;
-	public void setProfileLogic(ProfileLogic profileLogic) {
-		this.profileLogic = profileLogic;
-	}
 	
+	@Setter
 	private SearchService searchService = null;
-	public void setSearchService(SearchService searchService) {
-		this.searchService = searchService;
-	}
 	
+	@Setter
 	private SearchIndexBuilder searchIndexBuilder = null;
-	public void setSearchIndexBuilder(SearchIndexBuilder searchIndexBuilder) {
-		this.searchIndexBuilder = searchIndexBuilder;
-	}
 	
+	@Setter
 	private SakaiProxy sakaiProxy = null;
-	public void setSakaiProxy(SakaiProxy sakaiProxy) {
-		this.sakaiProxy = sakaiProxy;
-	}
 	
+	@Setter
 	private SakaiPersonManager sakaiPersonManager = null;
-	public void setSakaiPersonManager(SakaiPersonManager sakaiPersonManager) {
-		this.sakaiPersonManager = sakaiPersonManager;
-	}
+	
 
 	private Logger logger = Logger.getLogger(ProfileContentProducer.class);
 

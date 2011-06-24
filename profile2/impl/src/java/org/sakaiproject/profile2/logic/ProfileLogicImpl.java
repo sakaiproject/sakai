@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import lombok.Setter;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
@@ -587,41 +589,26 @@ public class ProfileLogicImpl implements ProfileLogic {
 		return sakaiPerson;
 	}
 	
+	@Setter
 	private SakaiProxy sakaiProxy;
-	public void setSakaiProxy(SakaiProxy sakaiProxy) {
-		this.sakaiProxy = sakaiProxy;
-	}
 	
+	@Setter
 	private ProfileDao dao;
-	public void setDao(ProfileDao dao) {
-		this.dao = dao;
-	}
 	
+	@Setter
 	private ProfilePreferencesLogic preferencesLogic;
-	public void setPreferencesLogic(ProfilePreferencesLogic preferencesLogic) {
-		this.preferencesLogic = preferencesLogic;
-	}
 	
+	@Setter
 	private ProfileStatusLogic statusLogic;
-	public void setStatusLogic(ProfileStatusLogic statusLogic) {
-		this.statusLogic = statusLogic;
-	}
 	
+	@Setter
 	private ProfilePrivacyLogic privacyLogic;
-	public void setPrivacyLogic(ProfilePrivacyLogic privacyLogic) {
-		this.privacyLogic = privacyLogic;
-	}
 	
+	@Setter
 	private ProfileConnectionsLogic connectionsLogic;
-	public void setConnectionsLogic(ProfileConnectionsLogic connectionsLogic) {
-		this.connectionsLogic = connectionsLogic;
-	}
 	
+	@Setter
 	private ProfileImageLogic imageLogic;
-	public void setImageLogic(ProfileImageLogic imageLogic) {
-		this.imageLogic = imageLogic;
-	}
-	
 	
 	
 }

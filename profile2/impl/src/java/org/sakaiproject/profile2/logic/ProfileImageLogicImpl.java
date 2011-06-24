@@ -1,9 +1,9 @@
 package org.sakaiproject.profile2.logic;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
+
+import lombok.Setter;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -658,30 +658,19 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	
 	
 	
-	
+	@Setter
 	private SakaiProxy sakaiProxy;
-	public void setSakaiProxy(SakaiProxy sakaiProxy) {
-		this.sakaiProxy = sakaiProxy;
-	}
 	
+	@Setter
 	private ProfilePrivacyLogic privacyLogic;
-	public void setPrivacyLogic(ProfilePrivacyLogic privacyLogic) {
-		this.privacyLogic = privacyLogic;
-	}
 	
+	@Setter
 	private ProfileConnectionsLogic connectionsLogic;
-	public void setConnectionsLogic(ProfileConnectionsLogic connectionsLogic) {
-		this.connectionsLogic = connectionsLogic;
-	}
 	
+	@Setter
 	private ProfilePreferencesLogic preferencesLogic;
-	public void setPreferencesLogic(ProfilePreferencesLogic preferencesLogic) {
-		this.preferencesLogic = preferencesLogic;
-	}
 	
+	@Setter
 	private ProfileDao dao;
-	public void setDao(ProfileDao dao) {
-		this.dao = dao;
-	}	
 	
 }

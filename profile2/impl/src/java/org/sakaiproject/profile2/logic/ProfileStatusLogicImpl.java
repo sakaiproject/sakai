@@ -3,6 +3,8 @@ package org.sakaiproject.profile2.logic;
 import java.util.Calendar;
 import java.util.Date;
 
+import lombok.Setter;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.profile2.dao.ProfileDao;
@@ -132,24 +134,16 @@ public class ProfileStatusLogicImpl implements ProfileStatusLogic {
 	
 	
 	
-	
+	@Setter
 	private SakaiProxy sakaiProxy;
-	public void setSakaiProxy(SakaiProxy sakaiProxy) {
-		this.sakaiProxy = sakaiProxy;
-	}
 	
+	@Setter
 	private ProfilePrivacyLogic privacyLogic;
-	public void setPrivacyLogic(ProfilePrivacyLogic privacyLogic) {
-		this.privacyLogic = privacyLogic;
-	}
 	
+	@Setter
 	private ProfileConnectionsLogic connectionsLogic;
-	public void setConnectionsLogic(ProfileConnectionsLogic connectionsLogic) {
-		this.connectionsLogic = connectionsLogic;
-	}
 	
+	@Setter
 	private ProfileDao dao;
-	public void setDao(ProfileDao dao) {
-		this.dao = dao;
-	}
+	
 }

@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Setter;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
@@ -1411,76 +1413,49 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 	
 	
-	// INJECT API'S
+	@Setter
 	private ToolManager toolManager;
-	public void setToolManager(ToolManager toolManager) {
-		this.toolManager = toolManager;
-	}
-
+	
+	@Setter
 	private SecurityService securityService;
-	public void setSecurityService(SecurityService securityService) {
-		this.securityService = securityService;
-	}
-
+	
+	@Setter
 	private SessionManager sessionManager;
-	public void setSessionManager(SessionManager sessionManager) {
-		this.sessionManager = sessionManager;
-	}
-
+	
+	@Setter
 	private SiteService siteService;
-	public void setSiteService(SiteService siteService) {
-		this.siteService = siteService;
-	}
-
+	
+	@Setter
 	private UserDirectoryService userDirectoryService;
-	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-		this.userDirectoryService = userDirectoryService;
-	}
 	
+	@Setter
 	private SakaiPersonManager sakaiPersonManager;
-	public void setSakaiPersonManager(SakaiPersonManager sakaiPersonManager) {
-		this.sakaiPersonManager = sakaiPersonManager;
-	}
 	
+	@Setter
 	private ContentHostingService contentHostingService;
-	public void setContentHostingService(ContentHostingService contentHostingService) {
-		this.contentHostingService = contentHostingService;
-	}
 	
+	@Setter
 	private EventTrackingService eventTrackingService;
-	public void setEventTrackingService(EventTrackingService eventTrackingService) {
-		this.eventTrackingService = eventTrackingService;
-	}
 	
+	@Setter
 	private EmailService emailService;
-	public void setEmailService(EmailService emailService) {
-		this.emailService = emailService;
-	}
 	
+	@Setter
 	private ServerConfigurationService serverConfigurationService;
-	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-		this.serverConfigurationService = serverConfigurationService;
-	}
-
+	
+	@Setter
 	private EmailTemplateService emailTemplateService;
-	public void setEmailTemplateService(EmailTemplateService emailTemplateService) {
-		this.emailTemplateService = emailTemplateService;
-	}
 	
+	@Setter
 	private IdManager idManager;
-	public void setIdManager(IdManager idManager) {
-		this.idManager = idManager;
-	}
 	
+	@Setter
 	private ActivityService activityService;
-	public void setActivityService(ActivityService activityService) {
-		this.activityService = activityService;
-	}
+	
 
 	//INJECT OTHER RESOURCES
+	@Setter
 	private ArrayList<String> emailTemplates;
-	public void setEmailTemplates(ArrayList<String> emailTemplates) {
-		this.emailTemplates = emailTemplates;
-	}
+	
 	
 }

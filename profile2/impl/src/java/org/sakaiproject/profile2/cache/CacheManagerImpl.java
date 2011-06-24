@@ -1,5 +1,7 @@
 package org.sakaiproject.profile2.cache;
 
+import lombok.Setter;
+
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 
@@ -18,8 +20,6 @@ public class CacheManagerImpl implements CacheManager {
 		return memoryService.newCache(cacheName);
 	}
 
+	@Setter
 	private MemoryService memoryService;
-	public void setMemoryService(MemoryService memoryService) {
-		this.memoryService = memoryService;
-	}
 }

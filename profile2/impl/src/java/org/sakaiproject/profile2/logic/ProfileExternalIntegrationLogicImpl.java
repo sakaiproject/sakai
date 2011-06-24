@@ -3,6 +3,8 @@ package org.sakaiproject.profile2.logic;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.Setter;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.profile2.dao.ProfileDao;
@@ -188,16 +190,11 @@ public class ProfileExternalIntegrationLogicImpl implements ProfileExternalInteg
 		
 	}
 	
-	
+	@Setter
 	private ProfileDao dao;
-	public void setDao(ProfileDao dao) {
-		this.dao = dao;
-	}
 	
+	@Setter
 	private SakaiProxy sakaiProxy;
-	public void setSakaiProxy(SakaiProxy sakaiProxy) {
-		this.sakaiProxy = sakaiProxy;
-	}
 	
 	
 }

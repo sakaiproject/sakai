@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Setter;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.profile2.dao.ProfileDao;
@@ -366,36 +368,22 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 
 	}
 		
-	// internal components
+	@Setter
 	private ProfileDao dao;
-	public void setDao(ProfileDao dao) {
-		this.dao = dao;
-	}
 	
+	@Setter
 	private ProfilePrivacyLogic privacyLogic;
-	public void setPrivacyLogic(ProfilePrivacyLogic privacyLogic) {
-		this.privacyLogic = privacyLogic;
-	}
 	
+	@Setter
 	private ProfileConnectionsLogic connectionsLogic;
-	public void setConnectionsLogic(
-			ProfileConnectionsLogic connectionsLogic) {
-		this.connectionsLogic = connectionsLogic;
-	}
 	
+	@Setter
 	private ProfileLinkLogic linkLogic;
-	public void setLinkLogic(ProfileLinkLogic linkLogic) {
-		this.linkLogic = linkLogic;
-	}
 	
+	@Setter
 	private ProfilePreferencesLogic preferencesLogic;
-	public void setPreferencesLogic(ProfilePreferencesLogic preferencesLogic) {
-		this.preferencesLogic = preferencesLogic;
-	}
 	
+	@Setter
 	private SakaiProxy sakaiProxy;
-	public void setSakaiProxy(SakaiProxy sakaiProxy) {
-		this.sakaiProxy = sakaiProxy;
-	}
-		
+	
 }

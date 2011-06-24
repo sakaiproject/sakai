@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Setter;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.quartz.JobExecutionContext;
@@ -533,50 +535,32 @@ public class KudosJob implements StatefulJob {
 		log.info("KudosJob.init()");		
 	}
 	
-	
+	@Setter
 	private SakaiProxy sakaiProxy;
-	public void setSakaiProxy(SakaiProxy sakaiProxy) {
-		this.sakaiProxy = sakaiProxy;
-	}
 	
+	@Setter
 	private ProfileLogic profileLogic;
-	public void setProfileLogic(ProfileLogic profileLogic) {
-		this.profileLogic = profileLogic;
-	}
 	
+	@Setter
 	private ProfileKudosLogic kudosLogic;
-	public void setKudosLogic(ProfileKudosLogic kudosLogic) {
-		this.kudosLogic = kudosLogic;
-	}
 	
+	@Setter
 	private ProfileImageLogic imageLogic;
-	public void setImageLogic(ProfileImageLogic imageLogic) {
-		this.imageLogic = imageLogic;
-	}
 	
+	@Setter
 	private ProfileConnectionsLogic connectionsLogic;
-	public void setConnectionsLogic(ProfileConnectionsLogic connectionsLogic) {
-		this.connectionsLogic = connectionsLogic;
-	}
 	
+	@Setter
 	private ProfileMessagingLogic messagingLogic;
-	public void setMessagingLogic(ProfileMessagingLogic messagingLogic) {
-		this.messagingLogic = messagingLogic;
-	}
 	
+	@Setter
 	private ProfileStatusLogic statusLogic;
-	public void setStatusLogic(ProfileStatusLogic statusLogic) {
-		this.statusLogic = statusLogic;
-	}
 	
+	@Setter
 	private ProfileExternalIntegrationLogic externalIntegrationLogic;
-	public void setExternalIntegrationLogic(ProfileExternalIntegrationLogic externalIntegrationLogic) {
-		this.externalIntegrationLogic = externalIntegrationLogic;
-	}
 	
+	@Setter
 	private SessionManager sessionManager;
-	public void setSessionManager(SessionManager sessionManager) {
-		this.sessionManager = sessionManager;
-	}
+	
 	
 }
