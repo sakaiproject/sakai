@@ -1528,7 +1528,7 @@ ul.topnav {
     background: #222 url(images/topnav_bg.gif) repeat-x;
 	font-size: 1.1em;
 }
-ul.topnav li {
+ul.topnav li, #mastLogin ul.subnav li{
 	background: #222 url(images/topnav_bg.gif) repeat-x;
 	float: left;
 	margin: 0;
@@ -1548,7 +1548,7 @@ ul.topnav li a:hover{
 ul.topnav li.nav-selected > a{
     color:#F4CB5F
 }
-li.nav-menu > a:hover, li.nav-menu > a:focus,  li.nav-menu > a:active{
+li.nav-menu > a:hover, li.nav-menu > a:focus,  li.nav-menu > a:active, #mastLogin  li.submenuitem a:hover,#mastLogin  li.submenuitem a:focus{
     outline:none;
     color:#F4CB5F;
 	background:  url(images/topnav_hover.gif) no-repeat center top;
@@ -1591,6 +1591,12 @@ ul.topnav li ul.subnav{
 	-webkit-box-shadow: 6px 6px 8px #000;
 	box-shadow: 6px 6px 8px #000;
 }
+ul.topnav li ul.subnav li{
+    padding:0;
+}
+ul.topnav li ul.subnav li a{
+    padding:10px 24px;
+}
 #mastLogin span.drop { /*--Drop down trigger styles--*/
 	width: 17px;
 	margin-top:3px;
@@ -1602,7 +1608,6 @@ ul.topnav li ul.subnav{
 	position: absolute; /*--Important - Keeps subnav from affecting main navigation flow--*/
 	right: 2px; top: 30px;
 	background: #333;
-    font-size:.9em;
 	margin: 0; padding: 0;
 	display: none;
 	float: left;
@@ -1614,7 +1619,6 @@ ul.topnav li ul.subnav{
 	-webkit-box-shadow: 6px 6px 8px #000;
 	box-shadow: 6px 6px 8px #000;
 }
-
 ul.subnav span.addTool{
     text-align:right;
 }
@@ -1672,19 +1676,19 @@ ul.nav-submenu li.submenuitem a, #mastLogin  li.submenuitem a {
     text-decoration:none;
     padding:0;
 	width: 170px;
-    outline: 1x solid lime;
 	padding-left: 25px;
 }
 #mastLogin  li.submenuitem{
     margin:0;
     text-align:left;
+    width:100%
 }
+
 #mastLogin  li.submenuitem a{
     background-position:left center;
     background-repeat:no-repeat;
-    border-bottom:1px solid #777;
     padding:10px 25px;
-    width:auto;
+    width:100%;
     display:block;
 }
 #mastLogin  li.submenuitem:last-child a{
@@ -1701,16 +1705,15 @@ ul.nav-submenu li.submenuitem a, #mastLogin  li.submenuitem a {
         background-image: url(/library/image/silk/application_lightning.png );
 }
 
-#mastLogin  li.submenuitem a:hover,#mastLogin  li.submenuitem a:focus { /*--Hover effect for subnav links--*/
-    color:#1BC92B;
-}
-
 ul#otherSiteList{
     margin:5px;
     padding:0;
 }
 ul#otherSitesMenu{
-    float:right;
+    position:absolute;
+    top:10px;
+    right:5px;
+    font-size:.7em;
     margin:0;
     padding:0
 }

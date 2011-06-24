@@ -391,7 +391,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	padding: 3px 0;
     position:absolute;
     top:35px;
-    right:10px;
+    right:100px;
 	vertical-align: middle;
 }
 
@@ -1702,7 +1702,10 @@ ul#otherSiteList{
     padding:0;
 }
 ul#otherSitesMenu{
-    float:right;
+    position:absolute;
+    top:15px;
+    right:5px;
+    font-size:.7em;
     margin:0;
     padding:0
 }

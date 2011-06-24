@@ -1737,7 +1737,10 @@ ul#otherSiteList{
     padding:0;
 }
 ul#otherSitesMenu{
-    float:right;
+    position:absolute;
+    top:15px;
+    right:5px;
+    font-size:.7em;
     margin:0;
     padding:0
 }
