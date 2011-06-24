@@ -39,4 +39,10 @@ public interface PermissionsHelper
 
 	/** Set this tool state attribute to the entity reference of the entity which controls the role definitions, if different than the target_ref (leave it unset if target_ref has the roles needed). */
 	static final String ROLES_REF = "sakaiproject.permissions.rolesRef";
+	
+	/** the prefix to permission title for permission description entry in bundle file */
+	public static final String PREFIX_PERMISSION_DESCRIPTION = "desc-";
+	
+	/**	Set this tool state attribute for permission descriptions  **/
+	public static final String PERMISSION_DESCRIPTION = "permissionDescriptions";
 }
