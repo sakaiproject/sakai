@@ -1,3 +1,5 @@
+<!-- $Id$ -->
+<!-- start: chef_assignments_tags_list.vm  -->
 <script type="text/javascript" language="JavaScript">
 
 function saveChanges(formName, textAreaId) {
@@ -134,3 +136,4 @@ iframeId = '$iframeId';
 		#end
 	#end
 </form>
+<!-- end: chef_assignments_tags_list.vm  -->

@@ -1,3 +1,5 @@
+<!-- $Id$ -->
+<!-- start: chef_assignments_instructor_reorder_assignment.vm  -->
 ##<!-- $Header: Exp $ -->
 ## Assignments - reorder view
 <script type="text/javascript"
@@ -166,4 +168,4 @@
 	</form>						
 
 </div>
-
+<!-- end: chef_assignments_instructor_reorder_assignment.vm  -->

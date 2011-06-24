@@ -1,3 +1,5 @@
+<!-- $Id$ -->
+<!-- start: check_assignments_instructor_grading_submission.vm  -->
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_instructor_grading_submission.vm,v 1.10 2005/06/03 15:32:15 zqian.umich.edu Exp $ -->
 #parse("/vm/assignment/assignment_macros.vm")
 <link href="/sakai-assignment-tool/css/assignment.css" type="text/css" rel="stylesheet" media="all" />
@@ -649,3 +651,4 @@ function handleEnterKeyPress(ev)
 		</div>	
 	</form>
 </div>
+<!-- end: check_assignments_instructor_grading_submission.vm  -->

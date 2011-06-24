@@ -1,3 +1,5 @@
+<!-- $Id$ -->
+<!-- start: chef_assignments_instructor_list_submissions.vm  -->
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_instructor_list_submissions.vm,v 1.10 2005/06/14 16:07:00 zqian.umich.edu Exp $ -->
 #parse("/vm/assignment/assignment_macros.vm")
 <link href="/sakai-assignment-tool/css/assignment.css" type="text/css" rel="stylesheet" media="all" />
@@ -755,3 +757,4 @@
 	#end
 	</div>	
 </div>
+<!-- end: chef_assignments_instructor_list_submissions.vm  -->

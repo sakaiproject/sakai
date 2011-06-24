@@ -1,3 +1,5 @@
+<!-- $Id$ -->
+<!-- start: chef_assignments_student_preview_submission.vm -->
 #parse("/vm/assignment/assignment_macros.vm")
 <div class="portletBody">
 
@@ -206,4 +208,4 @@
 		</div>
 	</form>
 </div>
-
+<!-- end: chef_assignments_student_preview_submission.vm -->

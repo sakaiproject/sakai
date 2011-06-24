@@ -1,3 +1,5 @@
+<!-- $Id$ -->
+<!-- start: chef_assignments_instructor_student_list_submissions.vm  -->
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_instructor_student_list_submissions.vm,v 1.8 2005/05/28 03:04:35 ggolden.umich.edu Exp $ -->
 <div class="portletBody" xmlns:wairole="http://www.w3.org/2005/01/wai-rdf/GUIRoleTaxonomy#"  xmlns:aaa="http://www.w3.org/2005/07/aaa">
 		<ul class="navIntraTool actionToolBar" role="menu">
@@ -176,3 +178,4 @@
 		</form>	
 	#end
 </div>
+<!-- end: chef_assignments_instructor_student_list_submissions.vm  -->

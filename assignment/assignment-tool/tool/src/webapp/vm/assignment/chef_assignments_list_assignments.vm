@@ -1,3 +1,5 @@
+<!-- $Id$ -->
+<!-- start: chef_assignments_list_assignments.vm  -->
 ##<!-- $Header: Exp $ -->
 ## Assignments - list view
 <script type="text/javascript" language="JavaScript">
@@ -557,3 +559,4 @@ function allowClick(object)
 		</form>
 	#end
 </div>
+<!-- end: chef_assignments_list_assignments.vm  -->

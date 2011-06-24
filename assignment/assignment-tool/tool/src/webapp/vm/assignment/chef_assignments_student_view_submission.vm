@@ -1,3 +1,5 @@
+<!-- $Id$ -->
+<!-- start: chef_assignments_student_view_submission.vm  -->
 #parse("/vm/assignment/assignment_macros.vm")
 <script type="text/javascript" src="/library/js/jquery.js"></script>
 <link href="/sakai-assignment-tool/css/assignment.css" type="text/css" rel="stylesheet" media="all" />
@@ -1001,4 +1003,4 @@ function submitform(id)
 	</form>
 	#end
 </div>
-
+<!-- end: chef_assignments_student_view_submission.vm  -->

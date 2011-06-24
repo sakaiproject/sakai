@@ -1,3 +1,5 @@
+<!-- $Id$ -->
+<!-- start: chef_assignments_options.vm  -->
 <script type="text/javascript"  src="/sakai-assignment-tool/js/assignments.js"></script>
 <script type="text/javascript">
 	focus_path = [ "$form-notify" ];
@@ -24,4 +26,4 @@
 		</p>
 	</form>
 </div>
-
+<!-- end: chef_assignments_options.vm  -->
