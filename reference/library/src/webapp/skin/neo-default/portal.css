@@ -638,12 +638,13 @@ html>body .dhtml_more_tabs {
 	list-style: none;
 	margin: 0;
 	padding-right: 0;
+
 	padding-left: 0;
 }
 
 #toolMenu li, #subSites li{
-
-	margin: 0;
+    
+	margin: 3px 0;
 	width: auto;
 	padding: 0;
 	border: 1px solid #fff;
@@ -656,7 +657,9 @@ also hide if are going to be using icon links (as background of <a> nad <li>
 
 
 #toolMenu li span, #subSites li span{
-
+    background-repeat:no-repeat;
+    background-position:right;
+    padding-right : 22px;
 }
 
 #toolMenu li.selectedTool span, #toolMenu li.selectedTool a{
@@ -671,22 +674,19 @@ also hide if are going to be using icon links (as background of <a> nad <li>
 	display: block;
 	text-decoration: none;
 	color: #333;
-    font:1.1em bold Helvetica, 'Helvetica Neue', Arial;
+    font:1em bold Helvetica, 'Helvetica Neue', Arial;
 	padding-bottom : 2px;
-    padding-right : 22px;
     padding-top : 2px;
     margin-bottom : 0px;
     margin-left : 0px;
     margin-right : 0px;
     margin-top : 0px;
-    background-repeat:no-repeat;
-       background-position:right;
 
 }
 #toolMenu li a:hover,
 #subSites li a:hover{
 	text-decoration: none;
-	color: #9cf;
+	color: #09f;
 }
 
 #toolMenu li a.selected,
@@ -1224,12 +1224,6 @@ below they are contextually defined depending on the column as an example,as you
 }
 
 /* PART 9 - Tool Icons */
-
-#toolMenu .toolMenuIcon {
-        padding: 0 22px 0 0;
-        background-repeat: no-repeat; /* url("/library/image/silk/house.png") */
-        background-position: right center;
-}
 
 .icon-osp-evaluation {
 	background-image: url(/library/image/silk/thumb_up.png);
