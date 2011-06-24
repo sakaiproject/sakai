@@ -1097,10 +1097,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		.getRenderEngine(portalContext, request);
 		PortalRenderContext rcontext = rengine.newRenderContext(request);
 
-		if (skin == null)
-		{
-			skin = ServerConfigurationService.getString("skin.default");
-		}
+		if (skin == null) skin = getSkin(skin);
 		String skinRepo = ServerConfigurationService.getString("skin.repo");
 
 		rcontext.put("pageSkinRepo", skinRepo);
@@ -2097,6 +2094,16 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	protected String getSiteSkin(String siteId)
 	{
 		String skin = SiteService.getSiteSkin(siteId);
+		return getSkin(skin);
+	}
+
+	/**
+	 * Do the getSkin, adjusting for the overall skin/templates for the portal.
+	 * 
+	 * @return The skin
+	 */
+	protected String getSkin(String skin)
+	{
 		if (skin == null)
 		{
 			skin = ServerConfigurationService.getString("skin.default");

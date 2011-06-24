@@ -152,7 +152,7 @@
          <div id="otherSiteSearch"> 
 		#if($tabsSites.tabsMoreSites.size() > ${showSearchWhen})
          	<label for="txtSearch">Search sites in this drawer</label> <input type="text" id="txtSearch" name="txtSearch" maxlength="50" />
-	        <a id="imgSearch" href="#" style="display:none"><img src="/portal/styles/neotmp/images/cancel.png" alt="Cancel Search" title="Cancel Search" /></a>
+	        <a id="imgSearch" href="#" style="display:none"><img src="${pageSkinRepo}/${pageSkin}/images/cancel.png" alt="Cancel Search" title="Cancel Search" /></a>
 			<span id="noSearchResults" style="display:none">No search results found</span>
 		##end
 		#else
@@ -161,9 +161,12 @@
 		</div>	
 			#if (${tabsSites.worksiteToolUrl})
 		        <ul id="otherSitesMenu">
-					<li><a id="allSites" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&sakai.state.reset=true"><span>${rloader.sit_allsites}</span></a></li>
-					<li><a id="newSite" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&panel=Main&sakai_action=doNew_site&sakai.state.reset=true"><span>${rloader.sit_newsite}</span></a></li>
-				</ul>
+				<li><a id="allSites" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&sakai.state.reset=true"><span>${rloader.sit_allsites}</span></a></li>
+				<li><a id="newSite" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&panel=Main&sakai_action=doNew_site&sakai.state.reset=true"><span>${rloader.sit_newsite}</span></a></li>
+				#if (${tabsSites.prefsToolUrl})
+				<li><a href="${tabsSites.prefsToolUrl}?sakai_nav_minimized=true"><span>${rloader.sit_preferences}</span></a></li>
+				#end
+			</ul>
 			#end
      	</div>
      	<ul id="otherSiteList" role="navigation">

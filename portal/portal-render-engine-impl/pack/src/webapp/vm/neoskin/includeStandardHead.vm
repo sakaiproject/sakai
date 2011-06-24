@@ -36,7 +36,7 @@
 <!--[if gte IE 5]><![if lt IE 7]>
     <link href="/portal/styles/portalstyles-ie5.css" type="text/css" rel="stylesheet" media="all" />
 <![endif]><![endif]-->
-<link href="/portal/styles/neotmp/portal.css" type="text/css" rel="stylesheet" media="all" />
+<link href="${pageSkinRepo}/${pageSkin}/portal.css" type="text/css" rel="stylesheet" media="all" />
 
 
 #if (! $currentPlacement && $isPDA )
