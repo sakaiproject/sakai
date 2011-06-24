@@ -8965,6 +8965,12 @@ public class SiteAction extends PagedResourceActionII {
 						page.setTitle(toolRegFound.getTitle());
 					}
 					page.setLayout(SitePage.LAYOUT_SINGLE_COL);
+
+					// if so specified in the tool's registration file, 
+					// configure the tool's page to open in a new window.
+					if ("true".equals(toolRegFound.getRegisteredConfig().getProperty("popup"))) {
+					    page.setPopup(true);
+					}
 					ToolConfiguration tool = page.addTool();
 					tool.setTool(toolRegFound.getId(), toolRegFound);
 					addPage.toolId = toolId;
