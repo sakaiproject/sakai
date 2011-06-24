@@ -50,7 +50,19 @@
 		</div>
 		#if (${tabsSites} )
 		<div id="headerMax">
+			<div id="siteNavWrapper" class="${logoSiteClass}">
+				<div id="mastHead" role="banner">
+					<div id="mastLogo">
+						<img title="Logo" alt="Logo" src="${logoSkinRepo}/${logoSkin}/images/logo_inst.gif" />
+					</div>
+					<div id="mastBanner">
+						<img title="Banner" alt="Banner" src="${logoSkinRepo}/${logoSkin}/images/banner_inst.gif" />
+					</div>
+				</div>
 #parse("/vm/neoskin/includeTabs.vm")
+      </div>
+			
+
 		</div>
 		#else
 
