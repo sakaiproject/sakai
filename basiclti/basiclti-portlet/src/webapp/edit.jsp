@@ -200,7 +200,7 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <select name="imsti.assignment">
   <option value=""><%=rb.getString("gradable.nograde") %></option>
 <% for ( String assn : assignments ) { 
-     if ( assn.equals(ov.getProperty("imsti.assignment")) ) { %>
+     if ( Validator.escapeHtml(assn).equals(ov.getProperty("imsti.assignment")) ) { %>
        <option selected="selected" value="<%=Validator.escapeHtml(assn) %>"><%=Validator.escapeHtml(assn) %></option>
 <%   } else { %>
        <option value="<%=Validator.escapeHtml(assn) %>"><%=Validator.escapeHtml(assn) %></option>

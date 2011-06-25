@@ -251,7 +251,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
                         if ( "secret".equals(element)) {
 				propValue = LEAVE_SECRET_ALONE;
 			}
-			oldValues.setProperty("imsti."+element,propValue);
+			oldValues.setProperty("imsti."+element, Validator.escapeHtml(propValue));
 		}
         }
 
