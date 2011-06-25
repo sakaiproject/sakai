@@ -555,7 +555,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				m.put("jsPageId", Web.escapeJavascript(p.getId()));
 				m.put("pageRefUrl", pagerefUrl);
 
-                StringBuffer desc = new StringBuffer();
+				StringBuffer desc = new StringBuffer();
 
 				boolean hidden = false;
 				if (pTools != null && pTools.size() > 0) {
@@ -582,9 +582,9 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					}
 				}
 				
-				// Just make sure no double quotes...
-				String description = desc.toString().replace('"','-');
-				m.put("description", desc.toString());
+				// TODO: Should have Web.escapeHtmlAttribute()
+				String description = desc.toString().replace("\"","&quot;");
+				m.put("description",  description);
 				m.put("hidden", Boolean.valueOf(hidden));
 				// toolsOnPage is always null
 				//if (toolsOnPage != null) m.put("toolsOnPage", toolsOnPage);
