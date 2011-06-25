@@ -74,6 +74,7 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.basiclti.LocalEventTrackingService;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 
+import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -535,11 +536,19 @@ public class IMSBLTIPortlet extends GenericPortlet {
         boolean changed = false;
 
         // Make Sure the Assignment is a legal one
-	String assignment  = getFormParameter(request,sakaiProperties,"assignment");
+	String assignment = getFormParameter(request,sakaiProperties,"assignment");
+	String newAssignment = getFormParameter(request,sakaiProperties,"newassignment");
         String oldPlacementSecret = getSakaiProperty(sakaiProperties,"imsti.placementsecret");
         String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
         String allowSettings = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, null);
         String allowRoster = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, null);
+
+	if ( "true".equals(allowOutcomes) && newAssignment != null && newAssignment.trim().length() > 1 ) {
+		if ( addGradeBookItem(request, newAssignment) ) {
+System.out.println("Success!");
+			assignment = newAssignment;
+		}
+	}
 
 	// System.out.println("old placementsecret="+oldPlacementSecret);
 	if ( oldPlacementSecret == null && 
@@ -563,7 +572,10 @@ public class IMSBLTIPortlet extends GenericPortlet {
 	        List<String> assignments = getGradeBookAssignments();
                 boolean found = false;
                 if ( assignments != null ) for ( String assn : assignments ) {
-                      if ( assn.equals(assignment) ) found = true;
+                      if ( assn.equals(assignment) ) {
+                          found = true;
+                          break;
+                       }
                 }
                 if ( ! found ) {
 			setErrorMessage(request, rb.getString("error.gradable.badassign") + 
@@ -612,6 +624,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
         // Store preferences
         for (String element : fieldList) {
                 String formParm  = getFormParameter(request,sakaiProperties,element);
+		if ( "assignment".equals(element) ) formParm = assignment;
                 if ( "secret".equals(element) && LEAVE_SECRET_ALONE.equals(formParm) ) continue;
                 try {
                         prefs.setValue("sakai:imsti."+element, formParm);
@@ -703,6 +716,39 @@ public class IMSBLTIPortlet extends GenericPortlet {
     {
             String retval = ToolManager.getCurrentPlacement().getContext();
             return retval;
+    }
+
+    // Create an item in the Gradebook
+    protected boolean addGradeBookItem(ActionRequest request, String assignmentName)
+    {
+        try
+        {
+		GradebookService g = (GradebookService)  ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+
+		String gradebookUid = getContext();
+		if ( ! (g.isGradebookDefined(gradebookUid) && (g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)) && g.currentUserHasGradeAllPerm(gradebookUid) ) ) return false;
+
+		// add assignment to gradebook
+ 		Assignment asn = new Assignment();
+		asn.setPoints(Double.valueOf(100));
+		asn.setExternallyMaintained(false);
+		asn.setName(assignmentName);
+		asn.setReleased(true);
+		asn.setUngraded(false);
+                g.addAssignment(gradebookUid, asn);
+		return true;
+	}
+	catch (ConflictingAssignmentNameException e)
+	{
+		return true;
+	}
+	catch (Exception e)
+	{
+		dPrint("GradebookNotFoundException (may be because GradeBook has not yet been added to the Site) " + e.getMessage());
+		setErrorMessage(request, rb.getString("error.gradable.badcreate") + ":" + e.getMessage() );
+		M_log.warn(this + ":addGradeItem " + e.getMessage());
+	}
+	return false;
     }
 
     // get all assignments from the Gradebook

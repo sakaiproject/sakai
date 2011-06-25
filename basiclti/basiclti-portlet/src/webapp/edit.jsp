@@ -138,8 +138,8 @@ function switchui()
 </div>
 <% } %>
 <% if ( allow(sp,"launch") ) { %>
-<p id="url.input" class="shorttext" style="width:50%;clear:none;">
-<span class="reqStar">*</span><label for="imsti.launch"><%=rb.getString("tool.url") %></label>
+<p id="url.input" class="shorttext" style="clear:none;">
+<span class="reqStar">*</span><label for="imsti.launch"><%=rb.getString("tool.url") %></label><br/>
 <input type="text" size="80" name="imsti.launch" id="imsti.launch" value="<%=ov.getProperty("imsti.launch","")%>">
 <%=rb.getString("tool.url.detail") %>
 </p>
@@ -184,9 +184,17 @@ if ( document.getElementById("UISwitcher") ) switchui();
 
 <% } %>
 
-<% if ( allow(sp,"gradable") && assignments != null ) { %>
-
+<% if ( allow(sp,"gradable") ) { %>
 <h3><%=rb.getString("gradable.information") %></h3>
+<p  class="shorttext" style="clear:none;">
+<label for="imsti.newassignment"><%=rb.getString("gradable.newassignment") %></label>
+<input type="text" size="10" name="imsti.newassignment" id="imsti.newassignment" value="<%=ov.getProperty("imsti.newassignment","")%>"> 
+<span class="textPanelFooter"><%=rb.getString("gradable.newassignment.detail") %></span>
+</p>
+
+<% } %>
+
+<% if ( allow(sp,"gradable") && assignments != null ) { %>
 <p  class="shorttext" style="clear:none;">
 <%=rb.getString("gradable.title") %>
 <select name="imsti.assignment">
@@ -203,7 +211,6 @@ if ( document.getElementById("UISwitcher") ) switchui();
 </p>
 
 <% } %>
-
 
 <% if ( allow(sp,"frameheight") || allow(sp, "debug") || allow(sp, "newpage") || allow(sp, "maximize") ) { %>
 <h3><%=rb.getString("launch.information") %></h3>
