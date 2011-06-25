@@ -393,6 +393,9 @@ public class SiteAction extends PagedResourceActionII {
 	/** The name of the Attribute for display template index */
 	private static final String STATE_OVERRIDE_TEMPLATE_INDEX = "site.overrideTemplateIndex";
 
+	/** The name of the Attribute to indicate we are operating in shortcut mode */
+	private static final String STATE_IN_SHORTCUT = "site.currentlyInShortcut";
+
 	/** State attribute for state initialization. */
 	private static final String STATE_INITIALIZED = "site.initialized";
 
@@ -1058,10 +1061,27 @@ public class SiteAction extends PagedResourceActionII {
 	} // doPermissions
 
 	/**
+	 * Build the context for shortcut display
+	 */
+	public String buildShortcutPanelContext(VelocityPortlet portlet,
+			Context context, RunData data, SessionState state) {
+		return buildMainPanelContext(portlet, context, data, state, true);
+	}
+
+	/**
 	 * Build the context for normal display
 	 */
 	public String buildMainPanelContext(VelocityPortlet portlet,
 			Context context, RunData data, SessionState state) {
+		return buildMainPanelContext(portlet, context, data, state, false);
+	}
+
+	/**
+	 * Build the context for normal/shortcut display and detect switches
+	 */
+	public String buildMainPanelContext(VelocityPortlet portlet,
+			Context context, RunData data, SessionState state,
+			boolean inShortcut) {
 		rb = new ResourceLoader("sitesetupgeneric");
 		context.put("tlang", rb);
 		context.put("clang", cfgRb);
@@ -1095,6 +1115,19 @@ public class SiteAction extends PagedResourceActionII {
 				state.removeAttribute(STATE_OVERRIDE_TEMPLATE_INDEX);
 				state.setAttribute(STATE_TEMPLATE_INDEX, overRideTemplate);
 			}
+		}
+
+		// Track when we come into Main panel most recently from Shortcut Panel
+		// Reset the state and template if we *just* came into Main from Shortcut
+		if ( inShortcut ) {
+			state.setAttribute(STATE_IN_SHORTCUT, "true");
+		} else {
+			String fromShortcut = (String) state.getAttribute(STATE_IN_SHORTCUT);
+			if ( "true".equals(fromShortcut) ) {
+				cleanState(state);
+				state.setAttribute(STATE_TEMPLATE_INDEX, "0");
+			}
+			state.removeAttribute(STATE_IN_SHORTCUT);
 		}
 		
 		String indexString = (String) state.getAttribute(STATE_TEMPLATE_INDEX);
@@ -6398,6 +6431,10 @@ public class SiteAction extends PagedResourceActionII {
 	public void doMenu_edit_site_tools(RunData data) {
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// Clean up state on our first entry from a shortcut
+                String panel = data.getParameters().getString("panel");
+		if ( "Shortcut".equals(panel) ) cleanState(state);
 
 		// get the tools
 		siteToolsIntoState(state);
