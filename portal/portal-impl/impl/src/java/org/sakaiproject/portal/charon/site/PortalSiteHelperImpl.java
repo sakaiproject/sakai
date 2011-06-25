@@ -545,16 +545,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			if (doPages || p.isPopUp())
 			{
 				Map<String, Object> m = new HashMap<String, Object>();
-				m.put("isPage", Boolean.valueOf(true));
-				m.put("current", Boolean.valueOf(current));
-				m.put("ispopup", Boolean.valueOf(p.isPopUp()));
-				m.put("pagePopupUrl", pagePopupUrl);
-				m.put("pageTitle", Web.escapeHtml(p.getTitle()));
-				m.put("jsPageTitle", Web.escapeJavascript(p.getTitle()));
-				m.put("pageId", Web.escapeUrl(p.getId()));
-				m.put("jsPageId", Web.escapeJavascript(p.getId()));
-				m.put("pageRefUrl", pagerefUrl);
-
 				StringBuffer desc = new StringBuffer();
 
 				boolean hidden = false;
@@ -577,10 +567,22 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 						desc.append(t.getTool().getDescription());
 						tCount++;
 						if ( "sakai.siteinfo".equals(t.getToolId()) ) {
-							addMoreToolsUrl = Web.returnUrl(req, "/site/" + Web.escapeUrl(site.getId()) + "/page/" + Web.escapeUrl(p.getId()) + "?sakai_action=doMenu_edit_site_tools" );
+							addMoreToolsUrl = Web.returnUrl(req, "/site/" + Web.escapeUrl(site.getId()) + "/page/" + Web.escapeUrl(p.getId()) + "?sakai_action=doMenu_edit_site_tools&panel=Shortcut" );
 						}
 					}
+					// Won't work with mutliple tools per page
+					if ( tCount > 1 ) addMoreToolsUrl = null; 
 				}
+
+				m.put("isPage", Boolean.valueOf(true));
+				m.put("current", Boolean.valueOf(current));
+				m.put("ispopup", Boolean.valueOf(p.isPopUp()));
+				m.put("pagePopupUrl", pagePopupUrl);
+				m.put("pageTitle", Web.escapeHtml(p.getTitle()));
+				m.put("jsPageTitle", Web.escapeJavascript(p.getTitle()));
+				m.put("pageId", Web.escapeUrl(p.getId()));
+				m.put("jsPageId", Web.escapeJavascript(p.getId()));
+				m.put("pageRefUrl", pagerefUrl);
 				
 				// TODO: Should have Web.escapeHtmlAttribute()
 				String description = desc.toString().replace("\"","&quot;");

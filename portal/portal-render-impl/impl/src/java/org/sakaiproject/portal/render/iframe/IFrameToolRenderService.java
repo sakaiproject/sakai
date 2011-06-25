@@ -96,7 +96,11 @@ public class IFrameToolRenderService implements ToolRenderService
 		{
 			toolUrl += URLstub;
 		}
-		toolUrl = URLUtils.addParameter(toolUrl, "panel", "Main");
+
+		String sakaiPanel = request.getParameter("panel");
+		if ( sakaiPanel != null && sakaiPanel.matches(".*[\"'<>].*" ) ) sakaiPanel=null;
+		if ( sakaiPanel == null ) sakaiPanel="Main";
+		toolUrl = URLUtils.addParameter(toolUrl, "panel", sakaiPanel);
 
 		final StringBuilder sb = new StringBuilder();
 	
