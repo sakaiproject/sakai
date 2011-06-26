@@ -139,7 +139,9 @@ public class ForumPickerProducer implements ViewComponentProducer, NavigationCas
 				values.add(topic.getReference());
 
 			if (values.size() < 1) {
+			    UIOutput.make(tofill, "error-div");
 			    UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.no_topics"));
+			    UICommand.make(tofill, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
 			    return;
 			}
 

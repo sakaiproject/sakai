@@ -137,7 +137,9 @@ public class AssignmentPickerProducer implements ViewComponentProducer, Navigati
 			List<LessonEntity> alist = assignmentEntity.getEntitiesInSite();
 
 			if (alist == null || alist.size() < 1) {
+			    UIOutput.make(tofill, "error-div");
 			    UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.no_assignments"));
+			    UICommand.make(tofill, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
 			    return;
 			}
 
