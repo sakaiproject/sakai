@@ -109,6 +109,7 @@ public class ZipLoader implements CartridgeLoader {
           }
           dest.flush();
           dest.close();
+	  System.out.println("wrote file " + target);
         }
       }
       zis.close();
@@ -123,7 +124,7 @@ public class ZipLoader implements CartridgeLoader {
   public InputStream
   getFile(String the_target) throws FileNotFoundException, IOException {
     unzip();
-    //    System.out.println("getfile " + root + "::"  + the_target + "::" + (new File(root, the_target)).getCanonicalPath());
+     System.out.println("getfile " + root + "::"  + the_target + "::" + (new File(root, the_target)).getCanonicalPath());
     return new FileInputStream(new File(root, the_target));
   }
     

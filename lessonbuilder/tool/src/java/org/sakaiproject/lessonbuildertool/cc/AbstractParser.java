@@ -55,8 +55,6 @@ import org.jdom.output.XMLOutputter;
 
 public abstract class AbstractParser {
 
-  private static final Namespace MD_NS= Namespace.getNamespace("lom", "http://ltsc.ieee.org/xsd/LOM");
-  private static final Namespace CC_NS = Namespace.getNamespace("ims", "http://www.imsglobal.org/xsd/imscc/imscp_v1p1");
   private static final String RESOURCE_QUERY="ims:resource[@identifier='xxx']";
   private static final String MD_ROOT="lom";
   private static final String METADATA="metadata";
@@ -76,7 +74,7 @@ public abstract class AbstractParser {
   public void
   processDependencies(DefaultHandler the_handler,
                       Element the_resource) throws ParseException {
-    for (Iterator iter=the_resource.getChildren(DEPENDENCY, CC_NS).iterator(); iter.hasNext();) {
+    for (Iterator iter=the_resource.getChildren(DEPENDENCY, Ns.cc_ns()).iterator(); iter.hasNext();) {
       String target=((Element)iter.next()).getAttributeValue(IDREF);
       Element resource=findResource(target,the_resource.getParentElement());
       the_handler.startDependency(the_resource.getAttributeValue(ID),target);
@@ -88,7 +86,7 @@ public abstract class AbstractParser {
   public void
   processFiles(DefaultHandler the_handler,
                Element the_resource) {
-    for (Iterator iter=the_resource.getChildren(FILE, CC_NS).iterator(); iter.hasNext();) {
+    for (Iterator iter=the_resource.getChildren(FILE, Ns.cc_ns()).iterator(); iter.hasNext();) {
       the_handler.addFile(((Element)iter.next()).getAttributeValue(HREF));
     }
   }
@@ -96,8 +94,8 @@ public abstract class AbstractParser {
   public void
   processResourceMetadata(DefaultHandler the_handler,
                           Element the_resource) throws ParseException {
-    if (the_resource.getChild(METADATA, CC_NS)!=null) {
-      Element md=the_resource.getChild(METADATA, CC_NS).getChild(MD_ROOT, MD_NS);
+    if (the_resource.getChild(METADATA, Ns.cc_ns())!=null) {
+      Element md=the_resource.getChild(METADATA, Ns.cc_ns()).getChild(MD_ROOT, Ns.lom_ns());
       if (md!=null) {    
         the_handler.setResourceMetadataXml(md);
       }
@@ -141,7 +139,7 @@ public abstract class AbstractParser {
     try {
       String query=RESOURCE_QUERY.replaceFirst("xxx", the_identifier);
       XPath path=XPath.newInstance(query);
-      path.addNamespace(CC_NS);
+      path.addNamespace(Ns.cc_ns());
       result= (Element)path.selectSingleNode(the_resources);
     } catch (JDOMException e) {
       throw new ParseException(e.getMessage(),e);

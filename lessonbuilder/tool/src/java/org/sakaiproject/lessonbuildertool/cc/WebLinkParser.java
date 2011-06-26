@@ -48,8 +48,6 @@ import org.jdom.Namespace;
 
 public class WebLinkParser extends AbstractParser implements ContentParser {
 
-  private static final Namespace CC_NS = Namespace.getNamespace("ims", "http://www.imsglobal.org/xsd/imscc/imscp_v1p1");
-  
   private static final String FILE="file";
   private static final String HREF="href";
   private static final String URL="url";
@@ -64,11 +62,14 @@ public class WebLinkParser extends AbstractParser implements ContentParser {
                boolean isProtected) throws ParseException {
     try {
       //ok, so we're looking at a web link here...
-      Element link = getXML(the_cartridge, ((Element)the_resource.getChildren(FILE, CC_NS).get(0)).getAttributeValue(HREF));
-      the_handler.startWebLink(link.getChildText(TITLE),
-                               link.getChild(URL).getAttributeValue(HREF),
-                               link.getChild(URL).getAttributeValue(TARGET),
-                               link.getChild(URL).getAttributeValue(WINDOW_FEATURES),
+      Element link = getXML(the_cartridge, ((Element)the_resource.getChildren(FILE, Ns.cc_ns()).get(0)).getAttributeValue(HREF));
+      Namespace linkNs = Ns.link_ns();
+      Element urlElement = link.getChild(URL, linkNs);
+      
+      the_handler.startWebLink(link.getChildText(TITLE, linkNs),
+                               urlElement.getAttributeValue(HREF),
+                               urlElement.getAttributeValue(TARGET),
+                               urlElement.getAttributeValue(WINDOW_FEATURES),
                                isProtected);
       the_handler.setWebLinkXml(link);                         
       the_handler.endWebLink();

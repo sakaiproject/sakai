@@ -60,7 +60,6 @@ public class AssessmentParser extends AbstractQTIParser implements ContentParser
   private static final String TITLE="title";
   private static final String FILE="file";
   private static final String HREF="href";
-  private static final Namespace CC_NS = Namespace.getNamespace("ims", "http://www.imsglobal.org/xsd/imscc/imscp_v1p1");
   
   public void 
   parseContent(DefaultHandler handler,
@@ -68,7 +67,7 @@ public class AssessmentParser extends AbstractQTIParser implements ContentParser
                Element the_resource,
                boolean isProtected) throws ParseException {
     try {
-      String href=((Element)the_resource.getChildren(FILE, CC_NS).get(0)).getAttributeValue(HREF);
+      String href=((Element)the_resource.getChildren(FILE, Ns.cc_ns()).get(0)).getAttributeValue(HREF);
       Element qti=getXML(the_cartridge,href);
       handler.startAssessment(href, isProtected);
       Element assessment=qti.getChild(ASSESSMENT, QTI_NS);

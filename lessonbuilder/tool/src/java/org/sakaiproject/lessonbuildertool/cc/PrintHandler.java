@@ -110,8 +110,6 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private static final String ATTACHMENT="attachment";
   private static final String ATTACHMENTS="attachments";
     
-  private static final Namespace CC_NS = Namespace.getNamespace("ims", "http://www.imsglobal.org/xsd/imscc/imscp_v1p1");
-  private static final Namespace MD_NS= Namespace.getNamespace("lom", "http://ltsc.ieee.org/xsd/imscc/LOM");
   private static final String CC_ITEM_TITLE="title";
   private static final String CC_WEBCONTENT="webcontent";
   private static final String CC_WEBLINK0="imswl_xmlv1p0";
@@ -174,7 +172,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   public void startCCFolder(Element folder) {
       String title = this.title;
       if (folder != null)
-	  title = folder.getChildText(TITLE, CC_NS);
+	  title = folder.getChildText(TITLE, Ns.cc_ns());
 
       // add top level pages to left margin
       SimplePage page = null;
@@ -268,7 +266,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   }
 
   private String getFileName(Element resource) {
-      Element file = resource.getChild(FILE, CC_NS);
+      Element file = resource.getChild(FILE, Ns.cc_ns());
       if (file != null)
 	  return file.getAttributeValue(HREF);
       else
@@ -282,7 +280,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       if (all)
 	  System.err.println("\nadd item to page " + pages.get(pages.size()-1).getTitle() +
 			 " xml: "+the_xml + 
-			 " title " + (the_xml==null?"Question Pool" : the_xml.getChildText(CC_ITEM_TITLE, CC_NS)) +
+			 " title " + (the_xml==null?"Question Pool" : the_xml.getChildText(CC_ITEM_TITLE, Ns.cc_ns())) +
 			 " type " + resource.getAttributeValue(TYPE) +
 			 " href " + resource.getAttributeValue(HREF));
       String type = resource.getAttributeValue(TYPE);
@@ -293,7 +291,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       if (the_xml == null)
 	  title = "Question Pool";
       else
-	  title = the_xml.getChildText(CC_ITEM_TITLE, CC_NS);
+	  title = the_xml.getChildText(CC_ITEM_TITLE, Ns.cc_ns());
 
       try {
 	  if (type.equals(CC_WEBCONTENT)) {
@@ -311,7 +309,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  else if (type.equals(CC_WEBLINK0) || type.equals(CC_WEBLINK1)) {
 	      String filename = getFileName(resource);
 	      Element linkXml =  parser.getXML(loader, filename);
-	      Element urlElement = linkXml.getChild(URL);
+	      Namespace linkNs = Ns.link_ns();
+	      Element urlElement = linkXml.getChild(URL, linkNs);
 	      String url = urlElement.getAttributeValue(HREF);
 
 	      // the name must end in XML, so we can just turn it into URL
@@ -340,11 +339,12 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  } else if (type.equals(CC_TOPIC0) || type.equals(CC_TOPIC1)) {
 	      String filename = getFileName(resource);
 	      Element topicXml =  parser.getXML(loader, filename);
-	      String topicTitle = topicXml.getChildText(TITLE);
-	      String text = topicXml.getChildText(TEXT);
+	      Namespace topicNs = Ns.topic_ns();
+	      String topicTitle = topicXml.getChildText(TITLE, topicNs);
+	      String text = topicXml.getChildText(TEXT, topicNs);
 	      boolean texthtml = false;
 	      if (text != null) {
-		  Element textNode = topicXml.getChild(TEXT);
+		  Element textNode = topicXml.getChild(TEXT, topicNs);
 		  String textformat = textNode.getAttributeValue(TEXTTYPE);
 		  if (TEXTHTML.equalsIgnoreCase(textformat))
 		      texthtml = true;
@@ -357,7 +357,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      if (slash >= 0)
 		  base = base.substring(0, slash+1); // include trailing slash
 
-	      Element attachmentlist = topicXml.getChild(ATTACHMENTS);
+	      Element attachmentlist = topicXml.getChild(ATTACHMENTS, topicNs);
 	      List<Element>attachments = new ArrayList<Element>();
 	      if (attachmentlist != null)
 		  attachments = attachmentlist.getChildren();
@@ -521,7 +521,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
       } catch (Exception e) {
 	  simplePageBean.setErrKey("simplepage.create.resource.failed", e + ": " + the_file_id);
-	  System.out.println("CC loader: unable to get file " + the_file_id);
+	  System.out.println("CC loader: unable to get file " + the_file_id + " error: " + e);
       }
   }
 
@@ -657,15 +657,15 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       if (all)
 	  System.err.println("manifest md xml: "+the_md);    
       // NOTE: need to handle languages
-      Element general = the_md.getChild(GENERAL, MD_NS);
+      Element general = the_md.getChild(GENERAL, Ns.lomimscc_ns());
       if (general != null) {
-	  Element tnode = general.getChild(TITLE, MD_NS);
+	  Element tnode = general.getChild(TITLE, Ns.lomimscc_ns());
 	  if (tnode != null) {
-	      title = tnode.getChildTextTrim(STRING, MD_NS);
+	      title = tnode.getChildTextTrim(STRING, Ns.lomimscc_ns());
 	  }
-	  Element tdescription=general.getChild(DESCRIPTION, MD_NS);
+	  Element tdescription=general.getChild(DESCRIPTION, Ns.lomimscc_ns());
 	  if (tdescription != null) {
-	      description = tdescription.getChildTextTrim(STRING, MD_NS);
+	      description = tdescription.getChildTextTrim(STRING, Ns.lomimscc_ns());
 	  }
 
       }

@@ -53,7 +53,6 @@ public class QuestionBankParser extends AbstractQTIParser {
   private static final String IDENT="ident";
   private static final String FILE="file";
   private static final String HREF="href";
-  private static final Namespace CC_NS = Namespace.getNamespace("ims", "http://www.imsglobal.org/xsd/imscc/imscp_v1p1");
   
   private static final String QUESTION_BANK="objectbank";
   private static final String ITEM="item";
@@ -65,8 +64,8 @@ public class QuestionBankParser extends AbstractQTIParser {
                Element the_resource,
                boolean isProtected) throws ParseException {
     try {
-      Element qti=getXML(the_cartridge,((Element)the_resource.getChildren(FILE, CC_NS).get(0)).getAttributeValue(HREF));
-      handler.startQuestionBank(((Element)the_resource.getChildren(FILE, CC_NS).get(0)).getAttributeValue(HREF), isProtected);
+      Element qti=getXML(the_cartridge,((Element)the_resource.getChildren(FILE, Ns.cc_ns()).get(0)).getAttributeValue(HREF));
+      handler.startQuestionBank(((Element)the_resource.getChildren(FILE, Ns.cc_ns()).get(0)).getAttributeValue(HREF), isProtected);
       Element qb=qti.getChild(QUESTION_BANK, QTI_NS);
       handler.setQuestionBankXml(qti);
       handler.setQuestionBankDetails(qb.getAttributeValue(IDENT));

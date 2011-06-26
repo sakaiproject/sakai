@@ -52,7 +52,6 @@ import org.jdom.xpath.XPath;
 
 public class DiscussionParser extends AbstractParser implements ContentParser {
   
-  private static final Namespace CC_NS = Namespace.getNamespace("ims", "http://www.imsglobal.org/xsd/imscc/imscp_v1p1");
   private static final Namespace DT_NS = Namespace.getNamespace("dt", "http://www.imsglobal.org/xsd/imsdt_v1p0");
   
   private static final String ATTACHMENT_QUERY = "attachments/attachment";
@@ -70,15 +69,17 @@ public class DiscussionParser extends AbstractParser implements ContentParser {
                boolean isProtected) throws ParseException {
     try {
       //ok, so we're looking at a discussion topic here...
-      Element discussion = getXML(the_cartridge, ((Element)the_resource.getChildren(FILE, CC_NS).get(0)).getAttributeValue(HREF));
-      the_handler.startDiscussion(discussion.getChildText(TITLE),
-                                  discussion.getChild(TEXT).getAttributeValue(TEXTTYPE),
-                                  discussion.getChildText(TEXT),
+      Element discussion = getXML(the_cartridge, ((Element)the_resource.getChildren(FILE, Ns.cc_ns()).get(0)).getAttributeValue(HREF));
+      Namespace topicNs = Ns.topic_ns();
+      the_handler.startDiscussion(discussion.getChildText(TITLE, topicNs),
+                                  discussion.getChild(TEXT, topicNs).getAttributeValue(TEXTTYPE),
+                                  discussion.getChildText(TEXT, topicNs),
                                   isProtected);
       the_handler.setDiscussionXml(discussion);
       //discussion may have attachments
       XPath path = XPath.newInstance(ATTACHMENT_QUERY);
-      //path.addNamespace(DT_NS); //will need this if they fix the schema :-)
+      if (!topicNs.equals(Namespace.NO_NAMESPACE))
+	  path.addNamespace(topicNs); 
       for (Iterator iter=path.selectNodes(discussion).iterator(); iter.hasNext();) {
         the_handler.addAttachment(((Element)iter.next()).getAttributeValue(HREF));
       }

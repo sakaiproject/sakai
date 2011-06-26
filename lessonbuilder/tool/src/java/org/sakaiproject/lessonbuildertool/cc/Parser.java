@@ -81,12 +81,17 @@ public class Parser extends AbstractParser {
   
   private static final String IMS_MANIFEST="imsmanifest.xml";
   
-  private static final String LAR="associatedcontent/imscc_xmlv1p0/learning-application-resource";
-  private static final String DISCUSSION="imsdt_xmlv1p0";
-  private static final String ASSESSMENT="imsqti_xmlv1p2/imscc_xmlv1p0/assessment";
-  private static final String WEBLINK="imswl_xmlv1p0";
+  private static final String LAR0="associatedcontent/imscc_xmlv1p0/learning-application-resource";
+  private static final String LAR1="associatedcontent/imscc_xmlv1p1/learning-application-resource";
+  private static final String DISCUSSION0="imsdt_xmlv1p0";
+  private static final String DISCUSSION1="imsdt_xmlv1p1";
+  private static final String ASSESSMENT0="imsqti_xmlv1p2/imscc_xmlv1p0/assessment";
+  private static final String ASSESSMENT1="imsqti_xmlv1p2/imscc_xmlv1p1/assessment";
+  private static final String WEBLINK0="imswl_xmlv1p0";
+  private static final String WEBLINK1="imswl_xmlv1p1";
   private static final String WEBCONTENT="webcontent";
-  private static final String QUESTION_BANK="imsqti_xmlv1p2/imscc_xmlv1p0/question-bank";
+  private static final String QUESTION_BANK0="imsqti_xmlv1p2/imscc_xmlv1p0/question-bank";
+  private static final String QUESTION_BANK1="imsqti_xmlv1p2/imscc_xmlv1p1/question-bank";
   
   private static final String AUTH_QUERY="/ims:manifest/auth:authorizations";
   private static final String ITEM_QUERY="/ims:manifest/ims:organizations/ims:organization/ims:item";
@@ -98,9 +103,7 @@ public class Parser extends AbstractParser {
   private static final String AUTH_ACCESS_CARTRIDGE="cartridge";
   private static final String AUTH_ACCESS_RESOURCE="resource";
   
-  private static final Namespace CC_NS = Namespace.getNamespace("ims", "http://www.imsglobal.org/xsd/imscc/imscp_v1p1");
   private static final Namespace AUTH_NS = Namespace.getNamespace("auth", "http://www.imsglobal.org/xsd/imsccauth_v1p0");
-  private static final Namespace MD_NS= Namespace.getNamespace("lom", "http://ltsc.ieee.org/xsd/imscc/LOM");
   
   private static final String AUTH_AUTHORIZATION="authorization";
   private static final String AUTH_CCID="cartridgeId";
@@ -122,10 +125,14 @@ public class Parser extends AbstractParser {
   static {
     qbp=new QuestionBankParser();
     parsers=new HashMap<String, ContentParser>();
-    parsers.put(LAR, new LearningApplicationResourceParser());
-    parsers.put(DISCUSSION, new DiscussionParser());
-    parsers.put(ASSESSMENT, new AssessmentParser());
-    parsers.put(WEBLINK, new WebLinkParser());
+    parsers.put(LAR0, new LearningApplicationResourceParser());
+    parsers.put(LAR1, new LearningApplicationResourceParser());
+    parsers.put(DISCUSSION0, new DiscussionParser());
+    parsers.put(DISCUSSION1, new DiscussionParser());
+    parsers.put(ASSESSMENT0, new AssessmentParser());
+    parsers.put(ASSESSMENT1, new AssessmentParser());
+    parsers.put(WEBLINK0, new WebLinkParser());
+    parsers.put(WEBLINK1, new WebLinkParser());
     parsers.put(WEBCONTENT, new WebContentParser());
   }
   
@@ -149,26 +156,38 @@ public class Parser extends AbstractParser {
   
   private void
   processManifest(Element the_manifest, DefaultHandler the_handler) throws ParseException {
+    System.out.println("namespace for manifest " + the_manifest.getNamespace());
+    int v = 0;
+    for (; v < Ns.getVersions(); v++) {
+	Ns.setVersion(v);
+	if (the_manifest.getNamespace().equals(Ns.cc_ns()))
+	    break;
+    }
+    if (v >= Ns.getVersions())
+	System.out.println("Couldn't find namespace version");
+    System.out.println("Found version " + Ns.cc_ns());
+
     the_handler.startManifest();
     the_handler.setManifestXml(the_manifest);
     processAuthorization(the_manifest, the_handler); 
     processManifestMetadata(the_manifest, the_handler);
     try {
       XPath path=XPath.newInstance(ITEM_QUERY);
-      path.addNamespace(CC_NS);
+      path.addNamespace(Ns.cc_ns());
       Element item = (Element)path.selectSingleNode(the_manifest);
       if (item!=null) {     
-        for (Iterator iter=item.getChildren(CC_ITEM, CC_NS).iterator();iter.hasNext();) {
+        for (Iterator iter=item.getChildren(CC_ITEM, Ns.cc_ns()).iterator();iter.hasNext();) {
 	    Element thisitem = (Element)iter.next();
-          processItem((Element)thisitem, the_manifest.getChild(CC_RESOURCES, CC_NS), the_handler);
+          processItem((Element)thisitem, the_manifest.getChild(CC_RESOURCES, Ns.cc_ns()), the_handler);
         }
       } 
       //now we need to check for the question bank...
-      if (the_manifest.getChild(CC_RESOURCES, CC_NS) != null &&
-	  the_manifest.getChild(CC_RESOURCES, CC_NS).getChildren(CC_RESOURCE, CC_NS) != null)
-      for (Iterator iter=the_manifest.getChild(CC_RESOURCES, CC_NS).getChildren(CC_RESOURCE, CC_NS).iterator(); iter.hasNext(); ) {
+      if (the_manifest.getChild(CC_RESOURCES, Ns.cc_ns()) != null &&
+	  the_manifest.getChild(CC_RESOURCES, Ns.cc_ns()).getChildren(CC_RESOURCE, Ns.cc_ns()) != null)
+      for (Iterator iter=the_manifest.getChild(CC_RESOURCES, Ns.cc_ns()).getChildren(CC_RESOURCE, Ns.cc_ns()).iterator(); iter.hasNext(); ) {
         Element resource=(Element)iter.next();
-        if (resource.getAttributeValue(CC_RES_TYPE).equals(QUESTION_BANK)) {
+        if (resource.getAttributeValue(CC_RES_TYPE).equals(QUESTION_BANK0) ||
+	    resource.getAttributeValue(CC_RES_TYPE).equals(QUESTION_BANK1)) {
 	    // I know it's not really an item, but it uses the same code as an assessment
 	    the_handler.setCCItemXml(null, resource, this, utils);
           processResource(resource, the_handler);
@@ -185,11 +204,11 @@ public class Parser extends AbstractParser {
   private void 
   processManifestMetadata(Element manifest,
                           DefaultHandler the_handler) {
-    Element metadata=manifest.getChild(MD, CC_NS);
+    Element metadata=manifest.getChild(MD, Ns.cc_ns());
     if (metadata!=null) {
-      the_handler.startManifestMetadata(metadata.getChildText(MD_SCHEMA, CC_NS), 
-                                        metadata.getChildText(MD_SCHEMA_VERSION, CC_NS));
-      Element lom=metadata.getChild(MD_ROOT, MD_NS);
+      the_handler.startManifestMetadata(metadata.getChildText(MD_SCHEMA, Ns.cc_ns()), 
+                                        metadata.getChildText(MD_SCHEMA_VERSION, Ns.cc_ns()));
+      Element lom=metadata.getChild(MD_ROOT, Ns.lomimscc_ns());
       if (lom!=null) {
         the_handler.setManifestMetadataXml(lom);
         the_handler.endManifestMetadata();
@@ -202,7 +221,7 @@ public class Parser extends AbstractParser {
                        DefaultHandler the_handler) throws ParseException {
     try {
       XPath path=XPath.newInstance(AUTH_QUERY);
-      path.addNamespace(CC_NS);
+      path.addNamespace(Ns.cc_ns());
       path.addNamespace(AUTH_NS);
       Element result=(Element)path.selectSingleNode(the_manifest);
       if (result!=null) {
@@ -232,12 +251,15 @@ public class Parser extends AbstractParser {
               DefaultHandler the_handler) throws ParseException {
     if (the_item.getAttributeValue(CC_ITEM_IDREF)!=null) {
       Element resource=findResource(the_item.getAttributeValue(CC_ITEM_IDREF), the_resources);
+      System.out.println("process item " + the_item + " resources " + the_resources + " resource " + resource);
+
       the_handler.startCCItem(the_item.getAttributeValue(CC_ITEM_ID),
-                              the_item.getChildText(CC_ITEM_TITLE, CC_NS));
+                              the_item.getChildText(CC_ITEM_TITLE, Ns.cc_ns()));
       the_handler.setCCItemXml(the_item, resource, this, utils);
       ContentParser parser=parsers.get(resource.getAttributeValue(CC_RES_TYPE));
       if (parser==null) {
-        throw new ParseException("content type not recongised");
+	  System.out.println("content type not recongised " + resource.getAttributeValue(CC_RES_TYPE));
+	  return;
       }
       processResource(resource,
                       the_handler);
@@ -245,7 +267,7 @@ public class Parser extends AbstractParser {
       the_handler.endCCItem();
     } else {
       the_handler.startCCFolder(the_item);
-      for (Iterator iter=the_item.getChildren(CC_ITEM, CC_NS).iterator();iter.hasNext();) {
+      for (Iterator iter=the_item.getChildren(CC_ITEM, Ns.cc_ns()).iterator();iter.hasNext();) {
         processItem((Element)iter.next(), the_resources, the_handler);
       }
       the_handler.endCCFolder();
