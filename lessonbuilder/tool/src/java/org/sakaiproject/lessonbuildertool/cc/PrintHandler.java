@@ -47,6 +47,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.HashMap;
 import java.io.InputStream;
 import java.io.FileInputStream;
 import java.io.PrintWriter;
@@ -138,7 +140,10 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private String siteId = null;
   private LessonEntity quiztool = null;
   private LessonEntity topictool = null;
+    // this is the CC file name for all files added
   private Set<String> filesAdded = new HashSet<String>();
+    // this is the CC file name (of the XML file) -> Sakaiid for non-file items
+  private Map<String,String> itemsAdded = new HashMap<String,String>();
 
   public PrintHandler(SimplePageBean bean, CartridgeLoader utils, SimplePageToolDao dao, LessonEntity q, LessonEntity l) {
       super();
@@ -368,7 +373,13 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
 	      // System.out.println("about to call forum import base " + base);
 	      // title is for the cartridge. That will be used as the forum
-	      String sakaiId = f.importObject(title, topicTitle, text, texthtml, base, siteId, attachmentHrefs);
+	      // if already added, don't do it again
+	      String sakaiId = itemsAdded.get(filename);
+	      if (sakaiId == null) {
+		  sakaiId = f.importObject(title, topicTitle, text, texthtml, base, siteId, attachmentHrefs);
+		  if (sakaiId != null)
+		      itemsAdded.put(filename, sakaiId);
+	      }
 
 	      // System.out.println("about to add formum item");
 	      SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.FORUM, sakaiId, title);
@@ -380,45 +391,51 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		     type.equals(CC_ASSESSMENT0) || type.equals(CC_ASSESSMENT1) ||
 		     type.equals(CC_QUESTION_BANK0) || type.equals(CC_QUESTION_BANK1))) {
 
+	      String fileName = getFileName(resource);
 	      boolean isBank = type.equals(CC_QUESTION_BANK0) || type.equals(CC_QUESTION_BANK1);
-
-	      InputStream instream = utils.getFile(getFileName(resource));
-	      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-	      PrintWriter outwriter = new PrintWriter(baos);
 	      
-	      // I'm going to assume that URLs in the CC files are legal, but if
-	      // I add to them I nneed to URLencode what I add
-	      String base = baseUrl + getFileName(resource);
-	      int slash = base.lastIndexOf("/");
-	      if (slash >= 0)
-		  base = base.substring(0, slash+1); // include trailing slash
+	      if (itemsAdded.get(fileName) != null) {
+		  itemsAdded.put(fileName, SimplePageItem.DUMMY); // don't add the same test more than once
 
-	      QtiImport imp = new QtiImport();
-	      try {
-		  imp.mainproc(instream, outwriter, isBank, base);
-	      } catch (Exception e) {
-		  e.printStackTrace();
-	      }
-
+		  InputStream instream = utils.getFile(fileName);
+		  ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		  PrintWriter outwriter = new PrintWriter(baos);
 	      
-	      try {
+		  // I'm going to assume that URLs in the CC files are legal, but if
+		  // I add to them I nneed to URLencode what I add
+		  String base = baseUrl + fileName;
+		  int slash = base.lastIndexOf("/");
+		  if (slash >= 0)
+		      base = base.substring(0, slash+1); // include trailing slash
 
-		  InputStream inputStream = new ByteArrayInputStream(baos.toByteArray());
+		  QtiImport imp = new QtiImport();
+		  try {
+		      imp.mainproc(instream, outwriter, isBank, base);
+		  } catch (Exception e) {
+		      e.printStackTrace();
+		  }
 
-		  DocumentBuilderFactory builderFactory =
-		      DocumentBuilderFactory.newInstance();
-		  builderFactory.setNamespaceAware(true);
-		  DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
-		  Document document = documentBuilder.parse(inputStream);
+		  
+		  try {
 
-		  QuizEntity q = (QuizEntity)quiztool;
+		      InputStream inputStream = new ByteArrayInputStream(baos.toByteArray());
 
-		  q.importObject(document, isBank, siteId);
+		      DocumentBuilderFactory builderFactory =
+			  DocumentBuilderFactory.newInstance();
+		      builderFactory.setNamespaceAware(true);
+		      DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
+		      Document document = documentBuilder.parse(inputStream);
 
-	      } catch (Exception e) {
-		  System.out.println(e);
-		  e.printStackTrace();
-		  simplePageBean.setErrKey("simplepage.resource100", e.toString());
+		      QuizEntity q = (QuizEntity)quiztool;
+
+		      q.importObject(document, isBank, siteId);
+
+		  } catch (Exception e) {
+		      System.out.println(e);
+		      e.printStackTrace();
+		      simplePageBean.setErrKey("simplepage.resource100", e.toString());
+		  }
+
 	      }
 
 	      // question banks don't appear on the page

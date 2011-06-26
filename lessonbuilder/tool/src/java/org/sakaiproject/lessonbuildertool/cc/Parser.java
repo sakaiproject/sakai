@@ -188,7 +188,7 @@ public class Parser extends AbstractParser {
           processItem((Element)thisitem, the_manifest.getChild(CC_RESOURCES, ns.cc_ns()), the_handler);
         }
       } 
-      //now we need to check for the question bank...
+      //now we need to check for the question bank and omitted dependencies
       if (the_manifest.getChild(CC_RESOURCES, ns.cc_ns()) != null &&
 	  the_manifest.getChild(CC_RESOURCES, ns.cc_ns()).getChildren(CC_RESOURCE, ns.cc_ns()) != null)
       for (Iterator iter=the_manifest.getChild(CC_RESOURCES, ns.cc_ns()).getChildren(CC_RESOURCE, ns.cc_ns()).iterator(); iter.hasNext(); ) {
@@ -199,7 +199,11 @@ public class Parser extends AbstractParser {
 	    the_handler.setCCItemXml(null, resource, this, utils);
           processResource(resource, the_handler);
           qbp.parseContent(the_handler, utils, resource, isProtected(resource));
-        }
+        } else
+    // this shouldn't be needed, but blackboard doesn't declare dependencies
+    // processresource will load files and check dependencies but won't do any objects
+    // such as tests or forums that haven't already been loaded through items
+          processResource(resource, the_handler);
       }
       the_handler.endManifest();
     } catch (JDOMException e) {
