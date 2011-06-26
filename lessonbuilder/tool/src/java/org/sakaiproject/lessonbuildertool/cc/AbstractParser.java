@@ -71,10 +71,13 @@ public abstract class AbstractParser {
     builder=new SAXBuilder();
   }
   
+  // set by Parser
+  Ns ns = null;
+
   public void
   processDependencies(DefaultHandler the_handler,
                       Element the_resource) throws ParseException {
-    for (Iterator iter=the_resource.getChildren(DEPENDENCY, Ns.cc_ns()).iterator(); iter.hasNext();) {
+    for (Iterator iter=the_resource.getChildren(DEPENDENCY, ns.cc_ns()).iterator(); iter.hasNext();) {
       String target=((Element)iter.next()).getAttributeValue(IDREF);
       Element resource=findResource(target,the_resource.getParentElement());
       the_handler.startDependency(the_resource.getAttributeValue(ID),target);
@@ -86,7 +89,7 @@ public abstract class AbstractParser {
   public void
   processFiles(DefaultHandler the_handler,
                Element the_resource) {
-    for (Iterator iter=the_resource.getChildren(FILE, Ns.cc_ns()).iterator(); iter.hasNext();) {
+    for (Iterator iter=the_resource.getChildren(FILE, ns.cc_ns()).iterator(); iter.hasNext();) {
       the_handler.addFile(((Element)iter.next()).getAttributeValue(HREF));
     }
   }
@@ -94,8 +97,8 @@ public abstract class AbstractParser {
   public void
   processResourceMetadata(DefaultHandler the_handler,
                           Element the_resource) throws ParseException {
-    if (the_resource.getChild(METADATA, Ns.cc_ns())!=null) {
-      Element md=the_resource.getChild(METADATA, Ns.cc_ns()).getChild(MD_ROOT, Ns.lom_ns());
+    if (the_resource.getChild(METADATA, ns.cc_ns())!=null) {
+      Element md=the_resource.getChild(METADATA, ns.cc_ns()).getChild(MD_ROOT, ns.lom_ns());
       if (md!=null) {    
         the_handler.setResourceMetadataXml(md);
       }
@@ -139,7 +142,7 @@ public abstract class AbstractParser {
     try {
       String query=RESOURCE_QUERY.replaceFirst("xxx", the_identifier);
       XPath path=XPath.newInstance(query);
-      path.addNamespace(Ns.cc_ns());
+      path.addNamespace(ns.cc_ns());
       result= (Element)path.selectSingleNode(the_resources);
     } catch (JDOMException e) {
       throw new ParseException(e.getMessage(),e);

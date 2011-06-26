@@ -42,10 +42,26 @@ package org.sakaiproject.lessonbuildertool.cc;
  **********************************************************************************/
 
 import org.jdom.Element;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 
 public class DefaultHandler implements AssessmentHandler, DiscussionHandler, AuthorizationHandler,
                                        MetadataHandler, LearningApplicationResourceHandler, QuestionBankHandler,
                                        WebContentHandler, WebLinkHandler {
+
+  Ns ns = null;
+  public void setNs(Ns n) {
+      ns = n;
+  }
+
+  public Ns getNs() {
+      return ns;
+  }
+
+  SimplePageBean simplePageBean = null;
+  
+  public SimplePageBean getSimplePageBean() {
+      return simplePageBean;
+  }
 
   public void endAssessment() {}
 

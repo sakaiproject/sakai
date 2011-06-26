@@ -67,7 +67,7 @@ public class AssessmentParser extends AbstractQTIParser implements ContentParser
                Element the_resource,
                boolean isProtected) throws ParseException {
     try {
-      String href=((Element)the_resource.getChildren(FILE, Ns.cc_ns()).get(0)).getAttributeValue(HREF);
+      String href=((Element)the_resource.getChildren(FILE, handler.getNs().cc_ns()).get(0)).getAttributeValue(HREF);
       Element qti=getXML(the_cartridge,href);
       handler.startAssessment(href, isProtected);
       Element assessment=qti.getChild(ASSESSMENT, QTI_NS);

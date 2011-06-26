@@ -129,7 +129,6 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
     // list parallel to pages containing sequence of last item on the page
   private List<Integer> sequences= new ArrayList<Integer>();
   CartridgeLoader utils = null;
-  SimplePageBean simplePageBean = null;
   SimplePageToolDao simplePageToolDao = null;
 
   private String title = null;
@@ -172,7 +171,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   public void startCCFolder(Element folder) {
       String title = this.title;
       if (folder != null)
-	  title = folder.getChildText(TITLE, Ns.cc_ns());
+	  title = folder.getChildText(TITLE, ns.cc_ns());
 
       // add top level pages to left margin
       SimplePage page = null;
@@ -266,7 +265,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   }
 
   private String getFileName(Element resource) {
-      Element file = resource.getChild(FILE, Ns.cc_ns());
+      Element file = resource.getChild(FILE, ns.cc_ns());
       if (file != null)
 	  return file.getAttributeValue(HREF);
       else
@@ -280,7 +279,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       if (all)
 	  System.err.println("\nadd item to page " + pages.get(pages.size()-1).getTitle() +
 			 " xml: "+the_xml + 
-			 " title " + (the_xml==null?"Question Pool" : the_xml.getChildText(CC_ITEM_TITLE, Ns.cc_ns())) +
+			 " title " + (the_xml==null?"Question Pool" : the_xml.getChildText(CC_ITEM_TITLE, ns.cc_ns())) +
 			 " type " + resource.getAttributeValue(TYPE) +
 			 " href " + resource.getAttributeValue(HREF));
       String type = resource.getAttributeValue(TYPE);
@@ -291,7 +290,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       if (the_xml == null)
 	  title = "Question Pool";
       else
-	  title = the_xml.getChildText(CC_ITEM_TITLE, Ns.cc_ns());
+	  title = the_xml.getChildText(CC_ITEM_TITLE, ns.cc_ns());
 
       try {
 	  if (type.equals(CC_WEBCONTENT)) {
@@ -309,7 +308,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  else if (type.equals(CC_WEBLINK0) || type.equals(CC_WEBLINK1)) {
 	      String filename = getFileName(resource);
 	      Element linkXml =  parser.getXML(loader, filename);
-	      Namespace linkNs = Ns.link_ns();
+	      Namespace linkNs = ns.link_ns();
 	      Element urlElement = linkXml.getChild(URL, linkNs);
 	      String url = urlElement.getAttributeValue(HREF);
 
@@ -322,7 +321,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		  ContentResourceEdit edit = ContentHostingService.addResource(sakaiId);
 		  edit.setContentType("text/url");
 		  edit.setResourceType("org.sakaiproject.content.types.urlResource");
-		  edit.setContent(url.getBytes());
+		  edit.setContent(url.getBytes("UTF-8"));
 		  edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, 
 						       Validator.escapeResourceName(filename));
 		  ContentHostingService.commitResource(edit, NotificationService.NOTI_NONE);
@@ -339,7 +338,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  } else if (type.equals(CC_TOPIC0) || type.equals(CC_TOPIC1)) {
 	      String filename = getFileName(resource);
 	      Element topicXml =  parser.getXML(loader, filename);
-	      Namespace topicNs = Ns.topic_ns();
+	      Namespace topicNs = ns.topic_ns();
 	      String topicTitle = topicXml.getChildText(TITLE, topicNs);
 	      String text = topicXml.getChildText(TEXT, topicNs);
 	      boolean texthtml = false;
@@ -367,15 +366,15 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
 	      ForumInterface f = (ForumInterface)topictool;
 
-	      System.out.println("about to call forum import");
+	      // System.out.println("about to call forum import base " + base);
 	      // title is for the cartridge. That will be used as the forum
 	      String sakaiId = f.importObject(title, topicTitle, text, texthtml, base, siteId, attachmentHrefs);
 
-	      System.out.println("about to add formum item");
+	      // System.out.println("about to add formum item");
 	      SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.FORUM, sakaiId, title);
 	      simplePageBean.saveItem(item);
 	      sequences.set(top, seq+1);
-	      System.out.println("finished with forum item");
+	      // System.out.println("finished with forum item");
 
 	  } else if (quiztool != null && (
 		     type.equals(CC_ASSESSMENT0) || type.equals(CC_ASSESSMENT1) ||
@@ -657,15 +656,15 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       if (all)
 	  System.err.println("manifest md xml: "+the_md);    
       // NOTE: need to handle languages
-      Element general = the_md.getChild(GENERAL, Ns.lomimscc_ns());
+      Element general = the_md.getChild(GENERAL, ns.lomimscc_ns());
       if (general != null) {
-	  Element tnode = general.getChild(TITLE, Ns.lomimscc_ns());
+	  Element tnode = general.getChild(TITLE, ns.lomimscc_ns());
 	  if (tnode != null) {
-	      title = tnode.getChildTextTrim(STRING, Ns.lomimscc_ns());
+	      title = tnode.getChildTextTrim(STRING, ns.lomimscc_ns());
 	  }
-	  Element tdescription=general.getChild(DESCRIPTION, Ns.lomimscc_ns());
+	  Element tdescription=general.getChild(DESCRIPTION, ns.lomimscc_ns());
 	  if (tdescription != null) {
-	      description = tdescription.getChildTextTrim(STRING, Ns.lomimscc_ns());
+	      description = tdescription.getChildTextTrim(STRING, ns.lomimscc_ns());
 	  }
 
       }

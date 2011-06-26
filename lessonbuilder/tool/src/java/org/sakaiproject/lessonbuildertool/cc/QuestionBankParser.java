@@ -64,8 +64,8 @@ public class QuestionBankParser extends AbstractQTIParser {
                Element the_resource,
                boolean isProtected) throws ParseException {
     try {
-      Element qti=getXML(the_cartridge,((Element)the_resource.getChildren(FILE, Ns.cc_ns()).get(0)).getAttributeValue(HREF));
-      handler.startQuestionBank(((Element)the_resource.getChildren(FILE, Ns.cc_ns()).get(0)).getAttributeValue(HREF), isProtected);
+      Element qti=getXML(the_cartridge,((Element)the_resource.getChildren(FILE, handler.getNs().cc_ns()).get(0)).getAttributeValue(HREF));
+      handler.startQuestionBank(((Element)the_resource.getChildren(FILE, handler.getNs().cc_ns()).get(0)).getAttributeValue(HREF), isProtected);
       Element qb=qti.getChild(QUESTION_BANK, QTI_NS);
       handler.setQuestionBankXml(qti);
       handler.setQuestionBankDetails(qb.getAttributeValue(IDENT));

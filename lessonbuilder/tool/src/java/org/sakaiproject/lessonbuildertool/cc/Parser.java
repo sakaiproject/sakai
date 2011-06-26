@@ -156,16 +156,23 @@ public class Parser extends AbstractParser {
   
   private void
   processManifest(Element the_manifest, DefaultHandler the_handler) throws ParseException {
-    System.out.println("namespace for manifest " + the_manifest.getNamespace());
+    ns = new Ns();
+    the_handler.setNs(ns);
+    // figure out which version we have, and set up ns to know about it
     int v = 0;
-    for (; v < Ns.getVersions(); v++) {
-	Ns.setVersion(v);
-	if (the_manifest.getNamespace().equals(Ns.cc_ns()))
+    for (; v < ns.getVersions(); v++) {
+	ns.setVersion(v);
+	// see if the namespace from the main manifest entry matches the candidate
+	if (the_manifest.getNamespace().equals(ns.cc_ns()))
 	    break;
     }
-    if (v >= Ns.getVersions())
-	System.out.println("Couldn't find namespace version");
-    System.out.println("Found version " + Ns.cc_ns());
+    if (v >= ns.getVersions()) {
+	the_handler.getSimplePageBean().setErrMessage(
+	      the_handler.getSimplePageBean().getMessageLocator().getMessage("simplepage.wrong-cc-version"));
+	return;
+    }
+
+    //System.out.println("Found version " + ns.cc_ns());
 
     the_handler.startManifest();
     the_handler.setManifestXml(the_manifest);
@@ -173,18 +180,18 @@ public class Parser extends AbstractParser {
     processManifestMetadata(the_manifest, the_handler);
     try {
       XPath path=XPath.newInstance(ITEM_QUERY);
-      path.addNamespace(Ns.cc_ns());
+      path.addNamespace(ns.cc_ns());
       Element item = (Element)path.selectSingleNode(the_manifest);
       if (item!=null) {     
-        for (Iterator iter=item.getChildren(CC_ITEM, Ns.cc_ns()).iterator();iter.hasNext();) {
+        for (Iterator iter=item.getChildren(CC_ITEM, ns.cc_ns()).iterator();iter.hasNext();) {
 	    Element thisitem = (Element)iter.next();
-          processItem((Element)thisitem, the_manifest.getChild(CC_RESOURCES, Ns.cc_ns()), the_handler);
+          processItem((Element)thisitem, the_manifest.getChild(CC_RESOURCES, ns.cc_ns()), the_handler);
         }
       } 
       //now we need to check for the question bank...
-      if (the_manifest.getChild(CC_RESOURCES, Ns.cc_ns()) != null &&
-	  the_manifest.getChild(CC_RESOURCES, Ns.cc_ns()).getChildren(CC_RESOURCE, Ns.cc_ns()) != null)
-      for (Iterator iter=the_manifest.getChild(CC_RESOURCES, Ns.cc_ns()).getChildren(CC_RESOURCE, Ns.cc_ns()).iterator(); iter.hasNext(); ) {
+      if (the_manifest.getChild(CC_RESOURCES, ns.cc_ns()) != null &&
+	  the_manifest.getChild(CC_RESOURCES, ns.cc_ns()).getChildren(CC_RESOURCE, ns.cc_ns()) != null)
+      for (Iterator iter=the_manifest.getChild(CC_RESOURCES, ns.cc_ns()).getChildren(CC_RESOURCE, ns.cc_ns()).iterator(); iter.hasNext(); ) {
         Element resource=(Element)iter.next();
         if (resource.getAttributeValue(CC_RES_TYPE).equals(QUESTION_BANK0) ||
 	    resource.getAttributeValue(CC_RES_TYPE).equals(QUESTION_BANK1)) {
@@ -204,11 +211,11 @@ public class Parser extends AbstractParser {
   private void 
   processManifestMetadata(Element manifest,
                           DefaultHandler the_handler) {
-    Element metadata=manifest.getChild(MD, Ns.cc_ns());
+    Element metadata=manifest.getChild(MD, ns.cc_ns());
     if (metadata!=null) {
-      the_handler.startManifestMetadata(metadata.getChildText(MD_SCHEMA, Ns.cc_ns()), 
-                                        metadata.getChildText(MD_SCHEMA_VERSION, Ns.cc_ns()));
-      Element lom=metadata.getChild(MD_ROOT, Ns.lomimscc_ns());
+      the_handler.startManifestMetadata(metadata.getChildText(MD_SCHEMA, ns.cc_ns()), 
+                                        metadata.getChildText(MD_SCHEMA_VERSION, ns.cc_ns()));
+      Element lom=metadata.getChild(MD_ROOT, ns.lomimscc_ns());
       if (lom!=null) {
         the_handler.setManifestMetadataXml(lom);
         the_handler.endManifestMetadata();
@@ -221,7 +228,7 @@ public class Parser extends AbstractParser {
                        DefaultHandler the_handler) throws ParseException {
     try {
       XPath path=XPath.newInstance(AUTH_QUERY);
-      path.addNamespace(Ns.cc_ns());
+      path.addNamespace(ns.cc_ns());
       path.addNamespace(AUTH_NS);
       Element result=(Element)path.selectSingleNode(the_manifest);
       if (result!=null) {
@@ -251,10 +258,10 @@ public class Parser extends AbstractParser {
               DefaultHandler the_handler) throws ParseException {
     if (the_item.getAttributeValue(CC_ITEM_IDREF)!=null) {
       Element resource=findResource(the_item.getAttributeValue(CC_ITEM_IDREF), the_resources);
-      System.out.println("process item " + the_item + " resources " + the_resources + " resource " + resource);
+      // System.out.println("process item " + the_item + " resources " + the_resources + " resource " + resource);
 
       the_handler.startCCItem(the_item.getAttributeValue(CC_ITEM_ID),
-                              the_item.getChildText(CC_ITEM_TITLE, Ns.cc_ns()));
+                              the_item.getChildText(CC_ITEM_TITLE, ns.cc_ns()));
       the_handler.setCCItemXml(the_item, resource, this, utils);
       ContentParser parser=parsers.get(resource.getAttributeValue(CC_RES_TYPE));
       if (parser==null) {
@@ -267,7 +274,7 @@ public class Parser extends AbstractParser {
       the_handler.endCCItem();
     } else {
       the_handler.startCCFolder(the_item);
-      for (Iterator iter=the_item.getChildren(CC_ITEM, Ns.cc_ns()).iterator();iter.hasNext();) {
+      for (Iterator iter=the_item.getChildren(CC_ITEM, ns.cc_ns()).iterator();iter.hasNext();) {
         processItem((Element)iter.next(), the_resources, the_handler);
       }
       the_handler.endCCFolder();

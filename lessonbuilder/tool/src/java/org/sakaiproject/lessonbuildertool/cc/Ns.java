@@ -2,8 +2,14 @@ package org.sakaiproject.lessonbuildertool.cc;
 
 import org.jdom.Namespace;
 
+// most version dependencies should be in this file. 
+// Parser sets the right index for the current version
+// then everything else gets namespaces from here
+
+// in addition look for the xxx0 and xxx1 in Parser.java and PrintHandler.java
+
 public class Ns  {
-    private static int version = 0;
+    private int version = 0;
 
     private static final Namespace LOM_NS[] = {Namespace.getNamespace("lom", "http://ltsc.ieee.org/xsd/LOM"),
 					      Namespace.getNamespace("lom", "http://ltsc.ieee.org/xsd/imsccv1p1/LOM/resource")};
@@ -20,31 +26,31 @@ public class Ns  {
     private static final Namespace LINK_NS[] = {Namespace.NO_NAMESPACE,
 						Namespace.getNamespace("wl", "http://www.imsglobal.org/xsd/imsccv1p1/imswl_v1p1")};
 
-    public static void setVersion(int v) {
+    public void setVersion(int v) {
 	version = v;
     }
 
-    public static int getVersions() {
+    public int getVersions() {
 	return 2;
     }
 
-    public static Namespace lom_ns() {
+    public Namespace lom_ns() {
 	return LOM_NS[version];
     }
 
-    public static Namespace lomimscc_ns() {
+    public Namespace lomimscc_ns() {
 	return LOMIMSCC_NS[version];
     }
 
-    public static Namespace cc_ns() {
+    public Namespace cc_ns() {
 	return CC_NS[version];
     }
 
-    public static Namespace topic_ns() {
+    public Namespace topic_ns() {
 	return TOPIC_NS[version];
     }
 
-    public static Namespace link_ns() {
+    public Namespace link_ns() {
 	return LINK_NS[version];
     }
 

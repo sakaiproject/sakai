@@ -317,6 +317,9 @@ public class SimplePageBean {
 	public void setMessageLocator(MessageLocator x) {
 	    messageLocator = x;
 	}
+	public MessageLocator getMessageLocator() {
+	    return messageLocator;
+	}
 
     // End Injection
 

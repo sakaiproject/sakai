@@ -62,8 +62,8 @@ public class WebLinkParser extends AbstractParser implements ContentParser {
                boolean isProtected) throws ParseException {
     try {
       //ok, so we're looking at a web link here...
-      Element link = getXML(the_cartridge, ((Element)the_resource.getChildren(FILE, Ns.cc_ns()).get(0)).getAttributeValue(HREF));
-      Namespace linkNs = Ns.link_ns();
+      Element link = getXML(the_cartridge, ((Element)the_resource.getChildren(FILE, the_handler.getNs().cc_ns()).get(0)).getAttributeValue(HREF));
+      Namespace linkNs = the_handler.getNs().link_ns();
       Element urlElement = link.getChild(URL, linkNs);
       
       the_handler.startWebLink(link.getChildText(TITLE, linkNs),

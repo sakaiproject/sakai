@@ -69,8 +69,8 @@ public class DiscussionParser extends AbstractParser implements ContentParser {
                boolean isProtected) throws ParseException {
     try {
       //ok, so we're looking at a discussion topic here...
-      Element discussion = getXML(the_cartridge, ((Element)the_resource.getChildren(FILE, Ns.cc_ns()).get(0)).getAttributeValue(HREF));
-      Namespace topicNs = Ns.topic_ns();
+      Element discussion = getXML(the_cartridge, ((Element)the_resource.getChildren(FILE, the_handler.getNs().cc_ns()).get(0)).getAttributeValue(HREF));
+      Namespace topicNs = the_handler.getNs().topic_ns();
       the_handler.startDiscussion(discussion.getChildText(TITLE, topicNs),
                                   discussion.getChild(TEXT, topicNs).getAttributeValue(TEXTTYPE),
                                   discussion.getChildText(TEXT, topicNs),
