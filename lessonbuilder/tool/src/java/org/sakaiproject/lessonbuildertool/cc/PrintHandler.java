@@ -278,19 +278,24 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   }
 
   public void setCCItemXml(Element the_xml, Element resource, AbstractParser parser, CartridgeLoader loader) {
-      if (pages.size() == 0)
-	  startCCFolder(null);
-
       if (all)
 	  System.err.println("\nadd item to page " + pages.get(pages.size()-1).getTitle() +
 			 " xml: "+the_xml + 
 			 " title " + (the_xml==null?"Question Pool" : the_xml.getChildText(CC_ITEM_TITLE, ns.cc_ns())) +
 			 " type " + resource.getAttributeValue(TYPE) +
 			 " href " + resource.getAttributeValue(HREF));
+
       String type = resource.getAttributeValue(TYPE);
+      boolean isBank = type.equals(CC_QUESTION_BANK0) || type.equals(CC_QUESTION_BANK1);
+
+      // for question banks we don't need a current page, as we don't put banks on a page
+      if (pages.size() == 0 && !isBank)
+	  startCCFolder(null);
+
       int top = pages.size()-1;
-      SimplePage page = pages.get(top);
-      Integer seq = sequences.get(top);
+      SimplePage page = isBank ? null : pages.get(top);
+
+      Integer seq = isBank? 0 : sequences.get(top);
       String title = null;
       if (the_xml == null)
 	  title = "Question Pool";
@@ -392,9 +397,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		     type.equals(CC_QUESTION_BANK0) || type.equals(CC_QUESTION_BANK1))) {
 
 	      String fileName = getFileName(resource);
-	      boolean isBank = type.equals(CC_QUESTION_BANK0) || type.equals(CC_QUESTION_BANK1);
 	      
-	      if (itemsAdded.get(fileName) != null) {
+	      if (itemsAdded.get(fileName) == null) {
 		  itemsAdded.put(fileName, SimplePageItem.DUMMY); // don't add the same test more than once
 
 		  InputStream instream = utils.getFile(fileName);

@@ -32,6 +32,11 @@ public class QtiImport {
     CharArrayWriter charout = null;
     String filebase = null;
 
+    boolean feedbackpermitted = true;
+    String timelimit = null;
+    boolean allowlate = true;
+    String maxattempts = "1";
+
     class Pair {
 	String left;
 	String leftident;
@@ -1176,15 +1181,27 @@ public class QtiImport {
 		    String vtext = getNodeText(varequal);
 		    // don't use the respident because there's only one variable
 		    Mcans answer = null;
+		    Mcans altanswer = null;
 		    for (Mcans ans: answers) {
 			if (vtext != null && vtext.equals(ans.ident)) {
 			    answer = ans;
 			    break;
 			}
+			// this is absolutely wrong, but some of the validation tests do it for true/false
+			if (vtext != null && vtext.equalsIgnoreCase(ans.answer)) {
+			    altanswer = ans;
+			    break;
+			}
+
 		    }
 		    if (answer == null) {
-			System.err.println("Answer in respcondition not matching question");
-			break;
+			if (altanswer != null) {
+			    System.err.println("id in respcondition not matching question " + question + " but answer matches ");
+			    answer = altanswer;
+			} else {
+			    System.err.println("id in respcondition not matching question " + question);
+			    break;
+			}
 		    }
 		    // for this profile correct answer is always
 		    // <setvar action="Set" varname="SCORE">100</setvar>
@@ -1265,11 +1282,13 @@ public class QtiImport {
         out.println("            <fieldlabel>hasRationale</fieldlabel>");
 	out.println("            <fieldentry>false</fieldentry>");
 	out.println("      </qtimetadatafield>");
-	out.println("    </qtimetadata>");
-	out.println("    <qtimetadata>");
 	out.println("      <qtimetadatafield>");
 	out.println("        <fieldlabel>TEXT_FORMAT</fieldlabel>");
 	out.println("        <fieldentry>HTML</fieldentry>");
+	out.println("      </qtimetadatafield>");
+	out.println("      <qtimetadatafield>");
+	out.println("        <fieldlabel>RANDOMIZE</fieldlabel>");
+	out.println("        <fieldentry>true</fieldentry>");
 	out.println("      </qtimetadatafield>");
 	out.println("    </qtimetadata>");
 	out.println("  </itemmetadata>");
@@ -1433,6 +1452,60 @@ public class QtiImport {
 		    + "\">");
 	identno++;
 	out.println("");                        
+	if (timelimit != null && !timelimit.equals(""))
+	    out.println("<duration>PT" + timelimit + "M</duration>");
+	out.println("<qtimetadata>");
+	out.println("  <qtimetadatafield>");
+	out.println("    <fieldlabel>FEEDBACK_DELIVERY</fieldlabel>");
+	out.println("    <fieldentry>" + (feedbackpermitted ? "ON_SUBMISSION" : "NONE") + "</fieldentry>");
+	out.println("  </qtimetadatafield>");
+	out.println("  <qtimetadatafield>");
+	out.println("    <fieldlabel>FEEDBACK_COMPONENT_OPTION</fieldlabel>");
+	out.println("    <fieldentry>" + (feedbackpermitted ? "SELECT_COMPONENTS" : "SHOW_TOTALSCORE_ONLY") + "</fieldentry>");
+	out.println("  </qtimetadatafield>");
+	out.println("  <qtimetadatafield>");
+	out.println("     <fieldlabel>FEEDBACK_SHOW_ITEM_LEVEL</fieldlabel>");
+	out.println("     <fieldentry>" + feedbackpermitted + "</fieldentry>");
+	out.println("  </qtimetadatafield>");
+	out.println("  <qtimetadatafield>");
+	out.println("    <fieldlabel>FEEDBACK_SHOW_STUDENT_SCORE</fieldlabel>");
+	out.println("    <fieldentry>" + feedbackpermitted + "</fieldentry>");
+	out.println("  </qtimetadatafield>");
+	out.println("  <qtimetadatafield>");
+	out.println("    <fieldlabel>FEEDBACK_SHOW_QUESTION</fieldlabel>");
+	out.println("    <fieldentry>" + feedbackpermitted + "</fieldentry>");
+	out.println("  </qtimetadatafield>");
+	out.println("  <qtimetadatafield>");
+	out.println("    <fieldlabel>FEEDBACK_SHOW_RESPONSE</fieldlabel>");
+	out.println("    <fieldentry>" + feedbackpermitted + "</fieldentry>");
+	out.println("  </qtimetadatafield>");
+	out.println("  <qtimetadatafield>");
+	out.println("    <fieldlabel>FEEDBACK_SHOW_GRADER_COMMENT</fieldlabel>");
+	out.println("    <fieldentry>" + feedbackpermitted + "</fieldentry>");
+	out.println("  </qtimetadatafield>");
+	out.println("  <qtimetadatafield>");
+	out.println("    <fieldlabel>FEEDBACK_SHOW_STATS</fieldlabel>");
+	out.println("    <fieldentry>" + feedbackpermitted + "</fieldentry>");
+	out.println("  </qtimetadatafield>");
+	out.println("  <qtimetadatafield>");
+	out.println("     <fieldlabel>FEEDBACK_SHOW_SELECTION_LEVEL</fieldlabel>");
+	out.println("     <fieldentry>" + feedbackpermitted + "</fieldentry>");
+	out.println("  </qtimetadatafield>");
+	out.println("  <qtimetadatafield>");
+	out.println("     <fieldlabel>LATE_HANDLING</fieldlabel>");
+	out.println("     <fieldentry>" + allowlate + "</fieldentry>");
+	out.println("  </qtimetadatafield>");
+	if (maxattempts != null && !maxattempts.equals("")) {
+	    if (maxattempts.equalsIgnoreCase("unlimited"))
+		maxattempts = "9999";
+	}
+	out.println("  <qtimetadatafield>");
+	out.println("    <fieldlabel>MAX_ATTEMPTS</fieldlabel>");
+	out.println("    <fieldentry>" + maxattempts + "</fieldentry>");
+	out.println("  </qtimetadatafield>");
+	out.println("</qtimetadata>");
+	out.println("");
+
 	out.println("  <section ident=\"samigo"+identno+"\" title=\"Default\">");
 	identno++;
 	needHeader = false;
@@ -1478,9 +1551,35 @@ public class QtiImport {
 		NodeList assessments = document.getElementsByTagName("assessment");
 		Node assessment = assessments.item(0);
 		title = getAttribute(assessment, "title");
-
 		sections = document.getElementsByTagName("section");
+
+		Node md = getFirstByName(assessment, "qtimetadata");
+		if (md != null) {
+		    NodeList mds = ((Element)md).getElementsByTagName("qtimetadatafield");
+		    if (mds != null) {
+			for (int n = 0; n < mds.getLength(); n++) {
+			    Node item = mds.item(n);
+			    if (item == null)
+				continue;
+			    Node l = getFirstByName(item, "fieldlabel");
+			    String label = (l == null ? null : getNodeText(l));
+			    Node e = getFirstByName(item, "fieldentry");
+			    String entry = (e == null ? null : getNodeText(e));			    
+
+			    System.out.println("metadata " + label + " " + entry);
+			    if ("qmd_feedbackpermitted".equals(label))
+				feedbackpermitted = "yes".equalsIgnoreCase(entry);
+			    else if ("qmd_timelimit".equals(label))
+				timelimit = entry;
+			    else if ("cc_allow_late_submissions".equals(label))
+				allowlate = "yes".equalsIgnoreCase(entry);
+			    else if ("cc_maxattempts".equals(label))
+				maxattempts = entry;
+			}
+		    }
+		}
 	    }
+	    System.out.println("final " + feedbackpermitted + "::" + timelimit + "::" + allowlate + "::" + maxattempts);
 
 	    Node section;
 	    int numsections;
