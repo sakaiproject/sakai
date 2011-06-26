@@ -26,6 +26,9 @@ public class Ns  {
     private static final Namespace LINK_NS[] = {Namespace.NO_NAMESPACE,
 						Namespace.getNamespace("wl", "http://www.imsglobal.org/xsd/imsccv1p1/imswl_v1p1")};
 
+    private static final Namespace AUTH_NS[] = {Namespace.getNamespace("auth", "http://www.imsglobal.org/xsd/imsccauth_v1p0"),
+						Namespace.getNamespace("auth", "http://www.imsglobal.org/xsd/imsccv1p1/imsccauth_v1p1")};
+
     public void setVersion(int v) {
 	version = v;
     }
@@ -54,6 +57,8 @@ public class Ns  {
 	return LINK_NS[version];
     }
 
-
+    public Namespace auth_ns() {
+	return AUTH_NS[version];
+    }
 
 }

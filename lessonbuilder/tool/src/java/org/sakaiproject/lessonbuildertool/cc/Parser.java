@@ -103,8 +103,6 @@ public class Parser extends AbstractParser {
   private static final String AUTH_ACCESS_CARTRIDGE="cartridge";
   private static final String AUTH_ACCESS_RESOURCE="resource";
   
-  private static final Namespace AUTH_NS = Namespace.getNamespace("auth", "http://www.imsglobal.org/xsd/imsccauth_v1p0");
-  
   private static final String AUTH_AUTHORIZATION="authorization";
   private static final String AUTH_CCID="cartridgeId";
   private static final String AUTH_WEBSERVICE="webservice";
@@ -176,7 +174,8 @@ public class Parser extends AbstractParser {
 
     the_handler.startManifest();
     the_handler.setManifestXml(the_manifest);
-    processAuthorization(the_manifest, the_handler); 
+    if (processAuthorization(the_manifest, the_handler))
+	return; // don't process CCs with authorization
     processManifestMetadata(the_manifest, the_handler);
     try {
       XPath path=XPath.newInstance(ITEM_QUERY);
@@ -227,33 +226,38 @@ public class Parser extends AbstractParser {
     }
   }
 
-  private void 
+  private boolean
   processAuthorization(Element the_manifest,
                        DefaultHandler the_handler) throws ParseException {
     try {
       XPath path=XPath.newInstance(AUTH_QUERY);
       path.addNamespace(ns.cc_ns());
-      path.addNamespace(AUTH_NS);
+      path.addNamespace(ns.auth_ns());
       Element result=(Element)path.selectSingleNode(the_manifest);
       if (result!=null) {
-        String import_scope=result.getAttributeValue(AUTH_IMPORT);
-        String access_scope=result.getAttributeValue(AUTH_ACCESS);
-        if (access_scope.equals(AUTH_ACCESS_CARTRIDGE)) {
-          the_handler.startAuthorization(true, false, Boolean.parseBoolean(import_scope));
-        } else {
-          if (access_scope.equals(AUTH_ACCESS_RESOURCE)) {
-            the_handler.startAuthorization(false, true, Boolean.parseBoolean(import_scope));
-          }
-        }
-        Element authorizationElement = result.getChild(AUTH_AUTHORIZATION, AUTH_NS);
-        the_handler.setAuthorizationServiceXml(authorizationElement);
-        the_handler.setAuthorizationService(authorizationElement.getChildText(AUTH_CCID, AUTH_NS), 
-                                            authorizationElement.getChildText(AUTH_WEBSERVICE,  AUTH_NS));
-        the_handler.endAuthorization();
-      } 
+	  the_handler.getSimplePageBean().setErrMessage(
+	     the_handler.getSimplePageBean().getMessageLocator().getMessage("simplepage.cc-uses-auth"));
+	  return true;
+	  //        String import_scope=result.getAttributeValue(AUTH_IMPORT);
+	  //        String access_scope=result.getAttributeValue(AUTH_ACCESS);
+	  //        if (access_scope.equals(AUTH_ACCESS_CARTRIDGE)) {
+	  //          the_handler.startAuthorization(true, false, Boolean.parseBoolean(import_scope));
+	  //        } else {
+	  //          if (access_scope.equals(AUTH_ACCESS_RESOURCE)) {
+	  //            the_handler.startAuthorization(false, true, Boolean.parseBoolean(import_scope));
+	  //          }
+	  //        }
+	  //        Element authorizationElement = result.getChild(AUTH_AUTHORIZATION, AUTH_NS);
+	  //        the_handler.setAuthorizationServiceXml(authorizationElement);
+	  //        the_handler.setAuthorizationService(authorizationElement.getChildText(AUTH_CCID, AUTH_NS), 
+	  //                                            authorizationElement.getChildText(AUTH_WEBSERVICE,  AUTH_NS));
+	  //        the_handler.endAuthorization();
+	  //      } 
+      }
     } catch (Exception e) {
-      throw new ParseException(e.getMessage(),e);
+	throw new ParseException(e.getMessage(),e);
     }
+    return false;
   }
   
   private void
