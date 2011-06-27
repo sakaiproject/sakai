@@ -1391,6 +1391,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return toolManager.getTool(id);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<String> getToolsRequired(String category) {
+		return serverConfigurationService.getToolsRequired(category);
+	}
+	
 	// PRIVATE METHODS FOR SAKAIPROXY
 	
 	

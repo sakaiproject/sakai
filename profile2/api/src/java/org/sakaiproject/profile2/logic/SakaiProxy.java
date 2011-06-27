@@ -755,4 +755,12 @@ public interface SakaiProxy {
 	 *         reference cannot be obtained.
 	 */
 	public Tool getTool(String id);
+	
+	/**
+	 * Returns a list of the tool types required for the specified site type.
+	 * 
+	 * @param category the type of site e.g. 'project'
+	 * @return a list of the tool types required for the specified site type
+	 */
+	public List<String> getToolsRequired(String category);
 }

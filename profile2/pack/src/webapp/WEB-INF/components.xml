@@ -173,7 +173,6 @@
     <bean id="org.sakaiproject.profile2.logic.ProfileWorksiteLogic"
     	class="org.sakaiproject.profile2.logic.ProfileWorksiteLogicImpl">
     		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
-    		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
     </bean>
     
     <!-- CacheManager -->

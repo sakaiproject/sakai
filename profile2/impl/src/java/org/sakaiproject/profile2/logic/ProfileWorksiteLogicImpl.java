@@ -13,7 +13,6 @@ import java.util.Map;
 import lombok.Setter;
 
 import org.apache.log4j.Logger;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.util.Messages;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -206,17 +205,17 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 			homeToolConfig.setTitle(homeTool.getTitle());
 						
 			// normally brings in sakai.siteinfo
-			List<String> toolIds = serverConfigurationService.getToolsRequired(SITE_TYPE_PROJECT);
+			List<String> toolIds = sakaiProxy.getToolsRequired(SITE_TYPE_PROJECT);
 
 			// home tools specified in sakai.properties or default set of home tools
 			List<String> homeToolIds;
 
-			if (null != serverConfigurationService.getStrings(WORKSITE_SETUP_TOOLS + "." + SITE_TYPE_PROJECT)) {
+			if (null != sakaiProxy.getServerConfigurationParameter(WORKSITE_SETUP_TOOLS + "." + SITE_TYPE_PROJECT, null)) {
 				homeToolIds = new ArrayList<String>(Arrays.asList(
-					serverConfigurationService.getStrings(WORKSITE_SETUP_TOOLS + "." + SITE_TYPE_PROJECT)));
-			} else if (null != serverConfigurationService.getStrings(WORKSITE_SETUP_TOOLS)) {
+						sakaiProxy.getServerConfigurationParameter(WORKSITE_SETUP_TOOLS + "." + SITE_TYPE_PROJECT, null)));
+			} else if (null != sakaiProxy.getServerConfigurationParameter(WORKSITE_SETUP_TOOLS, null)) {
 				homeToolIds = new ArrayList<String>(Arrays.asList(
-						serverConfigurationService.getStrings(WORKSITE_SETUP_TOOLS)));
+						sakaiProxy.getServerConfigurationParameter(WORKSITE_SETUP_TOOLS, null)));
 			} else {
 				homeToolIds = new ArrayList<String>();
 			}
@@ -353,7 +352,4 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 	@Setter
 	private SakaiProxy sakaiProxy;
 		
-	@Setter
-	private ServerConfigurationService serverConfigurationService;
-	
 }
