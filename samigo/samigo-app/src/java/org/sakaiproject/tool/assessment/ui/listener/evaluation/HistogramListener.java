@@ -371,15 +371,20 @@ public class HistogramListener
 				  SectionDataIfc section = (SectionDataIfc) partsIter.next();
 				  String authortype = section
 				  .getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE);
-				  if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL
-						  .equals(Integer.valueOf(authortype))) {
-					  hasRandompart = true;
-					  isRandompart = true;
-                                          poolName = section
-                                                .getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW);
-				  } else {
+				  try{
+					  if (SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL
+							  .equals(Integer.valueOf(authortype))) {
+						  hasRandompart = true;
+						  isRandompart = true;
+						  poolName = section
+						  .getSectionMetaDataByLabel(SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW);
+					  } else {
+						  isRandompart = false;
+						  poolName = null;
+					  }
+				  }catch(NumberFormatException e){
 					  isRandompart = false;
-                                          poolName = null;
+					  poolName = null;
 				  }
 				  if (section.getSequence() == null)
 					  section.setSequence(Integer.valueOf(secseq++));
