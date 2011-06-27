@@ -91,7 +91,6 @@ a.lastBreadCrumb{
     }
 /*wrapper for site content (includes as children #toolMenuWrap,#content and #footer)*/
 #container{
-   position:absolute;
    right:0;
    left:0;
    margin-right:30px;
@@ -107,7 +106,6 @@ a.lastBreadCrumb{
    box-shadow:0px 0px 10px #000;
    -webkit-box-shadow:0px 0px 10px #000;
    -moz-box-shadow:0px 0px 10px #000000;
-   min-height:100%;
 }
 
 /*wrapper for #toolMenu - children are #worsiteLogo,#toolMenu*/
@@ -152,15 +150,15 @@ site types are a local setting - adjust */
 * html #content{margin-left:12.3em}
 /*wrapper for footer blocks*/
 #footer{
-	position:fixed;
-    bottom:0;
-    right:30px;
-    left:30px;
-    text-align: center;
+    clear:both;
+    margin:0;
     background:#444;
-    padding-right:100px;
+    padding:5px;
+    text-align: center;
+
 }
 #footerLinks{
+    text-align: center;
     font:.80em bold Helvetica, 'Helvetica Neue', Arial;
     margin:0;
     padding:0;
@@ -709,9 +707,7 @@ also hide if are going to be using icon links (as background of <a> nad <li>
 	opacity: 0.7; /* CSS3 standard */
 } 
 #toolMenu li.moreTools{
-    text-align:right; 
-    margin-top:5px;
-    font-size:90%
+    margin-top:10px
 }
 #toolMenu li.moreTools a{
    display:inline;
@@ -719,11 +715,15 @@ also hide if are going to be using icon links (as background of <a> nad <li>
    -webkit-border-radius: 5px;
    -khtml-border-radius: 5px;
    padding:2px 5px;
-   border-radius: 7px;
+   border-radius: 4px;
    color:#777;
 }
+#toolMenu li.moreTools a span{
+    padding-right:0
+    }
 #toolMenu li.moreTools a:hover{
-    background:#eee;
+    background:#ccc;
+    color:#000
     
     }
 /*
@@ -1128,7 +1128,6 @@ below they are contextually defined depending on the column as an example,as you
 .footerExtNav a:hover{
 	color: #aaa;
 	text-decoration: underline;
-	margin: 1em;
 }
 
 /*a second wrapper - server info,build,etc*/
@@ -1143,10 +1142,8 @@ below they are contextually defined depending on the column as an example,as you
 
 /*a third wrapper - reserved for copyright blurbs*/
 .sakaiCopyrightInfo{
-    padding:5px 0 5px 10px;
+
     font:.75em bold Helvetica, 'Helvetica Neue', Arial;
-    float:none;
-    clear:left;
 	color: #fff;
 }
 #footerAppTray{
