@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.model.MimeTypeByteArray;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
 /**
  * An interface for abstracting Sakai specific parts away from the main logic.
@@ -727,4 +728,21 @@ public interface SakaiProxy {
 	 * @return <code>true</code> if user allowed to create worksites, else <code>false</code>.
 	 */
 	public boolean isUserAllowedAddSite(String userUuid);
+	
+	/**
+	 * Add a new site.
+	 * 
+	 * @param id the id of the site.
+	 * @param type the type of the site e.g. project.
+	 * @return a reference to the new site or <code>null</code> if there is a problem creating the site.
+	 */
+	public Site addSite(String id, String type);
+	
+	/**
+	 * Save an existing site.
+	 * 
+	 * @param site a reference to the site to save.
+	 * @return <code>true</code> if successful, otherwise <code>false</code>.
+	 */
+	public boolean saveSite(Site site);
 }

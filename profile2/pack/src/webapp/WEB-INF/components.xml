@@ -174,7 +174,6 @@
     	class="org.sakaiproject.profile2.logic.ProfileWorksiteLogicImpl">
     		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
     		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
-    		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
     		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
     </bean>
     

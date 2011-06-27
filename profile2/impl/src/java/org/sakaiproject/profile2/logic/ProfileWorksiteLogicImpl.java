@@ -14,23 +14,17 @@ import lombok.Setter;
 
 import org.apache.log4j.Logger;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.util.Messages;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserNotDefinedException;
 import org.springframework.util.CollectionUtils;
 
 /**
@@ -162,8 +156,11 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 			siteId = sakaiProxy.createUuid();
 		}
 
-		try {
-			final Site site = siteService.addSite(siteId, SITE_TYPE_PROJECT);
+		final Site site = sakaiProxy.addSite(siteId, SITE_TYPE_PROJECT);
+		
+		if (null == site) {
+			log.warn("unable to create new site from Profile2");
+		} else {
 			
 			User owner = sakaiProxy.getUserById(ownerId);
 			if (null != owner) {
@@ -293,7 +290,10 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 			}
 			
 			site.setPublished(true);
-			siteService.save(site);
+			if (false == sakaiProxy.saveSite(site)) {
+				log.warn("unable to save site from Profile2");
+				return false;
+			}
 			
 			if (true == notifyByEmail) {
 				
@@ -305,21 +305,9 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 				thread.start();
 				
 			}
-			
-			return true;
-			
-		} catch (IdInvalidException e) {
-			e.printStackTrace();
-		} catch (IdUsedException e) {
-			e.printStackTrace();
-		} catch (PermissionException e) {
-			e.printStackTrace();
-		} catch (IdUnusedException e) {
-			e.printStackTrace();
 		}
-		
-		// if we get here then site creation failed.
-		return false;
+
+		return true;
 	}
 
 	private boolean isToolAlreadyAdded(SitePage homePage, String homeToolId) {
@@ -367,10 +355,7 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 
 	@Setter
 	private SakaiProxy sakaiProxy;
-	
-	@Setter
-	private SiteService siteService;
-	
+		
 	@Setter
 	private ToolManager toolManager;
 	

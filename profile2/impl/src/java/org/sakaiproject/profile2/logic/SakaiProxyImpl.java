@@ -21,7 +21,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,15 +45,17 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.ActivityService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.profile2.model.MimeTypeByteArray;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
@@ -1347,6 +1348,40 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 */
 	public boolean isUserAllowedAddSite(String userUuid) {
 		return siteService.allowAddSite(userUuid);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Site addSite(String id, String type) {
+		Site site = null;
+		try {
+			site = siteService.addSite(id, type);
+		} catch (IdInvalidException e) {
+			e.printStackTrace();
+		} catch (IdUsedException e) {
+			e.printStackTrace();
+		} catch (PermissionException e) {
+			e.printStackTrace();
+		}
+		
+		return site;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean saveSite(Site site) {
+		try {
+			siteService.save(site);
+		} catch (IdUnusedException e) {
+			e.printStackTrace();
+			return false;
+		} catch (PermissionException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
 	}
 	
 	// PRIVATE METHODS FOR SAKAIPROXY
