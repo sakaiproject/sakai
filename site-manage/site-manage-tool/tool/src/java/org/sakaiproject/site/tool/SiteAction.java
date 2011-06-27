@@ -2000,12 +2000,20 @@ public class SiteAction extends PagedResourceActionII {
 				
 				ResourcePropertiesEdit props = site.getPropertiesEdit();
 						
-				String locale_string = props.getProperty(PROP_SITE_LANGUAGE);
+				String locale_string = StringUtils.trimToNull(props.getProperty(PROP_SITE_LANGUAGE));
+				if (locale_string == null)
+				{
+					// get the system default as locale string
+					locale_string = Locale.getDefault().toString();
+				}
 				context.put("locale_string",locale_string);
 			} else {
 				// new site
 				context.put("existingSite", Boolean.FALSE);
 				context.put("continue", "3");
+				
+				// get the system default as locale string
+				context.put("locale_string", Locale.getDefault().toString());
 			}
 			
 			boolean displaySiteAlias = displaySiteAlias();
@@ -2143,12 +2151,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("site_alias_assignable", aliasAssignmentForNewSitesEnabled(state));
 
 			// available languages in sakai.properties
-			List locales = getPrefLocales();
-						
-			// insert blank item in the first position to give the option not to select any language 
-			if(locales.get(0) != "")
-				locales.add(0,"");
-				
+			List locales = getPrefLocales();	
 			context.put("locales",locales);			
 						
 			return (String) getContext(data).get("template") + TEMPLATE[13];
