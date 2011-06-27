@@ -79,19 +79,18 @@ Boolean allowContentLink = (Boolean) rReq.getAttribute("allowContentLink");
 
 %>
 <portlet:defineObjects/>
-<ul class="navIntraTool actionToolBar" role="menu">
-	<li class="firstToolBarItem" role="menuitem">
+<ul class="navIntraTool actionToolBar">
+	<li class="firstToolBarItem">
 		<span>
 			<a href="<%=viewURL.toString()%>"><%=rb.getString("edit.exit")%></a>
 		</span>
 	</li>	
-	<li role="menuitem">
+	<li>
 		<span>
 			<a href="<%=resetURL.toString()%>"><%=rb.getString("edit.clear.prefs")%></a>
 		</span>
 	</li>
 </ul>	
-<p/>
 <% if ( allow(sp,"launch") || allow(sp,"key") || allow(sp,"secret") || 
         allow(sp,"xml") ||
         allow(sp,"pagetitle") || allow(sp,"tooltitle") ||
@@ -105,7 +104,7 @@ Boolean allowContentLink = (Boolean) rReq.getAttribute("allowContentLink");
 <!-- If key and secret are final, then either xml or launch final means no launch change by the user -->
 <% if ( ( allow(sp,"launch") && allow(sp,"xml") ) || allow(sp,"key") || allow(sp,"secret") ) { %>
 
-<h3><%=rb.getString("required.information") %></h2>
+<h3><%=rb.getString("required.information") %></h3>
 <% if ( allow(sp,"launch") && allow(sp,"xml") ) { %>
 <script type="text/javascript">
 function switchui()
@@ -271,6 +270,7 @@ if ( document.getElementById("UISwitcher") ) switchui();
    		/>
 		<% } %>
 		<label for="imsti.releasename"><%=rb.getString("privacy.releasename") %></label>
+	</p>
 <% } %>
 <% if ( allow(sp,"releaseemail") ) { %>
 	<p class="checkbox indnt1">
@@ -336,7 +336,6 @@ if ( document.getElementById("UISwitcher") ) switchui();
 </textarea>
 
 </p>
-</fieldset>
 <% } %>
 <p>
 <input type="submit" value="<%=rb.getString("update.options")%>">
