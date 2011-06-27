@@ -69,6 +69,7 @@
 			<ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
 		</property>
 		<property name="cacheName" value="org.sakaiproject.mailsender.logic.ComposeLogic.groupsCache"/>
+		<property name="maxElementsInMemory" value="1000" />
 	</bean>
 	-->
 </beans>
