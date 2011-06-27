@@ -430,7 +430,7 @@ public class ListItem
 	protected boolean canSetQuota = false;
 	private boolean isAdmin = false;
 	private Boolean allowHtmlInline;
-	
+	private Boolean allowHtmlInlineInherited;
 
 	protected String quota;
 
@@ -647,14 +647,8 @@ public class ListItem
 			}
 			
 			//does this collection allow inlineHTML?
-			try {
-				setAllowHtmlInline(collection.getProperties().getBooleanProperty(ResourceProperties.PROP_ALLOW_INLINE));
-			} catch (EntityPropertyNotDefinedException e) {
-				setAllowHtmlInline(false);
-			} catch (EntityPropertyTypeException e) {
-				setAllowHtmlInline(false);
-			}
-			
+			setAllowHtmlInline(isAllowInline(collection));
+			setAllowHtmlInlineInherited(Boolean.FALSE);
 			
 			// setup for quota - ADMIN only, site-root collection only
 			if (SecurityService.isSuperUser())
@@ -698,23 +692,9 @@ public class ListItem
 				setIsAdmin(true);
 			}
 			
-			
 			//does this object or its parent collection allow inlineHTML?
-			try {
-				setAllowHtmlInline(resource.getProperties().getBooleanProperty(ResourceProperties.PROP_ALLOW_INLINE));
-			} catch (EntityPropertyNotDefinedException e) {
-				//try the parent
-				try {
-					setAllowHtmlInline(resource.getContainingCollection().getProperties().getBooleanProperty(ResourceProperties.PROP_ALLOW_INLINE));
-				} catch (EntityPropertyNotDefinedException e1) {
-					setAllowHtmlInline(false);
-				} catch (EntityPropertyTypeException e1) {
-					setAllowHtmlInline(false);
-				}
-				
-			} catch (EntityPropertyTypeException e) {
-				setAllowHtmlInline(false);
-			}
+			setAllowHtmlInline(isAllowInline(resource));
+			setAllowHtmlInlineInherited(isAllowInline(resource.getContainingCollection()));
 			
 			String size = null;
 			String sizzle = null;
@@ -851,6 +831,25 @@ public class ListItem
 		}
 		this.isAvailable = entity.isAvailable();
     }
+
+	/**
+	 * Determine whether or not the given entity is configured to allow inline HTML.
+	 * 
+	 * @param entity
+	 * @return
+	 */
+	private boolean isAllowInline(ContentEntity entity) {
+		if (entity == null)
+			return false;
+			
+		try {
+			return entity.getProperties().getBooleanProperty(ResourceProperties.PROP_ALLOW_INLINE);
+		} catch (EntityPropertyNotDefinedException e) {
+			return false;
+		} catch (EntityPropertyTypeException e) {
+			return false;
+		}
+	}
 
 	private void initAllowedAddGroups() 
 	{
@@ -4079,6 +4078,25 @@ public class ListItem
 	public void setAllowHtmlInline(boolean allowHtmlInline) {
 		this.allowHtmlInline = allowHtmlInline;
 	}
+	
+	/**
+	 * Specifies whether or not the item has inherited the "allowHtmlInline" property from its
+	 * parent collection.
+	 * 
+	 * @return the allowHtmlInlineInherited
+	 */
+	public Boolean isAllowHtmlInlineInherited() {
+		return allowHtmlInlineInherited;
+	}
+
+	/**
+	 * @param allowHtmlInlineInherited the allowHtmlInlineInherited to set
+	 * @see #getAllowHtmlInlineInherited()
+	 */
+	public void setAllowHtmlInlineInherited(Boolean allowHtmlInlineInherited) {
+		this.allowHtmlInlineInherited = allowHtmlInlineInherited;
+	}
+
 	/**
 	 * Get dropbox owner
 	 * @param id

@@ -103,7 +103,26 @@
 				$tlang.getString("edit.renderHtml")
 			</label>
 			<span>
-				<input type="checkbox" name="allowHtmlInline${DOT}$i" id="allowHtmlInline${DOT}$i" value="true"#if ($model.isAllowHtmlInline()) checked="checked" #end style="border:none" />
+				#if ($model.isAllowHtmlInlineInherited())
+					## if the value of this property is inherited from the collection, we need to display a static value so it doesn't get unintentionally persisted with a new value.
+					<input
+						type="hidden"
+						id="allowHtmlInline${DOT}$i"
+						name="allowHtmlInline${DOT}$i"
+						#if ($model.isAllowHtmlInline()) value="true" #else value="false" #end />
+					
+					## display a disabled checkbox to indicate to the user that inline html is allowed, but it cannot be changed because it is inherited
+					<input type="checkbox" disabled="disabled" checked="checked" style="border:none;" />
+					
+				#else
+					<input
+						type="checkbox"
+						name="allowHtmlInline${DOT}$i"
+						id="allowHtmlInline${DOT}$i"
+						value="true"
+						#if ($model.isAllowHtmlInline()) checked="checked" #end
+						style="border:none" />
+				#end
 				<span class="textPanelFooter">$tlang.getString("edit.renderHtml.explanation")</span>
 			</span>
 		</p>
