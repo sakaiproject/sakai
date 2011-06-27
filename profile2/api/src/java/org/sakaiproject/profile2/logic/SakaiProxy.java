@@ -23,6 +23,7 @@ import java.util.Map;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.model.MimeTypeByteArray;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.user.api.User;
 /**
  * An interface for abstracting Sakai specific parts away from the main logic.
@@ -745,4 +746,13 @@ public interface SakaiProxy {
 	 * @return <code>true</code> if successful, otherwise <code>false</code>.
 	 */
 	public boolean saveSite(Site site);
+	
+	/**
+	 * Returns a reference to the specified Sakai tool.
+	 * 
+	 * @param id the id of the tool required.
+	 * @return a reference to the specified Sakai tool or <code>null</code> if a
+	 *         reference cannot be obtained.
+	 */
+	public Tool getTool(String id);
 }

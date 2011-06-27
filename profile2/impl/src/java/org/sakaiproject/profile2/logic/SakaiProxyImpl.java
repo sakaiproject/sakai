@@ -1384,6 +1384,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return true;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Tool getTool(String id) {
+		return toolManager.getTool(id);
+	}
+	
 	// PRIVATE METHODS FOR SAKAIPROXY
 	
 	

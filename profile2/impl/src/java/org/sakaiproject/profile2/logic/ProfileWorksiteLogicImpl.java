@@ -14,8 +14,6 @@ import lombok.Setter;
 
 import org.apache.log4j.Logger;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.util.Messages;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -23,7 +21,6 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.springframework.util.CollectionUtils;
 
@@ -191,8 +188,8 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 			site.setTitle(siteTitle);
 			// add description for editing the worksite
 			site.setDescription(Messages.getString("worksite.help",
-					new Object[] { toolManager.getTool(SITEINFO_TOOL).getTitle(),
-					toolManager.getTool(MEMBERSHIP_TOOL).getTitle(),
+					new Object[] { sakaiProxy.getTool(SITEINFO_TOOL).getTitle(),
+					sakaiProxy.getTool(MEMBERSHIP_TOOL).getTitle(),
 					sakaiProxy.getUserDisplayName(ownerId),
 					sakaiProxy.getUserEmail(ownerId),
 					siteTitle}));
@@ -202,7 +199,7 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 			homePage.getPropertiesEdit().addProperty(
 					SitePage.IS_HOME_PAGE, Boolean.TRUE.toString());
 			
-			Tool homeTool = toolManager.getTool(HOME_TOOL);
+			Tool homeTool = sakaiProxy.getTool(HOME_TOOL);
 			
 			ToolConfiguration homeToolConfig = homePage.addTool();
 			homeToolConfig.setTool(TOOL_ID_HOME, homeTool);
@@ -249,7 +246,7 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 							synopticToolIndex++;
 						}
 					}
-				} else if (null != toolManager.getTool(toolId)) {
+				} else if (null != sakaiProxy.getTool(toolId)) {
 												
 						SitePage toolPage = site.addPage();
 						toolPage.addTool(toolId);
@@ -356,9 +353,6 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 	@Setter
 	private SakaiProxy sakaiProxy;
 		
-	@Setter
-	private ToolManager toolManager;
-	
 	@Setter
 	private ServerConfigurationService serverConfigurationService;
 	
