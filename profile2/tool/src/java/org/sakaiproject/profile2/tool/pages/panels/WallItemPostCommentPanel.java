@@ -40,7 +40,9 @@ public class WallItemPostCommentPanel extends Panel {
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	protected SakaiProxy sakaiProxy;
 	
-	public WallItemPostCommentPanel(String id, final String userUuid, final WallItem wallItem, final WallItemPanel wallItemPanel) {
+	public WallItemPostCommentPanel(String id, final String userUuid,
+			final WallItem wallItem, final WallItemPanel wallItemPanel,
+			final MyWallPanel myWallPanel) {
 		
 		super(id);
 		
@@ -99,7 +101,7 @@ public class WallItemPostCommentPanel extends Panel {
 				}
 								
 				// replace wall item panel now comment has been added
-				WallItemPanel newPanel = new WallItemPanel(wallItemPanel.getId(), userUuid, wallItem);
+				WallItemPanel newPanel = new WallItemPanel(wallItemPanel.getId(), userUuid, wallItem, myWallPanel);
 				newPanel.setOutputMarkupId(true);
 				wallItemPanel.replaceWith(newPanel);
 				if (null != target) {

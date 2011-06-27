@@ -136,10 +136,7 @@ public class WallItemPanel extends Panel {
 					@Override
 					public void onClose(AjaxRequestTarget target) {
 						if (wallAction.isItemRemoved()) {
-							
-							if (null != myWallPanel) {
-								myWallPanel.replaceSelf(target, userUuid);
-							}
+							myWallPanel.replaceSelf(target, userUuid);
 						}
 					}
 				});
@@ -160,7 +157,7 @@ public class WallItemPanel extends Panel {
 		add(removeItemLink);
 		
 		// panel for posting a comment that slides up/down
-		final WallItemPostCommentPanel postCommentPanel = new WallItemPostCommentPanel("wallItemPostCommentPanel", userUuid, wallItem, this);
+		final WallItemPostCommentPanel postCommentPanel = new WallItemPostCommentPanel("wallItemPostCommentPanel", userUuid, wallItem, this, myWallPanel);
 		postCommentPanel.setOutputMarkupPlaceholderTag(true);
 		postCommentPanel.setVisible(false);
 		add(postCommentPanel);
