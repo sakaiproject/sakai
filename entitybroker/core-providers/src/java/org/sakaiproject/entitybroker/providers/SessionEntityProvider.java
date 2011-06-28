@@ -244,7 +244,7 @@ public class SessionEntityProvider extends AbstractEntityProvider implements Cor
    }
 
    public String[] getHandledOutputFormats() {
-      return new String[] { Formats.HTML, Formats.XML, Formats.JSON, Formats.FORM };
+      return new String[] { Formats.HTML, Formats.XML, Formats.JSON, Formats.FORM, Formats.JSONP };
    }
 
 

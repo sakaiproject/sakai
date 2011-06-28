@@ -688,7 +688,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
     }
 
     public String[] getHandledOutputFormats() {
-        return new String[] { Formats.HTML, Formats.XML, Formats.JSON, Formats.FORM };
+        return new String[] { Formats.HTML, Formats.XML, Formats.JSON, Formats.FORM, Formats.JSONP };
     }
 
     public String[] getHandledInputFormats() {
