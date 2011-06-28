@@ -65,11 +65,11 @@
       <artifactId>sakai-message-impl</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.courier</groupId>
       <artifactId>sakai-courier-api</artifactId>
     </dependency>
         <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.courier</groupId>
       <artifactId>sakai-courier-util</artifactId>
     </dependency>
     <dependency>

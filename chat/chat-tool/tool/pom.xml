@@ -38,19 +38,19 @@
       <artifactId>sakai-chat-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.courier</groupId>
       <artifactId>sakai-courier-api</artifactId>
     </dependency>
      <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.presence</groupId>
       <artifactId>sakai-presence-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.presence</groupId>
       <artifactId>sakai-presence-util</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.courier</groupId>
       <artifactId>sakai-courier-util</artifactId>
     </dependency>
     <dependency>
@@ -58,11 +58,11 @@
       <artifactId>sakai-mergedlist-util</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.velocity</groupId>
       <artifactId>sakai-velocity-tool-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.velocity</groupId>
       <artifactId>sakai-velocity-tool</artifactId>
     </dependency>
     <dependency>

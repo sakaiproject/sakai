@@ -36,14 +36,14 @@
         <version>2.9-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
+        <groupId>org.sakaiproject.presence</groupId>
         <artifactId>sakai-presence-util</artifactId>
-        <version>2.9-SNAPSHOT</version>
+        <version>${sakai.presence.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
+        <groupId>org.sakaiproject.courier</groupId>
         <artifactId>sakai-courier-util</artifactId>
-        <version>2.9-SNAPSHOT</version>
+        <version>${sakai.courier.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
@@ -68,9 +68,9 @@
         <type>pom</type>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
+        <groupId>org.sakaiproject.velocity</groupId>
         <artifactId>sakai-velocity-tool</artifactId>
-        <version>2.9-SNAPSHOT</version>
+        <version>${sakai.velocity-tool.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
