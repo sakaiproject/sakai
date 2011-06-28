@@ -1,50 +1,41 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>courier-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
-    <version>2.9-SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
-  </parent>
-  <name>sakai-courier-util</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-courier-util</artifactId>
-  <organization>
-    <name>The Sakai Foundation</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2003</inceptionYear>
-  <packaging>jar</packaging>
-  <properties>
-    <deploy.target/>
-  </properties>
-  <dependencies>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-util</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-api</artifactId>
-    </dependency>
-<!--
-      This has been relocated to sakai-kernel-util
-      org.sakaiproject.kernel.utilsakai-util-->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-courier-api</artifactId>
-    </dependency>
-<!--org.sakaiprojectsakai-tool-api${sakai.version}-->
-<!--org.sakaiprojectsakai-event-api${sakai.version}-->
-<!--org.sakaiprojectsakai-util${sakai.version}-->
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
-    </dependency>
-  </dependencies>
-  <build>
-    <resources/>
-  </build>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>org.sakaiproject.courier</groupId>
+        <artifactId>courier-base</artifactId>
+        <version>2.9-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+    
+    <name>sakai-courier-util</name>
+    <groupId>org.sakaiproject.courier</groupId>
+    <artifactId>sakai-courier-util</artifactId>
+    <organization>
+        <name>The Sakai Foundation</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2003</inceptionYear>
+    <packaging>jar</packaging>
+    
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>sakai-courier-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+    </dependencies>
 </project>

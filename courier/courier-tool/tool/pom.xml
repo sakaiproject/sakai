@@ -1,54 +1,49 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>courier-base</artifactId>
-    <groupId>org.sakaiproject</groupId>
-    <version>2.9-SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
-  </parent>
-  <name>courier</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>courier</artifactId>
-  <organization>
-    <name>University of Michigan</name>
-    <url>http://sakaiproject.org/</url>
-  </organization>
-  <inceptionYear>2003</inceptionYear>
-  <packaging>war</packaging>
-  <dependencies>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-component-manager</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-courier-api</artifactId>
-    </dependency>
-<!--org.sakaiprojectsakai-component-api${sakai.version}-->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-presence-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-<!--org.sakaiprojectsakai-tool-api${sakai.version}-->
-<!--org.sakaiprojectsakai-util-api${sakai.version}-->
-<!--javax.servletservlet-api${sakai.servletapi.version}-->
-  </dependencies>
-  <build>
-    <resources/>
-  </build>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>org.sakaiproject.courier</groupId>
+        <artifactId>courier-base</artifactId>
+        <version>2.9-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+    
+    <name>courier</name>
+    <groupId>org.sakaiproject.courier</groupId>
+    <artifactId>courier</artifactId>
+    <organization>
+        <name>University of Michigan</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2003</inceptionYear>
+    <packaging>war</packaging>
+    
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>sakai-courier-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.presence</groupId>
+            <artifactId>sakai-presence-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+        </dependency>
+    </dependencies>
 </project>

@@ -1,35 +1,167 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>base</artifactId>
-    <groupId>org.sakaiproject</groupId>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject.purepoms</groupId>
+        <artifactId>sakai-standard-tool</artifactId>
+        <version>2.9-SNAPSHOT</version>
+    </parent>
+
+    <name>sakai-courier base pom</name>
+    <groupId>org.sakaiproject.courier</groupId>
+    <artifactId>courier-base</artifactId>
     <version>2.9-SNAPSHOT</version>
-    <relativePath>../pom.xml</relativePath>
-  </parent>
-  <name>Sakai Courier Project</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>courier-base</artifactId>
-  <packaging>pom</packaging>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/courier/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/courier/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/courier/trunk</url>
-  </scm>
-  <modules>
-    <module>courier-api/api</module>
-    <module>courier-impl/impl</module>
-    <module>courier-impl/pack</module>
-    <module>courier-tool/tool</module>
-    <module>courier-util/util</module>
-  </modules>
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-courier-impl</artifactId>
-        <version>${sakai.version}</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>courier-api/api</module>
+        <module>courier-assembly</module>
+        <module>courier-impl/impl</module>
+        <module>courier-impl/pack</module>
+        <module>courier-tool/tool</module>
+        <module>courier-util/util</module>
+    </modules>
+    
+    <properties>
+        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/courier/${project.version}</url.localsite>
+    </properties>
+    
+    <scm>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/courier/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/courier/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/svn/courier/trunk</url>
+    </scm>
+    
+    <distributionManagement>
+        <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
+        <snapshotRepository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>sakai-maven-snapshots-scp</id>
+            <name>Sakai snapshot Repo</name>
+            <url>scp://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
+            <layout>default</layout>
+        </snapshotRepository>
+        <repository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>sakai-maven2-scp</id>
+            <name>Sakai maven2 repository</name>
+            <url>scp://source.sakaiproject.org/var/www/html/maven2</url>
+            <layout>default</layout>
+        </repository>
+        <site>
+            <id>sakai-site</id>
+            <name>Sakai release Site</name>
+            <url>${url.localsite}</url>
+        </site>
+    </distributionManagement>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>maven2-central-repo</id>
+            <name>Maven2 Central Repo</name>
+            <url>http://repo1.maven.org/maven2/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>Sakai Plugin Repo</id>
+            <url>http://source.sakaiproject.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <repositories>
+        <repository>
+            <id>sakai-maven</id>
+            <name>Sakai Maven Repo</name>
+            <layout>default</layout>
+            <url>http://source.sakaiproject.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>sakai-maven2-snapshots</id>
+            <name>Sakai Maven Repo</name>
+            <layout>default</layout>
+            <url>http://source.sakaiproject.org/maven2-snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>default</id>
+            <name>Maven Repository Switchboard</name>
+            <layout>default</layout>
+            <url>http://repo1.maven.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>sakai-courier-api</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>sakai-courier-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.presence</groupId>
+                <artifactId>sakai-presence-api</artifactId>
+                <version>2.9-SNAPSHOT</version>
+                <scope>provided</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <debug>true</debug>
+                    <links>
+                        <link>http://download.oracle.com/javase/1.5.0/docs/api/</link>
+                        <link>http://download.oracle.com/javase/6/docs/api/</link>
+                    </links>
+                    <breakiterator>true</breakiterator>
+                    <verbose>false</verbose>
+                    <aggregate>true</aggregate>
+                    <minmemory>168m</minmemory>
+                    <maxmemory>1024m</maxmemory>
+                    <additionalJOption>-J-Xms168m -J-Xmx1024m -J-XX:PermSize=128m -J-XX:NewSize=64m</additionalJOption>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
 </project>
