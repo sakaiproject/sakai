@@ -98,6 +98,7 @@
         <sakai.basiclti.version>1.4-SNAPSHOT</sakai.basiclti.version>
         <sakai.common.version>1.2-SNAPSHOT</sakai.common.version>
         <sakai.contentreview.version>2.9-SNAPSHOT</sakai.contentreview.version>
+        <sakai.courier.version>2.9-SNAPSHOT</sakai.courier.version>
         <sakai.edu-services.version>1.2-SNAPSHOT</sakai.edu-services.version>
         <sakai.ets.version>0.6-SNAPSHOT</sakai.ets.version>
         <sakai.entitybroker.version>1.5-SNAPSHOT</sakai.entitybroker.version>
@@ -105,6 +106,7 @@
         <sakai.jsf.version>2.9-SNAPSHOT</sakai.jsf.version>
         <sakai.msgcntr.version>2.9-SNAPSHOT</sakai.msgcntr.version>
         <sakai.polls.version>1.5-SNAPSHOT</sakai.polls.version>
+        <sakai.presence.version>2.9-SNAPSHOT</sakai.presence.version>
         <sakai.profile.version>2.9-SNAPSHOT</sakai.profile.version>
         <sakai.profile2.version>1.5-SNAPSHOT</sakai.profile2.version>
         <sakai.resetpass.version>2.9-SNAPSHOT</sakai.resetpass.version>
@@ -114,6 +116,7 @@
         <sakai.search.version>1.4-SNAPSHOT</sakai.search.version>
         <sakai.shortenedurl.version>1.1-SNAPSHOT</sakai.shortenedurl.version>
         <sakai.sitestats.version>2.3-SNAPSHOT</sakai.sitestats.version>
+        <sakai.velocity-tool.version>2.9-SNAPSHOT</sakai.velocity-tool.version>
 	    <sakai.webservices.version>1.1-SNAPSHOT</sakai.webservices.version>
         <!-- Set the source encoding to avoid maven warnings -->
 	    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
@@ -331,9 +334,9 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.courier</groupId>
                 <artifactId>sakai-courier-api</artifactId>
-                <version>${sakai.version}</version>
+                <version>${sakai.courier.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -367,9 +370,9 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.velocity</groupId>
                 <artifactId>sakai-velocity-tool-api</artifactId>
-                <version>${sakai.version}</version>
+                <version>${sakai.velocity-tool.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -583,9 +586,9 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.presence</groupId>
                 <artifactId>sakai-presence-api</artifactId>
-                <version>${sakai.version}</version>
+                <version>${sakai.presence.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
