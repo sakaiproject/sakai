@@ -44,6 +44,7 @@ import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 import org.sakaiproject.profile2.util.ProfileConstants;
+import org.sakaiproject.profile2.util.ProfileUtils;
 
 /**
  * Panel for creating a worksite from a group of people.
@@ -131,8 +132,8 @@ public class CreateWorksitePanel extends Panel {
 					return;
 				}
 
-				if (true == worksiteLogic.createWorksite(siteNameField
-						.getValue(), sakaiProxy.getCurrentUserId(),
+				if (true == worksiteLogic.createWorksite(ProfileUtils.stripHtml(siteNameField
+						.getValue()), sakaiProxy.getCurrentUserId(),
 						new ArrayList<Person>(palette.getModelCollection()),
 						true)) {
 
