@@ -57,7 +57,7 @@
         </dependency>
 
      	<dependency>
-        	<groupId>org.sakaiproject</groupId>
+        	<groupId>org.sakaiproject.presence</groupId>
             <artifactId>sakai-presence-api</artifactId>
             <scope>provided</scope>
         </dependency>
