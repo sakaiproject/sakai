@@ -536,7 +536,7 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 	}
 	
 	public String[] getHandledOutputFormats() {
-		return new String[] { Formats.XML, Formats.JSON };
+		return new String[] { Formats.XML, Formats.JSON, Formats.JSONP };
 	}
 
 	public String[] getHandledInputFormats() {
