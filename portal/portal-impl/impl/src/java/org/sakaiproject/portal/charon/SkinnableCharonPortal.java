@@ -628,9 +628,17 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		boolean showResetButton = !"false".equals(placement.getConfig().getProperty(
 				Portal.TOOLCONFIG_SHOW_RESET_BUTTON));
 
-		String resetActionUrl = PortalStringUtil.replaceFirst(toolUrl, "/tool/",
-		"/tool-reset/")
-		+ "?panel=Main";
+		String resetActionUrl = PortalStringUtil.replaceFirst(toolUrl, "/tool/", "/tool-reset/");
+
+                String sakaiPanel = req.getParameter("panel");
+                if ( sakaiPanel != null && sakaiPanel.matches(".*[\"'<>].*" ) ) sakaiPanel=null;
+                if ( sakaiPanel == null ) sakaiPanel="Main";
+                resetActionUrl = URLUtils.addParameter(resetActionUrl, "panel", sakaiPanel);
+
+                // SAK-20462 - Pass through the sakai_action parameter
+                String sakaiAction = req.getParameter("sakai_action");
+                if ( sakaiAction != null && sakaiAction.matches(".*[\"'<>].*" ) ) sakaiAction=null;
+                if ( sakaiAction != null ) resetActionUrl = URLUtils.addParameter(resetActionUrl, "sakai_action", sakaiAction);
 
 		// Reset is different for Portlets
 		if (isPortletPlacement(placement))
