@@ -60,9 +60,9 @@
         <version>2.9-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
+        <groupId>org.sakaiproject.velocity</groupId>
         <artifactId>sakai-velocity-tool</artifactId>
-        <version>2.9-SNAPSHOT</version>
+        <version>${sakai.velocity-tool.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
