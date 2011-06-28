@@ -24,12 +24,6 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-util</artifactId>
     </dependency>
-<!--
-      This has been relocated to sakai-kernel-util
-      org.sakaiproject.kernel.utilsakai-content-util-->
-<!--
-      This has been relocated to sakai-kernel-util
-      org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-impl</artifactId>
@@ -43,7 +37,7 @@
           <artifactId>sakai-user-util</artifactId>
         </exclusion>
         <exclusion>
-          <groupId>org.sakaiproject</groupId>
+          <groupId>org.sakaiproject.velocity</groupId>
           <artifactId>sakai-velocity-tool</artifactId>
         </exclusion>
       </exclusions>
@@ -60,8 +54,6 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-xserver</artifactId>
     </dependency>
-<!--org.sakaiprojectsakai-util${sakai.version}-->
-<!--org.sakaiprojectsakai-content-util${sakai.version}-->
     <dependency>
       <groupId>zing</groupId>
       <artifactId>cql-java</artifactId>
