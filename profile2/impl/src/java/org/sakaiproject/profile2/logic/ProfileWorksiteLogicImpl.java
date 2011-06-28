@@ -140,7 +140,7 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 	public boolean createWorksite(final String siteTitle, final String ownerId,
 			final Collection<Person> members, boolean notifyByEmail) {
 
-		// double-check
+		// double-check permission
 		if (false == sakaiProxy.isUserAllowedAddSite(ownerId)) {
 			log .warn("user " + ownerId + " tried to create worksite without site.add");
 			return false;
@@ -155,9 +155,10 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 		final Site site = sakaiProxy.addSite(siteId, SITE_TYPE_PROJECT);
 		
 		if (null == site) {
-			log.warn("unable to create new site from Profile2");
+			log.warn("unable to create new worksite from Profile2");
+			return false;
 		} else {
-			
+			// set initial site maintainer to Profile2 user creating worksite
 			User owner = sakaiProxy.getUserById(ownerId);
 			if (null != owner) {
 				// false == provided
@@ -167,77 +168,112 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 				return false;
 			}
 
-			// user could create worksite without any connections
-			if (null != members) {
-				for (Person member : members) {
-					User user = sakaiProxy.getUserById(member.getUuid());
-					if (null != user) {
-							
-						// TODO privacy/preference check if/when added?
-							
-						// false == provided
-						site.addMember(member.getUuid(), ROLE_ACCESS, true, false);
-					} else {
-						log .warn("attempt to add unknown user " + member.getUuid() + " to worksite");
+			addSiteMembers(members, site);
+			
+			addTitleAndDescription(siteTitle, ownerId, site);
+			
+			addHomePageAndTools(site);
+			
+			site.setPublished(true);
+			
+			if (false == sakaiProxy.saveSite(site)) {
+				log.warn("unable to save new worksite from Profile2");
+				return false;
+			}
+			
+			emailSiteMembers(siteTitle, ownerId, members, notifyByEmail, site);
+			
+			return true;
+		}
+	}
+	
+	private void addHomePageAndTools(final Site site) {
+		
+		// we will always have a home page
+		SitePage homePage = site.addPage();
+		homePage.getPropertiesEdit().addProperty(
+				SitePage.IS_HOME_PAGE, Boolean.TRUE.toString());
+		
+		Tool homeTool = sakaiProxy.getTool(HOME_TOOL);
+		
+		ToolConfiguration homeToolConfig = homePage.addTool();
+		homeToolConfig.setTool(TOOL_ID_HOME, homeTool);
+		homeToolConfig.setTitle(homeTool.getTitle());
+					
+		// normally brings in sakai.siteinfo
+		List<String> toolIds = sakaiProxy.getToolsRequired(SITE_TYPE_PROJECT);
+					
+		int synopticToolIndex = addRequiredToolsForWorksite(site, homePage, toolIds);
+		
+		// for synoptic tools
+		if (synopticToolIndex > 0) {
+			homePage.setLayout(SitePage.LAYOUT_DOUBLE_COL);
+		}
+		
+		addRequiredHomeTools(homePage, toolIds, synopticToolIndex);
+	}
+		
+	private int addRequiredToolsForWorksite(final Site site,
+			SitePage homePage, List<String> toolIds) {
+		
+		int synopticToolIndex = 0;
+		
+		for (String toolId : toolIds) {
+			
+			if (isToolToIgnore(toolId)) {
+				continue;
+			} else if (isToolWithSynopticTool(toolId)) {
+				
+				// add tool
+				SitePage toolPage = site.addPage();
+				toolPage.addTool(toolId);
+				
+				// add corresponding synoptic tool if not already added
+				if (false == isToolAlreadyAdded(homePage, TOOLS_WITH_SYNOPTIC_ID_MAP.get(toolId))) {
+					
+					ToolConfiguration toolConfig = homePage.addTool(TOOLS_WITH_SYNOPTIC_ID_MAP.get(toolId));
+					if (null != toolConfig) {
+						toolConfig.setLayoutHints(synopticToolIndex + ",1");
+
+						for (int i = 0; i < synopticToolIndex; i++) {
+							toolConfig.moveUp();
+						}
+						
+						synopticToolIndex++;
 					}
 				}
-			}
-
-			// finishing setting up site
-			site.setTitle(siteTitle);
-			// add description for editing the worksite
-			site.setDescription(Messages.getString("worksite.help",
-					new Object[] { sakaiProxy.getTool(SITEINFO_TOOL).getTitle(),
-					sakaiProxy.getTool(MEMBERSHIP_TOOL).getTitle(),
-					sakaiProxy.getUserDisplayName(ownerId),
-					sakaiProxy.getUserEmail(ownerId),
-					siteTitle}));
-						
-			// we will always have a home page
-			SitePage homePage = site.addPage();
-			homePage.getPropertiesEdit().addProperty(
-					SitePage.IS_HOME_PAGE, Boolean.TRUE.toString());
-			
-			Tool homeTool = sakaiProxy.getTool(HOME_TOOL);
-			
-			ToolConfiguration homeToolConfig = homePage.addTool();
-			homeToolConfig.setTool(TOOL_ID_HOME, homeTool);
-			homeToolConfig.setTitle(homeTool.getTitle());
-						
-			// normally brings in sakai.siteinfo
-			List<String> toolIds = sakaiProxy.getToolsRequired(SITE_TYPE_PROJECT);
-
-			// home tools specified in sakai.properties or default set of home tools
-			List<String> homeToolIds;
-
-			if (null != sakaiProxy.getServerConfigurationParameter(WORKSITE_SETUP_TOOLS + "." + SITE_TYPE_PROJECT, null)) {
-				homeToolIds = new ArrayList<String>(Arrays.asList(
-						sakaiProxy.getServerConfigurationParameter(WORKSITE_SETUP_TOOLS + "." + SITE_TYPE_PROJECT, null)));
-			} else if (null != sakaiProxy.getServerConfigurationParameter(WORKSITE_SETUP_TOOLS, null)) {
-				homeToolIds = new ArrayList<String>(Arrays.asList(
-						sakaiProxy.getServerConfigurationParameter(WORKSITE_SETUP_TOOLS, null)));
-			} else {
-				homeToolIds = new ArrayList<String>();
-			}
-						
-			int synopticToolIndex = 0;
-			for (String toolId : toolIds) {
-				
-				if (isToolToIgnore(toolId)) {
-					continue;
-				} else if (isToolWithSynopticTool(toolId)) {
-					
-					// add tool
+			} else if (null != sakaiProxy.getTool(toolId)) {
+											
 					SitePage toolPage = site.addPage();
 					toolPage.addTool(toolId);
-					
-					// add corresponding synoptic tool if not already added
-					if (false == isToolAlreadyAdded(homePage, TOOLS_WITH_SYNOPTIC_ID_MAP.get(toolId))) {
-						
-						ToolConfiguration toolConfig = homePage.addTool(TOOLS_WITH_SYNOPTIC_ID_MAP.get(toolId));
+			}
+		}
+		return synopticToolIndex;
+	}
+	
+	private void addRequiredHomeTools(SitePage homePage, List<String> toolIds,
+			int synopticToolIndex) {
+		
+		// home tools specified in sakai.properties or default set of home tools
+		List<String> homeToolIds = getHomeToolIds();
+		
+		for (String homeToolId : homeToolIds) {
+			
+			if (isToolToIgnore(homeToolId)) {
+				continue;
+			} else {
+				
+				// check for corresponding tool
+				if (SYNOPTIC_TOOL_ID_MAP.get(homeToolId) != null &&
+						CollectionUtils.containsAny(SYNOPTIC_TOOL_ID_MAP.get(homeToolId), toolIds)) {
+											
+					// check it hasn't been added already
+					if (false == isToolAlreadyAdded(homePage, homeToolId)) {
+													
+						ToolConfiguration toolConfig = homePage.addTool(homeToolId);
 						if (null != toolConfig) {
 							toolConfig.setLayoutHints(synopticToolIndex + ",1");
-		
+			
 							for (int i = 0; i < synopticToolIndex; i++) {
 								toolConfig.moveUp();
 							}
@@ -245,65 +281,56 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 							synopticToolIndex++;
 						}
 					}
-				} else if (null != sakaiProxy.getTool(toolId)) {
-												
-						SitePage toolPage = site.addPage();
-						toolPage.addTool(toolId);
 				}
-			}
-			
-			// for synoptic tools
-			if (synopticToolIndex > 0) {
-				homePage.setLayout(SitePage.LAYOUT_DOUBLE_COL);
-			}
-			
-			for (String homeToolId : homeToolIds) {
-				
-				if (isToolToIgnore(homeToolId)) {
-					continue;
-				} else {
-					
-					// check for corresponding tool
-					if (SYNOPTIC_TOOL_ID_MAP.get(homeToolId) != null && CollectionUtils.containsAny(SYNOPTIC_TOOL_ID_MAP.get(homeToolId), toolIds)) {
-												
-						// check it hasn't been added already
-						if (false == isToolAlreadyAdded(homePage, homeToolId)) {
-														
-							ToolConfiguration toolConfig = homePage.addTool(homeToolId);
-							if (null != toolConfig) {
-								toolConfig.setLayoutHints(synopticToolIndex + ",1");
-				
-								for (int i = 0; i < synopticToolIndex; i++) {
-									toolConfig.moveUp();
-								}
-								
-								synopticToolIndex++;
-							}
-						}
-					}
-
-				}
-			}
-			
-			site.setPublished(true);
-			if (false == sakaiProxy.saveSite(site)) {
-				log.warn("unable to save site from Profile2");
-				return false;
-			}
-			
-			if (true == notifyByEmail) {
-				
-				Thread thread = new Thread() {
-					public void run() {
-						emailSiteMembers(siteTitle, site.getUrl(), ownerId, members);		
-					}
-				};
-				thread.start();
-				
 			}
 		}
+	}
+	
+	private List<String> getHomeToolIds() {
+		
+		List<String> homeToolIds;
 
-		return true;
+		if (null != sakaiProxy.getServerConfigurationParameter(WORKSITE_SETUP_TOOLS + "." + SITE_TYPE_PROJECT, null)) {
+			homeToolIds = new ArrayList<String>(Arrays.asList(
+					sakaiProxy.getServerConfigurationParameter(WORKSITE_SETUP_TOOLS + "." + SITE_TYPE_PROJECT, null)));
+		} else if (null != sakaiProxy.getServerConfigurationParameter(WORKSITE_SETUP_TOOLS, null)) {
+			homeToolIds = new ArrayList<String>(Arrays.asList(
+					sakaiProxy.getServerConfigurationParameter(WORKSITE_SETUP_TOOLS, null)));
+		} else {
+			homeToolIds = new ArrayList<String>();
+		}
+		return homeToolIds;
+	}
+	
+	private void addTitleAndDescription(final String siteTitle,
+			final String ownerId, final Site site) {
+		
+		// finishing setting up site
+		site.setTitle(siteTitle);
+		// add description for editing the worksite
+		site.setDescription(Messages.getString("worksite.help",
+				new Object[] { sakaiProxy.getTool(SITEINFO_TOOL).getTitle(),
+				sakaiProxy.getTool(MEMBERSHIP_TOOL).getTitle(),
+				sakaiProxy.getUserDisplayName(ownerId),
+				sakaiProxy.getUserEmail(ownerId),
+				siteTitle}));
+	}
+	
+	private void addSiteMembers(final Collection<Person> members,
+			final Site site) {
+		
+		// user could create worksite without any connections (that's okay)
+		if (null != members) {
+			for (Person member : members) {
+				User user = sakaiProxy.getUserById(member.getUuid());
+				if (null != user) {						
+					// false == provided
+					site.addMember(member.getUuid(), ROLE_ACCESS, true, false);
+				} else {
+					log .warn("attempt to add unknown user " + member.getUuid() + " to worksite");
+				}
+			}
+		}
 	}
 
 	private boolean isToolAlreadyAdded(SitePage homePage, String homeToolId) {
@@ -323,6 +350,21 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 		return toolId.equals(TOOL_ID_IFRAME) || toolId.equals(HOME_TOOL);
 	}
 
+	private void emailSiteMembers(final String siteTitle, final String ownerId,
+			final Collection<Person> members, boolean notifyByEmail,
+			final Site site) {
+		
+		if (true == notifyByEmail) {
+			
+			Thread thread = new Thread() {
+				public void run() {
+					emailSiteMembers(siteTitle, site.getUrl(), ownerId, members);		
+				}
+			};
+			thread.start();
+		}
+	}
+	
 	private void emailSiteMembers(String siteTitle, String siteUrl, String ownerId,
 			Collection<Person> members) {
 		
