@@ -17,7 +17,7 @@
 
     <modules>
         <module>courier-api/api</module>
-        <module>courier-assembly</module>
+        <!-- <module>courier-assembly</module> -->
         <module>courier-impl/impl</module>
         <module>courier-impl/pack</module>
         <module>courier-tool/tool</module>
