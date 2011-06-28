@@ -65,7 +65,7 @@
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.velocity</groupId>
       <artifactId>sakai-velocity-tool-api</artifactId>
       <scope>provided</scope>
     </dependency>

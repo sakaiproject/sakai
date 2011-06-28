@@ -33,9 +33,6 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
-<!--
-      This has been relocated to sakai-kernel-util
-      org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
@@ -53,7 +50,6 @@
       <groupId>org.sakaiproject.sitemanage</groupId>
       <artifactId>sakai-site-manage-api</artifactId>
     </dependency>
-<!--org.sakaiprojectsakai-site-api${sakai.version}-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-announcement-api</artifactId>
@@ -62,38 +58,24 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-message-api</artifactId>
     </dependency>
-<!--org.sakaiprojectsakai-component${sakai.version}-->
-<!--org.sakaiprojectsakai-user-api${sakai.version}-->
-<!--org.sakaiprojectsakai-alias-api${sakai.version}-->
     <dependency>
       <groupId>org.sakaiproject.common</groupId>
       <artifactId>archive-api</artifactId>
     </dependency>
-<!--org.sakaiprojectsakai-content-api${sakai.version}-->
-<!--org.sakaiprojectsakai-email-api${sakai.version}-->
-<!--org.sakaiprojectsakai-util${sakai.version}-->
     <dependency>
       <groupId>org.sakaiproject.sitemanage</groupId>
       <artifactId>sakai-site-manage-util</artifactId>
     </dependency>
-<!--javax.servletservlet-api${sakai.servletapi.version}-->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.velocity</groupId>
       <artifactId>sakai-velocity-tool-api</artifactId>
     </dependency>
-<!--org.sakaiprojectsakai-component-api${sakai.version}-->
-<!--org.sakaiprojectsakai-tool-api${sakai.version}-->
-<!--org.sakaiprojectsakai-event-api${sakai.version}-->
-<!--org.sakaiprojectsakai-entity-api${sakai.version}-->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.courier</groupId>
       <artifactId>sakai-courier-api</artifactId>
     </dependency>
-<!--org.sakaiprojectsakai-authz-api${sakai.version}-->
-<!--org.sakaiprojectsakai-util-api${sakai.version}-->
-<!--org.sakaiprojectsakai-util${sakai.version}-->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.velocity</groupId>
       <artifactId>sakai-velocity-tool</artifactId>
     </dependency>
     <dependency>
