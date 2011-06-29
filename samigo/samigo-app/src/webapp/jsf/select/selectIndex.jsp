@@ -339,8 +339,8 @@ sorting actions for table:
 	    <f:param name="actionString" value="reviewAssessment"/>
 	    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener" />
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
-		<h:outputText styleClass="currentSort" value="Feedback" rendered="#{reviewable.isRecordedAssessment && select.displayAllAssessments != '1' }" escape="false"/> 
-		<h:outputText value="Feedback" rendered="#{!reviewable.isRecordedAssessment }" escape="false"/> 
+		<h:outputText styleClass="currentSort" value="#{commonMessages.feedback}" rendered="#{reviewable.isRecordedAssessment && select.displayAllAssessments != '1' }" escape="false"/> 
+		<h:outputText value="#{commonMessages.feedback}" rendered="#{!reviewable.isRecordedAssessment }" escape="false"/> 
 	  </h:commandLink> 
       <!-- mustansar --> 
     </h:column>
