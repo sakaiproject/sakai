@@ -44,9 +44,9 @@
         <version>${sakai.velocity-tool.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
+        <groupId>org.sakaiproject.site</groupId>
         <artifactId>sakai-mergedlist-util</artifactId>
-        <version>2.9-SNAPSHOT</version>
+        <version>${sakai.site.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
