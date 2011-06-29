@@ -28,13 +28,10 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
-<!--org.sakaiprojectsakai-component${sakai.version}-->
-<!--org.sakaiprojectsakai-entity-api${sakai.version}-->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.message</groupId>
       <artifactId>sakai-message-api</artifactId>
     </dependency>
-<!--org.sakaiprojectsakai-util-api${sakai.version}-->
   </dependencies>
   <build>
     <resources/>

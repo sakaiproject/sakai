@@ -31,7 +31,7 @@
         <version>${sakai.velocity-tool.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject</groupId>
+        <groupId>org.sakaiproject.message</groupId>
         <artifactId>sakai-message-impl</artifactId>
         <version>2.9-SNAPSHOT</version>
       </dependency>

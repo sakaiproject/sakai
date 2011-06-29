@@ -53,7 +53,7 @@
       <artifactId>entitybroker-utils</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.message</groupId>
       <artifactId>sakai-message-api</artifactId>
     </dependency>
     <dependency>
