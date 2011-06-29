@@ -114,6 +114,7 @@
         <sakai.samigo.version>2.9-SNAPSHOT</sakai.samigo.version>
         <sakai.scheduler.version>2.9-SNAPSHOT</sakai.scheduler.version>
         <sakai.search.version>1.4-SNAPSHOT</sakai.search.version>
+        <sakai.site.version>2.9-SNAPSHOT</sakai.site.version>
         <sakai.shortenedurl.version>1.1-SNAPSHOT</sakai.shortenedurl.version>
         <sakai.sitestats.version>2.3-SNAPSHOT</sakai.sitestats.version>
         <sakai.velocity-tool.version>2.9-SNAPSHOT</sakai.velocity-tool.version>
