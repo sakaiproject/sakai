@@ -25,7 +25,7 @@
       <artifactId>sakai-calendar-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.site</groupId>
       <artifactId>sakai-mergedlist-util</artifactId>
     </dependency>
     <dependency>
