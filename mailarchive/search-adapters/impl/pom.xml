@@ -81,9 +81,6 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
-<!--
-      This has been relocated to sakai-kernel-util
-      org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
       <groupId>org.sakaiproject.search</groupId>
       <artifactId>search-api</artifactId>
@@ -94,17 +91,11 @@
       <artifactId>search-util</artifactId>
       <type>jar</type>
     </dependency>
-<!--org.sakaiprojectsakai-entity-api${sakai.version}jar-->
-<!--org.sakaiprojectsakai-event-api${sakai.version}jar-->
-<!--org.sakaiprojectsakai-user-api${sakai.version}jar-->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.message</groupId>
       <artifactId>sakai-message-api</artifactId>
       <type>jar</type>
     </dependency>
-<!--org.sakaiprojectsakai-util-api${sakai.version}jar-->
-<!--org.sakaiprojectsakai-util${sakai.version}jar-->
-<!--org.sakaiprojectsakai-component-api${sakai.version}jar-->
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
