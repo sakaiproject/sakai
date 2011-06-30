@@ -30,7 +30,7 @@ import javax.servlet.ServletContextListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 
 /**
@@ -55,12 +55,15 @@ public class ToolListener implements ServletContextListener
 	{
 		// The the location of resource and registration files.
 		Set paths = event.getServletContext().getResourcePaths("/tools/");
-		if (paths == null) return;
+		final String sakaiHomePath = ServerConfigurationService.getSakaiHomePath();
 
 		//	First Pass:  Search for tool registration file.
+		if (paths == null) {
+			return;
+		}
 		for (Iterator i = paths.iterator(); i.hasNext();)
 		{
-			String path = (String) i.next();
+			final String path = (String) i.next();
 
 			// skip directories
 			if (path.endsWith("/")) continue;
@@ -68,8 +71,14 @@ public class ToolListener implements ServletContextListener
 			// If an XML file, use it as the tool registration file.
 			if (path.endsWith(".xml"))
 			{
-				M_log.info("registering tools from resource: " + path);
-				ActiveToolManager.register(event.getServletContext().getResourceAsStream(path), event.getServletContext());
+				final File f = new File(sakaiHomePath + path);
+				if(f.exists()) {
+					ActiveToolManager.register(f, event.getServletContext());
+					ToolListener.M_log.info("overriding tools configuration: registering tools from resource: " + sakaiHomePath + path);
+				} else {
+					M_log.info("registering tools from resource: " + path);
+					ActiveToolManager.register(event.getServletContext().getResourceAsStream(path), event.getServletContext());
+				}
 			}
 		}
 
