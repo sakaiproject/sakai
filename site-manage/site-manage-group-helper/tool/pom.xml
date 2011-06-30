@@ -59,6 +59,10 @@
       <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
       <type>war</type>
     </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+    </dependency>
 <!--org.sakaiprojectsakai-util-api${sakai.version}-->
 <!--org.sakaiprojectsakai-util${sakai.version}-->
 <!-- Various Sakai dependencies -->
