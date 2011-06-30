@@ -655,6 +655,10 @@ public class UsersAction extends PagedResourceActionII
 	public void doSave(RunData data, Context context)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
 
 		// read the form - if rejected, leave things as they are
 		if (!readUserForm(data, state)) return;
@@ -727,6 +731,10 @@ public class UsersAction extends PagedResourceActionII
 	public void doCancel(RunData data, Context context)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
 
 		// get the user
 		UserEdit user = (UserEdit) state.getAttribute("user");
@@ -793,6 +801,10 @@ public class UsersAction extends PagedResourceActionII
 	public void doRemove_confirmed(RunData data, Context context)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
 
 		// get the user
 		UserEdit user = (UserEdit) state.getAttribute("user");
@@ -831,6 +843,10 @@ public class UsersAction extends PagedResourceActionII
 	public void doCancel_remove(RunData data, Context context)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
 
 		// return to edit mode
 		state.setAttribute("mode", "edit");
