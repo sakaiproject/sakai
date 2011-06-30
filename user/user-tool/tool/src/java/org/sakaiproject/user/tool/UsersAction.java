@@ -775,6 +775,9 @@ public class UsersAction extends PagedResourceActionII
 	public void doRemove(RunData data, Context context)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
+		// set mode so we can skip some checks in readUserForm
+		state.setAttribute("mode", "remove");
 
 		// read the form - if rejected, leave things as they are
 		if (!readUserForm(data, state)) return;
@@ -1026,14 +1029,16 @@ public class UsersAction extends PagedResourceActionII
             }
       }
 
-			// make sure we have matching password fields
-			if (StringUtil.different(pw, pwConfirm))
-			{
-				addAlert(state, rb.getString("usecre.pass"));
-				return false;
+			if (mode == null || !mode.equalsIgnoreCase("remove")) {
+				// make sure we have matching password fields
+				if (StringUtil.different(pw, pwConfirm))
+				{
+					addAlert(state, rb.getString("usecre.pass"));
+					return false;
+				}
+	
+				if (pw != null) user.setPassword(pw);
 			}
-
-			if (pw != null) user.setPassword(pw);
 		}
 
 		return true;
