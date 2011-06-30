@@ -319,6 +319,9 @@ public class UsersAction extends PagedResourceActionII
 	{
 		// put the service in the context
 		context.put("service", UserDirectoryService.getInstance());
+
+		// name the html form for user edit fields
+		context.put("form-name", "user-form");
 		
 		// include the password fields?
 		context.put("incPw", state.getAttribute("include-password"));
