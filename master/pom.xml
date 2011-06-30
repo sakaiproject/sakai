@@ -119,6 +119,7 @@
         <sakai.site.version>2.9-SNAPSHOT</sakai.site.version>
         <sakai.shortenedurl.version>1.1-SNAPSHOT</sakai.shortenedurl.version>
         <sakai.sitestats.version>2.3-SNAPSHOT</sakai.sitestats.version>
+        <sakai.taggable.version>2.9-SNAPSHOT</sakai.taggable.version>
         <sakai.velocity-tool.version>2.9-SNAPSHOT</sakai.velocity-tool.version>
 	    <sakai.webservices.version>1.1-SNAPSHOT</sakai.webservices.version>
         <!-- Set the source encoding to avoid maven warnings -->
@@ -439,9 +440,9 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.taggable</groupId>
                 <artifactId>sakai-taggable-api</artifactId>
-                <version>${sakai.version}</version>
+                <version>${sakai.taggable.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
