@@ -464,6 +464,10 @@ public class RealmsAction extends PagedResourceActionII
 	public void doSaveas(RunData data, Context context)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
 
 		// read the form
 		String id = data.getParameters().getString("id");
@@ -505,6 +509,10 @@ public class RealmsAction extends PagedResourceActionII
 	public void doCancel_saveas(RunData data, Context context)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
 
 		// return to main mode
 		state.setAttribute("mode", "edit");
@@ -548,6 +556,7 @@ public class RealmsAction extends PagedResourceActionII
 	public void doEdit(RunData data, Context context)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
 		String id = data.getParameters().getString("id");
 
 		// get the realm
@@ -588,6 +597,10 @@ public class RealmsAction extends PagedResourceActionII
 	public void doSave(RunData data, Context context)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
 
 		// read the form - if rejected, leave things as they are
 		if (!readRealmForm(data, state)) return;
@@ -602,6 +615,10 @@ public class RealmsAction extends PagedResourceActionII
 	public void doSave_edit(RunData data, Context context)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
 
 		// commit the change
 		AuthzGroup realm = (AuthzGroup) state.getAttribute("realm");
@@ -645,6 +662,10 @@ public class RealmsAction extends PagedResourceActionII
 	public void doCancel(RunData data, Context context)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
 
 		// get the realm
 		AuthzGroup realm = (AuthzGroup) state.getAttribute("realm");
@@ -700,6 +721,10 @@ public class RealmsAction extends PagedResourceActionII
 	public void doRemove_confirmed(RunData data, Context context)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
 
 		// get the realm
 		AuthzGroup realm = (AuthzGroup) state.getAttribute("realm");
@@ -733,6 +758,10 @@ public class RealmsAction extends PagedResourceActionII
 	public void doCancel_remove(RunData data, Context context)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
 
 		// return to edit mode
 		state.setAttribute("mode", "edit");
