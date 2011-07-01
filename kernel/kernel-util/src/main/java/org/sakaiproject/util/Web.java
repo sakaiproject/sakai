@@ -73,6 +73,8 @@ public class Web
 	 * @param value
 	 *        The string to escape.
 	 * @return value fully escaped for HTML.
+	 * @deprecated use commons-lang StringEscapeUtils() though note that newlines
+	 * will not be escaped to <code><br></code>
 	 */
 	public static String escapeHtml(String value)
 	{
@@ -596,6 +598,8 @@ public class Web
 	 * @param escapeNewlines
 	 *        Whether to escape newlines as "&lt;br /&gt;\n" so that they appear as HTML line breaks.
 	 * @return value fully escaped for HTML.
+	 * @deprecated use commons-lang StringEscapeUtils() though note that newlines
+	 * will not be escaped to <code><br></code>
 	 */
 	public static String escapeHtml(String value, boolean escapeNewlines)
 	{

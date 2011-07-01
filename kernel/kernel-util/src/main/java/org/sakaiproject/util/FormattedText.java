@@ -475,90 +475,13 @@ public class FormattedText
 	 * @param escapeNewlines
 	 *        Whether to escape newlines as "&lt;br /&gt;\n" so that they appear as HTML line breaks.
 	 * @return value fully escaped for HTML.
+	 * @deprecated user {@link Web.#escapeHtml(String, boolean)}
+	 * @deprecated use commons-lang StringEscapeUtils() though note that newlines
+	 * will not be escaped to <code><br></code>
 	 */
 	public static String escapeHtml(String value, boolean escapeNewlines)
 	{
-		if (value == null) return "";
-
-		try
-		{
-			// lazily allocate the StringBuilder
-			// only if changes are actually made; otherwise
-			// just return the given string without changing it.
-			StringBuilder buf = (LAZY_CONSTRUCTION) ? null : new StringBuilder();
-			final int len = value.length();
-			for (int i = 0; i < len; i++)
-			{
-				char c = value.charAt(i);
-				switch (c)
-				{
-					case '<':
-					{
-						if (buf == null) buf = new StringBuilder(value.substring(0, i));
-						buf.append("&lt;");
-					}
-						break;
-
-					case '>':
-					{
-						if (buf == null) buf = new StringBuilder(value.substring(0, i));
-						buf.append("&gt;");
-					}
-						break;
-
-					case '&':
-					{
-						if (buf == null) buf = new StringBuilder(value.substring(0, i));
-						buf.append("&amp;");
-					}
-						break;
-
-					case '"':
-					{
-						if (buf == null) buf = new StringBuilder(value.substring(0, i));
-						buf.append("&quot;");
-					}
-						break;
-					case '\n':
-					{
-						if (escapeNewlines)
-						{
-							if (buf == null) buf = new StringBuilder(value.substring(0, i));
-							buf.append("<br />\n");
-						}
-						else
-						{
-							if (buf != null) buf.append(c);
-						}
-					}
-						break;
-					default:
-					{
-						if (c < 128)
-						{
-							if (buf != null) buf.append(c);
-						}
-						else
-						{
-							// escape higher Unicode characters using an
-							// HTML numeric character entity reference like "&#15672;"
-							if (buf == null) buf = new StringBuilder(value.substring(0, i));
-							buf.append("&#");
-							buf.append(Integer.toString((int) c));
-							buf.append(";");
-						}
-					}
-						break;
-				}
-			} // for
-
-			return (buf == null) ? value : buf.toString();
-		}
-		catch (Exception e)
-		{
-			M_log.warn("Validator.escapeHtml: ", e);
-			return "";
-		}
+		return Web.escapeHtml(value, escapeNewlines);
 
 	} // escapeHtml
 
