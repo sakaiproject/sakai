@@ -51,7 +51,7 @@
       <artifactId>sakai-site-manage-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.announcement</groupId>
       <artifactId>sakai-announcement-api</artifactId>
     </dependency>
     <dependency>
