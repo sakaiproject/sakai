@@ -60,14 +60,6 @@ public class ComposeLogicImpl implements ComposeLogic
 	protected ServerConfigurationService serverConfigurationService;
 	protected HashSet<String> ignoreRoles = new HashSet<String>();
 
-	public void init()
-	{
-	}
-
-	public void destroy()
-	{
-	}
-
 	/**
 	 * {@inheritDoc}
 	 * 

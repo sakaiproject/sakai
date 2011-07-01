@@ -37,7 +37,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.mailarchive.api.MailArchiveService;
@@ -60,7 +59,6 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 public class ExternalLogicImplTest {
 	ExternalLogicImpl impl;
 
-	ConfigLogicImpl configLogic;
 	@Mock
 	FunctionManager functionManager;
 	@Mock
@@ -69,8 +67,6 @@ public class ExternalLogicImplTest {
 	MailArchiveService mailArchiveService;
 	@Mock
 	SecurityService securityService;
-	@Mock
-	ServerConfigurationService serverConfigurationService;
 	@Mock
 	SessionManager sessionManager;
 	@Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -106,30 +102,16 @@ public class ExternalLogicImplTest {
 		when(userDirectoryService.getUser(USER_ID)).thenReturn(user);
 		when(user.getDisplayName()).thenReturn(USER_DISPLAY_NAME);
 
-		configLogic = new ConfigLogicImpl();
-		configLogic.setExternalLogic(impl);
-		configLogic.setServerConfigurationService(serverConfigurationService);
-		configLogic.setToolManager(toolManager);
-
 		impl = new ExternalLogicImpl();
-		impl.setConfigLogic(configLogic);
         impl.setEmailService(emailService);
 		impl.setTimeService(timeService);
 		impl.setFunctionManager(functionManager);
 		impl.setMailArchiveService(mailArchiveService);
 		impl.setSecurityService(securityService);
-		impl.setServerConfigurationService(serverConfigurationService);
 		impl.setSessionManager(sessionManager);
 		impl.setSiteService(siteService);
 		impl.setToolManager(toolManager);
 		impl.setUserDirectoryService(userDirectoryService);
-
-		when(serverConfigurationService.getString(MailConstants.SAKAI_HOST,
-						ExternalLogicImpl.DEFAULT_SMTP_HOST)).thenReturn(
-				ExternalLogicImpl.DEFAULT_SMTP_HOST);
-		when(serverConfigurationService.getInt(MailConstants.SAKAI_PORT,
-						ExternalLogicImpl.DEFAULT_SMTP_PORT)).thenReturn(
-				ExternalLogicImpl.DEFAULT_SMTP_PORT);
 
 		impl.init();
 	}

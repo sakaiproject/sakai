@@ -64,7 +64,6 @@ public class CachingComposeLogicImpl extends ComposeLogicImpl
 	/** Cache for storing results; instantiated in init */
 	private Cache cache;
 
-	@Override
 	public void init()
 	{
 		// create the cache needed to store method call results
@@ -72,7 +71,6 @@ public class CachingComposeLogicImpl extends ComposeLogicImpl
 		cache = memoryService.newCache(this.getClass().getName() + ".groupsCache");
 	}
 
-	@Override
 	public void destroy()
 	{
 		// get rid of any cache elements left

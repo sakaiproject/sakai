@@ -35,14 +35,10 @@
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="mailArchiveService" ref="org.sakaiproject.mailarchive.api.MailArchiveService" />
-
-		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
-		<property name="configLogic" ref="org.sakaiproject.mailsender.logic.ConfigLogic" />
 	</bean>
 
 	<bean id="org.sakaiproject.mailsender.logic.ComposeLogic"
-		class="org.sakaiproject.mailsender.logic.impl.ComposeLogicImpl"
-		init-method="init" destroy-method="destroy">
+		class="org.sakaiproject.mailsender.logic.impl.ComposeLogicImpl">
 		<property name="externalLogic" ref="org.sakaiproject.mailsender.logic.ExternalLogic" />
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />

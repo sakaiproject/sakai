@@ -22,8 +22,8 @@ package org.sakaiproject.mailsender.model;
 public class ConfigEntry
 {
     public static final ConfigEntry DEFAULT_CONFIG = new ConfigEntry(
-        SubjectPrefixType.system.toString(), false, false, ReplyTo.no_reply_to.toString(), false,
-        EditorType.htmlarea.toString(), null, true);
+        SubjectPrefixType.system.name(), false, false, ReplyTo.no_reply_to.name(), false,
+        EditorType.htmlarea.name(), null, true);
 
 	public enum ReplyTo
 	{

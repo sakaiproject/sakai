@@ -73,7 +73,6 @@ public class ComposeLogicImplTest {
 		impl.setServerConfigurationService(serverConfigurationService);
 		impl.setToolManager(toolManager);
 		impl.setUserDirectoryService(userDirectoryService);
-		impl.init();
 	}
 
 	@Test
