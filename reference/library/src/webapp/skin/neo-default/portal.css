@@ -37,7 +37,7 @@ body{
 /*site hierarchy breadcrumb*/
 #siteHierarchy{
 	margin:0;
-    z-index:1000;
+    z-index:10000;
     position:fixed;
     top:38px;
     left:0;
@@ -346,7 +346,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	width: 100%;
 	font-size: 100%;
 	line-height: normal;
-	z-index: 2000;
+	z-index: 100001;/*needs to be be higher than #siteHierarchy*/ 
     padding:0;
 }
 
