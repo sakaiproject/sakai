@@ -65,23 +65,6 @@ public class ExternalLogicImpl implements ExternalLogic
 {
 	private static Log log = LogFactory.getLog(ExternalLogicImpl.class);
 
-    static final String UTF_8 = "UTF-8";
-
-	/** Default value of smtp host */
-	static final String DEFAULT_SMTP_HOST = "localhost";
-
-	/** Default value of smtp port */
-	static final int DEFAULT_SMTP_PORT = 25;
-
-	/** Defaut value for use of ssl */
-	static final boolean DEFAULT_USE_SSL = false;
-
-	/** Defaut value for use of ssl */
-	static final boolean DEFAULT_USE_TLS = false;
-
-	/** Defaut value for smtp debugging */
-	static final boolean DEFAULT_SMTP_DEBUG = false;
-
 	// external service references
 	private FunctionManager functionManager;
 	private ToolManager toolManager;
