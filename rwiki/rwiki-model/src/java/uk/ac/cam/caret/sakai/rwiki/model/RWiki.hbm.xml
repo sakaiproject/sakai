@@ -52,7 +52,7 @@
 			<generator class="uuid.hex" />
 		</id>
 		<property name="rwikiid" length="36" not-null="true" index="irwikicurrentcontent_rwi" />
-		<property name="content" not-null="false" type="text" length="16777215"/>		
+		<property name="content" not-null="false" type="text" length="16777215" access="field"/> <!-- SAK-20790, set access to field to prevent Hibernate from calling the getter -->
 	</class>
 	<!--
 	Version 2 schema 
@@ -65,7 +65,7 @@
 			<generator class="uuid.hex" />
 		</id>
 		<property name="rwikiid" length="36" not-null="true" index="irwikihistorycontent_rwi"/>
-		<property name="content" not-null="false" type="text" length="16777215"/>		
+		<property name="content" not-null="false" type="text" length="16777215" access="field"/> <!-- SAK-20790, set access to field to prevent Hibernate from calling the getter -->
 	</class>
 	
 	<!-- 

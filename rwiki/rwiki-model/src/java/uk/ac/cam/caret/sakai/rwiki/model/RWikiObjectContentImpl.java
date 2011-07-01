@@ -54,7 +54,7 @@ public class RWikiObjectContentImpl implements RWikiObjectContent
 
 	public String getContent()
 	{
-		if ( content == null ) content = "";
+		if ( content == null ) return ""; // SAK-20790, do not change the internal representation of the object.
 		return content;
 	}
 
