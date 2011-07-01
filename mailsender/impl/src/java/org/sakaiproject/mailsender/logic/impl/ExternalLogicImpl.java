@@ -431,11 +431,28 @@ public class ExternalLogicImpl implements ExternalLogic
 			Map<String, String> to, String subject, String content,
 			Map<String, MultipartFile> attachments) throws MailsenderException, AttachmentException
 	{
+        if (fromEmail == null)
+        {
+          throw new MailsenderException("'fromEmail' is required.", (Exception) null);
+        }
+        if (to == null || to.isEmpty())
+        {
+          throw new MailsenderException("'to' is required.", (Exception) null);
+        }
+
+        if (config == null)
+        {
+          config = ConfigEntry.DEFAULT_CONFIG;
+        }
+
 		ArrayList<EmailAddress> tos = new ArrayList<EmailAddress>();
-		for (Entry<String, String> entry : to.entrySet())
-		{
-			tos.add(new EmailAddress(entry.getKey(), entry.getValue()));
-		}
+        if (to != null)
+        {
+            for (Entry<String, String> entry : to.entrySet())
+            {
+                tos.add(new EmailAddress(entry.getKey(), entry.getValue()));
+            }
+        }
 
 		EmailMessage msg = new EmailMessage();
 
@@ -467,22 +484,25 @@ public class ExternalLogicImpl implements ExternalLogic
 		}
 		msg.setBody(content);
 
-		for (Entry<String, MultipartFile> entry : attachments.entrySet())
-		{
-			MultipartFile mf = entry.getValue();
-			String filename = mf.getOriginalFilename();
-			try
-			{
-				File f = File.createTempFile(filename, null);
-				mf.transferTo(f);
-				Attachment attachment = new Attachment(f, filename);
-				msg.addAttachment(attachment);
-			}
-			catch (IOException ioe)
-			{
-				throw new AttachmentException(ioe.getMessage());
-			}
-		}
+        if (attachments != null)
+        {
+            for (Entry<String, MultipartFile> entry : attachments.entrySet())
+            {
+                MultipartFile mf = entry.getValue();
+                String filename = mf.getOriginalFilename();
+                try
+                {
+                    File f = File.createTempFile(filename, null);
+                    mf.transferTo(f);
+                    Attachment attachment = new Attachment(f, filename);
+                    msg.addAttachment(attachment);
+                }
+                catch (IOException ioe)
+                {
+                    throw new AttachmentException(ioe.getMessage());
+                }
+            }
+        }
 
 		// send a copy
 		if (config.isSendMeACopy())
