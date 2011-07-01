@@ -100,60 +100,67 @@
 		      be dynamically labelled based on the config. -->
 		#set ($i=0)
 		#set($maxLevel = $cmLevels.size() - 1)
+		<table class ="itemSummary" cellspacing="0" summary="info on the new project site">
 		#foreach ($level in $cmLevels)
-		  <p class="shorttext">
-			  #set($fieldName="idField_$i")
-				<label for="id-$fieldName">
-			  <!-- label for this level in CM -->
-			  ${level}
-			</label>
-			
-##   Removed the manual entry page.  This is handled instead by template #37 from within
-##   SiteAction.  This was preserved because of its ability to handle multiple levels
-##   of ID fields, whereas find course is spec'd to use more than three levels:
-##			CourseSetCategories I
-##			CourseSetCategories II
-##			....
-##			CourseSetCategories X
-##			CourseSet (filtered to match deployer configured category)
-##			CourseOffering
-##			Section
-##
-			  	<!-- use dropdown list to select from coursemanagement service provided options -->
-				  <input type=hidden name="cmLevelChanged" id="cmLevelChanged" value="false" />
-				  <input type=hidden name="cmChangedLevel" id="cmChangedLevel" value="-1" />
-				  #if ($i == 0 || $i < $cmLevelSelections.size() + 1)
-					  <select name="$fieldName" id="id-$fieldName" 
-					  	#if ($i == $maxSelectionDepth) 
-					  		onchange="document.findCourseForm.submit();" multiple 
-					  	#else
-					  		onchange="changeLevel($i);document.findCourseForm.submit();"
-					  	#end>
-				  #else
-				  	  <select name="$fieldName" disabled="true" id="id$fieldName" >
-				  #end
-				  <option value="">$tlang.getString("nscourse.findCourse.select")</option>
-					#if ($i < $cmLevelOptions.size())
-					    #if ($i < $cmLevelSelections.size())
-							#set ($selectedItem = $cmLevelSelections.get($i))
-					    #end
-                        #foreach ($coursething in $cmLevelOptions.get($i))
-							## down at the final three levels: CourseSet, CourseOffering, Section
-							<option value="$coursething.eid" 
-						   		#if (($i == $maxLevel && $cmLevelSelections.lastIndexOf($coursething.eid) >= $i) || ($i < $maxLevel && $coursething.eid == $selectedItem))						   ###if ($i < $cmLevelSelections.size() && $!selectedItem.contains($coursething.eid))) 
-						    		selected="true" 
-						 		#end
-							>
-								$coursething.title 
-							</option>
-				    	#end
-				     #end
-			      <!-- end population of select options -->
-				  </select>
-	      </p>
+			<tr>
+				<td>
+					#set($fieldName="idField_$i")
+					<label for="id-$fieldName">
+				  		<!-- label for this level in CM -->
+				  		${level}
+					</label>
+				</td>
+				
+	##   Removed the manual entry page.  This is handled instead by template #37 from within
+	##   SiteAction.  This was preserved because of its ability to handle multiple levels
+	##   of ID fields, whereas find course is spec'd to use more than three levels:
+	##			CourseSetCategories I
+	##			CourseSetCategories II
+	##			....
+	##			CourseSetCategories X
+	##			CourseSet (filtered to match deployer configured category)
+	##			CourseOffering
+	##			Section
+	##
+				<td>
+				  	<!-- use dropdown list to select from coursemanagement service provided options -->
+					  <input type=hidden name="cmLevelChanged" id="cmLevelChanged" value="false" />
+					  <input type=hidden name="cmChangedLevel" id="cmChangedLevel" value="-1" />
+					  #if ($i == 0 || $i < $cmLevelSelections.size() + 1)
+						  <select name="$fieldName" id="id-$fieldName" 
+						  	#if ($i == $maxSelectionDepth) 
+						  		onchange="blur();document.findCourseForm.submit();" multiple 
+						  	#else
+						  		onchange="blur();changeLevel($i);document.findCourseForm.submit();"
+						  	#end>
+					  #else
+					  	  <select name="$fieldName" disabled="true" id="id$fieldName" >
+					  #end
+					  <option value="">$tlang.getString("nscourse.findCourse.select")</option>
+						#if ($i < $cmLevelOptions.size())
+						    #if ($i < $cmLevelSelections.size())
+								#set ($selectedItem = $cmLevelSelections.get($i))
+						    #end
+	                        #foreach ($coursething in $cmLevelOptions.get($i))
+								## down at the final three levels: CourseSet, CourseOffering, Section
+								<option value="$coursething.eid" 
+							   		#if (($i == $maxLevel && $cmLevelSelections.lastIndexOf($coursething.eid) >= $i) || ($i < $maxLevel && $coursething.eid == $selectedItem))						   ###if ($i < $cmLevelSelections.size() && $!selectedItem.contains($coursething.eid))) 
+							    		selected="true" 
+							 		#end
+								>
+									$coursething.title 
+								</option>
+					    	#end
+					     #end
+				      <!-- end population of select options -->
+					  </select>
+		      	</td>
 			  <!-- end creation of select box -->
 			  #set($i = $i + 1)
+			  </tr>
 		   #end
+		</table>
+	
 		   <div class="shorttext">
 		   	<label for ="selectedSections">
 		    	$tlang.getString("nscourse.findCourse.selected")
