@@ -2039,6 +2039,12 @@ public class SimplePageBean {
 
 				if (true) {
 					SitePage sitePage = site.getPage(page.getToolId());
+					
+					for (ToolConfiguration t: sitePage.getTools()) {
+						if (t.getId().equals(placement.getId()))
+							t.setTitle(pageTitle);
+					}
+					
 					sitePage.setTitle(pageTitle);
 					siteService.save(site);
 					page.setTitle(pageTitle);
