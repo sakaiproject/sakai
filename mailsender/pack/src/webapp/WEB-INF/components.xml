@@ -35,6 +35,7 @@
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="mailArchiveService" ref="org.sakaiproject.mailarchive.api.MailArchiveService" />
+		<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
 	</bean>
 
 	<bean id="org.sakaiproject.mailsender.logic.ComposeLogic"

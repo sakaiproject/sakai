@@ -17,25 +17,34 @@
 package org.sakaiproject.mailsender.logic.impl;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.util.Properties;
 
+import junit.framework.Assert;
+
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.mailsender.logic.ConfigLogic;
 import org.sakaiproject.mailsender.logic.ExternalLogic;
 import org.sakaiproject.mailsender.model.ConfigEntry;
+import org.sakaiproject.mailsender.model.ConfigEntry.ConfigParams;
+import org.sakaiproject.mailsender.model.ConfigEntry.SubjectPrefixType;
 import org.sakaiproject.tool.api.ToolManager;
 
 @RunWith(value = MockitoJUnitRunner.class)
@@ -76,7 +85,7 @@ public class ConfigLogicImplTest {
 		assertFalse(logic.allowSubjectPrefixChange());
 
 		when(
-				configService.getBoolean(ConfigLogic.ALLOW_PREFIX_CHANGE_PROP,
+				configService.getBoolean(ConfigLogic.ALLOW_PREFIX_CHANGE_PROP, 
 						false)).thenReturn(true);
 		assertTrue(logic.allowSubjectPrefixChange());
 	}
@@ -126,8 +135,75 @@ public class ConfigLogicImplTest {
 	}
 
 	@Test
+	public void saveConfigNoPrefix() {
+		ConfigEntry ce = logic.getConfig();
+
+		Properties props = new Properties();
+		when(toolManager.getCurrentPlacement().getPlacementConfig()).thenReturn(props);
+
+		assertEquals(ConfigLogic.CONFIG_SAVED, logic.saveConfig(ce));
+		assertEquals(props.getProperty(ConfigParams.displayinvalidemailaddrs.name()),
+				Boolean.toString(ce.isDisplayInvalidEmails()));
+		assertEquals(props.getProperty(ConfigParams.emailarchive.name()),
+				Boolean.toString(ce.isAddToArchive()));
+		assertEquals(props.getProperty(ConfigParams.replyto.name()),
+				StringUtils.trimToEmpty(ce.getReplyTo()));
+		assertEquals(props.getProperty(ConfigParams.sendmecopy.name()),
+				Boolean.toString(ce.isSendMeACopy()));
+		assertEquals(props.getProperty(ConfigParams.displayemptygroups.name()),
+				Boolean.toString(ce.isDisplayEmptyGroups()));
+		assertNull(props.getProperty(ConfigParams.subjectprefix.name()));
+
+		verify(toolManager.getCurrentPlacement()).save();
+	}
+	
+	@Test
 	public void saveConfig() {
-		assertEquals(ConfigLogic.CONFIG_SAVED, logic.saveConfig(logic.getConfig()));
+		ConfigEntry ce = logic.getConfig();
+
+		Properties props = new Properties();
+		when(toolManager.getCurrentPlacement().getPlacementConfig()).thenReturn(props);
+		when(configService.getBoolean(ConfigLogic.ALLOW_PREFIX_CHANGE_PROP, false)).thenReturn(true);
+
+		assertEquals(ConfigLogic.CONFIG_SAVED, logic.saveConfig(ce));
+		assertEquals(props.getProperty(ConfigParams.displayinvalidemailaddrs.name()),
+				Boolean.toString(ce.isDisplayInvalidEmails()));
+		assertEquals(props.getProperty(ConfigParams.emailarchive.name()),
+				Boolean.toString(ce.isAddToArchive()));
+		assertEquals(props.getProperty(ConfigParams.replyto.name()),
+				StringUtils.trimToEmpty(ce.getReplyTo()));
+		assertEquals(props.getProperty(ConfigParams.sendmecopy.name()),
+				Boolean.toString(ce.isSendMeACopy()));
+		assertEquals(props.getProperty(ConfigParams.displayemptygroups.name()),
+				Boolean.toString(ce.isDisplayEmptyGroups()));
+		assertEquals(props.getProperty(ConfigParams.subjectprefix.name()), "");
+
+		verify(toolManager.getCurrentPlacement()).save();
+	}
+
+	@Test
+	public void saveConfigCustomPrefix() {
+		ConfigEntry ce = logic.getConfig();
+		ce.setSubjectPrefixType(SubjectPrefixType.custom.name());
+		ce.setSubjectPrefix("MRMR");
+
+		Properties props = new Properties();
+		when(toolManager.getCurrentPlacement().getPlacementConfig()).thenReturn(props);
+		when(configService.getBoolean(ConfigLogic.ALLOW_PREFIX_CHANGE_PROP, false)).thenReturn(true);
+	
+		assertEquals(ConfigLogic.CONFIG_SAVED, logic.saveConfig(ce));
+		assertEquals(props.getProperty(ConfigParams.displayinvalidemailaddrs.name()),
+				Boolean.toString(ce.isDisplayInvalidEmails()));
+		assertEquals(props.getProperty(ConfigParams.emailarchive.name()),
+				Boolean.toString(ce.isAddToArchive()));
+		assertEquals(props.getProperty(ConfigParams.replyto.name()),
+				StringUtils.trimToEmpty(ce.getReplyTo()));
+		assertEquals(props.getProperty(ConfigParams.sendmecopy.name()),
+				Boolean.toString(ce.isSendMeACopy()));
+		assertEquals(props.getProperty(ConfigParams.displayemptygroups.name()),
+				Boolean.toString(ce.isDisplayEmptyGroups()));
+		assertEquals(props.getProperty(ConfigParams.subjectprefix.name()), "MRMR");
+	
 		verify(toolManager.getCurrentPlacement()).save();
 	}
 }
