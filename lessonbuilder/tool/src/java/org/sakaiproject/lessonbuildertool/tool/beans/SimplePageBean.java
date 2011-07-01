@@ -2060,6 +2060,7 @@ public class SimplePageBean {
 					pageVisibilityHelper(site, page.getToolId(), !hidePage);
 					pageItem.setPrerequisite(prerequisite);
 					pageItem.setRequired(required);
+					pageItem.setName(pageTitle);
 					update(pageItem);
 				}
 
@@ -2071,6 +2072,8 @@ public class SimplePageBean {
 		} else if (pageTitle != null) {
 			page.setTitle(pageTitle);
 			update(page);
+			pageItem.setName(pageTitle);
+			update(pageItem);
 		}
 		
 		if(pageTitle != null) {
