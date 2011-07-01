@@ -22,11 +22,14 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.HashMap;
 
 import org.junit.Before;
@@ -38,7 +41,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.email.api.EmailService;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.mailarchive.api.MailArchiveChannel;
+import org.sakaiproject.mailarchive.api.MailArchiveMessageEdit;
+import org.sakaiproject.mailarchive.api.MailArchiveMessageHeaderEdit;
 import org.sakaiproject.mailarchive.api.MailArchiveService;
 import org.sakaiproject.mailsender.MailsenderException;
 import org.sakaiproject.mailsender.logic.ExternalLogic;
@@ -236,39 +244,68 @@ public class ExternalLogicImplTest {
 		assertFalse(impl.isUserAdmin(USER_ID));
 	}
 
-	@Test
-	public void sendMailMissingFrom() throws Exception {
-		try {
-			impl.sendEmail(null, null, null, null, null, null, null);
-			fail("Must define 'from'");
-		} catch (MailsenderException e) {
-			// expected
-		}
+	@Test(expected = MailsenderException.class)
+	public void sendMailNullFrom() throws Exception {
+		impl.sendEmail(null, null, null, null, null, null, null);
+		fail("Must define 'from'");
+	}
 
-		try {
-			impl.sendEmail(null, "", null, null, null, null, null);
-			fail("Must define 'from'");
-		} catch (MailsenderException e) {
-			// expected
-		}
+	@Test(expected = MailsenderException.class)
+	public void sendMailEmptyFrom() throws Exception {
+		impl.sendEmail(null, "", null, null, null, null, null);
+		fail("Must define 'from'");
+	}
+
+	@Test(expected = MailsenderException.class)
+	public void sendMailNullTo() throws Exception {
+		impl.sendEmail(null, "from@example.com", null, null, null, null,
+				null);
+		fail("Must define 'to'");
+	}
+
+	@Test(expected = MailsenderException.class)
+	public void sendMailEmptyTo() throws Exception {
+		impl.sendEmail(null, "from@example.com", null,
+				new HashMap<String, String>(), null, null, null);
+		fail("Must define 'to'");
 	}
 
 	@Test
-	public void sendMailMissingTo() throws Exception {
-		try {
-			impl.sendEmail(null, "from@example.com", null, null, null, null,
-					null);
-			fail("Must define 'to'");
-		} catch (MailsenderException e) {
-			// expected
-		}
+	public void sendMailRequiredArgs() throws Exception {
+		HashMap<String, String> to = new HashMap<String, String>();
+		to.put("test", "test");
+		impl.sendEmail(null, "from@example.com", null, to, null, null, null);
+	}
 
-		try {
-			impl.sendEmail(null, "from@example.com", null,
-					new HashMap<String, String>(), null, null, null);
-			fail("Must define 'to'");
-		} catch (MailsenderException e) {
-			// expected
-		}
+	@Test
+	public void emailArchiveIsNotAddedToSite() throws Exception {
+		when(site.getTools("sakai.mailbox")).thenReturn(Collections.EMPTY_SET);
+
+		MailArchiveChannel channel = mock(MailArchiveChannel.class);
+		MailArchiveMessageEdit msg = mock(MailArchiveMessageEdit.class);
+		MailArchiveMessageHeaderEdit header = mock(MailArchiveMessageHeaderEdit.class);
+
+		when(mailArchiveService.getMailArchiveChannel("channel"))
+				.thenThrow(new PermissionException(null, null, null)) // #1
+				.thenReturn(null) // #2
+				.thenReturn(channel); // #3
+		when(channel.addMessage())
+				.thenThrow(new PermissionException(null, null, null)) // #3
+				.thenReturn(msg); // #4
+		when(msg.getMailArchiveHeaderEdit()).thenReturn(header);
+
+		// #1
+		assertFalse("Permission exception from getMailArchiveChannel() should return false",
+				impl.addToArchive(null, "channel", null, null, null));
+		// #2
+		assertFalse("Need a non-null channel",
+				impl.addToArchive(null, "channel", null, null, null));
+		// #3
+		assertFalse("Permission exception from addMessage() should return false",
+				impl.addToArchive(null, "channel", null, null, null));
+		// #4
+		assertTrue(impl.addToArchive(null, "channel", null, null, null));
+
+		verify(channel).commitMessage(eq(msg), eq(NotificationService.NOTI_NONE));
 	}
 }

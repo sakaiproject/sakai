@@ -274,6 +274,11 @@ public class ExternalLogicImpl implements ExternalLogic
 	public boolean addToArchive(ConfigEntry config, String channelRef, String sender,
 			String subject, String body)
 	{
+		if (config == null)
+		{
+			config = ConfigEntry.DEFAULT_CONFIG;
+		}
+
 		boolean retval = true;
 		MailArchiveChannel channel = null;
 		try

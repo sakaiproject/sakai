@@ -2,10 +2,12 @@ package org.sakaiproject.mailsender.logic.impl;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -23,6 +25,7 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.mailsender.logic.ExternalLogic;
 import org.sakaiproject.mailsender.model.EmailRole;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -32,6 +35,7 @@ public class ComposeLogicImplTest {
 	static final String REALM_ID = "composeLogicTest";
 
 	@Mock SiteService siteService;
+	@Mock Site site;
 	@Mock AuthzGroupService authzGroupService;
 	@Mock UserDirectoryService userDirectoryService;
 	@Mock ExternalLogic externalLogic;
@@ -65,6 +69,12 @@ public class ComposeLogicImplTest {
 		Properties props = new Properties();
 		when(toolManager.getCurrentPlacement().getPlacementConfig()).thenReturn(props);
 
+		// setup site service
+		when(siteService.getSite(anyString())).thenReturn(site);
+
+		// setup site
+		when(site.getGroups()).thenReturn(Collections.EMPTY_SET);
+
 		// setup compose logic
 		impl = new ComposeLogicImpl();
 		impl.setAuthzGroupService(authzGroupService);
@@ -96,5 +106,19 @@ public class ComposeLogicImplTest {
 		List<EmailRole> roles = impl.getEmailRoles();
 		assertNotNull(roles);
 		assertEquals(0, roles.size());
+	}
+
+	@Test
+	public void emptyEmailGroups() throws Exception {
+		List<EmailRole> groups = impl.getEmailGroups();
+		assertNotNull(groups);
+		assertEquals(0, groups.size());
+	}
+
+	@Test
+	public void emptyEmailSections() throws Exception {
+		List<EmailRole> groups = impl.getEmailSections();
+		assertNotNull(groups);
+		assertEquals(0, groups.size());
 	}
 }
