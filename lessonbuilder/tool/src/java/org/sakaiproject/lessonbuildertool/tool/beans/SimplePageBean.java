@@ -140,11 +140,11 @@ public class SimplePageBean {
 
 	public static final Pattern YOUTUBE_PATTERN = Pattern.compile("v[=/_][\\w-]{11}");
 	public static final String GRADES[] = { "A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "D-", "E", "F" };
-        public static final String FILTERHTML = "lessonbuilder.filterhtml";
-        public static final String LESSONBUILDER_ITEMID = "lessonbuilder.itemid";
+	public static final String FILTERHTML = "lessonbuilder.filterhtml";
+	public static final String LESSONBUILDER_ITEMID = "lessonbuilder.itemid";
 	public static final String LESSONBUILDER_PATH = "lessonbuilder.path";
 	public static final String LESSONBUILDER_BACKPATH = "lessonbuilder.backpath";
-        public static final String LESSONBUILDER_ID = "sakai.lessonbuildertool";
+	public static final String LESSONBUILDER_ID = "sakai.lessonbuildertool";
 
 	private static String PAGE = "simplepage.page";
 	private static String SITE_UPD = "site.upd";
@@ -152,20 +152,20 @@ public class SimplePageBean {
 	private String pageTitle = null;
 	private String newPageTitle = null;
 	private String subpageTitle = null;
-        private boolean subpageNext = false;
-        private boolean subpageButton = false;
-	private List<Long> currentPath = null;
-    	private Set<Long>allowedPages = null;    
-        private Site currentSite = null; // cache, can be null; used by getCurrentSite
+	private boolean subpageNext = false;
+	private boolean subpageButton = false;
+    private List<Long> currentPath = null;
+	private Set<Long>allowedPages = null;    
+	private Site currentSite = null; // cache, can be null; used by getCurrentSite
 
-        private boolean filterHtml = ServerConfigurationService.getBoolean(FILTERHTML, false);
+	private boolean filterHtml = ServerConfigurationService.getBoolean(FILTERHTML, false);
 
 	public String selectedAssignment = null;
 
     // generic entity stuff. selectedEntity is the string
     // coming from the picker. We'll use the same variable for any entity type
 	public String selectedEntity = null;
-        public String[] selectedEntities = new String[] {};
+	public String[] selectedEntities = new String[] {};
 
 	public String selectedQuiz = null;
 
@@ -197,10 +197,10 @@ public class SimplePageBean {
 	private boolean newWindow;
 	private String dropDown;
 	private String points;
-        private String mimetype;
+	private String mimetype;
 
-        private String numberOfPages;
-        private boolean copyPage;
+	private String numberOfPages;
+	private boolean copyPage;
 
 	private String alt = null;
 	private String order = null;
@@ -215,10 +215,10 @@ public class SimplePageBean {
 
 	private String redirectSendingPage = null;
 	private String redirectViewId = null;
-        private String quiztool = null;
-        private String topictool = null;
+	private String quiztool = null;
+	private String topictool = null;
 
-        public Map<String, MultipartFile> multipartMap;
+	public Map<String, MultipartFile> multipartMap;
 
     // Caches
 
@@ -244,18 +244,18 @@ public class SimplePageBean {
 	private Map<Long, SimplePageLogEntry> logCache = new HashMap<Long, SimplePageLogEntry>();
         private Map<Long, Boolean> completeCache = new HashMap<Long, Boolean>();
 
-        public static class PathEntry {
-	    public Long pageId;
-	    public Long pageItemId;
-	    public String title;
+	public static class PathEntry {
+		public Long pageId;
+		public Long pageItemId;
+		public String title;
 	}
 
-        public static class UrlItem {
-	    public String Url;
-	    public String label;
-	    public UrlItem(String Url, String label) {
-		this.Url = Url;
-		this.label = label;
+	public static class UrlItem {
+		public String Url;
+		public String label;
+		public UrlItem(String Url, String label) {
+			this.Url = Url;
+			this.label = label;
 	    }
 	}
 
@@ -979,72 +979,73 @@ public class SimplePageBean {
     //   but at the moment path is just the pages. So when we're in a normal item, it doesn't show.
     //   that means that as we do Next between items and pages, when we go to a page it gets pushed
     //   on and when we go from a page to an item, the page has to be popped off.
-        public void addNextLink(UIContainer tofill, SimplePageItem item) {
-	    SimplePageItem nextItem = findNextPage(item);
-	    if (nextItem == item) { // that we need to go up a level
-		List<PathEntry> path = (List<PathEntry>)sessionManager.getCurrentToolSession().getAttribute(LESSONBUILDER_PATH);
-		int top;
-		if (path == null)
-		    top = -1;
-		else
-		    top = path.size()-1;
+	public void addNextLink(UIContainer tofill, SimplePageItem item) {
+		SimplePageItem nextItem = findNextPage(item);
+		if (nextItem == item) { // that we need to go up a level
+			List<PathEntry> path = (List<PathEntry>)sessionManager.getCurrentToolSession().getAttribute(LESSONBUILDER_PATH);
+			int top;
+			if (path == null)
+				top = -1;
+			else
+				top = path.size()-1;
 		// if we're on a page, have to pop it off first
 		// for a normal item the end of the path already is the page above
-		if (item.getType() == SimplePageItem.PAGE)
-		    top--;
-		if (top >= 0) {
-		    PathEntry e = path.get(top);
-		    GeneralViewParameters view = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
-		    view.setSendingPage(e.pageId);
-		    view.setItemId(e.pageItemId);
-		    view.setPath(Integer.toString(top));
-		    UIInternalLink.make(tofill, "next", messageLocator.getMessage("simplepage.next"), view);
-		}
+			if (item.getType() == SimplePageItem.PAGE)
+				top--;
+			if (top >= 0) {
+				PathEntry e = path.get(top);
+				GeneralViewParameters view = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
+				view.setSendingPage(e.pageId);
+				view.setItemId(e.pageItemId);
+				view.setPath(Integer.toString(top));
+				UIInternalLink.make(tofill, "next", messageLocator.getMessage("simplepage.next"), view);
+			}
 	    } else  if (nextItem != null) {
-		GeneralViewParameters view = new GeneralViewParameters();
-		int itemType = nextItem.getType();
-		if (itemType == SimplePageItem.PAGE) {
-		    view.setSendingPage(Long.valueOf(nextItem.getSakaiId()));
-		    view.viewID = ShowPageProducer.VIEW_ID;
-		    if (item.getType() == SimplePageItem.PAGE)
-			view.setPath("next");  // page to page, just a next
-		    else
-			view.setPath("push");  // item to page, have to push the page
-		} else if (itemType == SimplePageItem.RESOURCE) { /// must be a same page resource
-		    view.setSendingPage(Long.valueOf(item.getPageId()));
-		    // to the check. We need the check to set access control appropriately
-		    // if the user has passed.
-		    if (!isItemAvailable(nextItem, nextItem.getPageId()))
-			view.setRecheck("true");
-		    view.setSource(nextItem.getItemURL());
-		    view.viewID = ShowItemProducer.VIEW_ID;
-		} else {
-		    view.setSendingPage(Long.valueOf(item.getPageId()));
-		    LessonEntity lessonEntity = null;
-		    switch (nextItem.getType()) {
-		    case SimplePageItem.ASSIGNMENT:
-			lessonEntity = assignmentEntity.getEntity(nextItem.getSakaiId()); break;
-		    case SimplePageItem.ASSESSMENT:
-			view.setClearAttr("LESSONBUILDER_RETURNURL_SAMIGO");
-			lessonEntity = quizEntity.getEntity(nextItem.getSakaiId()); break;
-		    case SimplePageItem.FORUM:
-			lessonEntity = forumEntity.getEntity(nextItem.getSakaiId()); break;
-		    }
-		    // normally we won't send someone to an item that
-		    // isn't available. But if the current item is a test, etc, we can't
-		    // know whether the user will pass it, so we have to ask ShowItem to
-		    // to the check. We need the check to set access control appropriately
-		    // if the user has passed.
-		    if (!isItemAvailable(nextItem, nextItem.getPageId()))
-			view.setRecheck("true");
-		    view.setSource((lessonEntity==null)?"dummy":lessonEntity.getUrl());
-		    if (item.getType() == SimplePageItem.PAGE)
-			view.setPath("pop");  // now on a have, have to pop it off
-		    view.viewID = ShowItemProducer.VIEW_ID;
-		}
-		view.setItemId(nextItem.getId());
-		view.setBackPath("push");
-		UIInternalLink.make(tofill, "next", messageLocator.getMessage("simplepage.next"), view);
+	    	GeneralViewParameters view = new GeneralViewParameters();
+	    	int itemType = nextItem.getType();
+	    	if (itemType == SimplePageItem.PAGE) {
+	    		view.setSendingPage(Long.valueOf(nextItem.getSakaiId()));
+	    		view.viewID = ShowPageProducer.VIEW_ID;
+	    		if (item.getType() == SimplePageItem.PAGE)
+	    			view.setPath("next");  // page to page, just a next
+	    		else
+	    			view.setPath("push");  // item to page, have to push the page
+	    	} else if (itemType == SimplePageItem.RESOURCE) { /// must be a same page resource
+	    		view.setSendingPage(Long.valueOf(item.getPageId()));
+	    		// to the check. We need the check to set access control appropriately
+	    		// if the user has passed.
+	    		if (!isItemAvailable(nextItem, nextItem.getPageId()))
+	    			view.setRecheck("true");
+	    		view.setSource(nextItem.getItemURL());
+	    		view.viewID = ShowItemProducer.VIEW_ID;
+	    	} else {
+	    		view.setSendingPage(Long.valueOf(item.getPageId()));
+	    		LessonEntity lessonEntity = null;
+	    		switch (nextItem.getType()) {
+	    			case SimplePageItem.ASSIGNMENT:
+	    				lessonEntity = assignmentEntity.getEntity(nextItem.getSakaiId()); break;
+	    			case SimplePageItem.ASSESSMENT:
+	    				view.setClearAttr("LESSONBUILDER_RETURNURL_SAMIGO");
+	    				lessonEntity = quizEntity.getEntity(nextItem.getSakaiId()); break;
+	    			case SimplePageItem.FORUM:
+	    				lessonEntity = forumEntity.getEntity(nextItem.getSakaiId()); break;
+	    		}
+	    		// normally we won't send someone to an item that
+	    		// isn't available. But if the current item is a test, etc, we can't
+	    		// know whether the user will pass it, so we have to ask ShowItem to
+	    		// to the check. We need the check to set access control appropriately
+	    		// if the user has passed.
+	    		if (!isItemAvailable(nextItem, nextItem.getPageId()))
+	    			view.setRecheck("true");
+	    			view.setSource((lessonEntity==null)?"dummy":lessonEntity.getUrl());
+	    			if (item.getType() == SimplePageItem.PAGE)
+	    				view.setPath("pop");  // now on a have, have to pop it off
+	    			view.viewID = ShowItemProducer.VIEW_ID;
+	    	}
+	    	
+	    	view.setItemId(nextItem.getId());
+	    	view.setBackPath("push");
+	    	UIInternalLink.make(tofill, "next", messageLocator.getMessage("simplepage.next"), view);
 	    }
 	}
 
@@ -1283,81 +1284,81 @@ public class SimplePageBean {
 
 	public String adjustPath(String op, Long pageId, Long pageItemId, String title) {
 
-	    List<PathEntry> path = (List<PathEntry>)sessionManager.getCurrentToolSession().getAttribute(LESSONBUILDER_PATH);
+		List<PathEntry> path = (List<PathEntry>)sessionManager.getCurrentToolSession().getAttribute(LESSONBUILDER_PATH);
 
-	    // if no current path, op doesn't matter. we can just do the current page
-	    if (path == null || path.size() == 0) {
-		PathEntry entry = new PathEntry();
-		entry.pageId = pageId;
-		entry.pageItemId = pageItemId;
-		entry.title = title;
-		path = new ArrayList<PathEntry>();
-		path.add(entry);
+		// if no current path, op doesn't matter. we can just do the current page
+		if (path == null || path.size() == 0) {
+			PathEntry entry = new PathEntry();
+			entry.pageId = pageId;
+			entry.pageItemId = pageItemId;
+			entry.title = title;
+			path = new ArrayList<PathEntry>();
+			path.add(entry);
 	    } else if (path.get(path.size()-1).pageId.equals(pageId)) {
-		// nothing. we're already there. this is to prevent 
-		// oddities if we refresh the page
+	    	// nothing. we're already there. this is to prevent 
+	    	// oddities if we refresh the page
 	    } else if (op == null || op.equals("") || op.equals("next")) {
-		PathEntry entry = path.get(path.size()-1); // overwrite last item
-		entry.pageId = pageId;
-		entry.pageItemId = pageItemId;
-		entry.title = title;
+	    	PathEntry entry = path.get(path.size()-1); // overwrite last item
+	    	entry.pageId = pageId;
+	    	entry.pageItemId = pageItemId;
+	    	entry.title = title;
 	    } else if (op.equals("push")) {
-		// a subpage
-		PathEntry entry = new PathEntry();
-		entry.pageId = pageId;
-		entry.pageItemId = pageItemId;
-		entry.title = title;
-		path.add(entry);  // put it on the end
+	    	// a subpage
+	    	PathEntry entry = new PathEntry();
+	    	entry.pageId = pageId;
+	    	entry.pageItemId = pageItemId;
+	    	entry.title = title;
+	    	path.add(entry);  // put it on the end
 	    } else if (op.equals("pop")) {
-		// a subpage
-		path.remove(path.size()-1);
+	    	// a subpage
+	    	path.remove(path.size()-1);
 	    } else if (op.startsWith("log")) {
-		// set path to what was saved in the last log entry for this item
-		// this is used for users who go directly to a page from the 
-		// main list of pages.
-		path = new ArrayList<PathEntry>();
-		SimplePageLogEntry logEntry = getLogEntry(pageItemId);
-		if (logEntry != null) {
-		    String items[] = null;
-		    if (logEntry.getPath() != null)
-			items = logEntry.getPath().split(",");
-		    if (items != null) {
-			for(String s: items) {
-			    // don't see how this could happen, but it did
-			    if (s.trim().equals("")) {
-				log.warn("adjustPath attempt to set invalid path: invalid item: " + op + ":" + logEntry.getPath());
-				return null;
-			    }
-			    SimplePageItem i = findItem(Long.valueOf(s));
-			    if (i == null || i.getType() != SimplePageItem.PAGE) {
-				log.warn("adjustPath attempt to set invalid path: invalid item: " + op);
-				return null;
-			    }
-			    SimplePage p = simplePageToolDao.getPage(Long.valueOf(i.getSakaiId()));
-			    if (p == null || !currentPage.getSiteId().equals(p.getSiteId())) {
-				log.warn("adjustPath attempt to set invalid path: invalid page: " + op);
-				return null;
-			    }
-			    PathEntry entry = new PathEntry();
-			    entry.pageId = p.getPageId();
-			    entry.pageItemId = i.getId();
-			    entry.title = i.getName();
-			    path.add(entry);
-			}
-		    }
-		}
+	    	// set path to what was saved in the last log entry for this item
+	    	// this is used for users who go directly to a page from the 
+	    	// main list of pages.
+	    	path = new ArrayList<PathEntry>();
+	    	SimplePageLogEntry logEntry = getLogEntry(pageItemId);
+	    	if (logEntry != null) {
+	    		String items[] = null;
+	    		if (logEntry.getPath() != null)
+	    			items = logEntry.getPath().split(",");
+	    		if (items != null) {
+	    			for(String s: items) {
+	    				// don't see how this could happen, but it did
+	    				if (s.trim().equals("")) {
+	    					log.warn("adjustPath attempt to set invalid path: invalid item: " + op + ":" + logEntry.getPath());
+	    					return null;
+	    				}
+	    				SimplePageItem i = findItem(Long.valueOf(s));
+	    				if (i == null || i.getType() != SimplePageItem.PAGE) {
+	    					log.warn("adjustPath attempt to set invalid path: invalid item: " + op);
+	    					return null;
+	    				}
+	    				SimplePage p = simplePageToolDao.getPage(Long.valueOf(i.getSakaiId()));
+	    				if (p == null || !currentPage.getSiteId().equals(p.getSiteId())) {
+	    					log.warn("adjustPath attempt to set invalid path: invalid page: " + op);
+	    					return null;
+	    				}
+	    				PathEntry entry = new PathEntry();
+	    				entry.pageId = p.getPageId();
+	    				entry.pageItemId = i.getId();
+	    				entry.title = i.getName();
+	    				path.add(entry);
+	    			}
+	    		}
+	    	}
 	    } else {
-		int index = Integer.valueOf(op); // better be number
-		if (index < path.size()) {
-		    // if we're going back, this should actually
-		    // be redundant
-		    PathEntry entry = path.get(index); // back to specified item
-		    entry.pageId = pageId;
-		    entry.pageItemId = pageItemId;
-		    entry.title = title;
-		    if (index < (path.size()-1))
-			path.subList(index+1, path.size()).clear();
-		}
+	    	int index = Integer.valueOf(op); // better be number
+	    	if (index < path.size()) {
+	    		// if we're going back, this should actually
+	    		// be redundant
+	    		PathEntry entry = path.get(index); // back to specified item
+	    		entry.pageId = pageId;
+	    		entry.pageItemId = pageItemId;
+	    		entry.title = title;
+	    		if (index < (path.size()-1))
+	    			path.subList(index+1, path.size()).clear();
+	    	}
 	    }
 
 	    // have new path; set it in session variable
@@ -1366,14 +1367,14 @@ public class SimplePageBean {
 	    // and make string representation to return
 	    String ret = null;
 	    for (PathEntry entry: path) {
-		String itemString = Long.toString(entry.pageItemId);
-		if (ret == null)
-		    ret = itemString;
-		else
-		    ret = ret + "," + itemString;
+	    	String itemString = Long.toString(entry.pageItemId);
+	    	if (ret == null)
+	    		ret = itemString;
+	    	else
+	    		ret = ret + "," + itemString;
 	    }
 	    if (ret == null)
-		ret = "";
+	    	ret = "";
 	    return ret;
 	}
 
@@ -2064,6 +2065,12 @@ public class SimplePageBean {
 		} else if (pageTitle != null) {
 			page.setTitle(pageTitle);
 			update(page);
+		}
+		
+		if(pageTitle != null) {
+			pageItem.setName(pageTitle);
+			update(pageItem);
+			adjustPath("", pageItem.getPageId(), pageItem.getId(), pageTitle);
 		}
 
 		// have to do this after the page itself is updated
