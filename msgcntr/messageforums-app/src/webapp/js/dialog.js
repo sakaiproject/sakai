@@ -7,6 +7,7 @@ var dialogutil = dialogutil || {};
 		
 		
 
+		$('body').css('padding-bottom','300px')
 		$("#" + divId).dialog({
 			resizable: false,
 			autoOpen:false,
