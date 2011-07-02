@@ -53,6 +53,7 @@ function doRemovePage(clickedLink) {
 	return conf;
 }
 
+// When we show a page, it is automatically enabled if it was not before
 function doShowPage(clickedLink) {
 		$(clickedLink).parent().parent().find(".item_control.show_link").hide();
 		$(clickedLink).parent().parent().find(".indicator").show();
@@ -61,6 +62,8 @@ function doShowPage(clickedLink) {
 			var status = $("#call-results").find("#value").text();
 			$(clickedLink).parent().parent().find(".indicator").hide();				
 			if (status == "pass") {
+				$(clickedLink).parent().parent().find(".item_control.enable_link").hide();
+				$(clickedLink).parent().parent().find(".item_control.disable_link").show();
 				$(clickedLink).parent().parent().find(".item_control.hide_link").show();
 				$("#call-results").fadeIn('400');
 			}
@@ -71,6 +74,7 @@ function doShowPage(clickedLink) {
 	  	});
 }
 
+// When we hide a page - it has no effect on enable/disable
 function doHidePage(clickedLink) {
 		$(clickedLink).parent().parent().find(".item_control.hide_link").hide();
 		$(clickedLink).parent().parent().find(".indicator").show();
@@ -84,6 +88,49 @@ function doHidePage(clickedLink) {
 			}
 			else if (status == "fail") {
 				$(clickedLink).parent().parent().find(".item_control.hide_link").show();
+				$("#call-results").fadeIn('400');
+			}
+	  	});
+}
+
+// When we enable a page, we mark it visible automatically
+function doEnablePage(clickedLink) {
+		$(clickedLink).parent().parent().find(".item_control.enable_link").hide();
+		$(clickedLink).parent().parent().find(".indicator").show();
+		$("#call-results").fadeOut('10');
+		$("#call-results").load(clickedLink, function() {
+			var status = $("#call-results").find("#value").text();
+			$(clickedLink).parent().parent().find(".indicator").hide();				
+			if (status == "pass") {
+				$(clickedLink).parent().parent().find(".item_control.disable_link").show();
+				$(clickedLink).parent().parent().find(".item_control.show_link").hide();
+				$(clickedLink).parent().parent().find(".item_control.hide_link").show();
+				$("#call-results").fadeIn('400');
+				$("#call-results").fadeIn('400');
+			}
+			else if (status == "fail") {
+				$(clickedLink).parent().parent().find(".item_control.enable_link").show();
+				$("#call-results").fadeIn('400');
+			}
+	  	});
+}
+
+// When we disable a page, it is also not visible
+function doDisablePage(clickedLink) {
+		$(clickedLink).parent().parent().find(".item_control.disable_link").hide();
+		$(clickedLink).parent().parent().find(".indicator").show();
+		$("#call-results").fadeOut('10');
+		$("#call-results").load(clickedLink, function() {
+			var status = $("#call-results").find("#value").text();
+			$(clickedLink).parent().parent().find(".indicator").hide();				
+			if (status == "pass") {
+				$(clickedLink).parent().parent().find(".item_control.enable_link").show();
+				$(clickedLink).parent().parent().find(".item_control.hide_link").hide();
+				$(clickedLink).parent().parent().find(".item_control.show_link").show();
+				$("#call-results").fadeIn('400');
+			}
+			else if (status == "fail") {
+				$(clickedLink).parent().parent().find(".item_control.disable_link").show();
 				$("#call-results").fadeIn('400');
 			}
 	  	});

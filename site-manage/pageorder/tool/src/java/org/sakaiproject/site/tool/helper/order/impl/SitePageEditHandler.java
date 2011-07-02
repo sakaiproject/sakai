@@ -51,6 +51,7 @@ public class SitePageEditHandler {
     public String nil = null;
     
     private final String TOOL_CFG_FUNCTIONS = "functions.require";
+    private final String PORTAL_VISIBLE = "sakai-portal:visible";
     private final String TOOL_CFG_MULTI = "allowMultiple";
     private final String SITE_UPD = "site.upd";
     private final String HELPER_ID = "sakai.tool.helper.id";
@@ -60,6 +61,8 @@ public class SitePageEditHandler {
     private final String PAGE_RENAME = "pageorder.rename";
     private final String PAGE_SHOW = "pageorder.show";
     private final String PAGE_HIDE = "pageorder.hide";
+    private final String PAGE_ENABLE = "pageorder.enable";
+    private final String PAGE_DISABLE = "pageorder.disable";
     private final String SITE_REORDER = "pageorder.reorder";
     private final String SITE_RESET = "pageorder.reset";
 
@@ -340,6 +343,28 @@ public class SitePageEditHandler {
         return false;
     }   
 
+    /**
+     * Checks if users can see a page or not
+     * 
+     * @param page The SitePage whose visibility is in question
+     * @return true if users can see the page
+     */
+    public boolean isVisible(SitePage page) {
+        List<ToolConfiguration> tools = page.getTools();
+        Iterator<ToolConfiguration> iPt = tools.iterator();
+
+        boolean visible = false;
+        while( !visible && iPt.hasNext() ) 
+        {
+            ToolConfiguration placement = iPt.next();
+            Properties roleConfig = placement.getConfig();
+            String visibility = roleConfig.getProperty(PORTAL_VISIBLE);
+
+            if ( ! "false".equals(visibility) ) visible = true;
+        }
+        
+        return visible;
+    }
 
     /**
      * Checks if users without site.upd can see a page or not
@@ -347,7 +372,7 @@ public class SitePageEditHandler {
      * @param page The SitePage whose visibility is in question
      * @return true if users with out site.upd can see the page
      */
-    public boolean isVisible(SitePage page) {
+    public boolean isEnabled(SitePage page) {
         List<ToolConfiguration> tools = page.getTools();
         Iterator<ToolConfiguration> iPt = tools.iterator();
 
@@ -416,8 +441,37 @@ public class SitePageEditHandler {
     }
  
     /**
+     * Disables a page for any user who doesn't have site.upd
+     * 
+     * @param pageId The Id of the Page
+     * @return true for sucess, false for failuer
+     * @throws IdUnusedException, PermissionException
+     */
+    public boolean disablePage(String pageId) throws IdUnusedException, PermissionException {
+        EventTrackingService.post(
+            EventTrackingService.newEvent(PAGE_DISABLE, "/site/" + site.getId() +
+                                         "/page/" + pageId, false));
+        return  pageVisibilityHelper(pageId, false, false);
+    }
+    
+    /**
+     * Enables a page for any user who doesn't have site.upd
+     * 
+     * @param pageId The Id of the Page
+     * @return true for sucess, false for failuer
+     * @throws IdUnusedException, PermissionException
+     */
+    public boolean enablePage(String pageId) throws IdUnusedException, PermissionException {
+        EventTrackingService.post(
+            EventTrackingService.newEvent(PAGE_ENABLE, "/site/" + site.getId() +
+                                         "/page/" + pageId, false));
+      
+        return pageVisibilityHelper(pageId, true, true);
+    }
+
+    /**
      * Hides a page from any user who doesn't have site.upd
-     * Or atleast removes it from the portal navigation list
+     * Implies enabled
      * 
      * @param pageId The Id of the Page
      * @return true for sucess, false for failuer
@@ -427,12 +481,12 @@ public class SitePageEditHandler {
         EventTrackingService.post(
             EventTrackingService.newEvent(PAGE_HIDE, "/site/" + site.getId() +
                                          "/page/" + pageId, false));
-        return  pageVisibilityHelper(pageId, false);
+        return  pageVisibilityHelper(pageId, false, true);
     }
     
     /**
-     * Unhides a page from any user who doesn't have site.upd
-     * Or atleast removes it from the portal navigation list
+     * Unhides a page for any user who doesn't have site.upd
+     * Implies enabled
      * 
      * @param pageId The Id of the Page
      * @return true for sucess, false for failuer
@@ -443,18 +497,18 @@ public class SitePageEditHandler {
             EventTrackingService.newEvent(PAGE_SHOW, "/site/" + site.getId() +
                                          "/page/" + pageId, false));
       
-        return pageVisibilityHelper(pageId, true);
+        return pageVisibilityHelper(pageId, true, true);
     }
     
     /**
-     * Adds or removes the requirement to have site.upd in order to see
-     * a page
+     * Handles the visiibility of a page with a combination of visible/enabled
      * @param pageId The Id of the Page
-     * @param visible
+     * @param visible - Affects the sakai:portal-visible value for tools
+     * @param enabled - Affects site.upd in functions.require for tools
      * @return true for sucess, false for failuer
      * @throws IdUnusedException, PermissionException
      */
-    private boolean pageVisibilityHelper(String pageId, boolean visible) 
+    private boolean pageVisibilityHelper(String pageId, boolean visible, boolean enabled) 
                                 throws IdUnusedException, PermissionException{
 
         if (site == null) {
@@ -470,19 +524,28 @@ public class SitePageEditHandler {
             ToolConfiguration placement = iterator.next();
             Properties roleConfig = placement.getPlacementConfig();
             String roleList = roleConfig.getProperty(TOOL_CFG_FUNCTIONS);
+            String visibility = roleConfig.getProperty(PORTAL_VISIBLE);
             boolean saveChanges = false;
             
+            if ( "false".equals(visibility) && visible) {
+                visibility = "true";
+                saveChanges = true;
+            } else if ( ( !"false".equals(visibility) )  && !visible )  {
+                visibility = "false";
+                saveChanges = true;
+            } 
+
             if (roleList == null) {
                 roleList = "";
             }
-            if (!(roleList.indexOf(SITE_UPD) > -1) && !visible) {
+            if (!(roleList.indexOf(SITE_UPD) > -1) && !enabled) {
                 if (roleList.length() > 0) {
                     roleList += ",";
                 }
                 roleList += SITE_UPD;
                 saveChanges = true;
             }
-            else if (visible) {
+            else if (enabled) {
                 roleList = roleList.replaceAll("," + SITE_UPD, "");
                 roleList = roleList.replaceAll(SITE_UPD, "");
                 saveChanges = true;
@@ -490,6 +553,9 @@ public class SitePageEditHandler {
             
             if (saveChanges) {
                 roleConfig.setProperty(TOOL_CFG_FUNCTIONS, roleList);
+                if ( visibility != null ) {
+                    roleConfig.setProperty(PORTAL_VISIBLE, visibility);
+                }
 
                 placement.save();
                 

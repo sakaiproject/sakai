@@ -65,26 +65,42 @@ public class PageEditProducer implements ViewComponentProducer, ViewParamsReport
                }
             }
 
-            if ("true".equals(params.visible) || "false".equals(params.visible)) {
+            if ("true".equals(params.visible) || "false".equals(params.visible) ||
+                "true".equals(params.enabled) || "false".equals(params.enabled) ) {
                 try {            
+                    if ("true".equals(params.enabled)) {
+                        handler.enablePage(params.pageId);
+                    }
+                    else if ("false".equals(params.enabled)) {
+                        handler.disablePage(params.pageId);
+                    }
+
                     if ("true".equals(params.visible)) {
                         handler.showPage(params.pageId);
                     }
-                    else {
+                    else if ("false".equals(params.visible)) {
                         handler.hidePage(params.pageId);
                     }
+
                     Site site = handler.site;
                     SitePage page = site.getPage(params.pageId);
                     String oldTitle = page.getTitle();
                     
                     mode = UIBranchContainer.make(tofill, "mode-pass:");
                     UIOutput.make(mode, "page-title", oldTitle);
-                    if ("true".equals(params.visible)) {
+
+                    if ("false".equals(params.enabled)) {
+                        UIMessage.make(mode, "message", "success_disabled",
+                            new Object[] {oldTitle});
+                    } else if ("true".equals(params.visible)) {
                         UIMessage.make(mode, "message", "success_visible",
+                            new Object[] {oldTitle});
+                    } else if ("false".equals(params.visible)) {
+                        UIMessage.make(mode, "message", "success_hidden",
                             new Object[] {oldTitle});
                     }
                     else {
-                      UIMessage.make(mode, "message", "success_hidden",
+                      UIMessage.make(mode, "message", "success_enabled",
                           new Object[] {oldTitle});
                     }
                 } 
@@ -92,6 +108,7 @@ public class PageEditProducer implements ViewComponentProducer, ViewParamsReport
                   ErrorUtil.renderError(tofill, e);
                }
             }
+
         }
         else {
             mode = UIBranchContainer.make(tofill, "mode-failed:");

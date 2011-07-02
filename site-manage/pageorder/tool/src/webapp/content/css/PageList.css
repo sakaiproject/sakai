@@ -10,7 +10,7 @@ ul.not_sortabl
 }
 ul.sortable
 {
-	width: 300px;
+	width: 320px;
 	list-style: none;
 	margin: 4px;
 	padding: 6px;
@@ -63,7 +63,7 @@ li.sortable_hover
 	display: inline;
 	position: absolute;
 	left: 260px;
-	width: 65px;
+	width: 85px;
 }
 .item_label_box
 {

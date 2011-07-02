@@ -133,6 +133,7 @@ public class PageListProducer
                     }
                 }
 
+		// TODO: Deal with interaction between visible and enabled
                 if (handler.allowsHide(page)) {
                     param.viewID = PageEditProducer.VIEW_ID;
                     if (handler.isVisible(page)) {
@@ -155,6 +156,30 @@ public class PageListProducer
                     }
                 }
                 
+		// NEW
+		// TODO: Force hidden if disabled
+                if (handler.allowsHide(page)) {
+                    param.viewID = PageEditProducer.VIEW_ID;
+                    param.visible = null;
+                    if (handler.isEnabled(page)) {
+                        param.enabled = "false";
+                        fullyDecorate(UIInternalLink.make(pagerow, "disable-link", param),
+                            UIMessage.make("page_disable", pageTitle));
+                        
+                        param.enabled = "true";
+                        fullyDecorate(UIInternalLink.make(pagerow, "enable-link-off", param),
+                            UIMessage.make("page_enable", pageTitle));
+                    }
+                    else {
+                        param.enabled = "true";
+                        fullyDecorate(UIInternalLink.make(pagerow, "enable-link", param),
+                            UIMessage.make("page_enable", pageTitle));
+                     
+                        param.enabled = "false";
+                        fullyDecorate(UIInternalLink.make(pagerow, "disable-link-off", param),
+                            UIMessage.make("page_disable", pageTitle));
+                    }
+                }
                 state += page.getId() + " ";
             }
 

@@ -13,4 +13,5 @@ public class PageEditViewParameters extends SimpleViewParameters {
     public String url;
     public String newConfig;
     public String visible;
+    public String enabled;
 }
