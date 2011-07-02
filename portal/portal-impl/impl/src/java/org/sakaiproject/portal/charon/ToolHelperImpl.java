@@ -40,6 +40,7 @@ public class ToolHelperImpl
 
 	
 	public static final String TOOLCONFIG_REQUIRED_PERMISSIONS = "functions.require";
+	public static final String PORTAL_VISIBLE = "sakai-portal:visible";
 
 	/**
 	 * The optional tool configuration tag "functions.require" describes a
@@ -100,6 +101,8 @@ public class ToolHelperImpl
 	public boolean isHidden(Placement placement)
 	{
 		if (placement == null) return true;
+		String visibility = placement.getConfig().getProperty(PORTAL_VISIBLE);
+		if ( "false".equals(visibility) ) return true;
 		String requiredPermissionsString = StringUtils.trimToNull(placement.getConfig().getProperty(TOOLCONFIG_REQUIRED_PERMISSIONS));
 		if (requiredPermissionsString == null)
 			return false;

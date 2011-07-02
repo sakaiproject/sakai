@@ -40,6 +40,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.cover.PreferencesService;
@@ -988,6 +989,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	{
 		// Get all of the pages
 		List pages = site.getOrderedPages();
+ 		boolean siteUpdate = SecurityService.unlock("site.upd", site.getReference());
 
 		List newPages = new ArrayList();
 
@@ -1004,7 +1006,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				ToolConfiguration placement = (ToolConfiguration) iPt.next();
 
 				boolean thisTool = allowTool(site, placement);
-				if (thisTool) allowPage = true;
+				boolean unHidden = siteUpdate || ! isHidden(placement);
+				if (thisTool && unHidden) allowPage = true;
 			}
 			if (allowPage) newPages.add(p);
 		}
