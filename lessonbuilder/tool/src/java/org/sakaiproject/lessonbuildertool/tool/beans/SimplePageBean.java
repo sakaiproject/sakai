@@ -50,7 +50,6 @@ import java.io.FileOutputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
@@ -351,6 +350,21 @@ public class SimplePageBean {
 	   ToolSession toolSession = sessionManager.getCurrentToolSession();
 	   toolSession.setAttribute("lessonbuilder.error", messageLocator.getMessage(key).replace("{}", text));
        }
+
+       public void setTopRefresh() {
+	   ToolSession toolSession = sessionManager.getCurrentToolSession();
+	   toolSession.setAttribute("lessonbuilder.topRefresh", true);
+       }
+
+       public boolean getTopRefresh() {
+	   ToolSession toolSession = sessionManager.getCurrentToolSession();
+	   if (toolSession.getAttribute("lessonbuilder.topRefresh") != null) {
+	       toolSession.removeAttribute("lessonbuilder.topRefresh");
+	       return true;
+	   }
+	   return false;
+       }
+
 
     // a lot of these are setters and getters used for the form process, as 
     // described above
@@ -2137,6 +2151,9 @@ public class SimplePageBean {
 		    start++;
 		}
 	    }
+
+	    setTopRefresh();
+
 	    return "success";
 	}
 

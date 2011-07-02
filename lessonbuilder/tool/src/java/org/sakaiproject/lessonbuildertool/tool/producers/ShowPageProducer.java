@@ -281,6 +281,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    UIOutput.make(tofill, "error", errMessage);
 		}
 
+		if (simplePageBean.getTopRefresh()) {
+		    UIOutput.make(tofill, "refresh");
+		}
+
 		// see whether we're runningn IE
 		UsageSession usageSession = UsageSessionService.getSession();
 		String browserString = usageSession.getUserAgent();
