@@ -52,20 +52,19 @@ set lessonbuilder.upd and lessonbuilder.read.
 That's enough to try Lesson Builder. For real you, there are
 a few more things:
 
-2) in sakai.properties, you will want
-   content.html.forcedownload=false
-if you want to show HTML pages from resources via "add multimedia",
-or use Common Cartridge import. Since we think Common Cartridge
-will be an important features, most sites will want to set this.
-By the final release of 2.9 we will take a different approach,
-which will not require this.
-  
-3) Integrating Lesson Builder with other tools may require
+2) Integrating Lesson Builder with other tools may require
 some changes, depending upon the version of Sakai you are
 running:
 
 * If you want support for Mneme, you will need to enable it.
 See below.
+
+* You will probably want to install SAK-20799. This allows people to
+hide tools without disablign them. A lot of faculty want to hide the
+assignments and tests tool so students can only go through Lesson
+Builder. The problem with hiding a tool in page order is that it
+disables the tool. This patch give you two options, one that disables
+the tool but one that just hides it.
 
 * 2.8.1 and 2.9 -- OK otherwise
 
