@@ -961,10 +961,17 @@ public class SimplePageBean {
 		// would have returned null.
 	    }
 
+	    // this should be a top level page. We're not currently doing next for that.
+	    // we have to trap it because now and then we have items with bogus 0 page ID, so we
+	    // could get a spurious nextitem
+	    if (item.getPageId() == 0L)
+		return null;
+
 	    // see if there's an actual next we can go to, otherwise calling page
 	    SimplePageItem nextItem = simplePageToolDao.findNextItemOnPage(item.getPageId(), item.getSequence());
 	    boolean available = false;
 	    if (nextItem != null) {
+
 		int itemType = nextItem.getType();
 		if (itemType == SimplePageItem.ASSIGNMENT ||
 		    itemType == SimplePageItem.ASSESSMENT ||
