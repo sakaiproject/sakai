@@ -956,9 +956,17 @@ public class SimplePageBean {
 		    return null;
 		}
 
+		// if this is a next page, if there's no explict next it's
+		// not clear that it makes sense to go anywhere. it's kind of
+		// detached from its parent
+		if (item.getNextPage())
+		    return null;
+
 		// here for a page with no explicit next. Treat like any other item
 		// except that we need to compute pathop. Page must be complete or we
 		// would have returned null.
+
+
 	    }
 
 	    // this should be a top level page. We're not currently doing next for that.
