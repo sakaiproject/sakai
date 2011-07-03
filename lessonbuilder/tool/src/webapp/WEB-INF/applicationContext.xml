@@ -118,6 +118,7 @@
 
   <bean class="org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService"
         init-method="init"
+        destroy-method="destroy"
         singleton="true">
 
     <property name="lessonBuilderAccessAPI" ref="org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI" />
@@ -134,6 +135,7 @@
     <property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
     <property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
     <property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
+    <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
 
   </bean>
 

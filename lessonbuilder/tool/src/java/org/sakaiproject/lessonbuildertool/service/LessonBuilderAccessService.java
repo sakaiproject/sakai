@@ -110,6 +110,11 @@ import org.sakaiproject.lessonbuildertool.service.GradebookIfc;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.tool.api.ToolManager;
 
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.CacheRefresher;
+import org.sakaiproject.memory.api.MemoryService;
+
+
 /**
  * <p>
  * LessonBuilderAccessService implements /access/lessonbuilder
@@ -177,6 +182,11 @@ public class LessonBuilderAccessService
 	assignmentEntity = (LessonEntity)e;
     }
 
+    static MemoryService memoryService = null;
+    public void setMemoryService(MemoryService m) {
+	memoryService = m;
+    }
+
     private GradebookIfc gradebookIfc = null;
 
     public void setGradebookIfc(GradebookIfc g) {
@@ -186,9 +196,26 @@ public class LessonBuilderAccessService
     protected static final long MAX_URL_LENGTH = 8192;
     protected static final int STREAM_BUFFER_SIZE = 102400;
 
+    // cache for availability check. Is the item available?
+    // we cache only positive answers, because they can easily change
+    // from no to yes in less than 10 min. going back is very unusual
+    // item : userid => string true
+    private static Cache accessCache = null;
+    protected static final int DEFAULT_EXPIRATION = 10 * 60;
+
 
     public void init() {
 	lessonBuilderAccessAPI.setHttpAccess(getHttpAccess());
+
+	accessCache = memoryService
+	    .newCache("org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService.cache");
+
+    }
+
+    public void destroy()
+    {
+	accessCache.destroy();
+	accessCache = null;
     }
 
     // references are currently of the form /access/lessonbuilder/item/NNN
@@ -245,7 +272,11 @@ public class LessonBuilderAccessService
 		    throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), ContentHostingService.AUTH_RESOURCE_READ, ref.getReference());
 		}		
 
-		if (item.isPrerequisite()) {
+		// key into access cache
+		String accessKey = itemString + ":" + sessionManager.getCurrentSessionUserId();
+
+		if (item.isPrerequisite() && !"true".equals((String)accessCache.get(accessKey))) {
+
 		    // computing requirements is so messy that it's worth instantiating
 		    // a SimplePageBean to do it. Otherwise we have to duplicate lots of
 		    // code that changes. And we want it to be a transient bean becase there are
@@ -267,6 +298,9 @@ public class LessonBuilderAccessService
 		    if (!simplePageBean.isItemAvailable(item, item.getPageId())) {
 			throw new EntityPermissionException(null, null, null);
 		    }
+
+		    accessCache.put(accessKey, "true");
+
 		}			
 
 		ContentResource resource = null;
