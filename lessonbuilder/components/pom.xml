@@ -9,13 +9,13 @@
 	<groupId>org.sakaiproject</groupId>
 	<artifactId>sakai-lessonbuildertool-tool-base</artifactId>
 	<relativePath>../pom.xml</relativePath>
-	<version>1.2</version>
+	<version>1.3</version>
   </parent>
   
   <name>sakai-lessonbuildertool-tool-components</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-lessonbuildertool-components</artifactId>
-  <version>1.2</version>
+  <version>1.3</version>
   
   <packaging>sakai-component</packaging>
   
@@ -27,14 +27,14 @@
 	<dependency>
 	  <groupId>org.sakaiproject</groupId>
 	  <artifactId>sakai-lessonbuildertool-api</artifactId>
-	  <version>1.2</version>
+	  <version>1.3</version>
 	  <scope>provided</scope>
 	</dependency>
 
 	<dependency>
 	  <groupId>org.sakaiproject</groupId>
 	  <artifactId>sakai-lessonbuildertool-hbm</artifactId>
-	  <version>1.2</version>
+	  <version>1.3</version>
 	  <scope>provided</scope>
 	</dependency>
 
