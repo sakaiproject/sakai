@@ -25,6 +25,7 @@ package org.sakaiproject.lessonbuildertool.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -96,7 +97,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
     protected static final int DEFAULT_EXPIRATION = 10 * 60;
     private static boolean samigo_linked = false;
 
-    static PublishedAssessmentService pService = new PublishedAssessmentService();
+    PublishedAssessmentService pService = new PublishedAssessmentService();
 
     private SimplePageBean simplePageBean;
 
@@ -181,7 +182,6 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	log.info("destroy()");
     }
 
-
     // to create bean. the bean is used only to call the pseudo-static
     // methods such as getEntitiesInSite. So type, id, etc are left uninitialized
 
@@ -220,8 +220,10 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	    return null;
 	}
 
-	if (ret != null) 
+	if (ret != null) {
+	    ret.setComments(null);
 	    assessmentCache.put(publishedId, ret, DEFAULT_EXPIRATION);
+	}
 
 	return ret;
     }
@@ -261,6 +263,26 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	    SamigoEntity entity = new SamigoEntity(TYPE_SAMIGO, assessment.getPublishedAssessmentId(), 1);
 	    entity.assessment = (PublishedAssessmentData)assessment.getData();
 	    ret.add(entity);
+
+	    if (false) {  // testing
+		System.out.println(entity.getGroups());
+		List<String> oldGroups = entity.getGroups();
+		//5c51c1fb-bf48-475f-99a6-a303f5ad9520
+		//d579a252-204e-46cd-9720-7eca7bd47630
+		entity.setGroups(null);
+		System.out.println("null " + entity.getGroups());
+		entity.setGroups(null);
+		System.out.println("null " + entity.getGroups());
+		entity.setGroups(Arrays.asList("5c51c1fb-bf48-475f-99a6-a303f5ad9520"));
+		System.out.println("5c51 " + entity.getGroups());
+		entity.setGroups(Arrays.asList("5c51c1fb-bf48-475f-99a6-a303f5ad9520","d579a252-204e-46cd-9720-7eca7bd47630"));
+		System.out.println("5c51,d579 " + entity.getGroups());
+		entity.setGroups(null);
+		System.out.println("null " + entity.getGroups());
+		entity.setGroups(oldGroups);
+		System.out.println(oldGroups + " " + entity.getGroups());
+	    }
+
 	}
 
 	if (nextEntity != null) 
@@ -335,14 +357,14 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 
     // access control
     public boolean addEntityControl(String siteId, String groupId) throws IOException {
-	PublishedAssessmentService assessmentService = new PublishedAssessmentService();
+
 	// I don't want to do a full load of the facade most of the time. So we use
 	// PublishedAssessmentData normally. Unfortunately here we need it
 	PublishedAssessmentFacade assessment = null;
 	AssessmentAccessControlIfc control = null;
 
 	try {
-	    assessment = assessmentService.getPublishedAssessment(Long.toString(id));
+	    assessment = pService.getPublishedAssessment(Long.toString(id));
 	    control = assessment.getAssessmentAccessControl();
 	} catch (Exception e) {
 	    log.warn("can't find published " + id, e);
@@ -358,7 +380,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	
 	if (!control.getReleaseTo().equals(AssessmentAccessControlIfc.RELEASE_TO_SELECTED_GROUPS)) {
 	    control.setReleaseTo(AssessmentAccessControlIfc.RELEASE_TO_SELECTED_GROUPS);
-	    assessmentService.saveAssessment(assessment);
+	    pService.saveAssessment(assessment);
 	    String qualifierIdString = assessment.getPublishedAssessmentId().toString();
 
 	    // the original one lists the site. once we set release to groups, it will try to look
@@ -389,14 +411,14 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
     }
 
     public boolean removeEntityControl(String siteId, String groupId) throws IOException {
-	PublishedAssessmentService assessmentService = new PublishedAssessmentService();
+
 	// I don't want to do a full load of the facade most of the time. So we use
 	// PublishedAssessmentData normally. Unfortunately here we need it
 	PublishedAssessmentFacade assessment = null;
 	AssessmentAccessControlIfc control = null;
 
 	try {
-	    assessment = assessmentService.getPublishedAssessment(Long.toString(id));
+	    assessment = pService.getPublishedAssessment(Long.toString(id));
 	    control = assessment.getAssessmentAccessControl();
 	} catch (Exception e) {
 	    log.warn("can't find published " + id, e);
@@ -441,7 +463,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 		control.setReleaseTo(site.getTitle()); // what if it's too long?
 		
 		// and save the updated info
-		assessmentService.saveAssessment(assessment);
+		pService.saveAssessment(assessment);
 	    }
 	}
 	return true;
@@ -540,5 +562,136 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	    qtiService.createImportedAssessment(document, QTIVersion.VERSION_1_2);
     }
 
+    // return the list of groups if the item is only accessible to specific groups
+    // null if it's accessible to the whole site.  Update the data in the cache
+    // use the comments field, since there's no place to put a list and we don't use
+    // that field
+    public List<String> getGroups() {
+	if (assessment == null)
+	    assessment = getPublishedAssessment(id);
+	if (assessment == null)
+	    return null;
+
+	// cached value?
+	String groupString = assessment.getComments();
+	if (groupString != null) {
+	    if (groupString.equals(""))  // release to site
+		return null;
+	    else
+		return Arrays.asList(groupString.split(","));
+	}
+
+	// no, get the value
+	String siteId = ToolManager.getCurrentPlacement().getContext();
+	List<String> groups = publishedAssessmentFacadeQueries.getReleaseToGroupIdsForPublishedAssessment(assessment.getPublishedAssessmentId()+"");
+	if (groups == null)
+	    return null;
+
+	// if it's released to site we get a list with the site id in it
+	if (groups.size() == 1 && groups.get(0).equals(siteId))
+	    groupString = "";   // released to site
+	else 
+	    for (String group:groups) {
+		if (groupString == null)
+		    groupString = group;
+		else
+		    groupString = groupString + "," + group;
+	    }
+	// cache it
+	assessment.setComments(groupString);
+
+	// return it
+	if (groupString.equals(""))
+	    return null;
+	else
+	    return groups;
+    }
+
+    // set the item to be accessible only to the specific groups.
+    // null to make it accessible to the whole site
+    public void setGroups(Collection<String> groups) {
+
+	if (assessment == null)
+	    assessment = getPublishedAssessment(id);
+	assessment.setComments(null);
+
+	String siteId = ToolManager.getCurrentPlacement().getContext();
+
+	// I don't want to do a full load of the facade most of the time. So we use
+	// PublishedAssessmentData normally. Unfortunately here we need it
+	PublishedAssessmentFacade assessment = null;
+	AssessmentAccessControlIfc control = null;
+
+	try {
+	    assessment = pService.getPublishedAssessment(Long.toString(id));
+	    control = assessment.getAssessmentAccessControl();
+	} catch (Exception e) {
+	    log.warn("can't find published " + id, e);
+	    return;
+	}
+
+	AuthzQueriesFacadeAPI authz = PersistenceService.getInstance().getAuthzQueriesFacade();
+
+	if (authz == null) {
+	    log.warn("Null Authorization");
+	    return;
+	}
+	
+	//
+	// got the info, now have the 4 possibilities
+
+	// 1. asked for release to site, already is.
+
+	if (groups == null && !control.getReleaseTo().equals(AssessmentAccessControlIfc.RELEASE_TO_SELECTED_GROUPS))
+	    return;
+
+	// 2. asked for release to site but it's now release to groups
+
+	if (groups == null) {
+	    // remove all groups
+	    authz.removeAuthorizationByQualifierAndFunction(Long.toString(id), "TAKE_PUBLISHED_ASSESSMENT");
+	    
+	    Site site;
+	    try {
+		site = SiteService.getSite(siteId);
+	    } catch (Exception e) {
+		return;
+	    }
+
+	    // put back the site
+	    authz.createAuthorization(siteId, "TAKE_PUBLISHED_ASSESSMENT", Long.toString(id));
+		
+	    // and put back the access control
+	    control.setReleaseTo(site.getTitle()); // what if it's too long?
+		
+	    // and save the updated info
+	    pService.saveAssessment(assessment);
+
+	    return;
+	}
+
+	// 3 and 4 asked for release to groups 
+	
+	// 3. it's currently release to site, update to groups
+
+	if (!control.getReleaseTo().equals(AssessmentAccessControlIfc.RELEASE_TO_SELECTED_GROUPS)) {
+
+	    control.setReleaseTo(AssessmentAccessControlIfc.RELEASE_TO_SELECTED_GROUPS);
+	    pService.saveAssessment(assessment);
+	}
+
+	// 3 and 4. recreate the group list
+
+	String qualifierIdString = assessment.getPublishedAssessmentId().toString();
+
+	// remove existing
+	authz.removeAuthorizationByQualifierAndFunction(qualifierIdString, "TAKE_PUBLISHED_ASSESSMENT");
+
+	// and add new list
+	for (String groupId: groups) {
+	    authz.createAuthorization(groupId, "TAKE_PUBLISHED_ASSESSMENT", Long.toString(id));
+	}
+
+    }
 
 }

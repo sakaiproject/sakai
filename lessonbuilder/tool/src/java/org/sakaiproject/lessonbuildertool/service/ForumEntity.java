@@ -620,4 +620,15 @@ public class ForumEntity implements LessonEntity, ForumInterface {
 	return "/" + FORUM_TOPIC + "/" + ourTopic.getId();
     }
 
+    // return the list of groups if the item is only accessible to specific groups
+    // null if it's accessible to the whole site.
+    public Collection<String> getGroups() {
+	return null;
+    }
+
+    // set the item to be accessible only to the specific groups.
+    // null to make it accessible to the whole site
+    public void setGroups(Collection<String> groups) {
+    }
+
 }

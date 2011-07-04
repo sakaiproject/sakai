@@ -1355,7 +1355,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar, "add-resource", "simplepage.resource", false, currentPage, "simplepage.resource.tooltip");
 
-		UILink subpagelink = UIInternalLink.makeURL(toolBar, "subpage-link", "");
+		UILink subpagelink = UIInternalLink.makeURL(toolBar, "subpage-link", "#");
 		subpagelink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.subpage")));
 		subpagelink.linktext = new UIBoundString(messageLocator.getMessage("simplepage.subpage"));
 
