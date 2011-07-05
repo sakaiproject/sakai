@@ -49,6 +49,7 @@ import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.ConfirmedFriendsDataProvider;
 import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.tool.pages.MySearch;
+import org.sakaiproject.profile2.tool.pages.ViewFriends;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
 import org.sakaiproject.profile2.tool.pages.windows.RemoveFriend;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -176,7 +177,7 @@ public class ConfirmedFriends extends Panel {
 			protected void populateItem(final Item<Person> item) {
 		        
 				Person person = (Person)item.getDefaultModelObject();
-				String personUuid = person.getUuid();
+				final String personUuid = person.getUuid();
 		    			    	
 		    	//setup values
 		    	String displayName = person.getDisplayName();
@@ -278,40 +279,63 @@ public class ConfirmedFriends extends Panel {
 					removeConnectionLink.setVisible(false);
 				}
 				
-				WebMarkupContainer c2 = new WebMarkupContainer("emailContainer");
+				// TODO view connections
+				WebMarkupContainer c2 = new WebMarkupContainer("viewFriendsContainer");
 		    	c2.setOutputMarkupId(true);
+		    	
+		    	final AjaxLink<String> viewFriendsLink = new AjaxLink<String>("viewFriendsLink") {
+					private static final long serialVersionUID = 1L;
+					public void onClick(AjaxRequestTarget target) {
+						// always ViewFriends because a user isn't connected to himself
+						setResponsePage(new ViewFriends(personUuid));
+					}
+				};
+				final Label viewFriendsLabel = new Label("viewFriendsLabel", new ResourceModel("link.view.friends"));
+				viewFriendsLink.add(viewFriendsLabel);
+				
+				//hide if not allowed
+				if(!privacyLogic.isUserXFriendsListVisibleByUserY(userUuid, currentUserUuid, friend)) {
+					viewFriendsLink.setEnabled(false);
+					c2.setVisible(false);
+				}
+				viewFriendsLink.setOutputMarkupId(true);
+				c2.add(viewFriendsLink);
+				item.add(c2);
+				
+				WebMarkupContainer c3 = new WebMarkupContainer("emailContainer");
+		    	c3.setOutputMarkupId(true);
 		    	
 		    	ExternalLink emailLink = new ExternalLink("emailLink",
 						"mailto:" + person.getProfile().getEmail(),
 						new ResourceModel("profile.email").getObject());
 		    	
-				c2.add(emailLink);
+				c3.add(emailLink);
 				
 				if (StringUtils.isBlank(person.getProfile().getEmail()) || 
-						false == privacyLogic.isUserXContactInfoVisibleByUserY(
-								person.getUuid(), currentUserUuid, friend)) {
-					
-					c2.setVisible(false);
-				}
-				item.add(c2);
-				
-				WebMarkupContainer c3 = new WebMarkupContainer("websiteContainer");
-		    	c3.setOutputMarkupId(true);
-		    	
-		    	// TODO home page, university profile URL or academic/research URL (see PRFL-35)
-		    	ExternalLink websiteLink = new ExternalLink("websiteLink", person.getProfile()
-						.getHomepage(), new ResourceModel(
-						"profile.homepage").getObject()).setPopupSettings(new PopupSettings());
-		    	
-		    	c3.add(websiteLink);
-		    	
-				if (StringUtils.isBlank(person.getProfile().getHomepage()) || 
 						false == privacyLogic.isUserXContactInfoVisibleByUserY(
 								person.getUuid(), currentUserUuid, friend)) {
 					
 					c3.setVisible(false);
 				}
 				item.add(c3);
+				
+				WebMarkupContainer c4 = new WebMarkupContainer("websiteContainer");
+		    	c4.setOutputMarkupId(true);
+		    	
+		    	// TODO home page, university profile URL or academic/research URL (see PRFL-35)
+		    	ExternalLink websiteLink = new ExternalLink("websiteLink", person.getProfile()
+						.getHomepage(), new ResourceModel(
+						"profile.homepage").getObject()).setPopupSettings(new PopupSettings());
+		    	
+		    	c4.add(websiteLink);
+		    	
+				if (StringUtils.isBlank(person.getProfile().getHomepage()) || 
+						false == privacyLogic.isUserXContactInfoVisibleByUserY(
+								person.getUuid(), currentUserUuid, friend)) {
+					
+					c4.setVisible(false);
+				}
+				item.add(c4);
 				
 				// basic info can be set to 'only me' so still need to check
 				if (true == privacyLogic.isUserXBasicInfoVisibleByUserY(
