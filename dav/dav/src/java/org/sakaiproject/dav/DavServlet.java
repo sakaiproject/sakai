@@ -168,6 +168,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXParseException;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * Servlet which adds support for WebDAV level 2. All the basic HTTP requests are handled by the DefaultServlet.
@@ -181,7 +182,7 @@ public class DavServlet extends HttpServlet
 
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(DavServlet.class);
-
+	protected static ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.dav.bundle.Messages");
 	// -------------------------------------------------------------- Constants
 
 	private static final String METHOD_HEAD = "HEAD";
@@ -1644,7 +1645,7 @@ public class DavServlet extends HttpServlet
 			out.println("</STYLE>");
 			out.println("</head><body>");
 			out.println("<div style=\"padding: 16px\">");
-			out.println("<h2>Contents of /dav" + id + "</h2>");
+			out.println("<h2>" + rb.getString("contents_of") + id + "</h2>");
 			out.println("<table>");
 
 			// show .. if not already there. we don't get aliases
@@ -1659,7 +1660,7 @@ public class DavServlet extends HttpServlet
 				// go up a level
 				//String uplev = id.substring(0, id.length() - 1);
 				//uplev = uplev.substring(0, uplev.lastIndexOf('/') + 1);
-				out.println("<tr><td><a href=\"..\">Up one level</a></td><td><b>Folder</b>" + "</td><td>" + "</td><td>"
+				out.println("<tr><td><a href=\"..\">" + rb.getString("up_one_level") + "</a></td><td><b>" + rb.getString("folder") + "</b>" + "</td><td>" + "</td><td>"
 						+ "</td><td>" + "</td></tr>");
 
 			}
@@ -1683,7 +1684,7 @@ public class DavServlet extends HttpServlet
 					}
 					// note that we put back the trailing /
 					out.println("<tr><td><a href=\"" + Validator.escapeUrl(xss) + "/\">" + Validator.escapeHtml(xss)
-							+ "</a></td><td><b>Folder</b>" + "</td><td>" + "</td><td>" + "</td><td>" + "</td></tr>");
+							+ "</a></td><td><b>" + rb.getString("folder") + "</b>" + "</td><td>" + "</td><td>" + "</td><td>" + "</td></tr>");
 				}
 				else
 					try
@@ -1728,7 +1729,7 @@ public class DavServlet extends HttpServlet
 	        if (prohibited(id))
 		{
 	        	res.sendError(HttpServletResponse.SC_FORBIDDEN);
-	        	return "You do not have permission to view this resource";
+	        	return rb.getString("permission_to_view");
 	        }
 
 		// resource or collection? check the properties (also finds bad id and checks permissions)
@@ -1745,7 +1746,7 @@ public class DavServlet extends HttpServlet
 			    id = tempid;
 			} else {
 			    res.sendError(HttpServletResponse.SC_NOT_FOUND);
-			    return "This resource does not exist";
+			    return rb.getString("resource_not_exists");
 			}
 		    }
 
@@ -1754,22 +1755,22 @@ public class DavServlet extends HttpServlet
 		catch (PermissionException e)
 		{
 			res.sendError(HttpServletResponse.SC_FORBIDDEN);
-			return "You do not have permission to view this resource";
+        	return rb.getString("permission_to_view");
 		}
 		catch (IdUnusedException e)
 		{
 			res.sendError(HttpServletResponse.SC_NOT_FOUND);
-			return "This resource does not exist";
+		    return rb.getString("resource_not_exists");
 		}
 		catch (EntityPropertyNotDefinedException e)
 		{
 			res.sendError(HttpServletResponse.SC_NOT_FOUND);
-			return "This resource does not exist";
+		    return rb.getString("resource_not_exists");
 		}
 		catch (EntityPropertyTypeException e)
 		{
 			res.sendError(HttpServletResponse.SC_NOT_FOUND);
-			return "This resource does not exist";
+		    return rb.getString("resource_not_exists");
 		}
 
 		// for resources
@@ -1799,7 +1800,7 @@ public class DavServlet extends HttpServlet
 
 					if (contentStream == null || len == 0)
 					{
-						return "Empty resource";
+						return rb.getString("empty_resource");
 					}
 
 					// set the buffer of the response to match what we are reading from the request
@@ -1812,7 +1813,7 @@ public class DavServlet extends HttpServlet
 						res.setBufferSize(STREAM_BUFFER_SIZE);
 					}
 
-					if (!processHead(req, res)) return "Error setting header values";
+					if (!processHead(req, res)) return rb.getString("error_setting_header_values");
 
 					out = res.getOutputStream();
 					
