@@ -611,9 +611,13 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
     // null to make it accessible to the whole site
     public void setGroups(Collection<String> groups) {
 
-	if (assessment == null)
-	    assessment = getPublishedAssessment(id);
-	assessment.setComments(null);
+	// kill cached value. not perfect, as other systems
+	// will still have the old value
+	if (assessment != null)
+	    assessment.setComments(null);
+	PublishedAssessmentData cached = (PublishedAssessmentData)assessmentCache.get(id);
+	if (cached != null)
+	    cached.setComments(null);
 
 	String siteId = ToolManager.getCurrentPlacement().getContext();
 

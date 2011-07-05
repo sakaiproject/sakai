@@ -168,7 +168,7 @@ public class AssignmentEntity implements LessonEntity {
 	}
 	
 	if (ret != null)
-	    assignmentCache.put(ref, ret);
+	    assignmentCache.put(ref, ret, DEFAULT_EXPIRATION);
 	return ret;
     }
 

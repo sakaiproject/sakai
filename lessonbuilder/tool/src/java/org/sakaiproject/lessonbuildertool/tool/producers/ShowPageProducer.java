@@ -1889,13 +1889,13 @@ private boolean UrlOk(String url) {
 		HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
 		con.setRequestMethod("HEAD");
 		boolean ret = (con.getResponseCode() == HttpURLConnection.HTTP_OK);
-		urlCache.put(url, (Boolean)ret);
+		urlCache.put(url, (Boolean)ret, DEFAULT_EXPIRATION);
 		return ret;
 	} catch (ProtocolException e) {
-		urlCache.put(url, (Boolean)false);
+		urlCache.put(url, (Boolean)false, DEFAULT_EXPIRATION);
 		return false;
 	} catch (IOException e) {
-		urlCache.put(url, (Boolean)false);
+		urlCache.put(url, (Boolean)false, DEFAULT_EXPIRATION);
 		return false;
 	}
 

@@ -299,7 +299,7 @@ public class LessonBuilderAccessService
 			throw new EntityPermissionException(null, null, null);
 		    }
 
-		    accessCache.put(accessKey, "true");
+		    accessCache.put(accessKey, "true", DEFAULT_EXPIRATION);
 
 		}			
 

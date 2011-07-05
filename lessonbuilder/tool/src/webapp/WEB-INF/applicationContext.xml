@@ -59,9 +59,16 @@
   </bean>
 
   <bean id="org.sakaiproject.lessonbuildertool.service.ForumEntity"
-	class="org.sakaiproject.lessonbuildertool.service.ForumEntity">
+	class="org.sakaiproject.lessonbuildertool.service.ForumEntity"
+        init-method="init"
+        destroy-method="destroy">
+    <property name="sessionFactory">
+      <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </property>
+
     <property name = "nextEntity" ref="org.sakaiproject.lessonbuildertool.service.JForumEntity" />
     <property name="messageLocator" ref="messageLocator"/>
+    <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
   </bean>
   
   <bean id="org.sakaiproject.lessonbuildertool.service.SamigoEntity"
