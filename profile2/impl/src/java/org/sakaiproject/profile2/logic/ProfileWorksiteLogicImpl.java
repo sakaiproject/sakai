@@ -385,7 +385,6 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 		replacementValues.put("localSakaiName", sakaiProxy.getServiceName());
 		replacementValues.put("localSakaiUrl", sakaiProxy.getPortalUrl());
 		replacementValues.put("toolName", sakaiProxy.getCurrentToolTitle());
-		replacementValues.put("displayName", member.getDisplayName());
 		
 		sakaiProxy.sendEmail(member.getUuid(),
 				ProfileConstants.EMAIL_TEMPLATE_KEY_WORKSITE_NEW, replacementValues);

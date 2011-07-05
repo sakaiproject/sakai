@@ -326,7 +326,6 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 			// send individually to personalize email
 			for (String toUuid : toUuids) {
 				// this just keeps overwriting profileLink with current toUuid
-				replacementValues.put("displayName", sakaiProxy.getUserDisplayName(toUuid));
 				replacementValues.put("wallLink", linkLogic.getEntityLinkToProfileWall(toUuid));
 				sakaiProxy.sendEmail(toUuid, emailTemplateKey, replacementValues);
 			}
@@ -356,7 +355,6 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		if (ProfileConstants.EMAIL_NOTIFICATION_WALL_POST_MY_NEW == messageType) {
 			emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_WALL_POST_MY_NEW;
 			
-			replacementValues.put("displayName", sakaiProxy.getUserDisplayName(toUuid));
 			replacementValues.put("profileLink", linkLogic.getEntityLinkToProfileWall(toUuid));
 		}
 		

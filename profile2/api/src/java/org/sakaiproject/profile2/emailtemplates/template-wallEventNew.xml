@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <emailTemplate>
 	<subject>${senderDisplayName} added activity to their profile wall on ${localSakaiName}</subject>
-	<message>${displayName},
-	
-${senderDisplayName} added activity to their profile wall on ${localSakaiName}
+	<message>${senderDisplayName} added activity to their profile wall on ${localSakaiName}
 
 To view their wall, follow the link below:
 ${senderWallLink}
@@ -12,9 +10,7 @@ ${senderWallLink}
 This automatic notification message was sent by ${localSakaiName} (${localSakaiUrl})
 Control what email notifications you receive from connections at My Workspace > ${toolName} > Preferences
 	</message>
-	<htmlMessage>${displayName},
-&lt;p&gt;
-${senderDisplayName} added activity to their profile wall on ${localSakaiName}
+	<htmlMessage>${senderDisplayName} added activity to their profile wall on ${localSakaiName}
 &lt;p&gt;
 To view their wall, follow the link below:
 &lt;br /&gt;${senderWallLink}
