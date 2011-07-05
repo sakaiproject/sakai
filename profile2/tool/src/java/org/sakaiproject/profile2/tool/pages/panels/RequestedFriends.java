@@ -47,6 +47,7 @@ import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.RequestedFriendsDataProvider;
 import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.tool.pages.MyFriends;
+import org.sakaiproject.profile2.tool.pages.ViewFriends;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
 import org.sakaiproject.profile2.tool.pages.windows.ConfirmFriend;
 import org.sakaiproject.profile2.tool.pages.windows.IgnoreFriend;
@@ -114,7 +115,7 @@ public class RequestedFriends extends Panel {
 			protected void populateItem(final Item<Person> item) {
 		        
 				Person person = (Person)item.getDefaultModelObject();
-				String personUuid = person.getUuid();
+				final String personUuid = person.getUuid();
 		    			    	
 		    	//get name
 		    	String displayName = person.getDisplayName();
@@ -251,42 +252,64 @@ public class RequestedFriends extends Panel {
 				c2.add(ignoreConnectionLink);
 				item.add(c2);
 				
-				WebMarkupContainer c3 = new WebMarkupContainer("emailContainer");
+				WebMarkupContainer c3 = new WebMarkupContainer("viewFriendsContainer");
 		    	c3.setOutputMarkupId(true);
+		    	
+		    	final AjaxLink<String> viewFriendsLink = new AjaxLink<String>("viewFriendsLink") {
+					private static final long serialVersionUID = 1L;
+					public void onClick(AjaxRequestTarget target) {
+						// always ViewFriends because a user isn't connected to himself
+						setResponsePage(new ViewFriends(personUuid));
+					}
+				};
+				final Label viewFriendsLabel = new Label("viewFriendsLabel", new ResourceModel("link.view.friends"));
+				viewFriendsLink.add(viewFriendsLabel);
+				
+				//hide if not allowed (friend is false currently)
+				if(!privacyLogic.isUserXFriendsListVisibleByUserY(userUuid, currentUserUuid, false)) {
+					viewFriendsLink.setEnabled(false);
+					c3.setVisible(false);
+				}
+				viewFriendsLink.setOutputMarkupId(true);
+				c3.add(viewFriendsLink);
+				item.add(c3);
+				
+				WebMarkupContainer c4 = new WebMarkupContainer("emailContainer");
+		    	c4.setOutputMarkupId(true);
 		    	
 		    	ExternalLink emailLink = new ExternalLink("emailLink",
 						"mailto:" + person.getProfile().getEmail(),
 						new ResourceModel("profile.email").getObject());
 		    	
-				c3.add(emailLink);
+				c4.add(emailLink);
 				
 				// friend=false
 				if (StringUtils.isBlank(person.getProfile().getEmail()) || 
 						false == privacyLogic.isUserXContactInfoVisibleByUserY(
 								person.getUuid(), currentUserUuid, false)) {
 					
-					c3.setVisible(false);
+					c4.setVisible(false);
 				}
-				item.add(c3);
+				item.add(c4);
 				
-				WebMarkupContainer c4 = new WebMarkupContainer("websiteContainer");
-		    	c4.setOutputMarkupId(true);
+				WebMarkupContainer c5 = new WebMarkupContainer("websiteContainer");
+		    	c5.setOutputMarkupId(true);
 		    	
 		    	// TODO home page, university profile URL or academic/research URL (see PRFL-35)
 		    	ExternalLink websiteLink = new ExternalLink("websiteLink", person.getProfile()
 						.getHomepage(), new ResourceModel(
 						"profile.homepage").getObject()).setPopupSettings(new PopupSettings());
 		    	
-		    	c4.add(websiteLink);
+		    	c5.add(websiteLink);
 
 				// friend=false
 				if (StringUtils.isBlank(person.getProfile().getHomepage()) || 
 						false == privacyLogic.isUserXContactInfoVisibleByUserY(
 								person.getUuid(), currentUserUuid, false)) {
 					
-					c4.setVisible(false);
+					c5.setVisible(false);
 				}
-				item.add(c4);
+				item.add(c5);
 				
 				// not a friend yet, so friend=false
 				if (true == privacyLogic.isUserXBasicInfoVisibleByUserY(
