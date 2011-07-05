@@ -279,7 +279,6 @@ public class ConfirmedFriends extends Panel {
 					removeConnectionLink.setVisible(false);
 				}
 				
-				// TODO view connections
 				WebMarkupContainer c2 = new WebMarkupContainer("viewFriendsContainer");
 		    	c2.setOutputMarkupId(true);
 		    	
