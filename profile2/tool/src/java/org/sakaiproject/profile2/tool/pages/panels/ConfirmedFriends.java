@@ -54,7 +54,6 @@ import org.sakaiproject.profile2.tool.pages.ViewProfile;
 import org.sakaiproject.profile2.tool.pages.windows.RemoveFriend;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
-import org.sakaiproject.user.api.User;
 
 public class ConfirmedFriends extends Panel {
 	
@@ -84,7 +83,7 @@ public class ConfirmedFriends extends Panel {
 		
 		//get info for user viewing this page (will be the same if user is viewing own list, different if viewing someone else's)
 		final String currentUserUuid = sakaiProxy.getCurrentUserId();
-		User currentUser = sakaiProxy.getUserQuietly(currentUserUuid);
+		//User currentUser = sakaiProxy.getUserQuietly(currentUserUuid);
 		//final String currentUserType = currentUser.getType(); //to be used for checking if connection between users is allowed, when this is added
 		
 		//if viewing own friends, you can manage them.
