@@ -745,6 +745,28 @@ h6 {
 	font-family: inherit;
 	font-size: inherit
 }
+
+/************************************************/
+/* inline comment formatting */
+.inline-wiki-comment-text {
+        margin: 0 0.5em;
+        padding: 0 0.25em;
+        font-style: italic;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+}
+.inline-wiki-comment {
+        border: 2px dotted #CC9900;
+        float: right;
+        margin: 0.5em 0 0.5em 1em;
+        padding: 0.5em 1em 0.5em 1em;
+        width: 20%;
+        font-style: italic;
+        text-align: left;
+        text-indent: 0;
+	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 90%;
+        clear: right;
+}
 /************************************************/
 /* code formatting */
 .code {

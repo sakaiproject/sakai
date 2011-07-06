@@ -2,6 +2,7 @@
 uk.ac.cam.caret.sakai.rwiki.component.macros.RecentChangesMacro
 uk.ac.cam.caret.sakai.rwiki.component.macros.ImageMacro
 uk.ac.cam.caret.sakai.rwiki.component.macros.MathMacro
+uk.ac.cam.caret.sakai.rwiki.component.macros.CommentMacro
 uk.ac.cam.caret.sakai.rwiki.component.macros.IndexMacro
 uk.ac.cam.caret.sakai.rwiki.component.macros.SakaiLinkMacro
 uk.ac.cam.caret.sakai.rwiki.component.macros.BlockMacro
