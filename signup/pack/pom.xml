@@ -1,45 +1,44 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0">
 	<modelVersion>4.0.0</modelVersion>
+	
 	<parent>
-		<artifactId>signup-base</artifactId>
-		<groupId>org.sakaiproject</groupId>
-		<version>2.7-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
+		<groupId>org.sakaiproject.signup</groupId>
+		<artifactId>signup</artifactId>
+		<version>2.9-SNAPSHOT</version>
 	</parent>
+	
 	<name>Sakai Signup Components Pack</name>
-	<groupId>org.sakaiproject</groupId>
-	<artifactId>sakai-signup-pack</artifactId>
-	<organization>
-		<name>Sakai Project</name>
-		<url>http://sakaiproject.org/</url>
-	</organization>
-	<inceptionYear>2007</inceptionYear>
+	<groupId>org.sakaiproject.signup</groupId>
+	<artifactId>signup-pack</artifactId>
+	
 	<packaging>sakai-component</packaging>
+	
 	<properties>
 		<deploy.target>components</deploy.target>
 	</properties>
+	
 	<dependencies>
-		<!-- Internal dependencies -->
+		
+		<!-- project dependencies -->
 		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-signup-impl</artifactId>
-			<version>${sakai.version}</version>
+			<groupId>org.sakaiproject.signup</groupId>
+			<artifactId>signup-impl</artifactId>
 		</dependency>
 
+		<!--  Sakai dependencies -->
 		<dependency>
 	      	<groupId>org.sakaiproject.kernel</groupId>
 	      	<artifactId>sakai-kernel-util</artifactId>
 	    </dependency>
-
-		<!-- generic DAO -->
 		<dependency>
-         <groupId>org.sakaiproject</groupId>
-         <artifactId>generic-dao</artifactId>
-         <version>0.9.18</version>
-      </dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>generic-dao</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		
 	</dependencies>
-	<build>
-		<resources />
-	</build>
+	
+	<build />
+	
 </project>

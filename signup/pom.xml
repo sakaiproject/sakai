@@ -2,31 +2,368 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
                       http://maven.apache.org/maven-v4_0_0.xsd">                                         
-<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<artifactId>base</artifactId>
-		<groupId>org.sakaiproject</groupId>
-		<version>2.7-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
-	<name>Sakai Signup Project</name>
-	<groupId>org.sakaiproject</groupId>
-	<artifactId>signup-base</artifactId>
-	<version>2.7-SNAPSHOT</version>
-	<inceptionYear>2007</inceptionYear>
+	<modelVersion>4.0.0</modelVersion>
 	
-	<scm>
-		<connection>scm:https://source.sakaiproject.org/contrib/signup</connection>
-		<developerConnection>scm:svn:https://source.sakaiproject.org/contrib/signup</developerConnection>
-		<url>https://source.sakaiproject.org/contrib/signup</url>
-	</scm>
+	<parent>
+		<groupId>org.sakaiproject.purepoms</groupId>
+		<artifactId>sakai-standard-tool</artifactId>
+		<version>2.9-SNAPSHOT</version>
+	</parent>
+	
+	<name>Sakai Signup Project</name>
+	
+	<groupId>org.sakaiproject.signup</groupId>
+	<artifactId>signup</artifactId>
+	<version>2.9-SNAPSHOT</version>
 	
 	<packaging>pom</packaging>
+	
+	<organization>
+		<name>Sakai Project</name>
+		<url>http://sakaiproject.org/</url>
+	</organization>
+	
+	<inceptionYear>2007</inceptionYear>
+	
+	<developers>
+		<developer>
+			<name>Peter Liu</name>
+			<email>peter.liu@yale.edu></email>
+			<organization>Yale University</organization>
+		</developer>
+	</developers>
+	
+	
+	<contributors>
+		<contributor>
+			<name>Steve Swinsburg</name>
+			<email>steve.swinsburg@anu.edu.au</email>
+			<organization>The Australian National University</organization>
+		</contributor>
+	</contributors>
+	
+	<scm>
+		<connection>scm:https://source.sakaiproject.org/contrib/signup/trunk</connection>
+		<developerConnection>scm:svn:https://source.sakaiproject.org/contrib/signup/trunk</developerConnection>
+		<url>https://source.sakaiproject.org/contrib/signup/trunk</url>
+	</scm>
+	
+	<properties>
+		<sakai.version>2.9-SNAPSHOT</sakai.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<url.localsite>scp://source.sakaiproject.org/var/www/html/release/signup/${project.version}</url.localsite>
+	</properties>
+	
+	 <distributionManagement>
+        <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
+        <snapshotRepository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>sakai-maven-snapshots-scp</id>
+            <name>Sakai snapshot Repo</name>
+            <url>scp://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
+            <layout>default</layout>
+        </snapshotRepository>
+        <repository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>sakai-maven2-scp</id>
+            <name>Sakai maven2 repository</name>
+            <url>scp://source.sakaiproject.org/var/www/html/maven2</url>
+            <layout>default</layout>
+        </repository>
+        <site>
+            <id>sakai-site</id>
+            <name>Sakai release Site</name>
+            <url>${url.localsite}</url>
+        </site>
+    </distributionManagement>
+    
+    <pluginRepositories>
+        <pluginRepository>
+            <id>Sakai Plugin Repo</id>
+            <url>http://source.sakaiproject.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>maven2-central-repo</id>
+            <name>Maven2 Central Repo</name>
+            <url>http://repo1.maven.org/maven2/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <repositories>
+        <repository>
+            <id>sakai-maven</id>
+            <name>Sakai Maven Repo</name>
+            <layout>default</layout>
+            <url>http://source.sakaiproject.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>sakai-maven2-snapshots</id>
+            <name>Sakai Maven Repo</name>
+            <layout>default</layout>
+            <url>http://source.sakaiproject.org/maven2-snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>default</id>
+            <name>Maven Repository Switchboard</name>
+            <layout>default</layout>
+            <url>http://repo1.maven.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories> 
+	
+	<dependencyManagement>
+		<dependencies>
+			
+			<!--  project dependencies -->
+			<dependency>
+				<groupId>org.sakaiproject.signup</groupId>
+				<artifactId>signup-api</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.sakaiproject.signup</groupId>
+				<artifactId>signup-impl</artifactId>
+				<version>${project.version}</version>
+				<scope>runtime</scope>
+			</dependency>
+			
+			
+			<!-- sakai dependencies -->
+			<dependency>
+				<groupId>org.sakaiproject</groupId>
+				<artifactId>sakai-calendar-api</artifactId>
+				<version>${sakai.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.sakaiproject</groupId>
+				<artifactId>generic-dao</artifactId>
+				<version>0.9.18</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.sakaiproject.entitybroker</groupId>
+				<artifactId>entitybroker-api</artifactId>
+				<version>1.4.1</version>
+				<scope>provided</scope>
+			</dependency>
+    		<dependency>
+				<groupId>org.sakaiproject.entitybroker</groupId>
+				<artifactId>entitybroker-utils</artifactId>
+				<version>1.5-SNAPSHOT</version>
+				<scope>compile</scope>
+			</dependency>
+			
+			<!-- third party dependencies -->
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring</artifactId>
+				<version>2.5.6.SEC01</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate</artifactId>
+				<version>3.2.7.ga</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>commons-lang</groupId>
+				<artifactId>commons-lang</artifactId>
+				<version>2.5</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>antlr</groupId>
+				<artifactId>antlr</artifactId>
+				<version>2.7.6</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>quartz</groupId>
+				<artifactId>quartz</artifactId>
+				<version>1.5.2</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>commons-logging</groupId>
+				<artifactId>commons-logging</artifactId>
+				<version>1.0.4</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>commons-codec</groupId>
+				<artifactId>commons-codec</artifactId>
+				<version>1.3</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>commons-collections</groupId>
+				<artifactId>commons-collections</artifactId>
+				<version>3.1</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>easymock</groupId>
+				<artifactId>easymock</artifactId>
+				<version>1.2_Java1.3</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-test</artifactId>
+				<version>2.5.6.SEC01</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>hsqldb</groupId>
+				<artifactId>hsqldb</artifactId>
+				<version>1.8.0.5</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>dom4j</groupId>
+				<artifactId>dom4j</artifactId>
+				<version>1.6.1</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>jta</groupId>
+				<artifactId>jta</artifactId>
+				<version>h2.1.8</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>cglib</groupId>
+				<artifactId>cglib-nodep</artifactId>
+				<version>2.1_3</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>net.sf.ehcache</groupId>
+				<artifactId>ehcache</artifactId>
+				<version>1.6.1</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>servlet-api</artifactId>
+				<version>2.4</version>
+				<scope>provided</scope>
+			</dependency>
+			
+			<dependency>
+            	<groupId>org.sakaiproject.jsf</groupId>
+            	<artifactId>jsf-tool</artifactId>
+				<version>2.8.0</version>
+				<scope>compile</scope>
+        	</dependency>
+        	<dependency>
+            	<groupId>org.sakaiproject.jsf</groupId>
+            	<artifactId>jsf-app</artifactId>
+				<version>2.8.0</version>
+				<scope>compile</scope>
+        	</dependency>
+        	<dependency>
+            	<groupId>org.sakaiproject.jsf</groupId>
+            	<artifactId>jsf-widgets-sun-depend</artifactId>
+				<version>2.8.0</version>
+            	<type>pom</type>
+        	</dependency>		
+			
+			<dependency>
+				<groupId>org.apache.myfaces.tomahawk</groupId>
+				<artifactId>tomahawk</artifactId>
+				<version>1.1.9</version>
+				<scope>compile</scope>
+			</dependency>
+		
+			<dependency>
+				<groupId>org.apache.poi</groupId>
+				<artifactId>poi</artifactId>
+				<version>3.5-FINAL</version>
+				<scope>compile</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>jstl</artifactId>
+				<version>1.1.2</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>taglibs</groupId>
+				<artifactId>standard</artifactId>
+				<version>1.1.2</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>jsp-api</artifactId>
+				<version>2.0</version>
+			</dependency>
+
+			<dependency>
+				<groupId>commons-validator</groupId>
+				<artifactId>commons-validator</artifactId>
+				<version>1.3.0</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>commons-codec</groupId>
+				<artifactId>commons-codec</artifactId>
+				<version>1.3</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>oro</groupId>
+				<artifactId>oro</artifactId>
+				<version>2.0.8</version>
+				<scope>compile</scope>
+			</dependency>
+			
+		</dependencies>
+	</dependencyManagement>
+	
 	<modules>
 		<module>api</module>
 		<module>help</module>
 		<module>impl</module>
 		<module>pack</module>
 		<module>tool</module>
+		<module>assembly</module>
 	</modules>
+	
+	<build />
+	
 </project>

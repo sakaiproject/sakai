@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+	<id>tomcat-overlay</id>
+	<formats>
+		<format>zip</format>
+	</formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
+	<dependencySets>
+		
+		<!-- shared -->
+		<dependencySet>
+			<outputDirectory>shared/lib</outputDirectory>
+			<useTransitiveDependencies>false</useTransitiveDependencies>
+			<includes>
+				<include>org.sakaiproject.signup:signup-api:jar:*</include>
+				<include>org.sakaiproject.signup:signup-help:jar:*</include>
+			</includes>
+		</dependencySet>
+		
+		<!-- components -->
+		<dependencySet>
+			<outputDirectory>components/signup-pack</outputDirectory>
+			<useTransitiveDependencies>false</useTransitiveDependencies>
+			<includes>
+				<include>org.sakaiproject.signup:signup-pack:war:*</include>
+			</includes>
+			<unpack>true</unpack>
+		</dependencySet>
+		
+		<!-- webapps -->
+		<dependencySet>
+            <outputDirectory>webapps/</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}.war</outputFileNameMapping>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                 <include>org.sakaiproject.signup:sakai-signup-tool:war:*</include>
+            </includes>
+            <unpack>false</unpack>
+        </dependencySet>
+        
+	</dependencySets>
+	
+</assembly>
