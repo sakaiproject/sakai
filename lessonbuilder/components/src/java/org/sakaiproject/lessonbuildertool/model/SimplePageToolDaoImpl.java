@@ -275,9 +275,18 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			getHibernateTemplate().delete(o);
 			return true;
 		} catch (DataAccessException e) {
-			e.printStackTrace();
-			log.warn("Hibernate could not delete: " + e.toString());
-			return false;
+			try {
+				//getSession().load(o.getClass(), getSession().getIdentifier(o));
+				//getSession().delete(o);
+				
+				getHibernateTemplate().delete(getHibernateTemplate().merge(o));
+				
+				return true;
+			}catch(DataAccessException ex) {
+				ex.printStackTrace();
+				log.warn("Hibernate could not delete: " + e.toString());
+				return false;
+			}
 		}
 	}
 
@@ -312,7 +321,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
     // ditto for update
 	public boolean quickUpdate(Object o) {
 		try {
-			getHibernateTemplate().update(o);
+			getHibernateTemplate().merge(o);
 			return true;
 		} catch (DataAccessException e) {
 			e.printStackTrace();
