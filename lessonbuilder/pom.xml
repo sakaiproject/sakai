@@ -1,32 +1,194 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>master</artifactId>
-    <groupId>org.sakaiproject</groupId>
-    <relativePath>../master/pom.xml</relativePath>
-    <version>2.9-SNAPSHOT</version>
-<!--   <version>M2</version>--><!-- 2.5.x -->
-  </parent>
-  <name>lessonbuildertool</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-lessonbuildertool-tool-base</artifactId>
-  <version>1.3</version>
-  <packaging>pom</packaging>
-  <modules>
-    <module>hbm</module>
-    <module>api</module>
-    <module>tool</module>
-    <module>components</module>
-  </modules>
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.sakaiproject.assignment</groupId>
-        <artifactId>sakai-assignment-api</artifactId>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject.purepoms</groupId>
+        <artifactId>sakai-edu-tool</artifactId>
         <version>2.9-SNAPSHOT</version>
-        <scope>provided</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
+        <!-- <version>2.8.1</version> --> <!-- purepom deployed with sakai-2.8.0 -->
+    </parent>
+
+    <name>sakai-lessonbuildertool base pom</name>
+    <groupId>org.sakaiproject.lessonbuilder</groupId>
+    <artifactId>sakai-lessonbuildertool-tool-base</artifactId>
+    <version>1.3-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>api</module>
+        <module>assembly</module>
+        <module>components</module>
+        <module>hbm</module>
+        <module>tool</module>
+    </modules>
+    
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+    
+            <properties>
+                <sakai.assignment.groupId>org.sakaiproject.assignment</sakai.assignment.groupId>
+                <sakai.assignment.version>2.9-SNAPSHOT</sakai.assignment.version>
+                <sakai.entitybroker.version>1.5-SNAPSHOT</sakai.entitybroker.version>
+                <sakai.msgcntr.version>2.9-SNAPSHOT</sakai.msgcntr.version>
+                <sakai.samigo.version>2.9-SNAPSHOT</sakai.samigo.version>
+                <rsfutil.version>0.8-SNAPSHOT</rsfutil.version>
+                <sakairsf.version>0.8-SNAPSHOT</sakairsf.version>
+                <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
+                <url.localsite>scp://source.sakaiproject.org/var/www/html/release/lessonbuilder/${project.version}</url.localsite>
+            </properties>
+        </profile>
+        <profile>
+            <id>sakai-2.8</id>
+    
+            <properties>
+                <sakai.assignment.groupId>org.sakaiproject</sakai.assignment.groupId>
+                <sakai.assignment.version>2.8.0</sakai.assignment.version>
+                <sakai.entitybroker.version>1.4.1</sakai.entitybroker.version>
+                <sakai.msgcntr.version>2.8.0</sakai.msgcntr.version>
+                <sakai.samigo.version>2.8.0</sakai.samigo.version>
+                <rsfutil.version>0.8-SNAPSHOT</rsfutil.version>
+                <sakairsf.version>0.8-SNAPSHOT</sakairsf.version>
+                <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
+                <url.localsite>scp://source.sakaiproject.org/var/www/html/release/lessonbuilder/${project.version}</url.localsite>
+            </properties>
+        </profile>
+    </profiles>
+
+    <scm>
+        <connection>scm:svn:https://source.sakaiproject.org/contrib/rutgers/lessonbuilder/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/rutgers/lessonbuilder/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/contrib/rutgers/lessonbuilder/trunk</url>
+    </scm>
+
+    <distributionManagement>
+        <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
+        <snapshotRepository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>sakai-maven-snapshots-scp</id>
+            <name>Sakai snapshot Repo</name>
+            <url>scp://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
+            <layout>default</layout>
+        </snapshotRepository>
+        <repository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>sakai-maven2-scp</id>
+            <name>Sakai maven2 repository</name>
+            <url>scp://source.sakaiproject.org/var/www/html/maven2</url>
+            <layout>default</layout>
+        </repository>
+        <site>
+            <id>sakai-site</id>
+            <name>Sakai release Site</name>
+            <url>${url.localsite}</url>
+        </site>
+    </distributionManagement>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>maven2-central-repo</id>
+            <name>Maven2 Central Repo</name>
+            <url>http://repo1.maven.org/maven2/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>Sakai Plugin Repo</id>
+            <url>http://source.sakaiproject.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <repositories>
+        <repository>
+            <id>sakai-maven</id>
+            <name>Sakai Maven Repo</name>
+            <layout>default</layout>
+            <url>http://source.sakaiproject.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>sakai-maven2-snapshots</id>
+            <name>Sakai Maven Repo</name>
+            <layout>default</layout>
+            <url>http://source.sakaiproject.org/maven2-snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>default</id>
+            <name>Maven Repository Switchboard</name>
+            <layout>default</layout>
+            <url>http://repo1.maven.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>sakai-lessonbuildertool-api</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>sakai-lessonbuildertool-hbm</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <debug>true</debug>
+                    <links>
+                        <link>http://download.oracle.com/javase/1.5.0/docs/api/</link>
+                        <link>http://download.oracle.com/javase/6/docs/api/</link>
+                    </links>
+                    <breakiterator>true</breakiterator>
+                    <verbose>false</verbose>
+                    <aggregate>true</aggregate>
+                    <minmemory>168m</minmemory>
+                    <maxmemory>1024m</maxmemory>
+                    <additionalJOption>-J-Xms168m -J-Xmx1024m -J-XX:PermSize=128m -J-XX:NewSize=64m</additionalJOption>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
 </project>

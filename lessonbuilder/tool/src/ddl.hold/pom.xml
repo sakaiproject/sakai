@@ -1,18 +1,17 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <name>SimplePage DB DDL generator</name>
-    <groupId>org.sakaiproject</groupId>
-    <artifactId>sakai-lessonbuildertool-tool-ddl-generator</artifactId>
-    <packaging>pom</packaging>
-    <version>1.0</version>
 
     <parent>
-        <groupId>org.sakaiproject</groupId>
+        <groupId>org.sakaiproject.lessonbuilder</groupId>
         <artifactId>sakai-lessonbuildertool-tool-base</artifactId>
-        <version>1.0RC1</version>
+        <version>1.3-SNAPSHOT</version>
     </parent>
+
+    <name>SimplePage DB DDL generator</name>
+    <groupId>org.sakaiproject.lessonbuilder</groupId>
+    <artifactId>sakai-lessonbuildertool-tool-ddl-generator</artifactId>
+    <packaging>pom</packaging>
 
     <properties>
         <!-- change this to reflect the name to use for the ddl files -->
@@ -25,7 +24,8 @@
     <build>
         <resources>
             <resource>
-                <!-- this should pull in your hibernate template (.hbm.xml) files -->
+                <!-- this should pull in your hibernate template (.hbm.xml) 
+                    files -->
                 <directory>${basedir}/../../../hbm/src/java</directory>
                 <includes>
                     <include>**/*.xml</include>
@@ -33,7 +33,6 @@
                 <filtering>false</filtering>
             </resource>
         </resources>
-
         <plugins>
             <plugin>
                 <!-- hibernate ddl generation -->
@@ -148,5 +147,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

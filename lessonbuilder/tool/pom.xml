@@ -1,212 +1,175 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <modelVersion>4.0.0</modelVersion>
-  
-  <parent>
-	<groupId>org.sakaiproject</groupId>
-	<artifactId>sakai-lessonbuildertool-tool-base</artifactId>
-	<relativePath>../pom.xml</relativePath>
-	<version>1.3</version>
-  </parent>
-  
-  <name>sakai-lessonbuildertool-tool</name>
-  <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-lessonbuildertool-tool</artifactId>
-  <version>1.3</version>
-  
-  <description>
-    This project creates a WAR containing the Lesson Builder Tool for Sakai.
-  </description>
-  
-  <packaging>war</packaging>
-  
-  <properties>
-	<rsfutil.version>0.8-SNAPSHOT</rsfutil.version>
-  </properties>
-  
-  <repositories>
-	<repository>
-		<id>caret-dev</id>
-		<name>Caret Dev Repo</name>
-		<layout>default</layout>
-		<url>http://www2.caret.cam.ac.uk/maven2dev</url>
-		<snapshots>
-			<enabled>true</enabled>
-		</snapshots>
-	</repository>
-  </repositories>
-  
-  <dependencies>
-	<dependency>
-		<groupId>uk.org.ponder.sakairsf</groupId>
-		<artifactId>SakaiRSFComponents-templates</artifactId>
-		<version>${rsfutil.version}</version>
-		<type>war</type>
-	</dependency>
-	<dependency>
-	  <groupId>org.springframework</groupId>
-	  <artifactId>spring</artifactId>
-	</dependency>
-	<dependency>
-	  <groupId>org.springframework</groupId>
-	  <artifactId>spring-webmvc</artifactId>
-	</dependency>
-	<dependency>
-		<groupId>uk.org.ponder.sakairsf</groupId>
-		<artifactId>SakaiRSFComponents-evolvers</artifactId>
-		<version>${rsfutil.version}</version>
-		<type>jar</type>
-	</dependency>
-	<dependency>
-		<groupId>uk.org.ponder.sakairsf</groupId>
-		<artifactId>sakairsf</artifactId>
-		<version>${rsfutil.version}</version>
-		<type>jar</type>
-	</dependency>
-	<dependency>
-		<groupId>javax.servlet</groupId>
-		<artifactId>servlet-api</artifactId>
-		<version>2.4</version>
-		<scope>provided</scope>
-	</dependency>
-	<dependency>
-		<groupId>uk.org.ponder.rsfutil</groupId>
-		<artifactId>RSFComponents-templates</artifactId>
-		<version>${rsfutil.version}</version>
-		<type>war</type>
-	</dependency>
-        
-      <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring</artifactId>
-      </dependency>
+    <parent>
+        <groupId>org.sakaiproject.lessonbuilder</groupId>
+        <artifactId>sakai-lessonbuildertool-tool-base</artifactId>
+        <version>1.3-SNAPSHOT</version>
+    </parent>
 
+    <name>sakai-lessonbuildertool-tool</name>
+    <groupId>org.sakaiproject.lessonbuilder</groupId>
+    <artifactId>sakai-lessonbuildertool-tool</artifactId>
+    <packaging>war</packaging>
 
-      <dependency>
+    <description>This project creates a WAR containing the Lesson Builder Tool for Sakai.</description>
+
+    <repositories>
+        <repository>
+            <id>caret-dev</id>
+            <name>Caret Dev Repo</name>
+            <layout>default</layout>
+            <url>http://www2.caret.cam.ac.uk/maven2dev</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${sakai.assignment.groupId}</groupId>
+            <artifactId>sakai-assignment-api</artifactId>
+            <version>${sakai.assignment.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+            <artifactId>gradebook-service-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.entitybroker</groupId>
+            <artifactId>entitybroker-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.entitybroker</groupId>
+            <artifactId>entitybroker-utils</artifactId>
+            <version>${sakai.entitybroker.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>sakai-lessonbuildertool-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.msgcntr</groupId>
+            <artifactId>messageforums-api</artifactId>
+            <version>${sakai.msgcntr.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.msgcntr</groupId>
+            <artifactId>messageforums-hbm</artifactId>
+            <version>${sakai.msgcntr.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.samigo</groupId>
+            <artifactId>samigo-api</artifactId>
+            <version>${sakai.samigo.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.samigo</groupId>
+            <artifactId>samigo-hibernate</artifactId>
+            <version>${sakai.samigo.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.samigo</groupId>
+            <artifactId>samigo-qti</artifactId>
+            <version>${sakai.samigo.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.samigo</groupId>
+            <artifactId>samigo-services</artifactId>
+            <version>${sakai.samigo.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- <dependency> <groupId>org.etudes.mneme</groupId> <artifactId>etudes-mneme-api</artifactId> 
+            <version>1.2</version> <scope>provided</scope> </dependency> -->
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.4</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>jdom</groupId>
+            <artifactId>jdom</artifactId>
+            <version>1.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate</artifactId>
         </dependency>
-
         <!-- Required for hibernate 3 HQL queries -->
         <dependency>
             <groupId>antlr</groupId>
             <artifactId>antlr</artifactId>
             <version>2.7.6</version>
         </dependency>
-
-
-    <!-- Sakai dependencies (all RSF apps must have this) -->
-<!--
-    <dependency>
-      <groupId>org.sakaiproject.kernel.util</groupId>
-      <artifactId>sakai-util</artifactId>
-    </dependency>
--->
-	<dependency>
-		<groupId>org.sakaiproject.kernel</groupId>
-		<artifactId>sakai-kernel-api</artifactId>
-	</dependency>
-	<dependency>
-		<groupId>org.sakaiproject.kernel</groupId>
-		<artifactId>sakai-kernel-util</artifactId>
-	</dependency>
-	<dependency>
-            <groupId>org.sakaiproject.kernel</groupId>
-            <artifactId>sakai-component-manager</artifactId>
-        </dependency>
-	<dependency>
-	  <groupId>org.sakaiproject</groupId>
-	  <artifactId>sakai-lessonbuildertool-api</artifactId>
-	  <version>1.3</version>
-	  <scope>provided</scope>
-	</dependency>
-	<dependency>
-		<groupId>org.sakaiproject.entitybroker</groupId>
-		<artifactId>entitybroker-api</artifactId>
-	</dependency>	  
         <dependency>
-        	<groupId>org.sakaiproject.entitybroker</groupId>
-		<artifactId>entitybroker-utils</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring</artifactId>
         </dependency>
-	<dependency>
-		<groupId>org.sakaiproject.assignment</groupId>
-		<artifactId>sakai-assignment-api</artifactId>
-	</dependency>
-	
-	<dependency>
-		<groupId>org.sakaiproject.samigo</groupId>
-		<artifactId>samigo-api</artifactId>
-	</dependency>
-	<dependency>
-	  <groupId>org.sakaiproject.samigo</groupId>
-          <artifactId>samigo-qti</artifactId>
-	  <version>${sakai.samigo.version}</version>
-	</dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>uk.org.ponder.sakairsf</groupId>
+            <artifactId>sakairsf</artifactId>
+            <version>${sakairsf.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>uk.org.ponder.sakairsf</groupId>
+            <artifactId>SakaiRSFComponents-evolvers</artifactId>
+            <version>${sakairsf.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>uk.org.ponder.sakairsf</groupId>
+            <artifactId>SakaiRSFComponents-templates</artifactId>
+            <version>${sakairsf.version}</version>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>uk.org.ponder.rsfutil</groupId>
+            <artifactId>RSFComponents-templates</artifactId>
+            <version>${rsfutil.version}</version>
+            <type>war</type>
+        </dependency>
+    </dependencies>
 
-<!--
-	<dependency>
-		<groupId>org.etudes.mneme</groupId>
-		<artifactId>etudes-mneme-api</artifactId>
-		<version>1.2</version>
-	        <scope>provided</scope>
-	</dependency>
--->
-
-	<dependency>
-		<groupId>org.sakaiproject.samigo</groupId>
-		<artifactId>samigo-hibernate</artifactId>
-                <version>${sakai.samigo.version}</version>
-	        <scope>provided</scope>
-	</dependency>
-
-	<dependency>
-          <groupId>org.sakaiproject.msgcntr</groupId>
-          <artifactId>messageforums-api</artifactId>
-          <version>${sakai.msgcntr.version}</version>
-	  <scope>provided</scope>
-	</dependency>
-
-	<dependency>
-          <groupId>org.sakaiproject.msgcntr</groupId>
-          <artifactId>messageforums-hbm</artifactId>
-          <version>${sakai.msgcntr.version}</version>
-	  <scope>provided</scope>
-	</dependency>
-
-	<dependency>
-		<groupId>org.sakaiproject.samigo</groupId>
-		<artifactId>samigo-services</artifactId>
-	</dependency>
-
-	<dependency>
-	  <groupId>org.sakaiproject.edu-services.gradebook</groupId>
-	  <artifactId>gradebook-service-api</artifactId>
-	</dependency>
-
-	<dependency>
-	  <groupId>jdom</groupId>
-	  <artifactId>jdom</artifactId>
-	  <version>1.0</version>
-	  <scope>provided</scope>
-	</dependency>
-
-</dependencies>
-  
-  <build>
-	<resources>
-        	<resource>
-			<directory>${basedir}/src/resources</directory>
-                </resource>
-		<resource>
-			<directory>${basedir}/src/java</directory>
-			<includes>
-				<include>**/*.xml</include>
-			</includes>
-		</resource>
-	</resources>
-  </build>
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/resources</directory>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
 </project>
-
