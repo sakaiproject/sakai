@@ -288,11 +288,17 @@ public class BasicConfigurationService implements ServerConfigurationService
 	 */
 	public String getPortalUrl()
 	{
+		/*
 		String rv = (String) threadLocalManager.get(CURRENT_PORTAL_PATH);
 		if (rv == null)
 		{
 			rv = (String) properties.get("portalPath");
 		}
+		*/
+		//KNL-758, SAK-20431 - don't use the portal path that the RequestFilter gives us,
+		//as that is based on the current context. Instead use the actual value we have
+		//set in sakai.properties
+		String rv = (String) properties.get("portalPath");
 
 		String portalUrl = getServerUrl() + rv;
 
