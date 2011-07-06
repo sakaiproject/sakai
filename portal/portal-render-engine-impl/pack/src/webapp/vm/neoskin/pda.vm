@@ -94,9 +94,12 @@ ${responseHead}
 #if ($currentSite)
   #if ( $currentSite.isChild )
   	## would be better to examine for each site if it has children, then reflect this in a nested list structure.
+	#set($last=$currentSite.pwd.size())
     #foreach ( $site in $currentSite.pwd )
+		
 		#set ($currentSiteChildren=$currentSiteChildren + 1)
- 		<li class="#if ($currentSiteChildren==1) currentSiteParentLink #else currentSiteChildLink #end"><span><a href="${site.siteUrl}" title="${site.siteTitle}">${site.siteTitle}</a></span></li>		
+		#if ($last == $currentSiteChildren) #set($hierClass="lastChild") #else #set($hierClass="") #end
+ 		<li class="#if ($currentSiteChildren==1) currentSiteParentLink #else currentSiteChildLink $hierClass #end"><span><a href="${site.siteUrl}" title="${site.siteTitle}">${site.siteTitle}</a></span></li>
     #end
   #else
     <li class="currentSiteLink"><span><a href="${currentSite.siteUrl}" title="${currentSite.siteTitle}">${currentSite.siteTitle}</a></span></li>
@@ -189,16 +192,16 @@ ${responseBody}
     #foreach ( $page in $currentSite.sitePages.pageNavTools ) 
       #if ($page.isPage)
         ## This must be a popup - so we treat it as a popup
-        <li>
+        <li class="${page.menuClass}-item">
         	<span>
-				<a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
+				<a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')"  class="${page.menuClass}">
     	        	${page.pageTitle}
         		</a>
         	</span>
         </li>
       #else
-        <li>
-          <span><a href="${page.toolrefUrl}" title="${page.toolTitle}">${page.toolTitle}</a></span>
+        <li class="${page.menuClass}-item">
+          <span><a href="${page.toolrefUrl}" title="${page.toolTitle}"  class="${page.menuClass}">${page.toolTitle}</a></span>
         </li>
       #end
     #end
