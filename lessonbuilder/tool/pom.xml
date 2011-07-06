@@ -25,20 +25,10 @@
   
   <properties>
 	<sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
-	<rsfutil.version>0.7.4</rsfutil.version>
+	<rsfutil.version>0.8-SNAPSHOT</rsfutil.version>
   </properties>
   
   <repositories>
-        <repository>
-          <id>oirt-new-maven</id>
-          <name>local Maven Repository</name>
-          <layout>default</layout>
-          <url>file:${basedir}/maven2/</url>
-          <snapshots>
-            <enabled>false</enabled>
-          </snapshots>
-        </repository>
-
 	<repository>
 		<id>caret-dev</id>
 		<name>Caret Dev Repo</name>
@@ -74,7 +64,7 @@
 	<dependency>
 		<groupId>uk.org.ponder.sakairsf</groupId>
 		<artifactId>sakairsf</artifactId>
-		<version>${rsfutil.version}-sakai-rutgers_${sakairsf.sakai.version}</version>
+		<version>${rsfutil.version}</version>
 		<type>jar</type>
 	</dependency>
 	<dependency>
