@@ -24,7 +24,6 @@
   <packaging>war</packaging>
   
   <properties>
-	<sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
 	<rsfutil.version>0.8-SNAPSHOT</rsfutil.version>
   </properties>
   
@@ -44,7 +43,7 @@
 	<dependency>
 		<groupId>uk.org.ponder.sakairsf</groupId>
 		<artifactId>SakaiRSFComponents-templates</artifactId>
-		<version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
+		<version>${rsfutil.version}</version>
 		<type>war</type>
 	</dependency>
 	<dependency>
@@ -58,7 +57,7 @@
 	<dependency>
 		<groupId>uk.org.ponder.sakairsf</groupId>
 		<artifactId>SakaiRSFComponents-evolvers</artifactId>
-		<version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
+		<version>${rsfutil.version}</version>
 		<type>jar</type>
 	</dependency>
 	<dependency>
