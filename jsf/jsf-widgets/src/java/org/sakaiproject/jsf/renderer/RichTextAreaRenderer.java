@@ -99,6 +99,8 @@ public class RichTextAreaRenderer extends Renderer
         
         writer.write("<script type=\"text/javascript\">sakai.editor.launch('" + textareaId + "');</script>");
         
+        //SAK-20818 be sure to close the table
+        writer.write("</td></tr></table>\n");
         
         /*
         if(editor!=null && !editor.equalsIgnoreCase("FCKeditor"))
