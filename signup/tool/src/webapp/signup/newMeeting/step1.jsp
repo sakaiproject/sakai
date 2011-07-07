@@ -39,8 +39,8 @@
                     </h:panelGroup>                
                     <h:panelGroup>                    
                         <h:inputText id="name" size="40" value="#{NewSignupMeetingBean.signupMeeting.title}" styleClass="editText" required="true"  >
-                        <f:validator validatorId="Signup.EmptyStringValidator"/>
-                        <f:validateLength maximum="255" />
+                        	<f:validator validatorId="Signup.EmptyStringValidator"/>
+                        	<f:validateLength maximum="255" />
                         </h:inputText>
                         <h:message for="name" errorClass="alertMessageInline"/>
 					</h:panelGroup> 
@@ -60,7 +60,7 @@
                             <f:validator validatorId="Signup.EmptyStringValidator"/>
                             <f:validateLength maximum="255" />
                         </h:inputText>
-                        <h:message for="location" errorClass="alertMessageInline"/>
+                        <h:message for="customLocation" errorClass="alertMessageInline"/>
                     </h:panelGroup>                           
                 
                 	<%-- description, rich text --%>
