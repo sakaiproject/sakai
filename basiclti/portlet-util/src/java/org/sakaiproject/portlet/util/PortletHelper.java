@@ -32,7 +32,7 @@ import javax.portlet.PortletRequest;
 import javax.portlet.PortletPreferences;
 import javax.portlet.PortletSession;
 
-import org.sakaiproject.portlet.util.FormattedText;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * Some Utility Functions

@@ -71,7 +71,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.imsglobal.basiclti.BasicLTIConstants;
 import org.sakaiproject.basiclti.util.ShaUtil;
-import org.sakaiproject.portlet.util.FormattedText;
+import org.sakaiproject.util.FormattedText;
 
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
