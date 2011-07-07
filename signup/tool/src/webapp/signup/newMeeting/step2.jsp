@@ -22,8 +22,6 @@
 				
 			<h:form id="meeting">
 			 	<sakai:view_title value="#{msgs.event_step5_page_title}"/>
-
-				<sakai:messages />
 				
 				<h:panelGrid columns="1">
 					

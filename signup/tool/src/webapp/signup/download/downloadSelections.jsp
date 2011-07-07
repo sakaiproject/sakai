@@ -16,8 +16,6 @@
 			<h:outputText value="#{msgs.event_error_alerts} #{errorMessageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{errorMessageUIBean.error}"/> 
 			<h:form id="items">
 			 	<sakai:view_title value="#{msgs.signup_download}"/>
-
-				<sakai:messages />
 				
 				<h:outputText value="&nbsp;" escape="false"/>
 				

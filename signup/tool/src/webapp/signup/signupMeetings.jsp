@@ -24,7 +24,6 @@
 			<h:form id="items">
 			 	<sakai:view_title value="#{msgs.signup_tool}"/>
 
-				<sakai:messages />
 				<h:panelGrid columns="1">
 					<h:outputText value="#{msgs.events_organizer_instruction}"  rendered="#{SignupMeetingsBean.allowedToUpdate && SignupMeetingsBean.meetingsAvailable}" escape="false"/>
 					<h:outputText value="#{msgs.events_attendee_instruction}" rendered="#{!SignupMeetingsBean.allowedToUpdate && SignupMeetingsBean.meetingsAvailable}" escape="false"/>
