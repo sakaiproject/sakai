@@ -196,6 +196,7 @@ public class ProfileConstants {
 	public static final int DEFAULT_PRIVACY_OPTION_STUDENTINFO = PRIVACY_OPTION_EVERYONE;
 	public static final int DEFAULT_PRIVACY_OPTION_MYKUDOS = PRIVACY_OPTION_EVERYONE;
 	public static final int DEFAULT_PRIVACY_OPTION_MYWALL = PRIVACY_OPTION_EVERYONE;
+	public static final int DEFAULT_PRIVACY_OPTION_SOCIALINFO = PRIVACY_OPTION_EVERYONE;
 	
 	//if they have no privacy record, ie have not turned explicitly turned searches on or off
 	public static final boolean DEFAULT_SEARCH_VISIBILITY = true;

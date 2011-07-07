@@ -850,6 +850,7 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 		privacy.setBusinessInfo((Integer)props.get("businessInfo"));
 		privacy.setMyKudos((Integer)props.get("myKudos"));
 		privacy.setMyWall((Integer)props.get("myWall"));
+		privacy.setSocialNetworkingInfo((Integer)props.get("socialInfo"));
 		
 		return privacy;
 	}
