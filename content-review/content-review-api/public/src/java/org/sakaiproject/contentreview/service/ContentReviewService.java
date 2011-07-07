@@ -252,6 +252,7 @@ public interface ContentReviewService {
 	 * Get a error report for a Specific method
 	 * @param contentId
 	 * @return
+	 * @deprecated use {@link #getLocalizedStatusMessage(String)}
 	 */
 	public String getReviewError(String contentId);
 	/**
