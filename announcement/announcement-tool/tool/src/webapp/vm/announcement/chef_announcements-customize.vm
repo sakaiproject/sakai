@@ -196,6 +196,7 @@
 			<input type="submit" class="active" name="eventSubmit_doUpdate" value="$tlang.getString("gen.update")"  accesskey="s" />
 			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("gen.cancel")"  accesskey="x" />
 		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
 

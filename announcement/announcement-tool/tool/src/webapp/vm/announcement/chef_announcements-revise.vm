@@ -535,6 +535,7 @@ function resizeFrame(){
 				<input type="button" accesskey="x" name="cancel" value="$tlang.getString("gen.cancel")" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='cancel';document.reviseForm.submit();return false;" />   
 				<span id="submitnotif" style="visibility:hidden" >$tlang.getString("label.proces")</span>
 		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
 <script language="JavaScript" type="text/JavaScript">

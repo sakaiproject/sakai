@@ -54,5 +54,6 @@
 			<input type="submit" accesskey="s" class="active" name="eventSubmit_doDelete" value="$tlang.getString("gen.delete")" />
 			<input type="submit" accesskey="x" value="$tlang.getString("gen.cancel")" name="eventSubmit_doCancel" />
 		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>

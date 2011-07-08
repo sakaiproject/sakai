@@ -34,6 +34,7 @@
 				#end
 			</div>
 		</div>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 	#end
 	<h3>
@@ -124,12 +125,14 @@
 				#end
 			</div>
 		</div>	
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 #else
 	<form name="formII" action="#toolForm("$action")" method="post">
 		<p class="act">
 			<input class="active" type="submit" name="eventSubmit_doLinkcancel" value="$tlang.getString("meta.retlis")"  accesskey="x" />
 		</p>	
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 #end
 
