@@ -19,19 +19,23 @@
 							#if ($goFPButton == "true")
 								<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 									<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("gen.first")" />
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#else
 								<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 									<input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" />
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#end
 							#if ($goPPButton == "true")
 								<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 									<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize"  accesskey="p" />
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#else
 								<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 									<input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" />
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#end
 						#end
@@ -46,24 +50,29 @@
 								<option value="100" #if($pagesize == 100) selected="selected" #end>$tlang.getString("gen.show100")</option>
 								<option value="200" #if($pagesize == 200) selected="selected" #end>$tlang.getString("gen.show200")</option>
 							</select>
+							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 						</form>
 						#if ($pagesize != 0)
 							#if ($goNPButton == "true")
 								<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 									<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('gen.next') $pagesize"  accesskey="n" />
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#else
 								<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 									<input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" />
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#end
 							#if ($goLPButton == "true")
 								<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 									<input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString('gen.last')" />
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#else
 								<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 									<input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" />
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#end
 						#end

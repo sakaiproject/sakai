@@ -62,6 +62,7 @@
 						<input type="submit" class="active"  name="eventSubmit_doSave_user" value="$tlang.getString("realm.user.save")" accesskey="s" />
 						<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("realm.user.cancel")" accesskey="x"/>
 					</div>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
 	</div>
 
