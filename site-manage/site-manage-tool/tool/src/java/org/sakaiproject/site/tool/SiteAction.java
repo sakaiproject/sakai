@@ -2420,11 +2420,17 @@ public class SiteAction extends PagedResourceActionII {
 			 */
 			existingSite = site != null ? true : false;
 			site_type = (String) state.getAttribute(STATE_SITE_TYPE);
+			
+			// define the tools available for import. defaults to those tools in the "to" site
+			List<String> importableTools = (List) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
 			if (existingSite) {
 				// revising a existing site's tool
 				context.put("continue", "12");
 				context.put("step", "2");
 				context.put("currentSite", site);
+				
+				// if the site exists, there may be other tools available for import
+				importableTools = getToolsAvailableForImport(state, importableTools);
 			} else {
 				// new site, go to edit access page
 				if (fromENWModifyView(state)) {
@@ -2437,7 +2443,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put(STATE_TOOL_REGISTRATION_LIST, state
 					.getAttribute(STATE_TOOL_REGISTRATION_LIST));
 			context.put("selectedTools", orderToolIds(state, site_type,
-					(List) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST), false)); // String toolId's
+			        importableTools, false)); // String toolId's
 			context.put("importSites", state.getAttribute(STATE_IMPORT_SITES));
 			context.put("importSitesTools", state
 					.getAttribute(STATE_IMPORT_SITE_TOOL));
@@ -10904,8 +10910,20 @@ public class SiteAction extends PagedResourceActionII {
 		Iterator sitesIter = importSites.iterator();
 		while (sitesIter.hasNext()) {
 			Site site = (Site) sitesIter.next();
-			if (site.getToolForCommonId(WEB_CONTENT_TOOL_ID) != null)
-				displayWebContent = true;
+
+			// web content is a little tricky because worksite setup has the same tool id. you
+			// can differentiate b/c worksite setup has a property with the key "special"
+			Collection iframeTools = new ArrayList<Tool>();
+			iframeTools = site.getTools(new String[] {WEB_CONTENT_TOOL_ID});
+			if (iframeTools != null && iframeTools.size() > 0) {
+			    for (Iterator i = iframeTools.iterator(); i.hasNext();) {
+			       ToolConfiguration tool = (ToolConfiguration) i.next();
+			       if (!tool.getPlacementConfig().containsKey("special")) {
+			           displayWebContent = true;
+			       }
+			    }
+			}
+
 			if (site.getToolForCommonId(NEWS_TOOL_ID) != null)
 				displayNews = true;
 		}
