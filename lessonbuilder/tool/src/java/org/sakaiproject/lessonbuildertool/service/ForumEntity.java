@@ -780,7 +780,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	    }
 	}
 
-	topicCache.put(id, ret);
+	topicCache.put(id, ret, DEFAULT_EXPIRATION);
 	if (ret.size() == 0)
 	    return null;
 	else
