@@ -49,9 +49,12 @@
 					## get tool configuration
 					#set($attributeHashtable=false)
 					#set($attributeHashtable=$!multipleToolConfiguration.get($oldTool))
-					(#foreach ($attribute in $!attributeHashtable.keySet())
-						$attribute = $validator.escapeHtml($!attributeHashtable.get($attribute))
-					#end)
+					#if (!$!attributeHashtable.isEmpty())
+						## show the attributes
+						(#foreach ($attribute in $!attributeHashtable.keySet())
+							$attribute = $validator.escapeHtml($!attributeHashtable.get($attribute))
+						#end)
+					#end
 				#else
 					$!oldToolTitle
 				#end
