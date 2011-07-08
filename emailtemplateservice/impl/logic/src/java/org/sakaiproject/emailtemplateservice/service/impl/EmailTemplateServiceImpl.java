@@ -396,7 +396,13 @@ private List<User> getUsersEmail(List<String> userIds) {
 			}
 
 			//check if we have an existing template of this key and locale
-			EmailTemplate existingTemplate = getEmailTemplate(template.getKey(), new Locale(template.getLocale()));
+			//its possible the template has no locale set
+			Locale loc = null;
+			if (template.getLocale() != null) {
+				loc = new Locale(template.getLocale()); 
+			}
+			
+			EmailTemplate existingTemplate = getEmailTemplate(template.getKey(), loc);
 			if(existingTemplate == null) {
 				//no existing, save this one
 				Session sakaiSession = sessionManager.getCurrentSession();

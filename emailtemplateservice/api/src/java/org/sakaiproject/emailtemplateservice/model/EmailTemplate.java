@@ -47,7 +47,7 @@ public class EmailTemplate implements java.io.Serializable {
 	@Element
 	private String key;
 
-	@Element
+	@Element(required = false)
 	private String locale;
 
 	@Element
@@ -59,7 +59,7 @@ public class EmailTemplate implements java.io.Serializable {
 	@Element
 	private String message;
 
-	@Element
+	@Element(required = false)
 	private String htmlMessage;
 
 	@Element
