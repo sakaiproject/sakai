@@ -61,9 +61,9 @@
     </profiles>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/contrib/rutgers/lessonbuilder/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/rutgers/lessonbuilder/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/contrib/rutgers/lessonbuilder/trunk</url>
+       <connection>scm:svn:https://source.sakaiproject.org/svn/lessonbuilder/trunk</connection>
+       <developerConnection>scm:svn:https://source.sakaiproject.org/svn/lessonbuilder/trunk</developerConnection>
+       <url>https://source.sakaiproject.org/svn/lessonbuilder/trunk</url>
     </scm>
 
     <distributionManagement>
