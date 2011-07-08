@@ -76,6 +76,7 @@
 								<span class="formItem">
 									<form name="$item.Form" action="$base" class="inlineForm" method="post">
 										<input size="15" value="$validator.escapeHtml($item.Value)" name="$item.Title" id="$item.Title" type="text" class="searchField" />
+										<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 									</form>
 								</span>	
 							</li>	
