@@ -56,6 +56,7 @@
 	      <input type="text" id="searchField"  name="search" />
 	    </li>
 	</ul>
+	 	<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	  </form>
 
 	#if (${rightRenderBean.hasContent})
@@ -553,6 +554,7 @@
 	 </div>
 
 
+	 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	    </form>	
 	 </div> <!-- rwiki_content -->
 	#sidebar()

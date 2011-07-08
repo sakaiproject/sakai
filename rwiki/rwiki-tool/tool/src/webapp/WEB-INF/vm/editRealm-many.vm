@@ -13,6 +13,7 @@
 	    ##  $homeBean $viewBean $resourceLoaderBean )
 	    ##            uhl  upl  uvl  vln    uel   uil  uhl  uwl  wn
 	  	 #commandlinks(true false false ${rlb.jsp_view}	false  false false false false	${homeBean} ${viewBean} ${rlb} ) 
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	  </form>
 	 </div>
 		
@@ -117,6 +118,7 @@
                   </td>
                 </tr>
               </table>
+			  <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
           </form>
 	 </div>
  </div>

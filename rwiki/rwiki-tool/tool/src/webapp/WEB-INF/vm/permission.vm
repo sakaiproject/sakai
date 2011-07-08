@@ -11,6 +11,7 @@
 	    ##  $homeBean $viewBean $resourceLoaderBean )
 	    ##            uhl  upl  uvl  vln    uel   uil  uhl  uwl  wn
 	  	 #commandlinks(false false false ${rlb.jsp_view} false  false false false false	${homeBean} ${viewBean} ${rlb} ) 
+	 	<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	  </form>
 	</div>
 			${util.escapeHtml($renderBean.localisedPageName)}
