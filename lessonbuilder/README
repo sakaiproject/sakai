@@ -19,6 +19,49 @@ that this shouldn't conflict with the original tool.)
 It has only been tested on mysql, though I would expect it to work
 with the other databases.
 
+BUILDING
+
+To build, the normal Sakai maven commands will work. However you'll
+probably need to edit pom.xml to change versions. The main pom.xml
+file in this directory is all you should have to change. pom files
+in other directories take their information from this one.
+
+You'll need to change two things;
+
+1) Near the top, in the <parent> declaration, the version
+should match your version of Sakai. Currently it is
+2.9-SNAPHOT. For 2.8 you'd use 2.8.0, 2.8.1, etc.
+
+2) Look for the <profile> declaration. There are two
+profiles. The default is set for 2.9 and later. If you're
+building for 2.7 or 2.8, move the <activation> lines
+
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+from the profile saying <id>default</id> down to the second profile,
+with <id>sakai-2.8</id> So it would read
+
+            <id>sakai-2.8</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+You can also use this sakai-2.8 profile with 2.7.
+
+Then for the profile you're using (either default or 2.8), set the
+appropriate version numbers for the components we use. You can look at
+pom.xml in your "master" directory to see the version numbers for
+entitybroker, assignment, msgcntr, and samigo. Normally assignment,
+msgcntr and samigo will match the version of Sakai, although that
+may not always be true. entitybroker has separate version numbering.
+
+Other than that, the properties can be left as is. In particular,
+don't change the version of RSF. We depend upon a newer version than
+the rest of Sakai.
+
+
 INSTALLATION
 
 The most recent version of Lesson Builder is set up so that it should
