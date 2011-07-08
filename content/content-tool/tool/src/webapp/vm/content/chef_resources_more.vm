@@ -195,6 +195,7 @@
 			<input type="hidden" name="view" value="general" />
 			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("more.cancel")" accesskey="x" />
 		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
 <script type="text/javascript" src="#libraryLink('js/jquery.js')">

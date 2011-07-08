@@ -73,6 +73,7 @@
 			<input type="button" name="cancel" onclick="javascript:document.getElementById('addFolderForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addFolderForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
 			<span class="messageProgress"  id="submitnotif03" style="visibility:hidden">$tlang.getString("processmessage.folders")</span>
 		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
 #parse("/vm/resources/sakai_properties_scripts.vm")

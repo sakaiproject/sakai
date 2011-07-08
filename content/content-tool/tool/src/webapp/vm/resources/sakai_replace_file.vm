@@ -84,6 +84,7 @@
 			<span id="submitnotifxxx"  class="messageProgress"  style="visibility:hidden">$tlang.getString("processmessage.save.file")</span>
 		</p>
 		
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
 <script type="text/javascript" language="JavaScript">

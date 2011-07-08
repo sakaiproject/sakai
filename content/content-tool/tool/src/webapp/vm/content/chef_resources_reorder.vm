@@ -87,6 +87,7 @@
 			<input id="save" value="$tlang.getString("sort.save")" type="button" class="active" onclick="submitThis('reorderForm','save');" /> 
 			<input id="cancel" value="$tlang.getString("sort.cancel")" type="button" onclick="submitThis('reorderForm','cancel');" />																			
 		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>						
 
 </div>

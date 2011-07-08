@@ -779,6 +779,7 @@ $(document).ready(function() {
 		#foreach($key in $listActions.keySet())
 			<input type="hidden" id="${key}-count" value="$counter.getValue("${key}selected")" />
 		#end		
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>						
 </div>
 <script language="JavaScript" type="text/JavaScript">
