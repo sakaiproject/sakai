@@ -914,6 +914,15 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		Assignment assignment = findAssignment(assignmentReference);
 		
 		if (assignment == null) throw new IdUnusedException(assignmentReference);
+		
+		String currentUserId = SessionManager.getCurrentSessionUserId();
+		if (assignment.getAccess() == Assignment.AssignmentAccess.GROUPED)
+        {
+        	Collection asgGroups = assignment.getGroups();
+        	Collection allowedGroups = getGroupsAllowGetAssignment(assignment.getContext(), currentUserId);
+        	// reject and throw PermissionException if there is no intersection
+			if (!isIntersectionGroupRefsToGroups(asgGroups, allowedGroups)) throw new PermissionException(currentUserId, SECURE_ACCESS_ASSIGNMENT, assignmentReference);
+        }
 
 		// track event
 		//EventTrackingService.post(EventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT, assignment.getReference(), false));
