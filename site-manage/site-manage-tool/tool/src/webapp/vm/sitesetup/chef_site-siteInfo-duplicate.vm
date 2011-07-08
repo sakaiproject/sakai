@@ -21,7 +21,7 @@
 					<label for="title">
 						$tlang.getString("sitdup.sitti")
 					</label>
-					<input type="text" name="title" id="title" maxlength="20" size="20" value="" />
+					<input type="text" name="title" id="title" maxlength="$!titleMaxLength" size="20" value="" />
 				</p>
 				#if ($!isCourseSite)
 						<p class="shorttext required">

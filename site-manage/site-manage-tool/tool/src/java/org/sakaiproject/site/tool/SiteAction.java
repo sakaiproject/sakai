@@ -2563,7 +2563,7 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("duplicatedName", state
 						.getAttribute(SITE_DUPLICATED_NAME));
 			}
-
+			context.put("titleMaxLength", state.getAttribute(STATE_SITE_TITLE_MAX));
 			return (String) getContext(data).get("template") + TEMPLATE[29];
 		case 36:
 			/*
