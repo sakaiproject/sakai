@@ -43,6 +43,9 @@ public interface UsageSessionService
 
 	/** Name for the event of logging out. */
 	public static final String EVENT_LOGOUT = "user.logout";
+	
+	/** Name for the CSRF token session attribute */
+	public static final String SAKAI_CSRF_SESSION_ATTRIBUTE = "sakai.csrf.token";
 
 	/**
 	 * Name for the session key to retrieve the UsageSession.

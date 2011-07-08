@@ -21,12 +21,16 @@
 
 package org.sakaiproject.event.impl;
 
+import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Formatter;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -285,6 +289,23 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 			// store
 			if (m_storage.addSession(session))
 			{
+				// set a CSRF token
+				StringBuffer sb = new StringBuffer();
+				sb.append(System.currentTimeMillis());
+				sb.append(session.getId());
+				
+				MessageDigest md;
+				try {
+					md = MessageDigest.getInstance("SHA-256");
+					byte[] digest = md.digest(sb.toString().getBytes("UTF-8"));
+					String hashedSessionId = byteArray2Hex(digest);					
+					s.setAttribute(SAKAI_CSRF_SESSION_ATTRIBUTE, hashedSessionId);
+				} catch (NoSuchAlgorithmException e) {
+					M_log.warn("Failed to create a hashed session id for use as CSRF token because no SHA-256 support", e);
+				} catch (UnsupportedEncodingException e) {
+					M_log.warn("Failed to create a hashed session id for use as CSRF token because could not get UTF-8 bytes of session id", e);
+				}
+				
 				// set as the current session
 				s.setAttribute(USAGE_SESSION_KEY, session);
 
@@ -1021,6 +1042,13 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 		return sessions.size();
 	}
 	
+	private static String byteArray2Hex(byte[] hash) {
+        Formatter formatter = new Formatter();
+        for (byte b : hash) {
+            formatter.format("%02x", b);
+        }
+        return formatter.toString();
+    }
 	
 }
 	

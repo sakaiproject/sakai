@@ -62,6 +62,8 @@ public class UsageSessionService
 	
 	public static java.lang.String EVENT_LOGOUT = org.sakaiproject.event.api.UsageSessionService.EVENT_LOGOUT;
 
+	public static java.lang.String SAKAI_CSRF_SESSION_ATTRIBUTE = org.sakaiproject.event.api.UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE;
+
 	public static java.lang.String USAGE_SESSION_KEY = org.sakaiproject.event.api.UsageSessionService.USAGE_SESSION_KEY;
 
 	public static org.sakaiproject.event.api.UsageSession startSession(java.lang.String param0, java.lang.String param1,
