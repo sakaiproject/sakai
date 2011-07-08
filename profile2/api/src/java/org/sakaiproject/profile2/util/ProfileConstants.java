@@ -236,6 +236,8 @@ public class ProfileConstants {
 	public static final boolean SAKAI_PROP_PROFILE2_GRAVATAR_IMAGE_ENABLED = true; //profile2.gravatar.image.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_WALL_ENABLED = true; //profile2.wall.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_WALL_DEFAULT = false; //profile2.wall.default
+	public static final boolean SAKAI_PROP_PROFILE2_GOOGLE_INTEGRATION_ENABLED = false; //profile2.integration.google.enabled
+
 	
 	/*
 	 * MESSAGING
@@ -413,4 +415,13 @@ public class ProfileConstants {
 	 */
 	
 	public static final String ROSTER_VIEW_PHOTO = "roster.viewofficialphoto";
+	
+	
+	/*
+	 * INTEGRATIONS
+	 */
+	public static final String GOOGLE_REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob";
+	public static final String GOOGLE_DOCS_SCOPE = "https://docs.google.com/feeds/";
+	
+	
 }

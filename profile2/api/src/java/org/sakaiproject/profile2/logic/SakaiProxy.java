@@ -763,4 +763,15 @@ public interface SakaiProxy {
 	 * @return a list of the tool types required for the specified site type
 	 */
 	public List<String> getToolsRequired(String category);
+	
+	/**
+	 * Is the profile2.integration.google.enabled flag set to true in sakai.properties?
+	 * If not set, defaults to false
+	 * 
+	 * <p>Depending on this setting, the UI will allow a user to add their Google account.
+	 * For institutions to use this there additional setup required.</p>
+	 * 
+	 * @return
+	 */
+	public boolean isGoogleIntegrationEnabledGlobally();
 }

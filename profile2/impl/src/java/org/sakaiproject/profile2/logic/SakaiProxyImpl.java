@@ -1399,6 +1399,15 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return serverConfigurationService.getToolsRequired(category);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isGoogleIntegrationEnabledGlobally() {
+		return serverConfigurationService.getBoolean("profile2.integration.google.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_GOOGLE_INTEGRATION_ENABLED);
+	}
+	
+	
+	
 	// PRIVATE METHODS FOR SAKAIPROXY
 	
 	

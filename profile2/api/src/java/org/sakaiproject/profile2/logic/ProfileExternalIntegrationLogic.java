@@ -59,4 +59,10 @@ public interface ProfileExternalIntegrationLogic {
 	 */
 	public void sendMessageToTwitter(final String userUuid, String message);
 	
+	/**
+	 * Generate the authentication URL we need to use to present to the user 
+	 * @return url or null if not properly configured
+	 */
+	public String getGoogleAuthenticationUrl();
+	
 }

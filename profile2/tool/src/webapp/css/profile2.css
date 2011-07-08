@@ -259,6 +259,18 @@ h2 {
 .website-link {
 	background-image: url(/library/image/silk/world_link.png);
 }
+.google {
+	background-image: url(../images/google.png);
+}
+.facebook {
+	background-image: url(../images/facebook.png);
+}
+.linkedin {
+	background-image: url(../images/linkedin.png);
+}
+.myspace {
+	background-image: url(../images/myspace.png);
+}
 
 /* sideLink styles */
 #sideLink ul {
@@ -434,6 +446,11 @@ h2 {
 
 .preferencesContent .label {
 	width: 170px;
+}
+
+.label a {
+	padding-top: 2px;
+	padding-bottom: 2px;
 }
 
 .profileContent .content,
