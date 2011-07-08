@@ -57,6 +57,7 @@
 				<input type="submit" class="active" name="eventSubmit_doScheduleContinue" value="$tlang.getString('gen.continue')"  accesskey="s" />
 				<input type="submit" name="eventSubmit_doCancelImportWizard" value="$tlang.getString('gen.cancel')"  accesskey="x" />
 			</p>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
 	#elseif ($importWizardState == "GENERIC_SELECT_FILE")
 		<form name="Options" action="#toolForm("$action")" method="post" enctype="multipart/form-data">
@@ -66,6 +67,7 @@
 				<input type="submit" name="eventSubmit_doScheduleBack" value="$tlang.getString('gen.back')" accesskey="b" />
 				<input type="submit" name="eventSubmit_doCancelImportWizard" value="$tlang.getString('gen.cancel')" accesskey="x" />
 			</p>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
 	#elseif ($importWizardState == "OTHER_SELECT_FILE" || $importWizardState == "ICAL_SELECT_FILE")
 		<form name="Options" action="#toolForm("$action")" method="post" enctype="multipart/form-data">
@@ -75,6 +77,7 @@
 				<input type="submit" name="eventSubmit_doScheduleBack" value="$tlang.getString('gen.back')"   accesskey="b" />
 				<input type="submit" name="eventSubmit_doCancelImportWizard" value="$tlang.getString('gen.cancel')"   accesskey="x" />
 			</p>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
 	#elseif ($importWizardState == "CONFIRM_IMPORT")
 		<form name="Options" action="#toolForm("$action")" method="post" >
@@ -200,6 +203,7 @@
 					<input type="submit" name="eventSubmit_doScheduleBack" value="$tlang.getString('gen.back')"  accesskey="b" />
 					<input type="submit" name="eventSubmit_doCancelImportWizard" value="$tlang.getString('gen.cancel')"  accesskey="x" />
 			</p>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
 	#end
 </div>

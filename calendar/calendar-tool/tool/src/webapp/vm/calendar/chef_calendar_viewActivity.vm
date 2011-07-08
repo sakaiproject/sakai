@@ -40,6 +40,7 @@
 				#end
 			</div>
 		</div>	
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 	<h3>$validator.escapeHtml($event.getDisplayName())</h3>
 	<table class="itemSummary" cellspacing="0" border="0">
@@ -210,6 +211,7 @@
 						#if ($!allowDelete)
 						<input type="submit" name="eventSubmit_doDelete" value="$tlang.getString('gen.delete')" accesskey="x" />
 						#end
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 					</form>
 				</div>
 				<div class="itemNav" >
@@ -226,6 +228,7 @@
 						#else
 						<input type="submit" name="eventSubmit_doNext_activity" value="$tlang.getString('det.nexact')" disabled="disabled" />
 						#end
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 					</form>	
 				</div>
 

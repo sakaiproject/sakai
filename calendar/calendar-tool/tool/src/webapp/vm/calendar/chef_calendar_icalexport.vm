@@ -60,6 +60,7 @@
 			<input type="submit" accesskey="s" class="active" name="$form-submit" value="$tlang.getString("gen.save")" />
 			<input type="submit" accesskey="x" name="$form-cancel" value="$tlang.getString("gen.cancel")" />
 		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 #else
 	<form action="#toolForm($action)" method="post">

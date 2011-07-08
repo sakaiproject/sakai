@@ -734,6 +734,7 @@ function resizeFrame(){
 			<input type="submit" class="active" name="eventSubmit_doAdd" value="$tlang.getString('new.post')" accesskey="s" />
 			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" accesskey="x" />
 		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
 <script language="JavaScript" type="text/JavaScript">

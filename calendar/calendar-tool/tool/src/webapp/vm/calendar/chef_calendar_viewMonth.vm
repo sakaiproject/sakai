@@ -23,6 +23,7 @@
 						#end
 					#end
 				</select>
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 			</form>
 		</div>
 		<div class="listNav">
@@ -31,6 +32,7 @@
 				 <input type="submit" name="eventSubmit_doPrev" value="$tlang.getString('viewm.lasm')" title ="$tlang.getString('viewm.gotopm')" />
 				<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.today')" title ="$tlang.getString('view.gotoday')"/>
 				 <input type="submit" name="eventSubmit_doNext" value="$tlang.getString('vieww.nexm')" title="$tlang.getString('viewm.gotonm')" />
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 			</form>
 		</div>	
 	</div>

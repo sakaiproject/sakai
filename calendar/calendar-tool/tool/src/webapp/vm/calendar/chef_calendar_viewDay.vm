@@ -22,6 +22,7 @@
 							#end
 						#end
 					</select>
+					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
 			</div>
 			<div class="listNav">
@@ -40,6 +41,7 @@
 					<input type="submit" name="eventSubmit_doPrev" value="$tlang.getString('view.lasday')" title="$tlang.getString('view.gotopd')" />
 					<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.today')" title="$tlang.getString('view.gotoday')" #if ($isToday) disabled="disabled" #end />
 					<input type="submit" name="eventSubmit_doNext" value="$tlang.getString('view.nexday')" title="$tlang.getString('view.goto')" />
+					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
 			</div>
 		</div>	

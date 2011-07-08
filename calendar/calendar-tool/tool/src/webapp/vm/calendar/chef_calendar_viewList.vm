@@ -29,6 +29,7 @@
 							#end
 						#end
 					</select>
+					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
 			</div>	
 			<div class="shorttext">
@@ -43,6 +44,7 @@
 						<option value="SHOW_YEAR" #if ($timeFilterOption == "SHOW_YEAR") selected="selected" #end >$tlang.getString('view.activy')</option>
 						<option value="SHOW_CUSTOM_RANGE" #if ($timeFilterOption == "SHOW_CUSTOM_RANGE") selected="selected" #end >$tlang.getString('view.custom')</option>
 					</select>
+					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
 			</div>	
 			#if ($timeFilterOption == "SHOW_CUSTOM_RANGE")
@@ -56,6 +58,7 @@
 					#chef_dateselectionwidget("customEndYear" "customEndMonth" "customEndDay" $ddStartYear $ddEndYear $customEndYear $customEndMonth $customEndDay $dateFormat "")
 				</div>	
 				<p class="labelindnt">	<input name="eventSubmit_doCustomdate" type="submit" value="$tlang.getString('view.apply')" /></p>
+					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
 
 			#end
@@ -63,6 +66,7 @@
 		<div class="listNav">
 			<form name="todayForm" action="#toolForm("$action")" method="post">
 				<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.gotoday')" />
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 			</form>
 		</div>
 	</div>
@@ -349,6 +353,7 @@
 	#eventLegend($tlang)
 #end
 
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
 

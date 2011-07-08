@@ -24,6 +24,7 @@
 				#if ($freq == "year") <option value="year" selected="selected">$tlang.getString("set.yearly")</option> #else <option value="year">$tlang.getString("set.yearly")</option> #end
 			</select>
 		</p>	
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 	<form name="setFrequencyFormII" id="setFrequencyFormII" action="#toolForm("$action")" method="post">
 		<input type="hidden" name="frequencySelect" value="$freq" />
@@ -121,5 +122,6 @@
 				<input type="submit" class="active" accesskey="s"  name="eventSubmit_doSavefrequency" value="$tlang.getString('gen.save') $tlang.getString('gen.freq')" />
 				<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
 			</p>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
 </div>

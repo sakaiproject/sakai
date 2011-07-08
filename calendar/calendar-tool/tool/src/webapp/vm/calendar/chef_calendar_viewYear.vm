@@ -21,6 +21,7 @@
 						#end
 					#end
 				</select>
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 			</form>
 		</div>
 		<div class="listNav">
@@ -29,6 +30,7 @@
 				<input type="submit" name="eventSubmit_doPrev" value="$tlang.getString('viewy.lasy')" title="$tlang.getString('viewy.gotop')" />
 				<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.today')" title="$tlang.getString('view.gotoday')" />
 				<input type="submit" name="eventSubmit_doNext" value="$tlang.getString('viewy.nexy')" title="$tlang.getString('viewy.goton')" />
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 			 </form>
 		 </div>
 	 </div>	
