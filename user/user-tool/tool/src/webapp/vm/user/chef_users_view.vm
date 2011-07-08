@@ -95,5 +95,6 @@
 				<input type="submit" name="eventSubmit_doModify" value="$tlang.getString("usevie.mod2")"  accesskey="s" />
 			</div>
 #end
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
 	</div>
