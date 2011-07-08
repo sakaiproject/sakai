@@ -109,18 +109,24 @@
 				## show tool configuration
 				#if ($!multipleToolIdTitleMap.containsKey($toolId))
 					#set($properties = $!multipleToolConfiguration.get($toolId))
-					(
-						#foreach ($property in $!properties.keySet())
-							$property : $validator.escapeHtml($properties.get($property))
-						#end
-					)
+					#if (!$properties.isEmpty())
+						##show configurations
+						(	
+							#foreach ($property in $!properties.keySet())
+								$property : $validator.escapeHtml($properties.get($property))
+							#end
+						)
+					#end
 		   #end
 					## get tool configuration
 					#set($attributeHashtable=false)
 					#set($attributeHashtable=$!multipleToolConfiguration.get($newTool))
-					(#foreach ($attribute in $!attributeHashtable.keySet())
-						$validator.escapeHtml($!attributeHashtable.get($attribute))
-					#end)
+					#if (!$!attributeHashtable.isEmpty())
+						## show attributes
+						(#foreach ($attribute in $!attributeHashtable.keySet())
+							$validator.escapeHtml($!attributeHashtable.get($attribute))
+						#end)
+					#end
 			#else
 				$!newToolTitle
 				## exclude Home tool 
