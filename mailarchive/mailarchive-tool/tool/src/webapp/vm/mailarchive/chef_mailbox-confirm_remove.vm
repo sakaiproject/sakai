@@ -22,6 +22,7 @@
 			<input type="submit" accesskey="s" class="active" name="eventSubmit_doRemove_confirmed" value="$tlang.getString("gen.rem")" />
 			<input type="submit" accesskey="x"  name="eventSubmit_doRemove_cancel" value="$tlang.getString("gen.can")" />
 		</div>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
 
