@@ -649,6 +649,7 @@ function handleEnterKeyPress(ev)
 				<div class="messageProgress" style="visibility:hidden;text-align:left">$tlang.getString("gen.proces")</div>
 			</div>
 		</div>	
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
 <!-- end: check_assignments_instructor_grading_submission.vm  -->

@@ -165,6 +165,7 @@
 			<input type="button" name="save" value="$tlang.getString("gen.sav")" onclick="javascript:document.reorderForm.onsubmit();document.getElementById('option').value='reorder';document.reorderForm.submit();return false;" class="active" accesskey="s" />
 			<input type="button" name="cancel" value="$tlang.getString("gen.can")" onclick="javascript:document.reorderForm.onsubmit();document.getElementById('option').value='cancelreorder';document.reorderForm.submit();return false;" accesskey="x" />
 		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>						
 
 </div>

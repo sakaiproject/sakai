@@ -494,6 +494,7 @@ function submitform(id)
 			##just show a simple done button for non-electronic submission type
 			<form name="dummyForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
 				<input type="submit" accesskey="x" name="eventSubmit_doCancel_show_submission" value="$tlang.getString('gen.don')" />
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 			</form>
 		#else
 	<form name="addSubmissionForm" id="addSubmissionForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;" enctype="multipart/form-data">
@@ -1000,6 +1001,7 @@ function submitform(id)
 				/>
 			</p>
 		#end
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 	#end
 </div>

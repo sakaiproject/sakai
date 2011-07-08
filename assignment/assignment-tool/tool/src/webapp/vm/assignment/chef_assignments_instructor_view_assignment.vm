@@ -411,6 +411,7 @@
 				<input type="submit" accesskey="x" name="eventSubmit_doDone_view_assignment" value="$tlang.getString("gen.backtolist")" class="active"  />
 		#end
 		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
 <!-- end: chef_assignments_instructor_view_assignment.vm  -->

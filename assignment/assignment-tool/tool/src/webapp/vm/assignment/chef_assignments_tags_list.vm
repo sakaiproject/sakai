@@ -135,5 +135,6 @@ iframeId = '$iframeId';
 			#end
 		#end
 	#end
+	<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 </form>
 <!-- end: chef_assignments_tags_list.vm  -->
