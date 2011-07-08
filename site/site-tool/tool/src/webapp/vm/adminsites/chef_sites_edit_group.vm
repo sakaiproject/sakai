@@ -85,6 +85,7 @@
 				<input type="submit" name="eventSubmit_doSave_group" value="$tlang.getString("sitedigrp.sav")"  accesskey="s" />
 				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitedigrp.can")"  accesskey="x" />
 			</div>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
 	</div>
 </div>

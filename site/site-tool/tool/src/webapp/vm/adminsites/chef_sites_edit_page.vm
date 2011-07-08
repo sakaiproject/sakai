@@ -113,6 +113,7 @@
 				<input type="submit" class="active" name="eventSubmit_doSave_page" value="$tlang.getString("sitedipag.sav")" accesskey="s"  />
 				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitedipag.can")"  accesskey="x" />
 			</div>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
 	</div>
 

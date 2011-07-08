@@ -255,6 +255,7 @@
 			<input type="submit" class="active"  name="eventSubmit_doSave" value="$tlang.getString("sitedi.sav")" accesskey="s" />
 			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitedi.can")" accesskey="x" />
 		</div>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
 

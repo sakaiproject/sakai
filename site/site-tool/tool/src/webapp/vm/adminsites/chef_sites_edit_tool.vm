@@ -43,6 +43,7 @@
 					</td>
 				</tr>
 			</table>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 	<form name="$form-name" action="#toolForm("$action")" method="post">
 		<h4>
@@ -124,6 +125,7 @@
 					<input type="submit" class="active" name="eventSubmit_doSave_tool" value="$tlang.getString("siteditoo.sav")"  accesskey="s" />
 					<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("siteditoo.can")"  accesskey="x" />
 				</div>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
 

@@ -79,5 +79,6 @@
 				<input type="submit" name="eventSubmit_doSave_props_edit" value="$tlang.getString("sitpag.sav")" />
 				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitpag.can")" />
 			</div>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
