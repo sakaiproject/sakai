@@ -183,5 +183,6 @@
 					accesskey="x"
 					onclick="document.featuresForm.option.value='cancel';javascript:document.featuresForm.submit();" />
 		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>

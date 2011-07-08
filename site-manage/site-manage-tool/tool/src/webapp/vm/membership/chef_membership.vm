@@ -35,6 +35,7 @@
 			<input type="text" size="15" id="search" name="search" value="$validator.escapeHtml($search)" /> 
 			<input type="submit" name="eventSubmit_doSearch" value="$tlang.getString("mb.list.search")" />
 			<input type="submit" name="eventSubmit_doSearch_clear" value="$tlang.getString("mb.list.clear")" />
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 			</form> 
 		</div>
 	</div>	
@@ -59,19 +60,23 @@
 						#if ($goPPButton == "true")
 							<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 								<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("mb.list.pager.first")" />
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 							</form>
 						#else
 							<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 								<input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" />
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 							</form>
 						#end
 						#if ($goPPButton == "true")
 						<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 								<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString("mb.list.pager.prev") $pagesize"  accesskey="p" />
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 							</form>
 						#else
 							<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 								<input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" />
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 							</form>
 						#end
 					#end
@@ -86,24 +91,29 @@
 							<option value="100" #if($pagesize == 100) selected="selected" #end>$tlang.getString("mb.list.pager.show100")</option>
 							<option value="200" #if($pagesize == 200) selected="selected" #end>$tlang.getString("mb.list.pager.show200")</option>
 						</select>
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 					</form>
 					#if ($pagesize != 0)
 						#if ($goNPButton == "true")
 							<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 								<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString("mb.list.pager.next") $pagesize"  accesskey="n" />
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 							</form>
 						#else
 							<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 								<input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" />
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 							</form>
 						#end
 						#if ($goNPButton == "true")
 							<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 								<input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString("mb.list.pager.last")" />
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 							</form>
 						#else
 							<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 								<input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" />
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 							</form>
 	
 						#end
@@ -162,6 +172,7 @@
     		<input type="reset" name="reset" id="reset" value="$tlang.getString('mb.cancel')"  accesskey="x" />
 		</p>
 
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	  </form>
 	#elseif ($search.length() > 0)
 		<p class="instruction">$tlang.getString('mb.list.nosearchsites')${validator.escapeHtml($search)}$tlang.getString('mb.list.nosearchsites2')</p>

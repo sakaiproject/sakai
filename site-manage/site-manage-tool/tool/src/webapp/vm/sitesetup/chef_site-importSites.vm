@@ -74,5 +74,6 @@
 			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />
 			<input type="submit" accesskey="x"  name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
 		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>

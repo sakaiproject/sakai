@@ -89,6 +89,7 @@
 							#end
 						#end
 					</table>
+					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
 			#end
 			<!-- end if section for selected courses -->
@@ -240,5 +241,6 @@
 			<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 		</p>
 
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>

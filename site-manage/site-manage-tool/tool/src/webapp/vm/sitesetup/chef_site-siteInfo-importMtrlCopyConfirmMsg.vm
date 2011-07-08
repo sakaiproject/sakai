@@ -34,5 +34,6 @@
 		</p>
 		
 					
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>

@@ -50,6 +50,7 @@
 		<p class="act">
 			 <input type="submit" class="active"  name="eventSubmit_doSearch" value="$tlang.getString("se.search")" accesskey="s" />
 		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
 
 </div>

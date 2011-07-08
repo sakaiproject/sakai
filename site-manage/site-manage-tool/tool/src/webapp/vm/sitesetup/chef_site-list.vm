@@ -60,6 +60,7 @@
 						> $view </option>
 					#end
 				</select>
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 			</form>
 		</div>
 		<div class="searchNav">
@@ -77,6 +78,7 @@
 							<input type="button" class="button" value="$tlang.getString("list.cls")" />
 						</a>
 					#end
+					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
 			#end
 		</div>
@@ -100,6 +102,7 @@
 					#if ($pagesize != 0)
 						#if ($goPPButton == "true")
 							<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 							<input type="submit" name="eventSubmit_doList_prev" title="$tlang.getString('list.previous') $pagesize $tlang.getString('list.items')" value="&lt;"  accesskey="p" />
 							</form>
 						#else
@@ -114,11 +117,13 @@
 								<option value="$i" #if($pagesize == $i) selected="selected" #end>$tlang.getString("list.show") $i $tlang.getString("list.itemsper")</option>
 							#end
 						</select>
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 					</form>
 					#if ($pagesize != 0)
 						#if ($goNPButton == "true")
 							<form name="nextpageForm" class="inlineForm"  method="post" action="#toolForm("$action")">
 								<input type="submit" name="eventSubmit_doList_next" title="$tlang.getString('list.next') $pagesize $tlang.getString('list.items')" value="&gt;"  accesskey="n" />
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 							</form>
 						#else
 							<input type="submit" disabled="disabled" name="eventSubmit_doList_next" value="&gt;" />
@@ -279,6 +284,7 @@
 			$tlang.getString("list.inthe") $validator.escapeHtml($!viewSelected).
 		</div>	
 	#end
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
 		

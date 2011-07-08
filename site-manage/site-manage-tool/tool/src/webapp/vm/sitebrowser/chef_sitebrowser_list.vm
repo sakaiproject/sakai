@@ -21,6 +21,7 @@
 				#else
 				<form name="$item.Form" action="$base" class="inlineForm" method="post">
 					<input size="15" value="$item.Value" name="$item.Title" id="$item.Title" type="text" class="searchField" />
+					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
 				#end
 			## end of foreach loop
@@ -52,6 +53,7 @@
 					#if ($goPPButton == "true")
 						<form name="nextpageForm" style="display:inline" method="post" action="#toolForm("$action")">
 							<input type="submit" name="eventSubmit_doList_prev" value="&lt;"  title="$tlang.getString("list.previous") $pagesize" accesskey="p" />
+							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 						</form>
 					#else
 						<input type="submit" name="eventSubmit_doList_prev" value="&lt;"  disabled="disabled" />
@@ -69,11 +71,13 @@
 							<option value="100" #if($pagesize == 100) selected="selected" #end>$tlang.getString("list.show5")</option>
 							<option value="200" #if($pagesize == 200) selected="selected" #end>$tlang.getString("list.show6")</option>
 						</select>
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
 				
 				#if ($pagesize != 0)
 					#if ($goNPButton == "true")
 						<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 						<input type="submit" name="eventSubmit_doList_next" value="&gt;"  title="$tlang.getString("list.next") $pagesize" accesskey="n" />
 						</form>
 					#else
@@ -153,6 +157,7 @@
 			 <input type="submit" class="inactive"  name="eventSubmit_doCancel" value="Cancel" />
 			</p>
 		#end
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 #else
 		<p class="instruction">
@@ -161,6 +166,7 @@
 		#if ($helperMode)
 			<p class="act">
 				<form action="#toolForm("$action")" method="post">		
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 			 	<input type="submit" class="inactive"  name="eventSubmit_doCancel" value="Cancel" />
 				</form>
 			</p>

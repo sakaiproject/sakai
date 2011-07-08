@@ -308,5 +308,6 @@ function submitRemoveSection(index){
 		#end
 		<input type="submit" accesskey="x" name="cancel" value="$tlang.getString('sitediinf.can')" onclick="resetOption('cancel')" />
 	</div>
+	<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 </form>
 	</div>

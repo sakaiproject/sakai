@@ -157,6 +157,7 @@
 				accesskey="x"
 				onclick="document.toolForm.option.value='cancel';javascript:document.toolForm.submit();" />
 		</div>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
 <script type="text/javascript" language="JavaScript">

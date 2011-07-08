@@ -9,6 +9,7 @@
                         <input type="submit" accesskey ="s" class="active" name="$doRemove" value="$tlang.getString('gen.remove')" />
                         <input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" />
                 </p>
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
         </form>
 #else
 <p>$tlang.getString('java.selectparent')</p>
@@ -37,6 +38,7 @@
 #end
   <input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" />
 </p>
+<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 </form>
 #end
 </div>

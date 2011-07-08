@@ -27,6 +27,7 @@
 				#else	
 					<input type="button" value="$tlang.getString('list.next') &gt;" title="$tlang.getString('vi.next') $validator.escapeHtml($nextSite.Title)"  class="button" disabled="disabled" />
 				#end
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 			</form>
 		</div>
 	</div>	
@@ -168,6 +169,7 @@
 	#else
 		<input type="button" value="$tlang.getString('list.next') &gt;" title="$tlang.getString('vi.next') $validator.escapeHtml($nextSite.Title)"  class="button" disabled="disabled" />	
 	#end
+	<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 	</div
 		</div>
