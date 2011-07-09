@@ -2,6 +2,16 @@ function msg(s) {
    return document.getElementById(s).innerHTML;
 }
 
+function checksize(oe) {
+    var nsize = oe.height();
+    var bsize = $('body').height();
+    if ((nsize+50) > bsize) {
+	$('body').height(nsize+50);
+	setMainFrameHeight(window.name);
+    }
+}
+
+
 $(function() {
 
 	$('#subpage-dialog').dialog({
@@ -91,6 +101,7 @@ $(function() {
 		$("#subpage-dialog").dialog("option", "position", [position.left, position.top]);
 		$('.hideOnDialog').hide();
 		$('#subpage-dialog').dialog('open');
+		checksize($('#subpage-dialog'));
 		return false;
 	});
 
@@ -105,6 +116,7 @@ $(function() {
 		    $("#page-gradebook").attr("checked", true);
 		}
 		$('#edit-title-dialog').dialog('open');
+		checksize($('#edit-title-dialog'));
 		return false;
 	});
 
@@ -113,6 +125,7 @@ $(function() {
 		$("#import-cc-dialog").dialog("option", "position", [position.left, position.top]);
 		$('.hideOnDialog').hide();
 		$('#import-cc-dialog').dialog('open');
+		checksize($('#import-cc-dialog'));
 		return false;
 	});
 
@@ -141,6 +154,7 @@ $(function() {
 		$("#new-page-dialog").dialog("option", "position", [position.left, position.top]);
 		$('.hideOnDialog').hide();
 		$('#new-page-dialog').dialog('open');
+		checksize($('#new-page-dialog'));
 		return false;
 	});
 
@@ -150,6 +164,7 @@ $(function() {
 		// rsf puts the URL on the non-existent src attribute
 		$('.hideOnDialog').hide();
 		$('#remove-page-dialog').dialog('open');
+		checksize($('#remove-page-dialog'));
 		return false;
 	});
 
@@ -193,6 +208,7 @@ $(function() {
 		$("#youtube-dialog").dialog("option", "position", [position.left, position.top]);
 		$('.hideOnDialog').hide();
 		$('#youtube-dialog').dialog('open');
+		checksize($('#youtube-dialog'));
 		return false;
 	});
 	
@@ -214,6 +230,7 @@ $(function() {
 		$("#movie-dialog").dialog("option", "position", [position.left, position.top]);
 		$('.hideOnDialog').hide();
 		$("#movie-dialog").dialog('open');
+		checksize($("#movie-dialog"));
 		return false;
 	});
 
@@ -232,6 +249,7 @@ $(function() {
 		$(".mm-additional").show();
 		$('.hideOnDialog').hide();
 		$("#add-multimedia-dialog").dialog('open');
+		checksize($("#add-multimedia-dialog"));
 		$('.edit-multimedia-input').blur();
 		$('.mm-additional-instructions').blur();
 		return false;
@@ -240,6 +258,7 @@ $(function() {
 	$("#expert-movie-toggle").click(function(){
 		$("#expert-movie-toggle-div").hide();
 		$("#expert-movie").show();
+		checksize($("#movie-dialog"));
 		return false;
 	});
 
@@ -452,6 +471,7 @@ $(function() {
 		$("#edit-item-dialog").dialog("option", "position", [position.left, position.top]);
 		$('.hideOnDialog').hide();
 		$("#edit-item-dialog").dialog('open');
+		checksize($("#edit-item-dialog"));
 		return false;
 	});
 
@@ -469,6 +489,7 @@ $(function() {
 		$(".mm-additional").show();
 		$('.hideOnDialog').hide();
 		$("#add-multimedia-dialog").dialog('open');
+		checksize($("#add-multimedia-dialog"));
 		$('.edit-multimedia-input').blur();
 		$('.mm-additional-instructions').blur();
 		return false;
@@ -487,6 +508,7 @@ $(function() {
 		$(".mm-additional").show();
 		$('.hideOnDialog').hide();
 		$("#add-multimedia-dialog").dialog('open');
+		checksize($("#add-multimedia-dialog"));
 		$('.edit-multimedia-input').blur();
 		$('.mm-additional-instructions').blur();
 		return false;
@@ -505,6 +527,7 @@ $(function() {
 		$(".mm-additional").hide();
 		$('.hideOnDialog').hide();
 		$("#add-multimedia-dialog").dialog('open');
+		checksize($("#add-multimedia-dialog"));
 		$('.edit-multimedia-input').blur();
 		$('.mm-additional-instructions').blur();
 		return false;
@@ -538,12 +561,14 @@ $(function() {
 		$("#edit-multimedia-dialog").dialog("option", "position", [position.left, position.top]);
 		$('.hideOnDialog').hide();
 		$("#edit-multimedia-dialog").dialog('open');
+		checksize($("#edit-multimedia-dialog"));
 		return false;
 	});
 
 	$("#expert-multimedia-toggle").click(function(){
 		$("#expert-multimedia-toggle-div").hide();
 		$("#expert-multimedia").show();
+		checksize($("#edit-multimedia-dialog"));
 		return false;
 	});
 
@@ -561,6 +586,7 @@ $(function() {
 		$(".mm-additional").show();
 		$('.hideOnDialog').hide();
 		$("#add-multimedia-dialog").dialog('open');
+		checksize($("#add-multimedia-dialog"));
 		$('.edit-multimedia-input').blur();
 		$('.mm-additional-instructions').blur();
 		return false;
