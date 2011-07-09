@@ -9,7 +9,7 @@
         <version>1.4-SNAPSHOT</version>
     </parent>
 
-    <name>basiclti-api</name>
+    <name>BasicLTI API (basiclti-api)</name>
     <groupId>org.sakaiproject.basiclti</groupId>
     <artifactId>basiclti-api</artifactId>
     <organization>

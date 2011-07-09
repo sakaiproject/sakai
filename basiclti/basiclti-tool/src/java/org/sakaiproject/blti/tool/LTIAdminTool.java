@@ -39,6 +39,8 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.component.cover.ComponentManager;
 // import org.sakaiproject.component.cover.ServerConfigurationService;
 
+import org.sakaiproject.lti.api.LTIService;
+
 /**
  * <p>
  * LTIAdminTool is a Simple Velocity-based Tool
@@ -53,6 +55,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 	/** Service Implementations */
 	protected static ToolManager toolManager = null; 
+	protected static LTIService ltiService = null; 
 
 	/**
 	 * Pull in any necessary services using factory pattern
@@ -60,6 +63,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	protected void getServices()
 	{
 		if ( toolManager == null ) toolManager = (ToolManager) ComponentManager.get("org.sakaiproject.tool.api.ToolManager");
+		if ( ltiService == null ) ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
 	}
 
 	/**

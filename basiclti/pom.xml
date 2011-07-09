@@ -193,6 +193,11 @@
         <dependencies>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>basiclti-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>basiclti-impl</artifactId>
                 <version>${project.version}</version>
             </dependency>

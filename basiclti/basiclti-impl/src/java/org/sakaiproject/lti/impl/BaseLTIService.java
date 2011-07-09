@@ -21,12 +21,15 @@
 
 package org.sakaiproject.lti.impl;
 
+import java.util.ArrayList;
+
 import org.sakaiproject.lti.api.LTIService;
 
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -43,7 +46,8 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.w3c.dom.Element;
+
+import org.sakaiproject.util.foorm.SakaiFoorm;
 
 /**
  * <p>
@@ -55,10 +59,9 @@ public abstract class BaseLTIService implements LTIService
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(BaseLTIService.class);
 
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Constructors, Dependencies and their setter methods
-	 *********************************************************************************************************************************************************************************************************************************************************/
+	/** Resource bundle using current language locale */
+	protected static ResourceLoader rb = new ResourceLoader("ltiservice");
+	protected static SakaiFoorm foorm = new SakaiFoorm();
 
 	/** Dependency: SessionManager */
 	protected SessionManager m_sessionManager = null;
@@ -134,6 +137,24 @@ public abstract class BaseLTIService implements LTIService
 		{
 			M_log.warn("init(): ", t);
 		}
+
+		// Check to see if all out properties are defined
+		ArrayList<String> strings = foorm.checkI18NStrings(LTIService.ADMIN_TOOL_MODEL, rb);
+		for ( String str : strings ) {
+			System.out.println(str+"=Missing LTIService Translation");
+		}
+
+		strings = foorm.checkI18NStrings(LTIService.ADMIN_CONTENT_MODEL, rb);
+		for ( String str : strings ) {
+			System.out.println(str+"=Missing LTIService Translation");
+		}
+
+		strings = foorm.checkI18NStrings(LTIService.INSTRUCTOR_TOOL_MODEL, rb);
+		for ( String str : strings ) {
+			System.out.println(str+"=Missing LTIService Translation");
+		}
+
+		
 	}
 
 	/**
