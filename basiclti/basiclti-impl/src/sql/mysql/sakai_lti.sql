@@ -48,3 +48,11 @@ CREATE TABLE `lti_content` (
 	`xmlimport` text(16384),
 	PRIMARY KEY ( `id`, `course_id`, `content_id` )
 );
+
+CREATE TABLE `lti_mapping` (
+	`id` mediumint(10) NOT NULL AUTO_INCREMENT,
+	`matchpattern` varchar(256) NOT NULL,
+	`launchurl` varchar(1000) NOT NULL,
+	PRIMARY KEY ( `id`, `matchpattern` )
+);
+

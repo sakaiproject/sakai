@@ -238,7 +238,6 @@ public class Foorm {
 		String label = info.getProperty("label",info.getProperty("field"));
 		String type = info.getProperty("type", null);
 		String choices = info.getProperty("choices",null);
-System.out.println("CALLING label="+label);
 		if ( loadI18N(label, loader) == null ) strings.add(label);
 		if ( "radio".equals(type) && choices != null ) 
 		{
@@ -246,7 +245,6 @@ System.out.println("CALLING label="+label);
 			for ( String choice : choiceList) 
 			{
 				String newkey = label+"_"+choice;
-System.out.println("CALLING newkey="+newkey);
 				if ( loadI18N(newkey, loader) == null ) strings.add(newkey);
 			}
 		}

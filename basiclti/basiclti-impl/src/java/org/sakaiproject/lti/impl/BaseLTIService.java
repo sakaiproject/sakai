@@ -149,6 +149,11 @@ public abstract class BaseLTIService implements LTIService
 			System.out.println(str+"=Missing LTIService Translation");
 		}
 
+		strings = foorm.checkI18NStrings(LTIService.ADMIN_MAPPING_MODEL, rb);
+		for ( String str : strings ) {
+			System.out.println(str+"=Missing LTIService Translation");
+		}
+
 		strings = foorm.checkI18NStrings(LTIService.INSTRUCTOR_TOOL_MODEL, rb);
 		for ( String str : strings ) {
 			System.out.println(str+"=Missing LTIService Translation");

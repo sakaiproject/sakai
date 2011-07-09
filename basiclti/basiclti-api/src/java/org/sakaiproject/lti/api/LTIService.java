@@ -71,6 +71,7 @@ public interface LTIService
 		"organizationurl:text:label=bl_organizationurl:maxlength=80",
 		"organizationdescr:text:label=bl_organizationdescr:maxlength=80" };
 
+	// This will be further reduced by the getters and the control row
 	public static String [] INSTRUCTOR_TOOL_MODEL = {
 		"title:text:label=bl_title:required=true:maxlength=25",
 		"toolid:id:label=bl_toolid:required=true:maxlength=16",
@@ -102,4 +103,7 @@ public interface LTIService
 		"allowsetting:radio:label=bl_allowsetting:choices=off,on",
 		"customparameters:textarea:label=bl_customparameters:rows=5:cols=25"} ; 
 
+	public static String [] ADMIN_MAPPING_MODEL = {
+		"matchpattern:text:label=bl_matchpattern:required=true:maxlength=80",
+		"launchurl:url:label=bl_launchurl:required=true:maxlength=80"} ;
 }

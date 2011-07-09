@@ -75,13 +75,11 @@ public class DBLTIService extends BaseLTIService
 	 */
 	public void init()
 	{
-System.out.println("ZAP 1");
 		try
 		{
 			// if we are auto-creating our schema, check and create
 			if (m_autoDdl)
 			{
-System.out.println("ZAP 2");
 				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_lti");
 			}
 
