@@ -34,6 +34,7 @@
         <module>basiclti-portlet</module>
         <module>basiclti-blis</module>
         <module>basiclti-util</module>
+        <module>basiclti-tool</module>
         <module>portlet-util</module>
     </modules>
     
@@ -220,6 +221,16 @@
 		<groupId>org.sakaiproject.entitybroker</groupId>
 		<artifactId>entitybroker-utils</artifactId>
             	<version>1.5-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.velocity</groupId>
+                <artifactId>sakai-velocity-tool-api</artifactId>
+                <version>2.9-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.velocity</groupId>
+                <artifactId>sakai-velocity-tool</artifactId>
+                <version>2.9-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.edu-services.gradebook</groupId>

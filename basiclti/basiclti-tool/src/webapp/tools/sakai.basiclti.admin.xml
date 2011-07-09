@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.basiclti.admin"
+			title="External Tool Management"
+			description="This tool manages external tools.">
+
+		<configuration name="reset.button" value="true"/>
+
+		<category name="course" />
+		<category name="project" />
+
+		<!-- Allow this to be set -->
+		<configuration name="functions.require" /> 
+		
+	</tool>
+
+</registration>

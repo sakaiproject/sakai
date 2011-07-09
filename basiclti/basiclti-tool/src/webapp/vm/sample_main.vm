@@ -1,0 +1,11 @@
+<div class="portletBody">
+<ul class="navIntraTool actionToolBar" role="menu">
+<li class="firstToolBarItem" role="menuitem"><span><a href="#" 
+   title="$tlang.getString("gen.options")" 
+   onclick="location = '$sakai_ActionURL.setPanel("Options")';return false;">
+   $tlang.getString("gen.options") </a></span></li>
+</ul>
+<h3>Hello ${framework} World!</h3>
+
+<p>An Internationalised String:  $tlang.getString("sample.prop") </p>
+</div>
