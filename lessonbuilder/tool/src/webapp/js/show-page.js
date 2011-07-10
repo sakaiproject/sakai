@@ -279,6 +279,7 @@ $(function() {
 		$("#assignment-points").hide();
 		$("#assignment-points").hide();
 		$("#grouplist").hide();
+		$("#editgroups").hide();
 		$("#assignment-points").val("");
 		$("#assignment-points-label").hide();
 		$("#change-assignment-p").hide();		
@@ -347,9 +348,12 @@ $(function() {
 			
 			var groups = row.find(".item-groups").text();
 			var grouplist = $("#grouplist");
-			grouplist.show();
-			if (groups != null && grouplist != null) {
-			    checkgroups(grouplist, groups);
+			if (grouplist != null) {
+			    $("#editgroups").show();
+			    $("#grouplist").show();
+			    if (groups != null) {
+				checkgroups(grouplist, groups);
+			    }
 			}
 
 			if(type == 6) {
@@ -490,9 +494,14 @@ $(function() {
 		$('.hideOnDialog').hide();
 		$("#edit-item-dialog").dialog('open');
 		checksize($("#edit-item-dialog"));
+		$("#grouplist").hide();
 		return false;
 	});
 
+	$("#editgroups").click(function(){
+		$("#editgroups").hide();
+		$("#grouplist").show();
+	    });
 	$('#change-resource').click(function(){
 		closeEditItemDialog();
 		$("#mm-item-id").val($("#item-id").val());
