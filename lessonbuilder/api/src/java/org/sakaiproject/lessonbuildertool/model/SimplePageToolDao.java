@@ -121,7 +121,7 @@ public interface SimplePageToolDao {
 
     public SimplePageItem makeItem(long pageId, int sequence, int type, String sakaiId, String name);
 
-    public SimplePageGroup makeGroup(String itemId, String groupId);
+    public SimplePageGroup makeGroup(String itemId, String groupId, String groups);
 
     public SimplePageLogEntry makeLogEntry(String userId, long itemId);
 

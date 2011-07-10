@@ -158,8 +158,12 @@ public class AssignmentEntity implements LessonEntity {
     protected Assignment assignment;
 
     public Assignment getAssignment(String ref) {
+	return getAssignment(ref, false);
+    }
+
+    public Assignment getAssignment(String ref, boolean nocache) {
 	Assignment ret = (Assignment)assignmentCache.get(ref);
-	if (ret != null)
+	if (!nocache && ret != null)
 	    return ret;
 
 	try {
@@ -545,8 +549,10 @@ public class AssignmentEntity implements LessonEntity {
 
     // return the list of groups if the item is only accessible to specific groups
     // null if it's accessible to the whole site.
-    public Collection<String> getGroups() {
-	if (assignment == null)
+    public Collection<String> getGroups(boolean nocache) {
+	if (nocache)
+	    assignment = getAssignment(id, true);
+	else if (assignment == null)
 	    assignment = getAssignment(id);
 	if (assignment == null)
 	    return null;
@@ -555,6 +561,7 @@ public class AssignmentEntity implements LessonEntity {
 	    return null;
 	    
 	Collection<String> groupRefs = assignment.getGroups();
+
 	List<String> groupIds = new ArrayList<String>();
 
 	for (String ref: groupRefs) {

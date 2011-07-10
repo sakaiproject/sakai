@@ -73,6 +73,7 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	private boolean prerequisite; // Whether or not the item is unavailable until all previous
 									// required items are fulfilled.
 	private boolean sameWindow; // Display resource inline rather than new window
+        private String groups;
 
 	public SimplePageItemImpl() {
 
@@ -359,6 +360,12 @@ public class SimplePageItemImpl implements SimplePageItem  {
 		return sameWindow;
 	}
 
+	public String getGroups() {
+	    return groups;
+	}
 
+	public void setGroups(String g) {
+	    groups = g;
+	}
 
 }

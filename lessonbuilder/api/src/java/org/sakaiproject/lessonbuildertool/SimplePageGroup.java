@@ -37,4 +37,8 @@ public interface SimplePageGroup {
 
     public String getGroupId();
 
+    public void setGroups(String groups);
+
+    public String getGroups();
+
 }

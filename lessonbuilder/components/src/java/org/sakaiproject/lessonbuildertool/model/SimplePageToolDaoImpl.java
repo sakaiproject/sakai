@@ -414,8 +414,8 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	return new SimplePageItemImpl(pageId, sequence, type, sakaiId, name);
     }
 
-    public SimplePageGroup makeGroup(String itemId, String groupId) {
-	return new SimplePageGroupImpl(itemId, groupId);
+    public SimplePageGroup makeGroup(String itemId, String groupId, String groups) {
+	return new SimplePageGroupImpl(itemId, groupId, groups);
     }
 
     public SimplePageLogEntry makeLogEntry(String userId, long itemId) {

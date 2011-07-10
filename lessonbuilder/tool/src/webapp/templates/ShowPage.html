@@ -122,7 +122,7 @@ setMainFrameHeight(window.name);
 				<tr rsf:id="item:" id="item" role="row">
 					<td rsf:id="edit-td" role="gridcell" class="edit-col"><div><a href="#" class="usebutton edit-link" onclick="return false" rsf:id="edit-link"></a></div></td>
 					<td rsf:id="item-td" role="gridcell"><div style="float:left"><img class="status-image" rsf:id="status" height="18" width="18" style="margin-right:3px" /></div>
-					  <div style="margin-left:30px"><div rsf:id="link-div" class="link-div"><a class="itemlink" href="#" rsf:id="link" style="width:36px"><span rsf:id="link-note" class="offscreen"></span><span rsf:id="link-text" class="link-text"></span></a><span rsf:id="link-button-span" class="navIntraTool" style="background-color:transparent;border:none"><a href="#" class="itemlink" rsf:id="link-button"><span rsf:id="link-button-note" class="offscreen"></span><span rsf:id="link-button-text" class="link-text"></span></a></span></div><div class="rowdescription" rsf:id="description"></div></div>
+					  <div style="margin-left:30px"><div rsf:id="link-div" class="link-div"><a class="itemlink" href="#" rsf:id="link" style="width:36px"><span rsf:id="link-note" class="offscreen"></span><span rsf:id="link-text" class="link-text"></span></a><span rsf:id="link-button-span" class="navIntraTool" style="background-color:transparent;border:none"><a href="#" class="itemlink" rsf:id="link-button"><span rsf:id="link-button-note" class="offscreen"></span><span rsf:id="link-button-text" class="link-text"></span></a></span><span rsf:id="item-group-titles" class="item-group-titles"></span></div><div class="rowdescription" rsf:id="description"></div></div>
 					  <div style="display:none">
 					    <span rsf:id="current-item-id2" class="current-item-id2"></span>
 					    <span rsf:id="prerequisite-info" class="prerequisite-info"></span>
@@ -133,6 +133,7 @@ setMainFrameHeight(window.name);
 					    <span rsf:id="edit-url" class="edit-url"></span>
 					    <span rsf:id="edit-settings-url" class="edit-settings-url"></span>
 					    <span rsf:id="item-samewindow" class="item-samewindow"></span>
+					    <span rsf:id="item-groups" class="item-groups"></span>
 					  </div>
 					</td>
 					<td rsf:id="edittext-td" role="gridcell" class="edit-col"><div><a href="#" class="usebutton itemLink" rsf:id="edit-link"></a></div></td>
@@ -359,8 +360,16 @@ s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 						</select>
 						<input id="assignment-points" rsf:id="assignment-points" size="4"/>
 						<label for="assignment-points" id="assignment-points-label"> points on the assignment</label>
+						
+						<div id="grouplist" rsf:id="grouplist">
+						  <span rsf:id="group-list-span"/>
+						  <p rsf:id="msg=simplepage.select-group"></p>
+						  <div rsf:id="select-group-list:">
+						    <input type="checkbox" rsf:id="select-group" /><span rsf:id="select-group-text"></span>
+						  </div>
+						</div>
 					</div>
-					
+
 					<div class="border2">
 						<div style="margin-top:5px; margin-bottom:5px;">
 							<b style="margin-left:50px;"><span rsf:id="msg=simplepage.delete"></span>:</b>

@@ -11,6 +11,16 @@ function checksize(oe) {
     }
 }
 
+function checkgroups(elt, groups) {
+    var groupar = groups.split(",");
+    elt.find('input').removeAttr('checked');
+    for (i = 0; i < groupar.length; i++) {
+	var inp = elt.find('input[value="' + groupar[i] + '"]');
+	if (inp != null)
+	    inp.attr('checked', 'checked');
+    }
+}
+    
 
 $(function() {
 
@@ -268,6 +278,7 @@ $(function() {
 		$("#assignment-dropdown-selection").hide();
 		$("#assignment-points").hide();
 		$("#assignment-points").hide();
+		$("#grouplist").hide();
 		$("#assignment-points").val("");
 		$("#assignment-points-label").hide();
 		$("#change-assignment-p").hide();		
@@ -332,8 +343,15 @@ $(function() {
 			$("#change-page").attr("href").replace("itemId=-1", "itemId=" + itemid));
 
 		} else if(type != '') {
-			// Must be an assignment or assessment
+			// Must be an assignment, assessment, forum
 			
+			var groups = row.find(".item-groups").text();
+			var grouplist = $("#grouplist");
+			grouplist.show();
+			if (groups != null && grouplist != null) {
+			    checkgroups(grouplist, groups);
+			}
+
 			if(type == 6) {
 				$("#change-quiz-p").show();
 				$("#change-quiz").attr("href", 

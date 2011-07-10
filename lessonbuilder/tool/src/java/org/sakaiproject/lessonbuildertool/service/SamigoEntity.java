@@ -207,10 +207,14 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
     protected PublishedAssessmentData assessment;
 
     public PublishedAssessmentData getPublishedAssessment(Long publishedId) {
+	return getPublishedAssessment(publishedId, false);
+    }
+
+    public PublishedAssessmentData getPublishedAssessment(Long publishedId, boolean nocache) {
 	
 	PublishedAssessmentData ret = (PublishedAssessmentData)assessmentCache.get(publishedId);
 
-	if (ret != null) {
+	if (!nocache && ret != null) {
 	    return ret;
 	}
 
@@ -265,22 +269,22 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	    ret.add(entity);
 
 	    if (false) {  // testing
-		System.out.println(entity.getGroups());
-		List<String> oldGroups = entity.getGroups();
+		System.out.println(entity.getGroups(true));
+		List<String> oldGroups = entity.getGroups(true);
 		//5c51c1fb-bf48-475f-99a6-a303f5ad9520
 		//d579a252-204e-46cd-9720-7eca7bd47630
 		entity.setGroups(null);
-		System.out.println("null " + entity.getGroups());
+		System.out.println("null " + entity.getGroups(true));
 		entity.setGroups(null);
-		System.out.println("null " + entity.getGroups());
+		System.out.println("null " + entity.getGroups(true));
 		entity.setGroups(Arrays.asList("5c51c1fb-bf48-475f-99a6-a303f5ad9520"));
-		System.out.println("5c51 " + entity.getGroups());
+		System.out.println("5c51 " + entity.getGroups(true));
 		entity.setGroups(Arrays.asList("5c51c1fb-bf48-475f-99a6-a303f5ad9520","d579a252-204e-46cd-9720-7eca7bd47630"));
-		System.out.println("5c51,d579 " + entity.getGroups());
+		System.out.println("5c51,d579 " + entity.getGroups(true));
 		entity.setGroups(null);
-		System.out.println("null " + entity.getGroups());
+		System.out.println("null " + entity.getGroups(true));
 		entity.setGroups(oldGroups);
-		System.out.println(oldGroups + " " + entity.getGroups());
+		System.out.println(oldGroups + " " + entity.getGroups(true));
 	    }
 
 	}
@@ -566,8 +570,10 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
     // null if it's accessible to the whole site.  Update the data in the cache
     // use the comments field, since there's no place to put a list and we don't use
     // that field
-    public List<String> getGroups() {
-	if (assessment == null)
+    public List<String> getGroups(boolean nocache) {
+	if (nocache)
+	    assessment = getPublishedAssessment(id, true);
+	else if (assessment == null)
 	    assessment = getPublishedAssessment(id);
 	if (assessment == null)
 	    return null;

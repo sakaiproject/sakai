@@ -28,12 +28,14 @@ public class SimplePageGroupImpl implements SimplePageGroup {
 	private long id;
 	private String itemId;
 	private String groupId;
+	private String groups;
 
 	public SimplePageGroupImpl() {}
 
-	public SimplePageGroupImpl(String itemId, String groupId) {
+	public SimplePageGroupImpl(String itemId, String groupId, String groups) {
 		this.itemId = itemId;
 		this.groupId = groupId;
+		this.groups = groups;
 	}
 
 	public void setId(long id) {
@@ -59,4 +61,14 @@ public class SimplePageGroupImpl implements SimplePageGroup {
 	public String getGroupId() {
 		return groupId;
 	}
+
+	public void setGroups(String groups) {
+		this.groups = groups;
+	}
+
+	public String getGroups() {
+		return groups;
+	}
+
+
 }

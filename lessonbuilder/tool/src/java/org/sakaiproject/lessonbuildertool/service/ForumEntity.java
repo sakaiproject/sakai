@@ -741,10 +741,10 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 
     // return the list of groups if the item is only accessible to specific groups
     // null if it's accessible to the whole site.
-    public List<String> getGroups() {
+    public List<String> getGroups(boolean nocache) {
 
 	List<String>ret = (List<String>)topicCache.get(id);
-	if (ret != null) {
+	if (!nocache && ret != null) {
 	    if (ret.size() == 0)
 		return null;
 	    else 

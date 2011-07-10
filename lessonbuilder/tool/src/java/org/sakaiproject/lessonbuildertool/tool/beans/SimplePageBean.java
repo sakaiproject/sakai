@@ -27,9 +27,11 @@ package org.sakaiproject.lessonbuildertool.tool.beans;
 import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Collection;
 import java.util.AbstractList;
 import java.util.Map;
 import java.util.HashMap;
@@ -81,6 +83,7 @@ import org.sakaiproject.lessonbuildertool.tool.view.FilePickerViewParameters;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.service.GroupPermissionsService;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -153,9 +156,11 @@ public class SimplePageBean {
 	private String subpageTitle = null;
 	private boolean subpageNext = false;
 	private boolean subpageButton = false;
-    private List<Long> currentPath = null;
+        private List<Long> currentPath = null;
 	private Set<Long>allowedPages = null;    
 	private Site currentSite = null; // cache, can be null; used by getCurrentSite
+        private List<GroupEntry> currentGroups = null;
+        private Set<String> myGroups = null;
 
 	private boolean filterHtml = ServerConfigurationService.getBoolean(FILTERHTML, false);
 
@@ -165,6 +170,7 @@ public class SimplePageBean {
     // coming from the picker. We'll use the same variable for any entity type
 	public String selectedEntity = null;
 	public String[] selectedEntities = new String[] {};
+	public String[] selectedGroups = new String[] {};
 
 	public String selectedQuiz = null;
 
@@ -173,6 +179,7 @@ public class SimplePageBean {
 	private Long currentPageItemId = null;
 	private String currentUserId = null;
 	private long previousPageId = -1;
+        private Boolean okToEditPage = null;
 
     // Item-specific variables. These are set by setters which are called
     // by the various edit dialogs. So they're basically inputs to the
@@ -242,6 +249,7 @@ public class SimplePageBean {
 	private Map<Long, List<SimplePageItem>> itemsCache = new HashMap<Long, List<SimplePageItem>> ();
 	private Map<Long, SimplePageLogEntry> logCache = new HashMap<Long, SimplePageLogEntry>();
         private Map<Long, Boolean> completeCache = new HashMap<Long, Boolean>();
+        private Map<Long, Boolean> visibleCache = new HashMap<Long, Boolean>();
 
 	public static class PathEntry {
 		public Long pageId;
@@ -256,6 +264,11 @@ public class SimplePageBean {
 			this.Url = Url;
 			this.label = label;
 	    }
+	}
+
+	public static class GroupEntry {
+	    public String name;
+	    public String id;
 	}
 
     // Image types
@@ -785,8 +798,11 @@ public class SimplePageBean {
 	 * @return
 	 */
 	public boolean canEditPage() {
+		if (okToEditPage != null)
+		    return (boolean)okToEditPage;
 		String ref = "/site/" + toolManager.getCurrentPlacement().getContext();
-		return securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref);
+		okToEditPage = securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref);
+		return (boolean)okToEditPage;
 	}
 
 	public boolean canReadPage() {
@@ -848,7 +864,7 @@ public class SimplePageBean {
 		// if access controlled, clear it before deleting item
 		if (i.isPrerequisite()) {
 		    i.setPrerequisite(false);
-		    checkControlGroup(i);
+		    checkControlGroup(i, false);
 		}
 		b = simplePageToolDao.deleteItem(i);
 
@@ -977,6 +993,10 @@ public class SimplePageBean {
 
 	    // see if there's an actual next we can go to, otherwise calling page
 	    SimplePageItem nextItem = simplePageToolDao.findNextItemOnPage(item.getPageId(), item.getSequence());
+	    // skip items which won't show becauser user isn't in the group
+	    while (nextItem != null && !isItemVisible(nextItem)) {
+		nextItem = simplePageToolDao.findNextItemOnPage(nextItem.getPageId(), nextItem.getSequence());		
+	    }
 	    boolean available = false;
 	    if (nextItem != null) {
 
@@ -1561,7 +1581,7 @@ public class SimplePageBean {
 			// if access controlled, clear it before deleting item
 			if (item.isPrerequisite()) {
 			    item.setPrerequisite(false);
-			    checkControlGroup(item);
+			    checkControlGroup(item, false);
 			}
 			simplePageToolDao.deleteItem(item);
 		    }
@@ -1661,8 +1681,10 @@ public class SimplePageBean {
 					update(page);
 				}
 			} else {
-				checkControlGroup(i);
+				checkControlGroup(i, i.isPrerequisite());
 			}
+
+			setItemGroups(i, selectedGroups);
 
 			return "successEdit"; // Shouldn't reload page
 		}
@@ -1672,7 +1694,8 @@ public class SimplePageBean {
     // This code should depend only upon isPrerequisite() in the item object, not the database,
     // because we call it when deleting or updating items, before saving them to the database.
     // The caller will update the item in the database, typically after this call
-	private void checkControlGroup(SimplePageItem i) {
+    //    correct is correct value, i.e whether it hsould be there or not
+	private void checkControlGroup(SimplePageItem i, boolean correct) {
 	    	if (i.getType() != SimplePageItem.ASSESSMENT && 
 		    i.getType() != SimplePageItem.ASSIGNMENT && 
 		    i.getType() != SimplePageItem.FORUM) {
@@ -1685,22 +1708,57 @@ public class SimplePageBean {
 		    return;
 
 		SimplePageGroup group = simplePageToolDao.findGroup(i.getSakaiId());
+		String ourGroupName = null;
 		try {
-			if (i.isPrerequisite()) {
+		    // correct is the correct setting, i.e. if there is supposed to be
+		    // a group or not. We only change if reality disagrees with it.
+			if (correct) {
 				if (group == null) {
-				        String groupId = GroupPermissionsService.makeGroup(getCurrentPage().getSiteId(), "Access: " + getNameOfSakaiItem(i));
-					saveItem(simplePageToolDao.makeGroup(i.getSakaiId(), groupId));
-					GroupPermissionsService.addControl(i.getSakaiId(), getCurrentPage().getSiteId(), groupId, i.getType());
-				} else {
-					GroupPermissionsService.addControl(i.getSakaiId(), getCurrentPage().getSiteId(), group.getGroupId(), i.getType());
+					// create our a new access control group, and save the current tool group list with it.
+					LessonEntity lessonEntity = null;
+					switch (i.getType()) {
+					case SimplePageItem.ASSIGNMENT:
+					    lessonEntity = assignmentEntity.getEntity(i.getSakaiId()); break;
+					case SimplePageItem.ASSESSMENT:
+					    lessonEntity = quizEntity.getEntity(i.getSakaiId()); break;
+					case SimplePageItem.FORUM:
+					    lessonEntity = forumEntity.getEntity(i.getSakaiId()); break;
+					}
+					if (lessonEntity != null) {
+					    String groups = getItemGroupString (i, lessonEntity, true);
+					    ourGroupName = "Access: " + getNameOfSakaiItem(i);
+					    String groupId = GroupPermissionsService.makeGroup(getCurrentPage().getSiteId(), ourGroupName);
+					    saveItem(simplePageToolDao.makeGroup(i.getSakaiId(), groupId, groups));
+
+					    // update the tool access control to point to our access control group
+					    
+					    String[] newGroups = {groupId};
+					    lessonEntity.setGroups(Arrays.asList(newGroups));
+					}
 				}
 			} else {
-				// if no group ID, nothing to do
-				if (group != null)
-					GroupPermissionsService.removeControl(i.getSakaiId(), getCurrentPage().getSiteId(), group.getGroupId(), i.getType());
+			    if (group != null) {
+				// shouldn't be under control. Delete our access control and put the 
+				// groups back into the tool's list
+
+				LessonEntity lessonEntity = null;
+				switch (i.getType()) {
+				case SimplePageItem.ASSIGNMENT:
+				    lessonEntity = assignmentEntity.getEntity(i.getSakaiId()); break;
+				case SimplePageItem.ASSESSMENT:
+				    lessonEntity = quizEntity.getEntity(i.getSakaiId()); break;
+				case SimplePageItem.FORUM:
+				    lessonEntity = forumEntity.getEntity(i.getSakaiId()); break;
+				}
+				if (lessonEntity != null) {
+				    String groups = group.getGroups();
+				    lessonEntity.setGroups(Arrays.asList(groups.split(",")));
+				    simplePageToolDao.deleteItem(group);
+				}
+			    }
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+		    ex.printStackTrace();
 		}
 	}
 
@@ -1776,12 +1834,12 @@ public class SimplePageBean {
 				    // if access controlled, clear restriction from old assignment and add to new
 				    if (i.isPrerequisite()) {
 					i.setPrerequisite(false);
-					checkControlGroup(i);
+					checkControlGroup(i, false);
 					// sakaiid and name are used in setting control
 					i.setSakaiId(selectedEntity);
 					i.setName(selectedObject.getTitle());
 					i.setPrerequisite(true);
-						checkControlGroup(i);
+					checkControlGroup(i, true);
 				    } else {
 					i.setSakaiId(selectedEntity);
 					i.setName(selectedObject.getTitle());
@@ -1837,12 +1895,12 @@ public class SimplePageBean {
 				    // if access controlled, clear restriction from old assignment and add to new
 				    if (i.isPrerequisite()) {
 					i.setPrerequisite(false);
-					checkControlGroup(i);
+					checkControlGroup(i, false);
 					// sakaiid and name are used in setting control
 					i.setSakaiId(selectedAssignment);
 					i.setName(selectedObject.getTitle());
 					i.setPrerequisite(true);
-					checkControlGroup(i);
+					checkControlGroup(i, true);
 				    } else {
 					i.setSakaiId(selectedAssignment);
 					i.setName(selectedObject.getTitle());
@@ -1866,6 +1924,189 @@ public class SimplePageBean {
 			}
 		}
 	}
+
+    /// ShowPageProducers needs the item ID list anyway. So to avoid calling the underlying
+    // code twice, we take that list and translate to titles, rather than calling
+    // getItemGroups again
+	public String getItemGroupTitles(String itemGroups) {
+	    if (itemGroups == null || itemGroups.equals(""))
+		return null;
+
+	    List<String> groupNames = new ArrayList<String>();
+	    Site site = getCurrentSite();
+	    String[] groupIds = itemGroups.split(",");
+	    for (int i = 0; i < groupIds.length; i++) {
+		Group group=site.getGroup(groupIds[i]);
+		if (group != null)
+		    groupNames.add(group.getTitle());
+	    }
+	    Collections.sort(groupNames);
+	    String ret = "";
+	    for (String name: groupNames) {
+		if (ret.equals(""))
+		    ret = name;
+		else
+		    ret = ret + "," + name;
+	    }
+
+	    return ret;
+	}
+
+        public String getItemGroupString (SimplePageItem i, LessonEntity entity, boolean nocache) {
+	    String ret = "";
+	    Collection<String> groups = getItemGroups (i, entity, nocache);
+	    if (groups == null)
+		return "";
+	    for (String g: groups) {
+		ret = ret + "," + g;
+	    }
+	    return ret.substring(1);
+	}
+
+    //  return GroupEntrys for all groups associated with item
+    // need group entries so we can display labels to user
+    // entity is optional. pass it if you have it, to avoid requiring
+    // us to get it a second time
+	public Collection<String>getItemGroups (SimplePageItem i, LessonEntity entity, boolean nocache) {
+
+	    List<String> ret = new ArrayList<String>();
+
+	   if (i.getType() != SimplePageItem.ASSESSMENT &&
+	       i.getType() != SimplePageItem.ASSIGNMENT &&
+	       i.getType() != SimplePageItem.FORUM)
+	       return ret;
+
+	   if (entity == null) {
+	       switch (i.getType()) {
+	       case SimplePageItem.ASSIGNMENT:
+		   entity = assignmentEntity.getEntity(i.getSakaiId()); break;
+	       case SimplePageItem.ASSESSMENT:
+		   entity = quizEntity.getEntity(i.getSakaiId()); break;
+	       case SimplePageItem.FORUM:
+		   entity = forumEntity.getEntity(i.getSakaiId()); break;
+	       }
+	   }
+
+	   // in principle the groups are stored in a SimplePageGroup if we
+	   // are doing access control, and in the tool if not. We can
+	   // check that with i.isPrerequisite. However I'm concerned
+	   // that if multiple items point to the same object, and some
+	   // are set with prerequisite and some are not, that things
+	   // could get out of kilter. So I'm going to use the
+	   // SimplePageGroup if it exists, and the tool if not.
+
+	   SimplePageGroup simplePageGroup = simplePageToolDao.findGroup(i.getSakaiId());
+	   if (simplePageGroup != null) {
+	       String groups = simplePageGroup.getGroups();
+	       if (groups != null)
+		   return Arrays.asList(groups.split(","));
+	       else 
+		   return ret;
+	   }
+		    
+	   // not under our control, use list from tool
+
+	   return entity.getGroups(nocache);
+
+       }
+
+    // set group list in tool. We'll have an array of group ids
+    // returns old list, sorted, or null if entity not found.
+    // WARNING: you must check whether isprerequisite. If so, we maintain
+    // the group list, so you need to do i.setGroups().
+       public List<String> setItemGroups (SimplePageItem i, String[] groups) {
+	   LessonEntity lessonEntity = null;
+	   switch (i.getType()) {
+	   case SimplePageItem.ASSIGNMENT:
+	       lessonEntity = assignmentEntity.getEntity(i.getSakaiId()); break;
+	   case SimplePageItem.ASSESSMENT:
+	       lessonEntity = quizEntity.getEntity(i.getSakaiId()); break;
+	   case SimplePageItem.FORUM:
+	       lessonEntity = forumEntity.getEntity(i.getSakaiId()); break;
+	   }
+	   if (lessonEntity != null) {
+	       // need a list to sort it.
+	       Collection oldGroupCollection = getItemGroups(i, lessonEntity, true);
+	       List<String>oldGroups = null;
+	       if (oldGroupCollection == null)
+		   oldGroups = new ArrayList<String>();
+	       else
+		   oldGroups = new ArrayList<String>(oldGroupCollection);
+
+	       Collections.sort(oldGroups);
+	       List<String>newGroups = Arrays.asList(groups);
+	       Collections.sort(newGroups);
+	       boolean difference = false;
+	       if (oldGroups.size() == newGroups.size()) {
+		   for (int n = 0; n < oldGroups.size(); n++)
+		       if (!oldGroups.get(n).equals(newGroups.get(n))) {
+			   difference = true;
+			   break;
+		       }
+	       } else
+		   difference = true;
+
+	       if (difference) {
+		   if (i.isPrerequisite()) {
+		       String groupString = "";
+		       for (String groupId: newGroups) {
+			   if (groupString.equals(""))
+			       groupString = groupId;
+			   else
+			       groupString = groupString + "," + groupId;
+		       }
+
+		       SimplePageGroup simplePageGroup = simplePageToolDao.findGroup(i.getSakaiId());
+		       simplePageGroup.setGroups(groupString);
+		       update(simplePageGroup);
+		   } else
+		       lessonEntity.setGroups(Arrays.asList(groups));
+	       }
+	       return oldGroups;
+	   }
+	   return null;
+       }
+
+       public Set<String> getMyGroups() {
+	   if (myGroups != null)
+	       return myGroups;
+	   String userId = getCurrentUserId();
+	   Collection<Group> groups = getCurrentSite().getGroupsWithMember(userId);
+	   Set<String>ret = new HashSet<String>();
+	   if (groups == null)
+	       return ret;
+	   for (Group group: groups)
+	       ret.add(group.getId());
+	   myGroups = ret;
+	   return ret;
+       }
+
+    // sort the list, since it will typically be presented
+    // to the user
+       public List<GroupEntry> getCurrentGroups() {
+	   if (currentGroups != null)
+	       return currentGroups;
+
+	   Site site = getCurrentSite();
+	   Collection<Group> groups = site.getGroups();
+	   List<GroupEntry> groupEntries = new ArrayList<GroupEntry>();
+	   for (Group g: groups) {
+	       GroupEntry e = new GroupEntry();
+	       e.name = g.getTitle();
+	       e.id = g.getId();
+	       groupEntries.add(e);
+	   }
+
+	   Collections.sort(groupEntries,new Comparator() {
+		   public int compare(Object o1, Object o2) {
+		       GroupEntry e1 = (GroupEntry)o1;
+		       GroupEntry e2 = (GroupEntry)o2;
+		       return e1.name.compareTo(e2.name);
+		   }
+	       });
+	   currentGroups = groupEntries;
+	   return groupEntries;
+       }
 
     // called by add quiz dialog. Create a new item that points to a quiz
     // or update an existing item, depending upon whether itemid is set
@@ -1896,12 +2137,12 @@ public class SimplePageBean {
 				    // if access controlled, clear restriction from old quiz and add to new
 				    if (i.isPrerequisite()) {
 					i.setPrerequisite(false);
-					checkControlGroup(i);
+					checkControlGroup(i, false);
 					// sakaiid and name are used in setting control
 					i.setSakaiId(selectedQuiz);
 					i.setName(selectedObject.getTitle());
 					i.setPrerequisite(true);
-					checkControlGroup(i);
+					checkControlGroup(i, true);
 				    } else {
 					i.setSakaiId(selectedQuiz);
 					i.setName(selectedObject.getTitle());
@@ -2423,6 +2664,33 @@ public class SimplePageBean {
 		return (getLogEntry(itemId) != null);
 	}
 
+    // if the item has a group requirement, are we in one of the groups.
+    // this is called a lot and is fairly expensive, so results are cached
+	public boolean isItemVisible(SimplePageItem item) {
+		if (canEditPage())
+		    return true;
+        	Boolean ret = visibleCache.get(item.getId());
+		if (ret != null)
+		    return (boolean)ret;
+		getMyGroups();
+		Collection<String>itemGroups = getItemGroups(item, null, false);
+		if (itemGroups == null || itemGroups.size() == 0) {
+		    // this includes items for which for which visibility doesn't apply
+		    visibleCache.put(item.getId(), true);
+		    return true;
+		}
+
+		for (String group: itemGroups) {
+		    if (myGroups.contains(group)) {
+			visibleCache.put(item.getId(), true);
+			return true;
+		    }
+		}
+
+		visibleCache.put(item.getId(), false);
+		return false;
+	}
+		
     // this is called in a loop to see whether items are avaiable. Since computing it can require
     // database transactions, we cache the results
 	public boolean isItemComplete(SimplePageItem item) {
@@ -2697,7 +2965,7 @@ public class SimplePageBean {
 			for (SimplePageItem i : items) {
 				if (i.getSequence() >= item.getSequence()) {
 				    break;
-				} else if (i.isRequired()) {
+				} else if (i.isRequired() && isItemVisible(i)) {
 				    if (!isItemComplete(i))
 					return false;
 				}
@@ -2713,7 +2981,7 @@ public class SimplePageBean {
 	    for (SimplePageItem i : items) {
 		if (i.getSequence() >= item.getSequence()) {
 		    break;
-		} else if (i.isRequired()) {
+		} else if (i.isRequired() && isItemVisible(i)) {
 		    if (!isItemComplete(i))
 			return false;
 		}
@@ -2812,6 +3080,7 @@ public class SimplePageBean {
 	 *            Is it allowed to delete the row in the table for the group and recurse to try
 	 *            again. true for normal calls; false if called inside this code to avoid infinite loop
 	 */
+    // only called if the item should be under control
 	private void checkItemPermissions(SimplePageItem item, boolean shouldHaveAccess, boolean canRecurse) {
 	        if (SimplePageItem.DUMMY.equals(item.getSakaiId()))
 		    return;
@@ -2837,25 +3106,11 @@ public class SimplePageBean {
 		SimplePageGroup group = simplePageToolDao.findGroup(item.getSakaiId());
 		if (group == null) {
 			// For some reason, the group doesn't exist. Let's re-add it.
-			String groupId;
-			try {
-				groupId = GroupPermissionsService.makeGroup(getCurrentPage().getSiteId(), "Access: " + getNameOfSakaiItem(item));
-				saveItem(simplePageToolDao.makeGroup(item.getSakaiId(), groupId));
-				GroupPermissionsService.addControl(item.getSakaiId(), getCurrentPage().getSiteId(), groupId, item.getType());
-			} catch (IOException e) {
-				// If this fails, there's no way for us to check the permissions
-				// in the group. This shouldn't happen.
-
-				e.printStackTrace();
-				return;
-			}
-
-			group = simplePageToolDao.findGroup(item.getSakaiId());
-			if (group == null) {
-				// Something really weird is up.
-				log.warn("checkItemPermissions Can't create a group for " + item.getName() + " permissions.");
-				return;
-			}
+		    checkControlGroup(item, true);
+		    group = simplePageToolDao.findGroup(item.getSakaiId());
+		    if (group == null) {
+			return;
+		    }
 		}
 
 		boolean success = true;
@@ -2895,12 +3150,8 @@ public class SimplePageBean {
 			// OK, group doesn't exist. When we recreate it, it's going to have a 
 			// different groupId, so we have to back out of everything and reset it
 
-			try {
-				GroupPermissionsService.removeControl(item.getSakaiId(), getCurrentPage().getSiteId(), groupId, item.getType());
-			} catch (IOException e) {
-				// Shoudln't happen, but we'll continue anyway
-				e.printStackTrace();
-			}
+			checkControlGroup(item, false);
+
 			simplePageToolDao.deleteItem(group);
 
 			// We've undone it; call ourselves again, since the code at the

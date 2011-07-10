@@ -19,6 +19,6 @@
 
 	<property name="itemId" type="string" not-null="true" />
 	<property name="groupId" type="string" not-null="true" />
-	
+	<property name="groups" type="string" length = "500" />
    </class>
 </hibernate-mapping>

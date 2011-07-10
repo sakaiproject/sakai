@@ -69,6 +69,7 @@ import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.Status;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.GroupEntry;
 import org.sakaiproject.lessonbuildertool.tool.view.FilePickerViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.producers.PermissionsHelperProducer;
@@ -579,6 +580,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		for (SimplePageItem i : itemList) {
 
+			if (! simplePageBean.isItemVisible(i))
+			   continue;
+
 		    // listitem is mostly historical. it uses some shared HTML, but if I were
 		    // doing it from scratch I wouldn't make this distinction. At the moment it's
 		    // everything that isn't inline.
@@ -661,6 +665,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					// it contains information needed to populate the "edit" popup dialog
 					UIOutput.make(tableRow, "prerequisite-info", String.valueOf(i.isPrerequisite()));
 
+					String itemGroupString = null;
+
 					if (i.getType() == SimplePageItem.ASSIGNMENT) {
 					    // the type indicates whether scoring is letter grade, number, etc.
 					    // the javascript needs this to present the right choices to the user
@@ -671,11 +677,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						LessonEntity assignment = null;
 						if (!i.getSakaiId().equals(SimplePageItem.DUMMY)) {
 						    assignment = assignmentEntity.getEntity(i.getSakaiId());
-						    if (assignment != null)
+						    if (assignment != null) {
 							type = assignment.getTypeOfGrade();
-						    String editUrl = assignment.editItemUrl(simplePageBean);
-						    if (editUrl != null)
-							UIOutput.make(tableRow, "edit-url", editUrl);
+							String editUrl = assignment.editItemUrl(simplePageBean);
+							if (editUrl != null)
+							    UIOutput.make(tableRow, "edit-url", editUrl);
+							itemGroupString = simplePageBean.getItemGroupString(i, assignment, true);
+							UIOutput.make(tableRow, "item-groups", itemGroupString );
+						    }
 						}
 
 						UIOutput.make(tableRow, "type", String.valueOf(type));
@@ -696,6 +705,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    editUrl = quiz.editItemSettingsUrl(simplePageBean);
 						    if (editUrl != null)
 							UIOutput.make(tableRow, "edit-settings-url", editUrl);
+						    itemGroupString = simplePageBean.getItemGroupString(i, quiz, true);
+						    UIOutput.make(tableRow, "item-groups", itemGroupString );
 
 						}
 					} else if (i.getType() == SimplePageItem.FORUM) {
@@ -706,6 +717,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    String editUrl = forum.editItemUrl(simplePageBean);
 						    if (editUrl != null)
 							UIOutput.make(tableRow, "edit-url", editUrl);
+						    itemGroupString = simplePageBean.getItemGroupString(i, forum, true);
+						    UIOutput.make(tableRow, "item-groups", itemGroupString );
 						}
 					} else if (i.getType() == SimplePageItem.PAGE) {
 						UIOutput.make(tableRow, "type", "page"); 
@@ -714,7 +727,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					} else if (i.getType() == SimplePageItem.RESOURCE) {
 					    UIOutput.make(tableRow, "item-samewindow", Boolean.toString(i.isSameWindow()));
 					}
-
+					if (itemGroupString != null) {
+					    itemGroupString = simplePageBean.getItemGroupTitles(itemGroupString);
+					    if (itemGroupString != null)
+						UIOutput.make(tableRow, "item-group-titles", " [" + itemGroupString + "]");
+					}
 				}
 
 		// the following are for the inline item types. Multimedia is the most complex because
@@ -1493,8 +1510,43 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UICommand.make(form, "edit-item", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.editItem}");
 
+		createGroupList(form);
+
 		UICommand.make(form, "delete-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
 		UICommand.make(form, "edit-item-cancel", messageLocator.getMessage("simplepage.cancel"), null);
+	}
+
+        private void createGroupList(UIContainer tofill) {
+	    List<GroupEntry> groups = simplePageBean.getCurrentGroups();
+	    ArrayList<String> values = new ArrayList<String>();
+	    ArrayList<String> initValues = new ArrayList<String>();
+
+	    if (groups == null || groups.size() == 0)
+		return;
+
+	    for (GroupEntry entry: groups) {
+		if (entry.name.startsWith("Access: "))  // entries we use for access control
+		    continue;
+		values.add(entry.id);
+		initValues.add("");
+	    }
+
+	    // this could happen if the only groups are Access groups
+	    if (values.size() == 0)
+		return;
+
+	    UIOutput.make(tofill, "grouplist");
+	    UISelect select = UISelect.makeMultiple(tofill, "group-list-span", values.toArray(new String[1]), "#{simplePageBean.selectedGroups}" , initValues.toArray(new String[1]));
+	    int index = 0;
+	    for(GroupEntry entry: groups) {
+		if (entry.name.startsWith("Access: "))  // entries we use for access control
+		    continue;
+		UIBranchContainer row = UIBranchContainer.make(tofill, "select-group-list:");
+		UISelectChoice.make(row, "select-group", select.getFullID(), index);
+		UIOutput.make(row, "select-group-text", entry.name);
+		index++;
+	    }
+
 	}
 
     // for both add multimedia and add resource, as well as updating resources in the edit dialogs

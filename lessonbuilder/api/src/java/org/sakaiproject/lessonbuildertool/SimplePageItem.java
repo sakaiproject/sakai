@@ -133,4 +133,8 @@ public interface SimplePageItem {
 
     public String getItemURL();
 
+    public void setGroups(String groups);
+
+    public String getGroups();
+
 }
