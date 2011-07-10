@@ -56,7 +56,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	
 	/** Resource bundle using current language locale */
 	protected static ResourceLoader rb = new ResourceLoader("sample");
-
+	
+	private static String STATE_POST = "lti:state_post";
+	
 	/** Service Implementations */
 	protected static ToolManager toolManager = null; 
 	protected static LTIService ltiService = null; 
@@ -109,6 +111,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	{
 		context.put("tlang", rb);
 		// TOTO: Retrieve tools here
+		state.removeAttribute(STATE_POST);
 		return "lti_main";
 	}
 
@@ -118,8 +121,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("tlang", rb);
                 context.put("doToolInsert", BUTTON + "doToolInsert");
 		String [] mappingForm = LTIService.ADMIN_TOOL_MODEL;
-		String formInput = foorm.formInput(null, mappingForm, getLTILoader());
+		Properties previousPost = (Properties) state.getAttribute(STATE_POST);
+		String formInput = foorm.formInput(previousPost, mappingForm, getLTILoader());
 		context.put("formInput",formInput);
+		state.removeAttribute(STATE_POST);
 		return "lti_tool_insert";
 	}
 
@@ -133,6 +138,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String errors = ltiService.insertTool(reqProps);
 		if ( errors != null ) 
 		{
+		    state.setAttribute(STATE_POST,reqProps);
 			addAlert(state, errors);
 			return;
 		}
@@ -155,7 +161,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("tlang", rb);
                 context.put("doMappingInsert", BUTTON + "doMappingInsert");
 		String [] mappingForm = LTIService.ADMIN_MAPPING_MODEL;
-		String formInput = foorm.formInput(null, mappingForm, getLTILoader());
+		Properties previousPost = (Properties) state.getAttribute(STATE_POST);
+		String formInput = foorm.formInput(previousPost, mappingForm, getLTILoader());
 		context.put("formInput",formInput);
 		return "lti_mapping_insert";
 	}
@@ -173,6 +180,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String errors = ltiService.insertMapping(reqProps);
 		if ( errors != null ) 
 		{
+   		    state.setAttribute(STATE_POST,reqProps);
 			addAlert(state, errors);
 			return;
 		}

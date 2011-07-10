@@ -153,15 +153,20 @@ public class Foorm {
 	return sb.toString();
     }
 
-    public String formInputRadio(Integer value, String field, String label,
+    public String formInputRadio(Object value, String field, String label,
 		boolean required, String [] choices, Object loader)
     {
 	StringBuffer sb = new StringBuffer();
 	formInputStart(sb, field, "radio", label, required, loader);
 	sb.append("<br clear=\"all\"/>\n");
 	int val = 0;
-	if ( value != null ) val = value.intValue();
-
+	if ( value != null && value instanceof Integer ) val = ((Integer) value).intValue();
+	if ( value != null && value instanceof String ) {
+		Integer ival = new Integer((String) value);
+                val = ival.intValue();
+	}
+	if ( val < 0 ) val = 0;
+	if ( choices == null || val >= choices.length ) val = 0;
 	int i = 0;
 	for ( String choice : choices ) {
 		String checked = "";
@@ -192,10 +197,11 @@ public class Foorm {
 	return formInputText(value,field,label,required,size,loader);
     }
 
-    public String formInputInteger(Integer value,String field,String label,
+    public String formInputInteger(Object value,String field,String label,
 		boolean required,String size, Object loader)
     {
 	if ( value == null ) value = new Integer(0);
+	if ( value instanceof String ) return formInputText((String) value,field,label,required,size,loader);
 	return formInputText(value.toString(),field,label,required,size,loader);
     }
 
@@ -213,7 +219,7 @@ public class Foorm {
 	String cols = info.getProperty("cols","25");
 	String rows = info.getProperty("rows","2");
 
-	if ( "integer".equals(type) ) return formInputInteger((Integer) value,field,label,required,size,loader);
+        if ( "integer".equals(type)) return formInputInteger(value,field,label,required,size,loader);
 	if ( "text".equals(type) ) return formInputText((String) value,field,label,required,size,loader);
 	if ( "url".equals(type) ) return formInputURL((String) value,field,label,required,size,loader);
 	if ( "id".equals(type) ) return formInputId((String) value,field,label,required,size,loader);
@@ -224,7 +230,7 @@ public class Foorm {
 		if ( choices == null ) return "\n<!-- Foorm.formInput() requires choices=on,off,part -->\n";
 		String [] choiceList = choices.split(",");
 		if ( choiceList.length < 1 ) return "\n<!-- Foorm.formInput() requires choices=on,off,part -->\n";
-		return formInputRadio((Integer) value, field, label, required, choiceList, loader);
+		return formInputRadio(value, field, label, required, choiceList, loader);
 	}
         return "\n<!-- Foorm.formInput() unrecognized type " + type + " field="+field+" -->\n";
     }
