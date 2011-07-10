@@ -23,7 +23,9 @@ package org.sakaiproject.lti.impl;
 
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Arrays;
+import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -97,21 +99,39 @@ public class DBLTIService extends BaseLTIService implements LTIService
 	}
 
 	/** insertMapping */
-	public boolean insertMapping(Map<String, Object> newMapping)
+	public String insertMapping(Properties newProps)
 	{
 		// TODO: Only admins can do this
-		String error = foorm.formInsert(newMapping, LTIService.ADMIN_MAPPING_MODEL, rb);
-		if ( error != null ) {
-			M_log.warn(this+" "+error);
-			return false;
-		}
+		HashMap<String, Object> newMapping = new HashMap<String,Object> ();
+
+		// CHeck for user data errors
+		String errors = foorm.formExtract(newProps, LTIService.ADMIN_TOOL_MODEL, rb, newMapping);
+                if ( errors != null ) return errors;
+
+		// Run the SQL
 		String sql = "INSERT INTO lti_mapping "+foorm.insertForm(newMapping);
 System.out.println("sql="+sql);
 		Object [] fields = foorm.getObjects(newMapping);
 System.out.println("objects="+Arrays.toString(fields));
 		m_sql.dbWrite(sql, fields);
 System.out.println("AFTERWARDS");
-		return true;
+		return null;
+	}
+
+	/** insertTool */
+	public String insertTool(Properties newProps)
+	{
+		// TODO: Only admins can do this
+		HashMap<String, Object> newMapping = new HashMap<String,Object> ();
+		String errors = foorm.formExtract(newProps, LTIService.ADMIN_TOOL_MODEL, rb, newMapping);
+                if ( errors != null ) return errors;
+		String sql = "INSERT INTO lti_tools "+foorm.insertForm(newMapping);
+System.out.println("sql="+sql);
+		Object [] fields = foorm.getObjects(newMapping);
+System.out.println("objects="+Arrays.toString(fields));
+		m_sql.dbWrite(sql, fields);
+System.out.println("AFTERWARDS");
+		return null;
 	}
 
 }

@@ -23,10 +23,13 @@ package org.sakaiproject.lti.api;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.util.ResourceLoader;
+// TODO: Should work with kernel-util moved to shared
+// import org.sakaiproject.util.ResourceLoader;
+
 
 /**
  * <p>
@@ -48,10 +51,15 @@ public interface LTIService
 	public Map<String, Object> getMappings(String search, int first, int last) ;
 
 	/** insertMapping */
-	boolean insertMapping(Map<String, Object> newMapping);
+	String insertMapping(Properties newProps);
 
-	/** getResourceLoader */
+	/** insertTool */
+	String insertTool(Properties newProps);
+
+	// TODO: Should work if kernel-util moves to shared
+	/** getResourceLoader 
 	public ResourceLoader getResourceLoader();
+	*/
 
 	/** Model Descriptions for Foorm 
 	 * You should probably retrieve these through getters in case there is some

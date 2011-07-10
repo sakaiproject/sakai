@@ -77,6 +77,16 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		} 
 	}
 
+	// HACK
+	protected ResourceLoader getLTILoader()
+	{
+		if ( ltiService instanceof org.sakaiproject.lti.impl.DBLTIService)
+		{
+			return ((org.sakaiproject.lti.impl.DBLTIService) ltiService).getResourceLoader();
+		}
+		return null;
+	}
+
 	/**
 	 * Populate the state with configuration settings
 	 */
@@ -102,19 +112,31 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		return "lti_main";
 	}
 
-	/**
-	 * Setup the velocity context and choose the template for options.
-	 */
-
 	public String buildToolInsertPanelContext(VelocityPortlet portlet, Context context, 
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
-                context.put("doSave", BUTTON + "doToolInsert");
+                context.put("doToolInsert", BUTTON + "doToolInsert");
 		String [] mappingForm = LTIService.ADMIN_TOOL_MODEL;
-		String formInput = foorm.formInput(null, mappingForm, ltiService.getResourceLoader());
+		String formInput = foorm.formInput(null, mappingForm, getLTILoader());
 		context.put("formInput",formInput);
 		return "lti_tool_insert";
+	}
+
+	public void doToolInsert(RunData data, Context context)
+	{
+		String peid = ((JetspeedRunData) data).getJs_peid();
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
+
+		// String setting = data.getParameters().getString("setting");
+		Properties reqProps = data.getParameters().getProperties();
+		String errors = ltiService.insertTool(reqProps);
+		if ( errors != null ) 
+		{
+			addAlert(state, errors);
+			return;
+		}
+		switchPanel(state, "Main");
 	}
 
 	/**
@@ -133,14 +155,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("tlang", rb);
                 context.put("doMappingInsert", BUTTON + "doMappingInsert");
 		String [] mappingForm = LTIService.ADMIN_MAPPING_MODEL;
-		String formInput = foorm.formInput(null, mappingForm, ltiService.getResourceLoader());
+		String formInput = foorm.formInput(null, mappingForm, getLTILoader());
 		context.put("formInput",formInput);
 		return "lti_mapping_insert";
 	}
 
-
 	/**
-	 * Save Options
+	 * Save Mapping
 	 */
 	public void doMappingInsert(RunData data, Context context)
 	{
@@ -148,28 +169,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 
 		// String setting = data.getParameters().getString("setting");
-		String [] mappingForm = LTIService.ADMIN_MAPPING_MODEL;
 		Properties reqProps = data.getParameters().getProperties();
-		HashMap<String, Object> reqMap = new HashMap<String,Object> ();
-		String errors = foorm.formExtract(reqProps, mappingForm, 
-			ltiService.getResourceLoader(), reqMap);
+		String errors = ltiService.insertMapping(reqProps);
 		if ( errors != null ) 
 		{
 			addAlert(state, errors);
-			return;
-		}
-
-		errors = foorm.formInsert(reqMap, mappingForm, ltiService.getResourceLoader());
-		System.out.println("E2="+errors);
-
-		try 
-		{ 
-			boolean rv = ltiService.insertMapping(reqMap);
-System.out.println("YO rv="+rv);
-		}
-		catch(Exception e) 
-		{
-			addAlert(state,e.getMessage());
 			return;
 		}
 		switchPanel(state, "Mapping");

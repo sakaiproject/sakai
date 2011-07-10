@@ -388,7 +388,7 @@ public class Foorm {
 		if ( field == null || type == null ) continue;
 		String label = info.getProperty("label",field);
 		String dataField = parms.getProperty(field);
-		System.out.println("field="+field+" data="+dataField);
+		// System.out.println("field="+field+" data="+dataField);
 
 		if ( "true".equals(info.getProperty("required")) && ( dataField == null || dataField.length() < 1 ) )
 		{
@@ -446,54 +446,6 @@ public class Foorm {
 	}
 	if ( sb.length() < 1 ) return null;
 	return sb.toString();
-    }
-
-    // This is pretty picky, it validates
-    // (a) All required parameters are present
-    // (b) All parameters are the right type
-    // (c) There are no extraneous parameters
-    // If this returns null, you can safely form an INSERT or Update statement
-    public String formInsert(Map<String, Object> dataMap, String [] formDefinition, Object loader)
-    {
-	ArrayList<String> l = new ArrayList<String>();
-
-	// CHeck to see if al lthe required fields are present
-	// and of the proper type.
-	for ( String formInput : formDefinition ) 
-	{
-		Properties info =  parseFormString(formInput);
-		String field = info.getProperty("field", null);
-		String type = info.getProperty("type", null);
-		if ( field == null || type == null ) return null;
-		l.add(field);
-		Object dataField = dataMap.get(field);
-		System.out.println("field="+field+" data="+dataField);
-
-		if ( "true".equals(info.getProperty("required")) && dataField == null ) {
-			return getI18N("foorm.missing.field", "Required Field: ", loader)+field;
-		}
-		if ( "integer".equals(type) || "radio".equals(type) ) {
-			if ( ! (dataField instanceof Integer) ) 
-			{
- 				return getI18N("foorm.integer.field", "Field should be an integer: ", loader)+field;
-			}
-		}
-		if ( "id".equals(type) || "url".equals(type) || "text".equals(type) || "textarea".equals(type) ) {
-			if ( ! (dataField instanceof String) ) 
-			{
- 				return getI18N("foorm.string.field", "Field should be a string: ", loader)+field;
-			}
-		}
-	}
-
-	// Make sure there are no extra fields in the Map
-        for ( String key : dataMap.keySet() ) {
-		if ( ! l.contains(key) ) {
-			return getI18N("foorm.extra.field", "Extra field not allowed: ", loader)+key;
-		}
-	}
-	return null;
-
     }
 
     public String insertForm(Map<String, Object> dataMap)
