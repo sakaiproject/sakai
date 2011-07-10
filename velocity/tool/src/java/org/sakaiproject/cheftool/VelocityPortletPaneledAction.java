@@ -91,6 +91,8 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	protected static final String STATE_OBSERVER = "obsever";
 
 	protected static final String STATE_ACTION = "action";
+
+	protected static final String STATE_NEW_PANEL = "state:new_panel";
 	
 	/** The name of the context variable containing the identifier for the site's root content collection */
 	protected static final String CONTEXT_SITE_COLLECTION_ID = "vppa_site_collection_id";
@@ -273,6 +275,20 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	} // addAlert
 
 	/**
+	 * Switch to a new panel
+	 * 
+	 * @param state
+	 *        The session state.
+	 * @param newPanel
+	 *        The new panel name
+	 */
+	public static void switchPanel(SessionState state, String newPanel)
+	{
+		state.setAttribute(STATE_NEW_PANEL, newPanel);
+
+	} // addAlert
+
+	/**
 	 * Initialize for the first time the session state for this session. If overridden in a sub-class, make sure to call super.
 	 * 
 	 * @param state
@@ -383,7 +399,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 				panel = LAYOUT_MAIN;
 			} else {
 				// sanitize value
-	            panel = panel.replaceAll("[\r\n]","");
+				panel = panel.replaceAll("[\r\n]","");
 			}
 
 			context.put("panel", panel);
@@ -598,11 +614,16 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 			String url = Web.returnUrl(req, null);
 			
 			String panel = ((ParameterParser) req.getAttribute(ATTR_PARAMS)).getString(ActionURL.PARAM_PANEL);
+			String newPanel = (String) getState(req).getAttribute(STATE_NEW_PANEL);
+			getState(req).removeAttribute(STATE_NEW_PANEL);
+
+			if ( newPanel != null ) panel = newPanel;
+
 			if (panel == null || panel.equals("") || panel.equals("null")) {
 				panel = MAIN_PANEL;
 			} else {
 				// sanitize value
-	            panel = panel.replaceAll("[\r\n]","");
+				panel = panel.replaceAll("[\r\n]","");
 			}
 			String redirect = url + "?" + ActionURL.PARAM_PANEL + "=" + panel;
 

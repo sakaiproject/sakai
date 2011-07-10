@@ -23,6 +23,7 @@ package org.sakaiproject.util;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -43,6 +44,23 @@ public class ParameterParser
 	public ParameterParser(HttpServletRequest req)
 	{
 		m_req = req;
+	}
+
+	/**
+	 * Access the parameter names.
+	 * 
+	 * @return An Iterator of parameter names (String).
+	 */
+	public Properties getProperties()
+	{
+		Properties retval = new Properties();
+		Iterator<String> names = getNames();
+		while (names.hasNext())
+		{
+			String name = names.next();
+			retval.setProperty(name,getString(name));
+		}
+		return retval;
 	}
 
 	/**
