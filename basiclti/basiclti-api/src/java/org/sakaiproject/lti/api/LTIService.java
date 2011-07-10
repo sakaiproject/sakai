@@ -22,9 +22,11 @@
 package org.sakaiproject.lti.api;
 
 import java.util.List;
+import java.util.Map;
 
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * <p>
@@ -37,13 +39,19 @@ import org.sakaiproject.user.api.User;
 public interface LTIService
 {
 	/** This string starts the references to resources in this service. */
-	static final String REFERENCE_ROOT = "/basiclti";
+	static final String REFERENCE_ROOT = "/lti";
 
-	/** Name for the event of establishing presence at a location. */
-	static final String EVENT_PRESENCE = "pres.begin";
+	/** getMappingModel */
+	public String [] getMappingModel() ;
 
-	/** Name for the event of ending presence at a location. */
-	static final String EVENT_ABSENCE = "pres.end";
+	/** getMappings */
+	public Map<String, Object> getMappings(String search, int first, int last) ;
+
+	/** insertMapping */
+	boolean insertMapping(Map<String, Object> newMapping);
+
+	/** getResourceLoader */
+	public ResourceLoader getResourceLoader();
 
 	/** Model Descriptions for Foorm 
 	 * You should probably retrieve these through getters in case there is some

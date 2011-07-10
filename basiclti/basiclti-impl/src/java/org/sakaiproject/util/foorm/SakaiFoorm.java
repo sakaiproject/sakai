@@ -26,7 +26,9 @@ public class SakaiFoorm extends Foorm {
     {
 	if ( loader == null ) return null;
         if ( loader instanceof ResourceLoader) { 
-		return ((ResourceLoader) loader).getString(str,null);
+		String retval = ((ResourceLoader) loader).getString(str,null);
+		return retval;
+		// return ((ResourceLoader) loader).getString(str,null);
 	}
 	return super.loadI18N(str, loader);
     }

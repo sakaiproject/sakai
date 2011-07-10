@@ -22,6 +22,7 @@
 package org.sakaiproject.blti.tool;
 
 import java.util.Properties;
+import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,6 +41,9 @@ import org.sakaiproject.component.cover.ComponentManager;
 // import org.sakaiproject.component.cover.ServerConfigurationService;
 
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.lti.impl.DBLTIService; // HACK
+
+import org.sakaiproject.util.foorm.SakaiFoorm;
 
 /**
  * <p>
@@ -57,13 +61,20 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	protected static ToolManager toolManager = null; 
 	protected static LTIService ltiService = null; 
 
+	protected static SakaiFoorm foorm = new SakaiFoorm();
+
 	/**
 	 * Pull in any necessary services using factory pattern
 	 */
 	protected void getServices()
 	{
 		if ( toolManager == null ) toolManager = (ToolManager) ComponentManager.get("org.sakaiproject.tool.api.ToolManager");
-		if ( ltiService == null ) ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
+		// HACK if ( ltiService == null ) ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
+		/* HACK to save many restarts during development */ 
+		if ( ltiService == null ) { 
+			ltiService = (LTIService) new DBLTIService(); 
+			((org.sakaiproject.lti.impl.DBLTIService) ltiService).init(); 
+		} 
 	}
 
 	/**
@@ -75,12 +86,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		getServices();
 
-		Placement placement = toolManager.getCurrentPlacement();
-		Properties config = placement.getConfig();
-
-		// Get  value from tool registration in /src/webapp/tools/sakai.velocity.sample.xml
-		String configValue = config.getProperty("key", "not found");
-		System.out.println("initState config key="+configValue);
+		// Not currently needed
+		// Placement placement = toolManager.getCurrentPlacement();
+		// Properties config = placement.getConfig();
 	}
 	
 	/**
@@ -89,50 +97,82 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context, 
 		RunData rundata, SessionState state)
 	{
-		// set the resource bundle with our strings
 		context.put("tlang", rb);
-		context.put("framework", "Velocity");
-		return "sample_main";
+		// TOTO: Retrieve tools here
+		return "lti_main";
 	}
 
 	/**
 	 * Setup the velocity context and choose the template for options.
 	 */
-	public String buildOptionsPanelContext(VelocityPortlet portlet, Context context, 
+
+	public String buildToolInsertPanelContext(VelocityPortlet portlet, Context context, 
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
-                context.put("doSave", BUTTON + "doSave");
-		
-		// Put the old value for setting from the placement
-		Placement placement = toolManager.getCurrentPlacement();
-		context.put("setting", placement.getPlacementConfig().getProperty("setting"));
-
-		return "sample_options";
+                context.put("doSave", BUTTON + "doToolInsert");
+		String [] mappingForm = LTIService.ADMIN_TOOL_MODEL;
+		String formInput = foorm.formInput(null, mappingForm, ltiService.getResourceLoader());
+		context.put("formInput",formInput);
+		return "lti_tool_insert";
 	}
+
+	/**
+	 * Setup the velocity context and choose the template for options.
+	 */
+	public String buildMappingPanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
+		context.put("tlang", rb);
+		return "lti_mapping";
+	}
+
+	public String buildMappingInsertPanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
+		context.put("tlang", rb);
+                context.put("doMappingInsert", BUTTON + "doMappingInsert");
+		String [] mappingForm = LTIService.ADMIN_MAPPING_MODEL;
+		String formInput = foorm.formInput(null, mappingForm, ltiService.getResourceLoader());
+		context.put("formInput",formInput);
+		return "lti_mapping_insert";
+	}
+
 
 	/**
 	 * Save Options
 	 */
-	public void doSave(RunData data, Context context)
+	public void doMappingInsert(RunData data, Context context)
 	{
 		String peid = ((JetspeedRunData) data).getJs_peid();
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 
-		String setting = data.getParameters().getString("setting");
-
-		// Lets store our setting in the tool placement - a great place
-		// to stash little things that are per placement (i.e. not per user)
-		try
+		// String setting = data.getParameters().getString("setting");
+		String [] mappingForm = LTIService.ADMIN_MAPPING_MODEL;
+		Properties reqProps = data.getParameters().getProperties();
+		HashMap<String, Object> reqMap = new HashMap<String,Object> ();
+		String errors = foorm.formExtract(reqProps, mappingForm, 
+			ltiService.getResourceLoader(), reqMap);
+		if ( errors != null ) 
 		{
-			Placement placement = toolManager.getCurrentPlacement();
-			placement.getPlacementConfig().setProperty("setting", setting);
-			placement.save();
-			addAlert(state,rb.getString("gen.success"));
-		} catch(Exception e) {
-			addAlert(state,rb.getString("gen.faulire"));
+			addAlert(state, errors);
+			return;
 		}
 
+		errors = foorm.formInsert(reqMap, mappingForm, ltiService.getResourceLoader());
+		System.out.println("E2="+errors);
+
+		try 
+		{ 
+			boolean rv = ltiService.insertMapping(reqMap);
+System.out.println("YO rv="+rv);
+		}
+		catch(Exception e) 
+		{
+			addAlert(state,e.getMessage());
+			return;
+		}
+		switchPanel(state, "Mapping");
 	}
 
 }

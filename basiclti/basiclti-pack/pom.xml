@@ -31,6 +31,11 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>basiclti-impl</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-util</artifactId>
+            <scope>import</scope>
+        </dependency>
     </dependencies>
     
     <build>

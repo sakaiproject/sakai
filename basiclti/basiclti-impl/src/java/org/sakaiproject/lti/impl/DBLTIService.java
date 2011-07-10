@@ -22,24 +22,28 @@
 package org.sakaiproject.lti.impl;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Arrays;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.component.cover.ComponentManager;
 
 /**
  * <p>
  * DBLTIService extends the BaseLTIService.
  * </p>
  */
-public class DBLTIService extends BaseLTIService
+public class DBLTIService extends BaseLTIService implements LTIService
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(DBLTIService.class);
 
 	/** Dependency: SqlService */
-	protected SqlService m_sqlService = null;
+	protected SqlService m_sql = null;
 
 	/**
 	 * Dependency: SqlService.
@@ -49,7 +53,7 @@ public class DBLTIService extends BaseLTIService
 	 */
 	public void setSqlService(SqlService service)
 	{
-		m_sqlService = service;
+		m_sql = service;
 	}
 
 	/** Configuration: to run the ddl on init or not. */
@@ -75,12 +79,13 @@ public class DBLTIService extends BaseLTIService
 	 */
 	public void init()
 	{
+                if ( m_sql == null ) m_sql = (SqlService) ComponentManager.get("org.sakaiproject.db.api.SqlService");
 		try
 		{
 			// if we are auto-creating our schema, check and create
 			if (m_autoDdl)
 			{
-				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_lti");
+				m_sql.ddl(this.getClass().getClassLoader(), "sakai_lti");
 			}
 
 			super.init();
@@ -90,4 +95,23 @@ public class DBLTIService extends BaseLTIService
 			M_log.warn("init(): ", t);
 		}
 	}
+
+	/** insertMapping */
+	public boolean insertMapping(Map<String, Object> newMapping)
+	{
+		// TODO: Only admins can do this
+		String error = foorm.formInsert(newMapping, LTIService.ADMIN_MAPPING_MODEL, rb);
+		if ( error != null ) {
+			M_log.warn(this+" "+error);
+			return false;
+		}
+		String sql = "INSERT INTO lti_mapping "+foorm.insertForm(newMapping);
+System.out.println("sql="+sql);
+		Object [] fields = foorm.getObjects(newMapping);
+System.out.println("objects="+Arrays.toString(fields));
+		m_sql.dbWrite(sql, fields);
+System.out.println("AFTERWARDS");
+		return true;
+	}
+
 }

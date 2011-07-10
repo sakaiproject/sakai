@@ -4,8 +4,8 @@
 
 	<tool
 			id="sakai.basiclti.admin"
-			title="External Tool Management"
-			description="This tool manages external tools.">
+			title="External Tools"
+			description="This tool manages external tools launchable via Basic LTI.">
 
 		<configuration name="reset.button" value="true"/>
 

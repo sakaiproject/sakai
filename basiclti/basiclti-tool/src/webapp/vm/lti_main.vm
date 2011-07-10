@@ -1,0 +1,21 @@
+<div class="portletBody">
+<ul class="navIntraTool actionToolBar" role="menu">
+<li class="firstToolBarItem" role="menuitem"><span><a href="#" 
+   title="$tlang.getString("launch.mapping")" 
+   onclick="location = '$sakai_ActionURL.setPanel("Mapping")';return false;">
+   $tlang.getString("launch.mapping") </a></span></li>
+</ul>
+#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+<h3>$tlang.getString("lti.admin")</h3>
+	<form action="#toolForm("")" method="post" name="customizeForm" >
+		<p>
+		No Tools Found...
+		</p>
+		<p class="act">
+			<input type="submit" accesskey ="i" value="$tlang.getString('gen.insert')" 
+ 				onclick="location = '$sakai_ActionURL.setPanel("ToolInsert")';return false;">
+			<input type="submit" accesskey ="x" value="$tlang.getString('gen.cancel')" 
+ 				onclick="location = '$sakai_ActionURL.setPanel("Main")';return false;">
+		</p>
+	</form>
+</div>

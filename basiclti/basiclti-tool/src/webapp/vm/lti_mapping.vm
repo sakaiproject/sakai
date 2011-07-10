@@ -1,0 +1,17 @@
+<div class="portletBody">
+	<h3>
+		$tlang.getString("launch.mapping")
+	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	<form action="#toolForm("")" method="post" name="customizeForm" >
+		<p>
+		No Mappings Found...
+		</p>
+		<p class="act">
+			<input type="submit" accesskey ="i" value="$tlang.getString('gen.insert')" 
+ 				onclick="location = '$sakai_ActionURL.setPanel("MappingInsert")';return false;">
+			<input type="submit" accesskey ="x" value="$tlang.getString('gen.cancel')" 
+ 				onclick="location = '$sakai_ActionURL.setPanel("Main")';return false;">
+		</p>
+	</form>
+</div>

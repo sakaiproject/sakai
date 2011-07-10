@@ -49,13 +49,13 @@ public class Foorm {
 	return null;
     }
 
-    // Abstract to be overridden
+    // Expect to be overridden
     public String htmlSpecialChars(String str)
     {
 	return str;
     }
 
-    // Abstract this away for testing purposes
+    // Expect to be overriddrn 
     public String loadI18N(String str, Object loader)
     {
 	if ( loader == null ) return null;
@@ -76,8 +76,8 @@ public class Foorm {
 	if (loader == null ) return def;
 	if (str == null ) return def;
 	String retval = loadI18N(str, loader);
-	if ( retval == null ) return def;
-	return null;
+	if ( retval != null ) return retval;
+	return def;
     }
 
     public String formInput(Object row,String fieldinfo)
@@ -90,7 +90,7 @@ public class Foorm {
     {
 	sb.append("<p id=\"");
 	sb.append(field);
-	sb.append(".input\" class=\"shorttext\" style=\"clear:none;\">");
+	sb.append(".input\" class=\"shorttext\" style=\"clear:all;\">");
 	if ( required ) 
 	{
 		sb.append("<span class=\"reqStar\" title=\"");
@@ -134,8 +134,11 @@ public class Foorm {
     {
 	if ( value == null ) value = "";
 	StringBuffer sb = new StringBuffer();
+	sb.append("<p id=\"");
+	sb.append(field);
+	sb.append(".input\" class=\"longtext\" style=\"clear:all;\">");
 	formInputStart(sb, field, "textarea", label, required, loader);
-	sb.append("<textarea id=\"");
+	sb.append("<br cler=\"all\"/>\n<textarea id=\"");
 	sb.append(field);
 	sb.append("\" name=\"");
 	sb.append(field);
@@ -155,6 +158,7 @@ public class Foorm {
     {
 	StringBuffer sb = new StringBuffer();
 	formInputStart(sb, field, "radio", label, required, loader);
+	sb.append("<br clear=\"all\"/>\n");
 	int val = 0;
 	if ( value != null ) val = value.intValue();
 
@@ -254,10 +258,15 @@ public class Foorm {
 
     public String formInput(Object row, String [] formDefinition)
     {
+    	return formInput(row, formDefinition, null);
+    }
+
+    public String formInput(Object row, String [] formDefinition, Object loader)
+    {
 	StringBuffer sb = new StringBuffer();
 	for(String formInput : formDefinition ) 
 	{
-		sb.append(formInput(row, formInput));
+		sb.append(formInput(row, formInput, loader));
 		sb.append("\n");
 	}
 	return sb.toString();
@@ -359,14 +368,14 @@ public class Foorm {
 	return sb.toString();
     }
 
-    public String formValidate(HashMap parms, String [] formDefinition, Object loader)
+    public String formValidate(Properties parms, String [] formDefinition, Object loader)
     {
     	return formExtract(parms, formDefinition, loader, null);
 
     }
 
     // dataMap should be empty
-    public String formExtract(HashMap parms, String [] formDefinition, 
+    public String formExtract(Properties parms, String [] formDefinition, 
 		Object loader, Map<String, Object> dataMap)
     {
 	StringBuffer sb = new StringBuffer();
@@ -378,10 +387,8 @@ public class Foorm {
 		String type = info.getProperty("type", null);
 		if ( field == null || type == null ) continue;
 		String label = info.getProperty("label",field);
-		String dataField = null;
-		String [] dataArray = (String []) parms.get(field);
-		if ( dataArray != null ) dataField = dataArray[0].trim();
-		// System.out.println("field="+field+" data="+dataField);
+		String dataField = parms.getProperty(field);
+		System.out.println("field="+field+" data="+dataField);
 
 		if ( "true".equals(info.getProperty("required")) && ( dataField == null || dataField.length() < 1 ) )
 		{
@@ -398,7 +405,7 @@ public class Foorm {
 					if ( dataMap != null ) dataMap.put(field,ival);
 				} catch (Exception e) {
 					if ( sb.length() > 0 ) sb.append(", ");
-					sb.append(getI18N("foorm.numeric.field", "Field should be a number: ", loader));
+					sb.append(getI18N("foorm.integer.field", "Field should be an integer: ", loader));
 					sb.append(getI18N(label,loader));
 				}
 			}
@@ -439,6 +446,95 @@ public class Foorm {
 	}
 	if ( sb.length() < 1 ) return null;
 	return sb.toString();
+    }
+
+    // This is pretty picky, it validates
+    // (a) All required parameters are present
+    // (b) All parameters are the right type
+    // (c) There are no extraneous parameters
+    // If this returns null, you can safely form an INSERT or Update statement
+    public String formInsert(Map<String, Object> dataMap, String [] formDefinition, Object loader)
+    {
+	ArrayList<String> l = new ArrayList<String>();
+
+	// CHeck to see if al lthe required fields are present
+	// and of the proper type.
+	for ( String formInput : formDefinition ) 
+	{
+		Properties info =  parseFormString(formInput);
+		String field = info.getProperty("field", null);
+		String type = info.getProperty("type", null);
+		if ( field == null || type == null ) return null;
+		l.add(field);
+		Object dataField = dataMap.get(field);
+		System.out.println("field="+field+" data="+dataField);
+
+		if ( "true".equals(info.getProperty("required")) && dataField == null ) {
+			return getI18N("foorm.missing.field", "Required Field: ", loader)+field;
+		}
+		if ( "integer".equals(type) || "radio".equals(type) ) {
+			if ( ! (dataField instanceof Integer) ) 
+			{
+ 				return getI18N("foorm.integer.field", "Field should be an integer: ", loader)+field;
+			}
+		}
+		if ( "id".equals(type) || "url".equals(type) || "text".equals(type) || "textarea".equals(type) ) {
+			if ( ! (dataField instanceof String) ) 
+			{
+ 				return getI18N("foorm.string.field", "Field should be a string: ", loader)+field;
+			}
+		}
+	}
+
+	// Make sure there are no extra fields in the Map
+        for ( String key : dataMap.keySet() ) {
+		if ( ! l.contains(key) ) {
+			return getI18N("foorm.extra.field", "Extra field not allowed: ", loader)+key;
+		}
+	}
+	return null;
+
+    }
+
+    public String insertForm(Map<String, Object> dataMap)
+    {
+	StringBuffer fields = new StringBuffer();
+	StringBuffer qmarks = new StringBuffer();
+	fields.append("(");
+        for ( String key : dataMap.keySet() ) {
+		if ( qmarks.length() > 0 ) {
+			fields.append(", ");
+			qmarks.append(", ");
+		}
+		fields.append(key);
+		qmarks.append("?");
+	}
+	fields.append(" ) VALUES (");
+	fields.append(qmarks);
+	fields.append(" ) ");
+	return fields.toString();
+    }
+
+    public String updateForm(Map<String, Object> dataMap)
+    {
+	StringBuffer fields = new StringBuffer();
+        for ( String key : dataMap.keySet() ) {
+		if ( fields.length() > 0 ) fields.append(", ");
+		fields.append("SET '");
+		fields.append(key);
+		fields.append("'=?");
+	}
+	return fields.toString();
+    }
+
+    public Object [] getObjects(Map<String, Object> dataMap)
+    {
+	Object [] retval = new Object[dataMap.size()];
+	int i = 0;
+        for ( String key : dataMap.keySet() ) {
+		retval[i++] = dataMap.get(key);
+	}
+	return retval;
     }
 
     // Filter a form definition based on a controlling row.
