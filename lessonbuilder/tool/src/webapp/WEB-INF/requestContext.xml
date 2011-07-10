@@ -148,7 +148,7 @@
     </bean>
 
 	<!-- backing beans -->
-	<bean name="simplePageBean" class="org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean" >
+	<bean name="simplePageBean" class="org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean" init-method="init">
 		<property name="messageLocator" ref="messageLocator"/>
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
@@ -163,6 +163,7 @@
 		<property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
 		<property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
 		<property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
+		<property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
 	</bean>
 
 </beans>

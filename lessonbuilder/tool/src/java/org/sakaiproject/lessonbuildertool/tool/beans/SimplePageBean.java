@@ -74,6 +74,11 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.api.Session;
+
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.CacheRefresher;
+import org.sakaiproject.memory.api.MemoryService;
+
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageGroup;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
@@ -125,6 +130,8 @@ import org.sakaiproject.lessonbuildertool.cc.PrintHandler;
 //    DAO directly. This layer sticks caches on top of the data access, and provides more complex logic. Security
 //    is primarily in the DAO, but the DAO only checks permissions. We have to make sure we only acccess pages
 //    and items in our site
+//       Most of the caches are local. Since this bean is request-scope they are recreated for each request.
+//    Thus we don't have to worry about timing out the entries.
 // 2) It is used by RSF to access data. Normally the bean is associated with a specific page. However the 
 //    UI often has to update attributes of a specific item. For that use, there are some item-specific variables
 //    in the bean. They are only meaningful during item operations, when itemId will show which item is involved.
@@ -250,6 +257,9 @@ public class SimplePageBean {
 	private Map<Long, SimplePageLogEntry> logCache = new HashMap<Long, SimplePageLogEntry>();
         private Map<Long, Boolean> completeCache = new HashMap<Long, Boolean>();
         private Map<Long, Boolean> visibleCache = new HashMap<Long, Boolean>();
+    // this one needs to be global
+	private static Cache groupCache = null;   // itemId => grouplist
+	protected static final int DEFAULT_EXPIRATION = 10 * 60;
 
 	public static class PathEntry {
 		public Long pageId;
@@ -333,7 +343,21 @@ public class SimplePageBean {
 	    return messageLocator;
 	}
 
+	static MemoryService memoryService = null;
+	public void setMemoryService(MemoryService m) {
+	    memoryService = m;
+	}
+
     // End Injection
+
+	public void init () {	
+	    if (groupCache == null)
+		groupCache = memoryService
+		    .newCache("org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.cache");
+	}
+
+    // no destroy. We want to leave the cache intact when we exit, because there's one of us
+    // per request.
 
 	public SimplePageItem findItem(long itId) {
 	    Long itemId = itId;
@@ -1969,12 +1993,21 @@ public class SimplePageBean {
     // us to get it a second time
 	public Collection<String>getItemGroups (SimplePageItem i, LessonEntity entity, boolean nocache) {
 
-	    List<String> ret = new ArrayList<String>();
+	    Collection<String> ret = new ArrayList<String>();
 
 	   if (i.getType() != SimplePageItem.ASSESSMENT &&
 	       i.getType() != SimplePageItem.ASSIGNMENT &&
 	       i.getType() != SimplePageItem.FORUM)
 	       return ret;
+
+	   if (!nocache) {
+	       Object cached = groupCache.get(i.getSakaiId());
+	       if (cached != null) {
+		   if (cached instanceof String)
+		       return null;
+		   return (List<String>)cached;
+	       }
+	   }
 
 	   if (entity == null) {
 	       switch (i.getType()) {
@@ -1999,14 +2032,19 @@ public class SimplePageBean {
 	   if (simplePageGroup != null) {
 	       String groups = simplePageGroup.getGroups();
 	       if (groups != null)
-		   return Arrays.asList(groups.split(","));
+		   ret = Arrays.asList(groups.split(","));
 	       else 
-		   return ret;
-	   }
-		    
-	   // not under our control, use list from tool
+		   ;  // leave ret as an empty list
+	   } else
+	       // not under our control, use list from tool
+	       ret = entity.getGroups(nocache);	       
 
-	   return entity.getGroups(nocache);
+	   if (ret == null)
+	       groupCache.put(i.getSakaiId(), "*", DEFAULT_EXPIRATION);
+	   else
+	       groupCache.put(i.getSakaiId(), ret, DEFAULT_EXPIRATION);
+
+	   return ret;
 
        }
 
@@ -3080,7 +3118,9 @@ public class SimplePageBean {
 	 *            Is it allowed to delete the row in the table for the group and recurse to try
 	 *            again. true for normal calls; false if called inside this code to avoid infinite loop
 	 */
-    // only called if the item should be under control
+    // only called if the item should be under control. Also only called if the item is displayed
+    // so if it's limited to a group, we'll never add people who aren't in the group, since the
+    // item isn't shown to them.
 	private void checkItemPermissions(SimplePageItem item, boolean shouldHaveAccess, boolean canRecurse) {
 	        if (SimplePageItem.DUMMY.equals(item.getSakaiId()))
 		    return;

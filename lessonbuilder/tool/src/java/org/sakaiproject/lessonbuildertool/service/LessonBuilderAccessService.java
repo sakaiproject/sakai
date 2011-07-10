@@ -294,6 +294,7 @@ public class LessonBuilderAccessService
 		    simplePageBean.setQuizEntity(quizEntity);
 		    simplePageBean.setAssignmentEntity(assignmentEntity);
 		    simplePageBean.setGradebookIfc(gradebookIfc);
+		    simplePageBean.setMemoryService(memoryService);
 
 		    if (!simplePageBean.isItemAvailable(item, item.getPageId())) {
 			throw new EntityPermissionException(null, null, null);
