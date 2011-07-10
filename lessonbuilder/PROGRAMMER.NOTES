@@ -265,3 +265,32 @@ both required and depending upon previous items.
 
 I'm still thinking about how to do "back." But I want to test "next"
 carefully first.
+
+GROUP AWARENESS
+
+If a quiz, etc, is released only to a group, Lesson Builder will only
+show it to members of that group. If there are no prerequisites, we
+take the group information from the tool itself. There are getgroups
+and setgroups in the tool interfaces to do this.
+
+As soon as prerequisites are defined, we create our own access group,
+set the item to be available only to people in that group, and then
+add users to it as they qualify. At that point we have to take over
+management of the normal groups. At the point where prerequisites 
+are turned on, checkControlGroup(true) is called. This copies the
+current group list from the tool into a field in SimplePageGroup.
+
+A single SimplePageGroup object exists for each external object, even
+if more than one LB items refer to it. Putting the group list in
+the SimplePageGroup saves us from all kinds of consistency problems.
+
+The LB UI can maintain the group membership. The getgroups and
+setgroups code checks whether there's a SimplePageGroup for this item,
+so it can get the group list from there or the tool as appropriate.
+
+To avoid killing performance, I'm going to cache the group lists for
+tools. But for faculty, I bypass the cache. The problem is that if a
+faculty member changes group membership in the tool and then goes back
+into LB, we want the change to be visible immediately. Otherwise
+things get very confusing. For students we can afford to wait 10 min
+since the last change done by the faculty member.

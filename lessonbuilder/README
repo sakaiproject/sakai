@@ -439,6 +439,19 @@ you use the same quiz or assignment in several lessons, all must be
 set to have prerequisites or none must. (Similar controls are used
 for Forums starting in the next version of Lsson Builder.)
 
+There's one danger here: once we set the quiz or assignment to have a
+prerequisite, we create a special group, and add the user to it as he
+meets the prequisites. If the instructor goes into the tool, they'll
+see the assignment as being released to a special group named "Access:
+.....". if they modify the groups in the assignment, Lesson Builder's
+prerequisite system will no longer work properly. It is possible to
+change which groups can see an assignment, quiz or forum in Lesson
+Builder itself. Once an item has been added to Lesson Builder, it is
+best to adjust groups through the Lesson Builder "Edit". (This applies
+to Assignments, Tests and Quizzes / Samigo, and Forums. It does not
+apply to Mneme and jForum. Lesson Builder currently is not group-aware
+for those tools.)
+
 It's really nice to be able to include things like Flash and movies
 in a lesson. Unfortunately it's surprisingly hard to make it work
 for everyone. All students need the right plugins, and there may
