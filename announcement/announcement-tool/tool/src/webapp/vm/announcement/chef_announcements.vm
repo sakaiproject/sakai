@@ -84,6 +84,7 @@
 							<option value="view.bygroup" #if ($!view == "view.bygroup")selected="selected"#end >$!tlang.getString('view.bygroup')</option>
 						##end 
 					</select>
+					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
 			</div>
 	##		#end
@@ -97,19 +98,23 @@
 							#if ($goFPButton == "true")
 								<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 									<fieldset><legend>$tlang.getString("gen.first")</legend><input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("gen.first")" /></fieldset>
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#else
 								<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 									<fieldset><legend>$tlang.getString("gen.first")</legend><input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" /></fieldset>
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#end
 							#if ($goPPButton == "true")
 								<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 									<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize"  accesskey="p" /></fieldset>
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#else
 								<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 									<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" /></fieldset>
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#end
 						#end
@@ -124,24 +129,29 @@
 								<option value="100" #if($pagesize == 100) selected="selected" #end>$tlang.getString("gen.show100")</option>
 								<option value="200" #if($pagesize == 200) selected="selected" #end>$tlang.getString("gen.show200")</option>
 							</select>
+							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 						</form>
 						#if ($pagesize != 0)
 							#if ($goNPButton == "true")
 								<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 									<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('gen.next') $pagesize"  accesskey="n" /></fieldset>
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#else
 								<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 									<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" /></fieldset>
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#end
 							#if ($goLPButton == "true")
 								<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 									<fieldset><legend>$tlang.getString('gen.last')</legend><input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString('gen.last')" /></fieldset>
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#else
 								<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 									<fieldset><legend>$tlang.getString('gen.last')</legend><input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" /></fieldset>
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 							#end
 						#end
@@ -316,6 +326,7 @@
 							#end
 						#end
 					</table>
+					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
 			#end
 		#else
@@ -391,6 +402,7 @@
 					#end
 					</ul>
 				#end
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 			</form>
 
 		#else ## not in workspace, not in home
@@ -415,6 +427,7 @@
 										<option value="view.bygroup" #if ($!view == "view.bygroup")selected="selected"#end >$!tlang.getString('view.bygroup')</option>
 										##end 
 								</select>
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 							</form>
 						</div>
 						#if ($messageListVector.iterator().hasNext())
@@ -426,19 +439,23 @@
 									#if ($goFPButton == "true")
 										<form name="firstpageForm" class="inlineForm"  method="post" action="#toolForm("$action")">
 											<fieldset><legend>$tlang.getString("gen.first")</legend><input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("gen.first")" /></fieldset>
+											<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 										</form>
 									#else
 										<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 											<fieldset><legend>$tlang.getString("gen.first")</legend><input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" /></fieldset>
+											<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 										</form>
 									#end
 									#if ($goPPButton == "true")
 										<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 											<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize"  accesskey="p" /></fieldset>
+											<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 										</form>
 									#else
 										<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 											<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" /></fieldset>
+											<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 										</form>
 									#end
 								#end
@@ -454,24 +471,29 @@
 										<option value="100" #if($pagesize == 100) selected="selected" #end>$tlang.getString("gen.show100")</option>
 										<option value="200" #if($pagesize == 200) selected="selected" #end>$tlang.getString("gen.show200")</option>
 									</select>
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 								</form>
 								#if ($pagesize != 0)
 									#if ($goNPButton == "true")
 										<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 											<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('gen.next') $pagesize"  accesskey="n" /></fieldset>
+											<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 										</form>
 									#else
 										<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 											<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" /></fieldset>
+											<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 										</form>
 									#end
 									#if ($goLPButton == "true")
 										<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 											<fieldset><legend>$tlang.getString("gen.last")</legend><input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString("gen.last")" /></fieldset>
+											<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 										</form>
 									#else
 										<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 											<fieldset><legend>$tlang.getString("gen.last")</legend><input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" /></fieldset>
+											<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 										</form>
 									#end
 								#end
@@ -690,6 +712,7 @@
 								#end
 							</div>
 							<form name="announcementListForm" action="#toolForm("AnnouncementAction")" method="post">
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 							</form>
 						#end	
 						
@@ -704,6 +727,7 @@
 									#end
 								##end
 							#end
+							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 						</form>
 					#end
 				#else
@@ -726,19 +750,23 @@
 										#if ($goFPButton == "true")
 											<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 												<fieldset><legend>$tlang.getString("gen.first")</legend><input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("gen.first")" /></fieldset>
+												<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 											</form>
 										#else
 											<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 												<fieldset><legend>$tlang.getString("gen.first")</legend><input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" /></fieldset>
+												<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 											</form>
 										#end
 										#if ($goPPButton == "true")
 											<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 												<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize"  accesskey="p" /></fieldset>
+												<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 											</form>
 										#else
 											<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 												<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" /></fieldset>
+												<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 											</form>									
 										#end
 									#end
@@ -753,24 +781,29 @@
 											<option value="100" #if($pagesize == 100) selected="selected" #end>$tlang.getString("gen.show100")</option>
 											<option value="200" #if($pagesize == 200) selected="selected" #end>$tlang.getString("gen.show200")</option>
 										</select>
+										<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 									</form>
 									#if ($pagesize != 0)
 										#if ($goNPButton == "true")
 											<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 												<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('gen.next') $pagesize"  accesskey="n" /></fieldset>
+												<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 											</form>
 										#else
 											<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 												<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" /></fieldset>
+												<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 											</form>
 										#end				
 										#if ($goLPButton == "true")
 											<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 												<fieldset><legend>$tlang.getString("gen.last")</legend><input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString("gen.last")" /></fieldset>
+												<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 											</form>
 										#else
 											<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
 												<fieldset><legend>$tlang.getString("gen.last")</legend><input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" /></fieldset>
+												<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 											</form>
 										#end
 									#end
@@ -851,6 +884,7 @@
 									#end
 								#end
 						</table>
+							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 						</form>
 					#end
 				#end
