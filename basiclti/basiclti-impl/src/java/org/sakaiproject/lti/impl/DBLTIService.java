@@ -21,7 +21,7 @@
 
 package org.sakaiproject.lti.impl;
 
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Arrays;
@@ -99,27 +99,31 @@ public class DBLTIService extends BaseLTIService implements LTIService
 	}
 
 	/** insertMapping */
-	public String insertMapping(Properties newProps)
+	public Object insertMapping(Properties newProps)
 	{
 		// TODO: Only admins can do this
 		HashMap<String, Object> newMapping = new HashMap<String,Object> ();
 
 		// CHeck for user data errors
-		String errors = foorm.formExtract(newProps, LTIService.ADMIN_TOOL_MODEL, rb, newMapping);
+		String errors = foorm.formExtract(newProps, LTIService.ADMIN_MAPPING_MODEL, rb, newMapping);
                 if ( errors != null ) return errors;
 
 		// Run the SQL
 		String sql = "INSERT INTO lti_mapping "+foorm.insertForm(newMapping);
 System.out.println("sql="+sql);
 		Object [] fields = foorm.getObjects(newMapping);
-System.out.println("objects="+Arrays.toString(fields));
-		m_sql.dbWrite(sql, fields);
-System.out.println("AFTERWARDS");
-		return null;
+		Long retval = m_sql.dbInsert(null, sql, fields, "id");
+		System.out.println("Insert="+retval);
+		return retval;
 	}
+	
+	public Object getMapping(int key) {return "oops"; }
+	public String deleteMapping(int key) { return null; }
+	public String updateMapping(int key, Properties newProps) { return null; }
+	public ArrayList<Properties> getMappings(String search, String order, int first, int last) { return null; }
 
 	/** insertTool */
-	public String insertTool(Properties newProps)
+	public Object insertTool(Properties newProps)
 	{
 		// TODO: Only admins can do this
 		HashMap<String, Object> newMapping = new HashMap<String,Object> ();
@@ -128,10 +132,15 @@ System.out.println("AFTERWARDS");
 		String sql = "INSERT INTO lti_tools "+foorm.insertForm(newMapping);
 System.out.println("sql="+sql);
 		Object [] fields = foorm.getObjects(newMapping);
-System.out.println("objects="+Arrays.toString(fields));
-		m_sql.dbWrite(sql, fields);
-System.out.println("AFTERWARDS");
-		return null;
+		Long retval = m_sql.dbInsert(null, sql, fields, "id");
+		System.out.println("Insert="+retval);
+		return retval;
 	}
+	
+	public Object getTool(int key) {return "oops"; }	
+	public String deleteTool(int key) { return null; }
+	public String updateTool(int key, Properties newProps) { return null; }
+	public ArrayList<Properties> getTools(String search, String order, int first, int last) { return null; }
+	
 
 }

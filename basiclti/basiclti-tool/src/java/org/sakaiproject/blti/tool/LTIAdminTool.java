@@ -58,6 +58,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	protected static ResourceLoader rb = new ResourceLoader("sample");
 	
 	private static String STATE_POST = "lti:state_post";
+	private static String STATE_SUCCESS = "lti:state_success";
 	
 	/** Service Implementations */
 	protected static ToolManager toolManager = null; 
@@ -110,8 +111,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		RunData rundata, SessionState state)
 	{
 		context.put("tlang", rb);
+		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		// TOTO: Retrieve tools here
 		state.removeAttribute(STATE_POST);
+		state.removeAttribute(STATE_SUCCESS);
 		return "lti_main";
 	}
 
@@ -120,11 +123,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	{
 		context.put("tlang", rb);
                 context.put("doToolInsert", BUTTON + "doToolInsert");
+                context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		String [] mappingForm = LTIService.ADMIN_TOOL_MODEL;
 		Properties previousPost = (Properties) state.getAttribute(STATE_POST);
 		String formInput = foorm.formInput(previousPost, mappingForm, getLTILoader());
 		context.put("formInput",formInput);
 		state.removeAttribute(STATE_POST);
+		state.removeAttribute(STATE_SUCCESS);
 		return "lti_tool_insert";
 	}
 
@@ -135,13 +140,15 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		// String setting = data.getParameters().getString("setting");
 		Properties reqProps = data.getParameters().getProperties();
-		String errors = ltiService.insertTool(reqProps);
-		if ( errors != null ) 
+		Object retval = ltiService.insertTool(reqProps);
+		if ( retval instanceof String ) 
 		{
-		    state.setAttribute(STATE_POST,reqProps);
-			addAlert(state, errors);
+	                state.setAttribute(STATE_POST,reqProps);
+			addAlert(state, (String) retval);
 			return;
 		}
+		System.out.println("Yahoo="+((Long)retval).toString());
+		state.setAttribute(STATE_SUCCESS,"Added");
 		switchPanel(state, "Main");
 	}
 
@@ -152,6 +159,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
+		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
+		state.removeAttribute(STATE_SUCCESS);
 		return "lti_mapping";
 	}
 
@@ -160,6 +169,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	{
 		context.put("tlang", rb);
                 context.put("doMappingInsert", BUTTON + "doMappingInsert");
+                context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
+		state.removeAttribute(STATE_SUCCESS);
 		String [] mappingForm = LTIService.ADMIN_MAPPING_MODEL;
 		Properties previousPost = (Properties) state.getAttribute(STATE_POST);
 		String formInput = foorm.formInput(previousPost, mappingForm, getLTILoader());
@@ -177,13 +188,15 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		// String setting = data.getParameters().getString("setting");
 		Properties reqProps = data.getParameters().getProperties();
-		String errors = ltiService.insertMapping(reqProps);
-		if ( errors != null ) 
+		Object retval = ltiService.insertMapping(reqProps);
+		if ( retval instanceof String ) 
 		{
-   		    state.setAttribute(STATE_POST,reqProps);
-			addAlert(state, errors);
+   		        state.setAttribute(STATE_POST,reqProps);
+			addAlert(state, (String) retval);
 			return;
 		}
+		System.out.println("Yahoo="+((Long)retval).toString());
+		state.setAttribute(STATE_SUCCESS,"Added");
 		switchPanel(state, "Mapping");
 	}
 

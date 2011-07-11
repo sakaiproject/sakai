@@ -23,6 +23,7 @@ package org.sakaiproject.lti.impl;
 
 import java.util.Map;
 import java.util.ArrayList;
+import java.util.Properties;
 
 import org.sakaiproject.lti.api.LTIService;
 
@@ -180,18 +181,11 @@ public abstract class BaseLTIService implements LTIService
 	{
 		return ADMIN_MAPPING_MODEL;
 	}
-
-        /** getMappings */
-        public Map<String, Object> getMappings(String search, int first, int last) 
+	
+	/** getToolModel */
+        public String [] getToolModel() 
 	{
-		return null;
-	}
-
-	/** insertMapping */
-	public boolean insertMapping(Map<String, Object> newMapping)
-	{
-		// TODO: Only admins can do this
-		return false;	
+		return ADMIN_TOOL_MODEL;
 	}
 
 	/** getResourceLoader */

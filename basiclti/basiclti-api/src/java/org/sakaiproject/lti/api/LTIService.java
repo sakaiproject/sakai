@@ -21,7 +21,7 @@
 
 package org.sakaiproject.lti.api;
 
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Properties;
 
@@ -41,25 +41,24 @@ import org.sakaiproject.user.api.User;
  */
 public interface LTIService
 {
-	/** This string starts the references to resources in this service. */
+	/* This string starts the references to resources in this service. */
 	static final String REFERENCE_ROOT = "/lti";
 
-	/** getMappingModel */
+	/* Mapping */
 	public String [] getMappingModel() ;
-
-	/** getMappings */
-	public Map<String, Object> getMappings(String search, int first, int last) ;
-
-	/** insertMapping */
-	String insertMapping(Properties newProps);
-
-	/** insertTool */
-	String insertTool(Properties newProps);
-
-	// TODO: Should work if kernel-util moves to shared
-	/** getResourceLoader 
-	public ResourceLoader getResourceLoader();
-	*/
+	public Object insertMapping(Properties newProps);
+	public Object getMapping(Long key);
+	public String deleteMapping(int key);
+	public String updateMapping(int key, Properties newProps);
+	public ArrayList<Properties> getMappings(String search, String order, int first, int last) ;
+	
+	/* Tool */
+	public String [] getToolModel() ;
+	public Object insertTool(Properties newProps);
+	public Object getTool(Long key);
+	public String deleteTool(int key);
+	public String updateTool(int key, Properties newProps);
+	public ArrayList<Properties> getTools(String search, String order, int first, int last) ;
 
 	/** Model Descriptions for Foorm 
 	 * You should probably retrieve these through getters in case there is some
