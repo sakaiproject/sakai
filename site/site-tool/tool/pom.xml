@@ -7,6 +7,7 @@
         <groupId>org.sakaiproject.site</groupId>
         <artifactId>site-base</artifactId>
         <version>2.9-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <name>sakai-site-tool</name>
