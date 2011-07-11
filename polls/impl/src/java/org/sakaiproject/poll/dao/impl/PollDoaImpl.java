@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2008 The Sakai Foundation
@@ -39,6 +39,7 @@ public class PollDoaImpl extends HibernateGeneralGenericDao implements PollDao {
         log.debug("init");
     }
     
+    @SuppressWarnings("unchecked")
     public int getDisctinctVotersForPoll(Poll poll) {
 
         Query q = null;
