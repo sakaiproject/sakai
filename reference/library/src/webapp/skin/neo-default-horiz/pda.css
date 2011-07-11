@@ -59,82 +59,114 @@ margin below on the toolbar if there is one to make it flush horiz.
 	text-decoration:none !important;
 }
 #pda-portlet-menu{
-	font-size: 14px;
+	font-size: 18px;
 	font-family: Helvetica, Arial, sans-serif;
 	width:100%;
-	background:#1D4EA3 url(images/pda-menu-back.gif) center left repeat-x;
+	background:#1D4EA3 url(images/pda-menu-back.png) center left repeat-x;
 	list-style: none;
 	color:#fff;
 	margin:0;
 	clear: both;
-	height: 120%;
 	overflow: hidden;
 	padding: 0;
-	line-height: 1.2em;
 }
 
 #pda-portlet-menu li {
 	margin-left: 0;
-	padding:7px 8px 6px 0;
+	padding:7px 8px 6px 7px;
 	list-style: none;
 	display: inline;
 	float:left;
+    line-height:.9em;
+    text-shadow: rgba(0, 0, 0, 0.597656) 0px -1px 0px;
+}
+#pda-portlet-menu li.instanceNote{
+    padding-top:10px;
+}    
+#pda-portlet-menu li.backLink{
+    padding:0 !important;
+    padding-left:25px !important;
+    margin:3px 5px;
+    display:block;
+    height:32px;
+    background:url(images/pda-back-l.png) 0 0 no-repeat;
+}
+#pda-portlet-menu li.backLink span{
+    display:block;
+    height:32px;
+    padding:0 !important;
+    padding-right:8px !important;
+    overflow:hidden;
+    background:url(images/pda-back-r.png) top right no-repeat
+    }
+#pda-portlet-menu a{
+    text-decoration:none !important
+}
+#pda-portlet-menu li.backLink span a{
+    text-indent:5px;
+    display:block;
+    height:32px;
+    padding:7px 0 7px 0 !important;
+    background:url(images/pda-back-m.png) top left repeat-x;
+}
+#pda-portlet-menu li.loginLink,#pda-portlet-menu li.logoutLink, #switch-link-w,.helpLink {
+    padding:0 !important;
+    padding-left:9px !important;
+    margin:3px 5px;
+    display:block;
+    height:32px;
+    background:url(images/pda-left-round.png) 0 0 no-repeat;
+}
+#pda-portlet-menu li.loginLink span,#pda-portlet-menu li.logoutLink span ,  #switch-link-w span,.helpLink span{
+    display:block;
+    height:32px;
+    padding:0 !important;
+    padding-right:8px !important;
+    overflow:hidden;
+    background:url(images/pda-back-r.png) top right no-repeat
+    }
+#pda-portlet-menu li.loginLink span a,#pda-portlet-menu li.logoutLink span a, #switch-link-w span a, .helpLink span a{
+    display:block;
+    height:32px;
+    padding:7px 0 7px 0 !important;
+    background:url(images/pda-back-m.png) top left repeat-x;
+}
+#switch-link-w{
+    margin:auto;
+    width:50%;
+}
+#switch-link-w span a{
+    color:#fff;
+    text-decoration:none;
 }
 #pda-portlet-menu li.resetToolLink a, #pda-portlet-menu  li.jsreditLink a{
     padding-left:10px;
 } 
+#pda-portlet-menu li.resetToolLink, #pda-portlet-menu li.jsreditLink{
+    margin-top:4px;
+}
 #pda-portlet-menu a img{
     border:none
 } 
-
-#pda-portlet-menu li.sitesLink:before,#pda-portlet-menu li.currentSiteParentLink:before,#pda-portlet-menu li.currentSiteChildLink:before,#pda-portlet-menu li.currentSiteLink:before,#pda-portlet-menu li.currentToolTitle:before{
-	content: "\00BB \0020";
-	color: #ff9;
-	font-weight: bold;
-}
-
-#pda-portlet-menu li.instanceNote:before{
-	content: "";
-	visibility:hidden;
-	color: #fff;
-}
-#pda-portlet-menu li.instanceNote a{
-	text-decoration:none;
-    display:block;
-    width:45px;
-    height:25px
-}
-#pda-portlet-menu li.sitesLink:before{
-	content: "\00BB";
-	visibility:hidden;
-	color: #fff;
-}
-/*the first item in the menu - contains small logo*/
-#pda-portlet-menu li.instanceNote{
-	color:#fff;
-    padding:0 10px 4px 4px;
-    background:transparent url(images/pda-menu-instance-icon.gif) center left no-repeat;
-	width:40px;
-}
 /*put non site links to the right*/
 #pda-portlet-menu li.loginLink, #pda-portlet-menu li.logoutLink, #pda-portlet-menu li.helpLink,#pda-portlet-menu li.usersPresentLink {
-	background: none;
 	float:right;
 }
 #pda-portlet-menu li.helpLink {
 	margin-left:1em;
 }
 #pda-portlet-menu li span a{
-	color:#ff9;
+	color:#fff;
 	text-decoration:none !important;
 }	
 #pda-portlet-menu li span a:hover{
-	text-decoration: underline !important;
+	text-decoration: none !important;
 }
 /*all types of links in the breadcrumb are addressed in the markup and can be styled here*/
 .currentSiteParentLink{}
 .currentSiteChildLink{}
-.currentToolTitle{}
+.currentSiteTitle{display:block;margin-top:3px;}
+.currentToolTitle{display:block;margin-top:3px;}
 .helpLink{}
 .logoutLink{}
 .loginLink{}
@@ -208,27 +240,14 @@ margin below on the toolbar if there is one to make it flush horiz.
 }
 
 #pda-footer {
-	padding: .8em;
-	height:100%;
+	padding:3px;
     text-align:center;
-    background:#1D4EA3 url(images/pda-menu-back.gif) center left repeat-x;
+    background:#1D4EA3 url(images/pda-menu-back.png) center left repeat-x;
 	overflow:hidden;
 }
 
 
-.switch-link, .switch-link:visited{
-	color:#000 !important;
-	background:#fff;
-	padding:5px;
-	text-decoration:none;
-	-webkit-border-radius:10px;
-	-moz-border-radius:10px;
-	border-radius:10px;
-}	
-.switch-link:hover{
-	text-decoration: underline;
-	
-}
+
 .skip{
 	display: inline;
 	position: absolute;
@@ -247,62 +266,18 @@ iPad:
 /*
 pad the top menu so user no longer clicks on the iPad OS toolbar by mistake
 */
-@media only screen and (max-device-width: 1024px){
-    #pda-portlet-menu{
-        height:25px;
-        padding-top:10px;
-        padding-bottom:10px;
-        }
-#pda-portlet-menu li.sitesLink:before,#pda-portlet-menu li.currentSiteLink:before,#pda-portlet-menu li.currentToolTitle:before, #pda-portlet-menu li.currentSiteParentLink:before, #pda-portlet-menu li.currentSiteChildLink:before{
-    margin-left:5px;
-    margin-right:5px;
+@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) {
+.backLink span a, .helpLink span a, .logoutLink span a,.loginLink span a {
+    line-height:16px;
 }
-.logoutLink, .loginLink, .switch-link{
-	position:absolute;
-	top:5px;
-    margin-top:4px;
-	right:4px;
-    -webkit-border-image: url(images/pda-button.png) 10 stretch;
-    text-shadow: rgba(0, 0, 0, 0.597656) 0px -1px 0px;
-    font: normal  bold 13px / 21px Helvetica, sans-serif;
-	height:22px;
-	padding:0px !important;
-    border-width: 5px;
-	text-decoration: none;
+.currentToolTitle, .currentSiteTitle{
+    margin-top:0;
+    border:2px solid transparent !important
+}
+.switch-link{
+    line-height:1em;
 }
 
-.logoutLink a, .loginLink a,.logoutLink a:active, .loginLink a:active, .logoutLink a:focus, .loginLink a:focus{
-		text-decoration: none !important;
-        color:#fff !important
-}
-#pda-portlet-site-menu a, #pda-portlet-page-menu a {
-    -webkit-tap-highlight-color: #fff;
-    -webkit-text-size-adjust: none;
-}
-
-#pda-footer {
-	padding:5px 0 2px;
-	height:34px;
-    background:#1D4EA3 url(images/pda-menu-back.gif) top left repeat-x;
-	overflow:hidden;
-}
-
-.switch-link, .switch-link:visited {
-	position:relative;
-    top:5px;
-	color:#fff !important;
-	background:none;
-	padding:5px !important;
-	text-decoration:none !important;
-	-webkit-border-radius:0;
-	-moz-border-radius:0;
-	border-radius:0;
-}
-.logoutLink, .loginLink{
-	top:3px;
-	right:3px;
-}
-	
 }
 /*
 iPhone, iPod Touch
@@ -315,81 +290,88 @@ html {
     -webkit-text-size-adjust: none;
 }
 #pda-portlet-menu{
-	position:absolute;
+	position:absolute; 
 	top:0;
     padding:0;
 	height:35px;
 	font-size: 14px !important;
 	width:100%;
-	background:#1D4EA3 url(images/pda-menu-back.gif) top left repeat-x;
+	background:#1D4EA3 url(images/pda-menu-back.png) top left repeat-x;
 	border-bottom:1px solid #222
 }
 #pda-portlet-site-menu, #pda-portlet-page-menu, .portletpda .portletBody{
 	margin-top:36px;
 }
-#pda-portlet-menu li.sitesLink:before,#pda-portlet-menu li.currentSiteParentLink:before,#pda-portlet-menu li.currentSiteChildLink:before,#pda-portlet-menu li.currentSiteLink:before,#pda-portlet-menu li.currentToolTitle:before{
-    content: "";
-}
 #pda-portlet-menu a:focus,#pda-portlet-menu a:active{
     text-decoration:none
 }   
+.notSmallDev{
+
+  display:none !important
+
+}
     
-#pda-portlet-menu li.currentSiteLink, #pda-portlet-menu li.currentSiteChildLink {
-    font-size: 14px;
+#pda-portlet-menu li{    
 	padding-top:10px;
     padding-left:10px;
-    background:url(images/pda-site-home.png) 0  10px no-repeat;
 	position:relative;
 	height:35px;
-    width: 9em !important;
+    width:auto;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     text-shadow: rgba(0, 0, 0, 0.597656) 0px -1px 0px;
+    line-height:1em
 }
 #pda-portlet-menu li.instanceNote a {
     text-decoration: none;
 	display:block;
 	width: 55px;
-    margin-top:2px;
+    margin-top:5px;
+
 	height:35px;
-	
 }
-#pda-portlet-menu li.instanceNote {
-	position:relative;
-    margin: -6px 3px 0;
-    padding: 5px 5px 5px 0 !important;
-    background: url(images/pda-menu-instance-icon.gif) 0 4px no-repeat;
-    width: 55px;
-}
+
 #pda-portlet-menu li.resetToolLink a, #pda-portlet-menu  li.jsreditLink a{
-   	position:relative;
-	top:3px;    
-    height:35px;
-    display:block;
     padding:0 2px;
 }
-#pda-portlet-menu li.helpLink, .currentSiteParentLink, .currentToolTitle, #pda-portlet-menu li.sitesLink {
-    display: none  !important
+#pda-portlet-menu li.resetToolLink,#pda-portlet-menu  li.jsreditLink{
+    margin-top:0;
+}
+
+#pda-portlet-menu li.helpLink, .currentSiteParentLink, .currentToolTitle{
+    display:none
 }
 #pda-portlet-menu li span a {
     color: #fff;
 }
 .logoutLink, .loginLink, .switch-link{
-	position:absolute;
-	top:-1px;
-	right:2px;
-    -webkit-border-image: url(images/pda-button.png) 10 stretch;
-    text-shadow: rgba(0, 0, 0, 0.597656) 0px -1px 0px;
-    font: normal  bold 12px / 20px Helvetica, sans-serif;
-	height:18px;
-	padding:0  !important;
-    border-width: 6px;
-	text-decoration: none;
+    position:absolute;
+    top:0;
+    right:0;
 }
 .logoutLink:active, .loginLink:active, .switch-link:active,.logoutLink:focus, .loginLink:focus, .switch-link:focus{
     	text-decoration: none !important;
     }
+.sitesLink span a{
+    width:45px !important;
+    text-overflow:ellipsis;
+    overflow:hidden
+}
+.currentSiteTitle{
+    width:140px !important;
+    margin-top:0
+}    
+.currentToolTitle{
+    width:80px !important;
+    margin-top:0
+}
+.currentSiteLink span a{
+    width:70px !important;
+    text-overflow:ellipsis;
+    overflow:hidden
+
+}
 #pda-portlet-site-menu li, #pda-portlet-page-menu li{
     -webkit-tap-highlight-color: #fff;
     -webkit-text-size-adjust: none;
@@ -400,38 +382,23 @@ html {
     text-overflow:ellipsis;
     white-space:nowrap;
 }
-
 .portletMainWrap+#pda-footer{
     margin-top:50px
 }
-/*
-    in this small viewport, show only the last child site title
-    hide all children sites first, then show the last one.
-*/
-.currentSiteChildLink{
-    display:none  !important
-}
-#pda-portlet-menu li.lastChild{
-    display:inline  !important
-}
+
 
 #pda-footer {
-	padding: .7em 0 .9em 0;
+	padding: 2px;
 	height:100%;
-    background:#03348E url(images/pda-menu-back.gif) top left repeat-x;
+    background:#03348E url(images/pda-menu-back.png) top left repeat-x;
 	overflow:hidden;
 }
 
 .switch-link, .switch-link:visited {
 	position:relative;
-    top:2px;
+    top:0;
 	color:#fff !important;
-	background:none;
-	padding:5px !important;
 	text-decoration:none !important;
-	-webkit-border-radius:0;
-	-moz-border-radius:0;
-	border-radius:0;
 }	
 
 /*
@@ -500,7 +467,7 @@ for a landscape orientation of the iPhone/iPod  T
 */ 
 @media only screen and (orientation:landscape) and (max-device-width: 480px){
     #pda-portlet-menu li.currentSiteLink, #pda-portlet-menu li.currentSiteChildLink {
-    width: 20em !important;
+    
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -511,6 +478,25 @@ for a landscape orientation of the iPhone/iPod  T
     text-overflow:ellipsis;
     white-space:nowrap;
 }
+.sitesLink span a{
+    width:45px !important;
+    text-overflow:ellipsis;
+    overflow:hidden
+
+}
+.currentSiteTitle{
+    width:300px !important;
+}    
+.currentToolTitle{
+    width:220px !important;
+}
+.currentSiteLink span a{
+    width:70px !important;
+    text-overflow:ellipsis;
+    overflow:hidden
+
+}
+
 /*
 resource title length in landscape orientation
 */
