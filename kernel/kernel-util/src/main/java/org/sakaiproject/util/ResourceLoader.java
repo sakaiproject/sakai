@@ -244,7 +244,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 		dbgPropertiesString.append( this.baseName );
 		dbgPropertiesString.append( " " );
 		dbgPropertiesString.append( key );
-		dbgPropertiesString.append( DBG_PREFIX );
+		dbgPropertiesString.append( DBG_SUFFIX );
 		return dbgPropertiesString.toString();
 	}
 
