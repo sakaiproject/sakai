@@ -263,7 +263,7 @@ public abstract class Log4jConfigurationManager implements LogConfigurationManag
 		}
 		else
 		{
-			M_log.warn("invalid log level: ignorning: " + level);
+			M_log.warn("invalid log level: ignoring: " + level);
 			return false;
 		}
 
