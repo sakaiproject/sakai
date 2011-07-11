@@ -359,7 +359,7 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
     }
 
     public String[] getHandledOutputFormats() {
-        return new String[] { Formats.XML, Formats.JSON, Formats.FORM, Formats.JSONP };
+        return new String[] { Formats.XML, Formats.JSON, Formats.FORM };
     }
 
     /**

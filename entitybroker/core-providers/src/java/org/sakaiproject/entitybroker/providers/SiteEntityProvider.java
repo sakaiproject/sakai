@@ -962,7 +962,7 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable {
     }
 
     public String[] getHandledOutputFormats() {
-        return new String[] { Formats.XML, Formats.JSON, Formats.HTML, Formats.FORM, Formats.JSONP };
+        return new String[] { Formats.XML, Formats.JSON, Formats.HTML, Formats.FORM };
     }
 
     private Site getSiteById(String siteId) {
