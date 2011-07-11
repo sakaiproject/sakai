@@ -70,7 +70,7 @@
     </modules>
     
     <properties>
-        <sakai.simple-xml.version>2.3.6</sakai.simple-xml.version>
+        <sakai.simple-xml.version>2.6</sakai.simple-xml.version>
         <url.localsite>scp://source.sakaiproject.org/var/www/html/release/emailtemplateservice/${project.version}</url.localsite>
     </properties>
 
