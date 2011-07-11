@@ -27,7 +27,7 @@
 					value="#{msgs.bar_student_view}" 
 		   			rendered="#{SyllabusTool.editAble == 'true'}" />
    	      </sakai:tool_bar>
-   	      <h:messages globalOnly="true" styleClass="alertMessage"/>
+   	      <h:messages globalOnly="true" styleClass="alertMessage" rendered="#{!empty facesContext.maximumSeverity}" />
 	      <syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
 		     <sakai:tool_bar_message value="#{msgs.mainEditNotice}" />
 		     <syllabus:syllabus_table value="#{SyllabusTool.entries}" var="eachEntry" summary="#{msgs.mainEditListSummary}" styleClass="listHier lines nolines">

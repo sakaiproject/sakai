@@ -13,7 +13,7 @@
 				<h3>
 					<h:outputText value="#{msgs.redirect_sylla}" />
 				</h3>
-				<h:messages styleClass="alertMessage" />
+				<h:messages styleClass="alertMessage" rendered="#{!empty facesContext.maximumSeverity}" />
 				<h:panelGrid styleClass="jsfFormTable" columns="1">
 					<h:panelGroup styleClass="shorttext required">
 						<h:outputText value="*" styleClass="reqStar"/>

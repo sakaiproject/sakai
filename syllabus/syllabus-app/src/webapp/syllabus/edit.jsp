@@ -12,7 +12,7 @@
 	<sakai:view_container title="#{msgs.title_edit}">
 		<sakai:view_content>
 			<h:outputText value="#{SyllabusTool.alertMessage}" styleClass="alertMessage" rendered="#{SyllabusTool.alertMessage != null}" />
-			<h:messages globalOnly="true" styleClass="alertMessage" />
+			<h:messages globalOnly="true" styleClass="alertMessage" rendered="#{!empty facesContext.maximumSeverity}" />
 			<h:form>
 		  	<sakai:tool_bar_message value="#{msgs.add_sylla}" /> 
  			<sakai:doc_section>
