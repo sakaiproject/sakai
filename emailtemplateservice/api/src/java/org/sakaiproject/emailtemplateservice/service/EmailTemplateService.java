@@ -156,6 +156,16 @@ public interface EmailTemplateService {
     */
    public void processEmailTemplates(List<String> templatePaths);
    
+   
+   /**
+    * Export a given template as xml
+    * @param key
+    * @param locale
+    * @return
+    */
+   public String exportTemplateAsXml(String key, Locale locale);
+   
+   
    /**
     * Does a template for the key exist in this locale?
     * @param key

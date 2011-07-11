@@ -21,7 +21,13 @@
 
 package org.sakaiproject.emailtemplateservice.service.impl;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -435,5 +441,47 @@ private List<User> getUsersEmail(List<String> userIds) {
 		}
 	}
 
+	public String exportTemplateAsXml(String key, Locale locale) {
+		
+		EmailTemplate template = getEmailTemplate(key, locale);
+		Persister persister = new Persister();
+		File file = null;
+		String ret = null;
+		try {
+			file = File.createTempFile("emailtemplate", "xml");
+			persister.write(template, file);
+			//read the data
+			ret = readFile(file.getAbsolutePath());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally {
+			if (file != null) {
+				if (!file.delete()) {
+					log.warn("error deleting tmp file");
+				}
+			}
+			
+		}
+		
+		
+		
+		
+		return ret;
+	}
+
+	private static String readFile(String path) throws IOException {
+		FileInputStream stream = new FileInputStream(new File(path));
+		try {
+			FileChannel fc = stream.getChannel();
+			MappedByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
+			/* Instead of using default, pass in a decoder. */
+			return Charset.defaultCharset().decode(bb).toString();
+		}
+		finally {
+			stream.close();
+		}
+	}
 
 }
