@@ -1,21 +1,19 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	
-  	<modelVersion>4.0.0</modelVersion>
-
-  	<name>PCSERVICE IMPL</name>
-  	<artifactId>pcservice-impl</artifactId>
-  	<groupId>org.sakaiproject.pcservice</groupId>
-  	<packaging>jar</packaging>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <artifactId>portal-base</artifactId>
-        <groupId>org.sakaiproject</groupId>
+        <groupId>org.sakaiproject.portal</groupId>
         <version>2.9-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
+
+    <name>pcservice-impl</name>
+    <groupId>org.sakaiproject.pcservice</groupId>
+    <artifactId>pcservice-impl</artifactId>
+    <packaging>jar</packaging>
 
     <repositories>
         <repository>
@@ -31,42 +29,36 @@
             </snapshots>
         </repository>
     </repositories>
-  
-	<dependencies>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject.kernel</groupId>
-			<artifactId>sakai-kernel-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject.kernel</groupId>
-	   		<artifactId>sakai-component-manager</artifactId>
-	   	</dependency>
-		<dependency>
-			<groupId>org.sakaiproject.kernel</groupId>
-			<artifactId>sakai-kernel-util</artifactId>
-		</dependency>
 
-     	<dependency>
-        	<groupId>org.sakaiproject.entitybroker</groupId>
+    <dependencies>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-api</artifactId>
-            <scope>provided</scope>
         </dependency>
-
-     	<dependency>
-        	<groupId>org.sakaiproject.presence</groupId>
+        <dependency>
+            <groupId>org.sakaiproject.presence</groupId>
             <artifactId>sakai-presence-api</artifactId>
-            <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>jgroups</groupId>
             <artifactId>jgroups</artifactId>
             <version>2.10.0.Beta2</version>
         </dependency>
-		
-	</dependencies>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
+    </dependencies>
 </project>
