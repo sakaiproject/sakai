@@ -747,6 +747,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				
 			} else if (i.getType() == SimplePageItem.MULTIMEDIA) {
 
+			    String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+			    String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString);
+			    if (itemGroupTitles != null)
+				itemGroupTitles =  "[" + itemGroupTitles + "]";
+
+			    UIOutput.make(tableRow, "item-groups", itemGroupString);
+
 			    // the reason this code is complex is that we try to choose the best
 			    // HTML for displaying the particular type of object. We've added complexities
 			    // over time as we get more expeerience with different object types and browsers.
@@ -785,6 +792,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 					UIOutput.make(tableRow, "imageSpan");
 
+					if (itemGroupString != null) {
+					    UIOutput.make(tableRow, "item-group-titles3", itemGroupTitles);
+					    UIOutput.make(tableRow, "item-groups3", itemGroupString);
+					}
+
 					String imageName = i.getAlt();
 					if (imageName == null || imageName.equals(""))
 					    imageName = abbrevUrl(i.getURL());
@@ -818,6 +830,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					// to theirs as possible, even the lengths are actually interpreted as old style
 
 					UIOutput.make(tableRow, "youtubeSpan");
+
+					if (itemGroupString != null) {
+					    UIOutput.make(tableRow, "item-group-titles4", itemGroupTitles);
+					    UIOutput.make(tableRow, "item-groups4", itemGroupString);
+					}
 
 					// if width is blank or 100% scale the height
 					if (width != null && height != null && !height.number.equals("")) {
@@ -883,6 +900,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 				        UIComponent item2;
 					UIOutput.make(tableRow, "movieSpan");
+					if (itemGroupString != null) {
+					    UIOutput.make(tableRow, "item-group-titles5", itemGroupTitles);
+					    UIOutput.make(tableRow, "item-groups5", itemGroupString);
+					}
 
 					String movieUrl = i.getItemURL();
 					String oMimeType = mimeType; // in case we change it for FLV or others
@@ -990,6 +1011,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					}
 
 					UIOutput.make(tableRow, "iframeSpan");
+
+					if (itemGroupString != null) {
+					    UIOutput.make(tableRow, "item-group-titles2", itemGroupTitles);
+					    UIOutput.make(tableRow, "item-groups2", itemGroupString);
+					}
 
 					item = UIOutput.make(tableRow, "iframe").decorate(new UIFreeAttributeDecorator("src", i.getItemURL()));
 					// if user specifies auto, use Javascript to resize the iframe when the

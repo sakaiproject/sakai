@@ -206,7 +206,22 @@ $(function() {
 	}
 
 	$(".edit-youtube").click(function(){
+		$("#editgroups-youtube").after($("#grouplist"));
+		$("#grouplist").hide();
+		$("#editgroups-youtube").hide();
+
 		var row = $(this).parent().parent().parent();
+
+		var groups = row.find(".item-groups").text();
+		var grouplist = $("#grouplist");
+		if (grouplist != null) {
+		    $("#editgroups-youtube").show();
+		    $("#grouplist").show();
+		    if (groups != null) {
+			checkgroups(grouplist, groups);
+		    }
+		}
+
 		var itemid = row.find(".mm-item-id").text();
 		
 		$("#youtubeEditId").val(row.find(".youtube-id").text());
@@ -219,16 +234,36 @@ $(function() {
 		$('.hideOnDialog').hide();
 		$('#youtube-dialog').dialog('open');
 		checksize($('#youtube-dialog'));
+		$("#grouplist").hide();
 		return false;
 	});
 	
+	$("#editgroups-youtube").click(function(){
+		$("#editgroups-youtube").hide();
+		$("#grouplist").show();
+	    });
+
 	$('.edit-movie').click(function(){
 
                 //var object = this.parentNode.parentNode.childNodes[3].childNodes[1];                                                                
 		$("#expert-movie").hide();
 		$("#expert-movie-toggle-div").show();
-		
+		$("#editgroups-movie").after($("#grouplist"));
+		$("#grouplist").hide();
+		$("#editgroups-movie").hide();
+
 		var row = $(this).parent().parent().parent();
+
+		var groups = row.find(".item-groups").text();
+		var grouplist = $("#grouplist");
+		if (grouplist != null) {
+		    $("#editgroups-movie").show();
+		    $("#grouplist").show();
+		    if (groups != null) {
+			checkgroups(grouplist, groups);
+		    }
+		}
+
 		var itemid = row.find(".mm-item-id").text();
 
 		$("#movieEditId").val(row.find(".movie-id").text());
@@ -241,8 +276,14 @@ $(function() {
 		$('.hideOnDialog').hide();
 		$("#movie-dialog").dialog('open');
 		checksize($("#movie-dialog"));
+		$("#grouplist").hide();
 		return false;
 	});
+
+	$("#editgroups-movie").click(function(){
+		$("#editgroups-movie").hide();
+		$("#grouplist").show();
+	    });
 
 	$('#change-resource-movie').click(function(){
 		closeMovieDialog();
@@ -293,6 +334,7 @@ $(function() {
 		$("#edit-item-settings-p").hide();	
 		$("#pagestuff").hide();
 		$("#newwindowstuff").hide();
+		$("#editgroups").after($("#grouplist"));
 		
 		var row = $(this).parent().parent().parent();
 		var itemid = row.find(".current-item-id2").text();
@@ -588,8 +630,21 @@ $(function() {
 	$(".multimedia-edit").click(function(){
 		$("#expert-multimedia").hide();
 		$("#expert-multimedia-toggle-div").show();
+		$("#editgroups-mm").after($("#grouplist"));
+		$("#grouplist").hide();
+		$("#editgroups-mm").hide();
 
 		var row = $(this).parent().parent().parent();
+
+		var groups = row.find(".item-groups").text();
+		var grouplist = $("#grouplist");
+		if (grouplist != null) {
+		    $("#editgroups-mm").show();
+		    $("#grouplist").show();
+		    if (groups != null) {
+			checkgroups(grouplist, groups);
+		    }
+		}
 
 		$("#height").val(row.find(".mm-height").text());
 		$("#width").val(row.find(".mm-width").text());
@@ -614,8 +669,14 @@ $(function() {
 		$('.hideOnDialog').hide();
 		$("#edit-multimedia-dialog").dialog('open');
 		checksize($("#edit-multimedia-dialog"));
+		$("#grouplist").hide();
 		return false;
 	});
+
+	$("#editgroups-mm").click(function(){
+		$("#editgroups-mm").hide();
+		$("#grouplist").show();
+	    });
 
 	$("#expert-multimedia-toggle").click(function(){
 		$("#expert-multimedia-toggle-div").hide();

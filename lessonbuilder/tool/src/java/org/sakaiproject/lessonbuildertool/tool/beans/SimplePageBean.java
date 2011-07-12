@@ -2000,6 +2000,7 @@ public class SimplePageBean {
 	       i.getType() != SimplePageItem.ASSIGNMENT &&
 	       i.getType() != SimplePageItem.FORUM &&
 	       i.getType() != SimplePageItem.RESOURCE &&
+	       i.getType() != SimplePageItem.MULTIMEDIA &&
 	       i.getType() != SimplePageItem.PAGE)
 	       return ret;
 
@@ -2021,6 +2022,7 @@ public class SimplePageBean {
 	       case SimplePageItem.FORUM:
 		   entity = forumEntity.getEntity(i.getSakaiId()); break;
 	       case SimplePageItem.RESOURCE:
+	       case SimplePageItem.MULTIMEDIA:
 		   return getResourceGroups(i, nocache);  // responsible for caching the result
 	       case SimplePageItem.PAGE:
 		   return getLBItemGroups(i); // for all native LB objects
@@ -2140,6 +2142,7 @@ public class SimplePageBean {
 	   case SimplePageItem.FORUM:
 	       lessonEntity = forumEntity.getEntity(i.getSakaiId()); break;
 	   case SimplePageItem.RESOURCE:
+	   case SimplePageItem.MULTIMEDIA:
 	       return setResourceGroups (i, groups);
 	   case SimplePageItem.PAGE:
 	       return setLBItemGroups(i, groups);
@@ -2428,6 +2431,7 @@ public class SimplePageBean {
 			i.setDescription(description);
 			i.setHtml(mimetype);
 			update(i);
+			setItemGroups(i, selectedGroups);
 			return "success";
 		} else {
 			log.warn("editMultimedia Could not find multimedia object: " + itemId);
@@ -3733,6 +3737,8 @@ public class SimplePageBean {
 		item.setDescription(description);
 		update(item);
 
+		setItemGroups(item, selectedGroups);
+
 	}
 
 	/**
@@ -3800,5 +3806,8 @@ public class SimplePageBean {
 		item.setDescription(description);
 		item.setHtml(mimetype);
 		update(item);
+
+		setItemGroups(item, selectedGroups);
+
 	}
 }

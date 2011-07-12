@@ -141,6 +141,7 @@ setMainFrameHeight(window.name);
 					</td>
 					<td rsf:id="editmm-td" role="gridcell" class="edit-col"><div><a href="#" class="usebutton multimedia-edit" onclick="return false" rsf:id="iframe-edit"></a></div></td>
 					<td rsf:id="iframeSpan" role="gridcell" class="hideOnDialog"><div>
+					  <div rsf:id="item-group-titles2" class="item-group-titles"></div>
 					  <iframe
 					     name="SimplePageIFrame"
 					     class="portletMainIframe multimedia"
@@ -157,21 +158,25 @@ setMainFrameHeight(window.name);
 					  <div class="description" rsf:id="description5"></div>
 					  <div style="display:none" rsf:id="mimetype3" class="mm-type"></div>
 					  <div style="display:none" rsf:id="current-item-id3" class="mm-itemid"></div>
+					  <div style="display:none" rsf:id="item-groups2" class="item-groups"></div>
 					  </div>
 					</td>
 	
 					<td rsf:id="imageSpan" role="gridcell"><div>
+					    <div rsf:id="item-group-titles3" class="item-group-titles"></div>
 					    <img rsf:id="image" class="multimedia" />
 					    <div style="display:none" rsf:id="imageHeight" class="mm-height"></div>
 					    <div style="display:none" rsf:id="imageWidth" class="mm-width"></div>
 					    <div class="description" rsf:id="description2"></div>
 					    <div style="display:none" rsf:id="mimetype2" class="mm-type"></div>
 					    <div style="display:none" rsf:id="current-item-id4" class="mm-itemid"></div>
+					    <div style="display:none" rsf:id="item-groups3" class="item-groups"></div>
 					  </div>
 					</td>
 
 					<td rsf:id="youtube-td" role="gridcell" class="edit-col"><div><a href="#" class="usebutton edit-youtube" onclick="return false" rsf:id="youtube-edit"></a></div></td>
 					<td rsf:id="youtubeSpan" role="gridcell"  id="youtubeSpan"  class="hideOnDialog"><div>
+					    <div rsf:id="item-group-titles4" class="item-group-titles"></div>
 					    <object rsf:id="youtubeObject"><param name="allowFullScreen" value="true" /><param name="allowSscriptAccess" value="always" /><param name="movie" rsf:id="youtubeURLInject" /><embed rsf:id="youtubeEmbed" allowfullscreen="true" allowScriptAccess="always" /></object>
 					  </div>
 					  <div style="display:none" rsf:id="youtubeId" class="youtube-id"></div>
@@ -180,11 +185,13 @@ setMainFrameHeight(window.name);
 					  <div style="display:none" rsf:id="currentYoutubeWidth" class="mm-width"></div>
 					  <div class="description" rsf:id="description4"></div>
 					  <div style="display:none" rsf:id="current-item-id5" class="mm-itemid"></div>
+					  <div style="display:none" rsf:id="item-groups4" class="item-groups"></div>
 					</td>
 
 					<td rsf:id="movie-td" role="gridcell" class="edit-col"><div><a href="#" class="usebutton edit-movie" onclick="return false" rsf:id="edit-movie"></a></div></td>
 
 					<td rsf:id="movieSpan" role="gridcell" class="hideOnDialog"><div>
+					    <div rsf:id="item-group-titles5" class="item-group-titles"></div>
 					    <embed rsf:id="movieEmbed" autoplay="false" autostart="false" scale="aspect" />
 					    <object rsf:id="movieObject"><param name="src" rsf:id="movieURLInject" /><param name="FlashVars" rsf:id="flashvars"/><param name="autoplay" value="false"/><param name="autostart" value="false"/><param name="scale" value="aspect"/>
 					      <p rsf:id="noplugin-p"></p><br rsf:id="noplugin-br"/><a href="#" rsf:id="noplugin" target="_blank"></a>
@@ -200,6 +207,7 @@ setMainFrameHeight(window.name);
 					  <div class="description" rsf:id="description3"></div>
 					  <div style="display:none" rsf:id="mimetype5" class="mm-type"></div>
 					  <div style="display:none" rsf:id="current-item-id6" class="mm-itemid"></div>
+					  <div style="display:none" rsf:id="item-groups5" class="item-groups"></div>
 					</td>
 
 				</tr>
@@ -450,6 +458,9 @@ s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 						<p class="shorttext required" id="change-resource-mm-p">
 						  <a href="#" rsf:id="change-resource-mm" id="change-resource-mm"><span rsf:id="msg.simplepage.change_resource"></span></a>
 					        </p>
+						<p id="editgroups-mm">
+						  <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
+						</p>
 					</div>
 					<br />
 
@@ -643,6 +654,9 @@ s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 						  <label rsf:id="description4-label" for="alt">Page Title</label><br />
 						  <textarea name="description4" rsf:id="description4" id="description4" rows="5" class="edit-multimedia-input" ></textarea>
 						</p>
+						<p id="editgroups-youtube">
+						  <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
+						</p>
 					</div>
 					<br />
 					<div class="border2">
@@ -678,6 +692,9 @@ s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 						<p class="shorttext required" id="change-resource-movie-p">
 						  <a href="#" rsf:id="change-resource-movie" id="change-resource-movie"><span rsf:id="msg.simplepage.change_resource"></span></a>
 					        </p>
+						<p id="editgroups-movie">
+						  <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
+						</p>
 					</div>
 					<br />
 					<div class="border2">
