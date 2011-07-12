@@ -1999,10 +1999,11 @@ public class SimplePageBean {
 	   if (i.getType() != SimplePageItem.ASSESSMENT &&
 	       i.getType() != SimplePageItem.ASSIGNMENT &&
 	       i.getType() != SimplePageItem.FORUM &&
-	       i.getType() != SimplePageItem.RESOURCE)
+	       i.getType() != SimplePageItem.RESOURCE &&
+	       i.getType() != SimplePageItem.PAGE)
 	       return ret;
 
-	   if (!nocache) {
+	   if (!nocache && i.getType() != SimplePageItem.PAGE) {
 	       Object cached = groupCache.get(i.getSakaiId());
 	       if (cached != null) {
 		   if (cached instanceof String)
@@ -2020,7 +2021,9 @@ public class SimplePageBean {
 	       case SimplePageItem.FORUM:
 		   entity = forumEntity.getEntity(i.getSakaiId()); break;
 	       case SimplePageItem.RESOURCE:
-		   return getResourceGroups(i);  // responsible for caching the result
+		   return getResourceGroups(i, nocache);  // responsible for caching the result
+	       case SimplePageItem.PAGE:
+		   return getLBItemGroups(i); // for all native LB objects
 	       }
 	   }
 
@@ -2060,7 +2063,7 @@ public class SimplePageBean {
 
     // getItemGroups version for resources, since we don't have
     // an interface object
-       public Collection<String>getResourceGroups (SimplePageItem i) {
+       public Collection<String>getResourceGroups (SimplePageItem i, boolean nocache) {
 	   Collection<String> ret = null;
 
 	   ContentResource resource = null;
@@ -2075,7 +2078,6 @@ public class SimplePageBean {
 	   boolean inheritingPubView =  contentHostingService.isInheritingPubView(i.getSakaiId());
 	   if(AccessMode.INHERITED.equals(access) || inheritingPubView) {
 	       access = resource.getInheritedAccess();
-	       System.out.println("inherited " + access);
 	       // inherited means that we can't set it locally
 	       // an inherited value of site is OK
 	       // anything else can't be changed, so we set inherited
@@ -2100,15 +2102,29 @@ public class SimplePageBean {
 	       }
 	   }
 
-	   if (ret == null)
-	       groupCache.put(i.getSakaiId(), "*", DEFAULT_EXPIRATION);
-	   else
-	       groupCache.put(i.getSakaiId(), ret, DEFAULT_EXPIRATION);
+	   if (!nocache) {
+	       if (ret == null)
+		   groupCache.put(i.getSakaiId(), "*", DEFAULT_EXPIRATION);
+	       else
+		   groupCache.put(i.getSakaiId(), ret, DEFAULT_EXPIRATION);
+	   }
 
 	   return ret;
        }
 
+    // no obvious need to cache
+       public Collection<String>getLBItemGroups (SimplePageItem i) {
+	   List<String> ret = null;
 
+	   String groupString = i.getGroups();
+	   if (groupString == null || groupString.equals("")) {
+	       return null;
+	   }
+	       
+	   String[] groupsArray = groupString.split(",");
+	   return Arrays.asList(groupsArray);
+
+       }
 
     // set group list in tool. We'll have an array of group ids
     // returns old list, sorted, or null if entity not found.
@@ -2125,6 +2141,8 @@ public class SimplePageBean {
 	       lessonEntity = forumEntity.getEntity(i.getSakaiId()); break;
 	   case SimplePageItem.RESOURCE:
 	       return setResourceGroups (i, groups);
+	   case SimplePageItem.PAGE:
+	       return setLBItemGroups(i, groups);
 	   }
 	   if (lessonEntity != null) {
 	       // need a list to sort it.
@@ -2196,7 +2214,6 @@ public class SimplePageBean {
 		       Group group = site.getGroup(groups[n]);
 		       groups[n] = group.getReference();
 		   }
-		   System.out.println(Arrays.asList(groups));
 		   resource.setGroupAccess(Arrays.asList(groups));
 	       }
 	       contentHostingService.commitResource(resource);
@@ -2212,6 +2229,31 @@ public class SimplePageBean {
 
 	   return ret;
 
+       }
+
+       public List<String> setLBItemGroups (SimplePageItem i, String[] groups) {
+
+	   List<String>ret = null;
+	   // old value
+	   String groupString = i.getGroups();
+	   if (groupString != null && !groupString.equals("")) {
+	       ret = Arrays.asList(groupString.split(","));
+	   }
+	       
+	   groupString = null;
+	   if (groups != null) {
+	       for (int n = 0; n < groups.length; n++) {
+		   if (groupString == null)
+		       groupString = groups[n];
+		   else
+		       groupString = groupString + "," + groups[n];
+	       }
+	   }
+
+	   i.setGroups(groupString);
+	   update(i);
+
+	   return ret; // old value
        }
 
        public Set<String> getMyGroups() {

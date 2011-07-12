@@ -345,6 +345,16 @@ $(function() {
 		    $("#change-page").attr("href", 
 			$("#change-page").attr("href").replace("itemId=-1", "itemId=" + itemid));
 
+		    var groups = row.find(".item-groups").text();
+		    var grouplist = $("#grouplist");
+		    if (grouplist != null) {
+			$("#editgroups").show();
+			$("#grouplist").show();
+			if (groups != null) {
+			    checkgroups(grouplist, groups);
+			}
+		    }
+
 		} else if(type != '') {
 			// Must be an assignment, assessment, forum
 			

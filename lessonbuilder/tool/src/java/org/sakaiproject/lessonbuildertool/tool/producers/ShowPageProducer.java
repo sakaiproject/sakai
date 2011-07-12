@@ -724,6 +724,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						UIOutput.make(tableRow, "type", "page"); 
 						UIOutput.make(tableRow, "page-next", Boolean.toString(i.getNextPage()));
 						UIOutput.make(tableRow, "page-button", Boolean.toString("button".equals(i.getFormat())));
+						itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+						UIOutput.make(tableRow, "item-groups", itemGroupString);
 					} else if (i.getType() == SimplePageItem.RESOURCE) {
 					    itemGroupString = simplePageBean.getItemGroupString(i, null, true);
 					    if (simplePageBean.getInherited())

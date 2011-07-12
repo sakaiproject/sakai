@@ -35,5 +35,6 @@
 	<property name="subrequirement" type="boolean" />
 	<property name="requirementText" type="string" length="20" />
 	<property name="sameWindow" type="boolean" />
+	<property name="groups" type="string" length="500" />
    </class>
 </hibernate-mapping>

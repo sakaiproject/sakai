@@ -273,6 +273,8 @@ show it to members of that group. If there are no prerequisites, we
 take the group information from the tool itself. There are getgroups
 and setgroups in the tool interfaces to do this.
 
+1. Group Awareness for Quizzes, Assignments and Forums
+
 As soon as prerequisites are defined, we create our own access group,
 set the item to be available only to people in that group, and then
 add users to it as they qualify. At that point we have to take over
@@ -294,3 +296,24 @@ faculty member changes group membership in the tool and then goes back
 into LB, we want the change to be visible immediately. Otherwise
 things get very confusing. For students we can afford to wait 10 min
 since the last change done by the faculty member.
+
+2. For Resources
+
+For resources I do not maintain any local data. Because I don't ever
+take over access control (since I control access through
+/access/lessonbuilder), group restrictions are done through the normal
+Resources APIs. getItemGroups and setItemGroups will thus use the
+Resources APIs for resources
+
+3. For other items
+
+For pages and text blocks, group membership is stored in the groups
+attribute of SimplePageItem. This will be true for any other
+LB-specific objects that live on pages, such as the new comments
+widget.
+
+While a page can be called from many different other pages, we always
+have the SimplePageItem by which we got to the page. At top level this
+is a special top-level item. Because we always know this, it give us
+more flexbility, and avoids special-purpose code for pages, by putting
+the groups in the item, not the page.
