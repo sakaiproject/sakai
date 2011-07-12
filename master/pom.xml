@@ -109,6 +109,7 @@
         <sakai.jsf.version>2.9-SNAPSHOT</sakai.jsf.version>
         <sakai.message.version>2.9-SNAPSHOT</sakai.message.version>
         <sakai.msgcntr.version>2.9-SNAPSHOT</sakai.msgcntr.version>
+        <sakai.portal.version>2.9-SNAPSHOT</sakai.portal.version>
         <sakai.polls.version>1.5-SNAPSHOT</sakai.polls.version>
         <sakai.presence.version>2.9-SNAPSHOT</sakai.presence.version>
         <sakai.profile.version>2.9-SNAPSHOT</sakai.profile.version>
@@ -358,15 +359,15 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.portal</groupId>
                 <artifactId>sakai-portal-api</artifactId>
-                <version>${sakai.version}</version>
+                <version>${sakai.portal.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.portal</groupId>
                 <artifactId>sakai-portal-render-api</artifactId>
-                <version>${sakai.version}</version>
+                <version>${sakai.portal.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
