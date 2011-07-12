@@ -63,6 +63,7 @@ import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentResource;
@@ -1997,7 +1998,8 @@ public class SimplePageBean {
 
 	   if (i.getType() != SimplePageItem.ASSESSMENT &&
 	       i.getType() != SimplePageItem.ASSIGNMENT &&
-	       i.getType() != SimplePageItem.FORUM)
+	       i.getType() != SimplePageItem.FORUM &&
+	       i.getType() != SimplePageItem.RESOURCE)
 	       return ret;
 
 	   if (!nocache) {
@@ -2017,6 +2019,8 @@ public class SimplePageBean {
 		   entity = quizEntity.getEntity(i.getSakaiId()); break;
 	       case SimplePageItem.FORUM:
 		   entity = forumEntity.getEntity(i.getSakaiId()); break;
+	       case SimplePageItem.RESOURCE:
+		   return getResourceGroups(i);  // responsible for caching the result
 	       }
 	   }
 
@@ -2048,6 +2052,64 @@ public class SimplePageBean {
 
        }
 
+    // obviously this function must be called right after getResourceGroups
+       private boolean inherited = false;
+       public boolean getInherited() {
+	   return inherited;
+       }
+
+    // getItemGroups version for resources, since we don't have
+    // an interface object
+       public Collection<String>getResourceGroups (SimplePageItem i) {
+	   Collection<String> ret = null;
+
+	   ContentResource resource = null;
+	   try {
+	       resource = contentHostingService.getResource(i.getSakaiId());
+	   } catch (Exception ignore) {
+	       return null;
+	   }
+	   
+	   Collection<String>groups = null;
+	   AccessMode access = resource.getAccess();
+	   boolean inheritingPubView =  contentHostingService.isInheritingPubView(i.getSakaiId());
+	   if(AccessMode.INHERITED.equals(access) || inheritingPubView) {
+	       access = resource.getInheritedAccess();
+	       System.out.println("inherited " + access);
+	       // inherited means that we can't set it locally
+	       // an inherited value of site is OK
+	       // anything else can't be changed, so we set inherited
+	       if (AccessMode.SITE.equals(access) && ! inheritingPubView)
+		   inherited = false;
+	       else
+		   inherited = true;
+	       if (AccessMode.GROUPED.equals(access))
+		   groups = resource.getInheritedGroups();
+	   } else {
+	       // we can always change local modes, even if they are public
+	       inherited = false;
+	       if (AccessMode.GROUPED.equals(access))
+		   groups = resource.getGroups();
+	   }
+
+	   if (groups != null) {
+	       ret = new ArrayList<String>();
+	       for (String group: groups) {
+		   int n = group.indexOf("/group/");
+		   ret.add(group.substring(n+7));
+	       }
+	   }
+
+	   if (ret == null)
+	       groupCache.put(i.getSakaiId(), "*", DEFAULT_EXPIRATION);
+	   else
+	       groupCache.put(i.getSakaiId(), ret, DEFAULT_EXPIRATION);
+
+	   return ret;
+       }
+
+
+
     // set group list in tool. We'll have an array of group ids
     // returns old list, sorted, or null if entity not found.
     // WARNING: you must check whether isprerequisite. If so, we maintain
@@ -2061,6 +2123,8 @@ public class SimplePageBean {
 	       lessonEntity = quizEntity.getEntity(i.getSakaiId()); break;
 	   case SimplePageItem.FORUM:
 	       lessonEntity = forumEntity.getEntity(i.getSakaiId()); break;
+	   case SimplePageItem.RESOURCE:
+	       return setResourceGroups (i, groups);
 	   }
 	   if (lessonEntity != null) {
 	       // need a list to sort it.
@@ -2103,6 +2167,51 @@ public class SimplePageBean {
 	       return oldGroups;
 	   }
 	   return null;
+       }
+
+       public List<String> setResourceGroups (SimplePageItem i, String[] groups) {
+
+	   ContentResourceEdit resource = null;
+	   List<String>ret = null;
+
+	   try {
+	       resource = contentHostingService.editResource(i.getSakaiId());
+
+	       if (AccessMode.GROUPED.equals(resource.getInheritedAccess())) {
+		   Collection<String> oldGroups = resource.getInheritedGroups();
+		   if (oldGroups instanceof List)
+		       ret = (List<String>)oldGroups;
+		   else if (oldGroups != null)
+		       ret = new ArrayList<String>(oldGroups);
+	       }
+	       // else null
+
+	       if (groups == null || groups.length == 0) {
+		   if (AccessMode.GROUPED.equals(resource.getAccess()))
+		       resource.clearGroupAccess();
+		   // else must be public or site already, leave it
+	       } else {
+		   Site site = getCurrentSite();
+		   for (int n = 0; n < groups.length; n++) {
+		       Group group = site.getGroup(groups[n]);
+		       groups[n] = group.getReference();
+		   }
+		   System.out.println(Arrays.asList(groups));
+		   resource.setGroupAccess(Arrays.asList(groups));
+	       }
+	       contentHostingService.commitResource(resource);
+	       resource = null;
+
+	   } catch (Exception e) {
+	       setErrMessage(e.toString());
+	       return null;
+	   } finally {
+	       if (resource != null)
+		   contentHostingService.cancelResource(resource);
+	   }
+
+	   return ret;
+
        }
 
        public Set<String> getMyGroups() {

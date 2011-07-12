@@ -279,7 +279,9 @@ $(function() {
 		$("#assignment-points").hide();
 		$("#assignment-points").hide();
 		$("#grouplist").hide();
+		$("#select-resource-group").hide();
 		$("#editgroups").hide();
+		$("#resource-group-inherited").hide();
 		$("#assignment-points").val("");
 		$("#assignment-points-label").hide();
 		$("#change-assignment-p").hide();		
@@ -473,6 +475,19 @@ $(function() {
 		    $("#change-resource-p").show();
 		    $("#change-resource").attr("href", 
 		        $("#change-resource").attr("href").replace("pageItemId=-1", "pageItemId=" + itemid));
+		    var groups = row.find(".item-groups").text();
+		    var grouplist = $("#grouplist");
+		    if (groups == "--inherited--")
+			$("#resource-group-inherited").show();
+		    else if (grouplist != null) {
+			$("#editgroups").show();
+			$("#grouplist").show();
+			$("#select-resource-group").show();
+			if (groups != null) {
+			    checkgroups(grouplist, groups);
+			}
+		    }
+
 		}
 
 		if(row.find(".status-image").attr("src") == undefined) {

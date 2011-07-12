@@ -29,6 +29,8 @@ public interface SimplePageGroup {
 
     public long getId();
 
+    // this is actually the SakaiId
+
     public void setItemId(String itemId);
 
     public String getItemId();

@@ -26,7 +26,7 @@ package org.sakaiproject.lessonbuildertool;
 
 public class SimplePageGroupImpl implements SimplePageGroup {
 	private long id;
-	private String itemId;
+	private String itemId;  // this is actually the sakaiID
 	private String groupId;
 	private String groups;
 
