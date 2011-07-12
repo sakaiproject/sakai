@@ -15,6 +15,7 @@ webservices https://source.sakaiproject.org/svn/webservices/trunk
 # Indie tools
 basiclti https://source.sakaiproject.org/svn/basiclti/trunk
 jobscheduler https://source.sakaiproject.org/svn/jobscheduler/trunk
+lessonbuilder https://source.sakaiproject.org/svn/lessonbuilder/trunk/
 msgcntr https://source.sakaiproject.org/svn/msgcntr/trunk
 polls https://source.sakaiproject.org/svn/polls/trunk
 profile https://source.sakaiproject.org/svn/profile/trunk
@@ -26,8 +27,10 @@ shortenedurl https://source.sakaiproject.org/svn/shortenedurl/trunk
 sitestats https://source.sakaiproject.org/svn/sitestats/trunk
 
 # Indie experimental
+assignment2 https://source.sakaiproject.org/contrib/assignment2/trunk
 hybrid https://source.sakaiproject.org/svn/hybrid/trunk
-roster2 https://source.sakaiproject.org/contrib/roster2/trunk/
+mailsender https://source.sakaiproject.org/contrib/mailsender/trunk
+roster2 https://source.sakaiproject.org/contrib/roster2/trunk
 
 # Monolithic Sakai
 access https://source.sakaiproject.org/svn/access/trunk
@@ -82,9 +85,9 @@ genericdao http://genericdao.googlecode.com/svn/trunk/
 reflectutils http://reflectutils.googlecode.com/svn/trunk/
 
 # Fluid Project Reasonable Server Faces (RSF)
-rsf-ponderutilcore http://rsf.fluidproject.org/svn/projects/PonderUtilCore/trunk
-rsf-rsfutil http://rsf.fluidproject.org/svn/projects/RSFUtil/trunk
-rsf-rsfcomponents http://rsf.fluidproject.org/svn/projects/RSFComponents/trunk
-rsf-sakairsf http://rsf.fluidproject.org/svn/projects/SakaiRSF/trunk
+# rsf-ponderutilcore http://rsf.fluidproject.org/svn/projects/PonderUtilCore/trunk
+# rsf-rsfutil http://rsf.fluidproject.org/svn/projects/RSFUtil/trunk
+# rsf-rsfcomponents http://rsf.fluidproject.org/svn/projects/RSFComponents/trunk
+# rsf-sakairsf http://rsf.fluidproject.org/svn/projects/SakaiRSF/trunk
 # rsf-sakairsfsamples http://rsf.fluidproject.org/svn/projects/SakaiRSFSamples/trunk
-rsf-servletutil http://rsf.fluidproject.org/svn/projects/ServletUtil/trunk
+# rsf-servletutil http://rsf.fluidproject.org/svn/projects/ServletUtil/trunk
