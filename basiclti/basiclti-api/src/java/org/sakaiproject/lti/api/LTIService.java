@@ -48,16 +48,16 @@ public interface LTIService
 	public String [] getMappingModel() ;
 	public Object insertMapping(Properties newProps);
 	public Object getMapping(Long key);
-	public String deleteMapping(int key);
-	public String updateMapping(int key, Properties newProps);
+	public String deleteMapping(Long key);
+	public String updateMapping(Long key, Properties newProps);
 	public ArrayList<Properties> getMappings(String search, String order, int first, int last) ;
 	
 	/* Tool */
 	public String [] getToolModel() ;
 	public Object insertTool(Properties newProps);
 	public Object getTool(Long key);
-	public String deleteTool(int key);
-	public String updateTool(int key, Properties newProps);
+	public String deleteTool(Long key);
+	public String updateTool(Long key, Properties newProps);
 	public ArrayList<Properties> getTools(String search, String order, int first, int last) ;
 
 	/** Model Descriptions for Foorm 

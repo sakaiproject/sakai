@@ -117,9 +117,9 @@ System.out.println("sql="+sql);
 		return retval;
 	}
 	
-	public Object getMapping(int key) {return "oops"; }
-	public String deleteMapping(int key) { return null; }
-	public String updateMapping(int key, Properties newProps) { return null; }
+	public Object getMapping(Long key) {return "oops"; }
+	public String deleteMapping(Long key) { return null; }
+	public String updateMapping(Long key, Properties newProps) { return null; }
 	public ArrayList<Properties> getMappings(String search, String order, int first, int last) { return null; }
 
 	/** insertTool */
@@ -137,10 +137,45 @@ System.out.println("sql="+sql);
 		return retval;
 	}
 	
-	public Object getTool(int key) {return "oops"; }	
-	public String deleteTool(int key) { return null; }
-	public String updateTool(int key, Properties newProps) { return null; }
-	public ArrayList<Properties> getTools(String search, String order, int first, int last) { return null; }
+	public Object getTool(Long key) {return "oops"; }	
+	public String deleteTool(Long key) { return null; }
+	public String updateTool(Long key, Properties newProps) { return null; }
+
+	public ArrayList<Properties> getTools(String search, String order, int first, int last) 
+	{ return null;  /*
+			// let the db do the work
+			String statement = "SELECT * from blti_tools;";
+			Object fields[] = new Object[1];
+			fields[0] = caseId(siteId);
+
+			List rv = sqlService().dbRead(statement, fields, new SqlReader()
+			{
+				public Object readSqlResultRecord(ResultSet result)
+				{
+					try
+					{
+						String skin = result.getString(1);
+						int published = result.getInt(2);
+
+						// adjust the skin value
+						skin = m_service.adjustSkin(skin, (published == 1));
+
+						return skin;
+					}
+					catch (SQLException e)
+					{
+						M_log.warn("getSiteSkin: " + siteId + " : " + e);
+						return null;
+					}
+				}
+			});
+
+			if ((rv != null) && (rv.size() > 0))
+			{
+				return (String) rv.get(0);
+			}
+*/
+	}
 	
 
 }
