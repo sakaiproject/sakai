@@ -753,6 +753,15 @@ background-image: url(../../image/silk/comment.png);
 	background-image: url(../../image/silk/vcard.png); 
 } 
 
+.icon-sakai-summary-calendar { 
+	background-image: url(../../image/silk/calendar.png); 
+} 
+
+.icon-sakai-synoptic-announcement {
+	background-image: url(../../image/silk/flag_blue.png); 
+}
+
+
 /*admin tools*/
 .icon-sakai-users{
 	background-image: url(../../image/silk/folder_user.png);
