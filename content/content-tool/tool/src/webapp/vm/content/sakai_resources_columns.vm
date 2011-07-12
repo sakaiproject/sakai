@@ -42,6 +42,7 @@
 				#end
 			</select>
 			<input type="hidden" id="selectedItemId" name="selectedItemId" value="$selectedItemId" />
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
 	</div>
 	
@@ -117,5 +118,6 @@
 	<form id="selectionForm" name="selectionForm" action="#toolForm("ResourcesAction")" method="post">
 		<input type="hidden" name="sakai_action" id="sakai_action" value="doShowMembers" />
 		<input type="hidden" name="item" id="item" value="" />
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
