@@ -39,7 +39,8 @@ public class CourseGradeRecord extends AbstractGradeRecord {
     private String enteredGrade;
     private Double autoCalculatedGrade;  // Not persisted
 	private Double calculatedPointsEarned;	// Not persisted
-
+	private Double totalPointsPossible; // Not persisted
+	
     public static Comparator<CourseGradeRecord> calcComparator;
 
     static {
@@ -190,6 +191,7 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 
 	public void initNonpersistentFields(double totalPointsPossible, double totalPointsEarned) {
 		Double percentageEarned;
+		this.totalPointsPossible = totalPointsPossible;
 		calculatedPointsEarned = totalPointsEarned;
 		BigDecimal bdTotalPointsPossible = new BigDecimal(totalPointsPossible);
 		BigDecimal bdTotalPointsEarned = new BigDecimal(totalPointsEarned);
@@ -205,6 +207,7 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 		Double percentageEarned;
 		//calculatedPointsEarned = totalPointsEarned;
 		calculatedPointsEarned = literalTotalPointsEarned;
+		this.totalPointsPossible = totalPointsPossible;
 		BigDecimal bdTotalPointsPossible = new BigDecimal(totalPointsPossible);
 		BigDecimal bdTotalPointsEarned = new BigDecimal(totalPointsEarned);
 
@@ -220,5 +223,11 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 	}
 	public void setAutoCalculatedGrade(Double autoCalculatedGrade) {
 		this.autoCalculatedGrade = autoCalculatedGrade;
+	}
+	public Double getTotalPointsPossible() {
+		return totalPointsPossible;
+	}
+	public void setTotalPointsPossible(Double totalPointsPossible) {
+		this.totalPointsPossible = totalPointsPossible;
 	}
 }
