@@ -79,6 +79,7 @@ public class Assignment extends GradableObject {
 	private Boolean countNullsAsZeros;
 	private String itemType;
 	public String selectedGradeEntryValue;
+	private boolean hideInAllGradesTable = false;
 
 	static {
         dateComparator = new Comparator() {
@@ -582,4 +583,11 @@ public class Assignment extends GradableObject {
 			return isIncludedInCalculations;
 		}
 
+	public boolean isHideInAllGradesTable() {
+		return hideInAllGradesTable;
+	}
+
+	public void setHideInAllGradesTable(boolean hideInAllGradesTable) {
+		this.hideInAllGradesTable = hideInAllGradesTable;
+	}
 }

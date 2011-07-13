@@ -38,6 +38,7 @@
       <many-to-one name="category" column="CATEGORY_ID" class="org.sakaiproject.tool.gradebook.Category" not-null="false"/>
       <property name="ungraded" column="UNGRADED" type="boolean"/>
       <property name="countNullsAsZeros" column="IS_NULL_ZERO" type="boolean" not-null="false"/>
+      <property name="hideInAllGradesTable" column="HIDE_IN_ALL_GRADES_TABLE" type="boolean"/>
     </subclass>
 
 		<subclass name="org.sakaiproject.tool.gradebook.CourseGrade" extends="org.sakaiproject.tool.gradebook.GradableObject" discriminator-value="2">
