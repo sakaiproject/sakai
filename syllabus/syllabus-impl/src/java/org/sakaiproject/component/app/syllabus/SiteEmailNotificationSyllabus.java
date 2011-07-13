@@ -160,10 +160,23 @@ public class SiteEmailNotificationSyllabus extends SiteEmailNotification
 			if (attachments != null && attachments.size() > 0) {
 				buf.append(rb.getString("syllabus.attachments.list") + newline);
 				buf.append("<ul>");
+				// get the server url and prepend it to the relative url stored in the database
+				String surl = ServerConfigurationService.getServerUrl();
 				
 				for (Iterator i = attachments.iterator(); i.hasNext();) {
 					SyllabusAttachment attachment = (SyllabusAttachment) i.next();
-					String url = attachment.getUrl();
+					
+					// take into account if the data begins with the server url and adjust the output accordingly
+					String tempUrl = attachment.getUrl();
+					String url = "";
+					if (tempUrl.startsWith(surl))
+					{
+					    url = tempUrl;
+					}
+					else
+					{
+					    url = surl + attachment.getUrl();
+					}
 					
 					buf.append("<li>\t");
 					buf.append("<a href=\"" + url + "\">");
