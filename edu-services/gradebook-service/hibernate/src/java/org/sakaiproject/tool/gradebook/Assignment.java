@@ -47,6 +47,12 @@ public class Assignment extends GradableObject {
     public static String SORT_BY_EDITOR = "gradeEditor";
     public static String SORT_BY_SORTING = "sorting";
     public static String DEFAULT_SORT = SORT_BY_SORTING;
+    
+    public static String item_type_points = "Points";
+    public static String item_type_percentage = "Percentage";
+    public static String item_type_letter = "Letter Grade";
+    public static String item_type_nonCalc = "Non-calculating";
+    public static String item_type_adjustment = "Adjustment";
 
     public static Comparator dateComparator;
     public static Comparator nameComparator;
@@ -68,9 +74,11 @@ public class Assignment extends GradableObject {
     private Category category;
     private Double averageTotal;
     private boolean ungraded;
-    private Boolean extraCredit;
+    private Boolean extraCredit = false;
 	private Double assignmentWeighting;
 	private Boolean countNullsAsZeros;
+	private String itemType;
+	public String selectedGradeEntryValue;
 
 	static {
         dateComparator = new Comparator() {
@@ -409,11 +417,16 @@ public class Assignment extends GradableObject {
             if(!record.getGradableObject().equals(this)) {
                 continue;
             }
+
+            if(record.getDroppedFromGrade() == null) {
+                throw new RuntimeException("record.droppedFromGrade cannot be null");
+            }
+
             Double score = null;
             if(!ungraded && pointsPossible > 0)
             	score = record.getGradeAsPercentage();
             Double points = record.getPointsEarned();
-            if (score == null && points == null) {
+            if (score == null && points == null || record.getDroppedFromGrade()) {
             	continue;
             }
             else if (score == null)
@@ -493,6 +506,48 @@ public class Assignment extends GradableObject {
 		public void setAssignmentWeighting(Double assignmentWeighting) {
 			this.assignmentWeighting = assignmentWeighting;
 		}
+		
+		public String getItemType() {
+			Gradebook gb = getGradebook();
+			if (gb!=null)
+			{
+				if (isExtraCredit()!=null)
+				{
+					if (isExtraCredit())
+					{
+						// if we made it in here, go ahead and return since adjustment item takes priority over the rest
+						itemType = item_type_adjustment;
+						return itemType;
+					}
+				}
+				
+				if (getUngraded())
+				{
+					// if we made it in here, go ahead and return since non-calc item takes priority over the rest
+					itemType = item_type_nonCalc;
+					return itemType;
+				}
+				
+				if(gb.getGrade_type() == GradebookService.GRADE_TYPE_POINTS)
+				{
+					itemType = item_type_points;
+				}
+				else if(gb.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE)
+				{
+					itemType = item_type_percentage;
+				}
+				else if(gb.getGrade_type() == GradebookService.GRADE_TYPE_LETTER)
+				{
+					itemType = item_type_letter;
+				}
+			}
+			return itemType;
+		}
+
+
+		public void setItemType(String itemType) {
+			this.itemType = itemType;
+		}
 
 		public Boolean getCountNullsAsZeros() {
 			return countNullsAsZeros;
@@ -502,4 +557,29 @@ public class Assignment extends GradableObject {
 		public void setCountNullsAsZeros(Boolean countNullsAsZeros) {
 			this.countNullsAsZeros = countNullsAsZeros;
 		}
+		
+		public String getSelectedGradeEntryValue() {
+			return selectedGradeEntryValue;
+		}
+
+		public void setSelectedGradeEntryValue(String selectedGradeEntryValue) {
+			this.selectedGradeEntryValue = selectedGradeEntryValue;
+		}
+		
+		/**
+		 * Convenience method for checking if the grade for the assignment should be included in calculations.
+		 * This is different from just the {@link #isCounted()} method for an assignment.  This method does a more thorough check
+		 * using other values, such as if removed, isExtraCredit, ungraded, etc in addition to the assignment's notCounted property.
+		 * @return true if grades for this assignment should be included in various calculations.
+		 */
+		public boolean isIncludedInCalculations() {
+			boolean isIncludedInCalculations = false;
+			boolean extraCredit = isExtraCredit()!=null && isExtraCredit();
+    		if (!removed && !ungraded && !notCounted && (extraCredit || (pointsPossible != null && pointsPossible>0)))
+    		{
+    			isIncludedInCalculations = true;
+    		}
+			return isIncludedInCalculations;
+		}
+
 }

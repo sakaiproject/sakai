@@ -35,7 +35,10 @@
    
    		<property name="enforcePointWeighting" column="ENFORCE_POINT_WEIGHTING" type="boolean" not-null="false" />
    		
-  </class>
+   		<property name="dropHighest" column="DROP_HIGHEST" type="integer" not-null="false" />
+		
+		<property name="keepHighest" column="KEEP_HIGHEST" type="integer" not-null="false" />
+		</class>
   
  	<database-object>
 		<create>create index GB_CATEGORY_GB_IDX on GB_CATEGORY_T (GRADEBOOK_ID)</create>

@@ -40,6 +40,13 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 		}
 		else
 		{
+//			List ids = new ArrayList();
+//			for(Iterator iter = categoryList.iterator(); iter.hasNext(); )
+//			{
+//				Category cate = (Category) iter.next();
+//				if(cate != null)
+//					ids.add(cate.getId());
+//			}
 
 			List<Long> returnCatIds = new ArrayList<Long>();
 			List<Permission> permList = getPermissionsForUserForCategory(gradebookId, userId, categoryIdList);
@@ -54,6 +61,25 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 			
 			return returnCatIds;
 			
+
+//			List filteredCates = new ArrayList();
+//			for(Iterator cateIter = categoryList.iterator(); cateIter.hasNext();)
+//			{
+//				Category cate = (Category) cateIter.next();
+//				if(cate != null)
+//				{
+//					for(Iterator iter = permList.iterator(); iter.hasNext();)
+//					{
+//						Permission perm = (Permission) iter.next();
+//						if(perm != null && perm.getCategoryId().equals(cate.getId()))
+//						{
+//							filteredCates.add(cate);
+//							break;
+//						}
+//					}
+//				}
+//			}
+//			return filteredCates;
 		}
 	}
 	
@@ -75,6 +101,13 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 			return returnCategoryList;
 		}
 		
+//		Map categoryIdCategoryMap = new HashMap();
+//		for (Iterator catIter = categories.iterator(); catIter.hasNext();) {
+//			Category cat = (Category) catIter.next();
+//			if (cat != null) {
+//				categoryIdCategoryMap.put(cat.getId(), cat);
+//			}
+//		}
 		
 		List<String> studentSections = new ArrayList<String>();
 		
@@ -97,6 +130,9 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 				}else{
 					returnCategoryList.add(catId);
 				}
+		//		Category cat = (Category)categoryIdCategoryMap.get(catId);
+		//		if (cat != null)
+//					categoryMap.put(cat, null);
 			}
 		}
 		

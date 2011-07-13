@@ -392,7 +392,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
        eventTrackingService.postEvent(message,objectReference);
     }
 
-    public Long createCategory(final Long gradebookId, final String name, final Double weight, final int drop_lowest) 
+    public Long createCategory(final Long gradebookId, final String name, final Double weight, final Integer drop_lowest, final Integer dropHighest, final Integer keepHighest, final Boolean is_extra_credit) 
     throws ConflictingCategoryNameException, StaleObjectModificationException {
     	HibernateCallback hc = new HibernateCallback() {
     		public Object doInHibernate(Session session) throws HibernateException {
@@ -409,13 +409,27 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     			{
     				throw new IllegalArgumentException("weight for category is greater than 1 or less than 0 in createCategory of BaseHibernateManager");
     			}
+    			
+    			if(((drop_lowest!=null && drop_lowest > 0) || (dropHighest!=null && dropHighest > 0)) && (keepHighest!=null && keepHighest > 0))
+    			{
+    				throw new IllegalArgumentException("a combination of positive values for keepHighest and either drop_lowest or dropHighest occurred in createCategory of BaseHibernateManager");
+    			}
+    			
+//    			if((itemValue!=null && itemValue<=0) && ((drop_lowest!=null && drop_lowest > 0) || (dropHighest!=null && dropHighest > 0) || (keepHighest!=null && keepHighest > 0)))
+//    			{
+//    				throw new IllegalArgumentException("no valid itemValue provided with drop_lowest, dropHighest, or keepHighest in createCategory of BaseHibernateManager");
+//    			}
 
     			Category ca = new Category();
     			ca.setGradebook(gb);
     			ca.setName(name);
     			ca.setWeight(weight);
-    			ca.setDrop_lowest(drop_lowest);
+                ca.setDrop_lowest(drop_lowest);
+                ca.setDropHighest(dropHighest);
+                ca.setKeepHighest(keepHighest);
+                //ca.setItemValue(itemValue);
     			ca.setRemoved(false);
+    			ca.setExtraCredit(is_extra_credit);
 
     			Long id = (Long)session.save(ca);
 
@@ -526,6 +540,28 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     		}
     	};
     	return (Category) getHibernateTemplate().execute(hc);
+    }
+    
+    protected void updateCategory(Category category, Session session)
+    throws ConflictingAssignmentNameException, HibernateException {
+    	session.evict(category);
+    	Category persistentCat = (Category)session.load(Category.class, category.getId());
+
+    	List conflictList = ((List)session.createQuery(
+    	"select ca from Category as ca where ca.name = ? and ca.gradebook = ? and ca.id != ? and ca.removed=false").
+    	setString(0, category.getName()).
+    	setEntity(1, category.getGradebook()).
+    	setLong(2, category.getId().longValue()).list());
+    	int numNameConflicts = conflictList.size();
+    	if(numNameConflicts > 0) {
+    		throw new ConflictingCategoryNameException("You can not save multiple category in a gradebook with the same name");
+    	}
+    	if(category.getWeight().doubleValue() > 1 || category.getWeight().doubleValue() < 0)
+    	{
+    		throw new IllegalArgumentException("weight for category is greater than 1 or less than 0 in updateCategory of BaseHibernateManager");
+    	}
+    	session.evict(persistentCat);
+    	session.update(category);
     }
     
     public void updateCategory(final Category category) throws ConflictingCategoryNameException, StaleObjectModificationException{
