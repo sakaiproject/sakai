@@ -9,7 +9,8 @@
 </jsp:useBean>
 <f:view>
 	<sakai:view title="#{msgs.cdfm_discussion_forum_settings}" toolCssHref="/messageforums-tool/css/msgcntr.css">
-	<script type="text/javascript" src="/library/js/jquery.js"></script>
+	<script type="text/javascript" src="/library/js/jquery-ui-latest/js/jquery.min.js"></script>
+	<script type="text/javascript" src="/library/js/jquery-ui-latest/js/jquery-ui.min.js"></script>
 	<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>      
 	<script type="text/javascript" src="/messageforums-tool/js/jquery.charcounter.js"> </script>
 	<sakai:script contextBase="/messageforums-tool" path="/js/permissions_header.js"/>

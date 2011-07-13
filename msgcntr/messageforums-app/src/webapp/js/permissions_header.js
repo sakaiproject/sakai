@@ -38,19 +38,6 @@ function setCorrespondingLevel(checkBox){
       //alert(checkLevel(newArray));
       setIndexWithTextValue(selectLevel, checkLevel(newArray));
     }
-
-    role=getTheElement(var2[0]+":role");
-
-    //alert(role);
-    roleValue=role.options[var2[2]].value;
-    //alert(roleValue);
-    var lev=selectLevel.options[selectLevel.selectedIndex].text;
-    //alert(lev);
-    var newval=roleValue+" ("+lev+")";
-    //alert(newval);
-
-    role.options[var2[2]]=new Option(newval, roleValue, true);
-    role.options[var2[2]].selected=true;
   }
 }
 
@@ -180,12 +167,12 @@ function setCorrespondingCheckboxes(checkBox){
     else if(selectLevel.options[selectLevel.selectedIndex].value==contributor){
       setCheckBoxes(changeSettings, markAsRead, newForum, newResponse,  r2R, newTopic, read, revisePostings, postGrades, moderatePostings, deletePostings, contributorLevelArray);
     }
-
-    roleValue=role.options[var2[2]].value;
-    var lev=selectLevel.options[selectLevel.selectedIndex].text;
-    var newval=roleValue+" ("+lev+")";
-    role.options[var2[2]]=new Option(newval, roleValue, true);
-    role.options[var2[2]].selected=true;
+	else if (selectLevel.options[selectLevel.selectedIndex].value==custom){
+		// if set to custom, pop open the custom settings panel
+		if (document.getElementById(var2[0]+":"+ var2[1]+":"+ var2[2] + ":permissionSet").parentNode.style.display == "none") {
+			$(document.getElementById("revise:perm")).accordion("activate", parseInt(var2[2]));
+		}
+	}
   }
 }
 
@@ -226,47 +213,9 @@ function setCheckBoxes(changeSettings, markAsRead, newForum, newResponse,  r2R, 
   
 }
 
-function displayRelevantBlock(){
-  role=getTheElement("revise:role");
-  i=0;
-  while(true){
-    spanElement=getTheElement("revise:perm:"+i+":permissionSet");
-    if(spanElement){
-      rowNode = getSurroundingRowNode(spanElement);
-
-      if (rowNode){    
-        rowNode.style.display="none";
-      }   
-    }       
-    else{
-      break;
-    }
-    i++;
-  }
-
-  spanElement=getTheElement("revise:perm:"+ role.selectedIndex+":permissionSet");
-  if(spanElement){    
-    rowNode = getSurroundingRowNode(spanElement);
-    if (rowNode){    
-      rowNode.style.display="block";
-    }    
-  }
-}
-
-function getSurroundingRowNode(node){
-
-  if (navigator.appName != "Microsoft Internet Explorer"){
-    return node;    
-  }
- 
-  while(node){
-    if (node.tagName == "TR"){
-      break;
-    }
-    node = node.parentNode;
-  }    
-  return node;
-}
+$(function() {
+	$(document.getElementById("revise:perm")).accordion({ header: '.permissionCustomize', active:false, collapsible:true });
+});
 
 function disableOrEnableModeratePerm() {
 	moderateSelection = getTheElement("revise:moderated");

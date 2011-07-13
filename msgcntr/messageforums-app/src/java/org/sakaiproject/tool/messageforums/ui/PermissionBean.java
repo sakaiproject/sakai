@@ -382,6 +382,14 @@ public class PermissionBean {
     return item;
   }
 
+  /**
+   * @return Returns the role or group name.
+   */
+  public String getName()
+  {
+	  return item.getName();
+  }
+
 	/**
 	 * Pulls messages from bundle
 	 * 

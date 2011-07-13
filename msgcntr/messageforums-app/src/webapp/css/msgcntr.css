@@ -355,36 +355,66 @@ td div.title{
 .attachPanel td.attach{
 	width: 1em;
 }
-.permissionPanel{
-	/*permission panel in template settings, forum settings, topic settings*/
+.permissionTable {
+	width: 675px;	
 }
+.permissionRoleLabel {
+	display:inline-block;
+	width:14em;
+}
+.permissionRow {
+	padding: .25em;
+	border: 1px solid #C0C0C0;
+	display:block;
+}
+.permissionPanel > table {
+	padding-top: .3em;
+}
+
 .permissionPanel td{
+	padding-left: 1em;
+	vertical-align:top;
 }
-.permissionPanel .colored td{
-	padding-left: .3em;
-	padding-right: 3em;
-	background: #ffe;
+
+.permissionPanel .checkbox {
+	display:block;
+	border: none;
 }
-.permissionPanel .last{
-	border-bottom: 1px solid #eee;
+
+.permissionRadioGroup {
+	border: 1px solid #aaa;
+	display:block;
+	padding:.3em;
 }
-.permissionPanel td.first{
-	border-left: 1px solid #eee;
+
+.permissionRow .ui-icon { display: inline-block; text-indent: -99999px; overflow: hidden; background-repeat: no-repeat; vertical-align:bottom; }
+.permissionRow .ui-icon { width: 16px; height: 16px; background-image: url(ui-lightness/images/ui-icons_222222_256x240.png); }
+.permissionRow .ui-icon-triangle-1-s { background-position: -64px -16px; }
+.permissionRow .ui-icon-triangle-1-e { background-position: -32px -16px; }
+.permissionRow .ui-accordion-content { background: #eee; border: 1px solid #ccc; }
+.permissionRow .ui-accordion-header { 
+	background: #eee; 
+	border-radius: 4px;
+	cursor:pointer;
+	margin-left: 4em;
+	padding: .1em .4em .1em 0;
+	border: 1px solid #ccc;
+	display:inline-block;
+	height: 1.75em;
 }
-.permissionPanel td.second{
-	border-right: 1px solid #eee;
+.permissionRow .ui-accordion-header:hover { 
+	border: 1px solid #C03;
 }
-.permissionPanel .blank td{
-	border: none !important;
+.permissionRow .ui-accordion-header.ui-state-active {
+	border-radius: 4px 4px 0 0;
+	position:relative;
+	top: 1px;
+	border-bottom:none;
 }
-.permissionPanel .header td{
-	border-bottom: 1px solid #eee;
-	border-right: none;
-	border-left: none;
+.permissionRow .ui-accordion-header.ui-state-active:hover {
+	border-bottom:none;
 }
-.permissionPanel tr:hover{
-	background: #fff !important;
-}
+
 table.discTria{
 	/*some adjustments to sakai discTria - to make whole clickable looking*/
 	border: none;
