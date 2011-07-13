@@ -80,24 +80,40 @@ var SakaiUtils;
 
 		return profile;
 	}
-		
+	
+	SakaiUtils.readCookie = function(name) {
+    	var nameEQ = name + "=";
+    	var ca = document.cookie.split(';');
+    	for(var i=0;i < ca.length;i++) {
+        	var c = ca[i];
+        	while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        	if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    	}
+    	return null;
+	}
+	
 	SakaiUtils.getParameters = function() {
 		var arg = new Object();
 		var href = document.location.href;
 
-		if ( href.indexOf( "?") != -1) {
+		var paramString = '';
+		
+		if (href.indexOf( "?") != -1) {
 			var paramString = href.split( "?")[1];
+		}
+		else {
+			var paramString = SakaiUtils.readCookie('sakai-tool-params');
+		}
 			
-			if(paramString.indexOf("#") != -1)
-				paramString = paramString.split("#")[0];
+		if(paramString.indexOf("#") != -1)
+			paramString = paramString.split("#")[0];
 				
-			var params = paramString.split("&");
+		var params = paramString.split("&");
 
-			for (var i = 0; i < params.length; ++i) {
-				var name = params[i].split( "=")[0];
-				var value = params[i].split( "=")[1];
-				arg[name] = unescape(value);
-			}
+		for (var i = 0; i < params.length; ++i) {
+			var name = params[i].split( "=")[0];
+			var value = params[i].split( "=")[1];
+			arg[name] = unescape(value);
 		}
 	
 		return arg;

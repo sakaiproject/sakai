@@ -22,38 +22,9 @@
       xml:lang="en"  
       lang="en">
 <head>
-<script type="text/javascript" src="/library/js/jquery/jquery-ui/js/jquery.js"></script>
-<script type="text/javascript" src="/library/js/headscripts.js"></script>
-<script type="text/javascript" src="/profile2-tool/javascript/profile2-eb.js"></script>
-<script type="text/javascript" src="lib/trimpath-template-latest.js"></script>
-<script type="text/javascript" src="lib/sakai_utils.js"></script>
-<script type="text/javascript" src="lib/jquery.localisation.js"></script>
-<script type="text/javascript" src="lib/jquery.tablesorter.min.js"></script>
-<!-- <script type="text/javascript" src="lib/jquery.tablesorter.pager.js"></script> -->
-<script type="text/javascript" src="js/roster_permissions.js"></script>
 <link rel="stylesheet" type="text/css" href="/library/skin/tool_base.css" />
 <link rel="stylesheet" type="text/css" href="/profile2-tool/css/profile2-profile-entity.css" media="all" />
 <link rel="stylesheet" type="text/css" href="css/roster.css" />
-
-<!-- translations -->
-<script type="text/javascript">
-var arg = SakaiUtils.getParameters();
-if(arg['language']) {
-	$.localise('roster-translations',{language:arg['language'],loadBase: true});
-} else {
-	$.localise('roster-translations');
-}
-
-$.ajax({
-    url: '/library/skin/' + arg['skin'] + '/tool.css',
-    success: function(data, textStatus) {
-        $('head').append('<style type="text/css" rel="stylesheet">' + data + '</style>');
-    },
-    async: false,
-    dataType: 'text/css'
-});
-</script>
-
 </head>
 <body>
 
@@ -864,7 +835,33 @@ $.ajax({
 
 <!--  Templates End -->
 
-<script type="text/javascript" src="js/roster.js"></script>
+<script type="text/javascript" src="/library/js/jquery/jquery-ui/js/jquery.js"></script>
+<script type="text/javascript" src="/library/js/headscripts.js"></script>
+<script type="text/javascript" src="/profile2-tool/javascript/profile2-eb.js"></script>
+<script type="text/javascript" src="/sakai-roster2-tool/lib/trimpath-template-latest.js"></script>
+<script type="text/javascript" src="/sakai-roster2-tool/lib/sakai_utils.js"></script>
+<script type="text/javascript" src="/sakai-roster2-tool/lib/jquery.localisation.js"></script>
+<script type="text/javascript" src="/sakai-roster2-tool/lib/jquery.tablesorter.min.js"></script>
+<script type="text/javascript" src="/sakai-roster2-tool/js/roster_permissions.js"></script>
+<!-- translations -->
+<script type="text/javascript">
+var arg = SakaiUtils.getParameters();
+if(arg['language']) {
+	$.localise('/sakai-roster2-tool/roster-translations',{language:arg['language'],loadBase: true});
+} else {
+	$.localise('/sakai-roster2-tool/roster-translations');
+}
+
+$.ajax({
+    url: '/library/skin/' + arg['skin'] + '/tool.css',
+    success: function(data, textStatus) {
+        $('head').append('<style type="text/css" rel="stylesheet">' + data + '</style>');
+    },
+    async: false,
+    dataType: 'text/css'
+});
+</script>
+<script type="text/javascript" src="/sakai-roster2-tool/js/roster.js"></script>
 
 </body>
 </html>

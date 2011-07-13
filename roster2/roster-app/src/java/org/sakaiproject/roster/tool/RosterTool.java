@@ -17,8 +17,10 @@ package org.sakaiproject.roster.tool;
 
 import java.io.IOException;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -68,11 +70,20 @@ public class RosterTool extends HttpServlet {
 			// We are not logged in
 			throw new ServletException("getCurrentUser returned null.");
 		}
+				
+		if (request.getRequestURI().contains("/portal/pda/")) {
+			Cookie params = new Cookie("sakai-tool-params", getToolParameters(userId));
+			response.addCookie(params);
 
-		String defaultState = sakaiProxy.getDefaultRosterStateString();
-		
-		// pass siteId, language code and sakai.properties to the JQuery code
-		response.sendRedirect("/sakai-roster2-tool/roster.html?state=" + defaultState
+			RequestDispatcher dispatcher = this.getServletContext().getRequestDispatcher("/roster.html");
+			dispatcher.include(request, response);
+		} else {
+			response.sendRedirect("/sakai-roster2-tool/roster.html?" + getToolParameters(userId));
+		}
+	}
+
+	private String getToolParameters(String userId) {
+		String toolParameters = "state=" + sakaiProxy.getDefaultRosterStateString()
 				+ "&siteId=" + sakaiProxy.getCurrentSiteId() 
 				+ "&skin=" + sakaiProxy.getSakaiSkin()
 				+ "&language="+ (new ResourceLoader(userId)).getLocale().getLanguage()
@@ -80,6 +91,7 @@ public class RosterTool extends HttpServlet {
 				+ "&firstNameLastName=" + sakaiProxy.getFirstNameLastName()
 				+ "&hideSingleGroupFilter=" + sakaiProxy.getHideSingleGroupFilter()
 				+ "&viewUserDisplayId="	+ sakaiProxy.getViewUserDisplayId()
-				+ "&viewEmail="	+ sakaiProxy.getViewEmail());
+				+ "&viewEmail="	+ sakaiProxy.getViewEmail();
+		return toolParameters;
 	}
 }
