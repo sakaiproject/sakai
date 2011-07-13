@@ -283,6 +283,219 @@ function showHideAll(numToggles, context, expandAlt, collapseAlt, expandTitle, c
   }
 }
 
+function reEnableCategoryDropInputs(component) {
+    var formName = "gbForm";
+    if(component == null) {
+        // Enable all of the category drop scores inputs on the page
+        // This is required because of the lack of support for
+        // disabled components in myfaces
+        var allElements = document.forms[0].elements;
+        for(i=0; i < allElements.length; i++) {
+                var currentElement = allElements[i];
+                if(currentElement.name.indexOf(":pointValue") != -1
+                        || currentElement.name.indexOf(":relativeWeight") != -1
+                        || currentElement.name.indexOf(":dropHighest") != -1
+                        || currentElement.name.indexOf(":dropLowest") != -1
+                        || currentElement.name.indexOf(":keepHighest") != -1
+                   ) {
+                        // Recursive function call
+                    reEnableCategoryDropInputs(currentElement);
+                }
+        }
+    } else {
+        var dropElement = getTheElement(component.name);
+        dropElement.disabled = false;
+    }
+}
+
+function toggleVisibilityDropScoresFields() {
+    var formName = "gbForm";
+    var showDropHighest = getTheElement(formName + ":showDropHighest");
+    var showDropLowest = getTheElement(formName + ":showDropLowest");
+    var showKeepHighest = getTheElement(formName + ":showKeepHighest");
+    var dropHighestVisibility = ""; // an unspecified display makes the column and column header visible
+    var dropLowestVisibility = ""; // an unspecified display makes the column and column header visible
+    var keepHighestVisibility = ""; // an unspecified display makes the column and column header visible
+    var itemValueVisibility = "";
+    var tbl  = document.getElementById(formName + ":categoriesTable");
+    var thead = tbl.getElementsByTagName('thead');
+    var header = thead.item(0);
+    var headerRows = header.getElementsByTagName('th');
+
+    if(headerRows.length == 6) {
+        var dropHighestIdx = 2;  // the index of 1st drop column, if Categories is selected
+    } else {
+        var dropHighestIdx = 3;  // the index of 1st drop column, if Categories & Weighting is selected
+    }
+
+    if(showDropHighest == undefined || showDropHighest.checked == false) {
+        dropHighestVisibility = "none";      // make the column and column header not visible
+    }
+    if(showDropLowest == undefined || showDropLowest.checked == false) {
+        dropLowestVisibility = "none";      // make the column and column header not visible
+    }
+    if(showKeepHighest == undefined || showKeepHighest.checked == false) {
+        keepHighestVisibility = "none";      // make the column and column header not visible
+    }
+    if((showDropHighest == undefined || showDropHighest.checked == false)
+            && (showDropLowest == undefined || showDropLowest.checked == false)
+            && (showKeepHighest == undefined || showKeepHighest.checked == false)) {
+        itemValueVisibility = "none";      // make the column and column header not visible
+    }
+
+    headerRows[dropHighestIdx].style.display=dropHighestVisibility;
+    headerRows[dropHighestIdx+1].style.display=dropLowestVisibility;
+    headerRows[dropHighestIdx+2].style.display=keepHighestVisibility;
+    headerRows[dropHighestIdx+3].style.display=itemValueVisibility;
+    var rows = tbl.getElementsByTagName('tr');
+    for (var row=0; row<rows.length;row++) {
+        var cels = rows[row].getElementsByTagName('td')
+        if(cels.length > 0) {
+            cels[dropHighestIdx].style.display=dropHighestVisibility;
+            cels[dropHighestIdx+1].style.display=dropLowestVisibility;
+            cels[dropHighestIdx+2].style.display=keepHighestVisibility;
+            cels[dropHighestIdx+3].style.display=itemValueVisibility;
+        }
+    }
+    dropScoresAdjust();
+}
+
+
+function dropScoresAdjust() {
+    var formName = "gbForm";
+    var showDropHighest = getTheElement(formName + ":showDropHighest");
+    var showDropLowest = getTheElement(formName + ":showDropLowest");
+    var showKeepHighest = getTheElement(formName + ":showKeepHighest");
+    var numPossibleCategories = 51;
+
+    for (var i=0; i < numPossibleCategories; ++i) {
+        var dropHighest =  getTheElement(formName + ":categoriesTable:" + i + ":dropHighest");
+        var dropLowest =  getTheElement(formName + ":categoriesTable:" + i + ":dropLowest");
+        var keepHighest =  getTheElement(formName + ":categoriesTable:" + i + ":keepHighest");
+        var pointValue =  getTheElement(formName + ":categoriesTable:" + i + ":pointValue");
+        var relativeWeight =  getTheElement(formName + ":categoriesTable:" + i + ":relativeWeight");
+        var pointValueLabelAsterisk = getTheElement(formName + ":categoriesTable:" + i + ":pointValueLabelAsterisk");
+        
+        var dropHighestEnabled = true;
+        var dropLowestEnabled = true;
+        var keepHighestEnabled = true;
+        
+        var pointsPossibleUnequal = false;
+        if(showDropHighest == undefined || showDropHighest.checked == false) {
+            dropHighestEnabled = false;
+            if(dropHighest != undefined) {
+                dropHighest.value = 0;
+            }
+        }
+        if(showDropLowest == undefined || showDropLowest.checked == false) {
+            dropLowestEnabled = false;
+            if(dropLowest != undefined) {
+                dropLowest.value = 0;
+            }
+        }
+        if(showKeepHighest == undefined || showKeepHighest.checked == false) {
+            keepHighestEnabled = false;
+            if(keepHighest != undefined) {
+                keepHighest.value = 0;
+            }
+        }
+        if(dropHighestEnabled == false && dropLowestEnabled == false && keepHighestEnabled == false) {
+            if(pointValue != undefined) {
+                pointValue.value = 0;
+            }
+            if(relativeWeight != undefined) {
+                relativeWeight.value = 0;
+            }
+        }
+        // if all are disabled, this means that the category was disabled for entering drop scores (because items pointsPossible are unequal)
+        if(dropHighest != undefined && dropLowest != undefined && keepHighest != undefined) {
+            if(dropHighest.disabled == true && dropLowest.disabled == true && keepHighest.disabled == true) {
+                pointsPossibleUnequal = true;
+            } else {
+                pointsPossibleUnequal = false;
+            }
+        }        
+        if(!pointsPossibleUnequal) {
+            if(dropHighest != undefined && (dropHighest.value > 0 || dropLowest.value > 0)) {
+                if(keepHighest != undefined) {
+                    keepHighest.value = 0;
+                    keepHighest.disabled = true;
+                }
+            } else if(keepHighest != undefined) {
+                keepHighest.disabled = false;
+                
+                if(pointValue != undefined) {
+                    pointValue.disabled = true;
+                    if(pointValueLabelAsterisk != undefined) {
+                        pointValueLabelAsterisk.style.visibility="hidden";
+                    }
+                }
+                if(relativeWeight != undefined) {
+                    relativeWeight.disabled = true;
+                    if(pointValueLabelAsterisk != undefined) {
+                        pointValueLabelAsterisk.style.visibility="hidden";
+                    }
+                }
+                
+            }    
+            if(keepHighest != undefined && keepHighest.value > 0) {
+                if(dropLowest != undefined) {
+                    dropLowest.value = 0;
+                    dropLowest.disabled = true;
+                }
+                if(dropHighest != undefined) {
+                    dropHighest.value = 0;
+                    dropHighest.disabled = true;
+                }
+            } else if(dropLowest != undefined && dropHighest != undefined) {
+                dropLowest.disabled = false;
+                dropHighest.disabled = false;
+            }
+            
+            if((dropHighest != undefined && dropHighest.value > 0) 
+                    || (dropLowest != undefined && dropLowest.value > 0)
+                    || (keepHighest != undefined && keepHighest.value > 0)) {
+                if(pointValue != undefined) {
+                    pointValue.disabled = false;
+                    if(pointValueLabelAsterisk != undefined) {
+                        pointValueLabelAsterisk.style.visibility="visible";
+                    }
+                }
+                if(relativeWeight != undefined) {
+                    relativeWeight.disabled = false;
+                    if(pointValueLabelAsterisk != undefined) {
+                        pointValueLabelAsterisk.style.visibility="visible";
+                    }
+                }
+            } else {
+                if(pointValue != undefined) {
+                    pointValue.disabled = true;
+                    if(pointValueLabelAsterisk != undefined) {
+                        pointValueLabelAsterisk.style.visibility="hidden";
+                    }
+                }
+                if(relativeWeight != undefined) {
+                    relativeWeight.disabled = true;
+                    if(pointValueLabelAsterisk != undefined) {
+                        pointValueLabelAsterisk.style.visibility="hidden";
+                    }
+                }
+            }
+
+            if((dropHighest == undefined || dropHighest.value < 1) 
+                    && (dropLowest == undefined || dropLowest.value < 1)
+                    && (keepHighest == undefined || keepHighest.value < 1)) {
+                if(pointValue != undefined) {
+                    pointValue.value = 0.0;
+                }
+                if(relativeWeight != undefined) {
+                    relativeWeight.value = 0.0;
+                }
+            }
+        }
+    }
+}
+
 // if user unchecks box to release items, we must uncheck
 // and disable the option to include item in cumulative score
 function assignmentReleased(myForm, releasedChanged) {

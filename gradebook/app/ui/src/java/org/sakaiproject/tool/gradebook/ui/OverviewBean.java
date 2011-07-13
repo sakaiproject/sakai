@@ -107,7 +107,7 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 			 * categories, assignments, and the course grade.
 			 */
 			List categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(), getAssignmentSortColumn(), isAssignmentSortAscending(), getCategorySortColumn(), isCategorySortAscending());
-			List categoryList = new ArrayList();
+			List<Category> categoryList = new ArrayList<Category>();
 			
 			// first, remove the CourseGrade from the Category list
 			for (Iterator catIter = categoryListWithCG.iterator(); catIter.hasNext();) {

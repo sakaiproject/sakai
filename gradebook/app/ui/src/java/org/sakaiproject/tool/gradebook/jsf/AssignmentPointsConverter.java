@@ -104,6 +104,12 @@ public class AssignmentPointsConverter extends PointsConverter {
 		if(percentage && workingValue != null){
 			formattedScore += "%";
 		}
+        if(value != null && value instanceof AssignmentGradeRecord){
+            AssignmentGradeRecord agr = (AssignmentGradeRecord)value;
+            if(agr.getDroppedFromGrade()) {
+                formattedScore = "<strike>" + formattedScore + "</strike>";
+            }
+        }
 		return formattedScore;
 	}
 }

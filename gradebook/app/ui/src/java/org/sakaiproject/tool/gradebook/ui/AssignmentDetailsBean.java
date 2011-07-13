@@ -99,6 +99,14 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
             }
 		}
 
+        public void setDroppedFromGrade(Boolean droppedFromGrade) {
+            this.gradeRecord.setDroppedFromGrade(droppedFromGrade);
+        }
+        
+        public Boolean getDroppedFromGrade() {
+            return this.gradeRecord.getDroppedFromGrade();
+        }
+
 		public Double getScore() {
 			if (getGradeEntryByPercent())
 				return truncateScore(gradeRecord.getPercentEarned());
@@ -179,6 +187,17 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
         }
 	}
 
+    public boolean isAssignmentCategoryDropsScores() {
+        Category category = assignment.getCategory();
+        if(category != null) {
+            boolean dropScores = category.isDropScores();
+            return dropScores;
+        } else {
+            return false;
+        }
+    }
+
+    
 	protected void init() {
 		if (logger.isDebugEnabled()) logger.debug("loadData assignment=" + assignment + ", previousAssignment=" + previousAssignment + ", nextAssignment=" + nextAssignment);
 		if (logger.isDebugEnabled()) logger.debug("isNotValidated()=" + isNotValidated());
@@ -233,7 +252,26 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
                 	// Categories are enabled, so the assignments are grouped by category
                 	assignments = new ArrayList();
                 	
-                	List categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(), getAssignmentSortColumn(), isAssignmentSortAscending(), getCategorySortColumn(), isCategorySortAscending());
+                	List categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(), getAssignmentSortColumn(), isAssignmentSortAscending(), getCategorySortColumn(), isCategorySortAscending(), true);
+                	
+                	// if drop scores, must apply the average total as it was calculated for all assignments within the category
+                    if(assignment.getCategory() != null && assignment.getCategory().isDropScores()) {
+                    	for(Object obj : categoryListWithCG) {
+                    	    if(obj instanceof Category) {
+                        	    List<Assignment> catAssignments = ((Category)obj).getAssignmentList();
+                        	    if(catAssignments != null) {
+                            	    for(Assignment catAssignment : catAssignments) {
+                            	        if(catAssignment.equals(assignment)) {
+                            	            assignment.setAverageTotal(catAssignment.getAverageTotal());
+                            	            assignment.setMean(catAssignment.getMean());
+                            	        }
+                            	        
+                            	    }
+                        	    }
+                    	    }
+                    	}           	
+                    }
+                    
         			List categoryList = new ArrayList();
         			
         			// first, remove the CourseGrade from the Category list
@@ -305,6 +343,12 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 					gradeRecords = getGradebookManager().getAssignmentGradeRecords(assignment, studentUids);
 				else 
 					gradeRecords = getGradebookManager().getAssignmentGradeRecordsConverted(assignment, studentUids);
+				
+				List<AssignmentGradeRecord> studentGradeRecords = getGradebookManager().getAllAssignmentGradeRecords(getGradebookId(), studentUids);
+				
+				getGradebookManager().applyDropScores(studentGradeRecords);
+				
+				copyDroppedFromGradeFlag(gradeRecords, studentGradeRecords);
 				
 				if (!isEnrollmentSort()) {
 					// Need to sort and page based on a scores column.
@@ -382,6 +426,17 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 				
 				if (getCategoriesEnabled()) {
 					if (assignment.getCategory() != null) {
+                        List<String> items = new ArrayList<String>();
+                        if(assignment.getCategory().getDropHighest() != 0) {
+                            items.add(getLocalizedString("cat_drop_highest_display", new String[] {assignment.getCategory().getDropHighest().toString()}));
+                        }
+                        if(assignment.getCategory().getDrop_lowest() != 0) {
+                            items.add(getLocalizedString("cat_drop_lowest_display", new String[] {assignment.getCategory().getDrop_lowest().toString()}));
+                        }
+                        String categoryGradeDrops = null;
+                        if(items.size() > 0) {
+                            categoryGradeDrops = " " + items.toString().replace('[', '(').replace(']', ')');
+                        }
 						if (getWeightingEnabled()) {
 							Double weight = assignment.getCategory().getWeight();
 							if (weight != null && weight.doubleValue() > 0)
@@ -391,8 +446,14 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 										"Double weight == null!");
 							assignmentWeight = weight.toString();
 							assignmentCategory = assignment.getCategory().getName() + " " + getLocalizedString("cat_weight_display", new String[] {assignmentWeight});
+                            if(categoryGradeDrops != null) {
+                                assignmentCategory = assignmentCategory + categoryGradeDrops;
+                            }
 						} else {
-							assignmentCategory = assignment.getCategory().getName();
+                            assignmentCategory = assignment.getCategory().getName();
+                            if(categoryGradeDrops != null) {
+                                assignmentCategory = assignmentCategory + categoryGradeDrops;
+                            }
 						}
 					}
 					else {
@@ -406,6 +467,17 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
                 FacesUtil.addErrorMessage(getLocalizedString("assignment_details_assignment_removed"));
 			}
 		}
+	}
+	
+	private void copyDroppedFromGradeFlag(List<AssignmentGradeRecord> dest, List<AssignmentGradeRecord> source) {
+        for(AssignmentGradeRecord gradeRecord : dest) {
+            Long id = gradeRecord.getId();
+            for(AssignmentGradeRecord studentGradeRecord : source) {
+                if(studentGradeRecord.getId().equals(id)) {
+                    gradeRecord.setDroppedFromGrade(studentGradeRecord.getDroppedFromGrade());
+                }
+            }            
+        }
 	}
 
 	// Delegated sort methods for read-only assignment & category sort order

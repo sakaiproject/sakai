@@ -126,7 +126,32 @@
 			org.sakaiproject.tool.gradebook.jsf.AssignmentGradeValidator
 		</validator-class>
 	</validator>
-
+	<converter>
+		<converter-id>
+			org.sakaiproject.gradebook.jsf.converter.DROP_SCORES
+		</converter-id>
+		<converter-class>
+			org.sakaiproject.tool.gradebook.jsf.DropScoresConverter
+		</converter-class>
+	</converter>
+	<validator>
+		<validator-id>
+			org.sakaiproject.gradebook.jsf.validator.DROP_SCORES
+		</validator-id>
+		<validator-class>
+			org.sakaiproject.tool.gradebook.jsf.DropScoresValidator
+		</validator-class>
+	</validator>
+	
+	
+	<validator>
+		<validator-id>
+			org.sakaiproject.gradebook.jsf.validator.CATEGORY_ITEM
+		</validator-id>
+		<validator-class>
+			org.sakaiproject.tool.gradebook.jsf.CategoryItemValidator
+		</validator-class>
+	</validator>
 	<render-kit>
 		<renderer>
 			<component-family>javax.faces.Messages</component-family>

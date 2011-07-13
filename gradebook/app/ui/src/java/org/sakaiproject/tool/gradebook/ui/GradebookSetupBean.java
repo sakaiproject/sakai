@@ -54,11 +54,17 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 
 	private String gradeEntryMethod;
 	private String categorySetting;
+    private boolean showDropHighestDisplayed;
+    private boolean showDropLowestDisplayed;
+    private boolean showKeepHighestDisplayed;
+    private boolean anyCategoriesWithDrops;
 	private List categories;
 	private Gradebook localGradebook;
 	private List categoriesToRemove;
-	private double runningTotal;
+	private double regularTotal;
 	private double neededTotal;
+	private double adjustmentTotal;
+	private double grandTotal;
 	private String pageName;
 	private List letterGradeRows;
 	private List letterGradesList;
@@ -67,13 +73,19 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	private boolean enableLetterGrade = false;
   private boolean isValidWithCourseGrade = true;
 	
-	private static final int NUM_EXTRA_CAT_ENTRIES = 50;
+	private boolean isLetterGrade = false;
+    private boolean isPointGrade = false;
+    private boolean isPercentageGrade = false;
+
+    private static final int NUM_EXTRA_CAT_ENTRIES = 50;
 	private static final String ENTRY_OPT_POINTS = "points";
 	private static final String ENTRY_OPT_PERCENT = "percent";
 	private static final String ENTRY_OPT_LETTER = "letterGrade";
 	private static final String CATEGORY_OPT_NONE = "noCategories";
 	private static final String CATEGORY_OPT_CAT_ONLY = "onlyCategories";
 	private static final String CATEGORY_OPT_CAT_AND_WEIGHT = "categoriesAndWeighting";
+    private static final String DROP_OPT_HIDE = "hideDrop";
+    private static final String DROP_OPT_SHOW = "showDrop";
 
 	private static final String GB_SETUP_PAGE = "gradebookSetup";
 	private static final String GB_OVERVIEW_PAGE = "overview";
@@ -86,6 +98,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		{
 			localGradebook = getGradebook();
 			categories = getGradebookManager().getCategoriesWithStats(getGradebookId(),Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+            populateCategoryAssignments(categories);
 			convertWeightsFromDecimalsToPercentages();
 			intializeGradeEntryAndCategorySettings();
 			categoriesToRemove = new ArrayList();
@@ -101,7 +114,99 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		if (lgpm != null && lgpm.getGradeMap().size() > 0) {	
 			initLetterGradeRows();
 		}
+
+        if(getAnyCategoriesWithDropHighest()) {
+            showDropHighestDisplayed = true;
+        } else {
+            showDropHighestDisplayed = false;
+        }
+
+        if(getAnyCategoriesWithDropLowest()) {
+            showDropLowestDisplayed = true;
+        } else {
+            showDropLowestDisplayed = false;
+        }
+
+        if(getAnyCategoriesWithKeepHighest()) {
+            showKeepHighestDisplayed = true;
+        } else {
+            showKeepHighestDisplayed = false;
+        }
 	}
+    
+    /*
+     * For category requests to drop scores, need their assignments populated
+     * so that system can determine eligibility of category to drop scores
+     * if assignments have unequal pointsPossible, then they cannot drop scores
+     */
+    private void populateCategoryAssignments(List categories) {
+        if(categories != null) {
+            for(Object obj : categories) {
+                if(obj instanceof Category) {
+                    Category category = (Category)obj;
+                    List assignments = category.getAssignmentList();
+                    if(category.isDropScores() && (assignments == null || assignments.size() == 0)) { // don't populate, if assignments are already in category (to improve performance)
+                        assignments = getGradebookManager().getAssignmentsForCategory(category.getId());
+                        List assignmentsToUpdate = new ArrayList();
+                     // only include assignments which are not adjustments must not update adjustment item pointsPossible
+                        for(Object o : assignments) { 
+                            if(o instanceof Assignment) {
+                                Assignment assignment = (Assignment)o;
+                                if(!Assignment.item_type_adjustment.equals(assignment.getItemType())) {
+                                    assignmentsToUpdate.add(assignment);
+                                }
+                            }
+                        }
+                        if(assignments != null && assignments.size() > 0) {
+                            category.setAssignmentList(assignmentsToUpdate);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+//    private void removeDropHighestFromCategories() {
+//        if(categories != null) {
+//            for(Object obj : categories) {
+//                if(obj instanceof Category) {
+//                    Category category = (Category)obj;
+//                    category.setDropHighest(0);
+//                    if(category.getDrop_lowest() == 0 && category.getKeepHighest() == 0) {
+//                        category.setItemValue(0.0);
+//                    }
+//                }
+//            }
+//        }
+//    }
+//    
+//    private void removeDropLowestFromCategories() {
+//        if(categories != null) {
+//            for(Object obj : categories) {
+//                if(obj instanceof Category) {
+//                    Category category = (Category)obj;
+//                    category.setDrop_lowest(0);
+//                    if(category.getDropHighest() == 0 && category.getKeepHighest() == 0) {
+//                        category.setItemValue(0.0);
+//                    }
+//                }
+//            }
+//        }
+//    }
+//    
+//    private void removeKeepHighestFromCategories() {
+//        if(categories != null) {
+//            for(Object obj : categories) {
+//                if(obj instanceof Category) {
+//                    Category category = (Category)obj;
+//                    category.setKeepHighest(0);
+//                    if(category.getDrop_lowest() == 0 && category.getDropHighest() == 0) {
+//                        category.setItemValue(0.0);
+//                    }
+//                }
+//            }
+//        }
+//    }
 	
 	private void initLetterGradeRows() {
 		letterGradeRows = new ArrayList();
@@ -149,6 +254,87 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	{
 		this.categorySetting = categorySetting;
 	} 
+	
+	public boolean getShowDropHighestDisplayed() {
+        return showDropHighestDisplayed;
+    }
+
+    public void setShowDropHighestDisplayed(boolean showDropHighestDisplayed) {
+        this.showDropHighestDisplayed = showDropHighestDisplayed;
+    }
+
+    public boolean getShowDropLowestDisplayed() {
+        return showDropLowestDisplayed;
+    }
+
+    public void setShowDropLowestDisplayed(boolean showDropLowestDisplayed) {
+        this.showDropLowestDisplayed = showDropLowestDisplayed;
+    }
+
+    public boolean getShowKeepHighestDisplayed() {
+        return showKeepHighestDisplayed;
+    }
+
+    public void setShowKeepHighestDisplayed(boolean showKeepHighestDisplayed) {
+        this.showKeepHighestDisplayed = showKeepHighestDisplayed;
+    }
+
+    public void setAnyCategoriesWithDropHighest(boolean anyCategoriesWithDropHighest) {
+    }
+
+    public void setAnyCategoriesWithDropLowest(boolean anyCategoriesWithDropLowest) {
+    }
+
+    public void setAnyCategoriesWithKeepHighest(boolean anyCategoriesWithKeepHighest) {
+    }
+    
+    public boolean getAnyCategoriesWithDropHighest() {
+        boolean anyDrops = false;
+        if(categories != null) {
+            for(Object obj : categories) {
+                if(obj instanceof Category) {
+                    Category category = (Category)obj;
+                    anyDrops = category.getDropHighest() > 0;
+                    setShowDropHighestDisplayed(anyDrops);
+                    if(anyDrops)
+                        break;
+                }
+            }
+        }
+        return anyDrops;
+    }
+    
+    public boolean getAnyCategoriesWithDropLowest() {
+        boolean anyDrops = false;
+        if(categories != null) {
+            for(Object obj : categories) {
+                if(obj instanceof Category) {
+                    Category category = (Category)obj;
+                    anyDrops = category.getDrop_lowest() > 0;
+                    setShowDropLowestDisplayed(anyDrops);
+                    if(anyDrops)
+                        break;
+                }
+            }
+        }
+        return anyDrops;
+    }
+    
+    public boolean getAnyCategoriesWithKeepHighest() {
+        boolean anyDrops = false;
+        if(categories != null) {
+            for(Object obj : categories) {
+                if(obj instanceof Category) {
+                    Category category = (Category)obj;
+                    anyDrops = category.getKeepHighest() > 0;
+                    setShowKeepHighestDisplayed(anyDrops);
+                    if(anyDrops)
+                        break;
+                }
+            }
+        }
+        return anyDrops;
+    }
 
 	/**
 	 * 
@@ -200,6 +386,8 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
     }
     else
     	isValidWithCourseGrade = true;
+		
+		int origialGradeType = localGradebook.getGrade_type();
 
 		if (gradeEntryMethod.equals(ENTRY_OPT_PERCENT))
 		{
@@ -318,13 +506,83 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 
 			// we need to make sure all of the weights add up to 100
 			calculateRunningTotal();
-			if (runningTotal != 100)
+			if (neededTotal != 0)
 			{
 				FacesUtil.addErrorMessage(getLocalizedString("cat_weight_total_not_100"));
 				return "failure";
 			}
 		}
+        
+//        if(getShowDropHighestDisplayed() == false
+//                || localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_LETTER // when Grade Entry change from Points/Percentage to Letter Grades also remove drops from categories
+//                 && (origialGradeType==GradebookService.GRADE_TYPE_POINTS 
+//                         || origialGradeType==GradebookService.GRADE_TYPE_PERCENTAGE)) { // handles the case when user switches grade entry method
+//            removeDropHighestFromCategories();
+//        }
+//        if(getShowDropLowestDisplayed() == false
+//                || localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_LETTER // when Grade Entry change from Points/Percentage to Letter Grades also remove drops from categories
+//                 && (origialGradeType==GradebookService.GRADE_TYPE_POINTS 
+//                         || origialGradeType==GradebookService.GRADE_TYPE_PERCENTAGE)) { // handles the case when user switches grade entry method
+//            removeDropLowestFromCategories();
+//        }
+//        if(getShowKeepHighestDisplayed() == false
+//                || localGradebook.getGrade_type()==GradebookService.GRADE_TYPE_LETTER // when Grade Entry change from Points/Percentage to Letter Grades also remove drops from categories
+//                 && (origialGradeType==GradebookService.GRADE_TYPE_POINTS 
+//                         || origialGradeType==GradebookService.GRADE_TYPE_PERCENTAGE)) { // handles the case when user switches grade entry method
+//            removeKeepHighestFromCategories();
+//        }
+        
+        // do drop scores validation before on all categories before the database transactions begins
+        Iterator itr = categories.iterator();
+        while (itr.hasNext()) {
+            Object obj = itr.next();
+            if(!(obj instanceof Category)) {
+                continue;
+            }
 
+            Category uiCategory = (Category) obj;
+            Long categoryId = uiCategory.getId();
+            String categoryName = uiCategory.getName();
+
+            // do cross validation 
+            if((uiCategory.getDrop_lowest() > 0 || uiCategory.getDropHighest() > 0) && uiCategory.getKeepHighest() > 0) {
+               FacesUtil.addErrorMessage(getLocalizedString("cat_keep_and_drop_mutually_exclusive"));
+               return "failure";
+            }
+            if(uiCategory.getItemValue() < 0 && (uiCategory.getDrop_lowest() > 0 || uiCategory.getDropHighest() > 0 || uiCategory.getKeepHighest() > 0)) {
+               FacesUtil.addErrorMessage(getLocalizedString("cat_pointvalue_not_valid"));
+               return "failure";
+            }
+
+            if(uiCategory.isDropScores()) {
+               if (!uiCategory.isAssignmentsEqual()) {
+                   if(gradeEntryMethod != null && gradeEntryMethod.equals(ENTRY_OPT_POINTS)) {
+                       FacesUtil.addErrorMessage(getLocalizedString("cat_pointvalue_not_valid"));
+                   } else if(gradeEntryMethod != null && gradeEntryMethod.equals(ENTRY_OPT_PERCENT)) {
+                       FacesUtil.addErrorMessage(getLocalizedString("cat_relativeweight_not_valid"));
+                   }
+                   return "failure";
+               }
+            }
+
+            // we will be updating an existing category
+            if (categoryId != null) {
+               Category updatedCategory = getGradebookManager().getCategory(categoryId);
+               if(updatedCategory.isDropScores()) {
+                   if(!updatedCategory.isAssignmentsEqual()) {
+                       if (gradeEntryMethod != null && gradeEntryMethod.equals(ENTRY_OPT_POINTS)) {
+                           FacesUtil.addErrorMessage(getLocalizedString("cat_point_values_unequal"));
+                       }
+                       if (gradeEntryMethod != null && gradeEntryMethod.equals(ENTRY_OPT_PERCENT)) {
+                           FacesUtil.addErrorMessage(getLocalizedString("cat_rel_weights_unequal"));
+                       }
+                       return "failure";
+                   }
+               }
+            }
+        }        
+
+		
 		/* now we need to iterate through the categories and
 		 	1) remove categories
 		 	2) add any new categories
@@ -355,13 +613,18 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 							uiCategory.getWeight() == null) {
 						uiCategory.setWeight(new Double(0));
 					}
+					
+					if (localGradebook.getCategory_type() != GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY || uiCategory.isExtraCredit() == null)
+					{
+						uiCategory.setExtraCredit(null);
+					}
 
 					if (categoryId == null) {
 						// must be a new or blank category
 						if (uiCategory.getWeight() != null && uiCategory.getWeight().doubleValue() > 0) {
-							getGradebookManager().createCategory(localGradebook.getId(), categoryName.trim(), new Double(uiCategory.getWeight().doubleValue()/100), 0);
+							getGradebookManager().createCategory(localGradebook.getId(), categoryName.trim(), new Double(uiCategory.getWeight().doubleValue()/100), uiCategory.getDrop_lowest(), uiCategory.getDropHighest(), uiCategory.getKeepHighest(), uiCategory.isExtraCredit());
 						} else {
-							getGradebookManager().createCategory(localGradebook.getId(), categoryName.trim(), uiCategory.getWeight(), 0);
+							getGradebookManager().createCategory(localGradebook.getId(), categoryName.trim(), uiCategory.getWeight(), uiCategory.getDrop_lowest(), uiCategory.getDropHighest(), uiCategory.getKeepHighest(), uiCategory.isExtraCredit());
 						}
 					}
 					else {
@@ -373,8 +636,39 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 						} else {
 							updatedCategory.setWeight(uiCategory.getWeight());
 						}
+						if (uiCategory.isExtraCredit()!=null)
+						{
+							updatedCategory.setExtraCredit(uiCategory.isExtraCredit());
+						}
 						
-						getGradebookManager().updateCategory(updatedCategory);
+						updatedCategory.setDrop_lowest(uiCategory.getDrop_lowest());
+                        updatedCategory.setDropHighest(uiCategory.getDropHighest());
+                        updatedCategory.setKeepHighest(uiCategory.getKeepHighest());
+//                        if(uiCategory.getItemValue() != null && uiCategory.getItemValue().doubleValue() > 0) {
+//                            updatedCategory.setItemValue(uiCategory.getItemValue());
+//                        } else {
+//                            updatedCategory.setItemValue(0.0);
+//                        }
+
+                        if(updatedCategory.isDropScores() && updatedCategory.isAssignmentsEqual()) {
+                            if((updatedCategory.getAssignmentList() == null || updatedCategory.getAssignmentList().size() == 0)) { // don't populate, if assignments are already in category (to improve performance)
+                                List assignments = getGradebookManager().getAssignmentsForCategory(updatedCategory.getId());
+                                List assignmentsToUpdate = new ArrayList();
+                                for(Object o : assignments) { // must not update adjustment item pointsPossible
+                                    if(o instanceof Assignment) {
+                                        Assignment assignment = (Assignment)o;
+                                        if(!Assignment.item_type_adjustment.equals(assignment.getItemType())) {
+                                            assignmentsToUpdate.add(assignment);
+                                        }
+                                    }
+                                }
+                                updatedCategory.setAssignmentList(assignmentsToUpdate);
+                            }
+                            // now update the pointsPossible of any assignments within the category that drop scores
+                            getGradebookManager().updateCategoryAndAssignmentsPointsPossible(localGradebook.getId(), updatedCategory);
+                        } else {
+                            getGradebookManager().updateCategory(updatedCategory);
+                        }
 					}
 				}
 			}
@@ -461,6 +755,31 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 
 		return GB_SETUP_PAGE;
 	}
+	
+	public String processGradeEntryMethodChange(ValueChangeEvent vce)
+	{
+//		Object changeAssign = (Object) vce.getNewValue();
+//		if(changeAssign instanceof String) {
+//			String newValue = (String) vce.getNewValue();
+//			if (newValue != null && (newValue.equals(ENTRY_OPT_POINTS) || 
+//					newValue.equals(ENTRY_OPT_PERCENT) || 
+//					newValue.equals(ENTRY_OPT_LETTER)))
+//			{
+//				gradeEntryMethod = newValue;
+//				if(categories != null) {
+//				    for(Object obj : categories) {
+//				        if(obj instanceof Category) {
+//				            Category category = (Category)obj;
+//                            category.setItemValue(0.0);
+//				        }
+//				    }
+//				}
+//			}
+//		}
+		return GB_SETUP_PAGE;
+	}
+
+
 
 	public String processCancelGradebookSetup()
 	{
@@ -542,14 +861,15 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		return rowClasses.toString();
 	}
 
-	/**
-	 * Returns sum of all category weights
+    /**
+	 * Returns sum of all category weights minus the adjustment categories.  This one must be 100% to process correctly.
 	 * @return
 	 */
-	public double getRunningTotal()
+	public double getRegularTotal()
 	{	
-		return runningTotal;
+		return regularTotal;
 	}
+
 
 	/**
 	 * Returns % needed to reach 100% for category weights
@@ -559,15 +879,28 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	{
 		return neededTotal;
 	}
+	
+	/**
+	 * Returns sum of the adjustment category weights
+	 * @return
+	 */
+	/**
+	 * Returns sum of all category weights
+	 * @return
+	 */
+	public double getGrandTotal() 
+	{
+		return grandTotal;
+	}
 
 	/**
 	 * Simplifies some javascript/rendering relationships. The highlight
 	 * class is only applied if the running total not equal to 100% 
 	 * @return
 	 */
-	public String getRunningTotalStyle() 
+	public String getRegularTotalStyle() 
 	{
-		if (runningTotal != 100)
+		if (regularTotal != 100)
 			return "highlight";
 
 		return "";
@@ -629,6 +962,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	private void calculateRunningTotal()
 	{
 		double total = 0;
+		double extraCredit = 0;
 
 		if (categories != null && categories.size() > 0)
 		{
@@ -640,15 +974,34 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 					continue;
 				}
 				Category cat = (Category) obj;
-				if (cat.getWeight() != null)
+				Boolean iec = cat.isExtraCredit();
+				if (iec!=null)
 				{
-					double weight = cat.getWeight().doubleValue();
-					total += weight;
+					if (cat.getWeight() != null && !cat.isExtraCredit())
+					{
+						double weight = cat.getWeight().doubleValue();
+						total += weight;
+					}
+					else if (cat.getWeight() != null && cat.isExtraCredit())
+					{
+						double weight = cat.getWeight().doubleValue();
+						extraCredit += weight;
+					}
+				}
+				else
+				{
+					if (cat.getWeight() != null)
+					{
+						double weight = cat.getWeight().doubleValue();
+						total += weight;
+					}
 				}
 			}
 		}
 
-		runningTotal = total;
+		regularTotal = total; // this will probably change later, but make it function to spec for now
+		grandTotal = total + extraCredit;
+		adjustmentTotal = extraCredit;
 		neededTotal = 100 - total;
 	}
 	
@@ -793,5 +1146,39 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 
 		return true;
 	}
+
+	
+	public String navigateToDeleteAllGrades() {
+		return "delteAllGrades";
+	}
+
+
+	public boolean getIsLetterGrade() {
+		isLetterGrade = gradeEntryMethod.equals(ENTRY_OPT_LETTER);
+		return isLetterGrade;
+	}
+
+	public void setIsLetterGrade(boolean isLetterGrade) {
+		this.isLetterGrade = isLetterGrade;
+	}
+	
+	public boolean getIsPointGrade() {
+		isPointGrade = gradeEntryMethod.equals(ENTRY_OPT_POINTS);
+		return isPointGrade;
+	}
+
+	public void setPointGrade(boolean isPointGrade) {
+		this.isPointGrade = isPointGrade;
+	}
+
+	public boolean getIsPercentageGrade() {
+		isPercentageGrade = gradeEntryMethod.equals(ENTRY_OPT_PERCENT);
+		return isPercentageGrade;
+	}
+
+	public void setPercentageGrade(boolean isPercentageGrade) {
+		this.isPercentageGrade = isPercentageGrade;
+	}
+	
 
 }

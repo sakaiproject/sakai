@@ -10,7 +10,7 @@
 	<!-- Gradebook Manager -->
 	<bean id="org_sakaiproject_tool_gradebook_business_GradebookManager" parent="gradebookTxTemplate">
 		<property name="target">
-			<bean class="org.sakaiproject.tool.gradebook.business.impl.GradebookManagerHibernateImpl">
+			<bean class="org.sakaiproject.tool.gradebook.business.impl.GradebookCalculationImpl">
 				<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
 				<property name="sectionAwareness">
 					<ref bean="org.sakaiproject.section.api.SectionAwareness" />

@@ -151,7 +151,7 @@ public class GradebookServiceTest extends GradebookTestBase {
     public void testCreateExternalAssessmentWithCategory() throws Exception {
         String categoryName = "My favorite category";
         Long gbId = gradebookManager.getGradebook(GRADEBOOK_UID).getId();
-        Long catId = gradebookManager.createCategory(gbId, categoryName, new Double(0), 0);
+        Long catId = gradebookManager.createCategory(gbId, categoryName, new Double(0), 0, 0, 0, false);
         Assert.assertTrue(gradebookFrameworkService.isGradebookDefined(GRADEBOOK_UID));
         
         // Make sure the service knows that the external id has not been defined

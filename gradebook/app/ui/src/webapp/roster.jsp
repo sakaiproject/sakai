@@ -97,6 +97,9 @@
 			<h:outputText value="#{msgs.roster_footnote_symbol2}" />
 			<h:outputText value="#{msgs.roster_footnote_legend2}" />
 		</h:panelGroup>
+		<h:panelGroup>
+			<h:outputText value="#{msgs.roster_footnote_legend3}" />
+		</h:panelGroup>
 	</h:panelGrid>
 	</div>
 </f:view>

@@ -90,6 +90,8 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
     
     private HtmlDataTable originalRosterDataTable = null;
 
+    private boolean selectedCategoryDropsScores;
+    
     public class GradableObjectColumn implements Serializable {
 		private Long id;
 		private String name;
@@ -196,6 +198,11 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		
 		//get the selected categoryUID 
 		String selectedCategoryUid = getSelectedCategoryUid();
+		
+		if(selectedCategoryUid != null) {
+		    Category selectedCategory = getSelectedCategory();
+            selectedCategoryDropsScores = selectedCategory.isDropScores();
+		}
 		
 		CourseGrade courseGrade = null;
 		if (isUserAbleToGradeAll()) {
@@ -791,6 +798,14 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		return letterGrade;
 	}
     
+    public void setSelectedCategoryDropsScores(boolean selectedCategoryDropsScores) {
+        this.selectedCategoryDropsScores = selectedCategoryDropsScores;
+    }
+
+    public boolean isSelectedCategoryDropsScores() {
+        return selectedCategoryDropsScores;
+    }
+
     public void exportXlsNoCourseGrade(ActionEvent event){
         if(logger.isInfoEnabled()) logger.info("exporting gradebook " + getGradebookUid() + " as Excel");
         getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());

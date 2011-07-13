@@ -34,5 +34,5 @@ public interface GbSynchronizer
 
   public void synchrornizeAssignments(List assignments);
   
-  public void updateAssignment(String title, String newTitle);
+  public void updateAssignment(String title, String newTitle, int grade_type);
 }

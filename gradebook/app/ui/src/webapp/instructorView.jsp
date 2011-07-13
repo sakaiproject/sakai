@@ -168,6 +168,20 @@
 					</h:panelGroup>
 					
 					<h:outputText value="#{row.name}" styleClass="categoryHeading" rendered="#{row.isCategory}"/>
+					<h:outputText value=" (" styleClass="categoryHeading" rendered="#{row.isCategory && (row.dropHighest != 0 || row.drop_lowest != 0 || row.keepHighest != 0)}" />
+		            <h:outputFormat value="#{msgs.cat_drop_highest_display}" styleClass="categoryHeading" rendered="#{row.isCategory && row.dropHighest != 0}" >
+		                <f:param value="#{row.dropHighest}"/>
+		            </h:outputFormat>
+		            <h:outputText value="; " styleClass="categoryHeading" rendered="#{row.isCategory && (row.dropHighest != 0 && row.drop_lowest != 0)}" />
+		            <h:outputFormat value="#{msgs.cat_drop_lowest_display}" styleClass="categoryHeading" rendered="#{row.isCategory && row.drop_lowest != 0}" >
+		                <f:param value="#{row.drop_lowest}"/>
+		            </h:outputFormat>
+		            
+		            <h:outputFormat value="#{msgs.cat_keep_highest_display}" styleClass="categoryHeading" rendered="#{row.isCategory && row.keepHighest != 0}" >
+		                <f:param value="#{row.keepHighest}"/>
+		            </h:outputFormat>
+		            <h:outputText value=")" styleClass="categoryHeading" rendered="#{row.isCategory && (row.dropHighest != 0 || row.drop_lowest != 0 || row.keepHighest != 0)}" />
+					
 				</h:column>
 				
 				<h:column>
@@ -220,8 +234,15 @@
 							
 							<h:panelGroup rendered="#{!row.associatedAssignment.externallyMaintained && row.userCanGrade}">
 								<h:inputText id="Score" value="#{row.score}" size="4" 
-									 rendered="#{instructorViewBean.gradeEntryByPoints || instructorViewBean.gradeEntryByPercent}"
+									 rendered="#{(instructorViewBean.gradeEntryByPoints || instructorViewBean.gradeEntryByPercent)  && !row.gradeRecord.droppedFromGrade}"
 									 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+									<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
+									<f:validateDoubleRange minimum="0"/>
+									<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
+								</h:inputText>
+								<h:inputText id="Score2" value="#{row.score}" size="4" 
+									 rendered="#{(instructorViewBean.gradeEntryByPoints || instructorViewBean.gradeEntryByPercent)  && row.gradeRecord.droppedFromGrade}"
+									 style="text-align:right;text-decoration:line-through" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 									<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
 									<f:validateDoubleRange minimum="0"/>
 									<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
@@ -238,7 +259,10 @@
 							</h:panelGroup>
 							
               <h:panelGroup rendered="#{row.associatedAssignment.externallyMaintained || !row.userCanGrade}">
-    							<h:outputText value="#{row.score}">
+    							<h:outputText value="#{row.score}" rendered="#{!row.gradeRecord.droppedFromGrade}">
+    								<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
+    							</h:outputText>
+    							<h:outputText value="#{row.score}" style="text-decoration:line-through" rendered="#{row.gradeRecord.droppedFromGrade}">
     								<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
     							</h:outputText>
                   <h:outputText value="#{instructorViewBean.localizedPercentInput}" rendered="#{instructorViewBean.gradeEntryByPercent && row.score != null}" />

@@ -18,6 +18,7 @@ public class BulkAssignmentDecoratedBean implements Serializable {
     public String bulkNoPointsError;
     public String bulkNoTitleError;
     public Boolean saveThisItem;
+    public String selectedGradeEntryValue;
 
 	public BulkAssignmentDecoratedBean(Assignment assignment, String category) {
 		this.assignment = assignment;
@@ -74,4 +75,13 @@ public class BulkAssignmentDecoratedBean implements Serializable {
 	public boolean getBlnSaveThisItem() {
 		return saveThisItem.booleanValue();
 	}
+	
+	public String getSelectedGradeEntryValue() {
+		return selectedGradeEntryValue;
+	}
+
+	public void setSelectedGradeEntryValue(String selectedGradeEntryValue) {
+		this.selectedGradeEntryValue = selectedGradeEntryValue;
+	}
+
 }

@@ -236,7 +236,22 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     		}
     	}
     	
-    	totalPoints = getGradebookManager().getTotalPoints(gradebook.getId());
+    	List<AssignmentGradeRecord> studentGradeRecs = getGradebookManager().getStudentGradeRecords(gradebook.getId(), studentUid);     
+    	getGradebookManager().applyDropScores(studentGradeRecs);
+    	
+    	List<Assignment> assignments = getGradebookManager().getAssignments(gradebook.getId());
+    	List<Assignment> countedAssigns = new ArrayList<Assignment>();
+        // let's filter the passed assignments to make sure they are all counted
+        if (assignments != null) {
+            for (Assignment assign : assignments) {
+                if (assign.isIncludedInCalculations()) {
+                    countedAssigns.add(assign);
+                }
+            }
+        }    	
+    	totalPoints = getGradebookManager().getTotalPointsInternal(gradebook, getGradebookManager().getCategories(gradebook.getId()), 
+    			studentUid, studentGradeRecs, countedAssigns, true); 
+    	//getTotalPointsInternal(gradebook, categories, studentUid, studentGradeRecs, countedAssigns);
     	
     	
     	initializeStudentGradeData();
@@ -538,6 +553,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
 
     		// get the student grade records
     		List gradeRecords = getGradebookManager().getStudentGradeRecordsConverted(gradebook.getId(), studentUid);
+            getGradebookManager().applyDropScores(gradeRecords);
 
     		// The display may include categories and assignments, so we need a generic list
     		gradebookItems = new ArrayList();

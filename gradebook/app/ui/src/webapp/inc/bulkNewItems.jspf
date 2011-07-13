@@ -72,8 +72,12 @@
 				<h:outputLabel for="points" id="pointsLabel1" value="#{msgs.add_assignment_points}" rendered="#{!item.assignment.externallyMaintained && bean.localGradebook.grade_type == 1}"/>
 				<h:outputLabel for="points" id="pointsLabel2" value="#{msgs.add_assignment_relative_weight}" rendered="#{!item.assignment.externallyMaintained && bean.localGradebook.grade_type != 1}"/>
 				<h:panelGroup rendered="#{!item.assignment.externallyMaintained}">
-					<h:inputText id="points" value="#{item.pointsPossible}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+					<h:inputText id="points" value="#{item.pointsPossible}" rendered="#{bean.localGradebook.grade_type != 3 && ((item.assignment.category.dropScores && item.selectedGradeEntryValue == 'Adjustment') || !item.assignment.category.dropScores || (item.assignment.category.dropScores && empty item.assignment.category.assignmentList))}" >
 					</h:inputText>
+                    <%-- If the category drops scores --%>
+					<h:outputText id="pointsDropScores" value="#{item.pointsPossible}"
+						rendered="#{bean.localGradebook.grade_type != 3 && item.assignment.category.dropScores && item.selectedGradeEntryValue != 'Adjustment' && not empty item.assignment.category.assignmentList}" />
+    				<%-- end, if the category drops scores --%>
 					<h:outputText id="blankPtsErrMsg"  value="#{msgs.add_assignment_no_points}" styleClass="alertMessageInline"
 									rendered="#{item.bulkNoPointsError == 'blank'}" />
 					<h:outputText id="blankPtsErrMsgH"  value="#{msgs.add_assignment_no_points}" styleClass="alertMessageInline errHide"
@@ -107,7 +111,7 @@
 	
 				<h:outputLabel for="selectCategory" id="categoryLabel" value="#{msgs.add_assignment_category}" rendered="#{bean.categoriesEnabled}" />
 				<h:panelGroup rendered="#{bean.categoriesEnabled}">
-					<h:selectOneMenu id="selectCategory" value="#{item.category}" onchange="categorySelected((this.form.name + ':bulkNewAssignmentsTable:' + #{rowIndex}));">
+					<h:selectOneMenu id="selectCategory" value="#{item.category}"  onchange="this.form.submit();">
 						<f:selectItems value="#{bean.categoriesSelectList}" />
 					</h:selectOneMenu>
 

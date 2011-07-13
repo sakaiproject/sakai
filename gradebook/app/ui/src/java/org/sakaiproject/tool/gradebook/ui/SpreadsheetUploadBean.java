@@ -103,12 +103,14 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     private Long assignmentId;
     private Integer selectedCommentsColumnId = 0;
     private List categoriesSelectList;
+    private Category assignmentCategory;
     private String selectedCategory;
     private Gradebook localGradebook;
     private StringBuilder externallyMaintainedImportMsg;
     private UIComponent uploadButton;
     private String csvDelimiter;
     private NumberFormat numberFormat;
+    private boolean selectedCategoryDropsScores;
     private String date_entry_format_description;
 
     // Used for bulk upload of gradebook items
@@ -127,6 +129,8 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     static final String PICKED_FILE_REFERENCE = "pickedFileReference";
     static final String PICKED_FILE_DESC = "pickedFileDesc";
     static final String IMPORT_TITLE = "gradebookImportTitle";
+    
+    public static final String UNASSIGNED_CATEGORY = "unassigned";
 
     /**
      * Property set via sakai.properties to limit the file size allowed for spreadsheet
@@ -155,9 +159,35 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
     	localGradebook = getGradebook();
 
-        initializeRosterMap();
+        initializeRosterMap();      
 
-        selectedCategory = AssignmentBean.UNASSIGNED_CATEGORY;
+        if (assignment == null) {
+			if (assignmentId != null) {
+				assignment = getGradebookManager().getAssignment(assignmentId);
+			}
+			if (assignment == null) {
+				// it is a new assignment
+				assignment = new Assignment();
+				assignment.setReleased(true);
+			}
+		}
+        
+		// initialization; shouldn't enter here after category drop down changes
+        if(assignmentCategory == null && !getLocalizedString("cat_unassigned").equalsIgnoreCase(selectedCategory)) {
+            Category assignCategory = assignment.getCategory();
+            if (assignCategory != null) {
+            	selectedCategory = assignCategory.getId().toString();
+                selectedCategoryDropsScores = assignCategory.isDropScores();
+                assignCategory.setAssignmentList(retrieveCategoryAssignmentList(assignCategory));
+                assignmentCategory = assignCategory;
+            }
+            else {
+            	selectedCategory = getLocalizedString("cat_unassigned");
+            }
+        }
+
+        if (selectedCategory==null)
+            selectedCategory = AssignmentBean.UNASSIGNED_CATEGORY;
         categoriesSelectList = new ArrayList();
 
 		// The first choice is always "Unassigned"
@@ -472,10 +502,34 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 			{
 				// check to make sure there is a corresponding category
 				category = getGradebookManager().getCategory(catId);
+
+				//populate assignments list
+				category.setAssignmentList(retrieveCategoryAssignmentList(category));
 			}
 		}
-
+		
 		return category;
+    }    
+    
+    private List retrieveCategoryAssignmentList(Category cat){
+    	List assignmentsToUpdate = new ArrayList();
+    	if(cat != null){
+    		List assignments = cat.getAssignmentList();
+    		if(cat.isDropScores() && (assignments == null || assignments.size() == 0)) { // don't populate, if assignments are already in category (to improve performance)
+    			assignments = getGradebookManager().getAssignmentsForCategory(cat.getId());
+
+    			// only include assignments which are not adjustments must not update adjustment item pointsPossible
+    			for(Object o : assignments) { 
+    				if(o instanceof Assignment) {
+    					Assignment assignment = (Assignment)o;
+    					if(!Assignment.item_type_adjustment.equals(assignment.getItemType())) {
+    						assignmentsToUpdate.add(assignment);
+    					}
+    				}
+    			}
+    		}
+    	}
+		return assignmentsToUpdate;
     }
 
 	//view file from db
@@ -558,6 +612,52 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
 
         return "spreadsheetPreview";
+    }
+
+    public boolean isSelectedCategoryDropsScores() {
+		return selectedCategoryDropsScores;
+	}
+
+	public void setSelectedCategoryDropsScores(boolean selectedCategoryDropsScores) {
+		this.selectedCategoryDropsScores = selectedCategoryDropsScores;
+	}
+
+    public Category getAssignmentCategory() {
+		return assignmentCategory;
+	}
+
+	public void setAssignmentCategory(Category assignmentCategory) {
+		this.assignmentCategory = assignmentCategory;
+	}
+
+    public String processCategoryChangeInImport(ValueChangeEvent vce)
+    {
+        String changeCategory = (String) vce.getNewValue();
+        selectedCategory = changeCategory;
+        if(vce.getOldValue() != null && vce.getNewValue() != null && !vce.getOldValue().equals(vce.getNewValue()))  
+        {
+            if(changeCategory.equals(UNASSIGNED_CATEGORY)) {
+                selectedCategoryDropsScores = false;
+                assignmentCategory = null;
+                selectedCategory = getLocalizedString("cat_unassigned");
+            } else {
+                List<Category> categories = getGradebookManager().getCategories(getGradebookId());
+                if (categories != null && categories.size() > 0)
+                {
+                    for (Category category : categories) {
+                        if(changeCategory.equals(category.getId().toString())) {
+                            selectedCategoryDropsScores = category.isDropScores();
+                            category.setAssignmentList(retrieveCategoryAssignmentList(category));
+                            assignmentCategory = category;
+                            assignment.setPointsPossible(assignmentCategory.getItemValue());
+                            selectedCategory = category.getId().toString();
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return "spreadsheetImport";
     }
 
 
@@ -2429,7 +2529,6 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 	public String getDateEntryFormatDescription(){
 		return this.date_entry_format_description;
 	}
-
 }
 
 

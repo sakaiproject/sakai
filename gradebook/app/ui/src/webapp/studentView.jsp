@@ -87,6 +87,19 @@
 					</f:facet>
 					<h:outputText value="#{row.associatedAssignment.name}" rendered="#{row.assignment}"/>
 					<h:outputText value="#{row.name}" styleClass="categoryHeading" rendered="#{row.isCategory}"/>
+		            <h:outputText value=" (" styleClass="categoryHeading" rendered="#{row.isCategory && (row.dropHighest != 0 || row.drop_lowest != 0 || row.keepHighest != 0)}" />
+		            <h:outputFormat value="#{msgs.cat_drop_highest_display}" styleClass="categoryHeading" rendered="#{row.isCategory && row.dropHighest != 0}" >
+		                <f:param value="#{row.dropHighest}"/>
+		            </h:outputFormat>
+		            <h:outputText value="; " styleClass="categoryHeading" rendered="#{row.isCategory && (row.dropHighest != 0 && row.drop_lowest != 0)}" />
+		            <h:outputFormat value="#{msgs.cat_drop_lowest_display}" styleClass="categoryHeading" rendered="#{row.isCategory && row.drop_lowest != 0}" >
+		                <f:param value="#{row.drop_lowest}"/>
+		            </h:outputFormat>
+		            
+		            <h:outputFormat value="#{msgs.cat_keep_highest_display}" styleClass="categoryHeading" rendered="#{row.isCategory && row.keepHighest != 0}" >
+		                <f:param value="#{row.keepHighest}"/>
+		            </h:outputFormat>
+		            <h:outputText value=")" styleClass="categoryHeading" rendered="#{row.isCategory && (row.dropHighest != 0 || row.drop_lowest != 0 || row.keepHighest != 0)}" />
 				</h:column>
 				
 				<h:column>
@@ -114,7 +127,10 @@
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER"/>
 					</h:outputText>
 
-          <h:outputText value="#{row}" escape="false" rendered="#{row.assignment}">
+          			<h:outputText value="#{row}" escape="false" rendered="#{row.assignment && !row.gradeRecord.droppedFromGrade}">
+						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.SCORE_CONVERTER"/>
+					</h:outputText>
+					<h:outputText value="#{row}" escape="false" style="text-decoration:line-through" rendered="#{row.assignment && row.gradeRecord.droppedFromGrade}">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.SCORE_CONVERTER"/>
 					</h:outputText>
         </h:column>
