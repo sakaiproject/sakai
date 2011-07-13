@@ -635,7 +635,9 @@ public class SimplePageBean {
 				}
 
 				item.setHtml(html);
+				setItemGroups(item, selectedGroups);
 				update(item);
+
 			} else {
 				rv = "cancel";
 			}
@@ -1996,15 +1998,10 @@ public class SimplePageBean {
 
 	    Collection<String> ret = new ArrayList<String>();
 
-	   if (i.getType() != SimplePageItem.ASSESSMENT &&
-	       i.getType() != SimplePageItem.ASSIGNMENT &&
-	       i.getType() != SimplePageItem.FORUM &&
-	       i.getType() != SimplePageItem.RESOURCE &&
-	       i.getType() != SimplePageItem.MULTIMEDIA &&
-	       i.getType() != SimplePageItem.PAGE)
-	       return ret;
 
-	   if (!nocache && i.getType() != SimplePageItem.PAGE) {
+
+	    if (!nocache && i.getType() != SimplePageItem.PAGE 
+		         && i.getType() != SimplePageItem.TEXT) {
 	       Object cached = groupCache.get(i.getSakaiId());
 	       if (cached != null) {
 		   if (cached instanceof String)
@@ -2024,6 +2021,7 @@ public class SimplePageBean {
 	       case SimplePageItem.RESOURCE:
 	       case SimplePageItem.MULTIMEDIA:
 		   return getResourceGroups(i, nocache);  // responsible for caching the result
+	       case SimplePageItem.TEXT:
 	       case SimplePageItem.PAGE:
 		   return getLBItemGroups(i); // for all native LB objects
 	       }
@@ -2144,6 +2142,7 @@ public class SimplePageBean {
 	   case SimplePageItem.RESOURCE:
 	   case SimplePageItem.MULTIMEDIA:
 	       return setResourceGroups (i, groups);
+	   case SimplePageItem.TEXT:
 	   case SimplePageItem.PAGE:
 	       return setLBItemGroups(i, groups);
 	   }
@@ -2252,7 +2251,6 @@ public class SimplePageBean {
 		       groupString = groupString + "," + groups[n];
 	       }
 	   }
-
 	   i.setGroups(groupString);
 	   update(i);
 

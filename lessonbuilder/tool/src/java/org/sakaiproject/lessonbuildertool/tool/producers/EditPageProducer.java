@@ -33,9 +33,11 @@ package org.sakaiproject.lessonbuildertool.tool.producers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collection;
 
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
+import org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer;
 
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
@@ -74,6 +76,7 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 
 	private TextInputEvolver richTextEvolver;
 	private SimplePageBean simplePageBean;
+	private ShowPageProducer showPageProducer;
 
 	public MessageLocator messageLocator;
 
@@ -102,12 +105,15 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 
 		Long itemId = gparams.getItemId();
 
+		Collection<String>groups = null;
+
 		if (itemId != null && itemId != -1) {
 		    SimplePageItem i = simplePageBean.findItem(itemId);
 		    if (i.getPageId() != page.getPageId()) {
 			System.out.println("EditPage asked to edit item not in current page");
 			return;
 		    }
+		    groups = simplePageBean.getItemGroups(i, null, true);
 		}
 
    	        String editor = ServerConfigurationService.getString("wysiwyg.editor");
@@ -125,6 +131,8 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 			form.parameters.add(new UIELBinding("#{simplePageBean.itemId}", itemId));
 
 			richTextEvolver.evolveTextInput(instructions);
+
+			showPageProducer.createGroupList(form, groups);
 
 			UICommand.make(form, "save", "#{simplePageBean.submit}").decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.save_message")));
 
@@ -145,9 +153,14 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 		this.richTextEvolver = richTextEvolver;
 	}
 
+	public void setShowPageProducer(ShowPageProducer showPageProducer) {
+		this.showPageProducer = showPageProducer;
+	}
+
 	public void setSimplePageBean(SimplePageBean simplePageBean) {
 		this.simplePageBean = simplePageBean;
 	}
+
 
 	public ViewParameters getViewParameters() {
 		return new GeneralViewParameters();

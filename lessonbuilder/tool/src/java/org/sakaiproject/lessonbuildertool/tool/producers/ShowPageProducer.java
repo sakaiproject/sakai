@@ -35,6 +35,7 @@ package org.sakaiproject.lessonbuildertool.tool.producers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collection;
 import java.util.StringTokenizer;
 import java.util.Arrays;
 import java.util.Date;
@@ -1051,6 +1052,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			} else {
 			    // remaining type must be a block of HTML
 				UIOutput.make(tableRow, "itemSpan");
+
+				String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+				String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString);
+				if (itemGroupTitles != null)
+				    itemGroupTitles =  "[" + itemGroupTitles + "]";
+
+				UIOutput.make(tableRow, "item-groups-titles-text", itemGroupTitles);
+
 				UIVerbatim.make(tableRow, "content", (i.getHtml() == null ? "" : i.getHtml()));
 
 				// editing is done using a special producer that calls FCK. 
@@ -1544,13 +1553,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UICommand.make(form, "edit-item", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.editItem}");
 
-		createGroupList(form);
+		createGroupList(form,null);
 
 		UICommand.make(form, "delete-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
 		UICommand.make(form, "edit-item-cancel", messageLocator.getMessage("simplepage.cancel"), null);
 	}
 
-        private void createGroupList(UIContainer tofill) {
+        public void createGroupList(UIContainer tofill, Collection<String>groupsSet) {
 	    List<GroupEntry> groups = simplePageBean.getCurrentGroups();
 	    ArrayList<String> values = new ArrayList<String>();
 	    ArrayList<String> initValues = new ArrayList<String>();
@@ -1562,8 +1571,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if (entry.name.startsWith("Access: "))  // entries we use for access control
 		    continue;
 		values.add(entry.id);
-		initValues.add("");
+		if (groupsSet != null && groupsSet.contains(entry.id))
+		    initValues.add(entry.id);
 	    }
+	    if (groupsSet == null || groupsSet.size() == 0)
+		initValues.add("");
 
 	    // this could happen if the only groups are Access groups
 	    if (values.size() == 0)
@@ -1571,12 +1583,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	    UIOutput.make(tofill, "grouplist");
 	    UISelect select = UISelect.makeMultiple(tofill, "group-list-span", values.toArray(new String[1]), "#{simplePageBean.selectedGroups}" , initValues.toArray(new String[1]));
+
 	    int index = 0;
 	    for(GroupEntry entry: groups) {
 		if (entry.name.startsWith("Access: "))  // entries we use for access control
 		    continue;
 		UIBranchContainer row = UIBranchContainer.make(tofill, "select-group-list:");
 		UISelectChoice.make(row, "select-group", select.getFullID(), index);
+
 		UIOutput.make(row, "select-group-text", entry.name);
 		index++;
 	    }

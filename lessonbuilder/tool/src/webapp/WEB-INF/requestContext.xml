@@ -32,7 +32,7 @@
 	       factory-method="getHttpServletRequest" />
 
 	<!-- the producer beans -->
-	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer" >
+	<bean name="showPageProducer" class="org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer" >
 		<property name="messageLocator" ref="messageLocator"/>
 		<property name="simplePageBean" ref="simplePageBean" />
 		<property name="simplePageToolDao">
@@ -122,6 +122,7 @@
 		<property name="messageLocator" ref="messageLocator"/>
 		<property name="simplePageBean" ref="simplePageBean" />
 		<property name="richTextEvolver" ref="richTextEvolver" />
+		<property name="showPageProducer" ref="showPageProducer" />
 	</bean>
 	
  	 <bean class="org.sakaiproject.lessonbuildertool.tool.producers.PermissionsHelperProducer" >
