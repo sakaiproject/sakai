@@ -1228,8 +1228,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			    isbutton = true;
 			    UIOutput span = UIOutput.make(container, ID + "-button-span");
 			    ID = ID + "-button";
-			    if (!i.isRequired())
-				span.decorate(new UIFreeAttributeDecorator("class", "navIntraTool buttonItem"));;
 			}
 			UILink link;
 			if (available) {
