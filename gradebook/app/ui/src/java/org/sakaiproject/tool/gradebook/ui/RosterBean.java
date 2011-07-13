@@ -66,10 +66,13 @@ import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
+import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.jsf.AssignmentPointsConverter;
 import org.sakaiproject.tool.gradebook.jsf.CategoryPointsConverter;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  * Backing bean for the visible list of assignments in the gradebook.
@@ -99,7 +102,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		private Boolean assignmentColumn = false;
 		private Long assignmentId;
 		private Boolean inactive = false;
-
+		
 		public GradableObjectColumn() {
 		}
 		public GradableObjectColumn(GradableObject gradableObject) {
@@ -1009,6 +1012,12 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
          		colName = ((Assignment)gradableObject).getName() + " [" + nf.format(ptsPossible) + "]";
          	} else if (gradableObject instanceof CourseGrade && includeCourseGrade) {
          		colName = getLocalizedString("roster_course_grade_column_name");
+         		if(ServerConfigurationService.getBoolean("gradebook.roster.showCourseGradePoints", false)
+    					&& ((CourseGrade) gradableObject).getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_POINTS){
+         			colName += " " + getLocalizedString("roster_export_percentage");
+         			//add total points header
+         			headerRow.add(getLocalizedString("roster_course_grade_column_name") + " " + getLocalizedString("roster_export_points"));
+         		}
          	}
 
          	headerRow.add(colName);
@@ -1035,6 +1044,11 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         				if (gradeRecord.isCourseGradeRecord()) { 
         				    if (includeCourseGrade) {
         				        score = gradeRecord.getGradeAsPercentage();
+        				        if(ServerConfigurationService.getBoolean("gradebook.roster.showCourseGradePoints", false)
+        		    					&& ((CourseGrade) gradableObject).getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_POINTS){
+        		         			//add total points
+        				        	row.add(gradeRecord.getPointsEarned());
+        				        }
         				    }
         				} else {
         					if (getGradeEntryByPoints()) {

@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
@@ -51,11 +52,16 @@ public class CategoryPointsConverter extends PointsConverter {
 		String formattedScore;
 		boolean notCounted = false;
 		Double studentMean = 0.0;
+		Double studentTotalPointsEarned = 0.0;
+		Double studentTotalPointsPossible = 0.0;
 		Category cat = null;
 		
 		if (value != null) {
 			if (value instanceof Map) {
 				studentMean = (Double) ((Map)value).get("studentMean");
+				studentTotalPointsEarned = (Double) ((Map)value).get("studentTotalPointsEarned");
+				studentTotalPointsPossible = (Double) ((Map)value).get("studentTotalPointsPossible");
+				
 				cat = (Category) ((Map)value).get("category");
 			}
 		}
@@ -65,6 +71,15 @@ public class CategoryPointsConverter extends PointsConverter {
 		} else {
 			//display percentage
 			formattedScore = super.getAsString(context, component, studentMean) + "%";
+			
+			if(ServerConfigurationService.getBoolean("gradebook.roster.showCourseGradePoints", false)){
+				Gradebook gradebook = cat.getGradebook();
+				int gradeType = gradebook.getGrade_type();
+				if(gradeType == GradebookService.GRADE_TYPE_POINTS ){
+					formattedScore = super.getAsString(context, component, studentTotalPointsEarned)
+					+ "/" + super.getAsString(context, component, studentTotalPointsPossible);
+				}
+			}
 		}
 		return formattedScore;
 	}

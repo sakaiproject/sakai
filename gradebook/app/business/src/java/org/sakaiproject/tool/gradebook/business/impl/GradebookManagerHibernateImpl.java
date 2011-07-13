@@ -276,6 +276,8 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
 			    	stats.put("studentAverageScore", category.getAverageScore());
 			    	stats.put("studentAverageTotalPoints", category.getAverageTotalPoints());
 			    	stats.put("studentMean", category.getMean());
+			    	stats.put("studentTotalPointsEarned", category.getTotalPointsEarned());
+			    	stats.put("studentTotalPointsPossible", category.getTotalPointsPossible());
 			    	
 			    	stats.put("category", category);
 	
