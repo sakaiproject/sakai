@@ -54,6 +54,7 @@
 				<value>courseGradeDetails</value>
 				<value>overview</value>
 				<value>roster</value>
+				<value>hideShowColumns</value>
 				<value>instructorView</value>
 				<value>studentView</value>
 				<value>calculateCourseGrades</value>

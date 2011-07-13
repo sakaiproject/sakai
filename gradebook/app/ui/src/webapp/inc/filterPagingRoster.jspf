@@ -29,7 +29,15 @@
 		</t:div>
 	</t:div>
 
-	<t:div styleClass="shorttext">
-	<sakai:pager id="pager" totalItems="#{bean.dataRows}" firstItem="#{bean.firstRow}" pageSize="#{bean.maxDisplayedRows}" textStatus="#{msgs.paging_status_students}" />
+	<t:div>
+		<t:div styleClass="gbListView">
+			<sakai:pager id="pager" totalItems="#{bean.dataRows}" firstItem="#{bean.firstRow}" pageSize="#{bean.maxDisplayedRows}" textStatus="#{msgs.paging_status_students}" />
+		</t:div>
+		<t:div styleClass="shorttext">
+			<h:outputLink value="hideShowColumns" target="dialogFrame" onclick="dialogutil.openDialog('dialogDiv', 'dialogFrame');">
+				   	<h:outputText value="#{msgs.hide_show_openLink}" />
+			</h:outputLink>
+		</t:div>
 	</t:div>
+
 </h:panelGrid>

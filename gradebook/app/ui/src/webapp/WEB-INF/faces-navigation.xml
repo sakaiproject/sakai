@@ -103,6 +103,10 @@
             <from-outcome>graderRules</from-outcome>
             <to-view-id>/graderRules.jsp</to-view-id>
         </navigation-case>
-
+		<navigation-case>
+            <from-outcome>hideShowColumns</from-outcome>
+            <to-view-id>/hideShowColumns.jsp</to-view-id>
+        </navigation-case>
+		
     </navigation-rule>
 </faces-config>

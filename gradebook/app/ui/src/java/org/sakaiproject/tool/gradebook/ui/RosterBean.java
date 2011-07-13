@@ -103,6 +103,8 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		private Boolean assignmentColumn = false;
 		private Long assignmentId;
 		private Boolean inactive = false;
+		private Boolean hideInAllGradesTable = false;
+	        private Boolean hiddenChanged = false;
 		
 		public GradableObjectColumn() {
 		}
@@ -113,6 +115,8 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 			assignmentId = getColumnHeaderAssignmentId(gradableObject);
 			assignmentColumn = !gradableObject.isCourseGrade();
 			inactive = (!gradableObject.isCourseGrade() && !((Assignment)gradableObject).isReleased() ? true : false);
+			hideInAllGradesTable = assignmentColumn ? ((Assignment) gradableObject).isHideInAllGradesTable() : false;
+			hiddenChanged = hideInAllGradesTable;
 		}
 
 		@Override
@@ -156,13 +160,23 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		public void setInactive(Boolean inactive) {
 			this.inactive = inactive;
 		}
+		public Boolean getHideInAllGradesTable() {
+			return hideInAllGradesTable;
+		}
+		public void setHideInAllGradesTable(Boolean hideInAllGradesTable) {
+			this.hideInAllGradesTable = hideInAllGradesTable;
+		}
+		
+		public boolean hasHiddenChanged(){
+			return hiddenChanged != hideInAllGradesTable;
+		}
 	}
 
 	// Controller fields - transient.
 	private transient List studentRows;
 	private transient Map gradeRecordMap;
 	private transient Map categoryResultMap;
-
+	
 	public class StudentRow implements Serializable {
         private EnrollmentRecord enrollment;
 
@@ -597,6 +611,9 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 
 				UIColumn col = new UIColumn();
 				col.setId(ASSIGNMENT_COLUMN_PREFIX + colpos);
+				if(columnData.getHideInAllGradesTable()){
+					col.setRendered(false);
+				}
 
 				if(!columnData.getCategoryColumn()){
 	                HtmlCommandSortHeader sortHeader = new HtmlCommandSortHeader();
@@ -619,12 +636,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 	
 	                sortHeader.getChildren().add(headerText);
 	                
-	                if(columnData.getAssignmentColumn()){
-		                //<h:commandLink action="assignmentDetails">
-						//	<h:outputText value="Details" />
-						//	<f:param name="assignmentId" value="#{gradableObject.id}"/>
-		                //</h:commandLink>
-		                
+	                if(columnData.getAssignmentColumn()){		                
 		                //get details link
 		                HtmlCommandLink detailsLink = new HtmlCommandLink();
 		                detailsLink.setAction(app.createMethodBinding("#{rosterBean.navigateToAssignmentDetails}", new Class[] {}));
@@ -1102,5 +1114,18 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		setNav("roster", "false", "false", "false", null);
 		
 		return "assignmentDetails";
+	}
+	
+	public String saveHidden(){
+		for (Iterator listIter = gradableObjectColumns.iterator(); listIter.hasNext();) {
+			GradableObjectColumn col = (GradableObjectColumn) listIter.next();
+			if(col.hasHiddenChanged()){
+				//save
+				Assignment assignment = getGradebookManager().getAssignment(col.getAssignmentId());
+				assignment.setHideInAllGradesTable(col.getHideInAllGradesTable());
+				getGradebookManager().updateAssignment(assignment);
+			}
+		}
+		return null;
 	}
 }
