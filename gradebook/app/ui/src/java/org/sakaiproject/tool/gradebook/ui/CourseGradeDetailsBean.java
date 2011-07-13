@@ -41,6 +41,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterCsv;
 import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterXls;
+import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterPdf;
 import org.sakaiproject.jsf.spreadsheet.SpreadsheetUtil;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -304,6 +305,14 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
         SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(), 
         		getDownloadFileName(getLocalizedString("export_course_grade_prefix")), 
         		new SpreadsheetDataFileWriterXls());
+    }
+    
+    public void exportPdf(ActionEvent event){
+        if(logger.isInfoEnabled()) logger.info("exporting course grade as PDF for gradebook " + getGradebookUid());
+        getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadCourseGrade","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
+        SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(), 
+        		getDownloadFileName(getLocalizedString("export_course_grade_prefix")), 
+        		new SpreadsheetDataFileWriterPdf());
     }
     
     private List<List<Object>> getSpreadsheetData() {

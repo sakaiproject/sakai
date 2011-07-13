@@ -24,6 +24,13 @@
 				value="#{msgs.roster_export_csv}"
 				actionListener="#{rosterBean.exportCsv}"
 				rendered="#{!rosterBean.emptyEnrollments}"
+				style="float: right;  margin-left: 15px;"
+				/>
+			<h:commandButton
+				id="exportPdf"
+				value="#{msgs.roster_export_pdf}"
+				actionListener="#{rosterBean.exportPdf}"
+				rendered="#{!rosterBean.emptyEnrollments}"
 				style="float: right"
 				/>
 		</h2>

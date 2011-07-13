@@ -151,6 +151,28 @@
 
 		<p class="act">
 			<h:commandButton
+				value="#{msgs.course_grade_details_export_course_grades_pdf}"
+				actionListener="#{courseGradeDetailsBean.exportPdf}"
+				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
+				/>
+
+			<h:commandButton
+				value="#{msgs.course_grade_details_export_course_grades}"
+				actionListener="#{courseGradeDetailsBean.exportCsv}"
+				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
+				style="margin-left: 5em;"
+				/>
+			<h:commandButton
+				value="#{msgs.course_grade_details_export_course_grades_excel}"
+				actionListener="#{courseGradeDetailsBean.exportExcel}"
+				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
+				style="margin-left: 5em;"
+				/>
+				
+			<br/><br/><br/>
+
+
+			<h:commandButton
 				id="saveButton"
 				styleClass="active"
 				value="#{msgs.assignment_details_submit}"
@@ -172,17 +194,6 @@
 				rendered="#{courseGradeDetailsBean.userAbleToGradeAll}"
 				style="margin-left: 5em;"
 			/>
-			<h:commandButton
-				value="#{msgs.course_grade_details_export_course_grades}"
-				actionListener="#{courseGradeDetailsBean.exportCsv}"
-				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
-				style="margin-left: 5em;"
-				/>
-			<h:commandButton
-				value="#{msgs.course_grade_details_export_course_grades_excel}"
-				actionListener="#{courseGradeDetailsBean.exportExcel}"
-				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
-				/>
 		</p>
 
 	  </h:form>
