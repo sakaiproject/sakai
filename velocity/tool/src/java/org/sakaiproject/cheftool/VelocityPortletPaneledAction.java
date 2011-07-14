@@ -584,7 +584,7 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 				// If the attribute is missing, it is likely an internal error,
 				// not an error in the tool
 				Object sessionAttr = SessionManager.getCurrentSession().getAttribute(UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE);
-				if ( sessionAttr != null )
+				if ( sessionAttr == null )
 				{
 					M_log.warn("Missing CSRF Token session attribute: " + action + "; toolId=" + toolId);
 				}
