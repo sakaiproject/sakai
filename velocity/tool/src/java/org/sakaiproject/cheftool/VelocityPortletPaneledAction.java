@@ -581,10 +581,18 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 					}
 				}
 							
-				if (!skipCSRFCheck)
+				// If the attribute is missing, it is likely an internal error,
+				// not an error in the tool
+				Object sessionAttr = SessionManager.getCurrentSession().getAttribute(UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE);
+				if ( sessionAttr != null )
+				{
+					M_log.warn("Missing CSRF Token session attribute: " + action + "; toolId=" + toolId);
+				}
+
+				if (sessionAttr != null && !skipCSRFCheck)
 				{
 					String csrfToken = params.getString(SAKAI_CSRF_TOKEN);
-					String sessionToken = SessionManager.getCurrentSession().getAttribute(UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE).toString();
+					String sessionToken = sessionAttr.toString();
 					if (csrfToken == null || sessionToken == null || !StringUtils.equals(csrfToken, sessionToken)) 
 					{
 						M_log.warn("CSRF Token mismatched or missing on velocity action: " + action + "; toolId=" + toolId);
