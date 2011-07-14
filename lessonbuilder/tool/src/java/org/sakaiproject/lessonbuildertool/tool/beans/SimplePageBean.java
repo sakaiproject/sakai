@@ -1933,13 +1933,13 @@ public class SimplePageBean {
 					i.setName(selectedObject.getTitle());
 				    }
 				    // reset assignment-specific stuff
-				    i.setDescription("(Due " + DateFormat.getDateTimeInstance().format(selectedObject.getDueDate()));
+				    i.setDescription("(" + messageLocator.getMessage("simplepage.due") + " " + DateFormat.getDateTimeInstance().format(selectedObject.getDueDate()) + ")");
 				    update(i);
 				}
 			    } else {
 				// no, add new item
 				i = appendItem(selectedAssignment, selectedObject.getTitle(), SimplePageItem.ASSIGNMENT);
-				i.setDescription("(Due " + DateFormat.getDateTimeInstance().format(selectedObject.getDueDate()));
+				i.setDescription("(" + messageLocator.getMessage("simplepage.due") + " " + DateFormat.getDateTimeInstance().format(selectedObject.getDueDate()) + ")");
 				update(i);
 			    }
 			    return "success";
