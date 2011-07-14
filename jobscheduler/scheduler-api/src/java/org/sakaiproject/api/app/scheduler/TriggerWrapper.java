@@ -48,5 +48,15 @@ public interface TriggerWrapper
    * @param isSelected The isSelected to set.
    */
   public void setIsSelected(boolean isSelected);
+  
+  /**
+   * @return <code>true</code> if the wrapped trigger is a CronTrigger. 
+   */
+  public boolean isCron();
+
+  /**
+   * @return <code>true</code> if the wrapped trigger is a SimpleTrigger. 
+   */
+  public boolean isSimple();
 }
 

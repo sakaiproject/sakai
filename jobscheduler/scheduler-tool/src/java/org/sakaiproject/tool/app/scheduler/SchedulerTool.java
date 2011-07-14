@@ -975,7 +975,7 @@ public class SchedulerTool
       {
         triggerWrapper = (TriggerWrapper) i.next();
         schedulerManager.getScheduler().unscheduleJob(
-            triggerWrapper.getTrigger().getName(), Scheduler.DEFAULT_GROUP);
+            triggerWrapper.getTrigger().getName(), triggerWrapper.getTrigger().getGroup());
         selectedJobDetailWrapper.getTriggerWrapperList().remove(triggerWrapper);
       }
     }

@@ -42,7 +42,13 @@
     	      <f:facet name="header">
     	        <h:outputText value="#{msgs.trigger_expression}"/>
     	      </f:facet>
-   	        <h:outputText value="#{wrapper.trigger.cronExpression}"/>
+   	        <h:outputText rendered="#{wrapper.cron}" value="#{wrapper.trigger.cronExpression}"/>
+    	    </h:column>
+    	    <h:column>
+    	      <f:facet name="header">
+    	        <h:outputText value="#{msgs.trigger_willrun}"/>
+    	      </f:facet>
+   	        <h:outputText value="#{wrapper.trigger.nextFireTime}"/>
     	    </h:column>  	      
         </h:dataTable>
 		  </sakai:view_content>

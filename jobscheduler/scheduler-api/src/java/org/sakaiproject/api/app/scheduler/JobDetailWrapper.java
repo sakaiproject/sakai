@@ -44,12 +44,12 @@ public interface JobDetailWrapper
   /**
    * @return Returns the triggerWrapperList.
    */
-  public List getTriggerWrapperList();
+  public List<TriggerWrapper> getTriggerWrapperList();
 
   /**
    * @param triggerWrapperList The triggerWrapperList to set.
    */
-  public void setTriggerWrapperList(List triggerWrapperList);
+  public void setTriggerWrapperList(List<TriggerWrapper> triggerWrapperList);
 
   /**
    * @return Returns the jobDetail.

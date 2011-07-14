@@ -21,6 +21,8 @@
 
 package org.sakaiproject.component.app.scheduler;
 
+import org.quartz.CronTrigger;
+import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
 import org.sakaiproject.api.app.scheduler.TriggerWrapper;
 
@@ -63,5 +65,13 @@ public class TriggerWrapperImpl implements TriggerWrapper
   public void setIsSelected(boolean isSelected)
   {
     this.isSelected = isSelected;
+  }
+
+  public boolean isCron() {
+    return trigger instanceof CronTrigger;
+  }
+
+  public boolean isSimple() {
+    return trigger instanceof SimpleTrigger;
   }
 }
