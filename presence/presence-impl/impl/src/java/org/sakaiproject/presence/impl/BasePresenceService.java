@@ -780,7 +780,11 @@ public abstract class BasePresenceService implements PresenceService
 				}
 				catch (Exception e)
 				{
-					M_log.warn("exception checking for expired presence: ", e);
+					//SAK-20847 don't print the stacktrace unless we are in debug mode
+					M_log.warn("Exception checking for expired presence. If the app server is currently stopped you can safely ignore this warning. Under any other circumstances, enable debug logging to see the cause.");
+					if (M_log.isDebugEnabled()) {
+						M_log.debug("The exception is: ", e);
+					}
 				}
 
 				// cycle every REFRESH seconds
