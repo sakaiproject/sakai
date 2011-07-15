@@ -527,5 +527,21 @@
         <event eventId="sitestats.prefs.edit" selected="false"/>
         <eventParserTip for="contextId" separator="/" index="2"/>
     </tool>
-
+    <!-- profile 2 -->
+    <tool 
+        toolId="sakai.profile2"
+        selected="false">
+        <event eventId="profile.view.own" selected="false"/>
+        <event eventId="profile.view.other" selected="false"/>
+        <event eventId="profile.friend.request" selected="false"/>
+        <event eventId="profile.friend.confirm" selected="false"/>
+        <event eventId="profile.friends.view.own" selected="false"/>
+        <event eventId="profile.friends.view.other" selected="false"/>
+        <event eventId="profile.search.name" selected="false"/>
+        <event eventId="profile.search.interest" selected="false"/>
+        <event eventId="profile.status.update" selected="false"/>
+        <event eventId="profile.twitter.update" selected="false"/>
+       <event eventId="profile.message.sent" selected="false"/>
+        <eventParserTip for="contextId" separator="/" index="2"/>
+    </tool>
 </toolEventsDef>
