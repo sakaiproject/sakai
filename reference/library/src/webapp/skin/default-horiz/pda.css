@@ -483,6 +483,47 @@ form[name='announcementListForm'] table td[headers='subject'] h4 {
     white-space:nowrap;
     text-overflow:ellipsis;
 }
+/*set width and height of textarea in different contexts in portrait mode
+ * Note: need to make sure that these are targetting unique things
+ * */
+#gradeForm textarea, textarea[id^='Assignment'], [name='reviseForm'] textarea#body, #addContentForm textarea, #addFolderForm textarea[id^='description'], #detailsForm textarea[id^='description'], form[name='newAssignmentForm'] textarea {
+    width:100%;
+    height:100px;
+}
+form[name='newAssignmentForm'] fieldset{
+    width:80% !important;
+    min-width:80%;
+    max-width:80%;
+}
+form[name='newAssignmentForm'] fieldset textarea{
+    width:90%;
+    margin-left:-1em
+}
+/*some adjustments to elements in resources and assignments*/
+form[name='newAssignmentForm'] .shorttext label{
+    display:block;
+    float:none
+}
+#gradeForm .navPanel .viewNav{
+    float:none;
+    width:100% !important
+}
+#gradeForm .navPanel .viewNav span.act input[name="save"], #gradeForm .navPanel .viewNav span.act input[name="return"],#gradeForm .navPanel .viewNav span.act input[name="preview"], #gradeForm .navPanel .viewNav span.act input[name="cancel"]{
+   margin-top:.5em; 
+   float:left;
+}
+#gradeForm .navPanel .viewNav span.act input[name="preview"]{
+    clear:left;
+}
+form[name='reviseForm'] input#subject, #addContentForm input[id^='content'], #detailsForm input[id^='displayName']{
+    width:100%;
+}
+#addContentForm  .labelindnt, #addFolderForm .labelindnt, #detailsForm .labelindnt, form[name='newAssignmentForm'] .labelindnt{
+    margin-left:1em !important
+}
+#fileURLHolder{
+    width:50px;
+}
 }
 /*
 adjust text trimming for site link in toolbar and in Sites menu (as well as Resource titles
