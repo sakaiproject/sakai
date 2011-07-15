@@ -49,6 +49,8 @@
 		<property name="showRank" column="DO_SHOW_RANK" type="boolean" not-null="false"/>
 		
 		<property name="showItemStatistics" column="DO_SHOW_ITEM_STATS" type="boolean" not-null="false"/>
+
+		<property name="showStatisticsChart" column="DO_SHOW_STATISTICS_CHART" type="boolean" not-null="false"/>
 		
 
 	</class>
