@@ -1524,6 +1524,15 @@ public class SimplePageBean {
 		boolean makeNewPage = (selectedEntity == null || selectedEntity.length() == 0);
 		boolean makeNewItem = (itemId == null || itemId == -1);
 
+		// make sure the page is legit
+		if (!makeNewPage) {
+		    SimplePage p = simplePageToolDao.getPage(Long.valueOf(selectedEntity));
+		    if (p == null || !getCurrentSiteId().equals(p.getSiteId())) {
+			log.warn("addpage tried to add invalid page: " + selectedEntity);
+			return "invalidpage";
+		    }
+		}
+
 		if ((title == null || title.length() == 0) &&
 		    (selectedEntity == null || selectedEntity.length() == 0)) {
 			return "notitle";
@@ -2632,6 +2641,11 @@ public class SimplePageBean {
 		long oldPageId = getCurrentPageId();
 		long newPageId = page.getPageId();
 		for (SimplePageItem oldItem: simplePageToolDao.findItemsOnPage(oldPageId)) {
+		    // don't copy pages. It's not clear whether we want to deep copy or
+		    // not. If we do the wrong thing the user coudl end up editing the
+		    // wrong page and losing content.
+		    if (oldItem.getType() == SimplePageItem.PAGE)
+			continue;
 		    SimplePageItem newItem = simplePageToolDao.copyItem(oldItem);
 		    newItem.setPageId(newPageId);
 		    saveItem(newItem);
