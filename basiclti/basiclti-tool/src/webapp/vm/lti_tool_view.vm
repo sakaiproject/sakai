@@ -5,11 +5,11 @@
 	#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<form action="#toolForm("")" method="post" name="customizeForm" >
-		$formInput
+		$formOutput
                 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		<p class="act">
-			<input type="submit" accesskey ="s" class="active" name="$doToolAction" 
-				value="$tlang.getString('gen.save')" />
+			<input type="submit" accesskey ="e" class="active" name="$doToolEdit" value="$tlang.getString('gen.edit')" 
+ 				onclick="location = '$sakai_ActionURL.setPanel("ToolEdit")';return false;">
 			<input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" 
  				onclick="location = '$sakai_ActionURL.setPanel("Main")';return false;">
 		</p>

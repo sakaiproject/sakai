@@ -22,6 +22,8 @@
 package org.sakaiproject.blti.tool;
 
 import java.util.Properties;
+import java.util.List;
+import java.util.Map;
 import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
@@ -98,10 +100,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		super.initState(state, portlet, rundata);
 
 		getServices();
-
-		// Not currently needed
-		// Placement placement = toolManager.getCurrentPlacement();
-		// Properties config = placement.getConfig();
 	}
 	
 	/**
@@ -111,22 +109,76 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		RunData rundata, SessionState state)
 	{
 		context.put("tlang", rb);
+		if ( ! ltiService.isMaintain() ) {
+		        addAlert(state,"Must be site administrator");
+		        return "lti_main";
+		}
 		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
-		// TOTO: Retrieve tools here
+		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
+		List<Map<String,Object>> tools = ltiService.getTools(null,null,0,100);
+		context.put("tools", tools);
 		state.removeAttribute(STATE_POST);
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_main";
+	}
+	
+        public String buildToolViewPanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
+		context.put("tlang", rb);
+		if ( ! ltiService.isMaintain() ) {
+		        addAlert(state,"Must be site administrator");
+		        return "lti_main";
+		}
+                context.put("doToolEdit", BUTTON + "doToolEdit");
+                context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
+		String [] mappingForm = ltiService.getToolModel();
+		String id = data.getParameters().getString("id");
+		System.out.println("id="+id);
+		Long key = new Long(id);
+		Map<String,Object> tool = ltiService.getTool(key);
+		if (  tool == null ) return "lti_main";		
+		String formOutput = ltiService.formOutput(tool, mappingForm);
+		context.put("formOutput", formOutput);
+		state.removeAttribute(STATE_SUCCESS);
+		return "lti_tool_view";
+	}
+	
+	public String buildToolEditPanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
+		context.put("tlang", rb);
+		if ( ! ltiService.isMaintain() ) {
+		        addAlert(state,"Must be site maintainer");
+		        return "lti_main";
+		}
+                context.put("doToolAction", BUTTON + "doToolEdit");
+                context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
+		String [] mappingForm = ltiService.getToolModel();
+		String id = data.getParameters().getString("id");
+		System.out.println("id="+id);
+		Long key = new Long(id);
+		Map<String,Object> tool = ltiService.getTool(key);
+		if (  tool == null ) return "lti_main";		
+		String formInput = ltiService.formInput(tool, mappingForm);
+		context.put("formInput", formInput);
+		state.removeAttribute(STATE_SUCCESS);
+		return "lti_tool_insert";
 	}
 
 	public String buildToolInsertPanelContext(VelocityPortlet portlet, Context context, 
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
-                context.put("doToolInsert", BUTTON + "doToolInsert");
+		if ( ! ltiService.isMaintain() ) {
+		        addAlert(state,"Must be site maintainer");
+		        return "lti_main";
+		}
+                context.put("doToolAction", BUTTON + "doToolInsert");
                 context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
-		String [] mappingForm = LTIService.ADMIN_TOOL_MODEL;
+		String [] mappingForm = ltiService.getToolModel();
 		Properties previousPost = (Properties) state.getAttribute(STATE_POST);
-		String formInput = foorm.formInput(previousPost, mappingForm, getLTILoader());
+		String formInput = ltiService.formInput(previousPost, mappingForm);
 		context.put("formInput",formInput);
 		state.removeAttribute(STATE_POST);
 		state.removeAttribute(STATE_SUCCESS);
@@ -135,9 +187,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 	public void doToolInsert(RunData data, Context context)
 	{
+
 		String peid = ((JetspeedRunData) data).getJs_peid();
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
-
+		
+		if ( ! ltiService.isMaintain() ) {
+		        addAlert(state,"Must be site maintainer");
+		        return;
+		}
 		// String setting = data.getParameters().getString("setting");
 		Properties reqProps = data.getParameters().getProperties();
 		Object retval = ltiService.insertTool(reqProps);
@@ -159,6 +216,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
+		if ( ! ltiService.isAdmin() ) {
+		        addAlert(state,"Must be site administrator");
+		        return "lti_main";
+		}
 		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_mapping";
@@ -168,10 +229,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
+		if ( ! ltiService.isAdmin() ) {
+		        addAlert(state,"Must be site administrator");
+		        return "lti_main";
+		}
                 context.put("doMappingInsert", BUTTON + "doMappingInsert");
                 context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		state.removeAttribute(STATE_SUCCESS);
-		String [] mappingForm = LTIService.ADMIN_MAPPING_MODEL;
+		String [] mappingForm = ltiService.getMappingModel();
 		Properties previousPost = (Properties) state.getAttribute(STATE_POST);
 		String formInput = foorm.formInput(previousPost, mappingForm, getLTILoader());
 		context.put("formInput",formInput);
@@ -185,6 +250,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	{
 		String peid = ((JetspeedRunData) data).getJs_peid();
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
+
+		if ( ! ltiService.isAdmin() ) {
+		        addAlert(state,"Must be site administrator");
+		        return;
+		}
 
 		// String setting = data.getParameters().getString("setting");
 		Properties reqProps = data.getParameters().getProperties();

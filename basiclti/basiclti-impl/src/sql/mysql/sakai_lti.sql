@@ -1,15 +1,16 @@
 
 CREATE TABLE `lti_tools` (
 	`id` mediumint(10) NOT NULL AUTO_INCREMENT,
-	`toolid` varchar(32) NOT NULL,
-	`course_id` mediumint(10) NOT NULL DEFAULT '0',
+	`course_id` mediumint(10) NULL DEFAULT '0',
+	 SITE_ID VARCHAR (99) NOT NULL,
 	`title` varchar(255) NOT NULL,
 	`description` varchar(1024),
+	`status` mediumint(4) NOT NULL DEFAULT '0',
 	`timecreated` TIMESTAMP,
 	`timemodified` TIMESTAMP,
-	`toolurl` varchar(1023) NOT NULL,
-	`resourcekey` varchar(1023) NOT NULL,
-	`password` varchar(1023) NOT NULL,
+	`toolurl` varchar(255) NOT NULL,
+	`resourcekey` varchar(255) NOT NULL,
+	`password` varchar(255) NOT NULL,
 	`preferheight` mediumint(4) NOT NULL DEFAULT '0',
 	`allowpreferheight` mediumint(1) NOT NULL DEFAULT '0',
 	`sendname` mediumint(1) NOT NULL DEFAULT '0',
@@ -19,7 +20,7 @@ CREATE TABLE `lti_tools` (
 	`allowsetting` mediumint(1) NOT NULL DEFAULT '0',
 	`allowcustomparameters` mediumint(1) NOT NULL DEFAULT '0',
 	`customparameters` text,
-	`organizationid` varchar(64),
+	`organizationid` varchar(255),
 	`organizationurl` varchar(255),
 	`organizationdescr` varchar(255),
 	`launchinpopup` mediumint(1) NOT NULL DEFAULT '0',
@@ -29,24 +30,20 @@ CREATE TABLE `lti_tools` (
 
 CREATE TABLE `lti_content` (
 	`id` mediumint(10) NOT NULL AUTO_INCREMENT,
-	`content_id` mediumint(10) NOT NULL DEFAULT '0',
 	`course_id` mediumint(10) NOT NULL DEFAULT '0',
-	`toolid` varchar(32) NOT NULL DEFAULT '',
+	`tool_id` mediumint(10) NOT NULL DEFAULT '0',
+	`toolurl` varchar(255) NULL,
 	`preferheight` mediumint(4) NOT NULL DEFAULT '0',
-	`sendname` mediumint(1) NOT NULL DEFAULT '0',
-	`sendemailaddr` mediumint(1) NOT NULL DEFAULT '0',
-	`gradebook_test_id` mediumint(10) NOT NULL DEFAULT '0',
-	`allowroster` mediumint(1) NOT NULL DEFAULT '0',
-	`allowsetting` mediumint(1) NOT NULL DEFAULT '0',
-	`customparameters` text,
+	`acceptgrades` mediumint(1) NOT NULL DEFAULT '0',
 	`launchinpopup` mediumint(1) NOT NULL DEFAULT '0',
+	`customparameters` text,
 	`debuglaunch` mediumint(1) NOT NULL DEFAULT '0',
 	`placementsecret` varchar(1023),
 	`timeplacementsecret` mediumint(10) NOT NULL DEFAULT '0',
-	`oldplacementsecret` varchar(1023),
+	`oldplacementsecret` varchar(255),
 	`setting` text(8192),
 	`xmlimport` text(16384),
-	PRIMARY KEY ( `id`, `course_id`, `content_id` )
+	PRIMARY KEY ( `id`, `course_id`, `tool_id` )
 );
 
 CREATE TABLE `lti_mapping` (

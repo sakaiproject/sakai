@@ -41,10 +41,13 @@ import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -120,7 +123,25 @@ public abstract class BaseLTIService implements LTIService
 	{
 		m_eventTrackingService = service;
 	}
+	
+	protected SecurityService securityService = null;
+	protected SiteService siteService = null;
+	protected ToolManager toolManager = null;
+	
+	protected String[] TOOL_FIELDS;
+	protected String[] MAPPING_FIELDS;
+	protected String[] CONTENT_FIELDS;
 
+	/**
+	 * Pull in any necessary services using factory pattern
+	 */
+	protected void getServices()
+	{
+		if ( securityService == null ) securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
+		if ( siteService == null ) siteService = (SiteService) ComponentManager.get("org.sakaiproject.site.api.SiteService");
+		if ( toolManager == null ) toolManager = (ToolManager) ComponentManager.get("org.sakaiproject.tool.api.ToolManager");
+	}
+	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -139,29 +160,28 @@ public abstract class BaseLTIService implements LTIService
 		{
 			M_log.warn("init(): ", t);
 		}
+		
+		getServices();
 
 		// Check to see if all out properties are defined
-		ArrayList<String> strings = foorm.checkI18NStrings(LTIService.ADMIN_TOOL_MODEL, rb);
+		ArrayList<String> strings = foorm.checkI18NStrings(LTIService.TOOL_MODEL, rb);
 		for ( String str : strings ) {
 			System.out.println(str+"=Missing LTIService Translation");
 		}
 
-		strings = foorm.checkI18NStrings(LTIService.ADMIN_CONTENT_MODEL, rb);
+		strings = foorm.checkI18NStrings(LTIService.CONTENT_MODEL, rb);
 		for ( String str : strings ) {
 			System.out.println(str+"=Missing LTIService Translation");
 		}
 
-		strings = foorm.checkI18NStrings(LTIService.ADMIN_MAPPING_MODEL, rb);
+		strings = foorm.checkI18NStrings(LTIService.MAPPING_MODEL, rb);
 		for ( String str : strings ) {
 			System.out.println(str+"=Missing LTIService Translation");
 		}
-
-		strings = foorm.checkI18NStrings(LTIService.INSTRUCTOR_TOOL_MODEL, rb);
-		for ( String str : strings ) {
-			System.out.println(str+"=Missing LTIService Translation");
-		}
-
-		
+	
+		TOOL_FIELDS = foorm.getFields(LTIService.TOOL_MODEL);
+		CONTENT_FIELDS = foorm.getFields(LTIService.CONTENT_MODEL);
+		MAPPING_FIELDS = foorm.getFields(LTIService.MAPPING_MODEL);
 	}
 
 	/**
@@ -179,18 +199,63 @@ public abstract class BaseLTIService implements LTIService
  	/** getMappingModel */
         public String [] getMappingModel() 
 	{
-		return ADMIN_MAPPING_MODEL;
+		if ( isAdmin() ) return MAPPING_MODEL;
+	        return null;
 	}
 	
 	/** getToolModel */
         public String [] getToolModel() 
 	{
-		return ADMIN_TOOL_MODEL;
+		if ( isAdmin() ) return TOOL_MODEL;
+		if ( isMaintain() ) foorm.filterForm(null, MAPPING_MODEL, ":role=admin");
+		return null;
 	}
 
-	/** getResourceLoader */
-	public ResourceLoader getResourceLoader()
+	public String [] getContentModel(Long tool_id)
 	{
-		return rb;
+	        // TODO: Filter
+	        return CONTENT_MODEL;
 	}
+	
+	protected String getContext()
+	{
+	        String retval = toolManager.getCurrentPlacement().getContext();
+                return retval;
+        }
+        
+        public String formOutput(Object row, String fieldInfo)
+        {
+                return foorm.formOutput(row, fieldInfo, rb);
+        }
+        
+        public String formOutput(Object row, String [] fieldInfo)
+        {
+                return foorm.formOutput(row, fieldInfo, rb);
+        }
+        
+	public String formInput(Object row, String fieldInfo)
+	{
+	        return foorm.formInput(row, fieldInfo, rb);
+	}
+        
+	public String formInput(Object row, String [] fieldInfo)
+	{
+	        return foorm.formInput(row, fieldInfo, rb);
+	}
+	
+	
+	
+	public boolean isAdmin()
+	{
+	        if ( ! "!admin".equals(getContext()) ) return false;
+	        return isMaintain();
+	}
+	
+	public boolean isMaintain()
+	{
+	        return siteService.allowUpdateSite(getContext());
+	}
+	
+	public ResourceLoader getResourceLoader() { return rb; }
+
 }

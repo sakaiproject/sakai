@@ -1,16 +1,36 @@
 <div class="portletBody">
+#if ($isAdmin)
 <ul class="navIntraTool actionToolBar" role="menu">
 <li class="firstToolBarItem" role="menuitem"><span><a href="#" 
    title="$tlang.getString("launch.mapping")" 
    onclick="location = '$sakai_ActionURL.setPanel("Mapping")';return false;">
    $tlang.getString("launch.mapping") </a></span></li>
 </ul>
+#end
 #if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
 #if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 <h3>$tlang.getString("lti.admin")</h3>
 	<form action="#toolForm("")" method="post" name="customizeForm" >
-		<p>
-		No Tools Found...
+#if ($tools.size() > 0)
+			<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("uselis.lisof")">
+				<tr>
+					<th id="toolurl">$tlang.getString("bl_toolurl")</th>
+					<th id="title">$tlang.getString("bl_title")</th>
+					<th id="action">Action</th>
+				</tr>
+	#foreach ($tool in $tools)
+	<tr>
+	<td headers="toolurl">$tool.get("toolurl")</a></td>
+	<td headers="title"><a href="$sakai_ActionURL.setPanel("ToolView")&id=$tool.get("id")">$tool.get("title")</td>
+	<td headers="action"><a href="$sakai_ActionURL.setPanel("ToolEdit")&id=$tool.get("id")">Edit</a> / 
+	<a href="$sakai_ActionURL.setPanel("ToolDelete")&id=$tool.get("id")">Delete</a></td>
+	<tr>
+	#end
+	</table>
+#else
+<p>No Tools Found</p>
+#end
+	
 		</p>
 		<p class="act">
 			<input type="submit" accesskey ="i" value="$tlang.getString('gen.insert')" 

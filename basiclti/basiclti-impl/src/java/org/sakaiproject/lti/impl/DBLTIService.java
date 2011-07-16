@@ -21,15 +21,19 @@
 
 package org.sakaiproject.lti.impl;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Arrays;
 import java.util.Properties;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -105,7 +109,7 @@ public class DBLTIService extends BaseLTIService implements LTIService
 		HashMap<String, Object> newMapping = new HashMap<String,Object> ();
 
 		// CHeck for user data errors
-		String errors = foorm.formExtract(newProps, LTIService.ADMIN_MAPPING_MODEL, rb, newMapping);
+		String errors = foorm.formExtract(newProps, LTIService.MAPPING_MODEL, rb, newMapping);
                 if ( errors != null ) return errors;
 
 		// Run the SQL
@@ -119,15 +123,16 @@ System.out.println("sql="+sql);
 	
 	public Object getMapping(Long key) {return "oops"; }
 	public String deleteMapping(Long key) { return null; }
-	public String updateMapping(Long key, Properties newProps) { return null; }
-	public ArrayList<Properties> getMappings(String search, String order, int first, int last) { return null; }
+	public String updateMapping(Long key, Map<String,Object> retval) { return null; }
+	public List<Map<String,Object>> getMappings(String search, String order, int first, int last) { return null; }
 
 	/** insertTool */
 	public Object insertTool(Properties newProps)
 	{
-		// TODO: Only admins can do this
+		if ( ! isMaintain() ) return null; 
 		HashMap<String, Object> newMapping = new HashMap<String,Object> ();
-		String errors = foorm.formExtract(newProps, LTIService.ADMIN_TOOL_MODEL, rb, newMapping);
+		if ( isMaintain() && ! isAdmin() ) newProps.put("SITE_ID",getContext());
+		String errors = foorm.formExtract(newProps, LTIService.TOOL_MODEL, rb, newMapping);
                 if ( errors != null ) return errors;
 		String sql = "INSERT INTO lti_tools "+foorm.insertForm(newMapping);
 System.out.println("sql="+sql);
@@ -137,45 +142,96 @@ System.out.println("sql="+sql);
 		return retval;
 	}
 	
-	public Object getTool(Long key) {return "oops"; }	
-	public String deleteTool(Long key) { return null; }
-	public String updateTool(Long key, Properties newProps) { return null; }
+	public Map<String,Object> getTool(Long key) 
+	{
+	        String statement = "SELECT "+foorm.formSelect(LTIService.TOOL_MODEL)+" from lti_tools WHERE id = ?";
+                Object fields[] = null;
+                if ( isAdmin () )
+                {
+                        fields = new Object[1];
+                        fields[0] = key;               
+                } else {
+                        statement += " AND WHERE SITE_ID = ?";
+                        fields = new Object[2];
+                        fields[0] = key;               
+                        fields[1] = getContext();
+                }
+                
+                System.out.println("statement="+statement);
 
-	public ArrayList<Properties> getTools(String search, String order, int first, int last) 
-	{ return null;  /*
-			// let the db do the work
-			String statement = "SELECT * from blti_tools;";
-			Object fields[] = new Object[1];
-			fields[0] = caseId(siteId);
-
-			List rv = sqlService().dbRead(statement, fields, new SqlReader()
-			{
-				public Object readSqlResultRecord(ResultSet result)
-				{
-					try
-					{
-						String skin = result.getString(1);
-						int published = result.getInt(2);
-
-						// adjust the skin value
-						skin = m_service.adjustSkin(skin, (published == 1));
-
-						return skin;
-					}
-					catch (SQLException e)
-					{
-						M_log.warn("getSiteSkin: " + siteId + " : " + e);
-						return null;
-					}
-				}
-			});
-
-			if ((rv != null) && (rv.size() > 0))
-			{
-				return (String) rv.get(0);
-			}
-*/
+                List rv = m_sql.dbRead(statement, fields, new SqlReader()
+                {
+                        public Object readSqlResultRecord(ResultSet result)
+                        {
+                                try
+                                {
+                                        Map<String,Object> rv = new HashMap<String,Object> ();                                    
+                                        for (String field : TOOL_FIELDS) {
+                                                rv.put(field,result.getObject(field));
+                                        }
+                                        return rv;
+                                }
+                                catch (SQLException e)
+                                {
+                                        M_log.warn("getTools" + e);
+                                        return null;
+                                }
+                        }
+                });
+                
+                if ((rv != null) && (rv.size() > 0))
+                {
+                        return (Map<String,Object>) rv.get(0);
+                }
+                return null;
+                
 	}
 	
+	public Map<String,Object> getTool(String url) {return null; }
+
+	private boolean getTool(Object urlorkey, Map<String,Object> retval) 
+	{
+	        return false; 
+	}
+
+	public String deleteTool(Long key) { return null; }
+	public String updateTool(Long key, Map<String,Object> newProps) { return null; }
+
+
+	public List<Map<String,Object>> getTools(String search, String order, int first, int last) 
+	{ 
+                String statement = "SELECT "+foorm.formSelect(LTIService.TOOL_MODEL)+" from lti_tools";
+                Object fields[] = null;
+                if ( ! isAdmin () )
+                {
+                        statement += " WHERE SITE_ID = ?";
+                        fields = new Object[1];
+                        fields[0] = getContext();
+                }
+                
+                System.out.println("statement="+statement);
+
+                List rv = m_sql.dbRead(statement, fields, new SqlReader()
+                {
+                        public Object readSqlResultRecord(ResultSet result)
+                        {
+                                try
+                                {
+                                        Map<String,Object> rv = new HashMap<String,Object> ();                                    
+                                        for (String field : TOOL_FIELDS) {
+                                                rv.put(field,result.getObject(field));
+                                        }
+                                        return rv;
+                                }
+                                catch (SQLException e)
+                                {
+                                        M_log.warn("getTools" + e);
+                                        return null;
+                                }
+                        }
+                });
+
+                return (List<Map<String,Object>>) rv;
+	}
 
 }

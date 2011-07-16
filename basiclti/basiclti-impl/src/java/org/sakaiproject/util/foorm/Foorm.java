@@ -33,6 +33,9 @@ public class Foorm {
     // Abstract this away for testing purposed
     public Object getField(Object row, String column)
     {
+    	if ( row instanceof java.util.Properties ) {
+		return ( (java.util.Properties)row ).getProperty(column);
+	}
 	if ( row instanceof java.util.Map ) {
 		return ( (java.util.Map)row ).get(column);
 	}
@@ -49,6 +52,20 @@ public class Foorm {
 	return null;
     }
 
+    public String [] getFields(String fieldInfo[])
+    {
+        ArrayList<String> aa = new ArrayList<String> ();
+        for (String line : fieldInfo) {
+                Properties info = parseFormString(line);
+                String field = info.getProperty("field");
+                if ( field == null ) continue;
+                aa.add(field);
+        }
+        
+        String[] retval = new String[aa.size()];
+        return (String[]) aa.toArray(retval);
+    }
+		
     // Expect to be overridden
     public String htmlSpecialChars(String str)
     {
@@ -91,17 +108,20 @@ public class Foorm {
 	sb.append("<p id=\"");
 	sb.append(field);
 	sb.append(".input\" class=\"shorttext\" style=\"clear:all;\">");
-	if ( required ) 
+	if ( label != null && required ) 
 	{
 		sb.append("<span class=\"reqStar\" title=\"");
 		sb.append(getI18N(label, loader));
 		sb.append("\">*</span>");
 	}
-	sb.append("<label for=\"");
-	sb.append(field);
-	sb.append("\">");
-	sb.append(getI18N(label,loader));
-	sb.append("</label>");
+	if ( label != null ) 
+	{
+        	sb.append("<label for=\"");
+	        sb.append(field);
+	        sb.append("\">");
+	        sb.append(getI18N(label,loader));
+	        sb.append("</label>");
+	}
     }
 
     public void formInputEnd(StringBuffer sb, String field,String label,
@@ -126,6 +146,32 @@ public class Foorm {
 	sb.append(htmlSpecialChars(value));
 	sb.append("\"/>");
 	formInputEnd(sb, field, label, required, loader);
+	return sb.toString();
+    }
+    
+    public String formInputKey(Object value, String field)
+    {
+        if ( value == null ) return "";
+        if ( value instanceof Integer || value instanceof Long ) 
+        {
+                String val = value.toString();
+                return formInputHidden(val,field);
+        }
+        return "";
+    }
+    
+    public String formInputHidden(String value,String field)
+    {
+	if ( value == null ) return "";
+	if ( "".equals(value) ) return "";
+	StringBuffer sb = new StringBuffer();
+	sb.append("<input type=\"hidden\" id=\"");
+	sb.append(field);
+	sb.append("\" name=\"");
+	sb.append(field);
+	sb.append("\" value=\"");
+	sb.append(htmlSpecialChars(value));
+	sb.append("\"/>");
 	return sb.toString();
     }
 
@@ -200,7 +246,9 @@ public class Foorm {
     public String formInputInteger(Object value,String field,String label,
 		boolean required,String size, Object loader)
     {
-	if ( value == null ) value = new Integer(0);
+	if ( value == null ) value = "";
+	if ( value instanceof Integer && ((Integer) value).intValue() == 0 ) value = "";
+        if ( value instanceof Long && ((Long) value).intValue() == 0 ) value = "";
 	if ( value instanceof String ) return formInputText((String) value,field,label,required,size,loader);
 	return formInputText(value.toString(),field,label,required,size,loader);
     }
@@ -219,8 +267,10 @@ public class Foorm {
 	String cols = info.getProperty("cols","25");
 	String rows = info.getProperty("rows","2");
 
+        if ( "key".equals(type)) return formInputKey(value,field);
         if ( "integer".equals(type)) return formInputInteger(value,field,label,required,size,loader);
 	if ( "text".equals(type) ) return formInputText((String) value,field,label,required,size,loader);
+	if ( "hidden".equals(type) ) return formInputHidden((String) value,field);
 	if ( "url".equals(type) ) return formInputURL((String) value,field,label,required,size,loader);
 	if ( "id".equals(type) ) return formInputId((String) value,field,label,required,size,loader);
 	if ( "textarea".equals(type) ) return formInputTextArea((String) value,field,label,required,rows,cols,loader);
@@ -285,14 +335,17 @@ public class Foorm {
 
     public void formOutputStart(StringBuffer sb, String field,String label, Object loader)
     {
-	sb.append("<div class=\"row\">\n");
-	sb.append(getI18N(label, loader));
-	sb.append("<br/>");
+	sb.append("<p class=\"row\">\n");
+	if ( label != null ) {
+	        sb.append("<b>");
+        	sb.append(getI18N(label, loader));
+	        sb.append("</b><br/>");
+	}
     }
 
     public void formOutputEnd(StringBuffer sb, String field,String label, Object loader)
     {
-	sb.append("</div>\n");
+	sb.append("</p>\n");
     }
 
     public String formOutputText(String value,String field,String label, Object loader)
@@ -337,7 +390,7 @@ public class Foorm {
 	return formOutputText(strval,field,label,loader);
     }
 
-    public String formOutput(Object row,String fieldinfo, Object loader)
+    public String formOutput(Object row, String fieldinfo, Object loader)
     {
 	Properties info = parseFormString(fieldinfo);
 	String field = info.getProperty("field", null);
@@ -363,12 +416,12 @@ public class Foorm {
         return "\n<!-- Foorm.formOutput() unrecognized type " + type + " field="+field+" -->\n";
     }
 
-    public String formOutput(Object row, String [] formDefinition)
+    public String formOutput(Object row, String [] formDefinition, Object loader)
     {
 	StringBuffer sb = new StringBuffer();
 	for(String formOutput : formDefinition ) 
 	{
-		sb.append(formOutput(row, formOutput));
+		sb.append(formOutput(row, formOutput, loader));
 		sb.append("\n");
 	}
 	return sb.toString();
@@ -381,7 +434,7 @@ public class Foorm {
     }
 
     // dataMap should be empty
-    public String formExtract(Properties parms, String [] formDefinition, 
+    public String formExtract(Object parms, String [] formDefinition, 
 		Object loader, Map<String, Object> dataMap)
     {
 	StringBuffer sb = new StringBuffer();
@@ -393,21 +446,32 @@ public class Foorm {
 		String type = info.getProperty("type", null);
 		if ( field == null || type == null ) continue;
 		String label = info.getProperty("label",field);
-		String dataField = parms.getProperty(field);
-		// System.out.println("field="+field+" data="+dataField);
+		Object dataField = getField(parms, field);
+		String sdf = null;
+		if ( dataField instanceof String ) sdf = (String) dataField;
+		if ( sdf != null && sdf.length() < 1 ) 
+		{
+		        sdf = null;
+		        dataField = null;
+		}
+		
+		System.out.println("field="+field+" data="+dataField);
 
-		if ( "true".equals(info.getProperty("required")) && ( dataField == null || dataField.length() < 1 ) )
+		if ( "true".equals(info.getProperty("required")) && ( dataField == null ) )
 		{
 			if ( sb.length() > 0 ) sb.append(", ");
 			sb.append(getI18N("foorm.missing.field", "Required Field: ", loader));
 			sb.append(getI18N(label, loader));
 		}
+		
 		if ( "integer".equals(type) || "radio".equals(type) ) {
-			if ( dataField == null ||  dataField.length() < 1 ) {
+			if ( dataField == null ) {
 				if ( dataMap != null ) dataMap.put(field,null);
+			} else if ( dataField instanceof Integer ) {
+			        if ( dataMap != null ) dataMap.put(field, dataField);
 			} else {
 				try {
-					Integer ival = new Integer(dataField);
+					Integer ival = new Integer(sdf);
 					if ( dataMap != null ) dataMap.put(field,ival);
 				} catch (Exception e) {
 					if ( sb.length() > 0 ) sb.append(", ");
@@ -416,11 +480,12 @@ public class Foorm {
 				}
 			}
 		}
+		
 		if ( "id".equals(type) ) {
-			if ( dataField == null ||  dataField.length() < 1 ) {
+			if ( sdf == null ) {
 				if ( dataMap != null ) dataMap.put(field,null);
-			} else if ( dataField.matches("^[0-9a-zA-Z._-]*$") ) {
-				if ( dataMap != null ) dataMap.put(field,dataField);
+			} else if ( sdf.matches("^[0-9a-zA-Z._-]*$") ) {
+				if ( dataMap != null ) dataMap.put(field,sdf);
 			} else { 
 				if ( sb.length() > 0 ) sb.append(", ");
 				sb.append(getI18N("foorm.id.field", "Field has invalid characters: ", loader));
@@ -430,10 +495,10 @@ public class Foorm {
 
 		// Should we check size?
 		if ( "url".equals(type) ) {
-			if ( dataField == null ||  dataField.length() < 1 ) {
+			if ( sdf == null ) {
 				if ( dataMap != null ) dataMap.put(field,null);
-			} else if ( dataField.matches("^(http://|https://)[a-z0-9][a-z0-9]*.*") ) {
-				if ( dataMap != null ) dataMap.put(field,dataField);
+			} else if ( sdf.matches("^(http://|https://)[a-z0-9][a-z0-9]*.*") ) {
+				if ( dataMap != null ) dataMap.put(field,sdf);
 			} else { 
 				if ( sb.length() > 0 ) sb.append(", ");
 				sb.append(getI18N("foorm.url.field", "Field is not a url: ", loader));
@@ -443,13 +508,13 @@ public class Foorm {
 
 		// Should we check size?
 		if ( "text".equals(type) || "textarea".equals(type) ) {
-			if ( dataField == null ||  dataField.length() < 1 ) {
+			if ( sdf == null ) {
 				if ( dataMap != null ) dataMap.put(field,null);
 			} else {
-				if ( dataMap != null ) dataMap.put(field,dataField);
+				if ( dataMap != null ) dataMap.put(field,sdf);
 			}
 		}
-	}
+       }
 	if ( sb.length() < 1 ) return null;
 	return sb.toString();
     }
@@ -472,6 +537,22 @@ public class Foorm {
 	fields.append(" ) ");
 	return fields.toString();
     }
+    
+    public String formSelect(String [] fieldinfo)
+    {
+	StringBuffer fields = new StringBuffer();
+	for (String line : fieldinfo) {
+		Properties info = parseFormString(line);
+		String field = info.getProperty("field");
+		if ( field == null ) continue;
+		if ( fields.length() > 0 ) {
+			fields.append(", ");
+		}
+		fields.append(field);	
+	}
+	return fields.toString();
+    }
+
 
     public String updateForm(Map<String, Object> dataMap)
     {
@@ -495,7 +576,7 @@ public class Foorm {
 	return retval;
     }
 
-    // Filter a form definition based on a controlling row.
+    // Filter a form definition based on a controlling row and/or a regex
     //
     // The controlling row has fields that are interpreted as
     // 0=force off, 1=force on, 2 = delegate setting
@@ -505,9 +586,15 @@ public class Foorm {
     // controlling row prepended by 'allow'.
     public String [] filterForm(Object controlRow, String [] fieldinfo)
     {
+        return filterForm(controlRow, fieldinfo, null);
+    }
+    
+    public String [] filterForm(Object controlRow, String [] fieldinfo, String match)
+    {
 	ArrayList<String> ret = new ArrayList<String> ();
 	for (String line : fieldinfo) 
 	{
+		if ( match != null && line.matches(match) ) continue;
 		Properties fields = parseFormString(line);
 		String field = fields.getProperty("field", null);
 		String type = fields.getProperty("type", null);
