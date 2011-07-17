@@ -43,6 +43,11 @@ import java.util.Locale;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Date;
+import java.util.Arrays;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -135,6 +140,20 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
        lessonBuilderAccessAPI = l;
    }
 
+
+   private Set<String> servers;
+
+ // The attributes in HTML that should have their values looked at and possibly re-written
+   private Collection<String> attributes = new HashSet<String>(
+				    Arrays.asList(new String[] { "href", "src", "background", "action",
+				    "pluginspage", "pluginurl", "classid", "code", "codebase",
+				    "data", "usemap" }));
+
+   private Pattern attributePattern;
+
+   private Pattern pathPattern;
+
+
    public void init() {
       logger.info("init()");
       
@@ -144,6 +163,35 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
       catch (Exception e) {
          logger.warn("Error registering Link Tool Entity Producer", e);
       }
+
+      // Builds a Regexp selector.
+      StringBuilder regexp = new StringBuilder("(");
+      for (String attribute : attributes) {
+	  regexp.append(attribute);
+	  regexp.append("|");
+      }
+      if (regexp.length() > 1) {
+	  regexp.deleteCharAt(regexp.length() - 1);
+      }
+      regexp.append(")[\\s]*=[\\s]*([\"'|])([^\"']*)(\\2|#)");
+      attributePattern = Pattern.compile(regexp.toString(),
+					 Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+      pathPattern = Pattern
+	  .compile("/(?:access/content/group|web|dav|portal/site)/([^/]+)/.*");
+      
+      // Add the server name to the list of servers
+      String serverName = ServerConfigurationService.getString("serverName", null);
+      String serverId = ServerConfigurationService.getString("serverId", null);
+
+      servers = new HashSet<String>();
+      // prefer servername to serverid, by doing it first
+      if (serverName != null)
+	  servers.add(serverName);
+      if (serverId != null)
+	  servers.add(serverId);
+      // if neither is defined we're in trouble;
+      if (servers.size() == 0)
+	  System.out.println("LessonBuilderEntityProducer ERROR: neither servername nor serverid defined in sakai.properties");
 
       // this slightly odd code is for testing. It lets us test by reloading just lesson builder.
       // otherwise we have to restart sakai, since the entity stuff can't be restarted
@@ -453,7 +501,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
    }
 
     // the pages are already made. this adds the elements
-    private Long makePage(Element element, String siteId, Map<Long,Long> pageMap) {
+    private Long makePage(Element element, String siteId, String fromSiteId, Map<Long,Long> pageMap) {
   
        String oldSiteId = element.getAttribute("siteid");
        String oldPageIdString = element.getAttribute("pageid");
@@ -500,7 +548,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		   } else {
 		       s = itemElement.getAttribute("html");
 		       if (s != null)
-			   item.setHtml(s);
+			   item.setHtml(fixUrls(s, siteId, fromSiteId));
 		   }
 		   s = itemElement.getAttribute("description");
 		   if (s != null)
@@ -543,6 +591,17 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
        }
        return pageId;
     }
+
+
+   public String fixUrls(String s, String siteId, String fromSiteId) {
+
+       ContentCopyContext context = new ContentCopyContext(fromSiteId, siteId);
+
+       // should use CopyContent in kernel once KNL-737 is implemented. I'm including a copy of
+       // it for the moment
+       return convertHtmlContent(context, s, null);
+
+   }
 
 
    /**
@@ -591,7 +650,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		 Node pageNode = pageNodes.item(p);
 		 if (pageNode.getNodeType() == Node.ELEMENT_NODE) {
 		     Element pageElement = (Element) pageNode;
-		     makePage(pageElement, siteId, pageMap);
+		     makePage(pageElement, siteId, fromSiteId, pageMap);
 		 }
 	     }
 
@@ -926,4 +985,119 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	}
 	return localeEventNames;
     }
+
+    //
+    // Code to fix up URLs in HTML. Use the kernel service once KNL-737 is implemented.
+    // The code here is copied from the patch.
+    //
+
+    public class ContentCopyContext {
+	String oldSiteId;
+	String newSiteId;
+	ContentCopyContext (String oldId, String newId) {
+	    oldSiteId = oldId;
+	    newSiteId = newId;
+	}
+	String getOldSiteId () {
+	    return oldSiteId;
+	}
+	String getNewSiteId () {
+	    return newSiteId;
+	}
+    }
+
+    private String convertHtmlContent(ContentCopyContext context,
+				      String content, String contentUrl) {
+	StringBuilder output = new StringBuilder();
+	Matcher matcher = attributePattern.matcher(content);
+	int contentPos = 0;
+	while (matcher.find()) {
+	    String url = matcher.group(3);
+
+	    url = processUrl(context, url, contentUrl);
+	    // Content up to the match.
+	    int copyTo = matcher.start(3);
+	    // Start the second copy after the match.
+	    int copyFrom = matcher.end(3);
+	    int copyEnd = matcher.end();
+	    
+	    output.append(content.substring(contentPos, copyTo));
+	    output.append(url);
+	    output.append(content.substring(copyFrom, copyEnd));
+	    contentPos = copyEnd;
+	}
+	    output.append(content.substring(contentPos));
+	    return output.toString();
+    }
+
+
+    /**
+     * Takes a URL and then decides if it should be replaced.
+     * 
+     * @param value
+     * @return
+     */
+    private String processUrl(ContentCopyContext context, String value,
+			      String contentUrl) {
+	// Need to deal with backticks.
+	// - /access/group/{siteId}/
+	// - /web/{siteId}/
+	// - /dav/{siteId}/
+	// http(s)://weblearn.ox.ac.uk/ - needs trimming
+	try {
+	    URI uri = new URI(value);
+	    uri = uri.normalize();
+	    if ("http".equals(uri.getScheme())
+		|| "https".equals(uri.getScheme())) {
+		if (uri.getHost() != null) {
+		    if (servers.contains(uri.getHost())) {
+			// Drop the protocol and the host.
+			uri = new URI(null, null, null, -1, uri.getPath(),
+				      uri.getQuery(), uri.getFragment());
+		    }
+		}
+	    }
+	    // Only do replacement on our URLs.
+	    if (uri.getHost() == null && uri.getPath() != null) {
+		// Need to attempt todo path replacement now.
+		String path = uri.getPath();
+		Matcher matcher = pathPattern.matcher(path);
+
+		if (matcher.matches()
+		    && context.getOldSiteId().equals(matcher.group(1))) {
+		    // Need to push the old URL onto the list of resources to
+		    // process. Except that we can't do that inside Lesson Builder
+		    //		    addPath(context, path);
+		    String replacementPath = path
+			.substring(0, matcher.start(1))
+			+ context.getNewSiteId()
+			+ path.substring(matcher.end(1));
+		    // Create a new URI with the new path
+		    uri = new URI(uri.getScheme(), uri.getUserInfo(),
+				  uri.getHost(), uri.getPort(), replacementPath,
+				  uri.getQuery(), uri.getFragment());
+		} else if (!path.startsWith("/") && contentUrl != null) {
+		    // Relative URL.
+		    try {
+			URI base = new URI(contentUrl);
+			URI link = base.resolve(uri);
+			// sorry, no can do
+			//addPath(context, link.getPath());
+		    } catch (URISyntaxException e) {
+			System.err.println("Supplied contentUrl isn't valid: "
+				 + contentUrl);
+		    }
+		}
+	    }
+	    return uri.toString();
+	} catch (URISyntaxException e) {
+	    // Log this so we may get an idea of the things that are breaking
+	    // the parser.
+	    System.err.println("Failed to parse URL: " + value + " " + e.getMessage());
+	}
+	return value;
+    }
+    
+
+
 }
