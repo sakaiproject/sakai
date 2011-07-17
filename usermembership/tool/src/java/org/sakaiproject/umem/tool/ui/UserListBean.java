@@ -298,11 +298,31 @@ public class UserListBean {
 		selectedAuthority = newAuthority;
 		searchKeyword = searchKeyword.trim();
 		userRows = new ArrayList<UserRow>();
-			
+		
+		if(LOG.isDebugEnabled()){
+			LOG.debug("selectedUserType: " + selectedUserType);
+			LOG.debug("selectedAuthority: " + selectedAuthority);
+			LOG.debug("searchKeyword: " + searchKeyword);
+		}
+		
+		
 		// 1. Search internal users (Sakai DB)
-		try{
-			if(selectedAuthority.equals(USER_AUTH_ALL) || selectedAuthority.equals(USER_AUTH_INTERNAL)){
-				List<User> users = M_uds.searchUsers(searchKeyword, 1, Integer.MAX_VALUE);
+		if(selectedAuthority.equalsIgnoreCase(USER_AUTH_ALL) || selectedAuthority.equalsIgnoreCase(USER_AUTH_INTERNAL)){
+			
+			if(LOG.isDebugEnabled()){
+				LOG.debug("Searching internal users...");
+			}
+			
+			try{
+				
+				//SAK-20857 if empty search, return all users, otherwise only those that match.
+				List<User> users;
+				if(StringUtils.isBlank(searchKeyword)) {
+					users = M_uds.getUsers();
+				} else {
+					users = M_uds.searchUsers(searchKeyword, 1, Integer.MAX_VALUE);
+				}
+				
 				for(User u : users) {
 					// filter user type
 					if(userTypeMatches(u.getType())) {
@@ -318,15 +338,24 @@ public class UserListBean {
 						);
 					}
 				}
-			}
-		}catch(Exception e){
-			LOG.warn("Exception occurred while searching internal users: " + e.getMessage());
-			e.printStackTrace();
+				if(LOG.isDebugEnabled()){
+					LOG.debug("Internal search results: " + users.size());
+				}
+			}catch(Exception e){
+				LOG.warn("Exception occurred while searching internal users: " + e.getMessage());
+				e.printStackTrace();
+			} 
 		}
-			
+		
+		
 		// 2. Search users on external user providers
-		try{
-			if(selectedAuthority.equals(USER_AUTH_ALL) || selectedAuthority.equals(USER_AUTH_EXTERNAL)){
+		if(selectedAuthority.equalsIgnoreCase(USER_AUTH_ALL) || selectedAuthority.equalsIgnoreCase(USER_AUTH_EXTERNAL)){
+			
+			if(LOG.isDebugEnabled()){
+				LOG.debug("Searching external users...");
+			}
+			
+			try{
 				List<User> users = M_uds.searchExternalUsers(searchKeyword, -1, -1);
 				for(User u : users) {
 					// filter user type
@@ -343,18 +372,27 @@ public class UserListBean {
 						);
 					}
 				}
-			}
-		}catch(RuntimeException e){
-			LOG.warn("Exception occurred while searching external users: " + e.getMessage(), e);
+				if(LOG.isDebugEnabled()){
+					LOG.debug("External search results: " + users.size());
+				}
+			}catch(RuntimeException e){
+				LOG.warn("Exception occurred while searching external users: " + e.getMessage(), e);
+			} 
+		}
+		
+		if(LOG.isDebugEnabled()){
+			LOG.debug("Total results: " + userRows.size());
 		}
 
 		// 4. Update pager
 		this.totalItems = userRows.size();
-		if(totalItems > 0) 
-			renderPager = true;
-		else
-			renderPager = false;
+		renderPager = false;
 		firstItem = 0;
+		
+		if(totalItems > 0) {
+			renderPager = true;
+		} 
+		
 	}
 	
 	private boolean userTypeMatches(String userType) {
@@ -364,203 +402,6 @@ public class UserListBean {
 			|| (USER_TYPE_NONE.equals(selectedUserType) && StringUtils.isEmpty(userType));
 	}
 
-	@Deprecated
-	private void doSearch_OLD() {
-		/**
-		 * 1. Query internal users from SAKAI_USER (filter by type and search)
-		 * 2. Query external users from SAKAI_REALM_RL_GR
-		 * 3. Get info and filter external users from UserDirectoryProvider
-		 * 4. Sort resulting list
-		 * 5. Update pager
-		*/	
-		LOG.debug("Refreshing query...");
-		selectedUserType = newUserType;
-		selectedAuthority = newAuthority;
-		searchKeyword = searchKeyword.trim();
-		boolean filtering = (selectedUserType != null && userTypes != null && !selectedUserType.equals(USER_TYPE_ALL));
-		boolean searching = (searchKeyword != null && !searchKeyword.equals("") && !searchKeyword.equals(msgs.getString("bar_input_search_inst")) );
-		userRows = new ArrayList();
-			
-		try{
-			if(selectedAuthority.equals(USER_AUTH_ALL) || selectedAuthority.equals(USER_AUTH_INTERNAL)){
-				// 1. Query internal users from SAKAI_USER
-				String sql = "SELECT EID,EMAIL,FIRST_NAME,LAST_NAME,TYPE, CREATEDON, "
-					        +"MODIFIEDON, SAKAI_USER_ID_MAP.USER_ID as USER_ID FROM SAKAI_USER LEFT JOIN SAKAI_USER_ID_MAP " 
-					        +"ON SAKAI_USER.USER_ID=SAKAI_USER_ID_MAP.USER_ID";
-				if(searching || filtering){
-					sql += " WHERE ";
-					if(searching)
-						sql += " (EID LIKE ? OR SAKAI_USER.USER_ID LIKE ? OR FIRST_NAME LIKE ? OR LAST_NAME LIKE ? OR EMAIL LIKE ?) ";
-					if(filtering && searching)
-						sql += " AND ";
-					if(filtering){
-						if(selectedUserType.equals(USER_TYPE_NONE))
-							sql += " (TYPE='' or TYPE IS NULL) ";
-						else{
-							if(selectedUserType.indexOf(",") == -1)
-								sql += " (TYPE=?) ";
-							else
-								sql += " (TYPE in (?) ) ";
-						}
-					}
-				}		
-
-				Connection c = null;
-				PreparedStatement pst = null;
-				ResultSet rs = null;
-				try{
-					c = M_sql.borrowConnection();
-					pst = c.prepareStatement(sql);
-					if(searching || filtering){
-						int i = 1;
-						if(searching) {
-							for(i=1; i<=5; i++) {
-								pst.setString(i, "%"+searchKeyword+"%");
-							}
-						}
-						if(filtering && !selectedUserType.equals(USER_TYPE_NONE)) {
-							pst.setString(i++, selectedUserType);
-						}
-					}
-					rs = pst.executeQuery();
-					while (rs.next()){
-						String id = rs.getString("USER_ID");
-						String eid = rs.getString("EID");
-						eid = eid == null? id : eid;
-						String e = rs.getString("EMAIL");
-						String f = rs.getString("FIRST_NAME");
-						String l = rs.getString("LAST_NAME");
-						String t = rs.getString("TYPE");
-						Timestamp createdOn = rs.getTimestamp("CREATEDON");
-						String co = createdOn.toString();
-						Timestamp modifiedOn = rs.getTimestamp("MODIFIEDON");
-						String mo = modifiedOn.toString();
-						// For internal users, making the assumption that eid will do for displayId
-						userRows.add(new UserRow(id, eid, eid, getFullName(id, f, l), e, t, 
-								     USER_AUTH_INTERNAL, co, mo));
-					}
-				}catch(SQLException e){
-					LOG.error("SQL error occurred while retrieving list of internal users: "+e.getMessage());
-				}finally{
-					try{
-						if(rs != null)
-							rs.close();
-					}finally{
-						try{
-							if(pst != null)
-								pst.close();
-						}finally{
-							if(c != null)
-								M_sql.returnConnection(c);
-						}
-					}
-				}
-			}
-		}catch(Exception e){
-			LOG.warn("Exception occurred while querying internal users: " + e.getMessage());
-			e.printStackTrace();
-		}
-			
-		// 2. Query external users from SAKAI_REALM_RL_GR
-		try{
-			if(selectedAuthority.equals(USER_AUTH_ALL) || selectedAuthority.equals(USER_AUTH_EXTERNAL)){
-				List eUsers = new ArrayList();
-				Connection c = null;
-				Statement st = null;
-				ResultSet rs = null;
-				try{
-					c = M_sql.borrowConnection();
-					String sqlE = "SELECT DISTINCT USER_ID FROM SAKAI_REALM_RL_GR WHERE USER_ID NOT IN (SELECT USER_ID FROM SAKAI_USER)";
-					st = c.createStatement();
-					rs = st.executeQuery(sqlE);
-					while (rs.next()){
-						String id = rs.getString("USER_ID");
-						eUsers.add(id);
-					}
-				}catch(SQLException e){
-					LOG.error("SQL error occurred while retrieving list of external users: "+e.getMessage());
-				}finally{
-					try{
-						if(rs != null)
-							rs.close();
-					}finally{
-						try{
-							if(st != null)
-								st.close();
-						}finally{
-							if(c != null)
-								M_sql.returnConnection(c);
-						}
-					}
-				}
-				
-				// 3. Get info and filter external users from UserDirectoryProvider
-				String id;
-				String eid;
-				String dispId; 
-				String e;
-				String n;
-				String t;
-				String regexp = null;
-				String co;
-				String mo;
-				List pUsers = M_uds.getUsers(eUsers);
-				Iterator it = pUsers.iterator();
-				if(searching)
-					regexp = ".*"+searchKeyword.toLowerCase()+".*";
-				while(it.hasNext()){
-					User u = (User) it.next();
-					id = u.getId();
-					eid = u.getEid();
-					dispId = u.getDisplayId();
-					e = u.getEmail();
-					n = getFullName(id, u.getFirstName(), u.getLastName());
-					t = u.getType();
-					t = (t == null) ? "" : t;
-					if(!"".equals(t)) addExtraUserType(t);
-					co = (u.getCreatedTime() == null) ? "" : u.getCreatedTime().toStringLocalDate();
-                    mo = (u.getModifiedTime() == null) ? "" : u.getModifiedTime().toStringLocalDate();
-					boolean add = false;
-					if(filtering && !searching){
-						if((!selectedUserType.equals(USER_TYPE_NONE) && t.equals(selectedUserType)) || (selectedUserType.equals(USER_TYPE_NONE) && "".equals(t))) add = true;
-					}else if(!filtering && searching){
-						if(n.toLowerCase().matches(regexp) || e.toLowerCase().matches(regexp) || id.toLowerCase().matches(regexp)) add = true;
-					}else if(filtering && searching){
-						if((!selectedUserType.equals(USER_TYPE_NONE) && t.equals(selectedUserType)) || (selectedUserType.equals(USER_TYPE_NONE) && "".equals(t))){
-							if(n.toLowerCase().matches(regexp) || e.toLowerCase().matches(regexp) || id.toLowerCase().matches(regexp)) add = true;
-						}
-					}else{
-						add = true;
-					}
-					if(add) userRows.add(new UserRow(id, eid, dispId, n, e, t, USER_AUTH_EXTERNAL, co, mo));
-				}
-			}
-		}catch(RuntimeException e){
-			LOG.warn("Exception occurred while querying external users: " + e.getMessage(), e);
-		}catch(SQLException e){
-			LOG.warn("SQL error occurred while querying external users: " + e.getMessage(), e);
-		}
-
-		// 4. Update pager
-		this.totalItems = userRows.size();
-		if(totalItems > 0) 
-			renderPager = true;
-		else
-			renderPager = false;
-		firstItem = 0;
-	}
-	
-	private String getFullName(String id, String firstName, String lastName){
-		String fullName = "";
-		try{
-			fullName = M_uds.getUser(id).getDisplayName();
-		}catch(UserNotDefinedException e){
-			String _firstName = firstName == null ? "" : firstName;
-			String _lastName = lastName == null ? "" : lastName;
-			fullName = "".equals(_lastName) ? _firstName : ("".equals(_firstName) ? _lastName : _lastName+", "+_firstName);
-		}
-		return fullName;
-	}
 
 	// ######################################################################################
 	// ActionListener methods
