@@ -501,7 +501,7 @@ public class CalendarBean {
 			ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
 			Map paramMap = context.getRequestParameterMap();
 			String dateStr = (String) paramMap.get("selectedDay");
-			DateFormat df = new SimpleDateFormat(DATE_LINK_FORMAT);
+			DateFormat df = new SimpleDateFormat(msgs.getString("date_link_format"));
 			selectedDay = df.parse(dateStr);
 			selectedEventRef = null;
 			updateEventList = true;
@@ -744,7 +744,7 @@ public class CalendarBean {
 	}
 
 	public String getSelectedDayAsString() {
-		SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT, msgs.getLocale());
+		SimpleDateFormat formatter = new SimpleDateFormat(msgs.getString("date_format"));
 		return StringUtils.capitalize(formatter.format(selectedDay));
 	}
 
