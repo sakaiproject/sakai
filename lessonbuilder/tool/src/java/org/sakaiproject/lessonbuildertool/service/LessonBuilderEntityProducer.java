@@ -501,7 +501,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
    }
 
     // the pages are already made. this adds the elements
-    private Long makePage(Element element, String siteId, String fromSiteId, Map<Long,Long> pageMap) {
+    private Long makePage(Element element, String oldServer, String siteId, String fromSiteId, Map<Long,Long> pageMap) {
   
        String oldSiteId = element.getAttribute("siteid");
        String oldPageIdString = element.getAttribute("pageid");
@@ -548,7 +548,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		   } else {
 		       s = itemElement.getAttribute("html");
 		       if (s != null)
-			   item.setHtml(fixUrls(s, siteId, fromSiteId));
+			   item.setHtml(fixUrls(s, oldServer, siteId, fromSiteId));
 		   }
 		   s = itemElement.getAttribute("description");
 		   if (s != null)
@@ -593,9 +593,9 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     }
 
 
-   public String fixUrls(String s, String siteId, String fromSiteId) {
+    public String fixUrls(String s, String oldServer, String siteId, String fromSiteId) {
 
-       ContentCopyContext context = new ContentCopyContext(fromSiteId, siteId);
+	ContentCopyContext context = new ContentCopyContext(fromSiteId, siteId, oldServer);
 
        // should use CopyContent in kernel once KNL-737 is implemented. I'm including a copy of
        // it for the moment
@@ -615,6 +615,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
       Map <Long,Long> pageMap = new HashMap<Long,Long>();
 
       int count = 0;
+
+      String oldServer = root.getAttribute("server");
 
       if (siteId != null && siteId.trim().length() > 0)
       {
@@ -650,7 +652,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		 Node pageNode = pageNodes.item(p);
 		 if (pageNode.getNodeType() == Node.ELEMENT_NODE) {
 		     Element pageElement = (Element) pageNode;
-		     makePage(pageElement, siteId, fromSiteId, pageMap);
+		     makePage(pageElement, oldServer, siteId, fromSiteId, pageMap);
 		 }
 	     }
 
@@ -994,7 +996,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     public class ContentCopyContext {
 	String oldSiteId;
 	String newSiteId;
-	ContentCopyContext (String oldId, String newId) {
+	String oldServer;
+	ContentCopyContext (String oldId, String newId, String oldServer) {
 	    oldSiteId = oldId;
 	    newSiteId = newId;
 	}
@@ -1003,6 +1006,9 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	}
 	String getNewSiteId () {
 	    return newSiteId;
+	}
+	String getOldServer () {
+	    return oldServer;
 	}
     }
 
@@ -1050,7 +1056,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	    if ("http".equals(uri.getScheme())
 		|| "https".equals(uri.getScheme())) {
 		if (uri.getHost() != null) {
-		    if (servers.contains(uri.getHost())) {
+		    if (uri.getHost().equals(context.getOldServer())) {
 			// Drop the protocol and the host.
 			uri = new URI(null, null, null, -1, uri.getPath(),
 				      uri.getQuery(), uri.getFragment());
