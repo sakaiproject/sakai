@@ -1676,6 +1676,11 @@ ul.nav-submenu li.submenuitem a, #mastLogin  li.submenuitem a {
     width:auto;
     display:block;
 }
+li.submenuitem span.hidden{
+    font-style:italic;
+	filter:alpha(opacity=50);
+	opacity: 0.70;
+}
 #mastLogin  li.submenuitem:last-child a{
     border-bottom:none;
     }

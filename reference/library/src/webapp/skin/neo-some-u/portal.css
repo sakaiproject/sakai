@@ -1709,6 +1709,12 @@ ul.nav-submenu li.submenuitem a, #mastLogin  li.submenuitem a {
     margin:0;
     text-align:left;
 }
+li.submenuitem span.hidden{
+    font-style:italic;
+	filter:alpha(opacity=50);
+	opacity: 0.70;
+}
+
 #mastLogin  li.submenuitem a{
     background-position:left center;
     background-repeat:no-repeat;

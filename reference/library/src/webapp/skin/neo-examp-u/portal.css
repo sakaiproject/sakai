@@ -1669,6 +1669,12 @@ span.topnav li ul.subnav li{
 ul.nav-submenu li.submenuitem{
     padding:10px
 }
+li.submenuitem span.hidden{
+    font-style:italic;
+	filter:alpha(opacity=50);
+	opacity: 0.70;
+}
+
 ul.nav-submenu li.submenuitem a, #mastLogin  li.submenuitem a {
     background-position: 3px center !important;
     background-repeat: no-repeat !important;
