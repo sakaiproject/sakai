@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import org.sakaiproject.util.ResourceLoader;
 
 public class Day implements Serializable {
 	private static final long	serialVersionUID				= 1136403394613377956L;
@@ -33,6 +34,7 @@ public class Day implements Serializable {
 	public final static String	STYLE_WITH_ACTIVITY				= "calDayWithActivity";
 	public final static String	STYLE_WITHOUT_ACTIVITY			= "calDayWithoutActivity";
 	public final static String	STYLE_OTHER_WITHOUT_ACTIVITY	= "calOtherDayWithNoActivity";
+	private transient ResourceLoader				msgs					= new ResourceLoader("calendar");
 
 	Date						date							= null;
 	String						styleClass						= "";
@@ -61,7 +63,7 @@ public class Day implements Serializable {
 
 	public String getDateAsString() {
 		if(date == null) return "";
-		SimpleDateFormat formatter = new SimpleDateFormat(CalendarBean.DATE_LINK_FORMAT);
+		SimpleDateFormat formatter = new SimpleDateFormat(msgs.getString("date_link_format"), msgs.getLocale());
 		return formatter.format(date);
 	}
 

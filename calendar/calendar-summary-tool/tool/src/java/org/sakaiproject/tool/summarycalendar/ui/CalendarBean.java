@@ -81,8 +81,6 @@ public class CalendarBean {
 	public static final String 						PRIORITY_HIGH			= "priority_high";
 	public static final String 						PRIORITY_MEDIUM			= "priority_medium";
 	public static final String 						PRIORITY_LOW			= "priority_low";
-	public static final String						DATE_FORMAT				= "MMMMM dd, yyyy";
-	public static final String                                              DATE_LINK_FORMAT                        = "yyyy-MM-dd";
 	private static final String 					imgLocation				= "../../../library/image/sakai/";
 	private static final String 					SCHEDULE_TOOL_ID		= "sakai.schedule";
 	
@@ -501,7 +499,7 @@ public class CalendarBean {
 			ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
 			Map paramMap = context.getRequestParameterMap();
 			String dateStr = (String) paramMap.get("selectedDay");
-			DateFormat df = new SimpleDateFormat(msgs.getString("date_link_format"));
+			DateFormat df = new SimpleDateFormat(msgs.getString("date_link_format"), msgs.getLocale());
 			selectedDay = df.parse(dateStr);
 			selectedEventRef = null;
 			updateEventList = true;
@@ -744,7 +742,7 @@ public class CalendarBean {
 	}
 
 	public String getSelectedDayAsString() {
-		SimpleDateFormat formatter = new SimpleDateFormat(msgs.getString("date_format"));
+		SimpleDateFormat formatter = new SimpleDateFormat(msgs.getString("date_format"), msgs.getLocale());
 		return StringUtils.capitalize(formatter.format(selectedDay));
 	}
 
