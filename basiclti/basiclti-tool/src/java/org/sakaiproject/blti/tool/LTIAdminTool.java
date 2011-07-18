@@ -62,6 +62,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	
 	private static String STATE_POST = "lti:state_post";
 	private static String STATE_SUCCESS = "lti:state_success";
+	private static String STATE_ID = "lti:state_id";
+
 	
 	/** Service Implementations */
 	protected static ToolManager toolManager = null; 
@@ -125,6 +127,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
                 context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		String [] mappingForm = ltiService.getToolModel();
 		String id = data.getParameters().getString("id");
+		if ( id == null ) {
+		        addAlert(state,"ID not found");
+		        return "lti_main";
+		}
 		Long key = new Long(id);
 		Map<String,Object> tool = ltiService.getTool(key);
 		if (  tool == null ) return "lti_main";		
@@ -138,6 +144,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
+		String stateId = (String) state.getAttribute(STATE_ID);
+		state.removeAttribute(STATE_ID);
 		if ( ! ltiService.isMaintain() ) {
 		        addAlert(state,"Must be site maintainer");
 		        return "lti_main";
@@ -146,6 +154,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
                 context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		String [] mappingForm = ltiService.getToolModel();
 		String id = data.getParameters().getString("id");
+	        if ( id == null ) id = stateId;
+		if ( id == null ) {
+		        addAlert(state,"ID not found");
+		        return "lti_main";
+		}		
 		Long key = new Long(id);
 		Map<String,Object> tool = ltiService.getTool(key);
 		if (  tool == null ) return "lti_main";		
@@ -164,8 +177,12 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		        return "lti_main";
 		}
                 context.put("doToolAction", BUTTON + "doToolDelete");
-		String [] mappingForm = foorm.filterForm(ltiService.getToolModel(), "^title:.*|^toolurl:.*|^id:.*");
+		String [] mappingForm = foorm.filterForm(ltiService.getToolModel(), "^title:.*|^toolurl:.*|^id:.*", null);
 		String id = data.getParameters().getString("id");
+		if ( id == null ) {
+		        addAlert(state,"ID not found");
+		        return "lti_main";
+		}	
 		Long key = new Long(id);
 		Map<String,Object> tool = ltiService.getTool(key);
 		if (  tool == null ) {
@@ -254,6 +271,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		{
 	                state.setAttribute(STATE_POST,reqProps);
 			addAlert(state, (String) retval);
+			state.setAttribute(STATE_ID,id);
 			return;
 		}
 
@@ -300,6 +318,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	public String buildMappingEditPanelContext(VelocityPortlet portlet, Context context, 
 			RunData data, SessionState state)
 	{
+		String stateId = (String) state.getAttribute(STATE_ID);
+		state.removeAttribute(STATE_ID);
+		
 		context.put("tlang", rb);
 		if ( ! ltiService.isAdmin() ) {
 		        addAlert(state,"Must be administrator");
@@ -309,6 +330,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
                 context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		String [] mappingForm = ltiService.getMappingModel();
 		String id = data.getParameters().getString("id");
+		if ( id == null ) id = stateId;
+		if ( id == null ) {
+		        addAlert(state,"ID not found");
+		        return "lti_mapping";
+		}
 		Long key = new Long(id);
 		Map<String,Object> mapping = ltiService.getMapping(key);
 		if (  mapping == null ) return "lti_main";		
@@ -329,6 +355,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
                 context.put("doToolAction", BUTTON + "doMappingDelete");
 		String [] mappingForm = ltiService.getMappingModel();
 		String id = data.getParameters().getString("id");
+		if ( id == null ) {
+		        addAlert(state,"ID not found");
+		        return "lti_mapping";
+		}
 		Long key = new Long(id);
 
 		Map<String,Object> mapping = ltiService.getMapping(key);
@@ -373,7 +403,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		{
 	                state.setAttribute(STATE_POST,reqProps);
 			addAlert(state, (String) retval);
-		        switchPanel(state,"Mapping");
+			state.setAttribute(STATE_ID,id);
 			return;
 		}
 

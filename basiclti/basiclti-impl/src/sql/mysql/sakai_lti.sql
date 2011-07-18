@@ -24,7 +24,7 @@ CREATE TABLE `lti_tools` (
 	`organizationdescr` varchar(255),
 	`launchinpopup` mediumint(1) NOT NULL DEFAULT '0',
 	`debuglaunch` mediumint(1) NOT NULL DEFAULT '0',
-	PRIMARY KEY ( `id`, `SITE_ID`)
+	PRIMARY KEY ( `id`)
 );
 
 CREATE TABLE `lti_content` (

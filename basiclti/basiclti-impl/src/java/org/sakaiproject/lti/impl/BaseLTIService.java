@@ -210,7 +210,7 @@ public abstract class BaseLTIService implements LTIService
         public String [] getToolModel() 
 	{
 		if ( isAdmin() ) return TOOL_MODEL;
-		if ( isMaintain() ) foorm.filterForm(null, MAPPING_MODEL, ":role=admin");
+		if ( isMaintain() ) return foorm.filterForm(null, TOOL_MODEL, null, ".*:role=admin.*");
 		return null;
 	}
 

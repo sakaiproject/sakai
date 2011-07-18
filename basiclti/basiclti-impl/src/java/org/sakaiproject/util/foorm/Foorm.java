@@ -475,13 +475,29 @@ public class Foorm {
 		        dataField = null;
 		}
 		
-		System.out.println("field="+field+" data="+dataField);
+		// System.out.println("field="+field+" data="+dataField);
 
 		if ( "true".equals(info.getProperty("required")) && ( dataField == null ) )
 		{
 			if ( sb.length() > 0 ) sb.append(", ");
 			sb.append(getI18N("foorm.missing.field", "Required Field: ", loader));
 			sb.append(getI18N(label, loader));
+		}
+		
+		String maxs = info.getProperty("maxlength", null);
+		if ( maxs != null && dataField instanceof String ) {
+	                int maxlength = (new Integer(maxs)).intValue();
+	                String truncate = info.getProperty("truncate", "true");
+                        if ( sdf.length() > maxlength ) {
+                                if ( "true".equals(truncate)) {
+                                        sdf = sdf.substring(0,maxlength);
+                                        dataField = sdf;
+                                } else { 
+                                        if ( sb.length() > 0 ) sb.append(", ");
+			                sb.append(getI18N("foorm.maxlength.field", "Field > "+maxlength+" Field: ", loader));
+			                sb.append(getI18N(label, loader));
+                                }
+                        }
 		}
 		
 		if ( "integer".equals(type) || "radio".equals(type) ) {
@@ -501,6 +517,9 @@ public class Foorm {
 			}
 		}
 		
+		if ( dataField instanceof String ) {
+		}
+		
 		if ( "id".equals(type) ) {
 			if ( sdf == null ) {
 				if ( dataMap != null ) dataMap.put(field,null);
@@ -513,7 +532,6 @@ public class Foorm {
 			}
 		}
 
-		// Should we check size?
 		if ( "url".equals(type) ) {
 			if ( sdf == null ) {
 				if ( dataMap != null ) dataMap.put(field,null);
@@ -526,7 +544,6 @@ public class Foorm {
 			}
 		}
 
-		// Should we check size?
 		if ( "text".equals(type) || "textarea".equals(type) ) {
 			if ( sdf == null ) {
 				if ( dataMap != null ) dataMap.put(field,null);
@@ -605,20 +622,21 @@ public class Foorm {
     // controlling row prepended by 'allow'.
     public String [] filterForm(Object controlRow, String [] fieldinfo)
     {
-        return filterForm(controlRow, fieldinfo, null);
+        return filterForm(controlRow, fieldinfo, null, null);
     }
     
-    public String [] filterForm(String [] fieldinfo, String match)
+    public String [] filterForm(String [] fieldinfo, String includePattern, String excludePattern)
     {
-        return filterForm(null, fieldinfo, match);
+        return filterForm(null, fieldinfo, includePattern, excludePattern);
     }
     
-    public String [] filterForm(Object controlRow, String [] fieldinfo, String match)
+    public String [] filterForm(Object controlRow, String [] fieldinfo, String includePattern, String excludePattern)
     {
 	ArrayList<String> ret = new ArrayList<String> ();
 	for (String line : fieldinfo) 
 	{
-		if ( match != null && ( ! line.matches(match) ) ) continue;
+		if ( includePattern != null&& ( ! line.matches(includePattern) ) ) continue;
+		if ( excludePattern != null && ( line.matches(excludePattern) ) ) continue;
 		Properties fields = parseFormString(line);
 		String field = fields.getProperty("field", null);
 		String type = fields.getProperty("type", null);

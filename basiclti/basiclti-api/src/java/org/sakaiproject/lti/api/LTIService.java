@@ -79,7 +79,7 @@ public interface LTIService
 	// Tool settings
 	static String [] CONTENT_MODEL = {
 	        "id:key",
-	        "SITE_ID:hidden:length=99",
+	        "SITE_ID:text:maxlength=99:role=admin",
 		"preferheight:integer:label=bl_preferheight",
 		"launchinpopup:radio:label=bl_launchinpopup:choices=off,on",
 		"debuglaunch:radio:label=bl_debuglaunch:choices=off,on",
@@ -89,12 +89,12 @@ public interface LTIService
 
 	static String [] TOOL_MODEL = {
 		"id:key",
-	        "SITE_ID:hidden:length=99",
 		"title:text:label=bl_title:required=true:maxlength=255",
-		"description:textarea:label=bl_description:required=true:rows=2:cols=25",
+		"description:textarea:label=bl_description:required=true:rows=2:cols=25:maxlength=4:truncate=false",
 		"toolurl:url:label=bl_toolurl:required=true:maxlength=255",
 		"resourcekey:text:label=bl_resourcekey:required=true:maxlength=255",
 		"password:text:required=true:label=bl_password:maxlength=255",
+	        "SITE_ID:text:maxlength=99:role=admin",
 		"preferheight:integer:label=bl_preferheight",
 		"allowpreferheight:radio:label=bl_allowpreferheight:choices=off,on",
 		"launchinpopup:radio:label=bl_launchinpopup:choices=off,on,content",

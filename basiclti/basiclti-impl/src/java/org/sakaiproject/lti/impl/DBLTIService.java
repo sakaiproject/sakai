@@ -30,6 +30,8 @@ import java.util.Properties;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import java.lang.IllegalArgumentException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.db.api.SqlService;
@@ -165,6 +167,9 @@ public class DBLTIService extends BaseLTIService implements LTIService
 	// Returns String (falure) or Long (key on success)
 	public Object insertThing(String table, String [] model, Properties newProps)
 	{
+		if ( table == null || model == null || newProps == null) {
+		        throw new IllegalArgumentException("table, model, and newProps must all be non-null");
+                }
 		if ( ! isMaintain() ) return null; 
 		String [] columns = foorm.getFields(model);
 		
@@ -184,6 +189,9 @@ public class DBLTIService extends BaseLTIService implements LTIService
 	
 	public Map<String,Object> getThing(String table, String [] model, Long key) 
 	{
+		if ( table == null || model == null || key == null ) {
+		        throw new IllegalArgumentException("table, model, and key must all be non-null");
+                }
 	        String statement = "SELECT "+foorm.formSelect(model)+" from "+table+" WHERE id = ?";
                 Object fields[] = null;           
                 String [] columns = foorm.getFields(model);
@@ -214,6 +222,9 @@ public class DBLTIService extends BaseLTIService implements LTIService
 	public List<Map<String,Object>> getThings(String table, String [] model,  
 	        String search, String order, int first, int last) 
 	{ 
+		if ( table == null || model == null ) {
+		        throw new IllegalArgumentException("table and model must be non-null");
+                }
                 String statement = "SELECT "+foorm.formSelect(model)+" FROM " + table;
                 String [] columns = foorm.getFields(model);
                 
@@ -228,13 +239,14 @@ public class DBLTIService extends BaseLTIService implements LTIService
                                 return null;
                         }
                 }
-                
-
                 return getResultSet(statement,fields,columns);
 	}
 
         public boolean deleteThing(String table, String []model, Long key)
 	{
+		if ( table == null || model == null || key == null ) {
+		        throw new IllegalArgumentException("table, model, and key must all be non-null");
+                }
 	        String statement = "DELETE FROM "+table+" WHERE id = ?";
                 Object fields[] = null;
                 String [] columns = foorm.getFields(model);
@@ -256,7 +268,12 @@ public class DBLTIService extends BaseLTIService implements LTIService
 	
 	public Object updateThing(String table, String [] model, Long key, Object newProps)
 	{
-		if ( ! isMaintain() ) return null; 
+		if ( table == null || model == null || key == null  || newProps == null) {
+		        throw new IllegalArgumentException("table, model, key, and newProps must all be non-null");
+                }
+		
+		if ( ! isMaintain() ) return null;
+
 		String [] columns = foorm.getFields(model);
 		
 		HashMap<String, Object> newMapping = new HashMap<String,Object> ();
@@ -269,7 +286,7 @@ public class DBLTIService extends BaseLTIService implements LTIService
                         foorm.setField(newMapping, "SITE_ID",getContext());
                 }
 
-		String sql = "UPDATE "+table+" SET "+foorm.updateForm(newMapping);
+		String sql = "UPDATE "+table+" SET "+foorm.updateForm(newMapping)+" WHERE id="+key.toString();
 		System.out.println("Upate="+sql);
 		Object [] fields = foorm.getObjects(newMapping);
 		boolean retval = m_sql.dbWrite(sql, fields);
