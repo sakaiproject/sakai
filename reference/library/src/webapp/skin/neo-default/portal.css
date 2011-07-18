@@ -1618,7 +1618,7 @@ ul.subnav span.addTool{
 	position: fixed;
     top:-2000px;
     left:-2000px;
-    z-index:3000;
+    z-index:1000000;
 	background: #aaa;
     font-size:.9em;
 	margin: 0; padding: 0;
