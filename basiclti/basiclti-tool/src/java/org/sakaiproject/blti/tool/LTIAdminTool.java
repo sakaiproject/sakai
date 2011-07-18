@@ -110,6 +110,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
 		List<Map<String,Object>> tools = ltiService.getTools(null,null,0,100);
 		context.put("tools", tools);
+		context.put("getContext",toolManager.getCurrentPlacement().getContext());
 		state.removeAttribute(STATE_POST);
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_main";
@@ -123,7 +124,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		        addAlert(state,"Must be site administrator");
 		        return "lti_main";
 		}
-                context.put("doToolEdit", BUTTON + "doToolEdit");
                 context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		String [] mappingForm = ltiService.getToolModel();
 		String id = data.getParameters().getString("id");
@@ -211,7 +211,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String id = data.getParameters().getString("id");
 		Object retval = null;
                 if ( id == null ) {
-                        addAlert(state,"Missing tool ID on delete request");
+                        addAlert(state,"Missing ID on delete request");
                         switchPanel(state, "Main");
                         return;
                 }

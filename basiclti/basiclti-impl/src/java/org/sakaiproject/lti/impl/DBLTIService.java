@@ -201,7 +201,7 @@ public class DBLTIService extends BaseLTIService implements LTIService
                         fields = new Object[1];
                         fields[0] = key;               
                 } else if ( Arrays.asList(columns).indexOf("SITE_ID") >= 0 ) {
-                        statement += " AND WHERE SITE_ID = ?";
+                        statement += " AND ( SITE_ID = ? OR SITE_ID IS NULL ) ";
                         fields = new Object[2];
                         fields[0] = key;               
                         fields[1] = getContext();
@@ -232,7 +232,7 @@ public class DBLTIService extends BaseLTIService implements LTIService
                 if ( ! isAdmin () )
                 {
                         if  ( Arrays.asList(columns).indexOf("SITE_ID") >= 0 ) {
-                                statement += " WHERE SITE_ID = ?";
+                                statement += " WHERE SITE_ID = ? OR SITE_ID IS NULL";
                                 fields = new Object[1];
                                 fields[0] = getContext();
                         } else {
@@ -250,13 +250,29 @@ public class DBLTIService extends BaseLTIService implements LTIService
 	        String statement = "DELETE FROM "+table+" WHERE id = ?";
                 Object fields[] = null;
                 String [] columns = foorm.getFields(model);
+                
+                // Hack to insure that We *Can* delete this since SqlService cannot tell us if updates work
+		if ( ! isAdmin() ) {
+		        Object thing = getThing(table, model, key);
+		        if ( thing == null || ! (thing instanceof Map) ) {
+		                return false;
+		        }
+		 
+		        String siteId = (String) foorm.getField(thing, "SITE_ID");
+		    System.out.println("DELENG ID="+siteId);
+		    
+		        if ( siteId == null || ! siteId.equals(getContext()) )
+		        {
+		                 return false;
+		        }
+		}
 
                 if ( isAdmin () )
                 {
                         fields = new Object[1];
                         fields[0] = key;               
                 } else if ( isMaintain() && ( Arrays.asList(columns).indexOf("SITE_ID") >= 0 ) ) {
-                        statement += " AND WHERE SITE_ID = ?";
+                        statement += " AND SITE_ID = ?";
                         fields = new Object[2];
                         fields[0] = key;               
                         fields[1] = getContext();
@@ -273,20 +289,40 @@ public class DBLTIService extends BaseLTIService implements LTIService
                 }
 		
 		if ( ! isMaintain() ) return null;
+		
+		// Hack to insure that We *Can* update this since SqlService cannot tell us if updates work
 
+		if ( ! isAdmin() ) {
+		        Object thing = getThing(table, model, key);
+		        if ( thing == null || ! (thing instanceof Map) ) {
+		                return "Update to non-existent item";
+		        }
+		 
+		        String siteId = (String) foorm.getField(thing, "SITE_ID");
+		    System.out.println("THING ID="+siteId);
+		    
+		        if ( siteId == null || ! siteId.equals(getContext()) )
+		        {
+		                 return "Update not allowed";
+		        }
+		}
+		
 		String [] columns = foorm.getFields(model);
 		
 		HashMap<String, Object> newMapping = new HashMap<String,Object> ();
 				
 		String errors = foorm.formExtract(newProps, model, rb, newMapping);
                 if ( errors != null ) return errors;
+                
+                String sql = "UPDATE "+table+" SET "+foorm.updateForm(newMapping)+" WHERE id="+key.toString();
+
 
                 if ( isMaintain() && ! isAdmin() && ( Arrays.asList(columns).indexOf("SITE_ID") >= 0 ) ) 
                 {
+                        sql += " AND SITE_ID = '"+getContext()+"'";
                         foorm.setField(newMapping, "SITE_ID",getContext());
                 }
 
-		String sql = "UPDATE "+table+" SET "+foorm.updateForm(newMapping)+" WHERE id="+key.toString();
 		System.out.println("Upate="+sql);
 		Object [] fields = foorm.getObjects(newMapping);
 		boolean retval = m_sql.dbWrite(sql, fields);
@@ -316,7 +352,7 @@ public class DBLTIService extends BaseLTIService implements LTIService
                                 }
                                 catch (SQLException e)
                                 {
-                                        M_log.warn("getTools" + e);
+                                        M_log.warn("getResultSet" + e);
                                         return null;
                                 }
                         }

@@ -12,7 +12,7 @@
 <h3>$tlang.getString("lti.admin")</h3>
 	<form action="#toolForm("")" method="post" name="customizeForm" >
 #if ($tools.size() > 0)
-			<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("uselis.lisof")">
+			<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("lti.tool.list")">
 				<tr>
 					<th id="toolurl">$tlang.getString("bl_toolurl")</th>
 					<th id="title">$tlang.getString("bl_title")</th>
@@ -24,13 +24,17 @@
 	<td headers="toolurl">$tool.get("toolurl")</a></td>
 	<td headers="title"><a href="$sakai_ActionURL.setPanel("ToolView")&id=$tool.get("id")">$tool.get("title")</td>
 	#if ($isAdmin) <td headers="toolurl">$!tool.get("SITE_ID")</a></td> #end
-	<td headers="action"><a href="$sakai_ActionURL.setPanel("ToolEdit")&id=$tool.get("id")">Edit</a> / 
-	<a href="$sakai_ActionURL.setPanel("ToolDelete")&id=$tool.get("id")">Delete</a></td>
+	<td headers="action">
+	#if ( $isAdmin || $getContext == $tool.get("SITE_ID") ) 
+	<a href="$sakai_ActionURL.setPanel("ToolEdit")&id=$tool.get("id")">Edit</a> / 
+	<a href="$sakai_ActionURL.setPanel("ToolDelete")&id=$tool.get("id")">Delete</a>
+	#end
+	</td>
 	<tr>
 	#end
 	</table>
 #else
-<p>No Tools Found</p>
+<p>$tlang.getString("lti.tool.none")</p>
 #end
 	
 		</p>

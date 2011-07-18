@@ -90,7 +90,7 @@ public interface LTIService
 	static String [] TOOL_MODEL = {
 		"id:key",
 		"title:text:label=bl_title:required=true:maxlength=255",
-		"description:textarea:label=bl_description:required=true:rows=2:cols=25:maxlength=4:truncate=false",
+		"description:textarea:label=bl_description:required=true:rows=2:cols=25:maxlength=4096:",
 		"toolurl:url:label=bl_toolurl:required=true:maxlength=255",
 		"resourcekey:text:label=bl_resourcekey:required=true:maxlength=255",
 		"password:text:required=true:label=bl_password:maxlength=255",
