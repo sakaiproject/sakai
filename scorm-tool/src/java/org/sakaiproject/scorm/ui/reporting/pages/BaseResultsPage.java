@@ -63,6 +63,8 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 	private final RepeatingView attemptNumberLinks;
 	
 	public BaseResultsPage(PageParameters pageParams) {
+        super(pageParams);
+        
 		long contentPackageId = pageParams.getLong("contentPackageId");
 		String learnerId = pageParams.getString("learnerId");
 		
