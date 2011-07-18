@@ -23,14 +23,16 @@ public class Foorm {
 		String [] kv = s.split("=");
 		if ( kv.length == 2 ) {
 			op.setProperty(kv[0], kv[1]);
-		} else if ( kv.length == 1 ) {
+		} else if ( kv.length == 1 && i < positional.length ) {
 			op.setProperty(positional[i++], kv[0]);
-		}
+	        } else {
+	                // TODO : Log something here
+	        }
 	}
 	return op; 
     } 
 
-    // Abstract this away for testing purposed
+    // Abstract this away for testing purposes
     public Object getField(Object row, String column)
     {
     	if ( row instanceof java.util.Properties ) {
@@ -64,6 +66,23 @@ public class Foorm {
         
         String[] retval = new String[aa.size()];
         return (String[]) aa.toArray(retval);
+    }
+    
+    public void setField(Object row, String key, Object value)
+    {
+    	if ( row instanceof java.util.Properties ) {
+    	        if ( value == null ) {
+		        ( (java.util.Properties)row ).setProperty(key,"");
+		} else { 
+		        ( (java.util.Properties)row ).setProperty(key,value.toString());
+		}
+	}
+	if ( row instanceof java.util.Map ) {
+		( (java.util.Map)row ).put(key,value);
+	}
+	if ( row instanceof java.sql.ResultSet ) {
+		// TODO: Log message
+	}
     }
 		
     // Expect to be overridden
@@ -400,6 +419,7 @@ public class Foorm {
 
 	String label = info.getProperty("label",field);
 
+	if ( "key".equals(type) ) return "";
 	if ( "integer".equals(type) ) return formOutputInteger((Integer) value,field,label,loader);
 	if ( "text".equals(type) ) return formOutputText((String) value,field,label,loader);
 	if ( "url".equals(type) ) return formOutputURL((String) value,field,label,loader);
@@ -497,7 +517,7 @@ public class Foorm {
 		if ( "url".equals(type) ) {
 			if ( sdf == null ) {
 				if ( dataMap != null ) dataMap.put(field,null);
-			} else if ( sdf.matches("^(http://|https://)[a-z0-9][a-z0-9]*.*") ) {
+			} else if ( sdf.matches("^(http://|https://)[a-zA-Z0-9][a-zA-Z0-9]*.*") ) {
 				if ( dataMap != null ) dataMap.put(field,sdf);
 			} else { 
 				if ( sb.length() > 0 ) sb.append(", ");
@@ -559,9 +579,8 @@ public class Foorm {
 	StringBuffer fields = new StringBuffer();
         for ( String key : dataMap.keySet() ) {
 		if ( fields.length() > 0 ) fields.append(", ");
-		fields.append("SET '");
 		fields.append(key);
-		fields.append("'=?");
+		fields.append("=?");
 	}
 	return fields.toString();
     }
@@ -589,12 +608,17 @@ public class Foorm {
         return filterForm(controlRow, fieldinfo, null);
     }
     
+    public String [] filterForm(String [] fieldinfo, String match)
+    {
+        return filterForm(null, fieldinfo, match);
+    }
+    
     public String [] filterForm(Object controlRow, String [] fieldinfo, String match)
     {
 	ArrayList<String> ret = new ArrayList<String> ();
 	for (String line : fieldinfo) 
 	{
-		if ( match != null && line.matches(match) ) continue;
+		if ( match != null && ( ! line.matches(match) ) ) continue;
 		Properties fields = parseFormString(line);
 		String field = fields.getProperty("field", null);
 		String type = fields.getProperty("type", null);

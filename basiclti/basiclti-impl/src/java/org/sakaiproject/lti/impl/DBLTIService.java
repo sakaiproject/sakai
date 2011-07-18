@@ -102,89 +102,42 @@ public class DBLTIService extends BaseLTIService implements LTIService
 		}
 	}
 
-	/** insertMapping */
+	/** Mapping methods */
+	
 	public Object insertMapping(Properties newProps)
 	{
-		// TODO: Only admins can do this
-		HashMap<String, Object> newMapping = new HashMap<String,Object> ();
+		return insertThing("lti_mapping",LTIService.MAPPING_MODEL, newProps);
+        }
+	
+	public Map<String,Object> getMapping(Long key) 
+	{
+	        return getThing("lti_mapping", LTIService.MAPPING_MODEL, key);                
+	}
 
-		// CHeck for user data errors
-		String errors = foorm.formExtract(newProps, LTIService.MAPPING_MODEL, rb, newMapping);
-                if ( errors != null ) return errors;
-
-		// Run the SQL
-		String sql = "INSERT INTO lti_mapping "+foorm.insertForm(newMapping);
-System.out.println("sql="+sql);
-		Object [] fields = foorm.getObjects(newMapping);
-		Long retval = m_sql.dbInsert(null, sql, fields, "id");
-		System.out.println("Insert="+retval);
-		return retval;
+	public boolean deleteMapping(Long key)
+	{
+	        return deleteThing("lti_mapping", LTIService.MAPPING_MODEL, key);
 	}
 	
-	public Object getMapping(Long key) {return "oops"; }
-	public String deleteMapping(Long key) { return null; }
-	public String updateMapping(Long key, Map<String,Object> retval) { return null; }
-	public List<Map<String,Object>> getMappings(String search, String order, int first, int last) { return null; }
+	public Object updateMapping(Long key, Object newProps) 
+	{ 
+	        return updateThing("lti_mapping", LTIService.MAPPING_MODEL, key, newProps);
+	}
 
-	/** insertTool */
+	public List<Map<String,Object>> getMappings(String search, String order, int first, int last) 
+	{ 
+	        return getThings("lti_mapping", LTIService.MAPPING_MODEL, search, order, first, last);
+	}
+
+	/** Tool Methods */
 	public Object insertTool(Properties newProps)
 	{
-		if ( ! isMaintain() ) return null; 
-		HashMap<String, Object> newMapping = new HashMap<String,Object> ();
-		if ( isMaintain() && ! isAdmin() ) newProps.put("SITE_ID",getContext());
-		String errors = foorm.formExtract(newProps, LTIService.TOOL_MODEL, rb, newMapping);
-                if ( errors != null ) return errors;
-		String sql = "INSERT INTO lti_tools "+foorm.insertForm(newMapping);
-System.out.println("sql="+sql);
-		Object [] fields = foorm.getObjects(newMapping);
-		Long retval = m_sql.dbInsert(null, sql, fields, "id");
-		System.out.println("Insert="+retval);
-		return retval;
-	}
+		return insertThing("lti_tools",LTIService.TOOL_MODEL, newProps);
+        }
 	
 	public Map<String,Object> getTool(Long key) 
 	{
-	        String statement = "SELECT "+foorm.formSelect(LTIService.TOOL_MODEL)+" from lti_tools WHERE id = ?";
-                Object fields[] = null;
-                if ( isAdmin () )
-                {
-                        fields = new Object[1];
-                        fields[0] = key;               
-                } else {
-                        statement += " AND WHERE SITE_ID = ?";
-                        fields = new Object[2];
-                        fields[0] = key;               
-                        fields[1] = getContext();
-                }
-                
-                System.out.println("statement="+statement);
-
-                List rv = m_sql.dbRead(statement, fields, new SqlReader()
-                {
-                        public Object readSqlResultRecord(ResultSet result)
-                        {
-                                try
-                                {
-                                        Map<String,Object> rv = new HashMap<String,Object> ();                                    
-                                        for (String field : TOOL_FIELDS) {
-                                                rv.put(field,result.getObject(field));
-                                        }
-                                        return rv;
-                                }
-                                catch (SQLException e)
-                                {
-                                        M_log.warn("getTools" + e);
-                                        return null;
-                                }
-                        }
-                });
-                
-                if ((rv != null) && (rv.size() > 0))
-                {
-                        return (Map<String,Object>) rv.get(0);
-                }
-                return null;
-                
+	        return getThing("lti_tools", LTIService.TOOL_MODEL, key);                
 	}
 	
 	public Map<String,Object> getTool(String url) {return null; }
@@ -194,22 +147,143 @@ System.out.println("sql="+sql);
 	        return false; 
 	}
 
-	public String deleteTool(Long key) { return null; }
-	public String updateTool(Long key, Map<String,Object> newProps) { return null; }
-
+	public boolean deleteTool(Long key)
+	{
+	        return deleteThing("lti_tools", LTIService.TOOL_MODEL, key);
+	}
+	
+	public Object updateTool(Long key, Object newProps) 
+	{ 
+	        return updateThing("lti_tools", LTIService.TOOL_MODEL, key, newProps);
+	}
 
 	public List<Map<String,Object>> getTools(String search, String order, int first, int last) 
 	{ 
-                String statement = "SELECT "+foorm.formSelect(LTIService.TOOL_MODEL)+" from lti_tools";
+	        return getThings("lti_tools", LTIService.TOOL_MODEL, search, order, first, last);
+	}
+	
+	// Returns String (falure) or Long (key on success)
+	public Object insertThing(String table, String [] model, Properties newProps)
+	{
+		if ( ! isMaintain() ) return null; 
+		String [] columns = foorm.getFields(model);
+		
+		HashMap<String, Object> newMapping = new HashMap<String,Object> ();
+		
+		if ( isMaintain() && ! isAdmin() && ( Arrays.asList(columns).indexOf("SITE_ID") >= 0 ) ) newProps.put("SITE_ID",getContext());
+		
+		String errors = foorm.formExtract(newProps, model, rb, newMapping);
+                if ( errors != null ) return errors;
+                
+		String sql = "INSERT INTO "+table+foorm.insertForm(newMapping);
+		Object [] fields = foorm.getObjects(newMapping);
+		Long retval = m_sql.dbInsert(null, sql, fields, "id");
+		System.out.println("Insert="+retval);
+		return retval;
+	}
+	
+	public Map<String,Object> getThing(String table, String [] model, Long key) 
+	{
+	        String statement = "SELECT "+foorm.formSelect(model)+" from "+table+" WHERE id = ?";
+                Object fields[] = null;           
+                String [] columns = foorm.getFields(model);
+
+                if ( isAdmin () )
+                {
+                        fields = new Object[1];
+                        fields[0] = key;               
+                } else if ( Arrays.asList(columns).indexOf("SITE_ID") >= 0 ) {
+                        statement += " AND WHERE SITE_ID = ?";
+                        fields = new Object[2];
+                        fields[0] = key;               
+                        fields[1] = getContext();
+                } else { 
+                        return null;
+                }
+               
+                List rv = getResultSet(statement,fields,columns);
+                
+                if ((rv != null) && (rv.size() > 0))
+                {
+                        return (Map<String,Object>) rv.get(0);
+                }
+                return null;
+                
+	}
+	
+	public List<Map<String,Object>> getThings(String table, String [] model,  
+	        String search, String order, int first, int last) 
+	{ 
+                String statement = "SELECT "+foorm.formSelect(model)+" FROM " + table;
+                String [] columns = foorm.getFields(model);
+                
                 Object fields[] = null;
                 if ( ! isAdmin () )
                 {
-                        statement += " WHERE SITE_ID = ?";
-                        fields = new Object[1];
-                        fields[0] = getContext();
+                        if  ( Arrays.asList(columns).indexOf("SITE_ID") >= 0 ) {
+                                statement += " WHERE SITE_ID = ?";
+                                fields = new Object[1];
+                                fields[0] = getContext();
+                        } else {
+                                return null;
+                        }
                 }
                 
-                System.out.println("statement="+statement);
+
+                return getResultSet(statement,fields,columns);
+	}
+
+        public boolean deleteThing(String table, String []model, Long key)
+	{
+	        String statement = "DELETE FROM "+table+" WHERE id = ?";
+                Object fields[] = null;
+                String [] columns = foorm.getFields(model);
+
+                if ( isAdmin () )
+                {
+                        fields = new Object[1];
+                        fields[0] = key;               
+                } else if ( isMaintain() && ( Arrays.asList(columns).indexOf("SITE_ID") >= 0 ) ) {
+                        statement += " AND WHERE SITE_ID = ?";
+                        fields = new Object[2];
+                        fields[0] = key;               
+                        fields[1] = getContext();
+                } else {
+                        return false;
+                }
+                return m_sql.dbWrite(statement, fields);
+	}
+	
+	public Object updateThing(String table, String [] model, Long key, Object newProps)
+	{
+		if ( ! isMaintain() ) return null; 
+		String [] columns = foorm.getFields(model);
+		
+		HashMap<String, Object> newMapping = new HashMap<String,Object> ();
+				
+		String errors = foorm.formExtract(newProps, model, rb, newMapping);
+                if ( errors != null ) return errors;
+
+                if ( isMaintain() && ! isAdmin() && ( Arrays.asList(columns).indexOf("SITE_ID") >= 0 ) ) 
+                {
+                        foorm.setField(newMapping, "SITE_ID",getContext());
+                }
+
+		String sql = "UPDATE "+table+" SET "+foorm.updateForm(newMapping);
+		System.out.println("Upate="+sql);
+		Object [] fields = foorm.getObjects(newMapping);
+		boolean retval = m_sql.dbWrite(sql, fields);
+		System.out.println("Update="+retval);
+		if ( ! retval ) return "Update failed";
+		return Boolean.TRUE;
+	}
+
+	
+        // Utility to return a resultset
+	public List<Map<String,Object>> getResultSet(String statement, Object [] fields, final String [] columns) 
+	{
+	      
+	        System.out.println("statement="+statement);
 
                 List rv = m_sql.dbRead(statement, fields, new SqlReader()
                 {
@@ -218,7 +292,7 @@ System.out.println("sql="+sql);
                                 try
                                 {
                                         Map<String,Object> rv = new HashMap<String,Object> ();                                    
-                                        for (String field : TOOL_FIELDS) {
+                                        for (String field : columns) {
                                                 rv.put(field,result.getObject(field));
                                         }
                                         return rv;
@@ -230,8 +304,7 @@ System.out.println("sql="+sql);
                                 }
                         }
                 });
-
                 return (List<Map<String,Object>>) rv;
+                
 	}
-
 }

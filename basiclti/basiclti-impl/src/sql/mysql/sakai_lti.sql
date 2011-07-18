@@ -1,8 +1,7 @@
 
 CREATE TABLE `lti_tools` (
 	`id` mediumint(10) NOT NULL AUTO_INCREMENT,
-	`course_id` mediumint(10) NULL DEFAULT '0',
-	 SITE_ID VARCHAR (99) NOT NULL,
+	 SITE_ID VARCHAR (99) NULL,
 	`title` varchar(255) NOT NULL,
 	`description` varchar(1024),
 	`status` mediumint(4) NOT NULL DEFAULT '0',
@@ -11,7 +10,7 @@ CREATE TABLE `lti_tools` (
 	`toolurl` varchar(255) NOT NULL,
 	`resourcekey` varchar(255) NOT NULL,
 	`password` varchar(255) NOT NULL,
-	`preferheight` mediumint(4) NOT NULL DEFAULT '0',
+	`preferheight` mediumint(4) NULL,
 	`allowpreferheight` mediumint(1) NOT NULL DEFAULT '0',
 	`sendname` mediumint(1) NOT NULL DEFAULT '0',
 	`sendemailaddr` mediumint(1) NOT NULL DEFAULT '0',
@@ -25,15 +24,13 @@ CREATE TABLE `lti_tools` (
 	`organizationdescr` varchar(255),
 	`launchinpopup` mediumint(1) NOT NULL DEFAULT '0',
 	`debuglaunch` mediumint(1) NOT NULL DEFAULT '0',
-	PRIMARY KEY ( `id`, `toolid` )
+	PRIMARY KEY ( `id`, `SITE_ID`)
 );
 
 CREATE TABLE `lti_content` (
 	`id` mediumint(10) NOT NULL AUTO_INCREMENT,
-	`course_id` mediumint(10) NOT NULL DEFAULT '0',
-	`tool_id` mediumint(10) NOT NULL DEFAULT '0',
-	`toolurl` varchar(255) NULL,
-	`preferheight` mediumint(4) NOT NULL DEFAULT '0',
+	 SITE_ID VARCHAR (99) NULL,
+	`preferheight` mediumint(4) NULL,
 	`acceptgrades` mediumint(1) NOT NULL DEFAULT '0',
 	`launchinpopup` mediumint(1) NOT NULL DEFAULT '0',
 	`customparameters` text,
@@ -43,13 +40,13 @@ CREATE TABLE `lti_content` (
 	`oldplacementsecret` varchar(255),
 	`setting` text(8192),
 	`xmlimport` text(16384),
-	PRIMARY KEY ( `id`, `course_id`, `tool_id` )
+	PRIMARY KEY ( `id`, `SITE_ID` )
 );
 
 CREATE TABLE `lti_mapping` (
 	`id` mediumint(10) NOT NULL AUTO_INCREMENT,
-	`matchpattern` varchar(256) NOT NULL,
-	`launchurl` varchar(1000) NOT NULL,
+	`matchpattern` varchar(255) NOT NULL,
+	`toolurl` varchar(255) NOT NULL,
 	PRIMARY KEY ( `id`, `matchpattern` )
 );
 

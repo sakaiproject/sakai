@@ -63,6 +63,9 @@ public abstract class BaseLTIService implements LTIService
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(BaseLTIService.class);
+	
+	/** Constants */
+	private final String ADMIN_SITE = "!admin";
 
 	/** Resource bundle using current language locale */
 	protected static ResourceLoader rb = new ResourceLoader("ltiservice");
@@ -247,7 +250,7 @@ public abstract class BaseLTIService implements LTIService
 	
 	public boolean isAdmin()
 	{
-	        if ( ! "!admin".equals(getContext()) ) return false;
+	        if ( ! ADMIN_SITE.equals(getContext()) ) return false;
 	        return isMaintain();
 	}
 	
@@ -256,6 +259,30 @@ public abstract class BaseLTIService implements LTIService
 	        return siteService.allowUpdateSite(getContext());
 	}
 	
-	public ResourceLoader getResourceLoader() { return rb; }
+	/** Simple API signatures for the update series of methods */
+
+	public Object updateTool(Long key, Map<String,Object> newProps)
+	{
+	        return updateTool(key, (Object) newProps);
+	}
+	
+	public Object updateTool(Long key, Properties newProps)
+	{
+	        return updateTool(key, (Object) newProps);
+	}
+	
+	public abstract Object updateTool(Long key, Object newProps); 
+	
+	public Object updateMapping(Long key, Map<String,Object> newProps)
+	{
+	        return updateMapping(key, (Object) newProps);
+	}
+	
+	public Object updateMapping(Long key, Properties newProps)
+	{
+	        return updateMapping(key, (Object) newProps);
+	}
+	
+	public abstract Object updateMapping(Long key, Object newProps); 
 
 }

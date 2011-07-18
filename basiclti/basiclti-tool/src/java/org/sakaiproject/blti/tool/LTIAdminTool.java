@@ -25,6 +25,7 @@ import java.util.Properties;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Arrays;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -82,16 +83,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		} 
 	}
 
-	// HACK
-	protected ResourceLoader getLTILoader()
-	{
-		if ( ltiService instanceof org.sakaiproject.lti.impl.DBLTIService)
-		{
-			return ((org.sakaiproject.lti.impl.DBLTIService) ltiService).getResourceLoader();
-		}
-		return null;
-	}
-
 	/**
 	 * Populate the state with configuration settings
 	 */
@@ -134,7 +125,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
                 context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		String [] mappingForm = ltiService.getToolModel();
 		String id = data.getParameters().getString("id");
-		System.out.println("id="+id);
 		Long key = new Long(id);
 		Map<String,Object> tool = ltiService.getTool(key);
 		if (  tool == null ) return "lti_main";		
@@ -152,11 +142,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		        addAlert(state,"Must be site maintainer");
 		        return "lti_main";
 		}
-                context.put("doToolAction", BUTTON + "doToolEdit");
+                context.put("doToolAction", BUTTON + "doToolPut");
                 context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		String [] mappingForm = ltiService.getToolModel();
 		String id = data.getParameters().getString("id");
-		System.out.println("id="+id);
 		Long key = new Long(id);
 		Map<String,Object> tool = ltiService.getTool(key);
 		if (  tool == null ) return "lti_main";		
@@ -165,7 +154,61 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_tool_insert";
 	}
+	
+	public String buildToolDeletePanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
+		context.put("tlang", rb);
+		if ( ! ltiService.isMaintain() ) {
+		        addAlert(state,"Must be site maintainer");
+		        return "lti_main";
+		}
+                context.put("doToolAction", BUTTON + "doToolDelete");
+		String [] mappingForm = foorm.filterForm(ltiService.getToolModel(), "^title:.*|^toolurl:.*|^id:.*");
+		String id = data.getParameters().getString("id");
+		Long key = new Long(id);
+		Map<String,Object> tool = ltiService.getTool(key);
+		if (  tool == null ) {
+		        addAlert(state,"Tool not found");
+		        return "lti_main";
+		}
+		String formOutput = ltiService.formOutput(tool, mappingForm);
+		context.put("formOutput", formOutput);
+		context.put("tool",tool);
+		state.removeAttribute(STATE_SUCCESS);
+		return "lti_tool_delete";
+	}
 
+        // Insert or edit
+	public void doToolDelete(RunData data, Context context)
+	{
+
+		String peid = ((JetspeedRunData) data).getJs_peid();
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
+		
+		if ( ! ltiService.isMaintain() ) {
+		        addAlert(state,"Must be site maintainer");
+		        return;
+		}
+		Properties reqProps = data.getParameters().getProperties();
+		String id = data.getParameters().getString("id");
+		Object retval = null;
+                if ( id == null ) {
+                        addAlert(state,"Missing tool ID on delete request");
+                        switchPanel(state, "Main");
+                        return;
+                }
+                Long key = new Long(id);
+		if ( ltiService.deleteTool(key) )
+		{
+		        state.setAttribute(STATE_SUCCESS,"Deleted");
+		        switchPanel(state, "Main");
+                } else {
+                        addAlert(state,"Delete failed");
+                        switchPanel(state, "Main");
+                }
+	}
+	
 	public String buildToolInsertPanelContext(VelocityPortlet portlet, Context context, 
 			RunData data, SessionState state)
 	{
@@ -174,7 +217,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		        addAlert(state,"Must be site maintainer");
 		        return "lti_main";
 		}
-                context.put("doToolAction", BUTTON + "doToolInsert");
+                context.put("doToolAction", BUTTON + "doToolPut");
                 context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		String [] mappingForm = ltiService.getToolModel();
 		Properties previousPost = (Properties) state.getAttribute(STATE_POST);
@@ -185,7 +228,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		return "lti_tool_insert";
 	}
 
-	public void doToolInsert(RunData data, Context context)
+        // Insert or edit
+	public void doToolPut(RunData data, Context context)
 	{
 
 		String peid = ((JetspeedRunData) data).getJs_peid();
@@ -195,16 +239,24 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		        addAlert(state,"Must be site maintainer");
 		        return;
 		}
-		// String setting = data.getParameters().getString("setting");
 		Properties reqProps = data.getParameters().getProperties();
-		Object retval = ltiService.insertTool(reqProps);
-		if ( retval instanceof String ) 
+		String id = data.getParameters().getString("id");
+		Object retval = null;
+		if ( id == null ) 
+		{
+	                retval = ltiService.insertTool(reqProps);
+		} else {
+			Long key = new Long(id);
+		        retval = ltiService.updateTool(key, reqProps);
+                }
+                
+                if ( retval instanceof String ) 
 		{
 	                state.setAttribute(STATE_POST,reqProps);
 			addAlert(state, (String) retval);
 			return;
 		}
-		System.out.println("Yahoo="+((Long)retval).toString());
+
 		state.setAttribute(STATE_SUCCESS,"Added");
 		switchPanel(state, "Main");
 	}
@@ -220,6 +272,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		        addAlert(state,"Must be site administrator");
 		        return "lti_main";
 		}
+		List<Map<String,Object>> mappings = ltiService.getMappings(null,null,0,100);
+		context.put("mappings", mappings);
 		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_mapping";
@@ -233,41 +287,126 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		        addAlert(state,"Must be site administrator");
 		        return "lti_main";
 		}
-                context.put("doMappingInsert", BUTTON + "doMappingInsert");
+                context.put("doMappingAction", BUTTON + "doMappingPut");
                 context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		state.removeAttribute(STATE_SUCCESS);
 		String [] mappingForm = ltiService.getMappingModel();
 		Properties previousPost = (Properties) state.getAttribute(STATE_POST);
-		String formInput = foorm.formInput(previousPost, mappingForm, getLTILoader());
+		String formInput = ltiService.formInput(previousPost, mappingForm);
 		context.put("formInput",formInput);
 		return "lti_mapping_insert";
 	}
-
-	/**
-	 * Save Mapping
-	 */
-	public void doMappingInsert(RunData data, Context context)
+	
+	public String buildMappingEditPanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
 	{
+		context.put("tlang", rb);
+		if ( ! ltiService.isAdmin() ) {
+		        addAlert(state,"Must be administrator");
+		        return "lti_main";
+		}
+                context.put("doMappingAction", BUTTON + "doMappingPut");
+                context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
+		String [] mappingForm = ltiService.getMappingModel();
+		String id = data.getParameters().getString("id");
+		Long key = new Long(id);
+		Map<String,Object> mapping = ltiService.getMapping(key);
+		if (  mapping == null ) return "lti_main";		
+		String formInput = ltiService.formInput(mapping, mappingForm);
+		context.put("formInput", formInput);
+		state.removeAttribute(STATE_SUCCESS);
+		return "lti_mapping_insert";
+	}
+	
+	public String buildMappingDeletePanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
+		context.put("tlang", rb);
+		if ( ! ltiService.isAdmin() ) {
+		        addAlert(state,"Must be administrator");
+		        return "lti_main";
+		}
+                context.put("doToolAction", BUTTON + "doMappingDelete");
+		String [] mappingForm = ltiService.getMappingModel();
+		String id = data.getParameters().getString("id");
+		Long key = new Long(id);
+
+		Map<String,Object> mapping = ltiService.getMapping(key);
+
+		if (  mapping == null ) {
+		        addAlert(state,"Mapping not found");
+		        return "lti_mapping";
+		}
+		String formOutput = ltiService.formOutput(mapping, mappingForm);
+		context.put("formOutput", formOutput);
+		context.put("mapping",mapping);
+		state.removeAttribute(STATE_SUCCESS);
+		return "lti_mapping_delete";
+	}
+	
+	// Insert or edit
+	public void doMappingPut(RunData data, Context context)
+	{
+
 		String peid = ((JetspeedRunData) data).getJs_peid();
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
-
+		
 		if ( ! ltiService.isAdmin() ) {
-		        addAlert(state,"Must be site administrator");
+		        addAlert(state,"Must be administrator");
+		        switchPanel(state,"Main");
 		        return;
 		}
-
-		// String setting = data.getParameters().getString("setting");
 		Properties reqProps = data.getParameters().getProperties();
-		Object retval = ltiService.insertMapping(reqProps);
-		if ( retval instanceof String ) 
+		String id = data.getParameters().getString("id");
+		Object retval = null;
+		if ( id == null ) 
 		{
-   		        state.setAttribute(STATE_POST,reqProps);
+	                retval = ltiService.insertMapping(reqProps);
+		} else {
+			Long key = new Long(id);
+			System.out.println("UPDATE ID="+id);
+			retval = ltiService.updateMapping(key, reqProps);
+			System.out.println("UPDATE retval="+retval);
+                }
+                
+                if ( retval instanceof String ) 
+		{
+	                state.setAttribute(STATE_POST,reqProps);
 			addAlert(state, (String) retval);
+		        switchPanel(state,"Mapping");
 			return;
 		}
-		System.out.println("Yahoo="+((Long)retval).toString());
-		state.setAttribute(STATE_SUCCESS,"Added");
+
+		state.setAttribute(STATE_SUCCESS,"Data updated");
 		switchPanel(state, "Mapping");
 	}
 
+	public void doMappingDelete(RunData data, Context context)
+	{
+
+		String peid = ((JetspeedRunData) data).getJs_peid();
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
+		
+		if ( ! ltiService.isAdmin() ) {
+		        addAlert(state,"Must be adminstrator");
+		        return;
+		}
+		Properties reqProps = data.getParameters().getProperties();
+		String id = data.getParameters().getString("id");
+		Object retval = null;
+                if ( id == null ) {
+                        addAlert(state,"Missing tool ID on delete request");
+                        switchPanel(state, "Mapping");
+                        return;
+                }
+                Long key = new Long(id);
+		if ( ltiService.deleteMapping(key) )
+		{
+		        state.setAttribute(STATE_SUCCESS,"Deleted");
+		        switchPanel(state, "Mapping");
+                } else {
+                        addAlert(state,"Delete failed");
+                        switchPanel(state, "Mapping");
+                }
+	}
 }

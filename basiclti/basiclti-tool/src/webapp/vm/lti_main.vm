@@ -16,12 +16,14 @@
 				<tr>
 					<th id="toolurl">$tlang.getString("bl_toolurl")</th>
 					<th id="title">$tlang.getString("bl_title")</th>
+					#if ($isAdmin) <th id="site">$tlang.getString("bl_site")</th> #end
 					<th id="action">Action</th>
 				</tr>
 	#foreach ($tool in $tools)
 	<tr>
 	<td headers="toolurl">$tool.get("toolurl")</a></td>
 	<td headers="title"><a href="$sakai_ActionURL.setPanel("ToolView")&id=$tool.get("id")">$tool.get("title")</td>
+	#if ($isAdmin) <td headers="toolurl">$tool.get("SITE_ID")</a></td> #end
 	<td headers="action"><a href="$sakai_ActionURL.setPanel("ToolEdit")&id=$tool.get("id")">Edit</a> / 
 	<a href="$sakai_ActionURL.setPanel("ToolDelete")&id=$tool.get("id")">Delete</a></td>
 	<tr>
