@@ -26,6 +26,7 @@
 
     <properties>
         <url.localsite>scp://source.sakaiproject.org/var/www/html/release/announcement/${project.version}</url.localsite>
+    	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <scm>
