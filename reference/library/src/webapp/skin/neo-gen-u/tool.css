@@ -302,10 +302,11 @@ table.calendar th{
 }
 
 .borderTodayWithoutActivity{
-	background-color: #FFF;
+	background-color: #777;
 	border: 1px solid #000;
 	text-align: right;
 }
+.borderTodayWithoutActivity a{color:#fff}
 
 .borderTopLeft{
 	background-color: #ffc;
