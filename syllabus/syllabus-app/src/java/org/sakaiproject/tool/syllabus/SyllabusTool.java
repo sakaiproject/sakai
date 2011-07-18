@@ -247,21 +247,17 @@ public class SyllabusTool
 	  this.alertMessage = alertMessage;
   }
 
-  protected boolean wirelessDevice = false;
+  protected String mobileSession = "false";
   
-  public boolean getWirelessDevice()
+  public String getMobileSession()
   {
-  	return wirelessDevice;
+  	return mobileSession;
   }
   
   public SyllabusTool()
   {
 	  Session session = SessionManager.getCurrentSession();
-	  Object c = session.getAttribute("is_wireless_device");
-	  if (c != null)
-	  {
-		  wirelessDevice = ((Boolean) c).booleanValue();
-	  }
+	  mobileSession = session.getAttribute("is_wireless_device") != null && ((Boolean) session.getAttribute("is_wireless_device")).booleanValue()?"true":"false";
   }
 
   public boolean getdisplayNoEntryMsg()
