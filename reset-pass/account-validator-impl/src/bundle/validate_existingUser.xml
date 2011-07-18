@@ -2,15 +2,15 @@
 <emailTemplates>
 	<emailTemplate>
 		<subject> Please Validate your ${localSakaiName} Account</subject>
-		<message>Dear ${displayName}
+		<message>Dear ${displayName},
 
 You currently have a guest account on  with access to the following sites: 
 
 ${memberSites}
 
-Please if you still require access to these sites using your current login details ${userEid}, or if you would like to access these sites through your UCT staff/student account or another guest, please follow this link to: ${url}
+Please if you still require access to these sites using your current login details ${userEid}, or if you would like to access these sites through your staff/student account or another guest, please follow this link to: ${url}
 
-If you no longer require access to ${localSakaiName} using this login, simply ignore this email and your account will be deactivated. If you wish to reactivate your account, please contact help@vula.uct.ac.za 
+If you no longer require access to ${localSakaiName} using this login, simply ignore this email and your account will be deactivated. If you wish to reactivate your account, please contact ${localSupportMail}.
 
 *Please note*: Accounts that have been deactivated for longer than 90 days
  will be deleted.
@@ -23,7 +23,7 @@ If you no longer require access to ${localSakaiName} using this login, simply ig
 ${memberSites}
 &lt;/p&gt;
 
-&lt;p&gt;Please if you still require access to these sites using your current login details ${userEid}, or if you would like to access these sites through your UCT staff/student account or another guest, please follow this &lt;a href=&quot;${url}&quot;&gt;link&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Please if you still require access to these sites using your current login details ${userEid}, or if you would like to access these sites through your staff/student account or another guest, please follow this &lt;a href=&quot;${url}&quot;&gt;link&lt;/a&gt;&lt;/p&gt;
 
 &lt;/p,If you no longer require access to  using this login, simply ignore this email and your account will be deactivated. If you wish to reactivate your account, please contact ${supportemail} &lt;/p&gt;
 
