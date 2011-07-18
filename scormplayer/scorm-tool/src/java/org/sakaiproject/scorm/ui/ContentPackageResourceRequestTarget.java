@@ -64,6 +64,7 @@ import org.sakaiproject.scorm.exceptions.ResourceNotFoundException;
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
 import org.sakaiproject.scorm.ui.player.ScormTool;
 import org.sakaiproject.scorm.ui.player.pages.PlayerPage;
+import org.sakaiproject.wicket.protocol.http.SakaiWebApplication;
 
 public class ContentPackageResourceRequestTarget implements IRequestTarget {
 
@@ -100,7 +101,7 @@ public class ContentPackageResourceRequestTarget implements IRequestTarget {
 		
 	}
 	
-	private Resource getResource(ScormTool application) {
+	private Resource getResource(SakaiWebApplication application) {
 		if (log.isDebugEnabled())
 			log.debug("Looking up resource by " + resourceName);
 
@@ -116,7 +117,7 @@ public class ContentPackageResourceRequestTarget implements IRequestTarget {
 	
 	
 	public void respond(RequestCycle requestCycle) {
-		ScormTool application = (ScormTool)requestCycle.getApplication();
+	    SakaiWebApplication application = (SakaiWebApplication)requestCycle.getApplication();
 
 		Resource resource = getResource(application);
 		
