@@ -97,7 +97,7 @@
     #foreach ( $page in $site.sitePages.pageNavTools ) 
         #set ($pageCount =$pageCount + 1)       
         #if (${page.isPage} && $pageCount < 15 )
-<li class="submenuitem"><span><a href="${page.pageRefUrl}" title="${page.description}" class="${page.menuClass}">${page.pageTitle}</a></span></li>
+<li class="submenuitem"><span#if(${page.hidden}) class="hidden"#end><a href="${page.pageRefUrl}" title="${page.description}" class="${page.menuClass}">${page.pageTitle}</a></span></li>
         #end
     #end
 #if (${site.sitePages.pageNavCanAddMoreTools}) 
