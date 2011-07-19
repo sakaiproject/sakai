@@ -322,7 +322,7 @@
                 <!-- roster2 evaluation -->
                 <dependency>
                     <groupId>org.sakaiproject.roster2</groupId>
-                    <artifactId>sakai-roster-assembly</artifactId>
+                    <artifactId>sakai-roster2-assembly</artifactId>
                     <version>1.0-SNAPSHOT</version>
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
