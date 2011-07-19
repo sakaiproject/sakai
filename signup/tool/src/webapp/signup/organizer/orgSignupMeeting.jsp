@@ -38,7 +38,7 @@
 				<h:inputHidden id="selectedFirstUser"  value="#{OrganizerSignupMBean.selectedFirstUser}"/>
 			
 			 	<sakai:view_title value="#{msgs.organizer_page_title}"/>
-				<sakai:messages/>
+
 				<h:panelGrid columns="1" styleClass="organizerToplevelTable">
 					<%-- show title only when collapsed --%>
 					<h:panelGrid id="showMeetingTitleOnly" columns="2" columnClasses="titleColumn,valueColumn" styleClass="orgShowTitleOnly">
