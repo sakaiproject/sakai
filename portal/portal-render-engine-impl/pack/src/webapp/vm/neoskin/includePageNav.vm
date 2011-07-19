@@ -69,8 +69,8 @@
 					<ul>
 				#foreach ( $site in $subSites ) 
 						<li>
-							<a class="${sitePages.subsiteClass}" href="${site.siteUrl}" title="${site.siteTitle}">
-							<span>${rloader.subsite} ${site.siteTitle}</span>
+							<a href="${site.siteUrl}" title="${site.siteTitle}">
+							<span class="${sitePages.subsiteClass}">${rloader.subsite} ${site.siteTitle}</span>
 							</a>
 						</li>
 				#end
