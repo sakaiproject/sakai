@@ -96,6 +96,7 @@ import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
 
@@ -275,6 +276,9 @@ public class LessonBuilderAccessService
 		// key into access cache
 		String accessKey = itemString + ":" + sessionManager.getCurrentSessionUserId();
 
+		// need page to find site id
+		SimplePage currentPage = simplePageToolDao.getPage(item.getPageId());
+
 		if (item.isPrerequisite() && !"true".equals((String)accessCache.get(accessKey))) {
 
 		    // computing requirements is so messy that it's worth instantiating
@@ -295,6 +299,7 @@ public class LessonBuilderAccessService
 		    simplePageBean.setAssignmentEntity(assignmentEntity);
 		    simplePageBean.setGradebookIfc(gradebookIfc);
 		    simplePageBean.setMemoryService(memoryService);
+		    simplePageBean.setCurrentSiteId(currentPage.getSiteId());
 
 		    if (!simplePageBean.isItemAvailable(item, item.getPageId())) {
 			throw new EntityPermissionException(null, null, null);

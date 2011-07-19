@@ -167,6 +167,7 @@ public class SimplePageBean {
         private List<Long> currentPath = null;
 	private Set<Long>allowedPages = null;    
 	private Site currentSite = null; // cache, can be null; used by getCurrentSite
+	private String currentSiteId = null; // cache, can be null; used by getCurrentSite
         private List<GroupEntry> currentGroups = null;
         private Set<String> myGroups = null;
 
@@ -827,17 +828,17 @@ public class SimplePageBean {
 	public boolean canEditPage() {
 		if (okToEditPage != null)
 		    return (boolean)okToEditPage;
-		String ref = "/site/" + toolManager.getCurrentPlacement().getContext();
+		String ref = "/site/" + getCurrentSiteId();
 		okToEditPage = securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref);
 		return (boolean)okToEditPage;
 	}
 
 	public boolean canReadPage() {
-		String ref = "/site/" + toolManager.getCurrentPlacement().getContext();
+		String ref = "/site/" + getCurrentSiteId();
 		return securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_READ, ref);
 	}
 	public boolean canEditSite() {
-		String ref = "/site/" + toolManager.getCurrentPlacement().getContext();
+		String ref = "/site/" + getCurrentSiteId();
 		return securityService.unlock("site.upd", ref);
 	}
 
@@ -935,7 +936,7 @@ public class SimplePageBean {
 	    if (currentSite != null) // cached value
 		return currentSite;
 	    try {
-		currentSite = siteService.getSite(toolManager.getCurrentPlacement().getContext());
+		currentSite = siteService.getSite(getCurrentSiteId());
 	    } catch (Exception impossible) {
 		impossible.printStackTrace();
 	    }
@@ -1188,11 +1189,19 @@ public class SimplePageBean {
 	}
 
 	public String getCurrentSiteId() {
+		if (currentSiteId != null)
+		    return currentSiteId;
 		try {
-		    return toolManager.getCurrentPlacement().getContext();
+		    currentSiteId = toolManager.getCurrentPlacement().getContext();
+		    return currentSiteId;
 		} catch (Exception impossible) {
 		    return null;
 		}
+	}
+
+    // so access can inject the siteid
+	public void setCurrentSiteId(String siteId) {       
+		currentSiteId = siteId;
 	}
 
     // recall that code typically operates on a "current page." See below for
@@ -1230,7 +1239,7 @@ public class SimplePageBean {
 	public void updatePageObject(long l) throws PermissionException {
 		if (l != previousPageId) {
 			currentPage = simplePageToolDao.getPage(l);
-			String siteId = toolManager.getCurrentPlacement().getContext();
+			String siteId = getCurrentSiteId();
 			// page should always be in this site, or someone is gaming us
 			if (!currentPage.getSiteId().equals(siteId))
 			    throw new PermissionException(getCurrentUserId(), "set page", Long.toString(l));
@@ -1301,7 +1310,7 @@ public class SimplePageBean {
 				String toolId = ((ToolConfiguration) toolManager.getCurrentPlacement()).getPageId();
 				String title = getCurrentSite().getPage(toolId).getTitle(); // Use title supplied
 																			// during creation
-				SimplePage page = simplePageToolDao.makePage(toolId, toolManager.getCurrentPlacement().getContext(), title, null, null);
+				SimplePage page = simplePageToolDao.makePage(toolId, getCurrentSiteId(), title, null, null);
 				if (!saveItem(page)) {
 				    currentPage = null;
 				    return 0;
@@ -1550,7 +1559,7 @@ public class SimplePageBean {
 		String toolId = ((ToolConfiguration) toolManager.getCurrentPlacement()).getPageId();
 		SimplePage subpage = null;
 		if (makeNewPage) {
-		    subpage = simplePageToolDao.makePage(toolId, toolManager.getCurrentPlacement().getContext(), title, parent, topParent);
+		    subpage = simplePageToolDao.makePage(toolId, getCurrentSiteId(), title, parent, topParent);
 		    saveItem(subpage);
 		    selectedEntity = String.valueOf(subpage.getPageId());
 		} else {
@@ -1602,7 +1611,7 @@ public class SimplePageBean {
 	    if (!canEditPage())
 		return "permission-failed";
 
-	    String siteId = toolManager.getCurrentPlacement().getContext();
+	    String siteId = getCurrentSiteId();
 
 	    for (int i = 0; i < selectedEntities.length; i++) {
 		SimplePage target = simplePageToolDao.getPage(Long.valueOf(selectedEntities[i]));
@@ -1842,7 +1851,7 @@ public class SimplePageBean {
 	}
 
         public String assignmentRef(String id) {
-	    return "/assignment/a/" + toolManager.getCurrentPlacement().getContext() + "/" + id;
+	    return "/assignment/a/" + getCurrentSiteId() + "/" + id;
 	}
 
     // called by add forum dialog. Create a new item that points to a forum or
@@ -2499,7 +2508,7 @@ public class SimplePageBean {
 				// simplepage.upd privileges, but site.save requires site.upd.
 				securityService.pushAdvisor(new SecurityAdvisor() {
 					public SecurityAdvice isAllowed(String userId, String function, String reference) {
-						if (function.equals(SITE_UPD) && reference.equals("/site/" + toolManager.getCurrentPlacement().getContext())) {
+						if (function.equals(SITE_UPD) && reference.equals("/site/" + getCurrentSiteId())) {
 							return SecurityAdvice.ALLOWED;
 						} else {
 							return SecurityAdvice.PASS;
