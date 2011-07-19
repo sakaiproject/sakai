@@ -535,7 +535,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 				M_log.warn("cacheCleanerSeconds@org.sakaiproject.user.api.UserDirectoryService is no longer supported");
 			}
 			m_callCache = memoryService().newCache(
-					"memory.org.sakaiproject.user.api.UserDirectoryService.callCache",
+					"org.sakaiproject.user.api.UserDirectoryService.callCache",
 					userReference(""));
 
 			// register as an entity producer

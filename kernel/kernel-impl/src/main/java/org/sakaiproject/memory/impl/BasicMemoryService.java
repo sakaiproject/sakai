@@ -516,7 +516,11 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 				cache.setName(cacheName);
 				
 				// Not look for any custom configuration.
-				String config = serverConfigurationService().getString(name);
+				// Check for old configuration properties.
+				if(serverConfigurationService().getString(name) == null) {
+					M_log.warn("Old cache configuration "+ name+ " must be changed to memory."+ name);
+				}
+				String config = serverConfigurationService().getString("memory."+ name);
 				if (config != null && config.length() > 0) {
 					M_log.debug("Found configuration for cache: "+ name+ " of: "+ config);
 					new CacheInitializer().configure(config).initialize(

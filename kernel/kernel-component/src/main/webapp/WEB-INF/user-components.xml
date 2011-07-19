@@ -93,11 +93,11 @@
     <bean id="org.sakaiproject.user.impl.AuthenticationCache"
         class="org.sakaiproject.user.impl.AuthenticationCache">
         <property name="authCache"
-            ref="memory.org.sakaiproject.user.api.AuthenticationManager.cache" />
+            ref="org.sakaiproject.user.api.AuthenticationManager.cache" />
     </bean>
 
 	<!-- Memory cache for user authentication. -->
-	<bean id="memory.org.sakaiproject.user.api.AuthenticationManager.cache"
+	<bean id="org.sakaiproject.user.api.AuthenticationManager.cache"
 		class="org.springframework.cache.ehcache.EhCacheFactoryBean">
 		<property name="cacheManager">
 			<ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
@@ -112,11 +112,11 @@
 	</bean>
 
 	<!-- Define an alias so that old cache settings (though sakai.properties) still work. -->
-	<alias name="memory.org.sakaiproject.user.api.UserDirectoryService.idEidCache"
+	<alias name="org.sakaiproject.user.api.UserDirectoryService.idEidCache"
 		alias="org.sakaiproject.user.api.UserDirectoryService.cache"/>
 
 	<!-- Memory cache for user ID/EID lookup. -->
-	<bean id="memory.org.sakaiproject.user.api.UserDirectoryService.idEidCache"
+	<bean id="org.sakaiproject.user.api.UserDirectoryService.idEidCache"
 	     class="org.springframework.cache.ehcache.EhCacheFactoryBean">
  		<property name="cacheManager">
     		<ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
@@ -153,7 +153,7 @@
 		<property name="authenticationCache" ref="org.sakaiproject.user.impl.AuthenticationCache"/>
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
-		<property name="userCache" ><ref bean="memory.org.sakaiproject.user.api.UserDirectoryService.idEidCache" /></property>
+		<property name="userCache" ><ref bean="org.sakaiproject.user.api.UserDirectoryService.idEidCache" /></property>
 	</bean>  
 
 </beans>
