@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<assembly>
+    <id>tomcat-overlay</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>webapps/</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}.war</outputFileNameMapping>
+            <!-- <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping> -->
+            <!-- <outputFileNameMapping>imsblti.war</outputFileNameMapping> -->
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                 <include>org.sakaiproject.sitemanage:sakai-site-pageorder-helper:war:*</include>
+            </includes>
+            <unpack>false</unpack>
+        </dependencySet>
+    </dependencySets>
+    <fileSets>
+        <fileSet>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>${project.basedir}/README*</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+</assembly>

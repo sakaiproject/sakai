@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<assembly>
+    <id>tomcat-overlay</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>shared/lib/</outputDirectory>
+            <useTransitiveDependencies>false
+            </useTransitiveDependencies>
+            <includes>
+                <include>org.sakaiproject.sitemanage:sakai-siteassociation-api:jar:*</include>
+                <include>org.sakaiproject.sitemanage:sakai-siteassociation-hbm:jar:*</include>
+            </includes>
+            <unpack>false</unpack>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>components/sakai-site-association-pack</outputDirectory>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.sakaiproject.sitemanage:sakai-siteassociation-pack:war:*</include>
+            </includes>
+            <unpack>true</unpack>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>webapps/</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}.war</outputFileNameMapping>
+            <!-- <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping> -->
+            <!-- <outputFileNameMapping>imsblti.war</outputFileNameMapping> -->
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                 <include>org.sakaiproject.sitemanage:sakai-siteassociation-tool:war:*</include>
+            </includes>
+            <unpack>false</unpack>
+        </dependencySet>
+    </dependencySets>
+    <fileSets>
+        <fileSet>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>${project.basedir}/README*</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+</assembly>
