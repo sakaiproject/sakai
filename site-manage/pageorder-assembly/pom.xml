@@ -11,7 +11,7 @@
 
     <name>sakai-site-pageorder-helper-assembly</name>
     <groupId>org.sakaiproject.sitemanage</groupId>
-    <artifactId>sakai-site-pageorder-assembly</artifactId>
+    <artifactId>sakai-site-pageorder-helper-assembly</artifactId>
    <organization>
         <name>Sakai Project</name>
         <url>http://sakaiproject.org/</url>
