@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -425,6 +427,9 @@ public class FCKConnectorServlet extends HttpServlet {
           if (foldersIterator != null) {
                String current = null;
                
+               // create a SortedSet using the elements that are going to be added to the XML doc
+               SortedSet<Element> sortedFolders = new TreeSet<Element>(new SortElementsForDisplay());
+               
                while (foldersIterator.hasNext()) {
                     try {
                          current = (String) foldersIterator.next();
@@ -433,12 +438,18 @@ public class FCKConnectorServlet extends HttpServlet {
                          element.setAttribute("url", current);
                          element.setAttribute("name", myCollection.getProperties().getProperty(
                                               myCollection.getProperties().getNamePropDisplayName()));
-                         folders.appendChild(element);
+                         // by adding the folders to this collection, they will be sorted for display
+                         sortedFolders.add(element);
                     }
                     catch (Exception e) {    
                          //do nothing, we either don't have access to the collction or it's a resource
                     }
-               }          
+               }      
+               
+               // now append the folderse to the parent document in sorted order
+               for (Element folder: sortedFolders) {
+                  folders.appendChild(folder);
+               }
           }
      }
 
@@ -456,6 +467,9 @@ public class FCKConnectorServlet extends HttpServlet {
           }     
           if (collection != null) {
                Iterator iterator = collection.getMemberResources().iterator();
+               
+               // create a SortedSet using the elements that are going to be added to the XML doc
+               SortedSet<Element> sortedFiles = new TreeSet<Element>(new SortElementsForDisplay());               
           
                while (iterator.hasNext ()) {
                     try {
@@ -490,7 +504,8 @@ public class FCKConnectorServlet extends HttpServlet {
                                    element.setAttribute("size", "0");
                                    
                               }
-                              files.appendChild(element);
+                              // by adding the files to this collection, they will be sorted for display
+                              sortedFiles.add(element);
                          }
                     }
                     catch (ClassCastException e)  {
@@ -499,7 +514,12 @@ public class FCKConnectorServlet extends HttpServlet {
                     catch (Exception e)  {
                          //do nothing, we don't have access to the item
                     }
-               }     
+               }
+               
+               // now append the files to the parent document in sorted order
+               for (Element file: sortedFiles) {
+                  files.appendChild(file);
+               }
           }
      }     
 
