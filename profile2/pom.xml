@@ -221,10 +221,6 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
-        <repository>
-			<id>projectlombok.org</id>
-			<url>http://projectlombok.org/mavenrepo</url>
-		</repository>
 	</repositories>
 	
 	<distributionManagement>
@@ -267,7 +263,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <search-api.version>1.4-SNAPSHOT</search-api.version>
 		<entitybroker.version>1.5-SNAPSHOT</entitybroker.version>
-		<yuicompressor.plugin.version>0.9</yuicompressor.plugin.version>
+		<yuicompressor.plugin.version>1.2</yuicompressor.plugin.version>
 		<lombok.version>0.9.3</lombok.version>
 	</properties>
     
@@ -441,11 +437,6 @@
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
-		</pluginRepository>
-		<pluginRepository>
-			<name>oss.sonatype.org - github-releases</name>
-			<id>oss.sonatype.org-github-releases</id>
-			<url>http://oss.sonatype.org/content/repositories/github-releases</url>
 		</pluginRepository>
 	</pluginRepositories>
     
