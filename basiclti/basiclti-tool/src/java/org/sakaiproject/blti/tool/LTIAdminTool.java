@@ -61,7 +61,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	private static Log M_log = LogFactory.getLog(LTIAdminTool.class);
 	
 	/** Resource bundle using current language locale */
-	protected static ResourceLoader rb = new ResourceLoader("sample");
+	protected static ResourceLoader rb = new ResourceLoader("ltitool");
 
         private boolean inHelper = false;
 	
