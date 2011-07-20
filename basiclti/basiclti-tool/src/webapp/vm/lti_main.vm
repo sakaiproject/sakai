@@ -1,5 +1,5 @@
 <div class="portletBody">
-#if ($isAdmin)
+#if ($isAdmin && ! $inHelper )
 <ul class="navIntraTool actionToolBar" role="menu">
 <li class="firstToolBarItem" role="menuitem"><span><a href="#" 
    title="$tlang.getString("launch.mapping")" 
@@ -43,10 +43,13 @@
 	
 		</p>
 		<p class="act">
+                        <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 			<input type="submit" accesskey ="i" value="$tlang.getString('gen.insert')" 
  				onclick="location = '$sakai_ActionURL.setPanel("ToolInsert")';return false;">
-			<input type="submit" accesskey ="x" value="$tlang.getString('gen.cancel')" 
- 				onclick="location = '$sakai_ActionURL.setPanel("Main")';return false;">
+#if ( $inHelper ) 
+			<input type="submit" accesskey ="s" class="active" name="$doEndHelper" 
+				value="$tlang.getString('gen.done')" />
+#end
 		</p>
 	</form>
 </div>

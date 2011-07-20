@@ -19,6 +19,14 @@
         <dispatcher>INCLUDE</dispatcher>
     </filter-mapping>
 
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.basiclti.admin.helper</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
     <!-- the vm handling servlet : used direct by name, not by URL path -->
     <servlet>
         <servlet-name>sakai.vm</servlet-name>
@@ -36,6 +44,16 @@
         <init-param>
             <param-name>context_key</param-name>
             <param-value>Context Value</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+     <servlet>
+        <servlet-name>sakai.basiclti.admin.helper</servlet-name>
+        <servlet-class>org.sakaiproject.blti.tool.LTIAdminTool</servlet-class>
+        <init-param>
+            <param-name>helper</param-name>
+            <param-value>1</param-value>            
         </init-param>
         <load-on-startup>1</load-on-startup>
      </servlet>

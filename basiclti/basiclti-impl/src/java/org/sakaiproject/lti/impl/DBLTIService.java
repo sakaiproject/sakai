@@ -109,9 +109,7 @@ public class DBLTIService extends BaseLTIService implements LTIService
 	{
                 if ( m_sql == null ) m_sql = (SqlService) ComponentManager.get("org.sakaiproject.db.api.SqlService");
                 if ( dataSource == null ) dataSource = (DataSource) ComponentManager.get("javax.sql.DataSource");
-                System.out.println("DataSource="+dataSource);
                 if ( jdbcTemplate == null && dataSource != null ) jdbcTemplate = new JdbcTemplate(dataSource);
-                System.out.println("JdbcTemplate="+jdbcTemplate);
                 
 		try
 		{

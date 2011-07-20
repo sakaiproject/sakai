@@ -43,6 +43,9 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.component.cover.ComponentManager;
 // import org.sakaiproject.component.cover.ServerConfigurationService;
 
+// TODO: FIX THIS
+import org.sakaiproject.tool.cover.SessionManager;
+
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.impl.DBLTIService; // HACK
 
@@ -59,13 +62,15 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	
 	/** Resource bundle using current language locale */
 	protected static ResourceLoader rb = new ResourceLoader("sample");
+
+        private boolean inHelper = false;
 	
 	private static String STATE_POST = "lti:state_post";
 	private static String STATE_SUCCESS = "lti:state_success";
 	private static String STATE_ID = "lti:state_id";
 	private static String STATE_TOOL_ID = "lti:state_tool_id";
 	private static String STATE_CONTENT_ID = "lti:state_content_id";
-	
+
 	/** Service Implementations */
 	protected static ToolManager toolManager = null; 
 	protected static LTIService ltiService = null; 
@@ -78,12 +83,15 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	protected void getServices()
 	{
 		if ( toolManager == null ) toolManager = (ToolManager) ComponentManager.get("org.sakaiproject.tool.api.ToolManager");
-		// HACK if ( ltiService == null ) ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
+
 		/* HACK to save many restarts during development */ 
 		if ( ltiService == null ) { 
 			ltiService = (LTIService) new DBLTIService(); 
 			((org.sakaiproject.lti.impl.DBLTIService) ltiService).init(); 
 		} 
+                /* End fo HACK */
+
+                if ( ltiService == null ) ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
 	}
 
 	/**
@@ -94,6 +102,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		super.initState(state, portlet, rundata);
 
 		getServices();
+
+		Placement placement = toolManager.getCurrentPlacement();
+                String toolReg = placement.getToolId();
+                inHelper = ! ( "sakai.basiclti.admin".equals(toolReg));
 	}
 	
 	/**
@@ -115,18 +127,28 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	{
 		context.put("tlang", rb);
 		if ( ! ltiService.isMaintain() ) {
-		        addAlert(state,"Must be site maintainer");
+		        addAlert(state,"Must be site maintainer to edit External Tools");
 		        return "lti_error";
 		}
 		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
 		List<Map<String,Object>> tools = ltiService.getTools(null,null,0,100);
+                context.put("inHelper",new Boolean(inHelper));
 		context.put("tools", tools);
 		context.put("getContext",toolManager.getCurrentPlacement().getContext());
+                context.put("doEndHelper", BUTTON + "doEndHelper");
 		state.removeAttribute(STATE_POST);
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_main";
 	}
+
+       
+        public void doEndHelper(RunData data, Context context)
+        {
+                // Request a shortcut transfer back to the tool we are helping
+                SessionManager.getCurrentToolSession().setAttribute(HELPER_LINK_MODE, HELPER_MODE_DONE);
+                scheduleTopRefresh();
+        }
 	
         public String buildToolViewPanelContext(VelocityPortlet portlet, Context context, 
 			RunData data, SessionState state)
@@ -629,4 +651,5 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
                         switchPanel(state, "Content");
                 }
 	}
+
 }

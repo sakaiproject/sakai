@@ -17,4 +17,19 @@
 		
 	</tool>
 
+	<tool
+			id="sakai.basiclti.admin.helper"
+			title="External Tools"
+			description="This tool manages external tools launchable via Basic LTI.">
+
+		<configuration name="reset.button" value="true"/>
+
+		<category name="helper" />
+
+		<!-- Allow this to be set -->
+		<configuration name="functions.require" /> 
+		<configuration name="helper" value="true" /> 
+		
+	</tool>
+
 </registration>
