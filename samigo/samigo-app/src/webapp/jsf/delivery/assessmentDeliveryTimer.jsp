@@ -30,6 +30,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 <f:verbatim><span id="remText"></f:verbatim><h:outputText value="#{deliveryMessages.time_remaining} "/><f:verbatim></span></f:verbatim>
 <f:verbatim><span id="timer"></f:verbatim><f:verbatim> </span></f:verbatim>
 
+
 <f:verbatim> <span id="bar"></f:verbatim>
 <h:panelGroup rendered="#{delivery.timeElapseAfterFileUpload == null || delivery.timeElapseFloat ge delivery.timeElapseAfterFileUploadFloat}">
 <samigo:timerBar height="15" width="300"

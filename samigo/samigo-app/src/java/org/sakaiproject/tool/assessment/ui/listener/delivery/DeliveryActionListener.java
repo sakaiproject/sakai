@@ -2080,6 +2080,8 @@ public class DeliveryActionListener
     // is not recorded properly in DB - daisyf
     int timeLimit = 0;
     AssessmentAccessControlIfc control = publishedAssessment.getAssessmentAccessControl();
+    AssessmentGradingData ag = delivery.getAssessmentGrading();
+    delivery.setBeginTime(ag.getAttemptDate());
     if (delivery.getHasTimeLimit() && control != null && control.getTimeLimit()!=null) {
     	if (fromBeginAssessment) {
     		timeLimit = Integer.parseInt(delivery.updateTimeLimit(publishedAssessment.getAssessmentAccessControl().getTimeLimit().toString()));
@@ -2099,15 +2101,19 @@ public class DeliveryActionListener
 
       //if assessment is half done, load setting saved in DB,
       // else set time elapsed as 0
-      AssessmentGradingData ag = delivery.getAssessmentGrading();
-      delivery.setBeginTime(ag.getAttemptDate());
+      //AssessmentGradingData ag = delivery.getAssessmentGrading();
+      //delivery.setBeginTime(ag.getAttemptDate());
       if (delivery.isTimeRunning() && delivery.getBeginAssessment()){
-        if (ag.getTimeElapsed() != null){
+    	//int timeElapsed  = Math.round((float)((new Date()).getTime() - ag.getAttemptDate().getTime())/1000.0f); //in sec
+    	//delivery.setTimeElapse(String.valueOf(timeElapsed));
+        /*
+    	if (ag.getTimeElapsed() != null){
           delivery.setTimeElapse(ag.getTimeElapsed().toString());
-	}
+        }
         else{  // this is a new timed assessment
           delivery.setTimeElapse("0");
-	}
+        }
+        */
         queueTimedAssessment(delivery, timeLimit, fromBeginAssessment, publishedAssessment, isFirstTimeBegin);
         delivery.setBeginAssessment(false);
       }
@@ -2115,7 +2121,7 @@ public class DeliveryActionListener
         TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
         TimedAssessmentGradingModel timedAG = queue.get(ag.getAssessmentGradingId());
         if (timedAG != null)
-          syncTimeElapsedWithServer(timedAG, delivery, fromBeginAssessment);
+          syncTimeElapsedWithServer(timedAG, delivery, isFirstTimeBegin);
       }
 
       if (delivery.getLastTimer()==0){
@@ -2134,16 +2140,20 @@ public class DeliveryActionListener
 				  new Date(), new Date(), // need modify later
 				  false, getTimerId(delivery), publishedAssessment);
 		  queue.add(timedAG);
+		  
+		  delivery.setTimeElapse("0");
 		  //log.debug("***0. queue="+queue);
 		  //log.debug("***1. put timedAG in queue, timedAG="+timedAG);
 	  }
 	  else{
 		  if (timedAG == null){
+			  int timeElapsed  = Math.round((new Date().getTime() - ag.getAttemptDate().getTime())/1000.0f);
 			  timedAG = new TimedAssessmentGradingModel(ag.getAssessmentGradingId(), 
-					  timeLimit, timeLimit - Math.round((new Date().getTime() - ag.getAttemptDate().getTime())/1000.0f),
+					  timeLimit, timeLimit - timeElapsed,
 					  new Date(), new Date(), 
 					  false, getTimerId(delivery), publishedAssessment);
 			  queue.add(timedAG);
+			  delivery.setTimeElapse(String.valueOf(timeElapsed));
 		  }
 		  else {
 			  // if timedAG exists && beginAssessment==true, this is dodgy. It means that
@@ -2152,14 +2162,15 @@ public class DeliveryActionListener
 			  // he must go through the beginAssessment screen again, hence, beginAssessment is set
 			  // to true again. In this case, we need to sync up the JScript time with the server time
 			  // We need to correct 2 settings based on timedAG: delivery.timeElapse
-			  syncTimeElapsedWithServer(timedAG, delivery, fromBeginAssessment);
+			  syncTimeElapsedWithServer(timedAG, delivery, false);
 		  }
 	  }
   }
 
-  private void syncTimeElapsedWithServer(TimedAssessmentGradingModel timedAG, DeliveryBean delivery, boolean fromBeginAssessment){
+  private void syncTimeElapsedWithServer(TimedAssessmentGradingModel timedAG, DeliveryBean delivery, boolean isFirstTimeBegin){
 	    AssessmentGradingData ag = delivery.getAssessmentGrading();
 	    //boolean zeroTimeElapsed = false;
+	    /*
 	    boolean acceptLateSubmission = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(delivery.getPublishedAssessment().getAssessmentAccessControl().getLateHandling());
 	    int timeLimit = Integer.parseInt(delivery.getPublishedAssessment().getAssessmentAccessControl().getTimeLimit().toString());
 		// due date
@@ -2181,12 +2192,13 @@ public class DeliveryActionListener
 			}
 	    }
 
-        int timeElapsed  = Math.round((float)((new Date()).getTime() - timedAG.getBeginDate().getTime())/1000.0f); //in sec
+		*/
+
         // this is to cover the scenerio when user took an assessment, Save & Exit, Then returned at a
         // later time, we need to account for the time taht he used before
-        int timeTakenBefore = timedAG.getTimeLimit() - timedAG.getTimeLeft(); // in sec
-        //log.debug("***time passed before reload next page="+timeElapsed+timeTakenBefore);
-	    ag.setTimeElapsed(Integer.valueOf(timeElapsed+timeTakenBefore));
+        int timeElapsed  = Math.round((new Date().getTime() - ag.getAttemptDate().getTime())/1000.0f);
+        log.debug("***setTimeElapsed="+timeElapsed);
+	    ag.setTimeElapsed(Integer.valueOf(timeElapsed));
 
 	    // not sure why isLate lost its value, so setting it again here
 	    ag.setIsLate(Boolean.FALSE);

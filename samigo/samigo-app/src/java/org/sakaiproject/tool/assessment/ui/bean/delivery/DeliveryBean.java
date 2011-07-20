@@ -2581,12 +2581,9 @@ public class DeliveryBean
 	      TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
 	      TimedAssessmentGradingModel timedAG = queue.get(adata.getAssessmentGradingId());
 	      if (timedAG != null){
-	        int timeElapsed  = Math.round((float)((new Date()).getTime() - timedAG.getBeginDate().getTime())/1000.0f); //in sec
-	        // this is to cover the scenerio when user took an assessment, Save & Exit, Then returned at a
-	        // later time, we need to account for the time taht he used before
-	        int timeTakenBefore = timedAG.getTimeLimit() - timedAG.getTimeLeft(); // in sec
-	        //log.debug("***time passed afer saving answer to DB="+timeElapsed+timeTakenBefore);
-	        adata.setTimeElapsed( Integer.valueOf(timeElapsed+timeTakenBefore));
+	        int timeElapsed  = Math.round((new Date().getTime() - adata.getAttemptDate().getTime())/1000.0f);
+	        log.debug("***setTimeElapsed="+timeElapsed);
+		    adata.setTimeElapsed( Integer.valueOf(timeElapsed));
 	        GradingService gradingService = new GradingService();
 	        gradingService.saveOrUpdateAssessmentGrading(adata);
 	        setTimeElapse(adata.getTimeElapsed().toString());
@@ -2603,12 +2600,8 @@ public class DeliveryBean
 		      TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
 		      TimedAssessmentGradingModel timedAG = queue.get(adata.getAssessmentGradingId());
 		      if (timedAG != null){
-		        int timeElapsed  = Math.round((float)((new Date()).getTime() - timedAG.getBeginDate().getTime())/1000.0f); //in sec
-		        // this is to cover the scenerio when user took an assessment, Save & Exit, Then returned at a
-		        // later time, we need to account for the time taht he used before
-		        int timeTakenBefore = timedAG.getTimeLimit() - timedAG.getTimeLeft(); // in sec
-		        //log.debug("***time passed afer saving answer to DB="+timeElapsed+timeTakenBefore);
-		        adata.setTimeElapsed(Integer.valueOf(timeElapsed+timeTakenBefore));
+		    	int timeElapsed  = Math.round((new Date().getTime() - adata.getAttemptDate().getTime())/1000.0f);
+		        adata.setTimeElapsed(Integer.valueOf(timeElapsed));
 		        GradingService gradingService = new GradingService();
 		        gradingService.saveOrUpdateAssessmentGradingOnly(adata);
 		        setTimeElapse(adata.getTimeElapsed().toString());
@@ -3105,15 +3098,17 @@ public class DeliveryBean
         log.debug("numberRetake = " + numberRetake);
         actualNumberRetake = gradingService.getActualNumberRetake(publishedAssessment.getPublishedAssessmentId(), AgentFacade.getAgentString());
 		log.debug("actualNumberRetake =" + actualNumberRetake);
-		if (!("previewAssessment").equals(actionString) && actualNumberRetake >= numberRetake) { 
+
+		if (!("previewAssessment").equals(actionString) && actualNumberRetake >= numberRetake && beginTime != null) { 
 			if (dueDate != null && !acceptLateSubmission) {
-				int timeBeforeDue  = Math.round((float)(dueDate.getTime() - (new Date()).getTime())/1000.0f); //in sec
+				int timeBeforeDue  = Math.round((dueDate.getTime() - beginTime.getTime())/1000.0f);
 				if (timeBeforeDue < Integer.parseInt(timeLimit)) {
 					return String.valueOf(timeBeforeDue);
 				}
 			}
+
 			if (retractDate != null) {
-				int timeBeforeRetract  = Math.round((float)(retractDate.getTime() - (new Date()).getTime())/1000.0f); //in sec
+				int timeBeforeRetract  = Math.round((retractDate.getTime() - beginTime.getTime())/1000.0f);
 				if (timeBeforeRetract < Integer.parseInt(timeLimit)) {
 					return String.valueOf(timeBeforeRetract);
 				}
