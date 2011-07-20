@@ -26,8 +26,8 @@
 		#if($allowAddSite)
 			<li class="firstToolBarItem"><span><a href="#toolLink("$action" "doNew_site")" title="$tlang.getString('java.new')">$tlang.getString("java.new")</a></span></li>
 		#end
-		<li class="dummyToolBarLink"><span style="current">$tlang.getString("java.revise")</span></li>
-		<li class="dummyToolBarLink"><span style="current">$tlang.getString("java.delete")</span></li>
+		<li class="dummyToolBarLink"><span class="current">$tlang.getString("java.revise")</span></li>
+		<li class="dummyToolBarLink"><span class="current">$tlang.getString("java.delete")</span></li>
 		<li style="display:none" class="realToolBarLink"><span><a href="" onclick="document.getElementById('sakai_action').value='doGet_site';document.getElementById('sitesForm').submit();return false;" title="$tlang.getString('java.revise')">$tlang.getString("java.revise")</a></span></li>
 		<li style="display:none" class="realToolBarLink"><span><a href="" onclick="javascript:document.getElementById('sakai_action').value='doMenu_site_delete';document.getElementById('sitesForm').submit();return false;" title="$tlang.getString('java.delete')">$tlang.getString("java.delete")</span></a></li>
 	</ul>
