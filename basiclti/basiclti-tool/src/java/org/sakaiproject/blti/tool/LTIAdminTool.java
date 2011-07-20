@@ -259,12 +259,15 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		Properties reqProps = data.getParameters().getProperties();
 		String id = data.getParameters().getString("id");
 		Object retval = null;
+		String success = null;
 		if ( id == null ) 
 		{
 	                retval = ltiService.insertTool(reqProps);
+	                success = "Tool Inserted";
 		} else {
 			Long key = new Long(id);
 		        retval = ltiService.updateTool(key, reqProps);
+		        success = "Tool Updated";
                 }
                 
                 if ( retval instanceof String ) 
@@ -275,7 +278,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			return;
 		}
 
-		state.setAttribute(STATE_SUCCESS,"Added");
+		state.setAttribute(STATE_SUCCESS,success);
 		switchPanel(state, "Main");
 	}
 
@@ -389,14 +392,15 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		Properties reqProps = data.getParameters().getProperties();
 		String id = data.getParameters().getString("id");
 		Object retval = null;
+		String success = null;
 		if ( id == null ) 
 		{
 	                retval = ltiService.insertMapping(reqProps);
+	                success = "Mapping added";
 		} else {
 			Long key = new Long(id);
-			System.out.println("UPDATE ID="+id);
 			retval = ltiService.updateMapping(key, reqProps);
-			System.out.println("UPDATE retval="+retval);
+			success = "Mapping updated";
                 }
                 
                 if ( retval instanceof String ) 
@@ -407,7 +411,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			return;
 		}
 
-		state.setAttribute(STATE_SUCCESS,"Data updated");
+		state.setAttribute(STATE_SUCCESS,success);
 		switchPanel(state, "Mapping");
 	}
 

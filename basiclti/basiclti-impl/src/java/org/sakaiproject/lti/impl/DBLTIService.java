@@ -40,8 +40,16 @@ import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.component.cover.ComponentManager;
 
+import java.sql.PreparedStatement;
+import java.sql.Connection;
 import javax.sql.DataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ColumnMapRowMapper;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+
+
 
 /**
  * <p>
@@ -219,9 +227,30 @@ public class DBLTIService extends BaseLTIService implements LTIService
 		String errors = foorm.formExtract(newProps, model, rb, newMapping);
                 if ( errors != null ) return errors;
                 
-		String sql = "INSERT INTO "+table+foorm.insertForm(newMapping);
-		Object [] fields = foorm.getObjects(newMapping);
+		final String sql = "INSERT INTO "+table+foorm.insertForm(newMapping);
+		final Object [] fields = foorm.getObjects(newMapping);
+		
+		// More elegant Sakai Insert (for now)
 		Long retval = m_sql.dbInsert(null, sql, fields, "id");
+		
+		/* Less Elegant JDBC version 
+		KeyHolder keyHolder = new GeneratedKeyHolder();
+
+		jdbcTemplate.update(
+                    new PreparedStatementCreator() {
+                        public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+                                PreparedStatement ps =
+                                        connection.prepareStatement(sql, new String[] {"id"});
+                                for(int i=0; i<fields.length; i++ ) {
+                                        ps.setObject(i+1, fields[i]);
+                                }
+                                return ps;
+                        }
+                   },
+                   keyHolder);
+                Long retval = (Long) keyHolder.getKey();
+                */
+
 		System.out.println("Insert="+retval);
 		return retval;
 	}
@@ -318,7 +347,7 @@ public class DBLTIService extends BaseLTIService implements LTIService
                 } else {
                         return false;
                 }
-                return m_sql.dbWrite(statement, fields);
+                return jdbcTemplate.update(statement, fields) == 1;
 	}
 	
 	public Object updateThing(String table, String [] model, Long key, Object newProps)
@@ -328,24 +357,7 @@ public class DBLTIService extends BaseLTIService implements LTIService
                 }
 		
 		if ( ! isMaintain() ) return null;
-		
-		// Hack to insure that We *Can* update this since SqlService cannot tell us if updates work
 
-		if ( ! isAdmin() ) {
-		        Object thing = getThing(table, model, key);
-		        if ( thing == null || ! (thing instanceof Map) ) {
-		                return "Update to non-existent item";
-		        }
-		 
-		        String siteId = (String) foorm.getField(thing, "SITE_ID");
-		    System.out.println("THING ID="+siteId);
-		    
-		        if ( siteId == null || ! siteId.equals(getContext()) )
-		        {
-		                 return "Update not allowed";
-		        }
-		}
-		
 		String [] columns = foorm.getFields(model);
 		
 		HashMap<String, Object> newMapping = new HashMap<String,Object> ();
@@ -368,40 +380,13 @@ public class DBLTIService extends BaseLTIService implements LTIService
 	        int count = jdbcTemplate.update(sql, fields);
 	        System.out.println("Count = "+count);
 	        return count == 1;
-		/*
-		boolean retval = m_sql.dbWrite(sql, fields);
-		System.out.println("Update="+retval);
-		if ( ! retval ) return "Update failed";
-		return true; */
 	}
 
 	
         // Utility to return a resultset
 	public List<Map<String,Object>> getResultSet(String statement, Object [] fields, final String [] columns) 
-	{
-	      
-	        System.out.println("statement="+statement);
-
-                List rv = m_sql.dbRead(statement, fields, new SqlReader()
-                {
-                        public Object readSqlResultRecord(ResultSet result)
-                        {
-                                try
-                                {
-                                        Map<String,Object> rv = new HashMap<String,Object> ();                                    
-                                        for (String field : columns) {
-                                                rv.put(field,result.getObject(field));
-                                        }
-                                        return rv;
-                                }
-                                catch (SQLException e)
-                                {
-                                        M_log.warn("getResultSet" + e);
-                                        return null;
-                                }
-                        }
-                });
-                return (List<Map<String,Object>>) rv;
-                
+	{	      
+                List rv = jdbcTemplate.query(statement, fields, new ColumnMapRowMapper());
+                return (List<Map<String,Object>>) rv;       
 	}
 }
