@@ -557,7 +557,17 @@ public abstract class ToolServlet extends VmServlet
 	{
 		// find the alert in state, if it's not there, make it.
 		SessionState state = getState(req);
-		Alert alert = (Alert) state.getAttribute(ALERT_ATTR);
+		Alert alert = null;
+
+		// In case we crossed class loader boundaries
+		try
+		{
+			alert = (Alert) state.getAttribute(ALERT_ATTR);
+		}
+		catch(Exception e) 
+		{
+			alert = null;
+		}
 		if (alert == null)
 		{
 			alert = new AlertImpl();
@@ -607,7 +617,15 @@ public abstract class ToolServlet extends VmServlet
 	{
 		// find the menu in state, if it's not there, make it.
 		SessionState state = getState(req);
-		Menu menu = (Menu) state.getAttribute(MENU_ATTR);
+		Menu menu = null;
+		try
+		{
+			menu = (Menu) state.getAttribute(MENU_ATTR);
+		}
+		catch(Exception e)
+		{
+			menu = null;
+		}
 		if (menu == null)
 		{
 			menu = new MenuImpl();
