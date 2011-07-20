@@ -65,6 +65,15 @@ public interface LTIService
 	public Object updateTool(Long key, Map<String,Object> newProps);
 	public Object updateTool(Long key, Properties newProps);
 	public List<Map<String, Object>> getTools(String search, String order, int first, int last) ;
+
+	/* Content */
+	public String [] getContentModel(Long tool_id) ;
+	public Object insertContent(Long tool_id, Properties newProps);
+	public Map<String,Object> getContent(Long key);
+	public boolean deleteContent(Long key);
+	public Object updateContent(Long key, Map<String,Object> newProps);
+	public Object updateContent(Long key, Properties newProps);
+	public List<Map<String, Object>> getContents(String search, String order, int first, int last) ;
 	
 	public String formOutput(Object row, String fieldInfo);
 	public String formOutput(Object row, String [] fieldInfo);

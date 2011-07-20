@@ -30,7 +30,8 @@ CREATE TABLE `lti_tools` (
 
 CREATE TABLE `lti_content` (
 	`id` mediumint(10) NOT NULL AUTO_INCREMENT,
-	 SITE_ID VARCHAR (99) NULL,
+	`tool_id` mediumint(10) NOT NULL,
+	 SITE_ID VARCHAR (99) NOT NULL,
 	`preferheight` mediumint(4) NULL,
 	`acceptgrades` mediumint(1) NOT NULL DEFAULT '0',
 	`launchinpopup` mediumint(1) NOT NULL DEFAULT '0',
@@ -38,10 +39,10 @@ CREATE TABLE `lti_content` (
 	`debuglaunch` mediumint(1) NOT NULL DEFAULT '0',
 	`placementsecret` varchar(1023),
 	`timeplacementsecret` mediumint(10) NOT NULL DEFAULT '0',
-	`oldplacementsecret` varchar(255),
+	`oldplacementsecret` varchar(1023),
 	`setting` text(8192),
 	`xmlimport` text(16384),
-	PRIMARY KEY ( `id`, `SITE_ID` )
+	PRIMARY KEY ( `id`, `tool_id`, `SITE_ID` )
 );
 
 CREATE TABLE `lti_mapping` (

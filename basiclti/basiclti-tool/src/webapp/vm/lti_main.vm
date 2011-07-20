@@ -5,13 +5,17 @@
    title="$tlang.getString("launch.mapping")" 
    onclick="location = '$sakai_ActionURL.setPanel("Mapping")';return false;">
    $tlang.getString("launch.mapping") </a></span></li>
+<li class="firstToolBarItem" role="menuitem"><span><a href="#" 
+   title="$tlang.getString("launch.content")" 
+   onclick="location = '$sakai_ActionURL.setPanel("Content")';return false;">
+   $tlang.getString("launch.content") </a></span></li>
 </ul>
 #end
 #if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
 #if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 <h3>$tlang.getString("lti.admin")</h3>
 	<form action="#toolForm("")" method="post" name="customizeForm" >
-#if ($tools.size() > 0)
+#if ($tools && $tools.size() > 0)
 			<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("lti.tool.list")">
 				<tr>
 					<th id="toolurl">$tlang.getString("bl_toolurl")</th>

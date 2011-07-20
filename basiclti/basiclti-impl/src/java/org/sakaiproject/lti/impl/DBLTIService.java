@@ -40,6 +40,9 @@ import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.component.cover.ComponentManager;
 
+import javax.sql.DataSource;
+import org.springframework.jdbc.core.JdbcTemplate;
+
 /**
  * <p>
  * DBLTIService extends the BaseLTIService.
@@ -77,6 +80,9 @@ public class DBLTIService extends BaseLTIService implements LTIService
 	{
 		m_autoDdl = Boolean.valueOf(value);
 	}
+	
+	private javax.sql.DataSource dataSource = null;
+	private org.springframework.jdbc.core.JdbcTemplate jdbcTemplate = null;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -88,6 +94,11 @@ public class DBLTIService extends BaseLTIService implements LTIService
 	public void init()
 	{
                 if ( m_sql == null ) m_sql = (SqlService) ComponentManager.get("org.sakaiproject.db.api.SqlService");
+                if ( dataSource == null ) dataSource = (DataSource) ComponentManager.get("javax.sql.DataSource");
+                System.out.println("DataSource="+dataSource);
+                if ( jdbcTemplate == null && dataSource != null ) jdbcTemplate = new JdbcTemplate(dataSource);
+                System.out.println("JdbcTemplate="+jdbcTemplate);
+                
 		try
 		{
 			// if we are auto-creating our schema, check and create
@@ -163,6 +174,34 @@ public class DBLTIService extends BaseLTIService implements LTIService
 	{ 
 	        return getThings("lti_tools", LTIService.TOOL_MODEL, search, order, first, last);
 	}
+	
+	
+	/** Content Methods */
+	public Object insertContent(Long contentKey, Properties newProps)
+	{
+		return insertThing("lti_content",getContentModel(contentKey), newProps);
+        }
+	
+	public Map<String,Object> getContent(Long key) 
+	{
+	        return getThing("lti_content", LTIService.CONTENT_MODEL, key);                
+	}
+
+	public boolean deleteContent(Long key)
+	{
+	        return deleteThing("lti_content", LTIService.CONTENT_MODEL, key);
+	}
+	
+	public Object updateContent(Long key, Object newProps) 
+	{ 
+	        return updateThing("lti_content", LTIService.CONTENT_MODEL, key, newProps);
+	}
+
+	public List<Map<String,Object>> getContents(String search, String order, int first, int last) 
+	{ 
+	        return getThings("lti_content", LTIService.CONTENT_MODEL, search, order, first, last);
+	}
+	
 	
 	// Returns String (falure) or Long (key on success)
 	public Object insertThing(String table, String [] model, Properties newProps)
@@ -325,10 +364,15 @@ public class DBLTIService extends BaseLTIService implements LTIService
 
 		System.out.println("Upate="+sql);
 		Object [] fields = foorm.getObjects(newMapping);
+		
+	        int count = jdbcTemplate.update(sql, fields);
+	        System.out.println("Count = "+count);
+	        return count == 1;
+		/*
 		boolean retval = m_sql.dbWrite(sql, fields);
 		System.out.println("Update="+retval);
 		if ( ! retval ) return "Update failed";
-		return Boolean.TRUE;
+		return true; */
 	}
 
 	

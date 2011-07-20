@@ -285,4 +285,16 @@ public abstract class BaseLTIService implements LTIService
 	
 	public abstract Object updateMapping(Long key, Object newProps); 
 
+	public Object updateContent(Long key, Map<String,Object> newProps)
+	{
+	        return updateContent(key, (Object) newProps);
+	}
+	
+	public Object updateContent(Long key, Properties newProps)
+	{
+	        return updateContent(key, (Object) newProps);
+	}
+	
+	public abstract Object updateContent(Long key, Object newProps); 
+
 }

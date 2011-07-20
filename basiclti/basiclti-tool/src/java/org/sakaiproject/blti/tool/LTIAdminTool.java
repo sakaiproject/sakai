@@ -439,4 +439,21 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
                         switchPanel(state, "Mapping");
                 }
 	}
+	
+	/** Content related methods ------------------------------ */
+	
+	public String buildContentPanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
+		context.put("tlang", rb);
+		if ( ! ltiService.isMaintain() ) {
+		        addAlert(state,"Must be site maintainer");
+		        return "lti_main";
+		}
+		List<Map<String,Object>> contents = ltiService.getContents(null,null,0,100);
+		context.put("contents", contents);
+		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
+		state.removeAttribute(STATE_SUCCESS);
+		return "lti_content";
+	}
 }
