@@ -1798,6 +1798,11 @@ public class SiteAction extends PagedResourceActionII {
 							b.add(new MenuEntry(rb.getString("java.link"),
 									"doLinkHelper"));
 						}
+
+						if (notStealthOrHiddenTool("sakai.basiclti.admin.helper")) {
+							b.add(new MenuEntry(rb.getString("java.external"),
+									"doExternalHelper"));
+						}
 						
 					}
 				}
@@ -3304,6 +3309,22 @@ public class SiteAction extends PagedResourceActionII {
 
 		// launch the helper
 		startHelper(data.getRequest(), "sakai-site-manage-link-helper");
+	}
+
+	/**
+	 * Launch the External Tools Helper -- For managing external tools
+	 */
+	public void doExternalHelper(RunData data) {
+		SessionState state = ((JetspeedRunData) data)
+				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// pass in the siteId of the site to be ordered (so it can configure
+		// sites other then the current site)
+		SessionManager.getCurrentToolSession().setAttribute(
+				HELPER_ID + ".siteId", ((Site) getStateSite(state)).getId());
+
+		// launch the helper
+		startHelper(data.getRequest(), "sakai.basiclti.admin.helper");
 	}
 	
 	public boolean setHelper(String helperName, String defaultHelperId, SessionState state, String stateHelperString)
