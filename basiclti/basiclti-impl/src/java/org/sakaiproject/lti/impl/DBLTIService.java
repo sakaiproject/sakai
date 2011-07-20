@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Arrays;
 import java.util.Properties;
+import java.net.URL;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -49,7 +50,10 @@ import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 
-
+import java.util.NoSuchElementException;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.configuration.reloading.InvariantReloadingStrategy;
 
 /**
  * <p>
@@ -60,6 +64,8 @@ public class DBLTIService extends BaseLTIService implements LTIService
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(DBLTIService.class);
+	
+	private PropertiesConfiguration statements;
 
 	/** Dependency: SqlService */
 	protected SqlService m_sql = null;
@@ -388,5 +394,42 @@ public class DBLTIService extends BaseLTIService implements LTIService
 	{	      
                 List rv = jdbcTemplate.query(statement, fields, new ColumnMapRowMapper());
                 return (List<Map<String,Object>>) rv;       
+	}
+	
+	// SQL Portability code from Swinsberg
+	/**
+	 * Loads our SQL statements from the appropriate properties file
+	 
+	 * @param vendor	DB vendor string. Must be one of mysql, oracle, hsqldb
+	 */
+	private void initStatements(String vendor) {
+		
+		URL url = getClass().getClassLoader().getResource(vendor + ".properties"); 
+		
+		try {
+			statements = new PropertiesConfiguration(); //must use blank constructor so it doesn't parse just yet (as it will split)
+			statements.setReloadingStrategy(new InvariantReloadingStrategy());	//don't watch for reloads
+			statements.setThrowExceptionOnMissing(true);	//throw exception if no prop
+			statements.setDelimiterParsingDisabled(true); //don't split properties
+			statements.load(url); //now load our file
+		} catch (ConfigurationException e) {
+			M_log.error(e.getClass() + ": " + e.getMessage());
+			return;
+		}
+	}
+	
+	/**
+	 * Get an SQL statement for the appropriate vendor from the bundle
+	
+	 * @param key
+	 * @return statement or null if none found. 
+	 */
+	private String getStatement(String key) {
+		try {
+			return statements.getString(key);
+		} catch (NoSuchElementException e) {
+			M_log.error("Statement: '" + key + "' could not be found in: " + statements.getFileName());
+			return null;
+		}
 	}
 }
