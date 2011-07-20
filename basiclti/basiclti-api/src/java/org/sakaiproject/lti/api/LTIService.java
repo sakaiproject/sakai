@@ -90,10 +90,11 @@ public interface LTIService
 	        "id:key",
                 "tool_id:integer",
 	        "SITE_ID:text:maxlength=99:role=admin",
+		"title:text:label=bl_title:required=true:maxlength=255",
 		"preferheight:integer:label=bl_preferheight",
 		"launchinpopup:radio:label=bl_launchinpopup:choices=off,on",
 		"debuglaunch:radio:label=bl_debuglaunch:choices=off,on",
-		"acceptgrades:radio:label=bl_acceptgrades:choices=off,on",
+		// "acceptgrades:radio:label=bl_acceptgrades:choices=off,on",
 		"customparameters:textarea:label=bl_customparameters:rows=5:cols=25"} ; 
 
 	static String [] TOOL_MODEL = {
@@ -110,7 +111,7 @@ public interface LTIService
 		"debuglaunch:radio:label=bl_debuglaunch:choices=off,on,content",
 		"sendname:radio:label=bl_sendname:choices=off,on",
 		"sendemailaddr:radio:label=bl_sendemailaddr:choices=off,on",
-		"acceptgrades:radio:label=bl_acceptgrades:choices=off,on,content",
+		// "acceptgrades:radio:label=bl_acceptgrades:choices=off,on,content",
 		"allowroster:radio:label=bl_allowroster:choices=off,on",
 		"allowsetting:radio:label=bl_allowsetting:choices=off,on",
 		"allowcustomparameters:radio:label=bl_allowcustomparameters:choices=off,on",

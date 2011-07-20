@@ -8,14 +8,12 @@
 #if ($contents && $contents.size() > 0)
 			<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("uselis.lisof")">
 				<tr>
-					<th id="matchpattern">$tlang.getString("bl_matchpattern")</th>
-					<th id="toolurl">$tlang.getString("bl_toolurl")</th>
-					<th id="action">Action</th>
+					<th id="title">$tlang.getString("bl_title")</th>
+					<th id="action" width="25%">Action</th>
 				</tr>
 	#foreach ($content in $contents)
 	<tr>
-	<td headers="matchpattern">$content.get("matchpattern")</td>
-	<td headers="toolurl">$content.get("toolurl")</td>
+	<td headers="matchpattern">$content.get("title")</td>
 	<td headers="action"><a href="$sakai_ActionURL.setPanel("ContentPut")&id=$content.get("id")">Edit</a> / 
 	<a href="$sakai_ActionURL.setPanel("ContentDelete")&id=$content.get("id")">Delete</a></td>
 	<tr>

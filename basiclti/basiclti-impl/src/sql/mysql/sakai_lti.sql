@@ -32,6 +32,7 @@ CREATE TABLE `lti_content` (
 	`id` mediumint(10) NOT NULL AUTO_INCREMENT,
 	`tool_id` mediumint(10) NOT NULL,
 	 SITE_ID VARCHAR (99) NULL,
+	`title` varchar(255) NOT NULL,
 	`preferheight` mediumint(4) NULL,
 	`acceptgrades` mediumint(1) NOT NULL DEFAULT '0',
 	`launchinpopup` mediumint(1) NOT NULL DEFAULT '0',

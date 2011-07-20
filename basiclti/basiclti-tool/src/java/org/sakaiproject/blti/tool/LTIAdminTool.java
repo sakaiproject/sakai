@@ -208,7 +208,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		return "lti_tool_delete";
 	}
 
-        // Insert or edit
 	public void doToolDelete(RunData data, Context context)
 	{
 
@@ -573,5 +572,61 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		state.setAttribute(STATE_SUCCESS,success);
 		switchPanel(state, "Content");
+	}
+
+	public String buildContentDeletePanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
+		context.put("tlang", rb);
+		if ( ! ltiService.isMaintain() ) {
+		        addAlert(state,"Must be site maintainer");
+		        return "lti_error";
+		}
+                context.put("doAction", BUTTON + "doContentDelete");
+		String id = data.getParameters().getString("id");
+		if ( id == null ) {
+		        addAlert(state,"ID not found");
+		        return "lti_main";
+		}	
+		Long key = new Long(id);
+		Map<String,Object> content = ltiService.getContent(key);
+		if (  content == null ) {
+		        addAlert(state,"Content not found");
+		        return "lti_main";
+		}
+		context.put("content",content);
+		state.removeAttribute(STATE_SUCCESS);
+		return "lti_content_delete";
+	}
+
+        // Insert or edit
+	public void doContentDelete(RunData data, Context context)
+	{
+
+		String peid = ((JetspeedRunData) data).getJs_peid();
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
+		
+		if ( ! ltiService.isMaintain() ) {
+		        addAlert(state,"Must be site maintainer");
+                        switchPanel(state, "Error");
+		        return;
+		}
+		Properties reqProps = data.getParameters().getProperties();
+		String id = data.getParameters().getString("id");
+		Object retval = null;
+                if ( id == null ) {
+                        addAlert(state,"Missing ID on delete request");
+                        switchPanel(state, "Content");
+                        return;
+                }
+                Long key = new Long(id);
+		if ( ltiService.deleteContent(key) )
+		{
+		        state.setAttribute(STATE_SUCCESS,"Deleted");
+		        switchPanel(state, "Content");
+                } else {
+                        addAlert(state,"Delete failed");
+                        switchPanel(state, "Content");
+                }
 	}
 }
