@@ -310,14 +310,14 @@
         </contributor>
         <contributor>
             <name>Steve Swinsburg</name>
-            <email>s.swinsburg@lancaster.ac.uk</email>
-            <url>http://bugs.sakaiproject.org/confluence/display/~steve.swinsburg/Home</url>
-            <organization>Centre for e-Science, Lancaster University, UK</organization>
-            <organizationUrl>http://e-science.lancs.ac.uk/</organizationUrl>
+            <email>steve.swinsburg@gmail.com</email>
+            <url>http://steveswinsburg.wordpress.com/</url>
+            <organization>The Australian National University</organization>
+            <organizationUrl>http://www.anu.edu.au/</organizationUrl>
             <roles>
                 <role>developer</role>
             </roles>
-            <timezone>0</timezone>
+            <timezone>+10</timezone>
             <properties />
         </contributor>
         <contributor>
