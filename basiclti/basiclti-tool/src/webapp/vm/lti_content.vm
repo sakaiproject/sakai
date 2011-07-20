@@ -16,7 +16,7 @@
 	<tr>
 	<td headers="matchpattern">$content.get("matchpattern")</td>
 	<td headers="toolurl">$content.get("toolurl")</td>
-	<td headers="action"><a href="$sakai_ActionURL.setPanel("ContentEdit")&id=$content.get("id")">Edit</a> / 
+	<td headers="action"><a href="$sakai_ActionURL.setPanel("ContentPut")&id=$content.get("id")">Edit</a> / 
 	<a href="$sakai_ActionURL.setPanel("ContentDelete")&id=$content.get("id")">Delete</a></td>
 	<tr>
 	#end
@@ -26,7 +26,7 @@
 #end
 		<p class="act">
 			<input type="submit" accesskey ="i" value="$tlang.getString('gen.insert')" 
- 				onclick="location = '$sakai_ActionURL.setPanel("ContentInsert")';return false;">
+ 				onclick="location = '$sakai_ActionURL.setPanel("ContentPut")';return false;">
 			<input type="submit" accesskey ="x" value="$tlang.getString('gen.cancel')" 
  				onclick="location = '$sakai_ActionURL.setPanel("Main")';return false;">
 		</p>

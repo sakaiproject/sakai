@@ -216,8 +216,12 @@ public abstract class BaseLTIService implements LTIService
 
 	public String [] getContentModel(Long tool_id)
 	{
-	        // TODO: Filter
-	        return CONTENT_MODEL;
+                if ( !isMaintain() ) return null;
+	        Map<String,Object> tool = getTool(tool_id);
+		if (  tool == null ) return null;
+                String[] retval = foorm.filterForm(tool, CONTENT_MODEL);
+		if ( !isAdmin() ) retval = foorm.filterForm(null, retval, null, ".*:role=admin.*");
+	        return retval;
 	}
 	
 	protected String getContext()

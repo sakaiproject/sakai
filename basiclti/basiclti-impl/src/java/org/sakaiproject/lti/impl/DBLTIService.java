@@ -191,9 +191,14 @@ public class DBLTIService extends BaseLTIService implements LTIService
 	
 	
 	/** Content Methods */
-	public Object insertContent(Long contentKey, Properties newProps)
+	public Object insertContent(Properties newProps)
 	{
-		return insertThing("lti_content",getContentModel(contentKey), newProps);
+		String toolId = newProps.getProperty("tool_id");
+                if (toolId == null ) return "Missing tool_id";
+                Long toolKey = new Long(toolId);
+                String [] contentModel = getContentModel(toolKey);
+                if ( contentModel == null ) return "Invalid tool_id";
+		return insertThing("lti_content",contentModel, newProps);
         }
 	
 	public Map<String,Object> getContent(Long key) 
@@ -208,7 +213,14 @@ public class DBLTIService extends BaseLTIService implements LTIService
 	
 	public Object updateContent(Long key, Object newProps) 
 	{ 
-	        return updateThing("lti_content", LTIService.CONTENT_MODEL, key, newProps);
+                // Make sure we like the proposed tool_id
+                String toolId = (String) foorm.getField(newProps,"tool_id");
+                if ( toolId == null ) return "Missing tool_id";
+                Long toolKey = new Long(toolId);
+                String [] contentModel = getContentModel(toolKey);
+                if ( contentModel == null ) return "Invalid tool_id";
+              
+	        return updateThing("lti_content", contentModel, key, newProps);
 	}
 
 	public List<Map<String,Object>> getContents(String search, String order, int first, int last) 

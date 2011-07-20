@@ -68,7 +68,7 @@ public interface LTIService
 
 	/* Content */
 	public String [] getContentModel(Long tool_id) ;
-	public Object insertContent(Long tool_id, Properties newProps);
+	public Object insertContent(Properties newProps);
 	public Map<String,Object> getContent(Long key);
 	public boolean deleteContent(Long key);
 	public Object updateContent(Long key, Map<String,Object> newProps);
@@ -88,12 +88,12 @@ public interface LTIService
 	// Tool settings
 	static String [] CONTENT_MODEL = {
 	        "id:key",
+                "tool_id:integer",
 	        "SITE_ID:text:maxlength=99:role=admin",
 		"preferheight:integer:label=bl_preferheight",
 		"launchinpopup:radio:label=bl_launchinpopup:choices=off,on",
 		"debuglaunch:radio:label=bl_debuglaunch:choices=off,on",
 		"acceptgrades:radio:label=bl_acceptgrades:choices=off,on",
-		"launchinpopup:radio:label=bl_launchinpopup:choices=off,on",
 		"customparameters:textarea:label=bl_customparameters:rows=5:cols=25"} ; 
 
 	static String [] TOOL_MODEL = {
@@ -108,8 +108,8 @@ public interface LTIService
 		"allowpreferheight:radio:label=bl_allowpreferheight:choices=off,on",
 		"launchinpopup:radio:label=bl_launchinpopup:choices=off,on,content",
 		"debuglaunch:radio:label=bl_debuglaunch:choices=off,on,content",
-		"sendname:radio:label=bl_sendname:choices=off,on,content",
-		"sendemailaddr:radio:label=bl_sendemailaddr:choices=off,on,content",
+		"sendname:radio:label=bl_sendname:choices=off,on",
+		"sendemailaddr:radio:label=bl_sendemailaddr:choices=off,on",
 		"acceptgrades:radio:label=bl_acceptgrades:choices=off,on,content",
 		"allowroster:radio:label=bl_allowroster:choices=off,on",
 		"allowsetting:radio:label=bl_allowsetting:choices=off,on",

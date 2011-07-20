@@ -63,7 +63,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	private static String STATE_POST = "lti:state_post";
 	private static String STATE_SUCCESS = "lti:state_success";
 	private static String STATE_ID = "lti:state_id";
-
+	private static String STATE_TOOL_ID = "lti:state_tool_id";
+	private static String STATE_CONTENT_ID = "lti:state_content_id";
 	
 	/** Service Implementations */
 	protected static ToolManager toolManager = null; 
@@ -98,13 +99,24 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	/**
 	 * Setup the velocity context and choose the template for the response.
 	 */
+	public String buildErrorPanelContext(VelocityPortlet portlet, Context context, 
+		RunData rundata, SessionState state)
+	{
+		context.put("tlang", rb);
+		state.removeAttribute(STATE_ID);
+		state.removeAttribute(STATE_TOOL_ID);
+		state.removeAttribute(STATE_POST);
+		state.removeAttribute(STATE_SUCCESS);
+		return "lti_error";
+	}
+
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context, 
 		RunData rundata, SessionState state)
 	{
 		context.put("tlang", rb);
 		if ( ! ltiService.isMaintain() ) {
-		        addAlert(state,"Must be site administrator");
-		        return "lti_main";
+		        addAlert(state,"Must be site maintainer");
+		        return "lti_error";
 		}
 		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
@@ -121,8 +133,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	{
 		context.put("tlang", rb);
 		if ( ! ltiService.isMaintain() ) {
-		        addAlert(state,"Must be site administrator");
-		        return "lti_main";
+		        addAlert(state,"Must be site maintainer");
+		        return "lti_error";
 		}
                 context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		String [] mappingForm = ltiService.getToolModel();
@@ -174,7 +186,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("tlang", rb);
 		if ( ! ltiService.isMaintain() ) {
 		        addAlert(state,"Must be site maintainer");
-		        return "lti_main";
+		        return "lti_error";
 		}
                 context.put("doToolAction", BUTTON + "doToolDelete");
 		String [] mappingForm = foorm.filterForm(ltiService.getToolModel(), "^title:.*|^toolurl:.*|^id:.*", null);
@@ -205,6 +217,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		
 		if ( ! ltiService.isMaintain() ) {
 		        addAlert(state,"Must be site maintainer");
+                        switchPanel(state, "Error");
 		        return;
 		}
 		Properties reqProps = data.getParameters().getProperties();
@@ -232,7 +245,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("tlang", rb);
 		if ( ! ltiService.isMaintain() ) {
 		        addAlert(state,"Must be site maintainer");
-		        return "lti_main";
+		        return "lti_error";
 		}
                 context.put("doToolAction", BUTTON + "doToolPut");
                 context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
@@ -254,6 +267,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		
 		if ( ! ltiService.isMaintain() ) {
 		        addAlert(state,"Must be site maintainer");
+                        switchPanel(state,"Error");
 		        return;
 		}
 		Properties reqProps = data.getParameters().getProperties();
@@ -291,7 +305,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("tlang", rb);
 		if ( ! ltiService.isAdmin() ) {
 		        addAlert(state,"Must be site administrator");
-		        return "lti_main";
+		        return "lti_error";
 		}
 		List<Map<String,Object>> mappings = ltiService.getMappings(null,null,0,100);
 		context.put("mappings", mappings);
@@ -306,7 +320,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("tlang", rb);
 		if ( ! ltiService.isAdmin() ) {
 		        addAlert(state,"Must be site administrator");
-		        return "lti_main";
+		        return "lti_error";
 		}
                 context.put("doMappingAction", BUTTON + "doMappingPut");
                 context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
@@ -327,7 +341,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("tlang", rb);
 		if ( ! ltiService.isAdmin() ) {
 		        addAlert(state,"Must be administrator");
-		        return "lti_main";
+		        return "lti_error";
 		}
                 context.put("doMappingAction", BUTTON + "doMappingPut");
                 context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
@@ -353,7 +367,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("tlang", rb);
 		if ( ! ltiService.isAdmin() ) {
 		        addAlert(state,"Must be administrator");
-		        return "lti_main";
+		        return "lti_error";
 		}
                 context.put("doToolAction", BUTTON + "doMappingDelete");
 		String [] mappingForm = ltiService.getMappingModel();
@@ -386,7 +400,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		
 		if ( ! ltiService.isAdmin() ) {
 		        addAlert(state,"Must be administrator");
-		        switchPanel(state,"Main");
+		        switchPanel(state,"Error");
 		        return;
 		}
 		Properties reqProps = data.getParameters().getProperties();
@@ -423,6 +437,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		
 		if ( ! ltiService.isAdmin() ) {
 		        addAlert(state,"Must be adminstrator");
+                        switchPanel(state,"Error");
 		        return;
 		}
 		Properties reqProps = data.getParameters().getProperties();
@@ -452,12 +467,111 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("tlang", rb);
 		if ( ! ltiService.isMaintain() ) {
 		        addAlert(state,"Must be site maintainer");
-		        return "lti_main";
+		        return "lti_error";
 		}
 		List<Map<String,Object>> contents = ltiService.getContents(null,null,0,100);
 		context.put("contents", contents);
 		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_content";
+	}
+	
+	
+	public String buildContentPutPanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
+		String stateToolId = (String) state.getAttribute(STATE_TOOL_ID);
+		if ( ! ltiService.isMaintain() ) {
+		        addAlert(state,"Must be site maintainer");
+		        return "lti_error";
+		}
+	        context.put("tlang", rb);
+                context.put("doAction", BUTTON + "doContentPut");
+		state.removeAttribute(STATE_SUCCESS);
+
+		List<Map<String,Object>> tools = ltiService.getTools(null,null,0,100);
+		context.put("tools", tools);
+
+                Long key = null;
+                Object previousData = null;
+
+		String contentId = data.getParameters().getString("id");
+		if ( contentId == null ) contentId = (String) state.getAttribute(STATE_CONTENT_ID);
+                if ( contentId == null ) {
+		        String toolId = data.getParameters().getString("tool_id");
+	                if ( toolId == null ) toolId = stateToolId;
+		        if ( toolId == null ) {
+                                return "lti_content_insert";
+		        }
+        		key = new Long(toolId);
+        		previousData = (Properties) state.getAttribute(STATE_POST);
+                } else {
+		        Long contentKey = new Long(contentId);
+                        Map<String,Object> content = ltiService.getContent(contentKey);
+                        if ( content == null ) {
+                                addAlert(state, "Cannot retrieve content item");
+                                state.removeAttribute(STATE_CONTENT_ID);
+                                return "lti_content";
+                        }
+                        key = new Long((Integer)content.get("tool_id"));
+                        previousData = content;
+                }
+
+                // We will handle the tool_id field ourselves in the Velocity code
+		String [] contentForm = foorm.filterForm(null,ltiService.getContentModel(key), null, "^tool_id:.*");
+                if ( contentForm == null || key == null ) {
+                        addAlert(state,"Bad tool key");
+                        return "lti_error";
+                }
+	        String formInput = ltiService.formInput(previousData, contentForm);
+
+		context.put("formInput",formInput);
+                context.put("tool_id",key);
+		return "lti_content_insert";
+	}
+
+	// Insert or edit
+	public void doContentPut(RunData data, Context context)
+	{
+
+		String peid = ((JetspeedRunData) data).getJs_peid();
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
+		
+		if ( ! ltiService.isMaintain() ) {
+		        addAlert(state,"Must be site maintainer");
+		        switchPanel(state,"Error");
+		        return;
+		}
+		Properties reqProps = data.getParameters().getProperties();
+		String id = data.getParameters().getString("id");
+		String toolId = data.getParameters().getString("tool_id");
+                if ( toolId == null ) {
+                        addAlert(state, "Missing tool_id");
+                        return;
+                }
+                
+		Object retval = null;
+		String success = null;
+		if ( id == null ) 
+		{
+	                retval = ltiService.insertContent(reqProps);
+	                success = "Content added";
+		} else {
+			Long key = new Long(id);
+                        // TODO: Error check this
+			retval = ltiService.updateContent(key, reqProps);
+			success = "Content updated";
+                }
+                
+                if ( retval instanceof String ) 
+		{
+	                state.setAttribute(STATE_POST,reqProps);
+			addAlert(state, (String) retval);
+			state.setAttribute(STATE_CONTENT_ID,id);
+			return;
+		}
+
+		state.setAttribute(STATE_SUCCESS,success);
+		switchPanel(state, "Content");
 	}
 }
