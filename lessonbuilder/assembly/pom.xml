@@ -26,7 +26,6 @@
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
-        <!--
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>sakai-lessonbuildertool-help</artifactId>
@@ -34,7 +33,6 @@
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
-        -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>sakai-lessonbuildertool-components</artifactId>

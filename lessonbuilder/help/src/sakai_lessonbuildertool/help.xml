@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="lessonbuildertoolOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>lessonbuildertoolOverview</value></property>
+      <property name="name"><value>Lessonbuilder Overview</value></property>
+      <property name="location"><value>/sakai_lessonbuildertool/overview.html</value></property>
+      <property name="defaultForTool"><value>sakai.lessonbuildertool</value></property>        
+   </bean>
+   
+   <bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="resourceCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>LessonBuilder</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="lessonbuildertoolOverview"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>

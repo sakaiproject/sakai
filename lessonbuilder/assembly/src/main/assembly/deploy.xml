@@ -12,7 +12,7 @@
             </useTransitiveDependencies>
             <includes>
                 <include>org.sakaiproject.lessonbuilder:sakai-lessonbuildertool-api:jar:*</include>
-                <!-- <include>org.sakaiproject.lessonbuildertool:sakai-lessonbuildertool-help:jar:*</include> -->
+                <include>org.sakaiproject.lessonbuilder:sakai-lessonbuildertool-help:jar:*</include>
             </includes>
             <unpack>false</unpack>
         </dependencySet>
