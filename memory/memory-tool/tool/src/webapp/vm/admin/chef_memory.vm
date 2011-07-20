@@ -15,6 +15,7 @@
 			<input type="submit" class="active" name="eventSubmit_doEvict" value=" $tlang.getString("memory.vm.evict") " />
 			<input type="submit" name="eventSubmit_doStatus" value=" $tlang.getString("memory.vm.status") " />
 		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
 
