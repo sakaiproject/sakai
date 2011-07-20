@@ -51,7 +51,12 @@
 		$(document).ready(function(){
 		
 			$('input[type=submit]').click(function() { 
-				$.blockUI({ message: '' }); 
+				$.blockUI({ message: '',
+							overlayCSS: { 
+								backgroundColor: '#ff0',
+								opacity: 0}
+				}); 
+
 			}); 
 			
 			$('#timer-warning').dialog({

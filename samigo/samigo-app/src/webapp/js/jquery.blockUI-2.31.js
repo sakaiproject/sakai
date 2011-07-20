@@ -88,9 +88,9 @@ $.blockUI.defaults = {
 		top:		'40%',
 		left:		'35%',
 		textAlign:	'center',
-		//color:		'#000',
+		color:		'#000',
 		border:		'none',
-		//backgroundColor:'#fff',
+		backgroundColor:'#fff',
 		cursor:		'wait'
 	},
 	
@@ -103,8 +103,8 @@ $.blockUI.defaults = {
 
 	// styles for the overlay
 	overlayCSS:  {
-		//backgroundColor: '#000',
-		opacity:	  	 0,
+		backgroundColor: '#000',
+		opacity:	  	 0.6,
 		cursor:		  	 'wait'
 	},
 
@@ -116,10 +116,10 @@ $.blockUI.defaults = {
 		right:  	'10px',
 		border: 	'none',
 		padding:	'5px',
-		opacity:	0,
+		opacity:	0.6,
 		cursor: 	'default',
-		//color:		'#fff',
-		//backgroundColor: '#000',
+		color:		'#fff',
+		backgroundColor: '#000',
 		'-webkit-border-radius': '10px',
 		'-moz-border-radius':	 '10px',
 		'border-radius': 		 '10px'
