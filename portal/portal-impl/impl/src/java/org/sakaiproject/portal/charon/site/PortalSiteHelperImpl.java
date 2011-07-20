@@ -355,6 +355,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		m.put("siteTitle", Web.escapeHtml(titleStr));
 		m.put("fullTitle", Web.escapeHtml(fullTitle));
 		m.put("siteDescription", Web.escapeHtml(s.getDescription()));
+		m.put("shortDescription", Web.escapeHtml(s.getShortDescription()));
 		String siteUrl = Web.serverUrl(req)
 				+ ServerConfigurationService.getString("portalPath") + "/";
 		if (prefix != null) siteUrl = siteUrl + prefix + "/";
