@@ -106,6 +106,10 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 	/** The name of the param used for CSRF protection */
 	protected static final String SAKAI_CSRF_TOKEN = "sakai_csrf_token";
 
+	/** Constants to handle helper situations */
+        protected static final String HELPER_LINK_MODE = "link_mode";
+        protected static final String HELPER_MODE_DONE = "helper.done";
+
 	private ContentHostingService contentHostingService;
 
 	public VelocityPortletPaneledAction() {
@@ -620,6 +624,35 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 				actionDispatch("", action, req, res);
 			}
 
+			// Handle shortcut return from a tool helper between its post and redirect
+			// Helper does this in an Action method:
+			// SessionManager.getCurrentToolSession().setAttribute(HELPER_LINK_MODE, HELPER_MODE_DONE);
+			// and then returns
+
+			ToolSession toolSession = SessionManager.getCurrentToolSession();
+			if (HELPER_MODE_DONE.equals(toolSession.getAttribute(HELPER_LINK_MODE)))
+			{
+				Tool tool = ToolManager.getCurrentTool();
+	
+				String url = (String) toolSession.getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
+				toolSession.removeAttribute(tool.getId() + Tool.HELPER_DONE_URL);
+				toolSession.removeAttribute(HELPER_LINK_MODE);
+	
+				if ( url != null ) 
+				{
+					try
+					{
+						res.sendRedirect(url);
+						return;
+					}
+					catch (IOException e)
+					{
+						M_log.warn("IOException: ", e);
+					}
+				}
+			}
+
+			// Continue non-shortcut processing
 			// redirect to the tool's registration's url, with the tool id (pid) and panel
 			// Tool tool = (Tool) req.getAttribute(ATTR_TOOL);
 			// TODO: redirect url? pannel? placement id?
