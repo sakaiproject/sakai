@@ -1,6 +1,6 @@
 <div class="portletBody">
 	<h3>
-		$tlang.getString("options.welcome")
+		$tlang.getString("mapping.put")
 	</h3>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<form action="#toolForm("")" method="post" name="customizeForm" >
