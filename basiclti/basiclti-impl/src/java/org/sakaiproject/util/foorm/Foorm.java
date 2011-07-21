@@ -420,6 +420,7 @@ public class Foorm {
 	String label = info.getProperty("label",field);
 
 	if ( "key".equals(type) ) return "";
+        if ( "autodate".equals(type) ) return "";
 	if ( "integer".equals(type) ) return formOutputInteger((Integer) value,field,label,loader);
 	if ( "text".equals(type) ) return formOutputText((String) value,field,label,loader);
 	if ( "url".equals(type) ) return formOutputURL((String) value,field,label,loader);
@@ -450,7 +451,6 @@ public class Foorm {
     public String formValidate(Properties parms, String [] formDefinition, Object loader)
     {
     	return formExtract(parms, formDefinition, loader, null);
-
     }
 
     // dataMap should be empty
@@ -475,6 +475,11 @@ public class Foorm {
 		        dataField = null;
 		}
 		
+                if ( "autodate".equals(type) && ( "created_at".equals(field) || "updated_at".equals(field) ) ) 
+                {
+                        java.sql.Timestamp sqlTimestamp = new java.sql.Timestamp(new java.util.Date().getTime());
+			if ( dataMap != null ) dataMap.put(field,sqlTimestamp);
+                }
 		// System.out.println("field="+field+" data="+dataField);
 
 		if ( "true".equals(info.getProperty("required")) && ( dataField == null ) )
@@ -515,9 +520,6 @@ public class Foorm {
 					sb.append(getI18N(label,loader));
 				}
 			}
-		}
-		
-		if ( dataField instanceof String ) {
 		}
 		
 		if ( "id".equals(type) ) {
@@ -590,11 +592,11 @@ public class Foorm {
 	return fields.toString();
     }
 
-
     public String updateForm(Map<String, Object> dataMap)
     {
 	StringBuffer fields = new StringBuffer();
         for ( String key : dataMap.keySet() ) {
+                if ( "created_at".equals(key) ) continue;
 		if ( fields.length() > 0 ) fields.append(", ");
 		fields.append(key);
 		fields.append("=?");
@@ -602,11 +604,26 @@ public class Foorm {
 	return fields.toString();
     }
 
-    public Object [] getObjects(Map<String, Object> dataMap)
+    public Object [] getInsertObjects(Map<String, Object> dataMap)
     {
 	Object [] retval = new Object[dataMap.size()];
 	int i = 0;
         for ( String key : dataMap.keySet() ) {
+		retval[i++] = dataMap.get(key);
+	}
+	return retval;
+    }
+
+    public Object [] getUpdateObjects(Map<String, Object> dataMap)
+    {
+        int size = dataMap.size();
+        for ( String key : dataMap.keySet() ) {
+		if ( "created_at".equals(key) ) size--;
+	}
+	Object [] retval = new Object[size];
+	int i = 0;
+        for ( String key : dataMap.keySet() ) {
+                if ( "created_at".equals(key) ) continue;
 		retval[i++] = dataMap.get(key);
 	}
 	return retval;
@@ -657,6 +674,62 @@ public class Foorm {
 		}
 	}
 	return ret.toArray( new String[ ret.size() ] );
+    }
+
+    public String formSql(String fieldinfo, String vendor)
+    {
+	Properties info = parseFormString(fieldinfo);
+	String field = info.getProperty("field", null);
+	String type = info.getProperty("type", null);
+	String maxs = info.getProperty("maxlength", null);
+        int maxlength = 0;
+        if ( maxs != null ) maxlength = (new Integer(maxs)).intValue();
+        if ( maxlength < 1 ) maxlength = 80;
+	String required = info.getProperty("required", null);
+
+	if ( field == null || type == null ) return null;
+
+        String schema = null;
+
+	if ( "key".equals(type) && "id".equals(field) ) {
+                schema = "INT NOT NULL AUTO_INCREMENT";
+        } else if ( "key".equals(type) ) {
+                schema = "INT";
+        } else if ( "autodate".equals(type) ) {
+                schema = "DATETIME NOT NULL";
+        } else if ( "integer".equals(type) ) {
+                schema = "INT";
+        } else if ( "url".equals(type) ) {
+                schema = "VARCHAR("+maxlength+")";
+        } else if ( "text".equals(type) ) {
+                if ( maxlength < 512 ) {
+                        schema = "VARCHAR("+maxlength+")";
+                } else {
+                        schema = "TEXT("+maxlength+")";
+                }
+        } else if ( "textarea".equals(type) ) {
+                schema = "TEXT("+maxlength+")";
+        } else if ( "radio".equals(type) ) {
+                schema = "SMALLINT DEFAULT '0'";
+        }
+        if ( schema == null ) return null;
+
+        if ( "true".equals(required) && ! (schema.indexOf("NOT NULL") > 0) ) schema += " NOT NULL";
+        return "    " + field + " " + schema;
+    }
+
+    public String formSql(String [] formDefinition, String vendor)
+    {
+	StringBuffer sb = new StringBuffer();
+	for(String formField : formDefinition ) 
+	{
+                String retval = formSql(formField, vendor);
+                if ( retval == null ) continue;
+                if ( sb.length() > 0 ) sb.append(",\n");
+		sb.append(retval);
+	}
+	sb.append("\n");
+	return sb.toString();
     }
 
 /*

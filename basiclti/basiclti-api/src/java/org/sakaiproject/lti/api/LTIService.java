@@ -95,7 +95,9 @@ public interface LTIService
 		"launchinpopup:radio:label=bl_launchinpopup:choices=off,on",
 		"debuglaunch:radio:label=bl_debuglaunch:choices=off,on",
 		// "acceptgrades:radio:label=bl_acceptgrades:choices=off,on",
-		"customparameters:textarea:label=bl_customparameters:rows=5:cols=25"} ; 
+		"customparameters:textarea:label=bl_customparameters:rows=5:cols=25:maxlength=1024",
+                "created_at:autodate",
+                "updated_at:autodate"} ; 
 
 	static String [] TOOL_MODEL = {
 		"id:key",
@@ -115,13 +117,17 @@ public interface LTIService
 		"allowroster:radio:label=bl_allowroster:choices=off,on",
 		"allowsetting:radio:label=bl_allowsetting:choices=off,on",
 		"allowcustomparameters:radio:label=bl_allowcustomparameters:choices=off,on",
-		"customparameters:textarea:label=bl_customparameters:rows=5:cols=25",
+		"customparameters:textarea:label=bl_customparameters:rows=5:cols=25:maxlength=1024",
 		"organizationid:text:label=bl_organizationid:maxlength=255",
 		"organizationurl:text:label=bl_organizationurl:maxlength=255",
-		"organizationdescr:text:label=bl_organizationdescr:maxlength=255"};
+		"organizationdescr:text:label=bl_organizationdescr:maxlength=255",
+                "created_at:autodate",
+                "updated_at:autodate"};
 
 	static String [] MAPPING_MODEL = {
 		"id:key",
 		"matchpattern:url:label=bl_matchpattern:required=true:maxlength=255",
-		"toolurl:url:label=bl_launchurl:required=true:maxlength=255"} ;
+		"toolurl:url:label=bl_launchurl:required=true:maxlength=255",
+                "created_at:autodate",
+                "updated_at:autodate"} ;
 }

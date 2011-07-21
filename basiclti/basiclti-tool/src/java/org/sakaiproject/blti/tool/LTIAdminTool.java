@@ -147,7 +147,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
         {
                 // Request a shortcut transfer back to the tool we are helping
                 SessionManager.getCurrentToolSession().setAttribute(HELPER_LINK_MODE, HELPER_MODE_DONE);
-                scheduleTopRefresh();
         }
 	
         public String buildToolViewPanelContext(VelocityPortlet portlet, Context context, 

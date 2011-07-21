@@ -131,10 +131,6 @@ public abstract class BaseLTIService implements LTIService
 	protected SiteService siteService = null;
 	protected ToolManager toolManager = null;
 	
-	protected String[] TOOL_FIELDS;
-	protected String[] MAPPING_FIELDS;
-	protected String[] CONTENT_FIELDS;
-
 	/**
 	 * Pull in any necessary services using factory pattern
 	 */
@@ -181,10 +177,10 @@ public abstract class BaseLTIService implements LTIService
 		for ( String str : strings ) {
 			System.out.println(str+"=Missing LTIService Translation");
 		}
-	
-		TOOL_FIELDS = foorm.getFields(LTIService.TOOL_MODEL);
-		CONTENT_FIELDS = foorm.getFields(LTIService.CONTENT_MODEL);
-		MAPPING_FIELDS = foorm.getFields(LTIService.MAPPING_MODEL);
+
+                System.out.println(foorm.formSql(LTIService.MAPPING_MODEL,"mysql"));
+                System.out.println(foorm.formSql(LTIService.CONTENT_MODEL,"mysql"));
+                System.out.println(foorm.formSql(LTIService.TOOL_MODEL,"mysql"));
 	}
 
 	/**

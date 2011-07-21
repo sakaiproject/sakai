@@ -116,6 +116,7 @@ public class DBLTIService extends BaseLTIService implements LTIService
 			// if we are auto-creating our schema, check and create
 			if (m_autoDdl)
 			{
+System.out.println("AUDODDL Running...");
 				m_sql.ddl(this.getClass().getClassLoader(), "sakai_lti");
 			}
 
@@ -244,7 +245,8 @@ public class DBLTIService extends BaseLTIService implements LTIService
                 if ( errors != null ) return errors;
                 
 		final String sql = "INSERT INTO "+table+foorm.insertForm(newMapping);
-		final Object [] fields = foorm.getObjects(newMapping);
+                System.out.println("Insert SQL="+sql);
+		final Object [] fields = foorm.getInsertObjects(newMapping);
 		
 		// More elegant Sakai Insert (for now)
 		Long retval = m_sql.dbInsert(null, sql, fields, "id");
@@ -390,7 +392,7 @@ public class DBLTIService extends BaseLTIService implements LTIService
                 }
 
 		System.out.println("Upate="+sql);
-		Object [] fields = foorm.getObjects(newMapping);
+		Object [] fields = foorm.getUpdateObjects(newMapping);
 		
 	        int count = jdbcTemplate.update(sql, fields);
 	        System.out.println("Count = "+count);

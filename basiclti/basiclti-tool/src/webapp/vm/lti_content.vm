@@ -20,7 +20,7 @@
 	#end
 	</table>
 #else
-<p>$tlang.getString("lti.content.none")</p>
+<p>$tlang.getString("content.none")</p>
 #end
 		<p class="act">
 			<input type="submit" accesskey ="i" value="$tlang.getString('gen.insert')" 
