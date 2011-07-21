@@ -271,13 +271,20 @@ System.out.println("getTools");
                 System.out.println("Insert SQL="+sql);
 		final Object [] fields = foorm.getInsertObjects(newMapping);
 		
-                Long retval = m_sql.dbInsert(null, sql, fields, "id");
+                // Requires KNL-767
+                /* Long retval = m_sql.dbInsert(null, sql, fields, "id"); */
                 
-/*              This is long and inelegant - and dies on HSQL - Grrr.
+                // In this version we don't get the key back for HSQL - not ideal - but works without KNL-767
+
+                /* Workaround */
                 Long retval = new Long(-1);
                 // HSQL does not support getGeneratedKeys() - Yikes
                 if ( "hsqldb".equals(m_sql.getVendor()) ) {
-                        jdbcTemplate.update(sql, fields);
+                        try {
+                                retval = m_sql.dbInsert(null, sql, fields, "id");
+                        } catch (Exception e) { // KNL-767 is not fixed
+                                jdbcTemplate.update(sql, fields);  // At least insert the data
+                        }
                 } else {
 
 		        KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -296,7 +303,8 @@ System.out.println("getTools");
                            keyHolder);
                        retval = (Long) keyHolder.getKey();
                 }
-*/
+                /* end of workaround */
+
 		System.out.println("Insert="+retval);
 		return retval;
 	}
