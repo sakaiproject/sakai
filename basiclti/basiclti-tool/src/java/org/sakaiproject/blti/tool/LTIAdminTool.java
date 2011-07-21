@@ -87,6 +87,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		/* HACK to save many restarts during development */ 
 		if ( ltiService == null ) { 
 			ltiService = (LTIService) new DBLTIService(); 
+			((org.sakaiproject.lti.impl.DBLTIService) ltiService).setAutoDdl("true"); 
 			((org.sakaiproject.lti.impl.DBLTIService) ltiService).init(); 
 		} 
                 /* End fo HACK */

@@ -60,7 +60,9 @@ public class Foorm {
         for (String line : fieldInfo) {
                 Properties info = parseFormString(line);
                 String field = info.getProperty("field");
-                if ( field == null ) continue;
+	        if ( field == null ) {
+                        throw new IllegalArgumentException("All model elements must include field name and type");
+                }
                 aa.add(field);
         }
         
@@ -272,13 +274,19 @@ public class Foorm {
 	return formInputText(value.toString(),field,label,required,size,loader);
     }
 
+    // Produce a form for createing a new object or editing an existing object
     public String formInput(Object row,String fieldinfo, Object loader)
     {
 	Properties info = parseFormString(fieldinfo);
 	String field = info.getProperty("field", null);
 	String type = info.getProperty("type", null);
  	Object value = getField(row, field);
-	if ( field == null || type == null ) return null;
+	if ( field == null || type == null ) {
+                throw new IllegalArgumentException("All model elements must include field name and type");
+        }
+
+	String hidden = info.getProperty("hidden",null);
+        if ( "true".equals(hidden)) return "";
 
 	String label = info.getProperty("label",field);
 	boolean required = "true".equals(info.getProperty("required","false"));
@@ -316,6 +324,10 @@ public class Foorm {
 		Properties info = parseFormString(line);
 		String label = info.getProperty("label",info.getProperty("field"));
 		String type = info.getProperty("type", null);
+		String hidden = info.getProperty("hidden", null);
+                if ( "true".equals(hidden) ) continue;
+                if ( "autodate".equals(type) ) continue;
+
 		String choices = info.getProperty("choices",null);
 		if ( loadI18N(label, loader) == null ) strings.add(label);
 		if ( "radio".equals(type) && choices != null ) 
@@ -415,11 +427,16 @@ public class Foorm {
 	String field = info.getProperty("field", null);
 	String type = info.getProperty("type", null);
  	Object value = getField(row, field);
-	if ( field == null || type == null ) return null;
+	if ( field == null || type == null ) {
+                  throw new IllegalArgumentException("All model elements must include field name and type");
+        }
+
+	String hidden = info.getProperty("hidden",null);
+        if ( "true".equals(hidden)) return "";
 
 	String label = info.getProperty("label",field);
 
-	if ( "key".equals(type) ) return "";
+	if ( "key".equals(type) ) return "";  // Key will be handled by the caller
         if ( "autodate".equals(type) ) return "";
 	if ( "integer".equals(type) ) return formOutputInteger((Integer) value,field,label,loader);
 	if ( "text".equals(type) ) return formOutputText((String) value,field,label,loader);
@@ -464,8 +481,9 @@ public class Foorm {
 		Properties info =  parseFormString(formInput);
 		String field = info.getProperty("field", null);
 		String type = info.getProperty("type", null);
-		if ( field == null || type == null ) continue;
-		String label = info.getProperty("label",field);
+	        if ( field == null || type == null ) {
+                        throw new IllegalArgumentException("All model elements must include field name and type");
+                }		String label = info.getProperty("label",field);
 		Object dataField = getField(parms, field);
 		String sdf = null;
 		if ( dataField instanceof String ) sdf = (String) dataField;
@@ -583,7 +601,9 @@ public class Foorm {
 	for (String line : fieldinfo) {
 		Properties info = parseFormString(line);
 		String field = info.getProperty("field");
-		if ( field == null ) continue;
+	        if ( field == null ) {
+                        throw new IllegalArgumentException("All model elements must include field name and type");
+                }
 		if ( fields.length() > 0 ) {
 			fields.append(", ");
 		}
@@ -657,7 +677,9 @@ public class Foorm {
 		Properties fields = parseFormString(line);
 		String field = fields.getProperty("field", null);
 		String type = fields.getProperty("type", null);
-		if ( field == null || type == null) continue;
+	        if ( field == null || type == null ) {
+                        throw new IllegalArgumentException("All model elements must include field name and type");
+                }
 		if ( "radio".equals(type) ) 
 		{
 			// Field = Always Off (0), Always On (1), or Delegate(2)
@@ -687,7 +709,9 @@ public class Foorm {
         if ( maxlength < 1 ) maxlength = 80;
 	String required = info.getProperty("required", null);
 
-	if ( field == null || type == null ) return null;
+	if ( field == null || type == null ) {
+                throw new IllegalArgumentException("All model elements must include field name and type");
+        }
 
         String schema = null;
 
@@ -715,22 +739,45 @@ public class Foorm {
         if ( schema == null ) return null;
 
         if ( "true".equals(required) && ! (schema.indexOf("NOT NULL") > 0) ) schema += " NOT NULL";
-        return "    " + field + " " + schema;
+        return "    " + field + " " + schema + ",\n";
     }
 
-    public String formSql(String [] formDefinition, String vendor)
+    public String formSqlTable(String table, String [] formDefinition, String vendor)
+    {
+	return "CREATE TABLE "+table+" (\n"+formSqlFields(formDefinition, vendor)+formSqlKeys(formDefinition,vendor)+"\n);\n";
+    }
+
+    public String formSqlFields(String [] formDefinition, String vendor)
     {
 	StringBuffer sb = new StringBuffer();
 	for(String formField : formDefinition ) 
 	{
                 String retval = formSql(formField, vendor);
                 if ( retval == null ) continue;
-                if ( sb.length() > 0 ) sb.append(",\n");
 		sb.append(retval);
 	}
-	sb.append("\n");
 	return sb.toString();
     }
+
+    public String formSqlKeys(String [] formDefinition, String vendor)
+    {
+	StringBuffer sb = new StringBuffer();
+	for(String formField : formDefinition ) 
+	{
+                Properties info = parseFormString(formField);
+	        String field = info.getProperty("field", null);
+        	String type = info.getProperty("type", null);
+	        if ( field == null || type == null ) {
+                        throw new IllegalArgumentException("All model elements must include field name and type");
+                }
+                if ( ! "key".equals(type) ) continue;
+
+                if ( sb.length() > 0 ) sb.append(", ");
+		sb.append(field);
+	}
+	return "    PRIMARY KEY( "+sb.toString()+" )";
+    }
+
 
 /*
     public static void main(String[] args) {

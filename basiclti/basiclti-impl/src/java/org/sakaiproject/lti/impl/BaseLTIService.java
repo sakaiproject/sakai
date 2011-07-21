@@ -177,10 +177,6 @@ public abstract class BaseLTIService implements LTIService
 		for ( String str : strings ) {
 			System.out.println(str+"=Missing LTIService Translation");
 		}
-
-                System.out.println(foorm.formSql(LTIService.MAPPING_MODEL,"mysql"));
-                System.out.println(foorm.formSql(LTIService.CONTENT_MODEL,"mysql"));
-                System.out.println(foorm.formSql(LTIService.TOOL_MODEL,"mysql"));
 	}
 
 	/**

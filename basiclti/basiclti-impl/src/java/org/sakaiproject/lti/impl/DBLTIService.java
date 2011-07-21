@@ -116,8 +116,16 @@ public class DBLTIService extends BaseLTIService implements LTIService
 			// if we are auto-creating our schema, check and create
 			if (m_autoDdl)
 			{
-System.out.println("AUDODDL Running...");
-				m_sql.ddl(this.getClass().getClassLoader(), "sakai_lti");
+                                String sql = foorm.formSqlTable("lti_mapping", LTIService.MAPPING_MODEL,m_sql.getVendor());
+                                if ( m_sql.dbWriteFailQuiet(null, sql, null) ) M_log.info(sql);
+                                sql = foorm.formSqlTable("lti_content",LTIService.CONTENT_MODEL,m_sql.getVendor());
+                                if ( m_sql.dbWriteFailQuiet(null, sql, null) ) M_log.info(sql);
+                                sql = foorm.formSqlTable("lti_tools",LTIService.TOOL_MODEL,m_sql.getVendor());
+                                if ( m_sql.dbWriteFailQuiet(null, sql, null) ) M_log.info(sql);
+
+                                // Keep to add indexes (maybe)
+                                // m_sql.ddl(this.getClass().getClassLoader(), "sakai_lti");
+
 			}
 
 			super.init();
