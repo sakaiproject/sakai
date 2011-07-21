@@ -91,14 +91,36 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 
     /* JGroups channel for keeping the above maps in sync across nodes in a Sakai cluster */
     private Channel clusterChannel = null;
+    private boolean clustered = false;
+
+    private String portalUrl;
+
+    private String service;
+
+    private String serverName;
 
     public void init() {
+
+        service = serverConfigurationService.getString("ui.service","Sakai");
+
+        portalUrl = serverConfigurationService.getServerUrl() + "/portal";
+
+        serverName = serverConfigurationService.getServerName();
+
         try {
-            clusterChannel = new JChannel();
-            clusterChannel.setReceiver(this);
-            clusterChannel.connect(serverConfigurationService.getString("portalchat.cluster.channel", "SAKAI-PORTALCHAT-CLUSTER-CHANNEL"));
-            // We don't want a copy of JGroups messages sent
-            clusterChannel.setOpt(Channel.LOCAL,false);
+            String channelId = serverConfigurationService.getString("portalchat.cluster.channel");
+            if(channelId != null && !channelId.equals("")) {
+                clusterChannel = new JChannel();
+                clusterChannel.setReceiver(this);
+                clusterChannel.connect(channelId);
+                // We don't want a copy of our JGroups messages sent back to us
+                clusterChannel.setOpt(Channel.LOCAL,false);
+                clustered = true;
+
+                logger.info("Portal chat is connected on JGroups channel '" + channelId + "'"); 
+            } else {
+                logger.info("No 'portalchat.cluster.channel' specified in sakai.properties. JGroups will not be used and chat messages will not be replicated."); 
+            }
         } catch (Exception e) {
             logger.error("Error creating JGroups channel. Chat messages will now NOT BE KEPT IN SYNC", e);
         }
@@ -182,11 +204,13 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 
         addMessageToMap(new UserMessage(currentUser.getId(), to, message));
 			
-        try {
-            Message msg = new Message(null, null, MESSAGE_PREAMBLE + currentUser.getId() + ":" + to + ":" + message);
-            clusterChannel.send(msg);
-        } catch (Exception e) {
-            logger.error("Error sending JGroups message", e);
+        if(clustered) {
+            try {
+                Message msg = new Message(null, null, MESSAGE_PREAMBLE + currentUser.getId() + ":" + to + ":" + message);
+                clusterChannel.send(msg);
+            } catch (Exception e) {
+                logger.error("Error sending JGroups message", e);
+            }
         }
 		
 		return "success";
@@ -232,11 +256,14 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 		
 		if("true".equals(online)) {
 			heartbeatMap.put(currentUser.getId(),new Date());
-            Message msg = new Message(null, null, HEARTBEAT_PREAMBLE + currentUser.getId());
-            try {
-                clusterChannel.send(msg);
-            } catch (Exception e) {
-                logger.error("Error sending JGroups heartbeat message", e);
+
+            if(clustered) {
+                Message msg = new Message(null, null, HEARTBEAT_PREAMBLE + currentUser.getId());
+                try {
+                    clusterChannel.send(msg);
+                } catch (Exception e) {
+                    logger.error("Error sending JGroups heartbeat message", e);
+                }
             }
 		}
 		else {
@@ -296,6 +323,7 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 				messages = messageMap.get(currentUserId);
 				messageMap.remove(currentUserId);
 			}
+
             sendClearMessage(currentUserId);
 		}
 
@@ -312,11 +340,13 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 	}
 
     private void sendClearMessage(String userId) {
-        try {
-            Message msg = new Message(null, null, CLEAR_PREAMBLE + userId);
-            clusterChannel.send(msg);
-        } catch (Exception e) {
-            logger.error("Error sending JGroups clear message", e);
+        if(clustered) {
+            try {
+                Message msg = new Message(null, null, CLEAR_PREAMBLE + userId);
+                clusterChannel.send(msg);
+            } catch (Exception e) {
+                logger.error("Error sending JGroups clear message", e);
+            }
         }
     }
 	
@@ -334,8 +364,7 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 		
 		try {
 			String email = userDirectoryService.getUser(userId).getEmail();
-			String portalUrl = serverConfigurationService.getServerUrl() + "/portal";
-			new EmailSender(email,"[Sakai Chat] Chat Invitation",currentUser.getDisplayName() + " wants you to come and chat on <a href=\"" + portalUrl + "\">Sakai!</a>");
+            new EmailSender(email, "[Sakai Chat] Chat Invitation", currentUser.getDisplayName() + " wants you to come and chat on " + service + "\n\nFollow the link below:\n\n" + portalUrl);
 		}
 		catch(Exception e) {
 			throw new EntityException("Failed to send email",userId);
@@ -392,12 +421,8 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 		private Thread runner;
 
 		private String email;
-
 		private String subject;
-
 		private String message;
-
-		public final String HTML_END = "\n  </body>\n</html>\n";
 
 		public EmailSender(String email, String subject, String message)
 		{
@@ -408,46 +433,16 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 			runner.start();
 		}
 
-		// do it!
-		public synchronized void run()
-		{
-			try
-			{
+		public synchronized void run() {
+			try {
 				final List<String> additionalHeaders = new ArrayList<String>();
-				additionalHeaders.add("Content-Type: text/html; charset=ISO-8859-1");
+				additionalHeaders.add("Content-Type: text/plain; charset=ISO-8859-1");
 
-				// do it
-				final String emailFromAddress = "\""+serverConfigurationService.getString("ui.service") + "\" <no-reply@" + serverConfigurationService.getServerName()+">";
-				emailService.send(emailFromAddress, email, subject, formatMessage(subject, message), email, null, additionalHeaders);
+				final String emailFromAddress = "\"" + service + "\" <no-reply@" + serverName + ">";
+				emailService.send(emailFromAddress, email, subject, message, email, null, additionalHeaders);
+			} catch (Exception e) {
+                logger.error("sendEmail() failed for email: " + email,e);
 			}
-			catch (Exception e)
-			{
-				logger.error("sendEmail() failed for emailuserId: " + email + " : " + e.getClass() + " : " + e.getMessage());
-			}
-		}
-
-		/** helper methods for formatting the message */
-		private String formatMessage(String subject, String message)
-		{
-			StringBuilder sb = new StringBuilder();
-			sb.append(htmlPreamble(subject));
-			sb.append(message);
-			sb.append(HTML_END);
-			return sb.toString();
-		}
-
-		private String htmlPreamble(String subject)
-		{
-			StringBuilder sb = new StringBuilder();
-			sb.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n");
-			sb.append("\"http://www.w3.org/TR/html4/loose.dtd\">\n");
-			sb.append("<html>\n");
-			sb.append("<head><title>");
-			sb.append(subject);
-			sb.append("</title></head>\n");
-			sb.append("<body>\n");
-
-			return sb.toString();
 		}
 	}
 }
