@@ -9,6 +9,10 @@
    title="$tlang.getString("content.menu")" 
    onclick="location = '$sakai_ActionURL.setPanel("Content")';return false;">
    $tlang.getString("content.menu") </a></span></li>
+<li class="firstToolBarItem" role="menuitem"><span><a href="#" 
+   title="$tlang.getString("test.menu")" 
+   onclick="location = '$sakai_ActionURL.setPanel("Test")';return false;">
+   $tlang.getString("test.menu") </a></span></li>
 </ul>
 #end
 #if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end

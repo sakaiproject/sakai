@@ -652,4 +652,249 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
                 }
 	}
 
+        public String buildTestPanelContext(VelocityPortlet portlet, Context context, 
+		RunData rundata, SessionState state)
+	{
+		context.put("tlang", rb);
+		if ( ! ltiService.isAdmin() ) {
+		        addAlert(state,rb.getString("error.admin.view"));
+		        return "lti_error";
+		}
+                StringBuffer sb = new StringBuffer();
+
+                // Get a list of tools
+		List<Map<String,Object>> tools = ltiService.getTools(null,null,0,100);
+                sb.append("Currently Available tools\n");
+                for (Map<String, Object> tool : tools ) {
+                        sb.append("  Tool\n");
+                        for ( String key : tool.keySet() ) {
+                                sb.append("     ");
+                                sb.append(key);
+                                sb.append("=");
+                                Object obj = tool.get(key);
+                                if ( obj == null ) sb.append("null"); else sb.append(obj.toString());
+                                sb.append("\n");
+                        }
+                }
+
+                if ( tools.size() < 1 ) {
+                        sb.append("\n--No Tools Exist---\n");
+		        context.put("preOutput",sb.toString());
+		        return "lti_test";
+                }
+
+                // Lets grab the tool key...
+                Map<String,Object> tool = tools.get(0);
+
+                Long toolKey = new Long((Integer)tool.get("id"));
+
+                sb.append("Long Tool Key=");
+                sb.append(toolKey.toString());
+                sb.append("\n\n");
+                sb.append("Our Context=");
+                sb.append(toolManager.getCurrentPlacement().getContext());
+                sb.append("\n\n");
+                sb.append("Raw/underlying content model (String [])\n");
+                for(String field : ltiService.CONTENT_MODEL) {
+                        sb.append("  ");
+                        sb.append(field);
+                        sb.append("\n");
+                }
+                sb.append("\n");
+
+                String [] contentModel = ltiService.getContentModel(toolKey);
+                sb.append("Properly filtered content model (String [])\n");
+                for(String field : contentModel) {
+                        sb.append("  ");
+                        sb.append(field);
+                        sb.append("\n");
+                }
+
+                // Lets do this with properties (i.e. from a Request Object)
+                Properties props = new Properties ();
+                props.setProperty("SITE_ID",toolManager.getCurrentPlacement().getContext());
+                props.setProperty("tool_id",toolKey.toString());
+                props.setProperty("title", "A title");
+                props.setProperty("debuglaunch", "0"); 
+                
+                sb.append("\nConstructed content Properties for insert\n");
+                for ( Object okey : props.keySet() ) {
+                        String key = (String) okey;
+                        sb.append("     ");
+                        sb.append(key);
+                        sb.append("=");
+                        String obj = props.getProperty(key);
+                        if ( obj == null ) sb.append("null"); else sb.append(obj.toString());
+                        sb.append("\n");
+                }
+
+                sb.append("Inserting from Properties...\n");
+                Object result = ltiService.insertContent(props);
+                Long contentKey = null;
+                if ( result instanceof String ) {
+                        sb.append("Insert failed:");
+                        sb.append((String) result);
+                        sb.append("\n");
+                        context.put("preOutput",sb.toString());
+                        return "lti_test";
+                } else {
+                        contentKey = (Long) result;
+                        sb.append("Returned key=");
+                        sb.append(contentKey.toString() );
+                        sb.append("\n");
+                }
+
+                if ( contentKey < 0 ) {
+                        sb.append("\nBad key returned (might be HSQL ickiness)\n");
+                        context.put("preOutput",sb.toString());
+                        return "lti_test";
+                }
+
+                sb.append("Retrieving content key=");
+                sb.append(contentKey.toString());
+                sb.append("\n");
+
+                Map<String,Object> contentMap = ltiService.getContent(contentKey);
+                if ( contentMap == null ) {
+                        sb.append("getContent failed\n");
+                        context.put("preOutput",sb.toString());
+                        return "lti_test";
+                }
+
+                sb.append("\nRetrieved content\n");
+                for ( String key : contentMap.keySet() ) {
+                        sb.append("  ");
+                        sb.append(key);
+                        sb.append("=");
+                        Object obj = tool.get(key);
+                        if ( obj == null ) sb.append("null"); else sb.append(obj.toString());
+                        sb.append("\n");
+                }
+
+                // Lets update the content (as if we just got a form)
+                // We don't need all properties - just the ones we want to update
+                // tool_id is required
+                props = new Properties ();
+                props.setProperty("title", "A NEW AWESOME TITLE");
+                props.setProperty("tool_id",toolKey.toString());
+
+                sb.append("\nConstructed content Properties for update\n");
+                for ( Object okey : props.keySet() ) {
+                        String key = (String) okey;
+                        sb.append("     ");
+                        sb.append(key);
+                        sb.append("=");
+                        String obj = props.getProperty(key);
+                        if ( obj == null ) sb.append("null"); else sb.append(obj.toString());
+                        sb.append("\n");
+                }
+
+                sb.append("Updating...");
+                // Object retval
+                result = ltiService.updateContent(contentKey, props);
+                if ( result instanceof String ) {
+                        sb.append("Update failed:");
+                        sb.append((String) result);
+                        sb.append("\n");
+                        context.put("preOutput",sb.toString());
+                        return "lti_test";
+                } else {
+                        sb.append("Update success\n");
+                }
+
+                sb.append("\nRe-retrieving content to verify update key=");
+                sb.append(contentKey.toString());
+                sb.append("\n");
+
+                // Map<String,Object>
+                contentMap = ltiService.getContent(contentKey);
+                if ( contentMap == null ) {
+                        sb.append("getContent failed\n");
+                        context.put("preOutput",sb.toString());
+                        return "lti_test";
+                }
+
+                sb.append("\nRetrieved content to verify update success\n");
+                for ( String key : contentMap.keySet() ) {
+                        sb.append("  ");
+                        sb.append(key);
+                        sb.append("=");
+                        Object obj = contentMap.get(key);
+                        if ( obj == null ) sb.append("null"); else sb.append(obj.toString());
+                        sb.append("\n");
+                }
+
+                // Lets make an input form if you want this auto generated for free
+                sb.append("\nAn Input Form\n");
+                String formInp = ltiService.formInput(contentMap, contentModel);
+                sb.append(formInp.replace("><",">\n<").replace("<","&lt;").replace(">","&gt"));
+
+                sb.append("Lets make some mistakes\n");
+
+                // Properties 
+                props = new Properties ();
+                props.setProperty("SITE_ID",toolManager.getCurrentPlacement().getContext());
+                props.setProperty("tool_id","I should be an integer!");
+                props.setProperty("title", "A title");
+                
+                sb.append("\nConstructed broken content Properties for insert\n");
+                for ( Object okey : props.keySet() ) {
+                        String key = (String) okey;
+                        sb.append("     ");
+                        sb.append(key);
+                        sb.append("=");
+                        String obj = props.getProperty(key);
+                        if ( obj == null ) sb.append("null"); else sb.append(obj.toString());
+                        sb.append("\n");
+                }
+
+                sb.append("Inserting from Properties...\n");
+
+                // OBJECT
+                result = ltiService.insertContent(props);
+                if ( result instanceof String ) {
+                        sb.append("Insert correctly failed:");
+                        sb.append((String) result);
+                        sb.append("\n");
+                }
+
+                sb.append("\nLets forget a required parameter on an update...\n");
+                props = new Properties ();
+                props.setProperty("title", "YET ANOTHER AWESOME TITLE");
+                // FORGET ME: props.setProperty("tool_id",toolKey.toString());
+
+                sb.append("\nConstructed broken content Properties for update\n");
+                for ( Object okey : props.keySet() ) {
+                        String key = (String) okey;
+                        sb.append("     ");
+                        sb.append(key);
+                        sb.append("=");
+                        String obj = props.getProperty(key);
+                        if ( obj == null ) sb.append("null"); else sb.append(obj.toString());
+                        sb.append("\n");
+                }
+
+                sb.append("\nUpdating......\n");
+                // Object retval
+                result = ltiService.updateContent(contentKey, props);
+                if ( result instanceof String ) {
+                        sb.append("Update failed properly:");
+                        sb.append((String) result);
+                        sb.append("\n");
+                } else {
+                        sb.append("Update success - not what we wanted to happen\n");
+                }
+
+      // Lets delete the content to clean things up (if we got this far)
+                sb.append("\nALL DONE... CLEANUP TIME...\nDeleting key=");
+                sb.append(contentKey.toString());
+                sb.append("\n");
+                boolean retval = ltiService.deleteContent(contentKey);
+                sb.append("Return value from delete="+retval);
+                sb.append("\n");
+
+		context.put("preOutput",sb.toString());
+		return "lti_test";
+	}
+
 }

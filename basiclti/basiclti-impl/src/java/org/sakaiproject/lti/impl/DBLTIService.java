@@ -116,14 +116,14 @@ public class DBLTIService extends BaseLTIService implements LTIService
 			// if we are auto-creating our schema, check and create
 			if (m_autoDdl)
 			{
-                                m_sql.dbWriteFailQuiet(null,"DROP TABLE lti_mapping",null);
+                                /* m_sql.dbWriteFailQuiet(null,"DROP TABLE lti_mapping",null);
                                 m_sql.dbWriteFailQuiet(null,"DROP TABLE lti_content",null);
-                                m_sql.dbWriteFailQuiet(null,"DROP TABLE lti_tools",null);
+                                m_sql.dbWriteFailQuiet(null,"DROP TABLE lti_tools",null); */
 
                                 String sql = foorm.formSqlTable("lti_mapping", LTIService.MAPPING_MODEL,m_sql.getVendor());
-                                if ( m_sql.dbWrite(null, sql, null) ) M_log.info(sql);
+                                if ( m_sql.dbWriteFailQuiet(null, sql, null) ) M_log.info(sql);
                                 sql = foorm.formSqlTable("lti_content",LTIService.CONTENT_MODEL,m_sql.getVendor());
-                                if ( m_sql.dbWrite(null, sql, null) ) M_log.info(sql);
+                                if ( m_sql.dbWriteFailQuiet(null, sql, null) ) M_log.info(sql);
                                 sql = foorm.formSqlTable("lti_tools",LTIService.TOOL_MODEL,m_sql.getVendor());
                                 if ( m_sql.dbWriteFailQuiet(null, sql, null) ) M_log.info(sql);
 
@@ -207,7 +207,12 @@ System.out.println("getTools");
 	{
 		String toolId = newProps.getProperty("tool_id");
                 if (toolId == null ) return rb.getString("error.missing.toolid");
-                Long toolKey = new Long(toolId);
+                Long toolKey = null;
+                try { 
+                        toolKey = new Long(toolId);
+                } catch(Exception e) {
+                        return rb.getString("error.invalid.toolid");
+                }
                 String [] contentModel = getContentModel(toolKey);
                 if ( contentModel == null ) return rb.getString("error.invalid.toolid");
 		return insertThing("lti_content",contentModel, newProps);
@@ -228,7 +233,12 @@ System.out.println("getTools");
                 // Make sure we like the proposed tool_id
                 String toolId = (String) foorm.getField(newProps,"tool_id");
                 if ( toolId == null ) return rb.getString("error.missing.toolid");
-                Long toolKey = new Long(toolId);
+                Long toolKey = null;
+                try { 
+                        toolKey = new Long(toolId);
+                } catch(Exception e) {
+                        return rb.getString("error.invalid.toolid");
+                }
                 String [] contentModel = getContentModel(toolKey);
                 if ( contentModel == null ) return rb.getString("error.invalid.toolid");
               
@@ -254,13 +264,16 @@ System.out.println("getTools");
 		
 		if ( isMaintain() && ! isAdmin() && ( Arrays.asList(columns).indexOf("SITE_ID") >= 0 ) ) newProps.put("SITE_ID",getContext());
 		
-		String errors = foorm.formExtract(newProps, model, rb, newMapping);
+		String errors = foorm.formExtract(newProps, model, rb, true, newMapping);
                 if ( errors != null ) return errors;
                 
 		final String sql = "INSERT INTO "+table+" "+foorm.insertForm(newMapping);
                 System.out.println("Insert SQL="+sql);
 		final Object [] fields = foorm.getInsertObjects(newMapping);
 		
+                Long retval = m_sql.dbInsert(null, sql, fields, "id");
+                
+/*              This is long and inelegant - and dies on HSQL - Grrr.
                 Long retval = new Long(-1);
                 // HSQL does not support getGeneratedKeys() - Yikes
                 if ( "hsqldb".equals(m_sql.getVendor()) ) {
@@ -283,7 +296,7 @@ System.out.println("getTools");
                            keyHolder);
                        retval = (Long) keyHolder.getKey();
                 }
-
+*/
 		System.out.println("Insert="+retval);
 		return retval;
 	}
@@ -393,7 +406,7 @@ System.out.println("getTools");
 		
 		HashMap<String, Object> newMapping = new HashMap<String,Object> ();
 				
-		String errors = foorm.formExtract(newProps, model, rb, newMapping);
+		String errors = foorm.formExtract(newProps, model, rb, false, newMapping);
                 if ( errors != null ) return errors;
                 
                 String sql = "UPDATE "+table+" SET "+foorm.updateForm(newMapping)+" WHERE id="+key.toString();
@@ -407,6 +420,7 @@ System.out.println("getTools");
 
 		System.out.println("Upate="+sql);
 		Object [] fields = foorm.getUpdateObjects(newMapping);
+                System.out.println("Fields="+Arrays.toString(fields));
 		
 	        int count = jdbcTemplate.update(sql, fields);
 	        System.out.println("Count = "+count);

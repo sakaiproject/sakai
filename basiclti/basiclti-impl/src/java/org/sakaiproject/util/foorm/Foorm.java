@@ -54,6 +54,27 @@ public class Foorm {
 	return null;
     }
 
+   public boolean isFieldSet(Object row, String column)
+    {
+    	if ( row instanceof java.util.Properties ) {
+		return ( (java.util.Properties)row ).containsKey(column);
+	}
+	if ( row instanceof java.util.Map ) {
+		return ( (java.util.Map)row ).containsKey(column);
+	}
+	if ( row instanceof java.sql.ResultSet ) {
+		try
+		{
+			Object x = ( (java.sql.ResultSet)row ).getObject(column);
+                        return true;
+		}
+		catch(Exception e)
+		{
+			return false;
+		}
+	}
+	return false;
+    }
     public String [] getFields(String fieldInfo[])
     {
         ArrayList<String> aa = new ArrayList<String> ();
@@ -301,6 +322,7 @@ public class Foorm {
 	if ( "url".equals(type) ) return formInputURL((String) value,field,label,required,size,loader);
 	if ( "id".equals(type) ) return formInputId((String) value,field,label,required,size,loader);
 	if ( "textarea".equals(type) ) return formInputTextArea((String) value,field,label,required,rows,cols,loader);
+        if ( "autodate".equals(type) ) return "";
 	if ( "radio".equals(type) ) 
 	{
 		String choices = info.getProperty("choices",null);
@@ -353,7 +375,9 @@ public class Foorm {
 	StringBuffer sb = new StringBuffer();
 	for(String formInput : formDefinition ) 
 	{
-		sb.append(formInput(row, formInput, loader));
+		String tmp = formInput(row, formInput, loader);
+                if ( tmp.length() < 1 ) continue;
+		sb.append(tmp);
 		sb.append("\n");
 	}
 	return sb.toString();
@@ -459,20 +483,22 @@ public class Foorm {
 	StringBuffer sb = new StringBuffer();
 	for(String formOutput : formDefinition ) 
 	{
-		sb.append(formOutput(row, formOutput, loader));
+                String tmp = formOutput(row, formOutput, loader);
+                if ( tmp.length() < 1 ) continue;
+		sb.append(tmp);
 		sb.append("\n");
 	}
 	return sb.toString();
     }
 
-    public String formValidate(Properties parms, String [] formDefinition, Object loader)
+    public String formValidate(Properties parms, String [] formDefinition, boolean forInsert, Object loader)
     {
-    	return formExtract(parms, formDefinition, loader, null);
+    	return formExtract(parms, formDefinition, loader, forInsert, null);
     }
 
     // dataMap should be empty
     public String formExtract(Object parms, String [] formDefinition, 
-		Object loader, Map<String, Object> dataMap)
+		Object loader, boolean forInsert, Map<String, Object> dataMap)
     {
 	StringBuffer sb = new StringBuffer();
 
@@ -484,6 +510,9 @@ public class Foorm {
 	        if ( field == null || type == null ) {
                         throw new IllegalArgumentException("All model elements must include field name and type");
                 }		String label = info.getProperty("label",field);
+
+                // For update, we don't worry about fields that are not set
+                if ( ( ! forInsert ) && ( ! isFieldSet(parms,field) ) ) continue;
 		Object dataField = getField(parms, field);
 		String sdf = null;
 		if ( dataField instanceof String ) sdf = (String) dataField;
@@ -616,6 +645,7 @@ public class Foorm {
     {
 	StringBuffer fields = new StringBuffer();
         for ( String key : dataMap.keySet() ) {
+                if ( ! dataMap.containsKey(key) ) continue;
                 if ( "created_at".equals(key) ) continue;
 		if ( fields.length() > 0 ) fields.append(", ");
 		fields.append(key);
@@ -638,11 +668,13 @@ public class Foorm {
     {
         int size = dataMap.size();
         for ( String key : dataMap.keySet() ) {
+                if ( ! dataMap.containsKey(key) ) size--;
 		if ( "created_at".equals(key) ) size--;
 	}
 	Object [] retval = new Object[size];
 	int i = 0;
         for ( String key : dataMap.keySet() ) {
+                if ( ! dataMap.containsKey(key) ) continue;
                 if ( "created_at".equals(key) ) continue;
 		retval[i++] = dataMap.get(key);
 	}
