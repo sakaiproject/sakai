@@ -116,10 +116,14 @@ public class DBLTIService extends BaseLTIService implements LTIService
 			// if we are auto-creating our schema, check and create
 			if (m_autoDdl)
 			{
+                                m_sql.dbWriteFailQuiet(null,"DROP TABLE lti_mapping",null);
+                                m_sql.dbWriteFailQuiet(null,"DROP TABLE lti_content",null);
+                                m_sql.dbWriteFailQuiet(null,"DROP TABLE lti_tools",null);
+
                                 String sql = foorm.formSqlTable("lti_mapping", LTIService.MAPPING_MODEL,m_sql.getVendor());
-                                if ( m_sql.dbWriteFailQuiet(null, sql, null) ) M_log.info(sql);
+                                if ( m_sql.dbWrite(null, sql, null) ) M_log.info(sql);
                                 sql = foorm.formSqlTable("lti_content",LTIService.CONTENT_MODEL,m_sql.getVendor());
-                                if ( m_sql.dbWriteFailQuiet(null, sql, null) ) M_log.info(sql);
+                                if ( m_sql.dbWrite(null, sql, null) ) M_log.info(sql);
                                 sql = foorm.formSqlTable("lti_tools",LTIService.TOOL_MODEL,m_sql.getVendor());
                                 if ( m_sql.dbWriteFailQuiet(null, sql, null) ) M_log.info(sql);
 
@@ -193,6 +197,7 @@ public class DBLTIService extends BaseLTIService implements LTIService
 
 	public List<Map<String,Object>> getTools(String search, String order, int first, int last) 
 	{ 
+System.out.println("getTools");
 	        return getThings("lti_tools", LTIService.TOOL_MODEL, search, order, first, last);
 	}
 	
@@ -252,30 +257,32 @@ public class DBLTIService extends BaseLTIService implements LTIService
 		String errors = foorm.formExtract(newProps, model, rb, newMapping);
                 if ( errors != null ) return errors;
                 
-		final String sql = "INSERT INTO "+table+foorm.insertForm(newMapping);
+		final String sql = "INSERT INTO "+table+" "+foorm.insertForm(newMapping);
                 System.out.println("Insert SQL="+sql);
 		final Object [] fields = foorm.getInsertObjects(newMapping);
 		
-		// More elegant Sakai Insert (for now)
-		Long retval = m_sql.dbInsert(null, sql, fields, "id");
-		
-		/* Less Elegant JDBC version 
-		KeyHolder keyHolder = new GeneratedKeyHolder();
+                Long retval = new Long(-1);
+                // HSQL does not support getGeneratedKeys() - Yikes
+                if ( "hsqldb".equals(m_sql.getVendor()) ) {
+                        jdbcTemplate.update(sql, fields);
+                } else {
 
-		jdbcTemplate.update(
-                    new PreparedStatementCreator() {
-                        public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-                                PreparedStatement ps =
-                                        connection.prepareStatement(sql, new String[] {"id"});
-                                for(int i=0; i<fields.length; i++ ) {
-                                        ps.setObject(i+1, fields[i]);
+		        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        		jdbcTemplate.update(
+                            new PreparedStatementCreator() {
+                                public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+                                        PreparedStatement ps =
+                                                connection.prepareStatement(sql, new String[] {"id"});
+                                        for(int i=0; i<fields.length; i++ ) {
+                                                ps.setObject(i+1, fields[i]);
+                                        }
+                                        return ps;
                                 }
-                                return ps;
-                        }
-                   },
-                   keyHolder);
-                Long retval = (Long) keyHolder.getKey();
-                */
+                           },
+                           keyHolder);
+                       retval = (Long) keyHolder.getKey();
+                }
 
 		System.out.println("Insert="+retval);
 		return retval;
@@ -290,19 +297,16 @@ public class DBLTIService extends BaseLTIService implements LTIService
                 Object fields[] = null;           
                 String [] columns = foorm.getFields(model);
 
-                if ( isAdmin () )
-                {
-                        fields = new Object[1];
-                        fields[0] = key;               
-                } else if ( Arrays.asList(columns).indexOf("SITE_ID") >= 0 ) {
-                        statement += " AND ( SITE_ID = ? OR SITE_ID IS NULL ) ";
+                if  ( Arrays.asList(columns).indexOf("SITE_ID") >= 0 && !isAdmin() ) {
+                        statement += " AND SITE_ID = ? OR SITE_ID IS NULL";
                         fields = new Object[2];
                         fields[0] = key;               
                         fields[1] = getContext();
-                } else { 
-                        return null;
+               } else {
+                        fields = new Object[1];
+                        fields[0] = key;      
                 }
-               
+
                 List rv = getResultSet(statement,fields,columns);
                 
                 if ((rv != null) && (rv.size() > 0))
@@ -323,16 +327,15 @@ public class DBLTIService extends BaseLTIService implements LTIService
                 String [] columns = foorm.getFields(model);
                 
                 Object fields[] = null;
-                if ( ! isAdmin () )
-                {
-                        if  ( Arrays.asList(columns).indexOf("SITE_ID") >= 0 ) {
+                if  ( Arrays.asList(columns).indexOf("SITE_ID") >= 0 ) {
+                        if ( ! isAdmin () )
+                        {
                                 statement += " WHERE SITE_ID = ? OR SITE_ID IS NULL";
                                 fields = new Object[1];
                                 fields[0] = getContext();
-                        } else {
-                                return null;
                         }
                 }
+
                 return getResultSet(statement,fields,columns);
 	}
 
@@ -360,18 +363,21 @@ public class DBLTIService extends BaseLTIService implements LTIService
 		        }
 		}
 
-                if ( isAdmin () )
+                if ( Arrays.asList(columns).indexOf("SITE_ID") >= 0 && ! isAdmin() ) 
                 {
-                        fields = new Object[1];
-                        fields[0] = key;               
-                } else if ( isMaintain() && ( Arrays.asList(columns).indexOf("SITE_ID") >= 0 ) ) {
+                        if ( ! isMaintain() ) {
+                                M_log.info("Non-maintain attemped delete on "+table);
+                                return false;
+                        }
                         statement += " AND SITE_ID = ?";
                         fields = new Object[2];
                         fields[0] = key;               
                         fields[1] = getContext();
                 } else {
-                        return false;
+                        fields = new Object[1];
+                        fields[0] = key;      
                 }
+     
                 return jdbcTemplate.update(statement, fields) == 1;
 	}
 	
@@ -410,45 +416,11 @@ public class DBLTIService extends BaseLTIService implements LTIService
 	
         // Utility to return a resultset
 	public List<Map<String,Object>> getResultSet(String statement, Object [] fields, final String [] columns) 
-	{	      
+	{	
+                System.out.println("getResultSet sql="+statement+" fields="+fields);      
                 List rv = jdbcTemplate.query(statement, fields, new ColumnMapRowMapper());
+                System.out.println("getResultSet size="+rv.size()+" sql="+statement);      
                 return (List<Map<String,Object>>) rv;       
-	}
-	
-	// SQL Portability code from Swinsberg
-	/**
-	 * Loads our SQL statements from the appropriate properties file
-	 
-	 * @param vendor	DB vendor string. Must be one of mysql, oracle, hsqldb
-	 */
-	private void initStatements(String vendor) {
-		
-		URL url = getClass().getClassLoader().getResource(vendor + ".properties"); 
-		
-		try {
-			statements = new PropertiesConfiguration(); //must use blank constructor so it doesn't parse just yet (as it will split)
-			statements.setReloadingStrategy(new InvariantReloadingStrategy());	//don't watch for reloads
-			statements.setThrowExceptionOnMissing(true);	//throw exception if no prop
-			statements.setDelimiterParsingDisabled(true); //don't split properties
-			statements.load(url); //now load our file
-		} catch (ConfigurationException e) {
-			M_log.error(e.getClass() + ": " + e.getMessage());
-			return;
-		}
-	}
-	
-	/**
-	 * Get an SQL statement for the appropriate vendor from the bundle
-	
-	 * @param key
-	 * @return statement or null if none found. 
-	 */
-	private String getStatement(String key) {
-		try {
-			return statements.getString(key);
-		} catch (NoSuchElementException e) {
-			M_log.error("Statement: '" + key + "' could not be found in: " + statements.getFileName());
-			return null;
-		}
-	}
+	}	
+
 }

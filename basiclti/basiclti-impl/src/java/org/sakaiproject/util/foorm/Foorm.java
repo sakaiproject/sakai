@@ -698,6 +698,7 @@ public class Foorm {
 	return ret.toArray( new String[ ret.size() ] );
     }
 
+    // http://technology-ameyaaloni.blogspot.com/2010/06/mysql-to-hsql-migration-tips.html
     public String formSql(String fieldinfo, String vendor)
     {
 	Properties info = parseFormString(fieldinfo);
@@ -715,8 +716,15 @@ public class Foorm {
 
         String schema = null;
 
+        String longtext = "TEXT";
+        if ( "hsqldb".equals(vendor)) longtext="VARCHAR";
+
 	if ( "key".equals(type) && "id".equals(field) ) {
-                schema = "INT NOT NULL AUTO_INCREMENT";
+                if ( "hsqldb".equals(vendor) ) {
+                        schema = "INTEGER IDENTITY PRIMARY KEY";
+                } else {
+                        schema = "INTEGER NOT NULL AUTO_INCREMENT";
+                }
         } else if ( "key".equals(type) ) {
                 schema = "INT";
         } else if ( "autodate".equals(type) ) {
@@ -729,12 +737,12 @@ public class Foorm {
                 if ( maxlength < 512 ) {
                         schema = "VARCHAR("+maxlength+")";
                 } else {
-                        schema = "TEXT("+maxlength+")";
+                        schema = longtext+"("+maxlength+")";
                 }
         } else if ( "textarea".equals(type) ) {
-                schema = "TEXT("+maxlength+")";
+                schema = longtext+"("+maxlength+")";
         } else if ( "radio".equals(type) ) {
-                schema = "SMALLINT DEFAULT '0'";
+                schema = "TINYINT DEFAULT '0'";
         }
         if ( schema == null ) return null;
 

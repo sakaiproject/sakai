@@ -98,7 +98,8 @@ public interface LTIService
                 "toolurl:url:hidden=true:maxlength=255",
                 "xmlimport:text:hidden=true:maxlength=16384",
                 "created_at:autodate",
-                "updated_at:autodate"} ; 
+                "updated_at:autodate"
+        } ; 
 
 	static String [] TOOL_MODEL = {
 		"id:key",
@@ -121,12 +122,14 @@ public interface LTIService
 		"organizationurl:text:label=bl_organizationurl:maxlength=255",
 		"organizationdescr:text:label=bl_organizationdescr:maxlength=255",
                 "created_at:autodate",
-                "updated_at:autodate"};
+                "updated_at:autodate"
+        };
 
 	static String [] MAPPING_MODEL = {
 		"id:key",
 		"matchpattern:url:label=bl_matchpattern:required=true:maxlength=255",
 		"toolurl:url:label=bl_launchurl:required=true:maxlength=255",
                 "created_at:autodate",
-                "updated_at:autodate"} ;
+                "updated_at:autodate"
+        } ;
 }
