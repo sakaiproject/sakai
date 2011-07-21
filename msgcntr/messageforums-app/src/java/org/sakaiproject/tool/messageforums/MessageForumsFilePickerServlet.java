@@ -226,7 +226,8 @@ public class MessageForumsFilePickerServlet extends JsfTool  implements HttpServ
         ////String helperId = parts[2].substring(0, posEnd);
         ActiveTool helperTool = ActiveToolManager.getActiveTool(helperId);
 
-        if (toolSession.getAttribute(helperTool.getId() + Tool.HELPER_DONE_URL) == null) {
+        if (toolSession.getAttribute(helperTool.getId() + Tool.HELPER_DONE_URL) == null
+                && !target.equals("/sakai.filepicker.helper")) {
             toolSession.setAttribute(helperTool.getId() + Tool.HELPER_DONE_URL, req.getContextPath() + req.getServletPath() + computeDefaultTarget(true));
         }
 
