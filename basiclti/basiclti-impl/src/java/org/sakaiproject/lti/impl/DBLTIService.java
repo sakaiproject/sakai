@@ -192,10 +192,10 @@ public class DBLTIService extends BaseLTIService implements LTIService
 	public Object insertContent(Properties newProps)
 	{
 		String toolId = newProps.getProperty("tool_id");
-                if (toolId == null ) return "Missing tool_id";
+                if (toolId == null ) return rb.getString("error.missing.toolid");
                 Long toolKey = new Long(toolId);
                 String [] contentModel = getContentModel(toolKey);
-                if ( contentModel == null ) return "Invalid tool_id";
+                if ( contentModel == null ) return rb.getString("error.invalid.toolid");
 		return insertThing("lti_content",contentModel, newProps);
         }
 	
@@ -213,10 +213,10 @@ public class DBLTIService extends BaseLTIService implements LTIService
 	{ 
                 // Make sure we like the proposed tool_id
                 String toolId = (String) foorm.getField(newProps,"tool_id");
-                if ( toolId == null ) return "Missing tool_id";
+                if ( toolId == null ) return rb.getString("error.missing.toolid");
                 Long toolKey = new Long(toolId);
                 String [] contentModel = getContentModel(toolKey);
-                if ( contentModel == null ) return "Invalid tool_id";
+                if ( contentModel == null ) return rb.getString("error.invalid.toolid");
               
 	        return updateThing("lti_content", contentModel, key, newProps);
 	}
@@ -343,7 +343,6 @@ public class DBLTIService extends BaseLTIService implements LTIService
 		        }
 		 
 		        String siteId = (String) foorm.getField(thing, "SITE_ID");
-		    System.out.println("DELENG ID="+siteId);
 		    
 		        if ( siteId == null || ! siteId.equals(getContext()) )
 		        {

@@ -127,7 +127,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	{
 		context.put("tlang", rb);
 		if ( ! ltiService.isMaintain() ) {
-		        addAlert(state,"Must be site maintainer to edit External Tools");
+		        addAlert(state,rb.getString("error.maintain.edit"));
 		        return "lti_error";
 		}
 		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
@@ -155,14 +155,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	{
 		context.put("tlang", rb);
 		if ( ! ltiService.isMaintain() ) {
-		        addAlert(state,"Must be site maintainer");
+		        addAlert(state,rb.getString("error.maintain.view"));
 		        return "lti_error";
 		}
                 context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		String [] mappingForm = ltiService.getToolModel();
 		String id = data.getParameters().getString("id");
 		if ( id == null ) {
-		        addAlert(state,"ID not found");
+		        addAlert(state,rb.getString("error.id.not.found"));
 		        return "lti_main";
 		}
 		Long key = new Long(id);
@@ -181,7 +181,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String stateId = (String) state.getAttribute(STATE_ID);
 		state.removeAttribute(STATE_ID);
 		if ( ! ltiService.isMaintain() ) {
-		        addAlert(state,"Must be site maintainer");
+		        addAlert(state,rb.getString("error.maintain.edit"));
 		        return "lti_main";
 		}
                 context.put("doToolAction", BUTTON + "doToolPut");
@@ -190,7 +190,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String id = data.getParameters().getString("id");
 	        if ( id == null ) id = stateId;
 		if ( id == null ) {
-		        addAlert(state,"ID not found");
+		        addAlert(state,rb.getString("error.id.not.found"));
 		        return "lti_main";
 		}		
 		Long key = new Long(id);
@@ -207,20 +207,20 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	{
 		context.put("tlang", rb);
 		if ( ! ltiService.isMaintain() ) {
-		        addAlert(state,"Must be site maintainer");
+		        addAlert(state,rb.getString("error.maintain.delete"));
 		        return "lti_error";
 		}
                 context.put("doToolAction", BUTTON + "doToolDelete");
 		String [] mappingForm = foorm.filterForm(ltiService.getToolModel(), "^title:.*|^toolurl:.*|^id:.*", null);
 		String id = data.getParameters().getString("id");
 		if ( id == null ) {
-		        addAlert(state,"ID not found");
+		        addAlert(state,rb.getString("error.id.not.found"));
 		        return "lti_main";
 		}	
 		Long key = new Long(id);
 		Map<String,Object> tool = ltiService.getTool(key);
 		if (  tool == null ) {
-		        addAlert(state,"Tool not found");
+		        addAlert(state,rb.getString("error.tool.not.found"));
 		        return "lti_main";
 		}
 		String formOutput = ltiService.formOutput(tool, mappingForm);
@@ -237,7 +237,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 		
 		if ( ! ltiService.isMaintain() ) {
-		        addAlert(state,"Must be site maintainer");
+		        addAlert(state,rb.getString("error.maintain.delete"));
                         switchPanel(state, "Error");
 		        return;
 		}
@@ -245,17 +245,17 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String id = data.getParameters().getString("id");
 		Object retval = null;
                 if ( id == null ) {
-                        addAlert(state,"Missing ID on delete request");
+                        addAlert(state,rb.getString("error.id.not.found"));
                         switchPanel(state, "Main");
                         return;
                 }
                 Long key = new Long(id);
 		if ( ltiService.deleteTool(key) )
 		{
-		        state.setAttribute(STATE_SUCCESS,"Deleted");
+		        state.setAttribute(STATE_SUCCESS,rb.getString("success.deleted"));
 		        switchPanel(state, "Main");
                 } else {
-                        addAlert(state,"Delete failed");
+                        addAlert(state,rb.getString("error.delete.fail"));
                         switchPanel(state, "Main");
                 }
 	}
@@ -265,7 +265,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	{
 		context.put("tlang", rb);
 		if ( ! ltiService.isMaintain() ) {
-		        addAlert(state,"Must be site maintainer");
+		        addAlert(state,rb.getString("error.edit.maintain"));
 		        return "lti_error";
 		}
                 context.put("doToolAction", BUTTON + "doToolPut");
@@ -287,7 +287,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 		
 		if ( ! ltiService.isMaintain() ) {
-		        addAlert(state,"Must be site maintainer");
+		        addAlert(state,rb.getString("error.maintain.delete"));
                         switchPanel(state,"Error");
 		        return;
 		}
@@ -298,11 +298,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		if ( id == null ) 
 		{
 	                retval = ltiService.insertTool(reqProps);
-	                success = "Tool Inserted";
+	                success = rb.getString("success.created");
 		} else {
 			Long key = new Long(id);
 		        retval = ltiService.updateTool(key, reqProps);
-		        success = "Tool Updated";
+		        success = rb.getString("success.updated");
                 }
                 
                 if ( retval instanceof String ) 
@@ -325,7 +325,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	{
 		context.put("tlang", rb);
 		if ( ! ltiService.isAdmin() ) {
-		        addAlert(state,"Must be site administrator");
+		        addAlert(state,rb.getString("error.admin.view"));
 		        return "lti_error";
 		}
 		List<Map<String,Object>> mappings = ltiService.getMappings(null,null,0,100);
@@ -340,7 +340,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	{
 		context.put("tlang", rb);
 		if ( ! ltiService.isAdmin() ) {
-		        addAlert(state,"Must be site administrator");
+		        addAlert(state,rb.getString("error.admin.edit"));
 		        return "lti_error";
 		}
                 context.put("doMappingAction", BUTTON + "doMappingPut");
@@ -361,7 +361,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		
 		context.put("tlang", rb);
 		if ( ! ltiService.isAdmin() ) {
-		        addAlert(state,"Must be administrator");
+		        addAlert(state,rb.getString("error.admin.edit"));
 		        return "lti_error";
 		}
                 context.put("doMappingAction", BUTTON + "doMappingPut");
@@ -370,7 +370,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String id = data.getParameters().getString("id");
 		if ( id == null ) id = stateId;
 		if ( id == null ) {
-		        addAlert(state,"ID not found");
+		        addAlert(state,rb.getString("error.id.not.found"));
 		        return "lti_mapping";
 		}
 		Long key = new Long(id);
@@ -387,14 +387,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	{
 		context.put("tlang", rb);
 		if ( ! ltiService.isAdmin() ) {
-		        addAlert(state,"Must be administrator");
+		        addAlert(state,rb.getString("error.admin.delete"));
 		        return "lti_error";
 		}
                 context.put("doToolAction", BUTTON + "doMappingDelete");
 		String [] mappingForm = ltiService.getMappingModel();
 		String id = data.getParameters().getString("id");
 		if ( id == null ) {
-		        addAlert(state,"ID not found");
+		        addAlert(state,rb.getString("error.id.not.found"));
 		        return "lti_mapping";
 		}
 		Long key = new Long(id);
@@ -402,7 +402,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		Map<String,Object> mapping = ltiService.getMapping(key);
 
 		if (  mapping == null ) {
-		        addAlert(state,"Mapping not found");
+		        addAlert(state,rb.getString("error.mapping.not.found"));
 		        return "lti_mapping";
 		}
 		String formOutput = ltiService.formOutput(mapping, mappingForm);
@@ -420,7 +420,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 		
 		if ( ! ltiService.isAdmin() ) {
-		        addAlert(state,"Must be administrator");
+		        addAlert(state,rb.getString("error.admin.edit"));
 		        switchPanel(state,"Error");
 		        return;
 		}
@@ -431,11 +431,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		if ( id == null ) 
 		{
 	                retval = ltiService.insertMapping(reqProps);
-	                success = "Mapping added";
+	                success = rb.getString("success.created");
 		} else {
 			Long key = new Long(id);
 			retval = ltiService.updateMapping(key, reqProps);
-			success = "Mapping updated";
+			success = rb.getString("success.updated");
                 }
                 
                 if ( retval instanceof String ) 
@@ -457,7 +457,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 		
 		if ( ! ltiService.isAdmin() ) {
-		        addAlert(state,"Must be adminstrator");
+		        addAlert(state,rb.getString("error.admin.delete"));
                         switchPanel(state,"Error");
 		        return;
 		}
@@ -465,17 +465,17 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String id = data.getParameters().getString("id");
 		Object retval = null;
                 if ( id == null ) {
-                        addAlert(state,"Missing tool ID on delete request");
+                        addAlert(state,rb.getString("error.id.not.found"));
                         switchPanel(state, "Mapping");
                         return;
                 }
                 Long key = new Long(id);
 		if ( ltiService.deleteMapping(key) )
 		{
-		        state.setAttribute(STATE_SUCCESS,"Deleted");
+		        state.setAttribute(STATE_SUCCESS,rb.getString("success.deleted"));
 		        switchPanel(state, "Mapping");
                 } else {
-                        addAlert(state,"Delete failed");
+                        addAlert(state,rb.getString("error.delete.fail"));
                         switchPanel(state, "Mapping");
                 }
 	}
@@ -487,7 +487,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	{
 		context.put("tlang", rb);
 		if ( ! ltiService.isMaintain() ) {
-		        addAlert(state,"Must be site maintainer");
+		        addAlert(state,rb.getString("error.maintain.view"));
 		        return "lti_error";
 		}
 		List<Map<String,Object>> contents = ltiService.getContents(null,null,0,100);
@@ -503,7 +503,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	{
 		String stateToolId = (String) state.getAttribute(STATE_TOOL_ID);
 		if ( ! ltiService.isMaintain() ) {
-		        addAlert(state,"Must be site maintainer");
+		        addAlert(state,rb.getString("error.maintain.edit"));
 		        return "lti_error";
 		}
 	        context.put("tlang", rb);
@@ -530,7 +530,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		        Long contentKey = new Long(contentId);
                         Map<String,Object> content = ltiService.getContent(contentKey);
                         if ( content == null ) {
-                                addAlert(state, "Cannot retrieve content item");
+                                addAlert(state, rb.getString("error.content.not.found"));
                                 state.removeAttribute(STATE_CONTENT_ID);
                                 return "lti_content";
                         }
@@ -541,7 +541,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
                 // We will handle the tool_id field ourselves in the Velocity code
 		String [] contentForm = foorm.filterForm(null,ltiService.getContentModel(key), null, "^tool_id:.*");
                 if ( contentForm == null || key == null ) {
-                        addAlert(state,"Bad tool key");
+                        addAlert(state,rb.getString("error.tool.not.found"));
                         return "lti_error";
                 }
 	        String formInput = ltiService.formInput(previousData, contentForm);
@@ -559,7 +559,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 		
 		if ( ! ltiService.isMaintain() ) {
-		        addAlert(state,"Must be site maintainer");
+		        addAlert(state,rb.getString("error.maintain.edit"));
 		        switchPanel(state,"Error");
 		        return;
 		}
@@ -567,7 +567,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String id = data.getParameters().getString("id");
 		String toolId = data.getParameters().getString("tool_id");
                 if ( toolId == null ) {
-                        addAlert(state, "Missing tool_id");
+                        addAlert(state, rb.getString("error.id.not.found"));
                         return;
                 }
                 
@@ -576,12 +576,12 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		if ( id == null ) 
 		{
 	                retval = ltiService.insertContent(reqProps);
-	                success = "Content added";
+	                success = rb.getString("success.created");
 		} else {
 			Long key = new Long(id);
                         // TODO: Error check this
 			retval = ltiService.updateContent(key, reqProps);
-			success = "Content updated";
+                        success = rb.getString("success.updated");
                 }
                 
                 if ( retval instanceof String ) 
@@ -601,19 +601,19 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	{
 		context.put("tlang", rb);
 		if ( ! ltiService.isMaintain() ) {
-		        addAlert(state,"Must be site maintainer");
+		        addAlert(state,rb.getString("error.maintain.delete"));
 		        return "lti_error";
 		}
                 context.put("doAction", BUTTON + "doContentDelete");
 		String id = data.getParameters().getString("id");
 		if ( id == null ) {
-		        addAlert(state,"ID not found");
+		        addAlert(state,rb.getString("error.id.not.found"));
 		        return "lti_main";
 		}	
 		Long key = new Long(id);
 		Map<String,Object> content = ltiService.getContent(key);
 		if (  content == null ) {
-		        addAlert(state,"Content not found");
+		        addAlert(state,rb.getString("error.content.not.found"));
 		        return "lti_main";
 		}
 		context.put("content",content);
@@ -629,7 +629,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 		
 		if ( ! ltiService.isMaintain() ) {
-		        addAlert(state,"Must be site maintainer");
+		        addAlert(state,rb.getString("error.maintain.delete"));
                         switchPanel(state, "Error");
 		        return;
 		}
@@ -637,17 +637,17 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String id = data.getParameters().getString("id");
 		Object retval = null;
                 if ( id == null ) {
-                        addAlert(state,"Missing ID on delete request");
+                        addAlert(state,rb.getString("error.id.not.found"));
                         switchPanel(state, "Content");
                         return;
                 }
                 Long key = new Long(id);
 		if ( ltiService.deleteContent(key) )
 		{
-		        state.setAttribute(STATE_SUCCESS,"Deleted");
+		        state.setAttribute(STATE_SUCCESS,rb.getString("success.deleted"));
 		        switchPanel(state, "Content");
                 } else {
-                        addAlert(state,"Delete failed");
+                        addAlert(state,rb.getString("error.delete.fail"));
                         switchPanel(state, "Content");
                 }
 	}

@@ -13,10 +13,10 @@
 #end
 #if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
 #if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
-<h3>$tlang.getString("lti.admin")</h3>
+<h3>$tlang.getString("tool.title")</h3>
 	<form action="#toolForm("")" method="post" name="customizeForm" >
 #if ($tools && $tools.size() > 0)
-<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("lti.tool.list")">
+<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("tool.table")">
         <tr>
                 <th id="toolurl">$tlang.getString("bl_toolurl")</th>
                 <th id="title">$tlang.getString("bl_title")</th>
@@ -38,7 +38,7 @@
             #end
 	</table>
 #else
-<p>$tlang.getString("lti.tool.none")</p>
+<p>$tlang.getString("tool.none")</p>
 #end
 		</p>
 		<p class="act">
