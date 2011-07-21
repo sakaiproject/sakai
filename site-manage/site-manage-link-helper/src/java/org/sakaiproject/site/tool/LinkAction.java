@@ -83,9 +83,6 @@ public class LinkAction extends VelocityPortletPaneledAction
 
 	private static final Log logger = LogFactory.getLog(LinkAction.class);
 
-        private static final String LINK_MODE = "link_mode";
-        private static final String MODE_DONE = "helper.done";
-
 	/**
 	 * Get the current site page our current tool is placed on.
 	 * 
@@ -213,8 +210,7 @@ public class LinkAction extends VelocityPortletPaneledAction
 			ResourcePropertiesEdit rpe = site.getPropertiesEdit();
 			rpe.addProperty("sakai:parent-id", parentId);
 			SiteService.save(site);
-			SessionManager.getCurrentToolSession().setAttribute(LINK_MODE, MODE_DONE);
-                	scheduleTopRefresh();
+			SessionManager.getCurrentToolSession().setAttribute(HELPER_LINK_MODE, HELPER_MODE_DONE);
 		} 
 		catch (Exception e)
 		{
@@ -239,8 +235,7 @@ public class LinkAction extends VelocityPortletPaneledAction
 			ResourcePropertiesEdit rpe = site.getPropertiesEdit();
 			rpe.removeProperty("sakai:parent-id");
 			SiteService.save(site);
-			SessionManager.getCurrentToolSession().setAttribute(LINK_MODE, MODE_DONE);
-                	scheduleTopRefresh();
+			SessionManager.getCurrentToolSession().setAttribute(HELPER_LINK_MODE, HELPER_MODE_DONE);
 		} 
 		catch (Exception e)
 		{
@@ -256,8 +251,7 @@ public class LinkAction extends VelocityPortletPaneledAction
 		// access the portlet element id to find our state
 		String peid = ((JetspeedRunData) data).getJs_peid();
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
-		SessionManager.getCurrentToolSession().setAttribute(LINK_MODE, MODE_DONE);
-                scheduleTopRefresh();
+		SessionManager.getCurrentToolSession().setAttribute(HELPER_LINK_MODE, HELPER_MODE_DONE);
 	}
 
 	/**
@@ -268,46 +262,6 @@ public class LinkAction extends VelocityPortletPaneledAction
 		public SessionDataException(String text)
 		{
 			super(text);
-		}
-	}
-
-
-	/* (non-Javadoc)
-	 * @see org.sakaiproject.cheftool.VelocityPortletPaneledAction#toolModeDispatch(java.lang.String, java.lang.String, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
-	 */
-	protected void toolModeDispatch(String methodBase, String methodExt, HttpServletRequest req, HttpServletResponse res)
-			throws ToolException
-	{
-		ToolSession toolSession = SessionManager.getCurrentToolSession();
-		SessionState state = getState(req);
-
-		if (MODE_DONE.equals(toolSession.getAttribute(LINK_MODE)))
-		{
-
-			Tool tool = ToolManager.getCurrentTool();
-
-			String url = (String) SessionManager.getCurrentToolSession().getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
-
-			SessionManager.getCurrentToolSession().removeAttribute(tool.getId() + Tool.HELPER_DONE_URL);
-			SessionManager.getCurrentToolSession().removeAttribute(LINK_MODE);
-
-			try
-			{
-				res.sendRedirect(url);
-			}
-			catch (IOException e)
-			{
-				logger.warn("IOException: ", e);
-			}
-			return;
-		}
-		else if(sendToHelper(req, res, req.getPathInfo()))
-		{
-			return;
-		}
-		else
-		{
-			super.toolModeDispatch(methodBase, methodExt, req, res);
 		}
 	}
 }
