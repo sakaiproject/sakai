@@ -31,6 +31,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.SignupEventTypes;
 import org.sakaiproject.signup.logic.SignupUserActionException;
@@ -68,6 +69,9 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 	
 	//Location selected from the dropdown
 	private String selectedLocation;
+	
+	//Category selected from the dropdown
+	private String selectedCategory;
 	
 	private int durationOfTslot;
 
@@ -417,7 +421,7 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 					Utilities.addErrorMessage(Utilities.rb.getString("email.exception"));
 				}
 			}
-
+			
 			if(isPublishToCalendar()){
 				for (SignupMeeting savedMeeting : successUpdatedMeetings) {
 					try {
@@ -452,7 +456,7 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 			Utilities.addErrorMessage(ue.getMessage());
 		} catch (Exception e) {
 			Utilities.addErrorMessage(Utilities.rb.getString("db.error_or_event.notExisted"));
-			logger.warn(Utilities.rb.getString("db.error_or_event.notExisted") + " - " + e.getMessage());
+			logger.error(Utilities.rb.getString("db.error_or_event.notExisted") + " - " + e.getClass() + ":" + e.getMessage());
 			Utilities.resetMeetingList();
 			return MAIN_EVENTS_LIST_PAGE_URL;
 		}
@@ -576,7 +580,7 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		}
 		
 		//Set Location		
-		if (this.signupMeeting.getLocation()==null || this.signupMeeting.getLocation().equals("")){
+		if (StringUtils.isBlank(this.signupMeeting.getLocation())){
 			if (selectedLocation.equals(Utilities.rb.getString("select_location"))){
 				validationError = true;
 				Utilities.addErrorMessage(Utilities.rb.getString("event.location_not_assigned"));
@@ -587,6 +591,17 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		}
 		//clear the location fields
 		this.selectedLocation="";
+		
+		//Set Category
+		//if textfield is blank, check the dropdown
+		if (StringUtils.isBlank(this.signupMeeting.getCategory())){
+			//if dropdown is not the default, then use its value
+			if(!StringUtils.equals(selectedCategory, Utilities.rb.getString("select_category"))) {
+					this.signupMeeting.setCategory(selectedCategory);
+			}
+		}
+		//clear the category fields
+		this.selectedCategory="";
 
 	}
 	
@@ -687,6 +702,19 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
  		locations.add(0, new SelectItem(Utilities.rb.getString("select_location")));
  		return locations;
  	}
+ 	
+ 	/**
+ 	 * This method is called to get all categories to populate the dropdown
+ 	 * 
+ 	 * @return list of categories
+ 	 */
+ 	public List<SelectItem> getAllCategories(){
+ 		
+ 		List<SelectItem> categories= new ArrayList<SelectItem>();
+ 		categories.addAll(Utilities.getSignupMeetingsBean().getAllCategories());
+ 		categories.add(0, new SelectItem(Utilities.rb.getString("select_category")));
+ 		return categories;
+ 	}
 
 	/**
 	 * Check to see if the attendees are limited in the event/meeting.
@@ -707,7 +735,6 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		this.unlimited = unlimited;
 	}
 	
-	
 	/**
 	 * This is a getter method to provide selected location.
 	 * 
@@ -725,6 +752,25 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 	 */
 	public void setselectedLocation(String selectedLocation) {
 		this.selectedLocation = selectedLocation;
+	}
+	
+	/**
+	 * This is a getter method to provide selected category.
+	 * 
+	 * @return String
+	 */
+	public String getselectedCategory() {
+		return selectedCategory;
+	}
+	
+	/**
+	 * This is a setter.
+	 * 
+	 * @param selectedCategory
+	 *           String that represents the selected location
+	 */
+	public void setselectedCategory(String selectedCategory) {
+		this.selectedCategory = selectedCategory;
 	}
 
 	/**

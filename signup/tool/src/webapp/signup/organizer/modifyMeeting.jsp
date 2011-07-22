@@ -39,6 +39,7 @@
 					                          <f:selectItem id="modify_current" itemValue="#{true}" itemLabel="#{msgs.modify_current}"/>					                                  	                      	         	 
 					         </h:selectOneRadio> 
 						
+							<%-- title --%>
 							<h:panelGroup styleClass="titleText">
 								<h:outputText value="#{msgs.star_character}" style="color:#B11;"/>
 								<h:outputText value="#{msgs.event_name}"  escape="false"/>
@@ -51,12 +52,14 @@
 								<h:message for="title" errorClass="alertMessageInline"/>
 							</h:panelGroup>
 							
+							<%-- owner --%>
 							<h:outputText value="#{msgs.event_owner}" styleClass="titleText" escape="false"/>
 							<h:outputText  value="#{EditMeetingSignupMBean.meetingWrapper.creator}" styleClass="longtext"/>
 							
+							<%-- location --%>
 							<h:panelGroup styleClass="titleText">
 								<h:outputText value="#{msgs.star_character}" style="color:#B11;"/>
-								<h:outputText value="#{msgs.event_location}"  escape="false"/>
+								<h:outputText value="#{msgs.event_location}" escape="false"/>
 							</h:panelGroup>
 							<h:panelGroup>
 		                    	  <!-- Displays all the locations in the dropdown -->
@@ -68,9 +71,27 @@
 		                            <f:validator validatorId="Signup.EmptyStringValidator"/>
 		                            <f:validateLength maximum="255" />
 		                        </h:inputText>
-		                        <h:message for="location" errorClass="alertMessageInline"/>
+		                        <h:message for="customLocation" errorClass="alertMessageInline"/>
 		                    </h:panelGroup> 
+		                    
+		                     <%-- category --%>	                                   
+		                    <h:panelGroup styleClass="titleText">
+		                        <h:outputText value="#{msgs.event_category}" escape="false" />
+		                    </h:panelGroup>                                                   
+		                    <h:panelGroup>
+								<!-- Displays all the categories in the dropdown -->
+		                        <h:selectOneMenu id="selectedCategory" value="#{EditMeetingSignupMBean.selectedCategory}">
+									<f:selectItems value="#{EditMeetingSignupMBean.allCategories}"/>
+								</h:selectOneMenu>
+								<h:outputLabel id="customCategoryLabel" for="customCategory" value="#{msgs.event_category_edit}" /><h:outputText value="&nbsp;" escape="false"/>
+		                        <h:inputText id="customCategory" size="40" value="#{EditMeetingSignupMBean.signupMeeting.category}" styleClass="editText">  
+		                            <f:validator validatorId="Signup.EmptyStringValidator"/>
+		                            <f:validateLength maximum="255" />
+		                        </h:inputText>
+		                        <h:message for="customCategory" errorClass="alertMessageInline"/>
+		                    </h:panelGroup>  
 							
+							<%-- description --%>
 							<h:outputText value="#{msgs.event_description}" styleClass="titleText" escape="false"/>
 							<sakai:rich_text_area value="#{EditMeetingSignupMBean.signupMeeting.description}" width="720" height="200" rows="5"  columns="80"/>
 							

@@ -42,6 +42,8 @@ public class SignupSorter {
 	public static final String TITLE_COLUMN = "titleName";
 
 	public static final String LOCATION_COLUMN = "location";
+	
+	public static final String CATEGORY_COLUMN = "category";
 
 	public static final String CREATOR_COLUMN = "creator";
 
@@ -57,6 +59,8 @@ public class SignupSorter {
 	public static final Comparator<SignupMeetingWrapper> sortTitleComparator;
 
 	public static final Comparator<SignupMeetingWrapper> sortLocationComparator;
+	
+	public static final Comparator<SignupMeetingWrapper> sortCategoryComparator;
 
 	public static final Comparator<SignupMeetingWrapper> sortOwnerComparator;
 
@@ -77,6 +81,14 @@ public class SignupSorter {
 				int comparison = Collator.getInstance().compare(one.getMeeting().getLocation(),
 						another.getMeeting().getLocation());
 				return comparison == 0 ? sortLocationComparator.compare(one, another) : comparison;
+			}
+		};
+		
+		sortCategoryComparator = new Comparator<SignupMeetingWrapper>() {
+			public int compare(SignupMeetingWrapper one, SignupMeetingWrapper another) {
+				int comparison = Collator.getInstance().compare(one.getMeeting().getCategory(),
+						another.getMeeting().getCategory());
+				return comparison == 0 ? sortCategoryComparator.compare(one, another) : comparison;
 			}
 		};
 
@@ -194,6 +206,8 @@ public class SignupSorter {
 			comparator = sortTitleComparator;
 		} else if (LOCATION_COLUMN.equals(sortColumn)) {
 			comparator = sortLocationComparator;
+		} else if (CATEGORY_COLUMN.equals(sortColumn)) {
+			comparator = sortCategoryComparator;
 		} else if (CREATOR_COLUMN.equals(sortColumn)) {
 			comparator = sortOwnerComparator;
 		} else if (STATUS_COLUMN.equals(sortColumn)) {
@@ -240,6 +254,11 @@ public class SignupSorter {
 	public String getLocationColumn() {
 		return LOCATION_COLUMN;
 	}
+	
+	public String getCategoryColumn() {
+		return CATEGORY_COLUMN;
+	}
+	
 	
 	public String getStatusColumn(){
 		return STATUS_COLUMN;

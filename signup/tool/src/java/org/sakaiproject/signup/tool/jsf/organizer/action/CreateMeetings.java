@@ -494,6 +494,7 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 		SignupMeeting copy = new SignupMeeting();
 		copy.setTitle(s.getTitle());
 		copy.setLocation(s.getLocation());
+		copy.setCategory(s.getCategory());
 		copy.setDescription(s.getDescription());
 		copy.setCreatorUserId(s.getCreatorUserId());
 		copy.setStartTime(s.getStartTime());

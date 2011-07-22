@@ -17,6 +17,7 @@
 		<property name="title" column="title" type="string" length="255" not-null="true" />
 		<property name="description" column="description" type="text" not-null="false"  />
 		<property name="location" column="location" type="string" length="255" not-null="true" />
+		<property name="category" column="category" type="string" length="255" not-null="false" />
 		<property name="meetingType" column="meeting_type" type="string" length="50" not-null="true" />
 		<property name="creatorUserId" column="creator_user_id" type="string" length="255" not-null="true" />
 		<property name="startTime" column="start_time" type="java.util.Date" not-null="true" />

@@ -108,6 +108,16 @@
 							</f:facet>
 							<h:outputText value="#{wrapper.meeting.location}"/>												
 						</t:column>
+						
+						<%-- category --%>
+						<t:column sortable="true">
+							<f:facet name="header">
+								<t:commandSortHeader columnName="#{SignupMeetingsBean.signupSorter.categoryColumn}" immediate="true" arrow="true">
+									<h:outputText value="#{msgs.tab_event_category}" escape="false"/>
+								</t:commandSortHeader>
+							</f:facet>
+							<h:outputText value="#{wrapper.meeting.category}"/>												
+						</t:column>
 	
 						<t:column>
 							<f:facet name="header">

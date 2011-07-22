@@ -54,6 +54,8 @@
 					<%-- show all meeting details when expanded--%>
 					<h:panelGroup id="meetingInfoDetails">
 							<h:panelGrid columns="2" columnClasses="titleColumn,valueColumn" >
+								
+								<%-- title --%>
 								<h:outputText value="#{msgs.event_name}" styleClass="titleText" escape="false"/>
 									<h:panelGroup>
 										<h:panelGroup rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.recurrenceId !=null}">
@@ -63,11 +65,17 @@
 									<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.title}" styleClass="longtext"/>
 								</h:panelGroup>
 								
+								<%-- owner --%>
 								<h:outputText value="#{msgs.event_owner}" styleClass="titleText" escape="false"/>
 								<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.creator}" styleClass="longtext"/>
 								
+								<%-- location --%>
 								<h:outputText value="#{msgs.event_location}" styleClass="titleText" escape="false"/>
 								<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.location}" styleClass="longtext"/>
+								
+								<%-- category --%>
+								<h:outputText value="#{msgs.event_category}" styleClass="titleText" escape="false"/>
+								<h:outputText value="#{OrganizerSignupMBean.meetingWrapper.meeting.category}" styleClass="longtext"/>
 								
 								<h:outputText value="#{msgs.event_date}" styleClass="titleText" escape="false"/>
 								<h:panelGroup>

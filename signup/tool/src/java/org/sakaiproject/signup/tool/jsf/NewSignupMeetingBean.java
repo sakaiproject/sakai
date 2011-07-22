@@ -36,6 +36,7 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.context.FacesContext;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.exception.IdUnusedException;
@@ -98,6 +99,12 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	
 	//New Location added in the editable field
 	private String customLocation;
+	
+	//Category selected from the dropdown
+	private String selectedCategory;
+	
+	//New Category added in the editable field
+	private String customCategory;
 
 	private String repeatType;
 
@@ -215,6 +222,22 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	public void setcustomLocation(String customLocation) {
 		this.customLocation = customLocation;
 	}
+	
+	public String getselectedCategory() {
+		return selectedCategory;
+	}
+
+	public void setselectedCategory(String selectedCategory) {
+		this.selectedCategory = selectedCategory;
+	}
+	
+	public String getcustomCategory() {
+		return customCategory;
+	}
+
+	public void setcustomCategory(String customCategory) {
+		this.customCategory = customCategory;
+	}
 
 	/**
 	 * The default Constructor. It will initialize all the required variables.
@@ -308,6 +331,8 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		this.eidInputByUser = null;
 		this.selectedLocation=null;
 		this.customLocation=null;
+		this.selectedCategory=null;
+		this.customCategory=null;
 		/*clean up everything in getUserDefineTimeslotBean*/
 		getUserDefineTimeslotBean().reset(UserDefineTimeslotBean.NEW_MEETING);
 	}
@@ -319,10 +344,23 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
  	 */
  	public List<SelectItem> getAllLocations(){
  		
- 		List<SelectItem> locations= new ArrayList<SelectItem>();
+ 		List<SelectItem> locations = new ArrayList<SelectItem>();
  		locations.addAll(Utilities.getSignupMeetingsBean().getAllLocations());
  		locations.add(0, new SelectItem(Utilities.rb.getString("select_location")));
  		return locations;
+ 	}
+ 	
+	/**
+ 	 * This method is called to get all categories to populate the dropdown, for new signup creation.
+ 	 * 
+ 	 * @return list of categories
+ 	 */
+ 	public List<SelectItem> getAllCategories(){
+ 		
+ 		List<SelectItem> categories = new ArrayList<SelectItem>();
+ 		categories.addAll(Utilities.getSignupMeetingsBean().getAllCategories());
+ 		categories.add(0, new SelectItem(Utilities.rb.getString("select_category")));
+ 		return categories;
  	}
  	
 	/**
@@ -416,17 +454,29 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		if (step.equals("step1")) {
 			
 			//Set Location		
-			if (this.customLocation!=null && !this.customLocation.equals("")){
+			if (StringUtils.isNotBlank(customLocation)){
 				this.signupMeeting.setLocation(customLocation);
 				
 			}
 			else{
-				if (selectedLocation==null || selectedLocation.equals(Utilities.rb.getString("select_location"))){
+				if (StringUtils.equals(selectedLocation, Utilities.rb.getString("select_location"))){
 					validationError = true;
 					Utilities.addErrorMessage(Utilities.rb.getString("event.location_not_assigned"));
 					return;
 				}
 				this.signupMeeting.setLocation(selectedLocation);
+			}
+			
+			//Set Category	
+			//custom
+			if (StringUtils.isNotBlank(customCategory)){
+				this.signupMeeting.setCategory(customCategory);
+			} 
+			else{
+				//or from the dropdown, but if we don't choose one or left it as the 'choose category method' then don't set it
+				if (!StringUtils.equals(selectedCategory, Utilities.rb.getString("select_category"))){
+					this.signupMeeting.setCategory(selectedCategory);
+				}
 			}
 			
 			Date eventEndTime = signupMeeting.getEndTime();
@@ -709,6 +759,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		signupMeeting.setEidInputMode(this.eidInputMode);
 		/* add attachments */
 		signupMeeting.setSignupAttachments(this.attachments);
+		
 	}
 
 	/**
@@ -1762,6 +1813,13 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			return false;
 		else
 			return true;
+	}
+	
+	public boolean isCategoriesExist() {
+		if (Utilities.getSignupMeetingsBean().getAllCategories().isEmpty()) {
+			return false;
+		}
+		return true;
 	}
 
 	public UserDefineTimeslotBean getUserDefineTimeslotBean() {

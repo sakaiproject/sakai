@@ -61,7 +61,24 @@
                             <f:validateLength maximum="255" />
                         </h:inputText>
                         <h:message for="customLocation" errorClass="alertMessageInline"/>
-                    </h:panelGroup>                           
+                    </h:panelGroup>  
+                    
+                    <%-- category --%>	                                   
+                    <h:panelGroup styleClass="titleText">
+                        <h:outputText value="#{msgs.event_category}" />
+                    </h:panelGroup>                                                   
+                    <h:panelGroup>
+						<!-- Displays all the categories in the dropdown -->
+                        <h:selectOneMenu id="selectedCategory" value="#{NewSignupMeetingBean.selectedCategory}" rendered="#{NewSignupMeetingBean.categoriesExist}">
+							<f:selectItems value="#{NewSignupMeetingBean.allCategories}"/>
+						</h:selectOneMenu>
+						<h:outputLabel id="customCategoryLabel" for="customCategory" value="#{msgs.event_category_custom}" rendered="#{NewSignupMeetingBean.categoriesExist}"/><h:outputText value="&nbsp;" escape="false"  rendered="#{NewSignupMeetingBean.categoriesExist}"/>
+                        <h:inputText id="customCategory" size="40" value="#{NewSignupMeetingBean.customCategory}" styleClass="editText">  
+                            <f:validator validatorId="Signup.EmptyStringValidator"/>
+                            <f:validateLength maximum="255" />
+                        </h:inputText>
+                        <h:message for="customCategory" errorClass="alertMessageInline"/>
+                    </h:panelGroup>                          
                 
                 	<%-- description, rich text --%>
                 	<h:panelGroup styleClass="titleText">

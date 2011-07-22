@@ -35,6 +35,7 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.signup.logic.Permission;
@@ -181,14 +182,34 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 		Set<String> set = new HashSet<String>();
 		List<SelectItem> locations= new ArrayList<SelectItem>();
 		List<SignupMeetingWrapper> allMeetings = getAllSignupMeetings();
-		for(SignupMeetingWrapper meeting :allMeetings)
-		{
-			String location= meeting.getMeeting().getLocation();
-			if(set.add(meeting.getMeeting().getLocation())){
-				locations.add(new SelectItem(meeting.getMeeting().getLocation()));
+		for(SignupMeetingWrapper meeting : allMeetings) {
+			String location = meeting.getMeeting().getLocation();
+			if(StringUtils.isNotBlank(location) && set.add(location)) {
+				locations.add(new SelectItem(location));
 			}
 		}
-		return locations;
+		
+		return new ArrayList<SelectItem>(locations);
+		
+	}
+	
+	public List<SelectItem> getAllCategories(){
+		
+		Set<String> set = new HashSet<String>();
+		List<SelectItem> categories = new ArrayList<SelectItem>();
+		List<SignupMeetingWrapper> allMeetings = getAllSignupMeetings();
+		
+		if(allMeetings == null) {
+			return new ArrayList<SelectItem>();
+		}
+		
+		for(SignupMeetingWrapper meeting : allMeetings) {
+			String category = meeting.getMeeting().getCategory();
+			if(StringUtils.isNotBlank(category) && set.add(category)) {
+				categories.add(new SelectItem(category));
+			}
+		}
+		return categories;
 	}
 
 	/**
@@ -502,6 +523,17 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	public boolean isMeetingsAvailable() {
 		getSignupMeetings();
 		return !(signupMeetings == null || signupMeetings.isEmpty());
+	}
+	
+	/**
+	 * This is a getter method for UI.
+	 * 
+	 * @return true if we have categories already
+	 *       
+	 */
+	public boolean isCategoriesAvailable() {
+		getSignupMeetings();
+		return !(getAllCategories() == null || getAllCategories().isEmpty());
 	}
 
 	/**

@@ -26,6 +26,8 @@
 				<h:panelGrid columns="1">
 					
 						<h:panelGrid columns="2"  columnClasses="titleColumn,valueColumn">
+								
+								<%-- title --%>
 								<h:outputText value="#{msgs.event_name}" styleClass="titleText" escape="false"/>
 								<h:panelGroup>
 									<h:panelGroup rendered="#{NewSignupMeetingBean.recurrence}">
@@ -35,9 +37,11 @@
 									<h:outputText value="#{NewSignupMeetingBean.signupMeeting.title}" styleClass="longtext" escape="false"/>
 								</h:panelGroup>
 								
+								<%--  description --%>
 								<h:outputText value="#{msgs.event_description}" styleClass="titleText" escape="false"/>
 								<h:outputText value="#{NewSignupMeetingBean.signupMeeting.description}" styleClass="longtext" escape="false"/>
 								
+								<%--  attachments --%>
 								<h:outputText  value="#{msgs.attachments}" styleClass="titleText" escape="false" rendered="#{!NewSignupMeetingBean.attachmentsEmpty}"/>
 			         			<h:panelGrid columns="1" rendered="#{!NewSignupMeetingBean.attachmentsEmpty}">
 			         				<t:dataTable value="#{NewSignupMeetingBean.attachments}" var="attach" >
@@ -55,6 +59,7 @@
 			         				</t:dataTable>			         				
 				         		</h:panelGrid>
 								
+								<%--  start time --%>
 								<h:outputText value="#{msgs.event_start_time}" styleClass="titleText" escape="false"/>
 								<h:panelGroup>
 									<h:outputText value="#{NewSignupMeetingBean.signupMeeting.startTime}" styleClass="longtext">
@@ -68,6 +73,7 @@
 				 					</h:outputText>		
 								</h:panelGroup>
 								
+								<%-- end time --%>
 								<h:outputText value="#{msgs.event_end_time}" styleClass="titleText" escape="false"/>
 								<h:panelGroup rendered="#{!NewSignupMeetingBean.endTimeAutoAdjusted}">
 									<h:outputText value="#{NewSignupMeetingBean.meetingEndTime}" styleClass="longtext">
@@ -92,7 +98,7 @@
 									</h:outputText>
 								</h:panelGroup>
 								
-								
+								<%-- recurrence --%>
 								<h:outputText styleClass="titleText" value="#{msgs.event_recurrence}"  rendered="#{NewSignupMeetingBean.recurrence}" escape="false"/> 
 								<h:outputText value="#{NewSignupMeetingBean.eventFreqType}" rendered="#{NewSignupMeetingBean.recurrence}" escape="false"/>
 								 
@@ -103,8 +109,13 @@
 								<h:outputText value="#{msgs.event_repeat_num}" styleClass="titleText"  rendered="#{NewSignupMeetingBean.recurrence && NewSignupMeetingBean.recurLengthChoice=='0'}" escape="false"/>
 								<h:outputText value="#{NewSignupMeetingBean.occurrences}" rendered="#{NewSignupMeetingBean.recurrence && NewSignupMeetingBean.recurLengthChoice=='0'}" />
 								
+								<%-- location --%>
 								<h:outputText value="#{msgs.event_location}" styleClass="titleText" escape="false"/>
 								<h:outputText value="#{NewSignupMeetingBean.signupMeeting.location}" styleClass="longtext" escape="false"/>
+								
+								<%-- category --%>
+								<h:outputText value="#{msgs.event_category}" styleClass="titleText" escape="false"/>
+								<h:outputText value="#{NewSignupMeetingBean.signupMeeting.category}" styleClass="longtext" escape="false"/>
 								
 								<h:outputText value="#{msgs.event_signup_start}" styleClass="titleText" rendered="#{!NewSignupMeetingBean.announcementType}" escape="false"/>
 								<h:panelGroup rendered="#{!NewSignupMeetingBean.announcementType}">

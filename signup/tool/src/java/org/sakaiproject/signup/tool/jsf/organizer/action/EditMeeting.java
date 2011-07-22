@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.signup.logic.SignupEmailFacade;
 import org.sakaiproject.signup.logic.SignupMeetingService;
@@ -236,6 +237,7 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 			throws Exception {
 		newlyModifyMeeting.setTitle(modifiedMeeting.getTitle());
 		newlyModifyMeeting.setLocation(modifiedMeeting.getLocation());
+		newlyModifyMeeting.setCategory(modifiedMeeting.getCategory());
 		newlyModifyMeeting.setStartTime(calendar.getTime());
 		newlyModifyMeeting.setDescription(modifiedMeeting.getDescription());
 		newlyModifyMeeting.setLocked(modifiedMeeting.isLocked());
@@ -393,6 +395,7 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 		if (upTodateMeeting == null
 				|| !originalMeetingCopy.getTitle().equals(upTodateMeeting.getTitle())
 				|| !originalMeetingCopy.getLocation().equals(upTodateMeeting.getLocation())
+				|| !StringUtils.equals(originalMeetingCopy.getCategory(), upTodateMeeting.getCategory())
 				|| originalMeetingCopy.getStartTime().getTime() != upTodateMeeting.getStartTime().getTime()
 				|| originalMeetingCopy.getEndTime().getTime() != upTodateMeeting.getEndTime().getTime()
 				|| originalMeetingCopy.getSignupBegins().getTime() != upTodateMeeting.getSignupBegins().getTime()

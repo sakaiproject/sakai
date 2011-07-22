@@ -45,6 +45,8 @@
 							
 							<h:outputText value="#{msgs.event_owner}" styleClass="titleText" escape="false"/>
 							<h:outputText  value="#{CopyMeetingSignupMBean.meetingWrapper.creator}" styleClass="longtext"/>
+							
+							<%-- location --%>
 							<h:panelGroup styleClass="titleText">
 								<h:outputText value="#{msgs.star_character}" style="color:#B11;"/>
 								<h:outputText value="#{msgs.event_location}"  escape="false"/>
@@ -60,8 +62,26 @@
 		                            <f:validator validatorId="Signup.EmptyStringValidator"/>
 		                            <f:validateLength maximum="255" />
 		                        </h:inputText>
-		                        <h:message for="location" errorClass="alertMessageInline"/>
+		                        <h:message for="customLocation" errorClass="alertMessageInline"/>
 		                    </h:panelGroup> 
+		                    
+		                    <%--category --%>
+		                    <h:panelGroup styleClass="titleText">
+								<h:outputText value="#{msgs.event_category}"  escape="false"/>
+							</h:panelGroup>
+							
+		                    <h:panelGroup>
+		                    	  <!-- Displays all the categories in the dropdown -->
+		                        <h:selectOneMenu id="selectedCategory" value="#{CopyMeetingSignupMBean.selectedCategory}">
+									<f:selectItems value="#{CopyMeetingSignupMBean.allCategories}"/>
+								</h:selectOneMenu>
+								<h:outputLabel id="customCategoryLabel" for="customCategory" value="#{msgs.event_category_edit}" /><h:outputText value="&nbsp;" escape="false" />
+		                        <h:inputText id="customCategory" size="40" value="#{CopyMeetingSignupMBean.signupMeeting.category}" styleClass="editText">  
+		                            <f:validator validatorId="Signup.EmptyStringValidator"/>
+		                            <f:validateLength maximum="255" />
+		                        </h:inputText>
+		                        <h:message for="customCategory" errorClass="alertMessageInline"/>
+		                    </h:panelGroup>
 							
 							<h:outputText value="#{msgs.event_description}" styleClass="titleText" escape="false"/>
 							<sakai:rich_text_area value="#{CopyMeetingSignupMBean.signupMeeting.description}" width="720" height="200" rows="5" columns="80"/>

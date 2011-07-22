@@ -32,6 +32,7 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.logic.SignupUser;
 import org.sakaiproject.signup.logic.SignupUserActionException;
@@ -80,6 +81,9 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	
 	//Location selected from the dropdown
 	private String selectedLocation;
+	
+	//Category selected from the dropdown
+	private String selectedCategory;
 
 	private Date repeatUntil;
 
@@ -379,7 +383,7 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		}
 		
 		//Set Location		
-		if (this.signupMeeting.getLocation()==null || this.signupMeeting.getLocation().equals("")){
+		if (StringUtils.isBlank(this.signupMeeting.getLocation())){
 			if (selectedLocation.equals(Utilities.rb.getString("select_location"))){
 				validationError = true;
 				Utilities.addErrorMessage(Utilities.rb.getString("event.location_not_assigned"));
@@ -390,6 +394,18 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		}
 		//clear the location fields
 		this.selectedLocation="";
+		
+		//Set Category
+		//if textfield is blank, check the dropdown
+		if (StringUtils.isBlank(this.signupMeeting.getCategory())){
+			//if dropdown is not the default, then use its value
+			if(!StringUtils.equals(selectedCategory, Utilities.rb.getString("select_category"))) {
+					this.signupMeeting.setCategory(selectedCategory);
+			}
+		}
+		//clear the category fields
+		this.selectedCategory="";
+
 	}
 	
 	/**
@@ -405,6 +421,7 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		cleanUpUnusedAttachmentCopies(this.signupMeeting.getSignupAttachments());
 		getUserDefineTimeslotBean().reset(UserDefineTimeslotBean.COPY_MEETING);
 		this.selectedLocation=null; //Reset selected option
+		this.selectedCategory=null; //Reset selected option
 		return ORGANIZER_MEETING_PAGE_URL;
 	}
 
@@ -578,6 +595,19 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
  		locations.add(0, new SelectItem(Utilities.rb.getString("select_location")));
  		return locations;
  	}
+ 	
+ 	/**
+ 	 * This method is called to get all categories to populate the dropdown
+ 	 * 
+ 	 * @return list of categories
+ 	 */
+ 	public List<SelectItem> getAllCategories(){
+ 		
+ 		List<SelectItem> categories= new ArrayList<SelectItem>();
+ 		categories.addAll(Utilities.getSignupMeetingsBean().getAllCategories());
+ 		categories.add(0, new SelectItem(Utilities.rb.getString("select_category")));
+ 		return categories;
+ 	}
 
 	/**
 	 * check if the attendees in the event/meeting should be copied along with
@@ -712,6 +742,14 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	 */
 	public void setselectedLocation(String selectedLocation) {
 		this.selectedLocation = selectedLocation;
+	}
+	
+	
+	public String getselectedCategory() {
+		return selectedLocation;
+	}
+	public void setselectedCategory(String selectedCategory) {
+		this.selectedCategory = selectedCategory;
 	}
 
 	/**

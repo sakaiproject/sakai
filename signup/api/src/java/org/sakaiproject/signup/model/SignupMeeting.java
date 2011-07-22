@@ -52,6 +52,8 @@ public class SignupMeeting implements MeetingTypes {
 	private String description;
 
 	private String location;
+	
+	private String category;
 
 	/* sakai user id */
 	private String creatorUserId;
@@ -390,6 +392,26 @@ public class SignupMeeting implements MeetingTypes {
 	public void setLocation(String location) {
 		this.location = location;
 	}
+	
+	/**
+	 * get the category of the event/meeting
+	 * 
+	 * @return the category
+	 */
+	public String getCategory() {
+		return category;
+	}
+
+	/**
+	 * this is a setter.
+	 * 
+	 * @param category
+	 *            a category, the type of event/meeting
+	 */
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
 
 	/**
 	 * get the Permission object, which contains the user's operation
