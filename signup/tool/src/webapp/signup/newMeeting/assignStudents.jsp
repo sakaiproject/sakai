@@ -17,7 +17,6 @@
 		<sakai:view_content>
 			<h:form id="meeting">
 			 	<sakai:view_title value="#{msgs.event_assign_attendee_page_title}"/>
-				<sakai:messages />
 
 				<h:panelGrid columns="2" style="margin-top:20px;margin-bottom:20px;" columnClasses="titleColumn,valueColumn">
 					<h:outputText value="#{msgs.event_date}" styleClass="titleText" escape="false"/>
