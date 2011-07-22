@@ -31,7 +31,6 @@ import org.ietf.jgss.GSSException;
 import org.ietf.jgss.GSSManager;
 import org.ietf.jgss.GSSName;
 import org.ietf.jgss.Oid;
-import org.sakaiproject.user.api.UserLockedException;
 
 import com.sun.security.auth.callback.TextCallbackHandler;
 
