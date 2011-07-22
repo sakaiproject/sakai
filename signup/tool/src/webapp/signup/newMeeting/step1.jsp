@@ -45,6 +45,14 @@
                         <h:message for="name" errorClass="alertMessageInline"/>
 					</h:panelGroup> 
 					
+					<%-- owner --%>
+					<h:outputText value="#{msgs.event_owner}" styleClass="titleText" escape="false"/>
+					<h:panelGroup>
+						<h:outputText  value="#{EditMeetingSignupMBean.meetingWrapper.creator}" styleClass="longtext"/>
+						<h:outputLabel id="customOwnerLabel" for="customLocation" value="#{msgs.tab_event_location_custom}" rendered="#{!NewSignupMeetingBean.allLocationsEmpty}" /><h:outputText value="&nbsp;" escape="false" rendered="#{!NewSignupMeetingBean.allLocationsEmpty}" />
+					
+					</h:panelGroup>
+					
 					<%-- location --%>	                                   
                     <h:panelGroup styleClass="titleText">
                         <h:outputText value="#{msgs.star_character}"  style="color:#B11;"/>
