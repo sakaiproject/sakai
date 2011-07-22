@@ -189,6 +189,18 @@ kadmin:  quit
 This will create a keytab file called krb5-test.keytab in the 
 current directory.
 
+To check what is in your keytab file you can use the klist command:
+
+$ klist -ke krb5-test.keytab 
+Keytab name: WRFILE:krb5-test.keytab
+KVNO Principal
+---- --------------------------------------------------------------------------
+   7 sakai-test/machine.inst.edi@INST.EDU (AES-256 CTS mode with 96-bit SHA-1 HMAC) 
+   7 sakai-test/machine.inst.edi@INST.EDU (AES-128 CTS mode with 96-bit SHA-1 HMAC) 
+   7 sakai-test/machine.inst.edi@INST.EDU (ArcFour with HMAC/md5) 
+   7 sakai-test/machine.inst.edi@INST.EDU (Triple DES cbc mode with HMAC/sha1) 
+   7 sakai-test/machine.inst.edi@INST.EDU (DES cbc mode with CRC-32) 
+
 Now add an extra section to your JAAS configuration file changing 
 values to account for local settings (principal and keyTab):
 
