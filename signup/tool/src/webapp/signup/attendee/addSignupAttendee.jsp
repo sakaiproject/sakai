@@ -16,7 +16,6 @@
 			<h:outputText value="#{msgs.event_error_alerts} #{errorMessageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{errorMessageUIBean.error}"/> 
 			<h:form id="meeting">
 			 	<sakai:view_title value="#{msgs.event_addSignup_attendee_page_title}"/>
-				<sakai:messages />
 
 				<h:panelGrid columns="2" columnClasses="titleColumn,valueColumn" style="margin-top:20px;">
 					<h:outputText value="#{msgs.event_name}" styleClass="titleText" escape="false"/>

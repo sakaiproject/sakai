@@ -37,8 +37,6 @@
 			<h:form id="meeting">
 				<sakai:view_title value="#{msgs.event_participant_view_page_title}" />
 
-				<sakai:messages />
-
 				<%-- show title only when collapsed --%>
 				<h:panelGrid id="showMeetingTitleOnly" columns="2" columnClasses="titleColumn,valueColumn" styleClass="orgShowTitleOnly">
 							<h:outputText value="#{msgs.event_name}" styleClass="titleText" escape="false"/>
