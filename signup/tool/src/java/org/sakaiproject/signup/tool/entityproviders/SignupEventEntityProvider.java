@@ -248,6 +248,12 @@ public class SignupEventEntityProvider extends AbstractEntityProvider implements
 		if (locRes != null) {
 			siteId = developerHelperService.getLocationIdFromRef(locRes.getStringValue());
 		}
+		
+		//if siteId still null, reutrn 400 as we are missing info
+		if(siteId == null) {
+			throw new IllegalArgumentException("Missing site id, cannot retrieve signup events");
+		}
+		
 		// get the user (if set)
 		Restriction userRes = search.getRestrictionByProperty(CollectionResolvable.SEARCH_USER_REFERENCE);
 		String userId = null;
