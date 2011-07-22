@@ -52,15 +52,15 @@ public class JaasTestVerify {
 	private byte[] serviceTickets;
 	private GSSContext serverContext;
 	
-	private String servicePrincipal = "sakai/machine.inst.edu";
+	// Make sure you have an @ in this value, when it get used Java replaces it with a /.
+	private String servicePrincipal = "sakai-test@bit.oucs.ox.ac.uk";
 
 	private class UserAction implements PrivilegedAction<Object> {
 		public Object run() {
 			try {
 				tokens = clientContext.initSecContext(serviceTickets, 0, serviceTickets.length);
 			} catch (GSSException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
 			return null;
 		}
@@ -71,8 +71,7 @@ public class JaasTestVerify {
 			try {
 				serviceTickets = serverContext.acceptSecContext(tokens, 0, tokens.length);
 			} catch (GSSException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
 			return null;
 		}
@@ -95,7 +94,7 @@ public class JaasTestVerify {
 		LoginContext serverLoginContext = null;
 		try {
 
-			serverLoginContext = new LoginContext("KerberosServiceAuthentication", new TextCallbackHandler());
+			serverLoginContext = new LoginContext("ServiceKerberosAuthentication", new TextCallbackHandler());
 			serverLoginContext.login();
 
 		} catch (LoginException le) {
