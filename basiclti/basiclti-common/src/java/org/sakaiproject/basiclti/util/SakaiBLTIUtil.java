@@ -454,7 +454,7 @@ System.out.println("toolProps="+toolProps);
 	Object toolProp = tool.get(propName);
 	Object contentProp = content.get(propName);
 	if ( toolProp == null && contentProp == null ) return null;
-	if ( toolProp == null ) return contentProp.toString();
+	if ( contentProp == null ) return toolProp.toString();
 
 	Object allowProp = tool.get("allow"+propName);
 	int allowCode = -1;
