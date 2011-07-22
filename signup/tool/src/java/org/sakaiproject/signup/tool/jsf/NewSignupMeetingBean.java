@@ -268,14 +268,19 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 		signupMeeting = new SignupMeeting();
 		signupMeeting.setMeetingType(INDIVIDUAL);
+		
 		Date date = new Date();
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(date);
-		calendar.set(Calendar.MINUTE, 0);
-		calendar.set(Calendar.SECOND, 0);
-		calendar.set(Calendar.MILLISECOND, 0);
-		signupMeeting.setStartTime(calendar.getTime());
-		signupMeeting.setEndTime(calendar.getTime());
+		Calendar startCal = Calendar.getInstance();
+		startCal.setTime(date);
+		startCal.set(Calendar.MINUTE, 0);
+		startCal.set(Calendar.SECOND, 0);
+		startCal.set(Calendar.MILLISECOND, 0);
+		signupMeeting.setStartTime(startCal.getTime());
+		
+		Calendar endCal = startCal;
+		endCal.add(Calendar.HOUR, 1);
+		signupMeeting.setEndTime(endCal.getTime());
+		
 		unlimited = false;
 		recurrence = false;
 		assignParicitpantsToAllRecurEvents = false;
@@ -298,7 +303,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		currentStepHiddenInfo = null;
 		eidInputMode = false;
 		repeatType = ONCE_ONLY;
-		repeatUntil = calendar.getTime();
+		repeatUntil = startCal.getTime();
 		recurLengthChoice="1";//0 for num of repeat, 1 for date choice
 		occurrences=0;
 		this.publishedSite = null;
