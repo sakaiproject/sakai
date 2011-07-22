@@ -75,15 +75,15 @@ table.searchFilter {
 }
 
 table.rosterPicturesFilter {
-	width:60em;
+	width:20em;
 }
 
 table.rosterPictures {
-	width:60em;
+	width:20em;
 }
 
 table.rosterPictures td {
-	width:180px;
+	width:160px;
 	height:15em;
 	vertical-align:top;
 	word-break:break-all;
@@ -92,11 +92,11 @@ table.rosterPictures td {
 }
 
 table.rosterPicturesSingleColumn {
-	width:360px;
+	width:320px;
 }
 
 table.rosterPicturesSingleColumn td {
-	width:180px;
+	width:160px;
 	vertical-align:top;
 	padding-bottom:1em;
 	word-break:break-all;
@@ -105,8 +105,8 @@ table.rosterPicturesSingleColumn td {
 
 .rosterPicture {
 	border:1px solid #bbb;
-	width:expression(180 + "px"); /* used for IE */
-	max-width:180px;
+	width:expression(160 + "px"); /* used for IE */
+	max-width:160px;
 	max-height:14em;
 }
 
@@ -116,6 +116,10 @@ table.rosterPicturesSingleColumn td {
 
 .rosterActions {
 	margin-top:0.5em;
+}
+
+.connection-email {
+	background-image: url(/library/image/silk/email.png);
 }
 
 /* mouse-over actions on tables */

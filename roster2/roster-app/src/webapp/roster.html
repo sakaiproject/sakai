@@ -62,6 +62,23 @@
 -->
 </div>
 
+<div id="roster_navbar_low_res_template" style="display:none"><!--
+<div class="navIntraTool rosterNavBar">
+	<select id="roster_navbar_dropdown">
+		<option value="${STATE_OVERVIEW}">${navbar_overview}</option>
+		<option value="${STATE_PICTURES}">${navbar_pics}</option>
+		{if true == groups}
+			<option value="${STATE_GROUP_MEMBERSHIP}">${navbar_group_membership}</option>
+		{/if}
+		{if true == enrollment} 
+			<option value="${STATE_ENROLLMENT_STATUS}">${navbar_status}</option>
+		{/if}
+		<option value="${STATE_PERMISSIONS}">${navbar_permissions}</option>
+	</select>
+</div>
+-->
+</div>
+
 <div id="roster_overview_header_template" style="display:none"><!--
 <table class="rosterPageHeader">
 	<tbody>
@@ -465,7 +482,7 @@
 				{/if}
 				<div class="rosterActions">
 					{if true == viewEmail && member.email.length > 0}
-						<span><a href="mailto:${member.email}" title="${profile_email} ${member.email}"><img class="rosterActionAlignment" src="/library/image/silk/email.png" alt="${profile_email} ${member.email}"></a></span>
+						<div><span class="icon connection-email" alt="${profile_email} ${member.email}"><a href="mailto:${member.email}" title="${profile_email} ${member.email}">${profile_email}</a></div>
 					{/if}
 					{if true == viewConnections}
 						{if currentUserId == member.userId}
@@ -537,7 +554,7 @@
 				{/if}
 				<div class="rosterActions">
 					{if true == viewEmail && member.email.length > 0}
-						<span><a href="mailto:${member.email}" title="${profile_email} ${member.email}"><img class="rosterActionAlignment" src="/library/image/silk/email.png" alt="${profile_email} ${member.email}"></a></span>
+						<div><span class="icon connection-email" alt="${profile_email} ${member.email}"><a href="mailto:${member.email}" title="${profile_email} ${member.email}">${profile_email}</a></div>
 					{/if}
 					{if true == viewConnections}
 						{if currentUserId == member.userId}
