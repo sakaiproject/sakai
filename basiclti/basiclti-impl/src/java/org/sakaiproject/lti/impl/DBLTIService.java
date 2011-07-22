@@ -166,6 +166,13 @@ public class DBLTIService extends BaseLTIService implements LTIService
 	{ 
 	        return getThings("lti_mapping", LTIService.MAPPING_MODEL, search, order, first, last);
 	}
+       
+        // TODO: Actually check mappings
+        public String checkMapping(String url)
+        {
+                return url;
+        }
+
 
 	/** Tool Methods */
 	public Object insertTool(Properties newProps)
@@ -177,7 +184,12 @@ public class DBLTIService extends BaseLTIService implements LTIService
 	{
 	        return getThing("lti_tools", LTIService.TOOL_MODEL, key);                
 	}
-	
+
+	public Map<String,Object> getToolNoAuthz(Long key) 
+	{
+	        return getThingNoAuthz("lti_tools", LTIService.TOOL_MODEL, key);                
+	}
+
 	public Map<String,Object> getTool(String url) {return null; }
 
 	private boolean getTool(Object urlorkey, Map<String,Object> retval) 
@@ -197,7 +209,6 @@ public class DBLTIService extends BaseLTIService implements LTIService
 
 	public List<Map<String,Object>> getTools(String search, String order, int first, int last) 
 	{ 
-System.out.println("getTools");
 	        return getThings("lti_tools", LTIService.TOOL_MODEL, search, order, first, last);
 	}
 	
@@ -220,7 +231,16 @@ System.out.println("getTools");
 	
 	public Map<String,Object> getContent(Long key) 
 	{
-	        return getThing("lti_content", LTIService.CONTENT_MODEL, key);                
+	        Map<String, Object> retval = getThing("lti_content", LTIService.CONTENT_MODEL, key);  
+                if ( retval == null ) return retval;
+                String launchStr = LAUNCH_PREFIX+getContext()+"/context:"+key.toString();
+                retval.put("launch_url",launchStr);
+                return retval;             
+	}
+
+	public Map<String,Object> getContentNoAuthz(Long key)
+	{
+	        return getThingNoAuthz("lti_content", LTIService.CONTENT_MODEL, key);              
 	}
 
 	public boolean deleteContent(Long key)
@@ -308,8 +328,18 @@ System.out.println("getTools");
 		System.out.println("Insert="+retval);
 		return retval;
 	}
-	
+
 	public Map<String,Object> getThing(String table, String [] model, Long key) 
+	{
+		return getThing(table, model, key, true);
+	}
+
+	public Map<String,Object> getThingNoAuthz(String table, String [] model, Long key) 
+	{
+		return getThing(table, model, key, false);
+	}
+	
+	private Map<String,Object> getThing(String table, String [] model, Long key, boolean doAuthz) 
 	{
 		if ( table == null || model == null || key == null ) {
 		        throw new IllegalArgumentException("table, model, and key must all be non-null");
@@ -318,7 +348,7 @@ System.out.println("getTools");
                 Object fields[] = null;           
                 String [] columns = foorm.getFields(model);
 
-                if  ( Arrays.asList(columns).indexOf("SITE_ID") >= 0 && !isAdmin() ) {
+                if  ( doAuthz && Arrays.asList(columns).indexOf("SITE_ID") >= 0 && !isAdmin() ) {
                         statement += " AND SITE_ID = ? OR SITE_ID IS NULL";
                         fields = new Object[2];
                         fields[0] = key;               

@@ -32,6 +32,22 @@ public class Foorm {
 	return op; 
     } 
 
+    // Returns -1 on failure
+    public Long getLongKey(Object key)
+    {
+        if ( key == null ) return new Long(-1);
+        if ( key instanceof Long ) return (Long) key;
+        if ( key instanceof Integer ) return new Long((Integer) key);
+        if ( key instanceof String ) {
+                try {
+                        return new Long( (String) key );
+                } catch(Exception e) {
+                       return new Long(-1);
+                }
+        }
+        return new Long(-1);
+    }
+
     // Abstract this away for testing purposes
     public Object getField(Object row, String column)
     {

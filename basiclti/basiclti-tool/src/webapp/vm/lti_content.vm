@@ -13,7 +13,11 @@
 				</tr>
 	#foreach ($content in $contents)
 	<tr>
-	<td headers="matchpattern">$content.get("title")</td>
+	<td headers="matchpattern">$content.get("title")
+	#if ( $content.get("launch_url") )
+	<br/> $content.get("launch_url") 
+	#end
+	</td>
 	<td headers="action"><a href="$sakai_ActionURL.setPanel("ContentPut")&id=$content.get("id")">Edit</a> / 
 	<a href="$sakai_ActionURL.setPanel("ContentDelete")&id=$content.get("id")">Delete</a></td>
 	<tr>

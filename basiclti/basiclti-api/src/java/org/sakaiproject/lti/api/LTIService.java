@@ -60,16 +60,20 @@ public interface LTIService
 	public String [] getToolModel() ;
 	public Object insertTool(Properties newProps);
 	public Map<String,Object> getTool(Long key);
+	public Map<String,Object> getToolNoAuthz(Long key);
 	public Map<String,Object> getTool(String url);
 	public boolean deleteTool(Long key);
 	public Object updateTool(Long key, Map<String,Object> newProps);
 	public Object updateTool(Long key, Properties newProps);
 	public List<Map<String, Object>> getTools(String search, String order, int first, int last) ;
 
+        public String checkMapping(String url);
+
 	/* Content */
 	public String [] getContentModel(Long tool_id) ;
 	public Object insertContent(Properties newProps);
 	public Map<String,Object> getContent(Long key);
+	public Map<String,Object> getContentNoAuthz(Long key);
 	public boolean deleteContent(Long key);
 	public Object updateContent(Long key, Map<String,Object> newProps);
 	public Object updateContent(Long key, Properties newProps);
@@ -89,13 +93,14 @@ public interface LTIService
 	static String [] CONTENT_MODEL = {
 	        "id:key",
                 "tool_id:integer:hidden=true",
-	        "SITE_ID:text:maxlength=99:role=admin",
-		"title:text:label=bl_title:required=true:maxlength=255",
-		"preferheight:integer:label=bl_preferheight",
-		"launchinpopup:radio:label=bl_launchinpopup:choices=off,on",
-		"debuglaunch:radio:label=bl_debuglaunch:choices=off,on",
-		"customparameters:textarea:label=bl_customparameters:rows=5:cols=25:maxlength=1024",
-                "toolurl:url:hidden=true:maxlength=255",
+	        "SITE_ID:text:maxlength=99:label=bl_content_site_id:role=admin",
+		"title:text:label=bl_content_title:required=true:maxlength=255",
+		"description:textarea:label=bl_description:required=true:rows=2:cols=25:maxlength=4096:",
+		"frameheight:integer:label=bl_frameheight",
+		"newpage:radio:label=bl_newpage:choices=off,on",
+		"debug:radio:label=bl_debug:choices=off,on",
+		"custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=1024",
+                "launch:url:hidden=true:maxlength=255",
                 "xmlimport:text:hidden=true:maxlength=16384",
                 "created_at:autodate",
                 "updated_at:autodate"
@@ -106,18 +111,18 @@ public interface LTIService
 		"title:text:label=bl_title:required=true:maxlength=255",
 		"description:textarea:label=bl_description:required=true:rows=2:cols=25:maxlength=4096:",
                 "status:radio:label=bl_status:choices=enable,disable",
-		"toolurl:url:label=bl_toolurl:required=true:maxlength=255",
-		"resourcekey:text:label=bl_resourcekey:required=true:maxlength=255",
-		"password:text:required=true:label=bl_password:maxlength=255",
+		"launch:url:label=bl_launch:required=true:maxlength=255",
+		"consumerkey:text:label=bl_consumerkey:required=true:maxlength=255",
+		"secret:text:required=true:label=bl_secret:maxlength=255",
 	        "SITE_ID:text:maxlength=99:role=admin",
-		"preferheight:integer:label=bl_preferheight",
-		"allowpreferheight:radio:label=bl_allowpreferheight:choices=off,on",
-		"launchinpopup:radio:label=bl_launchinpopup:choices=off,on,content",
-		"debuglaunch:radio:label=bl_debuglaunch:choices=off,on,content",
+		"frameheight:integer:label=bl_frameheight",
+		"allowframeheight:radio:label=bl_allowframeheight:choices=off,on",
+		"newpage:radio:label=bl_newpage:choices=off,on,content",
+		"debug:radio:label=bl_debug:choices=off,on,content",
 		"sendname:radio:label=bl_sendname:choices=off,on",
 		"sendemailaddr:radio:label=bl_sendemailaddr:choices=off,on",
-		"allowcustomparameters:radio:label=bl_allowcustomparameters:choices=off,on",
-		"customparameters:textarea:label=bl_customparameters:rows=5:cols=25:maxlength=1024",
+		"allowcustom:radio:label=bl_allowcustom:choices=off,on",
+		"custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=1024",
 		"organizationid:text:label=bl_organizationid:maxlength=255",
 		"organizationurl:text:label=bl_organizationurl:maxlength=255",
 		"organizationdescr:text:label=bl_organizationdescr:maxlength=255",
@@ -128,7 +133,7 @@ public interface LTIService
 	static String [] MAPPING_MODEL = {
 		"id:key",
 		"matchpattern:url:label=bl_matchpattern:required=true:maxlength=255",
-		"toolurl:url:label=bl_launchurl:required=true:maxlength=255",
+		"launch:url:label=bl_launchurl:required=true:maxlength=255",
                 "created_at:autodate",
                 "updated_at:autodate"
         } ;

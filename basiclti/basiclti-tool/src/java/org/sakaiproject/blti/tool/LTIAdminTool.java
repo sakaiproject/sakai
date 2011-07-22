@@ -21,6 +21,10 @@
 
 package org.sakaiproject.blti.tool;
 
+import java.io.Writer;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import java.util.Properties;
 import java.util.List;
 import java.util.Map;
@@ -211,7 +215,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		        return "lti_error";
 		}
                 context.put("doToolAction", BUTTON + "doToolDelete");
-		String [] mappingForm = foorm.filterForm(ltiService.getToolModel(), "^title:.*|^toolurl:.*|^id:.*", null);
+		String [] mappingForm = foorm.filterForm(ltiService.getToolModel(), "^title:.*|^launch:.*|^id:.*", null);
 		String id = data.getParameters().getString("id");
 		if ( id == null ) {
 		        addAlert(state,rb.getString("error.id.not.found"));
@@ -655,13 +659,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
         public String buildTestPanelContext(VelocityPortlet portlet, Context context, 
 		RunData rundata, SessionState state)
 	{
-		context.put("tlang", rb);
-		if ( ! ltiService.isAdmin() ) {
-		        addAlert(state,rb.getString("error.admin.view"));
-		        return "lti_error";
-		}
-                StringBuffer sb = new StringBuffer();
+	    context.put("tlang", rb);
+	    if ( ! ltiService.isAdmin() ) {
+	        addAlert(state,rb.getString("error.admin.view"));
+                return "lti_error";
+            }
+            StringBuffer sb = new StringBuffer();
 
+            try { 
                 // Get a list of tools
 		List<Map<String,Object>> tools = ltiService.getTools(null,null,0,100);
                 sb.append("Currently Available tools\n");
@@ -686,7 +691,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
                 // Lets grab the tool key...
                 Map<String,Object> tool = tools.get(0);
 
-                Long toolKey = new Long((Integer)tool.get("id"));
+                // We will assume this works
+                Long toolKey = foorm.getLongKey(tool.get("id"));
 
                 sb.append("Long Tool Key=");
                 sb.append(toolKey.toString());
@@ -892,9 +898,20 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
                 boolean retval = ltiService.deleteContent(contentKey);
                 sb.append("Return value from delete="+retval);
                 sb.append("\n");
+            } catch (Exception e) {
+                sb.append(e.getMessage());
+                sb.append(getStackTrace(e));
+            }
 
 		context.put("preOutput",sb.toString());
 		return "lti_test";
 	}
+
+        public static String getStackTrace(Throwable throwable) {
+                Writer writer = new StringWriter();
+                PrintWriter printWriter = new PrintWriter(writer);
+                throwable.printStackTrace(printWriter);
+                return writer.toString();
+         }
 
 }

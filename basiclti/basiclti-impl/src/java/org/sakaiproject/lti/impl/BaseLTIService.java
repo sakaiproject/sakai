@@ -66,6 +66,7 @@ public abstract class BaseLTIService implements LTIService
 	
 	/** Constants */
 	private final String ADMIN_SITE = "!admin";
+        protected final String LAUNCH_PREFIX = "/access/basiclti/site/";
 
 	/** Resource bundle using current language locale */
 	protected static ResourceLoader rb = new ResourceLoader("ltiservice");
@@ -139,6 +140,9 @@ public abstract class BaseLTIService implements LTIService
 		if ( securityService == null ) securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
 		if ( siteService == null ) siteService = (SiteService) ComponentManager.get("org.sakaiproject.site.api.SiteService");
 		if ( toolManager == null ) toolManager = (ToolManager) ComponentManager.get("org.sakaiproject.tool.api.ToolManager");
+                if ( toolManager == null ) {
+                        System.out.println("TYHJUIOJASSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS");
+                }
 	}
 	
 	/**********************************************************************************************************************************************************************************************************************************************************
