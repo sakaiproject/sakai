@@ -1491,6 +1491,9 @@ background-image: url(/library/image/silk/comment.png);
 .icon-sakai-basiclti { 
 	background-image: url(/library/image/silk/application_go.png); 
 }
+.icon-sakai-basiclti-admin { 
+	background-image: url(../../image/silk/application_go.png); 
+}
 
 
 /** Privacy Popup Styles **/

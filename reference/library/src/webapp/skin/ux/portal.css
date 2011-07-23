@@ -1227,6 +1227,9 @@ background-image: url(../../image/silk/comment.png);
 .icon-sakai-basiclti { 
 	background-image: url(../../image/silk/application_go.png); 
 }
+.icon-sakai-basiclti-admin { 
+	background-image: url(../../image/silk/application_go.png); 
+}
 .icon-sakai-mneme { 
 	background-image: url(../../image/sakai/tool-icons/sakai.mneme.png); 
 } 
