@@ -186,7 +186,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		state.removeAttribute(STATE_ID);
 		if ( ! ltiService.isMaintain() ) {
 		        addAlert(state,rb.getString("error.maintain.edit"));
-		        return "lti_main";
+		        return "lti_error";
 		}
                 context.put("doToolAction", BUTTON + "doToolPut");
                 context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
@@ -506,12 +506,12 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	public String buildContentPutPanelContext(VelocityPortlet portlet, Context context, 
 			RunData data, SessionState state)
 	{
+	        context.put("tlang", rb);
 		String stateToolId = (String) state.getAttribute(STATE_TOOL_ID);
 		if ( ! ltiService.isMaintain() ) {
 		        addAlert(state,rb.getString("error.maintain.edit"));
 		        return "lti_error";
 		}
-	        context.put("tlang", rb);
 		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
                 context.put("doAction", BUTTON + "doContentPut");
 		state.removeAttribute(STATE_SUCCESS);
