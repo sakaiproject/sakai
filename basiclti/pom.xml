@@ -28,11 +28,13 @@
         <module>basiclti-assembly</module>
         <module>basiclti-docs</module>
         <module>basiclti-help</module>
+        <module>basiclti-api</module>
         <module>basiclti-impl</module>
         <module>basiclti-pack</module>
         <module>basiclti-portlet</module>
         <module>basiclti-blis</module>
         <module>basiclti-util</module>
+        <module>basiclti-tool</module>
         <module>portlet-util</module>
     </modules>
     
@@ -191,6 +193,11 @@
         <dependencies>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>basiclti-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>basiclti-impl</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -219,6 +226,27 @@
 		<groupId>org.sakaiproject.entitybroker</groupId>
 		<artifactId>entitybroker-utils</artifactId>
             	<version>1.5-SNAPSHOT</version>
+            </dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring</artifactId>
+				<version>2.5.6.SEC02</version>
+				<scope>provided</scope>
+			</dependency>
+	    <dependency>
+		<groupId>commons-configuration</groupId>
+		<artifactId>commons-configuration</artifactId>
+		<version>1.6</version>
+	    </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.velocity</groupId>
+                <artifactId>sakai-velocity-tool-api</artifactId>
+                <version>2.9-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.velocity</groupId>
+                <artifactId>sakai-velocity-tool</artifactId>
+                <version>2.9-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.edu-services.gradebook</groupId>

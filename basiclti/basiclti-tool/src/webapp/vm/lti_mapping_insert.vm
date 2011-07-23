@@ -1,0 +1,16 @@
+<div class="portletBody">
+	<h3>
+		$tlang.getString("mapping.put")
+	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	<form action="#toolForm("")" method="post" name="customizeForm" >
+		$formInput
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		<p class="act">
+			<input type="submit" accesskey ="s" class="active" name="$doMappingAction" 
+				value="$tlang.getString('gen.save')" />
+			<input type="submit" accesskey ="x" value="$tlang.getString('gen.cancel')" 
+ 				onclick="location = '$sakai_ActionURL.setPanel("Mapping")';return false;">
+		</p>
+	</form>
+</div>

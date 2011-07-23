@@ -9,4 +9,17 @@
                         singleton="true">
         </bean>
 
+        <bean id="org.sakaiproject.lti.api.LTIService"
+                        class="org.sakaiproject.lti.impl.DBLTIService"
+                        init-method="init"
+                        destroy-method="destroy"
+                        singleton="true">
+                <property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+                <property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+                <property name="usageSessionService"><ref bean="org.sakaiproject.event.api.UsageSessionService"/></property>
+                <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+                <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+                <property name="autoDdl"><value>${auto.ddl}</value></property>
+        </bean>
+
 </beans>

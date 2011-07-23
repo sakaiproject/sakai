@@ -55,10 +55,15 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.lti.api.LTIService;
 //import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.component.cover.ComponentManager;
+
+import org.sakaiproject.util.foorm.SakaiFoorm;
 
 import org.sakaiproject.basiclti.LocalEventTrackingService;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+
 
 @SuppressWarnings("deprecation")
 public class BasicLTISecurityServiceImpl implements EntityProducer {
@@ -69,6 +74,8 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 	public static final String REFERENCE_ROOT="/basiclti";
 	public static final String APPLICATION_ID = "sakai:basiclti";
 	public static final String EVENT_BASICLTI_LAUNCH = "basiclti.launch";
+
+	protected static SakaiFoorm foorm = new SakaiFoorm();
 
 	// Note: security needs a proper Resource reference
 
@@ -111,6 +118,8 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 	/*******************************************************************************
 	* Init and Destroy
 	*******************************************************************************/
+	/** A service */
+	protected static LTIService ltiService = null; 
 
 	/**
 	 * Final initialization, once all dependencies are set.
@@ -130,6 +139,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		{
 			logger.warn("init(): ", t);
 		}
+                if ( ltiService == null ) ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
 	}
 
 	/**
@@ -208,8 +218,54 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					throw new EntityPermissionException(SessionManager.getCurrentSessionUserId(), "basiclti", ref.getReference());
 				}
 
-				// Get the post data for the placement
-				String[] retval = SakaiBLTIUtil.postLaunchHTML(ref.getId(), rb);
+				String refId = ref.getId();
+				String [] retval = null;
+				if ( refId.startsWith("content:") && refId.length() > 8 ) 
+				{
+					Map<String,Object> content = null;
+					Map<String,Object> tool = null;
+
+					String contentStr = refId.substring(8);
+					Long contentKey = foorm.getLongKey(contentStr);
+					if ( contentKey >= 0 )
+					{
+						content = ltiService.getContentNoAuthz(contentKey);
+						if ( content != null ) 
+						{
+							String siteId = (String) content.get("SITE_ID");
+							if ( siteId == null || ! siteId.equals(ref.getContext()) )  
+							{
+								content = null;
+							}
+						}
+						if ( content != null ) 
+						{
+							Long toolKey = foorm.getLongKey(content.get("tool_id"));
+							if ( toolKey > 0 ) tool = ltiService.getToolNoAuthz(toolKey);
+							if ( tool != null ) 
+							{
+								// SITE_ID can be null for the tool
+								String siteId = (String) tool.get("SITE_ID");
+								if ( siteId != null && ! siteId.equals(ref.getContext()) ) 
+								{
+									tool = null;
+								}
+							}
+						}
+
+						// Adjust the content items based on the tool items
+						if ( tool != null || content != null ) 
+						{
+							ltiService.filterContent(content, tool);
+						}
+					}
+					retval = SakaiBLTIUtil.postLaunchHTML(content, tool, rb);
+				}
+				else
+				{
+					// Get the post data for the placement
+					retval = SakaiBLTIUtil.postLaunchHTML(refId, rb);
+				}
 
 				try
 				{

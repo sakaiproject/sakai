@@ -20,6 +20,7 @@
 package org.sakaiproject.basiclti.util;
 
 import java.util.Properties;
+import java.util.Map;
 import java.net.URL;
 
 import org.imsglobal.basiclti.BasicLTIUtil;
@@ -112,6 +113,17 @@ public class SakaiBLTIUtil {
 
 	// Pull in and parse the custom parameters
 	String customstr = toNull(getCorrectProperty(config,"custom", placement) );
+	parseCustom(info, customstr);
+
+        if ( info.getProperty("launch_url", null) != null || 
+             info.getProperty("secure_launch_url", null) != null ) {
+            return true;
+        }
+        return false;
+    }
+
+    public static void parseCustom(Properties info, String customstr)
+    {
 	if ( customstr != null ) {
 		String [] params = customstr.split("[\n;]");
 		for (int i = 0 ; i < params.length; i++ ) {
@@ -130,12 +142,6 @@ public class SakaiBLTIUtil {
         		setProperty(info, "custom_"+key, value);
 		}
 	}
-
-        if ( info.getProperty("launch_url", null) != null || 
-             info.getProperty("secure_launch_url", null) != null ) {
-            return true;
-        }
-        return false;
     }
 
    public static boolean sakaiInfo(Properties props, Placement placement, ResourceLoader rb)
@@ -146,6 +152,38 @@ public class SakaiBLTIUtil {
         dPrint("ContextID="+context);
 
         return sakaiInfo(props, context, placement.getId(), rb);
+   }
+
+   public static void addSiteInfo(Properties props, Site site)
+   {
+	if ( site != null ) {
+		String context_type = site.getType();
+		if ( context_type != null && context_type.toLowerCase().contains("course") ){
+			setProperty(props,BasicLTIConstants.CONTEXT_TYPE,BasicLTIConstants.CONTEXT_TYPE_COURSE_SECTION);
+		}
+		setProperty(props,BasicLTIConstants.CONTEXT_ID,site.getId());
+		setProperty(props,BasicLTIConstants.CONTEXT_LABEL,site.getTitle());
+		setProperty(props,BasicLTIConstants.CONTEXT_TITLE,site.getTitle());
+		String courseRoster = getExternalRealmId(site.getId());
+		if ( courseRoster != null ) 
+		{
+			setProperty(props,BasicLTIConstants.LIS_COURSE_OFFERING_SOURCEDID,courseRoster);
+		}
+	}
+   }
+
+   public static void addRoleInfo(Properties props, String context)
+   {
+	String theRole = "Learner";
+	if ( SecurityService.isSuperUser() )
+	{
+		theRole = "Instructor";
+	}
+	else if ( SiteService.allowUpdateSite(context) ) 
+	{
+		theRole = "Instructor";
+	}
+	setProperty(props,"roles",theRole);
    }
 
    // Retrieve the Sakai information about users, etc.
@@ -160,7 +198,18 @@ public class SakaiBLTIUtil {
                 return false;
 	}
                 
-	User user = UserDirectoryService.getCurrentUser();
+	// Add the generic information
+	addGlobalData(props, rb);
+	addRoleInfo(props, context);
+	addSiteInfo(props, site);
+
+	// Add Placement Information
+	addPlacementInfo(props, placementId);
+	return true;
+    }
+
+    public static void addPlacementInfo(Properties props, String placementId)
+    {
 
 	// Get the placement to see if we are to release information
         ToolConfiguration placement = SiteService.findTool(placementId);
@@ -176,11 +225,12 @@ public class SakaiBLTIUtil {
         String releasename = toNull(getCorrectProperty(config,"releasename", placement));
         String releaseemail = toNull(getCorrectProperty(config,"releaseemail", placement));
 
+	User user = UserDirectoryService.getCurrentUser();
+
 	// TODO: Think about anonymus
 	if ( user != null )
 	{
 		setProperty(props,BasicLTIConstants.USER_ID,user.getId());
-		setProperty(props,BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE,rb.getLocale().toString()); 
 		if ( "on".equals(releasename) ) {
 			setProperty(props,BasicLTIConstants.LIS_PERSON_NAME_GIVEN,user.getFirstName());
 			setProperty(props,BasicLTIConstants.LIS_PERSON_NAME_FAMILY,user.getLastName());
@@ -246,33 +296,38 @@ public class SakaiBLTIUtil {
 		}
 	}
 
-	String theRole = "Learner";
-	if ( SecurityService.isSuperUser() )
-	{
-		theRole = "Instructor";
-	}
-	else if ( SiteService.allowUpdateSite(context) ) 
-	{
-		theRole = "Instructor";
-	}
-	setProperty(props,"roles",theRole);
+	// Send along the content link
+        String contentlink = toNull(getCorrectProperty(config,"contentlink", placement));
+	if ( contentlink != null ) setProperty(props,"ext_resource_link_content",contentlink);
 
-	if ( site != null ) {
-		String context_type = site.getType();
-		if ( context_type != null && context_type.toLowerCase().contains("course") ){
-			setProperty(props,BasicLTIConstants.CONTEXT_TYPE,BasicLTIConstants.CONTEXT_TYPE_COURSE_SECTION);
-		}
-		setProperty(props,BasicLTIConstants.CONTEXT_ID,site.getId());
-		setProperty(props,BasicLTIConstants.CONTEXT_LABEL,site.getTitle());
-		setProperty(props,BasicLTIConstants.CONTEXT_TITLE,site.getTitle());
-		String courseRoster = getExternalRealmId(site.getId());
-		if ( courseRoster != null ) 
-		{
-			setProperty(props,BasicLTIConstants.LIS_COURSE_OFFERING_SOURCEDID,courseRoster);
-		}
-	}
+    } 
 
+    public static void addGlobalData(Properties props, ResourceLoader rb)
+    {
 
+	if ( rb != null ) setProperty(props,BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE,rb.getLocale().toString()); 
+
+	// Get the organizational information
+	setProperty(props,BasicLTIConstants.TOOL_CONSUMER_INSTANCE_GUID, 
+		ServerConfigurationService.getString("basiclti.consumer_instance_guid",null));
+	setProperty(props,BasicLTIConstants.TOOL_CONSUMER_INSTANCE_NAME, 
+		ServerConfigurationService.getString("basiclti.consumer_instance_name",null));
+	setProperty(props,BasicLTIConstants.TOOL_CONSUMER_INSTANCE_DESCRIPTION, 
+		ServerConfigurationService.getString("basiclti.consumer_instance_description",null));
+	setProperty(props,BasicLTIConstants.TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL, 
+		ServerConfigurationService.getString("basiclti.consumer_instance_contact_email",null));
+	setProperty(props,BasicLTIConstants.TOOL_CONSUMER_INSTANCE_URL, 
+		ServerConfigurationService.getString("basiclti.consumer_instance_url",null));
+	setProperty(props,BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, 
+		ServerConfigurationService.getString("basiclti.consumer_return_url",null));
+
+	// Send along the CSS URL
+	String tool_css = ServerConfigurationService.getString("basiclti.consumer.launch_presentation_css_url",null);
+        if ( tool_css == null ) tool_css = getOurServerUrl() + "/library/skin/default/tool.css";  
+	setProperty(props,BasicLTIConstants.LAUNCH_PRESENTATION_CSS_URL, tool_css);  
+
+	// Let tools know we are coming from Sakai
+	setProperty(props,"ext_lms", "sakai2");  
         // Sakai-Unique fields - compatible with LinkTool
         Session s = SessionManager.getCurrentSession();
         if (s != null) {
@@ -289,34 +344,7 @@ public class SakaiBLTIUtil {
 	setProperty(props,"ext_sakai_serverid",serverId);
         setProperty(props,"ext_sakai_server",getOurServerUrl());
 
-	// Get the organizational information
-	setProperty(props,BasicLTIConstants.TOOL_CONSUMER_INSTANCE_GUID, 
-		ServerConfigurationService.getString("basiclti.consumer_instance_guid",null));
-	setProperty(props,BasicLTIConstants.TOOL_CONSUMER_INSTANCE_NAME, 
-		ServerConfigurationService.getString("basiclti.consumer_instance_name",null));
-	setProperty(props,BasicLTIConstants.TOOL_CONSUMER_INSTANCE_DESCRIPTION, 
-		ServerConfigurationService.getString("basiclti.consumer_instance_description",null));
-	setProperty(props,BasicLTIConstants.TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL, 
-		ServerConfigurationService.getString("basiclti.consumer_instance_contact_email",null));
-	setProperty(props,BasicLTIConstants.TOOL_CONSUMER_INSTANCE_URL, 
-		ServerConfigurationService.getString("basiclti.consumer_instance_url",null));
-	setProperty(props,BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, 
-		ServerConfigurationService.getString("basiclti.consumer_return_url",null));
-
-	// Send along the content link
-        String contentlink = toNull(getCorrectProperty(config,"contentlink", placement));
-	if ( contentlink != null ) setProperty(props,"ext_resource_link_content",contentlink);
-
-	// Send along the CSS URL
-	String tool_css = ServerConfigurationService.getString("basiclti.consumer.launch_presentation_css_url",null);
-        if ( tool_css == null ) tool_css = getOurServerUrl() + "/library/skin/default/tool.css";  
-	setProperty(props,BasicLTIConstants.LAUNCH_PRESENTATION_CSS_URL, tool_css);  
-
-	// Let tools know we are coming from Sakai
-	setProperty(props,"ext_lms", "sakai2");  
-	return true;
-    } 
-
+    }
     // getProperty(String name);
     // Gnerate HTML from a descriptor and properties from 
     public static String[] postLaunchHTML(String descriptor, String contextId, String resourceId, ResourceProperties props, ResourceLoader rb)
@@ -342,6 +370,85 @@ public class SakaiBLTIUtil {
 
     // This must return an HTML message as the [0] in the array
     // If things are successful - the launch URL is in [1]
+    public static String[] postLaunchHTML(Map<String, Object> content, Map<String,Object> tool, ResourceLoader rb)
+    {
+	if ( content == null ) {
+        	return postError("<p>" + getRB(rb, "error.content.missing" ,"Content item is missing or improperly configured.")+"</p>" ); 
+	}
+	if ( tool == null ) {
+        	return postError("<p>" + getRB(rb, "error.tool.missing" ,"Tool item is missing or improperly configured.")+"</p>" ); 
+	}
+
+	int status = getInt(tool.get("status"));
+	if ( status == 1 ) return postError("<p>" + getRB(rb, "tool.disabled" ,"Tool is currently disabled")+"</p>" ); 
+
+       	String launch_url = (String) tool.get("launch");
+	if ( launch_url == null ) return postError("<p>" + getRB(rb, "error.nolaunch" ,"This tool is not yet configured.")+"</p>" );
+
+	String context = (String) content.get("SITE_ID");
+        Site site = null;
+        try {
+		site = SiteService.getSite(context);
+        } catch (Exception e) {
+                dPrint("No site/page associated with Launch context="+context);
+        	return postError("<p>" + getRB(rb, "error.site.missing" ,"Cannot load site.")+context+"</p>" ); 
+	}
+
+	// Start building up the properties
+	Properties ltiProps = new Properties();
+	Properties toolProps = new Properties();
+	addGlobalData(ltiProps, rb);
+	addSiteInfo(ltiProps, site);
+	addRoleInfo(ltiProps, context);
+
+	setProperty(ltiProps,BasicLTIConstants.RESOURCE_LINK_ID,"content:"+content.get("id"));
+
+        setProperty(toolProps, "launch_url", launch_url);
+
+        setProperty(toolProps, "secret", (String) tool.get("secret") );
+        setProperty(toolProps, "key", (String) tool.get("consumerkey") );
+
+        setProperty(toolProps, "debug", content.get("debug").toString() );
+        setProperty(toolProps, "frameheight", content.get("frameheight").toString() );
+        setProperty(toolProps, "newpage", content.get("newpage").toString() );
+
+	String title = (String) content.get("title");
+	if ( title == null ) title = (String) tool.get("title");
+	if ( title != null ) setProperty(ltiProps,BasicLTIConstants.RESOURCE_LINK_TITLE,title);
+
+	// Pull in and parse the custom parameters
+	int allowCustom = getInt(tool.get("allowcustom"));
+	if ( allowCustom == 1 ) parseCustom(ltiProps, (String) content.get("custom"));
+
+	// Tool custom parameters override content parameters
+	parseCustom(ltiProps, (String) tool.get("custom"));
+
+	int releasename = getInt(tool.get("sendname"));
+	int releaseemail = getInt(tool.get("sendemailaddr"));
+
+	User user = UserDirectoryService.getCurrentUser();
+	if ( user != null )
+	{
+		setProperty(ltiProps,BasicLTIConstants.USER_ID,user.getId());
+		if ( releasename == 1 ) {
+			setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_NAME_GIVEN,user.getFirstName());
+			setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_NAME_FAMILY,user.getLastName());
+			setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_NAME_FULL,user.getDisplayName());
+		}
+		if ( releaseemail == 1 ) {
+			setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY,user.getEmail());
+			setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_SOURCEDID,user.getEid());
+		}
+	}
+
+System.out.println("ltiProps="+ltiProps);
+System.out.println("toolProps="+toolProps);
+
+        return postLaunchHTML(toolProps, ltiProps, rb);
+    }
+
+    // This must return an HTML message as the [0] in the array
+    // If things are successful - the launch URL is in [1]
     public static String[] postLaunchHTML(String placementId, ResourceLoader rb)
     {
         if ( placementId == null ) return postError("<p>" + getRB(rb, "error.missing" ,"Error, missing placementId")+"</p>" );
@@ -349,25 +456,25 @@ public class SakaiBLTIUtil {
         if ( placement == null ) return postError("<p>" + getRB(rb, "error.load" ,"Error, cannot load placement=")+placementId+".</p>");
     
         // Add user, course, etc to the launch parameters
-        Properties launch = new Properties();
-        if ( ! sakaiInfo(launch, placement, rb) ) {
+        Properties ltiProps = new Properties();
+        if ( ! sakaiInfo(ltiProps, placement, rb) ) {
            return postError("<p>" + getRB(rb, "error.missing",
                 "Error, cannot load Sakai information for placement=")+placementId+".</p>");
         }
         
         // Retrieve the launch detail
-        Properties info = new Properties();
-        if ( ! loadFromPlacement(info, launch, placement) ) {
+        Properties toolProps = new Properties();
+        if ( ! loadFromPlacement(toolProps, ltiProps, placement) ) {
            return postError("<p>" + getRB(rb, "error.nolaunch" ,"Not Configured.")+"</p>");
 	}
-    	return postLaunchHTML(info, launch, rb);
+    	return postLaunchHTML(toolProps, ltiProps, rb);
     }
 
-    public static String[] postLaunchHTML(Properties info, Properties launch, ResourceLoader rb)
+    public static String[] postLaunchHTML(Properties toolProps, Properties ltiProps, ResourceLoader rb)
     {
 
-        String launch_url = info.getProperty("secure_launch_url");
-	if ( launch_url == null ) launch_url = info.getProperty("launch_url");
+        String launch_url = toolProps.getProperty("secure_launch_url");
+	if ( launch_url == null ) launch_url = toolProps.getProperty("launch_url");
         if ( launch_url == null ) return postError("<p>" + getRB(rb, "error.missing" ,"Not configured")+"</p>");
 
 	String org_guid = ServerConfigurationService.getString("basiclti.consumer_instance_guid",null);
@@ -387,17 +494,17 @@ public class SakaiBLTIUtil {
 
 	// If we do not have LMS-wide info, use the local key/secret
 	if ( secret == null ) {
-		secret = toNull(info.getProperty("secret"));
-		key = toNull(info.getProperty("key"));
+		secret = toNull(toolProps.getProperty("secret"));
+		key = toNull(toolProps.getProperty("key"));
 	}
 
 	// Pull in all of the custom parameters
-        for(Object okey : info.keySet() ) {
+        for(Object okey : toolProps.keySet() ) {
                 String skey = (String) okey;  
 		if ( ! skey.startsWith(BasicLTIConstants.CUSTOM_PREFIX) ) continue;
-		String value = info.getProperty(skey);
+		String value = toolProps.getProperty(skey);
 		if ( value == null ) continue;
-        	setProperty(launch, skey, value);
+        	setProperty(ltiProps, skey, value);
 	}
 
         String oauth_callback = ServerConfigurationService.getString("basiclti.oauth_callback",null);
@@ -405,8 +512,8 @@ public class SakaiBLTIUtil {
         // Actually since we are using signing-only, there is really not much point 
 	// In OAuth 6.2.3, this is after the user is authorized
 	if ( oauth_callback == null ) oauth_callback = "about:blank";
-        setProperty(launch, "oauth_callback", oauth_callback);
-        setProperty(launch, BasicLTIUtil.BASICLTI_SUBMIT, getRB(rb, "launch.button", "Press to Launch External Tool"));
+        setProperty(ltiProps, "oauth_callback", oauth_callback);
+        setProperty(ltiProps, BasicLTIUtil.BASICLTI_SUBMIT, getRB(rb, "launch.button", "Press to Launch External Tool"));
 
         // Sanity checks
         if ( secret == null ) {
@@ -416,14 +523,15 @@ public class SakaiBLTIUtil {
             return postError("<p>" + getRB(rb, "error.nokey", "Error - must have a secret and a key.")+"</p>");
         }
 
-        launch = BasicLTIUtil.signProperties(launch, launch_url, "POST", 
+        ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST", 
             key, secret, org_guid, org_desc, org_url);
 
-        if ( launch == null ) return postError("<p>" + getRB(rb, "error.sign", "Error signing message.")+"</p>");
-        dPrint("LAUNCH III="+launch);
+        if ( ltiProps == null ) return postError("<p>" + getRB(rb, "error.sign", "Error signing message.")+"</p>");
+        dPrint("LAUNCH III="+ltiProps);
 
-	boolean dodebug = "on".equals(info.getProperty("debug"));
-        String postData = BasicLTIUtil.postLaunchHTML(launch, launch_url, dodebug);
+	String debugProperty = toolProps.getProperty("debug");
+	boolean dodebug = "on".equals(debugProperty) || "1".equals(debugProperty);
+        String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, dodebug);
 
         String [] retval = { postData, launch_url };
         return retval;
@@ -519,5 +627,16 @@ public class SakaiBLTIUtil {
        return str;
     }
 
-
+    public static int getInt(Object o)
+    {
+	if ( o instanceof String ) {
+		try {
+			return (new Integer((String) o)).intValue();
+		} catch (Exception e) {
+			return -1;
+		}
+	}
+	if ( o instanceof Number ) return ( (Number) o).intValue();
+	return -1;
+    }
 }

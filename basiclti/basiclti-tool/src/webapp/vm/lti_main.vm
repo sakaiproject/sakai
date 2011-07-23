@@ -1,0 +1,60 @@
+<div class="portletBody">
+##if ($isAdmin && ! $inHelper )
+<ul class="navIntraTool actionToolBar" role="menu">
+<li class="firstToolBarItem" role="menuitem"><span><a href="#" 
+   title="$tlang.getString("content.menu")" 
+   onclick="location = '$sakai_ActionURL.setPanel("Content")';return false;">
+   $tlang.getString("content.menu") </a></span></li>
+#if ($isAdmin ) 
+<li role="menuitem"><span><a href="#" 
+   title="$tlang.getString("mapping.menu")" 
+   onclick="location = '$sakai_ActionURL.setPanel("Mapping")';return false;">
+   $tlang.getString("mapping.menu") </a></span></li>
+<li role="menuitem"><span><a href="#" 
+   title="$tlang.getString("test.menu")" 
+   onclick="location = '$sakai_ActionURL.setPanel("Test")';return false;">
+   $tlang.getString("test.menu") </a></span></li>
+#end
+</ul>
+##end
+#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
+#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+<h3>$tlang.getString("tool.title")</h3>
+	<form action="#toolForm("")" method="post" name="customizeForm" >
+#if ($tools && $tools.size() > 0)
+<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("tool.table")">
+        <tr>
+                <th id="title">$tlang.getString("bl_title")</th>
+                <th id="launch">$tlang.getString("bl_launch")</th>
+                #if ($isAdmin) <th id="site">$tlang.getString("bl_site")</th> #end
+                <th id="action">Action</th>
+        </tr>
+            #foreach ($tool in $tools)
+                <tr>
+                <td headers="title"><a href="$sakai_ActionURL.setPanel("ToolView")&id=$tool.get("id")">$tool.get("title")</td>
+                <td headers="launch">$tool.get("launch")</a></td>
+                #if ($isAdmin) <td headers="site">$!tool.get("SITE_ID")</a></td> #end
+                <td headers="action">
+                #if ( $isAdmin || $getContext == $tool.get("SITE_ID") ) 
+                        <a href="$sakai_ActionURL.setPanel("ToolEdit")&id=$tool.get("id")">$tlang.getString("gen.edit")</a> / 
+                        <a href="$sakai_ActionURL.setPanel("ToolDelete")&id=$tool.get("id")">$tlang.getString("gen.delete")</a>
+                #end
+                </td>
+                <tr>
+            #end
+	</table>
+#else
+<p>$tlang.getString("tool.none")</p>
+#end
+		</p>
+		<p class="act">
+                        <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+			<input type="submit" accesskey ="i" value="$tlang.getString('gen.insert')" 
+ 				onclick="location = '$sakai_ActionURL.setPanel("ToolInsert")';return false;">
+#if ( $inHelper ) 
+			<input type="submit" accesskey ="s" class="active" name="$doEndHelper" 
+				value="$tlang.getString('gen.done')" />
+#end
+		</p>
+	</form>
+</div>
