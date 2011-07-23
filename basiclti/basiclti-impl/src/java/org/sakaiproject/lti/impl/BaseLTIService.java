@@ -225,6 +225,11 @@ public abstract class BaseLTIService implements LTIService
 	        String retval = toolManager.getCurrentPlacement().getContext();
                 return retval;
         }
+
+        public String getContentLaunch(Long key)
+        {
+                return LAUNCH_PREFIX+getContext()+"/content:"+key.toString();
+        }
         
         public String formOutput(Object row, String fieldInfo)
         {
@@ -296,5 +301,61 @@ public abstract class BaseLTIService implements LTIService
 	}
 	
 	public abstract Object updateContent(Long key, Object newProps); 
+
+        public static int getInt(Object o)
+        {
+                if ( o instanceof String ) {
+                        try {
+                                return (new Integer((String) o)).intValue();
+                        } catch (Exception e) {
+                                return -1;
+                        }
+                }
+                if ( o instanceof Number ) return ( (Number) o).intValue();
+                return -1;
+        }
+
+        // Adjust the content object based on the settings in the tool object
+        public void filterContent(Map<String,Object> content, Map<String,Object> tool)
+        {
+                if ( content == null || tool == null ) return;
+                int heightOverride = getInt(tool.get("allowframeheight"));
+                int toolHeight = getInt(tool.get("frameheight"));
+                int contentHeight = getInt(content.get("frameheight"));
+                int frameHeight = 1200;
+                if ( toolHeight > 0 ) frameHeight = toolHeight;
+                if ( heightOverride == 1 && contentHeight > 0 ) frameHeight = contentHeight;
+                content.put("frameheight",new Integer(frameHeight));
+
+                Integer newProp = null;
+                newProp = getCorrectProperty("debug", content, tool);
+                if ( newProp != null ) content.put("debug",newProp);
+
+                newProp = getCorrectProperty("newpage", content, tool);
+                if ( newProp != null ) content.put("newpage",newProp);
+        }
+
+        public static Integer getCorrectProperty(String propName, Map<String, Object> content, Map<String,Object> tool)
+        {
+                int toolProp = getInt(tool.get(propName));
+                int contentProp = getInt(content.get(propName));
+                if ( toolProp == -1 || contentProp == -1 ) return null;
+                
+                int allowProp = getInt(tool.get("allow"+propName));
+                int allowCode = -1;
+                if ( allowProp >= 0  ) {
+                        allowCode = allowProp;
+                } else if ( toolProp >= 0 ) {
+                        allowCode = toolProp;
+                }
+                
+                // There is no control row assertion
+                if ( allowCode == -1 ) return null;
+                
+                // If the control property wants to override
+                if ( allowCode == 0 && toolProp != 0 ) return new Integer(0);  
+                if ( allowCode == 1 && toolProp != 1 ) return new Integer(1);
+                return null;
+        }
 
 }

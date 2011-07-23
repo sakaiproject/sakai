@@ -219,7 +219,6 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 				}
 
 				String refId = ref.getId();
-// System.out.println("contextId = "+ltiService.getContext());
 				String [] retval = null;
 				if ( refId.startsWith("content:") && refId.length() > 8 ) 
 				{
@@ -228,15 +227,37 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 
 					String contentStr = refId.substring(8);
 					Long contentKey = foorm.getLongKey(contentStr);
-System.out.println("contentKey="+contentKey);
 					if ( contentKey >= 0 )
 					{
 						content = ltiService.getContentNoAuthz(contentKey);
-System.out.println("content="+content);
-						Long toolKey = foorm.getLongKey(content.get("tool_id"));
-System.out.println("toolKey="+toolKey);
-						if ( toolKey > 0 ) tool = ltiService.getToolNoAuthz(contentKey);
-System.out.println("tool="+tool);
+						if ( content != null ) 
+						{
+							String siteId = (String) content.get("SITE_ID");
+							if ( siteId == null || ! siteId.equals(ref.getContext()) )  
+							{
+								content = null;
+							}
+						}
+						if ( content != null ) 
+						{
+							Long toolKey = foorm.getLongKey(content.get("tool_id"));
+							if ( toolKey > 0 ) tool = ltiService.getToolNoAuthz(contentKey);
+							if ( tool != null ) 
+							{
+								// SITE_ID can be null for the tool
+								String siteId = (String) tool.get("SITE_ID");
+								if ( siteId != null && ! siteId.equals(ref.getContext()) ) 
+								{
+									tool = null;
+								}
+							}
+						}
+
+						// Adjust the content items based on the tool items
+						if ( tool != null || content != null ) 
+						{
+							ltiService.filterContent(content, tool);
+						}
 					}
 					retval = SakaiBLTIUtil.postLaunchHTML(content, tool, rb);
 				}

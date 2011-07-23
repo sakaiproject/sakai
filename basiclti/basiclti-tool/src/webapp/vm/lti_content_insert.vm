@@ -33,4 +33,7 @@
  				onclick="location = '$sakai_ActionURL.setPanel("Content")';return false;">
 		</p>
 	</form>
+#if ( $isAdmin ) 
+$tlang.getString("content.admin.note")
+#end
 </div>

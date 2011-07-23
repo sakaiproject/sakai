@@ -78,6 +78,8 @@ public interface LTIService
 	public Object updateContent(Long key, Map<String,Object> newProps);
 	public Object updateContent(Long key, Properties newProps);
 	public List<Map<String, Object>> getContents(String search, String order, int first, int last) ;
+        public String getContentLaunch(Long key);
+        public void filterContent(Map<String,Object> content, Map<String,Object> tool);
 	
 	public String formOutput(Object row, String fieldInfo);
 	public String formOutput(Object row, String [] fieldInfo);
@@ -95,7 +97,7 @@ public interface LTIService
                 "tool_id:integer:hidden=true",
 	        "SITE_ID:text:maxlength=99:label=bl_content_site_id:role=admin",
 		"title:text:label=bl_content_title:required=true:maxlength=255",
-		"description:textarea:label=bl_description:required=true:rows=2:cols=25:maxlength=4096:",
+		"description:textarea:label=bl_description:rows=2:cols=25:maxlength=4096:",
 		"frameheight:integer:label=bl_frameheight",
 		"newpage:radio:label=bl_newpage:choices=off,on",
 		"debug:radio:label=bl_debug:choices=off,on",
@@ -109,7 +111,7 @@ public interface LTIService
 	static String [] TOOL_MODEL = {
 		"id:key",
 		"title:text:label=bl_title:required=true:maxlength=255",
-		"description:textarea:label=bl_description:required=true:rows=2:cols=25:maxlength=4096:",
+		"description:textarea:label=bl_description:rows=2:cols=25:maxlength=4096:",
                 "status:radio:label=bl_status:choices=enable,disable",
 		"launch:url:label=bl_launch:required=true:maxlength=255",
 		"consumerkey:text:label=bl_consumerkey:required=true:maxlength=255",
@@ -134,6 +136,7 @@ public interface LTIService
 		"id:key",
 		"matchpattern:url:label=bl_matchpattern:required=true:maxlength=255",
 		"launch:url:label=bl_launchurl:required=true:maxlength=255",
+                "note:text:label=bl_note:maxlength=255",
                 "created_at:autodate",
                 "updated_at:autodate"
         } ;

@@ -173,7 +173,6 @@ public class DBLTIService extends BaseLTIService implements LTIService
                 return url;
         }
 
-
 	/** Tool Methods */
 	public Object insertTool(Properties newProps)
 	{
@@ -182,12 +181,21 @@ public class DBLTIService extends BaseLTIService implements LTIService
 	
 	public Map<String,Object> getTool(Long key) 
 	{
-	        return getThing("lti_tools", LTIService.TOOL_MODEL, key);                
+	        return getThing("lti_tools", LTIService.TOOL_MODEL, key); 
 	}
 
 	public Map<String,Object> getToolNoAuthz(Long key) 
 	{
-	        return getThingNoAuthz("lti_tools", LTIService.TOOL_MODEL, key);                
+	        Map<String,Object> retval = getThingNoAuthz("lti_tools", LTIService.TOOL_MODEL, key);
+                String launch_url = (String) retval.get("launch");
+                if ( launch_url != null ) {
+                        String newLaunch = checkMapping(launch_url);
+                        if ( ! newLaunch.equals(launch_url) ) {
+                                retval.put("x_launch", launch_url ) ;              
+                                retval.put("launch", newLaunch ) ;
+                        }
+                }
+                return retval;
 	}
 
 	public Map<String,Object> getTool(String url) {return null; }
@@ -233,8 +241,7 @@ public class DBLTIService extends BaseLTIService implements LTIService
 	{
 	        Map<String, Object> retval = getThing("lti_content", LTIService.CONTENT_MODEL, key);  
                 if ( retval == null ) return retval;
-                String launchStr = LAUNCH_PREFIX+getContext()+"/context:"+key.toString();
-                retval.put("launch_url",launchStr);
+                retval.put("launch_url",getContentLaunch(key));
                 return retval;             
 	}
 
@@ -267,7 +274,12 @@ public class DBLTIService extends BaseLTIService implements LTIService
 
 	public List<Map<String,Object>> getContents(String search, String order, int first, int last) 
 	{ 
-	        return getThings("lti_content", LTIService.CONTENT_MODEL, search, order, first, last);
+	        List<Map<String,Object>> contents = getThings("lti_content", LTIService.CONTENT_MODEL, search, order, first, last);
+                for ( Map<String,Object> content : contents ) 
+                {
+                        content.put("launch_url",getContentLaunch(foorm.getLongKey(content.get("id"))));
+                }
+                return contents;
 	}
 	
 	
@@ -465,7 +477,6 @@ public class DBLTIService extends BaseLTIService implements LTIService
 	        return count == 1;
 	}
 
-	
         // Utility to return a resultset
 	public List<Map<String,Object>> getResultSet(String statement, Object [] fields, final String [] columns) 
 	{	

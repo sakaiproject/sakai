@@ -13,13 +13,13 @@
 				</tr>
 	#foreach ($content in $contents)
 	<tr>
-	<td headers="matchpattern">$content.get("title")
+	<td headers="matchpattern">$content.get("title")</td>
+	<td headers="action"><a href="$sakai_ActionURL.setPanel("ContentPut")&id=$content.get("id")">$tlang.getString("gen.edit")</a> / 
+	<a href="$sakai_ActionURL.setPanel("ContentDelete")&id=$content.get("id")">$tlang.getString("gen.delete")</a>
 	#if ( $content.get("launch_url") )
-	<br/> $content.get("launch_url") 
+	/ <a href="$content.get("launch_url")" target="_new" "$tlang.getString("gen.test")>$tlang.getString("gen.test")</a>
 	#end
 	</td>
-	<td headers="action"><a href="$sakai_ActionURL.setPanel("ContentPut")&id=$content.get("id")">Edit</a> / 
-	<a href="$sakai_ActionURL.setPanel("ContentDelete")&id=$content.get("id")">Delete</a></td>
 	<tr>
 	#end
 	</table>
@@ -33,4 +33,7 @@
  				onclick="location = '$sakai_ActionURL.setPanel("Main")';return false;">
 		</p>
 	</form>
+#if ( $isAdmin ) 
+$tlang.getString("content.admin.note")
+#end
 </div>

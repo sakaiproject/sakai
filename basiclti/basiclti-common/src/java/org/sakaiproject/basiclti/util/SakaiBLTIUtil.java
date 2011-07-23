@@ -368,26 +368,24 @@ public class SakaiBLTIUtil {
     	return postLaunchHTML(info, launch, rb);
     }
 
-    // XXX
     // This must return an HTML message as the [0] in the array
     // If things are successful - the launch URL is in [1]
     public static String[] postLaunchHTML(Map<String, Object> content, Map<String,Object> tool, ResourceLoader rb)
     {
 	if ( content == null ) {
-        	return postError("<p>" + getRB(rb, "error.content.missing" ,"Content item is missing.")+"</p>" ); 
+        	return postError("<p>" + getRB(rb, "error.content.missing" ,"Content item is missing or improperly configured.")+"</p>" ); 
 	}
 	if ( tool == null ) {
-        	return postError("<p>" + getRB(rb, "error.content.missing" ,"Tool item is missing.")+"</p>" ); 
+        	return postError("<p>" + getRB(rb, "error.tool.missing" ,"Tool item is missing or improperly configured.")+"</p>" ); 
 	}
 
-	Integer status = (Integer) tool.get("status");
-	if ( status != null && status == 1 ) return postError("<p>" + getRB(rb, "tool.disabled" ,"Tool is currently disabled")+"</p>" ); 
+	int status = getInt(tool.get("status"));
+	if ( status == 1 ) return postError("<p>" + getRB(rb, "tool.disabled" ,"Tool is currently disabled")+"</p>" ); 
 
        	String launch_url = (String) tool.get("launch");
-	if ( launch_url == null ) return postError("<p>" + getRB(rb, "error.launch.missing" ,"Tool does not have a launch url.")+"</p>" );
+	if ( launch_url == null ) return postError("<p>" + getRB(rb, "error.nolaunch" ,"This tool is not yet configured.")+"</p>" );
 
 	String context = (String) content.get("SITE_ID");
-System.out.println("Site-id="+context);
         Site site = null;
         try {
 		site = SiteService.getSite(context);
@@ -395,7 +393,6 @@ System.out.println("Site-id="+context);
                 dPrint("No site/page associated with Launch context="+context);
         	return postError("<p>" + getRB(rb, "error.site.missing" ,"Cannot load site.")+context+"</p>" ); 
 	}
-System.out.println("Site="+site);
 
 	// Start building up the properties
 	Properties ltiProps = new Properties();
@@ -407,35 +404,38 @@ System.out.println("Site="+site);
 	setProperty(ltiProps,BasicLTIConstants.RESOURCE_LINK_ID,"content:"+content.get("id"));
 
         setProperty(toolProps, "launch_url", launch_url);
-        setProperty(toolProps, "secret", getCorrectProperty("secret", content, tool) );
-        setProperty(toolProps, "key", getCorrectProperty("consumerkey", content, tool) );
-        setProperty(toolProps, "debug", getCorrectProperty("debug", content, tool) );
-        setProperty(toolProps, "frameheight", getCorrectProperty("frameheight", content, tool) );
-        setProperty(toolProps, "newpage", getCorrectProperty("newpage", content, tool) );
 
-        setProperty(ltiProps,BasicLTIConstants.RESOURCE_LINK_TITLE,getCorrectProperty("title", content, tool));
+        setProperty(toolProps, "secret", (String) tool.get("secret") );
+        setProperty(toolProps, "key", (String) tool.get("consumerkey") );
+
+        setProperty(toolProps, "debug", content.get("debug").toString() );
+        setProperty(toolProps, "frameheight", content.get("frameheight").toString() );
+        setProperty(toolProps, "newpage", content.get("newpage").toString() );
+
+	String title = (String) content.get("title");
+	if ( title == null ) title = (String) tool.get("title");
+	if ( title != null ) setProperty(ltiProps,BasicLTIConstants.RESOURCE_LINK_TITLE,title);
 
 	// Pull in and parse the custom parameters
-	Integer allowCustom = (Integer) tool.get("allowcustom");
-	if ( allowCustom != null && allowCustom != 0 ) 	parseCustom(ltiProps, (String) content.get("custom"));
+	int allowCustom = getInt(tool.get("allowcustom"));
+	if ( allowCustom == 1 ) parseCustom(ltiProps, (String) content.get("custom"));
 
-	// Tool parameters override content parameters
+	// Tool custom parameters override content parameters
 	parseCustom(ltiProps, (String) tool.get("custom"));
 
-        String releasename = toNull(getCorrectProperty("releasename", content, tool));
-        String releaseemail = toNull(getCorrectProperty("releaseemail", content, tool));
+	int releasename = getInt(tool.get("sendname"));
+	int releaseemail = getInt(tool.get("sendemailaddr"));
 
 	User user = UserDirectoryService.getCurrentUser();
-System.out.println("User="+user);
 	if ( user != null )
 	{
 		setProperty(ltiProps,BasicLTIConstants.USER_ID,user.getId());
-		if ( "1".equals(releasename) ) {
+		if ( releasename == 1 ) {
 			setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_NAME_GIVEN,user.getFirstName());
 			setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_NAME_FAMILY,user.getLastName());
 			setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_NAME_FULL,user.getDisplayName());
 		}
-		if ( "1".equals(releaseemail) ) {
+		if ( releaseemail == 1 ) {
 			setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY,user.getEmail());
 			setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_SOURCEDID,user.getEid());
 		}
@@ -445,32 +445,6 @@ System.out.println("ltiProps="+ltiProps);
 System.out.println("toolProps="+toolProps);
 
         return postLaunchHTML(toolProps, ltiProps, rb);
-    }
-
-    // Retrieve the radio button style properties
-    public static String getCorrectProperty(String propName, Map<String, Object> content, Map<String,Object> tool)
-    {
-	// When we add outcomes and settings and roster - make sure to consult server settings
-	Object toolProp = tool.get(propName);
-	Object contentProp = content.get(propName);
-	if ( toolProp == null && contentProp == null ) return null;
-	if ( contentProp == null ) return toolProp.toString();
-
-	Object allowProp = tool.get("allow"+propName);
-	int allowCode = -1;
-	if ( allowProp instanceof Integer ) {
-		allowCode = ((Integer) allowProp).intValue();
-	} else if ( contentProp instanceof Integer ) {
-		allowCode = ((Integer) toolProp).intValue();
-	}
-
-	// There is no control row assertion
-	if ( allowCode == -1 ) return contentProp.toString();
-
-	// If the control property wants to override
-	if ( allowCode == 0 ) return "0";  
-	if ( allowCode == 1 ) return "1";
-	return contentProp.toString();
     }
 
     // This must return an HTML message as the [0] in the array
@@ -653,5 +627,16 @@ System.out.println("toolProps="+toolProps);
        return str;
     }
 
-
+    public static int getInt(Object o)
+    {
+	if ( o instanceof String ) {
+		try {
+			return (new Integer((String) o)).intValue();
+		} catch (Exception e) {
+			return -1;
+		}
+	}
+	if ( o instanceof Number ) return ( (Number) o).intValue();
+	return -1;
+    }
 }

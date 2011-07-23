@@ -497,6 +497,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		List<Map<String,Object>> contents = ltiService.getContents(null,null,0,100);
 		context.put("contents", contents);
 		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
+		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_content";
 	}
@@ -511,6 +512,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		        return "lti_error";
 		}
 	        context.put("tlang", rb);
+		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
                 context.put("doAction", BUTTON + "doContentPut");
 		state.removeAttribute(STATE_SUCCESS);
 
@@ -721,7 +723,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
                 props.setProperty("SITE_ID",toolManager.getCurrentPlacement().getContext());
                 props.setProperty("tool_id",toolKey.toString());
                 props.setProperty("title", "A title");
-                props.setProperty("debuglaunch", "0"); 
+                props.setProperty("description", "A title");
+                props.setProperty("debug", "0"); 
                 
                 sb.append("\nConstructed content Properties for insert\n");
                 for ( Object okey : props.keySet() ) {
