@@ -9,8 +9,7 @@
 
 		<configuration name="reset.button" value="true"/>
 
-		<category name="course" />
-		<category name="project" />
+		<category name="admin" />
 
 		<!-- Allow this to be set -->
 		<configuration name="functions.require" /> 

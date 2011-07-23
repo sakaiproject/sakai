@@ -1,20 +1,22 @@
 <div class="portletBody">
-#if ($isAdmin && ! $inHelper )
+##if ($isAdmin && ! $inHelper )
 <ul class="navIntraTool actionToolBar" role="menu">
-<li class="firstToolBarItem" role="menuitem"><span><a href="#" 
-   title="$tlang.getString("mapping.menu")" 
-   onclick="location = '$sakai_ActionURL.setPanel("Mapping")';return false;">
-   $tlang.getString("mapping.menu") </a></span></li>
 <li class="firstToolBarItem" role="menuitem"><span><a href="#" 
    title="$tlang.getString("content.menu")" 
    onclick="location = '$sakai_ActionURL.setPanel("Content")';return false;">
    $tlang.getString("content.menu") </a></span></li>
-<li class="firstToolBarItem" role="menuitem"><span><a href="#" 
+#if ($isAdmin ) 
+<li role="menuitem"><span><a href="#" 
+   title="$tlang.getString("mapping.menu")" 
+   onclick="location = '$sakai_ActionURL.setPanel("Mapping")';return false;">
+   $tlang.getString("mapping.menu") </a></span></li>
+<li role="menuitem"><span><a href="#" 
    title="$tlang.getString("test.menu")" 
    onclick="location = '$sakai_ActionURL.setPanel("Test")';return false;">
    $tlang.getString("test.menu") </a></span></li>
-</ul>
 #end
+</ul>
+##end
 #if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
 #if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 <h3>$tlang.getString("tool.title")</h3>
@@ -31,7 +33,7 @@
                 <tr>
                 <td headers="title"><a href="$sakai_ActionURL.setPanel("ToolView")&id=$tool.get("id")">$tool.get("title")</td>
                 <td headers="launch">$tool.get("launch")</a></td>
-                #if ($isAdmin) <td headers="launch">$!tool.get("SITE_ID")</a></td> #end
+                #if ($isAdmin) <td headers="site">$!tool.get("SITE_ID")</a></td> #end
                 <td headers="action">
                 #if ( $isAdmin || $getContext == $tool.get("SITE_ID") ) 
                         <a href="$sakai_ActionURL.setPanel("ToolEdit")&id=$tool.get("id")">$tlang.getString("gen.edit")</a> / 

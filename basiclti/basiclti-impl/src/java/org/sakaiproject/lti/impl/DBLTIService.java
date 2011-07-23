@@ -144,7 +144,7 @@ public class DBLTIService extends BaseLTIService implements LTIService
 	
 	public Object insertMapping(Properties newProps)
 	{
-		return insertThing("lti_mapping",LTIService.MAPPING_MODEL, newProps);
+		return insertThing("lti_mapping",LTIService.MAPPING_MODEL, null, newProps);
         }
 	
 	public Map<String,Object> getMapping(Long key) 
@@ -159,7 +159,7 @@ public class DBLTIService extends BaseLTIService implements LTIService
 	
 	public Object updateMapping(Long key, Object newProps) 
 	{ 
-	        return updateThing("lti_mapping", LTIService.MAPPING_MODEL, key, newProps);
+	        return updateThing("lti_mapping", LTIService.MAPPING_MODEL, null, key, newProps);
 	}
 
 	public List<Map<String,Object>> getMappings(String search, String order, int first, int last) 
@@ -176,7 +176,7 @@ public class DBLTIService extends BaseLTIService implements LTIService
 	/** Tool Methods */
 	public Object insertTool(Properties newProps)
 	{
-		return insertThing("lti_tools",LTIService.TOOL_MODEL, newProps);
+		return insertThing("lti_tools",LTIService.TOOL_MODEL, null, newProps);
         }
 	
 	public Map<String,Object> getTool(Long key) 
@@ -186,8 +186,12 @@ public class DBLTIService extends BaseLTIService implements LTIService
 
 	public Map<String,Object> getToolNoAuthz(Long key) 
 	{
+System.out.println("key="+key);
 	        Map<String,Object> retval = getThingNoAuthz("lti_tools", LTIService.TOOL_MODEL, key);
+System.out.println("retval="+retval);
+                if ( retval == null ) return retval;
                 String launch_url = (String) retval.get("launch");
+System.out.println("launc="+launch_url);
                 if ( launch_url != null ) {
                         String newLaunch = checkMapping(launch_url);
                         if ( ! newLaunch.equals(launch_url) ) {
@@ -212,7 +216,7 @@ public class DBLTIService extends BaseLTIService implements LTIService
 	
 	public Object updateTool(Long key, Object newProps) 
 	{ 
-	        return updateThing("lti_tools", LTIService.TOOL_MODEL, key, newProps);
+	        return updateThing("lti_tools", LTIService.TOOL_MODEL, null, key, newProps);
 	}
 
 	public List<Map<String,Object>> getTools(String search, String order, int first, int last) 
@@ -234,14 +238,14 @@ public class DBLTIService extends BaseLTIService implements LTIService
                 }
                 String [] contentModel = getContentModel(toolKey);
                 if ( contentModel == null ) return rb.getString("error.invalid.toolid");
-		return insertThing("lti_content",contentModel, newProps);
+		return insertThing("lti_content",contentModel, LTIService.CONTENT_MODEL, newProps);
         }
 	
 	public Map<String,Object> getContent(Long key) 
 	{
 	        Map<String, Object> retval = getThing("lti_content", LTIService.CONTENT_MODEL, key);  
                 if ( retval == null ) return retval;
-                retval.put("launch_url",getContentLaunch(key));
+                retval.put("launch_url",getContentLaunch(retval));
                 return retval;             
 	}
 
@@ -269,7 +273,7 @@ public class DBLTIService extends BaseLTIService implements LTIService
                 String [] contentModel = getContentModel(toolKey);
                 if ( contentModel == null ) return rb.getString("error.invalid.toolid");
               
-	        return updateThing("lti_content", contentModel, key, newProps);
+	        return updateThing("lti_content", contentModel, LTIService.CONTENT_MODEL, key, newProps);
 	}
 
 	public List<Map<String,Object>> getContents(String search, String order, int first, int last) 
@@ -277,28 +281,39 @@ public class DBLTIService extends BaseLTIService implements LTIService
 	        List<Map<String,Object>> contents = getThings("lti_content", LTIService.CONTENT_MODEL, search, order, first, last);
                 for ( Map<String,Object> content : contents ) 
                 {
-                        content.put("launch_url",getContentLaunch(foorm.getLongKey(content.get("id"))));
+                        content.put("launch_url",getContentLaunch(content));
                 }
                 return contents;
 	}
 	
 	
 	// Returns String (falure) or Long (key on success)
-	public Object insertThing(String table, String [] model, Properties newProps)
+	public Object insertThing(String table, String [] formModel, String [] fullModel, Properties newProps)
 	{
-		if ( table == null || model == null || newProps == null) {
+		if ( table == null || formModel == null || newProps == null) {
 		        throw new IllegalArgumentException("table, model, and newProps must all be non-null");
                 }
 		if ( ! isMaintain() ) return null; 
-		String [] columns = foorm.getFields(model);
-		
+
 		HashMap<String, Object> newMapping = new HashMap<String,Object> ();
 		
-		if ( isMaintain() && ! isAdmin() && ( Arrays.asList(columns).indexOf("SITE_ID") >= 0 ) ) newProps.put("SITE_ID",getContext());
-		
-		String errors = foorm.formExtract(newProps, model, rb, true, newMapping);
+		String errors = foorm.formExtract(newProps, formModel, rb, true, newMapping);
                 if ( errors != null ) return errors;
-                
+
+		String [] columns = null;
+                if ( fullModel == null ) {
+                        columns = foorm.getFields(formModel);
+                } else {
+                        columns = foorm.getFields(fullModel);    
+                }            
+                if ( ( Arrays.asList(columns).indexOf("SITE_ID") >= 0 ) ) {
+                        if ( !isAdmin() && newMapping.get("SITE_ID") == null ) {
+                                newMapping.put("SITE_ID", getContext() ) ;
+                        }
+                }
+		
+System.out.println("NNNNNNNNNNNNNN="+newMapping);
+
 		final String sql = "INSERT INTO "+table+" "+foorm.insertForm(newMapping);
                 System.out.println("Insert SQL="+sql);
 		final Object [] fields = foorm.getInsertObjects(newMapping);
@@ -444,23 +459,33 @@ public class DBLTIService extends BaseLTIService implements LTIService
                 return jdbcTemplate.update(statement, fields) == 1;
 	}
 	
-	public Object updateThing(String table, String [] model, Long key, Object newProps)
+	public Object updateThing(String table, String [] formModel, String [] fullModel, Long key, Object newProps)
 	{
-		if ( table == null || model == null || key == null  || newProps == null) {
+		if ( table == null || formModel == null || key == null  || newProps == null) {
 		        throw new IllegalArgumentException("table, model, key, and newProps must all be non-null");
                 }
 		
 		if ( ! isMaintain() ) return null;
-
-		String [] columns = foorm.getFields(model);
 		
 		HashMap<String, Object> newMapping = new HashMap<String,Object> ();
 				
-		String errors = foorm.formExtract(newProps, model, rb, false, newMapping);
+		String errors = foorm.formExtract(newProps, formModel, rb, false, newMapping);
                 if ( errors != null ) return errors;
+
+		String [] columns = null;
+                if ( fullModel == null ) {
+                        columns = foorm.getFields(formModel);
+                } else {
+                        columns = foorm.getFields(fullModel);    
+                } 
+
+                if ( ( Arrays.asList(columns).indexOf("SITE_ID") >= 0 ) ) {
+                        if ( !isAdmin() && newMapping.get("SITE_ID") == null ) {
+                                newMapping.put("SITE_ID", getContext() ) ;
+                        }
+                }
                 
                 String sql = "UPDATE "+table+" SET "+foorm.updateForm(newMapping)+" WHERE id="+key.toString();
-
 
                 if ( isMaintain() && ! isAdmin() && ( Arrays.asList(columns).indexOf("SITE_ID") >= 0 ) ) 
                 {

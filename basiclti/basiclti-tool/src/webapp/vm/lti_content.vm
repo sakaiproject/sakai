@@ -6,22 +6,24 @@
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<form action="#toolForm("")" method="post" name="customizeForm" >
 #if ($contents && $contents.size() > 0)
-			<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("content.table")">
-				<tr>
-					<th id="title">$tlang.getString("bl_title")</th>
-					<th id="action" width="25%">Action</th>
-				</tr>
-	#foreach ($content in $contents)
-	<tr>
-	<td headers="matchpattern">$content.get("title")</td>
-	<td headers="action"><a href="$sakai_ActionURL.setPanel("ContentPut")&id=$content.get("id")">$tlang.getString("gen.edit")</a> / 
-	<a href="$sakai_ActionURL.setPanel("ContentDelete")&id=$content.get("id")">$tlang.getString("gen.delete")</a>
-	#if ( $content.get("launch_url") )
-	/ <a href="$content.get("launch_url")" target="_new" "$tlang.getString("gen.test")>$tlang.getString("gen.test")</a>
-	#end
-	</td>
-	<tr>
-	#end
+	<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("content.table")">
+		<tr>
+			<th id="title">$tlang.getString("bl_title")</th>
+			#if ($isAdmin) <th id="site">$tlang.getString("bl_site")</th> #end
+			<th id="action" width="25%">Action</th>
+		</tr>
+		#foreach ($content in $contents)
+		<tr>
+		<td headers="matchpattern">$content.get("title")</td>
+		#if ($isAdmin) <td headers="site">$!content.get("SITE_ID")</a></td> #end
+		<td headers="action"><a href="$sakai_ActionURL.setPanel("ContentPut")&id=$content.get("id")">$tlang.getString("gen.edit")</a> / 
+		<a href="$sakai_ActionURL.setPanel("ContentDelete")&id=$content.get("id")">$tlang.getString("gen.delete")</a>
+		#if ( $content.get("launch_url") )
+		/ <a href="$content.get("launch_url")" target="_new" "$tlang.getString("gen.test")>$tlang.getString("gen.test")</a>
+		#end
+		</td>
+		<tr>
+		#end
 	</table>
 #else
 <p>$tlang.getString("content.none")</p>

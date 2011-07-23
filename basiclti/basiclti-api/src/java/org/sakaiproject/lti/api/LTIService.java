@@ -78,7 +78,7 @@ public interface LTIService
 	public Object updateContent(Long key, Map<String,Object> newProps);
 	public Object updateContent(Long key, Properties newProps);
 	public List<Map<String, Object>> getContents(String search, String order, int first, int last) ;
-        public String getContentLaunch(Long key);
+        public String getContentLaunch(Map<String,Object> content);
         public void filterContent(Map<String,Object> content, Map<String,Object> tool);
 	
 	public String formOutput(Object row, String fieldInfo);

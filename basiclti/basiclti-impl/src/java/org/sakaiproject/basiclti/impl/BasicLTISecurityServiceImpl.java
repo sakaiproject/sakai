@@ -241,7 +241,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 						if ( content != null ) 
 						{
 							Long toolKey = foorm.getLongKey(content.get("tool_id"));
-							if ( toolKey > 0 ) tool = ltiService.getToolNoAuthz(contentKey);
+							if ( toolKey > 0 ) tool = ltiService.getToolNoAuthz(toolKey);
 							if ( tool != null ) 
 							{
 								// SITE_ID can be null for the tool

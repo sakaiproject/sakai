@@ -226,9 +226,12 @@ public abstract class BaseLTIService implements LTIService
                 return retval;
         }
 
-        public String getContentLaunch(Long key)
+        public String getContentLaunch(Map<String,Object> content)
         {
-                return LAUNCH_PREFIX+getContext()+"/content:"+key.toString();
+                int key = getInt(content.get("id"));
+                String siteId = (String) content.get("SITE_ID");
+                if ( key < 0 || siteId == null ) return null;
+                return LAUNCH_PREFIX+siteId+"/content:"+key;
         }
         
         public String formOutput(Object row, String fieldInfo)
