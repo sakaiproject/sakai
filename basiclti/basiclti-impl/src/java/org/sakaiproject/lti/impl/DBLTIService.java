@@ -116,16 +116,19 @@ public class DBLTIService extends BaseLTIService implements LTIService
 			// if we are auto-creating our schema, check and create
 			if (m_autoDdl)
 			{
-                                /* m_sql.dbWriteFailQuiet(null,"DROP TABLE lti_mapping",null);
+                                m_sql.dbWriteFailQuiet(null,"DROP TABLE lti_mapping",null);
+				m_sql.dbWriteFailQuiet(null,"DROP SEQUENCE lti_mapping_id_sequence",null);
                                 m_sql.dbWriteFailQuiet(null,"DROP TABLE lti_content",null);
-                                m_sql.dbWriteFailQuiet(null,"DROP TABLE lti_tools",null); */
+				m_sql.dbWriteFailQuiet(null,"DROP SEQUENCE lti_content_id_sequence",null);
+                                m_sql.dbWriteFailQuiet(null,"DROP TABLE lti_tools",null); 
+				m_sql.dbWriteFailQuiet(null,"DROP SEQUENCE lti_tools_id_sequence",null);
 
-                                String sql = foorm.formSqlTable("lti_mapping", LTIService.MAPPING_MODEL,m_sql.getVendor());
-                                if ( m_sql.dbWriteFailQuiet(null, sql, null) ) M_log.info(sql);
-                                sql = foorm.formSqlTable("lti_content",LTIService.CONTENT_MODEL,m_sql.getVendor());
-                                if ( m_sql.dbWriteFailQuiet(null, sql, null) ) M_log.info(sql);
-                                sql = foorm.formSqlTable("lti_tools",LTIService.TOOL_MODEL,m_sql.getVendor());
-                                if ( m_sql.dbWriteFailQuiet(null, sql, null) ) M_log.info(sql);
+                                String [] sqls = foorm.formSqlTable("lti_mapping", LTIService.MAPPING_MODEL,m_sql.getVendor());
+				for ( String sql : sqls ) if ( m_sql.dbWriteFailQuiet(null, sql, null) ) M_log.info(sql);
+                                sqls = foorm.formSqlTable("lti_content",LTIService.CONTENT_MODEL,m_sql.getVendor());
+				for ( String sql : sqls ) if ( m_sql.dbWriteFailQuiet(null, sql, null) ) M_log.info(sql);
+                                sqls = foorm.formSqlTable("lti_tools",LTIService.TOOL_MODEL,m_sql.getVendor());
+				for ( String sql : sqls ) if ( m_sql.dbWriteFailQuiet(null, sql, null) ) M_log.info(sql);
 
                                 // Keep to add indexes (maybe)
                                 // m_sql.ddl(this.getClass().getClassLoader(), "sakai_lti");
@@ -298,19 +301,32 @@ public class DBLTIService extends BaseLTIService implements LTIService
                 if ( errors != null ) return errors;
 
 		String [] columns = null;
+		String theKey = null;
                 if ( fullModel == null ) {
                         columns = foorm.getFields(formModel);
+			theKey = foorm.formSqlKey(formModel);
                 } else {
-                        columns = foorm.getFields(fullModel);    
+                        columns = foorm.getFields(fullModel);  
+			theKey = foorm.formSqlKey(fullModel);
                 }            
                 if ( ( Arrays.asList(columns).indexOf("SITE_ID") >= 0 ) ) {
                         if ( !isAdmin() && newMapping.get("SITE_ID") == null ) {
                                 newMapping.put("SITE_ID", getContext() ) ;
                         }
                 }
+		String seqName = foorm.getSqlSequence(table, theKey, m_sql.getVendor());
 		
-		final String sql = "INSERT INTO "+table+" "+foorm.insertForm(newMapping);
-                // System.out.println("Insert SQL="+sql);
+		String [] insertInfo = foorm.insertForm(newMapping);
+		String makeSql = "INSERT INTO "+table+" ( "+insertInfo[0]+" ) VALUES ( "+insertInfo[1]+" )";
+		if ( "oracle".equals(m_sql.getVendor()) && theKey != null && seqName != null ) {
+
+			makeSql = "INSERT INTO "+table+" ( "+theKey+", "+insertInfo[0]+" ) VALUES ( "+
+				seqName+".NextVal, "+insertInfo[1]+" )";
+		}
+
+		final String sql = makeSql;
+
+                System.out.println("Insert SQL="+sql);
 		final Object [] fields = foorm.getInsertObjects(newMapping);
 		
                 // Requires KNL-767
@@ -343,11 +359,11 @@ public class DBLTIService extends BaseLTIService implements LTIService
                                 }
                            },
                            keyHolder);
-                       retval = (Long) keyHolder.getKey();
+                       retval = foorm.getLong(keyHolder.getKey());
                 }
                 /* end of workaround */
 
-		// System.out.println("Insert="+retval);
+		System.out.println("Insert="+retval);
 		return retval;
 	}
 

@@ -33,19 +33,29 @@ public class Foorm {
     } 
 
     // Returns -1 on failure
-    public Long getLongKey(Object key)
+    public Long getLongKey(Object key ) { return getLong(key); }
+
+    public Long getLong(Object key)
     {
-        if ( key == null ) return new Long(-1);
-        if ( key instanceof Long ) return (Long) key;
-        if ( key instanceof Integer ) return new Long((Integer) key);
+	Long retval = getLongNull(key);
+	if ( retval != null ) return retval;
+	return new Long(-1);
+    }
+
+    public Long getLongNull(Object key)
+    {
+        if ( key == null ) return null;
+        // if ( key instanceof Long ) return (Long) key;
+        // if ( key instanceof Integer ) return new Long((Integer) key);
+	if ( key instanceof Number ) return new Long( ( (Number) key).longValue() );
         if ( key instanceof String ) {
                 try {
                         return new Long( (String) key );
                 } catch(Exception e) {
-                       return new Long(-1);
+                       return null;
                 }
         }
-        return new Long(-1);
+        return null;
     }
 
     // Abstract this away for testing purposes
@@ -434,7 +444,7 @@ public class Foorm {
 	return formOutputText(value,field,label,loader);
     }
 
-    public String formOutputRadio(Integer value, String field, String label,
+    public String formOutputRadio(Long value, String field, String label,
 		String [] choices, Object loader)
     {
 	int val = 0;
@@ -454,7 +464,7 @@ public class Foorm {
 	return formOutputText(value,field,label,loader);
     }
 
-    public String formOutputInteger(Integer value,String field,String label, Object loader)
+    public String formOutputInteger(Long value,String field,String label, Object loader)
     {
 	String strval = "";
 	if ( value != null ) strval = value.toString();
@@ -478,7 +488,7 @@ public class Foorm {
 
 	if ( "key".equals(type) ) return "";  // Key will be handled by the caller
         if ( "autodate".equals(type) ) return "";
-	if ( "integer".equals(type) ) return formOutputInteger((Integer) value,field,label,loader);
+	if ( "integer".equals(type) ) return formOutputInteger(getLongNull(value),field,label,loader);
 	if ( "text".equals(type) ) return formOutputText((String) value,field,label,loader);
 	if ( "url".equals(type) ) return formOutputURL((String) value,field,label,loader);
 	if ( "id".equals(type) ) return formOutputId((String) value,field,label,loader);
@@ -489,7 +499,7 @@ public class Foorm {
 		if ( choices == null ) return "\n<!-- Foorm.formOutput() requires choices=on,off,part -->\n";
 		String [] choiceList = choices.split(",");
 		if ( choiceList.length < 1 ) return "\n<!-- Foorm.formOutput() requires choices=on,off,part -->\n";
-		return formOutputRadio((Integer) value, field, label, choiceList, loader);
+		return formOutputRadio(getLongNull(value), field, label, choiceList, loader);
 	}
         return "\n<!-- Foorm.formOutput() unrecognized type " + type + " field="+field+" -->\n";
     }
@@ -621,11 +631,10 @@ public class Foorm {
 	return sb.toString();
     }
 
-    public String insertForm(Map<String, Object> dataMap)
+    public String [] insertForm(Map<String, Object> dataMap)
     {
 	StringBuffer fields = new StringBuffer();
 	StringBuffer qmarks = new StringBuffer();
-	fields.append("(");
         for ( String key : dataMap.keySet() ) {
 		if ( qmarks.length() > 0 ) {
 			fields.append(", ");
@@ -634,10 +643,10 @@ public class Foorm {
 		fields.append(key);
 		qmarks.append("?");
 	}
-	fields.append(" ) VALUES (");
-	fields.append(qmarks);
-	fields.append(" ) ");
-	return fields.toString();
+	//fields.append(" ) VALUES (");
+	//fields.append(qmarks);
+	//fields.append(" ) ");
+	return new String[] {fields.toString(), qmarks.toString()};
     }
     
     public String formSelect(String [] fieldinfo)
@@ -765,43 +774,84 @@ public class Foorm {
 
         String schema = null;
 
-        String longtext = "TEXT";
-        if ( "hsqldb".equals(vendor)) longtext="VARCHAR";
-
-	if ( "key".equals(type) && "id".equals(field) ) {
+	if ( "key".equals(type) ) {
                 if ( "hsqldb".equals(vendor) ) {
                         schema = "INTEGER IDENTITY PRIMARY KEY";
+		} else if  ( "oracle".equals(vendor) ) {
+			schema = "INTEGER";
                 } else {
                         schema = "INTEGER NOT NULL AUTO_INCREMENT";
                 }
-        } else if ( "key".equals(type) ) {
-                schema = "INT";
         } else if ( "autodate".equals(type) ) {
-                schema = "DATETIME NOT NULL";
+		if ( "oracle".equals(vendor) ) {
+			schema = "TIMESTAMP NOT NULL";
+		} else {
+	                schema = "DATETIME NOT NULL";
+		}
         } else if ( "integer".equals(type) ) {
-                schema = "INT";
-        } else if ( "url".equals(type) ) {
-                schema = "VARCHAR("+maxlength+")";
-        } else if ( "text".equals(type) ) {
-                if ( maxlength < 512 ) {
-                        schema = "VARCHAR("+maxlength+")";
-                } else {
-                        schema = longtext+"("+maxlength+")";
-                }
-        } else if ( "textarea".equals(type) ) {
-                schema = longtext+"("+maxlength+")";
+		if ( "oracle".equals(vendor) ) {
+			schema = "INTEGER";
+		} else {
+	                schema = "INT";
+		}
+        } else if ( "url".equals(type) || "text".equals(type) || "textarea".equals(type) ) {
+		if ( "oracle".equals(vendor)  ) {
+			if ( maxlength < 4000 ) {
+				schema = "VARCHAR2("+maxlength+")";
+			} else {
+				schema = "CLOB";
+			}
+		} else if ( "hsqldb".equals(vendor) ) {
+			schema = "VARCHAR("+maxlength+")";
+		} else { 
+			if ( maxlength < 512 ) {
+				schema = "VARCHAR("+maxlength+")";
+			} else {
+				schema = "TEXT("+maxlength+")";
+			}
+		}
         } else if ( "radio".equals(type) ) {
-                schema = "TINYINT DEFAULT '0'";
+		if ( "oracle".equals(vendor) ) {
+			schema = "NUMBER(1) DEFAULT '0'";
+		} else {
+	                schema = "TINYINT DEFAULT '0'";
+		}
         }
         if ( schema == null ) return null;
 
         if ( "true".equals(required) && ! (schema.indexOf("NOT NULL") > 0) ) schema += " NOT NULL";
-        return "    " + field + " " + schema + ",\n";
+        return "    " + field + " " + schema;
     }
 
-    public String formSqlTable(String table, String [] formDefinition, String vendor)
+    public String [] formSqlTable(String table, String [] formDefinition, String vendor)
     {
-	return "CREATE TABLE "+table+" (\n"+formSqlFields(formDefinition, vendor)+formSqlKeys(formDefinition,vendor)+"\n);\n";
+	String theKey = formSqlKey(formDefinition);
+	String fieldList = formSqlFields(formDefinition, vendor);
+	String createCommand = null;
+	String sequenceCommand = null;
+	if ( "oracle".equals(vendor) )
+	{
+		createCommand = "CREATE TABLE "+table+" (\n"+formSqlFields(formDefinition, vendor)+"\n)\n";
+		if ( theKey != null ) {
+			String seqName = getSqlSequence(table, theKey, vendor);
+			if ( seqName != null ) sequenceCommand = "CREATE SEQUENCE "+seqName+" INCREMENT BY 1 START WITH 1\n";
+		}
+	}
+	else
+	{
+		String keySpec = "";
+		if (theKey != null ) keySpec = " PRIMARY KEY( "+theKey+" )";
+		createCommand = "CREATE TABLE "+table+" (\n"+formSqlFields(formDefinition, vendor)+keySpec+"\n)\n";
+	}
+	if ( sequenceCommand == null ) return new String[] {createCommand};
+	return new String[] {createCommand, sequenceCommand};
+    }
+
+    public String getSqlSequence(String table, String theKey, String vendor)
+    {
+	if ( ! "oracle".equals(vendor) ) return null;
+	if ( table == null || theKey == null ) return null;
+	return table+"_"+theKey+"_sequence";
     }
 
     public String formSqlFields(String [] formDefinition, String vendor)
@@ -811,14 +861,16 @@ public class Foorm {
 	{
                 String retval = formSql(formField, vendor);
                 if ( retval == null ) continue;
+		if ( sb.length() > 0 ) sb.append(",\n");
 		sb.append(retval);
 	}
 	return sb.toString();
     }
 
-    public String formSqlKeys(String [] formDefinition, String vendor)
+    public String formSqlKey(String [] formDefinition)
     {
 	StringBuffer sb = new StringBuffer();
+	String theKey = null;
 	for(String formField : formDefinition ) 
 	{
                 Properties info = parseFormString(formField);
@@ -828,13 +880,13 @@ public class Foorm {
                         throw new IllegalArgumentException("All model elements must include field name and type");
                 }
                 if ( ! "key".equals(type) ) continue;
-
-                if ( sb.length() > 0 ) sb.append(", ");
-		sb.append(field);
+	        if ( theKey != null ) {
+                        throw new IllegalArgumentException("Models can only have one key column.");
+                }
+		theKey = field;
 	}
-	return "    PRIMARY KEY( "+sb.toString()+" )";
+	return theKey;
     }
-
 
 /*
     public static void main(String[] args) {

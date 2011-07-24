@@ -671,8 +671,12 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
             try { 
                 // Get a list of tools
 		List<Map<String,Object>> tools = ltiService.getTools(null,null,0,100);
+		sb.append(""+tools.size()+" tools available");
                 sb.append("Currently Available tools\n");
+		int count = 0;
                 for (Map<String, Object> tool : tools ) {
+			count++;
+			if ( count > 2 ) break;
                         sb.append("  Tool\n");
                         for ( String key : tool.keySet() ) {
                                 sb.append("     ");
