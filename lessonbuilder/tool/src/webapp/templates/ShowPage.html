@@ -89,6 +89,7 @@ setMainFrameHeight(window.name);
 			<a href="#" rsf:id="add-text"><span rsf:id="msg.simplepage.text"></span></a>
 			<a href="#" rsf:id="add-multimedia" class="add-multimedia"><span rsf:id="msg.simplepage.multimedia"></span></a>
 			<a href="#" rsf:id="add-resource" class="add-resource"><span rsf:id="msg.simplepage.resource"></span></a>
+			<a href="#" rsf:id="add-website" class="add-website"><span rsf:id="msg.simplepage.website"></span></a>
 			<a href="#" rsf:id="subpage-link" class="subpage-link"><span rsf:id="msg=simplepage.subpage"></span></a>
 			<a href="#" rsf:id="add-assignment"><span rsf:id="msg.simplepage.assignment"></span></a>
 			<a href="#" rsf:id="add-quiz"><span rsf:id="msg.simplepage.quiz"></span></a>
@@ -406,11 +407,15 @@ s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 						<p class="shorttext required mm-additional"> 
 						  <a href="#" rsf:id="mm-additional-instructions" target="_blank" class="mm-additional-instructions"></a>
 						</p>
+						
+						<p class="shorttext required mm-additional-website"> 
+						  <a href="#" rsf:id="mm-additional-website-instructions" target="_blank" class="mm-additional-website-instructions"></a>
+						</p>
 
 					</div>
 
 					<div class="border2">					
-						<p class="shorttext required">
+						<p class="shorttext required mm-url-section">
 							<label rsf:id="mm-url-label" for="height">URL</label>
 					 		<input type="text" name="mm-url" rsf:id="mm-url" id="mm-url" style="width:95%" class="edit-multimedia-input" /><br />
 						</p>
@@ -428,6 +433,7 @@ s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 					<input type="submit" rsf:id="mm-cancel" onclick="closeAddMultimediaDialog(); return false" />
 					<input type="hidden" rsf:id="mm-item-id" id="mm-item-id" />
 					<input type="hidden" rsf:id="mm-is-mm" id="mm-is-mm" />
+					<input type="hidden" rsf:id="mm-is-website" id="mm-is-website" />
 
 					</div>
 				</form>

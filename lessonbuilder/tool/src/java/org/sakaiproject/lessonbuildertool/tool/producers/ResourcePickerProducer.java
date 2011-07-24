@@ -126,8 +126,17 @@ public class ResourcePickerProducer implements ViewComponentProducer, ViewParams
 		UIOutput.make(tofill, HelperViewParameters.HELPER_ID, HELPER);
 
 		// rsf:id helper-binding method binding
-		UICommand.make(tofill, HelperViewParameters.POST_HELPER_BINDING, ((((FilePickerViewParameters) viewparams).getResourceType() ? "#{simplePageBean.processMultimedia}"
-				: "#{simplePageBean.processResource}")));
+		String process = null;
+
+		if (((FilePickerViewParameters) viewparams).getWebsite())
+		    process = "#{simplePageBean.processWebSite}";
+		else if (((FilePickerViewParameters) viewparams).getResourceType())
+		    process = "#{simplePageBean.processMultimedia}";
+		else
+		    process = "#{simplePageBean.processResource}";		    
+
+		UICommand.make(tofill, HelperViewParameters.POST_HELPER_BINDING, process);
+
 	}
 
 	public void setSimplePageBean(SimplePageBean simplePageBean) {

@@ -72,6 +72,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -130,6 +131,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
    public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh";
 
    public final static String ENTITY_PREFIX = "lessonbuilder";
+
+    // other tools don't copy group access restrictions, so I think we probably shouldn't. The data is
+    // there in the archive
+    public final boolean RESTORE_GROUPS = false;
 
    private SimplePageToolDao simplePageToolDao;
    private LessonEntity forumEntity;
@@ -287,7 +292,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	element.setAttributeNode(attr);
     }
 
-    protected void addPage(Document doc, Element element, SimplePage page) {
+    protected void addPage(Document doc, Element element, SimplePage page, Site site) {
 
 	long pageId = page.getPageId();
 
@@ -363,6 +368,25 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 		//		if (item.getType() == SimplePageItem.PAGE)
 		//		    addPage(doc, itemElement, new Long(item.getSakaiId()));
+		String groupString = item.getGroups();
+		Collection<Group> siteGroups = site.getGroups();
+		if (groupString != null && !groupString.equals("") && siteGroups != null) {
+		    String [] groups = groupString.split(",");
+		    for (int i = 0; i < groups.length ; i++) {
+			Element groupElement = doc.createElement("group");
+			addAttr(doc, groupElement, "id", groups[i]);
+			Group group = null;
+			for (Group g: siteGroups)
+			    if (g.getId().equals(groups[i])) {
+				group = g;
+				break;
+			    }
+			if (group != null)
+			    addAttr(doc, groupElement, "title", group.getTitle());
+			itemElement.appendChild(groupElement);
+		    }
+		}
+
 		pageElement.appendChild(itemElement);
 	    }
 	}		
@@ -390,7 +414,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 	 List<SimplePage> sitePages = simplePageToolDao.getSitePages(siteId);
 	 for (SimplePage page: sitePages)
-	     addPage(doc, lessonbuilder, page);
+	     addPage(doc, lessonbuilder, page, site);
 
          Collection<ToolConfiguration> tools = site.getTools(myToolIds());
 	 int count = 0;
@@ -507,6 +531,15 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
        String oldPageIdString = element.getAttribute("pageid");
        Long oldPageId = Long.valueOf(oldPageIdString);
        Long pageId = pageMap.get(oldPageId);
+       Site site = null;
+       Collection<Group> siteGroups = null;
+       // not currently doing this
+       if (RESTORE_GROUPS) {
+	   try {
+	       site = SiteService.getSite(siteId);
+	       siteGroups = site.getGroups();
+	   } catch (Exception impossible) {};
+       }
 
        NodeList allChildrenNodes = element.getChildNodes();
        int length = allChildrenNodes.getLength();
@@ -584,6 +617,35 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		   if (s != null)
 		       item.setSameWindow(s.equals("true"));
 
+		   // not currently doing this, although the code has been tested.
+		   // The problem is that other tools don't do it. Since much of our group
+		   // awareness comes from the other tools, enabling this produces
+		   // inconsistent results
+		   if (RESTORE_GROUPS) {
+		       NodeList groups = itemElement.getElementsByTagName("group");
+		       String groupString = null;
+
+		       // translate groups from title to ID
+		       if (groups != null && siteGroups != null) {
+			   for (int n = 0; n < groups.getLength(); n ++) {
+			       Element group = (Element)groups.item(n);
+			       String title = group.getAttribute("title");
+			       if (title != null && !title.equals("")) {
+				   for (Group g: siteGroups) {
+				       if (title.equals(g.getTitle())) {
+					   if (groupString == null)
+					       groupString = g.getId();
+					   else
+					       groupString = groupString + "," + g.getId();
+				       }
+				   }
+			       }
+			   }
+		       }
+		       if (groupString != null)
+			   item.setGroups(groupString);
+		   }
+		   // end if mergeGroups
 
 		   simplePageToolDao.quickSaveItem(item);
 	       }

@@ -49,6 +49,7 @@ import java.io.InputStreamReader;
 import java.io.File;
 import java.io.IOException;
 
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.net.HttpURLConnection;
@@ -75,6 +76,7 @@ import org.sakaiproject.lessonbuildertool.tool.view.FilePickerViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.producers.PermissionsHelperProducer;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
@@ -1411,7 +1413,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createToolBarLink(ReorderProducer.VIEW_ID, toolBar, "reorder", "simplepage.reorder", currentPage, "simplepage.reorder-tooltip");
 		createToolBarLink(EditPageProducer.VIEW_ID, toolBar, "add-text", "simplepage.text", currentPage, "simplepage.text.tooltip").setItemId(null);
 
-		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar, "add-resource", "simplepage.resource", false, currentPage, "simplepage.resource.tooltip");
+		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar, "add-resource", "simplepage.resource", false, false,  currentPage, "simplepage.resource.tooltip");
 
 		UILink subpagelink = UIInternalLink.makeURL(toolBar, "subpage-link", "#");
 		subpagelink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.subpage")));
@@ -1420,7 +1422,20 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createToolBarLink(AssignmentPickerProducer.VIEW_ID, toolBar, "add-assignment", "simplepage.assignment", currentPage, "simplepage.assignment");
 		createToolBarLink(QuizPickerProducer.VIEW_ID, toolBar, "add-quiz", "simplepage.quiz", currentPage, "simplepage.quiz");
 		createToolBarLink(ForumPickerProducer.VIEW_ID, toolBar, "add-forum", "simplepage.forum", currentPage, "simplepage.forum");
-		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar, "add-multimedia", "simplepage.multimedia", true, currentPage, "simplepage.multimedia.tooltip");
+		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar, "add-multimedia", "simplepage.multimedia", true, false, currentPage, "simplepage.multimedia.tooltip");
+		
+		// Q: Are we running a kernel with KNL-273?
+		Class contentHostingInterface = ContentHostingService.class;
+		try {
+			Method expandMethod = contentHostingInterface.getMethod("expandZippedResource", new Class[] { String.class });
+			createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar, "add-website", "simplepage.website", false, true, currentPage, "simplepage.website.tooltip");
+		} catch (NoSuchMethodException nsme) {
+			// A: No
+		} catch (Exception e) {
+			// A: Not sure
+			log.warn("SecurityException thrown by expandZippedResource method lookup", e);
+		}
+		
 		createToolBarLink(PermissionsHelperProducer.VIEW_ID, toolBar, "permissions", "simplepage.permissions", currentPage, "simplepage.permissions.tooltip");
 		UILink.make(toolBar, "help", messageLocator.getMessage("simplepage.help"), getLocalizedURL("general.html"));
 	}
@@ -1432,10 +1447,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		return params;
 	}
 
-        private FilePickerViewParameters createFilePickerToolBarLink(String viewID, UIContainer tofill, String ID, String message, boolean resourceType, SimplePage currentPage, String tooltip) {
+	private FilePickerViewParameters createFilePickerToolBarLink(String viewID, UIContainer tofill, String ID, String message, boolean resourceType, boolean website, SimplePage currentPage, String tooltip) {
 		FilePickerViewParameters fileparams = new FilePickerViewParameters();
 		fileparams.setSender(currentPage.getPageId());
 		fileparams.setResourceType(resourceType);
+		fileparams.setWebsite(website);
 		createStandardToolBarLink(viewID, tofill, ID, message, fileparams, tooltip);
 		return fileparams;
 	}
@@ -1506,6 +1522,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		FilePickerViewParameters fileparams = new FilePickerViewParameters();
 		fileparams.setSender(currentPage.getPageId());
 		fileparams.setResourceType(false);
+		fileparams.setWebsite(false);
 		fileparams.viewID = ResourcePickerProducer.VIEW_ID;
 		UIInternalLink.make(form, "change-resource", messageLocator.getMessage("simplepage.change_resource"), fileparams);
 
@@ -1599,6 +1616,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private void createAddMultimediaDialog(UIContainer tofill, SimplePage currentPage) {
 		UIOutput.make(tofill, "add-multimedia-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.resource")));
 		UILink.make(tofill, "mm-additional-instructions", messageLocator.getMessage("simplepage.additional-instructions-label"), messageLocator.getMessage("simplepage.additional-instructions"));
+		UILink.make(tofill, "mm-additional-website-instructions", messageLocator.getMessage("simplepage.additional-website-instructions-label"), messageLocator.getMessage("simplepage.additional-website-instructions"));
 
 		UIForm form = UIForm.make(tofill, "add-multimedia-form");
 
@@ -1618,6 +1636,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UICommand.make(form, "mm-add-item", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.addMultimedia}");
 		UIInput.make(form, "mm-item-id", "#{simplePageBean.itemId}");
 		UIInput.make(form, "mm-is-mm", "#{simplePageBean.isMultimedia}");
+		UIInput.make(form, "mm-is-website", "#{simplePageBean.isWebsite}");
 		UICommand.make(form, "mm-cancel", messageLocator.getMessage("simplepage.cancel"), null);
 	}
 

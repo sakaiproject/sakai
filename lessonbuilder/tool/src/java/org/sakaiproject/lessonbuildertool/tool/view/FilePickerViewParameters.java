@@ -39,6 +39,7 @@ public class FilePickerViewParameters extends HelperViewParameters {
 	 * true = Add Multimedia false = Add Resource
 	 */
 	private boolean resourceType = false;
+        private boolean website = false;
 
 	public FilePickerViewParameters() {
 		super();
@@ -72,4 +73,13 @@ public class FilePickerViewParameters extends HelperViewParameters {
 	public boolean getResourceType() {
 		return resourceType;
 	}
+
+	public void setWebsite(boolean b) {
+		website = b;
+	}
+
+	public boolean getWebsite() {
+		return website;
+	}
+
 }

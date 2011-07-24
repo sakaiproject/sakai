@@ -43,6 +43,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Set;
 import java.util.HashSet;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
@@ -62,12 +63,14 @@ import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Reference;
@@ -199,6 +202,7 @@ public class SimplePageBean {
 
 	public Long itemId = null;
 	public boolean isMultimedia = false;
+	public boolean isWebsite = false;
 
 	private String linkUrl;
 
@@ -533,6 +537,10 @@ public class SimplePageBean {
 	public void setMultimedia(boolean isMm) {
 	    isMultimedia = isMm;
 	}
+	
+	public void setWebsite(boolean isWebsite) {
+	    this.isWebsite = isWebsite;
+	}
 
     // hibernate interposes something between us and saveItem, and that proxy gets an
     // error after saveItem does. Thus we never see any value that saveItem might 
@@ -657,11 +665,15 @@ public class SimplePageBean {
 	}
 
 	public String processMultimedia() {
-		return processResource(SimplePageItem.MULTIMEDIA);
+	    return processResource(SimplePageItem.MULTIMEDIA, false);
 	}
 
 	public String processResource() {
-		return processResource(SimplePageItem.RESOURCE);
+	    return processResource(SimplePageItem.RESOURCE, false);
+	}
+
+        public String processWebSite() {
+	    return processResource(SimplePageItem.RESOURCE, true);
 	}
 
     // get mime type for a URL. connect to the server hosting
@@ -700,7 +712,7 @@ public class SimplePageBean {
 
     // return call from the file picker, used by add resource
     // the picker communicates with us by session variables
-	public String processResource(int type) {
+	public String processResource(int type, boolean isWebSite) {
 		if (!canEditPage())
 		    return "permission-failed";
 
@@ -771,6 +783,13 @@ public class SimplePageBean {
 		toolSession.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
 		toolSession.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);
 		toolSession.removeAttribute(LESSONBUILDER_ITEMID);
+
+		if("application/zip".equals(mimeType) && isWebSite) {
+		    // We need to set the sakaiId to the resource id of the index file
+		    id = expandZippedResource(id);
+		    if (id == null)
+			return "failed";
+		}
 
 		String[] split = id.split("/");
 
@@ -3528,6 +3547,13 @@ public class SimplePageBean {
 			setErrMessage(messageLocator.getMessage("simplepage.resourcepossibleerror"));
 		    }
 		    sakaiId = res.getId();
+		    
+		    if("application/zip".equals(mimeType) && isWebsite) {
+		    	// We need to set the sakaiId to the resource id of the index file
+		    	sakaiId = expandZippedResource(sakaiId);
+			if (sakaiId == null)
+			    return;
+		    }
 
 	    } catch (org.sakaiproject.exception.OverQuotaException ignore) {
 		setErrMessage(messageLocator.getMessage("simplepage.overquota"));
@@ -3596,7 +3622,11 @@ public class SimplePageBean {
 	    if (itemId == -1 && isMultimedia) {
 		int seq = getItemsOnPage(getCurrentPageId()).size() + 1;
 		item = simplePageToolDao.makeItem(getCurrentPageId(), seq, SimplePageItem.MULTIMEDIA, sakaiId, name);
-	    } else if (itemId == -1) {
+	    } else if(itemId == -1 && isWebsite) {
+	    	String websiteName = name.substring(0,name.indexOf("."));
+	    	int seq = getItemsOnPage(getCurrentPageId()).size() + 1;
+	    	item = simplePageToolDao.makeItem(getCurrentPageId(), seq, SimplePageItem.RESOURCE, sakaiId, websiteName);
+	    }else if (itemId == -1) {
 		int seq = getItemsOnPage(getCurrentPageId()).size() + 1;
 		item = simplePageToolDao.makeItem(getCurrentPageId(), seq, SimplePageItem.RESOURCE, sakaiId, name);
 	    } else {
@@ -3830,5 +3860,139 @@ public class SimplePageBean {
 
 		setItemGroups(item, selectedGroups);
 
+	}
+	
+	private String expandZippedResource(String resourceId) {
+
+		String contentCollectionId = resourceId.substring(0, resourceId.lastIndexOf(".")) + "/";
+
+		try {
+			contentHostingService.removeCollection(contentCollectionId);
+		} catch (Exception e) {
+			log.info("Failed to delete expanded collection");
+		}
+
+		// Q: Are we running a kernel with KNL-273?
+		Class contentHostingInterface = ContentHostingService.class;
+		try {
+			Method expandMethod = contentHostingInterface.getMethod("expandZippedResource", new Class[] { String.class });
+			// Expand the website
+			expandMethod.invoke(contentHostingService, new Object[] { resourceId });
+		} catch (NoSuchMethodException nsme) {
+			// A: No; should be impossible, UI already tested
+			return null;
+		} catch (Exception e) {
+			// A: Not sure
+			log.error("SecurityException thrown by expandZippedResource method lookup", e);
+			setErrKey("simplepage.website.cantexpand", null);
+			return null;
+		}
+
+		// Now set the html ok flag
+
+		try {
+			ContentCollectionEdit cce = contentHostingService.editCollection(contentCollectionId);
+
+			ResourcePropertiesEdit props = cce.getPropertiesEdit();
+			props.addProperty(ResourceProperties.PROP_ALLOW_INLINE, "true");
+			List<String> children = cce.getMembers();
+			for (int j = 0; j < children.size(); j++) {
+				String resId = children.get(j);
+				if (resId.endsWith("/")) {
+					setPropertyOnFolderRecursively(resId, ResourceProperties.PROP_ALLOW_INLINE, "true");
+				}
+			}
+
+			contentHostingService.commitCollection(cce);
+
+			// Now lets work out what type it is and return the appropriate
+			// index url
+
+			String index = null;
+
+			String name = contentCollectionId.substring(0, contentCollectionId.lastIndexOf("/"));
+			name = name.substring(name.lastIndexOf("/") + 1);
+			if (name.endsWith("_HTML")) {
+				// This is probably Wimba Create as wc adds this suffix to the
+				// zips it creates
+				name = name.substring(0, name.indexOf("_HTML"));
+			}
+
+			ContentEntity ce = cce.getMember(contentCollectionId + name + ".xml");
+			if (ce != null) {
+				index = "index.htm";
+			}
+
+			// Test for Camtasia
+			ce = cce.getMember(contentCollectionId + "ProductionInfo.xml");
+			if (ce != null) {
+				index = name + ".html";
+			}
+			
+			// Test for Articulate
+			ce = cce.getMember(contentCollectionId + "player.html");
+			if (ce != null) {
+				index = "player.html";
+			}
+
+			// Test for generic web site
+			ce = cce.getMember(contentCollectionId + "index.html");
+			if (ce != null) {
+			    index = "index.html";
+			}
+
+			ce = cce.getMember(contentCollectionId + "index.htm");
+			if (ce != null) {
+			    index = "index.htm";
+			}
+
+			if (index == null) {
+			    // /content/group/nnnn/folder
+			    int i = contentCollectionId.indexOf("/", 1);
+			    i = contentCollectionId.indexOf("/", i+1);
+
+			    setErrKey("simplepage.website.noindex", contentCollectionId.substring(i));
+			    return null;
+			}
+
+			//String relativeUrl = contentCollectionId.substring(contentCollectionId.indexOf("/Lesson Builder")) + index;
+			String relativeUrl = contentCollectionId + "/" + index;
+			return relativeUrl;
+		} catch (Exception e) {
+			log.error(e);
+			setErrKey("simplepage.website.cantexpand", null);
+			return null;
+		}
+	}
+	
+	private void setPropertyOnFolderRecursively(String resourceId, String property, String value) {
+
+		try {
+			if (contentHostingService.isCollection(resourceId)) {
+				// collection
+				ContentCollectionEdit col = contentHostingService.editCollection(resourceId);
+
+				ResourcePropertiesEdit resourceProperties = col.getPropertiesEdit();
+				resourceProperties.addProperty(property, Boolean.valueOf(value).toString());
+				contentHostingService.commitCollection(col);
+
+				List<String> children = col.getMembers();
+				for (int i = 0; i < children.size(); i++) {
+					String resId = children.get(i);
+					if (resId.endsWith("/")) {
+						setPropertyOnFolderRecursively(resId, property, value);
+					}
+				}
+
+			} else {
+				// resource
+				ContentResourceEdit res = contentHostingService.editResource(resourceId);
+				ResourcePropertiesEdit resourceProperties = res.getPropertiesEdit();
+				resourceProperties.addProperty(property, Boolean.valueOf(value).toString());
+				contentHostingService.commitResource(res, NotificationService.NOTI_NONE);
+			}
+		} catch (Exception pe) {
+			pe.printStackTrace();
+		}
 	}
 }
