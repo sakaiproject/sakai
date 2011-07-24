@@ -840,7 +840,7 @@ public class Foorm {
 	else
 	{
 		String keySpec = "";
-		if (theKey != null ) keySpec = " PRIMARY KEY( "+theKey+" )";
+		if (theKey != null ) keySpec = ",\n PRIMARY KEY( "+theKey+" )";
 		createCommand = "CREATE TABLE "+table+" (\n"+formSqlFields(formDefinition, vendor)+keySpec+"\n)\n";
 	}
 	if ( sequenceCommand == null ) return new String[] {createCommand};
