@@ -717,6 +717,7 @@ public class Foorm {
     
     public String [] filterForm(Object controlRow, String [] fieldinfo, String includePattern, String excludePattern)
     {
+	if ( fieldinfo == null ) return null;
 	ArrayList<String> ret = new ArrayList<String> ();
 	for (String line : fieldinfo) 
 	{

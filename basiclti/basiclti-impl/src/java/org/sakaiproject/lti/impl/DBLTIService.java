@@ -186,12 +186,9 @@ public class DBLTIService extends BaseLTIService implements LTIService
 
 	public Map<String,Object> getToolNoAuthz(Long key) 
 	{
-System.out.println("key="+key);
 	        Map<String,Object> retval = getThingNoAuthz("lti_tools", LTIService.TOOL_MODEL, key);
-System.out.println("retval="+retval);
                 if ( retval == null ) return retval;
                 String launch_url = (String) retval.get("launch");
-System.out.println("launc="+launch_url);
                 if ( launch_url != null ) {
                         String newLaunch = checkMapping(launch_url);
                         if ( ! newLaunch.equals(launch_url) ) {
@@ -312,10 +309,8 @@ System.out.println("launc="+launch_url);
                         }
                 }
 		
-System.out.println("NNNNNNNNNNNNNN="+newMapping);
-
 		final String sql = "INSERT INTO "+table+" "+foorm.insertForm(newMapping);
-                System.out.println("Insert SQL="+sql);
+                // System.out.println("Insert SQL="+sql);
 		final Object [] fields = foorm.getInsertObjects(newMapping);
 		
                 // Requires KNL-767
@@ -352,7 +347,7 @@ System.out.println("NNNNNNNNNNNNNN="+newMapping);
                 }
                 /* end of workaround */
 
-		System.out.println("Insert="+retval);
+		// System.out.println("Insert="+retval);
 		return retval;
 	}
 
@@ -493,21 +488,21 @@ System.out.println("NNNNNNNNNNNNNN="+newMapping);
                         foorm.setField(newMapping, "SITE_ID",getContext());
                 }
 
-		System.out.println("Upate="+sql);
+		// System.out.println("Upate="+sql);
 		Object [] fields = foorm.getUpdateObjects(newMapping);
-                System.out.println("Fields="+Arrays.toString(fields));
+                // System.out.println("Fields="+Arrays.toString(fields));
 		
 	        int count = jdbcTemplate.update(sql, fields);
-	        System.out.println("Count = "+count);
+	        // System.out.println("Count = "+count);
 	        return count == 1;
 	}
 
         // Utility to return a resultset
 	public List<Map<String,Object>> getResultSet(String statement, Object [] fields, final String [] columns) 
 	{	
-                System.out.println("getResultSet sql="+statement+" fields="+fields);      
+                // System.out.println("getResultSet sql="+statement+" fields="+fields);      
                 List rv = jdbcTemplate.query(statement, fields, new ColumnMapRowMapper());
-                System.out.println("getResultSet size="+rv.size()+" sql="+statement);      
+                // System.out.println("getResultSet size="+rv.size()+" sql="+statement);      
                 return (List<Map<String,Object>>) rv;       
 	}	
 
