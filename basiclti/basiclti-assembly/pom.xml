@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.basiclti</groupId>
         <artifactId>basiclti</artifactId>
-        <version>1.4-SNAPSHOT</version>
+        <version>2.0-SNAPSHOT</version>
     </parent>
 
     <name>BasicLTI Tomcat overlay assembly (basiclti-assembly)</name>
@@ -20,43 +20,56 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.sakaiproject.basiclti</groupId>
-            <artifactId>basiclti-pack</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>basiclti-api</artifactId>
             <version>${project.version}</version>
-            <type>war</type>
-            <!-- <type>sakai-component</type> -->
+            <type>jar</type>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.basiclti</groupId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>basiclti-admin-tool</artifactId>
+            <version>${project.version}</version>
+            <type>war</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>basiclti-pack</artifactId>
+            <version>${project.version}</version>
+            <type>war</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>basiclti-util</artifactId>
             <version>${project.version}</version>
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.basiclti</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>portlet-util</artifactId>
             <version>${project.version}</version>
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.basiclti</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>imsblti</artifactId>
             <version>${project.version}</version>
             <type>war</type>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.basiclti</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>imsblis</artifactId>
             <version>${project.version}</version>
             <type>war</type>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.basiclti</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>basiclti-help</artifactId>
             <version>${project.version}</version>
             <type>jar</type>

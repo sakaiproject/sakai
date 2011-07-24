@@ -11,6 +11,7 @@
             <useTransitiveDependencies>false
             </useTransitiveDependencies>
             <includes>
+                <include>org.sakaiproject.basiclti:basiclti-api:jar:*</include>
                 <include>org.sakaiproject.basiclti:basiclti-help:jar:*</include>
             </includes>
             <unpack>false</unpack>
@@ -26,8 +27,15 @@
         <dependencySet>
             <outputDirectory>webapps/</outputDirectory>
             <outputFileNameMapping>${artifact.artifactId}.war</outputFileNameMapping>
-            <!-- <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping> -->
-            <!-- <outputFileNameMapping>imsblti.war</outputFileNameMapping> -->
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                 <include>org.sakaiproject.basiclti:basiclti-admin-tool:war:*</include>
+            </includes>
+            <unpack>false</unpack>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>webapps/</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}.war</outputFileNameMapping>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
                  <include>org.sakaiproject.basiclti:imsblti:war:*</include>
