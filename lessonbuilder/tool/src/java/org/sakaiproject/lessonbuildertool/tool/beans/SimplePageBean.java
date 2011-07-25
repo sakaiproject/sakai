@@ -177,7 +177,6 @@ public class SimplePageBean {
 	private boolean filterHtml = ServerConfigurationService.getBoolean(FILTERHTML, false);
 
 	public String selectedAssignment = null;
-	public String selectedBlti = null;
 
     // generic entity stuff. selectedEntity is the string
     // coming from the picker. We'll use the same variable for any entity type
@@ -338,11 +337,6 @@ public class SimplePageBean {
         public void setAssignmentEntity(Object e) {
 	    assignmentEntity = (LessonEntity)e;
         }
-        private LessonEntity bltiEntity = null;
-        public void setBltiEntity(Object e) {
-	    bltiEntity = (LessonEntity)e;
-        }
-
 	private ToolManager toolManager;
 	private SecurityService securityService;
 	private SiteService siteService;
@@ -1058,7 +1052,6 @@ public class SimplePageBean {
 		    itemType == SimplePageItem.ASSESSMENT ||
 		    itemType == SimplePageItem.FORUM ||
 		    itemType == SimplePageItem.PAGE ||
-		    itemType == SimplePageItem.BLTI ||
 		    itemType == SimplePageItem.RESOURCE && nextItem.isSameWindow()) {
 		    // it's easy if the next item is available. If it's not, then
 		    // we need to see if everything other than this item is done and
@@ -1132,9 +1125,6 @@ public class SimplePageBean {
 	    				lessonEntity = quizEntity.getEntity(nextItem.getSakaiId()); break;
 	    			case SimplePageItem.FORUM:
 	    				lessonEntity = forumEntity.getEntity(nextItem.getSakaiId()); break;
-	    			case SimplePageItem.BLTI:
-	    				lessonEntity = bltiEntity.getEntity(nextItem.getSakaiId()); break;
-
 	    		}
 	    		// normally we won't send someone to an item that
 	    		// isn't available. But if the current item is a test, etc, we can't
@@ -1206,8 +1196,6 @@ public class SimplePageBean {
 		    lessonEntity = quizEntity.getEntity(prevItem.getSakaiId()); break;
 		case SimplePageItem.FORUM:
 		    lessonEntity = forumEntity.getEntity(prevItem.getSakaiId()); break;
-		case SimplePageItem.BLTI:
-		    lessonEntity = bltiEntity.getEntity(prevItem.getSakaiId()); break;
 		}
 		view.setSource((lessonEntity==null)?"dummy":lessonEntity.getUrl());
 		if (item.getType() == SimplePageItem.PAGE)
@@ -1881,10 +1869,6 @@ public class SimplePageBean {
 		this.selectedQuiz = selectedQuiz;
 	}
 
-	public void setSelectedBlti(String selectedBlti) {
-		this.selectedBlti = selectedBlti;
-	}
-
         public String assignmentRef(String id) {
 	    return "/assignment/a/" + getCurrentSiteId() + "/" + id;
 	}
@@ -2005,61 +1989,6 @@ public class SimplePageBean {
 		}
 	}
 
-    // called by add blti picker. Create a new item that points to an assigment
-    // or update an existing item, depending upon whether itemid is set
-	public String addBltit() {
-		if (!itemOk(itemId))
-		    return "permission-failed";
-		if (!canEditPage())
-		    return "permission-failed";
-
-		if (selectedBlti == null) {
-			return "failure";
-		} else {
-			try {
-			    LessonEntity selectedObject = bltiEntity.getEntity(selectedBlti);
-			    if (selectedObject == null)
-				return "failure";
-
-			    SimplePageItem i;
-			    // editing existing item?
-			    if (itemId != null && itemId != -1) {
-				i = findItem(itemId);
-
-				// if no change, don't worry
-				LessonEntity existing = bltiEntity.getEntity(i.getSakaiId());
-				String ref = existing.getReference();
-				// if same item, nothing to do
-				if (!ref.equals(selectedBlti)) {
-				    // if access controlled, clear restriction from old assignment and add to new
-				    if (i.isPrerequisite()) {
-					i.setPrerequisite(false);
-					// sakaiid and name are used in setting control
-					i.setSakaiId(selectedBlti);
-					i.setName(selectedObject.getTitle());
-					i.setPrerequisite(true);
-				    } else {
-					i.setSakaiId(selectedBlti);
-					i.setName(selectedObject.getTitle());
-				    }
-				    update(i);
-				}
-			    } else {
-				// no, add new item
-				i = appendItem(selectedBlti, selectedObject.getTitle(), SimplePageItem.BLTI);
-				update(i);
-			    }
-			    return "success";
-			} catch (Exception ex) {
-			    ex.printStackTrace();
-			    return "failure";
-			} finally {
-			    selectedBlti = null;
-			}
-		}
-	}
-
-
     /// ShowPageProducers needs the item ID list anyway. So to avoid calling the underlying
     // code twice, we take that list and translate to titles, rather than calling
     // getItemGroups again
@@ -2109,8 +2038,7 @@ public class SimplePageBean {
 
 
 	    if (!nocache && i.getType() != SimplePageItem.PAGE 
-		         && i.getType() != SimplePageItem.TEXT
-		&& i.getType() != SimplePageItem.BLTI) {
+		         && i.getType() != SimplePageItem.TEXT) {
 	       Object cached = groupCache.get(i.getSakaiId());
 	       if (cached != null) {
 		   if (cached instanceof String)
@@ -2132,7 +2060,6 @@ public class SimplePageBean {
 		   return getResourceGroups(i, nocache);  // responsible for caching the result
 	       case SimplePageItem.TEXT:
 	       case SimplePageItem.PAGE:
-	       case SimplePageItem.BLTI:
 		   return getLBItemGroups(i); // for all native LB objects
 	       }
 	   }
@@ -2254,7 +2181,6 @@ public class SimplePageBean {
 	       return setResourceGroups (i, groups);
 	   case SimplePageItem.TEXT:
 	   case SimplePageItem.PAGE:
-	   case SimplePageItem.BLTI:
 	       return setLBItemGroups(i, groups);
 	   }
 	   if (lessonEntity != null) {
@@ -3009,9 +2935,8 @@ public class SimplePageBean {
 		Boolean cached = completeCache.get(itemId);
 		if (cached != null)
 		    return (boolean)cached;
-		if (item.getType() == SimplePageItem.RESOURCE || item.getType() == SimplePageItem.URL || item.getType() == SimplePageItem.BLTI) {
-			// Resource. Completed if viewed. 
-		        // for the moment put BLTI here as well
+		if (item.getType() == SimplePageItem.RESOURCE || item.getType() == SimplePageItem.URL) {
+			// Resource. Completed if viewed.
 			if (hasLogEntry(item.getId())) {
 				completeCache.put(itemId, true);
 				return true;
@@ -3318,12 +3243,6 @@ public class SimplePageBean {
 		    if (quiz == null)
 			return null;
 		    return quiz.getTitle();
-		} else if (i.getType() == SimplePageItem.BLTI) {
-		    LessonEntity blti = bltiEntity.getEntity(i.getSakaiId());
-		    if (blti == null)
-			return null;
-		    return blti.getTitle();
-
 		} else
 		    return null;
 	}

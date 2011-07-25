@@ -442,16 +442,6 @@ $(function() {
 					$("#edit-item-object").attr("href").replace("source=SRC", "source="+escape(editurl)));
 				$("#edit-item-text").text(msg("simplepage.edit_topic"));
 
-			}else if (type == 'b'){
-				$("#change-blti-p").show();
-				$("#change-blti").attr("href", 
-				      $("#change-blti").attr("href").replace("itemId=-1", "itemId=" + itemid));
-				$("#require-label").text(msg("simplepage.require_submit_blti"));
-				$("#edit-item-object-p").show();
-				$("#edit-item-object").attr("href", 
-					$("#edit-item-object").attr("href").replace("source=SRC", "source="+escape(editurl)));
-				$("#edit-item-text").text(msg("simplepage.edit_topic"));
-
 			}else {
 				$("#change-assignment-p").show();
 				$("#change-assignment").attr("href", 

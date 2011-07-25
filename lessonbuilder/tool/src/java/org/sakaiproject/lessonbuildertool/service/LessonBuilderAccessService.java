@@ -107,7 +107,6 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.lessonbuildertool.service.ForumEntity;
 import org.sakaiproject.lessonbuildertool.service.SamigoEntity;
 import org.sakaiproject.lessonbuildertool.service.AssignmentEntity;
-import org.sakaiproject.lessonbuildertool.service.BltiEntity;
 import org.sakaiproject.lessonbuildertool.service.GradebookIfc;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.tool.api.ToolManager;
@@ -182,11 +181,6 @@ public class LessonBuilderAccessService
     LessonEntity assignmentEntity = null;
     public void setAssignmentEntity(Object e) {
 	assignmentEntity = (LessonEntity)e;
-    }
-
-    LessonEntity bltiEntity = null;
-    public void setBltiEntity(Object e) {
-	bltiEntity = (LessonEntity)e;
     }
 
     static MemoryService memoryService = null;
@@ -303,7 +297,6 @@ public class LessonBuilderAccessService
 		    simplePageBean.setForumEntity(forumEntity);
 		    simplePageBean.setQuizEntity(quizEntity);
 		    simplePageBean.setAssignmentEntity(assignmentEntity);
-		    simplePageBean.setBltiEntity(bltiEntity);
 		    simplePageBean.setGradebookIfc(gradebookIfc);
 		    simplePageBean.setMemoryService(memoryService);
 		    simplePageBean.setCurrentSiteId(currentPage.getSiteId());

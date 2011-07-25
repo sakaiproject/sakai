@@ -42,7 +42,6 @@
 		<property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
 		<property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
 		<property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
-		<property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
 		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
                 <property name="localeGetter" ref="requestLocaleProxy" />
 		<property name="httpServletRequest" ref="httpServletRequest" />
@@ -81,16 +80,6 @@
 		<property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 		<property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
 	</bean>
-
-	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.BltiPickerProducer" >
-		<property name="messageLocator" ref="messageLocator"/>
-		<property name="simplePageBean" ref="simplePageBean" />
-		<property name="simplePageToolDao">
-			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
-		</property>
-		<property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
-	</bean>
-	
 
 	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.PagePickerProducer" >
 		<property name="messageLocator" ref="messageLocator"/>
@@ -174,7 +163,6 @@
 		<property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
 		<property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
 		<property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
-		<property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
 		<property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
 		<property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
 	</bean>

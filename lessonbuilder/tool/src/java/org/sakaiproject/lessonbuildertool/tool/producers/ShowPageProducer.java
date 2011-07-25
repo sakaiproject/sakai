@@ -139,7 +139,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
         private static LessonEntity forumEntity;
         private static LessonEntity quizEntity;
         private static LessonEntity assignmentEntity;
-        private static LessonEntity bltiEntity;
 	public MessageLocator messageLocator;
         private LocaleGetter localegetter;
 	public static final String VIEW_ID = "ShowPage";
@@ -714,16 +713,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 						}
 					} else if (i.getType() == SimplePageItem.FORUM) {
-						UIOutput.make(tableRow, "type", "b"); 
-						LessonEntity blti= bltiEntity.getEntity(i.getSakaiId());
-						if (blti != null) {
-						    String editUrl = blti.editItemUrl(simplePageBean);
-						    if (editUrl != null)
-							UIOutput.make(tableRow, "edit-url", editUrl);
-						    itemGroupString = simplePageBean.getItemGroupString(i, forum, true);
-						    UIOutput.make(tableRow, "item-groups", itemGroupString );
-						}
-					} else if (i.getType() == SimplePageItem.BLTI) {
 						UIOutput.make(tableRow, "extra-info");
 						UIOutput.make(tableRow, "type", "8"); 
 						LessonEntity forum = forumEntity.getEntity(i.getSakaiId());
@@ -734,7 +723,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    itemGroupString = simplePageBean.getItemGroupString(i, forum, true);
 						    UIOutput.make(tableRow, "item-groups", itemGroupString );
 						}
-
 					} else if (i.getType() == SimplePageItem.PAGE) {
 						UIOutput.make(tableRow, "type", "page"); 
 						UIOutput.make(tableRow, "page-next", Boolean.toString(i.getNextPage()));
@@ -1324,26 +1312,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				UILink link = UILink.make(container, ID);
 				disableLink(link, messageLocator);
 			}
-		} else if (i.getType() == SimplePageItem.BLTI) {
-			if (available) {
-				if (i.isPrerequisite()) {
-					simplePageBean.checkItemPermissions(i, true);
-				}
-				GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
-				view.setSendingPage(currentPage.getPageId());
-				view.setItemId(i.getId());
-				LessonEntity lessonEntity = bltiEntity.getEntity(i.getSakaiId());
-				view.setSource((bltiEntity==null)?"dummy":bltiEntity.getUrl());
-				UIInternalLink.make(container, "link", view);
-			} else {
-				if (i.isPrerequisite()) {
-					simplePageBean.checkItemPermissions(i, false);
-				}
-				UILink link = UILink.make(container, ID);
-				disableLink(link, messageLocator);
-			}
 		}
-
 
 		String note = null;
 		if (status == Status.COMPLETED)
@@ -1415,12 +1384,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			assignmentEntity = e;
 	}
 
-	public void setBltiEntity(LessonEntity e) {
-	    	if (bltiEntity == null)
-			bltiEntity = e;
-	}
-
-
 	private MemoryService memoryService = null;
 	public void setMemoryService(MemoryService m) {
 	    memoryService = m;
@@ -1459,7 +1422,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createToolBarLink(AssignmentPickerProducer.VIEW_ID, toolBar, "add-assignment", "simplepage.assignment", currentPage, "simplepage.assignment");
 		createToolBarLink(QuizPickerProducer.VIEW_ID, toolBar, "add-quiz", "simplepage.quiz", currentPage, "simplepage.quiz");
 		createToolBarLink(ForumPickerProducer.VIEW_ID, toolBar, "add-forum", "simplepage.forum", currentPage, "simplepage.forum");
-		createToolBarLink(BltiPickerProducer.VIEW_ID, toolBar, "add-blti", "simplepage.blti", currentPage, "simplepage.blti");
 		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar, "add-multimedia", "simplepage.multimedia", true, false, currentPage, "simplepage.multimedia.tooltip");
 		
 		// Q: Are we running a kernel with KNL-273?
@@ -1556,11 +1518,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		params.setSendingPage(currentPage.getPageId());
 		params.viewID = ForumPickerProducer.VIEW_ID;
 		UIInternalLink.make(form, "change-forum", messageLocator.getMessage("simplepage.change_forum"), params);
-
-		params = new GeneralViewParameters();
-		params.setSendingPage(currentPage.getPageId());
-		params.viewID = BltiPickerProducer.VIEW_ID;
-		UIInternalLink.make(form, "change-blti", messageLocator.getMessage("simplepage.change_blti"), params);
 
 		FilePickerViewParameters fileparams = new FilePickerViewParameters();
 		fileparams.setSender(currentPage.getPageId());
