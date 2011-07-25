@@ -140,9 +140,6 @@ public abstract class BaseLTIService implements LTIService
 		if ( securityService == null ) securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
 		if ( siteService == null ) siteService = (SiteService) ComponentManager.get("org.sakaiproject.site.api.SiteService");
 		if ( toolManager == null ) toolManager = (ToolManager) ComponentManager.get("org.sakaiproject.tool.api.ToolManager");
-                if ( toolManager == null ) {
-                        System.out.println("TYHJUIOJASSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS");
-                }
 	}
 	
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -169,17 +166,17 @@ public abstract class BaseLTIService implements LTIService
 		// Check to see if all out properties are defined
 		ArrayList<String> strings = foorm.checkI18NStrings(LTIService.TOOL_MODEL, rb);
 		for ( String str : strings ) {
-			System.out.println(str+"=Missing LTIService Translation");
+			M_log.warn(str+"=Missing LTIService Translation");
 		}
 
 		strings = foorm.checkI18NStrings(LTIService.CONTENT_MODEL, rb);
 		for ( String str : strings ) {
-			System.out.println(str+"=Missing LTIService Translation");
+			M_log.warn(str+"=Missing LTIService Translation");
 		}
 
 		strings = foorm.checkI18NStrings(LTIService.MAPPING_MODEL, rb);
 		for ( String str : strings ) {
-			System.out.println(str+"=Missing LTIService Translation");
+			M_log.warn(str+"=Missing LTIService Translation");
 		}
 	}
 

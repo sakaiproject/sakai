@@ -46,8 +46,6 @@ public class Foorm {
     public Long getLongNull(Object key)
     {
         if ( key == null ) return null;
-        // if ( key instanceof Long ) return (Long) key;
-        // if ( key instanceof Integer ) return new Long((Integer) key);
 	if ( key instanceof Number ) return new Long( ( (Number) key).longValue() );
         if ( key instanceof String ) {
                 try {
@@ -887,6 +885,31 @@ public class Foorm {
 		theKey = field;
 	}
 	return theKey;
+    }
+
+    // Paging helpers
+
+    // startRec is zero-based
+    public String getPagedSelect(String sqlIn, int startRec, int endRec, String vendor)
+    {
+	if ( "hsqldb".equals(vendor) ) {
+                if ( startRec > endRec ) return null;
+		sqlIn = sqlIn.trim();
+                int position = sqlIn.toLowerCase().indexOf("select ");
+                if ( position != 0 ) return null;
+                int recordCount = (endRec-startRec)+1;
+                String retval = "select limit "+startRec+" "+recordCount+" "+sqlIn.substring(position+7);
+                return retval;
+	} else if ( "oracle".equals(vendor) ) {
+                if ( startRec > endRec ) return null;
+                String retval = "select * from ( select a.*, ROWNUM rnum from ( " +sqlIn +
+                        " ) a where rownum <= "+(endRec+1)+" ) where rnum >= "+(startRec+1);
+                return retval;
+	} else { // MySql for sure
+                if ( startRec > endRec ) return null;
+                int recordCount = (endRec-startRec)+1;
+                return sqlIn + " limit "+startRec+","+recordCount;
+	}
     }
 
 /*

@@ -323,7 +323,7 @@ public class DBLTIService extends BaseLTIService implements LTIService
 
 		final String sql = makeSql;
 
-                System.out.println("Insert SQL="+sql);
+                // System.out.println("Insert SQL="+sql);
 		final Object [] fields = foorm.getInsertObjects(newMapping);
 		
                 // Requires KNL-767
@@ -338,6 +338,9 @@ public class DBLTIService extends BaseLTIService implements LTIService
                         try {
                                 retval = m_sql.dbInsert(null, sql, fields, "id");
                         } catch (Exception e) { // KNL-767 is not fixed
+				M_log.warn("Falling back to jdbcTemplate.update because KNL-767 is not fixed.");
+				M_log.warn("The previous traceback was not-fatal and will go away when KNL-767 is fixed.");
+				M_log.warn("Spring JDBC cannot get a key back from an HSQL insert, but at least the insert works.");
                                 jdbcTemplate.update(sql, fields);  // At least insert the data
                         }
                 } else {
@@ -360,7 +363,7 @@ public class DBLTIService extends BaseLTIService implements LTIService
                 }
                 /* end of workaround */
 
-		System.out.println("Insert="+retval);
+		// System.out.println("Insert="+retval);
 		return retval;
 	}
 
@@ -422,6 +425,11 @@ public class DBLTIService extends BaseLTIService implements LTIService
                         }
                 }
 
+		if ( last != 0 ) {
+			String pagedStatement = foorm.getPagedSelect(statement, first, last, m_sql.getVendor());
+			if ( pagedStatement != null ) statement = pagedStatement;
+		}
+System.out.println("statement = "+statement);
                 return getResultSet(statement,fields,columns);
 	}
 

@@ -137,7 +137,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
 		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
-		List<Map<String,Object>> tools = ltiService.getTools(null,null,0,100);
+		List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0);
                 context.put("inHelper",new Boolean(inHelper));
 		context.put("tools", tools);
 		context.put("getContext",toolManager.getCurrentPlacement().getContext());
@@ -494,7 +494,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		        addAlert(state,rb.getString("error.maintain.view"));
 		        return "lti_error";
 		}
-		List<Map<String,Object>> contents = ltiService.getContents(null,null,0,100);
+		List<Map<String,Object>> contents = ltiService.getContents(null,null,0,0);
 		context.put("contents", contents);
 		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
@@ -516,7 +516,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
                 context.put("doAction", BUTTON + "doContentPut");
 		state.removeAttribute(STATE_SUCCESS);
 
-		List<Map<String,Object>> tools = ltiService.getTools(null,null,0,100);
+		List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0);
 		context.put("tools", tools);
 
                 Long key = null;
@@ -670,13 +670,17 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
             try { 
                 // Get a list of tools
-		List<Map<String,Object>> tools = ltiService.getTools(null,null,0,100);
-		sb.append(""+tools.size()+" tools available");
-                sb.append("Currently Available tools\n");
-		int count = 0;
+		List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0);
+		sb.append(""+tools.size()+" tools available\n");
+		if ( tools.size() > 2 ) {
+	                sb.append("Tools 1-2 (zero-based):\n");
+			tools = ltiService.getTools(null,null,1,2);
+		} else {
+	                sb.append("Tools 0-1 (first two):\n");
+			tools = ltiService.getTools(null,null,0,1);
+		}
+
                 for (Map<String, Object> tool : tools ) {
-			count++;
-			if ( count > 2 ) break;
                         sb.append("  Tool\n");
                         for ( String key : tool.keySet() ) {
                                 sb.append("     ");
