@@ -720,7 +720,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    String editUrl = blti.editItemUrl(simplePageBean);
 						    if (editUrl != null)
 							UIOutput.make(tableRow, "edit-url", editUrl);
-						    itemGroupString = simplePageBean.getItemGroupString(i, forum, true);
+						    itemGroupString = simplePageBean.getItemGroupString(i, blti, true);
 						    UIOutput.make(tableRow, "item-groups", itemGroupString );
 						}
 					} else if (i.getType() == SimplePageItem.BLTI) {

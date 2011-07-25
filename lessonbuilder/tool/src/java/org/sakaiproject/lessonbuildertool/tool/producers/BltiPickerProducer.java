@@ -65,8 +65,8 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
  * @author Eric Jeney <jeney@rutgers.edu>
  * 
  */
-public class QuizPickerProducer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter {
-	public static final String VIEW_ID = "QuizPicker";
+public class BltiPickerProducer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter {
+	public static final String VIEW_ID = "BltiPicker";
 
 	private SimplePageBean simplePageBean;
 	private SimplePageToolDao simplePageToolDao;
@@ -81,8 +81,8 @@ public class QuizPickerProducer implements ViewComponentProducer, NavigationCase
 		simplePageToolDao = (SimplePageToolDao) dao;
 	}
 
-    	public void setQuizEntity(LessonEntity l) {
-		quizEntity = l;
+    	public void setBltiEntity(LessonEntity l) {
+		bltiEntity = l;
 	}
 
 	public String getViewID() {

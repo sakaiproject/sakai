@@ -148,6 +148,17 @@ public class BltiEntity implements LessonEntity {
 	return "sakai.blti";
     }
 
+    // dummy. This is intended to be the object used in the BLTI code. The BltiEntity objects
+    // are things that LB will refer to, so they are probably content objects. It is of course
+    // quite reasonable to keep track of more than one thing, e.g. also the tool that they 
+    // implement. Note that we start out only putting the ID string here, and only fetch
+    // the actual Blti if it's needed.
+    public class Blti {
+	public String getTitle() {
+	    return "";
+	}
+    }
+
     // the underlying object, something Sakaiish
     protected String id;
     protected int type;
@@ -155,17 +166,18 @@ public class BltiEntity implements LessonEntity {
     // the actual objects, lets us cache them
     protected Blti blti;
 
+    // return the internal object. normally no noe outside this class should need it
     public Blti getBlti(String ref) {
-	return getAssignment(ref, false);
+	return getBlti(ref, false);
     }
 
     public Blti getBlti(String ref, boolean nocache) {
-	Blti ret = (Blti)assignmentCache.get(ref);
+	Blti ret = (Blti)bltiCache.get(ref);
 	if (!nocache && ret != null)
 	    return ret;
 
 	try {
-	    ret = BltiService.getBlti(ref);
+	    //  ret = BltiService.getBlti(ref);
 	} catch (Exception e) {
 	    ret = null;
 	}
@@ -217,7 +229,7 @@ public class BltiEntity implements LessonEntity {
 	}
 
 	if (typeString.equals(BLTI)) {
-	    return new AssignmentEntity(TYPE_BLTI, id);
+	    return new BltiEntity(TYPE_BLTI, id);
 	} else if (nextEntity != null) {
 	    // in case we chain to a different implementation. Not likely for BLTI
 	    return nextEntity.getEntity(ref);
