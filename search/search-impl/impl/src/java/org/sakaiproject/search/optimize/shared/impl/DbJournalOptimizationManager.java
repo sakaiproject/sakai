@@ -97,7 +97,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			// this+txiD,
 			// and all merging-prepare states in this transaction are removed.
 			updateTarget = connection
-					.prepareStatement("update search_journal set status = 'commited', txts = ? where txid = ?  ");
+					.prepareStatement("update search_journal set status = 'committed', txts = ? where txid = ?  ");
 			updateTarget.clearParameters();
 			updateTarget.setLong(1, System.currentTimeMillis());
 			updateTarget.setLong(2, ojms.oldestSavePoint);
@@ -230,8 +230,9 @@ public class DbJournalOptimizationManager implements JournalManager
 
 			}
 			rs.close();
+			//SRCh-38 we will also select on the old mispelled value for backward compatability
 			getEarlierSavePoint2 = connection
-					.prepareStatement("select min(txid),max(txid) from search_journal where txid < ? and  status = 'commited' ");
+					.prepareStatement("select min(txid),max(txid) from search_journal where txid < ? and  (status = 'commited' or status = 'committed') ");
 			getEarlierSavePoint2.clearParameters();
 			getEarlierSavePoint2.setLong(1, oldestActiveSavepoint);
 			rs = getEarlierSavePoint2.executeQuery();
@@ -289,7 +290,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			// this requires read committed transaction issolation and WILL NOT
 			// work on HSQL
 			lockEarlierSavePoints = connection
-					.prepareStatement("update search_journal set indexwriter = ?, status = 'merging-prepare', txts = ? where txid <= ? and  status = 'commited' ");
+					.prepareStatement("update search_journal set indexwriter = ?, status = 'merging-prepare', txts = ? where txid <= ? and  (status = 'commited' or status = 'committed' ) ");
 			lockEarlierSavePoints.clearParameters();
 			lockEarlierSavePoints.setString(1, jms.indexWriter);
 			lockEarlierSavePoints.setLong(2, System.currentTimeMillis());
@@ -472,7 +473,7 @@ public class DbJournalOptimizationManager implements JournalManager
 			// this+txiD,
 			// and all merging-prepare states in this transaction are removed.
 			updateTarget = connection
-					.prepareStatement("update search_journal set status = 'commited', txts = ? where indexwriter = ? and status = 'merging-prepare'  ");
+					.prepareStatement("update search_journal set status = 'committed', txts = ? where indexwriter = ? and status = 'merging-prepare'  ");
 			updateTarget.clearParameters();
 			updateTarget.setLong(1, System.currentTimeMillis());
 			updateTarget.setString(2, ojms.indexWriter);
@@ -550,7 +551,7 @@ public class DbJournalOptimizationManager implements JournalManager
 					{
 						mergingMap.put(indexwriter, indexwriter);
 					}
-					else if ("commited".equals(status))
+					else if ("commited".equals(status) || "committed".equals(status))
 					{
 						nSavePoints++;
 					}

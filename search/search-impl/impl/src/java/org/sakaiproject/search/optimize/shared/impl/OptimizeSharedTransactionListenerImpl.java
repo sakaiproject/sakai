@@ -312,6 +312,7 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 				log.debug(ex);
 			}
 		}
+		/* FIXME - we can't commit a closed index
 		if (indexWriter != null)
 		{
 			try {
@@ -324,6 +325,7 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 				e.printStackTrace();
 			}
 		}
+		*/
 	}
 
 	/**

@@ -131,7 +131,7 @@ public class DbJournalManager implements JournalManager
 		{
 			connection = datasource.getConnection();
 			listLaterSavePoints = connection
-					.prepareStatement("select txid from search_journal where txid > ? and status = 'commited' order by txid asc ");
+					.prepareStatement("select txid from search_journal where txid > ? and (status = 'commited' or status = 'committed') order by txid asc ");
 			listLaterSavePoints.clearParameters();
 			listLaterSavePoints.setLong(1, savePoint);
 			try
@@ -243,7 +243,7 @@ public class DbJournalManager implements JournalManager
 		try
 		{
 			success = connection
-					.prepareStatement("update search_journal set status = 'commited' where txid = ? ");
+					.prepareStatement("update search_journal set status = 'committed' where txid = ? ");
 			success.clearParameters();
 			success.setLong(1, ((JournalManagerStateImpl) jms).getTransactionId());
 			if (success.executeUpdate() != 1)

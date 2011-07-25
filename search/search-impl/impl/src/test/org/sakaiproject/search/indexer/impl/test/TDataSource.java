@@ -76,7 +76,7 @@ public class TDataSource
 		 * cpds.setUser("sakai22"); cpds.setPassword("sakai22"); } catch
 		 * (ClassNotFoundException cnfe) { }
 		 */
-		// we need to use derby db because HSQL only has read_uncommited
+		// we need to use derby db because HSQL only has read_uncommitted
 		// transaction
 		// isolation
 

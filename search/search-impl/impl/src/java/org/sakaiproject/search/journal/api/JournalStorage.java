@@ -32,7 +32,7 @@ public interface JournalStorage
 {
 
 	/**
-	 * Get a savePoint from the commited store into a permanent local space,
+	 * Get a savePoint from the committed store into a permanent local space,
 	 * indexed on the transaction or savePoint id
 	 * 
 	 * @param savePoint
