@@ -155,6 +155,11 @@ public class CodeMacro extends LocalePreserved
 		}
 
 		String result = formatter.filter(params.getContent(), nullContext);
+		//SAK-20920 result could be null here
+		if (result == null)
+		{
+			result = "";
+		}
 		result = replace(result.trim());
 		
 		writer.write(start);
