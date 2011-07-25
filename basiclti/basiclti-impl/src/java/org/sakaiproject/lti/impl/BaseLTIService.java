@@ -54,6 +54,9 @@ public abstract class BaseLTIService implements LTIService {
 
   /** Resource bundle using current language locale */
   protected static ResourceLoader rb = new ResourceLoader("ltiservice");
+  /**
+   * 
+   */
   protected static SakaiFoorm foorm = new SakaiFoorm();
 
   /** Dependency: SessionManager */
@@ -108,8 +111,17 @@ public abstract class BaseLTIService implements LTIService {
     m_eventTrackingService = service;
   }
 
+  /**
+   * 
+   */
   protected SecurityService securityService = null;
+  /**
+   * 
+   */
   protected SiteService siteService = null;
+  /**
+   * 
+   */
   protected ToolManager toolManager = null;
 
   /**
@@ -172,14 +184,21 @@ public abstract class BaseLTIService implements LTIService {
    * LTIService implementation
    *********************************************************************************************************************************************************************************************************************************************************/
 
-  /** getMappingModel */
+  /**
+   * 
+   */
   public String[] getMappingModel() {
     if (isAdmin())
       return MAPPING_MODEL;
     return null;
   }
 
-  /** getToolModel */
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.api.LTIService#getToolModel()
+   */
   public String[] getToolModel() {
     if (isAdmin())
       return TOOL_MODEL;
@@ -188,6 +207,12 @@ public abstract class BaseLTIService implements LTIService {
     return null;
   }
 
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.api.LTIService#getContentModel(java.lang.Long)
+   */
   public String[] getContentModel(Long tool_id) {
     if (!isMaintain())
       return null;
@@ -200,11 +225,21 @@ public abstract class BaseLTIService implements LTIService {
     return retval;
   }
 
+  /**
+   * 
+   * @return
+   */
   protected String getContext() {
     String retval = toolManager.getCurrentPlacement().getContext();
     return retval;
   }
 
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.api.LTIService#getContentLaunch(java.util.Map)
+   */
   public String getContentLaunch(Map<String, Object> content) {
     int key = getInt(content.get("id"));
     String siteId = (String) content.get("SITE_ID");
@@ -213,64 +248,161 @@ public abstract class BaseLTIService implements LTIService {
     return LAUNCH_PREFIX + siteId + "/content:" + key;
   }
 
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.api.LTIService#formOutput(java.lang.Object,
+   *      java.lang.String)
+   */
   public String formOutput(Object row, String fieldInfo) {
     return foorm.formOutput(row, fieldInfo, rb);
   }
 
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.api.LTIService#formOutput(java.lang.Object,
+   *      java.lang.String[])
+   */
   public String formOutput(Object row, String[] fieldInfo) {
     return foorm.formOutput(row, fieldInfo, rb);
   }
 
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.api.LTIService#formInput(java.lang.Object,
+   *      java.lang.String)
+   */
   public String formInput(Object row, String fieldInfo) {
     return foorm.formInput(row, fieldInfo, rb);
   }
 
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.api.LTIService#formInput(java.lang.Object,
+   *      java.lang.String[])
+   */
   public String formInput(Object row, String[] fieldInfo) {
     return foorm.formInput(row, fieldInfo, rb);
   }
 
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.api.LTIService#isAdmin()
+   */
   public boolean isAdmin() {
     if (!ADMIN_SITE.equals(getContext()))
       return false;
     return isMaintain();
   }
 
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.api.LTIService#isMaintain()
+   */
   public boolean isMaintain() {
     return siteService.allowUpdateSite(getContext());
   }
 
-  /** Simple API signatures for the update series of methods */
-
+  /**
+   * Simple API signatures for the update series of methods
+   */
   public Object updateTool(Long key, Map<String, Object> newProps) {
     return updateTool(key, (Object) newProps);
   }
 
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.api.LTIService#updateTool(java.lang.Long,
+   *      java.util.Properties)
+   */
   public Object updateTool(Long key, Properties newProps) {
     return updateTool(key, (Object) newProps);
   }
 
+  /**
+   * 
+   * @param key
+   * @param newProps
+   * @return
+   */
   public abstract Object updateTool(Long key, Object newProps);
 
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.api.LTIService#updateMapping(java.lang.Long, java.util.Map)
+   */
   public Object updateMapping(Long key, Map<String, Object> newProps) {
     return updateMapping(key, (Object) newProps);
   }
 
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.api.LTIService#updateMapping(java.lang.Long,
+   *      java.util.Properties)
+   */
   public Object updateMapping(Long key, Properties newProps) {
     return updateMapping(key, (Object) newProps);
   }
 
+  /**
+   * 
+   * @param key
+   * @param newProps
+   * @return
+   */
   public abstract Object updateMapping(Long key, Object newProps);
 
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.api.LTIService#updateContent(java.lang.Long, java.util.Map)
+   */
   public Object updateContent(Long key, Map<String, Object> newProps) {
     return updateContent(key, (Object) newProps);
   }
 
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.api.LTIService#updateContent(java.lang.Long,
+   *      java.util.Properties)
+   */
   public Object updateContent(Long key, Properties newProps) {
     return updateContent(key, (Object) newProps);
   }
 
+  /**
+   * 
+   * @param key
+   * @param newProps
+   * @return
+   */
   public abstract Object updateContent(Long key, Object newProps);
 
+  /**
+   * 
+   * @param o
+   * @return
+   */
   public static int getInt(Object o) {
     if (o instanceof String) {
       try {
@@ -285,6 +417,9 @@ public abstract class BaseLTIService implements LTIService {
   }
 
   // Adjust the content object based on the settings in the tool object
+  /**
+   * 
+   */
   public void filterContent(Map<String, Object> content, Map<String, Object> tool) {
     if (content == null || tool == null)
       return;
@@ -308,6 +443,13 @@ public abstract class BaseLTIService implements LTIService {
       content.put("newpage", newProp);
   }
 
+  /**
+   * 
+   * @param propName
+   * @param content
+   * @param tool
+   * @return
+   */
   public static Integer getCorrectProperty(String propName, Map<String, Object> content,
       Map<String, Object> tool) {
     int toolProp = getInt(tool.get(propName));

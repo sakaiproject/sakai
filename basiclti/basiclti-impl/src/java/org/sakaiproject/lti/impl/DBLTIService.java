@@ -53,6 +53,9 @@ public class DBLTIService extends BaseLTIService implements LTIService {
   /** Our log (commons). */
   private static Log M_log = LogFactory.getLog(DBLTIService.class);
 
+  /**
+   * 
+   */
   private PropertiesConfiguration statements;
 
   /** Dependency: SqlService */
@@ -81,7 +84,13 @@ public class DBLTIService extends BaseLTIService implements LTIService {
     m_autoDdl = Boolean.valueOf(value);
   }
 
+  /**
+   * 
+   */
   private javax.sql.DataSource dataSource = null;
+  /**
+   * 
+   */
   private org.springframework.jdbc.core.JdbcTemplate jdbcTemplate = null;
 
   /**********************************************************************************************************************************************************************************************************************************************************
@@ -134,43 +143,90 @@ public class DBLTIService extends BaseLTIService implements LTIService {
     }
   }
 
-  /** Mapping methods */
+  /* Mapping methods */
 
+  /**
+   * 
+   */
   public Object insertMapping(Properties newProps) {
     return insertThing("lti_mapping", LTIService.MAPPING_MODEL, null, newProps);
   }
 
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.api.LTIService#getMapping(java.lang.Long)
+   */
   public Map<String, Object> getMapping(Long key) {
     return getThing("lti_mapping", LTIService.MAPPING_MODEL, key);
   }
 
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.api.LTIService#deleteMapping(java.lang.Long)
+   */
   public boolean deleteMapping(Long key) {
     return deleteThing("lti_mapping", LTIService.MAPPING_MODEL, key);
   }
 
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.impl.BaseLTIService#updateMapping(java.lang.Long,
+   *      java.lang.Object)
+   */
   public Object updateMapping(Long key, Object newProps) {
     return updateThing("lti_mapping", LTIService.MAPPING_MODEL, null, key, newProps);
   }
 
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.api.LTIService#getMappings(java.lang.String,
+   *      java.lang.String, int, int)
+   */
   public List<Map<String, Object>> getMappings(String search, String order, int first,
       int last) {
     return getThings("lti_mapping", LTIService.MAPPING_MODEL, search, order, first, last);
   }
 
   // TODO: Actually check mappings
+  /**
+   * 
+   */
   public String checkMapping(String url) {
     return url;
   }
 
-  /** Tool Methods */
+  /* Tool Methods */
+  /**
+   * 
+   */
   public Object insertTool(Properties newProps) {
     return insertThing("lti_tools", LTIService.TOOL_MODEL, null, newProps);
   }
 
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.api.LTIService#getTool(java.lang.Long)
+   */
   public Map<String, Object> getTool(Long key) {
     return getThing("lti_tools", LTIService.TOOL_MODEL, key);
   }
 
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.api.LTIService#getToolNoAuthz(java.lang.Long)
+   */
   public Map<String, Object> getToolNoAuthz(Long key) {
     Map<String, Object> retval = getThingNoAuthz("lti_tools", LTIService.TOOL_MODEL, key);
     if (retval == null)
@@ -186,28 +242,63 @@ public class DBLTIService extends BaseLTIService implements LTIService {
     return retval;
   }
 
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.api.LTIService#getTool(java.lang.String)
+   */
   public Map<String, Object> getTool(String url) {
     return null;
   }
 
+  /**
+   * 
+   * @param urlorkey
+   * @param retval
+   * @return
+   */
   private boolean getTool(Object urlorkey, Map<String, Object> retval) {
     return false;
   }
 
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.api.LTIService#deleteTool(java.lang.Long)
+   */
   public boolean deleteTool(Long key) {
     return deleteThing("lti_tools", LTIService.TOOL_MODEL, key);
   }
 
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.impl.BaseLTIService#updateTool(java.lang.Long,
+   *      java.lang.Object)
+   */
   public Object updateTool(Long key, Object newProps) {
     return updateThing("lti_tools", LTIService.TOOL_MODEL, null, key, newProps);
   }
 
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.api.LTIService#getTools(java.lang.String, java.lang.String,
+   *      int, int)
+   */
   public List<Map<String, Object>> getTools(String search, String order, int first,
       int last) {
     return getThings("lti_tools", LTIService.TOOL_MODEL, search, order, first, last);
   }
 
-  /** Content Methods */
+  /* Content Methods */
+  /**
+   * 
+   */
   public Object insertContent(Properties newProps) {
     String toolId = newProps.getProperty("tool_id");
     if (toolId == null)
@@ -224,6 +315,12 @@ public class DBLTIService extends BaseLTIService implements LTIService {
     return insertThing("lti_content", contentModel, LTIService.CONTENT_MODEL, newProps);
   }
 
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.api.LTIService#getContent(java.lang.Long)
+   */
   public Map<String, Object> getContent(Long key) {
     Map<String, Object> retval = getThing("lti_content", LTIService.CONTENT_MODEL, key);
     if (retval == null)
@@ -232,14 +329,33 @@ public class DBLTIService extends BaseLTIService implements LTIService {
     return retval;
   }
 
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.api.LTIService#getContentNoAuthz(java.lang.Long)
+   */
   public Map<String, Object> getContentNoAuthz(Long key) {
     return getThingNoAuthz("lti_content", LTIService.CONTENT_MODEL, key);
   }
 
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.api.LTIService#deleteContent(java.lang.Long)
+   */
   public boolean deleteContent(Long key) {
     return deleteThing("lti_content", LTIService.CONTENT_MODEL, key);
   }
 
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.impl.BaseLTIService#updateContent(java.lang.Long,
+   *      java.lang.Object)
+   */
   public Object updateContent(Long key, Object newProps) {
     // Make sure we like the proposed tool_id
     String toolId = (String) foorm.getField(newProps, "tool_id");
@@ -259,6 +375,13 @@ public class DBLTIService extends BaseLTIService implements LTIService {
         newProps);
   }
 
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.sakaiproject.lti.api.LTIService#getContents(java.lang.String,
+   *      java.lang.String, int, int)
+   */
   public List<Map<String, Object>> getContents(String search, String order, int first,
       int last) {
     List<Map<String, Object>> contents = getThings("lti_content",
@@ -270,6 +393,9 @@ public class DBLTIService extends BaseLTIService implements LTIService {
   }
 
   // Returns String (falure) or Long (key on success)
+  /**
+   * 
+   */
   public Object insertThing(String table, String[] formModel, String[] fullModel,
       Properties newProps) {
     if (table == null || formModel == null || newProps == null) {
@@ -357,14 +483,36 @@ public class DBLTIService extends BaseLTIService implements LTIService {
     return retval;
   }
 
+  /**
+   * 
+   * @param table
+   * @param model
+   * @param key
+   * @return
+   */
   public Map<String, Object> getThing(String table, String[] model, Long key) {
     return getThing(table, model, key, true);
   }
 
+  /**
+   * 
+   * @param table
+   * @param model
+   * @param key
+   * @return
+   */
   public Map<String, Object> getThingNoAuthz(String table, String[] model, Long key) {
     return getThing(table, model, key, false);
   }
 
+  /**
+   * 
+   * @param table
+   * @param model
+   * @param key
+   * @param doAuthz
+   * @return
+   */
   private Map<String, Object> getThing(String table, String[] model, Long key,
       boolean doAuthz) {
     if (table == null || model == null || key == null) {
@@ -394,6 +542,16 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
   }
 
+  /**
+   * 
+   * @param table
+   * @param model
+   * @param search
+   * @param order
+   * @param first
+   * @param last
+   * @return
+   */
   public List<Map<String, Object>> getThings(String table, String[] model, String search,
       String order, int first, int last) {
     if (table == null || model == null) {
@@ -421,6 +579,13 @@ public class DBLTIService extends BaseLTIService implements LTIService {
     return getResultSet(statement, fields, columns);
   }
 
+  /**
+   * 
+   * @param table
+   * @param model
+   * @param key
+   * @return
+   */
   public boolean deleteThing(String table, String[] model, Long key) {
     if (table == null || model == null || key == null) {
       throw new IllegalArgumentException("table, model, and key must all be non-null");
@@ -461,6 +626,15 @@ public class DBLTIService extends BaseLTIService implements LTIService {
     return jdbcTemplate.update(statement, fields) == 1;
   }
 
+  /**
+   * 
+   * @param table
+   * @param formModel
+   * @param fullModel
+   * @param key
+   * @param newProps
+   * @return
+   */
   public Object updateThing(String table, String[] formModel, String[] fullModel,
       Long key, Object newProps) {
     if (table == null || formModel == null || key == null || newProps == null) {
@@ -508,6 +682,9 @@ public class DBLTIService extends BaseLTIService implements LTIService {
   }
 
   // Utility to return a resultset
+  /**
+   * 
+   */
   public List<Map<String, Object>> getResultSet(String statement, Object[] fields,
       final String[] columns) {
     // System.out.println("getResultSet sql="+statement+" fields="+fields);

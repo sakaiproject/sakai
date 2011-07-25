@@ -27,12 +27,21 @@ import java.util.Properties;
 
 // rm Foorm.class ; javac Foorm.java ; java Foorm
 
+/**
+ * 
+ */
 public class Foorm {
 
+  /**
+   * 
+   */
   public static String[] positional = { "field", "type" };
 
   // Parse a form field description
   // field:type:key=value:key2=value2
+  /**
+   * 
+   */
   public Properties parseFormString(String str) {
     Properties op = new Properties();
     String[] pairs = str.split(":");
@@ -51,10 +60,18 @@ public class Foorm {
   }
 
   // Returns -1 on failure
+  /**
+   * 
+   */
   public Long getLongKey(Object key) {
     return getLong(key);
   }
 
+  /**
+   * 
+   * @param key
+   * @return
+   */
   public Long getLong(Object key) {
     Long retval = getLongNull(key);
     if (retval != null)
@@ -62,6 +79,11 @@ public class Foorm {
     return new Long(-1);
   }
 
+  /**
+   * 
+   * @param key
+   * @return
+   */
   public Long getLongNull(Object key) {
     if (key == null)
       return null;
@@ -78,6 +100,9 @@ public class Foorm {
   }
 
   // Abstract this away for testing purposes
+  /**
+   * 
+   */
   public Object getField(Object row, String column) {
     if (row instanceof java.util.Properties) {
       return ((java.util.Properties) row).getProperty(column);
@@ -95,6 +120,12 @@ public class Foorm {
     return null;
   }
 
+  /**
+   * 
+   * @param row
+   * @param column
+   * @return
+   */
   public boolean isFieldSet(Object row, String column) {
     if (row instanceof java.util.Properties) {
       return ((java.util.Properties) row).containsKey(column);
@@ -113,6 +144,11 @@ public class Foorm {
     return false;
   }
 
+  /**
+   * 
+   * @param fieldInfo
+   * @return
+   */
   public String[] getFields(String fieldInfo[]) {
     ArrayList<String> aa = new ArrayList<String>();
     for (String line : fieldInfo) {
@@ -129,6 +165,12 @@ public class Foorm {
     return (String[]) aa.toArray(retval);
   }
 
+  /**
+   * 
+   * @param row
+   * @param key
+   * @param value
+   */
   public void setField(Object row, String key, Object value) {
     if (row instanceof java.util.Properties) {
       if (value == null) {
@@ -146,11 +188,17 @@ public class Foorm {
   }
 
   // Expect to be overridden
+  /**
+   * 
+   */
   public String htmlSpecialChars(String str) {
     return str;
   }
 
-  // Expect to be overriddrn
+  // Expect to be overridden
+  /**
+   * 
+   */
   public String loadI18N(String str, Object loader) {
     if (loader == null)
       return null;
@@ -161,10 +209,20 @@ public class Foorm {
   }
 
   // Abstract this away for testing purposes
+  /**
+   * 
+   */
   public String getI18N(String str, Object loader) {
     return getI18N(str, str, loader);
   }
 
+  /**
+   * 
+   * @param str
+   * @param def
+   * @param loader
+   * @return
+   */
   public String getI18N(String str, String def, Object loader) {
     if (loader == null)
       return def;
@@ -176,10 +234,25 @@ public class Foorm {
     return def;
   }
 
+  /**
+   * 
+   * @param row
+   * @param fieldinfo
+   * @return
+   */
   public String formInput(Object row, String fieldinfo) {
     return formInput(row, fieldinfo, null);
   }
 
+  /**
+   * 
+   * @param sb
+   * @param field
+   * @param type
+   * @param label
+   * @param required
+   * @param loader
+   */
   public void formInputStart(StringBuffer sb, String field, String type, String label,
       boolean required, Object loader) {
     sb.append("<p id=\"");
@@ -199,11 +272,29 @@ public class Foorm {
     }
   }
 
+  /**
+   * 
+   * @param sb
+   * @param field
+   * @param label
+   * @param required
+   * @param loader
+   */
   public void formInputEnd(StringBuffer sb, String field, String label, boolean required,
       Object loader) {
     sb.append("</p>\n");
   }
 
+  /**
+   * 
+   * @param value
+   * @param field
+   * @param label
+   * @param required
+   * @param size
+   * @param loader
+   * @return
+   */
   public String formInputText(String value, String field, String label, boolean required,
       String size, Object loader) {
     if (value == null)
@@ -223,6 +314,12 @@ public class Foorm {
     return sb.toString();
   }
 
+  /**
+   * 
+   * @param value
+   * @param field
+   * @return
+   */
   public String formInputKey(Object value, String field) {
     Long key = getLongNull(value);
     if (key == null)
@@ -231,6 +328,12 @@ public class Foorm {
     return formInputHidden(val, field);
   }
 
+  /**
+   * 
+   * @param value
+   * @param field
+   * @return
+   */
   public String formInputHidden(String value, String field) {
     if (value == null)
       return "";
@@ -247,6 +350,17 @@ public class Foorm {
     return sb.toString();
   }
 
+  /**
+   * 
+   * @param value
+   * @param field
+   * @param label
+   * @param required
+   * @param rows
+   * @param cols
+   * @param loader
+   * @return
+   */
   public String formInputTextArea(String value, String field, String label,
       boolean required, String rows, String cols, Object loader) {
     if (value == null)
@@ -271,6 +385,16 @@ public class Foorm {
     return sb.toString();
   }
 
+  /**
+   * 
+   * @param value
+   * @param field
+   * @param label
+   * @param required
+   * @param choices
+   * @param loader
+   * @return
+   */
   public String formInputRadio(Object value, String field, String label,
       boolean required, String[] choices, Object loader) {
     StringBuffer sb = new StringBuffer();
@@ -306,16 +430,46 @@ public class Foorm {
     return sb.toString();
   }
 
+  /**
+   * 
+   * @param value
+   * @param field
+   * @param label
+   * @param required
+   * @param size
+   * @param loader
+   * @return
+   */
   public String formInputURL(String value, String field, String label, boolean required,
       String size, Object loader) {
     return formInputText(value, field, label, required, size, loader);
   }
 
+  /**
+   * 
+   * @param value
+   * @param field
+   * @param label
+   * @param required
+   * @param size
+   * @param loader
+   * @return
+   */
   public String formInputId(String value, String field, String label, boolean required,
       String size, Object loader) {
     return formInputText(value, field, label, required, size, loader);
   }
 
+  /**
+   * 
+   * @param value
+   * @param field
+   * @param label
+   * @param required
+   * @param size
+   * @param loader
+   * @return
+   */
   public String formInputInteger(Object value, String field, String label,
       boolean required, String size, Object loader) {
     if (value == null)
@@ -330,6 +484,9 @@ public class Foorm {
   }
 
   // Produce a form for createing a new object or editing an existing object
+  /**
+   * 
+   */
   public String formInput(Object row, String fieldinfo, Object loader) {
     Properties info = parseFormString(fieldinfo);
     String field = info.getProperty("field", null);
@@ -379,10 +536,21 @@ public class Foorm {
         + " -->\n";
   }
 
+  /**
+   * 
+   * @param fieldinfo
+   * @return
+   */
   public ArrayList<String> utilI18NStrings(String[] fieldinfo) {
     return checkI18NStrings(fieldinfo, null);
   }
 
+  /**
+   * 
+   * @param fieldinfo
+   * @param loader
+   * @return
+   */
   public ArrayList<String> checkI18NStrings(String[] fieldinfo, Object loader) {
     ArrayList<String> strings = new ArrayList<String>();
     for (String line : fieldinfo) {
@@ -410,10 +578,23 @@ public class Foorm {
     return strings;
   }
 
+  /**
+   * 
+   * @param row
+   * @param formDefinition
+   * @return
+   */
   public String formInput(Object row, String[] formDefinition) {
     return formInput(row, formDefinition, null);
   }
 
+  /**
+   * 
+   * @param row
+   * @param formDefinition
+   * @param loader
+   * @return
+   */
   public String formInput(Object row, String[] formDefinition, Object loader) {
     StringBuffer sb = new StringBuffer();
     for (String formInput : formDefinition) {
@@ -426,10 +607,23 @@ public class Foorm {
     return sb.toString();
   }
 
+  /**
+   * 
+   * @param row
+   * @param fieldinfo
+   * @return
+   */
   public String formOutput(Object row, String fieldinfo) {
     return formOutput(row, fieldinfo, null);
   }
 
+  /**
+   * 
+   * @param sb
+   * @param field
+   * @param label
+   * @param loader
+   */
   public void formOutputStart(StringBuffer sb, String field, String label, Object loader) {
     sb.append("<p class=\"row\">\n");
     if (label != null) {
@@ -439,10 +633,25 @@ public class Foorm {
     }
   }
 
+  /**
+   * 
+   * @param sb
+   * @param field
+   * @param label
+   * @param loader
+   */
   public void formOutputEnd(StringBuffer sb, String field, String label, Object loader) {
     sb.append("</p>\n");
   }
 
+  /**
+   * 
+   * @param value
+   * @param field
+   * @param label
+   * @param loader
+   * @return
+   */
   public String formOutputText(String value, String field, String label, Object loader) {
     if (value == null)
       value = "";
@@ -453,10 +662,27 @@ public class Foorm {
     return sb.toString();
   }
 
+  /**
+   * 
+   * @param value
+   * @param field
+   * @param label
+   * @param loader
+   * @return
+   */
   public String formOutputTextArea(String value, String field, String label, Object loader) {
     return formOutputText(value, field, label, loader);
   }
 
+  /**
+   * 
+   * @param value
+   * @param field
+   * @param label
+   * @param choices
+   * @param loader
+   * @return
+   */
   public String formOutputRadio(Long value, String field, String label, String[] choices,
       Object loader) {
     int val = 0;
@@ -468,14 +694,38 @@ public class Foorm {
     return formOutputText(str, field, label, loader);
   }
 
+  /**
+   * 
+   * @param value
+   * @param field
+   * @param label
+   * @param loader
+   * @return
+   */
   public String formOutputURL(String value, String field, String label, Object loader) {
     return formOutputText(value, field, label, loader);
   }
 
+  /**
+   * 
+   * @param value
+   * @param field
+   * @param label
+   * @param loader
+   * @return
+   */
   public String formOutputId(String value, String field, String label, Object loader) {
     return formOutputText(value, field, label, loader);
   }
 
+  /**
+   * 
+   * @param value
+   * @param field
+   * @param label
+   * @param loader
+   * @return
+   */
   public String formOutputInteger(Long value, String field, String label, Object loader) {
     String strval = "";
     if (value != null)
@@ -483,6 +733,13 @@ public class Foorm {
     return formOutputText(strval, field, label, loader);
   }
 
+  /**
+   * 
+   * @param row
+   * @param fieldinfo
+   * @param loader
+   * @return
+   */
   public String formOutput(Object row, String fieldinfo, Object loader) {
     Properties info = parseFormString(fieldinfo);
     String field = info.getProperty("field", null);
@@ -526,6 +783,13 @@ public class Foorm {
         + " -->\n";
   }
 
+  /**
+   * 
+   * @param row
+   * @param formDefinition
+   * @param loader
+   * @return
+   */
   public String formOutput(Object row, String[] formDefinition, Object loader) {
     StringBuffer sb = new StringBuffer();
     for (String formOutput : formDefinition) {
@@ -538,12 +802,23 @@ public class Foorm {
     return sb.toString();
   }
 
+  /**
+   * 
+   * @param parms
+   * @param formDefinition
+   * @param forInsert
+   * @param loader
+   * @return
+   */
   public String formValidate(Properties parms, String[] formDefinition,
       boolean forInsert, Object loader) {
     return formExtract(parms, formDefinition, loader, forInsert, null);
   }
 
   // dataMap should be empty
+  /**
+   * 
+   */
   public String formExtract(Object parms, String[] formDefinition, Object loader,
       boolean forInsert, Map<String, Object> dataMap) {
     StringBuffer sb = new StringBuffer();
@@ -671,6 +946,11 @@ public class Foorm {
     return sb.toString();
   }
 
+  /**
+   * 
+   * @param dataMap
+   * @return
+   */
   public String[] insertForm(Map<String, Object> dataMap) {
     StringBuffer fields = new StringBuffer();
     StringBuffer qmarks = new StringBuffer();
@@ -688,6 +968,11 @@ public class Foorm {
     return new String[] { fields.toString(), qmarks.toString() };
   }
 
+  /**
+   * 
+   * @param fieldinfo
+   * @return
+   */
   public String formSelect(String[] fieldinfo) {
     StringBuffer fields = new StringBuffer();
     for (String line : fieldinfo) {
@@ -705,6 +990,11 @@ public class Foorm {
     return fields.toString();
   }
 
+  /**
+   * 
+   * @param dataMap
+   * @return
+   */
   public String updateForm(Map<String, Object> dataMap) {
     StringBuffer fields = new StringBuffer();
     for (String key : dataMap.keySet()) {
@@ -720,6 +1010,11 @@ public class Foorm {
     return fields.toString();
   }
 
+  /**
+   * 
+   * @param dataMap
+   * @return
+   */
   public Object[] getInsertObjects(Map<String, Object> dataMap) {
     Object[] retval = new Object[dataMap.size()];
     int i = 0;
@@ -729,6 +1024,11 @@ public class Foorm {
     return retval;
   }
 
+  /**
+   * 
+   * @param dataMap
+   * @return
+   */
   public Object[] getUpdateObjects(Map<String, Object> dataMap) {
     int size = dataMap.size();
     for (String key : dataMap.keySet()) {
@@ -757,15 +1057,33 @@ public class Foorm {
   // the field of the same name in the controlling row.
   // For non-radio fields, it looks for a field in the
   // controlling row prepended by 'allow'.
+  /**
+   * 
+   */
   public String[] filterForm(Object controlRow, String[] fieldinfo) {
     return filterForm(controlRow, fieldinfo, null, null);
   }
 
+  /**
+   * 
+   * @param fieldinfo
+   * @param includePattern
+   * @param excludePattern
+   * @return
+   */
   public String[] filterForm(String[] fieldinfo, String includePattern,
       String excludePattern) {
     return filterForm(null, fieldinfo, includePattern, excludePattern);
   }
 
+  /**
+   * 
+   * @param controlRow
+   * @param fieldinfo
+   * @param includePattern
+   * @param excludePattern
+   * @return
+   */
   public String[] filterForm(Object controlRow, String[] fieldinfo,
       String includePattern, String excludePattern) {
     if (fieldinfo == null)
@@ -803,6 +1121,9 @@ public class Foorm {
   }
 
   // http://technology-ameyaaloni.blogspot.com/2010/06/mysql-to-hsql-migration-tips.html
+  /**
+   * 
+   */
   public String formSql(String fieldinfo, String vendor) {
     Properties info = parseFormString(fieldinfo);
     String field = info.getProperty("field", null);
@@ -873,6 +1194,14 @@ public class Foorm {
     return "    " + field + " " + schema;
   }
 
+  /**
+   * 
+   * @param table
+   * @param formDefinition
+   * @param vendor
+   * @param doReset
+   * @return
+   */
   public String[] formSqlTable(String table, String[] formDefinition, String vendor,
       boolean doReset) {
     String theKey = formSqlKey(formDefinition);
@@ -902,6 +1231,13 @@ public class Foorm {
 
   }
 
+  /**
+   * 
+   * @param table
+   * @param theKey
+   * @param vendor
+   * @return
+   */
   public String getSqlSequence(String table, String theKey, String vendor) {
     if (!"oracle".equals(vendor))
       return null;
@@ -910,6 +1246,12 @@ public class Foorm {
     return table + "_" + theKey + "_sequence";
   }
 
+  /**
+   * 
+   * @param formDefinition
+   * @param vendor
+   * @return
+   */
   public String formSqlFields(String[] formDefinition, String vendor) {
     StringBuffer sb = new StringBuffer();
     for (String formField : formDefinition) {
@@ -923,6 +1265,11 @@ public class Foorm {
     return sb.toString();
   }
 
+  /**
+   * 
+   * @param formDefinition
+   * @return
+   */
   public String formSqlKey(String[] formDefinition) {
     StringBuffer sb = new StringBuffer();
     String theKey = null;
@@ -947,6 +1294,9 @@ public class Foorm {
   // Paging helpers
 
   // startRec is zero-based
+  /**
+   * 
+   */
   public String getPagedSelect(String sqlIn, int startRec, int endRec, String vendor) {
     if ("hsqldb".equals(vendor)) {
       if (startRec > endRec)
