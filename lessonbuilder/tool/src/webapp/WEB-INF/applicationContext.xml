@@ -49,6 +49,7 @@
     <property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
     <property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
     <property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
+    <property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
   </bean>
 
   <bean id="org.sakaiproject.lessonbuildertool.service.JForumEntity"
@@ -103,6 +104,14 @@
     <property name="messageLocator" ref="messageLocator"/>
   </bean>
 
+  <bean id="org.sakaiproject.lessonbuildertool.service.BltiEntity"
+	class="org.sakaiproject.lessonbuildertool.service.BltiEntity"
+        init-method="init"
+        destroy-method="destroy">
+
+    <property name="messageLocator" ref="messageLocator"/>
+  </bean>
+
   <bean id="org.sakaiproject.lessonbuildertool.service.GradebookIfc"
 	class="org.sakaiproject.lessonbuildertool.service.GradebookIfc">
     <property name="gradebookExternalAssessmentService"><ref bean="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/></property>
@@ -120,6 +129,7 @@
     <property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
     <property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
     <property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
+    <property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
     <property name="lessonBuilderAccessAPI" ref="org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI" />
   </bean>
 
@@ -141,6 +151,7 @@
     <property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
     <property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
     <property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
+    <property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
     <property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
     <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
 

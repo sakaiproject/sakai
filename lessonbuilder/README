@@ -677,6 +677,14 @@ lessonbuilder.update - updating a page or item
 
 lessonbuilder.delete - deleting a page or item
 
+ZIPPED CONTENT (ARTICULATE, CAMTASIA, WIMBA CREATE)
+
+The ability to add zipped content authored in packages such as the above
+depends on whether your kernel has unzip functionality (see KNL-273). If
+it does an extra toolbar button appears labeled 'Add Website'. Pick a zip
+file with your content and LB will do it's best to guess the type and link
+to the correct index file.
+
 ---
 
 Lesson Builder was built at Rutgers by

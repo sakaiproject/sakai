@@ -69,6 +69,8 @@ public interface LessonEntity {
     public final static int TYPE_JFORUM_CATEGORY=23;   // jforum category, shouldn't be in database
     public final static int TYPE_JFORUM_FORUM=24;   // jforum forum, shouldn't be in database
     public final static int TYPE_JFORUM_TOPIC=25;   // only topic should be in database as items
+    // 3x is blti, etc
+    public final static int TYPE_BLTI=31;
 
     // prefixes. Use the /direct prefixes where  possible
     public final static String ASSIGNMENT = "assignment";
@@ -82,6 +84,8 @@ public interface LessonEntity {
     public final static String JFORUM_TOPIC = "jforum_topic";
     public final static String JFORUM_FORUM = "jforum_forum";
     public final static String JFORUM_CATEGORY = "jforum_category";
+
+    public final static String BLTI="blti";
 
     // find entities
     public List<LessonEntity> getEntitiesInSite();

@@ -39,6 +39,7 @@ public interface SimplePageItem {
 	public static final int URL = 6;
 	public static final int MULTIMEDIA = 7;
 	public static final int FORUM = 8;
+	public static final int BLTI = 12;
 
     // sakaiId used for an item copied from another site with no real content
         public static final String DUMMY = "/dummy";
