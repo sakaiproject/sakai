@@ -116,18 +116,15 @@ public class DBLTIService extends BaseLTIService implements LTIService
 			// if we are auto-creating our schema, check and create
 			if (m_autoDdl)
 			{
-                                m_sql.dbWriteFailQuiet(null,"DROP TABLE lti_mapping",null);
-				m_sql.dbWriteFailQuiet(null,"DROP SEQUENCE lti_mapping_id_sequence",null);
-                                m_sql.dbWriteFailQuiet(null,"DROP TABLE lti_content",null);
-				m_sql.dbWriteFailQuiet(null,"DROP SEQUENCE lti_content_id_sequence",null);
-                                m_sql.dbWriteFailQuiet(null,"DROP TABLE lti_tools",null); 
-				m_sql.dbWriteFailQuiet(null,"DROP SEQUENCE lti_tools_id_sequence",null);
+				// Use very carefully - for testing table creation
+				boolean doReset = false;
+				if ( doReset ) M_log.error("DO NOT RUN IN PRODUCTION WITH doReset TRUE");
 
-                                String [] sqls = foorm.formSqlTable("lti_mapping", LTIService.MAPPING_MODEL,m_sql.getVendor());
+                                String [] sqls = foorm.formSqlTable("lti_mapping", LTIService.MAPPING_MODEL,m_sql.getVendor(), doReset);
 				for ( String sql : sqls ) if ( m_sql.dbWriteFailQuiet(null, sql, null) ) M_log.info(sql);
-                                sqls = foorm.formSqlTable("lti_content",LTIService.CONTENT_MODEL,m_sql.getVendor());
+                                sqls = foorm.formSqlTable("lti_content",LTIService.CONTENT_MODEL,m_sql.getVendor(), doReset);
 				for ( String sql : sqls ) if ( m_sql.dbWriteFailQuiet(null, sql, null) ) M_log.info(sql);
-                                sqls = foorm.formSqlTable("lti_tools",LTIService.TOOL_MODEL,m_sql.getVendor());
+                                sqls = foorm.formSqlTable("lti_tools",LTIService.TOOL_MODEL,m_sql.getVendor(), doReset);
 				for ( String sql : sqls ) if ( m_sql.dbWriteFailQuiet(null, sql, null) ) M_log.info(sql);
 
                                 // Keep to add indexes (maybe)

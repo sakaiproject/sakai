@@ -823,28 +823,31 @@ public class Foorm {
         return "    " + field + " " + schema;
     }
 
-    public String [] formSqlTable(String table, String [] formDefinition, String vendor)
+    public String [] formSqlTable(String table, String [] formDefinition, String vendor, boolean doReset)
     {
 	String theKey = formSqlKey(formDefinition);
 	String fieldList = formSqlFields(formDefinition, vendor);
-	String createCommand = null;
-	String sequenceCommand = null;
+	ArrayList<String> rv = new ArrayList<String> ();
+	if ( doReset ) rv.add("DROP TABLE "+table);
 	if ( "oracle".equals(vendor) )
 	{
-		createCommand = "CREATE TABLE "+table+" (\n"+formSqlFields(formDefinition, vendor)+"\n)\n";
+		rv.add("CREATE TABLE "+table+" (\n"+formSqlFields(formDefinition, vendor)+"\n)\n");
 		if ( theKey != null ) {
 			String seqName = getSqlSequence(table, theKey, vendor);
-			if ( seqName != null ) sequenceCommand = "CREATE SEQUENCE "+seqName+" INCREMENT BY 1 START WITH 1\n";
+			if ( seqName != null ) {
+				if ( doReset ) rv.add("DROP SEQUENCE "+seqName);
+				rv.add("CREATE SEQUENCE "+seqName+" INCREMENT BY 1 START WITH 1\n");
+			}
 		}
 	}
 	else
 	{
 		String keySpec = "";
 		if (theKey != null ) keySpec = ",\n PRIMARY KEY( "+theKey+" )";
-		createCommand = "CREATE TABLE "+table+" (\n"+formSqlFields(formDefinition, vendor)+keySpec+"\n)\n";
+		rv.add("CREATE TABLE "+table+" (\n"+formSqlFields(formDefinition, vendor)+keySpec+"\n)\n");
 	}
-	if ( sequenceCommand == null ) return new String[] {createCommand};
-	return new String[] {createCommand, sequenceCommand};
+	return rv.toArray( new String[ rv.size() ] );
+
     }
 
     public String getSqlSequence(String table, String theKey, String vendor)
