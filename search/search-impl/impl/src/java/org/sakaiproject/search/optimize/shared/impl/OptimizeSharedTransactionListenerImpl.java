@@ -264,6 +264,7 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 			}
 			long start = System.currentTimeMillis();
 			indexWriter.optimize();
+			indexWriter.commit();
 			indexWriter.close();
 			long end = System.currentTimeMillis();
 			log.info("Optimized Working SavePoint in " + (end - start) + " ms ");
@@ -312,20 +313,6 @@ public class OptimizeSharedTransactionListenerImpl implements OptimizeTransactio
 				log.debug(ex);
 			}
 		}
-		/* FIXME - we can't commit a closed index
-		if (indexWriter != null)
-		{
-			try {
-				indexWriter.commit();
-			} catch (CorruptIndexException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		*/
 	}
 
 	/**
