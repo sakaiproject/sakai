@@ -76,6 +76,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 	private SimplePageToolDao simplePageToolDao;
 	private ToolManager toolManager;
 	public MessageLocator messageLocator;
+        private boolean somePagesHavePrerequisites = false;
 
         public class PageEntry {
 	    Long pageId;
@@ -114,6 +115,9 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 	    if (pageMap.get(pageId) == null)
 		return;
 
+	    if (pageItem.isPrerequisite())
+		somePagesHavePrerequisites = true;
+
 	    // say done
 	    pageMap.remove(pageId);
 
@@ -151,9 +155,12 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 			if (!topLevelPages.contains(pageNum)) {
 			    if (hasSubPages(pageNum))
 				nexts.add(item);
-			    else
+			    else {
+				if (item.isPrerequisite())
+				    somePagesHavePrerequisites = true;
 				// we're done with this page, dont show again
 				pageMap.remove(pageNum);
+			    }
 			}
 		    } else
 			findAllPages(item, entries, pageMap, topLevelPages, level +1);
@@ -249,6 +256,11 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		for (SimplePageItem sitePageItem : sitePages) {
 		    findAllPages(sitePageItem, entries, pageMap, topLevelPages, 0);
 		}
+
+		// warn students if we aren't showing all the pages
+		if (!canEditPage && somePagesHavePrerequisites)
+		    UIOutput.make(tofill, "onlyseen");
+		    
 		// now add everything we didn't find that way
 		if (canEditPage && pageMap.size() > 0) {
 		    // marker
@@ -305,6 +317,13 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 			} else if (logEntry != null && !logEntry.getDummy()) {
 			    imagePath += "hourglass.png";
 			    note = messageLocator.getMessage("simplepage.status.inprogress");
+			} else if (!canEditPage && somePagesHavePrerequisites) {
+			    // it's too complex to compute prerequisites for all pages, and 
+			    // I'm concerned that faculty may not be careful in setting them
+			    // for pages that would normally not be accessible. So if there are
+			    // any prerequisites in the site, only show pages that are
+			    // in progress or done.
+			    continue;
 			} else {
 			    imagePath += "not-required.png";
 			}

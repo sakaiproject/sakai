@@ -2063,6 +2063,8 @@ public class SimplePageBean {
 		   return getLBItemGroups(i); // for all native LB objects
 	       }
 	   }
+	   if (entity == null)
+	       return null;
 
 	   // in principle the groups are stored in a SimplePageGroup if we
 	   // are doing access control, and in the tool if not. We can
