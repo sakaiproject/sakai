@@ -2131,16 +2131,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("title", siteInfo.title);
 			context.put(FORM_SITE_URL_BASE, getSiteBaseUrl());
 			context.put(FORM_SITE_ALIAS, siteInfo.getFirstAlias());
-			if (siteInfo.description!=null && siteInfo.description.indexOf("\n") != -1 && siteInfo.description.indexOf("<br />") == -1 && siteInfo.description.indexOf("<br/>") == -1)
-			{
-				// replace the old style line break before WYSIWYG editor "\n" with the current line break <br />
-				context.put("description", siteInfo.description.replaceAll("\n", "<br />"));
-				addAlert(state, rb.getString("description.linebreak"));
-			}
-			else 
-			{
-				context.put("description", siteInfo.description);
-			}
+			context.put("description", siteInfo.description);
 			context.put("short_description", siteInfo.short_description);
 			context.put("form_site_contact_name", siteInfo.site_contact_name);
 			context.put("form_site_contact_email", siteInfo.site_contact_email);
