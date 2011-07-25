@@ -73,7 +73,9 @@
 		{if true == enrollment} 
 			<option value="${STATE_ENROLLMENT_STATUS}">${navbar_status}</option>
 		{/if}
-		<option value="${STATE_PERMISSIONS}">${navbar_permissions}</option>
+		{if true == permissions}
+			<option value="${STATE_PERMISSIONS}">${navbar_permissions}</option>
+		{/if}
 	</select>
 </div>
 -->
