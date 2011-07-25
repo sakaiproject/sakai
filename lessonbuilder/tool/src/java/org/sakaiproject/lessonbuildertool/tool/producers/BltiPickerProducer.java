@@ -128,7 +128,7 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 
 			if (plist == null || plist.size() < 1) {
 			    UIOutput.make(tofill, "error-div");
-			    UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.no_assessments"));
+			    UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.no_blti"));
 			    UICommand.make(tofill, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
 			    return;
 			}
