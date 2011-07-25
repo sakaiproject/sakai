@@ -140,6 +140,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
    private LessonEntity forumEntity;
    private LessonEntity quizEntity;
    private LessonEntity assignmentEntity;
+   private LessonEntity bltiEntity;
    private LessonBuilderAccessAPI lessonBuilderAccessAPI;
    public void setLessonBuilderAccessAPI(LessonBuilderAccessAPI l) {
        lessonBuilderAccessAPI = l;
@@ -999,6 +1000,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
     public void setAssignmentEntity (LessonEntity e) {
 	assignmentEntity = (LessonEntity)e;
+    }
+
+    public void setBltiEntity (LessonEntity e) {
+	bltiEntity = (LessonEntity)e;
     }
 
     // sitestats support
