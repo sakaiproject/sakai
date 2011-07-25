@@ -225,9 +225,10 @@ function submitRemoveSection(index){
 			<label for="language">
  				$tlang.getString("sinfo.language")
  			</label> 
-			<select name="locales" class="indnt2" id="locales" size="5">			
+			<select name="locales" class="indnt2" id="locales" size="5">
+				<option value="" #if ($locale_string == "")selected="true" #end>$tlang.getString("sinfo.language.defaultUserLanguage")</option>			
 				#foreach($locale in $locales)			
-					<option value="$locale.toString()" #if ($locale.toString() == $locale_string)selected="true" #elseif($locale.toString() == "")selected="true" #end>$validator.escapeHtml($locale.getDisplayName())</option>	
+					<option value="$locale.toString()" #if ($locale.toString() == $locale_string)selected="true" #end>$validator.escapeHtml($locale.getDisplayName())</option>	
 				#end			
 			</select>
 		</div>

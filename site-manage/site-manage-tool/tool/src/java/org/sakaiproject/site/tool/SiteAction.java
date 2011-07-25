@@ -2005,12 +2005,7 @@ public class SiteAction extends PagedResourceActionII {
 				
 				ResourcePropertiesEdit props = site.getPropertiesEdit();
 						
-				String locale_string = StringUtils.trimToNull(props.getProperty(PROP_SITE_LANGUAGE));
-				if (locale_string == null)
-				{
-					// get the system default as locale string
-					locale_string = Locale.getDefault().toString();
-				}
+				String locale_string = StringUtils.trimToEmpty(props.getProperty(PROP_SITE_LANGUAGE));
 				context.put("locale_string",locale_string);
 			} else {
 				// new site
@@ -2018,7 +2013,7 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("continue", "3");
 				
 				// get the system default as locale string
-				context.put("locale_string", Locale.getDefault().toString());
+				context.put("locale_string", "");
 			}
 			
 			boolean displaySiteAlias = displaySiteAlias();
