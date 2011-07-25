@@ -637,7 +637,8 @@ html>body .dhtml_more_tabs {
 	width: auto;
 	padding: 0;
 	text-align: right;
-    height:38px;
+    height:28px;
+    vertical-align:middle;
 
 }
 
@@ -669,7 +670,7 @@ also hide if are going to be using icon links (as background of <a> nad <li>
 	text-decoration: none;
 	color: #333;
     font:1em bold Helvetica, 'Helvetica Neue', Arial;
-	padding:10px;
+	padding:5px;
     display:block;
 }
 #toolMenu li a:hover,
@@ -724,7 +725,7 @@ page estate
 #togglebar{
     position:absolute;
     top:50px;
-    left:50px;
+    left:205px;
     width:18px;
     height:30px;
     padding-top:2em;
@@ -735,6 +736,9 @@ a#toggleToolMenu{
 }
 
 #togglebar #toggleNormal{
+    position:absolute;
+    top:50px;
+    left:-155px;
     background:transparent url(images/toggleOpen.png) -2px 0 no-repeat;
     padding:0;
     width:10px;
@@ -742,6 +746,9 @@ a#toggleToolMenu{
     height:48px;
 }
 #togglebar #toggleToolMax{
+    position:absolute;
+    top:50px;
+    left:-1px;
     background:transparent url(images/toggleClose.png) -2px 0  no-repeat;
     padding:0;
     width:10px;
