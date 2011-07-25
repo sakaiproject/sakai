@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 public class Foorm {
 
     public static String [] positional = { "field", "type" };
+
     // Parse a form field description
     // field:type:key=value:key2=value2
     public Properties parseFormString(String str) { 
@@ -219,13 +220,10 @@ public class Foorm {
     
     public String formInputKey(Object value, String field)
     {
-        if ( value == null ) return "";
-        if ( value instanceof Integer || value instanceof Long ) 
-        {
-                String val = value.toString();
-                return formInputHidden(val,field);
-        }
-        return "";
+	Long key = getLongNull(value);
+	if ( key == null ) return "";
+	String val = key.toString();
+	return formInputHidden(val,field);
     }
     
     public String formInputHidden(String value,String field)
