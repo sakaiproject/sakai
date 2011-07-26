@@ -31,7 +31,7 @@
 		<p class="act">
 			<input type="submit" accesskey ="i" value="$tlang.getString('gen.insert')" 
  				onclick="location = '$sakai_ActionURL.setPanel("ContentPut")';return false;">
-			<input type="submit" accesskey ="x" value="$tlang.getString('gen.done')" 
+			<input type="submit" accesskey ="x" value="$tlang.getString('gen.tools')" 
  				onclick="location = '$sakai_ActionURL.setPanel("Main")';return false;">
 		</p>
 	</form>
