@@ -68,6 +68,11 @@ import org.sakaiproject.memory.api.MemoryService;
 
 import uk.org.ponder.messageutil.MessageLocator;
 
+import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.lti.impl.DBLTIService; // HACK
+
+import org.sakaiproject.util.foorm.SakaiFoorm;
+
 /**
  * Interface to Assignment
  *
@@ -93,6 +98,10 @@ public class BltiEntity implements LessonEntity {
     protected static final int DEFAULT_EXPIRATION = 10 * 60;
 
     private SimplePageBean simplePageBean;
+
+    protected static LTIService ltiService = null; 
+    protected static SakaiFoorm foorm = new SakaiFoorm();
+
 
     public void setSimplePageBean(SimplePageBean simplePageBean) {
 	this.simplePageBean = simplePageBean;
@@ -121,6 +130,11 @@ public class BltiEntity implements LessonEntity {
 	    .newCache("org.sakaiproject.lessonbuildertool.service.BltiEntity.cache");
 
 	log.info("init()");
+	if ( ltiService == null ) { 
+		ltiService = (LTIService) new DBLTIService(); 
+		((org.sakaiproject.lti.impl.DBLTIService) ltiService).setAutoDdl("true"); 
+		((org.sakaiproject.lti.impl.DBLTIService) ltiService).init(); 
+	} 
 
     }
 
@@ -148,29 +162,15 @@ public class BltiEntity implements LessonEntity {
 	return "sakai.blti";
     }
 
-    // dummy. This is intended to be the object used in the BLTI code. The BltiEntity objects
-    // are things that LB will refer to, so they are probably content objects. It is of course
-    // quite reasonable to keep track of more than one thing, e.g. also the tool that they 
-    // implement. Note that we start out only putting the ID string here, and only fetch
-    // the actual Blti if it's needed.
-    public class Blti {
-	public String getTitle() {
-	    return "";
-	}
-    }
-
     // the underlying object, something Sakaiish
     protected String id;
     protected int type;
     // not required fields. If we need to look up
     // the actual objects, lets us cache them
-    protected Blti blti;
 
-    // return the internal object. normally no noe outside this class should need it
-    public Blti getBlti(String ref) {
-	return getBlti(ref, false);
-    }
+    protected Map<String,Object> content;
 
+/*
     public Blti getBlti(String ref, boolean nocache) {
 	Blti ret = (Blti)bltiCache.get(ref);
 	if (!nocache && ret != null)
@@ -186,7 +186,7 @@ public class BltiEntity implements LessonEntity {
 	    bltiCache.put(ref, ret, DEFAULT_EXPIRATION);
 	return ret;
     }
-
+*/
 
     // type of the underlying object
     public int getType() {
@@ -212,8 +212,16 @@ public class BltiEntity implements LessonEntity {
 
     // find topics in site, but organized by forum
     public List<LessonEntity> getEntitiesInSite() {
-	// normally used in picker, but the BLTI picker is more complex
-	return null;
+	List<LessonEntity> ret = new ArrayList<LessonEntity>();
+	List<Map<String,Object>> contents = ltiService.getContents(null,null,0,0);
+	for (Map<String, Object> content : contents ) {
+	    Long id = foorm.getLong(content.get("id"));
+	    if ( id == -1 ) continue;
+	    BltiEntity entity = new BltiEntity(TYPE_BLTI, id.toString());
+	    entity.content = content;
+	    ret.add(entity);
+	}
+	return ret;
     }
 
     public LessonEntity getEntity(String ref) {
@@ -236,19 +244,26 @@ public class BltiEntity implements LessonEntity {
 	} else
 	    return null;
     }
-	
+
+    protected void loadContent() {
+	if ( content != null ) return;
+	if ( id == null ) return; // Likely a failure
+	Long key = foorm.getLong(id);
+	content = ltiService.getContent(key);
+	System.out.println("Key="+key+" Retrived content="+content);
+    }	
 
     // properties of entities
     public String getTitle() {
-	if (blti == null)
-	    blti = getBlti(id);
-	if (blti == null)
-	    return null;
-	return blti.getTitle();
+	loadContent();
+	if ( content == null ) return null;
+	return (String) content.get("title");
     }
 
     public String getUrl() {
-        return "http://www.cnn.com";
+	loadContent();
+	if ( content == null ) return null;
+	return (String) content.get("launch_url");
     }
 
     public Date getDueDate() {

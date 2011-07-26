@@ -58,10 +58,13 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
+import org.sakaiproject.util.foorm.SakaiFoorm;
+
 /**
- * Creates a list of Assessments from Samigo for the user to choose from. Their choice will be added
+ * Creates a list of LTI Content Items for the user to choose from. Their choice will be added
  * to the end of the list of items on this page.
  * 
+ * @author Charles Severance <csev@umich.edu>
  * @author Eric Jeney <jeney@rutgers.edu>
  * 
  */
@@ -90,6 +93,7 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 	}
 
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker) {
+
 		if (((GeneralViewParameters) viewparams).getSendingPage() != -1) {
 		    // will fail if page not in this site
 		    // security then depends upon making sure that we only deal with this page

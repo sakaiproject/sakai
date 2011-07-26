@@ -2007,7 +2007,7 @@ public class SimplePageBean {
 
     // called by add blti picker. Create a new item that points to an assigment
     // or update an existing item, depending upon whether itemid is set
-	public String addBltit() {
+	public String addBlti() {
 		if (!itemOk(itemId))
 		    return "permission-failed";
 		if (!canEditPage())
