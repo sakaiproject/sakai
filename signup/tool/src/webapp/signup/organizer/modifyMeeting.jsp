@@ -52,9 +52,13 @@
 								<h:message for="title" errorClass="alertMessageInline"/>
 							</h:panelGroup>
 							
-							<%-- owner --%>
+							<%-- organiser --%>
 							<h:outputText value="#{msgs.event_owner}" styleClass="titleText" escape="false"/>
-							<h:outputText  value="#{EditMeetingSignupMBean.meetingWrapper.creator}" styleClass="longtext"/>
+							<h:panelGroup>
+						 		<h:selectOneMenu id="creatorUserId" value="#{EditMeetingSignupMBean.creatorUserId}">
+									<f:selectItems value="#{EditMeetingSignupMBean.instructors}"/>
+								</h:selectOneMenu>
+							</h:panelGroup>
 							
 							<%-- location --%>
 							<h:panelGroup styleClass="titleText">

@@ -291,5 +291,12 @@ public interface SakaiFacade {
 	 * 		a SignupUser object
 	 */
 	public SignupUser getSignupUser(SignupMeeting meeting, String userId);
+	
+	/**
+	 * Get a list of users in the current site that have the given permission
+	 * @param permission	the permission to check
+	 * @return a List of Users that match the criteria
+	 */
+	public List<User> getUsersWithPermission(String permission);
 
 }

@@ -238,6 +238,7 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 		newlyModifyMeeting.setTitle(modifiedMeeting.getTitle());
 		newlyModifyMeeting.setLocation(modifiedMeeting.getLocation());
 		newlyModifyMeeting.setCategory(modifiedMeeting.getCategory());
+		newlyModifyMeeting.setCreatorUserId(modifiedMeeting.getCreatorUserId());
 		newlyModifyMeeting.setStartTime(calendar.getTime());
 		newlyModifyMeeting.setDescription(modifiedMeeting.getDescription());
 		newlyModifyMeeting.setLocked(modifiedMeeting.isLocked());
@@ -396,6 +397,7 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 				|| !originalMeetingCopy.getTitle().equals(upTodateMeeting.getTitle())
 				|| !originalMeetingCopy.getLocation().equals(upTodateMeeting.getLocation())
 				|| !StringUtils.equals(originalMeetingCopy.getCategory(), upTodateMeeting.getCategory())
+				|| !StringUtils.equals(originalMeetingCopy.getCreatorUserId(), upTodateMeeting.getCreatorUserId())
 				|| originalMeetingCopy.getStartTime().getTime() != upTodateMeeting.getStartTime().getTime()
 				|| originalMeetingCopy.getEndTime().getTime() != upTodateMeeting.getEndTime().getTime()
 				|| originalMeetingCopy.getSignupBegins().getTime() != upTodateMeeting.getSignupBegins().getTime()

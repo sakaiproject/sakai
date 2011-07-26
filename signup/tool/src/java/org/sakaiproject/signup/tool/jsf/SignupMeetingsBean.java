@@ -51,6 +51,7 @@ import org.sakaiproject.signup.tool.jsf.organizer.action.CreateSitesGroups;
 import org.sakaiproject.signup.tool.util.SignupBeanConstants;
 import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.user.api.User;
 
 /**
  * <p>
@@ -907,5 +908,51 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 		else{
 			return false;
 		}
+	}
+	
+	/**
+	 * Get a list of instructors, defined as those with a given permission. Format it as a SelectItem list with the
+	 * current instructor, if any, at the top
+	 * @return
+	 */
+	public List<SelectItem> getInstructors(SignupMeeting meeting) {
+		List<User> users = sakaiFacade.getUsersWithPermission(SakaiFacade.SIGNUP_CREATE_SITE);
+		
+		List<SelectItem> instructors= new ArrayList<SelectItem>();
+		
+		//do we have a meeting set?
+		//if so get the user and set to top of the list, then remove from the rest of the instructors
+		//otherwise, put the current user at the top of the list
+		if(meeting != null && StringUtils.isNotBlank(meeting.getCreatorUserId())) {
+			User currentInstructor = sakaiFacade.getUser(meeting.getCreatorUserId());
+			instructors.add(new SelectItem(currentInstructor.getId(), currentInstructor.getDisplayName() + " (" + currentInstructor.getEid() + ")"));
+			users.remove(currentInstructor);
+		} else {
+			User currentUser = sakaiFacade.getUser(sakaiFacade.getCurrentUserId());
+			instructors.add(new SelectItem(currentUser.getId(), currentUser.getDisplayName() + " (" + currentUser.getEid() + ")"));
+			users.remove(currentUser);
+		}
+
+		//format remaining list of instructors
+		for(User u : users) {
+			instructors.add(new SelectItem(u.getId(), u.getDisplayName() + " (" + u.getEid() + ")"));
+		}
+		
+		return instructors;
+	}
+	
+	/**
+	 * Get the name of the user (instructor) for the given userId. This really just formats a name
+	 * @param userId
+	 * @return
+	 */
+	public String getInstructorName(String userId) {
+		
+		User u = sakaiFacade.getUser(userId);
+		if(u == null) {
+			return null;
+		}
+		
+		return u.getDisplayName() + " (" + u.getEid() + ")";
 	}
 }

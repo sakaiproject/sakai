@@ -21,15 +21,12 @@
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
-		<property name="userDirectoryService"
-			ref="org.sakaiproject.user.api.UserDirectoryService" />
-		<property name="calendarService"
-			ref="org.sakaiproject.calendar.api.CalendarService" />
-		<property name="serverConfigurationService"
-			ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+		<property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
-		<property name="contentHostingService"
-			ref="org.sakaiproject.content.api.ContentHostingService" />
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
 	</bean>
 
 	<!-- create a logic bean, give it the dao from above -->
@@ -38,16 +35,13 @@
 		init-method="init">
 		<property name="signupMeetingDao" ref="org.sakaiproject.signup.dao.SignupMeetingDao" />
 		<property name="sakaiFacade" ref="org.sakaiproject.signup.logic.SakaiFacade" />
-		<property name="signupEmailFacade"
-			ref="org.sakaiproject.signup.logic.SignupEmailFacade" />
-		<property name="signupCacheService"
-			ref="org.sakaiproject.signup.logic.signupCacheService" />
+		<property name="signupEmailFacade" ref="org.sakaiproject.signup.logic.SignupEmailFacade" />
+		<property name="signupCacheService" ref="org.sakaiproject.signup.logic.signupCacheService" />
 	</bean>
 
 	<bean id="org.sakaiproject.signup.logic.SignupEmailFacade" class="org.sakaiproject.signup.logic.SignupEmailFacadeImpl">
 		<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
-		<property name="userDirectoryService"
-			ref="org.sakaiproject.user.api.UserDirectoryService" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="sakaiFacade" ref="org.sakaiproject.signup.logic.SakaiFacade" />
 	</bean>
 
@@ -57,8 +51,7 @@
 	<bean id="org.sakaiproject.signup.logic.SignupNotifyJob" class="org.sakaiproject.signup.logic.SignupNotifyJob"
 		init-method="init" destroy-method="destroy">
 		<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
-		<property name="userDirectoryService"
-			ref="org.sakaiproject.user.api.UserDirectoryService" />
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="signupMeetingDao" ref="org.sakaiproject.signup.dao.SignupMeetingDao" />
 		<property name="sakaiFacade" ref="org.sakaiproject.signup.logic.SakaiFacade" />
 	</bean>

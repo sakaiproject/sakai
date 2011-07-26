@@ -37,6 +37,10 @@
 									<h:outputText value="#{NewSignupMeetingBean.signupMeeting.title}" styleClass="longtext" escape="false"/>
 								</h:panelGroup>
 								
+								<%-- organiser --%>
+								<h:outputText value="#{msgs.event_owner}" styleClass="titleText" escape="false"/>
+								<h:outputText value="#{NewSignupMeetingBean.instructorName}" styleClass="longtext" escape="false"/>
+								
 								<%--  description --%>
 								<h:outputText value="#{msgs.event_description}" styleClass="titleText" escape="false"/>
 								<h:outputText value="#{NewSignupMeetingBean.signupMeeting.description}" styleClass="longtext" escape="false"/>

@@ -43,8 +43,16 @@
 								<h:message for="meetingTitle" errorClass="alertMessageInline"/>
 							</h:panelGroup>	
 							
+							<%-- organiser --%>
 							<h:outputText value="#{msgs.event_owner}" styleClass="titleText" escape="false"/>
-							<h:outputText  value="#{CopyMeetingSignupMBean.meetingWrapper.creator}" styleClass="longtext"/>
+							<h:panelGroup>
+						 		<h:selectOneMenu id="creatorUserId" value="#{CopyMeetingSignupMBean.creatorUserId}">
+									<f:selectItems value="#{CopyMeetingSignupMBean.instructors}"/>
+								</h:selectOneMenu>
+							</h:panelGroup>
+							
+							
+							
 							
 							<%-- location --%>
 							<h:panelGroup styleClass="titleText">

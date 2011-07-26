@@ -197,6 +197,8 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	private boolean userDefinedTS=false;
 	
 	private boolean sendEmailAttendeeOnly = false;
+	
+	private String creatorUserId;
 
 	private Log logger = LogFactory.getLog(getClass());
 
@@ -237,6 +239,14 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 	public void setcustomCategory(String customCategory) {
 		this.customCategory = customCategory;
+	}
+	
+	public String getCreatorUserId() {
+		return creatorUserId;
+	}
+
+	public void setCreatorUserId(String creatorUserId) {
+		this.creatorUserId = creatorUserId;
 	}
 
 	/**
@@ -311,6 +321,8 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		userDefinedTS=false;
 		customTimeSlotWrpList=null;
 		
+		creatorUserId = null;
+		
 		/*cleanup unused attachments in CHS*/
 		if(this.attachments !=null && this.attachments.size()>0){
 			for (SignupAttachment attach : attachments) {
@@ -338,6 +350,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		this.customLocation=null;
 		this.selectedCategory=null;
 		this.customCategory=null;
+		this.creatorUserId=null;
 		/*clean up everything in getUserDefineTimeslotBean*/
 		getUserDefineTimeslotBean().reset(UserDefineTimeslotBean.NEW_MEETING);
 	}
@@ -483,6 +496,9 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 					this.signupMeeting.setCategory(selectedCategory);
 				}
 			}
+			
+			//set instructor
+			this.signupMeeting.setCreatorUserId(creatorUserId);
 			
 			Date eventEndTime = signupMeeting.getEndTime();
 			Date eventStartTime = signupMeeting.getStartTime();
@@ -756,7 +772,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 		signupMeeting.setSignupSites(CreateSitesGroups.getSelectedSignupSites(getCurrentSite(), getOtherSites()));
 
-		signupMeeting.setCreatorUserId(sakaiFacade.getCurrentUserId());
+		signupMeeting.setCreatorUserId(this.creatorUserId);
 		signupMeeting.setReceiveEmailByOwner(receiveEmail);
 		signupMeeting.setAllowWaitList(this.allowWaitList);
 		signupMeeting.setAllowComment(this.allowComment);
@@ -1814,17 +1830,12 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	}
 	
 	public boolean isAllLocationsEmpty(){
-		if (Utilities.getSignupMeetingsBean().isMeetingsAvailable())
-			return false;
-		else
-			return true;
+		return !Utilities.getSignupMeetingsBean().isMeetingsAvailable();
+			
 	}
 	
 	public boolean isCategoriesExist() {
-		if (Utilities.getSignupMeetingsBean().getAllCategories().isEmpty()) {
-			return false;
-		}
-		return true;
+		return !Utilities.getSignupMeetingsBean().getAllCategories().isEmpty();
 	}
 
 	public UserDefineTimeslotBean getUserDefineTimeslotBean() {
@@ -1887,14 +1898,23 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	 * @return true if sakai property signup.enableAttendance is true, else will return false
 	 */
 	public boolean isAttendanceOn() {
-			
-		if ("true".equalsIgnoreCase(getSakaiFacade().getServerConfigurationService().getString("signup.enableAttendance","false"))){
-			return true;
-		}
-		else{
-			return false;
-		}
+		return Utilities.getSignupMeetingsBean().isAttendanceOn();
 	}
 
+	/**
+	 * Get a list of users that have permission, but format it as a SelectItem list for the dropdown.
+	 * Since this is a new item there will be no current instructor so it returns the current user at the top of the list
+	 * We send a null signup meeting param as this is a new meeting.
+	 */
+	public List<SelectItem> getInstructors() {
+		return Utilities.getSignupMeetingsBean().getInstructors(null);
+	}
+	
+	/**
+	 * Get the instructor name attached to the value currently set for the instructor
+	 */
+	public String getInstructorName() {
+		return Utilities.getSignupMeetingsBean().getInstructorName(creatorUserId);
+	}
 			
 }

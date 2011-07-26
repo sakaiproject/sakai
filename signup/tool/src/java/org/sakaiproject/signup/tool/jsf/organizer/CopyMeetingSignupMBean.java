@@ -84,6 +84,9 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	
 	//Category selected from the dropdown
 	private String selectedCategory;
+	
+	//from the dropdown
+	private String creatorUserId;
 
 	private Date repeatUntil;
 
@@ -405,6 +408,10 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		}
 		//clear the category fields
 		this.selectedCategory="";
+		
+		//set the creator/organiser
+		this.signupMeeting.setCreatorUserId(creatorUserId);
+		this.creatorUserId="";
 
 	}
 	
@@ -750,6 +757,13 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	}
 	public void setselectedCategory(String selectedCategory) {
 		this.selectedCategory = selectedCategory;
+	}
+	
+	public String getcreatorUserId() {
+		return creatorUserId;
+	}
+	public void setcreatorUserId(String creatorUserId) {
+		this.creatorUserId=creatorUserId;
 	}
 
 	/**
@@ -1179,13 +1193,16 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	* @return true if sakai property signup.enableAttendance is true, else will return false
 	*/
 	public boolean isAttendanceOn() {
-			
-		if ("true".equalsIgnoreCase(getSakaiFacade().getServerConfigurationService().getString("signup.enableAttendance","false"))){
-			return true;
-		}
-		else{
-			return false;
-		}
+		return Utilities.getSignupMeetingsBean().isAttendanceOn();
+	}
+	
+	/**
+	 * Get a list of users that have permission, but format it as a SelectItem list for the dropdown.
+	 * Since this is a new item there will be no current instructor so it returns the current user at the top of the list
+	 * We send a null signup meeting param as this is a new meeting.
+	 */
+	public List<SelectItem> getInstructors() {
+		return Utilities.getSignupMeetingsBean().getInstructors(signupMeeting);
 	}
 	
 }

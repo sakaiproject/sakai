@@ -24,6 +24,7 @@ package org.sakaiproject.signup.logic;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -31,6 +32,7 @@ import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
@@ -187,6 +189,14 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	 */
 	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
 		this.serverConfigurationService = serverConfigurationService;
+	}
+	
+	private AuthzGroupService authzGroupService;
+	public AuthzGroupService getAuthzGroupService() {
+		return authzGroupService;
+	}
+	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+		this.authzGroupService=authzGroupService;
 	}
 
 	/**
@@ -517,6 +527,27 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		
 		return signupUser;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<User> getUsersWithPermission(String permission) {
+		
+		try {
+			//current site
+			Site currentSite = siteService.getSite(getCurrentLocationId());
+		
+			//get userids with permission in this site/azg
+			Set<String> usersWithPermission = authzGroupService.getUsersIsAllowed(permission, Collections.singletonList(currentSite.getReference()));
+		
+			//get Users
+			return  userDirectoryService.getUsers(usersWithPermission);
+		} catch (Exception e) {
+			log.error("getUsersWithPermission exception: " + e.getClass() + ":" + e.getMessage());
+		}
+		return Collections.EMPTY_LIST;
+	}
+
 		
 	private boolean hasPermissionToAttend(SignupSite site, String userId){
 		if(isAllowedSite(userId, SIGNUP_ATTEND_ALL, site.getSiteId()))

@@ -45,12 +45,12 @@
                         <h:message for="name" errorClass="alertMessageInline"/>
 					</h:panelGroup> 
 					
-					<%-- owner --%>
+					<%-- organiser --%>
 					<h:outputText value="#{msgs.event_owner}" styleClass="titleText" escape="false"/>
 					<h:panelGroup>
-						<h:outputText  value="#{EditMeetingSignupMBean.meetingWrapper.creator}" styleClass="longtext"/>
-						<h:outputLabel id="customOwnerLabel" for="customLocation" value="#{msgs.tab_event_location_custom}" rendered="#{!NewSignupMeetingBean.allLocationsEmpty}" /><h:outputText value="&nbsp;" escape="false" rendered="#{!NewSignupMeetingBean.allLocationsEmpty}" />
-					
+						 <h:selectOneMenu id="creatorUserId" value="#{NewSignupMeetingBean.creatorUserId}">
+							<f:selectItems value="#{NewSignupMeetingBean.instructors}"/>
+						</h:selectOneMenu>
 					</h:panelGroup>
 					
 					<%-- location --%>	                                   
