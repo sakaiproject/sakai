@@ -125,6 +125,18 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 			}
 
 			Session ses = SessionManager.getCurrentSession();
+
+			List<UrlItem> createLinks = bltiEntity.createNewUrls(simplePageBean);
+			for (UrlItem createLink: createLinks) {
+			    UIBranchContainer link = UIBranchContainer.make(tofill, "blti-create:");
+			    GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
+			    view.setSendingPage(((GeneralViewParameters) viewparams).getSendingPage());
+			    view.setItemId(((GeneralViewParameters) viewparams).getItemId());
+			    view.setSource(createLink.Url);
+			    view.setReturnView(VIEW_ID);
+			    view.setTitle(messageLocator.getMessage("simplepage.return_blti"));
+			    UIInternalLink.make(link, "blti-create-link", createLink.label , view);
+			}
 			
 			UIForm form = UIForm.make(tofill, "blti-picker");
 

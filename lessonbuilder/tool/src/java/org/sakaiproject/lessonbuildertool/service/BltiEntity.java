@@ -307,7 +307,13 @@ public class BltiEntity implements LessonEntity {
     // URL to create a new item. Normally called from the generic entity, not a specific one                                                 
     // can't be null                                                                                                                         
     public List<UrlItem> createNewUrls(SimplePageBean bean) {
-	return null;
+	ArrayList<UrlItem> list = new ArrayList<UrlItem>();
+	String tool = bean.getCurrentTool("sakai.siteinfo");
+	if (tool != null) {
+	    tool = "/portal/tool/" + tool + "/sakai.basiclti.admin.helper.helper?panel=Content";
+	    list.add(new UrlItem(tool, messageLocator.getMessage("simplepage.create_blti")));
+	}
+	return list;
     }
 
 
