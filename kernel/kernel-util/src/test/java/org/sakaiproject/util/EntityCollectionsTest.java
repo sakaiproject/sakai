@@ -8,7 +8,6 @@ import static org.sakaiproject.util.EntityCollections.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 
 import org.junit.Test;
 import org.sakaiproject.entity.api.Entity;
@@ -28,17 +27,25 @@ public class EntityCollectionsTest {
 		// Empty entities
 		assertFalse(isIntersectionEntityRefsToEntities(
 				Arrays.asList(new String[] { "/ref/e2" }),
-				Collections.emptyList()));
+				Arrays.asList(new Entity[] {})));
 		// Empty references
-		assertFalse(isIntersectionEntityRefsToEntities(Collections.emptyList(), Arrays.asList(new Entity[]{e1,e2})));
+		assertFalse(isIntersectionEntityRefsToEntities(
+				Arrays.asList(new String[] {}),
+				Arrays.asList(new Entity[] { e1, e2 })));
 		// Non intersecting
-		assertFalse(isIntersectionEntityRefsToEntities(Arrays.asList(new String[]{"/ref/a1", "/ref/a2"}), Arrays.asList(new Entity[]{e1,e2})));
+		assertFalse(isIntersectionEntityRefsToEntities(
+				Arrays.asList(new String[] { "/ref/a1", "/ref/a2" }),
+				Arrays.asList(new Entity[] { e1, e2 })));
 		// Larger references
-		assertTrue(isIntersectionEntityRefsToEntities(Arrays.asList(new String[]{"/ref/e1", "/ref/e2", "/ref/e3"}), Arrays.asList(new Entity[]{e1,e2})));
+		assertTrue(isIntersectionEntityRefsToEntities(
+				Arrays.asList(new String[] { "/ref/e1", "/ref/e2", "/ref/e3" }),
+				Arrays.asList(new Entity[] { e1, e2 })));
 		// Matching
-		assertTrue(isIntersectionEntityRefsToEntities(Arrays.asList(new String[]{"/ref/e1", "/ref/e2"}), Arrays.asList(new Entity[]{e1,e2})));
+		assertTrue(isIntersectionEntityRefsToEntities(
+				Arrays.asList(new String[] { "/ref/e1", "/ref/e2" }),
+				Arrays.asList(new Entity[] { e1, e2 })));
 	}
-	
+
 	@Test
 	public void testIsContainedEntityRefsToEntities() {
 		Entity e1 = mock(Entity.class);
@@ -52,15 +59,23 @@ public class EntityCollectionsTest {
 		// Empty entities
 		assertFalse(isContainedEntityRefsToEntities(
 				Arrays.asList(new String[] { "/ref/e2" }),
-				Collections.emptyList()));
+				Arrays.asList(new Entity[] {})));
 		// Empty references
-		assertTrue(isContainedEntityRefsToEntities(Collections.emptyList(), Arrays.asList(new Entity[]{e1,e2})));
+		assertTrue(isContainedEntityRefsToEntities(
+				Arrays.asList(new String[] {}),
+				Arrays.asList(new Entity[] { e1, e2 })));
 		// Non intersecting
-		assertFalse(isContainedEntityRefsToEntities(Arrays.asList(new String[]{"/ref/a1", "/ref/a2"}), Arrays.asList(new Entity[]{e1,e2})));
+		assertFalse(isContainedEntityRefsToEntities(
+				Arrays.asList(new String[] { "/ref/a1", "/ref/a2" }),
+				Arrays.asList(new Entity[] { e1, e2 })));
 		// Larger references
-		assertFalse(isContainedEntityRefsToEntities(Arrays.asList(new String[]{"/ref/e1", "/ref/e2", "/ref/e3"}), Arrays.asList(new Entity[]{e1,e2})));
+		assertFalse(isContainedEntityRefsToEntities(
+				Arrays.asList(new String[] { "/ref/e1", "/ref/e2", "/ref/e3" }),
+				Arrays.asList(new Entity[] { e1, e2 })));
 		// Matching
-		assertTrue(isContainedEntityRefsToEntities(Arrays.asList(new String[]{"/ref/e1", "/ref/e2"}), Arrays.asList(new Entity[]{e1,e2})));
+		assertTrue(isContainedEntityRefsToEntities(
+				Arrays.asList(new String[] { "/ref/e1", "/ref/e2" }),
+				Arrays.asList(new Entity[] { e1, e2 })));
 	}
 
 	@Test
@@ -69,28 +84,41 @@ public class EntityCollectionsTest {
 		when(e1.getReference()).thenReturn("/ref/e1");
 		Entity e2 = mock(Entity.class);
 		when(e2.getReference()).thenReturn("/ref/e2");
-		//Intersection.
+		// Intersection.
 		assertFalse(isEqualEntityRefsToEntities(
 				Arrays.asList(new String[] { "/ref/e2" }),
 				Arrays.asList(new Entity[] { e1, e2 })));
 		// Empty entities
 		assertFalse(isEqualEntityRefsToEntities(
 				Arrays.asList(new String[] { "/ref/e2" }),
-				Collections.emptyList()));
+				Arrays.asList(new Entity[] {})));
 		// Empty references
-		assertFalse(isEqualEntityRefsToEntities(Collections.emptyList(), Arrays.asList(new Entity[]{e1,e2})));
+		assertFalse(isEqualEntityRefsToEntities(Arrays.asList(new String[] {}),
+				Arrays.asList(new Entity[] { e1, e2 })));
 		// Non intersecting
-		assertFalse(isEqualEntityRefsToEntities(Arrays.asList(new String[]{"/ref/a1", "/ref/a2"}), Arrays.asList(new Entity[]{e1,e2})));
+		assertFalse(isEqualEntityRefsToEntities(
+				Arrays.asList(new String[] { "/ref/a1", "/ref/a2" }),
+				Arrays.asList(new Entity[] { e1, e2 })));
 		// Larger references
-		assertFalse(isEqualEntityRefsToEntities(Arrays.asList(new String[]{"/ref/e1", "/ref/e2", "/ref/e3"}), Arrays.asList(new Entity[]{e1,e2})));
+		assertFalse(isEqualEntityRefsToEntities(
+				Arrays.asList(new String[] { "/ref/e1", "/ref/e2", "/ref/e3" }),
+				Arrays.asList(new Entity[] { e1, e2 })));
 		// Matching
-		assertTrue(isEqualEntityRefsToEntities(Arrays.asList(new String[]{"/ref/e1", "/ref/e2"}), Arrays.asList(new Entity[]{e1,e2})));
+		assertTrue(isEqualEntityRefsToEntities(
+				Arrays.asList(new String[] { "/ref/e1", "/ref/e2" }),
+				Arrays.asList(new Entity[] { e1, e2 })));
 		// Matching, but different order
-		assertTrue(isEqualEntityRefsToEntities(Arrays.asList(new String[]{"/ref/e2", "/ref/e1"}), Arrays.asList(new Entity[]{e1,e2})));
+		assertTrue(isEqualEntityRefsToEntities(
+				Arrays.asList(new String[] { "/ref/e2", "/ref/e1" }),
+				Arrays.asList(new Entity[] { e1, e2 })));
 		// Same ref twice
-		assertFalse(isEqualEntityRefsToEntities(Arrays.asList(new String[]{"/ref/e1", "/ref/e1"}), Arrays.asList(new Entity[]{e1,e2})));
+		assertFalse(isEqualEntityRefsToEntities(
+				Arrays.asList(new String[] { "/ref/e1", "/ref/e1" }),
+				Arrays.asList(new Entity[] { e1, e2 })));
 		// Same entity twice
-		assertFalse(isEqualEntityRefsToEntities(Arrays.asList(new String[]{"/ref/e1", "/ref/e2"}), Arrays.asList(new Entity[]{e1,e1})));
+		assertFalse(isEqualEntityRefsToEntities(
+				Arrays.asList(new String[] { "/ref/e1", "/ref/e2" }),
+				Arrays.asList(new Entity[] { e1, e1 })));
 	}
 
 	@Test
@@ -100,11 +128,14 @@ public class EntityCollectionsTest {
 		Entity e2 = mock(Entity.class);
 		when(e2.getReference()).thenReturn("/ref/e2");
 		// Good
-		assertTrue(entityCollectionContainsRefString(Arrays.asList(new Entity[]{e1,e2}), "/ref/e1"));
+		assertTrue(entityCollectionContainsRefString(
+				Arrays.asList(new Entity[] { e1, e2 }), "/ref/e1"));
 		// Bad
-		assertFalse(entityCollectionContainsRefString(Arrays.asList(new Entity[]{e1,e2}), "/ref/missing"));
+		assertFalse(entityCollectionContainsRefString(
+				Arrays.asList(new Entity[] { e1, e2 }), "/ref/missing"));
 		// Empty entities
-		assertFalse(entityCollectionContainsRefString(Collections.emptyList(), "/ref/e1"));
+		assertFalse(entityCollectionContainsRefString(
+				Arrays.asList(new Entity[] {}), "/ref/e1"));
 	}
 
 	@Test
@@ -114,11 +145,14 @@ public class EntityCollectionsTest {
 		Entity e2 = mock(Entity.class);
 		when(e2.getReference()).thenReturn("/ref/e2");
 		// Good
-		assertTrue(refCollectionContainsEntity(Arrays.asList(new String[]{"/ref/e1", "/ref/e2"}), e1));
+		assertTrue(refCollectionContainsEntity(
+				Arrays.asList(new String[] { "/ref/e1", "/ref/e2" }), e1));
 		// Bad
-		assertFalse(refCollectionContainsEntity(Arrays.asList(new String[]{"/ref/a1", "/ref/a2"}), e1));
+		assertFalse(refCollectionContainsEntity(
+				Arrays.asList(new String[] { "/ref/a1", "/ref/a2" }), e1));
 		// Empty references
-		assertFalse(refCollectionContainsEntity(Collections.emptyList(), e1));
+		assertFalse(refCollectionContainsEntity(Arrays.asList(new String[] {}),
+				e1));
 	}
 
 	@Test
@@ -127,9 +161,10 @@ public class EntityCollectionsTest {
 		when(e1.getReference()).thenReturn("/ref/e1");
 		Entity e2 = mock(Entity.class);
 		when(e2.getReference()).thenReturn("/ref/e2");
-		
+
 		ArrayList<String> refernces = new ArrayList<String>();
-		setEntityRefsFromEntities(refernces, Arrays.asList(new Entity[]{e1,e2}));
+		setEntityRefsFromEntities(refernces,
+				Arrays.asList(new Entity[] { e1, e2 }));
 		assertTrue(refernces.contains("/ref/e1"));
 		assertTrue(refernces.contains("/ref/e2"));
 	}
@@ -137,7 +172,7 @@ public class EntityCollectionsTest {
 	// @Test
 	// Why......
 	public void testComputeAddedRemovedEntityRefsFromNewEntitiesOldRefs() {
-		
+
 	}
-	
+
 }

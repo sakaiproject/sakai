@@ -97,15 +97,8 @@ public class EntityCollections
 		// and each ref is found
 		for (Iterator iRefs = entityRefs.iterator(); iRefs.hasNext();)
 		{
-			String findThisEntityRef = (String) iRefs.next();
-			boolean found = false;
-			for(Entity entity : (Collection<Entity>)entities) {
-				if(entity.getReference().equals(findThisEntityRef)) {
-					found = true;
-					break;
-				}
-			}
-			if (!found) {
+			String entityRef = (String)iRefs.next();
+			if (!entityCollectionContainsRefString(entities, entityRef)) {
 				return false;
 			}
 		}
