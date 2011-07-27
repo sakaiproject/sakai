@@ -7,3 +7,9 @@ alter table SAKAI_CLUSTER change UPDATE_TIME UPDATE_TIME TIMESTAMP;
 
 -- SAK-20717 mailarchive messages need updating with new field
 UPDATE mailarchive_message SET xml = REPLACE(XML, ' mail-from="', ' message_order="1" mail-from="') WHERE xml NOT LIKE '% message_order="1" %';
+
+-- SAK-20926 / PRFL-392 fix null status
+alter table PROFILE_IMAGES_T modify RESOURCE_MAIN text not null;
+alter table PROFILE_IMAGES_T modify RESOURCE_THUMB text not null;
+alter table PROFILE_IMAGES_EXTERNAL_T modify URL_MAIN text not null;
+alter table PROFILE_IMAGES_EXTERNAL_T modify URL_THUMB text;
