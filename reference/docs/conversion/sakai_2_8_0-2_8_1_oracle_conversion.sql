@@ -15,18 +15,3 @@ ALTER TABLE SAKAI_CLUSTER MODIFY (UPDATE_TIME TIMESTAMP WITH TIME ZONE);
 
 -- SAK-20717 mailarchive messages need updating with new field
 UPDATE mailarchive_message SET xml = REPLACE(XML, ' mail-from="', ' message_order="1" mail-from="') WHERE xml NOT LIKE '% message_order="1" %';
-
--- PRFL-94 remove twitter from preferences 
--- this was part of the Profile2  1.3.x-1.3.9 upgrade so you may have already run it.
-alter table PROFILE_PREFERENCES_T drop column TWITTER_ENABLED;
-alter table PROFILE_PREFERENCES_T drop column TWITTER_USERNAME;
-alter table PROFILE_PREFERENCES_T drop column TWITTER_PASSWORD;
-
--- PRFL-94 add external integration table
--- this was part of the Profile2 1.3.x-1.3.9 upgrade so you may have already run it. There is a check in place.
-create table if not exists PROFILE_EXTERNAL_INTEGRATION_T (
-	USER_UUID varchar2(99) not null,
-	TWITTER_TOKEN varchar2(255),
-	TWITTER_SECRET varchar2(255),
-	primary key (USER_UUID)
-);
