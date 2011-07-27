@@ -713,9 +713,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    UIOutput.make(tableRow, "item-groups", itemGroupString );
 
 						}
-					} else if (i.getType() == SimplePageItem.FORUM) {
+					} else if (i.getType() == SimplePageItem.BLTI) {
 						UIOutput.make(tableRow, "type", "b"); 
-						LessonEntity blti= bltiEntity.getEntity(i.getSakaiId());
+						LessonEntity blti= forumEntity.getEntity(i.getSakaiId());
 						if (blti != null) {
 						    String editUrl = blti.editItemUrl(simplePageBean);
 						    if (editUrl != null)
@@ -723,7 +723,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    itemGroupString = simplePageBean.getItemGroupString(i, blti, true);
 						    UIOutput.make(tableRow, "item-groups", itemGroupString );
 						}
-					} else if (i.getType() == SimplePageItem.BLTI) {
+					} else if (i.getType() == SimplePageItem.FORUM) {
 						UIOutput.make(tableRow, "extra-info");
 						UIOutput.make(tableRow, "type", "8"); 
 						LessonEntity forum = forumEntity.getEntity(i.getSakaiId());
@@ -1333,8 +1333,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				view.setSendingPage(currentPage.getPageId());
 				view.setItemId(i.getId());
 				LessonEntity lessonEntity = bltiEntity.getEntity(i.getSakaiId());
-				view.setSource((bltiEntity==null)?"dummy":bltiEntity.getUrl());
+				view.setSource((lessonEntity==null)?"dummy":lessonEntity.getUrl());
 				UIInternalLink.make(container, "link", view);
+
 			} else {
 				if (i.isPrerequisite()) {
 					simplePageBean.checkItemPermissions(i, false);
