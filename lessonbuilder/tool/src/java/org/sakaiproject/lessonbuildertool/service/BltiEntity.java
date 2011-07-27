@@ -61,6 +61,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
@@ -263,7 +264,9 @@ public class BltiEntity implements LessonEntity {
     public String getUrl() {
 	loadContent();
 	if ( content == null ) return null;
-	return (String) content.get("launch_url");
+	String ret = (String) content.get("launch_url");
+	ret = ServerConfigurationService.getServerUrl() + ret;
+	return ret;
     }
 
     public Date getDueDate() {
