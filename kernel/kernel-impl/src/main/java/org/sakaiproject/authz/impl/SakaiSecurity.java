@@ -197,8 +197,7 @@ public abstract class SakaiSecurity implements SecurityService
 		// if the user has site modification rights in the "!admin" site, welcome aboard!
 		else
 		{
-			// TODO: string constants stolen from site -ggolden
-			if (authzGroupService().isAllowed(userId, "site.upd", "/site/!admin"))
+			if (authzGroupService().isAllowed(userId, SiteService.SECURE_UPDATE_SITE, "/site/!admin"))
 			{
 				rv = true;
 			}
