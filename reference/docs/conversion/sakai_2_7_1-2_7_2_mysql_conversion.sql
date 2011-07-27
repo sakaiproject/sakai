@@ -11,8 +11,8 @@
 -- --------------------------------------------------------------------------------------------------------------------------------------
 
 /* PRFL-392 change row size of image URI columns */
-alter table PROFILE_IMAGES_T modify RESOURCE_MAIN text;
-alter table PROFILE_IMAGES_T modify RESOURCE_THUMB text;
+alter table PROFILE_IMAGES_T modify RESOURCE_MAIN text not null;
+alter table PROFILE_IMAGES_T modify RESOURCE_THUMB text not null;
 
-alter table PROFILE_IMAGES_EXTERNAL_T modify URL_MAIN text;
+alter table PROFILE_IMAGES_EXTERNAL_T modify URL_MAIN text not null;
 alter table PROFILE_IMAGES_EXTERNAL_T modify URL_THUMB text;
