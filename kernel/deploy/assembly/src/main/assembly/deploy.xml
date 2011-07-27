@@ -8,6 +8,7 @@
  <dependencySets>
     <dependencySet>
       <outputDirectory>shared/lib/</outputDirectory>
+      <useProjectArtifact>false</useProjectArtifact>
       <includes>
         <include>*:jar:*</include>
       </includes>
@@ -20,6 +21,7 @@
     </dependencySet>
     <dependencySet>
       <outputDirectory>common/lib/</outputDirectory>
+      <useProjectArtifact>false</useProjectArtifact>
       <includes>
         <include>log4j:log4j</include>
         <include>commons-logging:commons-logging</include>
@@ -30,8 +32,9 @@
     <dependencySet>
       <outputFileNameMapping></outputFileNameMapping>
       <outputDirectory>components/sakai-kernel-component</outputDirectory>
+      <useProjectArtifact>false</useProjectArtifact>
       <includes>
-	<include>*:war:*</include>
+        <include>*:war:*</include>
       </includes>
       <unpack>true</unpack>
     </dependencySet>
