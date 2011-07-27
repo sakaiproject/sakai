@@ -2276,8 +2276,9 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
         if (levelName != null && levelName.trim().length() > 0)
         {
           level = permissionLevelManager.getPermissionLevelByName(levelName);
-        } 
-        else{
+        } else if (name == null || ".anon".equals(name)) {
+            level = permissionLevelManager.getDefaultNonePermissionLevel();
+        } else{
         	Collection siteIds = new Vector();
         	siteIds.add(contextSiteId);        	
         	

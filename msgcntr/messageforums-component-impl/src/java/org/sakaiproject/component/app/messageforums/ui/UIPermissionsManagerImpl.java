@@ -1360,6 +1360,11 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     	ThreadLocalManager.set("message_center_user_role_map", roleMap);
     }
     
+    // if user role is still null at this point, check for .anon
+    if(userRole == null && sessionManager.getCurrentSessionUserId() == null && getAnonRole() == true){
+        return ".anon";
+    }
+    
     return userRole;
   }
    
