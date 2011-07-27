@@ -32,7 +32,15 @@ import org.sakaiproject.javax.PagingPosition;
 
 /**
  * <p>
- * AuthzGroupService manages authorization grops.
+ * AuthzGroupService manages authorization groups.
+ * This service allows you to check if a user is allowed to perform a particular function in a
+ * context.
+ * </p>
+ * <p>
+ * This service doesn't do any checking that the the user IDs that are return are still valid. As if a user
+ * is deleted or no longer exists in a provider the entries in the AuthzGroupService will still exist. If 
+ * the calling code needs to make sure a user is valid it should check with the {@see org.sakaiproject.user.api.UserDirectoryService}.
+ * Ideally deleted user records should get tidied up, but at the moment that don't.
  * </p>
  */
 public interface AuthzGroupService extends EntityProducer
@@ -313,6 +321,7 @@ public interface AuthzGroupService extends EntityProducer
 	/**
 	 * Get the set of user ids of users who are allowed to perform the function in the named AuthzGroups.
 	 * 
+	 * @see AuthzGroupService For details on deleted users.
 	 * @param function
 	 *        The function to check.
 	 * @param azGroups
@@ -326,6 +335,7 @@ public interface AuthzGroupService extends EntityProducer
 	 * Use this method to get permission-related membership information from a set of groups efficiently, 
 	 * rather than iterating through each group.
 	 * 
+	 * @see AuthzGroupService For details on deleted users.
 	 * @param function
 	 *        The function to check.
 	 * @param azGroups
@@ -339,6 +349,7 @@ public interface AuthzGroupService extends EntityProducer
 	 * Use this method to get permission-related size information from a set of groups efficiently, 
 	 * rather than iterating through each group.
 	 * 
+	 * @see AuthzGroupService For details on deleted users.
 	 * @param function
 	 *        The function to check.
 	 * @param azGroups
