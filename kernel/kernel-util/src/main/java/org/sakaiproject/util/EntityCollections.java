@@ -42,12 +42,12 @@ public class EntityCollections
 	 *        The collection (Entity) of entity objects.
 	 * @return true if there is interesection, false if not.
 	 */
-	public static boolean isIntersectionEntityRefsToEntities(Collection entityRefs, Collection entities)
+	public static boolean isIntersectionEntityRefsToEntities(Collection<String> entityRefs, Collection<Entity> entities)
 	{
-		for (Iterator iRefs = entityRefs.iterator(); iRefs.hasNext();)
+		for (Iterator<String> iRefs = entityRefs.iterator(); iRefs.hasNext();)
 		{
-			String findThisEntityRef = (String) iRefs.next();
-			for (Iterator iEntities = entities.iterator(); iEntities.hasNext();)
+			String findThisEntityRef = iRefs.next();
+			for (Iterator<Entity> iEntities = entities.iterator(); iEntities.hasNext();)
 			{
 				String thisEntityRef = ((Entity) iEntities.next()).getReference();
 				if (thisEntityRef.equals(findThisEntityRef))
@@ -69,11 +69,11 @@ public class EntityCollections
 	 *        The collection (Entity) of entity objects.
 	 * @return true if there is containment, false if not.
 	 */
-	public static boolean isContainedEntityRefsToEntities(Collection entityRefs, Collection entities)
+	public static boolean isContainedEntityRefsToEntities(Collection<String> entityRefs, Collection<Entity> entities)
 	{
-		for (Iterator iRefs = entityRefs.iterator(); iRefs.hasNext();)
+		for (Iterator<String> iRefs = entityRefs.iterator(); iRefs.hasNext();)
 		{
-			String findThisEntityRef = (String) iRefs.next();
+			String findThisEntityRef = iRefs.next();
 			if (!entityCollectionContainsRefString(entities, findThisEntityRef)) return false;
 		}
 
@@ -89,23 +89,23 @@ public class EntityCollections
 	 *        The collection (Entity) of entity objects.
 	 * @return true if there is a match, false if not.
 	 */
-	public static boolean isEqualEntityRefsToEntities(Collection entityRefs, Collection entities)
+	public static boolean isEqualEntityRefsToEntities(Collection<String> entityRefs, Collection<Entity> entities)
 	{
 		// if the colletions are the same size
 		if (entityRefs.size() != entities.size()) return false;
 
 		// and each ref is found
-		for (Iterator iRefs = entityRefs.iterator(); iRefs.hasNext();)
+		for (Iterator<String> iRefs = entityRefs.iterator(); iRefs.hasNext();)
 		{
-			String entityRef = (String)iRefs.next();
+			String entityRef = iRefs.next();
 			if (!entityCollectionContainsRefString(entities, entityRef)) {
 				return false;
 			}
 		}
 		// we need the second loop incase there is duplication of enements
-		for (Iterator iEntities = entities.iterator(); iEntities.hasNext();)
+		for (Iterator<Entity> iEntities = entities.iterator(); iEntities.hasNext();)
 		{
-			String findThisEntityRef = ((Entity) iEntities.next()).getReference();
+			String findThisEntityRef = iEntities.next().getReference();
 			if(!entityRefs.contains(findThisEntityRef)) {
 				return false;
 			}
@@ -123,11 +123,11 @@ public class EntityCollections
 	 *        The string entity reference to find.
 	 * @return true if found, false if not.
 	 */
-	public static boolean entityCollectionContainsRefString(Collection entities, String entityRef)
+	public static boolean entityCollectionContainsRefString(Collection<Entity> entities, String entityRef)
 	{
-		for (Iterator i = entities.iterator(); i.hasNext();)
+		for (Iterator<Entity> i = entities.iterator(); i.hasNext();)
 		{
-			Entity entity = (Entity) i.next();
+			Entity entity = i.next();
 			if (entity.getReference().equals(entityRef)) return true;
 		}
 
@@ -143,12 +143,12 @@ public class EntityCollections
 	 *        The Entity to find.
 	 * @return true if found, false if not.
 	 */
-	public static boolean refCollectionContainsEntity(Collection refs, Entity entity)
+	public static boolean refCollectionContainsEntity(Collection<String> refs, Entity entity)
 	{
 		String targetRef = entity.getReference();
-		for (Iterator i = refs.iterator(); i.hasNext();)
+		for (Iterator<String> i = refs.iterator(); i.hasNext();)
 		{
-			String entityRef = (String) i.next();
+			String entityRef = i.next();
 			if (entityRef.equals(targetRef)) return true;
 		}
 
@@ -163,12 +163,12 @@ public class EntityCollections
 	 * @param entities
 	 *        The collection (Entity) of entity objects to use.
 	 */
-	public static void setEntityRefsFromEntities(Collection refs, Collection entities)
+	public static void setEntityRefsFromEntities(Collection<String> refs, Collection<Entity> entities)
 	{
 		refs.clear();
-		for (Iterator i = entities.iterator(); i.hasNext();)
+		for (Iterator<Entity> i = entities.iterator(); i.hasNext();)
 		{
-			Entity entity = (Entity) i.next();
+			Entity entity = i.next();
 			refs.add(entity.getReference());
 		}
 	}
@@ -176,13 +176,13 @@ public class EntityCollections
 	/**
 	 * Fill in the two collections of Entity reference strings - those added in newEntities that were not in oldEntityRefs, and those removed, i.e. in oldEntityRefs not in newEntities.
 	 */
-	public static void computeAddedRemovedEntityRefsFromNewEntitiesOldRefs(Collection addedEntities, Collection removedEntities,
-			Collection newEntities, Collection oldEntityRefs)
+	public static void computeAddedRemovedEntityRefsFromNewEntitiesOldRefs(Collection<String> addedEntities, Collection<String> removedEntities,
+			Collection<Entity> newEntities, Collection<String> oldEntityRefs)
 	{
 		// added
-		for (Iterator i = newEntities.iterator(); i.hasNext();)
+		for (Iterator<Entity> i = newEntities.iterator(); i.hasNext();)
 		{
-			Entity entity = (Entity) i.next();
+			Entity entity = i.next();
 			if (!refCollectionContainsEntity(oldEntityRefs, entity))
 			{
 				addedEntities.add(entity.getReference());
@@ -190,9 +190,9 @@ public class EntityCollections
 		}
 
 		// removed
-		for (Iterator i = oldEntityRefs.iterator(); i.hasNext();)
+		for (Iterator<String> i = oldEntityRefs.iterator(); i.hasNext();)
 		{
-			String entityRef = (String) i.next();
+			String entityRef = i.next();
 			if (!entityCollectionContainsRefString(newEntities, entityRef))
 			{
 				removedEntities.add(entityRef);
