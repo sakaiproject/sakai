@@ -715,13 +715,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						}
 					} else if (i.getType() == SimplePageItem.BLTI) {
 						UIOutput.make(tableRow, "type", "b"); 
-						LessonEntity blti= forumEntity.getEntity(i.getSakaiId());
+						LessonEntity blti= bltiEntity.getEntity(i.getSakaiId());
 						if (blti != null) {
 						    String editUrl = blti.editItemUrl(simplePageBean);
 						    if (editUrl != null)
 							UIOutput.make(tableRow, "edit-url", editUrl);
-						    itemGroupString = simplePageBean.getItemGroupString(i, blti, true);
-						    UIOutput.make(tableRow, "item-groups", itemGroupString );
 						}
 					} else if (i.getType() == SimplePageItem.FORUM) {
 						UIOutput.make(tableRow, "extra-info");
