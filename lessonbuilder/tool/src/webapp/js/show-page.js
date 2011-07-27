@@ -337,6 +337,7 @@ $(function() {
 		$("#change-quiz-p").hide();		
 		$("#change-forum-p").hide();		
 		$("#change-resource-p").hide();	
+		$("#change-blti-p").hide();
 		$("#change-page-p").hide();	
 		$("#edit-item-object-p").hide();	
 		$("#edit-item-settings-p").hide();	
@@ -448,10 +449,6 @@ $(function() {
 				      $("#change-blti").attr("href").replace("itemId=-1", "itemId=" + itemid));
 				$("#require-label").text(msg("simplepage.require_submit_blti"));
 				$("#edit-item-object-p").show();
-				$("#edit-item-object").attr("href", 
-					$("#edit-item-object").attr("href").replace("source=SRC", "source="+escape(editurl)));
-				$("#edit-item-text").text(msg("simplepage.edit_topic"));
-
 			}else {
 				$("#change-assignment-p").show();
 				$("#change-assignment").attr("href", 
