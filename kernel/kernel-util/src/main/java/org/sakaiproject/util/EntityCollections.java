@@ -98,13 +98,21 @@ public class EntityCollections
 		for (Iterator iRefs = entityRefs.iterator(); iRefs.hasNext();)
 		{
 			String findThisEntityRef = (String) iRefs.next();
-			if(!entities.contains(findThisEntityRef)) {
+			boolean found = false;
+			for(Entity entity : (Collection<Entity>)entities) {
+				if(entity.getReference().equals(findThisEntityRef)) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
 				return false;
 			}
 		}
+		// we need the second loop incase there is duplication of enements
 		for (Iterator iEntities = entities.iterator(); iEntities.hasNext();)
 		{
-			String findThisEntityRef = (String) iEntities.next();
+			String findThisEntityRef = ((Entity) iEntities.next()).getReference();
 			if(!entityRefs.contains(findThisEntityRef)) {
 				return false;
 			}
