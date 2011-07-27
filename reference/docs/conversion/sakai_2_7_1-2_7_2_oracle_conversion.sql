@@ -10,6 +10,13 @@
 -- SQL statement
 -- --------------------------------------------------------------------------------------------------------------------------------------
 
+-- KNL-725 use a datetype with timezone
+-- Make sure sakai is stopped when running this.
+-- Empty the SAKAI_CLUSTER, Oracle refuses to alter the table with records in it..
+delete from SAKAI_CLUSTER;
+-- Change the datatype
+alter table SAKAI_CLUSTER modify (UPDATE_TIME timestamp with time zone);
+
 /* PRFL-392 change row size of image URI columns */
 alter table PROFILE_IMAGES_T modify RESOURCE_MAIN varchar2(4000) not null;
 alter table PROFILE_IMAGES_T modify RESOURCE_THUMB varchar2(4000) not null;
