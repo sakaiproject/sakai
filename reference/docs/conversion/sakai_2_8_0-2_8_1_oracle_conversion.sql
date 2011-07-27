@@ -18,6 +18,10 @@
 -- execute all resulting statements from the previous step 
 update ANNOUNCEMENT_MESSAGE set MESSAGE_ORDER='1', XML=replace(XML, ' subject=', ' message_order="1" subject=') where MESSAGE_ORDER is null; 
 
+-- KNL-563 correction
+-- sakai-2.8.0 conversion script set DEFAULT_VALUE incorrectly to not null.  Set to null to match Hibernate mapping.
+alter table SAKAI_MESSAGE_BUNDLE modify DEFAULT_VALUE text null;
+
 -- KNL-725 use a datetype with timezone
 -- Make sure sakai is stopped when running this.
 -- Empty the SAKAI_CLUSTER, Oracle refuses to alter the table with records in it..

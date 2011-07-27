@@ -14,6 +14,10 @@
 -- The conversion for SAK-8005 in the 2.8.0 conversion script did not handle the message_order data in the xml clob
 update ANNOUNCEMENT_MESSAGE set MESSAGE_ORDER='1', XML=replace(XML, ' subject=', ' message_order="1" subject=') where MESSAGE_ORDER is null; 
 
+-- KNL-563 correction
+-- sakai-2.8.0 conversion script set DEFAULT_VALUE incorrectly to not null.  Set to null to match Hibernate mapping.
+alter table SAKAI_MESSAGE_BUNDLE modify DEFAULT_VALUE text null;
+
 -- KNL-725 use a column type that stores the timezone
 alter table SAKAI_CLUSTER change UPDATE_TIME UPDATE_TIME timestamp;
 
