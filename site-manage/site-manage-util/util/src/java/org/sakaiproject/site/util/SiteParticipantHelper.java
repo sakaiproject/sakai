@@ -128,10 +128,14 @@ public class SiteParticipantHelper {
 									participant.providerRole = member.getRole()!=null?member.getRole().getId():"";
 									participant.removeable = false;
 								}
+								else
+								{
+									participant.providerRole="";
+									participant.removeable = true;
+								}
 								// get contextual user display id
 								String regId = cus != null ? cus.getUserDisplayId(user, "Site Info"):"";
 								participant.regId = regId != null?regId:"";
-								participant.removeable = false;
 								participant.role = member.getRole()!=null?member.getRole().getId():"";
 								participant.addSectionEidToList(sectionTitle);
 								participant.uniqname = userId;
