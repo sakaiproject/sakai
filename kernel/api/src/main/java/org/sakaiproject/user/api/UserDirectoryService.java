@@ -256,6 +256,7 @@ public interface UserDirectoryService extends EntityProducer
 	 * @param email
 	 *        The email address string.
 	 * @return A Collection (User) of user objects which have this email address (may be empty).
+	 *         It will not return <code>null</code>.
 	 */
 	Collection<User> findUsersByEmail(String email);
 
