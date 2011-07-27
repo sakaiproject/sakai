@@ -10,6 +10,13 @@
 -- SQL statement
 -- --------------------------------------------------------------------------------------------------------------------------------------
 
+-- KNL-725 use a datetype with timezone
+-- Make sure sakai is stopped when running this.
+-- Empty the SAKAI_CLUSTER, Oracle refuses to alter the table with records in it.
+delete from SAKAI_CLUSTER;
+-- Change the datatype
+alter table SAKAI_CLUSTER modify (UPDATE_TIME TIMESTAMP WITH TIME ZONE);
+
 -- PRFL-94 remove twitter from preferences
 -- NOTE: users will need to re-add their Twitter details to Profile2
 alter table PROFILE_PREFERENCES_T drop column TWITTER_ENABLED;
