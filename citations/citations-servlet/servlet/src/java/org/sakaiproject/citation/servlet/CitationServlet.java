@@ -24,6 +24,8 @@ package org.sakaiproject.citation.servlet;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletConfig;
@@ -40,6 +42,7 @@ import org.sakaiproject.citation.api.CitationCollection;
 import org.sakaiproject.citation.api.CitationHelper;
 import org.sakaiproject.citation.api.CitationService;
 import org.sakaiproject.citation.api.Schema;
+import org.sakaiproject.citation.cover.ConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -491,6 +494,24 @@ public class CitationServlet extends VmServlet
 		}
 		Object[] titleArgs = { Validator.escapeHtml(collectionTitle) };  // TODO temporary placeholder
 		setVmReference( "titleArgs", titleArgs, req );
+
+		String client = req.getParameter("client");
+		
+		if(client != null && ! client.trim().equals("")) {
+			Locale locale = rb.getLocale();
+			List<Map<String,String>> clientMaps = ConfigurationService.getSaveciteClientsForLocale(locale);
+			for(Map<String,String> clientMap : clientMaps) {
+				String clientId = clientMap.get("id");
+				if(clientId == null || clientId.trim().equals("")) {
+					continue;
+				}
+				if(client.trim().equalsIgnoreCase(clientId)) {
+					setVmReference("client", clientMap,req);
+					break;
+				}
+			}
+		}
+		
 
 		// return the servlet template
 		includeVm( SERVLET_TEMPLATE, req, res );

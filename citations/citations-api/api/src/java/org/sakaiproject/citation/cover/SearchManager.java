@@ -116,4 +116,15 @@ public class SearchManager
 
 		return instance.getGoogleScholarUrl(resourceId);
     }
+    
+    public static String getSaveciteUrl(String resourceId, String saveciteClientId) 
+    {
+		org.sakaiproject.citation.api.SearchManager instance = getInstance();
+		if(instance == null)
+		{
+			return null;
+		}
+
+		return instance.getSaveciteUrl(resourceId, saveciteClientId);
+    }
 }

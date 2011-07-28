@@ -23,6 +23,9 @@ package org.sakaiproject.citation.api;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 import org.sakaiproject.citation.util.api.OsidConfigurationException;
 
 /**
@@ -216,5 +219,14 @@ public interface ConfigurationService
    * @return true if so
    */
   public boolean librarySearchEnabled();
+
+  /**
+   * Access the mapping for savecite clients. Keys in the mapping will be locale identifiers, and 
+   * values will be a list of clients, which each client is a Map<String,String>.
+   * @return
+   */
+  public Map<String, List<Map<String,String>>> getSaveciteClients();
+
+  public List<Map<String, String>> getSaveciteClientsForLocale(Locale locale);
 
 }

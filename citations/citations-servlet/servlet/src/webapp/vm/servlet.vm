@@ -35,10 +35,17 @@
 					
 					<h2>$tlang.getFormattedMessage( "title.gscholar", $titleArgs )</h2>
 					
-					<p class="act">
-						<button type="button" onclick="history.back();">$tlang.getString( "back.gscholar" )</button>
-						<button type="button" onclick="window.close();">$tlang.getString( "close.gscholar" )</button>
-					</p>
+					#if($client)
+						<p class="act">
+							<button type="button" onclick="history.back();">${client.return_label}</button>
+							<button type="button" onclick="window.close();">${client.close_label}</button>
+						</p>
+					#else
+						<p class="act">
+							<button type="button" onclick="history.back();">$tlang.getString( "back.gscholar" )</button>
+							<button type="button" onclick="window.close();">$tlang.getString( "close.gscholar" )</button>
+						</p>
+					#end
 				#else
 					<h3>$tlang.getString( "error.gscholar" )</h3>
 					<p class="instruction">$tlang.getString( "error.sub.gscholar" )</p>

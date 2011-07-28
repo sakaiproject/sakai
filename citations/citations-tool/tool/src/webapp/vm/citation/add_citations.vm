@@ -63,6 +63,20 @@ doubleDeep = true;
 			<input name="$!{specialHelperFlag}" id="$!{specialHelperFlag}" value="$!{citationToolId}" type="hidden" />
 			<table>
 			
+			#if( $saveciteClients )
+				#foreach($client in $saveciteClients)
+					<tr valign="middle">
+						<td align="center">
+							<div class="act">
+								<input type="button" name="$client.id" id="$client.id" value="$client.linkurl_label" 
+									onclick="openWindow('${client.linkurl_base}?linkurl_base=${client.saveciteUrl}&linkurl_id=${client.linkurl_id}&','$client.linkurl_label','scrollbars=yes,toolbar=yes,resizable=yes,height=${client.window_height},width=${client.window_width}');"/>
+							</div>
+						</td>
+						<td>$client.linkurl_description</td>
+					</tr>
+				#end
+			#end
+			
 			#if( $searchLibrary )
 			  <tr valign="middle">
 			    <td align="center">
