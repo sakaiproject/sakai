@@ -99,9 +99,22 @@
             <version>${sakai.samigo.version}</version>
             <scope>provided</scope>
         </dependency>
+<!-- yaft
+        <dependency>
+            <groupId>org.sakaiproject.yaft</groupId>
+            <artifactId>yaft-api</artifactId>
+            <version>${sakai.yaft.version}</version>
+            <scope>provided</scope>
+        </dependency>
+-->
+<!-- mneme
 
-        <!-- <dependency> <groupId>org.etudes.mneme</groupId> <artifactId>etudes-mneme-api</artifactId> 
-            <version>1.2</version> <scope>provided</scope> </dependency> -->
+        <dependency> 
+	  <groupId>org.etudes.mneme</groupId>
+	  <artifactId>etudes-mneme-api</artifactId> 
+          <version>1.2</version> <scope>provided</scope> 
+	</dependency> 
+-->
 
         <dependency>
             <groupId>javax.servlet</groupId>

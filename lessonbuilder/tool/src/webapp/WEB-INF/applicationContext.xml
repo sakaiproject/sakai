@@ -56,7 +56,16 @@
         init-method="init">
     <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
     <property name="messageLocator" ref="messageLocator"/>
+<!-- yaft    <property name = "nextEntity" ref="org.sakaiproject.lessonbuildertool.service.YaftTopicEntity" /> -->
   </bean>
+  
+<!-- yaft
+  <bean id="org.sakaiproject.lessonbuildertool.service.YaftTopicEntity"
+	class="org.sakaiproject.lessonbuildertool.service.YaftTopicEntity"
+        init-method="init">
+    <property name="messageLocator" ref="messageLocator"/>
+  </bean>
+-->
 
   <bean id="org.sakaiproject.lessonbuildertool.service.ForumEntity"
 	class="org.sakaiproject.lessonbuildertool.service.ForumEntity"

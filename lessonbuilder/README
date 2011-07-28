@@ -99,7 +99,7 @@ a few more things:
 some changes, depending upon the version of Sakai you are
 running:
 
-* If you want support for Mneme, you will need to enable it.
+* If you want support for Mneme or Yaft, you will need to enable it.
 See below.
 
 * You will probably want to install SAK-20799. This allows people to
@@ -121,33 +121,46 @@ The rest of this document talks about other things you might want to
 know about. However you can try out Lesson Builder without doing
 anything beyond this point.
 
-MNEME AND JFORUM DEPENDENCIES
+MNEME, JAFT, AND JFORUM DEPENDENCIES
 
-LessonBuilder will support quizes from Mneme and topics from JForum. 
-The JForum interface should cause no trouble, even if you don't use it.
-However I've had to disable support for Mneme to allow Lesson Builder
-to build on systems without it.  The Jforum code starts by checking
-whether Jforum is actually present. If not, it disables itself. Thus
-there's no obvious reason to remove it, although you can do so.
+LessonBuilder will support quizes from Mneme and topics from JForum or
+YAFT. The JForum interface should cause no trouble, even if you don't
+use it. However I've had to disable support for Mneme and YAFT to
+allow Lesson Builder to build on systems without it. The Jforum code
+starts by checking whether Jforum is actually present. If not, it
+disables itself. Thus there's no obvious reason to remove it, although
+you can do so.
 
-Note however that the jForum interface is not currently able to create
-topics when importing Common Cartridge documents. It will leave a place
-holder in the page. You will need to create the topic and choose it
-in Lesson Builder. The problem is that jForum does not have an API that
-allows another tool to create items.
+Note however that the jForum and YAFT interfaces are not currently
+able to create topics when importing Common Cartridge documents, nor
+do they support releasing a topic to a specific group. In Common
+Cartridge import, It will leave a place holder in the page. You will
+need to create the topic and choose it in Lesson Builder. The problem
+is that jForum does not have an API that allows another tool to create
+items, and YAFT isn't group-aware.
 
-To put back Mneme support, 
+To put back Mneme or YAFT support, 
 
 1.in tool/src/webapp/WEB-INF/applicationContext.xml,
 
-look for the two comments tarting witho <!-- mneme and remove them
+look for the two comments tarting with <!-- mneme or yaft and remove them
 
 2. rename 
 tool/src/java/org/sakaiproject/lessonbuildertool/service/MnemeEntity.java.disabled
 to 
 tool/src/java/org/sakaiproject/lessonbuildertool/service/MnemeEntity.java
 
-3. in tool/pom.xml uncomment the dependency for etudes-mneme-api
+or 
+./tool/src/java/org/sakaiproject/lessonbuildertool/service/YaftTopicEntity.java.disabled
+to
+./tool/src/java/org/sakaiproject/lessonbuildertool/service/YaftTopicEntity.java
+
+3. in tool/pom.xml look for the comment tarting with <!-- mneme or yaft and remove them
+
+Note that the version number of YAFT is defined in the main pom.xml,
+in the declaration for sakai.yaft.version. If you are using YAFT,
+check to make sure that this declaration agrees with the version you
+are using.
 
 If you don't use JForum, you could remove support for it. There's
 no obvious reason to do so, since the code detects that Jforum is
@@ -176,9 +189,21 @@ number in the <parent> declaration for pom.xml here. This is, in
 
 Instead of 2.9-SNAPSHOT, use your version of Sakai.
 
+You may also need to change the profile. Lesson Builder is
+distributed for use with Sakai 2.9. To use it with 2.7 or
+2.8, look for the <profiles> section in pom.xml. There are
+two profiles, named "default" and "sakai-2.8". Move the
+declaration 
+         <activation>
+                <activeByDefault>true</activeByDefault>
+         </activation>
+from default to sakai-2.8. The 2.8 profile should also
+work for 2.7.
+
 If you are using Mneme, check the version number for org.etudes.mneme
 in tool/pom.xml. Make sure the version number matches the version of
-Mneme that you are using.
+Mneme that you are using. Similarly if you are using YAFT, check
+the yaft version number.
 
 SAMIGO FIXES
 

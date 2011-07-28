@@ -169,15 +169,36 @@ public class JForumEntity implements LessonEntity, ForumInterface {
 	    else
 		return new ArrayList<LessonEntity>();
 	}
-
+	
 	List<LessonEntity>ret = new ArrayList<LessonEntity>();
+	
+	// LSNBLDR-21. If the tool is not in the current site we shouldn't query
+	// for topics owned by the tool.
+	String siteId = toolManager.getCurrentPlacement().getContext();
+	
+	Site site = null;
+	try {
+	    site = SiteService.getSite(siteId);
+	} catch (Exception impossible) {
+	    return null;
+	}
+    	
+    ToolConfiguration siteTool = site.getToolForCommonId("sakai.jforum.tool");
+	
+    if(siteTool == null) {
+    	
+    	// JForum is not in this site. Move on to the next provider.
+    	
+    	if (nextEntity != null) 
+    		ret.addAll(nextEntity.getEntitiesInSite());
+    	
+    	return ret;
+    }
+
 	String url = null;
 
-	String siteId = toolManager.getCurrentPlacement().getContext();
 	try {
-	    Site site = SiteService.getSite(siteId);
 	    // String toolid = "8f83cd4b-74ca-4428-0055-85ddd19a8d00";
-	    ToolConfiguration siteTool = site.getToolForCommonId("sakai.jforum.tool");
 	    url = "/portal/tool/" + siteTool.getId() + "/posts/list/";
 
 	    // String toolid = "8f83cd4b-74ca-4428-0055-85ddd19a8d00";
@@ -275,10 +296,12 @@ public class JForumEntity implements LessonEntity, ForumInterface {
 	String typeString = ref.substring(1, i);
 	String idString = ref.substring(i+1);
 	int id = 0;
-	try {
-	    id = Integer.parseInt(idString);
-	} catch (Exception ignore) {
-	    return null;
+	if (typeString.equals(JFORUM_TOPIC) || typeString.equals(JFORUM_FORUM) || typeString.equals(JFORUM_CATEGORY)) {
+		try {
+			id = Integer.parseInt(idString);
+		} catch (Exception ignore) {
+			return null;
+		}
 	}
 
 	// note: I'm returning the minimal structures, not those with
@@ -347,13 +370,26 @@ public class JForumEntity implements LessonEntity, ForumInterface {
     public String getUrl() {
 	if (url != null)
 	    return url;
+	
+	String siteId = toolManager.getCurrentPlacement().getContext();
+	
+	Site site = null;
+	try {
+	    site = SiteService.getSite(siteId);
+	} catch (Exception impossible) {
+	    return null;
+	}
+	
+	ToolConfiguration siteTool = site.getToolForCommonId("sakai.jforum.tool");
+	
+	// LSNBLDR-21. If the tool is not in the current site we shouldn't return a url
+	if(siteTool == null) {
+	    return null;
+	}
 
 	String prefix = null;
-	String siteId = toolManager.getCurrentPlacement().getContext();
 	try {
-	    Site site = SiteService.getSite(siteId);
 	    // String toolid = "8f83cd4b-74ca-4428-0055-85ddd19a8d00";
-	    ToolConfiguration siteTool = site.getToolForCommonId("sakai.jforum.tool");
 	    prefix = "/portal/tool/" + siteTool.getId();
 	    // String toolid = "8f83cd4b-74ca-4428-0055-85ddd19a8d00";
 	} catch (Exception e) {

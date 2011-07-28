@@ -241,6 +241,29 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 
     // find topics in site, but organized by forum
     public List<LessonEntity> getEntitiesInSite() {
+    	
+    List<LessonEntity> ret = new ArrayList<LessonEntity>();
+    
+	// LSNBLDR-21. If the tool is not in the current site we shouldn't query
+	// for topics owned by the tool.
+	Site site = null;
+	try {
+	    site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+	} catch (Exception impossible) {
+	    return null;
+	}
+    	
+    ToolConfiguration tool = site.getToolForCommonId("sakai.forums");
+	
+    if(tool == null) {
+    	
+    	// Forums is not in this site. Move on to the next provider.
+    	
+    	if (nextEntity != null) 
+    		ret.addAll(nextEntity.getEntitiesInSite());
+    	
+    	return ret;
+    }
 
 	//ForumEntity e = new ForumEntity(TYPE_FORUM_TOPIC, 3L, 2);
 
@@ -251,7 +274,6 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	for (DiscussionForum forum: forumManager.getForumsForMainPage())
 	    forums.add(forum);
 
-	List<LessonEntity> ret = new ArrayList<LessonEntity>();
 	// security. assume this is only used in places where it's OK, so skip security checks
 	for (DiscussionForum forum: forums) {
 	    if (!forum.getDraft()) {
@@ -282,10 +304,12 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	String typeString = ref.substring(1, i);
 	String idString = ref.substring(i+1);
 	Long id = 0L;
-	try {
-	    id = Long.parseLong(idString);
-	} catch (Exception ignore) {
-	    return null;
+	if (typeString.equals(FORUM_TOPIC) || typeString.equals(FORUM_FORUM)) {
+		try {
+			id = Long.parseLong(idString);
+		} catch (Exception ignore) {
+			return null;
+		}
 	}
 
 	// note: I'm returning the minimal structures, not those with
@@ -328,6 +352,12 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	    return null;
 	}
 	ToolConfiguration tool = site.getToolForCommonId("sakai.forums");
+	
+	// LSNBLDR-21. If the tool is not in the current site we shouldn't return a url
+	if(tool == null) {
+	    return null;
+	}
+	
 	String placement = tool.getId();
 
 	if (type == TYPE_FORUM_TOPIC)
