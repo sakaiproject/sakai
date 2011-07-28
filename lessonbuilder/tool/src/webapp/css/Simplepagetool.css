@@ -247,10 +247,14 @@ a.edit-movie:link,a.edit-movie:visited{
 	display:none;
 }
 .imgCell {
-	height:14px;
-	width:14px;
+	height:10px;
+	width:10px;
+}
+.studentCell {
+	padding-left:7px;	
 }
 .studentContentTable {
 	border:none;
 	background-color:#e4edff;
+	padding:4px;
 }

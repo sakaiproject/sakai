@@ -29,7 +29,11 @@ $(function() {
 	$(".replaceWithComments").each(function(index) {
 		var pageToRequest = $(this).parent().parent().children(".commentsBlock").attr("href");
 		$(this).load(pageToRequest, commentsLoaded);
-
+		//$.PeriodicalUpdater(pageToRequest, {minTimeout:5000, maxTimeout:120000}, function(data) {
+		//	$(".deleteLink").attr("title", msg("simplepage.comment_delete"));
+		//	$(".editLink").attr("title", msg("simplepage.edit-comment"));
+		//	$(".replaceWithComments").html(data);
+		//});
 	});
 	
 	$("#delete-dialog").dialog({
@@ -110,6 +114,7 @@ function switchEditors(link, show) {
 		$(link).parents(".commentsDiv").find(".cancelButton").hide().val(msg("simplepage.cancel_message"));
 		
 		$(link).parents(".commentsDiv").find(".switchLink").show();
+		$(link).parents(".commentsDiv").find(".comment-edit-id").val("");
 	}
 	
 	if(sakai.editor.editors.ckeditor != undefined) {

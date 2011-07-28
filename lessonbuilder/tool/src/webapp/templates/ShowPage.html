@@ -257,7 +257,7 @@ function resizeiframe(id) {
 									<td class="imgCell"><img src="$context/images/new-page.png" rsf:id="newPageImg" class="imgCell"></img></td>
 									<td class="imgCell"><img src="$context/images/new-content.png" rsf:id="newContentImg" class="imgCell"></img></td>
 									<td rsf:id="commentsImgCell" class="imgCell"><img src="$context/images/new-comments.png" rsf:id="newCommentsImg" class="imgCell"></img></td>
-									<td rsf:id="studentCell"><a href="#" rsf:id="studentLink"></a></td>
+									<td rsf:id="studentCell" class="studentCell"><a href="#" rsf:id="studentLink"></a></td>
 								</tr>
 								
 								<tr rsf:id="linkRow">
@@ -866,8 +866,10 @@ s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 		<span rsf:id="msg=simplepage.delete_comment_confirm" id="delete-comment-confirm"></span>
 	</div>
 	
-	<script type="text/javascript" rsf:id="comments-script" src="$context/js/comments.js"></script>
-	
+	<div rsf:id="comments-script">
+		<script type="text/javascript" src="$context/js/periodicalupdater.js"></script>
+		<script type="text/javascript" src="$context/js/comments.js"></script>
+	</div>
 	<script type="text/javascript" language="JavaScript">
 		spiffyUp();	
 	</script>
