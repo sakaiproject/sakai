@@ -2749,6 +2749,8 @@ public class SiteAction extends PagedResourceActionII {
 			
 			context.put("basedOnTemplate",  state.getAttribute(STATE_TEMPLATE_SITE) != null ? Boolean.TRUE:Boolean.FALSE);
 			
+			context.put("requireAuthorizer", ServerConfigurationService.getString("wsetup.requireAuthorizer", "true").equals("true")?Boolean.TRUE:Boolean.FALSE);
+			
 			return (String) getContext(data).get("template") + TEMPLATE[37];
 		case 42:
 			/*
@@ -5505,6 +5507,7 @@ public class SiteAction extends PagedResourceActionII {
 		User cUser = UserDirectoryService.getCurrentUser();
 		String sendEmailToRequestee = null;
 		StringBuilder buf = new StringBuilder();
+		Boolean requireAuthorizer = ServerConfigurationService.getString("wsetup.requireAuthorizer", "true").equals("true")?Boolean.TRUE:Boolean.FALSE;
 
 		// get the request email from configuration
 		String requestEmail = getSetupRequestEmailAddress();
@@ -5647,8 +5650,10 @@ public class SiteAction extends PagedResourceActionII {
 							content = buf.toString();
 	
 							// send the email
-							EmailService.send(from, to, message_subject, content,
+							if (requireAuthorizer) {
+							  EmailService.send(from, to, message_subject, content,
 									headerTo, replyTo, null);
+							}
 							// revert back the local setting to default
 							
 							rb.setContextLocale(Locale.getDefault());
@@ -5731,8 +5736,10 @@ public class SiteAction extends PagedResourceActionII {
 				}
 			}
 			content = buf.toString();
-			EmailService.send(from, to, message_subject, content, headerTo,
+			if (requireAuthorizer) {
+			  EmailService.send(from, to, message_subject, content, headerTo,
 					replyTo, null);
+			}
 
 			// To the Instructor
 			from = requestEmail;
@@ -5748,8 +5755,10 @@ public class SiteAction extends PagedResourceActionII {
 			buf.append(content);
 			buf.append("\n" + rb.getString("java.wish") + " " + requestEmail);
 			content = buf.toString();
-			EmailService.send(from, to, message_subject, content, headerTo,
+			if (requireAuthorizer) {
+			  EmailService.send(from, to, message_subject, content, headerTo,
 					replyTo, null);
+			}
 			// revert the locale to system default			
 			rb.setContextLocale(Locale.getDefault());
 			state.setAttribute(REQUEST_SENT, Boolean.valueOf(true));
@@ -5793,6 +5802,7 @@ public class SiteAction extends PagedResourceActionII {
 	 */
 	private void sendSiteNotification(SessionState state, Site site, List notifySites) {
 		boolean courseSite = site.getType() != null && site.getType().equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE));
+		Boolean requireAuthorizer = ServerConfigurationService.getString("wsetup.requireAuthorizer", "true").equals("true")?Boolean.TRUE:Boolean.FALSE;
 		
 		// get the request email from configuration
 		String requestEmail = getSetupRequestEmailAddress();
@@ -5865,8 +5875,10 @@ public class SiteAction extends PagedResourceActionII {
 				}
 			}
 			String content = buf.toString();
-			EmailService.send(from, to, message_subject, content, headerTo,
+			if (requireAuthorizer) {
+			  EmailService.send(from, to, message_subject, content, headerTo,
 					replyTo, null);
+			}
 		} // if
 
 		// reset locale to user default
@@ -9523,6 +9535,7 @@ public class SiteAction extends PagedResourceActionII {
 			Site templateSite) {
 		// send an email to track who are using the template
 		String from = getSetupRequestEmailAddress();
+		Boolean requireAuthorizer = ServerConfigurationService.getString("wsetup.requireAuthorizer", "true").equals("true")?Boolean.TRUE:Boolean.FALSE;
  
 		// send it to the email archive of the template site
 		// TODO: need a better way to get the email archive address
@@ -9552,8 +9565,10 @@ public class SiteAction extends PagedResourceActionII {
 			buf.append("Alliance Team\n");
 			String content = buf.toString();
 			
-			EmailService.send(from, to, message_subject, content, headerTo,
+			if (requireAuthorizer) {
+			  EmailService.send(from, to, message_subject, content, headerTo,
 					replyTo, null);
+			}
 		}
 	}
 	

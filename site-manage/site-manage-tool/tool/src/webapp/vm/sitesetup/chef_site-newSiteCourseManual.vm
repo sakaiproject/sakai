@@ -166,11 +166,14 @@
 						<h4>$tlang.getString("man.siteroster")</h4>
 						<p class="instruction">$tlang.getString("man.notverifyfuture1")$!weeksAhead $tlang.getString("man.notverifyfuture2")</p>
 					#else
-						<h4>$tlang.getString("man.siteauth")</h4>
-						<p class="instruction">$tlang.getString("man.notverify")</p>
+					  #if ($requireAuthorizer)
+						  <h4>$tlang.getString("man.siteauth")</h4>
+						  <p class="instruction">$tlang.getString("man.notverify")</p>
+						#end
 					#end
 				</div>
 				#if (!$!isFutureTerm)
+				  #if ($requireAuthorizer)
 					<div class="shorttext required">
 						<span class="reqStar">*</span>						
 						<label for="uniqname">
@@ -190,6 +193,10 @@
 					<p  class="instruction labelindnt">
 						$tlang.getString("man.please")
 					</p>
+					#else 
+					  <input type="hidden" name="uniqname"  value="admin" />
+					  <input type="hidden" name="additional" value="" />
+				  #end
 
 				#end
 			#set ($count = $count + 1)
