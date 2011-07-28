@@ -363,6 +363,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		addAttr(doc, itemElement, "requirementtext", item.getRequirementText());
 		addAttr(doc, itemElement, "nextpage", item.getNextPage() ? "true" : "false");
 		addAttr(doc, itemElement, "format", item.getFormat());
+		addAttr(doc, itemElement, "anonymous", item.isAnonymous() ? "true" : "false");
+		addAttr(doc, itemElement, "showComments", item.getShowComments() ? "true" : "false");
+		addAttr(doc, itemElement, "forcedCommentsAnonymous", item.getForcedCommentsAnonymous() ? "true" : "false");
+		addAttr(doc, itemElement, "groups", item.getGroups());
 		if (item.isSameWindow() != null)
 		    addAttr(doc, itemElement, "samewindow", item.isSameWindow() ? "true" : "false");
 

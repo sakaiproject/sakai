@@ -1779,23 +1779,23 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		//createToolBarLink(QuizPickerProducer.VIEW_ID, toolBar, "add-quiz", "simplepage.quiz", currentPage, "simplepage.quiz");
 		//createToolBarLink(ForumPickerProducer.VIEW_ID, toolBar, "add-forum", "simplepage.forum", currentPage, "simplepage.forum");
 		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar, "add-multimedia", "simplepage.multimedia", true, false, currentPage, "simplepage.multimedia.tooltip");
-		
-		// Q: Are we running a kernel with KNL-273?
-		Class contentHostingInterface = ContentHostingService.class;
-		try {
-			Method expandMethod = contentHostingInterface.getMethod("expandZippedResource", new Class[] { String.class });
-			createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar, "add-website", "simplepage.website", false, true, currentPage, "simplepage.website.tooltip");
-		} catch (NoSuchMethodException nsme) {
-			// A: No
-		} catch (Exception e) {
-			// A: Not sure
-			log.warn("SecurityException thrown by expandZippedResource method lookup", e);
-		}
 
 		UILink.make(toolBar, "help", messageLocator.getMessage("simplepage.help"), getLocalizedURL("general.html"));
 
 		// Don't show these tools on a student page.
 		if(currentPage.getOwner() == null) {
+			// Q: Are we running a kernel with KNL-273?
+			Class contentHostingInterface = ContentHostingService.class;
+			try {
+				Method expandMethod = contentHostingInterface.getMethod("expandZippedResource", new Class[] { String.class });
+				createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar, "add-website", "simplepage.website", false, true, currentPage, "simplepage.website.tooltip");
+			} catch (NoSuchMethodException nsme) {
+				// A: No
+			} catch (Exception e) {
+				// A: Not sure
+				log.warn("SecurityException thrown by expandZippedResource method lookup", e);
+			}
+			
 			createToolBarLink(AssignmentPickerProducer.VIEW_ID, toolBar, "add-assignment", "simplepage.assignment", currentPage, "simplepage.assignment");
 			
 			createToolBarLink(QuizPickerProducer.VIEW_ID, toolBar, "add-quiz", "simplepage.quiz", currentPage, "simplepage.quiz");
@@ -1844,7 +1844,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		togo.add(new NavigationCase("cancel", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
 		togo.add(new NavigationCase("failure", new SimpleViewParameters(ReloadPageProducer.VIEW_ID)));
 		togo.add(new NavigationCase("reload", new SimpleViewParameters(ReloadPageProducer.VIEW_ID)));
-
+		togo.add(new NavigationCase("removed", new SimpleViewParameters(RemovePageProducer.VIEW_ID)));
+		
 		return togo;
 	}
 

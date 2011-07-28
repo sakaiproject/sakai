@@ -1819,7 +1819,7 @@ public class SimplePageBean {
 			}
 		
 			EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.remove", "/lessonbuilder/page/" + page.getPageId(), true));
-			return "success";
+			return "removed";
 		}else {
 			SimpleStudentPage studentPage = simplePageToolDao.findStudentPageByPageId(page.getPageId());
 			
@@ -4267,14 +4267,14 @@ public class SimplePageBean {
 		
 		if(page == null && containerItem != null && containerItem.getType() == SimplePageItem.STUDENT_CONTENT && canReadPage()) {
 			// First create object in lesson_builder_pages.
-			SimplePage newPage = simplePageToolDao.makePage(curr.getToolId(), curr.getSiteId(),messageLocator.getMessage("simplepage.student-content-page"),
+			SimplePage newPage = simplePageToolDao.makePage(curr.getToolId(), curr.getSiteId(),user.getDisplayName(),
 					curr.getPageId(), null);
 			newPage.setOwner(user.getId());
 			newPage.setGroupOwned(false);
 			saveItem(newPage, false);
 			
 			// Then attach the lesson_builder_student_pages item.
-			page = simplePageToolDao.makeStudentPage(itemId, newPage.getPageId(), messageLocator.getMessage("simplepage.student-content-page"), user.getId(), false);
+			page = simplePageToolDao.makeStudentPage(itemId, newPage.getPageId(), user.getDisplayName(), user.getId(), false);
 			
 			SimplePageItem commentsItem = simplePageToolDao.makeItem(-1, -1, SimplePageItem.COMMENTS, null, messageLocator.getMessage("simplepage.comments-section"));
 			saveItem(commentsItem, false);

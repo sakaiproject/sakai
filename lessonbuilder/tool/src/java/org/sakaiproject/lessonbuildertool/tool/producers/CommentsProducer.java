@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
@@ -137,9 +138,11 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 			UIOutput.make(tofill, "highlightScript");
 		}
 		
-		if(anonymous && canEditPage && comments.size() > 0) {
+		if(anonymous && canEditPage && comments.size() > 0 && simplePageBean.getLogEntry(params.itemId) == null) {
 			// Tells the admin that they can see the names, but everyone else can't
 			UIOutput.make(tofill, "anonymousAlert");
+			SimplePageLogEntry log = simplePageToolDao.makeLogEntry(currentUserId, params.itemId, null);
+			simplePageBean.saveItem(log);
 		}else if(editable && simplePageBean.getEditPrivs() != 0) {
 			// Warns user that they only have 30 mins to edit.
 			UIOutput.make(tofill, "editAlert");
