@@ -26,6 +26,7 @@ import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.model.MeetingTypes;
@@ -144,14 +145,12 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 
 	/* get the site name */
 	protected String getSiteTitle() {
-		String title = getSakaiFacade().getLocationTitle(getSiteId());
-		title +=getShortDescription(getSiteId());
-		return title;
+		return getSakaiFacade().getLocationTitle(getSiteId());
 	}
 
 	/* get the site name */
 	protected String getSiteTitle(String targetSiteId) {
-		return getSakaiFacade().getLocationTitle(targetSiteId) + getShortDescription(targetSiteId);
+		return getSakaiFacade().getLocationTitle(targetSiteId);
 	}
 	
 	/* get the site name */
@@ -211,11 +210,7 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 	 * @return a string with a first capital letter
 	 */
 	protected String makeFirstCapLetter(String st) {
-		String temp = "";
-		if (st != null && st.length() > 0)
-			temp = st.substring(0, 1).toUpperCase() + st.substring(1);
-
-		return temp;
+		return StringUtils.capitalize(st);
 	}
 
 	static private String myServiceName = null;
@@ -240,23 +235,6 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 
 	}
 	
-	private String getShortDescription(String siteId)
-    {
-		Site site;
-		try {
-			site = SiteService.getSite(siteId);
-		} catch (IdUnusedException e) {
-			return "";
-		}
-        String shortDescription = "";
-        if (site.getShortDescription() != null && !"".equals(site.getShortDescription()))
-        {
-            shortDescription = site.getShortDescription();
-            if (shortDescription.length() > SITE_DESCRIPTION_DISPLAY_LENGTH) shortDescription = shortDescription.substring(0, 20);
-            shortDescription = ": " + shortDescription;
-        }
-        return shortDescription;
-    }
 	
 	protected String getRepeatTypeMessage(SignupMeeting meeting){
 		String recurFrqs ="";
