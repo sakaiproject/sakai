@@ -2,15 +2,18 @@
 package org.sakaiproject.assignment.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.sakaiproject.assignment.api.Assignment;
+import org.sakaiproject.assignment.api.AssignmentContent;
 import org.sakaiproject.assignment.api.AssignmentEntityProvider;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
+import org.sakaiproject.assignment.api.Assignment.AssignmentAccess;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -27,6 +30,9 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEnt
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.PropertyProvideable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
+import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.exception.IdUnusedException;
@@ -34,17 +40,363 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 
 public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, CoreEntityProvider,
-        Resolvable, ActionsExecutable, Describeable, AutoRegisterEntityProvider, PropertyProvideable {
+        Resolvable, ActionsExecutable, Describeable, AutoRegisterEntityProvider, PropertyProvideable, Outputable, Inputable {
 
+	public class SimpleAssignment {
+		/**
+		 * the AssignmentContent of this Assignment.
+		 */
+		private AssignmentContent content;
+
+		/**
+		 * the reference of the AssignmentContent of this Assignment.
+		 */
+		private String contentReference;
+
+		/**
+		 * the first time at which the assignment can be viewed; may be null.
+		 */
+		private Time openTime;
+
+		/**
+		 * the first time at which the assignment can be viewed; (String)
+		 */
+		private String openTimeString;
+
+		/**
+		 * the time at which the assignment is due; may be null.
+		 */
+		private Time dueTime;
+
+		/**
+		 * the time at which the assignment is due; (String)
+		 */
+		private String dueTimeString;
+
+		/**
+		 * the drop dead time after which responses to this assignment are considered late; may be null.
+		 */
+		private Time dropDeadTime;
+
+		/**
+		 * the drop dead time after which responses to this assignment are considered late; (String)
+		 */
+		private String dropDeadTimeString;
+
+		/**
+		 * the close time after which this assignment can no longer be viewed, and after which submissions will not be accepted. May be null.
+		 */
+		private Time closeTime;
+
+		/**
+		 * the close time after which this assignment can no longer be viewed, and after which submissions will not be accepted. (String)
+		 */
+		private String closeTimeString;
+
+		/**
+		 * the section info.
+		 */
+		private String section;
+
+		/**
+		 * the context at the time of creation.
+		 */
+		private String context;
+
+		/**
+		 * Get whether this is a draft or final copy.
+		 */
+		private boolean draft;
+
+		/**
+		 * the creator of this object.
+		 */
+		private String creator;
+
+		/**
+		 * the time that this object was created.
+		 */
+		private Time timeCreated;
+
+		/**
+		 * the list of authors.
+		 */
+		private List authors;
+
+		/**
+		 * the time of last modificaiton.
+		 */
+		private Time timeLastModified;
+
+		/**
+		 * the author of last modification
+		 */
+		private String authorLastModified;
+
+		/**
+		 * the title
+		 */
+		private String title;
+		
+		/**
+		 * Return string representation of assignment status
+		 */
+		private String status;
+		
+		/**
+		 * the position order field for the assignment.
+	     */
+	    private int position_order;
+
+		/**
+		 * 
+		 * the groups defined for this assignment.
+		 */
+		private Collection groups;
+
+		/**
+		 * the access mode for the assignment - how we compute who has access to the assignment.
+		 */
+		private AssignmentAccess access;
+		
+		
+
+		public SimpleAssignment() {
+		}
+
+		public SimpleAssignment(Assignment a) {
+			super();
+			this.content = a.getContent();
+			this.contentReference = a.getContentReference();
+			this.openTime = a.getOpenTime();
+			this.openTimeString = a.getOpenTimeString();
+			this.dueTime = a.getDueTime();
+			this.dueTimeString = a.getDueTimeString();
+			this.dropDeadTime = a.getDropDeadTime();
+			this.dropDeadTimeString = a.getDropDeadTimeString();
+			this.closeTime = a.getCloseTime();
+			this.closeTimeString = a.getCloseTimeString();
+			this.section = a.getSection();
+			this.context = a.getContext();
+			this.draft = a.getDraft();
+			this.creator = a.getCreator();
+			this.timeCreated = a.getTimeCreated();
+			this.authors = a.getAuthors();
+			this.timeLastModified = a.getTimeLastModified();
+			this.authorLastModified = a.getAuthorLastModified();
+			this.title = a.getTitle();
+			this.status = a.getStatus();
+			this.position_order = a.getPosition_order();
+			this.groups = a.getGroups();
+			this.access = a.getAccess();
+		}
+
+		public AssignmentContent getContent() {
+			return content;
+		}
+
+		public void setContent(AssignmentContent content) {
+			this.content = content;
+		}
+
+		public String getContentReference() {
+			return contentReference;
+		}
+
+		public void setContentReference(String contentReference) {
+			this.contentReference = contentReference;
+		}
+
+		public Time getOpenTime() {
+			return openTime;
+		}
+
+		public void setOpenTime(Time openTime) {
+			this.openTime = openTime;
+		}
+
+		public String getOpenTimeString() {
+			return openTimeString;
+		}
+
+		public void setOpenTimeString(String openTimeString) {
+			this.openTimeString = openTimeString;
+		}
+
+		public Time getDueTime() {
+			return dueTime;
+		}
+
+		public void setDueTime(Time dueTime) {
+			this.dueTime = dueTime;
+		}
+
+		public String getDueTimeString() {
+			return dueTimeString;
+		}
+
+		public void setDueTimeString(String dueTimeString) {
+			this.dueTimeString = dueTimeString;
+		}
+
+		public Time getDropDeadTime() {
+			return dropDeadTime;
+		}
+
+		public void setDropDeadTime(Time dropDeadTime) {
+			this.dropDeadTime = dropDeadTime;
+		}
+
+		public String getDropDeadTimeString() {
+			return dropDeadTimeString;
+		}
+
+		public void setDropDeadTimeString(String dropDeadTimeString) {
+			this.dropDeadTimeString = dropDeadTimeString;
+		}
+
+		public Time getCloseTime() {
+			return closeTime;
+		}
+
+		public void setCloseTime(Time closeTime) {
+			this.closeTime = closeTime;
+		}
+
+		public String getCloseTimeString() {
+			return closeTimeString;
+		}
+
+		public void setCloseTimeString(String closeTimeString) {
+			this.closeTimeString = closeTimeString;
+		}
+
+		public String getSection() {
+			return section;
+		}
+
+		public void setSection(String section) {
+			this.section = section;
+		}
+
+		public String getContext() {
+			return context;
+		}
+
+		public void setContext(String context) {
+			this.context = context;
+		}
+
+		public boolean isDraft() {
+			return draft;
+		}
+
+		public void setDraft(boolean draft) {
+			this.draft = draft;
+		}
+
+		public String getCreator() {
+			return creator;
+		}
+
+		public void setCreator(String creator) {
+			this.creator = creator;
+		}
+
+		public Time getTimeCreated() {
+			return timeCreated;
+		}
+
+		public void setTimeCreated(Time timeCreated) {
+			this.timeCreated = timeCreated;
+		}
+
+		public List getAuthors() {
+			return authors;
+		}
+
+		public void setAuthors(List authors) {
+			this.authors = authors;
+		}
+
+		public Time getTimeLastModified() {
+			return timeLastModified;
+		}
+
+		public void setTimeLastModified(Time timeLastModified) {
+			this.timeLastModified = timeLastModified;
+		}
+
+		public String getAuthorLastModified() {
+			return authorLastModified;
+		}
+
+		public void setAuthorLastModified(String authorLastModified) {
+			this.authorLastModified = authorLastModified;
+		}
+
+		public String getTitle() {
+			return title;
+		}
+
+		public void setTitle(String title) {
+			this.title = title;
+		}
+
+		public String getStatus() {
+			return status;
+		}
+
+		public void setStatus(String status) {
+			this.status = status;
+		}
+
+		public int getPosition_order() {
+			return position_order;
+		}
+
+		public void setPosition_order(int position_order) {
+			this.position_order = position_order;
+		}
+
+		public Collection getGroups() {
+			return groups;
+		}
+
+		public void setGroups(Collection groups) {
+			this.groups = groups;
+		}
+
+		public AssignmentAccess getAccess() {
+			return access;
+		}
+
+		public void setAccess(AssignmentAccess access) {
+			this.access = access;
+		}
+	}
     private AssignmentService assignmentService;
     private EntityBroker entityBroker;
     private SecurityService securityService;
     private SessionManager sessionManager;
     private SiteService siteService;
+    
+	public String[] getHandledOutputFormats() {
+		return new String[] { Formats.HTML, Formats.XML, Formats.JSON, Formats.FORM };
+	}
+
+	public String[] getHandledInputFormats() {
+		return new String[] { Formats.HTML, Formats.XML, Formats.JSON, Formats.FORM };
+	}
+	
+	public Object getSampleEntity() {
+		return new SimpleAssignment();
+	}
 
     /* (non-Javadoc)
      * @see org.sakaiproject.entitybroker.entityprovider.EntityProvider#getEntityPrefix()
