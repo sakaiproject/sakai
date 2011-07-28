@@ -4522,13 +4522,6 @@ public class DiscussionForumTool
 			}
 		}
 		String currentBody = getComposeBody();
-		String revisedInfo = "<p class=\"lastRevise textPanelFooter\">" + getResourceBundleString(LAST_REVISE_BY);
-
-		revisedInfo += getUserNameOrEid();
-
-		revisedInfo  += " " + getResourceBundleString(LAST_REVISE_ON);
-		Date now = new Date();
-		revisedInfo += now.toString() + " </p> ";
 
 		/*    if(currentBody != null && currentBody.length()>0 && currentBody.startsWith("Last Revised By "))
     {
@@ -4537,12 +4530,20 @@ public class DiscussionForumTool
     		currentBody = currentBody.substring(currentBody.lastIndexOf(" <br/> ") + 7);
     	}
     }*/
-
-		revisedInfo = revisedInfo.concat(currentBody);
+		// optionally include the revision history. by default, revision history is included
+		boolean showRevisionHistory = ServerConfigurationService.getBoolean("msgcntr.forums.showRevisionHistory",true);
+		if (showRevisionHistory) {
+		    String revisedInfo = "<p class=\"lastRevise textPanelFooter\">" + getResourceBundleString(LAST_REVISE_BY);
+	        revisedInfo += getUserNameOrEid();
+	        revisedInfo  += " " + getResourceBundleString(LAST_REVISE_ON);
+	        Date now = new Date();
+	        revisedInfo += now.toString() + " </p> ";
+	        currentBody = revisedInfo.concat(currentBody);
+		} 
 
 		StringBuilder alertMsg = new StringBuilder();
 		dMsg.setTitle(FormattedText.processFormattedText(getComposeTitle(), alertMsg));
-		dMsg.setBody(FormattedText.processFormattedText(revisedInfo, alertMsg));
+		dMsg.setBody(FormattedText.processFormattedText(currentBody, alertMsg));
 		dMsg.setDraft(Boolean.FALSE);
 		dMsg.setModified(new Date());
 
@@ -4664,17 +4665,20 @@ public class DiscussionForumTool
 			  }
 		  }
 		  String currentBody = getComposeBody();
-		  String revisedInfo = getResourceBundleString(LAST_REVISE_BY);
+		    
+		  // optionally display the revision history. by default, revision history is included
+		  boolean showRevisionHistory = ServerConfigurationService.getBoolean("msgcntr.forums.showRevisionHistory",true);
+		  if (showRevisionHistory){
+		      String revisedInfo = getResourceBundleString(LAST_REVISE_BY);
+	          revisedInfo += getUserNameOrEid();
+	          revisedInfo += " " + getResourceBundleString(LAST_REVISE_ON);
+	          Date now = new Date();
+	          revisedInfo += now.toString() + " <br/> ";
+		      currentBody = revisedInfo.concat(currentBody);
+		  }
 
-		  revisedInfo += getUserNameOrEid();
-
-		  revisedInfo += " " + getResourceBundleString(LAST_REVISE_ON);
-		  Date now = new Date();
-		  revisedInfo += now.toString() + " <br/> ";    
-		  revisedInfo = revisedInfo.concat(currentBody);
-
+		  dMsg.setBody(currentBody);
 		  dMsg.setTitle(getComposeTitle());
-		  dMsg.setBody(revisedInfo);
 		  dMsg.setDraft(Boolean.TRUE);
 		  dMsg.setModified(new Date());
 
