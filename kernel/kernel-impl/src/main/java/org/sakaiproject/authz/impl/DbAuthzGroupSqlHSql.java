@@ -29,6 +29,7 @@ public class DbAuthzGroupSqlHSql extends DbAuthzGroupSqlDefault
 	// HSQL does not support SELECT FOR UPDATE, so we need to do an ordinary select here.
 	// This means that maximum size limits on groups may not be reliably enforced using HSQL.
 	
+	@Override
 	public String getSelectRealmUpdate()
 	{
 		return "select REALM_KEY from SAKAI_REALM where REALM_ID = ?";

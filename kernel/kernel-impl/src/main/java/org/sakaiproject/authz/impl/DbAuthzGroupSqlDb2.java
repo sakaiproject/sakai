@@ -26,16 +26,19 @@ package org.sakaiproject.authz.impl;
  */
 public class DbAuthzGroupSqlDb2 extends DbAuthzGroupSqlDefault
 {
+   @Override
    public String getInsertRealmFunctionSql()
    {
       return "insert into SAKAI_REALM_FUNCTION (FUNCTION_NAME) values (?)";
    }
 
+   @Override
    public String getInsertRealmRoleSql()
    {
       return "insert into SAKAI_REALM_ROLE (ROLE_NAME) values(?)";
    }
 
+   @Override
    public String getCountRealmRoleFunctionSql(String anonymousRole, String authorizationRole, boolean authorized)
       {
          return "select count(1) " + "from   SAKAI_REALM_RL_FN MAINTABLE "
