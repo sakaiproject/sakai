@@ -13,6 +13,7 @@
             <includes>
                 <include>org.sakaiproject.lessonbuilder:sakai-lessonbuildertool-api:jar:*</include>
                 <include>org.sakaiproject.lessonbuilder:sakai-lessonbuildertool-help:jar:*</include>
+		<include>org.sakaiproject.lessonbuilder:sakai-lessonbuildertool-hbm:jar:*</include>
             </includes>
             <unpack>false</unpack>
         </dependencySet>
