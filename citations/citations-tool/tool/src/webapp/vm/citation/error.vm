@@ -19,6 +19,7 @@
 			<p class="act">
 				<input type="button" name="Cancel" id="Cancel" value="$tlang.getString("cancel.error")" onclick="closePopup();" />
 			</p>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
 		<div id="scratch_space">
 		</div>
