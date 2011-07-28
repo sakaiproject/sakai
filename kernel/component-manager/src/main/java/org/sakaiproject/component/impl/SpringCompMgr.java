@@ -110,7 +110,10 @@ public class SpringCompMgr implements ComponentManager {
 	/**
 	 * Initialize the component manager.
 	 * 
-	 * @param lateRefresh
+	 * @param lateRefresh If <code>true</code> then don't refresh the application context
+	 * but leave it up to the caller, this is useful when running tests as it means you 
+	 * can change the application context before everything gets setup. In production 
+	 * systems it should be <code>false</code>.
 	 */
 	public void init(boolean lateRefresh) {
 		if (m_ac != null)
