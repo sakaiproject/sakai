@@ -22,6 +22,7 @@
 package org.sakaiproject.util.foorm;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Properties;
 
@@ -97,6 +98,24 @@ public class Foorm {
       }
     }
     return null;
+  }
+
+  /**
+   * 
+   * @param o
+   * @return
+   */
+  public static int getInt(Object o) {
+    if (o instanceof String) {
+      try {
+        return (new Integer((String) o)).intValue();
+      } catch (Exception e) {
+        return -1;
+      }
+    }
+    if (o instanceof Number)
+      return ((Number) o).intValue();
+    return -1;
   }
 
   // Abstract this away for testing purposes
@@ -258,12 +277,12 @@ public class Foorm {
     sb.append("<p id=\"");
     sb.append(field);
     sb.append(".input\" class=\"shorttext\" style=\"clear:all;\">");
-    if (label != null && required) {
+    if (label != null && required ) {
       sb.append("<span class=\"reqStar\" title=\"");
       sb.append(getI18N(label, loader));
       sb.append("\">*</span>");
     }
-    if (label != null) {
+    if (label != null && ( ! "checkbox".equals(type) ) ) {
       sb.append("<label for=\"");
       sb.append(field);
       sb.append("\">");
@@ -436,6 +455,49 @@ public class Foorm {
    * @param field
    * @param label
    * @param required
+   * @param loader
+   * @return
+   */
+  public String formInputCheckbox(Object value, String field, String label,
+      boolean required, Object loader) {
+    StringBuffer sb = new StringBuffer();
+    formInputStart(sb, field, "checkbox", label, required, loader);
+    int val = getInt(value);
+    String checked = "";
+    if (val == 1) checked = " checked=\"checked\"";
+    sb.append("<input type=\"checkbox\" name=\"");
+    sb.append(field);
+    sb.append("\" value=\"1\" id=\"");
+    sb.append(field + "\"");
+    sb.append(checked);
+    sb.append("/>");
+    sb.append(getI18N(label, loader));
+    sb.append("<br/>\n");
+    formInputEnd(sb, field, label, required, loader);
+    return sb.toString();
+  }
+
+  /**
+   * 
+   * @param field
+   * @param label
+   * @param loader
+   * @return
+   */
+  public String formInputHeader(String field, String label, Object loader) {
+    StringBuffer sb = new StringBuffer();
+    sb.append("<h4>");
+    sb.append(getI18N(label, loader));
+    sb.append("</h4>\n");
+    return sb.toString();
+  }
+
+  /**
+   * 
+   * @param value
+   * @param field
+   * @param label
+   * @param required
    * @param size
    * @param loader
    * @return
@@ -523,6 +585,9 @@ public class Foorm {
       return formInputTextArea((String) value, field, label, required, rows, cols, loader);
     if ("autodate".equals(type))
       return "";
+    if ("checkbox".equals(type)) {
+      return formInputCheckbox(value, field, label, required, loader);
+    }
     if ("radio".equals(type)) {
       String choices = info.getProperty("choices", null);
       if (choices == null)
@@ -532,6 +597,8 @@ public class Foorm {
         return "\n<!-- Foorm.formInput() requires choices=on,off,part -->\n";
       return formInputRadio(value, field, label, required, choiceList, loader);
     }
+    if ("header".equals(type))
+      return formInputHeader(field, label, loader);
     return "\n<!-- Foorm.formInput() unrecognized type " + type + " field=" + field
         + " -->\n";
   }
@@ -597,10 +664,33 @@ public class Foorm {
    */
   public String formInput(Object row, String[] formDefinition, Object loader) {
     StringBuffer sb = new StringBuffer();
+    String header = null;
+    String fieldList[] = null;
     for (String formInput : formDefinition) {
       String tmp = formInput(row, formInput, loader);
       if (tmp.length() < 1)
         continue;
+      Properties info = parseFormString(formInput);
+      String type = info.getProperty("type", null);
+      String field = info.getProperty("field", null);
+
+      if ( "header".equals(type) ) { 
+        String fields = info.getProperty("fields", "");
+
+        fieldList = fields.split(",");
+        if (fieldList.length > 1) {
+          header = tmp;
+          continue;
+        }
+      }
+
+      if ( header != null && Arrays.asList(fieldList).contains(field) ) {
+          sb.append(header);
+          sb.append("\n");
+          header = null;
+          fieldList = null;
+      }
+
       sb.append(tmp);
       sb.append("\n");
     }
@@ -702,6 +792,21 @@ public class Foorm {
    * @param loader
    * @return
    */
+  public String formOutputCheckbox(Long value, String field, String label, 
+      Object loader) {
+    int val = getInt(value);
+    String str = getI18N(label, loader);
+    if ( val != 1 ) str = "(Off) " + str;
+    return formOutputText(str, field, label, loader);
+  }
+  /**
+   * 
+   * @param value
+   * @param field
+   * @param label
+   * @param loader
+   * @return
+   */
   public String formOutputURL(String value, String field, String label, Object loader) {
     return formOutputText(value, field, label, loader);
   }
@@ -770,6 +875,9 @@ public class Foorm {
       return formOutputId((String) value, field, label, loader);
     if ("textarea".equals(type))
       return formOutputTextArea((String) value, field, label, loader);
+    if ("checkbox".equals(type)) {
+      return formOutputCheckbox(getLongNull(value), field, label, loader);
+    }
     if ("radio".equals(type)) {
       String choices = info.getProperty("choices", null);
       if (choices == null)
@@ -831,6 +939,7 @@ public class Foorm {
         throw new IllegalArgumentException(
             "All model elements must include field name and type");
       }
+      if ( "header".equals(type) ) continue;
       String label = info.getProperty("label", field);
 
       // For update, we don't worry about fields that are not set
@@ -879,7 +988,7 @@ public class Foorm {
         }
       }
 
-      if ("integer".equals(type) || "radio".equals(type)) {
+      if ("integer".equals(type) || "radio".equals(type) || "checkbox".equals(type) ) {
         if (dataField == null) {
           if (dataMap != null)
             dataMap.put(field, null);
@@ -978,10 +1087,13 @@ public class Foorm {
     for (String line : fieldinfo) {
       Properties info = parseFormString(line);
       String field = info.getProperty("field");
-      if (field == null) {
+      String type = info.getProperty("type");
+      if (field == null || type == null) {
         throw new IllegalArgumentException(
             "All model elements must include field name and type");
       }
+      if ( "header".equals(type) ) continue;
+
       if (fields.length() > 0) {
         fields.append(", ");
       }
@@ -1101,7 +1213,7 @@ public class Foorm {
         throw new IllegalArgumentException(
             "All model elements must include field name and type");
       }
-      if ("radio".equals(type)) {
+      if ("radio".equals(type) || "checkbox".equals(type) ) {
         // Field = Always Off (0), Always On (1), or Delegate(2)
         Object value = getField(controlRow, field);
         if (value != null && !(value instanceof Integer))
@@ -1128,6 +1240,7 @@ public class Foorm {
     Properties info = parseFormString(fieldinfo);
     String field = info.getProperty("field", null);
     String type = info.getProperty("type", null);
+    if ( "header".equals(type) ) return null;
     String maxs = info.getProperty("maxlength", null);
     int maxlength = 0;
     if (maxs != null)
@@ -1179,7 +1292,7 @@ public class Foorm {
           schema = "TEXT(" + maxlength + ")";
         }
       }
-    } else if ("radio".equals(type)) {
+    } else if ("radio".equals(type) || "checkbox".equals(type) ) {
       if ("oracle".equals(vendor)) {
         schema = "NUMBER(1) DEFAULT '0'";
       } else {
@@ -1228,7 +1341,6 @@ public class Foorm {
           + keySpec + "\n)\n");
     }
     return rv.toArray(new String[rv.size()]);
-
   }
 
   /**

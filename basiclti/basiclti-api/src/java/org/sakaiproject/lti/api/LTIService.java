@@ -292,22 +292,26 @@ public interface LTIService {
    * Model Descriptions for Foorm You should probably retrieve these through getters in
    * case there is some filtering in the service based on role/permission
    */
-  static String[] CONTENT_MODEL = { "id:key", "tool_id:integer:hidden=true",
+  static String[] CONTENT_MODEL = { 
+      "id:key", 
+       "tool_id:integer:hidden=true",
       "SITE_ID:text:maxlength=99:label=bl_content_site_id:role=admin",
       "title:text:label=bl_content_title:required=true:maxlength=255",
       "description:textarea:label=bl_description:rows=2:cols=25:maxlength=4096:",
       "frameheight:integer:label=bl_frameheight",
-      "newpage:radio:label=bl_newpage:choices=off,on",
-      "debug:radio:label=bl_debug:choices=off,on",
+      "newpage:checkbox:label=bl_newpage",
+      "debug:checkbox:label=bl_debug",
       "custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=1024",
       "launch:url:hidden=true:maxlength=255",
-      "xmlimport:text:hidden=true:maxlength=16384", "created_at:autodate",
+      "xmlimport:text:hidden=true:maxlength=16384", 
+      "created_at:autodate",
       "updated_at:autodate" };
 
   /**
    * 
    */
-  static String[] TOOL_MODEL = { "id:key",
+  static String[] TOOL_MODEL = { 
+      "id:key",
       "title:text:label=bl_title:required=true:maxlength=255",
       "description:textarea:label=bl_description:rows=2:cols=25:maxlength=4096:",
       "status:radio:label=bl_status:choices=enable,disable",
@@ -315,16 +319,14 @@ public interface LTIService {
       "consumerkey:text:label=bl_consumerkey:required=true:maxlength=255",
       "secret:text:required=true:label=bl_secret:maxlength=255",
       "SITE_ID:text:maxlength=99:role=admin", "frameheight:integer:label=bl_frameheight",
-      "allowframeheight:radio:label=bl_allowframeheight:choices=off,on",
+      "allowframeheight:checkbox:label=bl_allowframeheight",
+      "privacy:header:fields=sendname,sendemailaddr",
+      "sendname:checkbox:label=bl_sendname",
+      "sendemailaddr:checkbox:label=bl_sendemailaddr",
       "newpage:radio:label=bl_newpage:choices=off,on,content",
       "debug:radio:label=bl_debug:choices=off,on,content",
-      "sendname:radio:label=bl_sendname:choices=off,on",
-      "sendemailaddr:radio:label=bl_sendemailaddr:choices=off,on",
-      "allowcustom:radio:label=bl_allowcustom:choices=off,on",
       "custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=1024",
-      "organizationid:text:label=bl_organizationid:maxlength=255",
-      "organizationurl:text:label=bl_organizationurl:maxlength=255",
-      "organizationdescr:text:label=bl_organizationdescr:maxlength=255",
+      "allowcustom:checkbox:label=bl_allowcustom",
       "created_at:autodate", "updated_at:autodate" };
 
   /**

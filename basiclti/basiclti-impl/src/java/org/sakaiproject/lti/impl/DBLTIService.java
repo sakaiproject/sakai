@@ -575,7 +575,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
       if (pagedStatement != null)
         statement = pagedStatement;
     }
-    System.out.println("statement = " + statement);
+    // System.out.println("statement = " + statement);
     return getResultSet(statement, fields, columns);
   }
 
