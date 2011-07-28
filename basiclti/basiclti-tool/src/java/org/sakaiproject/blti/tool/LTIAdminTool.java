@@ -546,7 +546,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
                         }
 
 			if ( key == null ) {
-	                        key = new Long((Integer)content.get("tool_id"));
+	                        key = foorm.getLongNull(content.get("tool_id"));
 			}
                         previousData = content;
                 }
@@ -761,7 +761,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
                         context.put("preOutput",sb.toString());
                         return "lti_test";
                 } else {
-                        contentKey = (Long) result;
+                        contentKey = foorm.getLong(result);
                         sb.append("Returned key=");
                         sb.append(contentKey.toString() );
                         sb.append("\n");

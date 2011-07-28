@@ -623,6 +623,9 @@ public class DBLTIService extends BaseLTIService implements LTIService {
       fields[0] = key;
     }
 
+    // TODO: Once KNL-775 is safely in
+    // return m_sql.dbWriteCount(statement, fields, null, null, false) == 1;
+
     return jdbcTemplate.update(statement, fields) == 1;
   }
 
@@ -676,8 +679,12 @@ public class DBLTIService extends BaseLTIService implements LTIService {
     Object[] fields = foorm.getUpdateObjects(newMapping);
     // System.out.println("Fields="+Arrays.toString(fields));
 
+    // TODO: Once KNL-775 is safely in
+    // int count = m_sql.dbWriteCount(sql, fields, null, null, false);
+
     int count = jdbcTemplate.update(sql, fields);
-    // System.out.println("Count = "+count);
+
+    System.out.println("Count = "+count);
     return count == 1;
   }
 
