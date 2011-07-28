@@ -7,7 +7,7 @@
 	<form action="#toolForm("")" method="post" name="customizeForm" >
 #if ($tools && $tools.size() > 0)
    <select id="tool_id" name="tool_id" onchange="customizeForm.submit();">
-      <option value="--none--">&nbsp;</option>
+      <option value="--none--">$tlang.getString("content.select.tool")</option>
 	#foreach ($tool in $tools)
 		#set( $selected = "" )
 		#if ( $tool_id && $tool_id == $tool.get("id") ) 
@@ -16,6 +16,9 @@
                <option value="$tool.get("id")" $selected >$tool.get("title")</option>
 	#end
    </select>
+   #if ( $tool_description ) 
+   <p>$tool_description</p>
+   #end
 #else
 <p>No Tools Available</p>
 #end

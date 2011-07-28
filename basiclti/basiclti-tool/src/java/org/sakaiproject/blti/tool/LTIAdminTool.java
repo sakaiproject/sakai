@@ -525,6 +525,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		if ( toolId == null ) toolId = stateToolId;
 		Long key = null;
 		if ( toolId != null ) key = new Long(toolId);
+                Map<String,Object> tool = null;
+		if ( key != null ) {
+			tool = ltiService.getTool(key);
+			if ( tool == null ) {
+				addAlert(state, rb.getString("error.tool.not.found"));
+				return "lti_content_insert";
+			}
+		}
 
 		String contentId = data.getParameters().getString("id");
 		if ( contentId == null ) contentId = (String) state.getAttribute(STATE_CONTENT_ID);
@@ -561,6 +569,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		context.put("formInput",formInput);
                 context.put("tool_id",key);
+		if ( tool != null ) context.put("tool_description", tool.get("description"));
 		return "lti_content_insert";
 	}
 
