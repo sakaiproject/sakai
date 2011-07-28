@@ -105,9 +105,18 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 		    }
 		}
 
+
+		//errorMessage=&id=&title=&source=&backPath=&sendingPage=92&path=&clearAttr=&recheck=&itemId=-1&returnView=
+
 		Long itemId = ((GeneralViewParameters) viewparams).getItemId();
 
 		simplePageBean.setItemId(itemId);
+
+		// here is a URL to return to this page
+		System.out.println("/portal/tool/" + ToolManager.getCurrentPlacement().getId() + "/BltiPicker?" +
+				   ((GeneralViewParameters) viewparams).getSendingPage() + "&itemId=" + itemId);
+		// here is a URL to return to the main lesson builder page
+		System.out.println("/portal/tool/" + ToolManager.getCurrentPlacement().getId() + "/ShowPage?");
 
 		if (simplePageBean.canEditPage()) {
 
