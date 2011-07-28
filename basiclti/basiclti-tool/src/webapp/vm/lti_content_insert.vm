@@ -6,8 +6,13 @@
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<form action="#toolForm("")" method="post" name="customizeForm" >
 #if ($tools && $tools.size() > 0)
+        <p style="clear:all;">
+            <label for="tool_id" style="display:block;float:none;">
+                <span style="color:#903;font-weight:bold" title="Tool Title">*</span>
+		$tlang.getString("content.select.tool")
+            </label>
    <select id="tool_id" name="tool_id" onchange="customizeForm.submit();">
-      <option value="--none--">$tlang.getString("content.select.tool")</option>
+      <option value="--none--">$tlang.getString("content.select.one")</option>
 	#foreach ($tool in $tools)
 		#set( $selected = "" )
 		#if ( $tool_id && $tool_id == $tool.get("id") ) 
@@ -16,6 +21,7 @@
                <option value="$tool.get("id")" $selected >$tool.get("title")</option>
 	#end
    </select>
+</p>
    #if ( $tool_description ) 
    <p>$validator.escapeHtml($tool_description)</p>
    #end
