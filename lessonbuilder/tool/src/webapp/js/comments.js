@@ -56,6 +56,7 @@ $(function() {
 function commentsLoaded() {
 	$(".deleteLink").attr("title", msg("simplepage.comment_delete"));
 	$(".editLink").attr("title", msg("simplepage.edit-comment"));
+	setMainFrameHeight(window.name);
 }
 
 function loadMore(link) {

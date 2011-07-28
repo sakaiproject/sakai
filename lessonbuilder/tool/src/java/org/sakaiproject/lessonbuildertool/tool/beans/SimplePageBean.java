@@ -671,8 +671,9 @@ public class SimplePageBean {
 			// to their HTML. I think enforcing that makes Sakai less than useful.
 			// So check config options to see whether to do that check
 			String html = contents;
-			if (filterHtml && ! "false".equals(placement.getPlacementConfig().getProperty("filterHtml")) ||
-			    "true".equals(placement.getPlacementConfig().getProperty("filterHtml"))) {
+			if (getCurrentPage().getOwner() != null || filterHtml 
+					&& !"false".equals(placement.getPlacementConfig().getProperty("filterHtml")) ||
+					"true".equals(placement.getPlacementConfig().getProperty("filterHtml"))) {
 				html = FormattedText.processFormattedText(contents, error);
 			} else {
 				html = FormattedText.processHtmlDocument(contents, error);
@@ -4179,6 +4180,9 @@ public class SimplePageBean {
 			comment = formattedComment;
 			html = true;
 		}
+		
+		StringBuilder error = new StringBuilder();
+		comment = FormattedText.processFormattedText(comment, error);
 		
 		if(comment == null || comment.equals("")) {
 			setErrMessage(messageLocator.getMessage("simplepage.empty-comment-error"));
