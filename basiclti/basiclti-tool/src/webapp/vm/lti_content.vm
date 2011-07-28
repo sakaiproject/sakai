@@ -5,6 +5,12 @@
 	#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<form action="#toolForm("")" method="post" name="customizeForm" >
+		<p class="act">
+			<input type="submit" accesskey ="i" value="$tlang.getString('content.add')" 
+ 				onclick="location = '$sakai_ActionURL.setPanel("ContentPut")';return false;">
+			<input type="submit" accesskey ="x" value="$tlang.getString('content.tools')" 
+ 				onclick="location = '$sakai_ActionURL.setPanel("Main")';return false;">
+		</p>
 #if ($contents && $contents.size() > 0)
 	<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("content.table")">
 		<tr>
@@ -28,13 +34,8 @@
 #else
 <p>$tlang.getString("content.none")</p>
 #end
-		<p class="act">
-			<input type="submit" accesskey ="i" value="$tlang.getString('gen.insert')" 
- 				onclick="location = '$sakai_ActionURL.setPanel("ContentPut")';return false;">
-			<input type="submit" accesskey ="x" value="$tlang.getString('gen.tools')" 
- 				onclick="location = '$sakai_ActionURL.setPanel("Main")';return false;">
-		</p>
 	</form>
+$tlang.getString("content.note")
 #if ( $isAdmin ) 
 $tlang.getString("content.admin.note")
 #end

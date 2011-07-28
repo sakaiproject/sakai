@@ -684,7 +684,6 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
     int count = jdbcTemplate.update(sql, fields);
 
-    System.out.println("Count = "+count);
     return count == 1;
   }
 

@@ -1,26 +1,27 @@
 <div class="portletBody">
-##if ($isAdmin && ! $inHelper )
-<ul class="navIntraTool actionToolBar" role="menu">
-<li class="firstToolBarItem" role="menuitem"><span><a href="#" 
-   title="$tlang.getString("content.menu")" 
-   onclick="location = '$sakai_ActionURL.setPanel("Content")';return false;">
-   $tlang.getString("content.menu") </a></span></li>
-#if ($isAdmin ) 
-<li role="menuitem"><span><a href="#" 
-   title="$tlang.getString("mapping.menu")" 
-   onclick="location = '$sakai_ActionURL.setPanel("Mapping")';return false;">
-   $tlang.getString("mapping.menu") </a></span></li>
-<li role="menuitem"><span><a href="#" 
-   title="$tlang.getString("test.menu")" 
-   onclick="location = '$sakai_ActionURL.setPanel("Test")';return false;">
-   $tlang.getString("test.menu") </a></span></li>
-#end
-</ul>
-##end
 #if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
 #if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 <h3>$tlang.getString("tool.title")</h3>
 	<form action="#toolForm("")" method="post" name="customizeForm" >
+		<p class="act">
+                        <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+			<input type="submit" accesskey ="i" value="$tlang.getString('gen.insert')" 
+ 				onclick="location = '$sakai_ActionURL.setPanel("ToolInsert")';return false;">
+##if ($isAdmin && ! $inHelper )
+		<input type="submit" accesskey ="c" value="$tlang.getString('content.menu')" 
+ 				onclick="location = '$sakai_ActionURL.setPanel("Content")';return false;">
+#if ($isAdmin ) 
+		<input type="submit" accesskey ="c" value="$tlang.getString('mapping.menu')" 
+ 				onclick="location = '$sakai_ActionURL.setPanel("Mapping")';return false;">
+		<input type="submit" accesskey ="c" value="$tlang.getString('test.menu')" 
+ 				onclick="location = '$sakai_ActionURL.setPanel("Test")';return false;">
+#end
+#if ( $inHelper ) 
+			<input type="submit" accesskey ="s" class="active" name="$doEndHelper" 
+				value="$tlang.getString('gen.done')" />
+#end
+##end
+		</p>
 #if ($tools && $tools.size() > 0)
 <table class="listHier lines" cellspacing="0" summary ="$tlang.getString("tool.table")">
         <tr>
@@ -46,15 +47,6 @@
 #else
 <p>$tlang.getString("tool.none")</p>
 #end
-		</p>
-		<p class="act">
-                        <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
-			<input type="submit" accesskey ="i" value="$tlang.getString('gen.insert')" 
- 				onclick="location = '$sakai_ActionURL.setPanel("ToolInsert")';return false;">
-#if ( $inHelper ) 
-			<input type="submit" accesskey ="s" class="active" name="$doEndHelper" 
-				value="$tlang.getString('gen.done')" />
-#end
-		</p>
+$tlang.getString("tool.note")
 	</form>
 </div>

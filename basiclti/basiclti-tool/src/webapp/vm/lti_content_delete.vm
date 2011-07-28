@@ -15,4 +15,5 @@
  				onclick="location = '$sakai_ActionURL.setPanel("Content")';return false;">
 		</p>
 	</form>
+<p>$tlang.getString("content.delete.detail")</p>
 </div>

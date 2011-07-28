@@ -17,7 +17,7 @@
 	#end
    </select>
    #if ( $tool_description ) 
-   <p>$tool_description</p>
+   <p>$validator.escapeHtml($tool_description)</p>
    #end
 #else
 <p>No Tools Available</p>

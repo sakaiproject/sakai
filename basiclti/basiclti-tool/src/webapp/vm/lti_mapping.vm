@@ -5,6 +5,12 @@
 	#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<form action="#toolForm("")" method="post" name="customizeForm" >
+		<p class="act">
+			<input type="submit" accesskey ="i" value="$tlang.getString('mapping.add')" 
+ 				onclick="location = '$sakai_ActionURL.setPanel("MappingInsert")';return false;">
+			<input type="submit" accesskey ="x" value="$tlang.getString('content.tools')" 
+ 				onclick="location = '$sakai_ActionURL.setPanel("Main")';return false;">
+		</p>
 #if ($mappings.size() > 0)
 			<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("mapping.table")">
 				<tr>
@@ -24,11 +30,5 @@
 #else
 <p>$tlang.getString("mapping.none")</p>
 #end
-		<p class="act">
-			<input type="submit" accesskey ="i" value="$tlang.getString('gen.insert')" 
- 				onclick="location = '$sakai_ActionURL.setPanel("MappingInsert")';return false;">
-			<input type="submit" accesskey ="x" value="$tlang.getString('gen.done')" 
- 				onclick="location = '$sakai_ActionURL.setPanel("Main")';return false;">
-		</p>
 	</form>
 </div>
