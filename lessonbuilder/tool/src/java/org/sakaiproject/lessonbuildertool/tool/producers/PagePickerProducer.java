@@ -202,7 +202,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		    }
 		}
 
-        	boolean canEditPage = simplePageBean.canEditPage();
+        	boolean canEditPage = (simplePageBean.getEditPrivs() == 0);
 
 		String source = ((GeneralViewParameters) viewparams).getSource();
 		boolean summaryPage = "summary".equals(source);

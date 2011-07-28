@@ -1,0 +1,12 @@
+For lesson builder we need to patch sakairsf. Unfortunately Fluid
+hasn't put up the full source. So I've extraced the source from the
+jar. Unfortunately when I build it, the result doesn't work. Hence I
+do a build, and then starting with the original jar, patch in just the
+one class that has changed.
+
+The result is sakairsf-0.7.4-sakai-rutgers_2.2.x.jar
+
+pom.xml for lesson builder actually gets that jar from a repository at
+Rutgers, so you shouldn't need to do this, but since this is supposed
+to be an open source project, I'm supplying what you need to duplicate
+it if you have to.

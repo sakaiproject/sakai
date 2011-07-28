@@ -31,7 +31,7 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 public class TrackerViewParameters extends SimpleViewParameters {
 	private String URL;
 	private long itemId;
-    	private boolean refresh = false;
+	private boolean refresh = false;
 
 	public TrackerViewParameters() {
 		super();

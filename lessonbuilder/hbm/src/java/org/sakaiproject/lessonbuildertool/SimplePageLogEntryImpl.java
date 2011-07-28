@@ -37,16 +37,19 @@ public class SimplePageLogEntryImpl implements SimplePageLogEntry {
     // the record is to indicate that the user has permission to access it
     // firstViewed will also be null, but I'm worried that in some databases
     // that may not be possible, so an explicit flag seems safer
-        private boolean dummy;
-        private String path;
+	private boolean dummy;
+	private String path;
 	private String toolId;
+	
+	private Long studentPageId;
 
 	public SimplePageLogEntryImpl() {}
 
-	public SimplePageLogEntryImpl(String userId, long itemId) {
+	public SimplePageLogEntryImpl(String userId, long itemId, Long studentPageId) {
 		firstViewed = new Date();
 		this.userId = userId;
 		this.itemId = itemId;
+		this.studentPageId = studentPageId;
 		complete = false;
 	}
 
@@ -131,5 +134,11 @@ public class SimplePageLogEntryImpl implements SimplePageLogEntry {
 		this.toolId = toolId;
 	}
 
-
+	public Long getStudentPageId() {
+		return studentPageId;
+	}
+	
+	public void setStudentPageId(Long studentPageId) {
+		this.studentPageId = studentPageId;
+	}
 }

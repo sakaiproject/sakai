@@ -60,7 +60,7 @@ public class PreviewProducer implements ViewComponentProducer, NavigationCaseRep
 	private SimplePageBean simplePageBean;
 	private SimplePageToolDao simplePageToolDao;
 	private ShowPageProducer showPageProducer;
-        private ToolManager toolManager;
+	private ToolManager toolManager;
 
 	public MessageLocator messageLocator;
 	public static final String VIEW_ID = "Preview";

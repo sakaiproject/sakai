@@ -25,6 +25,8 @@
 	<property name="hidden" type="boolean" />
 	<property name="releaseDate" type="timestamp" />
 	<property name="gradebookPoints" type="double" />
+	<property name="owner" type="string" length="36" />
+	<property name="groupOwned" type="boolean" />
 
    </class>
 </hibernate-mapping>

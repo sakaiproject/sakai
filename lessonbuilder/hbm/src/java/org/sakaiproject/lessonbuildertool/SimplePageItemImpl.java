@@ -46,12 +46,14 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	public static final int URL = 6;
 	public static final int MULTIMEDIA = 7;
 	public static final int FORUM = 8;
+	public static final int COMMENTS = 9;
+	public static final int STUDENT_CONTENT = 10;
 
     // must agree with definition in hbm file
 	public static final int MAXNAME = 100;
 
     // sakaiId used for an item copied from another site with no real content
-        public static final String DUMMY = "/dummy";
+	public static final String DUMMY = "/dummy";
 
 	private long id;
 	private long pageId; // ID of the page this item belongs to
@@ -67,23 +69,28 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	private boolean nextPage; // show as next rather than subpage
 	private String format; // display format, currently nothing, button or maybe li
 	private boolean required;
-        private boolean alternate;  // student can do this or the one above
+	private boolean alternate;  // student can do this or the one above
 	private boolean subrequirement;
 	private String requirementText;
 	private boolean prerequisite; // Whether or not the item is unavailable until all previous
 									// required items are fulfilled.
 	private boolean sameWindow; // Display resource inline rather than new window
-        private String groups;
+	
+	private boolean anonymous = false; // Should comments be anonymous
+	private boolean showComments = false; // Should Student Pages have comment sections?
+	private boolean forcedCommentsAnonymous = false;
+	
+	private String groups;
 
 	public SimplePageItemImpl() {
 
 	}
 
 	public SimplePageItemImpl(long id, long pageId, int sequence, int type, String sakaiId, String name) {
-	        if (sakaiId == null)
-		    sakaiId = "";
+		if (sakaiId == null)
+			sakaiId = "";
 		if (name == null)
-		    name = "";
+			name = "";
 		this.id = id;
 		this.pageId = pageId;
 		this.sequence = sequence;
@@ -103,10 +110,10 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	}
 
 	public SimplePageItemImpl(long pageId, int sequence, int type, String sakaiId, String name) {
-	        if (sakaiId == null)
-		    sakaiId = "";
+		if (sakaiId == null)
+			sakaiId = "";
 		if (name == null)
-		    name = "";
+			name = "";
 		this.pageId = pageId;
 		this.sequence = sequence;
 		this.type = type;
@@ -360,12 +367,48 @@ public class SimplePageItemImpl implements SimplePageItem  {
 		return sameWindow;
 	}
 
+	public void setAnonymous(Boolean anon) {
+		if(anon == null) {
+			anon = false;
+		}
+		
+		anonymous = anon;
+	}
+	
+	public boolean isAnonymous() {
+		return anonymous;
+	}
+
 	public String getGroups() {
 	    return groups;
 	}
 
 	public void setGroups(String g) {
 	    groups = g;
+	}
+	
+	public Boolean getShowComments() {
+		return showComments;
+	}
+	
+	public void setShowComments(Boolean showComments) {
+		if(showComments == null) {
+			showComments = false;
+		}
+		
+		this.showComments = showComments;
+	}
+	
+	public boolean getForcedCommentsAnonymous() {
+		return forcedCommentsAnonymous;
+	}
+	
+	public void setForcedCommentsAnonymous(Boolean forcedCommentsAnonymous) {
+		if(forcedCommentsAnonymous == null) {
+			forcedCommentsAnonymous = false;
+		}
+		
+		this.forcedCommentsAnonymous = forcedCommentsAnonymous;
 	}
 
 }

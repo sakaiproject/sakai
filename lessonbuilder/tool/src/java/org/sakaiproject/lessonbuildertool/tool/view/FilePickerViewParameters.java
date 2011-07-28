@@ -32,7 +32,7 @@ public class FilePickerViewParameters extends HelperViewParameters {
 	private long pageItemId = -1;
 
 	/**
-	 * Simply boolean used for the resource picker. We go into the resource picker for two basic
+	 * Simple boolean used for the resource picker. We go into the resource picker for two basic
 	 * reasons, to add resources to the page or to add multimedia to the page. This will distinguish
 	 * between them.
 	 * 

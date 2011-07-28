@@ -40,8 +40,12 @@ public class SakaiFCKTextEvolver implements TextInputEvolver {
 	public void setContentHostingService(ContentHostingService contentHostingService) {
 		this.contentHostingService = contentHostingService;
 	}
-
+	
 	public UIJointContainer evolveTextInput(UIInput toevolve) {
+		return evolveTextInput(toevolve, "1");
+	}
+
+	public UIJointContainer evolveTextInput(UIInput toevolve, String index) {
 
 		// dig out the size decorators and adjust the editor size.
 		// TODO: If you know a cleaner way, please replace this block!
@@ -68,23 +72,26 @@ public class SakaiFCKTextEvolver implements TextInputEvolver {
 			}
 		}
 
-   	        String editor = ServerConfigurationService.getString("wysiwyg.editor");
-
+		String editor = ServerConfigurationService.getString("wysiwyg.editor");
+		
 		UIContainer parent = toevolve.parent;
 		toevolve.parent.remove(toevolve);
 		UIJointContainer joint = new UIJointContainer(parent, toevolve.ID, COMPONENT_ID);
 
 		joint.decorators = toevolve.decorators;
 
+		String id = toevolve.ID;
 		toevolve.ID = SEED_ID; // must change ID while unattached
 		joint.addComponent(toevolve);
 		String js = null;
+
 		if ("ckeditor".equals(editor)) {
-		    js = HTMLUtil.emitJavascriptCall("sakai.editor.launch", new String[] { toevolve.getFullID() });
+		    js = HTMLUtil.emitJavascriptCall("sakai.editor.launch", new String[] { toevolve.getFullID(), null, "800px", "200px"});
 		} else {
 		    String collectionID = context.equals("") ? "" : contentHostingService.getSiteCollection(context);
 		    js = HTMLUtil.emitJavascriptCall("SakaiProject.fckeditor.initializeEditor", new String[] { toevolve.getFullID(), collectionID, height, width });
 		}
+		
 		UIVerbatim.make(joint, "textarea-js", js);
 
 		return joint;

@@ -99,14 +99,14 @@ public class ResourcePickerProducer implements ViewComponentProducer, ViewParams
 	    // this doesn't show anything in LB. I don't see any real permissions issues
 
 		if (((FilePickerViewParameters) viewparams).getSender() != -1) {
-		    // will fail if page not in this site
-		    // security then depends upon making sure that we only deal with this page
-		    try {
-			simplePageBean.updatePageObject(((FilePickerViewParameters) viewparams).getSender());
-		    } catch (Exception e) {
-			System.out.println("ResourcePicker permission exception " + e);
-			return;
-		    }
+			// will fail if page not in this site
+			// security then depends upon making sure that we only deal with this page
+			try {
+				simplePageBean.updatePageObject(((FilePickerViewParameters) viewparams).getSender());
+			} catch (Exception e) {
+				System.out.println("ResourcePicker permission exception " + e);
+				return;
+			}
 		}
 
 		if (!simplePageBean.canReadPage())

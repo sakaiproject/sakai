@@ -19,5 +19,6 @@
 		<property name="dummy" type="boolean" not-null="true" />
 		<property name="path" type="string" length="255"/>
 		<property name="toolId" type="string" length="250" />
+		<property name="studentPageId" type="long" />
 	</class>
 </hibernate-mapping>

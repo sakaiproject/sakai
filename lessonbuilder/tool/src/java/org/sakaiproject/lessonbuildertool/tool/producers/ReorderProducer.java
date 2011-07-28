@@ -73,12 +73,12 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 		if (((GeneralViewParameters) params).getSendingPage() != -1) {
 		    // will fail if page not in this site
 		    // security then depends upon making sure that we only deal with this page
-		    try {
-			simplePageBean.updatePageObject(((GeneralViewParameters) params).getSendingPage());
-		    } catch (Exception e) {
-			System.out.println("Reorder permission exception " + e);
-			return;
-		    }
+			try {
+				simplePageBean.updatePageObject(((GeneralViewParameters) params).getSendingPage());
+			} catch (Exception e) {
+				System.out.println("Reorder permission exception " + e);
+				return;
+			}
 		}
 
 		// doesn't use any item parameters, so this should be safe
@@ -86,6 +86,12 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 		if (simplePageBean.canEditPage()) {
 			SimplePage page = simplePageBean.getCurrentPage();
 			List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(page.getPageId());
+			
+			// Some items are tacked onto the end automatically by setting the sequence to
+			// something less than or equal to 0.  This takes them out of the Reorder tool.
+			while(items.size() > 0 && items.get(0).getSequence() <= 0) {
+				items.remove(0);
+			}
 
 			UIOutput.make(tofill, "intro", messageLocator.getMessage("simplepage.reorder_header"));
 			UIOutput.make(tofill, "instructions", messageLocator.getMessage("simplepage.reorder_instructions"));
@@ -94,7 +100,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 			for (SimplePageItem i : items) {
 				if (i.getType() == 7) {
 					i.setType(1); // Temporarily change multimedia to standard resource
-					// so that links work properly.
+								  // so that links work properly.
 				}
 
 				UIContainer row = UIBranchContainer.make(tofill, "item:");

@@ -12,7 +12,7 @@
     <property name="mappingResources">
       <list>
         <value>simplepageitem.hbm.xml</value> 
-	<value>simplepage.hbm.xml</value>
+		<value>simplepage.hbm.xml</value>
       </list>
     </property>
   </bean>

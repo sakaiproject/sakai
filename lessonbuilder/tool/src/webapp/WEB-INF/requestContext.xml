@@ -35,17 +35,21 @@
 	<bean name="showPageProducer" class="org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer" >
 		<property name="messageLocator" ref="messageLocator"/>
 		<property name="simplePageBean" ref="simplePageBean" />
+		
 		<property name="simplePageToolDao">
 			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 		</property>
-                <property name="dateEvolver" ref="fieldDateInputEvolver" />
+		
+		<property name="dateEvolver" ref="fieldDateInputEvolver" />
 		<property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
 		<property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
 		<property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
 		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
-                <property name="localeGetter" ref="requestLocaleProxy" />
+		<property name="localeGetter" ref="requestLocaleProxy" />
 		<property name="httpServletRequest" ref="httpServletRequest" />
 		<property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
+		<property name="richTextEvolver" ref="richTextEvolver" />
 	</bean>
 	
 	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.ReorderProducer" >
@@ -146,6 +150,14 @@
 
     <bean class="org.sakaiproject.lessonbuildertool.tool.producers.IFrameWindowProducer" >
 	<property name="simplePageBean" ref="simplePageBean" />
+    </bean>
+    
+    <bean class="org.sakaiproject.lessonbuildertool.tool.producers.CommentsProducer" >
+    	<property name="messageLocator" ref="messageLocator"/>
+    	<property name="simplePageBean" ref="simplePageBean" />
+    	<property name="simplePageToolDao">
+			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+		</property>
     </bean>
 
 	<!-- backing beans -->

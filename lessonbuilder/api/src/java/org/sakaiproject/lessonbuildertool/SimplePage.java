@@ -71,4 +71,12 @@ public interface SimplePage {
     public Double getGradebookPoints();
 
     public void setGradebookPoints(Double points);
+    
+    public String getOwner();
+    
+    public void setOwner(String owner);
+    
+    public Boolean isGroupOwned();
+    
+    public void setGroupOwned(Boolean go);
 }

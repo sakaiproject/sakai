@@ -69,5 +69,9 @@ public interface SimplePageLogEntry {
     public String getToolId();
 
     public void setToolId(String toolId);
+    
+    public Long getStudentPageId();
+    
+    public void setStudentPageId(Long studentPageId);
 
 }

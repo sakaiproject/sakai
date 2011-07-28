@@ -4,6 +4,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+<script language="JavaScript" src="/sakai-lessonbuildertool-tool/js/SakaiRSFWidgets.js" type="text/javascript" rsf:id="fckScript"></script>
 <link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
 <link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
 <link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css" />
@@ -19,23 +20,24 @@
 <script type="text/javascript" rsf:id="iframeJavascript">
 function resizeiframe(id) {
 
-var iframe = document.getElementById(id);
-// workarounds for differing implemtations in several browsers
-var doc = (iframe.contentWindow || iframe.contentDocument);
-if (doc.document) doc = doc.document;
-var newsize = doc.body.offsetHeight;
-
-if (newsize > 32760) newsize = 32760;
-
-iframe.style.height = (newsize + 20) + 'px';
-setMainFrameHeight(window.name);
-
+	var iframe = document.getElementById(id);
+	// workarounds for differing implemtations in several browsers
+	var doc = (iframe.contentWindow || iframe.contentDocument);
+	if (doc.document) doc = doc.document;
+	var newsize = doc.body.offsetHeight;
+	
+	if (newsize > 32760) newsize = 32760;
+	
+	iframe.style.height = (newsize + 20) + 'px';
+	setMainFrameHeight(window.name);
+	
 }
 </script>
 </head>
 
 <body rsf:id="scr=sakai-body">
-<script type="text/javascript" src="$context/js/jquery-1.4.2.min.js"></script>
+<!-- <script type="text/javascript" src="$context/js/jquery-1.4.2.min.js"></script> -->
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
 <script type="text/javascript" src="$context/js/jquery-ui-1.8.4.custom.min.js"></script>
 <script type="text/javascript" src="../js/simple-page.js" rsf:id="scr=rewrite-url"></script>
 <script type="text/javascript" src="$context/js/show-page.js"></script>
@@ -50,9 +52,9 @@ setMainFrameHeight(window.name);
 
 	<div class="portletBody" id="outer" role="application">
 		
-	        <div rsf:id="needPermissions">
-		  <p rsf:id="msg=simplepage.needpermissions"></p>
-		  <a href="#" rsf:id="callpermissions"></a>
+		<div rsf:id="needPermissions">
+			<p rsf:id="msg=simplepage.needpermissions"></p>
+			<a href="#" rsf:id="callpermissions"></a>
 		</div>
 
 		<div rsf:id="crumbdiv" class="fullwidth" role="navigation"><span rsf:id="crumb:"><a href="#" rsf:id="crumb-link"></a><span rsf:id="crumb-follow"></span></span></div>
@@ -94,7 +96,9 @@ setMainFrameHeight(window.name);
 			<a href="#" rsf:id="add-assignment"><span rsf:id="msg.simplepage.assignment"></span></a>
 			<a href="#" rsf:id="add-quiz"><span rsf:id="msg.simplepage.quiz"></span></a>
 			<a href="#" rsf:id="add-forum"><span rsf:id="msg.simplepage.forum"></span></a>
-			<a href="#" rsf:id="permissions"><span rsf:id="msg.simplepage.prmissions"></span></a>
+			<a href="#" rsf:id="add-comments"><span rsf:id="msg.simplepage.comments"></span></a>
+			<a href="#" rsf:id="add-content"><span rsf:id="msg.simplepage.add-content"></span></a>
+			<a href="#" rsf:id="permissions"><span rsf:id="msg.simplepage.permissions"></span></a>
 			<a href="#" rsf:id="help" target="_blank"></a>
 		</div>
 		
@@ -213,6 +217,61 @@ setMainFrameHeight(window.name);
 					  <div style="display:none" rsf:id="item-groups5" class="item-groups"></div>
 					</td>
 
+
+					<td rsf:id="comments-td" role="gridcell" class="edit-col"><div><a href="#" class="usebutton edit-comments" onclick="return false" rsf:id="edit-comments"></a></div></td>
+					
+					<td rsf:id="commentsSpan" role="gridcell">
+						<div class="commentsDiv">
+							<div class="replaceWithComments">Loading Comments ...</div>
+							
+							<div class="add-comment-button">
+							<a class="switchLink" onclick="switchEditors($(this))"><span rsf:id="msg=simplepage.add-comment"></span></a>
+							</div>
+							<form class="commentArea" rsf:id="comment-form">
+								<input type="hidden" rsf:id="comment-item-id"></input>
+								<input type="hidden" rsf:id="comment-edit-id" class="comment-edit-id"></input>
+								
+								<div>
+									<textarea rsf:id="comment-text-area-evolved:"></textarea>
+								</div>
+		
+								<input type="submit" class="usebutton submitButton" href="#" rsf:id="add-comment" id="add-comment"><span rsf:id="msg=simplepage.add_comment"></span></input>
+								<input type="submit" class="usebutton cancelButton"></input>
+							</form>
+						</div>
+						
+						<a href="#" style="display:none" rsf:id="commentsLink" class="commentsBlock"></a>
+						<div style="display:none" rsf:id="commentsId" class="comments-id"></div>
+						<div style="display:none" rsf:id="commentsAnon" class="commentsAnon"></div>
+					</td>
+					
+					<td rsf:id="student-td" role="gridcell" class="edit-col"><div><a href="#" class="usebutton edit-student" onclick="return false" rsf:id="edit-student"></a></div></td>
+					
+					<td rsf:id="studentSpan" role="gridcell">
+						<div class="studentDiv">
+							<table class="studentContentTable">
+								<tr>
+									<th style="text-align:center;" colspan="4"><span rsf:id="msg=simplepage.student"></span></th>
+								</tr>
+								<tr rsf:id="studentRow:">
+									<td class="imgCell"><img src="$context/images/new-page.png" rsf:id="newPageImg" class="imgCell"></img></td>
+									<td class="imgCell"><img src="$context/images/new-content.png" rsf:id="newContentImg" class="imgCell"></img></td>
+									<td rsf:id="commentsImgCell" class="imgCell"><img src="$context/images/new-comments.png" rsf:id="newCommentsImg" class="imgCell"></img></td>
+									<td rsf:id="studentCell"><a href="#" rsf:id="studentLink"></a></td>
+								</tr>
+								
+								<tr rsf:id="linkRow">
+									<td rsf:id="linkCell" style="text-align:center;" colspan="4"><a href="#" rsf:id="linkLink"></a></td>
+								</tr>
+							</table>
+						</div>
+						
+						<div style="display:none" rsf:id="studentId" class="student-id"></div>
+						<div style="display:none" rsf:id="studentAnon" class="studentAnon"></div>
+						<div style="display:none" rsf:id="studentComments" class="studentComments"></div>
+						<div style="display:none" rsf:id="forcedAnon" class="forcedAnon"></div>
+					</td>
+
 				</tr>
 
 			</table>
@@ -235,9 +294,16 @@ setMainFrameHeight(window.name);
 		   id="iframe"
 		   ></iframe>
 
+		<div style="display:none;">
+			<p rsf:id="msg=simplepage.add-comment" id="simplepage.add-comment"></p>
+			<p rsf:id="msg=simplepage.edit-comment" id="simplepage.edit-comment"></p>
+			<p rsf:id="msg=simplepage.cancel_message" id="simplepage.cancel_message"></p>
+			<p rsf:id="msg=simplepage.comment_delete" id="simplepage.comment_delete"></p>
+		</div>
+
 
 		<div rsf:id="dialogDiv">
-		        <div id="messages">
+			<div id="messages">
 			  <p rsf:id="msg=simplepage.require_submit_assessment" id="simplepage.require_submit_assessment"></p>
 			  <p rsf:id="msg=simplepage.require_submit_assignment" id="simplepage.require_submit_assignment"></p>
 			  <p rsf:id="msg=simplepage.require_submit_forum" id="simplepage.require_submit_forum"></p>
@@ -312,25 +378,27 @@ setMainFrameHeight(window.name);
 							</textarea>
 						</p>
 
-						<p class="shorttext required" id="change-assignment-p">
-						  <a href="#" rsf:id="change-assignment" id="change-assignment"><span rsf:id="msg.simplepage.change_assignment"></span></a>
-					        </p>
+						<div rsf:id="changeDiv">
+							<p class="shorttext required" id="change-assignment-p">
+								<a href="#" rsf:id="change-assignment" id="change-assignment"><span rsf:id="msg.simplepage.change_assignment"></span></a>
+							</p>
 
-						<p class="shorttext required" id="change-forum-p">
-						  <a href="#" rsf:id="change-forum" id="change-forum"><span rsf:id="msg=simplepage.change_forum"></span></a>
-					        </p>
+							<p class="shorttext required" id="change-forum-p">
+								<a href="#" rsf:id="change-forum" id="change-forum"><span rsf:id="msg=simplepage.change_forum"></span></a>
+							</p>
 
-						<p class="shorttext required" id="change-quiz-p">
-						  <a href="#" rsf:id="change-quiz" id="change-quiz"><span rsf:id="msg.simplepage.change_quiz"></span></a>
-					        </p>
+							<p class="shorttext required" id="change-quiz-p">
+								<a href="#" rsf:id="change-quiz" id="change-quiz"><span rsf:id="msg.simplepage.change_quiz"></span></a>
+							</p>
 
-						<p class="shorttext required" id="change-resource-p">
-						  <a href="#" rsf:id="change-resource" id="change-resource"><span rsf:id="msg.simplepage.change_resource"></span></a>
-					        </p>
+							<p class="shorttext required" id="change-resource-p">
+								<a href="#" rsf:id="change-resource" id="change-resource"><span rsf:id="msg.simplepage.change_resource"></span></a>
+							</p>
 
-						<p class="shorttext required" id="change-page-p">
-						  <a href="#" rsf:id="change-page" id="change-page"><span rsf:id="msg.simplepage.change_page"></span></a>
-					        </p>
+							<p class="shorttext required" id="change-page-p">
+								<a href="#" rsf:id="change-page" id="change-page"><span rsf:id="msg.simplepage.change_page"></span></a>
+							</p>
+					    </div>
 
 						<p class="shorttext required" id="edit-item-object-p">
 						  <a href="#" rsf:id="edit-item-object" id="edit-item-object"><span rsf:id="edit-item-text" id="edit-item-text"></span></a>
@@ -355,7 +423,7 @@ setMainFrameHeight(window.name);
 					
 					<input type="hidden" rsf:id="item-id" id="item-id" />
 					
-					<div class="border2">
+					<div rsf:id="permDiv" class="border2">
 						<input type="checkbox" name="item-prerequisites" id="item-prerequisites" rsf:id="item-prerequisites" />
 						<label for="item-prerequisites"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
 						<br />
@@ -579,11 +647,12 @@ s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 
 					</div>
 						
-					<input type="checkbox" name="page-gradebook" id="page-gradebook" rsf:id="page-gradebook" />
-					<label for="page-gradebook"><span rsf:id="msg=simplepage.page.gradebook"></span></label>
-					<input type="text" name="page-points" id="page-points" rsf:id="page-points" />
-					<label for="page-points"><span rsf:id="msg=simplepage.points"></span></label>
-
+					<div rsf:id="gradeBookDiv">
+						<input type="checkbox" name="page-gradebook" id="page-gradebook" rsf:id="page-gradebook" />
+						<label for="page-gradebook"><span rsf:id="msg=simplepage.page.gradebook"></span></label>
+						<input type="text" name="page-points" id="page-points" rsf:id="page-points" />
+						<label for="page-points"><span rsf:id="msg=simplepage.points"></span></label>
+					</div>
 					<br />
 				
 
@@ -628,7 +697,7 @@ s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 			</div>
 
 			<div id="remove-page-dialog" rsf:id="remove-page-dialog">
-			        <div style="margin-bottom: 2em" rsf:id="msg=simplepage.remove-page-explanation"></div>
+				<div style="margin-bottom: 2em" rsf:id="msg=simplepage.remove-page-explanation"></div>
 				<form action="#" rsf:id="remove-page-form">
 				  <input class="bold" type="submit" rsf:id="remove-page-submit" id="remove-page-submit" />
 				  <input type="submit" rsf:id="remove-page-cancel"  onclick="closeRemovePageDialog(); return false" />
@@ -662,7 +731,7 @@ s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 						  <label rsf:id="description4-label" for="alt">Page Title</label><br />
 						  <textarea name="description4" rsf:id="description4" id="description4" rows="5" class="edit-multimedia-input" ></textarea>
 						</p>
-						<p id="editgroups-youtube">
+						<p rsf:id="editgroups-youtube" id="editgroups-youtube">
 						  <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
 						</p>
 					</div>
@@ -733,8 +802,72 @@ s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 
 				</form>
 			</div>
+			
+			<div id="comments-dialog" rsf:id="comments-dialog">
+				<form action="#" rsf:id="comments-form">
+					<div class="border">
+						<input type="hidden" rsf:id="commentsEditId" id="commentsEditId" />
+						<div align="left">
+							<input type="checkbox" name="comments-anonymous" id="comments-anonymous" rsf:id="comments-anonymous" />
+							<label for="comments-anonymous"><span rsf:id="msg=simplepage.comments-anonymous"></span></label><br />
+						</div>
+					</div>
+					<br />
+
+					<div class="border2">
+						<div style="margin-top:5px; margin-bottom:5px;">
+							<b style="margin-left:50px;"><span rsf:id="msg=simplepage.delete"></span>:</b>
+							<input type="submit" style="margin-left:50px;" rsf:id="delete-comments-item" />
+						</div>
+					</div>
+		
+					<input class="bold" type="submit" onclick="event.returnValue = checkCommentsForm(); return checkCommentsForm();" id="update-comments" rsf:id="update-comments" />
+					<input type="submit" rsf:id="cancel-comments" onclick="closeCommentsDialog(); return false" />
+
+				</form>
+			</div>
+			
+			<div id="student-dialog" rsf:id="student-dialog">
+				<form action="#" rsf:id="student-form">
+					<div class="border">
+						<input type="hidden" rsf:id="studentEditId" id="studentEditId" />
+						<div align="left">
+							<input type="checkbox" name="student-anonymous" id="student-anonymous" rsf:id="student-anonymous" />
+							<label for="student-anonymous"><span rsf:id="msg=simplepage.student-anonymous"></span></label><br />
+							
+							<input type="checkbox" name="student-comments" id="student-comments" rsf:id="student-comments" />
+							<label for="student-comments"><span rsf:id="msg=simplepage.student-comments"></span></label><br />
+							
+							<input type="checkbox" name="student-comments-anon" id="student-comments-anon" class="indent" rsf:id="student-comments-anon" />
+							<label for="student-comments-anon"><span rsf:id="msg=simplepage.student-comments-anon"></span></label><br />
+						</div>
+					</div>
+					<br />
+
+					<div class="border2">
+						<div style="margin-top:5px; margin-bottom:5px;">
+							<b style="margin-left:50px;"><span rsf:id="msg=simplepage.delete"></span>:</b>
+							<input type="submit" style="margin-left:50px;" rsf:id="delete-student-item" />
+						</div>
+					</div>
+		
+					<input class="bold" type="submit" onclick="return true;" id="update-student" rsf:id="update-student" />
+					<input type="submit" rsf:id="cancel-student" onclick="closeStudentDialog(); return false" />
+
+				</form>
+			</div>
 		</div>
-	</div>	
+	</div>
+	
+	<div rsf:id="delete-dialog" id="delete-dialog">
+		<span id="delete-dialog-comment-url" style="display:none"></span>
+	
+		<span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 0 0;"></span>
+		<span rsf:id="msg=simplepage.delete_comment_confirm" id="delete-comment-confirm"></span>
+	</div>
+	
+	<script type="text/javascript" rsf:id="comments-script" src="$context/js/comments.js"></script>
+	
 	<script type="text/javascript" language="JavaScript">
 		spiffyUp();	
 	</script>

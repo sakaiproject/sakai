@@ -105,6 +105,22 @@ $(function() {
 		draggable: false
 	});
 	
+	$('#comments-dialog').dialog({
+		autoOpen: false,
+		width: 600,
+		modal: false,
+		resizable: false,
+		draggable: false
+	});
+	
+	$('#student-dialog').dialog({
+		autoOpen: false,
+		width: 600,
+		modal: false,
+		resizable: false,
+		draggable: false
+	});
+	
 
 	$('.subpage-link').click(function(){
 		var position =  $(this).position();
@@ -178,10 +194,10 @@ $(function() {
 		return false;
 	});
 
-	$('#remove-page-submit').click(function() {
-		window.location.href= $("#remove-page-submit").attr("src");
-		return false;
-	});
+	//$('#remove-page-submit').click(function() {
+	//	window.location.href= $("#remove-page-submit").attr("src");
+	//	return false;
+	//});
 
 	var outerWidth = $('#outer').width();
 	if (outerWidth < 500) {
@@ -196,6 +212,8 @@ $(function() {
 	    $("#youtube-dialog").dialog("option", "width", outerWidth-10);
 	    $("#movie-dialog").dialog("option", "width", outerWidth-10);
 	    $("#subpage-link").dialog("option", "width", outerWidth-10);
+	    $("#comments-dialog").dialog("option", "width", outerWidth-10);
+	    $("#student-dialog").dialog("option", "width", outerWidth-10);
 	}
 
 	if (!(navigator.userAgent.indexOf("Firefox/2.") > 0)) {
@@ -278,6 +296,78 @@ $(function() {
 		checksize($("#movie-dialog"));
 		$("#grouplist").hide();
 		return false;
+	});
+	
+	$(".edit-comments").click(function(){
+		var row = $(this).parent().parent().parent();
+		var itemId = row.find(".comments-id").text();
+		
+		$("#commentsEditId").val(itemId);
+		
+		var anon = row.find(".commentsAnon").text();
+		if(anon == "true") {
+			$("#comments-anonymous").attr("checked", true);
+			$("#comments-anonymous").attr("defaultChecked", true)
+		}else {
+			$("#comments-anonymous").attr("checked", false);
+		}
+		
+		var position = row.position();
+		$("#comments-dialog").dialog("option", "position", [position.left, position.top]);
+		$('.hideOnDialog').hide();
+		$('#comments-dialog').dialog('open');
+		return false;
+	});
+	
+	$(".edit-student").click(function(){
+		var row = $(this).parent().parent().parent();
+		var itemId = row.find(".student-id").text();
+		
+		$("#studentEditId").val(itemId);
+		
+		var anon = row.find(".studentAnon").text();
+		if(anon == "true") {
+			$("#student-anonymous").attr("checked", true);
+			$("#student-anonymous").attr("defaultChecked", true)
+		}else {
+			$("#student-anonymous").attr("checked", false);
+		}
+		
+		var comments = row.find(".studentComments").text();
+		if(comments == "true") {
+			$("#student-comments").attr("checked", true);
+			$("#student-comments").attr("defaultChecked", true)
+		}else {
+			$("#student-comments").attr("checked", false);
+		}
+		
+		var forcedAnon = row.find(".forcedAnon").text();
+		if(forcedAnon == "true") {
+			$("#student-comments-anon").attr("checked", true);
+			$("#student-comments-anon").attr("defaultChecked", true)
+		}else {
+			$("#student-comments-anon").attr("checked", false);
+		}
+		
+		if(!$("#student-comments").attr("checked")) {
+			$("#student-comments-anon").attr("disabled", true).removeAttr("checked");
+		}else {
+			$("#student-comments-anon").removeAttr("disabled");
+		}
+		
+		var position = row.position();
+		$("#student-dialog").dialog("option", "position", [position.left, position.top]);
+		$('.hideOnDialog').hide();
+		$('#student-dialog').dialog('open');
+		return false;
+	});
+	
+	$("#student-comments").click(function() {
+		if(!$("#student-comments").attr("checked")) {
+			$("#student-comments-anon").attr("disabled", true).removeAttr("checked");
+		}else {
+			$("#student-comments-anon").removeAttr("disabled");
+		}
 	});
 
 	$("#editgroups-movie").click(function(){
@@ -807,6 +897,14 @@ function closeMovieDialog() {
 	$('#movie-dialog').dialog('close');
 }
 
+function closeCommentsDialog() {
+	$('#comments-dialog').dialog('close');
+}
+
+function closeStudentDialog() {
+	$('#student-dialog').dialog('close');
+}
+
 function checkEditTitleForm() {
 	if($('#pageTitle').val() == '') {
 		$('#edit-title-error').text(msg("simplepage.title_notblank"));
@@ -853,6 +951,10 @@ function checkYoutubeForm() {
 }
 
 function checkMovieForm() {
+	return true;
+}
+
+function checkCommentsForm() {
 	return true;
 }
 

@@ -27,20 +27,28 @@ package org.sakaiproject.lessonbuildertool.tool.view;
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 
 public class GeneralViewParameters extends SimpleViewParameters {
-
+	public static final int COMMENTS = 1;
+	public static final int STUDENT_CONTENT = 2;
+	public static final int STUDENT_PAGE = 3;
+	
+	
 	private String errorMessage = "";
 	private long sendingPage = -1;
 
 	private String title = "";
 	private String source = "";
 	private String id = "";
-        private String clearAttr = "";
+	private String clearAttr = "";
 	private Long itemId = -1L;
     // the word "push", a number to return to that level in the path, or "next" to replace the top level
-        private String path = "";
-        private String returnView = "";
-        private String recheck = "";
+	private String path = "";
+	private String returnView = "";
+	private String recheck = "";
 	private String backPath = "";
+	
+	public int addTool = -1;
+	public boolean postedComment = false;
+	public long studentItemId;
 
 	public GeneralViewParameters() {
 		super();
@@ -121,7 +129,7 @@ public class GeneralViewParameters extends SimpleViewParameters {
 	}
 
 	public String getRecheck() {
-        	return recheck;
+		return recheck;
 	}
 
 

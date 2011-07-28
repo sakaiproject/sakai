@@ -39,6 +39,9 @@ public class SimplePageImpl implements SimplePage {
 	private boolean hidden;
 	private Date releaseDate;
 	private Double gradebookPoints;
+	
+	private String owner;       // If this is a student content site, lists the student
+	private Boolean groupOwned; // Or group if it's group owned
 
 	public SimplePageImpl() {}
 
@@ -116,12 +119,28 @@ public class SimplePageImpl implements SimplePage {
 		this.releaseDate = releaseDate;
 	}
 
-        public Double getGradebookPoints() {
+	public Double getGradebookPoints() {
 		return gradebookPoints;
 	}
 
-        public void setGradebookPoints(Double points) {
+	public void setGradebookPoints(Double points) {
 		this.gradebookPoints = points;
+	}
+        
+	public String getOwner() {
+		return owner;
+	}
+	
+	public void setOwner(String owner) {
+		this.owner = owner;
+	}
+	
+	public Boolean isGroupOwned() {
+		return groupOwned;
+	}
+	
+	public void setGroupOwned(Boolean go) {
+		groupOwned = go;
 	}
 
 }
