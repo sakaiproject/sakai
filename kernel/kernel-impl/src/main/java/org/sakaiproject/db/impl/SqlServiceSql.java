@@ -21,6 +21,7 @@
 
 package org.sakaiproject.db.impl;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -104,5 +105,30 @@ public interface SqlServiceSql
     *        number of column of bytes field.
     */
    public PreparedStatement setBytes(PreparedStatement pstmt, byte[] bytes, int pos) throws SQLException;
+
+	/**
+	 * Prepare an insert statement when an autoColumn is involved
+	 * 
+	 * @param conn
+	 *      The connection to use
+	 * @param sql
+	 *      The SQL statement to prepare
+	 * @param autoColumn
+	 *      The name of the db column that will have auto-update - we will return the value used (leave null to disable this feature).
+	 */
+	public PreparedStatement prepareAutoColumn(Connection conn, String sql, String autoColumn) throws SQLException;
+
+	/**
+	 * Extract the generated key from a just-executed insert statement
+	 * 
+	 * @param pstmt
+	 *      The prepared statement just executed
+	 * @param sql
+	 *      The SQL statement used to prepare pstmt
+	 * @return
+	 *      The first most recently inserted key	
+	 *
+	 */
+	public Long getGeneratedKey(PreparedStatement pstmt, String sql) throws SQLException;
 
 }

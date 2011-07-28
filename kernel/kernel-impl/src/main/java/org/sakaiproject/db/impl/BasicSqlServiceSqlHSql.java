@@ -21,6 +21,9 @@
 
 package org.sakaiproject.db.impl;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -70,4 +73,39 @@ public class BasicSqlServiceSqlHSql extends BasicSqlServiceSqlDefault
 		pstmt.setTimestamp(pos, timestamp, null);
 		return pstmt;
 	}
+
+	@Override
+	public  PreparedStatement prepareAutoColumn(Connection conn, String sql, String autoColumn) throws SQLException
+	{
+		// HSQL does not support autoColumn
+		return conn.prepareStatement(sql);
+	}
+
+	/**
+	 * Extract the generated key since HSQL does not support getGeneratedKeys()
+	 *
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Long getGeneratedKey(PreparedStatement pstmt, String sql) throws SQLException
+	{
+		String[] tokens = sql.trim().split("\\s+");
+
+		// Only handle INSERT INTO table_name - ignore everything else
+		if ( tokens.length >= 3 && "insert".equalsIgnoreCase(tokens[0]) && "into".equalsIgnoreCase(tokens[1]) ) {
+			Statement kstmt = pstmt.getConnection().createStatement();
+
+			// The use of IDENTITY() is reasonable since Sakai across the 
+			// board only allows one autoColumn in the dbInsert() method
+			// If it works, we get the right thing - if it fails, it 
+			// will alert the developer. as they are developing
+			ResultSet keys = kstmt.executeQuery("SELECT IDENTITY() FROM " + tokens[2]);
+			if (keys.next()) {
+				return Long.valueOf(keys.getLong(1));
+			}
+		}
+
+		return null;
+	}
+
 }

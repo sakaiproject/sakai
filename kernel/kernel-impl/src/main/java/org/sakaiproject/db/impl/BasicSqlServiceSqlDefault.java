@@ -22,7 +22,9 @@
 package org.sakaiproject.db.impl;
 
 import java.io.StringReader;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.GregorianCalendar;
@@ -124,5 +126,36 @@ public class BasicSqlServiceSqlDefault implements SqlServiceSql
    public boolean isDeadLockError(int errorCode){
         return false;
     }
+
+	@Override
+	public PreparedStatement prepareAutoColumn(Connection conn, String sql, String autoColumn) throws SQLException
+	{
+		if (autoColumn != null)
+		{
+			String[] autoColumns = new String[1];
+			autoColumns[0] = autoColumn;
+			return conn.prepareStatement(sql, autoColumns);
+		}
+		else
+		{
+			return conn.prepareStatement(sql);
+		}
+	}
+
+	/**
+	 * Extract the generated key for JDBC drivers that support getGeneratedKeys()
+	 * 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Long getGeneratedKey(PreparedStatement pstmt, String sql) throws SQLException
+	{
+		ResultSet keys = pstmt.getGeneratedKeys();
+		if (keys.next())
+		{
+			return Long.valueOf(keys.getLong(1));
+		}
+		return null;
+	}
 
 }

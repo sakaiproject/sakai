@@ -1414,16 +1414,7 @@ public abstract class BasicSqlService implements SqlService
 
 			if (m_showSql) start = System.currentTimeMillis();
 
-			if (autoColumn != null)
-			{
-				String[] autoColumns = new String[1];
-				autoColumns[0] = autoColumn;
-				pstmt = conn.prepareStatement(sql, autoColumns);
-			}
-			else
-			{
-				pstmt = conn.prepareStatement(sql);
-			}
+			pstmt = sqlServiceSql.prepareAutoColumn(conn, sql, autoColumn);
 
 			// put in all the fields
 			int pos = prepareStatement(pstmt, fields);
@@ -1436,14 +1427,7 @@ public abstract class BasicSqlService implements SqlService
 
 			int result = pstmt.executeUpdate();
 
-			ResultSet keys = pstmt.getGeneratedKeys();
-			if (keys != null)
-			{
-				if (keys.next())
-				{
-					rv = Long.valueOf(keys.getLong(1));
-				}
-			}
+			rv = sqlServiceSql.getGeneratedKey(pstmt, sql);
 
 			// commit unless we are in a transaction (provided with a connection)
 			if (callerConnection == null)
