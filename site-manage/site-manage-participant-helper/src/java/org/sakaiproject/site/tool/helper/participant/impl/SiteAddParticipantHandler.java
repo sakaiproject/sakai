@@ -1192,7 +1192,7 @@ public class SiteAddParticipantHandler {
 			int chooseArray = (int) (4 * Math.random());
 		    switch (chooseArray) {
 		    	case 0: 
-		    		rndbuf.append(LOWER_ALPHA_ARRAY[(int) ( LOWER_ALPHA_ARRAY.length * Math.random())-1]);
+		    		rndbuf.append(LOWER_ALPHA_ARRAY[(int) ( LOWER_ALPHA_ARRAY.length * Math.random())]);
 		    		break;
 		    	case 1:
 		    		rndbuf.append(UPPER_ALPHA_ARRAY[(int) ( UPPER_ALPHA_ARRAY.length * Math.random())]);
