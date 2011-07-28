@@ -11,7 +11,7 @@
 	#foreach ($tool in $tools)
 		#set( $selected = "" )
 		#if ( $tool_id && $tool_id == $tool.get("id") ) 
-			#set( $selected = " selected=\"yes\"" )
+			#set( $selected = ' selected="yes"' )
 		#end
                <option value="$tool.get("id")" $selected >$tool.get("title")</option>
 	#end

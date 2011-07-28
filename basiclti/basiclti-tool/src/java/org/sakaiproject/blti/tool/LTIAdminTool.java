@@ -519,19 +519,23 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0);
 		context.put("tools", tools);
 
-                Long key = null;
                 Object previousData = null;
+
+		String toolId = data.getParameters().getString("tool_id");
+		if ( toolId == null ) toolId = stateToolId;
+		Long key = null;
+		if ( toolId != null ) key = new Long(toolId);
 
 		String contentId = data.getParameters().getString("id");
 		if ( contentId == null ) contentId = (String) state.getAttribute(STATE_CONTENT_ID);
-                if ( contentId == null ) {
-		        String toolId = data.getParameters().getString("tool_id");
-	                if ( toolId == null ) toolId = stateToolId;
-		        if ( toolId == null ) {
-                                return "lti_content_insert";
-		        }
-        		key = new Long(toolId);
+
+                if ( contentId == null ) {  // Insert
+			if ( toolId == null ) {
+				return "lti_content_insert";
+			}
         		previousData = (Properties) state.getAttribute(STATE_POST);
+
+		// Edit
                 } else {
 		        Long contentKey = new Long(contentId);
                         Map<String,Object> content = ltiService.getContent(contentKey);
@@ -540,7 +544,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
                                 state.removeAttribute(STATE_CONTENT_ID);
                                 return "lti_content";
                         }
-                        key = new Long((Integer)content.get("tool_id"));
+
+			if ( key == null ) {
+	                        key = new Long((Integer)content.get("tool_id"));
+			}
                         previousData = content;
                 }
 
@@ -560,7 +567,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	// Insert or edit
 	public void doContentPut(RunData data, Context context)
 	{
-
 		String peid = ((JetspeedRunData) data).getJs_peid();
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 		
