@@ -100,6 +100,7 @@ import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -171,7 +172,7 @@ import com.ibm.icu.text.CharsetMatch;
  * </p>
  */
 public abstract class BaseContentService implements ContentHostingService, CacheRefresher, ContextObserver, EntityTransferrer, 
-SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
+SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRefMigrator
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseContentService.class);
@@ -7381,8 +7382,23 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	/**
 	 * {@inheritDoc}
 	 */
-	public void transferCopyEntities(String fromContext, String toContext, List resourceIds)
+	public void updateEntityReferences(String toContext, Map transversalMap){
+		//TODO: is there any content that needs reference updates?
+	}
+	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void transferCopyEntities(String fromContext, String toContext, List resourceIds){
+		transferCopyEntitiesRefMigrator(fromContext, toContext, resourceIds);
+	}
+
+
+	public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List resourceIds)
+
 	{
+		Map transversalMap = new HashMap();
 		// default to import all resources
 		boolean toBeImported = true;
 
@@ -7540,8 +7556,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 							catch (InconsistentException e)
 							{
 							}
-
-							transferCopyEntities(oResource.getId(), nId, resourceIds);
+							transversalMap.put(oResource.getId(), nId);
+							transversalMap.putAll(transferCopyEntitiesRefMigrator(oResource.getId(), nId, resourceIds));
 						}
 						else
 						{
@@ -7561,6 +7577,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 								// complete the edit
 								m_storage.commitResource(edit);
 								((BaseResourceEdit) edit).closeEdit();
+								
+								transversalMap.put(oResource.getId(), nId);
 							}
 							catch (PermissionException e)
 							{
@@ -7592,6 +7610,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 			}
 		}
 
+		return transversalMap;
 	} // importResources
 
 	/**
@@ -12651,7 +12670,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 	}
 
 	public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
+	{
+		transferCopyEntitiesRefMigrator(fromContext, toContext, ids, cleanup);
+	}
+
+	public Map<String,String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List ids, boolean cleanup)
 	{	
+		Map transversalMap = new HashMap();
 		try
 		{
 			if(cleanup == true)
@@ -12721,7 +12746,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 		{
 			M_log.debug("BaseContentService Resources transferCopyEntities Error" + e);
 		}
-		transferCopyEntities(fromContext, toContext, ids);
+		transversalMap.putAll(transferCopyEntitiesRefMigrator(fromContext, toContext, ids));
+		
+		return transversalMap;
 	}
 
 	// Code lightly adapted from Apache Tomcat 5.5.27 catalina default servlet
