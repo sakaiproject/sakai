@@ -48,6 +48,10 @@ import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 
@@ -167,6 +171,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
     // the actual objects, lets us cache them
 
     protected Map<String,Object> content;
+    protected Map<String,Object> tool;
 
 /*
     public Blti getBlti(String ref, boolean nocache) {
@@ -248,6 +253,8 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	if ( id == null ) return; // Likely a failure
 	Long key = foorm.getLong(id);
 	content = ltiService.getContent(key);
+	Long toolKey = foorm.getLongNull(content.get("tool_id"));
+	if (toolKey != null ) tool = ltiService.getTool(toolKey);
     }	
 
     // properties of entities
@@ -257,10 +264,17 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	return (String) content.get(LTIService.LTI_TITLE);
     }
 
+    // TODO: Concern regarding the lack of the returnUrl when this is called
     public String getUrl() {
 	loadContent();
 	if ( content == null ) return null;
 	String ret = (String) content.get("launch_url");
+	if ( ltiService.isMaintain() && LTIService.LTI_SECRET_INCOMPLETE.equals((String) tool.get(LTIService.LTI_SECRET)) 
+		&& LTIService.LTI_SECRET_INCOMPLETE.equals((String) tool.get(LTIService.LTI_CONSUMERKEY)) ) {
+		String toolId = getCurrentTool("sakai.siteinfo");
+		if ( toolId != null ) ret = editItemUrl(toolId);
+	}
+
 	ret = ServerConfigurationService.getServerUrl() + ret;
 	return ret;
     }
@@ -341,14 +355,26 @@ public class BltiEntity implements LessonEntity, BltiInterface {
     // URL to edit an existing entity.                                                                                                       
     // Can be null if we can't get one or it isn't needed                                                                                    
     public String editItemUrl(SimplePageBean bean) {
-	String tool = bean.getCurrentTool("sakai.siteinfo");
-	if ( tool == null || returnUrl == null ) return null;
+	String toolId = bean.getCurrentTool("sakai.siteinfo");
+	if ( toolId == null ) return null;
+	return editItemUrl(toolId);
+    }
+
+    public String editItemUrl(String toolId) {
+	if ( toolId == null ) return null;
 	loadContent();
 	if (content == null)
 	    return null;
-	String url = "/portal/tool/" + tool + "/sakai.basiclti.admin.helper.helper?panel=ContentConfig&id=" + content.get(LTIService.LTI_ID);
+	String url = "/portal/tool/" + toolId + "/sakai.basiclti.admin.helper.helper?panel=ContentConfig&id=" + 
+		content.get(LTIService.LTI_ID);
+	if ( returnUrl != null ) {
+		url = url + "&returnUrl=" + URLEncoder.encode(returnUrl);
+	} else {
+		url = url + "&returnUrl=about:blank";
+	}
 	return url;
     }
+
 
 
     // for most entities editItem is enough, however tests allow separate editing of                                                         
@@ -369,5 +395,18 @@ public class BltiEntity implements LessonEntity, BltiInterface {
     public void setGroups(Collection<String> groups) {
 	// not group aware
     }
+
+	// TODO: Could we get simplePageBean populated here and not build out own get
+        public String getCurrentTool(String commonToolId) {
+		try {
+			String currentSiteId = ToolManager.getCurrentPlacement().getContext();
+			Site site = SiteService.getSite(currentSiteId);
+			ToolConfiguration toolConfig = site.getToolForCommonId(commonToolId);
+			if (toolConfig == null) return null;
+			return toolConfig.getId();
+		} catch (Exception e) {
+			return null;
+		}
+        }
 
 }

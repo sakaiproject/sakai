@@ -464,9 +464,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  } else if (type.equals(CC_QUESTION_BANK0) || type.equals(CC_QUESTION_BANK1))
 	      ;
 	  else if (type.equals(CC_BLTI0) || type.equals(CC_BLTI1)) { 
-System.out.println("YO YO");
 	      String filename = getFileName(resource);
-System.out.println("filename="+filename);
 	      Element topicXml =  parser.getXML(loader, filename);
 	      XMLOutputter outputter = new XMLOutputter();
 	      String strXml = null;
@@ -476,20 +474,14 @@ System.out.println("filename="+filename);
 	      catch (Exception e) {
 	          strXml = null;
 	      }
-System.out.println("element="+strXml);
 	      Namespace bltiNs = ns.blti_ns();
-System.out.println("bltiNs="+bltiNs);
 	      String bltiTitle = topicXml.getChildText(TITLE, bltiNs);
-System.out.println("bltiTitle="+bltiTitle);
 	      String launchUrl = topicXml.getChildText("secure_launch_url", bltiNs);
 	      if ( launchUrl == null ) launchUrl = topicXml.getChildText("launch_url", bltiNs);
-System.out.println("launch_url="+launchUrl);
 
 		// TODO: Custom
-
 		Map<String,Object> theTool = null;
 		List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0);
-System.out.println(""+tools.size()+" tools available\n");
 		for ( Map<String,Object> tool : tools ) {
 			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
 			if ( toolLaunch.equals(launchUrl) ) {
@@ -502,8 +494,8 @@ System.out.println(""+tools.size()+" tools available\n");
 			Properties props = new Properties ();
 			props.setProperty(LTIService.LTI_LAUNCH,launchUrl);
 			props.setProperty(LTIService.LTI_TITLE, bltiTitle);
-			props.setProperty(LTIService.LTI_CONSUMERKEY, "-----");
-			props.setProperty(LTIService.LTI_SECRET, "-----"); 
+			props.setProperty(LTIService.LTI_CONSUMERKEY, LTIService.LTI_SECRET_INCOMPLETE);
+			props.setProperty(LTIService.LTI_SECRET, LTIService.LTI_SECRET_INCOMPLETE);
 			// TODO: custom
 			// props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
 
@@ -526,6 +518,8 @@ System.out.println(""+tools.size()+" tools available\n");
 			Object result = ltiService.insertContent(props);
 			if ( result instanceof String ) {
 				System.out.println("Could not insert content - "+result);
+			} else {
+				System.out.println("Adding LTI tool "+result);
 			}
 			if ( result instanceof Long ) theContent = ltiService.getContent((Long) result);
 		}
@@ -536,12 +530,12 @@ System.out.println(""+tools.size()+" tools available\n");
 		}
 
 		if ( sakaiId != null ) {
-			System.out.println("about to add LTI item "+sakaiId);
+			System.out.println("Adding LTI content item "+sakaiId);
 			SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.BLTI, sakaiId, title);
 			simplePageBean.saveItem(item);
 			sequences.set(top, seq+1);
 		} else {
-System.out.println("Unsuccessful import..");
+			System.out.println("LTI Import Failed..");
 		}
 	  } else
 	      System.err.println("implemented type: " + resource.getAttributeValue(TYPE));
