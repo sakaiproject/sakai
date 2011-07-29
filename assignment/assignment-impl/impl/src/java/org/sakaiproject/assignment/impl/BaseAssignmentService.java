@@ -99,6 +99,7 @@ import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -163,7 +164,7 @@ import org.xml.sax.SAXException;
  * The Concrete Service classes extending this are the XmlFile and DbCached storage classes.
  * </p>
  */
-public abstract class BaseAssignmentService implements AssignmentService, EntityTransferrer
+public abstract class BaseAssignmentService implements AssignmentService, EntityTransferrer, EntityTransferrerRefMigrator
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseAssignmentService.class);
@@ -5693,8 +5694,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	/**
 	 * {@inheritDoc}
 	 */
-	public void transferCopyEntities(String fromContext, String toContext, List resourceIds)
+	public void transferCopyEntities(String fromContext, String toContext, List resourceIds){
+		transferCopyEntitiesRefMigrator(fromContext, toContext, resourceIds);
+	}
+
+
+	public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List resourceIds)
 	{
+		Map<String, String> transversalMap = new HashMap<String, String>();
 		// import Assignment objects
 		Iterator oAssignments = getAssignmentsForContext(fromContext);
 		while (oAssignments.hasNext())
@@ -5850,6 +5857,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							m_assignmentStorage.commit(nAssignment);
 							((BaseAssignmentEdit) nAssignment).closeEdit();
 							
+							transversalMap.put("assignment/" + oAssignment.getId(), "assignment/" + nAssignment.getId());
+							
 							try {
 								if (m_taggingManager.isTaggable()) {
 									for (TaggingProvider provider : m_taggingManager
@@ -5874,6 +5883,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				} // if-else
 			} // if
 		} // for
+		return transversalMap;
 	} // importResources
 
 	/**
@@ -12260,8 +12270,58 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 	}
 	
-	public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
+	/**
+	 * {@inheritDoc}
+	 */
+	public void updateEntityReferences(String toContext, Map<String, String> transversalMap){
+		if(transversalMap != null && transversalMap.size() > 0){
+			Set<Entry<String, String>> entrySet = (Set<Entry<String, String>>) transversalMap.entrySet();
+			
+			enableSecurityAdvisor();
+
+			String toSiteId = toContext;
+			Iterator assignmentsIter = getAssignmentsForContext(toSiteId);
+			while (assignmentsIter.hasNext())
+			{
+				Assignment assignment = (Assignment) assignmentsIter.next();
+				String assignmentId = assignment.getId();
+				try 
+				{
+					String msgBody = assignment.getContent().getInstructions();
+					boolean updated = false;
+					Iterator<Entry<String, String>> entryItr = entrySet.iterator();
+					while(entryItr.hasNext()) {
+						Entry<String, String> entry = (Entry<String, String>) entryItr.next();
+						String fromContextRef = entry.getKey();
+						if(msgBody.contains(fromContextRef)){									
+							msgBody = msgBody.replace(fromContextRef, entry.getValue());
+							updated = true;
+						}								
+					}	
+					if(updated){
+						AssignmentContentEdit cEdit = editAssignmentContent(assignment.getContentReference());
+						cEdit.setInstructions(msgBody);
+						commitEdit(cEdit);
+					}					
+				}
+				catch(Exception ee)
+				{
+					M_log.warn(":transferCopyEntities: remove Assignment and all references for " + assignment.getId() + ee.getMessage());
+				}
+			}
+
+			disableSecurityAdvisor();
+		}
+	}
+
+	public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup){
+		transferCopyEntitiesRefMigrator(fromContext, toContext, ids, cleanup);
+	}
+
+	public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List ids, boolean cleanup)
 	{	
+		Map<String, String> transversalMap = new HashMap<String, String>();
+		
 		try
 		{
 			if(cleanup == true)
@@ -12289,12 +12349,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				
 				disableSecurityAdvisor();
 			}
-			transferCopyEntities(fromContext, toContext, ids);
+			transversalMap.putAll(transferCopyEntitiesRefMigrator(fromContext, toContext, ids));
 		}
 		catch (Exception e)
 		{
 			M_log.info(this + "transferCopyEntities: End removing Assignmentt data" + e.getMessage());
 		}
+		
+		return transversalMap;
 	}
 
 	/**
