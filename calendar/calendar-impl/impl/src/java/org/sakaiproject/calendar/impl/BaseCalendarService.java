@@ -116,6 +116,7 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
 import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -164,12 +165,13 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
+import java.util.Map.Entry;
 /**
  * <p>
  * BaseCalendarService is an base implementation of the CalendarService. Extension classes implement object creation, access and storage.
  * </p>
  */
-public abstract class BaseCalendarService implements CalendarService, StorageUser, CacheRefresher, ContextObserver, EntityTransferrer, SAXEntityReader
+public abstract class BaseCalendarService implements CalendarService, StorageUser, CacheRefresher, ContextObserver, EntityTransferrer, SAXEntityReader, EntityTransferrerRefMigrator
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseCalendarService.class);
@@ -1876,8 +1878,15 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	/**
 	 * {@inheritDoc}
 	 */
-	public void transferCopyEntities(String fromContext, String toContext, List resourceIds)
+        public void transferCopyEntities(String fromContext, String toContext, List resourceIds)
+        {
+                transferCopyEntitiesRefMigrator(fromContext, toContext, resourceIds); 
+        }
+
+        public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List resourceIds)
 	{
+		Map<String, String> transversalMap = new HashMap<String, String>();
+		
 		// get the channel associated with this site
 		String oCalendarRef = calendarReference(fromContext, SiteService.MAIN_CONTAINER);
 
@@ -2045,8 +2054,66 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		catch (IdUnusedException ignore) {}
 		catch (PermissionException ignore) {}
 
+		return transversalMap;
 	} // importResources
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public void updateEntityReferences(String toContext, Map<String, String> transversalMap){
+		if(transversalMap != null && transversalMap.size() > 0){
+			Set<Entry<String, String>> entrySet = (Set<Entry<String, String>>) transversalMap.entrySet();
+
+			try
+			{
+				String toSiteId = toContext;	
+				String calendarId = calendarReference(toSiteId, SiteService.MAIN_CONTAINER);
+				Calendar calendarObj = getCalendar(calendarId);	
+				List calEvents = calendarObj.getEvents(null,null);
+
+				for (int i = 0; i < calEvents.size(); i++)
+				{
+					try
+					{	
+						CalendarEvent ce = (CalendarEvent) calEvents.get(i);	
+						String msgBodyFormatted = ce.getDescriptionFormatted();						
+						boolean updated = false;
+						Iterator<Entry<String, String>> entryItr = entrySet.iterator();
+						while(entryItr.hasNext()) {
+							Entry<String, String> entry = (Entry<String, String>) entryItr.next();
+							String fromContextRef = entry.getKey();
+							if(msgBodyFormatted.contains(fromContextRef)){						
+								msgBodyFormatted = msgBodyFormatted.replace(fromContextRef, entry.getValue());
+								updated = true;
+							}								
+						}	
+						if(updated){
+							CalendarEventEdit edit = calendarObj.getEditEvent(ce.getId(), org.sakaiproject.calendar.api.CalendarService.EVENT_MODIFY_CALENDAR);
+							edit.setDescriptionFormatted(msgBodyFormatted);
+							calendarObj.commitEvent(edit);
+						}
+					}
+					catch (IdUnusedException e)
+					{
+						M_log.debug(".IdUnusedException " + e);
+					}
+					catch (PermissionException e)
+					{
+						M_log.debug(".PermissionException " + e);
+					}
+					catch (InUseException e)
+					{
+						M_log.debug(".InUseException delete" + e);
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				M_log.info("importSiteClean: End removing Calendar data" + e);
+			}
+		}		  		  
+	}
+	
 	/**
 	 * @inheritDoc
 	 */
@@ -7127,8 +7194,14 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		m_services = services;
 	}
 
-	public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
+        public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
+        {
+                transferCopyEntitiesRefMigrator(fromContext, toContext, ids, cleanup);
+        }
+
+        public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List ids, boolean cleanup)
 	{	
+		Map<String, String> transversalMap = new HashMap<String, String>();
 		try
 		{
 			if(cleanup == true)
@@ -7163,12 +7236,14 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 				}
 				
 			}
-			transferCopyEntities(fromContext, toContext, ids);	
+			transversalMap.putAll(transferCopyEntitiesRefMigrator(fromContext, toContext, ids));	
 		}
 		catch (Exception e)
 		{
 			M_log.info("importSiteClean: End removing Calendar data" + e);
 		}
+		
+		return transversalMap;
 	}
 
 	/** 
