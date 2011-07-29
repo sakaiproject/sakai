@@ -276,16 +276,19 @@ public class Foorm {
       boolean required, Object loader) {
     sb.append("<p id=\"");
     sb.append(field);
-    sb.append(".input\" class=\"shorttext\" style=\"clear:all;\">");
+    sb.append(".input\" class=\"foorm-"+type+"\" style=\"clear:all;\">");
+
+    if (label != null && ( ! "checkbox".equals(type) ) ) {
+      sb.append("<label for=\"");
+      sb.append(field);
+      sb.append("\" style=\"display:block;float:none;\">");
+    }
     if (label != null && required ) {
-      sb.append("<span class=\"reqStar\" title=\"");
+      sb.append("<span class=\"foorm-required\" style=\"color:#903;font-weight:bold;\" title=\"");
       sb.append(getI18N(label, loader));
       sb.append("\">*</span>");
     }
     if (label != null && ( ! "checkbox".equals(type) ) ) {
-      sb.append("<label for=\"");
-      sb.append(field);
-      sb.append("\">");
       sb.append(getI18N(label, loader));
       sb.append("</label>");
     }
@@ -326,7 +329,7 @@ public class Foorm {
     sb.append(field);
     sb.append("\" size=\"");
     sb.append(size);
-    sb.append("\" value=\"");
+    sb.append("\" style=\"border:1px solid #555;padding:5px;font-size:1em;width:300px\" value=\"");
     sb.append(htmlSpecialChars(value));
     sb.append("\"/>");
     formInputEnd(sb, field, label, required, loader);
@@ -389,7 +392,7 @@ public class Foorm {
     sb.append(field);
     sb.append(".input\" class=\"longtext\" style=\"clear:all;\">");
     formInputStart(sb, field, "textarea", label, required, loader);
-    sb.append("<br cler=\"all\"/>\n<textarea id=\"");
+    sb.append("<textarea style=\"border:1px solid #555;width:300px\" id=\"");
     sb.append(field);
     sb.append("\" name=\"");
     sb.append(field);
@@ -417,8 +420,10 @@ public class Foorm {
   public String formInputRadio(Object value, String field, String label,
       boolean required, String[] choices, Object loader) {
     StringBuffer sb = new StringBuffer();
-    formInputStart(sb, field, "radio", label, required, loader);
-    sb.append("<br clear=\"all\"/>\n");
+    // formInputStart(sb, field, "radio", label, required, loader);
+    sb.append("<h4>");
+    sb.append(getI18N(label, loader));
+    sb.append("</h4>\n");
     int val = 0;
     if (value != null && value instanceof Integer)
       val = ((Integer) value).intValue();
@@ -435,14 +440,18 @@ public class Foorm {
       String checked = "";
       if (i == val)
         checked = " checked=\"checked\"";
+      sb.append("<p  style=\"border:padding:3px;;margin:7px 3px;\">\n");
       sb.append("<input type=\"radio\" name=\"");
       sb.append(field);
       sb.append("\" value=\"" + i + "\" id=\"");
-      sb.append(field + "_" + choice + "\"");
+      String id = field + "_" + choice;
+      sb.append(id + "\"");
       sb.append(checked);
-      sb.append("/>");
+      sb.append("/><label for=\"");
+      sb.append(id);
+      sb.append("\">");
       sb.append(getI18N(label + "_" + choice, loader));
-      sb.append("<br/>\n");
+      sb.append("</label></p>\n");
       i++;
     }
     formInputEnd(sb, field, label, required, loader);
@@ -566,8 +575,8 @@ public class Foorm {
     String label = info.getProperty("label", field);
     boolean required = "true".equals(info.getProperty("required", "false"));
     String size = info.getProperty("size", "40");
-    String cols = info.getProperty("cols", "25");
-    String rows = info.getProperty("rows", "2");
+    String cols = info.getProperty("cols", "40");
+    String rows = info.getProperty("rows", "5");
 
     if ("key".equals(type))
       return formInputKey(value, field);
@@ -1215,18 +1224,12 @@ public class Foorm {
       }
       if ("radio".equals(type) || "checkbox".equals(type) ) {
         // Field = Always Off (0), Always On (1), or Delegate(2)
-        Object value = getField(controlRow, field);
-        if (value != null && !(value instanceof Integer))
-          continue;
-        if (value == null || ((Integer) value).intValue() == 2)
-          ret.add(line);
+        int value = getInt(getField(controlRow, field));
+        if ( value == 2 || ! isFieldSet(controlRow, field) ) ret.add(line);
       } else {
         // Allow = 0ff (0) or On (1)
-        Object value = getField(controlRow, "allow" + field);
-        if (value != null && !(value instanceof Integer))
-          continue;
-        if (value == null || ((Integer) value).intValue() == 1)
-          ret.add(line);
+        int value = getInt(getField(controlRow, "allow" + field));
+        if (value == 1 || ! isFieldSet(controlRow, "allow"+field) ) ret.add(line);
       }
     }
     return ret.toArray(new String[ret.size()]);

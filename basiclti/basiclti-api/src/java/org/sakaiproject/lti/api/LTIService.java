@@ -294,10 +294,9 @@ public interface LTIService {
    */
   static String[] CONTENT_MODEL = { 
       "id:key", 
-       "tool_id:integer:hidden=true",
+      "tool_id:integer:hidden=true",
       "SITE_ID:text:maxlength=99:label=bl_content_site_id:role=admin",
       "title:text:label=bl_content_title:required=true:maxlength=255",
-      "description:textarea:label=bl_description:rows=2:cols=25:maxlength=4096:",
       "frameheight:integer:label=bl_frameheight",
       "newpage:checkbox:label=bl_newpage",
       "debug:checkbox:label=bl_debug",
@@ -312,13 +311,14 @@ public interface LTIService {
    */
   static String[] TOOL_MODEL = { 
       "id:key",
+      "SITE_ID:text:maxlength=99:role=admin",
       "title:text:label=bl_title:required=true:maxlength=255",
-      "description:textarea:label=bl_description:rows=2:cols=25:maxlength=4096:",
+      "description:textarea:label=bl_description:maxlength=4096:",
       "status:radio:label=bl_status:choices=enable,disable",
       "launch:url:label=bl_launch:required=true:maxlength=255",
       "consumerkey:text:label=bl_consumerkey:required=true:maxlength=255",
       "secret:text:required=true:label=bl_secret:maxlength=255",
-      "SITE_ID:text:maxlength=99:role=admin", "frameheight:integer:label=bl_frameheight",
+      "frameheight:integer:label=bl_frameheight",
       "allowframeheight:checkbox:label=bl_allowframeheight",
       "privacy:header:fields=sendname,sendemailaddr",
       "sendname:checkbox:label=bl_sendname",
