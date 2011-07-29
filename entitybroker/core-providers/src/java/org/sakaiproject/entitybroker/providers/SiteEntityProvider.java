@@ -40,6 +40,7 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
 import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -107,6 +108,11 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable {
     public void setUserEntityProvider(UserEntityProvider userEntityProvider) {
         this.userEntityProvider = userEntityProvider;
     }
+    
+    private ServerConfigurationService serverConfigurationService;
+    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+        this.serverConfigurationService = serverConfigurationService;
+    }
 
     public static String PREFIX = "site";
     public String getEntityPrefix() {
@@ -115,6 +121,39 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable {
 
     private static final String GROUP_PROP_WSETUP_CREATED = "group_prop_wsetup_created";
 
+    /** Property to set the default page size for lists of entities. */
+    public static final String PROP_SITE_PROVIDER_PAGESIZE_DEFAULT = "site.entity.pagesize.default";
+
+    /** Property to set the maximum page size for lists of entities. */
+    public static final String PROP_SITE_PROVIDER_PAGESIZE_MAXIMUM = "site.entity.pagesize.maximum";
+    
+    /**
+     * The default page size for lists of entities. May be overridden with
+     * a property of "site.entity.pagesize.default".
+     */
+    private int defaultPageSize = 50;
+    
+    /**
+     * The maximum page size for lists of entities. May be overridden with
+     * a property of "site.entity.pagesize.maximum".
+     */
+    private int maxPageSize = 500;
+    
+    public void init() {
+        int dps = serverConfigurationService.getInt(
+                PROP_SITE_PROVIDER_PAGESIZE_DEFAULT, defaultPageSize);
+        if (dps > 0) {
+            defaultPageSize = dps;
+        }
+
+        int mps = serverConfigurationService.getInt(
+                PROP_SITE_PROVIDER_PAGESIZE_MAXIMUM, maxPageSize);
+        if (mps >= defaultPageSize) {
+            maxPageSize = mps;
+        } else {
+            maxPageSize = defaultPageSize;
+        }
+    }
 
     // ACTIONS
 
@@ -908,6 +947,7 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable {
         }
     }
 
+    @EntityParameters(accepted = { "select", "selectionType", "search", "_start", "_limit" })
     public List<?> getEntities(EntityReference ref, Search search) {
         String criteria = null;
         String selectType = "access";
@@ -938,6 +978,20 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable {
                 }
             }
         }
+        
+        int start = 1;
+        if (search.getStart() > 0 && search.getStart() < Integer.MAX_VALUE) {
+            // Search docs indicate 0-based indexing, while PagingPosition is 1-based
+            start = (int) search.getStart() + 1;
+        }
+
+        int limit = defaultPageSize;
+        if (search.getLimit() > 0 && search.getLimit() < Integer.MAX_VALUE) {
+            limit = (int) search.getLimit();
+        }
+        if (limit > maxPageSize) {
+            limit = maxPageSize;
+        }
 
         Restriction restrict = search.getRestrictionByProperty("search");
         if (restrict == null) {
@@ -947,7 +1001,7 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable {
             criteria = restrict.value + "";
         }
         List<Site> sites = siteService.getSites(sType, null, criteria, null, SortType.TITLE_ASC,
-                new PagingPosition(1, 50));
+                new PagingPosition(start, limit));
         // convert these into EntityUser objects
         List<EntitySite> entitySites = new ArrayList<EntitySite>();
         for (Site site : sites) {
