@@ -58,6 +58,7 @@ import org.sakaiproject.memory.api.MemoryService;
 import uk.org.ponder.messageutil.MessageLocator;
 
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.lti.impl.DBLTIService; // HACK
 
 import org.sakaiproject.util.foorm.SakaiFoorm;
 
@@ -125,6 +126,12 @@ public class BltiEntity implements LessonEntity {
 	log.info("init()");
 	bltiCache = memoryService
 	    .newCache("org.sakaiproject.lessonbuildertool.service.BltiEntity.cache");
+
+		if ( ltiService == null ) { 
+			ltiService = (LTIService) new DBLTIService(); 
+			((org.sakaiproject.lti.impl.DBLTIService) ltiService).setAutoDdl("true"); 
+			((org.sakaiproject.lti.impl.DBLTIService) ltiService).init(); 
+		} 
 
         if ( ltiService == null ) ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
     }
