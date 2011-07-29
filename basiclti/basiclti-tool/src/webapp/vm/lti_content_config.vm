@@ -1,0 +1,31 @@
+<div class="portletBody">
+	<h3>
+		$tlang.getString("content.put")
+	</h3>
+	#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	<form action="#toolForm("")" method="post" name="customizeForm" >
+<h4>$tool_title</h4>
+#if ( $tool_description ) 
+<p>$validator.escapeHtml($tool_description)</p>
+#end
+#if ( $toolId ) 
+#else
+#end
+#if ( $formInput ) 
+		$formInput
+#end
+                <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+                <input type="hidden" name="tool_id" value="$tool_id" />
+                <input type="hidden" name="returnUrl" value="$returnUrl" />
+		<p class="act">
+			<input type="submit" accesskey ="s" class="active" name="$doAction" 
+				value="$tlang.getString('gen.save')" />
+			<input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" 
+ 				onclick="parent.location = '$returnUrl';return false;">
+		</p>
+	</form>
+#if ( $isAdmin ) 
+$tlang.getString("content.admin.note")
+#end
+</div>

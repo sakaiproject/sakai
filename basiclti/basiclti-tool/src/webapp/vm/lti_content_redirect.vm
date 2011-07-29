@@ -1,0 +1,6 @@
+<div class="portletBody">
+<script type="text/javascript"><!--
+parent.location = "$returnUrl";
+// -->
+</script>
+</div>
