@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	
+	<modelVersion>4.0.0</modelVersion>
+	
+	<parent>
+    <artifactId>dashboard</artifactId>
+    <groupId>org.sakaiproject.dash</groupId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+	
+	<name>dashboard - Tool</name>
+	<groupId>org.sakaiproject.dash</groupId>
+	<artifactId>dashboard-tool</artifactId>
+	
+	<packaging>war</packaging>
+	
+	<dependencies>
+		
+		<!-- project dependencies -->
+		<dependency>
+      		<groupId>org.sakaiproject.dash</groupId>
+      		<artifactId>dashboard-api</artifactId>
+    	</dependency>
+    	
+    	<!-- third party dependencies -->
+		<dependency>
+			<groupId>org.apache.wicket</groupId>
+			<artifactId>wicket</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.wicket</groupId>
+			<artifactId>wicket-spring</artifactId>
+    	</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
+		
+		<!-- Sakai dependencies -->
+       	<dependency>
+           	<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-component-manager</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-util</artifactId>
+		</dependency>
+
+	</dependencies>
+	
+
+	<build>
+		<resources>
+			<!-- include our HTML but not the Java source -->
+			<resource>
+				<directory>src/java</directory>
+				<includes>
+					<include>**</include>
+				</includes>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</resource>
+			<!-- include our log4j.properties -->
+            <resource>
+                <directory>src/resources</directory>
+                <includes>
+                    <include>*.properties</include>
+                </includes>
+            </resource>
+		</resources>
+	</build>
+	
+</project>

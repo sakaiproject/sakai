@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	
+	<modelVersion>4.0.0</modelVersion>
+	
+	<name>dashboard - Base</name>
+	<groupId>org.sakaiproject.dash</groupId>
+	<artifactId>dashboard</artifactId>
+	
+	<packaging>pom</packaging>
+	<version>1.0-SNAPSHOT</version>
+	
+	<parent>
+		<groupId>org.sakaiproject.purepoms</groupId>
+		<artifactId>sakai-standard-tool</artifactId>
+		<version>2.9-SNAPSHOT</version>
+	</parent>
+	
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	
+	<dependencyManagement>
+		<dependencies>
+		
+			<!-- project dependencies -->
+			<dependency>
+      			<groupId>org.sakaiproject.dash</groupId>
+      			<artifactId>dashboard-api</artifactId>
+      			<version>1.0-SNAPSHOT</version>
+      			<scope>provided</scope>
+    		</dependency>
+    		<dependency>
+      			<groupId>org.sakaiproject.dash</groupId>
+      			<artifactId>dashboard-impl</artifactId>
+      			<version>1.0-SNAPSHOT</version>
+      			<scope>runtime</scope>
+    		</dependency>
+			
+			<!-- third party dependencies -->
+			<dependency>
+				<groupId>org.apache.wicket</groupId>
+				<artifactId>wicket</artifactId>
+				<version>1.4.17</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.wicket</groupId>
+				<artifactId>wicket-spring</artifactId>
+				<version>1.4.17</version>
+	    	</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-log4j12</artifactId>
+				<version>1.5.8</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>1.5.8</version>
+			</dependency>
+			<dependency>
+				<groupId>log4j</groupId>
+				<artifactId>log4j</artifactId>
+				<version>1.2.14</version>
+			</dependency>
+			<dependency>
+				<groupId>org.projectlombok</groupId>
+				<artifactId>lombok</artifactId>
+				<version>0.9.3</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring</artifactId>
+				<version>2.5.6.SEC02</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>net.sf.ehcache</groupId>
+				<artifactId>ehcache-core</artifactId>
+				<version>1.7.2</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>commons-lang</groupId>
+				<artifactId>commons-lang</artifactId>
+				<version>2.5</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>commons-configuration</groupId>
+				<artifactId>commons-configuration</artifactId>
+				<version>1.6</version>
+			</dependency>
+			
+			<!-- sakai dependencies -->
+			
+
+		</dependencies>
+	</dependencyManagement>
+	
+	
+	<repositories>
+		<repository>
+			<id>sakai-maven</id>
+			<name>Sakai Maven Repo</name>
+			<layout>default</layout>
+			<url>http://source.sakaiproject.org/maven2</url>
+			<releases>
+            </releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+      		<id>sakai-maven2-snapshots</id>
+      		<name>Sakai Maven Repo</name>
+      		<layout>default</layout>
+      		<url>http://source.sakaiproject.org/maven2-snapshots</url>
+      		<releases>
+                <enabled>false</enabled>
+            </releases>
+      		<snapshots>
+      		</snapshots>
+    	</repository>
+    	<repository>
+            <id>default</id>
+            <name>Maven Repository Switchboard</name>
+            <layout>default</layout>
+            <url>http://repo1.maven.org/maven2</url>
+            <releases>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+			<id>projectlombok.org</id>
+			<url>http://projectlombok.org/mavenrepo</url>
+		</repository>
+	</repositories>
+	
+	<pluginRepositories>
+		<pluginRepository>
+			<id>maven2-central-repo</id>
+			<name>Maven2 Central Repo</name>
+			<url>http://repo1.maven.org/maven2/</url>
+			<releases>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+		<pluginRepository>
+			<id>Sakai Plugin Repo</id>
+			<url>http://source.sakaiproject.org/maven2</url>
+			<releases>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+		<pluginRepository>
+			<name>oss.sonatype.org - github-releases</name>
+			<id>oss.sonatype.org-github-releases</id>
+			<url>http://oss.sonatype.org/content/repositories/github-releases</url>
+		</pluginRepository>
+	</pluginRepositories>
+	
+	
+	
+  <modules>
+    <module>tool</module>
+    <module>api</module>
+    <module>impl</module>
+    <module>pack</module>
+  </modules>
+</project>
