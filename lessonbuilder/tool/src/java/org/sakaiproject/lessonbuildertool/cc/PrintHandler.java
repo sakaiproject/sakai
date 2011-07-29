@@ -491,7 +491,7 @@ System.out.println("launch_url="+launchUrl);
 		List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0);
 System.out.println(""+tools.size()+" tools available\n");
 		for ( Map<String,Object> tool : tools ) {
-			String toolLaunch = (String) tool.get("launch");
+			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
 			if ( toolLaunch.equals(launchUrl) ) {
 				theTool = tool;
 				break;				
@@ -500,12 +500,12 @@ System.out.println(""+tools.size()+" tools available\n");
 
 		if ( theTool == null ) {
 			Properties props = new Properties ();
-			props.setProperty("launch",launchUrl);
-			props.setProperty("title", bltiTitle);
-			props.setProperty("consumerkey", "-----");
-			props.setProperty("secret", "-----"); 
+			props.setProperty(LTIService.LTI_LAUNCH,launchUrl);
+			props.setProperty(LTIService.LTI_TITLE, bltiTitle);
+			props.setProperty(LTIService.LTI_CONSUMERKEY, "-----");
+			props.setProperty(LTIService.LTI_SECRET, "-----"); 
 			// TODO: custom
-			// props.setProperty("xmlimport",strXml);
+			// props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
 
 			Object result = ltiService.insertTool(props);
 			if ( result instanceof String ) {
@@ -519,10 +519,10 @@ System.out.println(""+tools.size()+" tools available\n");
 
 		if ( theTool != null ) {
 			Properties props = new Properties ();
-			props.setProperty("tool_id",foorm.getLong(theTool.get("id")).toString());
-			props.setProperty("title", bltiTitle);
+			props.setProperty(LTIService.LTI_TOOL_ID,foorm.getLong(theTool.get(LTIService.LTI_ID)).toString());
+			props.setProperty(LTIService.LTI_TITLE, bltiTitle);
 			// TODO: custom
-			// props.setProperty("xmlimport",strXml);
+			// props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
 			Object result = ltiService.insertContent(props);
 			if ( result instanceof String ) {
 				System.out.println("Could not insert content - "+result);
@@ -532,7 +532,7 @@ System.out.println(""+tools.size()+" tools available\n");
 
 		String sakaiId = null;
 		if ( theContent != null ) {
-			sakaiId = "/blti/" + theContent.get("id");
+			sakaiId = "/blti/" + theContent.get(LTIService.LTI_ID);
 		}
 
 		if ( sakaiId != null ) {

@@ -49,6 +49,7 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
@@ -57,7 +58,6 @@ import org.sakaiproject.memory.api.MemoryService;
 import uk.org.ponder.messageutil.MessageLocator;
 
 import org.sakaiproject.lti.api.LTIService;
-import org.sakaiproject.lti.impl.DBLTIService; // HACK
 
 import org.sakaiproject.util.foorm.SakaiFoorm;
 
@@ -87,9 +87,12 @@ public class BltiEntity implements LessonEntity {
 
     private SimplePageBean simplePageBean;
 
-    protected static LTIService ltiService = null; 
     protected static SakaiFoorm foorm = new SakaiFoorm();
 
+    protected static LTIService ltiService = null; 
+    public void setLtiService(LTIService ltiService) {
+	this.ltiService = ltiService;
+    }
 
     public void setSimplePageBean(SimplePageBean simplePageBean) {
 	this.simplePageBean = simplePageBean;
@@ -119,16 +122,11 @@ public class BltiEntity implements LessonEntity {
     }
 
     public void init () {
+	log.info("init()");
 	bltiCache = memoryService
 	    .newCache("org.sakaiproject.lessonbuildertool.service.BltiEntity.cache");
 
-	log.info("init()");
-	if ( ltiService == null ) { 
-		ltiService = (LTIService) new DBLTIService(); 
-		((org.sakaiproject.lti.impl.DBLTIService) ltiService).setAutoDdl("true"); 
-		((org.sakaiproject.lti.impl.DBLTIService) ltiService).init(); 
-	} 
-
+        if ( ltiService == null ) ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
     }
 
     public void destroy()
@@ -208,7 +206,7 @@ public class BltiEntity implements LessonEntity {
 	List<LessonEntity> ret = new ArrayList<LessonEntity>();
 	List<Map<String,Object>> contents = ltiService.getContents(null,null,0,0);
 	for (Map<String, Object> content : contents ) {
-	    Long id = foorm.getLong(content.get("id"));
+	    Long id = foorm.getLong(content.get(LTIService.LTI_ID));
 	    if ( id == -1 ) continue;
 	    BltiEntity entity = new BltiEntity(TYPE_BLTI, id.toString());
 	    entity.content = content;
@@ -249,7 +247,7 @@ public class BltiEntity implements LessonEntity {
     public String getTitle() {
 	loadContent();
 	if ( content == null ) return null;
-	return (String) content.get("title");
+	return (String) content.get(LTIService.LTI_TITLE);
     }
 
     public String getUrl() {
@@ -309,8 +307,8 @@ public class BltiEntity implements LessonEntity {
 	List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0);
 	for ( Map<String,Object> tool : tools ) {
 		String url = "/portal/tool/" + toolId + "/sakai.basiclti.admin.helper.helper?panel=ContentConfig&tool_id=" 
-			+ tool.get("id") + "&returnUrl=" + URLEncoder.encode(returnUrl);
-		list.add(new UrlItem(url, (String) tool.get("title")));
+			+ tool.get(LTIService.LTI_ID) + "&returnUrl=" + URLEncoder.encode(returnUrl);
+		list.add(new UrlItem(url, (String) tool.get(LTIService.LTI_TITLE)));
 	}
 
 	String url = "/portal/tool/" + toolId + "/sakai.basiclti.admin.helper.helper?panel=Main" + 
@@ -323,14 +321,14 @@ public class BltiEntity implements LessonEntity {
 	loadContent();
 	if (content == null)
 	    return false;
-	Long newPage = foorm.getLong(content.get("newpage"));
+	Long newPage = foorm.getLong(content.get(LTIService.LTI_NEWPAGE));
         return (newPage == 1) ; 
     }
 
     public int frameSize() {
         loadContent();
         if ( content == null  ) return -1;
-        Long newPage = foorm.getLong(content.get("frameheight"));
+        Long newPage = foorm.getLong(content.get(LTIService.LTI_FRAMEHEIGHT));
         return newPage.intValue();
     }
     // URL to edit an existing entity.                                                                                                       
@@ -341,7 +339,7 @@ public class BltiEntity implements LessonEntity {
 	loadContent();
 	if (content == null)
 	    return null;
-	String url = "/portal/tool/" + tool + "/sakai.basiclti.admin.helper.helper?panel=ContentConfig&id=" + content.get("id");
+	String url = "/portal/tool/" + tool + "/sakai.basiclti.admin.helper.helper?panel=ContentConfig&id=" + content.get(LTIService.LTI_ID);
 	return url;
     }
 
