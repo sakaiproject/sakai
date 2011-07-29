@@ -672,7 +672,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		        addAlert(state,rb.getString("error.missing.return"));
 		        return "lti_error";
 		}
-System.out.println("Redirecting parent frame back to="+returnUrl);
+		// System.out.println("Redirecting parent frame back to="+returnUrl);
 		if ( ! returnUrl.startsWith("about:blank") ) context.put("returnUrl",returnUrl);
 		return "lti_content_redirect";
 	}

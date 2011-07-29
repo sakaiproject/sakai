@@ -449,8 +449,8 @@ public class SakaiBLTIUtil {
 		}
 	}
 
-System.out.println("ltiProps="+ltiProps);
-System.out.println("toolProps="+toolProps);
+	// System.out.println("ltiProps="+ltiProps);
+	// System.out.println("toolProps="+toolProps);
 
         return postLaunchHTML(toolProps, ltiProps, rb);
     }
