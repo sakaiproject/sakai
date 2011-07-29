@@ -299,7 +299,22 @@ $(function() {
 	});
 	
 	$(".edit-comments").click(function(){
+		$("#editgroups-comments").after($("#grouplist"));
+		$("#grouplist").hide();
+		$("#editgroups-comments").hide();
+
 		var row = $(this).parent().parent().parent();
+
+		var groups = row.find(".item-groups").text();
+		var grouplist = $("#grouplist");
+		if (grouplist != null) {
+		    $("#editgroups-comments").show();
+		    $("#grouplist").show();
+		    if (groups != null) {
+			checkgroups(grouplist, groups);
+		    }
+		}
+
 		var itemId = row.find(".comments-id").text();
 		
 		$("#commentsEditId").val(itemId);
@@ -316,11 +331,33 @@ $(function() {
 		$("#comments-dialog").dialog("option", "position", [position.left, position.top]);
 		$('.hideOnDialog').hide();
 		$('#comments-dialog').dialog('open');
+		checksize($("#comments-dialog"));
+		$("#grouplist").hide();
 		return false;
 	});
 	
+	$("#editgroups-comments").click(function(){
+		$("#editgroups-comments").hide();
+		$("#grouplist").show();
+	    });
+
 	$(".edit-student").click(function(){
+		$("#editgroups-student").after($("#grouplist"));
+		$("#grouplist").hide();
+		$("#editgroups-student").hide();
+
 		var row = $(this).parent().parent().parent();
+
+		var groups = row.find(".item-groups").text();
+		var grouplist = $("#grouplist");
+		if (grouplist != null) {
+		    $("#editgroups-student").show();
+		    $("#grouplist").show();
+		    if (groups != null) {
+			checkgroups(grouplist, groups);
+		    }
+		}
+
 		var itemId = row.find(".student-id").text();
 		
 		$("#studentEditId").val(itemId);
@@ -359,9 +396,16 @@ $(function() {
 		$("#student-dialog").dialog("option", "position", [position.left, position.top]);
 		$('.hideOnDialog').hide();
 		$('#student-dialog').dialog('open');
+		checksize($("#student-dialog"));
+		$("#grouplist").hide();
 		return false;
 	});
 	
+	$("#editgroups-student").click(function(){
+		$("#editgroups-students").hide();
+		$("#grouplist").show();
+	    });
+
 	$("#student-comments").click(function() {
 		if(!$("#student-comments").attr("checked")) {
 			$("#student-comments-anon").attr("disabled", true).removeAttr("checked");

@@ -2186,7 +2186,9 @@ public class SimplePageBean {
 
 
 	    if (!nocache && i.getType() != SimplePageItem.PAGE 
-		         && i.getType() != SimplePageItem.TEXT) {
+		         && i.getType() != SimplePageItem.TEXT
+		         && i.getType() != SimplePageItem.COMMENTS
+		         && i.getType() != SimplePageItem.STUDENT_CONTENT) {
 	       Object cached = groupCache.get(i.getSakaiId());
 	       if (cached != null) {
 		   if (cached instanceof String)
@@ -2208,9 +2210,10 @@ public class SimplePageBean {
 		   return getResourceGroups(i, nocache);  // responsible for caching the result
 	       case SimplePageItem.TEXT:
 	       case SimplePageItem.PAGE:
+	       case SimplePageItem.COMMENTS:
+	       case SimplePageItem.STUDENT_CONTENT:
 		   return getLBItemGroups(i); // for all native LB objects
 	       default:
-	       case SimplePageItem.STUDENT_CONTENT:
 	    	   return null;
 	       }
 	   }
@@ -2348,6 +2351,8 @@ public class SimplePageBean {
 	       return setResourceGroups (i, groups);
 	   case SimplePageItem.TEXT:
 	   case SimplePageItem.PAGE:
+	   case SimplePageItem.COMMENTS:
+	   case SimplePageItem.STUDENT_CONTENT:
 	       return setLBItemGroups(i, groups);
 	   }
 	   if (lessonEntity != null) {
@@ -4217,6 +4222,7 @@ public class SimplePageBean {
 		if(canEditPage()) {
 			SimplePageItem comment = findItem(itemId);
 			comment.setAnonymous(anonymous);
+			setItemGroups(comment, selectedGroups);
 			update(comment);
 			return "success";
 		}else {
@@ -4350,6 +4356,7 @@ public class SimplePageBean {
 			page.setAnonymous(anonymous);
 			page.setShowComments(comments);
 			page.setForcedCommentsAnonymous(forcedAnon);
+			setItemGroups(page, selectedGroups);
 			update(page);
 			
 			// Update the comments tools to reflect any changes

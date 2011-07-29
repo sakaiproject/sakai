@@ -1232,6 +1232,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 						UIOutput.make(tableRow, "commentsId", String.valueOf(i.getId()));
 						UIOutput.make(tableRow, "commentsAnon", String.valueOf(i.isAnonymous()));
+						String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+						if (itemGroupString != null) {
+						    String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString);
+						    if (itemGroupTitles != null) {
+							itemGroupTitles = "[" + itemGroupTitles + "]";
+						    }
+						    UIOutput.make(tableRow, "comments-groups", itemGroupString);
+						    UIOutput.make(tableRow, "item-group-titles6", itemGroupTitles);
+						}
 					}
 
 					UIForm form = UIForm.make(tableRow, "comment-form");
@@ -1339,6 +1348,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						UIOutput.make(tableRow, "studentAnon", String.valueOf(i.isAnonymous()));
 						UIOutput.make(tableRow, "studentComments", String.valueOf(i.getShowComments()));
 						UIOutput.make(tableRow, "forcedAnon", String.valueOf(i.getForcedCommentsAnonymous()));
+						String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+						if (itemGroupString != null) {
+						    String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString);
+						    if (itemGroupTitles != null) {
+							itemGroupTitles = "[" + itemGroupTitles + "]";
+						    }
+						    UIOutput.make(tableRow, "student-groups", itemGroupString);
+						    UIOutput.make(tableRow, "item-group-titles7", itemGroupTitles);
+						}
 					}
 				} else {
 					// remaining type must be a block of HTML

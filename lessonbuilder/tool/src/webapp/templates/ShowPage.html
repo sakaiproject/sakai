@@ -222,6 +222,7 @@ function resizeiframe(id) {
 					
 					<td rsf:id="commentsSpan" role="gridcell">
 						<div class="commentsDiv">
+							<div rsf:id="item-group-titles6" class="item-group-titles"></div>
 							<div class="replaceWithComments">Loading Comments ...</div>
 							
 							<div class="add-comment-button">
@@ -243,12 +244,14 @@ function resizeiframe(id) {
 						<a href="#" style="display:none" rsf:id="commentsLink" class="commentsBlock"></a>
 						<div style="display:none" rsf:id="commentsId" class="comments-id"></div>
 						<div style="display:none" rsf:id="commentsAnon" class="commentsAnon"></div>
+						<span style="display:none" rsf:id="comments-groups" class="item-groups"></span>
 					</td>
 					
 					<td rsf:id="student-td" role="gridcell" class="edit-col"><div><a href="#" class="usebutton edit-student" onclick="return false" rsf:id="edit-student"></a></div></td>
 					
 					<td rsf:id="studentSpan" role="gridcell">
 						<div class="studentDiv">
+							<div rsf:id="item-group-titles7" class="item-group-titles"></div>
 							<table class="studentContentTable">
 								<tr>
 									<th style="text-align:center;" colspan="4"><span rsf:id="msg=simplepage.student"></span></th>
@@ -270,6 +273,7 @@ function resizeiframe(id) {
 						<div style="display:none" rsf:id="studentAnon" class="studentAnon"></div>
 						<div style="display:none" rsf:id="studentComments" class="studentComments"></div>
 						<div style="display:none" rsf:id="forcedAnon" class="forcedAnon"></div>
+						<span style="display:none" rsf:id="student-groups" class="item-groups"></span>
 					</td>
 
 				</tr>
@@ -811,6 +815,9 @@ s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 							<input type="checkbox" name="comments-anonymous" id="comments-anonymous" rsf:id="comments-anonymous" />
 							<label for="comments-anonymous"><span rsf:id="msg=simplepage.comments-anonymous"></span></label><br />
 						</div>
+						<p id="editgroups-comments">
+						  <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
+						</p>
 					</div>
 					<br />
 
@@ -841,6 +848,11 @@ s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 							<input type="checkbox" name="student-comments-anon" id="student-comments-anon" class="indent" rsf:id="student-comments-anon" />
 							<label for="student-comments-anon"><span rsf:id="msg=simplepage.student-comments-anon"></span></label><br />
 						</div>
+
+                                               <p id="editgroups-student">
+                                                <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
+                                              </p>
+
 					</div>
 					<br />
 
