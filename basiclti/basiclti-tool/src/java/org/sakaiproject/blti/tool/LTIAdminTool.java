@@ -169,7 +169,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
                 context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		String [] mappingForm = ltiService.getToolModel();
-		String id = data.getParameters().getString("id");
+		String id = data.getParameters().getString(LTIService.LTI_ID);
 		if ( id == null ) {
 		        addAlert(state,rb.getString("error.id.not.found"));
 		        return "lti_main";
@@ -196,7 +196,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
                 context.put("doToolAction", BUTTON + "doToolPut");
                 context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		String [] mappingForm = ltiService.getToolModel();
-		String id = data.getParameters().getString("id");
+		String id = data.getParameters().getString(LTIService.LTI_ID);
 	        if ( id == null ) id = stateId;
 		if ( id == null ) {
 		        addAlert(state,rb.getString("error.id.not.found"));
@@ -221,7 +221,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
                 context.put("doToolAction", BUTTON + "doToolDelete");
 		String [] mappingForm = foorm.filterForm(ltiService.getToolModel(), "^title:.*|^launch:.*|^id:.*", null);
-		String id = data.getParameters().getString("id");
+		String id = data.getParameters().getString(LTIService.LTI_ID);
 		if ( id == null ) {
 		        addAlert(state,rb.getString("error.id.not.found"));
 		        return "lti_main";
@@ -251,7 +251,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		        return;
 		}
 		Properties reqProps = data.getParameters().getProperties();
-		String id = data.getParameters().getString("id");
+		String id = data.getParameters().getString(LTIService.LTI_ID);
 		Object retval = null;
                 if ( id == null ) {
                         addAlert(state,rb.getString("error.id.not.found"));
@@ -301,7 +301,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		        return;
 		}
 		Properties reqProps = data.getParameters().getProperties();
-		String id = data.getParameters().getString("id");
+		String id = data.getParameters().getString(LTIService.LTI_ID);
 		Object retval = null;
 		String success = null;
 		if ( id == null ) 
@@ -376,7 +376,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
                 context.put("doMappingAction", BUTTON + "doMappingPut");
                 context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		String [] mappingForm = ltiService.getMappingModel();
-		String id = data.getParameters().getString("id");
+		String id = data.getParameters().getString(LTIService.LTI_ID);
 		if ( id == null ) id = stateId;
 		if ( id == null ) {
 		        addAlert(state,rb.getString("error.id.not.found"));
@@ -401,7 +401,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
                 context.put("doToolAction", BUTTON + "doMappingDelete");
 		String [] mappingForm = ltiService.getMappingModel();
-		String id = data.getParameters().getString("id");
+		String id = data.getParameters().getString(LTIService.LTI_ID);
 		if ( id == null ) {
 		        addAlert(state,rb.getString("error.id.not.found"));
 		        return "lti_mapping";
@@ -434,7 +434,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		        return;
 		}
 		Properties reqProps = data.getParameters().getProperties();
-		String id = data.getParameters().getString("id");
+		String id = data.getParameters().getString(LTIService.LTI_ID);
 		Object retval = null;
 		String success = null;
 		if ( id == null ) 
@@ -471,7 +471,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		        return;
 		}
 		Properties reqProps = data.getParameters().getProperties();
-		String id = data.getParameters().getString("id");
+		String id = data.getParameters().getString(LTIService.LTI_ID);
 		Object retval = null;
                 if ( id == null ) {
                         addAlert(state,rb.getString("error.id.not.found"));
@@ -526,7 +526,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
                 Object previousData = null;
 
-		String toolId = data.getParameters().getString("tool_id");
+		String toolId = data.getParameters().getString(LTIService.LTI_TOOL_ID);
 		if ( toolId == null ) toolId = stateToolId;
 		Long key = null;
 		if ( toolId != null ) key = new Long(toolId);
@@ -539,7 +539,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			}
 		}
 
-		String contentId = data.getParameters().getString("id");
+		String contentId = data.getParameters().getString(LTIService.LTI_ID);
 		if ( contentId == null ) contentId = (String) state.getAttribute(STATE_CONTENT_ID);
 
                 if ( contentId == null ) {  // Insert
@@ -559,7 +559,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
                         }
 
 			if ( key == null ) {
-	                        key = foorm.getLongNull(content.get("tool_id"));
+	                        key = foorm.getLongNull(content.get(LTIService.LTI_TOOL_ID));
 			}
                         previousData = content;
                 }
@@ -573,8 +573,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	        String formInput = ltiService.formInput(previousData, contentForm);
 
 		context.put("formInput",formInput);
-                context.put("tool_id",key);
-		if ( tool != null ) context.put("tool_description", tool.get("description"));
+                context.put(LTIService.LTI_TOOL_ID,key);
+		if ( tool != null ) context.put("tool_description", tool.get(LTIService.LTI_DESCRIPTION));
 		return "lti_content_insert";
 	}
 
@@ -591,8 +591,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		        return;
 		}
 		Properties reqProps = data.getParameters().getProperties();
-		String id = data.getParameters().getString("id");
-		String toolId = data.getParameters().getString("tool_id");
+		String id = data.getParameters().getString(LTIService.LTI_ID);
+		String toolId = data.getParameters().getString(LTIService.LTI_TOOL_ID);
                 if ( toolId == null ) {
                         addAlert(state, rb.getString("error.id.not.found"));
                         return;
@@ -678,10 +678,10 @@ System.out.println("Redirecting parent frame back to="+returnUrl);
 		Map<String,Object> content = null;
 		Map<String,Object> tool = null;
 
-		Long toolKey = foorm.getLongNull(data.getParameters().getString("tool_id"));
+		Long toolKey = foorm.getLongNull(data.getParameters().getString(LTIService.LTI_TOOL_ID));
 
-		Long contentKey = foorm.getLongNull(data.getParameters().getString("id"));
-		if ( contentKey == null && previousPost != null ) contentKey = foorm.getLongNull(previousPost.getProperty("id"));
+		Long contentKey = foorm.getLongNull(data.getParameters().getString(LTIService.LTI_ID));
+		if ( contentKey == null && previousPost != null ) contentKey = foorm.getLongNull(previousPost.getProperty(LTIService.LTI_ID));
 		if ( contentKey != null ) {
 			content = ltiService.getContent(contentKey);
 			if ( content == null ) {
@@ -689,9 +689,9 @@ System.out.println("Redirecting parent frame back to="+returnUrl);
                                 state.removeAttribute(STATE_CONTENT_ID);
                                 return "lti_error";
 			}
-			toolKey = foorm.getLongNull(content.get("tool_id"));
+			toolKey = foorm.getLongNull(content.get(LTIService.LTI_TOOL_ID));
 		}
-		if ( toolKey == null && previousPost != null ) toolKey = foorm.getLongNull(previousPost.getProperty("tool_id"));
+		if ( toolKey == null && previousPost != null ) toolKey = foorm.getLongNull(previousPost.getProperty(LTIService.LTI_TOOL_ID));
 		if ( toolKey != null ) tool = ltiService.getTool(toolKey);
 
 		// No matter what, we must have a tool
@@ -717,9 +717,9 @@ System.out.println("Redirecting parent frame back to="+returnUrl);
 		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
                 context.put("doAction", BUTTON + "doContentPut");
                 context.put("returnUrl", returnUrl);
-                context.put("tool_id",toolKey);
-		context.put("tool_description", tool.get("description"));
-		context.put("tool_title", tool.get("title"));
+                context.put(LTIService.LTI_TOOL_ID,toolKey);
+		context.put("tool_description", tool.get(LTIService.LTI_DESCRIPTION));
+		context.put("tool_title", tool.get(LTIService.LTI_TITLE));
 
 	        String formInput = ltiService.formInput(previousData, contentForm);
 		context.put("formInput",formInput);
@@ -736,7 +736,7 @@ System.out.println("Redirecting parent frame back to="+returnUrl);
 		        return "lti_error";
 		}
                 context.put("doAction", BUTTON + "doContentDelete");
-		String id = data.getParameters().getString("id");
+		String id = data.getParameters().getString(LTIService.LTI_ID);
 		if ( id == null ) {
 		        addAlert(state,rb.getString("error.id.not.found"));
 		        return "lti_main";
@@ -765,7 +765,7 @@ System.out.println("Redirecting parent frame back to="+returnUrl);
 		        return;
 		}
 		Properties reqProps = data.getParameters().getProperties();
-		String id = data.getParameters().getString("id");
+		String id = data.getParameters().getString(LTIService.LTI_ID);
 		Object retval = null;
                 if ( id == null ) {
                         addAlert(state,rb.getString("error.id.not.found"));
@@ -827,7 +827,7 @@ System.out.println("Redirecting parent frame back to="+returnUrl);
                 Map<String,Object> tool = tools.get(0);
 
                 // We will assume this works
-                Long toolKey = foorm.getLongKey(tool.get("id"));
+                Long toolKey = foorm.getLongKey(tool.get(LTIService.LTI_ID));
 
                 sb.append("Long Tool Key=");
                 sb.append(toolKey.toString());
@@ -853,10 +853,10 @@ System.out.println("Redirecting parent frame back to="+returnUrl);
 
                 // Lets do this with properties (i.e. from a Request Object)
                 Properties props = new Properties ();
-                props.setProperty("SITE_ID",toolManager.getCurrentPlacement().getContext());
-                props.setProperty("tool_id",toolKey.toString());
-                props.setProperty("title", "A title");
-                props.setProperty("description", "A title");
+                props.setProperty(LTIService.LTI_SITE_ID,toolManager.getCurrentPlacement().getContext());
+                props.setProperty(LTIService.LTI_TOOL_ID,toolKey.toString());
+                props.setProperty(LTIService.LTI_TITLE, "A title");
+                props.setProperty(LTIService.LTI_DESCRIPTION, "A title");
                 props.setProperty("debug", "0"); 
                 
                 sb.append("\nConstructed content Properties for insert\n");
@@ -917,8 +917,8 @@ System.out.println("Redirecting parent frame back to="+returnUrl);
                 // We don't need all properties - just the ones we want to update
                 // tool_id is required
                 props = new Properties ();
-                props.setProperty("title", "A NEW AWESOME TITLE");
-                props.setProperty("tool_id",toolKey.toString());
+                props.setProperty(LTIService.LTI_TITLE, "A NEW AWESOME TITLE");
+                props.setProperty(LTIService.LTI_TOOL_ID,toolKey.toString());
 
                 sb.append("\nConstructed content Properties for update\n");
                 for ( Object okey : props.keySet() ) {
@@ -975,9 +975,9 @@ System.out.println("Redirecting parent frame back to="+returnUrl);
 
                 // Properties 
                 props = new Properties ();
-                props.setProperty("SITE_ID",toolManager.getCurrentPlacement().getContext());
-                props.setProperty("tool_id","I should be an integer!");
-                props.setProperty("title", "A title");
+                props.setProperty(LTIService.LTI_SITE_ID,toolManager.getCurrentPlacement().getContext());
+                props.setProperty(LTIService.LTI_TOOL_ID,"I should be an integer!");
+                props.setProperty(LTIService.LTI_TITLE, "A title");
                 
                 sb.append("\nConstructed broken content Properties for insert\n");
                 for ( Object okey : props.keySet() ) {
@@ -1002,8 +1002,8 @@ System.out.println("Redirecting parent frame back to="+returnUrl);
 
                 sb.append("\nLets forget a required parameter on an update...\n");
                 props = new Properties ();
-                props.setProperty("title", "YET ANOTHER AWESOME TITLE");
-                // FORGET ME: props.setProperty("tool_id",toolKey.toString());
+                props.setProperty(LTIService.LTI_TITLE, "YET ANOTHER AWESOME TITLE");
+                // FORGET ME: props.setProperty(LTIService.LTI_TOOL_ID,toolKey.toString());
 
                 sb.append("\nConstructed broken content Properties for update\n");
                 for ( Object okey : props.keySet() ) {

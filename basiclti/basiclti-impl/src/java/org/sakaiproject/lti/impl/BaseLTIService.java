@@ -241,8 +241,8 @@ public abstract class BaseLTIService implements LTIService {
    * @see org.sakaiproject.lti.api.LTIService#getContentLaunch(java.util.Map)
    */
   public String getContentLaunch(Map<String, Object> content) {
-    int key = getInt(content.get("id"));
-    String siteId = (String) content.get("SITE_ID");
+    int key = getInt(content.get(LTIService.LTI_ID));
+    String siteId = (String) content.get(LTIService.LTI_SITE_ID);
     if (key < 0 || siteId == null)
       return null;
     return LAUNCH_PREFIX + siteId + "/content:" + key;
@@ -423,24 +423,24 @@ public abstract class BaseLTIService implements LTIService {
   public void filterContent(Map<String, Object> content, Map<String, Object> tool) {
     if (content == null || tool == null)
       return;
-    int heightOverride = getInt(tool.get("allowframeheight"));
-    int toolHeight = getInt(tool.get("frameheight"));
-    int contentHeight = getInt(content.get("frameheight"));
+    int heightOverride = getInt(tool.get(LTIService.LTI_ALLOWFRAMEHEIGHT));
+    int toolHeight = getInt(tool.get(LTIService.LTI_FRAMEHEIGHT));
+    int contentHeight = getInt(content.get(LTIService.LTI_FRAMEHEIGHT));
     int frameHeight = 1200;
     if (toolHeight > 0)
       frameHeight = toolHeight;
     if (heightOverride == 1 && contentHeight > 0)
       frameHeight = contentHeight;
-    content.put("frameheight", new Integer(frameHeight));
+    content.put(LTIService.LTI_FRAMEHEIGHT, new Integer(frameHeight));
 
     Integer newProp = null;
     newProp = getCorrectProperty("debug", content, tool);
     if (newProp != null)
       content.put("debug", newProp);
 
-    newProp = getCorrectProperty("newpage", content, tool);
+    newProp = getCorrectProperty(LTIService.LTI_NEWPAGE, content, tool);
     if (newProp != null)
-      content.put("newpage", newProp);
+      content.put(LTIService.LTI_NEWPAGE, newProp);
   }
 
   /**

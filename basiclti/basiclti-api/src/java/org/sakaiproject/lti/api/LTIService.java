@@ -337,6 +337,34 @@ public interface LTIService {
   static String[] MAPPING_MODEL = { "id:key",
       "matchpattern:url:label=bl_matchpattern:required=true:maxlength=255",
       "launch:url:label=bl_launchurl:required=true:maxlength=255",
-      "note:text:label=bl_note:maxlength=255", "created_at:autodate",
+      "note:text:label=bl_note:maxlength=255", 
+      "created_at:autodate",
       "updated_at:autodate" };
+
+  /** Static constants for data fields */
+
+  static final String LTI_ID =    	"id";
+  static final String LTI_SITE_ID =     "SITE_ID";
+  static final String LTI_TOOL_ID =     "tool_id";
+  static final String LTI_TITLE =    	"title";
+  static final String LTI_DESCRIPTION = "description";
+  static final String LTI_STATUS = 	"status";
+  static final String LTI_LAUNCH = 	"launch";
+  static final String LTI_CONSUMERKEY= 	"consumerkey";
+  static final String LTI_SECRET =   	"secret";
+  static final String LTI_FRAMEHEIGHT = "frameheight";
+  static final String LTI_ALLOWFRAMEHEIGHT = "allowframeheight";
+  static final String LTI_SENDNAME =	"sendname";
+  static final String LTI_SENDEMAILADDR = "sendemailaddr";
+  static final String LTI_NEWPAGE =	"newpage";
+  static final String LTI_DEBUG =	"debug";
+  static final String LTI_CUSTOM = 	"custom";
+  static final String LTI_ALLOWCUSTOM = "allowcustom";
+  static final String LTI_XMLIMPORT = 	"xmlimport";
+  static final String LTI_CREATED_AT =  "created_at"; 
+  static final String LTI_UPATED_AT = 	"updated_at";
+  static final String LTI_MATCHPATTERN = "matchpattern";
+  static final String LTI_NOTE = 	"note";
+
+
 }

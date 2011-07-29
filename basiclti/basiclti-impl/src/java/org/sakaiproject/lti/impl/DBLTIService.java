@@ -231,12 +231,12 @@ public class DBLTIService extends BaseLTIService implements LTIService {
     Map<String, Object> retval = getThingNoAuthz("lti_tools", LTIService.TOOL_MODEL, key);
     if (retval == null)
       return retval;
-    String launch_url = (String) retval.get("launch");
+    String launch_url = (String) retval.get(LTIService.LTI_LAUNCH);
     if (launch_url != null) {
       String newLaunch = checkMapping(launch_url);
       if (!newLaunch.equals(launch_url)) {
         retval.put("x_launch", launch_url);
-        retval.put("launch", newLaunch);
+        retval.put(LTIService.LTI_LAUNCH, newLaunch);
       }
     }
     return retval;
@@ -300,7 +300,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
    * 
    */
   public Object insertContent(Properties newProps) {
-    String toolId = newProps.getProperty("tool_id");
+    String toolId = newProps.getProperty(LTIService.LTI_TOOL_ID);
     if (toolId == null)
       return rb.getString("error.missing.toolid");
     Long toolKey = null;
@@ -358,7 +358,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
    */
   public Object updateContent(Long key, Object newProps) {
     // Make sure we like the proposed tool_id
-    String toolId = (String) foorm.getField(newProps, "tool_id");
+    String toolId = (String) foorm.getField(newProps, LTIService.LTI_TOOL_ID);
     if (toolId == null)
       return rb.getString("error.missing.toolid");
     Long toolKey = null;
@@ -420,9 +420,9 @@ public class DBLTIService extends BaseLTIService implements LTIService {
       columns = foorm.getFields(fullModel);
       theKey = foorm.formSqlKey(fullModel);
     }
-    if ((Arrays.asList(columns).indexOf("SITE_ID") >= 0)) {
-      if (!isAdmin() && newMapping.get("SITE_ID") == null) {
-        newMapping.put("SITE_ID", getContext());
+    if ((Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0)) {
+      if (!isAdmin() && newMapping.get(LTIService.LTI_SITE_ID) == null) {
+        newMapping.put(LTIService.LTI_SITE_ID, getContext());
       }
     }
     String seqName = foorm.getSqlSequence(table, theKey, m_sql.getVendor());
@@ -442,7 +442,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
     final Object[] fields = foorm.getInsertObjects(newMapping);
 
     // Requires KNL-767
-    /* Long retval = m_sql.dbInsert(null, sql, fields, "id"); */
+    /* Long retval = m_sql.dbInsert(null, sql, fields, LTIService.LTI_ID); */
 
     // In this version we don't get the key back for HSQL - not ideal - but works without
     // KNL-767
@@ -452,7 +452,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
     // HSQL does not support getGeneratedKeys() - Yikes
     if ("hsqldb".equals(m_sql.getVendor())) {
       try {
-        retval = m_sql.dbInsert(null, sql, fields, "id");
+        retval = m_sql.dbInsert(null, sql, fields, LTIService.LTI_ID);
       } catch (Exception e) { // KNL-767 is not fixed
         M_log.warn("Falling back to jdbcTemplate.update because KNL-767 is not fixed.");
         M_log
@@ -468,7 +468,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
       jdbcTemplate.update(new PreparedStatementCreator() {
         public PreparedStatement createPreparedStatement(Connection connection)
             throws SQLException {
-          PreparedStatement ps = connection.prepareStatement(sql, new String[] { "id" });
+          PreparedStatement ps = connection.prepareStatement(sql, new String[] { LTIService.LTI_ID });
           for (int i = 0; i < fields.length; i++) {
             ps.setObject(i + 1, fields[i]);
           }
@@ -523,7 +523,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
     Object fields[] = null;
     String[] columns = foorm.getFields(model);
 
-    if (doAuthz && Arrays.asList(columns).indexOf("SITE_ID") >= 0 && !isAdmin()) {
+    if (doAuthz && Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0 && !isAdmin()) {
       statement += " AND SITE_ID = ? OR SITE_ID IS NULL";
       fields = new Object[2];
       fields[0] = key;
@@ -561,7 +561,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
     String[] columns = foorm.getFields(model);
 
     Object fields[] = null;
-    if (Arrays.asList(columns).indexOf("SITE_ID") >= 0) {
+    if (Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0) {
       if (!isAdmin()) {
         statement += " WHERE SITE_ID = ? OR SITE_ID IS NULL";
         fields = new Object[1];
@@ -602,14 +602,14 @@ public class DBLTIService extends BaseLTIService implements LTIService {
         return false;
       }
 
-      String siteId = (String) foorm.getField(thing, "SITE_ID");
+      String siteId = (String) foorm.getField(thing, LTIService.LTI_SITE_ID);
 
       if (siteId == null || !siteId.equals(getContext())) {
         return false;
       }
     }
 
-    if (Arrays.asList(columns).indexOf("SITE_ID") >= 0 && !isAdmin()) {
+    if (Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0 && !isAdmin()) {
       if (!isMaintain()) {
         M_log.info("Non-maintain attemped delete on " + table);
         return false;
@@ -661,18 +661,18 @@ public class DBLTIService extends BaseLTIService implements LTIService {
       columns = foorm.getFields(fullModel);
     }
 
-    if ((Arrays.asList(columns).indexOf("SITE_ID") >= 0)) {
-      if (!isAdmin() && newMapping.get("SITE_ID") == null) {
-        newMapping.put("SITE_ID", getContext());
+    if ((Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0)) {
+      if (!isAdmin() && newMapping.get(LTIService.LTI_SITE_ID) == null) {
+        newMapping.put(LTIService.LTI_SITE_ID, getContext());
       }
     }
 
     String sql = "UPDATE " + table + " SET " + foorm.updateForm(newMapping)
         + " WHERE id=" + key.toString();
 
-    if (isMaintain() && !isAdmin() && (Arrays.asList(columns).indexOf("SITE_ID") >= 0)) {
+    if (isMaintain() && !isAdmin() && (Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0)) {
       sql += " AND SITE_ID = '" + getContext() + "'";
-      foorm.setField(newMapping, "SITE_ID", getContext());
+      foorm.setField(newMapping, LTIService.LTI_SITE_ID, getContext());
     }
 
     // System.out.println("Upate="+sql);
