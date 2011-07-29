@@ -49,7 +49,7 @@
 		
 		<%--specific permission pane grid begin--%>
 		<f:verbatim><div class="permissionPanel"></f:verbatim>
-		<h:panelGrid  id="permissionSet" columns="4" summary="layout" cellpadding="0" cellspacing="0">        
+		<h:panelGrid  id="permissionSet" columns="4" cellpadding="0" cellspacing="0">        
 		<h:panelGroup>
 		<h:panelGroup styleClass="checkbox" >
           <h:selectBooleanCheckbox id="newForum" onclick="javascript:setCorrespondingLevel(this.id);" value="#{permission.newForum}" disabled="#{not ForumTool.editMode || ForumTool.permissionMode != 'template'}"/>
