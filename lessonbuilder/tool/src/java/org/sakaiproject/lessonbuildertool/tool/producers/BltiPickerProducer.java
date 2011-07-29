@@ -175,9 +175,10 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 
 			List<LessonEntity> plist = bltiEntity.getEntitiesInSite();
 
-			if (plist == null || plist.size() < 1)
-			    UIOutput.make(tofill, "select-blti-text", messageLocator.getMessage("simplepage.no_blti_items"));
-			else
+			if (plist == null || plist.size() < 1) {
+			    UIOutput.make(tofill, "no-blti-items");
+			    UIOutput.make(tofill, "no-blti-items-text", messageLocator.getMessage("simplepage.no_blti_items"));
+			} else
 			    UIOutput.make(tofill, "select-blti-text", messageLocator.getMessage("simplepage.select_blti.text"));
 
 			ArrayList<String> values = new ArrayList<String>();

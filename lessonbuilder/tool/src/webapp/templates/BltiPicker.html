@@ -11,19 +11,7 @@
 <title rsf:id="msg=simplepage.quiz.chooser"></title>
 </head>
 <body rsf:id="scr=sakai-body">
-<script type="text/javascript" src="$context/js/jquery-1.4.2.min.js"></script>
-<script type="text/javascript" src="$context/js/jquery-ui-1.8.4.custom.min.js"></script>
 <script type="text/javascript" src="../js/simple-page.js" rsf:id="scr=rewrite-url"></script>
-<script type="text/javascript">
-$(function() {
-	if (!(navigator.userAgent.indexOf("Firefox/2.") > 0)) {
-	    $('.usebutton').button({text:true});
-	} else {
-	    // fake it; can't seem to get rid of underline though
-	    $('.usebutton').css('border', '1px solid black').css('padding', '1px 4px').css('color', 'black');
-	}
-});
-</script>
 	<div class="portletBody">
 		<div rsf:id="error-div" class="ui-widget">
 			<div class="ui-state-error ui-corner-all" style="margin-bottom: 20px; margin-top:20px; padding: 0 .7em;"> 
@@ -44,6 +32,13 @@ $(function() {
 
 		<h3 rsf:id="msg=simplepage.select_blti" style="margin-bottom:0.75em;margin-top:1em"></h3>
 		<p rsf:id="select-blti-text"></p>
+		<div rsf:id="no-blti-items" class="ui-widget" role="alert">
+			<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; margin-bottom: 20px; padding: .5em .7em;">
+				<span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+				<div rsf:id="no-blti-items-text" ></div>
+			</div>
+		</div>
+
 
 		<form action="#" rsf:id="blti-picker">
 		<span rsf:id="blti-span"/>
