@@ -352,6 +352,7 @@ public interface LTIService {
   static final String LTI_LAUNCH = 	"launch";
   static final String LTI_CONSUMERKEY= 	"consumerkey";
   static final String LTI_SECRET =   	"secret";
+  static final String LTI_SECRET_INCOMPLETE = "-----";
   static final String LTI_FRAMEHEIGHT = "frameheight";
   static final String LTI_ALLOWFRAMEHEIGHT = "allowframeheight";
   static final String LTI_SENDNAME =	"sendname";

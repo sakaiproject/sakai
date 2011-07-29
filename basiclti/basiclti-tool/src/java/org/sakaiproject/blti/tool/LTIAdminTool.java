@@ -595,9 +595,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String toolId = data.getParameters().getString(LTIService.LTI_TOOL_ID);
                 if ( toolId == null ) {
                         addAlert(state, rb.getString("error.id.not.found"));
+		        switchPanel(state,"Error");
                         return;
                 }
-                
+
+		// Check to see if we have to fix the tool...
+		String returnUrl = reqProps.getProperty("returnUrl");
+
 		Object retval = null;
 		String success = null;
 		if ( id == null ) 
@@ -605,9 +609,31 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	                retval = ltiService.insertContent(reqProps);
 	                success = rb.getString("success.created");
 		} else {
-			Long key = new Long(id);
-                        // TODO: Error check this
-			retval = ltiService.updateContent(key, reqProps);
+			Long contentKey = new Long(id);
+			Long toolKey = new Long(toolId);
+			Map<String,Object> tool = ltiService.getTool(toolKey);
+			if ( tool == null ) {
+				addAlert(state, rb.getString("error.tool.not.found"));
+			        switchPanel(state,"Error");
+				return;
+			}
+			if ( returnUrl != null ) {
+				if ( LTIService.LTI_SECRET_INCOMPLETE.equals((String) tool.get(LTIService.LTI_SECRET)) &&
+					LTIService.LTI_SECRET_INCOMPLETE.equals((String) tool.get(LTIService.LTI_CONSUMERKEY)) ) {
+					String reqSecret = reqProps.getProperty(LTIService.LTI_SECRET);
+					String reqKey = reqProps.getProperty(LTIService.LTI_CONSUMERKEY);
+					if ( reqSecret == null || reqKey == null || reqKey.trim().length() < 1 || reqSecret.trim().length() < 1 ) {
+						addAlert(state, rb.getString("error.need.key.secret"));
+				                state.setAttribute(STATE_POST,reqProps);
+						return;
+					}
+					Properties toolProps = new Properties();
+					toolProps.setProperty(LTIService.LTI_SECRET, reqSecret);
+					toolProps.setProperty(LTIService.LTI_CONSUMERKEY, reqKey);
+					ltiService.updateTool(toolKey, toolProps);
+                		}
+			}
+			retval = ltiService.updateContent(contentKey, reqProps);
                         success = rb.getString("success.updated");
                 }
                 
@@ -619,7 +645,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			return;
 		}
 
-		String returnUrl = reqProps.getProperty("returnUrl");
 		if ( returnUrl != null )
 		{
 			if ( retval instanceof Long ) {
@@ -640,6 +665,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	public String buildRedirectPanelContext(VelocityPortlet portlet, Context context, 
 			RunData data, SessionState state)
 	{
+		context.put("tlang", rb);
 		String returnUrl = (String) state.getAttribute(STATE_REDIRECT_URL);
 		state.removeAttribute(STATE_REDIRECT_URL);
 		if ( returnUrl == null ) {
@@ -647,7 +673,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		        return "lti_error";
 		}
 System.out.println("Redirecting parent frame back to="+returnUrl);
-		context.put("returnUrl",returnUrl);
+		if ( ! returnUrl.startsWith("about:blank") ) context.put("returnUrl",returnUrl);
 		return "lti_content_redirect";
 	}
 
@@ -717,10 +743,23 @@ System.out.println("Redirecting parent frame back to="+returnUrl);
 		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
                 context.put("doAction", BUTTON + "doContentPut");
                 context.put("returnUrl", returnUrl);
+		if ( ! returnUrl.startsWith("about:blank") ) context.put("cancelUrl", returnUrl);
                 context.put(LTIService.LTI_TOOL_ID,toolKey);
 		context.put("tool_description", tool.get(LTIService.LTI_DESCRIPTION));
 		context.put("tool_title", tool.get(LTIService.LTI_TITLE));
+		context.put("tool_launch", tool.get(LTIService.LTI_LAUNCH));
 
+
+		String key = (String) tool.get(LTIService.LTI_CONSUMERKEY);
+		String secret = (String) tool.get(LTIService.LTI_SECRET);
+		if ( LTIService.LTI_SECRET_INCOMPLETE.equals(secret) && LTIService.LTI_SECRET_INCOMPLETE.equals(key) ) {
+			String keyField = foorm.formInput(null,"consumerkey:text:label=need.tool.key:required=true:maxlength=255", rb);
+			context.put("keyField", keyField);
+			String secretField = foorm.formInput(null,"secret:text:required=true:label=need.tool.secret:maxlength=255", rb);
+			context.put("secretField", secretField);
+		}
+
+	
 	        String formInput = ltiService.formInput(previousData, contentForm);
 		context.put("formInput",formInput);
 

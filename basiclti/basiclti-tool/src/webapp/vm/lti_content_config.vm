@@ -6,23 +6,32 @@
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<form action="#toolForm("")" method="post" name="customizeForm" >
 <h4>$tool_title</h4>
+#if ( $tool_launch ) 
+<p>$validator.escapeHtml($tool_launch)</p>
+#end
 #if ( $tool_description ) 
 <p>$validator.escapeHtml($tool_description)</p>
 #end
-#if ( $toolId ) 
-#else
+#if ( $keyField ) 
+$tlang.getString("need.tool.info")
+		$keyField
+		$secretField
 #end
 #if ( $formInput ) 
 		$formInput
 #end
                 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
                 <input type="hidden" name="tool_id" value="$tool_id" />
+#if ( $returnUrl ) 
                 <input type="hidden" name="returnUrl" value="$returnUrl" />
+#end
 		<p class="act">
 			<input type="submit" accesskey ="s" class="active" name="$doAction" 
 				value="$tlang.getString('gen.save')" />
+#if ( $cancelUrl )
 			<input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" 
- 				onclick="parent.location = '$returnUrl';return false;">
+ 				onclick="parent.location = '$cancelUrl';return false;">
+#end
 		</p>
 	</form>
 #if ( $isAdmin ) 
