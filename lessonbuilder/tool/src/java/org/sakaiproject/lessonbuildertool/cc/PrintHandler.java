@@ -465,19 +465,34 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      ;
 	  else if (type.equals(CC_BLTI0) || type.equals(CC_BLTI1)) { 
 	      String filename = getFileName(resource);
-	      Element topicXml =  parser.getXML(loader, filename);
+	      Element ltiXml =  parser.getXML(loader, filename);
 	      XMLOutputter outputter = new XMLOutputter();
-	      String strXml = null;
-	      try {
-	          strXml = outputter.outputString(topicXml);       
-	      }
-	      catch (Exception e) {
-	          strXml = null;
-	      }
+	      String strXml = strXml = outputter.outputString(ltiXml);       
 	      Namespace bltiNs = ns.blti_ns();
-	      String bltiTitle = topicXml.getChildText(TITLE, bltiNs);
-	      String launchUrl = topicXml.getChildText("secure_launch_url", bltiNs);
-	      if ( launchUrl == null ) launchUrl = topicXml.getChildText("launch_url", bltiNs);
+	      String bltiTitle = ltiXml.getChildText(TITLE, bltiNs);
+
+	      Element customElement = ltiXml.getChild("custom", bltiNs);
+	      List<Element>customs = new ArrayList<Element>();
+	      if (customElement != null)
+		  customs = customElement.getChildren();
+	      StringBuffer sb = new StringBuffer();
+              String custom = null;
+	      for (Element a: customs) {
+		  String key = a.getAttributeValue("name");
+		  String value = a.getText();
+                  if ( key == null ) continue;
+                  key = key.trim();
+                  if ( value == null ) continue;
+                  System.out.println("k="+key+" v="+value);
+		  sb.append(key.trim());
+                  sb.append("=");
+                  sb.append(value.trim());
+                  sb.append("\n");
+	      }
+              if ( sb.length() > 0 ) custom = sb.toString();
+
+	      String launchUrl = ltiXml.getChildText("secure_launch_url", bltiNs);
+	      if ( launchUrl == null ) launchUrl = ltiXml.getChildText("launch_url", bltiNs);
 
 		// TODO: Custom
 		Map<String,Object> theTool = null;
@@ -496,9 +511,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 			props.setProperty(LTIService.LTI_TITLE, bltiTitle);
 			props.setProperty(LTIService.LTI_CONSUMERKEY, LTIService.LTI_SECRET_INCOMPLETE);
 			props.setProperty(LTIService.LTI_SECRET, LTIService.LTI_SECRET_INCOMPLETE);
-			// TODO: custom
-			// props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
-
+			props.setProperty(LTIService.LTI_ALLOWCUSTOM, "1");
+			props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
 			Object result = ltiService.insertTool(props);
 			if ( result instanceof String ) {
 				System.out.println("Could not insert tool - "+result);
@@ -508,13 +522,14 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
 		Map<String,Object> theContent = null;
 		Long contentKey = null;
-
+System.out.println("custom="+custom);
 		if ( theTool != null ) {
 			Properties props = new Properties ();
 			props.setProperty(LTIService.LTI_TOOL_ID,foorm.getLong(theTool.get(LTIService.LTI_ID)).toString());
 			props.setProperty(LTIService.LTI_TITLE, bltiTitle);
-			// TODO: custom
-			// props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
+			props.setProperty(LTIService.LTI_LAUNCH,launchUrl);
+			props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
+			if ( custom != null ) props.setProperty(LTIService.LTI_CUSTOM,custom);
 			Object result = ltiService.insertContent(props);
 			if ( result instanceof String ) {
 				System.out.println("Could not insert content - "+result);
@@ -530,7 +545,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		}
 
 		if ( sakaiId != null ) {
-			System.out.println("Adding LTI content item "+sakaiId);
+			// System.out.println("Adding LTI content item "+sakaiId);
 			SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.BLTI, sakaiId, title);
 			simplePageBean.saveItem(item);
 			sequences.set(top, seq+1);

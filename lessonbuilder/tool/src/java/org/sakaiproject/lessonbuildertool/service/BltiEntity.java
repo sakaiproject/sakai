@@ -269,7 +269,8 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	loadContent();
 	if ( content == null ) return null;
 	String ret = (String) content.get("launch_url");
-	if ( ltiService.isMaintain() && LTIService.LTI_SECRET_INCOMPLETE.equals((String) tool.get(LTIService.LTI_SECRET)) 
+	if ( ltiService != null && tool != null && ltiService.isMaintain()
+	    	&& LTIService.LTI_SECRET_INCOMPLETE.equals((String) tool.get(LTIService.LTI_SECRET)) 
 		&& LTIService.LTI_SECRET_INCOMPLETE.equals((String) tool.get(LTIService.LTI_CONSUMERKEY)) ) {
 		String toolId = getCurrentTool("sakai.siteinfo");
 		if ( toolId != null ) ret = editItemUrl(toolId);
