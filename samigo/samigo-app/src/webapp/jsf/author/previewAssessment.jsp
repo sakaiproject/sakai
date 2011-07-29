@@ -30,6 +30,17 @@
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
+      <style type="text/css">
+        .TableColumn {
+          text-align: center
+        }
+        .TableClass {
+          border-style: dotted;
+          border-width: 0.5px;
+          border-color: light grey;
+        }
+      </style>
+
       <title><h:outputText value="#{authorMessages.create_modify_a}" /></title>
       </head>
 <body onload="document.forms[0].reset();;<%= request.getAttribute("html.body.onload") %>">
@@ -125,6 +136,10 @@
 
 		  <h:panelGroup rendered="#{question.itemData.typeId == 12}">
             <%@ include file="/jsf/author/preview_item/MultipleChoiceMultipleCorrect.jsp" %>
+          </h:panelGroup>
+
+          <h:panelGroup rendered="#{question.itemData.typeId == 13}">
+            <%@ include file="/jsf/author/preview_item/MatrixChoicesSurvey.jsp" %>
           </h:panelGroup>
 
         </h:panelGrid>

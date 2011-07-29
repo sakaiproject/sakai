@@ -720,6 +720,30 @@ public class ItemAuthorBean
     return list;
   }
 
+  public ArrayList getSelectRelativeWidthList() {
+	  ArrayList<SelectItem> list = new ArrayList();
+
+	  final String[] widthLists = {
+			  "Use browser defaults for column widths", 
+			  "10% row choices column/90% column choices column",
+			  "20% row choices column/80% column choices column",
+			  "30% row choices column/70% column choices column",
+			  "40% row choices column/60% column choices column",
+			  "50% row choices column/50% column choices column",
+			  "60% row choices column/40% column choices column",
+			  "70% row choices column/30% column choices column",
+			  "80% row choices column/20% column choices column",
+			  "90% row choices column/10% column choices column"};
+	  for (int i=0; i<widthLists.length;i++)
+	  {
+		  SelectItem selectItem = new SelectItem();
+		  selectItem.setLabel(widthLists[i]);
+		  selectItem.setValue(Integer.toString(i));
+		  list.add(selectItem);
+	  }
+	  return list;
+  }
+  
   /**
 	 * Returns a generic Map of section options (for use by helpers that won't
 	 * be in the same class loader and would thus get class cast issues from

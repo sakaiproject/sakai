@@ -3,7 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
-
+<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -33,6 +33,16 @@ $Id$
  <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
+      <style type="text/css">
+        .TableColumn {
+          text-align: center
+        }
+       .TableClass {
+         border-style: dotted;
+         border-width: 0.5px;
+         border-color: light grey;
+       }
+      </style>
       <title><h:outputText
         value="#{evaluationMessages.title_question}" /></title>
       </head>
@@ -185,6 +195,9 @@ function toPoint(id)
      <h:panelGroup rendered="#{questionScores.typeId == '3'}">
          <h:outputText value="#{evaluationMessages.question}#{question.sequence} - #{evaluationMessages.q_mult_surv}"/>
      </h:panelGroup>
+     <h:panelGroup rendered="#{questionScores.typeId == '13'}">
+         <h:outputText value="#{evaluationMessages.question}#{question.sequence} - #{evaluationMessages.q_matrix_choices_surv}"/>
+     </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '1'}">
     <h:outputText value="#{evaluationMessages.question}#{question.sequence} - #{commonMessages.multiple_choice_sin}"/>
       </h:panelGroup>
@@ -254,6 +267,11 @@ function toPoint(id)
     <%@ include file="/jsf/evaluation/item/displayTrueFalse.jsp" %>
     </f:subview>
   </h:panelGroup>
+  <h:panelGroup rendered="#{questionScores.typeId == '13'}">
+    <f:subview id="displayMatrixSurvey">
+    <%@ include file="/jsf/evaluation/item/displayMatrixSurvey.jsp" %>
+    </f:subview>
+  </h:panelGroup>
   </h:column>
   </h:dataTable>
 
@@ -265,7 +283,7 @@ function toPoint(id)
 	</p>
 	</h:panelGroup>
 	<h:panelGroup rendered="#{questionScores.typeId == '6'}">
-		<h:outputLink title="#{evaluationMessages.t_fileUpload}" value="/samigo-app/servlet/DownloadAllMedia?publishedId=#{questionScores.publishedId}&publishedItemId=#{questionScores.itemId}&createdBy=#{question.itemData.createdBy}&partNumber=#{part.partNumber}&anonymous=#{totalScores.anonymous}&scoringType=#{questionScores.allSubmissions}">
+		<h:outputLink title="#{evaluationMessages.t_fileUpload}" value="/samigo-app/servlet/DownloadAllMedia?publishedId=#{questionScores.publishedId}&publishedItemId=#{questionScores.itemId}&createdBy=#{question.createdBy}&partNumber=#{part.partNumber}&anonymous=#{totalScores.anonymous}&scoringType=#{questionScores.allSubmissions}">
 		<h:outputText escape="false" value="#{evaluationMessages.download_all}" />
 		</h:outputLink>
 	 </h:panelGroup>
@@ -802,7 +820,7 @@ function toPoint(id)
              rendered="#{questionScores.typeId == '6' || questionScores.typeId == '7' }"/>
           <h:commandLink title="#{evaluationMessages.t_sortResponse}" id="answer" action="questionScores" >
             <h:outputText value="#{commonMessages.student_response}" 
-               rendered="#{questionScores.typeId != '6' && questionScores.typeId != '7' }"/>
+               rendered="#{questionScores.typeId != '6' && questionScores.typeId != '7' && questionScores.typeId != '13' }"/>
             <f:actionListener
                type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
             <f:actionListener
@@ -813,7 +831,7 @@ function toPoint(id)
         </h:panelGroup>
       </f:facet>
       <!-- display of answer to file upload question is diffenent from other types - daisyf -->
-      <h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '6' && questionScores.typeId != '7' && questionScores.typeId != '5'}" />
+      <h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '6' && questionScores.typeId != '7' && questionScores.typeId != '5' && questionScores.typeId != '13'}" />
      <f:verbatim><br/></f:verbatim>
    <!--h:outputLink rendered="#{questionScores.typeId == '5'}" value="#" onclick="javascript:window.alert('#{description.fullAnswer}');"-->
 
@@ -868,7 +886,7 @@ function toPoint(id)
              rendered="#{questionScores.typeId == '6' || questionScores.typeId == '7' }"/>
           <h:commandLink title="#{evaluationMessages.t_sortResponse}" action="questionScores" >
             <h:outputText value="#{commonMessages.student_response}" 
-               rendered="#{questionScores.typeId != '6' && questionScores.typeId != '7' }"/>
+               rendered="#{questionScores.typeId != '6' && questionScores.typeId != '7' && questionScores.typeId != '13'}"/>
           <f:param name="sortAscending" value="false" />
           <h:graphicImage alt="#{evaluationMessages.alt_sortResponseDescending}" rendered="#{questionScores.sortAscending && questionScores.typeId != '6' && questionScores.typeId != '7'}" url="/images/sortascending.gif"/>
       	  <f:actionListener
@@ -928,7 +946,7 @@ function toPoint(id)
              rendered="#{questionScores.typeId == '6' || questionScores.typeId == '7' }"/>
           <h:commandLink title="#{evaluationMessages.t_sortResponse}" action="questionScores" >
             <h:outputText value="#{commonMessages.student_response}" 
-               rendered="#{questionScores.typeId != '6' && questionScores.typeId != '7' }"/>
+               rendered="#{questionScores.typeId != '6' && questionScores.typeId != '7' && questionScores.typeId != '13' }"/>
           <f:param name="sortAscending" value="true" />
           <h:graphicImage alt="#{evaluationMessages.alt_sortResponseAscending}" rendered="#{!questionScores.sortAscending && questionScores.typeId != '6' && questionScores.typeId != '7'}" url="/images/sortdescending.gif"/>
       	  <f:actionListener

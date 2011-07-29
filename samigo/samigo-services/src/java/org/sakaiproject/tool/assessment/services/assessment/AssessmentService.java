@@ -65,6 +65,7 @@ import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.assessment.facade.FavoriteColChoicesFacadeQueries;
 
 /**
  * The AssessmentService calls the service locator to reach the manager on the
@@ -976,5 +977,16 @@ public class AssessmentService {
 
 	  public static ContentHostingService getContentHostingService(){
 		  return (ContentHostingService) ComponentManager.get(ContentHostingService.class.getName());
+	  }
+	  
+	  public List getFavoriteColChoicesbyAgent(String fromContext) {
+		  try {
+			  return PersistenceService.getInstance().getFavoriteColChoicesFacadeQueries()
+			  .getFavoriteColChoicesByAgent(fromContext);
+		  } catch (Exception e) {
+			  log.error(e);
+			  throw new RuntimeException(e);
+		  }
+
 	  }
 }

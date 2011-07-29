@@ -192,7 +192,7 @@ public class Item extends ASIBaseClass
     //  rshastri: SAK-1824
     // item data
 //    ItemHelper helper = new ItemHelper();
-    if (!this.isSurvey()) //surveys are unscored
+    if (!this.isSurvey() && !this.isMXSURVEY()) //surveys are unscored
     {
       helper.addMaxScore(item.getScore(), this);
       helper.addMinScore(item.getDiscount(), this);
@@ -208,7 +208,7 @@ public class Item extends ASIBaseClass
     }
     
     String instruction = item.getInstruction();
-    if (this.isMatching() || this.isFIB() || this.isFIN())
+    if (this.isMatching() || this.isFIB() || this.isFIN() || this.isMXSURVEY())
     {
       if ( instruction != null)
         {
@@ -334,6 +334,11 @@ public class Item extends ASIBaseClass
   public boolean  isSurvey()
   {
     return AuthoringConstantStrings.SURVEY.equals(this.getItemType()) ? true : false;
+  }
+  
+  public boolean isMXSURVEY()
+  {
+    return AuthoringConstantStrings.MATRIX.equals(this.getItemType()) ? true : false;
   }
 
   public boolean  isAudio()

@@ -321,7 +321,8 @@ public class PDFAssessmentBean implements Serializable {
 						item.getItemData().getTypeId().equals(TypeIfc.MULTIPLE_CHOICE) ||
 						item.getItemData().getTypeId().equals(TypeIfc.MULTIPLE_CHOICE_SURVEY) ||
 						item.getItemData().getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION) ||
-						item.getItemData().getTypeId().equals(TypeIfc.TRUE_FALSE)) {
+						item.getItemData().getTypeId().equals(TypeIfc.TRUE_FALSE) ||
+						item.getItemData().getTypeId().equals(TypeIfc.MATRIX_CHOICES_SURVEY)) {
 
 					ArrayList question = item.getItemData().getItemTextArraySorted();
 					for (int k=0; k<question.size(); k++) {

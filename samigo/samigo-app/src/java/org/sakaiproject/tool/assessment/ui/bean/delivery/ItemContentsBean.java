@@ -31,6 +31,7 @@ import java.util.Set;
 
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -153,6 +154,24 @@ public class ItemContentsBean implements Serializable {
 	private List itemGradingAttachmentList;
 	
 	private Long itemGradingIdForFilePicker;
+	
+	/* sam-939*/
+	private boolean forceRanking;
+
+	private int relativeWidth;
+
+	private ArrayList matrixArray;
+
+	//private String[] columnChoices;
+
+	private List<Integer> columnIndexList;
+
+	private String[] columnArray;
+
+	private String commentField;
+	private boolean addComment;
+	private String studentComment;
+
 	
 	public ItemContentsBean() {
 	}
@@ -773,6 +792,10 @@ public class ItemContentsBean implements Serializable {
 		}
 	}
 	
+	public String getResponseTextPlain() {
+		return FormattedText.convertFormattedTextToPlaintext(getResponseText());
+	}
+
 	public String getResponseTextForDisplay() {
 		log.debug("itemcontentbean.getResponseText");
 		try {
@@ -788,6 +811,10 @@ public class ItemContentsBean implements Serializable {
 			e.printStackTrace();
 			return responseText;
 		}
+	}
+
+	public void setResponseTextPlain(String presponseId) {
+		setResponseText(presponseId);
 	}
 
 	public void setResponseText(String presponseId) {
@@ -850,10 +877,109 @@ public class ItemContentsBean implements Serializable {
 		selectionArray = newArray;
 	}
 
-  public ArrayList getAnswers()
-  {
-    return answers;
-  }
+	public ArrayList getMatrixArray() {
+		return matrixArray;
+	}
+
+	public void setMatrixArray(ArrayList newArray) {
+		matrixArray = newArray;
+	}
+
+
+	public List<Integer> getColumnIndexList(){
+		return columnIndexList;
+	}
+
+	public void setColumnIndexList(List<Integer> columnIndexList){
+		this.columnIndexList = columnIndexList;
+	}
+
+	public String[] getColumnArray(){
+		return columnArray;
+	}
+
+	public void setColumnArray(String[] columnArray){
+		this.columnArray = columnArray;
+	}
+
+	public boolean getForceRanking(){
+		return this.forceRanking;
+	}
+
+	public void setForceRanking(boolean forceRanking){
+		this.forceRanking = forceRanking;
+	}
+
+	public int getRelativeWidth(){
+		return this.relativeWidth;
+	}
+
+	public void setRelativeWidth(int param) {
+		this.relativeWidth = param;
+	}
+
+	public boolean getAddComment(){
+		return this.addComment;
+	}
+
+	public void setAddComment(boolean param){
+		this.addComment = param;
+	}
+	
+	public String getCommentField(){
+		return this.commentField;
+	}
+
+	public void setCommentField(String param){
+		this.commentField = param;
+	}
+
+	public String getStudentComment() {
+		try {
+			String comment = studentComment;
+			Iterator iter = getItemGradingDataArray().iterator();
+			if (iter.hasNext()) {
+				ItemGradingData data = (ItemGradingData) iter.next();
+				comment = data.getAnswerText();
+			}
+			return comment;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return studentComment;
+		}
+	}
+
+	public void setStudentComment(String param){
+		try {
+			studentComment = param;
+			Iterator iter = getItemGradingDataArray().iterator();
+			if (!iter.hasNext()
+					&& (param == null || param.equals(""))) {
+				return;
+			}
+			ItemGradingData data = null;
+			if (iter.hasNext()) {
+				data = (ItemGradingData) iter.next();
+			} else {
+				data = new ItemGradingData();
+				data.setPublishedItemId(itemData.getItemId());
+				ItemTextIfc itemText = (ItemTextIfc) itemData.getItemTextSet()
+				.toArray()[0];
+				data.setPublishedItemTextId(itemText.getId());
+				ArrayList items = new ArrayList();
+				items.add(data);
+				setItemGradingDataArray(items);
+			}
+			data.setAnswerText(param);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}	
+
+	public ArrayList getAnswers()
+	{
+		return answers;
+	}
 
 	public void setAnswers(ArrayList list) {
 		answers = list;

@@ -648,6 +648,24 @@ public class SubmitToGradingActionListener implements ActionListener {
 		case 7: // Audio
                         handleMarkForReview(grading, adds);
                         break;
+		case 13: //Matrix Choices question
+			answerModified = false;
+			for (int m = 0; m < grading.size(); m++) {
+				ItemGradingData itemgrading = (ItemGradingData) grading.get(m);
+				if (itemgrading != null) {
+					log.debug("\n:ItemId>>itemTextId>>answerId "+ itemgrading.getPublishedItemId()+itemgrading.getPublishedItemTextId()+itemgrading.getPublishedAnswerId()+"\n");	    
+
+					itemgrading.setAgentId(AgentFacade.getAgentString());
+					itemgrading.setSubmittedDate(new Date());
+					if (itemgrading.getRationale() != null && itemgrading.getRationale().length() > 0) {
+						itemgrading.setRationale(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, itemgrading.getRationale()));
+					}
+					adds.add(itemgrading);
+				}
+			}
+
+			break;
+
 		}
 		// if it is linear access and there is not answer, we add an fake ItemGradingData
 		String actionCommand = "";

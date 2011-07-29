@@ -187,10 +187,13 @@ public class ItemModifyListener implements ActionListener
       populateMetaData(itemauthorbean, itemfacade, bean);
 
       if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.MATCHING)) {
-        populateItemTextForMatching(itemauthorbean, itemfacade, bean);
+    	  populateItemTextForMatching(itemauthorbean, itemfacade, bean);
+      }
+      else if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.MATRIX_CHOICES_SURVEY)){
+    	  populateItemTextForMatrix(itemauthorbean, itemfacade, bean);
       }
       else {
-        populateItemText(itemauthorbean, itemfacade, bean);
+    	  populateItemText(itemauthorbean, itemfacade, bean);
       }
 
       // attach item attachemnt to itemAuthorBean
@@ -245,15 +248,19 @@ public class ItemModifyListener implements ActionListener
                     break;
                 case 9:
                         itemauthorbean.setItemTypeString("Matching");  //  need to get it from properties file
-			MatchItemBean matchitem = new MatchItemBean();
+                        MatchItemBean matchitem = new MatchItemBean();
                         bean.setCurrentMatchPair(matchitem);
                         nextpage = "matchingItem";
                         break;
                 case 10:
                         itemauthorbean.setItemTypeString("Importing from Question Pool");
- //  need to get it from properties file
+                        // need to get it from properties file
                         nextpage = "poolList";
                         break;
+                case 13:
+                	    itemauthorbean.setItemTypeString("Matrix Choices Survey");  //  need to get it from properties file
+                	    nextpage = "matrixChoicesSurveyItem";
+                	    break;
         }
     }
     catch(RuntimeException e)
@@ -487,7 +494,33 @@ public class ItemModifyListener implements ActionListener
     } // looping through itemtextSet , only loop once for these types,
   }
 
+  private void populateItemTextForMatrix(ItemAuthorBean itemauthorbean, ItemFacade itemfacade, ItemBean bean){
 
+	  Set itemtextSet = itemfacade.getItemTextSet();
+	  Iterator iter = itemtextSet.iterator();    
+
+	  StringBuffer rowChoices = new StringBuffer();
+	  while (iter.hasNext()){
+		  ItemTextIfc  itemText = (ItemTextIfc) iter.next();
+		  if (!"".equals(itemText.getText())){
+			  rowChoices = rowChoices.append(itemText.getText());
+			  rowChoices = rowChoices.append(System.getProperty("line.separator"));
+		  }
+		  Set answerSet = itemText.getAnswerSet();
+		  Iterator iter1 = answerSet.iterator();
+		  StringBuffer columnChoices = new StringBuffer();
+		  while (iter1.hasNext()){
+			  AnswerIfc answer = (AnswerIfc) iter1.next();
+			  if (!"".equals(answer.getText())){
+				  columnChoices = columnChoices.append(answer.getText());
+				  columnChoices = columnChoices.append(System.getProperty("line.separator"));
+			  }
+		  }
+		  bean.setColumnChoices(columnChoices.toString());
+	  } 
+	  bean.setRowChoices(rowChoices.toString()); 
+	  bean.setItemText(itemfacade.getText());
+  }
 
  private void populateItemTextForMatching(ItemAuthorBean itemauthorbean, ItemFacade itemfacade, ItemBean bean)  {
 
@@ -575,23 +608,42 @@ public class ItemModifyListener implements ActionListener
          } 
        }
 
-	// get settings for case sensitivity for fib 
-        // If metadata doesn't exist, by default it is false. 
+       // get settings for case sensitivity for fib 
+       // If metadata doesn't exist, by default it is false. 
        if (meta.getLabel().equals(ItemMetaDataIfc.CASE_SENSITIVE_FOR_FIB)){
-	 //bean.setCaseSensitiveForFib((new Boolean(meta.getEntry())).booleanValue());
-	 bean.setCaseSensitiveForFib(Boolean.valueOf(meta.getEntry()).booleanValue());
+    	   bean.setCaseSensitiveForFib(Boolean.valueOf(meta.getEntry()).booleanValue());
        }
 
-	// get settings for mutually exclusive for fib. 
-        // If metadata doesn't exist, by default it is false. 
+       // get settings for mutually exclusive for fib. 
+       // If metadata doesn't exist, by default it is false. 
        if (meta.getLabel().equals(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB)){
-	 //bean.setMutuallyExclusiveForFib((new Boolean(meta.getEntry())).booleanValue());
-	 bean.setMutuallyExclusiveForFib(Boolean.valueOf(meta.getEntry()).booleanValue());
+    	   bean.setMutuallyExclusiveForFib(Boolean.valueOf(meta.getEntry()).booleanValue());
        }
        
-       
+       // If metadata doesn't exist, by default it is false. 
+       if (meta.getLabel().equals(ItemMetaDataIfc.MUTUALLY_EXCLUSIVE_FOR_FIB)){
+    	   bean.setMutuallyExclusiveForFib(Boolean.valueOf(meta.getEntry()).booleanValue());
+       }
 
-	// get part id for the item
+       // get settings for add_to_favorites for matrix 
+       // If metadata doesn't exist, by default it is false. 
+       if (meta.getLabel().equals(ItemMetaDataIfc.ADD_TO_FAVORITES_MATRIX)){
+    	   bean.setAddToFavorite(Boolean.valueOf(meta.getEntry()).booleanValue());
+       }
+       if (meta.getLabel().equals(ItemMetaDataIfc.ADD_COMMENT_MATRIX)){
+    	   bean.setAddComment(Boolean.valueOf(meta.getEntry()).booleanValue());
+       }
+       if (meta.getLabel().equals(ItemMetaDataIfc.FORCE_RANKING)){
+    	   bean.setForceRanking(Boolean.valueOf(meta.getEntry()).booleanValue());
+       }
+       if (meta.getLabel().equals(ItemMetaDataIfc.MX_SURVEY_QUESTION_COMMENTFIELD)){
+    	   bean.setCommentField(meta.getEntry());
+       }
+       if (meta.getLabel().equals(ItemMetaDataIfc.MX_SURVEY_RELATIVE_WIDTH)){
+    	   bean.setRelativeWidth(Integer.valueOf(meta.getEntry()).intValue());
+       }
+
+       // get part id for the item
        if (meta.getLabel().equals(ItemMetaDataIfc.PARTID)){
     	   // Because the PARTID in sam_publisheditemmetadata_t is not correct,
     	   // get it from itemfacade instead

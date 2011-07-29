@@ -60,6 +60,7 @@ public abstract class ItemHelperBase
   protected static final long ITEM_MCMC_SS = TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue();
   protected static final long ITEM_TF = TypeIfc.TRUE_FALSE.longValue();
   protected static final long ITEM_MATCHING = TypeIfc.MATCHING.longValue();
+  protected static final long ITEM_MXSURVEY = TypeIfc.MATRIX_CHOICES_SURVEY.longValue();
 
   /**
    * We will have a versioned AuthoringXml in subclasses.
@@ -258,6 +259,10 @@ public abstract class ItemHelperBase
     else if (ITEM_MATCHING == typeId)
     {
       template = AuthoringXml.ITEM_MATCHING;
+    }
+    else if (ITEM_MXSURVEY == typeId)
+    {
+      template = AuthoringXml.ITEM_MXSURVEY;
     }
 
     log.debug("typeId: " + typeId);

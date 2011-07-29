@@ -204,8 +204,11 @@ log.debug("after getting item.getItemType() ");
                         nextpage = "fillInBlackItem";
                         break;
                 case 11:
-                    nextpage = "fillInNumericItem";
-                    break;
+                        nextpage = "fillInNumericItem";
+                        break;
+                case 13:
+                        nextpage = "matrixChoicesSurveyItem";
+                        break;
                 case 9:
      			MatchItemBean matchitem = new MatchItemBean();
 

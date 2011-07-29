@@ -32,6 +32,18 @@
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
+      <!-- for sam-939 -->
+      <style type="text/css">
+        .TableColumn {
+      	  text-align: center
+        }
+        .TableClass {
+      	  border-style: dotted;
+      	  border-width: 0.5px;
+      	  border-color: light grey;
+        }
+      </style>
+
       <title><h:outputText value="#{authorMessages.create_modify_a}" /></title>
       <samigo:script path="/js/authoring.js"/>
 
@@ -324,6 +336,7 @@ document.links[newindex].onclick();
      <h:outputText rendered="#{question.itemData.typeId== 1}" value=" #{commonMessages.multiple_choice_sin}"/>
      <h:outputText rendered="#{question.itemData.typeId== 2}" value=" #{commonMessages.multipl_mc_ms}"/>
      <h:outputText rendered="#{question.itemData.typeId== 12}" value=" #{commonMessages.multipl_mc_ss}"/>
+     <h:outputText rendered="#{question.itemData.typeId== 13}" value=" #{authorMessages.matrix_choice_surv}"/>
      <h:outputText rendered="#{question.itemData.typeId== 3}" value=" #{authorMessages.multiple_choice_surv}"/>
      <h:outputText rendered="#{question.itemData.typeId== 4}" value=" #{authorMessages.true_false}"/>
      <h:outputText rendered="#{question.itemData.typeId== 5}" value=" #{authorMessages.short_answer_essay}"/>
@@ -406,6 +419,9 @@ document.links[newindex].onclick();
 
 		  <h:panelGroup rendered="#{question.itemData.typeId == 12}">
             <%@ include file="/jsf/author/preview_item/MultipleChoiceMultipleCorrect.jsp" %>
+          </h:panelGroup>
+          <h:panelGroup rendered="#{question.itemData.typeId == 13}">
+            <%@ include file="/jsf/author/preview_item/MatrixChoicesSurvey.jsp" %>
           </h:panelGroup>
 <f:verbatim> </div></f:verbatim>
 <h:panelGroup rendered="#{author.isEditPendingAssessmentFlow}">

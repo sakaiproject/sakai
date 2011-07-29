@@ -26,17 +26,28 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.List;
+
 import org.sakaiproject.util.ResourceLoader;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
+import javax.faces.model.SelectItem;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService; 
 
+import org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoices;
+import org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoicesItem;
 
 /**
  * UI bean for authoring an Item
@@ -120,6 +131,23 @@ public class ItemBean
   //depending on the answers entered in the wysiwyg editor.   
   private boolean showMutuallyExclusiveForFibCheckbox=false;  
   private boolean showMutuallyExclusiveForFinCheckbox=false;
+  
+  //for matrix choices survey sam-939
+  private String rowChoices;
+  private String columnChoices;
+  private boolean newFavoriteChoice = false;
+  private boolean addToFavorite=false;
+  private boolean addComment=false;
+  private boolean forceRanking=false;
+  private int relativeWidth=0;
+  private boolean newAddToFavorite = false;
+  private String favoriteName="30 character limit";
+  private boolean fromFavoriteSelectOneMenu = false;
+  private String commentField="200 character limit";
+  private String currentFavorite="1";
+  private boolean hasFavoriteList=false;
+  private ArrayList currentFavoriteList;
+  
   /**
    * Creates a new ItemBean object.
    */
@@ -1468,5 +1496,237 @@ public class ItemBean
 
 	public void settotalMCAnswers() {
 		this.totalMCAsnwers = this.multipleChoiceAnswers.size();
+	}
+	
+	//sam-939
+	public boolean getAddToFavorite()
+	{
+		return this.addToFavorite ;
+	}
+
+	public void setAddToFavorite(boolean param)
+	{
+		//value from jsp loop
+		if (newAddToFavorite){
+
+			newAddToFavorite=false;
+			return;
+		}
+
+		this.addToFavorite = param;
+	}
+	
+	public boolean getForceRanking()
+	{
+		return this.forceRanking;
+	}
+	
+	public void setForceRanking(boolean param)
+	{
+		this.forceRanking = param;
+	}
+
+	public int getRelativeWidth()
+	{
+		return this.relativeWidth;
+	}
+	public void setRelativeWidth(int param)
+	{
+		this.relativeWidth = param;
+	}
+	
+	// these give index into the select list, which is 10, 20, 30, etc. 0 for not specified
+	public String getSelectedRelativeWidth() {
+		return Integer.toString(this.relativeWidth / 10);
+	}
+	
+	public void setSelectedRelativeWidth(String param) {
+		this.relativeWidth= (Integer.parseInt(param) * 10);
+	}
+
+	public boolean getAddComment()
+	{
+		return this.addComment;
+	}
+	public void setAddComment(boolean param)
+	{
+		this.addComment= param;
+	}
+	public String getRowChoices() {
+		return this.rowChoices;
+	}
+	
+	public void setRowChoices(String param) {
+		StringBuilder r = new StringBuilder();
+		StringTokenizer t = new StringTokenizer(param, "\n");
+		while (t.hasMoreTokens()) {
+			r.append(t.nextToken().trim()).append(System.getProperty("line.separator"));
+		}
+		this.rowChoices= r.toString();
+	}
+	
+	public String getColumnChoices() {
+		return this.columnChoices;
+	}
+	
+	public void setColumnChoices(String param) {
+		// if user chose a new favorite, the value change listener set the
+		// choices from the favorite. We don't want to take the values
+		// submitted with the form.
+		if (newFavoriteChoice){
+			newFavoriteChoice=false;
+			return;
+		}
+		StringBuilder r = new StringBuilder();
+		StringTokenizer t = new StringTokenizer(param, "\n");
+		while (t.hasMoreTokens()) {
+			r.append(t.nextToken().trim()).append(System.getProperty("line.separator"));
+		}
+		this.columnChoices= r.toString();
+	}
+
+	public String getFavoriteName() {
+		return this.favoriteName;
+	}
+
+	public void setFavoriteName(String param) {
+		if (fromFavoriteSelectOneMenu){
+			fromFavoriteSelectOneMenu=false;
+			return;
+		}
+		this.favoriteName = param;
+	}
+
+	public boolean getFromFavoriteSelectOneMenu(){
+		return false;
+	}
+	
+	public void setFromFavoriteSelectOneMenu(boolean param){
+		this.fromFavoriteSelectOneMenu = param;
+	}
+	
+	public boolean getNewFavoriteChoice() {
+		return false;
+	}
+	
+	public void setNewFavoriteChoice(boolean param) {
+		this.newFavoriteChoice = param;
+	}
+	
+	public boolean getNewAddToFavorite() {
+		return false;
+	}
+	
+	public void setNewAddToFavorite(boolean param) {
+		this.newAddToFavorite = param;
+	}
+	
+	public String getCommentField() {
+		return this.commentField;
+	}
+	
+	public void setCommentField(String param) {
+		this.commentField = param;
+	}
+	
+	public void toggleAddToFavorite(ValueChangeEvent event) {
+		this.addToFavorite = ((Boolean)event.getNewValue()).booleanValue(); 
+	}
+	
+	public void toggleAddComment(ValueChangeEvent event) {
+		this.addComment = ((Boolean)event.getNewValue()).booleanValue(); 
+	}
+
+	public String getCurrentFavorite(){
+		return this.currentFavorite;
+	}
+	
+	public void setCurrentFavorite(String favorite){
+		this.currentFavorite = favorite;
+	}
+	
+	public boolean getHasFavoriteList(){
+		//check the DB return value for that perticular agent 
+		String agentId = AgentFacade.getAgentString();
+		AssessmentService assessment = new AssessmentService();
+		if (assessment.getFavoriteColChoicesbyAgent(agentId) != null && 
+				assessment.getFavoriteColChoicesbyAgent(agentId).size() > 0 ){
+			this.hasFavoriteList = true;
+		}
+		return this.hasFavoriteList;
+	}
+
+	public void setHasFavoriteList(boolean param){
+		this.hasFavoriteList = param;
+	}
+
+	public void setCurrentFavoriteList(String[] list){
+		if(!hasFavoriteList) return;
+		
+		if (list.length > 0)
+		{
+			this.hasFavoriteList = true;
+
+			this.currentFavoriteList = new ArrayList();
+			for(int i=0; i<list.length; i++ ){
+				this.currentFavoriteList.add(new SelectItem(list[i]));
+			}
+		}
+
+	}
+	public ArrayList getCurrentFavoriteList(){
+		String agentId = AgentFacade.getAgentString();
+		AssessmentService assessment = new AssessmentService();
+		List favorites = assessment.getFavoriteColChoicesbyAgent(agentId);
+		if (favorites != null && favorites.size() > 0 ){
+			this.currentFavoriteList = new ArrayList();
+			Iterator iter = favorites.iterator();
+			while(iter.hasNext()){
+				FavoriteColChoices choices =(FavoriteColChoices)iter.next();
+				SelectItem item = new SelectItem(choices.getFavoriteName());
+				this.currentFavoriteList.add(item);
+			}
+			return this.currentFavoriteList;
+
+		}
+		return null;
+	}
+	
+	public void setColumnChoicesFromFavorite(String strFavorite){
+
+		StringBuffer strBuff = new StringBuffer();
+		String agentId = AgentFacade.getAgentString();
+		AssessmentService assessment = new AssessmentService();
+		List favorites = assessment.getFavoriteColChoicesbyAgent(agentId);
+		if (favorites != null && favorites.size() > 0 ){
+			Iterator iter = favorites.iterator();
+			while(iter.hasNext()){ 
+				FavoriteColChoices choice =(FavoriteColChoices) iter.next();
+				if (choice.getFavoriteName().equals(strFavorite)){
+					Set choicesItem = new HashSet();
+					choicesItem = choice.getFavoriteItems();
+					FavoriteColChoicesItem [] itemArray= (FavoriteColChoicesItem[]) choicesItem.toArray(new FavoriteColChoicesItem[choicesItem.size()]);
+					//Arrays.sort(itemArray);
+					//sequence always starts from 0
+					for(int j=0; j<itemArray.length; j++){
+						for (int i=0; i<itemArray.length; i++){
+							FavoriteColChoicesItem item = (FavoriteColChoicesItem)itemArray[i];
+							if(item.getSequence().intValue()==j){
+								strBuff.append(item.getChoiceText());
+								strBuff.append("\n");
+								break;
+							}
+						}
+					}
+					this.setColumnChoices(strBuff.toString());
+					this.setAddToFavorite(true);
+					this.setFavoriteName(strFavorite);
+					newFavoriteChoice = true; // this has to override value submitted with form
+					newAddToFavorite = true;
+					fromFavoriteSelectOneMenu = true;
+					return;
+				}	
+			} 
+		}
 	}
 }

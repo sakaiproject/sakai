@@ -52,6 +52,7 @@ import org.sakaiproject.tool.assessment.shared.api.qti.QTIServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.questionpool.QuestionPoolServiceAPI;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentEntityProducer;
+import org.sakaiproject.tool.assessment.facade.FavoriteColChoicesFacadeQueriesAPI;
 
 public class InitAction extends HttpServlet{
 
@@ -110,6 +111,9 @@ private static Log log = LogFactory.getLog(InitAction.class);
     // PagingUtil
     PagingUtilQueriesAPI pagingUtilQueries = PersistenceService.getInstance().getPagingUtilQueries();
     log.debug("*****#10  InitAction: pagingUtilQueries ="+pagingUtilQueries);
+
+    FavoriteColChoicesFacadeQueriesAPI favoriteColChoicesQueries = PersistenceService.getInstance().getFavoriteColChoicesFacadeQueries();
+    log.debug("*****#13  InitAction: favoriteColChoicesQueries ="+favoriteColChoicesQueries);
 
     // authorization facade
     AuthzQueriesFacadeAPI authzQueriesFacade = PersistenceService.getInstance().getAuthzQueriesFacade();

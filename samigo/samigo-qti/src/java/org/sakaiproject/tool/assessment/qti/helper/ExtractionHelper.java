@@ -1530,28 +1530,32 @@ public class ExtractionHelper
     // item text and answers
     if (TypeIfc.FILL_IN_BLANK.longValue() == typeId.longValue())
     {
-      if (isRespondus) {
-    	  addRespondusFibTextAndAnswers(item, itemMap);
-      }
-      else {
-        addFibTextAndAnswers(item, itemMap);
-      }
+    	if (isRespondus) {
+    		addRespondusFibTextAndAnswers(item, itemMap);
+    	}
+    	else {
+    		addFibTextAndAnswers(item, itemMap);
+    	}
     }
 
-  else if (TypeIfc.FILL_IN_NUMERIC.longValue() == typeId.longValue())
-	    {
-	  		addFibTextAndAnswers(item, itemMap);
-	      //addFinTextAndAnswers(item, itemMap);  // 10/3/2006: Diego's code, duplicate of addFibTextAndAnswers
-	    }
-  else if (TypeIfc.MATCHING.longValue() == typeId.longValue())
-  {
-	  if (isRespondus) {
-		  addRespondusMatchTextAndAnswers(item, itemMap);
-	  }
-	  else {
-		  addMatchTextAndAnswers(item, itemMap);
-	  }
-  }
+    else if (TypeIfc.FILL_IN_NUMERIC.longValue() == typeId.longValue())
+    {
+    	addFibTextAndAnswers(item, itemMap);
+    	//addFinTextAndAnswers(item, itemMap);  // 10/3/2006: Diego's code, duplicate of addFibTextAndAnswers
+    }
+    else if (TypeIfc.MATCHING.longValue() == typeId.longValue())
+    {
+    	if (isRespondus) {
+    		addRespondusMatchTextAndAnswers(item, itemMap);
+    	}
+    	else {
+    		addMatchTextAndAnswers(item, itemMap);
+    	}
+    }
+    else if (TypeIfc.MATRIX_CHOICES_SURVEY.longValue() == typeId.longValue())
+    {
+    	addMatrixSurveyTextAndAnswers(item, itemMap);
+    }
     else
     {
     	if (isRespondus) {
@@ -2531,6 +2535,107 @@ public class ExtractionHelper
 	  item.setItemTextSet(itemTextSet);
   }
 
+  //NOTE: this code is obviously modelled on matching.
+  // However the source and target are reversed. The columns have to
+  // be what the XSL code calls source, which is the reverse of how matching does it.
+  // The problem is that because a column can be reused, it needs to be the direction
+  // with the match_group attribute.  Feedback and correct/incorrect isn't done, since
+  // there's no scoring. The generic item code handles generate item feedback, which is
+  // all that makes sense for this question type.
+  //   The xsl code recognizes a question as matrix if match_max > 1, i.e. if the
+  // answers in the columns can be used for more that one row. Technically a forced choice
+  // situation, which we do support, is a matrix question type with match_max = 1. But
+  // the export code won't actually write a match_max of 1 for that, so we won't havve
+  // trouble. If someone does a matrix with only one row, we could have a problem.
+  private void addMatrixSurveyTextAndAnswers(ItemFacade item, Map itemMap)
+  {
+	  List sourceList = (List) itemMap.get("itemMatchSourceText");  // with match_group, i.e. column headings
+	  List targetList = (List) itemMap.get("itemMatchTargetText");  // row headings
+
+	  List itemTextList = (List) itemMap.get("itemText");
+
+	  sourceList = sourceList == null ? new ArrayList() : sourceList;
+	  targetList = targetList == null ? new ArrayList() : targetList;
+	  itemTextList =
+		  itemTextList == null ? new ArrayList() : itemTextList;
+
+		  String itemTextString = "";
+		  if (itemTextList.size()>0)
+		  {
+			  itemTextString = XmlUtil.processFormattedText(log, (String) itemTextList.get(0));
+		  }
+
+		  HashSet itemTextSet = new HashSet();
+
+		  // first, add the question text
+		  if (itemTextString==null) itemTextString = "";
+		  itemTextString=itemTextString.replaceAll("\\?\\?"," ");//SAK-2298
+		  log.debug("item.setInstruction itemTextString: " + itemTextString);
+		  item.setInstruction(itemTextString);
+
+		  // loop through target texts, i.e. rows
+		  for (int i = 0; i < targetList.size(); i++)
+		  {
+			  // create the entry for the row
+			  String sourceText = XmlUtil.processFormattedText(log, (String) targetList.get(i));
+			  if (sourceText == null) sourceText="";
+			  sourceText=sourceText.replaceAll("\\?\\?"," ");//SAK-2298
+			  log.debug("sourceText: " + sourceText);
+
+			  ItemText sourceItemText = new ItemText();
+			  sourceItemText.setText(makeFCKAttachment(sourceText));
+			  sourceItemText.setItem(item.getData());
+			  sourceItemText.setSequence( Long.valueOf(i + 1));
+
+			  HashSet targetSet = new HashSet();
+
+			  // loop through all answers, i.e. columns
+			  char answerLabel = 'A';
+			  for (int a = 0; a < sourceList.size(); a++)
+			  {
+				  String targetString = XmlUtil.processFormattedText(log, (String) sourceList.get(a));
+				  if (targetString == null)
+				  {
+					  targetString = "";
+				  }
+				  targetString=targetString.replaceAll("\\?\\?"," ");//SAK-2298
+				  log.debug("targetString: " + targetString);
+
+				  Answer target = new Answer();
+
+				  //feedback
+				  HashSet answerFeedbackSet = new HashSet();
+
+				  target.setAnswerFeedbackSet(answerFeedbackSet);
+
+				  String label = "" + answerLabel++;
+				  target.setLabel(label); // up to 26, is this a problem?
+				  target.setText(makeFCKAttachment(targetString));
+				  target.setItemText(sourceItemText);
+				  target.setItem(item.getData());
+				  target.setSequence( Long.valueOf(a + 1));
+
+				  // correct answer and score
+				  // manual authoring disregards the number of partial answers
+				  // or whether the answer is correct so we will do the same.
+				  // float score = 0;
+				  float score = 0.0f;
+				  float discount = 0.0f;
+
+				  log.debug("setting answer " + a + " score to:" + score);
+				  target.setScore( Float.valueOf(score));
+				  target.setDiscount(Float.valueOf(discount));
+
+				  targetSet.add(target);
+
+			  }
+
+			  sourceItemText.setAnswerSet(targetSet);
+			  itemTextSet.add(sourceItemText);
+		  }
+
+		  item.setItemTextSet(itemTextSet);
+  }
 
   /**
    * Helper method rotates the first n.

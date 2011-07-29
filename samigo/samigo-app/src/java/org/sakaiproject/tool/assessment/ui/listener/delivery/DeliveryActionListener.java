@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import javax.faces.context.FacesContext;
@@ -42,8 +43,13 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
+import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -75,6 +81,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.MatchingBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SelectionBean;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.MatrixSurveyBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -1054,7 +1061,8 @@ public class DeliveryActionListener
     if (item.getTypeId().equals(TypeIfc.ESSAY_QUESTION) ||
         item.getTypeId().equals(TypeIfc.FILE_UPLOAD) ||
         item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE_SURVEY) ||
-        item.getTypeId().equals(TypeIfc.AUDIO_RECORDING))
+        item.getTypeId().equals(TypeIfc.AUDIO_RECORDING) ||
+        item.getTypeId().equals(TypeIfc.MATRIX_CHOICES_SURVEY))
     {
       itemBean.setFeedback(item.getGeneralItemFeedback());
     }
@@ -1111,6 +1119,8 @@ public class DeliveryActionListener
     	}
     	//log.debug("correctAnswers: " + correctAnswers);
     	
+    	//check if there's wrong answer in the answer list, matrix survey question won't affect it, since the answer is always right, 
+    	//so don't need to check the matrix survey question
     	while (iterAnswer.hasNext())
     	{
     		
@@ -1142,12 +1152,10 @@ public class DeliveryActionListener
     		    	break;
     		    }
       		    else if (answer !=null) {  
-      		    	// for matching, if no selection has been made, answer = null.  we dont want to increment mcmc_match_counter if answer is null
-      		    	
+      		    	// for matching, if no selection has been made, answer = null.  
+      		    	//we don't want to increment mcmc_match_counter if answer is null
       		    	mcmc_match_counter++;
       		    }
-    			  	
- 
     		  }
     		  else {
     			  // for other question types, tf, mcsc, mcmc and matching
@@ -1213,8 +1221,11 @@ public class DeliveryActionListener
       Iterator key2 = null;
 
       // Never randomize Fill-in-the-blank or Numeric Response, always randomize matching
-      if (randomize && !(item.getTypeId().equals(TypeIfc.FILL_IN_BLANK)||item.getTypeId().equals(TypeIfc.FILL_IN_NUMERIC)) || item.getTypeId().equals(TypeIfc.MATCHING))
-          {
+      if (randomize && !(item.getTypeId().equals(TypeIfc.FILL_IN_BLANK)||
+    		  item.getTypeId().equals(TypeIfc.FILL_IN_NUMERIC) || 
+    		  item.getTypeId().equals(TypeIfc.MATRIX_CHOICES_SURVEY)) ||
+    		  item.getTypeId().equals(TypeIfc.MATCHING))
+      {
             ArrayList shuffled = new ArrayList();
             Iterator i1 = text.getAnswerArraySorted().iterator();
             while (i1.hasNext())
@@ -1267,7 +1278,8 @@ public class DeliveryActionListener
             && (item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE) ||
                 item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) ||
                 item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION) ||
-                item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE_SURVEY)))
+                item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE_SURVEY) ||
+                item.getTypeId().equals(TypeIfc.MATRIX_CHOICES_SURVEY)))
         {
           // Ignore, it's a null answer
         }
@@ -1349,6 +1361,7 @@ public class DeliveryActionListener
               key += ", " + answer.getText();
             }
           }
+          //myanswers will get the answer even for matrix and multiple choices survey
           myanswers.add(answer);
         }
       }
@@ -1485,10 +1498,14 @@ public class DeliveryActionListener
     }
     else if (item.getTypeId().equals(TypeIfc.ESSAY_QUESTION)) 
     {
-      String responseText = itemBean.getResponseText();
-      // SAK-17021
-      // itemBean.setResponseText(FormattedText.convertFormattedTextToPlaintext(responseText));
-      itemBean.setResponseText(ContextUtil.stringWYSIWYG(responseText));
+    	String responseText = itemBean.getResponseText();
+    	// SAK-17021
+    	// itemBean.setResponseText(FormattedText.convertFormattedTextToPlaintext(responseText));
+    	itemBean.setResponseText(ContextUtil.stringWYSIWYG(responseText));
+    }
+    else if (item.getTypeId().equals(TypeIfc.MATRIX_CHOICES_SURVEY))
+    {
+    	populateMatrixChoices(item, itemBean, publishedAnswerHash);
     }
     
     return itemBean;
@@ -1816,6 +1833,81 @@ public class DeliveryActionListener
     fins.add(fbean);
 
     bean.setFinArray(fins);
+  }
+
+  public void populateMatrixChoices(ItemDataIfc item, ItemContentsBean bean, HashMap publishedAnswerHash){
+
+	  ArrayList matrixArray = new ArrayList();
+
+	  List<Integer> columnIndexList = new ArrayList<Integer>();
+	  ArrayList itemTextArray = item.getItemTextArraySorted();
+	  ArrayList answerArray = ((ItemTextIfc)itemTextArray.get(0)).getAnswerArraySorted(); 
+	  MatrixSurveyBean mbean = null;
+
+	  List<String> stringList = new ArrayList<String>();
+
+	  for(int i=0; i<answerArray.size(); i++){
+		  String str = ((AnswerIfc) answerArray.get(i)).getText();
+
+		  if(str!=null && str.trim().length()>0) {
+			  stringList.add(str);
+		  }
+	  }
+
+	  for (int k=0; k<stringList.size(); k++){
+		  columnIndexList.add(new Integer(k));
+	  }	
+
+	  String [] columnChoices = stringList.toArray(new String[stringList.size()]);
+	  List<ItemTextIfc> iList = new ArrayList<ItemTextIfc>();
+
+	  for (int i=0; i<itemTextArray.size(); i++)
+	  {
+		  String str = ((ItemTextIfc) itemTextArray.get(i)).getText();
+		  if (str!=null && str.trim().length()>0)
+			  iList.add((ItemTextIfc)itemTextArray.get(i));
+	  }
+
+	  for(int i=0; i<iList.size(); i++)
+	  {	
+		  ItemTextIfc text = iList.get(i);
+		  ArrayList answers = ((ItemTextIfc)itemTextArray.get(i)).getAnswerArraySorted();
+		  List<AnswerIfc> alist = new ArrayList<AnswerIfc>();
+		  List<String> slist = new ArrayList<String>();
+		  for(int j= 0; j<answers.size(); j++)
+		  {
+			  if ((AnswerIfc)answers.get(j) != null && !"".equals(((AnswerIfc)answers.get(j)).getText().trim()))	{
+				  alist.add((AnswerIfc)answers.get(j));
+				  slist.add(((AnswerIfc)answers.get(j)).getId().toString());
+			  }
+		  }
+		  AnswerIfc [] answerIfcs =alist.toArray(new AnswerIfc[alist.size()]);
+		  String[] answerSid = slist.toArray(new String[slist.size()]);
+		  mbean = new MatrixSurveyBean();
+		  mbean.setItemText(text);
+		  mbean.setItemContentsBean(bean);
+		  mbean.setAnswerArray(answerIfcs);
+		  mbean.setAnswerSid(answerSid);
+		  ArrayList itemGradingArray = bean.getItemGradingDataArray();
+		  for (int k=0; k< itemGradingArray.size(); k++)
+		  {
+			  ItemGradingData data = (ItemGradingData)itemGradingArray.get(k);
+			  if((data.getPublishedItemTextId()).longValue() == text.getId().longValue()){
+				  mbean.setItemGradingData(data);
+				  if (data.getPublishedAnswerId() != null)
+					  mbean.setResponseId(data.getPublishedAnswerId().toString());
+				  break;
+			  }
+		  }
+		  matrixArray.add(mbean);
+	  }
+	  bean.setColumnArray(columnChoices);
+	  bean.setColumnIndexList(columnIndexList);
+	  bean.setMatrixArray(matrixArray);
+	  bean.setForceRanking(Boolean.parseBoolean(item.getItemMetaDataByLabel(ItemMetaDataIfc.FORCE_RANKING)));
+	  bean.setRelativeWidth(Integer.parseInt(item.getItemMetaDataByLabel(ItemMetaDataIfc.MX_SURVEY_RELATIVE_WIDTH)));
+	  bean.setAddComment(Boolean.parseBoolean(item.getItemMetaDataByLabel(ItemMetaDataIfc.ADD_COMMENT_MATRIX)));
+	  bean.setCommentField(item.getItemMetaDataByLabel(ItemMetaDataIfc.MX_SURVEY_QUESTION_COMMENTFIELD));
   }
 
   /**

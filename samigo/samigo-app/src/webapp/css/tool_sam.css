@@ -323,3 +323,7 @@ tr.list-row-even td, tr.list-row-odd td {
 	text-decoration: underline;
 }
 
+tbody tr td.center{
+    text-align: center; /*centers radio buttons beneath column headings in matrix type survey questions */
+}
+

@@ -38,6 +38,7 @@ import org.sakaiproject.tool.assessment.facade.SectionFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.authz.AuthorizationFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
+import org.sakaiproject.tool.assessment.facade.FavoriteColChoicesFacadeQueriesAPI;
 
 /**
  * @author jlannan
@@ -47,7 +48,7 @@ import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
  */
 public class PersistenceService{
 
-        private static Log log = LogFactory.getLog(PersistenceService.class);
+	private static Log log = LogFactory.getLog(PersistenceService.class);
 	private QuestionPoolFacadeQueriesAPI questionPoolFacadeQueries;
 	private TypeFacadeQueriesAPI typeFacadeQueries;
 	private SectionFacadeQueriesAPI sectionFacadeQueries;
@@ -57,10 +58,12 @@ public class PersistenceService{
 	private PublishedSectionFacadeQueriesAPI publishedSectionFacadeQueries;
 	private PublishedItemFacadeQueriesAPI publishedItemFacadeQueries;
 	private AssessmentGradingFacadeQueriesAPI assessmentGradingFacadeQueries;
-        private AuthorizationFacadeQueriesAPI authorizationFacadeQueries;
-        private PagingUtilQueriesAPI pagingUtilQueries;
-        private AuthzQueriesFacadeAPI authzQueriesFacade;
-        private SectionAwareness sectionAwareness;
+	private AuthorizationFacadeQueriesAPI authorizationFacadeQueries;
+	private PagingUtilQueriesAPI pagingUtilQueries;
+	private AuthzQueriesFacadeAPI authzQueriesFacade;
+	private SectionAwareness sectionAwareness;
+	private FavoriteColChoicesFacadeQueriesAPI favoriteColChoicesFacadeQueries;
+
 
 	public static PersistenceService getInstance(){
 	    return (PersistenceService)ComponentManager.get("PersistenceService");
@@ -198,28 +201,34 @@ public class PersistenceService{
 	}
 
 
-      public int retryDeadlock(Exception e, int retryCount){
-        log.warn("Error saving to db...retry again....");
-        String errorMessage = e.getMessage();
-        log.warn(errorMessage);
-        int index = errorMessage.indexOf("ORA-00060"); // deadlock
-        int index2 = errorMessage.indexOf("SQL state [61000]"); // oracle deadlock
-        int index3 = errorMessage.indexOf("SQL state [41000]"); // mysql deadlock
-        if (index > -1 || index2 > -1 || index3 > -1){
-          retryCount--;
-          try {
-            int ideadlockInterval = deadlockInterval.intValue();
-            Thread.currentThread().sleep(ideadlockInterval);
-          }
-          catch(InterruptedException ex){
-            log.warn(ex.getMessage());
-          }
-        }
-        else retryCount = 0;
-     return retryCount;
-   }
-        
+	public int retryDeadlock(Exception e, int retryCount){
+		log.warn("Error saving to db...retry again....");
+		String errorMessage = e.getMessage();
+		log.warn(errorMessage);
+		int index = errorMessage.indexOf("ORA-00060"); // deadlock
+		int index2 = errorMessage.indexOf("SQL state [61000]"); // oracle deadlock
+		int index3 = errorMessage.indexOf("SQL state [41000]"); // mysql deadlock
+		if (index > -1 || index2 > -1 || index3 > -1){
+			retryCount--;
+			try {
+				int ideadlockInterval = deadlockInterval.intValue();
+				Thread.currentThread().sleep(ideadlockInterval);
+			}
+			catch(InterruptedException ex){
+				log.warn(ex.getMessage());
+			}
+		}
+		else retryCount = 0;
+		return retryCount;
+	}
 
+	public void setFavoriteColChoicesFacadeQueries(FavoriteColChoicesFacadeQueriesAPI favoriteColChoicesFacadeQueries){
+		this.favoriteColChoicesFacadeQueries = favoriteColChoicesFacadeQueries;
+	}
+
+	public FavoriteColChoicesFacadeQueriesAPI getFavoriteColChoicesFacadeQueries(){
+		return favoriteColChoicesFacadeQueries;
+	}
 }
 
 

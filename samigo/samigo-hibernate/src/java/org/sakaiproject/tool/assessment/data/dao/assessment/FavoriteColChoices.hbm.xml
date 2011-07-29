@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+  "-//Hibernate/Hibernate Mapping DTD//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping default-lazy="false">
+  <class name="org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoices" 
+	table="SAM_FAVORITECOLCHOICES_T">
+    <id name="favoriteId" column="FAVORITEID" type="java.lang.Long" unsaved-value="0">
+      <generator class="native"/> 
+    </id>
+   
+    <property name="favoriteName" type="string" length="255" column="FAVORITENAME" not-null="false" />
+    <property name="ownerStringId" type="string" length="255" column="OWNERID" not-null="false" />
+    <set name="favoriteItems" table="SAM_FAVORITECOLCHOICESITEM_T"  cascade="all" inverse="true" lazy="false">
+    	<key column="FAVORITEID"/>
+    	<one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoicesItem"/>
+    	</set>
+  </class>
+    
+     <class name="org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoicesItem" 
+	table="SAM_FAVORITECOLCHOICESITEM_T">
+    <id name="favoriteItemId" column="FAVORITEITEMID" type="java.lang.Long" unsaved-value="0">
+      <generator class="native"/> 
+    </id>
+    <many-to-one name="favoriteChoice" class="org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoices">
+     <column name="FAVORITEID" not-null="true"/>
+     </many-to-one> 
+    <property name="sequence" type="integer" column="SEQUENCE" not-null="true" />
+    <property name="choiceText" type="string" length="1000" column="TEXT" not-null="false" />
+  </class>
+    
+</hibernate-mapping>
+    

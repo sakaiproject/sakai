@@ -2,6 +2,7 @@
 include file for delivering matching questions
 should be included in file importing DeliveryMessages
 --%>
+<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
 <!--
 * $Id$
 <%--
@@ -33,6 +34,7 @@ should be included in file importing DeliveryMessages
      <h:outputText value="#{answer}" escape="false" />
    </h:column>
   </h:dataTable>
+  <h:outputText escape="false" value="<hr style='border:none;border-top:solid black 1px'/>" />
   <h:dataTable value="#{question.matchingArray}" var="matching">
     <h:column rendered="#{delivery.feedback eq 'true' &&
        delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}">
@@ -50,11 +52,11 @@ should be included in file importing DeliveryMessages
       </h:graphicImage>
    </h:column>
    <h:column>
-    <h:selectOneMenu value="#{matching.response}"
+     <t:selectOneMenu value="#{matching.response}" escape="false"
       disabled="#{delivery.actionString=='reviewAssessment'
                || delivery.actionString=='gradeAssessment'}">
-        <f:selectItems value="#{matching.choices}" />
-    </h:selectOneMenu>
+       <f:selectItems value="#{matching.choices}" />
+     </t:selectOneMenu>
    </h:column>
    <h:column>
      <h:outputText value="#{matching.text}" escape="false"/>

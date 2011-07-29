@@ -33,6 +33,16 @@ $Id$
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
+      <style type="text/css">
+        .TableColumn {
+          text-align: center
+        }
+        .TableClass {
+          border-style: dotted;
+          border-width: 0.5px;
+          border-color: light grey;
+        }
+      </style>
       <title><h:outputText
         value="#{commonMessages.total_scores}" /></title>
     <samigo:script path="/jsf/widget/hideDivision/hideDivision.js" />
@@ -224,6 +234,11 @@ function toPoint(id)
             <h:panelGroup rendered="#{question.itemData.typeId == 4}">
               <f:subview id="deliverTrueFalse">
                 <%@ include file="/jsf/delivery/item/deliverTrueFalse.jsp" %>
+              </f:subview>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{question.itemData.typeId == 13}">
+              <f:subview id="deliverMatrixChoicesSurvey">
+                <%@ include file="/jsf/delivery/item/deliverMatrixChoicesSurvey.jsp" %>
               </f:subview>
             </h:panelGroup>
           <f:verbatim></div></f:verbatim>

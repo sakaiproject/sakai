@@ -48,6 +48,16 @@ document.links[newindex].onclick();
 //-->
 </script>
 
+<style type="text/css">
+        .TableColumn {
+          text-align: center
+        }
+       .TableClass {
+         border-style: dotted;
+         border-width: 0.5px;
+         border-color: light grey;
+       }
+</style>
 </head>
 
 
@@ -200,6 +210,9 @@ document.links[newindex].onclick();
                 </h:panelGroup>
                 <h:panelGroup rendered="#{question.itemData.typeId == 1 || question.itemData.typeId == 12}">
                   <%@ include file="/jsf/print/preview_item/MultipleChoiceSingleCorrect.jsp" %>
+                </h:panelGroup>
+                <h:panelGroup rendered="#{question.itemData.typeId == 13}">
+                  <%@ include file="/jsf/print/preview_item/MatrixChoicesSurvey.jsp" %>
                 </h:panelGroup>
                 <h:outputText escape="false" value="<hr />"
 					rendered="#{!(partBean.number == pdfAssessment.sizeDeliveryParts && question.number == pdfAssessment.totalQuestions) && (printSettings.showKeys || printSettings.showKeysFeedback) }" />

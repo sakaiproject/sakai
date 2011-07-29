@@ -433,7 +433,7 @@ public class ItemHelper12Impl extends ItemHelperBase
 
       String responseNo = "" + sequence;
       addMatchingResponseLabelSource(itemXml, responseNo, responseLabelIdent,
-                                     text);
+                                     text, 1);
     }
 
     // add targets (addMatchingResponseLabelTarget())
@@ -446,6 +446,54 @@ public class ItemHelper12Impl extends ItemHelperBase
 
     }
     updateAllSourceMatchGroup(itemXml);
+  }
+
+  private void setItemTextMatrix(List itemTextList, Item itemXml)
+  {
+	  String xpath = MATCH_XPATH;
+	  Map allTargets = new HashMap();
+	  itemXml.add(xpath, "response_label");
+	  String randomNumber = ("" + Math.random()).substring(2);
+	  Iterator iter = itemTextList.iterator();
+	  float itSize = itemTextList.size();
+
+	  while (iter.hasNext())
+	  {
+
+		  ItemTextIfc itemText = (ItemTextIfc) iter.next();
+		  String text = itemText.getText();
+		  Long sequence = itemText.getSequence();
+
+		  String responseIdent = "MT-" + randomNumber + "-" + sequence;
+
+		  String responseNo = "" + (sequence + 1);
+		  addMatchingResponseLabelTarget(itemXml, responseNo, responseIdent, text);
+	  }
+
+	  // add targets (addMatchingResponseLabelTarget())
+
+	  if (itemTextList.size() > 0) {
+		  ItemTextIfc itemText = (ItemTextIfc)itemTextList.get(0);
+		  List answerList = itemText.getAnswerArray();
+		  int numTexts = itemTextList.size();
+
+		  int matchmax = itemTextList.size();
+		  // this is a kludge. On input the only difference in the matrix format is that
+		  // match_max > 1. It's valid to have a matrix with only one row, but in that case
+		  // use match_max of 2 to force the input side to recognize this as a matrix. I
+		  // hope this approach doesn't confuse any other CMS that may try to read the XML file.
+		  if (matchmax < 2)
+			  matchmax = 2;
+		  for (int i = 0; i < answerList.size(); i++) {
+			  AnswerIfc answer = (AnswerIfc)answerList.get(i);
+			  String answerText = answer.getText();
+			  String responseNo = "" + (answer.getSequence() + numTexts + 1);
+			  String responseIdent = "MS-" + randomNumber + "-" + responseNo;
+
+			  addMatchingResponseLabelSource(itemXml, responseNo, responseIdent, answerText, matchmax);
+		  }
+	  }
+	  updateAllSourceMatchGroup(itemXml);
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -1422,7 +1470,11 @@ public class ItemHelper12Impl extends ItemHelperBase
       setItemTextMatching(itemTextList, itemXml);
       return;
     }
-
+    else if (itemXml.isMXSURVEY()) {
+	        setItemTextMatrix(itemTextList, itemXml);
+	        return;
+    }
+    
     String text = ( (ItemTextIfc) itemTextList.get(0)).getText();
     if (itemXml.isFIB())
     {
@@ -1752,7 +1804,7 @@ public class ItemHelper12Impl extends ItemHelperBase
    * @param value
    */
   private void addMatchingResponseLabelSource(
-    Item itemXml, String responseNo, String responseLabelIdent, String value)
+    Item itemXml, String responseNo, String responseLabelIdent, String value, int matchMax)
   {
     String xpath = MATCH_XPATH;
 
@@ -1765,7 +1817,7 @@ public class ItemHelper12Impl extends ItemHelperBase
 
     updateItemXml(
       itemXml,
-      xpath + "/response_label[" + responseNo + "]" + "/@match_max", "1");
+      xpath + "/response_label[" + responseNo + "]" + "/@match_max", Integer.toString(matchMax));
 
     String newPath = xpath + "/response_label[" + responseNo + "]";
     itemXml.addAttribute(newPath, "ident");

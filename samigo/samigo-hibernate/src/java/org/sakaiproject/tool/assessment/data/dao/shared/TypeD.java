@@ -38,7 +38,8 @@ public class TypeD implements TypeIfc{
   public static final Long AUDIO_RECORDING = Long.valueOf(7);
   public static final Long FILL_IN_BLANK = Long.valueOf(8);
   public static final Long FILL_IN_NUMERIC = Long.valueOf(11);
-
+  public static final Long MATRIX_CHOICES_SURVEY = Long.valueOf(13);
+  
   public static final Long MATCHING = Long.valueOf(9);
   // these are section type available in this site,
   public static final Long DEFAULT_SECTION = Long.valueOf(21);

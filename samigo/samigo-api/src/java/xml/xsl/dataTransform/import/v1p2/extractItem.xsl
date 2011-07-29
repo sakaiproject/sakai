@@ -243,6 +243,7 @@
     <xsl:variable name="labels"><xsl:for-each select=".//response_label"><xsl:value-of select="@ident"/></xsl:for-each></xsl:variable>
     <itemIntrospect>
       <xsl:choose>
+        <xsl:when test=".//render_choice and .//response_grp and .//response_labl[@match_max>1]">Survey Matrix</xsl:when>
         <xsl:when test=".//render_choice and .//response_grp">Matching</xsl:when>
         <xsl:when test=".//resprocessing and .//render_fib">Fill In the Blank</xsl:when>
         <xsl:when test=".//resprocessing and .//render_fin">Numeric Response</xsl:when>
@@ -251,6 +252,7 @@
         <xsl:when test=".//render_choice and @title='Multiple Correct'">Multiple Correct Answer</xsl:when>
         <xsl:when test=".//render_choice and @title='Multiple Correct Single Selection'">Multiple Correct Single Selection</xsl:when>
         <xsl:when test=".//render_choice and @title='Multiple Choice'">Multiple Choice</xsl:when>
+        <xsl:when test=".//render_choice and @title='Matrix Choices Survey'">Matrix Choice</xsl:when>
         <xsl:otherwise>Short Answers/Essay</xsl:otherwise>
       </xsl:choose>
     </itemIntrospect>

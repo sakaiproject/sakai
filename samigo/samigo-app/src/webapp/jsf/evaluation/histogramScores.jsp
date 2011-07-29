@@ -230,23 +230,38 @@ $Id$
         <h:dataTable value="#{item.histogramBars}" var="bar">
           <h:column>
             <h:panelGrid columns="1">
-              <h:panelGroup>
-
-<h:graphicImage id="image8" rendered="#{bar.isCorrect}" width="12" height="12"
-        alt="#{evaluationMessages.alt_correct}" url="/images/delivery/checkmark.gif" >
-       </h:graphicImage>
-
-<h:graphicImage id="image9" rendered="#{!bar.isCorrect}" width="12" height="12"
-        alt="#{evaluationMessages.alt_incorrect}" url="/images/delivery/spacer.gif" >
-       </h:graphicImage>
+              <h:panelGroup rendered="#{item.questionType !='13'}">
+				<h:graphicImage id="image8" rendered="#{bar.isCorrect}" width="12" height="12"
+        			alt="#{evaluationMessages.alt_correct}" url="/images/delivery/checkmark.gif" >
+       			</h:graphicImage>
+				<h:graphicImage id="image9" rendered="#{!bar.isCorrect}" width="12" height="12"
+        			alt="#{evaluationMessages.alt_incorrect}" url="/images/delivery/spacer.gif" >
+       			</h:graphicImage>
 
                 <h:graphicImage url="/images/reddot.gif" height="12" width="#{bar.columnHeight}"/>
                 <h:outputText value=" #{bar.numStudentsText}" />
               </h:panelGroup>
-               <h:panelGroup>
-               <h:graphicImage width="12" height="12" url="/images/delivery/spacer.gif" />
-              <h:outputText value="#{bar.label}" escape="false" />
-</h:panelGroup>
+              
+              <h:panelGroup>
+              	<h:graphicImage width="12" height="12" url="/images/delivery/spacer.gif" />
+              	<h:outputText value="#{bar.label}" escape="false" />
+			  </h:panelGroup>
+			  
+			  <h:panelGroup rendered="#{item.questionType == '13' }">
+			    <f:verbatim><div class="tier3"></f:verbatim>
+				<h:dataTable value="#{bar.itemBars}" var="itemBar" >
+					<h:column>
+					<h:panelGrid columns="3">
+					<h:panelGroup>
+						<h:outputText value="#{itemBar.itemText}  "/>
+						<h:graphicImage url="/images/reddot.gif" height="12" width="#{itemBar.columnHeight}"/>
+						<h:outputText value="#{itemBar.numStudentsText}"/> 
+					</h:panelGroup>
+					</h:panelGrid>
+					</h:column>
+				</h:dataTable>
+				<f:verbatim></div></f:verbatim>
+			  </h:panelGroup>
             </h:panelGrid>
           </h:column>
         </h:dataTable>
@@ -266,7 +281,7 @@ $Id$
           <h:outputLabel value="#{evaluationMessages.mode}" />
           <h:outputText id="mode" value="#{item.mode}" />
         </h:panelGrid>
-       <h:panelGrid columns="2" rendered="#{item.questionType == '3'}">
+       <h:panelGrid columns="2" rendered="#{item.questionType == '3' or item.questionType == '13'}">
           <h:outputLabel for="responses1" value="#{evaluationMessages.responses}" />
           <h:outputText id="responses1" value="#{item.numResponses}" />
         </h:panelGrid>

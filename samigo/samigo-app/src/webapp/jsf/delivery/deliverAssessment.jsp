@@ -36,6 +36,16 @@
 	  	  
       <title> <h:outputText value="#{delivery.assessmentTitle}"/>
       </title>
+      <style type="text/css">
+        .TableColumn {
+          text-align: center
+        }
+       .TableClass {
+         border-style: dotted;
+         border-width: 0.5px;
+         border-color: light grey;
+       }
+      </style>
       </head>
 	
       <body onload="<%= request.getAttribute("html.body.onload") %>; checkRadio(); setLocation();SaveFormContentAsync('deliverAssessment', 'takeAssessmentForm', 'takeAssessmentForm:save', 'takeAssessmentForm:lastSubmittedDate1', 'takeAssessmentForm:lastSubmittedDate2',  <h:outputText value="#{delivery.autoSaveRepeatMilliseconds}"/>, <h:outputText  value="#{delivery.actionString=='takeAssessment'}"/>);" >
@@ -73,6 +83,62 @@
 			$('#timer-warning').dialog('open');
 			return false;
 		}		
+		
+		function whichradio(obj){ 
+
+          var myId = String(obj.id);
+          //such as : takeAssessmentForm:_id48:0:_id105:1:deliverMatrixChoicesSurvey:matrixSurveyRadioTable:0:_id1198_0:myRadioId1
+          //find the table id for mutiple matrix questions tables on the same display page 
+          //take care of two different question, one set as forceRanking, another is not
+          var myIdParts = myId.split(":");
+
+          var node_list = document.getElementsByTagName('input');
+          for (var i=0; i<node_list.length; i++) {
+            var node = node_list[i];		
+            if (node.getAttribute('type') == 'hidden' && node.id.endsWith('forceRanking')){
+              var nodeIdParts = node.id.split(":");
+              if(nodeIdParts[4]==myIdParts[4] && node.value == 'true'){
+                //find the radio button table(s)
+                var tables = document.getElementsByTagName('table');
+
+                for(var i=0; i<tables.length; i++){
+                  var mytable = tables[i];
+                  var mytableParts = mytable.id.split(":");
+                  if(mytable.id.endsWith('matrixSurveyRadioTable') && mytableParts[4] == myIdParts[4]){
+                    //found the right table
+                    break;
+                  }
+                }
+
+                //index will be the begining of 'matrixSurveyRadioTable'
+                var index = myId.indexOf("matrixSurveyRadioTable");
+                var strBefore = myId.substring(0,index+'matrixSurveyRadioTable'.length);
+                //alert(strBefore);
+                //remove table no 
+                var strAfter = myId.substring(index+'matrixSurveyRadioTable'.length+2);
+                //alert(strAfter);
+                //find rows of mytable	
+                var iRow = mytable.getElementsByTagName('tr');
+                //three rows before the row containing the radio button
+                for (var i=0; i<iRow.length-3;i++){
+                  //construct radio button id in the same column
+                  var currentRadioButtonId= strBefore+":"+i+strAfter;
+                  //alert(currentRadioButtonId);
+                  var button=document.getElementById(currentRadioButtonId);
+                  var buttonIdStr = String(button.id);
+                  if(button.getAttribute('type') == 'radio' && button.checked == true && buttonIdStr != myId){
+                    obj.checked = false;
+                    alert("only allow one selection per column, please re-try.");
+                    return;
+                  }
+                }
+              }
+              return;
+            }
+          }
+		}
+
+
       </script>
       
       <div id="timer-warning" style="display:none;">
@@ -312,10 +378,15 @@ String.prototype.endsWith = function(txt)
            <f:subview id="deliverTrueFalse">
            <%@ include file="/jsf/delivery/item/deliverTrueFalse.jsp" %>
            </f:subview>
-
+           </h:panelGroup>
+           
+           <h:panelGroup rendered="#{question.itemData.typeId == 13}">
+           <f:subview id="deliverMatrixChoicesSurvey">
+           <%@ include file="/jsf/delivery/item/deliverMatrixChoicesSurvey.jsp" %>
+           </f:subview>
+           </h:panelGroup>
+          
            <f:verbatim></div></f:verbatim>
-
-          </h:panelGroup>
 
         </h:column>
       </h:dataTable>

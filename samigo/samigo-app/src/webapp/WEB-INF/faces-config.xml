@@ -324,6 +324,10 @@
       <property-name>selectFromQuestionBank</property-name>
       <value>false</value>
     </managed-property>
+    <managed-property>
+      <property-name>showMatrixSurvey</property-name>
+      <value>true</value>
+    </managed-property>
   </managed-bean>
   <managed-bean>
     <description>For authorization</description>
@@ -963,6 +967,10 @@
       <from-outcome>matchingItem</from-outcome>
       <to-view-id>/jsf/author/item/matching.jsp</to-view-id>
     </navigation-case>
+    <navigation-case>
+      <from-outcome>matrixChoicesSurveyItem</from-outcome>
+      <to-view-id>/jsf/author/item/matrixChoicesSurvey.jsp</to-view-id>
+    </navigation-case>
 
   <!-- QUESTION POOL	 -->
     <navigation-case>
@@ -1191,6 +1199,11 @@
     <component-class>org.sakaiproject.jsf.component.RichTextEditArea</component-class>
   </component>
 
+  <component>
+    <component-type>CustomSelectOneRadio</component-type>
+    <component-class>org.sakaiproject.jsf.component.CustomSelectOneRadio</component-class>
+  </component>
+  
   <!-- Custom Renderers -->
   <render-kit>
     <!-- stylesheet -->
@@ -1282,6 +1295,13 @@
        <renderer-type>PagerButtonControl</renderer-type>
     <renderer-class>org.sakaiproject.tool.assessment.jsf.renderer.PagerButtonControlRenderer</renderer-class>
     </renderer>
+    
+    <renderer>
+       <component-family>CustomSelectOneRadio</component-family>
+       <renderer-type>CustomSelectOneRadio</renderer-type>
+    <renderer-class>org.sakaiproject.jsf.renderer.CustomSelectOneRadioRenderer</renderer-class>
+    </renderer>
+
    </render-kit>
 
 

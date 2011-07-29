@@ -45,7 +45,9 @@
     <property name="sectionAwareness" >
       <ref bean="org.sakaiproject.section.api.SectionAwareness"/>
     </property>
-
+    <property name="favoriteColChoicesFacadeQueries">
+      <ref bean ="FavoriteColChoicesFacadeQueries"/>
+    </property>
   </bean>
 
   <bean id="TypeFacadeQueries" class="org.sakaiproject.tool.assessment.facade.TypeFacadeQueries">

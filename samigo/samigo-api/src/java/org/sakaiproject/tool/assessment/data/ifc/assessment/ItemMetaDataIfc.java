@@ -40,6 +40,12 @@ public interface ItemMetaDataIfc
   public static final String MUTUALLY_EXCLUSIVE_FOR_FIB= "MUTUALLY_EXCLUSIVE";
   //public static final String CASE_SENSITIVE_FOR_FIN= "CASE_SENSITIVE_FOR_FIN";
   //public static final String MUTUALLY_EXCLUSIVE_FOR_FIN= "MUTUALLY_EXCLUSIVE_FOR_FIN";
+  //sam-939
+  public static final String ADD_TO_FAVORITES_MATRIX = "ADD_TO_FAVORITES";
+  public static final String ADD_COMMENT_MATRIX = "ADD_COMMENT_MATRIX";
+  public static final String FORCE_RANKING = "FORCE_RANKING";
+  public static final String MX_SURVEY_QUESTION_COMMENTFIELD = "MX_SURVEY_QUESTION_COMMENTFIELD";
+  public static final String MX_SURVEY_RELATIVE_WIDTH = "MX_SURVEY_RELATIVE_WIDTH";
 
   
   

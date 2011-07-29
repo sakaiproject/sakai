@@ -31,6 +31,16 @@
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
+      <style type="text/css">
+        .TableColumn {
+          text-align: center
+        }
+        .TableClass {
+          border-style: dotted;
+          border-width: 0.5px;
+          border-color: light grey;
+        }
+      </style>
       <title><h:outputText value="#{deliveryMessages.item_display_author}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
@@ -114,6 +124,11 @@
            <f:subview id="deliverTrueFalse">
            <%@ include file="/jsf/delivery/itemreview/deliverTrueFalse.jsp" %>
            </f:subview>
+          </h:panelGroup>
+          <h:panelGroup rendered="#{question.itemData.typeId == 13}">
+            <f:subview id="deliverTrueFalse">
+            <%@ include file="/jsf/delivery/itemreview/deliverMatrixChoicesSurvey.jsp" %>
+            </f:subview>
           </h:panelGroup>
         </h:column>
       </h:dataTable>

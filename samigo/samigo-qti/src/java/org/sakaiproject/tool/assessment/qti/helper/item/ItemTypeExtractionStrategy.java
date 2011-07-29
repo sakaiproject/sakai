@@ -210,6 +210,10 @@ public class ItemTypeExtractionStrategy
     {
       itemType = AuthoringConstantStrings.TF;
     }
+    else if (toGuess.indexOf("matrix") != -1)
+    {
+    	itemType = AuthoringConstantStrings.MATRIX;
+    }
     else if (toGuess.indexOf("survey") != -1)
     {
       itemType = AuthoringConstantStrings.SURVEY;
