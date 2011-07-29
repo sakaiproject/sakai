@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -80,6 +81,7 @@ import org.sakaiproject.email.cover.EmailService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -7925,6 +7927,8 @@ public class SiteAction extends PagedResourceActionII {
 				
 		List pageList = site.getPages();
 		Set<String> toolsCopied = new HashSet<String>();
+		
+		Map transversalMap = new HashMap();
 
 		if (!((pageList == null) || (pageList.size() == 0))) {
 			for (ListIterator i = pageList
@@ -7934,6 +7938,7 @@ public class SiteAction extends PagedResourceActionII {
 				List pageToolList = page.getTools();
 				if (!(pageToolList == null || pageToolList.size() == 0))
 				{
+					
 					Tool tool = ((ToolConfiguration) pageToolList.get(0)).getTool();
 					String toolId = tool != null?tool.getId():"";
 					if (toolId.equalsIgnoreCase("sakai.resources")) {
@@ -7941,12 +7946,15 @@ public class SiteAction extends PagedResourceActionII {
 						// resource
 						// tool
 						// specially
-						transferCopyEntities(
+						Map<String,String> entityMap = transferCopyEntities(
 								toolId,
 								m_contentHostingService
 										.getSiteCollection(oSiteId),
 								m_contentHostingService
 										.getSiteCollection(nSiteId));
+						if(entityMap != null){							 
+							transversalMap.putAll(entityMap);
+						}
 					} else if (toolId.equalsIgnoreCase(SITE_INFORMATION_TOOL)) {
 						// handle Home tool specially, need to update the site infomration display url if needed
 						String newSiteInfoUrl = transferSiteResource(oSiteId, nSiteId, site.getInfoUrl());
@@ -7957,11 +7965,30 @@ public class SiteAction extends PagedResourceActionII {
 						// tools
                         // SAK-19686 - added if statement and toolsCopied.add
                         if (!toolsCopied.contains(toolId)) {
-                            transferCopyEntities(toolId,
+                        	Map<String,String> entityMap = transferCopyEntities(toolId,
                                          oSiteId, nSiteId);
+                        	if(entityMap != null){							 
+    							transversalMap.putAll(entityMap);
+    						}
                             toolsCopied.add(toolId);
                         }
 					}
+				}
+			}
+			
+			//update entity references
+			toolsCopied = new HashSet<String>();
+			for (ListIterator i = pageList
+					.listIterator(); i.hasNext();) {
+				SitePage page = (SitePage) i.next();
+
+				List pageToolList = page.getTools();
+				if (!(pageToolList == null || pageToolList.size() == 0))
+				{					
+					Tool tool = ((ToolConfiguration) pageToolList.get(0)).getTool();
+					String toolId = tool != null?tool.getId():"";
+					
+					updateEntityReferences(toolId, nSiteId, transversalMap, site);
 				}
 			}
 		}
@@ -9313,6 +9340,8 @@ public class SiteAction extends PagedResourceActionII {
 	private void importToolIntoSite(List toolIds, Hashtable importTools,
 			Site site) {
 		if (importTools != null) {
+			Map transversalMap = new HashMap();
+			
 			// import resources first
 			boolean resourcesImported = false;
 			for (int i = 0; i < toolIds.size() && !resourcesImported; i++) {
@@ -9331,8 +9360,11 @@ public class SiteAction extends PagedResourceActionII {
 						String toSiteCollectionId = m_contentHostingService
 								.getSiteCollection(toSiteId);
 
-						transferCopyEntities(toolId, fromSiteCollectionId,
+						Map<String,String> entityMap = transferCopyEntities(toolId, fromSiteCollectionId,
 								toSiteCollectionId);
+						if(entityMap != null){							 
+							transversalMap.putAll(entityMap);
+						}
 						resourcesImported = true;
 					}
 				}
@@ -9347,7 +9379,23 @@ public class SiteAction extends PagedResourceActionII {
 					for (int k = 0; k < importSiteIds.size(); k++) {
 						String fromSiteId = (String) importSiteIds.get(k);
 						String toSiteId = site.getId();
-						transferCopyEntities(toolId, fromSiteId, toSiteId);
+						Map<String,String> entityMap = transferCopyEntities(toolId, fromSiteId, toSiteId);
+						if(entityMap != null){							 
+							transversalMap.putAll(entityMap);
+						}
+						resourcesImported = true;
+					}
+				}
+			}
+			
+			//update entity references
+			for (int i = 0; i < toolIds.size(); i++) {
+				String toolId = (String) toolIds.get(i);
+				if(importTools.containsKey(toolId)){
+					List importSiteIds = (List) importTools.get(toolId);
+					for (int k = 0; k < importSiteIds.size(); k++) {
+						String toSiteId = site.getId();
+						updateEntityReferences(toolId, toSiteId, transversalMap, site);
 					}
 				}
 			}
@@ -9359,6 +9407,8 @@ public class SiteAction extends PagedResourceActionII {
 			Site site) {
 		
 		if (importTools != null) {
+			Map transversalMap = new HashMap();
+			
 			// import resources first
 			boolean resourcesImported = false;
 			for (int i = 0; i < toolIds.size() && !resourcesImported; i++) {
@@ -9376,8 +9426,11 @@ public class SiteAction extends PagedResourceActionII {
 								.getSiteCollection(fromSiteId);
 						String toSiteCollectionId = m_contentHostingService
 								.getSiteCollection(toSiteId);
-						transferCopyEntitiesMigrate(toolId, fromSiteCollectionId,
+						Map<String,String> entityMap = transferCopyEntitiesMigrate(toolId, fromSiteCollectionId,
 								toSiteCollectionId);
+						if(entityMap != null){							 
+							transversalMap.putAll(entityMap);
+						}						
 						resourcesImported = true;
 					}
 				}
@@ -9392,7 +9445,22 @@ public class SiteAction extends PagedResourceActionII {
 					for (int k = 0; k < importSiteIds.size(); k++) {
 						String fromSiteId = (String) importSiteIds.get(k);
 						String toSiteId = site.getId();
-						transferCopyEntitiesMigrate(toolId, fromSiteId, toSiteId);
+						Map<String,String> entityMap = transferCopyEntitiesMigrate(toolId, fromSiteId, toSiteId);
+						if(entityMap != null){							 
+							transversalMap.putAll(entityMap);
+						}
+					}
+				}
+			}
+			
+			//update entity references
+			for (int i = 0; i < toolIds.size(); i++) {
+				String toolId = (String) toolIds.get(i);
+				if(importTools.containsKey(toolId)){
+					List importSiteIds = (List) importTools.get(toolId);
+					for (int k = 0; k < importSiteIds.size(); k++) {
+						String toSiteId = site.getId();
+						updateEntityReferences(toolId, toSiteId, transversalMap, site);
 					}
 				}
 			}
@@ -10838,10 +10906,12 @@ public class SiteAction extends PagedResourceActionII {
 	 * @param toContext
 	 *            The context to import into.
 	 */
-	protected void transferCopyEntities(String toolId, String fromContext,
+	protected Map transferCopyEntities(String toolId, String fromContext,
 			String toContext) {
 		// TODO: used to offer to resources first - why? still needed? -ggolden
 
+		Map transversalMap = new HashMap();
+		
 		// offer to all EntityProducers
 		for (Iterator i = EntityManager.getEntityProducers().iterator(); i
 				.hasNext();) {
@@ -10852,8 +10922,16 @@ public class SiteAction extends PagedResourceActionII {
 
 					// if this producer claims this tool id
 					if (ArrayUtil.contains(et.myToolIds(), toolId)) {
-						et.transferCopyEntities(fromContext, toContext,
-								new Vector());
+						if(ep instanceof EntityTransferrerRefMigrator){
+							EntityTransferrerRefMigrator etMp = (EntityTransferrerRefMigrator) ep;
+							Map<String,String> entityMap = etMp.transferCopyEntitiesRefMigrator(fromContext, toContext,
+									new Vector());
+							if(entityMap != null){							 
+								transversalMap.putAll(entityMap);
+							}
+						}else{
+							et.transferCopyEntities(fromContext, toContext,	new Vector());
+						}
 					}
 				} catch (Throwable t) {
 					M_log.warn(this + ".transferCopyEntities: Error encountered while asking EntityTransfer to transferCopyEntities from: "
@@ -10861,11 +10939,70 @@ public class SiteAction extends PagedResourceActionII {
 				}
 			}
 		}
+		
+		return transversalMap;
 	}
 
-	protected void transferCopyEntitiesMigrate(String toolId, String fromContext,
+	private void updateSiteInfoToolEntityReferences(Map transversalMap, Site newSite){
+		if(transversalMap != null && transversalMap.size() > 0 && newSite != null){
+			Set<Entry<String, String>> entrySet = (Set<Entry<String, String>>) transversalMap.entrySet();
+			
+			String msgBody = newSite.getDescription();
+			if(msgBody != null && !"".equals(msgBody)){
+				boolean updated = false;
+				Iterator<Entry<String, String>> entryItr = entrySet.iterator();
+				while(entryItr.hasNext()) {
+					Entry<String, String> entry = (Entry<String, String>) entryItr.next();
+					String fromContextRef = entry.getKey();
+					if(msgBody.contains(fromContextRef)){									
+						msgBody = msgBody.replace(fromContextRef, entry.getValue());
+						updated = true;
+					}								
+				}	
+				if(updated){
+					newSite.setDescription(msgBody);
+					try {
+						SiteService.save(newSite);
+					} catch (IdUnusedException e) {
+						// TODO:
+					} catch (PermissionException e) {
+						// TODO:
+					}
+				}
+			}
+		}		
+	}
+	
+	protected void updateEntityReferences(String toolId, String toContext, Map transversalMap, Site newSite) {
+		if (toolId.equalsIgnoreCase(SITE_INFORMATION_TOOL)) {
+			updateSiteInfoToolEntityReferences(transversalMap, newSite);
+		}else{		
+			for (Iterator i = EntityManager.getEntityProducers().iterator(); i
+			.hasNext();) {
+				EntityProducer ep = (EntityProducer) i.next();
+				if (ep instanceof EntityTransferrerRefMigrator && ep instanceof EntityTransferrer) {
+					try {
+						EntityTransferrer et = (EntityTransferrer) ep;
+						EntityTransferrerRefMigrator etRM = (EntityTransferrerRefMigrator) ep;
+
+						// if this producer claims this tool id
+						if (ArrayUtil.contains(et.myToolIds(), toolId)) {
+							etRM.updateEntityReferences(toContext, transversalMap);
+						}
+					} catch (Throwable t) {
+						M_log.warn(
+								"Error encountered while asking EntityTransfer to updateEntityReferences at site: "
+								+ toContext, t);
+					}
+				}
+			}
+		}
+	}
+	
+	protected Map transferCopyEntitiesMigrate(String toolId, String fromContext,
 			String toContext) {
 		
+		Map transversalMap = new HashMap();
 		for (Iterator i = EntityManager.getEntityProducers().iterator(); i
 				.hasNext();) {
 			EntityProducer ep = (EntityProducer) i.next();
@@ -10875,8 +11012,17 @@ public class SiteAction extends PagedResourceActionII {
 
 					// if this producer claims this tool id
 					if (ArrayUtil.contains(et.myToolIds(), toolId)) {
-						et.transferCopyEntities(fromContext, toContext,
-								new Vector(), true);
+						if(ep instanceof EntityTransferrerRefMigrator){
+							EntityTransferrerRefMigrator etRM = (EntityTransferrerRefMigrator) ep;
+							Map<String,String> entityMap = etRM.transferCopyEntitiesRefMigrator(fromContext, toContext,
+									new Vector(), true);
+							if(entityMap != null){							 
+								transversalMap.putAll(entityMap);
+							}
+						}else{
+							et.transferCopyEntities(fromContext, toContext,
+									new Vector(), true);
+						}
 					}
 				} catch (Throwable t) {
 					M_log.warn(
@@ -10885,6 +11031,8 @@ public class SiteAction extends PagedResourceActionII {
 				}
 			}
 		}
+		
+		return transversalMap;
 	}
 
 	/**
