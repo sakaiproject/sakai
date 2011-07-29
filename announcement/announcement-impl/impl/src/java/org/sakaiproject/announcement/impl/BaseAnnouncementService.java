@@ -29,7 +29,10 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Stack;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -62,6 +65,7 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
 import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -99,7 +103,7 @@ import org.w3c.dom.Element;
  */
 
 public abstract class BaseAnnouncementService extends BaseMessageService implements AnnouncementService, ContextObserver,
-		EntityTransferrer
+		EntityTransferrer, EntityTransferrerRefMigrator
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseAnnouncementService.class);
@@ -1089,6 +1093,12 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 	 */
 	public void transferCopyEntities(String fromContext, String toContext, List resourceIds)
 	{
+		transferCopyEntitiesRefMigrator(fromContext, toContext, resourceIds);
+	}
+
+	public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List resourceIds)
+	{
+	//	Map<String, String> transversalMap = new HashMap<String, String>();
 		// get the channel associated with this site
 		String oChannelRef = channelReference(fromContext, SiteService.MAIN_CONTAINER);
 		AnnouncementChannel oChannel = null;
@@ -1263,6 +1273,8 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 
 						// complete the edit
 						nChannel.commitMessage(nMessage, NotificationService.NOTI_NONE);
+						
+//						transversalMap.put(oMessage.getReference(), nMessage.getReference());
 					}
 				}
 
@@ -1277,6 +1289,66 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 		catch (Exception any)
 		{
 			M_log.warn(".importResources(): exception in handling " + serviceName() + " : ", any);
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void updateEntityReferences(String toContext, Map<String, String> transversalMap){
+		if(transversalMap != null && transversalMap.size() > 0){
+			try
+			{
+				Set<Entry<String, String>> entrySet = (Set<Entry<String, String>>) transversalMap.entrySet();
+				
+				String channelId = ServerConfigurationService.getString("channel", null);
+
+				String toSiteId = toContext;
+
+				if (channelId == null)
+				{
+					channelId = channelReference(toSiteId, SiteService.MAIN_CONTAINER);
+					try
+					{
+						AnnouncementChannel aChannel = getAnnouncementChannel(channelId);
+						//need to clear the cache to grab the newly saved messages
+						m_threadLocalManager.set(aChannel.getReference() + ".msgs", null);
+						List mList = aChannel.getMessages(null, true);
+
+						for(Iterator iter = mList.iterator(); iter.hasNext();)
+						{
+							AnnouncementMessage msg = (AnnouncementMessage) iter.next();
+							String msgBody = msg.getBody();
+							boolean updated = false;
+							Iterator<Entry<String, String>> entryItr = entrySet.iterator();
+							while(entryItr.hasNext()) {
+								Entry<String, String> entry = (Entry<String, String>) entryItr.next();
+								String fromContextRef = entry.getKey();
+								if(msgBody.contains(fromContextRef)){									
+									msgBody = msgBody.replace(fromContextRef, entry.getValue());
+									updated = true;
+								}								
+							}	
+							if(updated){
+								AnnouncementMessageEdit editMsg = aChannel.editAnnouncementMessage(msg.getId());
+								editMsg.setBody(msgBody);
+								aChannel.commitMessage(editMsg, NotificationService.NOTI_NONE);
+							}
+						}
+					}
+					catch(Exception e)
+					{
+						M_log.debug("Unable to remove Announcements " + e);
+					}
+				}
+
+			}
+			catch (Exception e)
+			{
+				M_log.debug("transferCopyEntities: End removing Announcement data");
+			}
 		}
 	}
 
@@ -1697,6 +1769,12 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 
 	public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
 	{
+		transferCopyEntitiesRefMigrator(fromContext, toContext, ids, cleanup);
+	}
+
+	public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List ids, boolean cleanup)
+	{
+//		Map<String, String> transversalMap = new HashMap<String, String>();
 		try
 		{
 			if(cleanup == true)
@@ -1732,8 +1810,8 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 		{
 			M_log.debug("transferCopyEntities: End removing Announcement data");
 		}
-		transferCopyEntities(fromContext, toContext, ids);
-	
+//		transversalMap.putAll(transferCopyEntitiesRefMigrator(fromContext, toContext, ids));
+		return null;
 	} 
 
 }
