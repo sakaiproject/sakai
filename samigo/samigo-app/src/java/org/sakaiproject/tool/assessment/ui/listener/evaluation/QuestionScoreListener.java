@@ -647,24 +647,27 @@ public class QuestionScoreListener implements ActionListener,
 					 */
 
 					//SAM-755-"checkmark" indicates right, add "X" to indicate wrong
-					if ((bean.getTypeId().equals("8") || bean.getTypeId().equals("11")) && gdataAnswer != null) {
-						//need to do something here for fill in the blanks
-						if(gdataAnswer.getScore() > 0){
-							//if score is 0, there is no way to tell if user got the correct answer
-							//by using "autoscore"... wish there was a better way to tell if its correct or not
-							Float autoscore = gdata.getAutoScore();
-							if (!(Float.valueOf(0)).equals(autoscore)) {
-								answerText = "<img src='/samigo-app/images/delivery/checkmark.gif'>" + answerText;
-							}else if(Float.valueOf(0).equals(autoscore)){
-								answerText = "<img src='/samigo-app/images/crossmark.gif'>" + answerText;
+					if (gdataAnswer != null) {
+						if (bean.getTypeId().equals("8") || bean.getTypeId().equals("11")) {
+							//need to do something here for fill in the blanks
+							if(gdataAnswer.getScore() > 0){
+								//if score is 0, there is no way to tell if user got the correct answer
+								//by using "autoscore"... wish there was a better way to tell if its correct or not
+								Float autoscore = gdata.getAutoScore();
+								if (!(Float.valueOf(0)).equals(autoscore)) {
+									answerText = "<img src='/samigo-app/images/delivery/checkmark.gif'>" + answerText;
+								}else if(Float.valueOf(0).equals(autoscore)){
+									answerText = "<img src='/samigo-app/images/crossmark.gif'>" + answerText;
+								}
 							}
 						}
-					}else if(gdataAnswer != null){
-						if((gdataAnswer.getIsCorrect() != null && gdataAnswer.getIsCorrect()) || 
-						   (gdataAnswer.getPartialCredit() != null && gdataAnswer.getPartialCredit() > 0)){
-							answerText = "<img src='/samigo-app/images/delivery/checkmark.gif'>" + answerText;
-						}else if(gdataAnswer.getIsCorrect() != null && !gdataAnswer.getIsCorrect()){
-							answerText = "<img src='/samigo-app/images/crossmark.gif'>" + answerText;
+						else if(!bean.getTypeId().equals("3")){
+							if((gdataAnswer.getIsCorrect() != null && gdataAnswer.getIsCorrect()) || 
+									(gdataAnswer.getPartialCredit() != null && gdataAnswer.getPartialCredit() > 0)){
+								answerText = "<img src='/samigo-app/images/delivery/checkmark.gif'>" + answerText;
+							}else if(gdataAnswer.getIsCorrect() != null && !gdataAnswer.getIsCorrect()){
+								answerText = "<img src='/samigo-app/images/crossmark.gif'>" + answerText;
+							}
 						}
 					}
 
