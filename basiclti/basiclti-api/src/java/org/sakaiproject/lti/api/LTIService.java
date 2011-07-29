@@ -327,7 +327,9 @@ public interface LTIService {
       "debug:radio:label=bl_debug:choices=off,on,content",
       "custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=1024",
       "allowcustom:checkbox:label=bl_allowcustom",
-      "created_at:autodate", "updated_at:autodate" };
+      "xmlimport:text:hidden=true:maxlength=16384",
+      "created_at:autodate", 
+      "updated_at:autodate" };
 
   /**
    * 

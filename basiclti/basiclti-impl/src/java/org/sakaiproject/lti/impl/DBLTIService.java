@@ -407,7 +407,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
     HashMap<String, Object> newMapping = new HashMap<String, Object>();
 
-    String errors = foorm.formExtract(newProps, formModel, rb, true, newMapping);
+    String errors = foorm.formExtract(newProps, formModel, rb, true, newMapping, null);
     if (errors != null)
       return errors;
 
@@ -650,7 +650,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
     HashMap<String, Object> newMapping = new HashMap<String, Object>();
 
-    String errors = foorm.formExtract(newProps, formModel, rb, false, newMapping);
+    String errors = foorm.formExtract(newProps, formModel, rb, false, newMapping, null);
     if (errors != null)
       return errors;
 

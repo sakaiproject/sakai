@@ -24,6 +24,7 @@ package org.sakaiproject.util.foorm;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.Properties;
 
 // rm Foorm.class ; javac Foorm.java ; java Foorm
@@ -928,17 +929,19 @@ public class Foorm {
    * @return
    */
   public String formValidate(Properties parms, String[] formDefinition,
-      boolean forInsert, Object loader) {
-    return formExtract(parms, formDefinition, loader, forInsert, null);
+      boolean forInsert, Object loader, SortedMap<String,String> errors) {
+    return formExtract(parms, formDefinition, loader, forInsert, null, errors);
   }
 
   // dataMap should be empty
   /**
-   * 
+   * dataMap should be empty
+   * errors should be empty
    */
   public String formExtract(Object parms, String[] formDefinition, Object loader,
-      boolean forInsert, Map<String, Object> dataMap) {
+      boolean forInsert, Map<String, Object> dataMap, SortedMap<String,String> errors) {
     StringBuffer sb = new StringBuffer();
+    String error = null;
 
     for (String formInput : formDefinition) {
       Properties info = parseFormString(formInput);
@@ -975,8 +978,9 @@ public class Foorm {
       if ("true".equals(info.getProperty("required")) && (dataField == null)) {
         if (sb.length() > 0)
           sb.append(", ");
-        sb.append(getI18N("foorm.missing.field", "Required Field: ", loader));
-        sb.append(getI18N(label, loader));
+        error = getI18N("foorm.missing.field", "Required Field: ", loader) + getI18N(label, loader);
+	sb.append(error);
+	if ( errors != null ) errors.put(label, error);
       }
 
       String maxs = info.getProperty("maxlength", null);
@@ -990,9 +994,10 @@ public class Foorm {
           } else {
             if (sb.length() > 0)
               sb.append(", ");
-            sb.append(getI18N("foorm.maxlength.field", "Field > " + maxlength
-                + " Field: ", loader));
-            sb.append(getI18N(label, loader));
+            error = getI18N("foorm.maxlength.field", "Field > " + maxlength
+                + " Field: ", loader) + getI18N(label, loader);
+            sb.append(error);
+            if ( errors != null ) errors.put(label, error);
           }
         }
       }
@@ -1012,9 +1017,9 @@ public class Foorm {
           } catch (Exception e) {
             if (sb.length() > 0)
               sb.append(", ");
-            sb.append(getI18N("foorm.integer.field", "Field should be an integer: ",
-                loader));
-            sb.append(getI18N(label, loader));
+            error = getI18N("foorm.integer.field", "Field should be an integer: ", loader) + getI18N(label, loader);
+            sb.append(error);
+            if ( errors != null ) errors.put(label, error);
           }
         }
       }
@@ -1029,8 +1034,9 @@ public class Foorm {
         } else {
           if (sb.length() > 0)
             sb.append(", ");
-          sb.append(getI18N("foorm.id.field", "Field has invalid characters: ", loader));
-          sb.append(getI18N(label, loader));
+          error = getI18N("foorm.id.field", "Field has invalid characters: ", loader) + getI18N(label, loader);
+          sb.append(error);
+          if ( errors != null ) errors.put(label, error);
         }
       }
 
@@ -1044,8 +1050,9 @@ public class Foorm {
         } else {
           if (sb.length() > 0)
             sb.append(", ");
-          sb.append(getI18N("foorm.url.field", "Field is not a url: ", loader));
-          sb.append(getI18N(label, loader));
+          error = getI18N("foorm.url.field", "Field is not a url: ", loader) + getI18N(label, loader);
+          sb.append(error);
+          if ( errors != null ) errors.put(label, error);
         }
       }
 

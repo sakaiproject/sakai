@@ -405,8 +405,16 @@ public class SakaiBLTIUtil {
 
         setProperty(toolProps, "launch_url", launch_url);
 
-        setProperty(toolProps, "secret", (String) tool.get("secret") );
-        setProperty(toolProps, "key", (String) tool.get("consumerkey") );
+	String secret = (String) tool.get("secret");
+	String key = (String) tool.get("consumerkey");
+
+	if ( "-----".equals(key) && "-----".equals(secret) ) {
+		return postError("<p>" + getRB(rb, "error.tool.partial" ,"Tool item is incomplete, missing a key and secret.")+"</p>" ); 
+	}
+
+        setProperty(toolProps, "secret", secret );
+        setProperty(toolProps, "key", key );
+
 
         setProperty(toolProps, "debug", content.get("debug").toString() );
         setProperty(toolProps, "frameheight", content.get("frameheight").toString() );
