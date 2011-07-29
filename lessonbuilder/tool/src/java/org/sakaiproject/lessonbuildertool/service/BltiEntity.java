@@ -36,6 +36,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Iterator;
 
+import java.net.URLEncoder;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -43,24 +45,9 @@ import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 
-import org.sakaiproject.assignment.api.Assignment;
-import org.sakaiproject.assignment.api.AssignmentEdit;
-import org.sakaiproject.assignment.api.AssignmentSubmission;
-import org.sakaiproject.assignment.api.AssignmentContent;
-import org.sakaiproject.assignment.cover.AssignmentService;
-
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.exception.PermissionException;
-
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
 import org.sakaiproject.memory.api.Cache;
@@ -124,6 +111,11 @@ public class BltiEntity implements LessonEntity {
     static MessageLocator messageLocator = null;
     public void setMessageLocator(MessageLocator m) {
 	messageLocator = m;
+    }
+
+    static String returnUrl = null;
+    public void setReturnUrl(String m) {
+	returnUrl = m;
     }
 
     public void init () {
@@ -251,7 +243,6 @@ public class BltiEntity implements LessonEntity {
 	if ( id == null ) return; // Likely a failure
 	Long key = foorm.getLong(id);
 	content = ltiService.getContent(key);
-	System.out.println("Key="+key+" Retrived content="+content);
     }	
 
     // properties of entities
@@ -311,19 +302,37 @@ public class BltiEntity implements LessonEntity {
     // can't be null                                                                                                                         
     public List<UrlItem> createNewUrls(SimplePageBean bean) {
 	ArrayList<UrlItem> list = new ArrayList<UrlItem>();
-	String tool = bean.getCurrentTool("sakai.siteinfo");
-	if (tool != null) {
-	    tool = "/portal/tool/" + tool + "/sakai.basiclti.admin.helper.helper?panel=Content";
-	    list.add(new UrlItem(tool, messageLocator.getMessage("simplepage.create_blti")));
+	String toolId = bean.getCurrentTool("sakai.siteinfo");
+	if ( toolId == null || returnUrl == null ) return list;
+
+        // Retrieve all tools
+	List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0);
+	for ( Map<String,Object> tool : tools ) {
+		String url = "/portal/tool/" + toolId + "/sakai.basiclti.admin.helper.helper?panel=ContentConfig&tool_id=" 
+			+ tool.get("id") + "&returnUrl=" + URLEncoder.encode(returnUrl);
+		list.add(new UrlItem(url, (String) tool.get("title")));
 	}
+
+	String url = "/portal/tool/" + toolId + "/sakai.basiclti.admin.helper.helper?panel=Main" + 
+		"&returnUrl=" + URLEncoder.encode(returnUrl);
+	list.add(new UrlItem(url, messageLocator.getMessage("simplepage.create_blti")));
 	return list;
     }
 
+    public boolean isPopUp() {
+	loadContent();
+	Long newPage = foorm.getLong(content.get("newpage"));
+        return (newPage == 1) ; 
+    }
 
     // URL to edit an existing entity.                                                                                                       
     // Can be null if we can't get one or it isn't needed                                                                                    
     public String editItemUrl(SimplePageBean bean) {
-	return null;
+	String tool = bean.getCurrentTool("sakai.siteinfo");
+	if ( tool == null || returnUrl == null ) return null;
+	loadContent();
+	String url = "/portal/tool/" + tool + "/sakai.basiclti.admin.helper.helper?panel=ContentConfig&id=" + content.get("id");
+	return url;
     }
 
 
@@ -336,7 +345,7 @@ public class BltiEntity implements LessonEntity {
     // return the list of groups if the item is only accessible to specific groups
     // null if it's accessible to the whole site.
     public Collection<String> getGroups(boolean nocache) {
-	// done entirely witnin LB, this item type is not group-aware
+	// done entirely within LB, this item type is not group-aware
 	return null;
     }
   

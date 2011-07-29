@@ -26,6 +26,8 @@ package org.sakaiproject.lessonbuildertool.tool.producers;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.net.URLEncoder;
+
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 
 import org.sakaiproject.lessonbuildertool.SimplePage;
@@ -37,6 +39,8 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+
+import org.sakaiproject.lessonbuildertool.service.BltiEntity;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIBranchContainer;
@@ -113,10 +117,12 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 		simplePageBean.setItemId(itemId);
 
 		// here is a URL to return to this page
-		System.out.println("/portal/tool/" + ToolManager.getCurrentPlacement().getId() + "/BltiPicker?" +
-				   ((GeneralViewParameters) viewparams).getSendingPage() + "&itemId=" + itemId);
+		String comeBack = "/portal/tool/" + ToolManager.getCurrentPlacement().getId() + "/BltiPicker?" +
+				   ((GeneralViewParameters) viewparams).getSendingPage() + "&itemId=" + itemId;
+		if ( bltiEntity instanceof BltiEntity ) ( (BltiEntity) bltiEntity).setReturnUrl(comeBack);
+
 		// here is a URL to return to the main lesson builder page
-		System.out.println("/portal/tool/" + ToolManager.getCurrentPlacement().getId() + "/ShowPage?");
+		// System.out.println("/portal/tool/" + ToolManager.getCurrentPlacement().getId() + "/ShowPage?");
 
 		if (simplePageBean.canEditPage()) {
 
@@ -132,8 +138,6 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 				return;
 			    currentItem = i.getSakaiId();
 			}
-
-			Session ses = SessionManager.getCurrentSession();
 
 			List<UrlItem> createLinks = bltiEntity.createNewUrls(simplePageBean);
 			for (UrlItem createLink: createLinks) {
