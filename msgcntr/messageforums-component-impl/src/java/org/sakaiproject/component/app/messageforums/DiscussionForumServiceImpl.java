@@ -21,6 +21,7 @@
 package org.sakaiproject.component.app.messageforums;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ import java.util.Stack;
 import java.util.Vector;
 import java.util.HashSet;
 import java.util.ArrayList;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,6 +55,7 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -74,7 +77,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class DiscussionForumServiceImpl  implements DiscussionForumService, EntityTransferrer
+public class DiscussionForumServiceImpl  implements DiscussionForumService, EntityTransferrer, EntityTransferrerRefMigrator
 {
 	private static final String MESSAGEFORUM = "messageforum";
 	private static final String DISCUSSION_FORUM = "discussion_forum";
@@ -398,7 +401,14 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 		return toolIds;
 	}
 
-	public void transferCopyEntities(String fromContext, String toContext, List ids) {
+        public void transferCopyEntities(String fromContext, String toContext, List resourceIds)
+        {
+                transferCopyEntitiesRefMigrator(fromContext, toContext, resourceIds); 
+        }
+
+        public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List resourceIds)
+	{
+		Map<String, String> transversalMap = new HashMap<String, String>();
 		try 
 		{
 			LOG.debug("transfer copy mc items by transferCopyEntities");
@@ -502,6 +512,9 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 							newForum.setDraft(Boolean.valueOf("true"));
 							forumManager.saveDiscussionForum(newForum, true);
 						}
+						
+						//add the ref's for the old and new forum
+						transversalMap.put("forum/" + fromForumId, "forum/" + newForum.getId());
 
 						// get/add the topics
 						List topicList = dfManager.getTopicsByIdWithMessagesMembershipAndAttachments(fromForumId);
@@ -562,6 +575,9 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 								}
 
 								forumManager.saveDiscussionForumTopic(newTopic, newForum.getDraft().booleanValue());
+								
+								//add the ref's for the old and new topic
+								transversalMap.put("forum_topic/" + fromTopicId, "forum_topic/" + newTopic.getId());
 							}
 						}
 					}	
@@ -573,6 +589,8 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 			e.printStackTrace();
 			LOG.error(e.getMessage(), e);
 		}
+		
+		return transversalMap;
 	}
 
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans, Set userListAllowImport)
@@ -1215,8 +1233,14 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 		return permissionManager;
 	}
 	
-	public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
+        public void transferCopyEntities(String fromContext, String toContext, List ids, boolean cleanup)
+        {
+                transferCopyEntitiesRefMigrator(fromContext, toContext, ids, cleanup);
+        }
+
+        public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List ids, boolean cleanup)
 	{	
+		Map<String, String> transversalMap = new HashMap<String, String>();
 		try
 		{
 			if(cleanup == true)
@@ -1240,11 +1264,90 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 					LOG.debug ("Remove Forums from Site Import failed" + e);
 				}
 			}
-			transferCopyEntities(fromContext, toContext, ids);
+			transversalMap.putAll(transferCopyEntitiesRefMigrator(fromContext, toContext, ids));
 		}
 		catch(Exception e)
 		{
 			LOG.debug ("Forums transferCopyEntities failed" + e);
 		}
+		
+		return transversalMap;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void updateEntityReferences(String toContext, Map<String, String> transversalMap){
+		if(transversalMap != null && transversalMap.size() > 0){
+			Set<Entry<String, String>> entrySet = (Set<Entry<String, String>>) transversalMap.entrySet();
+
+			List existingForums = dfManager.getDiscussionForumsByContextId(toContext);
+
+			if (existingForums != null && !existingForums.isEmpty()) 
+			{
+				for (int currForum = 0; currForum < existingForums.size(); currForum++) 
+				{
+					boolean updateForum = false;
+					DiscussionForum fromForum = (DiscussionForum)existingForums.get(currForum);
+					
+					//check long Desc:
+					String fLongDesc = fromForum.getExtendedDescription();
+					if(fLongDesc != null){
+						fLongDesc = replaceAllRefs(fLongDesc, entrySet);
+						if(!fLongDesc.equals(fromForum.getExtendedDescription())){
+							fromForum.setExtendedDescription(fLongDesc);
+							updateForum = true;
+						}
+					}
+					
+					if(updateForum){
+						//update forum
+						dfManager.saveForum(fromForum);
+					}
+					
+					List topics = fromForum.getTopics();
+					if(topics != null && !topics.isEmpty()){
+						//check topics too:
+						for(int currTopic = 0; currTopic < topics.size(); currTopic++){
+							boolean updateTopic = false;
+							DiscussionTopic topic = (DiscussionTopic) topics.get(currTopic);
+							
+							//check long Desc:
+							String tLongDesc = topic.getExtendedDescription();
+							if(tLongDesc != null){
+								tLongDesc = replaceAllRefs(tLongDesc, entrySet);
+								if(!tLongDesc.equals(topic.getExtendedDescription())){
+									topic.setExtendedDescription(tLongDesc);
+									updateTopic = true;
+								}
+							}
+							
+							if(updateTopic){
+								//update forum
+								dfManager.saveTopic(topic);
+							}
+						}						
+					}
+				}
+			}
+		}
+	}
+	
+	private String replaceAllRefs(String msgBody, Set<Entry<String, String>> entrySet){
+		if(msgBody != null){
+			boolean updated = false;
+			Iterator<Entry<String, String>> entryItr = entrySet.iterator();
+			while(entryItr.hasNext()) {
+				Entry<String, String> entry = (Entry<String, String>) entryItr.next();
+				String fromContextRef = entry.getKey();
+				if(msgBody.contains(fromContextRef)){									
+					msgBody = msgBody.replace(fromContextRef, entry.getValue());
+					updated = true;
+				}								
+			}
+		}	
+		return msgBody;		
+	}
+
+
 }
