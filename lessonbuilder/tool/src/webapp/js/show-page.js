@@ -343,6 +343,7 @@ $(function() {
 		$("#edit-item-settings-p").hide();	
 		$("#pagestuff").hide();
 		$("#newwindowstuff").hide();
+		$("#edit-height").hide();
 		$("#editgroups").after($("#grouplist"));
 		
 		var row = $(this).parent().parent().parent();
@@ -444,6 +445,9 @@ $(function() {
 				$("#edit-item-text").text(msg("simplepage.edit_topic"));
 
 			}else if (type == 'b'){
+				var height = row.find(".item-height").text();
+				$("#edit-height-value").val(height);
+				$("#edit-height").show();				
 				$("#change-blti-p").show();
 				$("#change-blti").attr("href", 
 				      $("#change-blti").attr("href").replace("itemId=-1", "itemId=" + itemid));

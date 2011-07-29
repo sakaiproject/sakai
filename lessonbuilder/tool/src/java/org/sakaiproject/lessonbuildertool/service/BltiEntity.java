@@ -79,7 +79,7 @@ import org.sakaiproject.util.foorm.SakaiFoorm;
 // injected class to handle tests and quizes as well. That will eventually
 // be converted to be a LessonEntity.
 
-public class BltiEntity implements LessonEntity {
+public class BltiEntity implements LessonEntity, BltiInterface {
 
     private static Log log = LogFactory.getLog(BltiEntity.class);
 

@@ -56,6 +56,7 @@ import java.io.File;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
+import org.sakaiproject.lessonbuildertool.service.BltiInterface;
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.service.GradebookIfc;
 
@@ -1743,10 +1744,13 @@ public class SimplePageBean {
 			}
 
 			// currently we only display HTML in the same page
-			if (i.getType() == SimplePageItem.RESOURCE)
+			if (i.getType() == SimplePageItem.RESOURCE || i.getType() == SimplePageItem.BLTI)
 			    i.setSameWindow(!newWindow);
 			else
 			    i.setSameWindow(false);
+
+			if (i.getType() == SimplePageItem.BLTI)
+			    i.setHeight(height);
 
 			update(i);
 
@@ -2047,6 +2051,14 @@ public class SimplePageBean {
 			    } else {
 				// no, add new item
 				i = appendItem(selectedBlti, selectedObject.getTitle(), SimplePageItem.BLTI);
+				BltiInterface blti = (BltiInterface)bltiEntity.getEntity(selectedBlti);
+				if (blti != null) {
+				    int height = blti.frameSize();
+				    if (height > 0)
+					i.setHeight(Integer.toString(height));
+				    System.out.println("blti " + blti + " popup " + blti.isPopUp());
+				    i.setSameWindow(!blti.isPopUp());
+				}
 				update(i);
 			    }
 			    return "success";

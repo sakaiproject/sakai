@@ -620,14 +620,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					notDone = true;
 				}
 
+				boolean isInline = (i.getType() == SimplePageItem.BLTI && i.isSameWindow());
+
 				UIOutput linktd = UIOutput.make(tableRow, "item-td");
-				UIOutput linkdiv = UIOutput.make(tableRow, "link-div");
+				UIOutput linkdiv = null;
+				if (!isInline)
+				    linkdiv = UIOutput.make(tableRow, "link-div");
 
 				UIOutput descriptiondiv = null;
 
 				// refresh isn't actually used anymore. We've changed the way things are
 				// done so the user never has to request a refresh.
-				showRefresh = !makeLink(tableRow, "link", i, canEditPage, currentPage, notDone, status) || showRefresh;
+				if (!isInline)
+				    showRefresh = !makeLink(tableRow, "link", i, canEditPage, currentPage, notDone, status) || showRefresh;
 
 				// dummy is used when an assignment, quiz, or forum item is copied
 				// from another site. The way the copy code works, our import code 
@@ -648,13 +653,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				} else
 				    descriptiondiv = UIOutput.make(tableRow, "description", i.getDescription());
 
-				// nav button gets float left so any description goes to its right. Otherwise the
+ 				// nav button gets float left so any description goes to its right. Otherwise the
 				// description block will display underneath
-				if ("button".equals(i.getFormat()))
-				    linkdiv.decorate(new UIFreeAttributeDecorator("style", "float:left"));
-				// for accessibility
-				if (navButton) {
-				    linkdiv.decorate(new UIFreeAttributeDecorator("role", "navigation"));
+				if (!isInline) {
+				    if ("button".equals(i.getFormat()))
+					linkdiv.decorate(new UIFreeAttributeDecorator("style", "float:left"));
+				    // for accessibility
+				    if (navButton) {
+					linkdiv.decorate(new UIFreeAttributeDecorator("role", "navigation"));
+				    }
 				}
 
 				// note that a lot of the info here is used by the javascript that prepares
@@ -714,12 +721,34 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 						}
 					} else if (i.getType() == SimplePageItem.BLTI) {
+						if (isInline) {
+						    Length height=null;
+						    if (i.getHeight() != null)
+							height = new Length(i.getHeight());
+
+						    LessonEntity lessonEntity = bltiEntity.getEntity(i.getSakaiId());
+
+						    UIComponent iframe = UIOutput.make(tableRow, "blti-iframe");
+						    if (lessonEntity != null)
+							iframe.decorate(new UIFreeAttributeDecorator("src", lessonEntity.getUrl()));
+						    if (getOrig(height).equals("auto"))
+							iframe.decorate(new UIFreeAttributeDecorator("onload", "resizeiframe('" + iframe.getFullID() + "')"));
+						    else if (lengthOk(height))
+							iframe.decorate(new UIFreeAttributeDecorator("height", height.getOld()));
+						    iframe.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.web_content").replace("{}",abbrevUrl(i.getURL()))));
+						    // normally we get the name from the link text, but there's no link text here
+						    UIOutput.make(tableRow, "item-name", i.getName());
+						}
 						UIOutput.make(tableRow, "type", "b"); 
 						LessonEntity blti= bltiEntity.getEntity(i.getSakaiId());
 						if (blti != null) {
 						    String editUrl = blti.editItemUrl(simplePageBean);
 						    if (editUrl != null)
 							UIOutput.make(tableRow, "edit-url", editUrl);
+						    UIOutput.make(tableRow, "item-samewindow", Boolean.toString(i.isSameWindow()));
+
+						    if (i.getHeight() != null)
+							UIOutput.make(tableRow, "item-height", i.getHeight());
 						}
 					} else if (i.getType() == SimplePageItem.FORUM) {
 						UIOutput.make(tableRow, "extra-info");
@@ -1604,6 +1633,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "item-prerequisites", "#{simplePageBean.prerequisite}", false);
 
 		UIBoundBoolean.make(form, "item-newwindow", "#{simplePageBean.newWindow}", false);
+		
+		UIInput.make(form, "edit-height-value", "#{simplePageBean.height}");
 
 		UISelect.make(form, "assignment-dropdown", SimplePageBean.GRADES, "#{simplePageBean.dropDown}", SimplePageBean.GRADES[0]);
 		UIInput.make(form, "assignment-points", "#{simplePageBean.points}");
