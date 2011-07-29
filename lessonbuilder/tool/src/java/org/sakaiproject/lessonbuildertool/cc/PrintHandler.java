@@ -43,12 +43,14 @@ package org.sakaiproject.lessonbuildertool.cc;
 
 import org.jdom.Element;
 import org.jdom.Namespace;
+import org.jdom.output.XMLOutputter;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Properties;
 import java.io.InputStream;
 import java.io.FileInputStream;
 import java.io.PrintWriter;
@@ -85,6 +87,11 @@ import org.w3c.dom.Document;
 import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 
+import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.lti.impl.DBLTIService; // HACK
+
+import org.sakaiproject.util.foorm.SakaiFoorm;
+
 /* PJN NOTE:
  * This class is an example of what an implementer might want to do as regards overloading DefaultHandler.
  * In this case, messages are written to the screen. If a method in default handler is not overridden, then it does
@@ -95,8 +102,6 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
                                        MetadataHandler, LearningApplicationResourceHandler, QuestionBankHandler,
                                        WebContentHandler, WebLinkHandler{
 
-
-  
   private static final String HREF="href";
   private static final String TYPE="type";
   private static final String FILE="file";
@@ -140,6 +145,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private String siteId = null;
   private LessonEntity quiztool = null;
   private LessonEntity topictool = null;
+  protected static LTIService ltiService = null; 
+  protected static SakaiFoorm foorm = new SakaiFoorm();
     // this is the CC file name for all files added
   private Set<String> filesAdded = new HashSet<String>();
     // this is the CC file name (of the XML file) -> Sakaiid for non-file items
@@ -153,6 +160,11 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       this.siteId = bean.getCurrentSiteId();
       this.quiztool = q;
       this.topictool = l;
+      if ( this.ltiService == null ) { 
+          this.ltiService = (LTIService) new DBLTIService(); 
+          ((org.sakaiproject.lti.impl.DBLTIService) this.ltiService).setAutoDdl("true"); 
+          ((org.sakaiproject.lti.impl.DBLTIService) this.ltiService).init(); 
+      } 
   }
 
   public void setAssessmentDetails(String the_ident, String the_title) {
@@ -345,7 +357,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      simplePageBean.saveItem(item);
 	      sequences.set(top, seq+1);
 	      
-	  } else if (type.equals(CC_TOPIC0) || type.equals(CC_TOPIC1)) {
+	  } else if (topictool != null && ( type.equals(CC_TOPIC0) || type.equals(CC_TOPIC1))) {
 	      String filename = getFileName(resource);
 	      Element topicXml =  parser.getXML(loader, filename);
 	      Namespace topicNs = ns.topic_ns();
@@ -451,9 +463,87 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
 	  } else if (type.equals(CC_QUESTION_BANK0) || type.equals(CC_QUESTION_BANK1))
 	      ;
-	  else if (type.equals(CC_BLTI0) || type.equals(CC_BLTI1))
-	      ;
-	  else
+	  else if (type.equals(CC_BLTI0) || type.equals(CC_BLTI1)) { 
+System.out.println("YO YO");
+	      String filename = getFileName(resource);
+System.out.println("filename="+filename);
+	      Element topicXml =  parser.getXML(loader, filename);
+	      XMLOutputter outputter = new XMLOutputter();
+	      String strXml = null;
+	      try {
+	          strXml = outputter.outputString(topicXml);       
+	      }
+	      catch (Exception e) {
+	          strXml = null;
+	      }
+System.out.println("element="+strXml);
+	      Namespace bltiNs = ns.blti_ns();
+System.out.println("bltiNs="+bltiNs);
+	      String bltiTitle = topicXml.getChildText(TITLE, bltiNs);
+System.out.println("bltiTitle="+bltiTitle);
+	      String launchUrl = topicXml.getChildText("secure_launch_url", bltiNs);
+	      if ( launchUrl == null ) launchUrl = topicXml.getChildText("launch_url", bltiNs);
+System.out.println("launch_url="+launchUrl);
+
+		// TODO: Custom
+
+		Map<String,Object> theTool = null;
+		List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0);
+System.out.println(""+tools.size()+" tools available\n");
+		for ( Map<String,Object> tool : tools ) {
+			String toolLaunch = (String) tool.get("launch");
+			if ( toolLaunch.equals(launchUrl) ) {
+				theTool = tool;
+				break;				
+			}
+		}
+
+		if ( theTool == null ) {
+			Properties props = new Properties ();
+			props.setProperty("launch",launchUrl);
+			props.setProperty("title", bltiTitle);
+			props.setProperty("consumerkey", "-----");
+			props.setProperty("secret", "-----"); 
+			// TODO: custom
+			// props.setProperty("xmlimport",strXml);
+
+			Object result = ltiService.insertTool(props);
+			if ( result instanceof String ) {
+				System.out.println("Could not insert tool - "+result);
+			}
+			if ( result instanceof Long ) theTool = ltiService.getTool((Long) result);
+		}
+
+		Map<String,Object> theContent = null;
+		Long contentKey = null;
+
+		if ( theTool != null ) {
+			Properties props = new Properties ();
+			props.setProperty("tool_id",foorm.getLong(theTool.get("id")).toString());
+			props.setProperty("title", bltiTitle);
+			// TODO: custom
+			// props.setProperty("xmlimport",strXml);
+			Object result = ltiService.insertContent(props);
+			if ( result instanceof String ) {
+				System.out.println("Could not insert content - "+result);
+			}
+			if ( result instanceof Long ) theContent = ltiService.getContent((Long) result);
+		}
+
+		String sakaiId = null;
+		if ( theContent != null ) {
+			sakaiId = "/blti/" + theContent.get("id");
+		}
+
+		if ( sakaiId != null ) {
+			System.out.println("about to add LTI item "+sakaiId);
+			SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.BLTI, sakaiId, title);
+			simplePageBean.saveItem(item);
+			sequences.set(top, seq+1);
+		} else {
+System.out.println("Unsuccessful import..");
+		}
+	  } else
 	      System.err.println("implemented type: " + resource.getAttributeValue(TYPE));
       } catch (Exception e) {
 	  e.printStackTrace();
