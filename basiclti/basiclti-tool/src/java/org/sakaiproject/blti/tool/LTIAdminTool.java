@@ -78,6 +78,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	private static String STATE_TOOL_ID = "lti:state_tool_id";
 	private static String STATE_CONTENT_ID = "lti:state_content_id";
 	private static String STATE_RETURN_URL = "lti:state_return_url";
+	private static String STATE_REDIRECT_URL = "lti:state_redirect_url";
 
 	/** Service Implementations */
 	protected static ToolManager toolManager = null; 
@@ -618,9 +619,17 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			return;
 		}
 
-		if ( reqProps.getProperty("returnUrl") != null )
+		String returnUrl = reqProps.getProperty("returnUrl");
+		if ( returnUrl != null )
 		{
-			state.setAttribute(STATE_POST,reqProps);
+			if ( retval instanceof Long ) {
+				if ( returnUrl.indexOf("?") > 0 ) {
+					returnUrl += "&ltiItemId=/blti/" + retval;
+				} else {
+					returnUrl += "?ltiItemId=/blti/" + retval;
+				}
+			}
+			state.setAttribute(STATE_REDIRECT_URL,returnUrl);
 			switchPanel(state, "Redirect");
 			return;
 		}
@@ -631,17 +640,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	public String buildRedirectPanelContext(VelocityPortlet portlet, Context context, 
 			RunData data, SessionState state)
 	{
-		Properties previousPost = (Properties) state.getAttribute(STATE_POST);
-		state.removeAttribute(STATE_POST);
-		if ( previousPost == null ) {
-		        addAlert(state,rb.getString("error.missing.return"));
-		        return "lti_error";
-		}
-		String returnUrl = previousPost.getProperty("returnUrl");
+		String returnUrl = (String) state.getAttribute(STATE_REDIRECT_URL);
+		state.removeAttribute(STATE_REDIRECT_URL);
 		if ( returnUrl == null ) {
 		        addAlert(state,rb.getString("error.missing.return"));
 		        return "lti_error";
 		}
+System.out.println("Redirecting parent frame back to="+returnUrl);
 		context.put("returnUrl",returnUrl);
 		return "lti_content_redirect";
 	}
