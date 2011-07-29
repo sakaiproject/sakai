@@ -140,7 +140,14 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 			}
 
 			List<UrlItem> createLinks = bltiEntity.createNewUrls(simplePageBean);
+			UrlItem mainLink = null;
+			int toolcount = 0;
 			for (UrlItem createLink: createLinks) {
+			    if (createLink.Url.indexOf("panel=Main") >= 0) {
+				mainLink = createLink;
+				continue;
+			    }
+			    toolcount = 1;
 			    UIBranchContainer link = UIBranchContainer.make(tofill, "blti-create:");
 			    GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 			    view.setSendingPage(((GeneralViewParameters) viewparams).getSendingPage());
@@ -151,16 +158,27 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 			    UIInternalLink.make(link, "blti-create-link", createLink.label , view);
 			}
 			
+			if (toolcount > 0) 
+			    UIOutput.make(tofill, "blti-tools-text", messageLocator.getMessage("simplepage.blti.tools.text"));
+
+			if (mainLink != null) {
+			    GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
+			    view.setSendingPage(((GeneralViewParameters) viewparams).getSendingPage());
+			    view.setItemId(((GeneralViewParameters) viewparams).getItemId());
+			    view.setSource(mainLink.Url);
+			    view.setReturnView(VIEW_ID);
+			    view.setTitle(messageLocator.getMessage("simplepage.return_blti"));
+			    UIInternalLink.make(tofill, "blti-main-link", mainLink.label , view);
+			}
+
 			UIForm form = UIForm.make(tofill, "blti-picker");
 
 			List<LessonEntity> plist = bltiEntity.getEntitiesInSite();
 
-			if (plist == null || plist.size() < 1) {
-			    UIOutput.make(tofill, "error-div");
-			    UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.no_blti"));
-			    UICommand.make(tofill, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
-			    return;
-			}
+			if (plist == null || plist.size() < 1)
+			    UIOutput.make(tofill, "select-blti-text", messageLocator.getMessage("simplepage.no_blti_items"));
+			else
+			    UIOutput.make(tofill, "select-blti-text", messageLocator.getMessage("simplepage.select_blti.text"));
 
 			ArrayList<String> values = new ArrayList<String>();
 
@@ -169,7 +187,7 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 			}
 
 			// if no current item, use first
-			if (currentItem == null)
+			if (currentItem == null && plist.size() > 0)
 			    currentItem = plist.get(0).getReference();
 
 			UISelect select = UISelect.make(form, "blti-span", values.toArray(new String[1]), "#{simplePageBean.selectedBlti}", currentItem);

@@ -6,13 +6,24 @@
 <script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
 <link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
 <link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
-<script type="text/javascript" src="/library/js/jquery-1.1.2.js"></script>
-<script type="text/javascript" src="../js/simple-page.js" rsf:id="scr=rewrite-url"></script>
 <link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css"/>
 <link type="text/css" href="$context/css/simplepage-theme/jquery-ui-1.8.4.custom.css" rel="stylesheet" />	
 <title rsf:id="msg=simplepage.quiz.chooser"></title>
 </head>
 <body rsf:id="scr=sakai-body">
+<script type="text/javascript" src="$context/js/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="$context/js/jquery-ui-1.8.4.custom.min.js"></script>
+<script type="text/javascript" src="../js/simple-page.js" rsf:id="scr=rewrite-url"></script>
+<script type="text/javascript">
+$(function() {
+	if (!(navigator.userAgent.indexOf("Firefox/2.") > 0)) {
+	    $('.usebutton').button({text:true});
+	} else {
+	    // fake it; can't seem to get rid of underline though
+	    $('.usebutton').css('border', '1px solid black').css('padding', '1px 4px').css('color', 'black');
+	}
+});
+</script>
 	<div class="portletBody">
 		<div rsf:id="error-div" class="ui-widget">
 			<div class="ui-state-error ui-corner-all" style="margin-bottom: 20px; margin-top:20px; padding: 0 .7em;"> 
@@ -23,13 +34,17 @@
 
 		<h2 rsf:id="msg=simplepage.blti.chooser"></h2>
 
-		<div rsf:id="description"></div>
+		<h3 rsf:id="msg=simplepage.blti.tools"></h3>
+
+		<p rsf:id="blti-tools-text"></p>
 
 		<div rsf:id="blti-create:" style="margin-left:2em">
 		  <a href="#" rsf:id="blti-create-link"></a>
 		</div>
 
 		<h3 rsf:id="msg=simplepage.select_blti" style="margin-bottom:0.75em;margin-top:1em"></h3>
+		<p rsf:id="select-blti-text"></p>
+
 		<form action="#" rsf:id="blti-picker">
 		<span rsf:id="blti-span"/>
 		<table id="list" border="0">
@@ -39,11 +54,17 @@
 				<td><a href="#" rsf:id="link" target="_blank"></a></td>
 			</tr>
 		</table>
-		
+
 		<input type="hidden" rsf:id="item-id" id="item-id" />
 
 		<input type="submit" class="bold" rsf:id="submit" />
 		<input type="submit" rsf:id="cancel" />
+
+		<h3 rsf:id="msg=simplepage.blti.tools.manage"></h3>
+
+		<p rsf:id="msg=simplepage.blti.tools.create"></p>
+
+		<p style="margin-left:2em"><a class="usebutton" id="blti-main-link" href="#" rsf:id="blti-main-link"></a></p>
 
 		</form>
 	</div>

@@ -321,6 +321,8 @@ public class BltiEntity implements LessonEntity {
 
     public boolean isPopUp() {
 	loadContent();
+	if (content == null)
+	    return false;
 	Long newPage = foorm.getLong(content.get("newpage"));
         return (newPage == 1) ; 
     }
@@ -331,6 +333,8 @@ public class BltiEntity implements LessonEntity {
 	String tool = bean.getCurrentTool("sakai.siteinfo");
 	if ( tool == null || returnUrl == null ) return null;
 	loadContent();
+	if (content == null)
+	    return null;
 	String url = "/portal/tool/" + tool + "/sakai.basiclti.admin.helper.helper?panel=ContentConfig&id=" + content.get("id");
 	return url;
     }
