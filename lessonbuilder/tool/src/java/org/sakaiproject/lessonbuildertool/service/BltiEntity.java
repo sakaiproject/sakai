@@ -327,6 +327,12 @@ public class BltiEntity implements LessonEntity {
         return (newPage == 1) ; 
     }
 
+    public int frameSize() {
+        loadContent();
+        if ( content == null  ) return -1;
+        Long newPage = foorm.getLong(content.get("frameheight"));
+        return newPage.intValue();
+    }
     // URL to edit an existing entity.                                                                                                       
     // Can be null if we can't get one or it isn't needed                                                                                    
     public String editItemUrl(SimplePageBean bean) {
