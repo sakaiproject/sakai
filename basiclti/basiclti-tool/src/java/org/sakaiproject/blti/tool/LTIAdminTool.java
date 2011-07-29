@@ -44,7 +44,10 @@ import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.tool.cover.SessionManager;
+
 // import org.sakaiproject.component.cover.ServerConfigurationService;
 
 // TODO: FIX THIS
@@ -74,6 +77,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	private static String STATE_ID = "lti:state_id";
 	private static String STATE_TOOL_ID = "lti:state_tool_id";
 	private static String STATE_CONTENT_ID = "lti:state_content_id";
+	private static String STATE_RETURN_URL = "lti:state_return_url";
 
 	/** Service Implementations */
 	protected static ToolManager toolManager = null; 
@@ -578,6 +582,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	{
 		String peid = ((JetspeedRunData) data).getJs_peid();
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
+		state.removeAttribute(STATE_POST);
 		
 		if ( ! ltiService.isMaintain() ) {
 		        addAlert(state,rb.getString("error.maintain.edit"));
@@ -613,8 +618,108 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			return;
 		}
 
+		if ( reqProps.getProperty("returnUrl") != null )
+		{
+			state.setAttribute(STATE_POST,reqProps);
+			switchPanel(state, "Redirect");
+			return;
+		}
 		state.setAttribute(STATE_SUCCESS,success);
 		switchPanel(state, "Content");
+	}
+
+	public String buildRedirectPanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
+		Properties previousPost = (Properties) state.getAttribute(STATE_POST);
+		state.removeAttribute(STATE_POST);
+		if ( previousPost == null ) {
+		        addAlert(state,rb.getString("error.missing.return"));
+		        return "lti_error";
+		}
+		String returnUrl = previousPost.getProperty("returnUrl");
+		if ( returnUrl == null ) {
+		        addAlert(state,rb.getString("error.missing.return"));
+		        return "lti_error";
+		}
+		context.put("returnUrl",returnUrl);
+		return "lti_content_redirect";
+	}
+
+	// Special panel for Lesson Builder
+	// Add New: panel=Config&tool_id=14
+	// Edit existing: panel=Config&id=12
+	public String buildContentConfigPanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
+	        context.put("tlang", rb);
+		state.removeAttribute(STATE_SUCCESS);
+
+		Properties previousPost = (Properties) state.getAttribute(STATE_POST);
+		state.removeAttribute(STATE_POST);
+
+		if ( ! ltiService.isMaintain() ) {
+		        addAlert(state,rb.getString("error.maintain.edit"));
+		        return "lti_error";
+		}
+
+		String returnUrl = data.getParameters().getString("returnUrl");
+		if ( returnUrl == null && previousPost != null ) returnUrl = previousPost.getProperty("returnUrl");
+		if ( returnUrl == null ) {
+		        addAlert(state,rb.getString("error.missing.return"));
+		        return "lti_error";
+		}
+
+		Map<String,Object> content = null;
+		Map<String,Object> tool = null;
+
+		Long toolKey = foorm.getLongNull(data.getParameters().getString("tool_id"));
+
+		Long contentKey = foorm.getLongNull(data.getParameters().getString("id"));
+		if ( contentKey == null && previousPost != null ) contentKey = foorm.getLongNull(previousPost.getProperty("id"));
+		if ( contentKey != null ) {
+			content = ltiService.getContent(contentKey);
+			if ( content == null ) {
+                                addAlert(state, rb.getString("error.content.not.found"));
+                                state.removeAttribute(STATE_CONTENT_ID);
+                                return "lti_error";
+			}
+			toolKey = foorm.getLongNull(content.get("tool_id"));
+		}
+		if ( toolKey == null && previousPost != null ) toolKey = foorm.getLongNull(previousPost.getProperty("tool_id"));
+		if ( toolKey != null ) tool = ltiService.getTool(toolKey);
+
+		// No matter what, we must have a tool
+		if ( tool == null ) {
+			addAlert(state, rb.getString("error.tool.not.found"));
+			return "lti_error";
+		}
+		
+                Object previousData = null;
+                if ( content != null ) { 
+                        previousData = content;
+		} else { 
+        		previousData = (Properties) state.getAttribute(STATE_POST);
+                }
+
+                // We will handle the tool_id field ourselves in the Velocity code
+		String [] contentForm = foorm.filterForm(null,ltiService.getContentModel(toolKey), null, "^tool_id:.*|^SITE_ID:.*");
+                if ( contentForm == null ) {
+                        addAlert(state,rb.getString("error.tool.not.found"));
+                        return "lti_error";
+                }
+
+		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
+                context.put("doAction", BUTTON + "doContentPut");
+                context.put("returnUrl", returnUrl);
+                context.put("tool_id",toolKey);
+		context.put("tool_description", tool.get("description"));
+		context.put("tool_title", tool.get("title"));
+
+	        String formInput = ltiService.formInput(previousData, contentForm);
+		context.put("formInput",formInput);
+
+		return "lti_content_config";
 	}
 
 	public String buildContentDeletePanelContext(VelocityPortlet portlet, Context context, 
