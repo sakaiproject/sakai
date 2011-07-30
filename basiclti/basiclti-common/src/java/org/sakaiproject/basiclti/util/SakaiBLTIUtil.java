@@ -415,10 +415,9 @@ public class SakaiBLTIUtil {
         setProperty(toolProps, "secret", secret );
         setProperty(toolProps, "key", key );
 
-
-        setProperty(toolProps, "debug", content.get("debug").toString() );
-        setProperty(toolProps, "frameheight", content.get("frameheight").toString() );
-        setProperty(toolProps, "newpage", content.get("newpage").toString() );
+        setProperty(toolProps, "debug", getInt(content.get("debug"))+"" );
+        setProperty(toolProps, "frameheight", getInt(content.get("frameheight"))+"" );
+        setProperty(toolProps, "newpage", getInt(content.get("newpage"))+"" );
 
 	String title = (String) content.get("title");
 	if ( title == null ) title = (String) tool.get("title");
