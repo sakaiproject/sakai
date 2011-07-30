@@ -25,7 +25,7 @@ package org.sakaiproject.lessonbuildertool.cc;
  * $Id: PrintHandler.java 227 2011-01-08 18:26:55Z drchuck $
  **********************************************************************************
  *
- * Copyright (c) 2010 IMS GLobal Learning Consortium
+ * Copyright (c) 2010 IMS Global Learning Consortium
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,8 +89,6 @@ import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 
 import org.sakaiproject.lti.api.LTIService;
-
-import org.sakaiproject.util.foorm.FoormUtil;
 
 /* PJN NOTE:
  * This class is an example of what an implementer might want to do as regards overloading DefaultHandler.
@@ -520,7 +518,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 System.out.println("custom="+custom);
 		if ( theTool != null ) {
 			Properties props = new Properties ();
-			props.setProperty(LTIService.LTI_TOOL_ID,FoormUtil.getLong(theTool.get(LTIService.LTI_ID)).toString());
+			props.setProperty(LTIService.LTI_TOOL_ID,getLong(theTool.get(LTIService.LTI_ID)).toString());
 			props.setProperty(LTIService.LTI_TITLE, bltiTitle);
 			props.setProperty(LTIService.LTI_LAUNCH,launchUrl);
 			props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
@@ -870,6 +868,28 @@ System.out.println("custom="+custom);
   public void setQuestionBankDetails(String the_ident) {
       if (all)
 	  System.err.println("set qti qb details: "+the_ident);  
+  }
+
+  public Long getLong(Object key) {
+    Long retval = getLongNull(key);
+    if (retval != null)
+      return retval;
+    return new Long(-1);
+  }
+
+  public Long getLongNull(Object key) {
+    if (key == null)
+      return null;
+    if (key instanceof Number)
+      return new Long(((Number) key).longValue());
+    if (key instanceof String) {
+      try {
+        return new Long((String) key);
+      } catch (Exception e) {
+        return null;
+      }
+    }
+    return null;
   }
 }
 

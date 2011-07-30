@@ -64,8 +64,6 @@ import uk.org.ponder.messageutil.MessageLocator;
 import org.sakaiproject.lti.api.LTIService;
 // import org.sakaiproject.lti.impl.DBLTIService; // HACK
 
-import org.sakaiproject.util.foorm.FoormUtil;
-
 /**
  * Interface to Assignment
  *
@@ -218,7 +216,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	List<LessonEntity> ret = new ArrayList<LessonEntity>();
 	List<Map<String,Object>> contents = ltiService.getContents(null,null,0,0);
 	for (Map<String, Object> content : contents ) {
-	    Long id = FoormUtil.getLong(content.get(LTIService.LTI_ID));
+	    Long id = getLong(content.get(LTIService.LTI_ID));
 	    if ( id == -1 ) continue;
 	    BltiEntity entity = new BltiEntity(TYPE_BLTI, id.toString());
 	    entity.content = content;
@@ -251,9 +249,10 @@ public class BltiEntity implements LessonEntity, BltiInterface {
     protected void loadContent() {
 	if ( content != null ) return;
 	if ( id == null ) return; // Likely a failure
-	Long key = FoormUtil.getLong(id);
+	Long key = getLong(id);
 	content = ltiService.getContent(key);
-	Long toolKey = FoormUtil.getLongNull(content.get("tool_id"));
+	if ( content == null ) return;
+	Long toolKey = getLongNull(content.get("tool_id"));
 	if (toolKey != null ) tool = ltiService.getTool(toolKey);
     }	
 
@@ -267,6 +266,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
     // TODO: Concern regarding the lack of the returnUrl when this is called
     public String getUrl() {
 	loadContent();
+	// If I return null here, it appears that I cause an NPE in LB
 	if ( content == null ) return null;
 	String ret = (String) content.get("launch_url");
 	if ( ltiService != null && tool != null && ltiService.isMaintain()
@@ -343,14 +343,14 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	loadContent();
 	if (content == null)
 	    return false;
-	Long newPage = FoormUtil.getLong(content.get(LTIService.LTI_NEWPAGE));
+	Long newPage = getLong(content.get(LTIService.LTI_NEWPAGE));
         return (newPage == 1) ; 
     }
 
     public int frameSize() {
         loadContent();
         if ( content == null  ) return -1;
-        Long newPage = FoormUtil.getLong(content.get(LTIService.LTI_FRAMEHEIGHT));
+        Long newPage = getLong(content.get(LTIService.LTI_FRAMEHEIGHT));
         return newPage.intValue();
     }
     // URL to edit an existing entity.                                                                                                       
@@ -410,4 +410,25 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 		}
         }
 
+  public Long getLong(Object key) {
+    Long retval = getLongNull(key);
+    if (retval != null)
+      return retval;
+    return new Long(-1);
+  }
+
+  public Long getLongNull(Object key) {
+    if (key == null)
+      return null;
+    if (key instanceof Number)
+      return new Long(((Number) key).longValue());
+    if (key instanceof String) {
+      try {
+        return new Long((String) key);
+      } catch (Exception e) {
+        return null;
+      }
+    }
+    return null;
+  }
 }
