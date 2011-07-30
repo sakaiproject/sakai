@@ -130,6 +130,7 @@ setMainFrameHeight(window.name);
 					      <span rsf:id="link-button-span" class="navIntraTool" style="background-color:transparent;border:none"><a href="#" class="usebutton" rsf:id="link-button"><span rsf:id="link-button-note" class="offscreen"></span><span rsf:id="link-button-text" class="link-text"></span></a></span>
 					      <span rsf:id="item-group-titles" class="item-group-titles"></span>
 					    </div>
+					    <div rsf:id="item-group-titles-div" class="item-group-titles"></div>
 					    <iframe
 					       name="BltiIFrame"
 					       class="portletMainIframe multimedia"
@@ -328,10 +329,6 @@ setMainFrameHeight(window.name);
 			
 				<form action="#" rsf:id="edit-form">
 					<div class="border">
-					        <p class="shorttext required" id="edit-height">
-							<label rsf:id="msg=simplepage.height_label" for="edit-height"></label>
-					 		<input type="text" name="edit-height-value" rsf:id="edit-height-value" id="edit-height-value" length="30" class="edit-form-input" /><br />
-						</p>
 
 						<p class="shorttext required">
 							<label rsf:id="name-label" for="name"></label>
@@ -398,11 +395,18 @@ setMainFrameHeight(window.name);
 						  <label for="format-page"><span rsf:id="msg=simplepage.format.page"></span></label><br />
 
 						</div>
+
+					        <p class="shorttext required" id="edit-height">
+							<label rsf:id="msg=simplepage.height_label" for="edit-height"></label>
+					 		<input type="text" name="edit-height-value" rsf:id="edit-height-value" id="edit-height-value" length="30" class="edit-form-input" /><br />
+						</p>
+
 					</div>
 					
 					<input type="hidden" rsf:id="item-id" id="item-id" />
 					
 					<div class="border2">
+					     <div id="prereqstuff">
 						<input type="checkbox" name="item-prerequisites" id="item-prerequisites" rsf:id="item-prerequisites" />
 						<label for="item-prerequisites"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
 						<br />
@@ -410,7 +414,7 @@ setMainFrameHeight(window.name);
 						<input type="checkbox" name="item-required" id="item-required" rsf:id="item-required" />
 						<label for="item-required"><span rsf:id="msg=simplepage.require" id="require-label"></span></label>
 						<br />
-						
+					     </div>
 						<input type="checkbox" class="indent" name="item-required2" id="item-required2" rsf:id="item-required2" />
 						<label for="item-required2"><span rsf:id="msg=simplepage.require" id="require-label2"></span></label>
 						<select id="assignment-dropdown" rsf:id="assignment-dropdown">
@@ -419,7 +423,7 @@ s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 						<input id="assignment-points" rsf:id="assignment-points" size="4"/>
 						<label for="assignment-points" id="assignment-points-label"> points on the assignment</label>
 						
-						<p id="editgroups">
+						<p id="editgroups" class="edit-group">
 						  <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
 						</p>
 						<p id="resource-group-inherited" rsf:id="msg=simplepage.resource-group-inherited"></p>
@@ -513,7 +517,7 @@ s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 						<p class="shorttext required" id="change-resource-mm-p">
 						  <a href="#" rsf:id="change-resource-mm" id="change-resource-mm"><span rsf:id="msg.simplepage.change_resource"></span></a>
 					        </p>
-						<p id="editgroups-mm">
+						<p id="editgroups-mm" class="edit-group">
 						  <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
 						</p>
 					</div>
@@ -709,7 +713,7 @@ s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 						  <label rsf:id="description4-label" for="alt">Page Title</label><br />
 						  <textarea name="description4" rsf:id="description4" id="description4" rows="5" class="edit-multimedia-input" ></textarea>
 						</p>
-						<p id="editgroups-youtube">
+						<p id="editgroups-youtube" class="edit-group">
 						  <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
 						</p>
 					</div>
@@ -747,7 +751,7 @@ s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 						<p class="shorttext required" id="change-resource-movie-p">
 						  <a href="#" rsf:id="change-resource-movie" id="change-resource-movie"><span rsf:id="msg.simplepage.change_resource"></span></a>
 					        </p>
-						<p id="editgroups-movie">
+						<p id="editgroups-movie" class="edit-group">
 						  <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
 						</p>
 					</div>

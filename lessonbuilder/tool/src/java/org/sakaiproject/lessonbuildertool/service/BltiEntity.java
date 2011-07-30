@@ -263,11 +263,15 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	return (String) content.get(LTIService.LTI_TITLE);
     }
 
+    private String getErrorUrl() {
+	return "javascript:document.write('" + messageLocator.getMessage("simplepage.format.item_removed").replace("'", "\\'") + "')";
+    }
+
     // TODO: Concern regarding the lack of the returnUrl when this is called
     public String getUrl() {
 	loadContent();
 	// If I return null here, it appears that I cause an NPE in LB
-	if ( content == null ) return null;
+	if ( content == null ) return getErrorUrl();
 	String ret = (String) content.get("launch_url");
 	if ( ltiService != null && tool != null && ltiService.isMaintain()
 	    	&& LTIService.LTI_SECRET_INCOMPLETE.equals((String) tool.get(LTIService.LTI_SECRET)) 

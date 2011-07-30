@@ -631,8 +631,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 				// refresh isn't actually used anymore. We've changed the way things are
 				// done so the user never has to request a refresh.
-				if (!isInline)
-				    showRefresh = !makeLink(tableRow, "link", i, canEditPage, currentPage, notDone, status) || showRefresh;
+				//   FYI: this actually puts in an IFRAME for inline BLTI items
+				showRefresh = !makeLink(tableRow, "link", i, canEditPage, currentPage, notDone, status) || showRefresh;
 
 				// dummy is used when an assignment, quiz, or forum item is copied
 				// from another site. The way the copy code works, our import code 
@@ -652,6 +652,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    descriptiondiv = UIOutput.make(tableRow, "description", messageLocator.getMessage(code));
 				} else
 				    descriptiondiv = UIOutput.make(tableRow, "description", i.getDescription());
+				if (isInline)
+				    descriptiondiv.decorate(new UIFreeAttributeDecorator("style", "margin-top: 4px"));
 
  				// nav button gets float left so any description goes to its right. Otherwise the
 				// description block will display underneath
@@ -721,26 +723,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 						}
 					} else if (i.getType() == SimplePageItem.BLTI) {
-						if (isInline) {
-						    Length height=null;
-						    if (i.getHeight() != null && !i.getHeight().equals(""))
-							height = new Length(i.getHeight());
-
-						    LessonEntity lessonEntity = bltiEntity.getEntity(i.getSakaiId());
-
-						    UIComponent iframe = UIOutput.make(tableRow, "blti-iframe");
-						    if (lessonEntity != null)
-							iframe.decorate(new UIFreeAttributeDecorator("src", lessonEntity.getUrl()));
-
-						    String h = "300";
-						    if (lengthOk(height))
-							h = height.getOld();
-
-						    iframe.decorate(new UIFreeAttributeDecorator("height", h));
-						    iframe.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.web_content").replace("{}",abbrevUrl(i.getURL()))));
-						    // normally we get the name from the link text, but there's no link text here
-						    UIOutput.make(tableRow, "item-name", i.getName());
-						}
 						UIOutput.make(tableRow, "type", "b"); 
 						LessonEntity blti= bltiEntity.getEntity(i.getSakaiId());
 						if (blti != null) {
@@ -751,6 +733,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 						    if (i.getHeight() != null)
 							UIOutput.make(tableRow, "item-height", i.getHeight());
+						    itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+						    UIOutput.make(tableRow, "item-groups", itemGroupString );
 						}
 					} else if (i.getType() == SimplePageItem.FORUM) {
 						UIOutput.make(tableRow, "extra-info");
@@ -782,7 +766,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					if (itemGroupString != null) {
 					    itemGroupString = simplePageBean.getItemGroupTitles(itemGroupString);
 					    if (itemGroupString != null)
-						UIOutput.make(tableRow, "item-group-titles", " [" + itemGroupString + "]");
+						UIOutput.make(tableRow, (isInline ? "item-group-titles-div" : "item-group-titles"), " [" + itemGroupString + "]");
 					}
 				}
 
@@ -1355,7 +1339,25 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			}
 		} else if (i.getType() == SimplePageItem.BLTI) {
 		    LessonEntity lessonEntity = bltiEntity.getEntity(i.getSakaiId());
-		    if (i.isSameWindow()) {
+		    if ("inline".equals(i.getFormat())) {
+			// no availability 
+			String height=null;
+			if (i.getHeight() != null && !i.getHeight().equals(""))
+			    height = height.replace("px","");  // just in case
+			
+			UIComponent iframe = UIOutput.make(container, "blti-iframe");
+			if (lessonEntity != null)
+			    iframe.decorate(new UIFreeAttributeDecorator("src", lessonEntity.getUrl()));
+			
+			String h = "300";
+			if (height != null && !height.trim().equals(""))
+			    h = height;
+			
+			iframe.decorate(new UIFreeAttributeDecorator("height", h));
+			iframe.decorate(new UIFreeAttributeDecorator("title", i.getName()));
+			// normally we get the name from the link text, but there's no link text here
+			UIOutput.make(container, "item-name", i.getName());
+		    } else if (i.isSameWindow()) {
 			if (available) {
 				if (i.isPrerequisite()) {
 					simplePageBean.checkItemPermissions(i, true);

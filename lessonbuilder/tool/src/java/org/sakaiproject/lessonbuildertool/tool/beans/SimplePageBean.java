@@ -2077,6 +2077,7 @@ public class SimplePageBean {
 					i.setSameWindow(true);
 
 				    i.setHeight(height);
+				    setItemGroups(i, selectedGroups);
 				    update(i);
 				}
 			    } else {
