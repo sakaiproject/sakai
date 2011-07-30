@@ -496,6 +496,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		if ( sakaiId != null ) {
 			// System.out.println("Adding LTI content item "+sakaiId);
 			SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.BLTI, sakaiId, title);
+			item.setHeight(""); // default depends upon format, so it's supplied at runtime
 			simplePageBean.saveItem(item);
 			sequences.set(top, seq+1);
 		} else {

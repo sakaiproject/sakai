@@ -63,6 +63,8 @@ import java.io.FileOutputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -391,6 +393,12 @@ public class SimplePageBean {
 	public void setMemoryService(MemoryService m) {
 	    memoryService = m;
 	}
+
+        private HttpServletResponse httpServletResponse;
+	public void setHttpServletResponse(HttpServletResponse httpServletResponse) {
+		this.httpServletResponse = httpServletResponse;
+	}
+
 
     // End Injection
 
@@ -1837,6 +1845,17 @@ public class SimplePageBean {
 			}
 		
 			EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.remove", "/lessonbuilder/page/" + page.getPageId(), true));
+			try {
+			    // this will always generate an enormous amount of junk in catalina.out. I see no way to
+			    // get rid of it. The problem is that we kill the RSF context, so there's no place legal to go now
+			    //httpServletResponse.sendRedirect(ServerConfigurationService.getServerUrl() + "/access/site/" + getCurrentSiteId());
+			    httpServletResponse.reset();
+			    httpServletResponse.getWriter().println("<script type='text/javascript' language='JavaScript'>parent.location.replace(parent.location);</script><p style='display:none'>");
+			    httpServletResponse.flushBuffer();
+			} catch (Exception ignore) {
+			    System.out.println("redirect failed " + ignore);
+			    // we never actuallly see this, and the redirect is done from a different context
+			};
 			return "removed";
 		}else {
 			SimpleStudentPage studentPage = simplePageToolDao.findStudentPageByPageId(page.getPageId());

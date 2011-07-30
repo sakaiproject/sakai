@@ -66,6 +66,7 @@ import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
+import org.sakaiproject.lessonbuildertool.service.BltiInterface;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.GroupEntry;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.Status;
@@ -1697,7 +1698,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			iframe.decorate(new UIFreeAttributeDecorator("title", i.getName()));
 			// normally we get the name from the link text, but there's no link text here
 			UIOutput.make(container, "item-name", i.getName());
-		    } else if (i.isSameWindow()) {
+		    } else if (!"window".equals(i.getFormat())) {
+			// this is the default if format isn't valid or is missing
 			if (available) {
 				if (i.isPrerequisite()) {
 					simplePageBean.checkItemPermissions(i, true);
@@ -1906,7 +1908,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			createToolBarLink(QuizPickerProducer.VIEW_ID, toolBar, "add-quiz", "simplepage.quiz", currentPage, "simplepage.quiz");
 			
 			createToolBarLink(ForumPickerProducer.VIEW_ID, toolBar, "add-forum", "simplepage.forum", currentPage, "simplepage.forum");
-			createToolBarLink(BltiPickerProducer.VIEW_ID, toolBar, "add-blti", "simplepage.blti", currentPage, "simplepage.blti");
+			// in case we're on an old system without current BLTI
+			if (((BltiInterface)bltiEntity).servicePresent())
+			    createToolBarLink(BltiPickerProducer.VIEW_ID, toolBar, "add-blti", "simplepage.blti", currentPage, "simplepage.blti");
 			createToolBarLink(PermissionsHelperProducer.VIEW_ID, toolBar, "permissions", "simplepage.permissions", currentPage, "simplepage.permissions.tooltip");
 			
 			GeneralViewParameters eParams = new GeneralViewParameters(VIEW_ID);

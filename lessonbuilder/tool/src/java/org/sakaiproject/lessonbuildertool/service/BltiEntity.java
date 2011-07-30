@@ -136,7 +136,12 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	} 
         */
 
-        if ( ltiService == null ) ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
+	Object service = ComponentManager.get("org.sakaiproject.lti.api.LTIService");
+	if (service == null)
+	    return;
+
+	if ( ltiService == null ) ltiService = (LTIService)service;
+
     }
 
     public void destroy()
@@ -150,6 +155,10 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 
     // to create bean. the bean is used only to call the pseudo-static
     // methods such as getEntitiesInSite. So type, id, etc are left uninitialized
+
+    public boolean servicePresent() {
+	return ltiService != null;
+    }
 
     protected BltiEntity() {
     }
@@ -215,6 +224,8 @@ public class BltiEntity implements LessonEntity, BltiInterface {
     // find topics in site, but organized by forum
     public List<LessonEntity> getEntitiesInSite() {
 	List<LessonEntity> ret = new ArrayList<LessonEntity>();
+	if (ltiService == null)
+	    return ret;
 	List<Map<String,Object>> contents = ltiService.getContents(null,null,0,0);
 	for (Map<String, Object> content : contents ) {
 	    Long id = getLong(content.get(LTIService.LTI_ID));
@@ -250,6 +261,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
     protected void loadContent() {
 	if ( content != null ) return;
 	if ( id == null ) return; // Likely a failure
+	if ( ltiService == null) return;  // not basiclti or old
 	Long key = getLong(id);
 	content = ltiService.getContent(key);
 	if ( content == null ) return;
@@ -328,7 +340,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
     public List<UrlItem> createNewUrls(SimplePageBean bean) {
 	ArrayList<UrlItem> list = new ArrayList<UrlItem>();
 	String toolId = bean.getCurrentTool("sakai.siteinfo");
-	if ( toolId == null || returnUrl == null ) return list;
+	if ( ltiService == null || toolId == null || returnUrl == null ) return list;
 
         // Retrieve all tools
 	List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0);

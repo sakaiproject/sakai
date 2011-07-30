@@ -31,6 +31,9 @@
          <bean id="httpServletRequest" factory-bean="httpServletFactory"
 	       factory-method="getHttpServletRequest" />
 
+         <bean id="httpServletResponse" factory-bean="httpServletFactory"
+	       factory-method="getHttpServletResponse" />
+
 	<!-- the producer beans -->
 	<bean name="showPageProducer" class="org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer" >
 		<property name="messageLocator" ref="messageLocator"/>
@@ -181,6 +184,7 @@
 		<property name="simplePageToolDao">
 			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 		</property>
+		<property name="httpServletResponse" ref="httpServletResponse" />
 		<property name="multipartMap" ref="multipartMap" />
 		<property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
 		<property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>

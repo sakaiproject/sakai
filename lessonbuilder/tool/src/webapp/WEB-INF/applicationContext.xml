@@ -114,6 +114,7 @@
 
   <bean id="org.sakaiproject.lessonbuildertool.service.BltiEntity"
 	class="org.sakaiproject.lessonbuildertool.service.BltiEntity"
+	lazy-init="true"
         init-method="init"
         destroy-method="destroy">
     <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
