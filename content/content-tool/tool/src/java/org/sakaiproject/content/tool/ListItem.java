@@ -3413,8 +3413,8 @@ public class ListItem
 			alerts.add(rb.getString("edit.missing"));
 		}
 		
-		Time release = getReleaseDate();
-		Time retract = getRetractDate();
+		Time release = releaseDate;
+		Time retract = retractDate;
 		if (retract != null && retract.before(release))
 		{
 			alerts.add(rb.getString("edit.retractBeforeRelease"));
