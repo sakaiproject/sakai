@@ -54,7 +54,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.SessionManager;
 
 import org.sakaiproject.lti.api.LTIService;
-import org.sakaiproject.lti.impl.DBLTIService; // HACK
+// import org.sakaiproject.lti.impl.DBLTIService; // HACK
 
 import org.sakaiproject.util.foorm.SakaiFoorm;
 
@@ -93,13 +93,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	{
 		if ( toolManager == null ) toolManager = (ToolManager) ComponentManager.get("org.sakaiproject.tool.api.ToolManager");
 
-		/* HACK to save many restarts during development */ 
+		/* HACK to save many restarts during development
 		if ( ltiService == null ) { 
 			ltiService = (LTIService) new DBLTIService(); 
 			((org.sakaiproject.lti.impl.DBLTIService) ltiService).setAutoDdl("true"); 
 			((org.sakaiproject.lti.impl.DBLTIService) ltiService).init(); 
 		} 
-                /* End of HACK */
+                End of HACK */
 
                 if ( ltiService == null ) ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
 	}
