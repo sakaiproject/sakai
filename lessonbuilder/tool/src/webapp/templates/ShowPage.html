@@ -136,6 +136,7 @@ setMainFrameHeight(window.name);
 					       frameborder="0"
 					       marginwidth="0"
 					       width="100%"
+					       height="300"
 					       marginheight="0"
 					       scrolling="auto"
 					       rsf:id="blti-iframe"
@@ -158,6 +159,7 @@ setMainFrameHeight(window.name);
 					    <span rsf:id="item-groups" class="item-groups"></span>
 					    <span rsf:id="item-height" class="item-height"></span>
 					    <span rsf:id="item-name" class="link-text"></span>
+					    <span rsf:id="item-format" class="item-format"></span>
 					  </div>
 					</td>
 					<td rsf:id="edittext-td" role="gridcell" class="edit-col"><div><a href="#" class="usebutton itemLink" rsf:id="edit-link"></a></div></td>
@@ -384,6 +386,17 @@ setMainFrameHeight(window.name);
 						<div id="newwindowstuff">
 						<input type="checkbox" name="item-newwindow" id="item-newwindow" rsf:id="item-newwindow" />
 						<label for="item-newwindow" id="label-item-newwindow"><span rsf:id="msg=simplepage.usenewwindow"></span></label><br />
+						</div>
+						<div id="formatstuff">
+						  <p rsf:id="msg=simplepage.format.heading"></p>
+						  <span rsf:id="format-select" />
+						  <input rsf:id="format-window" type="radio" name="format" value="window" id="format-window" class="format"/>
+						  <label for="format-window"><span rsf:id="msg=simplepage.format.window"></span></label><br />
+						  <input rsf:id="format-inline" type="radio" name="format" value="inline" id="format-inline" class="format"/>
+						  <label for="format-inline"><span rsf:id="msg=simplepage.format.inline"></span></label><br />
+						  <input rsf:id="format-page" type="radio" name="format" value="page" id="format-page" class="format"/>
+						  <label for="format-page"><span rsf:id="msg=simplepage.format.page"></span></label><br />
+
 						</div>
 					</div>
 					

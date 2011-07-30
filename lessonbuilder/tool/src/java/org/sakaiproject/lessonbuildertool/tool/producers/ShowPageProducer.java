@@ -620,7 +620,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					notDone = true;
 				}
 
-				boolean isInline = (i.getType() == SimplePageItem.BLTI && i.isSameWindow());
+				boolean isInline = (i.getType() == SimplePageItem.BLTI && "inline".equals(i.getFormat()));
 
 				UIOutput linktd = UIOutput.make(tableRow, "item-td");
 				UIOutput linkdiv = null;
@@ -723,7 +723,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					} else if (i.getType() == SimplePageItem.BLTI) {
 						if (isInline) {
 						    Length height=null;
-						    if (i.getHeight() != null)
+						    if (i.getHeight() != null && !i.getHeight().equals(""))
 							height = new Length(i.getHeight());
 
 						    LessonEntity lessonEntity = bltiEntity.getEntity(i.getSakaiId());
@@ -731,10 +731,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    UIComponent iframe = UIOutput.make(tableRow, "blti-iframe");
 						    if (lessonEntity != null)
 							iframe.decorate(new UIFreeAttributeDecorator("src", lessonEntity.getUrl()));
-						    if (getOrig(height).equals("auto"))
-							iframe.decorate(new UIFreeAttributeDecorator("onload", "resizeiframe('" + iframe.getFullID() + "')"));
-						    else if (lengthOk(height))
-							iframe.decorate(new UIFreeAttributeDecorator("height", height.getOld()));
+
+						    String h = "300";
+						    if (lengthOk(height))
+							h = height.getOld();
+
+						    iframe.decorate(new UIFreeAttributeDecorator("height", h));
 						    iframe.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.web_content").replace("{}",abbrevUrl(i.getURL()))));
 						    // normally we get the name from the link text, but there's no link text here
 						    UIOutput.make(tableRow, "item-name", i.getName());
@@ -745,7 +747,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    String editUrl = blti.editItemUrl(simplePageBean);
 						    if (editUrl != null)
 							UIOutput.make(tableRow, "edit-url", editUrl);
-						    UIOutput.make(tableRow, "item-samewindow", Boolean.toString(i.isSameWindow()));
+						    UIOutput.make(tableRow, "item-format", i.getFormat());
 
 						    if (i.getHeight() != null)
 							UIOutput.make(tableRow, "item-height", i.getHeight());
@@ -1352,6 +1354,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				disableLink(link, messageLocator);
 			}
 		} else if (i.getType() == SimplePageItem.BLTI) {
+		    LessonEntity lessonEntity = bltiEntity.getEntity(i.getSakaiId());
+		    if (i.isSameWindow()) {
 			if (available) {
 				if (i.isPrerequisite()) {
 					simplePageBean.checkItemPermissions(i, true);
@@ -1359,7 +1363,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 				view.setSendingPage(currentPage.getPageId());
 				view.setItemId(i.getId());
-				LessonEntity lessonEntity = bltiEntity.getEntity(i.getSakaiId());
 				view.setSource((lessonEntity==null)?"dummy":lessonEntity.getUrl());
 				UIInternalLink.make(container, "link", view);
 
@@ -1370,6 +1373,20 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				UILink link = UILink.make(container, ID);
 				disableLink(link, messageLocator);
 			}
+		    } else {
+
+			if (available) {
+			    URL = (lessonEntity==null)?"dummy":lessonEntity.getUrl();
+			}
+			UIInternalLink link = LinkTrackerProducer.make(container, ID, i.getName(), URL, i.getId(), notDone);
+
+			if (available) {
+				link.decorate(new UIFreeAttributeDecorator("target", "_blank"));
+			} else {
+				disableLink(link, messageLocator);
+			}
+		    }
+			
 		}
 
 
@@ -1633,7 +1650,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "item-prerequisites", "#{simplePageBean.prerequisite}", false);
 
 		UIBoundBoolean.make(form, "item-newwindow", "#{simplePageBean.newWindow}", false);
-		
+
+		UISelect radios = UISelect.make(form, "format-select",
+						new String[] {"window", "inline", "page"},
+						"#{simplePageBean.format}", "");
+		UISelectChoice.make(form, "format-window", radios.getFullID(), 0);
+		UISelectChoice.make(form, "format-inline", radios.getFullID(), 1);
+		UISelectChoice.make(form, "format-page", radios.getFullID(), 2);
+
 		UIInput.make(form, "edit-height-value", "#{simplePageBean.height}");
 
 		UISelect.make(form, "assignment-dropdown", SimplePageBean.GRADES, "#{simplePageBean.dropDown}", SimplePageBean.GRADES[0]);

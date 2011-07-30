@@ -219,6 +219,9 @@ public class SimplePageBean {
 	private String dropDown;
 	private String points;
 	private String mimetype;
+    // for BLTI, values window, inline, and null for in a new page with navigation
+    // but sameWindow should also be set properly, based on the format
+	private String format;
 
 	private String numberOfPages;
 	private boolean copyPage;
@@ -497,6 +500,10 @@ public class SimplePageBean {
 
 	public void setPoints(String points) {
 		this.points = points;
+	}
+
+	public void setFormat(String format) {
+		this.format = format;
 	}
 
 	public void setMimetype(String mimetype) {
@@ -1744,13 +1751,25 @@ public class SimplePageBean {
 			}
 
 			// currently we only display HTML in the same page
-			if (i.getType() == SimplePageItem.RESOURCE || i.getType() == SimplePageItem.BLTI)
+			if (i.getType() == SimplePageItem.RESOURCE)
 			    i.setSameWindow(!newWindow);
 			else
 			    i.setSameWindow(false);
 
-			if (i.getType() == SimplePageItem.BLTI)
+			if (i.getType() == SimplePageItem.BLTI) {
+			    if (format == null || format.trim().equals(""))
+				i.setFormat("");
+			    else
+				i.setFormat(format);
+			    // this is redundant, but the display code uses it
+			    System.out.println("new format " + format);
+			    if ("window".equals(format))
+				i.setSameWindow(false);
+			    else
+				i.setSameWindow(true);
+
 			    i.setHeight(height);
+			}
 
 			update(i);
 
@@ -2046,6 +2065,18 @@ public class SimplePageBean {
 					i.setSakaiId(selectedBlti);
 					i.setName(selectedObject.getTitle());
 				    }
+				    if (format == null || format.trim().equals(""))
+					i.setFormat("");
+				    else
+					i.setFormat(format);
+
+				    // this is redundant, but the display code uses it
+				    if ("window".equals(format))
+					i.setSameWindow(false);
+				    else
+					i.setSameWindow(true);
+
+				    i.setHeight(height);
 				    update(i);
 				}
 			    } else {
@@ -2056,8 +2087,13 @@ public class SimplePageBean {
 				    int height = blti.frameSize();
 				    if (height > 0)
 					i.setHeight(Integer.toString(height));
+				    else
+					i.setHeight("");
 				    System.out.println("blti " + blti + " popup " + blti.isPopUp());
-				    i.setSameWindow(!blti.isPopUp());
+				    if (format == null || format.trim().equals(""))
+					i.setFormat("");
+				    else
+					i.setFormat(format);
 				}
 				update(i);
 			    }

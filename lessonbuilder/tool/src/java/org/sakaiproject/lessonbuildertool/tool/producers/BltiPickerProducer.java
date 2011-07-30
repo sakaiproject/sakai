@@ -204,7 +204,22 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 
 			UIInput.make(form, "item-id", "#{simplePageBean.itemId}");
 
-			UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.addBlti}");
+			if (plist != null || plist.size() > 0) {
+
+			    if (false) {
+				// this code works, but I think the resulting UI is too complex
+			    UIOutput.make(form, "format-explain", messageLocator.getMessage("simplepage.format.heading"));
+
+			    UISelect radios = UISelect.make(form, "format-select",
+						new String[] {"window", "inline", "page"},
+							    "#{simplePageBean.format}", "page");
+			    UISelectChoice.make(form, "format-window", radios.getFullID(), 0);
+			    UISelectChoice.make(form, "format-inline", radios.getFullID(), 1);
+			    UISelectChoice.make(form, "format-page", radios.getFullID(), 2);
+			    }
+
+			    UICommand.make(form, "submit", messageLocator.getMessage("simplepage.chooser.select"), "#{simplePageBean.addBlti}");
+			}
 			UICommand.make(form, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
 		}
 	}

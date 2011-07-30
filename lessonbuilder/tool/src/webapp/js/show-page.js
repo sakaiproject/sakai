@@ -343,6 +343,7 @@ $(function() {
 		$("#edit-item-settings-p").hide();	
 		$("#pagestuff").hide();
 		$("#newwindowstuff").hide();
+		$("#formatstuff").hide();
 		$("#edit-height").hide();
 		$("#editgroups").after($("#grouplist"));
 		
@@ -370,6 +371,7 @@ $(function() {
                     $("#newwindowstuff").show();
                 }
 
+		var format = row.find(".item-format").text();
 		var req = row.find(".requirement-text").text();
 		var type = row.find(".type").text();
 		var editurl = row.find(".edit-url").text();
@@ -452,6 +454,11 @@ $(function() {
 				$("#change-blti").attr("href", 
 				      $("#change-blti").attr("href").replace("itemId=-1", "itemId=" + itemid));
 				$("#require-label").text(msg("simplepage.require_submit_blti"));
+				if (format == '')
+				    format = 'page';
+				$(".format").attr("checked", false);
+				$("#format-" + format).attr("checked", true);
+				$("#formatstuff").show();
 				$("#edit-item-object-p").show();
 			}else {
 				$("#change-assignment-p").show();
