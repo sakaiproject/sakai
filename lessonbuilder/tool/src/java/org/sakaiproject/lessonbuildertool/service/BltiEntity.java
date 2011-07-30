@@ -35,6 +35,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Map;
 import java.util.Iterator;
+import java.util.Properties;
 
 import java.net.URLEncoder;
 
@@ -380,8 +381,6 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	return url;
     }
 
-
-
     // for most entities editItem is enough, however tests allow separate editing of                                                         
     // contents and settings. This will be null except in that situation                                                                     
     public String editItemSettingsUrl(SimplePageBean bean) {
@@ -400,6 +399,61 @@ public class BltiEntity implements LessonEntity, BltiInterface {
     public void setGroups(Collection<String> groups) {
 	// not group aware
     }
+
+    public String doImportTool(String launchUrl, String bltiTitle, String strXml, String custom)
+    {
+	if ( ltiService == null ) return null;
+
+	Map<String,Object> theTool = null;
+	List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0);
+	for ( Map<String,Object> tool : tools ) {
+		String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
+		if ( toolLaunch.equals(launchUrl) ) {
+			theTool = tool;
+			break;				
+		}
+	}
+
+	if ( theTool == null ) {
+		Properties props = new Properties ();
+		props.setProperty(LTIService.LTI_LAUNCH,launchUrl);
+		props.setProperty(LTIService.LTI_TITLE, bltiTitle);
+		props.setProperty(LTIService.LTI_CONSUMERKEY, LTIService.LTI_SECRET_INCOMPLETE);
+		props.setProperty(LTIService.LTI_SECRET, LTIService.LTI_SECRET_INCOMPLETE);
+		props.setProperty(LTIService.LTI_ALLOWCUSTOM, "1");
+		props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
+		Object result = ltiService.insertTool(props);
+		if ( result instanceof String ) {
+			System.out.println("Could not insert tool - "+result);
+		}
+		if ( result instanceof Long ) theTool = ltiService.getTool((Long) result);
+	}
+
+	Map<String,Object> theContent = null;
+	Long contentKey = null;
+	if ( theTool != null ) {
+		Properties props = new Properties ();
+		props.setProperty(LTIService.LTI_TOOL_ID,getLong(theTool.get(LTIService.LTI_ID)).toString());
+		props.setProperty(LTIService.LTI_TITLE, bltiTitle);
+		props.setProperty(LTIService.LTI_LAUNCH,launchUrl);
+		props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
+		if ( custom != null ) props.setProperty(LTIService.LTI_CUSTOM,custom);
+		Object result = ltiService.insertContent(props);
+		if ( result instanceof String ) {
+			System.out.println("Could not insert content - "+result);
+		} else {
+			System.out.println("Adding LTI tool "+result);
+		}
+		if ( result instanceof Long ) theContent = ltiService.getContent((Long) result);
+	}
+
+	String sakaiId = null;
+	if ( theContent != null ) {
+		sakaiId = "/blti/" + theContent.get(LTIService.LTI_ID);
+	}
+	return sakaiId;
+    }
+
 
 	// TODO: Could we get simplePageBean populated here and not build out own get
         public String getCurrentTool(String commonToolId) {

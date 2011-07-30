@@ -493,7 +493,6 @@ public class SimplePageBean {
 		topictool = q;
 	}
 
-
 	public String getName() {
 		if (itemId != null && itemId != -1) {
 			return findItem(itemId).getName();
@@ -4118,7 +4117,7 @@ public class SimplePageBean {
 			    topicobject = q;
 		    }
 
-		    parser.parse(new PrintHandler(this, cartridgeLoader, simplePageToolDao, quizobject, topicobject));
+		    parser.parse(new PrintHandler(this, cartridgeLoader, simplePageToolDao, quizobject, topicobject, bltiEntity));
 
 		} catch (Exception e) {
 		    System.out.println("exception in importcc " + e);

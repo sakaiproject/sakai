@@ -80,6 +80,7 @@ import org.sakaiproject.lessonbuildertool.cc.QtiImport;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.service.QuizEntity;
 import org.sakaiproject.lessonbuildertool.service.ForumInterface;
+import org.sakaiproject.lessonbuildertool.service.BltiInterface;
 import org.sakaiproject.component.cover.ComponentManager;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -143,13 +144,14 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private String siteId = null;
   private LessonEntity quiztool = null;
   private LessonEntity topictool = null;
-  protected static LTIService ltiService = null; 
+  private LessonEntity bltitool = null;
+
     // this is the CC file name for all files added
   private Set<String> filesAdded = new HashSet<String>();
     // this is the CC file name (of the XML file) -> Sakaiid for non-file items
   private Map<String,String> itemsAdded = new HashMap<String,String>();
 
-  public PrintHandler(SimplePageBean bean, CartridgeLoader utils, SimplePageToolDao dao, LessonEntity q, LessonEntity l) {
+  public PrintHandler(SimplePageBean bean, CartridgeLoader utils, SimplePageToolDao dao, LessonEntity q, LessonEntity l, LessonEntity b) {
       super();
       this.utils = utils;
       this.simplePageBean = bean;
@@ -157,7 +159,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       this.siteId = bean.getCurrentSiteId();
       this.quiztool = q;
       this.topictool = l;
-      this.ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
+      this.bltitool = b;
   }
 
   public void setAssessmentDetails(String the_ident, String the_title) {
@@ -386,7 +388,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      // if already added, don't do it again
 	      String sakaiId = itemsAdded.get(filename);
 	      if (sakaiId == null) {
-		  sakaiId = f.importObject(title, topicTitle, text, texthtml, base, siteId, attachmentHrefs);
+	          if ( f != null ) 
+	              sakaiId = f.importObject(title, topicTitle, text, texthtml, base, siteId, attachmentHrefs);
 		  if (sakaiId != null)
 		      itemsAdded.put(filename, sakaiId);
 	      }
@@ -487,55 +490,10 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      String launchUrl = ltiXml.getChildText("secure_launch_url", bltiNs);
 	      if ( launchUrl == null ) launchUrl = ltiXml.getChildText("launch_url", bltiNs);
 
-		// TODO: Custom
-		Map<String,Object> theTool = null;
-		List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0);
-		for ( Map<String,Object> tool : tools ) {
-			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
-			if ( toolLaunch.equals(launchUrl) ) {
-				theTool = tool;
-				break;				
-			}
-		}
-
-		if ( theTool == null ) {
-			Properties props = new Properties ();
-			props.setProperty(LTIService.LTI_LAUNCH,launchUrl);
-			props.setProperty(LTIService.LTI_TITLE, bltiTitle);
-			props.setProperty(LTIService.LTI_CONSUMERKEY, LTIService.LTI_SECRET_INCOMPLETE);
-			props.setProperty(LTIService.LTI_SECRET, LTIService.LTI_SECRET_INCOMPLETE);
-			props.setProperty(LTIService.LTI_ALLOWCUSTOM, "1");
-			props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
-			Object result = ltiService.insertTool(props);
-			if ( result instanceof String ) {
-				System.out.println("Could not insert tool - "+result);
-			}
-			if ( result instanceof Long ) theTool = ltiService.getTool((Long) result);
-		}
-
-		Map<String,Object> theContent = null;
-		Long contentKey = null;
-System.out.println("custom="+custom);
-		if ( theTool != null ) {
-			Properties props = new Properties ();
-			props.setProperty(LTIService.LTI_TOOL_ID,getLong(theTool.get(LTIService.LTI_ID)).toString());
-			props.setProperty(LTIService.LTI_TITLE, bltiTitle);
-			props.setProperty(LTIService.LTI_LAUNCH,launchUrl);
-			props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
-			if ( custom != null ) props.setProperty(LTIService.LTI_CUSTOM,custom);
-			Object result = ltiService.insertContent(props);
-			if ( result instanceof String ) {
-				System.out.println("Could not insert content - "+result);
-			} else {
-				System.out.println("Adding LTI tool "+result);
-			}
-			if ( result instanceof Long ) theContent = ltiService.getContent((Long) result);
-		}
-
-		String sakaiId = null;
-		if ( theContent != null ) {
-			sakaiId = "/blti/" + theContent.get(LTIService.LTI_ID);
-		}
+              	String sakaiId = null;
+              	if ( bltitool != null ) {
+	      		sakaiId = ((BltiInterface) bltitool).doImportTool(launchUrl, bltiTitle, strXml, custom);
+                }
 
 		if ( sakaiId != null ) {
 			// System.out.println("Adding LTI content item "+sakaiId);
@@ -870,26 +828,5 @@ System.out.println("custom="+custom);
 	  System.err.println("set qti qb details: "+the_ident);  
   }
 
-  public Long getLong(Object key) {
-    Long retval = getLongNull(key);
-    if (retval != null)
-      return retval;
-    return new Long(-1);
-  }
-
-  public Long getLongNull(Object key) {
-    if (key == null)
-      return null;
-    if (key instanceof Number)
-      return new Long(((Number) key).longValue());
-    if (key instanceof String) {
-      try {
-        return new Long((String) key);
-      } catch (Exception e) {
-        return null;
-      }
-    }
-    return null;
-  }
 }
 
