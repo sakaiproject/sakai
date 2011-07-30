@@ -2289,6 +2289,8 @@ public class SimplePageBean {
 	    for (String g: groups) {
 		ret = ret + "," + g;
 	    }
+	    if (ret.equals(""))
+		return ret;
 	    return ret.substring(1);
 	}
 
