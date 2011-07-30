@@ -10,6 +10,7 @@
 		<!-- shared -->
 		<dependencySet>
 			<outputDirectory>shared/lib</outputDirectory>
+			<useProjectArtifact>false</useProjectArtifact>
 			<useTransitiveDependencies>false</useTransitiveDependencies>
 			<includes>
 				<include>org.sakaiproject.profile2:profile2-api:jar:*</include>
@@ -20,6 +21,7 @@
 		<!-- components -->
 		<dependencySet>
 			<outputDirectory>components/profile2-pack</outputDirectory>
+			<useProjectArtifact>false</useProjectArtifact>
 			<useTransitiveDependencies>false</useTransitiveDependencies>
 			<includes>
 				<include>org.sakaiproject.profile2:profile2-pack:war:*</include>
@@ -30,6 +32,7 @@
 		<!-- webapps -->
 		<dependencySet>
             <outputDirectory>webapps/</outputDirectory>
+            <useProjectArtifact>false</useProjectArtifact>
             <outputFileNameMapping>${artifact.artifactId}.war</outputFileNameMapping>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
