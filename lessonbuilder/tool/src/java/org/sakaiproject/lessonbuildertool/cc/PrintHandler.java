@@ -89,8 +89,6 @@ import org.w3c.dom.Document;
 import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 
-import org.sakaiproject.lti.api.LTIService;
-
 /* PJN NOTE:
  * This class is an example of what an implementer might want to do as regards overloading DefaultHandler.
  * In this case, messages are written to the screen. If a method in default handler is not overridden, then it does
