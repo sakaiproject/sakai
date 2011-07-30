@@ -64,7 +64,7 @@ import uk.org.ponder.messageutil.MessageLocator;
 import org.sakaiproject.lti.api.LTIService;
 // import org.sakaiproject.lti.impl.DBLTIService; // HACK
 
-import org.sakaiproject.util.foorm.SakaiFoorm;
+import org.sakaiproject.util.foorm.FoormUtil;
 
 /**
  * Interface to Assignment
@@ -91,8 +91,6 @@ public class BltiEntity implements LessonEntity, BltiInterface {
     protected static final int DEFAULT_EXPIRATION = 10 * 60;
 
     private SimplePageBean simplePageBean;
-
-    protected static SakaiFoorm foorm = new SakaiFoorm();
 
     protected static LTIService ltiService = null; 
     public void setLtiService(LTIService ltiService) {
@@ -220,7 +218,7 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	List<LessonEntity> ret = new ArrayList<LessonEntity>();
 	List<Map<String,Object>> contents = ltiService.getContents(null,null,0,0);
 	for (Map<String, Object> content : contents ) {
-	    Long id = foorm.getLong(content.get(LTIService.LTI_ID));
+	    Long id = FoormUtil.getLong(content.get(LTIService.LTI_ID));
 	    if ( id == -1 ) continue;
 	    BltiEntity entity = new BltiEntity(TYPE_BLTI, id.toString());
 	    entity.content = content;
@@ -253,9 +251,9 @@ public class BltiEntity implements LessonEntity, BltiInterface {
     protected void loadContent() {
 	if ( content != null ) return;
 	if ( id == null ) return; // Likely a failure
-	Long key = foorm.getLong(id);
+	Long key = FoormUtil.getLong(id);
 	content = ltiService.getContent(key);
-	Long toolKey = foorm.getLongNull(content.get("tool_id"));
+	Long toolKey = FoormUtil.getLongNull(content.get("tool_id"));
 	if (toolKey != null ) tool = ltiService.getTool(toolKey);
     }	
 
@@ -345,14 +343,14 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	loadContent();
 	if (content == null)
 	    return false;
-	Long newPage = foorm.getLong(content.get(LTIService.LTI_NEWPAGE));
+	Long newPage = FoormUtil.getLong(content.get(LTIService.LTI_NEWPAGE));
         return (newPage == 1) ; 
     }
 
     public int frameSize() {
         loadContent();
         if ( content == null  ) return -1;
-        Long newPage = foorm.getLong(content.get(LTIService.LTI_FRAMEHEIGHT));
+        Long newPage = FoormUtil.getLong(content.get(LTIService.LTI_FRAMEHEIGHT));
         return newPage.intValue();
     }
     // URL to edit an existing entity.                                                                                                       

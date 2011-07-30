@@ -62,8 +62,6 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
-import org.sakaiproject.util.foorm.SakaiFoorm;
-
 /**
  * Creates a list of LTI Content Items for the user to choose from. Their choice will be added
  * to the end of the list of items on this page.

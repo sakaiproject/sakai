@@ -80,6 +80,7 @@ import org.sakaiproject.lessonbuildertool.cc.QtiImport;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.service.QuizEntity;
 import org.sakaiproject.lessonbuildertool.service.ForumInterface;
+import org.sakaiproject.component.cover.ComponentManager;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -88,9 +89,8 @@ import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 
 import org.sakaiproject.lti.api.LTIService;
-import org.sakaiproject.lti.impl.DBLTIService; // HACK
 
-import org.sakaiproject.util.foorm.SakaiFoorm;
+import org.sakaiproject.util.foorm.FoormUtil;
 
 /* PJN NOTE:
  * This class is an example of what an implementer might want to do as regards overloading DefaultHandler.
@@ -146,7 +146,6 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private LessonEntity quiztool = null;
   private LessonEntity topictool = null;
   protected static LTIService ltiService = null; 
-  protected static SakaiFoorm foorm = new SakaiFoorm();
     // this is the CC file name for all files added
   private Set<String> filesAdded = new HashSet<String>();
     // this is the CC file name (of the XML file) -> Sakaiid for non-file items
@@ -160,11 +159,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       this.siteId = bean.getCurrentSiteId();
       this.quiztool = q;
       this.topictool = l;
-      if ( this.ltiService == null ) { 
-          this.ltiService = (LTIService) new DBLTIService(); 
-          ((org.sakaiproject.lti.impl.DBLTIService) this.ltiService).setAutoDdl("true"); 
-          ((org.sakaiproject.lti.impl.DBLTIService) this.ltiService).init(); 
-      } 
+      this.ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
   }
 
   public void setAssessmentDetails(String the_ident, String the_title) {
@@ -525,7 +520,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 System.out.println("custom="+custom);
 		if ( theTool != null ) {
 			Properties props = new Properties ();
-			props.setProperty(LTIService.LTI_TOOL_ID,foorm.getLong(theTool.get(LTIService.LTI_ID)).toString());
+			props.setProperty(LTIService.LTI_TOOL_ID,FoormUtil.getLong(theTool.get(LTIService.LTI_ID)).toString());
 			props.setProperty(LTIService.LTI_TITLE, bltiTitle);
 			props.setProperty(LTIService.LTI_LAUNCH,launchUrl);
 			props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
