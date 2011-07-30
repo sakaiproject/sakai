@@ -37,6 +37,8 @@ public class NewsLink {
 	protected Long id;
 	protected Person person;
 	protected NewsItem newsItem;
+	protected Context context;
+	protected Realm realm;
 	protected boolean hidden;
 	protected boolean sticky;
 	

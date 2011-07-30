@@ -23,6 +23,14 @@ package org.sakaiproject.dash.dao;
 
 import java.util.List;
 
+import org.sakaiproject.dash.model.CalendarItem;
+import org.sakaiproject.dash.model.CalendarLink;
+import org.sakaiproject.dash.model.Context;
+import org.sakaiproject.dash.model.NewsItem;
+import org.sakaiproject.dash.model.NewsLink;
+import org.sakaiproject.dash.model.Person;
+import org.sakaiproject.dash.model.Realm;
+import org.sakaiproject.dash.model.SourceType;
 import org.sakaiproject.dash.model.Thing;
 
 /**
@@ -51,4 +59,23 @@ public interface DashboardDao {
 	 * @return	true if success, false if not
 	 */
 	public boolean addThing(Thing t);
+	
+	
+	public boolean addCalendarItem(CalendarItem calendarItem);
+	
+	public boolean addCalendarLink(CalendarLink calendarLink);
+	
+	public boolean addContext(Context context);
+	
+	public boolean addNewsItem(NewsItem newsItem);
+	
+	public boolean addNewsLink(NewsLink newsLink);
+	
+	public boolean addPerson(Person person);
+	
+	public boolean addRealm(Realm realm);
+	
+	public boolean addSourceType(SourceType sourceType);
+	
+	
 }

@@ -36,6 +36,14 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import org.sakaiproject.dash.dao.DashboardDao;
+import org.sakaiproject.dash.model.CalendarItem;
+import org.sakaiproject.dash.model.CalendarLink;
+import org.sakaiproject.dash.model.Context;
+import org.sakaiproject.dash.model.NewsItem;
+import org.sakaiproject.dash.model.NewsLink;
+import org.sakaiproject.dash.model.Person;
+import org.sakaiproject.dash.model.Realm;
+import org.sakaiproject.dash.model.SourceType;
 import org.sakaiproject.dash.model.Thing;
 
 
@@ -177,5 +185,143 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			log.error("Statement: '" + key + "' could not be found in: " + statements.getFileName());
 			return null;
 		}
+	}
+
+	/**
+	 * 
+	 */
+	public boolean addCalendarItem(CalendarItem calendarItem) {
+		if(log.isDebugEnabled()) {
+			log.debug("addCalendarItem( " + calendarItem.toString() + ")");
+}
+		
+		// calendar_time, title , entity_url, entity_ref, source_type, context, realm
+		
+		try {
+			getJdbcTemplate().update(getStatement("insert.calendar_item"),
+				new Object[]{calendarItem.getCalendarTime(), calendarItem.getTitle(), 
+						calendarItem.getEntityUrl(), calendarItem.getEntityReference(),
+						calendarItem.getSourceType().getId(), calendarItem.getContext().getId(),
+						calendarItem.getRealm().getId()}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("addCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}
+	}
+
+	/**
+	 * 
+	 */
+	public boolean addCalendarLink(CalendarLink calendarLink) {
+		if(log.isDebugEnabled()) {
+			log.debug("addCalendarLink( " + calendarLink.toString() + ")");
+		}
+		
+		//  person_id, item_id, context_id, realm_id
+		
+		try {
+			getJdbcTemplate().update(getStatement("insert.calendar_link"),
+				new Object[]{calendarLink.getPerson().getId(), calendarLink.getCalendarItem().getId(), 
+						calendarLink.getContext().getId(), calendarLink.getRealm().getId()}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("addCalendarLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}
+	}
+
+	/**
+	 * 
+	 */
+	public boolean addContext(Context context) {
+		if(log.isDebugEnabled()) {
+			log.debug("addContext( " + context.toString() + ")");
+		}
+		
+		//  context_id, context_url, context_title
+		
+		try {
+			getJdbcTemplate().update(getStatement("insert.context"),
+				new Object[]{context.getContextId(), context.getContextUrl(), 
+				context.getContextTitle()}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("addContext: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}
+	}
+
+	/**
+	 * 
+	 */
+	public boolean addNewsItem(NewsItem newsItem) {
+		if(log.isDebugEnabled()) {
+			log.debug("addNewsItem( " + newsItem.toString() + ")");
+		}
+		
+		// news_time, title , entity_url, entity_ref, source_type, context, realm
+		
+		try {
+			getJdbcTemplate().update(getStatement("insert.news_item"),
+				new Object[]{newsItem.getNewsTime(), newsItem.getTitle(), 
+						newsItem.getEntityUrl(), newsItem.getEntityReference(),
+						newsItem.getSourceType().getId(), newsItem.getContext().getId(),
+						newsItem.getRealm().getId()}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("addNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}
+	}
+
+	/**
+	 * 
+	 */
+	public boolean addNewsLink(NewsLink newsLink) {
+		if(log.isDebugEnabled()) {
+			log.debug("addNewsLink( " + newsLink.toString() + ")");
+		}
+		
+		//  person_id, item_id, context_id, realm_id
+		
+		try {
+			getJdbcTemplate().update(getStatement("insert.news_link"),
+				new Object[]{newsLink.getPerson().getId(), newsLink.getNewsItem().getId(), 
+						newsLink.getContext().getId(), newsLink.getRealm().getId()}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("addNewsLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}
+	}
+
+	/**
+	 * 
+	 */
+	public boolean addPerson(Person person) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/**
+	 * 
+	 */
+	public boolean addRealm(Realm realm) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/**
+	 * 
+	 */
+	public boolean addSourceType(SourceType sourceType) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

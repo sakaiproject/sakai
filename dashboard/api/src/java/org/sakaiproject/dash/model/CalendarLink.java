@@ -37,6 +37,8 @@ public class CalendarLink {
 	protected Long id;
 	protected Person person;
 	protected CalendarItem calendarItem;
+	protected Context context;
+	protected Realm realm;
 	protected boolean hidden = false;
 	protected boolean sticky = false;
 

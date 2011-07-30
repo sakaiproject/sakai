@@ -36,8 +36,8 @@ import lombok.NoArgsConstructor;
 public class Context {
 	
 	protected Long id;
-	protected String siteId;
-	protected String siteName;
-	protected String siteUrl;
+	protected String contextId;
+	protected String contextTitle;
+	protected String contextUrl;
 
 }
