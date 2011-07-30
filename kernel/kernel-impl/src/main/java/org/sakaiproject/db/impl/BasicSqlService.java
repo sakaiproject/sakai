@@ -1140,6 +1140,28 @@ public abstract class BasicSqlService implements SqlService
 	 */
 	protected boolean dbWrite(String sql, Object[] fields, String lastField, Connection callerConnection, boolean failQuiet)
 	{
+ 		return ( dbWriteCount(sql, fields, lastField, callerConnection, failQuiet) >= 0 ) ;
+	}
+
+	/**
+	 * Execute the "write/update" sql - no response, using a set of fields from an array plus one more as params and connection.
+	 * 
+	 * @param sql
+	 *        The sql statement.
+	 * @param fields
+	 *        The array of fields for parameters.
+	 * @param lastField
+	 *        The value to bind to the last parameter in the sql statement.
+	 * @param callerConnection
+	 *        The connection to use.
+	 * @param failQuiet
+	 *        If true, don't log errors from statement failure
+	 * @return the number of records affected or -1 if something goes wrong if not due to unique constraint 
+	 * violation or duplicate key (i.e. the record already exists) OR we are instructed to fail quiet.
+	 */
+	public int dbWriteCount(String sql, Object[] fields, String lastField, Connection callerConnection, boolean failQuiet)
+	{
+		int retval = -1;
 		boolean commitDbWrite = false;
 		// check for a transaction connection
 		if (callerConnection == null)
@@ -1224,7 +1246,7 @@ public abstract class BasicSqlService implements SqlService
 				pos++;
 			}
 
-			int result = pstmt.executeUpdate();
+			retval = pstmt.executeUpdate();
 
 			// commit unless we are in a transaction (provided with a connection)
 			if (commitDbWrite)
@@ -1245,8 +1267,8 @@ public abstract class BasicSqlService implements SqlService
 				LOG.warn("Sql.dbWrite(): error code: " + e.getErrorCode() + " sql: " + sql + " binds: " + debugFields(fields) + " " + e);
 			}
 
-			// if asked to fail quietly, just return false if we find this error.
-			if (recordAlreadyExists || failQuiet) return false;
+			// if asked to fail quietly, just return -1 if we find this error.
+			if (recordAlreadyExists || failQuiet) return -1;
 
 			// perhaps due to a mysql deadlock?
 			if (sqlServiceSql.isDeadLockError(e.getErrorCode()))
@@ -1306,7 +1328,7 @@ public abstract class BasicSqlService implements SqlService
 			debug("Sql.dbWrite(): len: " + ((lastField != null) ? "" + lastField.length() : "null") + "  time: " + connectionTime + " /  "
 					+ (System.currentTimeMillis() - start), sql, fields);
 
-		return true;
+		return retval;
 	}
 
 	/**

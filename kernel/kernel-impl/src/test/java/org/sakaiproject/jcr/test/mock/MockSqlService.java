@@ -222,6 +222,15 @@ public class MockSqlService implements SqlService
 	}
 
 	/* (non-Javadoc)
+	 * @see org.sakaiproject.db.api.SqlService#dbWriteCount(String sql, Object[] fields, String lastField, Connection callerConnection, boolean failQuiet)
+	 */
+	public int dbWriteCount(String sql, Object[] fields, String lastField, Connection callerConnection, boolean failQuiet)
+	{
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.db.api.SqlService#ddl(java.lang.ClassLoader, java.lang.String)
 	 */
 	public void ddl(ClassLoader arg0, String arg1)
