@@ -142,6 +142,11 @@ public class LessonBuilderAccessService {
 		assignmentEntity = (LessonEntity) e;
 	}
 
+        LessonEntity bltiEntity = null;
+        public void setBltiEntity(Object e) {
+	    bltiEntity = (LessonEntity)e;
+        }
+
 	static MemoryService memoryService = null;
 
 	public void setMemoryService(MemoryService m) {
@@ -274,6 +279,7 @@ public class LessonBuilderAccessService {
 						simplePageBean.setForumEntity(forumEntity);
 						simplePageBean.setQuizEntity(quizEntity);
 						simplePageBean.setAssignmentEntity(assignmentEntity);
+						simplePageBean.setBltiEntity(bltiEntity);
 						simplePageBean.setGradebookIfc(gradebookIfc);
 						simplePageBean.setMemoryService(memoryService);
 						simplePageBean.setCurrentSiteId(currentPage.getSiteId());

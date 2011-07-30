@@ -106,6 +106,7 @@ import org.sakaiproject.lessonbuildertool.service.GradebookIfc;
 import org.sakaiproject.lessonbuildertool.service.GroupPermissionsService;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
+import org.sakaiproject.lessonbuildertool.service.BltiInterface;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowItemProducer;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
@@ -189,6 +190,7 @@ public class SimplePageBean {
 	private boolean filterHtml = ServerConfigurationService.getBoolean(FILTERHTML, false);
 
 	public String selectedAssignment = null;
+	public String selectedBlti = null;
 
     // generic entity stuff. selectedEntity is the string
     // coming from the picker. We'll use the same variable for any entity type
@@ -240,6 +242,9 @@ public class SimplePageBean {
 	private String dropDown;
 	private String points;
 	private String mimetype;
+    // for BLTI, values window, inline, and null for in a new page with navigation
+    // but sameWindow should also be set properly, based on the format
+	private String format;
 
 	private String numberOfPages;
 	private boolean copyPage;
@@ -364,6 +369,10 @@ public class SimplePageBean {
 	public void setAssignmentEntity(Object e) {
 		assignmentEntity = (LessonEntity)e;
 	}
+        private LessonEntity bltiEntity = null;
+        public void setBltiEntity(Object e) {
+	    bltiEntity = (LessonEntity)e;
+        }
 	
 	private ToolManager toolManager;
 	private SecurityService securityService;
@@ -519,6 +528,10 @@ public class SimplePageBean {
 
 	public void setPoints(String points) {
 		this.points = points;
+	}
+
+	public void setFormat(String format) {
+		this.format = format;
 	}
 
 	public void setMimetype(String mimetype) {
@@ -1047,7 +1060,7 @@ public class SimplePageBean {
 			return currentSite;
 		
 		try {
-			currentSite = siteService.getSite(toolManager.getCurrentPlacement().getContext());
+		    currentSite = siteService.getSite(getCurrentSiteId());
 		} catch (Exception impossible) {
 			impossible.printStackTrace();
 		}
@@ -1148,6 +1161,7 @@ public class SimplePageBean {
 					itemType == SimplePageItem.ASSESSMENT ||
 					itemType == SimplePageItem.FORUM ||
 					itemType == SimplePageItem.PAGE ||
+			                itemType == SimplePageItem.BLTI ||
 					itemType == SimplePageItem.RESOURCE && nextItem.isSameWindow()) {
 				// it's easy if the next item is available. If it's not, then
 				// we need to see if everything other than this item is done and
@@ -1219,6 +1233,8 @@ public class SimplePageBean {
 	    				lessonEntity = quizEntity.getEntity(nextItem.getSakaiId()); break;
 	    			case SimplePageItem.FORUM:
 	    				lessonEntity = forumEntity.getEntity(nextItem.getSakaiId()); break;
+	    			case SimplePageItem.BLTI:
+	    				lessonEntity = bltiEntity.getEntity(nextItem.getSakaiId()); break;
 	    		}
 	    		// normally we won't send someone to an item that
 	    		// isn't available. But if the current item is a test, etc, we can't
@@ -1300,6 +1316,8 @@ public class SimplePageBean {
 				lessonEntity = quizEntity.getEntity(prevItem.getSakaiId()); break;
 			case SimplePageItem.FORUM:
 				lessonEntity = forumEntity.getEntity(prevItem.getSakaiId()); break;
+			case SimplePageItem.BLTI:
+			    lessonEntity = bltiEntity.getEntity(prevItem.getSakaiId()); break;
 			}
 			view.setSource((lessonEntity==null)?"dummy":lessonEntity.getUrl());
 			if (item.getType() == SimplePageItem.PAGE)
@@ -1884,6 +1902,21 @@ public class SimplePageBean {
 			else
 			    i.setSameWindow(false);
 
+			if (i.getType() == SimplePageItem.BLTI) {
+			    if (format == null || format.trim().equals(""))
+				i.setFormat("");
+			    else
+				i.setFormat(format);
+			    // this is redundant, but the display code uses it
+			    System.out.println("new format " + format);
+			    if ("window".equals(format))
+				i.setSameWindow(false);
+			    else
+				i.setSameWindow(true);
+
+			    i.setHeight(height);
+			}
+
 			update(i);
 
 			if (i.getType() == SimplePageItem.PAGE) {
@@ -2017,6 +2050,10 @@ public class SimplePageBean {
 		this.selectedQuiz = selectedQuiz;
 	}
 
+	public void setSelectedBlti(String selectedBlti) {
+		this.selectedBlti = selectedBlti;
+	}
+
         public String assignmentRef(String id) {
 	    return "/assignment/a/" + getCurrentSiteId() + "/" + id;
 	}
@@ -2137,6 +2174,86 @@ public class SimplePageBean {
 		}
 	}
 
+    // called by add blti picker. Create a new item that points to an assigment
+    // or update an existing item, depending upon whether itemid is set
+	public String addBlti() {
+		if (!itemOk(itemId))
+		    return "permission-failed";
+		if (!canEditPage())
+		    return "permission-failed";
+
+		if (selectedBlti == null) {
+			return "failure";
+		} else {
+			try {
+			    LessonEntity selectedObject = bltiEntity.getEntity(selectedBlti);
+			    if (selectedObject == null)
+				return "failure";
+
+			    SimplePageItem i;
+			    // editing existing item?
+			    if (itemId != null && itemId != -1) {
+				i = findItem(itemId);
+
+				// if no change, don't worry
+				LessonEntity existing = bltiEntity.getEntity(i.getSakaiId());
+				String ref = existing.getReference();
+				// if same item, nothing to do
+				if (!ref.equals(selectedBlti)) {
+				    // if access controlled, clear restriction from old assignment and add to new
+				    if (i.isPrerequisite()) {
+					i.setPrerequisite(false);
+					// sakaiid and name are used in setting control
+					i.setSakaiId(selectedBlti);
+					i.setName(selectedObject.getTitle());
+					i.setPrerequisite(true);
+				    } else {
+					i.setSakaiId(selectedBlti);
+					i.setName(selectedObject.getTitle());
+				    }
+				    if (format == null || format.trim().equals(""))
+					i.setFormat("");
+				    else
+					i.setFormat(format);
+
+				    // this is redundant, but the display code uses it
+				    if ("window".equals(format))
+					i.setSameWindow(false);
+				    else
+					i.setSameWindow(true);
+
+				    i.setHeight(height);
+				    setItemGroups(i, selectedGroups);
+				    update(i);
+				}
+			    } else {
+				// no, add new item
+				i = appendItem(selectedBlti, selectedObject.getTitle(), SimplePageItem.BLTI);
+				BltiInterface blti = (BltiInterface)bltiEntity.getEntity(selectedBlti);
+				if (blti != null) {
+				    int height = blti.frameSize();
+				    if (height > 0)
+					i.setHeight(Integer.toString(height));
+				    else
+					i.setHeight("");
+				    System.out.println("blti " + blti + " popup " + blti.isPopUp());
+				    if (format == null || format.trim().equals(""))
+					i.setFormat("");
+				    else
+					i.setFormat(format);
+				}
+				update(i);
+			    }
+			    return "success";
+			} catch (Exception ex) {
+			    ex.printStackTrace();
+			    return "failure";
+			} finally {
+			    selectedBlti = null;
+			}
+		}
+	}
+
     /// ShowPageProducers needs the item ID list anyway. So to avoid calling the underlying
     // code twice, we take that list and translate to titles, rather than calling
     // getItemGroups again
@@ -2187,6 +2304,7 @@ public class SimplePageBean {
 
 	    if (!nocache && i.getType() != SimplePageItem.PAGE 
 		         && i.getType() != SimplePageItem.TEXT
+		         && i.getType() != SimplePageItem.BLTI
 		         && i.getType() != SimplePageItem.COMMENTS
 		         && i.getType() != SimplePageItem.STUDENT_CONTENT) {
 	       Object cached = groupCache.get(i.getSakaiId());
@@ -2210,6 +2328,7 @@ public class SimplePageBean {
 		   return getResourceGroups(i, nocache);  // responsible for caching the result
 	       case SimplePageItem.TEXT:
 	       case SimplePageItem.PAGE:
+	       case SimplePageItem.BLTI:
 	       case SimplePageItem.COMMENTS:
 	       case SimplePageItem.STUDENT_CONTENT:
 		   return getLBItemGroups(i); // for all native LB objects
@@ -2351,6 +2470,7 @@ public class SimplePageBean {
 	       return setResourceGroups (i, groups);
 	   case SimplePageItem.TEXT:
 	   case SimplePageItem.PAGE:
+	   case SimplePageItem.BLTI:
 	   case SimplePageItem.COMMENTS:
 	   case SimplePageItem.STUDENT_CONTENT:
 	       return setLBItemGroups(i, groups);
@@ -2745,6 +2865,8 @@ public class SimplePageBean {
 		} else if (pageTitle != null) {
 			page.setTitle(pageTitle);
 			update(page);
+			pageItem.setName(pageTitle);
+			update(pageItem);
 		}
 		
 		if(pageTitle != null) {
@@ -3154,7 +3276,7 @@ public class SimplePageBean {
 		Boolean cached = completeCache.get(itemId);
 		if (cached != null)
 		    return (boolean)cached;
-		if (item.getType() == SimplePageItem.RESOURCE || item.getType() == SimplePageItem.URL) {
+		if (item.getType() == SimplePageItem.RESOURCE || item.getType() == SimplePageItem.URL || item.getType() == SimplePageItem.BLTI) {
 			// Resource. Completed if viewed.
 			if (hasLogEntry(item.getId())) {
 				completeCache.put(itemId, true);
@@ -3467,6 +3589,11 @@ public class SimplePageBean {
 			if (quiz == null)
 				return null;
 			return quiz.getTitle();
+		} else if (i.getType() == SimplePageItem.BLTI) {
+		    LessonEntity blti = bltiEntity.getEntity(i.getSakaiId());
+		    if (blti == null)
+			return null;
+		    return blti.getTitle();
 		} else
 			return null;
 	}
@@ -3809,6 +3936,13 @@ public class SimplePageBean {
 						setErrMessage(messageLocator.getMessage("simplepage.resourcepossibleerror"));
 					}
 					sakaiId = res.getId();
+
+					if("application/zip".equals(mimeType) && isWebsite) {
+					    // We need to set the sakaiId to the resource id of the index file
+					    sakaiId = expandZippedResource(sakaiId);
+					    if (sakaiId == null)
+						return;
+					}		    
 					
 				} catch (org.sakaiproject.exception.OverQuotaException ignore) {
 					setErrMessage(messageLocator.getMessage("simplepage.overquota"));
@@ -3881,6 +4015,10 @@ public class SimplePageBean {
 			if (itemId == -1 && isMultimedia) {
 				int seq = getItemsOnPage(getCurrentPageId()).size() + 1;
 				item = simplePageToolDao.makeItem(getCurrentPageId(), seq, SimplePageItem.MULTIMEDIA, sakaiId, name);
+			} else if(itemId == -1 && isWebsite) {
+			    String websiteName = name.substring(0,name.indexOf("."));
+			    int seq = getItemsOnPage(getCurrentPageId()).size() + 1;
+			    item = simplePageToolDao.makeItem(getCurrentPageId(), seq, SimplePageItem.RESOURCE, sakaiId, websiteName);
 			} else if (itemId == -1) {
 				int seq = getItemsOnPage(getCurrentPageId()).size() + 1;
 				item = simplePageToolDao.makeItem(getCurrentPageId(), seq, SimplePageItem.RESOURCE, sakaiId, name);

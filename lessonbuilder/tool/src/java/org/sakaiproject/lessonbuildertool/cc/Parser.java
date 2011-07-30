@@ -273,7 +273,7 @@ public class Parser extends AbstractParser {
       the_handler.setCCItemXml(the_item, resource, this, utils);
       ContentParser parser=parsers.get(resource.getAttributeValue(CC_RES_TYPE));
       if (parser==null) {
-	  System.out.println("content type not recongised " + resource.getAttributeValue(CC_RES_TYPE));
+	  System.out.println("content type not recognised " + resource.getAttributeValue(CC_RES_TYPE));
 	  return;
       }
       processResource(resource,

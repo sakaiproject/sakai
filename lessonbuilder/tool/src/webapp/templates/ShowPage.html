@@ -127,7 +127,29 @@ function resizeiframe(id) {
 				<tr rsf:id="item:" id="item" role="row">
 					<td rsf:id="edit-td" role="gridcell" class="edit-col"><div><a href="#" class="usebutton edit-link" onclick="return false" rsf:id="edit-link"></a></div></td>
 					<td rsf:id="item-td" role="gridcell"><div style="float:left"><img class="status-image" rsf:id="status" height="18" width="18" style="margin-right:3px" /></div>
-					  <div style="margin-left:30px"><div rsf:id="link-div" class="link-div"><a class="itemlink" href="#" rsf:id="link" style="width:36px"><span rsf:id="link-note" class="offscreen"></span><span rsf:id="link-text" class="link-text"></span></a><span rsf:id="link-button-span" class="navIntraTool" style="background-color:transparent;border:none"><a href="#" class="usebutton" rsf:id="link-button"><span rsf:id="link-button-note" class="offscreen"></span><span rsf:id="link-button-text" class="link-text"></span></a></span><span rsf:id="item-group-titles" class="item-group-titles"></span></div><div class="rowdescription" rsf:id="description"></div></div>
+					  <div style="margin-left:30px">
+					    <div rsf:id="link-div" class="link-div">
+					      <a class="itemlink" href="#" rsf:id="link" style="width:36px"><span rsf:id="link-note" class="offscreen"></span><span rsf:id="link-text" class="link-text"></span></a>
+					      <span rsf:id="link-button-span" class="navIntraTool" style="background-color:transparent;border:none"><a href="#" class="usebutton" rsf:id="link-button"><span rsf:id="link-button-note" class="offscreen"></span><span rsf:id="link-button-text" class="link-text"></span></a></span>
+					      <span rsf:id="item-group-titles" class="item-group-titles"></span>
+					    </div>
+					    <div rsf:id="item-group-titles-div" class="item-group-titles"></div>
+					    <iframe
+					       name="BltiIFrame"
+					       class="portletMainIframe multimedia"
+					       frameborder="0"
+					       marginwidth="0"
+					       width="100%"
+					       height="300"
+					       marginheight="0"
+					       scrolling="auto"
+					       rsf:id="blti-iframe"
+				               id="blti-iframe"
+					       >
+					    </iframe>
+
+					    <div class="rowdescription" rsf:id="description"></div>
+					  </div>
 					  <div style="display:none">
 					    <span rsf:id="current-item-id2" class="current-item-id2"></span>
 					    <span rsf:id="prerequisite-info" class="prerequisite-info"></span>
@@ -139,6 +161,9 @@ function resizeiframe(id) {
 					    <span rsf:id="edit-settings-url" class="edit-settings-url"></span>
 					    <span rsf:id="item-samewindow" class="item-samewindow"></span>
 					    <span rsf:id="item-groups" class="item-groups"></span>
+					    <span rsf:id="item-height" class="item-height"></span>
+					    <span rsf:id="item-name" class="link-text"></span>
+					    <span rsf:id="item-format" class="item-format"></span>
 					  </div>
 					</td>
 					<td rsf:id="edittext-td" role="gridcell" class="edit-col"><div><a href="#" class="usebutton itemLink" rsf:id="edit-link"></a></div></td>
@@ -371,6 +396,7 @@ function resizeiframe(id) {
 			
 				<form action="#" rsf:id="edit-form">
 					<div class="border">
+
 						<p class="shorttext required">
 							<label rsf:id="name-label" for="name"></label>
 					 		<input type="text" name="name" rsf:id="name" id="name" length="30" class="edit-form-input" /><br />
@@ -423,11 +449,29 @@ function resizeiframe(id) {
 						<input type="checkbox" name="item-newwindow" id="item-newwindow" rsf:id="item-newwindow" />
 						<label for="item-newwindow" id="label-item-newwindow"><span rsf:id="msg=simplepage.usenewwindow"></span></label><br />
 						</div>
+						<div id="formatstuff">
+						  <p rsf:id="msg=simplepage.format.heading"></p>
+						  <span rsf:id="format-select" />
+						  <input rsf:id="format-window" type="radio" name="format" value="window" id="format-window" class="format"/>
+						  <label for="format-window"><span rsf:id="msg=simplepage.format.window"></span></label><br />
+						  <input rsf:id="format-inline" type="radio" name="format" value="inline" id="format-inline" class="format"/>
+						  <label for="format-inline"><span rsf:id="msg=simplepage.format.inline"></span></label><br />
+						  <input rsf:id="format-page" type="radio" name="format" value="page" id="format-page" class="format"/>
+						  <label for="format-page"><span rsf:id="msg=simplepage.format.page"></span></label><br />
+
+						</div>
+
+					        <p class="shorttext required" id="edit-height">
+							<label rsf:id="msg=simplepage.height_label" for="edit-height"></label>
+					 		<input type="text" name="edit-height-value" rsf:id="edit-height-value" id="edit-height-value" length="30" class="edit-form-input" /><br />
+						</p>
+
 					</div>
 					
 					<input type="hidden" rsf:id="item-id" id="item-id" />
 					
 					<div rsf:id="permDiv" class="border2">
+					     <div id="prereqstuff">
 						<input type="checkbox" name="item-prerequisites" id="item-prerequisites" rsf:id="item-prerequisites" />
 						<label for="item-prerequisites"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
 						<br />
@@ -435,7 +479,7 @@ function resizeiframe(id) {
 						<input type="checkbox" name="item-required" id="item-required" rsf:id="item-required" />
 						<label for="item-required"><span rsf:id="msg=simplepage.require" id="require-label"></span></label>
 						<br />
-						
+					     </div>
 						<input type="checkbox" class="indent" name="item-required2" id="item-required2" rsf:id="item-required2" />
 						<label for="item-required2"><span rsf:id="msg=simplepage.require" id="require-label2"></span></label>
 						<select id="assignment-dropdown" rsf:id="assignment-dropdown">
@@ -444,7 +488,7 @@ s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 						<input id="assignment-points" rsf:id="assignment-points" size="4"/>
 						<label for="assignment-points" id="assignment-points-label"> points on the assignment</label>
 						
-						<p id="editgroups">
+						<p id="editgroups" class="edit-group">
 						  <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
 						</p>
 						<p id="resource-group-inherited" rsf:id="msg=simplepage.resource-group-inherited"></p>
@@ -538,7 +582,7 @@ s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 						<p class="shorttext required" id="change-resource-mm-p">
 						  <a href="#" rsf:id="change-resource-mm" id="change-resource-mm"><span rsf:id="msg.simplepage.change_resource"></span></a>
 					        </p>
-						<p id="editgroups-mm">
+						<p id="editgroups-mm" class="edit-group">
 						  <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
 						</p>
 					</div>
@@ -773,7 +817,7 @@ s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 						<p class="shorttext required" id="change-resource-movie-p">
 						  <a href="#" rsf:id="change-resource-movie" id="change-resource-movie"><span rsf:id="msg.simplepage.change_resource"></span></a>
 					        </p>
-						<p id="editgroups-movie">
+						<p id="editgroups-movie" class="edit-group">
 						  <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
 						</p>
 					</div>

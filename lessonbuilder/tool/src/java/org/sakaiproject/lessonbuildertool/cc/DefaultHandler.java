@@ -45,7 +45,8 @@ import org.jdom.Element;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 
 public class DefaultHandler implements AssessmentHandler, DiscussionHandler, AuthorizationHandler,
-                                       MetadataHandler, LearningApplicationResourceHandler, QuestionBankHandler,
+                                       MetadataHandler, LearningApplicationResourceHandler, 
+                                       QuestionBankHandler, LtiHandler,
                                        WebContentHandler, WebLinkHandler {
 
   Ns ns = null;
@@ -131,10 +132,15 @@ public class DefaultHandler implements AssessmentHandler, DiscussionHandler, Aut
 
   public void addAttachment(String attachment_path) {}
 
-  public void endDiscussion() {}
-
   public void startDiscussion(String topic_name, String text_type, String text,
       boolean isProtected) {}
+
+  public void endDiscussion() {}
+
+  public void startLti(String topic_name, String text_type, String text,
+      boolean isProtected) {}
+
+  public void endLti() {}
 
   public void setAuthorizationService(String cartridgeId, String webservice_url) {}
 
@@ -184,5 +190,7 @@ public class DefaultHandler implements AssessmentHandler, DiscussionHandler, Aut
   public void addQuestionBankItem(QTIItem the_item) {}
 
   public void setDiscussionXml(Element the_element) {}
+
+  public void setLtiXml(Element the_element) {}
   
 }

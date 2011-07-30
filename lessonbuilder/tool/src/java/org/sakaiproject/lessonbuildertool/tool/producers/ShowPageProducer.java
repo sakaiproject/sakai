@@ -143,6 +143,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private static LessonEntity forumEntity;
 	private static LessonEntity quizEntity;
 	private static LessonEntity assignmentEntity;
+        private static LessonEntity bltiEntity;
 	public MessageLocator messageLocator;
 	private LocaleGetter localegetter;
 	public static final String VIEW_ID = "ShowPage";
@@ -713,14 +714,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						}
 					}
 
+					boolean isInline = (i.getType() == SimplePageItem.BLTI && "inline".equals(i.getFormat()));
+
 					UIOutput linktd = UIOutput.make(tableRow, "item-td");
-					UIOutput linkdiv = UIOutput.make(tableRow, "link-div");
+					UIOutput linkdiv = null;
+					if (!isInline)
+					    linkdiv = UIOutput.make(tableRow, "link-div");
 
 					UIOutput descriptiondiv = null;
 
 					// refresh isn't actually used anymore. We've changed the
 					// way things are
 					// done so the user never has to request a refresh.
+					//   FYI: this actually puts in an IFRAME for inline BLTI items
 					showRefresh = !makeLink(tableRow, "link", i, canEditPage, currentPage, notDone, status) || showRefresh;
 
 					// dummy is used when an assignment, quiz, or forum item is
@@ -750,16 +756,20 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					} else {
 						descriptiondiv = UIOutput.make(tableRow, "description", i.getDescription());
 					}
+					if (isInline)
+					    descriptiondiv.decorate(new UIFreeAttributeDecorator("style", "margin-top: 4px"));
 
-					// nav button gets float left so any description goes to its
-					// right. Otherwise the
-					// description block will display underneath
-					if ("button".equals(i.getFormat())) {
+					if (!isInline) {
+					    // nav button gets float left so any description goes to its
+					    // right. Otherwise the
+					    // description block will display underneath
+					    if ("button".equals(i.getFormat())) {
 						linkdiv.decorate(new UIFreeAttributeDecorator("style", "float:left"));
-					}
-					// for accessibility
-					if (navButton) {
+					    }
+					    // for accessibility
+					    if (navButton) {
 						linkdiv.decorate(new UIFreeAttributeDecorator("role", "navigation"));
+					    }
 					}
 
 					// note that a lot of the info here is used by the
@@ -828,6 +838,20 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								itemGroupString = simplePageBean.getItemGroupString(i, quiz, true);
 								UIOutput.make(tableRow, "item-groups", itemGroupString);
 							}
+						} else if (i.getType() == SimplePageItem.BLTI) {
+						    UIOutput.make(tableRow, "type", "b");
+						    LessonEntity blti= bltiEntity.getEntity(i.getSakaiId());
+						    if (blti != null) {
+							String editUrl = blti.editItemUrl(simplePageBean);
+							if (editUrl != null)
+							    UIOutput.make(tableRow, "edit-url", editUrl);
+							UIOutput.make(tableRow, "item-format", i.getFormat());
+
+							if (i.getHeight() != null)
+							    UIOutput.make(tableRow, "item-height", i.getHeight());
+							itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+							UIOutput.make(tableRow, "item-groups", itemGroupString );
+						    }
 						} else if (i.getType() == SimplePageItem.FORUM) {
 							UIOutput.make(tableRow, "extra-info");
 							UIOutput.make(tableRow, "type", "8");
@@ -837,21 +861,28 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								if (editUrl != null) {
 									UIOutput.make(tableRow, "edit-url", editUrl);
 								}
+								itemGroupString = simplePageBean.getItemGroupString(i, forum, true);
+								UIOutput.make(tableRow, "item-groups", itemGroupString);
 							}
-							itemGroupString = simplePageBean.getItemGroupString(i, forum, true);
-							UIOutput.make(tableRow, "item-groups", itemGroupString);
 						} else if (i.getType() == SimplePageItem.PAGE) {
 							UIOutput.make(tableRow, "type", "page");
 							UIOutput.make(tableRow, "page-next", Boolean.toString(i.getNextPage()));
 							UIOutput.make(tableRow, "page-button", Boolean.toString("button".equals(i.getFormat())));
+							itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+							UIOutput.make(tableRow, "item-groups", itemGroupString);
 						} else if (i.getType() == SimplePageItem.RESOURCE) {
+						        itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+							if (simplePageBean.getInherited())
+							    UIOutput.make(tableRow, "item-groups", "--inherited--");
+							else
+							    UIOutput.make(tableRow, "item-groups", itemGroupString );
 							UIOutput.make(tableRow, "item-samewindow", Boolean.toString(i.isSameWindow()));
 						}
 
 						if (itemGroupString != null) {
 							itemGroupString = simplePageBean.getItemGroupTitles(itemGroupString);
 							if (itemGroupString != null) {
-								UIOutput.make(tableRow, "item-group-titles", " [" + itemGroupString + "]");
+							    UIOutput.make(tableRow, (isInline ? "item-group-titles-div" : "item-group-titles"), " [" + itemGroupString + "]");
 							}
 						}
 					}
@@ -1646,6 +1677,57 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				UILink link = UILink.make(container, ID);
 				disableLink(link, messageLocator);
 			}
+		} else if (i.getType() == SimplePageItem.BLTI) {
+		    LessonEntity lessonEntity = bltiEntity.getEntity(i.getSakaiId());
+		    if ("inline".equals(i.getFormat())) {
+			// no availability 
+			String height=null;
+			if (i.getHeight() != null && !i.getHeight().equals(""))
+			    height = height.replace("px","");  // just in case
+			
+			UIComponent iframe = UIOutput.make(container, "blti-iframe");
+			if (lessonEntity != null)
+			    iframe.decorate(new UIFreeAttributeDecorator("src", lessonEntity.getUrl()));
+			
+			String h = "300";
+			if (height != null && !height.trim().equals(""))
+			    h = height;
+			
+			iframe.decorate(new UIFreeAttributeDecorator("height", h));
+			iframe.decorate(new UIFreeAttributeDecorator("title", i.getName()));
+			// normally we get the name from the link text, but there's no link text here
+			UIOutput.make(container, "item-name", i.getName());
+		    } else if (i.isSameWindow()) {
+			if (available) {
+				if (i.isPrerequisite()) {
+					simplePageBean.checkItemPermissions(i, true);
+				}
+				GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
+				view.setSendingPage(currentPage.getPageId());
+				view.setItemId(i.getId());
+				view.setSource((lessonEntity==null)?"dummy":lessonEntity.getUrl());
+				UIInternalLink.make(container, "link", view);
+
+			} else {
+				if (i.isPrerequisite()) {
+					simplePageBean.checkItemPermissions(i, false);
+				}
+				UILink link = UILink.make(container, ID);
+				disableLink(link, messageLocator);
+			}
+		    } else {
+
+			if (available) {
+			    URL = (lessonEntity==null)?"dummy":lessonEntity.getUrl();
+			}
+			UIInternalLink link = LinkTrackerProducer.make(container, ID, i.getName(), URL, i.getId(), notDone);
+
+			if (available) {
+				link.decorate(new UIFreeAttributeDecorator("target", "_blank"));
+			} else {
+				disableLink(link, messageLocator);
+			}
+		    }
 		}
 
 		String note = null;
@@ -1722,6 +1804,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if (assignmentEntity == null) {
 			assignmentEntity = e;
 		}
+	}
+
+	public void setBltiEntity(LessonEntity e) {
+	    	if (bltiEntity == null)
+			bltiEntity = e;
 	}
 
 	public void setMemoryService(MemoryService m) {
@@ -1819,7 +1906,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			createToolBarLink(QuizPickerProducer.VIEW_ID, toolBar, "add-quiz", "simplepage.quiz", currentPage, "simplepage.quiz");
 			
 			createToolBarLink(ForumPickerProducer.VIEW_ID, toolBar, "add-forum", "simplepage.forum", currentPage, "simplepage.forum");
-			
+			createToolBarLink(BltiPickerProducer.VIEW_ID, toolBar, "add-blti", "simplepage.blti", currentPage, "simplepage.blti");
 			createToolBarLink(PermissionsHelperProducer.VIEW_ID, toolBar, "permissions", "simplepage.permissions", currentPage, "simplepage.permissions.tooltip");
 			
 			GeneralViewParameters eParams = new GeneralViewParameters(VIEW_ID);
@@ -1918,6 +2005,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		params.viewID = ForumPickerProducer.VIEW_ID;
 		UIInternalLink.make(form, "change-forum", messageLocator.getMessage("simplepage.change_forum"), params);
 
+		params = new GeneralViewParameters();
+		params.setSendingPage(currentPage.getPageId());
+		params.viewID = BltiPickerProducer.VIEW_ID;
+		UIInternalLink.make(form, "change-blti", messageLocator.getMessage("simplepage.change_blti"), params);
+
 		FilePickerViewParameters fileparams = new FilePickerViewParameters();
 		fileparams.setSender(currentPage.getPageId());
 		fileparams.setResourceType(false);
@@ -1964,6 +2056,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "item-prerequisites", "#{simplePageBean.prerequisite}", false);
 
 		UIBoundBoolean.make(form, "item-newwindow", "#{simplePageBean.newWindow}", false);
+
+		UISelect radios = UISelect.make(form, "format-select",
+						new String[] {"window", "inline", "page"},
+						"#{simplePageBean.format}", "");
+		UISelectChoice.make(form, "format-window", radios.getFullID(), 0);
+		UISelectChoice.make(form, "format-inline", radios.getFullID(), 1);
+		UISelectChoice.make(form, "format-page", radios.getFullID(), 2);
+
+		UIInput.make(form, "edit-height-value", "#{simplePageBean.height}");
 
 		UISelect.make(form, "assignment-dropdown", SimplePageBean.GRADES, "#{simplePageBean.dropDown}", SimplePageBean.GRADES[0]);
 		UIInput.make(form, "assignment-points", "#{simplePageBean.points}");

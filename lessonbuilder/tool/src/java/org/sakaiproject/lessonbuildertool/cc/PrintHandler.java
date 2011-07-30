@@ -25,7 +25,7 @@ package org.sakaiproject.lessonbuildertool.cc;
  * $Id: PrintHandler.java 227 2011-01-08 18:26:55Z drchuck $
  **********************************************************************************
  *
- * Copyright (c) 2010 IMS GLobal Learning Consortium
+ * Copyright (c) 2010 IMS Global Learning Consortium
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,12 +43,14 @@ package org.sakaiproject.lessonbuildertool.cc;
 
 import org.jdom.Element;
 import org.jdom.Namespace;
+import org.jdom.output.XMLOutputter;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Properties;
 import java.io.InputStream;
 import java.io.FileInputStream;
 import java.io.PrintWriter;
@@ -78,12 +80,15 @@ import org.sakaiproject.lessonbuildertool.cc.QtiImport;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.service.QuizEntity;
 import org.sakaiproject.lessonbuildertool.service.ForumInterface;
+import org.sakaiproject.component.cover.ComponentManager;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
+
+import org.sakaiproject.lti.api.LTIService;
 
 /* PJN NOTE:
  * This class is an example of what an implementer might want to do as regards overloading DefaultHandler.
@@ -95,8 +100,6 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
                                        MetadataHandler, LearningApplicationResourceHandler, QuestionBankHandler,
                                        WebContentHandler, WebLinkHandler{
 
-
-  
   private static final String HREF="href";
   private static final String TYPE="type";
   private static final String FILE="file";
@@ -140,6 +143,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private String siteId = null;
   private LessonEntity quiztool = null;
   private LessonEntity topictool = null;
+  protected static LTIService ltiService = null; 
     // this is the CC file name for all files added
   private Set<String> filesAdded = new HashSet<String>();
     // this is the CC file name (of the XML file) -> Sakaiid for non-file items
@@ -153,6 +157,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       this.siteId = bean.getCurrentSiteId();
       this.quiztool = q;
       this.topictool = l;
+      this.ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
   }
 
   public void setAssessmentDetails(String the_ident, String the_title) {
@@ -345,7 +350,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      simplePageBean.saveItem(item);
 	      sequences.set(top, seq+1);
 	      
-	  } else if (type.equals(CC_TOPIC0) || type.equals(CC_TOPIC1)) {
+	  } else if (topictool != null && ( type.equals(CC_TOPIC0) || type.equals(CC_TOPIC1))) {
 	      String filename = getFileName(resource);
 	      Element topicXml =  parser.getXML(loader, filename);
 	      Namespace topicNs = ns.topic_ns();
@@ -451,9 +456,96 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
 	  } else if (type.equals(CC_QUESTION_BANK0) || type.equals(CC_QUESTION_BANK1))
 	      ;
-	  else if (type.equals(CC_BLTI0) || type.equals(CC_BLTI1))
-	      ;
-	  else
+	  else if (type.equals(CC_BLTI0) || type.equals(CC_BLTI1)) { 
+	      String filename = getFileName(resource);
+	      Element ltiXml =  parser.getXML(loader, filename);
+	      XMLOutputter outputter = new XMLOutputter();
+	      String strXml = strXml = outputter.outputString(ltiXml);       
+	      Namespace bltiNs = ns.blti_ns();
+	      String bltiTitle = ltiXml.getChildText(TITLE, bltiNs);
+
+	      Element customElement = ltiXml.getChild("custom", bltiNs);
+	      List<Element>customs = new ArrayList<Element>();
+	      if (customElement != null)
+		  customs = customElement.getChildren();
+	      StringBuffer sb = new StringBuffer();
+              String custom = null;
+	      for (Element a: customs) {
+		  String key = a.getAttributeValue("name");
+		  String value = a.getText();
+                  if ( key == null ) continue;
+                  key = key.trim();
+                  if ( value == null ) continue;
+                  System.out.println("k="+key+" v="+value);
+		  sb.append(key.trim());
+                  sb.append("=");
+                  sb.append(value.trim());
+                  sb.append("\n");
+	      }
+              if ( sb.length() > 0 ) custom = sb.toString();
+
+	      String launchUrl = ltiXml.getChildText("secure_launch_url", bltiNs);
+	      if ( launchUrl == null ) launchUrl = ltiXml.getChildText("launch_url", bltiNs);
+
+		// TODO: Custom
+		Map<String,Object> theTool = null;
+		List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0);
+		for ( Map<String,Object> tool : tools ) {
+			String toolLaunch = (String) tool.get(LTIService.LTI_LAUNCH);
+			if ( toolLaunch.equals(launchUrl) ) {
+				theTool = tool;
+				break;				
+			}
+		}
+
+		if ( theTool == null ) {
+			Properties props = new Properties ();
+			props.setProperty(LTIService.LTI_LAUNCH,launchUrl);
+			props.setProperty(LTIService.LTI_TITLE, bltiTitle);
+			props.setProperty(LTIService.LTI_CONSUMERKEY, LTIService.LTI_SECRET_INCOMPLETE);
+			props.setProperty(LTIService.LTI_SECRET, LTIService.LTI_SECRET_INCOMPLETE);
+			props.setProperty(LTIService.LTI_ALLOWCUSTOM, "1");
+			props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
+			Object result = ltiService.insertTool(props);
+			if ( result instanceof String ) {
+				System.out.println("Could not insert tool - "+result);
+			}
+			if ( result instanceof Long ) theTool = ltiService.getTool((Long) result);
+		}
+
+		Map<String,Object> theContent = null;
+		Long contentKey = null;
+System.out.println("custom="+custom);
+		if ( theTool != null ) {
+			Properties props = new Properties ();
+			props.setProperty(LTIService.LTI_TOOL_ID,getLong(theTool.get(LTIService.LTI_ID)).toString());
+			props.setProperty(LTIService.LTI_TITLE, bltiTitle);
+			props.setProperty(LTIService.LTI_LAUNCH,launchUrl);
+			props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
+			if ( custom != null ) props.setProperty(LTIService.LTI_CUSTOM,custom);
+			Object result = ltiService.insertContent(props);
+			if ( result instanceof String ) {
+				System.out.println("Could not insert content - "+result);
+			} else {
+				System.out.println("Adding LTI tool "+result);
+			}
+			if ( result instanceof Long ) theContent = ltiService.getContent((Long) result);
+		}
+
+		String sakaiId = null;
+		if ( theContent != null ) {
+			sakaiId = "/blti/" + theContent.get(LTIService.LTI_ID);
+		}
+
+		if ( sakaiId != null ) {
+			// System.out.println("Adding LTI content item "+sakaiId);
+			SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.BLTI, sakaiId, title);
+			simplePageBean.saveItem(item);
+			sequences.set(top, seq+1);
+		} else {
+			System.out.println("LTI Import Failed..");
+		}
+	  } else
 	      System.err.println("implemented type: " + resource.getAttributeValue(TYPE));
       } catch (Exception e) {
 	  e.printStackTrace();
@@ -776,6 +868,28 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   public void setQuestionBankDetails(String the_ident) {
       if (all)
 	  System.err.println("set qti qb details: "+the_ident);  
+  }
+
+  public Long getLong(Object key) {
+    Long retval = getLongNull(key);
+    if (retval != null)
+      return retval;
+    return new Long(-1);
+  }
+
+  public Long getLongNull(Object key) {
+    if (key == null)
+      return null;
+    if (key instanceof Number)
+      return new Long(((Number) key).longValue());
+    if (key instanceof String) {
+      try {
+        return new Long((String) key);
+      } catch (Exception e) {
+        return null;
+      }
+    }
+    return null;
   }
 }
 

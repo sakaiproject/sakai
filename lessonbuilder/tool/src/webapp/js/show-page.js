@@ -121,7 +121,6 @@ $(function() {
 		draggable: false
 	});
 	
-
 	$('.subpage-link').click(function(){
 		var position =  $(this).position();
 		$("#subpage-dialog").dialog("option", "position", [position.left, position.top]);
@@ -232,7 +231,7 @@ $(function() {
 
 		var groups = row.find(".item-groups").text();
 		var grouplist = $("#grouplist");
-		if (grouplist != null) {
+		if ($('#grouplist input').size() > 0) {
 		    $("#editgroups-youtube").show();
 		    $("#grouplist").show();
 		    if (groups != null) {
@@ -274,7 +273,7 @@ $(function() {
 
 		var groups = row.find(".item-groups").text();
 		var grouplist = $("#grouplist");
-		if (grouplist != null) {
+		if ($('#grouplist input').size() > 0) {
 		    $("#editgroups-movie").show();
 		    $("#grouplist").show();
 		    if (groups != null) {
@@ -455,6 +454,19 @@ $(function() {
 		return false;
 	});
 
+	function fixitemshows(){
+		var val = $(".format:checked").val();
+		if (val == "window")
+		    $("#edit-height").hide();
+		else
+		    $("#edit-height").show();
+		if (val == "inline") {
+		    $("#prereqstuff").hide();
+		} else {
+		    $("#prereqstuff").show();
+		}
+	}
+
 	$(".edit-link").click(function(){
 		$("#require-label2").hide();
 		$("#item-required2").hide();
@@ -471,11 +483,14 @@ $(function() {
 		$("#change-quiz-p").hide();		
 		$("#change-forum-p").hide();		
 		$("#change-resource-p").hide();	
+		$("#change-blti-p").hide();
 		$("#change-page-p").hide();	
 		$("#edit-item-object-p").hide();	
 		$("#edit-item-settings-p").hide();	
 		$("#pagestuff").hide();
 		$("#newwindowstuff").hide();
+		$("#formatstuff").hide();
+		$("#edit-height").hide();
 		$("#editgroups").after($("#grouplist"));
 		
 		var row = $(this).parent().parent().parent();
@@ -502,6 +517,7 @@ $(function() {
                     $("#newwindowstuff").show();
                 }
 
+		var format = row.find(".item-format").text();
 		var req = row.find(".requirement-text").text();
 		var type = row.find(".type").text();
 		var editurl = row.find(".edit-url").text();
@@ -531,7 +547,7 @@ $(function() {
 
 		    var groups = row.find(".item-groups").text();
 		    var grouplist = $("#grouplist");
-		    if (grouplist != null) {
+		    if ($('#grouplist input').size() > 0) {
 			$("#editgroups").show();
 			$("#grouplist").show();
 			if (groups != null) {
@@ -544,7 +560,7 @@ $(function() {
 			
 			var groups = row.find(".item-groups").text();
 			var grouplist = $("#grouplist");
-			if (grouplist != null) {
+			if ($('#grouplist input').size() > 0) {
 			    $("#editgroups").show();
 			    $("#grouplist").show();
 			    if (groups != null) {
@@ -575,6 +591,22 @@ $(function() {
 				$("#edit-item-object").attr("href", 
 					$("#edit-item-object").attr("href").replace("source=SRC", "source="+escape(editurl)));
 				$("#edit-item-text").text(msg("simplepage.edit_topic"));
+
+			}else if (type == 'b'){
+				var height = row.find(".item-height").text();
+				$("#edit-height-value").val(height);
+				$("#edit-height").show();				
+				$("#change-blti-p").show();
+				$("#change-blti").attr("href", 
+				      $("#change-blti").attr("href").replace("itemId=-1", "itemId=" + itemid));
+				$("#require-label").text(msg("simplepage.require_submit_blti"));
+				if (format == '')
+				    format = 'page';
+				$(".format").attr("checked", false);
+				$("#format-" + format).attr("checked", true);
+				$("#formatstuff").show();
+				$("#edit-item-object-p").show();
+				fixitemshows();
 
 			}else {
 				$("#change-assignment-p").show();
@@ -673,7 +705,7 @@ $(function() {
 		    var grouplist = $("#grouplist");
 		    if (groups == "--inherited--")
 			$("#resource-group-inherited").show();
-		    else if (grouplist != null) {
+		    else if ($('#grouplist input').size() > 0) {
 			$("#editgroups").show();
 			$("#grouplist").show();
 			$("#select-resource-group").show();
@@ -711,6 +743,11 @@ $(function() {
 		$("#editgroups").hide();
 		$("#grouplist").show();
 	    });
+
+	$(".format").change(function(){
+		fixitemshows();
+	    });
+
 	$('#change-resource').click(function(){
 		closeEditItemDialog();
 		$("#mm-item-id").val($("#item-id").val());
@@ -805,7 +842,7 @@ $(function() {
 
 		var groups = row.find(".item-groups").text();
 		var grouplist = $("#grouplist");
-		if (grouplist != null) {
+		if ($('#grouplist input').size() > 0) {
 		    $("#editgroups-mm").show();
 		    $("#grouplist").show();
 		    if (groups != null) {

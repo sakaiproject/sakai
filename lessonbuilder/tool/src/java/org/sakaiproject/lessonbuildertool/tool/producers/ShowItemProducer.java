@@ -224,7 +224,15 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		simplePageBean.addNextLink(tofill, item);
 	    }
 
-	    UILink.make(tofill, "iframe1", params.getSource());
+	    UIComponent iframe = UILink.make(tofill, "iframe1", params.getSource());
+	    if (item != null && item.getType() == SimplePageItem.BLTI) {
+		String height = item.getHeight();
+		if (height == null || height.equals(""))
+		    iframe.decorate(new UIFreeAttributeDecorator("height", "1200"));
+		else
+		    iframe.decorate(new UIFreeAttributeDecorator("height", height));
+		iframe.decorate(new UIFreeAttributeDecorator("onload", ""));
+	    }
 	}
 
 	public void setSimplePageBean(SimplePageBean simplePageBean) {
