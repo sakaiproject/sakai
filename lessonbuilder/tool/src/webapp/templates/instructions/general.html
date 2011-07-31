@@ -1,9 +1,13 @@
-<!-- note: this is used both as a separate HTML page and as a fragment, so don't include BODY, etc. -->
-
-<link rel="stylesheet" type="text/css" media="all" href="/library/skin/tool_base.css"/>
-<link rel="stylesheet" type="text/css" media="all" href="/library/skin/default/tool.css"/>
-
-
+<html>
+  <head>
+    <meta http-equiv="Content-Style-Type" content="text/css" /> 
+    <title>general.html</title>
+    <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+    <link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+    <script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+    <style>body { padding: 5px !important; }</style>
+  </head>
+  <body>
 <style type="text/css">
  hr {border:none; border-top: dotted black 2px; margin-left:1em; margin-right: 1em}
 .textblock {
@@ -14,128 +18,77 @@ padding:0em 1em 1em 1em;
 border: solid black 1px;
 background-color: #ffffdd;
 }
+.textblock2 {
+background-color: #eeeeee;
+}
 
 </style>
-
 <table cellspacing="15">
-<tr>
-<td valign="top" width="75%">
+    <tbody>
+        <tr>
+            <td width="75%" valign="top">
+            <h2>Getting Started with Lesson Builder</h2>
+            <div class="textblock">
+            <p>Put your content on this page by using one of the commands above. The most common are
+	      <ul>
+		<li> <b>Add Text</b> - type text into an editor
+		<li> <b>Add Resource</b> - upload a document or add a URL for a web site
+		<li> <b>Add Multimedia</b> - add an item that will show on the page, e.g. a Flash presentation or video
+	      </ul>
 
-<h2> STARTING OUT</h2>
-<div class="textblock">
-<p>We suggest that you start out by using <b>Add Text</b> to put material on this page. 
-<p>Alternatively, you can use <b> Add Multimedia</b> for a Flash presentation, movie, etc.
-<p> Then you can put links to additional resources, assignments for the unit, etc, by using the other buttons. If you place the mouse over a button you'll get a brief description of what it does. 
-<p> Once you've added content, you'll find <b>Edit</b> buttons next to each item. They can be used to adjust the size of multimedia objects, to change the title, to add descriptive text, etc. They can also activate features that you can use to control the sequence in which items are available. 
-</div>
-<h2> Other documentation </h2>
-<div class="textblock">
-<ul>
-<li>The <b>Sakai help system</b> has additional details. Use the Help icon 
-<img src="/library/skin/default/images/help.gif"> at the upper right of every
-Sakai tool.
-<li>The <a href="/sakai-lessonbuildertool-tool/templates/instructions/multimedia.html">Adding Multimedia Content</a> has specifics on
-including multimedia content in your page.
-<li>The <a href="/sakai-lessonbuildertool-tool/templates/instructions/accessibility.html">accessibility introduction</a> 
-has a brief description of tools in Lesson Builder to help create accessible content, and pointer to some online
-information on Web Accessibility.
-<li>The <a href="/sakai-lessonbuildertool-tool/templates/instructions/sequencing.html"> sequencing introduction</a>
-has a brief description of tools in Lesson Builder for requiring students to do certain items, and not releasing
-items until required items have been finished.
-</ul>
-</div>
+            <p>We suggest that you replace the materials on this page by clicking <b>Add Text.</b> You can also <b>Add </b>links to<b> </b>Resources, Assignments, Quizzes, and Forum topics. Select <b>Add Multimedia</b> to include a Flash presentation, a movie, a link to a YouTube video, etc.<br />
+            <br />
+            If you place the mouse over a command, you'll get a brief description of what it does.</p>
+            <p>Once you've added content, you'll find <b>Edit</b> buttons next to each item where you can adjust the size of multimedia objects, change titles, add descriptive text, etc. <b>Edit </b>items to release activities and information sequentially.</p>
+            </div>
 
-<h2> MORE ABOUT LESSON BUILDER PAGES </h2>
-
-<div class="textblock">
-<p> There are several ways to use Lesson Builder pages. Here are two
-of the most common:
-
-<ul>
-<li> <b> Organizing material by topic or unit </b> - For major topics, which
-you want to appear in the left margin, go to
-<b>Site Info</b> and add a new instance of Lesson Builder using <b> Edit Tools</b>.
-This process will ask you to supply a title for the new unit. You can change
-the title later with the "Edit title" button.
-<p>
-<li> <b> Organizing material within a topic </b> -  See Example 2 
-in the right margin. We created pages to contain information about
-the Camden, New Brunswick and Newark campuses, all linked to from the
-same  main page. To create such a page, use the <b> Add subpage </b> button in
-the toolbar at the top of the page.
-<p>
-Note that <b> Add subpage </b> puts you into the
-newly created page, so you can add content. You can return to the current
-page using links at the top of the page.
-</ul>
-</div>
-
-<h2> Using pages in more complex situations </h2>
-
-<div class="textblock">
-<p> In many cases the two methods above are all you need. However
-it is also possible to use lesson builder to build more complex
-structures of pages. Here are a couple of approaches to doing that:
-
-<ul>
-
-<li> <b> Building a sequence of pages </b> Sometimes you want students to
-go through a specific sequence of pages. Normally we recommend creating
-the pages as subpages from a single main page, as in Example 2.
-That makes it easy for students to review all of the material.
-But if you want to push students to go through in a particular sequence,
-you can add a link to the <b> next page</b>, typically at the bottom
-of the page. If you do this several times, you will
-build a sequence of pages.
-
-<p> To add a <b> next page</b>, use <b> Add subpage</b>,
-but select the option "next page". Typically you'll also
-want to select "show as button". 
-
-<p> Checking "next page" gives a page that won't normally return to the
-current one.  (Of course the student can always get to any page
-using the page index, unless you have restricted access to the page.)
-
-<p> Checking "show as button" gives you a button rather than a link.
-
-<p>
-<li> <b> Going to different pages depending upon a student choice</b> 
-See example 3 in the right margin.
-Sometimes you may want to ask a question and have students go to a
-different page depending upon how they answer the question. To do
-that, ask the question using <b> Add text </b>, and then put two
-<b> next page</b> items under it, going to different pages. To do
-that, use <b> Add subpage </b> twice. 
-
-<p> The options you use for <b> Add subpage </b> are up to you.
-In example 3 we used "show as button" and "next page." 
-
-
-</ul>
-</div>
-</td>
-
-<td valign="top" width="25%">
-<p style="margin-top:1em">
-<img src="/sakai-lessonbuildertool-tool/templates/lb1.gif" style="border: 1px solid black" width="279" height="218">
-<br>
-<p>Example 1. Sample page with <b> Add Text</b>, then <b>Assignment</b> and <b>Quiz</b>. The image was inserted in the web editor in <b>Add Text</b>.
-<hr>
-<p>
-<img src="/sakai-lessonbuildertool-tool/templates/lb2.gif" width="201" height="99" style="border: 1px solid black">
-<br>
-<p>Example 2. Sample of a unit with several sections: a small <b>Add Text</b> and three <b>subpages</b>, one for each section.
-Click on each subpage to add content to it.
-<p>
-<hr>
-<p>
-<img src="/sakai-lessonbuildertool-tool/templates/lb3.gif" width="187" height="82" style="border: 1px solid black">
-<br>
-<p> Example 3. Going to a different page depending upon an answer.. The two answers are added using <b>Add subpage</b>.
-However two options are checked: "Next page" and "Show as button". Note that <b>Add subpage</b> lets
-you create a new page or refer to an existing one.
-
-</td>
-</tr>
+            <h2>More Information</h2>
+            <div class="textblock textblock2">
+            <ul>
+                <li><a href="multimedia.html">Multimedia Content</a> In-depth instructions and technical tips regarding various browsers</li>
+                <li><a href="accessibility.html">Web Accessibility</a> Create accessible content using Lesson Builder</li>
+                <li><a href="sequencing.html">Sequencing</a> Require the completion of one or more tasks before others are released to students or project site participants.</li>
+            </ul>
+            </div>
+            <h2>Common Uses</h2>
+            <div class="textblock textblock2">
+            <p>There are several ways to use Lesson Builder pages. Here are two of the most common:</p>
+            <ul>
+                <li><b> Organizing material by topic or unit </b> - For major topics, which you want to appear in the left margin, go to <b>Site Info</b> and add a new instance of Lesson Builder using <b> Edit Tools</b>. This process will ask you to supply a title for the new unit. You can change the title later with the &quot;Edit title&quot; button.</li>
+                <li><b> Organizing material within a topic </b> -  See Example 2  in the right margin. We created pages to contain information about three specific subtopics, all linked to from the same  main page. To create such a page, use the <b> Add subpage </b> button in the toolbar at the top of the page.
+                <p>Note that <b> Add subpage </b> puts you into the newly created page, so you can add content. You can return to the current page using links at the top of the page.</p>
+                </li>
+            </ul>
+            </div>
+            <h2>Advanced Uses</h2>
+            <div class="textblock textblock2">
+            <p>In many cases the two methods above are all you need. However it is also possible to use lesson builder to build more complex structures of pages. Here are a couple of approaches to doing that:</p>
+            <ul>
+                <li><b> Building a sequence of pages </b> Sometimes you want students to go through a specific sequence of pages. Normally we recommend creating the pages as subpages from a single main page, as in Example 2. That makes it easy for students to review all of the material. But if you want to push students to go through in a particular sequence, you can add a link to the <b> next page</b>, typically at the bottom of the page. If you do this several times, you will build a sequence of pages.
+                <p>To add a <b> next page</b>, use <b> Add subpage</b>, but select the option &quot;next page&quot;. Typically you'll also want to select &quot;show as button&quot;.</p>
+                <p>Checking &quot;next page&quot; gives a page that won't normally return to the current one.  (Of course the student can always get to any page using the page index, unless you have restricted access to the page.)</p>
+                <p>Checking &quot;show as button&quot; gives you a button rather than a link.</p>
+                </li>
+                <li><b> Going to different pages depending upon a student choice</b>  See example 3 in the right margin. Sometimes you may want to ask a question and have students go to a different page depending upon how they answer the question. To do that, ask the question using <b> Add text </b>, and then put two <b> next page</b> items under it, going to different pages. To do that, use <b> Add subpage </b> twice.
+                <p>The options you use for <b> Add subpage </b> are up to you. In example 3 we used &quot;show as button&quot; and &quot;next page.&quot;</p>
+                </li>
+            </ul>
+            </div>
+            </td>
+            <td width="25%" valign="top">
+            <p style="margin-top:1em"><img width="250" height="119" border="1" alt="Lesson Example" src="lbimages/LB_Help_General_Lesson.png" /></p>
+            <p>Example 1. Sample page with <b> Add Text</b>,&nbsp;<b>Add Quiz</b>, <b>Add </b><b>Assignment</b> and <b>Add Forum</b>. The image was inserted in the web editor in <b>Add Text</b>.</p>
+            <hr />
+            <p><img width="250" height="82" border="1" src="lbimages/LB_Help_General_Subpage.png" alt="Subpages Example " /></p>
+            <p>Example 2. Sample of a unit with several sections: a small <b>Add Text</b> and three <b>subpages</b>, one for each section. Click on each subpage to add content to it.</p>
+            <hr />
+            <p><img width="250" height="52" border="1" alt="Buttons Example" src="lbimages/LB_Help_General_Buttons.png" /><br />
+            <br />
+            Example 3. Going to a different page depending upon an answer. The two answers are added using <b>Add subpage</b>. However two options are checked: &quot;Next page&quot; and &quot;Show as button&quot;. Note that <b>Add subpage</b> lets you create a new page or refer to an existing one.<br />
+            &nbsp;</p>
+            </td>
+        </tr>
+    </tbody>
 </table>
-
+  </body>
+</html>

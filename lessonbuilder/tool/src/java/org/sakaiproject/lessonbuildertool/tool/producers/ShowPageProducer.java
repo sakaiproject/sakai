@@ -487,7 +487,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		if (canEditPage) {
 			// show tool bar
-			createToolBar(tofill, currentPage);
+			createToolBar(tofill, currentPage, (pageItem.getType() == SimplePageItem.STUDENT_CONTENT));
 			UIOutput.make(tofill, "edit-title").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.editTitle-tooltip")));
 
 			if (pageItem.getPageId() == 0) { // top level page
@@ -1505,7 +1505,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// students an error
 		if (itemList.size() == 0) {
 			if (canEditPage) {
-				UIOutput.make(tofill, "startupHelp").decorate(new UIFreeAttributeDecorator("src", getLocalizedURL("general.html"))).decorate(new UIFreeAttributeDecorator("id", "iframe"));
+				UIOutput.make(tofill, "startupHelp")
+				    .decorate(new UIFreeAttributeDecorator("src", 
+					getLocalizedURL( (pageItem.getType() == SimplePageItem.STUDENT_CONTENT) ? "student.html" : "general.html")))
+				    .decorate(new UIFreeAttributeDecorator("id", "iframe"));
 				UIOutput.make(tofill, "iframeJavascript");
 
 			} else {
@@ -1902,7 +1905,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		return ieVersion;
 	}
 
-	private void createToolBar(UIContainer tofill, SimplePage currentPage) {
+	private void createToolBar(UIContainer tofill, SimplePage currentPage, boolean isStudent) {
 		UIBranchContainer toolBar = UIBranchContainer.make(tofill, "tool-bar:");
 
 		// decided not to use long tooltips. with screen reader they're too
@@ -1922,7 +1925,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		//createToolBarLink(ForumPickerProducer.VIEW_ID, toolBar, "add-forum", "simplepage.forum", currentPage, "simplepage.forum");
 		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar, "add-multimedia", "simplepage.multimedia", true, false, currentPage, "simplepage.multimedia.tooltip");
 
-		UILink.make(toolBar, "help", messageLocator.getMessage("simplepage.help"), getLocalizedURL("general.html"));
+		UILink.make(toolBar, "help", messageLocator.getMessage("simplepage.help"), 
+			    getLocalizedURL( isStudent ? "student.html" : "general.html"));
 
 		// Don't show these tools on a student page.
 		if(currentPage.getOwner() == null) {

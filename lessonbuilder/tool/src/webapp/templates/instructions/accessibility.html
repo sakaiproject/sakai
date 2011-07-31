@@ -23,7 +23,12 @@ background-color: #ffffdd;
 <blockquote>
 
 <p>
-[<a href="general.html"> Back to main help screen</a>]
+[<a id="return" href="general.html"> Back to main help screen</a>]
+<script>
+   var a = document.getElementById('return');
+   if (window.location.search != '')
+      a.href=window.location.search.substring(1);
+</script>
 
 
 <h2> ACCESSIBILITY</h2>
