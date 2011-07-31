@@ -1855,7 +1855,22 @@ public class SimplePageBean {
 			    // get rid of it. The problem is that we kill the RSF context, so there's no place legal to go now
 			    //httpServletResponse.sendRedirect(ServerConfigurationService.getServerUrl() + "/access/site/" + getCurrentSiteId());
 			    httpServletResponse.reset();
-			    httpServletResponse.getWriter().println("<script type='text/javascript' language='JavaScript'>parent.location.replace(parent.location);</script><p style='display:none'>");
+			    httpServletResponse.getWriter().println(
+				"<head>" +
+				"<link rel=\"stylesheet\" href=\"/sakai-lessonbuildertool-tool/css/Simplepagetool.css\" type=\"text/css\" />" +
+				"<link type=\"text/css\" href=\"/sakai-lessonbuildertool-tool/css/simplepage-theme/jquery-ui-1.8.4.custom.css\" rel=\"stylesheet\" />" +
+				"</head>" + 
+				"<body>" +
+				"<div class=\"ui-widget\" role=\"alert\">" +
+				"<div class=\"ui-state-highlight ui-corner-all\" style=\"margin-bottom: 10px; margin-top:10px; padding: 0 .7em;\">" +
+                                "<p><span class=\"ui-icon ui-icon-info\" style=\"float: left; margin-right: .3em;\"></span>" +
+				"<div rsf:id=\"alert-text\" >" +
+			        "<p>" + messageLocator.getMessage("simplepage.remove_page_done") + "</p>" +
+				"</div></p></div></div>" +
+				"<p style='margin-top:2em'><a href='javascript:parent.location.replace(parent.location)'>" +
+				messageLocator.getMessage("simplepage.continue") + "</a></p>" +
+				"<p style='display:none'>");
+			    // the unclosed p at the end is because RSF will display an error message, which we don't want to show
 			    httpServletResponse.flushBuffer();
 			} catch (Exception ignore) {
 			    System.out.println("redirect failed " + ignore);
