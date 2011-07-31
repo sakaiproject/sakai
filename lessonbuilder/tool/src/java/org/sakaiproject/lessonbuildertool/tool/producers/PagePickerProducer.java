@@ -115,7 +115,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 	    if (pageMap.get(pageId) == null)
 		return;
 
-	    if (pageItem.isPrerequisite())
+	    if (pageItem.isPrerequisite() || simplePageBean.getItemGroups(pageItem, null, false) != null)
 		somePagesHavePrerequisites = true;
 
 	    // say done

@@ -406,7 +406,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// another site
 		// actually this normally happens if the page doesn't exist and we don't
 		// have permission to create it
-		if (currentPage == null || pageItem == null || (pageItem.getType() != SimplePageItem.STUDENT_CONTENT &&Long.valueOf(pageItem.getSakaiId()) != currentPage.getPageId())) {
+		if (currentPage == null || pageItem == null || 
+		    (pageItem.getType() != SimplePageItem.STUDENT_CONTENT &&Long.valueOf(pageItem.getSakaiId()) != currentPage.getPageId()) ||
+		    !simplePageBean.isItemVisible(pageItem)) {
 			log.warn("ShowPage item not in page");
 			UIOutput.make(tofill, "error-div");
 			UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.not_available"));

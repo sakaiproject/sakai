@@ -3286,13 +3286,14 @@ public class SimplePageBean {
         	Boolean ret = visibleCache.get(item.getId());
 		if (ret != null)
 		    return (boolean)ret;
-		getMyGroups();
 		Collection<String>itemGroups = getItemGroups(item, null, false);
 		if (itemGroups == null || itemGroups.size() == 0) {
 		    // this includes items for which for which visibility doesn't apply
 		    visibleCache.put(item.getId(), true);
 		    return true;
 		}
+
+		getMyGroups();
 
 		for (String group: itemGroups) {
 			if (myGroups.contains(group)) {
