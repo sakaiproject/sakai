@@ -43,6 +43,8 @@
                 <sakairsf.version>0.8-SNAPSHOT</sakairsf.version>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
                 <url.localsite>scp://source.sakaiproject.org/var/www/html/release/lessonbuilder/${project.version}</url.localsite>
+		<sakai.blti.version>2.0-SNAPSHOT</sakai.blti.version>
+		<sakai.blti.scope>provided</sakai.blti.scope>
             </properties>
         </profile>
         <profile>
@@ -58,6 +60,8 @@
                 <sakairsf.version>0.8-SNAPSHOT</sakairsf.version>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
                 <url.localsite>scp://source.sakaiproject.org/var/www/html/release/lessonbuilder/${project.version}</url.localsite>
+		<sakai.blti.version>2.0-SNAPSHOT</sakai.blti.version>
+		<sakai.blti.scope>compile</sakai.blti.scope>
             </properties>
         </profile>
     </profiles>

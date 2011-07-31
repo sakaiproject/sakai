@@ -61,6 +61,26 @@ Other than that, the properties can be left as is. In particular,
 don't change the version of RSF. We depend upon a newer version than
 the rest of Sakai.
 
+BLTI
+
+A note on the two sakai.blti properties, sakai.blti.version and
+sakai.blti.scope. Lesson Builder supports BLTI. However it requires
+the version from Sakai 2.9, which is BLTI version 2. If you are using
+2.8 (and haven't added the 2.9 version of BLTI), you will want to
+leave the sakai.blti properties in pom.xml as they are set for the 2.8
+profile. In order to compile and start, you must have the BLTI API
+file. By using a scope of "compile" the 2.9 version of that API file
+will be fetched from a repository and included in the WAR file. Since
+you won't have the actual implementations, when Lesson Builder looks
+up the implementations at startup, it will get a null, and will
+disable BLTI. But the API file has to be there, or it won't start
+properly.
+
+The 2.9 profile defines the scope as "provided", because you want
+to use the actual API file from your system. With 2.9, you'll
+also want the version number to match the version of BLTI you are
+using, which will probably be shown in master/pom.xml.
+
 
 INSTALLATION
 
