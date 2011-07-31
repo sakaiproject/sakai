@@ -145,6 +145,16 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	private void initTables() {
 		try {
 			getJdbcTemplate().execute(getStatement("create.table"));
+			getJdbcTemplate().execute(getStatement("create.context.table"));
+			getJdbcTemplate().execute(getStatement("create.person.table"));
+			getJdbcTemplate().execute(getStatement("create.realm.table"));
+			getJdbcTemplate().execute(getStatement("create.sourcetype.table"));
+			getJdbcTemplate().execute(getStatement("create.news_item.table"));
+			getJdbcTemplate().execute(getStatement("create.news_link.table"));
+			getJdbcTemplate().execute(getStatement("create.calendar_item.table"));
+			getJdbcTemplate().execute(getStatement("create.claendar_link.table"));
+			
+			
 		} catch (DataAccessException ex) {
 			log.info("Error creating tables: " + ex.getClass() + ":" + ex.getMessage());
 			return;
@@ -305,23 +315,64 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	 * 
 	 */
 	public boolean addPerson(Person person) {
-		// TODO Auto-generated method stub
+		if(log.isDebugEnabled()) {
+			log.debug("addPerson( " + person.toString() + ")");
+		}
+		
+		//  user_id,sakai_id
+		
+		try {
+			getJdbcTemplate().update(getStatement("insert.person"),
+				new Object[]{person.getUserId, person.getSakaiId}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("addPerson: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
 		return false;
+	}
 	}
 
 	/**
 	 * 
 	 */
 	public boolean addRealm(Realm realm) {
-		// TODO Auto-generated method stub
+		if(log.isDebugEnabled()) {
+			log.debug("addRealm( " + realm.toString() + ")");
+		}
+		
+		//  realm_id
+		
+		try {
+			getJdbcTemplate().update(getStatement("insert.realm"),
+				new Object[]{realm.getRealmId()}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("addRealm: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
 		return false;
+	}
 	}
 
 	/**
 	 * 
 	 */
 	public boolean addSourceType(SourceType sourceType) {
-		// TODO Auto-generated method stub
+		if(log.isDebugEnabled()) {
+			log.debug("addSourceType( " + sourceType.toString() + ")");
+		}
+		
+		// name, save_calendar_item, save_news_item, calendar_format, calendar_summary_format, news_format, news_summary_format
+		
+		try {
+			getJdbcTemplate().update(getStatement("insert.sourcetype"),
+				new Object[]{sourceType.getName(), sourceType.isSaveCalendarItem(), sourceType.isSaveNewsItem(), 
+						sourceType.getCalendarFormat(), sourceType.getCalendarSummaryFormat(),
+						sourceType.getNewsFormat(), sourceType.getNewsSummaryFormat()}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("addSourceType: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
 		return false;
 	}
+}
 }
