@@ -252,7 +252,9 @@ function resizeiframe(id) {
 							<div class="replaceWithComments">Loading Comments ...</div>
 							
 							<div class="add-comment-button">
-							<a class="switchLink" onclick="switchEditors($(this))"><span rsf:id="msg=simplepage.add-comment"></span></a>
+							  <img rsf:id="comment-required-image" src="/sakai-lessonbuildertool-tool/images/available.png" height="18" width="18" style="margin-right:3px"/>
+							  <span rsf:id="missing-prereqs"></span>
+							  <a rsf:id="add-comment-link" class="switchLink" onclick="switchEditors($(this))"><span rsf:id="add-comment-text"></span></a>
 							</div>
 							<form class="commentArea" rsf:id="comment-form">
 								<input type="hidden" rsf:id="comment-item-id"></input>
@@ -271,6 +273,8 @@ function resizeiframe(id) {
 						<div style="display:none" rsf:id="commentsId" class="comments-id"></div>
 						<div style="display:none" rsf:id="commentsAnon" class="commentsAnon"></div>
 						<span style="display:none" rsf:id="comments-groups" class="item-groups"></span>
+						<span style="display:none" rsf:id="commentsitem-required" class="commentsitem-required"></span>
+						<span style="display:none" rsf:id="commentsitem-prerequisite" class="commentsitem-prerequisite"></span>
 					</td>
 					
 					<td rsf:id="student-td" role="gridcell" class="edit-col"><div><a href="#" class="usebutton edit-student" onclick="return false" rsf:id="edit-student"></a></div></td>
@@ -290,7 +294,11 @@ function resizeiframe(id) {
 								</tr>
 								
 								<tr rsf:id="linkRow">
-									<td rsf:id="linkCell" style="text-align:center;" colspan="4"><a href="#" rsf:id="linkLink"></a></td>
+									<td rsf:id="linkCell" style="text-align:center;" colspan="4">
+									  <img rsf:id="student-required-image" src="/sakai-lessonbuildertool-tool/images/available.png" height="18" width="18" style="margin-right:3px"/>
+									  <span rsf:id="student-missing-prereqs"></span>
+									  <a href="#" rsf:id="linkLink"></a>
+									</td>
 								</tr>
 							</table>
 						</div>
@@ -300,6 +308,8 @@ function resizeiframe(id) {
 						<div style="display:none" rsf:id="studentComments" class="studentComments"></div>
 						<div style="display:none" rsf:id="forcedAnon" class="forcedAnon"></div>
 						<span style="display:none" rsf:id="student-groups" class="item-groups"></span>
+						<span style="display:none" rsf:id="studentitem-required" class="studentitem-required"></span>
+						<span style="display:none" rsf:id="studentitem-prerequisite" class="studentitem-prerequisite"></span>
 					</td>
 
 				</tr>
@@ -866,6 +876,16 @@ s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 							<input type="checkbox" name="comments-anonymous" id="comments-anonymous" rsf:id="comments-anonymous" />
 							<label for="comments-anonymous"><span rsf:id="msg=simplepage.comments-anonymous"></span></label><br />
 						</div>
+
+						<div align="left" style="margin-top:1em">
+						  <input type="checkbox" name="comments-prerequisite" id="comments-prerequisite" rsf:id="comments-prerequisite" />
+						  <label for="comments-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
+						  <br />
+					
+						  <input type="checkbox" name="comments-required" id="comments-required" rsf:id="comments-required" />
+						  <label for="comments-required"><span rsf:id="msg=simplepage.require" id="require-label"></span></label>
+						</div>
+
 						<p id="editgroups-comments">
 						  <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
 						</p>
@@ -898,6 +918,15 @@ s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 							
 							<input type="checkbox" name="student-comments-anon" id="student-comments-anon" class="indent" rsf:id="student-comments-anon" />
 							<label for="student-comments-anon"><span rsf:id="msg=simplepage.student-comments-anon"></span></label><br />
+						</div>
+
+						<div align="left" style="margin-top:1em">
+						  <input type="checkbox" name="student-prerequisite" id="student-prerequisite" rsf:id="student-prerequisite" />
+						  <label for="student-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
+						  <br />
+					
+						  <input type="checkbox" name="student-required" id="student-required" rsf:id="student-required" />
+						  <label for="student-required"><span rsf:id="msg=simplepage.require" id="require-label"></span></label>
 						</div>
 
                                                <p id="editgroups-student">

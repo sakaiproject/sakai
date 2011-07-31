@@ -328,6 +328,19 @@ $(function() {
 		}else {
 			$("#comments-anonymous").attr("checked", false);
 		}
+		var required = row.find(".commentsitem-required").text();
+		if(required == "true") {
+			$("#comments-required").attr("checked", true);
+		}else {
+			$("#comments-required").attr("checked", false);
+		}
+		var prerequisite = row.find(".commentsitem-prerequisite").text();
+		if(prerequisite == "true") {
+			$("#comments-prerequisite").attr("checked", true);
+		}else {
+			$("#comments-prerequisite").attr("checked", false);
+		}
+
 		
 		var position = row.position();
 		$("#comments-dialog").dialog("option", "position", [position.left, position.top]);
@@ -388,6 +401,19 @@ $(function() {
 			$("#student-comments-anon").attr("checked", false);
 		}
 		
+		var required = row.find(".studentitem-required").text();
+		if(required == "true") {
+			$("#student-required").attr("checked", true);
+		}else {
+			$("#student-required").attr("checked", false);
+		}
+		var prerequisite = row.find(".studentitem-prerequisite").text();
+		if(prerequisite == "true") {
+			$("#student-prerequisite").attr("checked", true);
+		}else {
+			$("#student-prerequisite").attr("checked", false);
+		}
+
 		if(!$("#student-comments").attr("checked")) {
 			$("#student-comments-anon").attr("disabled", true).removeAttr("checked");
 		}else {

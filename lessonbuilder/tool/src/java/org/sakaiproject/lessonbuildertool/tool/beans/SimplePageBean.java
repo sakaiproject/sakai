@@ -3419,6 +3419,36 @@ public class SimplePageBean {
 			    	return false;
 			    }
 			}
+		} else if (item.getType() == SimplePageItem.COMMENTS) {
+			List<SimplePageComment>comments = simplePageToolDao.findCommentsOnItemByAuthor((long)itemId, getCurrentUserId());
+			boolean found = false;
+			if (comments != null) {
+			    for (SimplePageComment comment: comments) {
+				if (comment.getComment() != null && !comment.getComment().equals("")) {
+				    found = true;
+				    break;
+				}
+			    }
+			}
+			if (found) {
+			    completeCache.put(itemId, true);
+			    return true;
+			} else {
+			    completeCache.put(itemId, false);
+			    return false;
+			}
+		} else if (item.getType() == SimplePageItem.STUDENT_CONTENT) {
+		    // need option for also requiring the student to submit a comment on the content
+		        
+			SimpleStudentPage student = simplePageToolDao.findStudentPage(itemId, getCurrentUserId());
+
+			if (student != null && ! student.isDeleted()) {
+			    completeCache.put(itemId, true);
+			    return true;
+			} else {
+			    completeCache.put(itemId, false);
+			    return false;
+			}
 		} else if (item.getType() == SimplePageItem.TEXT || item.getType() == SimplePageItem.MULTIMEDIA) {
 			// In order to be considered "complete", these items
 			// only have to be viewed. If this code is reached,
@@ -4388,6 +4418,8 @@ public class SimplePageBean {
 			SimplePageItem comment = findItem(itemId);
 			comment.setAnonymous(anonymous);
 			setItemGroups(comment, selectedGroups);
+			comment.setRequired(required);
+			comment.setPrerequisite(prerequisite);
 			update(comment);
 			return "success";
 		}else {
@@ -4521,6 +4553,8 @@ public class SimplePageBean {
 			page.setAnonymous(anonymous);
 			page.setShowComments(comments);
 			page.setForcedCommentsAnonymous(forcedAnon);
+			page.setRequired(required);
+			page.setPrerequisite(prerequisite);
 			setItemGroups(page, selectedGroups);
 			update(page);
 			

@@ -5,13 +5,13 @@
 -- update SAKAI_CLUSTER set SERVER_ID='1' where SERVER_ID='1';
 -- ---------------------------------------------------------------------------
 
+create index lesson_builder_comments_itemid_author on lesson_builder_comments(itemId, author);
 create index lesson_builder_student_pages_pageId on lesson_builder_student_pages(pageId);
 create index lesson_builder_student_pages_itemId on lesson_builder_student_pages(itemId);
 create index lesson_builder_log_index on lesson_builder_log(userId,itemId, studentPageId);
 create index lesson_builder_student_pages_index on lesson_builder_student_pages(itemId, owner, deleted);
 create index lesson_builder_comments_uuid on lesson_builder_comments(UUID);
 create index lesson_builder_comments_author on lesson_builder_comments(pageId, author);
-create index lesson_builder_comments_itemid on lesson_builder_comments(itemId);
 create index lesson_builder_log_index3 on lesson_builder_log(itemId);
 create index lesson_builder_log_index2 on lesson_builder_log(userId,toolId);
 create index lesson_builder_groups_itemid on lesson_builder_groups(itemId);

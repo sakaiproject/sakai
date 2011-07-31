@@ -200,6 +200,16 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		return list;
 	}
 	
+	public List<SimplePageComment> findCommentsOnItemByAuthor(long commentWidgetId, String author) {
+		DetachedCriteria d = DetachedCriteria.forClass(SimplePageComment.class)
+		    .add(Restrictions.eq("itemId", commentWidgetId))
+		    .add(Restrictions.eq("author", author));
+
+		List<SimplePageComment> list = getHibernateTemplate().findByCriteria(d);
+		
+		return list;
+	}
+	
 	public List<SimplePageComment> findCommentsOnPageByAuthor(long pageId, String author) {
 		DetachedCriteria d = DetachedCriteria.forClass(SimplePageComment.class)
 			.add(Restrictions.eq("pageId", pageId))

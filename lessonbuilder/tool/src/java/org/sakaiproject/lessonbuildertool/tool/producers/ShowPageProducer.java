@@ -1264,6 +1264,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 						UIOutput.make(tableRow, "commentsId", String.valueOf(i.getId()));
 						UIOutput.make(tableRow, "commentsAnon", String.valueOf(i.isAnonymous()));
+						UIOutput.make(tableRow, "commentsitem-required", String.valueOf(i.isRequired()));
+						UIOutput.make(tableRow, "commentsitem-prerequisite", String.valueOf(i.isPrerequisite()));
 						String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
 						if (itemGroupString != null) {
 						    String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString);
@@ -1280,14 +1282,29 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					UIInput.make(form, "comment-item-id", "#{simplePageBean.itemId}", String.valueOf(i.getId()));
 					UIInput.make(form, "comment-edit-id", "#{simplePageBean.editId}");
 
-					UIInput fckInput = UIInput.make(form, "comment-text-area-evolved:", "#{simplePageBean.formattedComment}");
-					fckInput.decorate(new UIFreeAttributeDecorator("height", "175"));
-					fckInput.decorate(new UIFreeAttributeDecorator("width", "800"));
-					fckInput.decorate(new UIStyleDecorator("evolved-box"));
+					boolean isAvailable = simplePageBean.isItemAvailable(i);
+					// if can edit and not available, we make it work but give the message saying it's required
+					// this is equivalent to the fake disable used for links, where we make it look disabled
+					// but it works anyway. THe problem is that a faculty member may want to contribute without
+					// actually getting a passing grade on a test
+					if (i.isRequired() && !simplePageBean.isItemComplete(i))
+					    UIOutput.make(tableRow, "comment-required-image");
+					if (isAvailable || canEditPage) {
+					    UIOutput.make(tableRow, "add-comment-link");
+					    UIOutput.make(tableRow, "add-comment-text", 
+							  (isAvailable ? messageLocator.getMessage("simplepage.add-comment") :
+							   messageLocator.getMessage("simplepage.fake-missing-prereqs")));
+					    UIInput fckInput = UIInput.make(form, "comment-text-area-evolved:", "#{simplePageBean.formattedComment}");
+					    fckInput.decorate(new UIFreeAttributeDecorator("height", "175"));
+					    fckInput.decorate(new UIFreeAttributeDecorator("width", "800"));
+					    fckInput.decorate(new UIStyleDecorator("evolved-box"));
 
-					((SakaiFCKTextEvolver) richTextEvolver).evolveTextInput(fckInput, "" + commentsCount);
+					    ((SakaiFCKTextEvolver) richTextEvolver).evolveTextInput(fckInput, "" + commentsCount);
 
-					UICommand.make(form, "add-comment", "#{simplePageBean.addComment}");
+					    UICommand.make(form, "add-comment", "#{simplePageBean.addComment}");
+					} else
+					    UIOutput.make(tableRow, "missing-prereqs", messageLocator.getMessage("simplepage.missing-prereqs"));
+
 				}else if(i.getType() == SimplePageItem.STUDENT_CONTENT) {
 					UIOutput.make(tableRow, "studentSpan");
 					UIOutput.make(tableRow, "studentDiv");
@@ -1364,11 +1381,21 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					if(!hasOwnPage) {
 						UIOutput.make(tableRow, "linkRow");
 						UIOutput.make(tableRow, "linkCell");
-						
-						GeneralViewParameters eParams = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
-						eParams.addTool = GeneralViewParameters.STUDENT_PAGE;
-						eParams.studentItemId = i.getId();
-						UIInternalLink.make(tableRow, "linkLink", messageLocator.getMessage("simplepage.add-page"), eParams);
+
+						boolean isAvailable = simplePageBean.isItemAvailable(i);
+						// if can edit and not available, we make it work but give the message saying it's required
+						// this is equivalent to the fake disable used for links, where we make it look disabled
+						// but it works anyway. THe problem is that a faculty member may want to contribute without
+						// actually getting a passing grade on a test
+						if (i.isRequired() && !simplePageBean.isItemComplete(i))
+						    UIOutput.make(tableRow, "student-required-image");
+						if (isAvailable || canEditPage) {
+						    GeneralViewParameters eParams = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
+						    eParams.addTool = GeneralViewParameters.STUDENT_PAGE;
+						    eParams.studentItemId = i.getId();
+						    UIInternalLink.make(tableRow, "linkLink", messageLocator.getMessage(isAvailable?"simplepage.add-page":"simplepage.student-fake-missing-prereqs"), eParams);
+						} else 
+						    UIOutput.make(tableRow, "student-missing-prereqs", messageLocator.getMessage("simplepage.student-missing-prereqs"));
 					}
 					
 					if(canEditPage) {
@@ -1380,6 +1407,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						UIOutput.make(tableRow, "studentAnon", String.valueOf(i.isAnonymous()));
 						UIOutput.make(tableRow, "studentComments", String.valueOf(i.getShowComments()));
 						UIOutput.make(tableRow, "forcedAnon", String.valueOf(i.getForcedCommentsAnonymous()));
+						UIOutput.make(tableRow, "studentitem-required", String.valueOf(i.isRequired()));
+						UIOutput.make(tableRow, "studentitem-prerequisite", String.valueOf(i.isPrerequisite()));
 						String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
 						if (itemGroupString != null) {
 						    String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString);
@@ -1748,7 +1777,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		return available;
 	}
 
-	private static void disableLink(UILink link, MessageLocator messageLocator) {
+	private static void disableLink(UIComponent link, MessageLocator messageLocator) {
 		link.decorate(new UIFreeAttributeDecorator("onclick", "return false"));
 		link.decorate(new UIDisabledDecorator());
 		link.decorate(new UIStyleDecorator("disabled"));
@@ -2413,6 +2442,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIInput.make(form, "commentsEditId", "#{simplePageBean.itemId}");
 
 		UIBoundBoolean.make(form, "comments-anonymous", "#{simplePageBean.anonymous}");
+		UIBoundBoolean.make(form, "comments-required", "#{simplePageBean.required}");
+		UIBoundBoolean.make(form, "comments-prerequisite", "#{simplePageBean.prerequisite}");
 
 		UICommand.make(form, "delete-comments-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
 		UICommand.make(form, "update-comments", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.updateComments}");
@@ -2429,6 +2460,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "student-anonymous", "#{simplePageBean.anonymous}");
 		UIBoundBoolean.make(form, "student-comments", "#{simplePageBean.comments}");
 		UIBoundBoolean.make(form, "student-comments-anon", "#{simplePageBean.forcedAnon}");
+		UIBoundBoolean.make(form, "student-required", "#{simplePageBean.required}");
+		UIBoundBoolean.make(form, "student-prerequisite", "#{simplePageBean.prerequisite}");
 
 		UICommand.make(form, "delete-student-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
 		UICommand.make(form, "update-student", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.updateStudent}");
