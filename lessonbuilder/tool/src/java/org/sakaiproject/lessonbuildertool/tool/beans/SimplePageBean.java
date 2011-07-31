@@ -1241,7 +1241,8 @@ public class SimplePageBean {
 	    			case SimplePageItem.FORUM:
 	    				lessonEntity = forumEntity.getEntity(nextItem.getSakaiId()); break;
 	    			case SimplePageItem.BLTI:
-	    				lessonEntity = bltiEntity.getEntity(nextItem.getSakaiId()); break;
+				        if (bltiEntity != null)
+					    lessonEntity = bltiEntity.getEntity(nextItem.getSakaiId()); break;
 	    		}
 	    		// normally we won't send someone to an item that
 	    		// isn't available. But if the current item is a test, etc, we can't
@@ -1324,7 +1325,8 @@ public class SimplePageBean {
 			case SimplePageItem.FORUM:
 				lessonEntity = forumEntity.getEntity(prevItem.getSakaiId()); break;
 			case SimplePageItem.BLTI:
-			    lessonEntity = bltiEntity.getEntity(prevItem.getSakaiId()); break;
+				if (bltiEntity != null)
+				    lessonEntity = bltiEntity.getEntity(prevItem.getSakaiId()); break;
 			}
 			view.setSource((lessonEntity==null)?"dummy":lessonEntity.getUrl());
 			if (item.getType() == SimplePageItem.PAGE)
@@ -1826,8 +1828,8 @@ public class SimplePageBean {
 			return "permission-failed";
 		}
 		
-		if (removeId == 0)
-		    removeId = getCurrentPageId();
+		//		if (removeId == 0)
+		//		    removeId = getCurrentPageId();
 		SimplePage page = simplePageToolDao.getPage(removeId);
 		
 		if(page.getOwner() == null) {
@@ -1842,14 +1844,24 @@ public class SimplePageBean {
 		
 			try {
 			    siteService.save(site);
-			    setTopRefresh();
 			} catch (Exception e) {
 				log.error("removePage unable to save site " + e);
 			}
 		
 			EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.remove", "/lessonbuilder/page/" + page.getPageId(), true));
 
-			return "success";
+			try {
+			    // this will always generate an enormous amount of junk in catalina.out. I see no way to
+			    // get rid of it. The problem is that we kill the RSF context, so there's no place legal to go now
+			    //httpServletResponse.sendRedirect(ServerConfigurationService.getServerUrl() + "/access/site/" + getCurrentSiteId());
+			    httpServletResponse.reset();
+			    httpServletResponse.getWriter().println("<script type='text/javascript' language='JavaScript'>parent.location.replace(parent.location);</script><p style='display:none'>");
+			    httpServletResponse.flushBuffer();
+			} catch (Exception ignore) {
+			    System.out.println("redirect failed " + ignore);
+			    // we never actuallly see this, and the redirect is done from a different context
+			};
+			return "removed";
 		}else {
 			SimpleStudentPage studentPage = simplePageToolDao.findStudentPageByPageId(page.getPageId());
 			
@@ -2193,7 +2205,7 @@ public class SimplePageBean {
 		if (!canEditPage())
 		    return "permission-failed";
 
-		if (selectedBlti == null) {
+		if (selectedBlti == null || bltiEntity == null) {
 			return "failure";
 		} else {
 			try {
@@ -3603,6 +3615,8 @@ public class SimplePageBean {
 				return null;
 			return quiz.getTitle();
 		} else if (i.getType() == SimplePageItem.BLTI) {
+		    if (bltiEntity == null)
+			return null;
 		    LessonEntity blti = bltiEntity.getEntity(i.getSakaiId());
 		    if (blti == null)
 			return null;

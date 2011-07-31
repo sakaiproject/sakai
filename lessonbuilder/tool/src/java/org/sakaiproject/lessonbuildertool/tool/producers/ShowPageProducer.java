@@ -841,7 +841,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							}
 						} else if (i.getType() == SimplePageItem.BLTI) {
 						    UIOutput.make(tableRow, "type", "b");
-						    LessonEntity blti= bltiEntity.getEntity(i.getSakaiId());
+						    LessonEntity blti= (bltiEntity == null ? null : bltiEntity.getEntity(i.getSakaiId()));
 						    if (blti != null) {
 							String editUrl = blti.editItemUrl(simplePageBean);
 							if (editUrl != null)
@@ -1679,7 +1679,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				disableLink(link, messageLocator);
 			}
 		} else if (i.getType() == SimplePageItem.BLTI) {
-		    LessonEntity lessonEntity = bltiEntity.getEntity(i.getSakaiId());
+		    LessonEntity lessonEntity = (bltiEntity == null ? null : bltiEntity.getEntity(i.getSakaiId()));
 		    if ("inline".equals(i.getFormat())) {
 			// no availability 
 			String height=null;
@@ -1909,7 +1909,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			
 			createToolBarLink(ForumPickerProducer.VIEW_ID, toolBar, "add-forum", "simplepage.forum", currentPage, "simplepage.forum");
 			// in case we're on an old system without current BLTI
-			if (((BltiInterface)bltiEntity).servicePresent())
+			if (bltiEntity != null && ((BltiInterface)bltiEntity).servicePresent())
 			    createToolBarLink(BltiPickerProducer.VIEW_ID, toolBar, "add-blti", "simplepage.blti", currentPage, "simplepage.blti");
 			createToolBarLink(PermissionsHelperProducer.VIEW_ID, toolBar, "permissions", "simplepage.permissions", currentPage, "simplepage.permissions.tooltip");
 			
@@ -2391,13 +2391,17 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIForm form = UIForm.make(tofill, "remove-page-form");
 		form.addParameter(new UIELBinding("#{simplePageBean.removeId}", page.getPageId()));
 		
-		if (page.getOwner() == null) {
-		    // top level normal page. Use the remove page producer, which can handle removing tools out from under RSF
-		    GeneralViewParameters params = new GeneralViewParameters(RemovePageProducer.VIEW_ID);
-		    UIInternalLink.make(form, "remove-page-submit", "", params).decorate(new UIFreeAttributeDecorator("value", messageLocator.getMessage("simplepage.remove")));
-		} else
-		    // a student top level page. call remove page directly, as it will just return to show page
-		    UICommand.make(form, "remove-page-submit", messageLocator.getMessage("simplepage.remove"), "#{simplePageBean.removePage}");
+		//		if (page.getOwner() == null) {
+		//		    // top level normal page. Use the remove page producer, which can handle removing tools out from under RSF
+		//		    GeneralViewParameters params = new GeneralViewParameters(RemovePageProducer.VIEW_ID);
+		//		    UIInternalLink.make(form, "remove-page-submit", "", params).decorate(new UIFreeAttributeDecorator("value", messageLocator.getMessage("simplepage.remove")));
+		//		} else
+		//		    // a student top level page. call remove page directly, as it will just return to show page
+		//		    UICommand.make(form, "remove-page-submit", messageLocator.getMessage("simplepage.remove"), "#{simplePageBean.removePage}");
+
+		
+		UICommand.make(form, "remove-page-submit", messageLocator.getMessage("simplepage.remove"), "#{simplePageBean.removePage}");
+
 		UICommand.make(form, "remove-page-cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
 	}
 

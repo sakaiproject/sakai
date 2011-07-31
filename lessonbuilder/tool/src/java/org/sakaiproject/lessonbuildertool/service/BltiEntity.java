@@ -136,11 +136,15 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	} 
         */
 
-	Object service = ComponentManager.get("org.sakaiproject.lti.api.LTIService");
-	if (service == null)
-	    return;
-
-	if ( ltiService == null ) ltiService = (LTIService)service;
+	if ( ltiService == null ) {
+	    Object service = ComponentManager.get("org.sakaiproject.lti.api.LTIService");
+	    if (service == null) {
+		log.info("can't find LTI Service -- disabling LTI support");
+		return;
+	    }
+	    ltiService = (LTIService)service;
+	    log.info("LTI initialized");
+	}
 
     }
 
