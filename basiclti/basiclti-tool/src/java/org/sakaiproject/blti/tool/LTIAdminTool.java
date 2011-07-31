@@ -57,7 +57,6 @@ import org.sakaiproject.lti.api.LTIService;
 // import org.sakaiproject.lti.impl.DBLTIService; // HACK
 
 import org.sakaiproject.util.foorm.SakaiFoorm;
-import org.sakaiproject.util.foorm.FoormUtil;
 
 /**
  * <p>
@@ -178,7 +177,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
 		Long key = new Long(id);
 		Map<String,Object> tool = ltiService.getTool(key);
-		if (  tool == null ) return "lti_main";		
+		if (  tool == null ) return "lti_main";	
+		tool.put(LTIService.LTI_SECRET,"***************");	
+		tool.put(LTIService.LTI_CONSUMERKEY,"***************");
 		String formOutput = ltiService.formOutput(tool, mappingForm);
 		context.put("formOutput", formOutput);
 		state.removeAttribute(STATE_SUCCESS);
@@ -567,7 +568,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
                         }
 
 			if ( key == null ) {
-	                        key = FoormUtil.getLongNull(content.get(LTIService.LTI_TOOL_ID));
+	                        key = foorm.getLongNull(content.get(LTIService.LTI_TOOL_ID));
 			}
                         previousData = content;
                 }
@@ -712,10 +713,10 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		Map<String,Object> content = null;
 		Map<String,Object> tool = null;
 
-		Long toolKey = FoormUtil.getLongNull(data.getParameters().getString(LTIService.LTI_TOOL_ID));
+		Long toolKey = foorm.getLongNull(data.getParameters().getString(LTIService.LTI_TOOL_ID));
 
-		Long contentKey = FoormUtil.getLongNull(data.getParameters().getString(LTIService.LTI_ID));
-		if ( contentKey == null && previousPost != null ) contentKey = FoormUtil.getLongNull(previousPost.getProperty(LTIService.LTI_ID));
+		Long contentKey = foorm.getLongNull(data.getParameters().getString(LTIService.LTI_ID));
+		if ( contentKey == null && previousPost != null ) contentKey = foorm.getLongNull(previousPost.getProperty(LTIService.LTI_ID));
 		if ( contentKey != null ) {
 			content = ltiService.getContent(contentKey);
 			if ( content == null ) {
@@ -723,9 +724,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
                                 state.removeAttribute(STATE_CONTENT_ID);
                                 return "lti_error";
 			}
-			toolKey = FoormUtil.getLongNull(content.get(LTIService.LTI_TOOL_ID));
+			toolKey = foorm.getLongNull(content.get(LTIService.LTI_TOOL_ID));
 		}
-		if ( toolKey == null && previousPost != null ) toolKey = FoormUtil.getLongNull(previousPost.getProperty(LTIService.LTI_TOOL_ID));
+		if ( toolKey == null && previousPost != null ) toolKey = foorm.getLongNull(previousPost.getProperty(LTIService.LTI_TOOL_ID));
 		if ( toolKey != null ) tool = ltiService.getTool(toolKey);
 
 		// No matter what, we must have a tool
@@ -874,7 +875,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
                 Map<String,Object> tool = tools.get(0);
 
                 // We will assume this works
-                Long toolKey = FoormUtil.getLong(tool.get(LTIService.LTI_ID));
+                Long toolKey = foorm.getLong(tool.get(LTIService.LTI_ID));
 
                 sb.append("Long Tool Key=");
                 sb.append(toolKey.toString());
@@ -927,7 +928,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
                         context.put("preOutput",sb.toString());
                         return "lti_test";
                 } else {
-                        contentKey = FoormUtil.getLong(result);
+                        contentKey = foorm.getLong(result);
                         sb.append("Returned key=");
                         sb.append(contentKey.toString() );
                         sb.append("\n");
