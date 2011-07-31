@@ -986,6 +986,9 @@ background-image: url(../../image/silk/comment.png);
 .icon-sakai-basiclti-admin { 
 	background-image: url(../../image/silk/application_go.png); 
 }
+.icon-sakai-lessonbuildertool {
+    background-image: url(../../image/silk/book_open.png);
+}
 
 /*back to mobile link*/
 #mobile-portal-link{

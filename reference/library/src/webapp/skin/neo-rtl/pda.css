@@ -845,4 +845,7 @@ background-image: url(../../image/silk/comment.png);
 .icon-sakai-melete { 
     background-image: url(../../image/sakai/sakai.melete.png); 
 }
+.icon-sakai-lessonbuildertool {
+    background-image: url(../../image/silk/book_open.png);
+}
 
