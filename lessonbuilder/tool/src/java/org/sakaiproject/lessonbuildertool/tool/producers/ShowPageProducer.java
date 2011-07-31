@@ -1238,27 +1238,37 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 					UIOutput.make(tableRow, "commentsSpan");
 
-					Placement placement = toolManager.getCurrentPlacement();
-					UIOutput.make(tableRow, "placementId", placement.getId());
+					boolean isAvailable = simplePageBean.isItemAvailable(i);
+					// faculty missing preqs get warning but still see the comments
+					if (!isAvailable && canEditPage)
+					    UIOutput.make(tableRow, "missing-prereqs", messageLocator.getMessage("simplepage.fake-missing-prereqs"));
 
-					CommentsViewParameters eParams = new CommentsViewParameters(CommentsProducer.VIEW_ID);
-					eParams.itemId = i.getId();
-					if (params.postedComment) {
+					// students get warning and not the content
+					if (!isAvailable && !canEditPage)
+					    UIOutput.make(tableRow, "missing-prereqs", messageLocator.getMessage("simplepage.missing-prereqs"));
+					else {
+					    UIOutput.make(tableRow, "commentsDiv");
+					    Placement placement = toolManager.getCurrentPlacement();
+					    UIOutput.make(tableRow, "placementId", placement.getId());
+
+					    CommentsViewParameters eParams = new CommentsViewParameters(CommentsProducer.VIEW_ID);
+					    eParams.itemId = i.getId();
+					    if (params.postedComment) {
 						eParams.postedComment = postedCommentId;
-					}
+					    }
 
-					UIInternalLink.make(tableRow, "commentsLink", eParams);
+					    UIInternalLink.make(tableRow, "commentsLink", eParams);
 
-					if (!addedCommentsScript) {
+					    if (!addedCommentsScript) {
 						UIOutput.make(tofill, "comments-script");
 						UIOutput.make(tofill, "fckScript");
 						addedCommentsScript = true;
 						UIOutput.make(tofill, "delete-dialog");
-					}
+					    }
 
-					if (canEditPage) {
+					    if (canEditPage) {
 						UIOutput.make(tableRow, "comments-td");
-
+						
 						UILink.make(tableRow, "edit-comments", messageLocator.getMessage("simplepage.editItem"), "")
 								.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.comments")));
 
@@ -1275,25 +1285,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    UIOutput.make(tableRow, "comments-groups", itemGroupString);
 						    UIOutput.make(tableRow, "item-group-titles6", itemGroupTitles);
 						}
-					}
+					    }
 
-					UIForm form = UIForm.make(tableRow, "comment-form");
+					    UIForm form = UIForm.make(tableRow, "comment-form");
 
-					UIInput.make(form, "comment-item-id", "#{simplePageBean.itemId}", String.valueOf(i.getId()));
-					UIInput.make(form, "comment-edit-id", "#{simplePageBean.editId}");
+					    UIInput.make(form, "comment-item-id", "#{simplePageBean.itemId}", String.valueOf(i.getId()));
+					    UIInput.make(form, "comment-edit-id", "#{simplePageBean.editId}");
 
-					boolean isAvailable = simplePageBean.isItemAvailable(i);
-					// if can edit and not available, we make it work but give the message saying it's required
-					// this is equivalent to the fake disable used for links, where we make it look disabled
-					// but it works anyway. THe problem is that a faculty member may want to contribute without
-					// actually getting a passing grade on a test
-					if (i.isRequired() && !simplePageBean.isItemComplete(i))
-					    UIOutput.make(tableRow, "comment-required-image");
-					if (isAvailable || canEditPage) {
+					    // usage * image is required and not done
+					    if (i.isRequired() && !simplePageBean.isItemComplete(i))
+						UIOutput.make(tableRow, "comment-required-image");
+
 					    UIOutput.make(tableRow, "add-comment-link");
-					    UIOutput.make(tableRow, "add-comment-text", 
-							  (isAvailable ? messageLocator.getMessage("simplepage.add-comment") :
-							   messageLocator.getMessage("simplepage.fake-missing-prereqs")));
+					    UIOutput.make(tableRow, "add-comment-text", messageLocator.getMessage("simplepage.add-comment"));
 					    UIInput fckInput = UIInput.make(form, "comment-text-area-evolved:", "#{simplePageBean.formattedComment}");
 					    fckInput.decorate(new UIFreeAttributeDecorator("height", "175"));
 					    fckInput.decorate(new UIFreeAttributeDecorator("width", "800"));
@@ -1302,31 +1306,38 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    ((SakaiFCKTextEvolver) richTextEvolver).evolveTextInput(fckInput, "" + commentsCount);
 
 					    UICommand.make(form, "add-comment", "#{simplePageBean.addComment}");
-					} else
-					    UIOutput.make(tableRow, "missing-prereqs", messageLocator.getMessage("simplepage.missing-prereqs"));
+					}
 
 				}else if(i.getType() == SimplePageItem.STUDENT_CONTENT) {
 					UIOutput.make(tableRow, "studentSpan");
-					UIOutput.make(tableRow, "studentDiv");
+
+					boolean isAvailable = simplePageBean.isItemAvailable(i);
+					// faculty missing preqs get warning but still see the comments
+					if (!isAvailable && canEditPage)
+					    UIOutput.make(tableRow, "student-missing-prereqs", messageLocator.getMessage("simplepage.student-fake-missing-prereqs"));
+					if (!isAvailable && !canEditPage)
+					    UIOutput.make(tableRow, "student-missing-prereqs", messageLocator.getMessage("simplepage.student-missing-prereqs"));
+					else {
+					    UIOutput.make(tableRow, "studentDiv");
 					
-					HashMap<Long, SimplePageLogEntry> cache = simplePageBean.cacheStudentPageLogEntries(i.getId());
-					List<SimpleStudentPage> studentPages = simplePageToolDao.findStudentPages(i.getId());
+					    HashMap<Long, SimplePageLogEntry> cache = simplePageBean.cacheStudentPageLogEntries(i.getId());
+					    List<SimpleStudentPage> studentPages = simplePageToolDao.findStudentPages(i.getId());
 					
-					boolean hasOwnPage = false;
-					String userId = UserDirectoryService.getCurrentUser().getId();
+					    boolean hasOwnPage = false;
+					    String userId = UserDirectoryService.getCurrentUser().getId();
 					
-					HashMap<String, String> anonymousLookup = new HashMap<String, String>();
-					if(i.isAnonymous()) {
+					    HashMap<String, String> anonymousLookup = new HashMap<String, String>();
+					    if(i.isAnonymous()) {
 						int counter = 1;
 						for(SimpleStudentPage page : studentPages) {
 							if(anonymousLookup.get(page.getOwner()) == null) {
 								anonymousLookup.put(page.getOwner(), messageLocator.getMessage("simplepage.anonymous") + " " + counter++);
 							}
 						}
-					}
+					    }
 					
-					// Print each row in the table
-					for(SimpleStudentPage page : studentPages) {
+					    // Print each row in the table
+					    for(SimpleStudentPage page : studentPages) {
 						if(page.isDeleted()) continue;
 						
 						SimplePageLogEntry entry = cache.get(page.getPageId());
@@ -1376,29 +1387,21 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						if(page.getOwner().equals(userId)) {
 							hasOwnPage = true;
 						}
-					}
+					    }
 					
-					if(!hasOwnPage) {
+					    if(!hasOwnPage) {
 						UIOutput.make(tableRow, "linkRow");
 						UIOutput.make(tableRow, "linkCell");
 
-						boolean isAvailable = simplePageBean.isItemAvailable(i);
-						// if can edit and not available, we make it work but give the message saying it's required
-						// this is equivalent to the fake disable used for links, where we make it look disabled
-						// but it works anyway. THe problem is that a faculty member may want to contribute without
-						// actually getting a passing grade on a test
 						if (i.isRequired() && !simplePageBean.isItemComplete(i))
 						    UIOutput.make(tableRow, "student-required-image");
-						if (isAvailable || canEditPage) {
-						    GeneralViewParameters eParams = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
-						    eParams.addTool = GeneralViewParameters.STUDENT_PAGE;
-						    eParams.studentItemId = i.getId();
-						    UIInternalLink.make(tableRow, "linkLink", messageLocator.getMessage(isAvailable?"simplepage.add-page":"simplepage.student-fake-missing-prereqs"), eParams);
-						} else 
-						    UIOutput.make(tableRow, "student-missing-prereqs", messageLocator.getMessage("simplepage.student-missing-prereqs"));
-					}
+						GeneralViewParameters eParams = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
+						eParams.addTool = GeneralViewParameters.STUDENT_PAGE;
+						eParams.studentItemId = i.getId();
+						UIInternalLink.make(tableRow, "linkLink", messageLocator.getMessage("simplepage.add-page"), eParams);
+					    }
 					
-					if(canEditPage) {
+					    if(canEditPage) {
 						UIOutput.make(tableRow, "student-td");
 						UILink.make(tableRow, "edit-student", messageLocator.getMessage("simplepage.editItem"), "")
 								.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.student")));
@@ -1418,8 +1421,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    UIOutput.make(tableRow, "student-groups", itemGroupString);
 						    UIOutput.make(tableRow, "item-group-titles7", itemGroupTitles);
 						}
+					    }
 					}
-				} else {
+				}  else {
 					// remaining type must be a block of HTML
 					UIOutput.make(tableRow, "itemSpan");
 

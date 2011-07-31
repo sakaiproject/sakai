@@ -247,13 +247,13 @@ function resizeiframe(id) {
 					<td rsf:id="comments-td" role="gridcell" class="edit-col"><div><a href="#" class="usebutton edit-comments" onclick="return false" rsf:id="edit-comments"></a></div></td>
 					
 					<td rsf:id="commentsSpan" role="gridcell">
-						<div class="commentsDiv">
+					        <div rsf:id="missing-prereqs"></div>
+						<div class="commentsDiv" rsf:id="commentsDiv">
 							<div rsf:id="item-group-titles6" class="item-group-titles"></div>
 							<div class="replaceWithComments">Loading Comments ...</div>
 							
 							<div class="add-comment-button">
 							  <img rsf:id="comment-required-image" src="/sakai-lessonbuildertool-tool/images/available.png" height="18" width="18" style="margin-right:3px"/>
-							  <span rsf:id="missing-prereqs"></span>
 							  <a rsf:id="add-comment-link" class="switchLink" onclick="switchEditors($(this))"><span rsf:id="add-comment-text"></span></a>
 							</div>
 							<form class="commentArea" rsf:id="comment-form">
@@ -280,7 +280,8 @@ function resizeiframe(id) {
 					<td rsf:id="student-td" role="gridcell" class="edit-col"><div><a href="#" class="usebutton edit-student" onclick="return false" rsf:id="edit-student"></a></div></td>
 					
 					<td rsf:id="studentSpan" role="gridcell">
-						<div class="studentDiv">
+					        <span rsf:id="student-missing-prereqs"></span>
+						<div class="studentDiv" rsf:id="studentDiv">
 							<div rsf:id="item-group-titles7" class="item-group-titles"></div>
 							<table class="studentContentTable">
 								<tr>
@@ -296,7 +297,6 @@ function resizeiframe(id) {
 								<tr rsf:id="linkRow">
 									<td rsf:id="linkCell" style="text-align:center;" colspan="4">
 									  <img rsf:id="student-required-image" src="/sakai-lessonbuildertool-tool/images/available.png" height="18" width="18" style="margin-right:3px"/>
-									  <span rsf:id="student-missing-prereqs"></span>
 									  <a href="#" rsf:id="linkLink"></a>
 									</td>
 								</tr>
