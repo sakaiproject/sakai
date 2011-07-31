@@ -51,6 +51,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlReaderFinishedException;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.db.api.ExtendedSqlService;
 import org.sakaiproject.db.api.SqlServiceDeadlockException;
 import org.sakaiproject.db.api.SqlServiceUniqueViolationException;
 import org.sakaiproject.event.api.UsageSessionService;
@@ -63,7 +64,7 @@ import org.sakaiproject.time.api.Time;
  * BasicSqlService implements the SqlService.
  * </p>
  */
-public abstract class BasicSqlService implements SqlService
+public abstract class BasicSqlService implements SqlService, ExtendedSqlService
 {
 	private static final Log LOG = LogFactory.getLog(BasicSqlService.class);
 
