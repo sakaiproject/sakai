@@ -193,10 +193,13 @@ $(function() {
 		return false;
 	});
 
-	//$('#remove-page-submit').click(function() {
-	//	window.location.href= $("#remove-page-submit").attr("src");
-	//	return false;
-	//});
+	$('#remove-page-submit').click(function() {
+		if ($("#remove-page-submit").attr("src") != null) {
+		    window.location.href= $("#remove-page-submit").attr("src");
+		    return false;
+		}
+		return true;
+	});
 
 	var outerWidth = $('#outer').width();
 	if (outerWidth < 500) {

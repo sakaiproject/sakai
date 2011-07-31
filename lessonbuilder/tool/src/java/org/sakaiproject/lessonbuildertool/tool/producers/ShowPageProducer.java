@@ -2390,10 +2390,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		UIForm form = UIForm.make(tofill, "remove-page-form");
 		form.addParameter(new UIELBinding("#{simplePageBean.removeId}", page.getPageId()));
-		//GeneralViewParameters params = new GeneralViewParameters(RemovePageProducer.VIEW_ID);
-		//UIInternalLink.make(form, "remove-page-submit", "", params).decorate(new UIFreeAttributeDecorator("value", messageLocator.getMessage("simplepage.remove")));
-
-		UICommand.make(form, "remove-page-submit", messageLocator.getMessage("simplepage.remove"), "#{simplePageBean.removePage}");
+		
+		if (page.getOwner() == null) {
+		    // top level normal page. Use the remove page producer, which can handle removing tools out from under RSF
+		    GeneralViewParameters params = new GeneralViewParameters(RemovePageProducer.VIEW_ID);
+		    UIInternalLink.make(form, "remove-page-submit", "", params).decorate(new UIFreeAttributeDecorator("value", messageLocator.getMessage("simplepage.remove")));
+		} else
+		    // a student top level page. call remove page directly, as it will just return to show page
+		    UICommand.make(form, "remove-page-submit", messageLocator.getMessage("simplepage.remove"), "#{simplePageBean.removePage}");
 		UICommand.make(form, "remove-page-cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
 	}
 

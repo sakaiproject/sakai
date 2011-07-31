@@ -202,7 +202,7 @@ public class SimplePageBean {
 
 	public String selectedQuiz = null;
 	
-	public long removeId;
+	public long removeId = 0;
 
 	private SimplePage currentPage;
 	private Long currentPageId = null;
@@ -1826,6 +1826,8 @@ public class SimplePageBean {
 			return "permission-failed";
 		}
 		
+		if (removeId == 0)
+		    removeId = getCurrentPageId();
 		SimplePage page = simplePageToolDao.getPage(removeId);
 		
 		if(page.getOwner() == null) {
@@ -1839,24 +1841,15 @@ public class SimplePageBean {
 			site.removePage(sitePage);
 		
 			try {
-				siteService.save(site);
+			    siteService.save(site);
+			    setTopRefresh();
 			} catch (Exception e) {
 				log.error("removePage unable to save site " + e);
 			}
 		
 			EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.remove", "/lessonbuilder/page/" + page.getPageId(), true));
-			try {
-			    // this will always generate an enormous amount of junk in catalina.out. I see no way to
-			    // get rid of it. The problem is that we kill the RSF context, so there's no place legal to go now
-			    //httpServletResponse.sendRedirect(ServerConfigurationService.getServerUrl() + "/access/site/" + getCurrentSiteId());
-			    httpServletResponse.reset();
-			    httpServletResponse.getWriter().println("<script type='text/javascript' language='JavaScript'>parent.location.replace(parent.location);</script><p style='display:none'>");
-			    httpServletResponse.flushBuffer();
-			} catch (Exception ignore) {
-			    System.out.println("redirect failed " + ignore);
-			    // we never actuallly see this, and the redirect is done from a different context
-			};
-			return "removed";
+
+			return "success";
 		}else {
 			SimpleStudentPage studentPage = simplePageToolDao.findStudentPageByPageId(page.getPageId());
 			
