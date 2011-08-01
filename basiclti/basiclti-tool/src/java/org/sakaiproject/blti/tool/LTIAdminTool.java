@@ -130,18 +130,20 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		state.removeAttribute(STATE_TOOL_ID);
 		state.removeAttribute(STATE_POST);
 		state.removeAttribute(STATE_SUCCESS);
+		state.removeAttribute(STATE_REDIRECT_URL);
 		return "lti_error";
 	}
 
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context, 
-		RunData rundata, SessionState state)
+		RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
 		if ( ! ltiService.isMaintain() ) {
 		        addAlert(state,rb.getString("error.maintain.edit"));
 		        return "lti_error";
 		}
-		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
+		String returnUrl = data.getParameters().getString("returnUrl");
+		// if ( returnUrl != null ) state.setAttribute(STATE_REDIRECT_URL, returnUrl);
 		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
 		List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0);
                 context.put("inHelper",new Boolean(inHelper));
@@ -153,11 +155,16 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		return "lti_main";
 	}
 
-       
         public void doEndHelper(RunData data, Context context)
         {
                 // Request a shortcut transfer back to the tool we are helping
+		// This working depends on SAK-20898 
                 SessionManager.getCurrentToolSession().setAttribute(HELPER_LINK_MODE, HELPER_MODE_DONE);
+
+		// In case the above fails...
+		String peid = ((JetspeedRunData) data).getJs_peid();
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
+		switchPanel(state, "Forward");
         }
 	
         public String buildToolViewPanelContext(VelocityPortlet portlet, Context context, 
@@ -687,10 +694,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("tlang", rb);
 		String returnUrl = (String) state.getAttribute(STATE_REDIRECT_URL);
 		state.removeAttribute(STATE_REDIRECT_URL);
-		if ( returnUrl == null ) {
-		        addAlert(state,rb.getString("error.missing.return"));
-		        return "lti_error";
-		}
+		if ( returnUrl == null ) return "lti_content_redirect";
 		// System.out.println("Redirecting parent frame back to="+returnUrl);
 		if ( ! returnUrl.startsWith("about:blank") ) context.put("returnUrl",returnUrl);
 		return "lti_content_redirect";
@@ -702,10 +706,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("tlang", rb);
 		String returnUrl = (String) state.getAttribute(STATE_REDIRECT_URL);
 		state.removeAttribute(STATE_REDIRECT_URL);
-		if ( returnUrl == null ) {
-		        addAlert(state,rb.getString("error.missing.return"));
-		        return "lti_error";
-		}
+		if ( returnUrl == null ) return "lti_content_redirect";
 		// System.out.println("Forwarding frame to="+returnUrl);
 		context.put("forwardUrl",returnUrl);
 		return "lti_content_redirect";
