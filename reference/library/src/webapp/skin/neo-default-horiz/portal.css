@@ -1528,6 +1528,9 @@ background-image: url(/library/image/silk/comment.png);
 .icon-sakai-lessonbuildertool {
     background-image: url(../../image/silk/book_open.png);
 }
+.icon-sakai-see-all-tools {
+    background-image: url(../../image/silk/bullet_go.png);
+}
 
 
 /** Privacy Popup Styles **/
