@@ -45,5 +45,19 @@ public class CalendarItem {
 	protected Context context;
 	protected Realm realm;
 	protected SourceType sourceType;
+	
+	public CalendarItem(String title, Date calendarTime,
+			String entityReference, String entityUrl, Context context,
+			Realm realm, SourceType sourceType) {
+		super();
+		this.title = title;
+		this.calendarTime = calendarTime;
+		this.entityReference = entityReference;
+		this.entityUrl = entityUrl;
+		this.context = context;
+		this.realm = realm;
+		this.sourceType = sourceType;
+	}
 
+	
 }

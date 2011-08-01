@@ -76,6 +76,8 @@ public interface DashboardDao {
 	public boolean addRealm(Realm realm);
 	
 	public boolean addSourceType(SourceType sourceType);
+
+	public CalendarItem getCalendarItem(String entityReference);
 	
 	
 }

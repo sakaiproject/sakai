@@ -1,10 +1,10 @@
 package org.sakaiproject.dash.logic;
 
-import java.util.Map;
 import java.util.Observer;
 
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.entity.api.Entity;
 
 /**
  * An interface to abstract all Sakai related API calls in a central method that can be injected into our app.
@@ -86,5 +86,14 @@ public interface SakaiProxy {
 	 * @param observer
 	 */
 	public abstract void addLocalEventListener(Observer observer);
+
+	/**
+	 * Retrieve a Sakai Entity based on its string entity reference.
+	 * 
+	 * @param entityReference
+	 * @return The entity, or null if the entity cannot be retrieved 
+	 * (e.g., because it doesn't exist).
+	 */
+	public Entity getEntity(String entityReference);
 
 }

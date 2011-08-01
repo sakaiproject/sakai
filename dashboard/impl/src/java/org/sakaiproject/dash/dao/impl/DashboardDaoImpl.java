@@ -323,7 +323,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		
 		try {
 			getJdbcTemplate().update(getStatement("insert.person"),
-				new Object[]{person.getUserId, person.getSakaiId}
+				new Object[]{person.getUserId(), person.getSakaiId()}
 			);
 			return true;
 		} catch (DataAccessException ex) {
@@ -365,9 +365,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		
 		try {
 			getJdbcTemplate().update(getStatement("insert.sourcetype"),
-				new Object[]{sourceType.getName(), sourceType.isSaveCalendarItem(), sourceType.isSaveNewsItem(), 
-						sourceType.getCalendarFormat(), sourceType.getCalendarSummaryFormat(),
-						sourceType.getNewsFormat(), sourceType.getNewsSummaryFormat()}
+				new Object[]{sourceType.getName()}
 			);
 			return true;
 		} catch (DataAccessException ex) {
@@ -375,4 +373,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		return false;
 	}
 }
+
+	public CalendarItem getCalendarItem(String entityReference) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

@@ -38,11 +38,8 @@ public class SourceType {
 
 	protected Long id;
 	protected String name;
-	protected boolean saveCalendarItem = false;
-	protected boolean saveNewsItem = false;
-	protected String calendarFormat;
-	protected String calendarSummaryFormat;
-	protected String newsFormat;
-	protected String newsSummaryFormat;
 
+	public SourceType(String name) {
+		this.name = name;
+	}
 }

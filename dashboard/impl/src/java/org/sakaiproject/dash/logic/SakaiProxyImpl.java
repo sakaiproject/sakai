@@ -8,6 +8,8 @@ import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -103,6 +105,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 	
 	/**
+	 * 
+	 */
+	public Entity getEntity(String entityReference) {
+		return this.entityManager.newReference(entityReference).getEntity();
+	}
+
+	
+	/**
 	 * init - perform any actions required here for when this bean starts up
 	 */
 	public void init() {
@@ -129,4 +139,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	@Getter @Setter
 	private SiteService siteService;
+	
+	@Getter @Setter
+	private EntityManager entityManager;
+
 }

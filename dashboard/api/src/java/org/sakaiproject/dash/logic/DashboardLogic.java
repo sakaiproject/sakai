@@ -24,7 +24,10 @@ package org.sakaiproject.dash.logic;
 import java.util.Date;
 
 import org.sakaiproject.dash.model.CalendarItem;
+import org.sakaiproject.dash.model.Context;
+import org.sakaiproject.dash.model.SourceType;
 import org.sakaiproject.dash.listener.EventProcessor;
+import org.sakaiproject.dash.model.Realm;
 import org.sakaiproject.dash.model.NewsItem;
 
 /**
@@ -33,14 +36,26 @@ import org.sakaiproject.dash.model.NewsItem;
  */
 public interface DashboardLogic {
 
-	public CalendarItem createCalendarItem(String entityReference, String context);
+	public CalendarItem createCalendarItem(String title, Date calendarTime, String entityReference, String entityUrl, Context context, Realm realm, SourceType sourceType);
 
 	public void createCalendarLinks(CalendarItem calendarItem);
 
-	public NewsItem createNewsItem(String entityReference, Date newsTime, String context);
-
+	public NewsItem createNewsItem(String title, Date newsTime, String entityReference, String entityUrl, Context context, Realm realm, SourceType sourceType);
+	
 	public void createNewsLinks(NewsItem newsItem);
 
 	public void registerEventProcessor(EventProcessor eventProcessor);
+
+	public Context getContext(String contextId);
+
+	public Context createContext(String contextId);
+
+	public Realm getRealm(String contextId);
+
+	public Realm createRealm(String contextId);
+
+	public SourceType getSourceType(String name);
+
+	public SourceType createSourceType(String name);
 	
 }

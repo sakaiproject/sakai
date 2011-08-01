@@ -29,14 +29,16 @@ import java.util.Observer;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import net.sf.ehcache.Cache;
 
 import org.apache.log4j.Logger;
+import org.sakaiproject.dash.dao.DashboardDao;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.model.CalendarItem;
+import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.NewsItem;
+import org.sakaiproject.dash.model.Realm;
+import org.sakaiproject.dash.model.SourceType;
 import org.sakaiproject.event.api.Event;
 
 /**
@@ -46,6 +48,8 @@ import org.sakaiproject.event.api.Event;
 public class DashboardLogicImpl implements DashboardLogic, Observer 
 {
 	private static Logger logger = Logger.getLogger(DashboardLogicImpl.class);
+	
+	
 	protected Map<String,EventProcessor> eventProcessors = new HashMap<String,EventProcessor>();
 	
 	protected DashboardEventProcessingThread eventProcessingThread = new DashboardEventProcessingThread();
@@ -55,16 +59,19 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	public void setSakaiProxy(SakaiProxy proxy) {
 		this.sakaiProxy = proxy;
 	}
-
-	public CalendarItem createCalendarItem(String entityReference,
-			String context) {
-		if(logger.isDebugEnabled()) {
-			logger.debug("createCalendarItem(" + entityReference + "," + context + ")");
-		}
-		// TODO Auto-generated method stub
-		return null;
+	
+	protected DashboardDao dao;
+	public void setDao(DashboardDao dao) {
+		this.dao = dao;
 	}
 	
+	protected Cache cache;
+	public void setCache(Cache cache) {
+		this.cache = cache;
+	}
+	
+
+
 	public void createCalendarLinks(CalendarItem calendarItem) {
 		// TODO Auto-generated method stub
 		if(logger.isDebugEnabled()) {
@@ -221,4 +228,62 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 		
 	}
+	
+	public CalendarItem createCalendarItem(String title, Date calendarTime,
+			String entityReference, String entityUrl, Context context,
+			Realm realm, SourceType sourceType) {
+		
+		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
+				entityReference, entityUrl, context, realm, sourceType);
+		
+		dao.addSourceType(sourceType);
+		
+		return calendarItem;
+	}
+
+	public NewsItem createNewsItem(String title, Date newsTime,
+			String entityReference, String entityUrl, Context context,
+			Realm realm, SourceType sourceType) {
+		
+		NewsItem newsItem = new NewsItem(title, newsTime, 
+				entityReference, entityUrl, context, realm, sourceType);
+		
+		dao.addNewsItem(newsItem);
+		
+		return newsItem ;
+	}
+
+	public Context getContext(String contextId) {
+		
+		return null;
+	}
+
+	public Context createContext(String contextId) {
+		
+		return null;
+	}
+
+	public Realm getRealm(String entityId) {
+		
+		return null;
+	}
+
+	public Realm createRealm(String entityId) {
+		
+		return null;
+	}
+
+	public SourceType getSourceType(String name) {
+		
+		return null;
+	}
+
+
+
+	public SourceType createSourceType(String name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
 }
