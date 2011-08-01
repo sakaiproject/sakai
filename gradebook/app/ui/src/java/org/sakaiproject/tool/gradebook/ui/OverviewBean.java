@@ -479,7 +479,7 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
         if (enabled) {
             // if allowed then check that there are enough assignments
             List<Assignment> assignments = getGradebookManager().getAssignments(getGradebookId());
-            if (assignments.size() > 2) { // factor out the category
+            if (assignments.size() > 1) { // factor out the category
                 enabled = true;
             } else {
                 enabled = false;
