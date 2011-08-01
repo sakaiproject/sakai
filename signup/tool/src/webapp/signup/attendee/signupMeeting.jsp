@@ -311,7 +311,7 @@
 							styleClass="attendee_status" />
 					</h:column>
 
-					<h:column rendered="#{!AttendeeSignupMBean.meetingWrapper.meeting.meetingExpired && AttendeeSignupMBean.meetingWrapper.meeting.permission.attend}">
+					<h:column rendered="#{!AttendeeSignupMBean.meetingWrapper.meeting.meetingExpired && AttendeeSignupMBean.meetingWrapper.meeting.permission.attend && !AttendeeSignupMBean.meetingWrapper.meeting.passedDeadline}">
 						<f:facet name="header">
 							<h:outputText value="#{msgs.tab_event_action}" escape="false"/>
 						</f:facet>
