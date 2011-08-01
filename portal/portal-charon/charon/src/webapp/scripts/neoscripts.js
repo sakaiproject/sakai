@@ -360,12 +360,20 @@ jQuery(document).ready(function(){
         var siteURL = '/direct/site/' + $(this).attr('id') + '/pages.json';
         scroll(0, 0)
         var pos = $(this).offset();
+        var maxToolsInt = parseInt($('#maxToolsInt').text());
+        var goToSite = '<li class=\"otherSiteTool\"><span><a class=\"icon-sakai-see-all-tools\" href=\"' + portal.portalPath + '/site/' +  $(this).attr('id') + '\">' +$('#maxToolsAnchor').text() + '</a></span></li>'
         jQuery.getJSON(siteURL, function(data){
             $.each(data, function(i, item){
-                if (item.tools.length === 1) {
-                    subsubmenu = subsubmenu + '<li class=\"otherSiteTool\"><span><a class=\"icon-' + item.tools[0].toolId.replace(/\./gi, '-') + '\" href=' + item.tools[0].url + ">" + item.tools[0].title + "</a></span></li>"
+                if (i <= maxToolsInt) {
+                    if (item.tools.length === 1) {
+                        subsubmenu = subsubmenu + '<li class=\"otherSiteTool\"><span><a class=\"icon-' + item.tools[0].toolId.replace(/\./gi, '-') + '\" href=' + item.tools[0].url + ">" + item.tools[0].title + "</a></span></li>"
+                    }
                 }
+
             });
+            if ((data.length - 1) >   maxToolsInt){
+                 subsubmenu = subsubmenu + goToSite
+            }          
             subsubmenu = subsubmenu + "</ul>"
             $('#portalOuterContainer').append(subsubmenu);
             $('#otherSiteTools').css({

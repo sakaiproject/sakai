@@ -1156,6 +1156,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("portal_allow_auto_minimize",Boolean.valueOf( "true".equals(minStr) ) ) ;
 		// copy the add link to /mobile to the content
 		String addMLnk = ServerConfigurationService.getString("portal.add.mobile.link","false");
+		// how many tools to show in portal pull downs
+		rcontext.put("maxToolsInt", Integer.valueOf(ServerConfigurationService.getInt("portal.tool.menu.max", 10)));
+
 		
 		// show the mobile link or not
 		Session session = SessionManager.getCurrentSession();

@@ -16,7 +16,7 @@
 #end
 <!-- START from NEO includeTabs.vm -->
 			<!-- start includeTabs -->
-			<div class="${tabsCssClass}">
+			<div class="${tabsCssClass}"><div id="maxToolsInt" style="display:none">$maxToolsInt</div><div id="maxToolsAnchor" style="display:none">${rloader.sit_alltools}</div>
 				<div id="siteNav">
 					<!-- login component -->
 					<div id="mastLogin">
@@ -96,10 +96,14 @@
 #set ( $pageCount = 0 )
     #foreach ( $page in $site.sitePages.pageNavTools ) 
         #set ($pageCount =$pageCount + 1)       
-        #if (${page.isPage} && $pageCount < 15 )
-<li class="submenuitem"><span#if(${page.hidden}) class="hidden"#end><a href="${page.pageRefUrl}" title="${page.description}" class="${page.menuClass}">${page.pageTitle}</a></span></li>
-        #end
+        #if (${page.isPage} && $pageCount <=  $maxToolsInt )
+			<li class="submenuitem"><span#if(${page.hidden}) class="hidden"#end><a href="${page.pageRefUrl}" title="${page.description}" class="${page.menuClass}">${page.pageTitle}</a></span></li>
+		#end
     #end
+	#if ($pageCount > $maxToolsInt)
+		<li class="submenuitem"><a href="${site.siteUrl}" title="${site.siteTitle}" class="icon-sakai-see-all-tools"><span>${rloader.sit_alltools}</span></a></li>
+	#end	
+
 #if (${site.sitePages.pageNavCanAddMoreTools}) 
     <li class="submenuitem"><span class="addTool"><a href="${site.sitePages.pageNavAddMoreToolsUrl}" title="${rloader.sit_addmoretools}"  class="addTool"> ${rloader.sit_addmoretools}</a></span></li>
 #end
