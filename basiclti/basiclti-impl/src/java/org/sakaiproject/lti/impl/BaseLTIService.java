@@ -50,7 +50,7 @@ public abstract class BaseLTIService implements LTIService {
 
   /** Constants */
   private final String ADMIN_SITE = "!admin";
-  protected final String LAUNCH_PREFIX = "/access/basiclti/site/";
+  public final String LAUNCH_PREFIX = "/access/basiclti/site/";
 
   /** Resource bundle using current language locale */
   protected static ResourceLoader rb = new ResourceLoader("ltiservice");
@@ -241,6 +241,7 @@ public abstract class BaseLTIService implements LTIService {
    * @see org.sakaiproject.lti.api.LTIService#getContentLaunch(java.util.Map)
    */
   public String getContentLaunch(Map<String, Object> content) {
+    if ( content == null ) return null;
     int key = getInt(content.get(LTIService.LTI_ID));
     String siteId = (String) content.get(LTIService.LTI_SITE_ID);
     if (key < 0 || siteId == null)

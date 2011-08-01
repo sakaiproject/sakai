@@ -613,12 +613,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		Object retval = null;
 		String success = null;
+		Long contentKey = null;
 		if ( id == null ) 
 		{
 	                retval = ltiService.insertContent(reqProps);
 	                success = rb.getString("success.created");
 		} else {
-			Long contentKey = new Long(id);
+			contentKey = new Long(id);
 			Long toolKey = new Long(toolId);
 			Map<String,Object> tool = ltiService.getTool(toolKey);
 			if ( tool == null ) {
@@ -656,15 +657,24 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		if ( returnUrl != null )
 		{
-			if ( retval instanceof Long ) {
-				if ( returnUrl.indexOf("?") > 0 ) {
-					returnUrl += "&ltiItemId=/blti/" + retval;
+			if ( contentKey != null ) {
+				if ( returnUrl.startsWith("about:blank") ) { // Redirect to the item
+					Map<String,Object> content = ltiService.getContent(contentKey);
+					if ( content != null ) {
+						String launch = (String) ltiService.getContentLaunch(content);
+						if ( launch != null ) returnUrl = launch;
+					}
+					switchPanel(state, "Forward");
 				} else {
-					returnUrl += "?ltiItemId=/blti/" + retval;
+					if ( returnUrl.indexOf("?") > 0 ) {
+						returnUrl += "&ltiItemId=/blti/" + retval;
+					} else {
+						returnUrl += "?ltiItemId=/blti/" + retval;
+					}
+					switchPanel(state, "Redirect");
 				}
 			}
 			state.setAttribute(STATE_REDIRECT_URL,returnUrl);
-			switchPanel(state, "Redirect");
 			return;
 		}
 		state.setAttribute(STATE_SUCCESS,success);
@@ -683,6 +693,21 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
 		// System.out.println("Redirecting parent frame back to="+returnUrl);
 		if ( ! returnUrl.startsWith("about:blank") ) context.put("returnUrl",returnUrl);
+		return "lti_content_redirect";
+	}
+
+	public String buildForwardPanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
+		context.put("tlang", rb);
+		String returnUrl = (String) state.getAttribute(STATE_REDIRECT_URL);
+		state.removeAttribute(STATE_REDIRECT_URL);
+		if ( returnUrl == null ) {
+		        addAlert(state,rb.getString("error.missing.return"));
+		        return "lti_error";
+		}
+		// System.out.println("Forwarding frame to="+returnUrl);
+		context.put("forwardUrl",returnUrl);
 		return "lti_content_redirect";
 	}
 
@@ -751,8 +776,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
                 context.put("doAction", BUTTON + "doContentPut");
-                context.put("returnUrl", returnUrl);
 		if ( ! returnUrl.startsWith("about:blank") ) context.put("cancelUrl", returnUrl);
+                context.put("returnUrl", returnUrl);
                 context.put(LTIService.LTI_TOOL_ID,toolKey);
 		context.put("tool_description", tool.get(LTIService.LTI_DESCRIPTION));
 		context.put("tool_title", tool.get(LTIService.LTI_TITLE));

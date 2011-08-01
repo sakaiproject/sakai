@@ -5,6 +5,13 @@ parent.location = "$returnUrl";
 // -->
 </script>
 #else
+#if ( $forwardUrl ) 
+<script type="text/javascript"><!--
+location = "$forwardUrl";
+// -->
+</script>
+#else
 <h4>$tlang.getString("operation.complete")</h4>
+#end
 #end
 </div>
