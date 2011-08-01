@@ -294,7 +294,7 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 			return "";
 		} catch (Exception e) {
 			logger.error(Utilities.rb.getString("error.occurred_try_again") + " - " + e.getMessage());
-			Utilities.addMessage(Utilities.rb.getString("error.occurred_try_again"));
+			Utilities.addErrorMessage(Utilities.rb.getString("error.occurred_try_again"));
 			return ORGANIZER_MEETING_PAGE_URL;
 		}
 		
@@ -577,7 +577,7 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 			meeting.setSignupTimeSlots(cpTimeslotList);// pass over
 
 			if (lockOrCanceledTimeslot)
-				Utilities.addMessage(Utilities.rb.getString("warning.some_timeslot_may_locked_canceled"));
+				Utilities.addErrorMessage(Utilities.rb.getString("warning.some_timeslot_may_locked_canceled"));
 		}
 
 		meeting.setEndTime(calendar.getTime());

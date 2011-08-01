@@ -25,7 +25,7 @@
 				</sakai:tool_bar>
 			</h:form>
 		<sakai:view_content>
-			<h:outputText value="#{msgs.event_error_alerts} #{errorMessageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{errorMessageUIBean.error}"/>      			
+			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>      			
 				
 			<h:form id="meeting">
 			 	<sakai:view_title value="#{msgs.event_view_comment_page_title}"/>

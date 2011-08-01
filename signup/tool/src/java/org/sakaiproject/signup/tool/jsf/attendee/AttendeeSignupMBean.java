@@ -114,7 +114,7 @@ public class AttendeeSignupMBean extends SignupUIBaseBean {
 			Utilities.addErrorMessage(ue.getMessage());
 		} catch (Exception e) {
 			logger.error(Utilities.rb.getString("error.occurred_try_again") + " - " + e.getMessage());
-			Utilities.addMessage(Utilities.rb.getString("error.occurred_try_again"));
+			Utilities.addErrorMessage(Utilities.rb.getString("error.occurred_try_again"));
 		}
 
 		// TODO calendar event id;
@@ -147,7 +147,7 @@ public class AttendeeSignupMBean extends SignupUIBaseBean {
 			Utilities.addErrorMessage(ue.getMessage());
 		} catch (Exception e) {
 			logger.error(Utilities.rb.getString("error.occurred_try_again") + " - " + e.getMessage());
-			Utilities.addMessage(Utilities.rb.getString("error.occurred_try_again"));
+			Utilities.addErrorMessage(Utilities.rb.getString("error.occurred_try_again"));
 		}
 
 		// TODO calendar event id;
@@ -183,7 +183,7 @@ public class AttendeeSignupMBean extends SignupUIBaseBean {
 			Utilities.addErrorMessage(ue.getMessage());
 		} catch (Exception e) {
 			logger.error(Utilities.rb.getString("error.occurred_try_again") + " - " + e.getMessage());
-			Utilities.addMessage(Utilities.rb.getString("error.occurred_try_again"));
+			Utilities.addErrorMessage(Utilities.rb.getString("error.occurred_try_again"));
 		}
 
 		return updateMeetingwrapper(meeting, ATTENDEE_MEETING_PAGE_URL);
@@ -211,7 +211,7 @@ public class AttendeeSignupMBean extends SignupUIBaseBean {
 			Utilities.addErrorMessage(ue.getMessage());
 		} catch (Exception e) {
 			logger.error(Utilities.rb.getString("error.occurred_try_again") + " - " + e.getMessage());
-			Utilities.addMessage(Utilities.rb.getString("error.occurred_try_again"));
+			Utilities.addErrorMessage(Utilities.rb.getString("error.occurred_try_again"));
 		}
 
 		// TODO calendar event id;

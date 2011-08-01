@@ -30,9 +30,9 @@
 		</h:form>
 		
 		<sakai:view_content>
-			<h:outputText value="#{msgs.event_error_alerts} #{errorMessageUIBean.errorMessage}"
+			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}"
 				styleClass="alertMessage" escape="false"
-				rendered="#{errorMessageUIBean.error}" />
+				rendered="#{messageUIBean.error}" />
 
 			<h:form id="meeting">
 				<sakai:view_title value="#{msgs.event_participant_view_page_title}" />

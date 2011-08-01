@@ -619,15 +619,15 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		int endMonth = calendar.get(Calendar.MONTH);
 		int endDay = calendar.get(Calendar.DATE);
 		if (startYear != endYear){
-			Utilities.addMessage(Utilities.rb.getString("warning.event.crossed_twoYears"));
+			Utilities.addInfoMessage(Utilities.rb.getString("warning.event.crossed_twoYears"));
 			return;
 		}
 		if (startMonth != endMonth){
-			Utilities.addMessage(Utilities.rb.getString("warning.event.crossed_twoMonths"));
+			Utilities.addInfoMessage(Utilities.rb.getString("warning.event.crossed_twoMonths"));
 			return;
 		}
 		if (startDay != endDay){
-			Utilities.addMessage(Utilities.rb.getString("warning.event.crossed_twoDays"));
+			Utilities.addInfoMessage(Utilities.rb.getString("warning.event.crossed_twoDays"));
 			return;
 		}
 		
@@ -1663,7 +1663,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			logger.info(Utilities.rb.getString("no.permission_create_event") + " - " + e.getMessage());
 		} catch (Exception e) {
 			logger.error(Utilities.rb.getString("error.occurred_try_again") + " - " + e.getMessage());
-			Utilities.addMessage(Utilities.rb.getString("error.occurred_try_again"));
+			Utilities.addErrorMessage(Utilities.rb.getString("error.occurred_try_again"));
 		}
 	
 	}

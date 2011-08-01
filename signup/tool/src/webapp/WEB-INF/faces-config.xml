@@ -274,12 +274,13 @@
     </managed-bean>
     
     <managed-bean>
-		<managed-bean-name>errorMessageUIBean</managed-bean-name>
+		<managed-bean-name>messageUIBean</managed-bean-name>
 		<managed-bean-class>
-			org.sakaiproject.signup.tool.jsf.ErrorMessageUIBean
+			org.sakaiproject.signup.tool.jsf.MessageUIBean
 		</managed-bean-class>
 		<managed-bean-scope>session</managed-bean-scope>
 	</managed-bean>
+
 	
 	<managed-bean>
         <managed-bean-name>SignupPermissionsUpdateBean</managed-bean-name>

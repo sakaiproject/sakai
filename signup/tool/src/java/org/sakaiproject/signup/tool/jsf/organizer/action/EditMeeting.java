@@ -125,7 +125,7 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 		 * required
 		 */
 		if (!unlimited && this.maxNumOfAttendees < originalMeetingCopy.getMaxNumberOfAttendees()) {
-			Utilities.addMessage(Utilities.rb.getString("max.num_attendee_changed_and_attendee_mayOver_limit_inTS"));
+			Utilities.addErrorMessage(Utilities.rb.getString("max.num_attendee_changed_and_attendee_mayOver_limit_inTS"));
 		}
 
 		logger.info("Meeting Name:" + meeting.getTitle() + " - UserId:" + userId

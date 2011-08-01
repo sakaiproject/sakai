@@ -37,9 +37,9 @@
 			<div class="toggle specialLink noPrint" style="display:none"><a href="#"><h:outputText value="#{msgs.attend_view_toggle}" /></a></div>
 			<%--//TODO: the value and conditions for the generic error messages will need to change--%>
 			<h:outputText
-				value="#{msgs.event_error_alerts} #{errorMessageUIBean.errorMessage}"
+				value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}"
 				styleClass="alertMessage" escape="false"
-				rendered="#{errorMessageUIBean.error}" />
+				rendered="#{messageUIBean.error}" />
 			<h:form id="attendanceView">
 
 				<%--//TODO: attend.event.title below needs to resolve to the event title--%>

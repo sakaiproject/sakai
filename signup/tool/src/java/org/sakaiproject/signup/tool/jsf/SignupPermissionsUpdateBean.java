@@ -160,7 +160,7 @@ public class SignupPermissionsUpdateBean {
 			}
 		} catch (IdUnusedException e) {
 			logger.error("IdUnusedException: siteId is not found" + e);
-			Utilities.addMessage("No such site Id is found!");
+			Utilities.addErrorMessage("No such site Id is found!");
 		}
 
 		return realmItemList;
