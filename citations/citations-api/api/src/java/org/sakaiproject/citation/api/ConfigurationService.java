@@ -221,12 +221,41 @@ public interface ConfigurationService
   public boolean librarySearchEnabled();
 
   /**
-   * Access the mapping for savecite clients. Keys in the mapping will be locale identifiers, and 
-   * values will be a list of clients, which each client is a Map<String,String>.
+   * Accesses the mapping for savecite clients. Keys in the mapping will be locale identifiers, and 
+   * values will be a list of clients, where each client is a Map<String,String> object with key-value 
+   * pairs for significant settings for a search source. The keys should include the following to fully 
+   * configure a search source:
+   * <ul>
+   * <li>id, where the value is an identifer that is unique within this list of clients (i.e. within 
+   * the list of clients defined for the current locale.</li>
+   * <li>searchurl_base - The base URL used to access the search source. This should NOT include a 
+   * separator ('?') or any request parameters. One or two query parameters will be added to the base
+   * URL - linkurl_base and linkurl_id. The value of the linkurl_base will be the URL for the savecite 
+   * servlet in this sakai instance (See {@link org.sakaiproject.citation.api.SearchManager.getSaveciteUrl(String, String)}). The linkurl_id, if provided, is an identifer used by the search 
+   * source to identify this sakai instance.</li>
+   * <li>linkurl_id - A short string that, if present, is included as the value for the "linkurl_id" query 
+   * parameter as described above.</li>
+   * <li>searchurl_label - A short string that will be used as the label on the button that launches 
+   * a search in the search source.</li>
+   * <li>searchurl_description - A description of the search to help users choose which search to use.</li>
+   * <li>return_label - The label that will appear on a button in the confirmation dialog that users will 
+   * see after saving a citation from search results. This button takes the user back to the search results
+   * in the same window.</li>
+   * <li>close_label - The label that will appear on a button in the confirmation dialog seen by users
+   * after saving a citation from the search results. This button closes the window in which the search 
+   * results were shown, effectively returning the user to the "add citation" dialog in the main window.</li>
+   * <li>window_width - the width in pixels of the dialog in which the search source will be shown.</li>
+   * <li>window_height - the height in pixels of the dialog in which the search source will be shown.</li>
+   * </ul>
    * @return
    */
   public Map<String, List<Map<String,String>>> getSaveciteClients();
 
+  /**
+   * 
+   * @param locale
+   * @return
+   */
   public List<Map<String, String>> getSaveciteClientsForLocale(Locale locale);
 
 }

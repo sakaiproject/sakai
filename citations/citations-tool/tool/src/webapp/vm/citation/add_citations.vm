@@ -68,11 +68,11 @@ doubleDeep = true;
 					<tr valign="middle">
 						<td align="center">
 							<div class="act">
-								<input type="button" name="$client.id" id="$client.id" value="$client.linkurl_label" 
-									onclick="openWindow('${client.linkurl_base}?linkurl_base=${client.saveciteUrl}&linkurl_id=${client.linkurl_id}&','$client.linkurl_label','scrollbars=yes,toolbar=yes,resizable=yes,height=${client.window_height},width=${client.window_width}');"/>
+								<input type="button" name="$client.id" id="$client.id" value="$client.searchurl_label" 
+									onclick="openWindow('${client.searchurl_base}?linkurl_base=${client.saveciteUrl}#if(${client.linkurl_id})&linkurl_id=${client.linkurl_id}#end&','$client.searchurl_label','scrollbars=yes,toolbar=yes,resizable=yes,height=${client.window_height},width=${client.window_width}');"/>
 							</div>
 						</td>
-						<td>$client.linkurl_description</td>
+						<td>$client.searchurl_description</td>
 					</tr>
 				#end
 			#end
