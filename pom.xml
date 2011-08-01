@@ -214,6 +214,7 @@
                 <module>content/content-bundles</module>
                 <module>content/content-help</module>
                 <module>content/content-tool/tool</module>
+		<module>content/content-copyright</module>
                 <module>courier</module>
                 <module>help</module>
                 <module>login</module>
