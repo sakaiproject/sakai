@@ -87,7 +87,7 @@ import org.w3c.dom.NodeList;
  * @author rshastri TODO To change the template for this generated type comment go to Window -
  *         Preferences - Java - Code Style - Code Templates
  */
-public class SyllabusServiceImpl implements SyllabusService, EntityTransferrerRefMigrator
+public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, EntityTransferrerRefMigrator
 {
   private static final String SYLLABUS = "syllabus";
   private static final String SYLLABUS_ID = "id";
@@ -1164,6 +1164,11 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrerRe
 		return toolIds;
 	}
 
+	public void transferCopyEntities(String fromContext, String toContext, List<String> ids){
+		transferCopyEntitiesRefMigrator(fromContext, toContext, ids);
+	}
+
+
 	public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List<String> ids) 
 	{
 		Map<String, String> transversalMap = new HashMap<String, String>();
@@ -1327,6 +1332,11 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrerRe
 		return SecurityService.unlock(lock, reference);
 	}
 	
+	public void transferCopyEntities(String fromContext, String toContext, List<String> ids, boolean cleanup){
+		transferCopyEntitiesRefMigrator(fromContext, toContext, ids, cleanup);
+	}
+
+
 	public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List<String> ids, boolean cleanup)
 	{	
 		Map<String, String> transversalMap = new HashMap<String, String>();
