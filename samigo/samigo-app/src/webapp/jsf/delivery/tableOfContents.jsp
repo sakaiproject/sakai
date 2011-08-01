@@ -33,7 +33,6 @@
     <head><%= request.getAttribute("html.head") %>
     <title><h:outputText value="#{deliveryMessages.table_of_contents}" /></title>
     <samigo:script path="/jsf/widget/hideDivision/hideDivision.js" />
-    <script type="text/javascript" language="JavaScript" src="/samigo-app/js/jquery-1.3.2.min.js"></script>
     </head>
     <body onload="hideUnhideAllDivsExceptFirst('none');;<%= request.getAttribute("html.body.onload") %>">
 <!--div class="portletBody"-->
