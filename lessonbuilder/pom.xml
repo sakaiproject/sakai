@@ -38,13 +38,12 @@
                 <sakai.entitybroker.version>1.5-SNAPSHOT</sakai.entitybroker.version>
                 <sakai.msgcntr.version>2.8-SNAPSHOT</sakai.msgcntr.version>
                 <sakai.samigo.version>2.8-SNAPSHOT</sakai.samigo.version>
-                <sakai.yaft.version>1.2</sakai.yaft.version>
+                <sakai.yaft.version>1.2.1-SNAPSHOT</sakai.yaft.version>
                 <rsfutil.version>0.8-SNAPSHOT</rsfutil.version>
                 <sakairsf.version>0.8-SNAPSHOT</sakairsf.version>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
                 <url.localsite>scp://source.sakaiproject.org/var/www/html/release/lessonbuilder/${project.version}</url.localsite>
 		<sakai.blti.version>2.0-SNAPSHOT</sakai.blti.version>
-		<sakai.blti.scope>provided</sakai.blti.scope>
             </properties>
         </profile>
         <profile>
@@ -56,12 +55,12 @@
                 <sakai.entitybroker.version>1.4.1</sakai.entitybroker.version>
                 <sakai.msgcntr.version>2.8.0</sakai.msgcntr.version>
                 <sakai.samigo.version>2.8.0</sakai.samigo.version>
+                <sakai.yaft.version>1.2.1-SNAPSHOT</sakai.yaft.version>
                 <rsfutil.version>0.8-SNAPSHOT</rsfutil.version>
                 <sakairsf.version>0.8-SNAPSHOT</sakairsf.version>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
                 <url.localsite>scp://source.sakaiproject.org/var/www/html/release/lessonbuilder/${project.version}</url.localsite>
 		<sakai.blti.version>2.0-SNAPSHOT</sakai.blti.version>
-		<sakai.blti.scope>compile</sakai.blti.scope>
             </properties>
         </profile>
     </profiles>

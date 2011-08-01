@@ -119,7 +119,7 @@ a few more things:
 some changes, depending upon the version of Sakai you are
 running:
 
-* If you want support for Mneme or Yaft, you will need to enable it.
+* If you want support for Mneme, you will need to enable it.
 See below.
 
 * You will probably want to install SAK-20799. This allows people to
@@ -141,15 +141,15 @@ The rest of this document talks about other things you might want to
 know about. However you can try out Lesson Builder without doing
 anything beyond this point.
 
-MNEME, JAFT, AND JFORUM DEPENDENCIES
+MNEME, JAFT, BASIC LTI AND JFORUM DEPENDENCIES
 
-LessonBuilder will support quizes from Mneme and topics from JForum or
-YAFT. The JForum interface should cause no trouble, even if you don't
-use it. However I've had to disable support for Mneme and YAFT to
-allow Lesson Builder to build on systems without it. The Jforum code
-starts by checking whether Jforum is actually present. If not, it
-disables itself. Thus there's no obvious reason to remove it, although
-you can do so.
+LessonBuilder will support quizes from Mneme, topics from JForum or
+YAFT, and external tools using Basic LTI. Most of these should cause
+no trouble if your system does use them. However I've had to disable
+support for Mneme to allow Lesson Builder to build on systems without
+it. The Jforum, YAFT and BLTI code starts by checking whether those
+modules are actually present. If not, it disables itself. Thus there's
+no obvious reason to remove it, although you can do so.
 
 Note however that the jForum and YAFT interfaces are not currently
 able to create topics when importing Common Cartridge documents, nor
@@ -159,37 +159,34 @@ need to create the topic and choose it in Lesson Builder. The problem
 is that jForum does not have an API that allows another tool to create
 items, and YAFT isn't group-aware.
 
-To put back Mneme or YAFT support, 
+To put back Mneme support, 
 
 1.in tool/src/webapp/WEB-INF/applicationContext.xml,
 
-look for the two comments tarting with <!-- mneme or yaft and remove them
+look for the two comments tarting with <!-- mneme and remove them
 
 2. rename 
 tool/src/java/org/sakaiproject/lessonbuildertool/service/MnemeEntity.java.disabled
 to 
 tool/src/java/org/sakaiproject/lessonbuildertool/service/MnemeEntity.java
 
-or 
-./tool/src/java/org/sakaiproject/lessonbuildertool/service/YaftTopicEntity.java.disabled
-to
-./tool/src/java/org/sakaiproject/lessonbuildertool/service/YaftTopicEntity.java
+3. in tool/pom.xml look for the comment tarting with <!-- mneme and remove them
 
-3. in tool/pom.xml look for the comment tarting with <!-- mneme or yaft and remove them
+Note that the version number of YAFT AND BLTI are defined in the main pom.xml,
+in the declarations for sakai.yaft.version and sakai.blti.version. If you
+are using using YAFT or BLTI in your site, then you will not have the JAR
+files on hand. In that case Maven will fetch them from a repository.
 
-Note that the version number of YAFT is defined in the main pom.xml,
-in the declaration for sakai.yaft.version. If you are using YAFT,
-check to make sure that this declaration agrees with the version you
-are using.
+In order for Lesson Builder to build, the versions used must be
+versions where JAR files are stored in one of the standard
+repositories. That should be true for the pom.xml distributed with
+Lesson Builder. 
 
-If you don't use JForum, you could remove support for it. There's
-no obvious reason to do so, since the code detects that Jforum is
-not present in the build and disables itself. But to remove it,
-edit tool/src/webapp/WEB-INF/applicationContext.xml,
-and remove or comment out the bean declaration for
-org.sakaiproject.lessonbuildertool.service.JForumEntity
-and the nextEntity property in 
-org.sakaiproject.lessonbuildertool.service.ForumEntity
+Note that blti.version is set to a version for Sakai 2.9, even with
+the 2.8 build profile. Lesson Builder's LTI support will not work with
+the Sakai 2.8 version, and in fact Lesson Builder won't even work. So
+you'll need to leave the BLTI version number at 2.0 or higher, even if
+you are actually using a lower version of BLTI on your system.
 
 
 SAKAI VERSIONS

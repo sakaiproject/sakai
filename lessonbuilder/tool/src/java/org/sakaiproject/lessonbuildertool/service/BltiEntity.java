@@ -92,9 +92,6 @@ public class BltiEntity implements LessonEntity, BltiInterface {
     private SimplePageBean simplePageBean;
 
     protected static LTIService ltiService = null; 
-    public void setLtiService(LTIService ltiService) {
-	this.ltiService = ltiService;
-    }
 
     public void setSimplePageBean(SimplePageBean simplePageBean) {
 	this.simplePageBean = simplePageBean;

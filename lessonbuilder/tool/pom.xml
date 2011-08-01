@@ -34,7 +34,7 @@
             <groupId>org.sakaiproject.basiclti</groupId>
             <artifactId>basiclti-api</artifactId>
             <version>${sakai.blti.version}</version>
-            <scope>${sakai.blti.scope}</scope>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -107,14 +107,12 @@
             <version>${sakai.samigo.version}</version>
             <scope>provided</scope>
         </dependency>
-<!-- yaft
         <dependency>
             <groupId>org.sakaiproject.yaft</groupId>
             <artifactId>yaft-api</artifactId>
             <version>${sakai.yaft.version}</version>
             <scope>provided</scope>
         </dependency>
--->
 <!-- mneme
 
         <dependency> 
