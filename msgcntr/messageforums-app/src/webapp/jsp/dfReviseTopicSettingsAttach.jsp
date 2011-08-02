@@ -255,7 +255,7 @@
 			</h:selectBooleanCheckbox> <h:outputLabel for="autoMarkThreadsRead"
 				value="#{msgs.cdfm_auto_mark_threads_read}" /></p>
 				</td></tr></table>
-
+				<h4><h:outputText value="#{msgs.perm_choose_assignment_head}" rendered="#{ForumTool.gradebookExist}" /></h4>
 				<h:panelGrid columns="2" rendered="#{ForumTool.gradebookExist && !ForumTool.selectedForum.markForDeletion}" style="margin-top:.5em;clear:both"  styleClass="itemSummary">
 			    <h:panelGroup  style="white-space:nowrap;">
 						<h:outputLabel for="topic_assignments"  value="#{msgs.perm_choose_assignment}"  ></h:outputLabel>

@@ -268,6 +268,8 @@
 
 	      <%--designNote: gradebook assignment - need to finesse this - make aware that functionality exists, but flag that there are no gb assignmetns to select --%>
 				<%--designNote:  How is this a "permission" item? --%>  
+				<h4><h:outputText value="#{msgs.perm_choose_assignment_head}" rendered="#{ForumTool.gradebookExist}" /></h4>
+
 				<h:panelGrid columns="2" rendered="#{ForumTool.gradebookExist}" style="margin-top:.5em;clear:both" styleClass="itemSummary">
 			    <h:panelGroup style="white-space:nowrap;">
 						<h:outputLabel for="forum_assignments" value="#{msgs.perm_choose_assignment}"></h:outputLabel>  
