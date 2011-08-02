@@ -167,13 +167,14 @@ function disableIt()
     <h:panelGrid columns="1" columnClasses="samLeftNav" width="100%">
 	  <h:panelGroup rendered="#{!totalScores.hasRandomDrawPart}">
         <h:outputText value="#{evaluationMessages.max_score_poss}" style="instruction"/>
-        <h:outputText value="#{totalScores.maxScore}" style="instruction"/>
+        <h:outputText value=" #{totalScores.maxScore}" style="instruction"/>
       </h:panelGroup>
 	  
 	  <h:panelGroup rendered="#{totalScores.allSubmissions!='4'}">
 	    <h:commandButton value="#{evaluationMessages.applyGrades} " id="applyScoreButton" styleClass="active" type="submit">
 	  				<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreUpdateListener" />
 	  	</h:commandButton>
+	  	<h:outputText value=" "/>
 	  	<h:inputText id="applyScoreUnsubmitted" value="#{totalScores.applyToUngraded}"  onkeydown="inIt()" onchange="toPoint(this.id);" size="5"/>
 		<h:outputText value=" #{evaluationMessages.applyGradesDesc}"/>
 	  </h:panelGroup>
