@@ -26,6 +26,16 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
+        <repository>
+            <id>local-hack</id>
+            <name>Backup API copies</name>
+            <layout>default</layout>
+            <url>file:./repos</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+
     </repositories>
 
     <dependencies>
@@ -113,14 +123,13 @@
             <version>${sakai.yaft.version}</version>
             <scope>provided</scope>
         </dependency>
-<!-- mneme
 
         <dependency> 
 	  <groupId>org.etudes.mneme</groupId>
 	  <artifactId>etudes-mneme-api</artifactId> 
-          <version>1.2</version> <scope>provided</scope> 
+          <version>${sakai.mneme.version}</version> 
+	  <scope>provided</scope> 
 	</dependency> 
--->
 
         <dependency>
             <groupId>javax.servlet</groupId>

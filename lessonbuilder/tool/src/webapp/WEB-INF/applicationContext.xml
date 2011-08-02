@@ -85,21 +85,17 @@
 
     <property name="publishedAssessmentFacadeQueries"><ref bean="PublishedAssessmentFacadeQueries" /></property>
     <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
-<!-- mneme    <property name="nextEntity"><ref bean="org.sakaiproject.lessonbuildertool.service.MnemeEntity"/></property> -->
+    <property name="nextEntity"><ref bean="org.sakaiproject.lessonbuildertool.service.MnemeEntity"/></property> 
     <property name="messageLocator" ref="messageLocator"/>
   </bean>
 
-<!-- mneme
   <bean id="org.sakaiproject.lessonbuildertool.service.MnemeEntity"
 	class="org.sakaiproject.lessonbuildertool.service.MnemeEntity"
         init-method="init"
         destroy-method="destroy">
-    <property name="assessmentService"><ref bean="org.etudes.mneme.api.AssessmentService" /></property>
-    <property name="submissionService"><ref bean="org.etudes.mneme.api.SubmissionService" /></property>
     <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
     <property name="messageLocator" ref="messageLocator"/>
   </bean>
--->
 
   <bean id="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"
 	class="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"

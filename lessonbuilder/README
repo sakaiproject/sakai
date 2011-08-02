@@ -119,9 +119,6 @@ a few more things:
 some changes, depending upon the version of Sakai you are
 running:
 
-* If you want support for Mneme, you will need to enable it.
-See below.
-
 * You will probably want to install SAK-20799. This allows people to
 hide tools without disablign them. A lot of faculty want to hide the
 assignments and tests tool so students can only go through Lesson
@@ -144,10 +141,10 @@ anything beyond this point.
 MNEME, JAFT, BASIC LTI AND JFORUM DEPENDENCIES
 
 LessonBuilder will support quizes from Mneme, topics from JForum or
-YAFT, and external tools using Basic LTI. Most of these should cause
-no trouble if your system does use them. However I've had to disable
-support for Mneme to allow Lesson Builder to build on systems without
-it. The Jforum, YAFT and BLTI code starts by checking whether those
+YAFT, and external tools using Basic LTI. If your system doesn't
+use them, you can ignore this section.
+
+he Mneme, Jforum, YAFT and BLTI code starts by checking whether those
 modules are actually present. If not, it disables itself. Thus there's
 no obvious reason to remove it, although you can do so.
 
@@ -159,34 +156,27 @@ need to create the topic and choose it in Lesson Builder. The problem
 is that jForum does not have an API that allows another tool to create
 items, and YAFT isn't group-aware.
 
-To put back Mneme support, 
+Note that the version number of Mneme, YAFT, and BLTI are defined in
+the main pom.xml, in the declarations for sakai.mneme.version,
+sakai.yaft.version and sakai.blti.version. If you are using using
+Mneme, YAFT or BLTI in your site, then you will need to change the
+version numbers in the file to match the version number you are using
+locally. Otherwise there could be problems with Lesson Builder using
+the wrong version of the interface code.
 
-1.in tool/src/webapp/WEB-INF/applicationContext.xml,
-
-look for the two comments tarting with <!-- mneme and remove them
-
-2. rename 
-tool/src/java/org/sakaiproject/lessonbuildertool/service/MnemeEntity.java.disabled
-to 
-tool/src/java/org/sakaiproject/lessonbuildertool/service/MnemeEntity.java
-
-3. in tool/pom.xml look for the comment tarting with <!-- mneme and remove them
-
-Note that the version number of YAFT AND BLTI are defined in the main pom.xml,
-in the declarations for sakai.yaft.version and sakai.blti.version. If you
-are using using YAFT or BLTI in your site, then you will not have the JAR
-files on hand. In that case Maven will fetch them from a repository.
-
-In order for Lesson Builder to build, the versions used must be
-versions where JAR files are stored in one of the standard
-repositories. That should be true for the pom.xml distributed with
-Lesson Builder. 
+If you are not using these tools, then Lesson Builder will fetch the
+API files from one of the standard repositories, except that a copy of
+the Mneme API is included (because it is not in any of the standard
+repositories). If the version in the repository changes, you may need
+to update the version number on pom.xml here.
 
 Note that blti.version is set to a version for Sakai 2.9, even with
 the 2.8 build profile. Lesson Builder's LTI support will not work with
-the Sakai 2.8 version, and in fact Lesson Builder won't even work. So
+the Sakai 2.8 version, and in fact Lesson Builder won't even build. So
 you'll need to leave the BLTI version number at 2.0 or higher, even if
-you are actually using a lower version of BLTI on your system.
+you are actually using a lower version of BLTI on your system. If you
+are using an older BLTI, then the BLTI support in Lesson Builder will
+be disabled.
 
 
 SAKAI VERSIONS

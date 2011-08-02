@@ -39,6 +39,7 @@
                 <sakai.msgcntr.version>2.8-SNAPSHOT</sakai.msgcntr.version>
                 <sakai.samigo.version>2.8-SNAPSHOT</sakai.samigo.version>
                 <sakai.yaft.version>1.2.1-SNAPSHOT</sakai.yaft.version>
+                <sakai.mneme.version>1.2-hack</sakai.mneme.version>
                 <rsfutil.version>0.8-SNAPSHOT</rsfutil.version>
                 <sakairsf.version>0.8-SNAPSHOT</sakairsf.version>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
@@ -56,6 +57,7 @@
                 <sakai.msgcntr.version>2.8.0</sakai.msgcntr.version>
                 <sakai.samigo.version>2.8.0</sakai.samigo.version>
                 <sakai.yaft.version>1.2.1-SNAPSHOT</sakai.yaft.version>
+                <sakai.mneme.version>1.2-hack</sakai.mneme.version>
                 <rsfutil.version>0.8-SNAPSHOT</rsfutil.version>
                 <sakairsf.version>0.8-SNAPSHOT</sakairsf.version>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
