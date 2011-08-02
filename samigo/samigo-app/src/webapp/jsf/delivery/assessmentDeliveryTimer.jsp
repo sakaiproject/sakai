@@ -58,7 +58,6 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 
 <!-- HIDE / SHOW TIMER BAR -->
 <h:commandButton type="button" onclick="document.getElementById('remText').style.display=document.getElementById('remText').style.display=='none' ? '': 'none';document.getElementById('timer').style.display=document.getElementById('timer').style.display=='none' ? '': 'none';document.getElementById('bar').style.display=document.getElementById('bar').style.display=='none' ? '': 'none'"
-onkeypress="document.getElementById('remText').style.display=document.getElementById('remText').style.display=='none' ? '': 'none';document.getElementById('timer').style.display=document.getElementById('timer').style.display=='none' ? '': 'none';document.getElementById('bar').style.display=document.getElementById('bar').style.display=='none' ? '': 'none'"
  value="#{deliveryMessages.hide_show}" />
 <!-- END OF TIMER -->
 
