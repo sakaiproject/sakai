@@ -375,7 +375,35 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 }
 
 	public CalendarItem getCalendarItem(String entityReference) {
-		// TODO Auto-generated method stub
-		return null;
+		if(log.isDebugEnabled()) {
+			log.debug("getCalendarItem(" + entityReference + ")");
+		}
+		
+		try {
+			return (CalendarItem) getJdbcTemplate().queryForObject(getStatement("select.calendar_item.by.entityReference"),
+				new Object[]{entityReference},
+				new CalendarItemMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return null;
+		}
+
+	}
+	public CalendarItem getCalendarItem(long id) {
+		if(log.isDebugEnabled()) {
+			log.debug("getCalendarItem(" + id + ")");
+		}
+		
+		try {
+			return (CalendarItem) getJdbcTemplate().queryForObject(getStatement("select.calendar_item.by.id"),
+				new Object[]{Long.valueOf(id)},
+				new CalendarItemMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return null;
+		}
+
 	}
 }
