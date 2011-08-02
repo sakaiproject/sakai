@@ -78,9 +78,13 @@ public class MnemeEntity implements LessonEntity, QuizEntity {
     private static Cache assessmentCache = null;
     protected static final int DEFAULT_EXPIRATION = 10 * 60;
 
-    static AssessmentService assessmentService = null;
 
-    static SubmissionService submissionService = null;
+    static AssessmentService assessmentService = (AssessmentService)
+	    ComponentManager.get("org.etudes.mneme.api.AssessmentService");
+
+
+    static SubmissionService submissionService = (SubmissionService)
+	    ComponentManager.get("org.etudes.mneme.api.SubmissionService");
 
     private SimplePageBean simplePageBean;
 
@@ -106,19 +110,12 @@ public class MnemeEntity implements LessonEntity, QuizEntity {
 	messageLocator = m;
     }
 
-    static ImportQtiService importQtiService = null;
+    static ImportQtiService importQtiService = (ImportQtiService)
+	    ComponentManager.get("org.etudes.mneme.api.ImportQtiService");
 
     public void init () {
 	assessmentCache = memoryService
 	    .newCache("org.sakaiproject.lessonbuildertool.service.MnemeEntity.cache");
-	importQtiService = (ImportQtiService)
-	    ComponentManager.get("org.etudes.mneme.api.ImportQtiService");
-	    
-	assessmentService = (AssessmentService)
-	    ComponentManager.get("org.etudes.mneme.api.AssessmentService");
-
-	submissionService = (SubmissionService)
-	    ComponentManager.get("org.etudes.mneme.api.SubmissionService");
 
 	log.info("init()");
 
@@ -155,9 +152,10 @@ public class MnemeEntity implements LessonEntity, QuizEntity {
     protected int level;
     // not required fields. If we need to look up
     // the actual objects, lets us cache them
-    protected Assessment assessment;
 
-    public Assessment getAssessment(String id) {
+    private Assessment assessment;
+
+    private Assessment getAssessment(String id) {
 	
 	Assessment ret = (Assessment)assessmentCache.get(id);
 
