@@ -265,8 +265,8 @@ public class TotalScoreUpdateListener
     	  while(allAgentsItr.hasNext()){
     		  AgentResults agentResults = (AgentResults) allAgentsItr.next();
     		  String overrideScore = agentResults.getTotalOverrideScore();
-    		  if (agentResults.getAssessmentGradingId().equals(Long.valueOf(-1)) && (overrideScore == null || "".equals(overrideScore) || "-".equals(overrideScore))) {
-    			  // these are students who have not submitted for grades and instructor made adjustment to their scores
+    		  if (agentResults.getAssessmentGradingId().equals(Long.valueOf(-1)) || agentResults.getSubmittedDate() == null) {
+    		  	  // these are students who have not submitted for grades and instructor made adjustment to their scores
     			  // Add up new score
     			  AssessmentGradingData data = new AssessmentGradingData();
 
@@ -284,7 +284,7 @@ public class TotalScoreUpdateListener
     				  // tell hibernate this is a new record
     				  data.setAssessmentGradingId(Long.valueOf(0));
     				  data.setSubmittedDate(null);
-    				  data.setTotalAutoScore(Float.valueOf(agentResults.getTotalAutoScore()));
+    				  data.setTotalAutoScore(Float.valueOf(0f));
     				  data.setTotalOverrideScore(Float.valueOf(agentResults.getTotalOverrideScore()));
     				  data.setFinalScore(Float.valueOf(agentResults.getFinalScore()));
     				  data.setComments(agentResults.getComments());
