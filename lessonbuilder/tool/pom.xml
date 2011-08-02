@@ -30,7 +30,7 @@
             <id>local-hack</id>
             <name>Backup API copies</name>
             <layout>default</layout>
-            <url>file:./repos</url>
+            <url>http://oirt.rutgers.edu/repos</url>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
