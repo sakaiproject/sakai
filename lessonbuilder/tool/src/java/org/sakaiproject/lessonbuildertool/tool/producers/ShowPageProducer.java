@@ -2168,8 +2168,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	// in the edit dialogs
 	private void createAddMultimediaDialog(UIContainer tofill, SimplePage currentPage) {
 		UIOutput.make(tofill, "add-multimedia-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.resource")));
-		UILink.make(tofill, "mm-additional-instructions", messageLocator.getMessage("simplepage.additional-instructions-label"), messageLocator.getMessage("simplepage.additional-instructions"));
-		UILink.make(tofill, "mm-additional-website-instructions", messageLocator.getMessage("simplepage.additional-website-instructions-label"), messageLocator.getMessage("simplepage.additional-website-instructions"));
+		UILink.make(tofill, "mm-additional-instructions", messageLocator.getMessage("simplepage.additional-instructions-label"), 
+			    getLocalizedURL( "multimedia.html"));
+		UILink.make(tofill, "mm-additional-website-instructions", messageLocator.getMessage("simplepage.additional-website-instructions-label"), 
+			    getLocalizedURL( "website.html"));
 
 		UIForm form = UIForm.make(tofill, "add-multimedia-form");
 
