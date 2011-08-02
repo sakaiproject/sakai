@@ -64,6 +64,6 @@
 </h:panelGrid>
 
 <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2' }">
-  <h:outputLabel value="#{authorMessages.feedback}: " />
+  <h:outputLabel value="#{commonMessages.feedback}: " />
   <h:outputText value="#{question.itemData.generalItemFeedback}" escape="false" />
 </h:panelGroup>
