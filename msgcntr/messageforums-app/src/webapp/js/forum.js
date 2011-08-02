@@ -476,7 +476,9 @@ function fckeditor_word_count(editorInstance) {
 }
 
 function msgcntr_word_count(forumHtml) {
-     document.getElementById('counttotal').innerHTML = "<span class='highlight'>(" + getWordCount(forumHtml) + ")</span>";
+    if (document.getElementById('counttotal')) {
+        document.getElementById('counttotal').innerHTML = "<span class='highlight'>(" + getWordCount(forumHtml) + ")</span>";
+    }
 }
   
  function fckeditor_word_count_fromMessage(msgStr, countSpan){
