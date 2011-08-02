@@ -68,8 +68,10 @@
           for (var i=0; i<node_list.length; i++) {
             var node = node_list[i];		
             if (node.getAttribute('type') == 'hidden' && node.id.endsWith('forceRanking')){
+              alert("forceRanking");
               var nodeIdParts = node.id.split(":");
               if(nodeIdParts[4]==myIdParts[4] && node.value == 'true'){
+                alert(nodeIdParts[4]);
                 //find the radio button table(s)
                 var tables = document.getElementsByTagName('table');
 
@@ -85,17 +87,20 @@
                 //index will be the begining of 'matrixSurveyRadioTable'
                 var index = myId.indexOf("matrixSurveyRadioTable");
                 var strBefore = myId.substring(0,index+'matrixSurveyRadioTable'.length);
-                //alert(strBefore);
+                alert(strBefore);
                 //remove table no 
                 var strAfter = myId.substring(index+'matrixSurveyRadioTable'.length+2);
-                //alert(strAfter);
+                alert(strAfter);
                 //find rows of mytable	
+                alert('hh');
                 var iRow = mytable.getElementsByTagName('tr');
+                alert(iRow.length);
                 //three rows before the row containing the radio button
                 for (var i=0; i<iRow.length-3;i++){
+                    alert(i);
                   //construct radio button id in the same column
                   var currentRadioButtonId= strBefore+":"+i+strAfter;
-                  //alert(currentRadioButtonId);
+                  alert(currentRadioButtonId);
                   var button=document.getElementById(currentRadioButtonId);
                   var buttonIdStr = String(button.id);
                   if(button.getAttribute('type') == 'radio' && button.checked == true && buttonIdStr != myId){
@@ -290,13 +295,14 @@ String.prototype.endsWith = function(txt)
 
       <h:dataTable width="100%" value="#{part.itemContents}" var="question">
         <h:column>
-<f:verbatim><h5></f:verbatim>
+
 <h:panelGrid columns="2" width="100%" columnClasses="navView,navList">
          <h:panelGroup>
+           <f:verbatim><h5></f:verbatim>
            <h:outputText value="<a name='p#{part.number}q#{question.number}'></a>" escape="false" />
-
-        <h:outputText value="#{deliveryMessages.q} #{question.sequence} #{deliveryMessages.of} #{part.numbering}"/>
-</h:panelGroup>
+           <h:outputText value="#{deliveryMessages.q} #{question.sequence} #{deliveryMessages.of} #{part.numbering}"/>
+           <f:verbatim></h5></f:verbatim>
+         </h:panelGroup>
 <h:panelGroup>
 <h:outputText value=" #{question.pointsDisplayString} #{question.maxPoints} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
 
