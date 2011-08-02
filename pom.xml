@@ -214,7 +214,9 @@
                 <module>content/content-bundles</module>
                 <module>content/content-help</module>
                 <module>content/content-tool/tool</module>
-		<module>content/content-copyright</module>
+		<module>content/content-copyright/api</module>
+		<module>content/content-copyright/impl</module>
+		<module>content/content-copyright/pack</module>
                 <module>courier</module>
                 <module>help</module>
                 <module>login</module>
