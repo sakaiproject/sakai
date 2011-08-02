@@ -250,7 +250,7 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 			if (tsItems != null) {
 				for (SignupTimeslot tsItem : tsItems) {
 					/*strange thing happen for hibernate, tsItem can be null for mySql 4.x*/
-					List<SignupAttendee> attendees = tsItem == null ? null : tsItem.getAttendees();
+					List<SignupAttendee> attendees = tsItem == null ? null : getValidAttendees(tsItem.getAttendees());
 					if (attendees != null) {
 						for (SignupAttendee att : attendees) {
 							Row row = sheet.createRow(rowNum++);
@@ -287,7 +287,7 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 									.getStartTime()));// minutes
 
 							cell = row.getCell(cellNum++);
-							cell.setCellValue(tsItem.getAttendees().size());
+							cell.setCellValue(getValidAttendees(tsItem.getAttendees()).size());
 
 							cell = row.getCell(cellNum++);
 							cell.setCellValue(att.getComments());
@@ -664,9 +664,9 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 				else if (isOrganizer(wrapper.getMeeting())) {
 					cell.setCellValue(tsItem.getMaxNoOfAttendees());
 				} else {
-					int availableSpots = tsItem.getAttendees() != null ? tsItem
+					int availableSpots = getValidAttendees(tsItem.getAttendees()) != null ? tsItem
 							.getMaxNoOfAttendees()
-							- tsItem.getAttendees().size() : tsItem.getMaxNoOfAttendees();
+							- getValidAttendees(tsItem.getAttendees()).size() : tsItem.getMaxNoOfAttendees();
 					availableSpots = availableSpots < 1 ? 0 : availableSpots;
 					String value = String.valueOf(availableSpots);
 					if (tsItem.isLocked())
@@ -679,7 +679,7 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 
 				// attendee
 				cell = row.getCell(5);
-				List<SignupAttendee> attendees = tsItem.getAttendees();
+				List<SignupAttendee> attendees = getValidAttendees(tsItem.getAttendees());
 				String aNames = rb.getString("event_show_no_attendee_info");
 				if (isDisplayNames(wrapper.getMeeting())) {
 					if (attendees != null && attendees.size() > rowHighNum) {
@@ -744,7 +744,7 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 		if (tsItems != null) {
 			for (SignupTimeslot ts : tsItems) {
 				/*strange thing happen for hibernate, it can be null for mySql 4.x*/
-				List<SignupAttendee> attendees = ts != null ? ts.getAttendees() : null;
+				List<SignupAttendee> attendees = ts != null ? getValidAttendees(ts.getAttendees()) : null;
 				if (attendees != null) {
 					for (SignupAttendee att : attendees) {
 						if (isOrganizer(wrapper.getMeeting()) || isViewerSelf(att)) {
@@ -1113,7 +1113,7 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 				if (tsItems != null) {
 					for (SignupTimeslot tsItem : tsItems) {
 						/*strange thing happen for hibernate, tsItem can be null for mySql 4.x*/
-						List<SignupAttendee> attendees = tsItem == null ? null : tsItem.getAttendees();
+						List<SignupAttendee> attendees = tsItem == null ? null : getValidAttendees(tsItem.getAttendees());
 						if (attendees != null) {
 							for (SignupAttendee att : attendees) {
 
@@ -1220,6 +1220,22 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 		else{
 			return false;
 		}
+	}
+	
+	/**
+	 * Clean the list of attendees by checking that each user is valid. This is a duplicate of the SignupUIBaseBean method.
+	 * @param attendees     List of attendees to be cleaned
+	 * @return      the cleaned list
+	 */
+	public List<SignupAttendee> getValidAttendees(List<SignupAttendee> attendees) {
+		List<SignupAttendee> cleanedList = new ArrayList<SignupAttendee>();
+
+		for(SignupAttendee attendee: attendees){
+			if(sakaiFacade.checkForUser(attendee.getAttendeeUserId())) {
+				cleanedList.add(attendee);
+			}
+		}
+		return cleanedList;
 	}
 
 }
