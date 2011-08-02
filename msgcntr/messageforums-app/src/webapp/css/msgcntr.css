@@ -64,6 +64,7 @@
 	/*	short description whenever one occurs - do not use padding */
 	display: block;
 	margin: .5em 0;
+    font-size:.85em;
 }
 .messageNew{
 	color: #000;
@@ -403,7 +404,7 @@ td div.title{
 	height: 1.75em;
 }
 .permissionRow .ui-accordion-header:hover { 
-	border: 1px solid #C03;
+	border: 1px solid #666;
 }
 .permissionRow .ui-accordion-header.ui-state-active {
 	border-radius: 4px 4px 0 0;
@@ -514,4 +515,11 @@ form{margin-bottom:0;}
 	margin-bottom:3px
 }
 .messageCommentBody{
+}
+.calWidget{
+    vertical-align:middle;
+}
+.calWidget img{
+     vertical-align:middle;
+     margin-right:3em
 }

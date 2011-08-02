@@ -509,3 +509,29 @@ function InsertHTML(header) {
 	}
 	else alert( 'You must be in WYSIWYG mode!' );
 }
+
+var setupLongDesc = function(){
+    var showMoreText = $('.showMoreText').text();
+    $('.show').hide();
+    $('.textPanel').each(function(i){
+        if ($(this).text().length > 200) {
+            var trimmed = $(this).text().substring(0, 200) + '... <a class=\"moreDescription\")" href=\"#\">' + showMoreText + '</a>';
+        }
+        else{
+            var trimmed = $(this).html();
+        }
+        var insertPoint = $(this).parent('.toggle');
+        $('<p class=\"trimmedPanelTop\">' + trimmed + '</p>').insertBefore(insertPoint);
+    });
+    $('.moreDescription').live('click', function(e){
+        e.preventDefault();
+        var trimmedText = $(this).parent();
+        var textPanel = $(this).parent('p').next('div.toggle');
+        $(trimmedText).fadeOut('slow', function(){
+            $(textPanel).fadeIn('slow');
+        });
+        resizeFrame('grow')
+        
+    });
+    
+}

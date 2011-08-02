@@ -60,6 +60,9 @@
  			$(document).ready(function() {
 				setupMessageNav('messagePending');
 				setupMessageNav('messageNew');
+				if ($('div.hierItemBlock').length > 2){
+					$('.itemNav').clone().addClass('specialLink').appendTo('form')
+				}
 			});
 </script>		
 		<sakai:tool_bar separator="#{msgs.cdfm_toolbar_separator}">
@@ -167,5 +170,8 @@
 	
 	</h:form>
 	<h:outputText value="#{msgs.cdfm_insufficient_privileges_view_topic}" rendered="#{ForumTool.selectedTopic.topic.draft && ForumTool.selectedTopic.topic.createdBy != ForumTool.userId}" />
+	
+				 
+	
 </sakai:view>
 </f:view>

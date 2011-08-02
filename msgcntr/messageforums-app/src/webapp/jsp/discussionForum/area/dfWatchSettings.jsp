@@ -15,7 +15,9 @@
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 <!--jsp/discussionForum/area/dfWatchSettings.jsp-->
         <sakai:tool_bar_message value="#{msgs.watch_forums_options}" />
-
+				<p class="instruction">
+					<h:outputText escape="false" value="#{msgs.watch_forums_options_instruction}" />
+				</p>
 				  <h:panelGroup>
 					  <h:selectOneRadio layout="pageDirection" id="emailNotificationOption"  value="#{ForumTool.watchSettingsBean.emailNotification.notificationLevel}">
     					<f:selectItem itemValue="2" itemLabel="#{msgs.notify_for_all_postings}"/>

@@ -8,11 +8,12 @@
 <f:view>
 <sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
     <h:form id="msgForum" rendered="#{!ForumTool.selectedForum.forum.draft || ForumTool.selectedForum.forum.createdBy == ForumTool.userId}">
-  		<script type="text/javascript" src="/library/js/jquery.js"></script>
+		<script type="text/javascript" src="/library/js/jquery/1.4.2/jquery-1.4.2.min.js"></script>
   		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
     	<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
 <!--jsp/discussionForum/forum/dfForumDetail.jsp-->
 
+			<h:outputText styleClass="showMoreText"  style="display:none" value="#{msgs.cdfm_show_more_full_description}"  />
 
 
 		<h3 class="specialLink" style="margin-bottom:1em">
@@ -199,10 +200,12 @@
   }
 %>
 			<script type="text/javascript">
+
 			function resize(){
   				mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
   			}
 			</script> 
+<h:outputText escape="false" value="<script type='text/javascript'>$(document).ready(function() {setupLongDesc()});</script>"  rendered="#{!ForumTool.showShortDescription}"/>
 	 </h:form>
 	 <h:outputText value="#{msgs.cdfm_insufficient_privileges_view_forum}" rendered="#{ForumTool.selectedForum.forum.draft && ForumTool.selectedForum.forum.createdBy != ForumTool.userId}" />
     </sakai:view>

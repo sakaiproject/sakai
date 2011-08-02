@@ -1,11 +1,88 @@
 <!--jsp/discussionForum/area/dfAreaInclude.jsp-->
-<h:outputText styleClass="instruction"  value="#{msgs.cdfm_forum_noforums}"  rendered="#{empty ForumTool.forums}"/>
-<h:dataTable id="forums" value="#{ForumTool.forums}" rendered="#{!empty ForumTool.forums}"  width="100%" var="forum" cellpadding="0" cellspacing="0" styleClass="specialLink">
+<h:panelGrid columns="1" cellpadding="3" rendered="#{empty ForumTool.forums}">
+	<h:panelGroup>
+		<h:outputText styleClass="instruction noForumsMessage"  value="#{msgs.cdfm_forum_noforums} "  />
+		<h:commandLink  id="create_forum" title="#{msgs.cdfm_new_forum}" value="#{msgs.cdfm_forum_inf_no_forum_create}" action="#{ForumTool.processActionNewForum}" rendered="#{ForumTool.newForum}" />
+	</h:panelGroup>
+</h:panelGrid>
+<h:outputText styleClass="accessUserCheck" style="display:none" rendered="#{ForumTool.newForum}" value="x"/>
+<script type="text/javascript">
+$(document).ready(function() {
+	var topicLen = $('.topicBloc').length;
+	var forumLen = $('.forumHeader').length;
+	var draftForumLen = $('.draftForum').length
+	var draftTopicLen = $('.draftTopic').length
+	var accessCheck = $('.accessUserCheck').length
+	var noForums = $('.noForumsMessage').length
+
+	if (forumLen===1 && draftForumLen ===0 && topicLen===1 && draftTopicLen ===0){
+		//probably the default forum adn topic, show an orienting message
+		$('.defForums').show();
+	}
+
+	// either no topics or all topics are draft - show message in either case
+	if((topicLen===0 || draftTopicLen===topicLen) && forumLen !==0){
+		if ((topicLen===draftTopicLen) && topicLen!==0){
+			$('.noTopicsDraft').show();
+		}
+		$('.noTopics').show();
+		if(topicLen===0){
+		$('.noTopicsatAll').show();
+		}
+	}
+	//all forums are draft - show message
+	if ((forumLen=== draftForumLen) && forumLen !==0){
+		$('.noForumsDraft').show();
+		$('.noTopics').hide();
+	}
+	//no forums because they are all draft or childless- show message to access users
+	if (forumLen ===0 && accessCheck === 0 && noForums ===0){
+		$('.noForumsAccess').show();
+	}
+});
+</script>
+<h:outputText escape="false" value="<script type='text/javascript'>$(document).ready(function() {setupLongDesc()});</script>"  rendered="#{!ForumTool.showShortDescription}"/>
+
+			<h:outputText styleClass="showMoreText"  style="display:none" value="#{msgs.cdfm_show_more_full_description}"  />
+
+	<p class="instruction noForumsAccess"  style="display:none;">
+			<h:outputText styleClass="instruction"  value="#{msgs.cdfm_forum_inf_no_forum_access}"  />
+	</p>
+<f:subview id="maintainMessages" rendered="#{ForumTool.newForum}">
+<f:verbatim>
+	<p class="instruction defForums highlightPanel"  style="display:none;width:70%">
+</f:verbatim>
+<h:outputText value="#{msgs.cdfm_forum_inf_init_guide}" escape="false" />
+<f:verbatim>
+	</p>
+</f:verbatim>
+<f:verbatim>
+	<p class="instruction noTopics  highlightPanel" style="display:none">
+</f:verbatim>
+<h:outputText styleClass="highlight" style="font-weight:bold" value="#{msgs.cdfm_forum_inf_note} " />
+<h:outputText escape="false" value="#{msgs.cdfm_forum_inf_no_topics}" styleClass="noTopicsatAll" style="display:none"/>
+<f:verbatim>
+<span class="noTopicsDraft" style="display:none"><h:outputText value="#{msgs.cdfm_forum_inf_all_topics_draft}" /></span>
+	</p>
+</f:verbatim>
+<f:verbatim>
+	<p class="instruction noForumsDraft  highlightPanel" style="display:none"><h:outputText styleClass="highlight" style="font-weight:bold" value="#{msgs.cdfm_forum_inf_note} " />
+</f:verbatim>
+<!--
+<h:outputText escape="false" value="#{msgs.cdfm_forum_inf_no_forums}"/>
+-->
+<f:verbatim>
+<span class="noForumsDraft" style="display:none"><h:outputText value="#{msgs.cdfm_forum_inf_all_forums_draft}" /></span>
+</p>
+</f:verbatim>
+</f:subview>
+
+<h:dataTable id="forums" value="#{ForumTool.forums}" rendered="#{!empty ForumTool.forums}"  width="100%" var="forum" cellpadding="0" cellspacing="0" styleClass="specialLink" border="0">
     <h:column rendered="#{! forum.nonePermission}">
-		<h:panelGrid columns="1" styleClass="forumHeader">
+		<h:panelGrid columns="1" styleClass="forumHeader"  border="0">
   	    <h:panelGroup>
 				<%-- link to forum and decorations --%>
-				<h:outputText styleClass="highlight title" id="draft" value="#{msgs.cdfm_draft}" rendered="#{forum.forum.draft == 'true'}"/>
+				<h:outputText styleClass="highlight title draftForum" id="draft" value="#{msgs.cdfm_draft}" rendered="#{forum.forum.draft == 'true'}"/>
 				<h:outputText id="draft_space" value=" -  " rendered="#{forum.forum.draft == 'true'}" styleClass="title"/>
 				<%-- availability marker --%>
 				<h:graphicImage url="/images/silk/date_delete.png" title="#{msgs.forum_restricted_message}" alt="#{msgs.forum_restricted_message}" rendered="#{forum.availability == 'false'}" style="margin-right:.5em"/>
@@ -72,7 +149,7 @@
 					<h:outputText value=" #{msgs.cdfm_and}"  rendered="#{!empty forum.attachList && forum.forum.extendedDescription != '' && forum.forum.extendedDescription != null && forum.forum.extendedDescription != '<br/>'}"/>
 					<h:outputText value=" #{msgs.cdfm_attach}"  rendered="#{!empty forum.attachList}"/>
 			  </h:outputLink>
-				<f:verbatim><div class="toggle" style="display:none;padding-left:1em"></f:verbatim>
+				<f:verbatim><div class="toggle" style="display:none;"></f:verbatim>
 					<mf:htmlShowArea value="#{forum.forum.extendedDescription}"  hideBorder="true" />
 					<%-- attachs --%>
 					<h:dataTable  value="#{forum.attachList}" var="eachAttach" rendered="#{!empty forum.attachList}" columnClasses="attach,bogus" style="font-size:.9em;width:auto;margin-left:1em" border="0" cellpadding="3" cellspacing="0">
@@ -95,15 +172,25 @@
 	  </h:panelGroup>
   </h:panelGrid>
 	  <%-- the topic list  --%>
-		<%--//designNote: need a rendered atttrib for the folowing predicated on the existence of topics in this forum--%>
-		<h:dataTable id="topics" rendered="#{!empty forum.topics}" value="#{forum.topics}" var="topic"  width="100%"   cellspacing="0" cellpadding="0">
+		<%--//designNote: display a message if there is no topics for this forum , give a prompt to create a topic--%>
+		<h:panelGrid columns="1" cellpadding="3" rendered="#{empty forum.topics}" style="margin:0 1em 2em 1em;">
+			<h:panelGroup styleClass="instruction">
+				<h:outputText escape="false" value="#{msgs.cdfm_forum_inf_no_topic_here} " />
+				<h:commandLink action="#{ForumTool.processActionNewTopic}" value="#{msgs.cdfm_forum_inf_no_topic_create}" rendered="#{forum.newTopic}" title="#{msgs.cdfm_new_topic}">
+		      <f:param value="#{forum.forum.id}" name="forumId"/>
+	      </h:commandLink>
+			  
+			</h:panelGroup>
+		</h:panelGrid> 
+
+		<h:dataTable id="topics" rendered="#{!empty forum.topics}" value="#{forum.topics}" var="topic"  width="100%"   cellspacing="0" cellpadding="0" border="0">
 		   <h:column rendered="#{! topic.nonePermission}">
 					<h:panelGrid columns="1" width="100%" styleClass="specialLink topicBloc" cellpadding="0" cellspacing="0">
 		      	<h:panelGroup>
 							
 							<h:graphicImage url="/images/folder.gif" alt="Topic Folder" rendered="#{topic.unreadNoMessages == 0 }" styleClass="topicIcon" style="margin-right:.5em"/>
 							<h:graphicImage url="/images/folder_unread.gif" alt="Topic Folder" rendered="#{topic.unreadNoMessages > 0 }" styleClass="topicIcon" style="margin-right:.5em"/>
-							<h:outputText styleClass="highlight title" id="draft" value="#{msgs.cdfm_draft}" rendered="#{topic.topic.draft == 'true'}"/>
+							<h:outputText styleClass="highlight title draftTopic" id="draft" value="#{msgs.cdfm_draft}" rendered="#{topic.topic.draft == 'true'}"/>
 							<h:outputText id="draft_space" value="  - " rendered="#{topic.topic.draft == 'true'}" styleClass="title"/>
 							<h:graphicImage url="/images/silk/date_delete.png" title="#{msgs.topic_restricted_message}" alt="#{msgs.topic_restricted_message}" rendered="#{topic.availability == 'false'}" style="margin-right:.5em"/>
 							<h:graphicImage url="/images/silk/lock.png" alt="#{msgs.cdfm_forum_locked}" rendered="#{forum.locked == 'true' || topic.locked == 'true'}" style="margin-right:.5em"/>
@@ -183,7 +270,7 @@
 
 				 </h:panelGroup>
 						<h:panelGroup>
-							<f:verbatim><div class="toggle" style="display:none;padding-left:1em"></f:verbatim>
+							<f:verbatim><div class="toggle" style="display:none;"></f:verbatim>
 					<mf:htmlShowArea  id="topic_fullDescription" hideBorder="true"	 value="#{topic.topic.extendedDescription}" />
 								<%--//desNote:attach list --%>
 								<h:dataTable  value="#{topic.attachList}" var="eachAttach" rendered="#{!empty topic.attachList}" cellpadding="3" cellspacing="0" columnClasses="attach,bogus" style="font-size:.9em;width:auto;margin-left:1em" border="0">

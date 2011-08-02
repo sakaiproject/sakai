@@ -14,7 +14,7 @@
 <sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
 --%>
 <!--jsp/discussionForum/permissions/permissions_include.jsp-->
-<mf:forumHideDivision title="#{msgs.cdfm_permissions}" id="cntrl_perm" hideByDefault="false" >
+<mf:forumHideDivision title="#{msgs.cdfm_permissions}" id="cntrl_perm" hideByDefault="#{ForumTool.collapsePermissionPanel}">
   <%--
   <f:verbatim><p class="act"></f:verbatim>
     <h:commandButton immediate="true" action="#{ForumTool.processActionAddGroupsUsers}" value="#{msgs.cdfm_button_bar_add_groups_users}" rendered="#{ForumTool.editMode}"/> 
@@ -116,28 +116,5 @@
 		--%>
     </h:column>
   </h:dataTable>
-  
-  
-  	<%--designNote: gradebook assignment - need to finesse this - make aware that functionality exists, but flag that there are no gb assignmetns to select --%>
-	<%--designNote:  How is this a "permission" item? --%>  
-	<h:panelGrid columns="2" rendered="#{ForumTool.gradebookExist &&  ForumTool.permissionMode == 'forum'}" style="margin-top:.5em;clear:both">
-    <h:panelGroup styleClass="shorttext">
-			<h:outputLabel for="forum_assignments" value="#{msgs.perm_choose_assignment}"></h:outputLabel>  
-      </h:panelGroup>
-	  <h:panelGroup>
-			<h:selectOneMenu id="forum_assignments" value="#{ForumTool.selectedForum.gradeAssign}" disabled="#{not ForumTool.editMode}">
-   	    <f:selectItems value="#{ForumTool.assignments}" />
-      </h:selectOneMenu>
-    </h:panelGroup>
-  </h:panelGrid>
-	<h:panelGrid columns="2" rendered="#{ForumTool.gradebookExist &&  ForumTool.permissionMode == 'topic' && !ForumTool.selectedForum.markForDeletion}" style="margin-top:.5em;clear:both">
-    <h:panelGroup>  	
-			<h:outputLabel for="topic_assignments"  value="#{msgs.perm_choose_assignment}"  ></h:outputLabel>
-  	</h:panelGroup>		
-  	<h:panelGroup>
-			<h:selectOneMenu value="#{ForumTool.selectedTopic.gradeAssign}" id="topic_assignments" disabled="#{not ForumTool.editMode}">
-     	    <f:selectItems value="#{ForumTool.assignments}" />
-  	    </h:selectOneMenu>
-  	  </h:panelGroup>
-  </h:panelGrid>
+
 </mf:forumHideDivision>

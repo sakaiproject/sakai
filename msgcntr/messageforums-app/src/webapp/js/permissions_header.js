@@ -212,10 +212,18 @@ function setCheckBoxes(changeSettings, markAsRead, newForum, newResponse,  r2R, 
   }
   
 }
-
-$(function() {
-	$(document.getElementById("revise:perm")).accordion({ header: '.permissionCustomize', active:false, collapsible:true });
+$(function(){
+    $(document.getElementById("revise:perm")).accordion({
+        header: '.permissionCustomize',
+        active: false,
+        collapsible: true,
+        autoHeight: false,
+        change: function(event, ui){
+            resizeFrame('grow');
+        } 
+    });
 });
+
 
 function disableOrEnableModeratePerm() {
 	moderateSelection = getTheElement("revise:moderated");

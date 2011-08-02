@@ -59,7 +59,6 @@ public class DiscussionForumBean
   private ArrayList decoAttachList = null;
   private Boolean hasExtendedDescription = null;
   private String locked;
-  private Boolean forumModerated = null;
   
   private SimpleDateFormat datetimeFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
    
@@ -138,7 +137,7 @@ public class DiscussionForumBean
   }
 
   /**
-   * @return Returns the locked.
+   * @return Returns the locked as String.
    */
   public String getLocked()
   {
@@ -158,7 +157,7 @@ public class DiscussionForumBean
   }
 
   /**
-   * @param locked
+   * @param String locked
    *          The locked to set.
    */
   public void setLocked(String locked)
@@ -172,6 +171,36 @@ public class DiscussionForumBean
     {
       forum.setLocked(Boolean.valueOf(false));
     }
+  }
+  
+  /**
+   * @return Returns the locked as boolean
+   */
+  public Boolean getForumLocked()
+  {
+    LOG.debug("getForumLocked()");
+    if (locked == null || "".equals(locked)){
+	    if (forum == null || forum.getLocked() == null
+	        || forum.getLocked().booleanValue() == false)
+	    {
+	      locked = Boolean.FALSE.toString();
+	    }
+	    else
+	    {
+	    	locked = Boolean.TRUE.toString();
+	    }
+    }
+    return Boolean.parseBoolean(locked);
+  }
+
+  /**
+   * @param Boolean locked
+   *          The locked to set.
+   */
+  public void setForumLocked(Boolean locked)
+  {
+    LOG.debug("setForumLocked(String"+ locked+")");
+    forum.setLocked(locked);
   }
   
   private String moderated = null;
@@ -214,6 +243,37 @@ public class DiscussionForumBean
   }
   
   /**
+   * Returns boolean value, whether the forum is moderated or not
+   * @return
+   */
+  public Boolean getForumModerated()
+  {
+	  LOG.debug("getForumModerated()");
+	  if (moderated == null){
+		  if (forum == null || forum.getModerated() == null || 
+			  forum.getModerated().booleanValue() == false)
+		  {
+			  moderated = Boolean.FALSE.toString();
+		  }
+		  else
+		  {
+			  moderated = Boolean.TRUE.toString();
+		  }
+	  }
+	  return Boolean.parseBoolean(moderated);
+  }
+  
+  /**
+   * Set the boolean "moderated" setting for the forum
+   * @param moderated
+   */
+  public void setForumModerated(Boolean moderated)
+  {
+	  LOG.debug("setForumModerated()");
+	  forum.setModerated(moderated);
+  }
+  
+  /**
    * Returns whether the forum is postFirst or not
    * @return
    */
@@ -252,6 +312,37 @@ public class DiscussionForumBean
   }
   
   /**
+   * Returns a boolean, whether the forum is postFirst or not
+   * @return
+   */
+  public Boolean getForumPostFirst()
+  {
+	  LOG.debug("getForumPostFirst()");
+	  if (postFirst == null){
+		  if (forum == null || forum.getPostFirst() == null || 
+			  forum.getPostFirst().booleanValue() == false)
+		  {
+			  postFirst = Boolean.FALSE.toString();
+		  }
+		  else
+		  {
+			  postFirst = Boolean.TRUE.toString();
+		  }
+	  }
+	  return Boolean.parseBoolean(postFirst);
+  }
+  
+  /**
+   * Set the boolean "postFirst" setting for the forum
+   * @param postFirst
+   */
+  public void setForumPostFirst(Boolean postFirst)
+  {
+	  LOG.debug("setForumPostFirst()");
+	  forum.setPostFirst(postFirst);
+  }
+
+  /**
    * Return whether or not the forum automatically marks all posts in a topic as read.
    */
   public String getAutoMarkThreadsRead()
@@ -267,6 +358,24 @@ public class DiscussionForumBean
   {
 	  LOG.debug("setAutoMarkThreadsRead()");
 	  forum.setAutoMarkThreadsRead(Boolean.parseBoolean(autoMarkThreadsRead));
+  }
+  
+  /**
+   * Return boolean, whether or not the forum automatically marks all posts in a topic as read.
+   */
+  public Boolean getForumAutoMarkThreadsRead()
+  {
+	  LOG.debug("getForumAutoMarkThreadsRead()");
+	  return forum.getAutoMarkThreadsRead();
+  }
+  
+  /**
+   * Set the boolean autoMarkThreadsRead setting for the forum.
+   */
+  public void setForumAutoMarkThreadsRead(Boolean autoMarkThreadsRead)
+  {
+	  LOG.debug("setForumAutoMarkThreadsRead()");
+	  forum.setAutoMarkThreadsRead(autoMarkThreadsRead);
   }
 
   /**
@@ -362,18 +471,6 @@ public class DiscussionForumBean
   {
     LOG.debug("isReadFullDesciption()");
     return readFullDesciption;
-  }
-  
-  /**
-   * Returns the moderated status of the forum
-   * @return
-   */
-  public boolean isForumModerated()
-  {
-	  if (forumModerated == null){
-		  forumModerated = forum.getModerated();
-	  }
-	  return forumModerated.booleanValue();
   }
 
   /**

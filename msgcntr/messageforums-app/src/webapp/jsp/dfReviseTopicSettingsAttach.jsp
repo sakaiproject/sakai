@@ -31,9 +31,7 @@
 	</script> 
 	<script type="text/javascript">
 	function setDatesEnabled(radioButton){
-		$(".openDateSpan").toggle();
-		$(".closeDateSpan").toggle();
-		resize();
+		$(".calWidget").fadeToggle('slow');
 	}
 
 	function openDateCal(){
@@ -48,6 +46,22 @@
 <!--jsp/dfReviseTopicSettingsAttach.jsp-->
     <h:form id="revise">
       <sakai:tool_bar_message value="#{msgs.cdfm_discussion_topic_settings}" />
+						<h3 class="specialLink">
+				      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
+				      		rendered="#{ForumTool.messagesandForums}" />
+				      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" title=" #{msgs.cdfm_discussion_forums}"
+				      		rendered="#{ForumTool.forumsTool}" />
+			  			  <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+						  <h:commandLink action="#{ForumTool.processActionDisplayForum}" value="#{ForumTool.selectedForum.forum.title}" title=" #{ForumTool.selectedForum.forum.title}" rendered="#{ForumTool.showForumLinksInNav}">
+							  <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
+						  </h:commandLink>
+						  <h:outputText value="#{ForumTool.selectedForum.forum.title}" rendered="#{!ForumTool.showForumLinksInNav}"/>
+						  <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
+						  <h:outputText value="#{ForumTool.selectedTopic.topic.title}" />
+							<h:outputText value="#{msgs.cdfm_discussion_topic_settings}" />
+			
+						</h3>
+
  			<div class="instruction">
   			<h:outputText id="instruction"  value="#{msgs.cdfm_settings_instruction}"/>
 			 	<h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline" />
@@ -66,7 +80,9 @@
 				</h:inputText>
 			</h:panelGroup>	
 			</h:panelGrid>
-			<h:panelGrid columns="1"  columnClasses="longtext">
+			<%-- //designNote: rendered attr below should resolve to false only if there is no prior short description
+			 		and if there is server property (TBD) saying not to use it  - below just checking for pre-existing short description--%>
+			<h:panelGrid columns="1"  columnClasses="longtext" rendered="#{ForumTool.showTopicShortDescription}">
 				<h:panelGroup>
 					<h:outputLabel id="outputLabel1" for="topic_shortDescription"  value="#{msgs.cdfm_shortDescription}" />
 
@@ -152,51 +168,40 @@
 					 style="font-size:95%"/>
 			</p>
 			</div>                                                                                  
-			<%--general posting  forum settings --%>
+			<%--general posting  topic settings --%>
 			<h4><h:outputText  value="#{msgs.cdfm_topic_posting}"/></h4>
-			<div style="padding-left:1em">
-			<h:panelGrid columns="2"  styleClass="jsfFormTable">
-				<h:panelGroup>
-				  <h:outputLabel for="topic_locked"  value="#{msgs.cdfm_lock_topic}" styleClass="shorttext"/>	
-				</h:panelGroup>
-				<h:panelGroup>
-					<h:selectOneRadio layout="lineDirection"  id="topic_locked"  value="#{ForumTool.selectedTopic.locked}" styleClass="checkbox inlineForm">
-    					<f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_yes}"/>
-    					<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_no}"/>
-  					</h:selectOneRadio>
-				</h:panelGroup>
-				<h:panelGroup>
-				  <h:outputLabel for="moderated"  value="#{msgs.cdfm_moderate_topic}" styleClass="shorttext"/>	
-				</h:panelGroup>
-				<h:panelGroup>
-					<h:selectOneRadio layout="lineDirection"  id="moderated"  value="#{ForumTool.selectedTopic.moderated}" styleClass="checkbox inlineForm"
-								onclick="javascript:disableOrEnableModeratePerm();" >
-    					<f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_yes}"/>
-    					<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_no}"/>
-  					</h:selectOneRadio>
-				</h:panelGroup>
-				<h:panelGroup>
-				  <h:outputLabel for="postFirst"  value="#{msgs.cdfm_postFirst}" styleClass="shorttext"/>	
-				</h:panelGroup>
-				<h:panelGroup>
-					<h:selectOneRadio layout="lineDirection"  id="postFirst"  value="#{ForumTool.selectedTopic.postFirst}" styleClass="checkbox inlineForm">
-    					<f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_yes}"/>
-    					<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_no}"/>
-  					</h:selectOneRadio>
-				</h:panelGroup>
-			</h:panelGrid>
-			</div>
+
+			<div class="indnt1">
+				<p class="checkbox">
+					<h:selectBooleanCheckbox
+						title="topicLocked" value="#{ForumTool.selectedTopic.topicLocked}"
+						id="topic_locked">
+					</h:selectBooleanCheckbox> <h:outputLabel for="topic_locked" value="#{msgs.cdfm_lock_topic}" />
+				</p>	
+				<p class="checkbox">
+					<h:selectBooleanCheckbox
+						title="Moderated" value="#{ForumTool.selectedTopic.topicModerated}"
+						id="topic_moderated">
+					</h:selectBooleanCheckbox> <h:outputLabel for="topic_moderated" value="#{msgs.cdfm_moderate_topic}" />
+				</p>
+				<p class="checkbox">
+					<h:selectBooleanCheckbox
+						title="postFirst" value="#{ForumTool.selectedTopic.topicPostFirst}"
+						id="topic_postFirst">
+					</h:selectBooleanCheckbox> <h:outputLabel for="topic_postFirst" value="#{msgs.cdfm_postFirst}" />
+				</p>	
+			</div>	
 			<h4><h:outputText  value="#{msgs.cdfm_forum_availability}" /></h4>
-			<div style="padding-left:1em">
-				<h:panelGrid columns="1" columnClasses="longtext,checkbox">
+			<div class="indnt1">
+			<h:panelGrid columns="1" columnClasses="longtext,checkbox" cellpadding="0" cellspacing="0">
               <h:panelGroup>
                  <h:selectOneRadio layout="pageDirection" onclick="this.blur()" onchange="setDatesEnabled(this);" disabled="#{not ForumTool.editMode}" id="availabilityRestricted"  value="#{ForumTool.selectedTopic.availabilityRestricted}">
                   <f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_forum_avail_show}"/>
                   <f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_forum_avail_date}"/>
                </h:selectOneRadio>
                </h:panelGroup>
-               <h:panelGroup id="openDateSpan" styleClass="indnt2 openDateSpan" style="display: #{ForumTool.selectedTopic.availabilityRestricted ? '' : 'none'}">
-               	   <h:outputText value="#{msgs.openDate}: "/>
+               <h:panelGroup id="openDateSpan" styleClass="indnt2 openDateSpan  calWidget" style="display: #{ForumTool.selectedTopic.availabilityRestricted ? '' : 'none'}">
+               	   <h:outputLabel value="#{msgs.openDate}: " for="openDate"/>
 	               <h:inputText id="openDate" value="#{ForumTool.selectedTopic.openDate}"/>
 	               <f:verbatim>
 	               	<a id="openCal" href="javascript:openDateCal();">
@@ -205,9 +210,7 @@
 	               <f:verbatim>
 	               </a>
 	               </f:verbatim>
-              	</h:panelGroup>
-              	<h:panelGroup id="closeDateSpan" styleClass="indnt2 closeDateSpan" style="display: #{ForumTool.selectedTopic.availabilityRestricted ? '' : 'none'}">
-              		<h:outputText value="#{msgs.closeDate}: "/>
+              		<h:outputLabel value="#{msgs.closeDate}: " for="closeDate"/>
 	               <h:inputText id="closeDate" value="#{ForumTool.selectedTopic.closeDate}"/>
 	               <f:verbatim>
 	               	<a id="closeCal" href="javascript:closeDateCal();">
@@ -242,104 +245,41 @@
 		</p>
 		  --%>
       		  
-      <div class="instruction" style="padding: 0.5em; margin-top:0.8em;"><h4>
-        <h:outputText value="#{msgs.cdfm_forum_mark_read}"/>
-      </h4></div>
-   	  <h:panelGrid columns="2" >
-        <h:panelGroup styleClass="shorttext">
-          <h:outputLabel for="autoMarkThreadsRead" value="#{msgs.cdfm_auto_mark_threads_read}" styleClass="shorttext"/>	
-        </h:panelGroup>
-        <h:panelGroup>
-          <h:selectOneRadio layout="lineDirection" id="autoMarkThreadsRead" value="#{ForumTool.selectedTopic.autoMarkThreadsRead}" styleClass="checkbox inlineForm">
-            <f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_yes}"/>
-            <f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_no}"/>
-          </h:selectOneRadio>
-        </h:panelGroup>
-      </h:panelGrid>
+      <h4><h:outputText value="#{msgs.cdfm_forum_mark_read}"/></h4>
 
-      <%@include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
-	  <%--
-      <mf:forumHideDivision title="#{msgs.cdfm_access}" id="access_perm" hideByDefault="true">
-	  	<p class="shorttext">
-			<h:panelGrid columns="2" width="50%">
-				<h:panelGroup><h:outputLabel id="outputLabelCont" for="contributors"  value="#{msgs.cdfm_contributors}"/>	</h:panelGroup>
-				<h:panelGroup>
-					<h:selectManyListbox id="contributors"  value="#{ForumTool.selectedTopic.contributorsList}" size="5" style="width:200px;">
-    					<f:selectItems value="#{ForumTool.totalComposeToList}" />
-  					</h:selectManyListbox>
-				</h:panelGroup>
+			<table><tr><td>
+				<p class="indnt1 checkbox"><h:selectBooleanCheckbox
+				title="autoMarkThreadsRead"
+				value="#{ForumTool.selectedTopic.topicAutoMarkThreadsRead}"
+				id="autoMarkThreadsRead">
+			</h:selectBooleanCheckbox> <h:outputLabel for="autoMarkThreadsRead"
+				value="#{msgs.cdfm_auto_mark_threads_read}" /></p>
+				</td></tr></table>
 
-			  <h:panelGroup><h:outputLabel id="outputLabelRead" for="readOnly"  value="#{msgs.cdfm_read_only_access}"/>	</h:panelGroup>
-				<h:panelGroup>
-					<h:selectManyListbox  id="readOnly"  value="#{ForumTool.selectedTopic.accessorList}" size="5" style="width:200px;">
-    					<f:selectItems value="#{ForumTool.totalComposeToList}"  />
-  					</h:selectManyListbox>
-				</h:panelGroup>
-			</h:panelGrid>
-		</p>
-	  </mf:forumHideDivision>
-      <mf:forumHideDivision title="#{msgs.cdfm_control_permissions}" id="cntrl_perm" hideByDefault="true">
-          <h:dataTable styleClass="listHier" id="control_permissions" value="#{ForumTool.topicControlPermissions}" var="cntrl_settings">
-   			<h:column>
-				<f:facet name="header"><h:outputText value="#{msgs.perm_role}" /></f:facet>
-				<h:outputText value="#{cntrl_settings.role}"/>
-			</h:column>			 
-			<h:column>
-				<f:facet name="header"><h:outputText value="#{msgs.perm_new_response}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true" value="#{cntrl_settings.newResponse}"/>
-			</h:column>
-			<h:column>
-				<f:facet name="header"><h:outputText value="#{msgs.perm_response_to_response}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true"  value="#{cntrl_settings.responseToResponse}"/>
-			</h:column>
-			<h:column>
-				<f:facet name="header">	<h:outputText value="#{msgs.perm_move_postings}" /></f:facet>
-				<h:selectBooleanCheckbox value="#{cntrl_settings.movePostings}"/>
-			</h:column>
-			<h:column>
-				<f:facet name="header"><h:outputText value="#{msgs.perm_change_settings}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true" value="#{cntrl_settings.changeSettings}"/>
-			</h:column>
-			<h:column>
-				<f:facet name="header"><h:outputText value="#{msgs.perm_post_to_gradebook}" /></f:facet>
-				<h:selectBooleanCheckbox value="#{cntrl_settings.postToGradebook}"/>
-			</h:column>
-		</h:dataTable>
-      </mf:forumHideDivision>
-      <mf:forumHideDivision title="#{msgs.cdfm_message_permissions}" id="msg_perm" hideByDefault="true">
-            <h:dataTable styleClass="listHier" id="message_permissions" value="#{ForumTool.topicMessagePermissions}" var="msg_settings">
-   			<h:column>
-				<f:facet name="header"><h:outputText value="#{msgs.perm_role}" /></f:facet>
-				<h:outputText value="#{msg_settings.role}"/>
-			</h:column>
-			 <h:column>
-				<f:facet name="header"><h:outputText value="#{msgs.perm_read}" /></f:facet>
-				<h:selectBooleanCheckbox  disabled="true" value="#{msg_settings.read}"/>
-			</h:column>
-			<h:column>
-				<f:facet name="header"><h:outputText value="#{msgs.perm_revise_any}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true" value="#{msg_settings.reviseAny}"/>
-			</h:column>
-			<h:column>
-				<f:facet name="header">	<h:outputText value="#{msgs.perm_revise_own}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true" value="#{msg_settings.reviseOwn}"/>
-			</h:column>
-			<h:column>
-				<f:facet name="header"><h:outputText value="#{msgs.perm_delete_any}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true" value="#{msg_settings.deleteAny}"/>
-			</h:column>
-			<h:column>
-				<f:facet name="header">	<h:outputText value="#{msgs.perm_delete_own}" /></f:facet>
-				<h:selectBooleanCheckbox  disabled="true" value="#{msg_settings.deleteOwn}"/>
-			</h:column>
-			<h:column>
-				<f:facet name="header"><h:outputText value="#{msgs.perm_mark_as_read}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true" value="#{msg_settings.markAsRead}"/>
-			</h:column>			 		
-		</h:dataTable>
-      </mf:forumHideDivision>
-      --%>
-      
+				<h:panelGrid columns="2" rendered="#{ForumTool.gradebookExist && !ForumTool.selectedForum.markForDeletion}" style="margin-top:.5em;clear:both"  styleClass="itemSummary">
+			    <h:panelGroup  style="white-space:nowrap;">
+						<h:outputLabel for="topic_assignments"  value="#{msgs.perm_choose_assignment}"  ></h:outputLabel>
+			  	</h:panelGroup>		
+					  <h:panelGroup  styleClass="gradeSelector   itemAction actionItem"> 
+						<h:selectOneMenu value="#{ForumTool.selectedTopic.gradeAssign}" id="topic_assignments" disabled="#{not ForumTool.editMode}">
+			     	    <f:selectItems value="#{ForumTool.assignments}" />
+			  	    </h:selectOneMenu>
+									<h:outputText value="#{msgs.perm_choose_assignment_none_t}" styleClass="instrWOGrades" style="display:none;margin-left:0"/>
+								<h:outputText value=" #{msgs.perm_choose_instruction_topic} " styleClass="instrWithGrades" style="margin-left:0;"/>
+								<h:outputLink value="#" style="text-decoration:none"  styleClass="instrWithGrades"><h:outputText styleClass="displayMore" value="#{msgs.perm_choose_instruction_more_link}"/></h:outputLink>
+					    </h:panelGroup>
+								<h:panelGroup styleClass="displayMorePanel" style="display:none">
+					    </h:panelGroup>
+								<h:panelGroup styleClass="itemAction actionItem displayMorePanel" style="display:none">
+
+								<h:outputText styleClass="displayMorePanel" value="#{msgs.perm_choose_instruction_topic_more}"/>
+					    </h:panelGroup>
+			  </h:panelGrid>
+
+				
+
+			<%@include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
+
       <div class="act">
           <h:commandButton action="#{ForumTool.processActionSaveTopicSettings}" value="#{msgs.cdfm_button_bar_save_setting}" accesskey="s"
           								 rendered="#{!ForumTool.selectedTopic.markForDeletion}"> 
@@ -370,6 +310,17 @@
 	 </h:form>
 			  <script type="text/javascript">
             $(document).ready(function(){
+							$('.displayMore').click(function(e){
+									e.preventDefault();
+									$('.displayMorePanel').fadeIn('slow')
+							})
+							if ($('.gradeSelector').find('option').length ===1){
+								$('.gradeSelector').find('select').hide();
+								$('.gradeSelector').find('.instrWithGrades').hide();
+								$('.gradeSelector').find('.instrWOGrades').show();
+							}
+							
+		
 				var charRemFormat = $('.charRemFormat').text();
 				$(".forum_shortDescriptionClass").charCounter(255, {
 					container: ".charsRemaining",
