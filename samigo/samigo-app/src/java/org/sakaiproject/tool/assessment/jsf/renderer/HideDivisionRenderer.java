@@ -110,14 +110,14 @@ public class HideDivisionRenderer extends Renderer
         String contextPath = context.getExternalContext()
           .getRequestContextPath();
 
-        writer.write("<" + BARTAG + " onclick=\"javascript:showHideDiv('" + id +
-          "', '" +  contextPath + "');\" class=\"" + BARSTYLE + "\">");
-        writer.write("  <img id=\"__img_hide_division_" + id + "\" alt=\"" +
+        writer.write("<" + BARTAG + " class=\"" + BARSTYLE + "\">");
+        writer.write("<a href=\"#\""+ " onclick=\"javascript:showHideDiv('" + id +
+           "', '" +  contextPath + "');\"><img id=\"__img_hide_division_" + id + "\" alt=\"Click to reveal." +
            title + "\"");
         writer.write("    src=\""   + contextPath +
            BARIMG + "\" style=\"cursor:pointer;\" />");
         writer.write("  " + title + "");
-        writer.write("</"+ BARTAG + ">");
+        writer.write("</a></"+ BARTAG + ">");
         writer.write("<div \" id=\"__hide_division_" + id + "\">");
     }
 
