@@ -41,6 +41,7 @@ import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.jsf.attachment.AttachmentHandler;
 import org.sakaiproject.signup.tool.util.SignupBeanConstants;
 import org.sakaiproject.signup.tool.util.Utilities;
+import org.sakaiproject.user.api.User;
 
 /**
  * <p>
@@ -190,15 +191,19 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	private List<AttendeeWrapper> wrapAttendees(List<SignupAttendee> attendees) {
 		List<AttendeeWrapper> attendeeWrp = new ArrayList<AttendeeWrapper>();
 		int posIndex = 0;
-		for (SignupAttendee attendee : attendees) {
-			AttendeeWrapper attWrp = new AttendeeWrapper(attendee, sakaiFacade.getUserDisplayName(attendee
-					.getAttendeeUserId()));
+		
+		//clean the list
+		List<SignupAttendee> cleanedList = getValidAttendees(attendees);
+		
+		for (SignupAttendee attendee : cleanedList) {
+			AttendeeWrapper attWrp = new AttendeeWrapper(attendee, sakaiFacade.getUserDisplayName(attendee.getAttendeeUserId()));
 			attWrp.setPositionIndex(posIndex++);
 			attendeeWrp.add(attWrp);
 
 			/* current user is already signed up in one of the timeslot */
-			if (attendee.getAttendeeUserId().equals(sakaiFacade.getCurrentUserId()))
+			if (attendee.getAttendeeUserId().equals(sakaiFacade.getCurrentUserId())) {
 				setCurrentUserSignedup(true);
+			}
 		}
 		return attendeeWrp;
 	}
@@ -472,6 +477,23 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 
 	public void setSendEmailAttendeeOnly(boolean sendEmailAttendeeOnly) {
 		this.sendEmailAttendeeOnly = sendEmailAttendeeOnly;
+	}
+	
+	/**
+	 * Clean the list of attendees by checking that each user is valid
+	 * @param attendees	List of attendees to be cleaned
+	 * @return	the cleaned list
+	 */
+	public List<SignupAttendee> getValidAttendees(List<SignupAttendee> attendees) {
+		List<SignupAttendee> cleanedList = new ArrayList<SignupAttendee>();
+		
+		for(SignupAttendee attendee: attendees){
+			if(sakaiFacade.checkForUser(attendee.getAttendeeUserId())) {
+				cleanedList.add(attendee);
+			}
+		}
+		
+		return cleanedList;
 	}
 
 }

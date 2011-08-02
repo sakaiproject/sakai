@@ -187,6 +187,22 @@ public interface SakaiFacade {
 	 * @return an User object
 	 */
 	public User getUser(String userId);
+	
+	/**
+	 * get the User object but do not log any messages.
+	 * 
+	 * @param userId
+	 *            a sakai internal user Id
+	 * @return an User object
+	 */
+	public User getUserQuietly(String userId);
+	
+	/**
+	 * Does this user exist in the system? This only logs at debug level if they don't exist.
+	 * @param userId
+	 * @return	true if exists, false if not
+	 */
+	public boolean checkForUser(String userId);
 
 	/**
 	 * get all users, who have joined in the event/meeting

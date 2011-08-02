@@ -236,11 +236,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	}
 
 	/**
-	 * get the User object
-	 * 
-	 * @param userId
-	 *            a sakai internal user Id
-	 * @return an User object
+	 * {@inheritDoc}
 	 */
 	public User getUser(String userId) {
 		try {
@@ -249,6 +245,33 @@ public class SakaiFacadeImpl implements SakaiFacade {
 			log.warn("Cannot get user for id: " + userId);
 			return null;
 		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public User getUserQuietly(String userId) {
+		try {
+			return userDirectoryService.getUser(userId);
+		} catch (UserNotDefinedException e) {
+			//no log messages, this is handled in the calling method.
+			return null;
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean checkForUser(String userId) {
+		try {
+			User u = userDirectoryService.getUser(userId);
+			if (u != null) {
+				return true;
+			} 
+		} catch (UserNotDefinedException e) {
+			log.debug("User with id: " + userId + " does not exist : " + e.getClass() + " : " + e.getMessage());
+		}
+		return false;
 	}
 
 	/**
@@ -620,7 +643,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 					&& (hasPredefinedViewPermisson(member)
 							|| isAllowedGroup(member.getUserId(), SIGNUP_VIEW, site.getId(), group.getId()) || isAllowedSite(
 							member.getUserId(), SIGNUP_VIEW_ALL, site.getId()))) {
-				User user = getUser(member.getUserId());
+				User user = getUserQuietly(member.getUserId());
 				if (user == null) {
 					log.debug("user is not found from 'userDirectoryService' for userId:" + member.getUserId());
 					/* will not add into the dropDown list
@@ -667,7 +690,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 					&& (hasPredefinedViewPermisson(member)
 							|| isAllowedSite(member.getUserId(), SIGNUP_VIEW, site.getId()) || isAllowedSite(member
 							.getUserId(), SIGNUP_VIEW_ALL, site.getId()))) {
-				User user = getUser(member.getUserId());
+				User user = getUserQuietly(member.getUserId());
 				if (user == null) {
 					log.debug("user is not found from 'userDirectoryService' for userId:" + member.getUserId());
 					/* will not add into the dropDown list

@@ -528,11 +528,13 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 		for (TimeslotWrapper wrapper : timeslotWrapperList) {
 			String grpLabel = wrapper.getLabel();
 			List<SelectItem> attendeeOnTS = new ArrayList<SelectItem>();
-			List<SignupAttendee> Attendees = wrapper.getTimeSlot().getAttendees();
-			if (Attendees != null && !Attendees.isEmpty()) {
-				for (SignupAttendee att : Attendees) {
-					SelectItem sItem = new SelectItem(wrapper.getTimeSlot().getId() + DELIMITER
-							+ att.getAttendeeUserId(), sakaiFacade.getUserDisplayName(att.getAttendeeUserId()));
+			
+			//clean the list of attendees
+			List<SignupAttendee> attendees = getValidAttendees(wrapper.getTimeSlot().getAttendees());
+			
+			if (attendees != null && !attendees.isEmpty()) {
+				for (SignupAttendee att : attendees) {
+					SelectItem sItem = new SelectItem(wrapper.getTimeSlot().getId() + DELIMITER + att.getAttendeeUserId(), sakaiFacade.getUserDisplayName(att.getAttendeeUserId()));
 					attendeeOnTS.add(sItem);
 				}
 			}
