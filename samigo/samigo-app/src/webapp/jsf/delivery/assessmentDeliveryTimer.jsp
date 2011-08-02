@@ -85,6 +85,8 @@ function clickSubmitForGrade(){
 </h:panelGroup>
 
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment' && delivery.hasTimeLimit}" >
-  <h:outputText value="#{deliveryMessages.timer_preview_not_available}" style="background-color: gray"/>
+  <f:verbatim><div style="margin:10px 0px 0px 0px;"><span style="background-color:#bab5b5; padding:5px"></f:verbatim>
+  <h:outputText value="#{deliveryMessages.timer_preview_not_available}"/>
+  <f:verbatim></div></span></f:verbatim>
 </h:panelGroup>
 </p>
