@@ -258,3 +258,6 @@ a.edit-movie:link,a.edit-movie:visited{
 	background-color:#e4edff;
 	padding:4px;
 }
+.duecol {
+	padding-left: 2em !important
+}
