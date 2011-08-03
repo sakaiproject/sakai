@@ -68,10 +68,8 @@
           for (var i=0; i<node_list.length; i++) {
             var node = node_list[i];		
             if (node.getAttribute('type') == 'hidden' && node.id.endsWith('forceRanking')){
-              alert("forceRanking");
               var nodeIdParts = node.id.split(":");
               if(nodeIdParts[4]==myIdParts[4] && node.value == 'true'){
-                alert(nodeIdParts[4]);
                 //find the radio button table(s)
                 var tables = document.getElementsByTagName('table');
 
@@ -87,20 +85,16 @@
                 //index will be the begining of 'matrixSurveyRadioTable'
                 var index = myId.indexOf("matrixSurveyRadioTable");
                 var strBefore = myId.substring(0,index+'matrixSurveyRadioTable'.length);
-                alert(strBefore);
                 //remove table no 
                 var strAfter = myId.substring(index+'matrixSurveyRadioTable'.length+2);
-                alert(strAfter);
                 //find rows of mytable	
-                alert('hh');
                 var iRow = mytable.getElementsByTagName('tr');
-                alert(iRow.length);
                 //three rows before the row containing the radio button
                 for (var i=0; i<iRow.length-3;i++){
-                    alert(i);
+                    //alert(i);
                   //construct radio button id in the same column
                   var currentRadioButtonId= strBefore+":"+i+strAfter;
-                  alert(currentRadioButtonId);
+                  //alert(currentRadioButtonId);
                   var button=document.getElementById(currentRadioButtonId);
                   var buttonIdStr = String(button.id);
                   if(button.getAttribute('type') == 'radio' && button.checked == true && buttonIdStr != myId){
