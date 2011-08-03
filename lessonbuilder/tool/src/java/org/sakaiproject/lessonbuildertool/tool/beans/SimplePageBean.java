@@ -926,9 +926,8 @@ public class SimplePageBean {
 		String ref = "/site/" + getCurrentSiteId();
 		boolean ok = securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref);
 		if(ok) editPrivs = 0;
-		
-		if(editPrivs != 0 && UserDirectoryService.getCurrentUser().getId()
-									.equals(getCurrentPage().getOwner())) {
+		SimplePage page = getCurrentPage();
+		if(editPrivs != 0 && page != null && getCurrentUserId().equals(page.getOwner())) {
 			editPrivs = 1;
 		}
 		
@@ -1393,7 +1392,6 @@ public class SimplePageBean {
 			
 			// get a rare error here, trying to debug it
 			if(currentPage == null || currentPage.getSiteId() == null) {
-				System.out.println("Long Passed: " + l);
 			}
 			
 			// page should always be in this site, or someone is gaming us
@@ -1946,7 +1944,6 @@ public class SimplePageBean {
 			    else
 				i.setFormat(format);
 			    // this is redundant, but the display code uses it
-			    System.out.println("new format " + format);
 			    if ("window".equals(format))
 				i.setSameWindow(false);
 			    else
@@ -2274,7 +2271,6 @@ public class SimplePageBean {
 					i.setHeight(Integer.toString(height));
 				    else
 					i.setHeight("");
-				    System.out.println("blti " + blti + " popup " + blti.isPopUp());
 				    if (format == null || format.trim().equals(""))
 					i.setFormat("");
 				    else
@@ -4190,6 +4186,7 @@ public class SimplePageBean {
 		    }
 
 		    parser.parse(new PrintHandler(this, cartridgeLoader, simplePageToolDao, quizobject, topicobject, bltiEntity));
+		    setTopRefresh();
 
 		} catch (Exception e) {
 		    System.out.println("exception in importcc " + e);

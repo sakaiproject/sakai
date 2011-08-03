@@ -46,6 +46,7 @@ import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -341,6 +342,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	try {
 	    return getPublishedAssessment(publishedId).getAssessmentMetaDataByLabel("ALIAS");
 	} catch (Exception ex) {
+	    System.out.println("exception " + ex);
 	    return null;
 	}
     }
@@ -566,8 +568,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 
 	QTIService qtiService = new QTIService();
 	AssessmentFacade assessment = null;
-	PublishedAssessmentIfc publishedAssessment = null;
-	System.out.println("importing " + isBank + " " + siteId + "\n" + document);
+	PublishedAssessmentFacade publishedAssessment = null;
 	if (isBank) {
 	    qtiService.createImportedQuestionPool(document, QTIVersion.VERSION_1_2);
 	    return null;
@@ -608,22 +609,34 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 		    return null;
 		}
 		// put back the site
-		authz.createAuthorization(siteId, "TAKE_PUBLISHED_ASSESSMENT", Long.toString(id));
+		//		authz.createAuthorization(siteId, "TAKE_PUBLISHED_ASSESSMENT", Long.toString(id));
 		// and put back the access control
 		controlIfc.setReleaseTo(site.getTitle()); // what if it's too long?
 		// and save the updated info
 		assessmentService.saveAssessment(assessment);
 
-		System.out.println("result of create imported " + assessment);
+		// get it again
+		try {
+		    assessment = assessmentService.getAssessment(Long.toString(id));
+		    controlIfc = assessment.getAssessmentAccessControl();
+		} catch (Exception e) {
+		    log.warn("can't find assessment we just loaded " + id, e);
+		    return null;
+		}
+
 		publishedAssessment = pService.publishAssessment(assessment);
-		System.out.println("published " + publishedAssessment);
+
+		String alias = SessionManager.getCurrentSessionUserId() + (new Date()).getTime();
+		PublishedMetaData meta = new PublishedMetaData(publishedAssessment.getData(), "ALIAS", alias);
+		pService.saveOrUpdateMetaData(meta);
+
 	    } catch (Exception e) {
 		log.warn("can't publish assessment after import " + e);
 		e.printStackTrace();
 	    }
-	    if (publishedAssessment != null)
+	    if (publishedAssessment != null) {
 		return 	"/" + SAM_PUB + "/" + publishedAssessment.getPublishedAssessmentId();
-	    else
+	    } else
 		return null;
 	}	
     }

@@ -244,7 +244,6 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       newname.setLength(length);
 
       name = newname.toString() + "1";
-      System.out.println("name1 " + name);
 
       ContentCollectionEdit collection = null;
       int tries = 1;
@@ -269,7 +268,6 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  }
       }
       if (collection == null) {
-	  System.out.println("resourcde100 " + name);
 	  simplePageBean.setErrKey("simplepage.resource100: ", name);
 	  return null;
       }
@@ -481,7 +479,6 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
                   if ( key == null ) continue;
                   key = key.trim();
                   if ( value == null ) continue;
-                  System.out.println("k="+key+" v="+value);
 		  sb.append(key.trim());
                   sb.append("=");
                   sb.append(value.trim());
