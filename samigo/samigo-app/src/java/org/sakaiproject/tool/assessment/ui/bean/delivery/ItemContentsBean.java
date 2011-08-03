@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import javax.faces.model.SelectItem;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
@@ -126,7 +127,7 @@ public class ItemContentsBean implements Serializable {
 
 	private ArrayList finArray;
 
-	private ArrayList selectionArray;
+	private ArrayList<SelectionBean> selectionArray;
 
 	private String key;
 
@@ -875,6 +876,24 @@ public class ItemContentsBean implements Serializable {
 
 	public void setSelectionArray(ArrayList newArray) {
 		selectionArray = newArray;
+	}
+	
+	public List<SelectItem> getSelectItemPartsMC() {
+		List<SelectItem> selectItemParts = new ArrayList<SelectItem>();
+
+		String text = null;
+		for(SelectionBean selection: selectionArray) {
+			if (selection.getAnswer().getLabel() != null && !selection.getAnswer().getLabel().equals("")) {
+				text = " " + selection.getAnswer().getLabel() + ". " + selection.getAnswer().getText();
+			}
+			else {
+				text = " " + selection.getAnswer().getText();
+			}
+
+			selectItemParts.add(new SelectItem(selection.getAnswerId(), text));
+		}
+
+		return selectItemParts;
 	}
 
 	public ArrayList getMatrixArray() {

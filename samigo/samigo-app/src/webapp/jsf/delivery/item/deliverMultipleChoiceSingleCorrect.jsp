@@ -39,6 +39,14 @@ should be included in file importing DeliveryMessages
   <!-- ATTACHMENTS -->
   <%@ include file="/jsf/delivery/item/attachment.jsp" %>
 
+  <f:verbatim><div class="mcscFixUp"></f:verbatim>
+  <f:verbatim><div class="mcscFixUpSource"></f:verbatim>
+  <h:selectOneRadio required="false" value="#{question.responseId}" layout="pagedirection"
+                    disabled="#{delivery.actionString=='reviewAssessment' || delivery.actionString=='gradeAssessment'}" >
+       <f:selectItems value="#{question.selectItemPartsMC}" />
+  </h:selectOneRadio>
+  <f:verbatim></div></f:verbatim>
+
   <h:dataTable value="#{question.selectionArray}" var="selection">
     <h:column rendered="#{delivery.feedback eq 'true' &&
        delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}">
@@ -53,19 +61,7 @@ should be included in file importing DeliveryMessages
       </h:graphicImage>
     </h:column>
     <h:column>
-
-     <h:selectOneRadio onfocus="if (this.defaultChecked) { uncheckRadioButtons#{question.itemData.itemId}(this) };" onclick="uncheckRadioButtons#{question.itemData.itemId}(this);" onkeypress="uncheckRadioButtons#{question.itemData.itemId}(this);" required="false" 
-        disabled="#{delivery.actionString=='reviewAssessment'
-                 || delivery.actionString=='gradeAssessment'}" 
-       value="#{question.responseId}" layout="pageLayout">
-       <f:selectItem itemValue="#{selection.answerId}" />
-     </h:selectOneRadio>
-
-    </h:column>
-    <h:column>
-     <h:outputText value=" #{selection.answer.label}" escape="false" />
-     <h:outputText value="." rendered="#{selection.answer.label ne ''}" />
-     <h:outputText value=" #{selection.answer.text}" escape="false" />
+<f:verbatim><div class="mcscFixUpTarget"></div></f:verbatim>
     </h:column>
     <h:column>
       <h:panelGroup rendered="#{delivery.feedback eq 'true' &&
@@ -78,6 +74,8 @@ should be included in file importing DeliveryMessages
       </h:panelGroup>
     </h:column>
   </h:dataTable>
+<f:verbatim></div></f:verbatim>
+<f:verbatim><script>$('div.mcscFixUp').each(function(index1,elBlockToFix){$(elBlockToFix).find('div.mcscFixUpSource label').each(function(index,elLabelAndInputToMove){$(elBlockToFix).find('div.mcscFixUpTarget:first').replaceWith($(elLabelAndInputToMove));});$(elBlockToFix).find('div.mcscFixUpSource').remove();});</script></f:verbatim>
 
   <h:panelGroup
     rendered="#{question.itemData.hasRationale && question.itemData.typeId != 3}" >
@@ -108,7 +106,7 @@ should be included in file importing DeliveryMessages
              && delivery.navigation ne '1' && delivery.displayMardForReview }">
 <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review" />
 	<h:outputLabel for="mark_for_review" value="#{deliveryMessages.mark}" />
-	<h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('../author/markForReviewPopUp.faces','MarkForReview','width=300,height=220,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('../author/markForReviewTipText.faces','MarkForReview','width=300,height=220,scrollbars=yes, resizable=yes');" >
+	<h:outputLink title="#{assessmentSettingsMessages.whats_this_link}" value="#" onclick="javascript:window.open('../author/markForReviewPopUp.faces','MarkForReview','width=300,height=220,scrollbars=yes, resizable=yes');" >
 		<h:outputText  value=" #{assessmentSettingsMessages.whats_this_link}"/>
 	</h:outputLink>
 </h:panelGroup>

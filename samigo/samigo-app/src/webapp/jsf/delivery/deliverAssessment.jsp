@@ -509,6 +509,7 @@ String.prototype.endsWith = function(txt)
 </h:form>
 <!-- end content -->
 <f:verbatim></div></f:verbatim>
+<script language="javascript" type="text/JavaScript">fixImplicitLabeling();</script>
     </body>
   </html>
 </f:view>
