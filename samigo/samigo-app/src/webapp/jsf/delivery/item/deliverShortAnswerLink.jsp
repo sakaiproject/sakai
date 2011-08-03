@@ -77,12 +77,12 @@ should be included in file importing DeliveryMessages
     <h:outputLabel for="answerKeyMC" value="#{deliveryMessages.model} " />
      <f:verbatim></b></f:verbatim>
 
-	<h:outputLink title="#{deliveryMessages.t_modelShortAnswer}"   value="#" onclick="javascript:window.open('modelShortAnswer.faces?idString=#{question.itemData.itemId}','modelShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('modelShortAnswer.faces?idString=#{question.itemData.itemId}','modelShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');">
+	<h:outputLink title="#{deliveryMessages.t_modelShortAnswer}"   value="#" onclick="javascript:window.open('modelShortAnswer.faces?idString=#{question.itemData.itemId}','modelShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');" >
 	<h:outputText  value="#{deliveryMessages.click_here}"/>
     </h:outputLink>
 
 <%-- alert screen is a problem 'cos comment often contains html tag added in WYSIWYG
-    <h:outputLink title="#{deliveryMessages.t_key}" value="#" onclick="javascript:window.alert('#{question.keyInUnicode}');"  onkeypress="javascript:window.alert('#{question.keyInUnicode}');" >
+    <h:outputLink title="#{deliveryMessages.t_key}" value="#" onclick="javascript:window.alert('#{question.keyInUnicode}');" >
     <h:outputText  value="#{deliveryMessages.click}" />
     </h:outputLink>
 --%>
