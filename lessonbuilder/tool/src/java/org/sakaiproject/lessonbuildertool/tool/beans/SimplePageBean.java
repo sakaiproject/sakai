@@ -2902,8 +2902,10 @@ public class SimplePageBean {
 		} else if (pageTitle != null) {
 			page.setTitle(pageTitle);
 			update(page);
-			pageItem.setName(pageTitle);
-			update(pageItem);
+			if(pageItem.getType() != SimplePageItem.STUDENT_CONTENT) {			
+			    pageItem.setName(pageTitle);
+			    update(pageItem);
+			}
 		}
 		
 		if(pageTitle != null) {
