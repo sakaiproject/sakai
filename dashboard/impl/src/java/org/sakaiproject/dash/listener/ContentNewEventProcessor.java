@@ -70,9 +70,9 @@ public class ContentNewEventProcessor implements EventProcessor {
 			if(context == null) {
 				context = this.dashboardLogic.createContext(event.getContext());
 			}
-			Realm realm = this.dashboardLogic.getRealm(event.getContext());
+			Realm realm = this.dashboardLogic.getRealm(event.getResource());
 			if(realm == null) {
-				realm = this.dashboardLogic.createRealm(event.getContext());
+				realm = this.dashboardLogic.createRealm(event.getResource(), event.getContext());
 			}
 			SourceType sourceType = this.dashboardLogic.getSourceType("resource");
 			if(sourceType == null) {

@@ -40,4 +40,10 @@ public class Context {
 	protected String contextTitle;
 	protected String contextUrl;
 
+	public Context(String contextId, String contextTitle, String contextUrl) {
+		this.contextId = contextId;
+		this.contextTitle = contextTitle;
+		this.contextUrl = contextUrl;
+	}
+
 }

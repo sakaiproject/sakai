@@ -78,6 +78,8 @@ public interface DashboardDao {
 	public boolean addSourceType(SourceType sourceType);
 
 	public CalendarItem getCalendarItem(String entityReference);
+
+	public Context getContext(String contextId);
 	
 	
 }

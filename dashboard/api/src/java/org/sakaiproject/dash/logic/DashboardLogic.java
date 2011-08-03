@@ -52,10 +52,15 @@ public interface DashboardLogic {
 
 	public Realm getRealm(String contextId);
 
-	public Realm createRealm(String contextId);
+	public Realm createRealm(String entityReference, String contextId);
 
 	public SourceType getSourceType(String name);
 
 	public SourceType createSourceType(String name);
+	
+	// todo:
+	// add methods to revise news items, calendar items, news links, calendar links, etc.
+	// add methods to delete news items, calendar items, news links, calendar links, etc.
+	
 	
 }

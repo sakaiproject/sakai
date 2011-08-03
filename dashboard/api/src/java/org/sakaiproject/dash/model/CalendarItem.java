@@ -59,5 +59,4 @@ public class CalendarItem {
 		this.sourceType = sourceType;
 	}
 
-	
 }

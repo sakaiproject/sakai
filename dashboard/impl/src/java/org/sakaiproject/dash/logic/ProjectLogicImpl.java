@@ -22,7 +22,7 @@ import org.sakaiproject.dash.model.Thing;
  */
 public class ProjectLogicImpl implements ProjectLogic {
 
-	private static final Logger log = Logger.getLogger(ProjectLogicImpl.class);
+	private static final Logger logger = Logger.getLogger(ProjectLogicImpl.class);
 
 	
 	/**
@@ -33,8 +33,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//check cache 
 		Element element = cache.get(id);
 		if(element != null) {
-			if(log.isDebugEnabled()) {
-				log.debug("Fetching item from cache for: " + id);
+			if(logger.isDebugEnabled()) {
+				logger.debug("Fetching item from cache for: " + id);
 			}
 			return (Thing)element.getValue();
 		}
@@ -43,8 +43,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 		Thing t = dao.getThing(id);
 			
 		if(t != null) {
-			if(log.isDebugEnabled()) {
-				log.debug("Adding item to cache for: " + id);
+			if(logger.isDebugEnabled()) {
+				logger.debug("Adding item to cache for: " + id);
 			}
 			cache.put(new Element(id,t));
 		}
@@ -70,7 +70,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * init - perform any actions required here for when this bean starts up
 	 */
 	public void init() {
-		log.info("init");
+		logger.info("init");
 	}
 	
 	@Setter

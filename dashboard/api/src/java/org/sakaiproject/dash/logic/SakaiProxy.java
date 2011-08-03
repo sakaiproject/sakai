@@ -5,16 +5,17 @@ import java.util.Observer;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.site.api.Site;
 
 /**
  * An interface to abstract all Sakai related API calls in a central method that can be injected into our app.
  * 
- * @author Steve Swinsburg (steve.swinsburg@anu.edu.au)
  *
  */
 public interface SakaiProxy {
 
 	public final static String EVENT_ASSIGNMENT_NEW = AssignmentConstants.EVENT_ADD_ASSIGNMENT;
+	
 	public final static String EVENT_CONTENT_NEW = ContentHostingService.EVENT_RESOURCE_ADD;
 	
 
@@ -95,5 +96,21 @@ public interface SakaiProxy {
 	 * (e.g., because it doesn't exist).
 	 */
 	public Entity getEntity(String entityReference);
+
+	/**
+	 * Retrieve a Sakai Site object.
+	 *   
+	 * @param siteId
+	 * @return the site, or null if the siteId does not identify a site that can be returned.
+	 */
+	public Site getSite(String siteId);
+
+	/**
+	 * 
+	 * @param entityReference
+	 * @param contextId
+	 * @return
+	 */
+	public String getRealmId(String entityReference, String contextId);
 
 }

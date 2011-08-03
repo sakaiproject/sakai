@@ -33,7 +33,7 @@ import org.sakaiproject.dash.logic.SakaiProxy;
  */
 public class BasePage extends WebPage implements IHeaderContributor {
 
-	private static final Logger log = Logger.getLogger(BasePage.class); 
+	private static final Logger logger = Logger.getLogger(BasePage.class); 
 	
 	@SpringBean(name="org.sakaiproject.dash.logic.SakaiProxy")
 	protected SakaiProxy sakaiProxy;
@@ -49,7 +49,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	
 	public BasePage() {
 		
-		log.debug("BasePage()");
+		logger.debug("BasePage()");
 		
 		
     	//first link

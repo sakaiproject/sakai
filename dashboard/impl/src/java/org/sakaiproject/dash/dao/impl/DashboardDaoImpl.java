@@ -44,6 +44,10 @@ import org.sakaiproject.dash.model.NewsLink;
 import org.sakaiproject.dash.model.Person;
 import org.sakaiproject.dash.model.Realm;
 import org.sakaiproject.dash.model.SourceType;
+
+import org.sakaiproject.dash.dao.impl.CalendarItemMapper;
+import org.sakaiproject.dash.dao.impl.ContextMapper;
+
 import org.sakaiproject.dash.model.Thing;
 
 
@@ -145,14 +149,14 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	private void initTables() {
 		try {
 			getJdbcTemplate().execute(getStatement("create.table"));
-			getJdbcTemplate().execute(getStatement("create.context.table"));
-			getJdbcTemplate().execute(getStatement("create.person.table"));
-			getJdbcTemplate().execute(getStatement("create.realm.table"));
-			getJdbcTemplate().execute(getStatement("create.sourcetype.table"));
-			getJdbcTemplate().execute(getStatement("create.news_item.table"));
-			getJdbcTemplate().execute(getStatement("create.news_link.table"));
-			getJdbcTemplate().execute(getStatement("create.calendar_item.table"));
-			getJdbcTemplate().execute(getStatement("create.claendar_link.table"));
+			getJdbcTemplate().execute(getStatement("create.Context.table"));
+			getJdbcTemplate().execute(getStatement("create.Person.table"));
+			getJdbcTemplate().execute(getStatement("create.Realm.table"));
+			getJdbcTemplate().execute(getStatement("create.SourceType.table"));
+			getJdbcTemplate().execute(getStatement("create.NewsItem.table"));
+			getJdbcTemplate().execute(getStatement("create.NewsLink.table"));
+			getJdbcTemplate().execute(getStatement("create.CalendarItem.table"));
+			getJdbcTemplate().execute(getStatement("create.CalendarLink.table"));
 			
 			
 		} catch (DataAccessException ex) {
@@ -208,7 +212,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		// calendar_time, title , entity_url, entity_ref, source_type, context, realm
 		
 		try {
-			getJdbcTemplate().update(getStatement("insert.calendar_item"),
+			getJdbcTemplate().update(getStatement("insert.CalendarItem"),
 				new Object[]{calendarItem.getCalendarTime(), calendarItem.getTitle(), 
 						calendarItem.getEntityUrl(), calendarItem.getEntityReference(),
 						calendarItem.getSourceType().getId(), calendarItem.getContext().getId(),
@@ -232,7 +236,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		//  person_id, item_id, context_id, realm_id
 		
 		try {
-			getJdbcTemplate().update(getStatement("insert.calendar_link"),
+			getJdbcTemplate().update(getStatement("insert.CalendarLink"),
 				new Object[]{calendarLink.getPerson().getId(), calendarLink.getCalendarItem().getId(), 
 						calendarLink.getContext().getId(), calendarLink.getRealm().getId()}
 			);
@@ -254,7 +258,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		//  context_id, context_url, context_title
 		
 		try {
-			getJdbcTemplate().update(getStatement("insert.context"),
+			getJdbcTemplate().update(getStatement("insert.Context"),
 				new Object[]{context.getContextId(), context.getContextUrl(), 
 				context.getContextTitle()}
 			);
@@ -276,7 +280,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		// news_time, title , entity_url, entity_ref, source_type, context, realm
 		
 		try {
-			getJdbcTemplate().update(getStatement("insert.news_item"),
+			getJdbcTemplate().update(getStatement("insert.NewsItem"),
 				new Object[]{newsItem.getNewsTime(), newsItem.getTitle(), 
 						newsItem.getEntityUrl(), newsItem.getEntityReference(),
 						newsItem.getSourceType().getId(), newsItem.getContext().getId(),
@@ -300,7 +304,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		//  person_id, item_id, context_id, realm_id
 		
 		try {
-			getJdbcTemplate().update(getStatement("insert.news_link"),
+			getJdbcTemplate().update(getStatement("insert.NewsLink"),
 				new Object[]{newsLink.getPerson().getId(), newsLink.getNewsItem().getId(), 
 						newsLink.getContext().getId(), newsLink.getRealm().getId()}
 			);
@@ -322,7 +326,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		//  user_id,sakai_id
 		
 		try {
-			getJdbcTemplate().update(getStatement("insert.person"),
+			getJdbcTemplate().update(getStatement("insert.Person"),
 				new Object[]{person.getUserId(), person.getSakaiId()}
 			);
 			return true;
@@ -343,7 +347,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		//  realm_id
 		
 		try {
-			getJdbcTemplate().update(getStatement("insert.realm"),
+			getJdbcTemplate().update(getStatement("insert.Realm"),
 				new Object[]{realm.getRealmId()}
 			);
 			return true;
@@ -361,10 +365,10 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			log.debug("addSourceType( " + sourceType.toString() + ")");
 		}
 		
-		// name, save_calendar_item, save_news_item, calendar_format, calendar_summary_format, news_format, news_summary_format
+		// name
 		
 		try {
-			getJdbcTemplate().update(getStatement("insert.sourcetype"),
+			getJdbcTemplate().update(getStatement("insert.SourceType"),
 				new Object[]{sourceType.getName()}
 			);
 			return true;
@@ -380,7 +384,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 		
 		try {
-			return (CalendarItem) getJdbcTemplate().queryForObject(getStatement("select.calendar_item.by.entityReference"),
+			return (CalendarItem) getJdbcTemplate().queryForObject(getStatement("select.CalendarItem.by.entityReference"),
 				new Object[]{entityReference},
 				new CalendarItemMapper()
 			);
@@ -396,7 +400,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 		
 		try {
-			return (CalendarItem) getJdbcTemplate().queryForObject(getStatement("select.calendar_item.by.id"),
+			return (CalendarItem) getJdbcTemplate().queryForObject(getStatement("select.CalendarItem.by.id"),
 				new Object[]{Long.valueOf(id)},
 				new CalendarItemMapper()
 			);
@@ -405,5 +409,37 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            return null;
 		}
 
+	}
+
+	public Context getContext(String contextId) {
+		if(log.isDebugEnabled()) {
+			log.debug("getContext(" + contextId + ")");
+		}
+		
+		try {
+			return (Context) getJdbcTemplate().queryForObject(getStatement("select.Context.by.contextId"),
+				new Object[]{contextId},
+				new ContextMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getContext: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return null;
+		}
+	}
+	
+	public Context getContext(long id) {
+		if(log.isDebugEnabled()) {
+			log.debug("getContext(" + id + ")");
+		}
+		
+		try {
+			return (Context) getJdbcTemplate().queryForObject(getStatement("select.Context.by.id"),
+				new Object[]{Long.valueOf(id)},
+				new ContextMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getContext: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return null;
+		}
 	}
 }

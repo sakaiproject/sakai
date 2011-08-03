@@ -6,11 +6,17 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.apache.log4j.Logger;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -25,41 +31,83 @@ import org.sakaiproject.user.api.UserNotDefinedException;
  */
 public class SakaiProxyImpl implements SakaiProxy {
 
-	private static final Logger log = Logger.getLogger(SakaiProxyImpl.class);
+	private static final Logger logger = Logger.getLogger(SakaiProxyImpl.class);
     
-	/**
- 	* {@inheritDoc}
- 	*/
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.SakaiProxy#getCurrentSiteId()
+	 */
 	public String getCurrentSiteId(){
 		return toolManager.getCurrentPlacement().getContext();
 	}
 	
-	/**
- 	* {@inheritDoc}
- 	*/
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.SakaiProxy#getCurrentUserId()
+	 */
 	public String getCurrentUserId() {
 		return sessionManager.getCurrentSessionUserId();
 	}
 	
-	/**
- 	* {@inheritDoc}
- 	*/
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.SakaiProxy#getCurrentUserDisplayName()
+	 */
 	public String getCurrentUserDisplayName() {
 	   return userDirectoryService.getCurrentUser().getDisplayName();
 	}
 	
-	/**
- 	* {@inheritDoc}
- 	*/
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.SakaiProxy#isSuperUser()
+	 */
 	public boolean isSuperUser() {
 		return securityService.isSuperUser();
 	}
 	
-	/**
- 	* {@inheritDoc}
- 	*/
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.SakaiProxy#postEvent(java.lang.String, java.lang.String, boolean)
+	 */
 	public void postEvent(String event,String reference,boolean modify) {
 		eventTrackingService.post(eventTrackingService.newEvent(event,reference,modify));
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.SakaiProxy#getRealmId(java.lang.String, java.lang.String)
+	 */
+	public String getRealmId(String entityReference, String contextId) {
+		String realmId = null;
+		AuthzGroup authzGroup = null;
+		try {
+			if(entityReference != null && ! entityReference.trim().equals("")) {
+				authzGroup = this.authzGroupService.getAuthzGroup(entityReference);
+			} else if(contextId != null) {
+				String siteReference = siteService.siteReference(contextId);
+				authzGroup = this.authzGroupService.getAuthzGroup(siteReference);
+			}
+			if(authzGroup != null) {
+				realmId = authzGroup.getId();
+			}
+		} catch (GroupNotDefinedException e) {
+			logger.warn("Unable to retrieve authzGroup for entity: " + entityReference + " :: " + contextId, e);
+		}
+		return realmId ;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.SakaiProxy#getSite(java.lang.String)
+	 */
+	public Site getSite(String siteId) {
+		Site site = null;
+		try {
+			site = this.siteService.getSite(siteId);
+		} catch (IdUnusedException e) {
+			logger.warn("Unable to get site for siteId: " + siteId, e);
+		}
+		return site;
 	}
 	
 	/**
@@ -116,7 +164,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 * init - perform any actions required here for when this bean starts up
 	 */
 	public void init() {
-		log.info("init");
+		logger.info("init");
 	}
 	
 	@Getter @Setter
@@ -142,5 +190,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	@Getter @Setter
 	private EntityManager entityManager;
+	
+	@Getter @Setter
+	protected AuthzGroupService authzGroupService;
 
 }

@@ -40,4 +40,8 @@ public class Realm {
 	protected Long id;
 	protected String realmId;
 
+	public Realm(String realmId) {
+		this.realmId = realmId;
+	}
+
 }

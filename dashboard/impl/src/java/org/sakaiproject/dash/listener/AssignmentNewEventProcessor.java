@@ -60,7 +60,7 @@ public class AssignmentNewEventProcessor implements EventProcessor {
 			}
 			Realm realm = this.dashboardLogic.getRealm(event.getContext());
 			if(realm == null) {
-				realm = this.dashboardLogic.createRealm(event.getContext());
+				realm = this.dashboardLogic.createRealm(null, event.getContext());
 			}
 			SourceType sourceType = this.dashboardLogic.getSourceType("assignment");
 			if(sourceType == null) {
