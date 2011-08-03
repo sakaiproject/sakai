@@ -97,7 +97,7 @@ public class ActivityServiceImpl implements ActivityService, Observer {
 				
 				//if still blank, give up.
 				if(StringUtils.isBlank(userId)) {
-					log.error("Couldn't get a userId for event, cannot update cache - skipping: " + e.getEvent());
+					log.debug("Couldn't get a userId for event, cannot update cache - skipping: " + e.getEvent());
 					return;
 				}
 			}
