@@ -683,17 +683,25 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         };
 
         Topic res = null;
-        List temp = (ArrayList) getHibernateTemplate().execute(hcb);
-        Object [] results = (Object[])temp.get(0);
-        if (results != null) {
-            if (results[0] instanceof Topic) {
-                res = (Topic)results[0];
-                res.setBaseForum((BaseForum)results[1]);
-            } else {
-                res = (Topic)results[1];
-                res.setBaseForum((BaseForum)results[0]);
-            }
-        }
+		try {
+			List temp = (ArrayList) getHibernateTemplate().execute(hcb);
+			if (temp != null && temp.size() > 0) {
+
+				Object[] results = (Object[]) temp.get(0);
+				if (results != null && results.length > 1) {
+					if (results[0] instanceof Topic) {
+						res = (Topic) results[0];
+						res.setBaseForum((BaseForum) results[1]);
+					} else {
+						res = (Topic) results[1];
+						res.setBaseForum((BaseForum) results[0]);
+					}
+				}
+			}
+		} catch (Exception e) {
+			LOG.warn(e);
+		}
+	
         return res;
     }
 

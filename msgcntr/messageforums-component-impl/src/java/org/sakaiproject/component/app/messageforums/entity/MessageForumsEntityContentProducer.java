@@ -162,8 +162,10 @@ public class MessageForumsEntityContentProducer implements
 		Topic topic = m.getTopic();
 		boolean canRead = false;
 		DiscussionTopic dt = discussionForumManager.getTopicById(topic.getId());
-		DiscussionForum df = discussionForumManager.getForumById(dt.getOpenForum().getId());
-		canRead = uIPermissionManager.isRead(dt, df);
+		if(dt != null){
+			DiscussionForum df = discussionForumManager.getForumById(dt.getOpenForum().getId());
+			canRead = uIPermissionManager.isRead(dt, df);
+		}
 		return canRead;
 	}
 
