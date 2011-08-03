@@ -6401,14 +6401,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							m_dropDeadTime = getTimeObject(attributes.getValue("dropdeaddate"));
 							m_closeTime = getTimeObject(attributes.getValue("closedate"));
 							m_context = attributes.getValue("context");
-							m_position_order = 0; // prevents null pointer if there is no position_order defined as well as helps with the sorting
 							try
 							{
 								m_position_order = Long.valueOf(attributes.getValue("position_order")).intValue();
 							}
 							catch (Exception e)
 							{
-								M_log.warn(":getContentHandler:DefaultEntityHandler Long data parse problem " + attributes.getValue("position_order") + e.getMessage());
+								m_position_order = 0; // prevents null pointer if there is no position_order defined as well as helps with the sorting
 							}
 
 							// READ THE AUTHORS
