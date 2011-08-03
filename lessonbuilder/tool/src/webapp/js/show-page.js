@@ -121,6 +121,8 @@ $(function() {
 		draggable: false
 	});
 	
+	$("#select-resource-group").hide();
+
 	$('.subpage-link').click(function(){
 		var position =  $(this).position();
 		$("#subpage-dialog").dialog("option", "position", [position.left, position.top]);
@@ -309,7 +311,7 @@ $(function() {
 
 		var groups = row.find(".item-groups").text();
 		var grouplist = $("#grouplist");
-		if (grouplist != null) {
+		if ($('#grouplist input').size() > 0) {
 		    $("#editgroups-comments").show();
 		    $("#grouplist").show();
 		    if (groups != null) {
@@ -365,7 +367,7 @@ $(function() {
 
 		var groups = row.find(".item-groups").text();
 		var grouplist = $("#grouplist");
-		if (grouplist != null) {
+		if ($('#grouplist input').size() > 0) {
 		    $("#editgroups-student").show();
 		    $("#grouplist").show();
 		    if (groups != null) {
@@ -503,7 +505,6 @@ $(function() {
 		$("#assignment-points").hide();
 		$("#assignment-points").hide();
 		$("#grouplist").hide();
-		$("#select-resource-group").hide();
 		$("#editgroups").hide();
 		$("#resource-group-inherited").hide();
 		$("#assignment-points").val("");
@@ -970,6 +971,7 @@ function closeSubpageDialog() {
 function closeEditItemDialog() {
 	$("#edit-item-dialog").dialog("close");
 	$('#edit-item-error-container').hide();
+	$("#select-resource-group").hide();
 }
 
 function closeMultimediaEditDialog() {
