@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.HashSet;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Comparator;
@@ -43,8 +44,11 @@ import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
@@ -52,6 +56,8 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 
@@ -556,14 +562,70 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 
     }
 
-    public void importObject(Document document, boolean isBank, String siteId) {
+    public String importObject(Document document, boolean isBank, String siteId) {
 
 	QTIService qtiService = new QTIService();
+	AssessmentFacade assessment = null;
+	PublishedAssessmentIfc publishedAssessment = null;
 	System.out.println("importing " + isBank + " " + siteId + "\n" + document);
-	if (isBank)
+	if (isBank) {
 	    qtiService.createImportedQuestionPool(document, QTIVersion.VERSION_1_2);
-	else
-	    qtiService.createImportedAssessment(document, QTIVersion.VERSION_1_2);
+	    return null;
+	} else {
+	    assessment = qtiService.createImportedAssessment(document, QTIVersion.VERSION_1_2);
+	    try {
+		AssessmentService assessmentService = new AssessmentService();
+		// can't find a way to do this in the metadata, and in fact the real import
+		// code does hack on this stuff
+		AssessmentAccessControl control = new AssessmentAccessControl();
+		control.setAssessmentBase(assessment.getData());
+		assessment.setSecuredIPAddressSet(new HashSet());
+		assessment.setAssessmentAttachmentSet(new HashSet());
+		assessmentService.saveAssessment(assessment);
+
+		// what we just did gives us empty access control. we need the real thing
+		// this code is based on setgroups.  It's kind of reverse engineered
+		AssessmentAccessControlIfc controlIfc = null;
+		Long id = assessment.getAssessmentId();
+		try {
+		    assessment = assessmentService.getAssessment(Long.toString(id));
+		    controlIfc = assessment.getAssessmentAccessControl();
+		} catch (Exception e) {
+		    log.warn("can't find assessment we just loaded " + id, e);
+		    return null;
+		}
+		// set proper access control
+		AuthzQueriesFacadeAPI authz = PersistenceService.getInstance().getAuthzQueriesFacade();
+		if (authz == null) {
+		    log.warn("Null Authorization");
+		    return null;
+		}
+		authz.removeAuthorizationByQualifierAndFunction(Long.toString(id), "TAKE_PUBLISHED_ASSESSMENT");
+		Site site;
+		try {
+		    site = SiteService.getSite(siteId);
+		} catch (Exception e) {
+		    return null;
+		}
+		// put back the site
+		authz.createAuthorization(siteId, "TAKE_PUBLISHED_ASSESSMENT", Long.toString(id));
+		// and put back the access control
+		controlIfc.setReleaseTo(site.getTitle()); // what if it's too long?
+		// and save the updated info
+		assessmentService.saveAssessment(assessment);
+
+		System.out.println("result of create imported " + assessment);
+		publishedAssessment = pService.publishAssessment(assessment);
+		System.out.println("published " + publishedAssessment);
+	    } catch (Exception e) {
+		log.warn("can't publish assessment after import " + e);
+		e.printStackTrace();
+	    }
+	    if (publishedAssessment != null)
+		return 	"/" + SAM_PUB + "/" + publishedAssessment.getPublishedAssessmentId();
+	    else
+		return null;
+	}	
     }
 
     // return the list of groups if the item is only accessible to specific groups

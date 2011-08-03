@@ -36,6 +36,7 @@ public class QtiImport {
     String timelimit = null;
     boolean allowlate = true;
     String maxattempts = "1";
+    String siteId = null;
 
     class Pair {
 	String left;
@@ -1460,6 +1461,10 @@ public class QtiImport {
 	out.println("    <fieldentry>" + (feedbackpermitted ? "ON_SUBMISSION" : "NONE") + "</fieldentry>");
 	out.println("  </qtimetadatafield>");
 	out.println("  <qtimetadatafield>");
+	out.println("    <fieldlabel>ASSESSMENT_RELEASED_TO</fieldlabel>");
+	out.println("    <fieldentry>" + escapeText(siteId) + "</fieldentry>");
+	out.println("  </qtimetadatafield>");
+	out.println("  <qtimetadatafield>");
 	out.println("    <fieldlabel>FEEDBACK_COMPONENT_OPTION</fieldlabel>");
 	out.println("    <fieldentry>" + (feedbackpermitted ? "SELECT_COMPONENTS" : "SHOW_TOTALSCORE_ONLY") + "</fieldentry>");
 	out.println("  </qtimetadatafield>");
@@ -1531,10 +1536,11 @@ public class QtiImport {
     }
 
 
-    public void mainproc (InputStream i, PrintWriter o, boolean isBank, String base) throws IOException {
+    public void mainproc (InputStream i, PrintWriter o, boolean isBank, String base, String s) throws IOException {
 
         out = o;
 	filebase = base;
+	siteId = s;
 
 	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 

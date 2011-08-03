@@ -357,18 +357,19 @@ public class MnemeEntity implements LessonEntity, QuizEntity {
 	return "/portal/tool/" + tool + "/assessment_settings/" + id + "/1";
     }
 
-    public void importObject(Document document, boolean isBank, String siteId) {
+    public String importObject(Document document, boolean isBank, String siteId) {
 	// ignore isbank because everything has to go into pool.
 	// they have no way to import an assessment
 
 	if (importQtiService == null)
-	    return;
+	    return null;
 
 	try {
 	    importQtiService.importPool(document, siteId);
 	} catch (Exception e) {
 	    simplePageBean.setErrMessage("" + e);
 	}
+	return null; // for now. should be sakaiid
 
     }
 

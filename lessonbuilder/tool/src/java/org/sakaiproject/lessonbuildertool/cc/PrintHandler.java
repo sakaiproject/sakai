@@ -243,7 +243,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  length = ContentHostingService.MAXIMUM_RESOURCE_ID_LENGTH - 5; // for trailing / and possible count
       newname.setLength(length);
 
-      name = newname.toString();
+      name = newname.toString() + "1";
+      System.out.println("name1 " + name);
 
       ContentCollectionEdit collection = null;
       int tries = 1;
@@ -268,6 +269,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  }
       }
       if (collection == null) {
+	  System.out.println("resourcde100 " + name);
 	  simplePageBean.setErrKey("simplepage.resource100: ", name);
 	  return null;
       }
@@ -403,6 +405,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		     type.equals(CC_QUESTION_BANK0) || type.equals(CC_QUESTION_BANK1))) {
 
 	      String fileName = getFileName(resource);
+	      String sakaiId = null;
 	      
 	      if (itemsAdded.get(fileName) == null) {
 		  itemsAdded.put(fileName, SimplePageItem.DUMMY); // don't add the same test more than once
@@ -420,7 +423,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
 		  QtiImport imp = new QtiImport();
 		  try {
-		      imp.mainproc(instream, outwriter, isBank, base);
+		      imp.mainproc(instream, outwriter, isBank, base, siteId);
 		  } catch (Exception e) {
 		      e.printStackTrace();
 		  }
@@ -438,11 +441,12 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
 		      QuizEntity q = (QuizEntity)quiztool;
 
-		      q.importObject(document, isBank, siteId);
+		      sakaiId = q.importObject(document, isBank, siteId);
+		      if (sakaiId == null)
+			  sakaiId = SimplePageItem.DUMMY;
 
 		  } catch (Exception e) {
 		      System.out.println(e);
-		      e.printStackTrace();
 		      simplePageBean.setErrKey("simplepage.resource100", e.toString());
 		  }
 
@@ -450,7 +454,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
 	      // question banks don't appear on the page
 	      if (!isBank) {
-		  SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.ASSESSMENT, SimplePageItem.DUMMY, title);
+		  SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.ASSESSMENT, (sakaiId == null ? SimplePageItem.DUMMY : sakaiId), title);
 		  simplePageBean.saveItem(item);
 		  sequences.set(top, seq+1);
 	      }
