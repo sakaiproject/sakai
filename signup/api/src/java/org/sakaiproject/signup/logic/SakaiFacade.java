@@ -314,5 +314,19 @@ public interface SakaiFacade {
 	 * @return a List of Users that match the criteria
 	 */
 	public List<User> getUsersWithPermission(String permission);
+	
+	/**
+	 * Find a user by their email address. If the result of this search returns multiple users, then NO user will be returned.
+	 * @param email
+	 * @return	a user object or null if not found.
+	 */
+	public User getUserByEmail(String email);
+	
+	/**
+	 * Find a user by their eid.
+	 * @param eid
+	 * @return a user object or null if not found
+	 */
+	public User getUserByEid(String eid);
 
 }

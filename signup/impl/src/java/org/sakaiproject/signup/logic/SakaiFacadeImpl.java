@@ -254,7 +254,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		try {
 			return userDirectoryService.getUser(userId);
 		} catch (UserNotDefinedException e) {
-			//no log messages, this is handled in the calling method.
+			log.debug("User with id: " + userId + " does not exist : " + e.getClass() + " : " + e.getMessage());
 			return null;
 		}
 	}
@@ -799,6 +799,45 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	 */
 	public void setContentHostingService(ContentHostingService contentHostingService) {
 		this.contentHostingService = contentHostingService;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public User getUserByEmail(String email) {
+	
+		List<User> users = (List<User>)userDirectoryService.findUsersByEmail(email);
+	
+		//if none, return none. log at debug so we don't flood the logs
+		if(users.isEmpty()){
+			log.debug("No users found for email address: " + email);
+			return null;
+		}
+		
+		//if multiple, return none
+		if(users.size() > 1){
+			log.warn("Multiple users found for email address: " + email + ". Refine your search.");
+			return null;
+		}
+		
+		//if 1, ok.
+		if(users.size() == 1) {
+			return users.get(0);
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public User getUserByEid(String eid) {
+		try {
+			return userDirectoryService.getUserByEid(eid);
+		} catch (UserNotDefinedException e) {
+			log.debug("User with eid: " + eid + " does not exist.");
+		}
+		return null;
 	}
 
 }

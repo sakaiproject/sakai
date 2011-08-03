@@ -58,6 +58,7 @@ import org.sakaiproject.signup.tool.jsf.organizer.action.CreateSitesGroups;
 import org.sakaiproject.signup.tool.util.SignupBeanConstants;
 import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
@@ -171,7 +172,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	private UIInput newAttendeeInput;
 
 	/* proxy param */
-	private String eidInputByUser;
+	private String eidOrEmailInputByUser;
 
 	private UIData timeslotWrapperTable;
 
@@ -345,7 +346,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		otherSites = null;
 		/* for main meetingpage */
 		Utilities.resetMeetingList();
-		this.eidInputByUser = null;
+		this.eidOrEmailInputByUser = null;
 		this.selectedLocation=null;
 		this.customLocation=null;
 		this.selectedCategory=null;
@@ -822,31 +823,30 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	public String addAttendee() {
 		TimeslotWrapper timeslotWrapper = (TimeslotWrapper) timeslotWrapperTable.getRowData();
 
-		String attendeeEid = null;
-		String attendeeUserId;
-		try {
-			if (isEidInputMode())
-				attendeeEid = getEidInputByUser();
-			else
-				attendeeEid = (String) newAttendeeInput.getValue();
+		String attendeeEidOrEmail = null;
+		if (isEidInputMode()) {
+			attendeeEidOrEmail = getEidOrEmailInputByUser();
+		} else {
+			attendeeEidOrEmail = (String) newAttendeeInput.getValue();
+		}
 
-			attendeeUserId = sakaiFacade.getUserId(attendeeEid);
-		} catch (UserNotDefinedException e) {
-			Utilities.addErrorMessage(Utilities.rb.getString("exception.no.such.user") + attendeeEid);
+		String attendeeUserId = getUserIdForEidOrEmail(attendeeEidOrEmail.trim());
+		if(StringUtils.isBlank(attendeeEidOrEmail)){
+			Utilities.addErrorMessage(Utilities.rb.getString("exception.no.such.user") + attendeeEidOrEmail);
 			return "";
 		}
 		
 		SignupUser attendeeSignUser = getSakaiFacade().getSignupUser(this.signupMeeting, attendeeUserId);
 		if(attendeeSignUser ==null){
-			Utilities.addErrorMessage(MessageFormat.format(Utilities.rb.getString("user.has.no.permission.attend"), new Object[] {attendeeEid}));
+			Utilities.addErrorMessage(MessageFormat.format(Utilities.rb.getString("user.has.no.permission.attend"), new Object[] {attendeeEidOrEmail}));
 			return "";
 		}
 		
 		SignupAttendee attendee = new SignupAttendee(attendeeUserId, attendeeSignUser.getMainSiteId());
 
-		if (isDuplicateAttendee(timeslotWrapper.getTimeSlot(), attendee))
+		if (isDuplicateAttendee(timeslotWrapper.getTimeSlot(), attendee)) {
 			Utilities.addErrorMessage(Utilities.rb.getString("attendee.already.in.timeslot"));
-		else {
+		} else {
 			timeslotWrapper.addAttendee(attendee, sakaiFacade.getUserDisplayName(attendeeUserId));
 		}
 
@@ -1606,25 +1606,26 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	 * 
 	 * @return empty string.
 	 */
-	public String getUserInputEid() {
+	public String getUserInputEidOrEmail() {
 		return "";
 	}
 
 	/**
 	 * This is for Javascript UI only.
 	 * 
-	 * @param userInputEid
-	 *            a String value.
+	 * @param value
+	 *            eid or email for the user
 	 */
-	public void setUserInputEid(String userInputEid) {
-		if (userInputEid != null && userInputEid.length() > 0)
-			this.eidInputByUser = userInputEid;
+	public void setUserInputEidOrEmail(String value) {
+		if (StringUtils.isNotBlank(value)) {
+			this.eidOrEmailInputByUser = value;
+		}
 	}
 
 	/* Proxy method */
-	private String getEidInputByUser() {
-		String eid = this.eidInputByUser;
-		this.eidInputByUser = null;// reset for use once only
+	private String getEidOrEmailInputByUser() {
+		String eid = this.eidOrEmailInputByUser;
+		this.eidOrEmailInputByUser = null;// reset for use once only
 		return eid;
 	}
 
@@ -1916,5 +1917,25 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	public String getInstructorName() {
 		return Utilities.getSignupMeetingsBean().getInstructorName(creatorUserId);
 	}
-			
+		
+	/**
+	 * Gets the userId for a user, given an eid or an email address. 
+	 * We check if it matches the eid first, then if it matches an email address.
+	 * If nothing, return null.
+	 * 
+	 * @param value		the string to lookup, could be an eid or an email address
+	 * @return	the userId or null if User cannot be found
+	 */
+	public String getUserIdForEidOrEmail(String value) {
+		User u = sakaiFacade.getUserByEid(value);
+		if(u==null) {
+			u=sakaiFacade.getUserByEmail(value);
+		}
+		
+		if(u!=null) {
+			return u.getId();
+		}
+		
+		return null;
+	}
 }

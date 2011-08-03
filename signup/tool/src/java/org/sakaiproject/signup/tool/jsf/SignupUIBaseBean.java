@@ -495,5 +495,27 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		
 		return cleanedList;
 	}
+	
+	/**
+	 * Gets the userId for a user, given an eid or an email address. 
+	 * We check if it matches the eid first, then if it matches an email address.
+	 * If nothing, return null.
+	 * 
+	 * @param value		the string to lookup, could be an eid or an email address
+	 * @return	the userId or null if User cannot be found
+	 */
+	public String getUserIdForEidOrEmail(String value) {
+		User u = sakaiFacade.getUserByEid(value);
+		if(u==null) {
+			u=sakaiFacade.getUserByEmail(value);
+		}
+		
+		if(u!=null) {
+			return u.getId();
+		}
+		
+		return null;
+	}
+	
 
 }

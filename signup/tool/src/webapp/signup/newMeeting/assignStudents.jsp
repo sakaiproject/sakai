@@ -126,7 +126,7 @@
 		   									<f:selectItems value="#{NewSignupMeetingBean.allAttendees}" />
 		   								</h:selectOneMenu>
 		   								<h:outputText value="#{msgs.attendee_enterEid}" escape="false" rendered="#{NewSignupMeetingBean.eidInputMode}"/>
-		   								<h:inputText id="addAttendeeEidInput" value="#{NewSignupMeetingBean.userInputEid}" rendered="#{NewSignupMeetingBean.eidInputMode}" />
+		   								<h:inputText id="addAttendeeEidInput" size="40" value="#{NewSignupMeetingBean.userInputEidOrEmail}" rendered="#{NewSignupMeetingBean.eidInputMode}" />
 	   								</h:panelGroup>
 	   								<h:panelGroup>
 		   						    	<h:commandButton value="#{msgs.ok_button}" action="#{NewSignupMeetingBean.addAttendee}" />

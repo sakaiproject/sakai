@@ -383,11 +383,11 @@
 										   							<h:outputText value="#{msgs.event_replaceby}" escape="false" rendered="#{!OrganizerSignupMBean.eidInputMode}"/>
 										   							<h:outputText value="#{msgs.event_replaceby_Eid}" escape="false" rendered="#{OrganizerSignupMBean.eidInputMode}"/>
 										   							<h:panelGroup rendered="#{!OrganizerSignupMBean.eidInputMode}">
-											   							<h:selectOneMenu  id="replaceAttendeeList" binding="#{OrganizerSignupMBean.replacedAttendeeEid}" >
+											   							<h:selectOneMenu  id="replaceAttendeeList" binding="#{OrganizerSignupMBean.replacedAttendeeEidOrEmail}" >
 										   									<f:selectItems value="#{OrganizerSignupMBean.allAttendees}" />
 										   								</h:selectOneMenu>
 										   							</h:panelGroup>
-										   							<h:inputText id="replaceEidInput" value="#{OrganizerSignupMBean.userInputEid}" rendered="#{OrganizerSignupMBean.eidInputMode}" size="10"/>
+										   							<h:inputText id="replaceEidInput" value="#{OrganizerSignupMBean.userInputEidOrEmail}" rendered="#{OrganizerSignupMBean.eidInputMode}" size="10"/>
 									   								
 										   						</h:panelGrid>
 										   					
@@ -433,18 +433,25 @@
 						   					<h:panelGrid id="addNewAttendeeTable" columns="2">
 							   					<h:graphicImage value="/images/spacer.gif" width="16" height="16" alt="spacer" style="border:none"/>
 							   					<h:panelGrid id="selectAttendees" columns="2">
+						   							
 						   							<h:outputText value="#{msgs.attendee_select}" escape="false" rendered="#{!OrganizerSignupMBean.eidInputMode}"/>
 						   							<h:outputText value="#{msgs.attendee_enterEid}" escape="false" rendered="#{OrganizerSignupMBean.eidInputMode}"/>
 						   							
 						   							<h:panelGroup rendered="#{!OrganizerSignupMBean.eidInputMode}">
-							   							<h:selectOneMenu  id="newAttendeeList" binding="#{OrganizerSignupMBean.addNewAttendeeUserEid}" >
+							   							<h:selectOneMenu  id="newAttendeeList" binding="#{OrganizerSignupMBean.addNewAttendeeUserEidOrEmail}" >
 						   									<f:selectItems value="#{OrganizerSignupMBean.allAttendees}" />
 						   								</h:selectOneMenu>
 						   							</h:panelGroup>
-						   							<h:inputText  id="addAttendeeEidInput" size="15" value="#{OrganizerSignupMBean.userInputEid}" rendered="#{OrganizerSignupMBean.eidInputMode}" />
+						   							<h:inputText  id="addAttendeeEidOrEmailInput" size="20" value="#{OrganizerSignupMBean.userInputEidOrEmail}" rendered="#{OrganizerSignupMBean.eidInputMode}" />
 					   								
-						   						    <h:commandButton value="#{msgs.ok_button}" action="#{OrganizerSignupMBean.addAttendee}"/>
-						   							<h:commandButton value="#{msgs.cancel_button}" action="" onclick="clearPanels(); return false;"/>
+					   								<h:panelGroup>
+						   						    	<h:commandButton value="#{msgs.ok_button}" action="#{OrganizerSignupMBean.addAttendee}"/>
+						   								<h:commandButton value="#{msgs.cancel_button}" action="" onclick="clearPanels(); return false;"/>
+						   							</h:panelGroup>
+						   							
+						   							<%--  pad last column --%>
+						   							<h:outputText value="&nbsp;" escape="false" />
+						   							
 						   						</h:panelGrid>
 					   						</h:panelGrid>
 						   				</h:panelGroup>
@@ -529,15 +536,20 @@
 									   							<h:outputText value="#{msgs.attendee_enterEid}" escape="false" rendered="#{OrganizerSignupMBean.eidInputMode}"/>
 									   							
 									   							<h:panelGroup rendered="#{!OrganizerSignupMBean.eidInputMode}">
-										   							<h:selectOneMenu  id="newWaiterList" binding="#{OrganizerSignupMBean.waiterEid}">
+										   							<h:selectOneMenu  id="newWaiterList" binding="#{OrganizerSignupMBean.waiterEidOrEmail}">
 									   									<f:selectItems value="#{OrganizerSignupMBean.allAttendees}" />
 									   								</h:selectOneMenu>
 									   							</h:panelGroup>
-									   							<h:inputText id="addWaiterEidInput" value="#{OrganizerSignupMBean.userInputEid}" rendered="#{OrganizerSignupMBean.eidInputMode}" size="8"/>
+									   							<h:inputText id="addWaiterEidOrEmailInput" size="20" value="#{OrganizerSignupMBean.userInputEidOrEmail}" rendered="#{OrganizerSignupMBean.eidInputMode}" />
 								   								
-								   								
-									   						    <h:commandButton value="#{msgs.ok_button}" action="#{OrganizerSignupMBean.addAttendeeToWList}"/>
-									   							<h:commandButton value="#{msgs.cancel_button}" action="" onclick="clearPanels(); return false;" immediate="true"/>
+									   							<h:panelGroup>
+								   						    		<h:commandButton value="#{msgs.ok_button}" action="#{OrganizerSignupMBean.addAttendeeToWList}"/>
+						   											<h:commandButton value="#{msgs.cancel_button}" action="" onclick="clearPanels(); return false;"/>
+						   										</h:panelGroup>
+									   							
+									   							<%--  pad last column --%>
+						   										<h:outputText value="&nbsp;" escape="false" />
+									   									
 									   						</h:panelGrid>
 									   				</h:panelGrid>
 								   				</h:panelGroup>
