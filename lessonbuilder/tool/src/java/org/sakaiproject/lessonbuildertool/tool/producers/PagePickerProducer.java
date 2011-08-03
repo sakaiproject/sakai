@@ -118,6 +118,14 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 	    if (pageItem.isPrerequisite() || simplePageBean.getItemGroups(pageItem, null, false) != null)
 		somePagesHavePrerequisites = true;
 
+	    // no need to check this if flag already set
+	    if (! somePagesHavePrerequisites) {
+		SimplePage page = simplePageToolDao.getPage(pageId);
+		if (page.isHidden())
+		    somePagesHavePrerequisites = true;		    
+	    }
+
+
 	    // say done
 	    pageMap.remove(pageId);
 

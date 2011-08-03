@@ -73,6 +73,7 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollectionEdit;
+import org.sakaiproject.content.api.ContentCollection;
 
 import org.sakaiproject.content.api.ContentEntity;
 
@@ -4625,6 +4626,7 @@ public class SimplePageBean {
 			ResourcePropertiesEdit props = cce.getPropertiesEdit();
 			props.addProperty(ResourceProperties.PROP_ALLOW_INLINE, "true");
 			List<String> children = cce.getMembers();
+
 			for (int j = 0; j < children.size(); j++) {
 				String resId = children.get(j);
 				if (resId.endsWith("/")) {
@@ -4633,6 +4635,16 @@ public class SimplePageBean {
 			}
 
 			contentHostingService.commitCollection(cce);
+			// when you tell someone to create a zip file with index.html at the
+			// top level, it's unclear whether they do "zip directory" or "cd; zip *"
+			// make both work
+			
+			ContentCollection cc = cce;
+
+			if (children.size() == 1 && children.get(0).endsWith("/")) {
+			    contentCollectionId = children.get(0);
+			    cc = contentHostingService.getCollection(contentCollectionId);
+			}
 
 			// Now lets work out what type it is and return the appropriate
 			// index url
@@ -4647,30 +4659,30 @@ public class SimplePageBean {
 				name = name.substring(0, name.indexOf("_HTML"));
 			}
 
-			ContentEntity ce = cce.getMember(contentCollectionId + name + ".xml");
+			ContentEntity ce = cc.getMember(contentCollectionId + name + ".xml");
 			if (ce != null) {
 				index = "index.htm";
 			}
 
 			// Test for Camtasia
-			ce = cce.getMember(contentCollectionId + "ProductionInfo.xml");
+			ce = cc.getMember(contentCollectionId + "ProductionInfo.xml");
 			if (ce != null) {
 				index = name + ".html";
 			}
 			
 			// Test for Articulate
-			ce = cce.getMember(contentCollectionId + "player.html");
+			ce = cc.getMember(contentCollectionId + "player.html");
 			if (ce != null) {
 				index = "player.html";
 			}
 
 			// Test for generic web site
-			ce = cce.getMember(contentCollectionId + "index.html");
+			ce = cc.getMember(contentCollectionId + "index.html");
 			if (ce != null) {
 			    index = "index.html";
 			}
 
-			ce = cce.getMember(contentCollectionId + "index.htm");
+			ce = cc.getMember(contentCollectionId + "index.htm");
 			if (ce != null) {
 			    index = "index.htm";
 			}
