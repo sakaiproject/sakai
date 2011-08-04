@@ -148,9 +148,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return realm;
 	}
 
-	public SourceType createSourceType(String name) {
+	public SourceType createSourceType(String source_type) {
 		
-		SourceType sourceType = new SourceType(name); 
+		SourceType sourceType = new SourceType(source_type); 
 		dao.addSourceType(sourceType);
 		return sourceType ;
 	}

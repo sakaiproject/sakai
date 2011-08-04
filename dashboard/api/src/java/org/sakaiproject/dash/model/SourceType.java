@@ -37,9 +37,25 @@ import lombok.NoArgsConstructor;
 public class SourceType {
 
 	protected Long id;
-	protected String name;
+	public Long getId() {
+		return id;
+	}
 
-	public SourceType(String name) {
-		this.name = name;
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getSourceType() {
+		return source_type;
+	}
+
+	public void setSourceType(String source_type) {
+		this.source_type = source_type;
+	}
+
+	protected String source_type;
+
+	public SourceType(String source_type) {
+		this.source_type = source_type;
 	}
 }

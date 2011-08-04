@@ -73,7 +73,7 @@ public class AnnouncementEventProcessor implements EventProcessor {
 				sourceType = this.dashboardLogic.createSourceType("announcement");
 			}
 			
-			NewsItem newsItem = this.dashboardLogic.createNewsItem(ann.getAnnouncementHeader().getSubject(), event.getEventTime(), AnnouncementService.getAnnouncementReference(event.getContext()).getReference(), "", context, realm, sourceType);
+			NewsItem newsItem = this.dashboardLogic.createNewsItem(ann.getAnnouncementHeader().getSubject(), event.getEventTime(), AnnouncementService.getAnnouncementReference(event.getContext()).getReference(), " ", context, realm, sourceType);
 			this.dashboardLogic.createNewsLinks(newsItem);
 		} else {
 			// for now, let's log the error

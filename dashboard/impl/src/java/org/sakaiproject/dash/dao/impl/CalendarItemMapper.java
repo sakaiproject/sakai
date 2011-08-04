@@ -39,7 +39,7 @@ public class CalendarItemMapper implements RowMapper {
 		// source_type
 		SourceType sourceType = new SourceType();
 		sourceType.setId(rs.getLong("type_id"));
-		sourceType.setName(rs.getString("type_name"));
+		sourceType.setSourceType(rs.getString("type_name"));
 		calendarItem.setSourceType(sourceType);
 		
 		// context

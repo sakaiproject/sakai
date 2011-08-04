@@ -369,7 +369,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		
 		try {
 			getJdbcTemplate().update(getStatement("insert.SourceType"),
-				new Object[]{sourceType.getName()}
+				new Object[]{sourceType.getSourceType()}
 			);
 			return true;
 		} catch (DataAccessException ex) {
