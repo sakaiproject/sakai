@@ -57,6 +57,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.event.api.UsageSession;
@@ -559,6 +560,20 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				return;
 			}
 		}
+
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		String helpurl = (String)toolSession.getAttribute("sakai-portal:help-action");
+		String reseturl = (String)toolSession.getAttribute("sakai-portal:reset-action");
+
+		if (helpurl != null)
+		    UILink.make(tofill, (pageItem.getPageId() == 0 ? "helpbutton" : "helpbutton2")).
+			decorate(new UIFreeAttributeDecorator("onclick",
+			         "openWindow('" + helpurl + "', 'Help', 'resizeable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false"));
+
+		if (reseturl != null)
+		    UILink.make(tofill, (pageItem.getPageId() == 0 ? "resetbutton" : "resetbutton2")).
+			decorate(new UIFreeAttributeDecorator("onclick",
+			         "location.href='" + reseturl + "'; return false"));
 
 		// note page accessed. the code checks to see whether all the required
 		// items on it have been finished, and if so marks it complete, else just updates

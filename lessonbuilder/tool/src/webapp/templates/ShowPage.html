@@ -57,7 +57,11 @@ function resizeiframe(id) {
 			<a href="#" rsf:id="callpermissions"></a>
 		</div>
 
-		<div rsf:id="crumbdiv" class="fullwidth" role="navigation"><span rsf:id="crumb:"><a href="#" rsf:id="crumb-link"></a><span rsf:id="crumb-follow"></span></span></div>
+		<div rsf:id="crumbdiv" class="fullwidth" role="navigation">
+                  <a href="#" rsf:id="resetbutton2"><img src="/library/skin/default/images/reload.gif" style="float:left; margin-right:4px;margin-top:2px"/></a>
+		  <span rsf:id="crumb:"><a href="#" rsf:id="crumb-link"></a><span rsf:id="crumb-follow"></span></span>
+                  <a href="#" rsf:id="helpbutton2" target="_blank"><img src="/library/skin/default/images/help.gif" style="float:right;margin-left:4px;margin-top:2px"/></a>
+		</div>
 
 		
 		<div rsf:id="hiddenAlert" class="ui-widget" role="alert">
@@ -77,7 +81,11 @@ function resizeiframe(id) {
 		<br rsf:id="breakAfterWarnings" />
 		
 		<div>
-		  <a class="usebutton" href="#" rsf:id="show-pages" id="show-pages" role="note" style="float:right"></a>
+                  <a href="#" rsf:id="resetbutton"><img src="/library/skin/default/images/reload.gif" style="float:left; margin-right:4px; margin-top:3px"/></a>
+                  <div style="float:right">
+                  <a class="usebutton" href="#" rsf:id="show-pages" id="show-pages" role="note"></a>
+                  <a href="#" rsf:id="helpbutton" target="_blank"><img src="/library/skin/default/images/help.gif" style="margin-left:4px; margin-top:3px"/></a>
+                  </div>
 		  <span class="title" rsf:id="pagetitle"></span>
 		  <a class="usebutton" href="#" rsf:id="edit-title" id="edit-title"><span rsf:id="msg=simplepage.title"></span></a>
 		  <a class="usebutton" href="#" rsf:id="remove-page" id="remove-page"><span rsf:id="msg=simplepage.remove-page"></span></a> 
