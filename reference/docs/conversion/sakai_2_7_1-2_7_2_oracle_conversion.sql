@@ -18,8 +18,14 @@ delete from SAKAI_CLUSTER;
 alter table SAKAI_CLUSTER modify (UPDATE_TIME timestamp with time zone);
 
 /* PRFL-392 change row size of image URI columns */
-alter table PROFILE_IMAGES_T modify RESOURCE_MAIN varchar2(4000) not null;
-alter table PROFILE_IMAGES_T modify RESOURCE_THUMB varchar2(4000) not null;
+alter table PROFILE_IMAGES_T modify RESOURCE_MAIN varchar2(4000);
+alter table PROFILE_IMAGES_T modify RESOURCE_THUMB varchar2(4000);
 
-alter table PROFILE_IMAGES_EXTERNAL_T modify URL_MAIN varchar2(4000) not null;
+alter table PROFILE_IMAGES_EXTERNAL_T modify URL_MAIN varchar2(4000); 
 alter table PROFILE_IMAGES_EXTERNAL_T modify URL_THUMB varchar2(4000);
+
+-- These 3 statements might fail with "FAILURE: ORA-01442: column to be modified to NOT NULL is already NOT NULL"
+-- That is acceptable
+alter table PROFILE_IMAGES_T modify RESOURCE_MAIN not null;
+alter table PROFILE_IMAGES_T modify RESOURCE_THUMB not null;
+alter table PROFILE_IMAGES_EXTERNAL_T modify URL_MAIN not null;
