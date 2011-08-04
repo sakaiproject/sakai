@@ -1722,7 +1722,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			// no availability 
 			String height=null;
 			if (i.getHeight() != null && !i.getHeight().equals(""))
-			    height = height.replace("px","");  // just in case
+			    height = i.getHeight().replace("px","");  // just in case
 			
 			UIComponent iframe = UIOutput.make(container, "blti-iframe");
 			if (lessonEntity != null)
