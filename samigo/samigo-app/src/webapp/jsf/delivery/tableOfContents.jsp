@@ -116,7 +116,7 @@ function clickSubmitForGrade(){
     expireScript="document.forms[0].elements['tableOfContentsForm:elapsed'].value=loaded; document.forms[0].elements['tableOfContentsForm:outoftime'].value='true'; clickSubmitForGrade();" />
 <f:verbatim>  </span></f:verbatim>
 
-<h:commandButton type="button" onclick="document.getElementById('remText').style.display=document.getElementById('remText').style.display=='none' ? '': 'none';document.getElementById('timer').style.display=document.getElementById('timer').style.display=='none' ? '': 'none';document.getElementById('bar').style.display=document.getElementById('bar').style.display=='none' ? '': 'none'" onkeypress="document.getElementById('remText').style.display=document.getElementById('remText').style.display=='none' ? '': 'none';document.getElementById('timer').style.display=document.getElementById('timer').style.display=='none' ? '': 'none';document.getElementById('bar').style.display=document.getElementById('bar').style.display=='none' ? '': 'none'" value="#{deliveryMessages.hide_show}" />
+<h:commandButton type="button" onclick="document.getElementById('remText').style.display=document.getElementById('remText').style.display=='none' ? '': 'none';document.getElementById('timer').style.display=document.getElementById('timer').style.display=='none' ? '': 'none';document.getElementById('bar').style.display=document.getElementById('bar').style.display=='none' ? '': 'none'" value="#{deliveryMessages.hide_show}" />
 </h:panelGroup>
 
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'&& delivery.hasTimeLimit}" >
@@ -203,7 +203,7 @@ function clickSubmitForGrade(){
                              && authorization.submitAssessmentForGrade)}">
     <h:commandButton id="submitForGradeTOC1" type="submit" value="#{deliveryMessages.button_submit_grading}"
       action="#{delivery.confirmSubmitTOC}" styleClass="active"  
-      onclick="disableSubmitForGradeTOC1();javascript:saveTime()" onkeypress="disableSubmitForGradeTOC1();javascript:saveTime()"
+      onclick="disableSubmitForGradeTOC1();javascript:saveTime()" 
       disabled="#{delivery.actionString=='previewAssessment'}" />
   </h:panelGroup>
 
@@ -215,7 +215,7 @@ function clickSubmitForGrade(){
 <!-- SAVE AND EXIT BUTTON FOR TAKE ASSESMENT AND PREVIEW ASSESSMENT-->
   <h:commandButton id="exitTOC1" type="submit" value="#{deliveryMessages.button_exit}"
     action="#{delivery.saveAndExit}"
-    onclick="disableExitTOC1();javascript:saveTime()" onkeypress="disableExitTOC1();javascript:saveTime()"
+    onclick="disableExitTOC1();javascript:saveTime()" 
     rendered="#{(delivery.actionString=='takeAssessment'
              || delivery.actionString=='previewAssessment') && !delivery.hasTimeLimit}" 
     disabled="#{delivery.actionString=='previewAssessment'}" />
@@ -223,7 +223,7 @@ function clickSubmitForGrade(){
 <!-- QUIT BUTTON FOR TAKE ASSESSMENT VIA URL -->
   <h:commandButton id="exitTOC2" type="submit" value="#{deliveryMessages.button_exit}"
     action="#{delivery.saveAndExit}"
-    onclick="disableExitTOC2();javascript:saveTime()" onkeypress="disableExitTOC2();javascript:saveTime()"
+    onclick="disableExitTOC2();javascript:saveTime()" 
     rendered="#{delivery.actionString=='takeAssessmentViaUrl' && !delivery.hasTimeLimit}" >
   </h:commandButton>
 </p>
