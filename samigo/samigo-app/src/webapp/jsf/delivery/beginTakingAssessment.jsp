@@ -123,11 +123,11 @@
 <h:panelGrid columns="2" border="0">
     <h:outputText value=" "/>
     <h:outputText value=" "/>
-    <h:outputLabel value="#{deliveryMessages.username}" rendered="#{delivery.settings.username ne ''}" />
-    <h:inputText value="#{delivery.username}" size="20" rendered="#{delivery.settings.username ne ''}" />
+    <h:outputLabel for="baUserName"  value="#{deliveryMessages.username}" rendered="#{delivery.settings.username ne ''}" />
+    <h:inputText id="baUserName" value="#{delivery.username}" size="20" rendered="#{delivery.settings.username ne ''}" />
 
-    <h:outputLabel value="#{deliveryMessages.password}" rendered="#{delivery.settings.username ne ''}" />
-    <h:inputSecret value="#{delivery.password}" size="20" rendered="#{delivery.settings.username ne ''}" />
+    <h:outputLabel for="baPassword" value="#{deliveryMessages.password}" rendered="#{delivery.settings.username ne ''}" />
+    <h:inputSecret id="baPassword" value="#{delivery.password}" size="20" rendered="#{delivery.settings.username ne ''}" />
 </h:panelGrid>
  </div></div>
 
