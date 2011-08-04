@@ -154,7 +154,7 @@ public class GroupListProducer
 		    				}
 		    	        	catch (Exception e)
 		    	        	{
-		    	        		M_log.warn(this + "fillInComponent: cannot find user with id " + userId);
+		    	        		M_log.debug(this + "fillInComponent: cannot find user with id " + userId);
 		    	        		// need to remove the group member
 		    	        		size--;
 		    	        	}

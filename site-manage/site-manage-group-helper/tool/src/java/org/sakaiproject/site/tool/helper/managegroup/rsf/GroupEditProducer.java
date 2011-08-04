@@ -161,7 +161,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 	        	}
 	        	catch (Exception e)
 	        	{
-	        		M_log.warn(this + ":fillComponents: cannot find user " + userId);
+	        		M_log.debug(this + ":fillComponents: cannot find user " + userId);
 	        		// need to remove the group member
 	        		groupMembers.remove(p);
 	        	}

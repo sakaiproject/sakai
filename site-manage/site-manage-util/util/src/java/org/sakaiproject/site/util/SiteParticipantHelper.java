@@ -261,7 +261,7 @@ public class SiteParticipantHelper {
 				} catch (UserNotDefinedException exception) {
 					// deal with missing user quietly without throwing a
 					// warning message
-					M_log.warn("SiteParticipantHelper.addParticipantsFromMemberships: user not defined id = " + m.getUserId());
+					M_log.debug("SiteParticipantHelper:addParticipantsFromMemberships: user not defined id = " + m.getUserId());
 				}
 			}
 		}
@@ -325,7 +325,7 @@ public class SiteParticipantHelper {
 			} catch (UserNotDefinedException e) {
 				// deal with missing user quietly without throwing a
 				// warning message
-				M_log.warn("SiteParticipantHelper.prepareParticipants: user not defined "+ g.getUserEid());
+				M_log.debug("SiteParticipantHelper:addParticipantsFromMembers: user not defined "+ g.getUserEid());
 			}
 		}
 	}

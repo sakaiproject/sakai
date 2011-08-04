@@ -120,7 +120,7 @@ public class DifferentRoleProducer implements ViewComponentProducer, NavigationC
         	}
         	catch (Exception e)
         	{
-        		M_log.info(this + ":fillComponents: cannot find user with eid=" + userEId);
+        		M_log.debug(this + ":fillComponents: cannot find user with eid=" + userEId);
         	}
             // SECOND LINE
             UIBranchContainer userRow = UIBranchContainer.make(differentRoleForm, "user-row:", curItemNum);

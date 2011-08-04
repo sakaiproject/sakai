@@ -130,7 +130,7 @@ public class ConfirmProducer implements ViewComponentProducer, NavigationCaseRep
         	}
         	catch (Exception e)
         	{
-        		M_log.info(this + ":fillComponents: cannot find user with eid=" + userEId);
+        		M_log.debug(this + ":fillComponents: cannot find user with eid=" + userEId);
         	}
             UIBranchContainer userRow = UIBranchContainer.make(confirmForm, "user-row:", userEId);
             UIOutput.make(userRow, "user-name", userName);

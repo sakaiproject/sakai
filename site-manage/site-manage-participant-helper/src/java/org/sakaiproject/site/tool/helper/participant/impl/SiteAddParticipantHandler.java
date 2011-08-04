@@ -572,7 +572,7 @@ public class SiteAddParticipantHandler {
 							targettedMessageList.addMessage(new TargettedMessage("java.account",
 					                new Object[] { eId }, 
 					                TargettedMessage.SEVERITY_INFO));
-							M_log.warn(this  + ".addUsersRealm: cannot find user with eid= " + eId);
+							M_log.debug(this  + ".addUsersRealm: cannot find user with eid= " + eId);
 						} // try
 					} // for
 

@@ -135,7 +135,7 @@ public class SameRoleProducer implements ViewComponentProducer, NavigationCaseRe
         	}
         	catch (Exception e)
         	{
-        		M_log.info(this + ":fillComponents: cannot find user with eid=" + userEId);
+        		M_log.debug(this + ":fillComponents: cannot find user with eid=" + userEId);
         	}
             UIBranchContainer userRow = UIBranchContainer.make(sameRoleForm, "user-row:", userEId);
             UIOutput.make(userRow, "user-label", displayId + "(" + userName + ")");
