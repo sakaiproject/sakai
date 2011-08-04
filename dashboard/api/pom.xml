@@ -37,6 +37,16 @@
 		    <artifactId>sakai-assignment-api</artifactId>
 	        <version>2.9-SNAPSHOT</version>
 	    </dependency>
+	    <dependency>
+		    <groupId>org.sakaiproject.announcement</groupId>
+		    <artifactId>sakai-announcement-api</artifactId>
+	        <version>2.9-SNAPSHOT</version>
+	    </dependency>
+	    <dependency>
+		<groupId>org.sakaiproject.message</groupId>
+		<artifactId>sakai-message-api</artifactId>
+	        <version>2.9-SNAPSHOT</version>
+	    </dependency>
 	</dependencies>
 	
 	<build />

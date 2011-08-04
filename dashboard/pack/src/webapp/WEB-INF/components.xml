@@ -74,4 +74,9 @@
 		init-method="init">
 		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
 	</bean>
+	<bean id="org.sakaiproject.dash.listener.AnnouncementEventProcessor" 
+		class="org.sakaiproject.dash.listener.AnnouncementEventProcessor" 
+		init-method="init">
+		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
+	</bean>
 </beans>

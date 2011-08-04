@@ -4,6 +4,7 @@ import java.util.Observer;
 
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.site.api.Site;
 
@@ -17,7 +18,7 @@ public interface SakaiProxy {
 	public final static String EVENT_ASSIGNMENT_NEW = AssignmentConstants.EVENT_ADD_ASSIGNMENT;
 	
 	public final static String EVENT_CONTENT_NEW = ContentHostingService.EVENT_RESOURCE_ADD;
-	
+	public final static String EVENT_ANNOUNCEMENT_NEW = AnnouncementService.SECURE_ANNC_ADD;
 
 	/**
 	 * Get current siteid
