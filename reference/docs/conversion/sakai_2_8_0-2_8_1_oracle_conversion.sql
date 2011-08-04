@@ -33,7 +33,14 @@ alter table SAKAI_CLUSTER modify (UPDATE_TIME timestamp with time zone);
 update MAILARCHIVE_MESSAGE set XML=replace(XML, ' mail-from="', ' message_order="1" mail-from="') where XML not like '% message_order="1" %';
 
 -- SAK-20926 / PRFL-392 fix null status
-alter table PROFILE_IMAGES_T modify RESOURCE_MAIN varchar2(4000) not null;
-alter table PROFILE_IMAGES_T modify RESOURCE_THUMB varchar2(4000) not null;
-alter table PROFILE_IMAGES_EXTERNAL_T modify URL_MAIN varchar2(4000) not null;
+alter table PROFILE_IMAGES_T modify RESOURCE_MAIN varchar2(4000);
+alter table PROFILE_IMAGES_T modify RESOURCE_THUMB varchar2(4000);
+alter table PROFILE_IMAGES_EXTERNAL_T modify URL_MAIN varchar2(4000);
 alter table PROFILE_IMAGES_EXTERNAL_T modify URL_THUMB varchar2(4000);
+
+-- These 3 statements might fail with "FAILURE: ORA-01442: column to be modified to NOT NULL is already NOT NULL"
+-- That is acceptable
+
+alter table PROFILE_IMAGES_T modify RESOURCE_MAIN not null;
+alter table PROFILE_IMAGES_T modify RESOURCE_THUMB  not null;
+alter table PROFILE_IMAGES_EXTERNAL_T modify URL_MAIN not null;
