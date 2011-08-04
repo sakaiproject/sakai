@@ -90,7 +90,7 @@
                 //find rows of mytable	
                 var iRow = mytable.getElementsByTagName('tr');
                 //three rows before the row containing the radio button
-                for (var i=0; i<iRow.length-3;i++){
+                for (var i=0; i<iRow.length-2;i++){
                     //alert(i);
                   //construct radio button id in the same column
                   var currentRadioButtonId= strBefore+":"+i+strAfter;
