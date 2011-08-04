@@ -20,6 +20,7 @@ import org.sakaiproject.dash.model.Realm;
 import org.sakaiproject.dash.model.SourceType;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
 
 /**
  * The event listener for all Announcement events
@@ -53,7 +54,8 @@ public class AnnouncementEventProcessor implements EventProcessor {
 	 */
 	public void processEvent(Event event) {
 		
-		Entity entity = this.sakaiProxy.getEntity(event.getResource());
+		String resource =  event.getResource();
+		Entity entity = this.sakaiProxy.getEntity(resource);
 		
 		if(entity != null && entity instanceof AnnouncementMessage) {
 		

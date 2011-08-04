@@ -20,6 +20,7 @@ public interface SakaiProxy {
 	public final static String EVENT_CONTENT_NEW = ContentHostingService.EVENT_RESOURCE_ADD;
 	public final static String EVENT_ANNOUNCEMENT_NEW = AnnouncementService.SECURE_ANNC_ADD;
 
+	public final static String EVENT_ANNOUNCEMENT_ROOT =  AnnouncementService.SECURE_ANNC_ROOT;
 	/**
 	 * Get current siteid
 	 * @return

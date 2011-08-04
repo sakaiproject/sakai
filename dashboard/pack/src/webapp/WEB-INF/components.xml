@@ -16,6 +16,8 @@
 		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
+		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
 		
 	</bean>
 	
@@ -33,6 +35,8 @@
     	class="org.sakaiproject.dash.logic.DashboardLogicImpl"
     	init-method="init">
     	<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy"></property>
+    	<property name="dao" ref="org.sakaiproject.dash.dao.DashboardDao" />	
+    	<property name="cache" ref="org.sakaiproject.dash.cache" />	
     </bean>
     
     <!-- DAO. This uses the DataSource that has already been setup by Sakai  -->
@@ -63,20 +67,29 @@
         <property name="timeToLive" value="3600" />
         <property name="timeToIdle" value="3600" />
     </bean>
-
+	<bean id="org.sakaiproject.dash.listener.EventProcessorDispatcher" 
+		class="org.sakaiproject.dash.listener.EventProcessorDispatcher" 
+		init-method="init"
+		destroy-method="destroy"
+		singleton="true">
+    	<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+	</bean>
 	<bean id="org.sakaiproject.dash.listener.AssignmentNewEventProcessor" 
 		class="org.sakaiproject.dash.listener.AssignmentNewEventProcessor" 
 		init-method="init">
 		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
+    	<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy"></property>
 	</bean>
 	<bean id="org.sakaiproject.dash.listener.ContentNewEventProcessor" 
 		class="org.sakaiproject.dash.listener.ContentNewEventProcessor" 
 		init-method="init">
 		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
+    	<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy"></property>
 	</bean>
 	<bean id="org.sakaiproject.dash.listener.AnnouncementEventProcessor" 
 		class="org.sakaiproject.dash.listener.AnnouncementEventProcessor" 
 		init-method="init">
 		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
+    	<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy"></property>
 	</bean>
 </beans>

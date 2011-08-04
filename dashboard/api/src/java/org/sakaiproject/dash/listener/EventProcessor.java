@@ -51,7 +51,7 @@ import org.sakaiproject.event.api.Event;
  * item belongs, appropriate entries should be added for any missing 
  * Context, Person or Realm items.
  */
-public interface EventProcessor 
+public interface EventProcessor
 {
     /**
      * Get the unique identifier for the events that will be handled 
