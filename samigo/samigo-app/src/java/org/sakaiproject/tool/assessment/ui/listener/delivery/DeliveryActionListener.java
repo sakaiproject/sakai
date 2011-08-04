@@ -1905,7 +1905,10 @@ public class DeliveryActionListener
 	  bean.setColumnIndexList(columnIndexList);
 	  bean.setMatrixArray(matrixArray);
 	  bean.setForceRanking(Boolean.parseBoolean(item.getItemMetaDataByLabel(ItemMetaDataIfc.FORCE_RANKING)));
-	  bean.setRelativeWidth(Integer.parseInt(item.getItemMetaDataByLabel(ItemMetaDataIfc.MX_SURVEY_RELATIVE_WIDTH)));
+	  if (item.getItemMetaDataByLabel(ItemMetaDataIfc.MX_SURVEY_RELATIVE_WIDTH) != null)
+	  {
+		  bean.setRelativeWidth(Integer.parseInt(item.getItemMetaDataByLabel(ItemMetaDataIfc.MX_SURVEY_RELATIVE_WIDTH)));
+	  }
 	  bean.setAddComment(Boolean.parseBoolean(item.getItemMetaDataByLabel(ItemMetaDataIfc.ADD_COMMENT_MATRIX)));
 	  bean.setCommentField(item.getItemMetaDataByLabel(ItemMetaDataIfc.MX_SURVEY_QUESTION_COMMENTFIELD));
   }
