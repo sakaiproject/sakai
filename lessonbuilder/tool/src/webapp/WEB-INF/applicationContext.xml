@@ -159,6 +159,25 @@
     <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
 
   </bean>
+  
+	<bean id="org.sakaiproject.lessonbuildertool.util.ImageToMimeMap" class="java.util.HashMap">       
+		<constructor-arg>
+			<map>
+				<entry key="application/msword" value="/library/image/silk/page_white_word.png"/>
+				<entry key="application/vnd.openxmlformats-officedocument.wordprocessingml.document" value="/library/image/silk/page_white_word.png"/>
+				<entry key="application/vnd.ms-powerpoint" value="/library/image/silk/page_white_powerpoint.png"/>
+				<entry key="application/vnd.openxmlformats-officedocument.presentationml.presentation" value="/library/image/silk/page_white_powerpoint.png"/>
+				<entry key="application/vnd.ms-excel" value="/library/image/silk/page_white_excel.png"/>
+				<entry key="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" value="/library/image/silk/page_white_excel.png"/>
+				<entry key="application/pdf" value="/library/image/silk/page_white_acrobat.png"/>
+				<entry key="application/x-shockwave-flash" value="/library/image/silk/page_white_flash.png"/>
+				<entry key="video/x-flv" value="/library/image/silk/page_white_flash.png"/>
+				<entry key="text/plain" value="/library/image/silk/page_white_text.png"/>
+				<entry key="text/rtf" value="/library/image/silk/page_white_text.png"/>
+				<entry key="LBWEBSITE" value="/library/image/silk/control_play_blue.png"/>
+    	</map>
+    	</constructor-arg>
+    	</bean>
 
 
  </beans>

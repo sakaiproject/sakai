@@ -48,6 +48,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 
@@ -57,6 +58,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.lessonbuildertool.SimplePage;
@@ -134,6 +136,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private MemoryService memoryService = null;
 	private ToolManager toolManager;
 	public TextInputEvolver richTextEvolver;
+	
+	private Map<String,String> imageToMimeMap;
+	public void setImageToMimeMap(Map<String,String> map) {
+		this.imageToMimeMap = map;
+	}
 
 	// I don't much like the static, because it opens us to a possible race
 	// condition, but I don't see much option
@@ -720,9 +727,42 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					boolean isInline = (i.getType() == SimplePageItem.BLTI && "inline".equals(i.getFormat()));
 
 					UIOutput linktd = UIOutput.make(tableRow, "item-td");
-					UIOutput linkdiv = null;
-					if (!isInline)
-					    linkdiv = UIOutput.make(tableRow, "link-div");
+					UIBranchContainer linkdiv = null;
+					if (!isInline) {
+					    linkdiv = UIBranchContainer.make(tableRow, "link-div:");
+					    UIOutput itemicon = UIOutput.make(linkdiv,"item-icon");
+					    switch (i.getType()) {
+					    case SimplePageItem.FORUM:
+						itemicon.decorate(new UIFreeAttributeDecorator("src", "/library/image/silk/comments.png"));
+						break;
+					    case SimplePageItem.ASSIGNMENT:
+						itemicon.decorate(new UIFreeAttributeDecorator("src", "/library/image/silk/page_edit.png"));
+						break;
+					    case SimplePageItem.ASSESSMENT:
+						itemicon.decorate(new UIFreeAttributeDecorator("src", "/library/image/silk/pencil.png"));
+						break;
+					    case SimplePageItem.BLTI:
+						itemicon.decorate(new UIFreeAttributeDecorator("src", "/library/image/silk/application_go.png"));
+						break;
+					    case SimplePageItem.PAGE:
+						itemicon.decorate(new UIFreeAttributeDecorator("src", "/library/image/silk/book_open.png"));
+						break;
+					    case SimplePageItem.RESOURCE:
+						String mimeType = i.getHtml();
+						
+						String src = imageToMimeMap.get(mimeType);
+						if (src == null) {
+						    String image = ContentTypeImageService.getContentTypeImage(mimeType);
+						    if (image != null)
+							src = "/library/image/" + image;
+						}
+						
+						if(src != null) {
+						    itemicon.decorate(new UIFreeAttributeDecorator("src", src));
+						}
+						break;
+					    }
+					}
 
 					UIOutput descriptiondiv = null;
 

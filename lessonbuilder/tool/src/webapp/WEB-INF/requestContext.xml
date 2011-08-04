@@ -54,6 +54,7 @@
 		<property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
 		<property name="richTextEvolver" ref="richTextEvolver" />
+		<property name="imageToMimeMap" ref="org.sakaiproject.lessonbuildertool.util.ImageToMimeMap"/>
 	</bean>
 	
 	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.ReorderProducer" >

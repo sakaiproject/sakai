@@ -862,6 +862,10 @@ public class SimplePageBean {
 		    id = expandZippedResource(id);
 		    if (id == null)
 			return "failed";
+		    
+		    // We set this special type for the html field in the db. This allows us to
+		    // map an icon onto website links in applicationContext.xml
+		    mimeType = "LBWEBSITE";
 		}
 
 		String[] split = id.split("/");
@@ -4014,6 +4018,10 @@ public class SimplePageBean {
 					    sakaiId = expandZippedResource(sakaiId);
 					    if (sakaiId == null)
 						return;
+					    
+					    // We set this special type for the html field in the db. This allows us to
+					    // map an icon onto website links in applicationContext.xml
+					    mimeType = "LBWEBSITE";
 					}		    
 					
 				} catch (org.sakaiproject.exception.OverQuotaException ignore) {
