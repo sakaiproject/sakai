@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.Collection;
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
@@ -294,7 +295,7 @@ public interface PublishedAssessmentFacadeQueriesAPI
 
   public boolean hasRandomPart(Long publishedAssessmentId);
 
-  public List getContainRandomPartAssessmentIds();
+  public List getContainRandomPartAssessmentIds(Collection assessmentIds);
   
   public PublishedItemData getFirstPublishedItem(Long publishedAssessmentId);
 

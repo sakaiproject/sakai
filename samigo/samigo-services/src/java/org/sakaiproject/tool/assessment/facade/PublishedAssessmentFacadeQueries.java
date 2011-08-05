@@ -1816,21 +1816,24 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		return hasRandomPart;
 	}
 	
-	public List getContainRandomPartAssessmentIds() {
+	public List getContainRandomPartAssessmentIds(final Collection assessmentIds) {
+        if (assessmentIds == null || assessmentIds.size() < 1)
+		    return new ArrayList<Long>();	
 		final String key = SectionDataIfc.AUTHOR_TYPE;
 		final String value = SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL
 				.toString();
 		final String query = "select s.assessment.publishedAssessmentId "
 				+ "from PublishedSectionData s, PublishedSectionMetaData m " 
-			    + "where s = m.section and m.label=? and m.entry=? " 
+				+ "where s.assessment.publishedAssessmentId in (:ids) and s = m.section and m.label=:label and m.entry=:entry " 
 				+ "group by s.assessment.publishedAssessmentId";
 
 		final HibernateCallback hcb = new HibernateCallback() {
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
 				Query q = session.createQuery(query);
-				q.setString(0, key);
-				q.setString(1, value);
+				q.setString("label", key);
+				q.setString("entry", value);
+				q.setParameterList("ids", assessmentIds);
 				return q.list();
 			};
 		};

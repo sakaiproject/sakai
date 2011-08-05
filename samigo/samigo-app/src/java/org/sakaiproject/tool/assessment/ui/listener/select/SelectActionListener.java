@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.HashSet;
 
 import javax.faces.component.html.HtmlSelectOneMenu;
 import javax.faces.context.FacesContext;
@@ -190,9 +191,6 @@ public class SelectActionListener
         AgentFacade.getAgentString(), this.getSubmittedOrderBy(select),
         Boolean.getBoolean( (String) ContextUtil.lookupParam("reviewAscending")));
         */
-
-    List containRandomPartAssessmentIds = publishedAssessmentService.getContainRandomPartAssessmentIds();
-
     processDisplayInfo(select);
     
     // 1. get the most recent submission, or the highest submissions of each assessment for a user, depending on grading option
@@ -207,13 +205,22 @@ public class SelectActionListener
     HashMap feedbackHash = publishedAssessmentService.getFeedbackHash();
     DeliveryBeanie deliveryAnt = null;
     boolean isUnique = true;
+    HashSet<Long> recentSubmittedIds = new HashSet<Long>();
     select.setHasAnyAssessmentRetractForEdit(false);
     for (int k = 0; k < recentSubmittedList.size(); k++) {
-        hasHighest = false;
-        hasMultipleSubmission = false;
+    	AssessmentGradingFacade g = (AssessmentGradingFacade)
+    	recentSubmittedList.get(k);
+    	recentSubmittedIds.add(g.getPublishedAssessmentId());
+    }
 
-      AssessmentGradingFacade g = (AssessmentGradingFacade)
-          recentSubmittedList.get(k);
+    List containRandomPartAssessmentIds = publishedAssessmentService.getContainRandomPartAssessmentIds(recentSubmittedIds);
+
+    for (int k = 0; k < recentSubmittedList.size(); k++) {
+    	hasHighest = false;
+    	hasMultipleSubmission = false;
+
+    	AssessmentGradingFacade g = (AssessmentGradingFacade)
+    	recentSubmittedList.get(k);
 
         DeliveryBeanie delivery = new DeliveryBeanie();
         delivery.setAssessmentGradingId(g.getAssessmentGradingId());

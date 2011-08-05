@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.Collection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -393,9 +394,9 @@ public class PublishedAssessmentService extends AssessmentService{
 	  hasRandomPart(new Long(publishedAssessmentId));
   }
   
-  public List getContainRandomPartAssessmentIds(){
+  public List getContainRandomPartAssessmentIds(final Collection assessmentIds){
 	    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
-	    getContainRandomPartAssessmentIds();
+	    getContainRandomPartAssessmentIds(assessmentIds);
   }
 
   public PublishedItemData getFirstPublishedItem(String publishedAssessmentId){
