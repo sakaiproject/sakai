@@ -340,6 +340,24 @@ public class MyPreferences extends BasePage{
 		ws.add(galleryFeedContainer);
 		galleryFeedContainer.setVisible(sakaiProxy.isProfileGalleryEnabledGlobally());
 		
+		
+		//online status
+		WebMarkupContainer onlineStatusContainer = new WebMarkupContainer("onlineStatusContainer");
+		onlineStatusContainer.add(new Label("onlineStatusLabel", new ResourceModel("preferences.widget.onlinestatus")));
+		CheckBox onlineStatusSetting = new CheckBox("onlineStatusSetting", new PropertyModel<Boolean>(preferencesModel, "showOnlineStatus"));
+		onlineStatusContainer.add(onlineStatusSetting);
+		//tooltip
+		onlineStatusContainer.add(new IconWithClueTip("onlineStatusToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("preferences.widget.onlinestatus.tooltip")));
+		
+		//updater
+		onlineStatusSetting.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+			private static final long serialVersionUID = 1L;
+			protected void onUpdate(AjaxRequestTarget target) {
+            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            }
+        });
+		ws.add(onlineStatusContainer);		
+		
 		form.add(ws);
 		
 		//submit button

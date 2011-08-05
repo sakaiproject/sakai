@@ -384,7 +384,7 @@ public interface ProfilePrivacyLogic {
 	 * 
 	 */
 	public boolean isUserXWallVisibleByUserY(String userX, String userY, boolean friend);
-
+	
 	/**
 	 * Has the user allowed viewing of their wall by the given user?
 	 * 
@@ -399,6 +399,17 @@ public interface ProfilePrivacyLogic {
 	 * 
 	 */
 	public boolean isUserXWallVisibleByUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend);
+	
+	/**
+	 * Answers the question as to whether User X has given access to User Y to view their online status.
+	 *  
+	 * @param userX			uuid of user X
+	 * @param userY			uuid of user Y
+	 * @param friend 		is user X and user Y are connected
+	 * @return boolean
+	 * 
+	 */
+	public boolean isUserXOnlineStatusVisibleByUserY(String userX, String userY, boolean friend);
 	
 	/**
 	 * Has the user allowed viewing of their birth year in their profile. 

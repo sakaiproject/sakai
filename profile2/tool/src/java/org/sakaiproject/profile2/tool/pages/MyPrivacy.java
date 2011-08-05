@@ -374,8 +374,24 @@ public class MyPrivacy extends BasePage {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
-		
 		myWallContainer.setVisible(sakaiProxy.isWallEnabledGlobally());
+
+		
+		// online status privacy
+		WebMarkupContainer onlineStatusContainer = new WebMarkupContainer("onlineStatusContainer");
+		onlineStatusContainer.add(new Label("onlineStatusLabel", new ResourceModel("privacy.onlinestatus")));
+		DropDownChoice onlineStatusChoice = new DropDownChoice("onlineStatus", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));             
+		onlineStatusChoice.setOutputMarkupId(true);
+		onlineStatusContainer.add(onlineStatusChoice);
+		onlineStatusContainer.add(new IconWithClueTip("onlineStatusToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.privacy.onlinestatus.tooltip")));
+		form.add(onlineStatusContainer);
+
+		onlineStatusChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+            protected void onUpdate(AjaxRequestTarget target) {
+            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            }
+        });
+		
 		
 		//submit button
 		IndicatingAjaxButton submitButton = new IndicatingAjaxButton("submit", form) {
@@ -426,6 +442,7 @@ public class MyPrivacy extends BasePage {
 			myPicturesChoice.setEnabled(false);
 			messagesChoice.setEnabled(false);
 			myWallChoice.setEnabled(false);
+			onlineStatusChoice.setEnabled(false);
 			
 			submitButton.setEnabled(false);
 			submitButton.setVisible(false);

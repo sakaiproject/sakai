@@ -358,6 +358,10 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
  	 * {@inheritDoc}
  	 */
 	public int getOnlineStatus(String userUuid) {
+		
+		//TODO check prefs and privacy for the user. has the user allowed it?
+		
+		
 		//check if user has an active session
 		boolean active = sakaiProxy.isUserActive(userUuid);
 		if(!active) {

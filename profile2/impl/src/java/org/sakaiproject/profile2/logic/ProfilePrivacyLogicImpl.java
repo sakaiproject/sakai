@@ -726,6 +726,9 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
     	//pass to main
     	return isUserXWallVisibleByUserY(userX, profilePrivacy, userY, friend);
 	}
+	
+	
+
 
 	/**
  	 * {@inheritDoc}
@@ -755,6 +758,39 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
     	    	
     	//uncaught rule, return false
     	log.error("ProfileLogic.isUserXWallVisibleByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);   
+    	return false;
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean isUserXOnlineStatusVisibleByUserY(String userX, String userY, boolean friend) {
+		
+		//if user is requesting own info, they ARE allowed
+    	if(userY.equals(userX)) {
+    		return true;
+    	}
+    	
+    	//get privacy record for this user
+    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
+    	    	
+    	//if user is friend and friends are allowed
+    	if(friend && profilePrivacy.getOnlineStatus() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+    		return true;
+    	}
+    	
+    	//if not friend and set to friends only
+    	if(!friend && profilePrivacy.getOnlineStatus() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+    		return false;
+    	}
+    	
+    	//if everyone is allowed
+    	if(profilePrivacy.getMyKudos() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
+    		return true;
+    	}
+    	    	
+    	//uncaught rule, return false
+    	log.error("ProfileLogic.isUserXOnlineStatusVisibleByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);   
     	return false;
 	}
 

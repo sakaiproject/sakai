@@ -79,7 +79,7 @@ public class ProfileConstants {
 	public static final String UNAVAILABLE_IMAGE_FULL = "/profile2-tool/images/no_image.gif";
 	public static final String CLOSE_IMAGE = "/library/image/silk/cross.png";
 	public static final String INFO_IMAGE = "/library/image/silk/information.png";
-
+	
 	public static final String RSS_IMG = "/library/image/silk/feed.png";
 	public static final String ACCEPT_IMG = "/library/image/silk/accept.png";
 	public static final String ADD_IMG = "/library/image/silk/add.png";
@@ -93,6 +93,9 @@ public class ProfileConstants {
 	public static final String AWARD_SILVER_IMG = "/library/image/silk/award_star_silver_3.png";
 	public static final String AWARD_GOLD_IMG = "/library/image/silk/award_star_gold_3.png";
 
+	public static final String ONLINE_STATUS_ONLINE_IMG = "/library/image/silk/bullet_green.png";
+	public static final String ONLINE_STATUS_OFFLINE_IMG = "/library/image/silk/bullet_black.png";
+	public static final String ONLINE_STATUS_AWAY_IMG = "/library/image/silk/bullet_yellow.png";
 
 	
 	//profile picture settings for use in API and tool and their values for sakai.properties
@@ -162,6 +165,7 @@ public class ProfileConstants {
 	public static final boolean DEFAULT_SHOW_KUDOS_SETTING = true;
 	public static final boolean DEFAULT_SHOW_GALLERY_FEED_SETTING = true;
 	public static final boolean DEFAULT_GRAVATAR_SETTING = false;
+	public static final boolean DEFAULT_SHOW_ONLINE_STATUS_SETTING = true;
 
 	
 	//if no record, this is the default for sending email messages

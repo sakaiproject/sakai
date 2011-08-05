@@ -51,5 +51,6 @@ public class ProfilePrivacy implements Serializable {
 	private int socialNetworkingInfo;
 	private int myKudos;
 	private int myWall;
+	private int onlineStatus;
 	
 }

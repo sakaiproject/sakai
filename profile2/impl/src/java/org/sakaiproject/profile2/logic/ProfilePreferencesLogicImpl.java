@@ -162,6 +162,7 @@ public class ProfilePreferencesLogicImpl implements ProfilePreferencesLogic {
 		prefs.setShowKudos(ProfileConstants.DEFAULT_SHOW_KUDOS_SETTING);
 		prefs.setShowGalleryFeed(ProfileConstants.DEFAULT_SHOW_GALLERY_FEED_SETTING);
 		prefs.setUseGravatar(ProfileConstants.DEFAULT_GRAVATAR_SETTING);
+		prefs.setShowOnlineStatus(ProfileConstants.DEFAULT_SHOW_ONLINE_STATUS_SETTING);
 				
 		return prefs;
 	}

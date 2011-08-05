@@ -25,6 +25,8 @@
 	   	<property name="useGravatar" column="USE_GRAVATAR" not-null="true" />
 	   	<property name="wallItemNewEmailEnabled" column="EMAIL_WALL_ITEM_NEW" not-null="true" />
 	   	<property name="worksiteNewEmailEnabled" column="EMAIL_WORKSITE_NEW" not-null="true" />
+	   	<property name="showOnlineStatus" column="SHOW_ONLINE_STATUS" not-null="true" />
+	   	
   	</class>
 
 	<query name="getPreferencesRecord">

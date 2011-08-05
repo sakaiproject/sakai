@@ -43,6 +43,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
+import org.sakaiproject.profile2.tool.components.OnlinePresenceIndicator;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.models.FriendAction;
@@ -121,9 +122,9 @@ public class ViewProfile extends BasePage {
 		
 		boolean isFriendsListVisible = privacyLogic.isUserXFriendsListVisibleByUserY(userUuid, privacy, currentUserId, friend);
 		boolean isKudosVisible = privacyLogic.isUserXKudosVisibleByUserY(userUuid, privacy, currentUserId, friend);
-		final boolean isGalleryVisible = privacyLogic.isUserXGalleryVisibleByUser(userUuid, privacy, currentUserId, friend);
-		
+		boolean isGalleryVisible = privacyLogic.isUserXGalleryVisibleByUser(userUuid, privacy, currentUserId, friend);
 		boolean isConnectionAllowed = sakaiProxy.isConnectionAllowedBetweenUserTypes(currentUserType, userType);
+		boolean isOnlineStatusVisible = privacyLogic.isUserXOnlineStatusVisibleByUserY(userUuid, currentUserId, friend);
 		
 		final ProfilePreferences prefs = preferencesLogic.getPreferencesRecordForUser(userUuid);
 
@@ -133,6 +134,13 @@ public class ViewProfile extends BasePage {
 		/* NAME */
 		Label profileName = new Label("profileName", userDisplayName);
 		add(profileName);
+		
+		/* ONLINE PRESENCE INDICATOR */
+		if(prefs.isShowOnlineStatus() && isOnlineStatusVisible){
+			add(new OnlinePresenceIndicator("online", userUuid));
+		} else {
+			add(new EmptyPanel("online"));
+		}
 		
 		/*STATUS PANEL */
 		ProfileStatusRenderer status = new ProfileStatusRenderer("status", userUuid, privacy, null, "tiny");

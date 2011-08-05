@@ -44,5 +44,6 @@ public class ProfilePreferences implements Serializable {
 	private boolean useGravatar;
 	private boolean wallItemNewEmailEnabled;
 	private boolean worksiteNewEmailEnabled;
+	private boolean showOnlineStatus;
 
 }

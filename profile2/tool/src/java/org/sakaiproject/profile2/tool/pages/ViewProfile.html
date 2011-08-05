@@ -52,8 +52,10 @@
 			
 			<!--  heading/status panel -->
 			<div id="profileHeading">
-		    	<span id="profileHeadingName" wicket:id="profileName">[profileName]</span>&nbsp;
-		    	<span wicket:id="status" class="status-msg">[status here]</span>
+		    	<span id="profileHeadingName" wicket:id="profileName">[profileName]</span>
+		    	<span wicket:id="online" class="presence-indicator">[online indicator here]</span>
+		    	<div wicket:id="status" class="view-status-msg">[status here]</div>
+		    	
 		    	
 		    	<!-- tabs -->
 				<div class="main-profile-tabpanel" wicket:id="viewProfileTabs">[view profile tabs]</div>
@@ -71,6 +73,17 @@
 			//resize iframe
 			setMainFrameHeight(window.name);
 
+			//online presence tooltip
+			$('.sakai-wicket-onlinepresence').cluetip({
+				local: true,
+				showTitle: false,
+				attribute: 'rel',
+				cursor: 'pointer',
+				cluetipClass: 'jtip',
+				arrows: true,
+				hoverIntent: false,
+				dropShadow: false
+			});	
 			
 			
 		});

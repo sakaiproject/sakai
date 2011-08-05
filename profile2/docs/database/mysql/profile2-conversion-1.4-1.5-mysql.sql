@@ -35,3 +35,7 @@ alter table PROFILE_WALL_ITEM_COMMENTS_T
 	add constraint FK32185F67BEE209 
 	foreign key (WALL_ITEM_ID) 
 	references PROFILE_WALL_ITEMS_T (WALL_ITEM_ID);
+	
+/* add the show online status column, default to 1, (PRFL-350) */
+alter table PROFILE_PREFERENCES_T add SHOW_ONLINE_STATUS bit not null DEFAULT true;
+alter table PROFILE_PRIVACY_T add ONLINE_STATUS int not null DEFAULT 0;
