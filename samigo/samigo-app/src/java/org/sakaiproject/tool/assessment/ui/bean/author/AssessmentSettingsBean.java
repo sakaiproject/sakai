@@ -1698,14 +1698,16 @@ public class AssessmentSettingsBean
 		 return groupsAuthorized;
 	 }
 	 AuthzQueriesFacadeAPI authz = PersistenceService.getInstance().getAuthzQueriesFacade();
-	 List authorizations = authz.getAuthorizationByFunctionAndQualifier("TAKE_ASSESSMENT", getAssessmentId().toString());
-	 if (authorizations != null && authorizations.size()>0) {
-		 groupsAuthorized = new String[authorizations.size()];
-		 Iterator authsIter = authorizations.iterator();
-		 int i = 0;
-		 while (authsIter.hasNext()) {
-			 AuthorizationData ad = (AuthorizationData) authsIter.next();
-			 groupsAuthorized[i++] = ad.getAgentIdString();
+	 if (authz!=null){
+		 List authorizations = authz.getAuthorizationByFunctionAndQualifier("TAKE_ASSESSMENT", getAssessmentId().toString());
+		 if (authorizations != null && authorizations.size()>0) {
+			 groupsAuthorized = new String[authorizations.size()];
+			 Iterator authsIter = authorizations.iterator();
+			 int i = 0;
+			 while (authsIter.hasNext()) {
+				 AuthorizationData ad = (AuthorizationData) authsIter.next();
+				 groupsAuthorized[i++] = ad.getAgentIdString();
+			 }
 		 }
 	 }
 	 return groupsAuthorized;
