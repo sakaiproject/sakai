@@ -643,7 +643,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		                detailsLink.setId(ASSIGNMENT_COLUMN_PREFIX + "hdr_link_" + colpos);
 		                HtmlOutputText detailsText = new HtmlOutputText();
 		                detailsText.setId(ASSIGNMENT_COLUMN_PREFIX + "hdr_details_" + colpos);
-		                detailsText.setValue("<em>Details</em>");
+		                detailsText.setValue("<em>" + getLocalizedString("roster_details") + "</em>");
 		                detailsText.setEscape(false);
 		                detailsText.setStyle("font-size: 80%");
 		                detailsLink.getChildren().add(detailsText);
