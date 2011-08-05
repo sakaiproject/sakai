@@ -806,8 +806,12 @@ public class ItemContentsBean implements Serializable {
 				ItemGradingData data = (ItemGradingData) iter.next();
 				response = data.getAnswerText();
 			}
-			response = response.replaceAll("(\r\n|\r)", "<br/>");
-			return response;
+			if (response!=null){
+				response = response.replaceAll("(\r\n|\r)", "<br/>");
+				return response;
+			}else{
+				return responseText;
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return responseText;
