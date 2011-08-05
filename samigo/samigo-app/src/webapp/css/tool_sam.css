@@ -327,3 +327,8 @@ tbody tr td.center{
     text-align: center; /*centers radio buttons beneath column headings in matrix type survey questions */
 }
 
+a.hideDivision {
+    color: inherit;
+    text-decoration: none;
+}
+

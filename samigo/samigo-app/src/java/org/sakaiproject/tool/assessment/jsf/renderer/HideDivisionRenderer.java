@@ -111,9 +111,8 @@ public class HideDivisionRenderer extends Renderer
           .getRequestContextPath();
 
         writer.write("<" + BARTAG + " class=\"" + BARSTYLE + "\">");
-        writer.write("<a href=\"#\""+ " onclick=\"javascript:showHideDiv('" + id +
-           "', '" +  contextPath + "');\"><img id=\"__img_hide_division_" + id + "\" alt=\"Click to reveal." +
-           title + "\"");
+        writer.write("<a href=\"#\""+ " class=\"hideDivision\" onclick=\"javascript:showHideDiv('" + id +
+           "', '" +  contextPath + "');\" onmouseup=\"blur()\"><img id=\"__img_hide_division_" + id + "\" alt=\"Click to reveal:\"");
         writer.write("    src=\""   + contextPath +
            BARIMG + "\" style=\"cursor:pointer;\" />");
         writer.write("  " + title + "");
