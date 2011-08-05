@@ -156,20 +156,7 @@ public class ResourcesHandler implements HandlesImportable {
 			} else if ("sakai-web-link".equals(thing.getTypeName())) {
 				title = ((WebLink)thing).getTitle();
 				description = ((WebLink)thing).getDescription();
-				
-				id = contentHostingService.getSiteCollection(siteId);
-				
-				String contextPath = thing.getContextPath();
-				if (contextPath != null && (contextPath.length() + id.length()) > 255) {
-					// leave at least 14 characters at end for uniqueness
-					contextPath = contextPath.substring(0, (255 - 14 - id.length()));
-					// add a timestamp to differentiate it (+14 chars)
-					Format f= new SimpleDateFormat("yyyyMMddHHmmss");
-					contextPath += f.format(new Date());
-					// total new length of 32 chars
-				}
-				
-				id = id + contextPath;
+				id = contentHostingService.getSiteCollection(siteId) + thing.getContextPath();
 				contentType = ResourceProperties.TYPE_URL;
 				String absoluteUrl = "";
 				if (((WebLink)thing).isAbsolute()) {
@@ -290,7 +277,7 @@ public class ResourcesHandler implements HandlesImportable {
 
 	protected ContentResource addContentResource(String id, String contentType, byte[] contents, Map properties, int notifyOption) {
 		try {
-			id = makeIdClean(id);
+			id = makeIdCleanAndLengthCompliant(id);
 			ResourcePropertiesEdit resourceProps = contentHostingService.newResourceProperties();
 			Set keys = properties.keySet();
 			for (Iterator i = keys.iterator();i.hasNext();) {
@@ -348,7 +335,7 @@ public class ResourcesHandler implements HandlesImportable {
 	}
 
 	protected void addContentCollection(String path, Map properties) {
-			path = makeIdClean(path);
+			path = makeIdCleanAndLengthCompliant(path);
 			ResourcePropertiesEdit resourceProps = contentHostingService.newResourceProperties();
 			Set keys = properties.keySet();
 			for (Iterator i = keys.iterator();i.hasNext();) {
@@ -408,13 +395,27 @@ public class ResourcesHandler implements HandlesImportable {
 			} 
 	}
 	
-	private String makeIdClean (String path) {
+	private String makeIdCleanAndLengthCompliant (String path) {
 		String [] parts = path.split("/");
 		StringBuilder rv = new StringBuilder();
 		
 		for (int i = 0; i < parts.length; i++) {
 			if (parts[i].length() > 0) {
 				rv.append("/" + Validator.escapeResourceName(parts[i]));
+			}
+		}
+		
+		// SAK-18833, the content resource must be less than 255 chars
+		if (rv.length() > (255 - 5)) {
+			// leave at least 14 characters at end for uniqueness
+			// leave an additional 5 characters for an extension like .html
+			rv.setLength(255 - 14 - 5);
+			
+			// add a timestamp to differentiate it (+14 chars)
+			Format f = new SimpleDateFormat("yyyyMMddHHmmss");
+			rv.append(f.format(new Date()));
+			if (m_log.isDebugEnabled()) {
+				m_log.debug("makeIdCleanAndLengthCompliant truncated from " + path + " to " + rv.toString());
 			}
 		}
 		
