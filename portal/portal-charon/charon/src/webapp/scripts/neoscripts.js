@@ -25,7 +25,6 @@ var dhtml_more_tabs = function(){
             createDHTMLMask(dhtml_more_tabs);
             // bind this function to the More Tabs tab to close More Tabs on click
             jQuery('.selectedTab').bind('click', function(e){
-                console.log(e.pageX)
                 dhtml_more_tabs();
                 return false;
             });
@@ -461,6 +460,7 @@ var setupSiteNav = function(){
     });
     
     jQuery("ul.topnav li span.drop").click(function(){
+        removeDHTMLMask();
         jQuery('#selectSite').hide();
         jQuery('#otherSiteTools').remove();
         
@@ -479,6 +479,7 @@ var setupSiteNav = function(){
 
     // Chuck Hack
     jQuery("span.topnav span span.drop").click(function(){
+        removeDHTMLMask();
         jQuery('#selectSite').hide();
         jQuery('#otherSiteTools').remove();
         
