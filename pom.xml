@@ -80,12 +80,12 @@
 			<uniqueVersion>false</uniqueVersion>
 			<id>es-maven</id>
 			<name>Enterprise Systems Maven Repository</name>
-			<url>sftp://es-maven.anu.edu.au/export/web/es-maven/maven2/</url>
+			<url>scpexe://es-maven.anu.edu.au/export/web/es-maven/maven2/</url>
 			<layout>default</layout>
 		</repository>
 		<site>
       		<id>es-maven-site</id>
-      		<url>sftp://es-maven.anu.edu.au/export/web/es-maven/site/${artifactId}</url>
+      		<url>scpexe://es-maven.anu.edu.au/export/web/es-maven/site/portlets/${artifactId}</url>
     	</site>
 	</distributionManagement>
   	
@@ -345,11 +345,11 @@
 		</plugins>
 		
 		<extensions>
-			<!-- Enabling the use of FTP -->
+			<!-- Enabling the use of external ssh -->
       		<extension>
         		<groupId>org.apache.maven.wagon</groupId>
-         		<artifactId>wagon-ftp</artifactId>
-         		<version>1.0-beta-6</version>
+         		<artifactId>wagon-ssh-external</artifactId>
+         		<version>1.0-beta-7</version>
       		</extension>
     	</extensions>
 	</build>  
