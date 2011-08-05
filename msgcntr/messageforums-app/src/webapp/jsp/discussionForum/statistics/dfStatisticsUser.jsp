@@ -191,7 +191,7 @@
 		<h:outputText rendered="#{empty mfStatisticsBean.userAuthoredStatistics}" value="#{msgs.stat_no_authored_message}" styleClass="instruction" style="display:block"/>
 
   		<h:dataTable styleClass="listHier lines nolines" id="members" value="#{mfStatisticsBean.userAuthoredStatistics}" var="stat" rendered="#{!empty mfStatisticsBean.userAuthoredStatistics}"
-   	 		columnClasses="bogus,bogus,bogus,bogus,bogus" cellpadding="0" cellspacing="0" summary="#{msgs.statistics_table_user_authored} '#{mfStatisticsBean.selectedSiteUser}'">
+   	 		columnClasses="bogus,bogus,bogus,bogus,bogus" cellpadding="0" cellspacing="0">
   			<h:column>
   				<f:facet name="header"> 				
   					<h:commandLink action="#{mfStatisticsBean.toggleForumTitleSort}" title="#{msgs.stat_forum_title}">
@@ -278,7 +278,7 @@
   			<f:verbatim></h4></f:verbatim>
 		<h:outputText rendered="#{empty mfStatisticsBean.userReadStatistics}" value="#{msgs.stat_no_read_message}" styleClass="instruction" style="display:block"/>
   		<h:dataTable styleClass="listHier lines nolines" id="members2" value="#{mfStatisticsBean.userReadStatistics}" var="stat2" rendered="#{!empty mfStatisticsBean.userReadStatistics}"
-   	 	 columnClasses="bogus,bogus,bogus,bogus,bogus,bogus" cellpadding="0" cellspacing="0" summary="#{msgs.statistics_table_user_read} '#{mfStatisticsBean.selectedSiteUser}'" >
+   	 	 columnClasses="bogus,bogus,bogus,bogus,bogus,bogus" cellpadding="0" cellspacing="0">
   			<h:column>
   				<f:facet name="header">
 		   			<h:commandLink action="#{mfStatisticsBean.toggleForumTitleSort2}" title="#{msgs.stat_forum_title}">

@@ -197,7 +197,7 @@
 			<h:outputText value="#{msgs.cdfm_no_messages}" rendered="#{empty ForumTool.selectedTopic.messages && !ForumTool.needToPostFirst}"  styleClass="instruction" style="display:block"/>
 			<%--//gsilver: need a rendered attribute here that will toggle the display of the table (if messages) or a textblock (class="instruction") if there are no messages--%> 						
 			<mf:hierDataTable styleClass=" listHier  specialLink allMessages" id="messagesInHierDataTable" rendered="#{!empty ForumTool.selectedTopic.messages}"  value="#{ForumTool.messages}" var="message" expanded="#{ForumTool.expanded}"
-					columnClasses="attach,messageTitle,attach,bogus,bogus" cellspacing="0" cellpadding="0" style="border:none" summary="#{msgs.summary_all_messages_topic} '#{ForumTool.selectedTopic.topic.title}'">
+					columnClasses="attach,messageTitle,attach,bogus,bogus" cellspacing="0" cellpadding="0" style="border:none">
 			<h:column id="_toggle">
 				<f:facet name="header">
 					<h:commandLink action="#{ForumTool.processActionToggleExpanded}" immediate="true" title="#{msgs.cdfm_collapse_expand_all}">
