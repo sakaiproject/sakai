@@ -9,15 +9,71 @@
       <property name="defaultForTool"><value>sakai.lessonbuildertool</value></property>        
    </bean>
    
+   <bean id="lessonbuildertoolAddText" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>lessonbuildertoolAddText</value></property>
+      <property name="name"><value>Add Text to a Page</value></property>
+      <property name="location"><value>/sakai_lessonbuildertool/addtext.html</value></property>
+   </bean>
+
+   <bean id="lessonbuildertoolAddResources" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>lessonbuildertoolAddResources</value></property>
+      <property name="name"><value>Add Resources to a Page</value></property>
+      <property name="location"><value>/sakai_lessonbuildertool/addresources.html</value></property>
+   </bean>
+
+   <bean id="lessonbuildertoolAddMultimedia" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>lessonbuildertoolAddMultimedia</value></property>
+      <property name="name"><value>Add Multimedia to a Page</value></property>
+      <property name="location"><value>/sakai_lessonbuildertool/addmultimedia.html</value></property>
+   </bean>
+
+   <bean id="lessonbuildertoolAddAssignments" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>lessonbuildertoolAddAssignments</value></property>
+      <property name="name"><value>Add Assignments to a Page</value></property>
+      <property name="location"><value>/sakai_lessonbuildertool/addassignments.html</value></property>
+   </bean>
+
+   <bean id="lessonbuildertoolAddQuizzes" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>lessonbuildertoolAddQuizzes</value></property>
+      <property name="name"><value>Add Quizzes to a Page</value></property>
+      <property name="location"><value>/sakai_lessonbuildertool/addquizzes.html</value></property>
+   </bean>
+
+   <bean id="lessonbuildertoolAddTopics" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>lessonbuildertoolAddTopics</value></property>
+      <property name="name"><value>Add Forum Topics to a Page</value></property>
+      <property name="location"><value>/sakai_lessonbuildertool/addtopics.html</value></property>
+   </bean>
+
+   <bean id="lessonbuildertoolAddSubpages" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>lessonbuildertoolAddSubpages</value></property>
+      <property name="name"><value>Add Additional Pages to a Page</value></property>
+      <property name="location"><value>/sakai_lessonbuildertool/addsubpages.html</value></property>
+   </bean>
+
+   <bean id="lessonbuildertoolReorganize" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>lessonbuildertoolReorganize</value></property>
+      <property name="name"><value>Reorganize content</value></property>
+      <property name="location"><value>/sakai_lessonbuildertool/reorganize.html</value></property>
+   </bean>
+
    <bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
       <property name="name"><value>root</value></property>
       <property name="categories">
          <list>
-            <bean id="resourceCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+            <bean id="lessonbuilderCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
                <property name="name"><value>LessonBuilder</value></property>
                <property name="resources">
                   <list>
                      <ref bean="lessonbuildertoolOverview"/>
+                     <ref bean="lessonbuildertoolAddText"/>
+                     <ref bean="lessonbuildertoolAddResources"/>
+                     <ref bean="lessonbuildertoolAddMultimedia"/>
+                     <ref bean="lessonbuildertoolAddAssignments"/>
+                     <ref bean="lessonbuildertoolAddQuizzes"/>
+                     <ref bean="lessonbuildertoolAddTopics"/>
+                     <ref bean="lessonbuildertoolAddSubpages"/>
+                     <ref bean="lessonbuildertoolReorganize"/>
                   </list>
                </property>
             </bean>
