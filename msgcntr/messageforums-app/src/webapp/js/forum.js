@@ -537,3 +537,21 @@ var setupLongDesc = function(){
     });
     
 }
+var setupdfAIncMenus = function(){
+    
+    $('body').click(function(e){
+        if (e.target.className != 'moreMenuLink' && e.target.className != 'moreMenuLinkSpan'){
+            $('.moreMenu').hide();
+        }
+        });
+    $('.moreMenuLink').click(function(e){
+        e.preventDefault();
+        $('.moreMenu').hide();
+        pos =$(this).position()
+        $(this).next('ul').css({
+            'position':'absolute',
+            'top':pos.top + 20,
+            'left':pos.left + 20
+        }).toggle();
+    })
+}

@@ -523,3 +523,27 @@ form{margin-bottom:0;}
      vertical-align:middle;
      margin-right:3em
 }
+
+.moreMenuLink span{
+    padding-right:15px;
+    background:transparent url(../images/silk/bullet_arrow_down.png) bottom right no-repeat;
+    
+}    
+.moreMenu{
+    background:#fff;
+    list-style:none;
+    margin:0;
+    padding:0px;
+    border:1px solid #ccc;
+}
+.moreMenu li{
+    
+}
+.moreMenu li a{
+    display:block;
+    padding:5px;
+}
+.moreMenu li a:hover{
+    background:#eee;
+    text-decoration:none;
+    }

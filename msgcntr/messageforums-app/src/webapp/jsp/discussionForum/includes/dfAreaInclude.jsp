@@ -39,6 +39,7 @@ $(document).ready(function() {
 	if (forumLen ===0 && accessCheck === 0 && noForums ===0){
 		$('.noForumsAccess').show();
 	}
+	setupdfAIncMenus();
 });
 </script>
 <h:outputText escape="false" value="<script type='text/javascript'>$(document).ready(function() {setupLongDesc()});</script>"  rendered="#{!ForumTool.showShortDescription}"/>
@@ -99,36 +100,42 @@ $(document).ready(function() {
 			  <h:commandLink action="#{ForumTool.processActionNewTopic}" value="#{msgs.cdfm_new_topic}" rendered="#{forum.newTopic}" title="#{msgs.cdfm_new_topic}">
 		      <f:param value="#{forum.forum.id}" name="forumId"/>
 	      </h:commandLink>
-		  <h:outputText  value=" | " rendered="#{forum.changeSettings}"/><%-- gsilver: hiding the pipe when user does not have the ability to change the settings --%>
+		  	<h:outputText  value=" | " rendered="#{forum.changeSettings}"/><%-- gsilver: hiding the pipe when user does not have the ability to change the settings --%>
 	   	  <h:commandLink action="#{ForumTool.processActionForumSettings}"  value="#{msgs.cdfm_forum_settings}" rendered="#{forum.changeSettings}" title="#{msgs.cdfm_forum_settings}">
 		      <f:param value="#{forum.forum.id}" name="forumId"/>				
 	      </h:commandLink>
+				<h:outputText  value=" | " rendered="#{ForumTool.newForum || ForumTool.instructor || forum.changeSettings}" />
 
-				<h:outputText  value=" | " rendered="#{ForumTool.newForum}"/>
+					<%-- link to display other options on this forum --%>
+					<f:verbatim><a href="#" class="moreMenuLink"></f:verbatim>
+						<h:outputText  styleClass="moreMenuLinkSpan" value="#{msgs.cdfm__moremenulink}" rendered="#{ForumTool.newForum || ForumTool.instructor || forum.changeSettings}" />	
+					<f:verbatim></a></f:verbatim>	
 
-				<h:commandLink id="duplicate" action="#{ForumTool.processActionDuplicateForumMainConfirm}" value="#{msgs.cdfm_duplicate_forum}" rendered="#{ForumTool.newForum}" >
-					<f:param value="#{forum.forum.id}" name="forumId"/>
-				</h:commandLink>
-				
-				<h:outputText  value=" | " rendered="#{ForumTool.instructor}"/>
-				<h:commandLink action="#{mfStatisticsBean.processActionStatisticsByTopic}" immediate="true" rendered="#{ForumTool.instructor}">
-  				    <f:param value="" name="topicId"/>
-  				    <f:param value="#{forum.forum.id}" name="forumId"/>
-  				    <h:outputText value="#{msgs.cdfm_button_bar_grade}" />
-	          	</h:commandLink>  	
-                
-                <h:outputText  value=" | " rendered="#{forum.changeSettings}"/>
+				<%-- list of options, revealed when link above is used, model new added options on existing ones--%>	
+				<f:verbatim><ul style="display:none" class="moreMenu"></f:verbatim>
+					
+					<f:verbatim><li></f:verbatim>
+						<h:commandLink id="duplicate" action="#{ForumTool.processActionDuplicateForumMainConfirm}" value="#{msgs.cdfm_duplicate_forum}" rendered="#{ForumTool.newForum}" >
+							<f:param value="#{forum.forum.id}" name="forumId"/>
+						</h:commandLink>
+					<f:verbatim></li></f:verbatim>	
 
-				<h:commandLink id="delete" action="#{ForumTool.processActionDeleteForumMainConfirm}" value="#{msgs.cdfm_button_bar_delete}" rendered="#{forum.changeSettings}"
-						accesskey="d">
-					<f:param value="#{forum.forum.id}" name="forumId"/>
-				</h:commandLink>
+				<f:verbatim><li></f:verbatim>
+					<h:commandLink action="#{mfStatisticsBean.processActionStatisticsByTopic}" immediate="true" rendered="#{ForumTool.instructor}">
+  					<f:param value="" name="topicId"/>
+  					<f:param value="#{forum.forum.id}" name="forumId"/>
+  					<h:outputText value="#{msgs.cdfm_button_bar_grade}" />
+					</h:commandLink>  	
+				<f:verbatim></li></f:verbatim>	
+
+				<f:verbatim><li></f:verbatim>                
+					<h:commandLink id="delete" action="#{ForumTool.processActionDeleteForumMainConfirm}" value="#{msgs.cdfm_button_bar_delete}" rendered="#{forum.changeSettings}">
+						<f:param value="#{forum.forum.id}" name="forumId"/>
+					</h:commandLink>
+				<f:verbatim></li></f:verbatim>	
+			<f:verbatim></ul></f:verbatim>	
+
 		
-				<%--//designNote: delete this forum link, a string now, with a fake rendered attribute - needs a real one --%>
-				<%--
-				<h:outputText  value=" | "   rendered="#{forum.changeSettings}"/>
-				<h:outputText  value=" Delete "  rendered="#{forum.changeSettings}" styleClass="todo"/>
-				--%>
 <%-- the forum details --%>
 				<h:outputText value="#{forum.forum.shortDescription}" styleClass="shortDescription"/>
 	  
@@ -216,37 +223,39 @@ $(document).ready(function() {
 					     <f:param value="#{topic.topic.id}" name="topicId"/>
 				       <f:param value="#{forum.forum.id}" name="forumId"/>
 				     </h:commandLink>
-							
-                           <h:outputText  value=" | " rendered="#{forum.newTopic}"/>
-                           
-                           <h:commandLink action="#{ForumTool.processActionDuplicateTopicMainConfirm}" id="duplicate_confirm" value="#{msgs.cdfm_duplicate_topic}" rendered="#{forum.newTopic}"
-							title=" #{msgs.cdfm_topic_settings}">
-									<f:param value="#{topic.topic.id}" name="topicId"/>
-									<f:param value="#{forum.forum.id}" name="forumId"/>
-							</h:commandLink>
-							
-							<h:outputText  value=" | "  rendered="#{ForumTool.instructor}"/>
+							<h:outputText  value=" | " rendered="#{forum.newTopic}"/>
+
+							<%-- link to display other options on this topic --%>
+							<f:verbatim><a href="#" class="moreMenuLink"></f:verbatim>
+								<h:outputText  styleClass="moreMenuLinkSpan" value="#{msgs.cdfm__moremenulink}" rendered="#{forum.newTopic || ForumTool.instructor || topic.changeSettings}" />	
+							<f:verbatim></a></f:verbatim>	
+
+							<%-- list of options, revealed when link above is used, model new added options on existing ones--%>	
+							<f:verbatim><ul style="display:none" class="moreMenu"></f:verbatim>
+								<f:verbatim><li></f:verbatim>
+
+									<h:commandLink action="#{ForumTool.processActionDuplicateTopicMainConfirm}" id="duplicate_confirm" value="#{msgs.cdfm_duplicate_topic}" rendered="#{forum.newTopic}"
+									title=" #{msgs.cdfm_topic_settings}">
+											<f:param value="#{topic.topic.id}" name="topicId"/>
+											<f:param value="#{forum.forum.id}" name="forumId"/>
+									</h:commandLink>
+								<f:verbatim></li></f:verbatim>
+								<f:verbatim><li></f:verbatim>							
 							<h:commandLink action="#{mfStatisticsBean.processActionStatisticsByTopic}" immediate="true" rendered="#{ForumTool.instructor}">
 			  				    <f:param value="#{topic.topic.id}" name="topicId"/>
 			  				    <f:param value="#{forum.forum.id}" name="forumId"/>
 			  				    <h:outputText value="#{msgs.cdfm_button_bar_grade}" />
 				          	</h:commandLink>  	
-                            
-							<h:outputText  value=" | " rendered="#{topic.changeSettings}"/>
-							
+								<f:verbatim></li></f:verbatim>
+								                            
+								<f:verbatim><li></f:verbatim>							
 							<h:commandLink action="#{ForumTool.processActionDeleteTopicMainConfirm}" id="delete_confirm" value="#{msgs.cdfm_button_bar_delete}" accesskey="d" rendered="#{topic.changeSettings}"
 							title=" #{msgs.cdfm_topic_settings}">
 									<f:param value="#{topic.topic.id}" name="topicId"/>
 									<f:param value="#{forum.forum.id}" name="forumId"/>
 							</h:commandLink>
-							
-							
-							
-							<%-- delete this topic  link, a string now - needs a real rendered attribute --%>
-							<%--
-							<h:outputText  value=" | " rendered="#{topic.changeSettings}"/>
-							<h:outputText  value=" Delete " rendered="#{topic.changeSettings}" styleClass="todo"/>
-							--%>
+								<f:verbatim></li></f:verbatim>
+						<f:verbatim></ul></f:verbatim>														
 							<%--the topic details --%>
 							<h:outputText id="topic_desc" value="#{topic.topic.shortDescription}" styleClass="shortDescription" />
 							
