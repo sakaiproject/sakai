@@ -287,6 +287,13 @@ public class DbCalendarServiceSerializationTest extends TestCase
 				// TODO Auto-generated method stub
 				return null;
 			}
+
+			public int dbWriteCount(String sql, Object[] fields, String lastField, Connection callerConnection, boolean failQuiet) 
+
+			{
+				// TODO Auto-generated method stub
+				return -1;
+			}
 			
 		};
 		timeService = new TimeService() {
@@ -397,6 +404,12 @@ public class DbCalendarServiceSerializationTest extends TestCase
 			{
 				// TODO Auto-generated method stub
 				return null;
+			}
+
+			public int dbWriteCount(String sql, Object[] fields, String lastField, Connection callerConnection, boolean failQuiet)
+			{
+				// TODO Auto-generated method stub
+				return -1;
 			}
 			
 		};
