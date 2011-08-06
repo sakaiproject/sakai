@@ -103,6 +103,9 @@ public interface SimplePageToolDao {
     // find all items with given page ID
 	public List<SimplePageItem> findPageItemsBySakaiId(String id);
 
+    // find resource items with access control involving specified sakaiid
+	public List findControlledResourcesBySakaiId(String id, String siteid);
+
     // basically, this is the Hibernate save. It works with any of our object types.
     // Checks for canEditPage, Except for SimplePageLog, where the code is assumed to 
     //   only write things it's allowed to. NB the limitation of canEditPage. You had

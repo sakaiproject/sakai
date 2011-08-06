@@ -334,6 +334,15 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		return list;
 	}
 
+	public List findControlledResourcesBySakaiId(String id, String siteId) {
+	    Object [] fields = new Object[2];
+	    fields[0] = id;
+	    fields[1] = siteId;
+	    List ids = SqlService.dbRead("select a.id from lesson_builder_items a, lesson_builder_pages b where a.sakaiId = ? and ( a.type=1 or a.type=7) and a.prerequisite = 1 and a.pageId = b.pageId and b.siteId = ?", fields, null);
+	    return ids;
+
+	}
+
 
 	public SimplePageItem findNextPageItemOnPage(long pageId, int sequence) {
 	        DetachedCriteria d = DetachedCriteria.forClass(SimplePageItem.class).add(Restrictions.eq("pageId", pageId)).

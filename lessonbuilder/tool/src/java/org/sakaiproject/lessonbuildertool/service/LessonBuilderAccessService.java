@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.Collection;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -215,9 +216,10 @@ public class LessonBuilderAccessService {
 				if (i < 0)
 					throw new EntityNotDefinedException(ref.getReference());
 
+				// normalize, to prevent the user from using weird formats to mess up our tests
 				String id = itemString.substring(i);
 				itemString = itemString.substring(0, i);
-				
+
 				boolean pushedAdvisor = false;
 				SecurityAdvisor advisor = null;
 				
@@ -245,21 +247,64 @@ public class LessonBuilderAccessService {
 					}
 					
 					SimplePageItem item = simplePageToolDao.findItem(itemId.longValue());
-					if (item == null || (item.getType() != SimplePageItem.RESOURCE && item.getType() != SimplePageItem.MULTIMEDIA))
-						throw new EntityNotDefinedException(ref.getReference());
-					
+
+					// see if the item is in the same site as the resource being requested.
+					// if not something is fishy
+
+					SimplePage currentPage = simplePageToolDao.getPage(item.getPageId());
+					String currentSiteId = currentPage.getSiteId();
+					if (!id.startsWith("/group/"))
+					    throw new EntityNotDefinedException(ref.getReference());
+					String requestSiteId = id.substring(7);  // after /group/
+					i = requestSiteId.indexOf("/");
+					if (i < 0)
+					    throw new EntityNotDefinedException(ref.getReference());
+					requestSiteId = requestSiteId.substring(0, i);   // now just site id
+
+					if (!requestSiteId.equals(currentSiteId))
+					    throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), 
+							ContentHostingService.AUTH_RESOURCE_READ, ref.getReference());
+
+					// if the URL is the actual item number specified, just access check it.
+					// otherwise it's presumably a dependent file for the item. Don't allow that
+					// if it has its own item, at least not if that item is controlled.
+					// I've seen sakai id's with //, not sure why. they work but will mess up the comparison
+					if (!id.equals(item.getSakaiId().replace("//","/"))) {
+					    // it's not the item itself. See if the same it occurs anywhere else
+
+					    String key = currentSiteId + "@" + id;
+					    String cached = (String)accessCache.get(key);
+					    if ("true".equals(cached))
+						throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), 
+						      ContentHostingService.AUTH_RESOURCE_READ, ref.getReference());
+
+					    if (cached == null) {
+						List<String> items = null;
+						try {
+						    items = simplePageToolDao.findControlledResourcesBySakaiId(id, currentSiteId);
+						    if (items != null && items.size() == 0)
+							items = null;
+						} catch (Exception ee) {
+						    ee.printStackTrace();
+						}
+						accessCache.put(key, (items != null ? "true" : "false"), DEFAULT_EXPIRATION);
+						if (items != null)
+						    throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), 
+											ContentHostingService.AUTH_RESOURCE_READ, ref.getReference());
+					    }
+					}
+					// normal access check on the requested resource
 					if (!allowGetResource(id))
 						throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), 
 								ContentHostingService.AUTH_RESOURCE_READ, ref.getReference());
 					
+					// and see if the item in the request (not the resource requested) is OK
+
 					// key into access cache
 					String accessKey = itemString + ":" + sessionManager.getCurrentSessionUserId();
-					
-// need page to find site id
-		SimplePage currentPage = simplePageToolDao.getPage(item.getPageId());
 
-					if (item.isPrerequisite() && !"true".equals((String) accessCache.get(accessKey))) {
-
+					// now enforce LB access restrictions if any
+					if (item != null && item.isPrerequisite() && !"true".equals((String) accessCache.get(accessKey))) {
 						// computing requirements is so messy that it's worth
 						// instantiating
 						// a SimplePageBean to do it. Otherwise we have to duplicate
@@ -268,6 +313,7 @@ public class LessonBuilderAccessService {
 						// because there are
 						// caches that we aren't trying to manage in the long term
 						// but don't do this unless the item needs checking
+
 						SimplePageBean simplePageBean = new SimplePageBean();
 						simplePageBean.setMessageLocator(messageLocator);
 						simplePageBean.setToolManager(toolManager);
@@ -283,15 +329,17 @@ public class LessonBuilderAccessService {
 						simplePageBean.setGradebookIfc(gradebookIfc);
 						simplePageBean.setMemoryService(memoryService);
 						simplePageBean.setCurrentSiteId(currentPage.getSiteId());
+						simplePageBean.setCurrentPage(currentPage);
+						simplePageBean.setCurrentPageId(currentPage.getPageId());
 
 						if (!simplePageBean.isItemAvailable(item, item.getPageId())) {
 							throw new EntityPermissionException(null, null, null);
 						}
-						
 						accessCache.put(accessKey, "true", DEFAULT_EXPIRATION);
 						
 					}
 					
+					// access checks are OK, get the thing
 					ContentResource resource = null;
 					try {
 						resource = contentHostingService.getResource(id);

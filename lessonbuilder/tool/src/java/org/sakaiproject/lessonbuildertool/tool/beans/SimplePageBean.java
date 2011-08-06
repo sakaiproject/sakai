@@ -926,16 +926,15 @@ public class SimplePageBean {
 		if(editPrivs != null) {
 			return editPrivs;
 		}
-		
 		editPrivs = 2;
 		String ref = "/site/" + getCurrentSiteId();
 		boolean ok = securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref);
 		if(ok) editPrivs = 0;
+
 		SimplePage page = getCurrentPage();
 		if(editPrivs != 0 && page != null && getCurrentUserId().equals(page.getOwner())) {
 			editPrivs = 1;
 		}
-		
 		
 		return editPrivs;
 	}
@@ -1231,7 +1230,7 @@ public class SimplePageBean {
 	    		// if the user has passed.
 	    		if (!isItemAvailable(nextItem, nextItem.getPageId()))
 	    			view.setRecheck("true");
-	    		view.setSource(nextItem.getItemURL());
+	    		view.setSource(nextItem.getItemURL(getCurrentSiteId()));
 	    		view.viewID = ShowItemProducer.VIEW_ID;
 	    	} else {
 	    		view.setSendingPage(Long.valueOf(item.getPageId()));
@@ -1305,7 +1304,7 @@ public class SimplePageBean {
 				view.setPath("push");  // item to page, have to push the page
 		} else if (itemType == SimplePageItem.RESOURCE) { // must be a samepage resource
 			view.setSendingPage(Long.valueOf(item.getPageId()));
-			view.setSource(prevItem.getItemURL());
+			view.setSource(prevItem.getItemURL(getCurrentSiteId()));
 			view.viewID = ShowItemProducer.VIEW_ID;
 		}else if(itemType == SimplePageItem.STUDENT_CONTENT) {
 			view.setSendingPage(prevEntry.pageId);
@@ -1490,6 +1489,10 @@ public class SimplePageBean {
 				return l;
 			}
 		}
+	}
+
+	public void setCurrentPageId(long p) {
+	    currentPageId = p;
 	}
 
         // current page must be set. 
@@ -2052,6 +2055,10 @@ public class SimplePageBean {
 		return currentPage;
 	}
 
+	public void setCurrentPage(SimplePage p) {
+	    currentPage = p;
+	}
+
 	public String getToolId(String tool) {
 		try {
 			ToolConfiguration tc = siteService.getSite(currentPage.getSiteId()).getToolForCommonId(tool);
@@ -2593,6 +2600,9 @@ public class SimplePageBean {
 	       contentHostingService.commitResource(resource);
 	       resource = null;
 
+	   } catch (java.lang.NullPointerException e) {
+	       // KNL-714 gives spurious null pointer
+	       setErrMessage(messageLocator.getMessage("simplepage.resourcepossibleerror"));
 	   } catch (Exception e) {
 	       setErrMessage(e.toString());
 	       return null;
@@ -3306,6 +3316,7 @@ public class SimplePageBean {
 		}
 
 		visibleCache.put(item.getId(), false);
+
 		return false;
 	}
 		
@@ -3619,9 +3630,10 @@ public class SimplePageBean {
 				if (i.getSequence() >= item.getSequence()) {
 				    break;
 				} else if (i.isRequired() && isItemVisible(i)) {
-				    if (!isItemComplete(i))
+				    if (!isItemComplete(i)) {
 				    	return false;
-				}
+				    }
+				} 
 			}
 		}
 		return true;

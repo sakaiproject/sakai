@@ -343,12 +343,22 @@ public class SimplePageItemImpl implements SimplePageItem  {
     // for resource and inline, go through our own /access/lessonbuilder.
     // two advantages: we can do some level of availability checking, although user can still fake the URL
     // we display HTML, which by default Sakai doesn't do
-	public String getItemURL() {
+	public String getItemURL(String siteId) {
 		// Will Update to take type into account when adding more than just resources
 		if (type == 1 || type == 7) {
-		    // some apps may need the extension
-		    return "/access/lessonbuilder/item/" + getId() + getSakaiId();
-		    //  return "/access/content" + getSakaiId();
+		    // for items in the requester's site, use /access/lessonbuilder
+		    // the access code won't allow this for references to other sites
+		    // for security reasons
+		    if (getSakaiId().startsWith("/group/")) {
+			String requestSiteId = getSakaiId().substring(7);  // after /group/                                                                                   
+			int i = requestSiteId.indexOf("/");
+			if (i > 0) {
+			    requestSiteId = requestSiteId.substring(0, i);   // now just site id
+			    if (requestSiteId.equals(siteId))
+				return "/access/lessonbuilder/item/" + getId() + getSakaiId();
+			}
+		    }
+		    return "/access/content" + getSakaiId();
 		} else if (type == 6) {
 			return getSakaiId();
 		} else {

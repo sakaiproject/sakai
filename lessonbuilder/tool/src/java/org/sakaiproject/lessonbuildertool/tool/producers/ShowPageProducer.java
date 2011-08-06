@@ -1022,7 +1022,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							imageName = abbrevUrl(i.getURL());
 						}
 
-						item = UIOutput.make(tableRow, "image").decorate(new UIFreeAttributeDecorator("src", i.getItemURL())).decorate(new UIFreeAttributeDecorator("alt", imageName));
+						item = UIOutput.make(tableRow, "image").decorate(new UIFreeAttributeDecorator("src", i.getItemURL(simplePageBean.getCurrentSiteId()))).decorate(new UIFreeAttributeDecorator("alt", imageName));
 						if (lengthOk(height) && lengthOk(width)) {
 							item.decorate(new UIFreeAttributeDecorator("width", width.getOld())).decorate(new UIFreeAttributeDecorator("height", height.getOld()));
 						}
@@ -1142,7 +1142,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						UIComponent item2;
 						UIOutput.make(tableRow, "movieSpan");
 
-						String movieUrl = i.getItemURL();
+						String movieUrl = i.getItemURL(simplePageBean.getCurrentSiteId());
 						String oMimeType = mimeType; // in case we change it for
 						// FLV or others
 						boolean useFlvPlayer = false;
@@ -1197,7 +1197,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 						if (!useEmbed) {
 							if (useFlvPlayer) {
-								UIOutput.make(tableRow, "flashvars").decorate(new UIFreeAttributeDecorator("value", (useJwPlayer ? "file=" : "src=") + URLEncoder.encode(myUrl() + i.getItemURL())));
+								UIOutput.make(tableRow, "flashvars").decorate(new UIFreeAttributeDecorator("value", (useJwPlayer ? "file=" : "src=") + URLEncoder.encode(myUrl() + i.getItemURL(simplePageBean.getCurrentSiteId()))));
 							}
 
 							UIOutput.make(tableRow, "movieURLInject").decorate(new UIFreeAttributeDecorator("value", movieUrl));
@@ -1211,10 +1211,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						if (isMp4) {
 							// do fallback. for ie use EMBED
 							if (ieVersion > 0) {
-								item2 = UIOutput.make(tableRow, "mp4-embed").decorate(new UIFreeAttributeDecorator("src", i.getItemURL())).decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
+								item2 = UIOutput.make(tableRow, "mp4-embed").decorate(new UIFreeAttributeDecorator("src", i.getItemURL(simplePageBean.getCurrentSiteId()))).decorate(new UIFreeAttributeDecorator("alt", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
 							} else {
-								item2 = UIOutput.make(tableRow, "mp4-object").decorate(new UIFreeAttributeDecorator("data", i.getItemURL())).decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
-							}
+								item2 = UIOutput.make(tableRow, "mp4-object").decorate(new UIFreeAttributeDecorator("data", i.getItemURL(simplePageBean.getCurrentSiteId()))).decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.mm_player").replace("{}", abbrevUrl(i.getURL()))));
+						}
 							if (oMimeType != null) {
 								item2.decorate(new UIFreeAttributeDecorator("type", oMimeType));
 							}
@@ -1225,10 +1225,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							}
 
 							if (!useEmbed) {
-								UIOutput.make(tableRow, "mp4-inject").decorate(new UIFreeAttributeDecorator("value", i.getItemURL()));
+								UIOutput.make(tableRow, "mp4-inject").decorate(new UIFreeAttributeDecorator("value", i.getItemURL(simplePageBean.getCurrentSiteId())));
 
 								UIOutput.make(tableRow, "mp4-noplugin-p", messageLocator.getMessage("simplepage.noplugin"));
-								UILink.make(tableRow, "mp4-noplugin", i.getName(), i.getItemURL());
+								UILink.make(tableRow, "mp4-noplugin", i.getName(), i.getItemURL(simplePageBean.getCurrentSiteId()));
 							}
 						}
 
@@ -1257,7 +1257,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "item-groups2", itemGroupString);
 						}
 
-						item = UIOutput.make(tableRow, "iframe").decorate(new UIFreeAttributeDecorator("src", i.getItemURL()));
+						item = UIOutput.make(tableRow, "iframe").decorate(new UIFreeAttributeDecorator("src", i.getItemURL(simplePageBean.getCurrentSiteId())));
 						// if user specifies auto, use Javascript to resize the
 						// iframe when the
 						// content changes. This only works for URLs with the
@@ -1634,7 +1634,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				if (available) {
 					GeneralViewParameters params = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 					params.setSendingPage(currentPage.getPageId());
-					params.setSource(i.getItemURL());
+					params.setSource(i.getItemURL(simplePageBean.getCurrentSiteId()));
 					params.setItemId(i.getId());
 					UIInternalLink.make(container, "link", params);
 				} else {
@@ -1643,7 +1643,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				}
 			} else {
 				if (available) {
-					URL = i.getItemURL();
+					URL = i.getItemURL(simplePageBean.getCurrentSiteId());
 				}
 
 				UIInternalLink link = LinkTrackerProducer.make(container, ID, i.getName(), URL, i.getId(), notDone);
