@@ -57,6 +57,18 @@
       <property name="location"><value>/sakai_lessonbuildertool/reorganize.html</value></property>
    </bean>
 
+   <bean id="lessonbuildertoolComments" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>lessonbuildertoolComments</value></property>
+      <property name="name"><value>Allow Student Comments</value></property>
+      <property name="location"><value>/sakai_lessonbuildertool/comments.html</value></property>
+   </bean>
+
+   <bean id="lessonbuildertoolStudentContent" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>lessonbuildertoolStudentContent</value></property>
+      <property name="name"><value>Allow Student to add their own Pages</value></property>
+      <property name="location"><value>/sakai_lessonbuildertool/studentcontent.html</value></property>
+   </bean>
+
    <bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
       <property name="name"><value>root</value></property>
       <property name="categories">
@@ -74,6 +86,8 @@
                      <ref bean="lessonbuildertoolAddTopics"/>
                      <ref bean="lessonbuildertoolAddSubpages"/>
                      <ref bean="lessonbuildertoolReorganize"/>
+                     <ref bean="lessonbuildertoolComments"/>
+                     <ref bean="lessonbuildertoolStudentContent"/>
                   </list>
                </property>
             </bean>
