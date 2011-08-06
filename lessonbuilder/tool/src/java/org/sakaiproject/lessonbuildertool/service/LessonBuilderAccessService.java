@@ -182,18 +182,28 @@ public class LessonBuilderAccessService {
 	}
 
 
-	// references are currently of the form /access/lessonbuilder/item/NNN
-	// however the Reference has an id of /item/NNN
-	// understand /access/lessonbuilder/item/MMM/group/NNNN/name.html
-	// we do Lesson Builder access control in item MMM, and resources control on
-	// /group...
-	// The problem is that HTML can refer to other content, so without parsing
-	// all the HTML we have no real way to
-	// know whether a reference actually comes from an item or not. So it the
-	// user makes up a reference using an
-	// item number they have access to, they can access any item they're allowed
-	// to read. There's no obvious way
-	// to do better without a *LOT* of work
+	// references are currently of the form /access/lessonbuilder/item/NNN/group/MMM/...
+        // the purpose of using /access/lessonbuilder rather than /access/content is
+        // that we can do access control by Lesson Builder's rules. However users can
+        // still go to the item directly unless you hide the content in resources.
+        // we can't obscure the URLs, or references in HTML won't work.
+
+        // access checks:
+        //  target URL must be in the same site as the item. /access/content will
+        //     be used to access material in other sites. That's to prevent people 
+        //     from using an item in a site they control to access other user's data
+        //  if the target URL is the actual item referred to in /item/NNN, just do
+        //     normal Lesson Builder checks
+        //  otherwise it should be a file referred to, e.g. images referred to in
+        //     an HTML file. We have no good way to check whether that's OK. So we
+        //     just check the item in /item/NNN. But in addition, we see whether there's
+        //     a Lesson Builder item in the same site that has prerequisites. If so, we
+        //     refuse the access. That lets you control something like an answer sheet and
+        //     make sure a user can't get to it by crafting a URL based on a item that 
+        //     they have acccess to. But there's no obvious way to know whether an
+        //     arbitrary file in resources is OK to show or not. 
+
+
 	public HttpAccess getHttpAccess() {
 		return new HttpAccess() {
 
