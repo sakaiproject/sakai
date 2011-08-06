@@ -174,7 +174,8 @@
 				<entry key="video/x-flv" value="/library/image/silk/page_white_flash.png"/>
 				<entry key="text/plain" value="/library/image/silk/page_white_text.png"/>
 				<entry key="text/rtf" value="/library/image/silk/page_white_text.png"/>
-				<entry key="LBWEBSITE" value="/library/image/silk/control_play_blue.png"/>
+				<entry key="LBWEBSITE" value="/library/image/silk/page_white_world.png"/>
+				<entry key="text/html" value="/library/image/silk/page_white_world.png"/>
     	</map>
     	</constructor-arg>
     	</bean>

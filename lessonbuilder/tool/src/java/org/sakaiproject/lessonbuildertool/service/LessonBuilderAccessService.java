@@ -226,7 +226,6 @@ public class LessonBuilderAccessService {
 				if (i < 0)
 					throw new EntityNotDefinedException(ref.getReference());
 
-				// normalize, to prevent the user from using weird formats to mess up our tests
 				String id = itemString.substring(i);
 				itemString = itemString.substring(0, i);
 
@@ -234,20 +233,18 @@ public class LessonBuilderAccessService {
 				SecurityAdvisor advisor = null;
 				
 				try {
-					if(id.startsWith("/user/")) {
-						advisor = new SecurityAdvisor() {
-							public SecurityAdvice isAllowed(String userId, String function, String reference) {
-								if("content.read".equals(function) || "content.hidden".equals(function)) {
-									return SecurityAdvice.ALLOWED;
-								}else {
-									return SecurityAdvice.PASS;
-								}
-							}
-						};
-						securityService.pushAdvisor(advisor);
-						
-						pushedAdvisor = true;
-					}
+					advisor = new SecurityAdvisor() {
+						public SecurityAdvice isAllowed(String userId, String function, String reference) {
+						    if("content.read".equals(function) || "content.hidden".equals(function)) {
+							return SecurityAdvice.ALLOWED;
+						    }else {
+							return SecurityAdvice.PASS;
+						    }
+						}
+					    };
+					securityService.pushAdvisor(advisor);
+					
+					pushedAdvisor = true;
 				
 					Long itemId = 0L;
 					try {
@@ -257,64 +254,43 @@ public class LessonBuilderAccessService {
 					}
 					
 					SimplePageItem item = simplePageToolDao.findItem(itemId.longValue());
-
-					// see if the item is in the same site as the resource being requested.
-					// if not something is fishy
-
 					SimplePage currentPage = simplePageToolDao.getPage(item.getPageId());
-					String currentSiteId = currentPage.getSiteId();
-					if (!id.startsWith("/group/"))
-					    throw new EntityNotDefinedException(ref.getReference());
-					String requestSiteId = id.substring(7);  // after /group/
-					i = requestSiteId.indexOf("/");
-					if (i < 0)
-					    throw new EntityNotDefinedException(ref.getReference());
-					requestSiteId = requestSiteId.substring(0, i);   // now just site id
 
-					if (!requestSiteId.equals(currentSiteId))
-					    throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), 
-							ContentHostingService.AUTH_RESOURCE_READ, ref.getReference());
+					// If the resource is the actual one in the item, or
+					// it is in the associated folder, then do lesson builder checking.
+					// otherwise do normal resource checking
 
-					// if the URL is the actual item number specified, just access check it.
-					// otherwise it's presumably a dependent file for the item. Don't allow that
-					// if it has its own item, at least not if that item is controlled.
+					boolean useLb = false;
+
 					// I've seen sakai id's with //, not sure why. they work but will mess up the comparison
-					if (!id.equals(item.getSakaiId().replace("//","/"))) {
-					    // it's not the item itself. See if the same it occurs anywhere else
+					String itemResource = item.getSakaiId().replace("//","/");
 
-					    String key = currentSiteId + "@" + id;
-					    String cached = (String)accessCache.get(key);
-					    if ("true".equals(cached))
-						throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), 
-						      ContentHostingService.AUTH_RESOURCE_READ, ref.getReference());
-
-					    if (cached == null) {
-						List<String> items = null;
-						try {
-						    items = simplePageToolDao.findControlledResourcesBySakaiId(id, currentSiteId);
-						    if (items != null && items.size() == 0)
-							items = null;
-						} catch (Exception ee) {
-						    ee.printStackTrace();
-						}
-						accessCache.put(key, (items != null ? "true" : "false"), DEFAULT_EXPIRATION);
-						if (items != null)
-						    throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), 
-											ContentHostingService.AUTH_RESOURCE_READ, ref.getReference());
-					    }
+					if (id.equals(itemResource))
+					    useLb = true;
+					else {
+					    // not exact, but see if there's an associated folder
+					    String folder = SimplePageBean.associatedFolder(itemResource);
+					    if (id.startsWith(folder))
+						useLb = true;
 					}
-					// normal access check on the requested resource
-					if (!allowGetResource(id))
+
+					if (useLb) {
+
+					    // key into access cache
+					    String accessKey = itemString + ":" + sessionManager.getCurrentSessionUserId();
+
+					    if(pushedAdvisor && advisor != null) securityService.popAdvisor(advisor);
+					    
+					    // our versoin of allowget does not check hidden but does everything else
+					    if (!allowGetResource(id)) {
 						throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), 
 								ContentHostingService.AUTH_RESOURCE_READ, ref.getReference());
-					
-					// and see if the item in the request (not the resource requested) is OK
+					    }
 
-					// key into access cache
-					String accessKey = itemString + ":" + sessionManager.getCurrentSessionUserId();
+					    if(pushedAdvisor && advisor != null) securityService.pushAdvisor(advisor);
 
-					// now enforce LB access restrictions if any
-					if (item != null && item.isPrerequisite() && !"true".equals((String) accessCache.get(accessKey))) {
+					    // now enforce LB access restrictions if any
+					    if (item != null && item.isPrerequisite() && !"true".equals((String) accessCache.get(accessKey))) {
 						// computing requirements is so messy that it's worth
 						// instantiating
 						// a SimplePageBean to do it. Otherwise we have to duplicate
@@ -347,6 +323,18 @@ public class LessonBuilderAccessService {
 						}
 						accessCache.put(accessKey, "true", DEFAULT_EXPIRATION);
 						
+					    }
+					} else {
+
+					    // normal security. no reason to use advisor
+					    if(pushedAdvisor && advisor != null) securityService.popAdvisor(advisor);
+					    pushedAdvisor = false;
+
+					    // not uselb -- their allowget, not ours. theirs checks hidden
+					    if (!contentHostingService.allowGetResource(id)) {
+						throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(),  
+								ContentHostingService.AUTH_RESOURCE_READ, ref.getReference());
+					    }
 					}
 					
 					// access checks are OK, get the thing

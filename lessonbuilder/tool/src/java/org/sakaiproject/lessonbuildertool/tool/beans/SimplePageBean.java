@@ -865,7 +865,9 @@ public class SimplePageBean {
 		    
 		    // We set this special type for the html field in the db. This allows us to
 		    // map an icon onto website links in applicationContext.xml
-		    mimeType = "LBWEBSITE";
+		    // originally it was a special type. The problem is that this is actually
+		    // an HTML file, and we may have trouble if we don't show it that way
+		    mimeType = "text/html";
 		}
 
 		String[] split = id.split("/");
@@ -1984,6 +1986,11 @@ public class SimplePageBean {
     // The caller will update the item in the database, typically after this call
     //    correct is correct value, i.e whether it hsould be there or not
 	private void checkControlGroup(SimplePageItem i, boolean correct) {
+		if (i.getType() == SimplePageItem.RESOURCE) {
+		    checkControlResource(i, correct);
+		    return;
+		}
+
 	    	if (i.getType() != SimplePageItem.ASSESSMENT && 
 		    i.getType() != SimplePageItem.ASSIGNMENT && 
 		    i.getType() != SimplePageItem.FORUM) {
@@ -2048,6 +2055,39 @@ public class SimplePageBean {
 		} catch (Exception ex) {
 		    ex.printStackTrace();
 		}
+	}
+
+    // to control a resource, set hidden. /access/lessonbuilder does the actual control
+	private void checkControlResource(SimplePageItem i, boolean correct) {
+	    String resourceId = i.getSakaiId();
+	    String folder = associatedFolder(resourceId);
+	    
+	    if (folder != null && resourceId.startsWith(folder))  
+		resourceId = null;  // no need to do both
+
+	    if (resourceId != null) {
+		try {
+		    ContentResourceEdit res = contentHostingService.editResource(resourceId);
+		    if (res.isHidden() == correct)
+			contentHostingService.cancelResource(res);
+		    else {
+			res.setAvailability(correct, res.getReleaseDate(), res.getRetractDate());
+			contentHostingService.commitResource(res);
+		    }
+		} catch (Exception ignore) {}
+	    }
+	    
+	    if (folder != null) {
+		try {
+		    ContentCollectionEdit res = contentHostingService.editCollection(folder);
+		    if (res.isHidden() == correct)
+			contentHostingService.cancelCollection(res);
+		    else {
+			res.setAvailability(correct, res.getReleaseDate(), res.getRetractDate());
+			contentHostingService.commitCollection(res);
+		    }
+		} catch (Exception ignore) {}
+	    }
 	}
 
 	public SimplePage getCurrentPage()  {
@@ -4719,7 +4759,8 @@ public class SimplePageBean {
 			}
 
 			//String relativeUrl = contentCollectionId.substring(contentCollectionId.indexOf("/Lesson Builder")) + index;
-			String relativeUrl = contentCollectionId + "/" + index;
+			// collections end in / already
+			String relativeUrl = contentCollectionId + index;
 			return relativeUrl;
 		} catch (Exception e) {
 			log.error(e);
@@ -4728,6 +4769,49 @@ public class SimplePageBean {
 		}
 	}
 	
+    // see if there is a folder in which images, etc, are likely to be
+    // stored for this resource. This only applies to HTML files
+    // for index.html, etc, it's the containing folder
+    // otherwise, if it's an HTML file, look for a folder with the same name
+	public static String associatedFolder(String resourceId) {
+	    int i = resourceId.lastIndexOf("/");
+	    String folder = null;
+	    String name = null;
+	    if (i >= 0) {
+		folder = resourceId.substring(0, i+1);  // include trailing
+		name = resourceId.substring(i+1);
+	    } else
+		return null;
+
+	    String folderName = resourceId.substring(0, i);
+	    i = folderName.lastIndexOf("/");
+	    if (i >= 0)
+		folderName = folderName.substring(i+1);
+	    else
+		return null;
+	    if (folderName.endsWith("_HTML"))  // wimba create
+		folderName = folderName.substring(0, folderName.indexOf("_HTML"));
+
+	    // folder is whole folder
+	    // folderName is last atom of folder name
+	    // name is last atom of resource id
+
+	    if (name.equals("index.html") || name.equals("index.htm") || name.equals(folderName + ".html"))
+		return folder;
+
+	    if (resourceId.endsWith(".html") || resourceId.endsWith(".htm")) {
+		i = resourceId.lastIndexOf(".");
+		resourceId = resourceId.substring(0, i) + "/";
+		try {
+		    org.sakaiproject.content.cover.ContentHostingService.checkCollection(resourceId);
+		    return resourceId;
+		} catch (Exception ignore) {
+		}
+	    }
+	    return null;
+	}
+		
+
 	private void setPropertyOnFolderRecursively(String resourceId, String property, String value) {
 
 		try {
