@@ -144,6 +144,9 @@ public interface SimplePageToolDao {
 	 */
 	public SimplePageLogEntry getLogEntry(String userId, long itemId, Long studentPageId);
 	
+    // includes the dummy entries for preauthoized pages, but that's OK
+	public boolean isPageVisited(long pageId, String userId, String owner);
+
 	public List<SimplePageLogEntry> getStudentPageLogEntries(long itemId, String userId);
 
     // users with log entries showing item complete

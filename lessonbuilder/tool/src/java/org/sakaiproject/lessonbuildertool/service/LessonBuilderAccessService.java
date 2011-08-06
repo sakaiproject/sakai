@@ -255,7 +255,17 @@ public class LessonBuilderAccessService {
 					
 					SimplePageItem item = simplePageToolDao.findItem(itemId.longValue());
 					SimplePage currentPage = simplePageToolDao.getPage(item.getPageId());
+					String owner = currentPage.getOwner();  // if student content
+					String currentSiteId = currentPage.getSiteId();
+					
 
+					// first let's make sure the user is allowed to access
+					// the containing page
+
+					if (!canReadPage(currentSiteId))
+					    throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), 
+					       ContentHostingService.AUTH_RESOURCE_READ, ref.getReference());
+					    
 					// If the resource is the actual one in the item, or
 					// it is in the associated folder, then do lesson builder checking.
 					// otherwise do normal resource checking
@@ -265,13 +275,21 @@ public class LessonBuilderAccessService {
 					// I've seen sakai id's with //, not sure why. they work but will mess up the comparison
 					String itemResource = item.getSakaiId().replace("//","/");
 
-					if (id.equals(itemResource))
-					    useLb = true;
-					else {
-					    // not exact, but see if there's an associated folder
-					    String folder = SimplePageBean.associatedFolder(itemResource);
-					    if (id.startsWith(folder))
+					// only use lb security if the user has visited the page
+					// this handles the various page release issues, although
+					// it's not quite as flexible as the real code. But I don't
+					// see any reason to help the user follow URLs that they can't
+					// legitimately have seen.
+
+					if (simplePageToolDao.isPageVisited(item.getPageId(), sessionManager.getCurrentSessionUserId(), owner)) {
+					    if (id.equals(itemResource))
 						useLb = true;
+					    else {
+						// not exact, but see if there's an associated folder
+						String folder = SimplePageBean.associatedFolder(itemResource);
+						if (id.startsWith(folder))
+						useLb = true;
+					    }
 					}
 
 					if (useLb) {
@@ -279,15 +297,27 @@ public class LessonBuilderAccessService {
 					    // key into access cache
 					    String accessKey = itemString + ":" + sessionManager.getCurrentSessionUserId();
 
-					    if(pushedAdvisor && advisor != null) securityService.popAdvisor(advisor);
-					    
-					    // our versoin of allowget does not check hidden but does everything else
-					    if (!allowGetResource(id)) {
-						throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), 
-								ContentHostingService.AUTH_RESOURCE_READ, ref.getReference());
+					    if (owner != null && id.startsWith("/user/" + owner)) {
+						// for a student page, if it's in the student's worksite
+						// allow it. The assumption is that only the page owner
+						// can put content in the page, and he would only put
+						// in his own content if he wants it to be visible
+					    } else {
+						// do normal checking for other content
+						if(pushedAdvisor && advisor != null) {
+						    securityService.popAdvisor(advisor);
+						    pushedAdvisor = false;
+						}
+						// our version of allowget does not check hidden but does everything else
+						if (!allowGetResource(id)) {
+						    throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), 
+							      ContentHostingService.AUTH_RESOURCE_READ, ref.getReference());
+						}
+						if(advisor != null) {
+						    securityService.pushAdvisor(advisor);
+						    pushedAdvisor = true;
+						}
 					    }
-
-					    if(pushedAdvisor && advisor != null) securityService.pushAdvisor(advisor);
 
 					    // now enforce LB access restrictions if any
 					    if (item != null && item.isPrerequisite() && !"true".equals((String) accessCache.get(accessKey))) {
@@ -539,5 +569,11 @@ public class LessonBuilderAccessService {
 
 		return exception;
 	}
+
+	public boolean canReadPage(String siteId) {
+		String ref = "/site/" + siteId;
+		return securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_READ, ref);
+	}
+
 
 }

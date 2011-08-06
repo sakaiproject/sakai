@@ -134,7 +134,7 @@ public interface SimplePageItem {
 
     public String getURL();
 
-    public String getItemURL(String siteId);
+    public String getItemURL(String siteId, String owner);
     
     public void setAnonymous(Boolean anon);
     

@@ -1232,7 +1232,7 @@ public class SimplePageBean {
 	    		// if the user has passed.
 	    		if (!isItemAvailable(nextItem, nextItem.getPageId()))
 	    			view.setRecheck("true");
-	    		view.setSource(nextItem.getItemURL(getCurrentSiteId()));
+	    		view.setSource(nextItem.getItemURL(getCurrentSiteId(), getCurrentPage().getOwner()));
 	    		view.viewID = ShowItemProducer.VIEW_ID;
 	    	} else {
 	    		view.setSendingPage(Long.valueOf(item.getPageId()));
@@ -1306,7 +1306,7 @@ public class SimplePageBean {
 				view.setPath("push");  // item to page, have to push the page
 		} else if (itemType == SimplePageItem.RESOURCE) { // must be a samepage resource
 			view.setSendingPage(Long.valueOf(item.getPageId()));
-			view.setSource(prevItem.getItemURL(getCurrentSiteId()));
+			view.setSource(prevItem.getItemURL(getCurrentSiteId(),getCurrentPage().getOwner()));
 			view.viewID = ShowItemProducer.VIEW_ID;
 		}else if(itemType == SimplePageItem.STUDENT_CONTENT) {
 			view.setSendingPage(prevEntry.pageId);
@@ -2545,6 +2545,9 @@ public class SimplePageBean {
     // WARNING: you must check whether isprerequisite. If so, we maintain
     // the group list, so you need to do i.setGroups().
        public List<String> setItemGroups (SimplePageItem i, String[] groups) {
+	   // can't allow groups on student pages
+	   if (getCurrentPage().getOwner() != null)
+	       return null;
 	   LessonEntity lessonEntity = null;
 	   switch (i.getType()) {
 	   case SimplePageItem.ASSIGNMENT:

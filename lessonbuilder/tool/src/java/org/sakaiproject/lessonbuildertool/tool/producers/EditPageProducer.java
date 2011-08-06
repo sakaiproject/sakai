@@ -132,7 +132,8 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 
 			richTextEvolver.evolveTextInput(instructions);
 
-			showPageProducer.createGroupList(form, groups);
+			if (page.getOwner() == null)
+			    showPageProducer.createGroupList(form, groups);
 
 			UICommand.make(form, "save", "#{simplePageBean.submit}").decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.save_message")));
 
