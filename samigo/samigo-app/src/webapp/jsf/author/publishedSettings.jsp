@@ -42,8 +42,7 @@
       </head>
     <body onload="<%= request.getAttribute("html.body.onload") %>">
 
-<script language="javascript" style="text/JavaScript">
-
+<script style="text/JavaScript">
 function submitForm()
 {
   document.forms[0].onsubmit();
@@ -977,8 +976,8 @@ function uncheckOther(field){
 <!-- end content -->
 <f:verbatim></div></f:verbatim>
 
-        <script language="javascript" style="text/JavaScript">retainHideUnhideStatus('none');showHideReleaseGroups();</script>
-
+        <script style="text/JavaScript">retainHideUnhideStatus('none');showHideReleaseGroups();</script>
+        
       </body>
     </html>
   </f:view>

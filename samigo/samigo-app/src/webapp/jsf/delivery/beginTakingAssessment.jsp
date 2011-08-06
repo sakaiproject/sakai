@@ -44,7 +44,7 @@
 
 <%@ include file="/js/delivery.js" %>
 <!--JAVASCRIPT -->
-<script language="javascript" type="text/JavaScript">
+<script type="text/JavaScript">
 <%@ include file="/js/browser.js" %>
 </script>
 

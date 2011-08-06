@@ -24,7 +24,7 @@ should be included in file importing DeliveryMessages
 **********************************************************************************/
 --%>
 -->
-<h:outputText value="<script>" escape="false" />
+<h:outputText value="<script type='text/javascript'>" escape="false" />
 <h:outputText value="var selectedRadioButton#{question.itemData.itemId};" escape="false" />
 <h:outputText value="function uncheckRadioButtons#{question.itemData.itemId}(radioButton) {" escape="false" />
 <h:outputText value="if (selectedRadioButton#{question.itemData.itemId} != null) {" escape="false" />

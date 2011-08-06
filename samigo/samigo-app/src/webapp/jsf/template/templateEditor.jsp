@@ -688,7 +688,7 @@
 </h:form>
 <!-- end content -->
 </div>
-<script type="text/javascript" language="JavaScript">hideUnhideAllDivsWithWysiwyg('none');</script>
+<script type="text/javascript">hideUnhideAllDivsWithWysiwyg('none');</script>
       </body>
     </html>
   </f:view>

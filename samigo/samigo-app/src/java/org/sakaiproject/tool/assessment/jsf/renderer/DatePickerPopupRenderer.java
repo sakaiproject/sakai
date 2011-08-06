@@ -137,7 +137,7 @@ public class DatePickerPopupRenderer extends Renderer
       writer.write("<style>\n");
       writer.write("	td {font-family: Tahoma, Verdana, sans-serif; font-size: 12px;}\n");
       writer.write("</style>\n");
-      writer.write("<script language=\"JavaScript\">\n");
+      writer.write("<script type=\"text/javascript\">\n");
       writer.write("//<![CDATA[\n");
       writer.write("// months as they appear in the calendar's title\n");
       writer.write("// (These are dynamically built by locale DateFormatSymbols!)\n");
@@ -239,7 +239,7 @@ public class DatePickerPopupRenderer extends Renderer
 //        writer.write("<table cellspacing=\"1\" cellpadding=\"3\" border=\"0\" width=\"100%\">\n");
 //        writer.write("<tr><td colspan=\"7\"><table cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">\n");
 //        writer.write("<tr>\n");
-      writer.write("<script language=\"JavaScript\">\n");
+      writer.write("<script type=\"text/javascript\">\n");
 //      writer.write("//<![CDATA[\n");
 //      writer.write("alert('got here');\n");
 //      writer.write("//<!--");
@@ -303,7 +303,7 @@ public class DatePickerPopupRenderer extends Renderer
 //        writer.write("</tr>\n");
 //        writer.write("</table></td></tr>\n");
 //        writer.write("<tr>\n");
-//        writer.write("<script language=\"JavaScript\">\n");
+//        writer.write("<script type=\"text/javascript\">\n");
       writer.write("\n");
       writer.write("// print weekdays titles\n");
       writer.write("for (var n=0; n < 7; n++)\n");

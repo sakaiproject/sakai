@@ -47,7 +47,7 @@
 <%@ include file="/js/delivery.js" %>
  
 <!-- content... -->
-<script language="javascript">
+<script type="text/javascript">
 
 function noenter(){
 return!(window.event && window.event.keyCode == 13);

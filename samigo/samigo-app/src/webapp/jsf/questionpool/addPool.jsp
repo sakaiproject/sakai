@@ -36,7 +36,7 @@
 <!-- content... -->
  <div class="portletBody">
 
-<SCRIPT LANGUAGE="JavaScript">
+<script type="text/javascript">
 <!-- Begin
 function textCounter(field, maxlimit) {
 	if (field.value.length > maxlimit) // if too long...trim it!

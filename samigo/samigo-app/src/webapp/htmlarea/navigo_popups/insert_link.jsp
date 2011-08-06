@@ -38,7 +38,7 @@
 
 </style>
 
-<script language="javascript"><!--
+<script type="text/javascript"><!--
 var openerEditor = opener.editor;
 
 // is this link an HTTP or HTTPS url?

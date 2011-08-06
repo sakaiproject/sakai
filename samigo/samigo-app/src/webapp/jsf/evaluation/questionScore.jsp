@@ -51,7 +51,7 @@ $Id$
  <!-- JAVASCRIPT -->
 <%@ include file="/js/delivery.js" %>
 
-<script>
+<script type="text/javascript">
 function toPoint(id)
 {
   var x=document.getElementById(id).value

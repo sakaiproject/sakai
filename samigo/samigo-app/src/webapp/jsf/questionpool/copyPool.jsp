@@ -32,7 +32,7 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{questionPoolMessages.copy_p}"/></title>
                         <!-- stylesheet and script widgets -->
-<script language="javascript" type="text/JavaScript">
+<script type="text/JavaScript">
 <!--
 <%@ include file="/js/samigotree.js" %>
 //-->

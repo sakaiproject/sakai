@@ -51,7 +51,7 @@ $Id$
   <body onload="hideUnhideAllDivsExceptFirst('none');;<%= request.getAttribute("html.body.onload") %>">
 <!-- $Id:  -->
 <!-- content... -->
-<script>
+<script type="text/javascript">
 function toPoint(id)
 {
   var x=document.getElementById(id).value

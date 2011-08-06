@@ -1,5 +1,5 @@
 <%-- JAVSCRIPT FOR DISABLING SHOWFEEDBACK AND TOC AFTER ONE CLICK --%>
-<script language="javascript" style="text/JavaScript">
+<script type="text/JavaScript">
 <!--
 
 function printForm(){

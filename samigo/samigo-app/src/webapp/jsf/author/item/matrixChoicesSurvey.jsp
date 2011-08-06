@@ -35,7 +35,7 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{authorMessages.item_display_author}"/></title>
       <samigo:script path="/js/authoring.js"/>
-      <script language="javascript" >
+      <script type="text/JavaScript">
       	function textCounter(field,cntfield,maxlimit) {
           	
       		if (field.value.length > maxlimit) // if too long...trim it!

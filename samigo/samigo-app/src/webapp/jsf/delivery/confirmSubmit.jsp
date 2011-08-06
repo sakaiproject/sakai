@@ -73,7 +73,7 @@ remove the javascript onclick stuff.
 <!-- JAVASCRIPT -->
 <%@ include file="/js/delivery.js" %>
 
-<script language="javascript" type="text/JavaScript">
+<script type="text/JavaScript">
 
 function saveTime()
 {

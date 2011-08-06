@@ -134,7 +134,7 @@ public class ColorPickerPopupRenderer extends Renderer
     writer.write("</select>\n");
     writer.write("</td></tr>\n");
     writer.write("<tr><td align=\"center\">\n");
-    writer.write("<script language=\"JavaScript\">\n");
+    writer.write("<script type=\"text/javascript\">\n");
     writer.write("	var P = opener.TCP;\n");
     writer.write("	onload = \"P.show(P.initPalette)\";\n");
     writer.write(

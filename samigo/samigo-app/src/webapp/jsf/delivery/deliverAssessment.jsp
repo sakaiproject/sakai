@@ -32,8 +32,7 @@
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-	  <script type="text/javascript" language="JavaScript" src="/samigo-app/js/saveForm.js"></script>
-	  	  
+	  <script type="text/javascript" src="/samigo-app/js/saveForm.js"></script>	  	  
       <title> <h:outputText value="#{delivery.assessmentTitle}"/>
       </title>
       <style type="text/css">
@@ -126,7 +125,7 @@
 <!-- JAVASCRIPT -->
 <%@ include file="/js/delivery.js" %>
 
-<script language="javascript" type="text/JavaScript">
+<script type="text/JavaScript">
 
 function checkRadio()
 {
@@ -503,7 +502,7 @@ String.prototype.endsWith = function(txt)
 </h:form>
 <!-- end content -->
 <f:verbatim></div></f:verbatim>
-<script language="javascript" type="text/JavaScript">fixImplicitLabeling();</script>
+<script type="text/JavaScript">fixImplicitLabeling();</script>
     </body>
   </html>
 </f:view>

@@ -37,12 +37,12 @@
       <body onload="<%= request.getAttribute("html.body.onload") %>">
       <div class="portletBody">
 
-<script type="text/javascript" language="JavaScript" src="/library/js/jquery-latest.min.js"></script>
-<script type="text/javascript" language="JavaScript" src="/samigo-app/js/info.js"></script>
-<script type="text/javascript" language="JavaScript" src="/samigo-app/js/jquery-ui-1.7.2.custom.min.js"></script>
-<script type="text/javascript" language="JavaScript" src="/samigo-app/js/jquery.tablesorter.js"></script>
+<script type="text/javascript" src="/library/js/jquery-latest.min.js"></script>
+<script type="text/javascript" src="/samigo-app/js/info.js"></script>
+<script type="text/javascript" src="/samigo-app/js/jquery-ui-1.7.2.custom.min.js"></script>
+<script type="text/javascript" src="/samigo-app/js/jquery.tablesorter.js"></script>
 <link type="text/css" href="/samigo-app/css/ui-lightness/jquery-ui-1.7.2.custom.css" rel="stylesheet" media="all"/>
-<script language="javascript" style="text/JavaScript">
+<script style="text/JavaScript">
 
 function clickPendingSelectActionLink(field){
 var insertlinkid= field.id.replace("pendingSelectAction", "pendingHiddenlink");

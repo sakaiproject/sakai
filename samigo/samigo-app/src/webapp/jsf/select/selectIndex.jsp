@@ -38,7 +38,7 @@
 	  <h:outputText  value="#{select.secureDeliveryHTMLFragments}" escape="false" />
 
 <!--JAVASCRIPT -->
-<script language="javascript" type="text/JavaScript">
+<script type="text/JavaScript">
 var linksDisabled = 'false';
 function disableLinks(clickedLink){
 	//alert("clickedLink id = " + clickedLink.id);

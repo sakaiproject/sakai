@@ -42,7 +42,7 @@ $Id: createNewEmail.jsp 18063 2006-11-09 00:00:17Z ktsao@stanford.edu $
 
 <div style="margin-left: 10px; margin-right: 10px">
 <h:form id="mainForm" >
-<script language="javascript" type="text/JavaScript">
+<script type="text/JavaScript">
 
 </script>
 <h3>

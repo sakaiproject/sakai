@@ -47,7 +47,7 @@
       <title><h:outputText value="#{authorMessages.create_modify_a}" /></title>
       <samigo:script path="/js/authoring.js"/>
 
-<script language="javascript" style="text/JavaScript">
+<script style="text/JavaScript">
 <%@ include file="/js/samigotree.js" %>
 
 <!--

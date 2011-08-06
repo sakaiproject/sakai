@@ -66,7 +66,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 
 <h:commandLink title="#{deliveryMessages.t_submit}" id="submitforgrade" action="#{delivery.submitForGradeFromTimer}" value="" />
 
-<script language="javascript" type="text/JavaScript">
+<script type="text/JavaScript">
 <!--
 function clickSubmitForGrade(){
   var newindex = 0;

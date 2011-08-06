@@ -45,7 +45,7 @@
       <!-- AUTHORING -->
       <samigo:script path="/js/authoring.js"/>
 <%--
-<script language="javascript" type="text/JavaScript">
+<script type="text/JavaScript">
 <!--
 <%@ include file="/js/authoring.js" %>
 //-->

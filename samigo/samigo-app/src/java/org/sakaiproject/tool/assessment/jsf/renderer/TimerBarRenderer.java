@@ -100,7 +100,7 @@ public class TimerBarRenderer extends Renderer
         Map attrMap = component.getAttributes();
 
          writer.write("\n");
-         writer.write("\n<script language=\"javascript\">");
+         writer.write("\n<script type=\"text/javascript\">");
          writer.write("\n// Timer Bar - Version 1.0");
          writer.write("\n// Based on Script by Brian Gosselin of http://scriptasylum.com");
          writer.write("\n  var loadedcolor='gray' ;            // PROGRESS BAR COLOR");
@@ -131,7 +131,7 @@ public class TimerBarRenderer extends Renderer
          writer.write("\n");
          writer.write("\n</script>");
          String contextPath = context.getExternalContext().getRequestContextPath();
-         writer.write("\n<script language=\"javascript\" src=\"" +
+         writer.write("\n<script type=\"text/javascript\" src=\"" +
            contextPath + SCRIPT_PATH + "timerbar.js\"></script>");
          writer.write("\n");
 

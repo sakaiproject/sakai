@@ -441,7 +441,7 @@ public class RichTextEditArea extends Renderer
     
     writer.write("\n\t<script type=\"text/javascript\" src=\"" + FCK_BASE + FCK_SCRIPT + "\"></script>");
 
-    writer.write("<script type=\"text/javascript\" language=\"JavaScript\">\n");
+    writer.write("<script type=\"text/javascript\">\n");
     
     writer.write("\nfunction show_hide_editor(client_id){");
     writer.write("\n\tvar status =  document.getElementById(client_id + '_textinput_current_status');");
