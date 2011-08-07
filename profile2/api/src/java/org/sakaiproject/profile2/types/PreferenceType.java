@@ -1,7 +1,7 @@
 package org.sakaiproject.profile2.types;
 
 /**
- * These are the types of preferences that have simple true/false values
+ * These are the types of preferences in Profile2.
  * <p>
  * We use these when checking if different options are enabled.
  * <p>
