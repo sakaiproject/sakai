@@ -804,28 +804,22 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	/**
 	 * {@inheritDoc}
 	 */
+	public List<User> getUsersByEmail(String email) {
+		return (List<User>)userDirectoryService.findUsersByEmail(email);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public User getUserByEmail(String email) {
-	
-		List<User> users = (List<User>)userDirectoryService.findUsersByEmail(email);
-	
-		//if none, return none. log at debug so we don't flood the logs
-		if(users.isEmpty()){
-			log.debug("No users found for email address: " + email);
+		
+		List<User> users =  (List<User>)userDirectoryService.findUsersByEmail(email);
+		
+		if(users.isEmpty()) {
 			return null;
 		}
 		
-		//if multiple, return none
-		if(users.size() > 1){
-			log.warn("Multiple users found for email address: " + email + ". Refine your search.");
-			return null;
-		}
-		
-		//if 1, ok.
-		if(users.size() == 1) {
-			return users.get(0);
-		}
-		
-		return null;
+		return users.get(0);
 	}
 	
 	/**

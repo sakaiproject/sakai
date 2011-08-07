@@ -398,6 +398,13 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 		} else {
 			userEidOrEmail = (String) replacedAttendeeEidOrEmail.getValue();
 		}
+		
+		//check if there are multiple email addresses associated with input
+		List<String> associatedEids = getEidsForEmail(userEidOrEmail.trim());
+		if(associatedEids.size() > 1) {
+			throw new SignupUserActionException(MessageFormat.format(Utilities.rb.getString("exception.multiple.eids"), new Object[] {userEidOrEmail, StringUtils.join(associatedEids, ", ")}));
+		}
+		
 		String replacerUserId = getUserIdForEidOrEmail(userEidOrEmail);
 		SignupUser replSignUser = getSakaiFacade().getSignupUser(getMeetingWrapper().getMeeting(), replacerUserId);
 		if(replSignUser ==null){
@@ -608,6 +615,13 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 		if (StringUtils.isBlank(newAttendeeEidOrEmail)) {
 			return ORGANIZER_MEETING_PAGE_URL;
 		}
+		
+		//check if there are multiple email addresses associated with input
+		List<String> associatedEids = getEidsForEmail(newAttendeeEidOrEmail.trim());
+		if(associatedEids.size() > 1) {
+			Utilities.addErrorMessage(MessageFormat.format(Utilities.rb.getString("exception.multiple.eids"), new Object[] {newAttendeeEidOrEmail, StringUtils.join(associatedEids, ", ")}));
+			return ORGANIZER_MEETING_PAGE_URL;
+		}
 
 		String newUserId = getUserIdForEidOrEmail(newAttendeeEidOrEmail.trim());
 		if(StringUtils.isBlank(newUserId)){
@@ -730,6 +744,14 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 		if (StringUtils.isBlank(newWaiterEidOrEmail)) {
 			return ORGANIZER_MEETING_PAGE_URL;
 		}
+		
+		//check if there are multiple email addresses associated with input
+		List<String> associatedEids = getEidsForEmail(newWaiterEidOrEmail.trim());
+		if(associatedEids.size() > 1) {
+			Utilities.addErrorMessage(MessageFormat.format(Utilities.rb.getString("exception.multiple.eids"), new Object[] {newWaiterEidOrEmail, StringUtils.join(associatedEids, ", ")}));
+			return ORGANIZER_MEETING_PAGE_URL;
+		}
+		
 		String waiterUserId = getUserIdForEidOrEmail(newWaiterEidOrEmail.trim());
 		if(StringUtils.isBlank(waiterUserId)){
 			Utilities.addErrorMessage(Utilities.rb.getString("exception.no.such.user") + newWaiterEidOrEmail);

@@ -517,5 +517,24 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		return null;
 	}
 	
+	
+	/**
+	 * Get the eids assocaited with an email address, ie there may be two or more users with the same email address. 
+	 * We need to be able to handle this in the UI.
+	 * 
+	 * @param email
+	 * @return	List<String> of eids.
+	 */
+	public List<String> getEidsForEmail(String email) {
+		List<User> users = sakaiFacade.getUsersByEmail(email);
+		
+		List<String> eids = new ArrayList<String>();
+		for(User u:users) {
+			eids.add(u.getEid());
+		}
+		
+		return eids;
+	}
+	
 
 }

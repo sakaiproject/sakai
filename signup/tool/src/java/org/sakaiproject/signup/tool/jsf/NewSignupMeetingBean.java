@@ -829,6 +829,13 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		} else {
 			attendeeEidOrEmail = (String) newAttendeeInput.getValue();
 		}
+		
+		//check if there are multiple email addresses associated with input
+		List<String> associatedEids = getEidsForEmail(attendeeEidOrEmail.trim());
+		if(associatedEids.size() > 1) {
+			Utilities.addErrorMessage(MessageFormat.format(Utilities.rb.getString("exception.multiple.eids"), new Object[] {attendeeEidOrEmail, StringUtils.join(associatedEids, ", ")}));
+			return "";
+		}
 
 		String attendeeUserId = getUserIdForEidOrEmail(attendeeEidOrEmail.trim());
 		if(StringUtils.isBlank(attendeeEidOrEmail)){
@@ -1937,5 +1944,23 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		}
 		
 		return null;
+	}
+	
+	/**
+	 * Get the eids assocaited with an email address, ie there may be two or more users with the same email address. 
+	 * We need to be able to handle this in the UI.
+	 * 
+	 * @param email
+	 * @return	List<String> of eids.
+	 */
+	public List<String> getEidsForEmail(String email) {
+		List<User> users = sakaiFacade.getUsersByEmail(email);
+		
+		List<String> eids = new ArrayList<String>();
+		for(User u:users) {
+			eids.add(u.getEid());
+		}
+		
+		return eids;
 	}
 }

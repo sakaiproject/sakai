@@ -316,9 +316,18 @@ public interface SakaiFacade {
 	public List<User> getUsersWithPermission(String permission);
 	
 	/**
-	 * Find a user by their email address. If the result of this search returns multiple users, then NO user will be returned.
+	 * Find users by an email address. This may return multiples so logic is needed to deal with that.
 	 * @param email
-	 * @return	a user object or null if not found.
+	 * @return	a list of user objects or an empty list if none.
+	 */
+	public List<User> getUsersByEmail(String email);
+	
+	/**
+	 * Get a user by email address. Only use this if you are certain that there is only one user that matches,
+	 * as it will only return the first user if there are multiples.
+	 * 
+	 * @param email
+	 * @return	a User or null if no match
 	 */
 	public User getUserByEmail(String email);
 	
