@@ -6,6 +6,7 @@
 		<groupId>org.sakaiproject.samigo</groupId>
 		<artifactId>samigo</artifactId>
 		<version>2.9-SNAPSHOT</version>
+		<relativePath>../../pom.xml</relativePath>
 	</parent>
     
 	<name>Sakai Samigo Import Handlers (samigo-import)</name>
