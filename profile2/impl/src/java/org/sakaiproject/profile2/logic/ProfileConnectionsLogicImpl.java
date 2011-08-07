@@ -16,6 +16,7 @@ import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.hbm.model.ProfileFriend;
 import org.sakaiproject.profile2.model.BasicConnection;
 import org.sakaiproject.profile2.model.Person;
+import org.sakaiproject.profile2.types.EmailType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.user.api.User;
 
@@ -195,7 +196,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 			log.info("User: " + userId + " requested friend: " + friendId);  
 
 			//send email notification
-			sendConnectionEmailNotification(friendId, userId, ProfileConstants.EMAIL_NOTIFICATION_REQUEST);
+			sendConnectionEmailNotification(friendId, userId, EmailType.EMAIL_NOTIFICATION_REQUEST);
 			
 			return true;
 		}
@@ -242,7 +243,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 			
 			log.info("User: " + fromUser + " confirmed friend request from: " + toUser); 
 			//send email notification
-			sendConnectionEmailNotification(fromUser, toUser, ProfileConstants.EMAIL_NOTIFICATION_CONFIRM);
+			sendConnectionEmailNotification(fromUser, toUser, EmailType.EMAIL_NOTIFICATION_CONFIRM);
 			
 			//invalidate the confirmed connection caches for each user as they are now stale
 			evictFromCache(fromUser);
@@ -479,14 +480,14 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 	 * @param fromUuid		uuid from
 	 * @param messageType	the message type to send from ProfileConstants. Retrieves the emailTemplateKey based on this value
 	 */
-	private void sendConnectionEmailNotification(String toUuid, final String fromUuid, final int messageType) {
+	private void sendConnectionEmailNotification(String toUuid, final String fromUuid, final EmailType messageType) {
 		//check if email preference enabled
-		if(!preferencesLogic.isEmailEnabledForThisMessageType(toUuid, messageType)) {
+		if(!preferencesLogic.isPreferenceEnabled(toUuid, messageType.toPreference())) {
 			return;
 		}
 		
 		//request
-		if(messageType == ProfileConstants.EMAIL_NOTIFICATION_REQUEST) {
+		if(messageType == EmailType.EMAIL_NOTIFICATION_REQUEST) {
 			
 			String emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_CONNECTION_REQUEST;
 			
@@ -503,7 +504,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 		}
 		
 		//confirm
-		if(messageType == ProfileConstants.EMAIL_NOTIFICATION_CONFIRM) {
+		if(messageType == EmailType.EMAIL_NOTIFICATION_CONFIRM) {
 			
 			String emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_CONNECTION_CONFIRM;
 			

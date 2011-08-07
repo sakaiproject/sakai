@@ -31,6 +31,7 @@ import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.WallItem;
 import org.sakaiproject.profile2.model.WallItemComment;
+import org.sakaiproject.profile2.types.EmailType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 /**
@@ -82,13 +83,13 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		}
 
 		// set corresponding message type and exit if type unknown
-		final int itemMessageType;
+		final EmailType itemMessageType;
 		switch (itemType) {
 			case ProfileConstants.WALL_ITEM_TYPE_EVENT:
-				itemMessageType = ProfileConstants.EMAIL_NOTIFICATION_WALL_EVENT_NEW;
+				itemMessageType = EmailType.EMAIL_NOTIFICATION_WALL_EVENT_NEW;
 				break;
 			case ProfileConstants.WALL_ITEM_TYPE_STATUS:
-				itemMessageType = ProfileConstants.EMAIL_NOTIFICATION_WALL_STATUS_NEW;
+				itemMessageType = EmailType.EMAIL_NOTIFICATION_WALL_STATUS_NEW;
 				break;
 			default:
 				log.warn("not sending email due to unknown wall item type: " + itemType);
@@ -103,16 +104,12 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 				for (Person connection : connections) {
 
 					// only send email if user has preference set
-					if (true == preferencesLogic
-							.isEmailEnabledForThisMessageType(connection
-									.getUuid(), itemMessageType)) {
-
+					if (true == preferencesLogic.isPreferenceEnabled(connection.getUuid(), itemMessageType.toPreference())) {
 						uuidsToEmail.add(connection.getUuid());
 					}
 				}
 
-				sendWallNotificationEmailToConnections(uuidsToEmail, userUuid,
-						itemMessageType);
+				sendWallNotificationEmailToConnections(uuidsToEmail, userUuid, itemMessageType);
 			}
 		};
 		thread.start();
@@ -147,8 +144,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 
 		// don't email user if they've posted on their own wall
 		if (false == sakaiProxy.getCurrentUserId().equals(userUuid)) {
-			sendWallNotificationEmailToUser(userUuid, wallItem.getCreatorUuid(),
-					ProfileConstants.EMAIL_NOTIFICATION_WALL_POST_MY_NEW);
+			sendWallNotificationEmailToUser(userUuid, wallItem.getCreatorUuid(), EmailType.EMAIL_NOTIFICATION_WALL_POST_MY_NEW);
 		}
 		// and if they have posted on their own wall, let connections know
 		else {
@@ -165,19 +161,12 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 						for (Person connection : connections) {
 
 							// only send email if user has preference set
-							if (true == preferencesLogic
-									.isEmailEnabledForThisMessageType(
-											connection.getUuid(),
-											ProfileConstants.EMAIL_NOTIFICATION_WALL_POST_CONNECTION_NEW)) {
-								
+							if (preferencesLogic.isPreferenceEnabled(connection.getUuid(), EmailType.EMAIL_NOTIFICATION_WALL_POST_CONNECTION_NEW.toPreference())) {
 								uuidsToEmail.add(connection.getUuid());
 							}
 						}
 
-						sendWallNotificationEmailToConnections(
-								uuidsToEmail,
-								userUuid,
-								ProfileConstants.EMAIL_NOTIFICATION_WALL_POST_CONNECTION_NEW);
+						sendWallNotificationEmailToConnections(uuidsToEmail, userUuid, EmailType.EMAIL_NOTIFICATION_WALL_POST_CONNECTION_NEW);
 					}
 				};
 				thread.start();
@@ -302,7 +291,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		return filteredWallItems.size();
 	}
 	
-	private void sendWallNotificationEmailToConnections(List<String> toUuids, final String fromUuid, final int messageType) {
+	private void sendWallNotificationEmailToConnections(List<String> toUuids, final String fromUuid, final EmailType messageType) {
 		
 		// create the map of replacement values for this email template
 		Map<String, String> replacementValues = new HashMap<String, String>();
@@ -314,11 +303,11 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		
 		String emailTemplateKey = null;
 		
-		if (ProfileConstants.EMAIL_NOTIFICATION_WALL_EVENT_NEW == messageType) {
+		if (EmailType.EMAIL_NOTIFICATION_WALL_EVENT_NEW == messageType) {
 			emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_WALL_EVENT_NEW;			
-		} else if (ProfileConstants.EMAIL_NOTIFICATION_WALL_POST_CONNECTION_NEW == messageType) {
+		} else if (EmailType.EMAIL_NOTIFICATION_WALL_POST_CONNECTION_NEW == messageType) {
 			emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_WALL_POST_CONNECTION_NEW;
-		} else if (ProfileConstants.EMAIL_NOTIFICATION_WALL_STATUS_NEW == messageType) {
+		} else if (EmailType.EMAIL_NOTIFICATION_WALL_STATUS_NEW == messageType) {
 			emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_WALL_STATUS_NEW;
 		}
 		
@@ -334,12 +323,10 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		}
 	}
 	
-	private void sendWallNotificationEmailToUser(String toUuid,
-			final String fromUuid, final int messageType) {
+	private void sendWallNotificationEmailToUser(String toUuid, final String fromUuid, final EmailType messageType) {
 
 		// check if email preference enabled
-		if (!preferencesLogic.isEmailEnabledForThisMessageType(toUuid,
-				messageType)) {
+		if (!preferencesLogic.isPreferenceEnabled(toUuid, messageType.toPreference())) {
 			return;
 		}
 
@@ -352,7 +339,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		
 		String emailTemplateKey = null;
 		
-		if (ProfileConstants.EMAIL_NOTIFICATION_WALL_POST_MY_NEW == messageType) {
+		if (EmailType.EMAIL_NOTIFICATION_WALL_POST_MY_NEW == messageType) {
 			emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_WALL_POST_MY_NEW;
 			
 			replacementValues.put("profileLink", linkLogic.getEntityLinkToProfileWall(toUuid));

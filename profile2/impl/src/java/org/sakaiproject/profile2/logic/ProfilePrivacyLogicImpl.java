@@ -69,6 +69,11 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 			cache.put(userId, privacy);
 		}
 		
+		//if still null, we can't do much except log an error and wait for an NPE.
+		if(privacy == null) {
+			log.error("Couldn't retrieve or create a privacy record for user: " + userId + " This is an error and you need to fix your installation.");
+		}
+		
 		return privacy;
 	}
 	

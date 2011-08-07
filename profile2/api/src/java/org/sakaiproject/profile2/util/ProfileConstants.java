@@ -141,38 +141,19 @@ public class ProfileConstants {
 	/*
 	 * PREFERENCES
 	 */
-	
-	//types of email messages
-	public static final int EMAIL_NOTIFICATION_REQUEST = 1;
-	public static final int EMAIL_NOTIFICATION_CONFIRM = 2;
-	public static final int EMAIL_NOTIFICATION_MESSAGE_NEW = 3;
-	public static final int EMAIL_NOTIFICATION_MESSAGE_REPLY = 4;
-	// TODO no preference for this yet (may remove instead)
-	public static final int EMAIL_NOTIFICATION_WALL_EVENT_NEW = 5;
-	public static final int EMAIL_NOTIFICATION_WALL_POST_MY_NEW = 6; // this has a preference (PROFILE_PREFERENCES_T.EMAIL_WALL_ITEM_NEW)
-	// TODO no preference for this yet (may remove instead)
-	public static final int EMAIL_NOTIFICATION_WALL_POST_CONNECTION_NEW = 7;
-	// TODO no preference for this yet (may remove instead)
-	public static final int EMAIL_NOTIFICATION_WALL_STATUS_NEW = 8;
-	public static final int EMAIL_NOTIFICATION_WORKSITE_NEW = 9;
-	
+
 	//these values are used when creating a default preferences record for a user
 	public static final boolean DEFAULT_EMAIL_REQUEST_SETTING = true;
 	public static final boolean DEFAULT_EMAIL_CONFIRM_SETTING = true;
 	public static final boolean DEFAULT_EMAIL_MESSAGE_NEW_SETTING = true;
 	public static final boolean DEFAULT_EMAIL_MESSAGE_REPLY_SETTING = true;
+	public static final boolean DEFAULT_EMAIL_MESSAGE_WALL_SETTING = true;
+	public static final boolean DEFAULT_EMAIL_MESSAGE_WORKSITE_SETTING = true;
 	public static final boolean DEFAULT_OFFICIAL_IMAGE_SETTING = false;
 	public static final boolean DEFAULT_SHOW_KUDOS_SETTING = true;
 	public static final boolean DEFAULT_SHOW_GALLERY_FEED_SETTING = true;
 	public static final boolean DEFAULT_GRAVATAR_SETTING = false;
 	public static final boolean DEFAULT_SHOW_ONLINE_STATUS_SETTING = true;
-
-	
-	//if no record, this is the default for sending email messages
-	public static final boolean DEFAULT_EMAIL_NOTIFICATION_SETTING = true;
-
-	public static final String PROP_EMAIL_REQUEST_ENABLED="emailRequestEnabled";
-	public static final String PROP_EMAIL_CONFIRM_ENABLED="emailConfirmEnabled";
 	
 	
 	/*
@@ -201,26 +182,7 @@ public class ProfileConstants {
 	public static final int DEFAULT_PRIVACY_OPTION_MYKUDOS = PRIVACY_OPTION_EVERYONE;
 	public static final int DEFAULT_PRIVACY_OPTION_MYWALL = PRIVACY_OPTION_EVERYONE;
 	public static final int DEFAULT_PRIVACY_OPTION_SOCIALINFO = PRIVACY_OPTION_EVERYONE;
-	
-	//if they have no privacy record, ie have not turned explicitly turned searches on or off
-	public static final boolean DEFAULT_SEARCH_VISIBILITY = true;
-	
-	//if they have no privacy record, ie have not turned explicitly turned these options on or off
-	public static final boolean DEFAULT_PROFILEIMAGE_VISIBILITY = true;
-	public static final boolean DEFAULT_BASICINFO_VISIBILITY = true;
-	public static final boolean DEFAULT_CONTACTINFO_VISIBILITY = true;
-	public static final boolean DEFAULT_PERSONALINFO_VISIBILITY = true;
-	public static final boolean DEFAULT_MYFRIENDS_VISIBILITY = true;
 	public static final boolean DEFAULT_BIRTHYEAR_VISIBILITY = true;
-	public static final boolean DEFAULT_MYSTATUS_VISIBILITY = true;
-	public static final boolean DEFAULT_STAFFINFO_VISIBILITY = true;
-	public static final boolean DEFAULT_STUDENTINFO_VISIBILITY = true;
-	
-	//if the user doing a search finds themself in the results, should they be included in the results?
-	public static final boolean SELF_SEARCH_VISIBILITY = true;
-	
-	public static final String PROP_BIRTH_YEAR_VISIBLE="birthYearVisible";
-
 	
 	/*
 	 * DEFAULT SAKAI PROPERTIES

@@ -15,6 +15,7 @@ import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.model.MessageParticipant;
 import org.sakaiproject.profile2.model.MessageThread;
+import org.sakaiproject.profile2.types.EmailType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
@@ -100,7 +101,7 @@ public class ProfileMessagingLogicImpl implements ProfileMessagingLogic {
 		}
 		
 		if(saveAllNewMessageParts(thread, message, participants)) {
-			sendMessageEmailNotification(threadParticipants, uuidFrom, threadId, subject, messageStr, ProfileConstants.EMAIL_NOTIFICATION_MESSAGE_NEW);
+			sendMessageEmailNotification(threadParticipants, uuidFrom, threadId, subject, messageStr, EmailType.EMAIL_NOTIFICATION_MESSAGE_NEW);
 			
 			return true;
 		}
@@ -138,7 +139,7 @@ public class ProfileMessagingLogicImpl implements ProfileMessagingLogic {
 			}
 			
 			//send email notifications
-			sendMessageEmailNotification(uuids, uuidFrom, threadId, subject, reply, ProfileConstants.EMAIL_NOTIFICATION_MESSAGE_REPLY);
+			sendMessageEmailNotification(uuids, uuidFrom, threadId, subject, reply, EmailType.EMAIL_NOTIFICATION_MESSAGE_REPLY);
 			
 			return message;
 		} catch (Exception e) {
@@ -286,13 +287,13 @@ public class ProfileMessagingLogicImpl implements ProfileMessagingLogic {
 	 * @param directId		the id of the item, used for direct links back to this item, if required.
 	 * @param subject		subject of message
 	 * @param messageStr	body of message
-	 * @param messageType	the message type to send from ProfileConstants. Retrieves the emailTemplateKey based on this value
+	 * @param messageType	the message type to send. Retrieves the emailTemplateKey based on this value
 	 */
-	private void sendMessageEmailNotification(final List<String> toUuids, final String fromUuid, final String directId, final String subject, final String messageStr, final int messageType) {
+	private void sendMessageEmailNotification(final List<String> toUuids, final String fromUuid, final String directId, final String subject, final String messageStr, final EmailType messageType) {
 		
 		//is email notification enabled for this message type? Reformat the recipient list
 		for(Iterator<String> it = toUuids.iterator(); it.hasNext();) {
-			if(!preferencesLogic.isEmailEnabledForThisMessageType(it.next(), messageType)) {
+			if(!preferencesLogic.isPreferenceEnabled(it.next(), messageType.toPreference())) {
 				it.remove();
 			}
 		}
@@ -301,7 +302,7 @@ public class ProfileMessagingLogicImpl implements ProfileMessagingLogic {
 		toUuids.remove(fromUuid);
 		
 		//new message
-		if(messageType == ProfileConstants.EMAIL_NOTIFICATION_MESSAGE_NEW) {
+		if(messageType == EmailType.EMAIL_NOTIFICATION_MESSAGE_NEW) {
 			
 			String emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_MESSAGE_NEW;
 			
@@ -320,7 +321,7 @@ public class ProfileMessagingLogicImpl implements ProfileMessagingLogic {
 		} 
 		
 		//reply
-		if (messageType == ProfileConstants.EMAIL_NOTIFICATION_MESSAGE_REPLY) {
+		if (messageType == EmailType.EMAIL_NOTIFICATION_MESSAGE_REPLY) {
 				
 			String emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_MESSAGE_REPLY;
 			
