@@ -44,7 +44,8 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 import uk.ac.cam.caret.sakai.rwiki.service.exception.PermissionException;
 import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 import uk.ac.cam.caret.sakai.rwiki.utils.UserDisplayHelper;
-
+import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.util.ResourceLoader;
 /**
  * 
  * 
@@ -78,7 +79,9 @@ public class RecentChangesMacro extends BaseMacro
 			throws IllegalArgumentException, IOException
 	{
 
-		DateFormat dateFormat = DateFormat.getDateTimeInstance();
+		DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, new ResourceLoader().getLocale());		
+		dateFormat.setTimeZone(TimeService.getLocalTimeZone());
+		
 
 		SpecializedRenderContext context = (SpecializedRenderContext) params
 				.getContext();
@@ -124,7 +127,8 @@ public class RecentChangesMacro extends BaseMacro
 				}
 				else
 				{
-					SimpleDateFormat format = new SimpleDateFormat(Messages.getString("RecentChangesMacro.6")); //$NON-NLS-1$
+					SimpleDateFormat format = new SimpleDateFormat(Messages.getString("RecentChangesMacro.6"), new ResourceLoader().getLocale()); //$NON-NLS-1$
+					format.setTimeZone(TimeService.getLocalTimeZone());
 
 					try
 					{

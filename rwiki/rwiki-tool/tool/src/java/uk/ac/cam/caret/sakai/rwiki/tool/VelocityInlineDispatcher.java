@@ -36,6 +36,7 @@ import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.MethodInvocationException;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.time.cover.TimeService;
 
 import uk.ac.cam.caret.sakai.rwiki.service.exception.PermissionException;
 import uk.ac.cam.caret.sakai.rwiki.service.exception.ReadPermissionException;
@@ -163,6 +164,7 @@ public class VelocityInlineDispatcher implements Dispatcher
 			}
 			ResourceLoader rl = new ResourceLoader();
 			DateFormat formatter = DateFormat.getDateTimeInstance( DateFormat.LONG, DateFormat.LONG, rl.getLocale() );
+			formatter.setTimeZone(TimeService.getLocalTimeZone());
 			return formatter.format(date);
 		}
 
