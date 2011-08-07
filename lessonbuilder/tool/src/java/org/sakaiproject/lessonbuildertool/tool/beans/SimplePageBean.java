@@ -128,8 +128,9 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.ResourceLoader;
 import org.springframework.web.multipart.MultipartFile;
-
+import org.sakaiproject.time.cover.TimeService;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIInternalLink;
@@ -2206,6 +2207,8 @@ public class SimplePageBean {
     // called by add assignment dialog. Create a new item that points to an assigment
     // or update an existing item, depending upon whether itemid is set
 	public String addAssignment() {
+		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, new ResourceLoader().getLocale());		
+		df.setTimeZone(TimeService.getLocalTimeZone());
 		if (!itemOk(itemId))
 		    return "permission-failed";
 		if (!canEditPage())
@@ -2243,13 +2246,13 @@ public class SimplePageBean {
 					i.setName(selectedObject.getTitle());
 				    }
 				    // reset assignment-specific stuff
-				    i.setDescription("(" + messageLocator.getMessage("simplepage.due") + " " + DateFormat.getDateTimeInstance().format(selectedObject.getDueDate()) + ")");
+				    i.setDescription("(" + messageLocator.getMessage("simplepage.due") + " " + df.format(selectedObject.getDueDate()) + ")");
 				    update(i);
 				}
 			    } else {
 				// no, add new item
 				i = appendItem(selectedAssignment, selectedObject.getTitle(), SimplePageItem.ASSIGNMENT);
-				i.setDescription("(" + messageLocator.getMessage("simplepage.due") + " " + DateFormat.getDateTimeInstance().format(selectedObject.getDueDate()) + ")");
+				i.setDescription("(" + messageLocator.getMessage("simplepage.due") + " " + df.format(selectedObject.getDueDate()) + ")");
 				update(i);
 			    }
 			    return "success";

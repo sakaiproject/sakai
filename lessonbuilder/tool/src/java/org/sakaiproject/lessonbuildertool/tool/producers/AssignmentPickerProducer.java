@@ -57,6 +57,8 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 
+import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.util.ResourceLoader;
 /**
  * Creates a window for the user to choose which assignment to add to the page.
  * 
@@ -160,7 +162,9 @@ public class AssignmentPickerProducer implements ViewComponentProducer, Navigati
 				UISelectChoice.make(row, "select", select.getFullID(), alist.indexOf(a)).
 				    decorate(new UIFreeAttributeDecorator("title", a.getTitle()));
 				UILink.make(row, "link", a.getTitle(), a.getUrl());
-				UIOutput.make(row, "due", DateFormat.getDateTimeInstance().format(a.getDueDate()));
+				DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, new ResourceLoader().getLocale());		
+				df.setTimeZone(TimeService.getLocalTimeZone());
+				UIOutput.make(row, "due", df.format(a.getDueDate()));
 
 			}
 
