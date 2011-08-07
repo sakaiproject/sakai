@@ -5,6 +5,7 @@
         <artifactId>sections</artifactId>
         <groupId>org.sakaiproject.edu-services.sections</groupId>
         <version>1.2-SNAPSHOT</version>
+        <relativePath>../../../pom.xml</relativePath>
     </parent>
     <name>sakai-sections-model</name>
     <groupId>org.sakaiproject.edu-services.sections</groupId>

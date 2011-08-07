@@ -5,6 +5,7 @@
     <artifactId>edu-services</artifactId>
     <groupId>org.sakaiproject.edu-services</groupId>
     <version>1.2-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
   </parent>
   <groupId>org.sakaiproject.edu-services.gradebook</groupId>
   <artifactId>gradebook-service-pack</artifactId>
