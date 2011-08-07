@@ -2079,6 +2079,7 @@ public class SimplePageBean {
 	    
 	    if (folder != null) {
 		try {
+		    // note that this folder may not actually exist, so an error is OK
 		    ContentCollectionEdit res = contentHostingService.editCollection(folder);
 		    if (res.isHidden() == correct)
 			contentHostingService.cancelCollection(res);
@@ -4805,11 +4806,8 @@ public class SimplePageBean {
 	    if (resourceId.endsWith(".html") || resourceId.endsWith(".htm")) {
 		i = resourceId.lastIndexOf(".");
 		resourceId = resourceId.substring(0, i) + "/";
-		try {
-		    org.sakaiproject.content.cover.ContentHostingService.checkCollection(resourceId);
-		    return resourceId;
-		} catch (Exception ignore) {
-		}
+		// no need to check whether it actually exists
+		return resourceId;
 	    }
 	    return null;
 	}
