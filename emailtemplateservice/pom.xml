@@ -72,6 +72,7 @@
     <properties>
         <sakai.simple-xml.version>2.6</sakai.simple-xml.version>
         <url.localsite>scp://source.sakaiproject.org/var/www/html/release/emailtemplateservice/${project.version}</url.localsite>
+    	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <pluginRepositories>
