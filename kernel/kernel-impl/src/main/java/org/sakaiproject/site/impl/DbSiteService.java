@@ -350,10 +350,15 @@ public abstract class DbSiteService extends BaseSiteService
 			}
 
 			// add each group
-			for (Iterator iGroups = edit.getGroups().iterator(); iGroups.hasNext();)
+			for (Iterator<Group> iGroups = edit.getGroups().iterator(); iGroups.hasNext();)
 			{
 				Group group = (Group) iGroups.next();
-
+				//does the group have a title?
+				if (group.getTitle() == null || group.getTitle().trim().length() == 0)
+				{
+					throw new IllegalArgumentException("Group title can't be empty");
+				}
+				
 				// write the group
 				statement = siteServiceSql.getInsertGroupSql();
 

@@ -347,6 +347,7 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 
 	/**
 	 * Add a new group. The Id is generated, the rest of the fields can be set using calls to the Group object returned.
+	 * NOTE: the title must be set before saving
 	 */
 	Group addGroup();
 

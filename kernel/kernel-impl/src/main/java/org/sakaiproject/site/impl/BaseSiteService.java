@@ -1671,7 +1671,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	/**
 	 * {@inheritDoc}
 	 */
-	public List getSiteTypes()
+	public List<String> getSiteTypes()
 	{
 		return m_storage.getSiteTypes();
 	}
@@ -1679,7 +1679,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	/**
 	 * @inheritDoc
 	 */
-	public List getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort,
+	public List<Site> getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort,
 			PagingPosition page)
 	{
 		return m_storage.getSites(type, ofType, criteria, propertyCriteria, sort, page);

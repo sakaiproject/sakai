@@ -11,12 +11,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.authz.impl.SakaiSecurity;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.test.SakaiKernelTestBase;
@@ -148,4 +148,33 @@ public class SiteServiceTest extends SakaiKernelTestBase {
 		}
 		
 	}
+	
+	public void testGroupSave() throws IdInvalidException, IdUsedException, PermissionException, IdUnusedException {
+		
+		SiteService siteService = (SiteService) ComponentManager.get(SiteService.class);
+		
+		SecurityService securityService = (SecurityService) ComponentManager.get(SecurityService.class);
+		workAsAdmin();
+		
+		Site site = siteService.addSite("groupTestSite", "test");
+		siteService.save(site);
+		
+		//this should work
+		Group group1 = site.addGroup();
+		group1.setTitle("group1");
+		siteService.save(site);
+		
+		//This should get an exception
+		try {
+			Group group = site.addGroup();
+			siteService.save(site);
+			fail("Should not be able to save a group without a title");
+		}
+		catch (RuntimeException e) {
+			e.printStackTrace();
+		}
+		
+		
+	}
+	
 }
