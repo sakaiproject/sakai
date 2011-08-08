@@ -21,9 +21,6 @@
 
 package org.sakaiproject.dash.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * Realm encapsulates information about sakai authz realms, which define who 
@@ -32,16 +29,63 @@ import lombok.NoArgsConstructor;
  * to a realm to improve the efficiency of updates.
  *
  */
-@Data 
-@NoArgsConstructor
-@AllArgsConstructor
 public class Realm {
 
 	protected Long id;
 	protected String realmId;
 
+	/**
+	 * 
+	 */
+	public Realm() {
+		super();
+	}
+
 	public Realm(String realmId) {
+		super();
 		this.realmId = realmId;
+	}
+
+	/**
+	 * @return the id
+	 */
+	public Long getId() {
+		return id;
+}
+
+	/**
+	 * @return the realmId
+	 */
+	public String getRealmId() {
+		return realmId;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	/**
+	 * @param realmId the realmId to set
+	 */
+	public void setRealmId(String realmId) {
+		this.realmId = realmId;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Realm [id=");
+		builder.append(id);
+		builder.append(", realmId=");
+		builder.append(realmId);
+		builder.append("]");
+		return builder.toString();
 	}
 
 }

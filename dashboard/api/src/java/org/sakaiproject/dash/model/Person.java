@@ -21,22 +21,91 @@
 
 package org.sakaiproject.dash.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * Person encapsulates information about users needed to link sakai users with 
  * dashboard items of interest to them.
  *
  */
-@Data 
-@NoArgsConstructor
-@AllArgsConstructor
 public class Person {
 
 	protected Long id = null;
 	protected String sakaiId;
 	protected String userId;
 
+	/**
+	 * 
+	 */
+	public Person() {
+		super();
+}
+
+	/**
+	 * @param sakaiId
+	 * @param userId
+	 */
+	public Person(String sakaiId, String userId) {
+		super();
+		this.sakaiId = sakaiId;
+		this.userId = userId;
+	}
+
+	/**
+	 * @return the id
+	 */
+	public Long getId() {
+		return id;
+	}
+
+	/**
+	 * @return the sakaiId
+	 */
+	public String getSakaiId() {
+		return sakaiId;
+	}
+
+	/**
+	 * @return the userId
+	 */
+	public String getUserId() {
+		return userId;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	/**
+	 * @param sakaiId the sakaiId to set
+	 */
+	public void setSakaiId(String sakaiId) {
+		this.sakaiId = sakaiId;
+	}
+
+	/**
+	 * @param userId the userId to set
+	 */
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Person [id=");
+		builder.append(id);
+		builder.append(", sakaiId=");
+		builder.append(sakaiId);
+		builder.append(", userId=");
+		builder.append(userId);
+		builder.append("]");
+		return builder.toString();
+	}
+	
 }

@@ -1,6 +1,10 @@
 package org.sakaiproject.dash.logic;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Observer;
+import java.util.Set;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -15,24 +19,52 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
  * Implementation of our SakaiProxy API
  * 
+ * Need to avoid circular references.  This class should not reference 
+ * any classes/interfaces in org.sakaiproject.dash.*.
+ * (is that true?) 
  * 
- *
  */
 public class SakaiProxyImpl implements SakaiProxy {
 
 	private static final Logger logger = Logger.getLogger(SakaiProxyImpl.class);
     
+	/************************************************************************
+	 * SakaiProxy methods
+	 ************************************************************************/
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.SakaiProxy#addLocalEventListener(java.util.Observer)
+	 */
+	public void addLocalEventListener(Observer observer) {
+		this.eventTrackingService.addLocalObserver(observer);
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.SakaiProxy#getConfigParam(java.lang.String, boolean)
+	 */
+	public boolean getConfigParam(String param, boolean dflt) {
+		return serverConfigurationService.getBoolean(param, dflt);
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.SakaiProxy#getConfigParam(java.lang.String, java.lang.String)
+	 */
+	public String getConfigParam(String param, String dflt) {
+		return serverConfigurationService.getString(param, dflt);
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.SakaiProxy#getCurrentSiteId()
@@ -40,6 +72,15 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public String getCurrentSiteId(){
 		return toolManager.getCurrentPlacement().getContext();
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.SakaiProxy#getCurrentUserDisplayName()
+	 */
+	public String getCurrentUserDisplayName() {
+	   return userDirectoryService.getCurrentUser().getDisplayName();
+	}
+	
 	
 	/*
 	 * (non-Javadoc)
@@ -51,26 +92,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	/*
 	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.SakaiProxy#getCurrentUserDisplayName()
+	 * @see org.sakaiproject.dash.logic.SakaiProxy#getEntity(java.lang.String)
 	 */
-	public String getCurrentUserDisplayName() {
-	   return userDirectoryService.getCurrentUser().getDisplayName();
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.SakaiProxy#isSuperUser()
-	 */
-	public boolean isSuperUser() {
-		return securityService.isSuperUser();
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.SakaiProxy#postEvent(java.lang.String, java.lang.String, boolean)
-	 */
-	public void postEvent(String event,String reference,boolean modify) {
-		eventTrackingService.post(eventTrackingService.newEvent(event,reference,modify));
+	public Entity getEntity(String entityReference) {
+		return this.entityManager.newReference(entityReference).getEntity();
 	}
 	
 	/*
@@ -110,15 +135,17 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return site;
 	}
 	
-	/**
- 	* {@inheritDoc}
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.SakaiProxy#getSkinRepoProperty()
  	*/
 	public String getSkinRepoProperty(){
 		return serverConfigurationService.getString("skin.repo");
 	}
 	
-	/**
- 	* {@inheritDoc}
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.SakaiProxy#getToolSkinCSS(java.lang.String)
  	*/
 	public String getToolSkinCSS(String skinRepo){
 		
@@ -131,41 +158,39 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return skinRepo + "/" + skin + "/tool.css";
 	}
 	
-	/**
- 	* {@inheritDoc}
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.SakaiProxy#getUsersWithReadAccess(java.lang.String)
  	*/
-	public boolean getConfigParam(String param, boolean dflt) {
-		return serverConfigurationService.getBoolean(param, dflt);
+	public List<String> getUsersWithReadAccess(String realmId, String accessPermission) {
+		List<String> users = new ArrayList<String>();
+	
+		Collection<String> azGroups = new ArrayList<String>();
+		azGroups.add(realmId);
+		Set<String> sakaiIds = this.authzGroupService.getUsersIsAllowed(accessPermission, azGroups );
+		
+		return new ArrayList<String>(sakaiIds);
 	}
 	
-	/**
- 	* {@inheritDoc}
- 	*/
-	public String getConfigParam(String param, String dflt) {
-		return serverConfigurationService.getString(param, dflt);
-	}
-	
-	/**
-	 * 
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.SakaiProxy#isSuperUser()
 	 */
-	public void addLocalEventListener(Observer observer) {
-		this.eventTrackingService.addLocalObserver(observer);
+	public boolean isSuperUser() {
+		return securityService.isSuperUser();
 	}
 	
-	/**
-	 * 
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.SakaiProxy#postEvent(java.lang.String, java.lang.String, boolean)
 	 */
-	public Entity getEntity(String entityReference) {
-		return this.entityManager.newReference(entityReference).getEntity();
+	public void postEvent(String event,String reference,boolean modify) {
+		eventTrackingService.post(eventTrackingService.newEvent(event,reference,modify));
 	}
 
-	
-	/**
-	 * init - perform any actions required here for when this bean starts up
-	 */
-	public void init() {
-		logger.info("init");
-	}
+	/************************************************************************
+	 * Spring-injected classes
+	 ************************************************************************/
 	
 	@Getter @Setter
 	private ToolManager toolManager;
@@ -193,5 +218,18 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	@Getter @Setter
 	protected AuthzGroupService authzGroupService;
+
+	/************************************************************************
+	 * init() and destroy()
+	 ************************************************************************/
+
+	/**
+	 * init - perform any actions required here for when this bean starts up
+	 */
+	public void init() {
+		logger.info("init");
+}
+	
+
 
 }

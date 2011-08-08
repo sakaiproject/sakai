@@ -21,17 +21,11 @@
 
 package org.sakaiproject.dash.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * NewsLink encapsulates links between news items and users.
  *
  */
-@Data 
-@NoArgsConstructor
-@AllArgsConstructor
 public class NewsLink {
 
 	protected Long id;
@@ -41,5 +35,175 @@ public class NewsLink {
 	protected Realm realm;
 	protected boolean hidden;
 	protected boolean sticky;
+	
+	/**
+	 * 
+	 */
+	public NewsLink() {
+		super();
+}
+
+	/**
+	 * @param person
+	 * @param newsItem
+	 * @param context
+	 * @param realm
+	 * @param hidden
+	 * @param sticky
+	 */
+	public NewsLink(Person person, NewsItem newsItem, Context context,
+			Realm realm, boolean hidden, boolean sticky) {
+		super();
+		this.person = person;
+		this.newsItem = newsItem;
+		this.context = context;
+		this.realm = realm;
+		this.hidden = hidden;
+		this.sticky = sticky;
+	}
+
+	/**
+	 * @param id
+	 * @param person
+	 * @param newsItem
+	 * @param context
+	 * @param realm
+	 * @param hidden
+	 * @param sticky
+	 */
+	public NewsLink(Long id, Person person, NewsItem newsItem, Context context,
+			Realm realm, boolean hidden, boolean sticky) {
+		super();
+		this.id = id;
+		this.person = person;
+		this.newsItem = newsItem;
+		this.context = context;
+		this.realm = realm;
+		this.hidden = hidden;
+		this.sticky = sticky;
+	}
+
+	/**
+	 * @return the id
+	 */
+	public Long getId() {
+		return id;
+	}
+
+	/**
+	 * @return the person
+	 */
+	public Person getPerson() {
+		return person;
+	}
+
+	/**
+	 * @return the newsItem
+	 */
+	public NewsItem getNewsItem() {
+		return newsItem;
+	}
+
+	/**
+	 * @return the context
+	 */
+	public Context getContext() {
+		return context;
+	}
+
+	/**
+	 * @return the realm
+	 */
+	public Realm getRealm() {
+		return realm;
+	}
+
+	/**
+	 * @return the hidden
+	 */
+	public boolean isHidden() {
+		return hidden;
+	}
+
+	/**
+	 * @return the sticky
+	 */
+	public boolean isSticky() {
+		return sticky;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	/**
+	 * @param person the person to set
+	 */
+	public void setPerson(Person person) {
+		this.person = person;
+	}
+
+	/**
+	 * @param newsItem the newsItem to set
+	 */
+	public void setNewsItem(NewsItem newsItem) {
+		this.newsItem = newsItem;
+	}
+
+	/**
+	 * @param context the context to set
+	 */
+	public void setContext(Context context) {
+		this.context = context;
+	}
+
+	/**
+	 * @param realm the realm to set
+	 */
+	public void setRealm(Realm realm) {
+		this.realm = realm;
+	}
+
+	/**
+	 * @param hidden the hidden to set
+	 */
+	public void setHidden(boolean hidden) {
+		this.hidden = hidden;
+	}
+
+	/**
+	 * @param sticky the sticky to set
+	 */
+	public void setSticky(boolean sticky) {
+		this.sticky = sticky;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("NewsLink [id=");
+		builder.append(id);
+		builder.append(", person=");
+		builder.append(person);
+		builder.append(", newsItem=");
+		builder.append(newsItem);
+		builder.append(", context=");
+		builder.append(context);
+		builder.append(", realm=");
+		builder.append(realm);
+		builder.append(", hidden=");
+		builder.append(hidden);
+		builder.append(", sticky=");
+		builder.append(sticky);
+		builder.append("]");
+		return builder.toString();
+	}
+
 	
 }

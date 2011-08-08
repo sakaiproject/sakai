@@ -21,18 +21,12 @@
 
 package org.sakaiproject.dash.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * Context encapsulates all information about sakai sites needed for 
  * dashboard items.
  *
  */
-@Data 
-@NoArgsConstructor
-@AllArgsConstructor
 public class Context {
 	
 	protected Long id;
@@ -40,10 +34,107 @@ public class Context {
 	protected String contextTitle;
 	protected String contextUrl;
 
+	/**
+	 * 
+	 */
+	public Context() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
 	public Context(String contextId, String contextTitle, String contextUrl) {
 		this.contextId = contextId;
 		this.contextTitle = contextTitle;
 		this.contextUrl = contextUrl;
+	}
+
+	/**
+	 * @param id
+	 * @param contextId
+	 * @param contextTitle
+	 * @param contextUrl
+	 */
+	public Context(Long id, String contextId, String contextTitle,
+			String contextUrl) {
+		super();
+		this.id = id;
+		this.contextId = contextId;
+		this.contextTitle = contextTitle;
+		this.contextUrl = contextUrl;
+}
+
+	/**
+	 * @return the id
+	 */
+	public Long getId() {
+		return id;
+	}
+
+	/**
+	 * @return the contextId
+	 */
+	public String getContextId() {
+		return contextId;
+	}
+
+	/**
+	 * @return the contextTitle
+	 */
+	public String getContextTitle() {
+		return contextTitle;
+	}
+
+	/**
+	 * @return the contextUrl
+	 */
+	public String getContextUrl() {
+		return contextUrl;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	/**
+	 * @param contextId the contextId to set
+	 */
+	public void setContextId(String contextId) {
+		this.contextId = contextId;
+	}
+
+	/**
+	 * @param contextTitle the contextTitle to set
+	 */
+	public void setContextTitle(String contextTitle) {
+		this.contextTitle = contextTitle;
+	}
+
+	/**
+	 * @param contextUrl the contextUrl to set
+	 */
+	public void setContextUrl(String contextUrl) {
+		this.contextUrl = contextUrl;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Context [id=");
+		builder.append(id);
+		builder.append(", contextId=");
+		builder.append(contextId);
+		builder.append(", contextTitle=");
+		builder.append(contextTitle);
+		builder.append(", contextUrl=");
+		builder.append(contextUrl);
+		builder.append("]");
+		return builder.toString();
 	}
 
 }

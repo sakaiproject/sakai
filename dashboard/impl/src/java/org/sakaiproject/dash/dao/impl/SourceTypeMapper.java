@@ -26,13 +26,13 @@ public class SourceTypeMapper implements RowMapper {
 	/* (non-Javadoc)
 	 * @see org.springframework.jdbc.core.RowMapper#mapRow(java.sql.ResultSet, int)
 	 */
-	@Override
 	public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
 		
 		// source_type
 		SourceType sourceType = new SourceType();
 		sourceType.setId(rs.getLong("type_id"));
-		sourceType.setSourceType(rs.getString("type_name"));
+		sourceType.setName(rs.getString("type_name"));
+		sourceType.setAccessPermission(rs.getString("type_accessPermission"));
 		
 		
 		return sourceType;

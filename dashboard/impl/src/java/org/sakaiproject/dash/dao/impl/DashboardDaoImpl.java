@@ -63,6 +63,304 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	
 	private PropertiesConfiguration statements;
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#addCalendarItem(org.sakaiproject.dash.model.CalendarItem)
+	 */
+	public boolean addCalendarItem(CalendarItem calendarItem) {
+		if(log.isDebugEnabled()) {
+			log.debug("addCalendarItem( " + calendarItem.toString() + ")");
+}
+		
+		// calendar_time, title , entity_url, entity_ref, source_type, context, realm
+		
+		try {
+			getJdbcTemplate().update(getStatement("insert.CalendarItem"),
+				new Object[]{calendarItem.getCalendarTime(), calendarItem.getTitle(), 
+						calendarItem.getEntityUrl(), calendarItem.getEntityReference(),
+						calendarItem.getSourceType().getId(), calendarItem.getContext().getId(),
+						calendarItem.getRealm().getId()}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("addCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#addCalendarLink(org.sakaiproject.dash.model.CalendarLink)
+	 */
+	public boolean addCalendarLink(CalendarLink calendarLink) {
+		if(log.isDebugEnabled()) {
+			log.debug("addCalendarLink( " + calendarLink.toString() + ")");
+		}
+		
+		//  person_id, item_id, context_id, realm_id
+		
+		try {
+			getJdbcTemplate().update(getStatement("insert.CalendarLink"),
+				new Object[]{calendarLink.getPerson().getId(), calendarLink.getCalendarItem().getId(), 
+						calendarLink.getContext().getId(), calendarLink.getRealm().getId()}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("addCalendarLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#addContext(org.sakaiproject.dash.model.Context)
+	 */
+	public boolean addContext(Context context) {
+		if(log.isDebugEnabled()) {
+			log.debug("addContext( " + context.toString() + ")");
+		}
+		
+		//  context_id, context_url, context_title
+		
+		try {
+			getJdbcTemplate().update(getStatement("insert.Context"),
+				new Object[]{context.getContextId(), context.getContextUrl(), 
+				context.getContextTitle()}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("addContext: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#addNewsItem(org.sakaiproject.dash.model.NewsItem)
+	 */
+	public boolean addNewsItem(NewsItem newsItem) {
+		if(log.isDebugEnabled()) {
+			log.debug("addNewsItem( " + newsItem.toString() + ")");
+		}
+		
+		// news_time, title , entity_url, entity_ref, source_type, context, realm
+		
+		try {
+			getJdbcTemplate().update(getStatement("insert.NewsItem"),
+				new Object[]{newsItem.getNewsTime(), newsItem.getTitle(), 
+						newsItem.getEntityUrl(), newsItem.getEntityReference(),
+						newsItem.getSourceType().getId(), newsItem.getContext().getId(),
+						newsItem.getRealm().getId()}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("addNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#addNewsLink(org.sakaiproject.dash.model.NewsLink)
+	 */
+	public boolean addNewsLink(NewsLink newsLink) {
+		if(log.isDebugEnabled()) {
+			log.debug("addNewsLink( " + newsLink.toString() + ")");
+		}
+		
+		//  person_id, item_id, context_id, realm_id
+		
+		try {
+			getJdbcTemplate().update(getStatement("insert.NewsLink"),
+				new Object[]{newsLink.getPerson().getId(), newsLink.getNewsItem().getId(), 
+						newsLink.getContext().getId(), newsLink.getRealm().getId()}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("addNewsLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#addPerson(org.sakaiproject.dash.model.Person)
+	 */
+	public boolean addPerson(Person person) {
+		if(log.isDebugEnabled()) {
+			log.debug("addPerson( " + person.toString() + ")");
+		}
+		
+		//  user_id,sakai_id
+		
+		try {
+			getJdbcTemplate().update(getStatement("insert.Person"),
+				new Object[]{person.getUserId(), person.getSakaiId()}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("addPerson: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+		return false;
+	}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#addRealm(org.sakaiproject.dash.model.Realm)
+	 */
+	public boolean addRealm(Realm realm) {
+		if(log.isDebugEnabled()) {
+			log.debug("addRealm( " + realm.toString() + ")");
+		}
+		
+		//  realm_id
+		
+		try {
+			getJdbcTemplate().update(getStatement("insert.Realm"),
+				new Object[]{realm.getRealmId()}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("addRealm: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+		return false;
+	}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#addSourceType(org.sakaiproject.dash.model.SourceType)
+	 */
+	public boolean addSourceType(SourceType sourceType) {
+		if(log.isDebugEnabled()) {
+			log.debug("addSourceType( " + sourceType.toString() + ")");
+		}
+		
+		// name
+		
+		try {
+			getJdbcTemplate().update(getStatement("insert.SourceType"),
+				new Object[]{sourceType.getName(), sourceType.getAccessPermission()}
+			
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("addSourceType: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}
+	}
+		
+	/**
+	 * 
+	 */
+	public SourceType getSourceType(String sourceTypeName) {
+		if(log.isDebugEnabled()) {
+			log.debug("getSourceType( " + sourceTypeName + ")");
+		}
+		
+		try {
+			return (SourceType) getJdbcTemplate().queryForObject(getStatement("select.SourceType.by.name"),
+				new Object[]{sourceTypeName},
+				new SourceTypeMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getContext: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return null;
+		}
+	}	
+
+
+	public CalendarItem getCalendarItem(String entityReference) {
+		if(log.isDebugEnabled()) {
+			log.debug("getCalendarItem(" + entityReference + ")");
+		}
+		
+		try {
+			return (CalendarItem) getJdbcTemplate().queryForObject(getStatement("select.CalendarItem.by.entityReference"),
+				new Object[]{entityReference},
+				new CalendarItemMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return null;
+		}
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getContext(long)
+	 */
+	public Context getContext(long id) {
+		if(log.isDebugEnabled()) {
+			log.debug("getContext(" + id + ")");
+		}
+		
+		try {
+			return (Context) getJdbcTemplate().queryForObject(getStatement("select.Context.by.id"),
+				new Object[]{Long.valueOf(id)},
+				new ContextMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getContext: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return null;
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getContext(java.lang.String)
+	 */
+	public Context getContext(String contextId) {
+		if(log.isDebugEnabled()) {
+			log.debug("getContext(" + contextId + ")");
+		}
+		
+		try {
+			return (Context) getJdbcTemplate().queryForObject(getStatement("select.Context.by.contextId"),
+				new Object[]{contextId},
+				new ContextMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getContext: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return null;
+		}
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getPersonBySakaiId(java.lang.String)
+	 */
+	public Person getPersonBySakaiId(String sakaiId) {
+		if(log.isDebugEnabled()) {
+			log.debug("getPersonBySakaiId(" + sakaiId + ")");
+		}
+		
+		try {
+			return (Person) getJdbcTemplate().queryForObject(getStatement("select.Person.by.sakaiId"),
+				new Object[]{sakaiId},
+				new PersonMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getPersonBySakaiId: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return null;
+		}
+	}
+
+	/**
+	 * Get an SQL statement for the appropriate vendor from the bundle
+	
+	 * @param key
+	 * @return statement or null if none found. 
+	 */
+	private String getStatement(String key) {
+		try {
+			return statements.getString(key);
+		} catch (NoSuchElementException e) {
+			log.error("Statement: '" + key + "' could not be found in: " + statements.getFileName());
+			return null;
+		}
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -91,7 +389,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	public List<Thing> getThings() {
 		if(log.isDebugEnabled()) {
 			log.debug("getThings()");
-		}
+}
 		
 		try {
 			return getJdbcTemplate().query(getStatement("select.things"),
@@ -102,28 +400,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            return null;
 		}
 	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@SuppressWarnings("unchecked")
-	public boolean addThing(Thing t) {
-		
-		if(log.isDebugEnabled()) {
-			log.debug("addThing( " + t.toString() + ")");
-		}
-		
-		try {
-			getJdbcTemplate().update(getStatement("insert.thing"),
-				new Object[]{t.getName()}
-			);
-			return true;
-		} catch (DataAccessException ex) {
-           log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return false;
-		}
-	}
-	
+
 	/**
 	 * init
 	 */
@@ -140,28 +417,6 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		boolean autoddl = ServerConfigurationService.getInstance().getBoolean("auto.ddl", true);
 		if(autoddl) {
 			initTables();
-		}
-	}
-	
-	/**
-	 * Sets up our tables
-	 */
-	private void initTables() {
-		try {
-			getJdbcTemplate().execute(getStatement("create.table"));
-			getJdbcTemplate().execute(getStatement("create.Context.table"));
-			getJdbcTemplate().execute(getStatement("create.Person.table"));
-			getJdbcTemplate().execute(getStatement("create.Realm.table"));
-			getJdbcTemplate().execute(getStatement("create.SourceType.table"));
-			getJdbcTemplate().execute(getStatement("create.NewsItem.table"));
-			getJdbcTemplate().execute(getStatement("create.NewsLink.table"));
-			getJdbcTemplate().execute(getStatement("create.CalendarItem.table"));
-			getJdbcTemplate().execute(getStatement("create.CalendarLink.table"));
-			
-			
-		} catch (DataAccessException ex) {
-			log.info("Error creating tables: " + ex.getClass() + ":" + ex.getMessage());
-			return;
 		}
 	}
 	
@@ -185,281 +440,31 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return;
 		}
 	}
-	
+
 	/**
-	 * Get an SQL statement for the appropriate vendor from the bundle
-	
-	 * @param key
-	 * @return statement or null if none found. 
+	 * Sets up our tables
 	 */
-	private String getStatement(String key) {
+	private void initTables() {
 		try {
-			return statements.getString(key);
-		} catch (NoSuchElementException e) {
-			log.error("Statement: '" + key + "' could not be found in: " + statements.getFileName());
-			return null;
+			getJdbcTemplate().execute(getStatement("create.table"));
+			getJdbcTemplate().execute(getStatement("create.Context.table"));
+			getJdbcTemplate().execute(getStatement("create.Person.table"));
+			getJdbcTemplate().execute(getStatement("create.Realm.table"));
+			getJdbcTemplate().execute(getStatement("create.SourceType.table"));
+			getJdbcTemplate().execute(getStatement("create.NewsItem.table"));
+			getJdbcTemplate().execute(getStatement("create.NewsLink.table"));
+			getJdbcTemplate().execute(getStatement("create.CalendarItem.table"));
+			getJdbcTemplate().execute(getStatement("create.CalendarLink.table"));
+			
+			
+		} catch (DataAccessException ex) {
+			log.info("Error creating tables: " + ex.getClass() + ":" + ex.getMessage());
+			return;
 		}
 	}
 
-	/**
-	 * 
-	 */
-	public boolean addCalendarItem(CalendarItem calendarItem) {
-		if(log.isDebugEnabled()) {
-			log.debug("addCalendarItem( " + calendarItem.toString() + ")");
-}
-		
-		// calendar_time, title , entity_url, entity_ref, source_type, context, realm
-		
-		try {
-			getJdbcTemplate().update(getStatement("insert.CalendarItem"),
-				new Object[]{calendarItem.getCalendarTime(), calendarItem.getTitle(), 
-						calendarItem.getEntityUrl(), calendarItem.getEntityReference(),
-						calendarItem.getSourceType().getId(), calendarItem.getContext().getId(),
-						calendarItem.getRealm().getId()}
-			);
-			return true;
-		} catch (DataAccessException ex) {
-           log.error("addCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return false;
-		}
-	}
-
-	/**
-	 * 
-	 */
-	public boolean addCalendarLink(CalendarLink calendarLink) {
-		if(log.isDebugEnabled()) {
-			log.debug("addCalendarLink( " + calendarLink.toString() + ")");
-		}
-		
-		//  person_id, item_id, context_id, realm_id
-		
-		try {
-			getJdbcTemplate().update(getStatement("insert.CalendarLink"),
-				new Object[]{calendarLink.getPerson().getId(), calendarLink.getCalendarItem().getId(), 
-						calendarLink.getContext().getId(), calendarLink.getRealm().getId()}
-			);
-			return true;
-		} catch (DataAccessException ex) {
-           log.error("addCalendarLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return false;
-		}
-	}
-
-	/**
-	 * 
-	 */
-	public boolean addContext(Context context) {
-		if(log.isDebugEnabled()) {
-			log.debug("addContext( " + context.toString() + ")");
-		}
-		
-		//  context_id, context_url, context_title
-		
-		try {
-			getJdbcTemplate().update(getStatement("insert.Context"),
-				new Object[]{context.getContextId(), context.getContextUrl(), 
-				context.getContextTitle()}
-			);
-			return true;
-		} catch (DataAccessException ex) {
-           log.error("addContext: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return false;
-		}
-	}
-
-	/**
-	 * 
-	 */
-	public boolean addNewsItem(NewsItem newsItem) {
-		if(log.isDebugEnabled()) {
-			log.debug("addNewsItem( " + newsItem.toString() + ")");
-		}
-		
-		// news_time, title , entity_url, entity_ref, source_type, context, realm
-		
-		try {
-			getJdbcTemplate().update(getStatement("insert.NewsItem"),
-				new Object[]{newsItem.getNewsTime(), newsItem.getTitle(), 
-						newsItem.getEntityUrl(), newsItem.getEntityReference(),
-						newsItem.getSourceType().getId(), newsItem.getContext().getId(),
-						newsItem.getRealm().getId()}
-			);
-			return true;
-		} catch (DataAccessException ex) {
-           log.error("addNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return false;
-		}
-	}
-
-	/**
-	 * 
-	 */
-	public boolean addNewsLink(NewsLink newsLink) {
-		if(log.isDebugEnabled()) {
-			log.debug("addNewsLink( " + newsLink.toString() + ")");
-		}
-		
-		//  person_id, item_id, context_id, realm_id
-		
-		try {
-			getJdbcTemplate().update(getStatement("insert.NewsLink"),
-				new Object[]{newsLink.getPerson().getId(), newsLink.getNewsItem().getId(), 
-						newsLink.getContext().getId(), newsLink.getRealm().getId()}
-			);
-			return true;
-		} catch (DataAccessException ex) {
-           log.error("addNewsLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return false;
-		}
-	}
-
-	/**
-	 * 
-	 */
-	public boolean addPerson(Person person) {
-		if(log.isDebugEnabled()) {
-			log.debug("addPerson( " + person.toString() + ")");
-		}
-		
-		//  user_id,sakai_id
-		
-		try {
-			getJdbcTemplate().update(getStatement("insert.Person"),
-				new Object[]{person.getUserId(), person.getSakaiId()}
-			);
-			return true;
-		} catch (DataAccessException ex) {
-           log.error("addPerson: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+	public boolean addThing(Thing t) {
+		// TODO Auto-generated method stub
 		return false;
-	}
-	}
-
-	/**
-	 * 
-	 */
-	public boolean addRealm(Realm realm) {
-		if(log.isDebugEnabled()) {
-			log.debug("addRealm( " + realm.toString() + ")");
-		}
-		
-		//  realm_id
-		
-		try {
-			getJdbcTemplate().update(getStatement("insert.Realm"),
-				new Object[]{realm.getRealmId()}
-			);
-			return true;
-		} catch (DataAccessException ex) {
-           log.error("addRealm: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-		return false;
-	}
-	}
-
-	/**
-	 * 
-	 */
-	public boolean addSourceType(SourceType sourceType) {
-		if(log.isDebugEnabled()) {
-			log.debug("addSourceType( " + sourceType.toString() + ")");
-		}
-		
-		// name
-		
-		try {
-			getJdbcTemplate().update(getStatement("insert.SourceType"),
-				new Object[]{sourceType.getSourceType()}
-			);
-			return true;
-		} catch (DataAccessException ex) {
-           log.error("addSourceType: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return false;
-		}
-	}
-		
-	/**
-	 * 
-	 */
-	public SourceType getSourceType(String sourceTypeName) {
-		if(log.isDebugEnabled()) {
-			log.debug("getSourceType( " + sourceTypeName + ")");
-		}
-		
-		try {
-			return (SourceType) getJdbcTemplate().queryForObject(getStatement("select.SourceType.by.sourceType"),
-				new Object[]{sourceTypeName},
-				new SourceTypeMapper()
-			);
-		} catch (DataAccessException ex) {
-           log.error("getContext: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return null;
-		}
-	}	
-
-
-	public CalendarItem getCalendarItem(String entityReference) {
-		if(log.isDebugEnabled()) {
-			log.debug("getCalendarItem(" + entityReference + ")");
-		}
-		
-		try {
-			return (CalendarItem) getJdbcTemplate().queryForObject(getStatement("select.CalendarItem.by.entityReference"),
-				new Object[]{entityReference},
-				new CalendarItemMapper()
-			);
-		} catch (DataAccessException ex) {
-           log.error("getCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return null;
-		}
-
-	}
-	public CalendarItem getCalendarItem(long id) {
-		if(log.isDebugEnabled()) {
-			log.debug("getCalendarItem(" + id + ")");
-		}
-		
-		try {
-			return (CalendarItem) getJdbcTemplate().queryForObject(getStatement("select.CalendarItem.by.id"),
-				new Object[]{Long.valueOf(id)},
-				new CalendarItemMapper()
-			);
-		} catch (DataAccessException ex) {
-           log.error("getCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return null;
-		}
-
-	}
-
-	public Context getContext(String contextId) {
-		if(log.isDebugEnabled()) {
-			log.debug("getContext(" + contextId + ")");
-		}
-		
-		try {
-			return (Context) getJdbcTemplate().queryForObject(getStatement("select.Context.by.contextId"),
-				new Object[]{contextId},
-				new ContextMapper()
-			);
-		} catch (DataAccessException ex) {
-           log.error("getContext: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return null;
-		}
-	}
-	
-	public Context getContext(long id) {
-		if(log.isDebugEnabled()) {
-			log.debug("getContext(" + id + ")");
-		}
-		
-		try {
-			return (Context) getJdbcTemplate().queryForObject(getStatement("select.Context.by.id"),
-				new Object[]{Long.valueOf(id)},
-				new ContextMapper()
-			);
-		} catch (DataAccessException ex) {
-           log.error("getContext: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return null;
-		}
 	}
 }

@@ -39,8 +39,8 @@ public class ThirdPage extends BasePage {
 
 			@Override
 			public void populateItem(final Item item) {
-                final Thing thing = (Thing) item.getModelObject();
-                item.add(new Label("name", thing.getName()));
+                //final Thing thing = (Thing) item.getModelObject();
+                //item.add(new Label("name", thing.getName()));
             }
         };
         dataView.setItemReuseStrategy(new DefaultItemReuseStrategy());
@@ -138,7 +138,7 @@ public class ThirdPage extends BasePage {
 	 */
 	private class DetachableThingModel extends LoadableDetachableModel<Thing>{
 
-		private final long id;
+		private Long id = null;
 		
 		/**
 		 * @param m

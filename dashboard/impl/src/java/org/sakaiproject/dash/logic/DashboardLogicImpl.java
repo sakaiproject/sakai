@@ -23,6 +23,7 @@ package org.sakaiproject.dash.logic;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
@@ -38,6 +39,7 @@ import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.NewsItem;
+import org.sakaiproject.dash.model.Person;
 import org.sakaiproject.dash.model.Realm;
 import org.sakaiproject.dash.model.SourceType;
 import org.sakaiproject.event.api.Event;
@@ -85,11 +87,15 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#createCalendarLinks(org.sakaiproject.dash.model.CalendarItem)
 	 */
 	public void createCalendarLinks(CalendarItem calendarItem) {
-		// TODO Auto-generated method stub
 		if(logger.isDebugEnabled()) {
 			logger.debug("createCalendarLinks(" + calendarItem + ")");
 		}
+		List<String> sakaiIds = this.sakaiProxy.getUsersWithReadAccess(calendarItem.getRealm().getRealmId(), calendarItem.getSourceType().getAccessPermission());
+		for(String sakaiId : sakaiIds) {
+			Person person = dao.getPersonBySakaiId(sakaiId);
 
+	}
+	
 	}
 	
 	public NewsItem createNewsItem(String entityReference, Date newsTime,

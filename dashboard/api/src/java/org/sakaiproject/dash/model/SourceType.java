@@ -21,9 +21,6 @@
 
 package org.sakaiproject.dash.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * SourceType encapsulates information about the types of entities to be
@@ -31,31 +28,99 @@ import lombok.NoArgsConstructor;
  * notifications about them will be rendered .
  *
  */
-@Data 
-@NoArgsConstructor
-@AllArgsConstructor
 public class SourceType {
 
 	protected Long id;
+	protected String name;
+	protected String accessPermission;
+
+	/**
+	 * 
+	 */
+	public SourceType() {
+		super();
+	}
+
+	public SourceType(String name) {
+		super();
+		this.name = name;
+	}
+	
+	/**
+	 * @param name
+	 * @param accessPermission
+	 */
+	public SourceType(String name, String accessPermission) {
+		super();
+		this.name = name;
+		this.accessPermission = accessPermission;
+	}
+
+	/**
+	 * @param id
+	 * @param name
+	 * @param accessPermission
+	 */
+	public SourceType(Long id, String name, String accessPermission) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.accessPermission = accessPermission;
+	}
+
+	/**
+	 * @return the id
+	 */
 	public Long getId() {
 		return id;
 	}
 
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * @return the accessPermission
+	 */
+	public String getAccessPermission() {
+		return accessPermission;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
 	public void setId(Long id) {
 		this.id = id;
 	}
 
-	public String getSourceType() {
-		return source_type;
+	/**
+	 * @param name the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
 	}
 
-	public void setSourceType(String source_type) {
-		this.source_type = source_type;
+	/**
+	 * @param accessPermission the accessPermission to set
+	 */
+	public void setAccessPermission(String accessPermission) {
+		this.accessPermission = accessPermission;
 	}
 
-	protected String source_type;
-
-	public SourceType(String source_type) {
-		this.source_type = source_type;
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("SourceType [id=");
+		builder.append(id);
+		builder.append(", name=");
+		builder.append(name);
+		builder.append("]");
+		return builder.toString();
 	}
 }

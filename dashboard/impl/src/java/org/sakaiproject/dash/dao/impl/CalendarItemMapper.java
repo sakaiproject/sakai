@@ -26,7 +26,6 @@ public class CalendarItemMapper implements RowMapper {
 	/* (non-Javadoc)
 	 * @see org.springframework.jdbc.core.RowMapper#mapRow(java.sql.ResultSet, int)
 	 */
-	@Override
 	public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
 		
 		CalendarItem calendarItem = new CalendarItem();
@@ -37,23 +36,15 @@ public class CalendarItemMapper implements RowMapper {
 		calendarItem.setEntityReference(rs.getString("ci_entity_ref"));
 		
 		// source_type
-		SourceType sourceType = new SourceType();
-		sourceType.setId(rs.getLong("type_id"));
-		sourceType.setSourceType(rs.getString("type_name"));
+		SourceType sourceType = (SourceType) (new SourceTypeMapper()).mapRow(rs, rowNum);
 		calendarItem.setSourceType(sourceType);
 		
 		// context
-		Context context = new Context();
-		context.setId(rs.getLong("site_id"));
-		context.setContextId(rs.getString("site_context_id"));
-		context.setContextTitle(rs.getString("site_context_title"));
-		context.setContextUrl(rs.getString("site_context_url"));
+		Context context = (Context) (new ContextMapper()).mapRow(rs, rowNum);
 		calendarItem.setContext(context);
 		
 		// realm
-		Realm realm = new Realm();
-		realm.setId(rs.getLong("r_id"));
-		realm.setRealmId(rs.getString("r_realm_id"));
+		Realm realm = (Realm) (new RealmMapper()).mapRow(rs, rowNum);
 		calendarItem.setRealm(realm);
 		
 		return calendarItem;

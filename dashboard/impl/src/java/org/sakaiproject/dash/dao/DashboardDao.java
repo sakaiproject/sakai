@@ -83,5 +83,6 @@ public interface DashboardDao {
 
 	public Context getContext(String contextId);
 	
+	public Person getPersonBySakaiId(String sakaiId);
 	
 }
