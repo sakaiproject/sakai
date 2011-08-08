@@ -139,7 +139,7 @@ function resizeiframe(id) {
 					  <div style="margin-left:30px">
 					    <div rsf:id="link-div:" class="link-div">
                                               <img rsf:id="item-icon" height="16" width="16" alt="" style="position:relative; top:3px; margin-right:2px"/>
-					      <a class="itemlink" href="#" rsf:id="link" style="width:36px"><span rsf:id="link-note" class="offscreen"></span><span rsf:id="link-text" class="link-text"></span></a>
+					      <a class="itemlink" href="#" rsf:id="link" style="width:36px"><span rsf:id="link-note" class="offscreen"></span><span rsf:id="link-text" class="link-text itemtext"></span></a>
 					      <span rsf:id="link-button-span" class="navIntraTool" style="background-color:transparent;border:none"><a href="#" class="usebutton" rsf:id="link-button"><span rsf:id="link-button-note" class="offscreen"></span><span rsf:id="link-button-text" class="link-text"></span></a></span>
 					      <span rsf:id="item-group-titles" class="item-group-titles"></span>
 					    </div>
@@ -158,7 +158,7 @@ function resizeiframe(id) {
 					       >
 					    </iframe>
 
-					    <div class="rowdescription" rsf:id="description"></div>
+					    <div class="rowdescription description" rsf:id="description"></div>
 					  </div>
 					  <div style="display:none">
 					    <span rsf:id="current-item-id2" class="current-item-id2"></span>
@@ -179,7 +179,7 @@ function resizeiframe(id) {
 					<td rsf:id="edittext-td" role="gridcell" class="edit-col"><div><a href="#" class="usebutton itemLink" rsf:id="edit-link"></a></div></td>
 					<td rsf:id="itemSpan" role="gridcell">
 					  <div rsf:id="item-groups-titles-text" class="item-group-titles"></div>
-					  <div rsf:id="content"></div>
+					  <div rsf:id="content" class="textbox"></div>
 					</td>
 					<td rsf:id="editmm-td" role="gridcell" class="edit-col"><div><a href="#" class="usebutton multimedia-edit" onclick="return false" rsf:id="iframe-edit"></a></div></td>
 					<td rsf:id="iframeSpan" role="gridcell" class="hideOnDialog"><div>
@@ -294,13 +294,13 @@ function resizeiframe(id) {
 							<div rsf:id="item-group-titles7" class="item-group-titles"></div>
 							<table class="studentContentTable">
 								<tr>
-									<th style="text-align:center;" colspan="4"><span rsf:id="msg=simplepage.student"></span></th>
+									<th style="text-align:center;" colspan="4" class="studentTitle"><span rsf:id="msg=simplepage.student"></span></th>
 								</tr>
 								<tr rsf:id="studentRow:">
 									<td class="imgCell"><img src="$context/images/new-page.png" rsf:id="newPageImg" class="imgCell"></img></td>
 									<td class="imgCell"><img src="$context/images/new-content.png" rsf:id="newContentImg" class="imgCell"></img></td>
 									<td rsf:id="commentsImgCell" class="imgCell"><img src="$context/images/new-comments.png" rsf:id="newCommentsImg" class="imgCell"></img></td>
-									<td rsf:id="studentCell" class="studentCell"><a href="#" rsf:id="studentLink"></a></td>
+									<td rsf:id="studentCell" class="studentCell"><a href="#" rsf:id="studentLink" class="studentLink"></a></td>
 								</tr>
 								
 								<tr rsf:id="linkRow">
