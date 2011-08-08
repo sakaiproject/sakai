@@ -35,8 +35,7 @@ Control what email notifications you receive from connections at My Workspace > 
 &lt;br /&gt;Control what email notifications you receive from connections at My Workspace &gt; ${toolName} &gt; Preferences
 &lt;/p&gt;
 	</htmlMessage>
-	<locale>en</locale>
-	<version>2</version>
+	<version>3</version>
 	<owner>admin</owner>
 	<key>profile2.messageNew</key>
 </emailTemplate>
