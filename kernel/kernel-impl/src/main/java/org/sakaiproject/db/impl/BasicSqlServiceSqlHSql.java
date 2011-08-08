@@ -37,6 +37,7 @@ public class BasicSqlServiceSqlHSql extends BasicSqlServiceSqlDefault
 	/**
 	 * returns whether the sql exception indicates that a record already exists in a table.
 	 */
+	@Override
 	public boolean getRecordAlreadyExists(SQLException ex)
 	{
 		// From HSQLDB src/org/hsqldb/resources/sql-error-messages.properties 
@@ -51,6 +52,7 @@ public class BasicSqlServiceSqlHSql extends BasicSqlServiceSqlDefault
 	 * @param table
 	 *        name of table to read the sequence number from.
 	 */
+	@Override
 	public String getNextSequenceSql(String table)
 	{
 		return "SELECT NEXT VALUE FOR " + table + " FROM DUAL";
@@ -68,6 +70,7 @@ public class BasicSqlServiceSqlHSql extends BasicSqlServiceSqlDefault
 	 * @param pos
 	 *        number of column of bytes field.
 	 */
+	@Override
 	public PreparedStatement setTimestamp(PreparedStatement pstmt, Timestamp timestamp, GregorianCalendar calendar, int pos) throws SQLException
 	{
 		pstmt.setTimestamp(pos, timestamp, null);

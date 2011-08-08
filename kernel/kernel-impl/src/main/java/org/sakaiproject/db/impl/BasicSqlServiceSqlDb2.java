@@ -29,11 +29,13 @@ import java.sql.*;
  */
 public class BasicSqlServiceSqlDb2 extends BasicSqlServiceSqlDefault
 {
+	@Override
    public boolean getRecordAlreadyExists(SQLException ex)
    {
       return ex.getErrorCode() == -803;
    }
-
+   
+   @Override
    public PreparedStatement setNull(PreparedStatement pstmt, int pos) throws SQLException
    {
       // sometimes the type is not detectable, fall back on VARCHAR
@@ -48,7 +50,7 @@ public class BasicSqlServiceSqlDb2 extends BasicSqlServiceSqlDefault
       return pstmt;
    }
 
-
+   @Override
    public PreparedStatement setBytes(PreparedStatement pstmt, byte[] bytes, int pos) throws SQLException {
       Blob blob = new SerialBlob(bytes);
       pstmt.setBinaryStream(pos, blob.getBinaryStream(), (int)blob.length());

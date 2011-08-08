@@ -31,6 +31,7 @@ public class BasicSqlServiceSqlOracle extends BasicSqlServiceSqlDefault
 	/**
 	 * returns whether the the database supports reading and updating blobs.
 	 */
+	@Override
 	public boolean canReadAndUpdateBlob()
 	{
 		return true;
@@ -39,6 +40,7 @@ public class BasicSqlServiceSqlOracle extends BasicSqlServiceSqlDefault
 	/**
 	 * returns whether the sql exception indicates that a record already exists in a table.
 	 */
+	@Override
 	public boolean getRecordAlreadyExists(SQLException ex)
 	{
 		return ex.getErrorCode() == 1;
@@ -50,6 +52,7 @@ public class BasicSqlServiceSqlOracle extends BasicSqlServiceSqlDefault
 	 * @param table
 	 *        name of table to read the sequence number from.
 	 */
+	@Override
 	public String getNextSequenceSql(String table)
 	{
 		return "SELECT " + table + ".NEXTVAL FROM DUAL";

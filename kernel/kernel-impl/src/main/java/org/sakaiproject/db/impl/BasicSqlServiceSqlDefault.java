@@ -127,7 +127,7 @@ public class BasicSqlServiceSqlDefault implements SqlServiceSql
         return false;
     }
 
-	@Override
+	
 	public PreparedStatement prepareAutoColumn(Connection conn, String sql, String autoColumn) throws SQLException
 	{
 		if (autoColumn != null)
@@ -147,7 +147,7 @@ public class BasicSqlServiceSqlDefault implements SqlServiceSql
 	 * 
 	 * {@inheritDoc}
 	 */
-	@Override
+	
 	public Long getGeneratedKey(PreparedStatement pstmt, String sql) throws SQLException
 	{
 		ResultSet keys = pstmt.getGeneratedKeys();

@@ -33,6 +33,7 @@ public class BasicSqlServiceSqlMySql extends BasicSqlServiceSqlDefault
 	/**
 	 * returns a databases representation of the specified java boolean value.
 	 */
+	@Override
 	public String getBooleanConstant(boolean value)
 	{
 		return value ? "true" : "false";
@@ -41,6 +42,7 @@ public class BasicSqlServiceSqlMySql extends BasicSqlServiceSqlDefault
 	/**
 	 * returns whether the sql exception indicates that a record already exists in a table.
 	 */
+	@Override
 	public boolean getRecordAlreadyExists(SQLException ex)
 	{
 		return ex.getErrorCode() == 1062;
@@ -56,6 +58,7 @@ public class BasicSqlServiceSqlMySql extends BasicSqlServiceSqlDefault
 	 * @param pos
 	 *        number of column of bytes field.
 	 */
+	@Override
 	public PreparedStatement setBytes(PreparedStatement pstmt, String var, int pos) throws SQLException
 	{
 		// see http://bugs.sakaiproject.org/jira/browse/SAK-1737
@@ -74,6 +77,7 @@ public class BasicSqlServiceSqlMySql extends BasicSqlServiceSqlDefault
 		return pstmt;
 	}
 
+	@Override
     public boolean isDeadLockError(int errorCode){        
         // perhaps due to a mysql deadlock?
         return (errorCode == 1213);
