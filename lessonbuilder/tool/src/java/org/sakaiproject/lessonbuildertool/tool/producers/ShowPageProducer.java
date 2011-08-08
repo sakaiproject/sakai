@@ -1023,8 +1023,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						}
 
 						item = UIOutput.make(tableRow, "image").decorate(new UIFreeAttributeDecorator("src", i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()))).decorate(new UIFreeAttributeDecorator("alt", imageName));
-						if (lengthOk(height) && lengthOk(width)) {
-							item.decorate(new UIFreeAttributeDecorator("width", width.getOld())).decorate(new UIFreeAttributeDecorator("height", height.getOld()));
+						if (lengthOk(width)) {
+							item.decorate(new UIFreeAttributeDecorator("width", width.getOld()));
+						}
+						
+						if(lengthOk(height)) {
+							item.decorate(new UIFreeAttributeDecorator("height", height.getOld()));
 						}
 
 						// stuff for the jquery dialog
