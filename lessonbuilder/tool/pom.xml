@@ -128,7 +128,7 @@
 	  <groupId>org.etudes.mneme</groupId>
 	  <artifactId>etudes-mneme-api</artifactId> 
           <version>${sakai.mneme.version}</version> 
-	  <scope>provided</scope> 
+	  <scope>${sakai.mneme.scope}</scope> 
 	</dependency> 
 
         <dependency>
