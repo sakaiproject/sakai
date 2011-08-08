@@ -787,6 +787,7 @@ public class SimplePageBean {
 		String id = null;
 		String name = null;
 		String mimeType = null;
+		String description = null;
 
 		if (toolSession.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null && toolSession.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) {
 
@@ -796,7 +797,9 @@ public class SimplePageBean {
 			}
 			Reference ref = (Reference) refs.get(0);
 			id = ref.getId();
-
+			
+			description = ref.getProperties().getProperty(ResourceProperties.PROP_DESCRIPTION);
+			
 			name = ref.getProperties().getProperty("DAV:displayname");
 
 			// URLs are complex. There are two issues:
@@ -887,6 +890,8 @@ public class SimplePageBean {
 				i.setHtml(mimeType);
 			}
 		}
+		
+		i.setDescription(description);
 		i.setSameWindow(false);
 		update(i);
 

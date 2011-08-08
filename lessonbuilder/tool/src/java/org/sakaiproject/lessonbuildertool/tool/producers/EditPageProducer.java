@@ -91,36 +91,37 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 		GeneralViewParameters gparams = (GeneralViewParameters) viewparams;
 
 		if (gparams.getSendingPage() != -1) {
-		    // will fail if page not in this site
-		    // security then depends upon making sure that we only deal with this page
-		    try {
-			simplePageBean.updatePageObject(gparams.getSendingPage());
-		    } catch (Exception e) {
-			System.out.println("EditPage permission exception " + e);
-			return;
-		    }
+			// will fail if page not in this site
+			// security then depends upon making sure that we only deal with this page
+			try {
+				simplePageBean.updatePageObject(gparams.getSendingPage());
+			} catch (Exception e) {
+				System.out.println("EditPage permission exception " + e);
+				return;
+			}
 		}
 
 		SimplePage page = simplePageBean.getCurrentPage();
 
 		Long itemId = gparams.getItemId();
 
-		Collection<String>groups = null;
+		Collection<String> groups = null;
 
 		if (itemId != null && itemId != -1) {
-		    SimplePageItem i = simplePageBean.findItem(itemId);
-		    if (i.getPageId() != page.getPageId()) {
-			System.out.println("EditPage asked to edit item not in current page");
-			return;
-		    }
-		    groups = simplePageBean.getItemGroups(i, null, true);
+			SimplePageItem i = simplePageBean.findItem(itemId);
+			if (i.getPageId() != page.getPageId()) {
+				System.out.println("EditPage asked to edit item not in current page");
+				return;
+			}
+			groups = simplePageBean.getItemGroups(i, null, true);
 		}
-
-   	        String editor = ServerConfigurationService.getString("wysiwyg.editor");
 
 		if (simplePageBean.canEditPage()) {
 			simplePageBean.setItemId(itemId);
 
+			UIOutput.make(tofill, "title-label", messageLocator.getMessage("simplepage.adding-text"));
+			UIOutput.make(tofill, "page-title", simplePageBean.getCurrentPage().getTitle());
+			
 			UIForm form = UIForm.make(tofill, "page_form");
 
 			// Rich Text Input

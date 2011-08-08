@@ -152,7 +152,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private static LessonEntity forumEntity;
 	private static LessonEntity quizEntity;
 	private static LessonEntity assignmentEntity;
-        private static LessonEntity bltiEntity;
+	private static LessonEntity bltiEntity;
 	public MessageLocator messageLocator;
 	private LocaleGetter localegetter;
 	public static final String VIEW_ID = "ShowPage";
