@@ -39,9 +39,7 @@
 						<h:outputText value="&nbsp;" escape="false" rendered="#{!DownloadEventBean.enableExpandOption}"/>
 					</h:panelGroup>
 				</h:panelGrid>
-				
-				<h:outputText value="&nbsp;" escape="false"/>
-				
+								
 				<h:panelGrid columns="1" styleClass="downloadSelection"  rendered="#{DownloadEventBean.meetingsAvailable}">
 					<h:commandButton id="downloadTop"  action="#{DownloadEventBean.startDownload}" value="#{msgs.event_download_button}"  />
 				</h:panelGrid>
@@ -72,7 +70,13 @@
 									<h:outputText value="#{msgs.event_tab_check_all}" escape="false"/>
 								</h:panelGroup>							
 							</f:facet>
-							<h:selectBooleanCheckbox id="selectItem" value="#{wrapper.toDownload}" />
+							<%-- checkbox for top level of recurring meetings --%>
+							<h:panelGroup rendered="#{wrapper.firstOneRecurMeeting && wrapper.recurEventsSize >1}">
+								<h:selectBooleanCheckbox id="selectItemRecur" value="#{wrapper.toDownload}" onclick="checkAllRecurring('#{wrapper.recurId}','#{wrapper.recurEventsSize}');"/>
+							</h:panelGroup>
+							<%-- normal checkbox --%>
+							<h:selectBooleanCheckbox id="selectItem" value="#{wrapper.toDownload}" rendered="#{wrapper.recurEventsSize < 1}" styleClass="#{wrapper.recurId}"/>
+							
 						</t:column>		
 						
 						<t:column defaultSorted="true" sortable="true">
@@ -87,7 +91,7 @@
 		   	    				<h:outputText value="</span>" escape="false" />
 		   	    			
 		   	    				<h:outputText value="<span id='imageClose_RM_#{wrapper.recurId}'>"  escape="false"/>
-		   	    					<h:graphicImage title="#{msgs.event_tool_tips_expand_recur_meeting}" value="/images/plusSmall.gif" styleClass="openCloseImageIcon" alt="close" style="border:none" onclick="showDetails('imageOpen_RM_#{wrapper.recurId}','imageClose_RM_#{wrapper.recurId}');showAllRelatedRecurMeetings('#{wrapper.recurId}','#{DownloadEventBean.iframeId}');"/>
+		   	    					<h:graphicImage value="/images/plusSmall.gif" alt="close" styleClass="openCloseImageIcon" title="#{msgs.event_tool_tips_expand_recur_meeting}"  style="border:none" onclick="showDetails('imageOpen_RM_#{wrapper.recurId}','imageClose_RM_#{wrapper.recurId}');showAllRelatedRecurMeetings('#{wrapper.recurId}','#{DownloadEventBean.iframeId}');"/>
 		   	    				<h:outputText value="</span>" escape="false" />
 		   	    				
 		   	    				<h:outputText value="&nbsp;" escape="false"/>
@@ -354,7 +358,17 @@
 						inputTags[i].checked = value;					
 				}
 
-			}			
+			}
+			
+			// find all of the sub meetings and check each one
+			// no uncheck here as wel want to allow the individual check of the parent meeting
+			function checkAllRecurring(recurRowId, total) {
+				var i=0;
+				while (i<total){					
+					$('.'+recurRowId+'_' +i).attr('checked', true);
+					i++;
+				}
+			}
 
 		</script>
 	</f:verbatim>
