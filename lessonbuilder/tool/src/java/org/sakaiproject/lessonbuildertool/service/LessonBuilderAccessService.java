@@ -368,6 +368,25 @@ public class LessonBuilderAccessService {
 					}
 					
 					// access checks are OK, get the thing
+
+					// first see if it's not in resources, i.e.
+					// if it doesn't start with /access/content it's something odd. redirect to it.
+					// probably resources access control won't apply to it
+					String url = contentHostingService.getUrl(id);					
+					// https://heidelberg.rutgers.edu/access/citation/content/group/24da8519-08c2-4c8c-baeb-8abdfd6c69d7/New%20Citation%20List
+
+					int n = url.indexOf("//");
+					if (n > 0) {
+					    n = url.indexOf("/", n+2);
+					    if (n > 0) {
+						String path = url.substring(n);
+						if (!path.startsWith("/access/content")) {
+						    res.sendRedirect(url);
+						    return;
+						}
+					    }
+					}
+
 					ContentResource resource = null;
 					try {
 						resource = contentHostingService.getResource(id);

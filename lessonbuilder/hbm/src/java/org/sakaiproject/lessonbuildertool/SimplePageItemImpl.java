@@ -345,15 +345,15 @@ public class SimplePageItemImpl implements SimplePageItem  {
     // we display HTML, which by default Sakai doesn't do
 	public String getItemURL(String siteId, String owner) {
 		// Will Update to take type into account when adding more than just resources
+	        // Note that some resources are not stored in resources, e.g.
+	        // Citations, but there's no way to tell that from the id.
+	        // To minimize DB activity, the sakaiid is based solely on
+	        // the resource ID, so even at this point we don't know
+	        // what it really is. The Access handler does the final translation
+	        // no one else should do anything with sakai id's other than
+	        // hand them to Content
 		if (type == 1 || type == 7) {
-		    // for items in the requester's site, use /access/lessonbuilder
-		    // the access code won't allow this for references to other sites
-		    // for security reasons. Also references to user's data for student pages
-		    if ((owner != null && getSakaiId().startsWith("/user/" + owner + "/") ||
-			 getSakaiId().startsWith("/group/" + siteId)))
-			return "/access/lessonbuilder/item/" + getId() + getSakaiId();
-		    else
-			return "/access/content" + getSakaiId();
+		    return "/access/lessonbuilder/item/" + getId() + getSakaiId();
 		} else if (type == 6) {
 			return getSakaiId();
 		} else {
