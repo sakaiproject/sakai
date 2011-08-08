@@ -374,9 +374,29 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return true;
 		} catch (DataAccessException ex) {
            log.error("addSourceType: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-		return false;
+           return false;
+		}
 	}
-}
+		
+	/**
+	 * 
+	 */
+	public SourceType getSourceType(String sourceTypeName) {
+		if(log.isDebugEnabled()) {
+			log.debug("getSourceType( " + sourceTypeName + ")");
+		}
+		
+		try {
+			return (SourceType) getJdbcTemplate().queryForObject(getStatement("select.SourceType.by.sourceType"),
+				new Object[]{sourceTypeName},
+				new SourceTypeMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getContext: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return null;
+		}
+	}	
+
 
 	public CalendarItem getCalendarItem(String entityReference) {
 		if(log.isDebugEnabled()) {

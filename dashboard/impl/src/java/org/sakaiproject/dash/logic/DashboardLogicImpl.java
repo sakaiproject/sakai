@@ -152,7 +152,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 		SourceType sourceType = new SourceType(source_type); 
 		dao.addSourceType(sourceType);
-		return sourceType ;
+		return getSourceType(source_type) ;
 	}
 	
 	public Context getContext(String contextId) {

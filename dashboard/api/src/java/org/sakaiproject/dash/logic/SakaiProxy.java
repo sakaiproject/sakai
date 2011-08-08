@@ -18,9 +18,12 @@ public interface SakaiProxy {
 	public final static String EVENT_ASSIGNMENT_NEW = AssignmentConstants.EVENT_ADD_ASSIGNMENT;
 	
 	public final static String EVENT_CONTENT_NEW = ContentHostingService.EVENT_RESOURCE_ADD;
-	public final static String EVENT_ANNOUNCEMENT_NEW = AnnouncementService.SECURE_ANNC_ADD;
-
+	
 	public final static String EVENT_ANNOUNCEMENT_ROOT =  AnnouncementService.SECURE_ANNC_ROOT;
+	public final static String EVENT_ANNOUNCEMENT_NEW = EVENT_ANNOUNCEMENT_ROOT + AnnouncementService.SECURE_ANNC_ADD;
+	public final static String EVENT_ANNOUNCEMENT_REMOVE_OWN = EVENT_ANNOUNCEMENT_ROOT + AnnouncementService.SECURE_REMOVE_OWN;
+	public final static String EVENT_ANNOUNCEMENT_REMOVE_ANY = EVENT_ANNOUNCEMENT_ROOT + AnnouncementService.SECURE_REMOVE_ANY;
+	
 	/**
 	 * Get current siteid
 	 * @return
