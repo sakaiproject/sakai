@@ -21,19 +21,28 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Setter;
+
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityURLRedirect;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Createable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Redirectable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestAware;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Sampleable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Updateable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
-import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
@@ -50,30 +59,32 @@ import org.sakaiproject.profile2.util.Messages;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
 /**
  * This is the entity provider for a user's profile.
  * 
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
  */
-public class ProfileEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, RESTful, RequestAware {
+public class ProfileEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, Outputable, Updateable, Createable, Inputable, Sampleable, Describeable, Redirectable, ActionsExecutable, RequestAware {
 
 	public final static String ENTITY_PREFIX = "profile";
 	
+	@Override
 	public String getEntityPrefix() {
 		return ENTITY_PREFIX;
 	}
 		
+	@Override
 	public boolean entityExists(String eid) {
 		return true;
 	}
 
+	@Override
 	public Object getSampleEntity() {
 		return new UserProfile();
 	}
 	
+	@Override
 	public Object getEntity(EntityReference ref) {
 	
 		//convert input to uuid
@@ -284,7 +295,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 	}
 
 	
-	
+	@Override
 	public void updateEntity(EntityReference ref, Object entity, Map<String, Object> params) {
 		
 		String userId = ref.getId();
@@ -300,7 +311,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		}	
 	}
 	
-	
+	@Override
 	public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
 		
 		//reference will be the userUuid, which comes from the UserProfile
@@ -611,69 +622,36 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 	
 	
 	
-	
-
-	
-
-	public void deleteEntity(EntityReference ref, Map<String, Object> params) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public List<?> getEntities(EntityReference ref, Search search) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	
-	
-	
-	private RequestGetter requestGetter;
-	public void setRequestGetter(RequestGetter requestGetter) {
-		this.requestGetter = requestGetter;
-	}
-
-	
-	
+	@Override
 	public String[] getHandledOutputFormats() {
 		return new String[] {Formats.HTML, Formats.XML, Formats.JSON};
 	}
 
+	@Override
 	public String[] getHandledInputFormats() {
 		return new String[] {Formats.XML, Formats.JSON, Formats.HTML};
 	}
+
+	
+
+	
+	@Setter
+	private RequestGetter requestGetter;
 	
 	
-	
-	
-	
-	
-		
+	@Setter
 	private SakaiProxy sakaiProxy;
-	public void setSakaiProxy(SakaiProxy sakaiProxy) {
-		this.sakaiProxy = sakaiProxy;
-	}
 	
+	@Setter
 	private ProfileLogic profileLogic;
-	public void setProfileLogic(ProfileLogic profileLogic) {
-		this.profileLogic = profileLogic;
-	}
 	
+	@Setter	
 	private ProfileConnectionsLogic connectionsLogic;
-	public void setConnectionsLogic(ProfileConnectionsLogic connectionsLogic) {
-		this.connectionsLogic = connectionsLogic;
-	}
 	
+	@Setter	
 	private ProfileImageLogic imageLogic;
-	public void setImageLogic(ProfileImageLogic imageLogic) {
-		this.imageLogic = imageLogic;
-	}
-
+	
+	@Setter	
 	private ProfileLinkLogic linkLogic;
-	public void setLinkLogic(ProfileLinkLogic linkLogic) {
-		this.linkLogic = linkLogic;
-	}
 	
-	
-
 }

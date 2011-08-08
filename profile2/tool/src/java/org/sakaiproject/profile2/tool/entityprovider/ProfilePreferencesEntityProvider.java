@@ -16,20 +16,24 @@
 
 package org.sakaiproject.profile2.tool.entityprovider;
 
-import java.util.List;
 import java.util.Map;
+
+import lombok.Setter;
 
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Createable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Sampleable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Updateable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
-import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
-import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.ProfilePreferencesLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.ProfilePreferences;
@@ -40,22 +44,26 @@ import org.sakaiproject.profile2.model.ProfilePreferences;
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
  */
-public class ProfilePreferencesEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
+public class ProfilePreferencesEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, Outputable, Updateable, Createable, Inputable, Sampleable, Describeable {
 	
 	public final static String ENTITY_PREFIX = "profile-preferences";
 	
+	@Override
 	public String getEntityPrefix() {
 		return ENTITY_PREFIX;
 	}
 		
+	@Override
 	public boolean entityExists(String eid) {
 		return true;
 	}
 
+	@Override
 	public Object getSampleEntity() {
 		return new ProfilePreferences();
 	}
 	
+	@Override
 	public Object getEntity(EntityReference ref) {
 	
 		//convert input to uuid
@@ -71,9 +79,7 @@ public class ProfilePreferencesEntityProvider extends AbstractEntityProvider imp
 		return prefs;
 	}
 	
-	
-	
-	
+	@Override
 	public void updateEntity(EntityReference ref, Object entity, Map<String, Object> params) {
 	
 		String userId = ref.getId();
@@ -90,7 +96,7 @@ public class ProfilePreferencesEntityProvider extends AbstractEntityProvider imp
 		
 	}
 	
-	
+	@Override
 	public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
 				
 		//reference will be the userUuid, which comes from the ProfilePreferences obj passed in
@@ -112,33 +118,20 @@ public class ProfilePreferencesEntityProvider extends AbstractEntityProvider imp
 	}
 
 	
-	
-	public void deleteEntity(EntityReference ref, Map<String, Object> params) {
-		// TODO Auto-generated method stub
-	}
-
-	public List<?> getEntities(EntityReference ref, Search search) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+	@Override
 	public String[] getHandledOutputFormats() {
 		return new String[] {Formats.XML, Formats.JSON};
 	}
 
+	@Override
 	public String[] getHandledInputFormats() {
 		return new String[] {Formats.XML, Formats.JSON, Formats.HTML};
 	}
 	
+	@Setter
 	private SakaiProxy sakaiProxy;
-	public void setSakaiProxy(SakaiProxy sakaiProxy) {
-		this.sakaiProxy = sakaiProxy;
-	}
-		
+	
+	@Setter
 	private ProfilePreferencesLogic preferencesLogic;
-	public void setPreferencesLogic(ProfilePreferencesLogic preferencesLogic) {
-		this.preferencesLogic = preferencesLogic;
-	}
-
 
 }

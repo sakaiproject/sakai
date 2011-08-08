@@ -17,7 +17,7 @@ import org.sakaiproject.profile2.util.ProfileConstants;
  *
  */
 public class ProfileEventsEntityProvider extends AbstractEntityProvider implements AutoRegisterEntityProvider, Statisticable, Describeable {
-
+	
     private final static String PREFIX = "profile-events";
     
     private final static String[] EVENT_KEYS = new String[] {
@@ -35,19 +35,22 @@ public class ProfileEventsEntityProvider extends AbstractEntityProvider implemen
 	};
 
    
-    
+    @Override
 	public String getEntityPrefix() {
 		return PREFIX;
 	}
 
+    @Override
 	public String getAssociatedToolId() {
 		return ProfileConstants.TOOL_ID;
 	}
 
+    @Override
 	public String[] getEventKeys() {
 		return EVENT_KEYS;
 	}
 
+    @Override
 	public Map<String, String> getEventNames(Locale locale) {
 		return null;
 	}

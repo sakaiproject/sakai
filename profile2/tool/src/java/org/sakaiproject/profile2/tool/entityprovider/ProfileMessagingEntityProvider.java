@@ -1,20 +1,18 @@
 package org.sakaiproject.profile2.tool.entityprovider;
 
-import java.io.OutputStream;
-import java.util.List;
-import java.util.Map;
+import lombok.Setter;
 
-import org.apache.commons.lang.StringUtils;
-import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Sampleable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
-import org.sakaiproject.entitybroker.entityprovider.search.Search;
-import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.profile2.logic.ProfileMessagingLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
@@ -26,18 +24,21 @@ import org.sakaiproject.profile2.model.ProfilePreferences;
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
  */
-public class ProfileMessagingEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
+public class ProfileMessagingEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, Outputable, Inputable, Sampleable, ActionsExecutable, Describeable {
 	
 	public final static String ENTITY_PREFIX = "profile-message";
 	
+	@Override
 	public String getEntityPrefix() {
 		return ENTITY_PREFIX;
 	}
-		
+	
+	@Override
 	public boolean entityExists(String eid) {
 		return true;
 	}
 
+	@Override
 	public Object getSampleEntity() {
 		return new ProfilePreferences();
 	}
@@ -54,50 +55,20 @@ public class ProfileMessagingEntityProvider extends AbstractEntityProvider imple
 		return new ActionReturn(count);
 	}
 	
-	public Object getEntity(EntityReference ref) {
-		return null;
-	}
-	
-	
-	
-	
-	public void updateEntity(EntityReference ref, Object entity, Map<String, Object> params) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	
-	public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	
-	
-	public void deleteEntity(EntityReference ref, Map<String, Object> params) {
-		// TODO Auto-generated method stub
-	}
-
-	public List<?> getEntities(EntityReference ref, Search search) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+	@Override
 	public String[] getHandledOutputFormats() {
 		return new String[] {Formats.XML, Formats.JSON};
 	}
 
+	@Override
 	public String[] getHandledInputFormats() {
 		return new String[] {Formats.XML, Formats.JSON, Formats.HTML};
 	}
 	
+	@Setter
 	private SakaiProxy sakaiProxy;
-	public void setSakaiProxy(SakaiProxy sakaiProxy) {
-		this.sakaiProxy = sakaiProxy;
-	}
-		
+	
+	@Setter
 	private ProfileMessagingLogic messagingLogic;
-	public void setMessagingLogic(ProfileMessagingLogic messagingLogic) {
-		this.messagingLogic = messagingLogic;
-	}
+	
 }

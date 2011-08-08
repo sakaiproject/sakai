@@ -16,16 +16,15 @@
 
 package org.sakaiproject.profile2.tool.entityprovider;
 
-import java.util.List;
 import java.util.Map;
 
-import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
+import lombok.Setter;
+
+import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityURLRedirect;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
-import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
-import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Redirectable;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.profile2.logic.ProfileLinkLogic;
 
@@ -35,26 +34,14 @@ import org.sakaiproject.profile2.logic.ProfileLinkLogic;
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
  */
-public class ProfileLinkEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, RESTful {
-
+public class ProfileLinkEntityProvider extends AbstractEntityProvider implements EntityProvider, AutoRegisterEntityProvider, Redirectable, Describeable {
+	
 	public final static String ENTITY_PREFIX = "my";
 	
+	@Override
 	public String getEntityPrefix() {
 		return ENTITY_PREFIX;
 	}
-		
-	public boolean entityExists(String eid) {
-		return true;
-	}
-
-	public Object getSampleEntity() {
-		return null;
-	}
-	
-	public Object getEntity(EntityReference ref) {
-		return null;
-	}
-	
 	
 	@EntityURLRedirect("/{prefix}/profile/{userUuid}")
 	public String redirectToUserProfile(Map<String,String> vars) {
@@ -93,38 +80,8 @@ public class ProfileLinkEntityProvider extends AbstractEntityProvider implements
 				vars.get("wallItemId"));
 	}
 	
-	public String[] getHandledOutputFormats() {
-		return new String[] {Formats.HTML};
-	}
-
-	public String[] getHandledInputFormats() {
-		return new String[] {};
-	}
 	
-	public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
-		return null;
-	}
-
-	public void updateEntity(EntityReference ref, Object entity,Map<String, Object> params) {
-	}
-
-	public void deleteEntity(EntityReference ref, Map<String, Object> params) {
-	}
-
-	public List<?> getEntities(EntityReference ref, Search search) {
-		return null;
-	}
-	
+	@Setter
 	private ProfileLinkLogic linkLogic;
-	public void setLinkLogic(ProfileLinkLogic linkLogic) {
-		this.linkLogic = linkLogic;
-	}
 	
-	
-	
-
-	
-	
-	
-
 }
