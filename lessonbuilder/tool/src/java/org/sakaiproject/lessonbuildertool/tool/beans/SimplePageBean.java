@@ -822,7 +822,7 @@ public class SimplePageBean {
 					res.setContentType("text/url");
 					res.setResourceType("org.sakaiproject.content.types.urlResource");
 					url = new String(res.getContent());
-					contentHostingService.commitResource(res);
+					contentHostingService.commitResource(res, NotificationService.NOTI_NONE);
 				} catch (Exception ignore) {
 					return "no-reference";
 				}finally {
@@ -2073,12 +2073,11 @@ public class SimplePageBean {
 
 	    if (resourceId != null) {
 		try {
-		    ContentResourceEdit res = contentHostingService.editResource(resourceId);
-		    if (res.isHidden() == correct)
-			contentHostingService.cancelResource(res);
-		    else {
-			res.setAvailability(correct, res.getReleaseDate(), res.getRetractDate());
-			contentHostingService.commitResource(res);
+		    ContentResource res = contentHostingService.getResource(resourceId);
+		    if (res.isHidden() != correct) {
+			ContentResourceEdit resEdit = contentHostingService.editResource(resourceId);
+			resEdit.setAvailability(correct, resEdit.getReleaseDate(), resEdit.getRetractDate());
+			contentHostingService.commitResource(resEdit, NotificationService.NOTI_NONE);
 		    }
 		} catch (Exception ignore) {}
 	    }
@@ -2649,7 +2648,7 @@ public class SimplePageBean {
 		   }
 		   resource.setGroupAccess(Arrays.asList(groups));
 	       }
-	       contentHostingService.commitResource(resource);
+	       contentHostingService.commitResource(resource, NotificationService.NOTI_NONE);
 	       resource = null;
 
 	   } catch (java.lang.NullPointerException e) {
@@ -2659,8 +2658,13 @@ public class SimplePageBean {
 	       setErrMessage(e.toString());
 	       return null;
 	   } finally {
-	       if (resource != null)
-	    	   contentHostingService.cancelResource(resource);
+	       // this will generate a traceback in the case of KNL-714, but there's no way
+	       // to trap it. Sorry. The log entry will say
+	       // org.sakaiproject.content.impl.BaseContentService - cancelResource(): closed ContentResourceEdit
+	       // the user will also get a warning
+	       if (resource != null) {
+		   contentHostingService.cancelResource(resource);
+	       }
 	       if(pushed) popAdvisor();
 	   }
 
