@@ -3044,15 +3044,51 @@ public class SimplePageBean {
 
 		return "success";
 	}
+	
+	// Adds an existing page as a top level page
+	public String addOldPage() {
+		System.out.println("Adding old page");
+		if (getEditPrivs() != 0)
+		    return "permission-failed";
+		
+		SimplePage target = simplePageToolDao.getPage(Long.valueOf(selectedEntity));
+		if(target != null)
+			addPage(target.getTitle(), target.getPageId(), false);
+		
+		System.out.println("Returning");
+		return "success";
+	}
 
 	public SimplePage addPage(String title, boolean copyCurrent) {
+		return addPage(title, null, copyCurrent);
+	}
+	
+	public SimplePage addPage(String title, Long pageId, boolean copyCurrent) {
 
 		Site site = getCurrentSite();
 		SitePage sitePage = site.addPage();
 
 		ToolConfiguration tool = sitePage.addTool(LESSONBUILDER_ID);
-		tool.setTitle(title);
 		String toolId = tool.getPageId();
+		
+		SimplePage page = null;
+		
+		if(pageId == null) {
+			page = simplePageToolDao.makePage(toolId, getCurrentSiteId(), title, null, null);
+			saveItem(page);
+		}else {
+			page = simplePageToolDao.getPage(pageId);
+			page.setToolId(toolId);
+			page.setParent(null);
+			page.setTopParent(null);
+			update(page);
+			title = page.getTitle();
+		}
+
+		tool.setTitle(title);
+		
+		SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, Long.toString(page.getPageId()), title);
+		saveItem(item);
 
 		sitePage.setTitle(title);
 		sitePage.setTitleCustom(true);
@@ -3063,27 +3099,23 @@ public class SimplePageBean {
 		}
 		currentSite = null; // force refetch, since we've changed it
 
-		SimplePage page = simplePageToolDao.makePage(toolId, getCurrentSiteId(), title, null, null);
-		saveItem(page);
-
-		SimplePageItem item = simplePageToolDao.makeItem(0, 0, SimplePageItem.PAGE, Long.toString(page.getPageId()), title);
-		saveItem(item);
-
 	    if (copyCurrent) {
-		long oldPageId = getCurrentPageId();
-		long newPageId = page.getPageId();
-		for (SimplePageItem oldItem: simplePageToolDao.findItemsOnPage(oldPageId)) {
-		    // don't copy pages. It's not clear whether we want to deep copy or
-		    // not. If we do the wrong thing the user coudl end up editing the
-		    // wrong page and losing content.
-		    if (oldItem.getType() == SimplePageItem.PAGE)
-			continue;
-		    SimplePageItem newItem = simplePageToolDao.copyItem(oldItem);
-		    newItem.setPageId(newPageId);
-		    saveItem(newItem);
-		}
+	    	long oldPageId = getCurrentPageId();
+	    	long newPageId = page.getPageId();
+	    	for (SimplePageItem oldItem: simplePageToolDao.findItemsOnPage(oldPageId)) {
+	    		// don't copy pages. It's not clear whether we want to deep copy or
+	    		// not. If we do the wrong thing the user coudl end up editing the
+	    		// wrong page and losing content.
+	    		if (oldItem.getType() == SimplePageItem.PAGE)
+	    			continue;
+	    		SimplePageItem newItem = simplePageToolDao.copyItem(oldItem);
+	    		newItem.setPageId(newPageId);
+	    		saveItem(newItem);
+	    	}
 	    }
 
+	    setTopRefresh();
+	    
 	    return page;
 	}
 

@@ -45,6 +45,7 @@ public class GeneralViewParameters extends SimpleViewParameters {
 	private String returnView = "";
 	private String recheck = "";
 	private String backPath = "";
+	public boolean newTopLevel = false; // For page picker, whether this should be a new top level or subpage
 	
 	public int addTool = -1;
 	public boolean postedComment = false;
