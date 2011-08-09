@@ -447,9 +447,10 @@ function printPreview(target){
 							</a>
 							</th>
 						#end
-						<th id="remove" class="screenOnly" align="center">
-							$tlang.getString("sitegen.siteinfolist.remove")
+						<th id="remove" class="screenOnly attach" align="center" >
+							
 							<input type="checkbox" name="toggleAllSelected" value="" id="toggleAllSelected" onclick="javascript:toggleSelectAll(this, 'selectedUser')" title="$tlang.getString('check.all')"/>
+							<label for="toggleAllSelected">$tlang.getString("check.all")</label>
 						</th>
 					#end
 				</tr>
@@ -536,14 +537,13 @@ function printPreview(target){
 								#if ($participant.isRemoveable())
 									## if in My Workspace site, cannot move the site user from it
 									#if (!$!isMyWorkspace || ($!isMyWorkspace && !$uniqname.equals($!siteUserId)))
-									<label  for="remove_$uniqname"><span class="skip">$tlang.getString("sitegen.siteinfolist.remove") $participant.getDisplayId()</span> &nbsp;&nbsp;&nbsp;<input type="checkbox" name="selectedUser" value="$uniqname" id="remove_$uniqname"
+									<label  for="remove_$uniqname"><span class="skip">$tlang.getString("sitegen.siteinfolist.remove") $participant.getDisplayId()</span></label><input type="checkbox" name="selectedUser" value="$uniqname" id="remove_$uniqname"
 											#foreach($participantSelected in $selectedParticipants)
 												#if($participantSelected.getUniqname() == $uniqname)
 													checked="checked" 
 												#end
 											#end
 										/>
-										&nbsp;&nbsp;&nbsp;</label>
 									#end
 								#end
 							</td>
