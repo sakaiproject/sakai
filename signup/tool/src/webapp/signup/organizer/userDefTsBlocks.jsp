@@ -12,7 +12,8 @@
 				@import url("/sakai-signup-tool/css/signupStyle.css");
 			</style>
 			<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/signupScript.js"></script>
-		
+			<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/jquery.js"></script>	
+				
 		<sakai:view_content>
 			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>      			
 				
@@ -79,8 +80,7 @@
 											<h:outputText value="#{msgs.tab_max_participants}" escape="false"/>
 									</f:facet>
 										<h:panelGroup styleClass="titleText" >
-							        			<h:inputText id="numOfAtt" value="#{tsWrapper.timeSlot.maxNoOfAttendees}" styleClass="editText" size="2" style="margin-left:12px;margin-top:6px;" 
-							        				onkeyup="validateMaxParticipants('#{tsWrapper.positionInTSlist}');return false;" />
+							        		<h:inputText id="numOfAtt" value="#{tsWrapper.timeSlot.maxNoOfAttendees}" styleClass="editText numericOnly ranged notblank" size="2" style="margin-left:12px;margin-top:6px;" />
 										</h:panelGroup>
 							</t:column>
 					    </t:dataTable>
@@ -151,15 +151,7 @@
 					  	setTimeout("wait=false;", 1500);//1.5 sec
 					}			
 			}
-							
-			var prev_attendeeNum=1;//default
-			function validateMaxParticipants(pos){
-				var maxAttnRowTag = document.getElementById(prefix + pos + ':numOfAtt');
-				if(maxAttnRowTag){
-					prev_attendeeNum = signup_ValidateNumber(prev_attendeeNum,maxAttnRowTag,500);
-				}
-
-			}
+			
 			//JSF issue for onclick, this goes around 
 			function confirmTsCancel(link,msg){
 				if (link.onclick == confirmDelete) {
@@ -177,7 +169,60 @@
 				  } else {
 				    return false;
 				  }
-			}			
+			}	
+			
+			$(document).ready(function() {
+				
+				var MIN_ATTENDEES = 1;
+				var MAX_ATTENDEES = 500;
+			    
+				/**
+				* check input is only numeric
+				*/
+				$(".numericOnly").keydown(function(event) {
+			        // Allow only backspace and delete
+			        if ( event.keyCode == 46 || event.keyCode == 8 ) {
+			            // let it happen, don't do anything
+			        }
+			        else {
+			            // Ensure that it is a number and stop the keypress
+			            if (event.keyCode < 48 || event.keyCode > 57 ) {
+			                event.preventDefault(); 
+			            }   
+			        }
+			    });
+				
+				/*
+				* check the range of a field after it has been input, and set it to default if out of range
+				* Don't do it if it's blank though as that is handled separately.
+				*/
+				$(".ranged").keyup(function(event) {
+					
+					var n = $(this).val();
+					
+					if(n.length>0 && (n < MIN_ATTENDEES || n > MAX_ATTENDEES)) {
+						alert("The number of attendees must be between " + MIN_ATTENDEES + " and " + MAX_ATTENDEES + ".");
+						$(this).val(MIN_ATTENDEES);
+					}
+					
+				});
+				
+				/*
+				* check if a form field is blank. if it is, set to default
+				*/
+				
+				$(".notblank").blur(function(event) {
+					
+					var n = $(this).val();
+					
+					if(n == '') {
+						$(this).val(MIN_ATTENDEES);
+					}
+					
+				});
+				
+				
+			});
 	
 		</script>
 	</f:verbatim>
