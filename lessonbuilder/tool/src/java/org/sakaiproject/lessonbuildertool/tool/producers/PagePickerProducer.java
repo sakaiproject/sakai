@@ -226,6 +226,11 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		} else {
 			UIOutput.make(tofill, "title", messageLocator.getMessage("simplepage.page.chooser"));
 		}
+		
+		// Explain which pages may be deleted
+		if(summaryPage && canEditPage) {
+			UIOutput.make(tofill, "deleteAlert");
+		}
 
 		// this looks at pages in the site, which should be safe
 		// but need to make sure the item we update is legal
