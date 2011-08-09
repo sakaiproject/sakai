@@ -99,8 +99,8 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
     	Collection<Member> groupMembers = new Vector<Member>();
     	// group provider id
     	String groupProviderId = null;
-    	// group role provider id
-    	String groupRoleProviderId = null;
+    	// list of group role provider ids
+    	List<String> groupRoleProviderRoles = null;
     	
     	UIForm groupForm = UIForm.make(arg0, "groups-form");
 
@@ -115,7 +115,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
     			 groupDescription = g.getDescription();
     			 groupMembers = g.getMembers();
     			 groupProviderId = g.getProviderGroupId();
-    			 groupRoleProviderId = g.getProperties().getProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID);
+    			 groupRoleProviderRoles = handler.getGroupProviderRoles(g);
     		 }
     		 catch (Exception e)
     		 {
@@ -171,7 +171,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 		 for (Role role:siteRoles)
 		 {
 			 // not include in the group yet
-			 if (groupRoleProviderId == null || !groupRoleProviderId.contains(role.getId()))
+			 if (groupRoleProviderRoles == null || !groupRoleProviderRoles.contains(role.getId()))
 			 {
 				 siteMemberLabels[i] = ROLE_PREFIX + role.getId();
 				 siteMemberValues[i] = role.getId();
