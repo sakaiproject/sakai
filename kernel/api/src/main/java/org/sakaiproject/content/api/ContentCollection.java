@@ -23,8 +23,6 @@ package org.sakaiproject.content.api;
 
 import java.util.List;
 
-import org.sakaiproject.content.api.ContentEntity;
-import org.sakaiproject.content.api.GroupAwareEntity;
 import org.sakaiproject.time.api.Time;
 
 /**
