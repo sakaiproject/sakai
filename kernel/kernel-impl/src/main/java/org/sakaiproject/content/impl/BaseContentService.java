@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -9991,10 +9992,19 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			return m_releaseDate;
 		}
 
+		public Date getReleaseTime()
+		{
+			return new Date(m_releaseDate.getTime());
+		}
+		
 		public Time getRetractDate()
 		{
-			// TODO Auto-generated method stub
 			return m_retractDate;
+		}
+		
+		public Date getRetractTime()
+		{
+			return new Date(m_retractDate.getTime());
 		}
 
 		public boolean isAvailable() 
@@ -10059,6 +10069,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			m_hidden = false;
 		}
 
+		public void setReleaseTime(Date date)
+		{
+			setReleaseDate(timeService.newTime(date.getTime()));
+		}
+		
 		public void setRetractDate(Time time)
 		{
 			if(time == null)
@@ -10072,6 +10087,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			m_hidden = false;
 		}
 
+		public void setRetractTime(Date time)
+		{
+			setRetractDate(timeService.newTime(time.getTime()));
+		}
+		
 		public void setAvailability(boolean hidden, Time releaseDate, Time retractDate) 
 		{
 			m_hidden = hidden;

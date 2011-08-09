@@ -21,6 +21,7 @@
 
 package org.sakaiproject.content.api;
 
+import java.util.Date;
 import java.util.List;
 
 import org.sakaiproject.time.api.Time;
@@ -65,6 +66,7 @@ public interface ContentCollection
 	 * Access the release date before which this entity should not be available to users 
 	 * except those with adequate permission (what defines "adequate permission" is TBD).
 	 * @return The date/time at which the entity may be accessed by all users.
+	 * @deprecated use {{@link #getReleaseTime()}
 	 */
 	public Time getReleaseDate();
 	
@@ -72,9 +74,24 @@ public interface ContentCollection
 	 * Access the retract date after which this entity should not be available to users 
 	 * except those with adequate permission (what defines "adequate permission" is TBD).
 	 * @return The date/time at which access to the entity should be restricted.
+	 * @deprecated use {{@link #getRetractTime()}
 	 */
 	public Time getRetractDate();
 	
+	/**
+	 * Access the release date before which this entity should not be available to users 
+	 * except those with adequate permission (what defines "adequate permission" is TBD).
+	 * @return The date/time at which the entity may be accessed by all users.
+	 */
+	public Date getReleaseTime();
+	
+	
+	/**
+	 * Access the retract date after which this entity should not be available to users 
+	 * except those with adequate permission (what defines "adequate permission" is TBD).
+	 * @return The date/time at which access to the entity should be restricted.
+	 */
+	public Date getRetractTime();
 }	// ContentCollection
 
 

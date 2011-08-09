@@ -22,6 +22,7 @@
 package org.sakaiproject.content.impl.test;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -268,6 +269,20 @@ public class MockContentEntity implements ContentEntity, GroupAwareEdit
 	{
 		return this.retractDate;
 	}
+	
+	
+	
+	public Date getReleaseTime() {
+		
+		return new Date(this.releaseDate.getTime());
+	}
+
+	
+	public Date getRetractTime() {
+		return new Date(this.getRetractDate().getTime());
+	}
+
+
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.GroupAwareEntity#isAvailable()
