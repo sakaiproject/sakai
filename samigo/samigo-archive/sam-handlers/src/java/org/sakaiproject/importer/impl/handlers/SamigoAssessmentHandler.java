@@ -74,7 +74,7 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 		AssessmentFacade assessment = null;
 		try {
 			assessment = as.createAssessmentWithoutDefaultSection(
-					importAssessment.getTitle(), importAssessment.getDescription(), SamigoAssessmentHandler.QUIZ_TYPE, SamigoAssessmentHandler.QUIZ_TEMPLATE);
+					importAssessment.getTitle(), importAssessment.getDescription(), SamigoAssessmentHandler.QUIZ_TYPE, SamigoAssessmentHandler.QUIZ_TEMPLATE, siteId);
 			AssessmentData data = new AssessmentData(new Long(SamigoAssessmentHandler.QUIZ_TEMPLATE), importAssessment.getTitle(), new Date());
 			data.setTypeId(new Long(SamigoAssessmentHandler.QUIZ_TYPE));
 			data.setTitle(importAssessment.getTitle());
@@ -88,14 +88,14 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 			data.setIsTemplate(new Boolean(false));
 			data.setCreatedDate(new Date());
 			Set questionItems = new HashSet();
-			questionItems.addAll(doQuestions(importAssessment.getEssayQuestions()));
-			questionItems.addAll(doQuestions(importAssessment.getFillBlankQuestions()));
-			questionItems.addAll(doQuestions(importAssessment.getMatchQuestions()));
-			questionItems.addAll(doQuestions(importAssessment.getMultiAnswerQuestions()));
-			questionItems.addAll(doQuestions(importAssessment.getMultiChoiceQuestions()));
+			questionItems.addAll(doQuestions(importAssessment.getEssayQuestions(), siteId));
+			questionItems.addAll(doQuestions(importAssessment.getFillBlankQuestions(), siteId));
+			questionItems.addAll(doQuestions(importAssessment.getMatchQuestions(), siteId));
+			questionItems.addAll(doQuestions(importAssessment.getMultiAnswerQuestions(), siteId));
+			questionItems.addAll(doQuestions(importAssessment.getMultiChoiceQuestions(), siteId));
 			// Samigo doesn't have native support for ordering questions. Maybe there's a workaround?
 			// questionItems.addAll(doQuestions(importPool.getOrderingQuestions()));
-			questionItems.addAll(doQuestions(importAssessment.getTrueFalseQuestions()));
+			questionItems.addAll(doQuestions(importAssessment.getTrueFalseQuestions(), siteId));
 			
 			Set sectionSet = new HashSet();
 			SectionFacade section = new SectionFacade();
@@ -137,7 +137,7 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 		}
 	}
 	
-	private Collection doQuestions(List questions) {
+	private Collection doQuestions(List questions, String siteId) {
 		AssessmentQuestion importableQuestion;
 		AssessmentAnswer importableAnswer;
 		AssessmentAnswer importableChoice;
@@ -157,7 +157,7 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 			Set correctAnswerIDs = importableQuestion.getCorrectAnswerIDs();
 			itemFacade = new ItemFacade();
 			textSet = new HashSet();
-			questionTextString = contextualizeUrls(importableQuestion.getQuestionText());
+			questionTextString = contextualizeUrls(importableQuestion.getQuestionText(), siteId);
 			if (importableQuestion.getQuestionType() == SamigoPoolHandler.MATCHING) {
 				itemFacade.setInstruction(questionTextString);
 				Collection answers = importableQuestion.getAnswers().values();
@@ -168,7 +168,7 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 					text = new ItemText();
 					text.setSequence(new Long(answerIndex));
 					answerIndex++;
-					text.setText(contextualizeUrls(importableAnswer.getAnswerText()));
+					text.setText(contextualizeUrls(importableAnswer.getAnswerText(), siteId));
 					answerSet = new HashSet();
 					int choiceIndex = 1;
 					for (Iterator k = choices.iterator();k.hasNext();) {
@@ -180,7 +180,7 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 						choiceIndex++;
 						// set label A, B, C, D, etc. on answer based on its sequence number
 						answer.setLabel(new Character((char)(64 + choiceIndex)).toString());
-						answer.setText(contextualizeUrls(importableChoice.getAnswerText()));
+						answer.setText(contextualizeUrls(importableChoice.getAnswerText(), siteId));
 						answer.setIsCorrect(new Boolean(importableAnswer.getChoiceId().equals(importableChoice.getAnswerId())));
 						answerSet.add(answer);
 					}
@@ -222,7 +222,7 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 						text.setText(questionTextString);
 						answer.setSequence(new Long(1));
 					} else {
-						answer.setText(contextualizeUrls(importableAnswer.getAnswerText()));
+						answer.setText(contextualizeUrls(importableAnswer.getAnswerText(), siteId));
 					}
 					
 					answer.setIsCorrect(new Boolean(correctAnswerIDs.contains(answerId)));
@@ -253,12 +253,12 @@ public class SamigoAssessmentHandler implements HandlesImportable {
 		
 	}
 	
-	protected String contextualizeUrls(String text) {
+	protected String contextualizeUrls(String text, String siteId) {
 		if (text == null) return null;
 		// this regular expression is specifically looking for image urls
 		// but only urls that are not absolute (i.e., do not start "http")
 		String anyRelativeUrl = "src=\"(?!http)/?";
 		return text.replaceAll(anyRelativeUrl, "src=\"/access/content/group/" 
-				+ ToolManager.getCurrentPlacement().getContext() + "/TQimages/"); 	        } 
+				+ siteId + "/TQimages/"); 	        } 
 
 }
