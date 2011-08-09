@@ -542,7 +542,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 
 	protected void setPageCategory()
 	{
-		m_page.setupPageCategory(m_toolId);
+		if (m_page != null) m_page.setupPageCategory(m_toolId);
 	}
 
 	/**

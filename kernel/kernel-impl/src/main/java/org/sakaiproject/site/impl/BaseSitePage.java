@@ -677,9 +677,11 @@ public class BaseSitePage implements SitePage, Identifiable
 	public void setupPageCategory(String toolId)
 	{
 		String defaultCategory = null;
-		Map<String, String> toolCategories = ServerConfigurationService
-				.getToolToCategoryMap(m_site.getType());
-		defaultCategory = toolCategories.get(toolId);
+		if (m_site != null) {
+			Map<String, String> toolCategories = ServerConfigurationService
+					.getToolToCategoryMap(m_site.getType());
+			defaultCategory = toolCategories.get(toolId);
+		}
 		if (getProperties().get(PAGE_CATEGORY_PROP) == null && defaultCategory != null)
 		{
 			getProperties().addProperty(PAGE_CATEGORY_PROP, defaultCategory);
