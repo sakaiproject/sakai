@@ -428,6 +428,10 @@ public class MockContentEntity implements ContentEntity, GroupAwareEdit
 		this.releaseDate = TimeService.newTime(time.getTime());
 	}
 
+	public void setReleaseTime(Date time) 
+	{
+		this.releaseDate = TimeService.newTime(time.getTime());
+	}
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.GroupAwareEdit#setResourceType(java.lang.String)
 	 */
@@ -440,6 +444,11 @@ public class MockContentEntity implements ContentEntity, GroupAwareEdit
 	 * @see org.sakaiproject.content.api.GroupAwareEdit#setRetractDate(org.sakaiproject.time.api.Time)
 	 */
 	public void setRetractDate(Time time)
+	{
+		this.retractDate = TimeService.newTime(time.getTime());
+	}
+	
+	public void setRetractTime(Date time)
 	{
 		this.retractDate = TimeService.newTime(time.getTime());
 	}
