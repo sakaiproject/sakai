@@ -15,3 +15,8 @@ INSERT INTO SAM_TYPE_T ("TYPEID" ,"AUTHORITY" ,"DOMAIN" ,"KEYWORD",
     "LASTMODIFIEDDATE" )
     VALUES (13 , 'stanford.edu' ,'assessment.item' ,'Matrix Choices Survey' ,NULL ,1 ,1 ,
     SYSDATE ,1 ,SYSDATE);   
+    
+-- SAM-1255    
+Update SAM_ASSESSEVALUATION_T
+Set ANONYMOUSGRADING = 2
+WHERE ASSESSMENTID = (Select ID from SAM_ASSESSMENTBASE_T where TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1)    
