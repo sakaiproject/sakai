@@ -34,8 +34,8 @@ should be included in file importing DeliveryMessages
   	<h:outputText escape="false" value="#{question.itemData.score} #{authorMessages.points_lower_case}" />
   	<h:outputText value="<br />" escape="false" />
     <h:outputLabel value="#{printMessages.answer_model}: "/>
-    <h:outputText rendered="#{question.key != null && question.key != ''}" escape="false" value="#{question.key}" />
-    <h:outputText rendered="#{question.key == null || question.key == ''}" escape="false" value="--------" />
+    <h:outputText rendered="#{question.key != null && question.key != '' && question.key != 'null'}" escape="false" value="#{question.key}" />
+    <h:outputText rendered="#{question.key == null || question.key == '' || question.key == 'null'}" escape="false" value="--------" />
     <f:verbatim><br/></f:verbatim>
   </h:panelGroup>
   

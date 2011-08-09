@@ -467,7 +467,7 @@ public class PDFAssessmentBean implements Serializable {
 					item.getItemData().getTypeId().equals(TypeIfc.MATCHING))
 				contentBuffer.append(item.getKey());
 			else if (item.getItemData().getTypeId().equals(TypeIfc.ESSAY_QUESTION)) {
-				if (item.getKey() != null && !item.getKey().equals(""))
+				if (item.getKey() != null && !item.getKey().equals("") && !item.getKey().equals("null"))
 					contentBuffer.append(item.getKey());
 				else
 					contentBuffer.append("--------");
