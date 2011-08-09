@@ -248,8 +248,14 @@ public class PDFAssessmentBean implements Serializable {
 
 		PrintSettingsBean printSetting = (PrintSettingsBean) ContextUtil.lookupBean("printSettings");
 
-		if (printSetting.getShowPartIntros().booleanValue() && deliveryBean.getInstructorMessage() != null)
-			setIntro(deliveryBean.getInstructorMessage());
+		if (printSetting.getShowPartIntros().booleanValue()) {
+			if (deliveryBean.getInstructorMessage() != null || "null".equals((deliveryBean.getInstructorMessage()))) {
+				setIntro(deliveryBean.getInstructorMessage());
+			}
+			else {
+				setIntro("");
+			}
+		}
 
 		ArrayList pdfParts = new ArrayList();
 
