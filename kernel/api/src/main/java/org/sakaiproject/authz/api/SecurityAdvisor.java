@@ -23,8 +23,13 @@ package org.sakaiproject.authz.api;
 
 /**
  * <p>
- * SecurityAdvisor is a stackable policy process that is given a chance to determine if a security question can be answered, over the logic of the SecurityService component.
+ * SecurityAdvisor is a stackable policy process that is given a chance to determine if a security
+ * question can be answered,over the logic of the SecurityService component. The advisors at the 
+ * top of the stack are consulted first (added last).
  * </p>
+ * @see SecurityService#pushAdvisor(SecurityAdvisor)
+ * @see SecurityService#popAdvisor(SecurityAdvisor)
+ * @see SecurityService#hasAdvisors()
  */
 public interface SecurityAdvisor
 {
