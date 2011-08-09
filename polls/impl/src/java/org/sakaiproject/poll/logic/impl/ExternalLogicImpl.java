@@ -639,7 +639,7 @@ public class ExternalLogicImpl implements ExternalLogic {
 	
 	public boolean isMobileBrowser() {
 		Session session = sessionManager.getCurrentSession();
-		if (session.getAttribute("is_wireless_device") != null && !((Boolean) session.getAttribute("is_wireless_device")).booleanValue()) {
+		if (session.getAttribute("is_wireless_device") != null && ((Boolean) session.getAttribute("is_wireless_device")).booleanValue()) {
 			return true;
 		}
 		return false;
