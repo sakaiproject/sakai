@@ -58,7 +58,9 @@ public class AnnouncementEventProcessor implements EventProcessor {
 		
 		String eventId = event.getEvent();
 		
-		String proxyString = SakaiProxy.EVENT_ANNOUNCEMENT_REMOVE_OWN;
+		String proxyStringNew = SakaiProxy.EVENT_ANNOUNCEMENT_NEW;
+		
+		String proxyStringRemove = SakaiProxy.EVENT_ANNOUNCEMENT_REMOVE_OWN;
 		
 		if (SakaiProxy.EVENT_ANNOUNCEMENT_NEW.equals(eventId))
 		{
@@ -88,7 +90,7 @@ public class AnnouncementEventProcessor implements EventProcessor {
 			logger.debug("process " + this.getEventIdentifer() + " event for entityReference " + event.getResource());
 		} else {
 			// for now, let's log the error
-			logger.warn("Error trying to process " + this.getEventIdentifer() + " event for entityReference " + event.getResource());
+			logger.info(eventId + " is not processed for entityReference " + event.getResource());
 		}
 	}
 
