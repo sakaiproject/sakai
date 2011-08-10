@@ -410,7 +410,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 
 		    UIInput.make(form, "item-id", "#{simplePageBean.itemId}");
 
-		    if (itemId == -1) {
+		    if (itemId == -1 && !((GeneralViewParameters) viewparams).newTopLevel) {
 		    	UIOutput.make(form, "hr");
 		    	UIOutput.make(form, "options");
 		    	UIBoundBoolean.make(form, "subpage-next", "#{simplePageBean.subpageNext}", false);

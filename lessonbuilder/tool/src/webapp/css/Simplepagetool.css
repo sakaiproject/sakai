@@ -261,3 +261,24 @@ a.edit-movie:link,a.edit-movie:visited{
 .duecol {
 	padding-left: 2em !important
 }
+
+/* Dropdown Menu */
+ul#toolbar li {
+  display: inline;
+  position: relative;
+}
+
+ul#toolbar li.dropdown div {  
+  width: 350px;
+  position: absolute;
+  margin-top: 0.9em;
+  margin-left: 0.5em;
+  top: 1.6em;
+  left: 0em;
+  background-color: #EEE;
+  border-width: 1px;
+  border-style: solid;
+  z-index: 10000;
+  
+  padding: 7px;
+}

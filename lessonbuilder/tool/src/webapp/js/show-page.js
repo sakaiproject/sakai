@@ -1,3 +1,5 @@
+var dropdownViaClick = false;
+
 function msg(s) {
    return document.getElementById(s).innerHTML;
 }
@@ -961,6 +963,19 @@ $(function() {
 	$("#assignment-dropdown-selection").hide();
 	$("#edit-youtube-error-container").hide();
 	$("#messages").hide();
+	
+	var megaConfig = {	
+			interval: 200,
+			sensitivity: 7,
+			over: addHighlight,
+			timeout: 700,
+			out: removeHighlight
+	};
+	
+	$("li.dropdown").hoverIntent(megaConfig);
+	$("li.dropdown").children("div").hide();
+	$("li.dropdown").click(toggleDropdown);
+	dropDownViaClick = false;
 });
 
 function closeSubpageDialog() {
@@ -1162,3 +1177,39 @@ $(function() {
 	    }  
 	});
 });
+
+function addHighlight() {
+	if(!$(this).children("div").is(":visible")) {
+		reposition();
+		$(this).children("div").show("slide", {direction: "up"}, 300);
+	}
+	//$(this).addClass("hovering");
+}
+
+function removeHighlight() {
+	if($(this).children("div").is(":visible") && !dropdownViaClick)
+		$(this).children("div").hide("slide", {direction: "up"}, 300);
+	//$(this).removeClass("hovering");
+}
+
+function toggleDropdown() {
+	if($(this).children("div").is(":visible")) {
+		reposition();
+		$(this).children("div").hide("slide", {direction: "up"}, 300);
+		dropdownViaClick = false;
+	}else {
+		$(this).children("div").show("slide", {direction: "up"}, 300);
+		dropdownViaClick = true;
+	}
+}
+
+function reposition() {
+	var dropX = $("li.dropdown").offset().left;
+	var dropdown = $("li.dropdown").children("div");
+	//alert("DropX: " + dropX);
+	//alert("Width: " + window.innerWidth);
+	//alert("Width2: " + dropdown.width());
+	if(dropX + dropdown.width() > $(window).width()) {
+		dropdown.css("left", ($(window).width() - dropdown.width() - dropX - 100) + "px");
+	}
+}

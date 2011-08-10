@@ -40,6 +40,7 @@ function resizeiframe(id) {
 <script type="text/javascript" src="$context/js/jquery-1.6.2.min.js"></script>
 <script type="text/javascript" src="$context/js/jquery-ui-1.8.4.custom.min.js"></script>
 <script type="text/javascript" src="../js/simple-page.js" rsf:id="scr=rewrite-url"></script>
+<script type="text/javascript" src="$context/js/hoverIntent.js"></script>
 <script type="text/javascript" src="$context/js/show-page.js"></script>
 
 <a href="#" rsf:id="redirect-link" id="redirect-link"></a>
@@ -94,21 +95,41 @@ function resizeiframe(id) {
 		  <span class="navIntraTool" style="background-color:transparent;border:none"> <a href="#" rsf:id="prev" class="usebutton">next</a> <a href="#" rsf:id="next" class="usebutton">next</a> </span>
 		</div>
 	
-		<div rsf:id="tool-bar:" class="navIntraTool" role="toolbar">
-			<a href="#" rsf:id="reorder"><span rsf:id="msg.simplepage.reorder"></span></a>
-			<a href="#" rsf:id="add-text"><span rsf:id="msg.simplepage.text"></span></a>
-			<a href="#" rsf:id="add-multimedia" class="add-multimedia"><span rsf:id="msg.simplepage.multimedia"></span></a>
-			<a href="#" rsf:id="add-resource" class="add-resource"><span rsf:id="msg.simplepage.resource"></span></a>
-			<a href="#" rsf:id="add-website" class="add-website"><span rsf:id="msg.simplepage.website"></span></a>
-			<a href="#" rsf:id="subpage-link" class="subpage-link"><span rsf:id="msg=simplepage.subpage"></span></a>
-			<a href="#" rsf:id="add-assignment"><span rsf:id="msg.simplepage.assignment"></span></a>
-			<a href="#" rsf:id="add-quiz"><span rsf:id="msg.simplepage.quiz"></span></a>
-			<a href="#" rsf:id="add-forum"><span rsf:id="msg.simplepage.forum"></span></a>
-			<a href="#" rsf:id="add-blti"><span rsf:id="msg.simplepage.blti"></span></a>
-			<a href="#" rsf:id="add-comments"><span rsf:id="msg.simplepage.comments"></span></a>
-			<a href="#" rsf:id="add-content"><span rsf:id="msg.simplepage.add-content"></span></a>
-			<a href="#" rsf:id="permissions"><span rsf:id="msg.simplepage.permissions"></span></a>
-			<a href="#" rsf:id="help" target="_blank"></a>
+		<div rsf:id="tool-bar:" class="navIntraTool" role="toolbar" style="z-index:100000">
+			<ul id="toolbar" style="padding:2px; margin:0px">
+				<li><a href="#" rsf:id="reorder"><span rsf:id="msg.simplepage.reorder"></span></a></li>
+				<li><a href="#" rsf:id="add-text"><span rsf:id="msg.simplepage.text"></span></a></li>
+				<li><a href="#" rsf:id="add-multimedia" class="add-multimedia"><span rsf:id="msg.simplepage.multimedia"></span></a></li>
+				<li><a href="#" rsf:id="add-resource" class="add-resource"><span rsf:id="msg.simplepage.resource"></span></a></li>
+				<li><a href="#" rsf:id="add-website" class="add-website"><span rsf:id="msg.simplepage.website"></span></a></li>
+				<li><a href="#" rsf:id="subpage-link" class="subpage-link"><span rsf:id="msg=simplepage.subpage"></span></a></li>
+				<li><a href="#" rsf:id="add-assignment"><span rsf:id="msg.simplepage.assignment"></span></a></li>
+				<li><a href="#" rsf:id="add-quiz"><span rsf:id="msg.simplepage.quiz"></span></a></li>
+				<a href="#" rsf:id="help" target="_blank"></a>
+				
+				<li class="dropdown">
+					<span><a href="#" onclick="return false;" rsf:id="msg=simplepage.more-tools" ></a></span>
+				
+					<div id="dropDownDiv">
+						<a href="#" rsf:id="add-forum"><span rsf:id="msg.simplepage.forum"></span></a>
+						<span rsf:id="msg=simplepage.forum-descrip"></span>
+						<br />
+						<a href="#" rsf:id="add-blti"><span rsf:id="msg.simplepage.blti"></span></a>
+						<span rsf:id="msg=simplepage.blti-descrip"></span>
+						<br />
+						<a href="#" rsf:id="add-comments"><span rsf:id="msg.simplepage.comments"></span></a>
+						<span rsf:id="msg=simplepage.comments-descrip"></span>
+						<br />
+						<a href="#" rsf:id="add-content"><span rsf:id="msg.simplepage.add-content"></span></a>
+						<span rsf:id="msg=simplepage.student-descrip"></span>
+						<br /><br />
+						<a href="#" rsf:id="permissions"><span rsf:id="msg.simplepage.permissions"></span></a>
+						<span rsf:id="msg=simplepage.permissions-descrip"></span>
+						<br />
+					</div>
+				</li>
+				<li></li>
+			</ul>
 		</div>
 		
 		<div rsf:id="error-div" class="ui-widget" role="alert">
@@ -122,10 +143,10 @@ function resizeiframe(id) {
 		  <li id="error-item" rsf:id="error-item:"><span id="error-item-text" rsf:id="error-item-text">missing page</span></li>
 		</ul>
 
-		<div class="itemclass" rsf:id="itemContainer:" role="main">
+		<div class="itemclass" rsf:id="itemContainer:" role="main" style="z-index: 1;">
 			<div style="display:none" rsf:id="current-item-id"></div>
-		
-			<table class="indent mainlist" rsf:id="itemTable:" border="0" role="grid" width="95%">
+			
+			<table class="indent mainlist" rsf:id="itemTable:" border="0" role="grid" width="95%" style="position: relative; z-index: -100000;">
 				<colgroup rsf:id="colgroup"/>
 				<col width="20" rsf:id="col1"/>
 				<col width="100%" rsf:id="col2"/>
