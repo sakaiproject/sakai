@@ -4899,6 +4899,10 @@ private   int   getNum(char letter,   String   a)
 				}
 
 				toolSession.setAttribute("permissionDescriptions", pRbValues); 
+				
+				// set group awareness
+				 String groupAware = ToolManager.getCurrentTool().getRegisteredConfig().getProperty("groupAware");
+				 toolSession.setAttribute("groupAware", groupAware != null ? Boolean.valueOf(groupAware) : Boolean.FALSE);
 			}
 
 			// Invoke Permissions helper
