@@ -267,7 +267,7 @@ public class LessonBuilderAccessService {
 					       ContentHostingService.AUTH_RESOURCE_READ, ref.getReference());
 					    
 					// If the resource is the actual one in the item, or
-					// it is in the associated folder, then do lesson builder checking.
+					// it is in the containing folder, then do lesson builder checking.
 					// otherwise do normal resource checking
 
 					boolean useLb = false;
@@ -285,10 +285,13 @@ public class LessonBuilderAccessService {
 					    if (id.equals(itemResource))
 						useLb = true;
 					    else {
-						// not exact, but see if there's an associated folder
-						String folder = SimplePageBean.associatedFolder(itemResource);
-						if (id.startsWith(folder))
-						useLb = true;
+						// not exact, but see if it's in the containing folder
+						int endFolder = itemResource.lastIndexOf("/");
+						if (endFolder > 0) {
+						    String folder = itemResource.substring(0, endFolder+1);
+						    if (id.startsWith(folder))
+							useLb = true;
+						}
 					    }
 					}
 

@@ -2066,10 +2066,6 @@ public class SimplePageBean {
     // to control a resource, set hidden. /access/lessonbuilder does the actual control
 	private void checkControlResource(SimplePageItem i, boolean correct) {
 	    String resourceId = i.getSakaiId();
-	    String folder = associatedFolder(resourceId);
-	    
-	    if (folder != null && resourceId.startsWith(folder))  
-		resourceId = null;  // no need to do both
 
 	    if (resourceId != null) {
 		try {
@@ -2082,18 +2078,6 @@ public class SimplePageBean {
 		} catch (Exception ignore) {}
 	    }
 	    
-	    if (folder != null) {
-		try {
-		    // note that this folder may not actually exist, so an error is OK
-		    ContentCollectionEdit res = contentHostingService.editCollection(folder);
-		    if (res.isHidden() == correct)
-			contentHostingService.cancelCollection(res);
-		    else {
-			res.setAvailability(correct, res.getReleaseDate(), res.getRetractDate());
-			contentHostingService.commitCollection(res);
-		    }
-		} catch (Exception ignore) {}
-	    }
 	}
 
 	public SimplePage getCurrentPage()  {
