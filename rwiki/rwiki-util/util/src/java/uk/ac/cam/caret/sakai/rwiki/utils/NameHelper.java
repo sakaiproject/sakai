@@ -321,8 +321,10 @@ public class NameHelper
 		String localAliasSpace = localSpace;
 		
 		String parts[] = StringUtils.split (localSpace, Entity.SEPARATOR);
-		
-		String siteId = parts[2];
+		String siteId = null;
+		if (parts.length > 1) {
+	        siteId = parts[1];
+		}
 		// recognize alias for site id - but if a site id exists that matches the requested site id, that's what we will use
 		if ((siteId != null) && (siteId.length() > 0))
 		{
