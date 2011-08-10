@@ -580,16 +580,6 @@ html>body .dhtml_more_tabs {
 	border-left: none;
 }
 
-.dhtml_more_tabs a:link, .dhtml_more_tabs a:visited, .dhtml_more_tabs active{
-	color: #35b;
-	text-decoration: underline !important;
-}
-
-.dhtml_more_tabs a:hover {
-	color: #53b;
-	text-decoration: underline !important;
-}
-
 #more_tabs_instr  {
 	color: #333;
 	font-size: 1em;
@@ -1707,7 +1697,7 @@ li.submenuitem span.hidden{
     color:#9cf;
 }
 
-ul#otherSiteList{
+ul#otherSiteList, ul.otherSitesCategorList{
     margin:5px;
     padding:0;
 }
@@ -1719,7 +1709,7 @@ ul#otherSitesMenu{
     margin:0;
     padding:0
 }
-ul#otherSiteList li,ul#otherSitesMenu li{
+ul#otherSiteList li,ul#otherSitesMenu li,  ul.otherSitesCategorList li{
     background: #222 url(images/topnav_bg.gif) 0  -1px   repeat-x;
     position:relative;
     border-radius: 5px;
@@ -1727,19 +1717,20 @@ ul#otherSiteList li,ul#otherSitesMenu li{
     -webkit-border-radius: 5px;
     overflow:hidden;
 }
-ul#otherSitesMenu li{
-    width:auto
+ul#otherSitesMenu li,ul.otherSitesCategorList li{
+    width:auto; 
+    float:right;
     }
-ul#otherSiteList li a, #otherSitesMenu li a{
+ul#otherSiteList li a, #otherSitesMenu li a,  ul.otherSitesCategorList li a {
     display:block;
     padding:7px;
     color:#fff;
     text-decoration:none !important;
 }
-ul#otherSiteList li a{
+ul#otherSiteList li a,  ul.otherSitesCategorList li a{
     white-space:nowrap;
 }
-ul#otherSiteList li a span{
+ul#otherSiteList li a span,  ul.otherSitesCategorList li a span{
     width:14em;
     display:block;
     overflow:hidden;
@@ -1757,7 +1748,26 @@ ul#otherSiteList li a span{
    height:11px;
 }
 .toolMenus:hover{background-position: 10px -38px; cursor: pointer;}
-ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:active, #otherSitesMenu li a:hover,#otherSitesMenu li a:focus,#otherSitesMenu li a:active     {
+/*
+for categorized view
+*/    
+#otherSitesCategorWrap{
+    margin:5px;
+}
+#otherSitesCategorWrap h4{
+    float:none;
+    direction:rtl;
+    clear:both;
+    color:#fff;
+    font-size:120%;
+    text-transform:capitalize;
+    font-variant:small-caps;
+    padding:5px 10px 0 10px;
+    margin:0;
+    text-shadow: 1px 1px 0 black, 2px 2px 0 black;
+}    
+
+ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:active, #otherSitesMenu li a:hover,#otherSitesMenu li a:focus,#otherSitesMenu li a:active, ul.otherSitesCategorList li a:hover, ul.otherSitesCategorList li a:focus     {
    color:#9cf
 }
 #otherSiteMenuWrap{

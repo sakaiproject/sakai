@@ -617,13 +617,12 @@ html>body .dhtml_more_tabs {
 }
 
 .dhtml_more_tabs a:link, .dhtml_more_tabs a:visited, .dhtml_more_tabs active{
-	color: #35b;
-	text-decoration: underline !important;
+	color: #fff;
+    
 }
 
 .dhtml_more_tabs a:hover {
-	color: #53b;
-	text-decoration: underline !important;
+	
 }
 
 #more_tabs_instr  {
@@ -1747,7 +1746,7 @@ ul.nav-submenu li.submenuitem a:hover,ul.nav-submenu li.submenuitem a:focus,#mas
     color:#F9BB31;
 }
 
-ul#otherSiteList{
+ul#otherSiteList, ul.otherSitesCategorList{
     margin:5px;
     padding:0;
 }
@@ -1759,7 +1758,7 @@ ul#otherSitesMenu{
     margin:0;
     padding:0
 }
-ul#otherSiteList li,ul#otherSitesMenu li{
+ul#otherSiteList li,ul#otherSitesMenu li,ul.otherSitesCategorList li{
     background: #222 url(images/topnav_bg2.gif) 0  -1px   repeat-x;
     position:relative;
     border-radius: 5px;
@@ -1770,16 +1769,16 @@ ul#otherSiteList li,ul#otherSitesMenu li{
 ul#otherSitesMenu li{
     width:auto
     }
-ul#otherSiteList li a, #otherSitesMenu li a{
+ul#otherSiteList li a, #otherSitesMenu li a, ul.otherSitesCategorList li a{
     display:block;
     padding:7px;
     color:#fff;
-    text-decoration:none !important;
+    text-decoration:none;
 }
-ul#otherSiteList li a{
+ul#otherSiteList li a, ul.otherSitesCategorList li a{
     white-space:nowrap;
 }
-ul#otherSiteList li a span{
+ul#otherSiteList li a span,ul.otherSitesCategorList lia span{
     width:14em;
     display:block;
     overflow:hidden;
@@ -1797,8 +1796,9 @@ ul#otherSiteList li a span{
    height:11px;
 }
 .toolMenus:hover{background-position: 10px -38px; cursor: pointer;}
-ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:active, #otherSitesMenu li a:hover,#otherSitesMenu li a:focus,#otherSitesMenu li a:active     {
-   color:#F9BB31
+ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:active, #otherSitesMenu li a:hover,#otherSitesMenu li a:focus,#otherSitesMenu li a:active, ul.otherSitesCategorList li a:hover,ul.otherSitesCategorList li a:focus     {
+   color:#f7c73a;
+   text-decoration:none
 }
 #otherSiteMenuWrap{
     margin:5px;
@@ -1824,6 +1824,24 @@ ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:ac
 #otherSiteSearch span#noSearchResults{
     color:#fff
 }
+/*
+for categorized view
+*/    
+#otherSitesCategorWrap{
+    margin:5px;
+}
+#otherSitesCategorWrap h4{
+    float:none;
+    clear:both;
+    color:#f7c73a;
+    font-size:120%;
+    text-transform:capitalize;
+    font-variant:small-caps;
+    padding:5px 10px 0 10px;
+    margin:0;
+    text-shadow: -1px -1px 0 black
+}    
+
 .workspace #presenceToggle{
     display:none;
 }
