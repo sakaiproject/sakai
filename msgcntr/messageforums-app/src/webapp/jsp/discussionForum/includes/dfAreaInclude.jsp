@@ -235,7 +235,7 @@ $(document).ready(function() {
 								<f:verbatim><li></f:verbatim>
 
 									<h:commandLink action="#{ForumTool.processActionDuplicateTopicMainConfirm}" id="duplicate_confirm" value="#{msgs.cdfm_duplicate_topic}" rendered="#{forum.newTopic}"
-									title=" #{msgs.cdfm_topic_settings}">
+									title=" #{msgs.cdfm_duplicate_topic}">
 											<f:param value="#{topic.topic.id}" name="topicId"/>
 											<f:param value="#{forum.forum.id}" name="forumId"/>
 									</h:commandLink>
@@ -250,7 +250,7 @@ $(document).ready(function() {
 								                            
 								<f:verbatim><li></f:verbatim>							
 							<h:commandLink action="#{ForumTool.processActionDeleteTopicMainConfirm}" id="delete_confirm" value="#{msgs.cdfm_button_bar_delete}" accesskey="d" rendered="#{topic.changeSettings}"
-							title=" #{msgs.cdfm_topic_settings}">
+							title="#{msgs.cdfm_button_bar_delete}">
 									<f:param value="#{topic.topic.id}" name="topicId"/>
 									<f:param value="#{forum.forum.id}" name="forumId"/>
 							</h:commandLink>

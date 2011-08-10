@@ -244,6 +244,7 @@ public class DiscussionForumTool
   private static final String CONFIRM_DELETE_MESSAGE="cdfm_delete_msg";
   private static final String INSUFFICIENT_PRIVILEGES_TO_DELETE = "cdfm_insufficient_privileges_delete_msg";
   private static final String END_DATE_BEFORE_OPEN_DATE = "endDateBeforeOpenDate";
+  private static final String DUPLICATE_COPY_TITLE = "cdfm_duplicate_copy_title";
   
   private static final String FROM_PAGE = "msgForum:mainOrForumOrTopic";
   private String fromPage = null; // keep track of originating page for common functions
@@ -8080,7 +8081,7 @@ public class DiscussionForumTool
     //in case XSS was slipped in, make sure we remove it:
     StringBuilder alertMsg = new StringBuilder();
     selectedForum.getForum().setExtendedDescription(FormattedText.processFormattedText(selectedForum.getForum().getExtendedDescription(), alertMsg));
-    selectedForum.getForum().setTitle(FormattedText.processFormattedText(selectedForum.getForum().getTitle(), alertMsg));
+    selectedForum.getForum().setTitle(FormattedText.processFormattedText(getResourceBundleString(DUPLICATE_COPY_TITLE, new Object [] {selectedForum.getForum().getTitle()} ), alertMsg));
     selectedForum.getForum().setShortDescription(FormattedText.processFormattedText(selectedForum.getForum().getShortDescription(), alertMsg));
 
     selectedForum.setMarkForDuplication(true);
@@ -8100,7 +8101,8 @@ public class DiscussionForumTool
 	  String forumId = getExternalParameterByKey(FORUM_ID);
 	  DiscussionForum forum = forumManager.getForumById(Long.valueOf(forumId));
 	  selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
-
+      StringBuilder alertMsg = new StringBuilder();
+      selectedForum.getForum().setTitle(FormattedText.processFormattedText(getResourceBundleString(DUPLICATE_COPY_TITLE, new Object[] {selectedForum.getForum().getTitle()}), alertMsg));
 	  selectedForum.setMarkForDuplication(true);
 	  return FORUM_SETTING;
   }
@@ -8123,8 +8125,14 @@ public class DiscussionForumTool
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_DUPLICATE));
       return gotoMain();
-   }
-
+    }
+    if(selectedForum.getForum()!=null && 
+        (selectedForum.getForum().getTitle()==null 
+          ||selectedForum.getForum().getTitle().trim().length()<1  ))
+    {
+      setErrorMessage(getResourceBundleString(VALID_FORUM_TITLE_WARN));
+      return FORUM_SETTING;
+    }
     Long forumId = selectedForum.getForum().getId();
 
 	duplicateForum(forumId);
@@ -8152,7 +8160,7 @@ public class DiscussionForumTool
     //in case XSS was slipped in, make sure we remove it:
     StringBuilder alertMsg = new StringBuilder();
     selectedTopic.getTopic().setExtendedDescription(FormattedText.processFormattedText(selectedTopic.getTopic().getExtendedDescription(), alertMsg));
-    selectedTopic.getTopic().setTitle(FormattedText.processFormattedText(selectedTopic.getTopic().getTitle(), alertMsg));
+    selectedTopic.getTopic().setTitle(FormattedText.processFormattedText(getResourceBundleString(DUPLICATE_COPY_TITLE, new Object[] {selectedTopic.getTopic().getTitle()}), alertMsg));
     selectedTopic.getTopic().setShortDescription(FormattedText.processFormattedText(selectedTopic.getTopic().getShortDescription(), alertMsg));
     selectedTopic.setMarkForDuplication(true);
     return TOPIC_SETTING;
@@ -8183,9 +8191,10 @@ public class DiscussionForumTool
 			  return gotoMain();
 		  }
 		  selectedTopic = new DiscussionTopicBean(topic, selectedForum.getForum(),uiPermissionsManager, forumManager);
-
+          StringBuilder alertMsg = new StringBuilder();
+          selectedTopic.getTopic().setTitle(FormattedText.processFormattedText(getResourceBundleString(DUPLICATE_COPY_TITLE, new Object[] {selectedTopic.getTopic().getTitle()}), alertMsg));
 		  selectedTopic.setMarkForDuplication(true);
-		    return TOPIC_SETTING;
+		  return TOPIC_SETTING;
 	  }
   }
 
@@ -8202,7 +8211,14 @@ public class DiscussionForumTool
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_NEW_TOPIC));
       return gotoMain();
     }
-
+    setPermissionMode(PERMISSION_MODE_TOPIC);
+    if(selectedTopic!=null && selectedTopic.getTopic()!=null && 
+        (selectedTopic.getTopic().getTitle()==null 
+          ||selectedTopic.getTopic().getTitle().trim().length()<1  ))
+    {
+      setErrorMessage(getResourceBundleString(VALID_TOPIC_TITLE_WARN));
+      return TOPIC_SETTING;
+    }
     HashMap<String, Integer> beforeChangeHM = null;
 	DiscussionForum forum = selectedForum.getForum();
     Long topicId = selectedTopic.getTopic().getId();
@@ -8228,14 +8244,13 @@ public class DiscussionForumTool
       return null;
     }
 	DiscussionTopic fromTopic = (DiscussionTopic) forumManager.getTopicByIdWithAttachments(originalTopicId);
-	String newTitle = fromTopic.getTitle();
+	String newTitle;
 	if (forumDuplicate) {
+        newTitle = fromTopic.getTitle();
 		newTopic.setSortIndex(fromTopic.getSortIndex());
 	} else {
-		if (newTitle.length() + 5 > 255) {
-			newTitle = newTitle.substring(0, 250);
-		}
-		newTitle += " copy";
+        StringBuilder alertMsg = new StringBuilder();
+        newTitle = FormattedText.processFormattedText(selectedTopic.getTopic().getTitle(), alertMsg);
 	}
 	newTopic.setTitle(newTitle);
 	LOG.debug("New Topic Title = " + newTopic.getTitle());
@@ -8349,6 +8364,8 @@ public class DiscussionForumTool
 		forum.setModerated(oldForum.getModerated());
 		forum.setPostFirst(oldForum.getPostFirst());
 		forum.setAutoMarkThreadsRead(oldForum.getAutoMarkThreadsRead()); // default to template setting
+        StringBuilder alertMsg = new StringBuilder();
+        String oldTitle =  FormattedText.processFormattedText(selectedForum.getForum().getTitle(), alertMsg);
 		selectedForum = null;
 		selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
 		if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
@@ -8361,9 +8378,7 @@ public class DiscussionForumTool
 		String oldExtendedDescription = oldForum.getExtendedDescription();
 		if (oldExtendedDescription == null) oldExtendedDescription = "";
 		forum.setExtendedDescription(oldExtendedDescription);
-		String oldTitle = oldForum.getTitle();
-		if (oldTitle.length() + 5 > 255) oldTitle = oldTitle.substring(0, 250);
-		forum.setTitle(oldTitle + " copy");
+        forum.setTitle(oldTitle);
 
 		List fromForumAttach = oldForum.getAttachments();
 		if (fromForumAttach != null && !fromForumAttach.isEmpty()) {

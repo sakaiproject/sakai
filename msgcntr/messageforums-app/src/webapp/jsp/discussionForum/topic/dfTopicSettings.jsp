@@ -42,12 +42,16 @@
         
 		<h:outputText styleClass="messageAlert" style="display:block" value="#{msgs.cdfm_delete_topic}" rendered="#{ForumTool.selectedTopic.markForDeletion}"/>
         <h:outputText styleClass="messageAlert" value="#{msgs.cdfm_duplicate_topic_confirm}" rendered="#{ForumTool.selectedTopic.markForDuplication}" style="display:block" />
-		<div class="topicBloc" style="padding:0 .5em">
+		<div class="topicBloc" style="padding:0 .5em"><h:messages styleClass="messageAlert" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
 			<p>
 				<span class="title">
 					<h:graphicImage url="/images/silk/lock.png" alt="#{msgs.cdfm_forum_locked}" rendered="#{ForumTool.selectedTopic.topic.locked=='true'}"  style="margin-right:.3em"/>
 					<h:graphicImage url="/images/silk/lock_open.png" alt="#{msgs.cdfm_forum_locked}" rendered="#{ForumTool.selectedTopic.topic.locked=='false'}"  style="margin-right:.3em"/>
-    				  <h:outputText id="topic_title"  value="#{ForumTool.selectedTopic.topic.title}"/>
+					<h:outputText value="#{ForumTool.selectedTopic.topic.title}" rendered="#{!ForumTool.selectedTopic.markForDuplication}"/>
+                    <h:inputText size="50" value="#{ForumTool.selectedTopic.topic.title}" id="topic_title" rendered="#{ForumTool.selectedTopic.markForDuplication}">
+                        <f:validateLength maximum="255" minimum="1" />
+                    </h:inputText>                   
+                    
 				</span>
 				<h:outputText   value="#{msgs.cdfm_openb}"/>
 				<h:outputText   value="#{msgs.cdfm_moderated}"  rendered="#{ForumTool.selectedTopic.topic.moderated=='true'}" />
@@ -186,7 +190,7 @@
 		</h:dataTable>	 	
       </mf:forumHideDivision>
       --%>
-      
+    
        <div class="act">
           <h:commandButton action="#{ForumTool.processActionReviseTopicSettings}" id="revise"  
                            value="#{msgs.cdfm_button_bar_revise}" rendered="#{!ForumTool.selectedTopic.markForDeletion && !ForumTool.selectedTopic.markForDuplication}"
