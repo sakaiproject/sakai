@@ -1334,13 +1334,14 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	public boolean parseEntityReference(String reference, Reference ref)
 	{
 		if (!reference.startsWith(REFERENCE_ROOT)) return false;
+		// example reference: /wiki/site/c7bc194b-b215-4281-a1ac-8ed2ca2014e6/home.
 		String[] parts = StringUtils.split(reference, Entity.SEPARATOR);
 		String context = null;
 		
 		// the first part will be null, then next the service, and the fourth will be the (worksite) context
-		if ( parts.length > 3 )
+		if ( parts.length > 2 )
 		{
-			context = parts[3];
+			context = parts[2];
 			if ( context.endsWith(".") )
 			context = context.substring(0, context.length()-1 );
 		}
