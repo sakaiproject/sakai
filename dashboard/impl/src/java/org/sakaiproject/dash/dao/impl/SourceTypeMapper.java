@@ -31,7 +31,7 @@ public class SourceTypeMapper implements RowMapper {
 		// source_type
 		SourceType sourceType = new SourceType();
 		sourceType.setId(rs.getLong("type_id"));
-		sourceType.setName(rs.getString("type_name"));
+		sourceType.setIdentifier(rs.getString("type_identifier"));
 		sourceType.setAccessPermission(rs.getString("type_accessPermission"));
 		
 		
