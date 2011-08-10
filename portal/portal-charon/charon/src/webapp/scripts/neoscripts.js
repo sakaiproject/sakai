@@ -15,8 +15,8 @@ var dhtml_more_tabs = function(){
     jQuery('.more-tab').css('z-index', 9800); //  " for the More Tabs div element
     // then recast the function to the post initialized state which will run from then on
     dhtml_more_tabs = function(){
-        if (jQuery('#selectNav').css('display') == 'none') {
             jQuery('div#selectNav').show();
+        if (jQuery('#selectNav').css('display') == 'none') {
             // highlight the more tab
             jQuery('.more-tab').addClass('more-active');
             // dim the current tab
@@ -56,9 +56,15 @@ var dhtml_view_sites = function(){
     // then recast the function to the post initialized state which will run from then on
     dhtml_view_sites = function(){
         if (jQuery('#selectSite').css('display') == 'none') {
+
             jQuery('div#selectSite').slideDown('slow', function(){
                 // check if $('#otherSiteList li').length > some number, then show search
                 // otherwise not
+                   if(jQuery('div#otherSitesCategorWrap').height() > 300){
+                    $('div#otherSitesCategorWrap').height(300).css({overflow:"auto"});
+                }
+
+
                 jQuery('div#selectSite div').show();
                 jQuery('#txtSearch').focus();
             });
