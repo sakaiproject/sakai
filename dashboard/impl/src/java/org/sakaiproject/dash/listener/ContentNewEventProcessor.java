@@ -76,7 +76,7 @@ public class ContentNewEventProcessor implements EventProcessor {
 			}
 			SourceType sourceType = this.dashboardLogic.getSourceType("resource");
 			if(sourceType == null) {
-				sourceType = this.dashboardLogic.createSourceType("resource");
+				sourceType = this.dashboardLogic.createSourceType("resource", SakaiProxy.PERMIT_RESOURCE_ACCESS);
 			}
 			
 			ResourceProperties props = resource.getProperties();

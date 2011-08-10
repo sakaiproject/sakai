@@ -54,9 +54,9 @@ public interface DashboardLogic {
 
 	public Realm createRealm(String entityReference, String contextId);
 
-	public SourceType getSourceType(String source_type);
+	public SourceType getSourceType(String identifier);
 
-	public SourceType createSourceType(String source_type);
+	public SourceType createSourceType(String identifier, String accessPermission);
 	
 	// todo:
 	// add methods to revise news items, calendar items, news links, calendar links, etc.

@@ -64,7 +64,7 @@ public class AssignmentNewEventProcessor implements EventProcessor {
 			}
 			SourceType sourceType = this.dashboardLogic.getSourceType("assignment");
 			if(sourceType == null) {
-				sourceType = this.dashboardLogic.createSourceType("assignment");
+				sourceType = this.dashboardLogic.createSourceType("assignment", SakaiProxy.PERMIT_ASSIGNMENT_ACCESS);
 			}
 			
 			NewsItem newsItem = this.dashboardLogic.createNewsItem(assn.getTitle(), event.getEventTime(), assn.getReference(), assn.getUrl(), context, realm, sourceType);

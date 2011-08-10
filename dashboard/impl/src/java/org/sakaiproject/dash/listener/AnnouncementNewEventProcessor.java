@@ -77,7 +77,7 @@ public class AnnouncementNewEventProcessor implements EventProcessor {
 			}
 			SourceType sourceType = this.dashboardLogic.getSourceType("announcement");
 			if(sourceType == null) {
-				sourceType = this.dashboardLogic.createSourceType("announcement");
+				sourceType = this.dashboardLogic.createSourceType("announcement", SakaiProxy.PERMIT_ANNOUNCEMENT_ACCESS);
 			}
 			
 			NewsItem newsItem = this.dashboardLogic.createNewsItem(ann.getAnnouncementHeader().getSubject(), event.getEventTime(), AnnouncementService.getAnnouncementReference(event.getContext()).getReference(), " ", context, realm, sourceType);

@@ -154,9 +154,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return realm;
 	}
 
-	public SourceType createSourceType(String source_type) {
+	public SourceType createSourceType(String identifier, String accessPermission) {
 		
-		SourceType sourceType = new SourceType(source_type); 
+		SourceType sourceType = new SourceType(identifier, accessPermission); 
 		dao.addSourceType(sourceType);
 		return sourceType;
 	}
@@ -178,9 +178,10 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return null;
 	}
 
-	public SourceType getSourceType(String name) {
+	public SourceType getSourceType(String identifier) {
 		
-		return null;
+		SourceType sourceType = dao.getSourceType(identifier);
+		return sourceType ;
 	}
 
 	public void registerEventProcessor(EventProcessor eventProcessor) {

@@ -31,7 +31,7 @@ package org.sakaiproject.dash.model;
 public class SourceType {
 
 	protected Long id;
-	protected String name;
+	protected String identifier;
 	protected String accessPermission;
 
 	/**
@@ -41,30 +41,30 @@ public class SourceType {
 		super();
 	}
 
-	public SourceType(String name) {
+	public SourceType(String identifier) {
 		super();
-		this.name = name;
+		this.identifier = identifier;
 	}
 	
 	/**
-	 * @param name
+	 * @param identifier
 	 * @param accessPermission
 	 */
-	public SourceType(String name, String accessPermission) {
+	public SourceType(String identifier, String accessPermission) {
 		super();
-		this.name = name;
+		this.identifier = identifier;
 		this.accessPermission = accessPermission;
 	}
 
 	/**
 	 * @param id
-	 * @param name
+	 * @param identifier
 	 * @param accessPermission
 	 */
-	public SourceType(Long id, String name, String accessPermission) {
+	public SourceType(Long id, String identifier, String accessPermission) {
 		super();
 		this.id = id;
-		this.name = name;
+		this.identifier = identifier;
 		this.accessPermission = accessPermission;
 	}
 
@@ -76,10 +76,10 @@ public class SourceType {
 	}
 
 	/**
-	 * @return the name
+	 * @return the identifier
 	 */
-	public String getName() {
-		return name;
+	public String getIdentifier() {
+		return identifier;
 	}
 
 	/**
@@ -97,10 +97,10 @@ public class SourceType {
 	}
 
 	/**
-	 * @param name the name to set
+	 * @param identifier the identifier to set
 	 */
-	public void setName(String name) {
-		this.name = name;
+	public void setIdentifier(String identifier) {
+		this.identifier = identifier;
 	}
 
 	/**
@@ -118,8 +118,8 @@ public class SourceType {
 		StringBuilder builder = new StringBuilder();
 		builder.append("SourceType [id=");
 		builder.append(id);
-		builder.append(", name=");
-		builder.append(name);
+		builder.append(", identifier=");
+		builder.append(identifier);
 		builder.append("]");
 		return builder.toString();
 	}

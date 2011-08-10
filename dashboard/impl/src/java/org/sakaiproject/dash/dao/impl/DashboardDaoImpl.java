@@ -239,7 +239,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		
 		try {
 			getJdbcTemplate().update(getStatement("insert.SourceType"),
-				new Object[]{sourceType.getName(), sourceType.getAccessPermission()}
+				new Object[]{sourceType.getIdentifier(), sourceType.getAccessPermission()}
 			
 			);
 			return true;
