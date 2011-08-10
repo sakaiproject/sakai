@@ -60,17 +60,12 @@ If you would like to completely delete an uploaded file from your worksite, the 
 control students' access to the resource. The resource is hidden so that it can only be accessed through
 Lesson Builder. If the resource involved is a web document (HTML), there are special considerations.
 Web documents often include images, and they can refer to other documents. Thus controlling the document
-itself may not be good enough. When you control a web document, Lesson Builder will attempt to 
-identify a folder in which images and other files referred to in the document may reside. It will
-control access to that entire folder. If the file is called index.html, index.htm, player.html,
-or NAME.html, where NAME is the name of the folder it is in, then the folder that the document is
-in will be controlled. If not, and there is a folder by the name as the document, that folder
-will also be controlled. That is, if you have a file FILE.html, and there is also a folder in
-the same place called just FILE, FILE will be controlled as well as FILE.html.
+itself may not be good enough.</p>
 
-<p> By controlled, it means that access to the folder will be hidden so that access is only possible
-through Lesson Builder, and access to everything in that folder is availablel at the some time that
-the web document is available.
+<p> One approach to deal with this is to put the images, etc, somewhere else in the same folder
+as the main document, and set either the individual files or the folder to hidden, in the
+Resources tool. When you access a file in Lesson Builder, if the file is accessible, it will
+also allow you to access other files in the same folder, even if the are hidden.
 
 <p><a href="#top">Back to top</a></p>
 
