@@ -27,9 +27,9 @@ import org.sakaiproject.event.api.EventTrackingService;
  * @author
  *
  */
-public class AnnouncementEventProcessor implements EventProcessor {
+public class AnnouncementNewEventProcessor implements EventProcessor {
 
-	private static Logger logger = Logger.getLogger(AnnouncementEventProcessor.class);
+	private static Logger logger = Logger.getLogger(AnnouncementNewEventProcessor.class);
 	
 	protected DashboardLogic dashboardLogic;
 	public void setDashboardLogic(DashboardLogic dashboardLogic) {
@@ -62,32 +62,26 @@ public class AnnouncementEventProcessor implements EventProcessor {
 		
 		String proxyStringRemove = SakaiProxy.EVENT_ANNOUNCEMENT_REMOVE_OWN;
 		
-		if (SakaiProxy.EVENT_ANNOUNCEMENT_NEW.equals(eventId))
-		{
-			Entity entity = this.sakaiProxy.getEntity(event.getResource());
-			// handle add events
-			if(entity != null && entity instanceof AnnouncementMessage) {
-			
-				AnnouncementMessage ann = (AnnouncementMessage) entity;
-				Context context = this.dashboardLogic.getContext(event.getContext());
-				if(context == null) {
-					context = this.dashboardLogic.createContext(event.getContext());
-				}
-				Realm realm = this.dashboardLogic.getRealm(event.getContext());
-				if(realm == null) {
-					realm = this.dashboardLogic.createRealm(null, event.getContext());
-				}
-				SourceType sourceType = this.dashboardLogic.getSourceType("announcement");
-				if(sourceType == null) {
-					sourceType = this.dashboardLogic.createSourceType("announcement");
-				}
-				
-				NewsItem newsItem = this.dashboardLogic.createNewsItem(ann.getAnnouncementHeader().getSubject(), event.getEventTime(), AnnouncementService.getAnnouncementReference(event.getContext()).getReference(), " ", context, realm, sourceType);
-				this.dashboardLogic.createNewsLinks(newsItem);
+		Entity entity = this.sakaiProxy.getEntity(event.getResource());
+		// handle add events
+		if(entity != null && entity instanceof AnnouncementMessage) {
+		
+			AnnouncementMessage ann = (AnnouncementMessage) entity;
+			Context context = this.dashboardLogic.getContext(event.getContext());
+			if(context == null) {
+				context = this.dashboardLogic.createContext(event.getContext());
 			}
-		} else if (SakaiProxy.EVENT_ANNOUNCEMENT_REMOVE_OWN.equals(eventId) || SakaiProxy.EVENT_ANNOUNCEMENT_REMOVE_ANY.equals(eventId)) {
-			// handle remove events
-			logger.debug("process " + this.getEventIdentifer() + " event for entityReference " + event.getResource());
+			Realm realm = this.dashboardLogic.getRealm(event.getContext());
+			if(realm == null) {
+				realm = this.dashboardLogic.createRealm(null, event.getContext());
+			}
+			SourceType sourceType = this.dashboardLogic.getSourceType("announcement");
+			if(sourceType == null) {
+				sourceType = this.dashboardLogic.createSourceType("announcement");
+			}
+			
+			NewsItem newsItem = this.dashboardLogic.createNewsItem(ann.getAnnouncementHeader().getSubject(), event.getEventTime(), AnnouncementService.getAnnouncementReference(event.getContext()).getReference(), " ", context, realm, sourceType);
+			this.dashboardLogic.createNewsLinks(newsItem);
 		} else {
 			// for now, let's log the error
 			logger.info(eventId + " is not processed for entityReference " + event.getResource());
