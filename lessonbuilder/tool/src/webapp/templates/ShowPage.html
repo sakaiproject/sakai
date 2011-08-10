@@ -96,7 +96,7 @@ function resizeiframe(id) {
 		</div>
 	
 		<div rsf:id="tool-bar:" class="navIntraTool" role="toolbar" style="z-index:100000">
-			<ul id="toolbar" style="padding:2px; margin:0px">
+			<ul id="toolbar" style="padding:2px; margin:0px z-index:1000">
 				<li><a href="#" rsf:id="reorder"><span rsf:id="msg.simplepage.reorder"></span></a></li>
 				<li><a href="#" rsf:id="add-text"><span rsf:id="msg.simplepage.text"></span></a></li>
 				<li><a href="#" rsf:id="add-multimedia" class="add-multimedia"><span rsf:id="msg.simplepage.multimedia"></span></a></li>
@@ -143,10 +143,10 @@ function resizeiframe(id) {
 		  <li id="error-item" rsf:id="error-item:"><span id="error-item-text" rsf:id="error-item-text">missing page</span></li>
 		</ul>
 
-		<div class="itemclass" rsf:id="itemContainer:" role="main" style="z-index: 1;">
+		<div class="itemclass" rsf:id="itemContainer:" role="main" style="z-index: 0;">
 			<div style="display:none" rsf:id="current-item-id"></div>
 			
-			<table class="indent mainlist" rsf:id="itemTable:" border="0" role="grid" width="95%" style="position: relative; z-index: -100000;">
+			<table class="indent mainlist" rsf:id="itemTable:" border="0" role="grid" width="95%" style="position: relative; z-index: 0;">
 				<colgroup rsf:id="colgroup"/>
 				<col width="20" rsf:id="col1"/>
 				<col width="100%" rsf:id="col2"/>

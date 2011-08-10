@@ -4887,4 +4887,14 @@ public class SimplePageBean {
 			pe.printStackTrace();
 		}
 	}
+	
+	public String getCssForCurrentPage() {
+		List<ContentResource> resources = contentHostingService.getAllResources("public");
+		
+		for(ContentResource r : resources) {
+			System.out.println(r.getId());
+		}
+		
+		return null;
+	}
 }
