@@ -6888,8 +6888,8 @@ public class SiteAction extends PagedResourceActionII {
 		Site s = getStateSite(state);
 		String realmId = SiteService.siteReference(s.getId());
 		
-		// list of changed roles
-		List<String> userChangedRoles = new Vector<String>();
+		// list of updated users
+		List<String> userUpdated = new Vector<String>();
 		// list of all removed user
 		List<String> usersDeleted = new Vector<String>();
 		
@@ -6950,8 +6950,28 @@ public class SiteAction extends PagedResourceActionII {
 							realmEdit.addMember(id, roleId, activeGrant,
 									fromProvider);
 							
+							// construct the event string
+							String userUpdatedString = "uid=" + id;
+							if (roleChange)
+							{
+								userUpdatedString += ";oldRole=" + oldRoleId + ";newRole=" + roleId;
+							}
+							else
+							{
+								userUpdatedString += ";role=" + roleId;
+							}
+							if (activeGrantChange)
+							{
+								userUpdatedString += ";oldActive=" + participant.isActive() + ";newActive=" + activeGrant;
+							}
+							else
+							{
+								userUpdatedString += ";active=" + activeGrant;
+							}
+							userUpdatedString += ";provided=" + fromProvider;
+							
 							// add to the list for all participants that have role changes
-							userChangedRoles.add("id=" + id + ";role=" + roleId + ";active=" + activeGrant + ";provided=" + fromProvider);
+							userUpdated.add(userUpdatedString);
 						}
 					}
 				}
@@ -6978,7 +6998,7 @@ public class SiteAction extends PagedResourceActionII {
 										roles.add(role.getId());
 									}
 									realmEdit.removeMember(userId);
-									usersDeleted.add(userId);
+									usersDeleted.add("uid=" + userId);
 								}
 							}
 						} catch (UserNotDefinedException e) {
@@ -7022,8 +7042,8 @@ public class SiteAction extends PagedResourceActionII {
 					// check the configuration setting, whether logging membership change at individual level is allowed
 					if (ServerConfigurationService.getBoolean(SiteHelper.WSETUP_TRACK_USER_MEMBERSHIP_CHANGE, false))
 					{
-						// event for each individual role update
-						for (String userChangedRole : userChangedRoles)
+						// event for each individual update
+						for (String userChangedRole : userUpdated)
 						{
 							EventTrackingService.post(EventTrackingService.newEvent(SiteHelper.EVENT_USER_SITE_MEMBERSHIP_UPDATE, userChangedRole,true));
 						}
@@ -7097,7 +7117,7 @@ public class SiteAction extends PagedResourceActionII {
 										if (trackIndividualChange)
 										{
 											// an event for each individual member role change
-											EventTrackingService.post(EventTrackingService.newEvent(SiteHelper.EVENT_USER_GROUP_MEMBERSHIP_UPDATE, "id=" + gMemberId + ";groupId=" + g.getId() + ";oldRole=" + groupRole + ";newRole=" + siteRole + ";active=" + siteMember.isActive() + ";provided=false", true/*update event*/));
+											EventTrackingService.post(EventTrackingService.newEvent(SiteHelper.EVENT_USER_GROUP_MEMBERSHIP_UPDATE, "uid=" + gMemberId + ";groupId=" + g.getId() + ";oldRole=" + groupRole + ";newRole=" + siteRole + ";active=" + siteMember.isActive() + ";provided=false", true/*update event*/));
 										}
 									}
 								}

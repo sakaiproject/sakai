@@ -603,7 +603,7 @@ public class SiteManageGroupSectionRoleHandler {
 				}
 				if (!found) {
 					group.removeMember(mId);
-					removedGroupMember.add("id=" + mId + ";groupId=" + group.getId());
+					removedGroupMember.add("uid=" + mId + ";groupId=" + group.getId());
 				}
 			}
 
@@ -630,7 +630,7 @@ public class SiteManageGroupSectionRoleHandler {
     					String roleUserId = (String) iRoleUsers.next();
         				Member member = site.getMember(roleUserId);
     					group.addMember(roleUserId, memberId, member.isActive(), false);
-    					addedGroupMember.add("id=" + roleUserId + ";role=" + member.getRole().getId() + ";active=" + member.isActive() + ";provided=false;groupId=" + group.getId());
+    					addedGroupMember.add("uid=" + roleUserId + ";role=" + member.getRole().getId() + ";active=" + member.isActive() + ";provided=false;groupId=" + group.getId());
     				}
     				selectedRoles.add(memberId);
 				}
@@ -650,7 +650,7 @@ public class SiteManageGroupSectionRoleHandler {
 						String roleString = r != null ? r.getId(): memberRole != null? memberRole.getId() : "";
 						boolean active = m != null ? m.isActive() : true;
 						group.addMember(memberId, roleString, active,false);
-						addedGroupMember.add("id=" + memberId + ";role=" + roleString + ";active=" + active + ";provided=false;groupId=" + group.getId());
+						addedGroupMember.add("uid=" + memberId + ";role=" + roleString + ";active=" + active + ";provided=false;groupId=" + group.getId());
 					}
 				}
 			}

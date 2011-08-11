@@ -563,7 +563,7 @@ public class SiteAddParticipantHandler {
 								realmEdit.addMember(user.getId(), role, statusChoice.equals("active"),
 										false);
 								addedUserEIds.add(eId);
-								addedUserInfos.add("id=" + user.getId() + ";role=" + role + ";active=" + statusChoice.equals("active") + ";provided=false");
+								addedUserInfos.add("uid=" + user.getId() + ";role=" + role + ";active=" + statusChoice.equals("active") + ";provided=false");
 
 								// send notification
 								if (notify) {
