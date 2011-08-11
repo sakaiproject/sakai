@@ -26,6 +26,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.util.Participant;
+import org.sakaiproject.sitemanage.api.SiteHelper;
 import org.sakaiproject.sitemanage.api.UserNotificationProvider;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
@@ -525,6 +526,8 @@ public class SiteAddParticipantHandler {
 	private List<String> addUsersRealm( boolean notify) {
 		// return the list of user eids for successfully added user
 		List<String> addedUserEIds = new Vector<String>();
+		// this list contains all added user, their roles, and active status
+		List<String> addedUserInfos = new Vector<String>();
 
 		if (userRoleEntries != null && !userRoleEntries.isEmpty()) {
 			if (site == null)
@@ -560,6 +563,7 @@ public class SiteAddParticipantHandler {
 								realmEdit.addMember(user.getId(), role, statusChoice.equals("active"),
 										false);
 								addedUserEIds.add(eId);
+								addedUserInfos.add("id=" + user.getId() + ";role=" + role + ";active=" + statusChoice.equals("active") + ";provided=false");
 
 								// send notification
 								if (notify) {
@@ -577,9 +581,19 @@ public class SiteAddParticipantHandler {
 					} // for
 
 					try {
+						authzGroupService.save(realmEdit);
 						// post event about adding participant
 						EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP, realmEdit.getId(),false));
-						authzGroupService.save(realmEdit);
+						
+						// check the configuration setting, whether logging membership change at individual level is allowed
+						if (serverConfigurationService.getBoolean(SiteHelper.WSETUP_TRACK_USER_MEMBERSHIP_CHANGE, false))
+						{
+							for(String userInfo : addedUserInfos)
+							{
+								// post the add event for each added participant
+								EventTrackingService.post(EventTrackingService.newEvent(SiteHelper.EVENT_USER_SITE_MEMBERSHIP_ADD, userInfo, true));
+							}
+						}
 					} catch (GroupNotDefinedException ee) {
 						targettedMessageList.addMessage(new TargettedMessage("java.realm",new Object[] { realmId }, TargettedMessage.SEVERITY_INFO));
 						M_log.warn(this + ".addUsersRealm: cannot find realm for" + realmId);

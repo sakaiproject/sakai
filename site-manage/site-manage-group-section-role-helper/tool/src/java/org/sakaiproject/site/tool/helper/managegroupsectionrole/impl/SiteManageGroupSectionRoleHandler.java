@@ -31,6 +31,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.util.Participant;
 import org.sakaiproject.site.util.SiteConstants;
 import org.sakaiproject.site.util.SiteParticipantHelper;
+import org.sakaiproject.sitemanage.api.SiteHelper;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
@@ -530,6 +531,12 @@ public class SiteManageGroupSectionRoleHandler {
     	
         Group group = null;
         
+        // those added user into group
+        List<String> addedGroupMember = new Vector<String>();
+        
+        // those deleted user from group
+        List<String> removedGroupMember = new Vector<String>();
+        
         id = StringUtils.trimToNull(id);
         
     	String siteReference = siteService.siteReference(site.getId());
@@ -596,10 +603,11 @@ public class SiteManageGroupSectionRoleHandler {
 				}
 				if (!found) {
 					group.removeMember(mId);
+					removedGroupMember.add("id=" + mId + ";groupId=" + group.getId());
 				}
 			}
 
-			// add those seleted members
+			// add those selected members
 			List<String> siteRosters = getSiteRosters(null);
 			List<String> siteRoles = getSiteRoleIds();
 			List<String> selectedRosters = new Vector<String>();
@@ -611,6 +619,7 @@ public class SiteManageGroupSectionRoleHandler {
 				{
 					// this is a roster
 					selectedRosters.add(memberId);
+					// TODO: log event for each individual user?
 				}
 				else if (siteRoles.contains(memberId))
 				{
@@ -621,6 +630,7 @@ public class SiteManageGroupSectionRoleHandler {
     					String roleUserId = (String) iRoleUsers.next();
         				Member member = site.getMember(roleUserId);
     					group.addMember(roleUserId, memberId, member.isActive(), false);
+    					addedGroupMember.add("id=" + roleUserId + ";role=" + member.getRole().getId() + ";active=" + member.isActive() + ";provided=false;groupId=" + group.getId());
     				}
     				selectedRoles.add(memberId);
 				}
@@ -637,9 +647,10 @@ public class SiteManageGroupSectionRoleHandler {
 						// non-provided
 						// get role first from site definition. 
 						// However, if the user is inactive, getUserRole would return null; then use member role instead
-						group.addMember(memberId, r != null ? r.getId()
-								: memberRole != null? memberRole.getId() : "", m != null ? m.isActive() : true,
-								false);
+						String roleString = r != null ? r.getId(): memberRole != null? memberRole.getId() : "";
+						boolean active = m != null ? m.isActive() : true;
+						group.addMember(memberId, roleString, active,false);
+						addedGroupMember.add("id=" + memberId + ";role=" + roleString + ";active=" + active + ";provided=false;groupId=" + group.getId());
 					}
 				}
 			}
@@ -668,6 +679,27 @@ public class SiteManageGroupSectionRoleHandler {
     		try
     		{
     			siteService.save(site);
+    			
+    			// post event about the participant update
+				EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP, group.getId(),true));
+			
+				if (serverConfigurationService.getBoolean(SiteHelper.WSETUP_TRACK_USER_MEMBERSHIP_CHANGE, false))
+				{
+					// added members
+					for(String addedMemberString : addedGroupMember)
+					{
+						// an event for each individual member add
+						EventTrackingService.post(EventTrackingService.newEvent(SiteHelper.EVENT_USER_GROUP_MEMBERSHIP_ADD, addedMemberString, true/*update event*/));
+					}
+					
+					// removed members
+					for(String removedMemberString : removedGroupMember)
+					{
+						// an event for each individual member remove
+						EventTrackingService.post(EventTrackingService.newEvent(SiteHelper.EVENT_USER_GROUP_MEMBERSHIP_REMOVE, removedMemberString, true/*update event*/));
+				
+					}
+				}
     			// reset the form params
     			resetParams();
 	        } 

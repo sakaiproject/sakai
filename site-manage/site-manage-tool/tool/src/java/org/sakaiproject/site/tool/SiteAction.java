@@ -6887,6 +6887,12 @@ public class SiteAction extends PagedResourceActionII {
 		ParameterParser params = data.getParameters();
 		Site s = getStateSite(state);
 		String realmId = SiteService.siteReference(s.getId());
+		
+		// list of changed roles
+		List<String> userChangedRoles = new Vector<String>();
+		// list of all removed user
+		List<String> usersDeleted = new Vector<String>();
+		
 		if (AuthzGroupService.allowUpdate(realmId)
 				|| SiteService.allowUpdateSiteMembership(s.getId())) {
 			try {
@@ -6916,30 +6922,36 @@ public class SiteAction extends PagedResourceActionII {
 						String inputRoleField = "role" + id;
 						String roleId = params.getString(inputRoleField);
 						String oldRoleId = participant.getRole();
+						boolean roleChange = roleId != null && !roleId.equals(oldRoleId);
+						
+						// get the grant active status
+						boolean activeGrant = true;
+						String activeGrantField = "activeGrant" + id;
+						if (params.getString(activeGrantField) != null) {
+							activeGrant = params
+									.getString(activeGrantField)
+									.equalsIgnoreCase("true") ? true
+									: false;
+						}
+						boolean activeGrantChange = participant.isActive() && !activeGrant || !participant.isActive() && activeGrant;
+						
 						// save any roles changed for permission check
-						if (roleId != null && !roleId.equals(oldRoleId)) {
+						if (roleChange) {
 						    roles.add(roleId);
 						    roles.add(oldRoleId);
 						}
-
-						// only change roles when they are different than before
-						if (roleId != null) {
-							// get the grant active status
-							boolean activeGrant = true;
-							String activeGrantField = "activeGrant" + id;
-							if (params.getString(activeGrantField) != null) {
-								activeGrant = params
-										.getString(activeGrantField)
-										.equalsIgnoreCase("true") ? true
-										: false;
-							}
-
+						
+						if (roleChange || activeGrantChange)
+						{
 							boolean fromProvider = !participant.isRemoveable();
 							if (fromProvider && !roleId.equals(participant.getRole())) {
 							    fromProvider = false;
 							}
 							realmEdit.addMember(id, roleId, activeGrant,
 									fromProvider);
+							
+							// add to the list for all participants that have role changes
+							userChangedRoles.add("id=" + id + ";role=" + roleId + ";active=" + activeGrant + ";provided=" + fromProvider);
 						}
 					}
 				}
@@ -6966,6 +6978,7 @@ public class SiteAction extends PagedResourceActionII {
 										roles.add(role.getId());
 									}
 									realmEdit.removeMember(userId);
+									usersDeleted.add(userId);
 								}
 							}
 						} catch (UserNotDefinedException e) {
@@ -6999,12 +7012,27 @@ public class SiteAction extends PagedResourceActionII {
 				} else {
 					
 					AuthzGroupService.save(realmEdit);
+
+					// then update all related group realms for the role
+					doUpdate_related_group_participants(s, realmId);
 					
 					// post event about the participant update
 					EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP, realmEdit.getId(),false));
 					
-					// then update all related group realms for the role
-					doUpdate_related_group_participants(s, realmId);
+					// check the configuration setting, whether logging membership change at individual level is allowed
+					if (ServerConfigurationService.getBoolean(SiteHelper.WSETUP_TRACK_USER_MEMBERSHIP_CHANGE, false))
+					{
+						// event for each individual role update
+						for (String userChangedRole : userChangedRoles)
+						{
+							EventTrackingService.post(EventTrackingService.newEvent(SiteHelper.EVENT_USER_SITE_MEMBERSHIP_UPDATE, userChangedRole,true));
+						}
+						// event for each individual remove
+						for (String userDeleted : usersDeleted)
+						{
+							EventTrackingService.post(EventTrackingService.newEvent(SiteHelper.EVENT_USER_SITE_MEMBERSHIP_REMOVE, userDeleted,true));
+						}
+					}
 				}
 			} catch (GroupNotDefinedException e) {
 				addAlert(state, rb.getString("java.problem2"));
@@ -7024,6 +7052,7 @@ public class SiteAction extends PagedResourceActionII {
 	 */
 	private void doUpdate_related_group_participants(Site s, String realmId) {
 		Collection groups = s.getGroups();
+		boolean trackIndividualChange = ServerConfigurationService.getBoolean(SiteHelper.WSETUP_TRACK_USER_MEMBERSHIP_CHANGE, false);
 		if (groups != null)
 		{
 			try
@@ -7064,11 +7093,17 @@ public class SiteAction extends PagedResourceActionII {
 										}
 										g.removeMember(gMemberId);
 										g.addMember(gMemberId, siteRole.getId(), siteMember.isActive(), false);
+										// track the group membership change at individual level
+										if (trackIndividualChange)
+										{
+											// an event for each individual member role change
+											EventTrackingService.post(EventTrackingService.newEvent(SiteHelper.EVENT_USER_GROUP_MEMBERSHIP_UPDATE, "id=" + gMemberId + ";groupId=" + g.getId() + ";oldRole=" + groupRole + ";newRole=" + siteRole + ";active=" + siteMember.isActive() + ";provided=false", true/*update event*/));
+										}
 									}
 								}
 							}
 							// post event about the participant update
-							EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP, g.getId(),false));
+							EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP, g.getId(),true));
 						}
 						catch (Exception ee)
 						{
