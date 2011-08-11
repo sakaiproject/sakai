@@ -57,9 +57,10 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentTypeImageService;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.lessonbuildertool.SimplePage;
@@ -68,8 +69,8 @@ import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
-import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.service.BltiInterface;
+import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.GroupEntry;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.Status;
@@ -83,6 +84,7 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -439,10 +441,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 		
 		// Set up customizable CSS
-		//String cssLink = simplePageBean.getCssForCurrentPage();
-		//if(cssLink != null) {
-//			UIOutput.make(tofill, "customCSS").decorate(new UIFreeAttributeDecorator("href", cssLink));
-		//}
+		ContentResource cssLink = simplePageBean.getCssForCurrentPage();
+		if(cssLink != null) {
+			UIOutput.make(tofill, "customCSS").decorate(new UIFreeAttributeDecorator("href", cssLink.getUrl()));
+		}
 
 		// offer to go to saved page if this is the start of a session, in case
 		// user has logged off and logged on again.
@@ -2254,10 +2256,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		fileparams.viewID = ResourcePickerProducer.VIEW_ID;
 		
 		UILink link = UIInternalLink.make(form, "mm-choose", messageLocator.getMessage("simplepage.choose_existing"), fileparams);
-		
-		// createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar,
-		// "add-resource", "simplepage.resource", false, currentPage,
-		// "simplepage.resource.tooltip");
 
 		UICommand.make(form, "mm-add-item", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.addMultimedia}");
 		UIInput.make(form, "mm-item-id", "#{simplePageBean.itemId}");
@@ -2444,7 +2442,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIOutput.make(form, "pageTitleLabel", messageLocator.getMessage("simplepage.pageTitle_label"));
 		UIInput.make(form, "pageTitle", "#{simplePageBean.pageTitle}");
 
-		if (pageItem.getPageId() == 0) {
+		if (pageItem.getPageId() == 0 && page.getOwner() == null) {
 			UIOutput.make(tofill, "hideContainer");
 			UIBoundBoolean.make(form, "hide", "#{simplePageBean.hidePage}", (page.isHidden()));
 
@@ -2472,6 +2470,37 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		String pointString = "";
 		if (points != null) {
 			pointString = points.toString();
+		}
+		
+		if(page.getOwner() == null) {
+			ArrayList<ContentResource> sheets = simplePageBean.getAvailableCss();
+			String[] options = new String[sheets.size()+2];
+			String[] labels = new String[sheets.size()+2];
+			
+			// Sets up the CSS arrays
+			options[0] = null;
+			labels[0] = messageLocator.getMessage("simplepage.default-css");
+			options[1] = null;
+			labels[1] = "----------";
+			for(int i = 0; i < sheets.size(); i++) {
+				if(sheets.get(i) != null) {
+					options[i+2] = sheets.get(i).getId();
+					labels[i+2] = sheets.get(i).getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+				}else {
+					// We show just one un-named separator if there are only site css, or system css, but not both.
+					// If we get here, it means we have both, so we name them.
+					options[i+2] = null;
+					labels[i+2] = "---" + messageLocator.getMessage("simplepage.system") + "---";
+					labels[1] = "---" + messageLocator.getMessage("simplepage.site") + "---";
+				}
+			}
+			
+			UIOutput.make(form, "cssDropdownLabel", messageLocator.getMessage("simplepage.css-dropdown-label"));
+			UISelect.make(form, "cssDropdown", options, labels, "#{simplePageBean.dropDown}", page.getCssSheet());
+			
+			UIOutput.make(form, "cssDefaultInstructions", messageLocator.getMessage("simplepage.css-default-instructions"));
+			UIOutput.make(form, "cssUploadLabel", messageLocator.getMessage("simplepage.css-upload-label"));
+			UIOutput.make(form, "cssUpload");
 		}
 		UIInput.make(form, "page-points", "#{simplePageBean.points}", pointString);
 

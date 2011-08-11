@@ -29,6 +29,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
@@ -48,20 +49,6 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.StringTokenizer;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Set;
-import java.util.HashSet;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLConnection;
-import java.text.DateFormat;
-import java.io.InputStream;
-import java.io.BufferedInputStream;
-import java.io.FileOutputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -69,14 +56,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentCollection;
-
+import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
-
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
@@ -84,11 +68,8 @@ import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-
-import org.sakaiproject.event.cover.EventTrackingService;
-
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -105,11 +86,11 @@ import org.sakaiproject.lessonbuildertool.cc.Parser;
 import org.sakaiproject.lessonbuildertool.cc.PrintHandler;
 import org.sakaiproject.lessonbuildertool.cc.ZipLoader;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.lessonbuildertool.service.BltiInterface;
 import org.sakaiproject.lessonbuildertool.service.GradebookIfc;
 import org.sakaiproject.lessonbuildertool.service.GroupPermissionsService;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
-import org.sakaiproject.lessonbuildertool.service.BltiInterface;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowItemProducer;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
@@ -120,6 +101,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -127,10 +109,10 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Validator;
 import org.springframework.web.multipart.MultipartFile;
-import org.sakaiproject.time.cover.TimeService;
+
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIInternalLink;
@@ -300,6 +282,7 @@ public class SimplePageBean {
     private Map<Long, Boolean> visibleCache = new HashMap<Long, Boolean>();
     // this one needs to be global
 	private static Cache groupCache = null;   // itemId => grouplist
+	private static Cache resourceCache = null;
 	protected static final int DEFAULT_EXPIRATION = 10 * 60;
 
 	public static class PathEntry {
@@ -405,9 +388,13 @@ public class SimplePageBean {
     // End Injection
 
 	public void init () {	
-	    if (groupCache == null)
-		groupCache = memoryService
-		    .newCache("org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.cache");
+		if (groupCache == null) {
+			groupCache = memoryService.newCache("org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.groupCache");
+		}
+		
+		if (resourceCache == null) {
+			resourceCache = memoryService.newCache("org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.resourceCache");
+		}
 	}
 
     // no destroy. We want to leave the cache intact when we exit, because there's one of us
@@ -2970,6 +2957,20 @@ public class SimplePageBean {
 			
 			adjustPath("", pageItem.getPageId(), pageItem.getId(), pageTitle);
 		}
+		
+		String collectionId = contentHostingService.getSiteCollection(getCurrentSiteId()) + "LB-CSS/";
+		String uploadId = uploadFile(collectionId);
+		if(uploadId != null) {
+			page.setCssSheet(uploadId);
+			
+			// Make sure the relevant caches are wiped clean.
+			resourceCache.expire(collectionId);
+			resourceCache.expire(uploadId);
+		}else {
+			page.setCssSheet(dropDown);
+		}
+		
+		update(page);
 
 		// have to do this after the page itself is updated
 		if (needRecompute)
@@ -2980,6 +2981,67 @@ public class SimplePageBean {
 			return "reload";
 		} else {
 			return "success";
+		}
+	}
+	
+	private String uploadFile(String collectionId) {
+		String name = null;
+		String mimeType = null;
+		MultipartFile file = null;
+		
+		if (multipartMap.size() > 0) {
+			// 	user specified a file, create it
+			file = multipartMap.values().iterator().next();
+			if (file.isEmpty())
+				file = null;
+		}
+		
+		if (file != null) {
+			//String collectionId = getCollectionId(false);
+			// 	user specified a file, create it
+			name = file.getOriginalFilename();
+			if (name == null || name.length() == 0)
+				name = file.getName();
+			
+			int i = name.lastIndexOf("/");
+			if (i >= 0)
+				name = name.substring(i+1);
+			String base = name;
+			String extension = "";
+			i = name.lastIndexOf(".");
+			if (i > 0) {
+				base = name.substring(0, i);
+				extension = name.substring(i+1);
+			}
+			
+			mimeType = file.getContentType();
+			try {
+				ContentResourceEdit res = contentHostingService.addResource(collectionId, 
+						  	Validator.escapeResourceName(base),
+						  	Validator.escapeResourceName(extension),
+						  	MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+				res.setContentType(mimeType);
+				res.setContent(file.getInputStream());
+				try {
+					contentHostingService.commitResource(res,  NotificationService.NOTI_NONE);
+					// 	there's a bug in the kernel that can cause
+					// 	a null pointer if it can't determine the encoding
+					// 	type. Since we want this code to work on old
+					// 	systems, work around it.
+				} catch (java.lang.NullPointerException e) {
+					setErrMessage(messageLocator.getMessage("simplepage.resourcepossibleerror"));
+				}
+				return res.getId();
+			} catch (org.sakaiproject.exception.OverQuotaException ignore) {
+				setErrMessage(messageLocator.getMessage("simplepage.overquota"));
+				return null;
+			} catch (Exception e) {
+				setErrMessage(messageLocator.getMessage("simplepage.resourceerror").replace("{}", e.toString()));
+				log.error("addMultimedia error 1 " + e);
+				return null;
+			}
+		}else {
+			return null;
 		}
 	}
 
@@ -3035,7 +3097,6 @@ public class SimplePageBean {
 	
 	// Adds an existing page as a top level page
 	public String addOldPage() {
-		System.out.println("Adding old page");
 		if (getEditPrivs() != 0)
 		    return "permission-failed";
 		
@@ -3043,7 +3104,6 @@ public class SimplePageBean {
 		if(target != null)
 			addPage(target.getTitle(), target.getPageId(), false);
 		
-		System.out.println("Returning");
 		return "success";
 	}
 
@@ -4872,21 +4932,134 @@ public class SimplePageBean {
 		}
 	}
 	
-	public String getCssForCurrentPage() {
-		List<ContentResource> resources = contentHostingService.getAllResources("/public/LB-CSS/");
+	/**
+	 * Returns an ArrayList containing all of the system-wide and site-wide CSS files.
+	 * 
+	 * One entry may be null, to separate system-wide from site-wide.
+	 * 
+	 * Caches lookups, to prevent extra database hits.
+	 */
+	public ArrayList<ContentResource> getAvailableCss() {
+		ArrayList<ContentResource> list = new ArrayList<ContentResource>();
 		
-		//System.out.println("Finding CSS");
-		for(ContentResource r : resources) {
+		String collectionId = contentHostingService.getSiteCollection(getCurrentSiteId()) + "LB-CSS/";
+		
+		List<ContentResource> resources = (List<ContentResource>) resourceCache.get(collectionId);
+		if(resources == null) {
+			resources = contentHostingService.getAllResources(collectionId);
+			if(resources == null) resources = new ArrayList<ContentResource>();
 			
-			if(r.getUrl().endsWith(ServerConfigurationService.getString("lessonbuilder.default.css", "default.css"))) {
-				return r.getUrl();
-			}
-			
-			//System.out.println(r.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME));
-			//System.out.println(r.getUrl());
-			//System.out.println(r.getId());
+			resourceCache.put(collectionId, resources);
 		}
 		
+		for(ContentResource r : resources) {
+			if(r.getUrl().endsWith(".css")) {
+				list.add(r);
+			}
+		}
+		
+		collectionId = "/public/LB-CSS/";
+		
+		resources = null;
+		resources = (List<ContentResource>) resourceCache.get(collectionId);
+		if(resources == null) {
+			resources = contentHostingService.getAllResources(collectionId);
+			if(resources == null) resources = new ArrayList<ContentResource>();
+			
+			resourceCache.put(collectionId, resources);
+		}
+		
+		// Insert separator
+		if(list.size() > 0 && resources.size() > 0) {
+			list.add(null);
+		}
+		
+		for(ContentResource r : resources) {
+			if(r.getUrl().endsWith(".css")) {
+				list.add(r);
+			}
+		}
+		
+		
+		return list;
+	}
+	/**
+	 * First checks if a sheet has been explicitly set.  Then checks for a default
+	 * at the site level.  It then finally checks to see if there is a default on the
+	 * system level.
+	 * 
+	 * Caches lookups to prevent too many lookups in the database.
+	 */
+	public ContentResource getCssForCurrentPage() {
+		ContentResource resource = null;
+		
+		// I'm always using ArrayList for the resourceCache so that I can distinguish
+		// between never having looked up the resource, and the resource not being there.
+		// Otherwise, if I just check for null, if a resource isn't there, it will still check
+		// every time.
+		
+		String collectionId = getCurrentPage().getCssSheet();
+		if(getCurrentPage().getCssSheet() != null) {
+			try {
+				ArrayList<ContentResource> resources = (ArrayList<ContentResource>) resourceCache.get(collectionId);
+				if(resources == null) {
+					resource = contentHostingService.getResource(collectionId);
+					resources = new ArrayList<ContentResource>();
+					resources.add(resource);
+					resourceCache.put(collectionId, resources);
+				}
+				
+				if(resources.size() > 0) {
+					return resources.get(0);
+				}else {
+					throw new Exception();
+				}
+			}catch(Exception ex) {
+				if(canEditPage()) {
+					setErrMessage(messageLocator.getMessage("simplepage.broken-css"));
+				}
+				
+				resourceCache.put(collectionId, new ArrayList<ContentResource>());
+			}
+		}
+		
+		collectionId = contentHostingService.getSiteCollection(getCurrentSiteId())
+				+ "LB-CSS/" + ServerConfigurationService.getString("lessonbuilder.default.css", "default.css");
+		
+		try {
+			ArrayList<ContentResource> resources = (ArrayList<ContentResource>) resourceCache.get(collectionId);
+			if(resources == null) {
+				resource = contentHostingService.getResource(collectionId);
+				resources = new ArrayList<ContentResource>();
+				resources.add(resource);
+				resourceCache.put(collectionId, resources);
+			}
+			
+			if(resources.size() > 0) {
+				return resources.get(0);
+			}
+		}catch(Exception ignore) {
+			resourceCache.put(collectionId, new ArrayList<ContentResource>());
+		}
+		
+		collectionId = "/public/LB-CSS/" + ServerConfigurationService.getString("lessonbuilder.default.css", "default.css");
+		
+		try {
+			ArrayList<ContentResource> resources = (ArrayList<ContentResource>) resourceCache.get(collectionId);
+			if(resources == null) {
+				resource = contentHostingService.getResource(collectionId);
+				resources = new ArrayList<ContentResource>();
+				resources.add(resource);
+				resourceCache.put(collectionId, resources);
+			}
+			
+			if(resources.size() > 0) {
+				return resources.get(0);
+			}
+		}catch(Exception ignore) {
+			resourceCache.put(collectionId, new ArrayList<ContentResource>());
+		}
+				
 		return null;
 	}
 }

@@ -42,6 +42,8 @@ public class SimplePageImpl implements SimplePage {
 	
 	private String owner;       // If this is a student content site, lists the student
 	private Boolean groupOwned; // Or group if it's group owned
+	
+	private String cssSheet = null; // ID of a resource, if a separate CSS sheet is to be used
 
 	public SimplePageImpl() {}
 
@@ -141,6 +143,14 @@ public class SimplePageImpl implements SimplePage {
 	
 	public void setGroupOwned(Boolean go) {
 		groupOwned = go;
+	}
+	
+	public String getCssSheet() {
+		return cssSheet;
+	}
+	
+	public void setCssSheet(String cssSheet) {
+		this.cssSheet = cssSheet;
 	}
 
 }

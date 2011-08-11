@@ -108,7 +108,7 @@ function resizeiframe(id) {
 				<li><a href="#" rsf:id="add-quiz"><span rsf:id="msg.simplepage.quiz"></span></a></li>
 				<a href="#" rsf:id="help" target="_blank"></a>
 				
-				<li class="dropdown" style="z-index:2000">
+				<li class="dropdown" style="z-index:900">
 					<span><a href="#" onclick="return false;" rsf:id="msg=simplepage.more-tools" ></a></span>
 				
 					<div id="dropDownDiv">
@@ -397,6 +397,8 @@ function resizeiframe(id) {
 			  <p rsf:id="msg=simplepage.edit_blti" id="simplepage.edit_blti"></p>
 			  <p rsf:id="msg=simplepage.number_pages_not_number" id="simplepage.number_pages_not_number"></p>
 			  <p rsf:id="msg=simplepage.title_no_number" id="simplepage.title_no_number"></p>
+			  <p rsf:id="msg=simplepage.site" id="simplepage.site"></p>
+			  <p rsf:id="msg=simplepage.system" id="simplepage.system"></p>
 			</div>
 
 			<div id="subpage-dialog" rsf:id="subpage-dialog">
@@ -530,7 +532,7 @@ function resizeiframe(id) {
 						<input type="checkbox" class="indent" name="item-required2" id="item-required2" rsf:id="item-required2" />
 						<label for="item-required2"><span rsf:id="msg=simplepage.require" id="require-label2"></span></label>
 						<select id="assignment-dropdown" rsf:id="assignment-dropdown">
-s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
+							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 						</select>
 						<input id="assignment-points" rsf:id="assignment-points" size="4"/>
 						<label for="assignment-points" id="assignment-points-label"> points on the assignment</label>
@@ -713,7 +715,7 @@ s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 					</div>
 				</div>
 				
-				<form action="#" rsf:id="title-form">
+				<form action="#" rsf:id="title-form" enctype="multipart/form-data">
 					<p class="shorttext required">
 						<span class="reqStar">*</span>
 						<label rsf:id="pageTitleLabel" for="pageTitle">Page Title</label>
@@ -748,9 +750,20 @@ s							<option rsf:id="option:"><span rsf:id="optionText"></span></option>
 						<input type="text" name="page-points" id="page-points" rsf:id="page-points" />
 						<label for="page-points"><span rsf:id="msg=simplepage.points"></span></label>
 					</div>
-					<br />
-				
-
+					
+					<hr />
+					
+					<label for="cssDropdown" rsf:id="cssDropdownLabel"></label>
+					<select rsf:id="cssDropdown" id="cssDropdown" name="cssDropdown">
+						<option rsf:id="possCss:"></option>
+					</select>
+					
+					<label for="cssUpload" rsf:id="cssUploadLabel"></label>
+					<input type="file" name="cssUpload" rsf:id="cssUpload" style="width:95%" class="edit-multimedia-input" />
+					<br /><span class="italic" rsf:id="cssDefaultInstructions"></span>
+					
+					<br /><hr /><br />
+					
 					<input class="bold" type="submit"  onclick="event.returnValue = checkEditTitleForm(); return checkEditTitleForm();" rsf:id="create-title" />
 					<input type="submit" rsf:id="cancel-title"  onclick="closeEditTitleDialog(); return false" />
 				</form>

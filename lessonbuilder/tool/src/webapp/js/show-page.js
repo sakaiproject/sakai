@@ -977,6 +977,10 @@ $(function() {
 	$("li.dropdown").children("div").hide();
 	$("li.dropdown").click(toggleDropdown);
 	dropDownViaClick = false;
+	
+	$("#cssDropdown-selection").children(":contains(---" + msg("simplepage.site") + "---)").attr("disabled", "disabled");
+	$("#cssDropdown-selection").children(":contains(---" + msg("simplepage.system") + "---)").attr("disabled", "disabled");
+	$("#cssDropdown-selection").children(":contains(----------)").attr("disabled", "disabled");
 });
 
 function closeSubpageDialog() {

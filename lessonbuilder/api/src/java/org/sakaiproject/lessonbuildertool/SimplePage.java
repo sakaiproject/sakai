@@ -79,4 +79,8 @@ public interface SimplePage {
     public Boolean isGroupOwned();
     
     public void setGroupOwned(Boolean go);
+    
+    public String getCssSheet();
+    
+    public void setCssSheet(String cssSheet);
 }
