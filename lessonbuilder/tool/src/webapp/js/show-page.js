@@ -1,4 +1,5 @@
 var dropdownViaClick = false;
+var lessonBuilderAnimationLocked = false;
 
 function msg(s) {
    return document.getElementById(s).innerHTML;
@@ -1179,27 +1180,38 @@ $(function() {
 });
 
 function addHighlight() {
-	if(!$(this).children("div").is(":visible")) {
-		reposition();
-		$(this).children("div").show("slide", {direction: "up"}, 300);
+	if(!lessonBuilderAnimationLocked) {
+		if(!$(this).children("div").is(":visible")) {
+			lessonBuilderAnimationLocked = true;
+			reposition();
+			$(this).children("div").show("slide", {direction: "up"}, 300, unlockAnimation);
+		}
 	}
 	//$(this).addClass("hovering");
 }
 
 function removeHighlight() {
-	if($(this).children("div").is(":visible") && !dropdownViaClick)
-		$(this).children("div").hide("slide", {direction: "up"}, 300);
+	if(!lessonBuilderAnimationLocked) {
+		if($(this).children("div").is(":visible") && !dropdownViaClick) {
+			lessonBuilderAnimationLocked = true;
+			$(this).children("div").hide("slide", {direction: "up"}, 300, unlockAnimation);
+		}
+	}
 	//$(this).removeClass("hovering");
 }
 
 function toggleDropdown() {
-	if($(this).children("div").is(":visible")) {
-		reposition();
-		$(this).children("div").hide("slide", {direction: "up"}, 300);
-		dropdownViaClick = false;
-	}else {
-		$(this).children("div").show("slide", {direction: "up"}, 300);
-		dropdownViaClick = true;
+	if(!lessonBuilderAnimationLocked) {
+		if($(this).children("div").is(":visible")) {
+			lessonBuilderAnimationLocked = true;
+			reposition();
+			$(this).children("div").hide("slide", {direction: "up"}, 300, unlockAnimation);
+			dropdownViaClick = false;
+		}else {
+			lessonBuilderAnimationLocked = true;
+			$(this).children("div").show("slide", {direction: "up"}, 300, unlockAnimation);
+			dropdownViaClick = true;
+		}
 	}
 }
 
@@ -1212,4 +1224,9 @@ function reposition() {
 	if(dropX + dropdown.width() > $(window).width()) {
 		dropdown.css("left", ($(window).width() - dropdown.width() - dropX - 100) + "px");
 	}
+}
+
+// Keeps JQuery from getting confused mid-animation
+function unlockAnimation() {
+	lessonBuilderAnimationLocked = false;
 }

@@ -437,6 +437,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			}
 			return;
 		}
+		
+		// Set up customizable CSS
+		//String cssLink = simplePageBean.getCssForCurrentPage();
+		//if(cssLink != null) {
+//			UIOutput.make(tofill, "customCSS").decorate(new UIFreeAttributeDecorator("href", cssLink));
+		//}
 
 		// offer to go to saved page if this is the start of a session, in case
 		// user has logged off and logged on again.
@@ -492,7 +498,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		GeneralViewParameters showAll = new GeneralViewParameters(PagePickerProducer.VIEW_ID);
 		showAll.setSource("summary");
 		UIInternalLink.make(tofill, "show-pages", messageLocator.getMessage("simplepage.showallpages"), showAll);
-
+		
 		if (canEditPage) {
 			// show tool bar
 			createToolBar(tofill, currentPage, (pageItem.getType() == SimplePageItem.STUDENT_CONTENT));

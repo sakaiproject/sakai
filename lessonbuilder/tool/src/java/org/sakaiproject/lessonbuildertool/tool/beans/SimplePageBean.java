@@ -4873,10 +4873,18 @@ public class SimplePageBean {
 	}
 	
 	public String getCssForCurrentPage() {
-		List<ContentResource> resources = contentHostingService.getAllResources("public");
+		List<ContentResource> resources = contentHostingService.getAllResources("/public/LB-CSS/");
 		
+		//System.out.println("Finding CSS");
 		for(ContentResource r : resources) {
-			System.out.println(r.getId());
+			
+			if(r.getUrl().endsWith(ServerConfigurationService.getString("lessonbuilder.default.css", "default.css"))) {
+				return r.getUrl();
+			}
+			
+			//System.out.println(r.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+			//System.out.println(r.getUrl());
+			//System.out.println(r.getId());
 		}
 		
 		return null;
