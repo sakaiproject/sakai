@@ -22,7 +22,7 @@
 						$tlang.getString("gen.created")
 					</th>
 					<th id="last">
-						$tlang.getString("gen.last")
+						$tlang.getString("gen.lastmod")
 					</th>
 				</tr>
 				#foreach ($member in $deleteItems)
