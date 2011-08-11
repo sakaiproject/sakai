@@ -70,7 +70,7 @@
    </bean>
 
    <bean id="lessonbuildertoolExternal" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>lessonbuildertoolExteranl</value></property>
+      <property name="docId"><value>lessonbuildertoolExternal</value></property>
       <property name="name"><value>Add External Tool using IMS Basic Learning Tool Interoperability Protocol</value></property>
       <property name="location"><value>/sakai_lessonbuildertool/external.html</value></property>
    </bean>
@@ -84,7 +84,7 @@
    <bean id="lessonbuildertoolRemove" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>lessonbuildertoolRemove</value></property>
       <property name="name"><value>Remove a Top-level Page</value></property>
-      <property name="location"><value>/sakai_lessonbuildertool/addmultimedia.html</value></property>
+      <property name="location"><value>/sakai_lessonbuildertool/remove.html</value></property>
    </bean>
 
    <bean id="lessonbuildertoolAddTop" class="org.sakaiproject.component.app.help.model.ResourceBean">
