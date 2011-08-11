@@ -67,13 +67,6 @@
         <property name="timeToLive" value="3600" />
         <property name="timeToIdle" value="3600" />
     </bean>
-	<bean id="org.sakaiproject.dash.listener.EventProcessorDispatcher" 
-		class="org.sakaiproject.dash.listener.EventProcessorDispatcher" 
-		init-method="init"
-		destroy-method="destroy"
-		singleton="true">
-    	<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
-	</bean>
 	<bean id="org.sakaiproject.dash.listener.AssignmentNewEventProcessor" 
 		class="org.sakaiproject.dash.listener.AssignmentNewEventProcessor" 
 		init-method="init">
@@ -86,8 +79,8 @@
 		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
     	<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy"></property>
 	</bean>
-	<bean id="org.sakaiproject.dash.listener.AnnouncementEventProcessor" 
-		class="org.sakaiproject.dash.listener.AnnouncementEventProcessor" 
+	<bean id="org.sakaiproject.dash.listener.AnnouncementNewEventProcessor" 
+		class="org.sakaiproject.dash.listener.AnnouncementNewEventProcessor" 
 		init-method="init">
 		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
     	<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy"></property>

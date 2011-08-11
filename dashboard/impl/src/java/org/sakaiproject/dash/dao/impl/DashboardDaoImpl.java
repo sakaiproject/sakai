@@ -258,7 +258,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 		
 		try {
-			return (SourceType) getJdbcTemplate().queryForObject(getStatement("select.SourceType.by.name"),
+			return (SourceType) getJdbcTemplate().queryForObject(getStatement("select.SourceType.by.identifier"),
 				new Object[]{sourceTypeName},
 				new SourceTypeMapper()
 			);
