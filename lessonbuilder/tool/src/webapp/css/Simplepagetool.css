@@ -284,5 +284,5 @@ ul#toolbar li.dropdown div {
 }
 
 img {
-	z-index:auto;
+	z-index:1;
 }
