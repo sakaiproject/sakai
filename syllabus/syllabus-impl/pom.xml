@@ -92,7 +92,6 @@
     <dependency>
       <groupId>org.opensymphony.quartz</groupId>
       <artifactId>quartz</artifactId>
-      <version>${sakai.quartz.version}</version>
     </dependency>
   </dependencies>
   <build>
