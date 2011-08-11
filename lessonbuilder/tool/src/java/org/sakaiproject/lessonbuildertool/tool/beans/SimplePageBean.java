@@ -2997,6 +2997,19 @@ public class SimplePageBean {
 		}
 		
 		if (file != null) {
+			try {
+				contentHostingService.checkCollection(collectionId);
+			}catch(Exception ex) {
+				try {
+					ContentCollectionEdit edit = contentHostingService.addCollection(collectionId);
+					edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, "LB-CSS");
+					contentHostingService.commitCollection(edit);
+				}catch(Exception e) {
+					setErrMessage(messageLocator.getMessage("simplepage.permissions-general"));
+					return null;
+				}
+			}
+			
 			//String collectionId = getCollectionId(false);
 			// 	user specified a file, create it
 			name = file.getOriginalFilename();
