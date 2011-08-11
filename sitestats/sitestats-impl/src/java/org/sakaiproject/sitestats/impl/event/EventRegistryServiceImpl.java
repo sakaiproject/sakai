@@ -63,6 +63,7 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	/** Event Registries */
 	private FileEventRegistry			fileEventRegistry			= null;
 	private EntityBrokerEventRegistry	entityBrokerEventRegistry	= null;
+	private List<String> 				serverEvents				= new ArrayList<String>();
 
 	/** Caching */
 	private Cache						eventRegistryCache			= null;
@@ -402,6 +403,11 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 			anonymousToolEventIds = null;
 			LOG.debug("EventRegistry expired. Reloading...");
 		}
+	}
+
+	@Override
+	public List<String> getServerEventIds() {
+		return serverEvents;
 	}
 
 }

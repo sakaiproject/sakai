@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -18,6 +18,7 @@
  */
 package org.sakaiproject.sitestats.test.mocks;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -100,6 +101,10 @@ public class FakeEventRegistryService implements EventRegistryService {
 	public String getToolName(String toolId) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public List<String> getServerEventIds() {
+		return new ArrayList<String>();
 	}
 
 }

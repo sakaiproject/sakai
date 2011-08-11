@@ -96,5 +96,11 @@ public interface EventRegistryService {
 	 * @see getEventRegistry()
 	 */
 	public EventFactory getEventFactory();
+	
+	/**
+	 * Get a list of event ids related to global server events. This list is configured via Spring.
+	 * @return List of event ids
+	 */
+	public List<String> getServerEventIds();
 
 }

@@ -54,6 +54,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.JobRun;
 import org.sakaiproject.sitestats.api.ResourceStat;
+import org.sakaiproject.sitestats.api.ServerStats;
 import org.sakaiproject.sitestats.api.SiteActivity;
 import org.sakaiproject.sitestats.api.SitePresence;
 import org.sakaiproject.sitestats.api.SiteVisits;
@@ -103,6 +104,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	private Map<String, SiteVisits>			visitsMap							= Collections.synchronizedMap(new HashMap<String, SiteVisits>());
 	private Map<String, SitePresenceConsolidation>	presencesMap				= Collections.synchronizedMap(new HashMap<String, SitePresenceConsolidation>());
 	private Map<UniqueVisitsKey, Integer>	uniqueVisitsMap						= Collections.synchronizedMap(new HashMap<UniqueVisitsKey, Integer>());
+	private Map<String, ServerStats>		serverStatMap						= Collections.synchronizedMap(new HashMap<String, ServerStats>());
 
 	private boolean							initialized 						= false;
 	
@@ -568,7 +570,14 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			if(userId == null || eventId == null || resourceRef == null)
 				return;
 			consolidateEvent(date, eventId, resourceRef, userId, siteId);
-		}//else LOG.debug("EventInfo ignored:  '"+e.toString()+"' ("+e.toString()+") USER_ID: "+userId);
+		} else if(getServerEvents().contains(e.getEvent())){
+			//is a server event
+			LOG.debug("Server event: "+e.toString());
+		}
+		
+		
+		
+		//else LOG.debug("EventInfo ignored:  '"+e.toString()+"' ("+e.toString()+") USER_ID: "+userId);
 	}
 	
 	private void consolidateEvent(Date dateTime, String eventId, String resourceRef, String userId, String siteId) {
@@ -700,6 +709,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					lock.unlock();
 				}
 			}
+		} else if(getServerEvents().contains(eventId)) {
+			//STAT-299 todo
 		}
 		
 	}
@@ -1295,6 +1306,11 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		}
 		
 		return registeredEvents;
+	}
+	
+	/** Get all server events **/
+	private Collection<String> getServerEvents() {
+		return M_ers.getServerEventIds();
 	}
 	
 	/** Get eventId -> ToolInfo map */
