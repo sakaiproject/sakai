@@ -110,29 +110,12 @@ public class EntityBatchHandler {
         this.entityRequestHandler = entityRequestHandler;
     }
 
-    // allow the servlet name to be more flexible
-    private String servletContext;
     private String getServletContext() {
-        if (this.servletContext == null) {
-            setServletContext(null); // set defaults
-        }
-        return this.servletContext;
+        return this.entityBrokerManager.getServletContext();
     }
 
-    public void setServletContext(String servletContext) {
-        if (servletContext == null) {
-            servletContext = RequestUtils.getServletContext(null);
-        }
-        this.servletContext = servletContext;
-        this.servletBatch = servletContext + EntityRequestHandler.SLASH_BATCH;
-    }
-
-    private String servletBatch;
     private String getServletBatch() {
-        if (this.servletBatch == null) {
-            setServletContext(null); // set defaults
-        }
-        return this.servletBatch;
+        return getServletContext() + EntityRequestHandler.SLASH_BATCH;
     }
 
     /**
@@ -144,11 +127,6 @@ public class EntityBatchHandler {
     public void handleBatch(EntityView view, HttpServletRequest req, HttpServletResponse res) {
         if (view == null || req == null || res == null) {
             throw new IllegalArgumentException("Could not process batch: invalid arguments, no args can be null (view="+view+",req="+req+",res="+res+")");
-        }
-
-        // set up the servlet context if this is the first time
-        if (this.servletContext == null) {
-            setServletContext( RequestUtils.getServletContext(req) );
         }
 
         // first find out which METHOD we are dealing with
@@ -508,7 +486,7 @@ public class EntityBatchHandler {
                 }
                 entityURL = redirectURL;
                 // check that the redirect is not external
-                if ( entityURL.startsWith(servletContext) ) {
+                if ( entityURL.startsWith(getServletContext()) ) {
                     // internal
                     entityRequest.setPathString(redirectURL);
                     entityResponse.reset();

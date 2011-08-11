@@ -43,6 +43,8 @@ import org.sakaiproject.entitybroker.providers.EntityRequestHandler;
  */
 public abstract class DirectServlet extends HttpServlet {
 
+    private static final long serialVersionUID = 1L;
+
     protected transient EntityRequestHandler entityRequestHandler;
     public void setEntityRequestHandler(EntityRequestHandler entityRequestHandler) {
         this.entityRequestHandler = entityRequestHandler;

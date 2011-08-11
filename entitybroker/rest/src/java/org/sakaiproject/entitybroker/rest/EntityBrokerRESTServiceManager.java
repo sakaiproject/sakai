@@ -129,7 +129,8 @@ public class EntityBrokerRESTServiceManager {
         }
         // initialize all the parts
         entityActionsManager = new EntityActionsManager(entityProviderMethodStore);
-        entityRedirectsManager = new EntityRedirectsManager(entityProviderMethodStore, requestStorage);
+        entityRedirectsManager = new EntityRedirectsManager(entityBrokerManager, 
+                entityProviderMethodStore, requestStorage);
 
         entityDescriptionManager = new EntityDescriptionManager(entityViewAccessProviderManager,
                 httpServletAccessProviderManager, entityProviderManager, entityPropertiesService,

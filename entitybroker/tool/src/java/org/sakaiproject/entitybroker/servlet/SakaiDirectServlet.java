@@ -55,6 +55,8 @@ import org.sakaiproject.util.Web;
 @SuppressWarnings("deprecation")
 public class SakaiDirectServlet extends DirectServlet {
 
+    private static final long serialVersionUID = 1L;
+
     private transient EntityBrokerRESTServiceManager entityRESTServiceManager;
     private transient BasicAuth basicAuth;
 
@@ -80,7 +82,7 @@ public class SakaiDirectServlet extends DirectServlet {
         EntityBrokerManager ebm = (EntityBrokerManager) ComponentManager.get(EntityBrokerManager.class.getName());
         // for legacy support
         HttpServletAccessProviderManager hsapm = (HttpServletAccessProviderManager) 
-            ComponentManager.get(HttpServletAccessProviderManager.class.getName());
+        ComponentManager.get(HttpServletAccessProviderManager.class.getName());
         entityRESTServiceManager = new EntityBrokerRESTServiceManager(ebm, hsapm);
         EntityRequestHandler erh = entityRESTServiceManager.getEntityRequestHandler();
         if (erh == null) {

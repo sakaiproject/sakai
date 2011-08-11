@@ -331,7 +331,7 @@ public class EntityDescriptionManager {
      * @param locale used for translations
      * @return the entity description
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     protected String describeEntity(StringBuilder sb, String prefix, String id, String format, boolean extra, List<Class<? extends EntityProvider>> caps, Locale locale) {
         if (caps == null) {
             caps = entityProviderManager.getPrefixCapabilities(prefix);

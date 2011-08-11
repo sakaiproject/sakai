@@ -119,7 +119,7 @@ public class ServiceTestManager {
 
         requestStorage = new RequestStorageImpl(requestGetter);
         entityActionsManager = new EntityActionsManager(entityProviderMethodStore);
-        entityRedirectsManager = new EntityRedirectsManager(entityProviderMethodStore, requestStorage);
+        entityRedirectsManager = new EntityRedirectsManager(entityBrokerManager, entityProviderMethodStore, requestStorage);
         entityProviderManager = new EntityProviderManagerImpl(requestStorage, requestGetter, entityPropertiesService, entityProviderMethodStore);
 
         entityProviderManager.registerEntityProvider(td.entityProvider1);

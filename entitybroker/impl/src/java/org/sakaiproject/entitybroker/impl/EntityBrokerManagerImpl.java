@@ -147,21 +147,33 @@ public class EntityBrokerManagerImpl implements EntityBrokerManager {
 		return maxJSONLevel;
 	}
 
-    private String servletContext;
-    public String getServletContext() {
-        if (this.servletContext == null) {
-            return RequestUtils.getServletContext(null);
-        }
-        return this.servletContext;
-    }
+    private String defaultServletContext = RequestUtils.getServletContext(null);
+    /**
+     * We have to do something fairly tricky here because we really need this to be handled
+     * on a per thread basis (or at least a per servlet basis anyway) so we need to store the "default"
+     * and then also store a threadlocal for each servlet to set and fallback if the TL is not set,
+     * what a giant PITA but this should allow multiple servlets to instantiate the EB handlers
+     */
+    private final ThreadLocal<String> localServletContext = new ThreadLocal<String>();
     /* (non-Javadoc)
      * @see org.sakaiproject.entitybroker.EntityBrokerManager#setServletContext(java.lang.String)
      */
     public void setServletContext(String servletContext) {
         if (servletContext != null) {
-            this.servletContext = servletContext;
-           // System.out.println("Setting the manager servlet context to: " + servletContext);
+            this.localServletContext.set(servletContext);
+        } else {
+            this.localServletContext.set(null);
         }
+    }
+    /* (non-Javadoc)
+     * @see org.sakaiproject.entitybroker.EntityBrokerManager#getServletContext()
+     */
+    public String getServletContext() {
+        String context = this.defaultServletContext;
+        if (this.localServletContext != null && this.localServletContext.get() != null) {
+            context = this.localServletContext.get();
+        }
+        return context;
     }
 
 
@@ -563,7 +575,7 @@ public class EntityBrokerManagerImpl implements EntityBrokerManager {
      * @param params
      * @return a list of entities OR empty list if none found for the given reference
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     protected List<?> internalGetEntities(EntityReference ref, Search search, Map<String, Object> params) {
         if (ref == null) {
             throw new IllegalArgumentException("No reference supplied for entity collection resolution, ref was null");

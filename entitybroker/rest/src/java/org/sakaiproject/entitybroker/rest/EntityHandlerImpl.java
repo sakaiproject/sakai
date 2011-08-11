@@ -200,8 +200,6 @@ public class EntityHandlerImpl implements EntityRequestHandler {
             this.servletContext = servletContext;
             //System.out.println("Setting the REST servlet context to: " + servletContext);
             entityBrokerManager.setServletContext(servletContext);
-            entityRedirectsManager.setServletContext(servletContext);
-            entityBatchHandler.setServletContext(servletContext);
         }
     }
 
@@ -215,13 +213,13 @@ public class EntityHandlerImpl implements EntityRequestHandler {
      * @see org.sakaiproject.entitybroker.EntityRequestHandler#handleEntityAccess(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
      */
     public String handleEntityAccess(HttpServletRequest req, HttpServletResponse res, String path) {
-        // set the servlet context if not set
-        if (this.servletContext == null) {
+        // set the servlet context if not set OR we know for sure we have a request object
+        if (this.servletContext == null || req != null) {
             setServletContext( RequestUtils.getServletContext(req) );
         }
 
         // get the path info if not set
-        if (path == null) {
+        if (req != null && path == null) {
             path = req.getPathInfo();
         }
 
