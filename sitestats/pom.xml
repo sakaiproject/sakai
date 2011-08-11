@@ -38,7 +38,6 @@
         <perftests.includes />
         <url.localsite>scp://source.sakaiproject.org/var/www/html/release/sitestats/${project.version}</url.localsite>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <!-- Project modules -->
@@ -105,6 +104,15 @@
                 <role>POM plumber</role>
             </roles>
             <timezone>-5</timezone>
+        </developer>
+         <developer>
+            <id>steve.swinsburg</id>
+            <name>Steve Swinsburg</name>
+            <url>https://confluence.sakaiproject.org/display/~steve.swinsburg</url>
+            <roles>
+                <role>Contributor</role>
+            </roles>
+            <timezone>+10</timezone>
         </developer>
     </developers>
     
