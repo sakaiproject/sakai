@@ -69,6 +69,36 @@
       <property name="location"><value>/sakai_lessonbuildertool/studentcontent.html</value></property>
    </bean>
 
+   <bean id="lessonbuildertoolExternal" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>lessonbuildertoolExteranl</value></property>
+      <property name="name"><value>Add External Tool using IMS Basic Learning Tool Interoperability Protocol</value></property>
+      <property name="location"><value>/sakai_lessonbuildertool/external.html</value></property>
+   </bean>
+
+   <bean id="lessonbuildertoolSettings" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>lessonbuildertoolSettings</value></property>
+      <property name="name"><value>Change Page Settings</value></property>
+      <property name="location"><value>/sakai_lessonbuildertool/settings.html</value></property>
+   </bean>
+
+   <bean id="lessonbuildertoolRemove" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>lessonbuildertoolRemove</value></property>
+      <property name="name"><value>Remove a Top-level Page</value></property>
+      <property name="location"><value>/sakai_lessonbuildertool/addmultimedia.html</value></property>
+   </bean>
+
+   <bean id="lessonbuildertoolAddTop" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>lessonbuildertoolAddTop</value></property>
+      <property name="name"><value>Add a Top-level Page</value></property>
+      <property name="location"><value>/sakai_lessonbuildertool/addpage.html</value></property>
+   </bean>
+
+   <bean id="lessonbuildertoolCCImport" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>lessonbuildertoolCCImport</value></property>
+      <property name="name"><value>Import a file in Common Cartridge Format</value></property>
+      <property name="location"><value>/sakai_lessonbuildertool/ccimport.html</value></property>
+   </bean>
+
    <bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
       <property name="name"><value>root</value></property>
       <property name="categories">
@@ -88,6 +118,11 @@
                      <ref bean="lessonbuildertoolReorganize"/>
                      <ref bean="lessonbuildertoolComments"/>
                      <ref bean="lessonbuildertoolStudentContent"/>
+                     <ref bean="lessonbuildertoolExternal"/>
+                     <ref bean="lessonbuildertoolSettings"/>
+                     <ref bean="lessonbuildertoolRemove"/>
+                     <ref bean="lessonbuildertoolAddTop"/>
+                     <ref bean="lessonbuildertoolCCImport"/>
                   </list>
                </property>
             </bean>
