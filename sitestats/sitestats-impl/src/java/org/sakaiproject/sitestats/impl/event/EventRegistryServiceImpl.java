@@ -63,7 +63,7 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 	/** Event Registries */
 	private FileEventRegistry			fileEventRegistry			= null;
 	private EntityBrokerEventRegistry	entityBrokerEventRegistry	= null;
-	private List<String> 				serverEvents				= new ArrayList<String>();
+	private List<String> 				serverEventIds				= new ArrayList<String>();
 
 	/** Caching */
 	private Cache						eventRegistryCache			= null;
@@ -407,7 +407,11 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 
 	@Override
 	public List<String> getServerEventIds() {
-		return serverEvents;
+		return serverEventIds;
+	}
+	
+	public void setServerEventIds(List<String> eventIds) {
+		this.serverEventIds=eventIds;
 	}
 
 }

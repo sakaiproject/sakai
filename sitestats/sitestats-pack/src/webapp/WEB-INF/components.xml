@@ -101,7 +101,7 @@
 		<property name="entityBrokerEventRegistry" ref="org.sakaiproject.sitestats.api.event.EntityBrokerEventRegistry"/>
 		
 		<!-- Server Event Registry -->
-		<property name="serverEvents" ref="org.sakaiproject.sitestats.api.serverevents.List" />
+		<property name="serverEventIds" ref="org.sakaiproject.sitestats.api.serverevents.List" />
 		
 		<!-- Sakai services -->
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
