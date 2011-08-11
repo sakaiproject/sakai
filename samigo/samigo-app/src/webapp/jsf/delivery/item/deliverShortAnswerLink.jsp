@@ -71,36 +71,47 @@ should be included in file importing DeliveryMessages
              && delivery.navigation ne '1'}" />
 
 <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
-  <f:verbatim><br /></f:verbatim>
-  <h:panelGroup rendered="#{delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'&& question.modelAnswerIsNotEmpty}" >
-    <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="answerKeyMC" value="#{deliveryMessages.model} " />
-     <f:verbatim></b></f:verbatim>
+  <h:panelGrid rendered="#{delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'&& question.modelAnswerIsNotEmpty}" >
+    <h:panelGroup>
+      <h:outputLabel for="answerKeyMC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.model} " />
+      <h:outputLink title="#{deliveryMessages.t_modelShortAnswer}"   value="#" onclick="javascript:window.open('modelShortAnswer.faces?idString=#{question.itemData.itemId}','modelShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');" >
+	    <h:outputText  value="#{deliveryMessages.click_here}"/>
+      </h:outputLink>
+    </h:panelGroup>
+    <h:outputText value=" "/>
+  </h:panelGrid>
 
-	<h:outputLink title="#{deliveryMessages.t_modelShortAnswer}"   value="#" onclick="javascript:window.open('modelShortAnswer.faces?idString=#{question.itemData.itemId}','modelShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');" >
-	<h:outputText  value="#{deliveryMessages.click_here}"/>
-    </h:outputLink>
+  <h:panelGrid rendered="#{delivery.feedbackComponent.showItemLevel && !delivery.noFeedback=='true' && question.feedbackIsNotEmpty}">
+    <h:panelGroup>
+      <h:outputLabel for="feedSC" styleClass="answerkeyFeedbackCommentLabel" value="#{commonMessages.feedback}#{deliveryMessages.column} " />
+      <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
+    </h:panelGroup>
+    <h:outputText value=" "/>
+  </h:panelGrid>
 
-<%-- alert screen is a problem 'cos comment often contains html tag added in WYSIWYG
-    <h:outputLink title="#{deliveryMessages.t_key}" value="#" onclick="javascript:window.alert('#{question.keyInUnicode}');" >
-    <h:outputText  value="#{deliveryMessages.click}" />
-    </h:outputLink>
---%>
-
-  </h:panelGroup>
-  <h:panelGroup rendered="#{delivery.feedbackComponent.showItemLevel && !delivery.noFeedback=='true' && question.feedbackIsNotEmpty}">
-    <f:verbatim><br /></f:verbatim>
-    <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="feedSC" value="#{commonMessages.feedback}#{deliveryMessages.column} " />
-    <f:verbatim></b></f:verbatim>
-    <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
-  </h:panelGroup>
-  <h:panelGroup rendered="#{delivery.actionString !='gradeAssessment' && delivery.feedbackComponent.showGraderComment && !delivery.noFeedback=='true' && question.gradingCommentIsNotEmpty}">
-    <f:verbatim><br /></f:verbatim>
-    <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="commentSC" value="#{deliveryMessages.comment}#{deliveryMessages.column} " />
-    <f:verbatim></b></f:verbatim>
-    <h:outputText id="commentSC" value="#{question.gradingComment}"
-      escape="false" />
-  </h:panelGroup>
+  <h:panelGrid rendered="#{delivery.actionString !='gradeAssessment' && delivery.feedbackComponent.showGraderComment && !delivery.noFeedback=='true' && (question.gradingCommentIsNotEmpty || question.hasItemGradingAttachment)}" columns="1" border="0">
+    <h:panelGroup>
+      <h:outputLabel for="commentSC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.comment}#{deliveryMessages.column} " />
+      <h:outputText id="commentSC" value="#{question.gradingComment}" escape="false" rendered="#{question.gradingCommentIsNotEmpty}"/>
+    </h:panelGroup>
+    
+	<h:panelGroup rendered="#{question.hasItemGradingAttachment}">
+      <h:dataTable value="#{question.itemGradingAttachmentList}" var="attach">
+        <h:column>
+          <%@ include file="/jsf/shared/mimeicon.jsp" %>
+        </h:column>
+        <h:column>
+          <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+          <h:outputLink value="#{attach.location}" target="new_window">
+            <h:outputText escape="false" value="#{attach.filename}" />
+          </h:outputLink>
+        </h:column>
+        <h:column>
+          <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+          <h:outputText escape="false" value="(#{attach.fileSize} #{generalMessages.kb})" rendered="#{!attach.isLink}"/>
+        </h:column>
+      </h:dataTable>
+    </h:panelGroup>
+  </h:panelGrid>
 </h:panelGroup>
+  

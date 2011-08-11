@@ -65,30 +65,31 @@ should be included in file importing DeliveryMessages
 	</h:outputLink>
 </h:panelGroup>
 
+<f:verbatim><br /></f:verbatim>
+
 <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
-  <f:verbatim><br /></f:verbatim>
-  <h:panelGroup rendered="#{delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}" >
-    <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="answerKeyMC" value="#{deliveryMessages.ans_key}: " />
-      <f:verbatim></b></f:verbatim>
-    <h:outputText id="answerKeyMC"
-       value="#{question.key}" escape="false"/>
+  <h:panelGrid rendered="#{delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}" >
+    <h:panelGroup>
+      <h:outputLabel for="answerKeyMC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.ans_key}: " />
+      <h:outputText id="answerKeyMC" value="#{question.key}" escape="false"/>
+    </h:panelGroup>
+    <h:outputText value=" "/>
+  </h:panelGrid>
+  
+  <h:panelGrid rendered="#{delivery.feedbackComponent.showItemLevel && !delivery.noFeedback=='true' && question.feedbackIsNotEmpty}">
+    <h:panelGroup>
+      <h:outputLabel for="feedSC" styleClass="answerkeyFeedbackCommentLabel" value="#{commonMessages.feedback}#{deliveryMessages.column} " />
+      <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
+    </h:panelGroup>
+    <h:outputText value=" "/>
+  </h:panelGrid>
+  
+  <h:panelGrid rendered="#{delivery.actionString !='gradeAssessment' && delivery.feedbackComponent.showGraderComment && !delivery.noFeedback=='true' && (question.gradingCommentIsNotEmpty || question.hasItemGradingAttachment)}" columns="1" border="0">
+    <h:panelGroup>
+      <h:outputLabel for="commentSC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.comment}#{deliveryMessages.column} " />
+  	  <h:outputText id="commentSC" value="#{question.gradingComment}" escape="false" rendered="#{question.gradingCommentIsNotEmpty}"/>
+    </h:panelGroup>
 
-  </h:panelGroup>
-  <h:panelGroup rendered="#{delivery.feedbackComponent.showItemLevel && !delivery.noFeedback=='true' && question.feedbackIsNotEmpty}">
-    <f:verbatim><br /></f:verbatim>
-    <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="feedSC" value="#{commonMessages.feedback}#{deliveryMessages.column} " />
-    <f:verbatim></b></f:verbatim>
-    <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
-  </h:panelGroup>
-
-  <h:panelGrid rendered="#{delivery.actionString !='gradeAssessment' && delivery.feedbackComponent.showGraderComment && !delivery.noFeedback=='true' && (question.gradingCommentIsNotEmpty || question.hasItemGradingAttachment)}" columns="2" border="0">
-    <h:outputLabel for="commentSC" value="<b>#{deliveryMessages.comment}#{deliveryMessages.column} </b>" />
-    
-	<h:outputText id="commentSC" value="#{question.gradingComment}" escape="false" rendered="#{question.gradingCommentIsNotEmpty}"/>
-    <h:outputText value=" " rendered="#{question.gradingCommentIsNotEmpty}"/>
-    
 	<h:panelGroup rendered="#{question.hasItemGradingAttachment}">
       <h:dataTable value="#{question.itemGradingAttachmentList}" var="attach">
         <h:column>

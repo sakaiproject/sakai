@@ -332,3 +332,8 @@ a.hideDivision {
     text-decoration: none;
 }
 
+.answerkeyFeedbackCommentLabel {
+	FONT-WEIGHT: bold;
+    COLOR:#860000;
+} 
+

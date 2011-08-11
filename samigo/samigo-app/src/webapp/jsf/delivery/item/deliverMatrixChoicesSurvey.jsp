@@ -110,13 +110,44 @@ should be included in file importing DeliveryMessages
 </h:panelGroup>
 
 <h:panelGroup rendered="#{delivery.feedback eq 'true'}">
-  <f:verbatim><br /></f:verbatim>
-  <h:panelGroup rendered="#{delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}" >
-    <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="answerKeyMC" value="#{deliveryMessages.ans_key}#{deliveryMessages.column} " />
-    <f:verbatim></b></f:verbatim>
-    <h:outputText id="answerKeyMC"
-       value="#{question.key}" escape="false" />
+  <h:panelGrid rendered="#{delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true' && question.itemData.typeId != 3}" >
+    <h:panelGroup>
+      <h:outputLabel for="answerKeyMC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.ans_key}#{deliveryMessages.column} " />
+      <h:outputText id="answerKeyMC" value="#{question.key}" escape="false" />
+    </h:panelGroup>
+    <h:outputText value=" "/>
+  </h:panelGrid>
 
-  </h:panelGroup>
+  <h:panelGrid rendered="#{delivery.feedbackComponent.showItemLevel && !delivery.noFeedback=='true' && question.feedbackIsNotEmpty}">
+    <h:panelGroup>
+      <h:outputLabel for="feedSC" styleClass="answerkeyFeedbackCommentLabel" value="#{commonMessages.feedback}#{deliveryMessages.column} " />
+      <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
+    </h:panelGroup>
+    <h:outputText value=" "/>
+  </h:panelGrid>
+
+  <h:panelGrid rendered="#{delivery.actionString !='gradeAssessment' && delivery.feedbackComponent.showGraderComment && !delivery.noFeedback=='true' && (question.gradingCommentIsNotEmpty || question.hasItemGradingAttachment)}" columns="1" border="0">
+    <h:panelGroup>
+      <h:outputLabel for="commentSC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.comment}#{deliveryMessages.column} " />
+      <h:outputText id="commentSC" value="#{question.gradingComment}" escape="false" rendered="#{question.gradingCommentIsNotEmpty}"/>
+    </h:panelGroup>
+    
+	<h:panelGroup rendered="#{question.hasItemGradingAttachment}">
+      <h:dataTable value="#{question.itemGradingAttachmentList}" var="attach">
+        <h:column>
+          <%@ include file="/jsf/shared/mimeicon.jsp" %>
+        </h:column>
+        <h:column>
+          <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+          <h:outputLink value="#{attach.location}" target="new_window">
+            <h:outputText escape="false" value="#{attach.filename}" />
+          </h:outputLink>
+        </h:column>
+        <h:column>
+          <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+          <h:outputText escape="false" value="(#{attach.fileSize} #{generalMessages.kb})" rendered="#{!attach.isLink}"/>
+        </h:column>
+      </h:dataTable>
+    </h:panelGroup>
+  </h:panelGrid>
 </h:panelGroup>

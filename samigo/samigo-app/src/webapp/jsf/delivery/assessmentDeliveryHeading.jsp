@@ -92,11 +92,13 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 </p>
 
 <!-- GRADER COMMENT FOR REVIEW ASSESSMENT -->
-<h:outputText rendered="#{delivery.feedbackComponent.showGraderComment 
+<f:verbatim><br /></f:verbatim> 
+<h:panelGroup rendered="#{delivery.feedbackComponent.showGraderComment 
                        && delivery.actionString=='reviewAssessment'
-                       && delivery.graderComment ne ''}" 
-   value="<b>#{deliveryMessages.comments}</b> #{delivery.graderComment}" escape="false" />
-
+                       && delivery.graderComment ne ''}" styleClass="graderCommentsBox">                       
+<h:outputLabel for="commentSC" value="#{deliveryMessages.comment}#{deliveryMessages.column} "  styleClass="answerkeyFeedbackCommentLabel"/>
+<h:outputText id="commentSC" value="#{delivery.graderComment}..." escape="false" />
+</h:panelGroup>
 
 <%@ include file="/jsf/delivery/assessmentDeliveryTimer.jsp" %>
 
