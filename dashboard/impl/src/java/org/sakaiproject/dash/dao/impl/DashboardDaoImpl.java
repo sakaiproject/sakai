@@ -446,7 +446,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	 */
 	private void initTables() {
 		try {
-			getJdbcTemplate().execute(getStatement("create.table"));
+			//getJdbcTemplate().execute(getStatement("create.table"));
 			getJdbcTemplate().execute(getStatement("create.Context.table"));
 			getJdbcTemplate().execute(getStatement("create.Person.table"));
 			getJdbcTemplate().execute(getStatement("create.Realm.table"));
