@@ -29,11 +29,13 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.user.api.ExternalUserSearchUDP;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryProvider;
 import org.sakaiproject.user.api.UserEdit;
@@ -79,7 +81,7 @@ import org.sakaiproject.user.api.UsersShareEmailUDP;
  * @author Ian Boston, Andrew Thornton, Daniel Parry, Raad
  * @version $Revision$
  */
-public class FilterUserDirectoryProvider implements UserDirectoryProvider, UsersShareEmailUDP
+public class FilterUserDirectoryProvider implements UserDirectoryProvider, ExternalUserSearchUDP, UsersShareEmailUDP
 {
 	/** Our log (commons). */
 	private static Log m_logger = LogFactory.getLog(FilterUserDirectoryProvider.class);
@@ -556,7 +558,36 @@ public class FilterUserDirectoryProvider implements UserDirectoryProvider, Users
 	{
 	   return false;
 	}
+	
+	/**
+	  * {@inheritDoc}
+	 */
+	public List<UserEdit> searchExternalUsers(String criteria, int first, int last, UserFactory factory) {
+		
+		List<UserEdit> users = new ArrayList<UserEdit>();
+		
+		if ( myProvider instanceof ExternalUserSearchUDP ) {
+			ExternalUserSearchUDP extSearchUDP = (ExternalUserSearchUDP) myProvider;
+			
+			if (m_logger.isDebugEnabled()) {
+				m_logger.debug("searchExternalUsers() criteria=" + criteria);
+			}
+			
+			users.addAll(extSearchUDP.searchExternalUsers(criteria, first, last, factory));
+		}
+		
+		if ( nextProvider instanceof ExternalUserSearchUDP) {
+			ExternalUserSearchUDP extSearchUDP = (ExternalUserSearchUDP) nextProvider;
+			
+			if (m_logger.isDebugEnabled()) {
+				m_logger.debug("nextProvider searchExternalUsers() criteria=" + criteria);
+			}
+			
+			users.addAll(extSearchUDP.searchExternalUsers(criteria, first, last, factory));
+		}
 
+		return users;
+	}
 
 } // FilterUserDirectoryProvider
 
