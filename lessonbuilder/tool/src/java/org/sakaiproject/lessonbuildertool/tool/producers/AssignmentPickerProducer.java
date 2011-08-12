@@ -136,7 +136,7 @@ public class AssignmentPickerProducer implements ViewComponentProducer, Navigati
 
 			UIForm form = UIForm.make(tofill, "assignment-picker");
 
-			List<LessonEntity> alist = assignmentEntity.getEntitiesInSite();
+			List<LessonEntity> alist = assignmentEntity.getEntitiesInSite(simplePageBean);
 
 			if (alist == null || alist.size() < 1) {
 			    UIOutput.make(tofill, "error-div");

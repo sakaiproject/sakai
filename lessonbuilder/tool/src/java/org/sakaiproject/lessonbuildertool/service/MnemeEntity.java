@@ -195,8 +195,12 @@ public class MnemeEntity implements LessonEntity, QuizEntity {
 	return "/" + MNEME + "/" + id;
     }
 
-    // find topics in site, but organized by forum
     public List<LessonEntity> getEntitiesInSite() {
+	return getEntitiesInSite(null);
+    }
+
+    // find topics in site, but organized by forum
+    public List<LessonEntity> getEntitiesInSite(SimplePageBean bean) {
 
 	Session ses = SessionManager.getCurrentSession();
 
@@ -215,9 +219,13 @@ public class MnemeEntity implements LessonEntity, QuizEntity {
 	}
 
 	if (nextEntity != null) 
-	    ret.addAll(nextEntity.getEntitiesInSite());
+	    ret.addAll(nextEntity.getEntitiesInSite(bean));
 
 	return ret;
+    }
+
+    public LessonEntity getEntity(String ref, SimplePageBean o) {
+	return getEntity(ref);
     }
 
     public LessonEntity getEntity(String ref) {

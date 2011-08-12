@@ -210,8 +210,12 @@ public class AssignmentEntity implements LessonEntity {
 	return "/" + ASSIGNMENT + "/" + id;
     }
 
-    // find topics in site, but organized by forum
     public List<LessonEntity> getEntitiesInSite() {
+	return getEntitiesInSite(null);
+    }
+
+    // find topics in site, but organized by forum
+    public List<LessonEntity> getEntitiesInSite(SimplePageBean bean) {
 
 	Iterator i = AssignmentService.getAssignmentsForContext(ToolManager.getCurrentPlacement().getContext());
 
@@ -221,20 +225,28 @@ public class AssignmentEntity implements LessonEntity {
 	    Assignment a = (Assignment) i.next();
 	    AssignmentEntity entity = new AssignmentEntity(TYPE_ASSIGNMENT, a.getId(), 1);
 	    entity.assignment = a;
+	    entity.simplePageBean = bean;
 	    ret.add(entity);
 	}
 
 	if (nextEntity != null) 
-	    ret.addAll(nextEntity.getEntitiesInSite());
+	    ret.addAll(nextEntity.getEntitiesInSite(bean));
 
 	return ret;
     }
 
     public LessonEntity getEntity(String ref) {
+	return getEntity(ref, null);
+    }
+
+    public LessonEntity getEntity(String ref, SimplePageBean bean) {
+
 	int i = ref.indexOf("/",1);
 	if (i < 0) {
 	    // old format, just the number
-	    return new AssignmentEntity(TYPE_ASSIGNMENT, ref, 1);
+	    AssignmentEntity entity = new AssignmentEntity(TYPE_ASSIGNMENT, ref, 1);
+	    entity.simplePageBean = bean;
+	    return entity;
 	}
 	String typeString = ref.substring(1, i);
 	String idString = ref.substring(i+1);
@@ -246,9 +258,11 @@ public class AssignmentEntity implements LessonEntity {
 	}
 
 	if (typeString.equals(ASSIGNMENT)) {
-	    return new AssignmentEntity(TYPE_ASSIGNMENT, id, 1);
+	    AssignmentEntity entity = new AssignmentEntity(TYPE_ASSIGNMENT, id, 1);
+	    entity.simplePageBean = bean;
+	    return entity;
 	} else if (nextEntity != null) {
-	    return nextEntity.getEntity(ref);
+	    return nextEntity.getEntity(ref, simplePageBean);
 	} else
 	    return null;
     }
@@ -265,6 +279,11 @@ public class AssignmentEntity implements LessonEntity {
 
     public String getUrl() {
 	
+	if (simplePageBean != null) {
+	    return "/portal/tool/" + simplePageBean.getCurrentTool("sakai.assignment.grades") + 
+		"?assignmentReference=/assignment/a/" + simplePageBean.getCurrentSiteId() + "/" + id + "&panel=Main&sakai_action=doView_submission";
+	}
+
 	Site site = null;
 	try {
 	    site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());

@@ -222,8 +222,12 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	return "/" + BLTI + "/" + id;
     }
 
-    // find topics in site, but organized by forum
     public List<LessonEntity> getEntitiesInSite() {
+	return getEntitiesInSite(null);
+    }
+
+    // find topics in site, but organized by forum
+    public List<LessonEntity> getEntitiesInSite(SimplePageBean bean) {    
 	List<LessonEntity> ret = new ArrayList<LessonEntity>();
 	if (ltiService == null)
 	    return ret;
@@ -236,6 +240,10 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	    ret.add(entity);
 	}
 	return ret;
+    }
+
+    public LessonEntity getEntity(String ref, SimplePageBean o) {    
+	return getEntity(ref);
     }
 
     public LessonEntity getEntity(String ref) {

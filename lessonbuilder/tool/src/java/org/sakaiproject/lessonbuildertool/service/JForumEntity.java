@@ -159,8 +159,12 @@ public class JForumEntity implements LessonEntity, ForumInterface {
 	    return "/" + JFORUM_FORUM + "/" + id;
     }
 
-    // find topics in site, but organized by forum and category
     public List<LessonEntity> getEntitiesInSite() {
+	return getEntitiesInSite();
+    }
+
+    // find topics in site, but organized by forum and category
+    public List<LessonEntity> getEntitiesInSite(SimplePageBean bean) {
 	// all other code is driven by current objects. If we skip this code, nothing else
 	// in this module will be called.
 	if (!haveJforum) {
@@ -284,9 +288,13 @@ public class JForumEntity implements LessonEntity, ForumInterface {
 	}
 
 	if (nextEntity != null) 
-	    ret.addAll(nextEntity.getEntitiesInSite());
+	    ret.addAll(nextEntity.getEntitiesInSite(bean));
 
 	return ret;
+    }
+
+    public LessonEntity getEntity(String ref, SimplePageBean o) {
+	return getEntity(ref);
     }
 
     public LessonEntity getEntity(String ref) {

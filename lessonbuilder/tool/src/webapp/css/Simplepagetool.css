@@ -283,6 +283,11 @@ ul#toolbar li.dropdown div {
   padding: 7px;
 }
 
+#dropDownDiv a {
+  border:none;
+  background-color:inherit;
+}
+
 img {
 	z-index:1;
 }

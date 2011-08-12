@@ -504,9 +504,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if (canEditPage) {
 			// show tool bar
 			createToolBar(tofill, currentPage, (pageItem.getType() == SimplePageItem.STUDENT_CONTENT));
+			UIOutput.make(tofill, "title-descrip");
 			UIOutput.make(tofill, "edit-title").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.editTitle-tooltip")));
+			UIOutput.make(tofill, "title-descrip-text", messageLocator.getMessage(pageItem.getPageId() == 0 ? "simplepage.title-top-descrip" : "simplepage.title-descrip"));
 
 			if (pageItem.getPageId() == 0) { // top level page
+				UIOutput.make(tofill, "toppage-descrip");
 				UIOutput.make(tofill, "new-page").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.new-page-tooltip")));
 				UIOutput.make(tofill, "import-cc").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.import_cc")));
 			}
@@ -514,10 +517,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			// Checks to see that user can edit and that this is either a top level page,
 			// or a top level student page (not a subpage to a student page)
 			if(simplePageBean.getEditPrivs() == 0 && (pageItem.getPageId() == 0)) {
+				UIOutput.make(tofill, "remove-descrip");
 				UIOutput.make(tofill, "remove-page").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.remove-page-tooltip")));
-			}else if(simplePageBean.getEditPrivs() == 0 && currentPage.getOwner() != null) {
+			} else if (simplePageBean.getEditPrivs() == 0 && currentPage.getOwner() != null) {
 				SimpleStudentPage studentPage = simplePageToolDao.findStudentPage(currentPage.getTopParent());
-				if(studentPage != null && studentPage.getPageId() == currentPage.getPageId()) {
+				if (studentPage != null && studentPage.getPageId() == currentPage.getPageId()) {
+					UIOutput.make(tofill, "remove-descrip");
 					UIOutput.make(tofill, "remove-page").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.remove-page-tooltip")));
 				}
 			}
@@ -867,7 +872,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							int type = 4;
 							LessonEntity assignment = null;
 							if (!i.getSakaiId().equals(SimplePageItem.DUMMY)) {
-								assignment = assignmentEntity.getEntity(i.getSakaiId());
+								assignment = assignmentEntity.getEntity(i.getSakaiId(), simplePageBean);
 								if (assignment != null) {
 									type = assignment.getTypeOfGrade();
 									String editUrl = assignment.editItemUrl(simplePageBean);
@@ -1728,7 +1733,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 				GeneralViewParameters params = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 				params.setSendingPage(currentPage.getPageId());
-				LessonEntity lessonEntity = assignmentEntity.getEntity(i.getSakaiId());
+				LessonEntity lessonEntity = assignmentEntity.getEntity(i.getSakaiId(), simplePageBean);
 				params.setSource((lessonEntity == null) ? "dummy" : lessonEntity.getUrl());
 				params.setItemId(i.getId());
 				UIInternalLink.make(container, "link", params);

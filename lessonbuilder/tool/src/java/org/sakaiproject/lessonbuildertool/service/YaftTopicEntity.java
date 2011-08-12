@@ -139,6 +139,10 @@ public class YaftTopicEntity implements LessonEntity, ForumInterface {
 	}
 
 	public List<LessonEntity> getEntitiesInSite() {
+	    return getEntitiesInSite(null);
+	}
+
+	public List<LessonEntity> getEntitiesInSite(SimplePageBean bean) {
 
 		List<LessonEntity> ret = new ArrayList<LessonEntity>();
 
@@ -176,9 +180,13 @@ public class YaftTopicEntity implements LessonEntity, ForumInterface {
 		}
 
 		if (nextEntity != null)
-			ret.addAll(nextEntity.getEntitiesInSite());
+			ret.addAll(nextEntity.getEntitiesInSite(bean));
 
 		return ret;
+	}
+
+	public LessonEntity getEntity(String ref, SimplePageBean o) {
+	    return getEntity(ref);
 	}
 
 	public LessonEntity getEntity(String ref) {

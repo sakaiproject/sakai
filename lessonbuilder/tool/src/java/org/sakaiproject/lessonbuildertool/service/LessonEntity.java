@@ -92,7 +92,10 @@ public interface LessonEntity {
     public final static String BLTI="blti";
 
     // find entities
+    public List<LessonEntity> getEntitiesInSite(SimplePageBean bean);
     public List<LessonEntity> getEntitiesInSite();
+
+    public LessonEntity getEntity(String ref, SimplePageBean bean);
     public LessonEntity getEntity(String ref);
 
     // returns common ID of tool, e.g. sakai.samigo
