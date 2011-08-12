@@ -12,6 +12,7 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.user.api.User;
 
 /**
  * An interface to abstract all Sakai related API calls in a central method that can be injected into our app.
@@ -118,7 +119,7 @@ public interface SakaiProxy {
 	 * @param accessPermission
 	 * @return
 	 */
-	public List<String> getUsersWithReadAccess(String realmId, String accessPermission);
+	public List<String> getUsersWithReadAccess(String entityReference, String accessPermission);
 	
 	/**
 	 * Is the current user a superUser? (anyone in admin realm)
@@ -138,6 +139,8 @@ public interface SakaiProxy {
 
 	public void pushSecurityAdvisor(SecurityAdvisor securityAdvisor);
 
-	public abstract void popSecurityAdvisor(SecurityAdvisor securityAdvisor);
+	public void popSecurityAdvisor(SecurityAdvisor securityAdvisor);
+
+	public User getUser(String sakaiId);
 
 }

@@ -25,7 +25,9 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
  * Implementation of our SakaiProxy API
@@ -160,13 +162,27 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	/*
 	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.SakaiProxy#getUser(java.lang.String)
+	 */
+	public User getUser(String sakaiId) {
+		
+		try {
+			return this.userDirectoryService.getUser(sakaiId);
+		} catch (UserNotDefinedException e) {
+			logger.warn("Unable to retrieve user for sakaiId: " + sakaiId);
+		}
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.SakaiProxy#getUsersWithReadAccess(java.lang.String)
  	*/
-	public List<String> getUsersWithReadAccess(String realmId, String accessPermission) {
+	public List<String> getUsersWithReadAccess(String entityReference, String accessPermission) {
 		List<String> users = new ArrayList<String>();
-	
-		Collection<String> azGroups = new ArrayList<String>();
-		azGroups.add(realmId);
+		Reference ref = this.entityManager.newReference(entityReference);
+		Collection<String> azGroups = ref.getEntityProducer().getEntityAuthzGroups(ref, null);
+		
 		Set<String> sakaiIds = this.authzGroupService.getUsersIsAllowed(accessPermission, azGroups );
 		
 		return new ArrayList<String>(sakaiIds);

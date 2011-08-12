@@ -91,6 +91,8 @@ public interface DashboardDao {
 	
 	public Realm getRealm(String realmId);
 
+	public NewsItem getNewsItem(String entityReference);
+
 
 
 

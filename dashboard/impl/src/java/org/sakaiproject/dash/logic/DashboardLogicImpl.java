@@ -43,11 +43,13 @@ import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.NewsItem;
+import org.sakaiproject.dash.model.NewsLink;
 import org.sakaiproject.dash.model.Person;
 import org.sakaiproject.dash.model.Realm;
 import org.sakaiproject.dash.model.SourceType;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.user.api.User;
 
 /**
  * 
@@ -112,10 +114,27 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 
 	public void createNewsLinks(NewsItem newsItem) {
-		// TODO Auto-generated method stub
 		if(logger.isDebugEnabled()) {
 			logger.debug("createNewsLinks(" + newsItem + ")");
 		}
+		
+		List<String> sakaiIds = this.sakaiProxy.getUsersWithReadAccess(newsItem.getEntityReference(), newsItem.getSourceType().getAccessPermission());
+		if(sakaiIds != null && sakaiIds.size() > 0) {
+			for(String sakaiId : sakaiIds) {
+				
+				Person person = dao.getPersonBySakaiId(sakaiId);
+				if(person == null) {
+					User userObj = this.sakaiProxy.getUser(sakaiId);
+					person = new Person(sakaiId, userObj.getEid());
+					dao.addPerson(person);
+				}
+				
+				NewsLink link = new NewsLink(person, newsItem, newsItem.getContext(), false, false);
+				
+				dao.addNewsLink(link);
+			}
+		}
+		
 	}
 
 	public CalendarItem createCalendarItem(String title, Date calendarTime,
@@ -139,7 +158,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 		dao.addNewsItem(newsItem);
 		
-		return newsItem ;
+		return dao.getNewsItem(entityReference) ;
 	}
 
 	public Context createContext(String contextId) {
@@ -148,7 +167,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 		Context context = new Context(site.getId(), site.getTitle(), site.getUrl());
 		dao.addContext(context);
-		return context;
+		return dao.getContext(contextId);
 	}
 
 	public Realm createRealm(String entityReference, String contextId) {
@@ -177,7 +196,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 		SourceType sourceType = new SourceType(identifier, accessPermission); 
 		dao.addSourceType(sourceType);
-		return sourceType;
+		return dao.getSourceType(identifier);
 	}
 	
 	public Context getContext(String contextId) {

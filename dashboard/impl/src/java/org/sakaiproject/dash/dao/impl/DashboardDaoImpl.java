@@ -171,7 +171,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		try {
 			getJdbcTemplate().update(getStatement("insert.NewsLink"),
 				new Object[]{newsLink.getPerson().getId(), newsLink.getNewsItem().getId(), 
-						newsLink.getContext().getId()}
+						newsLink.getContext().getId(), newsLink.isHidden(), newsLink.isSticky()}
 			);
 			return true;
 		} catch (DataAccessException ex) {
@@ -328,6 +328,22 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 	
+	public NewsItem getNewsItem(String entityReference) {
+		if(log.isDebugEnabled()) {
+			log.debug("getNewsItem(" + entityReference + ")");
+		}
+		
+		try {
+			return (NewsItem) getJdbcTemplate().queryForObject(getStatement("select.NewsItem.by.entityReference"),
+				new Object[]{entityReference},
+				new NewsItemMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return null;
+		}
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#getPersonBySakaiId(java.lang.String)
