@@ -528,6 +528,74 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
         }
         return assignData;
     }
+    
+    @EntityCustomAction(action="deepLinks", viewKey=EntityView.VIEW_LIST)
+    public Map<String, Object> getAssignmentDeepLinks(EntityView view, Map<String, Object> params) {
+        Map<String, Object> assignData = new HashMap<String, Object>();
+
+        if (view.getPathSegment(2) == null || view.getPathSegment(3) == null || view.getPathSegment(4) == null || view.getPathSegment(5) == null )
+        {
+            // format of the view should be in a standard assignment reference
+            throw new IllegalArgumentException("Must include the following parameters in the path ("+view+"): e.g. /assignment/{assignmentId}/{allowReadAssignment}/{allowAddAssignment}/{allowSubmitAssignment}");
+        }
+        
+        // get all params
+        String assignmentId = view.getPathSegment(2);
+        boolean allowReadAssignment = Boolean.valueOf(view.getPathSegment(3));
+        boolean allowAddAssignment = Boolean.valueOf(view.getPathSegment(4));
+        boolean allowSubmitAssignment = Boolean.valueOf(view.getPathSegment(5));
+        
+        try
+        {   
+            Assignment a = assignmentService.getAssignment(assignmentId);
+            assignData.put("assignmentId", assignmentId);
+            assignData.put("assignmentTitle", a.getTitle());
+            String assignmentContext = a.getContext(); // assignment context
+            if (allowReadAssignment && a.getOpenTime().before(TimeService.newTime()))
+            {
+                // this checks if we want to display an assignment link
+                try
+                {
+                    Site site = siteService.getSite(assignmentContext); // site id
+                    ToolConfiguration fromTool = site.getToolForCommonId("sakai.assignment.grades");
+                    // Three different urls to be rendered depending on the user's permission
+                    if (allowAddAssignment)
+                    {
+                        assignData.put("assignmentUrl", ServerConfigurationService.getPortalUrl() + "/directtool/" + fromTool.getId() + "?assignmentId=" + a.getReference() + "&panel=Main&sakai_action=doView_assignment");
+                    }
+                    else if (allowSubmitAssignment)
+                    {
+                        assignData.put("assignmentUrl", ServerConfigurationService.getPortalUrl() + "/directtool/" + fromTool.getId() + "?assignmentReference=" + a.getReference() + "&panel=Main&sakai_action=doView_submission");
+                    }
+                    else
+                    {
+                        // user can read the assignment, but not submit, so render the appropriate url
+                        assignData.put("assignmentUrl", ServerConfigurationService.getPortalUrl() + "/directtool/" + fromTool.getId() + "?assignmentId=" + a.getReference() + "&panel=Main&sakai_action=doView_assignment_as_student");
+                    }
+                }
+                catch (IdUnusedException e)
+                {
+                    // No site found
+                    assignData.remove("assignmentTitle");
+                    assignData.remove("assignmentUrl");
+                    throw new IdUnusedException("No site found while creating assignment url");
+                }
+            }
+        }
+        catch (IdUnusedException e)
+        {
+            assignData.remove("assignmentTitle");
+            assignData.remove("assignmentUrl");
+            throw new EntityNotFoundException("No assignment found", assignmentId, e);
+        }
+        catch (PermissionException e)
+        {
+            assignData.remove("assignmentTitle");
+            assignData.remove("assignmentUrl");
+            throw new SecurityException(e);
+        }
+        return assignData;
+    }
 
     // PROPERTY STUFF
 
