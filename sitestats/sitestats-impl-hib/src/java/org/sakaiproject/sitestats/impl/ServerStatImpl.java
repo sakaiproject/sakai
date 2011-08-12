@@ -21,12 +21,12 @@ package org.sakaiproject.sitestats.impl;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.sakaiproject.sitestats.api.ServerStats;
+import org.sakaiproject.sitestats.api.ServerStat;
 
 /**
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  */
-public class ServerStatsImpl implements ServerStats, Serializable {
+public class ServerStatImpl implements ServerStat, Serializable {
 	
 	private static final long serialVersionUID	= 1L;
 	private long id;
@@ -36,8 +36,8 @@ public class ServerStatsImpl implements ServerStats, Serializable {
 
 	public boolean equals(Object o) {
 		if(o == null) return false;
-		if(!(o instanceof ServerStatsImpl)) return false;
-		ServerStatsImpl other = (ServerStatsImpl) o;
+		if(!(o instanceof ServerStatImpl)) return false;
+		ServerStatImpl other = (ServerStatImpl) o;
 		return id == other.getId()
 				&& date.equals(other.getDate())
 				&& eventId.equals(other.getEventId())

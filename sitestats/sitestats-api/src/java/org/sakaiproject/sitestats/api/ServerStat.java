@@ -2,7 +2,7 @@ package org.sakaiproject.sitestats.api;
 
 import java.util.Date;
 
-public interface ServerStats {
+public interface ServerStat {
 	
 	/** Get the db row id. */
 	public long getId();

@@ -54,7 +54,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.EventStat;
 import org.sakaiproject.sitestats.api.JobRun;
 import org.sakaiproject.sitestats.api.ResourceStat;
-import org.sakaiproject.sitestats.api.ServerStats;
+import org.sakaiproject.sitestats.api.ServerStat;
 import org.sakaiproject.sitestats.api.SiteActivity;
 import org.sakaiproject.sitestats.api.SitePresence;
 import org.sakaiproject.sitestats.api.SiteVisits;
@@ -104,7 +104,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	private Map<String, SiteVisits>			visitsMap							= Collections.synchronizedMap(new HashMap<String, SiteVisits>());
 	private Map<String, SitePresenceConsolidation>	presencesMap				= Collections.synchronizedMap(new HashMap<String, SitePresenceConsolidation>());
 	private Map<UniqueVisitsKey, Integer>	uniqueVisitsMap						= Collections.synchronizedMap(new HashMap<UniqueVisitsKey, Integer>());
-	private Map<String, ServerStats>		serverStatMap						= Collections.synchronizedMap(new HashMap<String, ServerStats>());
+	private Map<String, ServerStat>		serverStatMap							= Collections.synchronizedMap(new HashMap<String, ServerStat>());
 
 	private boolean							initialized 						= false;
 	
@@ -571,12 +571,14 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				return;
 			consolidateEvent(date, eventId, resourceRef, userId, siteId);
 		} else if(getServerEvents().contains(e.getEvent())){
-			//is a server event
+			
+			//it's a server event
 			LOG.debug("Server event: "+e.toString());
+			
+			Date date = new Date();
+			String eventId = e.getEvent();
+			consolidateServerEvent(date, eventId);
 		}
-		
-		
-		
 		//else LOG.debug("EventInfo ignored:  '"+e.toString()+"' ("+e.toString()+") USER_ID: "+userId);
 	}
 	
@@ -709,8 +711,26 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					lock.unlock();
 				}
 			}
-		} else if(getServerEvents().contains(eventId)) {
-			//STAT-299 todo
+		} 
+		
+	}
+	
+	//STAT-299 consolidate a server event
+	private void consolidateServerEvent(Date dateTime, String eventId) {
+		
+		Date date = getTruncatedDate(dateTime);
+				
+		// add to eventStatMap
+		String key = eventId+date;
+		synchronized(serverStatMap){
+			ServerStat s = serverStatMap.get(key);
+			if(s == null){
+				s = new ServerStatImpl();
+				s.setEventId(eventId);
+				s.setDate(date);
+			}
+			s.setCount(s.getCount() + 1);
+			serverStatMap.put(key, s);
 		}
 		
 	}
@@ -789,6 +809,16 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 								presencesMap = Collections.synchronizedMap(new HashMap<String, SitePresenceConsolidation>());
 							}
 							doUpdateSitePresencesObjects(session, tmp6);
+						}
+						
+						// do: ServerStats
+						if(serverStatMap.size() > 0) {
+							Collection<ServerStat> tmp7 = null;
+							synchronized(serverStatMap){
+								tmp7 = serverStatMap.values();
+								serverStatMap = Collections.synchronizedMap(new HashMap<String, ServerStat>());
+							}
+							doUpdateServerStatObjects(session, tmp7);
 						}
 	
 						// commit ALL
@@ -1043,6 +1073,49 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}
 			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
 					session.saveOrUpdate(eExisting);
+		}
+	}
+	
+	private void doUpdateServerStatObjects(Session session, Collection<ServerStat> objects) {
+		if(objects == null) return;
+		Iterator<ServerStat> i = objects.iterator();
+		while(i.hasNext()){
+			ServerStat eUpdate = i.next();
+			ServerStat eExisting = null;
+			try{
+				Criteria c = session.createCriteria(ServerStatImpl.class);
+				c.add(Expression.eq("eventId", eUpdate.getEventId()));
+				c.add(Expression.eq("date", eUpdate.getDate()));
+				try{
+					eExisting = (ServerStat) c.uniqueResult();
+				}catch(HibernateException ex){
+					try{
+						List events = c.list();
+						if ((events!=null) && (events.size()>0)){
+							LOG.debug("More than 1 result when unique result expected.", ex);
+							eExisting = (ServerStat) c.list().get(0);
+						}else{
+							LOG.debug("No result found", ex);
+							eExisting = null;
+						}
+					}catch(Exception ex3){
+						eExisting = null;
+					}
+				}catch(Exception ex2){
+					LOG.debug("Probably ddbb error when loading data at java object", ex2);
+					System.out.println("Probably ddbb error when loading data at java object!!!!!!!!");
+					
+				}
+				if(eExisting == null) {
+					eExisting = eUpdate;
+				}else{
+					eExisting.setCount(eExisting.getCount() + eUpdate.getCount());
+				}
+				
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+			session.saveOrUpdate(eExisting);
 		}
 	}
 	
