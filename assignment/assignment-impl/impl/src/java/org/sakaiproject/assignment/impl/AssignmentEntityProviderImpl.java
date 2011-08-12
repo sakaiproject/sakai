@@ -387,7 +387,7 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
     private SiteService siteService;
     
 	public String[] getHandledOutputFormats() {
-		return new String[] { Formats.HTML, Formats.XML, Formats.JSON, Formats.FORM };
+		return new String[] { Formats.XML, Formats.JSON, Formats.FORM };
 	}
 
 	public String[] getHandledInputFormats() {
