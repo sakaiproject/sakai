@@ -95,6 +95,9 @@ public class YaftTopicEntity implements LessonEntity, ForumInterface {
 		this.level = level;
 		if (forumService != null)
 		    discussion = forumService.getDiscussion(id, false);
+		if(discussion == null) {
+		    log.error("This YaftTopicEntity's underlying discussion was null. It may have been deleted: " + id);
+		}
 	}
 
 	public String getToolId() {
@@ -162,15 +165,15 @@ public class YaftTopicEntity implements LessonEntity, ForumInterface {
 			return ret;
 		}
 
-		if (forumService != null)
+		if (forumService != null) {
 		    for (Forum forum : forumService.getSiteForums(currentSiteId, false)) {
-
 			for (Discussion discussion : forumService.getForumDiscussions(forum.getId(), false)) {
 				YaftTopicEntity entity = new YaftTopicEntity(TYPE_YAFT_TOPIC, discussion.getId(), 1);
 				entity.discussion = discussion;
 				ret.add(entity);
 			}
 		    }
+		}
 
 		if (nextEntity != null)
 			ret.addAll(nextEntity.getEntitiesInSite());
@@ -207,6 +210,10 @@ public class YaftTopicEntity implements LessonEntity, ForumInterface {
 	}
 
 	public String getUrl() {
+
+		if (discussion == null) {
+		    return null;
+		}
 
 		Site site = null;
 

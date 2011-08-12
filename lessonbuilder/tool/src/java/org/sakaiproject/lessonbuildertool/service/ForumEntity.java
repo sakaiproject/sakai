@@ -325,18 +325,34 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
     }
 	
 
+    public Topic getTopicById(boolean flag, Long id) {
+	try {
+	    return forumManager.getTopicById(flag, id);
+	} catch (Exception e) {
+	    return null;
+	}
+    }
+
+    public BaseForum getForumById(boolean flag, Long id) {
+	try {
+	    return forumManager.getForumById(flag, id);
+	} catch (Exception e) {
+	    return null;
+	}
+    }
+
     // properties of entities
     public String getTitle() {
 
 	if (type == TYPE_FORUM_TOPIC) {
 	    if (topic == null)
-		topic = forumManager.getTopicById(true, id);
+		topic = getTopicById(true, id);
 	    if (topic == null)
 		return null;
 	    return topic.getTitle();
 	} else {
 	    if (forum == null)
-		forum = forumManager.getForumById(true, id);
+		forum = getForumById(true, id);
 	    if (forum == null)
 		return null;
 	    return forum.getTitle();
@@ -345,6 +361,11 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 
     public String getUrl() {
 	
+	if (topic == null)
+	    topic = getTopicById(true, id);
+	if (topic == null)
+	    return "javascript:alert('" + messageLocator.getMessage("simplepage.forumdeleted") + "')";
+
 	Site site = null;
 	try {
 	    site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
@@ -500,7 +521,9 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	setMasks();
 
 	if (topic == null)
-	    topic = forumManager.getTopicById(true, id);
+	    topic = getTopicById(true, id);
+	if (topic == null)
+	    return false;
 
 	Set<DBMembershipItem> oldMembershipItemSet = uiPermissionsManager.getTopicItemsSet((DiscussionTopic)topic);
 
@@ -567,7 +590,9 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	setMasks();
 
 	if (topic == null)
-	    topic = forumManager.getTopicById(true, id);
+	    topic = getTopicById(true, id);
+	if (topic == null)
+	    return false;
 
 	Set<DBMembershipItem> oldMembershipItemSet = uiPermissionsManager.getTopicItemsSet((DiscussionTopic)topic);
 
@@ -786,7 +811,9 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	List <String>ret = new ArrayList<String>();
 
 	if (topic == null)
-	    topic = forumManager.getTopicById(true, id);
+	    topic = getTopicById(true, id);
+	if (topic == null)
+	    return null;
 
 	Set<DBMembershipItem> oldMembershipItemSet = uiPermissionsManager.getTopicItemsSet((DiscussionTopic)topic);
 
@@ -833,7 +860,9 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	setMasks();
 
 	if (topic == null)
-	    topic = forumManager.getTopicById(true, id);
+	    topic = getTopicById(true, id);
+	if (topic == null)
+	    return;
 
 	topicCache.remove(id);
 
