@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.lessonbuilder</groupId>
         <artifactId>sakai-lessonbuildertool-tool-base</artifactId>
-        <version>1.3-SNAPSHOT</version>
+        <version>1.4-SNAPSHOT</version>
     </parent>
 
     <name>sakai-lessonbuildertool-tool</name>
