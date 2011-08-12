@@ -276,41 +276,13 @@ public class Category implements Serializable
 				} 
 				else 
 				{
-					if (assign.isExtraCredit()!=null)
-					{
-						if (assign.isExtraCredit())
-						{
-							if (assign.getPointsPossible()==null || assign.getPointsPossible()==0)
-								adjustmentItemWithNoPoints = true;
-						}
-					}
-					if (!adjustmentItemWithNoPoints)
-					{
-						if(assign.getPointsPossible() != null)
-						{
-							if(gbGradeType == GradebookService.GRADE_TYPE_POINTS)
-								total = total.add(new BigDecimal(score.toString()));
-							else if(gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE)
-								total = total.add(new BigDecimal(score.toString()).multiply(new BigDecimal(assign.getPointsPossible())).divide(new BigDecimal("100")));
-							if((gbGradeType == GradebookService.GRADE_TYPE_POINTS || gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE) && ((assign.isExtraCredit()!=null && !assign.isExtraCredit()) || assign.isExtraCredit()==null))
-								totalPossible = totalPossible.add(new BigDecimal(assign.getPointsPossible().toString()));
-							numOfAssignments ++;
-						}
-						numScored++;
-					}
-					else
-					{
-						BigDecimal bdScore = new BigDecimal(score.toString());
-						if(gbGradeType == GradebookService.GRADE_TYPE_POINTS)
-							total = total.add(bdScore);
-						else if(gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE)
-						{
-							if (assign.isExtraCredit()!=null && assign.isExtraCredit())
-								adjustmentPoints = adjustmentPoints.add(bdScore.multiply(new BigDecimal(1)).divide(new BigDecimal("100")));
-							else
-								total = total.add(bdScore.multiply(new BigDecimal(1)).divide(new BigDecimal("100")));
-						}
-					}
+					total = total.add(new BigDecimal(score.toString()));
+    			if(assign.getPointsPossible() != null)
+    			{
+    				totalPossible = totalPossible.add(new BigDecimal(assign.getPointsPossible().toString()));
+    				numOfAssignments ++;
+    			}
+    			numScored++;
 				}
 			}
 			//    	}
@@ -326,19 +298,12 @@ public class Category implements Serializable
 		} 
 		else 
 		{
-			BigDecimal bdNumScored = new BigDecimal(numScored);
-			BigDecimal bdNumAssign = new BigDecimal(numOfAssignments);
-			totalPointsEarned = total.doubleValue();
-			totalPointsPossible = totalPossible.doubleValue();
-			averageScore = new Double(total.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
-			averageTotalPoints = new Double(totalPossible.divide(bdNumAssign, GradebookService.MATH_CONTEXT).doubleValue());
-			BigDecimal value = total.divide(bdNumScored, GradebookService.MATH_CONTEXT).divide(new BigDecimal(averageTotalPoints.doubleValue()), GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
-			if (gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE) 	 
-			{
-				averageScore += adjustmentPoints.doubleValue();
-				value = value.add(adjustmentPoints.multiply(new BigDecimal("100"), GradebookService.MATH_CONTEXT), GradebookService.MATH_CONTEXT);
-			}
-			mean = new Double(value.doubleValue()) ;
+				BigDecimal bdNumScored = new BigDecimal(numScored);
+    	BigDecimal bdNumAssign = new BigDecimal(numOfAssignments);
+    	averageScore = Double.valueOf(total.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
+    	averageTotalPoints = Double.valueOf(totalPossible.divide(bdNumAssign, GradebookService.MATH_CONTEXT).doubleValue());
+    	BigDecimal value = total.divide(bdNumScored, GradebookService.MATH_CONTEXT).divide(new BigDecimal(averageTotalPoints.doubleValue()), GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
+    	mean = Double.valueOf(value.doubleValue()) ;
 		}
 	}
 	
@@ -372,55 +337,22 @@ public class Category implements Serializable
 				{
 
 					Category assignCategory = assignment.getCategory();
-					if (assignCategory != null && assignCategory.getId()!=null && assignCategory.getId().equals(id))
-					{
-						Double score = gradeRecord.getPointsEarned();
-						if (assignment.isExtraCredit()!=null)
-						{
-							if (assignment.isExtraCredit()!=null)
-							{
-								if (assignment.getPointsPossible()==null || assignment.getPointsPossible()==0)
-									adjustmentItemWithNoPoints = true;
-							}
-						}
-						if (!adjustmentItemWithNoPoints)
-						{
-							if (score != null) 
-							{
-								BigDecimal bdScore = new BigDecimal(score);
-								if(assignment.getPointsPossible() != null)
-								{
-									if(gbGradeType == GradebookService.GRADE_TYPE_POINTS)
-										total = total.add(bdScore);
-									else if(gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE)
-										total = total.add(bdScore.multiply(new BigDecimal(assignment.getPointsPossible())).divide(new BigDecimal("100")));
-									if((gbGradeType == GradebookService.GRADE_TYPE_POINTS || gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE) && ((assignment.isExtraCredit()!=null && !assignment.isExtraCredit()) || assignment.isExtraCredit()==null))
-									{
-										BigDecimal bdPointsPossible = new BigDecimal(assignment.getPointsPossible().toString());
-										totalPossible = totalPossible.add(bdPointsPossible);
-									}
-									numOfAssignments ++;
-								}
-								numScored++;
-							}
-						}
-						else
-						{
-							if (score != null) 
-							{
-								BigDecimal bdScore = new BigDecimal(score);
-								if(gbGradeType == GradebookService.GRADE_TYPE_POINTS)
-									total = total.add(bdScore);
-								else if(gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE)
-								{
-									if (assignment.isExtraCredit()!=null && assignment.isExtraCredit())
-										adjustmentPoints = adjustmentPoints.add(bdScore.multiply(new BigDecimal(1)).divide(new BigDecimal("100")));
-									else
-										total = total.add(bdScore.multiply(new BigDecimal(1)).divide(new BigDecimal("100")));
-								}
-							}
-						}
-					}
+    			if (assignCategory != null && assignCategory.getId().equals(id))
+    			{
+    				Double score = gradeRecord.getPointsEarned();
+    				if (score != null) 
+    				{
+    					BigDecimal bdScore = new BigDecimal(score.toString());
+    					total = total.add(bdScore);
+    					if(assignment.getPointsPossible() != null)
+    					{
+    						BigDecimal bdPointsPossible = new BigDecimal(assignment.getPointsPossible().toString());
+    						totalPossible = totalPossible.add(bdPointsPossible);
+    						numOfAssignments ++;
+    					}
+    					numScored++;
+    				}
+    			}
 				}
 			}
 		}
@@ -438,19 +370,13 @@ public class Category implements Serializable
 		} 
 		else 
 		{
-                BigDecimal bdNumScored = new BigDecimal(numScored);
-				BigDecimal bdNumAssign = new BigDecimal(numOfAssignments);
-				totalPointsEarned = total.doubleValue();;
-				totalPointsPossible = totalPossible.doubleValue();
-				averageScore = new Double(total.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
-				averageTotalPoints = new Double(totalPossible.divide(bdNumAssign, GradebookService.MATH_CONTEXT).doubleValue());
-				BigDecimal value = total.divide(bdNumScored, GradebookService.MATH_CONTEXT).divide((totalPossible.divide(bdNumAssign, GradebookService.MATH_CONTEXT)), GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
-				if (gbGradeType == GradebookService.GRADE_TYPE_PERCENTAGE) 	 
-                {
-					averageScore += adjustmentPoints.doubleValue();
-					value = value.add(adjustmentPoints.multiply(new BigDecimal("100"), GradebookService.MATH_CONTEXT), GradebookService.MATH_CONTEXT);
-                }
-				mean = new Double(value.doubleValue()) ;
+              BigDecimal bdNumScored = new BigDecimal(numScored);
+    	BigDecimal bdNumAssign = new BigDecimal(numOfAssignments);
+    	averageScore = Double.valueOf(total.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
+    	averageTotalPoints = Double.valueOf(totalPossible.divide(bdNumAssign, GradebookService.MATH_CONTEXT).doubleValue());
+    	BigDecimal value = total.divide(bdNumScored, GradebookService.MATH_CONTEXT).divide((totalPossible.divide(bdNumAssign, GradebookService.MATH_CONTEXT)), GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
+ 
+    	mean = Double.valueOf(value.doubleValue()) ;
 		}
 	}
 	
