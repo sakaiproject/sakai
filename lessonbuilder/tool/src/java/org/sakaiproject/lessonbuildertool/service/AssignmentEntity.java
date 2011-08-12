@@ -58,6 +58,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -263,7 +264,26 @@ public class AssignmentEntity implements LessonEntity {
     }
 
     public String getUrl() {
-        return "/direct/assignment/" + id;
+	
+	Site site = null;
+	try {
+	    site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+	} catch (Exception impossible) {
+	    return null;
+	}
+
+	ToolConfiguration tool = site.getToolForCommonId("sakai.assignment.grades");
+	
+	if(tool == null) {
+	    return null;
+	}
+	
+	String placement = tool.getId();
+
+	// https://sakai-test2.oirt.rutgers.edu/portal/tool/6b328952-cbcb-494b-0035-3c07120e4499?assignmentReference=/assignment/a/0aaae6ef-cb01-4578-0099-888d344b524b/0e52c5f6-ba73-40d2-961c-286533d59148&panel=Main&sakai_action=doView_submission
+	return "/portal/tool/" + placement + "?assignmentReference=/assignment/a/" + site.getId() + "/" + id + "&panel=Main&sakai_action=doView_submission";
+	// following was broken in 2.8.1
+        // return "/direct/assignment/" + id;
     }
 
     public Date getDueDate() {
