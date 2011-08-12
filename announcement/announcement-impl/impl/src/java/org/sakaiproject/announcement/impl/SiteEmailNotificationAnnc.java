@@ -338,9 +338,9 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	{
 		Reference ref = EntityManager.newReference(event.getResource());
 		
-		//SAK-14831, yorkadam, make site title reflected in 'From:' name
+		//SAK-14831, yorkadam, make site title reflected in 'From:' name instead of default ServerConfigurationService.getString("ui.service", "Sakai");
 		String siteId = (getSite() != null) ? getSite() : ref.getContext();
-		String title = siteId;
+		String title = "";
 		try
 		{
 			Site site = SiteService.getSite(siteId);
@@ -350,17 +350,23 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		{}
 		
 		String userEmail = "no-reply@" + ServerConfigurationService.getServerName();
-		String userDisplay = title; 
-		String no_reply = "From: \"" + userDisplay + "\" <" + userEmail + ">";		
-		String from = (userDisplay.equals(null)) ? getFrom(event) : no_reply;
-
+		String userDisplay = ServerConfigurationService.getString("ui.service", "Sakai");
+		String no_reply = "From: \"" + userDisplay + "\" <" + userEmail + ">";
+		String no_reply_withTitle = "From: \"" + title + "\" <" + userEmail + ">";	
+		String from = "";
+		 if (title!=null && !title.equals("")){ 
+		     from= "From: \"" + title + "\" <" + userEmail + ">"; 
+		 } 
+		 else{ 
+		     from= getFrom(event); 
+		 } 
 		
 		// get the message
 		AnnouncementMessage msg = (AnnouncementMessage) ref.getEntity();
 		String userId=msg.getAnnouncementHeader().getFrom().getDisplayId();
 
 		//checks if "from" email id has to be included? and whether the notification is a delayed notification?. SAK-13512
-		if ((ServerConfigurationService.getString("emailFromReplyable@org.sakaiproject.event.api.NotificationService").equals("true")) && from.equals(no_reply) && userId !=null){
+		if ((ServerConfigurationService.getString("emailFromReplyable@org.sakaiproject.event.api.NotificationService").equals("true")) && getFrom(event).contains("no-reply@") && userId !=null){
 						
 				try
 				{
