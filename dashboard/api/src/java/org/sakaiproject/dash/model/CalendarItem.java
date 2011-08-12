@@ -37,7 +37,6 @@ public class CalendarItem {
 	protected String entityReference;
 	protected String entityUrl;
 	protected Context context;
-	protected Realm realm;
 	protected SourceType sourceType;
 	
 	/**
@@ -50,14 +49,13 @@ public class CalendarItem {
 
 	public CalendarItem(String title, Date calendarTime,
 			String entityReference, String entityUrl, Context context,
-			Realm realm, SourceType sourceType) {
+			SourceType sourceType) {
 		super();
 		this.title = title;
 		this.calendarTime = calendarTime;
 		this.entityReference = entityReference;
 		this.entityUrl = entityUrl;
 		this.context = context;
-		this.realm = realm;
 		this.sourceType = sourceType;
 	}
 
@@ -73,7 +71,7 @@ public class CalendarItem {
 	 */
 	public CalendarItem(Long id, String title, Date calendarTime,
 			String entityReference, String entityUrl, Context context,
-			Realm realm, SourceType sourceType) {
+			SourceType sourceType) {
 		super();
 		this.id = id;
 		this.title = title;
@@ -81,7 +79,6 @@ public class CalendarItem {
 		this.entityReference = entityReference;
 		this.entityUrl = entityUrl;
 		this.context = context;
-		this.realm = realm;
 		this.sourceType = sourceType;
 }
 
@@ -125,13 +122,6 @@ public class CalendarItem {
 	 */
 	public Context getContext() {
 		return context;
-	}
-
-	/**
-	 * @return the realm
-	 */
-	public Realm getRealm() {
-		return realm;
 	}
 
 	/**
@@ -184,13 +174,6 @@ public class CalendarItem {
 	}
 
 	/**
-	 * @param realm the realm to set
-	 */
-	public void setRealm(Realm realm) {
-		this.realm = realm;
-	}
-
-	/**
 	 * @param sourceType the sourceType to set
 	 */
 	public void setSourceType(SourceType sourceType) {
@@ -215,8 +198,6 @@ public class CalendarItem {
 		builder.append(entityUrl);
 		builder.append(", context=");
 		builder.append(context);
-		builder.append(", realm=");
-		builder.append(realm);
 		builder.append(", sourceType=");
 		builder.append(sourceType);
 		builder.append("]");

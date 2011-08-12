@@ -13,10 +13,12 @@ import org.apache.log4j.Logger;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
@@ -102,23 +104,21 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.SakaiProxy#getRealmId(java.lang.String, java.lang.String)
 	 */
-	public String getRealmId(String entityReference, String contextId) {
+	public Collection<String> getRealmId(String entityReference, String contextId) {
 		String realmId = null;
-		AuthzGroup authzGroup = null;
-		try {
-			if(entityReference != null && ! entityReference.trim().equals("")) {
-				authzGroup = this.authzGroupService.getAuthzGroup(entityReference);
-			} else if(contextId != null) {
-				String siteReference = siteService.siteReference(contextId);
-				authzGroup = this.authzGroupService.getAuthzGroup(siteReference);
-			}
-			if(authzGroup != null) {
-				realmId = authzGroup.getId();
-			}
-		} catch (GroupNotDefinedException e) {
-			logger.warn("Unable to retrieve authzGroup for entity: " + entityReference + " :: " + contextId, e);
+		Collection<String> authzGroups =  null;
+		if(entityReference != null && ! entityReference.trim().equals("")) {
+			Reference ref = this.entityManager.newReference(entityReference);
+			authzGroups = this.authzGroupService.getEntityAuthzGroups(ref , null);
+		} 
+		
+		if((authzGroups == null || authzGroups.isEmpty()) && contextId != null) {
+			String siteReference = siteService.siteReference(contextId);
+			Reference ref = this.entityManager.newReference(siteReference);
+			authzGroups = this.authzGroupService.getEntityAuthzGroups(ref , null);
 		}
-		return realmId ;
+		
+		return authzGroups;
 	}
 	
 	/*
@@ -188,6 +188,24 @@ public class SakaiProxyImpl implements SakaiProxy {
 		eventTrackingService.post(eventTrackingService.newEvent(event,reference,modify));
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.SakaiProxy#pushSecurityAdvisor(org.sakaiproject.authz.api.SecurityAdvisor)
+	 */
+	public void pushSecurityAdvisor(SecurityAdvisor securityAdvisor) {
+		this.securityService.pushAdvisor(securityAdvisor);
+		
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.SakaiProxy#popSecurityAdvisor(org.sakaiproject.authz.api.SecurityAdvisor)
+	 */
+	public void popSecurityAdvisor(SecurityAdvisor securityAdvisor) {
+		this.securityService.popAdvisor(securityAdvisor);
+		
+	}
+	
 	/************************************************************************
 	 * Spring-injected classes
 	 ************************************************************************/
@@ -228,8 +246,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 */
 	public void init() {
 		logger.info("init");
-}
-	
-
+	}
 
 }

@@ -36,16 +36,21 @@ import org.sakaiproject.dash.model.NewsItem;
  */
 public interface DashboardLogic {
 
-	public CalendarItem createCalendarItem(String title, Date calendarTime, String entityReference, String entityUrl, Context context, Realm realm, SourceType sourceType);
+	public CalendarItem createCalendarItem(String title, Date calendarTime, String entityReference, String entityUrl, Context context, SourceType sourceType);
 
 	public void createCalendarLinks(CalendarItem calendarItem);
 
-	public NewsItem createNewsItem(String title, Date newsTime, String entityReference, String entityUrl, Context context, Realm realm, SourceType sourceType);
+	public NewsItem createNewsItem(String title, Date newsTime, String entityReference, String entityUrl, Context context, SourceType sourceType);
 	
 	public void createNewsLinks(NewsItem newsItem);
 
 	public void registerEventProcessor(EventProcessor eventProcessor);
 
+	/**
+	 * Retrieve the Context with a particular contextId 
+	 * @param contextId
+	 * @return the Context object, or null if it is not defined.
+	 */
 	public Context getContext(String contextId);
 
 	public Context createContext(String contextId);
@@ -54,6 +59,11 @@ public interface DashboardLogic {
 
 	public Realm createRealm(String entityReference, String contextId);
 
+	/**
+	 * Retrieve the SourceType with a particular identifier  
+	 * @param identifier 
+	 * @return the SourceType object, or null if it is not defined.
+	 */
 	public SourceType getSourceType(String identifier);
 
 	public SourceType createSourceType(String identifier, String accessPermission);

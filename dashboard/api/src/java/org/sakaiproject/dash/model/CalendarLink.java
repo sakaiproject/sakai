@@ -24,11 +24,7 @@ package org.sakaiproject.dash.model;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.CalendarLink;
 import org.sakaiproject.dash.model.Context;
-import org.sakaiproject.dash.model.NewsItem;
-import org.sakaiproject.dash.model.NewsLink;
 import org.sakaiproject.dash.model.Person;
-import org.sakaiproject.dash.model.Realm;
-import org.sakaiproject.dash.model.SourceType;
 
 /**
  * CalendarLink encapsulates links between calendar items and users.
@@ -40,7 +36,6 @@ public class CalendarLink {
 	protected Person person;
 	protected CalendarItem calendarItem;
 	protected Context context;
-	protected Realm realm;
 	protected boolean hidden = false;
 	protected boolean sticky = false;
 
@@ -56,17 +51,15 @@ public class CalendarLink {
 	 * @param person
 	 * @param calendarItem
 	 * @param context
-	 * @param realm
 	 * @param hidden
 	 * @param sticky
 	 */
 	public CalendarLink(Person person, CalendarItem calendarItem,
-			Context context, Realm realm, boolean hidden, boolean sticky) {
+			Context context, boolean hidden, boolean sticky) {
 		super();
 		this.person = person;
 		this.calendarItem = calendarItem;
 		this.context = context;
-		this.realm = realm;
 		this.hidden = hidden;
 		this.sticky = sticky;
 }
@@ -81,13 +74,12 @@ public class CalendarLink {
 	 * @param sticky
 	 */
 	public CalendarLink(Long id, Person person, CalendarItem calendarItem,
-			Context context, Realm realm, boolean hidden, boolean sticky) {
+			Context context, boolean hidden, boolean sticky) {
 		super();
 		this.id = id;
 		this.person = person;
 		this.calendarItem = calendarItem;
 		this.context = context;
-		this.realm = realm;
 		this.hidden = hidden;
 		this.sticky = sticky;
 	}
@@ -118,13 +110,6 @@ public class CalendarLink {
 	 */
 	public Context getContext() {
 		return context;
-	}
-
-	/**
-	 * @return the realm
-	 */
-	public Realm getRealm() {
-		return realm;
 	}
 
 	/**
@@ -170,13 +155,6 @@ public class CalendarLink {
 	}
 
 	/**
-	 * @param realm the realm to set
-	 */
-	public void setRealm(Realm realm) {
-		this.realm = realm;
-	}
-
-	/**
 	 * @param hidden the hidden to set
 	 */
 	public void setHidden(boolean hidden) {
@@ -204,8 +182,6 @@ public class CalendarLink {
 		builder.append(calendarItem);
 		builder.append(", context=");
 		builder.append(context);
-		builder.append(", realm=");
-		builder.append(realm);
 		builder.append(", hidden=");
 		builder.append(hidden);
 		builder.append(", sticky=");

@@ -32,7 +32,6 @@ public class NewsLink {
 	protected Person person;
 	protected NewsItem newsItem;
 	protected Context context;
-	protected Realm realm;
 	protected boolean hidden;
 	protected boolean sticky;
 	
@@ -47,17 +46,15 @@ public class NewsLink {
 	 * @param person
 	 * @param newsItem
 	 * @param context
-	 * @param realm
 	 * @param hidden
 	 * @param sticky
 	 */
 	public NewsLink(Person person, NewsItem newsItem, Context context,
-			Realm realm, boolean hidden, boolean sticky) {
+			boolean hidden, boolean sticky) {
 		super();
 		this.person = person;
 		this.newsItem = newsItem;
 		this.context = context;
-		this.realm = realm;
 		this.hidden = hidden;
 		this.sticky = sticky;
 	}
@@ -67,18 +64,16 @@ public class NewsLink {
 	 * @param person
 	 * @param newsItem
 	 * @param context
-	 * @param realm
 	 * @param hidden
 	 * @param sticky
 	 */
 	public NewsLink(Long id, Person person, NewsItem newsItem, Context context,
-			Realm realm, boolean hidden, boolean sticky) {
+			boolean hidden, boolean sticky) {
 		super();
 		this.id = id;
 		this.person = person;
 		this.newsItem = newsItem;
 		this.context = context;
-		this.realm = realm;
 		this.hidden = hidden;
 		this.sticky = sticky;
 	}
@@ -109,13 +104,6 @@ public class NewsLink {
 	 */
 	public Context getContext() {
 		return context;
-	}
-
-	/**
-	 * @return the realm
-	 */
-	public Realm getRealm() {
-		return realm;
 	}
 
 	/**
@@ -161,13 +149,6 @@ public class NewsLink {
 	}
 
 	/**
-	 * @param realm the realm to set
-	 */
-	public void setRealm(Realm realm) {
-		this.realm = realm;
-	}
-
-	/**
 	 * @param hidden the hidden to set
 	 */
 	public void setHidden(boolean hidden) {
@@ -195,8 +176,6 @@ public class NewsLink {
 		builder.append(newsItem);
 		builder.append(", context=");
 		builder.append(context);
-		builder.append(", realm=");
-		builder.append(realm);
 		builder.append(", hidden=");
 		builder.append(hidden);
 		builder.append(", sticky=");

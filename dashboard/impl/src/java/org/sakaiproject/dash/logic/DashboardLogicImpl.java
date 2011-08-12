@@ -21,6 +21,8 @@
 
 package org.sakaiproject.dash.logic;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +36,8 @@ import net.sf.ehcache.Cache;
 
 import org.apache.log4j.Logger;
 
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.dash.dao.DashboardDao;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.model.CalendarItem;
@@ -90,7 +94,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		if(logger.isDebugEnabled()) {
 			logger.debug("createCalendarLinks(" + calendarItem + ")");
 		}
-		List<String> sakaiIds = this.sakaiProxy.getUsersWithReadAccess(calendarItem.getRealm().getRealmId(), calendarItem.getSourceType().getAccessPermission());
+		List<String> sakaiIds = this.sakaiProxy.getUsersWithReadAccess(calendarItem.getEntityReference(), calendarItem.getSourceType().getAccessPermission());
 		for(String sakaiId : sakaiIds) {
 			Person person = dao.getPersonBySakaiId(sakaiId);
 
@@ -116,10 +120,10 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 
 	public CalendarItem createCalendarItem(String title, Date calendarTime,
 			String entityReference, String entityUrl, Context context,
-			Realm realm, SourceType sourceType) {
+			SourceType sourceType) {
 		
 		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
-				entityReference, entityUrl, context, realm, sourceType);
+				entityReference, entityUrl, context, sourceType);
 		
 		dao.addCalendarItem(calendarItem);
 		
@@ -128,10 +132,10 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 
 	public NewsItem createNewsItem(String title, Date newsTime,
 			String entityReference, String entityUrl, Context context,
-			Realm realm, SourceType sourceType) {
+			SourceType sourceType) {
 		
 		NewsItem newsItem = new NewsItem(title, newsTime, 
-				entityReference, entityUrl, context, realm, sourceType);
+				entityReference, entityUrl, context, sourceType);
 		
 		dao.addNewsItem(newsItem);
 		
@@ -141,6 +145,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	public Context createContext(String contextId) {
 		
 		Site site = this.sakaiProxy.getSite(contextId);
+		
 		Context context = new Context(site.getId(), site.getTitle(), site.getUrl());
 		dao.addContext(context);
 		return context;
@@ -148,10 +153,24 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 
 	public Realm createRealm(String entityReference, String contextId) {
 		
-		String realmId = this.sakaiProxy.getRealmId(entityReference, contextId);
-		Realm realm = new Realm(realmId);
-		dao.addRealm(realm);
-		return realm;
+		String realmId = null;
+		Collection<String> groups = this.sakaiProxy.getRealmId(entityReference, contextId);
+		if(groups != null && groups.size() > 0) {
+			List<String> authzGroups = new ArrayList<String>(groups );
+			if(authzGroups != null && authzGroups.size() > 0) {
+				realmId = authzGroups.get(0);
+			}
+			if(realmId != null) {
+				Realm realm = dao.getRealm(realmId);
+				if(realm == null) {
+					realm = new Realm(realmId);
+					dao.addRealm(realm);
+				}
+				return realm;
+			}
+		}
+		
+		return null;
 	}
 
 	public SourceType createSourceType(String identifier, String accessPermission) {
@@ -162,14 +181,14 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 	
 	public Context getContext(String contextId) {
-		
-		Context context = dao.getContext(contextId);
-		
-		if(context == null) {
-			context = this.createContext(contextId);
+		try {
+			return dao.getContext(contextId);
+			
+		} catch(Exception e) {
+			logger.debug("No context retrieved for contextId: " + contextId);
 		}
 		
-		return context;
+		return null;
 	}
 
 	public Realm getRealm(String entityId) {
@@ -179,9 +198,13 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 
 	public SourceType getSourceType(String identifier) {
+		try {
+			return dao.getSourceType(identifier);
+		} catch(Exception e) {
+			logger.debug("No context retrieved for identifier: " + identifier);
+		}
 		
-		SourceType sourceType = dao.getSourceType(identifier);
-		return sourceType ;
+		return null ;
 	}
 
 	public void registerEventProcessor(EventProcessor eventProcessor) {
@@ -331,9 +354,45 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 						logger.debug("Dashboard Event Processing Thread is processing event: " + event.getEvent());
 					}
 					EventProcessor eventProcessor = eventProcessors.get(event.getEvent());
-					eventProcessor.processEvent(event);
+					
+					SecurityAdvisor advisor = new DashboardLogicSecurityAdvisor(event.getResource());
+					sakaiProxy.pushSecurityAdvisor(advisor );
+					try {
+						eventProcessor.processEvent(event);
+					} catch (Exception e) {
+						logger.warn("Error processing event: " + event, e);
+					} finally {
+						sakaiProxy.popSecurityAdvisor(advisor);
+					}
 				}
 			}
 		}
 	}
+	
+	public class DashboardLogicSecurityAdvisor implements SecurityAdvisor 
+	{
+		protected String entityReference;
+		
+		/**
+		 * @param entityReference
+		 */
+		public DashboardLogicSecurityAdvisor(String entityReference) {
+			super();
+			this.entityReference = entityReference;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * @see org.sakaiproject.authz.api.SecurityAdvisor#isAllowed(java.lang.String, java.lang.String, java.lang.String)
+		 */
+		public SecurityAdvice isAllowed(String userId, String function,
+				String reference) {
+			if(reference != null && reference.equalsIgnoreCase(entityReference)) {
+				return SecurityAdvice.ALLOWED;
+			}
+			return SecurityAdvice.NOT_ALLOWED;
+		}
+		
+	}
+
 }

@@ -22,6 +22,7 @@
 package org.sakaiproject.dash.listener;
 
 import org.apache.log4j.Logger;
+import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.dash.logic.DashboardLogic;
 import org.sakaiproject.dash.logic.SakaiProxy;
@@ -70,10 +71,7 @@ public class ContentNewEventProcessor implements EventProcessor {
 			if(context == null) {
 				context = this.dashboardLogic.createContext(event.getContext());
 			}
-			Realm realm = this.dashboardLogic.getRealm(event.getResource());
-			if(realm == null) {
-				realm = this.dashboardLogic.createRealm(event.getResource(), event.getContext());
-			}
+			
 			SourceType sourceType = this.dashboardLogic.getSourceType("resource");
 			if(sourceType == null) {
 				sourceType = this.dashboardLogic.createSourceType("resource", SakaiProxy.PERMIT_RESOURCE_ACCESS);
@@ -82,7 +80,7 @@ public class ContentNewEventProcessor implements EventProcessor {
 			ResourceProperties props = resource.getProperties();
 			String title = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 			
-			NewsItem newsItem = dashboardLogic.createNewsItem(title , event.getEventTime(), resource.getReference(), resource.getUrl(), context, realm, sourceType);
+			NewsItem newsItem = dashboardLogic.createNewsItem(title , event.getEventTime(), resource.getReference(), resource.getUrl(), context, sourceType);
 			dashboardLogic.createNewsLinks(newsItem);
 		}
 	}

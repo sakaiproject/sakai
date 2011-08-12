@@ -67,10 +67,10 @@ public class AssignmentNewEventProcessor implements EventProcessor {
 				sourceType = this.dashboardLogic.createSourceType("assignment", SakaiProxy.PERMIT_ASSIGNMENT_ACCESS);
 			}
 			
-			NewsItem newsItem = this.dashboardLogic.createNewsItem(assn.getTitle(), event.getEventTime(), assn.getReference(), assn.getUrl(), context, realm, sourceType);
+			NewsItem newsItem = this.dashboardLogic.createNewsItem(assn.getTitle(), event.getEventTime(), assn.getReference(), assn.getUrl(), context, sourceType);
 			this.dashboardLogic.createNewsLinks(newsItem);
 		
-			CalendarItem calendarItem = this.dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getDueTime().getTime()), assn.getReference(), assn.getUrl(), context, realm, sourceType);
+			CalendarItem calendarItem = this.dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getDueTime().getTime()), assn.getReference(), assn.getUrl(), context, sourceType);
 			this.dashboardLogic.createCalendarLinks(calendarItem);
 		} else {
 			// for now, let's log the error

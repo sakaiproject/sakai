@@ -61,7 +61,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 
 	private static final Logger log = Logger.getLogger(DashboardDaoImpl.class);
 	
-	private PropertiesConfiguration statements;
+	protected PropertiesConfiguration statements;
 	
 	/*
 	 * (non-Javadoc)
@@ -72,14 +72,13 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			log.debug("addCalendarItem( " + calendarItem.toString() + ")");
 }
 		
-		// calendar_time, title , entity_url, entity_ref, source_type, context, realm
+		// calendar_time, title , entity_url, entity_ref, source_type, context_id, realm_id
 		
 		try {
 			getJdbcTemplate().update(getStatement("insert.CalendarItem"),
 				new Object[]{calendarItem.getCalendarTime(), calendarItem.getTitle(), 
 						calendarItem.getEntityUrl(), calendarItem.getEntityReference(),
-						calendarItem.getSourceType().getId(), calendarItem.getContext().getId(),
-						calendarItem.getRealm().getId()}
+						calendarItem.getSourceType().getId(), calendarItem.getContext().getId()}
 			);
 			return true;
 		} catch (DataAccessException ex) {
@@ -102,7 +101,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		try {
 			getJdbcTemplate().update(getStatement("insert.CalendarLink"),
 				new Object[]{calendarLink.getPerson().getId(), calendarLink.getCalendarItem().getId(), 
-						calendarLink.getContext().getId(), calendarLink.getRealm().getId()}
+						calendarLink.getContext().getId()}
 			);
 			return true;
 		} catch (DataAccessException ex) {
@@ -143,14 +142,13 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			log.debug("addNewsItem( " + newsItem.toString() + ")");
 		}
 		
-		// news_time, title , entity_url, entity_ref, source_type, context, realm
+		// news_time, title , entity_url, entity_ref, source_type, context_id, realm_id
 		
 		try {
 			getJdbcTemplate().update(getStatement("insert.NewsItem"),
 				new Object[]{newsItem.getNewsTime(), newsItem.getTitle(), 
 						newsItem.getEntityUrl(), newsItem.getEntityReference(),
-						newsItem.getSourceType().getId(), newsItem.getContext().getId(),
-						newsItem.getRealm().getId()}
+						newsItem.getSourceType().getId(), newsItem.getContext().getId()}
 			);
 			return true;
 		} catch (DataAccessException ex) {
@@ -173,7 +171,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		try {
 			getJdbcTemplate().update(getStatement("insert.NewsLink"),
 				new Object[]{newsLink.getPerson().getId(), newsLink.getNewsItem().getId(), 
-						newsLink.getContext().getId(), newsLink.getRealm().getId()}
+						newsLink.getContext().getId()}
 			);
 			return true;
 		} catch (DataAccessException ex) {
@@ -200,8 +198,8 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return true;
 		} catch (DataAccessException ex) {
            log.error("addPerson: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-		return false;
-	}
+			return false;
+		}
 	}
 
 	/*
@@ -222,8 +220,8 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return true;
 		} catch (DataAccessException ex) {
            log.error("addRealm: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-		return false;
-	}
+			return false;
+		}
 	}
 
 	/*
@@ -249,8 +247,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 		
-	/**
-	 * 
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getSourceType(java.lang.String)
 	 */
 	public SourceType getSourceType(String sourceTypeName) {
 		if(log.isDebugEnabled()) {
@@ -266,9 +265,12 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            log.error("getContext: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return null;
 		}
-	}	
-
-
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getCalendarItem(java.lang.String)
+	 */
 	public CalendarItem getCalendarItem(String entityReference) {
 		if(log.isDebugEnabled()) {
 			log.debug("getCalendarItem(" + entityReference + ")");
@@ -345,14 +347,54 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            return null;
 		}
 	}
-
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getRealm(java.lang.String)
+	 */
+	public Realm getRealm(String realmId) {
+		if(log.isDebugEnabled()) {
+			log.debug("getRealm(" + realmId + ")");
+		}
+		
+		try {
+			return (Realm) getJdbcTemplate().queryForObject(getStatement("select.Realm.by.realmId"),
+				new Object[]{realmId},
+				new RealmMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getRealm: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return null;
+		}
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getRealm(long)
+	 */
+	public Realm getRealm(long id) {
+		if(log.isDebugEnabled()) {
+			log.debug("getRealm(" + id + ")");
+		}
+		
+		try {
+			return (Realm) getJdbcTemplate().queryForObject(getStatement("select.Realm.by.id"),
+				new Object[]{Long.valueOf(id)},
+				new RealmMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getRealm: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return null;
+		}
+	}
+	
 	/**
 	 * Get an SQL statement for the appropriate vendor from the bundle
 	
 	 * @param key
 	 * @return statement or null if none found. 
 	 */
-	private String getStatement(String key) {
+	protected String getStatement(String key) {
 		try {
 			return statements.getString(key);
 		} catch (NoSuchElementException e) {
@@ -425,7 +467,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	 
 	 * @param vendor	DB vendor string. Must be one of mysql, oracle, hsqldb
 	 */
-	private void initStatements(String vendor) {
+	protected void initStatements(String vendor) {
 		
 		URL url = getClass().getClassLoader().getResource(vendor + ".properties"); 
 		
@@ -444,27 +486,45 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	/**
 	 * Sets up our tables
 	 */
-	private void initTables() {
-		try {
-			//getJdbcTemplate().execute(getStatement("create.table"));
-			getJdbcTemplate().execute(getStatement("create.Context.table"));
-			getJdbcTemplate().execute(getStatement("create.Person.table"));
-			getJdbcTemplate().execute(getStatement("create.Realm.table"));
-			getJdbcTemplate().execute(getStatement("create.SourceType.table"));
-			getJdbcTemplate().execute(getStatement("create.NewsItem.table"));
-			getJdbcTemplate().execute(getStatement("create.NewsLink.table"));
-			getJdbcTemplate().execute(getStatement("create.CalendarItem.table"));
-			getJdbcTemplate().execute(getStatement("create.CalendarLink.table"));
-			
-			
-		} catch (DataAccessException ex) {
-			log.info("Error creating tables: " + ex.getClass() + ":" + ex.getMessage());
-			return;
-		}
+	protected void initTables() {
+		//executeSqlStatement("create.table"));
+		executeSqlStatement("create.Context.table");
+		executeSqlStatement("create.Person.table");
+		//executeSqlStatement("create.Realm.table");
+		executeSqlStatement("create.SourceType.table");
+		executeSqlStatement("create.NewsItem.table");
+		executeSqlStatement("create.NewsLink.table");
+		executeSqlStatement("create.CalendarItem.table");
+		executeSqlStatement("create.CalendarLink.table");
+		
 	}
 
+	/**
+	 * @param sqlStatement
+	 */
+	protected void executeSqlStatement(String key) {
+		String sqlStatement = getStatement(key);
+		if(sqlStatement == null || sqlStatement.trim().equals("")) {
+			log.warn("Missing key in database properties file (" + statements.getFileName() + "): " + key);
+		} else {
+			String parts[] = sqlStatement.split(";");
+			if( parts != null) {
+				for(String sql : parts) {
+					if(sql != null && ! sql.trim().equals("")) {
+						try {
+							getJdbcTemplate().execute(sql.trim());
+						} catch (DataAccessException ex) {
+							log.warn("Error executing SQL statement with key: " + key + " -- " + ex.getClass() + ": " + ex.getMessage());
+						}
+					}
+				}
+			}
+		}
+	}
+	
 	public boolean addThing(Thing t) {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
 }

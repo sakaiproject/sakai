@@ -1,11 +1,13 @@
 package org.sakaiproject.dash.logic;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Observer;
 
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentService;
+import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.entity.api.Entity;
@@ -87,7 +89,7 @@ public interface SakaiProxy {
 	 * @param contextId
 	 * @return
 	 */
-	public String getRealmId(String entityReference, String contextId);
+	public Collection<String> getRealmId(String entityReference, String contextId);
 	
 	/**
 	 * Retrieve a Sakai Site object.
@@ -133,5 +135,9 @@ public interface SakaiProxy {
 	 * 
 	 */
 	public void postEvent(String event,String reference,boolean modify);
+
+	public void pushSecurityAdvisor(SecurityAdvisor securityAdvisor);
+
+	public abstract void popSecurityAdvisor(SecurityAdvisor securityAdvisor);
 
 }
