@@ -744,7 +744,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		long startTime = System.currentTimeMillis();
 		if(eventStatMap.size() > 0 || resourceStatMap.size() > 0
 				|| activityMap.size() > 0 || uniqueVisitsMap.size() > 0 
-				|| visitsMap.size() > 0 || presencesMap.size() > 0) {
+				|| visitsMap.size() > 0 || presencesMap.size() > 0
+				|| serverStatMap.size() > 0) {
 			Object r = getHibernateTemplate().execute(new HibernateCallback() {			
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
 					Transaction tx = null;
