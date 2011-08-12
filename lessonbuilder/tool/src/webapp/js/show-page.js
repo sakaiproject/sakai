@@ -1225,9 +1225,14 @@ function reposition() {
 	//alert("DropX: " + dropX);
 	//alert("Width: " + window.innerWidth);
 	//alert("Width2: " + dropdown.width());
-	if(dropX + dropdown.width() > $(window).width()) {
-		dropdown.css("left", ($(window).width() - dropdown.width() - dropX - 100) + "px");
+	if(dropX + dropdown.width() > $(window).width() ) {
+	    dropdown.css("left", ($(window).width() - dropdown.width() - dropX - 100) + "px");
+	} else {
+	    // in case user changes zoom and then tries again, we could end up
+            // with a value from the case above that is now incorrect                        	    
+            dropdown.css("left", "0px");
 	}
+
 }
 
 // Keeps JQuery from getting confused mid-animation
