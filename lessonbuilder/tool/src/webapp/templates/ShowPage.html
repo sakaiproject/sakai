@@ -107,23 +107,30 @@ function resizeiframe(id) {
 					<span><a href="#" onclick="return false;" rsf:id="msg=simplepage.more-tools" ></a></span>
 				
 					<div id="dropDownDiv">
+						<span rsf:id="forum-descrip">
 						<a href="#" rsf:id="add-forum"><span rsf:id="msg.simplepage.forum"></span></a>
 						<span rsf:id="msg=simplepage.forum-descrip"></span>
 						<br />
+						</span>
+
 						<span rsf:id="addwebsite-descrip">
 						<a href="#" rsf:id="add-website" class="add-website"><span rsf:id="msg.simplepage.website"></span></a>
 						<span rsf:id="msg=simplepage.addwebsite-descrip"></span>
 						<br />
 						</span>
+
+						<span rsf:id="student-descrip">
 						<a href="#" rsf:id="add-comments"><span rsf:id="msg.simplepage.comments"></span></a>
 						<span rsf:id="msg=simplepage.comments-descrip"></span>
 						<br />
 						<a href="#" rsf:id="add-content"><span rsf:id="msg.simplepage.add-content"></span></a>
 						<span rsf:id="msg=simplepage.student-descrip"></span>
-						<br /><br />
+						<br />
+						<br />
+						</span>
 
 						<span rsf:id="title-descrip">
-						<a href="#" rsf:id="edit-title" id="edit-title"><span rsf:id="msg=simplepage.title"></span></a>
+						<a href="#" rsf:id="edit-title" id="edit-title"><span rsf:id="edit-title-text"></span></a>
 						<span rsf:id="title-descrip-text"></span>
 						<br />
 						</span>
@@ -143,10 +150,13 @@ function resizeiframe(id) {
 						<br />
 						</span>
 
+						<span rsf:id="permissions-descrip">
 						<br />
 						<a href="#" rsf:id="permissions"><span rsf:id="msg.simplepage.permissions"></span></a>
 						<span rsf:id="msg=simplepage.permissions-descrip"></span>
 						<br />
+						</span>
+
 						<span rsf:id="blti-descrip">
 						<a href="#" rsf:id="add-blti"><span rsf:id="msg.simplepage.blti"></span></a>
 						<span rsf:id="msg=simplepage.blti-descrip"></span>
@@ -777,6 +787,8 @@ function resizeiframe(id) {
 						<label for="page-points"><span rsf:id="msg=simplepage.points"></span></label>
 					</div>
 					
+					<div rsf:id="csssection">
+
 					<hr />
 					
 					<label for="cssDropdown" rsf:id="cssDropdownLabel"></label>
@@ -789,6 +801,7 @@ function resizeiframe(id) {
 					<br /><span class="italic" rsf:id="cssDefaultInstructions"></span>
 					
 					<br /><hr /><br />
+					</div>
 					
 					<input class="bold" type="submit"  onclick="event.returnValue = checkEditTitleForm(); return checkEditTitleForm();" rsf:id="create-title" />
 					<input type="submit" rsf:id="cancel-title"  onclick="closeEditTitleDialog(); return false" />

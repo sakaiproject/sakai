@@ -505,8 +505,22 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			// show tool bar
 			createToolBar(tofill, currentPage, (pageItem.getType() == SimplePageItem.STUDENT_CONTENT));
 			UIOutput.make(tofill, "title-descrip");
-			UIOutput.make(tofill, "edit-title").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.editTitle-tooltip")));
-			UIOutput.make(tofill, "title-descrip-text", messageLocator.getMessage(pageItem.getPageId() == 0 ? "simplepage.title-top-descrip" : "simplepage.title-descrip"));
+			String label = null;
+			if (pageItem.getType() == SimplePageItem.STUDENT_CONTENT)
+			    label = messageLocator.getMessage("simplepage.editTitle");
+			else
+			    label = messageLocator.getMessage("simplepage.title");
+			String descrip = null;
+			if (pageItem.getType() == SimplePageItem.STUDENT_CONTENT)
+			    descrip = messageLocator.getMessage("simplepage.title-student-descrip");
+			else if (pageItem.getPageId() == 0)
+			    descrip = messageLocator.getMessage("simplepage.title-top-descrip");
+			else
+			    descrip = messageLocator.getMessage("simplepage.title-descrip");
+
+			UIOutput.make(tofill, "edit-title").decorate(new UIFreeAttributeDecorator("title", descrip));
+			UIOutput.make(tofill, "edit-title-text", label);
+			UIOutput.make(tofill, "title-descrip-text", descrip);
 
 			if (pageItem.getPageId() == 0) { // top level page
 				UIOutput.make(tofill, "toppage-descrip");
@@ -2020,16 +2034,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			
 			createToolBarLink(QuizPickerProducer.VIEW_ID, toolBar, "add-quiz", "simplepage.quiz", currentPage, "simplepage.quiz");
 			
+			UIOutput.make(toolBar, "forum-descrip");
 			createToolBarLink(ForumPickerProducer.VIEW_ID, toolBar, "add-forum", "simplepage.forum", currentPage, "simplepage.forum");
 			// in case we're on an old system without current BLTI
 			if (bltiEntity != null && ((BltiInterface)bltiEntity).servicePresent()) {
 			    UIOutput.make(toolBar, "blti-descrip");
 			    createToolBarLink(BltiPickerProducer.VIEW_ID, toolBar, "add-blti", "simplepage.blti", currentPage, "simplepage.blti");
 			}
+			UIOutput.make(toolBar, "permissions-descrip");
 			createToolBarLink(PermissionsHelperProducer.VIEW_ID, toolBar, "permissions", "simplepage.permissions", currentPage, "simplepage.permissions.tooltip");
 			
 			GeneralViewParameters eParams = new GeneralViewParameters(VIEW_ID);
 			eParams.addTool = GeneralViewParameters.COMMENTS;
+			UIOutput.make(toolBar, "student-descrip");
 			UIInternalLink.make(toolBar, "add-comments", messageLocator.getMessage("simplepage.comments"), eParams);
 			
 			eParams = new GeneralViewParameters(VIEW_ID);
@@ -2482,6 +2499,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 		
 		if(page.getOwner() == null) {
+			UIOutput.make(form, "csssection");
 			ArrayList<ContentResource> sheets = simplePageBean.getAvailableCss();
 			String[] options = new String[sheets.size()+2];
 			String[] labels = new String[sheets.size()+2];
