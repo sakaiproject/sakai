@@ -142,5 +142,7 @@ public interface SakaiProxy {
 	public void popSecurityAdvisor(SecurityAdvisor securityAdvisor);
 
 	public User getUser(String sakaiId);
+	
+	public boolean isWorksite(String siteId);
 
 }

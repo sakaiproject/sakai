@@ -58,10 +58,10 @@ public class AssignmentNewEventProcessor implements EventProcessor {
 			if(context == null) {
 				context = this.dashboardLogic.createContext(event.getContext());
 			}
-			Realm realm = this.dashboardLogic.getRealm(event.getContext());
-			if(realm == null) {
-				realm = this.dashboardLogic.createRealm(null, event.getContext());
-			}
+//			Realm realm = this.dashboardLogic.getRealm(event.getContext());
+//			if(realm == null) {
+//				realm = this.dashboardLogic.createRealm(null, event.getContext());
+//			}
 			SourceType sourceType = this.dashboardLogic.getSourceType("assignment");
 			if(sourceType == null) {
 				sourceType = this.dashboardLogic.createSourceType("assignment", SakaiProxy.PERMIT_ASSIGNMENT_ACCESS);

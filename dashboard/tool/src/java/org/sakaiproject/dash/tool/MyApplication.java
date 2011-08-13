@@ -11,6 +11,7 @@ import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 
 import org.sakaiproject.dash.tool.pages.FirstPage;
+import org.sakaiproject.dash.tool.pages.SecondPage;
 
 /**
  * Main application class for our app
@@ -41,7 +42,7 @@ public class MyApplication extends WebApplication {
 				
 		// On Wicket session timeout, redirect to main page
 		getApplicationSettings().setPageExpiredErrorPage(FirstPage.class);
-		getApplicationSettings().setAccessDeniedPage(FirstPage.class);
+		getApplicationSettings().setAccessDeniedPage(SecondPage.class);
 		
 		//to put this app into deployment mode, see web.xml
 		

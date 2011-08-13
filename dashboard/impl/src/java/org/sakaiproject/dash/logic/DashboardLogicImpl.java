@@ -88,6 +88,18 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	 * Dashboard Logic methods
 	 ************************************************************************/
 	
+	public CalendarItem createCalendarItem(String title, Date calendarTime,
+			String entityReference, String entityUrl, Context context,
+			SourceType sourceType) {
+		
+		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
+				entityReference, entityUrl, context, sourceType);
+		
+		dao.addCalendarItem(calendarItem);
+		
+		return calendarItem;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#createCalendarLinks(org.sakaiproject.dash.model.CalendarItem)
@@ -100,18 +112,30 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		for(String sakaiId : sakaiIds) {
 			Person person = dao.getPersonBySakaiId(sakaiId);
 
-	}
-	
-	}
-	
-	public NewsItem createNewsItem(String entityReference, Date newsTime,
-			String context) {
-		if(logger.isDebugEnabled()) {
-			logger.debug("createNewsItem(" + entityReference + "," + newsTime + "," + context + ")");
 		}
-		// TODO Auto-generated method stub
-		return null;
 	}
+	
+	public Context createContext(String contextId) {
+		
+		Site site = this.sakaiProxy.getSite(contextId);
+		
+		Context context = new Context(site.getId(), site.getTitle(), site.getUrl());
+		dao.addContext(context);
+		return dao.getContext(contextId);
+	}
+
+	public NewsItem createNewsItem(String title, Date newsTime,
+			String entityReference, String entityUrl, Context context,
+			SourceType sourceType) {
+		
+		NewsItem newsItem = new NewsItem(title, newsTime, 
+				entityReference, entityUrl, context, sourceType);
+		
+		dao.addNewsItem(newsItem);
+		
+		return dao.getNewsItem(entityReference) ;
+	}
+
 
 	public void createNewsLinks(NewsItem newsItem) {
 		if(logger.isDebugEnabled()) {
@@ -137,57 +161,24 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 	}
 
-	public CalendarItem createCalendarItem(String title, Date calendarTime,
-			String entityReference, String entityUrl, Context context,
-			SourceType sourceType) {
-		
-		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
-				entityReference, entityUrl, context, sourceType);
-		
-		dao.addCalendarItem(calendarItem);
-		
-		return calendarItem;
-	}
-
-	public NewsItem createNewsItem(String title, Date newsTime,
-			String entityReference, String entityUrl, Context context,
-			SourceType sourceType) {
-		
-		NewsItem newsItem = new NewsItem(title, newsTime, 
-				entityReference, entityUrl, context, sourceType);
-		
-		dao.addNewsItem(newsItem);
-		
-		return dao.getNewsItem(entityReference) ;
-	}
-
-	public Context createContext(String contextId) {
-		
-		Site site = this.sakaiProxy.getSite(contextId);
-		
-		Context context = new Context(site.getId(), site.getTitle(), site.getUrl());
-		dao.addContext(context);
-		return dao.getContext(contextId);
-	}
-
 	public Realm createRealm(String entityReference, String contextId) {
 		
-		String realmId = null;
-		Collection<String> groups = this.sakaiProxy.getRealmId(entityReference, contextId);
-		if(groups != null && groups.size() > 0) {
-			List<String> authzGroups = new ArrayList<String>(groups );
-			if(authzGroups != null && authzGroups.size() > 0) {
-				realmId = authzGroups.get(0);
-			}
-			if(realmId != null) {
-				Realm realm = dao.getRealm(realmId);
-				if(realm == null) {
-					realm = new Realm(realmId);
-					dao.addRealm(realm);
-				}
-				return realm;
-			}
-		}
+//		String realmId = null;
+//		Collection<String> groups = this.sakaiProxy.getRealmId(entityReference, contextId);
+//		if(groups != null && groups.size() > 0) {
+//			List<String> authzGroups = new ArrayList<String>(groups );
+//			if(authzGroups != null && authzGroups.size() > 0) {
+//				realmId = authzGroups.get(0);
+//			}
+//			if(realmId != null) {
+//				Realm realm = dao.getRealm(realmId);
+//				if(realm == null) {
+//					realm = new Realm(realmId);
+//					dao.addRealm(realm);
+//				}
+//				return realm;
+//			}
+//		}
 		
 		return null;
 	}
@@ -199,6 +190,22 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return dao.getSourceType(identifier);
 	}
 	
+	public CalendarItem getCalendarItem(long id) {
+		
+		return dao.getCalendarItem(id);
+	}
+
+	public List<CalendarItem> getCalendarItems(String sakaiUserId,
+			String contextId) {
+		
+		return dao.getCalendarItems(sakaiUserId, contextId);
+	}
+
+	public List<CalendarItem> getCalendarItems(String sakaiUserId) {
+		
+		return dao.getCalendarItems(sakaiUserId, null);
+	}
+
 	public Context getContext(String contextId) {
 		try {
 			return dao.getContext(contextId);
@@ -210,10 +217,19 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return null;
 	}
 
-	public Realm getRealm(String entityId) {
-		// TODO: Should we be able to get the realm for an entityId or a contextId?  If so, do we need another table?
-		//Realm realm = 
-		return null;
+	public NewsItem getNewsItem(long id) {
+		
+		return dao.getNewsItem(id);
+	}
+
+	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId) {
+		
+		return dao.getNewsItems(sakaiUserId, contextId);
+	}
+
+	public List<NewsItem> getNewsItems(String sakaiUserId) {
+		
+		return dao.getNewsItems(sakaiUserId, null);
 	}
 
 	public SourceType getSourceType(String identifier) {
@@ -334,6 +350,32 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 
 		public String getUserId() {
 			return userId;
+		}
+
+		/* (non-Javadoc)
+		 * @see java.lang.Object#toString()
+		 */
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("EventCopy [context=");
+			builder.append(context);
+			builder.append(", eventIdentifier=");
+			builder.append(eventIdentifier);
+			builder.append(", eventTime=");
+			builder.append(eventTime);
+			builder.append(", modify=");
+			builder.append(modify);
+			builder.append(", priority=");
+			builder.append(priority);
+			builder.append(", entityReference=");
+			builder.append(entityReference);
+			builder.append(", sessionId=");
+			builder.append(sessionId);
+			builder.append(", userId=");
+			builder.append(userId);
+			builder.append("]");
+			return builder.toString();
 		}
 		
 	}

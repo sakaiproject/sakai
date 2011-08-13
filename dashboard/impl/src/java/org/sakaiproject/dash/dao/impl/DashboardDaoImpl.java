@@ -22,6 +22,7 @@
 package org.sakaiproject.dash.dao.impl;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -47,6 +48,7 @@ import org.sakaiproject.dash.model.SourceType;
 
 import org.sakaiproject.dash.dao.impl.CalendarItemMapper;
 import org.sakaiproject.dash.dao.impl.ContextMapper;
+import org.sakaiproject.dash.dao.impl.NewsItemMapper;
 
 import org.sakaiproject.dash.model.Thing;
 
@@ -267,6 +269,23 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 	
+	public CalendarItem getCalendarItem(long id) {
+		if(log.isDebugEnabled()) {
+			log.debug("getCalendarItem(" + id + ")");
+		}
+		
+		try {
+			return (CalendarItem) getJdbcTemplate().queryForObject(getStatement("select.CalendarItem.by.id"),
+				new Object[]{id},
+				new CalendarItemMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return null;
+		}
+
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#getCalendarItem(java.lang.String)
@@ -286,6 +305,31 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            return null;
 		}
 
+	}
+
+	public List<CalendarItem> getCalendarItems(String sakaiUserId,
+			String contextId) {
+		if(log.isDebugEnabled()) {
+			log.debug("getCalendarItems(" + sakaiUserId + "," + contextId + ")");
+		}
+		String sql = null;
+		Object[] params = null;
+		if(contextId == null) {
+			sql = getStatement("select.CalendarItems.by.sakaiId");
+			params = new Object[]{sakaiUserId};
+		} else {
+			sql = getStatement("select.CalendarItems.by.sakaiId.contextId");
+			params = new Object[]{sakaiUserId, contextId};
+		}
+		log.info("getCalendarItems(" + sakaiUserId + "," + contextId + ") sql = " + sql);
+		try {
+			return (List<CalendarItem>) getJdbcTemplate().query(sql,params,
+				new CalendarItemMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return new ArrayList<CalendarItem>();
+		}
 	}
 
 	/*
@@ -328,6 +372,22 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 	
+	public NewsItem getNewsItem(long id) {
+		if(log.isDebugEnabled()) {
+			log.debug("getNewsItem(" + id + ")");
+		}
+		
+		try {
+			return (NewsItem) getJdbcTemplate().queryForObject(getStatement("select.NewsItem.by.id"),
+				new Object[]{id},
+				new NewsItemMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return null;
+		}
+	}
+
 	public NewsItem getNewsItem(String entityReference) {
 		if(log.isDebugEnabled()) {
 			log.debug("getNewsItem(" + entityReference + ")");
@@ -341,6 +401,30 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		} catch (DataAccessException ex) {
            log.error("getNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return null;
+		}
+	}
+
+	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId) {
+		if(log.isDebugEnabled()) {
+			log.debug("getNewsItems(" + sakaiUserId + "," + contextId + ")");
+		}
+		String sql = null;
+		Object[] params = null;
+		if(contextId == null) {
+			sql = getStatement("select.NewsItems.by.sakaiId");
+			params = new Object[]{sakaiUserId};
+		} else {
+			sql = getStatement("select.NewsItems.by.sakaiId.contextId");
+			params = new Object[]{sakaiUserId, contextId};
+		}
+		log.info("getNewsItems(" + sakaiUserId + "," + contextId + ") sql = " + sql);
+		try {
+			return (List<NewsItem>) getJdbcTemplate().query(sql,params,
+				new NewsItemMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return new ArrayList<NewsItem>();
 		}
 	}
 

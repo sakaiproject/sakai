@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html> <!-- xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" -->
+	<body>
+		<wicket:extend>
+			<div class="portletBody">
+                <div class="portletMainWrap">
+                    <div id="message">
+                        <h1>From the CTools Team</h1>
+                        <h2>CTools Service Outage: Saturday, March 26th, 4:30am-7am!</h2>
+                        <p>
+                            CTools will be temporarily out of service starting at 4:30 am on Saturday, March 26th in order to release CTools version 2.7.1C.  
+                            We expect to be back in service by 7:00 am of that same day.  We apologize for any inconvenience this may cause and we appreciate 
+                            your patience while we work to improve CTools.
+                        </p>
+                        <p>
+                            &#x2014; CTools Implementation Group
+                        </p>
+                    </div>
+                </div>
+		        <div class="portletTitleWrap">
+		            <div class="portletTitle">
+		                <h3>Calendar</h3>
+		                <div wicket:id="calendarNavigator"></div>
+		                <table cellspacing="0" id="sched">
+		                    <thead>
+		                        <tr class="header">
+		                            <th scope="col">
+		                                Date
+		                            </th>
+		                            <th scope="col">
+		                                Time
+		                            </th>
+		                            <th scope="col">
+		                                From site
+		                            </th>
+		                            <th scope="col">
+		                                Title
+		                            </th>
+		                        </tr>
+		                    </thead>
+		                    <tr class="alt schedItem" id="item1" wicket:id="calendarItems">
+		                        <td>
+		                            <span wicket:id="calendarTime">[Date]</span>
+		                            
+		                        </td>
+		                        <td>
+		                        	
+		                            <span wicket:id="calendarTime">[Time]</span>
+		                        </td>
+		                        <td>
+		                            <span wicket:id="title">[Event Title]</span>
+		                        </td>
+		                        <td>
+		                            <span wicket:id="context.title">[Site Title]</span>
+		                        </td>
+		                        <td class="action">
+		                            <div class="actionPanelTrig" style="display:none">
+		                                <a href="#"></a>
+		                            </div>
+		                            <ul class="actionPanel" style="display:none">
+		                                <li class="actionHideThis">
+		                                    <a href="#">Remove <strong>this</strong></a>
+		                                </li>
+		                                <li class="actionHideType">
+		                                    <a href="#">Block <strong>Events</strong></a>
+		                                </li>
+		                                <li class="actionHideContext">
+		                                    <a href="#">Block <strong>SI502</strong></a>
+		                                </li>
+		                            </ul>
+		                        </td>
+		                    </tr>
+		                </table>
+		                
+		                <h3>News</h3>
+		                <div wicket:id="newsNavigator"></div>
+		                <table cellspacing="0" id="news">
+		                    <thead>
+		                        <tr class="header">
+		                            <th scope="col">
+		                                What
+		                            </th>
+		                            <th scope="col">
+		                                From where
+		                            </th>
+		                            <th scope="col">
+		                                When
+		                            </th>
+		                            <th>
+		                                Action
+		                            </th>
+		                        </tr>
+		                    </thead>
+		                    <tr class="alt newsItem" id="item11" wicket:id="newsItems">
+		                        <td class="newsTitle">
+		                        	<span  wicket:id="title">[item title]</span>
+		                        </td>
+		                        <td>
+		                        	<span wicket:id="context.title">[site title]</span>
+		                            SI502
+		                        </td>
+		                        <td>
+		                        	<span wicket:id="newsTime">[news time]</span>
+		                        </td>
+		                        <td class="action">
+		                            <div class="actionPanelTrig" style="display:none">
+		                                <a href="#"></a>
+		                            </div>
+		                            <ul class="actionPanel" style="display:none">
+		                                <li class="actionHideThis">
+		                                    <a href="#">Remove <strong>this</strong></a>
+		                                </li>
+		                                <li class="actionHideType">
+		                                    <a href="#">Block <strong>Grades</strong></a>
+		                                </li>
+		                                <li class="actionHideContext">
+		                                    <a href="#">Block <strong>SI502</strong></a>
+		                                </li>
+		                            </ul>
+		                        </td>
+		                    </tr>
+		                </table>
+		            </div>
+		        </div>
+			</div>
+		</wicket:extend>
+	</body>
+</html>
+

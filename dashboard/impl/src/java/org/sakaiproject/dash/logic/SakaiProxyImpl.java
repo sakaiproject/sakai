@@ -198,6 +198,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	/*
 	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.SakaiProxy#isWorksite(java.lang.String)
+	 */
+	public boolean isWorksite(String siteId) {
+		return this.siteService.isUserSite(siteId);
+	}
+	
+	/*
+	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.SakaiProxy#postEvent(java.lang.String, java.lang.String, boolean)
 	 */
 	public void postEvent(String event,String reference,boolean modify) {
@@ -263,5 +271,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public void init() {
 		logger.info("init");
 	}
+
 
 }

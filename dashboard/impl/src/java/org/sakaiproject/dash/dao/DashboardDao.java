@@ -89,9 +89,15 @@ public interface DashboardDao {
 
 	public Realm getRealm(long id);
 	
-	public Realm getRealm(String realmId);
-
 	public NewsItem getNewsItem(String entityReference);
+
+	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId);
+
+	public List<CalendarItem> getCalendarItems(String sakaiUserId, String contextId);
+
+	public NewsItem getNewsItem(long id);
+
+	public CalendarItem getCalendarItem(long id);
 
 
 

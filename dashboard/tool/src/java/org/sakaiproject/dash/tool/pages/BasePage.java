@@ -17,7 +17,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-import org.sakaiproject.dash.logic.ProjectLogic;
+import org.sakaiproject.dash.logic.DashboardLogic;
 import org.sakaiproject.dash.logic.SakaiProxy;
 
 
@@ -38,8 +38,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	@SpringBean(name="org.sakaiproject.dash.logic.SakaiProxy")
 	protected SakaiProxy sakaiProxy;
 	
-	@SpringBean(name="org.sakaiproject.dash.logic.ProjectLogic")
-	protected ProjectLogic projectLogic;
+	@SpringBean(name="org.sakaiproject.dash.logic.DashboardLogic")
+	protected DashboardLogic dashboardLogic;
 	
 	Link<Void> firstLink;
 	Link<Void> secondLink;
@@ -56,7 +56,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		firstLink = new Link<Void>("firstLink") {
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
-				setResponsePage(new FirstPage());
+				setResponsePage(new DashboardPage());
 			}
 		};
 		firstLink.add(new Label("firstLinkLabel",new ResourceModel("link.first")).setRenderBodyOnly(true));
@@ -69,7 +69,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		secondLink = new Link<Void>("secondLink") {
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
-				setResponsePage(new SecondPage());
+				setResponsePage(new FirstPage());
 			}
 		};
 		secondLink.add(new Label("secondLinkLabel",new ResourceModel("link.second")).setRenderBodyOnly(true));
@@ -82,7 +82,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		thirdLink = new Link<Void>("thirdLink") {
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
-				setResponsePage(new ThirdPage());
+				setResponsePage(new SecondPage());
 			}
 		};
 		thirdLink.add(new Label("thirdLinkLabel",new StringResourceModel("link.third", null, new String[] {"3"})).setRenderBodyOnly(true));
@@ -123,24 +123,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		}
 	}
 	
-	
-	
-	
-	
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	/**
 	 * This block adds the required wrapper markup to style it like a Sakai tool. 
 	 * Add to this any additional CSS or JS references that you need.
@@ -167,7 +149,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		
 	}
 	
-	
 	/** 
 	 * Helper to disable a link. Add the Sakai class 'current'.
 	 */
@@ -176,7 +157,5 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		l.setRenderBodyOnly(true);
 		l.setEnabled(false);
 	}
-	
-	
 	
 }

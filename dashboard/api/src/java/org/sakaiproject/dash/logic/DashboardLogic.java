@@ -22,6 +22,7 @@
 package org.sakaiproject.dash.logic;
 
 import java.util.Date;
+import java.util.List;
 
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.Context;
@@ -40,33 +41,41 @@ public interface DashboardLogic {
 
 	public void createCalendarLinks(CalendarItem calendarItem);
 
-	public NewsItem createNewsItem(String title, Date newsTime, String entityReference, String entityUrl, Context context, SourceType sourceType);
+	public Context createContext(String contextId);
 	
+	public NewsItem createNewsItem(String title, Date newsTime, String entityReference, String entityUrl, Context context, SourceType sourceType);
+
 	public void createNewsLinks(NewsItem newsItem);
 
-	public void registerEventProcessor(EventProcessor eventProcessor);
+	public SourceType createSourceType(String identifier, String accessPermission);
 
+	public CalendarItem getCalendarItem(long id);
+
+	public List<CalendarItem> getCalendarItems(String sakaiUserId);
+
+	public List<CalendarItem> getCalendarItems(String sakaiUserId, String contextId);
+	
 	/**
 	 * Retrieve the Context with a particular contextId 
 	 * @param contextId
 	 * @return the Context object, or null if it is not defined.
 	 */
 	public Context getContext(String contextId);
-
-	public Context createContext(String contextId);
-
-	public Realm getRealm(String contextId);
-
-	public Realm createRealm(String entityReference, String contextId);
-
+	
+	public NewsItem getNewsItem(long id);
+	
+	public List<NewsItem> getNewsItems(String sakaiUserId);
+	
+	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId);
+	
 	/**
 	 * Retrieve the SourceType with a particular identifier  
 	 * @param identifier 
 	 * @return the SourceType object, or null if it is not defined.
 	 */
 	public SourceType getSourceType(String identifier);
-
-	public SourceType createSourceType(String identifier, String accessPermission);
+	
+	public void registerEventProcessor(EventProcessor eventProcessor);
 	
 	// todo:
 	// add methods to revise news items, calendar items, news links, calendar links, etc.

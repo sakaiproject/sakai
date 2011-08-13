@@ -71,10 +71,10 @@ public class AnnouncementNewEventProcessor implements EventProcessor {
 			if(context == null) {
 				context = this.dashboardLogic.createContext(event.getContext());
 			}
-			Realm realm = this.dashboardLogic.getRealm(event.getContext());
-			if(realm == null) {
-				realm = this.dashboardLogic.createRealm(null, event.getContext());
-			}
+//			Realm realm = this.dashboardLogic.getRealm(event.getContext());
+//			if(realm == null) {
+//				realm = this.dashboardLogic.createRealm(null, event.getContext());
+//			}
 			SourceType sourceType = this.dashboardLogic.getSourceType("announcement");
 			if(sourceType == null) {
 				sourceType = this.dashboardLogic.createSourceType("announcement", SakaiProxy.PERMIT_ANNOUNCEMENT_ACCESS);
