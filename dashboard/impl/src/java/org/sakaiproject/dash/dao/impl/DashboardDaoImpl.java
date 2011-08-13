@@ -103,7 +103,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		try {
 			getJdbcTemplate().update(getStatement("insert.CalendarLink"),
 				new Object[]{calendarLink.getPerson().getId(), calendarLink.getCalendarItem().getId(), 
-						calendarLink.getContext().getId()}
+						calendarLink.getContext().getId(), calendarLink.isHidden(), calendarLink.isSticky()}
 			);
 			return true;
 		} catch (DataAccessException ex) {

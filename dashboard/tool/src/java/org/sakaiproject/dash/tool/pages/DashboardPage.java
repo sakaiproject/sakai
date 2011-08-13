@@ -1,5 +1,6 @@
 package org.sakaiproject.dash.tool.pages;
 
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.List;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.repeater.DefaultItemReuseStrategy;
 import org.apache.wicket.markup.repeater.Item;
@@ -28,6 +30,10 @@ import org.sakaiproject.dash.model.NewsItem;
  *
  */
 public class DashboardPage extends BasePage {
+	
+	private static final String DATE_FORMAT = "dd-MMM-yyyy";
+	private static final String TIME_FORMAT = "HH:mm";
+	protected static final String DATETIME_FORMAT = "dd-MMM-yyyy HH:mm";
 
 	NewsItemDataProvider newsItemsProvider;
 	CalendarItemDataProvider calendarItemsProvider;
@@ -46,7 +52,10 @@ public class DashboardPage extends BasePage {
 			public void populateItem(final Item item) {
                 final CalendarItem cItem = (CalendarItem) item.getModelObject();
                 //item.add(new Label("name", thing.getName()));
-                item.add(new Label("title", cItem.getTitle()));
+                item.add(new Label("calendarDate", new SimpleDateFormat(DATE_FORMAT).format(cItem.getCalendarTime())));
+                item.add(new Label("calendarTime", new SimpleDateFormat(TIME_FORMAT).format(cItem.getCalendarTime())));
+                item.add(new ExternalLink("itemLink", cItem.getEntityUrl(), cItem.getTitle()));
+                item.add(new ExternalLink("siteLink", cItem.getContext().getContextUrl(), cItem.getContext().getContextTitle()));
             }
         };
         calendarDataView.setItemReuseStrategy(new DefaultItemReuseStrategy());
@@ -80,9 +89,9 @@ public class DashboardPage extends BasePage {
 			public void populateItem(final Item item) {
                 final NewsItem nItem = (NewsItem) item.getModelObject();
                 //item.add(new Label("name", thing.getName()));
-                item.add(new Label("title", nItem.getTitle()));
-                item.add(new Label("newsTime", nItem.getNewsTime().toString()));
-                item.add(new Label("context.title", nItem.getContext().getContextTitle()));
+                item.add(new ExternalLink("itemLink", nItem.getEntityUrl(), nItem.getTitle()));
+                item.add(new ExternalLink("siteLink", nItem.getContext().getContextUrl(), nItem.getContext().getContextTitle()));
+                item.add(new Label("newsTime", new SimpleDateFormat(DATE_FORMAT).format(nItem.getNewsTime())));
             }
         };
         newsDataView.setItemReuseStrategy(new DefaultItemReuseStrategy());

@@ -10,7 +10,8 @@ import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 
-import org.sakaiproject.dash.tool.pages.FirstPage;
+import org.sakaiproject.dash.tool.pages.DashboardPage;
+import org.sakaiproject.dash.tool.pages.FirstPage;;
 import org.sakaiproject.dash.tool.pages.SecondPage;
 
 /**
@@ -68,8 +69,8 @@ public class MyApplication extends WebApplication {
 	 * 
 	 * @see org.apache.wicket.Application#getHomePage()
 	 */
-	public Class<FirstPage> getHomePage() {
-		return FirstPage.class;
+	public Class<DashboardPage> getHomePage() {
+		return DashboardPage.class;
 	}
 	
 	

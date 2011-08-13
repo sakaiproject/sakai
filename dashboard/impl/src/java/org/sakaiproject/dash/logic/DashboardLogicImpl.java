@@ -41,6 +41,7 @@ import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.dash.dao.DashboardDao;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.model.CalendarItem;
+import org.sakaiproject.dash.model.CalendarLink;
 import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.NewsLink;
@@ -97,7 +98,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 		dao.addCalendarItem(calendarItem);
 		
-		return calendarItem;
+		return dao.getCalendarItem(entityReference);
 	}
 
 	/*
@@ -111,7 +112,15 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		List<String> sakaiIds = this.sakaiProxy.getUsersWithReadAccess(calendarItem.getEntityReference(), calendarItem.getSourceType().getAccessPermission());
 		for(String sakaiId : sakaiIds) {
 			Person person = dao.getPersonBySakaiId(sakaiId);
-
+			if(person == null) {
+				User userObj = this.sakaiProxy.getUser(sakaiId);
+				person = new Person(sakaiId, userObj.getEid());
+				dao.addPerson(person);
+			}
+			
+			CalendarLink link = new CalendarLink(person, calendarItem, calendarItem.getContext(), false, false);
+			
+			dao.addCalendarLink(link);
 		}
 	}
 	
