@@ -91,7 +91,7 @@ public class DashboardPage extends BasePage {
                 //item.add(new Label("name", thing.getName()));
                 item.add(new ExternalLink("itemLink", nItem.getEntityUrl(), nItem.getTitle()));
                 item.add(new ExternalLink("siteLink", nItem.getContext().getContextUrl(), nItem.getContext().getContextTitle()));
-                item.add(new Label("newsTime", new SimpleDateFormat(DATE_FORMAT).format(nItem.getNewsTime())));
+                item.add(new Label("newsTime", new SimpleDateFormat(DATETIME_FORMAT).format(nItem.getNewsTime())));
             }
         };
         newsDataView.setItemReuseStrategy(new DefaultItemReuseStrategy());
