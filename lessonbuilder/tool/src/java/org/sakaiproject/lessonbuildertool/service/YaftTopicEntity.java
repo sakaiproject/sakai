@@ -154,7 +154,7 @@ public class YaftTopicEntity implements LessonEntity, ForumInterface {
 		try {
 			site = SiteService.getSite(currentSiteId);
 		} catch (Exception impossible) {
-			return null;
+			return ret;
 		}
 
 		ToolConfiguration tool = site.getToolForCommonId(TOOL_ID);

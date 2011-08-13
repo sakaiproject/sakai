@@ -160,7 +160,7 @@ public class JForumEntity implements LessonEntity, ForumInterface {
     }
 
     public List<LessonEntity> getEntitiesInSite() {
-	return getEntitiesInSite();
+	return getEntitiesInSite(null);
     }
 
     // find topics in site, but organized by forum and category
@@ -184,7 +184,7 @@ public class JForumEntity implements LessonEntity, ForumInterface {
 	try {
 	    site = SiteService.getSite(siteId);
 	} catch (Exception impossible) {
-	    return null;
+	    return ret;
 	}
     	
     ToolConfiguration siteTool = site.getToolForCommonId("sakai.jforum.tool");

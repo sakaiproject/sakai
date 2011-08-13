@@ -254,7 +254,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	try {
 	    site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
 	} catch (Exception impossible) {
-	    return null;
+	    return ret;
 	}
     	
     ToolConfiguration tool = site.getToolForCommonId("sakai.forums");

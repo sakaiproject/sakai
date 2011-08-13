@@ -51,6 +51,14 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker) {
 		CommentsViewParameters params = (CommentsViewParameters) viewparams;
 			
+		// errors redirect back to ShowPage. But if thisi s embeded in the page, ShowPage
+		// will call us again. This is very hard for the user to recover from. So trap
+		// all possible errors. It may result in an incomplete page or something invalid,
+		// but better that than an infinite recursion.
+
+		try {
+		
+
 		SimplePageItem commentsItem = simplePageToolDao.findItem(params.itemId);
 		if(commentsItem != null && commentsItem.getSakaiId() != null && !commentsItem.getSakaiId().equals("")) {
 			SimpleStudentPage studentPage = simplePageToolDao.findStudentPage(Long.valueOf(commentsItem.getSakaiId()));
@@ -147,6 +155,9 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 			// Warns user that they only have 30 mins to edit.
 			UIOutput.make(tofill, "editAlert");
 		}
+
+		} catch (Exception e) {};
+
 	}
 	
 	public void printComment(SimplePageComment comment, UIContainer tofill, boolean highlight, boolean anonymous, boolean showModifiers, CommentsViewParameters params) {
