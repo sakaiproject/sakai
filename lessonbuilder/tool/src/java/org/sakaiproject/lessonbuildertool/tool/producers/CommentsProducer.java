@@ -90,7 +90,7 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 		// Remove any "phantom" comments. So that the anonymous order stays the same,
 		// comments are deleted by removing all content.
 		for(int i = comments.size()-1; i >= 0; i--) {
-			if(comments.get(i).getComment().equals("") || comments.get(i).getComment() == null) {
+			if(comments.get(i).getComment() == null || comments.get(i).getComment().equals("")) {
 				comments.remove(i);
 			}
 		}

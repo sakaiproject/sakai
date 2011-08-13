@@ -110,7 +110,6 @@ a.ui-button:link,a.ui-button:visited {
 	color: black; text-decoration: none !important
 }
 /* ff2, buttons don't work */
-#edit-title:link,#edit-title:visited,
 a.edit-link:link,a.edit-link:visited,
 a.itemLink:link,a.itemLink:visited,
 a.multimedia-edit:link,a.multimedia-edit:visited,
@@ -283,9 +282,19 @@ ul#toolbar li.dropdown div {
   padding: 7px;
 }
 
+/* have to undo much of the .navintratool */
+
 #dropDownDiv a {
   border:none;
   background-color:inherit;
+  padding: 0px;
+  margin: 0px 1em 0px 0px !important;
+}
+#dropDownDiv span {
+  padding:0px;
+  border:none;
+  background-color:inherit;
+  margin: 0px;
 }
 
 img {

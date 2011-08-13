@@ -2006,6 +2006,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			Class contentHostingInterface = ContentHostingService.class;
 			try {
 				Method expandMethod = contentHostingInterface.getMethod("expandZippedResource", new Class[] { String.class });
+				
+				UIOutput.make(toolBar, "addwebsite-descrip");
 				createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar, "add-website", "simplepage.website", false, true, currentPage, "simplepage.website.tooltip");
 			} catch (NoSuchMethodException nsme) {
 				// A: No
@@ -2020,8 +2022,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			
 			createToolBarLink(ForumPickerProducer.VIEW_ID, toolBar, "add-forum", "simplepage.forum", currentPage, "simplepage.forum");
 			// in case we're on an old system without current BLTI
-			if (bltiEntity != null && ((BltiInterface)bltiEntity).servicePresent())
+			if (bltiEntity != null && ((BltiInterface)bltiEntity).servicePresent()) {
+			    UIOutput.make(toolBar, "blti-descrip");
 			    createToolBarLink(BltiPickerProducer.VIEW_ID, toolBar, "add-blti", "simplepage.blti", currentPage, "simplepage.blti");
+			}
 			createToolBarLink(PermissionsHelperProducer.VIEW_ID, toolBar, "permissions", "simplepage.permissions", currentPage, "simplepage.permissions.tooltip");
 			
 			GeneralViewParameters eParams = new GeneralViewParameters(VIEW_ID);
