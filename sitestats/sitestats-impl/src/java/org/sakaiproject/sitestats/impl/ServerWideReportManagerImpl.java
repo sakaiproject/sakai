@@ -1308,7 +1308,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
         BarRenderer renderer = (BarRenderer) plot.getRenderer();
         CategoryItemLabelGenerator generator 
             = new StandardCategoryItemLabelGenerator("{1}", 
-                    NumberFormat.getInstance());
+                    NumberFormat.getInstance(new ResourceLoader().getLocale()));
         renderer.setBaseItemLabelGenerator(generator);
         renderer.setBaseItemLabelFont(new Font("SansSerif", Font.PLAIN, 9));
         renderer.setBaseItemLabelsVisible(true);
