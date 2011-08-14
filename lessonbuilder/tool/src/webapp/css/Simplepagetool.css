@@ -150,9 +150,12 @@ a.edit-movie:link,a.edit-movie:visited{
 }
 .ui-button-text {
     font-weight:bold;
-    font-size:60%;
     padding: 0px 4px !important;
 }
+.edit-col .ui-button-text, #show-pages .ui-button-text {
+    font-size:60%;
+}
+
 .buttonItem {
     padding-left: 20px;
 }
@@ -173,16 +176,12 @@ a.edit-movie:link,a.edit-movie:visited{
    margin-top:1em;
 }
 
-.returnheader {
-   background-color: white;
-   border-top-width: 0px;
-}
-
+/* also uses nextprev. this is specific for ShowItem */
 .returnheader a:link,.returnheader a:visited { 
-   background-color: #fee;
+   background-color: #fee !important;
 }
 .returnheader a:hover,returnheader  a:active{ 
-   background-color: #edd;
+   background-color: #edd !important;
 }
 
 /* Comments */
@@ -228,8 +227,14 @@ a.edit-movie:link,a.edit-movie:visited{
         color: #930;
 	padding-left: 1em;
 }
-.navIntraTool .usebutton {
-    font-size:175%;
+.returnwarning {
+   font-size:110%;
+}
+.nextprev .usebutton {
+
+}
+.nextprev .usebutton span {
+    font-size:inherit;
 }
 .link-div .usebutton {
     font-size:160%;
@@ -295,6 +300,12 @@ ul#toolbar li.dropdown div {
   border:none;
   background-color:inherit;
   margin: 0px;
+}
+span.nextprev {
+   margin-left:20px;
+}
+a.nextprev {
+   margin-left:5px;
 }
 
 img {
