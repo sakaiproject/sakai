@@ -96,28 +96,6 @@ public class IMSPOXRequest {
 		MINOR_UNSUPPORTED
 	} ; 
 
-	static final String responseMessage = 
-		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-		"<imsx_POXEnvelopeResponse xmlns = \"http://www.imsglobal.org/lis/oms1p0/pox\">\n" +
-		"  <imsx_POXHeader>\n" +
-		"    <imsx_POXResponseHeaderInfo>\n" + 
-		"      <imsx_version>V1.0</imsx_version>\n" +
-		"      <imsx_messageIdentifier>%s</imsx_messageIdentifier>\n" + 
-		"      <imsx_statusInfo>\n" +
-		"        <imsx_codeMajor>%s</imsx_codeMajor>\n" +
-		"        <imsx_severity>%s</imsx_severity>\n" +
-		"        <imsx_description>%s</imsx_description>\n" +
-		"        <imsx_messageRefIdentifier>%s</imsx_messageRefIdentifier>\n" +       
-		"        <imsx_operationRefIdentifier>%s</imsx_operationRefIdentifier>" + 
-		"%s\n"+ 
-		"      </imsx_statusInfo>\n" +
-		"    </imsx_POXResponseHeaderInfo>\n" + 
-		"  </imsx_POXHeader>\n" +
-		"  <imsx_POXBody>\n" +
-		"%s%s"+
-		"  </imsx_POXBody>\n" +
-		"</imsx_POXEnvelopeResponse>";
-
 	public Document postDom = null;
 	public Element bodyElement = null;
 	public Element headerElement = null;
@@ -132,89 +110,6 @@ public class IMSPOXRequest {
 	public String base_string = null;
 	private Map<String,String> bodyMap = null;
 	private Map<String,String> headerMap = null;
-
-	public String getResponseUnsupported(String desc)
-	{
-		return getResponse(desc, MAJOR_UNSUPPORTED, null, null, null, null);
-	}
-
-	public String getResponseFailure(String desc, Properties minor)
-	{
-		return getResponse(desc, null, null, null, minor, null);
-	}
-
-	public String getResponseSuccess(String desc, String bodyString)
-	{
-		return getResponse(desc, null, null, null, null, bodyString);
-	}
-
-	public String getResponse(String description, String major, String severity, 
-		String messageId, Properties minor, String bodyString)
-	{
-		StringBuffer internalError = new StringBuffer();
-		if ( major == null ) major = MAJOR_FAILURE;
-		if ( severity == null && MAJOR_PROCESSING.equals(major) ) severity = SEVERITY_STATUS;
-		if ( severity == null ) severity = SEVERITY_ERROR;
-		if ( messageId == null ) {
-			Date dt = new Date();
-			messageId = ""+dt.getTime();
-		}
-
-		StringBuffer sb = new StringBuffer();
-		if ( minor != null && minor.size() > 0 ) {
-			for(Object okey : minor.keySet() ) {
-				String key = (String) okey;
-				String value = minor.getProperty(key);
-				if ( key == null || value == null ) continue;
-				if ( !inArray(validMinor, value) ) {
-					if ( internalError.length() > 0 ) sb.append(", ");
-					internalError.append("Invalid imsx_codeMinorFieldValue="+major);
-					continue;
-				}
-				if ( sb.length() == 0 ) sb.append("\n        <imsx_codeMinor>\n");
-				sb.append("          <imsx_codeMinorField>\n            <imsx_codeMinorFieldName>");
-				sb.append(key);
-				sb.append("</imsx_codeMinorFieldName>\n            <imsx_codeMinorFieldValue>");
-				sb.append(StringEscapeUtils.escapeXml(value));
-				sb.append("</imsx_codeMinorFieldValue>\n          </imsx_codeMinorField>\n");
-			}
-			if ( sb.length() > 0 ) sb.append("        </imsx_codeMinor>");
-		}
-		String minorString = sb.toString();
-
-		if ( ! inArray(validMajor, major) ) {
-			if ( internalError.length() > 0 ) sb.append(", ");
-			internalError.append("Invalid imsx_codeMajor="+major);
-		}
-		if ( ! inArray(validSeverity, severity) ) {
-			if ( internalError.length() > 0 ) sb.append(", ");
-			internalError.append("Invalid imsx_severity="+major);
-		}
-
-		if ( internalError.length() > 0 ) {
-			description = description + " (Internal error: " + internalError.toString() + ")";
-			Log.warning(internalError.toString());
-		}
-
-		if ( bodyString == null ) bodyString = "";
-		// Trim off XML header
-		if ( bodyString.startsWith("<?xml") ) {
-			int pos = bodyString.indexOf("<",1);
-			if ( pos > 0 ) bodyString = bodyString.substring(pos);
-		}
-		String newLine = "";
-		if ( bodyString.length() > 0 ) newLine = "\n";
-		return String.format(responseMessage, 
-			StringEscapeUtils.escapeXml(messageId), 
-			StringEscapeUtils.escapeXml(major), 
-			StringEscapeUtils.escapeXml(severity), 
-			StringEscapeUtils.escapeXml(description), 
-			StringEscapeUtils.escapeXml(getHeaderMessageIdentifier()), 
-			StringEscapeUtils.escapeXml(operation), 
-			StringEscapeUtils.escapeXml(minorString), 
-			bodyString, newLine); 
-		
-	}
 
 	public String getOperation()
 	{
@@ -453,6 +348,113 @@ public class IMSPOXRequest {
 		return String.format(fatalMessage, 
 			StringEscapeUtils.escapeXml(messageId), 
 			StringEscapeUtils.escapeXml(description)); 
+	}
+
+	static final String responseMessage = 
+		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+		"<imsx_POXEnvelopeResponse xmlns = \"http://www.imsglobal.org/lis/oms1p0/pox\">\n" +
+		"  <imsx_POXHeader>\n" +
+		"    <imsx_POXResponseHeaderInfo>\n" + 
+		"      <imsx_version>V1.0</imsx_version>\n" +
+		"      <imsx_messageIdentifier>%s</imsx_messageIdentifier>\n" + 
+		"      <imsx_statusInfo>\n" +
+		"        <imsx_codeMajor>%s</imsx_codeMajor>\n" +
+		"        <imsx_severity>%s</imsx_severity>\n" +
+		"        <imsx_description>%s</imsx_description>\n" +
+		"        <imsx_messageRefIdentifier>%s</imsx_messageRefIdentifier>\n" +       
+		"        <imsx_operationRefIdentifier>%s</imsx_operationRefIdentifier>" + 
+		"%s\n"+ 
+		"      </imsx_statusInfo>\n" +
+		"    </imsx_POXResponseHeaderInfo>\n" + 
+		"  </imsx_POXHeader>\n" +
+		"  <imsx_POXBody>\n" +
+		"%s%s"+
+		"  </imsx_POXBody>\n" +
+		"</imsx_POXEnvelopeResponse>";
+
+	public String getResponseUnsupported(String desc)
+	{
+		return getResponse(desc, MAJOR_UNSUPPORTED, null, null, null, null);
+	}
+
+	public String getResponseFailure(String desc, Properties minor)
+	{
+		return getResponse(desc, null, null, null, minor, null);
+	}
+
+	public String getResponseSuccess(String desc, String bodyString)
+	{
+		return getResponse(desc, MAJOR_SUCCESS, null, null, null, bodyString);
+	}
+
+	public String getResponse(String description, String major, String severity, 
+		String messageId, Properties minor, String bodyString)
+	{
+		StringBuffer internalError = new StringBuffer();
+		if ( major == null ) major = MAJOR_FAILURE;
+		if ( severity == null && MAJOR_PROCESSING.equals(major) ) severity = SEVERITY_STATUS;
+		if ( severity == null && MAJOR_SUCCESS.equals(major) ) severity = SEVERITY_STATUS;
+		if ( severity == null ) severity = SEVERITY_ERROR;
+		if ( messageId == null ) {
+			Date dt = new Date();
+			messageId = ""+dt.getTime();
+		}
+
+		StringBuffer sb = new StringBuffer();
+		if ( minor != null && minor.size() > 0 ) {
+			for(Object okey : minor.keySet() ) {
+				String key = (String) okey;
+				String value = minor.getProperty(key);
+				if ( key == null || value == null ) continue;
+				if ( !inArray(validMinor, value) ) {
+					if ( internalError.length() > 0 ) sb.append(", ");
+					internalError.append("Invalid imsx_codeMinorFieldValue="+major);
+					continue;
+				}
+				if ( sb.length() == 0 ) sb.append("\n        <imsx_codeMinor>\n");
+				sb.append("          <imsx_codeMinorField>\n            <imsx_codeMinorFieldName>");
+				sb.append(key);
+				sb.append("</imsx_codeMinorFieldName>\n            <imsx_codeMinorFieldValue>");
+				sb.append(StringEscapeUtils.escapeXml(value));
+				sb.append("</imsx_codeMinorFieldValue>\n          </imsx_codeMinorField>\n");
+			}
+			if ( sb.length() > 0 ) sb.append("        </imsx_codeMinor>");
+		}
+		String minorString = sb.toString();
+
+		if ( ! inArray(validMajor, major) ) {
+			if ( internalError.length() > 0 ) sb.append(", ");
+			internalError.append("Invalid imsx_codeMajor="+major);
+		}
+		if ( ! inArray(validSeverity, severity) ) {
+			if ( internalError.length() > 0 ) sb.append(", ");
+			internalError.append("Invalid imsx_severity="+major);
+		}
+
+		if ( internalError.length() > 0 ) {
+			description = description + " (Internal error: " + internalError.toString() + ")";
+			Log.warning(internalError.toString());
+		}
+
+		if ( bodyString == null ) bodyString = "";
+		// Trim off XML header
+		if ( bodyString.startsWith("<?xml") ) {
+			int pos = bodyString.indexOf("<",1);
+			if ( pos > 0 ) bodyString = bodyString.substring(pos);
+		}
+		bodyString = bodyString.trim();
+		String newLine = "";
+		if ( bodyString.length() > 0 ) newLine = "\n";
+		return String.format(responseMessage, 
+			StringEscapeUtils.escapeXml(messageId), 
+			StringEscapeUtils.escapeXml(major), 
+			StringEscapeUtils.escapeXml(severity), 
+			StringEscapeUtils.escapeXml(description), 
+			StringEscapeUtils.escapeXml(getHeaderMessageIdentifier()), 
+			StringEscapeUtils.escapeXml(operation), 
+			StringEscapeUtils.escapeXml(minorString), 
+			bodyString, newLine); 
+		
 	}
 
 	/** Unit Tests */

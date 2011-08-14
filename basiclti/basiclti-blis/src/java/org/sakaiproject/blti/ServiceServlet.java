@@ -682,13 +682,17 @@ public class ServiceServlet extends HttpServlet {
 
 		String sourcedid = null;
 		String message_type = null;
-		if ( "replaceResultRequest".equals(lti_message_type) && allowOutcomes != null ) {
+		if ( ( "replaceResultRequest".equals(lti_message_type) || "readResultRequest".equals(lti_message_type) )  
+			&& allowOutcomes != null ) {
 			Map<String,String> bodyMap = pox.getBodyMap();
 			sourcedid = bodyMap.get("/resultRecord/sourcedGUID/sourcedId");
-			System.out.println("sourcedid="+sourcedid);
+			// System.out.println("sourcedid="+sourcedid);
 			message_type = "basicoutcome";
                 } else {
-			doErrorXml(request, response, pox, "outcomes.invalid", "lti_message_type="+lti_message_type, null);
+			String output = pox.getResponseUnsupported("Not supported "+lti_message_type);
+			response.setContentType("application/xml");
+			PrintWriter out = response.getWriter();
+			out.println(output);
 			return;
 		}
 
@@ -792,19 +796,144 @@ public class ServiceServlet extends HttpServlet {
 			doErrorXml(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
 			return;
 		}
-/*
-		// Perform the message-specific handling
-		if ( "basicoutcome".equals(message_type) ) processOutcome(request, response, lti_message_type, site, siteId, placement, config, user_id, theMap);
 
-		if ( "toolsetting".equals(message_type) ) processSetting(request, response, lti_message_type, site, siteId, placement, config, user_id, theMap);
+		if ( "basicoutcome".equals(message_type) ) {
+			processOutcomeXml(request, response, lti_message_type, site, siteId, placement, config, user_id, pox);
+		} else {
+			response.setContentType("application/xml");
+			PrintWriter writer = response.getWriter();
+			String desc = "Message received and validated operation="+pox.getOperation();
+			String output = pox.getResponseUnsupported(desc);
+			writer.println(output);
+		}
 
-		if ( "roster".equals(message_type) ) processRoster(request, response, lti_message_type, site, siteId, placement, config, user_id, theMap);
-*/
+	}
+
+	protected void processOutcomeXml(HttpServletRequest request, HttpServletResponse response, 
+		String lti_message_type, 
+		Site site, String siteId, ToolConfiguration placement, Properties config,
+		String user_id, IMSPOXRequest pox)
+		throws java.io.IOException
+	{
+		// Make sure the user exists in the site
+                boolean userExistsInSite = false;
+                try {
+                        Member member = site.getMember(user_id);
+                        if(member != null ) userExistsInSite = true;
+                } catch (Exception e) {
+                        M_log.warn(e.getLocalizedMessage() + " siteId="+siteId, e);
+                        doErrorXml(request, response, pox, "outcome.site.membership", "", e);
+                        return;
+                }
+
+		// Make sure the placement is configured to receive grades
+		String assignment = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"assignment", placement));
+		M_log.debug("ASSN="+assignment);
+		if ( assignment == null ) {
+                        doErrorXml(request, response, pox, "outcome.no.assignment", "", null);
+                        return;
+		}
+
+		// Look up the assignment so we can find the max points
+               	GradebookService g = (GradebookService)  ComponentManager
+                            .get("org.sakaiproject.service.gradebook.GradebookService");
+
+               	Assignment assignmentObject = null;
+                pushAdvisor();
+                try {
+			List gradebookAssignments = g.getAssignments(siteId);
+			for (Iterator i=gradebookAssignments.iterator(); i.hasNext();) {
+				Assignment gAssignment = (Assignment) i.next();
+				if ( gAssignment.isExternallyMaintained() ) continue;
+				if ( assignment.equals(gAssignment.getName()) ) { 
+					assignmentObject = gAssignment;
+					break;
+				}
+			}
+                } catch (Exception e) {
+			assignmentObject = null; // Just to make double sure
+                } finally {
+                        popAdvisor();
+                }
+
+		if ( assignmentObject == null ) {
+                        doErrorXml(request, response, pox, "outcome.no.assignment", "", null);
+                        return;
+		}
+
+		// Things look good - time to process the grade
+		boolean isRead = BasicLTIUtil.equals(lti_message_type, "readResultRequest");
+
+		Map<String,String> bodyMap = pox.getBodyMap();
+		String result_resultscore_textstring = bodyMap.get("/resultRecord/result/resultScore/textString");
+		String sourced_id = bodyMap.get("/resultRecord/result/sourcedId");
+		System.out.println("grade="+result_resultscore_textstring);
+
+		if(BasicLTIUtil.isBlank(result_resultscore_textstring) && ! isRead ) {
+			doErrorXml(request, response, pox, "outcomes.missing", "result_resultscore_textstring", null);
+			return;
+		}
+
+		// Lets return an XML Response
+		Map<String,Object> theMap = new TreeMap<String,Object>();
+
+		// We don't need to retrieve the assignments and check if it 
+		// is a valid column because if the column is wrong, we 
+		// will get an exception below
+
+		// Lets store or retrieve the grade using the securityadvisor
+		Session sess = SessionManager.getCurrentSession();
+		String theGrade = null;
+                pushAdvisor();
+		boolean success = false;
+		String message = null;
+		
+                try {
+			// Indicate "who" is setting this grade - needs to be a real user account
+			String gb_user_id = ServerConfigurationService.getString(
+				"basiclti.outcomes.userid", "admin");
+			String gb_user_eid = ServerConfigurationService.getString(
+				"basiclti.outcomes.usereid", gb_user_id);
+                        sess.setUserId(gb_user_id);
+                        sess.setUserEid(gb_user_eid);
+			Double dGrade;
+			if ( isRead ) {
+				theGrade = g.getAssignmentScoreString(siteId, assignment, user_id);
+				dGrade = new Double(theGrade);
+				dGrade = dGrade / assignmentObject.getPoints();
+				theMap.put("/readResult/result/sourcedId", sourced_id);
+				theMap.put("/readResult/result/resultScore/textString", dGrade.toString());
+				message = "Result read";
+			} else { 
+				dGrade = new Double(result_resultscore_textstring);
+				dGrade = dGrade * assignmentObject.getPoints();
+				g.setAssignmentScore(siteId, assignment, user_id, dGrade, "External Outcome");
+
+				M_log.info("Stored Score=" + siteId + " assignment="+ assignment + " user_id=" + user_id + " score="+ result_resultscore_textstring);
+				theMap.put("/replaceResult", "");
+				message = "Result replaced";
+			}
+               		success = true;
+                } catch (Exception e) {
+                	doErrorXml(request, response, pox, "outcome.grade.fail", "siteId="+siteId, e);
+                } finally {
+			sess.invalidate(); // Make sure to leave no traces
+                	popAdvisor();
+                }
+
+		String output = null;
+		if ( success ) {
+			String theXml = "";
+			if ( theMap.size() > 0 ) theXml = XMLMap.getXMLFragment(theMap, true);
+			output = pox.getResponseSuccess(message, theXml);
+		} else {
+			// TODO: Think about any code minors that we want.
+			output = pox.getResponseSuccess(message, null);
+		}
+
 		response.setContentType("application/xml");
-		PrintWriter writer = response.getWriter();
-		String desc = "Message received and validated operation="+pox.getOperation();
-		String output = pox.getResponseUnsupported(desc);
-  		writer.println(output);
+		PrintWriter out = response.getWriter();
+		out.println(output);
 	}
 
 	public void destroy() {
