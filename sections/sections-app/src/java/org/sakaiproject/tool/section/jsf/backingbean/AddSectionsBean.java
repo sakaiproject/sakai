@@ -334,7 +334,7 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 		boolean startTimeAm = meeting.isStartTimeAm();
 		boolean endTimeAm = meeting.isEndTimeAm();
 
-		if(StringUtils.trimToNull(startTime) != null & StringUtils.trimToNull(endTime) != null) {
+		if(StringUtils.trimToNull(startTime) != null && StringUtils.trimToNull(endTime) != null) {
 			Time start = JsfUtil.convertStringToTime(startTime, startTimeAm);
 			Time end = JsfUtil.convertStringToTime(endTime, endTimeAm);
 			if(start.after(end)) {
@@ -343,7 +343,7 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 			}
 		}
 
-        if(StringUtils.trimToNull(startTime) != null & StringUtils.trimToNull(endTime) != null) {
+        if(StringUtils.trimToNull(startTime) != null && StringUtils.trimToNull(endTime) != null) {
 			Time start = JsfUtil.convertStringToTime(startTime, startTimeAm);
 			Time end = JsfUtil.convertStringToTime(endTime, endTimeAm);
 			if(start.equals(end)) {
