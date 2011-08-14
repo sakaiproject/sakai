@@ -35,6 +35,7 @@
 				<input type="text" size="80" name="import-id" id="import-id" />
 			</p>
 			<p class="act" >	<input type="submit" name="eventSubmit_doImport" value="$tlang.getString("archive.vm.import")"  class="indnt1" /></p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
 

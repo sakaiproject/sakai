@@ -26,6 +26,7 @@
 		<p class="act">
 			<input type="submit"class="active"  name="eventSubmit_doBatch_Import" value="$tlang.getString("archive.vm.import")" accesskey="s" />
 		</p>	
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
 
