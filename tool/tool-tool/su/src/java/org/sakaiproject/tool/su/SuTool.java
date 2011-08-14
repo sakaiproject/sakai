@@ -171,6 +171,7 @@ public class SuTool
 		// logout - clear, but do not invalidate, preserve the usage session's current session
 		Vector saveAttributes = new Vector();
 		saveAttributes.add(UsageSessionService.USAGE_SESSION_KEY);
+		saveAttributes.add(UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE);
 		sakaiSession.clearExcept(saveAttributes);
 		
 		// login - set the user id and eid into session, and refresh this user's authz information
