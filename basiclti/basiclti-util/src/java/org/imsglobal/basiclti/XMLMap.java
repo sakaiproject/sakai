@@ -1,6 +1,7 @@
-/*
+/**********************************************************************************
  * $URL$
  * $Id$
+ **********************************************************************************
  *
  * Copyright (c) 2009 IMS GLobal Learning Consortium, Inc.
  *
@@ -182,7 +183,6 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.TreeMap;
 import java.util.Iterator;
-import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -191,6 +191,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
+import org.w3c.dom.Attr;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.NamedNodeMap;
 
@@ -210,33 +211,34 @@ public class XMLMap {
 		return getMap(doc);
 	}
 
-	public static Map<String,String> getMap(Document doc)
+	public static Map<String,String> getMap(Node doc)
 	{
 		Map<String,Object> tm =  getObjectMap(doc, false);
 		if ( tm == null ) return null;
 		return flattenMap(tm);
 	}
 	
-  public static Map<String, String> flattenMap(Map<String, Object> theMap) {
-    if (theMap == null)
-      return null;
-    // Reduce to the first column of elements for the simple return value
-    TreeMap<String, String> retval = new TreeMap<String, String>();
-    for (final Entry<String, Object> entry : theMap.entrySet()) {
-      String key = entry.getKey();
-      Object value = entry.getValue();
-      // No need to handle String[] - because they will not
-      // be stored when doFull == false
-      if (value instanceof String) {
-        String svalue = (String) value;
-        // doDebug(d,key+" = " + value);
-        retval.put(key, svalue);
-      }
-    }
-    return retval;
-  }
+	public static Map<String,String> flattenMap(Map<String,Object> theMap)
+	{
+		if ( theMap == null ) return null;
+		// Reduce to the first column of elements for the simple return value
+		TreeMap<String,String> retval = new TreeMap<String, String> ();
+		Iterator<String> iter = theMap.keySet().iterator();
+		while( iter.hasNext() ) {
+			String key = iter.next();
+			Object value = theMap.get(key);
+			// No need to handle String[] - because they will not
+			// be stored when doFull == false
+			if ( value instanceof String ) {
+				String svalue = (String) value;
+				// doDebug(d,key+" = " + value);
+				if ( value != null ) retval.put(key,svalue);
+			}
+		}
+		return retval;
+	}
 
-	public static Map<String,Object> getFullMap(Document doc)
+	public static Map<String,Object> getFullMap(Node doc)
 	{
 		return getObjectMap(doc, true);
 	}
@@ -249,7 +251,7 @@ public class XMLMap {
 		return getObjectMap(doc, true);
 	}
 
-	private static Map<String,Object> getObjectMap(Document doc, boolean doFull)
+	private static Map<String,Object> getObjectMap(Node doc, boolean doFull)
 	{
 		if ( doc == null ) return null;
 		Map<String,Object> tm = new TreeMap<String,Object>();
@@ -285,12 +287,13 @@ public class XMLMap {
 		NamedNodeMap nm = parentNode.getAttributes();
 
 		// Count the TextNodes
+		int nodeCount = 0;
 		String value = null;
 		
 		// Insert the text node if we find one
 		if ( nl != null ) for (int i = 0; i< nl.getLength(); i++ ) {
 			Node node = nl.item(i);
-			if (node.getNodeType() == Node.TEXT_NODE) {
+			if (node.getNodeType() == node.TEXT_NODE) {
 				value = node.getNodeValue();
 				if ( value == null ) break;
 				if ( value.trim().length() < 1 ) break;
@@ -303,7 +306,7 @@ public class XMLMap {
 		// Now loop through and add the attribute values 
 		if ( nm != null ) for (int i = 0; i< nm.getLength(); i++ ) {
 			Node node = nm.item(i);
-			if (node.getNodeType() == Node.ATTRIBUTE_NODE) {
+			if (node.getNodeType() == node.ATTRIBUTE_NODE) {
 				String name = node.getNodeName();
 				value = node.getNodeValue();
 				// doDebug(d,"ATTR "+path+"("+name+") = "+node.getNodeValue());
@@ -323,7 +326,7 @@ public class XMLMap {
 			Set <String> done = new HashSet<String>();
 			if ( nl != null ) for (int i = 0; i< nl.getLength(); i++ ) {
 				Node node = nl.item(i);
-				if (node.getNodeType() == Node.ELEMENT_NODE && ( ! done.contains(node.getNodeName())) ) {
+				if (node.getNodeType() == node.ELEMENT_NODE && ( ! done.contains(node.getNodeName())) ) {
 					doDebug(d,"Going down the rabbit hole path="+path+" node="+node.getNodeName());
 					recurse(tm, addSlash(path)+node.getNodeName(),node,doFull,d);
 					doDebug(d,"Back from the rabbit hole path="+path+" node="+node.getNodeName());
@@ -342,9 +345,9 @@ public class XMLMap {
 		Map<String,Integer> childMap = new TreeMap<String,Integer>();
 		if ( nl != null ) for (int i = 0; i< nl.getLength(); i++ ) {
 			Node node = nl.item(i);
-			if (node.getNodeType() == Node.ELEMENT_NODE ) {
+			if (node.getNodeType() == node.ELEMENT_NODE ) {
 				Integer count = childMap.get(node.getNodeName());
-				if ( count == null ) count = Integer.valueOf(0);
+				if ( count == null ) count = new Integer(0);
 				count = count + 1;
 				// Insert or Replace
 				childMap.put(node.getNodeName(), count);
@@ -370,7 +373,7 @@ public class XMLMap {
 		// Now descend the tree to the next level deeper !!
 		if ( nl != null ) for (int i = 0; i< nl.getLength(); i++ ) {
 			Node node = nl.item(i);
-			if (node.getNodeType() == Node.ELEMENT_NODE ) {
+			if (node.getNodeType() == node.ELEMENT_NODE ) {
 				String childName = node.getNodeName();
 				if ( childName == null ) continue;
 				List<Map<String,Object>> mapList = nodeMap.get(childName);
@@ -403,16 +406,24 @@ public class XMLMap {
         doDebug(d,"< recurse path="+path+" parentNode="+ nodeToString(parentNode));
 	}
 
-	@SuppressWarnings("unchecked")
-  public static String getXML(Map tm)
+	public static String getXML(Map tm)
 	{
 		Document document = getXMLDom(tm);
 		if ( document == null ) return null;
 		return documentToString(document, false);
 	}
 
-	@SuppressWarnings("unchecked")
-  public static String getXML(Map tm, boolean pretty)
+	public static String getXMLFragment(Map tm, boolean pretty)
+	{
+		String retval = getXML(tm, pretty);
+		if ( retval.startsWith("<?xml") ) {
+			int pos = retval.indexOf("<",1);
+			if ( pos > 0 ) retval = retval.substring(pos);
+		}
+		return retval;
+	}
+
+	public static String getXML(Map tm, boolean pretty)
 	{
 		Document document = getXMLDom(tm);
 		if ( document == null ) return null;
@@ -472,7 +483,7 @@ public class XMLMap {
 		return sb.toString();
 	}
 
-	public static Document getXMLDom(Map<String, ?> tm)
+	public static Document getXMLDom(Map tm)
 	{
 		if ( tm == null ) return null;
 		Document document = null;
@@ -506,14 +517,13 @@ public class XMLMap {
       <d>D1</d>
     </a>
 	 */
-	@SuppressWarnings("unchecked")
-  private static void iterateMap(Document document, Node parentNode, Map<String, ?> tm, int d)
+	private static void iterateMap(Document document, Node parentNode, Map tm, int d)
 	{
 		doDebug(d,"> IterateMap parentNode= "+ nodeToString(parentNode));
 		d++;
-		Iterator<String> iter = tm.keySet().iterator();
+		Iterator iter = tm.keySet().iterator();
 		while( iter.hasNext() ) {
-			String key = iter.next();
+			String key = (String) iter.next();
 			if ( key == null ) continue;
 			if ( ! key.startsWith("/") ) continue;  // Skip
 			Object obj = tm.get(key);
@@ -542,7 +552,7 @@ public class XMLMap {
 					Object listObj = listIter.next();
 					doDebug(d,"Processing List element@"+newPos+" "+listObj.getClass().getName());
 					if ( listObj instanceof String ) {
-						storeInDom(document, parentNode, key, (String) listObj, newPos, d);
+						storeInDom(document, parentNode, key, (String) obj, newPos, d);
 						newPos++;
 					} if ( listObj instanceof Map ) {
 						Map subMap = (Map) listObj;
@@ -608,7 +618,7 @@ public class XMLMap {
 			Text newNode = document.createTextNode(value);
 			parentNode.appendChild(newNode);
 		}
-		// d--;
+		d--;
 		// doDebug(d,"xml="+documentToString(document,false));
 		// doDebug(d,"< storeInDom"+key+" = " + value);
 	}
@@ -670,7 +680,7 @@ public class XMLMap {
 			Node node = nl.item(i);
 			// doDebug(d,"length= " +nl.getLength()+ " i="+i+" NT="+node.getNodeType());
 			// doDebug(d,"searching nn="+nodeName+" nc="+node.getNodeName());
-			if (node.getNodeType() == Node.ELEMENT_NODE) {
+			if (node.getNodeType() == node.ELEMENT_NODE) {
 				if ( nodeName.equals(node.getNodeName()) ) {
 					foundNodes++;
 					d--;
@@ -821,8 +831,7 @@ public class XMLMap {
 	 * /x/y    All of the children are removed and the node itself and
 	 *           any attributes are removed as well (typical case)
 	 */
-	@SuppressWarnings("unchecked")
-  public static void removeSubMap(Map tm, String selection)
+	public static void removeSubMap(Map tm, String selection)
 	{
 		if ( tm == null ) return;
 		selection = selection.trim();
@@ -898,15 +907,14 @@ public class XMLMap {
      *          	System.out.println("Site="+siteMap);
      *          }
      */
-	@SuppressWarnings("unchecked")
-  public static List<Map<String,Object>> getList(Map<String,Object> theMap,String key)
+	public static List<Map<String,Object>> getList(Map<String,Object> theMap,String key)
 	{
 		ArrayList<Map<String, Object>> al = new ArrayList<Map<String, Object>>();
 		if ( theMap == null || key == null ) return al;
 		
 		// If this is a nice little list of maps - we are golden - send the list back
 		Object obj = theMap.get(key);
-		if ( obj instanceof List<?> ) return (List<Map<String,Object>>) obj;
+		if ( obj instanceof List ) return (List<Map<String,Object>>) obj;
 		
 		// We may have a single String value - we may have a single terminal value
 		// perhaps with some attributes
@@ -1013,11 +1021,8 @@ public class XMLMap {
 	
 	public static void main(String[] args) {
 		System.out.println("Running XMLMap (www.mdom.org) unit tests..");
-    if (allUnitTests()) {
-      System.out.println("Unit tests passed...");
-    } else {
-      throw new Error("Unit tests failed!");
-    }
+		if ( !allUnitTests() ) return;
+		System.out.println("Unit tests passed...");
 		runSamples();
 	}
 	

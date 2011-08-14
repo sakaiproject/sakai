@@ -82,6 +82,8 @@ import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
+import org.imsglobal.pox.IMSPOXRequest;
+
 /**
  * Notes:
  * 
@@ -162,6 +164,16 @@ public class ServiceServlet extends HttpServlet {
 
 	@SuppressWarnings("unchecked")
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		String contentType = request.getContentType();
+		if ( "application/xml".equals(contentType) ) {
+			doPostXml(request, response);
+		} else {
+			doPostForm(request, response);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	protected void doPostForm(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String ipAddress = request.getRemoteAddr();
 
 		M_log.debug("Basic LTI Service request from IP=" + ipAddress);
@@ -616,6 +628,183 @@ public class ServiceServlet extends HttpServlet {
                 String theXml = XMLMap.getXML(theMap, true);
                 PrintWriter out = response.getWriter();
                 out.println(theXml);
+	}
+
+	/* IMS POX XML versions of this service */
+	public void doErrorXml(HttpServletRequest request,HttpServletResponse response, 
+		IMSPOXRequest pox, String s, String message, Exception e) 
+		throws java.io.IOException 
+	{
+		if (e != null) {
+			M_log.error(e.getLocalizedMessage(), e);
+		}
+		String msg = rb.getString(s) + ": " + message;
+		M_log.info(msg);
+		response.setContentType("application/xml");
+		PrintWriter out = response.getWriter();
+		String output = IMSPOXRequest.getFatalResponse(msg);
+  		out.println(output);
+	}
+
+	@SuppressWarnings("unchecked")
+	protected void doPostXml(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+		String ipAddress = request.getRemoteAddr();
+
+		M_log.debug("LTI POX Service request from IP=" + ipAddress);
+
+		String allowOutcomes = ServerConfigurationService.getString(
+				SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
+                if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
+
+		String allowSettings = ServerConfigurationService.getString(
+				SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, null);
+                if ( ! "true".equals(allowSettings) ) allowSettings = null;
+
+		String allowRoster = ServerConfigurationService.getString(
+				SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, null);
+                if ( ! "true".equals(allowRoster) ) allowRoster = null;
+
+		if (allowOutcomes == null && allowSettings == null && allowRoster == null ) {
+			M_log.warn("Basic LTI Services are disabled IP=" + ipAddress);
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			return;
+		}
+
+		IMSPOXRequest pox = new IMSPOXRequest(request);
+		if ( ! pox.valid ) {
+			doErrorXml(request, response, pox, "pox.invalid", pox.errorMessage, null);
+			return;
+		}
+
+		//check lti_message_type
+		String lti_message_type = pox.getOperation();
+
+		String sourcedid = null;
+		String message_type = null;
+		if ( "replaceResultRequest".equals(lti_message_type) && allowOutcomes != null ) {
+			Map<String,String> bodyMap = pox.getBodyMap();
+			sourcedid = bodyMap.get("/resultRecord/sourcedGUID/sourcedId");
+			System.out.println("sourcedid="+sourcedid);
+			message_type = "basicoutcome";
+                } else {
+			doErrorXml(request, response, pox, "outcomes.invalid", "lti_message_type="+lti_message_type, null);
+			return;
+		}
+
+		// No point continuing without a sourcedid
+		if(BasicLTIUtil.isBlank(sourcedid)) {
+			doErrorXml(request, response, pox, "outcomes.missing", "sourcedid", null);
+			return;
+		}
+
+		// Truncate this to the maximum length to insure no cruft at the end
+		if ( sourcedid.length() > 2048) sourcedid = sourcedid.substring(0,2048);
+
+		// Attempt to parse the sourcedid, any failure is fatal
+		String placement_id = null;
+		String signature = null;
+		String user_id = null;
+		try {
+                	int pos = sourcedid.indexOf(":::");
+                	if ( pos > 0 ) {
+				signature = sourcedid.substring(0, pos);
+                    		String dec2 = sourcedid.substring(pos+3);
+		    		pos = dec2.indexOf(":::");
+                    		user_id = dec2.substring(0,pos);
+                    		placement_id = dec2.substring(pos+3);
+               		}
+                } catch (Exception e) {
+			// Log some detail for ourselves
+			M_log.warn("Unable to decrypt result_sourcedid IP=" + ipAddress + " Error=" + e.getMessage(),e);
+			signature = null;
+			placement_id = null;
+			user_id = null;
+                }
+
+		// Send a more generic message back to the caller
+		if ( placement_id == null || user_id == null ) {
+			doErrorXml(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
+			return;
+		}
+
+		M_log.debug("signature="+signature);
+		M_log.debug("user_id="+user_id);
+		M_log.debug("placement_id="+placement_id);
+
+		ToolConfiguration placement = SiteService.findTool(placement_id);
+		Properties config = placement.getConfig();
+		String siteId = null;
+		Site site = null;
+		try { 
+			placement = SiteService.findTool(placement_id);
+			config = placement.getConfig();
+			siteId = placement.getSiteId();
+			site = SiteService.getSite(siteId);
+		} catch (Exception e) {
+			M_log.debug("Error retrieving result_sourcedid information: "+e.getLocalizedMessage(), e);
+                        placement = null;
+		}
+
+		// Send a more generic message back to the caller
+		if ( placement == null || config == null || siteId == null || site == null ) {
+			doErrorXml(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
+			return;
+		}
+
+		// Check the message signature using OAuth
+		String oauth_consumer_key = pox.getOAuthConsumerKey();
+		String oauth_secret = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"secret", placement));
+
+		pox.validateRequest(oauth_consumer_key, oauth_secret, request);
+		if ( ! pox.valid ) {
+			if (pox.base_string != null) {
+				M_log.warn(pox.base_string);
+			}
+			doErrorXml(request, response, pox, "outcome.no.validate", oauth_consumer_key, null);
+			return;
+		}
+
+		// Check the signature of the sourcedid to make sure it was not altered
+		String placement_secret  = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"placementsecret", placement));
+
+		// Send a generic message back to the caller
+		if ( placement_secret ==null ) {
+			doErrorXml(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
+			return;
+		}
+
+		String pre_hash = placement_secret + ":::" + user_id + ":::" + placement_id;
+		String received_signature = ShaUtil.sha256Hash(pre_hash);
+		M_log.debug("Received signature="+signature+" received="+received_signature);
+		boolean matched = signature.equals(received_signature);
+
+		String old_placement_secret  = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"oldplacementsecret", placement));
+		if ( old_placement_secret != null && ! matched ) {
+			pre_hash = placement_secret + ":::" + user_id + ":::" + placement_id;
+			received_signature = ShaUtil.sha256Hash(pre_hash);
+			M_log.debug("Received signature II="+signature+" received="+received_signature);
+			matched = signature.equals(received_signature);
+		}
+
+		// Send a message back to the caller
+		if ( ! matched ) {
+			doErrorXml(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
+			return;
+		}
+/*
+		// Perform the message-specific handling
+		if ( "basicoutcome".equals(message_type) ) processOutcome(request, response, lti_message_type, site, siteId, placement, config, user_id, theMap);
+
+		if ( "toolsetting".equals(message_type) ) processSetting(request, response, lti_message_type, site, siteId, placement, config, user_id, theMap);
+
+		if ( "roster".equals(message_type) ) processRoster(request, response, lti_message_type, site, siteId, placement, config, user_id, theMap);
+*/
+		response.setContentType("application/xml");
+		PrintWriter writer = response.getWriter();
+		String desc = "Message received and validated operation="+pox.getOperation();
+		String output = pox.getResponseUnsupported(desc);
+  		writer.println(output);
 	}
 
 	public void destroy() {
