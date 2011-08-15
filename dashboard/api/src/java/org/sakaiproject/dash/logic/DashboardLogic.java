@@ -76,9 +76,16 @@ public interface DashboardLogic {
 	public SourceType getSourceType(String identifier);
 	
 	public void registerEventProcessor(EventProcessor eventProcessor);
-	
+
+	public void removeCalendarItem(String entityReference);
+	public void removeNewsItem(String entityReference);
+	public void removeCalendarLinks(String entityReference);
+	public void removeNewsLinks(String entityReference);
+
 	// todo:
 	// add methods to revise news items, calendar items, news links, calendar links, etc.
+	
+	
 	// add methods to delete news items, calendar items, news links, calendar links, etc.
 	
 	

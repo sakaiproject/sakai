@@ -99,8 +99,12 @@ public interface DashboardDao {
 
 	public CalendarItem getCalendarItem(long id);
 
+	public boolean deleteCalendarItem(Long id);
+	
+	public boolean deleteCalendarLinks(Long calendarItemId);
 
+	public boolean deleteNewsItem(Long id);
 
-
+	public boolean deleteNewsLinks(Long newsItemId);
 	
 }

@@ -258,6 +258,67 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 		
 	}
+	
+	public void removeCalendarItem(String entityReference) {
+		
+		if(logger.isDebugEnabled()) {
+			logger.debug("removing calendar links and calendar item for " + entityReference);
+		}
+		CalendarItem item = dao.getCalendarItem(entityReference);
+		if(logger.isDebugEnabled()) {
+			logger.debug("removing calendar links and calendar item for item: " + item);
+		}
+		
+		if(item != null) {
+			if(logger.isDebugEnabled()) {
+				logger.debug("removing calendar links for item: " + item);
+			}
+			dao.deleteCalendarLinks(item.getId());
+			if(logger.isDebugEnabled()) {
+				logger.debug("removing calendar item: " + item);
+			}
+			dao.deleteCalendarItem(item.getId());
+		}
+	}
+
+	public void removeNewsItem(String entityReference) {
+
+		if(logger.isDebugEnabled()) {
+			logger.debug("removing news links and news item for " + entityReference);
+		}
+		NewsItem item = dao.getNewsItem(entityReference);
+		if(logger.isDebugEnabled()) {
+			logger.debug("removing news links and news item for item: " + item);
+		}
+		if(item != null) {
+			if(logger.isDebugEnabled()) {
+				logger.debug("removing news links for item: " + item);
+			}
+			dao.deleteNewsLinks(item.getId());
+			if(logger.isDebugEnabled()) {
+				logger.debug("removing news item: " + item);
+			}
+			dao.deleteNewsItem(item.getId());
+		}
+		
+		
+	}
+
+	public void removeCalendarLinks(String entityReference) {
+		
+		CalendarItem item = dao.getCalendarItem(entityReference);
+		if(item != null) {
+			dao.deleteCalendarLinks(item.getId());
+		}
+	}
+
+	public void removeNewsLinks(String entityReference) {
+		
+		NewsItem item = dao.getNewsItem(entityReference);
+		if(item != null) {
+			dao.deleteNewsLinks(item.getId());
+		}
+	}
 
 	/************************************************************************
 	 * init() and destroy()

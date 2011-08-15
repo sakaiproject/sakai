@@ -248,7 +248,79 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            return false;
 		}
 	}
+	
+	public boolean deleteCalendarItem(Long id) {
+		if(log.isDebugEnabled()) {
+			log.debug("deleteCalendarItem( " + id + ")");
+		}
 		
+		try {
+			getJdbcTemplate().update(getStatement("delete.CalendarItem.by.id"),
+				new Object[]{id}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("deleteCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}		
+	}
+
+	public boolean deleteNewsItem(Long id) {
+		if(log.isDebugEnabled()) {
+			log.debug("deleteNewsItem( " + id + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("delete.NewsItem.by.id"),
+				new Object[]{id}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("deleteNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}		
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#deleteCalendarLinks(java.lang.Long)
+	 */
+	public boolean deleteCalendarLinks(Long calendarItemId) {
+		if(log.isDebugEnabled()) {
+			log.debug("deleteCalendarLinks( " + calendarItemId + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("delete.CalendarLinks.by.itemId"),
+				new Object[]{calendarItemId}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("deleteCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}		
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#deleteNewsLinks(java.lang.Long)
+	 */
+	public boolean deleteNewsLinks(Long newsItemId) {
+		if(log.isDebugEnabled()) {
+			log.debug("deleteNewsLinks( " + newsItemId + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("delete.NewsLinks.by.itemId"),
+				new Object[]{newsItemId}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("deleteNewsLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}		
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#getSourceType(java.lang.String)
@@ -269,6 +341,10 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getCalendarItem(long)
+	 */
 	public CalendarItem getCalendarItem(long id) {
 		if(log.isDebugEnabled()) {
 			log.debug("getCalendarItem(" + id + ")");
@@ -307,6 +383,10 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getCalendarItems(java.lang.String, java.lang.String)
+	 */
 	public List<CalendarItem> getCalendarItems(String sakaiUserId,
 			String contextId) {
 		if(log.isDebugEnabled()) {
@@ -371,7 +451,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            return null;
 		}
 	}
-	
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getNewsItem(long)
+	 */
 	public NewsItem getNewsItem(long id) {
 		if(log.isDebugEnabled()) {
 			log.debug("getNewsItem(" + id + ")");
@@ -388,6 +472,10 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getNewsItem(java.lang.String)
+	 */
 	public NewsItem getNewsItem(String entityReference) {
 		if(log.isDebugEnabled()) {
 			log.debug("getNewsItem(" + entityReference + ")");
@@ -404,6 +492,10 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getNewsItems(java.lang.String, java.lang.String)
+	 */
 	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId) {
 		if(log.isDebugEnabled()) {
 			log.debug("getNewsItems(" + sakaiUserId + "," + contextId + ")");
