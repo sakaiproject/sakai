@@ -1447,7 +1447,7 @@ public class SiteAction extends PagedResourceActionII {
 			
 			context.put(STATE_TOOL_REGISTRATION_LIST, state.getAttribute(STATE_TOOL_REGISTRATION_LIST));
 			// put tool title into context if PageOrderHelper is enabled
-			pageOrderToolTitleIntoContext(context, state, type, (site == null));
+			pageOrderToolTitleIntoContext(context, state, type, (site == null), site==null?null:site.getProperties().getProperty(SiteConstants.SITE_PROPERTY_OVERRIDE_HIDE_PAGEORDER_SITE_TYPES));
 
 			// all info related to multiple tools
 			multipleToolIntoContext(context, state);
@@ -1742,7 +1742,7 @@ public class SiteAction extends PagedResourceActionII {
 					if (notStealthOrHiddenTool("sakai-site-pageorder-helper")) {
 						
 						// in particular, need to check site types for showing the tool or not
-						if (isPageOrderAllowed(siteType))
+						if (isPageOrderAllowed(siteType, siteProperties.getProperty(SiteConstants.SITE_PROPERTY_OVERRIDE_HIDE_PAGEORDER_SITE_TYPES)))
 						{
 							b.add(new MenuEntry(rb.getString("java.orderpages"), "doPageOrderHelper"));
 						}
@@ -2230,7 +2230,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put(STATE_TOOL_REGISTRATION_LIST, state
 					.getAttribute(STATE_TOOL_REGISTRATION_LIST));
 			// put tool title into context if PageOrderHelper is enabled
-			pageOrderToolTitleIntoContext(context, state, site_type, false);
+			pageOrderToolTitleIntoContext(context, state, site_type, false, site.getProperties().getProperty(SiteConstants.SITE_PROPERTY_OVERRIDE_HIDE_PAGEORDER_SITE_TYPES));
 
 			context.put("check_home", state
 					.getAttribute(STATE_TOOL_HOME_SELECTED));
@@ -3068,9 +3068,9 @@ public class SiteAction extends PagedResourceActionII {
 	 * @param siteType
 	 * @param newSite
 	 */
-	private void pageOrderToolTitleIntoContext(Context context, SessionState state, String siteType, boolean newSite) {
+	private void pageOrderToolTitleIntoContext(Context context, SessionState state, String siteType, boolean newSite, String overrideSitePageOrderSetting) {
 		// check if this is an existing site and PageOrder is enabled for the site. If so, show tool title
-		if (!newSite && notStealthOrHiddenTool("sakai-site-pageorder-helper") && isPageOrderAllowed(siteType))
+		if (!newSite && notStealthOrHiddenTool("sakai-site-pageorder-helper") && isPageOrderAllowed(siteType, overrideSitePageOrderSetting))
 		{
 			// the actual page titles
 			context.put(STATE_TOOL_REGISTRATION_TITLE_LIST, state.getAttribute(STATE_TOOL_REGISTRATION_TITLE_LIST));
@@ -3168,19 +3168,29 @@ public class SiteAction extends PagedResourceActionII {
 	/**
 	 * whether the PageOrderHelper is allowed to be shown in this site type
 	 * @param siteType
+	 * @param overrideSitePageOrderSetting
 	 * @return
 	 */
-	private boolean isPageOrderAllowed(String siteType) {
-		boolean rv = true;
-		String hidePageOrderSiteTypes = ServerConfigurationService.getString("hide.pageorder.site.types", "");
-		if ( hidePageOrderSiteTypes.length() != 0)
+	private boolean isPageOrderAllowed(String siteType, String overrideSitePageOrderSetting) {
+		if (overrideSitePageOrderSetting != null && Boolean.valueOf(overrideSitePageOrderSetting))
 		{
-			if (new ArrayList<String>(Arrays.asList(StringUtils.split(hidePageOrderSiteTypes, ","))).contains(siteType))
-			{
-				rv = false;
-			}
+			// site-specific setting, show PageOrder tool
+			return true;
 		}
-		return rv;
+		else
+		{
+			// read the setting from sakai properties
+			boolean rv = true;
+			String hidePageOrderSiteTypes = ServerConfigurationService.getString(SiteConstants.SAKAI_PROPERTY_HIDE_PAGEORDER_SITE_TYPES, "");
+			if ( hidePageOrderSiteTypes.length() != 0)
+			{
+				if (new ArrayList<String>(Arrays.asList(StringUtils.split(hidePageOrderSiteTypes, ","))).contains(siteType))
+				{
+					rv = false;
+				}
+			}
+			return rv;
+		}
 	}
 
 	private void multipleToolIntoContext(Context context, SessionState state) {

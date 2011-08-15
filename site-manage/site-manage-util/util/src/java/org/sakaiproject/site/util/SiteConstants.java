@@ -40,5 +40,10 @@ public class SiteConstants {
 	public static final String GROUP_PROP_ROLE_PROVIDERID = "group_prop_role_providerid";
 	
 	public static final int SITE_GROUP_TITLE_LIMIT = 99;
-
+	
+	// system property variable to hide PageOrder tab for certain types of sites, e.g. if set to "course,project", the PageOrder tool tab will be hidden for all course sites and project sites. 
+	public final static String SAKAI_PROPERTY_HIDE_PAGEORDER_SITE_TYPES = "hide.pageorder.site.types";
+	
+	// site property variable to override the above settings. If true, the PageOrder tab will be shown.
+	public final static String SITE_PROPERTY_OVERRIDE_HIDE_PAGEORDER_SITE_TYPES = "site.override.hide.pageorder.site.types";
 }
