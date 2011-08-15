@@ -1,8 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html> <!-- xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" -->
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
 	<body>
 		<wicket:extend>
 			<div class="portletBody">
+				<!-- 
                 <div class="portletMainWrap">
                     <div id="message">
                         <h1>From the CTools Team</h1>
@@ -17,6 +18,7 @@
                         </p>
                     </div>
                 </div>
+                 -->
 		        <div class="portletTitleWrap">
 		            <div class="portletTitle">
 		                <h3>Calendar</h3>
@@ -31,10 +33,13 @@
 		                                Time
 		                            </th>
 		                            <th scope="col">
-		                                From site
+		                                Title
 		                            </th>
 		                            <th scope="col">
-		                                Title
+		                                From site
+		                            </th>
+		                            <th>
+		                                Action
 		                            </th>
 		                        </tr>
 		                    </thead>
@@ -95,7 +100,6 @@
 		                        </td>
 		                        <td>
 		                        	<a href="#" wicket:id="siteLink">[site title]</a>
-		                            SI502
 		                        </td>
 		                        <td>
 		                        	<span wicket:id="newsTime">[news time]</span>

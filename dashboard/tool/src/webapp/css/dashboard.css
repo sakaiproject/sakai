@@ -1,0 +1,239 @@
+/* zero out */
+body, #mastHead, #mastHead ul, #toolMenuWrap ul, h1 {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+}
+
+a {
+    text-decoration: none;
+}
+
+#mastHead {
+    background-image: url(img/nav.png);
+    background-repeat: repeat-x;
+    height: 38px;
+    padding-left: 20px;
+    min-width: 900px;
+}
+
+#mastHead ul {
+    list-style-type: none;
+}
+
+#mastHead ul li {
+    float: left;
+    padding: 10px 15px;
+    height: 38px;
+}
+
+#mastHead ul li:hover, #mastHead ul li.selected {
+    background-image: url(img/nav-hover.png);
+    background-repeat: repeat-x;
+    color: #FFF;
+}
+
+#mastHead ul li.edit:hover {
+    background-image: url(img/nav.png);
+    display: block;
+    color: blue;
+    text-decoration: underline;
+}
+
+#mastLogin {
+    float: right;
+}
+
+.skip {
+    display: none;
+}
+
+h3{
+    margin:0;
+    padding:.5em 0;
+    color:#555;
+}
+#container {
+    padding: 20px;
+}
+#content{
+    padding-left:13em;
+}
+#message {
+    background-image: url(img/close.png);
+    background-repeat: no-repeat;
+    background-position: 99% 4%;
+    background-color: #d4e1ff;
+    padding: 10px;
+    border-radius: 8px;
+    width: 840px;
+    margin-bottom:10px;
+}
+
+#message h1 {
+    font-size: 14px;
+    color: #333;
+}
+
+#message h2 {
+    font-size: 13px;
+    text-transform: uppercase;
+}
+
+#message p {
+    width: 80%;
+}
+
+#footer {
+    margin-top: 10px;
+    clear: both;
+    margin-left: 160px;
+    text-align: center;
+    width: 860px;
+    padding: 10px;
+}
+
+#footer #footerLinks {
+    padding: 10px;
+    height: 15px;
+}
+
+#footer #footerLinks li {
+    display: inline;
+    list-style-type: none;
+    font-size: 11px;
+    text-transform: uppercase;
+    margin-right: 10px;
+}
+
+#footer #footerLinks li a {
+    color: #666;
+}
+
+#footer #footerLinks li a:hover {
+    text-decoration: underline;
+}
+
+#footerExtNav {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+#footerInfo {
+    margin-top: 10px;
+    font-size: 11px;
+    color: #999;
+}
+
+#toolMenuWrap {
+    margin-bottom: 10px;
+    width: 140px;
+    float: left;
+    padding-left: 10px;
+}
+
+#toolMenu li {
+    line-height: 18px;
+    font-size: 13px;
+    list-style-type: none;
+}
+
+#toolMenu li a {
+    color: #666;
+}
+
+#toolMenu li a:hover {
+    text-decoration: underline;
+}
+
+.edit {
+    color: #FFF;
+}
+
+table {
+    margin: 10px 0px;
+-webkit-border-top-left-radius: 10px;
+-webkit-border-top-right-radius: 10px;
+-moz-border-radius-topleft: 10px;
+-moz-border-radius-topright: 10px;
+border-top-left-radius: 10px;
+border-top-right-radius: 10px;
+    border: 1px solid #eee;
+    width: 860px;
+    background-color: #eee;
+}
+
+table tr {
+}
+
+table tr td {
+    margin: 0;
+    padding: 5px;
+}
+table tr td  a{
+    color:#003399
+}
+table tr td.newsTitle{
+    color: #666
+}
+table tr td.action {
+    width:17px;
+    }
+table tr.header {
+    text-transform: uppercase;
+    font-weight: bold;
+}
+table thead th{
+    padding: 5px;
+    text-align:left
+}
+table thead{
+    position:absolute;
+    top:-1000px;
+
+}
+table tr.alt {
+    background-color: #FFF;
+}
+
+table tr.schedItem:hover{
+    background:#ccc
+}
+.actionPanelTrig{
+    text-align:right;
+}
+.actionPanelTrig a{
+    display:block;
+    width:16px;
+    height:16px;
+    background: transparent url(img/down.png)  right top no-repeat;
+}
+.actionPanel{
+    list-style:none;
+    margin:0;
+    padding:0;
+    border:1px solid #aaa;
+    background:#777;
+    font-size:80%
+}
+
+.actionPanel li{
+    margin:0;
+    padding:0;
+}
+.actionPanel li a{
+    display:block;
+    padding:5px;
+    color:#fff
+}
+.actionPanel li a:hover{
+    display:block;
+    padding:5px;
+    color:#777;
+    background:#fff
+}
