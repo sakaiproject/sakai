@@ -591,7 +591,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 		
 		try {
-			getJdbcTemplate().update(getStatement("update.CalendarItem.title"),
+			getJdbcTemplate().update(getStatement("update.CalendarItem.title.calendarTime"),
 				new Object[]{id, newTitle, newTime}
 			);
 			return true;
