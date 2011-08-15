@@ -587,16 +587,16 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	 */
 	public boolean updateCalendarItem(Long id, String newTitle, Date newTime) {
 		if(log.isDebugEnabled()) {
-			log.debug("updateCalendarItemTitle( " + id + "," + newTitle + ")");
+			log.debug("updateCalendarItem( " + id + "," + newTitle + "," + newTitle + ")");
 		}
 		
 		try {
 			getJdbcTemplate().update(getStatement("update.CalendarItem.title"),
-				new Object[]{id, newTitle}
+				new Object[]{id, newTitle, newTime}
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("updateCalendarItemTitle: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.error("updateCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}				
 	}
