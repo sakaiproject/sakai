@@ -67,22 +67,40 @@
         <property name="timeToLive" value="3600" />
         <property name="timeToIdle" value="3600" />
     </bean>
+    
 	<bean id="org.sakaiproject.dash.listener.AssignmentNewEventProcessor" 
 		class="org.sakaiproject.dash.listener.AssignmentNewEventProcessor" 
 		init-method="init">
 		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
     	<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy"></property>
 	</bean>
+	
+	<bean id="org.sakaiproject.dash.listener.AssignmentRemoveEventProcessor" 
+		class="org.sakaiproject.dash.listener.AssignmentRemoveEventProcessor" 
+		init-method="init">
+		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
+    	<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy"></property>
+	</bean>
+	
 	<bean id="org.sakaiproject.dash.listener.ContentNewEventProcessor" 
 		class="org.sakaiproject.dash.listener.ContentNewEventProcessor" 
 		init-method="init">
 		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
     	<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy"></property>
 	</bean>
+	
+	<bean id="org.sakaiproject.dash.listener.ContentRemoveEventProcessor" 
+		class="org.sakaiproject.dash.listener.ContentRemoveEventProcessor" 
+		init-method="init">
+		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
+    	<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy"></property>
+	</bean>
+	
 	<bean id="org.sakaiproject.dash.listener.AnnouncementNewEventProcessor" 
 		class="org.sakaiproject.dash.listener.AnnouncementNewEventProcessor" 
 		init-method="init">
 		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
     	<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy"></property>
 	</bean>
+
 </beans>
