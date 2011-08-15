@@ -320,6 +320,42 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 	}
 
+	public void reviseCalendarItem(String entityReference, String newTitle, Date newTime) {
+		
+		CalendarItem item = dao.getCalendarItem(entityReference);
+		if(item != null) {
+			dao.updateCalendarItem(item.getId(), newTitle, newTime);
+		}
+				
+	}
+	
+	public void reviseCalendarItemTime(String entityReference, Date newTime) {
+		
+		CalendarItem item = dao.getCalendarItem(entityReference);
+		if(item != null) {
+			dao.updateCalendarItemTime(item.getId(), newTime);
+		}
+				
+	}
+
+	public void reviseCalendarItemTitle(String entityReference, String newTitle) {
+		
+		CalendarItem item = dao.getCalendarItem(entityReference);
+		if(item != null) {
+			dao.updateCalendarItemTitle(item.getId(), newTitle);
+		}
+		
+	}
+
+	public void reviseNewsItemTitle(String entityReference, String newTitle) {
+		
+		NewsItem item = dao.getNewsItem(entityReference);
+		if(item != null) {
+			dao.updateNewsItemTitle(item.getId(), newTitle);
+		}
+		
+	}
+
 	/************************************************************************
 	 * init() and destroy()
 	 ************************************************************************/

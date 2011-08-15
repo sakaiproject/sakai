@@ -23,6 +23,7 @@ package org.sakaiproject.dash.dao.impl;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -580,6 +581,87 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#updateCalendarItem(java.lang.Long, java.lang.String, java.util.Date)
+	 */
+	public boolean updateCalendarItem(Long id, String newTitle, Date newTime) {
+		if(log.isDebugEnabled()) {
+			log.debug("updateCalendarItemTitle( " + id + "," + newTitle + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("update.CalendarItem.title"),
+				new Object[]{id, newTitle}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("updateCalendarItemTitle: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}				
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#updateCalendarItemTime(java.lang.Long, java.util.Date)
+	 */
+	public boolean updateCalendarItemTime(Long id, Date newTime) {
+		if(log.isDebugEnabled()) {
+			log.debug("updateCalendarItemTime( " + id + "," + newTime + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("update.CalendarItem.calendarTime"),
+				new Object[]{id, newTime}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("updateCalendarItemTime: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}				
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#updateCalendarItemTitle(java.lang.Long, java.lang.String)
+	 */
+	public boolean updateCalendarItemTitle(Long id, String newTitle) {
+		if(log.isDebugEnabled()) {
+			log.debug("updateCalendarItemTitle( " + id + "," + newTitle + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("update.CalendarItem.title"),
+				new Object[]{id, newTitle}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("updateCalendarItemTitle: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}				
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#updateNewsItemTitle(java.lang.Long, java.lang.String)
+	 */
+	public boolean updateNewsItemTitle(Long id, String newTitle) {
+		if(log.isDebugEnabled()) {
+			log.debug("updateNewsItemTitle( " + id + "," + newTitle + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("update.NewsItem.title"),
+				new Object[]{id, newTitle}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("updateNewsItemTitle: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}		
+		
+	}
+
 	/**
 	 * Get an SQL statement for the appropriate vendor from the bundle
 	

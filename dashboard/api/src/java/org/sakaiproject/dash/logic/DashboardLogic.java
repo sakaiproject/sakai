@@ -82,6 +82,12 @@ public interface DashboardLogic {
 	public void removeCalendarLinks(String entityReference);
 	public void removeNewsLinks(String entityReference);
 
+	public void reviseCalendarItem(String entityReference, String newTitle, Date newTime);
+	public void reviseCalendarItemTime(String entityReference, Date newTime);
+	public void reviseCalendarItemTitle(String entityReference, String newTitle);
+	
+	public void reviseNewsItemTitle(String entityReference, String newTitle);
+	
 	// todo:
 	// add methods to revise news items, calendar items, news links, calendar links, etc.
 	

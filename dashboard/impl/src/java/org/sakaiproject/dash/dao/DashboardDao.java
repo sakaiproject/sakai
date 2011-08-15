@@ -21,6 +21,7 @@
 
 package org.sakaiproject.dash.dao;
 
+import java.util.Date;
 import java.util.List;
 
 import org.sakaiproject.dash.model.CalendarItem;
@@ -99,12 +100,64 @@ public interface DashboardDao {
 
 	public CalendarItem getCalendarItem(long id);
 
+	/**
+	 * Removes the CalendarItem with the id indicated, if it exists. 
+	 * @param id
+	 * @return true if an item is removed, false otherwise. 
+	 */
 	public boolean deleteCalendarItem(Long id);
 	
+	/**
+	 * Removes all CalendarLink objects referencing a CalendarItem with the id indicated, if it exists. 
+	 * @param id
+	 * @return true if any items are removed, false otherwise. 
+	 */
 	public boolean deleteCalendarLinks(Long calendarItemId);
 
+	/**
+	 * Removes the NewsItem with the id indicated, if it exists. 
+	 * @param id
+	 * @return true if an item is removed, false otherwise. 
+	 */
 	public boolean deleteNewsItem(Long id);
 
+	/**
+	 * Removes all NewsLink objects referencing a NewsItem with the id indicated, if it exists. 
+	 * @param id
+	 * @return true if any items are removed, false otherwise. 
+	 */
 	public boolean deleteNewsLinks(Long newsItemId);
+
+	/**
+	 * Revise the title property of one CalendarItem, if it exists.
+	 * @param id
+	 * @param newTitle
+	 * @return true if any items are revised, false otherwise.
+	 */
+	public boolean updateCalendarItem(Long id, String newTitle, Date newTime);
 	
+	/**
+	 * Revise the calendarTime property of one CalendarItem, if it exists.
+	 * @param id
+	 * @param newTime
+	 * @return true if any items are revised, false otherwise.
+	 */
+	public boolean updateCalendarItemTime(Long id, Date newTime);
+
+	/**
+	 * Revise the title property of one CalendarItem, if it exists.
+	 * @param id
+	 * @param newTitle
+	 * @return true if any items are revised, false otherwise.
+	 */
+	public boolean updateCalendarItemTitle(Long id, String newTitle);
+	
+	/**
+	 * Revise the title property of one NewsItem, if it exists.
+	 * @param id
+	 * @param newTitle
+	 * @return true if any items are revised, false otherwise.
+	 */
+	public boolean updateNewsItemTitle(Long id, String newTitle);
+
 }
