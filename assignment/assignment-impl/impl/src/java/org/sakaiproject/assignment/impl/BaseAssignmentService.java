@@ -9872,6 +9872,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				}
 				return ret;
 			}
+			else if (m.getContent().getTypeOfGrade() == Assignment.CHECK_GRADE_TYPE) {
+				String ret = rb.getString("ungra");
+				if (grade != null) {
+					if (grade.equalsIgnoreCase("Checked")) ret = rb.getString("gen.checked");
+				}
+				return ret;
+			}
 			else
 			{
 				if (grade != null && grade.length() > 0)
