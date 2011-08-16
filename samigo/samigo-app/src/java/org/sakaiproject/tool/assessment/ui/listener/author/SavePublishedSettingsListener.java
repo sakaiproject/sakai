@@ -76,6 +76,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettin
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
 
 /**
  * <p>Title: Samigo</p>2
@@ -92,7 +93,9 @@ implements ActionListener
 		IntegrationContextFactory.getInstance().getGradebookServiceHelper();
 	private static final boolean integrated =
 		IntegrationContextFactory.getInstance().isIntegrated();
-
+	private CalendarServiceHelper calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
+	private ResourceLoader rb= new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
+	
 	public SavePublishedSettingsListener()
 	{
 	}
@@ -176,6 +179,10 @@ implements ActionListener
 	    assessment.setTitle( newTitle );
 	    assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.TITLE_DECORATION, titleDecoration );
 	    
+	    //update calendar event dates:
+	    calendarService.updateAllCalendarEvents(assessment, assessmentSettings.getReleaseTo(), assessmentSettings.getGroupsAuthorized(),
+	    		rb.getString("calendarStartDatePrefix") + " ", rb.getString("calendarDueDatePrefix") + " ", rb.getString("calendarRetractDatePrefix") + " ");	    
+
 	    // l. FINALLY: save the assessment
 	    assessmentService.saveAssessment(assessment);
 	    
@@ -388,6 +395,22 @@ implements ActionListener
 			control.setRetractDate(assessmentSettings.getRetractDate());
 		}
 
+		if(assessmentSettings.isCalendarStartDate()){
+			control.setCalendarStartDate(Integer.valueOf(1));
+		}else{
+			control.setCalendarStartDate(Integer.valueOf(0));
+		}
+		if(assessmentSettings.isCalendarDueDate()){
+			control.setCalendarDueDate(Integer.valueOf(1));
+		}else{
+			control.setCalendarDueDate(Integer.valueOf(0));
+		}
+		if(assessmentSettings.isCalendarRetractDate()){
+			control.setCalendarRetractDate(Integer.valueOf(1));
+		}else{
+			control.setCalendarRetractDate(Integer.valueOf(0));
+		}
+		
 		// set Assessment Orgainzation
 		if (assessmentSettings.getItemNavigation()!=null ) {
 			String nav = assessmentSettings.getItemNavigation();

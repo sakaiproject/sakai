@@ -101,6 +101,9 @@
     <property name="dueDate" type="timestamp" column="DUEDATE" not-null="false" />
     <property name="scoreDate" type="timestamp" column="SCOREDATE" not-null="false" />
     <property name="feedbackDate" type="timestamp" column="FEEDBACKDATE" not-null="false" />
+    <property name="calendarStartDate" type="integer" column="CALENDAR_START_DATE" not-null="false" />
+    <property name="calendarDueDate" type="integer" column="CALENDAR_DUE_DATE" not-null="false" />
+    <property name="calendarRetractDate" type="integer" column="CALENDAR_RETRACT_DATE" not-null="false" />
     <property name="retractDate" type="timestamp" column="RETRACTDATE" not-null="false" />
     <property name="autoSubmit" type="integer" column="AUTOSUBMIT" not-null="false" />
     <property name="itemNavigation" type="integer" column="ITEMNAVIGATION" not-null="false" />

@@ -403,6 +403,13 @@ function setBlockDivs()
 	  <h:outputText value="" />
 	  <h:outputText value="#{assessmentSettingsMessages.available_date_note}" />
 
+      <h:outputText value="" rendered="#{calendarServiceHelper.calendarExistsForSite}"/>
+	  <h:panelGroup rendered="#{calendarServiceHelper.calendarExistsForSite}">
+	    <h:selectBooleanCheckbox id="calendarStartDate"
+         value="#{assessmentSettings.calendarStartDate}"/>
+        <h:outputText value="#{assessmentSettingsMessages.calendarStartDate}" />
+      </h:panelGroup>
+
 	<!-- For formatting -->
 	<h:outputText value="" />
 	<h:outputText value="" />
@@ -416,6 +423,13 @@ function setBlockDivs()
 	<h:outputText value="" rendered="#{assessmentSettings.valueMap.dueDate_isInstructorEditable==true}"/>
 	<h:outputText value="#{assessmentSettingsMessages.assessment_due_date_note}" rendered="#{assessmentSettings.valueMap.dueDate_isInstructorEditable==true}"/>
 	
+	<h:outputText value="" rendered="#{calendarServiceHelper.calendarExistsForSite}"/>
+    <h:panelGroup rendered="#{calendarServiceHelper.calendarExistsForSite}">
+	  <h:selectBooleanCheckbox id="calendarDueDate"
+       value="#{assessmentSettings.calendarDueDate}"/>
+      <h:outputText value="#{assessmentSettingsMessages.calendarDueDate}" />
+    </h:panelGroup>
+	
 	<!-- For formatting -->
 	<h:outputText value="" />
 	<h:outputText value="" />
@@ -428,6 +442,13 @@ function setBlockDivs()
 	</h:panelGroup>
 	<h:outputText value="" rendered="#{assessmentSettings.valueMap.retractDate_isInstructorEditable==true}"/>
 	<h:outputText value="#{assessmentSettingsMessages.assessment_retract_date_note}" rendered="#{assessmentSettings.valueMap.retractDate_isInstructorEditable==true}"/>
+	
+	<h:outputText value="" rendered="#{calendarServiceHelper.calendarExistsForSite}" />
+	<h:panelGroup rendered="#{calendarServiceHelper.calendarExistsForSite}">
+      <h:selectBooleanCheckbox id="calendarRetractDate"
+       value="#{assessmentSettings.calendarRetractDate}"/>
+      <h:outputText value="#{assessmentSettingsMessages.calendarRetractDate}" />
+    </h:panelGroup>
   </h:panelGrid>
  </div>
   </samigo:hideDivision>

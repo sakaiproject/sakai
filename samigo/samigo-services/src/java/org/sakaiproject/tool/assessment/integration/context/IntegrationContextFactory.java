@@ -31,6 +31,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.SectionAwareServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.ServerConfigurationServiceHelper;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
 
 /**
  * This is an abstract class.  It defines the public methods available for
@@ -74,4 +75,5 @@ public abstract class IntegrationContextFactory
   public abstract PublishingTargetHelper getPublishingTargetHelper();
   public abstract SectionAwareServiceHelper getSectionAwareServiceHelper();
   public abstract ServerConfigurationServiceHelper getServerConfigurationServiceHelper();
+  public abstract CalendarServiceHelper getCalendarServiceHelper();
 }

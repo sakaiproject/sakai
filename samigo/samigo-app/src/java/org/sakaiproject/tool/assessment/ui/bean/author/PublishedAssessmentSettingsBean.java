@@ -133,6 +133,9 @@ public class PublishedAssessmentSettingsBean
   private Date dueDate;
   private Date retractDate;
   private Date feedbackDate;
+  private boolean calendarStartDate = false;
+  private boolean calendarDueDate = false;
+  private boolean calendarRetractDate = false;
   private Integer timeLimit; // in seconds, calculated from timedHours & timedMinutes
   private Integer timedHours;
   private Integer timedMinutes;
@@ -267,6 +270,27 @@ public class PublishedAssessmentSettingsBean
         this.retractDate = accessControl.getRetractDate();
         this.feedbackDate = accessControl.getFeedbackDate();
 
+        if (accessControl.getCalendarStartDate() != null && (Integer.valueOf(1)).equals(accessControl.getCalendarStartDate())) {
+        	this.calendarStartDate = true;
+        }
+        else {
+        	this.calendarStartDate = false;
+        }
+
+        if (accessControl.getCalendarDueDate() != null && (Integer.valueOf(1)).equals(accessControl.getCalendarDueDate())) {
+        	this.calendarDueDate = true;
+        }
+        else {
+        	this.calendarDueDate = false;
+        }
+
+        if (accessControl.getCalendarRetractDate() != null && (Integer.valueOf(1)).equals(accessControl.getCalendarRetractDate())) {
+        	this.calendarRetractDate = true;
+        }
+        else {
+        	this.calendarRetractDate = false;
+        }
+        	        
         // deal with releaseTo
         this.releaseTo = accessControl.getReleaseTo(); // list of String
         this.publishingTargets = getPublishingTargets();
@@ -1671,6 +1695,30 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 		}
  		  
 		return selections;
+	}
+
+	public boolean isCalendarStartDate() {
+		return calendarStartDate;
+	}
+
+	public void setCalendarStartDate(boolean calendarStartDate) {
+		this.calendarStartDate = calendarStartDate;
+	}
+
+	public boolean isCalendarDueDate() {
+		return calendarDueDate;
+	}
+
+	public void setCalendarDueDate(boolean calendarDueDate) {
+		this.calendarDueDate = calendarDueDate;
+	}
+
+	public boolean isCalendarRetractDate() {
+		return calendarRetractDate;
+	}
+
+	public void setCalendarRetractDate(boolean calendarRetractDate) {
+		this.calendarRetractDate = calendarRetractDate;
 	}
 }
 

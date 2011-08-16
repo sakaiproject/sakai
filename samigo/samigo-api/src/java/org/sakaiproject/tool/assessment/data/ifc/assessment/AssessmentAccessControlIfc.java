@@ -167,4 +167,16 @@ public interface AssessmentAccessControlIfc
   Integer getMarkForReview();
 
   void setMarkForReview(Integer markForReview);
+
+  Integer getCalendarStartDate();
+  
+  void setCalendarStartDate(Integer calendarStartDate);
+
+  Integer getCalendarDueDate();
+  
+  void setCalendarDueDate(Integer calendarDueDate);
+
+  Integer getCalendarRetractDate();
+  
+  void setCalendarRetractDate(Integer calendarRetractDate);
 }

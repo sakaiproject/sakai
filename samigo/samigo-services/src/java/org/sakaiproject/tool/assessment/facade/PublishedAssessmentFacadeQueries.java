@@ -284,7 +284,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 						.getTimeLimit(), a.getTimedAssessment(), a
 						.getRetryAllowed(), a.getLateHandling(), a
 						.getStartDate(), a.getDueDate(), a.getScoreDate(), a
-						.getFeedbackDate());
+						.getFeedbackDate(), a.getCalendarStartDate(), a.getCalendarDueDate(), a.getCalendarRetractDate());
 		publishedAccessControl.setRetractDate(a.getRetractDate());
 		publishedAccessControl.setAutoSubmit(a.getAutoSubmit());
 		publishedAccessControl.setItemNavigation(a.getItemNavigation());

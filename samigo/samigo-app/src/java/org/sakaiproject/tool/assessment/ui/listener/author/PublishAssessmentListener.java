@@ -28,6 +28,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -44,6 +45,7 @@ import javax.mail.internet.InternetAddress;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
@@ -90,6 +92,9 @@ public class PublishAssessmentListener
   private static final Lock repeatedPublishLock = new ReentrantLock();
   private static boolean repeatedPublish = false;
 
+  private CalendarServiceHelper calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
+  private ResourceLoader rl= new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
+  
   public PublishAssessmentListener() {
   }
 
@@ -226,6 +231,9 @@ public class PublishAssessmentListener
           AssessmentMetaDataIfc.ALIAS, alias);
       publishedAssessmentService.saveOrUpdateMetaData(meta);
     }
+    //update Calendar Events
+    calendarService.updateAllCalendarEvents(pub, assessmentSettings.getReleaseTo(), assessmentSettings.getGroupsAuthorized(),
+    rl.getString("calendarStartDatePrefix") + " ", rl.getString("calendarDueDatePrefix") + " ", rl.getString("calendarRetractDatePrefix") + " ");
   }
 
   private boolean checkTitle(AssessmentFacade assessment){
@@ -273,7 +281,6 @@ public class PublishAssessmentListener
 		  Integer timedHours, Integer timedMinutes, String unlimitedSubmissions, String submissionsAllowed, String scoringType,
 		  String feedbackDelivery, String feedbackDateString) {
 	  TotalScoresBean totalScoresBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
-	  ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
 	  
 	  AgentFacade instructor = new AgentFacade();
 	  InternetAddress fromIA = null;
