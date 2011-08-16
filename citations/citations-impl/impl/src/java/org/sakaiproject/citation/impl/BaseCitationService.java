@@ -5453,16 +5453,17 @@ public abstract class BaseCitationService implements CitationService
 			String id = null;
 			String container = null;
 
-			// the first part will be null, then next the service, the third
-			// will be "export_ris", "content" or "list"
+			// the first part will be citation, then next the service; two examples of arrays:
+			// [citation, content, group, dbde854b-80f3-460f-b89e-340879538239, test123]
+			// [citation, export_ris_all, b60b889d-79fe-454b-8283-e41a135ad62a]
 			if (parts.length > 2)
 			{
-				subType = parts[2];
+				subType = parts[1];
 				if (CitationService.REF_TYPE_EXPORT_RIS_ALL.equals(subType) ||
 						CitationService.REF_TYPE_EXPORT_RIS_SEL.equals(subType))
 				{
-					context = parts[3];
-					id = parts[3];
+					context = parts[2];
+					id = parts[2];
 					ref.set(APPLICATION_ID, subType, id, container, context);
 				}
 				else if ("content".equals(subType))
