@@ -459,32 +459,32 @@ public abstract class BaseMailArchiveService extends BaseMessageService implemen
 			String context = null;
 			String container = null;
 
-			// the first part will be null, then next the service, the third will be "msg" or "channel"
-			if (parts.length > 2)
+			// the first part will be "mailarchive", then next the service, the third will be "msg" or "channel"
+			if (parts.length > 1)
 			{
-				subType = parts[2];
+				subType = parts[1];
 				if (REF_TYPE_CHANNEL.equals(subType))
 				{
 					// next is the context id
-					if (parts.length > 3)
+					if (parts.length > 2)
 					{
-						context = parts[3];
+						context = parts[2];
 
 						// next is the channel id
-						if (parts.length > 4)
+						if (parts.length > 3)
 						{
-							id = parts[4];
+							id = parts[3];
 						}
 					}
 				}
 				else if (REF_TYPE_MESSAGE.equals(subType))
 				{
 					// next three parts are context, channel (container) and mesage id
-					if (parts.length > 5)
+					if (parts.length > 4)
 					{
-						context = parts[3];
-						container = parts[4];
-						id = parts[5];
+						context = parts[2];
+						container = parts[3];
+						id = parts[4];
 					}
 				}
 				else
