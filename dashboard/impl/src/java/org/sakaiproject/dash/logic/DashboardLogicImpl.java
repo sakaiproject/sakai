@@ -312,12 +312,26 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 	}
 
+	public void removeCalendarLinks(String sakaiUserId, String contextId) {
+		if(logger.isDebugEnabled()) {
+			logger.info("removeCalendarLinks(" + sakaiUserId + "," + contextId + ") ");
+		}
+		
+	}
+
 	public void removeNewsLinks(String entityReference) {
 		
 		NewsItem item = dao.getNewsItem(entityReference);
 		if(item != null) {
 			dao.deleteNewsLinks(item.getId());
 		}
+	}
+
+	public void removeNewsLinks(String sakaiUserId, String contextId) {
+		if(logger.isDebugEnabled()) {
+			logger.info("removeCalendarLinks(" + sakaiUserId + "," + contextId + ") ");
+		}
+		
 	}
 
 	public void reviseCalendarItem(String entityReference, String newTitle, Date newTime) {

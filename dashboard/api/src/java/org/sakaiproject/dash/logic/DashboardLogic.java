@@ -79,9 +79,14 @@ public interface DashboardLogic {
 
 	public void removeCalendarItem(String entityReference);
 	public void removeNewsItem(String entityReference);
+	
 	public void removeCalendarLinks(String entityReference);
+	public void removeCalendarLinks(String sakaiUserId, String contextId);
+	
 	public void removeNewsLinks(String entityReference);
+	public void removeNewsLinks(String sakaiUserId, String contextId);
 
+	
 	public void reviseCalendarItem(String entityReference, String newTitle, Date newTime);
 	public void reviseCalendarItemTime(String entityReference, Date newTime);
 	public void reviseCalendarItemTitle(String entityReference, String newTitle);
