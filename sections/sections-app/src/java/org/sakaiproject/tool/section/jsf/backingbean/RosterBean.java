@@ -322,13 +322,21 @@ public class RosterBean extends CourseDependentBean implements Serializable {
         header.add(JsfUtil.getLocalizedMessage("roster_table_header_name"));
         header.add(JsfUtil.getLocalizedMessage("roster_table_header_id"));
         
-
+        int categories = 0;
         for (Iterator<String> iter = getUsedCategories().iterator(); iter.hasNext();){
             String category = (String)iter.next();          
             String categoryName = getCategoryName(category);
             header.add(categoryName);
+            categories++;
         }
-        header.add(JsfUtil.getLocalizedMessage("roster_table_header_ta"));
+        
+        //SAK-20962 Show TA doesn't work with multiple section types
+        boolean showTAs = false;
+        if (categories == 1) {
+        	header.add(JsfUtil.getLocalizedMessage("roster_table_header_ta"));
+        	showTAs = true;
+        	
+        } 
         spreadsheetData.add(header);
         for(Iterator enrollmentIter = siteStudents.iterator(); enrollmentIter.hasNext();) {
             //EnrollmentDecorator enrollment = enrollmentIter.next();
@@ -345,16 +353,20 @@ public class RosterBean extends CourseDependentBean implements Serializable {
                 if(section!=null){
                 	row.add(section.getTitle());
                 	//SAK-20092 add the TA's
-                	if (sectionTutors.get(section.getUuid()) != null) {
-                		row.add(sectionTutors.get(section.getUuid()));
-                	} else {
-                		String ta = getSectionTutorsAsString(section.getUuid());
-                		row.add(ta);
-                		sectionTutors.put(section.getUuid(), ta);
+                	if (showTAs) {
+                		if (sectionTutors.get(section.getUuid()) != null) {
+                			row.add(sectionTutors.get(section.getUuid()));
+                		} else {
+                			String ta = getSectionTutorsAsString(section.getUuid());
+                			row.add(ta);
+                			sectionTutors.put(section.getUuid(), ta);
+                		}
                 	}
                 }else{
                     row.add("");
-                    row.add("");
+                    if (showTAs) {
+                    	row.add("");
+                    }
                 }
             }
             spreadsheetData.add(row);
