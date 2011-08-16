@@ -21,8 +21,6 @@
 
 package org.sakaiproject.dash.logic;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -93,11 +91,32 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		if(logger.isDebugEnabled()) {
 			logger.info("addCalendarLinks(" + sakaiUserId + "," + contextId + ") ");
 		}
+		Person person = this.getOrCreatePerson(sakaiUserId);
+		if(person != null) {
+			List<CalendarItem> items = dao.getCalendarItemsByContext(contextId);
+			for(CalendarItem item: items) {
+				if( this.sakaiProxy.isUserPermitted(sakaiUserId, item.getSourceType().getAccessPermission(), item.getEntityReference()) ) {
+					CalendarLink calendarLink = new CalendarLink(person, item, item.getContext(), false, false);
+					dao.addCalendarLink(calendarLink);
+				}
+			}
+		}
+		
 	}
 
 	public void addNewsLinks(String sakaiUserId, String contextId) {
 		if(logger.isDebugEnabled()) {
 			logger.info("addNewsLinks(" + sakaiUserId + "," + contextId + ") ");
+		}
+		Person person = this.getOrCreatePerson(sakaiUserId);
+		if(person != null) {
+			List<NewsItem> items = dao.getNewsItemsByContext(contextId);
+			for(NewsItem item: items) {
+				if( this.sakaiProxy.isUserPermitted(sakaiUserId, item.getSourceType().getAccessPermission(), item.getEntityReference()) ) {
+					NewsLink newsLink = new NewsLink(person, item, item.getContext(), false, false);
+					dao.addNewsLink(newsLink);
+				}
+			}
 		}
 	}
 
@@ -123,12 +142,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 		List<String> sakaiIds = this.sakaiProxy.getUsersWithReadAccess(calendarItem.getEntityReference(), calendarItem.getSourceType().getAccessPermission());
 		for(String sakaiId : sakaiIds) {
-			Person person = dao.getPersonBySakaiId(sakaiId);
-			if(person == null) {
-				User userObj = this.sakaiProxy.getUser(sakaiId);
-				person = new Person(sakaiId, userObj.getEid());
-				dao.addPerson(person);
-			}
+			Person person = getOrCreatePerson(sakaiId);
 			
 			CalendarLink link = new CalendarLink(person, calendarItem, calendarItem.getContext(), false, false);
 			
@@ -167,12 +181,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		if(sakaiIds != null && sakaiIds.size() > 0) {
 			for(String sakaiId : sakaiIds) {
 				
-				Person person = dao.getPersonBySakaiId(sakaiId);
-				if(person == null) {
-					User userObj = this.sakaiProxy.getUser(sakaiId);
-					person = new Person(sakaiId, userObj.getEid());
-					dao.addPerson(person);
-				}
+				Person person = getOrCreatePerson(sakaiId);
 				
 				NewsLink link = new NewsLink(person, newsItem, newsItem.getContext(), false, false);
 				
@@ -181,6 +190,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 		
 	}
+
 
 	public Realm createRealm(String entityReference, String contextId) {
 		
@@ -209,6 +219,21 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		SourceType sourceType = new SourceType(identifier, accessPermission); 
 		dao.addSourceType(sourceType);
 		return dao.getSourceType(identifier);
+	}
+	
+	/**
+	 * @param sakaiId
+	 * @return
+	 */
+	public Person getOrCreatePerson(String sakaiId) {
+		Person person = dao.getPersonBySakaiId(sakaiId);
+		if(person == null) {
+			User userObj = this.sakaiProxy.getUser(sakaiId);
+			person = new Person(sakaiId, userObj.getEid());
+			dao.addPerson(person);
+			person = dao.getPersonBySakaiId(sakaiId);
+		}
+		return person;
 	}
 	
 	public CalendarItem getCalendarItem(long id) {

@@ -447,6 +447,32 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 
 	/*
 	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getCalendarItemsByContext(java.lang.String)
+	 */
+	public List<CalendarItem> getCalendarItemsByContext(String contextId) {
+		
+		if(log.isDebugEnabled()) {
+			log.debug("getCalendarItemsByContext(" + contextId + ")");
+		}
+		String sql = null;
+		Object[] params = null;
+		if(contextId == null) {
+			sql = getStatement("select.CalendarItems.by.contextId");
+			params = new Object[]{contextId};
+		} 
+		log.info("getCalendarItemsByContext(" + contextId + ") sql = " + sql);
+		try {
+			return (List<CalendarItem>) getJdbcTemplate().query(sql,params,
+				new CalendarItemMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return new ArrayList<CalendarItem>();
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#getContext(long)
 	 */
 	public Context getContext(long id) {
@@ -543,6 +569,32 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			params = new Object[]{sakaiUserId, contextId};
 		}
 		log.info("getNewsItems(" + sakaiUserId + "," + contextId + ") sql = " + sql);
+		try {
+			return (List<NewsItem>) getJdbcTemplate().query(sql,params,
+				new NewsItemMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return new ArrayList<NewsItem>();
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getNewsItemsByContext(java.lang.String)
+	 */
+	public List<NewsItem> getNewsItemsByContext(String contextId) {
+		
+		if(log.isDebugEnabled()) {
+			log.debug("getNewsItemsByContext(" + contextId + ")");
+		}
+		String sql = null;
+		Object[] params = null;
+		if(contextId == null) {
+			sql = getStatement("select.NewsItems.by.contextId");
+			params = new Object[]{contextId};
+		} 
+		log.info("getNewsItemsByContext(" + contextId + ") sql = " + sql);
 		try {
 			return (List<NewsItem>) getJdbcTemplate().query(sql,params,
 				new NewsItemMapper()

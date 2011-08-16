@@ -196,6 +196,15 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return securityService.isSuperUser();
 	}
 	
+	/**
+	 * 
+	 */
+	public boolean isUserPermitted(String sakaiUserId, String accessPermission,
+			String entityReference) {
+		
+		return this.securityService.unlock(sakaiUserId, accessPermission, entityReference);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.SakaiProxy#isWorksite(java.lang.String)
@@ -271,6 +280,5 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public void init() {
 		logger.info("init");
 	}
-
-
+	
 }

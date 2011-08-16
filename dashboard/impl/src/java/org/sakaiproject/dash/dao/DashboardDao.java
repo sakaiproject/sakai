@@ -81,6 +81,10 @@ public interface DashboardDao {
 	public SourceType getSourceType(String identifier);
 
 	public CalendarItem getCalendarItem(String entityReference);
+	
+	public List<CalendarItem> getCalendarItems(String sakaiUserId, String contextId);
+
+	public List<CalendarItem> getCalendarItemsByContext(String contextId);
 
 	public Context getContext(long id);
 	
@@ -94,7 +98,7 @@ public interface DashboardDao {
 
 	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId);
 
-	public List<CalendarItem> getCalendarItems(String sakaiUserId, String contextId);
+	public List<NewsItem> getNewsItemsByContext(String contextId);
 
 	public NewsItem getNewsItem(long id);
 
