@@ -115,6 +115,14 @@ public interface DashboardDao {
 	public boolean deleteCalendarLinks(Long calendarItemId);
 
 	/**
+	 * Remove all calendar links for a particular user in a particular context.
+	 * @param personId
+	 * @param contextId
+	 * @return
+	 */
+	public boolean deleteCalendarLinks(Long personId, Long contextId);
+
+	/**
 	 * Removes the NewsItem with the id indicated, if it exists. 
 	 * @param id
 	 * @return true if an item is removed, false otherwise. 
@@ -127,6 +135,14 @@ public interface DashboardDao {
 	 * @return true if any items are removed, false otherwise. 
 	 */
 	public boolean deleteNewsLinks(Long newsItemId);
+
+	/**
+	 * Remove all news links for a particular user in a particular context.
+	 * @param personId
+	 * @param contextId
+	 * @return
+	 */
+	public boolean deleteNewsLinks(Long personId, Long contextId);
 
 	/**
 	 * Revise the title property of one CalendarItem, if it exists.

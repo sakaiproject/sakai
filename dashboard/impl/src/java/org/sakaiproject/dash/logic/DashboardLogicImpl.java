@@ -316,7 +316,13 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		if(logger.isDebugEnabled()) {
 			logger.info("removeCalendarLinks(" + sakaiUserId + "," + contextId + ") ");
 		}
-		
+		Person person = dao.getPersonBySakaiId(sakaiUserId);
+		if(person != null) {
+			Context context = dao.getContext(contextId);
+			if(context != null) {
+				dao.deleteCalendarLinks(person.getId(), context.getId());
+			}
+		}
 	}
 
 	public void removeNewsLinks(String entityReference) {
@@ -329,9 +335,15 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 
 	public void removeNewsLinks(String sakaiUserId, String contextId) {
 		if(logger.isDebugEnabled()) {
-			logger.info("removeCalendarLinks(" + sakaiUserId + "," + contextId + ") ");
+			logger.info("removeNewsLinks(" + sakaiUserId + "," + contextId + ") ");
 		}
-		
+		Person person = dao.getPersonBySakaiId(sakaiUserId);
+		if(person != null) {
+			Context context = dao.getContext(contextId);
+			if(context != null) {
+				dao.deleteNewsLinks(person.getId(), context.getId());
+			}
+		}
 	}
 
 	public void reviseCalendarItem(String entityReference, String newTitle, Date newTime) {

@@ -77,16 +77,44 @@ public interface DashboardLogic {
 	
 	public void registerEventProcessor(EventProcessor eventProcessor);
 
+	/** 
+	 * Remove all calendar links and the calendar item referencing a particular entity.
+	 * @param entityReference
+	 */
 	public void removeCalendarItem(String entityReference);
+	
+	/**
+	 * Remove all news links and the news item referencing a particular entity.
+	 * @param entityReference
+	 */
 	public void removeNewsItem(String entityReference);
 	
+	/**
+	 * Remove all calendar links to a particular entity.
+	 * @param entityReference
+	 */
 	public void removeCalendarLinks(String entityReference);
+	
+	/**
+	 * Remove all calendar links for a particular user in a particular context.
+	 * @param sakaiUserId
+	 * @param contextId
+	 */
 	public void removeCalendarLinks(String sakaiUserId, String contextId);
 	
+	/**
+	 * Remove all news links to a particular entity.
+	 * @param entityReference
+	 */
 	public void removeNewsLinks(String entityReference);
+	
+	/**
+	 * Remove all news links for a particular user in a particular context.
+	 * @param sakaiUserId
+	 * @param contextId
+	 */
 	public void removeNewsLinks(String sakaiUserId, String contextId);
 
-	
 	public void reviseCalendarItem(String entityReference, String newTitle, Date newTime);
 	public void reviseCalendarItemTime(String entityReference, Date newTime);
 	public void reviseCalendarItemTitle(String entityReference, String newTitle);

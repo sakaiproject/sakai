@@ -302,6 +302,22 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}		
 	}
 
+	public boolean deleteCalendarLinks(Long personId, Long contextId) {
+		if(log.isDebugEnabled()) {
+			log.debug("deleteCalendarLinks( " + personId + "," + contextId + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("delete.CalendarLinks.by.person.context"),
+				new Object[]{personId, contextId}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("deleteCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}		
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#deleteNewsLinks(java.lang.Long)
@@ -318,6 +334,22 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return true;
 		} catch (DataAccessException ex) {
            log.error("deleteNewsLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}		
+	}
+	
+	public boolean deleteNewsLinks(Long personId, Long contextId) {
+		if(log.isDebugEnabled()) {
+			log.debug("deleteNewsLinks( " + personId + "," + contextId + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("delete.NewsLinks.by.person.context"),
+				new Object[]{personId, contextId}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("deleteCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}		
 	}
