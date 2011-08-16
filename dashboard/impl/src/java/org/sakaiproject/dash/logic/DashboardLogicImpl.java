@@ -89,6 +89,18 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	 * Dashboard Logic methods
 	 ************************************************************************/
 	
+	public void addCalendarLinks(String sakaiUserId, String contextId) {
+		if(logger.isDebugEnabled()) {
+			logger.info("addCalendarLinks(" + sakaiUserId + "," + contextId + ") ");
+		}
+	}
+
+	public void addNewsLinks(String sakaiUserId, String contextId) {
+		if(logger.isDebugEnabled()) {
+			logger.info("addNewsLinks(" + sakaiUserId + "," + contextId + ") ");
+		}
+	}
+
 	public CalendarItem createCalendarItem(String title, Date calendarTime,
 			String entityReference, String entityUrl, Context context,
 			SourceType sourceType) {

@@ -37,6 +37,20 @@ import org.sakaiproject.dash.model.NewsItem;
  */
 public interface DashboardLogic {
 
+	/**
+	 * Add links to all calendar items in a site that the specified user has permission to see.
+	 * @param sakaiUserId
+	 * @param contextId
+	 */
+	public void addCalendarLinks(String sakaiUserId, String contextId);
+
+	/**
+	 * Add links to all news items in a site that the specified user has permission to see.
+	 * @param sakaiUserId
+	 * @param contextId
+	 */
+	public void addNewsLinks(String sakaiUserId, String contextId);
+
 	public CalendarItem createCalendarItem(String title, Date calendarTime, String entityReference, String entityUrl, Context context, SourceType sourceType);
 
 	public void createCalendarLinks(CalendarItem calendarItem);
@@ -46,7 +60,7 @@ public interface DashboardLogic {
 	public NewsItem createNewsItem(String title, Date newsTime, String entityReference, String entityUrl, Context context, SourceType sourceType);
 
 	public void createNewsLinks(NewsItem newsItem);
-
+	
 	public SourceType createSourceType(String identifier, String accessPermission);
 
 	public CalendarItem getCalendarItem(long id);
