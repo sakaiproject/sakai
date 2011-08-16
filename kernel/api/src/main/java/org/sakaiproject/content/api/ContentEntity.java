@@ -26,8 +26,10 @@ import org.sakaiproject.content.api.GroupAwareEntity;
 public interface ContentEntity extends GroupAwareEntity
 {
 	/**
-	 * Access this ContentEntity's containing collection, or null if this entity is the site collection.
-	 * @return
+	 * Access this ContentEntity's containing collection.
+	 * This was documented as returning <code>null</code> for a site collection call, but has
+	 * never been the case.
+	 * @return The containing collection, or <code>null</code> if this is the root collection.
 	 */
 	public ContentCollection getContainingCollection(); 
 	
