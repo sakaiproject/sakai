@@ -16,6 +16,7 @@
                 <value>org/sakaiproject/sitestats/impl/hbm/JobRunImpl.hbm.xml</value>
                 <value>org/sakaiproject/sitestats/impl/hbm/ReportDef.hbm.xml</value>
                 <value>org/sakaiproject/sitestats/impl/hbm/ServerStat.hbm.xml</value>
+                <value>org/sakaiproject/sitestats/impl/hbm/UserStat.hbm.xml</value>
             </list>
         </property>
     </bean>

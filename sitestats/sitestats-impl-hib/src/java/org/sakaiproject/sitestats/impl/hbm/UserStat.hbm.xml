@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="org.sakaiproject.sitestats.impl.UserStatImpl"
+		table="SST_USERSTATS"
+		lazy="true">
+		<id name="id" type="long" column="ID" unsaved-value="0">
+			<generator class="native">
+				<param name="sequence">SST_USERSTATS_ID</param>
+			</generator>
+		</id>
+		<property name="date" column="LOGIN_DATE" type="date" not-null="true" index="SST_USERSTATS_DATE_IX" />
+		<property name="userId" column="USER_ID" type="string" length="99" not-null="true" index="SST_USERSTATS_USER_ID_IX" />
+		<property name="count" column="LOGIN_COUNT" type="long" not-null="true" />		
+	</class>
+</hibernate-mapping>

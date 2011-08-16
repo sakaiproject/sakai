@@ -20,6 +20,7 @@ package org.sakaiproject.sitestats.impl;
 
 import java.util.Date;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sakaiproject.event.api.Event;
 
 
@@ -84,5 +85,17 @@ public class CustomEventImpl implements Event {
 
 	public Date getEventTime() {
 		return date;
+	}
+	
+	public String toString(){
+		return new ToStringBuilder(this).
+	       append("date", date).
+	       append("event", event).
+	       append("ref", ref).
+	       append("context", context).
+	       append("sessionUser", sessionUser).
+	       append("sessionId", sessionId).
+	       append("modify", modify).
+	       toString();
 	}
 }
