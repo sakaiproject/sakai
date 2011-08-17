@@ -243,7 +243,6 @@ a.edit-movie:link,a.edit-movie:visited{
     margin: 7px 0px 2px 0px;
 }
 .add-comment-button span {
-    background-color: #ebebeb;
     padding: 2px 8px 2px 8px;
 }
 
@@ -307,7 +306,13 @@ span.nextprev {
 a.nextprev {
    margin-left:5px;
 }
-
 img {
 	z-index:1;
+}
+.statusImg {
+	vertical-align:middle;
+	margin-right:2px;
+}
+.unsubmitted {
+	background-color:#FFC9D7;
 }

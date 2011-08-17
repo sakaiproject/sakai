@@ -13,12 +13,22 @@
 		</div>
 	</div>
 
+	<div rsf:id="gradingAlert" class="ui-widget">
+		<div class="ui-state-highlight ui-corner-all" style="margin-bottom: 10px; margin-top:10px; padding: 0 .7em;"> 
+			<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+			<span rsf:id="msg=simplepage.comment-grading-message"></span></p>
+		</div>
+	</div>
+
 	<div class="commentDiv" rsf:id="commentDiv:">
 		<a href="#" class="to-load" rsf:id="to-load"></a><a onclick="loadMore($(this));" class="loadMore" rsf:id="load-more-link"></a>
 		
 		<span class="author" rsf:id="userId"></span><span rsf:id="timePosted"></span>
+		
 		<span rsf:id="deleteSpan"><a href="#" style="display:none" rsf:id="deleteCommentURL" class="deleteComment"></a>
 		<a onclick="deleteComment($(this));" class="deleteLink"><img src="$context/images/delete.png"></img></a></span>
+		
+		<span rsf:id="gradingSpan" style="float:right;"><img class="statusImg" src="$context/images/no-status.png" id="statusImg" height="16px" width="16px" alt=""></img><span rsf:id="msg=simplepage.comments-points"></span><span style="display:none" class="uuidBox" rsf:id="commentsUUID"></span><span style="display:none" class="pointsSpan" rsf:id="commentPoints"></span><input class="pointsBox" type="text" size="3"></input></span>
 		
 		<a rsf:id="editComment" class="editLink"><img src="$context/images/edit.png"></img></a>
 		

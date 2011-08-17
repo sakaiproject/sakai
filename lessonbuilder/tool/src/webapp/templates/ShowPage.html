@@ -5,6 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
 <script language="JavaScript" src="/sakai-lessonbuildertool-tool/js/SakaiRSFWidgets.js" type="text/javascript" rsf:id="fckScript"></script>
+<script type="text/javascript" language="JavaScript" src="../js/rsf.js"></script>
 <link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
 <link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
 <link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css" />
@@ -320,7 +321,7 @@ function resizeiframe(id) {
 							
 							<div class="add-comment-button">
 							  <img rsf:id="comment-required-image" src="/sakai-lessonbuildertool-tool/images/available.png" height="18" width="18" style="margin-right:3px"/>
-							  <a rsf:id="add-comment-link" class="switchLink" onclick="switchEditors($(this))"><span rsf:id="add-comment-text"></span></a>
+							  <a rsf:id="add-comment-link" class="usebutton switchLink" onclick="switchEditors($(this))"><span style="font-weight:normal; color:#555" rsf:id="add-comment-text"></span></a>
 							</div>
 							<form class="commentArea" rsf:id="comment-form">
 								<input type="hidden" rsf:id="comment-item-id"></input>
@@ -333,14 +334,27 @@ function resizeiframe(id) {
 								<input type="submit" class="usebutton submitButton" href="#" rsf:id="add-comment" id="add-comment"><span rsf:id="msg=simplepage.add_comment"></span></input>
 								<input type="submit" class="usebutton cancelButton"></input>
 							</form>
+							
+							<form class="gradingForm" rsf:id="gradingForm" style="display:none;">
+								<input type="hidden" class="idField" id="gradingForm-id" rsf:id="gradingForm-id"></input>
+								<input type="hidden" class="jsIdField" id="gradingForm-jsId" rsf:id="gradingForm-jsId"></input>
+								<input type="hidden" class="pointsField" id="gradingForm-points" rsf:id="gradingForm-points"></input>
+							</form>
+							
+							<script rsf:id="gradingForm-init" type="text/javascript">
+    							// a real function call with real values which come from the 
+    							// "emitJavascriptCall" method will be placed here by RSF
+							</script>
 						</div>
 						
 						<a href="#" style="display:none" rsf:id="commentsLink" class="commentsBlock"></a>
-						<div style="display:none" rsf:id="commentsId" class="comments-id"></div>
-						<div style="display:none" rsf:id="commentsAnon" class="commentsAnon"></div>
+						<span style="display:none" rsf:id="commentsId" class="comments-id"></span>
+						<span style="display:none" rsf:id="commentsAnon" class="commentsAnon"></span>
 						<span style="display:none" rsf:id="comments-groups" class="item-groups"></span>
 						<span style="display:none" rsf:id="commentsitem-required" class="commentsitem-required"></span>
 						<span style="display:none" rsf:id="commentsitem-prerequisite" class="commentsitem-prerequisite"></span>
+						<span style="display:none" rsf:id="commentsGrade" class="commentsGrade"></span>
+						<span style="display:none" rsf:id="commentsMaxPoints" class="commentsMaxPoints"></span>
 					</td>
 					
 					<td rsf:id="student-td" role="gridcell" class="edit-col"><div><a href="#" class="usebutton edit-student" onclick="return false" rsf:id="edit-student"></a></div></td>
@@ -961,6 +975,12 @@ function resizeiframe(id) {
 						<div align="left">
 							<input type="checkbox" name="comments-anonymous" id="comments-anonymous" rsf:id="comments-anonymous" />
 							<label for="comments-anonymous"><span rsf:id="msg=simplepage.comments-anonymous"></span></label><br />
+							
+							<input type="checkbox" name="comments-graded" id="comments-graded" rsf:id="comments-graded" />
+							<label for="comments-graded"><span rsf:id="msg=simplepage.comments-graded"></span></label><br />
+							<label for="comments-max" class="indent"><span rsf:id="msg=simplepage.comments-max"></span></label>
+							<input type="text" name="comments-max" id="comments-max" rsf:id="comments-max" />
+							
 						</div>
 
 						<div align="left" style="margin-top:1em">

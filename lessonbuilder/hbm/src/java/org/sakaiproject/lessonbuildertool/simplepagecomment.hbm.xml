@@ -23,6 +23,7 @@
 	<property name="comment" type="text" column="commenttext" />
 	<property name="UUID" type="string" length="36" not-null="true" />
 	<property name="html" type="boolean" not-null="true" />
+	<property name="points" type="double" />
 
    </class>
 </hibernate-mapping>

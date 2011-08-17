@@ -26,202 +26,934 @@ function checkgroups(elt, groups) {
     
 
 $(function() {
+	// This is called in comments.js as well, however this may be faster.
+	//if(sakai.editor.editors.ckeditor==undefined) {
+//		$(".evolved-box :not(textarea)").hide();
+//	}else {
+		//$(".evolved-box").hide();
+	//}
 
-	$('#subpage-dialog').dialog({
-		autoOpen: false,
-		width: 600,
-		modal: false,
-		resizable: false,
-		draggable: false
-	});
+	// We don't need to run all of this javascript if the user isn't an admin
+	if($("#subpage-dialog").length > 0) {
+		$('#subpage-dialog').dialog({
+			autoOpen: false,
+			width: 600,
+			modal: false,
+			resizable: false,
+			draggable: false
+		});
 
-	$('#edit-item-dialog').dialog({
-		autoOpen: false,
-		width: 600,
-		modal: false,
-		resizable: false,
-		draggable: false
-	});
+		$('#edit-item-dialog').dialog({
+			autoOpen: false,
+			width: 600,
+			modal: false,
+			resizable: false,
+			draggable: false
+		});
 
-	$('#edit-multimedia-dialog').dialog({
-		autoOpen: false,
-		width: 600,
-		modal: false,
-		resizable: false,
-		draggable: false
-	});
+		$('#edit-multimedia-dialog').dialog({
+			autoOpen: false,
+			width: 600,
+			modal: false,
+			resizable: false,
+			draggable: false
+		});
 
-	$('#add-multimedia-dialog').dialog({
-		autoOpen: false,
-		width: 600,
-		modal: false,
-		resizable: false,
-		draggable: false
-	});
+		$('#add-multimedia-dialog').dialog({
+			autoOpen: false,
+			width: 600,
+			modal: false,
+			resizable: false,
+			draggable: false
+		});
 
-	// hardcode height so we have space for date picker
-	$('#edit-title-dialog').dialog({
-		autoOpen: false,
-		width: 600,
-		modal: false,
-		resizable: false,
-		draggable: false
-	});
+		// hardcode height so we have space for date picker
+		$('#edit-title-dialog').dialog({
+			autoOpen: false,
+			width: 600,
+			modal: false,
+			resizable: false,
+			draggable: false
+		});
 	
-	$('#new-page-dialog').dialog({
-		autoOpen: false,
-		width: 600,
-		modal: false,
-		resizable: false,
-		draggable: false
-	});
+		$('#new-page-dialog').dialog({
+			autoOpen: false,
+			width: 600,
+			modal: false,
+			resizable: false,
+			draggable: false
+		});
 
-	$('#remove-page-dialog').dialog({
-		autoOpen: false,
-		width: 600,
-		modal: false,
-		resizable: false,
-		draggable: false
-	});
+		$('#remove-page-dialog').dialog({
+			autoOpen: false,
+			width: 600,
+			modal: false,
+			resizable: false,
+			draggable: false
+		});
 
-	$('#youtube-dialog').dialog({
-		autoOpen: false,
-		width: 600,
-		modal: false,
-		resizable: false,
-		draggable: false
-	});
+		$('#youtube-dialog').dialog({
+			autoOpen: false,
+			width: 600,
+			modal: false,
+			resizable: false,
+			draggable: false
+		});
 	
-	$('#movie-dialog').dialog({
-		autoOpen: false,
-		width: 600,
-		modal: false,
-		resizable: false,
-		draggable: false
-	});
+		$('#movie-dialog').dialog({
+			autoOpen: false,
+			width: 600,
+			modal: false,
+			resizable: false,
+			draggable: false
+		});
 	
-	$('#import-cc-dialog').dialog({
-		autoOpen: false,
-		width: 600,
-		modal: false,
-		resizable: false,
-		draggable: false
-	});
+		$('#import-cc-dialog').dialog({
+			autoOpen: false,
+			width: 600,
+			modal: false,
+			resizable: false,
+			draggable: false
+		});
 	
-	$('#comments-dialog').dialog({
-		autoOpen: false,
-		width: 600,
-		modal: false,
-		resizable: false,
-		draggable: false
-	});
+		$('#comments-dialog').dialog({
+			autoOpen: false,
+			width: 600,
+			modal: false,
+			resizable: false,
+			draggable: false
+		});
 	
-	$('#student-dialog').dialog({
-		autoOpen: false,
-		width: 600,
-		modal: false,
-		resizable: false,
-		draggable: false
-	});
+		$('#student-dialog').dialog({
+			autoOpen: false,
+			width: 600,
+			modal: false,
+			resizable: false,
+			draggable: false
+		});
 	
-	$("#select-resource-group").hide();
+		$("#select-resource-group").hide();
 
-	$('.subpage-link').click(function(){
-		var position =  $(this).position();
-		$("#subpage-dialog").dialog("option", "position", [position.left, position.top]);
-		$('.hideOnDialog').hide();
-		$('#subpage-dialog').dialog('open');
-		checksize($('#subpage-dialog'));
-		return false;
-	});
+		$('.subpage-link').click(function(){
+			var position =  $(this).position();
+			$("#subpage-dialog").dialog("option", "position", [position.left, position.top]);
+			$('.hideOnDialog').hide();
+			$('#subpage-dialog').dialog('open');
+			checksize($('#subpage-dialog'));
+			return false;
+		});
 
-	$('#edit-title').click(function(){
-		var position =  $(this).position();
-		$("#edit-title-dialog").dialog("option", "position", [position.left, position.top]);
-		$('.hideOnDialog').hide();
-		if ($("#page-points").val() == '') {
-		    $("#page-gradebook").attr("checked", false);
-		    $("#page-points").attr("disabled", true);
-		} else { 
-		    $("#page-gradebook").attr("checked", true);
+		$('#edit-title').click(function(){
+			var position =  $(this).position();
+			$("#edit-title-dialog").dialog("option", "position", [position.left, position.top]);
+			$('.hideOnDialog').hide();
+			if ($("#page-points").val() == '') {
+				$("#page-gradebook").attr("checked", false);
+				$("#page-points").attr("disabled", true);
+			} else { 
+				$("#page-gradebook").attr("checked", true);
+			}
+			$('#edit-title-dialog').dialog('open');
+			checksize($('#edit-title-dialog'));
+			return false;
+		});
+
+		$('#import-cc').click(function(){
+			var position =  $(this).position();
+			$("#import-cc-dialog").dialog("option", "position", [position.left, position.top]);
+			$('.hideOnDialog').hide();
+			$('#import-cc-dialog').dialog('open');
+			checksize($('#import-cc-dialog'));
+			return false;
+		});
+		
+		$('#import-cc-submit').click(function() {
+			$('#loading').show();
+			return true;
+	    	});
+		
+		$('#releaseDiv').click(function(){
+			$('#edit-title-dialog').height(550);
+	    	});
+		
+		$("#page-gradebook").click(function(){
+			if ($("#page-gradebook").attr("checked")) {
+				if ($("#page-points").val() == '')
+					$("#page-points").val('1');
+				$("#page-points").attr("disabled", false);
+			} else {
+				$("#page-points").val('');
+				$("#page-points").attr("disabled", true);
+			}
+	    });
+
+		$('#new-page').click(function(){
+			var position =  $(this).position();
+			$("#new-page-dialog").dialog("option", "position", [position.left, position.top]);
+			$('.hideOnDialog').hide();
+			$('#new-page-dialog').dialog('open');
+			checksize($('#new-page-dialog'));
+			return false;
+		});
+
+		$('#remove-page').click(function(){
+			var position =  $(this).position();
+			$("#remove-page-dialog").dialog("option", "position", [position.left, position.top]);
+			// rsf puts the URL on the non-existent src attribute
+			$('.hideOnDialog').hide();
+			$('#remove-page-dialog').dialog('open');
+			checksize($('#remove-page-dialog'));
+			return false;
+		});
+
+		//	$('#remove-page-submit').click(function() {
+		//		if ($("#remove-page-submit").attr("src") != null) {
+		//		    window.location.href= $("#remove-page-submit").attr("src");
+		//		    return false;
+		//		}
+		//		return true;
+		//	});
+
+		var outerWidth = $('#outer').width();
+		if (outerWidth < 500) {
+			$("#subpage-dialog").dialog("option", "width", outerWidth-10);
+			$("#edit-item-dialog").dialog("option", "width", outerWidth-10);
+			$("#edit-multimedia-dialog").dialog("option", "width", outerWidth-10);
+			$("#add-multimedia-dialog").dialog("option", "width", outerWidth-10);
+			$("#edit-title-dialog").dialog("option", "width", outerWidth-10);
+			$("#import-cc-dialog").dialog("option", "width", outerWidth-10);
+			$("#new-page-dialog").dialog("option", "width", outerWidth-10);
+			$("#remove-page-dialog").dialog("option", "width", outerWidth-10);
+			$("#youtube-dialog").dialog("option", "width", outerWidth-10);
+			$("#movie-dialog").dialog("option", "width", outerWidth-10);
+			$("#subpage-link").dialog("option", "width", outerWidth-10);
+			$("#comments-dialog").dialog("option", "width", outerWidth-10);
+			$("#student-dialog").dialog("option", "width", outerWidth-10);
 		}
-		$('#edit-title-dialog').dialog('open');
-		checksize($('#edit-title-dialog'));
-		return false;
-	});
+		
+		$(".edit-youtube").click(function(){
+			$("#editgroups-youtube").after($("#grouplist"));
+			$("#grouplist").hide();
+			$("#editgroups-youtube").hide();
 
-	$('#import-cc').click(function(){
-		var position =  $(this).position();
-		$("#import-cc-dialog").dialog("option", "position", [position.left, position.top]);
-		$('.hideOnDialog').hide();
-		$('#import-cc-dialog').dialog('open');
-		checksize($('#import-cc-dialog'));
-		return false;
-	});
+			var row = $(this).parent().parent().parent();
 
-	$('#import-cc-submit').click(function() {
-		$('#loading').show();
-		return true;
-	    });
+			var groups = row.find(".item-groups").text();
+			var grouplist = $("#grouplist");
+			if ($('#grouplist input').size() > 0) {
+			    $("#editgroups-youtube").show();
+			    $("#grouplist").show();
+			    if (groups != null) {
+				checkgroups(grouplist, groups);
+			    }
+			}
 
-	$('#releaseDiv').click(function(){
-		$('#edit-title-dialog').height(550);
-	    });
+			var itemid = row.find(".mm-item-id").text();
+			
+			$("#youtubeEditId").val(row.find(".youtube-id").text());
+			$("#youtubeURL").val(row.find(".youtube-url").text());
+			$("#youtubeHeight").val(row.find(".mm-height").text());
+			$("#youtubeWidth").val(row.find(".mm-width").text());
+			$("#description4").val(row.find(".description").text());
+			var position =  row.position();
+			$("#youtube-dialog").dialog("option", "position", [position.left, position.top]);
+			$('.hideOnDialog').hide();
+			$('#youtube-dialog').dialog('open');
+			checksize($('#youtube-dialog'));
+			$("#grouplist").hide();
+			return false;
+		});
+		
+		$("#editgroups-youtube").click(function(){
+			$("#editgroups-youtube").hide();
+			$("#grouplist").show();
+		    });
 
-	$("#page-gradebook").click(function(){
-		if ($("#page-gradebook").attr("checked")) {
-		    if ($("#page-points").val() == '')
-			$("#page-points").val('1');
-		    $("#page-points").attr("disabled", false);
-		} else {
-		    $("#page-points").val('');
-		    $("#page-points").attr("disabled", true);
-		}
-	    });
+		$('.edit-movie').click(function(){
 
-	$('#new-page').click(function(){
-		var position =  $(this).position();
-		$("#new-page-dialog").dialog("option", "position", [position.left, position.top]);
-		$('.hideOnDialog').hide();
-		$('#new-page-dialog').dialog('open');
-		checksize($('#new-page-dialog'));
-		return false;
-	});
+	                //var object = this.parentNode.parentNode.childNodes[3].childNodes[1];                                                                
+			$("#expert-movie").hide();
+			$("#expert-movie-toggle-div").show();
+			$("#editgroups-movie").after($("#grouplist"));
+			$("#grouplist").hide();
+			$("#editgroups-movie").hide();
 
-	$('#remove-page').click(function(){
-		var position =  $(this).position();
-		$("#remove-page-dialog").dialog("option", "position", [position.left, position.top]);
-		// rsf puts the URL on the non-existent src attribute
-		$('.hideOnDialog').hide();
-		$('#remove-page-dialog').dialog('open');
-		checksize($('#remove-page-dialog'));
-		return false;
-	});
+			var row = $(this).parent().parent().parent();
 
-	//	$('#remove-page-submit').click(function() {
-	//		if ($("#remove-page-submit").attr("src") != null) {
-	//		    window.location.href= $("#remove-page-submit").attr("src");
-	//		    return false;
-	//		}
-	//		return true;
-	//	});
+			var groups = row.find(".item-groups").text();
+			var grouplist = $("#grouplist");
+			if ($('#grouplist input').size() > 0) {
+			    $("#editgroups-movie").show();
+			    $("#grouplist").show();
+			    if (groups != null) {
+				checkgroups(grouplist, groups);
+			    }
+			}
 
-	var outerWidth = $('#outer').width();
-	if (outerWidth < 500) {
-	    $("#subpage-dialog").dialog("option", "width", outerWidth-10);
-	    $("#edit-item-dialog").dialog("option", "width", outerWidth-10);
-	    $("#edit-multimedia-dialog").dialog("option", "width", outerWidth-10);
-	    $("#add-multimedia-dialog").dialog("option", "width", outerWidth-10);
-	    $("#edit-title-dialog").dialog("option", "width", outerWidth-10);
-	    $("#import-cc-dialog").dialog("option", "width", outerWidth-10);
-	    $("#new-page-dialog").dialog("option", "width", outerWidth-10);
-	    $("#remove-page-dialog").dialog("option", "width", outerWidth-10);
-	    $("#youtube-dialog").dialog("option", "width", outerWidth-10);
-	    $("#movie-dialog").dialog("option", "width", outerWidth-10);
-	    $("#subpage-link").dialog("option", "width", outerWidth-10);
-	    $("#comments-dialog").dialog("option", "width", outerWidth-10);
-	    $("#student-dialog").dialog("option", "width", outerWidth-10);
-	}
+			var itemid = row.find(".mm-item-id").text();
+
+			$("#movieEditId").val(row.find(".movie-id").text());
+			$("#movie-height").val(row.find(".mm-height").text());
+			$("#movie-width").val(row.find(".mm-width").text());
+			$("#description3").val(row.find(".description").text());
+			$("#mimetype4").val(row.find(".mm-type").text());
+			var position =  row.position();
+			$("#movie-dialog").dialog("option", "position", [position.left, position.top]);
+			$('.hideOnDialog').hide();
+			$("#movie-dialog").dialog('open');
+			checksize($("#movie-dialog"));
+			$("#grouplist").hide();
+			return false;
+		});
+		
+		$(".edit-comments").click(function(){
+			$("#editgroups-comments").after($("#grouplist"));
+			$("#grouplist").hide();
+			$("#editgroups-comments").hide();
+
+			var row = $(this).parent().parent().parent();
+
+			var groups = row.find(".item-groups").text();
+			var grouplist = $("#grouplist");
+			if ($('#grouplist input').size() > 0) {
+			    $("#editgroups-comments").show();
+			    $("#grouplist").show();
+			    if (groups != null) {
+				checkgroups(grouplist, groups);
+			    }
+			}
+
+			var itemId = row.find(".comments-id").text();
+			
+			$("#commentsEditId").val(itemId);
+			
+			var anon = row.find(".commentsAnon").text();
+			if(anon == "true") {
+				$("#comments-anonymous").attr("checked", true);
+				$("#comments-anonymous").attr("defaultChecked", true)
+			}else {
+				$("#comments-anonymous").attr("checked", false);
+			}
+			
+			var required = row.find(".commentsitem-required").text();
+			if(required == "true") {
+				$("#comments-required").attr("checked", true);
+			}else {
+				$("#comments-required").attr("checked", false);
+			}
+			
+			var prerequisite = row.find(".commentsitem-prerequisite").text();
+			if(prerequisite == "true") {
+				$("#comments-prerequisite").attr("checked", true);
+			}else {
+				$("#comments-prerequisite").attr("checked", false);
+			}
+			
+			var grade = row.find(".commentsGrade").text();
+			if(grade == "true") {
+				$("#comments-graded").attr("checked", true);
+				$("#comments-graded").attr("defaultChecked", true)
+			}else {
+				$("#comments-graded").attr("checked", false);
+			}
+			
+			$("#comments-max").val(row.find(".commentsMaxPoints").text());
+			if($("#comments-max").val() == "null") {
+				$("#comments-max").val("");
+			}
+			
+			var position = row.position();
+			$("#comments-dialog").dialog("option", "position", [position.left, position.top]);
+			$('.hideOnDialog').hide();
+			$('#comments-dialog').dialog('open');
+			checksize($("#comments-dialog"));
+			$("#grouplist").hide();
+			return false;
+		});
+		
+		$("#editgroups-comments").click(function(){
+			$("#editgroups-comments").hide();
+			$("#grouplist").show();
+		    });
+
+		$(".edit-student").click(function(){
+			$("#editgroups-student").after($("#grouplist"));
+			$("#grouplist").hide();
+			$("#editgroups-student").hide();
+
+			var row = $(this).parent().parent().parent();
+
+			var groups = row.find(".item-groups").text();
+			var grouplist = $("#grouplist");
+			if ($('#grouplist input').size() > 0) {
+			    $("#editgroups-student").show();
+			    $("#grouplist").show();
+			    if (groups != null) {
+				checkgroups(grouplist, groups);
+			    }
+			}
+
+			var itemId = row.find(".student-id").text();
+			
+			$("#studentEditId").val(itemId);
+			
+			var anon = row.find(".studentAnon").text();
+			if(anon == "true") {
+				$("#student-anonymous").attr("checked", true);
+				$("#student-anonymous").attr("defaultChecked", true)
+			}else {
+				$("#student-anonymous").attr("checked", false);
+			}
+			
+			var comments = row.find(".studentComments").text();
+			if(comments == "true") {
+				$("#student-comments").attr("checked", true);
+				$("#student-comments").attr("defaultChecked", true)
+			}else {
+				$("#student-comments").attr("checked", false);
+			}
+			
+			var forcedAnon = row.find(".forcedAnon").text();
+			if(forcedAnon == "true") {
+				$("#student-comments-anon").attr("checked", true);
+				$("#student-comments-anon").attr("defaultChecked", true)
+			}else {
+				$("#student-comments-anon").attr("checked", false);
+			}
+			
+			var required = row.find(".studentitem-required").text();
+			if(required == "true") {
+				$("#student-required").attr("checked", true);
+			}else {
+				$("#student-required").attr("checked", false);
+			}
+			var prerequisite = row.find(".studentitem-prerequisite").text();
+			if(prerequisite == "true") {
+				$("#student-prerequisite").attr("checked", true);
+			}else {
+				$("#student-prerequisite").attr("checked", false);
+			}
+
+			if(!$("#student-comments").attr("checked")) {
+				$("#student-comments-anon").attr("disabled", true).removeAttr("checked");
+			}else {
+				$("#student-comments-anon").removeAttr("disabled");
+			}
+			
+			var position = row.position();
+			$("#student-dialog").dialog("option", "position", [position.left, position.top]);
+			$('.hideOnDialog').hide();
+			$('#student-dialog').dialog('open');
+			checksize($("#student-dialog"));
+			$("#grouplist").hide();
+			return false;
+		});
+		
+		$("#editgroups-student").click(function(){
+			$("#editgroups-students").hide();
+			$("#grouplist").show();
+		    });
+
+		$("#student-comments").click(function() {
+			if(!$("#student-comments").attr("checked")) {
+				$("#student-comments-anon").attr("disabled", true).removeAttr("checked");
+			}else {
+				$("#student-comments-anon").removeAttr("disabled");
+			}
+		});
+
+		$("#editgroups-movie").click(function(){
+			$("#editgroups-movie").hide();
+			$("#grouplist").show();
+		});
+		
+		$('#change-resource-movie').click(function(){
+			closeMovieDialog();
+			$("#mm-item-id").val($("#movieEditId").val());
+			$("#mm-is-mm").val('true');
+			var href=$("#mm-choose").attr("href");
+			href=fixhref(href, $("#movieEditId").val(), "true", "false");
+			$("#mm-choose").attr("href",href);
+			$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
+
+			var position =  $("#movie-dialog").dialog('option','position');
+			$("#add-multimedia-dialog").dialog("option", "position", position);
+			$(".mm-additional").show();
+			$(".mm-additional-website").hide();
+			$(".mm-url-section").show();
+			$('.hideOnDialog').hide();
+			$("#add-multimedia-dialog").dialog('open');
+			checksize($("#add-multimedia-dialog"));
+			$('.edit-multimedia-input').blur();
+			$('.mm-additional-instructions').blur();
+			return false;
+		});
+
+		$("#expert-movie-toggle").click(function(){
+			$("#expert-movie-toggle-div").hide();
+			$("#expert-movie").show();
+			checksize($("#movie-dialog"));
+			return false;
+		});
+		
+		$(".edit-link").click(function(){
+			$("#require-label2").hide();
+			$("#item-required2").hide();
+			$("#assignment-dropdown-selection").hide();
+			$("#assignment-points").hide();
+			$("#assignment-points").hide();
+			$("#grouplist").hide();
+			$("#editgroups").hide();
+			$("#resource-group-inherited").hide();
+			$("#assignment-points").val("");
+			$("#assignment-points-label").hide();
+			$("#change-assignment-p").hide();		
+			$("#change-quiz-p").hide();		
+			$("#change-forum-p").hide();		
+			$("#change-resource-p").hide();	
+			$("#change-blti-p").hide();
+			$("#change-page-p").hide();	
+			$("#edit-item-object-p").hide();	
+			$("#edit-item-settings-p").hide();	
+			$("#pagestuff").hide();
+			$("#newwindowstuff").hide();
+			$("#formatstuff").hide();
+			$("#edit-height").hide();
+			$("#editgroups").after($("#grouplist"));
+			
+			var row = $(this).parent().parent().parent();
+			var itemid = row.find(".current-item-id2").text();
+
+			$("#name").val(row.find(".link-text").text());
+			$("#description").val(row.find(".rowdescription").text());
+					      
+			var prereq = row.find(".prerequisite-info").text();
+
+			if(prereq == "true") {
+				$("#item-prerequisites").attr("checked", true);
+				$("#item-prerequisites").attr("defaultChecked", true);
+			}else {
+				$("#item-prerequisites").attr("checked", false);
+			}
+			
+	                var samewindow = row.find(".item-samewindow").text();
+	                if (samewindow != '') {
+	                    if (samewindow == "true")
+	                        $("#item-newwindow").attr("checked", false);
+	                    else
+	                        $("#item-newwindow").attr("checked", true);
+	                    $("#newwindowstuff").show();
+	                }
+
+			var format = row.find(".item-format").text();
+			var req = row.find(".requirement-text").text();
+			var type = row.find(".type").text();
+			var editurl = row.find(".edit-url").text();
+			var editsettingsurl = row.find(".edit-settings-url").text();
+			
+			if(type == 'page') {
+	                    $("#pagestuff").show();
+			    var pagenext = row.find(".page-next").text();
+			    if(pagenext == "true") {
+				$("#item-next").attr("checked", true);
+				$("#item-next").attr("defaultChecked", true);
+			    }else {
+				$("#item-next").attr("checked", false);
+			    }
+
+			    var pagebutton = row.find(".page-button").text();
+			    if(pagebutton == "true") {
+				$("#item-button").attr("checked", true);
+				$("#item-button").attr("defaultChecked", true);
+			    }else {
+				$("#item-button").attr("checked", false);
+			    }
+
+			    $("#change-page-p").show();
+			    $("#change-page").attr("href", 
+				$("#change-page").attr("href").replace("itemId=-1", "itemId=" + itemid));
+
+			    var groups = row.find(".item-groups").text();
+			    var grouplist = $("#grouplist");
+			    if ($('#grouplist input').size() > 0) {
+				$("#editgroups").show();
+				$("#grouplist").show();
+				if (groups != null) {
+				    checkgroups(grouplist, groups);
+				}
+			    }
+
+			} else if(type != '') {
+				// Must be an assignment, assessment, forum
+				
+				var groups = row.find(".item-groups").text();
+				var grouplist = $("#grouplist");
+				if ($('#grouplist input').size() > 0) {
+				    $("#editgroups").show();
+				    $("#grouplist").show();
+				    if (groups != null) {
+					checkgroups(grouplist, groups);
+				    }
+				}
+
+				if(type == 6) {
+					$("#change-quiz-p").show();
+					$("#change-quiz").attr("href", 
+					      $("#change-quiz").attr("href").replace("itemId=-1", "itemId=" + itemid));
+					$("#require-label").text(msg("simplepage.require_submit_assessment"));
+					$("#edit-item-object-p").show();
+					$("#edit-item-object").attr("href", 
+						$("#edit-item-object").attr("href").replace("source=SRC", "source="+escape(editurl)));
+					$("#edit-item-text").text(msg("simplepage.edit_quiz"));
+					$("#edit-item-settings-p").show();
+					$("#edit-item-settings").attr("href", 
+						$("#edit-item-settings").attr("href").replace("source=SRC", "source="+escape(editsettingsurl)));
+					$("#edit-item-settings-text").text(msg("simplepage.edit_quiz_settings"));
+
+				}else if (type == 8){
+					$("#change-forum-p").show();
+					$("#change-forum").attr("href", 
+					      $("#change-forum").attr("href").replace("itemId=-1", "itemId=" + itemid));
+					$("#require-label").text(msg("simplepage.require_submit_forum"));
+					$("#edit-item-object-p").show();
+					$("#edit-item-object").attr("href", 
+						$("#edit-item-object").attr("href").replace("source=SRC", "source="+escape(editurl)));
+					$("#edit-item-text").text(msg("simplepage.edit_topic"));
+
+				}else if (type == 'b'){
+					var height = row.find(".item-height").text();
+					$("#edit-height-value").val(height);
+					$("#edit-height").show();				
+					$("#change-blti-p").show();
+					$("#change-blti").attr("href", 
+					      $("#change-blti").attr("href").replace("itemId=-1", "itemId=" + itemid));
+					$("#require-label").text(msg("simplepage.require_submit_blti"));
+					if (format == '')
+					    format = 'page';
+					$(".format").attr("checked", false);
+					$("#format-" + format).attr("checked", true);
+					$("#formatstuff").show();
+					$("#edit-item-object-p").show();
+					fixitemshows();
+
+				}else {
+					$("#change-assignment-p").show();
+					$("#change-assignment").attr("href", 
+					     $("#change-assignment").attr("href").replace("itemId=-1", "itemId=" + itemid));
+					$("#require-label").text(msg("simplepage.require_submit_assignment"));
+					$("#edit-item-object-p").show();
+					$("#edit-item-object").attr("href", 
+						$("#edit-item-object").attr("href").replace("source=SRC", "source="+escape(editurl)));
+					$("#edit-item-text").text(msg("simplepage.edit_assignment"));
+
+				}
+				
+				if(type == 3 || type == 6) {
+					// Points or Assessment
+					
+					$("#require-label2").show();
+					$("#require-label2").html(msg("simplepage.require_receive") + " ");
+					if(type == 3) {
+					    $("#assignment-points-label").text(" " + msg("simplepage.require_points_assignment"));
+					}else if(type == 6) {
+					    $("#assignment-points-label").text(" " + msg("simplepage.require_points_assessment"));
+					}
+					
+					$("#item-required2").show();
+					
+					$("#assignment-points").show();
+					$("#assignment-points-label").show();
+					
+					if(req == "false") {
+						$("#item-required2").attr("checked", false);
+					}else {
+						// Need both of these statements, because of a stupid
+						// little IE bug.
+						$("#item-required2").attr("checked", true);
+						$("#item-required2").attr("defaultChecked", true);
+						
+						$("#assignment-points").val(req);
+					}
+				}else if(type == 4) {
+					// Pass / Fail
+					$("#require-label2").show();
+					$("#require-label2").html(msg("simplepage.require_pass_assignment"));
+					$("#item-required2").show();
+					
+					if(req == "true") {
+						// Need both of these statements, because of a stupid
+						// little IE bug.
+						$("#item-required2").attr("checked", true);
+						$("#item-required2").attr("defaultChecked", true);
+					}else {
+						$("#item-required2").attr("checked", false);
+					}
+				}else if(type == 2) {
+					// Letter Grade
+					
+					$("#require-label2").show();
+					$("#require-label2").text(msg("simplepage.require_atleast"));
+					$("#item-required2").show();
+					$("#assignment-dropdown-selection").show();
+					
+					if(req == "false") {
+						$("#item-required2").attr("checked", false);
+					}else {
+						// Need both of these statements, because of a stupid
+						// little IE bug.
+						$("#item-required2").attr("checked", true);
+						$("#item-required2").attr("defaultChecked", true);
+						
+						$("#assignment-dropdown-selection").val(req);
+					}
+				}else if(type == 1) {
+					// Ungraded
+					// Nothing more that we need to do
+				}else if(type == 5) {
+					// Checkmark
+					$("#require-label2").show();
+					$("#require-label2").text(msg("simplepage.require_checkmark"));
+					$("#item-required2").show();
+					
+					if(req == "true") {
+						// Need both of these statements, because of a stupid
+						// little IE bug.
+						$("#item-required2").attr("checked", true);
+						$("#item-required2").attr("defaultChecked", true);
+					}else {
+						$("#item-required2").attr("checked", false);
+					}
+				}
+			} else {
+			    // resource
+			    $("#change-resource-p").show();
+			    $("#change-resource").attr("href", 
+			        $("#change-resource").attr("href").replace("pageItemId=-1", "pageItemId=" + itemid));
+			    var groups = row.find(".item-groups").text();
+			    var grouplist = $("#grouplist");
+			    if (groups == "--inherited--")
+				$("#resource-group-inherited").show();
+			    else if ($('#grouplist input').size() > 0) {
+				$("#editgroups").show();
+				$("#grouplist").show();
+				$("#select-resource-group").show();
+				if (groups != null) {
+				    checkgroups(grouplist, groups);
+				}
+			    }
+
+			}
+
+			if(row.find(".status-image").attr("src") == undefined) {
+			    $("#item-required").attr("checked", false);
+			} else if (row.find(".status-image").attr("src").indexOf("not-required.png") > -1) {
+				$("#item-required").attr("checked", false);
+			} else {
+				// Need both of these statements, because of a stupid
+				// little IE bug.
+				$("#item-required").attr("checked", true);
+				$("#item-required").attr("defaultChecked", true);
+			}
+
+			setUpRequirements();
+		        $("#item-id").val(row.find(".current-item-id2").text());
+			$("#edit-item-error-container").hide();
+			var position =  $(this).position();
+			$("#edit-item-dialog").dialog("option", "position", [position.left, position.top]);
+			$('.hideOnDialog').hide();
+			$("#edit-item-dialog").dialog('open');
+			checksize($("#edit-item-dialog"));
+			$("#grouplist").hide();
+			return false;
+		});
+
+		$("#editgroups").click(function(){
+			$("#editgroups").hide();
+			$("#grouplist").show();
+		    });
+
+		$(".format").change(function(){
+			fixitemshows();
+		    });
+
+		$('#change-resource').click(function(){
+			closeEditItemDialog();
+			$("#mm-item-id").val($("#item-id").val());
+			$("#mm-is-mm").val('false');
+			var href=$("#mm-choose").attr("href");
+			href=fixhref(href, $("#item-id").val(), "false", "false");
+			$("#mm-choose").attr("href",href);
+			$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
+			var position =  $("#edit-item-dialog").dialog('option','position');
+			$("#add-multimedia-dialog").dialog("option", "position", position);
+			$(".mm-additional").show();
+			$(".mm-additional-website").hide();
+			$(".mm-url-section").show();
+			$('.hideOnDialog').hide();
+			$("#add-multimedia-dialog").dialog('open');
+			checksize($("#add-multimedia-dialog"));
+			$('.edit-multimedia-input').blur();
+			$('.edit-multimedia-input').blur();
+			return false;
+		});
+
+		$(".add-multimedia").click(function(){
+			$("#mm-item-id").val(-1);
+			$("#mm-is-mm").val('true');
+			$("#mm-is-website").val('false');
+			var href=$("#mm-choose").attr("href");
+			href=fixhref(href, "-1", "true", "false");
+			$("#mm-choose").attr("href",href);
+			$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
+			var position =  $(this).position();
+			$("#add-multimedia-dialog").dialog("option", "position", [position.left, position.top]);
+			$(".mm-additional").show();
+			$(".mm-additional-website").hide();
+			$(".mm-url-section").show();
+			$('.hideOnDialog').hide();
+			$("#add-multimedia-dialog").dialog('open');
+			checksize($("#add-multimedia-dialog"));
+			$('.edit-multimedia-input').blur();
+			$('.mm-additional-instructions').blur();
+			return false;
+		});
+
+		$(".add-resource").click(function(){
+			$("#mm-item-id").val(-1);
+			$("#mm-is-mm").val('false');
+			$("#mm-is-website").val('false');
+			var href=$("#mm-choose").attr("href");
+			href=fixhref(href,"-1","false","false");
+			$("#mm-choose").attr("href",href);
+			var position =  $(this).position();
+			$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
+			$("#add-multimedia-dialog").dialog("option", "position", [position.left, position.top]);
+			$(".mm-additional").hide();
+			$(".mm-additional-website").hide();
+			$(".mm-url-section").show();
+			$('.hideOnDialog').hide();
+			$("#add-multimedia-dialog").dialog('open');
+			checksize($("#add-multimedia-dialog"));
+			$('.edit-multimedia-input').blur();
+			return false;
+		});
+
+		$(".add-website").click(function(){
+			$("#mm-item-id").val(-1);
+			$("#mm-is-mm").val('false');
+			$("#mm-is-website").val('true');
+			var href=$("#mm-choose").attr("href");
+			href=fixhref(href, "-1","false","true");
+			$("#mm-choose").attr("href",href);
+			var position =  $(this).position();
+			$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
+			$("#add-multimedia-dialog").dialog("option", "position", [position.left, position.top]);
+			$(".mm-additional").hide();
+			$(".mm-additional-website").show();
+			$(".mm-url-section").hide();
+			$('.hideOnDialog').hide();
+			$("#add-multimedia-dialog").dialog('open');
+			checksize($("#add-multimedia-dialog"));
+			$('.edit-multimedia-input').blur();
+			$('.mm-additional-website-instructions').blur();
+			return false;
+		});
+
+		$(".multimedia-edit").click(function(){
+			$("#expert-multimedia").hide();
+			$("#expert-multimedia-toggle-div").show();
+			$("#editgroups-mm").after($("#grouplist"));
+			$("#grouplist").hide();
+			$("#editgroups-mm").hide();
+
+			var row = $(this).parent().parent().parent();
+
+			var groups = row.find(".item-groups").text();
+			var grouplist = $("#grouplist");
+			if ($('#grouplist input').size() > 0) {
+			    $("#editgroups-mm").show();
+			    $("#grouplist").show();
+			    if (groups != null) {
+				checkgroups(grouplist, groups);
+			    }
+			}
+
+			$("#height").val(row.find(".mm-height").text());
+			$("#width").val(row.find(".mm-width").text());
+			$("#description2").val(row.find(".description").text());
+			$("#mimetype").val(row.find(".mm-type").text());
+			if (row.find(".multimedia").get(0).nodeName.toLowerCase() == "img") {
+			    $("#alt").val(row.find(".multimedia").attr("alt"));
+			    $("#alt").parent().show();
+			    $("#tagnameused").html(msg("simplepage.tag_img"));
+			    $("#iframe-note").hide();
+		        } else {
+			    $("#alt").parent().hide();
+			    $("#tagnameused").html(msg("simplepage.tag_iframe"));
+			    $("#iframe-note").show();
+			}
+			$("#change-resource-mm").attr("href", 
+			     $("#change-resource-mm").attr("href").replace("pageItemId=-1", 
+				   "pageItemId=" + row.find(".mm-itemid").text()));
+			$("#multimedia-item-id").val(row.find(".mm-itemid").text());
+			var position =  row.position();
+			$("#edit-multimedia-dialog").dialog("option", "position", [position.left, position.top]);
+			$('.hideOnDialog').hide();
+			$("#edit-multimedia-dialog").dialog('open');
+			checksize($("#edit-multimedia-dialog"));
+			$("#grouplist").hide();
+			return false;
+		});
+
+		$("#editgroups-mm").click(function(){
+			$("#editgroups-mm").hide();
+			$("#grouplist").show();
+		    });
+
+		$("#expert-multimedia-toggle").click(function(){
+			$("#expert-multimedia-toggle-div").hide();
+			$("#expert-multimedia").show();
+			checksize($("#edit-multimedia-dialog"));
+			return false;
+		});
+
+		$('#change-resource-mm').click(function(){
+			closeMultimediaEditDialog();
+			$("#mm-item-id").val($("#multimedia-item-id").val());
+			$("#mm-is-mm").val('true');
+			var href=$("#mm-choose").attr("href");
+			href=fixhref(href, $("#multimedia-item-id").val(), true, false);
+			$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
+			$("#mm-choose").attr("href",href);
+			var position =  $("#edit-multimedia-dialog").dialog('option','position');
+			$("#add-multimedia-dialog").dialog("option", "position", position);
+			$(".mm-additional").show();
+			$(".mm-additional-website").hide();
+			$(".mm-url-section").show();
+			$('.hideOnDialog').hide();
+			$("#add-multimedia-dialog").dialog('open');
+			checksize($("#add-multimedia-dialog"));
+			$('.edit-multimedia-input').blur();
+			$('.mm-additional-instructions').blur();
+			return false;
+		});
+
+		$("#item-required").click(function(){
+			setUpRequirements();
+		});
+		
+		$("#item-required2").click(function(){
+			setUpRequirements();
+		});
+		
+		 $('body').bind('dialogclose', function(event) {
+		     $('.hideOnDialog').show();
+		 });
+		 
+		$("#cssDropdown-selection").children(":contains(---" + msg("simplepage.site") + "---)").attr("disabled", "disabled");
+		$("#cssDropdown-selection").children(":contains(---" + msg("simplepage.system") + "---)").attr("disabled", "disabled");
+		$("#cssDropdown-selection").children(":contains(----------)").attr("disabled", "disabled");
+	} // Closes admin if statement
 
 	if (!(navigator.userAgent.indexOf("Firefox/2.") > 0)) {
 	    $('.usebutton').button({text:true});
@@ -230,227 +962,7 @@ $(function() {
 	    $('.usebutton').css('border', '1px solid black').css('padding', '1px 4px').css('color', 'black');
 	}
 
-	$(".edit-youtube").click(function(){
-		$("#editgroups-youtube").after($("#grouplist"));
-		$("#grouplist").hide();
-		$("#editgroups-youtube").hide();
-
-		var row = $(this).parent().parent().parent();
-
-		var groups = row.find(".item-groups").text();
-		var grouplist = $("#grouplist");
-		if ($('#grouplist input').size() > 0) {
-		    $("#editgroups-youtube").show();
-		    $("#grouplist").show();
-		    if (groups != null) {
-			checkgroups(grouplist, groups);
-		    }
-		}
-
-		var itemid = row.find(".mm-item-id").text();
-		
-		$("#youtubeEditId").val(row.find(".youtube-id").text());
-		$("#youtubeURL").val(row.find(".youtube-url").text());
-		$("#youtubeHeight").val(row.find(".mm-height").text());
-		$("#youtubeWidth").val(row.find(".mm-width").text());
-		$("#description4").val(row.find(".description").text());
-		var position =  row.position();
-		$("#youtube-dialog").dialog("option", "position", [position.left, position.top]);
-		$('.hideOnDialog').hide();
-		$('#youtube-dialog').dialog('open');
-		checksize($('#youtube-dialog'));
-		$("#grouplist").hide();
-		return false;
-	});
 	
-	$("#editgroups-youtube").click(function(){
-		$("#editgroups-youtube").hide();
-		$("#grouplist").show();
-	    });
-
-	$('.edit-movie').click(function(){
-
-                //var object = this.parentNode.parentNode.childNodes[3].childNodes[1];                                                                
-		$("#expert-movie").hide();
-		$("#expert-movie-toggle-div").show();
-		$("#editgroups-movie").after($("#grouplist"));
-		$("#grouplist").hide();
-		$("#editgroups-movie").hide();
-
-		var row = $(this).parent().parent().parent();
-
-		var groups = row.find(".item-groups").text();
-		var grouplist = $("#grouplist");
-		if ($('#grouplist input').size() > 0) {
-		    $("#editgroups-movie").show();
-		    $("#grouplist").show();
-		    if (groups != null) {
-			checkgroups(grouplist, groups);
-		    }
-		}
-
-		var itemid = row.find(".mm-item-id").text();
-
-		$("#movieEditId").val(row.find(".movie-id").text());
-		$("#movie-height").val(row.find(".mm-height").text());
-		$("#movie-width").val(row.find(".mm-width").text());
-		$("#description3").val(row.find(".description").text());
-		$("#mimetype4").val(row.find(".mm-type").text());
-		var position =  row.position();
-		$("#movie-dialog").dialog("option", "position", [position.left, position.top]);
-		$('.hideOnDialog').hide();
-		$("#movie-dialog").dialog('open');
-		checksize($("#movie-dialog"));
-		$("#grouplist").hide();
-		return false;
-	});
-	
-	$(".edit-comments").click(function(){
-		$("#editgroups-comments").after($("#grouplist"));
-		$("#grouplist").hide();
-		$("#editgroups-comments").hide();
-
-		var row = $(this).parent().parent().parent();
-
-		var groups = row.find(".item-groups").text();
-		var grouplist = $("#grouplist");
-		if ($('#grouplist input').size() > 0) {
-		    $("#editgroups-comments").show();
-		    $("#grouplist").show();
-		    if (groups != null) {
-			checkgroups(grouplist, groups);
-		    }
-		}
-
-		var itemId = row.find(".comments-id").text();
-		
-		$("#commentsEditId").val(itemId);
-		
-		var anon = row.find(".commentsAnon").text();
-		if(anon == "true") {
-			$("#comments-anonymous").attr("checked", true);
-			$("#comments-anonymous").attr("defaultChecked", true)
-		}else {
-			$("#comments-anonymous").attr("checked", false);
-		}
-		var required = row.find(".commentsitem-required").text();
-		if(required == "true") {
-			$("#comments-required").attr("checked", true);
-		}else {
-			$("#comments-required").attr("checked", false);
-		}
-		var prerequisite = row.find(".commentsitem-prerequisite").text();
-		if(prerequisite == "true") {
-			$("#comments-prerequisite").attr("checked", true);
-		}else {
-			$("#comments-prerequisite").attr("checked", false);
-		}
-
-		
-		var position = row.position();
-		$("#comments-dialog").dialog("option", "position", [position.left, position.top]);
-		$('.hideOnDialog').hide();
-		$('#comments-dialog').dialog('open');
-		checksize($("#comments-dialog"));
-		$("#grouplist").hide();
-		return false;
-	});
-	
-	$("#editgroups-comments").click(function(){
-		$("#editgroups-comments").hide();
-		$("#grouplist").show();
-	    });
-
-	$(".edit-student").click(function(){
-		$("#editgroups-student").after($("#grouplist"));
-		$("#grouplist").hide();
-		$("#editgroups-student").hide();
-
-		var row = $(this).parent().parent().parent();
-
-		var groups = row.find(".item-groups").text();
-		var grouplist = $("#grouplist");
-		if ($('#grouplist input').size() > 0) {
-		    $("#editgroups-student").show();
-		    $("#grouplist").show();
-		    if (groups != null) {
-			checkgroups(grouplist, groups);
-		    }
-		}
-
-		var itemId = row.find(".student-id").text();
-		
-		$("#studentEditId").val(itemId);
-		
-		var anon = row.find(".studentAnon").text();
-		if(anon == "true") {
-			$("#student-anonymous").attr("checked", true);
-			$("#student-anonymous").attr("defaultChecked", true)
-		}else {
-			$("#student-anonymous").attr("checked", false);
-		}
-		
-		var comments = row.find(".studentComments").text();
-		if(comments == "true") {
-			$("#student-comments").attr("checked", true);
-			$("#student-comments").attr("defaultChecked", true)
-		}else {
-			$("#student-comments").attr("checked", false);
-		}
-		
-		var forcedAnon = row.find(".forcedAnon").text();
-		if(forcedAnon == "true") {
-			$("#student-comments-anon").attr("checked", true);
-			$("#student-comments-anon").attr("defaultChecked", true)
-		}else {
-			$("#student-comments-anon").attr("checked", false);
-		}
-		
-		var required = row.find(".studentitem-required").text();
-		if(required == "true") {
-			$("#student-required").attr("checked", true);
-		}else {
-			$("#student-required").attr("checked", false);
-		}
-		var prerequisite = row.find(".studentitem-prerequisite").text();
-		if(prerequisite == "true") {
-			$("#student-prerequisite").attr("checked", true);
-		}else {
-			$("#student-prerequisite").attr("checked", false);
-		}
-
-		if(!$("#student-comments").attr("checked")) {
-			$("#student-comments-anon").attr("disabled", true).removeAttr("checked");
-		}else {
-			$("#student-comments-anon").removeAttr("disabled");
-		}
-		
-		var position = row.position();
-		$("#student-dialog").dialog("option", "position", [position.left, position.top]);
-		$('.hideOnDialog').hide();
-		$('#student-dialog').dialog('open');
-		checksize($("#student-dialog"));
-		$("#grouplist").hide();
-		return false;
-	});
-	
-	$("#editgroups-student").click(function(){
-		$("#editgroups-students").hide();
-		$("#grouplist").show();
-	    });
-
-	$("#student-comments").click(function() {
-		if(!$("#student-comments").attr("checked")) {
-			$("#student-comments-anon").attr("disabled", true).removeAttr("checked");
-		}else {
-			$("#student-comments-anon").removeAttr("disabled");
-		}
-	});
-
-	$("#editgroups-movie").click(function(){
-		$("#editgroups-movie").hide();
-		$("#grouplist").show();
-	    });
 
 	function fixhref(href, pageitemid, resourcetype, website) {
 	    href = href.replace(/&pageItemId=-?[0-9]*/, "&pageItemId=" + pageitemid);
@@ -459,34 +971,7 @@ $(function() {
 	    return href;
 	}
 
-	$('#change-resource-movie').click(function(){
-		closeMovieDialog();
-		$("#mm-item-id").val($("#movieEditId").val());
-		$("#mm-is-mm").val('true');
-		var href=$("#mm-choose").attr("href");
-		href=fixhref(href, $("#movieEditId").val(), "true", "false");
-		$("#mm-choose").attr("href",href);
-		$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
-
-		var position =  $("#movie-dialog").dialog('option','position');
-		$("#add-multimedia-dialog").dialog("option", "position", position);
-		$(".mm-additional").show();
-		$(".mm-additional-website").hide();
-		$(".mm-url-section").show();
-		$('.hideOnDialog').hide();
-		$("#add-multimedia-dialog").dialog('open');
-		checksize($("#add-multimedia-dialog"));
-		$('.edit-multimedia-input').blur();
-		$('.mm-additional-instructions').blur();
-		return false;
-	});
-
-	$("#expert-movie-toggle").click(function(){
-		$("#expert-movie-toggle-div").hide();
-		$("#expert-movie").show();
-		checksize($("#movie-dialog"));
-		return false;
-	});
+	
 
 	function fixitemshows(){
 		var val = $(".format:checked").val();
@@ -501,459 +986,7 @@ $(function() {
 		}
 	}
 
-	$(".edit-link").click(function(){
-		$("#require-label2").hide();
-		$("#item-required2").hide();
-		$("#assignment-dropdown-selection").hide();
-		$("#assignment-points").hide();
-		$("#assignment-points").hide();
-		$("#grouplist").hide();
-		$("#editgroups").hide();
-		$("#resource-group-inherited").hide();
-		$("#assignment-points").val("");
-		$("#assignment-points-label").hide();
-		$("#change-assignment-p").hide();		
-		$("#change-quiz-p").hide();		
-		$("#change-forum-p").hide();		
-		$("#change-resource-p").hide();	
-		$("#change-blti-p").hide();
-		$("#change-page-p").hide();	
-		$("#edit-item-object-p").hide();	
-		$("#edit-item-settings-p").hide();	
-		$("#pagestuff").hide();
-		$("#newwindowstuff").hide();
-		$("#formatstuff").hide();
-		$("#edit-height").hide();
-		$("#editgroups").after($("#grouplist"));
-		
-		var row = $(this).parent().parent().parent();
-		var itemid = row.find(".current-item-id2").text();
-
-		$("#name").val(row.find(".link-text").text());
-		$("#description").val(row.find(".rowdescription").text());
-				      
-		var prereq = row.find(".prerequisite-info").text();
-
-		if(prereq == "true") {
-			$("#item-prerequisites").attr("checked", true);
-			$("#item-prerequisites").attr("defaultChecked", true);
-		}else {
-			$("#item-prerequisites").attr("checked", false);
-		}
-		
-                var samewindow = row.find(".item-samewindow").text();
-                if (samewindow != '') {
-                    if (samewindow == "true")
-                        $("#item-newwindow").attr("checked", false);
-                    else
-                        $("#item-newwindow").attr("checked", true);
-                    $("#newwindowstuff").show();
-                }
-
-		var format = row.find(".item-format").text();
-		var req = row.find(".requirement-text").text();
-		var type = row.find(".type").text();
-		var editurl = row.find(".edit-url").text();
-		var editsettingsurl = row.find(".edit-settings-url").text();
-		
-		if(type == 'page') {
-                    $("#pagestuff").show();
-		    var pagenext = row.find(".page-next").text();
-		    if(pagenext == "true") {
-			$("#item-next").attr("checked", true);
-			$("#item-next").attr("defaultChecked", true);
-		    }else {
-			$("#item-next").attr("checked", false);
-		    }
-
-		    var pagebutton = row.find(".page-button").text();
-		    if(pagebutton == "true") {
-			$("#item-button").attr("checked", true);
-			$("#item-button").attr("defaultChecked", true);
-		    }else {
-			$("#item-button").attr("checked", false);
-		    }
-
-		    $("#change-page-p").show();
-		    $("#change-page").attr("href", 
-			$("#change-page").attr("href").replace("itemId=-1", "itemId=" + itemid));
-
-		    var groups = row.find(".item-groups").text();
-		    var grouplist = $("#grouplist");
-		    if ($('#grouplist input').size() > 0) {
-			$("#editgroups").show();
-			$("#grouplist").show();
-			if (groups != null) {
-			    checkgroups(grouplist, groups);
-			}
-		    }
-
-		} else if(type != '') {
-			// Must be an assignment, assessment, forum
-			
-			var groups = row.find(".item-groups").text();
-			var grouplist = $("#grouplist");
-			if ($('#grouplist input').size() > 0) {
-			    $("#editgroups").show();
-			    $("#grouplist").show();
-			    if (groups != null) {
-				checkgroups(grouplist, groups);
-			    }
-			}
-
-			if(type == 6) {
-				$("#change-quiz-p").show();
-				$("#change-quiz").attr("href", 
-				      $("#change-quiz").attr("href").replace("itemId=-1", "itemId=" + itemid));
-				$("#require-label").text(msg("simplepage.require_submit_assessment"));
-				$("#edit-item-object-p").show();
-				$("#edit-item-object").attr("href", 
-					$("#edit-item-object").attr("href").replace("source=SRC", "source="+escape(editurl)));
-				$("#edit-item-text").text(msg("simplepage.edit_quiz"));
-				$("#edit-item-settings-p").show();
-				$("#edit-item-settings").attr("href", 
-					$("#edit-item-settings").attr("href").replace("source=SRC", "source="+escape(editsettingsurl)));
-				$("#edit-item-settings-text").text(msg("simplepage.edit_quiz_settings"));
-
-			}else if (type == 8){
-				$("#change-forum-p").show();
-				$("#change-forum").attr("href", 
-				      $("#change-forum").attr("href").replace("itemId=-1", "itemId=" + itemid));
-				$("#require-label").text(msg("simplepage.require_submit_forum"));
-				$("#edit-item-object-p").show();
-				$("#edit-item-object").attr("href", 
-					$("#edit-item-object").attr("href").replace("source=SRC", "source="+escape(editurl)));
-				$("#edit-item-text").text(msg("simplepage.edit_topic"));
-
-			}else if (type == 'b'){
-				var height = row.find(".item-height").text();
-				$("#edit-height-value").val(height);
-				$("#edit-height").show();				
-				$("#change-blti-p").show();
-				$("#change-blti").attr("href", 
-				      $("#change-blti").attr("href").replace("itemId=-1", "itemId=" + itemid));
-				$("#require-label").text(msg("simplepage.require_submit_blti"));
-				if (format == '')
-				    format = 'page';
-				$(".format").attr("checked", false);
-				$("#format-" + format).attr("checked", true);
-				$("#formatstuff").show();
-				$("#edit-item-object-p").show();
-				fixitemshows();
-
-			}else {
-				$("#change-assignment-p").show();
-				$("#change-assignment").attr("href", 
-				     $("#change-assignment").attr("href").replace("itemId=-1", "itemId=" + itemid));
-				$("#require-label").text(msg("simplepage.require_submit_assignment"));
-				$("#edit-item-object-p").show();
-				$("#edit-item-object").attr("href", 
-					$("#edit-item-object").attr("href").replace("source=SRC", "source="+escape(editurl)));
-				$("#edit-item-text").text(msg("simplepage.edit_assignment"));
-
-			}
-			
-			if(type == 3 || type == 6) {
-				// Points or Assessment
-				
-				$("#require-label2").show();
-				$("#require-label2").html(msg("simplepage.require_receive") + " ");
-				if(type == 3) {
-				    $("#assignment-points-label").text(" " + msg("simplepage.require_points_assignment"));
-				}else if(type == 6) {
-				    $("#assignment-points-label").text(" " + msg("simplepage.require_points_assessment"));
-				}
-				
-				$("#item-required2").show();
-				
-				$("#assignment-points").show();
-				$("#assignment-points-label").show();
-				
-				if(req == "false") {
-					$("#item-required2").attr("checked", false);
-				}else {
-					// Need both of these statements, because of a stupid
-					// little IE bug.
-					$("#item-required2").attr("checked", true);
-					$("#item-required2").attr("defaultChecked", true);
-					
-					$("#assignment-points").val(req);
-				}
-			}else if(type == 4) {
-				// Pass / Fail
-				$("#require-label2").show();
-				$("#require-label2").html(msg("simplepage.require_pass_assignment"));
-				$("#item-required2").show();
-				
-				if(req == "true") {
-					// Need both of these statements, because of a stupid
-					// little IE bug.
-					$("#item-required2").attr("checked", true);
-					$("#item-required2").attr("defaultChecked", true);
-				}else {
-					$("#item-required2").attr("checked", false);
-				}
-			}else if(type == 2) {
-				// Letter Grade
-				
-				$("#require-label2").show();
-				$("#require-label2").text(msg("simplepage.require_atleast"));
-				$("#item-required2").show();
-				$("#assignment-dropdown-selection").show();
-				
-				if(req == "false") {
-					$("#item-required2").attr("checked", false);
-				}else {
-					// Need both of these statements, because of a stupid
-					// little IE bug.
-					$("#item-required2").attr("checked", true);
-					$("#item-required2").attr("defaultChecked", true);
-					
-					$("#assignment-dropdown-selection").val(req);
-				}
-			}else if(type == 1) {
-				// Ungraded
-				// Nothing more that we need to do
-			}else if(type == 5) {
-				// Checkmark
-				$("#require-label2").show();
-				$("#require-label2").text(msg("simplepage.require_checkmark"));
-				$("#item-required2").show();
-				
-				if(req == "true") {
-					// Need both of these statements, because of a stupid
-					// little IE bug.
-					$("#item-required2").attr("checked", true);
-					$("#item-required2").attr("defaultChecked", true);
-				}else {
-					$("#item-required2").attr("checked", false);
-				}
-			}
-		} else {
-		    // resource
-		    $("#change-resource-p").show();
-		    $("#change-resource").attr("href", 
-		        $("#change-resource").attr("href").replace("pageItemId=-1", "pageItemId=" + itemid));
-		    var groups = row.find(".item-groups").text();
-		    var grouplist = $("#grouplist");
-		    if (groups == "--inherited--")
-			$("#resource-group-inherited").show();
-		    else if ($('#grouplist input').size() > 0) {
-			$("#editgroups").show();
-			$("#grouplist").show();
-			$("#select-resource-group").show();
-			if (groups != null) {
-			    checkgroups(grouplist, groups);
-			}
-		    }
-
-		}
-
-		if(row.find(".status-image").attr("src") == undefined) {
-		    $("#item-required").attr("checked", false);
-		} else if (row.find(".status-image").attr("src").indexOf("not-required.png") > -1) {
-			$("#item-required").attr("checked", false);
-		} else {
-			// Need both of these statements, because of a stupid
-			// little IE bug.
-			$("#item-required").attr("checked", true);
-			$("#item-required").attr("defaultChecked", true);
-		}
-
-		setUpRequirements();
-	        $("#item-id").val(row.find(".current-item-id2").text());
-		$("#edit-item-error-container").hide();
-		var position =  $(this).position();
-		$("#edit-item-dialog").dialog("option", "position", [position.left, position.top]);
-		$('.hideOnDialog').hide();
-		$("#edit-item-dialog").dialog('open');
-		checksize($("#edit-item-dialog"));
-		$("#grouplist").hide();
-		return false;
-	});
-
-	$("#editgroups").click(function(){
-		$("#editgroups").hide();
-		$("#grouplist").show();
-	    });
-
-	$(".format").change(function(){
-		fixitemshows();
-	    });
-
-	$('#change-resource').click(function(){
-		closeEditItemDialog();
-		$("#mm-item-id").val($("#item-id").val());
-		$("#mm-is-mm").val('false');
-		var href=$("#mm-choose").attr("href");
-		href=fixhref(href, $("#item-id").val(), "false", "false");
-		$("#mm-choose").attr("href",href);
-		$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
-		var position =  $("#edit-item-dialog").dialog('option','position');
-		$("#add-multimedia-dialog").dialog("option", "position", position);
-		$(".mm-additional").show();
-		$(".mm-additional-website").hide();
-		$(".mm-url-section").show();
-		$('.hideOnDialog').hide();
-		$("#add-multimedia-dialog").dialog('open');
-		checksize($("#add-multimedia-dialog"));
-		$('.edit-multimedia-input').blur();
-		$('.edit-multimedia-input').blur();
-		return false;
-	});
-
-	$(".add-multimedia").click(function(){
-		$("#mm-item-id").val(-1);
-		$("#mm-is-mm").val('true');
-		$("#mm-is-website").val('false');
-		var href=$("#mm-choose").attr("href");
-		href=fixhref(href, "-1", "true", "false");
-		$("#mm-choose").attr("href",href);
-		$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
-		var position =  $(this).position();
-		$("#add-multimedia-dialog").dialog("option", "position", [position.left, position.top]);
-		$(".mm-additional").show();
-		$(".mm-additional-website").hide();
-		$(".mm-url-section").show();
-		$('.hideOnDialog').hide();
-		$("#add-multimedia-dialog").dialog('open');
-		checksize($("#add-multimedia-dialog"));
-		$('.edit-multimedia-input').blur();
-		$('.mm-additional-instructions').blur();
-		return false;
-	});
-
-	$(".add-resource").click(function(){
-		$("#mm-item-id").val(-1);
-		$("#mm-is-mm").val('false');
-		$("#mm-is-website").val('false');
-		var href=$("#mm-choose").attr("href");
-		href=fixhref(href,"-1","false","false");
-		$("#mm-choose").attr("href",href);
-		var position =  $(this).position();
-		$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
-		$("#add-multimedia-dialog").dialog("option", "position", [position.left, position.top]);
-		$(".mm-additional").hide();
-		$(".mm-additional-website").hide();
-		$(".mm-url-section").show();
-		$('.hideOnDialog').hide();
-		$("#add-multimedia-dialog").dialog('open');
-		checksize($("#add-multimedia-dialog"));
-		$('.edit-multimedia-input').blur();
-		return false;
-	});
-
-	$(".add-website").click(function(){
-		$("#mm-item-id").val(-1);
-		$("#mm-is-mm").val('false');
-		$("#mm-is-website").val('true');
-		var href=$("#mm-choose").attr("href");
-		href=fixhref(href, "-1","false","true");
-		$("#mm-choose").attr("href",href);
-		var position =  $(this).position();
-		$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
-		$("#add-multimedia-dialog").dialog("option", "position", [position.left, position.top]);
-		$(".mm-additional").hide();
-		$(".mm-additional-website").show();
-		$(".mm-url-section").hide();
-		$('.hideOnDialog').hide();
-		$("#add-multimedia-dialog").dialog('open');
-		checksize($("#add-multimedia-dialog"));
-		$('.edit-multimedia-input').blur();
-		$('.mm-additional-website-instructions').blur();
-		return false;
-	});
-
-	$(".multimedia-edit").click(function(){
-		$("#expert-multimedia").hide();
-		$("#expert-multimedia-toggle-div").show();
-		$("#editgroups-mm").after($("#grouplist"));
-		$("#grouplist").hide();
-		$("#editgroups-mm").hide();
-
-		var row = $(this).parent().parent().parent();
-
-		var groups = row.find(".item-groups").text();
-		var grouplist = $("#grouplist");
-		if ($('#grouplist input').size() > 0) {
-		    $("#editgroups-mm").show();
-		    $("#grouplist").show();
-		    if (groups != null) {
-			checkgroups(grouplist, groups);
-		    }
-		}
-
-		$("#height").val(row.find(".mm-height").text());
-		$("#width").val(row.find(".mm-width").text());
-		$("#description2").val(row.find(".description").text());
-		$("#mimetype").val(row.find(".mm-type").text());
-		if (row.find(".multimedia").get(0).nodeName.toLowerCase() == "img") {
-		    $("#alt").val(row.find(".multimedia").attr("alt"));
-		    $("#alt").parent().show();
-		    $("#tagnameused").html(msg("simplepage.tag_img"));
-		    $("#iframe-note").hide();
-	        } else {
-		    $("#alt").parent().hide();
-		    $("#tagnameused").html(msg("simplepage.tag_iframe"));
-		    $("#iframe-note").show();
-		}
-		$("#change-resource-mm").attr("href", 
-		     $("#change-resource-mm").attr("href").replace("pageItemId=-1", 
-			   "pageItemId=" + row.find(".mm-itemid").text()));
-		$("#multimedia-item-id").val(row.find(".mm-itemid").text());
-		var position =  row.position();
-		$("#edit-multimedia-dialog").dialog("option", "position", [position.left, position.top]);
-		$('.hideOnDialog').hide();
-		$("#edit-multimedia-dialog").dialog('open');
-		checksize($("#edit-multimedia-dialog"));
-		$("#grouplist").hide();
-		return false;
-	});
-
-	$("#editgroups-mm").click(function(){
-		$("#editgroups-mm").hide();
-		$("#grouplist").show();
-	    });
-
-	$("#expert-multimedia-toggle").click(function(){
-		$("#expert-multimedia-toggle-div").hide();
-		$("#expert-multimedia").show();
-		checksize($("#edit-multimedia-dialog"));
-		return false;
-	});
-
-	$('#change-resource-mm').click(function(){
-		closeMultimediaEditDialog();
-		$("#mm-item-id").val($("#multimedia-item-id").val());
-		$("#mm-is-mm").val('true');
-		var href=$("#mm-choose").attr("href");
-		href=fixhref(href, $("#multimedia-item-id").val(), true, false);
-		$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
-		$("#mm-choose").attr("href",href);
-		var position =  $("#edit-multimedia-dialog").dialog('option','position');
-		$("#add-multimedia-dialog").dialog("option", "position", position);
-		$(".mm-additional").show();
-		$(".mm-additional-website").hide();
-		$(".mm-url-section").show();
-		$('.hideOnDialog').hide();
-		$("#add-multimedia-dialog").dialog('open');
-		checksize($("#add-multimedia-dialog"));
-		$('.edit-multimedia-input').blur();
-		$('.mm-additional-instructions').blur();
-		return false;
-	});
-
-	$("#item-required").click(function(){
-		setUpRequirements();
-	});
 	
-	$("#item-required2").click(function(){
-		setUpRequirements();
-	});
-	
-	 $('body').bind('dialogclose', function(event) {
-	     $('.hideOnDialog').show();
-	 });
 	
 	$('#edit-title-error-container').hide();
 	$('#new-page-error-container').hide();
@@ -977,10 +1010,6 @@ $(function() {
 	$("li.dropdown").children("div").hide();
 	$("li.dropdown").click(toggleDropdown);
 	dropDownViaClick = false;
-	
-	$("#cssDropdown-selection").children(":contains(---" + msg("simplepage.site") + "---)").attr("disabled", "disabled");
-	$("#cssDropdown-selection").children(":contains(---" + msg("simplepage.system") + "---)").attr("disabled", "disabled");
-	$("#cssDropdown-selection").children(":contains(----------)").attr("disabled", "disabled");
 });
 
 function closeSubpageDialog() {
@@ -1238,4 +1267,47 @@ function reposition() {
 // Keeps JQuery from getting confused mid-animation
 function unlockAnimation() {
 	lessonBuilderAnimationLocked = false;
+}
+
+function initGradingForm(idFieldId, pointsFieldId, jsIdFieldId, elBinding) {
+	//var idField = $(this).parents("div").children(".gradingForm").children(".idField");
+	//var pointsField = $(this).parents("div").children(".gradingForm").children(".pointsField");
+	
+	var idField = document.getElementById(idFieldId);
+	var pointsField = document.getElementById(pointsFieldId);
+	var jsIdField = document.getElementById(jsIdFieldId);
+	
+	var ajaxUrl = idField.form.action;
+
+	var callback = function(results) {
+	      //var resultArray = RSF.decodeRSFStringArray(results.EL[elBinding]);
+		
+		var status = results.EL[elBinding][0];
+		var jsId = results.EL[elBinding][1];
+		
+		
+		
+		if("success" == status) {
+			$("#" + jsId).attr("src", getStrippedImgSrc(jsId) + "success.png");
+		}else {
+			$("#" + jsId).attr("src", getStrippedImgSrc(jsId) + "failed.png");
+		}
+	}
+
+	// setup the function which initiates the AJAX request
+	var updater = RSF.getAJAXUpdater([idField, pointsField, jsIdField], ajaxUrl, [elBinding], callback);
+	// setup the input field event to trigger the ajax request function
+	pointsField.onchange = updater; // send request when field changes
+	
+	
+}
+
+function getStrippedImgSrc(id) {
+	var imgsrc = $("#" + id).attr("src");
+	imgsrc = imgsrc.replace("loading.gif", "");
+	imgsrc = imgsrc.replace("success.png", "");
+	imgsrc = imgsrc.replace("failed.png", "");
+	imgsrc = imgsrc.replace("no-status.png", "");
+	
+	return imgsrc;
 }

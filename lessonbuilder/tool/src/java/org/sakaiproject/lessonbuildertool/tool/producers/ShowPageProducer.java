@@ -92,6 +92,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.rsf.builtin.UVBProducer;
 import uk.org.ponder.rsf.components.UIBoundBoolean;
 import uk.org.ponder.rsf.components.UIBoundString;
 import uk.org.ponder.rsf.components.UIBranchContainer;
@@ -100,6 +101,7 @@ import uk.org.ponder.rsf.components.UIComponent;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIELBinding;
 import uk.org.ponder.rsf.components.UIForm;
+import uk.org.ponder.rsf.components.UIInitBlock;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.UILink;
@@ -1332,47 +1334,58 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    UIOutput.make(tableRow, "missing-prereqs", messageLocator.getMessage("simplepage.fake-missing-prereqs"));
 
 					// students get warning and not the content
-					if (!isAvailable && !canEditPage)
+					if (!isAvailable && !canEditPage) {
 					    UIOutput.make(tableRow, "missing-prereqs", messageLocator.getMessage("simplepage.missing-prereqs"));
-					else {
-					    UIOutput.make(tableRow, "commentsDiv");
-					    Placement placement = toolManager.getCurrentPlacement();
-					    UIOutput.make(tableRow, "placementId", placement.getId());
+					}else {
+						UIOutput.make(tableRow, "commentsDiv");
+						Placement placement = toolManager.getCurrentPlacement();
+						UIOutput.make(tableRow, "placementId", placement.getId());
 
-					    CommentsViewParameters eParams = new CommentsViewParameters(CommentsProducer.VIEW_ID);
-					    eParams.itemId = i.getId();
-					    if (params.postedComment) {
-						eParams.postedComment = postedCommentId;
-					    }
-
-					    UIInternalLink.make(tableRow, "commentsLink", eParams);
-
-					    if (!addedCommentsScript) {
-						UIOutput.make(tofill, "comments-script");
-						UIOutput.make(tofill, "fckScript");
-						addedCommentsScript = true;
-						UIOutput.make(tofill, "delete-dialog");
-					    }
-
-					    if (canEditPage) {
-						UIOutput.make(tableRow, "comments-td");
-						
-						UILink.make(tableRow, "edit-comments", messageLocator.getMessage("simplepage.editItem"), "")
-								.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.comments")));
-
-						UIOutput.make(tableRow, "commentsId", String.valueOf(i.getId()));
-						UIOutput.make(tableRow, "commentsAnon", String.valueOf(i.isAnonymous()));
-						UIOutput.make(tableRow, "commentsitem-required", String.valueOf(i.isRequired()));
-						UIOutput.make(tableRow, "commentsitem-prerequisite", String.valueOf(i.isPrerequisite()));
-						String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
-						if (itemGroupString != null) {
-						    String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString);
-						    if (itemGroupTitles != null) {
-							itemGroupTitles = "[" + itemGroupTitles + "]";
-						    }
-						    UIOutput.make(tableRow, "comments-groups", itemGroupString);
-						    UIOutput.make(tableRow, "item-group-titles6", itemGroupTitles);
+						CommentsViewParameters eParams = new CommentsViewParameters(CommentsProducer.VIEW_ID);
+						eParams.itemId = i.getId();
+						if (params.postedComment) {
+							eParams.postedComment = postedCommentId;
 						}
+
+						UIInternalLink.make(tableRow, "commentsLink", eParams);
+
+						if (!addedCommentsScript) {
+							UIOutput.make(tofill, "comments-script");
+							UIOutput.make(tofill, "fckScript");
+							addedCommentsScript = true;
+							UIOutput.make(tofill, "delete-dialog");
+						}
+
+						if (canEditPage) {
+							UIOutput.make(tableRow, "comments-td");
+						
+							UILink.make(tableRow, "edit-comments", messageLocator.getMessage("simplepage.editItem"), "")
+									.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.comments")));
+
+							UIOutput.make(tableRow, "commentsId", String.valueOf(i.getId()));
+							UIOutput.make(tableRow, "commentsAnon", String.valueOf(i.isAnonymous()));
+							UIOutput.make(tableRow, "commentsitem-required", String.valueOf(i.isRequired()));
+							UIOutput.make(tableRow, "commentsitem-prerequisite", String.valueOf(i.isPrerequisite()));
+							UIOutput.make(tableRow, "commentsGrade", String.valueOf(i.getGradebookId() != null));
+							UIOutput.make(tableRow, "commentsMaxPoints", String.valueOf(i.getGradebookPoints()));
+							
+							String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+							if (itemGroupString != null) {
+								String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString);
+								if (itemGroupTitles != null) {
+									itemGroupTitles = "[" + itemGroupTitles + "]";
+								}
+								UIOutput.make(tableRow, "comments-groups", itemGroupString);
+								UIOutput.make(tableRow, "item-group-titles6", itemGroupTitles);
+							}
+					    	
+					    	// Ajax grading form so faculty can grade comments
+					    	UIForm gradingForm = UIForm.make(tableRow, "gradingForm");
+					    	gradingForm.viewparams = new SimpleViewParameters(UVBProducer.VIEW_ID);
+					    	UIInput idInput = UIInput.make(gradingForm, "gradingForm-id", "commentsGradingBean.id");
+					    	UIInput jsIdInput = UIInput.make(gradingForm, "gradingForm-jsId", "commentsGradingBean.jsId");
+					    	UIInput pointsInput = UIInput.make(gradingForm, "gradingForm-points", "commentsGradingBean.points");
+					    	UIInitBlock.make(tableRow, "gradingForm-init", "initGradingForm", new Object[] {idInput, pointsInput, jsIdInput, "commentsGradingBean.results"});
 					    }
 
 					    UIForm form = UIForm.make(tableRow, "comment-form");
@@ -2487,7 +2500,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIBoundBoolean.make(form, "page-prerequisites", "#{simplePageBean.prerequisite}", (pageItem.isPrerequisite()));
 		}
 
-		UIOutput gradeBook = UIOutput.make(form, "gradebookDiv");
+		UIOutput gradeBook = UIOutput.make(form, "gradeBookDiv");
 		if(page.getOwner() != null) gradeBook.decorate(new UIStyleDecorator("noDisplay"));
 		
 		UIOutput.make(form, "page-gradebook");
@@ -2582,6 +2595,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIInput.make(form, "commentsEditId", "#{simplePageBean.itemId}");
 
 		UIBoundBoolean.make(form, "comments-anonymous", "#{simplePageBean.anonymous}");
+		UIBoundBoolean.make(form, "comments-graded", "#{simplePageBean.graded}");
+		UIInput.make(form, "comments-max", "#{simplePageBean.maxPoints}");
+		
 		UIBoundBoolean.make(form, "comments-required", "#{simplePageBean.required}");
 		UIBoundBoolean.make(form, "comments-prerequisite", "#{simplePageBean.prerequisite}");
 

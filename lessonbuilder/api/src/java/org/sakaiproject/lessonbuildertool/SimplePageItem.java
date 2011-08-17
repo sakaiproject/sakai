@@ -151,5 +151,13 @@ public interface SimplePageItem {
     public void setForcedCommentsAnonymous(Boolean forcedCommentsAnonymous);
     
     public boolean getForcedCommentsAnonymous();
+    
+    public void setGradebookId(String gradebookId);
+    
+    public String getGradebookId();
+    
+    public void setGradebookPoints(Integer points);
+    
+    public Integer getGradebookPoints();
 
 }

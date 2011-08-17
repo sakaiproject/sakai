@@ -82,6 +82,9 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	
 	private String groups;
 
+	private String gradebookId; // If a gradebook entry exists, this is the external ID
+	private Integer gradebookPoints; // Max number of points, if gradebook entry exists
+	
 	public SimplePageItemImpl() {
 
 	}
@@ -416,4 +419,19 @@ public class SimplePageItemImpl implements SimplePageItem  {
 		this.forcedCommentsAnonymous = forcedCommentsAnonymous;
 	}
 
+	public void setGradebookId(String gradebookId) {
+		this.gradebookId = gradebookId;
+	}
+	
+	public String getGradebookId() {
+		return gradebookId;
+	}
+	
+	public void setGradebookPoints(Integer gradebookPoints) {
+		this.gradebookPoints = gradebookPoints;
+	}
+	
+	public Integer getGradebookPoints() {
+		return gradebookPoints;
+	}
 }

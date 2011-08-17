@@ -61,6 +61,32 @@ function commentsLoaded() {
 	$(".deleteLink").attr("title", msg("simplepage.comment_delete"));
 	$(".editLink").attr("title", msg("simplepage.edit-comment"));
 	setMainFrameHeight(window.name);
+	
+	$(".pointsBox").unbind("keyup");
+	
+	$(".pointsBox").each(function(index, value) {
+		$(value).parent().children("img").attr("id", "statusImg" + index);
+		$(value).val($(value).parent().children(".pointsSpan").text());
+	});
+	
+	$(".pointsBox").live('change', function(){
+		var img = $(this).parent().children("img");
+		img.attr("src", getStrippedImgSrc(img.attr("id")) + "no-status.png");
+		$(this).addClass("unsubmitted");
+	});
+	
+	$(".pointsBox").keyup(function(event){
+		if(event.keyCode == 13) {
+			var img = $(this).parent().children("img");
+			
+			$(this).removeClass("unsubmitted");
+			img.attr("src", getStrippedImgSrc(img.attr("id")) + "loading.gif");
+			
+			$(this).parents(".commentsDiv").find(".idField").val($(this).parent().children(".uuidBox").text()).change();
+			$(this).parents(".commentsDiv").find(".jsIdField").val(img.attr("id")).change();
+			$(this).parents(".commentsDiv").find(".pointsField").val($(this).val()).change();
+		}
+	});
 }
 
 function loadMore(link) {

@@ -209,6 +209,8 @@ public class SimplePageBean {
 	public String comment;
 	public String formattedComment;
 	public String editId;
+	public boolean graded;
+	public String maxPoints;
 	
 	public boolean comments;
 	public boolean forcedAnon;
@@ -4601,6 +4603,38 @@ public class SimplePageBean {
 			setItemGroups(comment, selectedGroups);
 			comment.setRequired(required);
 			comment.setPrerequisite(prerequisite);
+			
+			if(maxPoints == null || maxPoints.equals("")) {
+				maxPoints = "1";
+			}
+			
+			if(graded) {
+				int points;
+				try {
+					points = Integer.valueOf(maxPoints);
+				}catch(Exception ex) {
+					setErrMessage(messageLocator.getMessage("simplepage.integer-expected"));
+					return "failure";
+				}
+				
+				if(comment.getGradebookId() != null && !comment.getGradebookPoints().equals(points)) {
+					gradebookIfc.removeExternalAssessment(getCurrentSiteId(), comment.getGradebookId());
+				}
+				
+				if(comment.getGradebookId() == null || !comment.getGradebookPoints().equals(points)) {
+					gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:comment:" + comment.getId(), null,
+							simplePageToolDao.getPage(comment.getPageId()).getTitle() + " Comments (item:" + comment.getId() + ")", Integer.valueOf(maxPoints), null, "Lesson Builder");
+					comment.setGradebookId("lesson-builder:comment:" + comment.getId());
+					regradeComments(comment);
+				}
+				
+				comment.setGradebookPoints(points);
+			}else if(comment.getGradebookId() != null) {
+				gradebookIfc.removeExternalAssessment(getCurrentSiteId(), comment.getGradebookId());
+				comment.setGradebookId(null);
+				comment.setGradebookPoints(null);
+			}
+			
 			update(comment);
 			return "success";
 		}else {
@@ -4609,7 +4643,17 @@ public class SimplePageBean {
 		}
 	}
 	
-	/*
+	private void regradeComments(SimplePageItem comment) {
+		List<SimplePageComment> comments = simplePageToolDao.findComments(comment.getId());
+		for(SimplePageComment c : comments) {
+			if(c.getPoints() != null) {
+				gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), comment.getGradebookId(),
+						c.getAuthor(), String.valueOf(c.getPoints()));
+			}
+		}
+	}
+	
+	/**
 	 * Comments aren't actually deleted. The comment field is set to empty.
 	 * This is so that the namings remain consistent when the comment section
 	 * is set to show names as anonymous.  Otherwise, deleting a post could change

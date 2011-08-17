@@ -12,6 +12,7 @@ public class SimplePageCommentImpl implements SimplePageComment, Comparable {
 	private String comment; // Text of the comment
 	private String UUID;
 	private boolean html;
+	private Double points;
 	
 	public SimplePageCommentImpl() { }
 	
@@ -96,5 +97,13 @@ public class SimplePageCommentImpl implements SimplePageComment, Comparable {
 		}
 		
 		return timePosted.compareTo(((SimplePageCommentImpl)o).getTimePosted());
+	}
+	
+	public void setPoints(Double points) {
+		this.points = points;
+	}
+	
+	public Double getPoints() {
+		return points;
 	}
 }

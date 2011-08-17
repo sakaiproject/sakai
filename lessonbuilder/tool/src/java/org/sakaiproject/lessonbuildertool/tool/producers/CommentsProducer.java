@@ -51,116 +51,124 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker) {
 		CommentsViewParameters params = (CommentsViewParameters) viewparams;
 			
-		// errors redirect back to ShowPage. But if thisi s embeded in the page, ShowPage
+		// errors redirect back to ShowPage. But if this is embedded in the page, ShowPage
 		// will call us again. This is very hard for the user to recover from. So trap
 		// all possible errors. It may result in an incomplete page or something invalid,
 		// but better that than an infinite recursion.
 
 		try {
-		
-
-		SimplePageItem commentsItem = simplePageToolDao.findItem(params.itemId);
-		if(commentsItem != null && commentsItem.getSakaiId() != null && !commentsItem.getSakaiId().equals("")) {
-			SimpleStudentPage studentPage = simplePageToolDao.findStudentPage(Long.valueOf(commentsItem.getSakaiId()));
-			if(studentPage != null) {
-				owner = studentPage.getOwner();
-			}
-		}
-		
-		if(params.deleteComment != null) {
-			simplePageBean.deleteComment(params.deleteComment);
-		}
-		
-		List<SimplePageComment> comments = (List<SimplePageComment>) simplePageToolDao.findComments(params.itemId);
-		
-		// Make sure everything is chronological
-		Collections.sort(comments, new Comparator<SimplePageComment>() {
-			public int compare(SimplePageComment c1, SimplePageComment c2) {
-				return c1.getTimePosted().compareTo(c2.getTimePosted());
-			}
-		});
-		
-		currentUserId = UserDirectoryService.getCurrentUser().getId();
-		
-		boolean anonymous = simplePageBean.findItem(params.itemId).isAnonymous();
-		if(anonymous) {
-			int i = 1;
-			for(SimplePageComment comment : comments) {
-				if(!anonymousLookup.containsKey(comment.getAuthor())) {
-					anonymousLookup.put(comment.getAuthor(), messageLocator.getMessage("simplepage.anonymous") + " " + i);
-					i++;
+			SimplePageItem commentsItem = simplePageToolDao.findItem(params.itemId);
+			if(commentsItem != null && commentsItem.getSakaiId() != null && !commentsItem.getSakaiId().equals("")) {
+				SimpleStudentPage studentPage = simplePageToolDao.findStudentPage(Long.valueOf(commentsItem.getSakaiId()));
+				if(studentPage != null) {
+					owner = studentPage.getOwner();
 				}
 			}
-		}
-		
-		boolean highlighted = false;
-		
-		// Remove any "phantom" comments. So that the anonymous order stays the same,
-		// comments are deleted by removing all content.
-		for(int i = comments.size()-1; i >= 0; i--) {
-			if(comments.get(i).getComment() == null || comments.get(i).getComment().equals("")) {
-				comments.remove(i);
-			}
-		}
-		
-		// We don't want page owners to edit comments on their page
-		// at the moment.  Perhaps add option?
-		boolean canEditPage = simplePageBean.getEditPrivs() == 0;
-		
-		boolean editable = false;
-		
-		if(comments.size() <= 5 || params.showAllComments) {
-			for(int i = 0; i < comments.size(); i++) {
-				boolean canEdit = simplePageBean.canModifyComment(comments.get(i), canEditPage);
-				
-				printComment(comments.get(i), tofill, (params.postedComment == comments.get(i).getId()), anonymous, canEdit, params);
-				if(!highlighted) {
-					highlighted = (params.postedComment == comments.get(i).getId());
-				}
-				
-				if(!editable) editable = canEdit;
-			}
-		}else {
-			UIBranchContainer container = UIBranchContainer.make(tofill, "commentDiv:");
-			CommentsViewParameters eParams = new CommentsViewParameters(VIEW_ID);
-			eParams.itemId = params.itemId;
-			eParams.showAllComments=true;
-			UIInternalLink.make(container, "to-load", eParams);
 			
-			UIOutput.make(container, "load-more-link", messageLocator.getMessage("simplepage.see_all_comments").replace("{}", Integer.toString(comments.size())));
-			
-			// Show 5 most recent comments
-			for(int i = comments.size()-5; i < comments.size(); i++) {
-				boolean canEdit = simplePageBean.canModifyComment(comments.get(i), canEditPage);
-				printComment(comments.get(i), tofill, (params.postedComment == comments.get(i).getId()), anonymous, canEdit, params);
-				if(!highlighted) {
-					highlighted = (params.postedComment == comments.get(i).getId());
-				}
-				
-				if(!editable) editable = canEdit;
+			if(params.deleteComment != null) {
+				simplePageBean.deleteComment(params.deleteComment);
 			}
-		}
+			
+			List<SimplePageComment> comments = (List<SimplePageComment>) simplePageToolDao.findComments(params.itemId);
 		
-		if(highlighted) {
-			// We have something to highlight
-			UIOutput.make(tofill, "highlightScript");
-		}
+			// Make sure everything is chronological
+			Collections.sort(comments, new Comparator<SimplePageComment>() {
+				public int compare(SimplePageComment c1, SimplePageComment c2) {
+					return c1.getTimePosted().compareTo(c2.getTimePosted());
+				}
+			});
+			
+			currentUserId = UserDirectoryService.getCurrentUser().getId();
+			
+			boolean anonymous = simplePageBean.findItem(params.itemId).isAnonymous();
+			if(anonymous) {
+				int i = 1;
+				for(SimplePageComment comment : comments) {
+					if(!anonymousLookup.containsKey(comment.getAuthor())) {
+						anonymousLookup.put(comment.getAuthor(), messageLocator.getMessage("simplepage.anonymous") + " " + i);
+						i++;
+					}
+				}
+			}
+			
+			boolean highlighted = false;
+			
+			boolean showGradingMessage = commentsItem.getGradebookId() != null;
+			
+			// Remove any "phantom" comments. So that the anonymous order stays the same,
+			// comments are deleted by removing all content.  Also check to see if any comments
+			// have been graded yet.
+			for(int i = comments.size()-1; i >= 0; i--) {
+				if(comments.get(i).getComment() == null || comments.get(i).getComment().equals("")) {
+					comments.remove(i);
+				}else if(showGradingMessage && comments.get(i).getPoints() != null) {
+					showGradingMessage = false;
+				}
+			}
 		
-		if(anonymous && canEditPage && comments.size() > 0 && simplePageBean.getLogEntry(params.itemId) == null) {
-			// Tells the admin that they can see the names, but everyone else can't
-			UIOutput.make(tofill, "anonymousAlert");
-			SimplePageLogEntry log = simplePageToolDao.makeLogEntry(currentUserId, params.itemId, null);
-			simplePageBean.saveItem(log);
-		}else if(editable && simplePageBean.getEditPrivs() != 0) {
-			// Warns user that they only have 30 mins to edit.
-			UIOutput.make(tofill, "editAlert");
-		}
+			// We don't want page owners to edit comments on their page
+			// at the moment.  Perhaps add option?
+			boolean canEditPage = simplePageBean.getEditPrivs() == 0;
+			
+			boolean editable = false;
+			
+			if(comments.size() <= 5 || params.showAllComments) {
+				for(int i = 0; i < comments.size(); i++) {
+					boolean canEdit = simplePageBean.canModifyComment(comments.get(i), canEditPage);
+					
+					printComment(comments.get(i), tofill, (params.postedComment == comments.get(i).getId()), anonymous, canEdit, params, commentsItem);
+					if(!highlighted) {
+						highlighted = (params.postedComment == comments.get(i).getId());
+					}
+					
+					if(!editable) editable = canEdit;
+				}
+			}else {
+				UIBranchContainer container = UIBranchContainer.make(tofill, "commentDiv:");
+				CommentsViewParameters eParams = new CommentsViewParameters(VIEW_ID);
+				eParams.itemId = params.itemId;
+				eParams.showAllComments=true;
+				UIInternalLink.make(container, "to-load", eParams);
+				
+				UIOutput.make(container, "load-more-link", messageLocator.getMessage("simplepage.see_all_comments").replace("{}", Integer.toString(comments.size())));
+				
+				// Show 5 most recent comments
+				for(int i = comments.size()-5; i < comments.size(); i++) {
+					boolean canEdit = simplePageBean.canModifyComment(comments.get(i), canEditPage);
+					printComment(comments.get(i), tofill, (params.postedComment == comments.get(i).getId()), anonymous, canEdit, params, commentsItem);
+					if(!highlighted) {
+						highlighted = (params.postedComment == comments.get(i).getId());
+					}
+				
+					if(!editable) editable = canEdit;
+				}
+			}
+			
+			if(highlighted) {
+				// We have something to highlight
+				UIOutput.make(tofill, "highlightScript");
+			}
+			
+			if(showGradingMessage) {
+				UIOutput.make(tofill, "gradingAlert");
+			}
+			
+			if(anonymous && canEditPage && comments.size() > 0 && simplePageBean.getLogEntry(params.itemId) == null) {
+				// Tells the admin that they can see the names, but everyone else can't
+				UIOutput.make(tofill, "anonymousAlert");
+				SimplePageLogEntry log = simplePageToolDao.makeLogEntry(currentUserId, params.itemId, null);
+				simplePageBean.saveItem(log);
+			}else if(editable && simplePageBean.getEditPrivs() != 0) {
+				// Warns user that they only have 30 mins to edit.
+				UIOutput.make(tofill, "editAlert");
+			}
 
 		} catch (Exception e) {};
 
 	}
 	
-	public void printComment(SimplePageComment comment, UIContainer tofill, boolean highlight, boolean anonymous, boolean showModifiers, CommentsViewParameters params) {
+	public void printComment(SimplePageComment comment, UIContainer tofill, boolean highlight, boolean anonymous,
+				boolean showModifiers, CommentsViewParameters params, SimplePageItem commentsItem) {
 		UIBranchContainer commentContainer = UIBranchContainer.make(tofill, "commentDiv:");
 		if(highlight) commentContainer.decorate(new UIStyleDecorator("highlight-comment"));
 		
@@ -219,6 +227,13 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 			
 			UIOutput.make(commentContainer, "editComment").decorate(
 					new UIFreeAttributeDecorator("onclick", "edit($(this), " + comment.getId() + ");"));
+			
+			if(simplePageBean.getEditPrivs() == 0 && commentsItem.getGradebookId() != null) {
+				UIOutput.make(commentContainer, "gradingSpan");
+				UIOutput.make(commentContainer, "commentsUUID", comment.getUUID());
+				UIOutput.make(commentContainer, "commentPoints",
+						(comment.getPoints() == null? "" : String.valueOf(comment.getPoints())));
+			}
 		}
 		
 		if(!comment.getHtml()) {

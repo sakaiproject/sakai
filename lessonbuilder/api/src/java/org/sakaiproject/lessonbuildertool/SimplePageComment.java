@@ -30,4 +30,7 @@ public interface SimplePageComment {
 	
 	public int compareTo(Object o);
 	
+	public Double getPoints();
+	public void setPoints(Double points);
+	
 }

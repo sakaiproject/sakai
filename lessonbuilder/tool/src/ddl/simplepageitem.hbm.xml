@@ -35,11 +35,12 @@
 	<property name="requirementText" type="string" length="20" />
 	<property name="sameWindow" type="boolean" />
 	<property name="groups" type="string" length="500" />
-	
 	<property name="anonymous" type="boolean" />
 	<property name="showComments" type="boolean" />
 	<property name="forcedCommentsAnonymous" type="boolean" />
-
+	
+	<property name="gradebookId" type="string" length="35" />
+	<property name="gradebookPoints" type="integer" />
 
    </class>
 </hibernate-mapping>
