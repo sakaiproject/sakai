@@ -21,6 +21,10 @@
 
 package org.sakaiproject.dash.listener;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Date;
+
 import org.apache.log4j.Logger;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.content.api.ContentResource;
@@ -31,6 +35,8 @@ import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.Realm;
 import org.sakaiproject.dash.model.SourceType;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.Event;
 
@@ -80,7 +86,45 @@ public class ContentNewEventProcessor implements EventProcessor {
 			ResourceProperties props = resource.getProperties();
 			String title = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 			
-			NewsItem newsItem = dashboardLogic.createNewsItem(title , event.getEventTime(), resource.getReference(), resource.getUrl(), context, sourceType);
+			Date eventTime = null;
+			try {
+				// this.eventTime = original.getEventTime();
+				// the getEventTime() method did not exist before kernel 1.2
+				// so we use reflection
+				Method getEventTimeMethod = event.getClass().getMethod("getEventTime", null);
+				eventTime = (Date) getEventTimeMethod.invoke(event, null);
+			} catch (SecurityException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if(eventTime == null) {
+				try {
+					eventTime = new Date(props.getTimeProperty(ResourceProperties.PROP_CREATION_DATE).getTime());
+				} catch (EntityPropertyNotDefinedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (EntityPropertyTypeException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			if(eventTime == null) {
+				eventTime = new Date();
+			}
+			
+			NewsItem newsItem = dashboardLogic.createNewsItem(title , eventTime, resource.getReference(), resource.getUrl(), context, sourceType);
 			dashboardLogic.createNewsLinks(newsItem);
 		}
 	}
