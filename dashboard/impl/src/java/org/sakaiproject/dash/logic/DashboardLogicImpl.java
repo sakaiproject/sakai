@@ -21,6 +21,8 @@
 
 package org.sakaiproject.dash.logic;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -481,7 +483,35 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			super();
 			this.context = original.getContext();
 			this.eventIdentifier = original.getEvent();
-			this.eventTime = original.getEventTime();
+			
+			try {
+				// this.eventTime = original.getEventTime();
+				// the getEventTime() method did not exist before kernel 1.2
+				// so we use reflection
+				Method getEventTimeMethod = original.getClass().getMethod("getEventTime", null);
+				this.eventTime = (Date) getEventTimeMethod.invoke(original, null);
+			} catch (SecurityException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchMethodException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			if(this.eventTime == null) {
+				// If we couldn't get eventTime from event, just use NOW.  That's close enough.
+				this.eventTime = new Date();
+			}
+			
+			
 			this.modify = original.getModify();
 			this.priority = original.getPriority();
 			this.entityReference = original.getResource();
