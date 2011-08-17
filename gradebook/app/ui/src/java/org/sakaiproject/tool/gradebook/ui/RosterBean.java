@@ -1063,6 +1063,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         	for (Object gradableObject : gradableObjects) {
         		Object score = null;
         		String letterScore = null;
+        		boolean droppedScore = false;
         		if (studentMap != null) {
         			Long gradableObjectId = ((GradableObject)gradableObject).getId();
         			
@@ -1079,6 +1080,9 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         				        }
         				    }
         				} else {
+        					if(gradeRecord instanceof AssignmentGradeRecord){
+        						droppedScore = ((AssignmentGradeRecord)gradeRecord).getDroppedFromGrade();
+        					}
         					if (getGradeEntryByPoints()) {
         						score = gradeRecord.getPointsEarned();
         					} else if (getGradeEntryByPercent()) {
@@ -1093,7 +1097,9 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         			score = new Double(FacesUtil.getRoundDown(((Double)score).doubleValue(), 2));
         			score = nf.format(score);
         		}
-    			
+    			if(droppedScore){
+    				score = score.toString() + " (" + getLocalizedString("export_dropped") + ")";
+    			}
         		row.add(score);
         	}
         	spreadsheetData.add(row);
