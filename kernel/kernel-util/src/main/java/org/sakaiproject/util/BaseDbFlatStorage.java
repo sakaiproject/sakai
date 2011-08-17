@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.db.api.SqlReader;
@@ -1362,8 +1363,8 @@ public class BaseDbFlatStorage
 				fields[3] = extraId;
 			}
 
-			// dont write it if there's only an empty string for value
-			if (value.length() > 0)
+			// don't write it if there's only an empty string for value
+			if (!StringUtils.isEmpty(value))
 			{
 				m_sql.dbWrite(statement, fields);
 			}
