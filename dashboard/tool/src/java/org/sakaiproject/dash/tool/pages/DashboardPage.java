@@ -1,10 +1,12 @@
 package org.sakaiproject.dash.tool.pages;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
@@ -31,6 +33,8 @@ import org.sakaiproject.dash.model.NewsItem;
  */
 public class DashboardPage extends BasePage {
 	
+	private static final Logger logger = Logger.getLogger(DashboardPage.class); 
+	
 	private static final String DATE_FORMAT = "dd-MMM-yyyy";
 	private static final String TIME_FORMAT = "HH:mm";
 	protected static final String DATETIME_FORMAT = "dd-MMM-yyyy HH:mm";
@@ -50,13 +54,18 @@ public class DashboardPage extends BasePage {
 
 			@Override
 			public void populateItem(final Item item) {
-                final CalendarItem cItem = (CalendarItem) item.getModelObject();
-                //item.add(new Label("name", thing.getName()));
-                item.add(new Label("calendarDate", new SimpleDateFormat(DATE_FORMAT).format(cItem.getCalendarTime())));
-                item.add(new Label("calendarTime", new SimpleDateFormat(TIME_FORMAT).format(cItem.getCalendarTime())));
-                item.add(new ExternalLink("itemLink", cItem.getEntityUrl(), cItem.getTitle()));
-                item.add(new ExternalLink("siteLink", cItem.getContext().getContextUrl(), cItem.getContext().getContextTitle()));
-            }
+				if(item != null && item.getModelObject() != null) {
+	                final CalendarItem cItem = (CalendarItem) item.getModelObject();
+	                if(logger.isDebugEnabled()) {
+	                	logger.debug(this + "populateItem()  item: " + item);
+	                }
+	                //item.add(new Label("name", thing.getName()));
+	                item.add(new Label("calendarDate", new SimpleDateFormat(DATE_FORMAT).format(cItem.getCalendarTime())));
+	                item.add(new Label("calendarTime", new SimpleDateFormat(TIME_FORMAT).format(cItem.getCalendarTime())));
+	                item.add(new ExternalLink("itemLink", cItem.getEntityUrl(), cItem.getTitle()));
+	                item.add(new ExternalLink("siteLink", cItem.getContext().getContextUrl(), cItem.getContext().getContextTitle()));
+				}
+			}
         };
         calendarDataView.setItemReuseStrategy(new DefaultItemReuseStrategy());
         calendarDataView.setItemsPerPage(5);
@@ -88,6 +97,9 @@ public class DashboardPage extends BasePage {
 			@Override
 			public void populateItem(final Item item) {
                 final NewsItem nItem = (NewsItem) item.getModelObject();
+                if(logger.isDebugEnabled()) {
+                	logger.debug(this + "populateItem()  item: " + item);
+                }
                 //item.add(new Label("name", thing.getName()));
                 item.add(new ExternalLink("itemLink", nItem.getEntityUrl(), nItem.getTitle()));
                 item.add(new ExternalLink("siteLink", nItem.getContext().getContextUrl(), nItem.getContext().getContextTitle()));
@@ -132,13 +144,21 @@ public class DashboardPage extends BasePage {
 			if(calendarItems == null) {
 				String siteId = sakaiProxy.getCurrentSiteId();
 				String sakaiId = sakaiProxy.getCurrentUserId();
+				if(siteId == null || sakaiId == null) {
+					if(logger.isDebugEnabled()) {
+						logger.debug("CalendarItemDataProvider.getData() siteId:" + siteId + "  sakaiId:" + sakaiId);
+					}
+					return new ArrayList<CalendarItem>();
+				}
 				if(sakaiProxy.isWorksite(siteId)) {
 					calendarItems = dashboardLogic.getCalendarItems(sakaiId);
 				} else {
 					calendarItems = dashboardLogic.getCalendarItems(sakaiId, siteId);
 				}
-				
-				//Collections.reverse(calendarItems);
+			}
+			if(calendarItems == null) {
+				logger.warn("Error getting calendarItems");
+				return new ArrayList<CalendarItem>();
 			}
 			return calendarItems;
 		}
@@ -172,13 +192,21 @@ public class DashboardPage extends BasePage {
 			if(newsItems == null) {
 				String siteId = sakaiProxy.getCurrentSiteId();
 				String sakaiId = sakaiProxy.getCurrentUserId();
+				if(siteId == null || sakaiId == null) {
+					if(logger.isDebugEnabled()) {
+						logger.debug("NewsItemDataProvider.getData() siteId:" + siteId + "  sakaiId:" + sakaiId);
+					}
+					return new ArrayList<NewsItem>();
+				}
 				if(sakaiProxy.isWorksite(siteId)) {
 					newsItems = dashboardLogic.getNewsItems(sakaiId);
 				} else {
 					newsItems = dashboardLogic.getNewsItems(sakaiId, siteId);
 				}
-				
-				//Collections.reverse(newsItems);
+			}
+			if(newsItems == null) {
+				logger.warn("Error getting news items");
+				return new ArrayList<NewsItem>();
 			}
 			return newsItems;
 		}
