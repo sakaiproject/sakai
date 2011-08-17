@@ -148,7 +148,7 @@ public class SessionEntityProvider extends AbstractEntityProvider implements Cor
          } catch (UserNotDefinedException e) {
             throw new IllegalArgumentException("Invalid userId provided in session object, could not find user with that id: " + es.getUserId());
          }
-         currentSession = sessionManager.startSession(es.getUserId());
+         currentSession = sessionManager.startSession(es.getId());
          currentSession.setUserEid(u.getEid());
          currentSession.setUserId(u.getId());
       } else {
