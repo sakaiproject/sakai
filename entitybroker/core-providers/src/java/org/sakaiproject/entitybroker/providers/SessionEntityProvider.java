@@ -172,8 +172,8 @@ public class SessionEntityProvider extends AbstractEntityProvider implements Cor
             // create session or update existing one
             currentSession = sessionManager.getCurrentSession();
             if (currentSession == null) {
-               // start a session if none is around
-               currentSession = sessionManager.startSession(u.getId());
+               // start a session if none is found
+               currentSession = sessionManager.startSession();
             }
             currentSession.setUserId(u.getId());
             currentSession.setUserEid(u.getEid());
