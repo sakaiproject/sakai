@@ -306,7 +306,7 @@
                 <version>1.8.0</version>
                 <configuration>
                     <basedir>${basedir}</basedir>
-                    <header>../licenses/apache-license-2-template.txt</header>
+                    <header>docs/apache-license-2-template.txt</header>
                     <quiet>false</quiet>
                     <failIfMissing>false</failIfMissing>
                     <aggregate>false</aggregate>
