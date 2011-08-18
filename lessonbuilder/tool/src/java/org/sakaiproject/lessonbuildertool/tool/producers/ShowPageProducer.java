@@ -366,6 +366,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIOutput.make(tofill, "refresh");
 		}
 
+		if (canEditPage) {
+		    // special instructor-only javascript setup.
+			UIOutput.make(tofill, "instructoronly");
+		}
+
 		// set up locale
 		Locale M_locale = null;
 		String langLoc[] = localegetter.get().toString().split("_");

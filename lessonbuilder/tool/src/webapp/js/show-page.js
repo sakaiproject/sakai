@@ -1,6 +1,15 @@
 var dropdownViaClick = false;
 var lessonBuilderAnimationLocked = false;
 
+// in case user includes the URL of a site that replaces top,
+// give them a way out. Handler is set up in the html file.
+// Unload it once the page is fully loaded.
+
+$(window).load(function () {
+        window.onbeforeunload = null;
+
+    });
+
 function msg(s) {
    return document.getElementById(s).innerHTML;
 }

@@ -52,6 +52,15 @@ function resizeiframe(id) {
 <script type="text/javascript" language="JavaScript" rsf:id="refresh">
   parent.location.replace(parent.location);                       
 </script>
+<script type="text/javascript" language="JavaScript" rsf:id="instructoronly">
+// in case an iframe tries to replace the top, we have to give the author a way
+// to get to the page to remove it. This will be cancelled in the javascript
+// after all content has loaded.
+    window.onbeforeunload = function() {
+	return ""; // default message is OK
+    }
+</script>
+
 
 	<div class="portletBody" id="outer" role="application" style="z-index:1">
 		
