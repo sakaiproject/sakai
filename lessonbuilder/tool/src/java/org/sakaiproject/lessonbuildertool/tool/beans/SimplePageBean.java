@@ -4574,7 +4574,18 @@ public class SimplePageBean {
 		
 		if(editId == null || editId.equals("")) {
 			String userId = UserDirectoryService.getCurrentUser().getId();
+			
+			Double grade = null;
+			if(findItem(itemId).getGradebookId() != null) {
+				List<SimplePageComment> comments = simplePageToolDao.findCommentsOnItemByAuthor(itemId, userId);
+				if(comments != null && comments.size() > 0) {
+					grade = comments.get(0).getPoints();
+				}
+			}
+			
 			SimplePageComment commentObject = simplePageToolDao.makeComment(itemId, getCurrentPage().getPageId(), userId, comment, IdManager.getInstance().createUuid(), html);
+			commentObject.setPoints(grade);
+			
 			saveItem(commentObject, false);
 		}else {
 			SimplePageComment commentObject = simplePageToolDao.findCommentById(Long.valueOf(editId));

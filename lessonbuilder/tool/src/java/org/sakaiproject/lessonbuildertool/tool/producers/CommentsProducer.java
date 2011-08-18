@@ -233,6 +233,7 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 				UIOutput.make(commentContainer, "commentsUUID", comment.getUUID());
 				UIOutput.make(commentContainer, "commentPoints",
 						(comment.getPoints() == null? "" : String.valueOf(comment.getPoints())));
+				UIOutput.make(commentContainer, "authorUUID", comment.getAuthor());
 			}
 		}
 		

@@ -986,18 +986,6 @@ $(function() {
 		
 		$("#studentPointsBox").keyup(function(event){
 			if(event.keyCode == 13) {
-				/*var img = $(this).parent().children("img");
-				
-				$(this).removeClass("unsubmitted");
-				img.attr("src", getStrippedImgSrc(img.attr("id")) + "loading.gif");
-				
-				$(".idField").val($(this).parent().children(".uuidBox").text()).change();
-				$(".jsIdField").val(img.attr("id")).change();
-				$(".typeField").val("student");
-				
-				// This one triggers the update
-				$(".pointsField").val($(this).val()).change();*/
-				
 				$("#submit-grading").click();
 			}
 		});
@@ -1349,11 +1337,17 @@ function initGradingForm(idFieldId, pointsFieldId, jsIdFieldId, typeFieldId, elB
 		
 		var status = results.EL[elBinding][0];
 		var jsId = results.EL[elBinding][1];
+		var points = results.EL[elBinding][2];
 		
-		
-		
-		if("success" == status) {
-			$("#" + jsId).attr("src", getStrippedImgSrc(jsId) + "success.png");
+		if(status == "success") {
+			var jsObj = $("#" + jsId);
+			jsObj.attr("src", getStrippedImgSrc(jsId) + "success.png");
+			
+			// Check if we are dealing with a comment, so that we can set all points values
+			if(jsObj.parents(".commentDiv").length > 0) {
+				var uuid = jsObj.parents(".commentDiv").find(".authorUUID").text();
+				jsObj.parents(".replaceWithComments").find(".authorUUID").filter(":contains(" + uuid + ")").parents(".commentDiv").find(".pointsBox").val(points);
+			}
 		}else {
 			$("#" + jsId).attr("src", getStrippedImgSrc(jsId) + "failed.png");
 		}

@@ -1,5 +1,7 @@
 package org.sakaiproject.lessonbuildertool.tool.beans;
 
+import java.util.List;
+
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
@@ -29,14 +31,14 @@ public class GradingBean {
 	
 	public String[] getResults() {
 		if(simplePageBean.getEditPrivs() != 0) {
-			return new String[]{"failure", jsId};
+			return new String[]{"failure", jsId, "-1"};
 		}
 		
 		// Make sure they gave us a valid amount of points.
 		try {
 			Double.valueOf(points);
 		}catch(Exception ex) {
-			return new String[] {"failure", jsId};
+			return new String[]{"failure", jsId, "-1"};
 		}
 		
 		boolean r = false;
@@ -44,7 +46,7 @@ public class GradingBean {
 		if("comment".equals(type)) {
 			SimplePageComment comment = simplePageToolDao.findCommentByUUID(id);
 			if(Double.valueOf(points).equals(comment.getPoints())) {
-				return new String[] {"success", jsId};
+				return new String[] {"success", jsId, String.valueOf(comment.getPoints())};
 			}
 			
 			try {
@@ -52,13 +54,18 @@ public class GradingBean {
 			}catch(Exception ex) {}
 			
 			if(r) {
-				comment.setPoints(Double.valueOf(points));
-				simplePageBean.update(comment, false);
+				List<SimplePageComment> comments = simplePageToolDao.findCommentsOnItemByAuthor(comment.getItemId(), comment.getAuthor());
+				
+				// Make sure all of the comments by this person have the grade.
+				for(SimplePageComment c : comments) {
+					c.setPoints(Double.valueOf(points));
+					simplePageBean.update(c, false);
+				}
 			}
 		}else if("student".equals(type)) {
 			SimpleStudentPage page = simplePageToolDao.findStudentPage(Long.valueOf(id));
 			if(Double.valueOf(points).equals(page.getPoints())) {
-				return new String[] {"success", jsId};
+				return new String[] {"success", jsId, String.valueOf(page.getPoints())};
 			}
 			
 			try {
@@ -72,9 +79,9 @@ public class GradingBean {
 		}
 		
 		if(r) {
-			return new String[] {"success", jsId};
+			return new String[] {"success", jsId, String.valueOf(Double.valueOf(points))};
 		}else {
-			return new String[] {"failure", jsId};
+			return new String[]{"failure", jsId, "-1"};
 		}
 	}
 }
