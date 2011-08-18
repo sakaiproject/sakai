@@ -101,6 +101,7 @@ public class DashboardPage extends BasePage {
                 	logger.debug(this + "populateItem()  item: " + item);
                 }
                 //item.add(new Label("name", thing.getName()));
+                item.add(new Label("itemType", nItem.getSourceType().getIdentifier()));
                 item.add(new ExternalLink("itemLink", nItem.getEntityUrl(), nItem.getTitle()));
                 item.add(new ExternalLink("siteLink", nItem.getContext().getContextUrl(), nItem.getContext().getContextTitle()));
                 item.add(new Label("newsTime", new SimpleDateFormat(DATETIME_FORMAT).format(nItem.getNewsTime())));
