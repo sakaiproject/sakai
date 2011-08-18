@@ -457,17 +457,10 @@ function showNotif(item, button,formName)
 	}
 	if (item !="noNotif")
 	{
-		var browserType;
-		if (document.all) {browserType = "ie"}
-		if (window.navigator.userAgent.toLowerCase().match("gecko") || window.navigator.userAgent.toLowerCase().match("opera") ) {browserType= "gecko"}
-		if (browserType == "gecko" )
-			document.showItem = eval('document.getElementById(item)');
-		else if (browserType == "ie")
-			document.showItem = eval('document.all[item]');
-		else
-			document.showItem = eval('document.layers[item]');
+		// SAK-21041 simplified to use getElementById
+		document.showItem = document.getElementById(item);
 
-			document.showItem.style.visibility = "visible";
+		document.showItem.style.visibility = "visible";
 	}
 	
 	for (var i=0;i<document.getElementsByTagName("input").length; i++) 
