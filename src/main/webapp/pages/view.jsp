@@ -42,7 +42,16 @@
 					<c:if test="${not empty EntryImages[SyndEntry.uri]}">
 						<img src="${EntryImages[SyndEntry.uri]}" class="news-item-img"/>
 					</c:if>
-	      			<a target="_blank" href="${SyndEntry.link}" class="news-item-title">${SyndEntry.title}</a>
+					<h3>
+					<c:choose>
+						<c:when test="${not empty SyndEntry.link}">
+	      					<a target="_blank" href="${SyndEntry.link}" class="news-item-title">${SyndEntry.title}</a>
+	      				</c:when>
+	      				<c:otherwise>
+		      				${SyndEntry.title}
+		      			</c:otherwise>
+		      		</c:choose>
+		      		</h3>
 	      			<span class="news-item-excerpt">${SyndEntry.description.value}</span>
 	      				      			
 	    		</li>
