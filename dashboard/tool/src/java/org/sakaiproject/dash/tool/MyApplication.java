@@ -11,8 +11,7 @@ import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 
 import org.sakaiproject.dash.tool.pages.DashboardPage;
-import org.sakaiproject.dash.tool.pages.FirstPage;;
-import org.sakaiproject.dash.tool.pages.SecondPage;
+import org.sakaiproject.dash.tool.pages.OptionsPage;
 
 /**
  * Main application class for our app
@@ -42,8 +41,8 @@ public class MyApplication extends WebApplication {
 		getMarkupSettings().setDefaultAfterDisabledLink(null);
 				
 		// On Wicket session timeout, redirect to main page
-		getApplicationSettings().setPageExpiredErrorPage(FirstPage.class);
-		getApplicationSettings().setAccessDeniedPage(SecondPage.class);
+		getApplicationSettings().setPageExpiredErrorPage(DashboardPage.class);
+		getApplicationSettings().setAccessDeniedPage(OptionsPage.class);
 		
 		//to put this app into deployment mode, see web.xml
 		

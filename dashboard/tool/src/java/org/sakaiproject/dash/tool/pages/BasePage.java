@@ -41,9 +41,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	@SpringBean(name="org.sakaiproject.dash.logic.DashboardLogic")
 	protected DashboardLogic dashboardLogic;
 	
-	Link<Void> firstLink;
-	Link<Void> secondLink;
-	Link<Void> thirdLink;
+	Link<Void> dashboardLink;
+	Link<Void> optionsLink;
 	
 	FeedbackPanel feedbackPanel;
 	
@@ -52,43 +51,29 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		logger.debug("BasePage()");
 		
 		
-    	//first link
-		firstLink = new Link<Void>("firstLink") {
+    	//dashboard link
+		dashboardLink = new Link<Void>("dashboardLink") {
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				setResponsePage(new DashboardPage());
 			}
 		};
-		firstLink.add(new Label("firstLinkLabel",new ResourceModel("link.first")).setRenderBodyOnly(true));
-		firstLink.add(new AttributeModifier("title", true, new ResourceModel("link.first.tooltip")));
-		add(firstLink);
+		dashboardLink.add(new Label("dashboardLinkLabel",new ResourceModel("link.dashboard")).setRenderBodyOnly(true));
+		dashboardLink.add(new AttributeModifier("title", true, new ResourceModel("link.dashboard.tooltip")));
+		add(dashboardLink);
 		
 		
 		
-		//second link
-		secondLink = new Link<Void>("secondLink") {
+		//options link
+		optionsLink = new Link<Void>("optionsLink") {
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
-				setResponsePage(new FirstPage());
+				setResponsePage(new OptionsPage());
 			}
 		};
-		secondLink.add(new Label("secondLinkLabel",new ResourceModel("link.second")).setRenderBodyOnly(true));
-		secondLink.add(new AttributeModifier("title", true, new ResourceModel("link.second.tooltip")));
-		add(secondLink);
-		
-		
-		
-		//third link
-		thirdLink = new Link<Void>("thirdLink") {
-			private static final long serialVersionUID = 1L;
-			public void onClick() {
-				setResponsePage(new SecondPage());
-			}
-		};
-		thirdLink.add(new Label("thirdLinkLabel",new StringResourceModel("link.third", null, new String[] {"3"})).setRenderBodyOnly(true));
-		thirdLink.add(new AttributeModifier("title", true, new ResourceModel("link.third.tooltip")));
-		add(thirdLink);
-		
+		optionsLink.add(new Label("optionsLinkLabel",new ResourceModel("link.options")).setRenderBodyOnly(true));
+		optionsLink.add(new AttributeModifier("title", true, new ResourceModel("link.options.tooltip")));
+		add(optionsLink);
 		
 		// Add a FeedbackPanel for displaying our messages
         feedbackPanel = new FeedbackPanel("feedback"){
@@ -110,7 +95,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
         	}
         };
         add(feedbackPanel); 
-		
     }
 	
 	/**

@@ -43,7 +43,6 @@ public class DashboardPage extends BasePage {
 	CalendarItemDataProvider calendarItemsProvider;
 	
 	public DashboardPage() {
-		disableLink(thirdLink);
 		
 		//get list of items from db, wrapped in a dataprovider
 		newsItemsProvider = new NewsItemDataProvider();
