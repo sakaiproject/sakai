@@ -4522,6 +4522,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			if (messageReferences2 != null)
 			{
 				Vector v2 = new Vector();
+				int j= messageReferences2.length;
 				for (int i = 0; i < messageReferences2.length; i++)
 				{
 					// get the message object through service
@@ -4535,7 +4536,7 @@ public class AnnouncementAction extends PagedResourceActionII
 								.getMessageIDFromReference(messageReferences2[i]));
 						AnnouncementMessageEdit msg =(AnnouncementMessageEdit)message2;
 						AnnouncementMessageHeaderEdit header2 = msg.getAnnouncementHeaderEdit();
-						header2.setMessage_order(i+1);						
+						header2.setMessage_order(j--);						
 						channel2.commitMessage_order(msg);
 
 						//v2.addElement(message2);

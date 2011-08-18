@@ -1211,9 +1211,6 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 	 */
 	protected boolean getCurrentSortAsc()
 	{
-		if (ServerConfigurationService.getString("sakai.announcement.reorder", "false").equals("true")){
-			return true;
-		}
 		return m_currentSortAsc;
 
 	} // getCurrentSortAsc
