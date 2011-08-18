@@ -91,11 +91,10 @@ import org.sakaiproject.util.ResourceLoader;
 public class ServerWideReportManagerImpl implements ServerWideReportManager
 {
 	/** Our log (commons). */
-	private static Log LOG = LogFactory
-			.getLog (ServerWideReportManagerImpl.class);
+	private static Log LOG = LogFactory.getLog (ServerWideReportManagerImpl.class);
 
 	/** Message bundle */
-	private static ResourceLoader	msgs								= new ResourceLoader("Messages");
+	private static ResourceLoader msgs = new ResourceLoader("Messages");
 		
 	/** Dependency: SqlService */
 	private SqlService m_sqlService = null;
