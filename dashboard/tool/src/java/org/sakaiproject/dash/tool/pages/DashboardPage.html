@@ -3,6 +3,13 @@
 	<body>
 		<wicket:extend>
 			<div class="portletBody">
+        <script type="text/javascript" src="/library/js/jquery/1.4.2/jquery-1.4.2.min.js">
+        </script>
+        <script type="text/javascript" src="/library/js/jquery/ui/1.8.4/jquery-ui-1.8.4.full.min.js">
+        </script>
+        <script type="text/javascript" src="js/dashboard.js">
+        </script>
+
 				<!-- 
                 <div class="portletMainWrap">
                     <div id="message">
@@ -19,18 +26,14 @@
                     </div>
                 </div>
                  -->
-		        <div class="portletTitleWrap">
-		            <div class="portletTitle">
-		                <h3>Calendar</h3>
-		                <div wicket:id="calendarNavigator"></div>
-		                <table cellspacing="0" id="sched">
+                <h3 class="withNav">Calendar</h3>
+                <div class="pager" wicket:id="calendarNavigator">
+                </div>
+                <table cellspacing="0" id="sched" summary="List of upcoming tasks. Column 1 and 2: date and time when task is due. Column 3: task title and link to get more details. Column 4: link to site where task originated. Column 5: list of options managing items of this type or origin.">
 		                    <thead>
 		                        <tr class="header">
 		                            <th scope="col">
-		                                Date
-		                            </th>
-		                            <th scope="col">
-		                                Time
+		                                Date and Time
 		                            </th>
 		                            <th scope="col">
 		                                Title
@@ -43,12 +46,10 @@
 		                            </th>
 		                        </tr>
 		                    </thead>
-		                    <tr class="alt schedItem" id="item1" wicket:id="calendarItems">
+		                    <tr class="" id="item1" wicket:id="calendarItems">
 		                        <td>
 		                            <span wicket:id="calendarDate">[Date]</span>
-		                        </td>
-		                        <td>
-		                            <span wicket:id="calendarTime">[Time]</span>
+																<span wicket:id="calendarTime">[Time]</span>
 		                        </td>
 		                        <td>
 		                            <a href="#" wicket:id="itemLink">[Item Title]</a>
@@ -61,23 +62,24 @@
 		                                <a href="#"></a>
 		                            </div>
 		                            <ul class="actionPanel" style="display:none">
-		                                <li class="actionHideThis">
-		                                    <a href="#">Remove <strong>this</strong></a>
-		                                </li>
-		                                <li class="actionHideType">
-		                                    <a href="#">Block <strong>Events</strong></a>
-		                                </li>
-		                                <li class="actionHideContext">
-		                                    <a href="#">Block <strong>SI502</strong></a>
-		                                </li>
+	                                <li class="actionHideThis">
+	                                    <a href="#">Remove item</a>
+	                                </li>
+	                                <li class="actionHideType">
+	                                    <a href="#">Block [event type]s</a>
+	                                </li>
+	                                <li class="actionHideContext">
+	                                    <a href="#">Block items from [site title]</a>
+	                                </li>
 		                            </ul>
 		                        </td>
 		                    </tr>
 		                </table>
 		                
-		                <h3>News</h3>
-		                <div wicket:id="newsNavigator"></div>
-		                <table cellspacing="0" id="news">
+		                <h3 class="withNav">News</h3>
+		                <div class="pager" wicket:id="newsNavigator">
+		                </div>
+		                <table cellspacing="0" id="news" summary="List of recent events. Column 1: link to details on item. Column 2: link to site where event took place. Column 3: date and time when event took place. Column 4: list of options managing items of this type or origin.">
 		                    <thead>
 		                        <tr class="header">
 		                            <th scope="col">
@@ -112,22 +114,29 @@
 		                                <a href="#"></a>
 		                            </div>
 		                            <ul class="actionPanel" style="display:none">
-		                                <li class="actionHideThis">
-		                                    <a href="#">Remove <strong>this</strong></a>
-		                                </li>
-		                                <li class="actionHideType">
-		                                    <a href="#">Block <strong>Grades</strong></a>
-		                                </li>
-		                                <li class="actionHideContext">
-		                                    <a href="#">Block <strong>SI502</strong></a>
-		                                </li>
+	                                <li class="actionHideThis">
+	                                    <a href="#">Remove item</a>
+	                                </li>
+	                                <li class="actionHideType">
+	                                    <a href="#">Block [event type]s</a>
+	                                </li>
+	                                <li class="actionHideContext">
+	                                    <a href="#">Block items from [site title]</a>
+	                                </li>
 		                            </ul>
 		                        </td>
 		                    </tr>
 		                </table>
-		            </div>
-		        </div>
 			</div>
+			<script type="text/javascript">
+          $(document).ready(function(){
+              setupTableStriping()
+              $('.pager').htmlClean();
+              $('.pager').cssInstrument();
+              setupMenus();    
+          });
+      </script>
+      
 		</wicket:extend>
 	</body>
 </html>
