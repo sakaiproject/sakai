@@ -43,6 +43,7 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  * <p>
@@ -626,7 +627,7 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 	private String m_currentSortedBy = "message_order";
 
 	// the current sort sequence: ture - acscending/false - descending
-	private boolean m_currentSortAsc = true;
+	private boolean m_currentSortAsc = false;
 
 	// ********* for sorting *********
 
@@ -1210,6 +1211,9 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 	 */
 	protected boolean getCurrentSortAsc()
 	{
+		if (ServerConfigurationService.getString("sakai.announcement.reorder", "false").equals("true")){
+			return true;
+		}
 		return m_currentSortAsc;
 
 	} // getCurrentSortAsc
