@@ -533,23 +533,24 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
     public Map<String, Object> getAssignmentDeepLinks(EntityView view, Map<String, Object> params) {
         Map<String, Object> assignData = new HashMap<String, Object>();
 
-        if (view.getPathSegment(2) == null || view.getPathSegment(3) == null || view.getPathSegment(4) == null || view.getPathSegment(5) == null )
+        String context = view.getPathSegment(2);
+        String assignmentId = view.getPathSegment(3);
+        if (context == null || assignmentId == null)
         {
             // format of the view should be in a standard assignment reference
-            throw new IllegalArgumentException("Must include the following parameters in the path ("+view+"): e.g. /assignment/{assignmentId}/{allowReadAssignment}/{allowAddAssignment}/{allowSubmitAssignment}");
+            throw new IllegalArgumentException("Must include context and assignmentId in the path ("+view+"): e.g. /assignment/a/{context}/{assignmentId}");
         }
-        
-        // get all params
-        String assignmentId = view.getPathSegment(2);
-        boolean allowReadAssignment = Boolean.valueOf(view.getPathSegment(3));
-        boolean allowAddAssignment = Boolean.valueOf(view.getPathSegment(4));
-        boolean allowSubmitAssignment = Boolean.valueOf(view.getPathSegment(5));
-        
+  
         try
         {   
             Assignment a = assignmentService.getAssignment(assignmentId);
             assignData.put("assignmentId", assignmentId);
             assignData.put("assignmentTitle", a.getTitle());
+            
+            boolean allowReadAssignment = params.get("allowReadAssignment") != null ? ((Boolean) params.get("allowReadAssignment")).booleanValue() : false;
+            boolean allowAddAssignment = params.get("allowAddAssignment") != null ? ((Boolean) params.get("allowAddAssignment")).booleanValue() : false;
+            boolean allowSubmitAssignment = params.get("allowSubmitAssignment") != null ? ((Boolean) params.get("allowSubmitAssignment")).booleanValue() : false;
+            
             String assignmentContext = a.getContext(); // assignment context
             if (allowReadAssignment && a.getOpenTime().before(TimeService.newTime()))
             {
