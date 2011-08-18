@@ -4,6 +4,8 @@
 package org.sakaiproject.dash.listener;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.sakaiproject.assignment.api.Assignment;
@@ -16,6 +18,13 @@ import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.Realm;
 import org.sakaiproject.dash.model.SourceType;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityPropertyTypeException;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.entitybroker.EntityBroker;
+import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.event.api.Event;
 
 /**
@@ -34,6 +43,11 @@ public class AssignmentNewEventProcessor implements EventProcessor {
 	protected SakaiProxy sakaiProxy;
 	public void setSakaiProxy(SakaiProxy proxy) {
 		this.sakaiProxy = proxy;
+	}
+	
+	protected EntityBroker entityBroker;
+	public void setEntityBroker(EntityBroker entityBroker) {
+		this.entityBroker = entityBroker;
 	}
 	
 	/* (non-Javadoc)
@@ -58,19 +72,37 @@ public class AssignmentNewEventProcessor implements EventProcessor {
 			if(context == null) {
 				context = this.dashboardLogic.createContext(event.getContext());
 			}
-//			Realm realm = this.dashboardLogic.getRealm(event.getContext());
-//			if(realm == null) {
-//				realm = this.dashboardLogic.createRealm(null, event.getContext());
-//			}
+			
+			/** consult in assignment entity provider to get the deepLink **/
+			String assignmentUrl = "";
+			Map<String, Object> assignData = new HashMap<String, Object>();
+		    Map<String, Object> params = new HashMap<String, Object>();
+		    
+		    // get the link as student view first
+		    params.put("allowReadAssignment", Boolean.TRUE);
+		    params.put("allowAddAssignment", Boolean.FALSE);
+		    params.put("allowSubmitAssignment", Boolean.TRUE);
+            // pass in the assignment reference to get the assignment data we need
+            ActionReturn ret = entityBroker.executeCustomAction(assn.getReference(), "deepLinks", params, null);
+            if (ret != null && ret.getEntityData() != null) {
+                    Object returnData = ret.getEntityData().getData();
+                    assignData = (Map<String, Object>)returnData;
+                }
+            assignmentUrl = (String) assignData.get("assignmentUrl");
+            
 			SourceType sourceType = this.dashboardLogic.getSourceType("assignment");
 			if(sourceType == null) {
 				sourceType = this.dashboardLogic.createSourceType("assignment", SakaiProxy.PERMIT_ASSIGNMENT_ACCESS);
 			}
 			
-			NewsItem newsItem = this.dashboardLogic.createNewsItem(assn.getTitle(), event.getEventTime(), assn.getReference(), assn.getUrl(), context, sourceType);
+			
+			NewsItem newsItem = this.dashboardLogic.createNewsItem(assn.getTitle(), event.getEventTime(), assn.getReference(), assignmentUrl, context, sourceType);
+		
+			
+			
 			this.dashboardLogic.createNewsLinks(newsItem);
 		
-			CalendarItem calendarItem = this.dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getDueTime().getTime()), assn.getReference(), assn.getUrl(), context, sourceType);
+			CalendarItem calendarItem = this.dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getDueTime().getTime()), assn.getReference(), assignmentUrl, context, sourceType);
 			this.dashboardLogic.createCalendarLinks(calendarItem);
 		} else {
 			// for now, let's log the error
