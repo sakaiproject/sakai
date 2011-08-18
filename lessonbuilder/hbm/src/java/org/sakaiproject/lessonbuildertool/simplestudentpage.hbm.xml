@@ -27,6 +27,7 @@
 	<property name="commentsSection" type="long" />
 	<property name="lastCommentChange" type="timestamp" />
 	<property name="deleted" type="boolean" />
+	<property name="points" type="double" />
 
    </class>
 </hibernate-mapping>

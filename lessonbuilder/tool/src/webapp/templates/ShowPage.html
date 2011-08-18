@@ -100,7 +100,20 @@ function resizeiframe(id) {
                   </div>
 		  <span class="title" rsf:id="pagetitle"></span>
 		  <span class="nextprev" style="vertical-align:20%"> <a href="#" rsf:id="prev" class="usebutton nextprev">next</a> <a href="#" rsf:id="next" class="usebutton nextprev">next</a> </span>
+		  
+		  <span rsf:id="gradingSpan" style="float:right; position:relative; left:-40%; *top:-2em;">
+		  		<a href="#" rsf:id="gradingBack" style="margin-right:2px;" class="usebutton">&#60;</a>
+		  
+		  		<img class="statusImg" src="$context/images/no-status.png" id="statusImg" height="16px" width="16px" alt=""></img>
+		  		<span rsf:id="msg=simplepage.comments-points"></span><span style="display:none" class="uuidBox" rsf:id="commentsUUID"></span>
+		  		<span style="display:none" class="pointsSpan" rsf:id="commentPoints"></span>
+		  		<input id="studentPointsBox" type="text" size="3"></input>
+		  		<a class="usebutton" href="#" rsf:id="msg=simplepage.submit" id="submit-grading"></a>
+		  		
+		  		<a href="#" rsf:id="gradingForward" style="margin-left:25px;" class="usebutton">&#62;</a>
+		  </span>
 		</div>
+		
 	
 		<div rsf:id="tool-bar:" class="navIntraTool" role="toolbar" style="z-index:100000">
 			<ul id="toolbar" style="padding:2px; margin:0px">
@@ -343,17 +356,6 @@ function resizeiframe(id) {
 								<input type="submit" class="usebutton submitButton" href="#" rsf:id="add-comment" id="add-comment"><span rsf:id="msg=simplepage.add_comment"></span></input>
 								<input type="submit" class="usebutton cancelButton"></input>
 							</form>
-							
-							<form class="gradingForm" rsf:id="gradingForm" style="display:none;">
-								<input type="hidden" class="idField" id="gradingForm-id" rsf:id="gradingForm-id"></input>
-								<input type="hidden" class="jsIdField" id="gradingForm-jsId" rsf:id="gradingForm-jsId"></input>
-								<input type="hidden" class="pointsField" id="gradingForm-points" rsf:id="gradingForm-points"></input>
-							</form>
-							
-							<script rsf:id="gradingForm-init" type="text/javascript">
-    							// a real function call with real values which come from the 
-    							// "emitJavascriptCall" method will be placed here by RSF
-							</script>
 						</div>
 						
 						<a href="#" style="display:none" rsf:id="commentsLink" class="commentsBlock"></a>
@@ -396,6 +398,8 @@ function resizeiframe(id) {
 						<div style="display:none" rsf:id="studentAnon" class="studentAnon"></div>
 						<div style="display:none" rsf:id="studentComments" class="studentComments"></div>
 						<div style="display:none" rsf:id="forcedAnon" class="forcedAnon"></div>
+						<span style="display:none" rsf:id="studentGrade" class="studentGrade"></span>
+						<span style="display:none" rsf:id="studentMaxPoints" class="studentMaxPoints"></span>
 						<span style="display:none" rsf:id="student-groups" class="item-groups"></span>
 						<span style="display:none" rsf:id="studentitem-required" class="studentitem-required"></span>
 						<span style="display:none" rsf:id="studentitem-prerequisite" class="studentitem-prerequisite"></span>
@@ -429,7 +433,18 @@ function resizeiframe(id) {
 			<p rsf:id="msg=simplepage.cancel_message" id="simplepage.cancel_message"></p>
 			<p rsf:id="msg=simplepage.comment_delete" id="simplepage.comment_delete"></p>
 		</div>
-
+		
+		<form class="gradingForm" rsf:id="gradingForm" style="display:none;">
+			<input type="hidden" class="idField" id="gradingForm-id" rsf:id="gradingForm-id"></input>
+			<input type="hidden" class="jsIdField" id="gradingForm-jsId" rsf:id="gradingForm-jsId"></input>
+			<input type="hidden" class="pointsField" id="gradingForm-points" rsf:id="gradingForm-points"></input>
+			<input type="hidden" class="typeField" id="gradingForm-type" rsf:id="gradingForm-type"></input>
+		</form>
+		
+		<script rsf:id="gradingForm-init" type="text/javascript">
+    			// a real function call with real values which come from the 
+    			// "emitJavascriptCall" method will be placed here by RSF
+		</script>
 
 		<div rsf:id="dialogDiv">
 			<div id="messages">
@@ -1033,6 +1048,11 @@ function resizeiframe(id) {
 							
 							<input type="checkbox" name="student-comments-anon" id="student-comments-anon" class="indent" rsf:id="student-comments-anon" />
 							<label for="student-comments-anon"><span rsf:id="msg=simplepage.student-comments-anon"></span></label><br />
+							
+							<input type="checkbox" name="student-graded" id="student-graded" rsf:id="student-graded" />
+							<label for="student-graded"><span rsf:id="msg=simplepage.comments-graded"></span></label><br />
+							<label for="student-max" class="indent"><span rsf:id="msg=simplepage.comments-max"></span></label>
+							<input type="text" name="student-max" id="student-max" rsf:id="student-max" />
 						</div>
 
 						<div align="left" style="margin-top:1em">

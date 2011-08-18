@@ -82,9 +82,12 @@ function commentsLoaded() {
 			$(this).removeClass("unsubmitted");
 			img.attr("src", getStrippedImgSrc(img.attr("id")) + "loading.gif");
 			
-			$(this).parents(".commentsDiv").find(".idField").val($(this).parent().children(".uuidBox").text()).change();
-			$(this).parents(".commentsDiv").find(".jsIdField").val(img.attr("id")).change();
-			$(this).parents(".commentsDiv").find(".pointsField").val($(this).val()).change();
+			$(".idField").val($(this).parent().children(".uuidBox").text()).change();
+			$(".jsIdField").val(img.attr("id")).change();
+			$(".typeField").val("comment");
+			
+			// This one triggers the update
+			$(".pointsField").val($(this).val()).change();
 		}
 	});
 }

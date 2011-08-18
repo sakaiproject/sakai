@@ -4622,8 +4622,17 @@ public class SimplePageBean {
 				}
 				
 				if(comment.getGradebookId() == null || !comment.getGradebookPoints().equals(points)) {
+					String pageTitle = "";
+					
+					if(comment.getPageId() >= 0) {
+						pageTitle = simplePageToolDao.getPage(comment.getPageId()).getTitle();
+					}else {
+						// Must be a student page comments tool.
+						pageTitle = simplePageToolDao.findStudentPage(Long.valueOf(comment.getSakaiId())).getTitle();
+					}
+					
 					gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:comment:" + comment.getId(), null,
-							simplePageToolDao.getPage(comment.getPageId()).getTitle() + " Comments (item:" + comment.getId() + ")", Integer.valueOf(maxPoints), null, "Lesson Builder");
+							pageTitle + " Comments (item:" + comment.getId() + ")", Integer.valueOf(maxPoints), null, "Lesson Builder");
 					comment.setGradebookId("lesson-builder:comment:" + comment.getId());
 					regradeComments(comment);
 				}
@@ -4781,7 +4790,6 @@ public class SimplePageBean {
 			page.setRequired(required);
 			page.setPrerequisite(prerequisite);
 			setItemGroups(page, selectedGroups);
-			update(page);
 			
 			// Update the comments tools to reflect any changes
 			if(comments) {
@@ -4796,6 +4804,40 @@ public class SimplePageBean {
 					}
 				}
 			}
+			
+			if(maxPoints == null || maxPoints.equals("")) {
+				maxPoints = "1";
+			}
+			
+			if(graded) {
+				int points;
+				try {
+					points = Integer.valueOf(maxPoints);
+				}catch(Exception ex) {
+					setErrMessage(messageLocator.getMessage("simplepage.integer-expected"));
+					return "failure";
+				}
+				
+				if(page.getGradebookId() != null && !page.getGradebookPoints().equals(points)) {
+					gradebookIfc.removeExternalAssessment(getCurrentSiteId(), page.getGradebookId());
+				}
+				
+				if(page.getGradebookId() == null || !page.getGradebookPoints().equals(points)) {
+					System.out.println(page.getId());
+					gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null,
+							simplePageToolDao.getPage(page.getPageId()).getTitle() + " Student Pages (item:" + page.getId() + ")", Integer.valueOf(maxPoints), null, "Lesson Builder");
+					page.setGradebookId("lesson-builder:page:" + page.getId());
+					//regradeComments(comment);
+				}
+				
+				page.setGradebookPoints(points);
+			}else if(page.getGradebookId() != null) {
+				gradebookIfc.removeExternalAssessment(getCurrentSiteId(), page.getGradebookId());
+				page.setGradebookId(null);
+				page.setGradebookPoints(null);
+			}
+			update(page);
+			
 			return "success";
 		}else {
 			setErrMessage(messageLocator.getMessage("simplepage.permissions-general"));

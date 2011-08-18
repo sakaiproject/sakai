@@ -195,7 +195,7 @@
 		<property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
 	</bean>
 	
-	<bean name="commentsGradingBean" class="org.sakaiproject.lessonbuildertool.tool.beans.CommentsGradingBean">
+	<bean name="gradingBean" class="org.sakaiproject.lessonbuildertool.tool.beans.GradingBean">
 		<property name="simplePageToolDao">
 			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 		</property>

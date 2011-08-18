@@ -449,6 +449,19 @@ $(function() {
 				$("#student-comments-anon").removeAttr("disabled");
 			}
 			
+			var grade = row.find(".studentGrade").text();
+			if(grade == "true") {
+				$("#student-graded").attr("checked", true);
+				$("#student-graded").attr("defaultChecked", true)
+			}else {
+				$("#student-graded").attr("checked", false);
+			}
+			
+			$("#student-max").val(row.find(".studentMaxPoints").text());
+			if($("#student-max").val() == "null") {
+				$("#student-max").val("");
+			}
+			
 			var position = row.position();
 			$("#student-dialog").dialog("option", "position", [position.left, position.top]);
 			$('.hideOnDialog').hide();
@@ -962,6 +975,48 @@ $(function() {
 		$("#cssDropdown-selection").children(":contains(---" + msg("simplepage.site") + "---)").attr("disabled", "disabled");
 		$("#cssDropdown-selection").children(":contains(---" + msg("simplepage.system") + "---)").attr("disabled", "disabled");
 		$("#cssDropdown-selection").children(":contains(----------)").attr("disabled", "disabled");
+		
+		$("#studentPointsBox").val($("#studentPointsBox").parent().children(".pointsSpan").text());
+		
+		$("#studentPointsBox").live('change', function(){
+			var img = $(this).parent().children("img");
+			img.attr("src", getStrippedImgSrc(img.attr("id")) + "no-status.png");
+			$(this).addClass("unsubmitted");
+		});
+		
+		$("#studentPointsBox").keyup(function(event){
+			if(event.keyCode == 13) {
+				/*var img = $(this).parent().children("img");
+				
+				$(this).removeClass("unsubmitted");
+				img.attr("src", getStrippedImgSrc(img.attr("id")) + "loading.gif");
+				
+				$(".idField").val($(this).parent().children(".uuidBox").text()).change();
+				$(".jsIdField").val(img.attr("id")).change();
+				$(".typeField").val("student");
+				
+				// This one triggers the update
+				$(".pointsField").val($(this).val()).change();*/
+				
+				$("#submit-grading").click();
+			}
+		});
+		
+		$("#submit-grading").click(function() {
+			var img = $(this).parent().children("img");
+			
+			$(this).parent().children("#studentPointsBox").removeClass("unsubmitted");
+			img.attr("src", getStrippedImgSrc(img.attr("id")) + "loading.gif");
+			
+			$(".idField").val($(this).parent().children(".uuidBox").text()).change();
+			$(".jsIdField").val(img.attr("id")).change();
+			$(".typeField").val("student");
+			
+			// This one triggers the update
+			$(".pointsField").val($(this).parent().children("#studentPointsBox").val()).change();
+			
+			return false;
+		});
 	} // Closes admin if statement
 
 	if (!(navigator.userAgent.indexOf("Firefox/2.") > 0)) {
@@ -1278,13 +1333,14 @@ function unlockAnimation() {
 	lessonBuilderAnimationLocked = false;
 }
 
-function initGradingForm(idFieldId, pointsFieldId, jsIdFieldId, elBinding) {
+function initGradingForm(idFieldId, pointsFieldId, jsIdFieldId, typeFieldId, elBinding) {
 	//var idField = $(this).parents("div").children(".gradingForm").children(".idField");
 	//var pointsField = $(this).parents("div").children(".gradingForm").children(".pointsField");
 	
 	var idField = document.getElementById(idFieldId);
 	var pointsField = document.getElementById(pointsFieldId);
 	var jsIdField = document.getElementById(jsIdFieldId);
+	var typeField = document.getElementById(typeFieldId);
 	
 	var ajaxUrl = idField.form.action;
 
@@ -1304,7 +1360,7 @@ function initGradingForm(idFieldId, pointsFieldId, jsIdFieldId, elBinding) {
 	}
 
 	// setup the function which initiates the AJAX request
-	var updater = RSF.getAJAXUpdater([idField, pointsField, jsIdField], ajaxUrl, [elBinding], callback);
+	var updater = RSF.getAJAXUpdater([idField, pointsField, jsIdField, typeField], ajaxUrl, [elBinding], callback);
 	// setup the input field event to trigger the ajax request function
 	pointsField.onchange = updater; // send request when field changes
 	

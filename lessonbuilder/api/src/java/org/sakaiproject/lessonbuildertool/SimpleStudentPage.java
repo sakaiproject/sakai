@@ -32,4 +32,7 @@ public interface SimpleStudentPage {
 	
 	public boolean isDeleted();
 	public void setDeleted(Boolean deleted);
+	
+	public Double getPoints();
+	public void setPoints(Double points);
 }

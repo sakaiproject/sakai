@@ -16,6 +16,8 @@ public class SimpleStudentPageImpl implements SimpleStudentPage {
 	private Date lastCommentChange; // Last time a comment was posted or edited.
 	private boolean deleted = false; // Shows whether or not this was deleted by the instructor.
 	
+	private Double points; // Number of points given if this was graded
+	
 	public SimpleStudentPageImpl() { }
 	
 	public SimpleStudentPageImpl(long itemId, long pageId, String title, String owner, boolean groupOwned) {
@@ -98,5 +100,12 @@ public class SimpleStudentPageImpl implements SimpleStudentPage {
 			deleted = false;
 		}
 		this.deleted = deleted;
+	}
+	
+	public Double getPoints() {
+		return points;
+	}
+	public void setPoints(Double points) {
+		this.points = points;
 	}
 }

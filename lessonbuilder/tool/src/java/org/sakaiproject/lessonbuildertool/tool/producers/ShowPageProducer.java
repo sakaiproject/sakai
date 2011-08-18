@@ -620,6 +620,42 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 
 		UIOutput.make(tofill, "pagetitle", currentPage.getTitle());
+		
+		if(currentPage.getOwner() != null && simplePageBean.getEditPrivs() == 0) {
+			SimpleStudentPage student = simplePageToolDao.findStudentPageByPageId(currentPage.getPageId());
+			
+			UIOutput.make(tofill, "gradingSpan");
+			UIOutput.make(tofill, "commentsUUID", String.valueOf(student.getId()));
+			UIOutput.make(tofill, "commentPoints", String.valueOf((student.getPoints() != null? student.getPoints() : "")));
+			
+			List<SimpleStudentPage> studentPages = simplePageToolDao.findStudentPages(student.getItemId());
+			int i = -1;
+			
+			for(int in = 0; in < studentPages.size(); in++) {
+				if(student.getId() == studentPages.get(in).getId()) {
+					i = in;
+					break;
+				}
+			}
+			
+			if(i > 0) {
+				GeneralViewParameters eParams = new GeneralViewParameters(ShowPageProducer.VIEW_ID, studentPages.get(i-1).getPageId());
+				eParams.setItemId(studentPages.get(i-1).getItemId());
+				eParams.setPath("next");
+				
+				UIInternalLink.make(tofill, "gradingBack", eParams);
+			}
+			
+			if(i < studentPages.size() - 1) {
+				GeneralViewParameters eParams = new GeneralViewParameters(ShowPageProducer.VIEW_ID, studentPages.get(i+1).getPageId());
+				eParams.setItemId(studentPages.get(i+1).getItemId());
+				eParams.setPath("next");
+				
+				UIInternalLink.make(tofill, "gradingForward", eParams);
+			}
+			
+			printGradingForm(tofill);
+		}
 
 		// breadcrumbs
 		if (pageItem.getPageId() != 0) {
@@ -1069,12 +1105,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						if (canEditPage) {
 							UIOutput.make(tableRow, "imageHeight", getOrig(height));
 							UIOutput.make(tableRow, "imageWidth", getOrig(width));
-							UIOutput.make(tableRow, "description2", i.getDescription());
 							UIOutput.make(tableRow, "mimetype2", mimeType);
 							UIOutput.make(tableRow, "current-item-id4", Long.toString(i.getId()));
 							UIOutput.make(tableRow, "editmm-td");
 							UILink.make(tableRow, "iframe-edit", messageLocator.getMessage("simplepage.editItem"), "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
 						}
+						
+						UIOutput.make(tableRow, "description2", i.getDescription());
 
 					} else if ((youtubeKey = simplePageBean.getYoutubeKey(i)) != null) {
 						String youtubeUrl = "http://www.youtube.com/v/" + youtubeKey + "?version=3";
@@ -1139,13 +1176,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "currentYoutubeURL", youtubeUrl);
 							UIOutput.make(tableRow, "currentYoutubeHeight", getOrig(height));
 							UIOutput.make(tableRow, "currentYoutubeWidth", getOrig(width));
-							UIOutput.make(tableRow, "description4", i.getDescription());
 							UIOutput.make(tableRow, "current-item-id5", Long.toString(i.getId()));
 
 							UIOutput.make(tableRow, "youtube-td");
 							UILink.make(tableRow, "youtube-edit", messageLocator.getMessage("simplepage.editItem"), "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.youtube")));
 						}
 
+						UIOutput.make(tableRow, "description4", i.getDescription());
+						
 						// as of Oct 28, 2010, we store the mime type. mimeType
 						// null is an old entry.
 						// For that use the old approach of checking the
@@ -1274,13 +1312,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "movieId", String.valueOf(i.getId()));
 							UIOutput.make(tableRow, "movieHeight", getOrig(height));
 							UIOutput.make(tableRow, "movieWidth", getOrig(width));
-							UIOutput.make(tableRow, "description3", i.getDescription());
 							UIOutput.make(tableRow, "mimetype5", oMimeType);
 							UIOutput.make(tableRow, "current-item-id6", Long.toString(i.getId()));
 
 							UIOutput.make(tableRow, "movie-td");
 							UILink.make(tableRow, "edit-movie", messageLocator.getMessage("simplepage.editItem"), "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
 						}
+						
+						UIOutput.make(tableRow, "description3", i.getDescription());
 					} else {
 						// finally, HTML. Use an iframe
 						// definition of resizeiframe, at top of page
@@ -1318,12 +1357,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						if (canEditPage) {
 							UIOutput.make(tableRow, "iframeHeight", getOrig(height));
 							UIOutput.make(tableRow, "iframeWidth", getOrig(width));
-							UIOutput.make(tableRow, "description5", i.getDescription());
 							UIOutput.make(tableRow, "mimetype3", mimeType);
 							UIOutput.make(tableRow, "current-item-id3", Long.toString(i.getId()));
 							UIOutput.make(tableRow, "editmm-td");
 							UILink.make(tableRow, "iframe-edit", messageLocator.getMessage("simplepage.editItem"), "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
 						}
+						
+						System.out.println("Printing Description");
+						UIOutput.make(tableRow, "description5", i.getDescription());
 					}
 
 					// end of multimedia object
@@ -1384,13 +1425,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								UIOutput.make(tableRow, "item-group-titles6", itemGroupTitles);
 							}
 					    	
-					    	// Ajax grading form so faculty can grade comments
-					    	UIForm gradingForm = UIForm.make(tableRow, "gradingForm");
-					    	gradingForm.viewparams = new SimpleViewParameters(UVBProducer.VIEW_ID);
-					    	UIInput idInput = UIInput.make(gradingForm, "gradingForm-id", "commentsGradingBean.id");
-					    	UIInput jsIdInput = UIInput.make(gradingForm, "gradingForm-jsId", "commentsGradingBean.jsId");
-					    	UIInput pointsInput = UIInput.make(gradingForm, "gradingForm-points", "commentsGradingBean.points");
-					    	UIInitBlock.make(tableRow, "gradingForm-init", "initGradingForm", new Object[] {idInput, pointsInput, jsIdInput, "commentsGradingBean.results"});
+							// Allows AJAX posting of comment grades
+					    	printGradingForm(tofill);
 					    }
 
 					    UIForm form = UIForm.make(tableRow, "comment-form");
@@ -1421,113 +1457,115 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					// faculty missing preqs get warning but still see the comments
 					if (!isAvailable && canEditPage)
 					    UIOutput.make(tableRow, "student-missing-prereqs", messageLocator.getMessage("simplepage.student-fake-missing-prereqs"));
-					if (!isAvailable && !canEditPage)
+					else if (!isAvailable && !canEditPage)
 					    UIOutput.make(tableRow, "student-missing-prereqs", messageLocator.getMessage("simplepage.student-missing-prereqs"));
 					else {
-					    UIOutput.make(tableRow, "studentDiv");
+						UIOutput.make(tableRow, "studentDiv");
+						
+						HashMap<Long, SimplePageLogEntry> cache = simplePageBean.cacheStudentPageLogEntries(i.getId());
+						List<SimpleStudentPage> studentPages = simplePageToolDao.findStudentPages(i.getId());
 					
-					    HashMap<Long, SimplePageLogEntry> cache = simplePageBean.cacheStudentPageLogEntries(i.getId());
-					    List<SimpleStudentPage> studentPages = simplePageToolDao.findStudentPages(i.getId());
+						boolean hasOwnPage = false;
+						String userId = UserDirectoryService.getCurrentUser().getId();
+						
+						HashMap<String, String> anonymousLookup = new HashMap<String, String>();
+						if(i.isAnonymous()) {
+							int counter = 1;
+							for(SimpleStudentPage page : studentPages) {
+								if(anonymousLookup.get(page.getOwner()) == null) {
+									anonymousLookup.put(page.getOwner(), messageLocator.getMessage("simplepage.anonymous") + " " + counter++);
+								}
+							}
+						}
 					
-					    boolean hasOwnPage = false;
-					    String userId = UserDirectoryService.getCurrentUser().getId();
-					
-					    HashMap<String, String> anonymousLookup = new HashMap<String, String>();
-					    if(i.isAnonymous()) {
-						int counter = 1;
+						// Print each row in the table
 						for(SimpleStudentPage page : studentPages) {
-							if(anonymousLookup.get(page.getOwner()) == null) {
-								anonymousLookup.put(page.getOwner(), messageLocator.getMessage("simplepage.anonymous") + " " + counter++);
-							}
-						}
-					    }
-					
-					    // Print each row in the table
-					    for(SimpleStudentPage page : studentPages) {
-						if(page.isDeleted()) continue;
-						
-						SimplePageLogEntry entry = cache.get(page.getPageId());
-						UIBranchContainer row = UIBranchContainer.make(tableRow, "studentRow:");
-						UIOutput.make(row, "studentCell");
-						
-						GeneralViewParameters eParams = new GeneralViewParameters(ShowPageProducer.VIEW_ID, page.getPageId());
-						eParams.setItemId(i.getId());
-						eParams.setPath("push");
-						
-						String username = null;
-						
-						try {
-							username = i.isAnonymous()? anonymousLookup.get(page.getOwner()) : UserDirectoryService.getUser(page.getOwner()).getDisplayName();
+							if(page.isDeleted()) continue;
 							
-							if(i.isAnonymous() && canEditPage) {
-								username += " (" + UserDirectoryService.getUser(page.getOwner()).getDisplayName() + ")";
-							}else if(i.isAnonymous() && page.getOwner().equals(userId)) {
-								username += " (" + messageLocator.getMessage("simplepage.comment-you") + ")";
+							SimplePageLogEntry entry = cache.get(page.getPageId());
+							UIBranchContainer row = UIBranchContainer.make(tableRow, "studentRow:");
+							UIOutput.make(row, "studentCell");
+							
+							GeneralViewParameters eParams = new GeneralViewParameters(ShowPageProducer.VIEW_ID, page.getPageId());
+							eParams.setItemId(i.getId());
+							eParams.setPath("push");
+							
+							String username = null;
+						
+							try {
+								username = i.isAnonymous()? anonymousLookup.get(page.getOwner()) : UserDirectoryService.getUser(page.getOwner()).getDisplayName();
+								
+								if(i.isAnonymous() && canEditPage) {
+									username += " (" + UserDirectoryService.getUser(page.getOwner()).getDisplayName() + ")";
+								}else if(i.isAnonymous() && page.getOwner().equals(userId)) {
+									username += " (" + messageLocator.getMessage("simplepage.comment-you") + ")";
+								}
+							} catch (UserNotDefinedException e) {
+								username = page.getTitle();
 							}
-						} catch (UserNotDefinedException e) {
-							username = page.getTitle();
-						}
+							
+							UIInternalLink.make(row, "studentLink", username, eParams);
+							
+							// Never visited page
+							if(entry == null) {
+								UIOutput.make(row, "newPageImg").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.new-student-page")));
+							}
+							
+							// There's content they haven't seen
+							if(entry == null || entry.getLastViewed().compareTo(page.getLastUpdated()) < 0) {
+								UIOutput.make(row, "newContentImg").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.new-student-content")));
+							}
 						
-						UIInternalLink.make(row, "studentLink", username, eParams);
+							// The comments tool exists, so we might have to show the icon
+							if(i.getShowComments() != null && i.getShowComments()) {
+								UIOutput.make(row, "commentsImgCell");
+							}
+							
+							// New comments have been added since they last viewed the page
+							if(page.getLastCommentChange() != null && (entry == null || entry.getLastViewed().compareTo(page.getLastCommentChange()) < 0)) {
+								UIOutput.make(row, "newCommentsImg").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.new-student-comments")));
+							}
 						
-						// Never visited page
-						if(entry == null) {
-							UIOutput.make(row, "newPageImg").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.new-student-page")));
-						}
-						
-						// There's content they haven't seen
-						if(entry == null || entry.getLastViewed().compareTo(page.getLastUpdated()) < 0) {
-							UIOutput.make(row, "newContentImg").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.new-student-content")));
-						}
-						
-						// The comments tool exists, so we might have to show the icon
-						if(i.getShowComments() != null && i.getShowComments()) {
-							UIOutput.make(row, "commentsImgCell");
-						}
-						
-						// New comments have been added since they last viewed the page
-						if(page.getLastCommentChange() != null && (entry == null || entry.getLastViewed().compareTo(page.getLastCommentChange()) < 0)) {
-							UIOutput.make(row, "newCommentsImg").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.new-student-comments")));
-						}
-						
-						if(page.getOwner().equals(userId)) {
-							hasOwnPage = true;
-						}
+							if(page.getOwner().equals(userId)) {
+								hasOwnPage = true;
+							}
 					    }
 					
-					    if(!hasOwnPage) {
-						UIOutput.make(tableRow, "linkRow");
-						UIOutput.make(tableRow, "linkCell");
-
-						if (i.isRequired() && !simplePageBean.isItemComplete(i))
-						    UIOutput.make(tableRow, "student-required-image");
-						GeneralViewParameters eParams = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
-						eParams.addTool = GeneralViewParameters.STUDENT_PAGE;
-						eParams.studentItemId = i.getId();
-						UIInternalLink.make(tableRow, "linkLink", messageLocator.getMessage("simplepage.add-page"), eParams);
-					    }
-					
-					    if(canEditPage) {
-						UIOutput.make(tableRow, "student-td");
-						UILink.make(tableRow, "edit-student", messageLocator.getMessage("simplepage.editItem"), "")
-								.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.student")));
-						
-						UIOutput.make(tableRow, "studentId", String.valueOf(i.getId()));
-						UIOutput.make(tableRow, "studentAnon", String.valueOf(i.isAnonymous()));
-						UIOutput.make(tableRow, "studentComments", String.valueOf(i.getShowComments()));
-						UIOutput.make(tableRow, "forcedAnon", String.valueOf(i.getForcedCommentsAnonymous()));
-						UIOutput.make(tableRow, "studentitem-required", String.valueOf(i.isRequired()));
-						UIOutput.make(tableRow, "studentitem-prerequisite", String.valueOf(i.isPrerequisite()));
-						String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
-						if (itemGroupString != null) {
-						    String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString);
-						    if (itemGroupTitles != null) {
-							itemGroupTitles = "[" + itemGroupTitles + "]";
-						    }
-						    UIOutput.make(tableRow, "student-groups", itemGroupString);
-						    UIOutput.make(tableRow, "item-group-titles7", itemGroupTitles);
+						if(!hasOwnPage) {
+							UIOutput.make(tableRow, "linkRow");
+							UIOutput.make(tableRow, "linkCell");
+							
+							if (i.isRequired() && !simplePageBean.isItemComplete(i))
+								UIOutput.make(tableRow, "student-required-image");
+							GeneralViewParameters eParams = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
+							eParams.addTool = GeneralViewParameters.STUDENT_PAGE;
+							eParams.studentItemId = i.getId();
+							UIInternalLink.make(tableRow, "linkLink", messageLocator.getMessage("simplepage.add-page"), eParams);
 						}
-					    }
+					
+						if(canEditPage) {
+							UIOutput.make(tableRow, "student-td");
+							UILink.make(tableRow, "edit-student", messageLocator.getMessage("simplepage.editItem"), "")
+									.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.student")));
+							
+							UIOutput.make(tableRow, "studentId", String.valueOf(i.getId()));
+							UIOutput.make(tableRow, "studentAnon", String.valueOf(i.isAnonymous()));
+							UIOutput.make(tableRow, "studentComments", String.valueOf(i.getShowComments()));
+							UIOutput.make(tableRow, "forcedAnon", String.valueOf(i.getForcedCommentsAnonymous()));
+							UIOutput.make(tableRow, "studentGrade", String.valueOf(i.getGradebookId() != null));
+							UIOutput.make(tableRow, "studentMaxPoints", String.valueOf(i.getGradebookPoints()));
+							UIOutput.make(tableRow, "studentitem-required", String.valueOf(i.isRequired()));
+							UIOutput.make(tableRow, "studentitem-prerequisite", String.valueOf(i.isPrerequisite()));
+							String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+							if (itemGroupString != null) {
+								String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString);
+								if (itemGroupTitles != null) {
+									itemGroupTitles = "[" + itemGroupTitles + "]";
+								}
+								UIOutput.make(tableRow, "student-groups", itemGroupString);
+								UIOutput.make(tableRow, "item-group-titles7", itemGroupTitles);
+							}
+						}
 					}
 				}  else {
 					// remaining type must be a block of HTML
@@ -2623,6 +2661,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "student-comments-anon", "#{simplePageBean.forcedAnon}");
 		UIBoundBoolean.make(form, "student-required", "#{simplePageBean.required}");
 		UIBoundBoolean.make(form, "student-prerequisite", "#{simplePageBean.prerequisite}");
+		
+		UIBoundBoolean.make(form, "student-graded", "#{simplePageBean.graded}");
+		UIInput.make(form, "student-max", "#{simplePageBean.maxPoints}");
 
 		UICommand.make(form, "delete-student-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
 		UICommand.make(form, "update-student", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.updateStudent}");
@@ -2801,4 +2842,18 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			return -1;
 	}
 
+	private boolean printedGradingForm = false;
+	private void printGradingForm(UIContainer tofill) {
+		// Ajax grading form so faculty can grade comments
+		if(!printedGradingForm) {
+			UIForm gradingForm = UIForm.make(tofill, "gradingForm");
+			gradingForm.viewparams = new SimpleViewParameters(UVBProducer.VIEW_ID);
+			UIInput idInput = UIInput.make(gradingForm, "gradingForm-id", "gradingBean.id");
+			UIInput jsIdInput = UIInput.make(gradingForm, "gradingForm-jsId", "gradingBean.jsId");
+			UIInput pointsInput = UIInput.make(gradingForm, "gradingForm-points", "gradingBean.points");
+			UIInput typeInput = UIInput.make(gradingForm, "gradingForm-type", "gradingBean.type");
+			UIInitBlock.make(tofill, "gradingForm-init", "initGradingForm", new Object[] {idInput, pointsInput, jsIdInput, typeInput, "gradingBean.results"});
+			printedGradingForm = true;
+		}
+	}
 }
