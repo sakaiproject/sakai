@@ -81,10 +81,8 @@ public class NoisierDefaultListableBeanFactory extends
 					+ beanName + ". Destroying all Spring beans.", ex);
 			try {
 				destroySingletons();
-			} catch (Throwable ex2) {
-				logger.error("Pre-instantiating singletons failed, "
-						+ "and couldn't destroy already created singletons",
-						ex2);
+			} catch (Exception ex2) {
+				logger.error("Pre-instantiating singletons failed, and couldn't destroy already created singletons: "+ex2, ex2);
 			}
 			throw ex;
 		}

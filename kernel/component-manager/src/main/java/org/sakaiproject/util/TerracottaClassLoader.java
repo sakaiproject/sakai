@@ -46,12 +46,12 @@ class TerracottaClassLoader extends URLClassLoader {
 					}
 				}
 			}
-		} catch (Throwable t) {
+		} catch (Exception e) {
 			// It is important that normal startup not suffer if Terracotta is not running
 			// so catch any error that occurs in this block of code dealing with Terracotta
 			// class loader registering
 			log.error("Unexpected error occurred trying to register class loader [" + 
-					classLoaderName + "] with Terracotta",t);
+					classLoaderName + "] with Terracotta: "+e, e);
 		}
 		if (!registeredWithTerracotta) {
         	log.warn("The [" + classLoaderName + 

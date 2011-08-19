@@ -23,7 +23,8 @@ package org.sakaiproject.util;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.lang.reflect.Method;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -87,8 +88,7 @@ public class ComponentsLoader
 			final int reverse = System.getProperty("sakai.components.reverse.load") != null ? -1 : 1;
 
 			// assure a consistent order - sort these files
-			Collections.sort(packages, new Comparator()
-			{
+			Collections.sort(packages, new Comparator<Object>() {
 				public int compare(Object o1, Object o2)
 				{
 					File f1 = (File) o1;
@@ -114,9 +114,8 @@ public class ComponentsLoader
 				}
 			}
 		}
-		catch (Throwable t)
-		{
-			M_log.warn("load: exception: " + t);
+		catch (Exception e) {
+			M_log.warn("load: exception: " + e, e);
 		}
 	}
 
@@ -178,9 +177,9 @@ public class ComponentsLoader
 						
 			reader.loadBeanDefinitions(beanDefList.toArray(new Resource[0]));
 		}
-		catch (Throwable t)
+		catch (Exception e)
 		{
-			M_log.warn("loadComponentPackage: exception loading: " + xml + " : " + t,t);
+			M_log.warn("loadComponentPackage: exception loading: " + xml + " : " + e, e);
 		}
 		finally
 		{
@@ -233,14 +232,12 @@ public class ComponentsLoader
 		File classes = new File(webinf, "classes");
 		if ((classes != null) && (classes.isDirectory()))
 		{
-			try
-			{
-				URL url = new URL("file:" + classes.getCanonicalPath() + "/");
-				urls.add(url);
-			}
-			catch (Throwable t)
-			{
-			}
+			try {
+                URL url = new URL("file:" + classes.getCanonicalPath() + "/");
+                urls.add(url);
+            } catch (Exception e) {
+                M_log.warn("Bad url for classes: "+classes.getPath()+" : "+e);
+            }
 		}
 
 		// put each .jar file onto the classpath
@@ -259,14 +256,14 @@ public class ComponentsLoader
 			{
 				for (int j = 0; j < jars.length; j++)
 				{
-					try
-					{
-						URL url = new URL("file:" + jars[j].getCanonicalPath());
-						urls.add(url);
-					}
-					catch (Throwable t)
-					{
-					}
+				    if (jars[j] != null) {
+	                    try {
+	                        URL url = new URL("file:" + jars[j].getCanonicalPath());
+	                        urls.add(url);
+	                    } catch (Exception e) {
+	                        M_log.warn("Bad url for jar: "+jars[j].getPath()+" : "+e);
+	                    }
+				    }
 				}
 			}
 		}
