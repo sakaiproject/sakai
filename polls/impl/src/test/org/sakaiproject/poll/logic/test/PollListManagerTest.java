@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2008 The Sakai Foundation
@@ -44,7 +44,7 @@ public class PollListManagerTest extends AbstractTransactionalSpringContextTests
 		// point to the needed spring config files, must be on the classpath
 		// (add component/src/webapp/WEB-INF to the build path in Eclipse),
 		// they also need to be referenced in the project.xml file
-		return new String[] { "hibernate-test.xml", "spring-hibernate.xml" };
+		return new String[] { "hibernate-test.xml", "classpath:org/sakaiproject/poll/spring-hibernate.xml" };
 	}
 
 	// run this before each test starts

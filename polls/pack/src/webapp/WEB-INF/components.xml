@@ -9,7 +9,8 @@
 	<import resource="hibernate-hbms.xml" />
 
 	<!-- Bring in the hibernate related beans -->
-	<import resource="spring-hibernate.xml" />
+	<!-- This is in the implementation so it can be used by tests but then loaded from the classpath here. -->
+	<import resource="classpath:org/sakaiproject/poll/spring-hibernate.xml" />
 
 	<!-- create a logic bean, give it the dao from above and some sakai services -->
 		<bean id="org.sakaiproject.tool.poll.api.PollListManager"
