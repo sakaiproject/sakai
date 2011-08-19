@@ -2515,7 +2515,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 							rv.put(realmId, roleName);
 						}
 					}
-					catch (Throwable t)
+					catch (Exception t)
 					{
 						M_log.warn("Serious database error occurred reading result set", t);
 					}

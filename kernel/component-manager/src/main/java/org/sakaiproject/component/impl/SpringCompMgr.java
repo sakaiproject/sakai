@@ -141,8 +141,7 @@ public class SpringCompMgr implements ComponentManager {
 
 		// if configured (with the system property CLOSE_ON_SHUTDOWN set),
 		// create a shutdown task to close when the JVM closes
-		// (otherwise we will close in removeChildAc() when the last child is
-		// gone)
+		// (otherwise we will close in removeChildAc() when the last child is gone)
 		if (System.getProperty(CLOSE_ON_SHUTDOWN) != null) {
 			Runtime.getRuntime().addShutdownHook(new Thread() {
 				public void run() {
@@ -156,14 +155,13 @@ public class SpringCompMgr implements ComponentManager {
 				// get the singletons loaded
 				m_ac.refresh();
 				m_ac.publishEvent(new SakaiComponentEvent(this, SakaiComponentEvent.Type.STARTED));
-			} catch (Throwable t) {
-				if (Boolean.valueOf(System.getProperty(SHUTDOWN_ON_ERROR,
-						"false"))) {
-					M_log.fatal(t.getMessage(), t);
+			} catch (Exception e) {
+				if (Boolean.valueOf(System.getProperty(SHUTDOWN_ON_ERROR, "false"))) {
+					M_log.fatal(e.getMessage(), e);
 					M_log.fatal("Shutting down JVM");
 					System.exit(1);
 				} else {
-					M_log.warn(t.getMessage(), t);
+					M_log.warn(e.getMessage(), e);
 				}
 			}
 		}
@@ -188,10 +186,11 @@ public class SpringCompMgr implements ComponentManager {
 			component = m_ac.getBean(iface.getName(), iface);
 		} catch (NoSuchBeanDefinitionException e) {
 			// This is an expected outcome, we don't usually want logs
-			if (M_log.isDebugEnabled())
+			if (M_log.isDebugEnabled()) {
 				M_log.debug("get(" + iface.getName() + "): " + e, e);
-		} catch (Throwable t) {
-			M_log.warn("get(" + iface.getName() + "): ", t);
+			}
+		} catch (Exception e) {
+			M_log.warn("get(" + iface.getName() + "): ", e);
 		}
 
 		return component;
@@ -207,10 +206,11 @@ public class SpringCompMgr implements ComponentManager {
 			component = m_ac.getBean(ifaceName);
 		} catch (NoSuchBeanDefinitionException e) {
 			// This is an expected outcome, we don't usually want logs
-			if (M_log.isDebugEnabled())
+			if (M_log.isDebugEnabled()) {
 				M_log.debug("get(" + ifaceName + "): " + e, e);
-		} catch (Throwable t) {
-			M_log.warn("get(" + ifaceName + "): ", t);
+			}
+		} catch (Exception e) {
+			M_log.warn("get(" + ifaceName + "): ", e);
 		}
 
 		return component;
