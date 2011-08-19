@@ -61,25 +61,5 @@
       </resource>
     </resources>
     <sourceDirectory>src/java</sourceDirectory>
-   <testResources>
-      <testResource>
-        <directory>${basedir}/src/testBundle</directory>
-        <includes>
-          <include>**/*.*</include>
-        </includes>
-      </testResource>
-      <testResource>
-        <directory>${basedir}/src/test/</directory>
-        <includes>
-          <include>**/*</include>
-        </includes>
-      </testResource>
-      <testResource>
-        <directory>${basedir}/../pack/src/webapp/</directory>
-        <includes>
-          <include>**/*.*</include>
-        </includes>
-      </testResource>
-    </testResources>
   </build>
 </project>
