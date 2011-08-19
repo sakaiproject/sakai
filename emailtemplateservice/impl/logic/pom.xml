@@ -125,9 +125,9 @@
     <build>
         <resources>
             <resource>
-                <directory>${basedir}/src/bundle</directory>
+                <directory>${basedir}/src/resources</directory>
                 <includes>
-                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
                 </includes>
                 <filtering>false</filtering>
             </resource>
