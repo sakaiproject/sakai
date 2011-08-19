@@ -144,13 +144,6 @@
 
         <testResources>
             <testResource>
-                <directory>${basedir}/../../pack/src/webapp/WEB-INF</directory>
-                <includes>
-                    <include>spring-hibernate.xml</include>
-                </includes>
-                <filtering>false</filtering>
-            </testResource>
-            <testResource>
                 <directory>${basedir}/src/test</directory>
                 <includes>
                     <include>hibernate-test.xml</include>

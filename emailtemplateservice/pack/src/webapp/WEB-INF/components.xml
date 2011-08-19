@@ -6,7 +6,8 @@
 <beans>
 
     <!-- Bring in the hibernate related beans -->
-    <import resource="spring-hibernate.xml" />
+    <!-- This is on the classpath so it's in the implementation and can be used by tests -->
+    <import resource="classpath:org/sakaiproject/emailtemplateservice/spring-hibernate.xml" />
     <import resource="hibernate-hbms.xml" />
 
     <!-- add sakai application scope bean definitions here -->

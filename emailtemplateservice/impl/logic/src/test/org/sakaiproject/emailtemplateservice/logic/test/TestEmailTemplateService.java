@@ -32,7 +32,8 @@ public class TestEmailTemplateService extends AbstractTransactionalSpringContext
 		// point to the needed spring config files, must be on the classpath
 		// (add component/src/webapp/WEB-INF to the build path in Eclipse),
 		// they also need to be referenced in the project.xml file
-		return new String[] {"hibernate-test.xml", "spring-hibernate.xml"};
+		return new String[] { "hibernate-test.xml",
+				"classpath:org/sakaiproject/emailtemplateservice/spring-hibernate.xml"};
 	}
 	// run this before each test starts
 	protected void onSetUpBeforeTransaction() throws Exception {
