@@ -2838,4 +2838,42 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
         
         if(log.isDebugEnabled()) log.debug("GradebookManager.applyDropScores took " + (System.currentTimeMillis() - start) + " millis to execute");
     }
+    
+    public PointsPossibleValidation isPointsPossibleValid(String gradebookUid, org.sakaiproject.service.gradebook.shared.Assignment gradebookItem, 
+            Double pointsPossible) {
+        if (gradebookUid == null) {
+            throw new IllegalArgumentException("Null gradebookUid passed to isPointsPossibleValid");
+        }
+        if (gradebookItem == null) {
+            throw new IllegalArgumentException("Null gradebookItem passed to isPointsPossibleValid");
+        }
+
+        // At this time, all gradebook items follow the same business rules for
+        // points possible (aka relative weight in % gradebooks) so special logic 
+        // using the properties of the gradebook item is unnecessary. 
+        // In the future, we will have the flexibility to change
+        // that behavior without changing the method signature
+
+        // the points possible must be a non-null value greater than 0 with
+        // no more than 2 decimal places
+        
+        if (pointsPossible == null) {
+            return PointsPossibleValidation.INVALID_NULL_VALUE;
+        }
+        
+        if (pointsPossible.doubleValue() <= 0) {
+            return PointsPossibleValidation.INVALID_NUMERIC_VALUE;
+        }
+        // ensure there are no more than 2 decimal places
+        BigDecimal bd = new BigDecimal(pointsPossible.doubleValue());
+        bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP); // Two decimal places
+        double roundedVal = bd.doubleValue();
+        double diff = pointsPossible - roundedVal;
+        if (diff != 0) {
+            return PointsPossibleValidation.INVALID_DECIMAL;
+        }
+
+        return PointsPossibleValidation.VALID;
+    }
+
 }

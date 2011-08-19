@@ -62,6 +62,33 @@ public interface GradebookService {
 	
 	public static final MathContext MATH_CONTEXT = new MathContext(10, RoundingMode.HALF_DOWN);
 	
+	/** 
+     * An enum for defining valid/invalid information for a points possible/relative weight
+     * value for a gradebook item. See {@link GradebookService#isPointsPossibleValid(String, Assignment, Double)}
+     * for usage
+     */
+    public enum PointsPossibleValidation {
+        /**
+         * The points possible/relative weight is valid
+         */
+        VALID,
+        /**
+         * The points possible/relative weight is invalid because it is null 
+         * and a value is required.
+         */
+        INVALID_NULL_VALUE,
+        /**
+         * The points possible/relative weight is invalid because it
+         * is a value <= 0
+         */
+        INVALID_NUMERIC_VALUE,
+        /**
+         * The points possible/relative weight is invalid because it contains
+         * more than 2 decimal places
+         */
+        INVALID_DECIMAL
+    }
+	
 	public static Comparator lettergradeComparator = new Comparator() 
 	{
 		public int compare(Object o1, Object o2) 
@@ -777,4 +804,19 @@ public interface GradebookService {
 	 */
 	public String getLowestPossibleGradeForGbItem(final String gradebookUid, final Long gradebookItemId);
 	
+	/**
+	 * 
+	 * @param gradebookUid (non-null)
+	 * @param gradebookItem (non-null) the Assignment object representing the gradebook item for which you are
+	 * setting the points possible (aka relative weight). May be a new gradebook item without
+	 * an id yet.
+	 * @param pointsPossible the points possible/relative weight you would like to validate
+	 * for the gradebookItem above.
+	 * @return {@link PointsPossibleValidation} value indicating the validity of the given
+	 * points possible/relative weight or a problem code defining why it is invalid
+	 */
+	public PointsPossibleValidation isPointsPossibleValid(String gradebookUid, org.sakaiproject.service.gradebook.shared.Assignment gradebookItem, 
+	        Double pointsPossible);
+	   
+
 }
