@@ -42,10 +42,6 @@
       <artifactId>sakai-citations-impl</artifactId>
       <exclusions>
         <exclusion>
-          <groupId>org.sakaiproject</groupId>
-          <artifactId>sakai-citations-util</artifactId>
-        </exclusion>
-        <exclusion>
           <groupId>OKI</groupId>
           <artifactId>OkiOSID</artifactId>
         </exclusion>
@@ -58,6 +54,10 @@
           <artifactId>sakai-content-util</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-citations-util</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.velocity</groupId>
@@ -77,12 +77,6 @@
     <resources>
       <resource>
         <directory>${basedir}/src/webapp</directory>
-        <includes>
-          <include>**/*.properties</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>${basedir}/../../citations-util/util/src/bundle</directory>
         <includes>
           <include>**/*.properties</include>
         </includes>
