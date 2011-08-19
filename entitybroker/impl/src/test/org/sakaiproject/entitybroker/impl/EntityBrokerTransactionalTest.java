@@ -40,7 +40,7 @@ public class EntityBrokerTransactionalTest extends AbstractTransactionalSpringCo
         // point to the needed spring config files, must be on the classpath
         // (add component/src/webapp/WEB-INF to the build path in Eclipse),
         // they also need to be referenced in the project.xml file
-        return new String[] { "database-test.xml", "spring-jdbc.xml" };
+        return new String[] { "database-test.xml", "classpath:org/sakaiproject/entitybroker/spring-jdbc.xml" };
     }
 
     // run this before each test starts

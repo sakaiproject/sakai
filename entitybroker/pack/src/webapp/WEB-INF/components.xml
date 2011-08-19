@@ -16,7 +16,8 @@
         factory-method="getVendor" />
 
     <!-- Bring in the spring jdbc related beans -->
-    <import resource="spring-jdbc.xml" />
+    <!-- This file is in the implementation so it can be used by tests there. -->
+    <import resource="classpath:org/sakaiproject/entitybroker/spring-jdbc.xml" />
 
     <!-- Public beans -->
     <bean id="org.sakaiproject.entitybroker.entityprovider.EntityProviderManager"

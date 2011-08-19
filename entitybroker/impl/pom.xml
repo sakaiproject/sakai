@@ -170,6 +170,13 @@
                 </includes>
                 <filtering>false</filtering>
             </resource>
+            <resource>
+                <directory>${basedir}/src/resources</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
         </resources>
 <!-- unit testing -->
         <plugins>
@@ -192,12 +199,6 @@
                 <directory>${basedir}/src/ddl</directory>
                 <includes>
                     <include>**/*.sql</include>
-                </includes>
-            </testResource>
-            <testResource>
-                <directory>${basedir}/../pack/src/webapp/WEB-INF</directory>
-                <includes>
-                    <include>spring-jdbc.xml</include>
                 </includes>
             </testResource>
             <testResource>
