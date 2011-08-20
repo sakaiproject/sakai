@@ -37,6 +37,14 @@ public interface SakaiProxy {
 	public static final String PERMIT_ASSIGNMENT_ACCESS = AssignmentService.SECURE_ACCESS_ASSIGNMENT;
 	public static final String PERMIT_RESOURCE_ACCESS = ContentHostingService.AUTH_RESOURCE_READ;
 	
+	// hardcoded strings for membership events for now. Waiting for KNL-785 fix
+	public static final String EVENT_SITE_MEMBERSHIP_NEW = "user.site.membership.add";
+    public static final String EVENT_SITE_MEMBERSHIP_UPDATE = "user.site.membership.update";
+    public static final String EVENT_SITE_MEMBERSHIP_REMOVE = "user.site.membership.delete";
+    
+	public static final String EVENT_GROUP_MEMBERSHIP_NEW = "user.group.membership.add";
+    public static final String EVENT_GROUP_MEMBERSHIP_UPDATE = "user.group.membership.update";
+    public static final String EVENT_GROUP_MEMBERSHIP_REMOVE = "user.group.membership.delete";
 	
 	/**
 	 * 

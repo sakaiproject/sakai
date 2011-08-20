@@ -97,9 +97,6 @@ public class AssignmentNewEventProcessor implements EventProcessor {
 			
 			
 			NewsItem newsItem = this.dashboardLogic.createNewsItem(assn.getTitle(), event.getEventTime(), assn.getReference(), assignmentUrl, context, sourceType);
-		
-			
-			
 			this.dashboardLogic.createNewsLinks(newsItem);
 		
 			CalendarItem calendarItem = this.dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getDueTime().getTime()), assn.getReference(), assignmentUrl, context, sourceType);
