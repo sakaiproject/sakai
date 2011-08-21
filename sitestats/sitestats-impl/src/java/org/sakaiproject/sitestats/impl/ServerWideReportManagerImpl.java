@@ -134,17 +134,25 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 	{
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.sakaiproject.sitestats.api.ServerWideReportManager#getMonthlyLogin()
+	
+	/**
+	 * Get the total logins per month
+	 * @return
 	 */
-	public List<ServerWideStatsRecord> getMonthlyLogin ()
+	public List<ServerWideStatsRecord> getMonthlyTotalLogins ()
 	{
+		/*
 		String mySql = "select STR_TO_DATE(date_format(SESSION_START, '%Y-%m-01'),'%Y-%m-%d') as period, "
 				+ "count(*) as user_logins, "
 				+ "count(distinct SESSION_USER) as unique_users "
 				+ "from SAKAI_SESSION " + "group by 1";
+		*/
+		
+		String mySql = "select STR_TO_DATE(date_format(ACTIVITY_DATE, '%Y-%m-01'),'%Y-%m-%d') as period," +
+				" sum(ACTIVITY_COUNT) as user_logins" +
+				" from SST_SERVERSTATS" +
+				" where EVENT_ID='user.login'" +
+				" group by 1";
 
 		List result = m_sqlService.dbRead (mySql, null, new SqlReader () {
 			public Object readSqlResultRecord (ResultSet result)
@@ -153,7 +161,39 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 				try {
 					info.add (result.getDate (1));
 					info.add (result.getLong (2));
-					info.add (result.getLong (3));
+				}
+				catch (SQLException e) {
+					return null;
+				}
+				return info;
+			}
+		});
+
+		// remove the last entry, as it might not be a complete period
+		result.remove (result.size () - 1);
+
+		return result;
+	}
+	
+	/**
+	 * Get the total unique logins per month
+	 * @return
+	 */
+	public List<ServerWideStatsRecord> getMonthlyUniqueLogins ()
+	{
+		
+		String mySql = "select STR_TO_DATE(date_format(LOGIN_DATE, '%Y-%m-01'),'%Y-%m-%d') as period," +
+				"count(distinct user_id) as unique_users" +
+				"from sst_userstats" +
+				"group by 1";
+
+		List result = m_sqlService.dbRead (mySql, null, new SqlReader () {
+			public Object readSqlResultRecord (ResultSet result)
+			{
+				ServerWideStatsRecord info = new ServerWideStatsRecordImpl ();
+				try {
+					info.add (result.getDate (1));
+					info.add (result.getLong (2));
 				}
 				catch (SQLException e) {
 					return null;
@@ -175,10 +215,19 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 	 */
 	public List<ServerWideStatsRecord> getWeeklyLogin ()
 	{
+		/*
 		String mySql = "select STR_TO_DATE(concat(date_format(SESSION_START, '%x-%v'), ' Monday'),'%x-%v %W') as week_start,"
 				+ " count(*) as user_logins, count(distinct SESSION_USER) as unique_users"
 				+ " from SAKAI_SESSION" + " group by 1";
-
+		*/
+		
+		String mySql = "select STR_TO_DATE(concat(date_format(ACTIVITY_DATE, '%x-%v'), ' Monday'),'%x-%v %W') as week_start," +
+				" ACTIVITY_COUNT as user_logins, count(USER_ID) as unique_users" +
+				" from SST_SERVERSTATS, SST_USERSTATS" +
+				" where EVENT_ID='user.login'" +
+				" and ACTIVITY_DATE=LOGIN_DATE" +
+				" group by 1";
+		
 		List result = m_sqlService.dbRead (mySql, null, new SqlReader () {
 			public Object readSqlResultRecord (ResultSet result)
 			{
@@ -203,13 +252,24 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 
 	public List<ServerWideStatsRecord> getDailyLogin ()
 	{
+		/*
 		String mySql = "select date(SESSION_START) as session_date,"
 				+ " count(*) as user_logins,"
 				+ " count(distinct SESSION_USER) as unique_users"
 				+ " from SAKAI_SESSION" 
 				+ " where SESSION_START > DATE_SUB(CURDATE(), INTERVAL 90 DAY)"
 				+ " group by 1";
-
+		*/
+		
+		String mySql = "select date(ACTIVITY_DATE) as session_date, " +
+				" ACTIVITY_COUNT as user_logins, " +
+				" count(USER_ID) as unique_users" +
+				" from SST_SERVERSTATS, SST_USERSTATS " +
+				" where EVENT_ID='user.login' " +
+				" and ACTIVITY_DATE > DATE_SUB(CURDATE(), INTERVAL 90 DAY)" +
+				" and ACTIVITY_DATE=LOGIN_DATE" +
+				" group by 1";
+		
 		List result = m_sqlService.dbRead (mySql, null, new SqlReader () {
 			public Object readSqlResultRecord (ResultSet result)
 			{
@@ -487,15 +547,14 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 
 
 	
-	private IntervalXYDataset getMonthlyLoginsDataSet ()
-	{
-		List<ServerWideStatsRecord> loginList = getMonthlyLogin ();
+	private IntervalXYDataset getMonthlyTotalLoginsDataSet () {
+		
+		List<ServerWideStatsRecord> loginList = getMonthlyTotalLogins();
 		if (loginList == null) {
 			return null;
 		}
 
-		TimeSeries s1 = new TimeSeries (msgs.getString ("legend_logins"),
-				Month.class);
+		TimeSeries s1 = new TimeSeries (msgs.getString ("legend_logins"), Month.class);
 		for (ServerWideStatsRecord login : loginList) {
 			Month month = new Month ((Date) login.get (0));
 			s1.add (month, (Long) login.get (1));
@@ -508,18 +567,17 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 	}
 
 	
-	private IntervalXYDataset getMonthlyUniqueLoginsDataSet ()
-	{
-		List<ServerWideStatsRecord> loginList = getMonthlyLogin ();
+	private IntervalXYDataset getMonthlyUniqueLoginsDataSet () {
+		
+		List<ServerWideStatsRecord> loginList = getMonthlyUniqueLogins();
 		if (loginList == null) {
 			return null;
 		}
 
-		TimeSeries s2 = new TimeSeries (
-				msgs.getString ("legend_unique_logins"), Month.class);
+		TimeSeries s2 = new TimeSeries (msgs.getString ("legend_unique_logins"), Month.class);
 		for (ServerWideStatsRecord login : loginList) {
 			Month month = new Month ((Date) login.get (0));
-			s2.add (month, (Long) login.get (2));
+			s2.add (month, (Long) login.get (1));
 		}
 
 		TimeSeriesCollection dataset = new TimeSeriesCollection ();
@@ -805,11 +863,11 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 	
 	private byte[] createMonthlyLoginChart (int width, int height)
 	{
-		IntervalXYDataset dataset1 = getMonthlyLoginsDataSet ();
-		IntervalXYDataset dataset2 = getMonthlyUniqueLoginsDataSet ();
-        IntervalXYDataset dataset3 = getMonthlySiteUserDataSet ();
+		IntervalXYDataset dataset1 = getMonthlyTotalLoginsDataSet();
+		IntervalXYDataset dataset2 = getMonthlyUniqueLoginsDataSet();
+        IntervalXYDataset dataset3 = getMonthlySiteUserDataSet();
 		
-		if ((dataset1 == null) || (dataset3 == null)) {
+		if ((dataset1 == null) || (dataset2 == null) || (dataset3 == null)) {
 			return generateNoDataChart(width, height);
 		}
 		

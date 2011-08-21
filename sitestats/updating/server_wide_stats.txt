@@ -154,7 +154,21 @@ sakai.discussion	79
 Historical data conversion
 ##########################
 
-TODO
+You need to run the following three queries to convert the data into the new tables. No data is lost in this process.
+You should backup any data in the SSL_SERVERSTATS and SST_USERSTATS tables just in case you decide to start over.
 
-* Tally up and convert the server events per day
-* Tally up and convert each user per day plus their login count
+
+### Convert the daily server events per day
+
+
+### Convert daily total user logins
+insert into sst_serverstats (activity_date, event_id, activity_count) 
+select date(SESSION_START), "user.login", count(*)
+from SAKAI_SESSION where SESSION_START > DATE_SUB(CURDATE(), INTERVAL 5000 DAY) group by 1
+
+## Convert daily individual user logins
+insert into sst_userstats (login_date, user_id, login_count) 
+select date(SESSION_START), SESSION_USER, count(*) from SAKAI_SESSION where SESSION_START > DATE_SUB(CURDATE(), INTERVAL 5000 DAY) group by 2,1
+
+
+

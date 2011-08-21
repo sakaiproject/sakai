@@ -29,12 +29,20 @@ public interface ServerWideReportManager
     
     
     /**
-     * Get site login activity statistics grouped by month.
+     * Get total login activity statistics grouped by month.
      * 
      * @return a list of login statistics. 
-     * 		format: String yyyy-mm, Total Logins, Total Unique Logins
+     * 		format: String yyyy-mm, Total Logins,
      */
-    public List<ServerWideStatsRecord> getMonthlyLogin ();
+    public List<ServerWideStatsRecord> getMonthlyTotalLogins();
+    
+    /**
+     * Get unique login activity statistics grouped by month.
+     * 
+     * @return a list of login statistics. 
+     * 		format: String yyyy-mm, Total Unique Logins
+     */
+    public List<ServerWideStatsRecord> getMonthlyUniqueLogins();
     
     /**
      * Get site login activity statistics grouped by week.
