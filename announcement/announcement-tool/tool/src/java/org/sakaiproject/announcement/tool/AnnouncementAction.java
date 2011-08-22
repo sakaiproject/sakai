@@ -168,6 +168,8 @@ public class AnnouncementAction extends PagedResourceActionII
 	private static final String SORT_GROUPTITLE = "grouptitle";
 
 	private static final String SORT_GROUPDESCRIPTION = "groupdescription";
+	
+	private static String SORT_CURRENTORDER = "date";
 
 	private static final String CONTEXT_VAR_DISPLAY_OPTIONS = "displayOptions";
 
@@ -233,6 +235,20 @@ public class AnnouncementAction extends PagedResourceActionII
    private EntityBroker entityBroker;
    
    private static int MaxNoOfAnn =0;
+   
+   /*
+	 * Returns the current order
+	 * 
+	 */
+	public static String getCurrentOrder() {
+		
+		String enableReorder=ServerConfigurationService.getString("sakai.announcement.reorder", "false");
+		
+		if (enableReorder.equals("true")){
+			SORT_CURRENTORDER="message_order";
+		}			
+		return SORT_CURRENTORDER;
+	}
 
 	/**
 	 * Used by callback to convert channel references to channels.
@@ -1527,13 +1543,15 @@ public class AnnouncementAction extends PagedResourceActionII
 		{
 			Collections.reverse(messageList);
 		}
-
+		
+		MaxNoOfAnn=messageList.size();
+		
 		// Apply any necessary list truncation.
 		messageList = getViewableMessages(messageList, ToolManager.getCurrentPlacement().getContext());
 		
+		
 		messageList = trimListToMaxNumberOfAnnouncements(messageList, state.getDisplayOptions());
-		MaxNoOfAnn=messageList.size();
-
+		
 		return messageList;
 	}
 
@@ -2811,7 +2829,6 @@ public class AnnouncementAction extends PagedResourceActionII
 				//set the order of the announcement messages
 				MaxNoOfAnn=MaxNoOfAnn+1;
 				header.setMessage_order(MaxNoOfAnn);
-				//msg.getPropertiesEdit().addProperty("MESSAGE_ORDER", "22");
 				
 //				header.setDraft(!post);
 				// v2.4: Hidden in UI becomes Draft 'behind the scenes'
@@ -2993,9 +3010,9 @@ public class AnnouncementAction extends PagedResourceActionII
 			state.setMessageReference("");
 			state.setTempAnnounceTo(null);
 			state.setTempAnnounceToGroups(null);
-			state.setCurrentSortedBy(SORT_MESSAGE_ORDER);
+			state.setCurrentSortedBy(getCurrentOrder());
 			//state.setCurrentSortAsc(Boolean.TRUE.booleanValue());
-			sstate.setAttribute(STATE_CURRENT_SORTED_BY, SORT_MESSAGE_ORDER);
+			sstate.setAttribute(STATE_CURRENT_SORTED_BY, getCurrentOrder());
 			sstate.setAttribute(STATE_CURRENT_SORT_ASC, state.getCurrentSortAsc());
 
 			// make sure auto-updates are enabled
@@ -3551,9 +3568,9 @@ public class AnnouncementAction extends PagedResourceActionII
 		state.setStatus(CANCEL_STATUS);
 		state.setTempAnnounceTo(null);
 		state.setTempAnnounceToGroups(null);
-		state.setCurrentSortedBy(SORT_MESSAGE_ORDER);
+		state.setCurrentSortedBy(getCurrentOrder());
 		//state.setCurrentSortAsc(Boolean.TRUE.booleanValue());
-		sstate.setAttribute(STATE_CURRENT_SORTED_BY, SORT_MESSAGE_ORDER);
+		sstate.setAttribute(STATE_CURRENT_SORTED_BY, getCurrentOrder());
 		//sstate.setAttribute(STATE_CURRENT_SORT_ASC, Boolean.FALSE);
 
 		sstate.setAttribute(STATE_CURRENT_SORT_ASC, state.getCurrentSortAsc());
@@ -4751,8 +4768,7 @@ public class AnnouncementAction extends PagedResourceActionII
 
 		if ((sortedBy == null) || sortedBy.equals(""))
 		{
-			//sortedBy = "message order";
-			sortedBy="message_order";
+			sortedBy= getCurrentOrder();
 			asc = false;
 		}
 		SortedIterator rvSorted = new SortedIterator(rv.iterator(), new AnnouncementComparator(sortedBy, asc));
