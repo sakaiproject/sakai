@@ -621,7 +621,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		}
 		for (ServerWideStatsRecord login : uniqueLogins) {
 			Month month = new Month ((Date) login.get (0));
-			s1.add (month, (Long) login.get (1));
+			s2.add (month, (Long) login.get (1));
 		}
 
 		TimeSeriesCollection dataset = new TimeSeriesCollection ();
@@ -671,7 +671,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		
 		for (ServerWideStatsRecord login : uniqueLogins) {
 			Week week = new Week ((Date) login.get (0));
-			s1.add (week, (Long) login.get (1));
+			s2.add (week, (Long) login.get (1));
 		}
 
 		TimeSeriesCollection dataset = new TimeSeriesCollection();
