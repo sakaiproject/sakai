@@ -351,7 +351,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		return result;
 	}
 
-	public List<ServerWideStatsRecord> getSiteCreatedDeletedStats (String period) {
+	public List<ServerWideStatsRecord> getSiteCreatedDeletedStats(String period) {
 		String sqlPeriod = "";
 		if (period.equals ("daily")) {
 			sqlPeriod = "date(ACTIVITY_DATE) as event_period";
@@ -393,25 +393,27 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		return result;
 	}
 
-	public List<ServerWideStatsRecord> getNewUserStats (String period)
+	public List<ServerWideStatsRecord> getNewUserStats(String period)
 	{
 		String sqlPeriod = "";
 		if (period.equals ("daily")) {
-			sqlPeriod = "date(EVENT_DATE) as event_period";
+			sqlPeriod = "date(ACTIVITY_DATE) as event_period";
 		} else if (period.equals ("weekly")) {
-			sqlPeriod = "STR_TO_DATE(date_format(EVENT_DATE, '%x-%v Monday'),'%x-%v %W') as event_period";
+			sqlPeriod = "STR_TO_DATE(date_format(ACTIVITY_DATE, '%x-%v Monday'),'%x-%v %W') as event_period";
 		} else {
 			// monthly
-			sqlPeriod = "STR_TO_DATE(date_format(EVENT_DATE, '%Y-%m-01'),'%Y-%m-%d') as event_period";
+			sqlPeriod = "STR_TO_DATE(date_format(ACTIVITY_DATE, '%Y-%m-01'),'%Y-%m-%d') as event_period";
 		}
 		String mySql = "select " + sqlPeriod + ", "
-				+ "sum(if(event = 'site.add' && ref regexp '/site/[~!]',1,0)) as new_user "
-				+ "FROM SAKAI_EVENT ";
+				+ " ACTIVITY_COUNT as new_user"
+				+ " FROM SST_SERVERSTATS"
+				+ " where EVENT_ID='user.add'";
+				
 
 		if (period.equals ("daily")) {
-			mySql = mySql + "where EVENT_DATE > DATE_SUB(CURDATE(), INTERVAL 90 DAY) ";
+			mySql = mySql + " and ACTIVITY_DATE > DATE_SUB(CURDATE(), INTERVAL 90 DAY) ";
 		}
-		mySql = mySql + "group by 1";
+		mySql = mySql + " group by 1";
 
 		List result = m_sqlService.dbRead (mySql, null, new SqlReader () {
 			public Object readSqlResultRecord (ResultSet result)
@@ -434,7 +436,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		return result;
 	}
 
-	public List<ServerWideStatsRecord> getTop20Activities ()
+	public List<ServerWideStatsRecord> getTop20Activities()
 	{
 		String mySql = "SELECT event, "
 				+ "sum(if(event_date > DATE_SUB(CURDATE(), INTERVAL 7 DAY),1,0))/7 as last7, "
