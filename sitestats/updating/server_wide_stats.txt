@@ -69,7 +69,7 @@ session_date	user_logins		unique_users
 2011-06-01		560				156
 
 
-Site Created/Deleted (Daily) 
+Site Created/Deleted (Daily)
 ----------------------------
 select date(EVENT_DATE) as event_period, sum(if(event = 'site.add' && ref not regexp '/site/[~!]',1,0)) as site_created,
 sum(if(event = 'site.del' && ref not regexp '/site/[~!]',1,0)) as site_deleted FROM SAKAI_EVENT
@@ -154,21 +154,48 @@ sakai.discussion	79
 Historical data conversion
 ##########################
 
-You need to run the following three queries to convert the data into the new tables. No data is lost in this process.
+You need to run the following queries to convert the historical data into the new tables. No data is lost in this process.
 You should backup any data in the SSL_SERVERSTATS and SST_USERSTATS tables just in case you decide to start over.
-
-
-### Convert the daily server events per day
+Once verified, you can begin the archival/removal of data in the SAKAI_SESSION and SAKAI_EVENT tables, as necessary.
 
 
 ### Convert daily total user logins
 insert into sst_serverstats (activity_date, event_id, activity_count) 
 select date(SESSION_START), "user.login", count(*)
-from SAKAI_SESSION where SESSION_START > DATE_SUB(CURDATE(), INTERVAL 5000 DAY) group by 1
+from SAKAI_SESSION where SESSION_START > DATE_SUB(CURDATE(), INTERVAL 5000 DAY) group by 1;
 
-## Convert daily individual user logins
+### Convert daily individual user logins
 insert into sst_userstats (login_date, user_id, login_count) 
-select date(SESSION_START), SESSION_USER, count(*) from SAKAI_SESSION where SESSION_START > DATE_SUB(CURDATE(), INTERVAL 5000 DAY) group by 2,1
+select date(SESSION_START), SESSION_USER, count(*) from SAKAI_SESSION where SESSION_START > DATE_SUB(CURDATE(), INTERVAL 5000 DAY) group by 2,1;
 
 
+### Convert the daily site.add server events per day
+insert into sst_serverstats (activity_date, event_id, activity_count) 
+select date(EVENT_DATE) as activity_date, event, count(*) as event_id
+from SAKAI_EVENT
+where EVENT ='site.add'
+and REF not regexp '/site/[~!]'
+and EVENT_DATE > DATE_SUB(CURDATE(), INTERVAL 5000 DAY) group by 1;
+
+### Convert the daily site.del server events per day
+insert into sst_serverstats (activity_date, event_id, activity_count)
+select date(EVENT_DATE) as activity_date, event, count(*) as event_id
+from SAKAI_EVENT
+where EVENT ='site.del'
+and REF not regexp '/site/[~!]'
+and EVENT_DATE > DATE_SUB(CURDATE(), INTERVAL 5000 DAY) group by 1;
+
+### Convert the daily user.add server events per day
+insert into sst_serverstats (activity_date, event_id, activity_count)
+select date(EVENT_DATE) as activity_date, event, count(*) as event_id
+from SAKAI_EVENT
+where EVENT ='user.add'
+and EVENT_DATE > DATE_SUB(CURDATE(), INTERVAL 5000 DAY) group by 1;
+
+### Convert the daily user.del server events per day
+insert into sst_serverstats (activity_date, event_id, activity_count)
+select date(EVENT_DATE) as activity_date, event, count(*) as event_id
+from SAKAI_EVENT
+where EVENT ='user.del'
+and EVENT_DATE > DATE_SUB(CURDATE(), INTERVAL 5000 DAY) group by 1;
 
