@@ -1042,4 +1042,30 @@ public class GradebookServiceNewTest extends GradebookTestBase {
         assertEquals(0, catDefs.size());
 	}
 	
+	public void testIsPointsPossibleValid() throws Exception {
+	    // try some null values
+	    try {
+	        gradebookService.isPointsPossibleValid(null, new Assignment(), 5D);
+	        fail("Did not catch null gradebookUid passed to isPointsPossibleValid");
+	    } catch (IllegalArgumentException iae) {}
+	    
+	    try {
+            gradebookService.isPointsPossibleValid(GRADEBOOK_UID_NO_CAT, null, 5D);
+            fail("Did not catch null gradebookItem passed to isPointsPossibleValid");
+        } catch (IllegalArgumentException iae) {}
+        
+        // try passing a null points possible
+        assertEquals(GradebookService.PointsPossibleValidation.INVALID_NULL_VALUE, gradebookService.isPointsPossibleValid(GRADEBOOK_UID_NO_CAT, new Assignment(), null));
+        // try a negative
+        assertEquals(GradebookService.PointsPossibleValidation.INVALID_NUMERIC_VALUE, gradebookService.isPointsPossibleValid(GRADEBOOK_UID_NO_CAT, new Assignment(), -5D));
+        // try 0
+        assertEquals(GradebookService.PointsPossibleValidation.INVALID_NUMERIC_VALUE, gradebookService.isPointsPossibleValid(GRADEBOOK_UID_NO_CAT, new Assignment(), 0D));
+        // try more than 2 decimal places
+        assertEquals(GradebookService.PointsPossibleValidation.INVALID_DECIMAL, gradebookService.isPointsPossibleValid(GRADEBOOK_UID_NO_CAT, new Assignment(), 5.123D));
+        // try some valid points possible
+        assertEquals(GradebookService.PointsPossibleValidation.VALID, gradebookService.isPointsPossibleValid(GRADEBOOK_UID_NO_CAT, new Assignment(), 0.01D));
+        assertEquals(GradebookService.PointsPossibleValidation.VALID,gradebookService.isPointsPossibleValid(GRADEBOOK_UID_NO_CAT, new Assignment(), 100D));
+
+	}
+	
 }
