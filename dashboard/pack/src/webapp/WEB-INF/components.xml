@@ -20,16 +20,6 @@
 		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
 		
 	</bean>
-	
-	<!-- ProjectLogic -->
-	<bean id="org.sakaiproject.dash.logic.ProjectLogic"
-    	class="org.sakaiproject.dash.logic.ProjectLogicImpl"
-    	init-method="init">
-    	
-    	<property name="dao" ref="org.sakaiproject.dash.dao.DashboardDao" />	
-    	<property name="cache" ref="org.sakaiproject.dash.cache" />	
-    	
-    </bean>
     
     <bean id="org.sakaiproject.dash.logic.DashboardLogic" 
     	class="org.sakaiproject.dash.logic.DashboardLogicImpl"

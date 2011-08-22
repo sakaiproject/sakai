@@ -98,7 +98,15 @@ public class DashboardPage extends BasePage {
                 if(logger.isDebugEnabled()) {
                 	logger.debug(this + "populateItem()  item: " + item);
                 }
-                item.add(new Label("itemType", nItem.getSourceType().getIdentifier()));
+                
+                String itemType = nItem.getSourceType().getIdentifier();
+                item.add(new Label("itemType", itemType));
+                item.add(new Label("itemTypeCalendarBlock", itemType));
+                item.add(new Label("itemTypeNewsBlock", itemType));
+                
+                String siteTitle = nItem.getContext().getContextTitle();
+                item.add(new Label("siteTitleCalendarBlock", siteTitle));
+                item.add(new Label("siteTitleNewsBlock", siteTitle));
                 item.add(new ExternalLink("itemLink", nItem.getEntityUrl(), nItem.getTitle()));
                 item.add(new ExternalLink("siteLink", nItem.getContext().getContextUrl(), nItem.getContext().getContextTitle()));
                 item.add(new Label("newsTime", new SimpleDateFormat(DATETIME_FORMAT).format(nItem.getNewsTime())));
