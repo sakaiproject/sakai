@@ -54,27 +54,27 @@ public class Validator
 	/** These characters are not allowed in a site skin */
 	protected static final String INVALID_CHARS_IN_SITE_SKIN = " $&':<>[]{}#%@/;=?\\^|~\"";
 	
-	protected static final String MAP_TO_A = "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½";
+	protected static final String MAP_TO_A = "‰ŠˆŒ€‡‡";
 
-	protected static final String MAP_TO_B = "ï¿½ï¿½";
+	protected static final String MAP_TO_B = "§§";
 
-	protected static final String MAP_TO_C = "ï¿½ï¿½ï¿½ï¿½";
+	protected static final String MAP_TO_C = "‚¢¢";
 
-	protected static final String MAP_TO_E = "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½";
+	protected static final String MAP_TO_E = "‘ƒ¾®®";
 
-	protected static final String MAP_TO_I = "ï¿½ï¿½ï¿½ï¿½ï¿½";
+	protected static final String MAP_TO_I = "•”“’’";
 
-	protected static final String MAP_TO_L = "ï¿½ï¿½";
+	protected static final String MAP_TO_L = "££";
 
-	protected static final String MAP_TO_N = "ï¿½ï¿½ï¿½";
+	protected static final String MAP_TO_N = "–„„";
 
-	protected static final String MAP_TO_O = "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½";
+	protected static final String MAP_TO_O = "™š˜…——";
 
-	protected static final String MAP_TO_U = "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½";
+	protected static final String MAP_TO_U = "Ÿ†œœ";
 
 	protected static final String MAP_TO_Y = "Ø´??";
 
-	protected static final String MAP_TO_X = "???ï¿½ï¿½ï¿½ï¿½ï¿½?ï¿½ï¿½ï¿½ï¿½?";
+	protected static final String MAP_TO_X = "???¤©»¨±?«µ¦À?";
 
 	/**
 	 * These characters are allowed; but if escapeResourceName() is called, they are escaped (actually, removed) Certain characters cause problems with filenames in certain OSes - so get rid of these characters in filenames
