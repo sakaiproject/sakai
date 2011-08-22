@@ -624,37 +624,39 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if(currentPage.getOwner() != null && simplePageBean.getEditPrivs() == 0) {
 			SimpleStudentPage student = simplePageToolDao.findStudentPageByPageId(currentPage.getPageId());
 			
-			UIOutput.make(tofill, "gradingSpan");
-			UIOutput.make(tofill, "commentsUUID", String.valueOf(student.getId()));
-			UIOutput.make(tofill, "commentPoints", String.valueOf((student.getPoints() != null? student.getPoints() : "")));
-			
-			List<SimpleStudentPage> studentPages = simplePageToolDao.findStudentPages(student.getItemId());
-			int i = -1;
-			
-			for(int in = 0; in < studentPages.size(); in++) {
-				if(student.getId() == studentPages.get(in).getId()) {
-					i = in;
-					break;
+			if(student != null) {
+				UIOutput.make(tofill, "gradingSpan");
+				UIOutput.make(tofill, "commentsUUID", String.valueOf(student.getId()));
+				UIOutput.make(tofill, "commentPoints", String.valueOf((student.getPoints() != null? student.getPoints() : "")));
+				
+				List<SimpleStudentPage> studentPages = simplePageToolDao.findStudentPages(student.getItemId());
+				int i = -1;
+				
+				for(int in = 0; in < studentPages.size(); in++) {
+					if(student.getId() == studentPages.get(in).getId()) {
+						i = in;
+						break;
+					}
 				}
-			}
-			
-			if(i > 0) {
-				GeneralViewParameters eParams = new GeneralViewParameters(ShowPageProducer.VIEW_ID, studentPages.get(i-1).getPageId());
-				eParams.setItemId(studentPages.get(i-1).getItemId());
-				eParams.setPath("next");
 				
-				UIInternalLink.make(tofill, "gradingBack", eParams);
-			}
-			
-			if(i < studentPages.size() - 1) {
-				GeneralViewParameters eParams = new GeneralViewParameters(ShowPageProducer.VIEW_ID, studentPages.get(i+1).getPageId());
-				eParams.setItemId(studentPages.get(i+1).getItemId());
-				eParams.setPath("next");
+				if(i > 0) {
+					GeneralViewParameters eParams = new GeneralViewParameters(ShowPageProducer.VIEW_ID, studentPages.get(i-1).getPageId());
+					eParams.setItemId(studentPages.get(i-1).getItemId());
+					eParams.setPath("next");
+					
+					UIInternalLink.make(tofill, "gradingBack", eParams);
+				}
 				
-				UIInternalLink.make(tofill, "gradingForward", eParams);
+				if(i < studentPages.size() - 1) {
+					GeneralViewParameters eParams = new GeneralViewParameters(ShowPageProducer.VIEW_ID, studentPages.get(i+1).getPageId());
+					eParams.setItemId(studentPages.get(i+1).getItemId());
+					eParams.setPath("next");
+					
+					UIInternalLink.make(tofill, "gradingForward", eParams);
+				}
+				
+				printGradingForm(tofill);
 			}
-			
-			printGradingForm(tofill);
 		}
 
 		// breadcrumbs
