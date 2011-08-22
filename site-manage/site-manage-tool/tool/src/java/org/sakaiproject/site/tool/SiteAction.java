@@ -4323,9 +4323,12 @@ public class SiteAction extends PagedResourceActionII {
 				if (state.getAttribute(STATE_SITE_INFO) != null) {
 					siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
 				}
-				siteInfo.title = siteTypeProvider.getSiteTitle(type, null);
-				siteInfo.description = siteTypeProvider.getSiteDescription(type, null);
-				siteInfo.short_description = siteTypeProvider.getSiteShortDescription(type, null);
+				User currentUser = UserDirectoryService.getCurrentUser();
+				List<String> pList = new ArrayList<String>();
+				pList.add(currentUser.getId());
+				siteInfo.title = siteTypeProvider.getSiteTitle(type, pList);
+				siteInfo.description = siteTypeProvider.getSiteDescription(type, pList);
+				siteInfo.short_description = siteTypeProvider.getSiteShortDescription(type, pList);
 				siteInfo.include = false;
 				state.setAttribute(STATE_SITE_INFO, siteInfo);
 
@@ -10885,7 +10888,9 @@ public class SiteAction extends PagedResourceActionII {
 	
 					// now that the site and realm exist, we can set the email alias
 					// set the site alias as:
-					String alias = siteTypeProvider.getSiteAlias(type, null);
+					List<String> pList = new ArrayList<String>();
+					pList.add(SessionManager.getCurrentSessionUserId());
+					String alias = siteTypeProvider.getSiteAlias(type, pList);
 					String channelReference = mailArchiveChannelReference(id);
 					try {
 						AliasService.setAlias(alias, channelReference);
