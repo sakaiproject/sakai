@@ -23,7 +23,7 @@
 function resizeiframe(id) {
 
 	var iframe = document.getElementById(id);
-	// workarounds for differing implemtations in several browsers
+	// workarounds for differing implementations in several browsers
 	var doc = (iframe.contentWindow || iframe.contentDocument);
 	if (doc.document) doc = doc.document;
 	var newsize = doc.body.offsetHeight;
@@ -376,17 +376,18 @@ function resizeiframe(id) {
 							<div rsf:id="item-group-titles7" class="item-group-titles"></div>
 							<table class="studentContentTable">
 								<tr>
-									<th style="text-align:center;" colspan="4" class="studentTitle"><span rsf:id="msg=simplepage.student"></span></th>
+									<th style="text-align:center;" colspan="5" class="studentTitle"><span rsf:id="msg=simplepage.student"></span></th>
 								</tr>
 								<tr rsf:id="studentRow:">
 									<td class="imgCell"><img src="$context/images/new-page.png" rsf:id="newPageImg" class="imgCell"></img></td>
 									<td class="imgCell"><img src="$context/images/new-content.png" rsf:id="newContentImg" class="imgCell"></img></td>
 									<td rsf:id="commentsImgCell" class="imgCell"><img src="$context/images/new-comments.png" rsf:id="newCommentsImg" class="imgCell"></img></td>
 									<td rsf:id="studentCell" class="studentCell"><a href="#" rsf:id="studentLink" class="studentLink"></a></td>
+									<td rsf:id="studentGradingCell" class="gradingCell"></td>
 								</tr>
 								
 								<tr rsf:id="linkRow">
-									<td rsf:id="linkCell" style="text-align:center;" colspan="4">
+									<td rsf:id="linkCell" style="text-align:center;" colspan="5">
 									  <img rsf:id="student-required-image" src="/sakai-lessonbuildertool-tool/images/available.png" height="18" width="18" style="margin-right:3px"/>
 									  <a href="#" rsf:id="linkLink"></a>
 									</td>

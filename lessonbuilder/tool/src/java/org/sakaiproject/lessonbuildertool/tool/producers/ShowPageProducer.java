@@ -1529,6 +1529,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							if(page.getOwner().equals(userId)) {
 								hasOwnPage = true;
 							}
+							
+							if(i.getGradebookId() != null && simplePageBean.getEditPrivs() == 0) {
+								UIOutput.make(row, "studentGradingCell", String.valueOf((page.getPoints() != null? page.getPoints() : "")));
+							}
 					    }
 					
 						if(!hasOwnPage) {
