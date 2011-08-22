@@ -112,7 +112,7 @@ function toPoint(id)
 <f:verbatim></h4></f:verbatim>
 <div class="tier3">
 <h:panelGrid columns="2">
-   <h:outputText value="#{deliveryMessages.comment}#{deliveryMessages.column}"/>
+   <h:outputText value="#{evaluationMessages.comment_for_student}#{deliveryMessages.column}"/>
    <h:inputTextarea value="#{studentScores.comments}" rows="3" cols="30"/>
    </h:panelGrid>
 </div>
@@ -245,7 +245,7 @@ function toPoint(id)
 
           <f:verbatim><div class="tier2"></f:verbatim>
           <h:panelGrid columns="2" border="0" >
-            <h:outputText value="#{deliveryMessages.comment}#{deliveryMessages.column}"/>
+            <h:outputText value="#{evaluationMessages.comment_for_student}#{deliveryMessages.column}"/>
             <h:inputTextarea value="#{question.gradingComment}" rows="3" cols="30"/>
             <h:outputText value=" "/>
     	    <%@ include file="/jsf/evaluation/gradeStudentResultAttachment.jsp" %>

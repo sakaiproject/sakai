@@ -201,10 +201,11 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
         String poolString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","pool");
         String partString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","part");
         String questionString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","question");
-        String textString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","text");
+        String responseString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","response");
         String rationaleString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","rationale");
+        String itemGradingCommentsString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","grader_comments");
         List exportResponsesDataList = gradingService.getExportResponsesData(assessmentId, anonymous, audioMessage, fileUploadMessage, noSubmissionMessage, 
-        		showPartAndTotalScoreSpreadsheetColumns, poolString, partString, questionString, textString, rationaleString, useridMap);
+        		showPartAndTotalScoreSpreadsheetColumns, poolString, partString, questionString, responseString, rationaleString, itemGradingCommentsString, useridMap);
         List<List<Object>> list = (List<List<Object>>) exportResponsesDataList.get(0);
 
         // Now insert the header line
@@ -231,6 +232,7 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 	  	  	}
 	        
 	        headerList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","tot"));
+	        headerList.add(itemGradingCommentsString);
         }
         headerList.addAll((ArrayList) exportResponsesDataList.get(1));
   	  	

@@ -2004,7 +2004,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
   
   
-  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String rationaleString, Map useridMap) {
+  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String rationaleString, String itemGradingCommentsString, Map useridMap) {
 	  ArrayList dataList = new ArrayList();
 	  ArrayList headerList = new ArrayList();
 	  ArrayList finalList = new ArrayList(2);
@@ -2112,6 +2112,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 				  } 
 			  }
 
+			  String assessmentGradingComments = "";
+			  if (assessmentGradingData.getComments() != null) {
+				  assessmentGradingComments = assessmentGradingData.getComments().replaceAll("<br\\s*/>", "");
+			  }
+			  responseList.add(assessmentGradingComments);
+			  
 			  Long assessmentGradingId = assessmentGradingData.getAssessmentGradingId();
 
 			  HashMap studentGradingMap = getStudentGradingData(assessmentGradingData.getAssessmentGradingId().toString());
@@ -2306,6 +2312,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 				  if (addRationale) {
 					  responseList.add(rationale);
 				  }
+				  
+				  String itemGradingComments = "";
+				  if (grade.getComments() != null) {
+				  	itemGradingComments = grade.getComments().replaceAll("<br\\s*/>", "");
+				  }
+				  responseList.add(itemGradingComments);
 
 				  // Only set header based on the first item grading data
 				  if (fistItemGradingData) {
@@ -2321,6 +2333,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 					  if (addRationale) {
 						  headerList.add(makeHeader(partString, sectionSequenceNumber, questionString, rationaleString, questionNumber, poolString, poolName));
 					  }
+					  headerList.add(makeHeader(partString, sectionSequenceNumber, questionString, itemGradingCommentsString, questionNumber, poolString, poolName));
 				  }	    		   
 			  } // outer for - questions
 
