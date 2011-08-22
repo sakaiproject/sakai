@@ -96,6 +96,18 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
     }
 
     private static final String GROUP_PROP_WSETUP_CREATED = "group_prop_wsetup_created";
+    private static final String ADMIN_SITE_ID = "!admin";
+    /**
+     * SAKAI CONFIG
+     * False by default, no admin site changes allowed
+     */
+    private static final String ADMIN_SITE_CHANGE_ALLOWED = "eb.membership.admin.site.changes.allowed";
+    private boolean allowAdminSiteChanges = false;
+
+    public void init() {
+        allowAdminSiteChanges = developerHelperService.getConfigurationSetting(ADMIN_SITE_CHANGE_ALLOWED, false);
+    }
+
 
     /**
      * join/site/siteId or join/siteId Handle the special case of joining a site, using normal
@@ -113,6 +125,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
             throw new IllegalArgumentException(
                     "siteId must be set in order join sites, set in params or in the URL /join/site/siteId");
         }
+        checkSiteSecurity(siteId);
         try {
             siteService.join(siteId);
         } catch (IdUnusedException e) {
@@ -142,6 +155,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
             throw new IllegalArgumentException(
                     "siteId must be set in order to unjoin sites, set in params or in the URL /unjoin/site/siteId");
         }
+        checkSiteSecurity(siteId);
         try {
             siteService.unjoin(siteId);
         } catch (IdUnusedException e) {
@@ -602,6 +616,8 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
             roleId = sg.site.getJoinerRole();
         }
 
+        checkSiteSecurity(sg.site.getId());
+
         // check for a batch add
         String[] userIds = checkForBatch(params, userId);
         // now add all the memberships
@@ -870,6 +886,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
      * @param site
      */
     protected void saveSiteMembership(Site site) {
+        checkSiteSecurity(site.getId());
         try {
             siteService.saveSiteMembership(site);
         } catch (IdUnusedException e) {
@@ -975,6 +992,17 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
                 throw new IllegalArgumentException(
                         "This type of group (Section Info group) should not be edited by this entity provider. Only Site info groups are allowed.");
             }
+        }
+    }
+
+    /**
+     * SAK-20828 handle low hanging CSRF blocking
+     * @param siteId the sakai site id
+     * @throws SecurityException if this site cannot be updated via provider
+     */
+    private void checkSiteSecurity(String siteId) {
+        if (!allowAdminSiteChanges && ADMIN_SITE_ID.equals(siteId)) {
+            throw new SecurityException("Admin site membership changes are disabled for security protection against CSRF, you must use the sakai admin UI or enable changes in your sakai config file using "+ADMIN_SITE_CHANGE_ALLOWED+"=true");
         }
     }
 
