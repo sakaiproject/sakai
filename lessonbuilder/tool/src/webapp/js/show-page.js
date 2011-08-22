@@ -1269,6 +1269,7 @@ function addHighlight() {
 		if(!$(this).children("div").is(":visible")) {
 			lessonBuilderAnimationLocked = true;
 			reposition();
+			$('.hideOnDialog').hide();
 			$(this).children("div").show("slide", {direction: "up"}, 300, unlockAnimation);
 		}
 	}
@@ -1279,6 +1280,7 @@ function removeHighlight() {
 	if(!lessonBuilderAnimationLocked) {
 		if($(this).children("div").is(":visible") && !dropdownViaClick) {
 			lessonBuilderAnimationLocked = true;
+			$('.hideOnDialog').show();
 			$(this).children("div").hide("slide", {direction: "up"}, 300, unlockAnimation);
 		}
 	}
@@ -1289,15 +1291,18 @@ function toggleDropdown() {
 	if(!lessonBuilderAnimationLocked) {
 		if($(this).children("div").is(":visible")) {
 			lessonBuilderAnimationLocked = true;
-			reposition();
+			$('.hideOnDialog').show();
 			$(this).children("div").hide("slide", {direction: "up"}, 300, unlockAnimation);
 			dropdownViaClick = false;
 		}else {
 			lessonBuilderAnimationLocked = true;
+			reposition();
+			$('.hideOnDialog').hide();
 			$(this).children("div").show("slide", {direction: "up"}, 300, unlockAnimation);
 			dropdownViaClick = true;
 		}
 	}
+	return false;
 }
 
 function reposition() {
@@ -1307,7 +1312,7 @@ function reposition() {
 	//alert("Width: " + window.innerWidth);
 	//alert("Width2: " + dropdown.width());
 	if(dropX + dropdown.width() > $(window).width() ) {
-	    dropdown.css("left", ($(window).width() - dropdown.width() - dropX - 100) + "px");
+	    dropdown.css("left", Math.max(0,($(window).width() - dropdown.width() - dropX - 100)) + "px");
 	} else {
 	    // in case user changes zoom and then tries again, we could end up
             // with a value from the case above that is now incorrect                        	    
