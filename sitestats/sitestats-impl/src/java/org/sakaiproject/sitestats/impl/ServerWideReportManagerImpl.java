@@ -506,6 +506,8 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		return result;
 	}
 
+	// this has not been reimplemented in STAT-299 because the data is not tracked at an hourly level
+	// in any case, the data is only shown for a 30 day period
 	public List<ServerWideStatsRecord> getHourlyUsagePattern ()
 	{
 		String mySql = "select date(SESSION_START) as session_date, "
@@ -538,7 +540,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 	{
 		String mySql = "SELECT registration, count(*) as site_count " +
 				"FROM SAKAI_SITE_TOOL " +
-				"where site_id regexp '^[[:digit:]]' " +
+				"where site_id not like '~%' and site_id not like '!%' " +
 				"group by 1 " +
 				"order by 2 desc";
 
