@@ -224,7 +224,7 @@ function redirectBasedOnSelection(){
 						#if ($!courseOfferingObject.sections.size() > 1)
 							#set($hasAttachedSectionObject=false)
 							#foreach($sectionObject in $courseOfferingObject.sections)
-								#if ($sectionObject.attached)
+								#if ($!sectionObject.attached)
 									#set($hasAttachedSectionObject=true)
 								#end
 							#end
@@ -244,22 +244,22 @@ function redirectBasedOnSelection(){
 						#end
 						</td></tr>
 						#foreach($sectionObject in $courseOfferingObject.sections)
-							#if (!$!providerCourseList.contains("$sectionObject.eid")) 
+							#if (!$!providerCourseList.contains("$!sectionObject.eid")) 
 								<tr 
-									#if ($!selectedProviderCourse.contains("$sectionObject.eid") || 		$!selectedAuthorizerCourse.contains("$sectionObject.eid") )
+									#if ($!selectedProviderCourse.contains("$!sectionObject.eid") || 		$!selectedAuthorizerCourse.contains("$!sectionObject.eid") )
 										class="selectedSelected"
 									#end
 									id="row-course$courseNumber"
 								><td class="attach"
-								#if (!$sectionObject.isLecture)
+								#if (!$!sectionObject.isLecture)
 									style="padding-left:1.5em"
 								#end
 								>
-								<input type="checkbox" name="providerCourseAdd" value="$sectionObject.eid" id="course$courseNumber"
-								#if ($!selectedProviderCourse.contains("$sectionObject.eid") || $!selectedAuthorizerCourse.contains("$sectionObject.eid") )
+								<input type="checkbox" name="providerCourseAdd" value="$!sectionObject.eid" id="course$courseNumber"
+								#if ($!selectedProviderCourse.contains("$!sectionObject.eid") || $!selectedAuthorizerCourse.contains("$!sectionObject.eid") )
 									checked="checked"
 								#end 
-								#if ((!$!selectedProviderCourse.contains("$sectionObject.eid") || !$!selectedAuthorizerCourse.contains("$sectionObject.eid")) && $sectionObject.attached)
+								#if ((!$!selectedProviderCourse.contains("$!sectionObject.eid") || !$!selectedAuthorizerCourse.contains("$!sectionObject.eid")) && $!sectionObject.attached)
 									disabled="disabled"
 								#end
 								onclick="javascript:setContinueButton();"
@@ -268,8 +268,8 @@ function redirectBasedOnSelection(){
 								</td>
 								<td style="white-space:nowrap">
 									<h5>
-									<label for="course$courseNumber">$sectionObject.title: $sectionObject.getCategoryDescription()</label>
-									#if ($sectionObject.attached)
+									<label for="course$courseNumber">$!sectionObject.title: $!sectionObject.getCategoryDescription()</label>
+									#if ($!sectionObject.attached)
 										<span class="instruction">($tlang.getString("nscourse.site_exists") <a href="#" onclick="javascript:enableCheckBox($!courseNumber)">$tlang.getString("nscourse.select_anyways")</a>)</span>
 									#end
 									#set ($courseNumber = $courseNumber +1)
