@@ -399,24 +399,25 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	 */
 	protected void addSpecialRecipients(List users, Reference ref)
 	{
-		// include any users who have AnnouncementService.SECURE_ALL_GROUPS and getResourceAbility() in the context
-		String contextRef = SiteService.siteReference(ref.getContext());
-
-		// get the list of users who have SECURE_ALL_GROUPS
-		List allGroupUsers = SecurityService.unlockUsers(AnnouncementService.SECURE_ANNC_ALL_GROUPS, contextRef);
-
-		// filter down by the permission
-		if (getResourceAbility() != null)
-		{
-			List allGroupUsers2 = SecurityService.unlockUsers(getResourceAbility(), contextRef);
-			allGroupUsers.retainAll(allGroupUsers2);
-		}
-
-		// remove any in the list already
-		allGroupUsers.removeAll(users);
-
-		// combine
-		users.addAll(allGroupUsers);
+		//SAK-20011 commented out but left in to preserve logic until it is agreed it should be removed
+//		// include any users who have AnnouncementService.SECURE_ALL_GROUPS and getResourceAbility() in the context
+//		String contextRef = SiteService.siteReference(ref.getContext());
+//
+//		// get the list of users who have SECURE_ALL_GROUPS
+//		List allGroupUsers = SecurityService.unlockUsers(AnnouncementService.SECURE_ANNC_ALL_GROUPS, contextRef);
+//
+//		// filter down by the permission
+//		if (getResourceAbility() != null)
+//		{
+//			List allGroupUsers2 = SecurityService.unlockUsers(getResourceAbility(), contextRef);
+//			allGroupUsers.retainAll(allGroupUsers2);
+//		}
+//
+//		// remove any in the list already
+//		allGroupUsers.removeAll(users);
+//
+//		// combine
+//		users.addAll(allGroupUsers);
 	}
 
 	/**
