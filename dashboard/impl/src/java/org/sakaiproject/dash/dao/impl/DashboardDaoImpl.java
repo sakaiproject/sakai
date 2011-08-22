@@ -51,9 +51,6 @@ import org.sakaiproject.dash.dao.impl.CalendarItemMapper;
 import org.sakaiproject.dash.dao.impl.ContextMapper;
 import org.sakaiproject.dash.dao.impl.NewsItemMapper;
 
-import org.sakaiproject.dash.model.Thing;
-
-
 /**
  * Implementation of ProjectDao
  * 
@@ -760,47 +757,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return null;
 		}
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@SuppressWarnings("unchecked")
-	public Thing getThing(long id) {
-		
-		if(log.isDebugEnabled()) {
-			log.debug("getThing(" + id + ")");
-		}
-		
-		try {
-			return (Thing) getJdbcTemplate().queryForObject(getStatement("select.thing"),
-				new Object[]{Long.valueOf(id)},
-				new ThingMapper()
-			);
-		} catch (DataAccessException ex) {
-           log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return null;
-		}
-	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	@SuppressWarnings("unchecked")
-	public List<Thing> getThings() {
-		if(log.isDebugEnabled()) {
-			log.debug("getThings()");
-}
-		
-		try {
-			return getJdbcTemplate().query(getStatement("select.things"),
-				new ThingMapper()
-			);
-		} catch (DataAccessException ex) {
-           log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return null;
-		}
-	}
-
 	/**
 	 * init
 	 */
@@ -878,11 +835,6 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				}
 			}
 		}
-	}
-	
-	public boolean addThing(Thing t) {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 }

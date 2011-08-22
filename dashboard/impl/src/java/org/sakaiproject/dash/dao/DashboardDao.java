@@ -32,7 +32,6 @@ import org.sakaiproject.dash.model.NewsLink;
 import org.sakaiproject.dash.model.Person;
 import org.sakaiproject.dash.model.Realm;
 import org.sakaiproject.dash.model.SourceType;
-import org.sakaiproject.dash.model.Thing;
 
 /**
  * DAO interface for our project
@@ -40,27 +39,6 @@ import org.sakaiproject.dash.model.Thing;
  *
  */
 public interface DashboardDao {
-
-	/**
-	 * Gets a single Thing from the db
-	 * 
-	 * @return an item or null if no result
-	 */
-	public Thing getThing(long id);
-	
-	/**
-	 * Get all Things
-	 * @return a list of items, an empty list if no items
-	 */
-	public List<Thing> getThings();
-		
-	/**
-	 * Add a new Thing record to the database. Only the name property is actually used.
-	 * @param t	Thing
-	 * @return	true if success, false if not
-	 */
-	public boolean addThing(Thing t);
-	
 	
 	public boolean addCalendarItem(CalendarItem calendarItem);
 	

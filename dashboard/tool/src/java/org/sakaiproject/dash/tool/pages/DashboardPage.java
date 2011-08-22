@@ -58,7 +58,6 @@ public class DashboardPage extends BasePage {
 	                if(logger.isDebugEnabled()) {
 	                	logger.debug(this + "populateItem()  item: " + item);
 	                }
-	                //item.add(new Label("name", thing.getName()));
 	                item.add(new Label("calendarDate", new SimpleDateFormat(DATE_FORMAT).format(cItem.getCalendarTime())));
 	                item.add(new Label("calendarTime", new SimpleDateFormat(TIME_FORMAT).format(cItem.getCalendarTime())));
 	                item.add(new ExternalLink("itemLink", cItem.getEntityUrl(), cItem.getTitle()));
@@ -99,7 +98,6 @@ public class DashboardPage extends BasePage {
                 if(logger.isDebugEnabled()) {
                 	logger.debug(this + "populateItem()  item: " + item);
                 }
-                //item.add(new Label("name", thing.getName()));
                 item.add(new Label("itemType", nItem.getSourceType().getIdentifier()));
                 item.add(new ExternalLink("itemLink", nItem.getEntityUrl(), nItem.getTitle()));
                 item.add(new ExternalLink("siteLink", nItem.getContext().getContextUrl(), nItem.getContext().getContextTitle()));
@@ -282,7 +280,7 @@ public class DashboardPage extends BasePage {
 		 */
 		protected CalendarItem load(){
 			
-			// get the thing
+			// get the calendar item
 			return dashboardLogic.getCalendarItem(id);
 		}
 	}
@@ -341,7 +339,7 @@ public class DashboardPage extends BasePage {
 		 */
 		protected NewsItem load(){
 			
-			// get the thing
+			// get the news item
 			return dashboardLogic.getNewsItem(id);
 		}
 	}
