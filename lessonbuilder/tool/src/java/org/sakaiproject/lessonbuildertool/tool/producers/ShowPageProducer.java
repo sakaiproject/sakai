@@ -1492,21 +1492,22 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							eParams.setItemId(i.getId());
 							eParams.setPath("push");
 							
-							String username = null;
+							String studentTitle = page.getTitle();
 						
 							try {
-								username = i.isAnonymous()? anonymousLookup.get(page.getOwner()) : UserDirectoryService.getUser(page.getOwner()).getDisplayName();
-								
-								if(i.isAnonymous() && canEditPage) {
-									username += " (" + UserDirectoryService.getUser(page.getOwner()).getDisplayName() + ")";
-								}else if(i.isAnonymous() && page.getOwner().equals(userId)) {
-									username += " (" + messageLocator.getMessage("simplepage.comment-you") + ")";
+								if(!i.isAnonymous() || canEditPage) {
+									String ownerName = UserDirectoryService.getUser(page.getOwner()).getDisplayName();
+									if (ownerName != null && ownerName.equals(studentTitle))
+									    studentTitle = "(" + ownerName + ")";
+									else
+									    studentTitle += " (" + UserDirectoryService.getUser(page.getOwner()).getDisplayName() + ")";
+								}else if(page.getOwner().equals(userId)) {
+									studentTitle += " (" + messageLocator.getMessage("simplepage.comment-you") + ")";
 								}
 							} catch (UserNotDefinedException e) {
-								username = page.getTitle();
 							}
 							
-							UIInternalLink.make(row, "studentLink", username, eParams);
+							UIInternalLink.make(row, "studentLink", studentTitle, eParams);
 							
 							// Never visited page
 							if(entry == null) {

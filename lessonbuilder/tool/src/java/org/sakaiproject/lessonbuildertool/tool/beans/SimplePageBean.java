@@ -2945,14 +2945,14 @@ public class SimplePageBean {
 		} else if (pageTitle != null) {
 			page.setTitle(pageTitle);
 			update(page);
-			if(pageItem.getType() != SimplePageItem.STUDENT_CONTENT) {			
-			    pageItem.setName(pageTitle);
-			    update(pageItem);
-			}
 		}
 		
 		if(pageTitle != null) {
-			if(pageItem.getType() != SimplePageItem.STUDENT_CONTENT) {
+			if(pageItem.getType() == SimplePageItem.STUDENT_CONTENT) {
+				SimpleStudentPage student = simplePageToolDao.findStudentPage(pageItem.getId(), getCurrentUserId());
+				student.setTitle(pageTitle);
+				update(student, false);
+			} else {
 				pageItem.setName(pageTitle);
 				update(pageItem);
 			}
@@ -4719,14 +4719,24 @@ public class SimplePageBean {
 		
 		if(page == null && containerItem != null && containerItem.getType() == SimplePageItem.STUDENT_CONTENT && canReadPage()) {
 			// First create object in lesson_builder_pages.
-			SimplePage newPage = simplePageToolDao.makePage(curr.getToolId(), curr.getSiteId(),user.getDisplayName(),
-					curr.getPageId(), null);
+			String title = user.getDisplayName();
+			if (containerItem.isAnonymous()) {
+			    List<SimpleStudentPage>  otherPages = simplePageToolDao.findStudentPages(itemId);
+			    int serial = 1;
+			    if (otherPages != null) {
+				for (SimpleStudentPage stPage: otherPages) 
+				    if (! stPage.isDeleted())
+					serial ++;
+			    }
+			    title = messageLocator.getMessage("simplepage.anonymous") + " " + serial;
+			}			
+			SimplePage newPage = simplePageToolDao.makePage(curr.getToolId(), curr.getSiteId(), title, curr.getPageId(), null);
 			newPage.setOwner(user.getId());
 			newPage.setGroupOwned(false);
 			saveItem(newPage, false);
 			
 			// Then attach the lesson_builder_student_pages item.
-			page = simplePageToolDao.makeStudentPage(itemId, newPage.getPageId(), user.getDisplayName(), user.getId(), false);
+			page = simplePageToolDao.makeStudentPage(itemId, newPage.getPageId(), title, user.getId(), false);
 			
 			SimplePageItem commentsItem = simplePageToolDao.makeItem(-1, -1, SimplePageItem.COMMENTS, null, messageLocator.getMessage("simplepage.comments-section"));
 			saveItem(commentsItem, false);
