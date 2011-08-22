@@ -22,8 +22,10 @@
 				document.getElementById('publicChangeableNoDiv').style.display = 'block';
 				document.getElementById('publicChangeableNoUnpublishDiv').style.display = 'none';
 			}
-			document.getElementById('globalAccessDiv').style.display = 'block';
-			document.getElementById('globalAccessNoDiv').style.display = 'none';
+			#if (!$!disableJoinable)
+				document.getElementById('globalAccessDiv').style.display = 'block';
+				document.getElementById('globalAccessNoDiv').style.display = 'none';
+			#end
 			utils.resizeFrame('grow');
 		}
 	}
