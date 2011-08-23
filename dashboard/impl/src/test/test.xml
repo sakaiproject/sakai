@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
+        <constructor-arg index="0" ref="dataSource"/>
+    </bean>
+
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName">
+            <value>${jdbc.driverClassName}</value>
+        </property>
+        <property name="url">
+            <value>${jdbc.url}</value>
+        </property>
+        <property name="username">
+            <value>${jdbc.username}</value>
+        </property>
+        <property name="password">
+            <value>${jdbc.password}</value>
+        </property>
+    </bean>
+
+    <!-- 
+    <bean id="org.sakaiproject.dash.dao.DashboardDao" 
+    	class="org.sakaiproject.dash.dao.impl.DashboardDaoImpl"
+    	init-method="init">
+        <property name="jdbcTemplate">
+            <ref local="jdbcTemplate"/>
+        </property>
+    </bean>
+-->
+
+    <bean id="org.sakaiproject.dash.test.DashboardDaoTest"
+        class="org.sakaiproject.dash.test.DashboardDaoTest">
+        <property name="dependencyCheck">
+            <value>false</value>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.dash.test.DashboardLogicTest"
+        class="org.sakaiproject.dash.test.DashboardLogicTest">
+        <property name="dependencyCheck">
+            <value>false</value>
+        </property>
+    </bean>
+
+</beans>
