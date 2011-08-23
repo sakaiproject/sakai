@@ -2949,7 +2949,7 @@ public class SimplePageBean {
 		
 		if(pageTitle != null) {
 			if(pageItem.getType() == SimplePageItem.STUDENT_CONTENT) {
-				SimpleStudentPage student = simplePageToolDao.findStudentPage(pageItem.getId(), getCurrentUserId());
+				SimpleStudentPage student = simplePageToolDao.findStudentPage(pageItem.getId(), page.getOwner());
 				student.setTitle(pageTitle);
 				update(student, false);
 			} else {
@@ -4655,6 +4655,8 @@ public class SimplePageBean {
 				comment.setGradebookPoints(null);
 			}
 			
+ 			// for forced comments, the UI won't ever do this, but if
+ 			// it does, update will fail with permissions
 			update(comment);
 			return "success";
 		}else {
