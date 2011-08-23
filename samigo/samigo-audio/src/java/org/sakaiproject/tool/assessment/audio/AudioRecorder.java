@@ -774,7 +774,7 @@ public class AudioRecorder extends JPanel implements ActionListener,
 		}
 
 		public void run() {
-
+		    try {
 			duration = 0;
 			audioInputStream = null;
 
@@ -867,6 +867,17 @@ public class AudioRecorder extends JPanel implements ActionListener,
 			}
 
 			samplingGraph.createWaveForm(audioBytes, lines, audioInputStream);
+		}
+                finally {
+                        thread = null;
+                        while (audioInputStream == null) {
+                                try {
+	                                Thread.sleep(10);
+	                        } catch (InterruptedException e) {
+	                                e.printStackTrace();
+				}
+			}
+		}
 		}
 	} // End class Capture
 
