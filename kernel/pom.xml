@@ -34,9 +34,6 @@
         </notifiers>
     </ciManagement>
     <inceptionYear>2003</inceptionYear>
-    <prerequisites>
-        <maven>2.2.1</maven>
-    </prerequisites>
     <properties>
         <!--
             <url.localsite>dav:http://source.sakaiproject.org/release/kernel/${project.version}</url.localsite>
@@ -998,6 +995,26 @@
             </resource>
         </resources>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>1.0.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-versions</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>2.2.1</version>
+                                </requireMavenVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <inherited>true</inherited>
                 <groupId>org.apache.maven.plugins</groupId>
