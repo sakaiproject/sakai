@@ -29,10 +29,6 @@
         </notifiers>
     </ciManagement>
     
-    <prerequisites>
-        <maven>2.0.10</maven>
-    </prerequisites>
- 
     <mailingLists>
         <mailingList>
             <name>Sakai User List</name>
@@ -838,7 +834,7 @@
             </plugin>
         </plugins>
     </reporting>
-    
+
     <build>
         <directory>${sakai.build.directory}</directory>
         <outputDirectory>${sakai.build.directory}/classes</outputDirectory>
@@ -862,6 +858,26 @@
             </resource>
         </resources>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>1.0.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-versions</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>2.2.1</version>
+                                </requireMavenVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <inherited>true</inherited>
                 <groupId>org.apache.maven.plugins</groupId>
