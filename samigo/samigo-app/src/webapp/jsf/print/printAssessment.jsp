@@ -173,7 +173,7 @@ document.links[newindex].onclick();
             
             <h:column>
               <h:outputText value="<h3>" escape="false" />
-                <h:outputText id="number" escape="false" value="#{question.number}" />
+                <h:outputText id="number" escape="false" value="#{question.sequence}" />
               <h:outputText value="</h3>" escape="false" />
             </h:column>
               
