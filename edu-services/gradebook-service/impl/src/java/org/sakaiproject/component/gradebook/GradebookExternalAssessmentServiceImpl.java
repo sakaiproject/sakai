@@ -36,6 +36,7 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
@@ -65,6 +66,13 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
     public void setEventTrackingService(EventTrackingService eventTrackingService) {
         this.eventTrackingService = eventTrackingService;
     }
+    
+    /**
+     * Property in sakai.properties used to allow this service to update scores in the db every
+     * time the update method is called. By default, scores are only updated if the
+     * score is different than what is currently in the db.
+     */
+    public static final String UPDATE_SAME_SCORE_PROP = "gradebook.externalAssessments.updateSameScore";
 
 	public void addExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl,
 			final String title, final double points, final Date dueDate, final String externalServiceDescription)
@@ -226,10 +234,12 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
                 AssignmentGradeRecord agr = getAssignmentGradeRecord(asn, studentUid, session);
 
                 // Try to reduce data contention by only updating when the
-                // score has actually changed.
+                // score has actually changed or property has been set forcing a db update every time.
+                boolean alwaysUpdate = ServerConfigurationService.getBoolean(UPDATE_SAME_SCORE_PROP, false);
+                
                 Double oldPointsEarned = (agr == null) ? null : agr.getPointsEarned();
-                if ( ((points != null) && (!points.equals(oldPointsEarned))) ||
-					((points == null) && (oldPointsEarned != null)) ) {
+                if ( alwaysUpdate || (points != null && !points.equals(oldPointsEarned)) ||
+					(points == null && oldPointsEarned != null) ) {
 					if (agr == null) {
 						agr = new AssignmentGradeRecord(asn, studentUid, points);
 					} else {
@@ -294,10 +304,12 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 				previouslyUnscoredStudents.remove(studentUid);
 
 				// Try to reduce data contention by only updating when a score
-				// has changed.
+				// has changed or property has been set forcing a db update every time.
+				boolean alwaysUpdate = ServerConfigurationService.getBoolean(UPDATE_SAME_SCORE_PROP, false);
+				
 				Double oldPointsEarned = agr.getPointsEarned();
 				Double newPointsEarned = (Double)studentUidsToScores.get(studentUid);
-				if ( ((newPointsEarned != null) && (!newPointsEarned.equals(oldPointsEarned))) || ((newPointsEarned == null) && (oldPointsEarned != null)) ) {
+				if ( alwaysUpdate || (newPointsEarned != null && !newPointsEarned.equals(oldPointsEarned)) || (newPointsEarned == null && oldPointsEarned != null) ) {
 					agr.setDateRecorded(now);
 					agr.setGraderId(graderId);
 					agr.setPointsEarned(newPointsEarned);
@@ -367,13 +379,15 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 					previouslyUnscoredStudents.remove(studentUid);
 
 					// Try to reduce data contention by only updating when a score
-					// has changed.
-					//TODO: for ungraded items, needs to set ungraded-grades later...
+					// has changed or property has been set forcing a db update every time.
+	                boolean alwaysUpdate = ServerConfigurationService.getBoolean(UPDATE_SAME_SCORE_PROP, false);
+					
+	                //TODO: for ungraded items, needs to set ungraded-grades later...
 					Double oldPointsEarned = agr.getPointsEarned();
 					//Double newPointsEarned = (Double)studentUidsToScores.get(studentUid);
 					String newPointsEarnedString = (String)studentUidsToScores.get(studentUid);
 					Double newPointsEarned = (newPointsEarnedString == null) ? null : convertStringToDouble(newPointsEarnedString); 
-					if ( ((newPointsEarned != null) && (!newPointsEarned.equals(oldPointsEarned))) || ((newPointsEarned == null) && (oldPointsEarned != null)) ) {
+					if ( alwaysUpdate || (newPointsEarned != null && !newPointsEarned.equals(oldPointsEarned)) || (newPointsEarned == null && oldPointsEarned != null) ) {
 						agr.setDateRecorded(now);
 						agr.setGraderId(graderId);
 						if(newPointsEarned != null)
@@ -587,12 +601,14 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 				AssignmentGradeRecord agr = getAssignmentGradeRecord(asn, studentUid, session);
 
 				// Try to reduce data contention by only updating when the
-				// score has actually changed.
+				// score has actually changed or property has been set forcing a db update every time.
+                boolean alwaysUpdate = ServerConfigurationService.getBoolean(UPDATE_SAME_SCORE_PROP, false);
+                
 				//TODO: for ungraded items, needs to set ungraded-grades later...
 				Double oldPointsEarned = (agr == null) ? null : agr.getPointsEarned();
 				Double newPointsEarned = (points == null) ? null : convertStringToDouble(points); 
-				if ( ((newPointsEarned != null) && (!newPointsEarned.equals(oldPointsEarned))) ||
-						((newPointsEarned == null) && (oldPointsEarned != null)) ) {
+				if ( alwaysUpdate || (newPointsEarned != null && !newPointsEarned.equals(oldPointsEarned)) ||
+						(newPointsEarned == null && oldPointsEarned != null) ) {
 					if (agr == null) {
 						if(newPointsEarned != null)
 							agr = new AssignmentGradeRecord(asn, studentUid, Double.valueOf(newPointsEarned));
