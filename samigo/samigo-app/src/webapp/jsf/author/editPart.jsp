@@ -163,7 +163,7 @@
    <h:panelGroup >
    <h:outputText value="#{authorMessages.q_ordering_n}" />
 
-     <h:selectOneRadio disabled="#{sectionBean.type =='2' || !author.isEditPendingAssessmentFlow}" layout="pageDirection" value="#{sectionBean.questionOrdering}">
+     <h:selectOneRadio disabled="#{sectionBean.type =='2'}" layout="pageDirection" value="#{sectionBean.questionOrdering}">
        <f:selectItem itemLabel="#{authorMessages.as_listed_on_assessm}"
          itemValue="1"/>
        <f:selectItem itemLabel="#{authorMessages.random_within_p}"

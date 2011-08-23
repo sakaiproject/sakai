@@ -156,12 +156,13 @@ public class SavePartListener
     }
     log.debug("**** section title ="+section.getTitle());
     log.debug("**** title ="+title);
-    // if (title != null & !title.equals(""))  // There is no spec saying we don't allow empty string for title , SAK-4211
+    
+    // title, description, and question ordering are editable for both pending and publish assessments
     if (title != null)
       section.setTitle(title);
     section.setDescription(description);
-
-    // TODO: Need to save Type, Question Ordering, and Metadata
+	if (!("".equals(sectionBean.getQuestionOrdering())))
+	  section.addSectionMetaData(SectionDataIfc.QUESTIONS_ORDERING, sectionBean.getQuestionOrdering());
 
     if (isEditPendingAssessmentFlow) {
     	if (!("".equals(sectionBean.getKeyword())))
@@ -172,10 +173,6 @@ public class SavePartListener
 
     	if (!("".equals(sectionBean.getRubric())))
     		section.addSectionMetaData(SectionMetaDataIfc.RUBRICS, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, sectionBean.getRubric()));
-
-    	if (!("".equals(sectionBean.getQuestionOrdering())))
-    		section.addSectionMetaData(SectionDataIfc.QUESTIONS_ORDERING, sectionBean.getQuestionOrdering());
-
 
     	if (!("".equals(sectionBean.getType())))  {
     		section.addSectionMetaData(SectionDataIfc.AUTHOR_TYPE, sectionBean.getType());
