@@ -1480,6 +1480,18 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							}
 						}
 					
+					    Collections.sort(studentPages, new Comparator<SimpleStudentPage>() {
+						    public int compare(SimpleStudentPage o1, SimpleStudentPage o2) {
+							String title1 = o1.getTitle();
+							if (title1 == null)
+							    title1 = "";
+							String title2 = o2.getTitle();
+							if (title2 == null)
+							    title2 = "";
+							return title1.compareTo(title2);
+						    }
+						});					    
+
 						// Print each row in the table
 						for(SimpleStudentPage page : studentPages) {
 							if(page.isDeleted()) continue;

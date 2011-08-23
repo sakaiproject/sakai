@@ -4723,11 +4723,8 @@ public class SimplePageBean {
 			if (containerItem.isAnonymous()) {
 			    List<SimpleStudentPage>  otherPages = simplePageToolDao.findStudentPages(itemId);
 			    int serial = 1;
-			    if (otherPages != null) {
-				for (SimpleStudentPage stPage: otherPages) 
-				    if (! stPage.isDeleted())
-					serial ++;
-			    }
+			    if (otherPages != null)
+				serial = otherPages.size() + 1;
 			    title = messageLocator.getMessage("simplepage.anonymous") + " " + serial;
 			}			
 			SimplePage newPage = simplePageToolDao.makePage(curr.getToolId(), curr.getSiteId(), title, curr.getPageId(), null);
