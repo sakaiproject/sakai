@@ -20,7 +20,7 @@
  **********************************************************************************/
 
 package org.sakaiproject.news.api;
-
+import java.util.Date;
 /**
  * <p>
  * NewsItem is the Interface for a Sakai News message.
@@ -51,6 +51,7 @@ public interface NewsItem
 	 * @return The time when the NewsItem was updated.
 	 */
 	public String getPubdate();
+	public Date getPubdateInDateFormat();
 
 	/**
 	 * Access the URL where the complete story can be found.

@@ -25,6 +25,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
+import java.text.DateFormat;
 
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
@@ -51,7 +52,10 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.Validator;
 import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.time.cover.TimeService;
 
 /**
  * <p>
@@ -200,7 +204,9 @@ public class NewsAction extends VelocityPortletPaneledAction
 
 		context.put("channel", channel);
 		context.put("news_items", items);
- 
+		DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, new ResourceLoader().getLocale());	
+		df.setTimeZone(TimeService.getLocalTimeZone());
+		context.put("dateFormat", df);
 		try 
 		{
 			// tracking event

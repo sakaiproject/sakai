@@ -40,7 +40,7 @@
 			- $channel.Copyright
 		#end
 		#if($channel.Lastbuilddate)
-			 - $channel.Lastbuilddate
+			 - $dateFormat.format($channel.LastbuilddateInDateFormat)
 		#end
 		</p>
 
@@ -71,8 +71,8 @@
 			#foreach ($enc in $item.Enclosures)
 			 	<a href="$enc.Url" target="_blank" title="$enc.Ur)">$enc.Url</a> ($enc.Type, $enc.Length Bytes) <br>
 			#end
-			 #if($item.Pubdate && !($item.Pubdate == ""))
-				($item.Pubdate)
+			 #if($item.Pubdate)
+				($dateFormat.format($item.PubdateInDateFormat))
 			#end
 			</p>
 

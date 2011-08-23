@@ -429,7 +429,6 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 			catch(Exception e)
 			{
 				M_log.error("errors in merge for BasicNewsService");
-				e.printStackTrace();
 			}
 		}
 

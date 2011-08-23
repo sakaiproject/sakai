@@ -344,10 +344,22 @@ public class BasicNewsChannel implements NewsChannel
 	{
 		return m_pubdate;
 	}
+	public Date getPubdateInDateFormat(){
+		if ((m_pubdate!=null)&&(m_pubdate!=""))
+			return new Date(m_pubdate);
+		else
+			return new Date();
+	}
 
 	public String getLastbuilddate()
 	{
 		return m_lastbuilddate;
+	}
+	public Date getLastbuilddateInDateFormat(){
+		if ((m_lastbuilddate!=null)&&(m_lastbuilddate!=""))
+			return new Date(m_lastbuilddate);
+		else
+			return new Date();
 	}
 
 	public String getImageUrl()

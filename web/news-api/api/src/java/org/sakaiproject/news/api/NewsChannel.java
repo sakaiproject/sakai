@@ -22,6 +22,7 @@
 package org.sakaiproject.news.api;
 
 import java.util.List;
+import java.util.Date;
 
 import org.sakaiproject.javax.Filter;
 
@@ -82,11 +83,13 @@ public interface NewsChannel
 	 *
 	 */
 	public String getPubdate();
+	public Date getPubdateInDateFormat();
 
 	/**
 	 *
 	 */
 	public String getLastbuilddate();
+	public Date getLastbuilddateInDateFormat();
 
 	/**
 	 *

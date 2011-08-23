@@ -22,6 +22,7 @@
 package org.sakaiproject.news.impl;
 
 import java.util.List;
+import java.util.Date;
 
 import org.sakaiproject.news.api.NewsItem;
 
@@ -113,7 +114,12 @@ public class BasicNewsItem implements NewsItem
 		return m_pubdate;
 
 	} // getPubdate
-
+	public Date getPubdateInDateFormat(){
+		if ((m_pubdate!=null) && (m_pubdate!=""))
+			return new Date(m_pubdate);
+		else 
+			return new Date();
+	}
 	/**
 	 * Access the URL where the complete story can be found.
 	 * 
