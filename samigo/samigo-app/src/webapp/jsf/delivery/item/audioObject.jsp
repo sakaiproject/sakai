@@ -54,10 +54,10 @@
      value="#{delivery.protocol}/samigo-app/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{param.questionId}/#{person.eid}/audio_#{delivery.assessmentGrading.assessmentGradingId}_#{param.questionId}" /><f:verbatim>" \
       imageUrl ="</f:verbatim><h:outputText value="#{delivery.protocol}/samigo-app/images/" /><f:verbatim>" \
       compression ="linear" \
-      frequency ="16000" \
-      bits ="8" \
+      frequency ="44100" \
+      bits ="16" \
       signed ="true" \
-      bigendian ="true6" \
+      bigendian ="true" \
       stereo ="false" \
       localeLanguage ="</f:verbatim><h:outputText
          value="#{person.localeLanguage}" escape="false"/><f:verbatim>" \

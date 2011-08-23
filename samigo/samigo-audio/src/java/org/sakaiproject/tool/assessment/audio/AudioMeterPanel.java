@@ -59,13 +59,28 @@ public class AudioMeterPanel extends JPanel {
 	public void init() {
 		int fps = 10;
 		delay = (fps > 0) ? (1000 / fps) : 100;
-	    }
+	}
 	
 	public int getLevel() {
 		return level;
 	}
 
 	public void setLevel(int level) {
+		
+		//System.out.println("***********level = " + level);
+		if (level > 9) {
+			level = 9;
+			//System.out.println("***********level = " + level);
+		}
+		if (level > 5) {
+			level = level - 2;
+			//System.out.println("***********level = " + level);
+		}
+		if (level > 3 && level <= 5) {
+			level = level - 1;
+			//System.out.println("***********level = " + level);
+		}
+		
 		this.level = level;
 	}
 
@@ -111,8 +126,10 @@ public class AudioMeterPanel extends JPanel {
     public void paintFrame(Graphics g) {
     	
     	try {
+    		//System.out.println("level = " + level);
 			g.drawImage(frames[level], 0, 20, null);
 		} catch (ArrayIndexOutOfBoundsException e) {
+			//System.out.println("ArrayIndexOutOfBoundsException: level = " + level);
 			g.drawImage(frames[9], 0, 20, null);
 		}
     }
