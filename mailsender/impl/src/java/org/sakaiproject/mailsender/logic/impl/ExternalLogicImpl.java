@@ -328,11 +328,15 @@ public class ExternalLogicImpl implements ExternalLogic
 	{
         if (fromEmail == null)
         {
-          throw new MailsenderException("'fromEmail' is required.", (Exception) null);
+          MailsenderException me = new MailsenderException("'fromEmail' is required.", (Exception) null);
+          me.addMessage("no.from.address");
+          throw me;
         }
         if (to == null || to.isEmpty())
         {
-          throw new MailsenderException("'to' is required.", (Exception) null);
+          MailsenderException me = new MailsenderException("'to' is required.", (Exception) null);
+          me.addMessage("error.no.recipients");
+          throw me;
         }
 
         if (config == null)

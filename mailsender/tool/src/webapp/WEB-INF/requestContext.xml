@@ -10,6 +10,7 @@
 		<property name="externalLogic" ref="org.sakaiproject.mailsender.logic.ExternalLogic" />
 		<property name="multipartMap" ref="multipartMap" />
 		<property name="messages" ref="targettedMessageList" />
+		<property name="messageLocator" ref="messageLocator" />
 	</bean>
 
 	<bean id="configBean" class="org.sakaiproject.mailsender.tool.beans.ConfigBean">

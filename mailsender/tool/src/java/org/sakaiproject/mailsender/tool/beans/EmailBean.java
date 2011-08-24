@@ -45,6 +45,8 @@ public class EmailBean
 	public static final String EMAIL_FAILED = "emailFailed";
 	public static final String EMAIL_CANCELLED = "emailCancelled";
 
+	private static final Log LOG = LogFactory.getLog(EmailBean.class);
+
 	private Map<String, MultipartFile> multipartMap;
 	private final Log log = LogFactory.getLog(EmailBean.class);
 	private ComposeLogic composeLogic;
@@ -201,13 +203,22 @@ public class EmailBean
 		{
 			messages.clear();
 			List<Map<String, Object[]>> msgs = me.getMessages();
-			for (Map<String, Object[]> msg : msgs)
+			if (msgs != null)
 			{
-				for(Map.Entry<String, Object[]> e : msg.entrySet())
+				for (Map<String, Object[]> msg : msgs)
 				{
-					messages.addMessage(new TargettedMessage(e.getKey(), e.getValue(),
-							TargettedMessage.SEVERITY_ERROR));
+					for(Map.Entry<String, Object[]> e : msg.entrySet())
+					{
+						messages.addMessage(new TargettedMessage(e.getKey(), e.getValue(),
+								TargettedMessage.SEVERITY_ERROR));
+					}
 				}
+			}
+			else
+			{
+				messages.addMessage(new TargettedMessage("verbatim",
+						new String[] { me.getMessage() },
+						TargettedMessage.SEVERITY_ERROR));
 			}
 			return EMAIL_FAILED;
 		}
