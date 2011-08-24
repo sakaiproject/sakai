@@ -211,7 +211,7 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 		}		
 		
 		String userId = UserDirectoryService.getCurrentUser().getId();
-		if(userId == null){
+		if(userId == null || "".equals(userId)){
 			return null;
 		}
 
@@ -335,11 +335,13 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 						DecoratedForumInfo dForum = new DecoratedForumInfo(forum.getId(), forum.getTitle());
 
 						List<DiscussionTopic> topics = forum.getTopics();
+						int viewableTopics = 0;
 
 						for (DiscussionTopic topic : topics) {
 							if(topic.getDraft().equals(Boolean.FALSE)){
 
-								if (getUiPermissionsManager().isRead(topic.getId(), false, false, userId, siteId))
+								if (forumManager.isInstructor(userId, siteId) || 
+										getUiPermissionsManager().isRead(topic.getId(), topic.getDraft(), forum.getDraft(), userId, siteId))
 								{
 									int unreadMessages = 0;
 									int totalMessages = 0;
@@ -358,11 +360,16 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 									totalMessages = getMessageManager().findViewableMessageCountByTopicIdByUserId(topic.getId(), userId);
 
 									dForum.addTopic(new DecoratedTopicInfo(topic.getId(), topic.getTitle(), unreadMessages, totalMessages, ""));
+									viewableTopics++;
 								}						  
 							}
 						}
-
-						dForums.add(dForum);
+						
+						// TODO this is a bit too simplistic but will do for now. better to be more restrictive than less at this point
+						// "instructor" type users can view all forums. others may view the forum if they can view at least one topic within the forum
+						if (forumManager.isInstructor(userId, siteId) || viewableTopics > 0) {
+							dForums.add(dForum);
+						}
 					}
 				}
 			}
