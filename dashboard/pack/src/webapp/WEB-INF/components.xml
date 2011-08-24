@@ -19,8 +19,8 @@
 		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
 		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
 		
-	</bean>
-    
+	</bean>    	
+ 
     <bean id="org.sakaiproject.dash.logic.DashboardLogic" 
     	class="org.sakaiproject.dash.logic.DashboardLogicImpl"
     	init-method="init">
