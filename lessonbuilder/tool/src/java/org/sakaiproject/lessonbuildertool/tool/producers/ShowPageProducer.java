@@ -2109,26 +2109,28 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			
 			createToolBarLink(AssignmentPickerProducer.VIEW_ID, toolBar, "add-assignment", "simplepage.assignment", currentPage, "simplepage.assignment");
 			
-			createToolBarLink(QuizPickerProducer.VIEW_ID, toolBar, "add-quiz", "simplepage.quiz", currentPage, "simplepage.quiz");
+			// dropdown
+
+			createToolBarLink(QuizPickerProducer.VIEW_ID, tofill, "add-quiz", "simplepage.quiz", currentPage, "simplepage.quiz");
 			
-			UIOutput.make(toolBar, "forum-descrip");
-			createToolBarLink(ForumPickerProducer.VIEW_ID, toolBar, "add-forum", "simplepage.forum", currentPage, "simplepage.forum");
+			UIOutput.make(tofill, "forum-descrip");
+			createToolBarLink(ForumPickerProducer.VIEW_ID, tofill, "add-forum", "simplepage.forum", currentPage, "simplepage.forum");
 			// in case we're on an old system without current BLTI
 			if (bltiEntity != null && ((BltiInterface)bltiEntity).servicePresent()) {
-			    UIOutput.make(toolBar, "blti-descrip");
-			    createToolBarLink(BltiPickerProducer.VIEW_ID, toolBar, "add-blti", "simplepage.blti", currentPage, "simplepage.blti");
+			    UIOutput.make(tofill, "blti-descrip");
+			    createToolBarLink(BltiPickerProducer.VIEW_ID, tofill, "add-blti", "simplepage.blti", currentPage, "simplepage.blti");
 			}
-			UIOutput.make(toolBar, "permissions-descrip");
-			createToolBarLink(PermissionsHelperProducer.VIEW_ID, toolBar, "permissions", "simplepage.permissions", currentPage, "simplepage.permissions.tooltip");
+			UIOutput.make(tofill, "permissions-descrip");
+			createToolBarLink(PermissionsHelperProducer.VIEW_ID, tofill, "permissions", "simplepage.permissions", currentPage, "simplepage.permissions.tooltip");
 			
 			GeneralViewParameters eParams = new GeneralViewParameters(VIEW_ID);
 			eParams.addTool = GeneralViewParameters.COMMENTS;
-			UIOutput.make(toolBar, "student-descrip");
-			UIInternalLink.make(toolBar, "add-comments", messageLocator.getMessage("simplepage.comments"), eParams);
+			UIOutput.make(tofill, "student-descrip");
+			UIInternalLink.make(tofill, "add-comments", messageLocator.getMessage("simplepage.comments"), eParams);
 			
 			eParams = new GeneralViewParameters(VIEW_ID);
 			eParams.addTool = GeneralViewParameters.STUDENT_CONTENT;
-			UIInternalLink.make(toolBar, "add-content", messageLocator.getMessage("simplepage.add-content"), eParams);
+			UIInternalLink.make(tofill, "add-content", messageLocator.getMessage("simplepage.add-content"), eParams);
 		}
 	}
 

@@ -272,13 +272,11 @@ ul#toolbar li {
   position: relative;
 }
 
-ul#toolbar li.dropdown div {  
+#dropDownDiv {  
+  position:fixed;
   width: 350px;
-  position: absolute;
   margin-top: 0.9em;
   margin-left: 0.5em;
-  top: 1.6em;
-  left: 0em;
   background-color: #EEE;
   border-width: 1px;
   border-style: solid;
