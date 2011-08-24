@@ -438,13 +438,13 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 
 	public List<ServerWideStatsRecord> getTop20Activities()
 	{
-		String mySql = "SELECT event, "
+		String mySql = "SELECT event_id, "
 				+ "sum(if(event_date > DATE_SUB(CURDATE(), INTERVAL 7 DAY),1,0))/7 as last7, "
 				+ "sum(if(event_date > DATE_SUB(CURDATE(), INTERVAL 30 DAY),1,0))/30 as last30, "
 				+ "sum(if(event_date > DATE_SUB(CURDATE(), INTERVAL 365 DAY),1,0))/365 as last365 "
-				+ "FROM SAKAI_EVENT "
-				+ "where event not in ('content.read', 'user.login', 'user.logout', 'pres.end', "
-				+ "'realm.upd', 'realm.add', 'realm.del', 'realm.upd.own') "
+				+ "FROM SST_EVENTS "
+				+ "where event_id not in ('content.read', 'user.login', 'user.logout', 'pres.begin', 'pres.end', "
+				+ "'realm.upd', 'realm.add', 'realm.del', 'realm.upd.own', 'site.add', 'site.del', 'user.add', 'user.del') "
 				+ "and event_date > DATE_SUB(CURDATE(), INTERVAL 365 DAY) "
 				+ "group by 1 " + "order by 2 desc, 3 desc, 4 desc "
 				+ "LIMIT 20";
@@ -477,9 +477,9 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 				+ "sum(if(s.user_logins = 2,1,0)) as twice, "
 				+ "sum(if(s.user_logins = 1,1,0)) as once "
 				+ "from (select "
-				+ "STR_TO_DATE(concat(date_format(session_start, '%x-%v'), ' Monday'),'%x-%v %W') as week_start, "
-				+ "session_user, count(*) as user_logins "
-				+ "from SAKAI_SESSION group by 1, 2) as s " + "group by 1";
+				+ "STR_TO_DATE(concat(date_format(login_date, '%x-%v'), ' Monday'),'%x-%v %W') as week_start, "
+				+ "user_id, login_count as user_logins "
+				+ "from SST_USERSTATS group by 1, 2) as s " + "group by 1";
 
 		List result = m_sqlService.dbRead (mySql, null, new SqlReader () {
 			public Object readSqlResultRecord (ResultSet result)
@@ -507,7 +507,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 	}
 
 	// this has not been reimplemented in STAT-299 because the data is not tracked at an hourly level
-	// in any case, the data is only shown for a 30 day period
+	// in any case, the data is only shown for a 30 day period so you could think about retaining the data for 30 days, perhaps.
 	public List<ServerWideStatsRecord> getHourlyUsagePattern ()
 	{
 		String mySql = "select date(SESSION_START) as session_date, "
