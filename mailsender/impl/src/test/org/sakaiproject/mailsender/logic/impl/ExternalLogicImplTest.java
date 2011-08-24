@@ -40,6 +40,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -89,6 +90,8 @@ public class ExternalLogicImplTest {
 	User user;
     @Mock
     EmailService emailService;
+    @Mock
+    ServerConfigurationService configService;
 
 	static final String LOCATION_ID = "locationId";
 	static final String LOCATION_TITLE = "Location Title";
@@ -120,6 +123,7 @@ public class ExternalLogicImplTest {
 		impl.setSiteService(siteService);
 		impl.setToolManager(toolManager);
 		impl.setUserDirectoryService(userDirectoryService);
+		impl.setServerConfigurationService(configService);
 
 		impl.init();
 	}

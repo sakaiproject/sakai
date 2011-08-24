@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.AddressValidationException;
 import org.sakaiproject.email.api.Attachment;
 import org.sakaiproject.email.api.ContentType;
@@ -75,6 +76,7 @@ public class ExternalLogicImpl implements ExternalLogic
 	private UserDirectoryService userDirectoryService;
     private TimeService timeService;
     private EmailService emailService;
+    private ServerConfigurationService configService;
 
 	/**
 	 * Place any code that should run when this class is initialized by spring here
@@ -355,7 +357,7 @@ public class ExternalLogicImpl implements ExternalLogic
 		if (ConfigEntry.ReplyTo.no_reply_to.name().equals(config.getReplyTo()))
 		{
 			replyToName = getCurrentSiteTitle();
-			replyToEmail = "";
+			replyToEmail = "no-reply@" + configService.getServerName();
 		}
 		else
 		{
@@ -496,5 +498,9 @@ public class ExternalLogicImpl implements ExternalLogic
 	public void setEmailService(EmailService emailService)
 	{
 		this.emailService = emailService;
+	}
+
+	public void setServerConfigurationService(ServerConfigurationService configService) {
+		this.configService = configService;
 	}
 }

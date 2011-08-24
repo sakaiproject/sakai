@@ -36,6 +36,7 @@
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="mailArchiveService" ref="org.sakaiproject.mailarchive.api.MailArchiveService" />
 		<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 	</bean>
 
 	<bean id="org.sakaiproject.mailsender.logic.ComposeLogic"
