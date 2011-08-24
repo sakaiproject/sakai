@@ -1306,17 +1306,17 @@ function toggleDropdown() {
 }
 
 function reposition() {
-	var dropX = $(".dropdown").offset().left;
+	var dropX = $(".dropdown a").offset().left;
 	var dropdown = $("#dropDownDiv");
 	//alert("DropX: " + dropX);
 	//alert("Width: " + window.innerWidth);
 	//alert("Width2: " + dropdown.width());
-	if(dropX + dropdown.width() > ($(window).width()-20)) {
-	    dropdown.css("left", Math.max(0,($(window).width() - dropdown.width() - 20)) + "px");
+	if(dropX + dropdown.width() > ($(window).width()-30)) {
+	    dropdown.css("left", Math.max(0,($(window).width() - dropdown.width() - 30)) + "px");
 	} else {
 	    // in case user changes zoom and then tries again, we could end up
             // with a value from the case above that is now incorrect                        	    
-            dropdown.css("left", "0px");
+            dropdown.css("left", dropX);
 	}
 
 }

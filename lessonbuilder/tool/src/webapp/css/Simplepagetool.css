@@ -273,7 +273,7 @@ ul#toolbar li {
 }
 
 #dropDownDiv {  
-  position:fixed;
+  position:absolute;
   width: 350px;
   margin-top: 0.9em;
   margin-left: 0.5em;
