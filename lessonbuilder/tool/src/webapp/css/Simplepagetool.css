@@ -278,8 +278,7 @@ ul#toolbar li {
   margin-top: 0.9em;
   margin-left: 0.5em;
   background-color: #EEE;
-  border-width: 1px;
-  border-style: solid;
+  border: 1px solid black;
   z-index: 10000;
   
   padding: 7px;

@@ -1055,11 +1055,21 @@ $(function() {
 			sensitivity: 7,
 			over: addHighlight,
 			timeout: 700,
-			out: removeHighlight
+			out: buttonRemoveHighlight
 	};
 	
+	var dropdownConfig = {	
+			interval: 200,
+			sensitivity: 7,
+			over: menuAddHighlight,
+			timeout: 700,
+			out: removeHighlight
+	};
+
+
 	$("li.dropdown").hoverIntent(megaConfig);
 	$("#dropDownDiv").hide();
+	$("#dropDownDiv").hoverIntent(dropdownConfig);
 	$("li.dropdown").click(toggleDropdown);
 	dropDownViaClick = false;
 });
@@ -1264,6 +1274,18 @@ $(function() {
 	});
 });
 
+var hasBeenInMenu = false;
+
+function menuAddHighlight() {
+    hasBeenInMenu = true;
+    addHighLight();
+}
+
+function buttonRemoveHighlight() {
+    if (!hasBeenInMenu)
+	removeHighlight();
+}
+
 function addHighlight() {
 	if(!lessonBuilderAnimationLocked) {
 		if(!$("#dropDownDiv").is(":visible")) {
@@ -1279,6 +1301,7 @@ function addHighlight() {
 function removeHighlight() {
 	if(!lessonBuilderAnimationLocked) {
 		if($("#dropDownDiv").is(":visible") && !dropdownViaClick) {
+			hasBeenInMenu = false;
 			lessonBuilderAnimationLocked = true;
 			$('.hideOnDialog').show();
 			$("#dropDownDiv").hide("slide", {direction: "up"}, 300, unlockAnimation);
@@ -1291,6 +1314,7 @@ function toggleDropdown() {
 	if(!lessonBuilderAnimationLocked) {
 		if($("#dropDownDiv").is(":visible")) {
 			lessonBuilderAnimationLocked = true;
+			hasBeenInMenu = false;
 			$('.hideOnDialog').show();
 			$("#dropDownDiv").hide("slide", {direction: "up"}, 300, unlockAnimation);
 			dropdownViaClick = false;
