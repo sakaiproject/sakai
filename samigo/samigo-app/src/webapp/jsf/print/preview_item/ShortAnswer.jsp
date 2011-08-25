@@ -28,6 +28,9 @@ should be included in file importing DeliveryMessages
   <%-- questionBlock --%>
   <h:outputText styleClass="questionBlock" escape="false" value="#{question.itemData.text}" />
   <h:outputText value="<br />" escape="false" />
+  <h:outputText value="<br />" escape="false" />
+  
+  <%@ include file="/jsf/delivery/item/attachment.jsp" %>
   
   <h:panelGroup styleClass="answerBlock" rendered="#{printSettings.showKeys || printSettings.showKeysFeedback}">
     <h:outputLabel value="#{printMessages.answer_point}: "/>

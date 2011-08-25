@@ -147,30 +147,42 @@ document.links[newindex].onclick();
 	</div>
 	    
 	<div class="assessment_intro, quiz">
-	  <h:outputText id="assessmentIntro" value="#{pdfAssessment.intro}" 
-	          escape="false" rendered="#{printSettings.showPartIntros && pdfAssessment.intro != ''}" />
+	  <h:outputText id="assessmentIntro" value="#{delivery.instructorMessage}" 
+	          escape="false" rendered="#{printSettings.showPartIntros && delivery.instructorMessage != null && delivery.instructorMessage != ''}" />
 	</div>
-      
-      <h:dataTable id="parts" width="100%" value="#{pdfAssessment.deliveryParts}" var="partBean">
-        <%-- note that partBean is ui/delivery/SectionContentsBean not ui/author/SectionBean --%>
+    
+    <h:panelGrid columns="2" border="0" rendered="#{printSettings.showPartIntros && delivery.hasAttachment}">
+      <h:outputText value="&nbsp;&nbsp;&nbsp;&nbsp;" escape="false"/>
+      <f:subview id="assessmentAttachment">
+        <%@ include file="/jsf/delivery/assessment_attachment.jsp" %>
+      </f:subview>
+	</h:panelGrid>
+      <h:dataTable id="parts" width="100%" value="#{pdfAssessment.deliveryParts}" var="part" border="0">
+        <%-- note that part is ui/delivery/SectionContentsBean not ui/author/SectionBean --%>
         <h:column>
           <h:panelGroup id="fullTitle">
-		    <h:panelGroup id="partIntro" rendered="#{printSettings.showPartIntros && pdfAssessment.sizeDeliveryParts >= 1}">
+		    <h:panelGroup id="partIntro" rendered="#{pdfAssessment.sizeDeliveryParts >= 1}">
 		      <h:panelGrid border="0">
 		        <h:panelGroup>
-		          <h:outputText id="number" value="#{authorMessages.p} #{partBean.number}: " escape="false" styleClass="part_title_text" />
-		          <h:outputText id="title" value="#{partBean.title}" escape="false" styleClass="part_title" rendered="#{partBean.title ne 'Default' && partBean.title ne 'default'}"/>
+		          <h:outputText id="number" value="#{authorMessages.p} #{part.number}" escape="false" styleClass="part_title_text" />
+		          <h:outputText id="title" value=": #{part.title}" escape="false" styleClass="part_title" rendered="#{printSettings.showPartIntros && part.title ne 'Default' && part.title ne 'default'}"/>
 		        </h:panelGroup>
-		        <h:outputText value = "&nbsp;" escape="false"/>
-		        <h:outputText id="description" value="#{partBean.description}" escape="false" styleClass="part_info" />
+		        <h:outputText value="&nbsp;" escape="false"/>
+		        <h:outputText id="description" value="#{part.description}" escape="false" styleClass="part_info" rendered="#{printSettings.showPartIntros && part.description != null && part.description != ''}"/>
 		      </h:panelGrid>
             </h:panelGroup>
           </h:panelGroup>
           
+          <h:panelGrid columns="2" border="0" rendered="#{printSettings.showPartIntros && part.hasAttachment}">
+            <h:outputText value="&nbsp;&nbsp;&nbsp;&nbsp;" escape="false"/>
+            <f:subview id="partAttachment">
+          	<%@ include file="/jsf/delivery/part_attachment.jsp" %>
+          	</f:subview>
+		  </h:panelGrid>
+		  
           <!-- BEGIN ASSESSMENT PARTS & QUESTIONS -->
-          <h:dataTable id="items" width="100%" headerClass="regHeading" value="#{partBean.itemContents}" var="question"
-                                columnClasses="col-printQNum, col-printQues" rowClasses="item" border="0">
-            
+          <h:dataTable id="items" width="100%" headerClass="regHeading" value="#{part.itemContents}" var="question"
+                                columnClasses="col-printQNum, col-printQues" rowClasses="item" border="0">           
             <h:column>
               <h:outputText value="<h3>" escape="false" />
                 <h:outputText id="number" escape="false" value="#{question.sequence}" />
@@ -215,7 +227,7 @@ document.links[newindex].onclick();
                   <%@ include file="/jsf/print/preview_item/MatrixChoicesSurvey.jsp" %>
                 </h:panelGroup>
                 <h:outputText escape="false" value="<hr />"
-					rendered="#{!(partBean.number == pdfAssessment.sizeDeliveryParts && question.number == pdfAssessment.totalQuestions) && (printSettings.showKeys || printSettings.showKeysFeedback) }" />
+					rendered="#{!(part.number == pdfAssessment.sizeDeliveryParts && question.number == pdfAssessment.totalQuestions) && (printSettings.showKeys || printSettings.showKeysFeedback) }" />
               </h:panelGroup>
             </h:column>
           </h:dataTable>

@@ -132,6 +132,7 @@ document.links[newindex].onclick();
         <f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
         <f:param name="actionString" value="previewAssessment" />
         <f:param name="fromEdit" value="true" />
+        <f:param name="isFromPrint" value="false" />
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener" />
       </h:commandLink>
 
@@ -143,6 +144,7 @@ document.links[newindex].onclick();
 	<h:commandLink action="#{pdfAssessment.prepPDF}" rendered="#{assessmentBean.showPrintLink eq 'true' && assessmentBean.showPrintAssessment eq 'true'}">
 		<f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
 		<f:param name="actionString" value="editAssessment"/>
+		<f:param name="isFromPrint" value="true" />
 		<h:outputText value="#{printMessages.print}" escape="false" />
 	</h:commandLink>
 

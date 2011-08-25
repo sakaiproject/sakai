@@ -95,6 +95,16 @@ public class BeginDeliveryActionListener implements ActionListener
     
     delivery.setDisplayFormat();
     
+    if ("previewAssessment".equals(delivery.getActionString()) || "editAssessment".equals(actionString)) {
+    	String isFromPrint = ContextUtil.lookupParam("isFromPrint");
+        if (isFromPrint != null && !isFromPrint.trim().equals("")) {
+    		delivery.setIsFromPrint(Boolean.parseBoolean(isFromPrint));
+    	}
+    }
+    else {
+    	delivery.setIsFromPrint(false);
+    }
+    
     int action = delivery.getActionMode();
     PublishedAssessmentFacade pub = getPublishedAssessmentBasedOnAction(action, delivery);
     if(pub == null){

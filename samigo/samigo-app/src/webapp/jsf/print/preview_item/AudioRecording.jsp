@@ -28,6 +28,10 @@ should be included in file importing DeliveryMessages
   <h:outputText id="questionBlock" escape="false" value="#{question.itemData.text}" />
   
   <h:outputText value="<br />" escape="false" />
+  <h:outputText value="<br />" escape="false" />
+  <%@ include file="/jsf/delivery/item/attachment.jsp" %>
+  
+  <h:outputText value="<br />" escape="false" />
   <h:outputText escape="false" value="#{printMessages.time_allowed_seconds}: #{question.itemData.duration}" />
   <h:outputText value="<br />" escape="false" />
   <h:outputText escape="false" value="#{printMessages.number_of_tries}: #{question.itemData.triesAllowed}" />

@@ -26,6 +26,8 @@ should be included in file importing DeliveryMessages
 --%>
 -->
   <%-- questionBlock --%>
+  <%@ include file="/jsf/delivery/item/attachment.jsp" %>
+
   <h:outputText styleClass="questionBlock" escape="false" value="#{question.itemData.text}" />
   <h:outputText value="<br />" escape="false" />
 
@@ -50,3 +52,4 @@ should be included in file importing DeliveryMessages
     <h:outputText escape="false" value="--------" rendered="#{question.itemData.inCorrectItemFeedback == null || question.itemData.inCorrectItemFeedback == ''}"/>
     <h:outputText value="<br />" escape="false" />
   </h:panelGroup>
+  <f:verbatim><br /></f:verbatim>

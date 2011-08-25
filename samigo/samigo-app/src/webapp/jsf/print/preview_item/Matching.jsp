@@ -27,6 +27,10 @@ should be included in file importing DeliveryMessages
 -->
   <%-- questionBlock --%>
   <h:outputText styleClass="questionBlock" escape="false" value="#{question.text}" />
+  
+  <h:outputText value="<br />" escape="false" />
+  <h:outputText value="<br />" escape="false" />    
+  <%@ include file="/jsf/delivery/item/attachment.jsp" %>
 
   <h:panelGrid columns="2" width="99%">
     <%-- matching items --%>

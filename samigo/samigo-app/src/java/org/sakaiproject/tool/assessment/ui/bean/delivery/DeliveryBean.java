@@ -262,6 +262,8 @@ public class DeliveryBean
   // been selected or if the selected module is no longer installed or disabled.
   private String secureDeliveryHTMLFragment; 
   
+  private boolean isFromPrint;
+  
   /**
    * Creates a new DeliveryBean object.
    */
@@ -3303,6 +3305,7 @@ public class DeliveryBean
 	  public String getSecureDeliveryHTMLFragment() {
 		  return this.secureDeliveryHTMLFragment;
 	  }
+
 	  public void setSecureDeliveryHTMLFragment(String secureDeliveryHTMLFragment) {
 		  this.secureDeliveryHTMLFragment = secureDeliveryHTMLFragment;
 	  }
@@ -3312,5 +3315,17 @@ public class DeliveryBean
 	  public void setBlockDelivery(boolean blockDelivery) {
 		  this.blockDelivery = blockDelivery;
 	  }
+
+	  
+	  public boolean getIsFromPrint()
+	  {
+	    return isFromPrint;
+	  }
+
+	  public void setIsFromPrint(boolean isFromPrint)
+	  {
+	    this.isFromPrint = isFromPrint;
+	  }
+	  
 }
 

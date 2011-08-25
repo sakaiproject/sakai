@@ -29,6 +29,10 @@ should be included in file importing DeliveryMessages
   <%-- questionBlock --%>
   <h:outputText styleClass="questionBlock" escape="false" value="#{question.itemData.text}" />
   
+  <h:outputText value="<br />" escape="false" />
+  <h:outputText value="<br />" escape="false" />    
+  <%@ include file="/jsf/delivery/item/attachment.jsp" %> 
+  
   <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText">
     <h:column>
      <h:dataTable value="#{itemText.answerArraySorted}" var="answer">

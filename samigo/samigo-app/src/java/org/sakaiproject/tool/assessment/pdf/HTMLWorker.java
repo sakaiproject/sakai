@@ -74,11 +74,19 @@ public class HTMLWorker extends org.sakaiproject.tool.assessment.pdf.itext.HTMLW
 			String src = (String)h.get("src");
 			if (src == null)
 				return;
-			if ((src.startsWith(ACCESSBASE)) || (src.startsWith(RELATIVEBASE))) {
+
+			String imgId = "";
+			if ((src.startsWith(ACCESSBASE)) || (src.startsWith(RELATIVEBASE)) || src.startsWith("/samigo/")) {
 				FileOutputStream fos = null;
 				DataOutputStream dos = null;
+				if ((src.startsWith(ACCESSBASE)) || (src.startsWith(RELATIVEBASE))) {
+					imgId = src.replaceFirst(ACCESSBASE, "").replaceFirst(RELATIVEBASE, "");
+				}
+				else if (src.startsWith("/samigo/")) {
+					imgId = src.replaceFirst("/samigo", "");
+				}
+
 				try {
-					String imgId = src.replaceFirst(ACCESSBASE, "").replaceFirst(RELATIVEBASE, "");
 					imgId = URLDecoder.decode(imgId); 
 					ContentResource img = ContentHostingService.getResource(imgId);
 
