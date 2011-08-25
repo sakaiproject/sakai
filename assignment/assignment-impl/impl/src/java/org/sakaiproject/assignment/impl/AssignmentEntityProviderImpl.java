@@ -529,7 +529,7 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
         return assignData;
     }
     
-    @EntityCustomAction(action="deepLinks", viewKey=EntityView.VIEW_LIST)
+    @EntityCustomAction(action="deepLinkWithPermissions", viewKey=EntityView.VIEW_LIST)
     public Map<String, Object> getAssignmentDeepLinks(EntityView view, Map<String, Object> params) {
         Map<String, Object> assignData = new HashMap<String, Object>();
 
