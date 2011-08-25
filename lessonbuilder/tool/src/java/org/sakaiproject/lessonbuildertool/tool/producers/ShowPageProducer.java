@@ -2068,6 +2068,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	 */
 	public int checkIEVersion() {
 		UsageSession usageSession = UsageSessionService.getSession();
+		if (usageSession == null)
+		    return 0;
 		String browserString = usageSession.getUserAgent();
 		int ieIndex = browserString.indexOf(" MSIE ");
 		int ieVersion = 0;
