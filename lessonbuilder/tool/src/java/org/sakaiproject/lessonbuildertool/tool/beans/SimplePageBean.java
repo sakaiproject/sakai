@@ -209,8 +209,8 @@ public class SimplePageBean {
 	public String comment;
 	public String formattedComment;
 	public String editId;
-	public boolean graded;
-	public String maxPoints;
+	public boolean graded, sGraded;
+	public String maxPoints, sMaxPoints;
 	
 	public boolean comments;
 	public boolean forcedAnon;
@@ -4634,16 +4634,24 @@ public class SimplePageBean {
 				
 				if(comment.getGradebookId() == null || !comment.getGradebookPoints().equals(points)) {
 					String pageTitle = "";
+					String gradebookId = "";
 					
 					if(comment.getPageId() >= 0) {
 						pageTitle = simplePageToolDao.getPage(comment.getPageId()).getTitle();
+						gradebookId = "lesson-builder:comment:" + comment.getId();
+						
+						gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:comment:" + comment.getId(), null,
+								pageTitle + " Comments (item:" + comment.getId() + ")", Integer.valueOf(maxPoints), null, "Lesson Builder");
 					}else {
 						// Must be a student page comments tool.
-						pageTitle = simplePageToolDao.findStudentPage(Long.valueOf(comment.getSakaiId())).getTitle();
+						SimpleStudentPage studentPage = simplePageToolDao.findStudentPage(Long.valueOf(comment.getSakaiId()));
+						SimplePageItem studentPageItem = simplePageToolDao.findItem(studentPage.getItemId());
+						
+						//pageTitle = simplePageToolDao.findStudentPage(Long.valueOf(comment.getSakaiId())).getTitle();
+						gradebookId = "lesson-builder:page-comment:" + studentPageItem.getId();
+						
 					}
 					
-					gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:comment:" + comment.getId(), null,
-							pageTitle + " Comments (item:" + comment.getId() + ")", Integer.valueOf(maxPoints), null, "Lesson Builder");
 					comment.setGradebookId("lesson-builder:comment:" + comment.getId());
 					regradeComments(comment);
 				}
@@ -4829,6 +4837,11 @@ public class SimplePageBean {
 				maxPoints = "1";
 			}
 			
+			if(sMaxPoints == null || sMaxPoints.equals("")) {
+				sMaxPoints = "1";
+			}
+			
+			// Handle the grading of pages
 			if(graded) {
 				int points;
 				try {
@@ -4847,6 +4860,7 @@ public class SimplePageBean {
 					gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null,
 							simplePageToolDao.getPage(page.getPageId()).getTitle() + " Student Pages (item:" + page.getId() + ")", Integer.valueOf(maxPoints), null, "Lesson Builder");
 					page.setGradebookId("lesson-builder:page:" + page.getId());
+					regradeStudentPages(page);
 					//regradeComments(comment);
 				}
 				
@@ -4856,12 +4870,64 @@ public class SimplePageBean {
 				page.setGradebookId(null);
 				page.setGradebookPoints(null);
 			}
+			
+			// Handling the grading of comments on pages
+			if(sGraded) {
+				int points;
+				try {
+					points = Integer.valueOf(sMaxPoints);
+				}catch(Exception ex) {
+					setErrMessage(messageLocator.getMessage("simplepage.integer-expected"));
+					return "failure";
+				}
+				
+				if(page.getAltGradebook() != null && !page.getAltGradebook().equals(points)) {
+					gradebookIfc.removeExternalAssessment(getCurrentSiteId(), page.getAltGradebook());
+				}
+				
+				if(page.getAltGradebook() == null || !page.getAltPoints().equals(points)) {
+					gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page-comment:" + page.getId(), null,
+							simplePageToolDao.getPage(page.getPageId()).getTitle() + " Student Page Comments (item:" + page.getId() + ")", points, null, "Lesson Builder");
+					page.setAltGradebook("lesson-builder:page-comment:" + page.getId());
+					
+					regradeStudentPageComments(page);
+					//regradeComments(comment);
+				}
+				
+				page.setAltPoints(points);
+			}else if(page.getAltGradebook() != null) {
+				gradebookIfc.removeExternalAssessment(getCurrentSiteId(), page.getAltGradebook());
+				page.setAltGradebook(null);
+				page.setAltPoints(null);
+			}
+			
 			update(page);
 			
 			return "success";
 		}else {
 			setErrMessage(messageLocator.getMessage("simplepage.permissions-general"));
 			return "failure";
+		}
+	}
+	
+	private void regradeStudentPageComments(SimplePageItem pageItem) {
+		List<SimpleStudentPage> pages = simplePageToolDao.findStudentPages(pageItem.getId());
+		for(SimpleStudentPage c : pages) {
+			SimplePageItem comments = findItem(c.getCommentsSection());
+			comments.setGradebookId(pageItem.getAltGradebook());
+			comments.setGradebookPoints(pageItem.getAltPoints());
+			update(comments);
+			regradeComments(comments);
+		}
+	}
+	
+	private void regradeStudentPages(SimplePageItem pageItem) {
+		List<SimpleStudentPage> pages = simplePageToolDao.findStudentPages(pageItem.getId());
+		for(SimpleStudentPage c : pages) {
+			if(c.getPoints() != null) {
+				gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), pageItem.getGradebookId(),
+						c.getOwner(), String.valueOf(c.getPoints()));
+			}
 		}
 	}
 	

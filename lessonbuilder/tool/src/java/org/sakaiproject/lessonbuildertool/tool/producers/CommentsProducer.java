@@ -43,6 +43,7 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 	private HashMap<String, String> anonymousLookup = new HashMap<String, String>();
 	private String currentUserId;
 	private String owner = null;
+	private boolean filter;
 	
 	public String getViewID() {
 		return VIEW_ID;
@@ -50,13 +51,15 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 	
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams, ComponentChecker checker) {
 		CommentsViewParameters params = (CommentsViewParameters) viewparams;
-			
+		filter = params.filter;
+		
 		// errors redirect back to ShowPage. But if this is embedded in the page, ShowPage
 		// will call us again. This is very hard for the user to recover from. So trap
 		// all possible errors. It may result in an incomplete page or something invalid,
 		// but better that than an infinite recursion.
 
 		try {
+			
 			SimplePageItem commentsItem = simplePageToolDao.findItem(params.itemId);
 			if(commentsItem != null && commentsItem.getSakaiId() != null && !commentsItem.getSakaiId().equals("")) {
 				SimpleStudentPage studentPage = simplePageToolDao.findStudentPage(Long.valueOf(commentsItem.getSakaiId()));
@@ -69,7 +72,31 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 				simplePageBean.deleteComment(params.deleteComment);
 			}
 			
-			List<SimplePageComment> comments = (List<SimplePageComment>) simplePageToolDao.findComments(params.itemId);
+			List<SimplePageComment> comments;
+			
+			if(!filter && !params.studentContentItem) {
+				comments = (List<SimplePageComment>) simplePageToolDao.findComments(params.itemId);
+			}else if(filter && !params.studentContentItem) {
+				comments = (List<SimplePageComment>) simplePageToolDao.findCommentsOnItemByAuthor(params.itemId, params.author);
+			}else if(filter && params.studentContentItem) {
+				List<SimpleStudentPage> studentPages = simplePageToolDao.findStudentPages(params.itemId);
+				
+				List<Long> commentsItemIds = new ArrayList<Long>();
+				for(SimpleStudentPage p : studentPages) {
+					commentsItemIds.add(p.getCommentsSection());
+				}
+				
+				comments = simplePageToolDao.findCommentsOnItemsByAuthor(commentsItemIds, params.author);
+			}else {
+				List<SimpleStudentPage> studentPages = simplePageToolDao.findStudentPages(params.itemId);
+				
+				List<Long> commentsItemIds = new ArrayList<Long>();
+				for(SimpleStudentPage p : studentPages) {
+					commentsItemIds.add(p.getCommentsSection());
+				}
+				
+				comments = simplePageToolDao.findCommentsOnItems(commentsItemIds);
+			}
 		
 			// Make sure everything is chronological
 			Collections.sort(comments, new Comparator<SimplePageComment>() {
@@ -93,28 +120,32 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 			
 			boolean highlighted = false;
 			
-			boolean showGradingMessage = commentsItem.getGradebookId() != null;
+			// We don't want page owners to edit or grade comments on their page
+			// at the moment.  Perhaps add option?
+			boolean canEditPage = simplePageBean.getEditPrivs() == 0;
+			
+			boolean showGradingMessage = canEditPage && commentsItem.getGradebookId() != null && !params.filter;
 			
 			// Remove any "phantom" comments. So that the anonymous order stays the same,
 			// comments are deleted by removing all content.  Also check to see if any comments
-			// have been graded yet.
+			// have been graded yet.  Finally, if we're filtering, it takes out comments not by
+			// this author.
 			for(int i = comments.size()-1; i >= 0; i--) {
 				if(comments.get(i).getComment() == null || comments.get(i).getComment().equals("")) {
+					comments.remove(i);
+				}else if(params.filter && !comments.get(i).getAuthor().equals(params.author)) {
 					comments.remove(i);
 				}else if(showGradingMessage && comments.get(i).getPoints() != null) {
 					showGradingMessage = false;
 				}
 			}
-		
-			// We don't want page owners to edit comments on their page
-			// at the moment.  Perhaps add option?
-			boolean canEditPage = simplePageBean.getEditPrivs() == 0;
 			
 			boolean editable = false;
 			
-			if(comments.size() <= 5 || params.showAllComments) {
+			if(comments.size() <= 5 || params.showAllComments || params.filter) {
 				for(int i = 0; i < comments.size(); i++) {
-					boolean canEdit = simplePageBean.canModifyComment(comments.get(i), canEditPage);
+					// We don't want them editing on the grading screen, which is why we also check filter.
+					boolean canEdit = simplePageBean.canModifyComment(comments.get(i), canEditPage) && !params.filter;
 					
 					printComment(comments.get(i), tofill, (params.postedComment == comments.get(i).getId()), anonymous, canEdit, params, commentsItem);
 					if(!highlighted) {
@@ -128,6 +159,7 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 				CommentsViewParameters eParams = new CommentsViewParameters(VIEW_ID);
 				eParams.itemId = params.itemId;
 				eParams.showAllComments=true;
+				
 				UIInternalLink.make(container, "to-load", eParams);
 				
 				UIOutput.make(container, "load-more-link", messageLocator.getMessage("simplepage.see_all_comments").replace("{}", Integer.toString(comments.size())));
@@ -228,7 +260,7 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 			UIOutput.make(commentContainer, "editComment").decorate(
 					new UIFreeAttributeDecorator("onclick", "edit($(this), " + comment.getId() + ");"));
 			
-			if(simplePageBean.getEditPrivs() == 0 && commentsItem.getGradebookId() != null) {
+			if(!filter && simplePageBean.getEditPrivs() == 0 && commentsItem.getGradebookId() != null) {
 				UIOutput.make(commentContainer, "gradingSpan");
 				UIOutput.make(commentContainer, "commentsUUID", comment.getUUID());
 				UIOutput.make(commentContainer, "commentPoints",

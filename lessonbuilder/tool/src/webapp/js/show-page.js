@@ -6,9 +6,8 @@ var lessonBuilderAnimationLocked = false;
 // Unload it once the page is fully loaded.
 
 $(window).load(function () {
-        window.onbeforeunload = null;
-
-    });
+	window.onbeforeunload = null;
+});
 
 function msg(s) {
    return document.getElementById(s).innerHTML;
@@ -453,8 +452,12 @@ $(function() {
 
 			if(!$("#student-comments").attr("checked")) {
 				$("#student-comments-anon").attr("disabled", true).removeAttr("checked");
+				$("#student-comments-graded").attr("disabled", true).removeAttr("checked");
+				$("#student-comments-max").attr("disabled", true).val("");
 			}else {
 				$("#student-comments-anon").removeAttr("disabled");
+				$("#student-comments-graded").removeAttr("disabled");
+				$("#student-comments-max").removeAttr("disabled");
 			}
 			
 			var grade = row.find(".studentGrade").text();
@@ -468,6 +471,19 @@ $(function() {
 			$("#student-max").val(row.find(".studentMaxPoints").text());
 			if($("#student-max").val() == "null") {
 				$("#student-max").val("");
+			}
+			
+			grade = row.find(".studentGrade2").text();
+			if(grade == "true") {
+				$("#student-comments-graded").attr("checked", true);
+				$("#student-comments-graded").attr("defaultChecked", true)
+			}else {
+				$("#student-comments-graded").attr("checked", false);
+			}
+			
+			$("#student-comments-max").val(row.find(".studentMaxPoints2").text());
+			if($("#student-comments-max").val() == "null") {
+				$("#student-comments-max").val("");
 			}
 			
 			var position = row.position();
@@ -487,8 +503,12 @@ $(function() {
 		$("#student-comments").click(function() {
 			if(!$("#student-comments").attr("checked")) {
 				$("#student-comments-anon").attr("disabled", true).removeAttr("checked");
+				$("#student-comments-graded").attr("disabled", true).removeAttr("checked");
+				$("#student-comments-max").attr("disabled", true).val("");
 			}else {
 				$("#student-comments-anon").removeAttr("disabled");
+				$("#student-comments-graded").removeAttr("disabled");
+				$("#student-comments-max").removeAttr("disabled");
 			}
 		});
 
@@ -1374,54 +1394,4 @@ function reposition() {
 // Keeps JQuery from getting confused mid-animation
 function unlockAnimation() {
 	lessonBuilderAnimationLocked = false;
-}
-
-function initGradingForm(idFieldId, pointsFieldId, jsIdFieldId, typeFieldId, elBinding) {
-	//var idField = $(this).parents("div").children(".gradingForm").children(".idField");
-	//var pointsField = $(this).parents("div").children(".gradingForm").children(".pointsField");
-	
-	var idField = document.getElementById(idFieldId);
-	var pointsField = document.getElementById(pointsFieldId);
-	var jsIdField = document.getElementById(jsIdFieldId);
-	var typeField = document.getElementById(typeFieldId);
-	
-	var ajaxUrl = idField.form.action;
-
-	var callback = function(results) {
-	      //var resultArray = RSF.decodeRSFStringArray(results.EL[elBinding]);
-		
-		var status = results.EL[elBinding][0];
-		var jsId = results.EL[elBinding][1];
-		var points = results.EL[elBinding][2];
-		
-		if(status == "success") {
-			var jsObj = $("#" + jsId);
-			jsObj.attr("src", getStrippedImgSrc(jsId) + "success.png");
-			
-			// Check if we are dealing with a comment, so that we can set all points values
-			if(jsObj.parents(".commentDiv").length > 0) {
-				var uuid = jsObj.parents(".commentDiv").find(".authorUUID").text();
-				jsObj.parents(".replaceWithComments").find(".authorUUID").filter(":contains(" + uuid + ")").parents(".commentDiv").find(".pointsBox").val(points);
-			}
-		}else {
-			$("#" + jsId).attr("src", getStrippedImgSrc(jsId) + "failed.png");
-		}
-	}
-
-	// setup the function which initiates the AJAX request
-	var updater = RSF.getAJAXUpdater([idField, pointsField, jsIdField, typeField], ajaxUrl, [elBinding], callback);
-	// setup the input field event to trigger the ajax request function
-	pointsField.onchange = updater; // send request when field changes
-	
-	
-}
-
-function getStrippedImgSrc(id) {
-	var imgsrc = $("#" + id).attr("src");
-	imgsrc = imgsrc.replace("loading.gif", "");
-	imgsrc = imgsrc.replace("success.png", "");
-	imgsrc = imgsrc.replace("failed.png", "");
-	imgsrc = imgsrc.replace("no-status.png", "");
-	
-	return imgsrc;
 }

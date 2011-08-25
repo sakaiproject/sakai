@@ -159,5 +159,13 @@ public interface SimplePageItem {
     public void setGradebookPoints(Integer points);
     
     public Integer getGradebookPoints();
+    
+    public void setAltGradebook(String gradebookId);
+    
+    public String getAltGradebook();
+    
+    public void setAltPoints(Integer points);
+    
+    public Integer getAltPoints();
 
 }

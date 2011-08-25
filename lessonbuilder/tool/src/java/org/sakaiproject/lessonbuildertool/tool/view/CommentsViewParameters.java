@@ -8,6 +8,10 @@ public class CommentsViewParameters extends SimpleViewParameters {
 	public long postedComment = -1;
 	public String deleteComment = null;
 	
+	public String author = null;
+	public boolean filter = false; // If this is set, only shows comments by this author.
+	public boolean studentContentItem = false; // If set, this means that itemId refers to a Student Content item
+	
 	public CommentsViewParameters() { super(); }
 	
 	public CommentsViewParameters(String VIEW_ID) {

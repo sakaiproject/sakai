@@ -625,6 +625,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if(currentPage.getOwner() != null && simplePageBean.getEditPrivs() == 0) {
 			SimpleStudentPage student = simplePageToolDao.findStudentPageByPageId(currentPage.getPageId());
 			
+<<<<<<< .mine
 			// Make sure this is a top level student page
 			if(student != null) {
 				UIOutput.make(tofill, "gradingSpan");
@@ -639,13 +640,32 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						i = in;
 						break;
 					}
+=======
+			if(student != null) {
+				UIOutput.make(tofill, "gradingSpan");
+				UIOutput.make(tofill, "commentsUUID", String.valueOf(student.getId()));
+				UIOutput.make(tofill, "commentPoints", String.valueOf((student.getPoints() != null? student.getPoints() : "")));
+				
+				List<SimpleStudentPage> studentPages = simplePageToolDao.findStudentPages(student.getItemId());
+				int i = -1;
+				
+				for(int in = 0; in < studentPages.size(); in++) {
+					if(student.getId() == studentPages.get(in).getId()) {
+						i = in;
+						break;
+					}
+>>>>>>> .r97298
 				}
+<<<<<<< .mine
 			
 				if(i > 0) {
 					GeneralViewParameters eParams = new GeneralViewParameters(ShowPageProducer.VIEW_ID, studentPages.get(i-1).getPageId());
 					eParams.setItemId(studentPages.get(i-1).getItemId());
 					eParams.setPath("next");
+=======
+>>>>>>> .r97298
 				
+<<<<<<< .mine
 					UIInternalLink.make(tofill, "gradingBack", eParams);
 				}
 			
@@ -653,11 +673,32 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					GeneralViewParameters eParams = new GeneralViewParameters(ShowPageProducer.VIEW_ID, studentPages.get(i+1).getPageId());
 					eParams.setItemId(studentPages.get(i+1).getItemId());
 					eParams.setPath("next");
+=======
+				if(i > 0) {
+					GeneralViewParameters eParams = new GeneralViewParameters(ShowPageProducer.VIEW_ID, studentPages.get(i-1).getPageId());
+					eParams.setItemId(studentPages.get(i-1).getItemId());
+					eParams.setPath("next");
+					
+					UIInternalLink.make(tofill, "gradingBack", eParams);
+				}
+>>>>>>> .r97298
 				
+<<<<<<< .mine
 					UIInternalLink.make(tofill, "gradingForward", eParams);
 				}
 			
 				printGradingForm(tofill);
+=======
+				if(i < studentPages.size() - 1) {
+					GeneralViewParameters eParams = new GeneralViewParameters(ShowPageProducer.VIEW_ID, studentPages.get(i+1).getPageId());
+					eParams.setItemId(studentPages.get(i+1).getItemId());
+					eParams.setPath("next");
+					
+					UIInternalLink.make(tofill, "gradingForward", eParams);
+				}
+				
+				printGradingForm(tofill);
+>>>>>>> .r97298
 			}
 		}
 
@@ -1406,37 +1447,34 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tofill, "delete-dialog");
 						}
 
-						// forced comments have to be edited on the main page
 						if (canEditPage) {
 							GradingPaneViewParameters gp = new GradingPaneViewParameters(GradingPaneProducer.VIEW_ID);
 							gp.commentsItemId = i.getId();
 							gp.pageId = currentPage.getPageId();
 							gp.pageItemId = pageItem.getId();
 							
-							UIInternalLink.make(tableRow, "gradingPaneLink", messageLocator.getMessage("simplepage.show-grading-pane"), gp);
+							UIInternalLink.make(tableRow, "gradingPaneLink", "Show Grading Pane", gp);
 							
 							UIOutput.make(tableRow, "comments-td");
 						
-							if (i.getSequence() > 0) {
-							    UILink.make(tableRow, "edit-comments", messageLocator.getMessage("simplepage.editItem"), "")
+							UILink.make(tableRow, "edit-comments", messageLocator.getMessage("simplepage.editItem"), "")
 									.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.comments")));
 
-							    UIOutput.make(tableRow, "commentsId", String.valueOf(i.getId()));
-							    UIOutput.make(tableRow, "commentsAnon", String.valueOf(i.isAnonymous()));
-							    UIOutput.make(tableRow, "commentsitem-required", String.valueOf(i.isRequired()));
-							    UIOutput.make(tableRow, "commentsitem-prerequisite", String.valueOf(i.isPrerequisite()));
-							    UIOutput.make(tableRow, "commentsGrade", String.valueOf(i.getGradebookId() != null));
-							    UIOutput.make(tableRow, "commentsMaxPoints", String.valueOf(i.getGradebookPoints()));
+							UIOutput.make(tableRow, "commentsId", String.valueOf(i.getId()));
+							UIOutput.make(tableRow, "commentsAnon", String.valueOf(i.isAnonymous()));
+							UIOutput.make(tableRow, "commentsitem-required", String.valueOf(i.isRequired()));
+							UIOutput.make(tableRow, "commentsitem-prerequisite", String.valueOf(i.isPrerequisite()));
+							UIOutput.make(tableRow, "commentsGrade", String.valueOf(i.getGradebookId() != null));
+							UIOutput.make(tableRow, "commentsMaxPoints", String.valueOf(i.getGradebookPoints()));
 							
-							    String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
-							    if (itemGroupString != null) {
-							    	String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString);
-							    	if (itemGroupTitles != null) {
-							    		itemGroupTitles = "[" + itemGroupTitles + "]";
-							    	}
-							    	UIOutput.make(tableRow, "comments-groups", itemGroupString);
-							    	UIOutput.make(tableRow, "item-group-titles6", itemGroupTitles);
-							    }
+							String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+							if (itemGroupString != null) {
+								String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString);
+								if (itemGroupTitles != null) {
+									itemGroupTitles = "[" + itemGroupTitles + "]";
+								}
+								UIOutput.make(tableRow, "comments-groups", itemGroupString);
+								UIOutput.make(tableRow, "item-group-titles6", itemGroupTitles);
 							}
 					    	
 							// Allows AJAX posting of comment grades
@@ -1492,18 +1530,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							}
 						}
 					
-					    Collections.sort(studentPages, new Comparator<SimpleStudentPage>() {
-						    public int compare(SimpleStudentPage o1, SimpleStudentPage o2) {
-							String title1 = o1.getTitle();
-							if (title1 == null)
-							    title1 = "";
-							String title2 = o2.getTitle();
-							if (title2 == null)
-							    title2 = "";
-							return title1.compareTo(title2);
-						    }
-						});					    
-
 						// Print each row in the table
 						for(SimpleStudentPage page : studentPages) {
 							if(page.isDeleted()) continue;
@@ -1516,22 +1542,21 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							eParams.setItemId(i.getId());
 							eParams.setPath("push");
 							
-							String studentTitle = page.getTitle();
+							String username = null;
 						
 							try {
-								if(!i.isAnonymous() || canEditPage) {
-									String ownerName = UserDirectoryService.getUser(page.getOwner()).getDisplayName();
-									if (ownerName != null && ownerName.equals(studentTitle))
-									    studentTitle = "(" + ownerName + ")";
-									else
-									    studentTitle += " (" + UserDirectoryService.getUser(page.getOwner()).getDisplayName() + ")";
-								}else if(page.getOwner().equals(userId)) {
-									studentTitle += " (" + messageLocator.getMessage("simplepage.comment-you") + ")";
+								username = i.isAnonymous()? anonymousLookup.get(page.getOwner()) : UserDirectoryService.getUser(page.getOwner()).getDisplayName();
+								
+								if(i.isAnonymous() && canEditPage) {
+									username += " (" + UserDirectoryService.getUser(page.getOwner()).getDisplayName() + ")";
+								}else if(i.isAnonymous() && page.getOwner().equals(userId)) {
+									username += " (" + messageLocator.getMessage("simplepage.comment-you") + ")";
 								}
 							} catch (UserNotDefinedException e) {
+								username = page.getTitle();
 							}
 							
-							UIInternalLink.make(row, "studentLink", studentTitle, eParams);
+							UIInternalLink.make(row, "studentLink", username, eParams);
 							
 							// Never visited page
 							if(entry == null) {
@@ -1575,14 +1600,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						}
 					
 						if(canEditPage) {
-							GradingPaneViewParameters gp = new GradingPaneViewParameters(GradingPaneProducer.VIEW_ID);
-							gp.commentsItemId = i.getId();
-							gp.pageId = currentPage.getPageId();
-							gp.pageItemId = pageItem.getId();
-							gp.studentContentItem = true;
-							
-							UIInternalLink.make(tableRow, "studentGradingPaneLink", messageLocator.getMessage("simplepage.show-grading-pane"), gp);
-							
 							UIOutput.make(tableRow, "student-td");
 							UILink.make(tableRow, "edit-student", messageLocator.getMessage("simplepage.editItem"), "")
 									.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.student")));
@@ -1593,8 +1610,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "forcedAnon", String.valueOf(i.getForcedCommentsAnonymous()));
 							UIOutput.make(tableRow, "studentGrade", String.valueOf(i.getGradebookId() != null));
 							UIOutput.make(tableRow, "studentMaxPoints", String.valueOf(i.getGradebookPoints()));
-							UIOutput.make(tableRow, "studentGrade2", String.valueOf(i.getAltGradebook() != null));
-							UIOutput.make(tableRow, "studentMaxPoints2", String.valueOf(i.getAltPoints()));
 							UIOutput.make(tableRow, "studentitem-required", String.valueOf(i.isRequired()));
 							UIOutput.make(tableRow, "studentitem-prerequisite", String.valueOf(i.isPrerequisite()));
 							String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
@@ -2128,28 +2143,26 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			
 			createToolBarLink(AssignmentPickerProducer.VIEW_ID, toolBar, "add-assignment", "simplepage.assignment", currentPage, "simplepage.assignment");
 			
-			// dropdown
-
-			createToolBarLink(QuizPickerProducer.VIEW_ID, tofill, "add-quiz", "simplepage.quiz", currentPage, "simplepage.quiz");
+			createToolBarLink(QuizPickerProducer.VIEW_ID, toolBar, "add-quiz", "simplepage.quiz", currentPage, "simplepage.quiz");
 			
-			UIOutput.make(tofill, "forum-descrip");
-			createToolBarLink(ForumPickerProducer.VIEW_ID, tofill, "add-forum", "simplepage.forum", currentPage, "simplepage.forum");
+			UIOutput.make(toolBar, "forum-descrip");
+			createToolBarLink(ForumPickerProducer.VIEW_ID, toolBar, "add-forum", "simplepage.forum", currentPage, "simplepage.forum");
 			// in case we're on an old system without current BLTI
 			if (bltiEntity != null && ((BltiInterface)bltiEntity).servicePresent()) {
-			    UIOutput.make(tofill, "blti-descrip");
-			    createToolBarLink(BltiPickerProducer.VIEW_ID, tofill, "add-blti", "simplepage.blti", currentPage, "simplepage.blti");
+			    UIOutput.make(toolBar, "blti-descrip");
+			    createToolBarLink(BltiPickerProducer.VIEW_ID, toolBar, "add-blti", "simplepage.blti", currentPage, "simplepage.blti");
 			}
-			UIOutput.make(tofill, "permissions-descrip");
-			createToolBarLink(PermissionsHelperProducer.VIEW_ID, tofill, "permissions", "simplepage.permissions", currentPage, "simplepage.permissions.tooltip");
+			UIOutput.make(toolBar, "permissions-descrip");
+			createToolBarLink(PermissionsHelperProducer.VIEW_ID, toolBar, "permissions", "simplepage.permissions", currentPage, "simplepage.permissions.tooltip");
 			
 			GeneralViewParameters eParams = new GeneralViewParameters(VIEW_ID);
 			eParams.addTool = GeneralViewParameters.COMMENTS;
-			UIOutput.make(tofill, "student-descrip");
-			UIInternalLink.make(tofill, "add-comments", messageLocator.getMessage("simplepage.comments"), eParams);
+			UIOutput.make(toolBar, "student-descrip");
+			UIInternalLink.make(toolBar, "add-comments", messageLocator.getMessage("simplepage.comments"), eParams);
 			
 			eParams = new GeneralViewParameters(VIEW_ID);
 			eParams.addTool = GeneralViewParameters.STUDENT_CONTENT;
-			UIInternalLink.make(tofill, "add-content", messageLocator.getMessage("simplepage.add-content"), eParams);
+			UIInternalLink.make(toolBar, "add-content", messageLocator.getMessage("simplepage.add-content"), eParams);
 		}
 	}
 
@@ -2708,9 +2721,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "student-graded", "#{simplePageBean.graded}");
 		UIInput.make(form, "student-max", "#{simplePageBean.maxPoints}");
 
-		UIBoundBoolean.make(form, "student-comments-graded", "#{simplePageBean.sGraded}");
-		UIInput.make(form, "student-comments-max", "#{simplePageBean.sMaxPoints}");
-		
 		UICommand.make(form, "delete-student-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
 		UICommand.make(form, "update-student", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.updateStudent}");
 		UICommand.make(form, "cancel-student", messageLocator.getMessage("simplepage.cancel"), null);

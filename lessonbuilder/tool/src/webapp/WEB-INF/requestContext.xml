@@ -153,6 +153,14 @@
 
     <bean class="org.sakaiproject.lessonbuildertool.tool.producers.ReloadPageProducer" >
     </bean>
+    
+    <bean class="org.sakaiproject.lessonbuildertool.tool.producers.GradingPaneProducer" >
+		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="simplePageToolDao">
+			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+    	</property>
+    	<property name="messageLocator" ref="messageLocator"/>
+    </bean>
 
     <bean class="org.sakaiproject.lessonbuildertool.tool.producers.ShowItemProducer" >
       <property name="messageLocator" ref="messageLocator"/>

@@ -68,6 +68,10 @@ public interface SimplePageToolDao {
 	public SimplePageItem findItem(long id);
 	
 	public List<SimplePageComment> findComments(long commentWidgetId);
+	
+	public List<SimplePageComment> findCommentsOnItems(List<Long> commentItemIds);
+	
+	public List<SimplePageComment> findCommentsOnItemsByAuthor(List<Long> commentItemIds, String author);
 
 	public List<SimplePageComment> findCommentsOnItemByAuthor(long commentWidgetId, String author);
 

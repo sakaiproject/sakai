@@ -44,6 +44,7 @@ function resizeiframe(id) {
 <script type="text/javascript" src="../js/simple-page.js" rsf:id="scr=rewrite-url"></script>
 <script type="text/javascript" src="$context/js/hoverIntent.js"></script>
 <script type="text/javascript" src="$context/js/show-page.js"></script>
+<script type="text/javascript" src="$context/js/gradingAjax.js"></script>
 
 <a href="#" rsf:id="redirect-link" id="redirect-link"></a>
 <script type="text/javascript" language="JavaScript" rsf:id="redirect">
@@ -340,6 +341,11 @@ function resizeiframe(id) {
 					        <div rsf:id="missing-prereqs"></div>
 						<div class="commentsDiv" rsf:id="commentsDiv">
 							<div rsf:id="item-group-titles6" class="item-group-titles"></div>
+							
+							<div style="text-align:right;">
+							<a href="#" class="usebutton gradingPaneLink" rsf:id="gradingPaneLink" ></a>
+							</div>
+							
 							<div class="replaceWithComments">Loading Comments ...</div>
 							
 							<div class="add-comment-button">
@@ -374,6 +380,10 @@ function resizeiframe(id) {
 					<td rsf:id="studentSpan" role="gridcell">
 					        <span rsf:id="student-missing-prereqs"></span>
 						<div class="studentDiv" rsf:id="studentDiv">
+							<div>
+								<a href="#" style="margin-top:15px;" class="usebutton gradingPaneLink" rsf:id="studentGradingPaneLink" ></a>
+							</div>
+						
 							<div rsf:id="item-group-titles7" class="item-group-titles"></div>
 							<table class="studentContentTable">
 								<tr>
@@ -402,6 +412,8 @@ function resizeiframe(id) {
 						<div style="display:none" rsf:id="forcedAnon" class="forcedAnon"></div>
 						<span style="display:none" rsf:id="studentGrade" class="studentGrade"></span>
 						<span style="display:none" rsf:id="studentMaxPoints" class="studentMaxPoints"></span>
+						<span style="display:none" rsf:id="studentGrade2" class="studentGrade2"></span>
+						<span style="display:none" rsf:id="studentMaxPoints2" class="studentMaxPoints2"></span>
 						<span style="display:none" rsf:id="student-groups" class="item-groups"></span>
 						<span style="display:none" rsf:id="studentitem-required" class="studentitem-required"></span>
 						<span style="display:none" rsf:id="studentitem-prerequisite" class="studentitem-prerequisite"></span>
@@ -1004,7 +1016,7 @@ function resizeiframe(id) {
 							
 							<input type="checkbox" name="comments-graded" id="comments-graded" rsf:id="comments-graded" />
 							<label for="comments-graded"><span rsf:id="msg=simplepage.comments-graded"></span></label><br />
-							<label for="comments-max" class="indent"><span rsf:id="msg=simplepage.comments-max"></span></label>
+							<label for="comments-max" class="indent2"><span rsf:id="msg=simplepage.comments-max"></span></label>
 							<input type="text" name="comments-max" id="comments-max" rsf:id="comments-max" />
 							
 						</div>
@@ -1045,16 +1057,25 @@ function resizeiframe(id) {
 							<input type="checkbox" name="student-anonymous" id="student-anonymous" rsf:id="student-anonymous" />
 							<label for="student-anonymous"><span rsf:id="msg=simplepage.student-anonymous"></span></label><br />
 							
+							<input type="checkbox" name="student-graded" id="student-graded" rsf:id="student-graded" />
+							<label for="student-graded"><span rsf:id="msg=simplepage.comments-graded"></span></label><br />
+							<label for="student-max" class="indent2"><span rsf:id="msg=simplepage.comments-max"></span></label>
+							<input type="text" name="student-max" id="student-max" rsf:id="student-max" />
+							
+							<br /><br />
+							
 							<input type="checkbox" name="student-comments" id="student-comments" rsf:id="student-comments" />
 							<label for="student-comments"><span rsf:id="msg=simplepage.student-comments"></span></label><br />
 							
 							<input type="checkbox" name="student-comments-anon" id="student-comments-anon" class="indent" rsf:id="student-comments-anon" />
 							<label for="student-comments-anon"><span rsf:id="msg=simplepage.student-comments-anon"></span></label><br />
 							
-							<input type="checkbox" name="student-graded" id="student-graded" rsf:id="student-graded" />
-							<label for="student-graded"><span rsf:id="msg=simplepage.comments-graded"></span></label><br />
-							<label for="student-max" class="indent"><span rsf:id="msg=simplepage.comments-max"></span></label>
-							<input type="text" name="student-max" id="student-max" rsf:id="student-max" />
+							<input type="checkbox" name="student-comments-graded" id="student-comments-graded" class="indent" rsf:id="student-comments-graded" />
+							<label for="student-comments-graded"><span rsf:id="msg=simplepage.student-comments-graded"></span></label><br />
+							
+							<label for="student-comments-max" class="indent3"><span rsf:id="msg=simplepage.comments-max"></span></label>
+							<input type="text" name="student-comments-max" id="student-comments-max" rsf:id="student-comments-max" /><br />
+							
 						</div>
 
 						<div align="left" style="margin-top:1em">

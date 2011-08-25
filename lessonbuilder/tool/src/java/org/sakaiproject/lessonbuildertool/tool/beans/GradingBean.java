@@ -1,8 +1,10 @@
 package org.sakaiproject.lessonbuildertool.tool.beans;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.service.GradebookIfc;
@@ -45,16 +47,30 @@ public class GradingBean {
 		
 		if("comment".equals(type)) {
 			SimplePageComment comment = simplePageToolDao.findCommentByUUID(id);
+			SimplePageItem commentItem = simplePageToolDao.findItem(comment.getItemId());
 			if(Double.valueOf(points).equals(comment.getPoints())) {
 				return new String[] {"success", jsId, String.valueOf(comment.getPoints())};
 			}
 			
 			try {
-				r = gradebookIfc.updateExternalAssessmentScore(simplePageBean.getCurrentSiteId(), "lesson-builder:comment:" + comment.getItemId(), comment.getAuthor(), Double.toString(Double.valueOf(points)));
+				r = gradebookIfc.updateExternalAssessmentScore(simplePageBean.getCurrentSiteId(), commentItem.getGradebookId(), comment.getAuthor(), Double.toString(Double.valueOf(points)));
 			}catch(Exception ex) {}
 			
 			if(r) {
-				List<SimplePageComment> comments = simplePageToolDao.findCommentsOnItemByAuthor(comment.getItemId(), comment.getAuthor());
+				List<SimplePageComment> comments;
+				if(commentItem.getPageId() > 0) {
+					comments = simplePageToolDao.findCommentsOnItemByAuthor(comment.getItemId(), comment.getAuthor());
+				}else {
+					SimpleStudentPage studentPage = simplePageToolDao.findStudentPage(Long.valueOf(commentItem.getSakaiId()));
+					List<SimpleStudentPage> studentPages = simplePageToolDao.findStudentPages(studentPage.getItemId());
+					
+					List<Long> commentsItemIds = new ArrayList<Long>();
+					for(SimpleStudentPage p : studentPages) {
+						commentsItemIds.add(p.getCommentsSection());
+					}
+					
+					comments = simplePageToolDao.findCommentsOnItemsByAuthor(commentsItemIds, comment.getAuthor());
+				}
 				
 				// Make sure all of the comments by this person have the grade.
 				for(SimplePageComment c : comments) {
@@ -64,12 +80,13 @@ public class GradingBean {
 			}
 		}else if("student".equals(type)) {
 			SimpleStudentPage page = simplePageToolDao.findStudentPage(Long.valueOf(id));
+			SimplePageItem pageItem = simplePageToolDao.findItem(page.getItemId());
 			if(Double.valueOf(points).equals(page.getPoints())) {
 				return new String[] {"success", jsId, String.valueOf(page.getPoints())};
 			}
 			
 			try {
-				r = gradebookIfc.updateExternalAssessmentScore(simplePageBean.getCurrentSiteId(), "lesson-builder:page:" + page.getItemId(), page.getOwner(), Double.toString(Double.valueOf(points)));
+				r = gradebookIfc.updateExternalAssessmentScore(simplePageBean.getCurrentSiteId(), pageItem.getGradebookId(), page.getOwner(), Double.toString(Double.valueOf(points)));
 			}catch(Exception ex) {}
 			
 			if(r) {

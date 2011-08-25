@@ -63,6 +63,12 @@
 .indent {
 	margin-left:20px;	
 }
+.indent2 {
+	margin-left:50px;	
+}
+.indent3 {
+	margin-left:70px;	
+}
 .hidden {
 	visibility:hidden;	
 }
@@ -313,4 +319,19 @@ img {
 }
 .unsubmitted {
 	background-color:#FFC9D7;
+}
+.gradingPaneLink span {
+	font-size:70%;
+	font-weight:normal;
+}
+.gradingTable {
+	border: 3px solid black;
+	margin-top:20px;
+}
+.bottomBorder {
+	border-bottom: 1px solid black;
+}
+
+.topBorder td {
+	border-top: 1px solid black;
 }
