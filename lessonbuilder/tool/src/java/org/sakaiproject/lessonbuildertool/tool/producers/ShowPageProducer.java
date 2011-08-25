@@ -1408,12 +1408,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 						// forced comments have to be edited on the main page
 						if (canEditPage) {
-							GradingPaneViewParameters gp = new GradingPaneViewParameters(GradingPaneProducer.VIEW_ID);
-							gp.commentsItemId = i.getId();
-							gp.pageId = currentPage.getPageId();
-							gp.pageItemId = pageItem.getId();
+							if(i.getAltGradebook() != null) {
+								GradingPaneViewParameters gp = new GradingPaneViewParameters(GradingPaneProducer.VIEW_ID);
+								gp.commentsItemId = i.getId();
+								gp.pageId = currentPage.getPageId();
+								gp.pageItemId = pageItem.getId();
 							
-							UIInternalLink.make(tableRow, "gradingPaneLink", messageLocator.getMessage("simplepage.show-grading-pane"), gp);
+								UIInternalLink.make(tableRow, "gradingPaneLink", messageLocator.getMessage("simplepage.show-grading-pane"), gp);
+							}
 							
 							UIOutput.make(tableRow, "comments-td");
 						

@@ -4891,7 +4891,6 @@ public class SimplePageBean {
 					page.setAltGradebook("lesson-builder:page-comment:" + page.getId());
 					
 					regradeStudentPageComments(page);
-					//regradeComments(comment);
 				}
 				
 				page.setAltPoints(points);
@@ -4899,6 +4898,7 @@ public class SimplePageBean {
 				gradebookIfc.removeExternalAssessment(getCurrentSiteId(), page.getAltGradebook());
 				page.setAltGradebook(null);
 				page.setAltPoints(null);
+				ungradeStudentPageComments(page);
 			}
 			
 			update(page);
@@ -4918,6 +4918,16 @@ public class SimplePageBean {
 			comments.setGradebookPoints(pageItem.getAltPoints());
 			update(comments);
 			regradeComments(comments);
+		}
+	}
+	
+	private void ungradeStudentPageComments(SimplePageItem pageItem) {
+		List<SimpleStudentPage> pages = simplePageToolDao.findStudentPages(pageItem.getId());
+		for(SimpleStudentPage c : pages) {
+			SimplePageItem comments = findItem(c.getCommentsSection());
+			comments.setGradebookId(null);
+			comments.setGradebookPoints(null);
+			update(comments);
 		}
 	}
 	

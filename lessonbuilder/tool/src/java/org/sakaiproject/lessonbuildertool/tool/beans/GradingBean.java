@@ -46,6 +46,7 @@ public class GradingBean {
 		boolean r = false;
 		
 		if("comment".equals(type)) {
+			System.out.println(id);
 			SimplePageComment comment = simplePageToolDao.findCommentByUUID(id);
 			SimplePageItem commentItem = simplePageToolDao.findItem(comment.getItemId());
 			if(Double.valueOf(points).equals(comment.getPoints())) {
@@ -54,7 +55,9 @@ public class GradingBean {
 			
 			try {
 				r = gradebookIfc.updateExternalAssessmentScore(simplePageBean.getCurrentSiteId(), commentItem.getGradebookId(), comment.getAuthor(), Double.toString(Double.valueOf(points)));
-			}catch(Exception ex) {}
+			}catch(Exception ex) {
+				ex.printStackTrace();
+			}
 			
 			if(r) {
 				List<SimplePageComment> comments;
