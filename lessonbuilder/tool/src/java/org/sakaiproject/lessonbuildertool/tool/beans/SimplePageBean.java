@@ -1024,6 +1024,15 @@ public class SimplePageBean {
 		    checkControlGroup(i, false);
 		}
 		
+		// Also delete gradebook entries
+		if(i.getGradebookId() != null) {
+			gradebookIfc.removeExternalAssessment(getCurrentSiteId(), i.getGradebookId());
+		}
+		
+		if(i.getAltGradebook() != null) {
+			gradebookIfc.removeExternalAssessment(getCurrentSiteId(), i.getAltGradebook());
+		}
+		
 		
 		b = simplePageToolDao.deleteItem(i);
 		
