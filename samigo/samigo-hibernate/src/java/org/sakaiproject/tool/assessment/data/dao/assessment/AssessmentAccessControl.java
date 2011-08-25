@@ -96,9 +96,6 @@ public class AssessmentAccessControl
   private Date scoreDate;
   private Date feedbackDate;
   private Date retractDate;
-  private Integer calendarStartDate;
-  private Integer calendarDueDate;
-  private Integer calendarRetractDate;
   private Integer autoSubmit;  // auto submit when time expires
   private Integer itemNavigation; // linear (1)or random (0)
   private Integer itemNumbering;  // continuous between parts(1), restart between parts(0)
@@ -124,7 +121,7 @@ public class AssessmentAccessControl
                                  Integer retryAllowed, Integer lateHandling,
                                  Date startDate, Date dueDate,
                                  Date scoreDate, Date feedbackDate,
-                                 Date retractDate, Integer calendareStartDate, Integer calendarDueDate, Integer calendarRetractDate, Integer autoSubmit,
+                                 Date retractDate, Integer autoSubmit,
                                  Integer itemNavigation, Integer itemNumbering,
                                  String submissionMessage, String releaseTo)
   {
@@ -141,9 +138,6 @@ public class AssessmentAccessControl
     this.scoreDate = scoreDate;
     this.feedbackDate = feedbackDate;
     this.retractDate = retractDate;
-    this.calendarDueDate = calendarDueDate;
-    this.calendarRetractDate = calendarRetractDate;
-    this.calendarStartDate = calendareStartDate;
     this.autoSubmit = autoSubmit;  // cannot edit (0) auto submit(1) when time expires (2)
     this.itemNavigation = itemNavigation; // cannot edit (0) linear(1) or random (2)
     this.itemNumbering = itemNumbering;  // cannot edit(0) continuous between parts (1), restart between parts (2)
@@ -159,7 +153,7 @@ public class AssessmentAccessControl
         this.getRetryAllowed(), this.getLateHandling(),
         this.getStartDate(), this.getDueDate(),
         this.getScoreDate(), this.getFeedbackDate(),
-        this.getRetractDate(), this.getCalendarStartDate(), this.getCalendarDueDate(), this.getCalendarRetractDate(), this.getAutoSubmit(),
+        this.getRetractDate(), this.getAutoSubmit(),
         this.getItemNavigation(), this.getItemNumbering(),
         this.getSubmissionMessage(), this.getReleaseTo());
     ((AssessmentAccessControl)cloned).setRetractDate(this.retractDate);
@@ -172,9 +166,6 @@ public class AssessmentAccessControl
     ((AssessmentAccessControl)cloned).setFinalPageUrl(this.finalPageUrl);
     ((AssessmentAccessControl)cloned).setUnlimitedSubmissions(this.unlimitedSubmissions);
     ((AssessmentAccessControl)cloned).setMarkForReview(this.markForReview);
-    ((AssessmentAccessControl)cloned).setCalendarStartDate(this.calendarStartDate);
-    ((AssessmentAccessControl)cloned).setCalendarDueDate(this.calendarDueDate);
-    ((AssessmentAccessControl)cloned).setCalendarRetractDate(this.calendarRetractDate);
     return cloned;
   }
 
@@ -409,26 +400,4 @@ public class AssessmentAccessControl
 	this.markForReview = markForReview;
   }
    
-  public Integer getCalendarStartDate() {
-	  return calendarStartDate;
-  }
-
-  public void setCalendarStartDate(Integer calendarStartDate) {
-	  this.calendarStartDate = calendarStartDate;
-  }
-
-  public Integer getCalendarDueDate() {
-	  return calendarDueDate;
-  }
-
-  public void setCalendarDueDate(Integer calendarDueDate) {
-	  this.calendarDueDate = calendarDueDate;
-  }
-
-  public Integer getCalendarRetractDate() {
-	  return calendarRetractDate;
-  }
-  public void setCalendarRetractDate(Integer calendarRetractDate) {
-	  this.calendarRetractDate = calendarRetractDate;
-  }
 }

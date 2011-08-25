@@ -77,9 +77,15 @@
 </h:panelGrid>
 </h:panelGrid>
 
-
- <f:verbatim><p class="act"></f:verbatim>
- <!-- Cancel button -->
+<f:verbatim>
+<style type="text/css">
+.topAlign{
+	vertical-align: TOP
+}
+</style>
+</f:verbatim>
+<h:panelGrid columns="5" styleClass="act" rowClasses="topAlign">
+  <!-- Cancel button -->
    <h:commandButton value="#{commonMessages.cancel_action}" type="submit" action="#{author.getFirstFromPage}" rendered="#{author.isEditPendingAssessmentFlow}"/>
    <h:commandButton value="#{commonMessages.cancel_action}" type="submit" action="editAssessment" rendered="#{!author.isEditPendingAssessmentFlow}">
 	  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
@@ -107,12 +113,21 @@
 		<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RepublishAssessmentListener" />
 	</h:commandButton>
 
+<h:panelGrid columns="1" border="0">
 	<h:selectOneMenu id="number" value="2" onchange="document.forms[0].submit();">
           <f:selectItems value="#{publishRepublishNotification.notificationLevelChoices}" />
           <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.PublishRepublishNotificationListener" />
     </h:selectOneMenu>
+	<h:panelGroup rendered="#{not empty assessmentSettings.dueDate}">
+		<h:selectBooleanCheckbox id="calendarDueDate" value="true"/>
+		<h:outputText value="#{assessmentSettingsMessages.calendarDueDate}" />
+	</h:panelGroup>
+</h:panelGrid>
+	
 
-  <f:verbatim></p></f:verbatim>
+  </h:panelGrid>
+
+
 
 <h:panelGrid columns="1" border="0" width="78%" styleClass="settings">
 <h:panelGrid columns="1" border="0">

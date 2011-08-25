@@ -145,7 +145,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		AssessmentAccessControl s = new AssessmentAccessControl(Integer.valueOf(0),
 				Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0),
 				Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0), new Date(),
-				new Date(), new Date(), new Date(), new Date(), Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(1),
+				new Date(), new Date(), new Date(), new Date(), Integer.valueOf(1),
 				Integer.valueOf(1), Integer.valueOf(1), "Thanks for submitting",
 				"anonymous");
 		s.setAssessmentBase(assessmentTemplate);
@@ -197,7 +197,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		AssessmentAccessControl s = new AssessmentAccessControl(Integer.valueOf(1),
 				Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1),
 				Integer.valueOf(1), Integer.valueOf(1), Integer.valueOf(1), new Date(),
-				new Date(), new Date(), new Date(), new Date(), Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(1),
+				new Date(), new Date(), new Date(), new Date(), Integer.valueOf(1),
 				Integer.valueOf(1), Integer.valueOf(1), "Thanks for submitting",
 				"anonymous");
 
@@ -2006,7 +2006,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 						.getTimeLimit(), a.getTimedAssessment(), a
 						.getRetryAllowed(), a.getLateHandling(), a
 						.getStartDate(), a.getDueDate(), a.getScoreDate(), a
-						.getFeedbackDate(), a.getRetractDate(), a.getCalendarStartDate(), a.getCalendarDueDate(), a.getCalendarRetractDate(), a
+						.getFeedbackDate(), a.getRetractDate(), a
 						.getAutoSubmit(), a.getItemNavigation(), a
 						.getItemNumbering(), a.getSubmissionMessage(), a
 						.getReleaseTo());

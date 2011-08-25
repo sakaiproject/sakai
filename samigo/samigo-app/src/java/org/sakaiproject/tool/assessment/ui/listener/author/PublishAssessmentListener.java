@@ -231,9 +231,10 @@ public class PublishAssessmentListener
           AssessmentMetaDataIfc.ALIAS, alias);
       publishedAssessmentService.saveOrUpdateMetaData(meta);
     }
+    
     //update Calendar Events
-    calendarService.updateAllCalendarEvents(pub, assessmentSettings.getReleaseTo(), assessmentSettings.getGroupsAuthorized(),
-    rl.getString("calendarStartDatePrefix") + " ", rl.getString("calendarDueDatePrefix") + " ", rl.getString("calendarRetractDatePrefix") + " ");
+    boolean addDueDateToCalendar = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("publishAssessmentForm:calendarDueDate") != null;
+    calendarService.updateAllCalendarEvents(pub, assessmentSettings.getReleaseTo(), assessmentSettings.getGroupsAuthorized(), rl.getString("calendarDueDatePrefix") + " ", addDueDateToCalendar);
   }
 
   private boolean checkTitle(AssessmentFacade assessment){

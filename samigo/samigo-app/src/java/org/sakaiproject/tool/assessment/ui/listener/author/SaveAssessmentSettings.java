@@ -153,22 +153,7 @@ public class SaveAssessmentSettings
     	control.setMarkForReview(AssessmentAccessControl.NOT_MARK_FOR_REVIEW);
     }
 
-    if(assessmentSettings.isCalendarStartDate()){
-    	control.setCalendarStartDate(Integer.valueOf(1));
-    }else{
-    	control.setCalendarStartDate(Integer.valueOf(0));
-    }
-    if(assessmentSettings.isCalendarDueDate()){
-    	control.setCalendarDueDate(Integer.valueOf(1));
-    }else{
-    	control.setCalendarDueDate(Integer.valueOf(0));
-    }
-    if(assessmentSettings.isCalendarRetractDate()){
-    	control.setCalendarRetractDate(Integer.valueOf(1));
-    }else{
-    	control.setCalendarRetractDate(Integer.valueOf(0));
-    }
-    	
+
     // d. set Submissions
     if (control.getItemNavigation() != null && control.getItemNavigation().equals(Integer.valueOf(1))) {
     	control.setUnlimitedSubmissions(Boolean.FALSE);

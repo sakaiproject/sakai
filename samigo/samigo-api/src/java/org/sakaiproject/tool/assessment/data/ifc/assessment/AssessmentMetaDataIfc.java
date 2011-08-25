@@ -34,9 +34,7 @@ public interface AssessmentMetaDataIfc
   public static String BGIMAGE = "ASSESSMENT_BGIMAGE";
   public static String ALIAS = "ALIAS";
 
-  public static String CALENDAR_START_DATE_EVENT_ID = "CALENDAR_START_DATE_EVENT_ID";
   public static String CALENDAR_DUE_DATE_EVENT_ID = "CALENDAR_DUE_DATE_EVENT_ID";
-  public static String CALENDAR_RETRACT_DATE_EVENT_ID = "CALENDAR_RETRACT_DATE_EVENT_ID";
   
   Long getId();
 

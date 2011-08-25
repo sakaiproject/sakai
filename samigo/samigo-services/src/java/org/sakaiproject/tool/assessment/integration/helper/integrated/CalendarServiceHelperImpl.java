@@ -143,24 +143,10 @@ public class CalendarServiceHelperImpl implements CalendarServiceHelper {
 		return eventId;
 	}
 
-	public void updateAllCalendarEvents(PublishedAssessmentFacade pub, String releaseTo, String[] groupsAuthorized, String availDateTitlePrefix, String dueDateTitlePrefix, String retractDateTitlePrefix){
+	public void updateAllCalendarEvents(PublishedAssessmentFacade pub, String releaseTo, String[] groupsAuthorized, String dueDateTitlePrefix, boolean addDueDateToCalendar){
 		PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 		//remove all previous events:
 		PublishedMetaData meta = null;
-
-		//Start Date
-		try{
-			String calendarStartDateEventId = pub.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.CALENDAR_START_DATE_EVENT_ID);
-
-			if(calendarStartDateEventId != null){
-				meta = new PublishedMetaData(pub.getData(), AssessmentMetaDataIfc.CALENDAR_START_DATE_EVENT_ID, null);
-				publishedAssessmentService.saveOrUpdateMetaData(meta);
-				removeCalendarEvent(AgentFacade.getCurrentSiteId(), calendarStartDateEventId);	    		
-			}
-		}catch(Exception e){
-			//user could have manually removed the calendar event
-			log.warn(e);
-		}
 
 		//Due Date
 		try{
@@ -175,42 +161,11 @@ public class CalendarServiceHelperImpl implements CalendarServiceHelper {
 			log.warn(e);
 		}
 
-		//Retract Date
-		try{
-			String calendarRetractDateEventId = pub.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.CALENDAR_RETRACT_DATE_EVENT_ID);
-			if(calendarRetractDateEventId != null){
-				meta = new PublishedMetaData(pub.getData(), AssessmentMetaDataIfc.CALENDAR_RETRACT_DATE_EVENT_ID, null);
-				publishedAssessmentService.saveOrUpdateMetaData(meta);
-				removeCalendarEvent(AgentFacade.getCurrentSiteId(), calendarRetractDateEventId);
-			}
-		}catch(Exception e){
-			//user could have manually removed the calendar event
-			log.warn(e);
-		}
-
 		//add any new  calendar events
 		List<Group> authorizedGroups = getAuthorizedGroups(releaseTo, groupsAuthorized);
-		//Start Date
-		if (pub.getAssessmentAccessControl().getStartDate() != null
-				&& Integer.valueOf(1)
-				.equals(pub.getAssessmentAccessControl()
-						.getCalendarStartDate())) {
-			String eventId = addCalendarEvent(
-					AgentFacade.getCurrentSiteId(),
-					availDateTitlePrefix + pub.getTitle(), pub.getDescription(), pub
-					.getAssessmentAccessControl().getStartDate()
-					.getTime(), authorizedGroups,
-					CalendarServiceHelper.QUIZ_EVENT_TYPE);
-
-			meta = new PublishedMetaData(pub.getData(),
-					AssessmentMetaDataIfc.CALENDAR_START_DATE_EVENT_ID, eventId);
-			publishedAssessmentService.saveOrUpdateMetaData(meta);
-		}
 
 		//Due Date
-		if (pub.getAssessmentAccessControl().getDueDate() != null
-				&& Integer.valueOf(1).equals(
-						pub.getAssessmentAccessControl().getCalendarDueDate())) {
+		if (addDueDateToCalendar) {
 			String eventId = addCalendarEvent(
 					AgentFacade.getCurrentSiteId(),
 					dueDateTitlePrefix + pub.getTitle(), pub.getDescription(), pub
@@ -221,26 +176,6 @@ public class CalendarServiceHelperImpl implements CalendarServiceHelper {
 					AssessmentMetaDataIfc.CALENDAR_DUE_DATE_EVENT_ID, eventId);
 			publishedAssessmentService.saveOrUpdateMetaData(meta);
 		}
-
-		// Retract Date
-		if (pub.getAssessmentAccessControl().getRetractDate() != null
-				&& Integer.valueOf(1).equals(
-						pub.getAssessmentAccessControl()
-						.getCalendarRetractDate())) {
-			String eventId = addCalendarEvent(
-					AgentFacade.getCurrentSiteId(),
-					retractDateTitlePrefix + pub.getTitle(), pub.getDescription(), pub
-					.getAssessmentAccessControl().getRetractDate()
-					.getTime(), authorizedGroups,
-					CalendarServiceHelper.DEADLINE_EVENT_TYPE);
-			meta = new PublishedMetaData(pub.getData(),
-					AssessmentMetaDataIfc.CALENDAR_RETRACT_DATE_EVENT_ID,
-					eventId);
-			publishedAssessmentService.saveOrUpdateMetaData(meta);
-		}
-
-
-
 	}
 
 	private List<Group> getAuthorizedGroups(String releaseTo, String[] authorizedGroupsArray){

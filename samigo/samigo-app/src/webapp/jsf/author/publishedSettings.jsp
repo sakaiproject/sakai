@@ -315,13 +315,6 @@ function uncheckOther(field){
       <samigo:datePicker value="#{publishedSettings.startDateString}" size="25" id="startDate" />
       <h:outputText value="" />
       <h:outputText value="#{assessmentSettingsMessages.available_date_note}" />
-	
-	<h:outputText value="" rendered="#{calendarServiceHelper.calendarExistsForSite}"/>
-    <h:panelGroup rendered="#{calendarServiceHelper.calendarExistsForSite}">
-      <h:selectBooleanCheckbox id="calendarStartDate"
-       value="#{publishedSettings.calendarStartDate}"/>
-      <h:outputText value="#{assessmentSettingsMessages.calendarStartDate}" />
-    </h:panelGroup>
 
 	<!-- For formatting -->
 	<h:outputText value="" />
@@ -333,13 +326,6 @@ function uncheckOther(field){
       <samigo:datePicker value="#{publishedSettings.dueDateString}" size="25" id="endDate"/>
       <h:outputText value="" />
 	  <h:outputText value="#{assessmentSettingsMessages.assessment_due_date_note}" />
-	  	
-      <h:outputText value=""  rendered="#{calendarServiceHelper.calendarExistsForSite}"/>
-      <h:panelGroup rendered="#{calendarServiceHelper.calendarExistsForSite}">
-        <h:selectBooleanCheckbox id="calendarDueDate"
-         value="#{publishedSettings.calendarDueDate}"/>
-        <h:outputText value="#{assessmentSettingsMessages.calendarDueDate}" />
-      </h:panelGroup>
 
 	<!-- For formatting -->
 	<h:outputText value="" />
@@ -357,13 +343,6 @@ function uncheckOther(field){
       </h:panelGroup>
       <h:outputText value="" />
       <h:outputText value="#{assessmentSettingsMessages.assessment_retract_date_note}" />
-
-      <h:outputText value=""  rendered="#{calendarServiceHelper.calendarExistsForSite}"/>
-      <h:panelGroup rendered="#{calendarServiceHelper.calendarExistsForSite}">
-        <h:selectBooleanCheckbox id="calendarRetractDate"
-         value="#{publishedSettings.calendarRetractDate}"/>
-        <h:outputText value="#{assessmentSettingsMessages.calendarRetractDate}" />
-      </h:panelGroup>
 
     </h:panelGrid>
     <f:verbatim></div></f:verbatim>

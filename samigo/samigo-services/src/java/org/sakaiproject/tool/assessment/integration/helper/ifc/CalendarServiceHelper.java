@@ -23,5 +23,5 @@ public interface CalendarServiceHelper {
 
 	public String addCalendarEvent(String siteId, String title, String desc, long dateTime, List<Group> groupRestrictions, String calendarEventType);
 
-	public void updateAllCalendarEvents(PublishedAssessmentFacade pub, String releaseTo, String[] groupsAuthorized, String availDateTitlePrefix, String dueDateTitlePrefix, String retractDateTitlePrefix);
+	public void updateAllCalendarEvents(PublishedAssessmentFacade pub, String releaseTo, String[] groupsAuthorized, String dueDateTitlePrefix, boolean addDueDateToCalendar);
 }

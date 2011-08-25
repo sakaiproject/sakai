@@ -59,9 +59,6 @@ public class PublishedAccessControl
   private Date scoreDate;
   private Date feedbackDate;
   private Date retractDate;
-  private Integer calendarStartDate;
-  private Integer calendarDueDate;
-  private Integer calendarRetractDate;
   private Integer autoSubmit;  // auto submit when due date arrives
   private Integer itemNavigation; // linear (1)or random (0)
   private Integer itemNumbering;  // continuous between parts(1), restart between parts(0)
@@ -87,7 +84,7 @@ public class PublishedAccessControl
                                  Integer timeLimit, Integer timedAssessment,
                                  Integer retryAllowed, Integer lateHandling,
                                  Date startDate, Date dueDate,
-                                 Date scoreDate, Date feedbackDate, Integer calendarStartDate, Integer calendarDueDate, Integer calendarRetractDate,
+                                 Date scoreDate, Date feedbackDate, 
                                  String releaseTo)
   {
     this.submissionsAllowed = submissionsAllowed; // =  no limit
@@ -102,9 +99,6 @@ public class PublishedAccessControl
     this.dueDate = dueDate;
     this.scoreDate = scoreDate;
     this.feedbackDate = feedbackDate;
-    this.calendarDueDate = calendarDueDate;
-    this.calendarRetractDate = calendarRetractDate;
-    this.calendarStartDate = calendarStartDate;
     this.releaseTo = releaseTo;
   }
 
@@ -113,7 +107,7 @@ public class PublishedAccessControl
                                  Integer timeLimit, Integer timedAssessment,
                                  Integer retryAllowed, Integer lateHandling,
                                  Date startDate, Date dueDate,
-                                 Date scoreDate, Date feedbackDate, Integer calendarStartDate, Integer calendarDueDate, Integer calendarRetractDate)
+                                 Date scoreDate, Date feedbackDate)
   {
     this.submissionsAllowed = submissionsAllowed; // =  no limit
     this.submissionsSaved = submissionsSaved;
@@ -127,9 +121,6 @@ public class PublishedAccessControl
     this.dueDate = dueDate;
     this.scoreDate = scoreDate;
     this.feedbackDate = feedbackDate;
-    this.calendarDueDate = calendarDueDate;
-    this.calendarRetractDate = calendarRetractDate;
-    this.calendarStartDate = calendarStartDate;
   }
 
   public Object clone() throws CloneNotSupportedException{
@@ -140,7 +131,7 @@ public class PublishedAccessControl
         this.getRetryAllowed(), this.getLateHandling(),
         this.getStartDate(), this.getDueDate(),
         this.getScoreDate(), this.getFeedbackDate(),
-        this.getCalendarStartDate(), this.getCalendarDueDate(), this.getCalendarRetractDate(), this.getReleaseTo());
+        this.getReleaseTo());
     ((PublishedAccessControl)cloned).setRetractDate(this.retractDate);
     ((PublishedAccessControl)cloned).setAutoSubmit(this.autoSubmit);
     ((PublishedAccessControl)cloned).setItemNavigation(this.itemNavigation);
@@ -150,9 +141,6 @@ public class PublishedAccessControl
     ((PublishedAccessControl)cloned).setPassword(this.password);
     ((PublishedAccessControl)cloned).setFinalPageUrl(this.finalPageUrl);
     ((PublishedAccessControl)cloned).setUnlimitedSubmissions(this.unlimitedSubmissions);
-    ((PublishedAccessControl)cloned).setCalendarStartDate(this.calendarStartDate);
-    ((PublishedAccessControl)cloned).setCalendarDueDate(this.calendarDueDate);
-    ((PublishedAccessControl)cloned).setCalendarRetractDate(this.calendarRetractDate);
     return cloned;
   }
 
@@ -392,28 +380,4 @@ public class PublishedAccessControl
 	  this.markForReview = markForReview;
   }
   
-  public Integer getCalendarStartDate() {
-	  return calendarStartDate;
-  }
-
-  public void setCalendarStartDate(Integer calendarStartDate) {
-	  this.calendarStartDate = calendarStartDate;
-  }
-
-  public Integer getCalendarDueDate() {
-	  return calendarDueDate;
-  }
-
-  public void setCalendarDueDate(Integer calendarDueDate) {
-	  this.calendarDueDate = calendarDueDate;
-  }
-
-  public Integer getCalendarRetractDate() {
-	  return calendarRetractDate;
-  }
-
-  public void setCalendarRetractDate(Integer calendarRetractDate) {
-	  this.calendarRetractDate = calendarRetractDate;
-  }
-
 }

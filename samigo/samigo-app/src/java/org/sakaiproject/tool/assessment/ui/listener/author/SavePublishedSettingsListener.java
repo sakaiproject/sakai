@@ -180,9 +180,9 @@ implements ActionListener
 	    assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.TITLE_DECORATION, titleDecoration );
 	    
 	    //update calendar event dates:
-	    calendarService.updateAllCalendarEvents(assessment, assessmentSettings.getReleaseTo(), assessmentSettings.getGroupsAuthorized(),
-	    		rb.getString("calendarStartDatePrefix") + " ", rb.getString("calendarDueDatePrefix") + " ", rb.getString("calendarRetractDatePrefix") + " ");	    
-
+	    //need to add the calendar even back on the calendar if there already exists one (user opted to have it added to calendar)
+	    boolean addDueDateToCalendar = assessment.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.CALENDAR_DUE_DATE_EVENT_ID) != null;
+	    calendarService.updateAllCalendarEvents(assessment, assessmentSettings.getReleaseTo(), assessmentSettings.getGroupsAuthorized(), rb.getString("calendarDueDatePrefix") + " ", addDueDateToCalendar);
 	    // l. FINALLY: save the assessment
 	    assessmentService.saveAssessment(assessment);
 	    
@@ -395,21 +395,6 @@ implements ActionListener
 			control.setRetractDate(assessmentSettings.getRetractDate());
 		}
 
-		if(assessmentSettings.isCalendarStartDate()){
-			control.setCalendarStartDate(Integer.valueOf(1));
-		}else{
-			control.setCalendarStartDate(Integer.valueOf(0));
-		}
-		if(assessmentSettings.isCalendarDueDate()){
-			control.setCalendarDueDate(Integer.valueOf(1));
-		}else{
-			control.setCalendarDueDate(Integer.valueOf(0));
-		}
-		if(assessmentSettings.isCalendarRetractDate()){
-			control.setCalendarRetractDate(Integer.valueOf(1));
-		}else{
-			control.setCalendarRetractDate(Integer.valueOf(0));
-		}
 		
 		// set Assessment Orgainzation
 		if (assessmentSettings.getItemNavigation()!=null ) {
