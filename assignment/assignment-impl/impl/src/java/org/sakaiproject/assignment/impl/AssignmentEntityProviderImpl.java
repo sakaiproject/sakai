@@ -538,7 +538,7 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
         if (context == null || assignmentId == null)
         {
             // format of the view should be in a standard assignment reference
-            throw new IllegalArgumentException("Must include context and assignmentId in the path ("+view+"): e.g. /assignment/a/{context}/{assignmentId}");
+            throw new IllegalArgumentException("Must include context and assignmentId in the path ("+view+"): e.g. /direct/assignment/deepLinkWithPermissions/{context}/{assignmentId}");
         }
   
         try
@@ -550,6 +550,75 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
             boolean allowReadAssignment = params.get("allowReadAssignment") != null ? ((Boolean) params.get("allowReadAssignment")).booleanValue() : false;
             boolean allowAddAssignment = params.get("allowAddAssignment") != null ? ((Boolean) params.get("allowAddAssignment")).booleanValue() : false;
             boolean allowSubmitAssignment = params.get("allowSubmitAssignment") != null ? ((Boolean) params.get("allowSubmitAssignment")).booleanValue() : false;
+            
+            String assignmentContext = a.getContext(); // assignment context
+            if (allowReadAssignment && a.getOpenTime().before(TimeService.newTime()))
+            {
+                // this checks if we want to display an assignment link
+                try
+                {
+                    Site site = siteService.getSite(assignmentContext); // site id
+                    ToolConfiguration fromTool = site.getToolForCommonId("sakai.assignment.grades");
+                    // Three different urls to be rendered depending on the user's permission
+                    if (allowAddAssignment)
+                    {
+                        assignData.put("assignmentUrl", ServerConfigurationService.getPortalUrl() + "/directtool/" + fromTool.getId() + "?assignmentId=" + a.getReference() + "&panel=Main&sakai_action=doView_assignment");
+                    }
+                    else if (allowSubmitAssignment)
+                    {
+                        assignData.put("assignmentUrl", ServerConfigurationService.getPortalUrl() + "/directtool/" + fromTool.getId() + "?assignmentReference=" + a.getReference() + "&panel=Main&sakai_action=doView_submission");
+                    }
+                    else
+                    {
+                        // user can read the assignment, but not submit, so render the appropriate url
+                        assignData.put("assignmentUrl", ServerConfigurationService.getPortalUrl() + "/directtool/" + fromTool.getId() + "?assignmentId=" + a.getReference() + "&panel=Main&sakai_action=doView_assignment_as_student");
+                    }
+                }
+                catch (IdUnusedException e)
+                {
+                    // No site found
+                    assignData.remove("assignmentTitle");
+                    assignData.remove("assignmentUrl");
+                    throw new IdUnusedException("No site found while creating assignment url");
+                }
+            }
+        }
+        catch (IdUnusedException e)
+        {
+            assignData.remove("assignmentTitle");
+            assignData.remove("assignmentUrl");
+            throw new EntityNotFoundException("No assignment found", assignmentId, e);
+        }
+        catch (PermissionException e)
+        {
+            assignData.remove("assignmentTitle");
+            assignData.remove("assignmentUrl");
+            throw new SecurityException(e);
+        }
+        return assignData;
+    }
+    
+    @EntityCustomAction(action="deepLink", viewKey=EntityView.VIEW_LIST)
+    public Map<String, Object> getAssignmentDeepLink(EntityView view, Map<String, Object> params) {
+        Map<String, Object> assignData = new HashMap<String, Object>();
+
+        String context = view.getPathSegment(2);
+        String assignmentId = view.getPathSegment(3);
+        if (context == null || assignmentId == null)
+        {
+            // format of the view should be in a standard assignment reference
+            throw new IllegalArgumentException("Must include context and assignmentId in the path ("+view+"): e.g. /direct/assignment/deepLink/{context}/{assignmentId}");
+        }
+  
+        try
+        {   
+            Assignment a = assignmentService.getAssignment(assignmentId);
+            assignData.put("assignmentId", assignmentId);
+            assignData.put("assignmentTitle", a.getTitle());
+            
+            boolean allowReadAssignment = assignmentService.allowGetAssignment(a.getReference());
+            boolean allowAddAssignment = assignmentService.allowAddAssignment(context);
+            boolean allowSubmitAssignment = assignmentService.allowAddSubmission(context);
             
             String assignmentContext = a.getContext(); // assignment context
             if (allowReadAssignment && a.getOpenTime().before(TimeService.newTime()))
