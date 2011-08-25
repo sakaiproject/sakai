@@ -4144,7 +4144,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 								{
 									// String cell type
 									cell = row.getCell(cellNum);
-									cell.setCellValue(submission.getGrade());
+									cell.setCellValue(submission.getGradeDisplay());
 								}
 							}
 							else if (submission.getSubmitted() && submission.getTimeSubmitted() != null)
