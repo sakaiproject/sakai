@@ -126,6 +126,12 @@ h3.withNav{
     text-decoration:none;
 }
 .smallDiag{font-size:90% !important}
+.smallDiag h1{
+    display:none
+}
+.smallDiag table{
+    width:auto
+}
 #metaDataMain,#metaDataGradSub,#description,#link{
     padding:5px 0;
 }

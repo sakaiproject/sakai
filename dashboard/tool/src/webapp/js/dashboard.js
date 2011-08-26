@@ -52,8 +52,8 @@ var setupMenus = function(){
         $('.actionPanel').hide();
         $(this).parent('td').find('.actionPanel').css({
             'position': 'absolute',
-            'left': pos.left,
-            'top': pos.top + 3
+            'left': pos.left - 200,
+            'top': pos.top + 30
         }).toggle();
     });
     
@@ -73,27 +73,50 @@ var setupLinks = function(){
         //daft - need better way of identifying type
         var itemType = $(this).closest('tr').find('.itemType').text();
         
-        if (itemType === "assignment" || $(this).attr('href').indexOf('assignment') !==-1) {
+        if (itemType === "assignment" || $(this).attr('href').indexOf('assignment') !== -1) {
             //daft 2, neeed a better way of getting the entity id
-            action = link.split('/')[9];            
-            var assigURL = '/direct/assignment/' + action.substring(0,36) + '.json';
+            action = link.split('/')[9];
+            var assigURL = '/direct/assignment/' + action.substring(0, 36) + '.json';
             jQuery.getJSON(assigURL, function(data){
-                $("#dialog #metaDataMain").html('<strong>' + langdata.due + '</strong> ' + data.dueTimeString + ' (' + langdata.postedBy + data.authorLastModified + ')');
-                $("#dialog #metaDataGradSub").html(resolveTypeOfGrade(data.content.typeOfGrade) + ', ' + resolveTypeOfSubmission(data.content.typeOfSubmission) + resolveMaxGradePointDisplay(data.content.maxGradePointDisplay));
-                $("#dialog #description").html(resolveInstructions(data.content.instructions));
-                $("#dialog #link").html('<a target ="_top" href=' + link + '>' + langdata.seemore + '</a>');
+                var results = '<div id=\"metaDataMain\">' + '<strong>' + langdata.due + '</strong> ' + data.dueTimeString + ' (' + langdata.postedBy + data.authorLastModified + ')' + '</div>';
+                results = results + '<div id=\"metaDataGradSub\">' + resolveTypeOfGrade(data.content.typeOfGrade) + ', ' + resolveTypeOfSubmission(data.content.typeOfSubmission) + resolveMaxGradePointDisplay(data.content.maxGradePointDisplay) + '</div>'
+                results = results + '<div id=\"description\">' + resolveInstructions(data.content.instructions) + '</div>'
+                results = results + '<div id=\"link\">' + '<a target ="_top" href=' + link + '>' + langdata.seemore + '</a>' + '</div>'
+                $("#dialog").html(results);
             });
             $("#dialog").dialog({
                 modal: true,
                 width: 400,
                 height: 200,
                 title: title,
-                dialogClass: 'smallDiag'
+                dialogClass: 'smallDiag',
+                close: function(event, ui){
+                    console.log('closing');
+                    $('#dialog >  *').remove();
+                },
+            
             });
             
         }
         else {
-            window.open(link, '_blank');
+            if (itemType === "announcement" || $(this).attr('href').indexOf('announcement') !== -1) {
+                var annURL = link;
+                $('#dialog').load(link + ' table, p')
+                $("#dialog").dialog({
+                    modal: true,
+                    width: 400,
+                    height: 200,
+                    title: title,
+                    close: function(event, ui){
+                        console.log('closing');
+                        $('#dialog >  *').remove();
+                    },
+                    dialogClass: 'smallDiag'
+                });
+            }
+            else {
+                window.open(link, '_blank');
+            }
             
         }
         
@@ -154,13 +177,12 @@ var setupLang = function(){
 
 var setupIcons = function(){
     $('.itemLink').each(function(i){
-        if($(this).closest('tr').find('.itemType').text() ==='resource'){
-           $(this).addClass(getFileExtension($(this).attr('href')));     
+        if ($(this).closest('tr').find('.itemType').text() === 'resource') {
+            $(this).addClass(getFileExtension($(this).attr('href')));
         }
     });
     function getFileExtension(filename){
         var ext = /^.+\.([^.]+)$/.exec(filename);
         return ext == null ? "" : ext[1].toLowerCase();
     }
-}  
-    
+}
