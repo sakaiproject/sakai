@@ -6947,7 +6947,7 @@ extends VelocityPortletStateAction
 		// Initialize month format object		
 		if ( monthFormat == null ) 
 		{
-			monthFormat = NumberFormat.getInstance();
+			monthFormat = NumberFormat.getInstance(new ResourceLoader().getLocale());
 			monthFormat.setMinimumIntegerDigits(2);
 		}
 		
