@@ -86,7 +86,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		assertEquals(entityUrl, calendarItem.getEntityUrl());
 		assertEquals(entityReference, calendarItem.getEntityReference());
 		
-		//assertEquals(calendarTime.getTime(), calendarItem.getCalendarTime().getTime());
+		assertEquals(calendarTime.getTime(), calendarItem.getCalendarTime().getTime());
 		assertTrue(calendarTime.getTime() + TIME_DELTA > calendarItem.getCalendarTime().getTime());
 		assertTrue(calendarTime.getTime() - TIME_DELTA < calendarItem.getCalendarTime().getTime());
 		
@@ -148,7 +148,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 				assertEquals(contextId,item.getContext().getContextId());
 				assertNotNull(item.getSourceType());
 				assertEquals(sourceTypeIdentifier,item.getSourceType().getIdentifier());
-				//assertEquals(calendarTime.getTime(), item.getCalendarTime().getTime());
+				assertEquals(calendarTime.getTime(), item.getCalendarTime().getTime());
 				assertTrue(calendarTime.getTime() + TIME_DELTA > calendarItem.getCalendarTime().getTime());
 				assertTrue(calendarTime.getTime() - TIME_DELTA < calendarItem.getCalendarTime().getTime());
 				break;
@@ -208,7 +208,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		assertEquals(entityUrl, newsItem.getEntityUrl());
 		assertEquals(entityReference, newsItem.getEntityReference());
 
-		//assertEquals(eventTime.getTime(), newsItem.getNewsTime().getTime());
+		assertEquals(eventTime.getTime(), newsItem.getNewsTime().getTime());
 		assertTrue(eventTime.getTime() + TIME_DELTA > newsItem.getNewsTime().getTime());
 		assertTrue(eventTime.getTime() - TIME_DELTA < newsItem.getNewsTime().getTime());
 		
@@ -270,7 +270,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 				assertEquals(contextId,item.getContext().getContextId());
 				assertNotNull(item.getSourceType());
 				assertEquals(sourceTypeIdentifier,item.getSourceType().getIdentifier());
-				//assertEquals(eventTime.getTime(), item.getNewsTime().getTime());
+				assertEquals(eventTime.getTime(), item.getNewsTime().getTime());
 				break;
 			}
 		}
@@ -396,7 +396,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		assertEquals(title, calendarItem.getTitle());
 		assertEquals(entityUrl, calendarItem.getEntityUrl());
 		assertEquals(entityReference, calendarItem.getEntityReference());
-		//assertEquals(calendarTime.getTime(), calendarItem.getCalendarTime().getTime());
+		assertEquals(calendarTime.getTime(), calendarItem.getCalendarTime().getTime());
 		
 		assertNotNull(calendarItem.getContext());
 		assertEquals(contextId, calendarItem.getContext().getContextId());
@@ -436,7 +436,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		assertEquals(title, calendarItem.getTitle());
 		assertEquals(entityUrl, calendarItem.getEntityUrl());
 		assertEquals(entityReference, calendarItem.getEntityReference());
-		//assertEquals(calendarTime.getTime(), calendarItem.getCalendarTime().getTime());
+		assertEquals(calendarTime.getTime(), calendarItem.getCalendarTime().getTime());
 		
 		assertNotNull(calendarItem.getContext());
 		assertEquals(contextId, calendarItem.getContext().getContextId());
