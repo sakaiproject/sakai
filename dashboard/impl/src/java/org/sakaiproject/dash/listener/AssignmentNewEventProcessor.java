@@ -83,7 +83,7 @@ public class AssignmentNewEventProcessor implements EventProcessor {
 		    params.put("allowAddAssignment", Boolean.FALSE);
 		    params.put("allowSubmitAssignment", Boolean.TRUE);
             // pass in the assignment reference to get the assignment data we need
-            ActionReturn ret = entityBroker.executeCustomAction(assn.getReference(), "deepLinks", params, null);
+            ActionReturn ret = entityBroker.executeCustomAction(assn.getReference(), "deepLinkWithPermissions", params, null);
             if (ret != null && ret.getEntityData() != null) {
                     Object returnData = ret.getEntityData().getData();
                     assignData = (Map<String, Object>)returnData;

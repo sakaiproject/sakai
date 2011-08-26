@@ -79,8 +79,8 @@ public class AnnouncementNewEventProcessor implements EventProcessor {
 			if(sourceType == null) {
 				sourceType = this.dashboardLogic.createSourceType("announcement", SakaiProxy.PERMIT_ANNOUNCEMENT_ACCESS);
 			}
-			
-			NewsItem newsItem = this.dashboardLogic.createNewsItem(ann.getAnnouncementHeader().getSubject(), event.getEventTime(), event.getResource(), " ", context, sourceType);
+			String accessUrl = ann.getUrl();
+			NewsItem newsItem = this.dashboardLogic.createNewsItem(ann.getAnnouncementHeader().getSubject(), event.getEventTime(), event.getResource(), accessUrl, context, sourceType);
 			this.dashboardLogic.createNewsLinks(newsItem);
 		} else {
 			// for now, let's log the error
