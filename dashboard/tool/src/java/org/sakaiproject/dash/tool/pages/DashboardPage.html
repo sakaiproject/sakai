@@ -3,6 +3,8 @@
 	<body>
 		<wicket:extend>
 			<div class="portletBody">
+			                    <link rel="stylesheet" type="text/css" href="/library/js/jquery/ui/1.8.4/css/ui-lightness/jquery-ui-1.8.4.full.css" />
+
         <script type="text/javascript" src="/library/js/jquery/1.4.2/jquery-1.4.2.min.js">
         </script>
         <script type="text/javascript" src="/library/js/jquery/ui/1.8.4/jquery-ui-1.8.4.full.min.js">
@@ -146,6 +148,7 @@
               setupLinks();
               setupMenus();
               setupLang(); //evaluate the language held in #lang-holder for use in the js
+              setupIcons();
           });
       </script>
       <!-- this textarea holds the lang values used by the js, how to do with wicket? -->
