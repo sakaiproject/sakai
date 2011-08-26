@@ -138,3 +138,57 @@ h3.withNav{
 #link{
     text-align:right;
 }
+
+
+/*file listings*/
+
+a.itemLink{
+    display:block;
+    padding:3px;
+	padding-left:21px;
+	background: url(../../../../library/image/sakai/generic.gif) center left no-repeat;
+	}
+/*file exensions to match*/
+.doc, .rtf, .docx, .docm, .dotx, .dotm {
+	background: url(../../../../library/image/sakai/word.gif) center left no-repeat !important
+	}
+.ppt, .pps, .pptx, .pptm, .ppsx, .potx, .potm, .ppam {
+	background: url(../../../../library/image/sakai/ppt.gif) center left no-repeat !important
+	}
+.xls, .xlsx, .csv, .xlsx, .xlsm, .xltx, .xltm, .xlsb, .xlam{
+	background: url(../../../../library/image/sakai/excel.gif) center left no-repeat !important
+	}	
+.mdb{
+	background: url(../../../../library/image/sakai/access.gif) center left no-repeat !important
+	}	
+.gif, .jpg, .jpeg, .png{
+	background: url(../../../../library/image/sakai/image.gif) center left no-repeat !important
+	}
+.html, .htm{
+	background: url(../../../../library/image/sakai/html.gif) center left no-repeat !important
+	}
+.txt, .java{
+	background: url(../../../../library/image/sakai/text.gif) center left no-repeat !important
+	}
+.zip, .tar, .sit, .hqx {
+	background: url(../../../../library/image/sakai/compressed.gif) center left no-repeat !important
+	}
+.mov, .mpeg, .avi {
+	background: url(../../../../library/image/sakai/movie.gif) center left no-repeat !important
+	}
+.mp3, .wav, .aiff{
+	background: url(../../../../library/image/sakai/audio.gif) center left no-repeat !important
+	}
+.pdf{
+	background: url(../../../../library/image/sakai/pdf.gif) center left no-repeat !important
+	}
+.ai, .ps, .psd{
+	background: url(../../../../library/image/sakai/postscript.gif) center left no-repeat !important
+	}
+.ram, .rm{
+	background: url(../../../../library/image/sakai/real.gif) center left no-repeat !important
+	}
+.swf{
+	background: url(../../../../library/image/sakai/shockwave.gif) center left no-repeat !important
+	}
+	

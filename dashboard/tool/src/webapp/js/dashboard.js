@@ -72,7 +72,8 @@ var setupLinks = function(){
         var title = $(this).text();
         //daft - need better way of identifying type
         var itemType = $(this).closest('tr').find('.itemType').text();
-        if (itemType === "assignment") {
+        
+        if (itemType === "assignment" || $(this).attr('href').indexOf('assignment') !==-1) {
             //daft 2, neeed a better way of getting the entity id
             action = link.split('/')[9];            
             var assigURL = '/direct/assignment/' + action.substring(0,36) + '.json';
@@ -150,3 +151,16 @@ var resolveInstructions = function(instructions){
 var setupLang = function(){
     langdata = eval('(' + $('#lang-holder').text() + ')');
 };
+
+var setupIcons = function(){
+    $('.itemLink').each(function(i){
+        if($(this).closest('tr').find('.itemType').text() ==='resource'){
+           $(this).addClass(getFileExtension($(this).attr('href')));     
+        }
+    });
+    function getFileExtension(filename){
+        var ext = /^.+\.([^.]+)$/.exec(filename);
+        return ext == null ? "" : ext[1].toLowerCase();
+    }
+}  
+    
