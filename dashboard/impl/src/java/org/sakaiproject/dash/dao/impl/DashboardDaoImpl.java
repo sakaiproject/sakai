@@ -21,20 +21,29 @@
 
 package org.sakaiproject.dash.dao.impl;
 
+import java.io.PrintWriter;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+
+import javax.sql.DataSource;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.reloading.InvariantReloadingStrategy;
 import org.apache.log4j.Logger;
 
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import org.sakaiproject.dash.dao.DashboardDao;
@@ -61,6 +70,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 
 	private static final Logger log = Logger.getLogger(DashboardDaoImpl.class);
 	
+	protected ServerConfigurationService serverConfigurationService;
+	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
+	}
+	
 	protected PropertiesConfiguration statements;
 	
 	/*
@@ -75,15 +89,21 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		// calendar_time, title , entity_url, entity_ref, source_type, context_id, realm_id
 		
 		try {
-			getJdbcTemplate().update(getStatement("insert.CalendarItem"),
+			JdbcTemplate template = getJdbcTemplate();
+			String sql = getStatement("insert.CalendarItem");
+			
+			template.update(sql,
 				new Object[]{calendarItem.getCalendarTime(), calendarItem.getTitle(), 
 						calendarItem.getEntityUrl(), calendarItem.getEntityReference(),
 						calendarItem.getSourceType().getId(), calendarItem.getContext().getId()}
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("addCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return false;
+            log.error("addCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+            return false;
+		} catch (Exception e) {
+	        log.error("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
+	        return false;
 		}
 	}
 
@@ -121,8 +141,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		
 		//  context_id, context_url, context_title
 		
+		String sql = getStatement("insert.Context");
 		try {
-			getJdbcTemplate().update(getStatement("insert.Context"),
+			int rows = getJdbcTemplate().update(sql ,
 				new Object[]{context.getContextId(), context.getContextUrl(), 
 				context.getContextTitle()}
 			);
@@ -130,6 +151,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		} catch (DataAccessException ex) {
            log.error("addContext: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
+		} catch (Exception e) {
+	        log.error("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
+	        return false;
 		}
 	}
 
@@ -498,13 +522,18 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 		
 		try {
-			return (Context) getJdbcTemplate().queryForObject(getStatement("select.Context.by.contextId"),
+			String sql = getStatement("select.Context.by.contextId");
+			
+			return (Context) getJdbcTemplate().queryForObject(sql ,
 				new Object[]{contextId},
 				new ContextMapper()
 			);
 		} catch (DataAccessException ex) {
            log.error("getContext: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return null;
+		}  catch (Exception e) {
+			log.error("getContext: Error executing query: " + e.getClass() + ":" + e.getMessage());
+	        return null;
 		}
 	}
 
@@ -765,13 +794,14 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		log.info("init()");
 		
 		//setup the vendor
-		String vendor = ServerConfigurationService.getInstance().getString("vendor@org.sakaiproject.db.api.SqlService", null);
+		String vendor = serverConfigurationService.getString("vendor@org.sakaiproject.db.api.SqlService", null);
 		
 		//initialise the statements
 		initStatements(vendor);
 		
 		//setup tables if we have auto.ddl enabled.
-		boolean autoddl = ServerConfigurationService.getInstance().getBoolean("auto.ddl", true);
+		boolean autoddl = serverConfigurationService.getBoolean("auto.ddl", true);
+		
 		if(autoddl) {
 			initTables();
 		}
@@ -802,10 +832,8 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	 * Sets up our tables
 	 */
 	protected void initTables() {
-		//executeSqlStatement("create.table"));
 		executeSqlStatement("create.Context.table");
 		executeSqlStatement("create.Person.table");
-		//executeSqlStatement("create.Realm.table");
 		executeSqlStatement("create.SourceType.table");
 		executeSqlStatement("create.NewsItem.table");
 		executeSqlStatement("create.NewsLink.table");
@@ -828,6 +856,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 					if(sql != null && ! sql.trim().equals("")) {
 						try {
 							getJdbcTemplate().execute(sql.trim());
+							
 						} catch (DataAccessException ex) {
 							log.warn("Error executing SQL statement with key: " + key + " -- " + ex.getClass() + ": " + ex.getMessage());
 						}

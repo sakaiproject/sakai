@@ -3,10 +3,41 @@
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
+	<bean id="mockServerConfigurationService" class="org.sakaiproject.dash.mock.MockServerConfigurationService">
+	</bean>
 
-    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
-        <constructor-arg index="0" ref="dataSource"/>
-    </bean>
+<!-- 	<bean id="dataSource"
+	        class="org.apache.commons.dbcp.BasicDataSource">
+	    <property name="driverClassName" 
+	        value="org.hsqldb.jdbcDriver"/>
+	    <property name="url" 
+	        value="jdbc:hsqldb:file:db/dashtest"/>
+	    <property name="username" value="sa"/>
+	    <property name="password" value=""/>
+	    <property name="defaultAutoCommit" value="false"/>
+	</bean>
+ -->
+ 	
+	<bean id="hsqlDataSource" 
+		class="org.hsqldb.jdbc.jdbcDataSource">
+	    <property name="user" value="sa"/>
+	    <property name="password" value=""/>
+	    <property name="database" 
+	        value="jdbc:hsqldb:mem:dash"/>
+		
+	</bean>
+	
+	<bean id="jdbcTemplate" 
+	        class="org.springframework.jdbc.core.JdbcTemplate">
+	    <property name="dataSource" ref="hsqlDataSource"/>
+	</bean>
+	
+<!-- 	
+	<bean id="hsqldbDataSource" class="org.hsqldb.jdbc.jdbcDataSource"> 
+		<property name="database"><value>dashboard</value></property>
+		<property name="user"><value>sakaiUser</value></property>
+		<property name="password"><value>sakaiPassword</value></property>
+	</bean>
 
     <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName">
@@ -22,22 +53,26 @@
             <value>${jdbc.password}</value>
         </property>
     </bean>
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <constructor-arg index="0" ref="hsqldbDataSource"/>
+    </bean>
+ -->
 
-    <!-- 
     <bean id="org.sakaiproject.dash.dao.DashboardDao" 
     	class="org.sakaiproject.dash.dao.impl.DashboardDaoImpl"
     	init-method="init">
         <property name="jdbcTemplate">
             <ref local="jdbcTemplate"/>
         </property>
+        <property name="serverConfigurationService" ref="mockServerConfigurationService" />
     </bean>
--->
 
     <bean id="org.sakaiproject.dash.test.DashboardDaoTest"
         class="org.sakaiproject.dash.test.DashboardDaoTest">
         <property name="dependencyCheck">
             <value>false</value>
         </property>
+        <property name="dashboardDao" ref="org.sakaiproject.dash.dao.DashboardDao" />
     </bean>
 
     <bean id="org.sakaiproject.dash.test.DashboardLogicTest"
