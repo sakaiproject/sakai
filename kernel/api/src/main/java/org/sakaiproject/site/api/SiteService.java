@@ -124,6 +124,42 @@ public interface SiteService extends EntityProducer
 
 	/** The property to indicate whether or not subsites are to be added to the tool list */
 	public static final String PROP_SHOW_SUBSITES = "sakai:show-subsites";
+	
+	/**
+	 * Event for adding user to site
+	 * info logged: user id, site id, role name, active status, provided status
+	 */
+	static final String EVENT_USER_SITE_MEMBERSHIP_ADD = "user.site.membership.add";
+	
+	/**
+	 * Event for changing user role in site
+	 * info logged: user id, site id, old role name, new role name, active status, provided status
+	 */
+	static final String EVENT_USER_SITE_MEMBERSHIP_UPDATE = "user.site.membership.update";
+	
+	/**
+	 * Event for removing user in site
+	 * info logged: user id, site id, role name
+	 */
+	static final String EVENT_USER_SITE_MEMBERSHIP_REMOVE = "user.site.membership.delete";
+	
+	/**
+	 * Event for adding user to group
+	 * info logged: user id, group id, role name, active status, provided status
+	 */
+	static final String EVENT_USER_GROUP_MEMBERSHIP_ADD = "user.group.membership.add";	
+	
+	/**
+	 * Event for changing user role in group
+	 * info logged: user id, site id, old role name, new role name, active status, provided status
+	 */
+	static final String EVENT_USER_GROUP_MEMBERSHIP_UPDATE = "user.group.membership.update";
+	
+	/**
+	 * Event for removing user in group
+	 * info logged: user id, site id, role name
+	 */
+	static final String EVENT_USER_GROUP_MEMBERSHIP_REMOVE = "user.group.membership.delete";
 
 	/**
 	 * <p>
