@@ -42,7 +42,7 @@ public class CalendarServiceHelperImpl implements CalendarServiceHelper {
 	private CalendarService calendarService;
 	private Boolean calendarExistsForSite = null;
 	private Map<String, Boolean> calendarExistCache = new HashMap<String, Boolean>();
-
+	private String calendarTitle;
 
 	@Override
 	public String getString(String key, String defaultValue) {
@@ -143,17 +143,14 @@ public class CalendarServiceHelperImpl implements CalendarServiceHelper {
 		return eventId;
 	}
 
-	public void updateAllCalendarEvents(PublishedAssessmentFacade pub, String releaseTo, String[] groupsAuthorized, String dueDateTitlePrefix, boolean addDueDateToCalendar){
+	public void updateAllCalendarEvents(PublishedAssessmentFacade pub, String releaseTo, String[] groupsAuthorized, String dueDateTitlePrefix, boolean addDueDateToCalendar, String eventDesc){
 		PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 		//remove all previous events:
-		PublishedMetaData meta = null;
-
+		String newDueDateEventId = null;
 		//Due Date
 		try{
 			String calendarDueDateEventId = pub.getAssessmentMetaDataByLabel(AssessmentMetaDataIfc.CALENDAR_DUE_DATE_EVENT_ID);
 			if(calendarDueDateEventId != null){
-				meta = new PublishedMetaData(pub.getData(), AssessmentMetaDataIfc.CALENDAR_DUE_DATE_EVENT_ID, null);
-				publishedAssessmentService.saveOrUpdateMetaData(meta);
 				removeCalendarEvent(AgentFacade.getCurrentSiteId(), calendarDueDateEventId);
 			}
 		}catch(Exception e){
@@ -166,16 +163,31 @@ public class CalendarServiceHelperImpl implements CalendarServiceHelper {
 
 		//Due Date
 		if (addDueDateToCalendar) {
-			String eventId = addCalendarEvent(
+			newDueDateEventId = addCalendarEvent(
 					AgentFacade.getCurrentSiteId(),
-					dueDateTitlePrefix + pub.getTitle(), pub.getDescription(), pub
+					dueDateTitlePrefix + pub.getTitle(), eventDesc, pub
 					.getAssessmentAccessControl().getDueDate()
 					.getTime(), authorizedGroups,
 					CalendarServiceHelper.DEADLINE_EVENT_TYPE);
-			meta = new PublishedMetaData(pub.getData(),
-					AssessmentMetaDataIfc.CALENDAR_DUE_DATE_EVENT_ID, eventId);
-			publishedAssessmentService.saveOrUpdateMetaData(meta);
+			
 		}
+		
+		
+		boolean found = false;
+		PublishedMetaData meta = null;
+		for(PublishedMetaData pubMetData : (Set<PublishedMetaData>) pub.getAssessmentMetaDataSet()){
+			if(AssessmentMetaDataIfc.CALENDAR_DUE_DATE_EVENT_ID.equals(pubMetData.getLabel())){
+				meta = pubMetData;
+				meta.setEntry(newDueDateEventId);
+				found = true;
+				break;
+			}
+		}
+		if(!found){
+			meta = new PublishedMetaData(pub.getData(),
+					AssessmentMetaDataIfc.CALENDAR_DUE_DATE_EVENT_ID, newDueDateEventId);
+		}
+		publishedAssessmentService.saveOrUpdateMetaData(meta);
 	}
 
 	private List<Group> getAuthorizedGroups(String releaseTo, String[] authorizedGroupsArray){
@@ -233,5 +245,13 @@ public class CalendarServiceHelperImpl implements CalendarServiceHelper {
 
 	public void setCalendarExistsForSite(Boolean calendarExistsForSite) {
 		this.calendarExistsForSite = calendarExistsForSite;
+	}
+	
+	public String getCalendarTitle(){
+		return ToolManager.getTool("sakai.schedule").getTitle();
+	}
+
+	public void setCalendarTitle(String calendarTitle) {
+		this.calendarTitle = calendarTitle;
 	}
 }

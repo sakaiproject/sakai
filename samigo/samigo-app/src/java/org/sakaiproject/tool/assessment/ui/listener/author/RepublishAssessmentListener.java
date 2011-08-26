@@ -8,6 +8,7 @@ import java.util.List;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+import javax.faces.context.FacesContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,6 +35,9 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificationBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
+import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificationBean;
 
 public class RepublishAssessmentListener implements ActionListener {
 
@@ -43,6 +47,9 @@ public class RepublishAssessmentListener implements ActionListener {
 	    IntegrationContextFactory.getInstance().getGradebookServiceHelper();
 	private static final boolean integrated =
 	    IntegrationContextFactory.getInstance().isIntegrated();
+	
+	private CalendarServiceHelper calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
+	private ResourceLoader rl= new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
 	  
 	public void processAction(ActionEvent ae) throws AbortProcessingException {
 		AssessmentBean assessmentBean = (AssessmentBean) ContextUtil
@@ -72,14 +79,15 @@ public class RepublishAssessmentListener implements ActionListener {
 		updateGB(assessment);
 		
 		PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
+		
+		PublishedAssessmentSettingsBean publishedAssessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean("publishedSettings");
+		PublishAssessmentListener publishAssessmentListener = new PublishAssessmentListener();
+		String subject = publishRepublishNotification.getNotificationSubject();
+		String notificationMessage = publishAssessmentListener.getNotificationMessage(publishRepublishNotification, publishedAssessmentSettings.getTitle(), publishedAssessmentSettings.getReleaseTo(), publishedAssessmentSettings.getStartDateString(), publishedAssessmentSettings.getPublishedUrl(),
+				publishedAssessmentSettings.getReleaseToGroupsAsString(), publishedAssessmentSettings.getDueDateString(), publishedAssessmentSettings.getTimedHours(), publishedAssessmentSettings.getTimedMinutes(), 
+				publishedAssessmentSettings.getUnlimitedSubmissions(), publishedAssessmentSettings.getSubmissionsAllowed(), publishedAssessmentSettings.getScoringType(), publishedAssessmentSettings.getFeedbackDelivery(), publishedAssessmentSettings.getFeedbackDateString());
 		if (publishRepublishNotification.getSendNotification()) {
-			PublishedAssessmentSettingsBean publishedAssessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean("publishedSettings");
-			PublishAssessmentListener publishAssessmentListener = new PublishAssessmentListener();
-			publishAssessmentListener.sendNotification(assessment, publishedAssessmentService, publishRepublishNotification,
-					publishedAssessmentSettings.getReleaseTo(), publishedAssessmentSettings.getReleaseToGroupsAsString(), publishedAssessmentSettings.getTitle(), publishedAssessmentSettings.getPublishedUrl(),
-					publishedAssessmentSettings.getStartDateString(), publishedAssessmentSettings.getDueDateString(), publishedAssessmentSettings.getRetractDateString(),
-					publishedAssessmentSettings.getTimedHours(), publishedAssessmentSettings.getTimedMinutes(), publishedAssessmentSettings.getUnlimitedSubmissions(),
-					publishedAssessmentSettings.getSubmissionsAllowed(), publishedAssessmentSettings.getScoringType(), publishedAssessmentSettings.getFeedbackDelivery(), publishedAssessmentSettings.getFeedbackDateString());
+		    publishAssessmentListener.sendNotification(assessment, publishedAssessmentService, subject, notificationMessage, publishedAssessmentSettings.getReleaseTo());
 		}
 		
 		GradingService gradingService = new GradingService();
@@ -90,6 +98,10 @@ public class RepublishAssessmentListener implements ActionListener {
 		// Tell AuthorBean that we just published an assessment
 		// This will allow us to jump directly to published assessments tab
 		author.setJustPublishedAnAssessment(true);
+		
+		//update Calendar Events
+       boolean addDueDateToCalendar = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("publishAssessmentForm:calendarDueDate") != null;
+       calendarService.updateAllCalendarEvents(assessment, publishedAssessmentSettings.getReleaseTo(), publishedAssessmentSettings.getGroupsAuthorized(), rl.getString("calendarDueDatePrefix") + " ", addDueDateToCalendar, notificationMessage);
 
 		author.setOutcome("author");
 	}

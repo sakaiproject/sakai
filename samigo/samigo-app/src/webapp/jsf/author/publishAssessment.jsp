@@ -120,7 +120,7 @@
     </h:selectOneMenu>
 	<h:panelGroup rendered="#{not empty assessmentSettings.dueDate && calendarServiceHelper.calendarExistsForSite}">
 		<h:selectBooleanCheckbox id="calendarDueDate" value="true"/>
-		<h:outputText value="#{assessmentSettingsMessages.calendarDueDate}" />
+		<h:outputText value="#{assessmentSettingsMessages.calendarDueDate} #{calendarServiceHelper.calendarTitle}" escape="false"/>
 	</h:panelGroup>
 </h:panelGrid>
 	

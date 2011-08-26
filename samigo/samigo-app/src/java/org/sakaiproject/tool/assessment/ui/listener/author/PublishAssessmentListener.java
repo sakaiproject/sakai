@@ -71,6 +71,10 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.email.cover.EmailService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.exception.IdUnusedException;
 
 /**
  * <p>Title: Samigo</p>2
@@ -194,15 +198,19 @@ public class PublishAssessmentListener
        releaseTo = pub.getAssessmentAccessControl().getReleaseTo();
        PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
        boolean sendNotification = publishRepublishNotification.getSendNotification();
-
+       String subject = publishRepublishNotification.getNotificationSubject();
+       String notificationMessage = getNotificationMessage(publishRepublishNotification, assessmentSettings.getTitle(), assessmentSettings.getReleaseTo(), assessmentSettings.getStartDateString(), assessmentSettings.getPublishedUrl(),
+          		assessmentSettings.getReleaseToGroupsAsString(), assessmentSettings.getDueDateString(), assessmentSettings.getTimedHours(), assessmentSettings.getTimedMinutes(), 
+          		assessmentSettings.getUnlimitedSubmissions(), assessmentSettings.getSubmissionsAllowed(), assessmentSettings.getScoringType(), assessmentSettings.getFeedbackDelivery(), assessmentSettings.getFeedbackDateString());
+       
        if (sendNotification) {
-    	   sendNotification(pub, publishedAssessmentService, publishRepublishNotification,
-    			   assessmentSettings.getReleaseTo(), assessmentSettings.getReleaseToGroupsAsString(), assessmentSettings.getTitle(), assessmentSettings.getPublishedUrl(),
-    			   assessmentSettings.getStartDateString(), assessmentSettings.getDueDateString(), assessmentSettings.getRetractDateString(),
-    			   assessmentSettings.getTimedHours(), assessmentSettings.getTimedMinutes(), assessmentSettings.getUnlimitedSubmissions(),
-    			   assessmentSettings.getSubmissionsAllowed(), assessmentSettings.getScoringType(), assessmentSettings.getFeedbackDelivery(), assessmentSettings.getFeedbackDateString());
+    	   sendNotification(pub, publishedAssessmentService, subject, notificationMessage, 
+    			   assessmentSettings.getReleaseTo());
        }
        EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.publish", "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessment.getAssessmentId() + ", publishedAssessmentId=" + pub.getPublishedAssessmentId(), true));
+       //update Calendar Events
+       boolean addDueDateToCalendar = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("publishAssessmentForm:calendarDueDate") != null;
+       calendarService.updateAllCalendarEvents(pub, assessmentSettings.getReleaseTo(), assessmentSettings.getGroupsAuthorized(), rl.getString("calendarDueDatePrefix") + " ", addDueDateToCalendar, notificationMessage);
     } catch (AssignmentHasIllegalPointsException gbe) {
        // Right now gradebook can only accept assessements with totalPoints > 0 
        // this  might change later
@@ -232,9 +240,7 @@ public class PublishAssessmentListener
       publishedAssessmentService.saveOrUpdateMetaData(meta);
     }
     
-    //update Calendar Events
-    boolean addDueDateToCalendar = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("publishAssessmentForm:calendarDueDate") != null;
-    calendarService.updateAllCalendarEvents(pub, assessmentSettings.getReleaseTo(), assessmentSettings.getGroupsAuthorized(), rl.getString("calendarDueDatePrefix") + " ", addDueDateToCalendar);
+
   }
 
   private boolean checkTitle(AssessmentFacade assessment){
@@ -277,10 +283,8 @@ public class PublishAssessmentListener
     return error;
   }
   
-  public void sendNotification(PublishedAssessmentFacade pub, PublishedAssessmentService service, PublishRepublishNotificationBean publishRepublishNotification,
-		  String releaseTo, String releaseToGroupsAsString, String title, String publishedURL, String startDateString, String dueDateString, String retractDateString, 
-		  Integer timedHours, Integer timedMinutes, String unlimitedSubmissions, String submissionsAllowed, String scoringType,
-		  String feedbackDelivery, String feedbackDateString) {
+  public void sendNotification(PublishedAssessmentFacade pub, PublishedAssessmentService service, String subject, String message,
+		  String releaseTo) {
 	  TotalScoresBean totalScoresBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
 	  
 	  AgentFacade instructor = new AgentFacade();
@@ -332,8 +336,31 @@ public class PublishAssessmentListener
 		  toIA[count++] = (InternetAddress) iter2.next();
 	  }
 
-	  String subject = publishRepublishNotification.getNotificationSubject();
+
+	  String noReplyEmaillAddress =  "no-reply@" + ServerConfigurationService.getServerName();
+      InternetAddress[] noReply = new InternetAddress[1];
+      try {
+    	  noReply[0] = new InternetAddress(noReplyEmaillAddress);
+      } catch (AddressException e) {
+              log.warn("AddressException encountered when constructing no_reply@serverName email.");
+      }
+	  
+	  List<String> headers = new  ArrayList<String>();
+	  headers.add("Content-Type: text/html");
+	  EmailService.sendMail(fromIA, toIA, subject.toString(), message, noReply, noReply, headers);
+  }
+  
+  public String getNotificationMessage(PublishRepublishNotificationBean publishRepublishNotification, String title, String releaseTo, String startDateString, String publishedURL, String releaseToGroupsAsString, String dueDateString, Integer timedHours, Integer timedMinutes, String unlimitedSubmissions, String submissionsAllowed, String scoringType, String feedbackDelivery, String feedbackDateString){
 	  String siteTitle = publishRepublishNotification.getSiteTitle();
+	  if(siteTitle == null || "".equals(siteTitle)){
+		  try {
+			  Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+			  siteTitle = site.getTitle();
+			  publishRepublishNotification.setSiteTitle(siteTitle);
+		  } catch (IdUnusedException iue) {
+			  log.warn(iue);
+		  }
+	  }
 	  String newline = "<br />\n";
 	  String bold_open = "<b>";
 	  String bold_close = "</b>";
@@ -447,17 +474,7 @@ public class PublishAssessmentListener
 	  
 	  message.append(newline);
 	  message.append(newline);
-
-	  String noReplyEmaillAddress =  "no-reply@" + ServerConfigurationService.getServerName();
-      InternetAddress[] noReply = new InternetAddress[1];
-      try {
-    	  noReply[0] = new InternetAddress(noReplyEmaillAddress);
-      } catch (AddressException e) {
-              log.warn("AddressException encountered when constructing no_reply@serverName email.");
-      }
 	  
-	  List<String> headers = new  ArrayList<String>();
-	  headers.add("Content-Type: text/html");
-	  EmailService.sendMail(fromIA, toIA, subject.toString(), message.toString(), noReply, noReply, headers);
+	  return message.toString();
   }
 }
