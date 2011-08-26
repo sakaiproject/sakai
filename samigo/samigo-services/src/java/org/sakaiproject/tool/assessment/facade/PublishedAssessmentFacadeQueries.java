@@ -2102,7 +2102,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				+ " where a.publishedAssessmentId = p.publishedAssessmentId"
 				+ " and a.forGrade=:forGrade and a.agentId=:agentId"
 				+ " and (az.agentIdString=:siteId or az.agentIdString in (:groupIds)) "
-				+ " and az.functionId=:functionId and az.qualifierId=p.publishedAssessmentId";
+				+ " and az.functionId=:functionId and az.qualifierId=p.publishedAssessmentId"
+				+ " and (p.status=:activeStatus or p.status=:editStatus) ";
 
 			final HibernateCallback hcb_last = new HibernateCallback() {
 				public Object doInHibernate(Session session)
@@ -2113,6 +2114,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 					q.setString("siteId", siteId);
 					q.setParameterList("groupIds", groupIds);
 					q.setString("functionId", "TAKE_PUBLISHED_ASSESSMENT");
+					q.setInteger("activeStatus", 1);
+					q.setInteger("editStatus", 3);
 					return q.list();
 				};
 			};
@@ -2129,6 +2132,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 					q.setString("siteId", siteId);
 					q.setParameterList("groupIds", groupIds);
 					q.setString("functionId", "TAKE_PUBLISHED_ASSESSMENT");
+					q.setInteger("activeStatus", 1);
+					q.setInteger("editStatus", 3);
 					return q.list();
 				};
 			};
