@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Observer;
 import java.util.Set;
 
-import lombok.Getter;
-import lombok.Setter;
+//import lombok.Getter;
+//import lombok.Setter;
 
 import org.apache.log4j.Logger;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -243,32 +243,96 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 * Spring-injected classes
 	 ************************************************************************/
 	
-	@Getter @Setter
+	//@Getter @Setter
 	private ToolManager toolManager;
 	
-	@Getter @Setter
+	//@Getter @Setter
 	private SessionManager sessionManager;
 	
-	@Getter @Setter
+	//@Getter @Setter
 	private UserDirectoryService userDirectoryService;
 	
-	@Getter @Setter
+	//@Getter @Setter
 	private SecurityService securityService;
 	
-	@Getter @Setter
+	//@Getter @Setter
 	private EventTrackingService eventTrackingService;
 	
-	@Getter @Setter
+	//@Getter @Setter
 	private ServerConfigurationService serverConfigurationService;
 	
-	@Getter @Setter
+	//@Getter @Setter
 	private SiteService siteService;
 	
-	@Getter @Setter
+	//@Getter @Setter
 	private EntityManager entityManager;
 	
-	@Getter @Setter
+	//@Getter @Setter
 	protected AuthzGroupService authzGroupService;
+
+	/**
+	 * @param toolManager the toolManager to set
+	 */
+	public void setToolManager(ToolManager toolManager) {
+		this.toolManager = toolManager;
+	}
+
+	/**
+	 * @param sessionManager the sessionManager to set
+	 */
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
+	}
+
+	/**
+	 * @param userDirectoryService the userDirectoryService to set
+	 */
+	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+		this.userDirectoryService = userDirectoryService;
+	}
+
+	/**
+	 * @param securityService the securityService to set
+	 */
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
+	}
+
+	/**
+	 * @param eventTrackingService the eventTrackingService to set
+	 */
+	public void setEventTrackingService(EventTrackingService eventTrackingService) {
+		this.eventTrackingService = eventTrackingService;
+	}
+
+	/**
+	 * @param serverConfigurationService the serverConfigurationService to set
+	 */
+	public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
+	}
+
+	/**
+	 * @param siteService the siteService to set
+	 */
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
+	}
+
+	/**
+	 * @param entityManager the entityManager to set
+	 */
+	public void setEntityManager(EntityManager entityManager) {
+		this.entityManager = entityManager;
+	}
+
+	/**
+	 * @param authzGroupService the authzGroupService to set
+	 */
+	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+		this.authzGroupService = authzGroupService;
+	}
 
 	/************************************************************************
 	 * init() and destroy()
