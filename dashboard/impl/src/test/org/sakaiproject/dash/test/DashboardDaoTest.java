@@ -28,6 +28,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 	protected static AtomicInteger counter = new AtomicInteger(999);
 
 	private static final long ONE_DAY = 1000L * 60L * 60L * 24L;
+	private static final long TIME_DELTA = 1000L * 60L * 1L;
 
 	public DashboardDaoTest() {
 		super();
@@ -84,7 +85,10 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		assertEquals(title, calendarItem.getTitle());
 		assertEquals(entityUrl, calendarItem.getEntityUrl());
 		assertEquals(entityReference, calendarItem.getEntityReference());
+		
 		//assertEquals(calendarTime.getTime(), calendarItem.getCalendarTime().getTime());
+		assertTrue(calendarTime.getTime() + TIME_DELTA > calendarItem.getCalendarTime().getTime());
+		assertTrue(calendarTime.getTime() - TIME_DELTA < calendarItem.getCalendarTime().getTime());
 		
 		assertNotNull(calendarItem.getContext());
 		assertEquals(contextId, calendarItem.getContext().getContextId());
@@ -145,6 +149,8 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 				assertNotNull(item.getSourceType());
 				assertEquals(sourceTypeIdentifier,item.getSourceType().getIdentifier());
 				//assertEquals(calendarTime.getTime(), item.getCalendarTime().getTime());
+				assertTrue(calendarTime.getTime() + TIME_DELTA > calendarItem.getCalendarTime().getTime());
+				assertTrue(calendarTime.getTime() - TIME_DELTA < calendarItem.getCalendarTime().getTime());
 				break;
 			}
 		}
@@ -201,7 +207,10 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		assertEquals(title, newsItem.getTitle());
 		assertEquals(entityUrl, newsItem.getEntityUrl());
 		assertEquals(entityReference, newsItem.getEntityReference());
+
 		//assertEquals(eventTime.getTime(), newsItem.getNewsTime().getTime());
+		assertTrue(eventTime.getTime() + TIME_DELTA > newsItem.getNewsTime().getTime());
+		assertTrue(eventTime.getTime() - TIME_DELTA < newsItem.getNewsTime().getTime());
 		
 		assertNotNull(newsItem.getContext());
 		assertEquals(contextId, newsItem.getContext().getContextId());
@@ -299,7 +308,36 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 	}
 
 	public void testDeleteCalendarItem() {
-		Long id;
+		Date calendarTime = new Date(System.currentTimeMillis() + ONE_DAY);
+		String title = getUniqueItdentifier();
+		String entityUrl = getUniqueItdentifier();
+		String entityReference = getUniqueItdentifier();
+		
+		String contextId = getUniqueItdentifier();
+		String contextTitle = getUniqueItdentifier();
+		String contextUrl = getUniqueItdentifier();
+		Context context = new Context(contextId, contextTitle, contextUrl );
+		dao.addContext(context);
+		context = dao.getContext(contextId);
+		
+		String sourceTypeIdentifier = getUniqueItdentifier();
+		String accessPermission = getUniqueItdentifier();
+		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission );
+		dao.addSourceType(sourceType);
+		sourceType = dao.getSourceType(sourceTypeIdentifier);
+
+		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
+			entityReference, entityUrl, context, sourceType);
+		boolean saved = dao.addCalendarItem(calendarItem);
+		calendarItem = dao.getCalendarItem(entityReference);
+		assertNotNull(calendarItem);
+		assertNotNull(calendarItem.getId());
+		boolean removed = dao.deleteCalendarItem(calendarItem.getId());
+		assertTrue(removed);
+		calendarItem = dao.getCalendarItem(calendarItem.getId());
+		assertNull(calendarItem);
+		calendarItem = dao.getCalendarItem(entityReference);
+		assertNull(calendarItem);		
 	}
 
 	public void testDeleteCalendarLinksLong() {
@@ -325,12 +363,88 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 	}
 
 	public void testGetCalendarItemLong() {
-		long id;
+		Date calendarTime = new Date(System.currentTimeMillis() + ONE_DAY);
+		String title = getUniqueItdentifier();
+		String entityUrl = getUniqueItdentifier();
+		String entityReference = getUniqueItdentifier();
+		
+		String contextId = getUniqueItdentifier();
+		String contextTitle = getUniqueItdentifier();
+		String contextUrl = getUniqueItdentifier();
+		Context context = new Context(contextId, contextTitle, contextUrl );
+		dao.addContext(context);
+		context = dao.getContext(contextId);
+		
+		String sourceTypeIdentifier = getUniqueItdentifier();
+		String accessPermission = getUniqueItdentifier();
+		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission );
+		dao.addSourceType(sourceType);
+		sourceType = dao.getSourceType(sourceTypeIdentifier);
+
+		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
+			entityReference, entityUrl, context, sourceType);
+		boolean saved = dao.addCalendarItem(calendarItem);
+		calendarItem = dao.getCalendarItem(entityReference);
+		assertNotNull(calendarItem);
+		assertNotNull(calendarItem.getId());
+		
+		calendarItem = dao.getCalendarItem(calendarItem.getId());
+
+		assertNotNull(calendarItem);
+		assertNotNull(calendarItem.getId());
+		
+		assertEquals(title, calendarItem.getTitle());
+		assertEquals(entityUrl, calendarItem.getEntityUrl());
+		assertEquals(entityReference, calendarItem.getEntityReference());
+		//assertEquals(calendarTime.getTime(), calendarItem.getCalendarTime().getTime());
+		
+		assertNotNull(calendarItem.getContext());
+		assertEquals(contextId, calendarItem.getContext().getContextId());
+		assertEquals(contextTitle, calendarItem.getContext().getContextTitle());
+		assertEquals(contextUrl, calendarItem.getContext().getContextUrl());
+		
+		assertNotNull(calendarItem.getSourceType());
+		assertEquals(sourceTypeIdentifier, calendarItem.getSourceType().getIdentifier());
 	}
 
 	public void testGetCalendarItemString() {
-		String entityReference;
-	}
+		Date calendarTime = new Date(System.currentTimeMillis() + ONE_DAY);
+		String title = getUniqueItdentifier();
+		String entityUrl = getUniqueItdentifier();
+		String entityReference = getUniqueItdentifier();
+		
+		String contextId = getUniqueItdentifier();
+		String contextTitle = getUniqueItdentifier();
+		String contextUrl = getUniqueItdentifier();
+		Context context = new Context(contextId, contextTitle, contextUrl );
+		dao.addContext(context);
+		context = dao.getContext(contextId);
+		
+		String sourceTypeIdentifier = getUniqueItdentifier();
+		String accessPermission = getUniqueItdentifier();
+		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission );
+		dao.addSourceType(sourceType);
+		sourceType = dao.getSourceType(sourceTypeIdentifier);
+
+		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
+			entityReference, entityUrl, context, sourceType);
+		boolean saved = dao.addCalendarItem(calendarItem);
+		calendarItem = dao.getCalendarItem(entityReference);
+		assertNotNull(calendarItem);
+		assertNotNull(calendarItem.getId());
+		
+		assertEquals(title, calendarItem.getTitle());
+		assertEquals(entityUrl, calendarItem.getEntityUrl());
+		assertEquals(entityReference, calendarItem.getEntityReference());
+		//assertEquals(calendarTime.getTime(), calendarItem.getCalendarTime().getTime());
+		
+		assertNotNull(calendarItem.getContext());
+		assertEquals(contextId, calendarItem.getContext().getContextId());
+		assertEquals(contextTitle, calendarItem.getContext().getContextTitle());
+		assertEquals(contextUrl, calendarItem.getContext().getContextUrl());
+		
+		assertNotNull(calendarItem.getSourceType());
+		assertEquals(sourceTypeIdentifier, calendarItem.getSourceType().getIdentifier());	}
 
 	public void testGetCalendarItems() {
 		String sakaiUserId;
@@ -375,9 +489,52 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 	}
 
 	public void testUpdateCalendarItem() {
-		Long id;
-		String newTitle;
-		Date newTime;
+		Date calendarTime = new Date(System.currentTimeMillis() + ONE_DAY);
+		String title = getUniqueItdentifier();
+		String entityUrl = getUniqueItdentifier();
+		String entityReference = getUniqueItdentifier();
+		
+		String contextId = getUniqueItdentifier();
+		String contextTitle = getUniqueItdentifier();
+		String contextUrl = getUniqueItdentifier();
+		Context context = new Context(contextId, contextTitle, contextUrl );
+		dao.addContext(context);
+		context = dao.getContext(contextId);
+		
+		String sourceTypeIdentifier = getUniqueItdentifier();
+		String accessPermission = getUniqueItdentifier();
+		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission );
+		dao.addSourceType(sourceType);
+		sourceType = dao.getSourceType(sourceTypeIdentifier);
+
+		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
+			entityReference, entityUrl, context, sourceType);
+		boolean saved = dao.addCalendarItem(calendarItem);
+		calendarItem = dao.getCalendarItem(entityReference);
+		assertNotNull(calendarItem);
+		assertNotNull(calendarItem.getId());
+		
+		calendarItem = dao.getCalendarItem(calendarItem.getId());
+
+		assertNotNull(calendarItem);
+		assertNotNull(calendarItem.getId());
+		
+		String newTitle = getUniqueItdentifier();
+		Date newTime = new Date(System.currentTimeMillis() + (2L * ONE_DAY));
+		
+		boolean updated = dao.updateCalendarItem(calendarItem.getId(), newTitle, newTime);
+		assertTrue(updated);
+		
+		calendarItem = dao.getCalendarItem(calendarItem.getId());
+
+		assertNotNull(calendarItem);
+		assertNotNull(calendarItem.getId());
+		
+		assertEquals(newTitle, calendarItem.getTitle());
+		
+		assertEquals(newTime.getTime(), calendarItem.getCalendarTime().getTime());
+		assertTrue(newTime.getTime() + TIME_DELTA > calendarItem.getCalendarTime().getTime());
+		assertTrue(newTime.getTime() - TIME_DELTA < calendarItem.getCalendarTime().getTime());
 	}
 
 	public void testUpdateCalendarItemTime() {

@@ -30,7 +30,7 @@ public class CalendarItemMapper implements RowMapper {
 		
 		CalendarItem calendarItem = new CalendarItem();
 		calendarItem.setId(rs.getLong("ci_id"));
-		calendarItem.setCalendarTime(rs.getDate("ci_calendar_time"));
+		calendarItem.setCalendarTime(rs.getTimestamp("ci_calendar_time"));
 		calendarItem.setTitle(rs.getString("ci_title"));
 		calendarItem.setEntityUrl(rs.getString("ci_access_url"));
 		calendarItem.setEntityReference(rs.getString("ci_entity_ref"));

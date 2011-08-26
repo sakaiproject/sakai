@@ -702,7 +702,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		
 		try {
 			getJdbcTemplate().update(getStatement("update.CalendarItem.title.calendarTime"),
-				new Object[]{id, newTitle, newTime}
+				new Object[]{newTitle, newTime, id}
 			);
 			return true;
 		} catch (DataAccessException ex) {
@@ -722,7 +722,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		
 		try {
 			getJdbcTemplate().update(getStatement("update.CalendarItem.calendarTime"),
-				new Object[]{id, newTime}
+				new Object[]{newTime, id}
 			);
 			return true;
 		} catch (DataAccessException ex) {
@@ -742,7 +742,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		
 		try {
 			getJdbcTemplate().update(getStatement("update.CalendarItem.title"),
-				new Object[]{id, newTitle}
+				new Object[]{newTitle, id}
 			);
 			return true;
 		} catch (DataAccessException ex) {
@@ -762,7 +762,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		
 		try {
 			getJdbcTemplate().update(getStatement("update.NewsItem.title"),
-				new Object[]{id, newTitle}
+				new Object[]{newTitle, id}
 			);
 			return true;
 		} catch (DataAccessException ex) {
