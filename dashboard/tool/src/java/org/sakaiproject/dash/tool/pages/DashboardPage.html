@@ -52,10 +52,10 @@
 																<span wicket:id="calendarTime">[Time]</span>
 		                        </td>
 		                        <td>
-		                            <a href="#" wicket:id="itemLink" target="_top">[Item Title]</a>
+		                            <a href="#" wicket:id="itemLink" class="itemLink" target="_top">[Item Title]</a>
 		                        </td>
 		                        <td>
-		                            <a href="#" wicket:id="siteLink" target="_top">[Site Title]</a>
+		                            <a href="#" wicket:id="siteLink"  class="siteLink" target="_top">[Site Title]</a>
 		                        </td>
 		                        <td class="action">
 		                            <div class="actionPanelTrig" style="display:none">
@@ -98,13 +98,13 @@
 		                    </thead>
 		                    <tr class="alt newsItem" id="item11" wicket:id="newsItems">
 		                    	<td>
-		                            <span wicket:id="itemType">[item type]</span>
+		                            <span wicket:id="itemType" class="itemType">[item type]</span>
 		                        </td>
 		                        <td class="title">
-		                        	<a href="#" wicket:id="itemLink" target="_top">[item title]</a>
+		                        	<a href="#" wicket:id="itemLink" class="itemLink" target="_top">[item title]</a>
 		                        </td>
 		                        <td>
-		                        	<a href="#" wicket:id="siteLink" target="_top">[site title]</a>
+		                        	<a href="#" wicket:id="siteLink"  class="siteLink" target="_top">[site title]</a>
 		                        </td>
 		                        <td>
 		                        	<span wicket:id="newsTime">[news time]</span>
@@ -128,15 +128,46 @@
 		                    </tr>
 		                </table>
 			</div>
-			<script type="text/javascript">
+      <div id="dialog">
+          <div id="metaDataMain">
+          </div>
+          <div id="metaDataGradSub">
+          </div>
+          <div id="description">
+          </div>
+          <div id="link">
+          </div>
+      </div>
+      <script type="text/javascript">
           $(document).ready(function(){
               setupTableStriping()
               $('.pager').htmlClean();
               $('.pager').cssInstrument();
-              setupMenus();    
+              setupLinks();
+              setupMenus();
+              setupLang(); //evaluate the language held in #lang-holder for use in the js
           });
       </script>
-      
+      <!-- this textarea holds the lang values used by the js, how to do with wicket? -->
+      <textarea style="display:none" id="lang-holder">
+          {
+          "ungraded": "Ungraded",
+          "letter": "Letter grade",
+          "points": "Point grade",
+          "passfail": "Pass/Fail",
+          "checkmark": "Checkmark",
+          "inline": "inline submission",
+          "atts": "attachments only submission",
+          "inlineatts": "inline or attachments submission",
+          "nonel": "off-line submission",
+          "singleatt": "single attachment submission",
+          "due":"Due: ",
+          "maxpoints":"max points: ",
+          "postedBy" :"Posted by: ",
+          "seemore" : "See more",
+          "noinstructions" :"No text instructions. Maybe instructions are in an attachment - see more to confirm."
+          }
+      </textarea>      
 		</wicket:extend>
 	</body>
 </html>

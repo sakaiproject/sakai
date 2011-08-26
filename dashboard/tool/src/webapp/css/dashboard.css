@@ -125,3 +125,16 @@ h3.withNav{
     background: #eee;
     text-decoration:none;
 }
+.smallDiag{font-size:90% !important}
+#metaDataMain,#metaDataGradSub,#description,#link{
+    padding:5px 0;
+}
+#metaDataGradSub{
+    font-size:90%    
+}
+#description{
+    
+}
+#link{
+    text-align:right;
+}
