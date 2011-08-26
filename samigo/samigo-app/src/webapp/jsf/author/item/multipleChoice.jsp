@@ -36,7 +36,7 @@
       <!-- AUTHORING -->
       <samigo:script path="/js/authoring.js"/>
       </head>
-<body onload="resetInsertAnswerSelectMenus();disablePartialCreditField();<%= request.getAttribute("html.body.onload") %>">
+<body onload="<%= request.getAttribute("html.body.onload") %>;resetInsertAnswerSelectMenus();disablePartialCreditField();">
 
 <div class="portletBody">
 <!-- content... -->
