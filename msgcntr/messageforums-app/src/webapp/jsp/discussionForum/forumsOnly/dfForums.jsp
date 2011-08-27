@@ -36,7 +36,7 @@ org.sakaiproject.tool.cover.SessionManager.getCurrentToolSession().
 	<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" />
  	<h3 style="margin-bottom:1em"><h:outputText value="#{msgs.cdfm_discussion_forums}" /></h3>
  	
-	<% @include file="/jsp/discussionForum/includes/dfAreaInclude.jsp"%>
+	<%@include file="/jsp/discussionForum/includes/dfAreaInclude.jsp"%>
 	
  	<%
   	String thisId = request.getParameter("panel");
