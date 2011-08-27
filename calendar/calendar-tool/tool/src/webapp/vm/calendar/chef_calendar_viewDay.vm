@@ -66,14 +66,14 @@
 
 #if($page== "second")
     #set($timer = 8)
-    #set ($timeType = "AM")
+    #set ($timeType = $amString)
 #elseif ( $page == "third" )
     ## set start time to be 2 PM 
     #set($timer = 2)
-    #set ($timeType = "PM")
+    #set ($timeType = $pmString)
 #else ##if ( $page == "first" )
     #set($timer = 0)
-    #set ($timeType = "AM")
+    #set ($timeType = $amString)
 #end
 
 #foreach($nx in [0..19])
@@ -91,9 +91,9 @@
 
         #if ( $page == "second")
             #if($timer==12) 
-                #set ($timeType = "PM")
+                #set ($timeType = $pmString)
             #elseif ($timer>12)
-                #set ($timeType = "PM")
+                #set ($timeType = $pmString)
                 #set($temp = $timer)
                 #set($timer = $timer - 12)
             #end

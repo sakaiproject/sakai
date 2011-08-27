@@ -2422,6 +2422,10 @@ extends VelocityPortletStateAction
 		TimeZone timeZone = TimeService.getLocalTimeZone();
 		context.put("timezone", timeZone.getDisplayName(timeZone.inDaylightTime(new Date()), TimeZone.SHORT) );
 		
+		//the AM/PM strings
+		context.put("amString", CalendarUtil.getLocalAMString());
+		context.put("pmString", CalendarUtil.getLocalPMString());
+		
 		// group realted variables
 		context.put("siteAccess", CalendarEvent.EventAccess.SITE);
 		context.put("groupAccess", CalendarEvent.EventAccess.GROUPED);

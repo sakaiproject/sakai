@@ -22,17 +22,24 @@
 package org.sakaiproject.util;
 
 import java.text.DateFormat;
-import java.util.TimeZone;
 import java.util.Calendar;
-import java.util.Locale;
 import java.util.Date;
-import org.sakaiproject.util.ResourceLoader;
+import java.util.Locale;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.DateTimeFormatterBuilder;
 
 /**
 * <p>CalendarUtil is a bunch of utility methods added to a java Calendar object.</p>
 */
 public class CalendarUtil
 {	
+	/** Our logger. */
+	private static Log M_log = LogFactory.getLog(CalendarUtil.class);
+	
 	/** The calendar object this is based upon. */
 	Calendar m_calendar = null;
 	DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
@@ -365,4 +372,31 @@ public class CalendarUtil
 		return m_calendar.getTime();
 
 	}
+	
+	/**
+	 * Get the String representing AM in the users Locale 
+	 * @return
+	 */
+	public static String getLocalAMString() {
+		M_log.info("getLocalAMString()");
+		
+		//we need an AM date
+		DateTime dt = new DateTime().withTime(1, 0, 0, 0);
+		DateTimeFormatter df = new DateTimeFormatterBuilder().appendHalfdayOfDayText().toFormatter().withLocale(new ResourceLoader("calendar").getLocale());
+		return df.print(dt);
+	}
+	
+	/**
+	 * Get the string representing PM in the users Locale
+	 * @return
+	 */
+	public static String getLocalPMString() {
+		M_log.info("getLocalPMString()");
+
+		//we need an PM date
+		DateTime dt = new DateTime().withTime(14, 0, 0, 0);
+		DateTimeFormatter df = new DateTimeFormatterBuilder().appendHalfdayOfDayText().toFormatter().withLocale(new ResourceLoader("calendar").getLocale());
+		return df.print(dt);
+	}
+	
 }	 // CalendarUtil
