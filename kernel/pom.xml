@@ -479,12 +479,6 @@
                 <version>2.4</version>
                 <scope>provided</scope>
             </dependency>
-            <dependency>
-                <groupId>commons-el</groupId>
-                <artifactId>commons-el</artifactId>
-                <version>1.0</version>
-                <scope>provided</scope>
-            </dependency>
             <!-- parser API inconsistancies -->
             <!-- force this version where used  -->
             <dependency>
