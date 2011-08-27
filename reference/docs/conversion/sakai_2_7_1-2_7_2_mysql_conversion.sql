@@ -19,3 +19,6 @@ alter table PROFILE_IMAGES_T modify RESOURCE_THUMB text not null;
 
 alter table PROFILE_IMAGES_EXTERNAL_T modify URL_MAIN text not null;
 alter table PROFILE_IMAGES_EXTERNAL_T modify URL_THUMB text;
+
+-- SAK-19448
+alter table EMAIL_TEMPLATE_ITEM modify HTMLMESSAGE LONGTEXT;
