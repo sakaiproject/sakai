@@ -100,18 +100,11 @@ function resizeiframe(id) {
                   <a href="#" rsf:id="helpbutton" target="_blank"><img src="/library/skin/default/images/help.gif" style="margin-left:4px; margin-top:3px"/></a>
                   </div>
 		  <span class="title" rsf:id="pagetitle"></span>
-		  <span class="nextprev" style="vertical-align:20%"> <a href="#" rsf:id="prev" class="usebutton nextprev">next</a> <a href="#" rsf:id="next" class="usebutton nextprev">next</a> </span>
+		  <span class="nextprev"> <a href="#" rsf:id="prev" class="usebutton nextprev">next</a> <a href="#" rsf:id="next" class="usebutton nextprev">next</a> </span>
 		  
-		  <span rsf:id="gradingSpan" style="float:right; position:relative; left:-40%; *top:-2em;">
-		  		<a href="#" rsf:id="gradingBack" style="margin-right:2px;" class="usebutton">&#60;</a>
-		  
-		  		<img class="statusImg" src="$context/images/no-status.png" id="statusImg" height="16px" width="16px" alt=""></img>
-		  		<span rsf:id="msg=simplepage.comments-points"></span><span style="display:none" class="uuidBox" rsf:id="commentsUUID"></span>
-		  		<span style="display:none" class="pointsSpan" rsf:id="commentPoints"></span>
-		  		<input id="studentPointsBox" type="text" size="3"></input>
-		  		<a class="usebutton" href="#" rsf:id="msg=simplepage.submit" id="submit-grading"></a>
-		  		
-		  		<a href="#" rsf:id="gradingForward" style="margin-left:25px;" class="usebutton">&#62;</a>
+		  &nbsp;
+		  <span rsf:id="gradingSpan" class="gradingarea">
+		  		<a href="#" rsf:id="gradingBack" style="margin-right:2px;" class="usebutton">&#60;</a><img class="statusImg" src="$context/images/no-status.png" id="statusImg" height="16px" width="16px" alt=""></img><span style="*vertical-align:13%"  rsf:id="msg=simplepage.comments-points"></span><span style="display:none" class="uuidBox" rsf:id="commentsUUID"></span><span style="display:none" class="pointsSpan" rsf:id="commentPoints"></span> <input id="studentPointsBox" type="text" style="font-size:100%"  size="3"></input> <a class="usebutton" href="#" rsf:id="msg=simplepage.submit" style="*vertical-align:13%;margin-right:.5em" id="submit-grading"></a> <a href="#" rsf:id="gradingForward" class="usebutton">&#62;</a>
 		  </span>
 		</div>
 		
