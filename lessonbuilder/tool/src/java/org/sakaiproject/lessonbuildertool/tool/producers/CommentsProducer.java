@@ -143,6 +143,11 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 				}
 			}
 			
+			// Make sure we don't show the grading message if there's nothing to grade.
+			if(comments.size() == 0) {
+				showGradingMessage = false;
+			}
+			
 			boolean editable = false;
 			
 			if(comments.size() <= 5 || params.showAllComments || params.filter) {
