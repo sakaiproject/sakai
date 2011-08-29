@@ -53,7 +53,7 @@ var setupMenus = function(){
         $(this).parent('td').find('.actionPanel').css({
             'position': 'absolute',
             'left': pos.left - 200,
-            'top': pos.top + 30
+            'top': pos.top + 15
         }).toggle();
     });
     
@@ -79,9 +79,9 @@ var setupLinks = function(){
             var assigURL = '/direct/assignment/' + action.substring(0, 36) + '.json';
             jQuery.getJSON(assigURL, function(data){
                 var results = '<div id=\"metaDataMain\">' + '<strong>' + langdata.due + '</strong> ' + data.dueTimeString + ' (' + langdata.postedBy + data.authorLastModified + ')' + '</div>';
-                results = results + '<div id=\"metaDataGradSub\">' + resolveTypeOfGrade(data.content.typeOfGrade) + ', ' + resolveTypeOfSubmission(data.content.typeOfSubmission) + resolveMaxGradePointDisplay(data.content.maxGradePointDisplay) + '</div>'
-                results = results + '<div id=\"description\">' + resolveInstructions(data.content.instructions) + '</div>'
-                results = results + '<div id=\"link\">' + '<a target ="_top" href=' + link + '>' + langdata.seemore + '</a>' + '</div>'
+                results = results + '<div id=\"metaDataGradSub\">' + resolveTypeOfGrade(data.content.typeOfGrade) + ', ' + resolveTypeOfSubmission(data.content.typeOfSubmission) + resolveMaxGradePointDisplay(data.content.maxGradePointDisplay) + '</div>';
+                results = results + '<div id=\"description\">' + resolveInstructions(data.content.instructions) + '</div>';
+                results = results + '<div id=\"link\">' + '<a target ="_top" href=' + link + '>' + langdata.seemore + '</a>' + '</div>';
                 $("#dialog").html(results);
             });
             $("#dialog").dialog({
@@ -91,24 +91,64 @@ var setupLinks = function(){
                 title: title,
                 dialogClass: 'smallDiag',
                 close: function(event, ui){
-                    console.log('closing');
                     $('#dialog >  *').remove();
-                },
-            
+                }
+                
             });
             
         }
         else {
             if (itemType === "announcement" || $(this).attr('href').indexOf('announcement') !== -1) {
                 var annURL = link;
-                $('#dialog').load(link + ' table, p')
+                
+                /*
+                 md table has no border, and is he first one in the responseText
+                 attachments is the last paragraph, following a paragraph with only a bold child
+                 */
+                $.ajax({
+                    url: annURL,
+                    dataType: 'html',
+                    success: function(data){
+                        // this is really perverse
+                        $('#dialogDum').empty();
+                        $('#dialogDum').append(data);
+                        var linkList ="";
+                        var md = $('#dialogDum').find('table').eq(0);
+                        $('#dialogDum').find('table').eq(0).remove();
+                        $('#dialogDum').find('h1').remove()
+                        $('#dialogDum').find('meta').remove()
+                        $('#dialogDum').find('style').remove()
+                        $('#dialogDum').find('title').remove()
+                        
+                        var content = $('#dialogDum').contents();
+                        $('#dialog').append((md).find('td').eq(3).text() + ' (' + (md).find('td').eq(1).text() + ')')
+                        $('#dialog').append('<hr>')
+                        $('#dialog').append(content)
+                        if ($('#dialog').find('p').eq(-2).children('b').length === 1) {
+                            $('#dialog').append('<ul class=\"attachList\"></ul')
+                            $('#dialog').find('p').eq(-1).children('a').each(function(i){
+                                var urlArr = $(this).text().split('/')
+                                var anchorText = urlArr[urlArr.length-1]
+                                linkList = linkList + '<li><a href=\"' + $(this).attr('href') + '\">' + anchorText + '</a></li>';
+                            })
+                        $('#dialog').find('p').eq(-1).remove();
+                        $('#dialog').find('.attachList').append((linkList))
+
+                        }
+                        
+                    },
+                    failure: function(){
+                    
+                    }
+                    
+                });
+                
                 $("#dialog").dialog({
                     modal: true,
                     width: 400,
                     height: 200,
                     title: title,
                     close: function(event, ui){
-                        console.log('closing');
                         $('#dialog >  *').remove();
                     },
                     dialogClass: 'smallDiag'
@@ -164,13 +204,13 @@ var resolveMaxGradePointDisplay = function(maxGradePointDisplay){
 };
 var resolveInstructions = function(instructions){
     if (instructions !== '') {
-        return ('<hr>' + instructions)
+        return ('<hr>' + instructions);
     }
     else {
-        return (langdata.noinstructions)
+        return (langdata.noinstructions);
     }
     
-}
+};
 var setupLang = function(){
     langdata = eval('(' + $('#lang-holder').text() + ')');
 };
@@ -183,6 +223,6 @@ var setupIcons = function(){
     });
     function getFileExtension(filename){
         var ext = /^.+\.([^.]+)$/.exec(filename);
-        return ext == null ? "" : ext[1].toLowerCase();
+        return ext === null ? "" : ext[1].toLowerCase();
     }
-}
+};

@@ -126,25 +126,26 @@ h3.withNav{
     text-decoration:none;
 }
 .smallDiag{font-size:90% !important}
-.smallDiag h1{
-    display:none
-}
 .smallDiag table{
-    width:auto
+    width:auto;
 }
+.smallDiag table td{
+    padding:1px;
+}    
 #metaDataMain,#metaDataGradSub,#description,#link{
     padding:5px 0;
 }
 #metaDataGradSub{
     font-size:90%    
 }
-#description{
-    
-}
 #link{
     text-align:right;
 }
 
+ul.attachList li{
+    background:transparent url(../../../../library/image/sakai/attachments.gif) center left no-repeat; 
+    padding-left:20px;
+}
 
 /*file listings*/
 
