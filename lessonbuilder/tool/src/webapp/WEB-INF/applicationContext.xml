@@ -138,6 +138,7 @@
     <property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
     <property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
     <property name="lessonBuilderAccessAPI" ref="org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI" />
+	<property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
   </bean>
 
   <bean class="org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService"

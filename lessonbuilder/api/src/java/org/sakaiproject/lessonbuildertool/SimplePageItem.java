@@ -160,6 +160,10 @@ public interface SimplePageItem {
     
     public Integer getGradebookPoints();
     
+    public void setGradebookTitle(String gradebookTitle);
+    
+    public String getGradebookTitle();
+    
     public void setAltGradebook(String gradebookId);
     
     public String getAltGradebook();
@@ -168,4 +172,7 @@ public interface SimplePageItem {
     
     public Integer getAltPoints();
 
+    public void setAltGradebookTitle(String gradebookTitle);
+    
+    public String getAltGradebookTitle();
 }

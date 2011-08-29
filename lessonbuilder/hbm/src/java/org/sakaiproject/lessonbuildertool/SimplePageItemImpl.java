@@ -84,11 +84,13 @@ public class SimplePageItemImpl implements SimplePageItem  {
 
 	private String gradebookId; // If a gradebook entry exists, this is the external ID
 	private Integer gradebookPoints; // Max number of points, if gradebook entry exists
+	private String gradebookTitle;
 	
 	// Occasionally there may be two gradebook entries, these are used for that.
 	// For example, grading comments on student pages.
 	private String altGradebook;
 	private Integer altPoints;
+	private String altGradebookTitle;
 	
 	public SimplePageItemImpl() {
 
@@ -440,6 +442,14 @@ public class SimplePageItemImpl implements SimplePageItem  {
 		return gradebookPoints;
 	}
 	
+	public void setGradebookTitle(String gradebookTitle) {
+		this.gradebookTitle = gradebookTitle;
+	}
+    
+    public String getGradebookTitle() {
+    	return gradebookTitle;
+    }
+	
 	public void setAltGradebook(String gradebookId) {
 		this.altGradebook = gradebookId;
 	}
@@ -455,4 +465,12 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	public Integer getAltPoints() {
 		return altPoints;
 	}
+	
+	public void setAltGradebookTitle(String gradebookTitle) {
+		this.altGradebookTitle = gradebookTitle;
+	}
+    
+    public String getAltGradebookTitle() {
+    	return altGradebookTitle;
+    }
 }

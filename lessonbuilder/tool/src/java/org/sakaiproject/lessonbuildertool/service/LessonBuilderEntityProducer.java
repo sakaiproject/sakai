@@ -24,86 +24,64 @@
 
 package org.sakaiproject.lessonbuildertool.service;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Serializable;                                                    
-
+import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.HashSet;
 import java.util.Stack;
 import java.util.Vector;
-import java.util.Locale;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Date;
-import java.util.Arrays;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.cover.EntityManager;
-import org.sakaiproject.entity.api.EntityNotDefinedException;
-import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Statisticable;
-import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
-import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Statisticable;
+import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
+import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
+import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.time.cover.TimeService;
-import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.StringUtil;
-import org.sakaiproject.util.Web;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.assignment.api.Assignment;
-import org.sakaiproject.assignment.cover.AssignmentService;
+import org.sakaiproject.util.Xml;
+import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Attr;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.SecurityService;
-
-import org.sakaiproject.lessonbuildertool.SimplePage;
-import org.sakaiproject.lessonbuildertool.SimplePageItem;
-import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
-import org.sakaiproject.lessonbuildertool.service.LessonEntity;
-import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
-import org.sakaiproject.util.Xml;
 
 /**
  * @author hedrick
@@ -159,6 +137,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
    private Pattern pathPattern;
 
+   private GradebookIfc gradebookIfc;
+   public void setGradebookIfc(GradebookIfc gradebookIfc) {
+	   this.gradebookIfc = gradebookIfc;
+   }
 
    public void init() {
       logger.info("init()");
@@ -368,8 +350,16 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		addAttr(doc, itemElement, "showComments", item.getShowComments() ? "true" : "false");
 		addAttr(doc, itemElement, "forcedCommentsAnonymous", item.getForcedCommentsAnonymous() ? "true" : "false");
 		addAttr(doc, itemElement, "groups", item.getGroups());
+		addAttr(doc, itemElement, "gradebookId", item.getGradebookId());
+		addAttr(doc, itemElement, "gradebookPoints", String.valueOf(item.getGradebookPoints()));
+		addAttr(doc, itemElement, "gradebookTitle", item.getGradebookTitle());
+		addAttr(doc, itemElement, "altGradebook", item.getAltGradebook());
+		addAttr(doc, itemElement, "altPoints", String.valueOf(item.getAltPoints()));
+		addAttr(doc, itemElement, "altGradebookTitle", item.getAltGradebookTitle());
+		
 		if (item.isSameWindow() != null)
 		    addAttr(doc, itemElement, "samewindow", item.isSameWindow() ? "true" : "false");
+		
 
 		//		if (item.getType() == SimplePageItem.PAGE)
 		//		    addPage(doc, itemElement, new Long(item.getSakaiId()));
@@ -621,7 +611,52 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		   s = itemElement.getAttribute("samewindow");
 		   if (s != null)
 		       item.setSameWindow(s.equals("true"));
+		   s = itemElement.getAttribute("anonymous");
+		   if (s != null)
+		       item.setAnonymous(s.equals("true"));
+		   s = itemElement.getAttribute("showComments");
+		   if (s != null)
+		       item.setShowComments(s.equals("true"));
+		   s = itemElement.getAttribute("forcedCommentsAnonymous");
+		   if (s != null)
+		       item.setForcedCommentsAnonymous(s.equals("true"));
+		   
+		   
+		   s = itemElement.getAttribute("gradebookTitle");
+		   if (s != null)
+		       item.setGradebookTitle(s);
+		   s = itemElement.getAttribute("altGradebookTitle");
+		   if (s != null)
+		       item.setAltGradebookTitle(s);
+		   
+		   
+		   s = itemElement.getAttribute("gradebookPoints");
+		   if (s != null && !s.equals("null"))
+		       item.setGradebookPoints(Integer.valueOf(s));
+		   s = itemElement.getAttribute("altPoints");
+		   if (s != null && !s.equals("null"))
+		       item.setAltPoints(Integer.valueOf(s));
 
+		   s = itemElement.getAttribute("gradebookId");
+		   if (s != null && !s.equals("null") && !s.equals("")) {
+			   String title = item.getGradebookTitle();
+			   if(title == null || title.equals("null") || title.equals("")) {
+				   title = s;
+			   }
+			   gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("gradebookPoints")), null, "Lesson Builder");
+			   item.setGradebookId(s);
+		   }
+		   
+		   s = itemElement.getAttribute("altGradebook");
+		   if (s != null && !s.equals("null") && !s.equals("")) {
+			   String title = item.getAltGradebookTitle();
+			   if(title == null || title.equals("null") || title.equals("")) {
+				   title = s;
+			   }
+			   gradebookIfc.addExternalAssessment(siteId, s, null, title, Double.valueOf(itemElement.getAttribute("altPoints")), null, "Lesson Builder");
+			   item.setAltGradebook(s);
+		   }
+		   
 		   // not currently doing this, although the code has been tested.
 		   // The problem is that other tools don't do it. Since much of our group
 		   // awareness comes from the other tools, enabling this produces

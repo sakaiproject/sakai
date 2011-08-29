@@ -171,7 +171,7 @@
     </bean>
 
     <bean class="org.sakaiproject.lessonbuildertool.tool.producers.IFrameWindowProducer" >
-	<property name="simplePageBean" ref="simplePageBean" />
+		<property name="simplePageBean" ref="simplePageBean" />
     </bean>
     
     <bean class="org.sakaiproject.lessonbuildertool.tool.producers.CommentsProducer" >

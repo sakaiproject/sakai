@@ -41,8 +41,10 @@
 	
 	<property name="gradebookId" type="string" length="35" />
 	<property name="gradebookPoints" type="integer" />
+	<property name="gradebookTitle" type="string" length="200" />
 	<property name="altGradebook" type="string" length="35" />
 	<property name="altPoints" type="integer" />
+	<property name="altGradebookTitle" type="string" length="200" />
 
    </class>
 </hibernate-mapping>

@@ -4651,6 +4651,7 @@ public class SimplePageBean {
 						
 						gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:comment:" + comment.getId(), null,
 								pageTitle + " Comments (item:" + comment.getId() + ")", Integer.valueOf(maxPoints), null, "Lesson Builder");
+						comment.setGradebookTitle(pageTitle + " Comments (item:" + comment.getId() + ")");
 					}else {
 						// Must be a student page comments tool.
 						SimpleStudentPage studentPage = simplePageToolDao.findStudentPage(Long.valueOf(comment.getSakaiId()));
@@ -4661,12 +4662,12 @@ public class SimplePageBean {
 						
 					}
 					
-					comment.setGradebookId("lesson-builder:comment:" + comment.getId());
+					comment.setGradebookId(gradebookId);
 					regradeComments(comment);
 				}
 				
 				comment.setGradebookPoints(points);
-			}else if(comment.getGradebookId() != null) {
+			}else if(comment.getGradebookId() != null && comment.getPageId() >= 0) {
 				gradebookIfc.removeExternalAssessment(getCurrentSiteId(), comment.getGradebookId());
 				comment.setGradebookId(null);
 				comment.setGradebookPoints(null);
@@ -4869,6 +4870,7 @@ public class SimplePageBean {
 					gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null,
 							simplePageToolDao.getPage(page.getPageId()).getTitle() + " Student Pages (item:" + page.getId() + ")", Integer.valueOf(maxPoints), null, "Lesson Builder");
 					page.setGradebookId("lesson-builder:page:" + page.getId());
+					page.setGradebookTitle(simplePageToolDao.getPage(page.getPageId()).getTitle() + " Student Pages (item:" + page.getId() + ")");
 					regradeStudentPages(page);
 					//regradeComments(comment);
 				}
@@ -4895,9 +4897,11 @@ public class SimplePageBean {
 				}
 				
 				if(page.getAltGradebook() == null || !page.getAltPoints().equals(points)) {
+					String title = simplePageToolDao.getPage(page.getPageId()).getTitle() + " Student Page Comments (item:" + page.getId() + ")";
 					gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page-comment:" + page.getId(), null,
-							simplePageToolDao.getPage(page.getPageId()).getTitle() + " Student Page Comments (item:" + page.getId() + ")", points, null, "Lesson Builder");
+							title, points, null, "Lesson Builder");
 					page.setAltGradebook("lesson-builder:page-comment:" + page.getId());
+					page.setAltGradebookTitle(title);
 					
 					regradeStudentPageComments(page);
 				}
