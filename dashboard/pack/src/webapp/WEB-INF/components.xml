@@ -19,9 +19,9 @@
 		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
 		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
 		
-	</bean>    	
- 
-    <bean id="org.sakaiproject.dash.logic.DashboardLogic" 
+	</bean>
+	
+	<bean id="org.sakaiproject.dash.logic.DashboardLogic" 
     	class="org.sakaiproject.dash.logic.DashboardLogicImpl"
     	init-method="init">
     	<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy"></property>
@@ -39,7 +39,8 @@
 					<ref bean="javax.sql.DataSource" />
 				</constructor-arg>
 			</bean>
-		</property>	
+		</property>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />	
 	</bean>
 	
 	<!-- Cache: ttl=1 hour -->
@@ -103,6 +104,20 @@
 	
 	<bean id="org.sakaiproject.dash.listener.AnnouncementRemoveOwnEventProcessor" 
 		class="org.sakaiproject.dash.listener.AnnouncementRemoveOwnEventProcessor" 
+		init-method="init">
+		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
+    	<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy"></property>
+	</bean>
+	
+	<bean id="org.sakaiproject.dash.listener.SiteMembershipNewEventProcessor" 
+		class="org.sakaiproject.dash.listener.SiteMembershipNewEventProcessor" 
+		init-method="init">
+		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
+    	<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy"></property>
+	</bean>
+	
+	<bean id="org.sakaiproject.dash.listener.SiteMembershipRemoveEventProcessor" 
+		class="org.sakaiproject.dash.listener.SiteMembershipRemoveEventProcessor" 
 		init-method="init">
 		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
     	<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy"></property>
