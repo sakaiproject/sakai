@@ -1092,7 +1092,7 @@ $(function() {
 	};
 	
 	var dropdownConfig = {	
-			interval: 200,
+			interval: 0,
 			sensitivity: 7,
 			over: menuAddHighlight,
 			timeout: 700,
@@ -1311,7 +1311,7 @@ var hasBeenInMenu = false;
 
 function menuAddHighlight() {
     hasBeenInMenu = true;
-    addHighLight();
+    addHighlight();
 }
 
 function buttonRemoveHighlight() {
