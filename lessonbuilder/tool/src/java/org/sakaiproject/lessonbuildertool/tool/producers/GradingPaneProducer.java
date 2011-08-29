@@ -54,20 +54,16 @@ public class GradingPaneProducer implements ViewComponentProducer, ViewParamsRep
 		this.messageLocator = messageLocator;
 	}
 	
-	private class SimpleUser implements Comparable {
+	private class SimpleUser implements Comparable<SimpleUser> {
 		public String displayName;
 		public String userId;
 		public int postCount = 0;
 		public Double grade;
-		public String uuid = null; // The UUID of a comment, doesn't matter which
+		public String uuid = null; // The UUID of a comment, doesn't matter which, so that we can apply grading
 		public ArrayList<Long> pages = new ArrayList<Long>();
 		
-		public int compareTo(Object o) {
-			if(o instanceof SimpleUser) {
-				return displayName.compareTo(((SimpleUser)o).displayName);
-			}else {
-				return 1;
-			}
+		public int compareTo(SimpleUser user) {
+			return displayName.compareTo(user.displayName);
 		}
 	}
 
@@ -106,7 +102,10 @@ public class GradingPaneProducer implements ViewComponentProducer, ViewParamsRep
 			
 			List<Long> commentsItemIds = new ArrayList<Long>();
 			for(SimpleStudentPage p : studentPages) {
-				commentsItemIds.add(p.getCommentsSection());
+				// If the page is deleted, don't show the comments
+				if(!p.isDeleted()) {
+					commentsItemIds.add(p.getCommentsSection());
+				}
 			}
 			
 			comments = simplePageToolDao.findCommentsOnItems(commentsItemIds);

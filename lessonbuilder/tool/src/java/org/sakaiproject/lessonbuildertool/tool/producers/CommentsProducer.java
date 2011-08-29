@@ -83,7 +83,10 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 				
 				List<Long> commentsItemIds = new ArrayList<Long>();
 				for(SimpleStudentPage p : studentPages) {
-					commentsItemIds.add(p.getCommentsSection());
+					// If the page is deleted, don't show the comments
+					if(!p.isDeleted()) {
+						commentsItemIds.add(p.getCommentsSection());
+					}
 				}
 				
 				comments = simplePageToolDao.findCommentsOnItemsByAuthor(commentsItemIds, params.author);
