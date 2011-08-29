@@ -32,7 +32,7 @@ should be included in file importing DeliveryMessages
 <h:panelGroup rendered="#{delivery.actionString=='takeAssessment' 
                        || delivery.actionString=='takeAssessmentViaUrl'}">
   <h:outputText escape="false" value="#{deliveryMessages.upload_instruction} " />
-  <h:outputText escape="false" value=" (#{delivery.fileUploadSizeMax} #{deliveryMessages.file_limit}) <br />" styleClass="validate"/>
+  <h:outputText escape="false" value=" (#{deliveryMessages.max_file_size} #{delivery.fileUploadSizeMax}#{deliveryMessages.unit}) <br />" styleClass="validate"/>
 
   <h:outputText value="#{deliveryMessages.file} " />
   <!-- note that target represent the location where the upload medis will be temporarily stored -->

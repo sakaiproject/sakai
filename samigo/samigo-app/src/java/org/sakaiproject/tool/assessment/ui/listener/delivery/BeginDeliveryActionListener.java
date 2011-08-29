@@ -144,7 +144,7 @@ public class BeginDeliveryActionListener implements ActionListener
     	sizeMax = Long.parseLong(paramValue);
     	sizeMax_float = sizeMax.floatValue()/1024;
     }
-    delivery.setFileUploadSizeMax(sizeMax_float);
+    delivery.setFileUploadSizeMax(Math.round(sizeMax_float));
     delivery.setPublishedAssessment(pub);
     
     // populate backing bean from published assessment

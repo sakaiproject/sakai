@@ -38,13 +38,15 @@
  <!-- content... -->
  <h:form id="importAssessmentForm" enctype="multipart/form-data">
     <h3><h:outputText  value="#{authorImportExport.import_a}" /></h3>
+
     <div class="tier1">
-     <div class="form_label">
-      <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
-      <h:outputText value="#{authorImportExport.import_instructions}"/>
-    </div>
-    <br />
-   <div class="tier2">
+     <div class="tier2">
+      <div class="form_label">
+       <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
+       <h:outputText value="#{authorImportExport.import_instructions}" escape="false"/>
+      </div>
+      <br />
+
    <h:panelGrid columns="1">
      <h:panelGroup>
        <h:outputLabel  styleClass="form_label" value="#{authorImportExport.choose_file} "/>
@@ -68,7 +70,8 @@
     <br/>
     <br/>
      <%-- activates the valueChangeListener --%>
-     <h:commandButton value="#{authorImportExport.import_action}" type="submit" style="act" action="author"/>
+     <h:commandButton value="#{authorImportExport.import_action}" type="submit"
+       style="act" action="#{author.getImportOutcome}" />
      <%-- immediate=true bypasses the valueChangeListener --%>
      <h:commandButton value="#{commonMessages.cancel_action}" type="submit"
        style="act" action="author" immediate="true"/>

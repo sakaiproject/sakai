@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.text.MessageFormat;
 
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
@@ -37,11 +38,13 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.servlet.ServletContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.contentpackaging.ImportService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -106,15 +109,38 @@ public class XMLImportBean implements Serializable
   {
 	  String sourceType = ContextUtil.lookupParam("sourceType");
 	  String uploadFile = (String) e.getNewValue();
+
+	  if (uploadFile!= null && uploadFile.startsWith("SizeTooBig:")) {
+		  String paramValue = ServerConfigurationService.getString("samigo.sizeMax");
+		  Long sizeMax = null;
+		  float sizeMax_float = 0f;
+		  if (paramValue != null) {
+			  sizeMax = Long.parseLong(paramValue);
+			  sizeMax_float = sizeMax.floatValue()/1024;
+		  } 
+		  int sizeMax_int = Math.round(sizeMax_float);
+		  ResourceLoader rb =new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
+		  String sizeTooBigMessage = MessageFormat.format(rb.getString("import_size_too_big"), uploadFile.substring(11), sizeMax_int);
+	      FacesMessage message = new FacesMessage(sizeTooBigMessage);
+	      FacesContext.getCurrentInstance().addMessage(null, message);
+	      // remove unsuccessful file
+	      log.debug("****Clean up file:"+uploadFile);
+	      File upload = new File(uploadFile);
+	      upload.delete();
+	      authorBean.setImportOutcome("importAssessment");
+	      return;
+	  }
+	  authorBean.setImportOutcome("author");
+  
 	  if ("2".equals(sourceType)) {
-		  if(uploadFile.toLowerCase().endsWith(".zip")) {
-			  isCP = true;
-			  importAssessment(uploadFile, true, true);
-		  }
-		  else {
-			  isCP = false;
-			  importAssessment(uploadFile, false, true);
-		  }
+	    if(uploadFile.toLowerCase().endsWith(".zip")) {
+		  isCP = true;
+		  importAssessment(uploadFile, true, true);
+	    }
+	    else {
+		  isCP = false;
+		  importAssessment(uploadFile, false, true);
+	    }
 	  }
 	  else {
 		  if(uploadFile.toLowerCase().endsWith(".zip")) {

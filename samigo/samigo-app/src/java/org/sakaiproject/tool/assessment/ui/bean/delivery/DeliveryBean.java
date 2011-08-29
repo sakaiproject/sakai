@@ -249,7 +249,7 @@ public class DeliveryBean
   private Long assessmentGradingId;
   
   private boolean fromTableOfContents;
-  private float fileUploadSizeMax;
+  private int fileUploadSizeMax;
   private boolean studentRichText;
   
   // If set to true, delivery of the assessment is blocked.
@@ -3230,12 +3230,12 @@ public class DeliveryBean
 	    return s;
 	  }
 	  
-	  public void setFileUploadSizeMax(float fileUploadSizeMax)
+	  public void setFileUploadSizeMax(int fileUploadSizeMax)
 	  {
 	    this.fileUploadSizeMax = fileUploadSizeMax;
 	  }
 	  
-	  public float getFileUploadSizeMax()
+	  public int getFileUploadSizeMax()
 	  {
 	      return fileUploadSizeMax;
 	  }	  

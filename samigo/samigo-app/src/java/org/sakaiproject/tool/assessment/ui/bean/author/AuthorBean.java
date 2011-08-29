@@ -78,6 +78,7 @@ public class AuthorBean implements Serializable
   private boolean inactivePublishedAscending = true;
   private String outcome;
   private String selectActionOutcome;
+  private String importOutcome;
   private boolean showTemplateList;
   private boolean isEditPendingAssessmentFlow = true;
   private String fromPage;
@@ -515,6 +516,16 @@ public class AuthorBean implements Serializable
   public void setSelectActionOutcome(String selectActionOutcome)
   {
     this.selectActionOutcome = selectActionOutcome;
+  }
+  
+  public String getImportOutcome()
+  {
+    return importOutcome;
+  }
+
+  public void setImportOutcome(String importOutcome)
+  {
+    this.importOutcome = importOutcome;
   }
   
   public boolean getShowTemplateList()
