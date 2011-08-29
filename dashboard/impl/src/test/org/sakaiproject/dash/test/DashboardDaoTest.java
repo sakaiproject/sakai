@@ -3,6 +3,7 @@
  */
 package org.sakaiproject.dash.test;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -52,6 +53,11 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
      * test name like so: testMethodClassInt (for method(Class, int);
      */
 
+    /**
+     * This method actually depends on being able to save and retrieve objects of type
+     * Context, SourceType and CalendarItem. It then verifies that the retrieved items 
+     * have the same attribute values as the items that were saved.
+     */
 	public void testAddCalendarItem() {
 		Date calendarTime = new Date(System.currentTimeMillis() + ONE_DAY);
 		String title = getUniqueItdentifier();
@@ -87,8 +93,8 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		assertEquals(entityReference, calendarItem.getEntityReference());
 		
 		assertEquals(calendarTime.getTime(), calendarItem.getCalendarTime().getTime());
-		assertTrue(calendarTime.getTime() + TIME_DELTA > calendarItem.getCalendarTime().getTime());
-		assertTrue(calendarTime.getTime() - TIME_DELTA < calendarItem.getCalendarTime().getTime());
+		//assertTrue(calendarTime.getTime() + TIME_DELTA > calendarItem.getCalendarTime().getTime());
+		//assertTrue(calendarTime.getTime() - TIME_DELTA < calendarItem.getCalendarTime().getTime());
 		
 		assertNotNull(calendarItem.getContext());
 		assertEquals(contextId, calendarItem.getContext().getContextId());
@@ -99,6 +105,11 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		assertEquals(sourceTypeIdentifier, calendarItem.getSourceType().getIdentifier());
 	}
 
+    /**
+     * This method actually depends on being able to save and retrieve objects of type
+     * Context, SourceType, CalendarItem and CalendarLink. It then verifies that the 
+     * retrieved items have the same attribute values as the items that were saved.
+     */
 	public void testAddCalendarLink() {
 		Date calendarTime = new Date(System.currentTimeMillis() + ONE_DAY);
 		String title = getUniqueItdentifier();
@@ -149,14 +160,19 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 				assertNotNull(item.getSourceType());
 				assertEquals(sourceTypeIdentifier,item.getSourceType().getIdentifier());
 				assertEquals(calendarTime.getTime(), item.getCalendarTime().getTime());
-				assertTrue(calendarTime.getTime() + TIME_DELTA > calendarItem.getCalendarTime().getTime());
-				assertTrue(calendarTime.getTime() - TIME_DELTA < calendarItem.getCalendarTime().getTime());
+				//assertTrue(calendarTime.getTime() + TIME_DELTA > calendarItem.getCalendarTime().getTime());
+				//assertTrue(calendarTime.getTime() - TIME_DELTA < calendarItem.getCalendarTime().getTime());
 				break;
 			}
 		}
 		assertTrue(foundItem);
 	}
 
+    /**
+     * This method actually depends on being able to save and retrieve Context objects. 
+     * It then verifies that the retrieved items have the same attribute values as the 
+     * items that were saved.
+     */
 	public void testAddContext() {
 		String contextId = getUniqueItdentifier();
 		String contextTitle = getUniqueItdentifier();
@@ -174,6 +190,12 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		assertEquals(contextUrl, context.getContextUrl());
 	}
 
+	
+    /**
+     * This method actually depends on being able to save and retrieve objects of type
+     * Context, SourceType and NewsItem. It then verifies that the retrieved items 
+     * have the same attribute values as the items that were saved.
+     */
 	public void testAddNewsItem() {
 		Date eventTime = new Date(System.currentTimeMillis() - ONE_DAY);
 		String title = getUniqueItdentifier();
@@ -209,8 +231,8 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		assertEquals(entityReference, newsItem.getEntityReference());
 
 		assertEquals(eventTime.getTime(), newsItem.getNewsTime().getTime());
-		assertTrue(eventTime.getTime() + TIME_DELTA > newsItem.getNewsTime().getTime());
-		assertTrue(eventTime.getTime() - TIME_DELTA < newsItem.getNewsTime().getTime());
+		//assertTrue(eventTime.getTime() + TIME_DELTA > newsItem.getNewsTime().getTime());
+		//assertTrue(eventTime.getTime() - TIME_DELTA < newsItem.getNewsTime().getTime());
 		
 		assertNotNull(newsItem.getContext());
 		assertEquals(contextId, newsItem.getContext().getContextId());
@@ -221,6 +243,11 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		assertEquals(sourceTypeIdentifier, newsItem.getSourceType().getIdentifier());
 	}
 
+    /**
+     * This method actually depends on being able to save and retrieve objects of type
+     * Context, SourceType, NewsItem and newsLink. It then verifies that the retrieved 
+     * items have the same attribute values as the items that were saved.
+     */
 	public void testAddNewsLink() {
 		Date eventTime = new Date(System.currentTimeMillis() - ONE_DAY);
 		String title = getUniqueItdentifier();
@@ -277,6 +304,11 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		assertTrue(foundItem);
 	}
 
+    /**
+     * This method actually depends on being able to save and retrieve Person objects. 
+     * It then verifies that the retrieved items have the same attribute values as the 
+     * items that were saved.
+     */
 	public void testAddPerson() {
 		
 		String sakaiId = getUniqueItdentifier();
@@ -293,6 +325,11 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		assertEquals(userId,person.getUserId());
 	}
 
+    /**
+     * This method actually depends on being able to save and retrieve SourceType objects. 
+     * It then verifies that the retrieved items have the same attribute values as the 
+     * items that were saved.
+     */
 	public void testAddSourceType() {
 		String identifier = getUniqueItdentifier();
 		String accessPermission = getUniqueItdentifier();
@@ -307,6 +344,11 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		assertEquals(accessPermission,sourceType.getAccessPermission());
 	}
 
+    /**
+     * This method actually depends on being able to save and retrieve objects of type
+     * Context, SourceType and CalendarItem. It then deletes the CalendarItem and verifies 
+	 * that the deleted item can not longer be retrieved.
+     */
 	public void testDeleteCalendarItem() {
 		Date calendarTime = new Date(System.currentTimeMillis() + ONE_DAY);
 		String title = getUniqueItdentifier();
@@ -341,14 +383,112 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 	}
 
 	public void testDeleteCalendarLinksLong() {
-		Long calendarItemId;
+		Date calendarTime = new Date(System.currentTimeMillis() + ONE_DAY);
+		String title = getUniqueItdentifier();
+		String entityUrl = getUniqueItdentifier();
+		String entityReference = getUniqueItdentifier();
+		
+		String contextId = getUniqueItdentifier();
+		String contextTitle = getUniqueItdentifier();
+		String contextUrl = getUniqueItdentifier();
+		Context context = new Context(contextId, contextTitle, contextUrl );
+		dao.addContext(context);
+		context = dao.getContext(contextId);
+		
+		String sourceTypeIdentifier = getUniqueItdentifier();
+		String accessPermission = getUniqueItdentifier();
+		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission );
+		dao.addSourceType(sourceType);
+		sourceType = dao.getSourceType(sourceTypeIdentifier);
+
+		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
+			entityReference, entityUrl, context, sourceType);
+		dao.addCalendarItem(calendarItem);
+		calendarItem = dao.getCalendarItem(entityReference);
+		
+		String sakaiId = getUniqueItdentifier();
+		String userId = getUniqueItdentifier();
+		Person person = new Person(sakaiId, userId);
+		dao.addPerson(person);
+		person = dao.getPersonBySakaiId(sakaiId);
+		
+		CalendarLink link = new CalendarLink(person, calendarItem, context, false, false);
+		boolean saved = dao.addCalendarLink(link);
+		assertTrue(saved);
+		
+		List<CalendarItem> items = dao.getCalendarItems(sakaiId, contextId);
+		assertNotNull(items);
+		assertTrue(items.size() > 0);
+		
+		boolean foundItem = false;
+		List<Long> calendarItemIds = new ArrayList<Long>();
+		for(CalendarItem item : items) {
+			if(item.getEntityReference().equals(entityReference)) {
+				// we have found the one and only link for this user to this item
+				foundItem = true;
+				calendarItemIds.add(item.getId());
+				boolean deleted = dao.deleteCalendarLinks(item.getId());
+				assertTrue(deleted);
+			}
+		}
+		assertTrue(foundItem);
+		assertTrue(calendarItemIds.size() > 0);
+		
+		items = dao.getCalendarItems(sakaiId, contextId);
+		
+		assertTrue(items.size() == 0);
 	}
 
 	public void testDeleteCalendarLinksLongLong() {
-		Long personId;
-		Long contextId;
+		Date calendarTime = new Date(System.currentTimeMillis() + ONE_DAY);
+		String title = getUniqueItdentifier();
+		String entityUrl = getUniqueItdentifier();
+		String entityReference = getUniqueItdentifier();
+		
+		String contextId = getUniqueItdentifier();
+		String contextTitle = getUniqueItdentifier();
+		String contextUrl = getUniqueItdentifier();
+		Context context = new Context(contextId, contextTitle, contextUrl );
+		dao.addContext(context);
+		context = dao.getContext(contextId);
+		
+		String sourceTypeIdentifier = getUniqueItdentifier();
+		String accessPermission = getUniqueItdentifier();
+		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission );
+		dao.addSourceType(sourceType);
+		sourceType = dao.getSourceType(sourceTypeIdentifier);
+
+		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
+			entityReference, entityUrl, context, sourceType);
+		dao.addCalendarItem(calendarItem);
+		calendarItem = dao.getCalendarItem(entityReference);
+		
+		String sakaiId = getUniqueItdentifier();
+		String userId = getUniqueItdentifier();
+		Person person = new Person(sakaiId, userId);
+		dao.addPerson(person);
+		person = dao.getPersonBySakaiId(sakaiId);
+		
+		CalendarLink link = new CalendarLink(person, calendarItem, context, false, false);
+		boolean saved = dao.addCalendarLink(link);
+		assertTrue(saved);
+		
+		List<CalendarItem> items = dao.getCalendarItems(sakaiId, contextId);
+		assertNotNull(items);
+		assertTrue(items.size() > 0);
+		
+		boolean deleted = dao.deleteCalendarLinks(person.getId(), context.getId());
+		assertTrue(deleted);
+		items = dao.getCalendarItems(sakaiId, contextId);
+		
+		assertTrue(items.size() == 0);
 	}
 
+    /**
+     * This method actually depends on being able to save and retrieve objects of type
+     * Context, SourceType and NewsItem. It then deletes the NewsItem and verifies 
+	 * that the deleted item can not longer be retrieved.
+     */
 	public void testDeleteNewsItem() {
 		Long id;
 	}
@@ -533,8 +673,8 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		assertEquals(newTitle, calendarItem.getTitle());
 		
 		assertEquals(newTime.getTime(), calendarItem.getCalendarTime().getTime());
-		assertTrue(newTime.getTime() + TIME_DELTA > calendarItem.getCalendarTime().getTime());
-		assertTrue(newTime.getTime() - TIME_DELTA < calendarItem.getCalendarTime().getTime());
+		//assertTrue(newTime.getTime() + TIME_DELTA > calendarItem.getCalendarTime().getTime());
+		//assertTrue(newTime.getTime() - TIME_DELTA < calendarItem.getCalendarTime().getTime());
 	}
 
 	public void testUpdateCalendarItemTime() {
