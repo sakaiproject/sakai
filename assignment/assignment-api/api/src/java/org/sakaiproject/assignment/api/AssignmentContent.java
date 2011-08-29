@@ -185,4 +185,28 @@ public interface AssignmentContent extends Entity, AttachmentContainer
 	 * @return boolean - Is this AssignmentContent used by an Assignment.
 	 */
 	public boolean inUse();
+	
+	public String getSubmitReviewRepo();
+
+	public void setSubmitReviewRepo(String m_submitReviewRepo);
+
+	public String getGenerateOriginalityReport();
+
+	public void setGenerateOriginalityReport(String m_generateOriginalityReport);
+
+	public boolean isCheckTurnitin();
+
+	public void setCheckTurnitin(boolean m_checkTurnitin);
+
+	public boolean isCheckInternet();
+
+	public void setCheckInternet(boolean m_checkInternet);
+
+	public boolean isCheckPublications();
+
+	public void setCheckPublications(boolean m_checkPublications);
+
+	public boolean isCheckInstitution();
+
+	public void setCheckInstitution(boolean m_checkInstitution);
 }
