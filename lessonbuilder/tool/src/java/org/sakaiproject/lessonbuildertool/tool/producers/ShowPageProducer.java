@@ -632,6 +632,25 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				UIOutput.make(tofill, "commentPoints", String.valueOf((student.getPoints() != null? student.getPoints() : "")));
 			
 				List<SimpleStudentPage> studentPages = simplePageToolDao.findStudentPages(student.getItemId());
+				
+				Collections.sort(studentPages, new Comparator<SimpleStudentPage>() {
+					public int compare(SimpleStudentPage o1, SimpleStudentPage o2) {
+						String title1 = o1.getTitle();
+						if (title1 == null)
+							title1 = "";
+						String title2 = o2.getTitle();
+						if (title2 == null)
+							title2 = "";
+						return title1.compareTo(title2);
+				    }
+				});
+				
+				for(int in = 0; in < studentPages.size(); in++) {
+					if(studentPages.get(in).isDeleted()) {
+						studentPages.remove(in);
+					}
+				}
+				
 				int i = -1;
 			
 				for(int in = 0; in < studentPages.size(); in++) {
