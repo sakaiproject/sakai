@@ -277,6 +277,13 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 			}
 		}
 		
+		if(filter && simplePageBean.getEditPrivs() == 0) {
+			UIOutput.make(commentContainer, "contextSpan");
+			GeneralViewParameters eParams = new GeneralViewParameters(ShowPageProducer.VIEW_ID, comment.getPageId());
+			eParams.setPath("log");
+			UIInternalLink.make(commentContainer, "contextLink", messageLocator.getMessage("simplepage.show-context"), eParams);
+		}
+		
 		if(!comment.getHtml()) {
 			UIOutput.make(commentContainer, "comment", comment.getComment());
 		}else {

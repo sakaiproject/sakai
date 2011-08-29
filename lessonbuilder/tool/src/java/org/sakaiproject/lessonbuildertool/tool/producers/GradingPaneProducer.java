@@ -24,6 +24,7 @@ import uk.org.ponder.rsf.components.UIInitBlock;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.UIOutput;
+import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
@@ -166,6 +167,12 @@ public class GradingPaneProducer implements ViewComponentProducer, ViewParamsRep
 			
 			UIOutput.make(branch, "first-row");
 			UIOutput.make(branch, "details-row");
+			UIOutput detailsCell = UIOutput.make(branch, "details-cell");
+			if(params.studentContentItem) {
+				detailsCell.decorate(new UIFreeAttributeDecorator("colspan", "5"));
+			}else {
+				detailsCell.decorate(new UIFreeAttributeDecorator("colspan", "4"));
+			}
 			UIOutput.make(branch, "student-name", user.displayName);
 			UIOutput.make(branch, "student-total", String.valueOf(user.postCount));
 			

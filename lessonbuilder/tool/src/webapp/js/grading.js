@@ -1,10 +1,5 @@
 $(function() {
-	if (!(navigator.userAgent.indexOf("Firefox/2.") > 0)) {
-	    $('.usebutton').button({text:true});
-	} else {
-	    // fake it; can't seem to get rid of underline though
-	    $('.usebutton').css('border', '1px solid black').css('padding', '1px 4px').css('color', 'black');
-	}
+	makeButtons();
 	
 	$.ajaxSetup ({
 		cache: false
@@ -28,6 +23,8 @@ $(function() {
 					$(value).find(".replaceWithComments").load($(value).find(".commentsLink").attr("href"), function() {
 						var current = $(value);
 						var next = $(value).next().next();
+						
+						makeButtons();
 						
 						$(current).show();
 						
@@ -82,6 +79,15 @@ $(function() {
 function prefetchComments(value) {
 	// Prefetch the next one as well, so that it's ready when they need it.
 	if($(value).length > 0 && $(value).find(".replaceWithComments").children().length == 0) {
-		$(value).find(".replaceWithComments").load($(value).find(".commentsLink").attr("href"));
+		$(value).find(".replaceWithComments").load($(value).find(".commentsLink").attr("href"), makeButtons);
+	}
+}
+
+function makeButtons() {
+	if (!(navigator.userAgent.indexOf("Firefox/2.") > 0)) {
+	    $('.usebutton').button({text:true});
+	} else {
+	    // fake it; can't seem to get rid of underline though
+	    $('.usebutton').css('border', '1px solid black').css('padding', '1px 4px').css('color', 'black');
 	}
 }
