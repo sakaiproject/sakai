@@ -168,6 +168,9 @@ public class GradingPaneProducer implements ViewComponentProducer, ViewParamsRep
 			UIOutput.make(branch, "first-row");
 			UIOutput.make(branch, "details-row");
 			UIOutput detailsCell = UIOutput.make(branch, "details-cell");
+			
+			// Set the column span based on which type of item it is.  Student content
+			// items have an extra column, so we have to accommodate.
 			if(params.studentContentItem) {
 				detailsCell.decorate(new UIFreeAttributeDecorator("colspan", "5"));
 			}else {
@@ -180,7 +183,7 @@ public class GradingPaneProducer implements ViewComponentProducer, ViewParamsRep
 				UIOutput.make(branch, "student-unique", String.valueOf(user.pages.size()));
 			}
 			
-			
+			// Add the link that will be fetched using Ajax
 			CommentsViewParameters eParams = new CommentsViewParameters(CommentsProducer.VIEW_ID);
 			eParams.itemId = params.commentsItemId;
 			eParams.author = user.userId;
