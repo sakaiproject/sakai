@@ -40,6 +40,7 @@
  					<h:outputText value="#{msgs.syllabus_content}"/>
  				</label>
 				<sakai:inputRichText textareaOnly="#{SyllabusTool.mobileSession}" rows="20" cols="120" id="syllabus_compose_edit" value="#{SyllabusTool.syllabusDataAsset}" />
+			    <h:outputText value="#{msgs.empty_content_validate} #{SyllabusTool.evilTagMsg}" styleClass="alertMessage"  rendered="#{SyllabusTool.displayEvilTagMsg}"/>
  			</div>
 			<div class="checkbox indnt1">
 				<h:selectOneRadio value="#{SyllabusTool.syllabusDataView}" layout="pageDirection" styleClass="checkbox">
@@ -58,9 +59,6 @@
 									value="#{msgs.add_attach}"/>
 							</sakai:button_bar>
 							
-						<h:outputText value="" styleClass="alertMessage"  rendered="#{SyllabusTool.displayEvilTagMsg}"/>
-					    <h:outputText value="#{msgs.empty_content_validate} #{SyllabusTool.evilTagMsg}" styleClass="alertMessage"  rendered="#{SyllabusTool.displayEvilTagMsg}"/>
-
 					<syllabus:syllabus_table value="#{SyllabusTool.attachments}" var="eachAttach" summary="#{msgs.edit_att_list_summary}" styleClass="listHier lines nolines">
 					  <h:column rendered="#{!empty SyllabusTool.attachments}">
 							<f:facet name="header">
