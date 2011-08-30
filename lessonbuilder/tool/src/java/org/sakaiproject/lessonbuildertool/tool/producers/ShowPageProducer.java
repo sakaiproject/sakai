@@ -1151,7 +1151,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						UIOutput.make(tableRow, "description2", i.getDescription());
 
 					} else if ((youtubeKey = simplePageBean.getYoutubeKey(i)) != null) {
-						String youtubeUrl = "http://www.youtube.com/v/" + youtubeKey + "?version=3";
+						String youtubeUrl = "http://www.youtube.com/embed/" + youtubeKey;
 						// this is very odd. The official youtube embedding uses
 						// <OBJECT> with
 						// a stylesheet to specify size. But the only values
@@ -1194,19 +1194,18 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						// allowfullscreen="true" allowScriptAccess="always"
 						// width="640" height="390"></object>
 
-						item = UIOutput.make(tableRow, "youtubeObject");
+						item = UIOutput.make(tableRow, "youtubeIFrame");
 						// youtube seems ok with length and width
-						if (lengthOk(height) && lengthOk(width)) {
-							item.decorate(new UIFreeAttributeDecorator("style", getStyle(width, height)));
+						if(lengthOk(height)) {
+							item.decorate(new UIFreeAttributeDecorator("height", height.getOld()));
 						}
+						
+						if(lengthOk(width)) {
+							item.decorate(new UIFreeAttributeDecorator("width", width.getOld()));
+						}
+						
 						item.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.youtube_player")));
-
-						UIOutput.make(tableRow, "youtubeURLInject").decorate(new UIFreeAttributeDecorator("value", youtubeUrl));
-
-						item = UIOutput.make(tableRow, "youtubeEmbed").decorate(new UIFreeAttributeDecorator("type", "application/x-shockwave-flash")).decorate(new UIFreeAttributeDecorator("src", youtubeUrl));
-						if (lengthOk(height) && lengthOk(width)) {
-							item.decorate(new UIFreeAttributeDecorator("height", height.getOld())).decorate(new UIFreeAttributeDecorator("width", width.getOld()));
-						}
+						item.decorate(new UIFreeAttributeDecorator("src", youtubeUrl));
 
 						if (canEditPage) {
 							UIOutput.make(tableRow, "youtubeId", String.valueOf(i.getId()));
