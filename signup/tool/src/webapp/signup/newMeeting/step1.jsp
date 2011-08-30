@@ -247,7 +247,7 @@
 							</h:column>
 						</h:dataTable>
 		                   
-						<h:panelGroup>
+						<h:panelGroup rendered="#{NewSignupMeetingBean.otherSitesAvailability}">
 							<h:outputText value="<span id='imageOpen_otherSites' style='display:none'>"  escape="false"/>
 							<h:graphicImage value="/images/minus.gif"  alt="open" style="border:none;cursor:pointer;" styleClass="openCloseImageIcon" onclick="showDetails('imageOpen_otherSites','imageClose_otherSites','otherSites');" />
 							<h:outputText value="</span>" escape="false" />

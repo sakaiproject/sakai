@@ -195,6 +195,8 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	//discontinued time slots case
 	private List<TimeslotWrapper> customTimeSlotWrpList;
 	
+	private boolean otherSitesAvailability;
+	
 	private boolean userDefinedTS=false;
 	
 	private boolean sendEmailAttendeeOnly = false;
@@ -248,6 +250,16 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 	public void setCreatorUserId(String creatorUserId) {
 		this.creatorUserId = creatorUserId;
+	}
+	
+	public boolean isOtherSitesAvailability() {
+		
+		otherSitesAvailability= "true".equalsIgnoreCase(sakaiFacade.getServerConfigurationService().getString("signup.otherSitesAvailability", "true"))? true : false ;
+		return otherSitesAvailability;
+	}
+
+	public void setOtherSitesAvailability(boolean otherSitesAvailability) {
+		this.otherSitesAvailability = otherSitesAvailability;
 	}
 
 	/**
@@ -321,7 +333,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		//Custom defined time slots allocation
 		userDefinedTS=false;
 		customTimeSlotWrpList=null;
-		
+		otherSitesAvailability = true;
 		creatorUserId = null;
 		
 		/*cleanup unused attachments in CHS*/
