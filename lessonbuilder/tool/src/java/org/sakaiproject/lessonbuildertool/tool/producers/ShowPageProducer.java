@@ -1152,18 +1152,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 					} else if ((youtubeKey = simplePageBean.getYoutubeKey(i)) != null) {
 						String youtubeUrl = "http://www.youtube.com/embed/" + youtubeKey;
-						// this is very odd. The official youtube embedding uses
-						// <OBJECT> with
-						// a stylesheet to specify size. But the only values
-						// that actually
-						// work are px and percent. I.e. it works just like the
-						// old
-						// HTML length types. A real stylesheet length
-						// understands other units.
-						// I'm generating a style sheet, so that our HTML
-						// embedding is as close
-						// to theirs as possible, even the lengths are actually
-						// interpreted as old style
 
 						UIOutput.make(tableRow, "youtubeSpan");
 
