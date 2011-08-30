@@ -64,100 +64,134 @@ var setupMenus = function(){
 };
 
 var setupLinks = function(){
+    //ignore 
     $('.itemLink').click(function(e){
         e.preventDefault();
         var actionLink = "";
         var action = "";
         var link = $(this).attr('href');
         var title = $(this).text();
+        var parentRow = $(this).closest('tr');
+        var parentCell = $(this).closest('td')
         //daft - need better way of identifying type
         var itemType = $(this).closest('tr').find('.itemType').text();
-        
-        if (itemType === "assignment" || $(this).attr('href').indexOf('assignment') !== -1) {
-            //daft 2, neeed a better way of getting the entity id
-            action = link.split('/')[9];
-            var assigURL = '/direct/assignment/' + action.substring(0, 36) + '.json';
-            jQuery.getJSON(assigURL, function(data){
-                var results = '<div id=\"metaDataMain\">' + '<strong>' + langdata.due + '</strong> ' + data.dueTimeString + ' (' + langdata.postedBy + data.authorLastModified + ')' + '</div>';
-                results = results + '<div id=\"metaDataGradSub\">' + resolveTypeOfGrade(data.content.typeOfGrade) + ', ' + resolveTypeOfSubmission(data.content.typeOfSubmission) + resolveMaxGradePointDisplay(data.content.maxGradePointDisplay) + '</div>';
-                results = results + '<div id=\"description\">' + resolveInstructions(data.content.instructions) + '</div>';
-                results = results + '<div id=\"link\">' + '<a target ="_top" href=' + link + '>' + langdata.seemore + '</a>' + '</div>';
-                $("#dialog").html(results);
-            });
-            $("#dialog").dialog({
-                modal: true,
-                width: 400,
-                height: 200,
-                title: title,
-                dialogClass: 'smallDiag',
-                close: function(event, ui){
-                    $('#dialog >  *').remove();
+        if ($(parentRow).next('tr.newRow').length === 1) {
+            $(parentRow).next('tr.newRow').find('.results').fadeToggle('slow','',function(){
+                if($(parentRow).next('tr.newRow').find('.results:visible').length ===0){
+                $(parentCell).attr('class','')        
                 }
-                
-            });
-            
+            })
         }
         else {
-            if (itemType === "announcement" || $(this).attr('href').indexOf('announcement') !== -1) {
-                var annURL = link;
-                
-                /*
-                 md table has no border, and is he first one in the responseText
-                 attachments is the last paragraph, following a paragraph with only a bold child
-                 */
-                $.ajax({
-                    url: annURL,
-                    dataType: 'html',
-                    success: function(data){
-                        // this is really perverse
-                        $('#dialogDum').empty();
-                        $('#dialogDum').append(data);
-                        var linkList ="";
-                        var md = $('#dialogDum').find('table').eq(0);
-                        $('#dialogDum').find('table').eq(0).remove();
-                        $('#dialogDum').find('h1').remove()
-                        $('#dialogDum').find('meta').remove()
-                        $('#dialogDum').find('style').remove()
-                        $('#dialogDum').find('title').remove()
-                        
-                        var content = $('#dialogDum').contents();
-                        $('#dialog').append((md).find('td').eq(3).text() + ' (' + (md).find('td').eq(1).text() + ')')
-                        $('#dialog').append('<hr>')
-                        $('#dialog').append(content)
-                        if ($('#dialog').find('p').eq(-2).children('b').length === 1) {
-                            $('#dialog').append('<ul class=\"attachList\"></ul')
-                            $('#dialog').find('p').eq(-1).children('a').each(function(i){
-                                var urlArr = $(this).text().split('/')
-                                var anchorText = urlArr[urlArr.length-1]
-                                linkList = linkList + '<li><a href=\"' + $(this).attr('href') + '\">' + anchorText + '</a></li>';
-                            })
-                        $('#dialog').find('p').eq(-1).remove();
-                        $('#dialog').find('.attachList').append((linkList))
-
-                        }
-                        
-                    },
-                    failure: function(){
+            if (itemType === "assignment" || $(this).attr('href').indexOf('assignment') !== -1) {
+                //daft 2, neeed a better way of getting the entity id
+                action = link.split('/')[9];
+                var assigURL = '/direct/assignment/' + action.substring(0, 36) + '.json';
+                jQuery.getJSON(assigURL, function(data){
+                    var results = '<div class=\"results\" style=\"display:none\"><div id=\"metaDataMain\">' + '<strong>' + langdata.due + '</strong> ' + data.dueTimeString + ' (' + langdata.postedBy + data.authorLastModified + ')' + '</div>';
+                    results = results + '<div id=\"metaDataGradSub\">' + resolveTypeOfGrade(data.content.typeOfGrade) + ', ' + resolveTypeOfSubmission(data.content.typeOfSubmission) + resolveMaxGradePointDisplay(data.content.maxGradePointDisplay) + '<div id=\"link\">' + '<a target ="_top" href=' + link + '>' + langdata.seemore + '</a>' + '</div>' + '</div>';
+                    results = results;
+                    results = results + '<div id=\"description\">' + resolveInstructions(data.content.instructions) + '</div></div>';
                     
-                    }
+                    $('.activeCell').removeClass('.activeCell')
+                    $(parentCell).addClass('activeCell');
+                    $('<tr class=\"newRow\"><td colspan=\"4\">' + results + '</td></tr>').insertAfter(parentRow)
+                    $('.newRow').find('.results').slideDown('slow', function(){
+                        resizeFrame('grow')
+                    });
                     
+                //          $("#dialog").html(results);
                 });
                 
-                $("#dialog").dialog({
-                    modal: true,
-                    width: 400,
-                    height: 200,
-                    title: title,
-                    close: function(event, ui){
-                        $('#dialog >  *').remove();
-                    },
-                    dialogClass: 'smallDiag'
-                });
+                
+            /*
+         $("#dialog").dialog({
+         modal: false,
+         width: 400,
+         height: 200,
+         title: title,
+         dialogClass: 'smallDiag',
+         close: function(event, ui){
+         $('#dialog >  *').remove();
+         }
+         
+         });
+         */
             }
             else {
-                window.open(link, '_blank');
+                if (itemType === "announcement" || $(this).attr('href').indexOf('announcement') !== -1) {
+                    var annURL = link;
+                    
+                    /*
+             md table has no border, and is he first one in the responseText
+             attachments is the last paragraph, following a paragraph with only a bold child
+             */
+                    $.ajax({
+                        url: annURL,
+                        dataType: 'html',
+                        success: function(data){
+                            // this is really perverse
+                            $('#dialogDum').empty();
+                            $('#dialog').empty();
+                            $('#dialogDum').append(data);
+                            var linkList = "";
+                            var md = $('#dialogDum').find('table').eq(0);
+                            $('#dialogDum').find('table').eq(0).remove();
+                            $('#dialogDum').find('h1').remove()
+                            $('#dialogDum').find('meta').remove()
+                            $('#dialogDum').find('style').remove()
+                            $('#dialogDum').find('title').remove()
+                            
+                            var content = $('#dialogDum').contents();
+                            
+                            $('#results').append((md).find('td').eq(3).text() + ' (' + (md).find('td').eq(1).text() + ')')
+                            $('#results').append('<hr>')
+                            $('#results').append(content)
+                            if ($('#results').find('p').eq(-2).children('b').length === 1) {
+                                $('#results').append('<ul class=\"attachList\"></ul')
+                                $('#results').find('p').eq(-1).children('a').each(function(i){
+                                    var urlArr = $(this).text().split('/')
+                                    var anchorText = urlArr[urlArr.length - 1]
+                                    linkList = linkList + '<li><a href=\"' + $(this).attr('href') + '\">' + anchorText + '</a></li>';
+                                })
+                                $('#results').find('p').eq(-1).remove();
+                                $('#results').find('.attachList').append((linkList))
+                            }
+                            var results = $('#results').html();
+                            $('.activeCell').removeClass('.activeCell')
+                            $(parentCell).addClass('activeCell');
+                            $('<tr class=\"newRow\"><td colspan=\"5\"><div class=\"results\" style=\"display:none\">' + results + '</div></td></tr>').insertAfter(parentRow)
+                            $(parentRow).next('tr').find('.results').slideDown('slow', function(){
+                                resizeFrame('grow')
+                            });
+                            
+                            
+                        },
+                        failure: function(){
+                        
+                        }
+                        
+                    });
+                    
+                /*
+             $("#dialog").dialog({
+             modal: false,
+             width: 400,
+             height: 200,
+             title: title,
+             close: function(event, ui){
+             $('#dialog >  *').remove();
+             },
+             dialogClass: 'smallDiag'
+             });
+             */
+                }
+                else {
+                    //if not an ann or an assig, just follow the link
+                    window.open(link, '_blank');
+                }
+                
             }
-            
         }
         
     });
@@ -226,3 +260,33 @@ var setupIcons = function(){
         return ext === null ? "" : ext[1].toLowerCase();
     }
 };
+
+
+/*
+ resize the iframe based on the contained document height.
+ used after DOM operations that add or substract to the doc height
+ */
+var resizeFrame = function(updown){
+    var clientH;
+    if (top.location !== self.location) {
+        var frame = parent.document.getElementById(window.name);
+    }
+    if (frame) {
+        if (updown === 'shrink') {
+            clientH = document.body.clientHeight;
+        }
+        else {
+            clientH = document.body.clientHeight + 50;
+        }
+        $(frame).height(clientH);
+    }
+    else {
+        // throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
+    }
+};
+
+//toggle a fade
+jQuery.fn.fadeToggle = function(speed, easing, callback) {
+   return this.animate({opacity: 'toggle'}, speed, easing, callback);
+
+}; 

@@ -31,7 +31,7 @@
                 <h3 class="withNav">Calendar</h3>
                 <div class="pager" wicket:id="calendarNavigator">
                 </div>
-                <table cellspacing="0" id="sched" summary="List of upcoming tasks. Column 1 and 2: date and time when task is due. Column 3: task title and link to get more details. Column 4: link to site where task originated. Column 5: list of options managing items of this type or origin.">
+                <table cellspacing="0" id="sched" summary="List of upcoming tasks. Column 1: date and time when task is due. Column 2: task title and link to get more details. Column 3: link to site where task originated. Column 4: list of options managing items of this type or origin." border="0">
 		                    <thead>
 		                        <tr class="header">
 		                            <th scope="col">
@@ -81,7 +81,7 @@
 		                <h3 class="withNav">News</h3>
 		                <div class="pager" wicket:id="newsNavigator">
 		                </div>
-		                <table cellspacing="0" id="news" summary="List of recent events. Column 1: link to details on item. Column 2: link to site where event took place. Column 3: date and time when event took place. Column 4: list of options managing items of this type or origin.">
+		                <table cellspacing="0" id="news" summary="List of recent events. Column 1: link to details on item. Column 2: link to site where event took place. Column 3: date and time when event took place. Column 4: list of options managing items of this type or origin." border="0">
 		                    <thead>
 		                        <tr class="header">
 		                            <th scope="col">
@@ -130,16 +130,13 @@
 		                    </tr>
 		                </table>
 			</div>
-      <div id="dialog">
-          <div id="metaDataMain">
-          </div>
-          <div id="metaDataGradSub">
-          </div>
-          <div id="description">
-          </div>
-          <div id="link">
-          </div>
+      <div id="dialog"  style="display:none">
+          
       </div>
+      <div id="dialogDum">
+          
+      </div>
+       <div id="results" style="display:none"></div> 
       <script type="text/javascript">
           $(document).ready(function(){
               setupTableStriping()

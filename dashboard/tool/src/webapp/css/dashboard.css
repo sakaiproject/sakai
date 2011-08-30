@@ -1,14 +1,13 @@
 /* zero out */
 table {
     margin: 10px 0px;
-    width: 860px;
+    width: 95%;
     background-color: #eee;
     float:none;
     clear:both
 }
 
 table tr {
-    border:1px solid #fff;
 }
 
 .focusedRow:hover td{
@@ -22,13 +21,16 @@ table tr.even {
 table tr td {
     margin: 0;
     padding: 5px;
-    border-top:1px solid #eee;
-    border-bottom:1px solid #eee;
 }
 
+.activeCell, .results {
+    background:#fff2c4
+}
+.newRow td{
+    padding:0 0 5px 0;
+    background:#fff;
+}
 table tr.even td {
-    border-top:1px solid #fff;
-    border-bottom:1px solid #fff;
 }
 
 table tr td a {
@@ -53,6 +55,21 @@ table thead {
 table tr:hover {
     background: #d9d9d9
 }
+table tr.newRow:hover {
+    background: #fff
+}
+
+.results{
+-webkit-border-bottom-right-radius: 15px;
+-webkit-border-bottom-left-radius: 15px;
+-moz-border-radius-bottomright: 15px;
+-moz-border-radius-bottomleft: 15px;
+border-bottom-right-radius: 15px;
+border-bottom-left-radius: 15px;
+    padding:10px;
+    margin-bottom:5px;
+    font-size:90%
+}
 h3.withNav{
     float:left;
     margin:10px 0 0 0;
@@ -61,7 +78,7 @@ h3.withNav{
 .pager{
     margin:10px 0 0 0;
     padding: 3px;
-    width: 860px;
+    width: 95%;
     color:#aaa;
     text-align:right;
 }
@@ -136,9 +153,11 @@ h3.withNav{
     padding:5px 0;
 }
 #metaDataGradSub{
-    font-size:90%    
+    font-size:90%;
 }
 #link{
+    margin-top:-5px;
+    float:right;
     text-align:right;
 }
 
