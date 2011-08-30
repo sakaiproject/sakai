@@ -46,9 +46,6 @@ public class FormattedText
 	private static String RESOURCE_BUNDLE = "org.sakaiproject.localization.bundle.content_type.formattedtext";
 	private static String RESOURCE_CLASS  = "org.sakaiproject.localization.util.ContentTypeProperties"; 
 	
-	/** Our ResourceLoader that we can use throughout this class */
-	private static ResourceLoader properties = null;
-	
 	/** An array of regular expression pattern-matchers, that will match the tags given in M_evilTags */
 	private static Pattern[] M_evilTagsPatterns;
 
@@ -94,7 +91,7 @@ public class FormattedText
         M_evilValues = "javascript:,behavior:,vbscript:,mocha:,livescript:,expression".split(",");
 
         try {
-            properties = new ResourceLoader(RESOURCE_BUNDLE, ComponentManager.get(RESOURCE_CLASS).getClass().getClassLoader());
+            ResourceLoader properties = new ResourceLoader(RESOURCE_BUNDLE, ComponentManager.get(RESOURCE_CLASS).getClass().getClassLoader());
             M_evilTags = properties.getString("evilTags").split(",");
             M_goodTags = properties.getString("goodTags").split(",");
             M_goodAttributes = properties.getString("goodAttributes").split(",");
@@ -353,7 +350,8 @@ public class FormattedText
 			// opportunity to work around the issue, rather than causing a tool stack trace
 			
 			M_log.warn("Unexpected error processing text", e);
-			errorMessages.append(properties.getString("unknown_error_markup"));
+			ResourceLoader rl = new ResourceLoader(RESOURCE_BUNDLE);
+			errorMessages.append(rl.getString("unknown_error_markup"));
 			return null;
 		}
 
@@ -762,7 +760,8 @@ public class FormattedText
 			Matcher fullTag = M_patternTagPieces.matcher(realTag);
 			if (fullTag.matches() && fullTag.groupCount() > 2)
 			{
-				errorMessages.append(properties.getFormattedMessage("html_tag_is_not_allowed", new Object[]{fullTag.group(1) + fullTag.group(fullTag.groupCount())}));
+				ResourceLoader rl = new ResourceLoader(RESOURCE_BUNDLE);
+				errorMessages.append(rl.getFormattedMessage("", new Object[]{fullTag.group(1) + fullTag.group(fullTag.groupCount())}));
 			}
 		}
 
@@ -830,7 +829,8 @@ public class FormattedText
 
 		if (leftOvers != null && leftOvers.trim().length() > 1)
 		{
-			errorMessages.append(properties.getFormattedMessage("html_attribute_pattern_not_allowed", new Object[]{leftOvers}));
+			ResourceLoader rl = new ResourceLoader(RESOURCE_BUNDLE);
+			errorMessages.append(rl.getFormattedMessage("html_attribute_pattern_not_allowed", new Object[]{leftOvers}));
 		}
 
 		buf.append(close);
@@ -877,7 +877,8 @@ public class FormattedText
 	                        }
 	                        if (foundEvil) {
                                 //System.err.println("AZ: tag="+tag+",content="+content);
-	                        	errorMessages.append(properties.getFormattedMessage("embed_tag_contains_dangerous_content", new Object[]{content}));
+	                        	ResourceLoader rl = new ResourceLoader(RESOURCE_BUNDLE);
+	                        	errorMessages.append(rl.getFormattedMessage("embed_tag_contains_dangerous_content", new Object[]{content}));
                                 pass = false;
 	                        }
 	                    }
