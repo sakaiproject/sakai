@@ -346,3 +346,7 @@ img {
 	-webkit-border-radius: 3px;
 	border-radius: 3px;
 }
+.backgroundHighlight {
+	border: 2px solid black;
+	background-color: #F8F8F8;
+}

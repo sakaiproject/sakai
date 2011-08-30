@@ -41,6 +41,7 @@ public class GeneralViewParameters extends SimpleViewParameters {
 	private String clearAttr = "";
 	private Long itemId = -1L;
     // the word "push", a number to return to that level in the path, or "next" to replace the top level
+	// or "none" if this page shouldn't be recorded at all
 	private String path = "";
 	private String returnView = "";
 	private String recheck = "";
@@ -50,6 +51,8 @@ public class GeneralViewParameters extends SimpleViewParameters {
 	public int addTool = -1;
 	public boolean postedComment = false;
 	public long studentItemId;
+	
+	public String author; // An author whose comments should be highlighted
 
 	public GeneralViewParameters() {
 		super();

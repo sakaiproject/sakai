@@ -302,13 +302,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// At that point we can safely use canEditPage.
 
 		// somewhat misleading. sendingPage specifies the page we're supposed to
-		// go to
+		// go to.  If path is "none", we don't want this page to be what we see
+		// when we come back to the tool
 		if (params.getSendingPage() != -1) {
 			// will fail if page not in this site
 			// security then depends upon making sure that we only deal with
 			// this page
 			try {
-				simplePageBean.updatePageObject(params.getSendingPage());
+				simplePageBean.updatePageObject(params.getSendingPage(), !params.getPath().equals("none"));
 			} catch (Exception e) {
 				log.warn("ShowPage permission exception " + e);
 				UIOutput.make(tofill, "error-div");
@@ -319,6 +320,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		
 		boolean canEditPage = simplePageBean.canEditPage();
 		boolean canReadPage = simplePageBean.canReadPage();
+		
+		boolean cameFromGradingPane = params.getPath().equals("none");
 
 		if (!canReadPage) {
 			// this code is intended for the situation where site permissions
@@ -487,9 +490,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}else {
 			title = currentPage.getTitle();
 		}
-		String newPath = simplePageBean.adjustPath(params.getPath(), currentPage.getPageId(), pageItem.getId(), title);
-		simplePageBean.adjustBackPath(params.getBackPath(), currentPage.getPageId(), pageItem.getId(), pageItem.getName());
-
+		
+		String newPath = null;
+		
+		// If the path is "none", then we don't want to record this page as being viewed, or set a path
+		if(!params.getPath().equals("none")) {
+			newPath = simplePageBean.adjustPath(params.getPath(), currentPage.getPageId(), pageItem.getId(), title);
+			simplePageBean.adjustBackPath(params.getBackPath(), currentPage.getPageId(), pageItem.getId(), pageItem.getName());
+		}
+		
 		// potentially need time zone for setting release date
 		if (!canEditPage && currentPage.getReleaseDate() != null && currentPage.getReleaseDate().after(new Date())) {
 			DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, M_locale);
@@ -510,8 +519,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIInternalLink.make(tofill, "show-pages", messageLocator.getMessage("simplepage.showallpages"), showAll);
 		
 		if (canEditPage) {
-			// show tool bar
-			createToolBar(tofill, currentPage, (pageItem.getType() == SimplePageItem.STUDENT_CONTENT));
+			// show tool bar, but not if coming from grading pane
+			if(!cameFromGradingPane) {
+				createToolBar(tofill, currentPage, (pageItem.getType() == SimplePageItem.STUDENT_CONTENT));
+			}
+			
 			UIOutput.make(tofill, "title-descrip");
 			String label = null;
 			if (pageItem.getType() == SimplePageItem.STUDENT_CONTENT)
@@ -614,10 +626,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// items on it have been finished, and if so marks it complete, else just updates
 		// access date save the path because if user goes to it later we want to restore the
 		// breadcrumbs
-		if(pageItem.getType() != SimplePageItem.STUDENT_CONTENT) {
-			simplePageBean.track(pageItem.getId(), newPath);
-		}else {
-			simplePageBean.track(pageItem.getId(), newPath, currentPage.getPageId());
+		if(newPath != null) {
+			if(pageItem.getType() != SimplePageItem.STUDENT_CONTENT) {
+				simplePageBean.track(pageItem.getId(), newPath);
+			}else {
+				simplePageBean.track(pageItem.getId(), newPath, currentPage.getPageId());
+			}
 		}
 
 		UIOutput.make(tofill, "pagetitle", currentPage.getTitle());
@@ -1415,6 +1429,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						if (params.postedComment) {
 							eParams.postedComment = postedCommentId;
 						}
+						
+						if(params.author != null && !params.author.equals("")) {
+							eParams.author = params.author;
+							eParams.showAllComments = true;
+						}
 
 						UIInternalLink.make(tableRow, "commentsLink", eParams);
 
@@ -1427,7 +1446,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 						// forced comments have to be edited on the main page
 						if (canEditPage) {
-							if(i.getPageId() > 0 && i.getGradebookId() != null) {
+							// Checks to make sure that the comments item isn't on a student page.
+							// That it is graded.  And that we didn't just come from the grading pane.
+							if(i.getPageId() > 0 && i.getGradebookId() != null && !cameFromGradingPane) {
 								GradingPaneViewParameters gp = new GradingPaneViewParameters(GradingPaneProducer.VIEW_ID);
 								gp.commentsItemId = i.getId();
 								gp.pageId = currentPage.getPageId();
@@ -1596,7 +1617,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						}
 					
 						if(canEditPage) {
-							if(i.getAltGradebook() != null) {
+							// Checks to make sure that the comments are graded and that we didn't
+							// just come from a grading pane (would be confusing)
+							if(i.getAltGradebook() != null && !cameFromGradingPane) {
 								GradingPaneViewParameters gp = new GradingPaneViewParameters(GradingPaneProducer.VIEW_ID);
 								gp.commentsItemId = i.getId();
 								gp.pageId = currentPage.getPageId();

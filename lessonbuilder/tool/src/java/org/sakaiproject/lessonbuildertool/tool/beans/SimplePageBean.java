@@ -1395,7 +1395,7 @@ public class SimplePageBean {
     // if you call updatePageObject, consider whether you need to call updatePageItem as well
     // this combines two functions, so maybe not, but any time you're going to a new page 
     // you should do both. Make sure all Producers set the page to the one they will work on
-	public void updatePageObject(long l) throws PermissionException {
+	public void updatePageObject(long l, boolean save) throws PermissionException {
 		if (l != previousPageId) {
 			currentPage = simplePageToolDao.getPage(l);
 			String siteId = getCurrentSiteId();
@@ -1408,9 +1408,17 @@ public class SimplePageBean {
 			if (!currentPage.getSiteId().equals(siteId))
 			    throw new PermissionException(getCurrentUserId(), "set page", Long.toString(l));
 			previousPageId = l;
-			sessionManager.getCurrentToolSession().setAttribute("current-pagetool-page", l);
+			
+			if(save) {
+				sessionManager.getCurrentToolSession().setAttribute("current-pagetool-page", l);
+			}
+			
 			currentPageId = (Long)l;
 		}
+	}
+	
+	public void updatePageObject(long l) throws PermissionException {
+		updatePageObject(l, true);
 	}
 
     // if tool was reset, return last page from previous session, so we can give the user

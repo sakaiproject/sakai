@@ -212,6 +212,10 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 		UIBranchContainer commentContainer = UIBranchContainer.make(tofill, "commentDiv:");
 		if(highlight) commentContainer.decorate(new UIStyleDecorator("highlight-comment"));
 		
+		if(!filter && params.author != null && params.author.equals(comment.getAuthor())) {
+			commentContainer.decorate(new UIStyleDecorator("backgroundHighlight"));
+		}
+		
 		String author;
 		
 		if(!anonymous) {
@@ -280,7 +284,13 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 		if(filter && simplePageBean.getEditPrivs() == 0) {
 			UIOutput.make(commentContainer, "contextSpan");
 			GeneralViewParameters eParams = new GeneralViewParameters(ShowPageProducer.VIEW_ID, comment.getPageId());
-			eParams.setPath("log");
+			eParams.setPath("none");
+			eParams.author = comment.getAuthor();
+			
+			// Need to provide the item ID
+			if(!params.studentContentItem && params.pageItemId != -1L) {
+				eParams.setItemId(params.pageItemId);
+			}
 			UIInternalLink.make(commentContainer, "contextLink", messageLocator.getMessage("simplepage.show-context"), eParams);
 		}
 		

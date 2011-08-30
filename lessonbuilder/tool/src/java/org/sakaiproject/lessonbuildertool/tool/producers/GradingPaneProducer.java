@@ -185,6 +185,7 @@ public class GradingPaneProducer implements ViewComponentProducer, ViewParamsRep
 			eParams.itemId = params.commentsItemId;
 			eParams.author = user.userId;
 			eParams.filter = true;
+			eParams.pageItemId = params.pageItemId;
 			eParams.studentContentItem = params.studentContentItem;
 			UIInternalLink.make(branch, "commentsLink", eParams);
 			
