@@ -1002,7 +1002,7 @@ $(function() {
 		});
 		
 		 $('body').bind('dialogclose', function(event) {
-		     $('.hideOnDialog').show();
+			 unhideMultimedia();
 		 });
 		 
 		$("#cssDropdown-selection").children(":contains(---" + msg("simplepage.site") + "---)").attr("disabled", "disabled");
@@ -1336,7 +1336,7 @@ function removeHighlight() {
 		if($("#dropDownDiv").is(":visible") && !dropdownViaClick) {
 			hasBeenInMenu = false;
 			lessonBuilderAnimationLocked = true;
-			$('.hideOnDialog').show();
+			unhideMultimedia();
 			$("#dropDownDiv").hide("slide", {direction: "up"}, 300, unlockAnimation);
 		}
 	}
@@ -1348,7 +1348,7 @@ function toggleDropdown() {
 		if($("#dropDownDiv").is(":visible")) {
 			lessonBuilderAnimationLocked = true;
 			hasBeenInMenu = false;
-			$('.hideOnDialog').show();
+			unhideMultimedia();
 			$("#dropDownDiv").hide("slide", {direction: "up"}, 300, unlockAnimation);
 			dropdownViaClick = false;
 		}else {
@@ -1367,7 +1367,7 @@ function closeDropdown() {
 	if(!lessonBuilderAnimationLocked) {
 		if($("#dropDownDiv").is(":visible")) {
 			hasBeenInMenu = false;
-			$('.hideOnDialog').show();
+			unhideMultimedia();
 			$("#dropDownDiv").hide();
 			dropdownViaClick = false;
 		}
@@ -1394,4 +1394,10 @@ function reposition() {
 // Keeps JQuery from getting confused mid-animation
 function unlockAnimation() {
 	lessonBuilderAnimationLocked = false;
+}
+
+// When dialogs close, this shows the stuff that was hidden
+function unhideMultimedia() {
+	$('.hideOnDialog').show();
+    setMainFrameHeight(window.name);
 }
