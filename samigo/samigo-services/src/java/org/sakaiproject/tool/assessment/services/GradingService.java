@@ -1093,6 +1093,7 @@ public class GradingService
 
     // add retry logic to resolve deadlock problem while sending grades to gradebook
 
+    Float originalFinalScore = data.getFinalScore();
     int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
     while (retryCount > 0){
     	try {
@@ -1125,6 +1126,11 @@ public class GradingService
     	  retryCount = retry(retryCount, e, pub, false);
       }
     }
+
+    //change the final score back to the original score since it may set to average score.
+    if(data.getFinalScore() != originalFinalScore ) {
+	data.setFinalScore(originalFinalScore);
+     }
     } else {
        if(log.isDebugEnabled()) log.debug("Not updating the gradebook.  toGradebook = " + toGradebook);
     }
