@@ -42,6 +42,7 @@ public class SiteMembershipNewEventProcessor implements EventProcessor {
 	 */
 	public String getEventIdentifer() {
 
+		// please refer to SakaiProxy instead of SiteService here
 		return SiteService.EVENT_USER_SITE_MEMBERSHIP_ADD;
 	}
 
@@ -87,6 +88,16 @@ public class SiteMembershipNewEventProcessor implements EventProcessor {
 		if(context == null) {
 			context = this.dashboardLogic.createContext(event.getContext());
 		}
+		
+		// Zhen:
+		// if I understand correctly, we will have a user-id and a site-id with semantics 
+		// indicating this user now belongs to this site. This method will then call a 
+		// method in DashboardLogic to add links for this user to dashboard items related
+		// to this site. The implementation of the new DashboardLogic method will iterate
+		// through all CalendarItems and NewsItems related to that site, check permissions
+		// for this user based on the accessPermission defined in the SourceType object 
+		// related to the dashboard item, and add a link if the user has that permission. 
+		// Is that right? 
 		
 		
 		/*SourceType sourceType = this.dashboardLogic.getSourceType("assignment");
