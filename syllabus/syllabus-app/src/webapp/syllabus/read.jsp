@@ -36,9 +36,7 @@
 				<label for="" style="float:none;display:block"> <%-- outputLabel needed here instead but there is no target to id --%>
 					<h:outputText value="#{msgs.syllabus_content}"/>
 				</label>
-				<sakai:inputRichText textareaOnly="#{SyllabusTool.mobileSession}" rows="20" cols="120" id="syllabus_compose_read" value="#{SyllabusTool.syllabusDataAsset}">
-					<f:validateLength maximum="65000"/>
-				</sakai:inputRichText>
+				<sakai:inputRichText textareaOnly="#{SyllabusTool.mobileSession}" rows="20" cols="120" id="syllabus_compose_read" value="#{SyllabusTool.syllabusDataAsset}" />
 			</p>	
 			<div class="checkbox">
 				<h:selectOneRadio value="#{SyllabusTool.syllabusDataView}"  layout="pageDirection" title="#{msgs.publicPrivate}">
