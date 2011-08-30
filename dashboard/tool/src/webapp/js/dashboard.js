@@ -37,6 +37,14 @@ jQuery.fn.cssInstrument = function(){
     });
 };
 
+//toggle a fade
+jQuery.fn.fadeToggle = function(speed, easing, callback){
+    return this.animate({
+        opacity: 'toggle'
+    }, speed, easing, callback);
+    
+};
+
 var setupMenus = function(){
     $('tr').mouseenter(function(){
         $(this).find('.actionPanelTrig').show();
@@ -72,6 +80,7 @@ var setupLinks = function(){
         var link = $(this).attr('href');
         var title = $(this).text();
         var parentRow = $(this).closest('tr');
+        var colCount = $(parentRow).find('td').length
         var parentCell = $(this).closest('td')
         //daft - need better way of identifying type
         var itemType = $(this).closest('tr').find('.itemType').text();
@@ -79,6 +88,9 @@ var setupLinks = function(){
             $(parentRow).next('tr.newRow').find('.results').fadeToggle('slow', '', function(){
                 if ($(parentRow).next('tr.newRow').find('.results:visible').length === 0) {
                     $(parentCell).attr('class', '')
+                }
+                else{
+                    $(parentCell).addClass('activeCell');
                 }
             })
         }
@@ -94,7 +106,7 @@ var setupLinks = function(){
                     
                     $('.activeCell').removeClass('.activeCell')
                     $(parentCell).addClass('activeCell');
-                    $('<tr class=\"newRow\"><td colspan=\"4\">' + results + '</td></tr>').insertAfter(parentRow)
+                    $('<tr class=\"newRow\"><td colspan=\"' + colCount + '\">' + results + '</td></tr>').insertAfter(parentRow)
                     $('.newRow').find('.results').slideDown('slow', function(){
                         resizeFrame('grow')
                     });
@@ -159,7 +171,7 @@ var setupLinks = function(){
                             var results = $('#results').html();
                             $('.activeCell').removeClass('.activeCell')
                             $(parentCell).addClass('activeCell');
-                            $('<tr class=\"newRow\"><td colspan=\"5\"><div class=\"results\" style=\"display:none\">' + results + '</div></td></tr>').insertAfter(parentRow)
+                            $('<tr class=\"newRow\"><td colspan=\"' + colCount + '\"><div class=\"results\" style=\"display:none\">' + results + '</div></td></tr>').insertAfter(parentRow)
                             $(parentRow).next('tr').find('.results').slideDown('slow', function(){
                                 resizeFrame('grow')
                             });
@@ -291,10 +303,3 @@ var resizeFrame = function(updown){
     }
 };
 
-//toggle a fade
-jQuery.fn.fadeToggle = function(speed, easing, callback){
-    return this.animate({
-        opacity: 'toggle'
-    }, speed, easing, callback);
-    
-};
