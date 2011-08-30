@@ -2059,7 +2059,10 @@ public class SimplePageBean {
 				}
 				if (lessonEntity != null) {
 				    String groups = group.getGroups();
-				    lessonEntity.setGroups(Arrays.asList(groups.split(",")));
+				    List<String> groupList = null;
+				    if (groups != null && !groups.equals(""))
+					groupList = Arrays.asList(groups.split(","));
+				    lessonEntity.setGroups(groupList);
 				    simplePageToolDao.deleteItem(group);
 				}
 			    }
@@ -4887,7 +4890,6 @@ public class SimplePageBean {
 				}
 				
 				if(page.getGradebookId() == null || !page.getGradebookPoints().equals(points)) {
-					System.out.println(page.getId());
 					boolean add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null,
 							simplePageToolDao.getPage(page.getPageId()).getTitle() + " Student Pages (item:" + page.getId() + ")", Integer.valueOf(maxPoints), null, "Lesson Builder");
 					

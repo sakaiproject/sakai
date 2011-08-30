@@ -432,7 +432,6 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
     }
 
     public boolean removeEntityControl(String siteId, String groupId) throws IOException {
-
 	// I don't want to do a full load of the facade most of the time. So we use
 	// PublishedAssessmentData normally. Unfortunately here we need it
 	PublishedAssessmentFacade assessment = null;
@@ -466,26 +465,27 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 		// just remove our group
 		authz.removeAuthorizationByAgentQualifierAndFunction(groupId, Long.toString(id), "TAKE_PUBLISHED_ASSESSMENT");
 	    } else {
-		Site site = null;
-		
-		try {
-		    site = SiteService.getSite(siteId);
-		} catch (Exception e) {
-		    return false;
-		}
-		
 		// otherwise remove all groups
 		authz.removeAuthorizationByQualifierAndFunction(Long.toString(id), "TAKE_PUBLISHED_ASSESSMENT");
-		
-		// put back the site
-		authz.createAuthorization(siteId, "TAKE_PUBLISHED_ASSESSMENT", Long.toString(id));
-		
-		// and put back the access control
-		control.setReleaseTo(site.getTitle()); // what if it's too long?
-		
-		// and save the updated info
-		pService.saveAssessment(assessment);
 	    }
+
+	    Site site = null;
+		
+	    try {
+		site = SiteService.getSite(siteId);
+	    } catch (Exception e) {
+		return false;
+	    }
+		
+	    // put back the site
+	    authz.createAuthorization(siteId, "TAKE_PUBLISHED_ASSESSMENT", Long.toString(id));
+	    
+	    // and put back the access control
+	    control.setReleaseTo(site.getTitle()); // what if it's too long?
+		
+	    // and save the updated info
+	    pService.saveAssessment(assessment);
+
 	}
 	return true;
     }
@@ -691,7 +691,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	assessment.setComments(groupString);
 
 	// return it
-	if (groupString.equals(""))
+	if (groupString == null || groupString.equals(""))
 	    return null;
 	else
 	    return groups;
@@ -700,6 +700,9 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
     // set the item to be accessible only to the specific groups.
     // null to make it accessible to the whole site
     public void setGroups(Collection<String> groups) {
+
+	if (groups != null && groups.size() == 0)
+	    groups = null;
 
 	// kill cached value. not perfect, as other systems
 	// will still have the old value
