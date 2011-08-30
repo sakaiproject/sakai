@@ -1564,6 +1564,9 @@ public class SiteAction extends PagedResourceActionII {
 					context.put("manualAddFields", state
 							.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS));
 				}
+				else if (state.getAttribute(STATE_CM_REQUESTED_SECTIONS) != null) {
+					context.put("manualAddNumber", Integer.valueOf(((List) state.getAttribute(STATE_CM_REQUESTED_SECTIONS)).size()));
+				}
 
 				context.put("skins", state.getAttribute(STATE_ICONS));
 				if (StringUtils.trimToNull(siteInfo.getIconUrl()) != null) {
