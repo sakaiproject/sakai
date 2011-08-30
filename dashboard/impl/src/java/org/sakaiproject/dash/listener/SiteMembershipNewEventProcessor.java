@@ -99,6 +99,9 @@ public class SiteMembershipNewEventProcessor implements EventProcessor {
 		// related to the dashboard item, and add a link if the user has that permission. 
 		// Is that right? 
 		
+		// see dashboardLogic.addCalendarLinks(String sakaiUserId, String contextId)
+		// see dashboardLogic.addNewsLinks(String sakaiUserId, String contextId)
+		
 		
 		/*SourceType sourceType = this.dashboardLogic.getSourceType("assignment");
 		if(sourceType == null) {

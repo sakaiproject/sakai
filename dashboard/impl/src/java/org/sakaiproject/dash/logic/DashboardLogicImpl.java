@@ -91,15 +91,28 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	
 	public void addCalendarLinks(String sakaiUserId, String contextId) {
 		if(logger.isDebugEnabled()) {
-			logger.info("addCalendarLinks(" + sakaiUserId + "," + contextId + ") ");
+			logger.debug("addCalendarLinks(" + sakaiUserId + "," + contextId + ") ");
 		}
 		Person person = this.getOrCreatePerson(sakaiUserId);
-		if(person != null) {
+		if(person == null) {
+			logger.warn("Failed attempt to add calendar links for non-existent user: " + sakaiUserId);
+		} else {
+			// TODO: deal with expired items
 			List<CalendarItem> items = dao.getCalendarItemsByContext(contextId);
-			for(CalendarItem item: items) {
-				if( this.sakaiProxy.isUserPermitted(sakaiUserId, item.getSourceType().getAccessPermission(), item.getEntityReference()) ) {
-					CalendarLink calendarLink = new CalendarLink(person, item, item.getContext(), false, false);
-					dao.addCalendarLink(calendarLink);
+			if(items == null || items.isEmpty()) {
+				StringBuilder message = new StringBuilder();
+				message.append("Failed attempt to retrieve calendar events in context (");
+				message.append(contextId);
+				message.append(") for new user (");
+				message.append(sakaiUserId);
+				message.append(")");
+				logger.info(message.toString());
+			} else {
+				for(CalendarItem item: items) {
+					if( this.sakaiProxy.isUserPermitted(sakaiUserId, item.getSourceType().getAccessPermission(), item.getEntityReference()) ) {
+						CalendarLink calendarLink = new CalendarLink(person, item, item.getContext(), false, false);
+						dao.addCalendarLink(calendarLink);
+					}
 				}
 			}
 		}
@@ -108,15 +121,28 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 
 	public void addNewsLinks(String sakaiUserId, String contextId) {
 		if(logger.isDebugEnabled()) {
-			logger.info("addNewsLinks(" + sakaiUserId + "," + contextId + ") ");
+			logger.debug("addNewsLinks(" + sakaiUserId + "," + contextId + ") ");
 		}
 		Person person = this.getOrCreatePerson(sakaiUserId);
-		if(person != null) {
+		if(person == null) {
+			logger.warn("Attempting to add news links for non-existent user: " + sakaiUserId);
+		} else {
+			// TODO: deal with expired items
 			List<NewsItem> items = dao.getNewsItemsByContext(contextId);
-			for(NewsItem item: items) {
-				if( this.sakaiProxy.isUserPermitted(sakaiUserId, item.getSourceType().getAccessPermission(), item.getEntityReference()) ) {
-					NewsLink newsLink = new NewsLink(person, item, item.getContext(), false, false);
-					dao.addNewsLink(newsLink);
+			if(items == null || items.isEmpty()) {
+				StringBuilder message = new StringBuilder();
+				message.append("Failed attempt to retrieve news events in context (");
+				message.append(contextId);
+				message.append(") for new user (");
+				message.append(sakaiUserId);
+				message.append(")");
+				logger.info(message.toString());
+			} else {
+				for(NewsItem item: items) {
+					if( this.sakaiProxy.isUserPermitted(sakaiUserId, item.getSourceType().getAccessPermission(), item.getEntityReference()) ) {
+						NewsLink newsLink = new NewsLink(person, item, item.getContext(), false, false);
+						dao.addNewsLink(newsLink);
+					}
 				}
 			}
 		}

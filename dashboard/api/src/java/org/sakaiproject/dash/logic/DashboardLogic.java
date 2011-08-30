@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.Context;
+import org.sakaiproject.dash.model.Person;
 import org.sakaiproject.dash.model.SourceType;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.model.Realm;
@@ -38,14 +39,20 @@ import org.sakaiproject.dash.model.NewsItem;
 public interface DashboardLogic {
 
 	/**
-	 * Add links to all calendar items in a site that the specified user has permission to see.
+	 * Add links to calendar items in a context for a particular user. Links
+	 * will be limited to items referencing entities for which the user has 
+	 * access permission. This action may be limited by time or number, depending 
+	 * on system settings defining policies for removal of calendar links. 
 	 * @param sakaiUserId
 	 * @param contextId
 	 */
 	public void addCalendarLinks(String sakaiUserId, String contextId);
 
 	/**
-	 * Add links to all news items in a site that the specified user has permission to see.
+	 * Add links to news items in a context for a particular user. Links
+	 * will be limited to items referencing entities for which the user has 
+	 * access permission. This action may be limited by time or number, depending 
+	 * on system settings defining policies for removal of news links. 
 	 * @param sakaiUserId
 	 * @param contextId
 	 */
@@ -140,6 +147,5 @@ public interface DashboardLogic {
 	
 	
 	// add methods to delete news items, calendar items, news links, calendar links, etc.
-	
 	
 }
