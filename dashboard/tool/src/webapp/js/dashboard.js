@@ -1,6 +1,7 @@
 /*
  stripe the tables, take out when can figure how to do in wicket
  */
+
 var setupTableStriping = function(){
     $('table').each(function(){
         $(this).find('tr:even').addClass('even');
@@ -89,7 +90,7 @@ var setupLinks = function(){
                 if ($(parentRow).next('tr.newRow').find('.results:visible').length === 0) {
                     $(parentCell).attr('class', '')
                 }
-                else{
+                else {
                     $(parentCell).addClass('activeCell');
                 }
             })
@@ -99,19 +100,29 @@ var setupLinks = function(){
                 //daft 2, neeed a better way of getting the entity id
                 action = link.split('/')[9];
                 var assigURL = '/direct/assignment/' + action.substring(0, 36) + '.json';
-                jQuery.getJSON(assigURL, function(data){
-                    var results = '<div class=\"results\" style=\"display:none\"><div id=\"metaDataMain\">' + '<strong>' + langdata.due + '</strong> ' + data.dueTimeString + ' (' + langdata.postedBy + data.authorLastModified + ')' + '</div>';
-                    results = results + '<div id=\"metaDataGradSub\">' + resolveTypeOfGrade(data.content.typeOfGrade) + ', ' + resolveTypeOfSubmission(data.content.typeOfSubmission) + resolveMaxGradePointDisplay(data.content.maxGradePointDisplay) + '<div id=\"link\">' + '<a target ="_top" href=' + link + '>' + langdata.seemore + '</a>' + '</div>' + '</div>';
-                    results = results + '<div id=\"description\">' + resolveInstructions(data.content.instructions) + '</div></div>';
-                    
-                    $('.activeCell').removeClass('.activeCell')
-                    $(parentCell).addClass('activeCell');
-                    $('<tr class=\"newRow\"><td colspan=\"' + colCount + '\">' + results + '</td></tr>').insertAfter(parentRow)
-                    $('.newRow').find('.results').slideDown('slow', function(){
-                        resizeFrame('grow')
-                    });
-                    
-                    //          $("#dialog").html(results);
+                jQuery.ajax({
+                    url: assigURL,
+                    dataType: 'json',
+                    success: function(data){
+                        var results = '<div class=\"results\" style=\"display:none\"><div id=\"metaDataMain\">' + '<strong>' + langdata.due + '</strong> ' + data.dueTimeString + ' (' + langdata.postedBy + data.authorLastModified + ')' + '</div>';
+                        results = results + '<div id=\"metaDataGradSub\">' + resolveTypeOfGrade(data.content.typeOfGrade) + ', ' + resolveTypeOfSubmission(data.content.typeOfSubmission) + resolveMaxGradePointDisplay(data.content.maxGradePointDisplay) + '<div id=\"link\">' + '<a target ="_top" href=' + link + '>' + langdata.seemore + '</a>' + '</div>' + '</div>';
+                        results = results + '<div id=\"description\">' + resolveInstructions(data.content.instructions) + '</div></div>';
+                        
+                        $('.activeCell').removeClass('.activeCell')
+                        $(parentCell).addClass('activeCell');
+                        $('<tr class=\"newRow\"><td colspan=\"' + colCount + '\">' + results + '</td></tr>').insertAfter(parentRow)
+                        $('.newRow').find('.results').slideDown('slow', function(){
+                            resizeFrame('grow')
+                        });
+                        
+                    },
+                    error: function(){
+                        $('<tr class=\"newRow\"><td colspan=\"' + colCount + '\"><div class=\"results\">Error retriving data - assignment may have had attachments</div></td></tr>').insertAfter(parentRow)
+                        $('.newRow').find('.results').slideDown('slow', function(){
+                            resizeFrame('grow')
+                        });
+                        
+                    }
                 });
                 
                 
@@ -132,11 +143,6 @@ var setupLinks = function(){
             else {
                 if (itemType === "announcement" || $(this).attr('href').indexOf('announcement') !== -1) {
                     var annURL = link;
-                    
-                    /*
-                     md table has no border, and is he first one in the responseText
-                     attachments is the last paragraph, following a paragraph with only a bold child
-                     */
                     $.ajax({
                         url: annURL,
                         dataType: 'html',
@@ -178,8 +184,13 @@ var setupLinks = function(){
                             
                             
                         },
-                        failure: function(){
+                        error: function(){
                         
+                            $('<tr class=\"newRow\"><td colspan=\"' + colCount + '\"><div class=\"results\" style=\"display:none\">There was an error retrieving this data.</div></td></tr>').insertAfter(parentRow)
+                            $(parentRow).next('tr').find('.results').slideDown('slow', function(){
+                                resizeFrame('grow')
+                            });
+                            
                         }
                         
                     });
@@ -255,7 +266,7 @@ var resolveInstructions = function(instructions){
      */
     $('#instructionHolder').html(instructions)
     $('#instructionHolder').htmlClean();
-    if ($("#instructionHolder").text().length !==0) {
+    if ($("#instructionHolder").text().length !== 0) {
         return ('<hr>' + instructions);
     }
     else {
