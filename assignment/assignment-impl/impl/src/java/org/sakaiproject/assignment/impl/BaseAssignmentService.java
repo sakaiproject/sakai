@@ -45,9 +45,10 @@ import java.util.zip.ZipOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -6403,7 +6404,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							m_context = attributes.getValue("context");
 							try
 							{
-								m_position_order = Long.valueOf(attributes.getValue("position_order")).intValue();
+								m_position_order = NumberUtils.toInt(attributes.getValue("position_order"));
 							}
 							catch (Exception e)
 							{
