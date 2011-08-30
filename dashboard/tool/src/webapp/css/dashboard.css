@@ -3,17 +3,18 @@ table {
     margin: 10px 0px;
     width: 95%;
     background-color: #eee;
-    float:none;
-    clear:both
+    float: none;
+    clear: both
 }
 
 table tr {
 }
 
-.focusedRow:hover td{
-    border-top:1px solid #555;
-    border-bottom:1px solid #555;
+.focusedRow:hover td {
+    border-top: 1px solid #555;
+    border-bottom: 1px solid #555;
 }
+
 table tr.even {
     background: #fff
 }
@@ -24,19 +25,20 @@ table tr td {
 }
 
 .activeCell, .results {
-    background:#fff2c4
+    background: #fff2c4
 }
-.newRow td{
-    padding:0 0 5px 0;
-    background:#fff;
+
+.newRow td {
+    padding: 0 0 5px 0;
+    background: #fff;
 }
+
 table tr.even td {
 }
 
 table tr td a {
     color: #003399
 }
-
 
 table tr td.action {
     width: 17px;
@@ -55,55 +57,70 @@ table thead {
 table tr:hover {
     background: #d9d9d9
 }
+
 table tr.newRow:hover {
     background: #fff
 }
 
-.results{
--webkit-border-bottom-right-radius: 15px;
--webkit-border-bottom-left-radius: 15px;
--moz-border-radius-bottomright: 15px;
--moz-border-radius-bottomleft: 15px;
-border-bottom-right-radius: 15px;
-border-bottom-left-radius: 15px;
-    padding:10px;
-    margin-bottom:5px;
-    font-size:90%
+.results {
+    -webkit-border-bottom-right-radius: 15px;
+    -webkit-border-bottom-left-radius: 15px;
+    -moz-border-radius-bottomright: 15px;
+    -moz-border-radius-bottomleft: 15px;
+    border-bottom-right-radius: 15px;
+    border-bottom-left-radius: 15px;
+    padding: 10px;
+    margin-bottom: 5px;
+    font-size: 90%
 }
-h3.withNav{
-    float:left;
-    margin:10px 0 0 0;
-    padding-top:5px;
+
+.results hr {
+    border: none 0;
+    border-top: 1px solid #aaa;
+    width: 100%;
+    height: 1px;
 }
-.pager{
-    margin:10px 0 0 0;
+
+h3.withNav {
+    float: left;
+    margin: 10px 0 0 0;
+    padding-top: 5px;
+}
+
+.pager {
+    margin: 10px 0 0 0;
     padding: 3px;
     width: 95%;
-    color:#aaa;
-    text-align:right;
+    color: #aaa;
+    text-align: right;
 }
-.pager > a, .pager > span{
-    padding:0 5px;
-    text-align:center;
-    margin:2px;
-    border:1px solid #ccc;
+
+.pager > a, .pager > span {
+    padding: 0 5px;
+    text-align: center;
+    margin: 2px;
+    border: 1px solid #ccc;
     -moz-border-radius: 4px;
     border-radius: 4px;
 }
-.pager > span.linky, .pager > a{
-    background:#eee;
-    color:#666
+
+.pager > span.linky, .pager > a {
+    background: #eee;
+    color: #666
 }
-.pager > span.linky:hover, .pager > a:hover{
-    border:1px solid #555;
-    background:#333;
-    color:#fff;
+
+.pager > span.linky:hover, .pager > a:hover {
+    border: 1px solid #555;
+    background: #333;
+    color: #fff;
 }
-.pager > span.linky:hover a{
-    color:#fff;
+
+.pager > span.linky:hover a {
+    color: #fff;
 }
-.pager a{
-    text-decoration:none;
+
+.pager a {
+    text-decoration: none;
 }
 
 .actionPanelTrig {
@@ -133,88 +150,108 @@ h3.withNav{
 
 .actionPanel li a {
     display: block;
-    text-decoration:none;
+    text-decoration: none;
     padding: 5px;
 }
 
 .actionPanel li a:hover {
     padding: 5px;
     background: #eee;
-    text-decoration:none;
-}
-.smallDiag{font-size:90% !important}
-.smallDiag table{
-    width:auto;
-}
-.smallDiag table td{
-    padding:1px;
-}    
-#metaDataMain,#metaDataGradSub,#description,#link{
-    padding:5px 0;
-}
-#metaDataGradSub{
-    font-size:90%;
-}
-#link{
-    margin-top:-5px;
-    float:right;
-    text-align:right;
+    text-decoration: none;
 }
 
-ul.attachList li{
-    background:transparent url(../../../../library/image/sakai/attachments.gif) center left no-repeat; 
-    padding-left:20px;
+.smallDiag {
+    font-size: 90% !important
+}
+
+.smallDiag table {
+    width: auto;
+}
+
+.smallDiag table td {
+    padding: 1px;
+}
+
+#metaDataMain, #metaDataGradSub, #description, #link {
+    padding: 5px 0;
+}
+
+#metaDataGradSub {
+    font-size: 90%;
+}
+
+#link {
+    margin-top: -5px;
+    float: right;
+    text-align: right;
+}
+
+ul.attachList li {
+    background: transparent url(../../../../library/image/sakai/attachments.gif) center left no-repeat;
+    padding-left: 20px;
 }
 
 /*file listings*/
+a.itemLink {
+    display: block;
+    padding: 3px;
+    padding-left: 21px;
+    background: url(../../../../library/image/sakai/generic.gif) center left no-repeat;
+}
 
-a.itemLink{
-    display:block;
-    padding:3px;
-	padding-left:21px;
-	background: url(../../../../library/image/sakai/generic.gif) center left no-repeat;
-	}
 /*file exensions to match*/
 .doc, .rtf, .docx, .docm, .dotx, .dotm {
-	background: url(../../../../library/image/sakai/word.gif) center left no-repeat !important
-	}
+    background: url(../../../../library/image/sakai/word.gif) center left no-repeat !important
+}
+
 .ppt, .pps, .pptx, .pptm, .ppsx, .potx, .potm, .ppam {
-	background: url(../../../../library/image/sakai/ppt.gif) center left no-repeat !important
-	}
-.xls, .xlsx, .csv, .xlsx, .xlsm, .xltx, .xltm, .xlsb, .xlam{
-	background: url(../../../../library/image/sakai/excel.gif) center left no-repeat !important
-	}	
-.mdb{
-	background: url(../../../../library/image/sakai/access.gif) center left no-repeat !important
-	}	
-.gif, .jpg, .jpeg, .png{
-	background: url(../../../../library/image/sakai/image.gif) center left no-repeat !important
-	}
-.html, .htm{
-	background: url(../../../../library/image/sakai/html.gif) center left no-repeat !important
-	}
-.txt, .java{
-	background: url(../../../../library/image/sakai/text.gif) center left no-repeat !important
-	}
+    background: url(../../../../library/image/sakai/ppt.gif) center left no-repeat !important
+}
+
+.xls, .xlsx, .csv, .xlsx, .xlsm, .xltx, .xltm, .xlsb, .xlam {
+    background: url(../../../../library/image/sakai/excel.gif) center left no-repeat !important
+}
+
+.mdb {
+    background: url(../../../../library/image/sakai/access.gif) center left no-repeat !important
+}
+
+.gif, .jpg, .jpeg, .png {
+    background: url(../../../../library/image/sakai/image.gif) center left no-repeat !important
+}
+
+.html, .htm {
+    background: url(../../../../library/image/sakai/html.gif) center left no-repeat !important
+}
+
+.txt, .java {
+    background: url(../../../../library/image/sakai/text.gif) center left no-repeat !important
+}
+
 .zip, .tar, .sit, .hqx {
-	background: url(../../../../library/image/sakai/compressed.gif) center left no-repeat !important
-	}
+    background: url(../../../../library/image/sakai/compressed.gif) center left no-repeat !important
+}
+
 .mov, .mpeg, .avi {
-	background: url(../../../../library/image/sakai/movie.gif) center left no-repeat !important
-	}
-.mp3, .wav, .aiff{
-	background: url(../../../../library/image/sakai/audio.gif) center left no-repeat !important
-	}
-.pdf{
-	background: url(../../../../library/image/sakai/pdf.gif) center left no-repeat !important
-	}
-.ai, .ps, .psd{
-	background: url(../../../../library/image/sakai/postscript.gif) center left no-repeat !important
-	}
-.ram, .rm{
-	background: url(../../../../library/image/sakai/real.gif) center left no-repeat !important
-	}
-.swf{
-	background: url(../../../../library/image/sakai/shockwave.gif) center left no-repeat !important
-	}
-	
+    background: url(../../../../library/image/sakai/movie.gif) center left no-repeat !important
+}
+
+.mp3, .wav, .aiff {
+    background: url(../../../../library/image/sakai/audio.gif) center left no-repeat !important
+}
+
+.pdf {
+    background: url(../../../../library/image/sakai/pdf.gif) center left no-repeat !important
+}
+
+.ai, .ps, .psd {
+    background: url(../../../../library/image/sakai/postscript.gif) center left no-repeat !important
+}
+
+.ram, .rm {
+    background: url(../../../../library/image/sakai/real.gif) center left no-repeat !important
+}
+
+.swf {
+    background: url(../../../../library/image/sakai/shockwave.gif) center left no-repeat !important
+}

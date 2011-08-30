@@ -76,9 +76,9 @@ var setupLinks = function(){
         //daft - need better way of identifying type
         var itemType = $(this).closest('tr').find('.itemType').text();
         if ($(parentRow).next('tr.newRow').length === 1) {
-            $(parentRow).next('tr.newRow').find('.results').fadeToggle('slow','',function(){
-                if($(parentRow).next('tr.newRow').find('.results:visible').length ===0){
-                $(parentCell).attr('class','')        
+            $(parentRow).next('tr.newRow').find('.results').fadeToggle('slow', '', function(){
+                if ($(parentRow).next('tr.newRow').find('.results:visible').length === 0) {
+                    $(parentCell).attr('class', '')
                 }
             })
         }
@@ -90,7 +90,6 @@ var setupLinks = function(){
                 jQuery.getJSON(assigURL, function(data){
                     var results = '<div class=\"results\" style=\"display:none\"><div id=\"metaDataMain\">' + '<strong>' + langdata.due + '</strong> ' + data.dueTimeString + ' (' + langdata.postedBy + data.authorLastModified + ')' + '</div>';
                     results = results + '<div id=\"metaDataGradSub\">' + resolveTypeOfGrade(data.content.typeOfGrade) + ', ' + resolveTypeOfSubmission(data.content.typeOfSubmission) + resolveMaxGradePointDisplay(data.content.maxGradePointDisplay) + '<div id=\"link\">' + '<a target ="_top" href=' + link + '>' + langdata.seemore + '</a>' + '</div>' + '</div>';
-                    results = results;
                     results = results + '<div id=\"description\">' + resolveInstructions(data.content.instructions) + '</div></div>';
                     
                     $('.activeCell').removeClass('.activeCell')
@@ -100,32 +99,32 @@ var setupLinks = function(){
                         resizeFrame('grow')
                     });
                     
-                //          $("#dialog").html(results);
+                    //          $("#dialog").html(results);
                 });
                 
                 
-            /*
-         $("#dialog").dialog({
-         modal: false,
-         width: 400,
-         height: 200,
-         title: title,
-         dialogClass: 'smallDiag',
-         close: function(event, ui){
-         $('#dialog >  *').remove();
-         }
-         
-         });
-         */
+                /*
+                 $("#dialog").dialog({
+                 modal: false,
+                 width: 400,
+                 height: 200,
+                 title: title,
+                 dialogClass: 'smallDiag',
+                 close: function(event, ui){
+                 $('#dialog >  *').remove();
+                 }
+                 
+                 });
+                 */
             }
             else {
                 if (itemType === "announcement" || $(this).attr('href').indexOf('announcement') !== -1) {
                     var annURL = link;
                     
                     /*
-             md table has no border, and is he first one in the responseText
-             attachments is the last paragraph, following a paragraph with only a bold child
-             */
+                     md table has no border, and is he first one in the responseText
+                     attachments is the last paragraph, following a paragraph with only a bold child
+                     */
                     $.ajax({
                         url: annURL,
                         dataType: 'html',
@@ -173,18 +172,18 @@ var setupLinks = function(){
                         
                     });
                     
-                /*
-             $("#dialog").dialog({
-             modal: false,
-             width: 400,
-             height: 200,
-             title: title,
-             close: function(event, ui){
-             $('#dialog >  *').remove();
-             },
-             dialogClass: 'smallDiag'
-             });
-             */
+                    /*
+                     $("#dialog").dialog({
+                     modal: false,
+                     width: 400,
+                     height: 200,
+                     title: title,
+                     close: function(event, ui){
+                     $('#dialog >  *').remove();
+                     },
+                     dialogClass: 'smallDiag'
+                     });
+                     */
                 }
                 else {
                     //if not an ann or an assig, just follow the link
@@ -209,7 +208,7 @@ var resolveTypeOfGrade = function(typeOfGrade){
         case 5:
             return langdata.checkmark;
         default:
-            return ('wth');
+            return ('');
     }
 };
 var resolveTypeOfSubmission = function(typeOfSubmission){
@@ -225,7 +224,7 @@ var resolveTypeOfSubmission = function(typeOfSubmission){
         case 5:
             return langdata.singleatt;
         default:
-            return ('wth');
+            return ('');
     }
 };
 var resolveMaxGradePointDisplay = function(maxGradePointDisplay){
@@ -237,11 +236,18 @@ var resolveMaxGradePointDisplay = function(maxGradePointDisplay){
     }
 };
 var resolveInstructions = function(instructions){
-    if (instructions !== '') {
+    /*
+     assignments will always have instructions as they are required,
+     but users can just enter whitespace - that will resolve to meaningless
+     markup, roundabout way of doing this!
+     */
+    $('#instructionHolder').html(instructions)
+    $('#instructionHolder').htmlClean();
+    if ($("#instructionHolder").text().length !==0) {
         return ('<hr>' + instructions);
     }
     else {
-        return (langdata.noinstructions);
+        return ('<hr>' + langdata.noinstructions);
     }
     
 };
@@ -286,7 +292,9 @@ var resizeFrame = function(updown){
 };
 
 //toggle a fade
-jQuery.fn.fadeToggle = function(speed, easing, callback) {
-   return this.animate({opacity: 'toggle'}, speed, easing, callback);
-
-}; 
+jQuery.fn.fadeToggle = function(speed, easing, callback){
+    return this.animate({
+        opacity: 'toggle'
+    }, speed, easing, callback);
+    
+};
