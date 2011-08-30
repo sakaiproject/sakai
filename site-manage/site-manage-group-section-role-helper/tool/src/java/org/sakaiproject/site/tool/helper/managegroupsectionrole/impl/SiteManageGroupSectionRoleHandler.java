@@ -689,14 +689,14 @@ public class SiteManageGroupSectionRoleHandler {
 					for(String addedMemberString : addedGroupMember)
 					{
 						// an event for each individual member add
-						EventTrackingService.post(EventTrackingService.newEvent(SiteHelper.EVENT_USER_GROUP_MEMBERSHIP_ADD, addedMemberString, true/*update event*/));
+						EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_USER_GROUP_MEMBERSHIP_ADD, addedMemberString, true/*update event*/));
 					}
 					
 					// removed members
 					for(String removedMemberString : removedGroupMember)
 					{
 						// an event for each individual member remove
-						EventTrackingService.post(EventTrackingService.newEvent(SiteHelper.EVENT_USER_GROUP_MEMBERSHIP_REMOVE, removedMemberString, true/*update event*/));
+						EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_USER_GROUP_MEMBERSHIP_REMOVE, removedMemberString, true/*update event*/));
 				
 					}
 				}

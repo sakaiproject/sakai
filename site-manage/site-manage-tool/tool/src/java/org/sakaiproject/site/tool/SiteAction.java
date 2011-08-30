@@ -7058,12 +7058,12 @@ public class SiteAction extends PagedResourceActionII {
 						// event for each individual update
 						for (String userChangedRole : userUpdated)
 						{
-							EventTrackingService.post(EventTrackingService.newEvent(SiteHelper.EVENT_USER_SITE_MEMBERSHIP_UPDATE, userChangedRole,true));
+							EventTrackingService.post(EventTrackingService.newEvent(org.sakaiproject.site.api.SiteService.EVENT_USER_SITE_MEMBERSHIP_UPDATE, userChangedRole,true));
 						}
 						// event for each individual remove
 						for (String userDeleted : usersDeleted)
 						{
-							EventTrackingService.post(EventTrackingService.newEvent(SiteHelper.EVENT_USER_SITE_MEMBERSHIP_REMOVE, userDeleted,true));
+							EventTrackingService.post(EventTrackingService.newEvent(org.sakaiproject.site.api.SiteService.EVENT_USER_SITE_MEMBERSHIP_REMOVE, userDeleted,true));
 						}
 					}
 				}
@@ -7130,7 +7130,7 @@ public class SiteAction extends PagedResourceActionII {
 										if (trackIndividualChange)
 										{
 											// an event for each individual member role change
-											EventTrackingService.post(EventTrackingService.newEvent(SiteHelper.EVENT_USER_GROUP_MEMBERSHIP_UPDATE, "uid=" + gMemberId + ";groupId=" + g.getId() + ";oldRole=" + groupRole + ";newRole=" + siteRole + ";active=" + siteMember.isActive() + ";provided=false", true/*update event*/));
+											EventTrackingService.post(EventTrackingService.newEvent(org.sakaiproject.site.api.SiteService.EVENT_USER_GROUP_MEMBERSHIP_UPDATE, "uid=" + gMemberId + ";groupId=" + g.getId() + ";oldRole=" + groupRole + ";newRole=" + siteRole + ";active=" + siteMember.isActive() + ";provided=false", true/*update event*/));
 										}
 									}
 								}

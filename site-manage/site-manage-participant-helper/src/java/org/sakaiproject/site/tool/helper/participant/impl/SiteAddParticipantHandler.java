@@ -591,7 +591,7 @@ public class SiteAddParticipantHandler {
 							for(String userInfo : addedUserInfos)
 							{
 								// post the add event for each added participant
-								EventTrackingService.post(EventTrackingService.newEvent(SiteHelper.EVENT_USER_SITE_MEMBERSHIP_ADD, userInfo, true));
+								EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_USER_SITE_MEMBERSHIP_ADD, userInfo, true));
 							}
 						}
 					} catch (GroupNotDefinedException ee) {
