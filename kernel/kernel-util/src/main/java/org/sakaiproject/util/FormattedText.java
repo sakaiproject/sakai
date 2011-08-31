@@ -46,6 +46,9 @@ public class FormattedText
 	private static String RESOURCE_BUNDLE = "org.sakaiproject.localization.bundle.content_type.formattedtext";
 	private static String RESOURCE_CLASS  = "org.sakaiproject.localization.util.ContentTypeProperties"; 
 	
+	/** Our ResourceLoader that we can use throughout this class */
+	private static ResourceLoader resourceLoader = null;
+	
 	/** An array of regular expression pattern-matchers, that will match the tags given in M_evilTags */
 	private static Pattern[] M_evilTagsPatterns;
 
@@ -91,11 +94,11 @@ public class FormattedText
         M_evilValues = "javascript:,behavior:,vbscript:,mocha:,livescript:,expression".split(",");
 
         try {
-            ResourceLoader properties = new ResourceLoader(RESOURCE_BUNDLE, ComponentManager.get(RESOURCE_CLASS).getClass().getClassLoader());
-            M_evilTags = properties.getString("evilTags").split(",");
-            M_goodTags = properties.getString("goodTags").split(",");
-            M_goodAttributes = properties.getString("goodAttributes").split(",");
-            M_evilValues = properties.getString("evilValues").split(",");
+            resourceLoader = new ResourceLoader(RESOURCE_BUNDLE, ComponentManager.get(RESOURCE_CLASS).getClass().getClassLoader());
+            M_evilTags = getResourceLoader().getString("evilTags").split(",");
+            M_goodTags = getResourceLoader().getString("goodTags").split(",");
+            M_goodAttributes = getResourceLoader().getString("goodAttributes").split(",");
+            M_evilValues = getResourceLoader().getString("evilValues").split(",");
         } catch (Exception e) {
             // this is a failure and cannot really be recovered from
             M_log.error("Error collecting formattedtext.properties (using defaults)", e);
@@ -350,8 +353,7 @@ public class FormattedText
 			// opportunity to work around the issue, rather than causing a tool stack trace
 			
 			M_log.warn("Unexpected error processing text", e);
-			ResourceLoader rl = new ResourceLoader(RESOURCE_BUNDLE);
-			errorMessages.append(rl.getString("unknown_error_markup"));
+			errorMessages.append(getResourceLoader().getString("unknown_error_markup"));
 			return null;
 		}
 
@@ -760,8 +762,7 @@ public class FormattedText
 			Matcher fullTag = M_patternTagPieces.matcher(realTag);
 			if (fullTag.matches() && fullTag.groupCount() > 2)
 			{
-				ResourceLoader rl = new ResourceLoader(RESOURCE_BUNDLE);
-				errorMessages.append(rl.getFormattedMessage("", new Object[]{fullTag.group(1) + fullTag.group(fullTag.groupCount())}));
+				errorMessages.append(getResourceLoader().getFormattedMessage("html_tag_is_not_allowed", new Object[]{fullTag.group(1) + fullTag.group(fullTag.groupCount())}));
 			}
 		}
 
@@ -829,8 +830,7 @@ public class FormattedText
 
 		if (leftOvers != null && leftOvers.trim().length() > 1)
 		{
-			ResourceLoader rl = new ResourceLoader(RESOURCE_BUNDLE);
-			errorMessages.append(rl.getFormattedMessage("html_attribute_pattern_not_allowed", new Object[]{leftOvers}));
+			errorMessages.append(getResourceLoader().getFormattedMessage("html_attribute_pattern_not_allowed", new Object[]{leftOvers}));
 		}
 
 		buf.append(close);
@@ -877,8 +877,7 @@ public class FormattedText
 	                        }
 	                        if (foundEvil) {
                                 //System.err.println("AZ: tag="+tag+",content="+content);
-	                        	ResourceLoader rl = new ResourceLoader(RESOURCE_BUNDLE);
-	                        	errorMessages.append(rl.getFormattedMessage("embed_tag_contains_dangerous_content", new Object[]{content}));
+	                        	errorMessages.append(getResourceLoader().getFormattedMessage("embed_tag_contains_dangerous_content", new Object[]{content}));
                                 pass = false;
 	                        }
 	                    }
@@ -1218,4 +1217,11 @@ public class FormattedText
 	private static String[] M_goodAttributes = null;
 	private static String[] M_evilValues =  null;
 	private static String[] M_evilTags = null;
+
+	public static ResourceLoader getResourceLoader() {
+		if(resourceLoader == null){
+			resourceLoader = new ResourceLoader(RESOURCE_BUNDLE);
+		}
+		return resourceLoader;
+	}
 }
