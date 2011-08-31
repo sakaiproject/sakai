@@ -906,12 +906,14 @@ public class SimplePageBean {
 	        List<SimplePageItem> items = getItemsOnPage(getCurrentPageId());
 		// ideally the following should be the same, but there can be odd cases. So be safe
 		int size = items.size();
-		int seq = items.get(size-1).getSequence();
-		if (size > seq)
-		    seq = size;
-		seq++;
+		if (size > 0) {
+		    int seq = items.get(size-1).getSequence();
+		    if (seq > size)
+			size = seq;
+		}
+		size++;
 
-		SimplePageItem i = simplePageToolDao.makeItem(getCurrentPageId(), seq, type, id, name);
+		SimplePageItem i = simplePageToolDao.makeItem(getCurrentPageId(), size, type, id, name);
 
 		// defaults to a fixed width and height, appropriate for some things, but for an
 		// image, leave it blank, since browser will then use the native size
