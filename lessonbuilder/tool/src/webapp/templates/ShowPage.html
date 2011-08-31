@@ -100,7 +100,7 @@ function resizeiframe(id) {
                   <a href="#" rsf:id="helpbutton" target="_blank"><img src="/library/skin/default/images/help.gif" style="margin-left:4px; margin-top:3px"/></a>
                   </div>
 		  <span class="title" rsf:id="pagetitle"></span>
-		  <span class="nextprev"> <a href="#" rsf:id="prev" class="usebutton nextprev">next</a> <a href="#" rsf:id="next" class="usebutton nextprev">next</a> </span>
+		  <span class="nextprev buttonset"> <a href="#" rsf:id="prev" class="nextprev">next</a> <a href="#" rsf:id="next" class="nextprev">next</a> </span>
 		  
 		  &nbsp;
 		  <span rsf:id="gradingSpan" class="gradingarea">
@@ -331,7 +331,7 @@ function resizeiframe(id) {
 
 					<td rsf:id="comments-td" role="gridcell" class="edit-col"><div><a href="#" class="usebutton edit-comments" onclick="return false" rsf:id="edit-comments"></a></div></td>
 					
-					<td rsf:id="commentsSpan" role="gridcell">
+					<td rsf:id="commentsSpan" role="gridcell" class="commentsCell">
 					        <div rsf:id="missing-prereqs"></div>
 						<div class="commentsDiv" rsf:id="commentsDiv">
 							<div rsf:id="item-group-titles6" class="item-group-titles"></div>
@@ -353,9 +353,11 @@ function resizeiframe(id) {
 								<div>
 									<textarea rsf:id="comment-text-area-evolved:"></textarea>
 								</div>
-		
-								<input type="submit" class="usebutton submitButton" href="#" rsf:id="add-comment" id="add-comment"><span rsf:id="msg=simplepage.add_comment"></span></input>
-								<input type="submit" class="usebutton cancelButton"></input>
+								
+								<div class="buttonset">
+									<input type="submit" class="submitButton" href="#" rsf:id="add-comment" id="add-comment"><span rsf:id="msg=simplepage.add_comment"></span></input>
+									<input type="submit" class="cancelButton"></input>
+								</div>
 							</form>
 						</div>
 						

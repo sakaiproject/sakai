@@ -207,6 +207,10 @@ a.edit-movie:link,a.edit-movie:visited{
     margin-top: 3px;
 }
 
+.commentsCell {
+	margin-bottom: 10px;
+}
+
 .specialCommenter {
 	background-color: white;
 	padding: 0 3px 1px 3px;

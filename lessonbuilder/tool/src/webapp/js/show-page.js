@@ -1029,6 +1029,7 @@ $(function() {
 
 	if (!(navigator.userAgent.indexOf("Firefox/2.") > 0)) {
 	    $('.usebutton').button({text:true});
+	    $('.buttonset').buttonset();
 	} else {
 	    // fake it; can't seem to get rid of underline though
 	    $('.usebutton').css('border', '1px solid black').css('padding', '1px 4px').css('color', 'black');

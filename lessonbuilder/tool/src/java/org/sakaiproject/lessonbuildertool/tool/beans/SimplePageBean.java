@@ -147,8 +147,9 @@ public class SimplePageBean {
 	public enum Status {
 		NOT_REQUIRED, REQUIRED, DISABLED, COMPLETED, FAILED
 	}
-
+	
 	public static final Pattern YOUTUBE_PATTERN = Pattern.compile("v[=/_][\\w-]{11}");
+	public static final Pattern SHORT_YOUTUBE_PATTERN = Pattern.compile("[\\w-]{11}");
 	public static final String GRADES[] = { "A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "D-", "E", "F" };
 	public static final String FILTERHTML = "lessonbuilder.filterhtml";
 	public static final String LESSONBUILDER_ITEMID = "lessonbuilder.itemid";
@@ -3937,11 +3938,19 @@ public class SimplePageBean {
 				return null;
 			}
 			
+			System.out.println("URL: " + URL);
+			
 			// 	see if it has a Youtube ID
 			if (URL.startsWith("http://www.youtube.com/") || URL.startsWith("http://youtube.com/")) {
 				Matcher match = YOUTUBE_PATTERN.matcher(URL);
 				if (match.find()) {
 					return match.group().substring(2);
+				}
+			}else if(URL.startsWith("http://youtu.be/")) {
+				Matcher match = SHORT_YOUTUBE_PATTERN.matcher(URL);
+				if(match.find()) {
+					System.out.println(match.group());
+					return match.group();
 				}
 			}
 			
