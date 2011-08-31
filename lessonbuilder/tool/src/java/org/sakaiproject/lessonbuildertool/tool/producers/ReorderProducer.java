@@ -84,6 +84,10 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 		// doesn't use any item parameters, so this should be safe
 
 		if (simplePageBean.canEditPage()) {
+
+		    // make sure the order is right
+			simplePageBean.fixorder();
+
 			SimplePage page = simplePageBean.getCurrentPage();
 			List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(page.getPageId());
 			

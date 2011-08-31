@@ -85,6 +85,16 @@ public class GroupPermissionsService {
 			return null;
 		}
 
+		// see if group exists. must be visible
+		Collection<Group> allGroups = site.getGroups();
+		for (Group group: allGroups) {
+		    if (title.equals(group.getTitle())) {
+			if (group.getProperties().getProperty("group_prop_wsetup_created") != null) {
+			    return group.getId();
+			}
+		    }
+		}
+
 		// need to copy all site roles into new gruop
 		// in theory they should be the same, but if someone has setup
 		// non-default roles, then the rule that we copy the user's
