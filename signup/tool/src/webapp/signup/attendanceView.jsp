@@ -14,7 +14,7 @@
 		</style>
 		<script TYPE="text/javascript" LANGUAGE="JavaScript"
 			src="/sakai-signup-tool/js/signupScript.js"></script>
-		<script typr="text/javascript" src="/library/js/jquery.js"></script>
+		<script type="text/javascript" src="/library/js/jquery.js"></script>
 		<script type="text/javascript">
         $(document).ready(function(){
             sakai.setupSelectListMultiple('availableSpots', 'selectAllThese', 'selectedSelected');
