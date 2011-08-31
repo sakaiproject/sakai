@@ -1591,7 +1591,7 @@ public class SimplePageBean {
 	    	if (logEntry != null) {
 	    		String items[] = null;
 	    		if (logEntry.getPath() != null)
-	    			items = logEntry.getPath().split(",");
+				items = split(logEntry.getPath(), ",");
 	    		if (items != null) {
 	    			for(String s: items) {
 	    				// don't see how this could happen, but it did
@@ -1904,7 +1904,7 @@ public class SimplePageBean {
 				studentPage.setDeleted(true);
 				update(studentPage, false);
 				
-				String[] path = adjustPath("pop", null, null, null).split(",");
+				String[] path = split(adjustPath("pop", null, null, null), ",");
 				Long itemId = Long.valueOf(path[path.length-1]);
 				
 				try {
@@ -2350,7 +2350,7 @@ public class SimplePageBean {
 
 	    List<String> groupNames = new ArrayList<String>();
 	    Site site = getCurrentSite();
-	    String[] groupIds = itemGroups.split(",");
+	    String[] groupIds = split(itemGroups, ",");
 	    for (int i = 0; i < groupIds.length; i++) {
 		Group group=site.getGroup(groupIds[i]);
 		if (group != null)
@@ -2439,7 +2439,7 @@ public class SimplePageBean {
 	   SimplePageGroup simplePageGroup = simplePageToolDao.findGroup(i.getSakaiId());
 	   if (simplePageGroup != null) {
 	       String groups = simplePageGroup.getGroups();
-	       if (groups != null)
+	       if (groups != null && !groups.equals(""))
 		   ret = Arrays.asList(groups.split(","));
 	       else 
 		   ;  // leave ret as an empty list
@@ -2536,7 +2536,7 @@ public class SimplePageBean {
 	       return null;
 	   }
 	       
-	   String[] groupsArray = groupString.split(",");
+	   String[] groupsArray = split(groupString, ",");
 	   return Arrays.asList(groupsArray);
 
        }
@@ -3288,7 +3288,7 @@ public class SimplePageBean {
 			}
 		}
 
-		String[] split = order.split(" ");
+		String[] split = split(order, " ");
 
 		// make sure nothing is duplicated. I know it shouldn't be, but
 		// I saw the Fluid reorderer get confused once.
@@ -3925,6 +3925,13 @@ public class SimplePageBean {
 		
 		// 	no
 		return null;
+	}
+
+	public String[] split(String s, String p) {
+	    if (s == null || s.equals(""))
+		return new String[0];
+	    else
+		return s.split(p);
 	}
 
 	/**
