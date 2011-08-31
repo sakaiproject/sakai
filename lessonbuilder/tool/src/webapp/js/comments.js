@@ -150,7 +150,8 @@ function switchEditors(link, show) {
 		evolved.find("textarea").hide();
 	}
 	
-	if(show) setMainFrameHeight(window.name);
+	setMainFrameHeight(window.name);
+	$(document).height($('body').height());
 }
 
 function deleteComment(link) {

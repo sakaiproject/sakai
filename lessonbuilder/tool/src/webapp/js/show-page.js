@@ -14,12 +14,12 @@ function msg(s) {
 }
 
 function checksize(oe) {
-    var nsize = oe.height();
-    var bsize = $('body').height();
-    if ((nsize+50) > bsize) {
-	$('body').height(nsize+50);
-	setMainFrameHeight(window.name);
-    }
+	var nsize = oe.height() + oe.parent().position().top;
+	var bsize = $(document).height();
+	if ((nsize) > bsize) {
+		$(document).height(nsize);
+		setMainFrameHeight(window.name);
+	}
 }
 
 function checkgroups(elt, groups) {
@@ -1390,5 +1390,4 @@ function hideMultimedia() {
 // When dialogs close, this shows the stuff that was hidden
 function unhideMultimedia() {
 	$('.hideOnDialog').show();
-    setMainFrameHeight(window.name);
 }
