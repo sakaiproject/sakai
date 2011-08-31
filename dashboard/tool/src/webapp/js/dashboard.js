@@ -61,8 +61,8 @@ var setupMenus = function(){
         $('.actionPanel').hide();
         $(this).parent('td').find('.actionPanel').css({
             'position': 'absolute',
-            'left': pos.left - 200,
-            'top': pos.top + 15
+            'left': pos.left - 190,
+            'top': pos.top + 3
         }).toggle();
     });
     
@@ -72,8 +72,7 @@ var setupMenus = function(){
     });
 };
 
-var setupLinks = function(){
-    //ignore 
+var setupLinks = function(){ 
     $('.itemLink').click(function(e){
         e.preventDefault();
         var actionLink = "";
@@ -83,20 +82,26 @@ var setupLinks = function(){
         var parentRow = $(this).closest('tr');
         var colCount = $(parentRow).find('td').length;
         var parentCell = $(this).closest('td');
+        
         //daft - need better way of identifying type
+        
         var itemType = $(this).closest('tr').find('.itemType').text();
         if ($(parentRow).next('tr.newRow').length === 1) {
-            $(parentRow).next('tr.newRow').find('.results').fadeToggle('slow', '', function(){
+            $(parentRow).next('tr.newRow').find('.results').fadeToggle('fast', '', function(){
                 if ($(parentRow).next('tr.newRow').find('.results:visible').length === 0) {
-                    $(parentCell).attr('class', '');
+                    $(parentCell).attr('class', 'tab');
                 }
                 else {
-                    $(parentCell).addClass('activeCell');
+                    $(parentCell).attr('class', 'activeCell tab');
                 }
             });
         }
         else {
+
             if (itemType === "assignment" || $(this).attr('href').indexOf('assignment') !== -1) {
+                        $('.activeCell').removeClass('.activeCell');
+                        $(parentCell).addClass('activeCell');
+
                 //daft 2, neeed a better way of getting the entity id
                 action = link.split('/')[9];
                 var assigURL = '/direct/assignment/' + action.substring(0, 36) + '.json';
@@ -104,12 +109,10 @@ var setupLinks = function(){
                     url: assigURL,
                     dataType: 'json',
                     success: function(data){
-                        var results = '<div class=\"results\" style=\"display:none\"><div id=\"metaDataMain\">' + '<strong>' + langdata.due + '</strong> ' + data.dueTimeString + ' (' + langdata.postedBy + data.authorLastModified + ')' + '</div>';
-                        results = results + '<div id=\"metaDataGradSub\">' + resolveTypeOfGrade(data.content.typeOfGrade) + ', ' + resolveTypeOfSubmission(data.content.typeOfSubmission) + resolveMaxGradePointDisplay(data.content.maxGradePointDisplay) + '<div id=\"link\">' + '<a target ="_top" href=' + link + '>' + langdata.seemore + '</a>' + '</div>' + '</div>';
-                        results = results + '<div id=\"description\">' + resolveInstructions(data.content.instructions) + '</div></div>';
+                        var results = '<div class=\"results\" style=\"display:none\"><div class=\"metaDataMain\">' + '<strong>' + langdata.due + '</strong> ' + data.dueTimeString + ' (' + langdata.postedBy + data.authorLastModified + ')' + '</div>';
+                        results = results + '<div class=\"metaDataGradSub\">' + resolveTypeOfGrade(data.content.typeOfGrade) + ', ' + resolveTypeOfSubmission(data.content.typeOfSubmission) + resolveMaxGradePointDisplay(data.content.maxGradePointDisplay) + '<div class=\"link\">' + '<a target ="_top" href=' + link + '>' + langdata.seemore + '</a>' + '</div>' + '</div>';
+                        results = results + '<div class=\"description\">' + resolveInstructions(data.content.instructions) + '</div></div>';
                         
-                        $('.activeCell').removeClass('.activeCell');
-                        $(parentCell).addClass('activeCell');
                         $('<tr class=\"newRow\"><td colspan=\"' + colCount + '\">' + results + '</td></tr>').insertAfter(parentRow);
                         $(parentRow).next('tr.newRow').find('.results').slideDown('slow', function(){
                             resizeFrame('grow');
@@ -142,6 +145,9 @@ var setupLinks = function(){
             }
             else {
                 if (itemType === "announcement" || $(this).attr('href').indexOf('announcement') !== -1) {
+                        $('.activeCell').removeClass('.activeCell');
+                        $(parentCell).addClass('activeCell');
+
                     var annURL = link;
                     $.ajax({
                         url: annURL,
@@ -175,8 +181,6 @@ var setupLinks = function(){
                                 $('#results').find('.attachList').append((linkList));
                             }
                             var results = $('#results').html();
-                            $('.activeCell').removeClass('.activeCell');
-                            $(parentCell).addClass('activeCell');
                             $('<tr class=\"newRow\"><td colspan=\"' + colCount + '\"><div class=\"results\" style=\"display:none\">' + results + '</div></td></tr>').insertAfter(parentRow);
                             $(parentRow).next('tr').find('.results').slideDown('slow', function(){
                                 resizeFrame('grow');

@@ -11,8 +11,7 @@ table tr {
 }
 
 .focusedRow:hover td {
-    border-top: 1px solid #555;
-    border-bottom: 1px solid #555;
+    background:#ffffbb;
 }
 
 table tr.even {
@@ -23,13 +22,28 @@ table tr td {
     margin: 0;
     padding: 5px;
 }
-
-.activeCell, .results {
-    background: #fff2c4
+.tab{
+    padding-left:15px;
+    }
+.activeCell{
+    -webkit-border-top-right-radius: 7px;
+    -webkit-border-top-left-radius: 7px;
+    -moz-border-radius-topright: 7px;
+    -moz-border-radius-topleft: 7px;
+    border-top-right-radius: 7px;
+    border-top-left-radius: 7px;
+   background: #b3d9ff;
+ 
 }
-
+.activeCell, .results {
+    margin-bottom:5px
+}
+ .results {
+     border:2px  solid #b3d9ff;
+     border-top:10px solid #b3d9ff
+ }
 .newRow td {
-    padding: 0 0 5px 0;
+    padding: 00;
     background: #fff;
 }
 
@@ -55,7 +69,7 @@ table thead {
 }
 
 table tr:hover {
-    background: #d9d9d9
+    
 }
 
 table tr.newRow:hover {
@@ -63,12 +77,12 @@ table tr.newRow:hover {
 }
 
 .results {
-    -webkit-border-bottom-right-radius: 15px;
-    -webkit-border-bottom-left-radius: 15px;
-    -moz-border-radius-bottomright: 15px;
-    -moz-border-radius-bottomleft: 15px;
-    border-bottom-right-radius: 15px;
-    border-bottom-left-radius: 15px;
+    -webkit-border-bottom-right-radius: 10px;
+    -webkit-border-bottom-left-radius: 10px;
+    -moz-border-radius-bottomright: 10px;
+    -moz-border-radius-bottomleft: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
     padding: 10px;
     margin-bottom: 5px;
     font-size: 90%
@@ -139,8 +153,9 @@ h3.withNav {
     margin: 0;
     padding: 0;
     border: 1px solid #aaa;
-    background: #fff;
-    font-size: 100%
+    background: #ffe;
+    font-size: 90%;
+    font-weight:normal;
 }
 
 .actionPanel li {
@@ -148,8 +163,9 @@ h3.withNav {
     padding: 0;
 }
 
-.actionPanel li a {
+.actionPanel li a, .actionPanel li a:visited {
     display: block;
+    color:#000;
     text-decoration: none;
     padding: 5px;
 }
@@ -172,20 +188,32 @@ h3.withNav {
     padding: 1px;
 }
 
-#metaDataMain, #metaDataGradSub, #description, #link {
+.metaDataMain, .metaDataGradSub, .description, .link {
     padding: 5px 0;
 }
 
-#metaDataGradSub {
+.metaDataGradSub {
     font-size: 90%;
 }
 
-#link {
+.link {
     margin-top: -5px;
     float: right;
     text-align: right;
+    font-weight:bold;
 }
-
+.link a, .link a:visited{
+    text-decoration:none;
+    color:#000;
+    background:#e6f2ff;
+    padding:5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    }
+.link a:hover{
+    background:#b3d9ff;
+    }
 ul.attachList li {
     background: transparent url(../../../../library/image/sakai/attachments.gif) center left no-repeat;
     padding-left: 20px;

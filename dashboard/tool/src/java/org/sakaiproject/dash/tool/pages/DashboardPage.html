@@ -53,7 +53,7 @@
 		                            <span wicket:id="calendarDate">[Date]</span>
 																<span wicket:id="calendarTime">[Time]</span>
 		                        </td>
-		                        <td>
+		                        <td class="tab">
 		                            <a href="#" wicket:id="itemLink" class="itemLink" target="_top">[Item Title]</a>
 		                        </td>
 		                        <td>
@@ -102,7 +102,7 @@
 		                    	<td>
 		                            <span wicket:id="itemType" class="itemType">[item type]</span>
 		                        </td>
-		                        <td class="title">
+		                        <td class="tab">
 		                        	<a href="#" wicket:id="itemLink" class="itemLink" target="_top">[item title]</a>
 		                        </td>
 		                        <td>
@@ -147,6 +147,7 @@
               setupMenus();
               setupLang(); //evaluate the language held in #lang-holder for use in the js
               setupIcons();
+
           });
       </script>
       <!-- this textarea holds the lang values used by the js, how to do with wicket? -->
