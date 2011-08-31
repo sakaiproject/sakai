@@ -146,7 +146,6 @@ $(function() {
 			closeDropdown();
 			var position =  $(this).position();
 			$("#subpage-dialog").dialog("option", "position", [position.left, position.top]);
-			$('.hideOnDialog').hide();
 			$('#subpage-dialog').dialog('open');
 			checksize($('#subpage-dialog'));
 			return false;
@@ -156,7 +155,6 @@ $(function() {
 			closeDropdown();
 			var position =  $(this).position();
 			$("#edit-title-dialog").dialog("option", "position", [position.left, position.top]);
-			$('.hideOnDialog').hide();
 			if ($("#page-points").val() == '') {
 				$("#page-gradebook").attr("checked", false);
 				$("#page-points").attr("disabled", true);
@@ -172,7 +170,6 @@ $(function() {
 			closeDropdown();
 			var position =  $(this).position();
 			$("#import-cc-dialog").dialog("option", "position", [position.left, position.top]);
-			$('.hideOnDialog').hide();
 			$('#import-cc-dialog').dialog('open');
 			checksize($('#import-cc-dialog'));
 			return false;
@@ -202,7 +199,6 @@ $(function() {
 			closeDropdown();
 			var position =  $(this).position();
 			$("#new-page-dialog").dialog("option", "position", [position.left, position.top]);
-			$('.hideOnDialog').hide();
 			$('#new-page-dialog').dialog('open');
 			checksize($('#new-page-dialog'));
 			return false;
@@ -213,7 +209,6 @@ $(function() {
 			var position =  $(this).position();
 			$("#remove-page-dialog").dialog("option", "position", [position.left, position.top]);
 			// rsf puts the URL on the non-existent src attribute
-			$('.hideOnDialog').hide();
 			$('#remove-page-dialog').dialog('open');
 			checksize($('#remove-page-dialog'));
 			return false;
@@ -271,7 +266,6 @@ $(function() {
 			$("#description4").val(row.find(".description").text());
 			var position =  row.position();
 			$("#youtube-dialog").dialog("option", "position", [position.left, position.top]);
-			$('.hideOnDialog').hide();
 			$('#youtube-dialog').dialog('open');
 			checksize($('#youtube-dialog'));
 			$("#grouplist").hide();
@@ -313,7 +307,6 @@ $(function() {
 			$("#mimetype4").val(row.find(".mm-type").text());
 			var position =  row.position();
 			$("#movie-dialog").dialog("option", "position", [position.left, position.top]);
-			$('.hideOnDialog').hide();
 			$("#movie-dialog").dialog('open');
 			checksize($("#movie-dialog"));
 			$("#grouplist").hide();
@@ -379,7 +372,6 @@ $(function() {
 			
 			var position = row.position();
 			$("#comments-dialog").dialog("option", "position", [position.left, position.top]);
-			$('.hideOnDialog').hide();
 			$('#comments-dialog').dialog('open');
 			checksize($("#comments-dialog"));
 			$("#grouplist").hide();
@@ -488,7 +480,6 @@ $(function() {
 			
 			var position = row.position();
 			$("#student-dialog").dialog("option", "position", [position.left, position.top]);
-			$('.hideOnDialog').hide();
 			$('#student-dialog').dialog('open');
 			checksize($("#student-dialog"));
 			$("#grouplist").hide();
@@ -531,7 +522,6 @@ $(function() {
 			$(".mm-additional").show();
 			$(".mm-additional-website").hide();
 			$(".mm-url-section").show();
-			$('.hideOnDialog').hide();
 			$("#add-multimedia-dialog").dialog('open');
 			checksize($("#add-multimedia-dialog"));
 			$('.edit-multimedia-input').blur();
@@ -811,7 +801,6 @@ $(function() {
 			$("#edit-item-error-container").hide();
 			var position =  $(this).position();
 			$("#edit-item-dialog").dialog("option", "position", [position.left, position.top]);
-			$('.hideOnDialog').hide();
 			$("#edit-item-dialog").dialog('open');
 			checksize($("#edit-item-dialog"));
 			$("#grouplist").hide();
@@ -840,7 +829,6 @@ $(function() {
 			$(".mm-additional").show();
 			$(".mm-additional-website").hide();
 			$(".mm-url-section").show();
-			$('.hideOnDialog').hide();
 			$("#add-multimedia-dialog").dialog('open');
 			checksize($("#add-multimedia-dialog"));
 			$('.edit-multimedia-input').blur();
@@ -862,7 +850,6 @@ $(function() {
 			$(".mm-additional").show();
 			$(".mm-additional-website").hide();
 			$(".mm-url-section").show();
-			$('.hideOnDialog').hide();
 			$("#add-multimedia-dialog").dialog('open');
 			checksize($("#add-multimedia-dialog"));
 			$('.edit-multimedia-input').blur();
@@ -884,7 +871,6 @@ $(function() {
 			$(".mm-additional").hide();
 			$(".mm-additional-website").hide();
 			$(".mm-url-section").show();
-			$('.hideOnDialog').hide();
 			$("#add-multimedia-dialog").dialog('open');
 			checksize($("#add-multimedia-dialog"));
 			$('.edit-multimedia-input').blur();
@@ -905,7 +891,6 @@ $(function() {
 			$(".mm-additional").hide();
 			$(".mm-additional-website").show();
 			$(".mm-url-section").hide();
-			$('.hideOnDialog').hide();
 			$("#add-multimedia-dialog").dialog('open');
 			checksize($("#add-multimedia-dialog"));
 			$('.edit-multimedia-input').blur();
@@ -953,7 +938,6 @@ $(function() {
 			$("#multimedia-item-id").val(row.find(".mm-itemid").text());
 			var position =  row.position();
 			$("#edit-multimedia-dialog").dialog("option", "position", [position.left, position.top]);
-			$('.hideOnDialog').hide();
 			$("#edit-multimedia-dialog").dialog('open');
 			checksize($("#edit-multimedia-dialog"));
 			$("#grouplist").hide();
@@ -985,7 +969,6 @@ $(function() {
 			$(".mm-additional").show();
 			$(".mm-additional-website").hide();
 			$(".mm-url-section").show();
-			$('.hideOnDialog').hide();
 			$("#add-multimedia-dialog").dialog('open');
 			checksize($("#add-multimedia-dialog"));
 			$('.edit-multimedia-input').blur();
@@ -1001,9 +984,13 @@ $(function() {
 			setUpRequirements();
 		});
 		
-		 $('body').bind('dialogclose', function(event) {
-			 unhideMultimedia();
-		 });
+		$('body').bind('dialogopen', function(event) {
+			hideMultimedia();
+		});
+		
+		$('body').bind('dialogclose', function(event) {
+			unhideMultimedia();
+		});
 		 
 		$("#cssDropdown-selection").children(":contains(---" + msg("simplepage.site") + "---)").attr("disabled", "disabled");
 		$("#cssDropdown-selection").children(":contains(---" + msg("simplepage.system") + "---)").attr("disabled", "disabled");
@@ -1323,7 +1310,7 @@ function addHighlight() {
 	if(!lessonBuilderAnimationLocked) {
 		if(!$("#dropDownDiv").is(":visible")) {
 			lessonBuilderAnimationLocked = true;
-			$('.hideOnDialog').hide();
+			hideMultimedia();
 			reposition();
 			$("#dropDownDiv").show("slide", {direction: "up"}, 300, unlockAnimation);
 		}
@@ -1353,7 +1340,7 @@ function toggleDropdown() {
 			dropdownViaClick = false;
 		}else {
 			lessonBuilderAnimationLocked = true;
-			$('.hideOnDialog').hide();
+			hideMultimedia();
 			reposition();
 			$("#dropDownDiv").show("slide", {direction: "up"}, 300, unlockAnimation);
 			dropdownViaClick = true;
@@ -1394,6 +1381,10 @@ function reposition() {
 // Keeps JQuery from getting confused mid-animation
 function unlockAnimation() {
 	lessonBuilderAnimationLocked = false;
+}
+
+function hideMultimedia() {
+	$('.hideOnDialog').hide();
 }
 
 // When dialogs close, this shows the stuff that was hidden
