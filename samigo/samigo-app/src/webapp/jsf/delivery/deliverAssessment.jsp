@@ -302,7 +302,6 @@ String.prototype.endsWith = function(txt)
         <h:outputText value="#{question.maxPoints} #{deliveryMessages.pt}" rendered="#{delivery.actionString!='reviewAssessment'}" />
 </h:panelGroup>
 </h:panelGrid>
-        
           <f:verbatim><div class="tier3"></f:verbatim>
           <h:panelGroup rendered="#{question.itemData.typeId == 7}">
            <f:subview id="deliverAudioRecording">

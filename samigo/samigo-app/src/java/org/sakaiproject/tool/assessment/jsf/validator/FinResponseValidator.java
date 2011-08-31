@@ -27,9 +27,8 @@ public class FinResponseValidator implements Validator {
 
 		// The number can be in a decimal format or complex format
 		if (!FinQuestionValidator.isRealNumber((String)value) && !FinQuestionValidator.isComplexNumber((String)value)) {
-			String error = (String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.DeliveryMessages", "formatNumber_error");
-			MessageFormat format = new MessageFormat(error);
-			throw new ValidatorException(new FacesMessage(format.format(new String[] {(String)value})));
+			String error = (String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.DeliveryMessages", "fin_invalid_characters_error");
+			throw new ValidatorException(new FacesMessage(error));
 		}
 	}
 }

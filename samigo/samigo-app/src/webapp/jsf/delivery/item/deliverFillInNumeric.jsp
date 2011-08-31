@@ -27,6 +27,11 @@ should be included in file importing DeliveryMessages
 <!-- ATTACHMENTS -->
 <%@ include file="/jsf/delivery/item/attachment.jsp" %>
 
+<h:outputText value="#{deliveryMessages.fin_accepted_instruction} " escape="false" />
+<f:verbatim><br /></f:verbatim>
+<h:outputText value="#{deliveryMessages.fin_invalid_characters_error} " escape="false" rendered="#{question.isInvalidFinInput}" styleClass="validation"/>
+<f:verbatim><br /></f:verbatim>
+
 <samigo:dataLine value="#{question.finArray}" var="answer"
   separator=" " first="0" rows="100">
   <h:column>
@@ -34,7 +39,8 @@ should be included in file importing DeliveryMessages
       <h:graphicImage alt="#{deliveryMessages.alt_correct}" id="image"
         rendered="#{delivery.feedback eq 'true' &&
                     delivery.feedbackComponent.showCorrectResponse &&
-                    answer.isCorrect && answer.hasInput && !delivery.noFeedback=='true'}" url="/images/checkmark.gif">
+                    answer.isCorrect && answer.hasInput && !delivery.noFeedback=='true' && 
+                    !delivery.isAnyInvalidFinInput}" url="/images/checkmark.gif">
       </h:graphicImage>
       <h:graphicImage alt="#{deliveryMessages.alt_correct}" id="ximage"
         rendered="#{delivery.feedback eq 'true' &&

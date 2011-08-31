@@ -26,6 +26,9 @@ package org.sakaiproject.tool.assessment.ui.listener.delivery;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Date;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -33,6 +36,7 @@ import javax.faces.event.ActionListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.tool.assessment.services.FinFormatException;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.SubmitToGradingActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.UpdateTimerListener;
@@ -69,10 +73,19 @@ public class TableOfContentsActionListener implements ActionListener
       delivery.setOutcome(nextAction);
     }
     else{
-      SubmitToGradingActionListener s = new SubmitToGradingActionListener();
-      s.processAction(ae);
       UpdateTimerListener u = new UpdateTimerListener();
       u.processAction(ae);
+      
+      SubmitToGradingActionListener s = new SubmitToGradingActionListener();
+      try {
+		  s.processAction(ae);
+	  }
+	  catch (FinFormatException e) {
+		  log.debug(e.getMessage());
+		  delivery.setOutcome("takeAssessment");
+		  return;
+	  }
+
       DeliveryActionListener d = new DeliveryActionListener();
       d.processAction(ae);
       delivery.setOutcome("tableOfContents");

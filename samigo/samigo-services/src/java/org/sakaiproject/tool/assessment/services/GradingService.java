@@ -68,6 +68,7 @@ import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.util.FormatException;
 
 /**
  * The GradingService calls the back end to get/store grading information. 
@@ -716,10 +717,10 @@ public class GradingService
    */
   public void storeGrades(AssessmentGradingIfc data, PublishedAssessmentIfc pub,
                           HashMap publishedItemHash, HashMap publishedItemTextHash,
-                          HashMap publishedAnswerHash) 
+                          HashMap publishedAnswerHash, HashMap invalidFINMap) throws GradebookServiceException, FinFormatException
   {
 	  log.debug("storeGrades: data.getSubmittedDate()" + data.getSubmittedDate());
-	  storeGrades(data, false, pub, publishedItemHash, publishedItemTextHash, publishedAnswerHash, true);
+	  storeGrades(data, false, pub, publishedItemHash, publishedItemTextHash, publishedAnswerHash, true, invalidFINMap);
   }
   
   /**
@@ -727,10 +728,17 @@ public class GradingService
    */
   public void storeGrades(AssessmentGradingIfc data, PublishedAssessmentIfc pub,
                           HashMap publishedItemHash, HashMap publishedItemTextHash,
-                          HashMap publishedAnswerHash, boolean persistToDB) 
+                          HashMap publishedAnswerHash, boolean persistToDB, HashMap invalidFINMap) throws GradebookServiceException, FinFormatException
   {
 	  log.debug("storeGrades (not persistToDB) : data.getSubmittedDate()" + data.getSubmittedDate());
-	  storeGrades(data, false, pub, publishedItemHash, publishedItemTextHash, publishedAnswerHash, persistToDB);
+	  storeGrades(data, false, pub, publishedItemHash, publishedItemTextHash, publishedAnswerHash, persistToDB, invalidFINMap);
+  }
+  
+  public void storeGrades(AssessmentGradingIfc data, boolean regrade, PublishedAssessmentIfc pub,
+		  HashMap publishedItemHash, HashMap publishedItemTextHash,
+		  HashMap publishedAnswerHash, boolean persistToDB) throws GradebookServiceException, FinFormatException {
+	  log.debug("storeGrades (not persistToDB) : data.getSubmittedDate()" + data.getSubmittedDate());
+	  storeGrades(data, false, pub, publishedItemHash, publishedItemTextHash, publishedAnswerHash, persistToDB, null);
   }
 
   /**
@@ -743,20 +751,11 @@ public class GradingService
    */
   public void storeGrades(AssessmentGradingIfc data, boolean regrade, PublishedAssessmentIfc pub,
                           HashMap publishedItemHash, HashMap publishedItemTextHash,
-                          HashMap publishedAnswerHash, boolean persistToDB) 
-         throws GradebookServiceException {
+                          HashMap publishedAnswerHash, boolean persistToDB, HashMap invalidFINMap) 
+         throws GradebookServiceException, FinFormatException {
     log.debug("****x1. regrade ="+regrade+" "+(new Date()).getTime());
     try {
       String agent = data.getAgentId();
-      
-      // Added persistToDB because if we don't save data to DB later, we shouldn't update the assessment
-      // submittedDate either. The date should be sync in delivery bean and DB
-      // This is for DeliveryBean.checkDataIntegrity()
-      if (!regrade && persistToDB)
-      {
-    	data.setSubmittedDate(new Date());
-        setIsLate(data, pub);
-      }
       
       // note that this itemGradingSet is a partial set of answer submitted. it contains only 
       // newly submitted answers, updated answers and MCMR/FIB/FIN answers ('cos we need the old ones to
@@ -799,8 +798,25 @@ public class GradingService
         itemGrading.setAgentId(agent);
         itemGrading.setOverrideScore(Float.valueOf(0));
         // note that totalItems & fibAnswersMap would be modified by the following method
-        autoScore = getScoreByQuestionType(itemGrading, item, itemType, publishedItemTextHash, 
+        try {
+        	autoScore = getScoreByQuestionType(itemGrading, item, itemType, publishedItemTextHash, 
                                totalItems, fibAnswersMap, publishedAnswerHash, regrade);
+        }
+        catch (FinFormatException e) {
+        	autoScore = 0f;
+        	if (invalidFINMap != null) {
+        		if (invalidFINMap.containsKey(itemId)) {
+        			ArrayList list = (ArrayList) invalidFINMap.get(itemId);
+        			list.add(itemGrading.getItemGradingId());
+        		}
+        		else {
+        			ArrayList list = new ArrayList();
+        			list.add(itemGrading.getItemGradingId());
+        			invalidFINMap.put(itemId, list);
+        		}
+        	}
+        }
+        
         log.debug("**!regrade, autoScore="+autoScore);
         if (!(TypeIfc.MULTIPLE_CORRECT).equals(itemType))
           totalItems.put(itemId, Float.valueOf(autoScore));
@@ -811,6 +827,18 @@ public class GradingService
         itemGrading.setAutoScore(Float.valueOf(autoScore));
       }
 
+      if (invalidFINMap != null && invalidFINMap.size() > 0) {
+    	  return;
+      }
+      // Added persistToDB because if we don't save data to DB later, we shouldn't update the assessment
+      // submittedDate either. The date should be sync in delivery bean and DB
+      // This is for DeliveryBean.checkDataIntegrity()
+      if (!regrade && persistToDB)
+      {
+    	data.setSubmittedDate(new Date());
+        setIsLate(data, pub);
+      }
+      
       log.debug("****x3. "+(new Date()).getTime());
       // the following procedure ensure total score awarded per question is no less than 0
       // this probably only applies to MCMR question type - daisyf
@@ -856,7 +884,8 @@ public class GradingService
     } catch (GradebookServiceException ge) {
       ge.printStackTrace();
       throw ge;
-    } catch (Exception e) {
+    } 
+    catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException(e);
     }
@@ -875,7 +904,7 @@ public class GradingService
     	}
     }
     log.debug("****x8. "+(new Date()).getTime());
-    
+
     // I am not quite sure what the following code is doing... I modified this based on my assumption:
     // If this happens dring regrade, we don't want to clean these data up
     // We only want to clean them out in delivery
@@ -912,7 +941,7 @@ public class GradingService
   private float getScoreByQuestionType(ItemGradingIfc itemGrading, ItemDataIfc item,
                                        Long itemType, HashMap publishedItemTextHash, 
                                        HashMap totalItems, HashMap fibAnswersMap,
-                                       HashMap publishedAnswerHash, boolean regrade){
+                                       HashMap publishedAnswerHash, boolean regrade) throws FinFormatException {
     //float score = (float) 0;
     float initScore = (float) 0;
     float autoScore = (float) 0;
@@ -1007,8 +1036,13 @@ public class GradingService
               }
               break;
       case 11: // FIN
-          autoScore = getFINScore(itemGrading, item, publishedAnswerHash) / (float) ((ItemTextIfc) item.getItemTextSet().toArray()[0]).getAnswerSet().size();
-          //overridescore - cwen
+    	  try {
+    		  autoScore = getFINScore(itemGrading, item, publishedAnswerHash) / (float) ((ItemTextIfc) item.getItemTextSet().toArray()[0]).getAnswerSet().size();
+    	  }
+    	  catch (FinFormatException e) {
+    		  throw e;
+    	  }
+    	  //overridescore - cwen
           if (itemGrading.getOverrideScore() != null)
             autoScore += itemGrading.getOverrideScore().floatValue();
 
@@ -1379,19 +1413,18 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   }
   
   
-  public float getFINScore(ItemGradingIfc data,  ItemDataIfc itemdata, HashMap publishedAnswerHash)
+  public float getFINScore(ItemGradingIfc data,  ItemDataIfc itemdata, HashMap publishedAnswerHash) throws FinFormatException
   {
 	  float totalScore = (float) 0;
 	  boolean matchresult = getFINResult(data, itemdata, publishedAnswerHash);
 	  if (matchresult){
 		  totalScore += ((AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId())).getScore().floatValue();
-		  
 	  }	
 	  return totalScore;
 	  
   }
 	  
-  public boolean getFINResult(ItemGradingIfc data,  ItemDataIfc itemdata, HashMap publishedAnswerHash)
+  public boolean getFINResult (ItemGradingIfc data,  ItemDataIfc itemdata, HashMap publishedAnswerHash) throws FinFormatException
   {
 	  String studentanswer = "";
 	  boolean range;
@@ -1405,7 +1438,12 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		  return false;
 	  }
 
-	  String answertext = ((AnswerIfc)publishedAnswerHash.get(data.getPublishedAnswerId())).getText();
+	  AnswerIfc answerIfc = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
+	  if (answerIfc == null) {
+		  return matchresult;
+	  }
+	  String answertext = answerIfc.getText();
+
 
 	  if (answertext != null)
 	  {
@@ -1415,9 +1453,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 			  range = true;
 		  }
 
-
 		  if (range) {
-
 			  String answer1 = st.nextToken().trim();
 			  String answer2 = st.nextToken().trim();
 
@@ -1440,7 +1476,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 						  (answer1Num.compareTo(studentAnswerNum) <= 0) && (answer2Num.compareTo(studentAnswerNum) >= 0));
 			  }
 		  }
-		  else { //range
+		  else { // not range
 			  String answer = st.nextToken().trim();
 
 			  try {

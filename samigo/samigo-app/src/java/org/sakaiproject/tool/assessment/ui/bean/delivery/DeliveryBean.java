@@ -68,6 +68,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.services.FinFormatException;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
@@ -251,6 +252,8 @@ public class DeliveryBean
   private boolean fromTableOfContents;
   private int fileUploadSizeMax;
   private boolean studentRichText;
+  
+  private boolean isAnyInvalidFinInput;
   
   // If set to true, delivery of the assessment is blocked.
   // This attribute is set to true if a secure delivery module is selected for the assessment and the security
@@ -1368,11 +1371,19 @@ public class DeliveryBean
 	  setForGrade(true);
 	  SessionUtil.setSessionTimeout(FacesContext.getCurrentInstance(), this, false);
 
+	  syncTimeElapsedWithServer();
+	  
 	  SubmitToGradingActionListener listener = new SubmitToGradingActionListener();
 	  // submission remaining and totalSubmissionPerAssessmentHash is updated inside 
 	  // SubmitToGradingListener
-	  listener.processAction(null);
-
+	  try {
+		  listener.processAction(null);
+	  }
+	  catch (FinFormatException e) {
+		  log.debug(e.getMessage());
+		  return "takeAssessment";
+	  }
+	  
 	  // We don't need to call completeItemGradingData to create new ItemGradingData for linear access
 	  // because each ItemGradingData is created when it is viewed/answered 
 	  if (!"1".equals(navigation)) {
@@ -1380,7 +1391,6 @@ public class DeliveryBean
 		  gradingService.completeItemGradingData(adata);
 	  }
 
-	  syncTimeElapsedWithServer();
 	  String returnValue="submitAssessment";
 	  if (!isFromTimer) {
 		  if (this.actionMode == TAKE_ASSESSMENT_VIA_URL) // this is for accessing via published url
@@ -1443,14 +1453,21 @@ public class DeliveryBean
 	  }
 
 	  setForGrade(false);
-	  syncTimeElapsedWithServer();
-
+	  
 	  if (this.actionMode == TAKE_ASSESSMENT
 			  || this.actionMode == TAKE_ASSESSMENT_VIA_URL)
 	  {
+		  syncTimeElapsedWithServer();
+
 		  SubmitToGradingActionListener listener =
 			  new SubmitToGradingActionListener();
-		  listener.processAction(null);
+		  try {
+			  listener.processAction(null);
+		  }
+		  catch (FinFormatException e) {
+			  log.debug(e.getMessage());
+			  return "takeAssessment";
+		  }
 	  }
 
 	  DeliveryActionListener l2 = new DeliveryActionListener();
@@ -1467,14 +1484,20 @@ public class DeliveryBean
 	  }
 
 	  setForGrade(false);
-	  syncTimeElapsedWithServer();
-
+	  
 	  if (this.actionMode == TAKE_ASSESSMENT
 			  || this.actionMode == TAKE_ASSESSMENT_VIA_URL)
 	  {
+		  syncTimeElapsedWithServer();
 		  SubmitToGradingActionListener listener =
 			  new SubmitToGradingActionListener();
-		  listener.processAction(null);
+		  try {
+			  listener.processAction(null);
+		  }
+		  catch (FinFormatException e) {
+			  log.debug(e.getMessage());
+			  return "takeAssessment";
+		  }
 	  }
 	  
 	  setFromTableOfContents(true);
@@ -1501,10 +1524,16 @@ public class DeliveryBean
     if (this.actionMode == TAKE_ASSESSMENT
 			  || this.actionMode == TAKE_ASSESSMENT_VIA_URL)
     {
+    	syncTimeElapsedWithServer();
     	SubmitToGradingActionListener listener =
     		new SubmitToGradingActionListener();
-    	listener.processAction(null);
-    	syncTimeElapsedWithServer();
+    	try {
+    		listener.processAction(null);
+    	}
+    	catch (FinFormatException e) {
+  		  log.debug(e.getMessage());
+  		  return "takeAssessment";
+    	}
     }
     
     String returnValue = "saveForLaterWarning";
@@ -1531,6 +1560,24 @@ public class DeliveryBean
       return nextAction;
     }
 
+    forGrade = false;
+
+    if (this.actionMode == TAKE_ASSESSMENT
+        || this.actionMode == TAKE_ASSESSMENT_VIA_URL)
+    {
+      syncTimeElapsedWithServer();
+	
+      SubmitToGradingActionListener listener =
+        new SubmitToGradingActionListener();
+      try {
+    	  listener.processAction(null);
+      }
+      catch (FinFormatException e) {
+		  log.debug(e.getMessage());
+		  return "takeAssessment";
+	  }
+    }
+    
     if (getSettings().isFormatByPart())
     {
       partIndex++;
@@ -1540,17 +1587,7 @@ public class DeliveryBean
       questionIndex++;
 
     }
-    forGrade = false;
-
-    if (this.actionMode == TAKE_ASSESSMENT
-        || this.actionMode == TAKE_ASSESSMENT_VIA_URL)
-    {
-      SubmitToGradingActionListener listener =
-        new SubmitToGradingActionListener();
-      listener.processAction(null);
-    }
-    syncTimeElapsedWithServer();
-
+    
     DeliveryActionListener l2 = new DeliveryActionListener();
     l2.processAction(null);
 
@@ -1575,11 +1612,18 @@ public class DeliveryBean
     if (this.actionMode == TAKE_ASSESSMENT
         || this.actionMode == TAKE_ASSESSMENT_VIA_URL)
     {
+      syncTimeElapsedWithServer();
+        	
       SubmitToGradingActionListener listener =
         new SubmitToGradingActionListener();
-      listener.processAction(null);
+      try {
+    	  listener.processAction(null);
+      }
+	  catch (FinFormatException e) {
+		  log.debug(e.getMessage());
+		  return "takeAssessment";
+	  }
     }
-    syncTimeElapsedWithServer();
 
     DeliveryActionListener l2 = new DeliveryActionListener();
     l2.processAction(null);
@@ -1601,12 +1645,18 @@ public class DeliveryBean
 	  if (this.actionMode == TAKE_ASSESSMENT
 			  || this.actionMode == TAKE_ASSESSMENT_VIA_URL)
 	  {
+		  syncTimeElapsedWithServer();
 		  SubmitToGradingActionListener listener =
 			  new SubmitToGradingActionListener();
-		  listener.processAction(null);
+		  try {
+			  listener.processAction(null);
+		  }
+		  catch (FinFormatException e) {
+			  log.debug(e.getMessage());
+			  return "takeAssessment";
+		  }
 	  }
-	  syncTimeElapsedWithServer();
-
+	  
 	  DeliveryActionListener l2 = new DeliveryActionListener();
 	  l2.processAction(null);
 
@@ -1637,12 +1687,18 @@ public class DeliveryBean
     if (this.actionMode == TAKE_ASSESSMENT
         || this.actionMode == TAKE_ASSESSMENT_VIA_URL)
     {
+      syncTimeElapsedWithServer();
       SubmitToGradingActionListener listener =
         new SubmitToGradingActionListener();
-      listener.processAction(null);
+      try {
+    	  listener.processAction(null);
+      }
+	  catch (FinFormatException e) {
+		  log.debug(e.getMessage());
+		  return "takeAssessment";
+	  }
     }
-    syncTimeElapsedWithServer();
-
+    
     DeliveryActionListener l2 = new DeliveryActionListener();
     l2.processAction(null);
 
@@ -3327,5 +3383,14 @@ public class DeliveryBean
 	    this.isFromPrint = isFromPrint;
 	  }
 	  
+	  public boolean getIsAnyInvalidFinInput()
+	  {
+	  	return isAnyInvalidFinInput;
+	  }
+	  
+	  public void setIsAnyInvalidFinInput(boolean isAnyInvalidFinInput)
+	  {
+		  this.isAnyInvalidFinInput = isAnyInvalidFinInput;
+	  }
 }
 

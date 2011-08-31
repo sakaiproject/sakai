@@ -149,6 +149,8 @@ public class ItemContentsBean implements Serializable {
 										// score
 
 	private boolean showStudentQuestionScore;
+	
+	private boolean isInvalidFinInput;
 
 	private String pointsDisplayString;
 
@@ -1374,5 +1376,18 @@ public class ItemContentsBean implements Serializable {
 	  this.itemGradingIdForFilePicker = itemGradingIdForFilePicker;
   }
 
+  
+  public void setIsInvalidFinInput(boolean isInvalidFinInput) {
+		this.isInvalidFinInput = isInvalidFinInput;
+	}
+
+	/**
+	 * Show the student question score currently earned?
+	 * 
+	 * @return the score
+	 */
+	public boolean getIsInvalidFinInput() {
+		return isInvalidFinInput;
+	}  
 }
 

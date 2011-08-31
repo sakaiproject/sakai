@@ -58,6 +58,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+import org.sakaiproject.tool.assessment.services.FinFormatException;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedItemFacade;
@@ -231,9 +232,17 @@ public class ItemAddListener
     	}
     } 
 
-    if (!saveItem(itemauthorbean)){
-	throw new RuntimeException("failed to saveItem.");
-    }
+	try {
+		saveItem(itemauthorbean);
+	}
+	catch (FinFormatException e) {
+		err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","fin_invalid_characters_error");
+	    context.addMessage(null,new FacesMessage(err));
+	    item.setOutcome("fillInNumericItem");
+	    item.setPoolOutcome("fillInNumericItem");
+	    return;
+	}
+
     item.setOutcome("editAssessment");
     item.setPoolOutcome("editPool");
     itemauthorbean.setItemTypeString("");
@@ -503,9 +512,8 @@ public class ItemAddListener
     	return false;
     }
 
-  public boolean saveItem(ItemAuthorBean itemauthor) {
+  public void saveItem(ItemAuthorBean itemauthor) throws FinFormatException{
     boolean update = false;
-    try {
       ItemBean bean = itemauthor.getCurrentItem();
       ItemFacade item;
       AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
@@ -827,12 +835,6 @@ public class ItemAddListener
       }
       // sorry, i need this for item attachment, used by SaveItemAttachmentListener. 
       itemauthor.setItemId(item.getItemId().toString());
-      return true;
-    }
-    catch (RuntimeException e) {
-      e.printStackTrace();
-      return false;
-    }
   }
 
   private HashSet prepareTextForMatching(ItemFacade item, ItemBean bean,
@@ -963,7 +965,7 @@ public class ItemAddListener
   }
 
 	private HashSet prepareText(ItemFacade item, ItemBean bean,
-			ItemAuthorBean itemauthor) {
+			ItemAuthorBean itemauthor) throws FinFormatException {
 		HashSet textSet = new HashSet();
 		HashSet answerSet1 = new HashSet();
 
@@ -1056,7 +1058,7 @@ public class ItemAddListener
 			String entiretext = bean.getItemText();
 			String processedText [] = processFIBFINText(entiretext);
 			text1.setText(processedText[0]);;
-			Object[] fibanswers = getFIBFINanswers(processedText[1]).toArray();
+			Object[] fibanswers = getFIBanswers(processedText[1]).toArray();
 			for (int i = 0; i < fibanswers.length; i++) {
 				String oneanswer = (String) fibanswers[i];
 				Answer answer1 = new Answer(text1, oneanswer, Long.valueOf(i + 1),
@@ -1075,7 +1077,7 @@ public class ItemAddListener
 			String entiretext = bean.getItemText();
 			String processedText [] = processFIBFINText(entiretext);
 			text1.setText(processedText[0]);;
-			Object[] finanswers = getFIBFINanswers(processedText[1]).toArray();
+			Object[] finanswers = getFINanswers(processedText[1]).toArray();
 			for (int i = 0; i < finanswers.length; i++) {
 				String oneanswer = (String) finanswers[i];
 				Answer answer1 = new Answer(text1, oneanswer, Long.valueOf(i + 1),
@@ -1155,7 +1157,7 @@ public class ItemAddListener
 		return textSet;
 	} 
 
-  private Set preparePublishedText(ItemFacade item, ItemBean bean, ItemService delegate) {
+  private Set preparePublishedText(ItemFacade item, ItemBean bean, ItemService delegate) throws FinFormatException{
 
 	  if (item.getTypeId().equals(TypeFacade.TRUE_FALSE)) {
 		  preparePublishedTextForTF(item, bean);
@@ -1271,7 +1273,7 @@ public class ItemAddListener
 	  }
   }
   
-  private void preparePublishedTextForFIBFIN(ItemFacade item, ItemBean bean, ItemService delegate, boolean isFIB) {
+  private void preparePublishedTextForFIBFIN(ItemFacade item, ItemBean bean, ItemService delegate, boolean isFIB) throws FinFormatException{
 		Set answerSet = null;
 		Set textSet = item.getItemTextSet();
 		ItemTextIfc text = null;
@@ -1284,7 +1286,12 @@ public class ItemAddListener
 			text = (ItemTextIfc) iter.next();
 			text.setText(updatedText);
 			Object[] answers;
-			answers = getFIBFINanswers(processedText[1]).toArray();
+			if (isFIB) {
+				answers = getFIBanswers(entiretext).toArray();
+			}
+			else {
+				answers = getFINanswers(entiretext).toArray();
+			}
 			int newAnswersSize = answers.length;
 			int i = 0;
 			HashSet toBeRemovedSet = new HashSet();
@@ -1723,7 +1730,7 @@ public class ItemAddListener
 	  }  
   }
 
-  private static ArrayList getFIBFINanswers(String entiretext) {
+  private static ArrayList getFIBanswers(String entiretext) {
 	  String fixedText = entiretext.replaceAll("&nbsp;", " "); // replace &nbsp to " " (instead of "") just want to reserve the original input
 	  String[] tokens = fixedText.split("[\\}][^\\{]*[\\{]");
 	  ArrayList list = new ArrayList();
@@ -1755,6 +1762,91 @@ public class ItemAddListener
 
 	  return list;
 
+  }
+
+  private static ArrayList getFINanswers(String entiretext) throws FinFormatException {
+	  String fixedText = entiretext.replaceAll("&nbsp;", " "); // replace &nbsp to " " (instead of "") just want to reserve the original input
+	  String[] tokens = fixedText.split("[\\}][^\\{]*[\\{]");
+	  ArrayList list = new ArrayList();
+	  if (tokens.length==1) {
+		  String[] afteropen= tokens[0].split("\\{");
+		  if (afteropen.length>1) {
+			  // must have text in between {}
+			  String[] lastpart = afteropen[1].split("\\}");
+			  boolean isValid = isValidFINAnswer(lastpart[0]);
+			  if (!isValid) {
+				  log.debug("Exception. Input is: " + lastpart[0]);
+				  throw new FinFormatException("Not a valie FIN Input");
+			  }
+			  list.add(lastpart[0]);
+		  }
+	  }
+	  else {
+		  for (int i = 0; i < tokens.length; i++) {
+			  if (i == 0) {
+				  String[] firstpart = tokens[i].split("\\{");
+				  if (firstpart.length>1) {
+					  boolean isValid = isValidFINAnswer(firstpart[1]);
+					  if (!isValid) {
+						  log.debug("Exception. Input is: " + firstpart[1]);
+						  throw new FinFormatException("Not a valie FIN Input");
+					  }
+					  list.add(firstpart[1]);
+				  }
+			  }
+			  else if (i == (tokens.length - 1)) {
+				  String[] lastpart = tokens[i].split("\\}");
+				  boolean isValid = isValidFINAnswer(lastpart[0]);
+				  if (!isValid) {
+					  log.debug("Exception. Input is: " + lastpart[0]);
+					  throw new FinFormatException("Not a valie FIN Input");
+				  }
+				  list.add(lastpart[0]);
+			  }
+			  else {
+				  boolean isValid = isValidFINAnswer(tokens[i]);
+				  if (!isValid) {
+					  log.debug("Exception. Input is: " + tokens[i]);
+					  throw new FinFormatException("Not a valie FIN Input");
+				  }
+				  list.add(tokens[i]);
+			  }
+		  }
+	  } // token.length>1
+
+	  return list;
+
+  }
+
+  private static boolean isValidFINAnswer(String answer){
+	  String processedAnswer = "";
+	  if (answer.indexOf("|") == -1) {
+		  processedAnswer = answer.replaceAll(" ", "").replaceAll(",", ".");
+		  // Test if it is a valid Float
+		  try {
+			  Float.parseFloat(processedAnswer); 
+		  }
+		  catch (NumberFormatException e) {
+			  return false;
+		  }
+		  return true;
+	  }
+
+	  String[] tokens = answer.split("\\|");
+	  if (tokens.length != 2) {
+		  return false;
+	  }
+	  for (int i = 0; i < 2; i++) {
+		  String tmpAnswer = tokens[i].replaceAll(" ", "").replaceAll(",", ".");
+		  // Test if it is a valid Float
+		  try {
+			  Float.parseFloat(tmpAnswer);
+		  }
+		  catch (NumberFormatException e) {
+			  return false;
+		  }
+	  }
+	  return true;
   }
   
   /**
@@ -1849,7 +1941,7 @@ public class ItemAddListener
      String entiretext = bean.getItemText();
      String processedText [] = processFIBFINText(entiretext);
      log.debug("processedText[1]=" + processedText[1]);
-     Object[] fibanswers = getFIBFINanswers(processedText[1]).toArray();
+     Object[] fibanswers = getFIBanswers(processedText[1]).toArray();
       List blanklist = new  ArrayList();
       for (int i = 0; i < fibanswers.length; i++) {
     	log.debug("fibanswers[" + i + "]=" + fibanswers[i]);

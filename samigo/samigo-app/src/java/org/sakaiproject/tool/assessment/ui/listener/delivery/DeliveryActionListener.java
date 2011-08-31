@@ -88,6 +88,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
 import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
+import org.sakaiproject.tool.assessment.util.FormatException;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -1139,10 +1140,15 @@ public class DeliveryActionListener
     		  }
     		  else if (item.getTypeId().equals(TypeIfc.FILL_IN_NUMERIC)) {
     			  GradingService gs = new GradingService();
-    			  boolean correctanswer = gs.getFINResult( data,   item,  publishedAnswerHash);
-    			  if (!correctanswer){
-    				  haswronganswer =true;
-      		    	break;
+    			  try {
+    				  boolean correctanswer = gs.getFINResult( data,   item,  publishedAnswerHash);
+    				  if (!correctanswer){
+        				  haswronganswer =true;
+        				  break;
+    				  }
+    			  }
+    			  catch (FormatException e) {
+    				  log.debug("should not come to here");
     			  }
     		  }
     		  else if  ((item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) )||(item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION) )||(item.getTypeId().equals(TypeIfc.MATCHING) )){

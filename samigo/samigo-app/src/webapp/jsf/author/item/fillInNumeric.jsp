@@ -81,13 +81,19 @@
   <div class="longtext"> <h:outputLabel value="#{authorMessages.q_text}" />
   <br/></div>
 <div class="tier2">
-  <h:outputText value="#{authorMessages.note_place_curly_fin}" />
+  <h:outputText value="#{authorMessages.note_place_curly_fin}" escape="false"/>
   <br/>
-  <h:outputText value="#{authorMessages.for_example_curly_fin}" />
+  <h:outputText value="#{authorMessages.for_example_curly_fin}" escape="false"/>
   <br/>
-  <h:outputText value="#{authorMessages.note_insert_pipe_fin}" />
+  <h:outputText value="#{authorMessages.note_accepted_fin_1}" escape="false"/>
   <br/>
-  <h:outputText value="#{authorMessages.for_example_pipe_fin}" />
+  <h:outputText value="#{authorMessages.note_accepted_fin_2}" escape="false"/>
+  <br/>
+  <h:outputText value="#{authorMessages.note_accepted_fin_3}" escape="false"/>
+  <br/>
+  <h:outputText value="#{authorMessages.for_example_accepted_fin}" escape="false"/>
+  <br/>
+  <h:outputText value="#{authorMessages.note_insert_pipe_fin}" escape="false"/>
   <br/>
   <h:outputText value="#{authorMessages.science_format_fin}" />
   <br/>
@@ -97,6 +103,8 @@
   <br/>
   <h:outputText value="#{authorMessages.complex_format_fin_sample}" />
   <br/>  
+  <h:outputText value="#{authorMessages.for_example_pipe_fin}" escape="false"/>
+  <br/>
   
   <h:panelGrid>
    <samigo:wysiwyg

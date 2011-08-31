@@ -50,11 +50,13 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.services.FinFormatException;
 import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.FinBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
@@ -83,7 +85,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 	 * @param ae
 	 * @throws AbortProcessingException
 	 */
-	public void processAction(ActionEvent ae) throws AbortProcessingException {
+	public void processAction(ActionEvent ae) throws AbortProcessingException, FinFormatException {
 		try {
 			log.debug("SubmitToGradingActionListener.processAction() ");
 			
@@ -110,7 +112,8 @@ public class SubmitToGradingActionListener implements ActionListener {
 				delivery.setPublishedAssessment(publishedAssessment);
 			}
 			
-			AssessmentGradingData adata = submitToGradingService(ae, publishedAssessment, delivery);
+			HashMap invalidFINMap = new HashMap();
+			AssessmentGradingData adata = submitToGradingService(ae, publishedAssessment, delivery, invalidFINMap);
 			// set AssessmentGrading in delivery
 			delivery.setAssessmentGrading(adata);
 
@@ -123,6 +126,11 @@ public class SubmitToGradingActionListener implements ActionListener {
 						.getSubmissionsRemaining() - 1);
 			}
 
+			if (invalidFINMap.size() != 0) {
+				delivery.setIsAnyInvalidFinInput(true);
+				throw new FinFormatException ("Not a valid FIN input");
+			}
+			delivery.setIsAnyInvalidFinInput(false);
 
 		} catch (GradebookServiceException ge) {
 			ge.printStackTrace();
@@ -133,9 +141,6 @@ public class SubmitToGradingActionListener implements ActionListener {
 			context.addMessage(null, new FacesMessage(err));
 			return;
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new RuntimeException(e);
 		}
 	}
 
@@ -221,7 +226,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 	 * @return
 	 */
 	private synchronized AssessmentGradingData submitToGradingService(
-			ActionEvent ae, PublishedAssessmentFacade publishedAssessment, DeliveryBean delivery) {
+			ActionEvent ae, PublishedAssessmentFacade publishedAssessment, DeliveryBean delivery, HashMap invalidFINMap) throws FinFormatException {
 		log.debug("****1a. inside submitToGradingService ");
 		String submissionId = "";
 		HashSet itemGradingHash = new HashSet();
@@ -232,7 +237,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		log.debug("****1b. inside submitToGradingService, iter= " + iter);
 		HashSet adds = new HashSet();
 		HashSet removes = new HashSet();
-
+		
 		// we go through all the answer collected from JSF form per each
 		// publsihedItem and
 		// work out which answer is an new addition and in cases like
@@ -254,7 +259,36 @@ public class SubmitToGradingActionListener implements ActionListener {
 		}
 		
 		AssessmentGradingData adata = persistAssessmentGrading(ae, delivery,
-				itemGradingHash, publishedAssessment, adds, removes);
+				itemGradingHash, publishedAssessment, adds, removes, invalidFINMap);
+		if (invalidFINMap.size() != 0) {
+			Iterator iterPart = delivery.getPageContents().getPartsContents().iterator();
+			while (iterPart.hasNext()) {
+				SectionContentsBean part = (SectionContentsBean) iterPart.next();
+				Iterator iterItem = part.getItemContents().iterator();
+				while (iterItem.hasNext()) { // go through each item from form
+					ItemContentsBean item = (ItemContentsBean) iterItem.next();
+					Long itemId = item.getItemData().getItemId();
+					if (invalidFINMap.containsKey(itemId)) {
+						item.setIsInvalidFinInput(true);
+						ArrayList list = (ArrayList) invalidFINMap.get(itemId);
+						ArrayList finArray = item.getFinArray();
+						Iterator iterFin = finArray.iterator();
+						while (iterFin.hasNext()) {
+							FinBean finBean = (FinBean) iterFin.next();
+							if (finBean.getItemGradingData() != null) {
+								Long itemGradingId = finBean.getItemGradingData().getItemGradingId();
+								if (list.contains(itemGradingId)) {
+									finBean.setIsCorrect(false);
+								}
+							}
+						}
+					}
+					else {
+						item.setIsInvalidFinInput(false);
+					}
+				}
+			}
+		}
 		delivery.setSubmissionId(submissionId);
 		delivery.setSubmissionTicket(submissionId);// is this the same thing?
 		// hmmmm
@@ -266,7 +300,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 	private AssessmentGradingData persistAssessmentGrading(ActionEvent ae, 
 			DeliveryBean delivery, HashSet itemGradingHash,
 			PublishedAssessmentFacade publishedAssessment, HashSet adds,
-			HashSet removes) {
+			HashSet removes, HashMap invalidFINMap) throws FinFormatException {
 		AssessmentGradingData adata = null;
 		if (delivery.getAssessmentGrading() != null) {
 			adata = delivery.getAssessmentGrading();
@@ -347,7 +381,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 			HashMap publishedItemHash = delivery.getPublishedItemHash();
 			HashMap publishedItemTextHash = delivery.getPublishedItemTextHash();
 			HashMap publishedAnswerHash = delivery.getPublishedAnswerHash();
-			service.storeGrades(adata, publishedAssessment, publishedItemHash, publishedItemTextHash, publishedAnswerHash, false);
+			service.storeGrades(adata, publishedAssessment, publishedItemHash, publishedItemTextHash, publishedAnswerHash, false, invalidFINMap);
 		}
 		else {
 			log.debug("Persist to db otherwise");
@@ -361,8 +395,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 			HashMap publishedItemHash = delivery.getPublishedItemHash();
 			HashMap publishedItemTextHash = delivery.getPublishedItemTextHash();
 			HashMap publishedAnswerHash = delivery.getPublishedAnswerHash();
-			service.storeGrades(adata, publishedAssessment, publishedItemHash, publishedItemTextHash, publishedAnswerHash);
-			log.debug("*** 4. after storingGrades, did all the removes and adds " + (new Date()));
+			service.storeGrades(adata, publishedAssessment, publishedItemHash, publishedItemTextHash, publishedAnswerHash, invalidFINMap);
 		}
 		return adata;
 	}
