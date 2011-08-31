@@ -15,9 +15,9 @@ function msg(s) {
 
 function checksize(oe) {
 	var nsize = oe.height() + oe.parent().position().top;
-	var bsize = $(document).height();
+	var bsize = $("#outer").height();
 	if ((nsize) > bsize) {
-		$(document).height(nsize);
+		$("#outer").height(nsize);
 		setMainFrameHeight(window.name);
 	}
 }
@@ -1029,13 +1029,12 @@ $(function() {
 
 	if (!(navigator.userAgent.indexOf("Firefox/2.") > 0)) {
 	    $('.usebutton').button({text:true});
-	    $('.buttonset').buttonset();
 	} else {
 	    // fake it; can't seem to get rid of underline though
 	    $('.usebutton').css('border', '1px solid black').css('padding', '1px 4px').css('color', 'black');
 	}
 
-	
+	$('.buttonset').buttonset();
 
 	function fixhref(href, pageitemid, resourcetype, website) {
 	    href = href.replace(/&pageItemId=-?[0-9]*/, "&pageItemId=" + pageitemid);
@@ -1391,4 +1390,6 @@ function hideMultimedia() {
 // When dialogs close, this shows the stuff that was hidden
 function unhideMultimedia() {
 	$('.hideOnDialog').show();
+	$("#outer").height("auto");
+	setMainFrameHeight(window.name);
 }

@@ -3938,8 +3938,6 @@ public class SimplePageBean {
 				return null;
 			}
 			
-			System.out.println("URL: " + URL);
-			
 			// 	see if it has a Youtube ID
 			if (URL.startsWith("http://www.youtube.com/") || URL.startsWith("http://youtube.com/")) {
 				Matcher match = YOUTUBE_PATTERN.matcher(URL);
