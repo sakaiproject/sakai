@@ -46,7 +46,7 @@
 <h3>
      <h:outputText value="#{authorMessages.create_modify_p} #{authorMessages.dash} #{sectionBean.assessmentTitle}" escape="false"/></h3>
 <h:form id="modifyPartForm"  onsubmit="return editorCheck();">
-<h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
+<h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
   <h:inputHidden id="assessmentId" value="#{sectionBean.assessmentId}"/>
   <h:inputHidden id="sectionId" value="#{sectionBean.sectionId}"/>
 

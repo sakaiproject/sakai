@@ -77,7 +77,7 @@ function textCounter(field, maxlimit) {
 <h3 class="insColor insBak insBor">
 <h:outputText value="#{questionPoolMessages.qp}#{questionPoolMessages.column} #{questionpool.currentPool.displayName}"/>
 </h3>
-<h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
+<h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
 <h:outputText rendered="#{questionpool.importToAuthoring == 'true'}" value="#{questionPoolMessages.msg_imp_editpool}"/>
  <div class="tier2">
 <h:panelGrid columns="2" columnClasses="shorttext">

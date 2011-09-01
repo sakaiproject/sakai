@@ -158,7 +158,7 @@ function disableIt()
 
   </p>
 <div class="tier1">
-  <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
+  <h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
   <!-- only shows Max Score Possible if this assessment does not contain random dawn parts -->
 
 <sakai:flowState bean="#{totalScores}" />

@@ -53,7 +53,7 @@
 
 <!-- FORM ... note, move these hiddens to whereever they are needed as fparams-->
 
-<h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
+<h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
 
 <%-- PART/ITEM DATA TABLES --%>
 <div class="tier2">

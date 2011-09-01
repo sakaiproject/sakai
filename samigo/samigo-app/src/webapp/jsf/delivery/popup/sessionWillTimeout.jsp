@@ -42,7 +42,7 @@
   </h3>
   <%-- Clicking OK will renew the session but ignoring will lead to session expiration. --%>
   <h:form id="ok">
-  <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
+  <h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
    <h:commandButton value="#{authorMessages.button_ok}" type="submit"
      style="act" action="select" />
   </h:form>

@@ -105,7 +105,7 @@ function toPoint(id)
     </h:commandLink>
   </p>
 
-  <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
+  <h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
 
 <f:verbatim><h4></f:verbatim>
 <h:outputText value="#{totalScores.assessmentName}" escape="false"/>

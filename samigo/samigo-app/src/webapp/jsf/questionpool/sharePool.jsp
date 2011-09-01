@@ -107,7 +107,7 @@
 
  <h3><h:outputText value="#{questionPoolMessages.share_pool}"/></h3>
 
-<h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
+<h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
 
 <div class="tier1">
 <h4><h:outputText value="#{questionPoolMessages.members_with_access} #{questionpoolshare.questionPoolName}"/></h4>

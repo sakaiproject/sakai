@@ -42,7 +42,7 @@ $Id: createNewEmail.jsp 18063 2006-11-09 00:00:17Z ktsao@stanford.edu $
 </h3>
 
 <p>
-<h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
+<h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
 </p>
 <h:panelGrid columns="1" columnClasses="navView,navView" border="0">	
 <h:commandButton id="close"onclick="window.close();" onkeypress="window.close();"  value="#{evaluationMessages.close}"/>

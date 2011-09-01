@@ -162,11 +162,11 @@
             <artifactId>jdom</artifactId>
             <version>1.0</version>
         </dependency>
-<!--        <dependency>
+        <dependency>
             <groupId>jsf</groupId>
             <artifactId>jsf-api</artifactId>
             <version>1.1.01</version>
-        </dependency>-->
+        </dependency>
         <dependency>
 			<groupId>OKI</groupId>
 			<artifactId>OkiOSID</artifactId>

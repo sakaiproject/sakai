@@ -46,7 +46,7 @@
 <div class="tier1">
 
   <!-- Error publishing assessment -->
-  <h:messages globalOnly="true" infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
+  <h:messages globalOnly="true" infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
 
 <h:panelGrid border="0" width="100%">
   <h:outputText value=" " />

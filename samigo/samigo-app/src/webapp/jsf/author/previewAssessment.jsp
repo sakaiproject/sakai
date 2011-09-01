@@ -50,7 +50,7 @@
 <!-- some back end stuff stubbed -->
 <h:form id="assesssmentForm">
 
-<h:messages styleClass="validation"/>
+<h:messages styleClass="messageSamigo"/>
 
  <div class="navView">
     <h3>

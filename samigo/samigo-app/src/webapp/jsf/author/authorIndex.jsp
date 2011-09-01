@@ -164,7 +164,7 @@ $(document).ready(function() {
     <h:outputText value="#{authorFrontDoorMessages.assessments}"/>
   </h3>
 <p>
-  <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
+  <h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
 </p>
 
 <div class="tier1">

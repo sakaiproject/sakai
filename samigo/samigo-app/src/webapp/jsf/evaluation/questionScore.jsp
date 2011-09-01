@@ -120,7 +120,7 @@ function toPoint(id)
 
   </p>
 <div class="tier1">
-  <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
+  <h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
 
   <h:dataTable value="#{questionScores.sections}" var="partinit">
     <h:column>

@@ -86,7 +86,6 @@ document.links[newindex].onclick();
 <!-- some back end stuff stubbed -->
 <h:form id="assesssmentForm">
 
-<h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
   <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="validation">
     <h:panelGrid  columns="1">
 	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_1}" />
@@ -224,6 +223,8 @@ document.links[newindex].onclick();
   <f:param name="itemSequence" value="0"/>
 </h:commandLink>
 
+<h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo" />
+
 <div class="tier1">
 <h:dataTable id="parts" width="100%"
       value="#{assessmentBean.sections}" var="partBean" border="0">
@@ -289,7 +290,6 @@ document.links[newindex].onclick();
 <f:verbatim><div class="tier2"></f:verbatim>
         <!-- PART ATTACHMENTS -->
         <%@ include file="/jsf/author/part_attachment.jsp" %>
-<f:verbatim><div class="tier2"></f:verbatim>
 
 		<h:outputText rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '2' && (empty partBean.randomQuestionsDrawDate || !author.isEditPendingAssessmentFlow)}" value="#{authorMessages.random_draw_msg_no_date}"/>
         <h:outputFormat rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '2' && !empty partBean.randomQuestionsDrawDate && author.isEditPendingAssessmentFlow}" value="#{authorMessages.random_draw_msg}" escape="false">

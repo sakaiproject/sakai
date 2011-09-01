@@ -29,7 +29,7 @@ should be included in file importing DeliveryMessages
 
 <h:outputText value="#{deliveryMessages.fin_accepted_instruction} " escape="false" />
 <f:verbatim><br /></f:verbatim>
-<h:outputText value="#{deliveryMessages.fin_invalid_characters_error} " escape="false" rendered="#{question.isInvalidFinInput}" styleClass="validation"/>
+<h:outputText value="#{deliveryMessages.fin_invalid_characters_error} " escape="false" rendered="#{question.isInvalidFinInput}" styleClass="messageSamigo"/>
 <f:verbatim><br /></f:verbatim>
 
 <samigo:dataLine value="#{question.finArray}" var="answer"

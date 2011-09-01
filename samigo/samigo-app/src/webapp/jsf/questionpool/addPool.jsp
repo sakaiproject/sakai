@@ -50,7 +50,7 @@ function textCounter(field, maxlimit) {
 <h3 class="insColor insBak insBor">
 <h:outputText value="#{questionPoolMessages.add_p}"/>
 </h3>
-<h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
+<h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
 <h:outputText value="#{questionPoolMessages.add_p_required}"/>
  <div class="tier1">
  <h:panelGrid columns="2" columnClasses="shorttext">

@@ -42,7 +42,7 @@
     <div class="tier1">
      <div class="tier2">
       <div class="form_label">
-       <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
+       <h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
        <h:outputText value="#{authorImportExport.import_instructions}" escape="false"/>
       </div>
       <br />

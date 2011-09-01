@@ -151,8 +151,8 @@ listener set selectFromQuestionPool, eliminating the rendered attribute
 <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="">
 </h:commandLink>
 
-<h:message rendered="#{questionpool.importToAuthoring == 'true' && itemauthor.target == 'assessment'}" for="changeQType1" infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
-<h:message rendered="#{questionpool.importToAuthoring == 'false' && itemauthor.target == 'assessment'}" for="changeQType2" infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
+<h:message rendered="#{questionpool.importToAuthoring == 'true' && itemauthor.target == 'assessment'}" for="changeQType1" infoClass="messageSamigo" warnClass="validation" errorClass="messageSamigo" fatalClass="messageSamigo"/>
+<h:message rendered="#{questionpool.importToAuthoring == 'false' && itemauthor.target == 'assessment'}" for="changeQType2" infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
 </div>
 <!-- SUBHEADING -->
 <p class="navModeAction">
@@ -202,7 +202,7 @@ listener set selectFromQuestionPool, eliminating the rendered attribute
   </h:commandLink>
 --%>
  </span>
-   <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
+   <h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
 </p>
 </div>
 </h:form>

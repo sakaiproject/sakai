@@ -74,7 +74,7 @@
      <h:outputText value="#{template.templateName}"/>
 </h3>
  <h:outputText escape="false" value="#{templateMessages.template_instructions}"/>
- <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
+ <h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
   <!-- *** GENERAL TEMPLATE INFORMATION *** -->
   <div class="tier1">
 <p>
