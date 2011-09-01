@@ -64,7 +64,7 @@ remove the javascript onclick stuff.
 
 <!-- DONE BUTTON FOR PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
- <f:verbatim><div class="validation"></f:verbatim>
+ <f:verbatim><div class="previewMessage"></f:verbatim>
      <h:outputText value="#{deliveryMessages.ass_preview}" />
      <h:commandButton value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
  <f:verbatim></div></f:verbatim>
@@ -178,7 +178,7 @@ function saveTime()
 
 <!-- DONE BUTTON FOR PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
- <f:verbatim><div class="validation"></f:verbatim>
+ <f:verbatim><div class="previewMessage"></f:verbatim>
      <h:outputText value="#{deliveryMessages.ass_preview}" />
      <h:commandButton value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
  <f:verbatim></div></f:verbatim>

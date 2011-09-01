@@ -91,7 +91,7 @@ function clickSubmitForGrade(){
 <h:form id="tableOfContentsForm">
 
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
- <f:verbatim><div class="validation"></f:verbatim>
+ <f:verbatim><div class="previewMessage"></f:verbatim>
      <h:outputText value="#{deliveryMessages.ass_preview}" />
      <h:commandButton value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
  <f:verbatim></div></f:verbatim>
@@ -230,7 +230,7 @@ function clickSubmitForGrade(){
 
 <!-- DONE BUTTON FOR PREVIEW ASSESSMENT ONLY -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
- <f:verbatim><div class="validation"></f:verbatim>
+ <f:verbatim><div class="previewMessage"></f:verbatim>
      <h:outputText value="#{deliveryMessages.ass_preview}" />
      <h:commandButton value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
  <f:verbatim></div></f:verbatim>
