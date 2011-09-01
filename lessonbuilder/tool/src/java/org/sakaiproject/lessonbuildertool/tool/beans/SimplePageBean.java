@@ -3134,7 +3134,7 @@ public class SimplePageBean {
 			
 			while (numPages > 0) {
 				String title = prefix + Integer.toString(start) + suffix;
-				addPage(title, copyPage);		    
+				addPage(title, null, copyPage, (numPages == 1));  // only save the last time
 				numPages--;
 				start++;
 			}
@@ -3152,16 +3152,16 @@ public class SimplePageBean {
 		
 		SimplePage target = simplePageToolDao.getPage(Long.valueOf(selectedEntity));
 		if(target != null)
-			addPage(target.getTitle(), target.getPageId(), false);
+			addPage(target.getTitle(), target.getPageId(), false, true);
 		
 		return "success";
 	}
 
 	public SimplePage addPage(String title, boolean copyCurrent) {
-		return addPage(title, null, copyCurrent);
+		return addPage(title, null, copyCurrent, true);
 	}
 	
-	public SimplePage addPage(String title, Long pageId, boolean copyCurrent) {
+        public SimplePage addPage(String title, Long pageId, boolean copyCurrent, boolean doSave) {
 
 		Site site = getCurrentSite();
 		SitePage sitePage = site.addPage();
@@ -3190,12 +3190,15 @@ public class SimplePageBean {
 
 		sitePage.setTitle(title);
 		sitePage.setTitleCustom(true);
-		try {
+		if (doSave) {
+		    try {
 			siteService.save(site);
-		} catch (Exception e) {
+			System.out.println("site saved");
+		    } catch (Exception e) {
 			log.error("addPage unable to save site " + e);
+		    }
+		    currentSite = null; // force refetch, since we've changed it. note sure this is strictly needed
 		}
-		currentSite = null; // force refetch, since we've changed it
 
 	    if (copyCurrent) {
 	    	long oldPageId = getCurrentPageId();
