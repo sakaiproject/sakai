@@ -70,6 +70,7 @@ import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.FinFormatException;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.SaLengthException;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.Phase;
@@ -254,6 +255,7 @@ public class DeliveryBean
   private boolean studentRichText;
   
   private boolean isAnyInvalidFinInput;
+  private String redrawAnchorName;
   
   // If set to true, delivery of the assessment is blocked.
   // This attribute is set to true if a secure delivery module is selected for the assessment and the security
@@ -1383,6 +1385,10 @@ public class DeliveryBean
 		  log.debug(e.getMessage());
 		  return "takeAssessment";
 	  }
+	  catch (SaLengthException sae) {
+		  log.debug(sae.getMessage());
+		  return "takeAssessment";
+	  }
 	  
 	  // We don't need to call completeItemGradingData to create new ItemGradingData for linear access
 	  // because each ItemGradingData is created when it is viewed/answered 
@@ -1464,8 +1470,12 @@ public class DeliveryBean
 		  try {
 			  listener.processAction(null);
 		  }
-		  catch (FinFormatException e) {
-			  log.debug(e.getMessage());
+		  catch (FinFormatException fine) {
+			  log.debug(fine.getMessage());
+			  return "takeAssessment";
+		  }
+		  catch (SaLengthException sae) {
+			  log.debug(sae.getMessage());
 			  return "takeAssessment";
 		  }
 	  }
@@ -1496,6 +1506,10 @@ public class DeliveryBean
 		  }
 		  catch (FinFormatException e) {
 			  log.debug(e.getMessage());
+			  return "takeAssessment";
+		  }
+		  catch (SaLengthException sae) {
+			  log.debug(sae.getMessage());
 			  return "takeAssessment";
 		  }
 	  }
@@ -1534,6 +1548,10 @@ public class DeliveryBean
   		  log.debug(e.getMessage());
   		  return "takeAssessment";
     	}
+		  catch (SaLengthException sae) {
+			  log.debug(sae.getMessage());
+			  return "takeAssessment";
+		  }
     }
     
     String returnValue = "saveForLaterWarning";
@@ -1574,6 +1592,10 @@ public class DeliveryBean
       }
       catch (FinFormatException e) {
 		  log.debug(e.getMessage());
+		  return "takeAssessment";
+	  }
+	  catch (SaLengthException sae) {
+		  log.debug(sae.getMessage());
 		  return "takeAssessment";
 	  }
     }
@@ -1623,6 +1645,10 @@ public class DeliveryBean
 		  log.debug(e.getMessage());
 		  return "takeAssessment";
 	  }
+	  catch (SaLengthException sae) {
+		  log.debug(sae.getMessage());
+		  return "takeAssessment";
+	  }
     }
 
     DeliveryActionListener l2 = new DeliveryActionListener();
@@ -1653,6 +1679,10 @@ public class DeliveryBean
 		  }
 		  catch (FinFormatException e) {
 			  log.debug(e.getMessage());
+			  return "takeAssessment";
+		  }
+		  catch (SaLengthException sae) {
+			  log.debug(sae.getMessage());
 			  return "takeAssessment";
 		  }
 	  }
@@ -1695,6 +1725,10 @@ public class DeliveryBean
       }
 	  catch (FinFormatException e) {
 		  log.debug(e.getMessage());
+		  return "takeAssessment";
+	  }
+	  catch (SaLengthException sae) {
+		  log.debug(sae.getMessage());
 		  return "takeAssessment";
 	  }
     }
@@ -3187,18 +3221,29 @@ public class DeliveryBean
 
 		  // We get the id of the question
 		  String radioId = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("radioId");
-
+		  StringBuffer redrawAnchorName = new StringBuffer("p");
+		  String tmpAnchorName = "";
 		  ArrayList parts = this.pageContents.getPartsContents();
 
 		  for (int i=0; i<parts.size(); i++) {
-			  ArrayList items = ((SectionContentsBean)parts.get(i)).getItemContents();
-
+			  SectionContentsBean sectionContentsBean = (SectionContentsBean) parts.get(i);
+			  String partSeq = sectionContentsBean.getNumber();
+			  
+			  ArrayList items = sectionContentsBean.getItemContents();
 			  for (int j=0; j<items.size(); j++) {
 				  ItemContentsBean item = (ItemContentsBean)items.get(j);
-
+				  
 				  //Just delete the checkbox of the current question
 				  if (!item.getItemData().getItemId().toString().equals(radioId)) continue;
 
+				  String itemSeq = item.getItemData().getSequence().toString();
+				  redrawAnchorName.append(partSeq);
+				  redrawAnchorName.append("q");
+				  redrawAnchorName.append(itemSeq);
+				  if (tmpAnchorName.equals("") || tmpAnchorName.compareToIgnoreCase(redrawAnchorName.toString()) > 0) {
+					  tmpAnchorName = redrawAnchorName.toString();
+				  }
+				  
 				  if (item.getItemData().getTypeId().longValue() == TypeIfc.MULTIPLE_CHOICE.longValue() || 
 						  item.getItemData().getTypeId().longValue() == TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue() ||
 						  item.getItemData().getTypeId().longValue() == TypeIfc.MULTIPLE_CHOICE_SURVEY.longValue()) {
@@ -3240,6 +3285,10 @@ public class DeliveryBean
 		  }
 
 		  syncTimeElapsedWithServer();
+		  
+		  // Set the anchor
+		  setRedrawAnchorName(tmpAnchorName.toString());
+		  
 		  return "takeAssessment";
 	  }
 
@@ -3392,5 +3441,16 @@ public class DeliveryBean
 	  {
 		  this.isAnyInvalidFinInput = isAnyInvalidFinInput;
 	  }
+	  
+	  public String getRedrawAnchorName()
+	  {
+	    return redrawAnchorName;
+	  }
+
+	  public void setRedrawAnchorName(String redrawAnchorName)
+	  {
+	    this.redrawAnchorName = redrawAnchorName;
+	  }
+	 
 }
 

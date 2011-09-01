@@ -36,6 +36,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.text.ParseException;
 import java.math.BigDecimal;
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -717,10 +719,10 @@ public class GradingService
    */
   public void storeGrades(AssessmentGradingIfc data, PublishedAssessmentIfc pub,
                           HashMap publishedItemHash, HashMap publishedItemTextHash,
-                          HashMap publishedAnswerHash, HashMap invalidFINMap) throws GradebookServiceException, FinFormatException
+                          HashMap publishedAnswerHash, HashMap invalidFINMap, ArrayList invalidSALengthList) throws GradebookServiceException, FinFormatException
   {
 	  log.debug("storeGrades: data.getSubmittedDate()" + data.getSubmittedDate());
-	  storeGrades(data, false, pub, publishedItemHash, publishedItemTextHash, publishedAnswerHash, true, invalidFINMap);
+	  storeGrades(data, false, pub, publishedItemHash, publishedItemTextHash, publishedAnswerHash, true, invalidFINMap, invalidSALengthList);
   }
   
   /**
@@ -728,17 +730,17 @@ public class GradingService
    */
   public void storeGrades(AssessmentGradingIfc data, PublishedAssessmentIfc pub,
                           HashMap publishedItemHash, HashMap publishedItemTextHash,
-                          HashMap publishedAnswerHash, boolean persistToDB, HashMap invalidFINMap) throws GradebookServiceException, FinFormatException
+                          HashMap publishedAnswerHash, boolean persistToDB, HashMap invalidFINMap, ArrayList invalidSALengthList) throws GradebookServiceException, FinFormatException
   {
 	  log.debug("storeGrades (not persistToDB) : data.getSubmittedDate()" + data.getSubmittedDate());
-	  storeGrades(data, false, pub, publishedItemHash, publishedItemTextHash, publishedAnswerHash, persistToDB, invalidFINMap);
+	  storeGrades(data, false, pub, publishedItemHash, publishedItemTextHash, publishedAnswerHash, persistToDB, invalidFINMap, invalidSALengthList);
   }
   
   public void storeGrades(AssessmentGradingIfc data, boolean regrade, PublishedAssessmentIfc pub,
 		  HashMap publishedItemHash, HashMap publishedItemTextHash,
 		  HashMap publishedAnswerHash, boolean persistToDB) throws GradebookServiceException, FinFormatException {
 	  log.debug("storeGrades (not persistToDB) : data.getSubmittedDate()" + data.getSubmittedDate());
-	  storeGrades(data, false, pub, publishedItemHash, publishedItemTextHash, publishedAnswerHash, persistToDB, null);
+	  storeGrades(data, false, pub, publishedItemHash, publishedItemTextHash, publishedAnswerHash, persistToDB, null, null);
   }
 
   /**
@@ -751,7 +753,7 @@ public class GradingService
    */
   public void storeGrades(AssessmentGradingIfc data, boolean regrade, PublishedAssessmentIfc pub,
                           HashMap publishedItemHash, HashMap publishedItemTextHash,
-                          HashMap publishedAnswerHash, boolean persistToDB, HashMap invalidFINMap) 
+                          HashMap publishedAnswerHash, boolean persistToDB, HashMap invalidFINMap, ArrayList invalidSALengthList) 
          throws GradebookServiceException, FinFormatException {
     log.debug("****x1. regrade ="+regrade+" "+(new Date()).getTime());
     try {
@@ -775,7 +777,6 @@ public class GradingService
       // not be included in the answers for the other mutually exclusive blanks. 
       HashMap fibAnswersMap= new HashMap();
       
-      
       //change algorithm based on each question (SAK-1930 & IM271559) -cwen
       HashMap totalItems = new HashMap();
       log.debug("****x2. "+(new Date()).getTime());
@@ -797,6 +798,13 @@ public class GradingService
         //itemGrading.setSubmittedDate(new Date());
         itemGrading.setAgentId(agent);
         itemGrading.setOverrideScore(Float.valueOf(0));
+        
+        if (itemGrading.getAnswerText() != null && itemGrading.getAnswerText().length() > 60000) {
+        	if (invalidSALengthList != null) {
+        		invalidSALengthList.add(item.getItemId());
+        	}
+        }
+        
         // note that totalItems & fibAnswersMap would be modified by the following method
         try {
         	autoScore = getScoreByQuestionType(itemGrading, item, itemType, publishedItemTextHash, 
@@ -827,7 +835,7 @@ public class GradingService
         itemGrading.setAutoScore(Float.valueOf(autoScore));
       }
 
-      if (invalidFINMap != null && invalidFINMap.size() > 0) {
+      if ((invalidFINMap != null && invalidFINMap.size() > 0) || (invalidSALengthList != null && invalidSALengthList.size() > 0)) {
     	  return;
       }
       // Added persistToDB because if we don't save data to DB later, we shouldn't update the assessment

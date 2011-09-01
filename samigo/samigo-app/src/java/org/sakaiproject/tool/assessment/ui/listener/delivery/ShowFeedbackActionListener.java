@@ -37,6 +37,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.tool.assessment.services.FinFormatException;
+import org.sakaiproject.tool.assessment.services.SaLengthException;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.SubmitToGradingActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.delivery.UpdateTimerListener;
@@ -82,6 +83,11 @@ public class ShowFeedbackActionListener implements ActionListener
 	  }
 	  catch (FinFormatException e) {
 		  log.debug(e.getMessage());
+		  delivery.setOutcome("takeAssessment");
+		  return;
+	  }
+	  catch (SaLengthException sae) {
+		  log.debug(sae.getMessage());
 		  delivery.setOutcome("takeAssessment");
 		  return;
 	  }

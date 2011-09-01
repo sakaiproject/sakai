@@ -29,10 +29,12 @@ should be included in file importing DeliveryMessages
 <!-- ATTACHMENTS -->
 <%@ include file="/jsf/delivery/item/attachment.jsp" %>
 
+<h:outputText value="#{deliveryMessages.sa_invalid_length_error} " escape="false" rendered="#{question.isInvalidSALengthInput}" styleClass="validation"/>
+
 <h:panelGroup 
      rendered="#{!(delivery.actionString=='reviewAssessment'
             || delivery.actionString=='gradeAssessment')}">
-<f:verbatim><br/><br/></f:verbatim>
+<f:verbatim><br/></f:verbatim>
 <h:outputText value="#{deliveryMessages.maxSAText}"/>
 </h:panelGroup> 
 <f:verbatim><br/></f:verbatim>
@@ -41,7 +43,6 @@ should be included in file importing DeliveryMessages
 <h:panelGrid rendered="#{delivery.actionString!='reviewAssessment'
             && delivery.actionString!='gradeAssessment' && delivery.studentRichText}">
 	<samigo:wysiwyg rows="240" columns="629" value="#{question.responseText}" hasToggle="yes">
-	    <f:validateLength maximum="60000"/>
 	</samigo:wysiwyg>
 </h:panelGrid>
 

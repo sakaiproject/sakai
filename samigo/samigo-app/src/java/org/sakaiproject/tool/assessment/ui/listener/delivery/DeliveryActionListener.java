@@ -142,7 +142,7 @@ public class DeliveryActionListener
       }
       // Clear elapsed time, set not timed out
       clearElapsedTime(delivery);
-
+ 
       // set show student score
       setShowStudentScore(delivery, publishedAssessment);
       setShowStudentQuestionScore(delivery, publishedAssessment);

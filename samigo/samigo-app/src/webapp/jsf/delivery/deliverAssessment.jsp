@@ -47,8 +47,8 @@
       </style>
       </head>
 	
-      <body onload="<%= request.getAttribute("html.body.onload") %>; checkRadio(); setLocation();SaveFormContentAsync('deliverAssessment', 'takeAssessmentForm', 'takeAssessmentForm:save', 'takeAssessmentForm:lastSubmittedDate1', 'takeAssessmentForm:lastSubmittedDate2',  <h:outputText value="#{delivery.autoSaveRepeatMilliseconds}"/>, <h:outputText  value="#{delivery.actionString=='takeAssessment'}"/>);" >
-  
+      <body onload="<%= request.getAttribute("html.body.onload") %>; setLocation(); checkRadio(); SaveFormContentAsync('deliverAssessment', 'takeAssessmentForm', 'takeAssessmentForm:save', 'takeAssessmentForm:lastSubmittedDate1', 'takeAssessmentForm:lastSubmittedDate2',  <h:outputText value="#{delivery.autoSaveRepeatMilliseconds}"/>, true); setTimeout('setLocation2()',2)" >
+
       <h:outputText value="<a name='top'></a>" escape="false" />
       
       <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
@@ -117,7 +117,7 @@
       </div>
  
  <h:outputText value="<div class='portletBody' style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
-      
+
 <!-- content... -->
 <h:form id="takeAssessmentForm" enctype="multipart/form-data"
    onsubmit="saveTime()">
@@ -141,10 +141,10 @@ function checkRadio()
   }
 }
 
-var formatByQuestion = <h:outputText value="#{delivery.settings.formatByQuestion}" />;
+var formatByQuestion = '<h:outputText value="#{delivery.settings.formatByQuestion}" />';
 function setLocation()
 {
-// reset questionindex to avoid a Safari bug
+    // reset questionindex to avoid a Safari bug
 	partIndex = document.forms[0].elements['takeAssessmentForm:partIndex'].value;
 	questionIndex = document.forms[0].elements['takeAssessmentForm:questionIndex'].value;
  	if (!formatByQuestion)
@@ -152,6 +152,7 @@ function setLocation()
 
 	formatByPart = document.forms[0].elements['takeAssessmentForm:formatByPart'].value;
 	formatByAssessment = document.forms[0].elements['takeAssessmentForm:formatByAssessment'].value;
+	
     //alert("partIndex = " + partIndex);
     //alert("questionIndex = " + questionIndex);
 	//alert("formatByPart = " + formatByPart);
@@ -164,6 +165,17 @@ function setLocation()
 	//    b. it is a question in any parts other than the first one
 	if ((formatByPart == 'true' && questionIndex != 0) || (formatByAssessment == 'true' && ((partIndex == 0 && questionIndex !=0) || partIndex != 0))) {
 		window.location = '#p' + ++partIndex + 'q' + ++questionIndex;
+		//alert("from TOC:" + window.location);
+	}
+}
+
+var redrawAnchorName = '<h:outputText value="#{delivery.redrawAnchorName}" />';
+function setLocation2()
+{
+	//alert("redrawAnchorName=" + redrawAnchorName);	
+	if (redrawAnchorName != null && redrawAnchorName != "") {
+		window.location = '#' + redrawAnchorName;
+		//alert("from redraw: window.location..." + window.location);
 	}
 }
 

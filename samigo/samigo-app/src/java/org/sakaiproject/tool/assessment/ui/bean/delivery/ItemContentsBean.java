@@ -151,6 +151,8 @@ public class ItemContentsBean implements Serializable {
 	private boolean showStudentQuestionScore;
 	
 	private boolean isInvalidFinInput;
+	
+	private boolean isInvalidSALengthInput;
 
 	private String pointsDisplayString;
 
@@ -808,6 +810,7 @@ public class ItemContentsBean implements Serializable {
 				ItemGradingData data = (ItemGradingData) iter.next();
 				response = data.getAnswerText();
 			}
+
 			if (response!=null){
 				response = response.replaceAll("(\r\n|\r)", "<br/>");
 				return response;
@@ -1378,16 +1381,19 @@ public class ItemContentsBean implements Serializable {
 
   
   public void setIsInvalidFinInput(boolean isInvalidFinInput) {
-		this.isInvalidFinInput = isInvalidFinInput;
-	}
+	  this.isInvalidFinInput = isInvalidFinInput;
+  }
 
-	/**
-	 * Show the student question score currently earned?
-	 * 
-	 * @return the score
-	 */
-	public boolean getIsInvalidFinInput() {
-		return isInvalidFinInput;
-	}  
+  public boolean getIsInvalidFinInput() {
+	  return isInvalidFinInput;
+  }  
+
+  public void setIsInvalidSALengthInput(boolean isInvalidSALengthInput) {
+	  this.isInvalidSALengthInput = isInvalidSALengthInput;
+  }
+
+  public boolean getIsInvalidSALengthInput() {
+	  return isInvalidSALengthInput;
+  }  
 }
 
