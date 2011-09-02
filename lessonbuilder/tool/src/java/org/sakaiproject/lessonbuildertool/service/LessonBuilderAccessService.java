@@ -308,7 +308,7 @@ public class LessonBuilderAccessService {
 					    } else {
 						// do normal checking for other content
 						if(pushedAdvisor && advisor != null) {
-						    securityService.popAdvisor(advisor);
+						    securityService.popAdvisor();
 						    pushedAdvisor = false;
 						}
 						// our version of allowget does not check hidden but does everything else
@@ -360,7 +360,7 @@ public class LessonBuilderAccessService {
 					} else {
 
 					    // normal security. no reason to use advisor
-					    if(pushedAdvisor && advisor != null) securityService.popAdvisor(advisor);
+					    if(pushedAdvisor && advisor != null) securityService.popAdvisor();
 					    pushedAdvisor = false;
 
 					    // not uselb -- their allowget, not ours. theirs checks hidden
@@ -523,7 +523,7 @@ public class LessonBuilderAccessService {
 				}catch(Exception ex) {
 					throw new EntityNotDefinedException(ref.getReference());
 				}finally {
-					if(pushedAdvisor && advisor != null) securityService.popAdvisor(advisor);
+				    if(pushedAdvisor && advisor != null) securityService.popAdvisor();
 				}
 			}
 		};

@@ -2533,7 +2533,7 @@ public class SimplePageBean {
     		   
     		   return ret;
     	   }finally {
-    		   if(advisor != null) securityService.popAdvisor(advisor);
+	       if(advisor != null) securityService.popAdvisor();
     	   }
        }
 
@@ -3960,7 +3960,7 @@ public class SimplePageBean {
 		}catch(Exception ex) {
 			ex.printStackTrace();
 		}finally {
-			if(advisor != null) securityService.popAdvisor(advisor);
+		    if(advisor != null) securityService.popAdvisor();
 		}
 		
 		// 	no
@@ -4366,7 +4366,7 @@ public class SimplePageBean {
 		}catch(Exception ex) {
 			ex.printStackTrace();
 		} finally {
-			if(advisor != null) securityService.popAdvisor(advisor);
+		    if(advisor != null) securityService.popAdvisor();
 		}
 	}
 
@@ -4502,7 +4502,7 @@ public class SimplePageBean {
 		    	setErrMessage(messageLocator.getMessage("simplepage.resourceerror").replace("{}", e.toString()));
 		    	log.error("addMultimedia error 3 " + e);
 		    }finally {
-		    	if(advisor != null) securityService.popAdvisor(advisor);
+		    	if(advisor != null) securityService.popAdvisor();
 		    }
 		}
 
