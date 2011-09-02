@@ -35,6 +35,7 @@ import org.sakaiproject.announcement.api.AnnouncementMessage;
  */
 public class AnnouncementService
 {
+	public static final String MOD_DATE = org.sakaiproject.announcement.api.AnnouncementService.MOD_DATE;
 	public static final String RELEASE_DATE = org.sakaiproject.announcement.api.AnnouncementService.RELEASE_DATE;
 	public static final String RETRACT_DATE = org.sakaiproject.announcement.api.AnnouncementService.RETRACT_DATE;
 	public static final String ASSIGNMENT_REFERENCE = org.sakaiproject.announcement.api.AnnouncementService.ASSIGNMENT_REFERENCE;

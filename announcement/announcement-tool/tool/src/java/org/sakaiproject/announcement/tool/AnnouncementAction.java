@@ -73,6 +73,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
+import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn.Header;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdInvalidException;
@@ -1803,22 +1804,52 @@ public class AnnouncementAction extends PagedResourceActionII
 		// Set date
 		AnnouncementMessageEdit edit = state.getEdit();
 
+		//set release date
 		if (tempReleaseDate != null)
 		{
-			context.put("date", tempReleaseDate);
+			context.put("releaseDate", tempReleaseDate);
 		}
 		else
 		{
 			Time releaseDate = null;
 			try {
 				releaseDate = edit.getProperties().getTimeProperty(AnnouncementService.RELEASE_DATE);
-				context.put("date", releaseDate);
+				context.put("releaseDate", releaseDate);
 			} 
 			catch (Exception e) {
 				// not set so set switch appropriately
-				context.put("date", TimeService.newTime());
+				context.put("releaseDate", TimeService.newTime());
 			} 
 		}
+		
+		//set retract date
+		if (tempRetractDate != null)
+		{
+			context.put("retractDate", tempRetractDate);
+		}
+		else
+		{
+			Time retractDate = null;
+			try {
+				retractDate = edit.getProperties().getTimeProperty(AnnouncementService.RETRACT_DATE);
+				context.put("retractDate", retractDate);
+			} 
+			catch (Exception e) {
+				// not set so set switch appropriately
+				context.put("retractDate", TimeService.newTime());
+			} 
+		}
+		
+		//set modified date
+		Time modDate = null;
+		try {
+			modDate = edit.getProperties().getTimeProperty(AnnouncementService.MOD_DATE);
+			context.put("modDate", modDate);
+		} 
+		catch (Exception e) {
+			// not set so set switch appropriately
+			context.put("modDate", TimeService.newTime());
+		} 
 		
 		List attachments = state.getAttachments();
 		context.put("attachments", attachments);
@@ -2231,15 +2262,45 @@ public class AnnouncementAction extends PagedResourceActionII
 			// get the message object through service
 			AnnouncementMessage message = channel.getAnnouncementMessage(this.getMessageIDFromReference(messageReference));
 
-			// put release date into context if set. otherwise, put current date
+			// put release date into context if set.
 			try {
 				Time releaseDate = message.getProperties().getTimeProperty(AnnouncementService.RELEASE_DATE);
-				
-				context.put("date", releaseDate);
+				context.put("releaseDate", releaseDate);
 			} 
 			catch (Exception e) {
-				// no release date, put in current time
-				context.put("date", TimeService.newTime());
+				// no release date, ignore
+				if (M_log.isDebugEnabled()) {
+					M_log.debug("buildShowMetadataContext releaseDate is empty for message id " + message.getId());
+				}
+			}
+			
+			try {
+				Time retractDate = message.getProperties().getTimeProperty(AnnouncementService.RETRACT_DATE);
+				context.put("retractDate", retractDate);
+			} 
+			catch (Exception e) {
+				// no retract date, ignore
+				if (M_log.isDebugEnabled()) {
+					M_log.debug("buildShowMetadataContext retractDate is empty for message id " + message.getId());
+				}
+			}
+			
+			try {
+				Time modDate = message.getProperties().getTimeProperty(AnnouncementService.MOD_DATE);
+				context.put("modDate", modDate);
+			} 
+			catch (Exception e) {
+				// no modified date is available
+				// this can happen as SAK-21071 added the MOD_DATE property
+				// as long as the release date is not set, it is safe to grab the date from the msg header
+				Time releaseDate = null;
+				try {
+					releaseDate = message.getProperties().getTimeProperty(AnnouncementService.RELEASE_DATE);
+				}
+				catch (Exception ee) {
+					// this means there is no release date, so it is safe to get the modDate from the message header
+					context.put("modDate", message.getHeader().getDate());
+				}
 			}
 			
 			context.put("message", message);
@@ -2856,15 +2917,17 @@ public class AnnouncementAction extends PagedResourceActionII
 					
 					releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
 
-					//SAK-18641: yorkadam, set release date property, also set Date to curr Date, to maintain Date sort
+					// in addition to setting release date property, also set Date to release date so properly sorted
 					msg.getPropertiesEdit().addProperty(AnnouncementService.RELEASE_DATE, releaseDate.toString());
-					header.setDate(TimeService.newTime());
+					// this date is important as the message-api will pick up on it and create a delayed event if in future
+					// the delayed event will then notify() to send the message at the proper time
+					header.setDate(releaseDate);
 				}
 				else if (tempReleaseDate != null) // saving from Preview page
 				{
-					//SAK-18641: yorkadam, set release date property, also set Date to curr Date, to maintain Date sort
+					// in addition to setting release date property, also set Date to release date so properly sorted
 					msg.getPropertiesEdit().addProperty(AnnouncementService.RELEASE_DATE, tempReleaseDate.toString());
-					header.setDate(TimeService.newTime());					
+					header.setDate(tempReleaseDate);					
 				}
 				else
 				{
@@ -2895,12 +2958,15 @@ public class AnnouncementAction extends PagedResourceActionII
 				}
 				else 
 				{
-					// they are not using release date so remove
+					// they are not using retract date so remove
 					if (msg.getProperties().getProperty(AnnouncementService.RETRACT_DATE) != null) 
 					{
 							msg.getPropertiesEdit().removeProperty(AnnouncementService.RETRACT_DATE);
 					}
 				}
+				
+				//modified date
+				msg.getPropertiesEdit().addProperty(AnnouncementService.MOD_DATE, TimeService.newTime().toString());
 				
 				//announceTo
 				Placement placement = ToolManager.getCurrentPlacement();
@@ -3800,15 +3866,51 @@ public class AnnouncementAction extends PagedResourceActionII
 			}
 			else if (m_criteria.equals(SORT_DATE))
 			{
-				// sorted by the discussion message date
-				if (((AnnouncementMessage) o1).getAnnouncementHeader().getDate().before(
-						((AnnouncementMessage) o2).getAnnouncementHeader().getDate()))
+
+				Time o1ModDate = null;
+				Time o2ModDate = null;
+				
+				try
 				{
-					result = -1;
+					o1ModDate = ((AnnouncementMessage) o1).getProperties().getTimeProperty(AnnouncementService.MOD_DATE);
+				}
+				catch (Exception e) 
+				{
+					// release date not set, use the date in header 
+					// NOTE: this is an edge use case for courses with pre-existing announcements that do not yet have MOD_DATE
+					o1ModDate = ((AnnouncementMessage) o1).getHeader().getDate();
+				}
+
+				try 
+				{
+					o2ModDate = ((AnnouncementMessage) o2).getProperties().getTimeProperty(AnnouncementService.MOD_DATE);
+				}
+				catch (Exception e) 
+				{
+					// release date not set, use the date in the header
+					// NOTE: this is an edge use case for courses with pre-existing announcements that do not yet have MOD_DATE
+					o2ModDate = ((AnnouncementMessage) o2).getHeader().getDate();
+				}
+
+				if (o1ModDate != null && o2ModDate != null) 
+				{
+					// sorted by the discussion message date
+					if (o1ModDate.before(o2ModDate))
+					{
+						result = -1;
+					}
+					else
+					{
+						result = 1;
+					}
+				}
+				else if (o1ModDate == null)
+				{
+					return 1;
 				}
 				else
 				{
-					result = 1;
+					return -1;
 				}
 			}
 			else if (m_criteria.equals(SORT_MESSAGE_ORDER))

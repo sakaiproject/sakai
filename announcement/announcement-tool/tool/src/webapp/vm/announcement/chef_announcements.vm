@@ -638,8 +638,12 @@
 									<td headers="author">
 										$validator.escapeHtml($ann_item.Header.From.DisplayName)
 									</td>
-									<td headers="date"> 
-										$ann_item.Header.Date.toStringLocalFull()
+									<td headers="date">
+										#if (!$ann_item_props.isEmpty() && $ann_item_props.getProperty("modDate"))
+											$ann_item_props.getTimeProperty("modDate").toStringLocalFull()
+										#else
+											$ann_item.Header.Date.toStringLocalFull()
+										#end
 									</td>
 									#if ($EnableItemCheckBoxes)
 										#if ($SiteColumnFlag > 0)

@@ -50,9 +50,28 @@
 			<th>$tlang.getString("gen.from")</th>
 			<td>$validator.escapeHtml($message.Header.From.DisplayName)</td>
 		</tr>
+		
 		<tr>
-			<th>$tlang.getString("gen.date")</th>
-			<td>$message.Header.Date.toStringLocalFull()</td>
+			<th>$tlang.getString("gen.mod")</th>
+			<td>$modDate.toStringLocalFull()</td>
+		</tr>
+		
+		<tr>
+			<th>$tlang.getString("gen.releasedate")</th>
+			#if($releaseDate)
+				<td>$releaseDate.toStringLocalFull()</td>
+			#else
+				<td></td>
+		#end
+		</tr>
+		
+		<tr>
+			<th>$tlang.getString("gen.retractdate")</th>
+			#if($retractDate)
+				<td>$retractDate.toStringLocalFull()</td>
+			#else
+				<td></td>
+		#end
 		</tr>
 
 		#if ($!range)

@@ -100,6 +100,9 @@ public interface AnnouncementService extends MessageService
 	/** retract date property names for announcements	 */
 	public static final String RETRACT_DATE = "retractDate";
 	
+	/** modified date property names for announcements	 */
+	public static final String MOD_DATE = "modDate";
+	
 	/** assignment reference property for announcements       */
         public static final String ASSIGNMENT_REFERENCE = "assignmentReference";
 	
