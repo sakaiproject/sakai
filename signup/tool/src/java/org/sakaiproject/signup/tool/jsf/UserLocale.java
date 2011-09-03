@@ -22,6 +22,9 @@
  **********************************************************************************/
 package org.sakaiproject.signup.tool.jsf;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
@@ -79,5 +82,14 @@ public class UserLocale {
 		}
 
 		return false;
+	}
+	
+	/**
+	 * Get the date format from the locale
+	 * @return
+	 */
+	public String getDateFormat() {
+		DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT, (new ResourceLoader()).getLocale());
+		return ((SimpleDateFormat)df).toPattern();
 	}
 }

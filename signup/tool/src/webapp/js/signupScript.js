@@ -529,3 +529,64 @@ sakai.setupWaitListed = function(){
         $('.waitListed').toggle();
     })
 }
+
+sakai.initSignupBeginsAndEnds = function() {
+	
+	// get start and end time from the main date selector
+	var startTime = new Date(getSignupDateTime('startTime'));
+	var endTime = new Date(getSignupDateTime('endTime'));
+	
+	//get offsets
+	//need special selector syntax because of the :
+	var signupBeginsOffset = $('[id=meeting:signupBegins]').val();
+	var signupEndsOffset = $('[id=meeting:signupBegins]').val();
+	
+	//get offset types
+	var signupBeginsOffsetType = $('[id=meeting:signupBeginsType]').val();
+	var signupEndsOffsetType = $('[id=meeting:signupBeginsType]').val();
+	
+	var signupBeginsExact = 'b';
+	//calculate actual signupBegin time
+	if(signupBeginsOffsetType == 'minutes') {
+		signupBeginsExact = startTime.subtractMinutes(signupBeginsOffset);
+	}
+	if(signupBeginsOffsetType == 'hours') {
+		signupBeginsExact = startTime.subtractHours(signupBeginsOffset);
+	}
+	if(signupBeginsOffsetType == 'days') {
+		signupBeginsExact = startTime.subtractDays(signupBeginsOffset);
+	}
+	
+	/*
+	alert("startTime: " + startTime);
+	alert("signupBeginsOffset: " + signupBeginsOffset);
+	alert("signupBeginsExact: " + signupBeginsExact);
+	*/
+	
+	//set the new date into the field
+	$('[id=meeting:signupBeginsExact]').text(signupBeginsExact.toString());
+	
+	
+}
+
+/**
+ * Date object method extensions to allow us to subtract values from dates 
+ */
+Date.prototype.subtractMinutes = function(i){
+    var nd = new Date(this.getTime());
+    nd.setMinutes(nd.getMinutes()-i);
+    return nd;
+}
+
+Date.prototype.subtractHours = function(i){
+    var nd = new Date(this.getTime());
+    nd.setHours(nd.getHours()-i);
+    return nd;
+}
+
+Date.prototype.subtractDays = function(i){
+    var nd = new Date(this.getTime());
+    nd.setHours(nd.getHours()-(i*24));
+    return nd;
+}
+

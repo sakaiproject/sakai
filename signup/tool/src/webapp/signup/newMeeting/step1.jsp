@@ -12,9 +12,17 @@
         <style type="text/css">
             @import url("/sakai-signup-tool/css/signupStyle.css");
         </style>
-          
-        <script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/signupScript.js"></script>
-        <script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/newMeetingStep1.js"></script>                 
+        
+        <script type="text/javascript" src="/library/js/jquery/1.4.2/jquery-1.4.2.min.js"></script>
+        <script type="text/javascript" src="/sakai-signup-tool/js/signupScript.js"></script>
+        <script type="text/javascript" src="/sakai-signup-tool/js/newMeetingStep1.js"></script>  
+        
+		<script type="text/javascript">
+        	$(document).ready(function(){
+        		sakai.initSignupBeginsAndEnds();
+        	});
+    	</script>
+    	
         <sakai:view_content>
      		<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>
             <h:form id="meeting" >              
@@ -136,8 +144,8 @@
 						<h:outputText value="#{msgs.event_end_time}" escape="false"/>
 					</h:panelGroup>
         			<h:panelGroup styleClass="editText">
-						<t:inputDate id="endTime" type="both" ampm="true" value="#{NewSignupMeetingBean.signupMeeting.endTime}" style="color:black;" popupCalendar="true" 
-							onkeyup="getSignupDuration();return false;"/>
+						<t:inputDate id="endTime" type="both" ampm="true" value="#{NewSignupMeetingBean.signupMeeting.endTime}"
+						 	style="color:black;" popupCalendar="true" onkeyup="getSignupDuration();return false;"/>
 						<h:message for="endTime" errorClass="alertMessageInline"/>
 					</h:panelGroup>
 
@@ -196,7 +204,14 @@
 						</h:selectOneMenu>
 						<h:outputText value="#{msgs.before_event_start}" escape="false" style="margin-left:18px"/>
 						<h:message for="signupBegins" errorClass="alertMessageInline" />
+						
+						<!--  show exact date, based on above -->
+						<h:outputText id="signupBeginsExact" value="" escape="false" styleClass="dateExact" />
+					
                     </h:panelGroup>
+                    
+                   
+					
                 
                 	<%-- signup end --%>
 					<h:panelGroup styleClass="signupBDeadline" id="signup_beginDeadline_3">
@@ -373,7 +388,7 @@
 			 initialLayoutsSetup();
 	         otherUserSitesSelection();
 	         replaceCalendarImageIcon(); 
-	         userDefinedTsChoice();   
+	         userDefinedTsChoice(); 
 		</script>
     </f:verbatim>
 </f:view>
