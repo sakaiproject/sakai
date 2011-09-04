@@ -19,7 +19,7 @@
         
 		<script type="text/javascript">
         	$(document).ready(function(){
-        		sakai.initSignupBeginsAndEnds();
+        		sakai.initSignupBeginAndEndsExact();
         	});
     	</script>
     	
@@ -134,7 +134,7 @@
 					</h:panelGroup>	
         			<h:panelGroup styleClass="editText">
 						<t:inputDate id="startTime" type="both"  ampm="true" value="#{NewSignupMeetingBean.signupMeeting.startTime}"
-							style="color:black;" popupCalendar="true" onkeyup="setEndtimeMonthDateYear();getSignupDuration();return false;"/>
+							style="color:black;" popupCalendar="true" onkeyup="setEndtimeMonthDateYear(); getSignupDuration(); sakai.updateSignupBeginsExact(); return false;" onchange="sakai.updateSignupBeginsExact();"/>
 						<h:message for="startTime" errorClass="alertMessageInline"/>
 					</h:panelGroup>
 					
@@ -145,7 +145,7 @@
 					</h:panelGroup>
         			<h:panelGroup styleClass="editText">
 						<t:inputDate id="endTime" type="both" ampm="true" value="#{NewSignupMeetingBean.signupMeeting.endTime}"
-						 	style="color:black;" popupCalendar="true" onkeyup="getSignupDuration();return false;"/>
+						 	style="color:black;" popupCalendar="true" onkeyup="getSignupDuration(); sakai.updateSignupEndsExact(); return false;" onchange="sakai.updateSignupEndsExact();"/>
 						<h:message for="endTime" errorClass="alertMessageInline"/>
 					</h:panelGroup>
 
@@ -193,10 +193,10 @@
                     	<h:outputText value="#{msgs.event_signup_begins}" escape="false" styleClass="titleText"/>
                     </h:panelGroup>
                     <h:panelGroup styleClass="signupBDeadline" id="signup_beginDeadline_2">
-						<h:inputText id="signupBegins" value="#{NewSignupMeetingBean.signupBegins}" size="2" required="true">
+						<h:inputText id="signupBegins" value="#{NewSignupMeetingBean.signupBegins}" size="2" required="true" onkeyup="sakai.updateSignupBeginsExact();">
 							<f:validateLongRange minimum="0" maximum="99999"/>
 						</h:inputText>
-						<h:selectOneMenu id="signupBeginsType" value="#{NewSignupMeetingBean.signupBeginsType}" onchange="isSignUpBeginStartNow(value);" style="padding-left:5px; margin-right:5px">
+						<h:selectOneMenu id="signupBeginsType" value="#{NewSignupMeetingBean.signupBeginsType}" onchange="isSignUpBeginStartNow(value); sakai.updateSignupBeginsExact();" style="padding-left:5px; margin-right:5px">
 							<f:selectItem itemValue="minutes" itemLabel="#{msgs.label_minutes}"/>
 							<f:selectItem itemValue="hours" itemLabel="#{msgs.label_hours}"/>
 							<f:selectItem itemValue="days" itemLabel="#{msgs.label_days}"/>
@@ -218,16 +218,20 @@
                     	<h:outputText value="#{msgs.event_signup_deadline2}" escape="false" styleClass="titleText"/>
                    	</h:panelGroup>
                     <h:panelGroup styleClass="signupBDeadline" id="signup_beginDeadline_4">
-                        <h:inputText id="signupDeadline" value="#{NewSignupMeetingBean.deadlineTime}" size="2" required="true">
+                        <h:inputText id="signupDeadline" value="#{NewSignupMeetingBean.deadlineTime}" size="2" required="true" onkeyup="sakai.updateSignupEndsExact();">
                             <f:validateLongRange minimum="0" maximum="99999"/>
                         </h:inputText>
-                        <h:selectOneMenu value="#{NewSignupMeetingBean.deadlineTimeType}" style="padding-left:5px; margin-right:5px">
+                        <h:selectOneMenu id="signupDeadlineType" value="#{NewSignupMeetingBean.deadlineTimeType}" onchange="sakai.updateSignupEndsExact();" style="padding-left:5px; margin-right:5px">
                             <f:selectItem itemValue="minutes" itemLabel="#{msgs.label_minutes}"/>
                             <f:selectItem itemValue="hours" itemLabel="#{msgs.label_hours}"/>
                             <f:selectItem itemValue="days" itemLabel="#{msgs.label_days}"/>
                         </h:selectOneMenu>                
                         <h:outputText value="#{msgs.before_event_end}" escape="false" style="margin-left:18px"/>
                         <h:message for="signupDeadline" errorClass="alertMessageInline" />
+                        
+                        <!--  show exact date, based on above -->
+						<h:outputText id="signupEndsExact" value="" escape="false" styleClass="dateExact" />
+                        
                     </h:panelGroup>
                     
                     <%-- attendance --%>

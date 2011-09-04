@@ -530,23 +530,25 @@ sakai.setupWaitListed = function(){
     })
 }
 
-sakai.initSignupBeginsAndEnds = function() {
+sakai.initSignupBeginAndEndsExact = function() {
+	sakai.updateSignupBeginsExact();
+	sakai.updateSignupEndsExact();
+}
+
+sakai.updateSignupBeginsExact = function() {
 	
-	// get start and end time from the main date selector
+	// get start time from the main date selector
 	var startTime = new Date(getSignupDateTime('startTime'));
-	var endTime = new Date(getSignupDateTime('endTime'));
 	
-	//get offsets
+	//get offset
 	//need special selector syntax because of the :
 	var signupBeginsOffset = $('[id=meeting:signupBegins]').val();
-	var signupEndsOffset = $('[id=meeting:signupBegins]').val();
 	
-	//get offset types
+	//get offset type
 	var signupBeginsOffsetType = $('[id=meeting:signupBeginsType]').val();
-	var signupEndsOffsetType = $('[id=meeting:signupBeginsType]').val();
 	
-	var signupBeginsExact = 'b';
 	//calculate actual signupBegin time
+	var signupBeginsExact = '';
 	if(signupBeginsOffsetType == 'minutes') {
 		signupBeginsExact = startTime.subtractMinutes(signupBeginsOffset);
 	}
@@ -556,6 +558,9 @@ sakai.initSignupBeginsAndEnds = function() {
 	if(signupBeginsOffsetType == 'days') {
 		signupBeginsExact = startTime.subtractDays(signupBeginsOffset);
 	}
+	if(signupBeginsOffsetType == 'startNow') {
+		signupBeginsExact = startTime;
+	}
 	
 	/*
 	alert("startTime: " + startTime);
@@ -563,10 +568,42 @@ sakai.initSignupBeginsAndEnds = function() {
 	alert("signupBeginsExact: " + signupBeginsExact);
 	*/
 	
-	//set the new date into the field
+	//set the new date into the fields
 	$('[id=meeting:signupBeginsExact]').text(signupBeginsExact.toString());
 	
+}
+
+sakai.updateSignupEndsExact = function() {
 	
+	// get end time from the main date selector
+	var endTime = new Date(getSignupDateTime('endTime'));
+	
+	//get offset
+	var signupEndsOffset = $('[id=meeting:signupDeadline]').val();
+	
+	//get offset type
+	var signupEndsOffsetType = $('[id=meeting:signupDeadlineType]').val();
+	
+	//calculate actual signupEnd time
+	var signupEndsExact = '';
+	if(signupEndsOffsetType == 'minutes') {
+		signupEndsExact = endTime.subtractMinutes(signupEndsOffset);
+	}
+	if(signupEndsOffsetType == 'hours') {
+		signupEndsExact = endTime.subtractHours(signupEndsOffset);
+	}
+	if(signupEndsOffsetType == 'days') {
+		signupEndsExact = endTime.subtractDays(signupEndsOffset);
+	}
+	
+	/*
+	alert("endTime: " + endTime);
+	alert("signupEndsOffset: " + signupEndsOffset);
+	alert("signupEndsExact: " + signupEndsExact);
+	 */
+	
+	//set the new date into the fields
+	$('[id=meeting:signupEndsExact]').text(signupEndsExact.toString());
 }
 
 /**

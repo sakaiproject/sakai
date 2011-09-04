@@ -528,7 +528,6 @@ table.emailTable td.valueColumn {
 }
 
 .dateExact {
-	color: black;
-	background-color: #E7EEF5;
+	color: #888;
 	margin-left: 10px;
 }
