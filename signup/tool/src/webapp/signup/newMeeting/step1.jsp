@@ -19,6 +19,7 @@
         
 		<script type="text/javascript">
         	$(document).ready(function(){
+        		sakai.toggleExactDateVisibility();
         		sakai.initSignupBeginAndEndsExact();
         	});
     	</script>
@@ -155,7 +156,7 @@
                      	<h:outputText styleClass="titleText" value="#{msgs.event_recurrence}"  />  
                     </h:panelGroup>                          
 					<h:panelGroup>                            
-						<h:selectOneMenu id="recurSelector" value="#{NewSignupMeetingBean.repeatType}" styleClass="titleText" onchange="isShowCalendar(value); return false;">
+						<h:selectOneMenu id="recurSelector" value="#{NewSignupMeetingBean.repeatType}" styleClass="titleText" onchange="isShowCalendar(value); sakai.toggleExactDateVisibility(); return false;">
 							<f:selectItem itemValue="no_repeat" itemLabel="#{msgs.label_once}"/>
                                <f:selectItem itemValue="daily" itemLabel="#{msgs.label_daily}"/>
                                <f:selectItem itemValue="wkdays_mon-fri" itemLabel="#{msgs.label_weekdays}"/>

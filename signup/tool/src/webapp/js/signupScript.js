@@ -570,7 +570,6 @@ sakai.updateSignupBeginsExact = function() {
 	
 	//set the new date into the fields
 	$('[id=meeting:signupBeginsExact]').text(signupBeginsExact.toString());
-	
 }
 
 sakai.updateSignupEndsExact = function() {
@@ -605,6 +604,23 @@ sakai.updateSignupEndsExact = function() {
 	//set the new date into the fields
 	$('[id=meeting:signupEndsExact]').text(signupEndsExact.toString());
 }
+
+sakai.toggleExactDateVisibility = function() {
+	
+	//only visible when the meeting is once only, so check for that.
+	var recurrence = $('[id=meeting:recurSelector]').val();
+	if(recurrence == 'no_repeat') {
+		$('[id=meeting:signupBeginsExact]').show();
+		$('[id=meeting:signupEndsExact]').show();
+	} else {
+		$('[id=meeting:signupBeginsExact]').hide();
+		$('[id=meeting:signupEndsExact]').hide();
+	}
+	
+	
+}
+
+
 
 /**
  * Date object method extensions to allow us to subtract values from dates 
