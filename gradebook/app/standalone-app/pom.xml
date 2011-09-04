@@ -59,11 +59,12 @@
     <dependency>
       <groupId>org.sakaiproject.edu-services.gradebook</groupId>
       <artifactId>gradebook-service-api</artifactId>
-    </dependency><!--
+    </dependency>
+
     <dependency>
-      <groupId>org.sakaiproject.edu-services.gadebook</groupId>
+      <groupId>org.sakaiproject.edu-services.gradebook</groupId>
       <artifactId>gradebook-service-hibernate</artifactId>
-    </dependency>-->
+    </dependency>
     <dependency>
       <groupId>org.sakaiproject.edu-services.gradebook</groupId>
       <artifactId>gradebook-service-impl</artifactId>

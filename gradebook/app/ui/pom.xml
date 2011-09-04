@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+   <parent>
     <artifactId>sakai-gradebook-app</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>2.9-SNAPSHOT</version>
@@ -84,11 +85,11 @@
       <groupId>org.sakaiproject.edu-services.gradebook</groupId>
       <artifactId>gradebook-service-api</artifactId>
     </dependency>
-    <!--<dependency>
-      <groupId>org.sakaiproject.edu-services</groupId>
+    <dependency>
+      <groupId>org.sakaiproject.edu-services.gradebook</groupId>
       <artifactId>gradebook-service-hibernate</artifactId>
     </dependency>
-    <dependency>
+   <!-- <dependency>
       <groupId>org.sakaiproject.edu-services</groupId>
       <artifactId>gradebook-service-impl</artifactId>
     </dependency>-->
@@ -100,10 +101,11 @@
       <artifactId>sections-api</artifactId>
     </dependency>
 <!-- Standalone component -->
+<!-- why?
     <dependency>
       <groupId>org.sakaiproject.edu-services.sections</groupId>
       <artifactId>sections-impl-standalone</artifactId>
-    </dependency>
+    </dependency>  -->
 <!-- Used only for test data. -->
     <dependency>
       <groupId>org.sakaiproject.edu-services.sections</groupId>
@@ -186,7 +188,7 @@
       <artifactId>odmg</artifactId>
       <version>3.0</version>
     </dependency>
-    <dependency>
+    <!-- <dependency>
       <groupId>commons-dbcp</groupId>
       <artifactId>commons-dbcp</artifactId>
       <version>1.2.2</version>
@@ -195,11 +197,10 @@
       <groupId>commons-pool</groupId>
       <artifactId>commons-pool</artifactId>
       <version>1.2</version>
-    </dependency>
+    </dependency> -->
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
-      <version>${sakai.commons.lang.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-collections</groupId>
@@ -219,7 +220,6 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>
@@ -229,7 +229,6 @@
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
-      <version>1.2.9</version>
     </dependency>
     <dependency>
       <groupId>dom4j</groupId>
@@ -265,7 +264,6 @@
     <dependency>
       <groupId>commons-fileupload</groupId>
       <artifactId>commons-fileupload</artifactId>
-      <version>1.1.1</version>
     </dependency>
 <!-- base64 used to implement STATE_SAVING_METHOD client -->
     <dependency>
