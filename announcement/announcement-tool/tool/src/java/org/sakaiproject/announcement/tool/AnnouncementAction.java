@@ -235,8 +235,6 @@ public class AnnouncementAction extends PagedResourceActionII
    
    private EntityBroker entityBroker;
    
-   private static int MaxNoOfAnn =0;
-   
    /*
 	 * Returns the current order
 	 * 
@@ -1544,8 +1542,6 @@ public class AnnouncementAction extends PagedResourceActionII
 		{
 			Collections.reverse(messageList);
 		}
-		
-		MaxNoOfAnn=messageList.size();
 		
 		// Apply any necessary list truncation.
 		messageList = getViewableMessages(messageList, ToolManager.getCurrentPlacement().getContext());
@@ -2888,8 +2884,47 @@ public class AnnouncementAction extends PagedResourceActionII
 				header.setSubject(subject);
 				
 				//set the order of the announcement messages
-				MaxNoOfAnn=MaxNoOfAnn+1;
-				header.setMessage_order(MaxNoOfAnn);
+				// for example, if this was MESSAGE_ORDER=5 and now becomes MESSAGE_ORDER=12, 
+				// we should be modifying the database records for 5-12 and decrementing their message order
+				int oldMessageOrder = header.getMessage_order();
+				List<Message> channelMessages = channel.getMessages(null, true); // ascending order
+				
+				// sort the messages by current sort order
+				SortedIterator messSorted = new SortedIterator(channelMessages.iterator(), new AnnouncementComparator(getCurrentOrder(), true));
+				
+				int runningCount = 1;
+				while (messSorted.hasNext()) {	
+					AnnouncementMessageEdit ame = (AnnouncementMessageEdit) messSorted.next();
+					AnnouncementMessageHeaderEdit amhe = ame.getAnnouncementHeaderEdit();
+					int currentOrder = amhe.getMessage_order();
+					
+					// do not attempt to double modify our existing message
+					// skipping will also make sure our runningCount does *not* increment
+					if (ame.getId().equals(msg.getId())) {
+						continue;
+					}
+					
+					// only edit the message if we need to modify the order
+					if (currentOrder != runningCount) {
+						amhe.setMessage_order(runningCount);
+						channel.commitMessage_order(ame);
+						
+						if (M_log.isDebugEnabled()) {
+							M_log.debug("postOrSaveDraft modifying order: " + ame.getId() + ":" 
+									+ currentOrder + ":" + runningCount + ":" + oldMessageOrder);
+						}
+					}	
+
+					// this max should be correct because we just went through all messages in channel in ascending order
+					runningCount++;
+				}
+				
+				// set the message order for our current message to be max
+				header.setMessage_order(runningCount);
+				
+				if (M_log.isDebugEnabled()) {
+					M_log.debug("postOrSaveDraft set message order for " + msg.getId() + " to running count " + runningCount);
+				}
 				
 //				header.setDraft(!post);
 				// v2.4: Hidden in UI becomes Draft 'behind the scenes'
