@@ -23,11 +23,15 @@ package org.sakaiproject.dash.logic;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.Person;
 import org.sakaiproject.dash.model.SourceType;
+import org.sakaiproject.dash.entity.EntityLinkStrategy;
+import org.sakaiproject.dash.entity.EntityType;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.model.Realm;
 import org.sakaiproject.dash.model.NewsItem;
@@ -68,7 +72,7 @@ public interface DashboardLogic {
 
 	public void createNewsLinks(NewsItem newsItem);
 	
-	public SourceType createSourceType(String identifier, String accessPermission);
+	public SourceType createSourceType(String identifier, String accessPermission, EntityLinkStrategy entityLinkStrategy);
 
 	public CalendarItem getCalendarItem(long id);
 
@@ -95,6 +99,10 @@ public interface DashboardLogic {
 	 * @return the SourceType object, or null if it is not defined.
 	 */
 	public SourceType getSourceType(String identifier);
+	
+	public Map<String, Object> getEntityMapping(String entityType, String entityReference, Locale locale);
+	
+	public void registerEntityType(EntityType entityType);
 	
 	public void registerEventProcessor(EventProcessor eventProcessor);
 

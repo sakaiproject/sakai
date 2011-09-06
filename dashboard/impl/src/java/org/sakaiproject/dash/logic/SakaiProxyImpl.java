@@ -28,6 +28,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.Validator;
 
 /**
  * Implementation of our SakaiProxy API
@@ -143,6 +144,14 @@ public class SakaiProxyImpl implements SakaiProxy {
  	*/
 	public String getSkinRepoProperty(){
 		return serverConfigurationService.getString("skin.repo");
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.SakaiProxy#getTargetForMimetype(java.lang.String)
+	 */
+	public String getTargetForMimetype(String mimetype) {
+		return Validator.getResourceTarget(mimetype);
 	}
 	
 	/*
@@ -344,5 +353,5 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public void init() {
 		logger.info("init");
 	}
-	
+
 }

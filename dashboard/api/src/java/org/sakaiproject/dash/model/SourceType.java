@@ -21,6 +21,8 @@
 
 package org.sakaiproject.dash.model;
 
+import org.sakaiproject.dash.entity.EntityLinkStrategy;
+
 
 /**
  * SourceType encapsulates information about the types of entities to be
@@ -33,6 +35,7 @@ public class SourceType {
 	protected Long id;
 	protected String identifier;
 	protected String accessPermission;
+	protected EntityLinkStrategy entityLinkStrategy;
 
 	/**
 	 * 
@@ -44,28 +47,33 @@ public class SourceType {
 	public SourceType(String identifier) {
 		super();
 		this.identifier = identifier;
+		this.entityLinkStrategy = EntityLinkStrategy.ACCESS_URL;
 	}
 	
 	/**
 	 * @param identifier
 	 * @param accessPermission
+	 * @param entityLinkStrategy TODO
 	 */
-	public SourceType(String identifier, String accessPermission) {
+	public SourceType(String identifier, String accessPermission, EntityLinkStrategy entityLinkStrategy) {
 		super();
 		this.identifier = identifier;
 		this.accessPermission = accessPermission;
+		this.entityLinkStrategy = entityLinkStrategy;
 	}
 
 	/**
 	 * @param id
 	 * @param identifier
 	 * @param accessPermission
+	 * @param entityLinkStrategy TODO
 	 */
-	public SourceType(Long id, String identifier, String accessPermission) {
+	public SourceType(Long id, String identifier, String accessPermission, EntityLinkStrategy entityLinkStrategy) {
 		super();
 		this.id = id;
 		this.identifier = identifier;
 		this.accessPermission = accessPermission;
+		this.entityLinkStrategy = entityLinkStrategy;
 	}
 
 	/**
@@ -90,6 +98,13 @@ public class SourceType {
 	}
 
 	/**
+	 * @return the entityLinkStrategy
+	 */
+	public EntityLinkStrategy getEntityLinkStrategy() {
+		return entityLinkStrategy;
+	}
+
+	/**
 	 * @param id the id to set
 	 */
 	public void setId(Long id) {
@@ -110,17 +125,42 @@ public class SourceType {
 		this.accessPermission = accessPermission;
 	}
 
+	/**
+	 * @param entityLinkStrategy the entityLinkStrategy to set
+	 */
+	public void setEntityLinkStrategy(EntityLinkStrategy entityLinkStrategy) {
+		this.entityLinkStrategy = entityLinkStrategy;
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("SourceType [id=");
-		builder.append(id);
-		builder.append(", identifier=");
-		builder.append(identifier);
+		builder.append("SourceType [");
+		if (id != null) {
+			builder.append("id=");
+			builder.append(id);
+			builder.append(", ");
+		}
+		if (identifier != null) {
+			builder.append("identifier=");
+			builder.append(identifier);
+			builder.append(", ");
+		}
+		if (accessPermission != null) {
+			builder.append("accessPermission=");
+			builder.append(accessPermission);
+			builder.append(", ");
+		}
+		if (entityLinkStrategy != null) {
+			builder.append("entityLinkStrategy=");
+			builder.append(entityLinkStrategy);
+		}
 		builder.append("]");
 		return builder.toString();
 	}
+
+	
 }

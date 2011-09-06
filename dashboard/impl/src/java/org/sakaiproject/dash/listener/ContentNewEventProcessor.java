@@ -28,6 +28,7 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.dash.entity.EntityLinkStrategy;
 import org.sakaiproject.dash.logic.DashboardLogic;
 import org.sakaiproject.dash.logic.SakaiProxy;
 import org.sakaiproject.dash.model.Context;
@@ -80,7 +81,7 @@ public class ContentNewEventProcessor implements EventProcessor {
 			
 			SourceType sourceType = this.dashboardLogic.getSourceType("resource");
 			if(sourceType == null) {
-				sourceType = this.dashboardLogic.createSourceType("resource", SakaiProxy.PERMIT_RESOURCE_ACCESS);
+				sourceType = this.dashboardLogic.createSourceType("resource", SakaiProxy.PERMIT_RESOURCE_ACCESS, EntityLinkStrategy.ACCESS_URL);
 			}
 			
 			ResourceProperties props = resource.getProperties();

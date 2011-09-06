@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.sakaiproject.assignment.api.Assignment;
+import org.sakaiproject.dash.entity.EntityLinkStrategy;
 import org.sakaiproject.dash.logic.DashboardLogic;
 import org.sakaiproject.dash.logic.DashboardLogicImpl;
 import org.sakaiproject.dash.logic.SakaiProxy;
@@ -92,7 +93,7 @@ public class AssignmentNewEventProcessor implements EventProcessor {
             
 			SourceType sourceType = this.dashboardLogic.getSourceType("assignment");
 			if(sourceType == null) {
-				sourceType = this.dashboardLogic.createSourceType("assignment", SakaiProxy.PERMIT_ASSIGNMENT_ACCESS);
+				sourceType = this.dashboardLogic.createSourceType("assignment", SakaiProxy.PERMIT_ASSIGNMENT_ACCESS, EntityLinkStrategy.SHOW_PROPERTIES);
 			}
 			
 			

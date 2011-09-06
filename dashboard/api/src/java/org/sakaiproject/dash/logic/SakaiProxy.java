@@ -147,7 +147,9 @@ public interface SakaiProxy {
 	
 	public boolean isWorksite(String siteId);
 
-	public abstract boolean isUserPermitted(String sakaiUserId,
+	public boolean isUserPermitted(String sakaiUserId,
 			String accessPermission, String entityReference);
+
+	public String getTargetForMimetype(String mimetype);
 
 }

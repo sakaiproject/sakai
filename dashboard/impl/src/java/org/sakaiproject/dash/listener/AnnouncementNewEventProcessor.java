@@ -10,6 +10,7 @@ import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.cover.AnnouncementService;
 import org.sakaiproject.message.api.*;
+import org.sakaiproject.dash.entity.EntityLinkStrategy;
 import org.sakaiproject.dash.logic.DashboardLogic;
 import org.sakaiproject.dash.logic.DashboardLogicImpl;
 import org.sakaiproject.dash.logic.SakaiProxy;
@@ -77,7 +78,7 @@ public class AnnouncementNewEventProcessor implements EventProcessor {
 //			}
 			SourceType sourceType = this.dashboardLogic.getSourceType("announcement");
 			if(sourceType == null) {
-				sourceType = this.dashboardLogic.createSourceType("announcement", SakaiProxy.PERMIT_ANNOUNCEMENT_ACCESS);
+				sourceType = this.dashboardLogic.createSourceType("announcement", SakaiProxy.PERMIT_ANNOUNCEMENT_ACCESS, EntityLinkStrategy.SHOW_PROPERTIES);
 			}
 			String accessUrl = ann.getUrl();
 			NewsItem newsItem = this.dashboardLogic.createNewsItem(ann.getAnnouncementHeader().getSubject(), event.getEventTime(), event.getResource(), accessUrl, context, sourceType);

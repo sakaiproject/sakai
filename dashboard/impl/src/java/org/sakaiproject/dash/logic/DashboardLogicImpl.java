@@ -26,6 +26,7 @@ import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
@@ -39,6 +40,8 @@ import org.apache.log4j.Logger;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.dash.dao.DashboardDao;
+import org.sakaiproject.dash.entity.EntityLinkStrategy;
+import org.sakaiproject.dash.entity.EntityType;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.CalendarLink;
@@ -61,6 +64,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	private static Logger logger = Logger.getLogger(DashboardLogicImpl.class);
 	
 	
+	protected Map<String,EntityType> entityTypes = new HashMap<String,EntityType>();
 	protected Map<String,EventProcessor> eventProcessors = new HashMap<String,EventProcessor>();
 	
 	protected DashboardEventProcessingThread eventProcessingThread = new DashboardEventProcessingThread();
@@ -242,9 +246,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return null;
 	}
 
-	public SourceType createSourceType(String identifier, String accessPermission) {
+	public SourceType createSourceType(String identifier, String accessPermission, EntityLinkStrategy entityLinkStrategy) {
 		
-		SourceType sourceType = new SourceType(identifier, accessPermission); 
+		SourceType sourceType = new SourceType(identifier, accessPermission, entityLinkStrategy); 
 		dao.addSourceType(sourceType);
 		return dao.getSourceType(identifier);
 	}
@@ -314,6 +318,27 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 		
 		return null ;
+	}
+
+	public Map<String, Object> getEntityMapping(String entityType, String entityReference, Locale locale) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		logger.info("getEntityMapping(" + entityType + "," + entityReference + "," + locale + ")");
+
+		EntityType entityTypeDef = this.entityTypes.get(entityType);
+		if(entityTypeDef != null) {
+			logger.info("getEntityMapping(" + entityType + "," + entityReference + "," + locale + ") " + entityTypeDef);
+			map.putAll(entityTypeDef.getValues(entityReference, locale.toString()));
+			map.putAll(entityTypeDef.getProperties(entityReference, locale.toString()));
+			map.put(EntityType.VALUES_ORDER, entityTypeDef.getOrder(entityReference, locale.toString()));
+		}
+		
+		return map;
+	}
+	
+	public void registerEntityType(EntityType entityType) {
+		if(entityType != null && entityType.getIdentifier() != null) {
+			this.entityTypes.put(entityType.getIdentifier(), entityType);
+		}
 	}
 
 	public void registerEventProcessor(EventProcessor eventProcessor) {
