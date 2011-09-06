@@ -3,6 +3,7 @@
  */
 package org.sakaiproject.dash.entity;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -73,7 +74,8 @@ public class ResourceEntityType implements EntityType {
 			}
 
 			try {
-				values.put(VALUE_NEWS_TIME, new Date(props.getTimeProperty(ResourceProperties.PROP_CREATION_DATE).getTime()));
+				DateFormat df = DateFormat.getDateTimeInstance();
+				values.put(VALUE_NEWS_TIME, df.format(new Date(props.getTimeProperty(ResourceProperties.PROP_CREATION_DATE).getTime())));
 			} catch (EntityPropertyNotDefinedException e) {
 				logger.warn("getValues(" + entityReference + "," + localeCode + ") EntityPropertyNotDefinedException: " + e);
 			} catch (EntityPropertyTypeException e) {

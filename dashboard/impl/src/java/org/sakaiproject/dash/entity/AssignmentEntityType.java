@@ -3,6 +3,7 @@
  */
 package org.sakaiproject.dash.entity;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -81,7 +82,8 @@ public class AssignmentEntityType implements EntityType {
 			// "calendar-time": 1234567890
 			values.put(VALUE_CALENDAR_TIME, assn.getDueTimeString());
 			try {
-				values.put(VALUE_NEWS_TIME, new Date(props.getTimeProperty(ResourceProperties.PROP_CREATION_DATE).getTime()));
+				DateFormat df = DateFormat.getDateTimeInstance();
+				values.put(VALUE_NEWS_TIME, df.format(new Date(props.getTimeProperty(ResourceProperties.PROP_CREATION_DATE).getTime())));
 			} catch (EntityPropertyNotDefinedException e) {
 				logger.warn("getValues(" + entityReference + "," + localeCode + ") EntityPropertyNotDefinedException: " + e);
 			} catch (EntityPropertyTypeException e) {
@@ -135,6 +137,7 @@ public class AssignmentEntityType implements EntityType {
 		ResourceLoader rl = new ResourceLoader("dash_entity");
 		Map<String, String> props = new HashMap<String, String>();
 		props.put(LABEL_CALENDAR_TIME, rl.getString("assignment.calendar.time"));
+		props.put(LABEL_NEWS_TIME, rl.getString("assignment.news.time"));
 		props.put(LABEL_USER_NAME, rl.getString("assignment.user.name"));
 		props.put(LABEL_ATTACHMENTS, rl.getString("assignment.attachments"));
 		return props;
@@ -156,22 +159,26 @@ public class AssignmentEntityType implements EntityType {
 		List<String> section1 = new ArrayList<String>();
 		section1.add(VALUE_TITLE);
 		section1.add(VALUE_CALENDAR_TIME);
-		section1.add(VALUE_USER_NAME);
 		order.add(section1);
 		List<String> section2 = new ArrayList<String>();
-		section2.add(VALUE_ASSESSMENT_TYPE);
-		section2.add(VALUE_GRADE_TYPE);
-		section2.add(VALUE_SUBMISSION_TYPE);
+		section2.add(VALUE_DESCRIPTION);
 		order.add(section2);
 		List<String> section3 = new ArrayList<String>();
-		section3.add(VALUE_DESCRIPTION);
+		section3.add(VALUE_ATTACHMENTS);
 		order.add(section3);
 		List<String> section4 = new ArrayList<String>();
-		section4.add(VALUE_ATTACHMENTS);
+		section4.add(VALUE_ASSESSMENT_TYPE);
+		section4.add(VALUE_GRADE_TYPE);
+		section4.add(VALUE_SUBMISSION_TYPE);
 		order.add(section4);
 		List<String> section5 = new ArrayList<String>();
 		section5.add(VALUE_MORE_INFO);
 		order.add(section5);
+		List<String> section6 = new ArrayList<String>();
+		section6.add(VALUE_NEWS_TIME);
+		section6.add(VALUE_USER_NAME);
+		order.add(section6);
+
 		return order;
 	}
 
