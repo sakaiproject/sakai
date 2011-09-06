@@ -1,12 +1,28 @@
 package org.sakaiproject.dash.tool.pages;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONNull;
+import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.IRequestTarget;
+import org.apache.wicket.RequestCycle;
+import org.apache.wicket.behavior.AbstractAjaxBehavior;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
@@ -19,6 +35,8 @@ import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.protocol.http.WebRequest;
+import org.apache.wicket.request.target.basic.StringRequestTarget;
 
 import org.sakaiproject.dash.logic.DashboardLogic;
 import org.sakaiproject.dash.logic.SakaiProxy;
@@ -26,9 +44,9 @@ import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.NewsItem;
 
 /**
- * An example page. This interacts with a list of items from the database
  * 
- * @author Steve Swinsburg (steve.swinsburg@anu.edu.au)
+ * 
+ * 
  *
  */
 public class DashboardPage extends BasePage {
@@ -105,6 +123,8 @@ public class DashboardPage extends BasePage {
                 
                 String itemType = nItem.getSourceType().getIdentifier();
                 item.add(new Label("itemType", itemType));
+                item.add(new Label("entityReference", nItem.getEntityReference()));
+
                 item.add(new Label("itemTypeNewsBlock", itemType));
                 
                 String siteTitle = nItem.getContext().getContextTitle();
@@ -138,6 +158,51 @@ public class DashboardPage extends BasePage {
         	}
         });
         
+        AbstractAjaxBehavior entityDetailRequest = new AbstractAjaxBehavior() {
+
+			public void onRequest() {
+				//get parameters
+                final RequestCycle requestCycle = RequestCycle.get();
+
+                WebRequest wr=(WebRequest)requestCycle.getRequest();
+
+                HttpServletRequest hsr = wr.getHttpServletRequest();
+                
+                String entityReference = null;
+                String entityType = null;
+                try {
+                   BufferedReader br = hsr.getReader();
+
+                   String  jsonString = br.readLine();
+                   if((jsonString == null) || jsonString.isEmpty()){
+                       logger.error(" no json found");
+                   }
+                   else {
+                       logger.info(" json  is :"+ jsonString);
+                   }
+                   
+                   JSONObject jsonObject = JSONObject.fromObject(jsonString);
+                   
+                   entityReference = jsonObject.optString("entityReference", "");
+                   entityType = jsonObject.optString("entityType", "");  
+
+                } catch (IOException ex) {
+                    logger.error(ex);
+                }
+
+                Locale locale = hsr.getLocale();
+ 				if(entityReference != null && ! entityReference.trim().equals("") && entityType != null && ! entityType.trim().equals("")) {
+	                Map<String,Object> entityMap = dashboardLogic.getEntityMapping(entityType, entityReference, locale);
+	                
+	                String jsonString = getJsonStringFromMap(entityMap);
+	                logger.debug("Returning JSON:\n" + jsonString);
+	                IRequestTarget t = new StringRequestTarget("application/json", "UTF-8", jsonString);
+	                getRequestCycle().setRequestTarget(t);
+	 			}
+			}
+        };
+        add(entityDetailRequest);
+        add(new Label("callbackUrl", entityDetailRequest.getCallbackUrl().toString()));
 	}
 		
 	/**
@@ -353,4 +418,56 @@ public class DashboardPage extends BasePage {
 			return dashboardLogic.getNewsItem(id);
 		}
 	}
+	
+	protected String getJsonStringFromMap(Map<String, Object> map) {
+		JSONObject json = getJsonObjectFromMap(map);
+		logger.info("Returning json: " + json.toString(3));
+		return json.toString();
+	}
+
+	private JSONObject getJsonObjectFromMap(Map<String, Object> map) {
+		JSONObject json = new JSONObject();
+		if(map != null) {
+			for(Map.Entry<String, Object> entry : map.entrySet()) {
+				String key = entry.getKey();
+				Object value = entry.getValue();
+				if(value instanceof String) {
+					json.element(key, value);
+				} else if(value instanceof Boolean) {
+					json.element(key, value);
+				} else if(value instanceof Number) {
+					json.element(key, value);
+				} else if(value instanceof Map) {
+					json.element(key, getJsonObjectFromMap((Map<String, Object>) value));
+				} else if(value instanceof List) {
+					json.element(key, getJsonArrayFromList((List) value));
+				}
+			}
+				
+		}
+		return json;
+	}
+
+	private JSONArray getJsonArrayFromList(List list) {
+		JSONArray json = new JSONArray();
+		if(list != null) {
+			for(Object value : list) {
+				if(value instanceof String) {
+					json.element(value);
+				} else if(value instanceof Boolean) {
+					json.element(value);
+				} else if(value instanceof Number) {
+					json.element(value);
+				} else if(value instanceof Map) {
+					json.element(getJsonObjectFromMap((Map<String, Object>) value));
+				} else if(value instanceof List) {
+					json.element(getJsonArrayFromList((List) value));
+				}
+				
+			}
+		}
+		return json;
+	}
+
+
 }

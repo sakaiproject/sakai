@@ -137,4 +137,11 @@
 		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
     	<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy"></property>
 	</bean>
+	
+	<bean id="org.sakaiproject.dash.entity.ResourceEntityType" 
+		class="org.sakaiproject.dash.entity.ResourceEntityType" 
+		init-method="init">
+		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
+    	<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy"></property>
+	</bean>
 </beans>

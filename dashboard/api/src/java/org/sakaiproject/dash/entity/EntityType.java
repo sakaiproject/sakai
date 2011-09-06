@@ -89,8 +89,6 @@ public interface EntityType {
 		 VALUE_INFO_LINK_TARGET
 	};
 	
-	
-	
 	public static final String[] LABEL_KEYS = new String[]{
 		 LABEL_TITLE,
 		 LABEL_DESCRIPTION,

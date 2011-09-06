@@ -86,6 +86,8 @@ var setupLinks = function(){
         //daft - need better way of identifying type
         
         var itemType = $(this).closest('tr').find('.itemType').text();
+        var entityReference = $(this).closest('tr').find('.entityReference').text();
+        var callBackUrl = $(this).closest('body').find('.callBackUrl').text();
         if ($(parentRow).next('tr.newRow').length === 1) {
             $(parentRow).next('tr.newRow').find('.results').fadeToggle('fast', '', function(){
                 if ($(parentRow).next('tr.newRow').find('.results:visible').length === 0) {
@@ -97,7 +99,22 @@ var setupLinks = function(){
             });
         }
         else {
-
+        	params = { 'entityType' : itemType, 'entityReference' : entityReference };
+        	jQuery.ajax({
+        		url 	: callBackUrl,
+        		type	: 'post',
+        		cache	: false,
+        		data 	: params,
+                contentType: 'application/json',
+                dataType: 'json',
+        		success	: function(json) {
+        			alert(json);
+        		},
+        		error	: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert("error :"+XMLHttpRequest.responseText);
+                }
+        	});
+        	
             if (itemType === "assignment" || $(this).attr('href').indexOf('assignment') !== -1) {
                         $('.activeCell').removeClass('.activeCell');
                         $(parentCell).addClass('activeCell');

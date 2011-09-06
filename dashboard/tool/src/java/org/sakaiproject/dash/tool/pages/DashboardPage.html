@@ -51,7 +51,7 @@
 		                    <tr class="" id="item1" wicket:id="calendarItems">
 		                        <td>
 		                            <span wicket:id="calendarDate">[Date]</span>
-																<span wicket:id="calendarTime">[Time]</span>
+									<span wicket:id="calendarTime">[Time]</span>
 		                        </td>
 		                        <td class="tab">
 		                            <a href="#" wicket:id="itemLink" class="itemLink" target="_top">[Item Title]</a>
@@ -101,6 +101,7 @@
 		                    <tr class="alt newsItem" id="item11" wicket:id="newsItems">
 		                    	<td>
 		                            <span wicket:id="itemType" class="itemType">[item type]</span>
+		                            <span wicket:id="entityReference" class="entityReference" style="display:none;">[entity reference]</span>
 		                        </td>
 		                        <td class="tab">
 		                        	<a href="#" wicket:id="itemLink" class="itemLink" target="_top">[item title]</a>
@@ -169,7 +170,8 @@
           "seemore" : "See more",
           "noinstructions" :"No text instructions. Maybe instructions are in an attachment - see more to confirm."
           }
-      </textarea>      
+      </textarea> 
+      <div wicket:id="callbackUrl" class="callBackUrl">[callback url]</div>     
 		</wicket:extend>
 	</body>
 </html>

@@ -17,6 +17,7 @@ import org.sakaiproject.dash.logic.SakaiProxy;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.user.api.User;
 
 /**
  * @author jimeng
@@ -62,28 +63,37 @@ public class ResourceEntityType implements EntityType {
 		ContentResource resource = (ContentResource) this.sakaiProxy.getEntity(entityReference);
 		if(resource != null) {
 			ResourceProperties props = resource.getProperties();
-			values.put(VALUE_ENTITY_TYPE, IDENTIFIER);
+			values.put(VALUE_TITLE, props.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+
+			String descr = props.getProperty(ResourceProperties.PROP_DESCRIPTION);
+			if(descr != null && !descr.trim().equals("")) {
+				values.put(VALUE_DESCRIPTION, descr);
+			}
+
 			try {
 				values.put(VALUE_NEWS_TIME, new Date(props.getTimeProperty(ResourceProperties.PROP_CREATION_DATE).getTime()));
 			} catch (EntityPropertyNotDefinedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.warn("getValues(" + entityReference + "," + localeCode + ") EntityPropertyNotDefinedException: " + e);
 			} catch (EntityPropertyTypeException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.warn("getValues(" + entityReference + "," + localeCode + ") EntityPropertyTypeException: " + e);
 			}
-			String descr = props.getProperty(ResourceProperties.PROP_DESCRIPTION);
-			if(descr != null && !descr.trim().equals("")) {
-					values.put(VALUE_DESCRIPTION, descr);
+			
+			values.put(VALUE_ENTITY_TYPE, IDENTIFIER);
+			
+			User user = sakaiProxy.getUser(props.getProperty(ResourceProperties.PROP_CREATOR));
+			if(user != null) {
+				values.put(VALUE_USER_NAME, user.getDisplayName());
 			}
+			
 			// "more-info"
 			List<Map<String,String>> infoList = new ArrayList<Map<String,String>>();
 			Map<String,String> infoItem = new HashMap<String,String>();
 			infoItem.put(VALUE_INFO_LINK_URL, resource.getUrl());
-			infoItem.put(VALUE_INFO_LINK_TITLE, "More Info");
 			infoItem.put(VALUE_INFO_LINK_SIZE, Long.toString(resource.getContentLength()));
 			infoItem.put(VALUE_INFO_LINK_MIMETYPE, resource.getContentType());
 			infoItem.put(VALUE_INFO_LINK_TARGET, this.sakaiProxy.getTargetForMimetype(resource.getContentType()));
+			// TODO: VALUE_INFO_LINK_TITLE depends on VALUE_INFO_LINK_TARGET. If new window, title might be "View the damned item". Otherwise "Download the stupid thing"? 
+			infoItem.put(VALUE_INFO_LINK_TITLE, "More Info");
 			infoList.add(infoItem);
 			values.put(VALUE_MORE_INFO, infoList);
 			
@@ -106,7 +116,7 @@ public class ResourceEntityType implements EntityType {
 	 * @see org.sakaiproject.dash.entity.EntityType#getAccessUrlTarget(java.lang.String)
 	 */
 	public String getAccessUrlTarget(String entityReference) {
-		
+		// ignored
 		return null;
 	}
 

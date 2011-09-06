@@ -73,11 +73,9 @@ public class AnnouncementEntityType implements EntityType {
 			try {
 				values.put(VALUE_NEWS_TIME, new Date(props.getTimeProperty(ResourceProperties.PROP_CREATION_DATE).getTime()));
 			} catch (EntityPropertyNotDefinedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.warn("getValues(" + entityReference + "," + localeCode + ") EntityPropertyNotDefinedException: " + e);
 			} catch (EntityPropertyTypeException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.warn("getValues(" + entityReference + "," + localeCode + ") EntityPropertyTypeException: " + e);
 			}
 			// "description": "Long thing, markup, escaped",
 			values.put(VALUE_DESCRIPTION, announcement.getBody());
