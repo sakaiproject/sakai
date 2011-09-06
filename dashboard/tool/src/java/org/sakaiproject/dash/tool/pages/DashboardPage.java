@@ -76,11 +76,13 @@ public class DashboardPage extends BasePage {
 	                if(logger.isDebugEnabled()) {
 	                	logger.debug(this + "populateItem()  item: " + item);
 	                }
+	                String itemType = cItem.getSourceType().getIdentifier();
+	                item.add(new Label("itemType", itemType));
+	                item.add(new Label("entityReference", cItem.getEntityReference()));
 	                item.add(new Label("calendarDate", new SimpleDateFormat(DATE_FORMAT).format(cItem.getCalendarTime())));
 	                item.add(new Label("calendarTime", new SimpleDateFormat(TIME_FORMAT).format(cItem.getCalendarTime())));
 	                item.add(new ExternalLink("itemLink", cItem.getEntityUrl(), cItem.getTitle()));
 	                item.add(new ExternalLink("siteLink", cItem.getContext().getContextUrl(), cItem.getContext().getContextTitle()));
-	                String itemType = cItem.getSourceType().getIdentifier();
 	                item.add(new Label("itemTypeCalendarBlock", itemType));
 	                String siteTitle = cItem.getContext().getContextTitle();
 	                item.add(new Label("siteTitleCalendarBlock", siteTitle));
@@ -175,16 +177,19 @@ public class DashboardPage extends BasePage {
 
                    String  jsonString = br.readLine();
                    if((jsonString == null) || jsonString.isEmpty()){
-                       logger.error(" no json found");
+                       logger.error(" no json found for entityReference: " + entityReference);
                    }
                    else {
-                       logger.info(" json  is :"+ jsonString);
+                	   if(logger.isDebugEnabled()) {
+                		   logger.info(" json  is :"+ jsonString);
+                	   }
+                       JSONObject jsonObject = JSONObject.fromObject(jsonString);
+                       
+                       entityReference = jsonObject.optString("entityReference", "");
+                       entityType = jsonObject.optString("entityType", "");  
+
                    }
                    
-                   JSONObject jsonObject = JSONObject.fromObject(jsonString);
-                   
-                   entityReference = jsonObject.optString("entityReference", "");
-                   entityType = jsonObject.optString("entityType", "");  
 
                 } catch (IOException ex) {
                     logger.error(ex);
