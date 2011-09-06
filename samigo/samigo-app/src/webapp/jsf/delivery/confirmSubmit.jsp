@@ -110,7 +110,7 @@ function saveTime()
 <h:inputHidden id="assessTitle" value="#{delivery.assessmentTitle}" />
 <%-- PART/ITEM DATA TABLES --%>
 
-  <h:panelGroup styleClass="validation">
+  <h:panelGroup styleClass="messageSamigo2">
     <h:panelGrid border="0">
 	  <h:outputText value="#{deliveryMessages.submit_warning_1}" escape="false"/>
 	  <h:outputText value="#{deliveryMessages.submit_warning_2}" escape="false"/>
