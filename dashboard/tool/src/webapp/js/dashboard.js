@@ -104,7 +104,7 @@ var setupLinks = function(){
         		url 	: callBackUrl,
         		type	: 'post',
         		cache	: false,
-        		data 	: params,
+        		data 	: JSON.stringify(params),
                 contentType: 'application/json',
                 dataType: 'json',
         		success	: function(json) {
