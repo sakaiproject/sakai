@@ -21,6 +21,7 @@ import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * 
@@ -64,6 +65,7 @@ public class AnnouncementEntityType implements EntityType {
 			String localeCode) {
 		Map<String, Object> values = new HashMap<String, Object>();
 		AnnouncementMessage announcement = (AnnouncementMessage) this.sakaiProxy.getEntity(entityReference);
+		ResourceLoader rl = new ResourceLoader("dash_entity");
 		if(announcement != null) {
 			AnnouncementMessageHeader header = announcement.getAnnouncementHeader();
 			ResourceProperties props = announcement.getProperties();
@@ -91,7 +93,7 @@ public class AnnouncementEntityType implements EntityType {
 			List<Map<String,String>> infoList = new ArrayList<Map<String,String>>();
 			Map<String,String> infoItem = new HashMap<String,String>();
 			infoItem.put(VALUE_INFO_LINK_URL, announcement.getUrl());
-			infoItem.put(VALUE_INFO_LINK_TITLE, "More Info");
+			infoItem.put(VALUE_INFO_LINK_TITLE, rl.getString("announcement.info.link"));
 			infoList.add(infoItem);
 			values.put(VALUE_MORE_INFO, infoList);
 			
@@ -121,11 +123,11 @@ public class AnnouncementEntityType implements EntityType {
 	 */
 	public Map<String, String> getProperties(String entityReference,
 			String localeCode) {
-		// TODO: create language bundle here or have SakaiProxy get the language bundle from assn??
+		ResourceLoader rl = new ResourceLoader("dash_entity");
 		Map<String, String> props = new HashMap<String, String>();
-		props.put(LABEL_NEWS_TIME, "Due Date:");
-		props.put(LABEL_USER_NAME, "Posted by:");
-		props.put(LABEL_ATTACHMENTS, "Attachments:");
+		props.put(LABEL_CALENDAR_TIME, rl.getString("announcement.news.time"));
+		props.put(LABEL_USER_NAME, rl.getString("announcement.user.name"));
+		props.put(LABEL_ATTACHMENTS, rl.getString("announcement.attachments"));
 		return props;
 	}
 

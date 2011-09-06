@@ -37,6 +37,13 @@
       			<scope>runtime</scope>
     		</dependency>
 			
+                <dependency>
+                        <groupId>org.sakaiproject.dash</groupId>
+                        <artifactId>dashboard-bundles</artifactId>
+                        <version>1.0-SNAPSHOT</version>
+                        <scope>runtime</scope>
+                </dependency>
+
 			<!-- third party dependencies -->
 			<dependency>
 				<groupId>org.apache.wicket</groupId>
@@ -172,6 +179,7 @@
 	
 	
   <modules>
+    <module>bundles</module>
     <module>tool</module>
     <module>api</module>
     <module>impl</module>

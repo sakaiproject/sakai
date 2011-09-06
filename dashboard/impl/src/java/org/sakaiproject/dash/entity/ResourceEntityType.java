@@ -18,6 +18,7 @@ import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * @author jimeng
@@ -61,6 +62,7 @@ public class ResourceEntityType implements EntityType {
 			String localeCode) {
 		Map<String, Object> values = new HashMap<String, Object>();
 		ContentResource resource = (ContentResource) this.sakaiProxy.getEntity(entityReference);
+		ResourceLoader rl = new ResourceLoader("dash_entity");
 		if(resource != null) {
 			ResourceProperties props = resource.getProperties();
 			values.put(VALUE_TITLE, props.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
@@ -93,7 +95,7 @@ public class ResourceEntityType implements EntityType {
 			infoItem.put(VALUE_INFO_LINK_MIMETYPE, resource.getContentType());
 			infoItem.put(VALUE_INFO_LINK_TARGET, this.sakaiProxy.getTargetForMimetype(resource.getContentType()));
 			// TODO: VALUE_INFO_LINK_TITLE depends on VALUE_INFO_LINK_TARGET. If new window, title might be "View the damned item". Otherwise "Download the stupid thing"? 
-			infoItem.put(VALUE_INFO_LINK_TITLE, "More Info");
+			infoItem.put(VALUE_INFO_LINK_TITLE, rl.getString("resource.info.link"));
 			infoList.add(infoItem);
 			values.put(VALUE_MORE_INFO, infoList);
 			
@@ -107,9 +109,14 @@ public class ResourceEntityType implements EntityType {
 	 */
 	public Map<String, String> getProperties(String entityReference,
 			String localeCode) {
-		Map<String, String> map = new HashMap<String, String>();
+		ResourceLoader rl = new ResourceLoader("dash_entity");
 		
-		return map ;
+		Map<String, String> props = new HashMap<String, String>();
+		
+		//props.put(LABEL_MORE_INFO, rl.getString("resource.more.info"));
+		
+		
+		return props ;
 	}
 
 	/* (non-Javadoc)
@@ -124,8 +131,20 @@ public class ResourceEntityType implements EntityType {
 	 * @see org.sakaiproject.dash.entity.EntityType#getOrder(java.lang.String, java.lang.String)
 	 */
 	public List<List<String>> getOrder(String entityReference, String localeCode) {
-		List<List<String>> list = new ArrayList<List<String>>();
-		return list;
+		List<List<String>> order = new ArrayList<List<String>>();
+		List<String> section1 = new ArrayList<String>();
+		section1.add(VALUE_TITLE);
+		section1.add(VALUE_NEWS_TIME);
+		section1.add(VALUE_USER_NAME);
+		order.add(section1);
+		List<String> section2 = new ArrayList<String>();
+		section2.add(VALUE_DESCRIPTION);
+		order.add(section2);
+		List<String> section3 = new ArrayList<String>();
+		section3.add(VALUE_MORE_INFO);
+		order.add(section3);
+
+		return order;
 	}
 
 	public void init() {
