@@ -121,10 +121,12 @@
 	        <fileset dir="${basedir}/target/pack-stage"> <include name="**/*" /> </fileset> 
 	        </copy> -->
 	
-	    <echo message="[INFO] Add demo.sakai.properties" />
-	    <copy file="${basedir}/../../config/configuration/bundles/src/bundle/org/sakaiproject/config/bundle/demo.sakai.properties"
+	    <echo message="[INFO] Add default and demo sakai.properties config" />
+            <copy file="${basedir}/../../config/configuration/bundles/src/bundle/org/sakaiproject/config/bundle/default.sakai.properties"
 	        tofile="${basedir}/target/pack/sakai/sakai.properties" />
-	
+	    <copy file="${basedir}/../../config/configuration/bundles/src/bundle/org/sakaiproject/config/bundle/demo.sakai.properties"
+	        tofile="${basedir}/target/pack/sakai/local.properties" />
+
 	    <echo message="[INFO] Add sakai.db.properties and script. " />
 	    <copy todir="${basedir}/target/pack/sakai/db">
 	        <fileset dir="${basedir}/../../reference/demo/db">
