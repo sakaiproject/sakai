@@ -85,7 +85,8 @@ table tr.newRow:hover {
     border-bottom-left-radius: 10px;
     padding: 10px;
     margin-bottom: 5px;
-    font-size: 90%
+    font-size: 90%;
+    position:relative
 }
 
 .results hr {
@@ -188,21 +189,26 @@ h3.withNav {
     padding: 1px;
 }
 
-.metaDataMain, .metaDataGradSub, .description, .link {
+.metadataLine, .description{
     padding: 5px 0;
+    outline:
 }
 
-.metaDataGradSub {
+.metadataLine {
     font-size: 90%;
+    list-style:none;
 }
-
-.link {
-    margin-top: -5px;
-    float: right;
+.metadataLine  li{
+    display:inline;
+}
+.moreInfo {
+    position:absolute;
+    top:15px;
+    right:10px;
     text-align: right;
     font-weight:bold;
 }
-.link a, .link a:visited{
+.moreInfo a, .moreInfo a:visited{
     text-decoration:none;
     color:#000;
     background:#e6f2ff;
@@ -211,9 +217,12 @@ h3.withNav {
     -moz-border-radius: 5px;
     border-radius: 5px;
     }
-.link a:hover{
+.moreInfo a:hover{
     background:#b3d9ff;
     }
+.moreInfo a .size{
+    font-size:9px;
+}
 ul.attachList li {
     background: transparent url(../../../../library/image/sakai/attachments.gif) center left no-repeat;
     padding-left: 20px;

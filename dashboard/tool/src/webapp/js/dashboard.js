@@ -1,7 +1,6 @@
 /*
  stripe the tables, take out when can figure how to do in wicket
  */
-
 var setupTableStriping = function(){
     $('table').each(function(){
         $(this).find('tr:even').addClass('even');
@@ -72,7 +71,7 @@ var setupMenus = function(){
     });
 };
 
-var setupLinks = function(){ 
+var setupLinks = function(){
     $('.itemLink').click(function(e){
         e.preventDefault();
         var actionLink = "";
@@ -83,11 +82,11 @@ var setupLinks = function(){
         var colCount = $(parentRow).find('td').length;
         var parentCell = $(this).closest('td');
         
-        //daft - need better way of identifying type
-        
         var itemType = $(this).closest('tr').find('.itemType').text();
         var entityReference = $(this).closest('tr').find('.entityReference').text();
         var callBackUrl = $(this).closest('body').find('.callBackUrl').text();
+        
+        //if disclosure in DOM, either hide or show, do not request data
         if ($(parentRow).next('tr.newRow').length === 1) {
             $(parentRow).next('tr.newRow').find('.results').fadeToggle('fast', '', function(){
                 if ($(parentRow).next('tr.newRow').find('.results:visible').length === 0) {
@@ -99,202 +98,88 @@ var setupLinks = function(){
             });
         }
         else {
-        	params = { 'entityType' : itemType, 'entityReference' : entityReference };
-        	jQuery.ajax({
-        		url 	: callBackUrl,
-        		type	: 'post',
-        		cache	: false,
-        		data 	: JSON.stringify(params),
+            $(parentCell).attr('class', 'activeCell tab');
+            params = {
+                'entityType': itemType,
+                'entityReference': entityReference
+            };
+            jQuery.ajax({
+                url: callBackUrl,
+                type: 'post',
+                cache: false,
+                data: JSON.stringify(params),
                 contentType: 'application/json',
                 dataType: 'json',
-        		success	: function(json) {
-        			alert(json);
-        		},
-        		error	: function (XMLHttpRequest, textStatus, errorThrown) {
-                    alert("error :"+XMLHttpRequest.responseText);
-                }
-        	});
-        	
-            if (itemType === "assignment" || $(this).attr('href').indexOf('assignment') !== -1) {
-                        $('.activeCell').removeClass('.activeCell');
-                        $(parentCell).addClass('activeCell');
+                success: function(json){
+                    var results = '<div class=\"results\" style=\"display:none\">';
+                    if (json.order.length !== 0) {
+                    
+                        $(json.order).each(function(i){
+                            var o = this;
+                            if (o.length > 1) {
+                                results = results + '<div class=\"metadataLine\">'
+                                for (i = 0; i < o.length; i++) {
+                                    if (json[o[i].toString()]) {
+                                        results = results + '<span>' + json[o[i].toString()] + ' </span>';
+                                    }
+                                }
+                                results = results + '</div>';
+                            }
+                            else {
+                                var w = o.toString()
+                                if (w === 'description' && json[w]) {
+                                    results = results + '<div class=\"description\">' + json[w] + '</div>';
+                                }
+                                if (w === 'attachments' && json[w]) {
+                                    var atts = "";
+                                    for (i = 0; i < json[w].length; i++) {
+                                    
+                                        atts = atts + '<li><a href=\"' + json[w][i]['attachment-url'] + '\">' + json[w][i]['attachment-title'] + '</a></li>';
+                                    }
+                                    results = results + '<ul class=\"attachList\">' + atts + '</ul>';
+                                }
+                                if (w === 'more-info' && json[w]) {
+                                    var moreinfo = "";
+                                    for (i = 0; i < json['more-info'].length; i++) {
+                                        var target ="";
+                                        var size ="";
+                                        if (json['more-info'][i]['info_link-target']){
+                                            target = 'target=\"' + json['more-info'][i]['info_link-target'] +'\"'
+                                        }
+                                        if (json['more-info'][i]['info_link-size']){
+                                            size = ' (' + json['more-info'][i]['info_link-size'] +') '
+                                        }
 
-                //daft 2, neeed a better way of getting the entity id
-                action = link.split('/')[9];
-                var assigURL = '/direct/assignment/' + action.substring(0, 36) + '.json';
-                jQuery.ajax({
-                    url: assigURL,
-                    dataType: 'json',
-                    success: function(data){
-                        var results = '<div class=\"results\" style=\"display:none\"><div class=\"metaDataMain\">' + '<strong>' + langdata.due + '</strong> ' + data.dueTimeString + ' (' + langdata.postedBy + data.authorLastModified + ')' + '</div>';
-                        results = results + '<div class=\"metaDataGradSub\">' + resolveTypeOfGrade(data.content.typeOfGrade) + ', ' + resolveTypeOfSubmission(data.content.typeOfSubmission) + resolveMaxGradePointDisplay(data.content.maxGradePointDisplay) + '<div class=\"link\">' + '<a target ="_top" href=' + link + '>' + langdata.seemore + '</a>' + '</div>' + '</div>';
-                        results = results + '<div class=\"description\">' + resolveInstructions(data.content.instructions) + '</div></div>';
-                        
-                        $('<tr class=\"newRow\"><td colspan=\"' + colCount + '\">' + results + '</td></tr>').insertAfter(parentRow);
-                        $(parentRow).next('tr.newRow').find('.results').slideDown('slow', function(){
-                            resizeFrame('grow');
-                        });
-                        
-                    },
-                    error: function(){
-                        $('<tr class=\"newRow\"><td colspan=\"' + colCount + '\"><div class=\"results\">Error retriving data - assignment may have had attachments</div></td></tr>').insertAfter(parentRow);
-                        $(parentRow).next('tr.newRow').find('.results').slideDown('slow', function(){
-                            resizeFrame('grow');
+                                        moreinfo = moreinfo + '<a ' + target + ' href=\"' + json['more-info'][i]['info_link-url'] + '\">' + json['more-info'][i]['info_link-title'] + '<span class=\"size\">' + size + '</span></a>';
+                                        ;
+                                    }
+                                    
+                                    results = results + '<div class=\"moreInfo\">' + moreinfo + '</div></div>';
+                                }
+                                
+                            }
+                            
                         });
                         
                     }
-                });
-                
-                
-                /*
-                 $("#dialog").dialog({
-                 modal: false,
-                 width: 400,
-                 height: 200,
-                 title: title,
-                 dialogClass: 'smallDiag',
-                 close: function(event, ui){
-                 $('#dialog >  *').remove();
-                 }
-                 
-                 });
-                 */
-            }
-            else {
-                if (itemType === "announcement" || $(this).attr('href').indexOf('announcement') !== -1) {
-                        $('.activeCell').removeClass('.activeCell');
-                        $(parentCell).addClass('activeCell');
-
-                    var annURL = link;
-                    $.ajax({
-                        url: annURL,
-                        dataType: 'html',
-                        success: function(data){
-                            // this is really perverse
-                            $('#dialogDum').empty();
-                            $('#dialog').empty();
-                            $('#dialogDum').append(data);
-                            var linkList = "";
-                            var md = $('#dialogDum').find('table').eq(0);
-                            $('#dialogDum').find('table').eq(0).remove();
-                            $('#dialogDum').find('h1').remove();
-                            $('#dialogDum').find('meta').remove();
-                            $('#dialogDum').find('style').remove();
-                            $('#dialogDum').find('title').remove();
-                            
-                            var content = $('#dialogDum').contents();
-                            
-                            $('#results').append((md).find('td').eq(3).text() + ' (' + (md).find('td').eq(1).text() + ')');
-                            $('#results').append('<hr>');
-                            $('#results').append(content);
-                            if ($('#results').find('p').eq(-2).children('b').length === 1) {
-                                $('#results').append('<ul class=\"attachList\"></ul');
-                                $('#results').find('p').eq(-1).children('a').each(function(i){
-                                    var urlArr = $(this).text().split('/');
-                                    var anchorText = urlArr[urlArr.length - 1];
-                                    linkList = linkList + '<li><a href=\"' + $(this).attr('href') + '\">' + anchorText + '</a></li>';
-                                });
-                                $('#results').find('p').eq(-1).remove();
-                                $('#results').find('.attachList').append((linkList));
-                            }
-                            var results = $('#results').html();
-                            $('<tr class=\"newRow\"><td colspan=\"' + colCount + '\"><div class=\"results\" style=\"display:none\">' + results + '</div></td></tr>').insertAfter(parentRow);
-                            $(parentRow).next('tr').find('.results').slideDown('slow', function(){
-                                resizeFrame('grow');
-                            });
-                            
-                            
-                        },
-                        error: function(){
-                        
-                            $('<tr class=\"newRow\"><td colspan=\"' + colCount + '\"><div class=\"results\" style=\"display:none\">There was an error retrieving this data.</div></td></tr>').insertAfter(parentRow);
-                            $(parentRow).next('tr').find('.results').slideDown('slow', function(){
-                                resizeFrame('grow');
-                            });
-                            
-                        }
-                        
+                    else {
+                        results = results + 'This item type has not specified an order :( </div>';
+                    }
+                    $('<tr class=\"newRow\"><td colspan=\"' + colCount + '\">' + results + '</td></tr>').insertAfter(parentRow);
+                    $(parentRow).next('tr.newRow').find('.results').slideDown('slow', function(){
+                        resizeFrame('grow');
                     });
                     
-                    /*
-                     $("#dialog").dialog({
-                     modal: false,
-                     width: 400,
-                     height: 200,
-                     title: title,
-                     close: function(event, ui){
-                     $('#dialog >  *').remove();
-                     },
-                     dialogClass: 'smallDiag'
-                     });
-                     */
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown){
+                    alert("error :" + XMLHttpRequest.responseText);
                 }
-                else {
-                    //if not an ann or an assig, just follow the link
-                    window.open(link, '_blank');
-                }
-                
-            }
+            });
         }
         
     });
 };
-var resolveTypeOfGrade = function(typeOfGrade){
-    switch (typeOfGrade) {
-        case 1:
-            return langdata.ungraded;
-        case 2:
-            return langdata.letter;
-        case 3:
-            return langdata.points;
-        case 4:
-            return langdata.passfail;
-        case 5:
-            return langdata.checkmark;
-        default:
-            return ('');
-    }
-};
-var resolveTypeOfSubmission = function(typeOfSubmission){
-    switch (typeOfSubmission) {
-        case 1:
-            return langdata.inline;
-        case 2:
-            return langdata.atts;
-        case 3:
-            return langdata.inlineatts;
-        case 4:
-            return langdata.nonel;
-        case 5:
-            return langdata.singleatt;
-        default:
-            return ('');
-    }
-};
-var resolveMaxGradePointDisplay = function(maxGradePointDisplay){
-    if (maxGradePointDisplay > 0) {
-        return (', ' + langdata.maxpoints + maxGradePointDisplay);
-    }
-    else {
-        return "";
-    }
-};
-var resolveInstructions = function(instructions){
-    /*
-     assignments will always have instructions as they are required,
-     but users can just enter whitespace - that will resolve to meaningless
-     markup, roundabout way of doing this!
-     */
-    $('#instructionHolder').html(instructions);
-    $('#instructionHolder').htmlClean();
-    if ($("#instructionHolder").text().length !== 0) {
-        return ('<hr>' + instructions);
-    }
-    else {
-        return ('<hr>' + langdata.noinstructions);
-    }
-    
-};
+
 var setupLang = function(){
     langdata = eval('(' + $('#lang-holder').text() + ')');
 };
@@ -334,4 +219,3 @@ var resizeFrame = function(updown){
         // throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
     }
 };
-
