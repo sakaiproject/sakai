@@ -113,10 +113,11 @@ public class ResourceEntityType implements EntityType {
 			String localeCode) {
 		ResourceLoader rl = new ResourceLoader("dash_entity");
 		
+		
 		Map<String, String> props = new HashMap<String, String>();
 		
-		//props.put(LABEL_MORE_INFO, rl.getString("resource.more.info"));
-		
+		props.put(LABEL_NEWS_TIME, rl.getString("resource.news.time"));
+		props.put(LABEL_USER_NAME, rl.getString("resource.user.name"));
 		
 		return props ;
 	}
