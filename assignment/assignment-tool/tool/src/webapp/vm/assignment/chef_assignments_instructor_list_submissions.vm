@@ -87,7 +87,14 @@
 	</h3>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	## reminder of submission download url
-	#if ($download_url_reminder) <div class="messageSuccess">$download_url_reminder</div>#end
+	#if ($download_url_reminder) 
+		<div class="messageInformation">
+			<h4>$download_url_reminder</h4>
+			<p>
+				<a target="_blank" href="$download_url_link">$download_url_link_label</a>
+			</p>
+		</div>
+	#end
 		<form name="viewForm" id="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
 			<input type="hidden" name="assignmentId" id = "assignmentId" value=$validator.escapeUrl($!assignment.Reference) />
 			<input type="hidden" name="option" id="option" value="x" />

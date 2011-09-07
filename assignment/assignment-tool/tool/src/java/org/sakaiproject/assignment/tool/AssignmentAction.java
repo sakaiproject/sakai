@@ -2835,7 +2835,9 @@ public class AssignmentAction extends PagedResourceActionII
 		String downloadUrl = (String) state.getAttribute(STATE_DOWNLOAD_URL);
 		if (downloadUrl != null)
 		{
-			context.put("download_url_reminder", rb.getFormattedMessage("download_url_reminder", new Object[]{downloadUrl}));
+			context.put("download_url_reminder", rb.getString("download_url_reminder"));
+			context.put("download_url_link", downloadUrl);
+			context.put("download_url_link_label", rb.getString("download_url_link_label"));
 			state.removeAttribute(STATE_DOWNLOAD_URL);
 		}
 		
