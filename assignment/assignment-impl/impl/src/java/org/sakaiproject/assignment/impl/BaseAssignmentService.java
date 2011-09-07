@@ -925,11 +925,32 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
         	// reject and throw PermissionException if there is no intersection
 			if (!isIntersectionGroupRefsToGroups(asgGroups, allowedGroups)) throw new PermissionException(currentUserId, SECURE_ACCESS_ASSIGNMENT, assignmentReference);
         }
-
-		// track event
-		//EventTrackingService.post(EventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT, assignment.getReference(), false));
-
-		return assignment;
+		
+		if (allowAddAssignment(assignment.getContext()))
+		{
+			// always return for users can add assignent in the context
+			return assignment;
+		}
+		else if (allowAddSubmission(assignment.getContext()))
+		{
+			String deleted = assignment.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED);
+			if (deleted == null || "".equals(deleted))
+			{
+				// show not deleted, not draft, opened assignments
+				Time openTime = assignment.getOpenTime();
+				if (openTime != null && TimeService.newTime().after(openTime) && !assignment.getDraft())
+				{
+					return assignment;
+				}
+			}
+			else if (deleted.equalsIgnoreCase(Boolean.TRUE.toString()) && (assignment.getContent().getTypeOfSubmission() != Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION) 
+					&& getSubmission(assignment.getReference(), UserDirectoryService.getCurrentUser()) != null)
+			{
+				// and those deleted but not non-electronic assignments but the user has made submissions to them
+				return assignment;
+			}
+		}
+		return null;
 
 	}// getAssignment
 	
