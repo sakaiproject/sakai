@@ -117,13 +117,13 @@ var setupLinks = function(){
                         $(json.order).each(function(i){
                             var o = this;
                             if (o.length > 1) {
-                                results = results + '<div class=\"metadataLine\">'
+                                results = results + '<p class=\"metadataLine\">'
                                 for (i = 0; i < o.length; i++) {
                                     if (json[o[i].toString()]) {
                                         results = results + '<span>' + json[o[i].toString()] + ' </span>';
                                     }
                                 }
-                                results = results + '</div>';
+                                results = results + '</p>';
                             }
                             else {
                                 var w = o.toString()
@@ -154,13 +154,13 @@ var setupLinks = function(){
                                         ;
                                     }
                                     
-                                    results = results + '<div class=\"moreInfo\">' + moreinfo + '</div></div>';
+                                    results = results + '<div class=\"moreInfo\">' + moreinfo + ' </div>';
                                 }
                                 
                             }
-                            
+                             
                         });
-                        
+                        results = results + '</div>'
                     }
                     else {
                         results = results + 'This item type has not specified an order :( </div>';
