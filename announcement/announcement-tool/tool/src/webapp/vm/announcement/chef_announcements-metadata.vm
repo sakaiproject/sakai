@@ -53,7 +53,13 @@
 		
 		<tr>
 			<th>$tlang.getString("gen.mod")</th>
-			<td>$modDate.toStringLocalFull()</td>
+			<td>
+			#if ($modDate)
+				$modDate.toStringLocalFull()
+			#else
+				$message.Header.Date.toStringLocalFull()
+			#end
+			</td>
 		</tr>
 		
 		<tr>
