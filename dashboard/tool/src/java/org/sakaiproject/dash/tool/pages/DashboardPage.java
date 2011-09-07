@@ -83,9 +83,11 @@ public class DashboardPage extends BasePage {
 	                item.add(new Label("calendarTime", new SimpleDateFormat(TIME_FORMAT).format(cItem.getCalendarTime())));
 	                item.add(new ExternalLink("itemLink", cItem.getEntityUrl(), cItem.getTitle()));
 	                item.add(new ExternalLink("siteLink", cItem.getContext().getContextUrl(), cItem.getContext().getContextTitle()));
-	                item.add(new Label("itemTypeCalendarBlock", itemType));
+	                item.add(new Label("itemTypeCalendarBlock1", itemType));
 	                String siteTitle = cItem.getContext().getContextTitle();
-	                item.add(new Label("siteTitleCalendarBlock", siteTitle));
+	                item.add(new Label("siteTitleCalendarBlock1", siteTitle));
+	                item.add(new Label("itemTypeCalendarBlock2", itemType));
+	                item.add(new Label("siteTitleCalendarBlock2", siteTitle));
 				}
 			}
         };
@@ -127,10 +129,12 @@ public class DashboardPage extends BasePage {
                 item.add(new Label("itemType", itemType));
                 item.add(new Label("entityReference", nItem.getEntityReference()));
 
-                item.add(new Label("itemTypeNewsBlock", itemType));
+                item.add(new Label("itemTypeNewsBlock1", itemType));
                 
                 String siteTitle = nItem.getContext().getContextTitle();
-                item.add(new Label("siteTitleNewsBlock", siteTitle));
+                item.add(new Label("siteTitleNewsBlock1", siteTitle));
+                item.add(new Label("itemTypeNewsBlock2", itemType));
+                item.add(new Label("siteTitleNewsBlock2", siteTitle));
                 item.add(new ExternalLink("itemLink", nItem.getEntityUrl(), nItem.getTitle()));
                 item.add(new ExternalLink("siteLink", nItem.getContext().getContextUrl(), siteTitle));
                 item.add(new Label("newsTime", new SimpleDateFormat(DATETIME_FORMAT).format(nItem.getNewsTime())));

@@ -172,13 +172,15 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		if(logger.isDebugEnabled()) {
 			logger.debug("createCalendarLinks(" + calendarItem + ")");
 		}
-		List<String> sakaiIds = this.sakaiProxy.getUsersWithReadAccess(calendarItem.getEntityReference(), calendarItem.getSourceType().getAccessPermission());
-		for(String sakaiId : sakaiIds) {
-			Person person = getOrCreatePerson(sakaiId);
-			
-			CalendarLink link = new CalendarLink(person, calendarItem, calendarItem.getContext(), false, false);
-			
-			dao.addCalendarLink(link);
+		if(calendarItem != null) {
+			List<String> sakaiIds = this.sakaiProxy.getUsersWithReadAccess(calendarItem.getEntityReference(), calendarItem.getSourceType().getAccessPermission());
+			for(String sakaiId : sakaiIds) {
+				Person person = getOrCreatePerson(sakaiId);
+				
+				CalendarLink link = new CalendarLink(person, calendarItem, calendarItem.getContext(), false, false);
+				
+				dao.addCalendarLink(link);
+			}
 		}
 	}
 	
@@ -208,19 +210,19 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		if(logger.isDebugEnabled()) {
 			logger.debug("createNewsLinks(" + newsItem + ")");
 		}
-		
-		List<String> sakaiIds = this.sakaiProxy.getUsersWithReadAccess(newsItem.getEntityReference(), newsItem.getSourceType().getAccessPermission());
-		if(sakaiIds != null && sakaiIds.size() > 0) {
-			for(String sakaiId : sakaiIds) {
-				
-				Person person = getOrCreatePerson(sakaiId);
-				
-				NewsLink link = new NewsLink(person, newsItem, newsItem.getContext(), false, false);
-				
-				dao.addNewsLink(link);
+		if(newsItem != null) {
+			List<String> sakaiIds = this.sakaiProxy.getUsersWithReadAccess(newsItem.getEntityReference(), newsItem.getSourceType().getAccessPermission());
+			if(sakaiIds != null && sakaiIds.size() > 0) {
+				for(String sakaiId : sakaiIds) {
+					
+					Person person = getOrCreatePerson(sakaiId);
+					
+					NewsLink link = new NewsLink(person, newsItem, newsItem.getContext(), false, false);
+					
+					dao.addNewsLink(link);
+				}
 			}
 		}
-		
 	}
 
 
