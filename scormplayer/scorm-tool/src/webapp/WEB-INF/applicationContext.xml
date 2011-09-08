@@ -21,7 +21,6 @@
     
 	<!-- SCORM single-package player tool -->
     <bean id="scormSinglePackageApplication" class="org.sakaiproject.scorm.ui.player.SingleScormPackageApplication">
-			<property name="resourceService"><ref bean="org.sakaiproject.scorm.service.api.ScormResourceService"/></property>
     </bean>
     
 </beans>
