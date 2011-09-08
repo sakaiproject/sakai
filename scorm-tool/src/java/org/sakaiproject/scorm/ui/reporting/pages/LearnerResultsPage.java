@@ -35,7 +35,6 @@ import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.scorm.model.api.ActivitySummary;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.Learner;
-import org.sakaiproject.scorm.ui.Icon;
 import org.sakaiproject.scorm.ui.console.pages.DisplayDesignatedPackage;
 import org.sakaiproject.scorm.ui.reporting.util.SummaryProvider;
 import org.sakaiproject.wicket.markup.html.link.BookmarkablePageLabeledLink;
@@ -64,7 +63,13 @@ public class LearnerResultsPage extends BaseResultsPage {
 		parentParams.put("attemptNumber", attemptNumber);
 		
 		IModel breadcrumbModel = new StringResourceModel("parent.breadcrumb", this, new Model(contentPackage));
-		addBreadcrumb(breadcrumbModel, DisplayDesignatedPackage.class, uberparentParams, true);	
+		// MvH
+		if (pageParams.getBoolean("no-toolbar")) {
+			addBreadcrumb(breadcrumbModel, DisplayDesignatedPackage.class, uberparentParams, true);
+		}
+		else {
+			addBreadcrumb(breadcrumbModel, ResultsListPage.class, uberparentParams, true);
+		}
 		addBreadcrumb(new Model(learner.getDisplayName()), LearnerResultsPage.class, parentParams, false);
 		
 		List<ActivitySummary> summaries = resultService.getActivitySummaries(contentPackage.getContentPackageId(), learner.getId(), attemptNumber);
