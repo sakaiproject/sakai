@@ -319,7 +319,7 @@ function postGlobalAlert(data){
         $.each(data.messages, function(i, item){
             dismissLink = '';
             // create a safe ID
-            var itemId = encodeURIComponent(item.id).replace(/\%/g, '-');
+            var itemId = encodeURIComponent(item.id).replace(/[^a-zA-Z 0-9]+/g,'-');
             // need to check if displayed already - is it in the DOM?
             // TODO: need to check if "was" in the DOM and has been dismissed
             if ($('#' + itemId).length > 0) {
