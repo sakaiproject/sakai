@@ -1162,12 +1162,10 @@ public abstract class BasicSqlService implements SqlService
 	public int dbWriteCount(String sql, Object[] fields, String lastField, Connection callerConnection, boolean failQuiet)
 	{
 		int retval = -1;
-		boolean commitDbWrite = false;
 		// check for a transaction connection
 		if (callerConnection == null)
 		{
 			callerConnection = (Connection) threadLocalManager().get(TRANSACTION_CONNECTION);
-			commitDbWrite = true;
 		}
 
 		if (LOG.isDebugEnabled())
@@ -1249,7 +1247,7 @@ public abstract class BasicSqlService implements SqlService
 			retval = pstmt.executeUpdate();
 
 			// commit unless we are in a transaction (provided with a connection)
-			if (commitDbWrite)
+			if (callerConnection == null)
 			{
 				conn.commit();
 			}
