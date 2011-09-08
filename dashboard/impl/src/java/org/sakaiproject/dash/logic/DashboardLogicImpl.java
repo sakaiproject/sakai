@@ -544,20 +544,15 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 				Method getEventTimeMethod = original.getClass().getMethod("getEventTime", null);
 				this.eventTime = (Date) getEventTimeMethod.invoke(original, null);
 			} catch (SecurityException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.warn("Exception trying to get event time: " + e);
 			} catch (NoSuchMethodException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.warn("Exception trying to get event time: " + e);
 			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.warn("Exception trying to get event time: " + e);
 			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.warn("Exception trying to get event time: " + e);
 			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.warn("Exception trying to get event time: " + e);
 			}
 			if(this.eventTime == null) {
 				// If we couldn't get eventTime from event, just use NOW.  That's close enough.
@@ -570,6 +565,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			this.entityReference = original.getResource();
 			this.sessionId = original.getSessionId();
 			this.userId = original.getUserId();
+			if(userId == null && sessionId != null) {
+				userId = sakaiProxy.getCurrentUserId();
+			}
 		}
 		
 		public String getContext() {
@@ -650,6 +648,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 
 		public void run() {
 			logger.info("Started Dashboard Event Processing Thread");
+			sakaiProxy.startAdminSession();
 			while(true) {
 				if(logger.isDebugEnabled()) {
 					logger.debug("Dashboard Event Processing Thread checking event queue: " + eventQueue.size());
@@ -658,8 +657,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 					try {
 						Thread.sleep(sleepTime * 1000L);
 					} catch (InterruptedException e) {
-						
-						e.printStackTrace();
+						logger.warn("InterruptedException in Dashboard Event Processing Thread: " + e);
 					}
 				} else {
 					EventCopy event = eventQueue.poll();

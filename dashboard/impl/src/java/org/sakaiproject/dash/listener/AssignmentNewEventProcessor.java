@@ -84,12 +84,12 @@ public class AssignmentNewEventProcessor implements EventProcessor {
 		    params.put("allowAddAssignment", Boolean.FALSE);
 		    params.put("allowSubmitAssignment", Boolean.TRUE);
             // pass in the assignment reference to get the assignment data we need
-            ActionReturn ret = entityBroker.executeCustomAction(assn.getReference(), "deepLinkWithPermissions", params, null);
-            if (ret != null && ret.getEntityData() != null) {
-                    Object returnData = ret.getEntityData().getData();
-                    assignData = (Map<String, Object>)returnData;
-                }
-            assignmentUrl = (String) assignData.get("assignmentUrl");
+            //ActionReturn ret = entityBroker.executeCustomAction(assn.getReference(), "deepLinkWithPermissions", params, null);
+            //if (ret != null && ret.getEntityData() != null) {
+            //        Object returnData = ret.getEntityData().getData();
+            //        assignData = (Map<String, Object>)returnData;
+            //    }
+            //assignmentUrl = (String) assignData.get("assignmentUrl");
             
 			SourceType sourceType = this.dashboardLogic.getSourceType("assignment");
 			if(sourceType == null) {

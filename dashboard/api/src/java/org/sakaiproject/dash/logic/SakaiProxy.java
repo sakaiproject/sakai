@@ -159,4 +159,6 @@ public interface SakaiProxy {
 	 */
 	public boolean isAttachmentResource(String resourceId);
 
+	public void startAdminSession();
+
 }

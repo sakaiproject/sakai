@@ -145,4 +145,9 @@ public class SakaiProxyMock implements SakaiProxy {
 		return false;
 	}
 
+	public void startAdminSession() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

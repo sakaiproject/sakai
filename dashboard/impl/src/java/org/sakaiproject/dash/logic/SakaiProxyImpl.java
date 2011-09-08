@@ -24,6 +24,7 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
@@ -256,6 +257,18 @@ public class SakaiProxyImpl implements SakaiProxy {
 		
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.SakaiProxy#startAdminSession()
+	 */
+	public void startAdminSession() {
+		logger.debug("Creating session: DashboardEventProcessor");
+		Session session = this.sessionManager.startSession("DashboardEventProcessor");
+		session.setUserId("admin");
+		session.setUserEid("admin");
+		this.sessionManager.setCurrentSession(session);
+	}
+
 	/************************************************************************
 	 * Spring-injected classes
 	 ************************************************************************/
