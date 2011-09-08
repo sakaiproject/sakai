@@ -68,14 +68,6 @@
 	    <dispatcher>INCLUDE</dispatcher>
 	</filter-mapping>
   	
-  	<!--filter-mapping>
-	    <filter-name>hibernate.filter</filter-name>
-	    <servlet-name>sakai.scorm.tool</servlet-name>
-	    <dispatcher>REQUEST</dispatcher>
-	    <dispatcher>FORWARD</dispatcher>
-	    <dispatcher>INCLUDE</dispatcher>
-	</filter-mapping-->
-  	  	 	
   	<servlet>
 	    <servlet-name>sakai.scorm.tool</servlet-name>
 	    <servlet-class>org.apache.wicket.protocol.http.WicketServlet</servlet-class>
@@ -93,14 +85,7 @@
   	<servlet>
 	    <servlet-name>sakai.scorm.singlepackage.tool</servlet-name>
 	    <servlet-class>org.apache.wicket.protocol.http.WicketServlet</servlet-class>
-	    <!--  <servlet-class>org.sakaiproject.wicket.tool.SakaiWicketServlet</servlet-class>  -->
 
-			<!-- 	    
-			<init-param>
-				<param-name>first-page</param-name>
-				<param-value>/tool-single</param-value>
-			</init-param>
-			 -->
 	    <init-param>
 	      	<param-name>applicationFactoryClassName</param-name>
 	      	<param-value>org.apache.wicket.spring.SpringWebApplicationFactory</param-value>
@@ -151,7 +136,7 @@
   	</listener>
 
 	<session-config>
-		<session-timeout>60</session-timeout>
+		<session-timeout>300</session-timeout>
 	</session-config>
 	
 	<welcome-file-list>
