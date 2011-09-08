@@ -616,7 +616,7 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
             assignData.put("assignmentId", assignmentId);
             assignData.put("assignmentTitle", a.getTitle());
             
-            boolean allowReadAssignment = assignmentService.allowGetAssignment(a.getReference());
+            boolean allowReadAssignment = assignmentService.allowGetAssignment(context);
             boolean allowAddAssignment = assignmentService.allowAddAssignment(context);
             boolean allowSubmitAssignment = assignmentService.allowAddSubmission(context);
             
