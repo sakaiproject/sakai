@@ -170,7 +170,15 @@ var setupLinks = function(){
                                 }
                                 //ew
                                 if (w !== 'more-info' && w !== 'title' && w !== 'description' && w !== 'attachments' && json[w]) {
-                                    results = results + '<div class=\"unknownType\">' + json[w] + '</div>';
+                                    if (json[w].toString() + '-label') {
+                                        var label = json[[w].toString() + '-label']
+                                        var value = '<em>' + json[w].toString() + '</em>'
+                                        results = results + '<div class=\"unknownType\">' +  label.replace('{0}', value) + '</div>';
+                                    }
+                                    else {
+                                        results = results + '<div class=\"unknownType\">' +  value + '</div>';
+                                    }
+                                    
                                 }
                                 
                             }
