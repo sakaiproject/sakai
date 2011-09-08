@@ -73,20 +73,14 @@ public class AnnouncementEntityType implements EntityType {
 			// "entity-type": "assignment"
 			values.put(EntityType.VALUE_ENTITY_TYPE, IDENTIFIER);
 			// "news-time": 1234567890
-			try {
-				DateFormat df = DateFormat.getDateTimeInstance();
-				values.put(VALUE_NEWS_TIME, df.format(new Date(props.getTimeProperty(ResourceProperties.PROP_CREATION_DATE).getTime())));
-			} catch (EntityPropertyNotDefinedException e) {
-				logger.warn("getValues(" + entityReference + "," + localeCode + ") EntityPropertyNotDefinedException: " + e);
-			} catch (EntityPropertyTypeException e) {
-				logger.warn("getValues(" + entityReference + "," + localeCode + ") EntityPropertyTypeException: " + e);
-			}
+			DateFormat df = DateFormat.getDateTimeInstance();
+			values.put(VALUE_NEWS_TIME, df.format(new Date(header.getDate().getTime())));
 			// "description": "Long thing, markup, escaped",
 			values.put(VALUE_DESCRIPTION, announcement.getBody());
 			// "title": "Assignment hoedown"
 			values.put(VALUE_TITLE, header.getSubject());
 			// "user-name": "Creator's Name"
-			User user = sakaiProxy.getUser(header.getFrom().getDisplayName());
+			User user = header.getFrom();
 			if(user != null) {
 				values.put(VALUE_USER_NAME, user.getDisplayName());
 			}
@@ -127,7 +121,7 @@ public class AnnouncementEntityType implements EntityType {
 			String localeCode) {
 		ResourceLoader rl = new ResourceLoader("dash_entity");
 		Map<String, String> props = new HashMap<String, String>();
-		props.put(LABEL_CALENDAR_TIME, rl.getString("announcement.news.time"));
+		props.put(LABEL_NEWS_TIME, rl.getString("announcement.news.time"));
 		props.put(LABEL_USER_NAME, rl.getString("announcement.user.name"));
 		//props.put(LABEL_ATTACHMENTS, rl.getString("announcement.attachments"));
 		return props;
