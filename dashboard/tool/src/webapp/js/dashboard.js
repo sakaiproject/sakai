@@ -122,9 +122,9 @@ var setupLinks = function(){
                                 
                                     if (json[o[i].toString()]) {
                                         if (json[o[i].toString() + '-label']) {
-                                            var label=json[o[i].toString() + '-label']
+                                            var label = json[o[i].toString() + '-label']
                                             var value = '<em>' + json[o[i].toString()] + '</em>'
-                                            results = results + '<span class=\"data\">' + label.replace('{0}',value) + ' </span>';
+                                            results = results + '<span class=\"data\">' + label.replace('{0}', value) + ' </span>';
                                         }
                                         else {
                                             results = results + '<span class=\"data\">' + json[o[i].toString()] + ' </span>';
@@ -135,6 +135,10 @@ var setupLinks = function(){
                             }
                             else {
                                 var w = o.toString()
+                                if (w === 'title' && json[w]) {
+                                    results = results + '<h4>' + json[w] + '</h4>';
+                                }
+                                
                                 if (w === 'description' && json[w]) {
                                     results = results + '<div class=\"description\">' + json[w] + '</div>';
                                 }
@@ -163,6 +167,10 @@ var setupLinks = function(){
                                     }
                                     
                                     results = results + '<div class=\"moreInfo\">' + moreinfo + ' </div>';
+                                }
+                                //ew
+                                if (w !== 'more-info' && w !== 'title' && w !== 'description' && w !== 'attachments' && json[w]) {
+                                    results = results + '<div class=\"unknownType\">' + json[w] + '</div>';
                                 }
                                 
                             }
