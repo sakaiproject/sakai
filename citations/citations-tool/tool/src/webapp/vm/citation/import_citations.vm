@@ -93,6 +93,7 @@ doubleDeep = true;
 
 	  <input type="button" value='$tlang.getString("label.cancel")' id="cancel2" type="button"
 	         onclick="document.getElementById('sakai_action').value='doCancel';submitform('$FORM_NAME');"/>	
+	  <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
     </form>
   </div>
   

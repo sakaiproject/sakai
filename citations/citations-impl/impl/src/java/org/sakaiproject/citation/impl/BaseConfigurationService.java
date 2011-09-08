@@ -23,6 +23,7 @@ package org.sakaiproject.citation.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -31,7 +32,9 @@ import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
@@ -46,10 +49,17 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSSerializer;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -84,12 +94,19 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 
+import com.thoughtworks.xstream.XStream;
+
 /**
  *
  */
 public class BaseConfigurationService implements ConfigurationService, Observer
 {
   private static Log m_log = LogFactory.getLog(BaseConfigurationService.class);
+
+  /**
+   * Locale that will be used if user's locale is not available. 
+   */
+  private static final String SERVER_DEFAULT_LOCALE = Locale.ENGLISH.getLanguage();
 
   /*
    * All the following properties will be set by Spring using components.xml
@@ -154,7 +171,12 @@ public class BaseConfigurationService implements ConfigurationService, Observer
    */
   protected static Map<String, Map<String,String>> m_configMaps = new HashMap<String, Map<String,String>>();
   protected static String m_configListRef = null;
-
+  
+  /**
+   * 
+   */
+  protected Map<String, List<Map<String, String>>> saveciteClients = new HashMap<String, List<Map<String,String>>>();
+  
   /*
    * Interface methods
    */
@@ -730,9 +752,49 @@ public class BaseConfigurationService implements ConfigurationService, Observer
 
       saveParameter(document, parameterMap, "config-id");               // obsolete?
       saveParameter(document, parameterMap, "database-xml");            // obsolete?
+      
+      saveServletClientMappings(document);
 
       m_configMaps.put(configurationXml, parameterMap);
     }
+  }
+
+  protected void saveServletClientMappings(Document document) {
+	  
+	  Element clientElement = document.getElementById("saveciteClients");
+	  
+	  if(clientElement == null) {
+		  NodeList mapNodes = document.getElementsByTagName("map");
+		  if(mapNodes != null) {
+			  for(int i = 0; i < mapNodes.getLength(); i++) {
+				  Element mapElement = (Element) mapNodes.item(i);
+				  if(mapElement.hasAttribute("id") && mapElement.getAttribute("id").equals("saveciteClients")) {
+					  clientElement = mapElement;
+					  break;
+				  }
+			  }
+		  }
+	  }
+	  
+	  if(clientElement != null) {
+		  try {
+			  XStream xstream = new XStream();
+			  TransformerFactory transFactory = TransformerFactory.newInstance();
+			  Transformer transformer = transFactory.newTransformer();
+			  StringWriter buffer = new StringWriter();
+			  transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+			  transformer.transform(new DOMSource(clientElement),
+			        new StreamResult(buffer));
+			  String str = buffer.toString();
+//			  DOMImplementationLS domImplLS = (DOMImplementationLS) document.getImplementation();
+//			  LSSerializer serializer = domImplLS.createLSSerializer();
+//			  String str = serializer.writeToString(clientElement);
+			  this.saveciteClients = (Map<String, List<Map<String, String>>>) xstream.fromXML(str);
+		  } catch(Exception e) {
+			  m_log.warn("Exception trying to read saveciteClients from config XML", e);
+		  }
+	  }
+	
   }
 
   /**
@@ -1343,10 +1405,107 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     }
   }
 
-  public Collection<String> getAllCategoryXml()
+  /**
+   * @return the saveciteClients
+   */
+  public Map<String, List<Map<String,String>>> getSaveciteClients() {
+	return saveciteClients;
+  }
+
+  /**
+   * @param saveciteClients the saveciteClients to set
+   */
+  public void setSaveciteClients(Map<String, List<Map<String,String>>> saveciteClients) {
+	this.saveciteClients = saveciteClients;
+	if(m_log.isDebugEnabled()) {
+		if(this.saveciteClients == null) {
+			m_log.debug("setSaveciteClients() called but saveciteClients is null");
+			return;
+		}  
+		StringBuilder buf = new StringBuilder("setSaveciteClients()\n");
+		buf.append('\n');
+		buf.append('\n');
+		addMapToStringBuilder(buf,this.saveciteClients,4,4);
+		buf.append('\n');
+		buf.append('\n');
+		m_log.debug(buf.toString());
+	}
+  }
+  
+	public List<Map<String, String>> getSaveciteClientsForLocale(Locale locale) {
+		List<Map<String, String>> clients = null;
+		if(this.saveciteClients == null || this.saveciteClients.isEmpty()) {
+			clients = new ArrayList<Map<String, String>>();
+		} else if(this.saveciteClients.containsKey(locale.toString())) {
+			clients = this.saveciteClients.get(locale.toString());
+		} else if(this.saveciteClients.containsKey(locale.getLanguage() + "_" + locale.getCountry())) {
+			clients = this.saveciteClients.get(locale.getLanguage() + "_" + locale.getCountry());
+		} else if(this.saveciteClients.containsKey(locale.getLanguage())) {
+			clients = this.saveciteClients.get(locale.getLanguage());
+		} else if(this.saveciteClients.containsKey(SERVER_DEFAULT_LOCALE)) {
+			clients = this.saveciteClients.get(SERVER_DEFAULT_LOCALE);
+		} else {
+			clients = new ArrayList<Map<String, String>>();
+		}
+		return clients;
+	}
+
+  protected void addMapToStringBuilder(StringBuilder buf,
+			Map map, int indent, int indentIncrement) {
+		
+			for(Entry<String,Object> entry : ((Map<String,Object>) map).entrySet()) {
+				String key = entry.getKey();
+				for(int i = 0; i < indent; i++) {
+					buf.append(' ');
+				}
+				buf.append(key);
+				Object val = entry.getValue();
+				if(val instanceof Map) {
+					buf.append('\n');
+					addMapToStringBuilder(buf,(Map) val,indent + indentIncrement, indentIncrement);
+				} else if(val instanceof List) {
+					addListToStringBuilder(buf, (List) val, indent + indentIncrement, indentIncrement);
+				} else {
+					buf.append(" == ");
+					buf.append(val);
+					buf.append('\n');
+				}
+			}
+		
+	  }
+
+  protected void addListToStringBuilder(StringBuilder buf,
+			List list, int indent, int indentIncrement) {
+		
+			buf.append('\n');
+			for(Object val : list) {
+				if(val instanceof Map) {
+					addMapToStringBuilder(buf,(Map) val,indent + indentIncrement, indentIncrement);
+				} else if(val instanceof List) {
+					for(int i = 0; i < indent; i++) {
+						buf.append(' ');
+					}
+					buf.append("----------\n");
+					for(int i = 0; i < indent; i++) {
+						buf.append(' ');
+					}
+					addListToStringBuilder(buf, (List) val, indent + indentIncrement, indentIncrement);
+				} else {
+					for(int i = 0; i < indent; i++) {
+						buf.append(' ');
+					}
+					buf.append(val);
+					buf.append('\n');
+				}
+			}
+		
+	  }
+
+public Collection<String> getAllCategoryXml()
   {
     return new TreeSet<String>(this.m_categories);
   }
+  
 
   /*
    * Configuration update
@@ -1502,4 +1661,5 @@ public class BaseConfigurationService implements ConfigurationService, Observer
 	{
 		return isLibrarySearchEnabled() && isConfigurationXmlAvailable() && isDatabaseHierarchyXmlAvailable();
 	}
+
 }

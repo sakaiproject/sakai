@@ -72,6 +72,7 @@
       <input type="hidden" id="collectionId" value="$!collectionId" />
       <input type="hidden" id="removeLabel" value="$tlang.getString("remove.results")" />
       <input type="hidden" id="addLabel" value="$tlang.getString("add.results")" />
+	  <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
     </form>
 
     <p class="act">

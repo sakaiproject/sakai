@@ -47,6 +47,7 @@
     		  	  onclick="document.getElementById('sakai_action').value='doEdit'; submitform('$FORM_NAME');"
     			/>
     		</p>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
     	</form>
 	</div>
 </div>

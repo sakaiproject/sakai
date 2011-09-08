@@ -2614,6 +2614,27 @@ public class BaseSearchManager implements SearchManager, Observer
 		}
     }
 
+    /**
+     * Supply the url for the savecite servlet to add a citation to a particular citation list.
+     * @param resourceId The identifier for the citation list.
+     */
+	public String getSaveciteUrl(String resourceId, String saveciteClientId) {
+    	StringBuilder buf = new StringBuilder();
+    	
+    	String serverUrl = serverConfigurationService.getServerUrl();
+    	buf.append(serverUrl);
+    	buf.append(Entity.SEPARATOR);
+    	buf.append(SERVLET_NAME);
+    	buf.append(Entity.SEPARATOR);
+    	buf.append(resourceId);
+    	buf.append('?');
+    	buf.append(SAKAI_SESSION);
+    	buf.append("=nada&client=");
+    	buf.append(saveciteClientId);
+    	buf.append("&");
+    	
+    	return buf.toString();
+    }
 	/**
      * @return the serverConfigurationService
      */
