@@ -383,7 +383,7 @@ public class PublishAssessmentListener
 	  message.append("\"");
 	  message.append(" ");
 	  
-	  publishedURL = "<a target=\"_parent\" href=\"" + publishedURL + "\">" + publishedURL + "</a>";
+	  publishedURL = "<a target=\"_blank\" href=\"" + publishedURL + "\">" + publishedURL + "</a>";
 	  if ("Anonymous Users".equals(releaseTo)) {
 		  message.append(MessageFormat.format(rl.getString("available_anonymously_at"), startDateString, publishedURL));
 	  }
@@ -468,7 +468,7 @@ public class PublishAssessmentListener
 	  StringBuffer portalUrlSb = new StringBuffer();
 	  portalUrlSb.append(" <a href=\"");
 	  portalUrlSb.append(ServerConfigurationService.getPortalUrl());
-	  portalUrlSb.append("\" target=\"_parent\">");
+	  portalUrlSb.append("\" target=\"_blank\">");
 	  portalUrlSb.append(ServerConfigurationService.getPortalUrl());
 	  portalUrlSb.append("</a>");
 	  message.append(MessageFormat.format(rl.getString("notification_content"), siteTitleSb.toString(), portalUrlSb.toString()));
