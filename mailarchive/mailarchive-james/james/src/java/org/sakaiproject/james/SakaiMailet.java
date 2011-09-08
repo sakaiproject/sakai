@@ -336,6 +336,7 @@ public class SakaiMailet extends GenericMailet
 						M_log.warn("service(): msg.getContent() threw: " + e);
 					}
 					
+					mailHeaders.add("List-Id: <"+ channel.getId()+ ".localhost>");
 					// post the message to the group's channel
 					String body[] = new String[2];
 					body[0] = bodyBuf[0].toString(); // plain/text
