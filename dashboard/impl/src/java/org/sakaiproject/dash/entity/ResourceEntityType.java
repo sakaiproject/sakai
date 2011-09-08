@@ -135,8 +135,10 @@ public class ResourceEntityType implements EntityType {
 	 */
 	public List<List<String>> getOrder(String entityReference, String localeCode) {
 		List<List<String>> order = new ArrayList<List<String>>();
+		List<String> section0 = new ArrayList<String>();
+		section0.add(VALUE_TITLE);
+		order.add(section0);
 		List<String> section1 = new ArrayList<String>();
-		section1.add(VALUE_TITLE);
 		section1.add(VALUE_NEWS_TIME);
 		section1.add(VALUE_USER_NAME);
 		order.add(section1);

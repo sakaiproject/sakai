@@ -129,7 +129,7 @@ public class AnnouncementEntityType implements EntityType {
 		Map<String, String> props = new HashMap<String, String>();
 		props.put(LABEL_CALENDAR_TIME, rl.getString("announcement.news.time"));
 		props.put(LABEL_USER_NAME, rl.getString("announcement.user.name"));
-		props.put(LABEL_ATTACHMENTS, rl.getString("announcement.attachments"));
+		//props.put(LABEL_ATTACHMENTS, rl.getString("announcement.attachments"));
 		return props;
 	}
 
@@ -146,6 +146,9 @@ public class AnnouncementEntityType implements EntityType {
 	 */
 	public List<List<String>> getOrder(String entityReference, String localeCode) {
 		List<List<String>> order = new ArrayList<List<String>>();
+		List<String> section0 = new ArrayList<String>();
+		section0.add(VALUE_TITLE);
+		order.add(section0);
 		List<String> section1 = new ArrayList<String>();
 		section1.add(VALUE_NEWS_TIME);
 		section1.add(VALUE_USER_NAME);

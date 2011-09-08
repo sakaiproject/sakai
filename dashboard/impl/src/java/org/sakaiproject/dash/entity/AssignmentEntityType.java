@@ -139,7 +139,7 @@ public class AssignmentEntityType implements EntityType {
 		props.put(LABEL_CALENDAR_TIME, rl.getString("assignment.calendar.time"));
 		props.put(LABEL_NEWS_TIME, rl.getString("assignment.news.time"));
 		props.put(LABEL_USER_NAME, rl.getString("assignment.user.name"));
-		props.put(LABEL_ATTACHMENTS, rl.getString("assignment.attachments"));
+		//props.put(LABEL_ATTACHMENTS, rl.getString("assignment.attachments"));
 		return props;
 	}
 
@@ -156,8 +156,10 @@ public class AssignmentEntityType implements EntityType {
 	 */
 	public List<List<String>> getOrder(String entityReference, String localeCode) {
 		List<List<String>> order = new ArrayList<List<String>>();
+		List<String> section0 = new ArrayList<String>();
+		section0.add(VALUE_TITLE);
+		order.add(section0);
 		List<String> section1 = new ArrayList<String>();
-		section1.add(VALUE_TITLE);
 		section1.add(VALUE_CALENDAR_TIME);
 		order.add(section1);
 		List<String> section2 = new ArrayList<String>();
@@ -170,6 +172,7 @@ public class AssignmentEntityType implements EntityType {
 		section4.add(VALUE_ASSESSMENT_TYPE);
 		section4.add(VALUE_GRADE_TYPE);
 		section4.add(VALUE_SUBMISSION_TYPE);
+		section4.add(VALUE_MAX_SCORE);
 		order.add(section4);
 		List<String> section5 = new ArrayList<String>();
 		section5.add(VALUE_MORE_INFO);
