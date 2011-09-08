@@ -151,5 +151,12 @@ public interface SakaiProxy {
 			String accessPermission, String entityReference);
 
 	public String getTargetForMimetype(String mimetype);
+	
+	/**
+	 * Whether the resource is an attachment
+	 * @param resourceId
+	 * @return
+	 */
+	public boolean isAttachmentResource(String resourceId);
 
 }

@@ -139,5 +139,10 @@ public class SakaiProxyMock implements SakaiProxy {
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+	public boolean isAttachmentResource(String resourceId) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 }

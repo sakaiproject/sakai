@@ -16,6 +16,7 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
@@ -222,6 +223,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return this.siteService.isUserSite(siteId);
 	}
 	
+	/**
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.SakaiProxy#isAttachmentResource(java.lang.String)
+	 */
+	public boolean isAttachmentResource(String resourceId) {
+		return this.contentHostingService.isAttachmentResource(resourceId);
+	}
 	/*
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.SakaiProxy#postEvent(java.lang.String, java.lang.String, boolean)
@@ -278,6 +286,9 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	//@Getter @Setter
 	protected AuthzGroupService authzGroupService;
+	
+	//@Getter @Setter
+	protected ContentHostingService contentHostingService;
 
 	/**
 	 * @param toolManager the toolManager to set
@@ -341,6 +352,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 */
 	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
 		this.authzGroupService = authzGroupService;
+	}
+	
+	/**
+	 * @param contentHostingService the contentHostingService to set
+	 */
+	public void setContentHostingService( ContentHostingService contentHostingService) {
+		this.contentHostingService = contentHostingService;
 	}
 
 	/************************************************************************

@@ -73,60 +73,64 @@ public class ContentNewEventProcessor implements EventProcessor {
 		Entity entity = this.sakaiProxy.getEntity(event.getResource());
 		if(entity != null && entity instanceof ContentResource) {
 			ContentResource resource = (ContentResource) entity;
-
-			Context context = this.dashboardLogic.getContext(event.getContext());
-			if(context == null) {
-				context = this.dashboardLogic.createContext(event.getContext());
-			}
 			
-			SourceType sourceType = this.dashboardLogic.getSourceType("resource");
-			if(sourceType == null) {
-				sourceType = this.dashboardLogic.createSourceType("resource", SakaiProxy.PERMIT_RESOURCE_ACCESS, EntityLinkStrategy.ACCESS_URL);
-			}
-			
-			ResourceProperties props = resource.getProperties();
-			String title = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
-			
-			Date eventTime = null;
-			try {
-				// this.eventTime = original.getEventTime();
-				// the getEventTime() method did not exist before kernel 1.2
-				// so we use reflection
-				Method getEventTimeMethod = event.getClass().getMethod("getEventTime", null);
-				eventTime = (Date) getEventTimeMethod.invoke(event, null);
-			} catch (SecurityException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoSuchMethodException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			if(eventTime == null) {
+			if (!this.sakaiProxy.isAttachmentResource(resource.getId()))
+			{
+				// only when the resource is not attachment
+				Context context = this.dashboardLogic.getContext(event.getContext());
+				if(context == null) {
+					context = this.dashboardLogic.createContext(event.getContext());
+				}
+				
+				SourceType sourceType = this.dashboardLogic.getSourceType("resource");
+				if(sourceType == null) {
+					sourceType = this.dashboardLogic.createSourceType("resource", SakaiProxy.PERMIT_RESOURCE_ACCESS, EntityLinkStrategy.ACCESS_URL);
+				}
+				
+				ResourceProperties props = resource.getProperties();
+				String title = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+				
+				Date eventTime = null;
 				try {
-					eventTime = new Date(props.getTimeProperty(ResourceProperties.PROP_CREATION_DATE).getTime());
-				} catch (EntityPropertyNotDefinedException e) {
+					// this.eventTime = original.getEventTime();
+					// the getEventTime() method did not exist before kernel 1.2
+					// so we use reflection
+					Method getEventTimeMethod = event.getClass().getMethod("getEventTime", null);
+					eventTime = (Date) getEventTimeMethod.invoke(event, null);
+				} catch (SecurityException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				} catch (EntityPropertyTypeException e) {
+				} catch (NoSuchMethodException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				if(eventTime == null) {
+					try {
+						eventTime = new Date(props.getTimeProperty(ResourceProperties.PROP_CREATION_DATE).getTime());
+					} catch (EntityPropertyNotDefinedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (EntityPropertyTypeException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				if(eventTime == null) {
+					eventTime = new Date();
+				}
+				
+				NewsItem newsItem = dashboardLogic.createNewsItem(title , eventTime, resource.getReference(), resource.getUrl(), context, sourceType);
+				dashboardLogic.createNewsLinks(newsItem);
 			}
-			if(eventTime == null) {
-				eventTime = new Date();
-			}
-			
-			NewsItem newsItem = dashboardLogic.createNewsItem(title , eventTime, resource.getReference(), resource.getUrl(), context, sourceType);
-			dashboardLogic.createNewsLinks(newsItem);
 		}
 	}
 	

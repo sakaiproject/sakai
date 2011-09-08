@@ -18,6 +18,7 @@
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
 		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
 		
 	</bean>
 	
