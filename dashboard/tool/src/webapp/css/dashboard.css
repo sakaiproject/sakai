@@ -196,7 +196,7 @@ h3.withNav {
     outline:
 }
 
-.metadataLine {
+.metadataLine,.unknownType {
     font-size: 100%;
     font-weight:bold;
     list-style:none;
@@ -206,7 +206,7 @@ h3.withNav {
     padding-right:5px;
     }
 
-.metadataLine em{
+.metadataLine em, .unknownType em{
      font-style:normal;
      font-weight:normal;
  }   
