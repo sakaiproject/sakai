@@ -14,6 +14,16 @@ table tr {
     background:#ffffbb;
 }
 
+.focusedRow:hover .activeCell{
+    background:#09c;
+}
+
+.focusedRow:hover .activeCell a{
+    color:#fff
+    }
+.focusedRow + tr.newRow td .results{
+    border-color:#09c !important
+}
 table tr.even {
     background: #fff
 }
@@ -40,7 +50,6 @@ table tr td {
 }
  .results {
      border:2px  solid #b3d9ff;
-     border-top:10px solid #b3d9ff
  }
 .newRow td {
     padding: 00;
@@ -157,8 +166,8 @@ h3.withNav {
     background: #ffe;
     font-size: 90%;
     font-weight:normal;
+    z-index:10
 }
-
 .actionPanel li {
     margin: 0;
     padding: 0;
@@ -176,28 +185,25 @@ h3.withNav {
     background: #eee;
     text-decoration: none;
 }
-
-.smallDiag {
-    font-size: 90% !important
-}
-
-.smallDiag table {
-    width: auto;
-}
-
-.smallDiag table td {
-    padding: 1px;
-}
-
 .metadataLine, .description{
     padding: 5px 0;
     outline:
 }
 
 .metadataLine {
-    font-size: 90%;
+    font-size: 100%;
+    font-weight:bold;
     list-style:none;
 }
+.metadataLine .data{
+    padding-right:5px;
+    }
+
+.metadataLine em{
+     font-style:normal;
+     font-weight:normal;
+ }   
+    
 .metadataLine  li{
     display:inline;
 }
@@ -226,6 +232,7 @@ h3.withNav {
 ul.attachList li {
     background: transparent url(../../../../library/image/sakai/attachments.gif) center left no-repeat;
     padding-left: 20px;
+    margin-left:10px;
 }
 
 /*file listings*/

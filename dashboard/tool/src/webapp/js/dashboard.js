@@ -119,8 +119,16 @@ var setupLinks = function(){
                             if (o.length > 1) {
                                 results = results + '<p class=\"metadataLine\">'
                                 for (i = 0; i < o.length; i++) {
+                                
                                     if (json[o[i].toString()]) {
-                                        results = results + '<span>' + json[o[i].toString()] + ' </span>';
+                                        if (json[o[i].toString() + '-label']) {
+                                            var label=json[o[i].toString() + '-label']
+                                            var value = '<em>' + json[o[i].toString()] + '</em>'
+                                            results = results + '<span class=\"data\">' + label.replace('{0}',value) + ' </span>';
+                                        }
+                                        else {
+                                            results = results + '<span class=\"data\">' + json[o[i].toString()] + ' </span>';
+                                        }
                                     }
                                 }
                                 results = results + '</p>';
@@ -141,15 +149,15 @@ var setupLinks = function(){
                                 if (w === 'more-info' && json[w]) {
                                     var moreinfo = "";
                                     for (i = 0; i < json['more-info'].length; i++) {
-                                        var target ="";
-                                        var size ="";
-                                        if (json['more-info'][i]['info_link-target']){
-                                            target = 'target=\"' + json['more-info'][i]['info_link-target'] +'\"'
+                                        var target = "";
+                                        var size = "";
+                                        if (json['more-info'][i]['info_link-target']) {
+                                            target = 'target=\"' + json['more-info'][i]['info_link-target'] + '\"'
                                         }
-                                        if (json['more-info'][i]['info_link-size']){
-                                            size = ' (' + json['more-info'][i]['info_link-size'] +') '
+                                        if (json['more-info'][i]['info_link-size']) {
+                                            size = ' (' + json['more-info'][i]['info_link-size'] + ') '
                                         }
-
+                                        
                                         moreinfo = moreinfo + '<a ' + target + ' href=\"' + json['more-info'][i]['info_link-url'] + '\">' + json['more-info'][i]['info_link-title'] + '<span class=\"size\">' + size + '</span></a>';
                                         ;
                                     }
@@ -158,7 +166,7 @@ var setupLinks = function(){
                                 }
                                 
                             }
-                             
+                            
                         });
                         results = results + '</div>'
                     }
