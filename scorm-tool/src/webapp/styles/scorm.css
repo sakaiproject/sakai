@@ -20,9 +20,8 @@ div.my-tree div.wicket-tree {
 }
 
 #scormButtonPanel {
-	display:none;
     background: url(/sakai-scorm-tool/images/buttonBarBackground.gif) repeat-x;
-    height: 40px;
+    height: 36px;
     padding-top: 4px;
 }
 
