@@ -104,7 +104,13 @@ table tr.newRow:hover {
     width: 100%;
     height: 1px;
 }
-
+.results h4 {
+    color:#555;
+    font-size:120%;
+    margin:0;
+    padding:0 0 10px 0;
+    }
+    
 h3.withNav {
     float: left;
     margin: 10px 0 0 0;
@@ -194,6 +200,7 @@ h3.withNav {
     font-size: 100%;
     font-weight:bold;
     list-style:none;
+    margin:0;
 }
 .metadataLine .data{
     padding-right:5px;
@@ -206,6 +213,10 @@ h3.withNav {
     
 .metadataLine  li{
     display:inline;
+}
+.description{
+    margin-top:5px;
+    border-top:1px solid #ccc;
 }
 .moreInfo {
     position:absolute;
