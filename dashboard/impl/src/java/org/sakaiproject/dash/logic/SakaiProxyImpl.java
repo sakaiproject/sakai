@@ -15,6 +15,7 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.Entity;
@@ -268,6 +269,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		session.setUserEid("admin");
 		this.sessionManager.setCurrentSession(session);
 	}
+	
 
 	/************************************************************************
 	 * Spring-injected classes
@@ -303,6 +305,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 	//@Getter @Setter
 	protected ContentHostingService contentHostingService;
 
+	//@Getter @Setter
+	protected AssignmentService assignmentService;
 	/**
 	 * @param toolManager the toolManager to set
 	 */
@@ -372,6 +376,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 */
 	public void setContentHostingService( ContentHostingService contentHostingService) {
 		this.contentHostingService = contentHostingService;
+	}
+	
+	/**
+	 * @param assignmentService the AssignmentService to set
+	 */
+	public void setAssignmentService( AssignmentService assignmentService) {
+		this.assignmentService = assignmentService;
 	}
 
 	/************************************************************************

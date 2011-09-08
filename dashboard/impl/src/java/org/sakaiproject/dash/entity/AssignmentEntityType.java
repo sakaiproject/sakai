@@ -5,6 +5,7 @@ package org.sakaiproject.dash.entity;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +24,15 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
 
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityPropertyTypeException;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.entitybroker.EntityBroker;
+import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
+
 /**
  * 
  *
@@ -30,6 +40,19 @@ import org.sakaiproject.util.ResourceLoader;
 public class AssignmentEntityType implements EntityType {
 	
 	private Log logger = LogFactory.getLog(AssignmentEntityType.class);
+	
+
+	public static final String VALUE_MAX_GRADE = "grade-max";
+	public static final String LABEL_MAX_GRADE = "grade-max-label";
+	public static final String VALUE_OPEN_TIME = "open-time";
+	public static final String LABEL_OPEN_TIME = "open-time-label";
+	public static final String VALUE_DUE_TIME = "due-time";
+	public static final String LABEL_DUE_TIME = "due-time-label";
+	public static final String VALUE_CLOSE_TIME = "close-time";
+	public static final String LABEL_CLOSE_TIME = "close-time-label";
+	public static final String VALUE_SUBMISSION_STATUS = "submission-status";
+	public static final String LABEL_SUBMISSION_STATUS = "submission-status-label";
+	
 	
 	protected SakaiProxy sakaiProxy;
 	public void setSakaiProxy(SakaiProxy sakaiProxy) {
@@ -39,6 +62,11 @@ public class AssignmentEntityType implements EntityType {
 	protected DashboardLogic dashboardLogic;
 	public void setDashboardLogic(DashboardLogic dashboardLogic) {
 		this.dashboardLogic = dashboardLogic;
+	}
+	
+	protected EntityBroker entityBroker;
+	public void setEntityBroker(EntityBroker entityBroker) {
+		this.entityBroker = entityBroker;
 	}
 
 	public static final String IDENTIFIER = "assignment";
@@ -70,20 +98,22 @@ public class AssignmentEntityType implements EntityType {
 			ResourceProperties props = assn.getProperties();
 			// "entity-type": "assignment"
 			values.put(EntityType.VALUE_ENTITY_TYPE, IDENTIFIER);
-			//    "assessment-type": ""
-			//values.put(VALUE_ASSESSMENT_TYPE, assn.);
 			// "grade-type": ""
 			values.put(VALUE_GRADE_TYPE, assn.getContent().getTypeOfGradeString(assn.getContent().getTypeOfGrade()));
 			// "submission-type": ""
-			values.put(VALUE_SUBMISSION_TYPE, Integer.toString(assn.getContent().getTypeOfSubmission()));
+			//values.put(VALUE_SUBMISSION_TYPE, Integer.toString(assn.getContent().getTypeOfSubmission()));
 			if(Assignment.SCORE_GRADE_TYPE == assn.getContent().getTypeOfGrade()) {
-				values.put(VALUE_MAX_SCORE, assn.getContent().getMaxGradePointDisplay());
+				values.put(VALUE_MAX_GRADE, assn.getContent().getMaxGradePointDisplay());
 			}
 			// "calendar-time": 1234567890
 			values.put(VALUE_CALENDAR_TIME, assn.getDueTimeString());
 			try {
 				DateFormat df = DateFormat.getDateTimeInstance();
 				values.put(VALUE_NEWS_TIME, df.format(new Date(props.getTimeProperty(ResourceProperties.PROP_CREATION_DATE).getTime())));
+				values.put(VALUE_OPEN_TIME, df.format(new Date(assn.getOpenTime().getTime())));
+				values.put(VALUE_DUE_TIME, df.format(new Date(assn.getDueTime().getTime())));
+				values.put(VALUE_CLOSE_TIME, df.format(new Date(assn.getCloseTime().getTime())));
+				
 			} catch (EntityPropertyNotDefinedException e) {
 				logger.warn("getValues(" + entityReference + "," + localeCode + ") EntityPropertyNotDefinedException: " + e);
 			} catch (EntityPropertyTypeException e) {
@@ -99,10 +129,19 @@ public class AssignmentEntityType implements EntityType {
 				values.put(VALUE_USER_NAME, user.getDisplayName());
 			}
 			
+			// pass in the assignment reference to get the assignment data we need
+			Map<String, Object> assignData = new HashMap<String, Object>();
+            ActionReturn ret = entityBroker.executeCustomAction(assn.getReference(), "deepLink", null, null);
+            if (ret != null && ret.getEntityData() != null) {
+            	Object returnData = ret.getEntityData().getData();
+            	assignData = (Map<String, Object>)returnData;
+            }
+            String assignmentUrl = (String) assignData.get("assignmentUrl");
+			
 			// "more-info"
 			List<Map<String,String>> infoList = new ArrayList<Map<String,String>>();
 			Map<String,String> infoItem = new HashMap<String,String>();
-			infoItem.put(VALUE_INFO_LINK_URL, assn.getUrl());
+			infoItem.put(VALUE_INFO_LINK_URL, assignmentUrl);
 			infoItem.put(VALUE_INFO_LINK_TITLE, rl.getString("assignment.info.link"));
 			infoList.add(infoItem);
 			values.put(VALUE_MORE_INFO, infoList);
@@ -139,6 +178,11 @@ public class AssignmentEntityType implements EntityType {
 		props.put(LABEL_CALENDAR_TIME, rl.getString("assignment.calendar.time"));
 		props.put(LABEL_NEWS_TIME, rl.getString("assignment.news.time"));
 		props.put(LABEL_USER_NAME, rl.getString("assignment.user.name"));
+		props.put(LABEL_GRADE_TYPE, rl.getString("assignment.grade.type"));
+		props.put(LABEL_MAX_GRADE, rl.getString("assignment.max.grade"));
+		props.put(LABEL_OPEN_TIME, rl.getString("assignment.open.time"));
+		props.put(LABEL_DUE_TIME, rl.getString("assignment.due.time"));
+		props.put(LABEL_CLOSE_TIME, rl.getString("assignment.close.time"));
 		//props.put(LABEL_ATTACHMENTS, rl.getString("assignment.attachments"));
 		return props;
 	}
@@ -156,11 +200,17 @@ public class AssignmentEntityType implements EntityType {
 	 */
 	public List<List<String>> getOrder(String entityReference, String localeCode) {
 		List<List<String>> order = new ArrayList<List<String>>();
-		List<String> section0 = new ArrayList<String>();
-		section0.add(VALUE_TITLE);
-		order.add(section0);
+		List<String> valueList = new ArrayList<String>(Arrays.asList(VALUE_TITLE, VALUE_USER_NAME, VALUE_NEWS_TIME, VALUE_OPEN_TIME, VALUE_DUE_TIME, VALUE_CLOSE_TIME, VALUE_DESCRIPTION));
+		
+		for (String value : valueList)
+		{
+			List<String> section = new ArrayList<String>();
+			section.add(value);
+			order.add(section);
+		}		
 		List<String> section1 = new ArrayList<String>();
-		section1.add(VALUE_CALENDAR_TIME);
+		section1.add(VALUE_GRADE_TYPE);
+		section1.add(VALUE_MAX_GRADE);
 		order.add(section1);
 		List<String> section2 = new ArrayList<String>();
 		section2.add(VALUE_DESCRIPTION);
@@ -168,19 +218,9 @@ public class AssignmentEntityType implements EntityType {
 		List<String> section3 = new ArrayList<String>();
 		section3.add(VALUE_ATTACHMENTS);
 		order.add(section3);
-		List<String> section4 = new ArrayList<String>();
-		section4.add(VALUE_ASSESSMENT_TYPE);
-		section4.add(VALUE_GRADE_TYPE);
-		section4.add(VALUE_SUBMISSION_TYPE);
-		section4.add(VALUE_MAX_SCORE);
-		order.add(section4);
 		List<String> section5 = new ArrayList<String>();
 		section5.add(VALUE_MORE_INFO);
 		order.add(section5);
-		List<String> section6 = new ArrayList<String>();
-		section6.add(VALUE_NEWS_TIME);
-		section6.add(VALUE_USER_NAME);
-		order.add(section6);
 
 		return order;
 	}
