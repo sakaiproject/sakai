@@ -53,7 +53,7 @@
 </h3>
 <br/>
   <!-- content... -->
-  <h:panelGroup styleClass="validation">
+  <h:panelGroup styleClass="messageSamigo2">
   <h:panelGrid border="0">
       <h:outputText value="#{deliveryMessages.save_for_later_warning_1}" escape="false"/>
       <h:outputText value="#{deliveryMessages.save_for_later_warning_2}" escape="false"/>
