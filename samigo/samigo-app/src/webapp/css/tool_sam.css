@@ -373,5 +373,7 @@ a.hideDivision {
 	padding: 5px 5px 5px 25px;
 }
 
-
+.saCharCount {
+    border: 1px solid #bbb;
+}
 

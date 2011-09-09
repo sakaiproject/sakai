@@ -273,16 +273,16 @@ public class SubmitToGradingActionListener implements ActionListener {
 		StringBuffer redrawAnchorName = new StringBuffer("p");
 		String tmpAnchorName = "";
 
-		if (invalidSALengthList.size() != 0) {
-			Iterator iterPart = delivery.getPageContents().getPartsContents().iterator();
-			while (iterPart.hasNext()) {
-				SectionContentsBean part = (SectionContentsBean) iterPart.next();
-				String partSeq = part.getNumber();
-				Iterator iterItem = part.getItemContents().iterator();
-				while (iterItem.hasNext()) { // go through each item from form
-					ItemContentsBean item = (ItemContentsBean) iterItem.next();
-					String itemSeq = item.getSequence();
-					Long itemId = item.getItemData().getItemId();
+		Iterator iterPart = delivery.getPageContents().getPartsContents().iterator();
+		while (iterPart.hasNext()) {
+			SectionContentsBean part = (SectionContentsBean) iterPart.next();
+			String partSeq = part.getNumber();
+			Iterator iterItem = part.getItemContents().iterator();
+			while (iterItem.hasNext()) { // go through each item from form
+				ItemContentsBean item = (ItemContentsBean) iterItem.next();
+				String itemSeq = item.getSequence();
+				Long itemId = item.getItemData().getItemId();
+				if (item.getItemData().getTypeId() == 5) {
 					if (invalidSALengthList.contains(itemId)) {
 						item.setIsInvalidSALengthInput(true);
 						redrawAnchorName.append(partSeq);
@@ -296,19 +296,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 						item.setIsInvalidSALengthInput(false);
 					}
 				}
-			}
-		}
-		
-		if (invalidFINMap.size() != 0) {
-			Iterator iterPart = delivery.getPageContents().getPartsContents().iterator();
-			while (iterPart.hasNext()) {
-				SectionContentsBean part = (SectionContentsBean) iterPart.next();
-				String partSeq = part.getNumber();
-				Iterator iterItem = part.getItemContents().iterator();
-				while (iterItem.hasNext()) { // go through each item from form
-					ItemContentsBean item = (ItemContentsBean) iterItem.next();
-					String itemSeq = item.getItemData().getSequence().toString();
-					Long itemId = item.getItemData().getItemId();
+				else if (item.getItemData().getTypeId() == 11) {
 					if (invalidFINMap.containsKey(itemId)) {
 						item.setIsInvalidFinInput(true);
 						redrawAnchorName.append(partSeq);
@@ -336,6 +324,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 				}
 			}
 		}
+		
 		
 		if (tmpAnchorName != null && !tmpAnchorName.equals("")) {
 			delivery.setRedrawAnchorName(tmpAnchorName.toString());

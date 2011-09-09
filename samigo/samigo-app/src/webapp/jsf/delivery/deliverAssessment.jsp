@@ -229,6 +229,21 @@ String.prototype.endsWith = function(txt)
   return this.match(rgx) != null; 
 }
 
+function clickSaCharCountLink(field){
+var insertlinkid= field.id.replace("getAaCharCount", "hiddenlink");
+
+var newindex = 0;
+for (i=0; i<document.links.length; i++) {
+  if(document.links[i].id == insertlinkid)
+  {
+    newindex = i;
+    break;
+  }
+}
+
+document.links[newindex].onclick();
+}
+
 </script>
 
 

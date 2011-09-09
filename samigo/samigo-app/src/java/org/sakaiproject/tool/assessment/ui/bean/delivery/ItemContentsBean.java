@@ -154,6 +154,8 @@ public class ItemContentsBean implements Serializable {
 	
 	private boolean isInvalidSALengthInput;
 
+	private String saCharCount;
+	
 	private String pointsDisplayString;
 
 	private List itemGradingAttachmentList;
@@ -1395,5 +1397,15 @@ public class ItemContentsBean implements Serializable {
   public boolean getIsInvalidSALengthInput() {
 	  return isInvalidSALengthInput;
   }  
+  
+  public String getSaCharCount() {
+	  return saCharCount;
+  }
+
+  public void setSaCharCount(String saCharCount)
+  {
+	  this.saCharCount = saCharCount;
+  }
+  
 }
 

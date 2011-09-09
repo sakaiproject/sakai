@@ -803,9 +803,12 @@ public class GradingService
         itemGrading.setAgentId(agent);
         itemGrading.setOverrideScore(Float.valueOf(0));
         
-        if (itemGrading.getAnswerText() != null && itemGrading.getAnswerText().length() > 60000) {
-        	if (invalidSALengthList != null) {
-        		invalidSALengthList.add(item.getItemId());
+        if (itemType == 5 && itemGrading.getAnswerText() != null) {
+        	String processedAnswerText = itemGrading.getAnswerText().replaceAll("\r", "").replaceAll("\n", "");
+        	if (processedAnswerText.length() > 60000) {
+        		if (invalidSALengthList != null) {
+        			invalidSALengthList.add(item.getItemId());
+        		}
         	}
         }
         

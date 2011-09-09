@@ -29,15 +29,24 @@ should be included in file importing DeliveryMessages
 <!-- ATTACHMENTS -->
 <%@ include file="/jsf/delivery/item/attachment.jsp" %>
 
-<h:outputText value="#{deliveryMessages.sa_invalid_length_error} " escape="false" rendered="#{question.isInvalidSALengthInput}" styleClass="messageSamigo"/>
-
-<h:panelGroup 
-     rendered="#{!(delivery.actionString=='reviewAssessment'
-            || delivery.actionString=='gradeAssessment')}">
+<h:panelGrid rendered="#{!(delivery.actionString=='reviewAssessment' || delivery.actionString=='gradeAssessment')}">
 <f:verbatim><br/></f:verbatim>
 <h:outputText value="#{deliveryMessages.maxSAText}"/>
-</h:panelGroup> 
-<f:verbatim><br/></f:verbatim>
+
+<h:panelGroup>
+  <h:commandButton id="getAaCharCount" value="#{deliveryMessages.count_characters}" styleClass="active" onclick="clickSaCharCountLink(this);" onmousedown="clickSaCharCountLink(this);"/>
+  <f:verbatim>&nbsp;&nbsp;</f:verbatim>
+  <h:inputText value="#{question.saCharCount}" size="8" readonly="true" style="text-align:right;"/>
+</h:panelGroup>
+</h:panelGrid>
+
+<h:commandLink id="hiddenlink" action="takeAssessment" value="">
+  <f:actionListener
+           type="org.sakaiproject.tool.assessment.ui.listener.delivery.SaCharCountListener" />
+  <f:param name="itemId" value="#{question.itemData.itemId}"/>
+</h:commandLink>
+
+<h:outputText value="#{deliveryMessages.sa_invalid_length_error} " escape="false" rendered="#{question.isInvalidSALengthInput}" styleClass="messageSamigo"/>
 
 <%-- If studentRichText is true, show the rich text answer option --%>
 <h:panelGrid rendered="#{delivery.actionString!='reviewAssessment'
