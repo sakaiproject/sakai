@@ -200,7 +200,7 @@ public class AssignmentEntityType implements EntityType {
 	 */
 	public List<List<String>> getOrder(String entityReference, String localeCode) {
 		List<List<String>> order = new ArrayList<List<String>>();
-		List<String> valueList = new ArrayList<String>(Arrays.asList(VALUE_TITLE, VALUE_USER_NAME, VALUE_NEWS_TIME, VALUE_OPEN_TIME, VALUE_DUE_TIME, VALUE_CLOSE_TIME, VALUE_DESCRIPTION));
+		List<String> valueList = new ArrayList<String>(Arrays.asList(VALUE_TITLE, VALUE_USER_NAME, VALUE_NEWS_TIME, VALUE_OPEN_TIME, VALUE_DUE_TIME, VALUE_CLOSE_TIME));
 		
 		for (String value : valueList)
 		{
