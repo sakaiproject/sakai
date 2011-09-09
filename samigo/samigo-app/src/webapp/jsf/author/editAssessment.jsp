@@ -86,7 +86,7 @@ document.links[newindex].onclick();
 <!-- some back end stuff stubbed -->
 <h:form id="assesssmentForm">
 
-  <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="validation">
+  <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="messageSamigo2">
     <h:panelGrid  columns="1">
 	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_1}" />
 	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_21}" rendered="#{assessmentBean.hasGradingData}"/>
@@ -478,7 +478,7 @@ document.links[newindex].onclick();
 </h:panelGrid>
 
 
-  <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="validation">
+  <h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="messageSamigo2">
     <h:panelGrid  columns="1">
 	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_1}" />
 	  <h:outputText value="#{authorMessages.edit_published_assessment_warn_21}" rendered="#{assessmentBean.hasGradingData}"/>
