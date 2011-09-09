@@ -51,7 +51,6 @@ should be included in file importing DeliveryMessages
 		&& delivery.actionString !='gradeAssessment' 
 		&& delivery.actionString !='reviewAssessment'}"
 		 value="#{answer.response}" onkeypress="return noenter()">
-		<f:validator validatorId="finResponseValidator" />
  	  </h:inputText>
 
       <h:outputText style="text-decoration: underline" 

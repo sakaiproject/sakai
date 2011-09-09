@@ -1773,11 +1773,6 @@ public class ItemAddListener
 		  if (afteropen.length>1) {
 			  // must have text in between {}
 			  String[] lastpart = afteropen[1].split("\\}");
-			  boolean isValid = isValidFINAnswer(lastpart[0]);
-			  if (!isValid) {
-				  log.debug("Exception. Input is: " + lastpart[0]);
-				  throw new FinFormatException("Not a valie FIN Input");
-			  }
 			  list.add(lastpart[0]);
 		  }
 	  }
@@ -1786,29 +1781,14 @@ public class ItemAddListener
 			  if (i == 0) {
 				  String[] firstpart = tokens[i].split("\\{");
 				  if (firstpart.length>1) {
-					  boolean isValid = isValidFINAnswer(firstpart[1]);
-					  if (!isValid) {
-						  log.debug("Exception. Input is: " + firstpart[1]);
-						  throw new FinFormatException("Not a valie FIN Input");
-					  }
 					  list.add(firstpart[1]);
 				  }
 			  }
 			  else if (i == (tokens.length - 1)) {
 				  String[] lastpart = tokens[i].split("\\}");
-				  boolean isValid = isValidFINAnswer(lastpart[0]);
-				  if (!isValid) {
-					  log.debug("Exception. Input is: " + lastpart[0]);
-					  throw new FinFormatException("Not a valie FIN Input");
-				  }
 				  list.add(lastpart[0]);
 			  }
 			  else {
-				  boolean isValid = isValidFINAnswer(tokens[i]);
-				  if (!isValid) {
-					  log.debug("Exception. Input is: " + tokens[i]);
-					  throw new FinFormatException("Not a valie FIN Input");
-				  }
 				  list.add(tokens[i]);
 			  }
 		  }
@@ -1818,6 +1798,7 @@ public class ItemAddListener
 
   }
 
+  /*
   private static boolean isValidFINAnswer(String answer){
 	  String processedAnswer = "";
 	  if (answer.indexOf("|") == -1) {
@@ -1848,6 +1829,7 @@ public class ItemAddListener
 	  }
 	  return true;
   }
+  */
   
   /**
    ** returns if the multile choice label is the correct choice,

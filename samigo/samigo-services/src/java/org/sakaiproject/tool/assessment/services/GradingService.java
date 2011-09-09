@@ -29,11 +29,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.math.BigDecimal;
 import javax.faces.application.FacesMessage;
@@ -71,6 +74,7 @@ import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFa
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.util.FormatException;
+
 
 /**
  * The GradingService calls the back end to get/store grading information. 
@@ -1451,8 +1455,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		  return matchresult;
 	  }
 	  String answertext = answerIfc.getText();
-
-
 	  if (answertext != null)
 	  {
 		  StringTokenizer st = new StringTokenizer(answertext, "|");
@@ -1461,7 +1463,13 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 			  range = true;
 		  }
 
+		  String studentAnswerText = null;
+		  if (data.getAnswerText() != null) {
+			  studentAnswerText = data.getAnswerText().trim();
+		  }
+
 		  if (range) {
+
 			  String answer1 = st.nextToken().trim();
 			  String answer2 = st.nextToken().trim();
 
@@ -1472,17 +1480,11 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 				  log.debug("Number is not BigDecimal: " + answer1 + " or " + answer2);
 			  }
 
+			  HashMap map = validate(studentAnswerText);
+			  studentAnswerNum = (BigDecimal) map.get("REAL");
 
-			  if (data.getAnswerText() != null) {
-				  try {
-					  studentAnswerNum = new BigDecimal(data.getAnswerText().trim());
-				  } catch (Exception e) {
-					  log.debug("Number is not BigDecimal: " + studentAnswerNum);
-				  }
-
-				  matchresult = (answer1Num != null && answer2Num != null && studentAnswerNum != null &&
-						  (answer1Num.compareTo(studentAnswerNum) <= 0) && (answer2Num.compareTo(studentAnswerNum) >= 0));
-			  }
+			  matchresult = (answer1Num != null && answer2Num != null && studentAnswerNum != null &&
+					  (answer1Num.compareTo(studentAnswerNum) <= 0) && (answer2Num.compareTo(studentAnswerNum) >= 0));
 		  }
 		  else { // not range
 			  String answer = st.nextToken().trim();
@@ -1499,36 +1501,73 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 				  log.debug("Number is not Complex: " + answer);
 			  }
 
-			  if (data.getAnswerText() != null) {
+			  if (data.getAnswerText() != null) {  
+				  HashMap map = validate(studentAnswerText);
 
-				  studentanswer = data.getAnswerText().trim();
 				  if (answerNum != null) {
-
-					  try {
-						  studentAnswerNum = new BigDecimal(studentanswer);
-						  log.debug("studentAnswerNum= " + studentAnswerNum);
-					  } catch(NumberFormatException ex) {
-						  log.debug("Number is not BigDecimal: " + studentanswer);
-					  }
-
+					  studentAnswerNum = (BigDecimal) map.get("REAL");
 					  matchresult = (studentAnswerNum != null && answerNum.compareTo(studentAnswerNum) == 0);
 				  }
 				  else if (answerComplex != null) {
-					  try {
-						  studentAnswerComplex = complexFormat.parse(studentanswer);
-						  log.debug("studentAnswerComplex= " + studentAnswerComplex.getReal() + "+" + studentAnswerComplex.getImaginary() + "i");
-					  } catch(ParseException ex) {
-						  log.debug("Number is not Complex: " + studentanswer);
-					  }
-
+					  studentAnswerComplex = (Complex) map.get("COMPLEX");
 					  matchresult = (studentAnswerComplex != null && answerComplex.equals(studentAnswerComplex));
 				  }
 			  }
 		  }
-
 	  }
 	  return matchresult;
   }  
+
+  private HashMap validate(String value) {
+	  HashMap map = new HashMap();
+	  if (value == null || value.trim().equals("")) {
+		  return map;
+	  }
+	  String trimmedValue = value.trim();
+	  boolean isComplex = true;
+	  boolean isRealNumber = true;
+
+	  BigDecimal studentAnswerReal = null;
+	  try {
+		  studentAnswerReal = new BigDecimal(trimmedValue);
+	  } catch (Exception e) {
+		  isRealNumber = false;
+	  }
+
+	  // Test for complex number only if it is not a BigDecimal
+	  Complex studentAnswerComplex = null;
+	  if (!isRealNumber) {
+		  try {
+			  DecimalFormat df = (DecimalFormat)NumberFormat.getNumberInstance(Locale.US);
+			  df.setGroupingUsed(false);
+
+			  // Numerical format ###.## (decimal symbol is the point)
+			  ComplexFormat complexFormat = new ComplexFormat(df);
+			  studentAnswerComplex = complexFormat.parse(trimmedValue);
+
+			  // This is because there is a bug parsing complex number. 9i is parsed as 9
+			  if (studentAnswerComplex.getImaginary() == 0 && trimmedValue.contains("i")) {
+				  isComplex = false;
+			  }
+		  } catch (Exception e) {
+			  isComplex = false;
+		  }
+	  }
+
+	  Boolean isValid = isComplex || isRealNumber;
+	  if (!isValid) {
+		  throw new FinFormatException("Not a valid FIN Input. studentanswer=" + trimmedValue);
+	  }
+
+	  if (isRealNumber) {
+		  map.put("REAL", studentAnswerReal);
+	  }
+	  else if (isComplex) {
+		  map.put("COMPLEX", studentAnswerComplex);
+	  }
+
+	  return map;
+  }
   
   public float getTotalCorrectScore(ItemGradingIfc data, HashMap publishedAnswerHash)
   {
