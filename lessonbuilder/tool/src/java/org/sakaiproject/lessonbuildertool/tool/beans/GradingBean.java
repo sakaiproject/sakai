@@ -90,7 +90,9 @@ public class GradingBean {
 			
 			try {
 				r = gradebookIfc.updateExternalAssessmentScore(simplePageBean.getCurrentSiteId(), pageItem.getGradebookId(), page.getOwner(), Double.toString(Double.valueOf(points)));
-			}catch(Exception ex) {}
+			}catch(Exception ex) {
+			    System.out.println("Exception updating grade " + ex);
+			}
 			
 			if(r) {
 				page.setPoints(Double.valueOf(points));

@@ -166,6 +166,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	private static List urlCacheLock = new ArrayList();
 	private static Cache urlCache = null;
+        String browserString = null; // set by checkIEVersion;
 
 	protected static final int DEFAULT_EXPIRATION = 10 * 60;
 
@@ -365,6 +366,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		// Find the MSIE version, if we're running it.
 		int ieVersion = checkIEVersion();
+
+		// browserString set by checkIEVersion
+		// as far as I can tell, none of these supports fck or ck
+		// we can make it configurable if necessary, or use WURFL
+		boolean noEditor = browserString.indexOf("iPhone") >= 0 ||
+		    browserString.indexOf("iPad") >= 0 ||
+		    browserString.indexOf("Android") >= 0;
 
 		if (simplePageBean.getTopRefresh()) {
 			UIOutput.make(tofill, "refresh");
@@ -640,7 +648,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			SimpleStudentPage student = simplePageToolDao.findStudentPageByPageId(currentPage.getPageId());
 			
 			// Make sure this is a top level student page
-			if(student != null) {
+			if(student != null && pageItem.getGradebookId() != null) {
 				UIOutput.make(tofill, "gradingSpan");
 				UIOutput.make(tofill, "commentsUUID", String.valueOf(student.getId()));
 				UIOutput.make(tofill, "commentPoints", String.valueOf((student.getPoints() != null? student.getPoints() : "")));
@@ -1387,7 +1395,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UILink.make(tableRow, "iframe-edit", messageLocator.getMessage("simplepage.editItem"), "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
 						}
 						
-						System.out.println("Printing Description");
 						UIOutput.make(tableRow, "description5", i.getDescription());
 					}
 
@@ -1411,11 +1418,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						Placement placement = toolManager.getCurrentPlacement();
 						UIOutput.make(tableRow, "placementId", placement.getId());
 
+					        // note: the URL will be rewritten in comments.js to look like
+					        //  /sakai-lessonbuildertool-tool/faces/Comments...
 						CommentsViewParameters eParams = new CommentsViewParameters(CommentsProducer.VIEW_ID);
 						eParams.itemId = i.getId();
 						if (params.postedComment) {
 							eParams.postedComment = postedCommentId;
 						}
+						eParams.siteId = simplePageBean.getCurrentSiteId();
+						eParams.pageId = currentPage.getPageId();
 						
 						if(params.author != null && !params.author.equals("")) {
 							eParams.author = params.author;
@@ -1488,7 +1499,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    fckInput.decorate(new UIFreeAttributeDecorator("width", "800"));
 					    fckInput.decorate(new UIStyleDecorator("evolved-box"));
 
-					    ((SakaiFCKTextEvolver) richTextEvolver).evolveTextInput(fckInput, "" + commentsCount);
+					    if (!noEditor)
+						((SakaiFCKTextEvolver) richTextEvolver).evolveTextInput(fckInput, "" + commentsCount);
 
 					    UICommand.make(form, "add-comment", "#{simplePageBean.addComment}");
 					}
@@ -2099,7 +2111,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UsageSession usageSession = UsageSessionService.getSession();
 		if (usageSession == null)
 		    return 0;
-		String browserString = usageSession.getUserAgent();
+		browserString = usageSession.getUserAgent();
 		int ieIndex = browserString.indexOf(" MSIE ");
 		int ieVersion = 0;
 		if (ieIndex >= 0) {

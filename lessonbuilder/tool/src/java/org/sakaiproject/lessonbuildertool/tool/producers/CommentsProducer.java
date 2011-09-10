@@ -6,9 +6,13 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
@@ -19,6 +23,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
 import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIInternalLink;
@@ -39,11 +44,13 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 
 	private SimplePageBean simplePageBean;
 	private MessageLocator messageLocator;
+	private LocaleGetter localeGetter;
 	private SimplePageToolDao simplePageToolDao;
 	private HashMap<String, String> anonymousLookup = new HashMap<String, String>();
 	private String currentUserId;
 	private String owner = null;
 	private boolean filter;
+        Locale M_locale = null;
 	
 	public String getViewID() {
 		return VIEW_ID;
@@ -53,6 +60,18 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 		CommentsViewParameters params = (CommentsViewParameters) viewparams;
 		filter = params.filter;
 		
+		// set up locale
+		String langLoc[] = localeGetter.get().toString().split("_");
+		if (langLoc.length >= 2) {
+			if ("en".equals(langLoc[0]) && "ZA".equals(langLoc[1])) {
+				M_locale = new Locale("en", "GB");
+			} else {
+				M_locale = new Locale(langLoc[0], langLoc[1]);
+			}
+		} else {
+			M_locale = new Locale(langLoc[0]);
+		}
+
 		// errors redirect back to ShowPage. But if this is embedded in the page, ShowPage
 		// will call us again. This is very hard for the user to recover from. So trap
 		// all possible errors. It may result in an incomplete page or something invalid,
@@ -60,6 +79,11 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 
 		try {
 			
+			SimplePage currentPage = simplePageToolDao.getPage(params.pageId);
+			simplePageBean.setCurrentSiteId(params.siteId);
+			simplePageBean.setCurrentPage(currentPage);
+			simplePageBean.setCurrentPageId(params.pageId);
+
 			SimplePageItem commentsItem = simplePageToolDao.findItem(params.itemId);
 			if(commentsItem != null && commentsItem.getSakaiId() != null && !commentsItem.getSakaiId().equals("")) {
 				SimpleStudentPage studentPage = simplePageToolDao.findStudentPage(Long.valueOf(commentsItem.getSakaiId()));
@@ -167,6 +191,8 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 				CommentsViewParameters eParams = new CommentsViewParameters(VIEW_ID);
 				eParams.itemId = params.itemId;
 				eParams.showAllComments=true;
+				eParams.pageId = params.pageId;
+				eParams.siteId = params.siteId;
 				
 				UIInternalLink.make(container, "to-load", eParams);
 				
@@ -203,7 +229,10 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 				UIOutput.make(tofill, "editAlert");
 			}
 
-		} catch (Exception e) {};
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("comments error " + e);
+		};
 
 	}
 	
@@ -266,6 +295,8 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 			
 			CommentsViewParameters eParams = (CommentsViewParameters) params.copy();
 			eParams.deleteComment = comment.getUUID();
+			eParams.pageId = params.pageId;
+			eParams.siteId = params.siteId;
 			
 			UIInternalLink.make(commentContainer, "deleteCommentURL", eParams);
 			
@@ -294,6 +325,13 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 			UIInternalLink.make(commentContainer, "contextLink", messageLocator.getMessage("simplepage.show-context"), eParams);
 		}
 		
+		String dateString = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, M_locale).format(comment.getTimePosted());
+
+		UIOutput.make(commentContainer, "replyTo").
+		    decorate(new UIFreeAttributeDecorator("onclick", "replyToComment($(this),'" + 
+							     messageLocator.getMessage("simplepage.in-reply-to").replace("{1}", author).replace("{2}", dateString) + "')")).
+		    decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.reply")));
+
 		if(!comment.getHtml()) {
 			UIOutput.make(commentContainer, "comment", comment.getComment());
 		}else {
@@ -341,42 +379,11 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 		Date d = new Date(timeMillis);
 		Date now = new Date();
 		if(d.getMonth() == now.getMonth() && d.getDate() == now.getDate() && d.getYear() == now.getYear()) {
-			return ((d.getHours()-1) % 12 + 1) + ":" + (d.getMinutes() < 10? "0" : "") + d.getMinutes() + " (" + descrip + ")";
+			return DateFormat.getTimeInstance(DateFormat.SHORT, M_locale).format(d) + " (" + descrip + ")";
 		}else if(d.getYear() == now.getYear()) {
-			return translateMonth(d.getMonth()) + " " + d.getDate() + " (" + descrip + ")";
+			return DateFormat.getDateInstance(DateFormat.MEDIUM, M_locale).format(d) + " (" + descrip + ")";
 		}else {
-			return d.getMonth() + "/" + d.getDate() + "/" + d.getYear() + " (" + descrip + ")";
-		}
-	}
-	
-	private String translateMonth(int month) {
-		switch(month) {
-		case 1:
-			return messageLocator.getMessage("simplepage.jan");
-		case 2:
-			return messageLocator.getMessage("simplepage.feb");
-		case 3:
-			return messageLocator.getMessage("simplepage.mar");
-		case 4:
-			return messageLocator.getMessage("simplepage.apr");
-		case 5:
-			return messageLocator.getMessage("simplepage.may");
-		case 6:
-			return messageLocator.getMessage("simplepage.jun");
-		case 7:
-			return messageLocator.getMessage("simplepage.jul");
-		case 8:
-			return messageLocator.getMessage("simplepage.aug");
-		case 9:
-			return messageLocator.getMessage("simplepage.sept");
-		case 10:
-			return messageLocator.getMessage("simplepage.oct");
-		case 11:
-			return messageLocator.getMessage("simplepage.nov");
-		case 12:
-			return messageLocator.getMessage("simplepage.dec");
-		default:
-			return "";
+			return DateFormat.getDateInstance(DateFormat.MEDIUM, M_locale).format(d) + " (" + descrip + ")";
 		}
 	}
 	
@@ -388,6 +395,10 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 		messageLocator = locator;
 	}
 	
+	public void setLocaleGetter(LocaleGetter getter) {
+		localeGetter = getter;
+	}
+
 	public void setSimplePageToolDao(SimplePageToolDao simplePageToolDao) {
 		this.simplePageToolDao = simplePageToolDao;
 	}

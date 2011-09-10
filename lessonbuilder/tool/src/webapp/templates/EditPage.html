@@ -11,6 +11,8 @@
 <title>Edit Page</title>
 </head>
 <body rsf:id="scr=sakai-body">
+<script type="text/javascript" src="$context/js/jquery-1.6.2.min.js"></script>
+
 	<div class="portletBody">
 	
 	<p rsf:id="debugstuff"> junk </p>
@@ -33,6 +35,23 @@
 			
 			<br />
 			
+<script type="text/javascript">
+
+$(function() {
+    $("#grouplist").hide();
+    $("#editgroups").click(function() {
+         $("#grouplist").show();
+         $("#editgroups").hide();
+       });
+});
+
+</script>
+
+
+			<p id="editgroups" class="edit-group">
+			  <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
+			</p>
+
 			<div id="grouplist" rsf:id="grouplist">
 			  <span rsf:id="group-list-span"/>
 			  <p rsf:id="msg=simplepage.select-group"></p>

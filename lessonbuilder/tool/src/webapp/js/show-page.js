@@ -1025,6 +1025,7 @@ $(function() {
 			
 			return false;
 		});
+
 	} // Closes admin if statement
 
 	if (!(navigator.userAgent.indexOf("Firefox/2.") > 0)) {

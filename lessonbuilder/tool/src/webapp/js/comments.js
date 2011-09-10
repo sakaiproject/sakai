@@ -6,9 +6,15 @@
 var commentItemToReload = null;
 var deleteDialogCommentUrl = null;
 var originalDeleteDialogText = null;
+var noEditor = true;
 
 $(function() {
-	if(sakai.editor.editors.ckeditor==undefined) {
+	
+	noEditor = ($("div.evolved-box").size() == 0);
+
+	if (noEditor) {
+		$(".evolved-box").hide();
+	}else if(sakai.editor.editors.ckeditor==undefined) {
 		$(".evolved-box :not(textarea)").hide();
 	}else {
 		$(".evolved-box").hide();
@@ -28,6 +34,10 @@ $(function() {
 	
 	$(".replaceWithComments").each(function(index) {
 		var pageToRequest = $(this).parent().parent().children(".commentsBlock").attr("href");
+		// remove  pda/SITEID/. We don't want the portal to hack on this
+		//pageToRequest = pageToRequest.replace(new RegExp("pda/[^/]*/",""),"");
+                var i = pageToRequest.indexOf("Comment");
+                pageToRequest = "/sakai-lessonbuildertool-tool/faces/" + pageToRequest.substring(i);
 		$(this).load(pageToRequest, commentsLoaded);
 		//$.PeriodicalUpdater(pageToRequest, {minTimeout:5000, maxTimeout:120000}, function(data) {
 		//	$(".deleteLink").attr("title", msg("simplepage.comment_delete"));
@@ -98,6 +108,8 @@ function loadMore(link) {
 	});
 	
 	var pageToRequest = $(link).parent().parent().find(".to-load").attr("href");
+	var i = pageToRequest.indexOf("Comment");
+	pageToRequest = "/sakai-lessonbuildertool-tool/faces/" + pageToRequest.substring(i);
 	
 	$(link).parents(".replaceWithComments").load(pageToRequest, commentsLoaded);
 	
@@ -108,12 +120,44 @@ function performHighlight() {
 	$(".highlight-comment").effect("highlight", {}, 4000);
 }
 
+function replyToComment(link, replytext) {
+
+	var evolved = $(link).parents(".commentsDiv").find(".evolved-box");
+	
+	if(noEditor) {
+	    var body = $(link).parent().children(".commentBody");
+	    // this should get the text out of the comment with newlines
+	    // however innertext doesn't work on FF and I've heard rumors
+	    // about IE 9. Hence provide a standard backup. It will handle
+	    // newlines if they were entered via this text box, but 
+	    // may not if entered in the editor
+	    body = body.get(0).innerText || body.text().replace(/^\s*/,"").replace(/\n\s*/g,"\n");
+	    body = replytext + '\n\n' + body.replace(/^/,"|  ").replace(/\n/g,"\n|  ") + '\n\n';
+	    evolved.val(body);
+	} else if(sakai.editor.editors.ckeditor==undefined) {
+		FCKeditorAPI.GetInstance(evolved.children("textarea").attr("name")).SetHTML(replytext + '<div style="border-left: 2px solid black; padding-eleft:6px">' + (link).parent().children(".commentBody").html() + '</div>\n<p></p>');
+	}else {
+		CKEDITOR.instances[evolved.children("textarea").attr("name")].setData(replytext + '<div style="border-left: 2px solid black; padding-left:6px">' + $(link).parent().children(".commentBody").html() + '</div>\n<p></p>');
+	}
+	
+	$(link).parents(".commentsDiv").find(".comment-edit-id").val(null);
+	$(link).parents(".commentsDiv").find(".submitButton").val(msg("simplepage.add-comment"));
+	
+	switchEditors(link);
+	return false;
+}
+
+
 function switchEditors(link, show) {
 	if(show==undefined) show = true;
 	
 	var evolved;
 	
-	if(sakai.editor.editors.ckeditor==undefined) {
+	if (noEditor) {
+		evolved = $(link).parents(".commentsDiv").find(".evolved-box");
+		evolved.css('width', '600px');
+		evolved.css('height', '175px');
+	}else if(sakai.editor.editors.ckeditor==undefined) {
 		evolved = $(link).parents(".commentsDiv").find(".evolved-box :not(textarea)");
 	}else {
 		evolved = $(link).parents(".commentsDiv").find(".evolved-box");
@@ -121,6 +165,16 @@ function switchEditors(link, show) {
 	
 	if(show) {
 		evolved.show();
+
+		if (noEditor) {
+		    // the submit expects HTML, so stick BRs at every newline
+		    var submit = $(link).parents(".commentsDiv").find(".submitButton");
+		   submit.click(function(link) {
+			    var text = $(this).parents(".commentsDiv").find(".evolved-box");
+			    text.val(text.val().replace(/\r\n/g, "<br/>\n").replace(/[\r\n]/g, "<br/>\n"));
+			    return true;
+			});
+		}
 		
 		$(link).parents(".commentsDiv").find(".submitButton").show();
 		$(link).parents(".commentsDiv").find(".cancelButton").show();
@@ -129,11 +183,13 @@ function switchEditors(link, show) {
 	}else {
 		evolved.hide();
 		
-		if(sakai.editor.editors.ckeditor==undefined) {
+		if(!noEditor && sakai.editor.editors.ckeditor==undefined) {
 			evolved = $(link).parents(".commentsDiv").find(".evolved-box");
 		}
 		
-		if(sakai.editor.editors.ckeditor==undefined) {
+		if (noEditor) {
+			evolved.val("");
+		} else if(sakai.editor.editors.ckeditor==undefined) {
 			FCKeditorAPI.GetInstance(evolved.children("textarea").attr("name")).SetHTML("");
 		}else {
 			CKEDITOR.instances[evolved.children("textarea").attr("name")].setData("");
@@ -146,7 +202,7 @@ function switchEditors(link, show) {
 		$(link).parents(".commentsDiv").find(".comment-edit-id").val("");
 	}
 	
-	if(sakai.editor.editors.ckeditor != undefined) {
+	if(!noEditor && sakai.editor.editors.ckeditor != undefined) {
 		evolved.find("textarea").hide();
 	}
 	
@@ -160,6 +216,8 @@ function deleteComment(link) {
 	});
 	
 	deleteDialogCommentURL = $(link).parent().children(".deleteComment").attr("href");
+	var i = deleteDialogCommentURL.indexOf("Comment");
+	deleteDialogCommentURL = "/sakai-lessonbuildertool-tool/faces/" + deleteDialogCommentURL.substring(i);
 
 	//var dialog = $(link).parents(".replaceWithComments").find(".delete-dialog");
 	//$("#delete-dialog").children(".delete-dialog-comment-url").text(pageToRequest);
@@ -171,6 +229,8 @@ function deleteComment(link) {
 	$("#delete-dialog").dialog("open");
 	
 	commentToReload = $(link).parents(".replaceWithComments");
+
+
 	
 	//$(link).parents(".replaceWithComments").load(pageToRequest);
 	
@@ -188,7 +248,17 @@ function confirmDelete() {
 function edit(link, id) {
 	var evolved = $(link).parents(".commentsDiv").find(".evolved-box");
 	
-	if(sakai.editor.editors.ckeditor==undefined) {
+	if(noEditor) {
+	    var body = $(link).parent().children(".commentBody");
+	    // this should get the text out of the comment with newlines
+	    // however innertext doesn't work on FF and I've heard rumors
+	    // about IE 9. Hence provide a standard backup. It will handle
+	    // newlines if they were entered via this text box, but 
+	    // may not if entered in the editor
+	    body = body.get(0).innerText || body.text().replace(/^\s*/,"").replace(/\n\s*/g,"\n");
+	    evolved.val(body);
+
+	} else if(sakai.editor.editors.ckeditor==undefined) {
 		FCKeditorAPI.GetInstance(evolved.children("textarea").attr("name")).SetHTML($(link).parent().children(".commentBody").html());
 	}else {
 		CKEDITOR.instances[evolved.children("textarea").attr("name")].setData($(link).parent().children(".commentBody").html());

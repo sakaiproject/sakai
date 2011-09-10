@@ -1464,6 +1464,7 @@ public class SimplePageBean {
 				if (i != null && i != 0)
 					updatePageItem(i);
 			} catch (PermissionException e) {
+			    e.printStackTrace();
 				log.warn("getCurrentPageId Permission failed setting to item in toolsession");
 				return 0;
 			}
