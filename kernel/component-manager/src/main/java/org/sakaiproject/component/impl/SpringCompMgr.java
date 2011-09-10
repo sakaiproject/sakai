@@ -28,10 +28,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ComponentManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService.ConfigData;
 import org.sakaiproject.util.ComponentsLoader;
 import org.sakaiproject.util.SakaiApplicationContext;
 import org.sakaiproject.util.SakaiComponentEvent;
@@ -164,6 +168,32 @@ public class SpringCompMgr implements ComponentManager {
 					M_log.warn(e.getMessage(), e);
 				}
 			}
+		}
+
+		// dump the configuration values out
+		try {
+		    final ServerConfigurationService scs = (ServerConfigurationService) this.get(ServerConfigurationService.class);
+		    ConfigData cd = scs.getConfigData();
+            M_log.info("Configuration loaded "+cd.getTotalConfigItems()+" values, "+cd.getRegisteredConfigItems()+" registered");
+		    if (scs.getBoolean("config.dump.to.log", false)) {
+		        // output the config logs now and then output then again in 120 seconds
+	            M_log.info("Configuration values:\n" + cd.toString());
+	            Timer timer = new Timer(true);
+	            timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        M_log.info("Configuration values: (delay 1):\n" + scs.getConfigData().toString());
+                    }
+	            }, 120*1000);
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        M_log.info("Configuration values: (delay 2):\n" + scs.getConfigData().toString());
+                    }
+                }, 300*1000);
+		    }
+		} catch (Exception e) {
+		    M_log.error("Configuration: Unable to get and dump out the registered server config values (config.dump.to.log): "+e, e);
 		}
 	}
 

@@ -21,6 +21,7 @@
 
 package org.sakaiproject.jcr.test.mock;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -268,5 +269,17 @@ public class MockServerConfiguratonService implements ServerConfigurationService
 	{
 		this.values = values;
 	}
+
+    public <T> T getConfig(String name, T defaultValue) {
+        return (T) values.get(name);
+    }
+
+    public ConfigItem getConfigItem(String name) {
+        return null;
+    }
+
+    public ConfigData getConfigData() {
+        return null;
+    }
 
 }
