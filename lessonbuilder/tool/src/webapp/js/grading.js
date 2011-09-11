@@ -20,7 +20,10 @@ $(function() {
 					
 					$(firstRow).find(".toggleStatus").attr("src", oldSrc + "loading.gif");
 					
-					$(value).find(".replaceWithComments").load($(value).find(".commentsLink").attr("href"), function() {
+					var href=$(value).find(".commentsLink").attr("href");
+					var ci = href.indexOf("Comment");
+					href = "/sakai-lessonbuildertool-tool/faces/" + href.substring(ci);
+					$(value).find(".replaceWithComments").load(href, function() {
 						var current = $(value);
 						var next = $(value).next().next();
 						
@@ -79,7 +82,10 @@ $(function() {
 function prefetchComments(value) {
 	// Prefetch the next one as well, so that it's ready when they need it.
 	if($(value).length > 0 && $(value).find(".replaceWithComments").children().length == 0) {
-		$(value).find(".replaceWithComments").load($(value).find(".commentsLink").attr("href"), makeButtons);
+		var href=$(value).find(".commentsLink").attr("href");
+		var ci = href.indexOf("Comment");
+		href = "/sakai-lessonbuildertool-tool/faces/" + href.substring(ci);
+		$(value).find(".replaceWithComments").load(href, makeButtons);
 	}
 }
 

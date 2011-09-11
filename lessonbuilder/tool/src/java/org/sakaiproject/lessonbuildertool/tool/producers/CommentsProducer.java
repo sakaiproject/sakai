@@ -47,9 +47,11 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 	private LocaleGetter localeGetter;
 	private SimplePageToolDao simplePageToolDao;
 	private HashMap<String, String> anonymousLookup = new HashMap<String, String>();
+	private HashMap<Long, String> itemToPageowner = null;
 	private String currentUserId;
 	private String owner = null;
 	private boolean filter;
+	private boolean canEditPage = false;
         Locale M_locale = null;
 	
 	public String getViewID() {
@@ -105,11 +107,19 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 			}else if(filter && params.studentContentItem) {
 				List<SimpleStudentPage> studentPages = simplePageToolDao.findStudentPages(params.itemId);
 				
+				itemToPageowner = new HashMap<Long, String>();
 				List<Long> commentsItemIds = new ArrayList<Long>();
 				for(SimpleStudentPage p : studentPages) {
 					// If the page is deleted, don't show the comments
 					if(!p.isDeleted()) {
 						commentsItemIds.add(p.getCommentsSection());
+						String pageOwner = p.getOwner();
+						try {
+						    String o = UserDirectoryService.getUser(pageOwner).getDisplayName();
+						    if (o != null)
+							pageOwner = o;
+						} catch (Exception ignore) {};
+						itemToPageowner.put(p.getCommentsSection(), pageOwner);
 					}
 				}
 				
@@ -128,6 +138,15 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 			// Make sure everything is chronological
 			Collections.sort(comments, new Comparator<SimplePageComment>() {
 				public int compare(SimplePageComment c1, SimplePageComment c2) {
+					if (itemToPageowner != null) {
+					    String o1 = itemToPageowner.get(c1.getItemId());
+					    String o2 = itemToPageowner.get(c2.getItemId());
+					    if (o1 != o2) {
+						if (o1 == null)
+						    return 1;
+						return o1.compareTo(o2);
+					    }
+					}
 					return c1.getTimePosted().compareTo(c2.getTimePosted());
 				}
 			});
@@ -149,7 +168,7 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 			
 			// We don't want page owners to edit or grade comments on their page
 			// at the moment.  Perhaps add option?
-			boolean canEditPage = simplePageBean.getEditPrivs() == 0;
+			canEditPage = simplePageBean.getEditPrivs() == 0;
 			
 			boolean showGradingMessage = canEditPage && commentsItem.getGradebookId() != null && !params.filter;
 			
@@ -236,9 +255,18 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 
 	}
 	
+	private Long lastTitle = -1L;
+
 	public void printComment(SimplePageComment comment, UIContainer tofill, boolean highlight, boolean anonymous,
 				boolean showModifiers, CommentsViewParameters params, SimplePageItem commentsItem) {
-		UIBranchContainer commentContainer = UIBranchContainer.make(tofill, "commentDiv:");
+		if (canEditPage && itemToPageowner != null && comment.getItemId() != lastTitle) {
+		    UIBranchContainer commentContainer = UIBranchContainer.make(tofill, "commentList:");
+		    UIOutput.make(commentContainer, "commentTitle", messageLocator.getMessage("simplepage.comments-grading").replace("{}", itemToPageowner.get(comment.getItemId())));
+		    lastTitle = comment.getItemId();
+		}
+
+		UIBranchContainer commentContainer = UIBranchContainer.make(tofill, "commentList:");
+		UIOutput.make(commentContainer, "commentDiv");
 		if(highlight) commentContainer.decorate(new UIStyleDecorator("highlight-comment"));
 		
 		if(!filter && params.author != null && params.author.equals(comment.getAuthor())) {

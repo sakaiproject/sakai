@@ -190,6 +190,8 @@ public class GradingPaneProducer implements ViewComponentProducer, ViewParamsRep
 			eParams.filter = true;
 			eParams.pageItemId = params.pageItemId;
 			eParams.studentContentItem = params.studentContentItem;
+			eParams.siteId = simplePageBean.getCurrentSiteId();
+			eParams.pageId = containingPage.getPageId();
 			UIInternalLink.make(branch, "commentsLink", eParams);
 			
 			// The grading stuff

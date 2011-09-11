@@ -20,7 +20,9 @@
 		</div>
 	</div>
 
-	<div class="commentDiv" rsf:id="commentDiv:">
+	<div rsf:id="commentList:">
+	  <h3 rsf:id="commentTitle"></h3>
+	  <div class="commentDiv" rsf:id="commentDiv">
 		<a href="#" class="to-load" rsf:id="to-load"></a><a onclick="loadMore($(this));" class="loadMore" rsf:id="load-more-link"></a>
 		
 		<span rsf:id="gradingSpan" style="float:right; vertical-align:top;"><img class="statusImg" src="$context/images/no-status.png" id="statusImg" height="16px" width="16px" alt=""></img><span rsf:id="msg=simplepage.comments-points"></span><span style="display:none" class="uuidBox" rsf:id="commentsUUID"></span><span style="display:none" class="pointsSpan" rsf:id="commentPoints"></span><input class="pointsBox" type="text" size="3"></input></span>
@@ -37,8 +39,9 @@
 		
 		<br />
 		<div class="commentBody" rsf:id="comment"></div>
+	  </div>
 	</div>
-	
+
 	<script rsf:id="highlightScript" type="text/javascript">
 		performHighlight();
 	</script>
