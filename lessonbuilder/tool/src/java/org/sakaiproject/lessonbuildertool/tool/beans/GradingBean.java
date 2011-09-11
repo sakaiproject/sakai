@@ -32,6 +32,7 @@ public class GradingBean {
 	}
 	
 	public String[] getResults() {
+	    System.out.println("called getresults");
 		if(simplePageBean.getEditPrivs() != 0) {
 			return new String[]{"failure", jsId, "-1"};
 		}
