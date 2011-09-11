@@ -336,6 +336,9 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 				UIOutput.make(commentContainer, "commentsUUID", comment.getUUID());
 				UIOutput.make(commentContainer, "commentPoints",
 						(comment.getPoints() == null? "" : String.valueOf(comment.getPoints())));
+				UIOutput.make(commentContainer, "pointsBox").decorate(
+					 new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.grade-for-student").replace("{}", author)));
+				
 				UIOutput.make(commentContainer, "authorUUID", comment.getAuthor());
 			}
 		}

@@ -200,6 +200,10 @@ public class GradingPaneProducer implements ViewComponentProducer, ViewParamsRep
 			UIOutput.make(branch, "commentsUUID", user.uuid);
 			UIOutput.make(branch, "commentPoints",
 					(user.grade == null? "" : String.valueOf(user.grade)));
+			UIOutput.make(branch, "pointsBox").
+			    decorate(new UIFreeAttributeDecorator("title", 
+				    messageLocator.getMessage("simplepage.grade-for-student").replace("{}", user.displayName)));
+
 			UIOutput.make(branch, "authorUUID", user.userId);
 		}
 		

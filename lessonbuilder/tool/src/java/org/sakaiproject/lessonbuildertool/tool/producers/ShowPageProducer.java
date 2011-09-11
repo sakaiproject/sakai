@@ -493,12 +493,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// path is the breadcrumbs. Push, pop or reset depending upon path=
 		// programmer documentation.
 		String title;
+		String ownerName = null;
 		if(pageItem.getType() != SimplePageItem.STUDENT_CONTENT) {
 			title = pageItem.getName();
 		}else {
 			title = currentPage.getTitle();
 			if(!pageItem.isAnonymous() || canEditPage) {
-			    String ownerName = null;
 			    try {
 				ownerName = UserDirectoryService.getUser(currentPage.getOwner()).getDisplayName();
 			    } catch (Exception ignore) {};
@@ -660,6 +660,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				UIOutput.make(tofill, "gradingSpan");
 				UIOutput.make(tofill, "commentsUUID", String.valueOf(student.getId()));
 				UIOutput.make(tofill, "commentPoints", String.valueOf((student.getPoints() != null? student.getPoints() : "")));
+				UIOutput pointsBox = UIOutput.make(tofill, "studentPointsBox");
+				if (ownerName != null)
+				    pointsBox.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.grade-for-student").replace("{}",ownerName)));
 			
 				List<SimpleStudentPage> studentPages = simplePageToolDao.findStudentPages(student.getItemId());
 				
@@ -1569,11 +1572,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						
 							try {
 								if(!i.isAnonymous() || canEditPage) {
-									String ownerName = UserDirectoryService.getUser(page.getOwner()).getDisplayName();
-									if (ownerName != null && ownerName.equals(studentTitle))
-									    studentTitle = "(" + ownerName + ")";
+									String sownerName = UserDirectoryService.getUser(page.getOwner()).getDisplayName();
+									if (sownerName != null && sownerName.equals(studentTitle))
+									    studentTitle = "(" + sownerName + ")";
 									else
-									    studentTitle += " (" + UserDirectoryService.getUser(page.getOwner()).getDisplayName() + ")";
+									    studentTitle += " (" + sownerName + ")";
 								}else if(page.getOwner().equals(userId)) {
 									studentTitle += " (" + messageLocator.getMessage("simplepage.comment-you") + ")";
 								}
