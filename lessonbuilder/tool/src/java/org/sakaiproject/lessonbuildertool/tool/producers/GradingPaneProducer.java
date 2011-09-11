@@ -203,6 +203,9 @@ public class GradingPaneProducer implements ViewComponentProducer, ViewParamsRep
 			UIOutput.make(branch, "pointsBox").
 			    decorate(new UIFreeAttributeDecorator("title", 
 				    messageLocator.getMessage("simplepage.grade-for-student").replace("{}", user.displayName)));
+			UIOutput.make(branch, "clickToExpand", messageLocator.getMessage("simplepage.click-to-expand")).
+			    decorate(new UIFreeAttributeDecorator("title", 
+				    messageLocator.getMessage("simplepage.expand-for-student").replace("{}", user.displayName)));
 
 			UIOutput.make(branch, "authorUUID", user.userId);
 		}

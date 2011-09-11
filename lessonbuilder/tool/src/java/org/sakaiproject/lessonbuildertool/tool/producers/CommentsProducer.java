@@ -353,7 +353,13 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 			if(!params.studentContentItem && params.pageItemId != -1L) {
 				eParams.setItemId(params.pageItemId);
 			}
-			UIInternalLink.make(commentContainer, "contextLink", messageLocator.getMessage("simplepage.show-context"), eParams);
+			UIInternalLink contextLink = UIInternalLink.make(commentContainer, "contextLink", messageLocator.getMessage("simplepage.show-context"), eParams);
+			if (itemToPageowner == null)
+			    contextLink.decorate( new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.context-link-title-1").
+									       replace("{}", author)));
+			else
+			    contextLink.decorate( new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.context-link-title-2").
+									       replace("{1}", author).replace("{2}", itemToPageowner.get(comment.getItemId()))));
 		}
 		
 		String dateString = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, M_locale).format(comment.getTimePosted());
