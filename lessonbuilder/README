@@ -138,6 +138,19 @@ The rest of this document talks about other things you might want to
 know about. However you can try out Lesson Builder without doing
 anything beyond this point.
 
+THE PDA PORTAL
+
+If you want to use iPhones, etc, Sakai gives you a separate UI.
+This UI turns out to cause problems for certain internal operations.
+In order go get grading screens to work properly on an Iphone, you'll
+want to add the following line to your sakai.properties.
+
+portal.pda.bypass.sakai.lessonbuildertool=/uvbview$|\.jpg$|\.gif$|\.js$|\.png$|\.jepg$|\.css$|\.zip$|\.pdf\.mov$|\.json$|\.jsonp$\.xml$|\.ajax$|\.xls|\.xlsx|\.doc|\.docx
+
+The first alternative, i.e. /uvbview$, is the critical one. The rest
+are the defaults. It's not clear whether they're actually used.
+
+
 MNEME, JAFT, BASIC LTI AND JFORUM DEPENDENCIES
 
 LessonBuilder will support quizes from Mneme, topics from JForum or
