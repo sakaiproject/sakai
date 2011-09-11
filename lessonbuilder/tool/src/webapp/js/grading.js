@@ -1,3 +1,26 @@
+// GradingPane is called by ajax from a URL like
+// /sakai-lessonbuildertool-tool/faces/GradingPane
+// however URLs we generate need to be the usual
+// /portal/pda/xxxx/tool/xxxx/ShowPage
+// it's hard to get RSF to generate specified URLs, so
+// we fix them up in javascript.
+
+function fixurls() {
+    
+    var pageurl = window.location + "";
+    var pi = pageurl.indexOf("/GradingPane");
+
+    pageurl = pageurl.substring(0,pi);
+    $('a[target="_lbcomments"]').each(function(index, value) {
+	    var linkurl = $(this).attr('href');
+	    var li = linkurl.indexOf("/faces/") + 6;
+	    if (li >= 0) {
+		linkurl = pageurl + linkurl.substring(li);
+		$(this).attr('href',linkurl);
+	    }
+	});
+}
+
 $(function() {
 	makeButtons();
 	
@@ -37,10 +60,13 @@ $(function() {
 						
 						$(firstRow).find(".toggleStatus").attr("src", oldSrc + "no-status.png");
 						
+						fixurls();
+
 						setMainFrameHeight(window.name);
 						prefetchComments(next);
 					});
 				}else {
+					fixurls();
 					$(value).show();
 					setMainFrameHeight(window.name);
 					prefetchComments($(value).next().next());
