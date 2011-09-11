@@ -327,10 +327,11 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 		
 		String dateString = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, M_locale).format(comment.getTimePosted());
 
-		UIOutput.make(commentContainer, "replyTo").
-		    decorate(new UIFreeAttributeDecorator("onclick", "replyToComment($(this),'" + 
-							     messageLocator.getMessage("simplepage.in-reply-to").replace("{1}", author).replace("{2}", dateString) + "')")).
-		    decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.reply")));
+		if (!filter)
+		    UIOutput.make(commentContainer, "replyTo").
+			decorate(new UIFreeAttributeDecorator("onclick", "replyToComment($(this),'" + 
+							      messageLocator.getMessage("simplepage.in-reply-to").replace("{1}", author).replace("{2}", dateString) + "')")).
+			decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.reply")));
 
 		if(!comment.getHtml()) {
 			UIOutput.make(commentContainer, "comment", comment.getComment());

@@ -497,6 +497,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			title = pageItem.getName();
 		}else {
 			title = currentPage.getTitle();
+			if(!pageItem.isAnonymous() || canEditPage) {
+			    String ownerName = null;
+			    try {
+				ownerName = UserDirectoryService.getUser(currentPage.getOwner()).getDisplayName();
+			    } catch (Exception ignore) {};
+			    if (ownerName != null && !ownerName.equals(title))
+				title += " (" + ownerName + ")";
+			}
 		}
 		
 		String newPath = null;
