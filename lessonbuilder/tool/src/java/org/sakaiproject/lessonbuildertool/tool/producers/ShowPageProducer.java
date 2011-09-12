@@ -370,9 +370,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// browserString set by checkIEVersion
 		// as far as I can tell, none of these supports fck or ck
 		// we can make it configurable if necessary, or use WURFL
-		boolean noEditor = browserString.indexOf("iPhone") >= 0 ||
-		    browserString.indexOf("iPad") >= 0 ||
-		    browserString.indexOf("Android") >= 0;
+		boolean noEditor = browserString.toLowerCase().indexOf("mobile") >= 0;
 
 		if (simplePageBean.getTopRefresh()) {
 			UIOutput.make(tofill, "refresh");
