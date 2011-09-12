@@ -666,6 +666,24 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
         }
         return assignData;
     }
+    
+    /**
+	 * site/siteId
+	 */
+	@EntityCustomAction(action="site",viewKey=EntityView.VIEW_LIST)
+	public List<?> getAssignmentsForSite(EntityView view, Map<String, Object> params) {
+		List<Assignment> rv = new ArrayList<Assignment>();
+		String siteId = view.getPathSegment(2);
+		String userId = sessionManager.getCurrentSessionUserId();
+		for (Iterator aIterator = assignmentService.getAssignmentsForContext(siteId, userId); aIterator.hasNext();)
+		{
+			Assignment a = (Assignment) aIterator.next();
+			rv.add(a);
+			
+		}
+		return rv;
+	
+	}
 
     // PROPERTY STUFF
 

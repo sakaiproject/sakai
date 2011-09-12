@@ -915,15 +915,22 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		
 		Assignment assignment = findAssignment(assignmentReference);
 		
+		String currentUserId = SessionManager.getCurrentSessionUserId();
+		
 		if (assignment == null) throw new IdUnusedException(assignmentReference);
 		
-		String currentUserId = SessionManager.getCurrentSessionUserId();
+		return checkAssignmentAccessibleForUser(assignment, currentUserId);
+
+	}// getAssignment
+
+	private Assignment checkAssignmentAccessibleForUser(Assignment assignment, String currentUserId) throws PermissionException {
+		
 		if (assignment.getAccess() == Assignment.AssignmentAccess.GROUPED)
         {
         	Collection asgGroups = assignment.getGroups();
         	Collection allowedGroups = getGroupsAllowGetAssignment(assignment.getContext(), currentUserId);
         	// reject and throw PermissionException if there is no intersection
-			if (!isIntersectionGroupRefsToGroups(asgGroups, allowedGroups)) throw new PermissionException(currentUserId, SECURE_ACCESS_ASSIGNMENT, assignmentReference);
+			if (!isIntersectionGroupRefsToGroups(asgGroups, allowedGroups)) throw new PermissionException(currentUserId, SECURE_ACCESS_ASSIGNMENT, assignment.getReference());
         }
 		
 		if (allowAddAssignment(assignment.getContext()))
@@ -951,8 +958,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 		}
 		return null;
-
-	}// getAssignment
+	}
 	
 	protected Assignment findAssignment(String assignmentReference)
 	{
@@ -1097,69 +1103,16 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			for (int x = 0; x < assignments.size(); x++)
 			{
 				Assignment tempAssignment = (Assignment) assignments.get(x);
-				if (tempAssignment.getAccess() == Assignment.AssignmentAccess.GROUPED)
+				try
 				{
-					
-					// Can at least one of the designated groups been found
-					boolean groupFound = false;
-					
-					// if grouped, check that the end user has get access to any of this assignment's groups; reject if not
-	
-					// check the assignment's groups to the allowed (get) groups for the current user
-					Collection asgGroups = tempAssignment.getGroups();
-	
-					for (Iterator iAsgGroups=asgGroups.iterator(); site!=null && !groupFound && iAsgGroups.hasNext();)
+					if (checkAssignmentAccessibleForUser(tempAssignment, userId) != null)
 					{
-						String groupId = (String) iAsgGroups.next();
-						try
-						{
-							if (site.getGroup(groupId) != null)
-							{
-								groupFound = true;
-							}
-						}
-						catch (Exception ee)
-						{
-							M_log.warn(" assignments(String, String) " + ee.getMessage() + " groupId = " + groupId);
-						}
-						
-					}
-					
-					if (!groupFound)
-					{
-						// if none of the group exists, mark the assignment as draft and list it
-						String assignmentId = tempAssignment.getId();
-						try
-						{
-							AssignmentEdit aEdit = editAssignment(assignmentReference(context, assignmentId));
-							aEdit.setDraft(true);
-							commitEdit(aEdit);
-							rv.add(getAssignment(assignmentId));
-						}
-						catch (Exception e)
-						{
-							M_log.warn(" assignments(String, String) " + e.getMessage() + " assignment id =" + assignmentId);
-							continue;
-						}
-					}
-					else
-					{
-						// we need the allowed groups, so get it if we have not done so yet
-						if (allowedGroups == null)
-						{
-							allowedGroups = getGroupsAllowGetAssignment(context, userId);
-						}
-						
-						// reject if there is no intersection
-						if (!isIntersectionGroupRefsToGroups(asgGroups, allowedGroups)) continue;
-						
 						rv.add(tempAssignment);
 					}
 				}
-				else
+				catch (PermissionException e)
 				{
-					/// if not reject, add it
-					rv.add(tempAssignment);
+					M_log.warn(" assignments(String, String) user don't have permission to get assignment " + tempAssignment.getReference() + " context=" + context);
 				}
 			}
 		}
