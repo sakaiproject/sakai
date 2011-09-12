@@ -265,6 +265,9 @@ a.edit-movie:link,a.edit-movie:visited{
 .studentCell {
 	padding-left:7px;	
 }
+.studentTitle {
+        color:black;
+}
 .studentContentTable {
 	border:none;
 	background-color:#e4edff;
