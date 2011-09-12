@@ -264,7 +264,8 @@
 		var prev_attendeeNum=1;//default
  		function validateAttendee() {
   			var attendeeNumTag = document.getElementById("meeting:numberOfAttendees");
-  			prev_attendeeNum = signup_ValidateNumber(prev_attendeeNum,attendeeNumTag,500);   
+  			var maxAttendeesPerSlot = parseInt(document.getElementById("meeting:maxAttendeesPerSlot").innerHTML);
+  			prev_attendeeNum = signup_ValidateNumber(prev_attendeeNum,attendeeNumTag,maxAttendeesPerSlot);   
   		}            
   
 
@@ -296,10 +297,11 @@
 				    var startTimeTag ="startTime";
 				    var endTimeTag ="endTime";
 				    var slotNumTag = document.getElementById("meeting:numberOfSlot");
+				    var maxSlots = parseInt(document.getElementById("meeting:maxSlots").innerHTML);
 					if (!slotNumTag)
  						return;	
  						
-				    prev_slotNum = signup_ValidateNumber(prev_slotNum,slotNumTag,500);   
+				    prev_slotNum = signup_ValidateNumber(prev_slotNum,slotNumTag,maxSlots);   
 	                    
 				  	var slotNum = parseInt(slotNumTag.value);
 	                var duration = getSignupDateTime(endTimeTag).getTime() - getSignupDateTime(startTimeTag).getTime();

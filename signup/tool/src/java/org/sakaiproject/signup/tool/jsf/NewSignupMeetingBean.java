@@ -202,6 +202,10 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	private boolean sendEmailAttendeeOnly = false;
 	
 	private String creatorUserId;
+	
+	private int maxSlots;
+	
+	private int maxAttendeesPerSlot;
 
 	private Log logger = LogFactory.getLog(getClass());
 
@@ -261,6 +265,49 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	public void setOtherSitesAvailability(boolean otherSitesAvailability) {
 		this.otherSitesAvailability = otherSitesAvailability;
 	}
+	
+	/**
+	 * @return the maxSlots
+	 */
+	public int getMaxSlots() {
+		String maxSlotsStringVal = Utilities.getSignupConfigParamVal("signup.maxSlots", "500");
+		try{
+			maxSlots = Integer.parseInt(maxSlotsStringVal);
+		}
+		catch (Exception e){
+			maxSlots = 500;
+		}
+		return maxSlots;
+	}
+
+	/**
+	 * @param maxSlots the maxSlots to set
+	 */
+	public void setMaxSlots(int maxSlots) {
+		this.maxSlots = maxSlots;
+	}
+	
+	/**
+	 * @return the maxAttendeesPerSlot
+	 */
+	public int getMaxAttendeesPerSlot() {
+		String maxAttendeesStringVal = Utilities.getSignupConfigParamVal("signup.maxAttendeesPerSlot", "500");
+		try{
+			maxAttendeesPerSlot = Integer.parseInt(maxAttendeesStringVal);
+		}
+		catch(Exception e){
+			maxAttendeesPerSlot=500;
+		}
+		return maxAttendeesPerSlot;
+	}
+
+	/**
+	 * @param maxAttendeesPerSlot the maxAttendeesPerSlot to set
+	 */
+	public void setMaxAttendeesPerSlot(int maxAttendeesPerSlot) {
+		this.maxAttendeesPerSlot = maxAttendeesPerSlot;
+	}
+
 
 	/**
 	 * The default Constructor. It will initialize all the required variables.
