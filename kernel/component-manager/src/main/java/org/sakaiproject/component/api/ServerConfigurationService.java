@@ -24,8 +24,6 @@ package org.sakaiproject.component.api;
 import java.util.List;
 import java.util.Map;
 
-import org.sakaiproject.util.BasicConfigItem;
-
 /**
  * <p>
  * ServerConfigurationService provides information about how the server is configured.
@@ -33,482 +31,247 @@ import org.sakaiproject.util.BasicConfigItem;
  */
 public interface ServerConfigurationService
 {
-    /** This string can be used to find the service in the service manager. */
-    public static final String SERVICE_NAME = ServerConfigurationService.class.getName();
+	/** This string can be used to find the service in the service manager. */
+	public static final String SERVICE_NAME = ServerConfigurationService.class.getName();
 
-    /** Key in the ThreadLocalManager for the serverUrl based on the current request. */
-    final static String CURRENT_SERVER_URL = "sakai:request.server.url";
+	/** Key in the ThreadLocalManager for the serverUrl based on the current request. */
+	final static String CURRENT_SERVER_URL = "sakai:request.server.url";
 
-    /** Key in the ThreadLocalManager for the path based on the current request. */
-    final static String CURRENT_PORTAL_PATH = "sakai:request.portal.path";
+	/** Key in the ThreadLocalManager for the path based on the current request. */
+	final static String CURRENT_PORTAL_PATH = "sakai:request.portal.path";
+   
+	/**
+	 * Access the unique (to the cluster) id of the server.
+	 * 
+	 * @return The unique (to the cluster) id of the server.
+	 */
+	String getServerId();
 
-    /**
-     * Access the unique (to the cluster) id of the server.
-     * 
-     * @return The unique (to the cluster) id of the server.
-     */
-    String getServerId();
+	/**
+	 * Access the unique (to the cluster) instance id of the server.
+	 * 
+	 * @return The unique (to the cluster) instance id of the server.
+	 */
+	String getServerInstance();
 
-    /**
-     * Access the unique (to the cluster) instance id of the server.
-     * 
-     * @return The unique (to the cluster) instance id of the server.
-     */
-    String getServerInstance();
+	/**
+	 * Access the combined server / instance id.
+	 * 
+	 * @return The combined server / instance id.
+	 */
+	String getServerIdInstance();
 
-    /**
-     * Access the combined server / instance id.
-     * 
-     * @return The combined server / instance id.
-     */
-    String getServerIdInstance();
+	/**
+	 * Access the server DNS name.
+	 * 
+	 * @return The server DNS name.
+	 */
+	String getServerName();
 
-    /**
-     * Access the server DNS name.
-     * 
-     * @return The server DNS name.
-     */
-    String getServerName();
+	/**
+	 * Access the URL to the root of the server - append any additional path to the end.
+	 * 
+	 * @return The URL to the root of the server.
+	 */
+	String getServerUrl();
 
-    /**
-     * Access the URL to the root of the server - append any additional path to the end.
-     * 
-     * @return The URL to the root of the server.
-     */
-    String getServerUrl();
+	/**
+	 * Access the URL to the help service on the server - append in the path the tool well known id for context sensitive help.
+	 * 
+	 * @param helpContext
+	 *        The context string.
+	 * @return The URL to the help service on the server.
+	 */
+	String getHelpUrl(String helpContext);
 
-    /**
-     * Access the URL to the help service on the server - append in the path the tool well known id for context sensitive help.
-     * 
-     * @param helpContext
-     *        The context string.
-     * @return The URL to the help service on the server.
-     */
-    String getHelpUrl(String helpContext);
+	/**
+	 * Access the URL to the access service on the server - append any additional path to the end.
+	 * 
+	 * @return The URL to the access service on the server.
+	 */
+	String getAccessUrl();
 
-    /**
-     * Access the URL to the access service on the server - append any additional path to the end.
-     * 
-     * @return The URL to the access service on the server.
-     */
-    String getAccessUrl();
+	/**
+	 * Access the path to the access service on the server relative to the base URL for the server.
+	 * 
+	 * @return The path to the access service on the server.
+	 */
+	String getAccessPath();
 
-    /**
-     * Access the path to the access service on the server relative to the base URL for the server.
-     * 
-     * @return The path to the access service on the server.
-     */
-    String getAccessPath();
+	/**
+	 * Access the URL to the portal service on the server - append any additional path to the end.
+	 * 
+	 * @return The URL to the portal service on the server.
+	 */
+	String getPortalUrl();
 
-    /**
-     * Access the URL to the portal service on the server - append any additional path to the end.
-     * 
-     * @return The URL to the portal service on the server.
-     */
-    String getPortalUrl();
+	/**
+	 * Access the URL to the tool dispatcher service on the server - append any additional path to the end.
+	 * 
+	 * @return The URL to the tool dispatcher service on the server.
+	 */
+	String getToolUrl();
 
-    /**
-     * Access the URL to the tool dispatcher service on the server - append any additional path to the end.
-     * 
-     * @return The URL to the tool dispatcher service on the server.
-     */
-    String getToolUrl();
+	/**
+	 * Access the site id for the gateway (public) site.
+	 * 
+	 * @return The site id for the gateway (public) site.
+	 */
+	String getGatewaySiteId();
 
-    /**
-     * Access the site id for the gateway (public) site.
-     * 
-     * @return The site id for the gateway (public) site.
-     */
-    String getGatewaySiteId();
+	/**
+	 * Access the URL to use as a redirect when the user has logged out.
+	 * 
+	 * @return The URL to use as a redirect when the user has logged out.
+	 */
+	String getLoggedOutUrl();
 
-    /**
-     * Access the URL to use as a redirect when the user has logged out.
-     * 
-     * @return The URL to use as a redirect when the user has logged out.
-     */
-    String getLoggedOutUrl();
+	/**
+	 * Access the URL to the user's "home" (My Workspace) in the service.
+	 * 
+	 * @return The URL to the user's "home" (My Workspace) in the service.
+	 */
+	String getUserHomeUrl();
 
-    /**
-     * Access the URL to the user's "home" (My Workspace) in the service.
-     * 
-     * @return The URL to the user's "home" (My Workspace) in the service.
-     */
-    String getUserHomeUrl();
+	/**
+	 * Access the file path to the "sakai home" on the app server.
+	 * 
+	 * @return The file path to the "sakai home" on the app server.
+	 */
+	String getSakaiHomePath();
 
-    /**
-     * Access the file path to the "sakai home" on the app server.
-     * 
-     * @return The file path to the "sakai home" on the app server.
-     */
-    String getSakaiHomePath();
+	/**
+	 * Access some named configuration value as a string.
+	 * 
+	 * @param name
+	 *        The configuration value name.
+	 * @return The configuration value with this name, or "" if not found.
+	 */
+	String getString(String name);
 
-    /**
-     * Access some named configuration value as a string.
-     * 
-     * @param name
-     *        The configuration value name.
-     * @return The configuration value with this name, or "" if not found.
-     */
-    String getString(String name);
+	/**
+	 * Access some named configuration value as a string.
+	 * 
+	 * @param name
+	 *        The configuration value name.
+	 * @param dflt
+	 *        The value to return if not found.
+	 * @return The configuration value with this name, or the default value if not found.
+	 */
+	String getString(String name, String dflt);
 
-    /**
-     * Access some named configuration value as a string.
-     * 
-     * @param name
-     *        The configuration value name.
-     * @param dflt
-     *        The value to return if not found.
-     * @return The configuration value with this name, or the default value if not found.
-     */
-    String getString(String name, String dflt);
+	/**
+	 * Access some named configuration values as an array of strings. The name is the base name. name + ".count" must be defined to be a positive integer - how many are defined. name + "." + i (1..count) must be defined to be the values.
+	 * 
+	 * @param name
+	 *        The configuration value name base.
+	 * @return The configuration value with this name, or the null if not found.
+	 */
+	String[] getStrings(String name);
 
-    /**
-     * Access some named configuration values as an array of strings. The name is the base name. name + ".count" must be defined to be a positive integer - how many are defined. name + "." + i (1..count) must be defined to be the values.
-     * 
-     * @param name
-     *        The configuration value name base.
-     * @return The configuration value with this name, or the null if not found.
-     */
-    String[] getStrings(String name);
+	/**
+	 * Access some named configuration value as an int.
+	 * 
+	 * @param name
+	 *        The configuration value name.
+	 * @param dflt
+	 *        The value to return if not found.
+	 * @return The configuration value with this name, or the default value if not found.
+	 */
+	int getInt(String name, int dflt);
 
-    /**
-     * Access some named configuration value as an int.
-     * 
-     * @param name
-     *        The configuration value name.
-     * @param dflt
-     *        The value to return if not found.
-     * @return The configuration value with this name, or the default value if not found.
-     */
-    int getInt(String name, int dflt);
+	/**
+	 * Access some named configuration value as a boolean.
+	 * 
+	 * @param name
+	 *        The configuration value name.
+	 * @param dflt
+	 *        The value to return if not found.
+	 * @return The configuration value with this name, or the default value if not found.
+	 */
+	boolean getBoolean(String name, boolean dflt);
+	
+	/**
+	 * Access the undereferenced value of the given property. That is,
+	 * Spring-style property placeholders will not be expanded as
+	 * they would be in other getters on this interface. For example,
+	 * consider the following configuration:
+	 * 
+	 * <pre>
+	 * <code>
+	 * property1=foo
+	 * property2=${property1}
+	 * </code>
+	 * </pre>
+	 * 
+	 * <p>Invoking {@link #getString(String)}, passing <code>"property2"</code>
+	 * will return <code>"foo"</code>. However, invoking this method
+	 * with the same argument will return <code>"${property1}"</code>.</p>
+	 * 
+	 * <p>Typically, a client of this method, e.g. a dynamic 
+	 * configuration management tool, is interested in reporting on the system's 
+	 * actual state from which return values of other getters are calculated. 
+	 * In such cases, caller-specified default values have no utility. Thus this 
+	 * method does not accept an argument specifying the property's default value.</p>
+	 * 
+	 * <p>For a given undefined property "X", this method should return
+	 * exactly the same value as <code>getString("X")</code>. Thus it may
+	 * not be possible in all cases to distinguish between defined and
+	 * undefined properties.</p>
+	 * 
+	 * @param name a property name. Must not be <code>null</code>
+	 * @return the property value. Property placeholders will not have
+	 *   been dereferenced. The value representing an non-existent property
+	 *   is implementation dependent.
+	 */
+	String getRawProperty(String name);
+	
+	/**
+	 * Access the list of tool ids in order for this category, to impose on the displays of many tools
+	 * 
+	 * @param category
+	 *        The tool category
+	 * @return An ordered list of tool ids (String) indicating the desired tool display order, or an empty list if there are none for this category.
+	 */
+	List<String> getToolOrder(String category);
 
-    /**
-     * Access some named configuration value as a boolean.
-     * 
-     * @param name
-     *        The configuration value name.
-     * @param dflt
-     *        The value to return if not found.
-     * @return The configuration value with this name, or the default value if not found.
-     */
-    boolean getBoolean(String name, boolean dflt);
+	/**
+	 * Access the list of tool ids that are required for this category.
+	 * 
+	 * @param category
+	 *        The tool category.
+	 * @return A list of tool ids (String) that are required for this category, or an empty list if there are none for this category.
+	 */
+	List<String> getToolsRequired(String category);
 
-    /**
-     * Access the undereferenced value of the given property. That is,
-     * Spring-style property placeholders will not be expanded as
-     * they would be in other getters on this interface. For example,
-     * consider the following configuration:
-     * 
-     * <pre>
-     * <code>
-     * property1=foo
-     * property2=${property1}
-     * </code>
-     * </pre>
-     * 
-     * <p>Invoking {@link #getString(String)}, passing <code>"property2"</code>
-     * will return <code>"foo"</code>. However, invoking this method
-     * with the same argument will return <code>"${property1}"</code>.</p>
-     * 
-     * <p>Typically, a client of this method, e.g. a dynamic 
-     * configuration management tool, is interested in reporting on the system's 
-     * actual state from which return values of other getters are calculated. 
-     * In such cases, caller-specified default values have no utility. Thus this 
-     * method does not accept an argument specifying the property's default value.</p>
-     * 
-     * <p>For a given undefined property "X", this method should return
-     * exactly the same value as <code>getString("X")</code>. Thus it may
-     * not be possible in all cases to distinguish between defined and
-     * undefined properties.</p>
-     * 
-     * @param name a property name. Must not be <code>null</code>
-     * @return the property value. Property placeholders will not have
-     *   been dereferenced. The value representing an non-existent property
-     *   is implementation dependent.
-     */
-    String getRawProperty(String name);
+	/**
+	 * Access the list of tool ids that are selected by default for this category.
+	 * 
+	 * @param category
+	 *        The tool category.
+	 * @return A list of tool ids (String) for this category to use by default, or an empty list if there are none for this category.
+	 */
+	List<String> getDefaultTools(String category);
 
-    /**
-     * Access the list of tool ids in order for this category, to impose on the displays of many tools
-     * 
-     * @param category
-     *        The tool category
-     * @return An ordered list of tool ids (String) indicating the desired tool display order, or an empty list if there are none for this category.
-     */
-    List<String> getToolOrder(String category);
+   /**
+    * access the list of tool categories for the given site type
+    *
+    * @param category the site type
+    * @return a list of tool category ids in order
+    */
+   List<String> getToolCategories(String category);
 
-    /**
-     * Access the list of tool ids that are required for this category.
-     * 
-     * @param category
-     *        The tool category.
-     * @return A list of tool ids (String) that are required for this category, or an empty list if there are none for this category.
-     */
-    List<String> getToolsRequired(String category);
+   /**
+    * access the map of tool categories to tool ids for this site type
+    * @param category the site type
+    * @return a map of tool category ids to tool ids
+    */
+   Map<String, List<String>> getToolCategoriesAsMap(String category);
 
-    /**
-     * Access the list of tool ids that are selected by default for this category.
-     * 
-     * @param category
-     *        The tool category.
-     * @return A list of tool ids (String) for this category to use by default, or an empty list if there are none for this category.
-     */
-    List<String> getDefaultTools(String category);
-
-    /**
-     * access the list of tool categories for the given site type
-     *
-     * @param category the site type
-     * @return a list of tool category ids in order
-     */
-    List<String> getToolCategories(String category);
-
-    /**
-     * access the map of tool categories to tool ids for this site type
-     * @param category the site type
-     * @return a map of tool category ids to tool ids
-     */
-    Map<String, List<String>> getToolCategoriesAsMap(String category);
-
-    /**
-     * access a map of tool id to tool category id for this site type
-     * @param category the site type
-     * @return map with tool id as key and category id as value
-     */
-    Map<String, String> getToolToCategoryMap(String category);
-
-
-    // improved methods
-
-    public static final String UNKNOWN = "UNKNOWN";
-    public static final String TYPE_BOOLEAN = "boolean";
-    public static final String TYPE_INT = "int";
-    public static final String TYPE_ARRAY = "array";
-    public static final String TYPE_STRING = "string";
-
-    /**
-     * Retrieves config values from the configuration service
-     * 
-     * @param name the name of the setting to retrieve, Should be a string name: e.g. auto.ddl,
-     *            mystuff.config, etc.
-     * @param defaultValue a specified default value to return if this setting cannot be found, 
-     *            <b>NOTE:</b> You can set the default value to null but you must specify the class type in parens
-     * @return the value of the configuration setting OR the default value if none can be found
-     */
-    public <T> T getConfig(String name, T defaultValue);
-
-    /**
-     * Retrieve the internally stored the config item,
-     * this is not really for general use, if you want the value of a configuration variable then
-     * you should use {@link #getConfig(String, Object)}
-     * 
-     * @param name the name of the setting to retrieve, Should be a string name: e.g. auto.ddl,
-     *            mystuff.config, etc.
-     * @return the config item OR null if none exists
-     */
-    public ConfigItem getConfigItem(String name);
-
-    /**
-     * Register a configuration item (or override an existing config),
-     * this should be called when changing or creating a configuration setting
-     * 
-     * @param configItem an instance of the {@link ConfigItem} interface with the name, value, source params set,
-     * use {@link BasicConfigItem} as an easy way to construct a {@link ConfigItem}
-     * @return the registered {@link ConfigItem}
-     * @throws IllegalArgumentException if the {@link ConfigItem} is not valid (does not have all required fields set)
-     */
-    public ConfigItem registerConfigItem(ConfigItem configItem);
-
-    /**
-     * Register a listener which will be notified whenever there is a configuration setting change,
-     * there is no need to unregister a listener as all listener references will be held weakly
-     * (if there are no more variables which reference the listener then it will be GCed and removed from the list of listeners)
-     * 
-     * Registering the same {@link ConfigurationListener} object multiple times has no effect
-     * 
-     * @param configurationListener a {@link ConfigurationListener} object
-     */
-    public void registerListener(ConfigurationListener configurationListener);
-
-    /**
-     * Returns data about all the configuration values which are known
-     * to the system at the time and some stats which are useful
-     * 
-     * @return a config data class with data about the known configuration values
-     */
-    public ConfigData getConfigData();
-
-    // STATICS
-
-    /**
-     * Defines the config data holding class
-     */
-    public static interface ConfigData {
-        /**
-         * @return the total number of config items known to the service
-         */
-        public int getTotalConfigItems();
-        /**
-         * @return the total number of registered config items known to the service
-         */
-        public int getRegisteredConfigItems();
-        /**
-         * @return the total number of requested but not registered config items known to the service
-         */
-        public int getUnRegisteredConfigItems();
-        /**
-         * @return the array of all current source names
-         */
-        public String[] getSources();
-        /**
-         * @return the total set of all known config items
-         */
-        public List<ConfigItem> getItems();
-    }
-
-    /**
-     * Defines the config item holding class
-     */
-    public static interface ConfigItem {
-        /**
-         * Called whenever this config item is requested
-         * @return the current number of times requested
-         */
-        public int requested();
-
-        /**
-         * Called whenever this config item is changed
-         * @param value the new value
-         * @param source the source which is making the change
-         * @return the current number of times the item was changed
-         */
-        public int changed(Object value, String source);
-
-        /**
-         * Duplicate this config item
-         * This is mostly used to ensure we do not send the internal objects out where they could be changed
-         * @return a config item with all the same values
-         */
-        public ConfigItem copy();
-
-        /**
-         * @return the name/key for this configuration value
-         */
-        public String getName();
-        /**
-         * @return the actual stored value for this config (null indicates it is not set)
-         */
-        public Object getValue();
-        /**
-         * @return the type of the value (string, int, boolean, array)
-         */
-        public String getType();
-        /**
-         * @return the name of the most recent source for this config value (e.g. sakai/sakai.properties)
-         */
-        public String getSource();
-        /**
-         * @return the default value for this config (null indicates it is not set)
-         */
-        public Object getDefaultValue();
-        /**
-         * @return the number of times the config value was requested (or looked up)
-         */
-        public int getRequested();
-        /**
-         * @return the number of times this config value was changed (or updated)
-         */
-        public int getChanged();
-        /**
-         * @return the version of this config item (a newly created item is version 1), incremented with each change
-         */
-        public int getVersion();
-        /**
-         * @return the history of the config item over time (empty array if it has never changed)
-         */
-        public ConfigHistory[] getHistory();
-        /**
-         * @return indicates is this config is registered (true) or if it is only requested (false)
-         * (requested means someone asked for it but the setting has not been stored in the config service)
-         */
-        public boolean isRegistered();
-        /**
-         * @return indicates is this config is has a default value defined
-         * (this can only be known for items which are requested)
-         */
-        public boolean isDefaulted();
-        /**
-         * @return indicates is this config value should not be revealed because there are security implications
-         */
-        public boolean isSecured();
-    }
-
-    /**
-     * Defines the config item history class
-     */
-    public static interface ConfigHistory {
-        /**
-         * @return the version of the config item this history refers to (a newly created item is version 1)
-         */
-        public int getVersion();
-        /**
-         * @return the time at which this historical version of the config item became irrelevant (this is when this version was replaced)
-         */
-        public long getTimestamp();
-        /**
-         * @return the source name for this version of the config item
-         */
-        public String getSource();
-        /**
-         * @return the value of the config item in this version of it
-         */
-        public Object getValue();
-    }
-
-    /**
-     * Allows registration of configuration settings (config items) from outside the 
-     * Server Configuration Service and the standard set of properties files which
-     * will be loaded early on the configuration cycle
-     * 
-     * NOTE: the implemented ConfigurationProvider MUST be a Spring singleton and it
-     * MUST be registered in the main Sakai application context from a component (from a webapp will not work),
-     * it also must be set explicitly to not lazy initialize (lazy-init="false"),
-     * it is always possible to update the configuration later using {@link #registerConfigItems(ConfigData)}
-     * so this is mainly for loading configurations very early in the system startup
-     */
-    public static interface ConfigurationProvider {
-        /* This is part of supporting a more flexible and persistent configuration
-         */
-
-        /**
-         * Register a set of configuration items,
-         * these will be loaded after the base properties are loaded (from properties files) 
-         * but before the rest of Sakai starts up so they will be allowed to override the base properties
-         * @param configData the set of current config data that currently exists
-         * @return a list of ConfigItems which will be loaded into the current configuration, 
-         * these MUST have the name, value (OR defaultValue), and source set to non-null/non-empty values,
-         * use {@link BasicConfigItem} as an easy way to ensure the configitems are setup correctly
-         */
-        public List<ConfigItem> registerConfigItems(ConfigData configData);
-    }
-
-    /**
-     * Allows a service to be notified when configuration settings are changed
-     * 
-     * NOTE: this does NOT include any changes which happen during the initial properties file loading
-     */
-    public static interface ConfigurationListener {
-        /* This is part of supporting a more flexible and persistent configuration
-         */
-
-        /**
-         * This will be called each time a {@link ConfigItem} is changed AFTER
-         * the initial registration of that config item and 
-         * initial startup of the {@link ServerConfigurationService}
-         * 
-         * @param configItem the {@link ConfigItem} which changed
-         */
-        public void changed(ConfigItem configItem);
-    }
-
+   /**
+    * access a map of tool id to tool category id for this site type
+    * @param category the site type
+    * @return map with tool id as key and category id as value
+    */
+   Map<String, String> getToolToCategoryMap(String category);
 }
