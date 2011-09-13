@@ -780,18 +780,11 @@ public class ExtractionHelper
       releasedTo = AuthoringConstantStrings.ANONYMOUS;
     }
 
-
-      // for backwards compatibility with version 1.5 exports.
-      if (releasedTo != null && releasedTo.indexOf("Authenticated Users") > -1)
-      {
-        log.debug(
-          "Fixing obsolete reference to 'Authenticated Users', setting released to 'Anonymous Users'.");
-        releasedTo = AuthoringConstantStrings.ANONYMOUS;
-      }
-
+    if (releasedTo != null) {
       log.debug("control.setReleaseTo(releasedTo)='"+releasedTo+"'.");
       control.setReleaseTo(releasedTo);
-
+    }
+    
     // Timed Assessment
     if (duration != null)
     {
