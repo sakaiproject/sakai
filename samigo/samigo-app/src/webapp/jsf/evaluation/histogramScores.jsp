@@ -205,7 +205,7 @@ $Id$
 </h:panelGroup>
 
 <!-- The parts drop down. -->
-<h:panelGroup rendered="#{histogramScores.assesmentPartCount > 1 && (histogramScores.hasNav==null || histogramScores.hasNav=='true')}">
+<h:panelGroup rendered="#{histogramScores.assesmentPartCount > 1}">
     <h:outputText value="#{evaluationMessages.part} " />
     <h:outputText value="#{evaluationMessages.column} " />
     <h:selectOneMenu id="partNumber" onchange="document.forms[0].submit();"
