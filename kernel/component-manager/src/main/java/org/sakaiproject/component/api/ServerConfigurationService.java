@@ -274,4 +274,239 @@ public interface ServerConfigurationService
     * @return map with tool id as key and category id as value
     */
    Map<String, String> getToolToCategoryMap(String category);
+
+
+   // improved methods
+
+   public static final String UNKNOWN = "UNKNOWN";
+   public static final String TYPE_BOOLEAN = "boolean";
+   public static final String TYPE_INT = "int";
+   public static final String TYPE_ARRAY = "array";
+   public static final String TYPE_STRING = "string";
+
+   /**
+    * Retrieves config values from the configuration service
+    * 
+    * @param name the name of the setting to retrieve, Should be a string name: e.g. auto.ddl,
+    *            mystuff.config, etc.
+    * @param defaultValue a specified default value to return if this setting cannot be found, 
+    *            <b>NOTE:</b> You can set the default value to null but you must specify the class type in parens
+    * @return the value of the configuration setting OR the default value if none can be found
+    */
+   public <T> T getConfig(String name, T defaultValue);
+
+   /**
+    * Retrieve the internally stored the config item,
+    * this is not really for general use, if you want the value of a configuration variable then
+    * you should use {@link #getConfig(String, Object)}
+    * 
+    * @param name the name of the setting to retrieve, Should be a string name: e.g. auto.ddl,
+    *            mystuff.config, etc.
+    * @return the config item OR null if none exists
+    */
+   public ConfigItem getConfigItem(String name);
+
+   /**
+    * Register a configuration item (or override an existing config),
+    * this should be called when changing or creating a configuration setting
+    * 
+    * @param configItem an instance of the {@link ConfigItem} interface with the name, value, source params set,
+    * use {@link BasicConfigItem} as an easy way to construct a {@link ConfigItem}
+    * @return the registered {@link ConfigItem}
+    * @throws IllegalArgumentException if the {@link ConfigItem} is not valid (does not have all required fields set)
+    */
+   public ConfigItem registerConfigItem(ConfigItem configItem);
+
+   /**
+    * Register a listener which will be notified whenever there is a configuration setting change,
+    * there is no need to unregister a listener as all listener references will be held weakly
+    * (if there are no more variables which reference the listener then it will be GCed and removed from the list of listeners)
+    * 
+    * Registering the same {@link ConfigurationListener} object multiple times has no effect
+    * 
+    * @param configurationListener a {@link ConfigurationListener} object
+    */
+   public void registerListener(ConfigurationListener configurationListener);
+
+   /**
+    * Returns data about all the configuration values which are known
+    * to the system at the time and some stats which are useful
+    * 
+    * @return a config data class with data about the known configuration values
+    */
+   public ConfigData getConfigData();
+
+   // STATICS
+
+   /**
+    * Defines the config data holding class
+    */
+   public static interface ConfigData {
+       /**
+        * @return the total number of config items known to the service
+        */
+       public int getTotalConfigItems();
+       /**
+        * @return the total number of registered config items known to the service
+        */
+       public int getRegisteredConfigItems();
+       /**
+        * @return the total number of requested but not registered config items known to the service
+        */
+       public int getUnRegisteredConfigItems();
+       /**
+        * @return the array of all current source names
+        */
+       public String[] getSources();
+       /**
+        * @return the total set of all known config items
+        */
+       public List<ConfigItem> getItems();
+   }
+
+   /**
+    * Defines the config item holding class
+    */
+   public static interface ConfigItem {
+       /**
+        * Called whenever this config item is requested
+        * @return the current number of times requested
+        */
+       public int requested();
+
+       /**
+        * Called whenever this config item is changed
+        * @param value the new value
+        * @param source the source which is making the change
+        * @return the current number of times the item was changed
+        */
+       public int changed(Object value, String source);
+
+       /**
+        * Duplicate this config item
+        * This is mostly used to ensure we do not send the internal objects out where they could be changed
+        * @return a config item with all the same values
+        */
+       public ConfigItem copy();
+
+       /**
+        * @return the name/key for this configuration value
+        */
+       public String getName();
+       /**
+        * @return the actual stored value for this config (null indicates it is not set)
+        */
+       public Object getValue();
+       /**
+        * @return the type of the value (string, int, boolean, array)
+        */
+       public String getType();
+       /**
+        * @return the name of the most recent source for this config value (e.g. sakai/sakai.properties)
+        */
+       public String getSource();
+       /**
+        * @return the default value for this config (null indicates it is not set)
+        */
+       public Object getDefaultValue();
+       /**
+        * @return the number of times the config value was requested (or looked up)
+        */
+       public int getRequested();
+       /**
+        * @return the number of times this config value was changed (or updated)
+        */
+       public int getChanged();
+       /**
+        * @return the version of this config item (a newly created item is version 1), incremented with each change
+        */
+       public int getVersion();
+       /**
+        * @return the history of the config item over time (empty array if it has never changed)
+        */
+       public ConfigHistory[] getHistory();
+       /**
+        * @return indicates is this config is registered (true) or if it is only requested (false)
+        * (requested means someone asked for it but the setting has not been stored in the config service)
+        */
+       public boolean isRegistered();
+       /**
+        * @return indicates is this config is has a default value defined
+        * (this can only be known for items which are requested)
+        */
+       public boolean isDefaulted();
+       /**
+        * @return indicates is this config value should not be revealed because there are security implications
+        */
+       public boolean isSecured();
+   }
+
+   /**
+    * Defines the config item history class
+    */
+   public static interface ConfigHistory {
+       /**
+        * @return the version of the config item this history refers to (a newly created item is version 1)
+        */
+       public int getVersion();
+       /**
+        * @return the time at which this historical version of the config item became irrelevant (this is when this version was replaced)
+        */
+       public long getTimestamp();
+       /**
+        * @return the source name for this version of the config item
+        */
+       public String getSource();
+       /**
+        * @return the value of the config item in this version of it
+        */
+       public Object getValue();
+   }
+
+   /**
+    * Allows registration of configuration settings (config items) from outside the 
+    * Server Configuration Service and the standard set of properties files which
+    * will be loaded early on the configuration cycle
+    * 
+    * NOTE: the implemented ConfigurationProvider MUST be a Spring singleton and it
+    * MUST be registered in the main Sakai application context from a component (from a webapp will not work),
+    * it also must be set explicitly to not lazy initialize (lazy-init="false"),
+    * it is always possible to update the configuration later using {@link #registerConfigItems(ConfigData)}
+    * so this is mainly for loading configurations very early in the system startup
+    */
+   public static interface ConfigurationProvider {
+       /* This is part of supporting a more flexible and persistent configuration
+        */
+
+       /**
+        * Register a set of configuration items,
+        * these will be loaded after the base properties are loaded (from properties files) 
+        * but before the rest of Sakai starts up so they will be allowed to override the base properties
+        * @param configData the set of current config data that currently exists
+        * @return a list of ConfigItems which will be loaded into the current configuration, 
+        * these MUST have the name, value (OR defaultValue), and source set to non-null/non-empty values,
+        * use {@link BasicConfigItem} as an easy way to ensure the configitems are setup correctly
+        */
+       public List<ConfigItem> registerConfigItems(ConfigData configData);
+   }
+
+   /**
+    * Allows a service to be notified when configuration settings are changed
+    * 
+    * NOTE: this does NOT include any changes which happen during the initial properties file loading
+    */
+   public static interface ConfigurationListener {
+       /* This is part of supporting a more flexible and persistent configuration
+        */
+
+       /**
+        * This will be called each time a {@link ConfigItem} is changed AFTER
+        * the initial registration of that config item and 
+        * initial startup of the {@link ServerConfigurationService}
+        * 
+        * @param configItem the {@link ConfigItem} which changed
+        */
+       public void changed(ConfigItem configItem);
+   }
+
 }
