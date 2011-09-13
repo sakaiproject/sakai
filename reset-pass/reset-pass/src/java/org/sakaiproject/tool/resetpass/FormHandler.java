@@ -146,7 +146,7 @@ public class FormHandler {
 			userE.setPassword(pass);
 			userDirectoryService.commitEdit(userE);
 
-			securityService.popAdvisor(sa);
+			//securityService.popAdvisor(sa);
 
 			String productionSiteName = serverConfigurationService.getString("ui.service", "");
 
@@ -184,7 +184,7 @@ public class FormHandler {
 			return null;
 		}
 		finally {
-			securityService.popAdvisor();
+			securityService.popAdvisor(sa);
 		}
 
 		return "Success";
