@@ -10689,7 +10689,7 @@ public class AssignmentAction extends PagedResourceActionII
 				}			
 				try {
 					// show grade in localized number format
-					Double dblGrade = new Double(grade);
+					Double dblGrade = dcformat.parse(grade).doubleValue();
 					grade = nbFormat.format(dblGrade);
 				}
 				catch (Exception e) {
