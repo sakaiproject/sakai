@@ -40,7 +40,7 @@ public class UserValidator implements Validator {
 		RetUser retUser = (RetUser)obj;
 		m_log.debug("validating user " + retUser.getEmail());
 		
-		Collection c = this.userDirectoryService.findUsersByEmail(retUser.getEmail().trim());
+		Collection<User> c = this.userDirectoryService.findUsersByEmail(retUser.getEmail().trim());
 		if (c.size()>1) {
 			m_log.debug("more than one email!");
 			errors.reject("morethanone","more than one email");
@@ -50,14 +50,14 @@ public class UserValidator implements Validator {
 			errors.reject("nosuchuser","no such user");
 			return;
 		}
-		Iterator i = c.iterator();
+		Iterator<User> i = c.iterator();
 		User user = (User)i.next();
 		m_log.debug("got user " + user.getId() + " of type " + user.getType());
 		String[] roles = serverConfigurationService.getStrings("resetRoles");
 		if (roles == null ){
 			roles = new String[]{"guest"};
 		}
-		List rolesL = Arrays.asList(roles);
+		List<String> rolesL = Arrays.asList(roles);
 		if (!rolesL.contains(user.getType())) {
 			m_log.warn("this is a type don't change");
 			errors.reject("wrongtype","wrong type");
