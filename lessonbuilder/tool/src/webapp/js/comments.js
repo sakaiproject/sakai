@@ -142,6 +142,10 @@ function replyToComment(link, replytext) {
 	$(link).parents(".commentsDiv").find(".submitButton").val(msg("simplepage.add-comment"));
 	
 	switchEditors(link);
+
+	var pos = evolved.offset();
+	window.scrollTo(pos.left, pos.top);
+
 	return false;
 }
 

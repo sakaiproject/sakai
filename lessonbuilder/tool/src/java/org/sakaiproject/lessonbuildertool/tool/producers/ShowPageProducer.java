@@ -1567,12 +1567,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							SimplePageLogEntry entry = cache.get(page.getPageId());
 							UIBranchContainer row = UIBranchContainer.make(tableRow, "studentRow:");
 							
-							String label = "";
- 
 							// There's content they haven't seen
 							if(entry == null || entry.getLastViewed().compareTo(page.getLastUpdated()) < 0) {
-							    UIOutput.make(row, "newContentImg");
-							    label = messageLocator.getMessage("simplepage.new-student-content");
+							    UIOutput.make(row, "newContentImg").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.new-student-content")));
 							} else
 							    UIOutput.make(row, "newContentImgT");
  
@@ -1581,24 +1578,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
  						
 							    // New comments have been added since they last viewed the page
 							    if(page.getLastCommentChange() != null && (entry == null || entry.getLastViewed().compareTo(page.getLastCommentChange()) < 0)) {
-								UIOutput.make(row, "newCommentsImg");
-								if (!label.equals(""))
-								    label += ", ";
-								label += messageLocator.getMessage("simplepage.new-student-comments");
+								UIOutput.make(row, "newCommentsImg").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.new-student-comments")));
 							    } else
 								UIOutput.make(row, "newCommentsImgT");							
 							}
  
 							// Never visited page
 							if(entry == null) {
-							    UIOutput.make(row, "newPageImg");
-							    // if the page is new, no need to say that there's new content/comments on it
-							    label = messageLocator.getMessage("simplepage.new-student-content-page");
+							    UIOutput.make(row, "newPageImg").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.new-student-page")));
 							} else
 							    UIOutput.make(row, "newPageImgT");
- 
-							if (!label.equals(""))
-							    UIOutput.make(row, "contentLabel", label);
 
 							GeneralViewParameters eParams = new GeneralViewParameters(ShowPageProducer.VIEW_ID, page.getPageId());
 							eParams.setItemId(i.getId());
