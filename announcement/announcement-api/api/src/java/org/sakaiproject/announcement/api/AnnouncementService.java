@@ -154,4 +154,9 @@ public interface AnnouncementService extends MessageService
 	 */
 	public boolean isMessageViewable(AnnouncementMessage message);
 	
+	/**
+	 * clears the message cache for this channel
+	 * @param channelRef
+	 */
+	public void clearMessagesCache(String channelRef);
 }

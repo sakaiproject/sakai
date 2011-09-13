@@ -1814,4 +1814,7 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 		return null;
 	} 
 
+	public void clearMessagesCache(String channelRef){
+		m_threadLocalManager.set(channelRef + ".msgs", null);
+	}
 }

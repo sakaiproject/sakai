@@ -2888,6 +2888,9 @@ public class AnnouncementAction extends PagedResourceActionII
 				// we should be modifying the database records for 5-12 and decrementing their message order
 				int oldMessageOrder = header.getMessage_order();
 				List<Message> channelMessages = channel.getMessages(null, true); // ascending order
+				//need to clear the message cache otherwise channel.getMessages stores the old (unsaved) message in cache
+				AnnouncementService.clearMessagesCache(channel.getReference());
+				
 				
 				// sort the messages by current sort order
 				SortedIterator messSorted = new SortedIterator(channelMessages.iterator(), new AnnouncementComparator(getCurrentOrder(), true));

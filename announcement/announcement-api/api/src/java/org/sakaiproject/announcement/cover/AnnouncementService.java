@@ -331,4 +331,11 @@ public class AnnouncementService
 
 		return service.isMessageViewable(param0);
 	}
+	
+	public static void clearMessagesCache(String channelRef){
+		org.sakaiproject.announcement.api.AnnouncementService service = getInstance();
+		if (service != null){
+			service.clearMessagesCache(channelRef);
+		}
+	}
 }
