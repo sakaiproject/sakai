@@ -11,7 +11,7 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <name>sakai-portal-impl</name>
+    <name>sakai-portal-render-impl</name>
     <groupId>org.sakaiproject.portal</groupId>
     <artifactId>sakai-portal-render-impl</artifactId>
     <organization>
