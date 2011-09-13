@@ -25,7 +25,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
- * 
+ * THIS WILL BE MOVED TO THE assignment PROJECT IN SAKAI CORE ONCE THE INTERFACE IS MOVED TO KERNEL
  *
  */
 public class AnnouncementEntityType implements EntityType {

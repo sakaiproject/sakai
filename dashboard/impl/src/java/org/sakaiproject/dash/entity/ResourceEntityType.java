@@ -22,7 +22,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
- * @author jimeng
+ * THIS WILL BE MOVED TO THE content PROJECT IN SAKAI CORE ONCE THE INTERFACE IS MOVED TO KERNEL
  *
  */
 public class ResourceEntityType implements EntityType {

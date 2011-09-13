@@ -8,7 +8,7 @@ import java.util.Map;
 
 
 /**
- * 
+ * THIS WILL BE MOVED TO KERNEL
  *
  */
 public interface EntityType {
