@@ -14,7 +14,6 @@ public class ConfirmProducer implements ViewComponentProducer {
 	public static final String VIEW_ID = "confirm";
 
 	public String getViewID() {
-		// TODO Auto-generated method stub
 		return VIEW_ID;
 	}
 
@@ -32,7 +31,13 @@ public class ConfirmProducer implements ViewComponentProducer {
 			ComponentChecker arg2) {
 		
 		String[] parms = new String[] {userBean.getEmail()};
-		UIMessage.make(tofill,"message","confirm",parms);
+		boolean validatingAccounts = serverConfigurationService.getBoolean("siteManage.validateNewUsers", false);
+		
+		if (!validatingAccounts) {
+			UIMessage.make(tofill,"message","confirm",parms);
+		} else {
+			UIMessage.make(tofill,"message","confirm.validate",parms);
+		}
 		if (serverConfigurationService.getString("support.email", null) != null) {
 			UIMessage.make(tofill, "supportMessage", "supportMessage");
 			UILink.make(tofill, "supportEmail",serverConfigurationService.getString("support.email", ""),"mailto:" + serverConfigurationService.getString("support.email", ""));
