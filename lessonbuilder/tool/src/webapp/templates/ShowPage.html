@@ -200,17 +200,17 @@ function resizeiframe(id) {
 		<div class="itemclass" rsf:id="itemContainer:" role="main" style="z-index: 1;">
 			<div style="display:none" rsf:id="current-item-id"></div>
 			
-			<table class="indent mainList" rsf:id="itemTable:" border="0" role="grid" width="95%" style="z-index: 1;">
+			<table class="indent mainList" rsf:id="itemTable:" border="0" width="95%" style="z-index: 1;" role="list">
 				<colgroup rsf:id="colgroup"/>
 				<col width="20" rsf:id="col1"/>
 				<col width="100%" rsf:id="col2"/>
-			        <tr class="offscreen" role="row">
-				  <th rsf:id="header-edits" role="columnheader"><div rsf:id="msg=simplepage.edititems"></div></th>
-				  <th rsf:id="header-items" role="columnheader"><div rsf:id="msg=simplepage.items"></div></th>
+			        <tr class="offscreen">
+				  <th rsf:id="header-edits"><div rsf:id="msg=simplepage.edititems"></div></th>
+				  <th rsf:id="header-items"><div rsf:id="msg=simplepage.items"></div></th>
 				</tr>
-				<tr rsf:id="item:" id="item" role="row">
-					<td rsf:id="edit-td" role="gridcell" class="edit-col"><div><a href="#" class="usebutton edit-link" onclick="return false" rsf:id="edit-link"></a></div></td>
-					<td rsf:id="item-td" role="gridcell"><div style="float:left"><img class="status-image" rsf:id="status" height="18" width="18" style="margin-right:3px" /></div>
+				<tr rsf:id="item:" id="item" role="listitem">
+					<td rsf:id="edit-td" class="edit-col"><div><a href="#" class="usebutton edit-link" onclick="return false" rsf:id="edit-link"></a></div></td>
+					<td rsf:id="item-td"><div style="float:left"><img class="status-image" rsf:id="status" height="18" width="18" style="margin-right:3px" /></div>
 					  <div style="margin-left:30px">
 					    <div rsf:id="link-div:" class="link-div">
                                               <img rsf:id="item-icon" height="16" width="16" alt="" style="position:relative; top:3px; margin-right:2px"/>
@@ -251,13 +251,13 @@ function resizeiframe(id) {
 					    <span rsf:id="item-format" class="item-format"></span>
 					  </div>
 					</td>
-					<td rsf:id="edittext-td" role="gridcell" class="edit-col"><div><a href="#" class="usebutton itemLink" rsf:id="edit-link"></a></div></td>
-					<td rsf:id="itemSpan" role="gridcell">
+					<td rsf:id="edittext-td" class="edit-col"><div><a href="#" class="usebutton itemLink" rsf:id="edit-link"></a></div></td>
+					<td rsf:id="itemSpan">
 					  <div rsf:id="item-groups-titles-text" class="item-group-titles"></div>
 					  <div rsf:id="content" class="textbox"></div>
 					</td>
-					<td rsf:id="editmm-td" role="gridcell" class="edit-col"><div><a href="#" class="usebutton multimedia-edit" onclick="return false" rsf:id="iframe-edit"></a></div></td>
-					<td rsf:id="iframeSpan" role="gridcell" class="hideOnDialog"><div>
+					<td rsf:id="editmm-td" class="edit-col"><div><a href="#" class="usebutton multimedia-edit" onclick="return false" rsf:id="iframe-edit"></a></div></td>
+					<td rsf:id="iframeSpan" class="hideOnDialog"><div>
 					  <div rsf:id="item-group-titles2" class="item-group-titles"></div>
 					  <iframe
 					     name="SimplePageIFrame"
@@ -279,7 +279,7 @@ function resizeiframe(id) {
 					  </div>
 					</td>
 	
-					<td rsf:id="imageSpan" role="gridcell"><div>
+					<td rsf:id="imageSpan"><div>
 					    <div rsf:id="item-group-titles3" class="item-group-titles"></div>
 					    <img rsf:id="image" class="multimedia" />
 					    <div style="display:none" rsf:id="imageHeight" class="mm-height"></div>
@@ -291,8 +291,8 @@ function resizeiframe(id) {
 					  </div>
 					</td>
 
-					<td rsf:id="youtube-td" role="gridcell" class="edit-col"><div><a href="#" class="usebutton edit-youtube" onclick="return false" rsf:id="youtube-edit"></a></div></td>
-					<td rsf:id="youtubeSpan" role="gridcell"  id="youtubeSpan"  class="hideOnDialog"><div>
+					<td rsf:id="youtube-td" class="edit-col"><div><a href="#" class="usebutton edit-youtube" onclick="return false" rsf:id="youtube-edit"></a></div></td>
+					<td rsf:id="youtubeSpan"  id="youtubeSpan"  class="hideOnDialog"><div>
 					    <div rsf:id="item-group-titles4" class="item-group-titles"></div>
 					    
 					    <iframe rsf:id="youtubeIFrame" frameborder="0"></iframe>
@@ -306,9 +306,9 @@ function resizeiframe(id) {
 					  <div style="display:none" rsf:id="item-groups4" class="item-groups"></div>
 					</td>
 
-					<td rsf:id="movie-td" role="gridcell" class="edit-col"><div><a href="#" class="usebutton edit-movie" onclick="return false" rsf:id="edit-movie"></a></div></td>
+					<td rsf:id="movie-td" class="edit-col"><div><a href="#" class="usebutton edit-movie" onclick="return false" rsf:id="edit-movie"></a></div></td>
 
-					<td rsf:id="movieSpan" role="gridcell" class="hideOnDialog"><div>
+					<td rsf:id="movieSpan" class="hideOnDialog"><div>
 					    <div rsf:id="item-group-titles5" class="item-group-titles"></div>
 					    <embed rsf:id="movieEmbed" autoplay="false" autostart="false" scale="aspect" />
 					    <object rsf:id="movieObject"><param name="src" rsf:id="movieURLInject" /><param name="FlashVars" rsf:id="flashvars"/><param name="autoplay" value="false"/><param name="autostart" value="false"/><param name="scale" value="aspect"/>
@@ -329,9 +329,9 @@ function resizeiframe(id) {
 					</td>
 
 
-					<td rsf:id="comments-td" role="gridcell" class="edit-col"><div><a href="#" class="usebutton edit-comments" onclick="return false" rsf:id="edit-comments"></a></div></td>
+					<td rsf:id="comments-td" class="edit-col"><div><a href="#" class="usebutton edit-comments" onclick="return false" rsf:id="edit-comments"></a></div></td>
 					
-					<td rsf:id="commentsSpan" role="gridcell" class="commentsCell">
+					<td rsf:id="commentsSpan" class="commentsCell">
 					        <div rsf:id="missing-prereqs"></div>
 						<div class="commentsDiv" rsf:id="commentsDiv">
 							<div rsf:id="item-group-titles6" class="item-group-titles"></div>
@@ -372,9 +372,9 @@ function resizeiframe(id) {
 						<span style="display:none" rsf:id="commentsMaxPoints" class="commentsMaxPoints"></span>
 					</td>
 					
-					<td rsf:id="student-td" role="gridcell" class="edit-col"><div><a href="#" class="usebutton edit-student" onclick="return false" rsf:id="edit-student"></a></div></td>
+					<td rsf:id="student-td" class="edit-col"><div><a href="#" class="usebutton edit-student" onclick="return false" rsf:id="edit-student"></a></div></td>
 					
-					<td rsf:id="studentSpan" role="gridcell">
+					<td rsf:id="studentSpan">
 					        <span rsf:id="student-missing-prereqs"></span>
 						<div class="studentDiv" rsf:id="studentDiv">
 							<div>
@@ -382,25 +382,24 @@ function resizeiframe(id) {
 							</div>
 						
 							<div rsf:id="item-group-titles7" class="item-group-titles"></div>
-							<table class="studentContentTable">
-								<tr>
-									<th style="text-align:center;" colspan="5"><h3 class="studentTitle"  rsf:id="msg=simplepage.student"></h3></th>
-								</tr>
-								<tr rsf:id="studentRow:">
-									<td class="imgCell"><img src="$context/images/new-page.png" rsf:id="newPageImg" class="imgCell"></img></td>
-									<td class="imgCell"><img src="$context/images/new-content.png" rsf:id="newContentImg" class="imgCell"></img></td>
-									<td rsf:id="commentsImgCell" class="imgCell"><img src="$context/images/new-comments.png" rsf:id="newCommentsImg" class="imgCell"></img></td>
-									<td rsf:id="studentCell" class="studentCell"><a href="#" rsf:id="studentLink" class="studentLink"></a></td>
-									<td rsf:id="studentGradingCell" class="gradingCell"></td>
-								</tr>
-								
-								<tr rsf:id="linkRow">
-									<td rsf:id="linkCell" style="text-align:center;" colspan="5">
-									  <img rsf:id="student-required-image" src="/sakai-lessonbuildertool-tool/images/available.png" height="18" width="18" style="margin-right:3px"/>
-									  <a href="#" rsf:id="linkLink"></a>
-									</td>
-								</tr>
-							</table>
+ 							<div class="studentContentTable" role="list">
+ 							  <h3 class="studentContentTitle"  rsf:id="msg=simplepage.student"></h3>
+							  <div rsf:id="studentRow:" class="studentRow" role="listitem">
+ 							    <img src="$context/images/new-page.png" alt="" rsf:id="newPageImg" class="imgCell"></img>
+ 							    <img src="$context/images/transparent16.png" alt="" rsf:id="newPageImgT" class="imgCell"></img>
+ 							    <img src="$context/images/new-content.png" alt="" rsf:id="newContentImg" class="imgCell"></img>
+ 							    <img src="$context/images/transparent16.png" alt="" rsf:id="newContentImgT" class="imgCell"></img>
+ 							    <img src="$context/images/new-comments.png" alt="" rsf:id="newCommentsImg" class="imgCell"></img>
+ 							    <img src="$context/images/transparent16.png" alt=""  rsf:id="newCommentsImgT" class="imgCell"></img>
+ 							    <span rsf:id="contentLabel" class="offscreen"></span>
+ 							    <a href="#" rsf:id="studentLink" class="studentLink"></a>
+							    <span rsf:id="studentGradingCell" class="gradingCell"></span>
+ 							    <div rsf:id="linkCell" style="text-align:center;">
+ 							      <img rsf:id="student-required-image" src="/sakai-lessonbuildertool-tool/images/available.png" height="18" width="18" style="margin-right:3px"/>
+ 							      <a href="#" rsf:id="linkLink"></a>
+ 							    </div>
+ 							  </div>
+ 							</div>
 						</div>
 						
 						<div style="display:none" rsf:id="studentId" class="student-id"></div>

@@ -1,4 +1,4 @@
-<div>
+<div role="list">
 	<div rsf:id="anonymousAlert" class="ui-widget">
 		<div class="ui-state-highlight ui-corner-all" style="margin-bottom: 10px; margin-top:10px; padding: 0 .7em;"> 
 			<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
@@ -22,7 +22,7 @@
 
 	<div rsf:id="commentList:">
 	  <h3 rsf:id="commentTitle"></h3>
-	  <div class="commentDiv" rsf:id="commentDiv">
+ 	  <div class="commentDiv" rsf:id="commentDiv:" role="listitem">
 		<a href="#" class="to-load" rsf:id="to-load"></a><a onclick="loadMore($(this));" class="loadMore" rsf:id="load-more-link"></a>
 		
 		<span rsf:id="gradingSpan" style="float:right; vertical-align:top;"><img class="statusImg" src="$context/images/no-status.png" id="statusImg" height="16px" width="16px" alt=""></img><span rsf:id="msg=simplepage.comments-points"></span><span style="display:none" class="uuidBox" rsf:id="commentsUUID"></span><span style="display:none" class="pointsSpan" rsf:id="commentPoints"></span><input rsf:id="pointsBox" class="pointsBox" type="text" size="3"></input></span>

@@ -267,11 +267,22 @@ a.edit-movie:link,a.edit-movie:visited{
 }
 .studentTitle {
         color:black;
+	margin-top:0px;
+}
+.studentContentTitle {
+        color:black;
+	margin-top:0px;
+	margin-bottom:.5em;
+	margin-left:40px;
 }
 .studentContentTable {
 	border:none;
 	background-color:#e4edff;
 	padding:4px;
+	padding-bottom: 1em;
+	padding-top: 1em;
+}
+.studentRow {
 }
 .duecol {
 	padding-left: 2em !important
