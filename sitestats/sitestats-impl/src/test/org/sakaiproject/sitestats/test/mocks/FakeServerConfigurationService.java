@@ -1,6 +1,6 @@
 /**
- * $URL:$
- * $Id:$
+ * $URL$
+ * $Id$
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -175,5 +175,25 @@ public class FakeServerConfigurationService implements ServerConfigurationServic
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+    public <T> T getConfig(String name, T defaultValue) {
+        return (T) m.get(name);
+    }
+
+    public ConfigItem getConfigItem(String name) {
+        return null;
+    }
+
+    public ConfigData getConfigData() {
+        return null;
+    }
+
+    public ConfigItem registerConfigItem(ConfigItem configItem) {
+        return null;
+    }
+
+    public void registerListener(ConfigurationListener configurationListener) {
+        
+    }
 
 }
