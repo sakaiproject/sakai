@@ -169,4 +169,24 @@ public class ServerConfigurationServiceStub implements ServerConfigurationServic
 		return null;
 	}
 
+    public <T> T getConfig(String name, T defaultValue) {
+        return (T) properties.get(name);
+    }
+
+    public ConfigItem getConfigItem(String name) {
+        return null;
+    }
+
+    public ConfigData getConfigData() {
+        return null;
+    }
+
+    public ConfigItem registerConfigItem(ConfigItem configItem) {
+        return null;
+    }
+
+    public void registerListener(ConfigurationListener configurationListener) {
+        
+    }
+
 }
