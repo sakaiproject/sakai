@@ -153,4 +153,14 @@ public class MockServerConfigurationService implements
         return null;
     }
 
+    public ConfigItem registerConfigItem(ConfigItem configItem) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public void registerListener(ConfigurationListener configurationListener) {
+        // TODO Auto-generated method stub
+        
+    }
+
 }

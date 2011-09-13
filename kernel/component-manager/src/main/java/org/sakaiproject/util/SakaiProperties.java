@@ -419,7 +419,7 @@ public class SakaiProperties implements BeanFactoryPostProcessorCreator, Initial
             }
         }
 
-    };
+    }
 
 }
 
