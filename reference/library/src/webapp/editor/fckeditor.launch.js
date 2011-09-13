@@ -28,12 +28,12 @@ sakai.editor.editors.fckeditor = {};
 sakai.editor.editors.fckeditor.launch = function(targetId, config, w, h) {
     var oFCKeditor = new FCKeditor(targetId);
     oFCKeditor.BasePath = "/library/editor/FCKeditor/";
-    if(config.width && config.width != ''){
+    if(config != null && config.width && config.width != ''){
 	w = config.width;
     }else if (w == null || w == '') {
 	w = "675";
     }
-    if(config.height && config.height != ''){
+    if(config != null && config.height && config.height != ''){
 	h = config.height;
     }else if (h == null || h == '') {
 	h = "275";
