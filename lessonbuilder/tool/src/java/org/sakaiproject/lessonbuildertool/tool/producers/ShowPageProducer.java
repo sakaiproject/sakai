@@ -783,6 +783,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			int textboxcount = 1;
 
 			UIBranchContainer tableContainer = UIBranchContainer.make(container, "itemTable:");
+			((UIComponent)tableContainer).decorate(new UIFreeAttributeDecorator("aria-label", messageLocator.getMessage("simplepage.maincontent")));
 
 			// formatting: two columns:
 			// 1: edit buttons, omitted for student
@@ -1554,6 +1555,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							return title1.compareTo(title2);
 						    }
 						});					    
+
+					        UIOutput contentList = UIOutput.make(tableRow, "studentContentTable");
+					        UIOutput contentTitle = UIOutput.make(tableRow, "studentContentTitle", messageLocator.getMessage("simplepage.student"));
+						contentList.decorate(new UIFreeAttributeDecorator("aria-labelledby", contentTitle.getFullID()));
 
 						// Print each row in the table
 						for(SimpleStudentPage page : studentPages) {

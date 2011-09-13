@@ -86,6 +86,8 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 			simplePageBean.setCurrentPage(currentPage);
 			simplePageBean.setCurrentPageId(params.pageId);
 
+			UIOutput.make(tofill, "mainlist").decorate(new UIFreeAttributeDecorator("aria-label", messageLocator.getMessage("simplepage.comments-section")));
+
 			SimplePageItem commentsItem = simplePageToolDao.findItem(params.itemId);
 			if(commentsItem != null && commentsItem.getSakaiId() != null && !commentsItem.getSakaiId().equals("")) {
 				SimpleStudentPage studentPage = simplePageToolDao.findStudentPage(Long.valueOf(commentsItem.getSakaiId()));
