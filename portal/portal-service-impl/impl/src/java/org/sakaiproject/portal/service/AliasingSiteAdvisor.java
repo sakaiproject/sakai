@@ -1,6 +1,8 @@
 package org.sakaiproject.portal.service;
 
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -8,11 +10,14 @@ import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteAdvisor;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 
@@ -24,7 +29,7 @@ import org.sakaiproject.site.api.SiteService;
  * @author buckett
  *
  */
-public class AliasingSiteAdvisor implements SiteAdvisor
+public class AliasingSiteAdvisor implements Observer
 {
 	/**
 	 * Configuration parameter for sakai.properties to control if we generate page aliases.
@@ -40,6 +45,10 @@ public class AliasingSiteAdvisor implements SiteAdvisor
 	private SiteService siteService;
 	
 	private ServerConfigurationService serverConfigurationService;
+	
+	private EntityManager entityManager;
+	
+	private EventTrackingService eventTrackingService;
 
 	/**
 	 * Maximum length of a page alias.
@@ -61,7 +70,27 @@ public class AliasingSiteAdvisor implements SiteAdvisor
 		if (serverConfigurationService.getBoolean(PORTAL_USE_PAGE_ALIASES, false))
 		{
 			log.info("Page aliases will be generated.");
-			siteService.addSiteAdvisor(this);
+			// Only want a local observer so the node that performs the site save updates the aliases.
+			getEventTrackingService().addLocalObserver(this);
+		}
+	}
+	
+
+	public void update(Observable o, Object arg) {
+		if (arg instanceof Event) {
+			Event event = (Event)arg;
+			if (SiteService.SECURE_UPDATE_SITE.equals(event.getEvent()) || SiteService.SECURE_ADD_SITE.equals(event.getEvent()))
+			{
+				Reference ref = entityManager.newReference(event.getResource());
+				Entity entity = ref.getEntity();
+				if (entity instanceof Site) {
+					update((Site)entity);
+				} else {
+					log.warn("Couldn't find site that has just been updated: "+ entity);
+				}
+				
+			}
+
 		}
 	}
 	
@@ -112,7 +141,7 @@ public class AliasingSiteAdvisor implements SiteAdvisor
 				catch (PermissionException e)
 				{
 					// Log and there isn't any point in carrying on.
-					log.warn("Failed to create alias, lack of permission.", e);
+					log.warn("Lack of permission to create alias: "+ e.getMessage());
 					break;
 				}
 			}
@@ -174,7 +203,23 @@ public class AliasingSiteAdvisor implements SiteAdvisor
 	{
 		this.serverConfigurationService = serverConfigurationService;
 	}
-	
+
+	public void setEntityManager(EntityManager entityManager) {
+		this.entityManager = entityManager;
+	}
 
 
+	public EntityManager getEntityManager() {
+		return entityManager;
+	}
+
+
+	public void setEventTrackingService(EventTrackingService eventTrackingService) {
+		this.eventTrackingService = eventTrackingService;
+	}
+
+
+	public EventTrackingService getEventTrackingService() {
+		return eventTrackingService;
+	}
 }

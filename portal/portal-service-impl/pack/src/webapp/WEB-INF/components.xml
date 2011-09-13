@@ -44,6 +44,12 @@
         <property name="serverConfigurationService">
             <ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
         </property>
+        <property name="entityManager">
+            <ref bean="org.sakaiproject.entity.api.EntityManager"/>
+        </property>
+        <property name="eventTrackingService">
+            <ref bean="org.sakaiproject.event.api.EventTrackingService"/>
+        </property>
         <property name="maxLength" value="15"/>
     </bean>
     
