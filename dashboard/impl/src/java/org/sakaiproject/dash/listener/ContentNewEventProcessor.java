@@ -43,7 +43,7 @@ import org.sakaiproject.event.api.Event;
 
 /**
  * 
- *
+ * THIS WILL BE MOVED TO THE content PROJECT IN SAKAI CORE ONCE THE INTERFACE IS MOVED TO KERNEL
  */
 public class ContentNewEventProcessor implements EventProcessor {
 	

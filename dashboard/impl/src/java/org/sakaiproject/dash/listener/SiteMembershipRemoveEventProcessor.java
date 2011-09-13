@@ -21,8 +21,8 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.site.api.SiteService;
 
 /**
- * @author
- *
+ * 
+ * THIS WILL BE MOVED TO THE site-manage PROJECT IN SAKAI CORE ONCE THE INTERFACE IS MOVED TO KERNEL
  */
 public class SiteMembershipRemoveEventProcessor implements EventProcessor {
 

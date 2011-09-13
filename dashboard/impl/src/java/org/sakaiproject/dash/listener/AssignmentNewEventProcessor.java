@@ -11,26 +11,18 @@ import org.apache.log4j.Logger;
 import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.dash.entity.EntityLinkStrategy;
 import org.sakaiproject.dash.logic.DashboardLogic;
-import org.sakaiproject.dash.logic.DashboardLogicImpl;
 import org.sakaiproject.dash.logic.SakaiProxy;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.NewsItem;
-import org.sakaiproject.dash.model.Realm;
 import org.sakaiproject.dash.model.SourceType;
 import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
-import org.sakaiproject.entity.api.EntityPropertyTypeException;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.entitybroker.EntityBroker;
-import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.event.api.Event;
 
 /**
- * @author jimeng
- *
+ * 
+ * THIS WILL BE MOVED TO THE assignment PROJECT IN SAKAI CORE ONCE THE INTERFACE IS MOVED TO KERNEL
  */
 public class AssignmentNewEventProcessor implements EventProcessor {
 

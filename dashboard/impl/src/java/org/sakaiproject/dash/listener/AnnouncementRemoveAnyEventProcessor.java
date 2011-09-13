@@ -24,8 +24,8 @@ import org.sakaiproject.event.api.EventTrackingService;
 
 /**
  * The remove any event listener for all Announcement events
- * @author
- *
+ * 
+ * THIS WILL BE MOVED TO THE announcement PROJECT IN SAKAI CORE ONCE THE INTERFACE IS MOVED TO KERNEL
  */
 public class AnnouncementRemoveAnyEventProcessor implements EventProcessor {
 

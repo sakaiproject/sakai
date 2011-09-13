@@ -50,6 +50,8 @@ import org.sakaiproject.event.api.Event;
  * see the item in their dashboards, and for the realm(s) to which the
  * item belongs, appropriate entries should be added for any missing 
  * Context, Person or Realm items.
+ * 
+ * THIS WILL BE MOVED TO KERNEL
  */
 public interface EventProcessor
 {

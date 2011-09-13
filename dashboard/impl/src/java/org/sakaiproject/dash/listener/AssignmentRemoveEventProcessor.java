@@ -9,8 +9,8 @@ import org.sakaiproject.dash.logic.SakaiProxy;
 import org.sakaiproject.event.api.Event;
 
 /**
- * @author jimeng
- *
+ * 
+ * THIS WILL BE MOVED TO THE assignment PROJECT IN SAKAI CORE ONCE THE INTERFACE IS MOVED TO KERNEL
  */
 public class AssignmentRemoveEventProcessor implements EventProcessor {
 
