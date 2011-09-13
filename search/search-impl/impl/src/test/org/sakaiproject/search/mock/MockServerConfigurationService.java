@@ -262,4 +262,24 @@ public class MockServerConfigurationService implements ServerConfigurationServic
 		this.instanceName = instanceName;
 	}
 
+    public <T> T getConfig(String name, T defaultValue) {
+        return null;
+    }
+
+    public ConfigItem getConfigItem(String name) {
+        return null;
+    }
+
+    public ConfigData getConfigData() {
+        return null;
+    }
+
+    public ConfigItem registerConfigItem(ConfigItem configItem) {
+        return null;
+    }
+
+    public void registerListener(ConfigurationListener configurationListener) {
+        
+    }
+
 }
