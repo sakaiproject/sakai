@@ -97,7 +97,8 @@ public interface GroupProvider
 	 * This method should return true for groups that have no members but are valid
 	 * @since 1.2.1
 	 * @param id
-	 * @return true if the group exists, false if it doesn't 
+	 * @return true if the group exists, false if it doesn't
+	 * @since 1.2.0 
 	 */
 	boolean groupExists(String id);
 }
