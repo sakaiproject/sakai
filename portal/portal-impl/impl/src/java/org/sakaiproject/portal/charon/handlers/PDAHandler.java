@@ -396,8 +396,7 @@ public class PDAHandler extends PageHandler
 		}
 
 		// Reset the tool state if requested
-		if ("true".equals(req.getParameter(portalService.getResetStateParam()))
-				|| "true".equals(portalService.getResetState()))
+		if (portalService.isResetRequested(req))
 		{
 			Session s = SessionManager.getCurrentSession();
 			ToolSession ts = s.getToolSession(placementId);

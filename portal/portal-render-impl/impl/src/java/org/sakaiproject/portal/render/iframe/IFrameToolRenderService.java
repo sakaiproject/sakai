@@ -295,8 +295,7 @@ public class IFrameToolRenderService implements ToolRenderService
 		Session s = SessionManager.getCurrentSession();
 		ToolSession ts = s.getToolSession(toolConfig.getId());
 		
-		if ("true".equals(req.getParameter(portalService.getResetStateParam()))
-				|| "true".equals(portalService.getResetState()))
+		if (portalService.isResetRequested(req))
 		{
 			ts.clearAttributes();
 		}

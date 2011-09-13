@@ -189,8 +189,7 @@ public class PortletToolRenderService implements ToolRenderService
 			LOG.debug("Retrieved PortletState from request cache.  Applying to window.");
 		}
 
-		if ("true".equals(request.getParameter(portalService.getResetStateParam()))
-				|| "true".equals(portalService.getResetState()))
+		if (portalService.isResetRequested(request))
 		{
 			if (state != null)
 			{
