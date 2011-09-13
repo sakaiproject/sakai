@@ -422,6 +422,7 @@ private List<User> getUsersEmail(List<String> userIds) {
 			} 
 		
 			//check version, if local one newer than persisted, update it - SAK-17679
+			//also update the locale - SAK-20987
 			int existingTemplateVersion = existingTemplate.getVersion() != null ? existingTemplate.getVersion().intValue() : 0;
 			if(template.getVersion() > existingTemplateVersion) {
 				existingTemplate.setSubject(template.getSubject());
@@ -429,6 +430,7 @@ private List<User> getUsersEmail(List<String> userIds) {
 				existingTemplate.setHtmlMessage(template.getHtmlMessage());
 				existingTemplate.setVersion(template.getVersion());
 				existingTemplate.setOwner(template.getOwner());
+				existingTemplate.setLocale(template.getLocale());
 
 				Session sakaiSession = sessionManager.getCurrentSession();
 				sakaiSession.setUserId(ADMIN);
