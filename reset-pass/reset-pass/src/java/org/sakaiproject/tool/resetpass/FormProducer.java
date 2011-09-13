@@ -40,7 +40,7 @@ public class FormProducer implements ViewComponentProducer, DefaultView,Navigati
 	 * @see uk.org.ponder.rsf.view.ViewComponentProducer#getViewID()
 	 */
 	public String getViewID() {
-		return this.VIEW_ID;
+		return VIEW_ID;
 	}
 
 	MessageLocator messageLocator;
