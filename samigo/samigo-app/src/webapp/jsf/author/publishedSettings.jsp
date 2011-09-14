@@ -379,7 +379,7 @@ function uncheckOther(field){
 </samigo:hideDivision>
 
   <!-- *** HIGH SECURITY *** -->
-  <h:panelGroup rendered="#{publishedSettings.valueMap.ipAccessType_isInstructorEditable==true or publishedSettings.valueMap.passwordRequired_isInstructorEditable==true}" >
+  <h:panelGroup rendered="#{publishedSettings.valueMap.ipAccessType_isInstructorEditable==true or publishedSettings.valueMap.passwordRequired_isInstructorEditable==true or publishedSettings.valueMap.lockedBrowser_isInstructorEditable==true}" >
   <samigo:hideDivision title="#{assessmentSettingsMessages.t_highSecurity}" id="div4">
 	<f:verbatim><div class="tier2"></f:verbatim>
     <h:panelGrid border="0" columns="2" columnClasses="longtext"
@@ -399,15 +399,16 @@ function uncheckOther(field){
         <h:outputLabel value="#{assessmentSettingsMessages.high_security_password}"/>
         <h:inputText size="20" value="#{publishedSettings.password}"/>
       </h:panelGrid>
+      
 	  <h:outputText value="#{assessmentSettingsMessages.require_secure_delivery}"
-		rendered="#{publishedSettings.valueMap.passwordRequired_isInstructorEditable==true && publishedSettings.secureDeliveryAvailable}"/>
+		rendered="#{publishedSettings.valueMap.lockedBrowser_isInstructorEditable==true && publishedSettings.secureDeliveryAvailable}"/>
 	  <h:panelGrid border="0" columns="1"  columnClasses="longtext"
-		rendered="#{publishedSettings.valueMap.passwordRequired_isInstructorEditable==true && publishedSettings.secureDeliveryAvailable}">
+		rendered="#{publishedSettings.valueMap.lockedBrowser_isInstructorEditable==true && publishedSettings.secureDeliveryAvailable}">
 	    <h:selectOneRadio id="secureDeliveryModule" value="#{publishedSettings.secureDeliveryModule}"  layout="pageDirection" onclick="setBlockDivs();document.forms[0].onsubmit();document.forms[0].submit();">
 			<f:selectItems value="#{publishedSettings.secureDeliveryModuleSelections}" />
 		</h:selectOneRadio>
 		<h:panelGrid border="0" columns="2"  columnClasses="longtext"
-		   rendered="#{publishedSettings.valueMap.passwordRequired_isInstructorEditable==true && publishedSettings.secureDeliveryAvailable}">	
+		   rendered="#{publishedSettings.valueMap.lockedBrowser_isInstructorEditable==true && publishedSettings.secureDeliveryAvailable}">	
 		   <h:outputLabel for="secureDeliveryModuleExitPassword" value="#{assessmentSettingsMessages.secure_delivery_exit_pwd}"/>
 		   <h:inputText id="secureDeliveryModuleExitPassword" size="20" value="#{publishedSettings.secureDeliveryModuleExitPassword}"
 				disabled="#{publishedSettings.secureDeliveryModule == 'SECURE_DELIVERY_NONE_ID'}" maxlength="14" />      	

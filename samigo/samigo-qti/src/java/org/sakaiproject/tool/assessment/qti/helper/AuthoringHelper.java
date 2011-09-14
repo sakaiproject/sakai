@@ -46,6 +46,7 @@ import org.xml.sax.SAXException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
@@ -244,6 +245,25 @@ public class AuthoringHelper
         assessmentHelper.updateAccessControl(assessmentXml,
                                              assessmentAccessControl);
       }
+      
+      // Respondus Locked Browser
+      // To-do: To retain the value, need to re-organize SamigoApiFactory to samigo-api. 
+      /*
+      if (assessment.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY) == null ||
+    		  SecureDeliveryServiceAPI.NONE_ID.equals(assessment.getAssessmentMetaDataByLabel(SecureDeliveryServiceAPI.MODULE_KEY))) {
+
+    	  assessmentXml.setFieldentry("REQUIRE_LOCKED_BROWSER", "True");
+
+    	  if (assessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.EXITPWD_KEY ) != null)
+    	  {
+    		  SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+    		  String exitPassword = secureDeliveryService.decryptPassword((String) assessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY ), 
+    				  (String) assessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.EXITPWD_KEY ) );
+    		  assessmentXml.setFieldentry("EXIT_PASSWARD", exitPassword);
+    	  }
+      }
+      */
+      
       Set securedIPAddressSet = (Set) assessment.getSecuredIPAddressSet();
       if (securedIPAddressSet != null)
       {

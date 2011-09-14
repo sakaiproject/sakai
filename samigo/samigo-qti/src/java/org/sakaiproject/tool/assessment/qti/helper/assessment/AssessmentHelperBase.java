@@ -489,6 +489,7 @@ public abstract class AssessmentHelperBase
       "authenticatedRelease_isInstructorEditable",
       "ipAccessType_isInstructorEditable",
       "passwordRequired_isInstructorEditable",
+      "lockedBrowser_isInstructorEditable",
       "timedAssessment_isInstructorEditable",
       "timedAssessmentAutoSubmit_isInstructorEditable",
       "itemAccessType_isInstructorEditable",

@@ -176,6 +176,21 @@
         <fieldlabel>EDIT_USERID</fieldlabel>
         <fieldentry>True</fieldentry>
       </qtimetadatafield>
+      
+      <qtimetadatafield>
+        <fieldlabel>EDIT_LOCKED_BROWSER</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      
+      <qtimetadatafield>
+        <fieldlabel>REQUIRE_LOCKED_BROWSER</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>
+      
+      <qtimetadatafield>
+        <fieldlabel>EXIT_PASSWARD</fieldlabel>
+        <fieldentry/>
+      </qtimetadatafield>
       <!--Possible Values -->
       <!--True, False -->
      <!-- ********************************Timed Assessment************************************** -->
@@ -609,6 +624,12 @@
       <!--True, False -->
       <qtimetadatafield>
         <fieldlabel>passwordRequired_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>lockedBrowser_isInstructorEditable</fieldlabel>
         <fieldentry>True</fieldentry>
       </qtimetadatafield>
       <!--Possible Values -->

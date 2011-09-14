@@ -45,6 +45,7 @@ import org.jdom.input.DOMBuilder;
 import org.jdom.output.XMLOutputter;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
+//import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -79,6 +80,7 @@ import org.sakaiproject.tool.assessment.qti.util.Iso8601TimeInterval;
 import org.sakaiproject.tool.assessment.qti.util.XmlMapper;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -466,6 +468,22 @@ public class ExtractionHelper
     // assessment feedback control
     makeAssessmentFeedback(assessment);
     
+    // Respondus Locked Browser
+    // To-do: To retain the value, need to re-organize SamigoApiFactory to samigo-api.
+    /* 
+    if ("TRUE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel("REQUIRE_LOCKED_BROWSER")))
+    {
+    	SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+        assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.MODULE_KEY, assessmentSettings.getSecureDeliveryModule() );
+        if (assessment.getAssessmentMetaDataByLabel("EXIT_PASSWARD") != null || 
+        		!((String) assessment.getAssessmentMetaDataByLabel("EXIT_PASSWARD")).trim().equals("") ) {
+        	String encryptedPassword = secureDeliveryService.encryptPassword( assessmentSettings.getSecureDeliveryModule(), assessment.getAssessmentMetaDataByLabel("EXIT_PASSWARD"));
+        	assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.EXITPWD_KEY, TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, encryptedPassword ));
+        }
+    	
+        assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.TITLE_DECORATION, assessment.getTitle());
+    }
+    */
   }
 
   /**

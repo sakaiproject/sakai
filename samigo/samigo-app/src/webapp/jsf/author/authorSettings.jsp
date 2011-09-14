@@ -461,7 +461,7 @@ function setBlockDivs()
   </samigo:hideDivision>
 
   <!-- *** HIGH SECURITY *** -->
-<h:panelGroup rendered="#{assessmentSettings.valueMap.ipAccessType_isInstructorEditable==true or assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true}" >
+<h:panelGroup rendered="#{assessmentSettings.valueMap.ipAccessType_isInstructorEditable==true or assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true} or publishedSettings.valueMap.lockedBrowser_isInstructorEditable==true" >
   <samigo:hideDivision title="#{assessmentSettingsMessages.heading_high_security}">
     <f:verbatim><div class="tier2"></f:verbatim>
     <h:panelGrid border="0" columns="2"
@@ -489,15 +489,16 @@ function setBlockDivs()
         <h:outputLabel for="password" value="#{assessmentSettingsMessages.high_security_password}"/>
         <h:inputText id="password" size="20" value="#{assessmentSettings.password}"/>
       </h:panelGrid>
+      
       <h:outputText value="#{assessmentSettingsMessages.require_secure_delivery}"
-		rendered="#{assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true && assessmentSettings.secureDeliveryAvailable}"/>
+		rendered="#{assessmentSettings.valueMap.lockedBrowser_isInstructorEditable==true && assessmentSettings.secureDeliveryAvailable}"/>
 	  <h:panelGrid border="0" columns="1"  columnClasses="longtext"
-		rendered="#{assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true && assessmentSettings.secureDeliveryAvailable}">
+		rendered="#{assessmentSettings.valueMap.lockedBrowser_isInstructorEditable==true && assessmentSettings.secureDeliveryAvailable}">
 	  	<h:selectOneRadio id="secureDeliveryModule" value="#{assessmentSettings.secureDeliveryModule}"  layout="pageDirection" onclick="setBlockDivs();document.forms[0].onsubmit();document.forms[0].submit();">
 			<f:selectItems value="#{assessmentSettings.secureDeliveryModuleSelections}" />
 	  	</h:selectOneRadio>
 	  	<h:panelGrid border="0" columns="2"  columnClasses="longtext"
-			rendered="#{assessmentSettings.valueMap.passwordRequired_isInstructorEditable==true && assessmentSettings.secureDeliveryAvailable}">	
+			rendered="#{assessmentSettings.valueMap.lockedBrowser_isInstructorEditable==true && assessmentSettings.secureDeliveryAvailable}">	
 			<h:outputLabel for="secureDeliveryModuleExitPassword" value="#{assessmentSettingsMessages.secure_delivery_exit_pwd}"/>
 			<h:inputText id="secureDeliveryModuleExitPassword" size="20" value="#{assessmentSettings.secureDeliveryModuleExitPassword}"
 				disabled="#{assessmentSettings.secureDeliveryModule == 'SECURE_DELIVERY_NONE_ID'}" maxlength="14"/>      	
