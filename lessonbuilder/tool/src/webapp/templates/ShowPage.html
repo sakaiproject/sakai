@@ -109,7 +109,8 @@ function resizeiframe(id) {
 		</div>
 		
 	
-		<div rsf:id="tool-bar:" class="navIntraTool" role="toolbar" style="z-index:100000">
+		<div rsf:id="tool-bar:" class="navIntraTool" role="toolbar" style="z-index:100000" aria-labelledby="tool-bar::toolbar-label">
+			<h3 id="toolbar-label" rsf:id="msg=simplepage.toolbar" class="offscreen"></h3>
 			<ul id="toolbar" style="padding:2px; margin:0px">
 				<li><a href="#" rsf:id="reorder"><span rsf:id="msg.simplepage.reorder"></span></a></li>
 				<li><a href="#" rsf:id="add-text"><span rsf:id="msg.simplepage.text"></span></a></li>
@@ -201,7 +202,7 @@ function resizeiframe(id) {
 			<div style="display:none" rsf:id="current-item-id"></div>
 			
 			<h2 rsf:id="msg=simplepage.maincontent" class="offscreen" id="maintablelabel"></h2>
-			<table class="indent mainList" rsf:id="itemTable:" border="0" width="95%" style="z-index: 1;" role="list" aria-labelledby="maintablelabel">
+			<table class="indent mainList" rsf:id="itemTable:" border="0" width="95%" style="z-index: 1;" role="list" aria-labelledby="itemContainer::maintablelabel">
 				<colgroup rsf:id="colgroup"/>
 				<col width="20" rsf:id="col1"/>
 				<col width="100%" rsf:id="col2"/>
