@@ -267,9 +267,9 @@ public class ConfigItemImpl extends BasicConfigItem implements ConfigItem, Compa
 
     @Override
     public String toString() {
-        String ciVal = secured ? "**SECURITY**" : (String) this.value;
+        Object ciVal = secured ? "**SECURITY**" : this.value;
         if (this.value == null && this.defaultValue != null) {
-            ciVal = (secured ? "**SECURITY**" : (String) this.defaultValue) + " (D)";
+            ciVal = (secured ? "**SECURITY**" : this.defaultValue) + " (D)";
         }
         return name + " => "+ciVal+"  "+(registered?"R":"U")+","+(defaulted?"D":"N")+":(" + type + " [" + source + "] " + requested + ", " + changed + ", "+history+")";
     }
