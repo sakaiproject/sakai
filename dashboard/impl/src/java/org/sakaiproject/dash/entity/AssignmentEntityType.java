@@ -229,4 +229,19 @@ public class AssignmentEntityType implements EntityType {
 		logger.info("init()");
 		dashboardLogic.registerEntityType(this);
 	}
+	
+	public boolean isAvailable(String entityReference) {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	public Date getReleaseDate(String entityReference) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Date getRetractDate(String entityReference) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

@@ -3,6 +3,7 @@
  */
 package org.sakaiproject.dash.entity;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -161,5 +162,30 @@ public interface EntityType {
 	 * @return
 	 */
 	public List<List<String>> getOrder(String entityReference, String localeCode);
+	
+	/**
+	 * Determine whether the entity has a release date in the future and return 
+	 * that date if so.  Otherwise return null.
+	 * @param entityReference
+	 * @return
+	 */
+	public Date getReleaseDate(String entityReference);
+
+	/**
+	 * Determine whether the entity has a retract date in the future and return 
+	 * that date if so.  Otherwise return null.
+	 * @param entityReference
+	 * @return
+	 */
+	public Date getRetractDate(String entityReference);
+
+	/**
+	 * Find out whether a particular entity is "available", meaning it is not hidden 
+	 * or restricted due to some form of conditional release.
+	 * @param entityReference
+	 * @return true if the entity is fully available to users with basic access permission
+	 * 	to the entity, or false if it is hidden or not yet available. 
+	 */
+	public boolean isAvailable(String entityReference);
 
 }

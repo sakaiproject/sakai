@@ -43,6 +43,7 @@ import org.sakaiproject.dash.dao.DashboardDao;
 import org.sakaiproject.dash.entity.EntityLinkStrategy;
 import org.sakaiproject.dash.entity.EntityType;
 import org.sakaiproject.dash.listener.EventProcessor;
+import org.sakaiproject.dash.model.AvailabilityCheck;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.CalendarLink;
 import org.sakaiproject.dash.model.Context;
@@ -63,6 +64,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 {
 	private static Logger logger = Logger.getLogger(DashboardLogicImpl.class);
 	
+	public static final long TIME_BETWEEN_AVAILABILITY_CHECKS = 1000L * 60L * 1L;
+	
+	protected long nextTimeToQueryAvailabilityChecks = System.currentTimeMillis();
 	
 	protected Map<String,EntityType> entityTypes = new HashMap<String,EntityType>();
 	protected Map<String,EventProcessor> eventProcessors = new HashMap<String,EventProcessor>();
@@ -270,9 +274,19 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return person;
 	}
 	
+	public List<AvailabilityCheck> getAvailabilityChecksBeforeTime(Date time) {
+		
+		return dao.getAvailabilityChecksBeforeTime(time);
+	}
+
 	public CalendarItem getCalendarItem(long id) {
 		
 		return dao.getCalendarItem(id);
+	}
+	
+	public CalendarItem getCalendarItem(String entityReference) {
+		
+		return dao.getCalendarItem(entityReference);
 	}
 
 	public List<CalendarItem> getCalendarItems(String sakaiUserId,
@@ -300,6 +314,11 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	public NewsItem getNewsItem(long id) {
 		
 		return dao.getNewsItem(id);
+	}
+
+	public NewsItem getNewsItem(String entityReference) {
+		
+		return dao.getNewsItem(entityReference);
 	}
 
 	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId) {
@@ -336,6 +355,53 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 		return map;
 	}
+
+	public Date getReleaseDate(String entityReference, String entityTypeId) {
+		Date date = null;
+		if(entityReference == null || entityTypeId == null) {
+			logger.warn("getReleaseDate() invoked with null parameter: " + entityReference + " :: " + entityTypeId);
+		} else {
+			EntityType entityType = this.entityTypes.get(entityTypeId);
+			if(entityType == null) {
+				logger.warn("getReleaseDate() invalid entityTypeId: " + entityTypeId);
+			} else {
+				date = entityType.getReleaseDate(entityReference);
+			}
+		}
+		return date;
+	}
+	
+	public Date getRetractDate(String entityReference, String entityTypeId) {
+		Date date = null;
+		if(entityReference == null || entityTypeId == null) {
+			logger.warn("getRetractDate() invoked with null parameter: " + entityReference + " :: " + entityTypeId);
+		} else {
+			EntityType entityType = this.entityTypes.get(entityTypeId);
+			if(entityType == null) {
+				logger.warn("getRetractDate() invalid entityTypeId: " + entityTypeId);
+			} else {
+				date = entityType.getRetractDate(entityReference);
+			}
+		}
+		return date;
+	}
+	
+
+	public boolean isAvailable(String entityReference, String entityTypeId) {
+		// assume entity is unavailable unless entityType callback says otherwise
+		boolean isAvailable = false;
+		if(entityReference == null || entityTypeId == null) {
+			logger.warn("isAvailable() invoked with null parameter: " + entityReference + " :: " + entityTypeId);
+		} else {
+			EntityType entityType = this.entityTypes.get(entityTypeId);
+			if(entityType == null) {
+				logger.warn("isAvailable() invalid entityTypeId: " + entityTypeId);
+			} else {
+				isAvailable = entityType.isAvailable(entityReference);
+			}
+		}
+		return isAvailable;
+	}
 	
 	public void registerEntityType(EntityType entityType) {
 		if(entityType != null && entityType.getIdentifier() != null) {
@@ -351,6 +417,12 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 	}
 	
+	public void removeAvailabilityChecksBeforeTime(Date time) {
+		
+		dao.deleteAvailabilityChecksBeforeTime(time);
+		
+	}
+
 	public void removeCalendarItem(String entityReference) {
 		
 		if(logger.isDebugEnabled()) {
@@ -438,6 +510,11 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 	}
 
+	public void removeAllScheduledAvailabilityChecks(String entityReference) {
+		boolean removed = dao.deleteAvailabilityChecks(entityReference);
+		
+	}
+
 	public void reviseCalendarItem(String entityReference, String newTitle, Date newTime) {
 		
 		CalendarItem item = dao.getCalendarItem(entityReference);
@@ -472,6 +549,47 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			dao.updateNewsItemTitle(item.getId(), newTitle);
 		}
 		
+	}
+
+	public void scheduleAvailabilityCheck(String entityReference, String entityTypeId, Date scheduledTime) {
+		AvailabilityCheck availabilityCheck = new AvailabilityCheck(entityReference, entityTypeId, scheduledTime);
+		boolean added = dao.addAvailabilityCheck(availabilityCheck);
+	}
+
+	/*
+	 * 
+	 */
+	protected void handleAvailabilityChecks() {
+		Date currentTime = new Date();
+		if(currentTime.getTime() > nextTimeToQueryAvailabilityChecks ) {
+			List<AvailabilityCheck> checks = getAvailabilityChecksBeforeTime(currentTime );
+			nextTimeToQueryAvailabilityChecks = currentTime.getTime() + TIME_BETWEEN_AVAILABILITY_CHECKS;
+			
+			if(checks != null && ! checks.isEmpty()) {
+				for(AvailabilityCheck check : checks) {
+					EntityType entityType = entityTypes.get(check.getEntityTypeId());
+					if(entityType == null) {
+						logger.warn("Unable to process AvailabilityCheck because entityType is null " + check.toString());
+					} else if(entityType.isAvailable(check.getEntityReference())) {
+						// need to add links
+						CalendarItem calendarItem = getCalendarItem(check.getEntityReference());
+						if(calendarItem != null) {
+							createCalendarLinks(calendarItem);
+						}
+						
+						NewsItem newsItem = getNewsItem(check.getEntityReference());
+						if(newsItem != null) {
+							createNewsLinks(newsItem);
+						}
+					} else {
+						// need to remove all links, if there are any
+						this.removeCalendarLinks(check.getEntityReference());
+						this.removeNewsLinks(check.getEntityReference());
+					}
+				}
+				removeAvailabilityChecksBeforeTime(currentTime);
+			}
+		}
 	}
 
 	/************************************************************************
@@ -654,6 +772,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 					logger.debug("Dashboard Event Processing Thread checking event queue: " + eventQueue.size());
 				}
 				if(eventQueue.isEmpty()) {
+					handleAvailabilityChecks();
 					try {
 						Thread.sleep(sleepTime * 1000L);
 					} catch (InterruptedException e) {

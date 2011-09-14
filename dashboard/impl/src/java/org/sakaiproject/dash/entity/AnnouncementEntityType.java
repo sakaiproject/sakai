@@ -21,6 +21,7 @@ import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -162,5 +163,67 @@ public class AnnouncementEntityType implements EntityType {
 	public void init() {
 		logger.info("init()");
 		dashboardLogic.registerEntityType(this);
+	}
+
+	public boolean isAvailable(String entityReference) {
+		AnnouncementMessage announcement = (AnnouncementMessage) this.sakaiProxy.getEntity(entityReference);
+		if(announcement != null) {
+			if(announcement.getHeader().getDraft()) {
+				return false;
+			}
+			
+			Date releaseDate = this.getReleaseDate(entityReference);
+			logger.debug("isAvailable() releaseDate: " + releaseDate);
+			if(releaseDate != null && releaseDate.after(new Date())) {
+				return false;
+			}
+			
+			Date retractDate = this.getRetractDate(entityReference);
+			logger.debug("isAvailable() retractDate: " + retractDate);
+			if(retractDate != null && retractDate.before(new Date())) {
+				return false;
+			}
+			return true;
+		}
+		return false;
+	}
+
+	public Date getReleaseDate(String entityReference) {
+		Date releaseDate = null;
+		AnnouncementMessage announcement = (AnnouncementMessage) this.sakaiProxy.getEntity(entityReference);
+		ResourceProperties props = announcement.getProperties();
+		Time releaseTime = null;
+		try {
+			releaseTime = props.getTimeProperty(SakaiProxy.ANNOUNCEMENT_RELEASE_DATE);
+		} catch (EntityPropertyNotDefinedException e) {
+			// do nothing -- no release date set, so return null
+		} catch (EntityPropertyTypeException e) {
+			logger.warn("Problem getting release date for announcement " + entityReference, e);
+		}
+		if(releaseTime != null) {
+			releaseDate = new Date(releaseTime.getTime());
+		}
+		logger.debug("getReleaseDate() releaseDate: " + releaseDate);
+		return releaseDate;
+	}
+
+	public Date getRetractDate(String entityReference) {
+		Date retractDate = null;
+		AnnouncementMessage announcement = (AnnouncementMessage) this.sakaiProxy.getEntity(entityReference);
+		ResourceProperties props = announcement.getProperties();
+		
+		Time retractTime = null;
+		try {
+			retractTime = props.getTimeProperty(SakaiProxy.ANNOUNCEMENT_RELEASE_DATE);
+		} catch (EntityPropertyNotDefinedException e) {
+			// do nothing -- no retract date set, so return null
+		} catch (EntityPropertyTypeException e) {
+			logger.warn("Problem getting retract date for announcement " + entityReference, e);
+		}
+		if(retractTime != null) {
+			retractDate = new Date(retractTime.getTime());
+		}
+		logger.debug("getRetractDate() retractDate: " + retractDate);
+		return retractDate;
 	}
 }

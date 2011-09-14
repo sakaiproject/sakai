@@ -7,9 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService.ConfigData;
 
 /**
- * @author jimeng
+ * 
  *
  */
 public class MockServerConfigurationService implements
@@ -224,6 +225,30 @@ public class MockServerConfigurationService implements
 	public Map<String, String> getToolToCategoryMap(String category) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+    public ConfigData getConfigData() {
+    	return null;
+    }
+
+	public <T> T getConfig(String arg0, T arg1) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public ConfigItem getConfigItem(String arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public ConfigItem registerConfigItem(ConfigItem arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void registerListener(ConfigurationListener arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

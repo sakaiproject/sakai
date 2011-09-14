@@ -47,6 +47,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import org.sakaiproject.dash.dao.DashboardDao;
+import org.sakaiproject.dash.model.AvailabilityCheck;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.CalendarLink;
 import org.sakaiproject.dash.model.Context;
@@ -77,6 +78,31 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	
 	protected PropertiesConfiguration statements;
 	
+	public boolean addAvailabilityCheck(AvailabilityCheck availabilityCheck) {
+		if(log.isDebugEnabled()) {
+			log.debug("addAvailabilityCheck( " + availabilityCheck.toString() + ")");
+		}
+		
+		// entity_ref, scheduled_time
+		
+		try {
+			JdbcTemplate template = getJdbcTemplate();
+			String sql = getStatement("insert.AvailabilityCheck");
+			
+			template.update(sql,
+				new Object[]{availabilityCheck.getEntityReference(), availabilityCheck.getEntityTypeId(), 
+						availabilityCheck.getScheduledTime()}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+            log.error("addAvailabilityCheck: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+            return false;
+		} catch (Exception e) {
+	        log.error("addAvailabilityCheck: Error executing query: " + e.getClass() + ":" + e.getMessage());
+	        return false;
+		}
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#addCalendarItem(org.sakaiproject.dash.model.CalendarItem)
@@ -84,7 +110,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	public boolean addCalendarItem(CalendarItem calendarItem) {
 		if(log.isDebugEnabled()) {
 			log.debug("addCalendarItem( " + calendarItem.toString() + ")");
-}
+		}
 		
 		// calendar_time, title , entity_url, entity_ref, source_type, context_id, realm_id
 		
@@ -271,6 +297,39 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 	
+	public boolean deleteAvailabilityChecks(String entityReference) {
+		if(log.isDebugEnabled()) {
+			log.debug("deleteAllAvailabilityChecks( " + entityReference + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("delete.AvailabilityChecks.by.entityReference"),
+				new Object[]{entityReference}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("deleteAllAvailabilityChecks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}		
+		
+	}
+
+	public boolean deleteAvailabilityChecksBeforeTime(Date time) {
+		if(log.isDebugEnabled()) {
+			log.debug("deleteAvailabilityChecksBeforeTime(" + time + ")");
+		}
+		String sql = getStatement("delete.AvailabilityChecks.before.date");
+		Object[] params = new Object[]{time};
+		try {
+			getJdbcTemplate().update(sql,params);
+			return true;
+			
+		} catch (DataAccessException ex) {
+           log.error("deleteAvailabilityChecksBeforeTime: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}
+	}
+
 	public boolean deleteCalendarItem(Long id) {
 		if(log.isDebugEnabled()) {
 			log.debug("deleteCalendarItem( " + id + ")");
@@ -373,6 +432,22 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            log.error("deleteCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}		
+	}
+	
+	public List<AvailabilityCheck> getAvailabilityChecksBeforeTime(Date time) {
+		if(log.isDebugEnabled()) {
+			log.debug("getAvailabilityChecksBeforeTime(" + time + ")");
+		}
+		String sql = getStatement("select.AvailabilityChecks.before.date");
+		Object[] params = new Object[]{time};
+		try {
+			return (List<AvailabilityCheck>) getJdbcTemplate().query(sql,params,
+				new AvailabilityCheckMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getAvailabilityChecksBeforeTime: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return new ArrayList<AvailabilityCheck>();
+		}
 	}
 
 	/*
@@ -809,7 +884,6 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	
 	/**
 	 * Loads our SQL statements from the appropriate properties file
-	 
 	 * @param vendor	DB vendor string. Must be one of mysql, oracle, hsqldb
 	 */
 	protected void initStatements(String vendor) {
@@ -839,6 +913,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		executeSqlStatement("create.NewsLink.table");
 		executeSqlStatement("create.CalendarItem.table");
 		executeSqlStatement("create.CalendarLink.table");
+		executeSqlStatement("create.AvailabilityCheck.table");
 		
 	}
 

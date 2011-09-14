@@ -37,6 +37,9 @@ public interface SakaiProxy {
 	public static final String PERMIT_ASSIGNMENT_ACCESS = AssignmentService.SECURE_ACCESS_ASSIGNMENT;
 	public static final String PERMIT_RESOURCE_ACCESS = ContentHostingService.AUTH_RESOURCE_READ;
 	
+	public static final String ANNOUNCEMENT_RELEASE_DATE = AnnouncementService.RELEASE_DATE;
+	public static final String ANNOUNCEMENT_RETRACT_DATE = AnnouncementService.RETRACT_DATE;
+	
 	/**
 	 * 
 	 * @param observer

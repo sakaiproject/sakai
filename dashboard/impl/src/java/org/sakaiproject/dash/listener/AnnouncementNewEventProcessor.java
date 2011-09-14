@@ -30,6 +30,8 @@ import org.sakaiproject.event.api.EventTrackingService;
  */
 public class AnnouncementNewEventProcessor implements EventProcessor {
 
+	public static final String IDENTIFIER = "announcement";
+
 	private static Logger logger = Logger.getLogger(AnnouncementNewEventProcessor.class);
 	
 	protected DashboardLogic dashboardLogic;
@@ -72,17 +74,26 @@ public class AnnouncementNewEventProcessor implements EventProcessor {
 			if(context == null) {
 				context = this.dashboardLogic.createContext(event.getContext());
 			}
-//			Realm realm = this.dashboardLogic.getRealm(event.getContext());
-//			if(realm == null) {
-//				realm = this.dashboardLogic.createRealm(null, event.getContext());
-//			}
-			SourceType sourceType = this.dashboardLogic.getSourceType("announcement");
+			SourceType sourceType = this.dashboardLogic.getSourceType(IDENTIFIER);
 			if(sourceType == null) {
-				sourceType = this.dashboardLogic.createSourceType("announcement", SakaiProxy.PERMIT_ANNOUNCEMENT_ACCESS, EntityLinkStrategy.SHOW_PROPERTIES);
+				sourceType = this.dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ANNOUNCEMENT_ACCESS, EntityLinkStrategy.SHOW_PROPERTIES);
 			}
 			String accessUrl = ann.getUrl();
 			NewsItem newsItem = this.dashboardLogic.createNewsItem(ann.getAnnouncementHeader().getSubject(), event.getEventTime(), event.getResource(), accessUrl, context, sourceType);
-			this.dashboardLogic.createNewsLinks(newsItem);
+			if(this.dashboardLogic.isAvailable(newsItem.getEntityReference(), IDENTIFIER)) {
+				this.dashboardLogic.createNewsLinks(newsItem);
+				Date retractDate = this.dashboardLogic.getRetractDate(newsItem.getEntityReference(), IDENTIFIER);
+				if(retractDate != null && retractDate.after(new Date())) {
+					this.dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), IDENTIFIER, retractDate);
+				}
+			} else {
+				
+				Date releaseDate = this.dashboardLogic.getReleaseDate(newsItem.getEntityReference(), IDENTIFIER);
+				if(releaseDate != null && releaseDate.after(new Date())) {
+					this.dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), IDENTIFIER, releaseDate);
+				}
+			}
+			
 		} else {
 			// for now, let's log the error
 			logger.info(eventId + " is not processed for entityReference " + event.getResource());

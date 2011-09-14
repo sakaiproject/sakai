@@ -24,6 +24,7 @@ package org.sakaiproject.dash.dao;
 import java.util.Date;
 import java.util.List;
 
+import org.sakaiproject.dash.model.AvailabilityCheck;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.CalendarLink;
 import org.sakaiproject.dash.model.Context;
@@ -39,6 +40,8 @@ import org.sakaiproject.dash.model.SourceType;
  *
  */
 public interface DashboardDao {
+	
+	public boolean addAvailabilityCheck(AvailabilityCheck availabilityCheck);
 	
 	public boolean addCalendarItem(CalendarItem calendarItem);
 	
@@ -81,6 +84,10 @@ public interface DashboardDao {
 	public NewsItem getNewsItem(long id);
 
 	public CalendarItem getCalendarItem(long id);
+
+	public boolean deleteAvailabilityChecks(String entityReference);
+
+	public boolean deleteAvailabilityChecksBeforeTime(Date time);
 
 	/**
 	 * Removes the CalendarItem with the id indicated, if it exists. 
@@ -157,5 +164,7 @@ public interface DashboardDao {
 	 * @return true if any items are revised, false otherwise.
 	 */
 	public boolean updateNewsItemTitle(Long id, String newTitle);
+
+	public abstract List<AvailabilityCheck> getAvailabilityChecksBeforeTime(Date time);
 
 }

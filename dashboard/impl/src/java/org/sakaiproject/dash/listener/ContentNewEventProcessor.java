@@ -49,6 +49,8 @@ public class ContentNewEventProcessor implements EventProcessor {
 	
 	private static Logger logger = Logger.getLogger(ContentNewEventProcessor.class);
 	
+	public static final String IDENTIFIER = "resource";
+
 	protected DashboardLogic dashboardLogic;
 	public void setDashboardLogic(DashboardLogic dashboardLogic) {
 		this.dashboardLogic = dashboardLogic;
@@ -82,9 +84,9 @@ public class ContentNewEventProcessor implements EventProcessor {
 					context = this.dashboardLogic.createContext(event.getContext());
 				}
 				
-				SourceType sourceType = this.dashboardLogic.getSourceType("resource");
+				SourceType sourceType = this.dashboardLogic.getSourceType(IDENTIFIER);
 				if(sourceType == null) {
-					sourceType = this.dashboardLogic.createSourceType("resource", SakaiProxy.PERMIT_RESOURCE_ACCESS, EntityLinkStrategy.ACCESS_URL);
+					sourceType = this.dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_RESOURCE_ACCESS, EntityLinkStrategy.ACCESS_URL);
 				}
 				
 				ResourceProperties props = resource.getProperties();
@@ -129,7 +131,19 @@ public class ContentNewEventProcessor implements EventProcessor {
 				}
 				
 				NewsItem newsItem = dashboardLogic.createNewsItem(title , eventTime, resource.getReference(), resource.getUrl(), context, sourceType);
-				dashboardLogic.createNewsLinks(newsItem);
+				if(this.dashboardLogic.isAvailable(newsItem.getEntityReference(), IDENTIFIER)) {
+					this.dashboardLogic.createNewsLinks(newsItem);
+					Date retractDate = this.dashboardLogic.getRetractDate(newsItem.getEntityReference(), IDENTIFIER);
+					if(retractDate != null && retractDate.after(new Date())) {
+						this.dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), IDENTIFIER, retractDate);
+					}
+				} else {
+					
+					Date releaseDate = this.dashboardLogic.getReleaseDate(newsItem.getEntityReference(), IDENTIFIER);
+					if(releaseDate != null && releaseDate.after(new Date())) {
+						this.dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), IDENTIFIER, releaseDate);
+					}
+				}
 			}
 		}
 	}

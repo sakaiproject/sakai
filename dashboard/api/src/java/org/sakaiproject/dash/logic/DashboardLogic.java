@@ -75,6 +75,8 @@ public interface DashboardLogic {
 	public SourceType createSourceType(String identifier, String accessPermission, EntityLinkStrategy entityLinkStrategy);
 
 	public CalendarItem getCalendarItem(long id);
+	
+	public CalendarItem getCalendarItem(String entityReference);
 
 	public List<CalendarItem> getCalendarItems(String sakaiUserId);
 
@@ -89,6 +91,8 @@ public interface DashboardLogic {
 	
 	public NewsItem getNewsItem(long id);
 	
+	public NewsItem getNewsItem(String entityReference);
+	
 	public List<NewsItem> getNewsItems(String sakaiUserId);
 	
 	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId);
@@ -101,6 +105,19 @@ public interface DashboardLogic {
 	public SourceType getSourceType(String identifier);
 	
 	public Map<String, Object> getEntityMapping(String entityType, String entityReference, Locale locale);
+
+	public Date getReleaseDate(String entityReference, String entityTypeId);
+	
+	public Date getRetractDate(String entityReference, String entityTypeId);
+	
+	/**
+	 * Check whether an entity is fully available to users with permission to access it 
+	 * (i.e. it is not hidden or restricted through some form of conditional release).
+	 * @param entityReference
+	 * @param entityTypeId
+	 * @return
+	 */
+	public boolean isAvailable(String entityReference, String entityTypeId);
 	
 	public void registerEntityType(EntityType entityType);
 	
@@ -150,6 +167,22 @@ public interface DashboardLogic {
 	
 	public void reviseNewsItemTitle(String entityReference, String newTitle);
 	
+	/**
+	 * If an entity uses some form of scheduled release, this method is called to 
+	 * perform a check at the scheduled-release time to add links for that item. 
+	 * 
+	 * @param entityReference
+	 * @param entityTypeId TODO
+	 * @param scheduledTime
+	 */
+	public void scheduleAvailabilityCheck(String entityReference, String entityTypeId, Date scheduledTime);
+
+	/**
+	 * Remove a scheduled check for availability.
+	 * @param entityReference
+	 */
+	public void removeAllScheduledAvailabilityChecks(String entityReference);
+
 	// todo:
 	// add methods to revise news items, calendar items, news links, calendar links, etc.
 	

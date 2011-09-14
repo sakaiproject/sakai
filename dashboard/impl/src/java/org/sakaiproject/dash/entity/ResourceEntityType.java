@@ -18,6 +18,7 @@ import org.sakaiproject.dash.logic.SakaiProxy;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -156,5 +157,57 @@ public class ResourceEntityType implements EntityType {
 		logger.info("init()");
 		
 		this.dashboardLogic.registerEntityType(this);
+	}
+	
+	public boolean isAvailable(String entityReference) {
+		
+		boolean isAvailable = false;
+		if(entityReference == null) {
+			logger.warn("isAvailable() invoked with null entity reference");
+		} else {
+			ContentResource resource = (ContentResource) this.sakaiProxy.getEntity(entityReference);
+			if(resource == null) {
+				logger.warn("isAvailable() problem retrieving resource with entity reference " + entityReference);
+			} else {
+				isAvailable = resource.isAvailable();
+			}
+		}
+		return isAvailable;
+	}
+
+	public Date getReleaseDate(String entityReference) {
+		Date releaseDate = null;
+		if(entityReference == null) {
+			logger.warn("isAvailable() invoked with null entity reference");
+		} else {
+			ContentResource resource = (ContentResource) this.sakaiProxy.getEntity(entityReference);
+			if(resource == null) {
+				logger.warn("getReleaseDate() problem retrieving resource with entity reference " + entityReference);
+			} else {
+				Time releaseTime = resource.getReleaseDate();
+				if(releaseTime != null) {
+					releaseDate = new Date(releaseTime.getTime());
+				}
+			}
+		}
+		return releaseDate;
+	}
+
+	public Date getRetractDate(String entityReference) {
+		Date retractDate = null;
+		if(entityReference == null) {
+			logger.warn("isAvailable() invoked with null entity reference");
+		} else {
+			ContentResource resource = (ContentResource) this.sakaiProxy.getEntity(entityReference);
+			if(resource == null) {
+				logger.warn("getRetractDate() problem retrieving resource with entity reference " + entityReference);
+			} else {
+				Time retractTime = resource.getRetractDate();
+				if(retractTime != null) {
+					retractDate = new Date(retractTime.getTime());
+				}
+			}
+		}
+		return retractDate;
 	}
 }
