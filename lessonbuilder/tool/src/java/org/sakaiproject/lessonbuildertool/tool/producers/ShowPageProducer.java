@@ -783,7 +783,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			int textboxcount = 1;
 
 			UIBranchContainer tableContainer = UIBranchContainer.make(container, "itemTable:");
-			((UIComponent)tableContainer).decorate(new UIFreeAttributeDecorator("aria-label", messageLocator.getMessage("simplepage.maincontent")));
 
 			// formatting: two columns:
 			// 1: edit buttons, omitted for student
