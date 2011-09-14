@@ -214,7 +214,7 @@ public class AnnouncementEntityType implements EntityType {
 		
 		Time retractTime = null;
 		try {
-			retractTime = props.getTimeProperty(SakaiProxy.ANNOUNCEMENT_RELEASE_DATE);
+			retractTime = props.getTimeProperty(SakaiProxy.ANNOUNCEMENT_RETRACT_DATE);
 		} catch (EntityPropertyNotDefinedException e) {
 			// do nothing -- no retract date set, so return null
 		} catch (EntityPropertyTypeException e) {
