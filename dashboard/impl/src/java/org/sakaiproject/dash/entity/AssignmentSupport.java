@@ -68,6 +68,8 @@ public class AssignmentSupport {
 		this.dashboardLogic.registerEventProcessor(new AssignmentNewEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new AssignmentRemoveEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new AssignmentUpdateTitleEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new AssignmentUpdateAccessEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new AssignmentUpdateOpenDateEventProcessor());
 	}
 	
 	/**
@@ -391,6 +393,81 @@ public class AssignmentSupport {
 				
 				// update news item title
 				dashboardLogic.reviseCalendarItemTitle(assn.getReference(), assn.getTitle());
+			}
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug("removing news links and news item for " + event.getResource());
+			}
+
+		}
+
+	}
+	
+	/**
+	 * Inner Class: AssignmentUpdateAccessEventProcessor
+	 */
+	public class AssignmentUpdateAccessEventProcessor implements EventProcessor {
+		
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#getEventIdentifer()
+		 */
+		public String getEventIdentifer() {
+			
+			return SakaiProxy.EVENT_UPDATE_ASSIGNMENT_ACCESS;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
+		 */
+		public void processEvent(Event event) {
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug("removing calendar links and calendar item for " + event.getResource());
+			}
+			Entity entity = sakaiProxy.getEntity(event.getResource());
+			
+			if(entity != null && entity instanceof Assignment) {
+				// get the assignment entity and its current title
+				Assignment assn = (Assignment) entity;
+				
+				// TODO
+			}
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug("removing news links and news item for " + event.getResource());
+			}
+
+		}
+
+	}
+	
+	/**
+	 * Inner Class: AssignmentUpdateOpenDateEventProcessor
+	 */
+	public class AssignmentUpdateOpenDateEventProcessor implements EventProcessor {
+		
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#getEventIdentifer()
+		 */
+		public String getEventIdentifer() {
+			
+			return SakaiProxy.EVENT_UPDATE_ASSIGNMENT_OPENDATE;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
+		 */
+		public void processEvent(Event event) {
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug("removing calendar links and calendar item for " + event.getResource());
+			}
+			Entity entity = sakaiProxy.getEntity(event.getResource());
+			
+			if(entity != null && entity instanceof Assignment) {
+				// get the assignment entity and its current title
+				Assignment assn = (Assignment) entity;
+				dashboardLogic.reviseCalendarItemTime(assn.getReference(), new Date(assn.getOpenTime().getTime()));
 			}
 			
 			if(logger.isDebugEnabled()) {
