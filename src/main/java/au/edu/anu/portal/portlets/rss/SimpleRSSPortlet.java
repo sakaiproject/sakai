@@ -28,6 +28,7 @@ import javax.portlet.PortletMode;
 import javax.portlet.PortletModeException;
 import javax.portlet.PortletPreferences;
 import javax.portlet.PortletRequestDispatcher;
+import javax.portlet.PortletURL;
 import javax.portlet.ReadOnlyException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
@@ -223,7 +224,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 		String feedUrl = getConfiguredFeedUrl(request);
 		if(StringUtils.isBlank(feedUrl)) {
 			log.error("No feed URL configured");
-			doError("error.no.config", "error.heading.config", request, response);
+			doError("error.no.config", "error.heading.config", getEditModeUrl(response), request, response);
 			return null;
 		}
 		
@@ -323,7 +324,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	 */
 	private String getConfiguredFeedUrl(RenderRequest request) {
 	      PortletPreferences pref = request.getPreferences();
-	      return pref.getValue("feed_url", Constants.FEED_URL_DEFAULT);
+	      return pref.getValue("feed_url", null);
 	}
 	
 	/**
@@ -355,6 +356,18 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	 * @param response
 	 */
 	private void doError(String messageKey, String headingKey, RenderRequest request, RenderResponse response){
+		doError(messageKey, headingKey, null, request, response);
+	}
+	
+	/**
+	 * Helper to handle error messages
+	 * @param messageKey	Message bundle key
+	 * @param headingKey	optional error heading message bundle key, if not specified, the general one is used
+	 * @param link			if the message text is to be linked, what is the href?
+	 * @param request
+	 * @param response
+	 */
+	private void doError(String messageKey, String headingKey, String link, RenderRequest request, RenderResponse response){
 		
 		//message
 		request.setAttribute("errorMessage", Messages.getString(messageKey));
@@ -364,6 +377,10 @@ public class SimpleRSSPortlet extends GenericPortlet{
 			request.setAttribute("errorHeading", Messages.getString(headingKey));
 		} else {
 			request.setAttribute("errorHeading", Messages.getString("error.heading.general"));
+		}
+		
+		if(StringUtils.isNotBlank(link)){
+			request.setAttribute("errorLink", link);
 		}
 		
 		//dispatch
@@ -389,7 +406,23 @@ public class SimpleRSSPortlet extends GenericPortlet{
 		dispatcher.include(request, response);
 	}
 
-	
+	/**
+	 * Helper to get the URL to the edit mode for this portlet
+	 * @param response
+	 * @return
+	 */
+	private String getEditModeUrl(RenderResponse response) {
+
+		PortletURL editModeUrl = response.createRenderURL();
+	    try {
+			editModeUrl.setPortletMode(PortletMode.EDIT);
+		} catch (PortletModeException e) {
+			log.error("Invalid portlet mode");
+			return null;
+		}
+	    
+	    return editModeUrl.toString();
+	}
 	
 	public void destroy() {
 		log.info("destroy()");

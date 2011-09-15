@@ -36,29 +36,26 @@
 <link type="text/css" rel="stylesheet"  href="<%=request.getContextPath()%>/css/simple-rss-portlet.css" />
 
 <div class="simple-rss-portlet">
-
-	<div class="simple-rss-portlet-form">
 				
-		<c:if test="${not empty errorMessage}">
-			<p class="portlet-msg-error">${errorMessage}</p>
-		</c:if>
-			
+	<c:if test="${not empty errorMessage}">
+		<p class="portlet-msg-error">${errorMessage}</p>
+	</c:if>
 		
-		<form method="POST" action="<portlet:actionURL/>" id="<portlet:namespace/>_config">
+	
+	<form method="POST" action="<portlet:actionURL/>" id="<portlet:namespace/>_config">
+	
+		<p><fmt:message key="config.portlet.title" /></p>
+		<input type="text" name="portletTitle" value="${configuredPortletTitle}" size="40"/>
 		
-			<p><fmt:message key="config.portlet.title" /></p>
-			<input type="text" name="portletTitle" value="${configuredPortletTitle}" size="40"/>
-			
-			<p><fmt:message key="config.portlet.maxitems" /></p>
-			<input type="text" name="maxItems" value="${configuredMaxItems}" size="5"/>
-			
-			<p><fmt:message key="config.portlet.url" /></p>
-			<input type="text" name="feedUrl" value="${configuredFeedUrl}" size="60" />
-			
-			<p>
-	 			<input type="submit" value="<fmt:message key='config.button.submit' />">
-			</p>
-		</form>
-	</div>
+		<p><fmt:message key="config.portlet.maxitems" /></p>
+		<input type="text" name="maxItems" value="${configuredMaxItems}" size="5"/>
+		
+		<p><fmt:message key="config.portlet.url" /></p>
+		<input type="text" name="feedUrl" value="${configuredFeedUrl}" size="50" />
+		
+		<p>
+ 			<input type="submit" value="<fmt:message key='config.button.submit' />">
+		</p>
+	</form>
 	
 </div>

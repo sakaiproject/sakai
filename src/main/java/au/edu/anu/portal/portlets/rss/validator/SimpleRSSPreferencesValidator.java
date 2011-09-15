@@ -42,7 +42,7 @@ public class SimpleRSSPreferencesValidator implements PreferencesValidator  {
 		
 		//get prefs as strings
 		String max_items = prefs.getValue("max_items", Integer.toString(Constants.MAX_ITEMS));
-		String feed_url = prefs.getValue("feed_url", Constants.FEED_URL_DEFAULT);
+		String feed_url = prefs.getValue("feed_url", null);
 		
 		/**
 		 * max_items
@@ -67,10 +67,14 @@ public class SimpleRSSPreferencesValidator implements PreferencesValidator  {
 		String[] schemes = {"http","https"};
 		DetailedUrlValidator urlValidator = new DetailedUrlValidator(schemes);
 		
+		//check not null
+		if(StringUtils.isBlank(feed_url)){
+			throw new ValidatorException("You must specify a URL for the RSS feed", Collections.singleton("feed_url"));
+		}
+		
 	    //check valid scheme
 	    if(!urlValidator.isValidScheme(feed_url)){
 			throw new ValidatorException("Invalid feed scheme. Must be one of: " + Arrays.toString(schemes), Collections.singleton("feed_url"));
-
 	    }
 	    
 	    //check valid URL
