@@ -31,7 +31,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
+import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
+import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
@@ -966,4 +968,8 @@ public class TemplateBean implements Serializable
 	  return Boolean.TRUE;
   }
 
+  public boolean isSecureDeliveryAvailable() {
+	  SecureDeliveryServiceAPI secureDeliveryService = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI(); 
+	  return secureDeliveryService.isSecureDeliveryAvaliable();
+  }
 }

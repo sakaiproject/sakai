@@ -194,9 +194,9 @@
         value="#{template.valueMap.passwordRequired_isInstructorEditable}"/>
       <h:outputLabel for="secondary_id_pw" value="#{templateMessages.secondary_id_pw}"/>
 
-      <h:selectBooleanCheckbox id="locked_browser"
+      <h:selectBooleanCheckbox id="locked_browser" rendered="#{template.secureDeliveryAvailable}"
         value="#{template.valueMap.lockedBrowser_isInstructorEditable}"/>
-      <h:outputLabel for="locked_browser" value="#{templateMessages.locked_browser}"/>
+      <h:outputLabel for="locked_browser" value="#{templateMessages.locked_browser}" rendered="#{template.secureDeliveryAvailable}"/>
 
     </h:panelGrid>
      </div></div>
