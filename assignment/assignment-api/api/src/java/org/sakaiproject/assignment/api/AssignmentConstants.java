@@ -77,6 +77,15 @@ public class AssignmentConstants {
 
 	/** Event for updating an assignment. */
 	public static final String EVENT_UPDATE_ASSIGNMENT = "asn.revise.assignment";
+	
+	/** Event for assignment title update */
+	public static final String EVENT_UPDATE_ASSIGNMENT_TITLE = "asn.revise.title";
+	
+	/** Event for assignment open date update */
+	public static final String EVENT_UPDATE_ASSIGNMENT_OPENDATE = "asn.revise.opendate";
+	
+	/** Event for assignment access update */
+	public static final String EVENT_UPDATE_ASSIGNMENT_ACCESS = "asn.revise.access";
 
 	/** Event for updating an assignment content. */
 	public static final String EVENT_UPDATE_ASSIGNMENT_CONTENT = "asn.revise.assignmentcontent";

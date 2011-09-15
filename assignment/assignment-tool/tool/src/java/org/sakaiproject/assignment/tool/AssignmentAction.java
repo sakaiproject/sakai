@@ -5310,6 +5310,12 @@ public class AssignmentAction extends PagedResourceActionII
 
 		// assignment old title
 		String aOldTitle = null;
+		
+		// assignment old access setting
+		String aOldAccessString = null;
+		
+		// assignment old group setting
+		Collection aOldGroups = null;
 
 		// assignment old associated Gradebook entry if any
 		String oAssociateGradebookAssignment = null;
@@ -5406,6 +5412,7 @@ public class AssignmentAction extends PagedResourceActionII
 			
 			// set group property
 			String range = (String) state.getAttribute(NEW_ASSIGNMENT_RANGE);
+			
 			Collection groups = new ArrayList();
 			try
 			{
@@ -5434,6 +5441,11 @@ public class AssignmentAction extends PagedResourceActionII
 			if ((state.getAttribute(STATE_MESSAGE) == null) && (ac != null) && (a != null))
 			{
 				aOldTitle = a.getTitle();
+				
+				aOldAccessString = a.getAccess().toString();
+				
+				aOldGroups = a.getGroups();
+				
 				// old open time
 				Time oldOpenTime = a.getOpenTime();
 				// old due time
@@ -5546,7 +5558,31 @@ public class AssignmentAction extends PagedResourceActionII
 							addAlert(state, rb.getString("addtogradebook.illegalPoints"));
 							M_log.warn(this + ":post_save_assignment " + e.getMessage());
 						}
+					
+						// log event if there is a title update
+						if (!aOldTitle.equals(title))
+						{
+							// title changed
+							m_eventTrackingService.post(m_eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_TITLE, assignmentId, true));
+						}
+						
+						if (!aOldAccessString.equals(a.getAccess().toString()))
+						{
+							// site-group access setting changed
+							m_eventTrackingService.post(m_eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS, assignmentId, true));
+						}
+						else
+						{
+							Collection aGroups = a.getGroups();
+							if (!(aOldGroups == null && aGroups == null)
+									&& !(aOldGroups != null && aGroups != null && aGroups.containsAll(aOldGroups) && aOldGroups.containsAll(aGroups)))
+							{
+								//group changed
+								m_eventTrackingService.post(m_eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS, assignmentId, true));
+							}
+						}
 					}
+					
 				}
 
 			} // if
