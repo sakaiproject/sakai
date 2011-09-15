@@ -117,7 +117,7 @@ $(document).ready(function() {
 				<li><span><a href="#toolLinkParam("ResourcesAction" "doDropboxOptions" "siteId=$validator.escapeUrl(${site.id})")" title="$clang.getString('list.options')">$clang.getString("list.options")</a></span></li>
 				#end
 				#if($showQuota)
-				<li><span><a href="#toolLinkParam("ResourcesAction" "doShowQuota" "siteId=$validator.escapeUrl(${site.id})")" title="$clang.getString('list.options')">$clang.getString("list.quota")</a></span></li>
+				<li><span><a href="#toolLinkParam("ResourcesAction" "doShowQuota" "siteId=$validator.escapeUrl(${site.id})")" title="$clang.getString('list.quota')">$clang.getString("list.quota")</a></span></li>
 				#end
 			</ul>
 	#end 
