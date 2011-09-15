@@ -42,6 +42,7 @@ import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -92,6 +93,8 @@ public class ExternalLogicImplTest {
     EmailService emailService;
     @Mock
     ServerConfigurationService configService;
+    @Mock
+    EventTrackingService eventService;
 
 	static final String LOCATION_ID = "locationId";
 	static final String LOCATION_TITLE = "Location Title";
@@ -124,6 +127,7 @@ public class ExternalLogicImplTest {
 		impl.setToolManager(toolManager);
 		impl.setUserDirectoryService(userDirectoryService);
 		impl.setServerConfigurationService(configService);
+		impl.setEventTrackingService(eventService);
 
 		impl.init();
 	}

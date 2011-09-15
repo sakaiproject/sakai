@@ -37,6 +37,7 @@
 		<property name="mailArchiveService" ref="org.sakaiproject.mailarchive.api.MailArchiveService" />
 		<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
 	</bean>
 
 	<bean id="org.sakaiproject.mailsender.logic.ComposeLogic"

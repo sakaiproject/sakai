@@ -31,7 +31,9 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface ExternalLogic
 {
-	static String NO_LOCATION = "noLocationAvailable";
+	String NO_LOCATION = "noLocationAvailable";
+
+	String EVENT_EMAIL_SEND = "msnd.email.send";
 
 	// permissions
 	String PERM_ADMIN = "mailtool.admin";

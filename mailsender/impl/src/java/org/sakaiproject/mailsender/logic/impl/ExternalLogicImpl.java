@@ -39,6 +39,8 @@ import org.sakaiproject.email.api.EmailAddress.RecipientType;
 import org.sakaiproject.email.api.EmailMessage;
 import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.email.api.NoRecipientsException;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.mailarchive.api.MailArchiveChannel;
@@ -77,6 +79,7 @@ public class ExternalLogicImpl implements ExternalLogic
     private TimeService timeService;
     private EmailService emailService;
     private ServerConfigurationService configService;
+    private EventTrackingService eventService;
 
 	/**
 	 * Place any code that should run when this class is initialized by spring here
@@ -420,6 +423,9 @@ public class ExternalLogicImpl implements ExternalLogic
 		{
 			List<EmailAddress> invalids = emailService.send(msg);
 			List<String> rets = EmailAddress.toStringList(invalids);
+			Event event = eventService.newEvent(ExternalLogic.EVENT_EMAIL_SEND,
+					null, false);
+			eventService.post(event);
 			return rets;
 		}
 		catch (AddressValidationException e)
@@ -506,5 +512,9 @@ public class ExternalLogicImpl implements ExternalLogic
 
 	public void setServerConfigurationService(ServerConfigurationService configService) {
 		this.configService = configService;
+	}
+
+	public void setEventTrackingService(EventTrackingService eventService) {
+		this.eventService = eventService;
 	}
 }
