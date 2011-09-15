@@ -92,7 +92,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	 * Delegate to appropriate PortletMode.
 	 */
 	protected void doDispatch(RenderRequest request, RenderResponse response) throws PortletException, IOException {
-		log.info("Simple RSS doDispatch()");
+		log.debug("Simple RSS doDispatch()");
 
 		if (StringUtils.equalsIgnoreCase(request.getPortletMode().toString(), "CONFIG")) {
 			doConfig(request, response);
@@ -107,7 +107,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	 * Render the main view
 	 */
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
-		log.info("Simple RSS doView()");
+		log.debug("Simple RSS doView()");
 		
 		//get feed data
 		SyndFeed feed = getFeedContent(request, response);
@@ -134,7 +134,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	 * Custom mode handler for EDIT view
 	 */
 	protected void doEdit(RenderRequest request, RenderResponse response) throws PortletException, IOException {
-		log.info("Simple RSS doEdit()");
+		log.debug("Simple RSS doEdit()");
 
 		//get preferences
 		request.setAttribute("configuredPortletTitle", getConfiguredPortletTitle(request));
@@ -154,7 +154,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	 * Identical to EDIT mode.
 	 */
 	protected void doConfig(RenderRequest request, RenderResponse response) throws PortletException, IOException {
-		log.info("Simple RSS doConfig()");
+		log.debug("Simple RSS doConfig()");
 		doEdit(request,response);
 	}
 	
@@ -162,7 +162,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	 * Process any portlet actions. 
 	 */
 	public void processAction(ActionRequest request, ActionResponse response) throws PortletModeException  {
-		log.info("Simple RSS processAction()");
+		log.debug("Simple RSS processAction()");
 		
 		//this handles both EDIT and CONFIG modes in exactly the same way.
 		//if we need to split, check PortletMode.
@@ -225,7 +225,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 		//we use the feedUrl as the cacheKey
 		String feedUrl = getConfiguredFeedUrl(request);
 		if(StringUtils.isBlank(feedUrl)) {
-			log.error("No feed URL configured");
+			log.debug("No feed URL configured");
 			doError("error.no.config", "error.heading.config", getPortletModeUrl(response, PortletMode.EDIT), request, response);
 			return null;
 		}
@@ -430,7 +430,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	}
 	
 	public void destroy() {
-		log.info("destroy()");
+		log.info("Simple RSS Portlet destroy()");
 		cacheManager.shutdown();
 	}
 	
