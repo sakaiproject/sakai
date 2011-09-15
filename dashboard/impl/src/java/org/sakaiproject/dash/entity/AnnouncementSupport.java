@@ -16,7 +16,6 @@ import org.apache.log4j.Logger;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.dash.listener.AnnouncementNewEventProcessor;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.logic.DashboardLogic;
 import org.sakaiproject.dash.logic.SakaiProxy;
