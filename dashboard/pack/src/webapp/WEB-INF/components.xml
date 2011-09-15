@@ -59,27 +59,6 @@
         <property name="timeToLive" value="3600" />
         <property name="timeToIdle" value="3600" />
     </bean>
-    
-	<bean id="org.sakaiproject.dash.listener.AnnouncementNewEventProcessor" 
-		class="org.sakaiproject.dash.listener.AnnouncementNewEventProcessor" 
-		init-method="init">
-		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
-    	<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy"></property>
-	</bean>
-	
-	<bean id="org.sakaiproject.dash.listener.AnnouncementRemoveAnyEventProcessor" 
-		class="org.sakaiproject.dash.listener.AnnouncementRemoveAnyEventProcessor" 
-		init-method="init">
-		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
-    	<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy"></property>
-	</bean>
-	
-	<bean id="org.sakaiproject.dash.listener.AnnouncementRemoveOwnEventProcessor" 
-		class="org.sakaiproject.dash.listener.AnnouncementRemoveOwnEventProcessor" 
-		init-method="init">
-		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
-    	<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy"></property>
-	</bean>
 	
 	<bean id="org.sakaiproject.dash.listener.SiteMembershipNewEventProcessor" 
 		class="org.sakaiproject.dash.listener.SiteMembershipNewEventProcessor" 
@@ -96,8 +75,8 @@
 	</bean>
 
 	<!-- EntityType beans go here: -->
-	<bean id="org.sakaiproject.dash.entity.AnnouncementEntityType" 
-		class="org.sakaiproject.dash.entity.AnnouncementEntityType" 
+	<bean id="org.sakaiproject.dash.entity.AnnouncementSupport" 
+		class="org.sakaiproject.dash.entity.AnnouncementSupport" 
 		init-method="init">
 		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
     	<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy"></property>
