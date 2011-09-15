@@ -35,6 +35,13 @@
 
 <link type="text/css" rel="stylesheet"  href="<%=request.getContextPath()%>/css/simple-rss-portlet.css" />
 
+<script type="text/javascript">
+function cancel() {
+	window.location='${cancelUrl}';
+}
+</script>
+
+
 <div class="simple-rss-portlet">
 				
 	<c:if test="${not empty errorMessage}">
@@ -45,7 +52,7 @@
 	<form method="POST" action="<portlet:actionURL/>" id="<portlet:namespace/>_config">
 	
 		<p><fmt:message key="config.portlet.title" /></p>
-		<input type="text" name="portletTitle" value="${configuredPortletTitle}" size="40"/>
+		<input type="text" name="portletTitle" value="${configuredPortletTitle}" size="30"/>
 		
 		<p><fmt:message key="config.portlet.maxitems" /></p>
 		<input type="text" name="maxItems" value="${configuredMaxItems}" size="5"/>
@@ -55,6 +62,7 @@
 		
 		<p>
  			<input type="submit" value="<fmt:message key='config.button.submit' />">
+ 			<button type="button" onclick="cancel();"><fmt:message key='config.button.cancel' /></button>
 		</p>
 	</form>
 	

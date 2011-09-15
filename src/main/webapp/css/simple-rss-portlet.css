@@ -7,11 +7,15 @@
 
 .simple-rss-portlet form {
 	float:left;
-  	width: 600px;
 }
 
 .simple-rss-portlet form input {
 	width: inherit !important;
+}
+
+/* fake a link as a button */
+.simple-rss-portlet form .fake-button {
+	text-decoration: none !important
 }
 
 

@@ -141,6 +141,8 @@ public class SimpleRSSPortlet extends GenericPortlet{
 		request.setAttribute("configuredFeedUrl", getConfiguredFeedUrl(request));
 		request.setAttribute("configuredMaxItems", getConfiguredMaxItems(request));
 		
+		request.setAttribute("cancelUrl", getPortletModeUrl(response, PortletMode.VIEW));
+		
 		//get any error message that is in the request and pass it on
 		request.setAttribute("errorMessage", request.getParameter("errorMessage"));
 		
@@ -157,14 +159,14 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	}
 	
 	/**
-	 * Process any portlet actions. At this stage they are all from the submission of the CONFIG mode.
+	 * Process any portlet actions. 
 	 */
-	public void processAction(ActionRequest request, ActionResponse response) {
+	public void processAction(ActionRequest request, ActionResponse response) throws PortletModeException  {
 		log.info("Simple RSS processAction()");
 		
 		//this handles both EDIT and CONFIG modes in exactly the same way.
 		//if we need to split, check PortletMode.
-		
+
 		boolean success = true;
 		//get prefs and submitted values
 		PortletPreferences prefs = request.getPreferences();
@@ -224,7 +226,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 		String feedUrl = getConfiguredFeedUrl(request);
 		if(StringUtils.isBlank(feedUrl)) {
 			log.error("No feed URL configured");
-			doError("error.no.config", "error.heading.config", getEditModeUrl(response), request, response);
+			doError("error.no.config", "error.heading.config", getPortletModeUrl(response, PortletMode.EDIT), request, response);
 			return null;
 		}
 		
@@ -406,22 +408,25 @@ public class SimpleRSSPortlet extends GenericPortlet{
 		dispatcher.include(request, response);
 	}
 
+	
 	/**
-	 * Helper to get the URL to the edit mode for this portlet
+	 * Helper to get the URL to take us to a portlet mode.
+	 * This will end up in doDispatch.
+	 * 
 	 * @param response
 	 * @return
 	 */
-	private String getEditModeUrl(RenderResponse response) {
+	private String getPortletModeUrl(RenderResponse response, PortletMode mode) {
 
-		PortletURL editModeUrl = response.createRenderURL();
+		PortletURL url = response.createRenderURL();
 	    try {
-			editModeUrl.setPortletMode(PortletMode.EDIT);
+	    	url.setPortletMode(mode);
 		} catch (PortletModeException e) {
-			log.error("Invalid portlet mode");
+			log.error("Invalid portlet mode: " + mode);
 			return null;
 		}
 	    
-	    return editModeUrl.toString();
+		return url.toString();
 	}
 	
 	public void destroy() {
