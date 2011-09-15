@@ -16,11 +16,11 @@
         memoryStoreEvictionPolicy="LRU" 
     />
 
-    <!-- feed cache: ttl: 1 hours -->
+    <!-- feed cache: ttl: 30 mins -->
     <cache name="au.edu.anu.portal.portlets.cache.SimpleRSSPortletCache.feed"
         maxElementsInMemory="1000"
         eternal="false"
-        timeToLiveSeconds="3600" 
+        timeToLiveSeconds="1800" 
         overflowToDisk="false"
         memoryStoreEvictionPolicy="LRU" />
         
