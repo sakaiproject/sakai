@@ -18,6 +18,11 @@
 	/* background: url(/sakai-mailsender-tool/content/images/cog.png) center left no-repeat; */
 }
 
+.navIntraTool a, .navStatic {
+	margin-right: 1em;
+	margin-left: 1em;
+}
+
 .fullwidth {
 	width: 99%
 }
