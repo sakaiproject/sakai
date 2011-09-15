@@ -67,6 +67,7 @@ public class AssignmentSupport {
 		this.dashboardLogic.registerEntityType(new AssignmentEntityType());
 		this.dashboardLogic.registerEventProcessor(new AssignmentNewEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new AssignmentRemoveEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new AssignmentUpdateTitleEventProcessor());
 	}
 	
 	/**
@@ -324,11 +325,6 @@ public class AssignmentSupport {
 				logger.warn("Error trying to process " + this.getEventIdentifer() + " event for entityReference " + event.getResource());
 			}
 		}
-
-		public void init() {
-			
-			dashboardLogic.registerEventProcessor(this);
-		}
 	}
 	
 	/**
@@ -361,8 +357,46 @@ public class AssignmentSupport {
 
 		}
 
-		public void init() {
-			dashboardLogic.registerEventProcessor(this);
+	}
+	
+	/**
+	 * Inner Class: AssignmentUpdateTitleEventProcessor
+	 */
+	public class AssignmentUpdateTitleEventProcessor implements EventProcessor {
+		
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#getEventIdentifer()
+		 */
+		public String getEventIdentifer() {
+			
+			return SakaiProxy.EVENT_UPDATE_ASSIGNMENT_TITLE;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
+		 */
+		public void processEvent(Event event) {
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug("removing calendar links and calendar item for " + event.getResource());
+			}
+			Entity entity = sakaiProxy.getEntity(event.getResource());
+			
+			if(entity != null && entity instanceof Assignment) {
+				// get the assignment entity and its current title
+				Assignment assn = (Assignment) entity;
+				
+				// update news item title
+				dashboardLogic.reviseNewsItemTitle(assn.getReference(), assn.getTitle());
+				
+				// update news item title
+				dashboardLogic.reviseCalendarItemTitle(assn.getReference(), assn.getTitle());
+			}
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug("removing news links and news item for " + event.getResource());
+			}
+
 		}
 
 	}
