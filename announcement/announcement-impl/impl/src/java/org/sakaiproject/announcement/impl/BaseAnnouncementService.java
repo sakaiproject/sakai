@@ -24,11 +24,12 @@ package org.sakaiproject.announcement.impl;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
@@ -820,7 +821,9 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 			item.appendChild(el);
 			
 			el = doc.createElement("pubDate");
-			el.appendChild(doc.createTextNode( msg.getHeader().getDate().toStringLocalFullZ() ));
+			Date date = new Date(msg.getHeader().getDate().getTime());
+			String pubDate = new SimpleDateFormat("EEE', 'dd' 'MMM' 'yyyy' 'HH:mm:ss' 'Z", Locale.ENGLISH).format(date);
+			el.appendChild(doc.createTextNode(pubDate));
 			item.appendChild(el);
 			
 			el = doc.createElement("message_order");
@@ -882,7 +885,7 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 			
 			// add lastBuildDate
 			el = doc.createElement("lastBuildDate");
-			String now = DateFormat.getDateInstance(DateFormat.FULL).format( new Date() );
+			String now = new SimpleDateFormat("EEE', 'dd' 'MMM' 'yyyy' 'HH:mm:ss' 'Z", Locale.ENGLISH).format(new Date());
 			el.appendChild(doc.createTextNode( now )); 
 			channel.appendChild(el);
 			
