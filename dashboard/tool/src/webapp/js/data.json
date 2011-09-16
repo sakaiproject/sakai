@@ -1,0 +1,76 @@
+{
+    "assignment_data-label": "Due: {due-time}. Accept until: {close-time}. {grade-type}. Max points: {grade-max}",
+    "assignmentmetadata-label": "Posted by {user-name} on {news-time}. Assignment opened {open-time}.",
+    "description-label": "Description",
+    "grade-type": "Points",
+    "grade-max": "100",
+    "calendar-time": "Sep 13, 2011 5:00 pm",
+    "calendar-time-label": "Due date: {0}",
+    "news-time": "Sep 6, 2011 1:02:32 PM",
+    "open-time": "Sep 6, 2011 9:00:00 AM",
+    "entity-type": "assignment",
+    "description": "Some decription. Some decription. Some decription. Some decription. Some decription. Some decription. Some decription. End ",
+    "user-name": "Sakai Administrator",
+    "title": "new ass",
+    "close-time": "Sep 15, 2011 10:00:00 PM",
+    "due-time": "Sep 13, 2011 5:00:00 PM",
+    "more-info": [
+        {
+            "info_link-target": "_blank",
+            "info_link-mimetype": "image/png",
+            "info_link-title": "More info",
+            "info_link-url": "http://localhost:8080/access/content/attachment/28354fec-8246-4b72-b0dd-64a151f81298/Announcements/e754e602-dddf-4913-9d63-ca79a02dd832/Screen%20shot%202011-09-06%20at%2012.20.44%20PM.png"
+        },
+        {
+            "info_link-target": "_blank",
+            "info_link-mimetype": "image/png",
+            "info_link-title": "Even more info",
+            "info_link-url": "http://localhost:8080/access/content/attachment/28354fec-8246-4b72-b0dd-64a151f81298/Announcements/e754e602-dddf-4913-9d63-ca79a02dd832/Screen%20shot%202011-09-06%20at%2012.20.44%20PM.png"
+        }
+    ],
+    
+        "attachments": [
+        {
+            "attachment-target": "_blank",
+            "attachment-size": "68522",
+            "attachment-title": "admin_script_pda.txt",
+            "attachment-url": "http://localhost:8080/access/content/attachment/28354fec-8246-4b72-b0dd-64a151f81298/Assignments/e1ac2088-21ea-4182-8236-45acb2de7e6d/admin_script_pda.txt",
+            "attachment-mimetype": "text/plain"
+        },
+            {
+            "attachment-target": "_blank",
+            "attachment-size": "685333",
+            "attachment-title": "something.txt",
+            "attachment-url": "http://localhost:8080/access/content/attachment/28354fec-8246-4b72-b0dd-64a151f81298/Assignments/e1ac2088-21ea-4182-8236-45acb2de7e6d/admin_script_pda.txt",
+            "attachment-mimetype": "text/plain"
+        },
+            {
+            "attachment-target": "_blank",
+            "attachment-size": "685",
+            "attachment-title": "somethung-else.txt",
+            "attachment-url": "http://localhost:8080/access/content/attachment/28354fec-8246-4b72-b0dd-64a151f81298/Assignments/e1ac2088-21ea-4182-8236-45acb2de7e6d/admin_script_pda.txt",
+            "attachment-mimetype": "text/plain"
+        }
+    ],
+    "order": [
+        [
+            "title"
+        ],
+
+        [
+            "assignment_data-label"
+        ],
+        [
+            "description"
+        ],
+        [
+            "attachments"
+        ],
+        [
+            "assignmentmetadata-label"
+        ],
+        [
+            "more-info"
+        ]
+    ]
+}
