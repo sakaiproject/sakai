@@ -1348,6 +1348,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		{
 			BaseResourceEdit bre = new BaseResourceEdit();
 			resourceSerializer.parse(bre,blob);
+			ResourceProperties props = bre.getProperties();
+			if(props != null) {
+				String oldDisplayName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+				bre.setOldDisplayName(oldDisplayName);
+			}
 			return bre;
 		}
 		/* (non-Javadoc)
@@ -1357,6 +1362,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		{
 			BaseResourceEdit bre = new BaseResourceEdit();
 			resourceSerializer.parse(bre,blob);
+			ResourceProperties props = bre.getProperties();
+			if(props != null) {
+				String oldDisplayName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+				bre.setOldDisplayName(oldDisplayName);
+			}
 			return bre;
 		}
 
@@ -4069,6 +4079,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		resource.setEvent(EVENT_RESOURCE_WRITE);
 
 		threadLocalManager.set(String.valueOf(resource), resource);
+		
+		ResourceProperties props = resource.getProperties();
+		if(props != null) {
+			resource.setOldDisplayName(props.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+		}
 
 		return resource;
 
@@ -5682,6 +5697,21 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 		// update the properties for update
 		addLiveUpdateResourceProperties(edit);
+
+		if(edit instanceof BaseResourceEdit) {
+			String oldDisplayName = ((BaseResourceEdit) edit).getOldDisplayName();
+			ResourceProperties props = edit.getProperties();
+			if(props != null) {
+				String newDisplayName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+				if(oldDisplayName == null || newDisplayName == null) {
+					// do nothing
+				} else if(! oldDisplayName.equals(newDisplayName)) {
+					// DisplayName has changed -- post event
+					// post EVENT_RESOURCE_UPD_TITLE event
+					this.eventTrackingService.post(this.eventTrackingService.newEvent(EVENT_RESOURCE_UPD_TITLE, edit.getReference(), true, priority));
+				}
+			}
+		}
 
 		if(((BasicGroupAwareEdit) edit).isVisibilityUpdated()) {
 			// post EVENT_RESOURCE_UPD_VISIBILITY event
@@ -11325,6 +11355,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 		private boolean m_sessionBound = true;
 
+		protected String m_oldDisplayName = null;
+
 		/**
 		 * Construct.
 		 * 
@@ -12475,6 +12507,20 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				//M_log.warn("Edit Object not closed correctly, Cancelling "+this.getId());
 				cancelResource(this);
 			}			
+		}
+
+		/**
+		 * @return the oldDisplayName
+		 */
+		public String getOldDisplayName() {
+			return m_oldDisplayName;
+		}
+
+		/**
+		 * @param oldDisplayName the oldDisplayName to set
+		 */
+		public void setOldDisplayName(String oldDisplayName) {
+			this.m_oldDisplayName = oldDisplayName;
 		}
 
 	} // BaseResourceEdit
