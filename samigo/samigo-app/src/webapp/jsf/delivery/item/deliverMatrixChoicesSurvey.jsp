@@ -69,10 +69,12 @@ should be included in file importing DeliveryMessages
 		 <samigo:radioButton 
 			id="myRadioId1"
 			name="myRadioRow"
-       			value ="#{matrixBean.responseId}"
-       			itemValue="#{matrixBean.answerSid[colIndex]}" onClick="javascript:whichradio(this);" />
-</t:columns>
-            </t:dataTable>
+       			value="#{matrixBean.responseId}"
+       			disabled="#{delivery.actionString=='reviewAssessment'|| delivery.actionString=='gradeAssessment'}"
+       			itemValue="#{matrixBean.answerSid[colIndex]}"
+       			onClick="javascript:whichradio(this);" />
+         </t:columns>
+         </t:dataTable>
      <f:verbatim><br /></f:verbatim>      
  <h:panelGrid rendered="#{question.addComment}"> 
  	<h:outputText value="#{question.commentField}" />
@@ -80,7 +82,8 @@ should be included in file importing DeliveryMessages
  							value="#{question.studentComment}" 
  							rows="6" 
  							cols="54"
- 							immediate="true"/>
+ 							immediate="true"
+ 							disabled="#{delivery.actionString=='reviewAssessment'|| delivery.actionString=='gradeAssessment'}" />
 </h:panelGrid>
 </div>
  <h:inputHidden value="#{question.forceRanking}" id="forceRanking"/> 

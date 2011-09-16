@@ -95,7 +95,7 @@ public class CustomSelectOneRadioRenderer extends Renderer {
 			if ( aCustomSelectOneRadio.getStyle() != null && aCustomSelectOneRadio.getStyle().trim().length() > 0 ) {
 				writer.write(" style=\"" + aCustomSelectOneRadio.getStyle().trim() + "\"");
 			}		
-			if ( aCustomSelectOneRadio.getDisabled() != null && aCustomSelectOneRadio.getDisabled()) {
+			if ( aCustomSelectOneRadio.getDisabled() != null && "true".equals((aCustomSelectOneRadio.getDisabled()).trim())) {
 				writer.write(" disabled=\"disabled\"");
 			}			
 			if ( aCustomSelectOneRadio.getItemValue() != null ) {

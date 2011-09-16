@@ -273,7 +273,6 @@ public class CustomSelectOneRadioTag extends UIComponentTag {
 			if (isValueReference(itemLabel)) {
 				aCustomSelectOneRadio.setValueBinding("itemLabel", getValueBinding(itemLabel));
 			} else {
-				System.out.println("itemLabel=" + itemLabel);
 				aCustomSelectOneRadio.getAttributes()
 					.put("itemLabel", itemLabel);
 			}

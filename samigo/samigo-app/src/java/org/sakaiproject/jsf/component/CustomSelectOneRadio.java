@@ -12,26 +12,19 @@ public class CustomSelectOneRadio extends UIInput {
 		else
 			return null;			
 	}
-	public Boolean returnValueBindingAsBoolean(String attr) {
+	public String returnBooleanValueBindingAsString(String attr) {
 		ValueBinding valueBinding = getValueBinding(attr);	
 		if (valueBinding != null)
-			return (Boolean)valueBinding.getValue(this.getFacesContext());
+			return ((Boolean)valueBinding.getValue(this.getFacesContext())).toString();
 		else
-			return false;			
+			return null;			
 	}
-	public Long returnValueBindingAsLong(String attr) {
-		ValueBinding valueBinding = getValueBinding(attr);	
-		if (valueBinding != null)
-			return (Long)valueBinding.getValue(this.getFacesContext());
-		else 
-			return 0L;
-	}
-	
+
 	private String name = null;
 	private String overrideName = null;
 	private String styleClass = null;
 	private String style = null;
-	private Boolean disabled = false;
+	private String disabled = null;
 	private String itemLabel = null;
 	private String itemValue = null;
 	private String onClick = null;
@@ -40,11 +33,11 @@ public class CustomSelectOneRadio extends UIInput {
 	private String onFocus = null;
 	private String onBlur = null;
 
-	public Boolean getDisabled() {
+	public String getDisabled() {
 		if (null != disabled) {
 			return disabled;
 		}
-		return returnValueBindingAsBoolean("disabled");	
+		return returnBooleanValueBindingAsString("disabled");	
 	}
 	public String getItemLabel() {
 		if (null != itemLabel) {
@@ -130,9 +123,9 @@ public class CustomSelectOneRadio extends UIInput {
 	/**
 	 * @param string
 	 */
-	public void setDisabled(Boolean bool) {
-		disabled = bool;
-	}
+	public void setDisabled(String string) {
+		disabled = string;
+ 	}
 
 	public void setItemLabel(String string) {
 		itemLabel = string;
@@ -226,7 +219,7 @@ public class CustomSelectOneRadio extends UIInput {
 		super.restoreState(context, values[0]);
 		styleClass = (String) values[1];
 		style = (String) values[2];
-		disabled = (Boolean) values[3];
+		disabled = (String) values[3];
 		itemLabel = (String) values[4];
 		itemValue = (String) values[5];
 		onClick = (String) values[6];
