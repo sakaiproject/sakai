@@ -24,21 +24,18 @@ sakai.editor = sakai.editor || {};
 sakai.editor.editors = sakai.editor.editors || {};
 
 sakai.editor.editors.ckeditor = {};
+// Please note that no more parameters should be added to this signature.
+// The config object allows for name-based config options to be passed.
+// The w and h parameters should be removed as soon as their uses can be migrated.
 sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
     var folder = "";
     if (sakai.editor.collectionId) {
         folder = "&CurrentFolder=" + sakai.editor.collectionId;
     }
-    if (w == null) {
-	w = '';
-    }
-    if (h == null || h == '') {
-	h = 460;
-    }
-    CKEDITOR.replace(targetId, {
+
+    var ckconfig = {
         skin: 'v2',
-        height: h,
-	width: w,
+        height: 460,
         filebrowserBrowseUrl :'/library/editor/FCKeditor/editor/filemanager/browser/default/browser.html?Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + folder,
         filebrowserImageBrowseUrl : '/library/editor/FCKeditor/editor/filemanager/browser/default/browser.html?Type=Image&Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + folder,
         filebrowserFlashBrowseUrl :'/library/editor/FCKeditor/editor/filemanager/browser/default/browser.html?Type=Flash&Connector=/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector' + folder,
@@ -51,6 +48,10 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         disableNativeSpellChecker: false,
         browserContextMenuOnCtrl: true,
 
+        toolbar_Basic:
+        [
+            ['Source', '-', 'Bold', 'Italic', 'Link', 'Unlink']
+        ],
         toolbar_Full:
         [
             ['Source','-','Templates'],
@@ -71,10 +72,44 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             '/',
             ['Styles','Format','Font','FontSize'],
             ['TextColor','BGColor'],
-            ['Maximize', 'ShowBlocks','-','About']
+            ['Maximize', 'ShowBlocks']
         ],
+        toolbar: 'Full',
         resize_dir: 'vertical'
-    });
+    };
+
+    //NOTE: The height and width properties are handled discretely here.
+    //      The ultimate intent is that the caller-supplied config will simply
+    //      overlay the default config. The outstanding question is whether
+    //      some properties should disallow override (because of specific setup
+    //      here that we would not want duplicated throughout calling code) or
+    //      if their override would just be discouraged. We also probably want
+    //      some symbolic things like editorSize: 'small', where the supplied
+    //      values are interpreted and translated into dimensions, toolbar set,
+    //      and anything else relevant. This will allow editor indifference
+    //      on the part of tool code, requesting whatever editor be launched
+    //      with appropriate settings applied, rather than detecting the editor
+    //      and supplying specific values for the desired effect. This set of
+    //      "logical" configuration options is yet to be determined.
+    if (config) {
+        if (config.width) {
+            ckconfig.width = config.width;
+        } else if (w) {
+            ckconfig.width = w;
+        }
+
+        if (config.height) {
+            ckconfig.height = config.height;
+        } else if (h) {
+            ckconfig.height = h;
+        }
+
+        if (config && config.toolbarSet && ckconfig['toolbar_' + config.toolbarSet]) {
+            ckconfig.toolbar = config.toolbarSet;
+        }
+    }
+
+    CKEDITOR.replace(targetId, ckconfig);
 }
 
 sakai.editor.launch = sakai.editor.editors.ckeditor.launch;
