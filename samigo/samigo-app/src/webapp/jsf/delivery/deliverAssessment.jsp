@@ -98,7 +98,7 @@
                   var buttonIdStr = String(button.id);
                   if(button.getAttribute('type') == 'radio' && button.checked == true && buttonIdStr != myId){
                     obj.checked = false;
-                    alert("only allow one selection per column, please re-try.");
+                    alert("You are only allowed one selection per column, please try again.");
                     return;
                   }
                 }
