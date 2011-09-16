@@ -538,7 +538,8 @@ public class QuestionScoreListener implements ActionListener,
 							|| bean.getTypeId().equals("12")
 							|| bean.getTypeId().equals("3")
 							|| bean.getTypeId().equals("4")
-							|| bean.getTypeId().equals("9")) {
+							|| bean.getTypeId().equals("9")
+							|| bean.getTypeId().equals("13")) {
 						if (gdataAnswer != null)
 							answerText = gdataAnswer.getText();
 					} else {
@@ -590,7 +591,16 @@ public class QuestionScoreListener implements ActionListener,
 									+ answerText;
 						}
 					}
-
+					if (bean.getTypeId().equals("13")) {
+						if (gdataPubItemText == null) {
+							// the matching pair is deleted
+							answerText = "";
+						}
+						else {
+							int answerNo = gdataPubItemText.getSequence().intValue() + 1;
+							answerText = answerNo + ":" + answerText;
+						}
+					}
 					// file upload
 					if (bean.getTypeId().equals("6")) {
 						gdata.setMediaArray(delegate.getMediaArray2(gdata

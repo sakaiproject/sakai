@@ -817,10 +817,10 @@ function toPoint(id)
       <f:facet name="header">
         <h:panelGroup>
 		  <h:outputText value="#{commonMessages.student_response}" 
-             rendered="#{questionScores.typeId == '6' || questionScores.typeId == '7' }"/>
+             rendered="#{questionScores.typeId == '6' || questionScores.typeId == '7'}"/>
           <h:commandLink title="#{evaluationMessages.t_sortResponse}" id="answer" action="questionScores" >
             <h:outputText value="#{commonMessages.student_response}" 
-               rendered="#{questionScores.typeId != '6' && questionScores.typeId != '7' && questionScores.typeId != '13' }"/>
+               rendered="#{questionScores.typeId != '6' && questionScores.typeId != '7'}"/>
             <f:actionListener
                type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
             <f:actionListener
@@ -831,7 +831,7 @@ function toPoint(id)
         </h:panelGroup>
       </f:facet>
       <!-- display of answer to file upload question is diffenent from other types - daisyf -->
-      <h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '6' && questionScores.typeId != '7' && questionScores.typeId != '5' && questionScores.typeId != '13'}" />
+      <h:outputText value="#{description.answer}" escape="false" rendered="#{questionScores.typeId != '6' && questionScores.typeId != '7' && questionScores.typeId != '5'}" />
      <f:verbatim><br/></f:verbatim>
    <!--h:outputLink rendered="#{questionScores.typeId == '5'}" value="#" onclick="javascript:window.alert('#{description.fullAnswer}');"-->
 
@@ -883,10 +883,10 @@ function toPoint(id)
       <f:facet name="header">
       <h:panelGroup>
 		  <h:outputText value="#{commonMessages.student_response}" 
-             rendered="#{questionScores.typeId == '6' || questionScores.typeId == '7' }"/>
+             rendered="#{questionScores.typeId == '6' || questionScores.typeId == '7'}"/>
           <h:commandLink title="#{evaluationMessages.t_sortResponse}" action="questionScores" >
             <h:outputText value="#{commonMessages.student_response}" 
-               rendered="#{questionScores.typeId != '6' && questionScores.typeId != '7' && questionScores.typeId != '13'}"/>
+               rendered="#{questionScores.typeId != '6' && questionScores.typeId != '7'}"/>
           <f:param name="sortAscending" value="false" />
           <h:graphicImage alt="#{evaluationMessages.alt_sortResponseDescending}" rendered="#{questionScores.sortAscending && questionScores.typeId != '6' && questionScores.typeId != '7'}" url="/images/sortascending.gif"/>
       	  <f:actionListener
@@ -943,10 +943,10 @@ function toPoint(id)
       <f:facet name="header">
 		  <h:panelGroup>
 		  <h:outputText value="#{commonMessages.student_response}" 
-             rendered="#{questionScores.typeId == '6' || questionScores.typeId == '7' }"/>
+             rendered="#{questionScores.typeId == '6' || questionScores.typeId == '7'}"/>
           <h:commandLink title="#{evaluationMessages.t_sortResponse}" action="questionScores" >
             <h:outputText value="#{commonMessages.student_response}" 
-               rendered="#{questionScores.typeId != '6' && questionScores.typeId != '7' && questionScores.typeId != '13' }"/>
+               rendered="#{questionScores.typeId != '6' && questionScores.typeId != '7'}"/>
           <f:param name="sortAscending" value="true" />
           <h:graphicImage alt="#{evaluationMessages.alt_sortResponseAscending}" rendered="#{!questionScores.sortAscending && questionScores.typeId != '6' && questionScores.typeId != '7'}" url="/images/sortdescending.gif"/>
       	  <f:actionListener
