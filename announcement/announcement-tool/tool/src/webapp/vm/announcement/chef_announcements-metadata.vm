@@ -120,7 +120,7 @@
 						#end
 						<a href="$attachment.Url" target="_blank" title="$tlang.getString("gen.newwindow")">
 							$validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
-						#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+						#if (!$props.getBooleanProperty($props.NamePropIsCollection) && $props.getProperty("DAV:getcontenttype") != "text/url")
 							($props.getPropertyFormatted($props.NamePropContentLength))
 						#end
 					</li>
