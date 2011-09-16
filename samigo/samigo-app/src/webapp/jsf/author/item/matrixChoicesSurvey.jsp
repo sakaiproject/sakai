@@ -127,60 +127,14 @@
  		<h:outputLabel value="#{authorMessages.columnchoices}"/>
  		<div class="tier3">
           <h:panelGrid columns= "1" >
-          	<h:panelGroup rendered="#{itemauthor.currentItem.hasFavoriteList}">
- 				<h:outputText value="#{authorMessages.selectFromFavorites}" /> 
- 				<f:verbatim>&nbsp; </f:verbatim>
-            	<h:selectOneMenu id="favoriteList" 
-            					value="#{itemauthor.currentItem.currentFavorite}" 
-            					onchange="document.getElementById('itemForm:newAddToFavorite').value=true;
-            								document.getElementById('itemForm:newFavoriteChoice').value=true; 
-            								document.getElementById('itemForm:fromFavoriteSelectOneMenu').value=true; 
-            								this.form.submit();"
-            					immediate="true">
-  					<f:selectItem id="item1" itemLabel="select option" itemValue="1" /> 
-  				  	<f:selectItems value="#{itemauthor.currentItem.currentFavoriteList}"/>
-            <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.FavoriteColChoiceListener"/>
-           		</h:selectOneMenu>
-            </h:panelGroup>
-	    <h:inputHidden id="newFavoriteChoice" value="#{itemauthor.currentItem.newFavoriteChoice}" />
-	    
-            <br/>
- 			<h:inputTextarea id="columnData" 
+           			<h:inputTextarea id="columnData" 
  							value="#{itemauthor.currentItem.columnChoices}" 
  							rows="6" 
  							cols="54"
  							immediate="true"/>
  			<br/>
- 			<h:panelGroup>
-    			<h:selectBooleanCheckbox 
-    			immediate = "true"
-    			id="addToFavoriteCheckbox" 
-    			value="#{itemauthor.currentItem.addToFavorite}" 
-    			onchange="this.form.submit();"
-       			valueChangeListener="#{itemauthor.currentItem.toggleAddToFavorite}" />
-         
-    	 		<h:outputText value="#{authorMessages.addColumnChoiceToFavor}" />
-    	 	</h:panelGroup>
-    	 	<h:inputHidden id="newAddToFavorite" value="#{itemauthor.currentItem.newAddToFavorite}" />
-    	 	<h:inputHidden id="fromFavoriteSelectOneMenu" value="#{itemauthor.currentItem.fromFavoriteSelectOneMenu}" />
- 		</h:panelGrid>
- 		<!-- currentItem - ItemBean, itemauthor - ItemAuthorBean -->
+  		</h:panelGrid>
  		
-		<h:panelGrid columns="2" columnClasses="shorttext" rendered="#{itemauthor.currentItem.addToFavorite}" >
-			<h:panelGrid columns="1" >
-				<h:outputText value="#{authorMessages.favorLabel}"/> 
-				<h:outputText value="(e.g., 1-5 scale)"/>
-			</h:panelGrid>
-			<h:panelGrid columns="1" styleClass="panelGridColumn" >	
-				<h:inputText id="favoriteName" value="#{itemauthor.currentItem.favoriteName}"size="33" onkeydown="javascript:textCounter(document.getElementById('itemForm:favoriteName'),document.getElementById('itemFrom:remLen1'),30);"
-					onkeyup="javascript:textCounter(document.getElementById('itemForm:favoriteName'), document.getElementById('itemForm:remLen1'), 30);" onclick="javascript:if(this.value=='30 character limit') this.value='';"/>
-				<h:panelGroup>
-					<h:outputText value="Character Count: " style="font-weight:bold;color:red;"/>
-					<h:inputText readonly="true" id="remLen1" size="1" maxlength="2" value="30"/>
-				</h:panelGroup>
-				
-			</h:panelGrid>
-		</h:panelGrid> 
 		<br/>
 		<h:selectBooleanCheckbox id="forceRankingCheckbox" value="#{itemauthor.currentItem.forceRanking}"/>
     	<h:outputText value="#{authorMessages.forceRanking}" />
