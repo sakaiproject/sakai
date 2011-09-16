@@ -2744,6 +2744,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			}
 		}
 
+		if(((BasicGroupAwareEdit) edit).isVisibilityUpdated()) {
+			// post EVENT_RESOURCE_UPD_VISIBILITY event
+			this.eventTrackingService.post(this.eventTrackingService.newEvent(EVENT_RESOURCE_UPD_VISIBILITY, edit.getReference(), true));
+		}
+		
 		// update the properties for update
 		addLiveUpdateCollectionProperties(edit);
 
@@ -5486,7 +5491,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			M_log.warn("commitResource(): closed ContentResourceEdit", e);
 			return;
 		}
-
 		
 		commitResourceEdit(edit, priority);
 
@@ -5674,6 +5678,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		// update the properties for update
 		addLiveUpdateResourceProperties(edit);
 
+		if(((BasicGroupAwareEdit) edit).isVisibilityUpdated()) {
+			// post EVENT_RESOURCE_UPD_VISIBILITY event
+			this.eventTrackingService.post(this.eventTrackingService.newEvent(EVENT_RESOURCE_UPD_VISIBILITY, edit.getReference(), true, priority));
+		}
 		// complete the edit
 		m_storage.commitResource(edit);
 
@@ -9732,6 +9740,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		/** The "type" in the ResourceTypeRegistry that defines properties of this ContentEntity */
 		protected String m_resourceType;
 
+		protected boolean m_visibilityUpdated = false;;
+
 		/**
 		 * @inheritDoc
 		 */
@@ -10007,6 +10017,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			return new Date(m_retractDate.getTime());
 		}
 
+		/**
+		 * @return true if a change has been maded in any settings affecting visibility 
+		 * for this resource, or false otherwise.
+		 */
+		public boolean isVisibilityUpdated() {
+			return m_visibilityUpdated;
+		}
+
 		public boolean isAvailable() 
 		{
 			boolean available = !m_hidden;
@@ -10060,10 +10078,16 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		{
 			if(time == null)
 			{
+				if(m_releaseDate != null) {
+					this.m_visibilityUpdated = true;
+				}
 				m_releaseDate = null;
 			}
 			else
 			{
+				if(m_releaseDate == null || m_releaseDate.compareTo(time) != 0) {
+					this.m_visibilityUpdated = true;
+				}
 				m_releaseDate = timeService.newTime(time.getTime());
 			}
 			m_hidden = false;
@@ -10078,10 +10102,16 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		{
 			if(time == null)
 			{
+				if(m_retractDate != null) {
+					this.m_visibilityUpdated = true;
+				}
 				m_retractDate = null;
 			}
 			else
 			{
+				if(m_retractDate == null || m_retractDate.compareTo(time) != 0) {
+					this.m_visibilityUpdated = true;
+				}
 				m_retractDate = timeService.newTime(time.getTime());
 			}
 			m_hidden = false;
@@ -10094,6 +10124,21 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		
 		public void setAvailability(boolean hidden, Time releaseDate, Time retractDate) 
 		{
+			if(m_hidden != hidden) {
+				this.m_visibilityUpdated = true;
+			} else if(releaseDate == null && m_releaseDate != null) {
+				this.m_visibilityUpdated = true;
+			} else if(releaseDate != null && m_releaseDate == null) {
+				this.m_visibilityUpdated = true;
+			} else if(m_releaseDate != null && releaseDate != null && m_releaseDate.compareTo(releaseDate) != 0) {
+				this.m_visibilityUpdated = true;
+			} else if(retractDate == null && m_retractDate != null) {
+				this.m_visibilityUpdated = true;
+			} else if(retractDate != null && m_retractDate == null) {
+				this.m_visibilityUpdated = true;
+			} else if(m_retractDate != null && retractDate != null && m_retractDate.compareTo(retractDate) != 0) {
+				this.m_visibilityUpdated = true;
+			}
 			m_hidden = hidden;
 			if(hidden)
 			{
@@ -10124,6 +10169,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 		public void setHidden() 
 		{
+			if(!m_hidden) {
+				this.m_visibilityUpdated = true;
+			}
 			m_hidden = true;
 			this.m_releaseDate = null;
 			this.m_retractDate = null;
@@ -10209,6 +10257,22 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 
 		public void setConditionallyReleased(boolean isConditionallyReleased) {
+			try {
+				Boolean oldValue = this.m_properties.getBooleanProperty(ConditionService.PROP_CONDITIONAL_RELEASE);
+				if(oldValue.booleanValue() != isConditionallyReleased) {
+					this.m_visibilityUpdated = true;
+				}
+			} catch (EntityPropertyNotDefinedException e) {
+				// oldValue is false
+				if(isConditionallyReleased) {
+					this.m_visibilityUpdated = true;
+				}
+			} catch (EntityPropertyTypeException e) {
+				// assume oldValue is false
+				if(isConditionallyReleased) {
+					this.m_visibilityUpdated = true;
+				}
+			}
 			m_properties.addProperty(ConditionService.PROP_CONDITIONAL_RELEASE, Boolean.toString(isConditionallyReleased));
 		}
 
