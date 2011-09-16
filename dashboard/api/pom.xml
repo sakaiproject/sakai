@@ -43,6 +43,11 @@
 		    <artifactId>sakai-announcement-api</artifactId>
 	        <version>2.9-SNAPSHOT</version>
 	    </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.calendar</groupId>
+            <artifactId>sakai-calendar-api</artifactId>
+	        <version>2.9-SNAPSHOT</version>
+        </dependency>
 	    <dependency>
 		<groupId>org.sakaiproject.message</groupId>
 		<artifactId>sakai-message-api</artifactId>

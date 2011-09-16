@@ -350,12 +350,14 @@ public class AssignmentSupport {
 			if(logger.isDebugEnabled()) {
 				logger.debug("removing calendar links and calendar item for " + event.getResource());
 			}
-			dashboardLogic.removeCalendarItem(event.getResource());
+			
+			String ref = event.getResource();
+			dashboardLogic.removeCalendarItem(ref);
 			
 			if(logger.isDebugEnabled()) {
 				logger.debug("removing news links and news item for " + event.getResource());
 			}
-			dashboardLogic.removeNewsItem(event.getResource());
+			dashboardLogic.removeNewsItem(ref);
 
 		}
 

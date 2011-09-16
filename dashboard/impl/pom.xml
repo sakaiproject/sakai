@@ -14,7 +14,7 @@
 	<packaging>jar</packaging>
 	
   	<dependencies>
-
+        
     	<!-- project dependencies -->
     	<dependency>
 			<groupId>org.sakaiproject.dash</groupId>

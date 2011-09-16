@@ -312,11 +312,6 @@ public class AnnouncementSupport{
 				logger.info(eventId + " is not processed for entityReference " + event.getResource());
 			}
 		}
-
-		public void init() {
-			
-			dashboardLogic.registerEventProcessor(this);
-		}
 	}
 
 	/**
@@ -348,11 +343,6 @@ public class AnnouncementSupport{
 			}
 			dashboardLogic.removeCalendarItem(event.getResource());
 		}
-
-		public void init() {
-			
-			dashboardLogic.registerEventProcessor(this);
-		}
 	}
 	
 	/**
@@ -383,11 +373,5 @@ public class AnnouncementSupport{
 			}
 			dashboardLogic.removeCalendarItem(event.getResource());
 		}
-
-		public void init() {
-			
-			dashboardLogic.registerEventProcessor(this);
-		}
-
 	}
 }

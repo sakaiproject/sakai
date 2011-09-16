@@ -8,6 +8,7 @@ import java.util.Observer;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.entity.api.Entity;
@@ -37,10 +38,15 @@ public interface SakaiProxy {
 	public final static String EVENT_ANNOUNCEMENT_NEW =  AnnouncementService.SECURE_ANNC_ADD;
 	public final static String EVENT_ANNOUNCEMENT_REMOVE_OWN = AnnouncementService.SECURE_ANNC_REMOVE_OWN;
 	public final static String EVENT_ANNOUNCEMENT_REMOVE_ANY = AnnouncementService.SECURE_ANNC_REMOVE_ANY;
+	
+	public final static String EVENT_SCHEDULE_NEW_EVENT = CalendarService.EVENT_ADD_CALENDAR;
+	public final static String EVENT_SCHEDULE_REMOVE_EVENT = CalendarService.EVENT_REMOVE_CALENDAR;
+	public final static String EVENT_SCHEDULE_REVISE_EVENT = CalendarService.EVENT_MODIFY_CALENDAR;
 
 	public static final String PERMIT_ANNOUNCEMENT_ACCESS = AnnouncementService.SECURE_ANNC_READ;
 	public static final String PERMIT_ASSIGNMENT_ACCESS = AssignmentService.SECURE_ACCESS_ASSIGNMENT;
 	public static final String PERMIT_RESOURCE_ACCESS = ContentHostingService.AUTH_RESOURCE_READ;
+	public static final String PERMIT_SCHEDULE_ACCESS = CalendarService.SECURE_READ;
 	
 	public static final String ANNOUNCEMENT_RELEASE_DATE = AnnouncementService.RELEASE_DATE;
 	public static final String ANNOUNCEMENT_RETRACT_DATE = AnnouncementService.RETRACT_DATE;
