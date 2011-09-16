@@ -154,7 +154,6 @@ public class ComposeLogicImpl implements ComposeLogic
 	 * 
 	 * @see org.sakaiproject.mailsender.logic.impl.ComposeLogic#getEmailGroups()
 	 */
-	@SuppressWarnings("unchecked")
 	public List<EmailRole> getEmailGroups() throws IdUnusedException
 	{
 		ArrayList<EmailRole> roles = new ArrayList<EmailRole>();
@@ -180,7 +179,6 @@ public class ComposeLogicImpl implements ComposeLogic
 	 * 
 	 * @see org.sakaiproject.mailsender.logic.impl.ComposeLogic#getEmailSections()
 	 */
-	@SuppressWarnings("unchecked")
 	public List<EmailRole> getEmailSections() throws IdUnusedException
 	{
 		ArrayList<EmailRole> roles = new ArrayList<EmailRole>();
@@ -275,7 +273,6 @@ public class ComposeLogicImpl implements ComposeLogic
 		return users;
 	}
 
-	@SuppressWarnings("unchecked")
 	protected Set<String> getUserIdsByRole(String role) throws IdUnusedException
 	{
 		Site currentSite = currentSite();
@@ -292,7 +289,6 @@ public class ComposeLogicImpl implements ComposeLogic
 	 * 
 	 * @see org.sakaiproject.mailsender.logic.ComposeLogic#countUsersByRole(java.lang.String)
 	 */
-	@SuppressWarnings("unchecked")
 	public int countUsersByRole(String role)
 	{
 		int count = 0;
@@ -321,7 +317,6 @@ public class ComposeLogicImpl implements ComposeLogic
 		return users;
 	}
 
-	@SuppressWarnings("unchecked")
 	protected Set<String> getUserIdsByGroup(String groupId) throws IdUnusedException
 	{
 		Site currentSite = currentSite();

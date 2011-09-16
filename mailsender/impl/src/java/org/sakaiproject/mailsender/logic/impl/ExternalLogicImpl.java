@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.FunctionManager;
@@ -285,7 +286,7 @@ public class ExternalLogicImpl implements ExternalLogic
 			return false;
 		}
 		List<String> mailHeaders = new ArrayList<String>();
-		if (config.useRichTextEditor())
+		if (useRTE())
 		{
 			mailHeaders.add(MailArchiveService.HEADER_OUTER_CONTENT_TYPE
 					+ ": text/html; charset=ISO-8859-1");
@@ -376,7 +377,7 @@ public class ExternalLogicImpl implements ExternalLogic
 
 		msg.setSubject(subject);
 		// set content type based on editor used
-		if (config.useRichTextEditor())
+		if (useRTE())
 		{
 			msg.setContentType(ContentType.TEXT_HTML);
 		}
@@ -440,6 +441,15 @@ public class ExternalLogicImpl implements ExternalLogic
 			MailsenderException me = new MailsenderException(e.getMessage(), e);
 			me.addMessage("error.no.valid.recipients", "");
 			throw me;
+		}
+	}
+
+	private boolean useRTE() {
+		String editor = StringUtils.trimToNull(configService.getString("wysiwyg.editor"));
+		if (editor == null || "htmlarea".equals(editor)) {
+			return false;
+		} else {
+			return true;
 		}
 	}
 

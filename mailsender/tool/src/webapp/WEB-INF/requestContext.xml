@@ -26,10 +26,9 @@
 
 	<!-- list the producer beans here -->
 	<bean class="org.sakaiproject.mailsender.tool.producers.ComposeProducer">
-		<property name="configLogic" ref="org.sakaiproject.mailsender.logic.ConfigLogic" />
 		<property name="externalLogic" ref="org.sakaiproject.mailsender.logic.ExternalLogic" />
 		<property name="navBarRenderer" ref="navBarRenderer" />
-		<property name="richTextEvolver" ref="sakaiFCKTextEvolver" />
+		<property name="richTextEvolver" ref="sakaiRichTextEvolver" />
 		<property name="viewStateHandler" ref="viewStateHandler" />
 	</bean>
 
@@ -61,4 +60,12 @@
 		<property name="composeLogic" ref="org.sakaiproject.mailsender.logic.ComposeLogic" />
 		<property name="messages" ref="targettedMessageList" />
 	</bean>
+
+	<bean id="sakaiRichTextEvolver" class="org.sakaiproject.mailsender.tool.evolvers.SakaiRichTextEvolver">
+        <!-- sets the default editor size for this context -->
+        <!--
+        <property name="width" value="400" />
+        <property name="height" value="400" />
+        -->
+    </bean>
 </beans>

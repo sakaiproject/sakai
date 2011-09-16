@@ -25,7 +25,6 @@ import org.sakaiproject.mailsender.logic.ConfigLogic;
 import org.sakaiproject.mailsender.logic.ExternalLogic;
 import org.sakaiproject.mailsender.model.ConfigEntry;
 import org.sakaiproject.mailsender.model.ConfigEntry.ConfigParams;
-import org.sakaiproject.mailsender.model.ConfigEntry.EditorType;
 import org.sakaiproject.mailsender.model.ConfigEntry.ReplyTo;
 import org.sakaiproject.mailsender.model.ConfigEntry.SubjectPrefixType;
 import org.sakaiproject.tool.api.ToolManager;
@@ -74,9 +73,6 @@ public class ConfigLogicImpl implements ConfigLogic
 		// reply to
 		String replyTo = getReplyTo(props);
 
-		// editor type
-		String editorType = getEditorType();
-
 		// display invalid email addresses
 		boolean displayInvalidEmails = isDisplayInvalidEmailAddrs(props);
 
@@ -84,18 +80,18 @@ public class ConfigLogicImpl implements ConfigLogic
 		boolean displayEmptyGroups = isDisplayEmptyGroups(props);
 
 		ConfigEntry config = new ConfigEntry(prefixType, sendMeACopy, addToArchive, replyTo,
-				displayInvalidEmails, editorType, subjectPrefix, displayEmptyGroups);
+				displayInvalidEmails, subjectPrefix, displayEmptyGroups);
 		return config;
 	}
 
 	/**
 	 * @see org.sakaiproject.mailsender.logic.ConfigLogic#useRichTextEditor
 	 */
-	public boolean useRichTextEditor()
-	{
-		String editor = getEditorType();
-		return EditorType.fckeditor.name().equalsIgnoreCase(editor);
-	}
+//	public boolean useRichTextEditor()
+//	{
+//		String editor = getEditorType();
+//		return !EditorType.htmlarea.name().equalsIgnoreCase(editor);
+//	}
 
 	/**
 	 * {@inheritDoc}
@@ -213,27 +209,6 @@ public class ConfigLogicImpl implements ConfigLogic
 			displayEmptyGroups = serverConfigurationService.getBoolean(DISPLAY_EMPTY_GROUPS, true);
 		}
 		return displayEmptyGroups;
-	}
-
-	/**
-	 * Retrieve the editor type from the tool configuration, lastly checking the system config
-	 *
-	 * @see org.sakaiproject.mailsender.model.ConfigEntry.EditorType
-	 * @return
-	 */
-	private String getEditorType()
-	{
-		// check the tool config
-		String editorType = serverConfigurationService.getString(WSYIWYG_EDITOR_PROP);
-		if (StringUtils.trimToNull(editorType) != null)
-		{
-			editorType = editorType.trim().toLowerCase();
-		}
-		else
-		{
-			editorType = EditorType.fckeditor.name();
-		}
-		return editorType;
 	}
 
 	/**

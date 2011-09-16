@@ -17,14 +17,11 @@
 package org.sakaiproject.mailsender.model;
 
 import static junit.framework.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sakaiproject.mailsender.model.ConfigEntry.EditorType;
 import org.sakaiproject.mailsender.model.ConfigEntry.ReplyTo;
 import org.sakaiproject.mailsender.model.ConfigEntry.SubjectPrefixType;
 
@@ -41,15 +38,13 @@ public class ConfigEntryTest {
 	boolean addToArchive = false;
 	String replyTo = ReplyTo.no_reply_to.toString();
 	boolean displayInvalidEmails = false;
-	String editorType = EditorType.htmlarea.toString();
 	String subjectPrefix = "[subject]";
 	boolean displayEmptyGroups = true;
 
 	@Before
 	public void setUp() {
 		entry = new ConfigEntry(subjectPrefixType, sendMeACopy, addToArchive,
-				replyTo, displayInvalidEmails, editorType, subjectPrefix,
-				displayEmptyGroups);
+				replyTo, displayInvalidEmails, subjectPrefix, displayEmptyGroups);
 	}
 
 	@Test
@@ -59,17 +54,8 @@ public class ConfigEntryTest {
 		assertEquals(addToArchive, entry.isAddToArchive());
 		assertEquals(replyTo, entry.getReplyTo());
 		assertEquals(displayInvalidEmails, entry.isDisplayInvalidEmails());
-		assertEquals(editorType, entry.getEditorType());
 		assertEquals(subjectPrefix, entry.getSubjectPrefix());
 		assertEquals(displayEmptyGroups, entry.isDisplayEmptyGroups());
-	}
-
-	@Test
-	public void useRTE() {
-		assertFalse(entry.useRichTextEditor());
-
-		entry.setEditorType(EditorType.fckeditor.toString());
-		assertTrue(entry.useRichTextEditor());
 	}
 
 	@Test

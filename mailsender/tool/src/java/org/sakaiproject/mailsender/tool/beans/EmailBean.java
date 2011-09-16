@@ -45,8 +45,6 @@ public class EmailBean
 	public static final String EMAIL_FAILED = "emailFailed";
 	public static final String EMAIL_CANCELLED = "emailCancelled";
 
-	private static final Log LOG = LogFactory.getLog(EmailBean.class);
-
 	private Map<String, MultipartFile> multipartMap;
 	private final Log log = LogFactory.getLog(EmailBean.class);
 	private ComposeLogic composeLogic;
@@ -56,9 +54,7 @@ public class EmailBean
 	private TargettedMessageList messages;
     private MessageLocator messageLocator;
 
-	public EmailBean()
-	{
-	}
+	public EmailBean() { }
 
 	public EmailBean(ComposeLogic composeLogic, ConfigLogic configLogic,
 			ExternalLogic externalLogic, Map<String, MultipartFile> multipartMap,

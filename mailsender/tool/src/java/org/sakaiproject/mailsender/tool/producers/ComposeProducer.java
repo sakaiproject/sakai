@@ -19,7 +19,6 @@ package org.sakaiproject.mailsender.tool.producers;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.sakaiproject.mailsender.logic.ConfigLogic;
 import org.sakaiproject.mailsender.logic.ExternalLogic;
 import org.sakaiproject.mailsender.tool.beans.EmailBean;
 import org.sakaiproject.mailsender.tool.params.UserGroupViewParameters;
@@ -50,16 +49,10 @@ public class ComposeProducer implements ViewComponentProducer, NavigationCaseRep
 	public static final String VIEW_ID = "compose";
 
 	// Spring injected beans
-	private ConfigLogic configLogic;
 	private ExternalLogic externalLogic;
 	private NavBarRenderer navBarRenderer;
 	private TextInputEvolver richTextEvolver;
 	private ViewStateHandler viewStateHandler;
-
-	public void setConfigLogic(ConfigLogic configLogic)
-	{
-		this.configLogic = configLogic;
-	}
 
 	public void setExternalLogic(ExternalLogic externalLogic)
 	{
@@ -147,15 +140,8 @@ public class ComposeProducer implements ViewComponentProducer, NavigationCaseRep
 		UIInput.make(mainForm, "subject", emailBean + ".subject");
 
 		// create the content editor
-		if (configLogic.useRichTextEditor())
-		{
-			UIInput content = UIInput.make(mainForm, "content-div:", emailBean + ".content");
-			richTextEvolver.evolveTextInput(content);
-		}
-		else
-		{
-			UIInput.make(mainForm, "content", emailBean + ".content");
-		}
+		UIInput content = UIInput.make(mainForm, "content-div:", emailBean + ".content");
+		richTextEvolver.evolveTextInput(content);
 
 		// create 'send me a copy' checkbox
 		UIBoundBoolean.make(mainForm, "sendMeCopy", emailBean + ".config.sendMeACopy");

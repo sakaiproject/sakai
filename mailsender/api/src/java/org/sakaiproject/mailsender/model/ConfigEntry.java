@@ -21,9 +21,9 @@ package org.sakaiproject.mailsender.model;
  */
 public class ConfigEntry
 {
-    public static final ConfigEntry DEFAULT_CONFIG = new ConfigEntry(
-        SubjectPrefixType.system.name(), false, false, ReplyTo.no_reply_to.name(), false,
-        EditorType.htmlarea.name(), null, true);
+	public static final ConfigEntry DEFAULT_CONFIG = new ConfigEntry(
+			SubjectPrefixType.system.name(), false, false,
+			ReplyTo.no_reply_to.name(), false, null, true);
 
 	public enum ReplyTo
 	{
@@ -35,11 +35,6 @@ public class ConfigEntry
 		system, custom
 	}
 
-	public enum EditorType
-	{
-		fckeditor, htmlarea
-	}
-
 	public enum ConfigParams
 	{
 		replyto, sendmecopy, emailarchive, subjectprefix, displayinvalidemailaddrs, displayemptygroups
@@ -47,16 +42,15 @@ public class ConfigEntry
 
 	private String replyTo;
 	private boolean displayInvalidEmails;
-	private String editorType;
 	private boolean sendMeACopy;
 	private boolean addToArchive;
 	private String subjectPrefixType;
 	private String subjectPrefix;
 	private boolean displayEmptyGroups = true;
 
-	public ConfigEntry(String subjectPrefixType, boolean sendMeACopy, boolean addToArchive,
-			String replyTo, boolean displayInvalidEmails, String editorType, String subjectPrefix,
-			boolean displayEmptyGroups)
+	public ConfigEntry(String subjectPrefixType, boolean sendMeACopy,
+			boolean addToArchive, String replyTo, boolean displayInvalidEmails,
+			String subjectPrefix, boolean displayEmptyGroups)
 	{
 		setSubjectPrefixType(subjectPrefixType);
 		setSubjectPrefix(subjectPrefix);
@@ -64,7 +58,6 @@ public class ConfigEntry
 		setAddToArchive(addToArchive);
 		setReplyTo(replyTo);
 		setDisplayInvalidEmails(displayInvalidEmails);
-		setEditorType(editorType);
 		setDisplayEmptyGroups(displayEmptyGroups);
 	}
 
@@ -97,16 +90,6 @@ public class ConfigEntry
 	public void setDisplayInvalidEmails(boolean displayInvalidEmails)
 	{
 		this.displayInvalidEmails = displayInvalidEmails;
-	}
-
-	public String getEditorType()
-	{
-		return editorType;
-	}
-
-	public void setEditorType(String editorType)
-	{
-		this.editorType = EditorType.valueOf(editorType).name();
 	}
 
 	public boolean isSendMeACopy()
@@ -147,11 +130,6 @@ public class ConfigEntry
 	public void setSubjectPrefixType(String subjectPrefixType)
 	{
 		this.subjectPrefixType = SubjectPrefixType.valueOf(subjectPrefixType).name();
-	}
-
-	public boolean useRichTextEditor()
-	{
-		return EditorType.fckeditor.name().equalsIgnoreCase(editorType);
 	}
 
 	public void setDisplayEmptyGroups(boolean displayEmptyGroups)

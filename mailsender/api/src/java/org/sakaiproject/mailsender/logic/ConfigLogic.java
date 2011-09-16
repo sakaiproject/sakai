@@ -25,7 +25,6 @@ public interface ConfigLogic
 	String ALLOW_PREFIX_CHANGE_PROP = "mailsender.allowSubjectPrefixChange";
 	String DEFAULT_SUBJECT_PREFIX_PROP = "mailsender.subjectprefix";
 	String UPLOAD_DIRECTORY_PROP = "mailsender.upload.directory";
-	String WSYIWYG_EDITOR_PROP = "wysiwyg.editor";
 	String DISPLAY_EMPTY_GROUPS = "mailsender.displayEmptyGroups";
 	String EMAIL_TEST_MODE_PROP = "testMode@org.sakaiproject.email.api.EmailService";
 
@@ -37,14 +36,6 @@ public interface ConfigLogic
 	 * @return
 	 */
 	ConfigEntry getConfig();
-
-	/**
-	 * Determine if a rich text editor should be used by checking the settings in the tool placement
-	 * config
-	 *
-	 * @return true if value is not "htmlarea", false otherwise
-	 */
-	boolean useRichTextEditor();
 
 	/**
 	 * Save the configuration to the tool placement config space
