@@ -1620,15 +1620,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    }
 					
 						if(!hasOwnPage) {
-							UIOutput.make(tableRow, "linkRow");
-							UIOutput.make(tableRow, "linkCell");
+							UIBranchContainer row = UIBranchContainer.make(tableRow, "studentRow:");
+							UIOutput.make(row, "linkRow");
+							UIOutput.make(row, "linkCell");
 							
 							if (i.isRequired() && !simplePageBean.isItemComplete(i))
-								UIOutput.make(tableRow, "student-required-image");
+								UIOutput.make(row, "student-required-image");
 							GeneralViewParameters eParams = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
 							eParams.addTool = GeneralViewParameters.STUDENT_PAGE;
 							eParams.studentItemId = i.getId();
-							UIInternalLink.make(tableRow, "linkLink", messageLocator.getMessage("simplepage.add-page"), eParams);
+							UIInternalLink.make(row, "linkLink", messageLocator.getMessage("simplepage.add-page"), eParams);
 						}
 					
 						if(canEditPage) {
@@ -2719,6 +2720,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	private void createRemovePageDialog(UIContainer tofill, SimplePage page, SimplePageItem pageItem) {
 		UIOutput.make(tofill, "remove-page-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.remove-page")));
+		UIOutput.make(tofill, "remove-page-explanation", 
+			      (page.getOwner() == null ? messageLocator.getMessage("simplepage.remove-page-explanation") :
+			       messageLocator.getMessage("simplepage.remove-student-page-explanation")));
 
 		UIForm form = UIForm.make(tofill, "remove-page-form");
 		form.addParameter(new UIELBinding("#{simplePageBean.removeId}", page.getPageId()));

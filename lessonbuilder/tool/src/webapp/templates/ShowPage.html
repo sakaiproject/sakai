@@ -395,7 +395,7 @@ function resizeiframe(id) {
  							    <img src="$context/images/transparent16.png" alt="" rsf:id="newCommentsImgT" class="imgCell"></img>
  							    <a href="#" rsf:id="studentLink" class="studentLink"></a>
 							    <span rsf:id="studentGradingCell" class="gradingCell"></span>
- 							    <div rsf:id="linkCell" style="text-align:center;">
+ 							    <div rsf:id="linkCell" class="linkCell">
  							      <img rsf:id="student-required-image" src="/sakai-lessonbuildertool-tool/images/available.png" height="18" width="18" style="margin-right:3px"/>
  							      <a href="#" rsf:id="linkLink"></a>
  							    </div>
@@ -440,6 +440,7 @@ function resizeiframe(id) {
 
 		<div style="display:none;">
 			<p rsf:id="msg=simplepage.add-comment" id="simplepage.add-comment"></p>
+			<p rsf:id="msg=simplepage.edit-comment" id="simplepage.edit-comment"></p>
 			<p rsf:id="msg=simplepage.cancel_message" id="simplepage.cancel_message"></p>
 		</div>
 		
@@ -895,7 +896,7 @@ function resizeiframe(id) {
 			</div>
 
 			<div id="remove-page-dialog" rsf:id="remove-page-dialog">
-				<div style="margin-bottom: 2em" rsf:id="msg=simplepage.remove-page-explanation"></div>
+				<div style="margin-bottom: 2em" rsf:id="remove-page-explanation"></div>
 				<form action="#" rsf:id="remove-page-form">
 				  <input class="bold" type="submit" rsf:id="remove-page-submit" id="remove-page-submit" />
 				  <input type="submit" rsf:id="remove-page-cancel"  onclick="closeRemovePageDialog(); return false" />
