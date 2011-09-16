@@ -260,6 +260,25 @@ public class ComposeLogicImpl implements ComposeLogic
 		return defaultRole;
 	}
 
+	public List<User> getUsers() throws IdUnusedException
+	{
+		ArrayList<User> users = new ArrayList<User>();
+		Set<String> userIds = getUserIds();
+		compileUsers(users, userIds);
+		return users;
+	}
+
+	protected Set<String> getUserIds() throws IdUnusedException
+	{
+		Site currentSite = currentSite();
+		Set<String> userIds = currentSite.getUsers();
+		String curUser = externalLogic.getCurrentUserId();
+		// don't include the current user. this logic is used in other places so it is combined here
+		// to save repeating the logic in the presentation layer.
+		userIds.remove(curUser);
+		return userIds;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 * 

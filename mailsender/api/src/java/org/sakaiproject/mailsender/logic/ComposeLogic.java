@@ -96,4 +96,6 @@ public interface ComposeLogic
 	 * @return
 	 */
 	int countUsersByGroup(String groupId);
+
+	List<User> getUsers() throws IdUnusedException;
 }

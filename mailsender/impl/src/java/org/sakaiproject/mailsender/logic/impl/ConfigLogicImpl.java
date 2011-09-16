@@ -85,15 +85,6 @@ public class ConfigLogicImpl implements ConfigLogic
 	}
 
 	/**
-	 * @see org.sakaiproject.mailsender.logic.ConfigLogic#useRichTextEditor
-	 */
-//	public boolean useRichTextEditor()
-//	{
-//		String editor = getEditorType();
-//		return !EditorType.htmlarea.name().equalsIgnoreCase(editor);
-//	}
-
-	/**
 	 * {@inheritDoc}
 	 *
 	 * @see org.sakaiproject.mailsender.logic.ConfigLogic#allowSubjectPrefixChange()

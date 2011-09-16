@@ -23,6 +23,7 @@ import java.util.Map;
 
 public class EmailEntry
 {
+	private boolean allIds = false;
 	private Map<String, String> roleIds = new HashMap<String, String>();
 	private Map<String, String> sectionIds = new HashMap<String, String>();
 	private Map<String, String> groupIds = new HashMap<String, String>();
@@ -124,6 +125,16 @@ public class EmailEntry
 	public void setConfig(ConfigEntry config)
 	{
 		this.config = config;
+	}
+
+	public boolean isAllIds()
+	{
+		return allIds;
+	}
+
+	public void setAllIds(boolean allIds)
+	{
+		this.allIds = allIds;
 	}
 
 	public Map<String, String> getRoleIds()

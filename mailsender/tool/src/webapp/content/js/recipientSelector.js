@@ -150,10 +150,18 @@ var RcptSelect = function()
 		 */
 		toggleSelectAll: function(checkboxId)
 		{
-			var checkbox = _safeId('input', checkboxId);
-			var checked = jQuery(checkbox).is(':checked');
-			var context = jQuery(checkbox + ' ~ div');
-			jQuery('input[type=checkbox]:enabled', context).attr('checked', checked);
+			if (!checkboxId)
+			{
+				var checked = jQuery('#mailsender-rcpt-all').attr('checked');
+				jQuery('input[type=checkbox]:enabled', context).attr('checked', checked);
+			}
+			else
+			{
+				var checkbox = _safeId('input', checkboxId);
+				var checked = jQuery(checkbox).is(':checked');
+				var context = jQuery(checkbox + ' ~ div');
+				jQuery('input[type=checkbox]:enabled', context).attr('checked', checked);
+			}
 		},
 
 		/**

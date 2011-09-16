@@ -269,57 +269,68 @@ public class EmailBean
 	 * @param emailusers
 	 * @return Non-null <code>List</code> of users that have bad email addresses.
 	 */
-	private HashSet<String> compileEmailList(String fromEmail, HashMap<String, String> emailusers) // HashSet<EmailAddress>
-	// emailusers)
+	private HashSet<String> compileEmailList(String fromEmail, HashMap<String, String> emailusers)
 	{
 		HashSet<String> badEmails = new HashSet<String>();
-		// check for roles and add users
-		for (String roleId : emailEntry.getRoleIds().keySet())
-		{
+		if (emailEntry.isAllIds()) {
 			try
 			{
-				List<User> users = composeLogic.getUsersByRole(roleId);
-				addEmailUsers(fromEmail, emailusers, users);
+				addEmailUsers(fromEmail, emailusers, composeLogic.getUsers());
 			}
 			catch (IdUnusedException e)
 			{
 				log.warn(e.getMessage(), e);
-				badEmails.add(roleId);
+				badEmails.add(e.getMessage());
 			}
-		}
+		} else {
+			// check for roles and add users
+			for (String roleId : emailEntry.getRoleIds().keySet())
+			{
+				try
+				{
+					List<User> users = composeLogic.getUsersByRole(roleId);
+					addEmailUsers(fromEmail, emailusers, users);
+				}
+				catch (IdUnusedException e)
+				{
+					log.warn(e.getMessage(), e);
+					badEmails.add(roleId);
+				}
+			}
 
-		// check for sections and add users
-		for (String sectionId : emailEntry.getSectionIds().keySet())
-		{
-			try
+			// check for sections and add users
+			for (String sectionId : emailEntry.getSectionIds().keySet())
 			{
-				List<User> users = composeLogic.getUsersByGroup(sectionId);
-				addEmailUsers(fromEmail, emailusers, users);
+				try
+				{
+					List<User> users = composeLogic.getUsersByGroup(sectionId);
+					addEmailUsers(fromEmail, emailusers, users);
+				}
+				catch (IdUnusedException e)
+				{
+					log.warn(e.getMessage(), e);
+				}
 			}
-			catch (IdUnusedException e)
-			{
-				log.warn(e.getMessage(), e);
-			}
-		}
 
-		// check for groups and add users
-		for (String groupId : emailEntry.getGroupIds().keySet())
-		{
-			try
+			// check for groups and add users
+			for (String groupId : emailEntry.getGroupIds().keySet())
 			{
-				List<User> users = composeLogic.getUsersByGroup(groupId);
-				addEmailUsers(fromEmail, emailusers, users);
+				try
+				{
+					List<User> users = composeLogic.getUsersByGroup(groupId);
+					addEmailUsers(fromEmail, emailusers, users);
+				}
+				catch (IdUnusedException e)
+				{
+					log.warn(e.getMessage(), e);
+				}
 			}
-			catch (IdUnusedException e)
-			{
-				log.warn(e.getMessage(), e);
-			}
-		}
 
-		for (String userId : emailEntry.getUserIds().keySet())
-		{
-			User user = externalLogic.getUser(userId);
-			addEmailUser(fromEmail, emailusers, user);
+			for (String userId : emailEntry.getUserIds().keySet())
+			{
+				User user = externalLogic.getUser(userId);
+				addEmailUser(fromEmail, emailusers, user);
+			}
 		}
 		return badEmails;
 	}

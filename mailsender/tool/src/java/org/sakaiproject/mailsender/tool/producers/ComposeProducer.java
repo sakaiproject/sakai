@@ -102,6 +102,12 @@ public class ComposeProducer implements ViewComponentProducer, NavigationCaseRep
 		String from = fromDisplay + " <" + fromEmail + ">";
 		UIOutput.make(tofill, "from", from);
 
+		// create the 'select all' checkbox
+		UIBoundBoolean input = UIBoundBoolean.make(mainForm,
+				"mailsender-rcpt-all", "emailBean.newEmail.allIds");
+		input.decorate(new UIFreeAttributeDecorator("onclick",
+				"RcptSelect.toggleSelectAll()"));
+
 		// create the select by role link
 		UIMessage msg = UIMessage.make("select_rcpts_by_role");
 		UserGroupViewParameters viewParams = new UserGroupViewParameters(
