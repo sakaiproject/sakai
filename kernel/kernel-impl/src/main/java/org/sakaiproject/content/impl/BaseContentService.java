@@ -2749,6 +2749,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			this.eventTrackingService.post(this.eventTrackingService.newEvent(EVENT_RESOURCE_UPD_VISIBILITY, edit.getReference(), true));
 		}
 		
+		if(((BasicGroupAwareEdit) edit).isAccessUpdated()) {
+			// post EVENT_RESOURCE_UPD_ACCESS event
+			this.eventTrackingService.post(this.eventTrackingService.newEvent(EVENT_RESOURCE_UPD_ACCESS, edit.getReference(), true));
+		}
+		
 		// update the properties for update
 		addLiveUpdateCollectionProperties(edit);
 
@@ -5682,6 +5687,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			// post EVENT_RESOURCE_UPD_VISIBILITY event
 			this.eventTrackingService.post(this.eventTrackingService.newEvent(EVENT_RESOURCE_UPD_VISIBILITY, edit.getReference(), true, priority));
 		}
+		
+		if(((BasicGroupAwareEdit) edit).isAccessUpdated()) {
+			// post EVENT_RESOURCE_UPD_ACCESS event
+			this.eventTrackingService.post(this.eventTrackingService.newEvent(EVENT_RESOURCE_UPD_ACCESS, edit.getReference(), true, priority));
+		}
+		
 		// complete the edit
 		m_storage.commitResource(edit);
 
@@ -9740,7 +9751,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		/** The "type" in the ResourceTypeRegistry that defines properties of this ContentEntity */
 		protected String m_resourceType;
 
-		protected boolean m_visibilityUpdated = false;;
+		protected boolean m_visibilityUpdated = false;
+
+		protected boolean m_accessUpdated;;
 
 		/**
 		 * @inheritDoc
@@ -9780,6 +9793,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				throw new InconsistentException(this.getReference());
 			}
 
+			this.m_accessUpdated = true;
 			this.m_access = AccessMode.INHERITED;
 			this.m_groups.clear();
 
@@ -9791,6 +9805,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		public void clearPublicAccess() throws InconsistentException, PermissionException 
 		{
 			setPubView(this.m_id, false);
+			this.m_accessUpdated = true;
 			this.m_access = AccessMode.INHERITED;
 			this.m_groups.clear();
 
@@ -9799,6 +9814,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		public void setPublicAccess() throws PermissionException
 		{
 			setPubView(this.m_id, true);
+			this.m_accessUpdated = true;
 			this.m_access = AccessMode.INHERITED;
 			this.m_groups.clear();
 		}
@@ -9871,6 +9887,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			this.m_access = AccessMode.GROUPED;
 			this.m_groups.clear();
 			this.m_groups.addAll(newGroups);
+			this.m_accessUpdated = true;
 
 		}
 
@@ -10023,6 +10040,15 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		 */
 		public boolean isVisibilityUpdated() {
 			return m_visibilityUpdated;
+		}
+
+		/**
+		 * @return true if a change has been made in any settings affecting whether this 
+		 * entity can be accessed publicly, by members of a single site, or by members of 
+		 * one or more authz groups, or false otherwise.
+		 */
+		public boolean isAccessUpdated() {
+			return m_accessUpdated;
 		}
 
 		public boolean isAvailable() 

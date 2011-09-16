@@ -127,6 +127,13 @@ public interface ContentHostingService extends EntityProducer
 	 */
 	public static final String EVENT_RESOURCE_UPD_VISIBILITY = "content.upd.visibility";
 
+	/** 
+	 * Name of the event when access to a content-entity changes - specifically whenever 
+	 * a change is made in the groups that can see a content_resource or content_collection 
+	 * or in its public/site/group access settings. 
+	 */
+	public static final String EVENT_RESOURCE_UPD_ACCESS = "content.upd.access";
+
 	/** Security function for creating a resource. */
 	public static final String AUTH_RESOURCE_ADD = "content.new";
 
