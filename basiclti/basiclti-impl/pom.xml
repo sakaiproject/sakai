@@ -63,6 +63,12 @@
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <version>1.8.0.10</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -80,5 +86,21 @@
                 </includes>
             </resource>
         </resources>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <!-- 
+                By default, the surefire plugin will automatically include 
+		    all test classes with the following wildcard patterns:
+                "**/Test*.java" - includes all of its subdirectory and all 
+		    java filenames that start with "Test".
+                "**/*Test.java" - includes all of its subdirectory and all 
+		    java filenames that end with "Test".
+                "**/*TestCase.java" - includes all of its subdirectory and 
+		    all java filenames that end with "TestCase".
+                    -->
+          </plugin>
+        </plugins>
     </build>
 </project>
