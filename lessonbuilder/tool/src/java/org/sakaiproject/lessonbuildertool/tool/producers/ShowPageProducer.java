@@ -1508,6 +1508,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    fckInput.decorate(new UIFreeAttributeDecorator("height", "175"));
 					    fckInput.decorate(new UIFreeAttributeDecorator("width", "800"));
 					    fckInput.decorate(new UIStyleDecorator("evolved-box"));
+					    fckInput.decorate(new UIFreeAttributeDecorator("aria-label", messageLocator.getMessage("simplepage.editor")));
+					    fckInput.decorate(new UIFreeAttributeDecorator("role", "dialog"));
 
 					    if (!noEditor)
 						((SakaiFCKTextEvolver) richTextEvolver).evolveTextInput(fckInput, "" + commentsCount);

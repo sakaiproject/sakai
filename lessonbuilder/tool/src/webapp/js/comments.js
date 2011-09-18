@@ -7,6 +7,7 @@ var commentItemToReload = null;
 var deleteDialogCommentUrl = null;
 var originalDeleteDialogText = null;
 var noEditor = true;
+var userAgent = navigator.userAgent;
 
 $(function() {
 	
@@ -164,8 +165,33 @@ function switchEditors(link, show) {
 	
 	if(show) {
 
-		evolved.show();
-
+ 	    evolved.show();
+ 	    //$(link).parents(".commentsDiv").find(".editarea").show();
+  
+ 		if(noEditor) {
+ 		    evolved.focus();
+ 		} else if(sakai.editor.editors.ckeditor==undefined) {
+ 		    var evolvedbox = $(link).parents(".commentsDiv").find(".evolved-box");
+ 		    FCKeditorAPI.GetInstance(evolvedbox.children("textarea").attr("name")).Focus();
+ 		}else {
+ 		    var frame = $(link).parents(".commentsDiv").find("iframe");
+ 		    // var editorLabel = $(link).parents(".commentsDiv").find("textarea");
+ 
+ 		    // the builtin title is grossly too long, and not internationalized
+ 		    // this code will just say "editor". The problem is the CK version has
+ 		    // builtin help, so I'm reluctant for the moment to replace it
+ 		    //if (frame != null && editorLabel != null) {
+ 		    //	frame.attr("title", editorLabel.attr("aria-label"));
+ 		    //		    }
+ 
+ 		    // seem to need this to make focus show up in VoiceOver. Looks like it's
+ 		    // not seeing into the iframe, although Safari shows it as selected
+ 		    if (frame != null) {
+ 			frame.focus();
+ 		    }
+ 		    CKEDITOR.instances[evolved.children("textarea").attr("name")].focus();
+ 		}
+ 
 		var pos = evolved.offset();
 		window.scrollTo(pos.left, pos.top);
 
@@ -203,6 +229,7 @@ function switchEditors(link, show) {
 		
 		$(link).parents(".commentsDiv").find(".switchLink").show();
 		$(link).parents(".commentsDiv").find(".comment-edit-id").val("");
+
 	}
 	
 	if(!noEditor && sakai.editor.editors.ckeditor != undefined) {
