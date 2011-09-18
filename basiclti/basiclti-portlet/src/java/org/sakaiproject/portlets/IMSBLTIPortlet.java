@@ -545,7 +545,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
 	if ( "true".equals(allowOutcomes) && newAssignment != null && newAssignment.trim().length() > 1 ) {
 		if ( addGradeBookItem(request, newAssignment) ) {
-System.out.println("Success!");
+			// System.out.println("Success!");
 			assignment = newAssignment;
 		}
 	}

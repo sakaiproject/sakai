@@ -113,30 +113,12 @@ public class DBLTIService extends BaseLTIService implements LTIService {
       if (m_autoDdl) {
         // Use very carefully - for testing table creation
         boolean doReset = false;
-        if (doReset)
-          M_log.error("DO NOT RUN IN PRODUCTION WITH doReset TRUE");
+        if (doReset) M_log.error("DO NOT RUN IN PRODUCTION WITH doReset TRUE");
 
-        String[] sqls = foorm.formSqlTable("lti_mapping", LTIService.MAPPING_MODEL,
-            m_sql.getVendor(), doReset);
-        for (String sql : sqls)
-          if (m_sql.dbWriteFailQuiet(null, sql, null))
-            M_log.info(sql);
-        sqls = foorm.formSqlTable("lti_content", LTIService.CONTENT_MODEL,
-            m_sql.getVendor(), doReset);
-        for (String sql : sqls)
-          if (m_sql.dbWriteFailQuiet(null, sql, null))
-            M_log.info(sql);
-        sqls = foorm.formSqlTable("lti_tools", LTIService.TOOL_MODEL, m_sql.getVendor(),
-            doReset);
-        for (String sql : sqls)
-          if (m_sql.dbWriteFailQuiet(null, sql, null))
-            M_log.info(sql);
-
-        // Keep to add indexes (maybe)
-        // m_sql.ddl(this.getClass().getClassLoader(), "sakai_lti");
-
+	foorm.autoDDL("lti_mapping", LTIService.MAPPING_MODEL, m_sql, doReset, M_log);
+	foorm.autoDDL("lti_content", LTIService.CONTENT_MODEL, m_sql, doReset, M_log);
+	foorm.autoDDL("lti_tools", LTIService.TOOL_MODEL, m_sql, doReset, M_log);
       }
-
       super.init();
     } catch (Exception t) {
       M_log.warn("init(): ", t);
