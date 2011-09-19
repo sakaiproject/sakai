@@ -267,11 +267,11 @@ public class ResourceReleaseRule implements Rule, Obsoletable {
 					} else {
             Map<String,String> scoreData = conditionService.getConditionProvider("gradebook").getData("grades", assignmentRefParts[2] + "|" + assignmentRefParts[3] + "|" + member.getUserId());
             String scoreString = scoreData.get("score");
-            Double score = null;
+            Double score;
             try {
               score = Double.parseDouble(scoreString);
             } catch (NumberFormatException e) {
-              continue;
+              score = null;
             }
             AssignmentGrading grading = produceAssignmentGrading(member.getUserId(), score);
 						shouldBeAvailable = this.evaluate(grading);
