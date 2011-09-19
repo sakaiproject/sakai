@@ -51,14 +51,22 @@ function cancel() {
 	
 	<form method="POST" action="<portlet:actionURL/>" id="<portlet:namespace/>_config">
 	
-		<p><fmt:message key="config.portlet.title" /></p>
-		<input type="text" name="portletTitle" value="${configuredPortletTitle}" size="30"/>
+		<c:if test="${portletTitleIsLocked || feedUrlIsLocked}">
+			<p class="portlet-msg-info"><fmt:message key="edit.preconfigured" /></p>
+		</c:if>
+		
+		<c:if test="${!portletTitleIsLocked}">
+			<p><fmt:message key="config.portlet.title" /></p>
+			<input type="text" name="portletTitle" value="${configuredPortletTitle}" size="30"/>
+		</c:if>
 		
 		<p><fmt:message key="config.portlet.maxitems" /></p>
 		<input type="text" name="maxItems" value="${configuredMaxItems}" size="5"/>
 		
-		<p><fmt:message key="config.portlet.url" /></p>
-		<input type="text" name="feedUrl" value="${configuredFeedUrl}" size="50" />
+		<c:if test="${!feedUrlIsLocked}">
+			<p><fmt:message key="config.portlet.url" /></p>
+			<input type="text" name="feedUrl" value="${configuredFeedUrl}" size="50" />
+		</c:if>
 		
 		<p>
  			<input type="submit" value="<fmt:message key='config.button.submit' />">

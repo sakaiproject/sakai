@@ -27,6 +27,7 @@ import javax.portlet.PortletException;
 import javax.portlet.PortletMode;
 import javax.portlet.PortletModeException;
 import javax.portlet.PortletPreferences;
+import javax.portlet.PortletRequest;
 import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.PortletURL;
 import javax.portlet.ReadOnlyException;
@@ -72,6 +73,11 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	
 	private static final String FEED_CACHE_NAME = "au.edu.anu.portal.portlets.cache.SimpleRSSPortletCache.feed";
 	private static final String IMAGE_CACHE_NAME = "au.edu.anu.portal.portlets.cache.SimpleRSSPortletCache.images";
+	
+	//pref names
+	private final String PREF_PORTLET_TITLE = "portlet_title";
+	private final String PREF_FEED_URL = "feed_url";
+	private final String PREF_MAX_ITEMS = "max_items";
 	
 	public void init(PortletConfig config) throws PortletException {	   
 	   super.init(config);
@@ -141,6 +147,11 @@ public class SimpleRSSPortlet extends GenericPortlet{
 		request.setAttribute("configuredFeedUrl", getConfiguredFeedUrl(request));
 		request.setAttribute("configuredMaxItems", getConfiguredMaxItems(request));
 		
+		//check permissions
+		request.setAttribute("feedUrlIsLocked", isPrefLocked(request, PREF_FEED_URL));
+		request.setAttribute("portletTitleIsLocked", isPrefLocked(request, PREF_PORTLET_TITLE));
+
+		//cancel url
 		request.setAttribute("cancelUrl", getPortletModeUrl(response, PortletMode.VIEW));
 		
 		//get any error message that is in the request and pass it on
@@ -179,11 +190,21 @@ public class SimpleRSSPortlet extends GenericPortlet{
 			portletTitle=Constants.PORTLET_TITLE_DEFAULT;
 		}
 		
+		boolean feedUrlIsLocked = isPrefLocked(request, PREF_FEED_URL);
+		boolean portletTitleIsLocked = isPrefLocked(request, PREF_PORTLET_TITLE);
+		
 		//check not readonly
 		try {
-			prefs.setValue("portlet_title", portletTitle);
-			prefs.setValue("feed_url", feedUrl);
-			prefs.setValue("max_items", maxItems);
+			//only do this if we know its not locked, ie this is not a preconfigured portlet
+			if(!portletTitleIsLocked) {
+				prefs.setValue(PREF_PORTLET_TITLE, portletTitle);
+			}
+			
+			//only do this if we know its not locked, ie this is not a preconfigured portlet
+			if(!feedUrlIsLocked) {
+				prefs.setValue(PREF_FEED_URL, feedUrl);
+			}
+			prefs.setValue(PREF_MAX_ITEMS, maxItems);
 		} catch (ReadOnlyException e) {
 			success = false;
 			response.setRenderParameter("errorMessage", Messages.getString("error.form.readonly.error"));
@@ -316,7 +337,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	 */
 	private String getConfiguredPortletTitle(RenderRequest request) {
 		PortletPreferences pref = request.getPreferences();
-		return pref.getValue("portlet_title", Constants.PORTLET_TITLE_DEFAULT);
+		return pref.getValue(PREF_PORTLET_TITLE, Constants.PORTLET_TITLE_DEFAULT);
 	}
 	
 	/**
@@ -326,7 +347,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	 */
 	private String getConfiguredFeedUrl(RenderRequest request) {
 	      PortletPreferences pref = request.getPreferences();
-	      return pref.getValue("feed_url", null);
+	      return pref.getValue(PREF_FEED_URL, null);
 	}
 	
 	/**
@@ -336,7 +357,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	 */
 	private int getConfiguredMaxItems(RenderRequest request) {
 	      PortletPreferences pref = request.getPreferences();
-	      return Integer.valueOf(pref.getValue("max_items", Integer.toString(Constants.MAX_ITEMS)));
+	      return Integer.valueOf(pref.getValue(PREF_MAX_ITEMS, Integer.toString(Constants.MAX_ITEMS)));
 	}
 	
 	
@@ -427,6 +448,22 @@ public class SimpleRSSPortlet extends GenericPortlet{
 		}
 	    
 		return url.toString();
+	}
+	
+	/**
+	 * Helper to check if a preference is locked (ie readonly). This may be set by a channel config to restrict access.
+	 * 
+	 * @param request
+	 * @return
+	 */
+	private boolean isPrefLocked(PortletRequest request, String prefName) {
+		PortletPreferences prefs = request.getPreferences();
+		try {
+			return prefs.isReadOnly(prefName);
+		} catch (IllegalArgumentException e){
+			log.debug("Preference does not exist: " + prefName);
+			return false;
+		}
 	}
 	
 	public void destroy() {
