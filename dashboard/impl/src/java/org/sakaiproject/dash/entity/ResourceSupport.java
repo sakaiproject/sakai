@@ -455,9 +455,15 @@ public class ResourceSupport {
 		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
 		 */
 		public void processEvent(Event event) {
-			// TODO Auto-generated method stub
-			logger.info("\n\n\n=============================================================\n" + event  
-					+ "\n=============================================================\n\n\n");
+			
+			Entity entity = sakaiProxy.getEntity(event.getResource());
+			if(entity != null && entity instanceof ContentResource) {
+				ContentResource resource = (ContentResource) entity;
+				String title = resource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+				if(title != null) {
+					dashboardLogic.reviseNewsItemTitle(event.getResource(), title);
+				}
+			}
 		}
 	}
 }
