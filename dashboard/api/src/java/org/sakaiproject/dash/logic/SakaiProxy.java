@@ -29,6 +29,9 @@ public interface SakaiProxy {
 	public static final String EVENT_UPDATE_ASSIGNMENT_OPENDATE = AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_OPENDATE;
 	public static final String EVENT_UPDATE_ASSIGNMENT_ACCESS = AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS;
 	
+	public static final String EVENT_CONTENT_UPD_ACCESS = ContentHostingService.EVENT_RESOURCE_UPD_ACCESS;
+	public static final String EVENT_CONTENT_UPD_TITLE = ContentHostingService.EVENT_RESOURCE_UPD_TITLE;
+	public static final String EVENT_CONTENT_UPD_VISIBILITY = ContentHostingService.EVENT_RESOURCE_UPD_VISIBILITY;
 	public static final String EVENT_CONTENT_AVAILABLE = ContentHostingService.EVENT_RESOURCE_AVAILABLE;
 	public final static String EVENT_CONTENT_NEW = ContentHostingService.EVENT_RESOURCE_ADD;
 	public final static String EVENT_CONTENT_REMOVE = ContentHostingService.EVENT_RESOURCE_REMOVE;

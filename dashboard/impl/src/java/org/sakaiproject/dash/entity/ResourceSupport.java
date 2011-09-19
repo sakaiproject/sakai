@@ -57,8 +57,13 @@ public class ResourceSupport {
 		logger.info("init()");
 		
 		this.dashboardLogic.registerEntityType(new ResourceEntityType());
+		this.dashboardLogic.registerEventProcessor(new ContentNewEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ContentAccessUpdateEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ContentTitleUpdateEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ContentVisibilityUpdateEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new ContentAvailableEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new ContentReviseEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ContentRemoveEventProcessor());
 	}
 	
 
@@ -396,4 +401,63 @@ public class ResourceSupport {
 		}
 	}
 
+	public class ContentVisibilityUpdateEventProcessor implements EventProcessor {
+		
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#getEventIdentifer()
+		 */
+		public String getEventIdentifer() {
+			
+			return SakaiProxy.EVENT_CONTENT_UPD_VISIBILITY;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
+		 */
+		public void processEvent(Event event) {
+			// TODO Auto-generated method stub
+			logger.info("\n\n\n=============================================================\n" + event  
+					+ "\n=============================================================\n\n\n");
+		}
+	}
+
+	public class ContentAccessUpdateEventProcessor implements EventProcessor {
+		
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#getEventIdentifer()
+		 */
+		public String getEventIdentifer() {
+			
+			return SakaiProxy.EVENT_CONTENT_UPD_ACCESS;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
+		 */
+		public void processEvent(Event event) {
+			// TODO Auto-generated method stub
+			logger.info("\n\n\n=============================================================\n" + event  
+					+ "\n=============================================================\n\n\n");
+		}
+	}
+
+	public class ContentTitleUpdateEventProcessor implements EventProcessor {
+		
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#getEventIdentifer()
+		 */
+		public String getEventIdentifer() {
+			
+			return SakaiProxy.EVENT_CONTENT_UPD_TITLE;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
+		 */
+		public void processEvent(Event event) {
+			// TODO Auto-generated method stub
+			logger.info("\n\n\n=============================================================\n" + event  
+					+ "\n=============================================================\n\n\n");
+		}
+	}
 }
