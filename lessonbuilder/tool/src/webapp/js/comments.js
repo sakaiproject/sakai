@@ -175,14 +175,11 @@ function switchEditors(link, show) {
  		    FCKeditorAPI.GetInstance(evolvedbox.children("textarea").attr("name")).Focus();
  		}else {
  		    var frame = $(link).parents(".commentsDiv").find("iframe");
- 		    // var editorLabel = $(link).parents(".commentsDiv").find("textarea");
  
  		    // the builtin title is grossly too long, and not internationalized
- 		    // this code will just say "editor". The problem is the CK version has
- 		    // builtin help, so I'm reluctant for the moment to replace it
- 		    //if (frame != null && editorLabel != null) {
- 		    //	frame.attr("title", editorLabel.attr("aria-label"));
- 		    //		    }
+ 		    if (frame != null) {
+ 		    	frame.attr("title", msg("simplepage.ckeditor"));
+		    }
  
  		    // seem to need this to make focus show up in VoiceOver. Looks like it's
  		    // not seeing into the iframe, although Safari shows it as selected
