@@ -82,6 +82,7 @@ public class AuthorAssessmentListener
     AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil.
     lookupBean("assessmentSettings");
     author.setOutcome("createAssessment");
+    author.setFirstFromPage("editAssessment");
     if (!passAuthz(context)){
       author.setOutcome("author");
       return;
