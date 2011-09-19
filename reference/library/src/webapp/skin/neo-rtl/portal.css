@@ -1535,6 +1535,10 @@ ul.topnav li a{
 	float: right;
      display:block;
 }
+ul.topnav li a:hover,ul.topnav li a:focus{
+    color:#9cf   
+}
+
 ul.topnav li.nav-selected > a{
     color:#9cf
 }
