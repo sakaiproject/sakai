@@ -149,35 +149,7 @@
 					#end	
 
 #if ($tabsSites.tabsMoreSitesShow)
-<div id="selectSite" style="display:none">
-		#if ($useDHTMLMore)
-		#else
-
-		<div id="otherSiteMenuWrap">
-	         <div id="otherSiteSearch"> 
-			#if($tabsSites.tabsMoreSites.size() > ${showSearchWhen})
-	         	<label for="txtSearch">${rloader.sit_search}</label> <input type="text" id="txtSearch" name="txtSearch" maxlength="50" />
-		        <a id="imgSearch" href="#" style="display:none"><img src="${pageSkinRepo}/${pageSkin}/images/cancel.png" alt="${rloader.sit_search_cancel}" title="${rloader.sit_search_cancel}" /></a>
-				<span id="noSearchResults" style="display:none">${rloader.sit_search_none}</span>
-			##end
-			#else
-			<h4>${rloader.sit_drawer}</h4>
-			#end
-			</div>	
-
-
-			#if (${tabsSites.worksiteToolUrl})
-		        <ul id="otherSitesMenu">
-
-				<li><a id="allSites" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&sakai.state.reset=true"><span>${rloader.sit_allsites}</span></a></li>
-				<li><a id="newSite" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&panel=Shortcut&sakai_action=doNew_site&sakai.state.reset=true"><span>${rloader.sit_newsite}</span></a></li>
-				#if (${tabsSites.prefsToolUrl})
-				<li><a href="${tabsSites.prefsToolUrl}?sakai_nav_minimized=true"><span>${rloader.sit_preferences}</span></a></li>
-				#end
-			</ul>
-			#end
-     	</div>
-		#end	
+	<div id="selectSite" style="display:none">
 		#if ($useDHTMLMore)
 			<div id="otherSitesCategorWrap">
 			### TODO: format well
@@ -205,15 +177,34 @@
 					</ul>
 			#end
 			</div> ##  /#otherSitesCategorWrap
-			
-			#else
+		#else
+			<div id="otherSiteMenuWrap">
+				<div id="otherSiteSearch"> 
+					#if($tabsSites.tabsMoreSites.size() > ${showSearchWhen})
+						<label for="txtSearch">${rloader.sit_search}</label> <input type="text" id="txtSearch" name="txtSearch" maxlength="50" />
+						<a id="imgSearch" href="#" style="display:none"><img src="${pageSkinRepo}/${pageSkin}/images/cancel.png" alt="${rloader.sit_search_cancel}" title="${rloader.sit_search_cancel}" /></a>
+						<span id="noSearchResults" style="display:none">${rloader.sit_search_none}</span>
+					#else
+						<h4>${rloader.sit_drawer}</h4>
+					#end
+				</div>	
      			<ul id="otherSiteList" role="navigation">
 					#foreach( $site in $tabsSites.tabsMoreSites )
 						<li><a href="${site.siteUrl}" title="${site.fullTitle}"><span  class="fullTitle">${site.fullTitle}</span></a><a href="#" id="${site.siteId}"class="toolMenus">&nbsp;<span class="skip">Tools</span></a></li>
 					#end	
       			</ul>
-			#end
-</div>
+			</div>
+		#end	
+		#if (${tabsSites.worksiteToolUrl})
+			<ul id="otherSitesMenu">
+				<li><a id="allSites" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&sakai.state.reset=true"><span>${rloader.sit_allsites}</span></a></li>
+				<li><a id="newSite" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&panel=Shortcut&sakai_action=doNew_site&sakai.state.reset=true"><span>${rloader.sit_newsite}</span></a></li>
+				#if (${tabsSites.prefsToolUrl})
+					<li><a href="${tabsSites.prefsToolUrl}?sakai_nav_minimized=true"><span>${rloader.sit_preferences}</span></a></li>
+				#end
+			</ul>
+		#end
+	</div>
 #end
 
 <script language="javascript" type="text/javascript">
