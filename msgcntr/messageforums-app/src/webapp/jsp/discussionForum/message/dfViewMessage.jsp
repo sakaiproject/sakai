@@ -9,7 +9,8 @@
 <f:view>
 	<sakai:view toolCssHref="/messageforums-tool/css/msgcntr.css">
 		<h:form id="msgForum" styleClass="specialLink">
-			<script type="text/javascript" src="/library/js/jquery.js"></script>
+			<script type="text/javascript" language="JavaScript" src="/library/js/jquery-ui-latest/js/jquery.min.js"></script>
+			<sakai:script contextBase="/messageforums-tool" path="/js/jquery.qtip.js"/>
 			<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
 			<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 			<!--jsp/discussionForum/message/dfViewMessage.jsp-->
@@ -40,7 +41,21 @@
 					});
 			</script>
 
-
+<script type="text/javascript">
+	//Profile tooltips
+	$(document).ready(function() {
+		$('.authorProfile').each(function() {
+			$(this).qtip({ 
+				content: {text: '<h:outputText value="#{msgs.loading_wait}" />',	url: $(this).attr('href'), title: {	text: '<h:outputText value="#{msgs.cdfm_profile_information}" />',button: '[ X ]' } },
+				position: {	corner: {target: 'center', tooltip: 'leftMiddle'} },
+				show: { when: 'mouseover', solo: true, effect: {length:0} },
+				hide: { when:'mouseout', fixed:true, delay: 300,  effect: {length:0} },
+				style: { tip: true, border: {color:'#687E9C'}, name: 'light', width: 570 }
+			});
+			$(this).attr('href', 'javascript:;');
+		});
+	});
+</script>
 			<%--breadcrumb and thread nav grid--%>
 			<h:panelGrid columns="2" width="100%" styleClass="navPanel">
 				<h:panelGroup>
@@ -210,11 +225,20 @@
 					<h:outputText rendered="#{ForumTool.selectedMessage.message.deleted && !ForumTool.needToPostFirst}"  value="#{msgs.cdfm_msg_deleted_label}" styleClass="instruction"/>
 					<h:outputText value="#{msgs.cdfm_postFirst_warning}" rendered="#{ForumTool.needToPostFirst}" styleClass="messageAlert"/>
 					<h:panelGroup rendered="#{!ForumTool.selectedMessage.message.deleted}" style="display:block">
+						<h:panelGroup styleClass="authorImage">
+							<h:outputLink value="#{ForumTool.serverUrl}/direct/profile/#{ForumTool.selectedMessage.message.authorId}/formatted" styleClass="authorProfile" rendered="#{ForumTool.showProfileInfo}">
+								<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{ForumTool.selectedMessage.message.authorId}/image/thumb" alt="#{ForumTool.selectedMessage.message.author}" />
+							</h:outputLink>
+							<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{ForumTool.selectedMessage.message.authorId}/image/thumb" alt="#{ForumTool.selectedMessage.message.author}" rendered="#{!ForumTool.showProfileInfo}"/>
+						</h:panelGroup>
 						<h:outputText rendered="#{ ForumTool.selectedMessage.msgDenied}" value="#{msgs.cdfm_msg_denied_label}" styleClass="messageDenied"/>
 						<h:outputText 	rendered="#{ForumTool.allowedToApproveMsg && ForumTool.allowedToDenyMsg}" value="#{msgs.cdfm_msg_pending_label}" styleClass="messagePending"/>
 						<h:outputText value="#{ForumTool.selectedMessage.message.title}"  styleClass="title" />
 						<h:outputText value="<br />" escape="false" />
-						<h:outputText value="#{ForumTool.selectedMessage.message.author}" styleClass="textPanelFooter"/>
+						<h:outputLink value="#{ForumTool.serverUrl}/direct/profile/#{ForumTool.selectedMessage.message.authorId}/formatted" styleClass="authorProfile" rendered="#{ForumTool.showProfileInfo}">
+							<h:outputText value="#{ForumTool.selectedMessage.message.author}" styleClass="textPanelFooter"/>
+						</h:outputLink>
+						<h:outputText value="#{ForumTool.selectedMessage.message.author}" styleClass="textPanelFooter" rendered="#{!ForumTool.showProfileInfo}"/>
 						<h:outputText value=" #{msgs.cdfm_openb} "  styleClass="textPanelFooter" />
 						<h:outputText value="#{ForumTool.selectedMessage.message.created}"  styleClass="textPanelFooter" >
 							<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" />  

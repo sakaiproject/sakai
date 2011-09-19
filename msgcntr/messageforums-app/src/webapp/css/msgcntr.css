@@ -149,6 +149,7 @@
 	padding-bottom: 0;
 }
 .messagesThreaded tbody tr td div.hierItemBlock .textPanel{
+	clear: both;
 	width: 60%;
 }
 .titleBarBorder{
@@ -496,6 +497,9 @@ table.discTria:hover{
 .messageMetadata span.md{
 	border-bottom:1px solid #ccc;
 }
+a .textPanelFooter{
+	color: inherit;
+}
 
 .lastRevise{
 	margin:.3em 0;
@@ -523,7 +527,29 @@ form{margin-bottom:0;}
      vertical-align:middle;
      margin-right:3em
 }
-
+.authorImage {
+	float: left;
+	display: block;
+	text-align: center;
+	padding-right: .25em;
+	padding-bottom: .3em;
+}
+.listHier .authorImage img{	
+	max-width: 8em;
+	max-height: 5em;
+}
+.singleMessage .authorImage img{	
+	max-width: 5em;
+	max-height: 4em;
+}
+img.authorImage {
+	display: inline-block;
+	float: none;
+	max-width: 3.5em;
+	max-height: 2.5em;
+	width: auto !important;
+	vertical-align: bottom !important;
+}
 .moreMenuLink span{
     padding-right:15px;
     background:transparent url(../images/silk/bullet_arrow_down.png) bottom right no-repeat;
@@ -546,4 +572,14 @@ form{margin-bottom:0;}
 .moreMenu li a:hover{
     background:#eee;
     text-decoration:none;
-    }
+}
+.qtip-content{
+	max-height: 200px;
+	overflow: auto !important;
+}
+.profile2-profile{
+	width: 500px !important;
+}
+.profile2-profile-content{
+	width: 270px !important;
+}

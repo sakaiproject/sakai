@@ -26,6 +26,14 @@
 
 <h:outputText escape="false" value="<a id=\"#{message.message.id}\" name=\"#{message.message.id}\"></a>" />
 	<f:verbatim><div class="hierItemBlock" ></f:verbatim>
+			<%-- author image --%>
+			<h:panelGroup rendered="#{!message.deleted}" styleClass="authorImage">
+				<h:outputLink value="#{ForumTool.serverUrl}/direct/profile/#{message.message.authorId}/formatted" styleClass="authorProfile" rendered="#{ForumTool.showProfileInfo}" >
+					<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{message.message.authorId}/image/thumb" alt="#{message.message.author}" />
+				</h:outputLink>
+				<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{message.message.authorId}/image/thumb" alt="#{message.message.author}" rendered="#{!ForumTool.showProfileInfo}" />
+			</h:panelGroup>
+			
 			<%-- a deleted message --%>
 			<h:panelGroup styleClass="inactive" rendered="#{message.deleted}" >
 				<f:verbatim><span></f:verbatim>
@@ -49,8 +57,12 @@
 				</h:commandLink>
 				<h:outputText value="<br /><div class=\"messageMetadata\">" escape="false" />
 				<%--author --%>
-				<h:outputText value="  #{message.message.author}" rendered="#{message.read}" styleClass="textPanelFooter md"/>
-				<h:outputText  value="  #{message.message.author}" rendered="#{!message.read }" styleClass="unreadMsg textPanelFooter md"/>
+				<h:outputLink value="#{ForumTool.serverUrl}/direct/profile/#{message.message.authorId}/formatted" styleClass="authorProfile" rendered="#{ForumTool.showProfileInfo}">
+					<h:outputText value="  #{message.message.author}" rendered="#{message.read}" styleClass="textPanelFooter md"/>
+					<h:outputText  value="  #{message.message.author}" rendered="#{!message.read }" styleClass="unreadMsg textPanelFooter md"/>
+				</h:outputLink>
+				<h:outputText value="  #{message.message.author}" rendered="#{message.read && !ForumTool.showProfileInfo}" styleClass="textPanelFooter md"/>
+				<h:outputText  value="  #{message.message.author}" rendered="#{!message.read && !ForumTool.showProfileInfo}" styleClass="unreadMsg textPanelFooter md"/>
 				<%--date --%>
 				<h:outputText value="#{message.message.created}" rendered="#{message.read}" styleClass="textPanelFooter md">
 					<f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" />

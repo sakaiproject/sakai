@@ -46,6 +46,7 @@ public interface Message extends MutableEntity {
     public Set getAttachmentsSet();
     public String getAuthor();
     public void setAuthor(String author);
+    public String getAuthorId();
     public String getBody();
     public void setBody(String body);
     public Message getInReplyTo();

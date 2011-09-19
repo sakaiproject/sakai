@@ -142,6 +142,11 @@ public class MessageImpl extends MutableEntityImpl implements Message
 	{
 		this.author = author;
 	}
+	
+	public String getAuthorId()
+	{
+		return createdBy;
+	}
 
 	public String getBody()
 	{

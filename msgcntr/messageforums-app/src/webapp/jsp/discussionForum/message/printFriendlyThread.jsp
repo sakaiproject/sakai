@@ -36,12 +36,15 @@
 		<h:dataTable id="expandedMessages" value="#{ForumTool.PFSelectedThread}" var="message" rendered="#{!ForumTool.threaded}"
 				styleClass="listHier printTable" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column>
+				<h:panelGroup styleClass="heading">
+					<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{ForumTool.selectedMessage.message.authorId}/image/thumb" alt="#{ForumTool.selectedMessage.message.author}" styleClass="authorImage" />
 						<h:outputText value="#{message.message.title}" styleClass="title" />		          	
 			          	<h:outputText value=" - #{message.message.author}"/>
                         <h:outputText value="#{message.message.created}">
   				   	         <f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" />
             			</h:outputText>
-						<mf:htmlShowArea value="#{message.message.body}" hideBorder="false" />
+				</h:panelGroup>
+						<mf:htmlShowArea value="#{message.message.body}" hideBorder="false" />		
 			</h:column>
 		</h:dataTable>
 		
@@ -49,11 +52,14 @@
 		<mf:hierDataTable id="expandedThreadedMessages" value="#{ForumTool.PFSelectedThread}" var="message" rendered="#{ForumTool.threaded}"
 						noarrows="true" styleClass="listHier printTable" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column id="_msg_subject">
+						<h:panelGroup styleClass="heading">
+						<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{message.message.authorId}/image/thumb" alt="#{message.message.author}" styleClass="authorImage" />
 						<h:outputText value="#{message.message.title}" styleClass="title"/>		          	
 			          	<h:outputText value=" - #{message.message.author}"/>
                         <h:outputText value="#{message.message.created}">
   				   	         <f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" />
             			</h:outputText>
+						</h:panelGroup>
 						<mf:htmlShowArea value="#{message.message.body}" hideBorder="false" />
 			</h:column>
 		</mf:hierDataTable>

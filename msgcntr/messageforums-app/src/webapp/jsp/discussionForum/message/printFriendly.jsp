@@ -34,7 +34,9 @@
 		<mf:hierDataTable id="expandedThreadedMessages" value="#{ForumTool.pFMessages}" var="message" 
 						noarrows="true" styleClass="listHier printTable" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column id="_msg_subject">
-					<%-- message has been submitted and has bene denied  approval by moderator--%>
+				<h:panelGroup styleClass="heading">
+					<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{message.message.authorId}/image/thumb" alt="#{message.message.author}" styleClass="authorImage" />
+						<%-- message has been submitted and has bene denied  approval by moderator--%>
 					<h:outputText value="#{msgs.cdfm_msg_denied_label}"  styleClass="messageDenied"  rendered="#{message.msgDenied}" />
 					<%-- message has been submitted and is pending approval by moderator--%> 
 					<h:outputText value="#{msgs.cdfm_msg_pending_label}" styleClass="messagePending" rendered="#{message.msgPending}" />
@@ -43,6 +45,7 @@
                     <h:outputText value="#{message.message.created}">
 			   	         <f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" />
            			</h:outputText>
+				</h:panelGroup>
 						<mf:htmlShowArea value="#{message.message.body}" hideBorder="false" />
 
 			</h:column>

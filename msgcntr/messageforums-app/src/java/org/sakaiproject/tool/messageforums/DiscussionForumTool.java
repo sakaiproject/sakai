@@ -257,6 +257,7 @@ public class DiscussionForumTool
   private boolean showForumLinksInNav = true;
   private boolean showShortDescription = true;
   private boolean collapsePermissionPanel = false;
+  private boolean showProfileInfo = true;
 
   // compose
   private MessageForumsMessageManager messageManager;
@@ -379,6 +380,7 @@ public class DiscussionForumTool
     showForumLinksInNav = ServerConfigurationService.getBoolean("mc.showForumLinksInNav", true);
     showShortDescription = ServerConfigurationService.getBoolean("mc.showShortDescription", true);
     collapsePermissionPanel = ServerConfigurationService.getBoolean("mc.collapsePermissionPanel", false);
+    showProfileInfo = ServerConfigurationService.getBoolean("profile2.profile.link.enabled", true);
 
   }
 
@@ -8460,5 +8462,16 @@ public class DiscussionForumTool
 		this.editorRows = editorRows;
 	}
 
+	public String getServerUrl() {
+		return ServerConfigurationService.getServerUrl();
+	}
+	
+	public boolean getShowProfileInfo() {
+		if (showProfileInfo) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 }
 
