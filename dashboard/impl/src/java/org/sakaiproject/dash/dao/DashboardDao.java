@@ -23,6 +23,7 @@ package org.sakaiproject.dash.dao;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.sakaiproject.dash.model.AvailabilityCheck;
 import org.sakaiproject.dash.model.CalendarItem;
@@ -97,6 +98,13 @@ public interface DashboardDao {
 	public boolean deleteCalendarItem(Long id);
 	
 	/**
+	 * Remove a link between a person and a calendar item.
+	 * @param personId
+	 * @param calendarItemId
+	 */
+	public boolean deleteCalendarLink(Long personId, Long calendarItemId);
+
+	/**
 	 * Removes all CalendarLink objects referencing a CalendarItem with the id indicated, if it exists. 
 	 * @param id
 	 * @return true if any items are removed, false otherwise. 
@@ -117,6 +125,13 @@ public interface DashboardDao {
 	 * @return true if an item is removed, false otherwise. 
 	 */
 	public boolean deleteNewsItem(Long id);
+
+	/**
+	 * Remove a link between a person and a new item.
+	 * @param personId
+	 * @param newsItemId
+	 */
+	public boolean deleteNewsLink(Long personId, Long newsItemId);
 
 	/**
 	 * Removes all NewsLink objects referencing a NewsItem with the id indicated, if it exists. 
@@ -166,5 +181,9 @@ public interface DashboardDao {
 	public boolean updateNewsItemTitle(Long id, String newTitle);
 
 	public abstract List<AvailabilityCheck> getAvailabilityChecksBeforeTime(Date time);
+
+	public Set<String> getSakaIdsForUserWithCalendarLinks(String entityReference);
+
+	public Set<String> getSakaiIdsForUserWithNewsLinks(String entityReference);
 
 }

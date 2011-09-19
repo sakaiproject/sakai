@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Queue;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import net.sf.ehcache.Cache;
@@ -55,6 +57,8 @@ import org.sakaiproject.dash.model.SourceType;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
+
+import com.google.common.collect.Sets;
 
 /**
  * 
@@ -556,6 +560,62 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		boolean added = dao.addAvailabilityCheck(availabilityCheck);
 	}
 
+	public void updateCalendarLinks(String entityReference) {
+		CalendarItem item = dao.getCalendarItem(entityReference);
+		if(item == null) {
+			
+		} else {
+			Set<String> oldUserSet = dao.getSakaIdsForUserWithCalendarLinks(entityReference);
+			Set<String> newUserSet = new TreeSet<String>(this.sakaiProxy.getUsersWithReadAccess(entityReference, item.getSourceType().getAccessPermission()));
+			
+			Set<String> removeSet = Sets.difference(oldUserSet, newUserSet);
+			Set<String> addSet = Sets.difference(newUserSet, oldUserSet);
+			
+			for(String sakaiUserId : removeSet) {
+				Person person = dao.getPersonBySakaiId(sakaiUserId);
+				if(person != null) {
+					dao.deleteCalendarLink(person.getId(), item.getId());
+				}
+			}
+			
+			for(String sakaiUserId : addSet) {
+				Person person = dao.getPersonBySakaiId(sakaiUserId);
+				if(person != null) {
+					CalendarLink link = new CalendarLink(person, item, item.getContext(),false, false);
+					dao.addCalendarLink(link);
+				}
+			}
+		}
+	}
+	
+	public void updateNewsLinks(String entityReference) {
+		NewsItem item = dao.getNewsItem(entityReference);
+		if(item == null) {
+			
+		} else {
+			Set<String> oldUserSet = dao.getSakaiIdsForUserWithNewsLinks(entityReference);
+			Set<String> newUserSet = new TreeSet<String>(this.sakaiProxy.getUsersWithReadAccess(entityReference, item.getSourceType().getAccessPermission()));
+			
+			Set<String> removeSet = Sets.difference(oldUserSet, newUserSet);
+			Set<String> addSet = Sets.difference(newUserSet, oldUserSet);
+			
+			for(String sakaiUserId : removeSet) {
+				Person person = dao.getPersonBySakaiId(sakaiUserId);
+				if(person != null) {
+					dao.deleteNewsLink(person.getId(), item.getId());
+				}
+			}
+			
+			for(String sakaiUserId : addSet) {
+				Person person = dao.getPersonBySakaiId(sakaiUserId);
+				if(person != null) {
+					NewsLink link = new NewsLink(person, item, item.getContext(),false, false);
+					dao.addNewsLink(link);
+				}
+			}
+		}
+	}
+	
 	/*
 	 * 
 	 */

@@ -183,6 +183,10 @@ public interface DashboardLogic {
 	 */
 	public void removeAllScheduledAvailabilityChecks(String entityReference);
 
+	public abstract void updateNewsLinks(String entityReference);
+
+	public abstract void updateCalendarLinks(String entityReference);
+
 	// todo:
 	// add methods to revise news items, calendar items, news links, calendar links, etc.
 	

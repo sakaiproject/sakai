@@ -29,9 +29,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -362,6 +364,22 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}		
 	}
 
+	public boolean deleteCalendarLink(Long personId, Long calendarItemId) {
+		if(log.isDebugEnabled()) {
+			log.debug("deleteCalendarLink(" + personId + "," + calendarItemId + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("delete.CalendarLink.by.personId.itemId"),
+				new Object[]{personId, calendarItemId}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("deleteCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}		
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#deleteCalendarLinks(java.lang.Long)
@@ -394,6 +412,22 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return true;
 		} catch (DataAccessException ex) {
            log.error("deleteCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}		
+	}
+
+	public boolean deleteNewsLink(Long personId, Long newsItemId) {
+		if(log.isDebugEnabled()) {
+			log.debug("deleteNewsLink(" + personId + "," + newsItemId + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("delete.NewsLink.by.personId.itemId"),
+				new Object[]{personId, newsItemId}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("deleteNewsLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}		
 	}
@@ -766,6 +800,36 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 	
+	public Set<String> getSakaIdsForUserWithCalendarLinks(String entityReference) {
+		if(log.isDebugEnabled()) {
+			log.debug("getSakaIdsForUserWithCalendarLinks(" + entityReference + ")");
+		}
+		String sql = getStatement("select.sakaiUserIds.in.calendarLinks.by.entityReference");
+		Object[] params = new Object[]{entityReference};
+		try {
+			List<String> userIds = getJdbcTemplate().queryForList(sql,params);
+			return new HashSet<String>(userIds);
+		} catch (DataAccessException ex) {
+           log.error("getSakaIdsForUserWithCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return new HashSet<String>();
+		}
+	}
+
+	public Set<String> getSakaiIdsForUserWithNewsLinks(String entityReference) {
+		if(log.isDebugEnabled()) {
+			log.debug("getSakaIdsForUserWithNewsLinks(" + entityReference + ")");
+		}
+		String sql = getStatement("select.sakaiUserIds.in.newsLinks.by.entityReference");
+		Object[] params = new Object[]{entityReference};
+		try {
+			List<String> userIds = getJdbcTemplate().queryForList(sql,params);
+			return new HashSet<String>(userIds);
+		} catch (DataAccessException ex) {
+           log.error("getSakaIdsForUserWithNewsLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return new HashSet<String>();
+		}
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#updateCalendarItem(java.lang.Long, java.lang.String, java.util.Date)
