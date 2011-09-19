@@ -10111,7 +10111,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 					// first check for global rule satisfaction
 					String satisfiesRule = this.m_properties.getProperty("resource.satisfies.rule");
 					if (satisfiesRule == null) {
-						Collection acl = (Collection)this.m_properties.get("conditional_access_list");
+						List acl = (List)this.m_properties.getPropertyList("conditional_access_list");
 						if (acl == null) {
 							available = false;
 						} else {
