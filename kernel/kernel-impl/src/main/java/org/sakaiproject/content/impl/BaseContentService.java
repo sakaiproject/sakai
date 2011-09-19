@@ -9822,8 +9822,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			{
 				throw new InconsistentException(this.getReference());
 			}
-
-			this.m_accessUpdated = true;
+			if(this.m_groups.size() > 0) {
+				this.m_accessUpdated = true;
+			}
 			this.m_access = AccessMode.INHERITED;
 			this.m_groups.clear();
 
@@ -9834,8 +9835,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		 */
 		public void clearPublicAccess() throws InconsistentException, PermissionException 
 		{
+			if(isPubView(this.m_id)) {
+				this.m_accessUpdated = true;
+			}
 			setPubView(this.m_id, false);
-			this.m_accessUpdated = true;
 			this.m_access = AccessMode.INHERITED;
 			this.m_groups.clear();
 
@@ -9843,8 +9846,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 		public void setPublicAccess() throws PermissionException
 		{
+			if(! isPubView(this.m_id)) {
+				this.m_accessUpdated = true;
+			}
 			setPubView(this.m_id, true);
-			this.m_accessUpdated = true;
+
 			this.m_access = AccessMode.INHERITED;
 			this.m_groups.clear();
 		}
@@ -9872,6 +9878,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			SortedSet groupRefs = new TreeSet();
 			if(this.getInheritedAccess() == AccessMode.GROUPED)
 			{
+				this.m_accessUpdated = true;
 				groupRefs.addAll(this.getInheritedGroups());
 			}
 			else
@@ -9914,11 +9921,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				newGroups.add(groupRef);
 			}
 
-			this.m_access = AccessMode.GROUPED;
-			this.m_groups.clear();
-			this.m_groups.addAll(newGroups);
-			this.m_accessUpdated = true;
-
+			if(this.m_access != AccessMode.GROUPED || !(newGroups.containsAll(this.m_groups) && this.m_groups.containsAll(newGroups))) {
+				this.m_accessUpdated = true;
+				
+				this.m_access = AccessMode.GROUPED;
+				this.m_groups.clear();
+				this.m_groups.addAll(newGroups);
+			}
+			
 		}
 
 
