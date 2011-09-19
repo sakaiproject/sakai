@@ -8,14 +8,26 @@ var deleteDialogCommentUrl = null;
 var originalDeleteDialogText = null;
 var noEditor = true;
 var userAgent = navigator.userAgent;
+var fckEditor = false;
+var ckEditor = false;
 
 $(function() {
 	
 	noEditor = ($("div.evolved-box").size() == 0);
+	if (!noEditor) {
+	    try {
+		if (sakai.editor.editors.ckeditor==undefined)
+		    fckEditor = true;
+	    } catch (err) {
+		fckEditor = true;
+	    }
+	}
+	if (!noEditor && !fckEditor)
+	    ckEditor = true;
 
 	if (noEditor) {
 		$(".evolved-box").hide();
-	}else if(sakai.editor.editors.ckeditor==undefined) {
+	}else if(fckEditor) {
 		$(".evolved-box :not(textarea)").hide();
 	}else {
 		$(".evolved-box").hide();
@@ -133,7 +145,7 @@ function replyToComment(link, replytext) {
 	    body = body.get(0).innerText || body.text().replace(/^\s*/,"").replace(/\n\s*/g,"\n");
 	    body = replytext + '\n\n' + body.replace(/^/,"|  ").replace(/\n/g,"\n|  ") + '\n\n';
 	    evolved.val(body);
-	} else if(sakai.editor.editors.ckeditor==undefined) {
+	} else if(fckEditor) {
 		FCKeditorAPI.GetInstance(evolved.children("textarea").attr("name")).SetHTML(replytext + '<div style="border-left: 2px solid black; padding-eleft:6px">' + (link).parent().children(".commentBody").html() + '</div>\n<p></p>');
 	}else {
 		CKEDITOR.instances[evolved.children("textarea").attr("name")].setData(replytext + '<div style="border-left: 2px solid black; padding-left:6px">' + $(link).parent().children(".commentBody").html() + '</div>\n<p></p>');
@@ -157,7 +169,7 @@ function switchEditors(link, show) {
 		evolved = $(link).parents(".commentsDiv").find(".evolved-box");
 		evolved.css('width', '600px');
 		evolved.css('height', '175px');
-	}else if(sakai.editor.editors.ckeditor==undefined) {
+	}else if(fckEditor) {
 		evolved = $(link).parents(".commentsDiv").find(".evolved-box :not(textarea)");
 	}else {
 		evolved = $(link).parents(".commentsDiv").find(".evolved-box");
@@ -170,7 +182,7 @@ function switchEditors(link, show) {
   
  		if(noEditor) {
  		    evolved.focus();
- 		} else if(sakai.editor.editors.ckeditor==undefined) {
+ 		} else if(fckEditor) {
  		    var evolvedbox = $(link).parents(".commentsDiv").find(".evolved-box");
  		    FCKeditorAPI.GetInstance(evolvedbox.children("textarea").attr("name")).Focus();
  		}else {
@@ -209,13 +221,13 @@ function switchEditors(link, show) {
 	}else {
 		evolved.hide();
 		
-		if(!noEditor && sakai.editor.editors.ckeditor==undefined) {
+		if(fckEditor) {
 			evolved = $(link).parents(".commentsDiv").find(".evolved-box");
 		}
 		
 		if (noEditor) {
 			evolved.val("");
-		} else if(sakai.editor.editors.ckeditor==undefined) {
+		} else if(fckEditor) {
 			FCKeditorAPI.GetInstance(evolved.children("textarea").attr("name")).SetHTML("");
 		}else {
 			CKEDITOR.instances[evolved.children("textarea").attr("name")].setData("");
@@ -229,7 +241,7 @@ function switchEditors(link, show) {
 
 	}
 	
-	if(!noEditor && sakai.editor.editors.ckeditor != undefined) {
+	if(ckEditor) {
 		evolved.find("textarea").hide();
 	}
 	
@@ -285,7 +297,7 @@ function edit(link, id) {
 	    body = body.get(0).innerText || body.text().replace(/^\s*/,"").replace(/\n\s*/g,"\n");
 	    evolved.val(body);
 
-	} else if(sakai.editor.editors.ckeditor==undefined) {
+	} else if(fckEditor) {
 		FCKeditorAPI.GetInstance(evolved.children("textarea").attr("name")).SetHTML($(link).parent().children(".commentBody").html());
 	}else {
 		CKEDITOR.instances[evolved.children("textarea").attr("name")].setData($(link).parent().children(".commentBody").html());

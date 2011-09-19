@@ -19,7 +19,7 @@
  
 
   <bean id="messageSource" 
-	class="org.sakaiproject.util.ResourceLoaderMessageSource"> 
+	class="org.sakaiproject.lessonbuildertool.util.ResourceLoaderMessageSource"> 
     <property name="basename" value="classpath:messages"/> 
     <property name="cacheSeconds" value="10" /> 
   </bean> 

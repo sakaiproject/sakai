@@ -148,6 +148,9 @@ public class SimplePageBean {
 		NOT_REQUIRED, REQUIRED, DISABLED, COMPLETED, FAILED
 	}
 	
+    // from ResourceProperites. This isn't in 2.7.1, so define it here. Let's hope it doesn't change...
+        public static final String PROP_ALLOW_INLINE = "SAKAI:allow_inline";
+
 	public static final Pattern YOUTUBE_PATTERN = Pattern.compile("v[=/_][\\w-]{11}");
 	public static final Pattern SHORT_YOUTUBE_PATTERN = Pattern.compile("[\\w-]{11}");
 	public static final String GRADES[] = { "A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "D-", "E", "F" };
@@ -5069,13 +5072,13 @@ public class SimplePageBean {
 			ContentCollectionEdit cce = contentHostingService.editCollection(contentCollectionId);
 
 			ResourcePropertiesEdit props = cce.getPropertiesEdit();
-			props.addProperty(ResourceProperties.PROP_ALLOW_INLINE, "true");
+			props.addProperty(PROP_ALLOW_INLINE, "true");
 			List<String> children = cce.getMembers();
 
 			for (int j = 0; j < children.size(); j++) {
 				String resId = children.get(j);
 				if (resId.endsWith("/")) {
-					setPropertyOnFolderRecursively(resId, ResourceProperties.PROP_ALLOW_INLINE, "true");
+					setPropertyOnFolderRecursively(resId, PROP_ALLOW_INLINE, "true");
 				}
 			}
 

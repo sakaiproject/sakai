@@ -517,7 +517,9 @@ public class LessonBuilderAccessService {
 
 						}
 					} catch (Exception t) {
-						throw new EntityNotDefinedException(ref.getReference(), t);
+					    throw new EntityNotDefinedException(ref.getReference());
+					    // following won't work in 2.7.1
+					    // throw new EntityNotDefinedException(ref.getReference(), t);
 					}
 					
 				}catch(Exception ex) {
