@@ -1707,6 +1707,8 @@ li.submenuitem span.hidden{
 ul#otherSiteList, ul.otherSitesCategorList{
     margin:5px;
     padding:0;
+    clear:both;
+    float:none;
 }
 ul#otherSitesMenu{
     position:absolute;
