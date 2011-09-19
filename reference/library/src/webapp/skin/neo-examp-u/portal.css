@@ -783,10 +783,10 @@ a#toggleToolMenu{
 	display:block;
 	height:16px;
 	padding-right:0 !important;
-	width:0px;
+	width:1px;
 }
 .sakaiMinimizePageNavigation #toolMenu{
-	width:0px;
+	width:1px;
 }
 
 .sakaiMinimizePageNavigation #toolMenu li span,.sakaiMinimizePageNavigation #subSites li span{
@@ -798,7 +798,12 @@ a#toggleToolMenu{
     overflow:hidden; 
 }
 .sakaiMinimizePageNavigation #toolMenuWrap, .sakaiMinimizePageNavigation #toolMenuWrap:hover{
-    display:none;
+    position:absolute; 
+    left:-10000px; 
+    top:auto; 
+    width:1px; 
+    height:1px; 
+    overflow:hidden; 
 }
 .sakaiMinimizePageNavigation #togglebar{
 	padding-left:0em;
