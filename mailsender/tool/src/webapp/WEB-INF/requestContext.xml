@@ -11,6 +11,7 @@
 		<property name="multipartMap" ref="multipartMap" />
 		<property name="messages" ref="targettedMessageList" />
 		<property name="messageLocator" ref="messageLocator" />
+		<property name="configService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 	</bean>
 
 	<bean id="configBean" class="org.sakaiproject.mailsender.tool.beans.ConfigBean">

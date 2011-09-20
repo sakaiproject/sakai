@@ -84,6 +84,24 @@
             </roles>
             <timezone>0</timezone>
         </developer>
+        <developer>
+            <id>noahbotimer</id>
+            <name>Noah Botimer</name>
+            <organization>University of Michigan</organization>
+            <roles>
+                <role>contributor</role>
+            </roles>
+            <timezone>-6</timezone>
+        </developer>
+        <developer>
+            <id>hedrick</id>
+            <name>Charles Hedrick</name>
+            <organization>Rutgers University</organization>
+            <roles>
+                <role>contributor</role>
+            </roles>
+            <timezone>-5</timezone>
+        </developer>
     </developers>
 
     <scm>

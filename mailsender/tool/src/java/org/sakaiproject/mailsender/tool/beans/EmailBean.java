@@ -16,6 +16,7 @@
  **********************************************************************************/
 package org.sakaiproject.mailsender.tool.beans;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -24,6 +25,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.mailsender.AttachmentException;
 import org.sakaiproject.mailsender.MailsenderException;
@@ -33,6 +35,7 @@ import org.sakaiproject.mailsender.logic.ExternalLogic;
 import org.sakaiproject.mailsender.model.ConfigEntry;
 import org.sakaiproject.mailsender.model.EmailEntry;
 import org.sakaiproject.user.api.User;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import uk.org.ponder.messageutil.MessageLocator;
@@ -53,6 +56,7 @@ public class EmailBean
 	private EmailEntry emailEntry;
 	private TargettedMessageList messages;
     private MessageLocator messageLocator;
+    private ServerConfigurationService configService;
 
 	public EmailBean() { }
 
@@ -96,6 +100,11 @@ public class EmailBean
 	public void setMessageLocator(MessageLocator messageLocator)
 	{
 		this.messageLocator = messageLocator;
+	}
+
+	public void setConfigService(ServerConfigurationService configService)
+	{
+		this.configService = configService;
 	}
 
 	public String cancelEmail()
@@ -147,9 +156,33 @@ public class EmailBean
 
 		// handle the other recipients
 		List<String> emailOthers = emailEntry.getOtherRecipients();
+		String[] allowedDomains = StringUtils.split(configService.getString("sakai.mailsender.other.domains"), ",");
+		
+		List<String> invalids = null;
+		// add other recipients to the message
 		for (String email : emailOthers)
 		{
-			emailusers.put(email, null);
+			if (allowedDomains != null && allowedDomains.length > 0) 
+			{
+				// check each "other" email to ensure it ends with an accepts domain
+				for (String domain : allowedDomains)
+				{
+					if (email.endsWith(domain))
+					{
+						emailusers.put(email, null);
+					}
+					else
+					{
+						if (invalids == null)
+							invalids = new ArrayList<String>();
+						invalids.add(email);
+					}
+				}
+			}
+			else
+			{
+				emailusers.put(email, null);
+			}
 		}
 
 		String subjectContent = emailEntry.getSubject();
@@ -161,7 +194,6 @@ public class EmailBean
 		String subject = ((config.getSubjectPrefix() != null) ? config.getSubjectPrefix() : "")
 				+ subjectContent;
 
-		List<String> invalids = null;
 		try
 		{
 			// send the message
