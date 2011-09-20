@@ -335,13 +335,26 @@ function setupMessageNav(messageType){
 						// jq1.2 version 
 						//document.location = "#" + $(parentRow).nextAll('.' + messageType + 'Next').eq(0).find('a.messageNewAnchor').attr('name');
 						//jq1.1 version
-						document.location = "#" + $(parentTable).find('tr').slice(thisIndex, totalTableRows).filter('.messageNewNext').eq(0).find('a.messageNewAnchor').attr('name');
+						//document.location = "#" + $(parentTable).find('tr').slice(thisIndex, totalTableRows).filter('.messageNewNext').eq(0).find('a.messageNewAnchor').attr('name');
+                        //new method to avoid FF4 internal linking behaviours MSGCNTR-544
+                        var targetPos = $(parentTable).find('tr').slice(thisIndex, totalTableRows).filter('.messageNewNext').eq(0).position();
+                        window.parent.scrollTo(0, targetPos.top);
+                        
 					}
 					// if "Pending" just link directly to next one
 					else{
-						document.location = "#" + messageType + "newMess" + (intIndex + 1);
+                        //new method to avoid FF4 internal linking behaviours MSGCNTR-544
+                        var targetPos = $('a[name=' +  messageType + "newMess" + (intIndex + 1) + ']').position();
+						window.parent.scrollTo(0, targetPos.top);
 					}
                 });
+                $('#messNavHolder a').click(function(e){
+                    //new method to avoid FF4 internal linking behaviours MSGCNTR-544
+                    e.preventDefault();
+                    var targetPosPrep=$(this).attr('href').replace('#','');
+                    var targetPos = $('a[name=' + targetPosPrep + ']').position();
+                    window.parent.scrollTo(0, targetPos.top);        
+                })
             }
             else {
                 $(this).attr("title", last);
