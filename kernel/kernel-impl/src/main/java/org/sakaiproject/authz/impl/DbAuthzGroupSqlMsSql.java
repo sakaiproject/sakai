@@ -122,7 +122,7 @@ public class DbAuthzGroupSqlMsSql extends DbAuthzGroupSqlDefault
 	@Override
 	public String getInsertRealmRoleGroup3Sql()
 	{
-		return "insert into SAKAI_REALM_RL_GR (REALM_KEY, USER_ID, ROLE_KEY, ACTIVE, PROVIDED) values (?, ?, ?, '1', '1')";
+		return "insert into SAKAI_REALM_RL_GR (REALM_KEY, USER_ID, ROLE_KEY, ACTIVE, PROVIDED) values (?, ?, ?, ?, ?)";
 	}
 
 	/**
