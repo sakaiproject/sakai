@@ -14,9 +14,11 @@ courier https://source.sakaiproject.org/svn/courier/trunk
 dav https://source.sakaiproject.org/svn/dav/trunk
 gradebook https://source.sakaiproject.org/svn/gradebook/trunk
 help https://source.sakaiproject.org/svn/help/trunk
+lessonbuilder https://source.sakaiproject.org/svn/lessonbuilder/trunk
 linktool https://source.sakaiproject.org/svn/linktool/trunk
 login https://source.sakaiproject.org/svn/login/trunk
 mailarchive https://source.sakaiproject.org/svn/mailarchive/trunk
+mailsender https://source.sakaiproject.org/svn/mailsender/trunk
 master https://source.sakaiproject.org/svn/master/trunk
 memory https://source.sakaiproject.org/svn/memory/trunk
 message https://source.sakaiproject.org/svn/message/trunk
@@ -45,6 +47,3 @@ velocity https://source.sakaiproject.org/svn/velocity/trunk
 warehouse https://source.sakaiproject.org/svn/warehouse/trunk
 was https://source.sakaiproject.org/svn/was/trunk
 web https://source.sakaiproject.org/svn/web/trunk
-
-# Experimental Sakai capabilities
-lessonbuilder https://source.sakaiproject.org/svn/lessonbuilder/trunk
