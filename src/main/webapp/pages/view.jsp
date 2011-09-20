@@ -39,8 +39,8 @@
 		<ul>
 			<c:forEach items="${SyndFeed.entries}" var="SyndEntry" end="${maxItems}">
 				<li>
-					<c:if test="${not empty EntryImages[SyndEntry.uri]}">
-						<img src="${EntryImages[SyndEntry.uri]}" class="news-item-img"/>
+					<c:if test="${not empty Media[SyndEntry.uri] && Media[SyndEntry.uri].image}">
+						<img src="${Media[SyndEntry.uri].url}" class="news-item-img"/>
 					</c:if>
 					<h3>
 					<c:choose>
@@ -53,6 +53,13 @@
 		      		</c:choose>
 		      		</h3>
 	      			<span class="news-item-excerpt">${SyndEntry.description.value}</span>
+	      			
+	      			<c:if test="${not empty Media[SyndEntry.uri] && !Media[SyndEntry.uri].image}">
+						<div class="news-item-attachment">
+							<a href="${Media[SyndEntry.uri].url}">${Media[SyndEntry.uri].displayName}</a>
+							 (${Media[SyndEntry.uri].type}, ${Media[SyndEntry.uri].displayLength})
+						</div>
+					</c:if>
 	      				      			
 	    		</li>
     		</c:forEach>

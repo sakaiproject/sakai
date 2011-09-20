@@ -24,7 +24,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+
+import au.edu.anu.portal.portlets.rss.model.Attachment;
+import au.edu.anu.portal.portlets.rss.utils.Messages;
 
 import com.sun.syndication.feed.synd.SyndEnclosure;
 import com.sun.syndication.feed.synd.SyndEntry;
@@ -84,22 +88,24 @@ public class FeedParser {
 	
 	
 	/**
-	 * Parses the enclosures contained in an RSS feed and extracts the <b>first</b> image that matches the allowed types
-	 * then adds it to the map with the Entry URI as key and the Enclosure URL as value.
+	 * Parses the entries contained in an RSS feed, extracts the enclosures, converts them to an {@link Attachment}
+	 * adds them to the map with the entry uri as key.
+	 * <p>The RSS spec says there is only one enclosure per item so this is what we work with. We don't actually check this so it's possible
+	 * that if you have more than one enclosure attached to an item that only the latest one will be presented in the end.
+	 *
 	 * @param feed
 	 * @return
 	 */
-	public static Map<String, String> parseEntryImages(SyndFeed feed) {
+	public static Map<String, Attachment> parseFeedEnclosures(SyndFeed feed) {
 		
-		Map<String,String> images = new HashMap<String,String>();
+		Map<String,Attachment> attachments = new HashMap<String,Attachment>();
 		
+		// image mime types that are ok to be rendered as an image
 		List<String> imageTypes = new ArrayList<String>();
 		imageTypes.add("image/jpeg");
 		imageTypes.add("image/gif");
 		imageTypes.add("image/png");
 		imageTypes.add("image/jpg");
-		//add more types as required
-		
 		
 		List<SyndEntry> entries = feed.getEntries();
 		for(SyndEntry entry: entries) {
@@ -109,19 +115,46 @@ public class FeedParser {
 				continue;
 			}
 			
-			//for each enclosure attached to an entry get the first image and use that.
+			//for each enclosure attached to an entry get the first one and use that.			
 			List<SyndEnclosure> enclosures = entry.getEnclosures();
-			for(SyndEnclosure enclosure: enclosures) {
-				String type = enclosure.getType();
-				if(StringUtils.isNotBlank(type)){
-					if(imageTypes.contains(type)){
-						images.put(entry.getUri(), enclosure.getUrl());
-					}
+			for(SyndEnclosure e: enclosures) {
+				
+				//convert to an Attachment
+				Attachment a = new Attachment();
+				a.setUrl(e.getUrl());
+				a.setDisplayLength(formatLength(e.getLength()));
+				a.setType(e.getType());
+				
+				//process the url into a displayname (get just the filename from the full URL)
+				String displayName = StringUtils.substringAfterLast(e.getUrl(), "/");
+				if(StringUtils.isNotBlank(displayName)){
+					a.setDisplayName(displayName);
+				} else {
+					a.setDisplayName(Messages.getString("view.attachment.default"));
 				}
+				
+				//check if its an iamge we are able to display as the thumbnail for the entry
+				if(imageTypes.contains(e.getType())){
+					a.setImage(true);
+				} 
+				
+				attachments.put(entry.getUri(), a);
 			}
 		}
 		
-		return images;
+		return attachments;
 	}
+	
+	
+	/**
+	 * Helper to format the length from bytes into a human readable format eg 126 kB
+	 * @param length
+	 * @return
+	 */
+	private static String formatLength(long length){
+		return FileUtils.byteCountToDisplaySize(length);
+	}
+	
+	
 	
 }

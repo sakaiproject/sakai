@@ -43,6 +43,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import au.edu.anu.portal.portlets.rss.model.Attachment;
 import au.edu.anu.portal.portlets.rss.utils.Constants;
 import au.edu.anu.portal.portlets.rss.utils.Messages;
 
@@ -69,10 +70,10 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	//cache
 	private CacheManager cacheManager;
 	private Cache feedCache;
-	private Cache imageCache;
-	
+	private Cache mediaCache;
+
 	private static final String FEED_CACHE_NAME = "au.edu.anu.portal.portlets.cache.SimpleRSSPortletCache.feed";
-	private static final String IMAGE_CACHE_NAME = "au.edu.anu.portal.portlets.cache.SimpleRSSPortletCache.images";
+	private static final String MEDIA_CACHE_NAME = "au.edu.anu.portal.portlets.cache.SimpleRSSPortletCache.media";
 	
 	//pref names
 	private final String PREF_PORTLET_TITLE = "portlet_title";
@@ -91,7 +92,8 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	   //setup cache
 	   cacheManager = new CacheManager();
 	   feedCache = cacheManager.getCache(FEED_CACHE_NAME);
-	   imageCache = cacheManager.getCache(IMAGE_CACHE_NAME);
+	   mediaCache = cacheManager.getCache(MEDIA_CACHE_NAME);
+	   
 	}
 	
 	/**
@@ -115,6 +117,9 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
 		log.debug("Simple RSS doView()");
 		
+		//get feed URL
+		String feedUrl = getConfiguredFeedUrl(request);
+		
 		//get feed data
 		SyndFeed feed = getFeedContent(request, response);
 		
@@ -123,14 +128,14 @@ public class SimpleRSSPortlet extends GenericPortlet{
 			return;
 		}
 		
-		//get the images that are associated with the entries in this feed
-		Map<String,String> images = getEntryImages(feed, request, response);
-		
+		//get the media associated with the entries in this feed
+		Map<String,Attachment> media = getFeedMedia(feed, feedUrl);
+				
 		//get max items (subtract 1 since it will be used in a 0 based index)
 		int maxItems = getConfiguredMaxItems(request) - 1;
 		
 		request.setAttribute("SyndFeed", feed);
-		request.setAttribute("EntryImages", images);
+		request.setAttribute("Media", media);
 		request.setAttribute("maxItems", maxItems);
 		
 		dispatch(request, response, viewUrl);
@@ -255,10 +260,10 @@ public class SimpleRSSPortlet extends GenericPortlet{
 		
 		Element element = feedCache.get(cacheKey);
 		if(element != null) {
-			log.info("Fetching data from cache for: " + cacheKey);
+			log.info("Fetching data from feed cache for: " + cacheKey);
 			feed = (SyndFeed) element.getObjectValue();
 			if(feed == null) {
-				log.warn("Cache data invalid, attempting a refresh...");
+				log.warn("Feed cache data invalid, attempting a refresh...");
 				feed = getRemoteFeed(feedUrl, request, response);
 			}
 		} else {
@@ -288,44 +293,40 @@ public class SimpleRSSPortlet extends GenericPortlet{
 		}
 		
 		//cache the data,
-		log.info("Adding data to cache for: " + feedUrl);
+		log.info("Adding data to feed cache for: " + feedUrl);
 		feedCache.put(new Element(feedUrl, feed));
 		
 		return feed;
 	}
 	
-	
 	/**
-	 * Helper for extracting the images associated with the entries in a feed, and cache their URLs
-	 * @param feed
-	 * @param request
-	 * @param response
+	 * Helper for extracting the enclosures (media) associated with entries in the feed.
+	 * They are returned as a map of String to Attachment where String is the entry Uri
+	 * 
+	 * @param feed		The raw SyndFeed to process
+	 * @param feedUrl	The url of this feed
 	 * @return
 	 */
-	private Map<String,String> getEntryImages(SyndFeed feed, RenderRequest request, RenderResponse response) {
+	private Map<String,Attachment> getFeedMedia(SyndFeed feed, String feedUrl) {
 		
-		Map<String,String> images;
-		
-		String feedUrl = getConfiguredFeedUrl(request);
+		Map<String,Attachment> media;
 		
 		//check cache
-		Element element = imageCache.get(feedUrl);
+		Element element = mediaCache.get(feedUrl);
 		if(element != null) {
-			log.info("Fetching data from image cache for: " + feedUrl);
-			return (Map<String,String>) element.getObjectValue();
+			log.info("Fetching data from media cache for: " + feedUrl);
+			return (Map<String,Attachment>) element.getObjectValue();
 		} else {
 		
-			//parse the feed
-			images = FeedParser.parseEntryImages(feed);
+			//parse the enclosures for this feed
+			media = FeedParser.parseFeedEnclosures(feed);
+			
+			//cache the data
+			log.info("Adding data to media cache for: " + feedUrl);
+			mediaCache.put(new Element(feedUrl, media));
 		}
 		
-		//cache the data
-		if(images.size() > 0) {
-			log.info("Adding data to image cache for: " + feedUrl);
-			imageCache.put(new Element(feedUrl, images));
-		}
-		return images;
-		
+		return media;
 	}
 	
 	

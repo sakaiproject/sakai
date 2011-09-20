@@ -31,3 +31,7 @@
     float: left;
     width: 100%;
 }
+
+.news-item-attachment {
+	font-size: 0.9em;
+}

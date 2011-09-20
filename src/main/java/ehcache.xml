@@ -24,11 +24,12 @@
         overflowToDisk="false"
         memoryStoreEvictionPolicy="LRU" />
         
-    <!-- entry image cache: ttl = 6 hours -->
-    <cache name="au.edu.anu.portal.portlets.cache.SimpleRSSPortletCache.images"
+	<!-- entry attachment cache: ttl = 6 hours -->
+    <cache name="au.edu.anu.portal.portlets.cache.SimpleRSSPortletCache.media"
         maxElementsInMemory="1000"
         eternal="false"
         timeToLiveSeconds="21600" 
         overflowToDisk="false"
         memoryStoreEvictionPolicy="LRU" />
+  
 </ehcache>
