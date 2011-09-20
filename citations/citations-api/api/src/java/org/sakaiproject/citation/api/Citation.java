@@ -65,6 +65,8 @@ public interface Citation 	// extends Entity
     public String addCustomUrl(String label, String url, String prefixRequest);
 
     /**
+     * @deprecated This should never have been added as other methods are clearer.
+     * @see #hasCitationProperty(String)
      * @param name
      * @param value
      */
@@ -99,6 +101,13 @@ public interface Citation 	// extends Entity
 	 */
 	public Object getCitationProperty(String name);
 
+        /**
+         * Check if the citation property is defined.
+         * @param name The name of the property to check.
+         * @return <code>true</code> if the property is defined and is not null or is not an empty list.
+         */
+        public boolean hasCitationProperty(String name);
+        
 	/**
 	 * @return
 	 */
@@ -210,6 +219,8 @@ public interface Citation 	// extends Entity
     public boolean hasPreferredUrl();
 
 	/**
+         * @deprecated This doesn't fit with the naming pattern.
+         * @see #hasCitationProperty(String)
 	 * @return
 	 */
 	public boolean hasPropertyValue(String fieldId);

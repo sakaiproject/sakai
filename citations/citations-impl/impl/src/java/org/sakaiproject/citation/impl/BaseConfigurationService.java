@@ -118,6 +118,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
   // enable/disable helper features -->
     protected String m_googleSearchEnabled = "false";
     protected String m_librarySearchEnabled = "false";
+    protected boolean m_externalSearchEnabled = false;
 
     protected String m_adminSiteName = "citationsAdmin";
     protected String m_configFolder = "config";
@@ -147,6 +148,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
   // google scholar parameters -->
     protected String m_googleBaseUrl;
     protected String m_sakaiServerKey;
+    protected String m_externalSearchUrl;
 
   // site-specific config/authentication/authorization implementation -->
     protected String m_osidConfig;
@@ -1662,4 +1664,35 @@ public Collection<String> getAllCategoryXml()
 		return isLibrarySearchEnabled() && isConfigurationXmlAvailable() && isDatabaseHierarchyXmlAvailable();
 	}
 
+  public void setExternalSearchEnabled(boolean state)
+  {
+    this.m_externalSearchEnabled = state;
+  }
+
+  public boolean isExternalSerarchEnabled()
+  {
+    boolean enabled = m_externalSearchEnabled;
+    String state = getConfigurationParameter("external-search-enabled");
+   
+    if (state != null)
+    {
+      enabled = "true".equals(state);
+    }
+   
+    m_log.debug("External Search enabled: " + enabled);
+    return enabled && getExternalSearchUrl() != null;
+  }
+
+  public void setExternalSearchUrl(String url) {
+    this.m_externalSearchUrl = url;
+  }
+
+  public String getExternalSearchUrl() {
+    String url = getConfigurationParameter("external-search-url");
+    if (url == null)
+    {
+      url = m_externalSearchUrl;
+    }
+    return url;
+  }
 }

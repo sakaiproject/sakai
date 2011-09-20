@@ -221,6 +221,30 @@ public interface ConfigurationService
   public boolean librarySearchEnabled();
 
   /**
+   * Enable/disable the external search support.
+   * @param state true to enable support.
+   */
+  public void setExternalSearchEnabled(boolean state);
+  
+  /**
+   * Is the external search support enabled.
+   * @return true if so
+   */
+  public boolean isExternalSerarchEnabled();
+  
+  /**
+   * Set the URL which the external search is deployed on.
+   * @param url 
+   */
+  public void setExternalSearchUrl(String url);
+  
+  /**
+   * Get the current URL for the external search.
+   * @return
+   */
+  public String getExternalSearchUrl();
+
+  /**
    * Accesses the mapping for savecite clients. Keys in the mapping will be locale identifiers, and 
    * values will be a list of clients, where each client is a Map<String,String> object with key-value 
    * pairs for significant settings for a search source. The keys should include the following to fully 

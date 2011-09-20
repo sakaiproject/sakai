@@ -21,6 +21,8 @@
 
 package org.sakaiproject.citation.cover;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.sakaiproject.citation.api.CitationCollection;
 import org.sakaiproject.component.cover.ComponentManager;
 
@@ -289,5 +291,20 @@ public class CitationService
 		}
 		return instance.copyAll(citationCollectionId);
 	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.citation.api.CitationService#newCitation(java.lang.String)
+	 */
+	public static org.sakaiproject.citation.api.Citation addCitation(HttpServletRequest request)
+	{
+		org.sakaiproject.citation.api.CitationService instance = getInstance();
+		if(instance == null)
+		{
+			return null;
+		}
+		return instance.addCitation(request);
+	}
+
+
     
 }

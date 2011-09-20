@@ -44,6 +44,8 @@ import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.net.URLEncoder;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osid.repository.Asset;
@@ -60,6 +62,8 @@ import org.sakaiproject.citation.api.CitationService;
 import org.sakaiproject.citation.api.ConfigurationService;
 import org.sakaiproject.citation.api.Schema;
 import org.sakaiproject.citation.api.Schema.Field;
+import org.sakaiproject.citation.impl.openurl.ContextObject;
+import org.sakaiproject.citation.impl.openurl.OpenURLServiceImpl;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentEntity;
@@ -91,7 +95,7 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.id.cover.IdManager;
+import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.Filter;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -507,7 +511,7 @@ public abstract class BaseCitationService implements CitationService
 		 */
 		public BasicCitation(String mediatype)
 		{
-			m_id = IdManager.createUuid();
+			m_id = m_idManager.createUuid();
 			m_citationProperties = new Hashtable();
 			m_urls = new Hashtable();
 			setType(mediatype);
@@ -545,7 +549,7 @@ public abstract class BaseCitationService implements CitationService
 		public String addCustomUrl(String label, String url)
 		{
 			UrlWrapper wrapper = new UrlWrapper(label, url);
-			String id = IdManager.createUuid();
+			String id = m_idManager.createUuid();
 			m_urls.put(id, wrapper);
 			return id;
 		}
@@ -561,7 +565,7 @@ public abstract class BaseCitationService implements CitationService
 		{
 			UrlWrapper wrapper = new UrlWrapper(label, url,
 			                                    getPrefixBoolean(prefixRequest));
-			String id = IdManager.createUuid();
+			String id = m_idManager.createUuid();
 			m_urls.put(id, wrapper);
 			return id;
 		}
@@ -607,10 +611,7 @@ public abstract class BaseCitationService implements CitationService
 		 */
 		public void addPropertyValue(String name, Object value)
 		{
-			if (this.m_citationProperties == null)
-			{
-				this.m_citationProperties = new Hashtable();
-			}
+			getCitationProperties();
 			if (isMultivalued(name))
 			{
 				List list = (List) this.m_citationProperties.get(name);
@@ -1236,232 +1237,13 @@ public abstract class BaseCitationService implements CitationService
 				return "";
 			}
 
-			// default to journal
-			boolean journalOpenUrlType = true;
-			String referentValueFormat = OPENURL_JOURNAL_FORMAT;
-
-			// check to see whether we should construct a journal OpenUrl
-			// (includes types: article, report, unknown)
-			// or a book OpenUrl (includes types: book, chapter)
-			// String type = (String) m_citationProperties.get("type");
-			String type = "article";
-			if (m_schema != null)
+			ContextObject co = m_openURLService.convert(this);
+			StringBuilder openUrl = new StringBuilder();
+			openUrl.append("?");
+			if (co != null)
 			{
-				type = m_schema.getIdentifier();
-			}
-			if (type != null && !type.trim().equals(""))
-			{
-				if (type.equals("article") || type.equals("report") || type.equals("unknown"))
-				{
-					journalOpenUrlType = true;
-					referentValueFormat = OPENURL_JOURNAL_FORMAT;
-				}
-				else
-				{
-					journalOpenUrlType = false;
-					referentValueFormat = OPENURL_BOOK_FORMAT;
-				}
-			}
-
-			// start building the OpenUrl
-			StringBuilder openUrl = null;
-			try
-			{
-				openUrl = new StringBuilder();
-
-				openUrl.append("url_ver=");
-				openUrl.append(URLEncoder.encode(OPENURL_VERSION, "utf8"));
-				openUrl.append("&url_ctx_fmt=");
-				openUrl.append(URLEncoder.encode(OPENURL_CONTEXT_FORMAT, "utf8"));
-				openUrl.append("&rft_val_fmt=");
-				openUrl.append(URLEncoder.encode(referentValueFormat, "utf8"));
-
-				// flag articles
-				if (journalOpenUrlType)
-				{
-					openUrl.append("&rft.genre=article");
-				}
-
-				// get first author
-				String author = getFirstAuthor();
-
-				// get first author's last/first name
-				if (author != null)
-				{
-					String aulast;
-					StringBuilder aufirst = new StringBuilder();
-					String[] authorNames = author.split(",");
-					if (authorNames.length == 2)
-					{
-						aulast = authorNames[0].trim();
-						aufirst.append(authorNames[1].trim());
-					}
-					else
-					{
-						authorNames = author.split("\\s");
-						aulast = authorNames[authorNames.length - 1].trim();
-						for (int i = 0; i < authorNames.length - 1; i++)
-						{
-							aufirst.append(authorNames[i] + " ");
-						}
-
-						if (aufirst.length() > 0)
-						{
-							aufirst.deleteCharAt( aufirst.length() - 1 );
-						}
-					}
-					// append to the openUrl
-					openUrl.append("&rft.aulast=" + URLEncoder.encode(aulast,"utf8"));
-
-					if (!aufirst.toString().trim().equals(""))
-					{
-						openUrl.append("&rft.aufirst=" + URLEncoder.encode(aufirst.toString().
-								trim(), "utf8"));
-					}
-				}
-				// append any other authors to the openUrl
-				java.util.List authors = (java.util.List) m_citationProperties.get(Schema.CREATOR);
-				if (authors != null && !authors.isEmpty() && authors.size() > 1)
-				{
-					for (int i = 1; i < authors.size(); i++)
-					{
-						openUrl.append("&rft.au=" + URLEncoder.encode((String) authors.get(i),
-						"utf8"));
-					}
-				}
-
-				// titles
-				String title = (String) m_citationProperties.get( Schema.TITLE );
-				if( title != null )
-				{
-					if( journalOpenUrlType )
-					{
-						// article title
-						openUrl.append("&rft.atitle=" + URLEncoder.encode(title.trim(), "utf8"));
-					}
-					else
-					{
-						// book title
-						openUrl.append("&rft.btitle=" + URLEncoder.encode(title.trim(), "utf8"));
-					}
-				}
-				else
-				{
-					// want to 'borrow' a title from another field if possible
-					String sourceTitle = (String) m_citationProperties.get(Schema.SOURCE_TITLE);
-					if (sourceTitle != null && !sourceTitle.trim().equals(""))
-					{
-						openUrl.append("&rft.atitle=" + URLEncoder.encode(sourceTitle, "utf8"));
-					}
-					// could add other else ifs for fields to borrow from...
-				}
-
-				// journal title or book title
-				String sourceTitle = (String) m_citationProperties.get(Schema.SOURCE_TITLE);
-				if (sourceTitle != null && !sourceTitle.trim().equals(""))
-				{
-					if (journalOpenUrlType)
-					{
-						openUrl.append("&rft.jtitle=" + URLEncoder.encode(sourceTitle, "utf8"));
-					}
-					else
-					{
-						openUrl.append("&rft.btitle=" + URLEncoder.encode(sourceTitle, "utf8"));
-					}
-				}
-
-				// date [ YYYY-MM-DD | YYYY-MM | YYYY ] - need filtering TODO
-				//  -- perhaps do another regular expressions scan...
-				// currently just using the year
-    		String year = (String) m_citationProperties.get(Schema.YEAR);
-
-				if (year != null && !year.trim().equals(""))
-				{
-					openUrl.append("&rft.date=" + URLEncoder.encode(year, "utf8"));
-				}
-
-				// volume (edition)
-				if (journalOpenUrlType)
-				{
-					String volume = (String) m_citationProperties.get(Schema.VOLUME);
-					if (volume != null && !volume.trim().equals(""))
-					{
-						openUrl.append("&rft.volume=" + URLEncoder.encode(volume, "utf8"));
-					}
-				}
-				else
-				{
-					String edition = (String) m_citationProperties.get("edition");
-					if (edition != null && !edition.trim().equals(""))
-					{
-						openUrl.append("&rft.edition=" + URLEncoder.encode(edition, "utf8"));
-					}
-				}
-
-				// issue (place)
-				// (pub)
-				if (journalOpenUrlType)
-				{
-					String issue = (String) m_citationProperties.get(Schema.ISSUE);
-					if (issue != null && !issue.trim().equals(""))
-					{
-						openUrl.append("&rft.issue=" + URLEncoder.encode(issue, "utf8"));
-					}
-
-				}
-				else
-				{
-					String pub = (String) m_citationProperties.get("pub");
-
-					if (pub != null && !pub.trim().equals(""))
-					{
-						openUrl.append("&rft.pub=" + URLEncoder.encode(pub, "utf8"));
-					}
-					String place = (String) m_citationProperties.get("place");
-					if (place != null && !place.trim().equals(""))
-					{
-						openUrl.append("&rft.place=" + URLEncoder.encode(place, "utf8"));
-					}
-				}
-
-				// spage
-				String spage = (String) m_citationProperties.get("startPage");
-				if (spage != null && !spage.trim().equals(""))
-				{
-					openUrl.append("&rft.spage=" + URLEncoder.encode(spage, "utf8"));
-				}
-
-				// epage
-				String epage = (String) m_citationProperties.get("endPage");
-				if (epage != null && !epage.trim().equals(""))
-				{
-					openUrl.append("&rft.epage=" + URLEncoder.encode(epage, "utf8"));
-				}
-
-				// pages
-				String pages = (String) m_citationProperties.get(Schema.PAGES);
-				if (pages != null && !pages.trim().equals(""))
-				{
-					openUrl.append("&rft.pages=" + URLEncoder.encode(pages, "utf8"));
-				}
-
-				// issn (isbn)
-				String isn = (String) m_citationProperties.get(Schema.ISN);
-				if (isn != null && !isn.trim().equals(""))
-				{
-					if (journalOpenUrlType)
-					{
-						openUrl.append("&rft.issn=" + URLEncoder.encode(isn, "utf8"));
-					}
-					else
-					{
-						openUrl.append("&rft.isbn=" + URLEncoder.encode(isn, "utf8"));
-					}
-				}
-			}
-			catch( UnsupportedEncodingException uee )
-			{
-				M_log.warn( "getOpenurlParameters -- unsupported encoding argument: utf8" );
+				String openUrlParams = m_openURLService.toURL(co);
+				openUrl.append(openUrlParams);
 			}
 
 			// genre needs some further work... TODO
@@ -1729,18 +1511,7 @@ public abstract class BaseCitationService implements CitationService
 
 		public boolean hasPropertyValue(String fieldId)
 		{
-			boolean hasPropertyValue = m_citationProperties.containsKey(fieldId);
-			Object val = m_citationProperties.get(fieldId);
-			if (hasPropertyValue && val != null)
-			{
-				if (val instanceof List)
-				{
-					List list = (List) val;
-					hasPropertyValue = !list.isEmpty();
-				}
-			}
-
-			return hasPropertyValue;
+			return hasCitationProperty(fieldId);
 		}
 
 		/*
@@ -2131,15 +1902,40 @@ public abstract class BaseCitationService implements CitationService
 		public boolean isMultivalued(String fieldId)
 		{
 			boolean isMultivalued = false;
-			if (m_schema != null)
+			if (isSchemaLimited(fieldId))
 			{
-				Field field = m_schema.getField(fieldId);
-				if (field != null)
-				{
-					isMultivalued = field.isMultivalued();
-				}
+				isMultivalued = isSchemaMultivalued(fieldId);
+			}
+			else
+			{
+				isMultivalued = isCurrentlyMultivalued(fieldId);
+				// But if adding, then convert?
 			}
 			return isMultivalued;
+		}
+
+		/**
+		 * Checks if the field is currently multivalued.
+		 * This doesn't consult the schema, but looks what's actually stored.
+		 * @param fieldId Field name.
+		 * @return <code>true</code> if the field is multivalued.
+		 */
+		protected boolean isCurrentlyMultivalued(String fieldId)
+		{
+			// Don't use getCitationProperty as it ends up being recursive
+			return (m_citationProperties.get(fieldId) instanceof List);
+		}
+
+		/**
+		 * Should the field be limited to a single value.
+		 * @param fieldId
+		 * @return
+		 */
+		protected boolean isSchemaMultivalued(String fieldId)
+		{
+			// No check for m_schema being null as you should check isSchemaLimited first
+			Field field = m_schema.getField(fieldId);
+			return (field != null && field.isMultivalued());
 		}
 
 		/**
@@ -2148,6 +1944,11 @@ public abstract class BaseCitationService implements CitationService
 		public boolean isTemporary()
 		{
 			return m_temporary;
+		}
+
+		protected boolean isSchemaLimited(String fieldId)
+		{
+			return m_schema != null && m_schema.getField(fieldId) != null;
 		}
 
 		public List listCitationProperties()
@@ -2198,11 +1999,42 @@ public abstract class BaseCitationService implements CitationService
 				}
 				else
 				{
+					Object newValue = value;
+					// Make value multivalued if possible.
+					// Only do this on setCitation.
+					if (!isSchemaLimited(name)) 
+					{
+						if (hasCitationProperty(name))
+						{
+							Object existingValue =  m_citationProperties.get(name);
+							List list = new Vector();
+							list.add(existingValue);
+							list.add(value);
+							newValue = list;
+						}
+					}
 					m_citationProperties.put(name, value);
 				}
 			}
 
 		}
+
+		public boolean hasCitationProperty(String fieldId)
+		{
+			Object val = m_citationProperties.get(fieldId);
+			boolean hasValue = val != null;
+			if (hasValue)
+			{
+				if (val instanceof List)
+				{
+					List list = (List) val;
+					hasValue = !list.isEmpty();
+				}
+			}
+   
+			return hasValue;
+		}
+
 
 		protected void setDefaults()
 		{
@@ -2226,7 +2058,7 @@ public abstract class BaseCitationService implements CitationService
 							        .getIdentifier());
 							if (current_values.isEmpty())
 							{
-								this.addPropertyValue(field.getIdentifier(), value);
+								this.setCitationProperty(field.getIdentifier(), value);
 							}
 						}
 						else if (this.getCitationProperty(field.getIdentifier()) == null)
@@ -2242,11 +2074,11 @@ public abstract class BaseCitationService implements CitationService
 		{
 			if (name == null || name.trim().equals(""))
 			{
-				setCitationProperty(Schema.TITLE, "untitled");
+				addPropertyValue(Schema.TITLE, "untitled");
 			}
 			else
 			{
-				setCitationProperty(Schema.TITLE, name);
+				addPropertyValue(Schema.TITLE, name);
 			}
 		}
 
@@ -2772,7 +2604,7 @@ public abstract class BaseCitationService implements CitationService
 
 		public BasicCitationCollection()
 		{
-			m_id = IdManager.createUuid();
+			m_id = m_idManager.createUuid();
 		}
 
 		/**
@@ -2789,13 +2621,13 @@ public abstract class BaseCitationService implements CitationService
 			}
 			else
 			{
-				m_id = IdManager.createUuid();
+				m_id = m_idManager.createUuid();
 			}
 		}
 
 		public BasicCitationCollection(Map attributes, List citations)
 		{
-			m_id = IdManager.createUuid();
+			m_id = m_idManager.createUuid();
 
 			m_order = new TreeSet<String>(m_comparator);
 
@@ -4185,11 +4017,21 @@ public abstract class BaseCitationService implements CitationService
 	/** Dependency: ServerConfigurationService. */
 	protected ServerConfigurationService m_serverConfigurationService = null;
 
-	/** Dependency: ContentHostingService. */
+	/**
+	 * Dependency: ContentHostingService.
+	 * This is used for permission checking and the entity methods.
+	 */
+
 	protected ContentHostingService m_contentHostingService = null;
 
 	/** Dependency: EntityManager. */
 	protected EntityManager m_entityManager = null;
+
+	/** Depenedency: IdManager */
+	protected IdManager m_idManager = null;
+
+	/** Dependency: OpenURLServiceImpl */
+	protected OpenURLServiceImpl m_openURLService;
 
 	protected String m_defaultSchema;
 
@@ -4211,6 +4053,11 @@ public abstract class BaseCitationService implements CitationService
 	public void setResourceTypeRegistry(ResourceTypeRegistry registry)
 	{
 		m_resourceTypeRegistry = registry;
+	}
+
+	public void setOpenURLService(OpenURLServiceImpl openURLServiceImpl)
+	{
+		m_openURLService = openURLServiceImpl;
 	}
 
 	/**
@@ -5514,11 +5361,16 @@ public abstract class BaseCitationService implements CitationService
 	{
 		if (citation instanceof BasicCitation && ((BasicCitation) citation).isTemporary())
 		{
-			((BasicCitation) citation).m_id = IdManager.createUuid();
+			((BasicCitation) citation).m_id = m_idManager.createUuid();
 			((BasicCitation) citation).m_temporary = false;
 			((BasicCitation) citation).m_serialNumber = null;
 		}
 		this.m_storage.saveCitation(citation);
+	}
+
+	public void setIdManager(IdManager idManager)
+	{
+		m_idManager = idManager;
 	}
 
 	/*
@@ -5681,6 +5533,16 @@ public abstract class BaseCitationService implements CitationService
 			M_log.warn("OverQuotaException ", e);
 		}
     }
+    public Citation addCitation(HttpServletRequest request) {
+        ContextObject co = m_openURLService.parse(request);
+        Citation citation = null;
+        if (co != null) {
+            citation = m_openURLService.convert(co);
+        }
+        return citation;
+    }
+
+
 
 } // BaseCitationService
 
