@@ -37,6 +37,7 @@ import org.sakaiproject.scorm.ui.console.components.BreadcrumbPanel;
 import org.sakaiproject.scorm.ui.console.components.SakaiFeedbackPanel;
 import org.sakaiproject.scorm.ui.upload.pages.UploadPage;
 import org.sakaiproject.scorm.ui.validation.pages.ValidationPage;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.wicket.markup.html.SakaiPortletWebPage;
 import org.sakaiproject.wicket.markup.html.link.NavIntraLink;
 
@@ -58,6 +59,8 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
 	
 	@SpringBean
 	private LearningManagementSystem lms;
+	@SpringBean
+	private ToolManager toolManager;
 
 	
 	public ConsoleBasePage() {
@@ -71,7 +74,7 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
 		final boolean canValidate = lms.canValidate(context);
 		
 		WebMarkupContainer wmc = new MaydayWebMarkupContainer("toolbar-administration");
-		if( (null != params) && (params.containsKey("no-toolbar")) ) {
+		if (isSinglePackageTool()) {
 	        wmc.setVisible(false);
 		}
 		
@@ -134,6 +137,12 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
 	
 	protected ResourceReference getPageIconReference() {
 		return null;
+	}
+	
+	protected boolean isSinglePackageTool() {
+		return toolManager != null && 
+				toolManager.getCurrentTool() != null && 
+				"sakai.scorm.singlepackage.tool".equals(toolManager.getCurrentTool().getId());
 	}
 	
 }

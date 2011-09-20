@@ -20,6 +20,9 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.ui.console.pages;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.Component;
@@ -52,13 +55,11 @@ import org.sakaiproject.wicket.markup.html.repeater.data.table.ActionColumn;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.BasicDataTable;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.ImageLinkColumn;
 
-import java.util.LinkedList;
-import java.util.List;
-
 public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 
 	private static final long serialVersionUID = 1L;
 
+	@SuppressWarnings("unused")
 	private static Log log = LogFactory.getLog(PackageListPage.class);
 	
 	private static ResourceReference PAGE_ICON = new ResourceReference(PackageListPage.class, "res/table.png");
@@ -87,6 +88,7 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 		String[] paramPropertyExpressions = {"contentPackageId", "resourceId", "title"};
 		
 		Action launchAction = new Action("title", PlayerPage.class, paramPropertyExpressions){
+			private static final long serialVersionUID = 1L;
 			@Override
 			public Component newLink(String id, Object bean) {
 				IModel labelModel = null;
@@ -127,10 +129,10 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 		if (canConfigure)
 			actionColumn.addAction(new Action(new ResourceModel("column.action.edit.label"), PackageConfigurationPage.class, paramPropertyExpressions));
 			
-		if (canGrade)
+		if (canGrade) {
 			actionColumn.addAction(new Action(new StringResourceModel("column.action.grade.label", this, null), ResultsListPage.class, paramPropertyExpressions));
-
-        if (canViewResults) {
+		}
+		else if (canViewResults) {
             actionColumn.addAction(new Action(new StringResourceModel("column.action.grade.label", this, null), LearnerResultsPage.class, paramPropertyExpressions));
         }
 		
