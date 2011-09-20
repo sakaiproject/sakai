@@ -64,11 +64,11 @@ public class LearnerResultsPage extends BaseResultsPage {
 		
 		IModel breadcrumbModel = new StringResourceModel("parent.breadcrumb", this, new Model(contentPackage));
 		// MvH
-		if (pageParams.getBoolean("no-toolbar")) {
-			addBreadcrumb(breadcrumbModel, DisplayDesignatedPackage.class, uberparentParams, true);
+		if (lms.canGrade(lms.currentContext())) {
+			addBreadcrumb(breadcrumbModel, ResultsListPage.class, uberparentParams, true);
 		}
 		else {
-			addBreadcrumb(breadcrumbModel, ResultsListPage.class, uberparentParams, true);
+			addBreadcrumb(breadcrumbModel, DisplayDesignatedPackage.class, uberparentParams, true);
 		}
 		addBreadcrumb(new Model(learner.getDisplayName()), LearnerResultsPage.class, parentParams, false);
 		
