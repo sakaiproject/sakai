@@ -232,7 +232,7 @@ public class MembershipManagerImpl implements MembershipManager{
     			MembershipItem member = MembershipItem.getInstance();
     			member.setType(MembershipItem.TYPE_GROUP);
     			//member.setName(currentGroup.getTitle() + " Group");
-    			member.setName(currentGroup.getTitle() + " " + rl.getFormattedMessage("participants_group_desc",new Object[]{currentGroup.getTitle()}));
+    			member.setName(rl.getFormattedMessage("participants_group_desc",new Object[]{currentGroup.getTitle()}));
     			member.setGroup(currentGroup);
     			returnMap.put(member.getId(), member);
     		}
@@ -251,7 +251,7 @@ public class MembershipManagerImpl implements MembershipManager{
     				roleId = roleId.substring(0,1).toUpperCase() + roleId.substring(1); 
     			}
     			//        member.setName(roleId + " Role");
-    			member.setName(roleId + " " + rl.getFormattedMessage("participants_role_desc",new Object[]{roleId}));        
+    			member.setName(rl.getFormattedMessage("participants_role_desc",new Object[]{roleId}));        
     			member.setRole(role);
     			returnMap.put(member.getId(), member);
     		}
