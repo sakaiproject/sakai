@@ -46,6 +46,7 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 import org.sakaiproject.dash.dao.DashboardDao;
@@ -807,7 +808,15 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		String sql = getStatement("select.sakaiUserIds.in.calendarLinks.by.entityReference");
 		Object[] params = new Object[]{entityReference};
 		try {
-			List<String> userIds = getJdbcTemplate().queryForList(sql,params);
+			List<String> userIds = getJdbcTemplate().query(sql,params, new RowMapper(){
+
+				public Object mapRow(ResultSet rs, int rowNum)
+						throws SQLException {
+					
+					return rs.getString(1);
+				}
+				
+			});
 			return new HashSet<String>(userIds);
 		} catch (DataAccessException ex) {
            log.error("getSakaIdsForUserWithCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
@@ -822,7 +831,15 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		String sql = getStatement("select.sakaiUserIds.in.newsLinks.by.entityReference");
 		Object[] params = new Object[]{entityReference};
 		try {
-			List<String> userIds = getJdbcTemplate().queryForList(sql,params);
+			List<String> userIds = getJdbcTemplate().query(sql,params, new RowMapper(){
+
+				public Object mapRow(ResultSet rs, int rowNum)
+						throws SQLException {
+					
+					return rs.getString(1);
+				}
+				
+			});
 			return new HashSet<String>(userIds);
 		} catch (DataAccessException ex) {
            log.error("getSakaIdsForUserWithNewsLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());

@@ -10,6 +10,7 @@ import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.site.api.Site;
@@ -177,5 +178,7 @@ public interface SakaiProxy {
 	public boolean isAttachmentResource(String resourceId);
 
 	public void startAdminSession();
+
+	public List<ContentResource> getAllContentResources(String contentCollectionId);
 
 }

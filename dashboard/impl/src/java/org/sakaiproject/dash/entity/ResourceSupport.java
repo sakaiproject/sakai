@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.logic.DashboardLogic;
@@ -276,7 +277,6 @@ public class ResourceSupport {
 		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
 		 */
 		public void processEvent(Event event) {
-			// TODO Auto-generated method stub
 			logger.info("\n\n\n=============================================================\n" + event  
 					+ "\n=============================================================\n\n\n");
 		}
@@ -299,7 +299,7 @@ public class ResourceSupport {
 		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
 		 */
 		public void processEvent(Event event) {
-			// TODO Auto-generated method stub
+
 			logger.info("\n\n\n=============================================================\n" + event  
 					+ "\n=============================================================\n\n\n");
 			Entity entity = sakaiProxy.getEntity(event.getResource());
@@ -391,7 +391,7 @@ public class ResourceSupport {
 		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
 		 */
 		public void processEvent(Event event) {
-			// TODO Auto-generated method stub
+			
 			logger.info("\n\n\n=============================================================\n" + event  
 					+ "\n=============================================================\n\n\n");
 			if(logger.isDebugEnabled()) {
@@ -415,9 +415,29 @@ public class ResourceSupport {
 		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
 		 */
 		public void processEvent(Event event) {
-			// TODO Auto-generated method stub
+			
 			logger.info("\n\n\n=============================================================\n" + event  
 					+ "\n=============================================================\n\n\n");
+			
+			Entity entity = sakaiProxy.getEntity(event.getResource());
+			if(entity != null && entity instanceof ContentResource) {
+				if(logger.isDebugEnabled()) {
+					logger.debug("updating links to resource " + entity.getId());
+				}
+				dashboardLogic.updateNewsLinks(event.getResource());
+			} else if(entity!= null && entity instanceof ContentCollection) {
+				ContentCollection collection = (ContentCollection) entity;
+				List<ContentResource> resources = sakaiProxy.getAllContentResources(collection.getId());
+				if(resources != null) {
+					for(ContentResource resource : resources) {
+						if(logger.isDebugEnabled()) {
+							logger.debug("updating links to resources in collection " + collection.getId() + ": " + resource.getId());
+						}
+						dashboardLogic.updateNewsLinks(resource.getReference());
+					}
+				}
+			}
+			
 		}
 	}
 
@@ -435,9 +455,28 @@ public class ResourceSupport {
 		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
 		 */
 		public void processEvent(Event event) {
-			// TODO Auto-generated method stub
+		
 			logger.info("\n\n\n=============================================================\n" + event  
 					+ "\n=============================================================\n\n\n");
+			
+			Entity entity = sakaiProxy.getEntity(event.getResource());
+			if(entity != null && entity instanceof ContentResource) {
+				if(logger.isDebugEnabled()) {
+					logger.debug("updating links to resource " + entity.getId());
+				}
+				dashboardLogic.updateNewsLinks(event.getResource());
+			} else if(entity!= null && entity instanceof ContentCollection) {
+				ContentCollection collection = (ContentCollection) entity;
+				List<ContentResource> resources = sakaiProxy.getAllContentResources(collection.getId());
+				if(resources != null) {
+					for(ContentResource resource : resources) {
+						if(logger.isDebugEnabled()) {
+							logger.debug("updating links to resources in collection " + collection.getId() + ": " + resource.getId());
+						}
+						dashboardLogic.updateNewsLinks(resource.getReference());
+					}
+				}
+			}
 		}
 	}
 

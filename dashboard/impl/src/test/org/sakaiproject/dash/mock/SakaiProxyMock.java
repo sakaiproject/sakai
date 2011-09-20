@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Observer;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.dash.logic.SakaiProxy;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.site.api.Site;
@@ -148,6 +149,12 @@ public class SakaiProxyMock implements SakaiProxy {
 	public void startAdminSession() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	public List<ContentResource> getAllContentResources(
+			String contentCollectionId) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

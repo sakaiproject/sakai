@@ -568,8 +568,8 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			Set<String> oldUserSet = dao.getSakaIdsForUserWithCalendarLinks(entityReference);
 			Set<String> newUserSet = new TreeSet<String>(this.sakaiProxy.getUsersWithReadAccess(entityReference, item.getSourceType().getAccessPermission()));
 			
-			Set<String> removeSet = Sets.difference(oldUserSet, newUserSet);
-			Set<String> addSet = Sets.difference(newUserSet, oldUserSet);
+			Set<String> removeSet = Sets.difference(oldUserSet, newUserSet).immutableCopy();
+			Set<String> addSet = Sets.difference(newUserSet, oldUserSet).immutableCopy();
 			
 			for(String sakaiUserId : removeSet) {
 				Person person = dao.getPersonBySakaiId(sakaiUserId);
@@ -596,12 +596,22 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			Set<String> oldUserSet = dao.getSakaiIdsForUserWithNewsLinks(entityReference);
 			Set<String> newUserSet = new TreeSet<String>(this.sakaiProxy.getUsersWithReadAccess(entityReference, item.getSourceType().getAccessPermission()));
 			
-			Set<String> removeSet = Sets.difference(oldUserSet, newUserSet);
-			Set<String> addSet = Sets.difference(newUserSet, oldUserSet);
+			logger.debug("oldUserSet.size == " + oldUserSet.size());
+			logger.debug("newUserSet.size == " + newUserSet.size());
+			Set<String> removeSet = new TreeSet(oldUserSet);
+			removeSet.removeAll(newUserSet);
+			logger.debug("removeSet.size == " + removeSet.size());
+			Set<String> addSet = new TreeSet(newUserSet);
+			addSet.removeAll(oldUserSet);
+			logger.debug("addSet.size == " + addSet.size());
+			
+			//Set<String> removeSet = Sets.difference(oldUserSet, newUserSet);
+			//Set<String> addSet = Sets.difference(newUserSet, oldUserSet);
 			
 			for(String sakaiUserId : removeSet) {
 				Person person = dao.getPersonBySakaiId(sakaiUserId);
 				if(person != null) {
+					logger.debug("Attempting to remove link for person: " + person);
 					dao.deleteNewsLink(person.getId(), item.getId());
 				}
 			}
@@ -609,6 +619,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			for(String sakaiUserId : addSet) {
 				Person person = dao.getPersonBySakaiId(sakaiUserId);
 				if(person != null) {
+					logger.debug("Attempting to add link for person: " + person);
 					NewsLink link = new NewsLink(person, item, item.getContext(),false, false);
 					dao.addNewsLink(link);
 				}

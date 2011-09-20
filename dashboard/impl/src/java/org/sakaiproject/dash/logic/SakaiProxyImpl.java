@@ -18,6 +18,7 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
@@ -57,6 +58,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 		this.eventTrackingService.addLocalObserver(observer);
 	}
 	
+	public List<ContentResource> getAllContentResources(String contentCollectionId) {
+		
+		return this.contentHostingService.getAllResources(contentCollectionId);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.SakaiProxy#getConfigParam(java.lang.String, boolean)
