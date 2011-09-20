@@ -39,7 +39,6 @@ import org.sakaiproject.scorm.service.api.ScormResultService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.scorm.ui.Icon;
 import org.sakaiproject.scorm.ui.console.pages.ConsoleBasePage;
-import org.sakaiproject.scorm.ui.console.pages.MaydayWebMarkupContainer;
 import org.sakaiproject.wicket.markup.html.link.BookmarkablePageLabeledLink;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.DecoratedPropertyColumn;
 
@@ -117,11 +116,10 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 		Icon previousIcon = new Icon("previousIcon", PREV_ICON);
 		Icon nextIcon = new Icon("nextIcon", NEXT_ICON);
 		
-        if( (null != pageParams) && (pageParams.containsKey("no-toolbar")) ) {
-            previousLink.setVisible( false );
-            nextLink.setVisible( false );
-        }
-        
+		boolean canGrade = lms.canGrade(lms.currentContext());
+		previousLink.setVisible( canGrade && siblingIds[0] != null && !siblingIds[0].equals(""));
+		nextLink.setVisible( canGrade && siblingIds[1] != null && !siblingIds[1].equals("") );
+
 		previousIcon.setVisible(previousLink.isVisible());
 		nextIcon.setVisible(nextLink.isVisible());
 
