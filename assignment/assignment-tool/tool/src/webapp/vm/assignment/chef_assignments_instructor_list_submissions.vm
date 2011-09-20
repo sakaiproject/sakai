@@ -508,9 +508,11 @@
 					#set($submission=false)
 					#set($submission = $userSubmission.Submission)
 					#set($siteUser=false)
+					#set($submittedBy=false)
 					#set($siteUser = $userSubmission.User)
 					#set($submitterId = $!siteUser.getId())
 					#set($submitterName=$!siteUser.sortName)
+					#set($submittedBy=$userSubmission.SubmittedBy)
 					#set($submitterDisplayId=$!siteUser.getDisplayId())
 					#if ($!submitterDisplayId)
 						##attach the displayId
@@ -581,6 +583,9 @@
 										#end
 									#else
 										$tlang.getString("listsub.nosub")
+									#end
+									#if ($!submittedBy) 
+									<br />by $!submittedBy.sortName
 									#end
 							</td>
 							<td headers="status">

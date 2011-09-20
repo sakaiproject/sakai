@@ -129,6 +129,13 @@
 										<td headers="assignment">
 											<h5>
 												<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)&option=lisofass2")" title="$validator.limit($validator.escapeHtml($assignment.Title), 40)">$validator.limit($validator.escapeHtml($assignment.Title), 40)</a>
+                                                #if ($allowAddAssignment && $allowSubmitByInstructor)
+                                                <div class="itemAction">
+                                                    <a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)&submitterId=$validator.escapeUrl($member.id)")">
+                                                    $tlang.getString("subasstudent")
+                                                    </a>
+                                                </div>
+                                                #end
 											</h5>
 										</td>
 										<td headers="submitted">
@@ -136,6 +143,11 @@
 												$!submission.TimeSubmitted.toStringLocalFull()
 												#if ($submission.getTimeSubmitted().after($assignment.DueTime))<span class="highlight">$tlang.getString("gen.late2")</span>
 												#end
+												#set ($submitterId = false)
+												#set ($submitterId = $!submission.getProperties().getProperty("submitted_user_id"))
+												#if ($!submitterId)
+												   <br />by $userService.getUser($submitterId).getDisplayName()
+											#end
 											#end
 											&nbsp;
 										</td>

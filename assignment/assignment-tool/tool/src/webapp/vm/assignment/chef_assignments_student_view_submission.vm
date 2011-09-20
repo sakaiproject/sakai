@@ -520,6 +520,13 @@ function submitform(id)
 							##<h4>$tlang.getString("gen.yousub")</h4>
 							$validator.escapeHtmlFormattedText($!value_submission_text)
 						#else*#
+							$allowAddAssignment $allowSubmitByInstructor $student#if ($!allowAddAssignment && $!allowSubmitByInstructor && $!student) 
+ 							<h4>$tlang.getString("submitforstudent")</h4>
+							<p class="instruction">
+								$student.getDisplayName()
+								<input type="hidden" name="submit_on_behalf_of" id="submit_on_behalf_of" value="$student.id" />		
+							</p>
+							#end
 							<h4>$tlang.getString("assignmenttext")</h4>
 							<p class="instruction">
 							#if ($returned)

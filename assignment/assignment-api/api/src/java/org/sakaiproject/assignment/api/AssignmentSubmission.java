@@ -40,6 +40,9 @@ public interface AssignmentSubmission extends Entity
 	/** submission level of close time*/
 	public static final String ALLOW_RESUBMIT_CLOSETIME = "allow_resubmit_closeTime";
 	
+	/** submission by different user */
+	public static final String SUBMITTER_USER_ID = "submitted_user_id";
+	
 	/**
 	 * Access the context at the time of creation.
 	 * 

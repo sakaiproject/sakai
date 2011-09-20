@@ -767,7 +767,16 @@ public class AssignmentService {
 		return service.canSubmit(param0, param1);
 	}
 	
+    public static boolean getAllowSubmitByInstructor() {
+        org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+        if (service == null) {
+            return false;
+        }
+        return service.getAllowSubmitByInstructor();
+    }
+
 	public static List<String> getSubmitterIdList(String param0, String param1, String param2, String param3, String param4) {
+
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
 		if (service == null)
 			return null;

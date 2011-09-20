@@ -228,6 +228,9 @@ public class AssignmentAction extends PagedResourceActionII
 	/** The user */
 	private static final String STATE_USER = "Assignment.user";
 
+	/** The submitter */
+	private static final String STATE_SUBMITTER = "Assignment.submitter";
+
 	// SECTION MOD
 	/** Used to keep track of the section info not currently being used. */
 	private static final String STATE_SECTION_STRING = "Assignment.section_string";
@@ -840,6 +843,9 @@ public class AssignmentAction extends PagedResourceActionII
 		// the grade type table
 		context.put("gradeTypeTable", gradeTypeTable());
 
+        // set the allowSubmitByInstructor option
+        context.put("allowSubmitByInstructor", AssignmentService.getAllowSubmitByInstructor());
+
 		// get the system setting for whether to show the Option tool link or not
 		context.put("enableViewOption", ServerConfigurationService.getBoolean("assignment.enableViewOption", true));
 		
@@ -1275,6 +1281,19 @@ public class AssignmentAction extends PagedResourceActionII
 		// put supplement item into context
 		supplementItemIntoContext(state, context, assignment, s);
 
+		initViewSubmissionListOption(state);
+		String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
+		String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
+        Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
+
+        // if the instructor is allowed to submit assignment on behalf of student, add the student list to the page
+		User student = (User) state.getAttribute("student") ;
+		if (AssignmentService.getAllowSubmitByInstructor() && student != null) {
+			List<String> submitterIds = AssignmentService.getSubmitterIdList(searchFilterOnly.toString(), allOrOneGroup, search, currentAssignmentReference, contextString);
+			if (submitterIds != null && !submitterIds.isEmpty() && submitterIds.contains(student.getId())) {
+				context.put("student",student);
+			}
+		}
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_STUDENT_VIEW_SUBMISSION;
 
@@ -1289,10 +1308,20 @@ public class AssignmentAction extends PagedResourceActionII
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		context.put("context", contextString);
 		
+        context.put("view", MODE_LIST_ASSIGNMENTS);
 		// get user information
 		User user = (User) state.getAttribute(STATE_USER);
-		context.put("user_name", user.getDisplayName());
-		context.put("user_id", user.getDisplayId());
+        String submitterId = (String) state.getAttribute(STATE_SUBMITTER);
+        User submitter = user;
+        if (submitterId != null) {
+            try {
+                submitter = UserDirectoryService.getUser(submitterId);
+            } catch (UserNotDefinedException ex) {
+                M_log.warn(this + ":build_student_view_submission cannot find user with id " + submitterId + " " + ex.getMessage());
+            }
+        }
+        context.put("user_name", submitter.getDisplayName());
+        context.put("user_id", submitter.getDisplayId());
 		if (StringUtils.trimToNull(user.getEmail()) != null)
 			context.put("user_email", user.getEmail());
 		
@@ -1335,7 +1364,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			
 			
-			AssignmentSubmission s = getSubmission(currentAssignmentReference, user, "build_student_view_submission_confirmation_context",state);
+			AssignmentSubmission s = getSubmission(currentAssignmentReference, submitter, "build_student_view_submission_confirmation_context",state);
 			if (s != null)
 			{
 				context.put("submitted", Boolean.valueOf(s.getSubmitted()));
@@ -1354,6 +1383,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 		}	
 
+		state.removeAttribute(STATE_SUBMITTER);
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_STUDENT_VIEW_SUBMISSION_CONFIRMATION;
 
@@ -1583,7 +1613,10 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		context.put("sortedBy", sortedBy);
 		context.put("sortedAsc", sortedAsc);
-		if (state.getAttribute(STATE_SELECTED_VIEW) != null)
+		
+		if (state.getAttribute(STATE_SELECTED_VIEW) != null &&
+				// this is not very elegant, but the view cannot be 'lisofass2' here.
+				!state.getAttribute(STATE_SELECTED_VIEW).equals(MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT))
 		{
 			context.put("view", state.getAttribute(STATE_SELECTED_VIEW));
 		}
@@ -3035,6 +3068,7 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		context.put("studentMembers", new SortedIterator(studentMembers.iterator(), new AssignmentComparator(state, SORTED_USER_BY_SORTNAME, Boolean.TRUE.toString())));
 		context.put("assignmentService", AssignmentService.getInstance());
+		context.put("userService", UserDirectoryService.getInstance());
 		
 		HashMap showStudentAssignments = new HashMap();
 		if (state.getAttribute(STUDENT_LIST_SHOW_TABLE) != null)
@@ -3492,11 +3526,20 @@ public class AssignmentAction extends PagedResourceActionII
 
 		User u = (User) state.getAttribute(STATE_USER);
 
+        String submitterId = params.get("submitterId");
+        if (submitterId != null) {
+            try {
+                u = UserDirectoryService.getUser(submitterId);
+                state.setAttribute("student", u);
+            } catch (UserNotDefinedException ex) {
+                M_log.warn(this + ":doView_submission cannot find user with id " + submitterId + " " + ex.getMessage());
+            }
+        }
+
 		Assignment a = getAssignment(assignmentReference, "doView_submission", state);
 		if (a != null)
 		{
 			AssignmentSubmission submission = getSubmission(assignmentReference, u, "doView_submission", state);
-
 			if (submission != null)
 			{
 				state.setAttribute(VIEW_SUBMISSION_TEXT, submission.getSubmittedText());
@@ -4117,7 +4160,6 @@ public class AssignmentAction extends PagedResourceActionII
 		if (a != null && AssignmentService.canSubmit(contextString, a))
 		{
 			ParameterParser params = data.getParameters();
-	
 			// retrieve the submission text (as formatted text)
 			boolean checkForFormattingErrors = true; // check formatting error whether the student is posting or saving
 			String text = processFormattedTextFromBrowser(state, params.getCleanString(VIEW_SUBMISSION_TEXT), checkForFormattingErrors);
@@ -4143,6 +4185,18 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 	
 			User u = (User) state.getAttribute(STATE_USER);
+			User submitter = null;
+			String studentId = params.get("submit_on_behalf_of");
+			if (studentId != null && !studentId.equals("-1")) {
+				try {
+					submitter = u;
+					u = UserDirectoryService.getUser(studentId);
+				} catch (UserNotDefinedException ex1) {
+					M_log.warn("Unable to find user with ID [" + studentId + "]");
+					submitter = null;
+				}
+			}
+			
 			String assignmentId = "";
 			if (state.getAttribute(STATE_MESSAGE) == null)
 			{
@@ -4160,7 +4214,6 @@ public class AssignmentAction extends PagedResourceActionII
 				// get attachment input and generate alert message according to assignment submission type
 				checkSubmissionTextAttachmentInput(data, state, a, text);
 			}
-	
 			if ((state.getAttribute(STATE_MESSAGE) == null) && (a != null))
 			{
 				AssignmentSubmission submission = getSubmission(a.getReference(), u, "post_save_submission", state);
@@ -4308,12 +4361,26 @@ public class AssignmentAction extends PagedResourceActionII
 							sEdit.clearSubmittedAttachments();
 
 							// add each new attachment
+							if (submitter != null) {
+								sPropertiesEdit.addProperty(AssignmentSubmission.SUBMITTER_USER_ID, submitter.getId());
+								state.setAttribute(STATE_SUBMITTER, u.getId());
+							} else {
+								sPropertiesEdit.removeProperty(AssignmentSubmission.SUBMITTER_USER_ID);
+							}
+							
 							Iterator it = attachments.iterator();
 							while (it.hasNext())
 							{
 								sEdit.addSubmittedAttachment((Reference) it.next());
 							}
 						}
+
+						if (submitter != null) {
+                            sPropertiesEdit.addProperty(AssignmentSubmission.SUBMITTER_USER_ID, submitter.getId());
+                            state.setAttribute(STATE_SUBMITTER, u.getId());
+                        } else {
+                            sPropertiesEdit.removeProperty(AssignmentSubmission.SUBMITTER_USER_ID);
+                        }
 
 						AssignmentService.commitEdit(sEdit);
 						
@@ -4330,6 +4397,7 @@ public class AssignmentAction extends PagedResourceActionII
 						edit.setTimeSubmitted(TimeService.newTime());
 						edit.setSubmitted(post);
 						edit.setAssignment(a);
+                        ResourcePropertiesEdit sPropertiesEdit = edit.getPropertiesEdit();
 
 						// add attachments
 						List attachments = (List) state.getAttribute(ATTACHMENTS);
@@ -4349,6 +4417,12 @@ public class AssignmentAction extends PagedResourceActionII
 						
 						// set the resubmission properties
 						setResubmissionProperties(a, edit);
+						if (submitter != null) {
+                            sPropertiesEdit.addProperty(AssignmentSubmission.SUBMITTER_USER_ID, submitter.getId());
+                            state.setAttribute(STATE_SUBMITTER, u.getId());
+                        } else {
+                            sPropertiesEdit.removeProperty(AssignmentSubmission.SUBMITTER_USER_ID);
+                        }
 
 						AssignmentService.commitEdit(edit);
 					}
@@ -4365,6 +4439,7 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				state.setAttribute(STATE_MODE, MODE_STUDENT_VIEW_SUBMISSION_CONFIRMATION);
 			}
+			
 		}	// if
 
 	} // post_save_submission
@@ -5588,7 +5663,7 @@ public class AssignmentAction extends PagedResourceActionII
 							}
 						}
 						
-						if (!oldOpenTime.equals(a.getOpenTime()))
+						if (oldOpenTime != null && !oldOpenTime.equals(a.getOpenTime()))
 						{
 							// open time change
 							m_eventTrackingService.post(m_eventTrackingService.newEvent(AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_OPENDATE, assignmentId, true));
@@ -9235,6 +9310,11 @@ public class AssignmentAction extends PagedResourceActionII
 		 */
 		AssignmentSubmission m_submission = null;
 
+		/**
+		 * the AssignmentSubmission object
+		 */
+		User m_submittedBy = null;
+
 		public UserSubmission(User u, AssignmentSubmission s)
 		{
 			m_user = u;
@@ -9255,6 +9335,18 @@ public class AssignmentAction extends PagedResourceActionII
 		public User getUser()
 		{
 			return m_user;
+		}
+
+		public void setSubmittedBy(User submittedBy) {
+			m_submittedBy = submittedBy;
+	}
+
+	/**
+		 * Returns the User object of the submitter,
+		 * if null, the user submitted the assignment himself.
+		 */
+		public User getSubmittedBy() {
+			return m_submittedBy;
 		}
 	}
 
@@ -10398,7 +10490,16 @@ public class AssignmentAction extends PagedResourceActionII
 						try
 						{
 							AssignmentSubmission sub = AssignmentService.getSubmission(aRef, u);
-							returnResources.add(new UserSubmission(u, sub));
+							UserSubmission us = new UserSubmission(u, sub);
+							String submittedById = (String)sub.getProperties().get(AssignmentSubmission.SUBMITTER_USER_ID);
+							if ( submittedById != null) {
+								try {
+									us.setSubmittedBy(UserDirectoryService.getUser(submittedById));
+								} catch (UserNotDefinedException ex1) {
+									M_log.warn(this + ":sizeResources cannot find submitter id=" + uId + ex1.getMessage());
+						}
+							}
+							returnResources.add(us);
 						}
 						catch (IdUnusedException subIdException)
 						{

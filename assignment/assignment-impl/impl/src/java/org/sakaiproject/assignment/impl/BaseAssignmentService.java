@@ -617,6 +617,29 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		return m_allowGroupAssignments;
 	}
 	
+	/** Dependency: allowSubmitByInstructor setting */
+	protected boolean m_allowSubmitByInstructor = true;
+
+	/**
+	 * Dependency: allowSubmitByInstructor
+	 * 
+	 * @param allowSubmitByInstructor
+	 *        the setting
+	 */
+	public void setAllowSubmitByInstructor(boolean allowSubmitByInstructor)
+	{
+		m_allowSubmitByInstructor = allowSubmitByInstructor;
+	}
+	/**
+	 * Get
+	 * 
+	 * @return allowSubmitByInstructor
+	 */
+	public boolean getAllowSubmitByInstructor()
+	{
+		return m_allowSubmitByInstructor;
+	}
+	
 	/** Dependency: allowGroupAssignmentsInGradebook setting */
 	protected boolean m_allowGroupAssignmentsInGradebook = true;
 

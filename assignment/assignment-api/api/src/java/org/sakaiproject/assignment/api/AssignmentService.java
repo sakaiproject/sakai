@@ -816,6 +816,11 @@ public interface AssignmentService extends EntityProducer
 	public boolean canSubmit(String context, Assignment a);
 	
 	/**
+	 * Allow that the instructor can submit an assignment on behalf of student
+	 */
+	public boolean getAllowSubmitByInstructor();
+	
+	/**
 	 * get appropriate submitter id list with group choice and site id
 	 * @param searchFilterOnly If true, return only those ids that matches the group filter and search criteria
 	 * @param allOrOneGroup "all" or specific group reference
