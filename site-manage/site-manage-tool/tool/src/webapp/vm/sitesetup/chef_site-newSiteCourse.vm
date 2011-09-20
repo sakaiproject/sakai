@@ -212,9 +212,12 @@ function redirectBasedOnSelection(){
 						#set($crosslisted=1)	
 					#end
 					</th>
+					<th>
+						$tlang.getString("useOfficialDescription")
+					</th>
 					</tr>
 					#foreach($courseOfferingObject in $courseObject.courseOfferingObjects)
-						<tr class="exclude"><td colspan="2" style="white-space:nowrap">
+						<tr class="exclude"><td colspan="3" style="white-space:nowrap">
 						#if ($providerCourseList) 
 							#set($endKey = $courseNumber + $!courseOfferingObject.sections.size() - $!providerCourseList.size())
 						#else
@@ -274,7 +277,19 @@ function redirectBasedOnSelection(){
 									#end
 									#set ($courseNumber = $courseNumber +1)
 									</h5>
-								</td></tr>
+								</td>
+								<td>
+									#set($sectionDescription=false)
+									#set($sectionDescription=$!sectionObject.description)
+									#if ($!sectionDescription && !$!sectionDescription.isEmpty())
+										<input type="checkbox" name="providerCourseAddDescription" value="$!sectionObject.eid" id="course$courseNumber" 
+											#if ($!selectedProviderCourseDescription.contains($!sectionObject.eid))
+												checked="checked"
+											#end 
+										/>
+									#end
+								</td>
+								</tr>
 							#end
 						#end
 					#end

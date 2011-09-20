@@ -477,6 +477,8 @@ public class SiteAction extends PagedResourceActionII {
 	private final static String STATE_ADD_CLASS_PROVIDER = "state_add_class_provider";
 
 	private final static String STATE_ADD_CLASS_PROVIDER_CHOSEN = "state_add_class_provider_chosen";
+	
+	private final static String STATE_ADD_CLASS_PROVIDER_DESCRIPTION_CHOSEN = "state_add_class_provider_description_chosen";
 
 	private final static String STATE_ADD_CLASS_MANUAL = "state_add_class_manual";
 
@@ -1002,6 +1004,7 @@ public class SiteAction extends PagedResourceActionII {
 		state.removeAttribute(STATE_FUTURE_TERM_SELECTED);
 		state.removeAttribute(STATE_ADD_CLASS_PROVIDER);
 		state.removeAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN);
+		state.removeAttribute(STATE_ADD_CLASS_PROVIDER_DESCRIPTION_CHOSEN);
 		state.removeAttribute(STATE_ADD_CLASS_MANUAL);
 		state.removeAttribute(STATE_AUTO_ADD);
 		state.removeAttribute(STATE_MANUAL_ADD_COURSE_NUMBER);
@@ -3136,6 +3139,7 @@ public class SiteAction extends PagedResourceActionII {
 			
 			List<String> providerSectionList = (List<String>) state.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN);
 			context.put("selectedProviderCourse", providerSectionList);
+			context.put("selectedProviderCourseDescription", state.getAttribute(STATE_ADD_CLASS_PROVIDER_DESCRIPTION_CHOSEN));
 			if (providerSectionList != null && providerSectionList.size() > 0)
 			{
 				// roster attached
@@ -7678,8 +7682,11 @@ public class SiteAction extends PagedResourceActionII {
 			 */
 			if (forward) {
 				List providerChosenList = new Vector();
+				List providerDescriptionChosenList = new Vector();
+				
 				if (params.getStrings("providerCourseAdd") == null) {
 					state.removeAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN);
+					state.removeAttribute(STATE_ADD_CLASS_PROVIDER_DESCRIPTION_CHOSEN);
 					if (params.getString("manualAdds") == null) {
 						addAlert(state, rb.getString("java.manual") + " ");
 					}
@@ -7689,6 +7696,13 @@ public class SiteAction extends PagedResourceActionII {
 					if (params.getStrings("providerCourseAdd") != null) {
 						providerChosenList = new ArrayList(Arrays.asList(params
 								.getStrings("providerCourseAdd"))); // list of
+						// description choices
+						if (params.getStrings("providerCourseAddDescription") != null) {
+							providerDescriptionChosenList = new ArrayList(Arrays.asList(params
+									.getStrings("providerCourseAddDescription"))); // list of
+							state.setAttribute(STATE_ADD_CLASS_PROVIDER_DESCRIPTION_CHOSEN,
+								providerDescriptionChosenList);
+						}
 						// course
 						// ids
 						String userId = (String) state
@@ -8129,6 +8143,7 @@ public class SiteAction extends PagedResourceActionII {
 		// remove related state variables
 		state.removeAttribute(STATE_ADD_CLASS_MANUAL);
 		state.removeAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN);
+		state.removeAttribute(STATE_ADD_CLASS_PROVIDER_DESCRIPTION_CHOSEN);
 		state.removeAttribute(STATE_MANUAL_ADD_COURSE_NUMBER);
 		state.removeAttribute(STATE_MANUAL_ADD_COURSE_FIELDS);
 		state.removeAttribute(STATE_SITE_QUEST_UNIQNAME);
@@ -11444,6 +11459,8 @@ public class SiteAction extends PagedResourceActionII {
 		public boolean attached;
 
 		public List<String> authorizer;
+		
+		public String description;
 
 		public SectionObject(Section section) {
 			this.section = section;
@@ -11473,6 +11490,7 @@ public class SiteAction extends PagedResourceActionII {
 			} else {
 				this.attached = false;
 			}
+			this.description = section.getDescription();
 		}
 
 		public Section getSection() {
@@ -11502,7 +11520,11 @@ public class SiteAction extends PagedResourceActionII {
 		public boolean getAttached() {
 			return attached;
 		}
-
+		
+		public String getDescription() {
+			return description;
+		}
+		
 		public List<String> getAuthorizer() {
 			return authorizer;
 		}
@@ -11723,6 +11745,34 @@ public class SiteAction extends PagedResourceActionII {
 						.getAttribute(STATE_PROVIDER_SECTION_LIST),
 						providerChosenList);
 				siteInfo.title = title;
+			}
+			
+			if (state.getAttribute(STATE_ADD_CLASS_PROVIDER_DESCRIPTION_CHOSEN) != null)
+			{
+				List<String> providerDescriptionChosenList = (List<String>) state.getAttribute(STATE_ADD_CLASS_PROVIDER_DESCRIPTION_CHOSEN);
+				if (providerDescriptionChosenList != null)
+				{
+					for (String providerSectionId : providerDescriptionChosenList)
+					{
+						try
+						{
+							Section s = cms.getSection(providerSectionId);
+							if (s != null)
+							{
+								String sDescription = StringUtils.trimToNull(s.getDescription());
+								if (sDescription != null && !siteInfo.description.contains(sDescription))
+								{
+									siteInfo.description = siteInfo.description.concat(sDescription);
+								}
+							}
+						}
+						catch (Exception e)
+						{
+							M_log.warn(this + ".collectNewSiteInfo: cannot find section Id=" + providerSectionId, e);
+						}
+					}
+				}
+				
 			}
 			state.setAttribute(STATE_SITE_INFO, siteInfo);
 
