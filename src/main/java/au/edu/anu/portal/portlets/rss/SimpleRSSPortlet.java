@@ -66,6 +66,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	private String viewUrl;
 	private String editUrl;
 	private String errorUrl;
+	private String noContentUrl;
 	
 	//cache
 	private CacheManager cacheManager;
@@ -88,6 +89,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 	   viewUrl = config.getInitParameter("viewUrl");
 	   editUrl = config.getInitParameter("editUrl");
 	   errorUrl = config.getInitParameter("errorUrl");
+	   noContentUrl = config.getInitParameter("noContentUrl");
 
 	   //setup cache
 	   cacheManager = new CacheManager();
@@ -126,6 +128,11 @@ public class SimpleRSSPortlet extends GenericPortlet{
 		//catch - errors already handled
 		if(feed == null) {
 			return;
+		}
+		
+		//catch and send to no content page
+		if(feed.getEntries().isEmpty()) {
+			dispatch(request, response, noContentUrl);
 		}
 		
 		//get the media associated with the entries in this feed

@@ -39,6 +39,10 @@
 			<name>errorUrl</name>
 			<value>/pages/error.jsp</value>
 		</init-param>
+		<init-param>
+			<name>noContentUrl</name>
+			<value>/pages/nocontent.jsp</value>
+		</init-param>
 		
 		<portlet-preferences>
          	<preferences-validator>
