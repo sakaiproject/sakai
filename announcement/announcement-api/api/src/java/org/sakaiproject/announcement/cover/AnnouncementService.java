@@ -39,7 +39,11 @@ public class AnnouncementService
 	public static final String RELEASE_DATE = org.sakaiproject.announcement.api.AnnouncementService.RELEASE_DATE;
 	public static final String RETRACT_DATE = org.sakaiproject.announcement.api.AnnouncementService.RETRACT_DATE;
 	public static final String ASSIGNMENT_REFERENCE = org.sakaiproject.announcement.api.AnnouncementService.ASSIGNMENT_REFERENCE;
-	
+	/** Events **/
+    public static final String EVENT_ANNC_UPDATE_TITLE = org.sakaiproject.announcement.api.AnnouncementService.EVENT_ANNC_UPDATE_TITLE;
+    public static final String EVENT_ANNC_UPDATE_ACCESS = org.sakaiproject.announcement.api.AnnouncementService.EVENT_ANNC_UPDATE_ACCESS;
+    public static final String EVENT_ANNC_UPDATE_AVAILABILITY = org.sakaiproject.announcement.api.AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY;
+   
 	/**
 	 * Access the component instance: special cover only method.
 	 * 

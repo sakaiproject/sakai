@@ -104,8 +104,18 @@ public interface AnnouncementService extends MessageService
 	public static final String MOD_DATE = "modDate";
 	
 	/** assignment reference property for announcements       */
-        public static final String ASSIGNMENT_REFERENCE = "assignmentReference";
+    public static final String ASSIGNMENT_REFERENCE = "assignmentReference";
 	
+    /** Event for updating announcement title **/
+    public static final String EVENT_ANNC_UPDATE_TITLE = SECURE_ANNC_ROOT + "revise.title";
+   
+    /** Event for updating announcement access **/
+    public static final String EVENT_ANNC_UPDATE_ACCESS = SECURE_ANNC_ROOT + "revise.access";
+    
+    /** Event for updating announcement availability **/
+    public static final String EVENT_ANNC_UPDATE_AVAILABILITY = SECURE_ANNC_ROOT + "revise.availability";
+    
+    
 	/**
 	 * A (AnnouncementChannel) cover for getChannel() to return a specific announcement channel.
 	 * 
