@@ -31,6 +31,8 @@ public interface ScormContentService extends ScormConstants {
 
 	public ContentPackage getContentPackage(long contentPackageId);
 	
+	public ContentPackage getContentPackageByResourceId(String resourceId);
+	
 	public List<ContentPackage> getContentPackages();
 	
 	public int getContentPackageStatus(ContentPackage contentPackage);

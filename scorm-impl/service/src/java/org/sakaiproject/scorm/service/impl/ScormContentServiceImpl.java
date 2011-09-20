@@ -73,6 +73,10 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 	public ContentPackage getContentPackage(long contentPackageId) {
 		return contentPackageDao().load(contentPackageId);
 	}
+	
+	public ContentPackage getContentPackageByResourceId(String resourceId) {
+		return contentPackageDao().loadByResourceId(resourceId);
+	}
 
 	public List<ContentPackage> getContentPackages() {
 		String context = lms().currentContext();
