@@ -58,6 +58,15 @@ public interface CalendarService
 
 	/** Name for the event of removing or changing any events in a calendar. */
 	public static final String EVENT_MODIFY_CALENDAR = "calendar.revise";
+	
+	/** Name for the event of changing event title */
+	public static final String EVENT_MODIFY_CALENDAR_EVENT_TITLE = "calendar.revise.event.title";
+	
+	/** Name for the event of changing event access settings */
+	public static final String EVENT_MODIFY_CALENDAR_EVENT_ACCESS = "calendar.revise.event.access";
+	
+	/** Name for the event of changing event frequency */
+	public static final String EVENT_MODIFY_CALENDAR_EVENT_FREQUENCY = "calendar.revise.event.frequency";
 
    /** Security lock for adding a calendar event */
 	public static final String AUTH_ADD_CALENDAR = "calendar.new";

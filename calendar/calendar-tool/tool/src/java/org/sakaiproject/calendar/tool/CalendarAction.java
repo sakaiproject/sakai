@@ -80,6 +80,7 @@ import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -6344,6 +6345,15 @@ extends VelocityPortletStateAction
 				}
 				else
 				{
+					boolean titleChanged = false;
+					boolean accessChanged = false;
+					boolean frequencyChanged = false;
+					// has the title changed?
+					if (!title.equals(edit.getDisplayName()))
+					{
+						titleChanged = true;
+					}
+					
 					try
 					{
 						calendarObj = CalendarService.getCalendar(calId);
@@ -6374,6 +6384,7 @@ extends VelocityPortletStateAction
 							setFields(edit, addfieldsMap);
 							edit.replaceAttachments(attachments);
 
+							RecurrenceRule oRule = edit.getRecurrenceRule();
 							RecurrenceRule rule = (RecurrenceRule) sstate.getAttribute(CalendarAction.SSTATE__RECURRING_RULE);
 
 							// conditions:
@@ -6395,9 +6406,32 @@ extends VelocityPortletStateAction
 								edit.setRecurrenceRule(rule);
 							}
 							
+							if (oRule == null && rule != null 
+								|| oRule != null && rule == null
+								|| (oRule != null && rule != null &&
+								(oRule.getCount() != rule.getCount()
+								|| !oRule.getFrequency().equals(rule.getFrequency())
+								|| oRule.getInterval() != rule.getInterval()
+								|| oRule.getUntil() != rule.getUntil())))
+							{
+								// frequency rule change
+								frequencyChanged = true;
+							}
+							
+							// get the current event access and group objects
+							String oldEventAccess = edit.getAccess().toString();
+							Collection oldEventGroups = edit.getGroupObjects();
+							
 							// section awareness
 							try
 							{
+
+								if (!oldEventAccess.equals(scheduleTo))
+								{
+									// toggled between group vs site event
+									accessChanged = true;
+								}
+								
 								// for site event
 								if (scheduleTo.equals("site"))
 								{
@@ -6418,6 +6452,16 @@ extends VelocityPortletStateAction
 									}
 									
 									edit.setGroupAccess(groups, edit.isUserOwner());
+									
+									// detect group changes
+									if (!accessChanged)
+									{
+										if (!oldEventGroups.containsAll(groups) || !groups.containsAll(oldEventGroups))
+										{
+											accessChanged = true;
+										}
+									}
+									
 								}
 							}
 							catch (Exception e)
@@ -6429,6 +6473,24 @@ extends VelocityPortletStateAction
 							state.setPrimaryCalendarEdit(null);
 							state.setEdit(null);
 							state.setIsNewCalendar(false);
+							
+							// for event tracking
+							if (titleChanged)
+							{
+								// track event of title change
+								EventTrackingService.post(EventTrackingService.newEvent(CalendarService.EVENT_MODIFY_CALENDAR_EVENT_TITLE, edit.getReference(), true));
+							}
+							if (accessChanged)
+							{
+								// track event of access change
+								EventTrackingService.post(EventTrackingService.newEvent(CalendarService.EVENT_MODIFY_CALENDAR_EVENT_ACCESS, edit.getReference(), true));
+							}
+							// for event tracking
+							if (frequencyChanged)
+							{
+								// track event of frequency change
+								EventTrackingService.post(EventTrackingService.newEvent(CalendarService.EVENT_MODIFY_CALENDAR_EVENT_FREQUENCY, edit.getReference(), true));
+							}
 						} // if (edit != null)
 						
 						m_calObj.setDay(Integer.parseInt(year),Integer.parseInt(month),Integer.parseInt(day));
