@@ -35,7 +35,7 @@ import org.sakaiproject.mailsender.logic.ExternalLogic;
 import org.sakaiproject.mailsender.model.ConfigEntry;
 import org.sakaiproject.mailsender.model.EmailEntry;
 import org.sakaiproject.user.api.User;
-import org.springframework.util.StringUtils;
+import org.sakaiproject.util.StringUtil;
 import org.springframework.web.multipart.MultipartFile;
 
 import uk.org.ponder.messageutil.MessageLocator;
@@ -156,9 +156,9 @@ public class EmailBean
 
 		// handle the other recipients
 		List<String> emailOthers = emailEntry.getOtherRecipients();
-		String[] allowedDomains = StringUtils.split(configService.getString("sakai.mailsender.other.domains"), ",");
+		String[] allowedDomains = StringUtil.split(configService.getString("sakai.mailsender.other.domains"), ",");
 		
-		List<String> invalids = null;
+		List<String> invalids = new ArrayList<String>();
 		// add other recipients to the message
 		for (String email : emailOthers)
 		{
@@ -173,8 +173,6 @@ public class EmailBean
 					}
 					else
 					{
-						if (invalids == null)
-							invalids = new ArrayList<String>();
 						invalids.add(email);
 					}
 				}
@@ -196,9 +194,12 @@ public class EmailBean
 
 		try
 		{
-			// send the message
-			invalids = externalLogic.sendEmail(config, fromEmail, fromDisplay,
-					emailusers, subject, content, multipartMap);
+			if (invalids.size() == 0)
+			{
+				// send the message
+				invalids = externalLogic.sendEmail(config, fromEmail, fromDisplay,
+						emailusers, subject, content, multipartMap);
+			}
 
 			// append to the email archive
 			String siteId = externalLogic.getSiteID();
