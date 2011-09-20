@@ -37,7 +37,11 @@ public class ButtonForm extends Form {
 	private static final String QUITBTN_ROOT_SRC = "/sakai-scorm-tool/images/quitBtn";
 	private static final String SUSPENDBTN_ROOT_SRC = "/sakai-scorm-tool/images/suspendBtn";
 
-	private ActivityAjaxButton prevButton, nextButton, startButton, quitButton, suspendButton;
+	private ActivityAjaxButton prevButton;
+	private ActivityAjaxButton nextButton;
+	private ActivityAjaxButton startButton;
+	private ActivityAjaxButton quitButton;
+	private ActivityAjaxButton suspendButton;
 	private PlayerPage view;
 	
 	@SpringBean
@@ -74,7 +78,7 @@ public class ButtonForm extends Form {
 		setPrevButtonVisible(isPreviousEnabled, target);
 		setStartButtonVisible(isStartEnabled, target);
 		setSuspendButtonVisible(isSuspendEnabled, target);
-		setQuitButtonVisible(sessionBean.isStarted() && !sessionBean.isEnded(), target);
+		setQuitButtonVisible(false, target);
 	}
 
 	public void setPrevButtonVisible(boolean isVisible, AjaxRequestTarget target) {
