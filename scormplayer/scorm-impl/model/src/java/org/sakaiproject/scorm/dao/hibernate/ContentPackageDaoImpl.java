@@ -50,6 +50,20 @@ public class ContentPackageDaoImpl extends HibernateDaoSupport implements Conten
 	public ContentPackage load(long id) {
 		return (ContentPackage)getHibernateTemplate().load(ContentPackage.class, id);
 	}
+
+	/**
+	 * @see org.sakaiproject.scorm.dao.api.ContentPackageDao#loadByResourceId(java.lang.String)
+	 */
+	public ContentPackage loadByResourceId(String resourceId) {
+		String statement = new StringBuilder("from ").append(ContentPackage.class.getName())
+				.append(" where resourceId = ? and deleted = ? ").toString();
+			
+		List<ContentPackage> result = getHibernateTemplate().find(statement, new Object[] { resourceId, false });
+		if (result.size() == 0) 
+			return null;
+		else
+			return result.get(0);
+	}
 	
 	public List<ContentPackage> find(String context) {
 		String statement = new StringBuilder("from ").append(ContentPackage.class.getName())
@@ -66,5 +80,5 @@ public class ContentPackageDaoImpl extends HibernateDaoSupport implements Conten
 		contentPackage.setDeleted(true);
 		getHibernateTemplate().saveOrUpdate(contentPackage);
 	}
-	
+
 }

@@ -30,6 +30,8 @@ public interface ContentPackageDao {
 	
 	public ContentPackage load(long id);
 	
+	public ContentPackage loadByResourceId(String resourceId);
+	
 	public List<ContentPackage> find(String context);
 	
 	public void save(ContentPackage contentPackage);
