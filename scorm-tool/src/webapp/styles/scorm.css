@@ -21,33 +21,29 @@ div.my-tree div.wicket-tree {
 
 #scormButtonPanel {
     background: url(/sakai-scorm-tool/images/buttonBarBackground.gif) repeat-x;
-    height: 36px;
+    height: 40px;
     padding-top: 4px;
 }
 
 
 .scormPlayerPanel {
     width: 100%;
-    float:left;
 }
 
 #scormMainPanel {
     width: 100%;
-    float:left;
 }
 #scormNavPanel {
-	float:left;
-    /*position: absolute;*/
-    /*top: 44px;*/
+    position: absolute;
+    top: 40px;
     left: 0px;
     width: 280px;
     overflow: auto;
 }
 
 #scormContentPanel {
-	float:left;
-    /*position: absolute;*/
-    /*top: 44px;*/
+    position: absolute;
+    top: 40px;
     left: 280px;
     overflow: hidden;
 }
