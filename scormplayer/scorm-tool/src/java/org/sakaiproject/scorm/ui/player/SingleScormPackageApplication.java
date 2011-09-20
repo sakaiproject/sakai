@@ -28,12 +28,4 @@ public class SingleScormPackageApplication extends SakaiWebApplication {
 		return DisplayDesignatedPackage.class;
 	}
 
-//	public ScormResourceService getResourceService() {
-//		return resourceService;
-//	}
-//
-//	public void setResourceService(ScormResourceService resourceService) {
-//		this.resourceService = resourceService;
-//	}
-
 } // class
