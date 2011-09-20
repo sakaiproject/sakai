@@ -31,6 +31,7 @@
             <param-value>org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory</param-value>
         </init-param>
 	</filter>
+	
 	<filter>
 	    <filter-name>security.filter</filter-name>
 	    <filter-class>org.sakaiproject.scorm.ui.player.ScormSecurityFilter</filter-class>
@@ -63,6 +64,22 @@
   	<filter-mapping>
 	    <filter-name>sakai.request</filter-name>
 	    <servlet-name>sakai.scorm.singlepackage.tool</servlet-name>
+	    <dispatcher>REQUEST</dispatcher>
+	    <dispatcher>FORWARD</dispatcher>
+	    <dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
+  	
+  	<filter-mapping>
+	    <filter-name>security.filter</filter-name>
+	    <servlet-name>sakai.scorm.access</servlet-name>
+	    <dispatcher>REQUEST</dispatcher>
+	    <dispatcher>FORWARD</dispatcher>
+	    <dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
+  	
+  	<filter-mapping>
+	    <filter-name>sakai.request</filter-name>
+	    <servlet-name>sakai.scorm.access</servlet-name>
 	    <dispatcher>REQUEST</dispatcher>
 	    <dispatcher>FORWARD</dispatcher>
 	    <dispatcher>INCLUDE</dispatcher>
