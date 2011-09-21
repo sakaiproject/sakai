@@ -15,7 +15,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
-import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.logic.DashboardLogic;
@@ -34,7 +33,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
- * THIS WILL BE MOVED TO THE assignment PROJECT IN SAKAI CORE ONCE THE INTERFACE IS MOVED TO KERNEL
+ * THIS WILL BE MOVED TO THE ANNOUNCEMENT PROJECT IN SAKAI CORE ONCE THE INTERFACE IS MOVED TO KERNEL
  *
  */
 public class AnnouncementSupport{
@@ -60,6 +59,7 @@ public class AnnouncementSupport{
 		this.dashboardLogic.registerEventProcessor(new AnnouncementNewEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new AnnouncementRemoveAnyEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new AnnouncementRemoveOwnEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new AnnouncementUpdateTitleEventProcessor());
 	}
 	/**
 	 * Inner class: AnnouncementEntityType
@@ -94,16 +94,11 @@ public class AnnouncementSupport{
 			if(announcement != null) {
 				AnnouncementMessageHeader header = announcement.getAnnouncementHeader();
 				ResourceProperties props = announcement.getProperties();
-				// "entity-type": "assignment"
 				values.put(EntityType.VALUE_ENTITY_TYPE, IDENTIFIER);
-				// "news-time": 1234567890
 				DateFormat df = DateFormat.getDateTimeInstance();
 				values.put(VALUE_NEWS_TIME, df.format(new Date(header.getDate().getTime())));
-				// "description": "Long thing, markup, escaped",
 				values.put(VALUE_DESCRIPTION, announcement.getBody());
-				// "title": "Assignment hoedown"
 				values.put(VALUE_TITLE, header.getSubject());
-				// "user-name": "Creator's Name"
 				User user = header.getFrom();
 				if(user != null) {
 					values.put(VALUE_USER_NAME, user.getDisplayName());
@@ -404,15 +399,16 @@ public class AnnouncementSupport{
 			}
 			Entity entity = sakaiProxy.getEntity(event.getResource());
 			
-			if(entity != null && entity instanceof Assignment) {
+			if(entity != null && entity instanceof AnnouncementMessage) {
 				// get the assignment entity and its current title
-				Assignment assn = (Assignment) entity;
+				AnnouncementMessage annc = (AnnouncementMessage) entity;
 				
+				String title = annc.getAnnouncementHeader().getSubject();
 				// update news item title
-				dashboardLogic.reviseNewsItemTitle(assn.getReference(), assn.getTitle());
+				dashboardLogic.reviseNewsItemTitle(annc.getReference(), title);
 				
-				// update news item title
-				dashboardLogic.reviseCalendarItemTitle(assn.getReference(), assn.getTitle());
+				// update calendar item title
+				dashboardLogic.reviseCalendarItemTitle(annc.getReference(), title);
 			}
 			
 			if(logger.isDebugEnabled()) {
