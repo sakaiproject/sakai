@@ -383,7 +383,7 @@ function postGlobalAlert(data){
     function flashMessage(elem, message){
         $(elem).removeClass('portalMessageShadow');
         $(elem).fadeOut(2000, function(){
-            $(this).children('span').text(message);
+            $(this).children('span').html(message);
             $(this).fadeIn(2000, function(){
                 $(this).addClass('portalMessageShadow');
             });
