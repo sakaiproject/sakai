@@ -545,7 +545,7 @@ public class PortalServiceImpl implements PortalService
 	}
 
 	public Editor getActiveEditor(Placement placement) {
-		String systemEditor = ServerConfigurationService.getString("wysiwyg.editor", "fckeditor");
+		String systemEditor = ServerConfigurationService.getString("wysiwyg.editor", "ckeditor");
 		
 		String activeEditor = systemEditor;
 		if (placement != null) {
