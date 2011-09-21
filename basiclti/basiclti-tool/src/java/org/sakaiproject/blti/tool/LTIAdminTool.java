@@ -47,6 +47,10 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 
 // import org.sakaiproject.component.cover.ServerConfigurationService;
 
@@ -80,6 +84,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	private static String STATE_REDIRECT_URL = "lti:state_redirect_url";
 
 	private static String SECRET_HIDDEN = "***************";
+
+	private static String WEB_PORTLET = "sakai.web.168";
 
 	/** Service Implementations */
 	protected static ToolManager toolManager = null; 
@@ -829,7 +835,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
         // Insert or edit
 	public void doContentDelete(RunData data, Context context)
 	{
-
 		String peid = ((JetspeedRunData) data).getJs_peid();
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
 		
@@ -855,6 +860,128 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
                         addAlert(state,rb.getString("error.delete.fail"));
                         switchPanel(state, "Content");
                 }
+	}
+
+	public String buildLinkAddPanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
+		context.put("tlang", rb);
+		if ( ! ltiService.isMaintain() ) {
+		        addAlert(state,rb.getString("error.maintain.link"));
+		        return "lti_error";
+		}
+                context.put("doAction", BUTTON + "doSiteLink");
+		String id = data.getParameters().getString(LTIService.LTI_ID);
+		if ( id == null ) {
+		        addAlert(state,rb.getString("error.id.not.found"));
+		        return "lti_main";
+		}	
+		Long key = new Long(id);
+		Map<String,Object> content = ltiService.getContent(key);
+		if (  content == null ) {
+		        addAlert(state,rb.getString("error.content.not.found"));
+		        return "lti_main";
+		}
+		context.put("content",content);
+		state.removeAttribute(STATE_SUCCESS);
+		return "lti_link_add";
+	}
+
+        // Insert or edit
+	public void doSiteLink(RunData data, Context context)
+	{
+		String peid = ((JetspeedRunData) data).getJs_peid();
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
+		
+		if ( ! ltiService.isMaintain() ) {
+		        addAlert(state,rb.getString("error.maintain.link"));
+                        switchPanel(state, "Error");
+		        return;
+		}
+		Properties reqProps = data.getParameters().getProperties();
+		String id = data.getParameters().getString(LTIService.LTI_ID);
+                if ( id == null ) {
+                        addAlert(state,rb.getString("error.id.not.found"));
+                        switchPanel(state, "Error");
+                        return;
+                }
+		Long key = new Long(id);
+		Map<String,Object> content = ltiService.getContent(key);
+		if (  content == null ) {
+		        addAlert(state,rb.getString("error.content.not.found"));
+			switchPanel(state, "Error");
+		        return;
+		}
+
+		String button_text = data.getParameters().getString("button_text");
+
+        	Site site = getCurrentSite();
+                SitePage sitePage = site.addPage();
+
+                ToolConfiguration tool = sitePage.addTool(WEB_PORTLET);
+                String toolId = tool.getPageId();
+                sitePage.setTitle(button_text);
+                sitePage.setTitleCustom(true);
+                try {
+                        SiteService.save(site);
+                } catch (Exception e) {
+                        M_log.error("addPage unable to save site " + e);
+                        addAlert(state,rb.getString("error.link.add.fail"));
+			switchPanel(state, "Content");
+			return;
+                }
+		tool.getPlacementConfig().setProperty("source",(String)content.get("launch_url"));
+		tool.setTitle(button_text);
+
+		tool.save();
+
+		// Record the new placement in the content item
+		Properties newProps = new Properties();
+		newProps.setProperty(LTIService.LTI_PLACEMENT, tool.getId());
+System.out.println("KEY="+key);
+		Object retval = ltiService.updateContent(key, newProps);
+		if ( retval instanceof String ) {
+                        addAlert(state,rb.getString("error.link.placement.update")+" "+(String) retval);
+			switchPanel(state, "Content");
+			return;
+		}
+
+	        state.setAttribute(STATE_SUCCESS,rb.getString("success.link.add"));
+		switchPanel(state, "Refresh");
+	}
+
+	public String buildLinkRemovePanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
+		context.put("tlang", rb);
+		if ( ! ltiService.isMaintain() ) {
+		        addAlert(state,rb.getString("error.maintain.link"));
+		        return "lti_error";
+		}
+                context.put("doAction", BUTTON + "doSiteRemove");
+		String id = data.getParameters().getString(LTIService.LTI_ID);
+		if ( id == null ) {
+		        addAlert(state,rb.getString("error.id.not.found"));
+		        return "lti_main";
+		}	
+		Long key = new Long(id);
+		Map<String,Object> content = ltiService.getContent(key);
+		if (  content == null ) {
+		        addAlert(state,rb.getString("error.content.not.found"));
+		        return "lti_main";
+		}
+		context.put("content",content);
+		state.removeAttribute(STATE_SUCCESS);
+		return "lti_site_remove";
+	}
+
+	public String buildRefreshPanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
+		context.put("tlang", rb);
+                context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
+		state.removeAttribute(STATE_SUCCESS);
+		return "lti_top_refresh";
 	}
 
         public String buildTestPanelContext(VelocityPortlet portlet, Context context, 
@@ -1123,5 +1250,15 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
                 throwable.printStackTrace(printWriter);
                 return writer.toString();
          }
+
+        public static Site getCurrentSite() {
+
+                try {
+                    return SiteService.getSite(toolManager.getCurrentPlacement().getContext());
+                } catch (Exception impossible) {
+                        M_log.error("Cannot load site" + impossible);
+                }
+                return null;
+        }
 
 }

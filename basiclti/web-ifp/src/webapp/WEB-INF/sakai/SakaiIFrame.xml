@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+
+<registration>
+
+        <tool
+                        id="sakai.web.168"
+                        title="Web Portlet"
+                        description="For accessing an external website within the site.">
+
+                <configuration name="source" value="" />
+                <configuration name="height" value="600px" />
+
+<!--
+                <configuration name="reset.button" value="false" type="final" />
+-->
+
+                <category name="course" />
+                <category name="project" />
+		<category name="portfolio" />
+                <category name="myworkspace" />
+
+                <!-- Allow this to be set -->
+                <configuration name="functions.require" />
+        </tool>
+
+</registration>

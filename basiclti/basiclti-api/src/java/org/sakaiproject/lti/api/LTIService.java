@@ -302,7 +302,8 @@ public interface LTIService {
       "debug:checkbox:label=bl_debug",
       "custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=1024",
       "launch:url:hidden=true:maxlength=255",
-      "xmlimport:text:hidden=true:maxlength=16384", 
+      "xmlimport:text:hidden=true:maxlength=16384",
+      "placement:text:hidden=true:maxlength=256", 
       "created_at:autodate",
       "updated_at:autodate" };
 
@@ -347,6 +348,7 @@ public interface LTIService {
   static final String LTI_SITE_ID =     "SITE_ID";
   static final String LTI_TOOL_ID =     "tool_id";
   static final String LTI_TITLE =    	"title";
+  static final String LTI_PLACEMENT =    "placement";
   static final String LTI_DESCRIPTION = "description";
   static final String LTI_STATUS = 	"status";
   static final String LTI_LAUNCH = 	"launch";

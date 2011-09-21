@@ -16,7 +16,8 @@
 		<tr>
 			<th id="title">$tlang.getString("bl_title")</th>
 			#if ($isAdmin) <th id="site">$tlang.getString("bl_site")</th> #end
-			<th id="action" width="25%">Action</th>
+			<th id="action" width="25%">$tlang.getString("bl_action")</th>
+	                <th id="page">$tlang.getString("bl_page")</th>
 		</tr>
 		#foreach ($content in $contents)
 		<tr>
@@ -26,6 +27,13 @@
 		<a href="$sakai_ActionURL.setPanel("ContentDelete")&id=$content.get("id")">$tlang.getString("gen.delete")</a>
 		#if ( $content.get("launch_url") )
 		/ <a href="$content.get("launch_url")" target="_new" "$tlang.getString("gen.test")>$tlang.getString("gen.test")</a>
+		#end
+		</td>
+                <td headers="page">
+                #if ( $content.get("placement") ) 
+			<a href="$sakai_ActionURL.setPanel("LinkRemove")&id=$content.get("id")">$tlang.getString("bl_removelink")</a>
+		#else 
+			<a href="$sakai_ActionURL.setPanel("LinkAdd")&id=$content.get("id")">$tlang.getString("bl_addlink")</a>
 		#end
 		</td>
 		<tr>

@@ -335,14 +335,24 @@ public class DBLTIService extends BaseLTIService implements LTIService {
    * 
    * {@inheritDoc}
    * 
-   * @see org.sakaiproject.lti.impl.BaseLTIService#updateContent(java.lang.Long,
-   *      java.lang.Object)
+   * @see org.sakaiproject.lti.impl.BaseLTIService#updateContent(java.lang.Long, java.lang.Object)
    */
   public Object updateContent(Long key, Object newProps) {
     // Make sure we like the proposed tool_id
     String toolId = (String) foorm.getField(newProps, LTIService.LTI_TOOL_ID);
+
+    if ( toolId == null ) {
+      Map<String,Object> content = getContent(key);
+      if (  content == null ) {
+        return rb.getString("error.content.not.found");
+      }
+      Long toolKey = foorm.getLongNull(content.get(LTIService.LTI_TOOL_ID));
+      if ( toolKey != null ) toolId = toolKey.toString();
+    }
+
     if (toolId == null)
       return rb.getString("error.missing.toolid");
+
     Long toolKey = null;
     try {
       toolKey = new Long(toolId);
@@ -353,8 +363,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
     if (contentModel == null)
       return rb.getString("error.invalid.toolid");
 
-    return updateThing("lti_content", contentModel, LTIService.CONTENT_MODEL, key,
-        newProps);
+    return updateThing("lti_content", contentModel, LTIService.CONTENT_MODEL, key, newProps);
   }
 
   /**

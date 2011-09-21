@@ -29,7 +29,7 @@
                 <th id="title">$tlang.getString("bl_title")</th>
                 <th id="launch">$tlang.getString("bl_launch")</th>
                 #if ($isAdmin) <th id="site">$tlang.getString("bl_site")</th> #end
-                <th id="action">Action</th>
+                <th id="action">$tlang.getString("bl_action")</th>
         </tr>
             #foreach ($tool in $tools)
                 <tr>
