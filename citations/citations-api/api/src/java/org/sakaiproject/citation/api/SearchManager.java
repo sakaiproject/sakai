@@ -97,6 +97,8 @@ public interface SearchManager
      */
     public String getGoogleScholarUrl(String resourceId);
 
+    public String getExternalSearchWindowName(String resourceId);
+
     /**
      * Supply the url for the savecite servlet to add a citation to a particular citation list.
      * @param resourceId The identifier for the citation list.

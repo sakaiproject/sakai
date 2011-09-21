@@ -769,8 +769,6 @@ public class DbCitationService extends BaseCitationService
 			edit.setAdded(added);
 
 			String statement = "select CITATION_ID, PROPERTY_NAME, PROPERTY_VALUE from " + m_citationTableName + " where (CITATION_ID = ?)  order by PROPERTY_NAME";
-			String urlStatement = "select CITATION_ID, PROPERTY_NAME, PROPERTY_VALUE from " + m_citationTableName + " where (CITATION_ID = ?)";
-
 			Object fields[] = new Object[1];
 			fields[0] = citationId;
 
@@ -823,17 +821,22 @@ public class DbCitationService extends BaseCitationService
 					{
 						edit.m_preferredUrl = (String) triple.getValue();
 					}
-					else if(isMultivalued(schemaId, name))
+					else if(PROP_DISPLAYNAME.equals(name.trim()))
 					{
-						edit.addPropertyValue(name, triple.getValue());
+						edit.setDisplayName(triple.getValue().toString());
+					}
+					else if (PROP_MEDIATYPE.equals(name))
+					{
+						// Ignore, handled before we started processing properties..
+					}
+					else if (PROP_ADDED.equals(name))
+					{
+						// Ignore, handled before we started processing properties.
 					}
 					else
 					{
+						// Don't need to worry about multivalued propertie
 						edit.setCitationProperty(name, triple.getValue());
-						if(PROP_DISPLAYNAME.equals(name.trim()))
-						{
-							edit.setDisplayName(triple.getValue().toString());
-						}
 					}
 				}
 			}

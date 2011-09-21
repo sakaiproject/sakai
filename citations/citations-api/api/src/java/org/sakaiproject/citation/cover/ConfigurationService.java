@@ -340,6 +340,52 @@ public class ConfigurationService
 	}
 
   /**
+   * Enable/disable external search support
+   */
+  public static void setExternalSearchEnabled(boolean state)
+  {
+    org.sakaiproject.citation.api.ConfigurationService instance = getInstance();
+    if (instance == null)
+    {
+      return;
+    }
+    instance.setExternalSearchEnabled(state);
+  }
+
+  /**
+   * Is external search enabled?
+   */
+  public static boolean isExternalSearchEnabled()
+  {
+    org.sakaiproject.citation.api.ConfigurationService instance = getInstance();
+    if (instance == null)
+    {
+      return false;
+    }
+   return instance.isExternalSerarchEnabled();
+ }
+  
+  public static void setExternalSearchUrl(String url)
+  {
+    org.sakaiproject.citation.api.ConfigurationService instance = getInstance();
+    if (instance == null)
+    {
+      return;
+    }
+    instance.setExternalSearchUrl(url);
+  }
+  
+  public static String getExternalSearchUrl()
+  {
+    org.sakaiproject.citation.api.ConfigurationService instance = getInstance();
+    if (instance == null)
+    {
+      return null;
+    }
+    return instance.getExternalSearchUrl();
+  }
+
+  /**
    * Enable/disable default Citations support
    */
   public static void setCitationsEnabledByDefault(boolean state)

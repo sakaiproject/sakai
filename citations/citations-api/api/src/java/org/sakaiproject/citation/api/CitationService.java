@@ -24,6 +24,8 @@ package org.sakaiproject.citation.api;
 import java.util.List;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.osid.repository.Asset;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
@@ -95,7 +97,7 @@ public interface CitationService extends EntityProducer
 
 	/**
 	 * 
-	 * @param listId
+	 * @param mediatype The Scheme type to create.
 	 * @return
 	 */
 	public Citation addCitation(String mediatype);
@@ -191,6 +193,14 @@ public interface CitationService extends EntityProducer
      * @param collection
      */
     public void save(CitationCollection collection);
-    
+
+    /**
+     * Attempt to find a Citation from a request.
+     * This basically uses OpenURL to look for details of a citation in the request.
+     * @param request The servlet request.
+     * @return The returned citation which been saved or added to a citation collection,
+     * if no citation is found in the request then <code>null</code> is returned.
+     */
+    public Citation addCitation(HttpServletRequest request);
 }	// interface CitationService
 

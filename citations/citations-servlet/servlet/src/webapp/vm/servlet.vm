@@ -48,7 +48,8 @@
 					#end
 				#else
 					<h3>$tlang.getString( "error.gscholar" )</h3>
-					<p class="instruction">$tlang.getString( "error.sub.gscholar" )</p>
+					<p class="instruction">#if($error) $error #else $tlang.getString( "error.sub.gscholar" ) #end</p>
+
 					<p class="act">
 						<button type="button" onclick="window.close();">$tlang.getString( "close.gscholar" )</button>
 					</p>
