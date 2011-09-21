@@ -267,7 +267,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 		
 		Element element = feedCache.get(cacheKey);
 		if(element != null) {
-			log.info("Fetching data from feed cache for: " + cacheKey);
+			log.debug("Fetching data from feed cache for: " + cacheKey);
 			feed = (SyndFeed) element.getObjectValue();
 			if(feed == null) {
 				log.warn("Feed cache data invalid, attempting a refresh...");
@@ -300,7 +300,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 		}
 		
 		//cache the data,
-		log.info("Adding data to feed cache for: " + feedUrl);
+		log.debug("Adding data to feed cache for: " + feedUrl);
 		feedCache.put(new Element(feedUrl, feed));
 		
 		return feed;
@@ -321,7 +321,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 		//check cache
 		Element element = mediaCache.get(feedUrl);
 		if(element != null) {
-			log.info("Fetching data from media cache for: " + feedUrl);
+			log.debug("Fetching data from media cache for: " + feedUrl);
 			return (Map<String,Attachment>) element.getObjectValue();
 		} else {
 		
@@ -329,7 +329,7 @@ public class SimpleRSSPortlet extends GenericPortlet{
 			media = FeedParser.parseFeedEnclosures(feed);
 			
 			//cache the data
-			log.info("Adding data to media cache for: " + feedUrl);
+			log.debug("Adding data to media cache for: " + feedUrl);
 			mediaCache.put(new Element(feedUrl, media));
 		}
 		
