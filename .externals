@@ -16,6 +16,7 @@ webservices https://source.sakaiproject.org/svn/webservices/trunk
 basiclti https://source.sakaiproject.org/svn/basiclti/trunk
 jobscheduler https://source.sakaiproject.org/svn/jobscheduler/trunk
 lessonbuilder https://source.sakaiproject.org/svn/lessonbuilder/trunk/
+mailsender https://source.sakaiproject.org/svn/mailsender/trunk
 msgcntr https://source.sakaiproject.org/svn/msgcntr/trunk
 polls https://source.sakaiproject.org/svn/polls/trunk
 profile https://source.sakaiproject.org/svn/profile/trunk
@@ -29,7 +30,6 @@ sitestats https://source.sakaiproject.org/svn/sitestats/trunk
 # Indie experimental
 assignment2 https://source.sakaiproject.org/contrib/assignment2/trunk
 hybrid https://source.sakaiproject.org/svn/hybrid/trunk
-mailsender https://source.sakaiproject.org/contrib/mailsender/trunk
 roster2 https://source.sakaiproject.org/contrib/roster2/trunk
 
 # Monolithic Sakai
