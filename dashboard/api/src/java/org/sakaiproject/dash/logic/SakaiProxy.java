@@ -42,6 +42,10 @@ public interface SakaiProxy {
 	public final static String EVENT_ANNOUNCEMENT_NEW =  AnnouncementService.SECURE_ANNC_ADD;
 	public final static String EVENT_ANNOUNCEMENT_REMOVE_OWN = AnnouncementService.SECURE_ANNC_REMOVE_OWN;
 	public final static String EVENT_ANNOUNCEMENT_REMOVE_ANY = AnnouncementService.SECURE_ANNC_REMOVE_ANY;
+	public static final String EVENT_ANNC_UPDATE_TITLE = AnnouncementService.EVENT_ANNC_UPDATE_TITLE;
+    public static final String EVENT_ANNC_UPDATE_ACCESS = AnnouncementService.EVENT_ANNC_UPDATE_ACCESS;
+    public static final String EVENT_ANNC_UPDATE_AVAILABILITY = AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY;
+   
 	
 	public final static String EVENT_SCHEDULE_NEW_EVENT = CalendarService.EVENT_ADD_CALENDAR;
 	public final static String EVENT_SCHEDULE_REMOVE_EVENT = CalendarService.EVENT_REMOVE_CALENDAR;
@@ -50,7 +54,7 @@ public interface SakaiProxy {
 	public static final String PERMIT_ANNOUNCEMENT_ACCESS = AnnouncementService.SECURE_ANNC_READ;
 	public static final String PERMIT_ASSIGNMENT_ACCESS = AssignmentService.SECURE_ACCESS_ASSIGNMENT;
 	public static final String PERMIT_RESOURCE_ACCESS = ContentHostingService.AUTH_RESOURCE_READ;
-	public static final String PERMIT_SCHEDULE_ACCESS = CalendarService.SECURE_READ;
+	public static final String PERMIT_SCHEDULE_ACCESS = CalendarService.AUTH_READ_CALENDAR;
 	
 	public static final String ANNOUNCEMENT_RELEASE_DATE = AnnouncementService.RELEASE_DATE;
 	public static final String ANNOUNCEMENT_RETRACT_DATE = AnnouncementService.RETRACT_DATE;

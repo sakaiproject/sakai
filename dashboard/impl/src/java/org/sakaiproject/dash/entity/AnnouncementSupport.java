@@ -15,6 +15,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
+import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.logic.DashboardLogic;
@@ -378,5 +379,47 @@ public class AnnouncementSupport{
 			}
 			dashboardLogic.removeCalendarItem(event.getResource());
 		}
+	}
+	
+	/**
+	 * Inner Class: AnnouncementUpdateTitleEventProcessor
+	 */
+	public class AnnouncementUpdateTitleEventProcessor implements EventProcessor {
+		
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#getEventIdentifer()
+		 */
+		public String getEventIdentifer() {
+			
+			return SakaiProxy.EVENT_ANNC_UPDATE_TITLE;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
+		 */
+		public void processEvent(Event event) {
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug("removing calendar links and calendar item for " + event.getResource());
+			}
+			Entity entity = sakaiProxy.getEntity(event.getResource());
+			
+			if(entity != null && entity instanceof Assignment) {
+				// get the assignment entity and its current title
+				Assignment assn = (Assignment) entity;
+				
+				// update news item title
+				dashboardLogic.reviseNewsItemTitle(assn.getReference(), assn.getTitle());
+				
+				// update news item title
+				dashboardLogic.reviseCalendarItemTitle(assn.getReference(), assn.getTitle());
+			}
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug("removing news links and news item for " + event.getResource());
+			}
+
+		}
+
 	}
 }
