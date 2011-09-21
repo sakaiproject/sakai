@@ -526,7 +526,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			String plstr = (String) content.get(LTIService.LTI_PLACEMENT);
 		        ToolConfiguration tool = SiteService.findTool(plstr);
 			if ( tool == null ) {
-				// System.out.println("Removing cruft "+plstr);
 				content.put(LTIService.LTI_PLACEMENT, null);
 			}
 		}
@@ -966,7 +965,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		        addAlert(state,rb.getString("error.maintain.link"));
 		        return "lti_error";
 		}
-                context.put("doAction", BUTTON + "doSiteRemove");
+                context.put("doAction", BUTTON + "doLinkRemove");
 		String id = data.getParameters().getString(LTIService.LTI_ID);
 		if ( id == null ) {
 		        addAlert(state,rb.getString("error.id.not.found"));
@@ -980,7 +979,77 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
 		context.put("content",content);
 		state.removeAttribute(STATE_SUCCESS);
-		return "lti_site_remove";
+		return "lti_link_remove";
+	}
+
+	public void doLinkRemove(RunData data, Context context)
+	{
+		String peid = ((JetspeedRunData) data).getJs_peid();
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(peid);
+		
+		if ( ! ltiService.isMaintain() ) {
+		        addAlert(state,rb.getString("error.maintain.link"));
+                        switchPanel(state, "Error");
+		        return;
+		}
+		Properties reqProps = data.getParameters().getProperties();
+		String id = data.getParameters().getString(LTIService.LTI_ID);
+                if ( id == null ) {
+                        addAlert(state,rb.getString("error.id.not.found"));
+                        switchPanel(state, "Error");
+                        return;
+                }
+		Long key = new Long(id);
+		Map<String,Object> content = ltiService.getContent(key);
+		if (  content == null ) {
+		        addAlert(state,rb.getString("error.content.not.found"));
+			switchPanel(state, "Error");
+		        return;
+		}
+
+		String pstr = (String) content.get(LTIService.LTI_PLACEMENT);
+		if ( pstr == null || pstr.length() < 1 ) {
+		        addAlert(state,rb.getString("error.placement.not.found"));
+			switchPanel(state, "Error");
+		        return;
+		}
+
+		ToolConfiguration tool = SiteService.findTool(pstr);
+		if ( tool == null ) {
+		        addAlert(state,rb.getString("error.placement.not.found"));
+			switchPanel(state, "Error");
+		        return;
+		}
+
+		Site site = getCurrentSite();
+		SitePage sitePage = site.getPage(tool.getPageId());
+		if (sitePage == null) {
+		        addAlert(state,rb.getString("error.placement.not.found"));
+			switchPanel(state, "Error");
+		        return;
+		}
+
+		site.removePage(sitePage);
+
+		try {
+		    SiteService.save(site);
+		} catch (Exception e) {
+		        addAlert(state,rb.getString("error.placement.not.removed"));
+			switchPanel(state, "Error");
+		        return;
+		}
+
+		// Record the new placement in the content item
+		Properties newProps = new Properties();
+		newProps.setProperty(LTIService.LTI_PLACEMENT, "");
+		Object retval = ltiService.updateContent(key, newProps);
+		if ( retval instanceof String ) {
+			// Lets make this non-fatal
+                        addAlert(state,rb.getString("error.link.placement.update")+" "+(String) retval);
+		}
+
+	        state.setAttribute(STATE_SUCCESS,rb.getString("success.link.remove"));
+		switchPanel(state, "Refresh");
 	}
 
 	public String buildRefreshPanelContext(VelocityPortlet portlet, Context context, 
