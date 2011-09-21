@@ -112,12 +112,6 @@ public interface EntityType {
 	public String getIdentifier();
 	
 	/**
-	 * Determine the way in which the entity's title link should be rendered.
-	 * @return
-	 */
-	public EntityLinkStrategy getEntityLinkStrategy(String entityReference);
-
-	/**
 	 * Retrieve a mapping of key-value pairs related to a specific entity, as 
 	 * identified by the entityReference parameter, for a specific locale, as 
 	 * identified by the locale parameter. The mapping may use any of the keys 
