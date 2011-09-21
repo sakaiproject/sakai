@@ -201,8 +201,8 @@ public class ForumScheduleNotificationImpl implements ForumScheduleNotification 
 			//availability is being restricted:
 			makeAvailable = false;
 			
-			boolean readyToOpen = false;
-			boolean readyToClose = false;
+			boolean afterOpen = false;
+			boolean beforeClose = false;
 			Time openTime = null;
     		Time closeTime = null;
     		if(openDate != null){
@@ -218,17 +218,18 @@ public class ForumScheduleNotificationImpl implements ForumScheduleNotification 
     		
     		
 			if(openTime != null && openTime.before(timeService.newTime())){
-				readyToOpen = true;
+				afterOpen = true;
+			}else if(openTime == null){
+				afterOpen = true;
 			}
-			if(closeTime != null && closeTime.before(timeService.newTime())){
-				readyToClose = true;
-				readyToOpen = false;
+			if(closeTime != null && closeTime.after(timeService.newTime())){
+				beforeClose = true;
+			}else if(closeTime == null){
+				beforeClose = true;
 			}
 
-			if(readyToOpen){
+			if(afterOpen && beforeClose){
 				makeAvailable = true;    				
-			}else if(readyToClose){
-				makeAvailable = false;
 			}
 		}
 		return makeAvailable;
