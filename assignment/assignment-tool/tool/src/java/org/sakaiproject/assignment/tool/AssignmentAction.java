@@ -1224,7 +1224,13 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				context.put("nonElectronicType", Boolean.TRUE);
 			}
-			s = getSubmission(assignment.getReference(), user, "build_student_view_submission_context", state);
+
+            User submitter = (User)state.getAttribute("student");
+            if (submitter == null) {
+                submitter = user;
+            }
+            s = getSubmission(assignment.getReference(), submitter, "build_student_view_submission_context", state);
+
 			if (s != null)
 			{
 				context.put("submission", s);

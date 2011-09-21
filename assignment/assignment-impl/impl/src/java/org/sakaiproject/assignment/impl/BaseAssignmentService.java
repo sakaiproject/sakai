@@ -701,6 +701,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							submissionReference(null, "", ""));
 		}
 
+        m_allowSubmitByInstructor = m_serverConfigurationService.getBoolean("assignments.instructor.submit.for.student", m_allowSubmitByInstructor);
+        if (!m_allowSubmitByInstructor) {
+            M_log.info("Instructor submission of assignments is disabled - add assignments.instructor.submit.for.student=true to sakai config to enable");
+        } else {
+            M_log.info("Instructor submission of assignments is enabled");
+        }
+
 		// register as an entity producer
 		m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 
