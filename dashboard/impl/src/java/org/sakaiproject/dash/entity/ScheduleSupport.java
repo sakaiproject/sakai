@@ -227,7 +227,9 @@ public class ScheduleSupport{
 				if(sourceType == null) {
 					sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_SCHEDULE_ACCESS, EntityLinkStrategy.SHOW_PROPERTIES);
 				}
-				CalendarItem calendarItem = dashboardLogic.createCalendarItem(cEvent.getDisplayName(), new Date(cEvent.getRange().firstTime().getTime()), cEvent.getReference(), "", context, sourceType);
+				// TODO: Third parameter should be a key for a label such as "Due Date: " or "Accept Until: " 
+				// from dash_entity properties bundle for use in the dashboard list
+				CalendarItem calendarItem = dashboardLogic.createCalendarItem(cEvent.getDisplayName(), new Date(cEvent.getRange().firstTime().getTime()), "", cEvent.getReference(), "", context, sourceType);
 				dashboardLogic.createCalendarLinks(calendarItem);
 				
 			} else {
