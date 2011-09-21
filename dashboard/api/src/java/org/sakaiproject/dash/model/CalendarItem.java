@@ -34,6 +34,7 @@ public class CalendarItem {
 	protected Long id;
 	protected String title;
 	protected Date calendarTime;
+	protected String calendarTimeLabelKey;
 	protected String entityReference;
 	protected String entityUrl;
 	protected Context context;
@@ -48,11 +49,12 @@ public class CalendarItem {
 	}
 
 	public CalendarItem(String title, Date calendarTime,
-			String entityReference, String entityUrl, Context context,
-			SourceType sourceType) {
+			String calendarTimeLabelKey, String entityReference, String entityUrl,
+			Context context, SourceType sourceType) {
 		super();
 		this.title = title;
 		this.calendarTime = calendarTime;
+		this.calendarTimeLabelKey = calendarTimeLabelKey;
 		this.entityReference = entityReference;
 		this.entityUrl = entityUrl;
 		this.context = context;
@@ -63,15 +65,16 @@ public class CalendarItem {
 	 * @param id
 	 * @param title
 	 * @param calendarTime
+	 * @param calendarTimeLabelKey TODO
 	 * @param entityReference
 	 * @param entityUrl
 	 * @param context
-	 * @param realm
 	 * @param sourceType
+	 * @param realm
 	 */
 	public CalendarItem(Long id, String title, Date calendarTime,
-			String entityReference, String entityUrl, Context context,
-			SourceType sourceType) {
+			String calendarTimeLabelKey, String entityReference, String entityUrl,
+			Context context, SourceType sourceType) {
 		super();
 		this.id = id;
 		this.title = title;
@@ -101,6 +104,14 @@ public class CalendarItem {
 	 */
 	public Date getCalendarTime() {
 		return calendarTime;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String getCalendarTimeLabelKey() {
+		return this.calendarTimeLabelKey;
 	}
 
 	/**
@@ -151,6 +162,10 @@ public class CalendarItem {
 	public void setCalendarTime(Date calendarTime) {
 		this.calendarTime = calendarTime;
 	}
+	
+	public void setCalendarTimeLabelKey(String calendarTimeLabelKey) {
+		this.calendarTimeLabelKey = calendarTimeLabelKey;
+	}
 
 	/**
 	 * @param entityReference the entityReference to set
@@ -192,6 +207,8 @@ public class CalendarItem {
 		builder.append(title);
 		builder.append(", calendarTime=");
 		builder.append(calendarTime);
+		builder.append(", calendarTimeLabelKey=");
+		builder.append(calendarTimeLabelKey);
 		builder.append(", entityReference=");
 		builder.append(entityReference);
 		builder.append(", entityUrl=");

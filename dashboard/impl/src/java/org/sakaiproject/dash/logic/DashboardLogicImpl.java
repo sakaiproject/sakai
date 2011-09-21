@@ -165,7 +165,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			SourceType sourceType) {
 		
 		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
-				entityReference, entityUrl, context, sourceType);
+				null, entityReference, entityUrl, context, sourceType);
 		
 		dao.addCalendarItem(calendarItem);
 		
