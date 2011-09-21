@@ -521,10 +521,19 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		        addAlert(state,rb.getString("error.maintain.view"));
 		        return "lti_error";
 		}
-		List<Map<String,Object>> contents = ltiService.getContents(null,null,0,0);
+		List<Map<String,Object>> contents = ltiService.getContents(null,null,0,500);
+		for ( Map<String,Object> content : contents ) {
+			String plstr = (String) content.get(LTIService.LTI_PLACEMENT);
+		        ToolConfiguration tool = SiteService.findTool(plstr);
+			if ( tool == null ) {
+				// System.out.println("Removing cruft "+plstr);
+				content.put(LTIService.LTI_PLACEMENT, null);
+			}
+		}
 		context.put("contents", contents);
 		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
+		context.put("getContext",toolManager.getCurrentPlacement().getContext());
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_content";
 	}
@@ -938,7 +947,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		// Record the new placement in the content item
 		Properties newProps = new Properties();
 		newProps.setProperty(LTIService.LTI_PLACEMENT, tool.getId());
-System.out.println("KEY="+key);
 		Object retval = ltiService.updateContent(key, newProps);
 		if ( retval instanceof String ) {
                         addAlert(state,rb.getString("error.link.placement.update")+" "+(String) retval);

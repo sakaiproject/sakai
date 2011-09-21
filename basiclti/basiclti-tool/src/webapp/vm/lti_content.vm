@@ -30,10 +30,12 @@
 		#end
 		</td>
                 <td headers="page">
+                #if ($getContext == $content.get("SITE_ID") ) 
                 #if ( $content.get("placement") ) 
 			<a href="$sakai_ActionURL.setPanel("LinkRemove")&id=$content.get("id")">$tlang.getString("bl_removelink")</a>
 		#else 
 			<a href="$sakai_ActionURL.setPanel("LinkAdd")&id=$content.get("id")">$tlang.getString("bl_addlink")</a>
+		#end
 		#end
 		</td>
 		<tr>
