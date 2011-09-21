@@ -566,18 +566,18 @@ public class PortalServiceImpl implements PortalService
 		
 		Editor editor = getEditorRegistry().getEditor(activeEditor);
 		if (editor == null) {
-            // Load a base no-op editor so sakai.editor.launch calls succeed.
-            // We may decide to offer some textarea infrastructure as well. In
-            // this case, there are editor and launch files being consulted
-            // already from /library/, which is easier to patch and deploy.
+			// Load a base no-op editor so sakai.editor.launch calls succeed.
+			// We may decide to offer some textarea infrastructure as well. In
+			// this case, there are editor and launch files being consulted
+			// already from /library/, which is easier to patch and deploy.
 			editor = getEditorRegistry().getEditor("textarea");
 		}
 		if (editor == null) {
-            // If, for some reason, our stub editor is null, give an instance
-            // that doesn't even try to load files. This will result in script
-            // errors because sakai.editor.launch will not be defined, but
-            // this way, we can't suffer NPEs. In some cases, this degradation
-            // will be graceful enough that the page can function.
+			// If, for some reason, our stub editor is null, give an instance
+			// that doesn't even try to load files. This will result in script
+			// errors because sakai.editor.launch will not be defined, but
+			// this way, we can't suffer NPEs. In some cases, this degradation
+			// will be graceful enough that the page can function.
 			editor = noopEditor;
 		}
 		
