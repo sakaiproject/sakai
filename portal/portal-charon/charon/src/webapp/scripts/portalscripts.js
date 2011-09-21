@@ -339,10 +339,10 @@ function postGlobalAlert(data){
                 if (!utils_readCookie('messageId' + itemId)) {
                     //no cookie - so new message, add to DOM
                     if (item.priority === "3") {
-                        $('#portalMessageContainer3').append('<div role=\"alert\" aria-live\"assertive\" aria-relevant=\"text\" id=\"' + itemId + '\" ts=\"' + item.timestamp + '\" class=\"portalMessage portalMessageShadow portalMessagePriority' + item.priority + '\"><span>' + item.message + '</span>' + dismissLink + '</div>');
+                        $('#portalMessageContainer3').append('<div role=\"alert\" aria-live\"assertive\" aria-relevant=\"text\" id=\"' + itemId + '\" ts=\"' + item.timestamp + '\" class=\"portalMessage portalMessageShadow portalMessagePriority' + item.priority + '\"><div class=\"messageHolder\">' + item.message + '</div>' + dismissLink + '</div>');
                     }
                     else {
-                        $('#portalMessageContainer1_2').append('<div role=\"alert\" aria-live\"assertive\" aria-relevant=\"text\" id=\"' + itemId + '\" ts=\"' + item.timestamp + '\" class=\"portalMessage portalMessageShadow portalMessagePriority' + item.priority + '\"><span>' + item.message + '</span>' + dismissLink + '</div>');
+                        $('#portalMessageContainer1_2').append('<div role=\"alert\" aria-live\"assertive\" aria-relevant=\"text\" id=\"' + itemId + '\" ts=\"' + item.timestamp + '\" class=\"portalMessage portalMessageShadow portalMessagePriority' + item.priority + '\"><div class=\"messageHolder\">' + item.message + '</div>' + dismissLink + '</div>');
                     }
                 }
                 else {
@@ -350,10 +350,10 @@ function postGlobalAlert(data){
                      //  console.log(utils_readCookie('messageId' + itemId) +  "="  + item.timestamp);
                     if (utils_readCookie('messageId' + itemId) !== item.timestamp) {
                         if (item.priority === "3") {
-                            $('#portalMessageContainer3').append('<div role=\"alert\" aria-live\"assertive\" aria-relevant=\"text\" id=\"' + itemId + '\" ts=\"' + item.timestamp + '\" class=\"portalMessage portalMessageShadow portalMessagePriority' + item.priority + '\"><span>Update:&nbsp;&nbsp;' + item.message + '</span>' + dismissLink + '</div>');
+                            $('#portalMessageContainer3').append('<div role=\"alert\" aria-live\"assertive\" aria-relevant=\"text\" id=\"' + itemId + '\" ts=\"' + item.timestamp + '\" class=\"portalMessage portalMessageShadow portalMessagePriority' + item.priority + '\"><div class=\"messageHolder\">Update:&nbsp;&nbsp;' + item.message + '</div>' + dismissLink + '</div>');
                         }
                         else {
-                            $('#portalMessageContainer1_2').append('<div role=\"alert\" aria-live\"assertive\" aria-relevant=\"text\" id=\"' + itemId + '\" ts=\"' + item.timestamp + '\" class=\"portalMessage portalMessageShadow portalMessagePriority' + item.priority + '\"><span>Update:&nbsp;&nbsp;' + item.message + '</span>' + dismissLink + '</div>');
+                            $('#portalMessageContainer1_2').append('<div role=\"alert\" aria-live\"assertive\" aria-relevant=\"text\" id=\"' + itemId + '\" ts=\"' + item.timestamp + '\" class=\"portalMessage portalMessageShadow portalMessagePriority' + item.priority + '\"><div class=\"messageHolder\">Update:&nbsp;&nbsp;' + item.message + '</div>' + dismissLink + '</div>');
                         }
                     }
                 }
@@ -383,7 +383,8 @@ function postGlobalAlert(data){
     function flashMessage(elem, message){
         $(elem).removeClass('portalMessageShadow');
         $(elem).fadeOut(2000, function(){
-            $(this).children('span').html(message);
+            $(this).children('.messageHolder').empty();
+            $(this).children('.messageHolder').append('<div>' + message + '</div>');
             $(this).fadeIn(2000, function(){
                 $(this).addClass('portalMessageShadow');
             });
