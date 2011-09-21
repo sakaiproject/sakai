@@ -60,6 +60,7 @@ public class ScheduleSupport{
 		this.dashboardLogic.registerEntityType(new ScheduleEntityType());
 		this.dashboardLogic.registerEventProcessor(new ScheduleNewEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new ScheduleRemoveEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ScheduleUpdateTitleEventProcessor());
 	}
 	/**
 	 * Inner class: ScheduleEntityType
@@ -131,7 +132,6 @@ public class ScheduleSupport{
 			ResourceLoader rl = new ResourceLoader("dash_entity");
 			Map<String, String> props = new HashMap<String, String>();
 			props.put(LABEL_NEWS_TIME, rl.getString("schedule.news.time"));
-			//props.put(LABEL_USER_NAME, rl.getString("announcement.user.name"));
 			return props;
 		}
 
@@ -263,6 +263,49 @@ public class ScheduleSupport{
 			}
 			// remove all links and CalendarItem itself
 			dashboardLogic.removeCalendarItem(event.getResource());
+		}
+
+	}
+	
+	/**
+	 * Inner Class: ScheduleUpdateTitleEventProcessor
+	 */
+	public class ScheduleUpdateTitleEventProcessor implements EventProcessor {
+		
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#getEventIdentifer()
+		 */
+		public String getEventIdentifer() {
+			
+			return SakaiProxy.EVENT_MODIFY_CALENDAR_EVENT_TITLE;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
+		 */
+		public void processEvent(Event event) {
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug("removing calendar links and calendar item for " + event.getResource());
+			}
+			Entity entity = sakaiProxy.getEntity(event.getResource());
+			
+			if(entity != null && entity instanceof CalendarEvent) {
+				// get the assignment entity and its current title
+				CalendarEvent cEvent = (CalendarEvent) entity;
+				
+				String title = cEvent.getDisplayName();
+				// update news item title
+				dashboardLogic.reviseNewsItemTitle(cEvent.getReference(), title);
+				
+				// update calendar item title
+				dashboardLogic.reviseCalendarItemTitle(cEvent.getReference(), title);
+			}
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug("removing news links and news item for " + event.getResource());
+			}
+
 		}
 
 	}
