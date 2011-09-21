@@ -118,8 +118,6 @@
 
   <!-- 2a ATTACHMENTS -->
   <%@ include file="/jsf/author/item/attachment.jsp" %>
-
-  <div style="padding: 3px; margin-bottom: 2em;margin-top:0px;border: 1px solid black"><h:outputText value="#{authorMessages.matching_warning}" /></div>
   
   <!-- 3 ANSWER -->
   <div class="longtext"> <h:outputLabel value="#{authorMessages.create_pairing} " /></div>
