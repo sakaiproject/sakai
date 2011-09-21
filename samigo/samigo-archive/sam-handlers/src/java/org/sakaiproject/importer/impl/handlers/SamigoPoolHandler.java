@@ -71,14 +71,14 @@ public class SamigoPoolHandler implements HandlesImportable {
 		// have no idea what the magic number 30 is for, but Samigo used it when I created a question pool in the tool
 		pool.setAccessTypeId(new Long(30));
 		Set questionItems = new HashSet();
-		questionItems.addAll(doQuestions(importPool.getEssayQuestions()));
-		questionItems.addAll(doQuestions(importPool.getFillBlankQuestions()));
-		questionItems.addAll(doQuestions(importPool.getMatchQuestions()));
-		questionItems.addAll(doQuestions(importPool.getMultiAnswerQuestions()));
-		questionItems.addAll(doQuestions(importPool.getMultiChoiceQuestions()));
+		questionItems.addAll(doQuestions(importPool.getEssayQuestions(), siteId));
+		questionItems.addAll(doQuestions(importPool.getFillBlankQuestions(), siteId));
+		questionItems.addAll(doQuestions(importPool.getMatchQuestions(), siteId));
+		questionItems.addAll(doQuestions(importPool.getMultiAnswerQuestions(), siteId));
+		questionItems.addAll(doQuestions(importPool.getMultiChoiceQuestions(), siteId));
 		// Samigo doesn't have native support for ordering questions. Maybe there's a workaround?
 		// questionItems.addAll(doQuestions(importPool.getOrderingQuestions()));
-		questionItems.addAll(doQuestions(importPool.getTrueFalseQuestions()));
+		questionItems.addAll(doQuestions(importPool.getTrueFalseQuestions(), siteId));
 		QuestionPoolFacade savedPool = qps.savePool(pool);
 		
 		Object[] questionItemsArray = questionItems.toArray();
@@ -96,7 +96,7 @@ public class SamigoPoolHandler implements HandlesImportable {
 		}
 	}
 	
-	private Collection doQuestions(List questions) {
+	private Collection doQuestions(List questions, String siteId) {
 		AssessmentQuestion importableQuestion;
 		AssessmentAnswer importableAnswer;
 		AssessmentAnswer importableChoice;
@@ -116,7 +116,7 @@ public class SamigoPoolHandler implements HandlesImportable {
 			Set correctAnswerIDs = importableQuestion.getCorrectAnswerIDs();
 			itemFacade = new ItemFacade();
 			textSet = new HashSet();
-			questionTextString = contextualizeUrls(importableQuestion.getQuestionText());
+			questionTextString = contextualizeUrls(importableQuestion.getQuestionText(), siteId);
 			if (importableQuestion.getQuestionType() == SamigoPoolHandler.MATCHING) {
 				itemFacade.setInstruction(questionTextString);
 				Collection answers = importableQuestion.getAnswers().values();
@@ -127,7 +127,7 @@ public class SamigoPoolHandler implements HandlesImportable {
 					text = new ItemText();
 					text.setSequence(new Long(answerIndex));
 					answerIndex++;
-					text.setText(contextualizeUrls(importableAnswer.getAnswerText()));
+					text.setText(contextualizeUrls(importableAnswer.getAnswerText(), siteId));
 					answerSet = new HashSet();
 					int choiceIndex = 1;
 					for (Iterator k = choices.iterator();k.hasNext();) {
@@ -139,7 +139,7 @@ public class SamigoPoolHandler implements HandlesImportable {
 						choiceIndex++;
 						// set label A, B, C, D, etc. on answer based on its sequence number
 						answer.setLabel(new Character((char)(64 + choiceIndex)).toString());
-						answer.setText(contextualizeUrls(importableChoice.getAnswerText()));
+						answer.setText(contextualizeUrls(importableChoice.getAnswerText(), siteId));
 						answer.setIsCorrect(new Boolean(importableAnswer.getChoiceId().equals(importableChoice.getAnswerId())));
 						answerSet.add(answer);
 					}
@@ -181,7 +181,7 @@ public class SamigoPoolHandler implements HandlesImportable {
 						text.setText(questionTextString);
 						answer.setSequence(new Long(1));
 					} else {
-						answer.setText(contextualizeUrls(importableAnswer.getAnswerText()));
+						answer.setText(contextualizeUrls(importableAnswer.getAnswerText(), siteId));
 					}
 					
 					answer.setIsCorrect(new Boolean(correctAnswerIDs.contains(answerId)));
@@ -212,12 +212,12 @@ public class SamigoPoolHandler implements HandlesImportable {
 		
 	}
 	
-	protected String contextualizeUrls(String text) {
+	protected String contextualizeUrls(String text, String siteId) {
 		if (text == null) return null;
 		// this regular expression is specifically looking for image urls
 		// but only urls that are not absolute (i.e., do not start "http")
 		String anyRelativeUrl = "src=\"(?!http)/?";
 		return text.replaceAll(anyRelativeUrl, "src=\"/access/content/group/" 
-				+ ToolManager.getCurrentPlacement().getContext() + "/TQimages/"); 	        } 
+				+ siteId + "/TQimages/"); 	        } 
 
 }
