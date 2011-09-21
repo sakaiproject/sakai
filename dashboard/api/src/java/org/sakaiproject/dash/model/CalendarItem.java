@@ -79,11 +79,12 @@ public class CalendarItem {
 		this.id = id;
 		this.title = title;
 		this.calendarTime = calendarTime;
+		this.calendarTimeLabelKey = calendarTimeLabelKey;
 		this.entityReference = entityReference;
 		this.entityUrl = entityUrl;
 		this.context = context;
 		this.sourceType = sourceType;
-}
+	}
 
 	/**
 	 * @return the id

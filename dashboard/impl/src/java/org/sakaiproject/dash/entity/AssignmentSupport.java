@@ -325,7 +325,9 @@ public class AssignmentSupport {
 				NewsItem newsItem = dashboardLogic.createNewsItem(assn.getTitle(), event.getEventTime(), assn.getReference(), assignmentUrl, context, sourceType);
 				dashboardLogic.createNewsLinks(newsItem);
 			
-				CalendarItem calendarItem = dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getDueTime().getTime()), assn.getReference(), assignmentUrl, context, sourceType);
+				// TODO: Third parameter should be a key for a label such as "Due Date: " or "Accept Until: " 
+				// from dash_entity properties bundle for use in the dashboard list
+				CalendarItem calendarItem = dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getDueTime().getTime()), "assignment.due.date", assn.getReference(), assignmentUrl, context, sourceType);
 				dashboardLogic.createCalendarLinks(calendarItem);
 			} else {
 				// for now, let's log the error

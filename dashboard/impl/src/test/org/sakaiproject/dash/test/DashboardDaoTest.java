@@ -61,25 +61,26 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
      */
 	public void testAddCalendarItem() {
 		Date calendarTime = new Date(System.currentTimeMillis() + ONE_DAY);
-		String title = getUniqueItdentifier();
-		String entityUrl = getUniqueItdentifier();
-		String entityReference = getUniqueItdentifier();
+		String calendarTimeLabelKey = getUniqueIdentifier();
+		String title = getUniqueIdentifier();
+		String entityUrl = getUniqueIdentifier();
+		String entityReference = getUniqueIdentifier();
 		
-		String contextId = getUniqueItdentifier();
-		String contextTitle = getUniqueItdentifier();
-		String contextUrl = getUniqueItdentifier();
+		String contextId = getUniqueIdentifier();
+		String contextTitle = getUniqueIdentifier();
+		String contextUrl = getUniqueIdentifier();
 		Context context = new Context(contextId, contextTitle, contextUrl );
 		dao.addContext(context);
 		context = dao.getContext(contextId);
 		
-		String sourceTypeIdentifier = getUniqueItdentifier();
-		String accessPermission = getUniqueItdentifier();
+		String sourceTypeIdentifier = getUniqueIdentifier();
+		String accessPermission = getUniqueIdentifier();
 		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission, EntityLinkStrategy.ACCESS_URL );
 		dao.addSourceType(sourceType);
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
 
 		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
-			null, entityReference, entityUrl, context, sourceType);
+				calendarTimeLabelKey, entityReference, entityUrl, context, sourceType);
 		boolean saved = dao.addCalendarItem(calendarItem);
 		
 		assertTrue(saved);
@@ -89,6 +90,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		assertNotNull(calendarItem);
 		assertNotNull(calendarItem.getId());
 		
+		assertEquals(calendarTimeLabelKey,calendarItem.getCalendarTimeLabelKey());
 		assertEquals(title, calendarItem.getTitle());
 		assertEquals(entityUrl, calendarItem.getEntityUrl());
 		assertEquals(entityReference, calendarItem.getEntityReference());
@@ -113,19 +115,19 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
      */
 	public void testAddCalendarLink() {
 		Date calendarTime = new Date(System.currentTimeMillis() + ONE_DAY);
-		String title = getUniqueItdentifier();
-		String entityUrl = getUniqueItdentifier();
-		String entityReference = getUniqueItdentifier();
+		String title = getUniqueIdentifier();
+		String entityUrl = getUniqueIdentifier();
+		String entityReference = getUniqueIdentifier();
 		
-		String contextId = getUniqueItdentifier();
-		String contextTitle = getUniqueItdentifier();
-		String contextUrl = getUniqueItdentifier();
+		String contextId = getUniqueIdentifier();
+		String contextTitle = getUniqueIdentifier();
+		String contextUrl = getUniqueIdentifier();
 		Context context = new Context(contextId, contextTitle, contextUrl );
 		dao.addContext(context);
 		context = dao.getContext(contextId);
 		
-		String sourceTypeIdentifier = getUniqueItdentifier();
-		String accessPermission = getUniqueItdentifier();
+		String sourceTypeIdentifier = getUniqueIdentifier();
+		String accessPermission = getUniqueIdentifier();
 		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission, EntityLinkStrategy.ACCESS_URL );
 		dao.addSourceType(sourceType);
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
@@ -135,8 +137,8 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		dao.addCalendarItem(calendarItem);
 		calendarItem = dao.getCalendarItem(entityReference);
 		
-		String sakaiId = getUniqueItdentifier();
-		String userId = getUniqueItdentifier();
+		String sakaiId = getUniqueIdentifier();
+		String userId = getUniqueIdentifier();
 		Person person = new Person(sakaiId, userId);
 		dao.addPerson(person);
 		person = dao.getPersonBySakaiId(sakaiId);
@@ -175,9 +177,9 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
      * items that were saved.
      */
 	public void testAddContext() {
-		String contextId = getUniqueItdentifier();
-		String contextTitle = getUniqueItdentifier();
-		String contextUrl = getUniqueItdentifier();
+		String contextId = getUniqueIdentifier();
+		String contextTitle = getUniqueIdentifier();
+		String contextUrl = getUniqueIdentifier();
 		Context context = new Context(contextId, contextTitle, contextUrl );
 		
 		boolean saved = dao.addContext(context);
@@ -199,19 +201,19 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
      */
 	public void testAddNewsItem() {
 		Date eventTime = new Date(System.currentTimeMillis() - ONE_DAY);
-		String title = getUniqueItdentifier();
-		String entityUrl = getUniqueItdentifier();
-		String entityReference = getUniqueItdentifier();
+		String title = getUniqueIdentifier();
+		String entityUrl = getUniqueIdentifier();
+		String entityReference = getUniqueIdentifier();
 		
-		String contextId = getUniqueItdentifier();
-		String contextTitle = getUniqueItdentifier();
-		String contextUrl = getUniqueItdentifier();
+		String contextId = getUniqueIdentifier();
+		String contextTitle = getUniqueIdentifier();
+		String contextUrl = getUniqueIdentifier();
 		Context context = new Context(contextId, contextTitle, contextUrl );
 		dao.addContext(context);
 		context = dao.getContext(contextId);
 		
-		String sourceTypeIdentifier = getUniqueItdentifier();
-		String accessPermission = getUniqueItdentifier();
+		String sourceTypeIdentifier = getUniqueIdentifier();
+		String accessPermission = getUniqueIdentifier();
 		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission, EntityLinkStrategy.ACCESS_URL);
 		dao.addSourceType(sourceType);
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
@@ -251,19 +253,19 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
      */
 	public void testAddNewsLink() {
 		Date eventTime = new Date(System.currentTimeMillis() - ONE_DAY);
-		String title = getUniqueItdentifier();
-		String entityUrl = getUniqueItdentifier();
-		String entityReference = getUniqueItdentifier();
+		String title = getUniqueIdentifier();
+		String entityUrl = getUniqueIdentifier();
+		String entityReference = getUniqueIdentifier();
 		
-		String contextId = getUniqueItdentifier();
-		String contextTitle = getUniqueItdentifier();
-		String contextUrl = getUniqueItdentifier();
+		String contextId = getUniqueIdentifier();
+		String contextTitle = getUniqueIdentifier();
+		String contextUrl = getUniqueIdentifier();
 		Context context = new Context(contextId, contextTitle, contextUrl );
 		dao.addContext(context);
 		context = dao.getContext(contextId);
 		
-		String sourceTypeIdentifier = getUniqueItdentifier();
-		String accessPermission = getUniqueItdentifier();
+		String sourceTypeIdentifier = getUniqueIdentifier();
+		String accessPermission = getUniqueIdentifier();
 		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission, EntityLinkStrategy.ACCESS_URL );
 		dao.addSourceType(sourceType);
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
@@ -273,8 +275,8 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		dao.addNewsItem(newsItem);
 		newsItem = dao.getNewsItem(entityReference);
 		
-		String sakaiId = getUniqueItdentifier();
-		String userId = getUniqueItdentifier();
+		String sakaiId = getUniqueIdentifier();
+		String userId = getUniqueIdentifier();
 		Person person = new Person(sakaiId, userId);
 		dao.addPerson(person);
 		person = dao.getPersonBySakaiId(sakaiId);
@@ -312,8 +314,8 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
      */
 	public void testAddPerson() {
 		
-		String sakaiId = getUniqueItdentifier();
-		String userId = getUniqueItdentifier();
+		String sakaiId = getUniqueIdentifier();
+		String userId = getUniqueIdentifier();
 		Person person = new Person(sakaiId, userId);
 		
 		boolean saved = dao.addPerson(person);
@@ -332,8 +334,8 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
      * items that were saved.
      */
 	public void testAddSourceType() {
-		String identifier = getUniqueItdentifier();
-		String accessPermission = getUniqueItdentifier();
+		String identifier = getUniqueIdentifier();
+		String accessPermission = getUniqueIdentifier();
 		SourceType sourceType = new SourceType(identifier,accessPermission, EntityLinkStrategy.ACCESS_URL);
 		boolean saved = dao.addSourceType(sourceType);
 		assertTrue(saved);
@@ -352,19 +354,19 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
      */
 	public void testDeleteCalendarItem() {
 		Date calendarTime = new Date(System.currentTimeMillis() + ONE_DAY);
-		String title = getUniqueItdentifier();
-		String entityUrl = getUniqueItdentifier();
-		String entityReference = getUniqueItdentifier();
+		String title = getUniqueIdentifier();
+		String entityUrl = getUniqueIdentifier();
+		String entityReference = getUniqueIdentifier();
 		
-		String contextId = getUniqueItdentifier();
-		String contextTitle = getUniqueItdentifier();
-		String contextUrl = getUniqueItdentifier();
+		String contextId = getUniqueIdentifier();
+		String contextTitle = getUniqueIdentifier();
+		String contextUrl = getUniqueIdentifier();
 		Context context = new Context(contextId, contextTitle, contextUrl );
 		dao.addContext(context);
 		context = dao.getContext(contextId);
 		
-		String sourceTypeIdentifier = getUniqueItdentifier();
-		String accessPermission = getUniqueItdentifier();
+		String sourceTypeIdentifier = getUniqueIdentifier();
+		String accessPermission = getUniqueIdentifier();
 		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission, EntityLinkStrategy.ACCESS_URL );
 		dao.addSourceType(sourceType);
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
@@ -385,19 +387,19 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 
 	public void testDeleteCalendarLinksLong() {
 		Date calendarTime = new Date(System.currentTimeMillis() + ONE_DAY);
-		String title = getUniqueItdentifier();
-		String entityUrl = getUniqueItdentifier();
-		String entityReference = getUniqueItdentifier();
+		String title = getUniqueIdentifier();
+		String entityUrl = getUniqueIdentifier();
+		String entityReference = getUniqueIdentifier();
 		
-		String contextId = getUniqueItdentifier();
-		String contextTitle = getUniqueItdentifier();
-		String contextUrl = getUniqueItdentifier();
+		String contextId = getUniqueIdentifier();
+		String contextTitle = getUniqueIdentifier();
+		String contextUrl = getUniqueIdentifier();
 		Context context = new Context(contextId, contextTitle, contextUrl );
 		dao.addContext(context);
 		context = dao.getContext(contextId);
 		
-		String sourceTypeIdentifier = getUniqueItdentifier();
-		String accessPermission = getUniqueItdentifier();
+		String sourceTypeIdentifier = getUniqueIdentifier();
+		String accessPermission = getUniqueIdentifier();
 		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission, EntityLinkStrategy.ACCESS_URL );
 		dao.addSourceType(sourceType);
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
@@ -407,8 +409,8 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		dao.addCalendarItem(calendarItem);
 		calendarItem = dao.getCalendarItem(entityReference);
 		
-		String sakaiId = getUniqueItdentifier();
-		String userId = getUniqueItdentifier();
+		String sakaiId = getUniqueIdentifier();
+		String userId = getUniqueIdentifier();
 		Person person = new Person(sakaiId, userId);
 		dao.addPerson(person);
 		person = dao.getPersonBySakaiId(sakaiId);
@@ -442,19 +444,19 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 
 	public void testDeleteCalendarLinksLongLong() {
 		Date calendarTime = new Date(System.currentTimeMillis() + ONE_DAY);
-		String title = getUniqueItdentifier();
-		String entityUrl = getUniqueItdentifier();
-		String entityReference = getUniqueItdentifier();
+		String title = getUniqueIdentifier();
+		String entityUrl = getUniqueIdentifier();
+		String entityReference = getUniqueIdentifier();
 		
-		String contextId = getUniqueItdentifier();
-		String contextTitle = getUniqueItdentifier();
-		String contextUrl = getUniqueItdentifier();
+		String contextId = getUniqueIdentifier();
+		String contextTitle = getUniqueIdentifier();
+		String contextUrl = getUniqueIdentifier();
 		Context context = new Context(contextId, contextTitle, contextUrl );
 		dao.addContext(context);
 		context = dao.getContext(contextId);
 		
-		String sourceTypeIdentifier = getUniqueItdentifier();
-		String accessPermission = getUniqueItdentifier();
+		String sourceTypeIdentifier = getUniqueIdentifier();
+		String accessPermission = getUniqueIdentifier();
 		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission, EntityLinkStrategy.ACCESS_URL );
 		dao.addSourceType(sourceType);
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
@@ -464,8 +466,8 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		dao.addCalendarItem(calendarItem);
 		calendarItem = dao.getCalendarItem(entityReference);
 		
-		String sakaiId = getUniqueItdentifier();
-		String userId = getUniqueItdentifier();
+		String sakaiId = getUniqueIdentifier();
+		String userId = getUniqueIdentifier();
 		Person person = new Person(sakaiId, userId);
 		dao.addPerson(person);
 		person = dao.getPersonBySakaiId(sakaiId);
@@ -505,19 +507,19 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 
 	public void testGetCalendarItemLong() {
 		Date calendarTime = new Date(System.currentTimeMillis() + ONE_DAY);
-		String title = getUniqueItdentifier();
-		String entityUrl = getUniqueItdentifier();
-		String entityReference = getUniqueItdentifier();
+		String title = getUniqueIdentifier();
+		String entityUrl = getUniqueIdentifier();
+		String entityReference = getUniqueIdentifier();
 		
-		String contextId = getUniqueItdentifier();
-		String contextTitle = getUniqueItdentifier();
-		String contextUrl = getUniqueItdentifier();
+		String contextId = getUniqueIdentifier();
+		String contextTitle = getUniqueIdentifier();
+		String contextUrl = getUniqueIdentifier();
 		Context context = new Context(contextId, contextTitle, contextUrl );
 		dao.addContext(context);
 		context = dao.getContext(contextId);
 		
-		String sourceTypeIdentifier = getUniqueItdentifier();
-		String accessPermission = getUniqueItdentifier();
+		String sourceTypeIdentifier = getUniqueIdentifier();
+		String accessPermission = getUniqueIdentifier();
 		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission, EntityLinkStrategy.ACCESS_URL );
 		dao.addSourceType(sourceType);
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
@@ -550,19 +552,19 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 
 	public void testGetCalendarItemString() {
 		Date calendarTime = new Date(System.currentTimeMillis() + ONE_DAY);
-		String title = getUniqueItdentifier();
-		String entityUrl = getUniqueItdentifier();
-		String entityReference = getUniqueItdentifier();
+		String title = getUniqueIdentifier();
+		String entityUrl = getUniqueIdentifier();
+		String entityReference = getUniqueIdentifier();
 		
-		String contextId = getUniqueItdentifier();
-		String contextTitle = getUniqueItdentifier();
-		String contextUrl = getUniqueItdentifier();
+		String contextId = getUniqueIdentifier();
+		String contextTitle = getUniqueIdentifier();
+		String contextUrl = getUniqueIdentifier();
 		Context context = new Context(contextId, contextTitle, contextUrl );
 		dao.addContext(context);
 		context = dao.getContext(contextId);
 		
-		String sourceTypeIdentifier = getUniqueItdentifier();
-		String accessPermission = getUniqueItdentifier();
+		String sourceTypeIdentifier = getUniqueIdentifier();
+		String accessPermission = getUniqueIdentifier();
 		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission, EntityLinkStrategy.ACCESS_URL );
 		dao.addSourceType(sourceType);
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
@@ -631,19 +633,19 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 
 	public void testUpdateCalendarItem() {
 		Date calendarTime = new Date(System.currentTimeMillis() + ONE_DAY);
-		String title = getUniqueItdentifier();
-		String entityUrl = getUniqueItdentifier();
-		String entityReference = getUniqueItdentifier();
+		String title = getUniqueIdentifier();
+		String entityUrl = getUniqueIdentifier();
+		String entityReference = getUniqueIdentifier();
 		
-		String contextId = getUniqueItdentifier();
-		String contextTitle = getUniqueItdentifier();
-		String contextUrl = getUniqueItdentifier();
+		String contextId = getUniqueIdentifier();
+		String contextTitle = getUniqueIdentifier();
+		String contextUrl = getUniqueIdentifier();
 		Context context = new Context(contextId, contextTitle, contextUrl );
 		dao.addContext(context);
 		context = dao.getContext(contextId);
 		
-		String sourceTypeIdentifier = getUniqueItdentifier();
-		String accessPermission = getUniqueItdentifier();
+		String sourceTypeIdentifier = getUniqueIdentifier();
+		String accessPermission = getUniqueIdentifier();
 		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission, EntityLinkStrategy.ACCESS_URL );
 		dao.addSourceType(sourceType);
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
@@ -660,7 +662,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		assertNotNull(calendarItem);
 		assertNotNull(calendarItem.getId());
 		
-		String newTitle = getUniqueItdentifier();
+		String newTitle = getUniqueIdentifier();
 		Date newTime = new Date(System.currentTimeMillis() + (2L * ONE_DAY));
 		
 		boolean updated = dao.updateCalendarItem(calendarItem.getId(), newTitle, newTime);
@@ -693,7 +695,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		String newTitle;
 	}
 
-	protected String getUniqueItdentifier() {
+	protected String getUniqueIdentifier() {
 		return "unique-identifier-" + counter.incrementAndGet();
 	}
 

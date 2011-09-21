@@ -161,11 +161,11 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 
 	public CalendarItem createCalendarItem(String title, Date calendarTime,
-			String entityReference, String entityUrl, Context context,
-			SourceType sourceType) {
+			String calendarTimeLabelKey, String entityReference, String entityUrl,
+			Context context, SourceType sourceType) {
 		
 		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
-				null, entityReference, entityUrl, context, sourceType);
+				calendarTimeLabelKey, entityReference, entityUrl, context, sourceType);
 		
 		dao.addCalendarItem(calendarItem);
 		
@@ -389,7 +389,21 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 		return date;
 	}
-	
+
+	public String getString(String key, String entityTypeId) {
+		String str = null;
+		if(key == null || entityTypeId == null) {
+			logger.warn("getString() invoked with null parameter: " + key + " :: " + entityTypeId);
+		} else {
+			EntityType entityType = this.entityTypes.get(entityTypeId);
+			if(entityType == null) {
+				logger.warn("getRetractDate() invalid entityTypeId: " + entityTypeId);
+			} else {
+				str = entityType.getString(key);
+			}
+		}
+		return str;
+	}
 
 	public boolean isAvailable(String entityReference, String entityTypeId) {
 		// assume entity is unavailable unless entityType callback says otherwise

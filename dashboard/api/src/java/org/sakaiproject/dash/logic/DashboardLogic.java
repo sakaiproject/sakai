@@ -62,7 +62,7 @@ public interface DashboardLogic {
 	 */
 	public void addNewsLinks(String sakaiUserId, String contextId);
 
-	public CalendarItem createCalendarItem(String title, Date calendarTime, String entityReference, String entityUrl, Context context, SourceType sourceType);
+	public CalendarItem createCalendarItem(String title, Date calendarTime, String calendarTimeLabelKey, String entityReference, String entityUrl, Context context, SourceType sourceType);
 
 	public void createCalendarLinks(CalendarItem calendarItem);
 
@@ -110,6 +110,15 @@ public interface DashboardLogic {
 	
 	public Date getRetractDate(String entityReference, String entityTypeId);
 	
+	/**
+	 * Retrieve a localized string value specific to a particular type of entity using
+	 * the provided key. 
+	 * @param key
+	 * @param entityTypeId
+	 * @return the value or null if no value is found
+	 */
+	public String getString(String key, String entityTypeId);
+
 	/**
 	 * Check whether an entity is fully available to users with permission to access it 
 	 * (i.e. it is not hidden or restricted through some form of conditional release).
@@ -183,9 +192,9 @@ public interface DashboardLogic {
 	 */
 	public void removeAllScheduledAvailabilityChecks(String entityReference);
 
-	public abstract void updateNewsLinks(String entityReference);
+	public void updateNewsLinks(String entityReference);
 
-	public abstract void updateCalendarLinks(String entityReference);
+	public void updateCalendarLinks(String entityReference);
 
 	// todo:
 	// add methods to revise news items, calendar items, news links, calendar links, etc.

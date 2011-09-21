@@ -122,7 +122,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			String sql = getStatement("insert.CalendarItem");
 			
 			template.update(sql,
-				new Object[]{calendarItem.getCalendarTime(), calendarItem.getTitle(), 
+				new Object[]{calendarItem.getCalendarTime(), calendarItem.getCalendarTimeLabelKey(), calendarItem.getTitle(), 
 						calendarItem.getEntityUrl(), calendarItem.getEntityReference(),
 						calendarItem.getSourceType().getId(), calendarItem.getContext().getId()}
 			);
