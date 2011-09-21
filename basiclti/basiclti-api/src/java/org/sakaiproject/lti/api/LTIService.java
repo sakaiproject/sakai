@@ -316,6 +316,7 @@ public interface LTIService {
       "title:text:label=bl_title:required=true:maxlength=255",
       "description:textarea:label=bl_description:maxlength=4096:",
       "status:radio:label=bl_status:choices=enable,disable",
+      "visible:radio:label=bl_visible:choices=visible,stealth",
       "launch:url:label=bl_launch:required=true:maxlength=255",
       "consumerkey:text:label=bl_consumerkey:required=true:maxlength=255",
       "secret:text:required=true:label=bl_secret:maxlength=255",
@@ -329,6 +330,7 @@ public interface LTIService {
       "custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=1024",
       "allowcustom:checkbox:label=bl_allowcustom",
       "xmlimport:text:hidden=true:maxlength=16384",
+      "splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=4096",
       "created_at:autodate", 
       "updated_at:autodate" };
 
@@ -351,6 +353,7 @@ public interface LTIService {
   static final String LTI_PLACEMENT =    "placement";
   static final String LTI_DESCRIPTION = "description";
   static final String LTI_STATUS = 	"status";
+  static final String LTI_VISIBLE = 	"visible";
   static final String LTI_LAUNCH = 	"launch";
   static final String LTI_CONSUMERKEY= 	"consumerkey";
   static final String LTI_SECRET =   	"secret";
@@ -362,6 +365,7 @@ public interface LTIService {
   static final String LTI_NEWPAGE =	"newpage";
   static final String LTI_DEBUG =	"debug";
   static final String LTI_CUSTOM = 	"custom";
+  static final String LTI_SPLASH = 	"splash";
   static final String LTI_ALLOWCUSTOM = "allowcustom";
   static final String LTI_XMLIMPORT = 	"xmlimport";
   static final String LTI_CREATED_AT =  "created_at"; 
