@@ -264,6 +264,11 @@ public class AssignmentSupport {
 			// TODO Auto-generated method stub
 			return null;
 		}
+		
+		public String getString(String key) {
+			ResourceLoader rl = new ResourceLoader("dash_entity");
+			return rl.getString(key);
+		}
 	}
 	
 	/**

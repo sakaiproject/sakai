@@ -248,6 +248,11 @@ public class AnnouncementSupport{
 			logger.debug("getRetractDate() retractDate: " + retractDate);
 			return retractDate;
 		}
+		
+		public String getString(String key) {
+			ResourceLoader rl = new ResourceLoader("dash_entity");
+			return rl.getString(key);
+		}
 	}
 	
 	/**

@@ -181,5 +181,12 @@ public interface EntityType {
 	 * 	to the entity, or false if it is hidden or not yet available. 
 	 */
 	public boolean isAvailable(String entityReference);
+	
+	/**
+	 * Retrieve a single string from a properties bundle.
+	 * @param key
+	 * @return
+	 */
+	public String getString(String key);
 
 }

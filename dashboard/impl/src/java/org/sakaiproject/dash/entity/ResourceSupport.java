@@ -233,6 +233,11 @@ public class ResourceSupport {
 			}
 			return retractDate;
 		}
+
+		public String getString(String key) {
+			ResourceLoader rl = new ResourceLoader("dash_entity");
+			return rl.getString(key);
+		}
 	}
 
 
