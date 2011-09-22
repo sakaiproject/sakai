@@ -51,7 +51,7 @@
        </h:commandButton>
 
 	   <h:commandButton value="#{deliveryMessages.button_continue}" type="button" 
-	     rendered="#{delivery.actionString=='takeAssessmentViaUrl'}" style="act" onclick="javascript:self.location.href='#{delivery.selectHrfURL}'" onkeypress="javascript:self.location.href='#{delivery.selectHrfURL}'" />
+	     rendered="#{delivery.actionString=='takeAssessmentViaUrl'}" style="act" onclick="javascript:window.open('#{delivery.selectURL}','_top')" onkeypress="javascript:window.open('#{delivery.selectURL}','_top')" />
 
  </p>
  </h:form>
