@@ -169,7 +169,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 		dao.addCalendarItem(calendarItem);
 		
-		return dao.getCalendarItem(entityReference);
+		return dao.getCalendarItem(entityReference, calendarTimeLabelKey);
 	}
 
 	/*
@@ -288,9 +288,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return dao.getCalendarItem(id);
 	}
 	
-	public CalendarItem getCalendarItem(String entityReference) {
+	public CalendarItem getCalendarItem(String entityReference, String calendarTimeLabelKey) {
 		
-		return dao.getCalendarItem(entityReference);
+		return dao.getCalendarItem(entityReference, calendarTimeLabelKey);
 	}
 
 	public List<CalendarItem> getCalendarItems(String sakaiUserId,
@@ -441,17 +441,18 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 	}
 
-	public void removeCalendarItem(String entityReference) {
+	public void removeCalendarItems(String entityReference) {
 		
 		if(logger.isDebugEnabled()) {
 			logger.debug("removing calendar links and calendar item for " + entityReference);
 		}
-		CalendarItem item = dao.getCalendarItem(entityReference);
+		List<CalendarItem> items = dao.getCalendarItems(entityReference);
+		if(items != null && items.size() > 0) {
+			for(CalendarItem item : items) {
 		if(logger.isDebugEnabled()) {
 			logger.debug("removing calendar links and calendar item for item: " + item);
 		}
 		
-		if(item != null) {
 			if(logger.isDebugEnabled()) {
 				logger.debug("removing calendar links for item: " + item);
 			}
@@ -461,6 +462,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			}
 			dao.deleteCalendarItem(item.getId());
 		}
+	}
 	}
 
 	public void removeNewsItem(String entityReference) {
@@ -488,10 +490,12 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 
 	public void removeCalendarLinks(String entityReference) {
 		
-		CalendarItem item = dao.getCalendarItem(entityReference);
-		if(item != null) {
+		List<CalendarItem> items = dao.getCalendarItems(entityReference);
+		if(items != null && items.size() > 0) {
+			for(CalendarItem item : items) {
 			dao.deleteCalendarLinks(item.getId());
 		}
+	}
 	}
 
 	public void removeCalendarLinks(String sakaiUserId, String contextId) {
@@ -533,31 +537,36 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 	}
 
-	public void reviseCalendarItem(String entityReference, String newTitle, Date newTime) {
+	public void reviseCalendarItems(String entityReference, String newTitle, Date newTime) {
 		
-		CalendarItem item = dao.getCalendarItem(entityReference);
-		if(item != null) {
-			dao.updateCalendarItem(item.getId(), newTitle, newTime);
+		List<CalendarItem> items = dao.getCalendarItems(entityReference);
+		if(items != null) {
+			for(CalendarItem item : items) {
+				dao.updateCalendarItem(item.getId(), newTitle, newTime);
+			}
 		}
 				
 	}
 	
-	public void reviseCalendarItemTime(String entityReference, Date newTime) {
+	public void reviseCalendarItemsTime(String entityReference, Date newTime) {
 		
-		CalendarItem item = dao.getCalendarItem(entityReference);
-		if(item != null) {
-			dao.updateCalendarItemTime(item.getId(), newTime);
+		List<CalendarItem> items = dao.getCalendarItems(entityReference);
+		if(items != null) {
+			for(CalendarItem item : items) {
+				dao.updateCalendarItemTime(item.getId(), newTime);
+			}
 		}
 				
 	}
 
-	public void reviseCalendarItemTitle(String entityReference, String newTitle) {
+	public void reviseCalendarItemsTitle(String entityReference, String newTitle) {
 		
-		CalendarItem item = dao.getCalendarItem(entityReference);
-		if(item != null) {
-			dao.updateCalendarItemTitle(item.getId(), newTitle);
+		List<CalendarItem> items = dao.getCalendarItems(entityReference);
+		if(items != null) {
+			for(CalendarItem item : items) {
+				dao.updateCalendarItemTitle(item.getId(), newTitle);
+			}
 		}
-		
 	}
 
 	public void reviseNewsItemTitle(String entityReference, String newTitle) {
@@ -575,12 +584,11 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 
 	public void updateCalendarLinks(String entityReference) {
-		CalendarItem item = dao.getCalendarItem(entityReference);
-		if(item == null) {
-			
-		} else {
+		List<CalendarItem> items = dao.getCalendarItems(entityReference);
+		if(items != null && items.size() > 0) {
+			CalendarItem firstItem = items.get(0);
 			Set<String> oldUserSet = dao.getSakaIdsForUserWithCalendarLinks(entityReference);
-			Set<String> newUserSet = new TreeSet<String>(this.sakaiProxy.getUsersWithReadAccess(entityReference, item.getSourceType().getAccessPermission()));
+			Set<String> newUserSet = new TreeSet<String>(this.sakaiProxy.getUsersWithReadAccess(entityReference, firstItem.getSourceType().getAccessPermission()));
 			
 			Set<String> removeSet = Sets.difference(oldUserSet, newUserSet).immutableCopy();
 			Set<String> addSet = Sets.difference(newUserSet, oldUserSet).immutableCopy();
@@ -588,18 +596,22 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			for(String sakaiUserId : removeSet) {
 				Person person = dao.getPersonBySakaiId(sakaiUserId);
 				if(person != null) {
+					for(CalendarItem item : items) {
 					dao.deleteCalendarLink(person.getId(), item.getId());
 				}
+			}
 			}
 			
 			for(String sakaiUserId : addSet) {
 				Person person = dao.getPersonBySakaiId(sakaiUserId);
 				if(person != null) {
+					for(CalendarItem item : items) {
 					CalendarLink link = new CalendarLink(person, item, item.getContext(),false, false);
 					dao.addCalendarLink(link);
 				}
 			}
 		}
+	}
 	}
 	
 	public void updateNewsLinks(String entityReference) {
@@ -657,9 +669,11 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 						logger.warn("Unable to process AvailabilityCheck because entityType is null " + check.toString());
 					} else if(entityType.isAvailable(check.getEntityReference())) {
 						// need to add links
-						CalendarItem calendarItem = getCalendarItem(check.getEntityReference());
+						List<CalendarItem> calendarItems = dao.getCalendarItems(check.getEntityReference());
+						for(CalendarItem calendarItem : calendarItems) {
 						if(calendarItem != null) {
 							createCalendarLinks(calendarItem);
+						}
 						}
 						
 						NewsItem newsItem = getNewsItem(check.getEntityReference());

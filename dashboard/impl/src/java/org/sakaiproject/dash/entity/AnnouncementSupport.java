@@ -342,7 +342,7 @@ public class AnnouncementSupport{
 			if(logger.isDebugEnabled()) {
 				logger.debug("removing calendar links and news item for " + event.getResource());
 			}
-			dashboardLogic.removeCalendarItem(event.getResource());
+			dashboardLogic.removeCalendarItems(event.getResource());
 		}
 	}
 	
@@ -372,7 +372,7 @@ public class AnnouncementSupport{
 			if(logger.isDebugEnabled()) {
 				logger.debug("removing calendar links and news item for " + event.getResource());
 			}
-			dashboardLogic.removeCalendarItem(event.getResource());
+			dashboardLogic.removeCalendarItems(event.getResource());
 		}
 	}
 	
@@ -408,7 +408,7 @@ public class AnnouncementSupport{
 				dashboardLogic.reviseNewsItemTitle(annc.getReference(), title);
 				
 				// update calendar item title
-				dashboardLogic.reviseCalendarItemTitle(annc.getReference(), title);
+				dashboardLogic.reviseCalendarItemsTitle(annc.getReference(), title);
 			}
 			
 			if(logger.isDebugEnabled()) {

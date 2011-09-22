@@ -264,7 +264,7 @@ public class ScheduleSupport{
 				logger.debug("removing calendar links and news item for " + event.getResource());
 			}
 			// remove all links and CalendarItem itself
-			dashboardLogic.removeCalendarItem(event.getResource());
+			dashboardLogic.removeCalendarItems(event.getResource());
 		}
 
 	}
@@ -301,7 +301,7 @@ public class ScheduleSupport{
 				dashboardLogic.reviseNewsItemTitle(cEvent.getReference(), title);
 				
 				// update calendar item title
-				dashboardLogic.reviseCalendarItemTitle(cEvent.getReference(), title);
+				dashboardLogic.reviseCalendarItemsTitle(cEvent.getReference(), title);
 			}
 			
 			if(logger.isDebugEnabled()) {

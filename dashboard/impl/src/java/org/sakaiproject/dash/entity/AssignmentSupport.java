@@ -359,7 +359,7 @@ public class AssignmentSupport {
 			}
 			
 			String ref = event.getResource();
-			dashboardLogic.removeCalendarItem(ref);
+			dashboardLogic.removeCalendarItems(ref);
 			
 			if(logger.isDebugEnabled()) {
 				logger.debug("removing news links and news item for " + event.getResource());
@@ -401,7 +401,7 @@ public class AssignmentSupport {
 				dashboardLogic.reviseNewsItemTitle(assn.getReference(), assn.getTitle());
 				
 				// update news item title
-				dashboardLogic.reviseCalendarItemTitle(assn.getReference(), assn.getTitle());
+				dashboardLogic.reviseCalendarItemsTitle(assn.getReference(), assn.getTitle());
 			}
 			
 			if(logger.isDebugEnabled()) {
@@ -476,7 +476,7 @@ public class AssignmentSupport {
 			if(entity != null && entity instanceof Assignment) {
 				// get the assignment entity and its current title
 				Assignment assn = (Assignment) entity;
-				dashboardLogic.reviseCalendarItemTime(assn.getReference(), new Date(assn.getOpenTime().getTime()));
+				dashboardLogic.reviseCalendarItemsTime(assn.getReference(), new Date(assn.getOpenTime().getTime()));
 			}
 			
 			if(logger.isDebugEnabled()) {

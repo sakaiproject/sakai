@@ -62,7 +62,9 @@ public interface DashboardDao {
 	
 	public SourceType getSourceType(String identifier);
 
-	public CalendarItem getCalendarItem(String entityReference);
+	public CalendarItem getCalendarItem(String entityReference, String calendarTimeLabelKey);
+	
+	public List<CalendarItem> getCalendarItems(String entityReference);
 	
 	public List<CalendarItem> getCalendarItems(String sakaiUserId, String contextId);
 

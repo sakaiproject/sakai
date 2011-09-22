@@ -76,7 +76,7 @@ public interface DashboardLogic {
 
 	public CalendarItem getCalendarItem(long id);
 	
-	public CalendarItem getCalendarItem(String entityReference);
+	public CalendarItem getCalendarItem(String entityReference, String calendarTimeLabelKey);
 
 	public List<CalendarItem> getCalendarItems(String sakaiUserId);
 
@@ -136,7 +136,7 @@ public interface DashboardLogic {
 	 * Remove all calendar links and the calendar item referencing a particular entity.
 	 * @param entityReference
 	 */
-	public void removeCalendarItem(String entityReference);
+	public void removeCalendarItems(String entityReference);
 	
 	/**
 	 * Remove all news links and the news item referencing a particular entity.
@@ -170,9 +170,9 @@ public interface DashboardLogic {
 	 */
 	public void removeNewsLinks(String sakaiUserId, String contextId);
 
-	public void reviseCalendarItem(String entityReference, String newTitle, Date newTime);
-	public void reviseCalendarItemTime(String entityReference, Date newTime);
-	public void reviseCalendarItemTitle(String entityReference, String newTitle);
+	public void reviseCalendarItems(String entityReference, String newTitle, Date newTime);
+	public void reviseCalendarItemsTime(String entityReference, Date newTime);
+	public void reviseCalendarItemsTitle(String entityReference, String newTitle);
 	
 	public void reviseNewsItemTitle(String entityReference, String newTitle);
 	

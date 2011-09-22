@@ -526,22 +526,38 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.dao.DashboardDao#getCalendarItem(java.lang.String)
-	 */
-	public CalendarItem getCalendarItem(String entityReference) {
+	public CalendarItem getCalendarItem(String entityReference, String calendarTimeLabelKey) {
 		if(log.isDebugEnabled()) {
-			log.debug("getCalendarItem(" + entityReference + ")");
+			log.debug("getCalendarItem(" + entityReference + "," + calendarTimeLabelKey + ")");
 		}
 		
 		try {
-			return (CalendarItem) getJdbcTemplate().queryForObject(getStatement("select.CalendarItem.by.entityReference"),
-				new Object[]{entityReference},
+			return (CalendarItem) getJdbcTemplate().queryForObject(getStatement("select.CalendarItem.by.entityReference.calendarTimeLabelKey"),
+				new Object[]{entityReference, calendarTimeLabelKey},
 				new CalendarItemMapper()
 			);
 		} catch (DataAccessException ex) {
            log.error("getCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return null;
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getCalendarItem(java.lang.String)
+	 */
+	public List<CalendarItem> getCalendarItems(String entityReference) {
+		if(log.isDebugEnabled()) {
+			log.debug("getCalendarItems(" + entityReference + ")");
+		}
+		
+		try {
+			return (List<CalendarItem>) getJdbcTemplate().query(getStatement("select.CalendarItems.by.entityReference"),
+				new Object[]{entityReference},
+				new CalendarItemMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getCalendarItems: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return null;
 		}
 
