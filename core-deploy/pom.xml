@@ -50,6 +50,8 @@
                     components/emailtemplateservice-pack;
                     components/coursemanagement-hibernate-pack;
                     components/gradebook-service-pack;
+                    components/sakai-lessionbuildertool-components;
+                    components/mailsender-pack;
                     components/msgcntr-component;
                     components/polls-pack;
                     components/profile-component;
@@ -115,6 +117,20 @@
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.lessonbuilder</groupId>
+                    <artifactId>sakai-lessonbuildertool-assembly</artifactId>
+                    <version>${sakai.lessonbuilder.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+		    <groupId>org.sakaiproject.mailsender</groupId>
+                    <artifactId>mailsender-assembly</artifactId>
+                    <version>${sakai.mailsender.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+		</dependency>
                 <dependency>
                     <groupId>org.sakaiproject.msgcntr</groupId>
                     <artifactId>messageforums-assembly</artifactId>

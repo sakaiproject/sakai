@@ -114,9 +114,11 @@
                 <module>dav</module>
                 <module>gradebook</module>
                 <module>help</module>
-                <module>linktool</module>
+                <module>lessonbuilder</module>
+		<module>linktool</module>
                 <module>login</module>
                 <module>mailarchive</module>
+                <module>mailsender</module>
                 <module>memory</module>
                 <module>message</module>
                 <module>metaobj</module>
@@ -170,6 +172,7 @@
                 <module>linktool</module>
                 <module>login</module>
                 <module>mailarchive</module>
+		<module>mailsender</module>
                 <module>memory</module>
                 <module>message</module>
                 <module>metaobj</module>
