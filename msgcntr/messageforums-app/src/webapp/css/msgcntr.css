@@ -583,3 +583,6 @@ img.authorImage {
 .profile2-profile-content{
 	width: 270px !important;
 }
+.navIntraTool li span a img,.navIntraTool li {
+    vertical-align: middle;
+}

@@ -72,19 +72,16 @@
 				<sakai:tool_bar_item value="#{msgs.cdfm_container_title_thread}" action="#{ForumTool.processAddMessage}" id="df_compose_message_dfAllMessages"
 		  			rendered="#{ForumTool.selectedTopic.isNewResponse && !ForumTool.selectedTopic.locked && !ForumTool.selectedForum.locked == 'true'}" />
 		  			
-		  		<h:commandLink action="#{ForumTool.processActionMarkAllAsRead}" rendered="#{ForumTool.selectedTopic.isMarkAsRead}"> 
-   	        		<h:outputText value=" #{msgs.cdfm_mark_all_as_read}" />
-                </h:commandLink>
-                <%--
-		  		<sakai:tool_bar_item action="#{ForumTool.processActionMarkAllAsRead}" value="#{msgs.cdfm_mark_all_as_read}" 
-					rendered="#{ForumTool.selectedTopic.isMarkAsRead}" />
-					--%>
-      			
       			<sakai:tool_bar_item value="#{msgs.cdfm_thread_view}" action="#{ForumTool.processActionDisplayThreadedView}" />
       			
         		<sakai:tool_bar_item action="#{ForumTool.processActionTopicSettings}" id="topic_setting" value="#{msgs.cdfm_topic_settings}" 
 					rendered="#{ForumTool.selectedTopic.changeSettings}" />
 					
+										<h:commandLink action="#{ForumTool.processActionDeleteTopicConfirm}" id="delete_confirm" 
+								value="#{msgs.cdfm_button_bar_delete}" accesskey="d" rendered="#{!ForumTool.selectedTopic.markForDeletion && ForumTool.displayTopicDeleteOption}">
+								<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+								</h:commandLink>
+
 				<h:outputLink id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyUrl}');">
 					<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
 				</h:outputLink>
@@ -134,8 +131,13 @@
 					setupMessageNav('messagePending');
 				});
  	</script>
+
 		<div id="messNavHolder" style="clear:both;"></div>
-		<h:outputText   value="#{msgs.cdfm_no_messages}" rendered="#{empty ForumTool.messages}"   styleClass="instruction" style="display:block" />
+		<h:commandLink action="#{ForumTool.processActionMarkAllAsRead}" rendered="#{ForumTool.selectedTopic.isMarkAsRead}" styleClass="actionLinks" style="display:block;padding: 5px 0"> 
+	    		<h:outputText value=" #{msgs.cdfm_mark_all_as_read}" />
+	        </h:commandLink>
+		
+		<h:outputText  value="#{msgs.cdfm_no_messages}" rendered="#{empty ForumTool.messages}"   styleClass="instruction" style="display:block" />
 		<mf:hierDataTable id="expandedThreadedMessages" value="#{ForumTool.messages}" var="message" 
    	 		noarrows="true" styleClass="listHier messagesThreaded" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column id="_msg_subject">
