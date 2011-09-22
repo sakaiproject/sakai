@@ -41,6 +41,10 @@
 	function closeDateCal(){
 		NewCal('revise:closeDate','MMDDYYYY',true,12);	
 	}
+	function setAutoCreatePanel(radioButton) {
+		$(".createOneTopicPanel").slideToggle("fast");
+		$(".createTopicsForGroupsPanel").slideToggle("fast");
+	}
 	</script>
 
 <!--jsp/dfReviseTopicSettingsAttach.jsp-->
@@ -276,10 +280,58 @@
 					    </h:panelGroup>
 			  </h:panelGrid>
 
+				<h:panelGroup rendered="#{ForumTool.selectedTopic.topic.id==null && !empty ForumTool.siteGroups}">
+					<f:verbatim><h4></f:verbatim><h:outputText  value="#{msgs.cdfm_autocreate_topics_header}" /><f:verbatim></h4></f:verbatim>
+				</h:panelGroup>
+				<div class="indnt1">
+					<h:panelGrid columns="1" columnClasses="longtext,checkbox" cellpadding="0" cellspacing="0" >
+						<h:panelGroup rendered="#{ForumTool.selectedTopic.topic.id==null && !empty ForumTool.siteGroups}">
+							<h:selectOneRadio layout="pageDirection" onclick="this.blur()" onchange="setAutoCreatePanel(this);" disabled="#{not ForumTool.editMode}" id="createTopicsForGroups" value="#{ForumTool.createTopicsForGroups}">
+								<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_create_one_topic}"/>
+								<f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_autocreate_topics_for_groups}"/>
+							</h:selectOneRadio>
+						</h:panelGroup>
+					</h:panelGrid>
+				</div>
+				<div id="createOneTopicPanel" class="createOneTopicPanel">
+					<%@include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
+				</div>
+
+				<div id="createTopicsForGroupsPanel" class="createTopicsForGroupsPanel" style="display:none" >
+				<h:panelGroup rendered="#{ForumTool.selectedTopic.topic.id==null && !empty ForumTool.siteGroups}"> 
+					<h:outputText value="#{msgs.cdfm_autocreate_topics_desc}" rendered="#{ForumTool.selectedTopic.topic.id==null && !empty ForumTool.siteGroups}" />
+					<h:panelGroup styleClass="itemAction">
+						<h:outputLink value="#" style="text-decoration:none"  styleClass="instrWithGrades">
+							<h:outputText styleClass="displayMoreAutoCreate" value="#{msgs.perm_choose_instruction_more_link}"/>
+						</h:outputLink>
+					</h:panelGroup>
+					<f:verbatim><br/></f:verbatim>
+					<h:panelGroup styleClass="displayMoreAutoCreatePanel instruction" style="display:none">
+						<h:outputText value="#{msgs.cdfm_autocreate_topics_desc_more}" />
+						<h:outputText value="#{ForumTool.autoRolesNoneDesc}" />
+						<h:outputFormat value="#{msgs.cdfm_autocreate_topics_desc_groups}" >
+							<f:param value="#{ForumTool.autoGroupsPermConfig}" />
+						</h:outputFormat>
+					</h:panelGroup>
+					<h:dataTable value="#{ForumTool.siteGroups}" var="siteGroup" cellpadding="0" cellspacing="0" styleClass="indnt1 jsfFormTable" 
+								 rendered="#{ForumTool.selectedTopic.topic.id==null}">
+						<h:column>
+							<h:selectBooleanCheckbox value="#{siteGroup.createTopicForGroup}" />
+							<h:outputText value="#{siteGroup.group.title}" />
+						</h:column>
+					</h:dataTable>
+				</h:panelGroup>
+				</div>
 				
-
-			<%@include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
-
+<script type="text/javascript">
+setPanelId('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
+$(function () {
+	if (<h:outputText value="#{ForumTool.selectedTopic.topic.id==null && !empty ForumTool.siteGroups && ForumTool.createTopicsForGroups}" />) {
+		$("#createOneTopicPanel").hide();
+		$("#createTopicsForGroupsPanel").show();
+	}
+});
+</script>
       <div class="act">
           <h:commandButton action="#{ForumTool.processActionSaveTopicSettings}" value="#{msgs.cdfm_button_bar_save_setting}" accesskey="s"
           								 rendered="#{!ForumTool.selectedTopic.markForDeletion}"> 
@@ -313,6 +365,10 @@
 							$('.displayMore').click(function(e){
 									e.preventDefault();
 									$('.displayMorePanel').fadeIn('slow')
+							})
+                            $('.displayMoreAutoCreate').click(function(e){
+									e.preventDefault();
+									$('.displayMoreAutoCreatePanel').fadeIn('slow')
 							})
 							if ($('.gradeSelector').find('option').length ===1){
 								$('.gradeSelector').find('select').hide();

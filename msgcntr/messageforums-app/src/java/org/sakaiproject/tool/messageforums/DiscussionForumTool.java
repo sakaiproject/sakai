@@ -108,6 +108,7 @@ import org.sakaiproject.tool.messageforums.ui.DiscussionMessageBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionTopicBean;
 import org.sakaiproject.tool.messageforums.ui.EmailNotificationBean;
 import org.sakaiproject.tool.messageforums.ui.PermissionBean;
+import org.sakaiproject.tool.messageforums.ui.SiteGroupBean;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
@@ -244,6 +245,8 @@ public class DiscussionForumTool
   private static final String CONFIRM_DELETE_MESSAGE="cdfm_delete_msg";
   private static final String INSUFFICIENT_PRIVILEGES_TO_DELETE = "cdfm_insufficient_privileges_delete_msg";
   private static final String END_DATE_BEFORE_OPEN_DATE = "endDateBeforeOpenDate";
+  private static final String NO_GROUP_SELECTED ="cdfm_no_group_selected";
+  private static final String AUTOCREATE_TOPICS_ROLES_DESCRIPTION = "cdfm_autocreate_topics_desc_roles";
   private static final String DUPLICATE_COPY_TITLE = "cdfm_duplicate_copy_title";
   
   private static final String FROM_PAGE = "msgForum:mainOrForumOrTopic";
@@ -343,6 +346,9 @@ public class DiscussionForumTool
 
   private int selectedMessageCount = 0;
   private int functionClick = 0;
+  
+  private List siteGroups = new ArrayList();
+  private boolean createTopicsForGroups = false;  
 
   private boolean dialogGradeSavedSuccessfully = false;
   
@@ -1289,6 +1295,8 @@ public class DiscussionForumTool
       return gotoMain();
     }
     setPermissionMode(PERMISSION_MODE_TOPIC);
+    siteGroups.clear();
+    createTopicsForGroups = false;
     attachments.clear();
     prepareRemoveAttach.clear();
     
@@ -1625,6 +1633,8 @@ public class DiscussionForumTool
     }
     attachments.clear();
     prepareRemoveAttach.clear();
+    siteGroups.clear();
+    createTopicsForGroups = false;
     setFromMainOrForumOrTopic();
 
     return TOPIC_SETTING_REVISE;
@@ -1685,7 +1695,8 @@ public class DiscussionForumTool
     }  
     
     setFromMainOrForumOrTopic();
-    
+    siteGroups.clear();
+    createTopicsForGroups = false;
     return TOPIC_SETTING_REVISE;
   }
 
@@ -1737,7 +1748,13 @@ public class DiscussionForumTool
     	forumManager.approveAllPendingMessages(selectedTopic.getTopic().getId());
     }
     
-    saveTopicSettings(false);    
+    if (createTopicsForGroups ) {
+        if (!saveTopicsForGroups(false)) {
+            return null;
+        }
+    } else {
+        saveTopicSettings(false);
+    }
     Long forumId = selectedForum.getForum().getId();
     if (forumId == null)
     {
@@ -1756,6 +1773,8 @@ public class DiscussionForumTool
     }
     attachments.clear();
     prepareRemoveAttach.clear();
+    siteGroups.clear();
+    createTopicsForGroups = false;
     return TOPIC_SETTING_REVISE;
 
   }
@@ -1823,7 +1842,13 @@ public class DiscussionForumTool
     	beforeChangeHM = SynopticMsgcntrManagerCover.getUserToNewMessagesForForumMap(getSiteId(), forumId, null); 	
     }
 
-    saveTopicSettings(false);  
+    if (createTopicsForGroups ) {
+        if (!saveTopicsForGroups(false)) {
+            return null;
+        }
+    } else {
+        saveTopicSettings(false);  
+    }
 
     if(updateSynopticCounts){
     	if(beforeChangeHM != null){
@@ -1886,7 +1911,13 @@ public class DiscussionForumTool
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_NEW_TOPIC));
       return gotoMain();
     }
-    saveTopicSettings(true);    
+    if (createTopicsForGroups ) {
+        if (!saveTopicsForGroups(true)) {
+            return null;
+        }
+    } else {
+        saveTopicSettings(true);  
+    }   
     //reset();
     //return MAIN;
     
@@ -2104,7 +2135,8 @@ public class DiscussionForumTool
       }
     }  
     
-    
+    siteGroups.clear();
+    createTopicsForGroups = false;
     setTopicBeanAssign();
     setFromMainOrForumOrTopic();
     
@@ -6609,7 +6641,7 @@ public class DiscussionForumTool
         
     if(siteMembers!=null && siteMembers.size()>0)
     {
-      return siteMembers;
+        return siteMembers;
     }
     
     permissions=new ArrayList();
@@ -8462,6 +8494,186 @@ public class DiscussionForumTool
 		this.editorRows = editorRows;
 	}
 
+	public List getSiteGroups() {
+        if (siteGroups == null || siteGroups.isEmpty()) {
+            siteGroups = new ArrayList();
+            try {
+                Site currentSite = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+                Collection groups = currentSite.getGroups();
+                groups = sortGroups(groups);
+                for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();) {
+                    Group currentGroup = (Group) groupIterator.next();
+                    siteGroups.add(new SiteGroupBean(currentGroup, false));
+                }
+            } catch (IdUnusedException e) {
+                LOG.error(e.getMessage(), e);
+            }
+        }
+        return siteGroups;
+    }
+	
+	private List getSiteRolesNames() {
+		ArrayList siteRolesNames = new ArrayList();
+		
+		AuthzGroup realm;
+		try {
+			realm = AuthzGroupService.getAuthzGroup(getContextSiteId());
+
+			Set roles1 = realm.getRoles();
+
+			if (roles1 != null && roles1.size() > 0) {
+				List rolesList = sortRoles(roles1);
+
+				Iterator roleIter = rolesList.iterator();
+				while (roleIter.hasNext()) {
+					Role role = (Role) roleIter.next();
+					if (role != null) {
+						siteRolesNames.add(role.getId());
+					}
+				}
+			}
+		} catch (GroupNotDefinedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return siteRolesNames;
+	}
+    
+	public String getCreateTopicsForGroups() {
+		  if (this.createTopicsForGroups) {
+			  return Boolean.TRUE.toString();
+		  }
+		  return Boolean.FALSE.toString();
+	}
+
+	public void setCreateTopicsForGroups(String createTopics) {
+		if (createTopics.equals(Boolean.TRUE.toString())) {
+			createTopicsForGroups = true;
+		} else {
+			createTopicsForGroups = false;
+		}
+	}
+    
+    /**
+	 * 
+	 * @param draft
+	 * @return error status (no groups selected)
+	 */
+    private boolean saveTopicsForGroups(boolean draft) {
+        LOG.debug("saveTopicsForGroup()");
+        if (siteGroups == null || siteGroups.isEmpty()) {
+            setErrorMessage(getResourceBundleString(NO_GROUP_SELECTED));
+            return false;
+        }
+        DiscussionTopicBean topicTempate = selectedTopic;
+        ArrayList attachmentsTemplate = attachments;
+        
+        // sakai.properties settings
+        ArrayList rolesNone = (ArrayList) getAutoRolesNone();
+        String groupLevel = getAutoGroupsPermConfig();
+        
+		Collections.reverse(siteGroups);
+        
+        ArrayList groupsNone = new ArrayList();
+        for (Iterator groupIterator = siteGroups.iterator(); groupIterator.hasNext();) {
+            SiteGroupBean currentGroup = (SiteGroupBean) groupIterator.next();
+            if (currentGroup.getCreateTopicForGroup()==true) {
+                groupsNone.add(currentGroup.getGroup().getTitle());
+            }
+        }
+        
+        boolean groupSelected = false;
+        for (Iterator groupIterator = siteGroups.iterator(); groupIterator.hasNext();) {
+            SiteGroupBean currentGroup = (SiteGroupBean) groupIterator.next();
+            if (currentGroup.getCreateTopicForGroup()==true) {
+                groupSelected = true;
+                selectedTopic = createTopic(topicTempate.getTopic().getBaseForum().getId());
+                DiscussionTopic thisTopic = selectedTopic.getTopic();
+                thisTopic.setTitle(topicTempate.getTopic().getTitle() + " - " + currentGroup.getGroup().getTitle());
+                thisTopic.setShortDescription(topicTempate.getTopic().getShortDescription());
+                thisTopic.setExtendedDescription(topicTempate.getTopic().getExtendedDescription());
+                thisTopic.setLocked(topicTempate.getTopic().getLocked());
+                thisTopic.setModerated(topicTempate.getTopic().getModerated());
+                thisTopic.setPostFirst(topicTempate.getTopic().getPostFirst());
+                thisTopic.setAvailabilityRestricted(topicTempate.getTopic().getAvailabilityRestricted());
+                thisTopic.setOpenDate(topicTempate.getTopic().getOpenDate());
+                thisTopic.setCloseDate(topicTempate.getTopic().getCloseDate());
+                thisTopic.setAutoMarkThreadsRead(topicTempate.getTopic().getAutoMarkThreadsRead());
+                thisTopic.setGradebookAssignment(topicTempate.getTopic().getGradebookAssignment());
+                
+                // Attachments
+                attachments.clear();
+                for (Iterator attachmentIterator = attachmentsTemplate.iterator(); attachmentIterator.hasNext();) {
+                    DecoratedAttachment currentAttachment = (DecoratedAttachment) attachmentIterator.next();
+                    Attachment thisDFAttach = forumManager.createDFAttachment(
+                            currentAttachment.getAttachment().getAttachmentId(),
+                            currentAttachment.getAttachment().getAttachmentName());
+                    attachments.add(new DecoratedAttachment(thisDFAttach));
+                }
+
+                // Permissions
+                Iterator iter = permissions.iterator();
+                while(iter.hasNext()) {
+                    PermissionBean permBean = (PermissionBean) iter.next();
+                    if (rolesNone.contains(permBean.getName())) {
+                        permBean.setSelectedLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE);
+                    }
+                    // Permissions will be remembered across topic loops, so we must reset marked groups to none in every loop
+                    if (groupsNone.contains(permBean.getName())) {
+                        permBean.setSelectedLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE); 
+                    }
+                    if (permBean.getName().equals(currentGroup.getGroup().getTitle())) {
+                        permBean.setSelectedLevel(groupLevel);
+                    }
+                }
+                saveTopicSettings(draft);
+            }
+        }
+        if (!groupSelected) {
+            setErrorMessage(getResourceBundleString(NO_GROUP_SELECTED));
+            Collections.reverse(siteGroups);
+            return false;
+        }
+        createTopicsForGroups = false;
+        return true;
+    }
+
+	/**
+	 * 
+	 * @return list of role titles appropriate to this site which should be set to None when autocreating topics
+	 */
+	private List getAutoRolesNone() {
+		ArrayList autoRolesNone = new ArrayList();
+		ArrayList siteRolesList = (ArrayList) getSiteRolesNames();
+		String[] rolesNone = ServerConfigurationService.getStrings("msgcntr.rolesnone");
+		if (rolesNone != null && rolesNone.length > 0) {
+			for (String role : rolesNone) {
+				if (siteRolesList.contains(role.trim())) autoRolesNone.add(role.trim());
+			}
+		}
+		return autoRolesNone;
+	}
+	
+    public String getAutoRolesNoneDesc() {
+        ArrayList autoRolesNone = (ArrayList) getAutoRolesNone();
+		if (autoRolesNone.size() > 0) {
+			StringBuffer roles = new StringBuffer();
+			Iterator iter = autoRolesNone.iterator();
+			while (iter.hasNext()) {
+				roles.append(iter.next());
+				if (iter.hasNext()) roles.append("/");
+			}
+			return getResourceBundleString(AUTOCREATE_TOPICS_ROLES_DESCRIPTION , new Object[] {roles}) ;
+		} else {
+			return "";
+		}
+    }
+    
+    public String getAutoGroupsPermConfig() {
+        String groupLevel = ServerConfigurationService.getString("msgcntr.groupsdefaultlevel", "Contributor");
+        return groupLevel;
+    }
+    
 	public String getServerUrl() {
 		return ServerConfigurationService.getServerUrl();
 	}
