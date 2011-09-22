@@ -58,8 +58,6 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
 
-import com.google.common.collect.Sets;
-
 /**
  * 
  *
@@ -590,28 +588,37 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			Set<String> oldUserSet = dao.getSakaIdsForUserWithCalendarLinks(entityReference);
 			Set<String> newUserSet = new TreeSet<String>(this.sakaiProxy.getUsersWithReadAccess(entityReference, firstItem.getSourceType().getAccessPermission()));
 			
-			Set<String> removeSet = Sets.difference(oldUserSet, newUserSet).immutableCopy();
-			Set<String> addSet = Sets.difference(newUserSet, oldUserSet).immutableCopy();
+			Set<String> removeSet = new TreeSet(oldUserSet);
+			removeSet.removeAll(newUserSet);
+			Set<String> addSet = new TreeSet(newUserSet);
+			addSet.removeAll(oldUserSet);
+
+			if(logger.isDebugEnabled()) {
+				logger.debug("oldUserSet.size == " + oldUserSet.size());
+				logger.debug("newUserSet.size == " + newUserSet.size());
+				logger.debug("removeSet.size == " + removeSet.size());
+				logger.debug("addSet.size == " + addSet.size());
+			}
 			
 			for(String sakaiUserId : removeSet) {
 				Person person = dao.getPersonBySakaiId(sakaiUserId);
 				if(person != null) {
 					for(CalendarItem item : items) {
-					dao.deleteCalendarLink(person.getId(), item.getId());
+						dao.deleteCalendarLink(person.getId(), item.getId());
+					}
 				}
-			}
 			}
 			
 			for(String sakaiUserId : addSet) {
 				Person person = dao.getPersonBySakaiId(sakaiUserId);
 				if(person != null) {
 					for(CalendarItem item : items) {
-					CalendarLink link = new CalendarLink(person, item, item.getContext(),false, false);
-					dao.addCalendarLink(link);
+						CalendarLink link = new CalendarLink(person, item, item.getContext(),false, false);
+						dao.addCalendarLink(link);
+					}
 				}
 			}
 		}
-	}
 	}
 	
 	public void updateNewsLinks(String entityReference) {
@@ -622,17 +629,17 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			Set<String> oldUserSet = dao.getSakaiIdsForUserWithNewsLinks(entityReference);
 			Set<String> newUserSet = new TreeSet<String>(this.sakaiProxy.getUsersWithReadAccess(entityReference, item.getSourceType().getAccessPermission()));
 			
-			logger.debug("oldUserSet.size == " + oldUserSet.size());
-			logger.debug("newUserSet.size == " + newUserSet.size());
 			Set<String> removeSet = new TreeSet(oldUserSet);
 			removeSet.removeAll(newUserSet);
-			logger.debug("removeSet.size == " + removeSet.size());
 			Set<String> addSet = new TreeSet(newUserSet);
 			addSet.removeAll(oldUserSet);
-			logger.debug("addSet.size == " + addSet.size());
 			
-			//Set<String> removeSet = Sets.difference(oldUserSet, newUserSet);
-			//Set<String> addSet = Sets.difference(newUserSet, oldUserSet);
+			if(logger.isDebugEnabled()) {
+				logger.debug("oldUserSet.size == " + oldUserSet.size());
+				logger.debug("newUserSet.size == " + newUserSet.size());
+				logger.debug("removeSet.size == " + removeSet.size());
+				logger.debug("addSet.size == " + addSet.size());
+			}
 			
 			for(String sakaiUserId : removeSet) {
 				Person person = dao.getPersonBySakaiId(sakaiUserId);

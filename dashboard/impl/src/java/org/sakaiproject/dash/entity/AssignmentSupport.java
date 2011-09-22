@@ -329,6 +329,11 @@ public class AssignmentSupport {
 				// from dash_entity properties bundle for use in the dashboard list
 				CalendarItem calendarItem = dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getDueTime().getTime()), "assignment.due.date", assn.getReference(), assignmentUrl, context, sourceType);
 				dashboardLogic.createCalendarLinks(calendarItem);
+				if(assn.getCloseTime() != null && assn.getCloseTime().getTime() != assn.getDueTime().getTime()) {
+					CalendarItem calendarItem2 = dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getCloseTime().getTime()), "assignment.close.date", assn.getReference(), assignmentUrl, context, sourceType);
+					dashboardLogic.createCalendarLinks(calendarItem2);
+				}
+				
 			} else {
 				// for now, let's log the error
 				logger.warn("Error trying to process " + this.getEventIdentifer() + " event for entityReference " + event.getResource());
