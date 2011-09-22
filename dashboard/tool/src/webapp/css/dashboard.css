@@ -155,6 +155,8 @@ h3.withNav {
 
 .actionPanelTrig {
     text-align: right;
+    width:17px;
+    float:right;
 }
 
 .actionPanelTrig a {
@@ -193,7 +195,6 @@ h3.withNav {
 }
 .metadataLine, .description{
     padding: 5px 0;
-    outline:
 }
 
 .metadataLine,.unknownType {
@@ -310,3 +311,30 @@ a.itemLink {
 .swf {
     background: url(../../../../library/image/sakai/shockwave.gif) center left no-repeat !important
 }
+#news td,#sched td{
+    padding: 3px 3px 3px 21px;
+}
+#sched td.date,#news td.date{
+    padding-left:5px;
+    }
+#news .newRow td,#sched .newRow td{
+    padding:0
+}
+#news .one{
+    display:none;
+}
+
+#sched .one,#news .two{
+    width: 20%;
+}
+#sched .two, #sched .tab, #news .three,  #news .tab{
+    width: 50%;
+}
+
+#sched .three,#news .four{
+    width: 25%;
+}
+
+#sched .four,#news .five{
+    width: 5%;
+}    
