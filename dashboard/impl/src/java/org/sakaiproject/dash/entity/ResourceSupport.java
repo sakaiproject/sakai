@@ -189,14 +189,6 @@ public class ResourceSupport {
 		}
 
 		/* (non-Javadoc)
-		 * @see org.sakaiproject.dash.entity.EntityType#getAccessUrlTarget(java.lang.String)
-		 */
-		public String getAccessUrlTarget(String entityReference) {
-			// ignored
-			return null;
-		}
-
-		/* (non-Javadoc)
 		 * @see org.sakaiproject.dash.entity.EntityType#getOrder(java.lang.String, java.lang.String)
 		 */
 		public List<List<String>> getOrder(String entityReference, String localeCode) {

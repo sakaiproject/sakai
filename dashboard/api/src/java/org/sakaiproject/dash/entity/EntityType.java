@@ -137,14 +137,6 @@ public interface EntityType {
 	public Map<String,String> getProperties(String entityReference, String localeCode);
 	
 	/**
-	 * If the EntityLinkStrategy is ACCESS_URL, what target should be used on the 
-	 * link.  This is consulted only if the EntityLinkStrategy is ACCESS_URL. 
-	 * @param entityReference
-	 * @return 
-	 */
-	public String getAccessUrlTarget(String entityReference);
-	
-	/**
 	 * Retrieve a list of lists. Each of the inner lists represents a section (or "line") 
 	 * of the disclosure for the entity. The strings within each of those lists represents
 	 * a value (along with any labels for that value). So the list of lists of strings 
