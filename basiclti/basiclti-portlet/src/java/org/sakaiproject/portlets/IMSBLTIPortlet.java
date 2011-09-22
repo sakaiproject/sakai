@@ -90,694 +90,694 @@ import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 @SuppressWarnings("deprecation")
 public class IMSBLTIPortlet extends GenericPortlet {
 
-    private static ResourceLoader rb = new ResourceLoader("basiclti");
+	private static ResourceLoader rb = new ResourceLoader("basiclti");
 
-    private PortletContext pContext;
+	private PortletContext pContext;
 
-    private ArrayList<String> fieldList = new ArrayList<String>();
+	private ArrayList<String> fieldList = new ArrayList<String>();
 
-    /** Our log (commons). */
-    private static Log M_log = LogFactory.getLog(IMSBLTIPortlet.class);
+	/** Our log (commons). */
+	private static Log M_log = LogFactory.getLog(IMSBLTIPortlet.class);
 
-    public static final String EVENT_BASICLTI_CONFIG = "basiclti.config";
+	public static final String EVENT_BASICLTI_CONFIG = "basiclti.config";
 
-    private static String LEAVE_SECRET_ALONE = "__dont_change_secret__";
+	private static String LEAVE_SECRET_ALONE = "__dont_change_secret__";
 
-    /** To turn on really verbose debugging */
-    private static boolean verbosePrint = false;
+	/** To turn on really verbose debugging */
+	private static boolean verbosePrint = false;
 
-    public static final String ISO_8601_FORMAT = "yyyy-MM-dd'T'HH:mm:ssz";
+	public static final String ISO_8601_FORMAT = "yyyy-MM-dd'T'HH:mm:ssz";
 
-    public void init(PortletConfig config) throws PortletException {
-        super.init(config);
+	public void init(PortletConfig config) throws PortletException {
+		super.init(config);
 
-        pContext = config.getPortletContext();
+		pContext = config.getPortletContext();
 
-        // Populate the list of fields
-        fieldList.add("launch");
-        fieldList.add("secret");
-        fieldList.add("key");
-        fieldList.add("xml");
-        fieldList.add("frameheight");
-        fieldList.add("debug");
-        fieldList.add("pagetitle");
-        fieldList.add("tooltitle");
-        fieldList.add("custom");
-        fieldList.add("releasename");
-        fieldList.add("releaseemail");
-        fieldList.add("assignment");
-        fieldList.add("newpage");
-        fieldList.add("maximize");
-        fieldList.add("allowsettings");
-        fieldList.add("allowroster");
-        fieldList.add("contentlink");
-    }
-
-    // Simple Debug Print Mechanism
-    public void dPrint(String str)
-    {
-	if ( verbosePrint ) System.out.println(str);
-	M_log.trace(str);
-    }
-
-    // If the property is final, the property wins.  If it is not final,
-    // the portlet preferences take precedence.
-    public String getTitleString(RenderRequest request)
-    {
-	return getCorrectProperty(request, "tooltitle", null);
-    }
-
-    // Render the portlet - this is not supposed to change the state of the portlet
-    // Render may be called many times so if it changes the state - that is tacky
-    // Render will be called when someone presses "refresh" or when another portlet
-    // on the same page is handed an Action.
-    public void doView(RenderRequest request, RenderResponse response)
-            throws PortletException, IOException {
-
-	dPrint("==== doView called ====");
-
-        response.setContentType("text/html; charset=UTF-8");
-
-        PrintWriter out = response.getWriter();
-
-	String title = getTitleString(request);
-	if ( title != null ) response.setTitle(title);
-
-	String context = getContext();
-	Placement placement = ToolManager.getCurrentPlacement();
-
-	// Check to see if out launch will be successful
-	String[] retval = SakaiBLTIUtil.postLaunchHTML(placement.getId(), rb);
-	if ( retval.length > 1 ) {
-            String iframeUrl = "/access/basiclti/site/"+context+"/"+placement.getId();
-            String frameHeight =  getCorrectProperty(request, "frameheight", null);
-	    dPrint("fh="+frameHeight);
-            String newPage =  getCorrectProperty(request, "newpage", null);
-            String maximize =  getCorrectProperty(request, "maximize", null);
-            StringBuffer text = new StringBuffer();
-
-	    Session session = SessionManager.getCurrentSession();
-	    session.setAttribute("sakai:maximized-url",iframeUrl);
-            dPrint("Setting sakai:maximized-url="+iframeUrl);
-
-            if ( "on".equals(newPage) ) {
-                String windowOpen = "window.open('"+iframeUrl+"','BasicLTI');"; 			
-                text.append("<script type=\"text/javascript\" language=\"JavaScript\">\n");
-                text.append(windowOpen+"\n");
-                text.append("</script>\n");
-                text.append("<p>\n");
-                text.append(rb.getString("new.page.launch"));
-                text.append("<br><a href=\""+iframeUrl+"\" onclick=\""+windowOpen+"\" target=\"BasicLTI\">"+rb.getString("noiframe.press.here")+"</a>");
-                text.append("</p>\n");
-            } else {
-		if ( "on".equals(maximize) ) {
-                	text.append("<script type=\"text/javascript\" language=\"JavaScript\">\n");
-                	text.append("try { portalMaximizeTool(); } catch (err) { }\n");
-                	text.append("</script>\n");
-		}
-	        text.append("<iframe ");
-	        if ( frameHeight == null ) frameHeight = "1200";
-   	        text.append("height=\""+frameHeight+"\" \n");
-	        text.append("width=\"100%\" frameborder=\"0\" marginwidth=\"0\"\n");
-	        text.append("marginheight=\"0\" scrolling=\"auto\"\n");
-	        text.append("src=\""+iframeUrl+"\">\n");
-	        text.append(rb.getString("noiframes"));
-	        text.append("<br>");
-	        text.append("<a href=\""+iframeUrl+"\">");
-	        text.append(rb.getString("noiframe.press.here"));
-                text.append("</a>\n");
-	        text.append("</iframe>");
-            }
-            out.println(text);
-	    dPrint("==== doView complete ====");
-	    return;
-	} else {
-	    out.println(rb.getString("not.configured"));
+		// Populate the list of fields
+		fieldList.add("launch");
+		fieldList.add("secret");
+		fieldList.add("key");
+		fieldList.add("xml");
+		fieldList.add("frameheight");
+		fieldList.add("debug");
+		fieldList.add("pagetitle");
+		fieldList.add("tooltitle");
+		fieldList.add("custom");
+		fieldList.add("releasename");
+		fieldList.add("releaseemail");
+		fieldList.add("assignment");
+		fieldList.add("newpage");
+		fieldList.add("maximize");
+		fieldList.add("allowsettings");
+		fieldList.add("allowroster");
+		fieldList.add("contentlink");
 	}
 
-	dPrint("==== doView complete ====");
-    }
+	// Simple Debug Print Mechanism
+	public void dPrint(String str)
+	{
+		if ( verbosePrint ) System.out.println(str);
+		M_log.trace(str);
+	}
 
-    // Prepare the edit screen with data
-    public void prepareEdit(RenderRequest request)
-    {
-        // Hand up the tool properties
-        Placement placement = ToolManager.getCurrentPlacement();
-        Properties config = placement.getConfig();
-        dPrint("placement="+ placement.getId());
-        dPrint("placement.toolId="+ placement.getToolId());
-        dPrint("properties="+ config);
-	for (String element : fieldList) {
-		String propertyName = placement.getToolId() + "." + element;
+	// If the property is final, the property wins.  If it is not final,
+	// the portlet preferences take precedence.
+	public String getTitleString(RenderRequest request)
+	{
+		return getCorrectProperty(request, "tooltitle", null);
+	}
+
+	// Render the portlet - this is not supposed to change the state of the portlet
+	// Render may be called many times so if it changes the state - that is tacky
+	// Render will be called when someone presses "refresh" or when another portlet
+	// on the same page is handed an Action.
+	public void doView(RenderRequest request, RenderResponse response)
+		throws PortletException, IOException {
+
+			dPrint("==== doView called ====");
+
+			response.setContentType("text/html; charset=UTF-8");
+
+			PrintWriter out = response.getWriter();
+
+			String title = getTitleString(request);
+			if ( title != null ) response.setTitle(title);
+
+			String context = getContext();
+			Placement placement = ToolManager.getCurrentPlacement();
+
+			// Check to see if out launch will be successful
+			String[] retval = SakaiBLTIUtil.postLaunchHTML(placement.getId(), rb);
+			if ( retval.length > 1 ) {
+				String iframeUrl = "/access/basiclti/site/"+context+"/"+placement.getId();
+				String frameHeight =  getCorrectProperty(request, "frameheight", null);
+				dPrint("fh="+frameHeight);
+				String newPage =  getCorrectProperty(request, "newpage", null);
+				String maximize =  getCorrectProperty(request, "maximize", null);
+				StringBuffer text = new StringBuffer();
+
+				Session session = SessionManager.getCurrentSession();
+				session.setAttribute("sakai:maximized-url",iframeUrl);
+				dPrint("Setting sakai:maximized-url="+iframeUrl);
+
+				if ( "on".equals(newPage) ) {
+					String windowOpen = "window.open('"+iframeUrl+"','BasicLTI');"; 			
+					text.append("<script type=\"text/javascript\" language=\"JavaScript\">\n");
+					text.append(windowOpen+"\n");
+					text.append("</script>\n");
+					text.append("<p>\n");
+					text.append(rb.getString("new.page.launch"));
+					text.append("<br><a href=\""+iframeUrl+"\" onclick=\""+windowOpen+"\" target=\"BasicLTI\">"+rb.getString("noiframe.press.here")+"</a>");
+					text.append("</p>\n");
+				} else {
+					if ( "on".equals(maximize) ) {
+						text.append("<script type=\"text/javascript\" language=\"JavaScript\">\n");
+						text.append("try { portalMaximizeTool(); } catch (err) { }\n");
+						text.append("</script>\n");
+					}
+					text.append("<iframe ");
+					if ( frameHeight == null ) frameHeight = "1200";
+					text.append("height=\""+frameHeight+"\" \n");
+					text.append("width=\"100%\" frameborder=\"0\" marginwidth=\"0\"\n");
+					text.append("marginheight=\"0\" scrolling=\"auto\"\n");
+					text.append("src=\""+iframeUrl+"\">\n");
+					text.append(rb.getString("noiframes"));
+					text.append("<br>");
+					text.append("<a href=\""+iframeUrl+"\">");
+					text.append(rb.getString("noiframe.press.here"));
+					text.append("</a>\n");
+					text.append("</iframe>");
+				}
+				out.println(text);
+				dPrint("==== doView complete ====");
+				return;
+			} else {
+				out.println(rb.getString("not.configured"));
+			}
+
+			dPrint("==== doView complete ====");
+		}
+
+	// Prepare the edit screen with data
+	public void prepareEdit(RenderRequest request)
+	{
+		// Hand up the tool properties
+		Placement placement = ToolManager.getCurrentPlacement();
+		Properties config = placement.getConfig();
+		dPrint("placement="+ placement.getId());
+		dPrint("placement.toolId="+ placement.getToolId());
+		dPrint("properties="+ config);
+		for (String element : fieldList) {
+			String propertyName = placement.getToolId() + "." + element;
+			String propValue = ServerConfigurationService.getString(propertyName,null);
+			if ( propValue != null && propValue.trim().length() > 0 ) {
+				dPrint("Forcing Final = "+propertyName);
+				config.setProperty("final."+element,"true");
+			}
+		}
+		request.setAttribute("imsti.properties", config);
+
+		// Hand up the old values
+		Properties oldValues = new Properties();
+		addProperty(oldValues, request, "launch", "");
+		for (String element : fieldList) {
+			if ( "launch".equals(element) ) continue;
+			// addProperty(oldValues, request, element, null);
+			String propValue = getCorrectProperty(request, element, null);
+			if ( propValue != null ) {
+				if ( "xml".equals(element)) {
+					propValue = propValue.replace("&amp;","&amp;amp;");
+				}
+				if ( "secret".equals(element)) {
+					propValue = LEAVE_SECRET_ALONE;
+				}
+				oldValues.setProperty("imsti."+element, Validator.escapeHtml(propValue));
+			}
+		}
+
+		request.setAttribute("imsti.oldvalues", oldValues);
+
+		String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
+		if ( "true".equals(allowOutcomes) ) {
+			List<String> assignments = getGradeBookAssignments();
+			if ( assignments != null && assignments.size() > 0 ) request.setAttribute("assignments", assignments);
+		}
+
+		String allowSettings = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, null);
+		request.setAttribute("allowSettings", new Boolean("true".equals(allowSettings)));
+		String allowRoster = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, null);
+		request.setAttribute("allowRoster", new Boolean("true".equals(allowRoster)));
+		String allowContentLink = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_CONTENTLINK_ENABLED, null);
+		request.setAttribute("allowContentLink", new Boolean("true".equals(allowContentLink)));
+	}
+
+	public void addProperty(Properties values, RenderRequest request,
+			String propName, String defaultValue)
+	{
+		String propValue = getCorrectProperty(request, propName, defaultValue);
+		if ( propValue != null ) {
+			values.setProperty("imsti."+propName,propValue);
+		}
+	}
+
+	// Get Property - Precedence is frozen server configuration, sakai tool properties, 
+	//     portlet preferences, sakai tool properties, and then default
+	public String getCorrectProperty(PortletRequest request, String propName, String defaultValue)
+	{
+		Placement placement = ToolManager.getCurrentPlacement();
+		String propertyName = placement.getToolId() + "." + propName;
 		String propValue = ServerConfigurationService.getString(propertyName,null);
 		if ( propValue != null && propValue.trim().length() > 0 ) {
-			dPrint("Forcing Final = "+propertyName);
-			config.setProperty("final."+element,"true");
+			// System.out.println("Sakai.home "+propName+"="+propValue);
+			return propValue;
 		}
-	}
-	request.setAttribute("imsti.properties", config);
 
-        // Hand up the old values
-       	Properties oldValues = new Properties();
-	addProperty(oldValues, request, "launch", "");
-	for (String element : fieldList) {
-		if ( "launch".equals(element) ) continue;
-		// addProperty(oldValues, request, element, null);
-		String propValue = getCorrectProperty(request, element, null);
+		Properties config = placement.getConfig();
+		propValue = getSakaiProperty(config, "imsti."+propName);
+		if ( propValue != null && "true".equals(config.getProperty("final."+propName)) )
+		{
+			// System.out.println("Frozen "+propName+" ="+propValue);
+			return propValue;
+		}
+
+		PortletPreferences prefs = request.getPreferences();
+		propValue = prefs.getValue("imsti."+propName, null);
 		if ( propValue != null ) {
-                        if ( "xml".equals(element)) {
-				propValue = propValue.replace("&amp;","&amp;amp;");
-			}
-                        if ( "secret".equals(element)) {
-				propValue = LEAVE_SECRET_ALONE;
-			}
-			oldValues.setProperty("imsti."+element, Validator.escapeHtml(propValue));
+			// System.out.println("Portlet "+propName+" ="+propValue);
+			return propValue;
 		}
-        }
 
-	request.setAttribute("imsti.oldvalues", oldValues);
-  
-        String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
-	if ( "true".equals(allowOutcomes) ) {
-	  	List<String> assignments = getGradeBookAssignments();
-        	if ( assignments != null && assignments.size() > 0 ) request.setAttribute("assignments", assignments);
+		propValue = getSakaiProperty(config, "imsti."+propName);
+		if ( propValue != null ) {
+			// System.out.println("Tool "+propName+" ="+propValue);
+			return propValue;
+		}
+
+		if ( defaultValue != null ) {
+			// System.out.println("Default "+propName+" ="+defaultValue);
+			return propValue;
+		}
+		// System.out.println("Fell through "+propName);
+		return null;
 	}
 
-        String allowSettings = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, null);
-        request.setAttribute("allowSettings", new Boolean("true".equals(allowSettings)));
-        String allowRoster = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, null);
-        request.setAttribute("allowRoster", new Boolean("true".equals(allowRoster)));
-        String allowContentLink = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_CONTENTLINK_ENABLED, null);
-        request.setAttribute("allowContentLink", new Boolean("true".equals(allowContentLink)));
-    }
-
-    public void addProperty(Properties values, RenderRequest request,
-		String propName, String defaultValue)
-    {
-	String propValue = getCorrectProperty(request, propName, defaultValue);
-	if ( propValue != null ) {
-		values.setProperty("imsti."+propName,propValue);
-	}
-    }
-
-    // Get Property - Precedence is frozen server configuration, sakai tool properties, 
-    //     portlet preferences, sakai tool properties, and then default
-    public String getCorrectProperty(PortletRequest request, String propName, String defaultValue)
-    {
-        Placement placement = ToolManager.getCurrentPlacement();
-	String propertyName = placement.getToolId() + "." + propName;
-	String propValue = ServerConfigurationService.getString(propertyName,null);
-	if ( propValue != null && propValue.trim().length() > 0 ) {
-		// System.out.println("Sakai.home "+propName+"="+propValue);
-		return propValue;
-	}
-
-        Properties config = placement.getConfig();
-	propValue = getSakaiProperty(config, "imsti."+propName);
-        if ( propValue != null && "true".equals(config.getProperty("final."+propName)) )
-        {
-                // System.out.println("Frozen "+propName+" ="+propValue);
-		return propValue;
-        }
-
-        PortletPreferences prefs = request.getPreferences();
-        propValue = prefs.getValue("imsti."+propName, null);
-        if ( propValue != null ) {
-                // System.out.println("Portlet "+propName+" ="+propValue);
-		return propValue;
-        }
-
-        propValue = getSakaiProperty(config, "imsti."+propName);
-        if ( propValue != null ) {
-                // System.out.println("Tool "+propName+" ="+propValue);
-		return propValue;
-        }
-
-        if ( defaultValue != null ) {
-                // System.out.println("Default "+propName+" ="+defaultValue);
-		return propValue;
-        }
-        // System.out.println("Fell through "+propName);
-	return null;
-    }
-
-    // isPropertyFinal() - if it comes from the Server configuration or
-    //     the final.propName is set to true
-    public boolean isPropertyFinal(String propName)
-    {
-        Placement placement = ToolManager.getCurrentPlacement();
-	String propertyName = placement.getToolId() + "." + propName;
-	String propValue = ServerConfigurationService.getString(propertyName,null);
-	if ( propValue != null && propValue.trim().length() > 0 ) {
-		return true;
-	}
-
-        Properties config = placement.getConfig();
-	propValue = getSakaiProperty(config, "imsti."+propName);
-        if ( propValue != null && "true".equals(config.getProperty("final."+propName)) )
-        {
-		return true;
-        }
-	return false;
-    }
-
-    public void doEdit(RenderRequest request, RenderResponse response)
-            throws PortletException, IOException {
-
-        response.setContentType("text/html");
-        dPrint("==== doEdit called ====");
-
-        PortletSession pSession = request.getPortletSession(true);
-
-	String title = getTitleString(request);
-	if ( title != null ) response.setTitle(title);
-
-	// Debug
-	String inputData = (String) pSession.getAttribute("sakai.descriptor");
-	if ( inputData != null ) dPrint("descriptor.length()="+inputData.length());
-	String url = (String) pSession.getAttribute("sakai.url");
-	dPrint("sakai.url="+url);
-
-	String view = (String) pSession.getAttribute("sakai.view");
-	dPrint("sakai.view="+view);
-	if ( "edit.reset".equals(view) ) {
-        	sendToJSP(request, response, "/editreset.jsp");
-	} else {
-    		prepareEdit(request);
-        	sendToJSP(request, response, "/edit.jsp");
-	}
-
-	dPrint("==== doEdit called ====");
-    }
-
-    public void doHelp(RenderRequest request, RenderResponse response)
-            throws PortletException, IOException {
-        dPrint("==== doHelp called ====");
-
-	String title = getTitleString(request);
-	if ( title != null ) response.setTitle(title);
-        sendToJSP(request, response, "/help.jsp");
-        dPrint("==== doHelp done  ====");
-    }
-
-    public void processAction(ActionRequest request, ActionResponse response)
-            throws PortletException, IOException {
-
-	dPrint("==== processAction called ====");
-
-	String action = request.getParameter("sakai.action");
-	dPrint("sakai.action = "+action);
-
-        PortletSession pSession = request.getPortletSession(true);
-
-	clearErrorMessage(request);
-
-        String view = (String) pSession.getAttribute("sakai.view");
-        dPrint("sakai.view="+view);
-
-	if ( action == null ) {
-		// Do nothing
-       	} else if ( action.equals("main") ) {
-		response.setPortletMode(PortletMode.VIEW);
-       	} else if ( action.equals("edit") ) {
-		pSession.setAttribute("sakai.view", "edit");
-	} else if ( action.equals("edit.reset") ) {
-                pSession.setAttribute("sakai.view","edit.reset");
-	} else if (action.equals("edit.setup")){
-		pSession.setAttribute("sakai.view","edit.setup");
-	} else if ( action.equals("edit.clear") ) {
-		clearSession(request);
-		response.setPortletMode(PortletMode.VIEW);
-		pSession.setAttribute("sakai.view", "main");
-	} else if ( action.equals("edit.do.reset") ) {
-                processActionReset(action,request, response);
-	} else if ( action.equals("edit.save") ) {
-                processActionSave(action,request, response);
-	}
-	dPrint("==== End of ProcessAction ====");
-    }
-
-    private void clearSession(PortletRequest request)
-    {
-	PortletSession pSession = request.getPortletSession(true);
-
-	pSession.removeAttribute("sakai.url");
-	pSession.removeAttribute("sakai.widget");
-	pSession.removeAttribute("sakai.descriptor");
-	pSession.removeAttribute("sakai.attemptdescriptor");
-
-	for (String element : fieldList) {
-		pSession.removeAttribute("sakai."+element);
-	}
-    }
-
-    public void processActionReset(String action,ActionRequest request, ActionResponse response)
-            throws PortletException, IOException {
-
-	// TODO: Check Role
-	dPrint("Removing preferences....");
-	clearSession(request);
-        PortletSession pSession = request.getPortletSession(true);
-        PortletPreferences prefs = request.getPreferences();
-        try {
-		prefs.reset("sakai.descriptor");
-                for (String element : fieldList) {
-                        prefs.reset("imsti."+element);
-                        prefs.reset("sakai:imsti."+element);
-                }
-		dPrint("Preference removed");
-        } catch (ReadOnlyException e) {
-		setErrorMessage(request, rb.getString("error.modify.prefs")) ;
-		return;
-        }
-        prefs.store();
-
-	// Go back to the main edit page
-	pSession.setAttribute("sakai.view", "edit");
-    }
-
-    public void processActionEdit(String action,ActionRequest request, ActionResponse response)
-            throws PortletException, IOException {
-
-    }
-
-    public Properties getSakaiProperties()
-    {
-	Placement placement = ToolManager.getCurrentPlacement();
-	return placement.getConfig();
-    }
-
-    // Empty or all whitespace properties are null
-    public String getSakaiProperty(Properties config, String key)
-    {
-        String propValue = config.getProperty(key);
-        if ( propValue != null && propValue.trim().length() < 1 ) propValue = null;
-        return propValue;
-    }
-
-    // Insure that if we have frozen properties - we never accept form data
-    public String getFormParameter(ActionRequest request, Properties sakaiProperties, String propName)
-    {
-	String propValue = getCorrectProperty(request, propName, null);
-	if ( propValue == null || ! isPropertyFinal(propName) ) 
+	// isPropertyFinal() - if it comes from the Server configuration or
+	//     the final.propName is set to true
+	public boolean isPropertyFinal(String propName)
 	{
-		propValue = request.getParameter("imsti."+propName);
-	}
-	dPrint("Form/Final imsti."+propName+"="+propValue);
-	if (propValue != null ) propValue = propValue.trim();
-	return propValue;
-    }
+		Placement placement = ToolManager.getCurrentPlacement();
+		String propertyName = placement.getToolId() + "." + propName;
+		String propValue = ServerConfigurationService.getString(propertyName,null);
+		if ( propValue != null && propValue.trim().length() > 0 ) {
+			return true;
+		}
 
-    public void processActionSave(String action,ActionRequest request, ActionResponse response)
-            throws PortletException, IOException {
-
-        PortletSession pSession = request.getPortletSession(true);
-	Properties sakaiProperties = getSakaiProperties();
-
-	String imsType  = getFormParameter(request,sakaiProperties,"type");
-
-	String imsTIUrl  = getFormParameter(request,sakaiProperties,"launch");
-        if ( imsTIUrl != null && imsTIUrl.trim().length() < 1 ) imsTIUrl = null;
-	String imsTIXml  = getFormParameter(request,sakaiProperties,"xml");
-        if ( imsTIXml != null && imsTIXml.trim().length() < 1 ) imsTIXml = null;
-
-        // imsType will be null if launch or xml is coming from final properties
-        if ( imsType != null ) {
-            if ( imsType.equalsIgnoreCase("XML") ) {
-                if ( imsTIXml != null ) imsTIUrl = null;
-            } else {
-                if ( imsTIUrl != null ) imsTIXml = null;
-            }
+		Properties config = placement.getConfig();
+		propValue = getSakaiProperty(config, "imsti."+propName);
+		if ( propValue != null && "true".equals(config.getProperty("final."+propName)) )
+		{
+			return true;
+		}
+		return false;
 	}
 
-        String launch_url = imsTIUrl;
-        if ( imsTIXml != null ) {
-		launch_url = BasicLTIUtil.validateDescriptor(imsTIXml);
-		if ( launch_url == null ) {
-			setErrorMessage(request, rb.getString("error.xml.input"));
-			return;
-		}
-	} else if ( imsTIUrl == null ) {
-		setErrorMessage(request, rb.getString("error.no.input") );
-		return;
-        } else {
-                try {
-			URL testUrl = new URL(imsTIUrl);
-			URI testUri = new URI(imsTIUrl);
-                } 
-		catch(Exception e) {
-			setErrorMessage(request, rb.getString("error.bad.url") );
-			return;
-		}
-        }
+	public void doEdit(RenderRequest request, RenderResponse response)
+		throws PortletException, IOException {
 
-	// Prepare to store preferences
-        PortletPreferences prefs = request.getPreferences();
-        boolean changed = false;
+			response.setContentType("text/html");
+			dPrint("==== doEdit called ====");
 
-        // Make Sure the Assignment is a legal one
-	String assignment = getFormParameter(request,sakaiProperties,"assignment");
-	String newAssignment = getFormParameter(request,sakaiProperties,"newassignment");
-        String oldPlacementSecret = getSakaiProperty(sakaiProperties,"imsti.placementsecret");
-        String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
-        String allowSettings = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, null);
-        String allowRoster = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, null);
+			PortletSession pSession = request.getPortletSession(true);
 
-	if ( "true".equals(allowOutcomes) && newAssignment != null && newAssignment.trim().length() > 1 ) {
-		if ( addGradeBookItem(request, newAssignment) ) {
-			// System.out.println("Success!");
-			assignment = newAssignment;
-		}
-	}
+			String title = getTitleString(request);
+			if ( title != null ) response.setTitle(title);
 
-	// System.out.println("old placementsecret="+oldPlacementSecret);
-	if ( oldPlacementSecret == null && 
-		("true".equals(allowOutcomes) || "true".equals(allowSettings) || "true".equals(allowRoster) ) ) {
-               	try {
-			String uuid = UUID.randomUUID().toString();
-			Date date = new Date();
-			SimpleDateFormat sdf = new SimpleDateFormat(ISO_8601_FORMAT);
-			String date_secret = sdf.format(date);
-                       	prefs.setValue("sakai:imsti.placementsecret", uuid);
-                       	prefs.setValue("sakai:imsti.placementsecretdate", date_secret);
-			// System.out.println("placementsecret set to="+uuid+" data="+date_secret);
-                       	changed = true;
-               	} catch (ReadOnlyException e) {
-                       	setErrorMessage(request, rb.getString("error.modify.prefs") );
-			return;
-               	} 
-        }
+			// Debug
+			String inputData = (String) pSession.getAttribute("sakai.descriptor");
+			if ( inputData != null ) dPrint("descriptor.length()="+inputData.length());
+			String url = (String) pSession.getAttribute("sakai.url");
+			dPrint("sakai.url="+url);
 
-	if ( "true".equals(allowOutcomes) && assignment != null && assignment.trim().length() > 1 ) {
-	        List<String> assignments = getGradeBookAssignments();
-                boolean found = false;
-                if ( assignments != null ) for ( String assn : assignments ) {
-                      if ( assn.equals(assignment) ) {
-                          found = true;
-                          break;
-                       }
-                }
-                if ( ! found ) {
-			setErrorMessage(request, rb.getString("error.gradable.badassign") + 
-				" " + Validator.escapeHtml(assignment));
-			return;
-		}
-	}
-
-        String imsTIHeight  = getFormParameter(request,sakaiProperties,"frameheight");
-        if ( imsTIHeight != null && imsTIHeight.trim().length() < 1 ) imsTIHeight = null;
-        if ( imsTIHeight != null ) {
-                try {
-                        int x = Integer.parseInt(imsTIHeight);
-                        if ( x < 0 ) {
-                                setErrorMessage(request, rb.getString("error.bad.height") );
-                                return;
+			String view = (String) pSession.getAttribute("sakai.view");
+			dPrint("sakai.view="+view);
+			if ( "edit.reset".equals(view) ) {
+				sendToJSP(request, response, "/editreset.jsp");
+			} else {
+				prepareEdit(request);
+				sendToJSP(request, response, "/edit.jsp");
 			}
-                }
-                catch(Exception e) {
-			setErrorMessage(request, rb.getString("error.bad.height") );
-			return;
-                }
-        }
 
-	// Passed the sanity checks - time to save it all!
+			dPrint("==== doEdit called ====");
+		}
 
-	String context = getContext();
-	Placement placement = ToolManager.getCurrentPlacement();
+	public void doHelp(RenderRequest request, RenderResponse response)
+		throws PortletException, IOException {
+			dPrint("==== doHelp called ====");
 
-	// Update the Page Title (button text)
-	String imsTIPageTitle  = getFormParameter(request,sakaiProperties,"pagetitle");
-	if ( imsTIPageTitle != null && imsTIPageTitle.trim().length() > 0 ) {
-       		try {
-       			ToolConfiguration toolConfig = SiteService.findTool(placement.getId());
-       			Site site = SiteService.getSite(toolConfig.getSiteId());
-       			SitePage page = site.getPage(toolConfig.getPageId());
-			page.setTitle(imsTIPageTitle);
-			page.setTitleCustom(true);
-			SiteService.save(site);
-        	} catch (Exception e) {
-               		setErrorMessage(request, rb.getString("error.page.title"));
-			return;
+			String title = getTitleString(request);
+			if ( title != null ) response.setTitle(title);
+			sendToJSP(request, response, "/help.jsp");
+			dPrint("==== doHelp done  ====");
+		}
+
+	public void processAction(ActionRequest request, ActionResponse response)
+		throws PortletException, IOException {
+
+			dPrint("==== processAction called ====");
+
+			String action = request.getParameter("sakai.action");
+			dPrint("sakai.action = "+action);
+
+			PortletSession pSession = request.getPortletSession(true);
+
+			clearErrorMessage(request);
+
+			String view = (String) pSession.getAttribute("sakai.view");
+			dPrint("sakai.view="+view);
+
+			if ( action == null ) {
+				// Do nothing
+			} else if ( action.equals("main") ) {
+				response.setPortletMode(PortletMode.VIEW);
+			} else if ( action.equals("edit") ) {
+				pSession.setAttribute("sakai.view", "edit");
+			} else if ( action.equals("edit.reset") ) {
+				pSession.setAttribute("sakai.view","edit.reset");
+			} else if (action.equals("edit.setup")){
+				pSession.setAttribute("sakai.view","edit.setup");
+			} else if ( action.equals("edit.clear") ) {
+				clearSession(request);
+				response.setPortletMode(PortletMode.VIEW);
+				pSession.setAttribute("sakai.view", "main");
+			} else if ( action.equals("edit.do.reset") ) {
+				processActionReset(action,request, response);
+			} else if ( action.equals("edit.save") ) {
+				processActionSave(action,request, response);
+			}
+			dPrint("==== End of ProcessAction ====");
+		}
+
+	private void clearSession(PortletRequest request)
+	{
+		PortletSession pSession = request.getPortletSession(true);
+
+		pSession.removeAttribute("sakai.url");
+		pSession.removeAttribute("sakai.widget");
+		pSession.removeAttribute("sakai.descriptor");
+		pSession.removeAttribute("sakai.attemptdescriptor");
+
+		for (String element : fieldList) {
+			pSession.removeAttribute("sakai."+element);
 		}
 	}
 
-        // Store preferences
-        for (String element : fieldList) {
-                String formParm  = getFormParameter(request,sakaiProperties,element);
-		if ( "assignment".equals(element) ) formParm = assignment;
-                if ( "secret".equals(element) && LEAVE_SECRET_ALONE.equals(formParm) ) continue;
-                try {
-                        prefs.setValue("sakai:imsti."+element, formParm);
-                        changed = true;
-                } catch (ReadOnlyException e) {
-                        setErrorMessage(request, rb.getString("error.modify.prefs") );
-			return;
-                }
-        }
+	public void processActionReset(String action,ActionRequest request, ActionResponse response)
+		throws PortletException, IOException {
 
-        // Clear out the other setting
-        if ( imsType != null ) {
-            if ( imsType.equalsIgnoreCase("XML") ) {
-               if ( imsTIXml != null ) {
-                   prefs.reset("sakai:imsti.launch");
-                   changed = true;
-               }
-            } else {
-               if ( imsTIUrl != null ) {
-                   prefs.reset("sakai:imsti.xml");
-                   changed = true;
-               }
-            }
-        }
+			// TODO: Check Role
+			dPrint("Removing preferences....");
+			clearSession(request);
+			PortletSession pSession = request.getPortletSession(true);
+			PortletPreferences prefs = request.getPreferences();
+			try {
+				prefs.reset("sakai.descriptor");
+				for (String element : fieldList) {
+					prefs.reset("imsti."+element);
+					prefs.reset("sakai:imsti."+element);
+				}
+				dPrint("Preference removed");
+			} catch (ReadOnlyException e) {
+				setErrorMessage(request, rb.getString("error.modify.prefs")) ;
+				return;
+			}
+			prefs.store();
 
-        // track event and store
-        if ( changed ) {
-            // 2.6 Event Tracking
-            Event event = LocalEventTrackingService.newEvent(EVENT_BASICLTI_CONFIG, launch_url, context, true, NotificationService.NOTI_OPTIONAL);
-            // 2.5 Event Tracking
-            // Event event = EventTrackingService.newEvent(EVENT_BASICLTI_CONFIG, launch_url, true);
-            LocalEventTrackingService.post(event);
-            prefs.store();
+			// Go back to the main edit page
+			pSession.setAttribute("sakai.view", "edit");
+		}
+
+	public void processActionEdit(String action,ActionRequest request, ActionResponse response)
+		throws PortletException, IOException {
+
+		}
+
+	public Properties getSakaiProperties()
+	{
+		Placement placement = ToolManager.getCurrentPlacement();
+		return placement.getConfig();
 	}
 
-	pSession.setAttribute("sakai.view", "main");
-	response.setPortletMode(PortletMode.VIEW);
-    }
+	// Empty or all whitespace properties are null
+	public String getSakaiProperty(Properties config, String key)
+	{
+		String propValue = config.getProperty(key);
+		if ( propValue != null && propValue.trim().length() < 1 ) propValue = null;
+		return propValue;
+	}
 
-        /**
-         * Get the current site page our current tool is placed on.
-         * 
-         * @return The site page id on which our tool is placed.
-         */
-        protected String getCurrentSitePageId()
-        {
+	// Insure that if we have frozen properties - we never accept form data
+	public String getFormParameter(ActionRequest request, Properties sakaiProperties, String propName)
+	{
+		String propValue = getCorrectProperty(request, propName, null);
+		if ( propValue == null || ! isPropertyFinal(propName) ) 
+		{
+			propValue = request.getParameter("imsti."+propName);
+		}
+		dPrint("Form/Final imsti."+propName+"="+propValue);
+		if (propValue != null ) propValue = propValue.trim();
+		return propValue;
+	}
+
+	public void processActionSave(String action,ActionRequest request, ActionResponse response)
+		throws PortletException, IOException {
+
+			PortletSession pSession = request.getPortletSession(true);
+			Properties sakaiProperties = getSakaiProperties();
+
+			String imsType  = getFormParameter(request,sakaiProperties,"type");
+
+			String imsTIUrl  = getFormParameter(request,sakaiProperties,"launch");
+			if ( imsTIUrl != null && imsTIUrl.trim().length() < 1 ) imsTIUrl = null;
+			String imsTIXml  = getFormParameter(request,sakaiProperties,"xml");
+			if ( imsTIXml != null && imsTIXml.trim().length() < 1 ) imsTIXml = null;
+
+			// imsType will be null if launch or xml is coming from final properties
+			if ( imsType != null ) {
+				if ( imsType.equalsIgnoreCase("XML") ) {
+					if ( imsTIXml != null ) imsTIUrl = null;
+				} else {
+					if ( imsTIUrl != null ) imsTIXml = null;
+				}
+			}
+
+			String launch_url = imsTIUrl;
+			if ( imsTIXml != null ) {
+				launch_url = BasicLTIUtil.validateDescriptor(imsTIXml);
+				if ( launch_url == null ) {
+					setErrorMessage(request, rb.getString("error.xml.input"));
+					return;
+				}
+			} else if ( imsTIUrl == null ) {
+				setErrorMessage(request, rb.getString("error.no.input") );
+				return;
+			} else {
+				try {
+					URL testUrl = new URL(imsTIUrl);
+					URI testUri = new URI(imsTIUrl);
+				} 
+				catch(Exception e) {
+					setErrorMessage(request, rb.getString("error.bad.url") );
+					return;
+				}
+			}
+
+			// Prepare to store preferences
+			PortletPreferences prefs = request.getPreferences();
+			boolean changed = false;
+
+			// Make Sure the Assignment is a legal one
+			String assignment = getFormParameter(request,sakaiProperties,"assignment");
+			String newAssignment = getFormParameter(request,sakaiProperties,"newassignment");
+			String oldPlacementSecret = getSakaiProperty(sakaiProperties,"imsti.placementsecret");
+			String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
+			String allowSettings = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, null);
+			String allowRoster = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, null);
+
+			if ( "true".equals(allowOutcomes) && newAssignment != null && newAssignment.trim().length() > 1 ) {
+				if ( addGradeBookItem(request, newAssignment) ) {
+					// System.out.println("Success!");
+					assignment = newAssignment;
+				}
+			}
+
+			// System.out.println("old placementsecret="+oldPlacementSecret);
+			if ( oldPlacementSecret == null && 
+					("true".equals(allowOutcomes) || "true".equals(allowSettings) || "true".equals(allowRoster) ) ) {
+				try {
+					String uuid = UUID.randomUUID().toString();
+					Date date = new Date();
+					SimpleDateFormat sdf = new SimpleDateFormat(ISO_8601_FORMAT);
+					String date_secret = sdf.format(date);
+					prefs.setValue("sakai:imsti.placementsecret", uuid);
+					prefs.setValue("sakai:imsti.placementsecretdate", date_secret);
+					// System.out.println("placementsecret set to="+uuid+" data="+date_secret);
+					changed = true;
+				} catch (ReadOnlyException e) {
+					setErrorMessage(request, rb.getString("error.modify.prefs") );
+					return;
+				} 
+			}
+
+			if ( "true".equals(allowOutcomes) && assignment != null && assignment.trim().length() > 1 ) {
+				List<String> assignments = getGradeBookAssignments();
+				boolean found = false;
+				if ( assignments != null ) for ( String assn : assignments ) {
+					if ( assn.equals(assignment) ) {
+						found = true;
+						break;
+					}
+				}
+				if ( ! found ) {
+					setErrorMessage(request, rb.getString("error.gradable.badassign") + 
+							" " + Validator.escapeHtml(assignment));
+					return;
+				}
+			}
+
+			String imsTIHeight  = getFormParameter(request,sakaiProperties,"frameheight");
+			if ( imsTIHeight != null && imsTIHeight.trim().length() < 1 ) imsTIHeight = null;
+			if ( imsTIHeight != null ) {
+				try {
+					int x = Integer.parseInt(imsTIHeight);
+					if ( x < 0 ) {
+						setErrorMessage(request, rb.getString("error.bad.height") );
+						return;
+					}
+				}
+				catch(Exception e) {
+					setErrorMessage(request, rb.getString("error.bad.height") );
+					return;
+				}
+			}
+
+			// Passed the sanity checks - time to save it all!
+
+			String context = getContext();
+			Placement placement = ToolManager.getCurrentPlacement();
+
+			// Update the Page Title (button text)
+			String imsTIPageTitle  = getFormParameter(request,sakaiProperties,"pagetitle");
+			if ( imsTIPageTitle != null && imsTIPageTitle.trim().length() > 0 ) {
+				try {
+					ToolConfiguration toolConfig = SiteService.findTool(placement.getId());
+					Site site = SiteService.getSite(toolConfig.getSiteId());
+					SitePage page = site.getPage(toolConfig.getPageId());
+					page.setTitle(imsTIPageTitle);
+					page.setTitleCustom(true);
+					SiteService.save(site);
+				} catch (Exception e) {
+					setErrorMessage(request, rb.getString("error.page.title"));
+					return;
+				}
+			}
+
+			// Store preferences
+			for (String element : fieldList) {
+				String formParm  = getFormParameter(request,sakaiProperties,element);
+				if ( "assignment".equals(element) ) formParm = assignment;
+				if ( "secret".equals(element) && LEAVE_SECRET_ALONE.equals(formParm) ) continue;
+				try {
+					prefs.setValue("sakai:imsti."+element, formParm);
+					changed = true;
+				} catch (ReadOnlyException e) {
+					setErrorMessage(request, rb.getString("error.modify.prefs") );
+					return;
+				}
+			}
+
+			// Clear out the other setting
+			if ( imsType != null ) {
+				if ( imsType.equalsIgnoreCase("XML") ) {
+					if ( imsTIXml != null ) {
+						prefs.reset("sakai:imsti.launch");
+						changed = true;
+					}
+				} else {
+					if ( imsTIUrl != null ) {
+						prefs.reset("sakai:imsti.xml");
+						changed = true;
+					}
+				}
+			}
+
+			// track event and store
+			if ( changed ) {
+				// 2.6 Event Tracking
+				Event event = LocalEventTrackingService.newEvent(EVENT_BASICLTI_CONFIG, launch_url, context, true, NotificationService.NOTI_OPTIONAL);
+				// 2.5 Event Tracking
+				// Event event = EventTrackingService.newEvent(EVENT_BASICLTI_CONFIG, launch_url, true);
+				LocalEventTrackingService.post(event);
+				prefs.store();
+			}
+
+			pSession.setAttribute("sakai.view", "main");
+			response.setPortletMode(PortletMode.VIEW);
+		}
+
+	/**
+	 * Get the current site page our current tool is placed on.
+	 * 
+	 * @return The site page id on which our tool is placed.
+	 */
+	protected String getCurrentSitePageId()
+	{
 		Placement placement = ToolManager.getCurrentPlacement();
 		ToolConfiguration tool = SiteService.findTool(placement.getId());
 		if (tool != null)
 		{
 			return tool.getPageId();
 		}
-                return null;
-        }
-
-    // TODO: Local cleverness ???
-    private void sendToJSP(RenderRequest request, RenderResponse response,
-            String jspPage) throws PortletException {
-        response.setContentType(request.getResponseContentType());
-        if (jspPage != null && jspPage.length() != 0) {
-            try {
-                PortletRequestDispatcher dispatcher = pContext
-                        .getRequestDispatcher(jspPage);
-                dispatcher.include(request, response);
-            } catch (IOException e) {
-                throw new PortletException("Sakai Dispatch unabble to use "
-                        + jspPage, e);
-            }
-        }
-    }
-
-    // Error Message
-    public void clearErrorMessage(PortletRequest request)
-    {
-	PortletHelper.clearErrorMessage(request);
-    }
-
-    public void setErrorMessage(PortletRequest request, String errorMsg)
-    {
-	PortletHelper.setErrorMessage(request,errorMsg);
-    }
-
-    public void setErrorMessage(PortletRequest request, String errorMsg, Throwable t)
-    {
-	PortletHelper.setErrorMessage(request,errorMsg,t);
-    }
-
-    private String getContext()
-    {
-            String retval = ToolManager.getCurrentPlacement().getContext();
-            return retval;
-    }
-
-    // Create an item in the Gradebook
-    protected boolean addGradeBookItem(ActionRequest request, String assignmentName)
-    {
-        try
-        {
-		GradebookService g = (GradebookService)  ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-
-		String gradebookUid = getContext();
-		if ( ! (g.isGradebookDefined(gradebookUid) && (g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)) && g.currentUserHasGradeAllPerm(gradebookUid) ) ) return false;
-
-		// add assignment to gradebook
- 		Assignment asn = new Assignment();
-		asn.setPoints(Double.valueOf(100));
-		asn.setExternallyMaintained(false);
-		asn.setName(assignmentName);
-		asn.setReleased(true);
-		asn.setUngraded(false);
-                g.addAssignment(gradebookUid, asn);
-		return true;
+		return null;
 	}
-	catch (ConflictingAssignmentNameException e)
+
+	// TODO: Local cleverness ???
+	private void sendToJSP(RenderRequest request, RenderResponse response,
+			String jspPage) throws PortletException {
+		response.setContentType(request.getResponseContentType());
+		if (jspPage != null && jspPage.length() != 0) {
+			try {
+				PortletRequestDispatcher dispatcher = pContext
+					.getRequestDispatcher(jspPage);
+				dispatcher.include(request, response);
+			} catch (IOException e) {
+				throw new PortletException("Sakai Dispatch unabble to use "
+						+ jspPage, e);
+			}
+		}
+	}
+
+	// Error Message
+	public void clearErrorMessage(PortletRequest request)
 	{
-		return true;
+		PortletHelper.clearErrorMessage(request);
 	}
-	catch (Exception e)
+
+	public void setErrorMessage(PortletRequest request, String errorMsg)
 	{
-		dPrint("GradebookNotFoundException (may be because GradeBook has not yet been added to the Site) " + e.getMessage());
-		setErrorMessage(request, rb.getString("error.gradable.badcreate") + ":" + e.getMessage() );
-		M_log.warn(this + ":addGradeItem " + e.getMessage());
+		PortletHelper.setErrorMessage(request,errorMsg);
 	}
-	return false;
-    }
 
-    // get all assignments from the Gradebook
-    protected List<String> getGradeBookAssignments()
-    {
-        List<String> retval = new ArrayList<String>();
-        try
-        {
-                GradebookService g = (GradebookService)  ComponentManager
-                                .get("org.sakaiproject.service.gradebook.GradebookService");
+	public void setErrorMessage(PortletRequest request, String errorMsg, Throwable t)
+	{
+		PortletHelper.setErrorMessage(request,errorMsg,t);
+	}
 
-	        String gradebookUid = getContext();
-                if ( ! (g.isGradebookDefined(gradebookUid) && (g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)) && g.currentUserHasGradeAllPerm(gradebookUid) ) ) return null;
-                List gradebookAssignments = g.getAssignments(gradebookUid);
+	private String getContext()
+	{
+		String retval = ToolManager.getCurrentPlacement().getContext();
+		return retval;
+	}
 
-                // filtering out anything externally provided
-                for (Iterator i=gradebookAssignments.iterator(); i.hasNext();)
-                {
-                        org.sakaiproject.service.gradebook.shared.Assignment gAssignment = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
-                         if ( gAssignment.isExternallyMaintained() ) continue;
-                         retval.add(gAssignment.getName());
-                }
-                return retval;
-        }
-        catch (GradebookNotFoundException e)
-        {
-                dPrint("GradebookNotFoundException (may be because GradeBook has not yet been added to the Site) " + e.getMessage());
-                return null;
-        }
-    }
+	// Create an item in the Gradebook
+	protected boolean addGradeBookItem(ActionRequest request, String assignmentName)
+	{
+		try
+		{
+			GradebookService g = (GradebookService)  ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+
+			String gradebookUid = getContext();
+			if ( ! (g.isGradebookDefined(gradebookUid) && (g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)) && g.currentUserHasGradeAllPerm(gradebookUid) ) ) return false;
+
+			// add assignment to gradebook
+			Assignment asn = new Assignment();
+			asn.setPoints(Double.valueOf(100));
+			asn.setExternallyMaintained(false);
+			asn.setName(assignmentName);
+			asn.setReleased(true);
+			asn.setUngraded(false);
+			g.addAssignment(gradebookUid, asn);
+			return true;
+		}
+		catch (ConflictingAssignmentNameException e)
+		{
+			return true;
+		}
+		catch (Exception e)
+		{
+			dPrint("GradebookNotFoundException (may be because GradeBook has not yet been added to the Site) " + e.getMessage());
+			setErrorMessage(request, rb.getString("error.gradable.badcreate") + ":" + e.getMessage() );
+			M_log.warn(this + ":addGradeItem " + e.getMessage());
+		}
+		return false;
+	}
+
+	// get all assignments from the Gradebook
+	protected List<String> getGradeBookAssignments()
+	{
+		List<String> retval = new ArrayList<String>();
+		try
+		{
+			GradebookService g = (GradebookService)  ComponentManager
+				.get("org.sakaiproject.service.gradebook.GradebookService");
+
+			String gradebookUid = getContext();
+			if ( ! (g.isGradebookDefined(gradebookUid) && (g.currentUserHasEditPerm(gradebookUid) || g.currentUserHasGradingPerm(gradebookUid)) && g.currentUserHasGradeAllPerm(gradebookUid) ) ) return null;
+			List gradebookAssignments = g.getAssignments(gradebookUid);
+
+			// filtering out anything externally provided
+			for (Iterator i=gradebookAssignments.iterator(); i.hasNext();)
+			{
+				org.sakaiproject.service.gradebook.shared.Assignment gAssignment = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
+				if ( gAssignment.isExternallyMaintained() ) continue;
+				retval.add(gAssignment.getName());
+			}
+			return retval;
+		}
+		catch (GradebookNotFoundException e)
+		{
+			dPrint("GradebookNotFoundException (may be because GradeBook has not yet been added to the Site) " + e.getMessage());
+			return null;
+		}
+	}
 
 }

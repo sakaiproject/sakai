@@ -182,7 +182,7 @@ public class Foorm {
 			String field = info.getProperty("field");
 			if (field == null) {
 				throw new IllegalArgumentException(
-					  "All model elements must include field name and type");
+						"All model elements must include field name and type");
 			}
 			aa.add(field);
 		}
@@ -616,7 +616,7 @@ public class Foorm {
 		if ("header".equals(type))
 			return formInputHeader(field, label, loader);
 		return "\n<!-- Foorm.formInput() unrecognized type " + type + " field=" + field
-				+ " -->\n";
+			+ " -->\n";
 	}
 
 	/**
@@ -654,7 +654,7 @@ public class Foorm {
 				for (String choice : choiceList) {
 					String newkey = label + "_" + choice;
 					if (loadI18N(newkey, loader) == null)
-					  strings.add(newkey);
+						strings.add(newkey);
 				}
 			}
 		}
@@ -701,10 +701,10 @@ public class Foorm {
 			}
 
 			if ( header != null && Arrays.asList(fieldList).contains(field) ) {
-					sb.append(header);
-					sb.append("\n");
-					header = null;
-					fieldList = null;
+				sb.append(header);
+				sb.append("\n");
+				header = null;
+				fieldList = null;
 			}
 
 			sb.append(tmp);
@@ -904,7 +904,7 @@ public class Foorm {
 			return formOutputRadio(getLongNull(value), field, label, choiceList, loader);
 		}
 		return "\n<!-- Foorm.formOutput() unrecognized type " + type + " field=" + field
-				+ " -->\n";
+			+ " -->\n";
 	}
 
 	/**
@@ -955,7 +955,7 @@ public class Foorm {
 			String type = info.getProperty("type", null);
 			if (field == null || type == null) {
 				throw new IllegalArgumentException(
-					  "All model elements must include field name and type");
+						"All model elements must include field name and type");
 			}
 			if ( "header".equals(type) ) continue;
 			String label = info.getProperty("label", field);
@@ -975,7 +975,7 @@ public class Foorm {
 			if ("autodate".equals(type)
 					&& ("created_at".equals(field) || "updated_at".equals(field))) {
 				java.sql.Timestamp sqlTimestamp = new java.sql.Timestamp(
-					  new java.util.Date().getTime());
+						new java.util.Date().getTime());
 				if (dataMap != null)
 					dataMap.put(field, sqlTimestamp);
 			}
@@ -994,15 +994,15 @@ public class Foorm {
 				String truncate = info.getProperty("truncate", "true");
 				if (sdf.length() > maxlength) {
 					if ("true".equals(truncate)) {
-					  sdf = sdf.substring(0, maxlength);
-					  dataField = sdf;
+						sdf = sdf.substring(0, maxlength);
+						dataField = sdf;
 					} else {
-					  if (sb.length() > 0)
+						if (sb.length() > 0)
 							sb.append(", ");
-					  error = getI18N("foorm.maxlength.field", "Field > " + maxlength
-							  + " Field: ", loader) + getI18N(label, loader);
-					  sb.append(error);
-					  if ( errors != null ) errors.put(label, error);
+						error = getI18N("foorm.maxlength.field", "Field > " + maxlength
+								+ " Field: ", loader) + getI18N(label, loader);
+						sb.append(error);
+						if ( errors != null ) errors.put(label, error);
 					}
 				}
 			}
@@ -1010,21 +1010,21 @@ public class Foorm {
 			if ("integer".equals(type) || "radio".equals(type) || "checkbox".equals(type) ) {
 				if (dataField == null) {
 					if (dataMap != null)
-					  dataMap.put(field, null);
+						dataMap.put(field, null);
 				} else if (dataField instanceof Integer) {
 					if (dataMap != null)
-					  dataMap.put(field, dataField);
+						dataMap.put(field, dataField);
 				} else {
 					try {
-					  Integer ival = new Integer(sdf);
-					  if (dataMap != null)
+						Integer ival = new Integer(sdf);
+						if (dataMap != null)
 							dataMap.put(field, ival);
 					} catch (Exception e) {
-					  if (sb.length() > 0)
+						if (sb.length() > 0)
 							sb.append(", ");
-					  error = getI18N("foorm.integer.field", "Field should be an integer: ", loader) + getI18N(label, loader);
-					  sb.append(error);
-					  if ( errors != null ) errors.put(label, error);
+						error = getI18N("foorm.integer.field", "Field should be an integer: ", loader) + getI18N(label, loader);
+						sb.append(error);
+						if ( errors != null ) errors.put(label, error);
 					}
 				}
 			}
@@ -1032,13 +1032,13 @@ public class Foorm {
 			if ("id".equals(type)) {
 				if (sdf == null) {
 					if (dataMap != null)
-					  dataMap.put(field, null);
+						dataMap.put(field, null);
 				} else if (sdf.matches("^[0-9a-zA-Z._-]*$")) {
 					if (dataMap != null)
-					  dataMap.put(field, sdf);
+						dataMap.put(field, sdf);
 				} else {
 					if (sb.length() > 0)
-					  sb.append(", ");
+						sb.append(", ");
 					error = getI18N("foorm.id.field", "Field has invalid characters: ", loader) + getI18N(label, loader);
 					sb.append(error);
 					if ( errors != null ) errors.put(label, error);
@@ -1048,13 +1048,13 @@ public class Foorm {
 			if ("url".equals(type)) {
 				if (sdf == null) {
 					if (dataMap != null)
-					  dataMap.put(field, null);
+						dataMap.put(field, null);
 				} else if (sdf.matches("^(http://|https://)[a-zA-Z0-9][a-zA-Z0-9]*.*")) {
 					if (dataMap != null)
-					  dataMap.put(field, sdf);
+						dataMap.put(field, sdf);
 				} else {
 					if (sb.length() > 0)
-					  sb.append(", ");
+						sb.append(", ");
 					error = getI18N("foorm.url.field", "Field is not a url: ", loader) + getI18N(label, loader);
 					sb.append(error);
 					if ( errors != null ) errors.put(label, error);
@@ -1064,10 +1064,10 @@ public class Foorm {
 			if ("text".equals(type) || "textarea".equals(type)) {
 				if (sdf == null) {
 					if (dataMap != null)
-					  dataMap.put(field, null);
+						dataMap.put(field, null);
 				} else {
 					if (dataMap != null)
-					  dataMap.put(field, sdf);
+						dataMap.put(field, sdf);
 				}
 			}
 		}
@@ -1111,7 +1111,7 @@ public class Foorm {
 			String type = info.getProperty("type");
 			if (field == null || type == null) {
 				throw new IllegalArgumentException(
-					  "All model elements must include field name and type");
+						"All model elements must include field name and type");
 			}
 			if ( "header".equals(type) ) continue;
 
@@ -1232,7 +1232,7 @@ public class Foorm {
 			String type = fields.getProperty("type", null);
 			if (field == null || type == null) {
 				throw new IllegalArgumentException(
-					  "All model elements must include field name and type");
+						"All model elements must include field name and type");
 			}
 			if ("radio".equals(type) || "checkbox".equals(type) ) {
 				// Field = Always Off (0), Always On (1), or Delegate(2)
@@ -1403,7 +1403,7 @@ public class Foorm {
 				logger.severe(field+" must be Integer field");
 			}
 		}
-		
+
 		return rv.toArray(new String[rv.size()]);
 	}
 
@@ -1428,7 +1428,7 @@ public class Foorm {
 				String seqName = getSqlSequence(table, theKey, vendor);
 				if (seqName != null) {
 					if (doReset)
-					  rv.add("DROP SEQUENCE " + seqName);
+						rv.add("DROP SEQUENCE " + seqName);
 					rv.add("CREATE SEQUENCE " + seqName + " INCREMENT BY 1 START WITH 1\n");
 				}
 			}
@@ -1511,7 +1511,7 @@ public class Foorm {
 			String type = info.getProperty("type", null);
 			if (field == null || type == null) {
 				throw new IllegalArgumentException(
-					  "All model elements must include field name and type");
+						"All model elements must include field name and type");
 			}
 			if (!"key".equals(type))
 				continue;
@@ -1539,13 +1539,13 @@ public class Foorm {
 				return null;
 			int recordCount = (endRec - startRec) + 1;
 			String retval = "select limit " + startRec + " " + recordCount + " "
-					+ sqlIn.substring(position + 7);
+				+ sqlIn.substring(position + 7);
 			return retval;
 		} else if ("oracle".equals(vendor)) {
 			if (startRec > endRec)
 				return null;
 			String retval = "select * from ( select a.*, ROWNUM rnum from ( " + sqlIn
-					+ " ) a where rownum <= " + (endRec + 1) + " ) where rnum >= " + (startRec + 1);
+				+ " ) a where rownum <= " + (endRec + 1) + " ) where rnum >= " + (startRec + 1);
 			return retval;
 		} else { // MySql for sure
 			if (startRec > endRec)

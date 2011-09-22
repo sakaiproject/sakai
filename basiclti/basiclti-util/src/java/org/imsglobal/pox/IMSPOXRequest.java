@@ -66,25 +66,25 @@ public class IMSPOXRequest {
 		SEVERITY_ERROR, SEVERITY_WARNING, SEVERITY_STATUS };
 
 	public final static String MINOR_FULLSUCCESS ="fullsuccess";
-        public final static String MINOR_NOSOURCEDIDS = "nosourcedids";
-        public final static String MINOR_IDALLOC = "idalloc";
-        public final static String MINOR_OVERFLOWFAIL = "overflowfail";
-        public final static String MINOR_IDALLOCINUSEFAIL = "idallocinusefail";
-        public final static String MINOR_INVALIDDATAFAIL = "invaliddata";
-        public final static String MINOR_INCOMPLETEDATA = "incompletedata";
-        public final static String MINOR_PARTIALSTORAGE = "partialdatastorage";
-        public final static String MINOR_UNKNOWNOBJECT = "unknownobject";
-        public final static String MINOR_DELETEFAILURE = "deletefailure";
-        public final static String MINOR_TARGETREADFAILURE = "targetreadfailure";
-        public final static String MINOR_SAVEPOINTERROR = "savepointerror";
-        public final static String MINOR_SAVEPOINTSYNCERROR = "savepointsyncerror";
-        public final static String MINOR_UNKNOWNQUERY = "unknownquery";
-        public final static String MINOR_UNKNOWNVOCAB = "unknownvocab";
-        public final static String MINOR_TARGETISBUSY = "targetisbusy";
-        public final static String MINOR_UNKNOWNEXTENSION = "unknownextension";
-        public final static String MINOR_UNAUTHORIZEDREQUEST = "unauthorizedrequest";
-        public final static String MINOR_LINKFAILURE = "linkfailure";
-        public final static String MINOR_UNSUPPORTED = "unsupported";
+	public final static String MINOR_NOSOURCEDIDS = "nosourcedids";
+	public final static String MINOR_IDALLOC = "idalloc";
+	public final static String MINOR_OVERFLOWFAIL = "overflowfail";
+	public final static String MINOR_IDALLOCINUSEFAIL = "idallocinusefail";
+	public final static String MINOR_INVALIDDATAFAIL = "invaliddata";
+	public final static String MINOR_INCOMPLETEDATA = "incompletedata";
+	public final static String MINOR_PARTIALSTORAGE = "partialdatastorage";
+	public final static String MINOR_UNKNOWNOBJECT = "unknownobject";
+	public final static String MINOR_DELETEFAILURE = "deletefailure";
+	public final static String MINOR_TARGETREADFAILURE = "targetreadfailure";
+	public final static String MINOR_SAVEPOINTERROR = "savepointerror";
+	public final static String MINOR_SAVEPOINTSYNCERROR = "savepointsyncerror";
+	public final static String MINOR_UNKNOWNQUERY = "unknownquery";
+	public final static String MINOR_UNKNOWNVOCAB = "unknownvocab";
+	public final static String MINOR_TARGETISBUSY = "targetisbusy";
+	public final static String MINOR_UNKNOWNEXTENSION = "unknownextension";
+	public final static String MINOR_UNAUTHORIZEDREQUEST = "unauthorizedrequest";
+	public final static String MINOR_LINKFAILURE = "linkfailure";
+	public final static String MINOR_UNSUPPORTED = "unsupported";
 
 	public final static String [] validMinor = {
 		MINOR_FULLSUCCESS, MINOR_NOSOURCEDIDS, MINOR_IDALLOC, MINOR_OVERFLOWFAIL,
@@ -173,7 +173,7 @@ public class IMSPOXRequest {
 		postBody = bodyString;
 		parsePostBody();
 	}
-	
+
 	// Load but do not check the authentication
 	public void loadFromRequest(HttpServletRequest request) 
 	{
@@ -201,7 +201,7 @@ public class IMSPOXRequest {
 
 		// System.out.println("OBH="+oauth_body_hash);
 		final char[] buffer = new char[0x10000];
-		
+
 		try {
 			StringBuilder out = new StringBuilder();
 			Reader in = request.getReader();
@@ -234,7 +234,7 @@ public class IMSPOXRequest {
 		}
 		parsePostBody();
 	}
-	
+
 	public void parsePostBody()
 	{
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -277,7 +277,7 @@ public class IMSPOXRequest {
 		OAuthMessage oam = OAuthServlet.getMessage(request, null);
 		OAuthValidator oav = new SimpleOAuthValidator();
 		OAuthConsumer cons = new OAuthConsumer("about:blank#OAuth+CallBack+NotUsed", 
-			oauth_consumer_key, oauth_secret, null);
+				oauth_consumer_key, oauth_secret, null);
 
 		OAuthAccessor acc = new OAuthAccessor(cons);
 
@@ -344,10 +344,10 @@ public class IMSPOXRequest {
 	{
 		Date dt = new Date();
 		String messageId = ""+dt.getTime();
-	
+
 		return String.format(fatalMessage, 
-			StringEscapeUtils.escapeXml(messageId), 
-			StringEscapeUtils.escapeXml(description)); 
+				StringEscapeUtils.escapeXml(messageId), 
+				StringEscapeUtils.escapeXml(description)); 
 	}
 
 	static final String responseMessage = 
@@ -388,7 +388,7 @@ public class IMSPOXRequest {
 	}
 
 	public String getResponse(String description, String major, String severity, 
-		String messageId, Properties minor, String bodyString)
+			String messageId, Properties minor, String bodyString)
 	{
 		StringBuffer internalError = new StringBuffer();
 		if ( major == null ) major = MAJOR_FAILURE;
@@ -446,41 +446,41 @@ public class IMSPOXRequest {
 		String newLine = "";
 		if ( bodyString.length() > 0 ) newLine = "\n";
 		return String.format(responseMessage, 
-			StringEscapeUtils.escapeXml(messageId), 
-			StringEscapeUtils.escapeXml(major), 
-			StringEscapeUtils.escapeXml(severity), 
-			StringEscapeUtils.escapeXml(description), 
-			StringEscapeUtils.escapeXml(getHeaderMessageIdentifier()), 
-			StringEscapeUtils.escapeXml(operation), 
-			StringEscapeUtils.escapeXml(minorString), 
-			bodyString, newLine); 
-		
+				StringEscapeUtils.escapeXml(messageId), 
+				StringEscapeUtils.escapeXml(major), 
+				StringEscapeUtils.escapeXml(severity), 
+				StringEscapeUtils.escapeXml(description), 
+				StringEscapeUtils.escapeXml(getHeaderMessageIdentifier()), 
+				StringEscapeUtils.escapeXml(operation), 
+				StringEscapeUtils.escapeXml(minorString), 
+				bodyString, newLine); 
+
 	}
 
 	/** Unit Tests */
 	static final String inputTestData = "<?xml version = \"1.0\" encoding = \"UTF-8\"?>\n" +  
 		"<imsx_POXEnvelopeRequest xmlns = \"http://www.imsglobal.org/lis/oms1p0/pox\">\n" + 
-        		"<imsx_POXHeader>\n" + 
-                		"<imsx_POXRequestHeaderInfo>\n" + 
-                        		"<imsx_version>V1.0</imsx_version>\n" + 
-                        		"<imsx_messageIdentifier>999999123</imsx_messageIdentifier>\n" + 
-                		"</imsx_POXRequestHeaderInfo>\n" + 
-        		"</imsx_POXHeader>\n" + 
-        		"<imsx_POXBody>\n" + 
-                		"<replaceResultRequest>\n" + 
-                        		"<resultRecord>\n" + 
-                                		"<sourcedGUID>\n" + 
-                                        		"<sourcedId>3124567</sourcedId>\n" + 
-                                		"</sourcedGUID>\n" + 
-                                		"<result>\n" + 
-                                        		"<resultScore>\n" + 
-                                                		"<language>en-us</language>\n" + 
-                                                		"<textString>A</textString>\n" + 
-                                        		"</resultScore>\n" + 
-                                		"</result>\n" + 
-                        		"</resultRecord>\n" + 
-                		"</replaceResultRequest>\n" + 
-        		"</imsx_POXBody>\n" + 
+		"<imsx_POXHeader>\n" + 
+		"<imsx_POXRequestHeaderInfo>\n" + 
+		"<imsx_version>V1.0</imsx_version>\n" + 
+		"<imsx_messageIdentifier>999999123</imsx_messageIdentifier>\n" + 
+		"</imsx_POXRequestHeaderInfo>\n" + 
+		"</imsx_POXHeader>\n" + 
+		"<imsx_POXBody>\n" + 
+		"<replaceResultRequest>\n" + 
+		"<resultRecord>\n" + 
+		"<sourcedGUID>\n" + 
+		"<sourcedId>3124567</sourcedId>\n" + 
+		"</sourcedGUID>\n" + 
+		"<result>\n" + 
+		"<resultScore>\n" + 
+		"<language>en-us</language>\n" + 
+		"<textString>A</textString>\n" + 
+		"</resultScore>\n" + 
+		"</result>\n" + 
+		"</resultRecord>\n" + 
+		"</replaceResultRequest>\n" + 
+		"</imsx_POXBody>\n" + 
 		"</imsx_POXEnvelopeRequest>";
 
 	public static void runTest() {
@@ -495,7 +495,7 @@ public class IMSPOXRequest {
 		System.out.println("grade="+grade);
 
 		String desc = "Message received and validated operation="+pox.getOperation()+
-				" guid="+guid+" grade="+grade;
+			" guid="+guid+" grade="+grade;
 
 		String output = pox.getResponseUnsupported(desc);
 		System.out.println("---- Unsupported ----");
@@ -526,14 +526,14 @@ public class IMSPOXRequest {
 		lm.add(mm);
 		theMap.put("/readMembershipResponse/membershipRecord/membership/member", lm);
 
-                String theXml = XMLMap.getXMLFragment(theMap, true);
+		String theXml = XMLMap.getXMLFragment(theMap, true);
 		// System.out.println("th="+theXml);
 		output = pox.getResponseSuccess(desc,theXml);
 		System.out.println("---- Success String ----");
 		System.out.println(output);
 	}
 
-/*
+	/*
 
 roleType:
 Learner
@@ -551,50 +551,50 @@ Integer
 Real
 String
 
-        <readMembershipResponse
-            xmlns="http://www.imsglobal.org/services/lis/mms2p0/wsdl11/sync/imsmms_v2p0">
-            <membershipRecord>
-                <sourcedId>GUID.TYPE</sourcedId>
-                <membership>
-                    <collectionSourcedId>GUID.TYPE</collectionSourcedId>
-                    <membershipIdType>MEMBERSHIPIDTYPE.TYPE</membershipIdType>
-                    <member>
-                        <personSourcedId>GUID.TYPE</personSourcedId>
-                        <role>
-                            <roleType>STRING</roleType>
-                            <subRole>STRING</subRole>
-                            <timeFrame>
-                                <begin>DATETIME</begin>
-                                <end>DATETIME</end>
-                                <restrict>BOOLEAN</restrict>
-                                <adminPeriod>
-                                    <language>LANGUAGESET.TYPE</language>
-                                    <textString>STRING</textString>
-                                </adminPeriod>
-                            </timeFrame>
-                            <status>STATUS.TYPE</status>
-                            <dateTime>DATETIME</dateTime>
-                            <dataSource>GUID.TYPE</dataSource>
-                            <recordInfo>
-                                <extensionField>
-                                    <fieldName>STRING</fieldName>
-                                    <fieldType>FIELDTYPE.TYPE</fieldType>
-                                    <fieldValue>STRING</fieldValue>
-                                </extensionField>
-                            </recordInfo>
-                            <extension>
-                                <extensionField>
-                                    <fieldName>STRING</fieldName>
-                                    <fieldType>FIELDTYPE.TYPE</fieldType>
-                                    <fieldValue>STRING</fieldValue>
-                                </extensionField>
-                            </extension>
-                        </role>
-                    </member>
-                    <creditHours>INTEGER</creditHours>
-                    <dataSource>GUID.TYPE</dataSource>
-                </membership>
-            </membershipRecord>
-        </readMembershipResponse>
-*/
+<readMembershipResponse
+xmlns="http://www.imsglobal.org/services/lis/mms2p0/wsdl11/sync/imsmms_v2p0">
+<membershipRecord>
+<sourcedId>GUID.TYPE</sourcedId>
+<membership>
+<collectionSourcedId>GUID.TYPE</collectionSourcedId>
+<membershipIdType>MEMBERSHIPIDTYPE.TYPE</membershipIdType>
+<member>
+<personSourcedId>GUID.TYPE</personSourcedId>
+<role>
+<roleType>STRING</roleType>
+<subRole>STRING</subRole>
+<timeFrame>
+<begin>DATETIME</begin>
+<end>DATETIME</end>
+<restrict>BOOLEAN</restrict>
+<adminPeriod>
+<language>LANGUAGESET.TYPE</language>
+<textString>STRING</textString>
+</adminPeriod>
+</timeFrame>
+<status>STATUS.TYPE</status>
+<dateTime>DATETIME</dateTime>
+<dataSource>GUID.TYPE</dataSource>
+<recordInfo>
+<extensionField>
+<fieldName>STRING</fieldName>
+<fieldType>FIELDTYPE.TYPE</fieldType>
+<fieldValue>STRING</fieldValue>
+</extensionField>
+</recordInfo>
+<extension>
+<extensionField>
+<fieldName>STRING</fieldName>
+<fieldType>FIELDTYPE.TYPE</fieldType>
+<fieldValue>STRING</fieldValue>
+</extensionField>
+</extension>
+</role>
+</member>
+<creditHours>INTEGER</creditHours>
+<dataSource>GUID.TYPE</dataSource>
+</membership>
+</membershipRecord>
+</readMembershipResponse>
+	 */
 }

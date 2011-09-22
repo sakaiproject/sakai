@@ -14,16 +14,16 @@ import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
  */
 public class BLTIEventsEntityProvider extends AbstractEntityProvider implements AutoRegisterEntityProvider, Statisticable, Describeable {
 
-    public final static String PREFIX = "basiclti-events";
-    public final static String TOOL_ID = "sakai.basiclti";
-    
-    public final static String[] EVENT_KEYS = new String[] {
-    	"basiclti.launch",
-		"basiclti.config"
+	public final static String PREFIX = "basiclti-events";
+	public final static String TOOL_ID = "sakai.basiclti";
+
+	public final static String[] EVENT_KEYS = new String[] {
+		"basiclti.launch",
+			"basiclti.config"
 	};
 
-   
-    
+
+
 	public String getEntityPrefix() {
 		return PREFIX;
 	}

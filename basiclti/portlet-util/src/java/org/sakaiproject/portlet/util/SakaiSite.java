@@ -27,43 +27,43 @@ import java.net.URLEncoder;
  */
 public class SakaiSite {
 
-        public String id = null;
+	public String id = null;
 
-        public String title = null;
+	public String title = null;
 
-        public String host = null;
+	public String host = null;
 
-        public String session = null; // Session is optional
-	
-        public String toolId  = null; 
+	public String session = null; // Session is optional
 
-        public String toolTitle  = null; 
+	public String toolId  = null; 
 
-        public String toString() {
-            return title;
-        }
+	public String toolTitle  = null; 
 
-        public String toStringFull() {
-            return "title=" + title + " url=" + getUrl() + " toolTitle=" + toolTitle + " toolUrl=" + getToolUrl();
-        }
+	public String toString() {
+		return title;
+	}
 
-        // TODO: UrlEncode
-        public String getUrl() {
-	    if ( id == null ) return "null";
-            String retval = host + "/portal/worksite/" + URLEncoder.encode(id);
-            if (session != null)
-                retval = retval + "?sakai.session="
-                        + URLEncoder.encode(session);
-            return retval;
-        }
+	public String toStringFull() {
+		return "title=" + title + " url=" + getUrl() + " toolTitle=" + toolTitle + " toolUrl=" + getToolUrl();
+	}
 
-        // TODO: UrlEncode
-        public String getToolUrl() {
-            if ( toolId == null ) return "null";
-            String retval = host + "/portal/page/" + URLEncoder.encode(toolId);
-            if (session != null)
-                retval = retval + "?sakai.session="
-                        + URLEncoder.encode(session);
-            return retval;
-        }
+	// TODO: UrlEncode
+	public String getUrl() {
+		if ( id == null ) return "null";
+		String retval = host + "/portal/worksite/" + URLEncoder.encode(id);
+		if (session != null)
+			retval = retval + "?sakai.session="
+				+ URLEncoder.encode(session);
+		return retval;
+	}
+
+	// TODO: UrlEncode
+	public String getToolUrl() {
+		if ( toolId == null ) return "null";
+		String retval = host + "/portal/page/" + URLEncoder.encode(toolId);
+		if (session != null)
+			retval = retval + "?sakai.session="
+				+ URLEncoder.encode(session);
+		return retval;
+	}
 }

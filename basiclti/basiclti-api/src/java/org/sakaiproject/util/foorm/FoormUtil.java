@@ -34,56 +34,56 @@ import java.util.Properties;
  */
 public class FoormUtil {
 
-  /**
-   * getLong Convert various types to a Long
-   *
-   * @param o 
-   * @return Long - if there is something wrong, return -1
-   */
-  public static Long getLong(Object o) {
-    Long retval = getLongNull(o);
-    if (retval != null)
-      return retval;
-    return new Long(-1);
-  }
+	/**
+	 * getLong Convert various types to a Long
+	 *
+	 * @param o 
+	 * @return Long - if there is something wrong, return -1
+	 */
+	public static Long getLong(Object o) {
+		Long retval = getLongNull(o);
+		if (retval != null)
+			return retval;
+		return new Long(-1);
+	}
 
-  /**
-   * getLong Convert various types to a Long, returning null on error
-   *
-   * @param o Can be a Number or a String
-   * @return Long - if there is something wrong, return null
-   */
-  public static Long getLongNull(Object o) {
-    if (o == null)
-      return null;
-    if (o instanceof Number)
-      return new Long(((Number) o).longValue());
-    if (o instanceof String) {
-      try {
-        return new Long((String) o);
-      } catch (Exception e) {
-        return null;
-      }
-    }
-    return null;
-  }
+	/**
+	 * getLong Convert various types to a Long, returning null on error
+	 *
+	 * @param o Can be a Number or a String
+	 * @return Long - if there is something wrong, return null
+	 */
+	public static Long getLongNull(Object o) {
+		if (o == null)
+			return null;
+		if (o instanceof Number)
+			return new Long(((Number) o).longValue());
+		if (o instanceof String) {
+			try {
+				return new Long((String) o);
+			} catch (Exception e) {
+				return null;
+			}
+		}
+		return null;
+	}
 
-  /**
-   * getInt - Convert an object to an integer
-   * @param o Can be a Number or a String
-   * @return an integer value or -1 for error
-   */
-  public static int getInt(Object o) {
-    if (o instanceof String) {
-      try {
-        return (new Integer((String) o)).intValue();
-      } catch (Exception e) {
-        return -1;
-      }
-    }
-    if (o instanceof Number)
-      return ((Number) o).intValue();
-    return -1;
-  }
+	/**
+	 * getInt - Convert an object to an integer
+	 * @param o Can be a Number or a String
+	 * @return an integer value or -1 for error
+	 */
+	public static int getInt(Object o) {
+		if (o instanceof String) {
+			try {
+				return (new Integer((String) o)).intValue();
+			} catch (Exception e) {
+				return -1;
+			}
+		}
+		if (o instanceof Number)
+			return ((Number) o).intValue();
+		return -1;
+	}
 
 }

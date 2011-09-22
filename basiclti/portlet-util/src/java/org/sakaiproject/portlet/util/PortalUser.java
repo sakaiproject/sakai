@@ -37,156 +37,156 @@ import javax.portlet.PortletRequest;
 
 public class PortalUser {
 
-    // If we 
-    public static final int NOTSET = -1;
+	// If we 
+	public static final int NOTSET = -1;
 
-    public static final int UNKNOWN = 0;
-    public static final int PLUTO = 0;
-    public static final int SAKAI = 0;
+	public static final int UNKNOWN = 0;
+	public static final int PLUTO = 0;
+	public static final int SAKAI = 0;
 
-    public static final int GRIDSPHERE = 1;
+	public static final int GRIDSPHERE = 1;
 
-    public static final int UPORTAL = 2;
+	public static final int UPORTAL = 2;
 
-    public static final int ORACLEPORTAL = 3;
+	public static final int ORACLEPORTAL = 3;
 
-    private int portalType = NOTSET;
+	private int portalType = NOTSET;
 
-    private boolean doDebug = true;
+	private boolean doDebug = true;
 
-    // Leave not set
-    public PortalUser() {
-    }
-
-    // Ultimately - this should go away
-    public PortalUser(int portalType) {
-        this.portalType = portalType;
-    }
-
-    public int lookupPortalType(PortletRequest request)
-    {
-        String portalInfo = request.getPortalContext().getPortalInfo();
-        if ( portalInfo.toLowerCase().startsWith("sakai-charon") ) {
-	    return SAKAI;
-	} else {
-	    return PLUTO;  // Assume a Pluto-based portal
+	// Leave not set
+	public PortalUser() {
 	}
-    }
 
-    private void fixPortalType(PortletRequest request)
-    {
-	if ( portalType != NOTSET ) return;
-	portalType = lookupPortalType(request);
-	System.out.println("Setting portalType="+portalType);
-    }
+	// Ultimately - this should go away
+	public PortalUser(int portalType) {
+		this.portalType = portalType;
+	}
 
-    public String getUsername(PortletRequest request) {
-	fixPortalType(request);
-        String username = null;
-        Map userInfo = (Map) request.getAttribute(PortletRequest.USER_INFO);
+	public int lookupPortalType(PortletRequest request)
+	{
+		String portalInfo = request.getPortalContext().getPortalInfo();
+		if ( portalInfo.toLowerCase().startsWith("sakai-charon") ) {
+			return SAKAI;
+		} else {
+			return PLUTO;  // Assume a Pluto-based portal
+		}
+	}
 
-        switch (portalType) {
-        case GRIDSPHERE:
-            if (userInfo != null) {
-                username = (String) userInfo.get("user.name");
-            }
-            break;
-         case ORACLEPORTAL:
-            //System.out.println("userInfo" + userInfo); // Changes by Venkatesh for Oracle Portal
-            //System.out.println("Remote User=" + username); // Oracle portal is populating user name with [1] at the end
-            // the following code will get rid of the unnecessary characters
-            username = request.getRemoteUser();
-            if(username != null && username.indexOf("[") != -1)
-            {
-                if ( doDebug ) System.out.println("Modifying user name for Oracle Portal=" + username);
-         	int corruptIndex = username.indexOf('[');
-         	username = username.substring(0,corruptIndex);
-            }
-	    break;
-        case PLUTO:  
-        case UPORTAL:
-            username = request.getRemoteUser();
-            break;
-        }
-        if ( doDebug) System.out.println("Remote User=" + username);
-        return username;
-    }
+	private void fixPortalType(PortletRequest request)
+	{
+		if ( portalType != NOTSET ) return;
+		portalType = lookupPortalType(request);
+		System.out.println("Setting portalType="+portalType);
+	}
 
-    // for backwards compatibility
-    public String getPortalUsername(PortletRequest request) {
-        return getUsername(request);
-    }
+	public String getUsername(PortletRequest request) {
+		fixPortalType(request);
+		String username = null;
+		Map userInfo = (Map) request.getAttribute(PortletRequest.USER_INFO);
 
-    public String getFirstName(PortletRequest request) {
-	fixPortalType(request);
-        String firstName = null;
-        Map userInfo = (Map) request.getAttribute(PortletRequest.USER_INFO);
+		switch (portalType) {
+			case GRIDSPHERE:
+				if (userInfo != null) {
+					username = (String) userInfo.get("user.name");
+				}
+				break;
+			case ORACLEPORTAL:
+				//System.out.println("userInfo" + userInfo); // Changes by Venkatesh for Oracle Portal
+				//System.out.println("Remote User=" + username); // Oracle portal is populating user name with [1] at the end
+				// the following code will get rid of the unnecessary characters
+				username = request.getRemoteUser();
+				if(username != null && username.indexOf("[") != -1)
+				{
+					if ( doDebug ) System.out.println("Modifying user name for Oracle Portal=" + username);
+					int corruptIndex = username.indexOf('[');
+					username = username.substring(0,corruptIndex);
+				}
+				break;
+			case PLUTO:  
+			case UPORTAL:
+				username = request.getRemoteUser();
+				break;
+		}
+		if ( doDebug) System.out.println("Remote User=" + username);
+		return username;
+	}
 
-        switch (portalType) {
-        case GRIDSPHERE:
-            String fullName = getGridsphereFullName(request);
-            firstName = fullName.trim().substring(0, fullName.indexOf(" "));
-            break;
-	case PLUTO:
-        case UPORTAL:
-            if (userInfo != null) {
-                firstName = (String) userInfo.get("user.name.given");
-            }
-            break;
-        }
-	if ( doDebug ) System.out.println("First Name="+firstName);
-        return firstName;
-    }
+	// for backwards compatibility
+	public String getPortalUsername(PortletRequest request) {
+		return getUsername(request);
+	}
 
-    public String getLastName(PortletRequest request) {
-	fixPortalType(request);
-        String lastName = null;
-        Map userInfo = (Map) request.getAttribute(PortletRequest.USER_INFO);
+	public String getFirstName(PortletRequest request) {
+		fixPortalType(request);
+		String firstName = null;
+		Map userInfo = (Map) request.getAttribute(PortletRequest.USER_INFO);
 
-        switch (portalType) {
-        case GRIDSPHERE:
-            String fullName = getGridsphereFullName(request);
-            lastName = fullName.substring(fullName.trim().lastIndexOf(" ") + 1);
-            break;
-	case PLUTO:
-        case UPORTAL:
-            if (userInfo != null) { 
-                lastName =  (String) userInfo.get("user.name.family");
-            }
-            break;
-        }
-	if ( doDebug ) System.out.println("Last Name="+lastName);
-        return lastName;
-    }
+		switch (portalType) {
+			case GRIDSPHERE:
+				String fullName = getGridsphereFullName(request);
+				firstName = fullName.trim().substring(0, fullName.indexOf(" "));
+				break;
+			case PLUTO:
+			case UPORTAL:
+				if (userInfo != null) {
+					firstName = (String) userInfo.get("user.name.given");
+				}
+				break;
+		}
+		if ( doDebug ) System.out.println("First Name="+firstName);
+		return firstName;
+	}
 
-    public String getEmail(PortletRequest request) {
-	fixPortalType(request);
-        String email = null;
-        Map userInfo = (Map) request.getAttribute(PortletRequest.USER_INFO);
+	public String getLastName(PortletRequest request) {
+		fixPortalType(request);
+		String lastName = null;
+		Map userInfo = (Map) request.getAttribute(PortletRequest.USER_INFO);
 
-        switch (portalType) {
-        case GRIDSPHERE:
-            if (userInfo != null) {
-                email = (String) userInfo.get("user.email");
-            }
-            break;
-	case PLUTO:
-        case UPORTAL:
-            if (userInfo != null) {
-                email = (String) userInfo.get("user.home-info.online.email");
-            }
-        }
+		switch (portalType) {
+			case GRIDSPHERE:
+				String fullName = getGridsphereFullName(request);
+				lastName = fullName.substring(fullName.trim().lastIndexOf(" ") + 1);
+				break;
+			case PLUTO:
+			case UPORTAL:
+				if (userInfo != null) { 
+					lastName =  (String) userInfo.get("user.name.family");
+				}
+				break;
+		}
+		if ( doDebug ) System.out.println("Last Name="+lastName);
+		return lastName;
+	}
 
-	if ( doDebug ) System.out.println("EMail="+email);
-        return email;
-    }
+	public String getEmail(PortletRequest request) {
+		fixPortalType(request);
+		String email = null;
+		Map userInfo = (Map) request.getAttribute(PortletRequest.USER_INFO);
 
-    private String getGridsphereFullName(PortletRequest request) {
-        String fullName = null;
-        Map userInfo = (Map) request.getAttribute(PortletRequest.USER_INFO);
-        if (userInfo != null) {
-            fullName = (String) userInfo.get("user.name.full");
-        }
-        return fullName;
-    }
+		switch (portalType) {
+			case GRIDSPHERE:
+				if (userInfo != null) {
+					email = (String) userInfo.get("user.email");
+				}
+				break;
+			case PLUTO:
+			case UPORTAL:
+				if (userInfo != null) {
+					email = (String) userInfo.get("user.home-info.online.email");
+				}
+		}
+
+		if ( doDebug ) System.out.println("EMail="+email);
+		return email;
+	}
+
+	private String getGridsphereFullName(PortletRequest request) {
+		String fullName = null;
+		Map userInfo = (Map) request.getAttribute(PortletRequest.USER_INFO);
+		if (userInfo != null) {
+			fullName = (String) userInfo.get("user.name.full");
+		}
+		return fullName;
+	}
 }

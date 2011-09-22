@@ -73,32 +73,32 @@ public class FoormTest {
 		System.out.println(foorm.parseFormString("title:text:required=true:maxlength=25"));
 		System.out.println(foorm.parseFormString("description:textarea:required=true:rows=2:cols=25"));
 		System.out.println(foorm.parseFormString("sendemail:radio:requred=true:label=bl_sendemail:choices=on,off,part"));
-		
+
 		HashMap row = new HashMap(); row.put("title", "Fred"); row.put("description","Desc");
 		row.put("sendemail", new Integer(1)); 
 		row.put("acceptgrades", new Integer(1));
 		row.put("preferheight", new Integer(100));
-		
+
 		System.out.println(foorm.getField(row,"title"));
-		
+
 		System.out.println(foorm.formInput(row,"title:text:required=true:maxlength=25"));
 		System.out.println(foorm.formInput(row,"description:textarea:required=true:rows=2:cols=25"));
 		System.out.println(foorm.formInput(row,"sendemail:radio:requred=true:label=bl_sendemail:choices=on,off,part"));
-		
+
 		System.out.println(foorm.formInput(row, test_form));
-		
+
 		System.out.println(foorm.formOutput(row, test_form, null));
-		
+
 		Properties pro = new Properties(); 
 		pro.setProperty("title","blah");
 		pro.setProperty("acceptgrades","blah"); 
 		pro.setProperty("preferheight","1"); 
 		pro.setProperty("homepage","blah");
 		pro.setProperty("webpage","http://www.cnn.com/");
-		
+
 		// Properties parms, String[] formDefinition, boolean forInsert, Object loader, SortedMap<String,String> errors
 		System.out.println(foorm.formValidate(pro, test_form, true, null, null));
-		
+
 		HashMap<String, Object> rm = new HashMap<String,Object> ();
 
 		// Object parms, String[] formDefinition, Object loader, boolean forInsert, Map<String, Object> dataMap, 
@@ -106,7 +106,7 @@ public class FoormTest {
 		System.out.println(foorm.formExtract(pro, test_form, null, false, rm, null));
 		System.out.println("--- Result Map ---"); 
 		System.out.println(rm);
-		
+
 		HashMap crow = new HashMap(); 
 		crow.put("allowtitle", new Integer(0)); 
 		// Should suppress 
@@ -117,10 +117,10 @@ public class FoormTest {
 		// Should suppress 
 		crow.put("acceptgrades", new Integer(2)); 
 		// crow.put("preferheight", new Integer(100)); (Leave alone - should be allowed)
-		
+
 		String [] ff = foorm.filterForm(crow, test_form); 
 		System.out.println(Arrays.toString(ff));
-		
+
 		System.out.println("--- Required I18N Strings ---"); 
 		ArrayList<String> strings = foorm.utilI18NStrings(test_form); 
 		System.out.println(strings);
@@ -130,23 +130,23 @@ public class FoormTest {
 	public synchronized void query(Connection conn, String expression) throws SQLException {
 		Statement st = null;
 		ResultSet rs = null;
-		
+
 		st = conn.createStatement();         // statement objects can be reused with
 		rs = st.executeQuery(expression);    // run the query
-		
+
 		// do something with the result set.
 		dump(rs);
 		dumpMeta(rs);
 		st.close();
 	}
-	
+
 	//use for SQL commands CREATE, DROP, INSERT and UPDATE
 	public synchronized void update(Connection conn, String expression) throws SQLException {
 		Statement st = null;
 		st = conn.createStatement();    // statements
 		int i = st.executeUpdate(expression);    // run the query
 		if (i == -1) {
-		    System.out.println("db error : " + expression);
+			System.out.println("db error : " + expression);
 		}
 		st.close();
 	} 
@@ -161,7 +161,7 @@ public class FoormTest {
 				o = rs.getObject(i + 1);
 				System.out.print(o.toString() + " ");
 			}
-		
+
 			System.out.println(" ");
 		}
 	}
@@ -174,7 +174,7 @@ public class FoormTest {
 			System.out.println(" type="+md.getColumnClassName(i));
 		}
 		System.out.println() ;
-		
+
 		// Loop through the result set
 		while( rs.next() ) {
 			for( int i = 1; i <= md.getColumnCount(); i++ ) System.out.print( rs.getString(i) + " " ) ;
@@ -184,7 +184,7 @@ public class FoormTest {
 
 	public Connection getHSqlDatabase() {
 		try {
-	        	Class.forName("org.hsqldb.jdbcDriver");
+			Class.forName("org.hsqldb.jdbcDriver");
 			conn = DriverManager.getConnection("jdbc:hsqldb:file:testdb", "sa", "");
 			System.out.println("Got Connection="+conn);
 			return conn;
@@ -212,13 +212,13 @@ public class FoormTest {
 			ex2.printStackTrace();
 			assert false;
 		}
-		
+
 		try {
 			update(conn,"INSERT INTO sample_table(str_col,num_col) VALUES('Ford', 100)");
 			update(conn,"INSERT INTO sample_table(str_col,num_col) VALUES('Toyota', 200)");
 			update(conn,"INSERT INTO sample_table(str_col,num_col) VALUES('Honda', 300)");
 			update(conn,"INSERT INTO sample_table(str_col,num_col) VALUES('GM', 400)");
-			
+
 			// do a query
 			query(conn,"SELECT * FROM sample_table WHERE num_col < 250");
 		} catch (SQLException ex3) {
