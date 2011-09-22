@@ -103,6 +103,8 @@
         <sakai.entitybroker.version>1.5-SNAPSHOT</sakai.entitybroker.version>
         <sakai.hybrid.version>1.2-SNAPSHOT</sakai.hybrid.version>
         <sakai.jsf.version>2.9-SNAPSHOT</sakai.jsf.version>
+        <sakai.lessonbuilder.version>1.4-SNAPSHOT</sakai.lessonbuilder.version>
+        <sakai.mailsender.version>1.7.0-SNAPSHOT</sakai.mailsender.version>
         <sakai.message.version>2.9-SNAPSHOT</sakai.message.version>
         <sakai.msgcntr.version>2.9-SNAPSHOT</sakai.msgcntr.version>
         <sakai.portal.version>2.9-SNAPSHOT</sakai.portal.version>
