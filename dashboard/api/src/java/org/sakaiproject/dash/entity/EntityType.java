@@ -158,22 +158,6 @@ public interface EntityType {
 	public List<List<String>> getOrder(String entityReference, String localeCode);
 	
 	/**
-	 * Determine whether the entity has a release date in the future and return 
-	 * that date if so.  Otherwise return null.
-	 * @param entityReference
-	 * @return
-	 */
-	public Date getReleaseDate(String entityReference);
-
-	/**
-	 * Determine whether the entity has a retract date in the future and return 
-	 * that date if so.  Otherwise return null.
-	 * @param entityReference
-	 * @return
-	 */
-	public Date getRetractDate(String entityReference);
-
-	/**
 	 * Find out whether a particular entity is "available", meaning it is not hidden 
 	 * or restricted due to some form of conditional release.
 	 * @param entityReference

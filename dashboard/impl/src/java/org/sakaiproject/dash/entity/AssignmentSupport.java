@@ -255,16 +255,6 @@ public class AssignmentSupport {
 			return true;
 		}
 
-		public Date getReleaseDate(String entityReference) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		public Date getRetractDate(String entityReference) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-		
 		public String getString(String key) {
 			ResourceLoader rl = new ResourceLoader("dash_entity");
 			return rl.getString(key);

@@ -106,9 +106,9 @@ public interface DashboardLogic {
 	
 	public Map<String, Object> getEntityMapping(String entityType, String entityReference, Locale locale);
 
-	public Date getReleaseDate(String entityReference, String entityTypeId);
+	//public Date getReleaseDate(String entityReference, String entityTypeId);
 	
-	public Date getRetractDate(String entityReference, String entityTypeId);
+	//public Date getRetractDate(String entityReference, String entityTypeId);
 	
 	/**
 	 * Retrieve a localized string value specific to a particular type of entity using

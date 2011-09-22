@@ -358,35 +358,35 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return map;
 	}
 
-	public Date getReleaseDate(String entityReference, String entityTypeId) {
-		Date date = null;
-		if(entityReference == null || entityTypeId == null) {
-			logger.warn("getReleaseDate() invoked with null parameter: " + entityReference + " :: " + entityTypeId);
-		} else {
-			EntityType entityType = this.entityTypes.get(entityTypeId);
-			if(entityType == null) {
-				logger.warn("getReleaseDate() invalid entityTypeId: " + entityTypeId);
-			} else {
-				date = entityType.getReleaseDate(entityReference);
-			}
-		}
-		return date;
-	}
-	
-	public Date getRetractDate(String entityReference, String entityTypeId) {
-		Date date = null;
-		if(entityReference == null || entityTypeId == null) {
-			logger.warn("getRetractDate() invoked with null parameter: " + entityReference + " :: " + entityTypeId);
-		} else {
-			EntityType entityType = this.entityTypes.get(entityTypeId);
-			if(entityType == null) {
-				logger.warn("getRetractDate() invalid entityTypeId: " + entityTypeId);
-			} else {
-				date = entityType.getRetractDate(entityReference);
-			}
-		}
-		return date;
-	}
+//	public Date getReleaseDate(String entityReference, String entityTypeId) {
+//		Date date = null;
+//		if(entityReference == null || entityTypeId == null) {
+//			logger.warn("getReleaseDate() invoked with null parameter: " + entityReference + " :: " + entityTypeId);
+//		} else {
+//			EntityType entityType = this.entityTypes.get(entityTypeId);
+//			if(entityType == null) {
+//				logger.warn("getReleaseDate() invalid entityTypeId: " + entityTypeId);
+//			} else {
+//				date = entityType.getReleaseDate(entityReference);
+//			}
+//		}
+//		return date;
+//	}
+//	
+//	public Date getRetractDate(String entityReference, String entityTypeId) {
+//		Date date = null;
+//		if(entityReference == null || entityTypeId == null) {
+//			logger.warn("getRetractDate() invoked with null parameter: " + entityReference + " :: " + entityTypeId);
+//		} else {
+//			EntityType entityType = this.entityTypes.get(entityTypeId);
+//			if(entityType == null) {
+//				logger.warn("getRetractDate() invalid entityTypeId: " + entityTypeId);
+//			} else {
+//				date = entityType.getRetractDate(entityReference);
+//			}
+//		}
+//		return date;
+//	}
 
 	public String getString(String key, String entityTypeId) {
 		String str = null;

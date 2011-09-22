@@ -61,6 +61,46 @@ public class AnnouncementSupport{
 		this.dashboardLogic.registerEventProcessor(new AnnouncementRemoveOwnEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new AnnouncementUpdateTitleEventProcessor());
 	}
+	
+	public Date getReleaseDate(String entityReference) {
+		Date releaseDate = null;
+		AnnouncementMessage announcement = (AnnouncementMessage) sakaiProxy.getEntity(entityReference);
+		ResourceProperties props = announcement.getProperties();
+		Time releaseTime = null;
+		try {
+			releaseTime = props.getTimeProperty(SakaiProxy.ANNOUNCEMENT_RELEASE_DATE);
+		} catch (EntityPropertyNotDefinedException e) {
+			// do nothing -- no release date set, so return null
+		} catch (EntityPropertyTypeException e) {
+			logger.warn("Problem getting release date for announcement " + entityReference, e);
+		}
+		if(releaseTime != null) {
+			releaseDate = new Date(releaseTime.getTime());
+		}
+		logger.debug("getReleaseDate() releaseDate: " + releaseDate);
+		return releaseDate;
+	}
+
+	public Date getRetractDate(String entityReference) {
+		Date retractDate = null;
+		AnnouncementMessage announcement = (AnnouncementMessage) sakaiProxy.getEntity(entityReference);
+		ResourceProperties props = announcement.getProperties();
+		
+		Time retractTime = null;
+		try {
+			retractTime = props.getTimeProperty(SakaiProxy.ANNOUNCEMENT_RETRACT_DATE);
+		} catch (EntityPropertyNotDefinedException e) {
+			// do nothing -- no retract date set, so return null
+		} catch (EntityPropertyTypeException e) {
+			logger.warn("Problem getting retract date for announcement " + entityReference, e);
+		}
+		if(retractTime != null) {
+			retractDate = new Date(retractTime.getTime());
+		}
+		logger.debug("getRetractDate() retractDate: " + retractDate);
+		return retractDate;
+	}
+	
 	/**
 	 * Inner class: AnnouncementEntityType
 	 * @author zqian
@@ -190,13 +230,13 @@ public class AnnouncementSupport{
 					return false;
 				}
 				
-				Date releaseDate = this.getReleaseDate(entityReference);
+				Date releaseDate = getReleaseDate(entityReference);
 				logger.debug("isAvailable() releaseDate: " + releaseDate);
 				if(releaseDate != null && releaseDate.after(new Date())) {
 					return false;
 				}
 				
-				Date retractDate = this.getRetractDate(entityReference);
+				Date retractDate = getRetractDate(entityReference);
 				logger.debug("isAvailable() retractDate: " + retractDate);
 				if(retractDate != null && retractDate.before(new Date())) {
 					return false;
@@ -206,45 +246,6 @@ public class AnnouncementSupport{
 			return false;
 		}
 
-		public Date getReleaseDate(String entityReference) {
-			Date releaseDate = null;
-			AnnouncementMessage announcement = (AnnouncementMessage) sakaiProxy.getEntity(entityReference);
-			ResourceProperties props = announcement.getProperties();
-			Time releaseTime = null;
-			try {
-				releaseTime = props.getTimeProperty(SakaiProxy.ANNOUNCEMENT_RELEASE_DATE);
-			} catch (EntityPropertyNotDefinedException e) {
-				// do nothing -- no release date set, so return null
-			} catch (EntityPropertyTypeException e) {
-				logger.warn("Problem getting release date for announcement " + entityReference, e);
-			}
-			if(releaseTime != null) {
-				releaseDate = new Date(releaseTime.getTime());
-			}
-			logger.debug("getReleaseDate() releaseDate: " + releaseDate);
-			return releaseDate;
-		}
-
-		public Date getRetractDate(String entityReference) {
-			Date retractDate = null;
-			AnnouncementMessage announcement = (AnnouncementMessage) sakaiProxy.getEntity(entityReference);
-			ResourceProperties props = announcement.getProperties();
-			
-			Time retractTime = null;
-			try {
-				retractTime = props.getTimeProperty(SakaiProxy.ANNOUNCEMENT_RETRACT_DATE);
-			} catch (EntityPropertyNotDefinedException e) {
-				// do nothing -- no retract date set, so return null
-			} catch (EntityPropertyTypeException e) {
-				logger.warn("Problem getting retract date for announcement " + entityReference, e);
-			}
-			if(retractTime != null) {
-				retractDate = new Date(retractTime.getTime());
-			}
-			logger.debug("getRetractDate() retractDate: " + retractDate);
-			return retractDate;
-		}
-		
 		public String getString(String key) {
 			ResourceLoader rl = new ResourceLoader("dash_entity");
 			return rl.getString(key);
@@ -296,13 +297,13 @@ public class AnnouncementSupport{
 				NewsItem newsItem = dashboardLogic.createNewsItem(ann.getAnnouncementHeader().getSubject(), event.getEventTime(), event.getResource(), accessUrl, context, sourceType);
 				if(dashboardLogic.isAvailable(newsItem.getEntityReference(), IDENTIFIER)) {
 					dashboardLogic.createNewsLinks(newsItem);
-					Date retractDate = dashboardLogic.getRetractDate(newsItem.getEntityReference(), IDENTIFIER);
+					Date retractDate = getRetractDate(newsItem.getEntityReference());
 					if(retractDate != null && retractDate.after(new Date())) {
 						dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), IDENTIFIER, retractDate);
 					}
 				} else {
 					
-					Date releaseDate = dashboardLogic.getReleaseDate(newsItem.getEntityReference(), IDENTIFIER);
+					Date releaseDate = getReleaseDate(newsItem.getEntityReference());
 					if(releaseDate != null && releaseDate.after(new Date())) {
 						dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), IDENTIFIER, releaseDate);
 					}

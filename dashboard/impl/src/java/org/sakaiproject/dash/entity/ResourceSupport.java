@@ -67,6 +67,42 @@ public class ResourceSupport {
 		this.dashboardLogic.registerEventProcessor(new ContentRemoveEventProcessor());
 	}
 	
+	public Date getReleaseDate(String entityReference) {
+		Date releaseDate = null;
+		if(entityReference == null) {
+			logger.warn("isAvailable() invoked with null entity reference");
+		} else {
+			ContentResource resource = (ContentResource) sakaiProxy.getEntity(entityReference);
+			if(resource == null) {
+				logger.warn("getReleaseDate() problem retrieving resource with entity reference " + entityReference);
+			} else {
+				Time releaseTime = resource.getReleaseDate();
+				if(releaseTime != null) {
+					releaseDate = new Date(releaseTime.getTime());
+				}
+			}
+		}
+		return releaseDate;
+	}
+
+	public Date getRetractDate(String entityReference) {
+		Date retractDate = null;
+		if(entityReference == null) {
+			logger.warn("isAvailable() invoked with null entity reference");
+		} else {
+			ContentResource resource = (ContentResource) sakaiProxy.getEntity(entityReference);
+			if(resource == null) {
+				logger.warn("getRetractDate() problem retrieving resource with entity reference " + entityReference);
+			} else {
+				Time retractTime = resource.getRetractDate();
+				if(retractTime != null) {
+					retractDate = new Date(retractTime.getTime());
+				}
+			}
+		}
+		return retractDate;
+	}
+
 
 	
 	public class ResourceEntityType implements EntityType {
@@ -198,42 +234,6 @@ public class ResourceSupport {
 			return isAvailable;
 		}
 
-		public Date getReleaseDate(String entityReference) {
-			Date releaseDate = null;
-			if(entityReference == null) {
-				logger.warn("isAvailable() invoked with null entity reference");
-			} else {
-				ContentResource resource = (ContentResource) sakaiProxy.getEntity(entityReference);
-				if(resource == null) {
-					logger.warn("getReleaseDate() problem retrieving resource with entity reference " + entityReference);
-				} else {
-					Time releaseTime = resource.getReleaseDate();
-					if(releaseTime != null) {
-						releaseDate = new Date(releaseTime.getTime());
-					}
-				}
-			}
-			return releaseDate;
-		}
-
-		public Date getRetractDate(String entityReference) {
-			Date retractDate = null;
-			if(entityReference == null) {
-				logger.warn("isAvailable() invoked with null entity reference");
-			} else {
-				ContentResource resource = (ContentResource) sakaiProxy.getEntity(entityReference);
-				if(resource == null) {
-					logger.warn("getRetractDate() problem retrieving resource with entity reference " + entityReference);
-				} else {
-					Time retractTime = resource.getRetractDate();
-					if(retractTime != null) {
-						retractDate = new Date(retractTime.getTime());
-					}
-				}
-			}
-			return retractDate;
-		}
-
 		public String getString(String key) {
 			ResourceLoader rl = new ResourceLoader("dash_entity");
 			return rl.getString(key);
@@ -363,13 +363,13 @@ public class ResourceSupport {
 					NewsItem newsItem = dashboardLogic.createNewsItem(title , eventTime, resource.getReference(), resource.getUrl(), context, sourceType);
 					if(dashboardLogic.isAvailable(newsItem.getEntityReference(), ENTITY_TYPE_IDENTIFIER)) {
 						dashboardLogic.createNewsLinks(newsItem);
-						Date retractDate = dashboardLogic.getRetractDate(newsItem.getEntityReference(), ENTITY_TYPE_IDENTIFIER);
+						Date retractDate = getRetractDate(newsItem.getEntityReference());
 						if(retractDate != null && retractDate.after(new Date())) {
 							dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), ENTITY_TYPE_IDENTIFIER, retractDate);
 						}
 					} else {
 						
-						Date releaseDate = dashboardLogic.getReleaseDate(newsItem.getEntityReference(), ENTITY_TYPE_IDENTIFIER);
+						Date releaseDate = getReleaseDate(newsItem.getEntityReference());
 						if(releaseDate != null && releaseDate.after(new Date())) {
 							dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), ENTITY_TYPE_IDENTIFIER, releaseDate);
 						}

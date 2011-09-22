@@ -77,14 +77,6 @@ public class ScheduleSupport{
 		}
 
 		/* (non-Javadoc)
-		 * @see org.sakaiproject.dash.entity.EntityType#getEntityLinkStrategy(java.lang.String)
-		 */
-		public EntityLinkStrategy getEntityLinkStrategy(String entityReference) {
-			
-			return EntityLinkStrategy.SHOW_PROPERTIES;
-		}
-
-		/* (non-Javadoc)
 		 * @see org.sakaiproject.dash.entity.EntityType#getValues(java.lang.String, java.lang.String)
 		 */
 		public Map<String, Object> getValues(String entityReference,
@@ -168,14 +160,6 @@ public class ScheduleSupport{
 			dashboardLogic.registerEntityType(this);
 		}
 
-		public Date getReleaseDate(String entityReference) {
-			return null;
-		}
-		
-		public Date getRetractDate(String entityReference) {
-			return null;
-		}
-		
 		public boolean isAvailable(String entityReference) {
 			return true;
 		}
