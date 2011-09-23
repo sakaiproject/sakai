@@ -388,16 +388,19 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 //		return date;
 //	}
 
-	public String getString(String key, String entityTypeId) {
+	public String getString(String key, String dflt, String entityTypeId) {
 		String str = null;
 		if(key == null || entityTypeId == null) {
 			logger.warn("getString() invoked with null parameter: " + key + " :: " + entityTypeId);
 		} else {
+			if(dflt == null) {
+				dflt = "";
+			}
 			EntityType entityType = this.entityTypes.get(entityTypeId);
 			if(entityType == null) {
-				logger.warn("getRetractDate() invalid entityTypeId: " + entityTypeId);
+				logger.warn("getString() invalid entityTypeId: " + entityTypeId);
 			} else {
-				str = entityType.getString(key);
+				str = entityType.getString(key, dflt);
 			}
 		}
 		return str;

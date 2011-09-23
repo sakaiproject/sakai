@@ -226,9 +226,9 @@ public class ResourceSupport {
 			return isAvailable;
 		}
 
-		public String getString(String key) {
+		public String getString(String key, String dflt) {
 			ResourceLoader rl = new ResourceLoader("dash_entity");
-			return rl.getString(key);
+			return rl.getString(key, dflt);
 		}
 	}
 

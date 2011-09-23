@@ -161,8 +161,9 @@ public interface EntityType {
 	/**
 	 * Retrieve a single string from a properties bundle.
 	 * @param key
+	 * @param dflt TODO
 	 * @return
 	 */
-	public String getString(String key);
+	public String getString(String key, String dflt);
 
 }

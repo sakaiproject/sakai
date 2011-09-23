@@ -247,9 +247,10 @@ public class AssignmentSupport {
 			return true;
 		}
 
-		public String getString(String key) {
+		public String getString(String key, String dflt) {
+			logger.debug("getString() " + key);
 			ResourceLoader rl = new ResourceLoader("dash_entity");
-			return rl.getString(key);
+			return rl.getString(key, dflt);
 		}
 	}
 	

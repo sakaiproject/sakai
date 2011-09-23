@@ -114,10 +114,11 @@ public interface DashboardLogic {
 	 * Retrieve a localized string value specific to a particular type of entity using
 	 * the provided key. 
 	 * @param key
+	 * @param dflt TODO
 	 * @param entityTypeId
 	 * @return the value or null if no value is found
 	 */
-	public String getString(String key, String entityTypeId);
+	public String getString(String key, String dflt, String entityTypeId);
 
 	/**
 	 * Check whether an entity is fully available to users with permission to access it 
