@@ -511,6 +511,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		boolean published = site.isPublished();
 		String type = site.getType();
 
+		theMap.put("siteId", site.getId());
 		theMap.put("pageNavPublished", Boolean.valueOf(published));
 		theMap.put("pageNavType", type);
 		theMap.put("pageNavIconUrl", iconUrl);
