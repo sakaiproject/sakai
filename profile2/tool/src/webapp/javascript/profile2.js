@@ -38,8 +38,16 @@ function fixWindowVertical() {
 	
 /* alternate method to shrink or grow the iframe */
 function resizeFrame(updown){	 
-    if (top.location != self.location) {	 
-        var frame = parent.document.getElementById(window.name);	 
+    
+	if (top.location != self.location) {
+    	//PRFL-672 check context, ie if we are in a remote iframe (Basic LTI)
+		try {
+			if(parent.document){
+				var frame = parent.document.getElementById(window.name);	
+			}
+		} catch (e) {
+			return;
+		}
     }	 
     if (frame) {	 
         if (updown == 'shrink') {	 
