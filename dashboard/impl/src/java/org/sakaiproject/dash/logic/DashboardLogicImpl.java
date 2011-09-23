@@ -389,13 +389,13 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 //	}
 
 	public String getString(String key, String dflt, String entityTypeId) {
-		String str = null;
+		if(dflt == null) {
+			dflt = "";
+		}
+		String str = dflt;
 		if(key == null || entityTypeId == null) {
 			logger.warn("getString() invoked with null parameter: " + key + " :: " + entityTypeId);
 		} else {
-			if(dflt == null) {
-				dflt = "";
-			}
 			EntityType entityType = this.entityTypes.get(entityTypeId);
 			if(entityType == null) {
 				logger.warn("getString() invalid entityTypeId: " + entityTypeId);

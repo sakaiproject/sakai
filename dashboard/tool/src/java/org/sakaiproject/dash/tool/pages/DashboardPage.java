@@ -79,7 +79,7 @@ public class DashboardPage extends BasePage {
 	                String itemType = cItem.getSourceType().getIdentifier();
 	                item.add(new Label("itemType", itemType));
 	                item.add(new Label("entityReference", cItem.getEntityReference()));
-	                String calendarTimeLabel = dashboardLogic.getString(cItem.getCalendarTimeLabelKey(), itemType);
+	                String calendarTimeLabel = dashboardLogic.getString(cItem.getCalendarTimeLabelKey(), "", itemType);
 	                if(calendarTimeLabel == null) {
 	                	calendarTimeLabel = "";
 	                }
