@@ -243,8 +243,18 @@ public class AssignmentSupport {
 		}
 		
 		public boolean isAvailable(String entityReference) {
-			// TODO Auto-generated method stub
-			return true;
+			Assignment assn = (Assignment) sakaiProxy.getEntity(entityReference);
+			Date openTime = new Date(assn.getOpenTime().getTime());
+			
+			if (openTime != null && openTime.after(new Date()))
+			{
+				// assignment is not open yet, don't create links
+				return false;
+			}
+			else
+			{
+				return true;
+			}
 		}
 
 		public String getString(String key, String dflt) {
@@ -281,40 +291,29 @@ public class AssignmentSupport {
 				if(context == null) {
 					context = dashboardLogic.createContext(event.getContext());
 				}
-				
-				/** consult in assignment entity provider to get the deepLink **/
-				String assignmentUrl = "";
-				Map<String, Object> assignData = new HashMap<String, Object>();
-			    Map<String, Object> params = new HashMap<String, Object>();
-			    
-			    // get the link as student view first
-			    params.put("allowReadAssignment", Boolean.TRUE);
-			    params.put("allowAddAssignment", Boolean.FALSE);
-			    params.put("allowSubmitAssignment", Boolean.TRUE);
-	            // pass in the assignment reference to get the assignment data we need
-	            //ActionReturn ret = entityBroker.executeCustomAction(assn.getReference(), "deepLinkWithPermissions", params, null);
-	            //if (ret != null && ret.getEntityData() != null) {
-	            //        Object returnData = ret.getEntityData().getData();
-	            //        assignData = (Map<String, Object>)returnData;
-	            //    }
-	            //assignmentUrl = (String) assignData.get("assignmentUrl");
 	            
 				SourceType sourceType = dashboardLogic.getSourceType("assignment");
 				if(sourceType == null) {
 					sourceType = dashboardLogic.createSourceType("assignment", SakaiProxy.PERMIT_ASSIGNMENT_ACCESS, EntityLinkStrategy.SHOW_PROPERTIES);
 				}
 				
+				String assnReference = assn.getReference();
 				
-				NewsItem newsItem = dashboardLogic.createNewsItem(assn.getTitle(), event.getEventTime(), assn.getReference(), assignmentUrl, context, sourceType);
-				dashboardLogic.createNewsLinks(newsItem);
-			
-				// TODO: Third parameter should be a key for a label such as "Due Date: " or "Accept Until: " 
-				// from dash_entity properties bundle for use in the dashboard list
-				CalendarItem calendarItem = dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getDueTime().getTime()), "assignment.due.date", assn.getReference(), assignmentUrl, context, sourceType);
-				dashboardLogic.createCalendarLinks(calendarItem);
-				if(assn.getCloseTime() != null && assn.getCloseTime().getTime() != assn.getDueTime().getTime()) {
-					CalendarItem calendarItem2 = dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getCloseTime().getTime()), "assignment.close.date", assn.getReference(), assignmentUrl, context, sourceType);
-					dashboardLogic.createCalendarLinks(calendarItem2);
+				NewsItem newsItem = dashboardLogic.createNewsItem(assn.getTitle(), event.getEventTime(), assnReference, "", context, sourceType);
+				CalendarItem calendarDueDateItem = dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getDueTime().getTime()), "assignment.due.date", assnReference, "", context, sourceType);
+				CalendarItem calendarCloseDateItem = dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getCloseTime().getTime()), "assignment.close.date", assnReference, "", context, sourceType);
+				
+				if(dashboardLogic.isAvailable(assnReference, IDENTIFIER)) {
+					// if the assignment is open, add the news links
+					dashboardLogic.createNewsLinks(newsItem);
+					dashboardLogic.createCalendarLinks(calendarDueDateItem);
+					dashboardLogic.createCalendarLinks(calendarCloseDateItem);
+					// currently, we don't retract assignment item once it is available
+				}
+				else
+				{
+					// assignment is not open yet, schedule for check later
+					dashboardLogic.scheduleAvailabilityCheck(assnReference, IDENTIFIER, new Date(assn.getOpenTime().getTime()));
 				}
 				
 			} else {

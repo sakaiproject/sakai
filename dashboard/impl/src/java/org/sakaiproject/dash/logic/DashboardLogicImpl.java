@@ -681,9 +681,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 						// need to add links
 						List<CalendarItem> calendarItems = dao.getCalendarItems(check.getEntityReference());
 						for(CalendarItem calendarItem : calendarItems) {
-						if(calendarItem != null) {
-							createCalendarLinks(calendarItem);
-						}
+							if(calendarItem != null) {
+								createCalendarLinks(calendarItem);
+							}
 						}
 						
 						NewsItem newsItem = getNewsItem(check.getEntityReference());
