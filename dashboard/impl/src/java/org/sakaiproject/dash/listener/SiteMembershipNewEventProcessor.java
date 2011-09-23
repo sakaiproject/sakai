@@ -50,18 +50,18 @@ public class SiteMembershipNewEventProcessor implements EventProcessor {
 	 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
 	 */
 	public void processEvent(Event event) {
+		String context = event.getContext();
 		// here is the format of resource string. We need to parse it to get uid, role, provide, group id separately
 		//uid=8f6f32b0-2a25-4661-9be8-6cda2b479e14;role=access;active=true;provided=false
 		String uid = null;
 		String role = null;
 		String active = null;
 		String provided = null;
-		
 		String resource = event.getResource();
 		String parts[] = resource.split(";");
 		if( parts != null) {
 			for(String pair : parts) {
-				String entries[] = resource.split("=");
+				String entries[] = pair.split("=");
 				if (entries != null)
 				{
 					if ("uid".equals(entries[0]))
@@ -83,36 +83,19 @@ public class SiteMembershipNewEventProcessor implements EventProcessor {
 				}
 			}
 		}
-
-		Context context = this.dashboardLogic.getContext(event.getContext());
-		if(context == null) {
-			context = this.dashboardLogic.createContext(event.getContext());
-		}
 		
-		// Zhen:
-		// if I understand correctly, we will have a user-id and a site-id with semantics 
-		// indicating this user now belongs to this site. This method will then call a 
+		// now we have user id and active status for the context. This method will then call a 
 		// method in DashboardLogic to add links for this user to dashboard items related
 		// to this site. The implementation of the new DashboardLogic method will iterate
 		// through all CalendarItems and NewsItems related to that site, check permissions
 		// for this user based on the accessPermission defined in the SourceType object 
 		// related to the dashboard item, and add a link if the user has that permission. 
 		// Is that right? 
-		
-		// see dashboardLogic.addCalendarLinks(String sakaiUserId, String contextId)
-		// see dashboardLogic.addNewsLinks(String sakaiUserId, String contextId)
-		
-		
-		/*SourceType sourceType = this.dashboardLogic.getSourceType("assignment");
-		if(sourceType == null) {
-			sourceType = this.dashboardLogic.createSourceType("assignment", SakaiProxy.PERMIT_ASSIGNMENT_ACCESS);
+		if (uid != null && active != null && active.equals("true"))
+		{
+			dashboardLogic.addCalendarLinks(uid, context);
+			dashboardLogic.addNewsLinks(uid, context);
 		}
-		
-		NewsItem newsItem = this.dashboardLogic.createNewsItem(assn.getTitle(), event.getEventTime(), assn.getReference(), assn.getUrl(), context, sourceType);
-		this.dashboardLogic.createNewsLinks(newsItem);
-	
-		CalendarItem calendarItem = this.dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getDueTime().getTime()), assn.getReference(), assn.getUrl(), context, sourceType);
-		this.dashboardLogic.createCalendarLinks(calendarItem);*/
 	}
 
 	public void init() {

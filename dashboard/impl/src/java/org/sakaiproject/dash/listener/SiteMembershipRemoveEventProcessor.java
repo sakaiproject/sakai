@@ -59,7 +59,7 @@ public class SiteMembershipRemoveEventProcessor implements EventProcessor {
 		String parts[] = resource.split(";");
 		if( parts != null) {
 			for(String pair : parts) {
-				String entries[] = resource.split("=");
+				String entries[] = pair.split("=");
 				if (entries != null)
 				{
 					if ("uid".equals(entries[0]))
@@ -72,8 +72,9 @@ public class SiteMembershipRemoveEventProcessor implements EventProcessor {
 		String context = event.getContext();
 		if (uid != null && context != null)
 		{
-			
-			List<CalendarItem> calendarItems = this.dashboardLogic.getCalendarItems(uid, context);
+			// now that we know the user is removed from the context, we will remove all caldendar item links and news item links
+			this.dashboardLogic.removeNewsLinks(uid, context);
+			this.dashboardLogic.removeCalendarLinks(uid, context);
 		}
 
 	}
