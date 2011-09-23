@@ -55,10 +55,32 @@
 			<resource>
 				<directory>${basedir}/src/bundle</directory>
 				<includes>
+					<include>**/auto.sakai.properties</include>
 					<include>**/default.sakai.properties</include>
 				</includes>
 				<filtering>true</filtering>
 			</resource>
 		</resources>
+		<plugins>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.6</version>
+				<executions>
+					<execution>
+						<phase>process-resources</phase>
+						<configuration>
+							<target>
+								<concat destfile="${project.build.outputDirectory}/org/sakaiproject/config/bundle/default.sakai.properties" append="true">
+									<fileset dir="${project.build.outputDirectory}" includes="**/auto.sakai.properties"/>
+								</concat>
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
 	</build>
 </project>
