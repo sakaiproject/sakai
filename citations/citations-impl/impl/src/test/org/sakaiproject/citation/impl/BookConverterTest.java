@@ -80,11 +80,11 @@ public class BookConverterTest extends BaseCitationServiceSupport {
 		// Check that a property off schema can grow to be multiple values.
 		book.setCitationProperty("otherId", "first");
 		book.setCitationProperty("otherId", "second");
-		//assertTrue(book.getCitationProperty("otherId") instanceof List);
-		//List ids = (List)book.getCitationProperty("otherId");
-		//assertTrue(ids.contains("first"));
-		//assertTrue(ids.contains("second"));
-		//assertFalse(ids.contains("missing"));
+		assertTrue(book.getCitationProperty("otherId") instanceof List);
+		List ids = (List)book.getCitationProperty("otherId");
+		assertTrue(ids.contains("first"));
+		assertTrue(ids.contains("second"));
+		assertFalse(ids.contains("missing"));
 		
 		// Check that titles don't become multivalued.
 		book.setCitationProperty("title", "My Book");

@@ -2013,7 +2013,7 @@ public abstract class BaseCitationService implements CitationService
 							newValue = list;
 						}
 					}
-					m_citationProperties.put(name, value);
+					m_citationProperties.put(name, newValue);
 				}
 			}
 
