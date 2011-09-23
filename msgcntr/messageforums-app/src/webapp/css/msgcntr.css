@@ -102,6 +102,13 @@
 	padding-left:18px;
 	background: #eee url(../images/silk/arrow_down.png) center left no-repeat;
 }
+.markAllAsRead {
+	border:1px solid #ccc;
+	padding:3px;
+	padding-left:30px;
+	background: #eee url(../images/markAsRead.gif)  5px center no-repeat;
+}
+
 .topicIcon{
 /*	display:none; 	comment to hide blue or orange speech balloons by topics in Forum list view */
 }

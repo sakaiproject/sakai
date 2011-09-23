@@ -132,10 +132,11 @@
 				});
  	</script>
 
-		<div id="messNavHolder" style="clear:both;"></div>
-		<h:commandLink action="#{ForumTool.processActionMarkAllAsRead}" rendered="#{ForumTool.selectedTopic.isMarkAsRead}" styleClass="actionLinks" style="display:block;padding: 5px 0"> 
-	    		<h:outputText value=" #{msgs.cdfm_mark_all_as_read}" />
-	        </h:commandLink>
+		<div id="messNavHolder" style="clear:both;">
+				<h:commandLink action="#{ForumTool.processActionMarkAllAsRead}" rendered="#{ForumTool.selectedTopic.isMarkAsRead}" styleClass="markAllAsRead"> 
+					<h:outputText value=" #{msgs.cdfm_mark_all_as_read}" />
+				</h:commandLink>
+		</div>
 		
 		<h:outputText  value="#{msgs.cdfm_no_messages}" rendered="#{empty ForumTool.messages}"   styleClass="instruction" style="display:block" />
 		<mf:hierDataTable id="expandedThreadedMessages" value="#{ForumTool.messages}" var="message" 
