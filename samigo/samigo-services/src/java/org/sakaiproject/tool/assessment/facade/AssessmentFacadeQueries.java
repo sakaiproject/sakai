@@ -36,6 +36,8 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
@@ -1961,6 +1963,27 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 				newMetaDataSet.add(meta);
 				newAssessment.setAssessmentMetaDataSet(newMetaDataSet);
 			}
+			else {
+				// if it's not anonymous, then set it to the whole site (removes group access too)
+				releaseTo = toContext;
+				try{
+					Site toSite = SiteService.getSite(toContext);
+					releaseTo = toSite.getTitle();
+				}catch (IdUnusedException e) {
+					log.debug("IdUnusedException: " + e.getMessage());
+				}
+				newAccessControl.setReleaseTo(releaseTo);
+			}
+		}
+		else {
+			releaseTo = toContext;
+			try{
+				Site toSite = SiteService.getSite(toContext);
+				releaseTo = toSite.getTitle();
+			}catch (IdUnusedException e) {
+				log.debug("IdUnusedException: " + e.getMessage());
+			}
+			newAccessControl.setReleaseTo(releaseTo);
 		}
 		// IPAddress
 		Set newIPSet = prepareSecuredIPSet(newAssessment, a
