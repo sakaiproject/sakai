@@ -247,7 +247,14 @@ function setMainFrameHeightNow(id)
 	// this tells us that the iframe in parent by the name of 'id' is the one who spawned us
 	if (typeof window.name != "undefined" && id != window.name) return;
 
-	var frame = parent.document.getElementById(id);
+	//SAK-21209 check we can access the document, 
+	//ie this could be a Basic LTI request and therefore we are not allowed
+	try {
+		var frame = parent.document.getElementById(id);
+	} catch (e) {
+		return;
+	}
+	
 	if (frame)
 	{
 		// reset the scroll
