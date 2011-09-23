@@ -3,13 +3,14 @@
  */
 package org.sakaiproject.dash.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * 
  *
  */
-public class AvailabilityCheck {
+public class AvailabilityCheck implements Serializable {
 	
 	protected Long id;
 	protected String entityReference;

@@ -21,6 +21,7 @@
 
 package org.sakaiproject.dash.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 //import lombok.AllArgsConstructor;
@@ -35,7 +36,7 @@ import java.util.Date;
 //@Data 
 //@NoArgsConstructor
 //@AllArgsConstructor
-public class NewsItem {
+public class NewsItem implements Serializable {
 	
 	protected Long id;
 	protected String title;

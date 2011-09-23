@@ -21,6 +21,8 @@
 
 package org.sakaiproject.dash.model;
 
+import java.io.Serializable;
+
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.CalendarLink;
 import org.sakaiproject.dash.model.Context;
@@ -30,7 +32,7 @@ import org.sakaiproject.dash.model.Person;
  * CalendarLink encapsulates links between calendar items and users.
  *
  */
-public class CalendarLink {
+public class CalendarLink implements Serializable {
 	
 	protected Long id;
 	protected Person person;

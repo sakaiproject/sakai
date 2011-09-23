@@ -103,17 +103,19 @@ public class DashboardPage extends BasePage {
 	                MarkupContainer actionKeepThis = new WebMarkupContainer("actionKeepThis");
 	                actionPanel.add(actionKeepThis);
 	                AjaxLink<CalendarItem> actionKeepThisLink = new AjaxLink<CalendarItem>("actionKeepThisLink") {
-
+	                	protected long item_id = cItem.getId();
 	                	
 						@Override
 						public void onClick(AjaxRequestTarget target) {
 							logger.info(target.toString());
 							// need to keep one item
+							logger.info(item_id);
+							//logger.info(this.getModelObject());
 						}
 	                	
 	                };
-	                actionKeepThisLink.setDefaultModel(new ComponentModel<Item>());
-	                actionKeepThisLink.setModelObject(cItem);
+	                actionKeepThisLink.setDefaultModel(item.getModel());
+	                //actionKeepThisLink.setModelObject(cItem);
 	                
 	                actionKeepThis.add(actionKeepThisLink);
 	                actionKeepThisLink.add(new Label("actionKeepThisLabel", "Make me stay here"));
@@ -121,32 +123,38 @@ public class DashboardPage extends BasePage {
 	                MarkupContainer actionHideThis = new WebMarkupContainer("actionHideThis");
 	                actionPanel.add(actionHideThis);
 	                AjaxLink<CalendarItem> actionHideThisLink = new AjaxLink<CalendarItem>("actionHideThisLink") {
+	                	protected long item_id = cItem.getId();
 
 						@Override
 						public void onClick(AjaxRequestTarget target) {
 							logger.info(target.toString());
 							// need to trash one item
+							logger.info(item_id);
+							//logger.info(this.getModelObject());
 						}
 	                	
 	                };
-	                actionHideThisLink.setDefaultModel(new ComponentModel<Item>());
-	                actionHideThisLink.setModelObject(cItem);
+	                actionHideThisLink.setDefaultModel(item.getModel());
+	                //actionHideThisLink.setModelObject(cItem);
 	                actionHideThis.add(actionHideThisLink);
 	                actionHideThisLink.add(new Label("actionHideThisLabel", "Dump me in the TrAsH"));
 	                
 	                MarkupContainer actionHideType = new WebMarkupContainer("actionHideType");
 	                actionPanel.add(actionHideType);
 	                AjaxLink<CalendarItem> actionHideTypeLink = new AjaxLink<CalendarItem>("actionHideTypeLink") {
-
+	                	long type_id = cItem.getSourceType().getId();
+	                	String type_name = cItem.getSourceType().getIdentifier();
+	                	
 						@Override
 						public void onClick(AjaxRequestTarget target) {
 							logger.info(target.toString());
 							// need to trash one kind of item
+							logger.info(type_id + " " + type_name);
 						}
 	                	
 	                };
-	                actionHideTypeLink.setDefaultModel(new ComponentModel<Item>());
-	                actionHideTypeLink.setModelObject(cItem);
+	                actionHideTypeLink.setDefaultModel(item.getModel());
+	                //actionHideTypeLink.setModelObject(cItem);
 	                actionHideType.add(actionHideTypeLink);
 	                actionHideTypeLink.add(new Label("actionHideTypeLabel", "Dump all " + itemType + "s in the tRaSh"));
 	                
@@ -154,32 +162,41 @@ public class DashboardPage extends BasePage {
 	                MarkupContainer actionHideContext = new WebMarkupContainer("actionHideContext");
 	                actionPanel.add(actionHideContext);
 	                AjaxLink<CalendarItem> actionHideContextLink = new AjaxLink<CalendarItem>("actionHideContextLink") {
-
+	                	long context_id = cItem.getContext().getId();
+	                	String contextId = cItem.getContext().getContextId();
+	                	
 						@Override
 						public void onClick(AjaxRequestTarget target) {
 							logger.info(target.toString());
 							// need to trash items from one site
+							logger.info(context_id + " " + contextId);
 						}
 	                	
 	                };
-	                actionHideContextLink.setDefaultModel(new ComponentModel<Item>());
-	                actionHideContextLink.setModelObject(cItem);
+	                actionHideContextLink.setDefaultModel(item.getDefaultModel());
+	                //actionHideContextLink.setModelObject(cItem);
 	                actionHideContext.add(actionHideContextLink);
 	                actionHideContextLink.add(new Label("actionHideContextLabel", "Dump everything from " + siteTitle + " in the TrAsH"));
 	                
 	                MarkupContainer actionHideTypeInContext = new WebMarkupContainer("actionHideTypeInContext");
 	                actionPanel.add(actionHideTypeInContext);
 	                AjaxLink<CalendarItem> actionHideTypeInContextLink = new AjaxLink<CalendarItem>("actionHideTypeInContextLink") {
+	                	long type_id = cItem.getSourceType().getId();
+	                	String type_name = cItem.getSourceType().getIdentifier();
+	                	long context_id = cItem.getContext().getId();
+	                	String contextId = cItem.getContext().getContextId();
 
 						@Override
 						public void onClick(AjaxRequestTarget target) {
 							logger.info(target.toString());
 							// need to trash one kind of item
+							logger.info(type_id + " " + type_name);
+							logger.info(context_id + " " + contextId);
 						}
 	                	
 	                };
-	                actionHideTypeInContextLink.setDefaultModel(new ComponentModel<Item>());
-	                actionHideTypeInContextLink.setModelObject(cItem);
+	                actionHideTypeInContextLink.setDefaultModel(item.getDefaultModel());
+	                //actionHideTypeInContextLink.setModelObject(cItem);
 	                actionHideTypeInContext.add(actionHideTypeInContextLink);
 	                actionHideTypeInContextLink.add(new Label("actionHideTypeInContextLabel", "Pulverize all " + itemType + "s from " + siteTitle));
 				}
@@ -245,8 +262,8 @@ public class DashboardPage extends BasePage {
 					}
                 	
                 };
-                actionKeepThisLink.setDefaultModel(new ComponentModel<Item>());
-                actionKeepThisLink.setModelObject(nItem);
+                actionKeepThisLink.setDefaultModel(item.getModel());
+                //actionKeepThisLink.setModelObject(nItem);
                 
                 actionKeepThis.add(actionKeepThisLink);
                 actionKeepThisLink.add(new Label("actionKeepThisLabel", "Make me stay here"));
@@ -262,8 +279,8 @@ public class DashboardPage extends BasePage {
 					}
                 	
                 };
-                actionHideThisLink.setDefaultModel(new ComponentModel<Item>());
-                actionHideThisLink.setModelObject(nItem);
+                actionHideThisLink.setDefaultModel(item.getModel());
+                //actionHideThisLink.setModelObject(nItem);
                 actionHideThis.add(actionHideThisLink);
                 actionHideThisLink.add(new Label("actionHideThisLabel", "Dump me in the TrAsH"));
                 
@@ -278,8 +295,8 @@ public class DashboardPage extends BasePage {
 					}
                 	
                 };
-                actionHideTypeLink.setDefaultModel(new ComponentModel<Item>());
-                actionHideTypeLink.setModelObject(nItem);
+                actionHideTypeLink.setDefaultModel(item.getModel());
+                //actionHideTypeLink.setModelObject(nItem);
                 actionHideType.add(actionHideTypeLink);
                 actionHideTypeLink.add(new Label("actionHideTypeLabel", "Dump all " + itemType + "s in the tRaSh"));
                 
@@ -294,8 +311,9 @@ public class DashboardPage extends BasePage {
 					}
                 	
                 };
-                actionHideContextLink.setDefaultModel(new ComponentModel<Item>());
-                actionHideContextLink.setModelObject(nItem);
+                actionHideContextLink.setDefaultModel(item.getModel());
+                //actionHideContextLink.setDefaultModel(new ComponentModel<Item>());
+                //actionHideContextLink.setModelObject(nItem);
                 actionHideContext.add(actionHideContextLink);
                 actionHideContextLink.add(new Label("actionHideContextLabel", "Dump everything from " + siteTitle + " in the TrAsH"));
                 
@@ -310,8 +328,9 @@ public class DashboardPage extends BasePage {
 					}
                 	
                 };
-                actionHideTypeInContextLink.setDefaultModel(new ComponentModel<Item>());
-                actionHideTypeInContextLink.setModelObject(nItem);
+                actionHideTypeInContextLink.setDefaultModel(item.getModel());
+                //actionHideTypeInContextLink.setDefaultModel(new ComponentModel<Item>());
+                //actionHideTypeInContextLink.setModelObject(nItem);
                 actionHideTypeInContext.add(actionHideTypeInContextLink);
                 actionHideTypeInContextLink.add(new Label("actionHideTypeInContextLabel", "Pulverize all " + itemType + "s from " + siteTitle));
 

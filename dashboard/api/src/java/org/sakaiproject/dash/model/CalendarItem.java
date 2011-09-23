@@ -21,6 +21,7 @@
 
 package org.sakaiproject.dash.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 
@@ -29,7 +30,7 @@ import java.util.Date;
  * appear in the "Calendar" section of users' dashboards.
  *
  */
-public class CalendarItem {
+public class CalendarItem implements Serializable {
 	
 	protected Long id;
 	protected String title;

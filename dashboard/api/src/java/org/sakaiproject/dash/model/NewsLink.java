@@ -21,12 +21,14 @@
 
 package org.sakaiproject.dash.model;
 
+import java.io.Serializable;
+
 
 /**
  * NewsLink encapsulates links between news items and users.
  *
  */
-public class NewsLink {
+public class NewsLink implements Serializable {
 
 	protected Long id;
 	protected Person person;

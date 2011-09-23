@@ -21,13 +21,15 @@
 
 package org.sakaiproject.dash.model;
 
+import java.io.Serializable;
+
 
 /**
  * Person encapsulates information about users needed to link sakai users with 
  * dashboard items of interest to them.
  *
  */
-public class Person {
+public class Person implements Serializable {
 
 	protected Long id = null;
 	protected String sakaiId;

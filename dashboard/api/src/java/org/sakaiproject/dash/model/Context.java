@@ -21,13 +21,15 @@
 
 package org.sakaiproject.dash.model;
 
+import java.io.Serializable;
+
 
 /**
  * Context encapsulates all information about sakai sites needed for 
  * dashboard items.
  *
  */
-public class Context {
+public class Context implements Serializable {
 	
 	protected Long id;
 	protected String contextId;

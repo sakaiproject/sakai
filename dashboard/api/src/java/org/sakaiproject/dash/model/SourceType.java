@@ -21,6 +21,8 @@
 
 package org.sakaiproject.dash.model;
 
+import java.io.Serializable;
+
 import org.sakaiproject.dash.entity.EntityLinkStrategy;
 
 
@@ -30,7 +32,7 @@ import org.sakaiproject.dash.entity.EntityLinkStrategy;
  * notifications about them will be rendered .
  *
  */
-public class SourceType {
+public class SourceType implements Serializable {
 
 	protected Long id;
 	protected String identifier;
