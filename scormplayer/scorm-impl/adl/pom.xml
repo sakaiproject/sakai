@@ -17,7 +17,9 @@
           This project creates the ADL implementation used by the Sakai Scorm Tool
         </description>
         <packaging>jar</packaging>
-
+	<properties>
+    		<deploy.target>shared</deploy.target>
+  	</properties>
   	<dependencies>
 		<dependency>
 			<groupId>org.sakaiproject.scorm</groupId>
