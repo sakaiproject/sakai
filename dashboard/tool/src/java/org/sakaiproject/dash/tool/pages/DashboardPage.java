@@ -21,17 +21,24 @@ import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.IRequestTarget;
+import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.RequestCycle;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.AbstractAjaxBehavior;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.ExternalLink;
+import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.repeater.DefaultItemReuseStrategy;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
+import org.apache.wicket.model.ComponentModel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -86,13 +93,95 @@ public class DashboardPage extends BasePage {
 					item.add(new Label("calendarTimeLabel", calendarTimeLabel ));
 	                item.add(new Label("calendarDate", new SimpleDateFormat(DATE_FORMAT).format(cItem.getCalendarTime())));
 	                item.add(new Label("calendarTime", new SimpleDateFormat(TIME_FORMAT).format(cItem.getCalendarTime())));
+	                
 	                item.add(new ExternalLink("itemLink", cItem.getEntityUrl(), cItem.getTitle()));
 	                item.add(new ExternalLink("siteLink", cItem.getContext().getContextUrl(), cItem.getContext().getContextTitle()));
-	                item.add(new Label("itemTypeCalendarBlock1", itemType));
+	      
+	                MarkupContainer actionPanel = new WebMarkupContainer("actionPanel");
+	                item.add(actionPanel);
+	                
+	                MarkupContainer actionKeepThis = new WebMarkupContainer("actionKeepThis");
+	                actionPanel.add(actionKeepThis);
+	                AjaxLink<CalendarItem> actionKeepThisLink = new AjaxLink<CalendarItem>("actionKeepThisLink") {
+
+	                	
+						@Override
+						public void onClick(AjaxRequestTarget target) {
+							logger.info(target.toString());
+							// need to keep one item
+						}
+	                	
+	                };
+	                actionKeepThisLink.setDefaultModel(new ComponentModel<Item>());
+	                actionKeepThisLink.setModelObject(cItem);
+	                
+	                actionKeepThis.add(actionKeepThisLink);
+	                actionKeepThisLink.add(new Label("actionKeepThisLabel", "Make me stay here"));
+	                
+	                MarkupContainer actionHideThis = new WebMarkupContainer("actionHideThis");
+	                actionPanel.add(actionHideThis);
+	                AjaxLink<CalendarItem> actionHideThisLink = new AjaxLink<CalendarItem>("actionHideThisLink") {
+
+						@Override
+						public void onClick(AjaxRequestTarget target) {
+							logger.info(target.toString());
+							// need to trash one item
+						}
+	                	
+	                };
+	                actionHideThisLink.setDefaultModel(new ComponentModel<Item>());
+	                actionHideThisLink.setModelObject(cItem);
+	                actionHideThis.add(actionHideThisLink);
+	                actionHideThisLink.add(new Label("actionHideThisLabel", "Dump me in the TrAsH"));
+	                
+	                MarkupContainer actionHideType = new WebMarkupContainer("actionHideType");
+	                actionPanel.add(actionHideType);
+	                AjaxLink<CalendarItem> actionHideTypeLink = new AjaxLink<CalendarItem>("actionHideTypeLink") {
+
+						@Override
+						public void onClick(AjaxRequestTarget target) {
+							logger.info(target.toString());
+							// need to trash one kind of item
+						}
+	                	
+	                };
+	                actionHideTypeLink.setDefaultModel(new ComponentModel<Item>());
+	                actionHideTypeLink.setModelObject(cItem);
+	                actionHideType.add(actionHideTypeLink);
+	                actionHideTypeLink.add(new Label("actionHideTypeLabel", "Dump all " + itemType + "s in the tRaSh"));
+	                
 	                String siteTitle = cItem.getContext().getContextTitle();
-	                item.add(new Label("siteTitleCalendarBlock1", siteTitle));
-	                item.add(new Label("itemTypeCalendarBlock2", itemType));
-	                item.add(new Label("siteTitleCalendarBlock2", siteTitle));
+	                MarkupContainer actionHideContext = new WebMarkupContainer("actionHideContext");
+	                actionPanel.add(actionHideContext);
+	                AjaxLink<CalendarItem> actionHideContextLink = new AjaxLink<CalendarItem>("actionHideContextLink") {
+
+						@Override
+						public void onClick(AjaxRequestTarget target) {
+							logger.info(target.toString());
+							// need to trash items from one site
+						}
+	                	
+	                };
+	                actionHideContextLink.setDefaultModel(new ComponentModel<Item>());
+	                actionHideContextLink.setModelObject(cItem);
+	                actionHideContext.add(actionHideContextLink);
+	                actionHideContextLink.add(new Label("actionHideContextLabel", "Dump everything from " + siteTitle + " in the TrAsH"));
+	                
+	                MarkupContainer actionHideTypeInContext = new WebMarkupContainer("actionHideTypeInContext");
+	                actionPanel.add(actionHideTypeInContext);
+	                AjaxLink<CalendarItem> actionHideTypeInContextLink = new AjaxLink<CalendarItem>("actionHideTypeInContextLink") {
+
+						@Override
+						public void onClick(AjaxRequestTarget target) {
+							logger.info(target.toString());
+							// need to trash one kind of item
+						}
+	                	
+	                };
+	                actionHideTypeInContextLink.setDefaultModel(new ComponentModel<Item>());
+	                actionHideTypeInContextLink.setModelObject(cItem);
+	                actionHideTypeInContext.add(actionHideTypeInContextLink);
+	                actionHideTypeInContextLink.add(new Label("actionHideTypeInContextLabel", "Pulverize all " + itemType + "s from " + siteTitle));
 				}
 			}
         };
@@ -122,6 +211,8 @@ public class DashboardPage extends BasePage {
         
 		//present the news data in a table
 		final DataView<NewsItem> newsDataView = new DataView<NewsItem>("newsItems", newsItemsProvider) {
+			
+			
 
 			@Override
 			public void populateItem(final Item item) {
@@ -134,17 +225,101 @@ public class DashboardPage extends BasePage {
                 item.add(new Label("itemType", itemType));
                 item.add(new Label("entityReference", nItem.getEntityReference()));
 
-                item.add(new Label("itemTypeNewsBlock1", itemType));
-                
                 String siteTitle = nItem.getContext().getContextTitle();
-                item.add(new Label("siteTitleNewsBlock1", siteTitle));
-                item.add(new Label("itemTypeNewsBlock2", itemType));
-                item.add(new Label("siteTitleNewsBlock2", siteTitle));
                 item.add(new ExternalLink("itemLink", nItem.getEntityUrl(), nItem.getTitle()));
                 item.add(new ExternalLink("siteLink", nItem.getContext().getContextUrl(), siteTitle));
                 item.add(new Label("newsTime", new SimpleDateFormat(DATETIME_FORMAT).format(nItem.getNewsTime())));
+                
+                MarkupContainer actionPanel = new WebMarkupContainer("actionPanel");
+                item.add(actionPanel);
+                
+                MarkupContainer actionKeepThis = new WebMarkupContainer("actionKeepThis");
+                actionPanel.add(actionKeepThis);
+                AjaxLink<NewsItem> actionKeepThisLink = new AjaxLink<NewsItem>("actionKeepThisLink") {
+
+                	
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						logger.info(target.toString());
+						// need to keep one item
+					}
+                	
+                };
+                actionKeepThisLink.setDefaultModel(new ComponentModel<Item>());
+                actionKeepThisLink.setModelObject(nItem);
+                
+                actionKeepThis.add(actionKeepThisLink);
+                actionKeepThisLink.add(new Label("actionKeepThisLabel", "Make me stay here"));
+                
+                MarkupContainer actionHideThis = new WebMarkupContainer("actionHideThis");
+                actionPanel.add(actionHideThis);
+                AjaxLink<NewsItem> actionHideThisLink = new AjaxLink<NewsItem>("actionHideThisLink") {
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						logger.info(target.toString());
+						// need to trash one item
+					}
+                	
+                };
+                actionHideThisLink.setDefaultModel(new ComponentModel<Item>());
+                actionHideThisLink.setModelObject(nItem);
+                actionHideThis.add(actionHideThisLink);
+                actionHideThisLink.add(new Label("actionHideThisLabel", "Dump me in the TrAsH"));
+                
+                MarkupContainer actionHideType = new WebMarkupContainer("actionHideType");
+                actionPanel.add(actionHideType);
+                AjaxLink<NewsItem> actionHideTypeLink = new AjaxLink<NewsItem>("actionHideTypeLink") {
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						logger.info(target.toString());
+						// need to trash one kind of item
+					}
+                	
+                };
+                actionHideTypeLink.setDefaultModel(new ComponentModel<Item>());
+                actionHideTypeLink.setModelObject(nItem);
+                actionHideType.add(actionHideTypeLink);
+                actionHideTypeLink.add(new Label("actionHideTypeLabel", "Dump all " + itemType + "s in the tRaSh"));
+                
+                MarkupContainer actionHideContext = new WebMarkupContainer("actionHideContext");
+                actionPanel.add(actionHideContext);
+                AjaxLink<NewsItem> actionHideContextLink = new AjaxLink<NewsItem>("actionHideContextLink") {
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						logger.info(target.toString());
+						// need to trash items from one site
+					}
+                	
+                };
+                actionHideContextLink.setDefaultModel(new ComponentModel<Item>());
+                actionHideContextLink.setModelObject(nItem);
+                actionHideContext.add(actionHideContextLink);
+                actionHideContextLink.add(new Label("actionHideContextLabel", "Dump everything from " + siteTitle + " in the TrAsH"));
+                
+                MarkupContainer actionHideTypeInContext = new WebMarkupContainer("actionHideTypeInContext");
+                actionPanel.add(actionHideTypeInContext);
+                AjaxLink<NewsItem> actionHideTypeInContextLink = new AjaxLink<NewsItem>("actionHideTypeInContextLink") {
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+						logger.info(target.toString());
+						// need to trash one kind of item
+					}
+                	
+                };
+                actionHideTypeInContextLink.setDefaultModel(new ComponentModel<Item>());
+                actionHideTypeInContextLink.setModelObject(nItem);
+                actionHideTypeInContext.add(actionHideTypeInContextLink);
+                actionHideTypeInContextLink.add(new Label("actionHideTypeInContextLabel", "Pulverize all " + itemType + "s from " + siteTitle));
+
             }
         };
+        
+        
+        
         newsDataView.setItemReuseStrategy(new DefaultItemReuseStrategy());
         newsDataView.setItemsPerPage(5);
         add(newsDataView);

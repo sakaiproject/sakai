@@ -1,5 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+	<head>
+	</head>
 	<body>
 		<wicket:extend>
 			<div class="portletBody">
@@ -66,22 +68,22 @@
 		                            <div class="actionPanelTrig" style="display:none">
 		                                <a href="#"></a>
 		                            </div>
-		                            <ul class="actionPanel" style="display:none">
-	                                <li class="actionKeepThis">
-	                                    <a href="#">Keep this item in my dashboard</a>
-	                                </li>
-	                                <li class="actionHideThis">
-	                                    <a href="#">Remove this item</a>
-	                                </li>
-	                                <li class="actionHideType">
-	                                    <a href="#">Block <span wicket:id="itemTypeCalendarBlock1">[item type]</span> items</a>
-	                                </li>
-	                                <li class="actionHideContext">
-	                                    <a href="#">Block items from <span wicket:id="siteTitleCalendarBlock1">[site title]</span></a>
-	                                </li>
-	                                <li class="actionHideTypeInContext">
-	                                    <a href="#">Block <span wicket:id="itemTypeCalendarBlock2">[item type]</span> items from <span wicket:id="siteTitleCalendarBlock2">[site title]</span></a>
-	                                </li>
+		                            <ul class="actionPanel"  wicket:id="actionPanel" style="display:none">
+		                                <li class="actionKeepThis" wicket:id="actionKeepThis">
+		                                    <a href="#" wicket:id="actionKeepThisLink"><span wicket:id="actionKeepThisLabel">Keep this item in my dashboard</span></a>
+		                                </li>
+		                                <li class="actionHideThis" wicket:id="actionHideThis">
+		                                    <a href="#" wicket:id="actionHideThisLink"><span wicket:id="actionHideThisLabel">Remove this item</span></a>
+		                                </li>
+		                                <li class="actionHideType" wicket:id="actionHideType">
+		                                    <a href="#" wicket:id="actionHideTypeLink"><span wicket:id="actionHideTypeLabel">Block all ?? items</span></a>
+		                                </li>
+		                                <li class="actionHideContext" wicket:id="actionHideContext">
+		                                    <a href="#" wicket:id="actionHideContextLink"><span wicket:id="actionHideContextLabel">Block everything from ??</span></a>
+		                                </li>
+		                                <li class="actionHideTypeInContext" wicket:id="actionHideTypeInContext">
+		                                    <a href="#"  wicket:id="actionHideTypeInContextLink"><span wicket:id="actionHideTypeInContextLabel">Block all ?? items from ??</span></a>
+		                                </li>
 		                            </ul>
 		                        </td>
 		                    </tr>
@@ -126,25 +128,24 @@
 		                            <div class="actionPanelTrig" style="display:none">
 		                                <a href="#"></a>
 		                            </div>
-		                            <ul class="actionPanel" style="display:none">
-	                                <li class="actionKeepThis">
-	                                    <a href="#">Keep this item in my dashboard</a>
-	                                </li>
-	                                <li class="actionHideThis">
-	                                    <a href="#">Remove this item</a>
-	                                </li>
-	                                <li class="actionHideType">
-	                                    <a href="#">Block <span wicket:id="itemTypeNewsBlock1">[item type]</span> items</a>
-	                                </li>
-	                                <li class="actionHideContext">
-	                                    <a href="#">Block items from <span wicket:id="siteTitleNewsBlock1">[site title]</span></a>
-	                                </li>
-	                                <li class="actionHideTypeInContext">
-	                                    <a href="#">Block <span wicket:id="itemTypeNewsBlock2">[item type]</span> items from <span wicket:id="siteTitleNewsBlock2">[site title]</span></a>
-	                                </li>
+		                            <ul class="actionPanel"  wicket:id="actionPanel" style="display:none">
+		                                <li class="actionKeepThis" wicket:id="actionKeepThis">
+		                                    <a href="#" wicket:id="actionKeepThisLink"><span wicket:id="actionKeepThisLabel">Keep this item in my dashboard</span></a>
+		                                </li>
+		                                <li class="actionHideThis" wicket:id="actionHideThis">
+		                                    <a href="#" wicket:id="actionHideThisLink"><span wicket:id="actionHideThisLabel">Remove this item</span></a>
+		                                </li>
+		                                <li class="actionHideType" wicket:id="actionHideType">
+		                                    <a href="#" wicket:id="actionHideTypeLink"><span wicket:id="actionHideTypeLabel">Block all ?? items</span></a>
+		                                </li>
+		                                <li class="actionHideContext" wicket:id="actionHideContext">
+		                                    <a href="#" wicket:id="actionHideContextLink"><span wicket:id="actionHideContextLabel">Block everything from ??</span></a>
+		                                </li>
+		                                <li class="actionHideTypeInContext" wicket:id="actionHideTypeInContext">
+		                                    <a href="#"  wicket:id="actionHideTypeInContextLink"><span wicket:id="actionHideTypeInContextLabel">Block all ?? items from ??</span></a>
+		                                </li>
 		                            </ul>
-		                        </td>
-		                    </tr>
+		                        </td>		                    </tr>
 		                </table>
 			</div>
       <div id="dialog"  style="display:none">
@@ -167,27 +168,7 @@
 
           });
       </script>
-      <!-- this textarea holds the lang values used by the js, how to do with wicket? -->
-      <textarea style="display:none" id="lang-holder">
-          {
-          "ungraded": "Ungraded",
-          "letter": "Letter grade",
-          "points": "Point grade",
-          "passfail": "Pass/Fail",
-          "checkmark": "Checkmark",
-          "inline": "inline submission",
-          "atts": "attachments only submission",
-          "inlineatts": "inline or attachments submission",
-          "nonel": "off-line submission",
-          "singleatt": "single attachment submission",
-          "due":"Due: ",
-          "maxpoints":"max points: ",
-          "postedBy" :"Posted by: ",
-          "seemore" : "See more",
-          "noinstructions" :"No text instructions. Maybe instructions are in an attachment - see more to confirm."
-          }
-      </textarea> 
-      <div wicket:id="callbackUrl" class="callBackUrl" >[callback url]</div>   <!-- style="display:none;" -->  
+      <div wicket:id="callbackUrl" class="callBackUrl skip" >[callback url]</div>
 		</wicket:extend>
 	</body>
 </html>
