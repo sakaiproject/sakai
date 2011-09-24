@@ -203,6 +203,19 @@ public class BasicLTIConstants {
 	public static final String LIS_COURSE_SECTION_SOURCEDID = "lis_course_section_sourcedid";
 
 	/**
+     * lis_outcome_service_url=http://lmsng.school.edu/service/ltiout/
+     * <p>
+     * This field should be no more than 1023 characters long and the TP 
+     * should assume that the URL might change from launch to launch and 
+     * allow for the fact that a TC might change their service URL from 
+     * launch to launch and only use the most recent value for this 
+     * parameter.  The service URL may support various operations / services.  
+     * The TC will respond with a response of 'unimplemented' for services 
+     * it does not support.  
+	 */
+	public static final String LIS_OUTCOME_SERVICE_URL = "lis_outcome_service_url";
+
+	/**
 	 * lis_result_sourcedid=83873872987329873264783687634
 	 * <p>
 	 * This field contains an identifier that indicates the LIS Result 
@@ -227,6 +240,34 @@ public class BasicLTIConstants {
 	 */
 	public static final String LTI_VERSION = "lti_version";
 	// launch settings per spec - computed not stored
+
+   /** 
+     * lti_lms=desire2learn-9.2
+     * <p>
+     * In order to better assist tools in using extensions and 
+     * also making their user interface fit into the LMS that they 
+     * are being called from, each LMS is encouraged to include the 
+     * lti_lms parameter.  This is a simple vocabulary that is the 
+     * name of the learning management system followed by version 
+     * information.  Possible example values for this field might be:
+     * 
+     *       blackboard-9.1SP6     
+     *       desire2learn-9.2
+     *       sakai-2.8.1
+     *       olat-7.1
+     * 
+     * The general pattern is that the LMS name and major release are 
+     * separated by a dash (-) and the major release is a number (possibly 
+     * more than one digit) and the separation between the major release 
+     * and minor release is any non-digit.  There is no particlar rule 
+     * for minor release information.  Both the major and minor release 
+     * values are optional - so for example, a Blackboard consumer may send 
+     * 'blackboard' for all versions of Blackboard if it so desires.  The 
+     * Tool Provider should be flexible when parsing this field.  This 
+     * parameter is optional.
+     */
+	public static final String LTI_LMS = "lti_lms";
+
 	/**
 	 * resource_link_id=88391-e1919-bb3456
 	 * <p>
@@ -334,10 +375,11 @@ public class BasicLTIConstants {
 		LAUNCH_PRESENTATION_DOCUMENT_TARGET, LAUNCH_PRESENTATION_HEIGHT,
 		LAUNCH_PRESENTATION_LOCALE, LAUNCH_PRESENTATION_RETURN_URL,
 		LAUNCH_PRESENTATION_WIDTH, LIS_PERSON_CONTACT_EMAIL_PRIMARY,
-		LAUNCH_PRESENTATION_CSS_URL,
+		LAUNCH_PRESENTATION_CSS_URL, LTI_LMS, 
 		LIS_PERSON_NAME_FAMILY, LIS_PERSON_NAME_FULL, LIS_PERSON_NAME_GIVEN,
 		LIS_PERSON_SOURCEDID, LIS_COURSE_OFFERING_SOURCEDID, 
-		LIS_COURSE_SECTION_SOURCEDID, LIS_RESULT_SOURCEDID,
+		LIS_COURSE_SECTION_SOURCEDID, 
+        LIS_OUTCOME_SERVICE_URL, LIS_RESULT_SOURCEDID,
 		LTI_MESSAGE_TYPE, LTI_VERSION, RESOURCE_LINK_ID, 
 		RESOURCE_LINK_TITLE, RESOURCE_LINK_DESCRIPTION, ROLES,
 		TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL, TOOL_CONSUMER_INSTANCE_DESCRIPTION,

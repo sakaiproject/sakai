@@ -271,7 +271,9 @@ public class SakaiBLTIUtil {
 					String outcome_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_basic_outcome_url",null);
 					if ( outcome_url == null ) outcome_url = getOurServerUrl() + "/imsblis/service/";  
 					setProperty(props,"ext_ims_lis_basic_outcome_url", outcome_url);  
-
+					outcome_url = ServerConfigurationService.getString("basiclti.consumer."+BasicLTIConstants.LIS_OUTCOME_SERVICE_URL,null);
+					if ( outcome_url == null ) outcome_url = getOurServerUrl() + "/imsblis/service/";  
+					setProperty(props,BasicLTIConstants.LIS_OUTCOME_SERVICE_URL, outcome_url);  
 				}
 
 				if ( "on".equals(allowSettings) ) {
@@ -327,7 +329,9 @@ public class SakaiBLTIUtil {
 		setProperty(props,BasicLTIConstants.LAUNCH_PRESENTATION_CSS_URL, tool_css);  
 
 		// Let tools know we are coming from Sakai
-		setProperty(props,"ext_lms", "sakai2");  
+        String sakaiVersion = ServerConfigurationService.getString("version.sakai","2");
+		setProperty(props,"ext_lms", "sakai-"+sakaiVersion);  
+		setProperty(props,"lti_lms", "sakai-"+sakaiVersion);  
 		// Sakai-Unique fields - compatible with LinkTool
 		Session s = SessionManager.getCurrentSession();
 		if (s != null) {
