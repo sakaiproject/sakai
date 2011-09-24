@@ -641,6 +641,10 @@ NOTE: some functionality is removed from the tool by this:
 	background-image: url(../../image/silk/house.png);
 }
 
+.icon-sakai-web-168 {
+    background-image: url(../../image/silk/application_go.png);
+}
+
 .icon-sakai-mailbox {
 	background-image: url(../../image/silk/email.png);
 }
