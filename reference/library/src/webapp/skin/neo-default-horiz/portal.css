@@ -357,7 +357,7 @@ a#loginLink1:hover, a#loginUser:hover{
 }
 
 #loginLinks .drop{
-    background:transparent url(/library/image/silk/user_go.png) 15px 0  no-repeat;
+    background:transparent url(/library/image/silk/user.png) 15px 0  no-repeat;
     position:absolute;
     top:3px;
     padding:0 13px;

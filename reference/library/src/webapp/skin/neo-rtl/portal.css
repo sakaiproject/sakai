@@ -321,7 +321,7 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 }
 
 #loginLinks .drop{
-    background:transparent url(/library/image/silk/user_go.png) 15px 0  no-repeat;
+    background:transparent url(/library/image/silk/user.png) 15px 0  no-repeat;
     position:absolute;
     top:3px;
     padding:0 13px;
