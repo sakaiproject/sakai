@@ -951,12 +951,9 @@ public class MailboxAction extends PagedResourceActionII
 				{
 					try
 					{
-						// first, clear any alias set to this channel
-						AliasService.removeTargetAliases(channel.getReference());
-
-						// then add the desired alias
-						if (alias != null)
-						{
+						if ( alias == null ) {
+							AliasService.removeTargetAliases(channel.getReference());
+						} else {
 							AliasService.setAlias(alias, channel.getReference());
 						}
 					}
