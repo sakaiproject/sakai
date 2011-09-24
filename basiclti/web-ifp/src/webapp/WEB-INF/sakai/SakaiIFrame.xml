@@ -14,7 +14,7 @@
 		<!-- This is hidden for now as it is used by External Tools Admin
                    to place links to LTI Tool Configurations in the left nav. -->
 
-                <category name="helper" />
+                <category name="stealth" />
 
                 <!-- Allow this to be set -->
                 <configuration name="functions.require" />
