@@ -58,6 +58,8 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.lti.api.LTIService;
 //import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.Web;
 
 import org.sakaiproject.util.foorm.SakaiFoorm;
 
@@ -200,6 +202,46 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		return false;
 	}
 
+	private void sendHTMLPage(HttpServletResponse res, String body)
+	{
+		try
+		{							
+			res.setContentType("text/html; charset=UTF-8");
+			res.setCharacterEncoding("utf-8");
+			res.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
+			res.addDateHeader("Last-Modified", System.currentTimeMillis());
+			res.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
+			res.addHeader("Pragma", "no-cache");
+			ServletOutputStream out = res.getOutputStream();
+			
+			out.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
+			out.println("<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">");
+			out.println("<html>\n<head>");
+			out.println("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");
+			out.println("</head>\n<body>\n");
+			out.println(body);
+			out.println("\n</body>\n</html>");
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+
+	}
+
+	private void doSplash(HttpServletRequest req, HttpServletResponse res, String splash, ResourceLoader rb)
+	{
+		// req.getRequestURL()=http://localhost:8080/access/basiclti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
+		// req.getRequestURI()=/access/basiclti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
+		String acceptPath = req.getRequestURI().toString() + "?splash=bypass";
+		String body = "<div>"+splash+"</div><p>";
+		String txt = rb.getString("launch.button", "Press to continue to external tool.");
+		body += "<a href=\""+acceptPath+"\">";
+		body += rb.getString("launch.button", "Press to continue to external tool.");
+		body += "</a></p>\n";
+		sendHTMLPage(res, body);
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -259,6 +301,13 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 									   ltiService.filterContent(content, tool);
 								   }
 							   }
+							   String splash = (String) tool.get("splash");
+							   String splashParm = req.getParameter("splash");
+							   if ( splashParm == null && splash != null && splash.trim().length() > 1 )
+							   {
+								doSplash(req, res, splash, rb);
+								return;
+							   }
 							   retval = SakaiBLTIUtil.postLaunchHTML(content, tool, rb);
 						   }
 						   else
@@ -269,21 +318,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 
 						   try
 						   {
-							   res.setContentType("text/html; charset=UTF-8");
-							   res.setCharacterEncoding("utf-8");
-							   res.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
-							   res.addDateHeader("Last-Modified", System.currentTimeMillis());
-							   res.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
-							   res.addHeader("Pragma", "no-cache");
-							   ServletOutputStream out = res.getOutputStream();
-
-							   out.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
-							   out.println("<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">");
-							   out.println("<html>\n<head>");
-							   out.println("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");
-							   out.println("</head>\n<body>");
-							   out.println(retval[0]);
-							   out.println("</body>\n</html>");
+							   sendHTMLPage(res, retval[0]);
 							   String refstring = ref.getReference();
 							   if ( retval.length > 1 ) refstring = retval[1];
 							   // Cool 2.6 Event call
@@ -291,7 +326,6 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 							   // 2.5 Event call
 							   // Event event = EventTrackingService.newEvent(EVENT_BASICLTI_LAUNCH, refstring, false);
 							   LocalEventTrackingService.post(event);
-
 						   } 
 						   catch (Exception e)
 						   {
