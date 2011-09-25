@@ -1,5 +1,5 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/contrib/signup/branches/2-6-x/impl/src/java/org/sakaiproject/signup/logic/messages/SignupEventTrackingInfoImpl.java $
+ * $URL: https://source.sakaiproject.org/contrib/signup/branches/2-6-x/api/src/java/org/sakaiproject/signup/logic/messages/SignupEventTrackingInfoImpl.java $
  * $Id: SignupEventTrackingInfoImpl.java 56827 2009-01-13 21:52:18Z guangzheng.liu@yale.edu $
 ***********************************************************************************
  *

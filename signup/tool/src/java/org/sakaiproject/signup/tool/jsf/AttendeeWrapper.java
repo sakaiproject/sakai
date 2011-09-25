@@ -23,7 +23,7 @@
 package org.sakaiproject.signup.tool.jsf;
 
 import org.sakaiproject.signup.model.SignupAttendee;
-import org.sakaiproject.signup.util.PlainTextFormat;
+import org.sakaiproject.signup.tool.util.PlainTextFormat;
 
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;

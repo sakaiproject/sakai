@@ -26,11 +26,11 @@
 		</dependency>
 
 		<!--  why is the impl packaged in the webapp? -->
-		<dependency>
+		<!--Remove it- dependency>
 			<groupId>org.sakaiproject.signup</groupId>
 			<artifactId>signup-impl</artifactId>
 			<scope>compile</scope>
-		</dependency>
+		</dependency -->
 		
 		<!-- Sakai dependencies -->
 		<dependency>
