@@ -234,11 +234,12 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		// req.getRequestURL()=http://localhost:8080/access/basiclti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
 		// req.getRequestURI()=/access/basiclti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
 		String acceptPath = req.getRequestURI().toString() + "?splash=bypass";
-		String body = "<div>"+splash+"</div><p>";
+                String body = "<div align=\"center\" style=\"text-align:left;width:80%;margin-top:5px;margin-left:auto;margin-right:auto;border-width:1px 1px 1px 1px;border-style:solid;border-color: gray;padding:.5em;font-family:Verdana,Arial,Helvetica,sans-serif;font-size:.8em\">";
+		body += splash+"</div><p>";
 		String txt = rb.getString("launch.button", "Press to continue to external tool.");
-		body += "<a href=\""+acceptPath+"\">";
-		body += rb.getString("launch.button", "Press to continue to external tool.");
-		body += "</a></p>\n";
+		body += "<form><input type=\"submit\" onclick=\"window.location='"+acceptPath+"';return false;\" value=\"";
+		body += rb.getString("launch.button", "Press to continue to proceed to external tool.");
+		body += "\"></form></p>\n";
 		sendHTMLPage(res, body);
 	}
 
