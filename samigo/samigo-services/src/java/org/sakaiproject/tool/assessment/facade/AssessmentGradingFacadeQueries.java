@@ -2835,7 +2835,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						" a.finalScore, a.comments, a.status, a.gradedBy, a.gradedDate, a.attemptDate, a.timeElapsed) " +
 						" from AssessmentGradingData a, PublishedAccessControl c " +
 						" where a.publishedAssessmentId = c.assessment.publishedAssessmentId " +
-						" and current_timestamp() >= c.dueDate and a.status not in (4, 5) and c.autoSubmit = ? " +
+						" and current_timestamp() >= c.retractDate and a.status not in (4, 5) and c.autoSubmit = ? " +
 						" order by a.publishedAssessmentId, a.agentId, a.forGrade desc ", values);
 		
 	    Iterator iter = list.iterator();
@@ -2846,6 +2846,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    HashMap gradebookMap = new HashMap();
 	    HashMap studentUidsToScores = new HashMap();
 	    ArrayList toGradebookAssessmentsList = new ArrayList();
+	    
+	    // SAM-1088 getting the assessment so we can check to see if last user attempt was after due date
+	    PublishedAssessmentService assessmentService = new PublishedAssessmentService();
+	    PublishedAssessmentFacade assessment = null;
 	    while (iter.hasNext()) {
 	    	AssessmentGradingData adata = (AssessmentGradingData) iter.next();
 	    	if (lastPublishedAssessmentId.equals(adata.getPublishedAssessmentId())) {
@@ -2859,7 +2863,18 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    				if (adata.getFinalScore() == null) {
 	    					adata.setFinalScore(0f);
 	    				}
-	    				adata.setIsAutoSubmitted(Boolean.TRUE);
+	    				// SAM-1088
+	    				if (adata.getSubmittedDate() == null) {
+	    					adata.setIsAutoSubmitted(Boolean.TRUE);
+	    				}
+	    				else if (adata.getSubmittedDate() != null && assessment != null && assessment.getDueDate() != null &&
+	    						adata.getSubmittedDate().after(assessment.getDueDate())) {
+	    					adata.setIsLate(true);
+	    				}
+	    				else if (adata.getSubmittedDate() != null && assessment != null && assessment.getDueDate() != null &&
+	    						adata.getSubmittedDate().before(assessment.getDueDate())) {
+	    					adata.setIsAutoSubmitted(Boolean.TRUE);
+	    				}
 	    				adata.setSubmittedDate(new Date());
 	    				adata.setStatus(Integer.valueOf(1));
 	    				toBeAutoSubmittedList.add(adata);
@@ -2880,7 +2895,18 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    			if (adata.getFinalScore() == null) {
     					adata.setFinalScore(0f);
     				}
-	    			adata.setIsAutoSubmitted(Boolean.TRUE);
+	    			// SAM-1088
+    				if (adata.getSubmittedDate() == null) {
+    					adata.setIsAutoSubmitted(Boolean.TRUE);
+    				}
+    				else if (adata.getSubmittedDate() != null && assessment != null && assessment.getDueDate() != null &&
+    						adata.getSubmittedDate().after(assessment.getDueDate())) {
+    					adata.setIsLate(true);
+    				}
+    				else if (adata.getSubmittedDate() != null && assessment != null && assessment.getDueDate() != null &&
+    						adata.getSubmittedDate().before(assessment.getDueDate())) {
+    					adata.setIsAutoSubmitted(Boolean.TRUE);
+    				}
 	    			adata.setSubmittedDate(new Date());
 	    			adata.setStatus(Integer.valueOf(1));
 	    			toBeAutoSubmittedList.add(adata);

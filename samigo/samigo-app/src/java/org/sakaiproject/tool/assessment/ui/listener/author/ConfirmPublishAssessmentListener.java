@@ -160,6 +160,19 @@ public class ConfirmPublishAssessmentListener
     	error=true;
     }
     
+    // SAM-1088
+    // if late submissions not allowed and retract date is null, set retract date to due date
+    if (assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION.equals(assessmentSettings.getLateHandling()) &&
+    		retractDate == null && dueDate != null && assessmentSettings.getAutoSubmit()) {
+    	assessmentSettings.setRetractDate(dueDate);
+    }
+    // if auto-submit is enabled, make sure retract date is set
+    if (assessmentSettings.getAutoSubmit() && retractDate == null) {
+    	String dateError4 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_required_with_auto_submit");
+    	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError4, null));
+    	error=true;
+    }
+
     if (!isFromActionSelect) {
     	if (assessmentSettings.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
     		String[] groupsAuthorized = assessmentSettings.getGroupsAuthorizedToSave(); //getGroupsAuthorized();
