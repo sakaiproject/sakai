@@ -934,4 +934,52 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 	}
 
+	public boolean hideCalendarItem(String sakaiUserId, long calendarItemId) {
+		Person person = dao.getPersonBySakaiId(sakaiUserId);
+		CalendarLink link = dao.getCalendarLink(calendarItemId, person.getId().longValue());
+		link.setHidden(true);
+		return dao.updateCalendarLink(link);
+	}
+
+	public boolean hideNewsItem(String sakaiUserId, long newsItemId) {
+		Person person = dao.getPersonBySakaiId(sakaiUserId);
+		NewsLink link = dao.getNewsLink(newsItemId, person.getId().longValue());
+		link.setHidden(true);
+		return dao.updateNewsLink(link);
+	}
+
+	public boolean keepCalendarItem(String sakaiUserId, long calendarItemId) {
+		Person person = dao.getPersonBySakaiId(sakaiUserId);
+		CalendarLink link = dao.getCalendarLink(calendarItemId, person.getId().longValue());
+		link.setSticky(true);
+		return dao.updateCalendarLink(link);
+	}
+
+	public boolean keepNewsItem(String sakaiUserId, long newsItemId) {
+		Person person = dao.getPersonBySakaiId(sakaiUserId);
+		NewsLink link = dao.getNewsLink(newsItemId, person.getId().longValue());
+		link.setSticky(true);
+		return dao.updateNewsLink(link);
+	}
+
+	public boolean unhideCalendarItem(String sakaiUserId, long calendarItemId) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public boolean unhideNewsItem(String sakaiUserId, long newsItemId) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public boolean unkeepCalendarItem(String sakaiUserId, long calendarItemId) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public boolean unkeepNewsItem(String sakaiUserId, long newsItemId) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

@@ -121,6 +121,22 @@ public interface DashboardLogic {
 	public String getString(String key, String dflt, String entityTypeId);
 
 	/**
+	 * Hide a calendar item from views of calendar items by a particular user.
+	 * @param sakaiUserId
+	 * @param calendarItemId
+	 * @return
+	 */
+	public boolean hideCalendarItem(String sakaiUserId, long calendarItemId);
+
+	/**
+	 * Hide a news item from views of news items by a particular user.
+	 * @param sakaiUserId
+	 * @param newsItemId
+	 * @return
+	 */
+	public boolean hideNewsItem(String sakaiUserId, long newsItemId);
+	
+	/**
 	 * Check whether an entity is fully available to users with permission to access it 
 	 * (i.e. it is not hidden or restricted through some form of conditional release).
 	 * @param entityReference
@@ -129,6 +145,22 @@ public interface DashboardLogic {
 	 */
 	public boolean isAvailable(String entityReference, String entityTypeId);
 	
+	/**
+	 * Mark a calendar item to be highlighted and kept in the calendar display for a particular user even after it expires.
+	 * @param sakaiUserId
+	 * @param calendarItemId
+	 * @return
+	 */
+	public boolean keepCalendarItem(String sakaiUserId, long calendarItemId);
+
+	/**
+	 * Mark a news item to be highlighted and kept in the news display for a particular user even after it expires.
+	 * @param sakaiUserId
+	 * @param newsItemId
+	 * @return
+	 */
+	public boolean keepNewsItem(String sakaiUserId, long newsItemId);
+
 	public void registerEntityType(EntityType entityType);
 	
 	public void registerEventProcessor(EventProcessor eventProcessor);
@@ -192,6 +224,38 @@ public interface DashboardLogic {
 	 * @param entityReference
 	 */
 	public void removeAllScheduledAvailabilityChecks(String entityReference);
+
+	/**
+	 * Restore a calendar item to views of calendar items by a particular user.
+	 * @param sakaiUserId
+	 * @param calendarItemId
+	 * @return
+	 */
+	public boolean unhideCalendarItem(String sakaiUserId, long calendarItemId);
+
+	/**
+	 * Restore a news item to views of news items by a particular user.
+	 * @param sakaiUserId
+	 * @param newsItemId
+	 * @return
+	 */
+	public boolean unhideNewsItem(String sakaiUserId, long newsItemId);
+
+	/**
+	 * Remove the marking for a calendar item to be highlighted and kept in the calendar display for a particular user even after it expires.
+	 * @param sakaiUserId
+	 * @param calendarItemId
+	 * @return
+	 */
+	public boolean unkeepCalendarItem(String sakaiUserId, long calendarItemId);
+
+	/**
+	 * Remove the marking for a news item to be highlighted and kept in the news display for a particular user even after it expires.
+	 * @param sakaiUserId
+	 * @param newsItemId
+	 * @return
+	 */
+	public boolean unkeepNewsItem(String sakaiUserId, long newsItemId);
 
 	public void updateNewsLinks(String entityReference);
 

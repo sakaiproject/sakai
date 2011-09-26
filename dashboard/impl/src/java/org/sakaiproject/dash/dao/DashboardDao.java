@@ -188,4 +188,12 @@ public interface DashboardDao {
 
 	public Set<String> getSakaiIdsForUserWithNewsLinks(String entityReference);
 
+	public CalendarLink getCalendarLink(long calendarItemId, long personId);
+
+	public boolean updateCalendarLink(CalendarLink link);
+
+	public NewsLink getNewsLink(long newsItemId, long personId);
+
+	public boolean updateNewsLink(NewsLink link);
+
 }

@@ -103,14 +103,17 @@ public class DashboardPage extends BasePage {
 	                MarkupContainer actionKeepThis = new WebMarkupContainer("actionKeepThis");
 	                actionPanel.add(actionKeepThis);
 	                AjaxLink<CalendarItem> actionKeepThisLink = new AjaxLink<CalendarItem>("actionKeepThisLink") {
-	                	protected long item_id = cItem.getId();
+	                	protected long calendarItemId = cItem.getId();
 	                	
 						@Override
 						public void onClick(AjaxRequestTarget target) {
 							logger.info(target.toString());
 							// need to keep one item
-							logger.info(item_id);
+							logger.info(calendarItemId);
 							//logger.info(this.getModelObject());
+							
+							String sakaiUserId = sakaiProxy.getCurrentUserId();
+							dashboardLogic.keepCalendarItem(sakaiUserId, calendarItemId);
 						}
 	                	
 	                };
@@ -123,14 +126,16 @@ public class DashboardPage extends BasePage {
 	                MarkupContainer actionHideThis = new WebMarkupContainer("actionHideThis");
 	                actionPanel.add(actionHideThis);
 	                AjaxLink<CalendarItem> actionHideThisLink = new AjaxLink<CalendarItem>("actionHideThisLink") {
-	                	protected long item_id = cItem.getId();
+	                	protected long calendarItemId = cItem.getId();
 
 						@Override
 						public void onClick(AjaxRequestTarget target) {
 							logger.info(target.toString());
 							// need to trash one item
-							logger.info(item_id);
+							logger.info(calendarItemId);
 							//logger.info(this.getModelObject());
+							String sakaiUserId = sakaiProxy.getCurrentUserId();
+							dashboardLogic.hideCalendarItem(sakaiUserId, calendarItemId);
 						}
 	                	
 	                };
@@ -253,12 +258,15 @@ public class DashboardPage extends BasePage {
                 MarkupContainer actionKeepThis = new WebMarkupContainer("actionKeepThis");
                 actionPanel.add(actionKeepThis);
                 AjaxLink<NewsItem> actionKeepThisLink = new AjaxLink<NewsItem>("actionKeepThisLink") {
-
+                	protected long newsItemId = nItem.getId();
                 	
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						logger.info(target.toString());
 						// need to keep one item
+						
+						String sakaiUserId = sakaiProxy.getCurrentUserId();
+						dashboardLogic.keepNewsItem(sakaiUserId, newsItemId);
 					}
                 	
                 };
@@ -271,11 +279,15 @@ public class DashboardPage extends BasePage {
                 MarkupContainer actionHideThis = new WebMarkupContainer("actionHideThis");
                 actionPanel.add(actionHideThis);
                 AjaxLink<NewsItem> actionHideThisLink = new AjaxLink<NewsItem>("actionHideThisLink") {
+                	protected long newsItemId = nItem.getId();
 
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						logger.info(target.toString());
 						// need to trash one item
+						
+						String sakaiUserId = sakaiProxy.getCurrentUserId();
+						dashboardLogic.hideNewsItem(sakaiUserId, newsItemId);
 					}
                 	
                 };
@@ -287,6 +299,8 @@ public class DashboardPage extends BasePage {
                 MarkupContainer actionHideType = new WebMarkupContainer("actionHideType");
                 actionPanel.add(actionHideType);
                 AjaxLink<NewsItem> actionHideTypeLink = new AjaxLink<NewsItem>("actionHideTypeLink") {
+                	long type_id = nItem.getSourceType().getId();
+                	String type_name = nItem.getSourceType().getIdentifier();
 
 					@Override
 					public void onClick(AjaxRequestTarget target) {
@@ -303,7 +317,9 @@ public class DashboardPage extends BasePage {
                 MarkupContainer actionHideContext = new WebMarkupContainer("actionHideContext");
                 actionPanel.add(actionHideContext);
                 AjaxLink<NewsItem> actionHideContextLink = new AjaxLink<NewsItem>("actionHideContextLink") {
-
+                	long context_id = nItem.getContext().getId();
+                	String contextId = nItem.getContext().getContextId();
+                	
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						logger.info(target.toString());
@@ -320,6 +336,10 @@ public class DashboardPage extends BasePage {
                 MarkupContainer actionHideTypeInContext = new WebMarkupContainer("actionHideTypeInContext");
                 actionPanel.add(actionHideTypeInContext);
                 AjaxLink<NewsItem> actionHideTypeInContextLink = new AjaxLink<NewsItem>("actionHideTypeInContextLink") {
+                	long type_id = nItem.getSourceType().getId();
+                	String type_name = nItem.getSourceType().getIdentifier();
+                	long context_id = nItem.getContext().getId();
+                	String contextId = nItem.getContext().getContextId();
 
 					@Override
 					public void onClick(AjaxRequestTarget target) {

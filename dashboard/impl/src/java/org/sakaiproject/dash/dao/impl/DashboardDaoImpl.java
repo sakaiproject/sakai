@@ -603,11 +603,12 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 		String sql = null;
 		Object[] params = null;
-		if(contextId == null) {
+		if(contextId != null) {
 			sql = getStatement("select.CalendarItems.by.contextId");
 			params = new Object[]{contextId};
 		} 
 		log.info("getCalendarItemsByContext(" + contextId + ") sql = " + sql);
+		// TODO: what do do if sql and/or params null ??
 		try {
 			return (List<CalendarItem>) getJdbcTemplate().query(sql,params,
 				new CalendarItemMapper()
@@ -615,6 +616,22 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		} catch (DataAccessException ex) {
            log.error("getCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return new ArrayList<CalendarItem>();
+		}
+	}
+
+	public CalendarLink getCalendarLink(long calendarItemId, long personId) {
+		if(log.isDebugEnabled()) {
+			log.debug("getCalendarLink(" + calendarItemId + ", " + personId + ")");
+		}
+		
+		try {
+			return (CalendarLink) getJdbcTemplate().queryForObject(getStatement("select.CalendarLink.by.calendarItemId.personId"),
+				new Object[]{calendarItemId, personId},
+				new CalendarLinkMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getCalendarLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return null;
 		}
 	}
 
@@ -742,11 +759,12 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 		String sql = null;
 		Object[] params = null;
-		if(contextId == null) {
+		if(contextId != null) {
 			sql = getStatement("select.NewsItems.by.contextId");
 			params = new Object[]{contextId};
 		} 
 		log.info("getNewsItemsByContext(" + contextId + ") sql = " + sql);
+		// TODO: what do do if sql and/or params null ??
 		try {
 			return (List<NewsItem>) getJdbcTemplate().query(sql,params,
 				new NewsItemMapper()
@@ -754,6 +772,22 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		} catch (DataAccessException ex) {
            log.error("getNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return new ArrayList<NewsItem>();
+		}
+	}
+
+	public NewsLink getNewsLink(long newsItemId, long personId) {
+		if(log.isDebugEnabled()) {
+			log.debug("getNewsLink(" + newsItemId + ", " + personId + ")");
+		}
+		
+		try {
+			return (NewsLink) getJdbcTemplate().queryForObject(getStatement("select.NewsLink.by.newsItemId.personId"),
+				new Object[]{newsItemId, personId},
+				new NewsLinkMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getNewsLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return null;
 		}
 	}
 
@@ -922,6 +956,25 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            return false;
 		}				
 	}
+	
+	public boolean updateCalendarLink(CalendarLink calendarLink) {
+		if(log.isDebugEnabled()) {
+			log.debug("addCalendarLink( " + calendarLink.toString() + ")");
+		}
+		
+		//  person_id, item_id, context_id, realm_id
+		
+		try {
+			getJdbcTemplate().update(getStatement("update.CalendarLink"),
+				new Object[]{calendarLink.getPerson().getId(), calendarLink.getCalendarItem().getId(), 
+						calendarLink.getContext().getId(), calendarLink.isHidden(), calendarLink.isSticky(), calendarLink.getId()}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("addCalendarLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -942,6 +995,25 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            return false;
 		}		
 		
+	}
+
+	public boolean updateNewsLink(NewsLink newsLink) {
+		if(log.isDebugEnabled()) {
+			log.debug("addNewsLink( " + newsLink.toString() + ")");
+		}
+		
+		//  person_id, item_id, context_id, realm_id
+		
+		try {
+			getJdbcTemplate().update(getStatement("update.NewsLink"),
+				new Object[]{newsLink.getPerson().getId(), newsLink.getNewsItem().getId(), 
+						newsLink.getContext().getId(), newsLink.isHidden(), newsLink.isSticky(), newsLink.getId()}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("addNewsLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}
 	}
 
 	/**
