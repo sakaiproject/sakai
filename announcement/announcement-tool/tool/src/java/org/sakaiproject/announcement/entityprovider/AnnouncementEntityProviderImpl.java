@@ -36,11 +36,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
+import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
+import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
+import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
@@ -66,6 +71,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.MergedList;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Validator;
 
 /**
  * Allows some basic functions on announcements.
@@ -86,7 +92,14 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 	public static int DEFAULT_DAYS_IN_PAST = 10;
 	private static final Log log = LogFactory.getLog(AnnouncementEntityProviderImpl.class);
 	private static ResourceLoader rb = new ResourceLoader("announcement");
-	
+	private EntityBrokerManager entityBrokerManager;
+    
+    
+    public void setEntityBrokerManager(EntityBrokerManager entityBrokerManager)
+    {
+       this.entityBrokerManager = entityBrokerManager;
+    }
+    
 	/**
 	 * Prefix for this provider
 	 */
@@ -274,7 +287,54 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		return da;
 	}
 	
-	
+	   /**
+	    * Return a list of DecoratedAttachment objects
+	    * @param attachments List of Reference objects
+	    * @return
+	    */
+	 private List<DecoratedAttachment> decorateAttachments(List<Reference> attachments) {
+	      List<DecoratedAttachment> decoAttachments = new ArrayList<DecoratedAttachment>();
+	      for(Reference attachment : attachments){
+	         DecoratedAttachment da = new DecoratedAttachment();
+	         da.setId(Validator.escapeHtml(attachment.getId()));
+	         da.setName(Validator.escapeHtml(attachment.getProperties().getPropertyFormatted(attachment.getProperties().getNamePropDisplayName())));
+	         da.setType(attachment.getProperties().getProperty(attachment.getProperties().getNamePropContentType()));
+	         
+	         da.setUrl(attachment.getUrl());
+	         da.setRef(attachment.getEntity().getReference());
+	         decoAttachments.add(da);
+	      }
+	      return decoAttachments;
+	   }
+	 
+	public DecoratedAnnouncement findEntityById(String entityId, String siteId) {
+	      AnnouncementMessage tempMsg=null;
+	      DecoratedAnnouncement decoratedAnnouncement = new DecoratedAnnouncement();
+	      if (entityId != null) {
+	         try {
+	            AnnouncementChannel announcementChannel = announcementService.getAnnouncementChannel("/announcement/channel/"+siteId+"/main");
+	            tempMsg = (AnnouncementMessage)announcementChannel.getMessage(entityId);
+	         } catch (IdUnusedException e) {
+	            log.error("ID Unused Exception");
+	         } catch (PermissionException e) {
+	            log.error("ID PermissionException");
+	         }
+	      }
+	      decoratedAnnouncement.setSiteId(tempMsg.getId());
+	      decoratedAnnouncement.setBody(tempMsg.getBody());
+	      AnnouncementMessageHeader header = tempMsg.getAnnouncementHeader();
+	      decoratedAnnouncement.setTitle(header.getSubject());
+
+	      List attachments = header.getAttachments();
+	      List<DecoratedAttachment> attachmentUrls = decorateAttachments(attachments);
+	      
+	      decoratedAnnouncement.setAttachments(attachmentUrls);
+	      decoratedAnnouncement.setCreatedOn(new Date(header.getDate().getTime()));
+	      decoratedAnnouncement.setCreatedByDisplayName(header.getFrom().getDisplayName());
+	      decoratedAnnouncement.setSiteId(siteId);
+
+	      return decoratedAnnouncement;
+	   }
 
 	
 	/**
@@ -481,55 +541,125 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		String announcementId = view.getPathSegment(4);
 		return getAnnouncement(siteId, channelId, announcementId);
 	}
+	
+/**
+* message/siteId/EntityID
+*/
+   @EntityCustomAction(action="message",viewKey=EntityView.VIEW_LIST)
+   public Object getAnnouncementByID(EntityView view, Map<String, Object> params) {
 
+      String siteId = view.getPathSegment(2);
+      String msgId = view.getPathSegment(3);
 
-	private DecoratedAnnouncement getAnnouncement(String siteId,
-			String channelId, String announcementId) {
-		if (announcementId == null || announcementId.length() == 0) {
-			throw new IllegalArgumentException("You must supply an announcementId");
-		}
-		if (siteId == null || siteId.length() == 0) {
-			throw new IllegalArgumentException("You must supply the siteId.");
-		}
-		if (channelId == null || channelId.length() == 0) {
-			throw new IllegalArgumentException("You must supply an channelId");
-		}
-		String ref = announcementService.channelReference(siteId, channelId);
-		try {
-			AnnouncementChannel channel = announcementService.getAnnouncementChannel(ref);
-			AnnouncementMessage message = channel.getAnnouncementMessage(announcementId);
-			return createDecoratedAnnouncement(message, null);
-			
-		} catch (IdUnusedException e) {
-			throw new EntityNotFoundException("Couldn't find: "+ e.getId(), e.getId());
-		} catch (PermissionException e) {
-			throw new EntityException("You don't have permissions to access this channel.", e.getResource(), 403);
-		}
+      //check siteId supplied
+      if (StringUtils.isBlank(siteId)|| StringUtils.isBlank(msgId)) {
+         throw new IllegalArgumentException("siteId must be set in order to get the announcements for a site, via the URL /announcement/site/siteId");
+      }
+
+      boolean onlyPublic = false;
+
+      //check if logged in
+      String currentUserId = sessionManager.getCurrentSessionUserId();
+      if (StringUtils.isBlank(currentUserId)) {
+         //not logged in so set flag to just return any public announcements for the site
+         onlyPublic = true;
+      }
+
+      //check this is a valid site
+      if(!siteService.siteExists(siteId)) {
+         throw new EntityNotFoundException("Invalid siteId: " + siteId, siteId);
+      }
+
+      return findEntityById(msgId, siteId);
+   }
+
+   private DecoratedAnnouncement getAnnouncement(String siteId, String channelId, String announcementId) {
+	if (announcementId == null || announcementId.length() == 0) {
+		throw new IllegalArgumentException("You must supply an announcementId");
 	}
-
-	public class DecoratedAttachment implements Comparable<Object> {
-
-		private String name;
-		private String url;
-		
-		public DecoratedAttachment(String name, String url) {
-			this.name = name;
-			this.url = url;
-		}
-		
-		public String getName() {
-			return this.name;
-		}
-		
-		public String getUrl() {
-			return this.url;
-		}
-		
-		public int compareTo(Object other) {
-			return this.getUrl().compareTo(((DecoratedAttachment) other).getUrl());
-		}
-		
+	if (siteId == null || siteId.length() == 0) {
+		throw new IllegalArgumentException("You must supply the siteId.");
 	}
+	if (channelId == null || channelId.length() == 0) {
+		throw new IllegalArgumentException("You must supply an channelId");
+	}
+	String ref = announcementService.channelReference(siteId, channelId);
+	try {
+		AnnouncementChannel channel = announcementService.getAnnouncementChannel(ref);
+		AnnouncementMessage message = channel.getAnnouncementMessage(announcementId);
+		return createDecoratedAnnouncement(message, null);
+		
+	} catch (IdUnusedException e) {
+		throw new EntityNotFoundException("Couldn't find: "+ e.getId(), e.getId());
+	} catch (PermissionException e) {
+		throw new EntityException("You don't have permissions to access this channel.", e.getResource(), 403);
+	}
+}
+
+   public class DecoratedAttachment {
+	  private String id;
+	  private String name;
+	  private String type;
+	  private String url;
+	  private String ref;
+	  
+      public DecoratedAttachment() {
+         
+      }
+      
+      public DecoratedAttachment(String name, String url){
+    	  this.name = name;
+    	  this.url = url;
+      }
+      public DecoratedAttachment(String id, String name, String type, String url, String ref) {
+         this.id = id;
+         this.name = name;
+         this.type = type;
+         this.url = url;
+         this.setRef(ref);
+      }
+
+      public String getId() {
+         return id;
+      }
+
+      public void setId(String id) {
+         this.id = id;
+      }
+
+      public String getName() {
+         return name;
+      }
+
+      public void setName(String name) {
+         this.name = name;
+      }
+
+      public String getType() {
+         return type;
+      }
+
+      public void setType(String type) {
+         this.type = type;
+      }
+
+      public void setUrl(String url) {
+         this.url = url;
+      }
+
+      public String getUrl() {
+         return url;
+      }
+
+      public void setRef(String ref) {
+         this.ref = ref;
+      }
+
+      public String getRef() {
+         return ref;
+      }
+   }
+
 	
 	public boolean entityExists(String id) {
 		return true;
