@@ -431,7 +431,9 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		});
 
 		// remove the last entry, as it might not be a complete period
-		result.remove (result.size () - 1);
+		if(result.size () > 0){
+			result.remove (result.size () - 1);
+		}
 
 		return result;
 	}
