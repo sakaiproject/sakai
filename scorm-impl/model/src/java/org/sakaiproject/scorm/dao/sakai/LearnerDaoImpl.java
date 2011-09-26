@@ -66,20 +66,18 @@ public abstract class LearnerDaoImpl implements LearnerDao {
 			}
 			
 			// now for those not provided users
-			Set grants = realm.getMembers();
-			for (Iterator i = grants.iterator(); i.hasNext();) {
-				Member g = (Member) i.next();
-				if (!g.isProvided())
+			Set<Member> members = realm.getMembers();
+			for (Member member : members) {
+				if (!member.isProvided() && member.isActive())
 				{
 					try {
-						User user = userDirectoryService().getUserByEid(g.getUserEid());
+						User user = userDirectoryService().getUserByEid(member.getUserEid());
 						String userId = user.getId();
 						addLearner(userId, user, learnerMap);
 						
 					} catch (UserNotDefinedException e) {
-						// deal with missing user quietly without throwing a
-						// warning message
-						log.warn(e.getMessage());
+						// deal with missing user quietly without throwing a warning message
+						log.warn("Couldn't find user '"+member.getUserEid()+"' while looping over members of " + realm.getReference());
 					}
 				}
 			}
