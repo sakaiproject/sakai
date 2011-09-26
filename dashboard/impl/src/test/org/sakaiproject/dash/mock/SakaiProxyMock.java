@@ -156,5 +156,11 @@ public class SakaiProxyMock implements SakaiProxy {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	public String getScheduleEventUrl(String eventRef) {
+		// TODO Auto-generated method stub
+		return null;
+	
+	}
 
 }

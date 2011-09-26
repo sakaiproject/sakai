@@ -187,5 +187,12 @@ public interface SakaiProxy {
 	public void startAdminSession();
 
 	public List<ContentResource> getAllContentResources(String contentCollectionId);
+	
+	/**
+	 * get the deep link of schedule event
+	 * @param eventRef
+	 * @return
+	 */
+	public String getScheduleEventUrl(String eventRef);
 
 }

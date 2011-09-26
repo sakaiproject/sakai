@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarService;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.logic.DashboardLogic;
@@ -30,6 +31,8 @@ import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
@@ -106,7 +109,7 @@ public class ScheduleSupport{
 				// more info
 				List<Map<String,String>> infoList = new ArrayList<Map<String,String>>();
 				Map<String,String> infoItem = new HashMap<String,String>();
-				infoItem.put(VALUE_INFO_LINK_URL, "");
+				infoItem.put(VALUE_INFO_LINK_URL, sakaiProxy.getScheduleEventUrl(cEvent.getReference()));
 				infoItem.put(VALUE_INFO_LINK_TITLE, rl.getString("schedule.info.link"));
 				infoList.add(infoItem);
 				values.put(VALUE_MORE_INFO, infoList);
@@ -186,6 +189,8 @@ public class ScheduleSupport{
 			
 			String eventId = event.getEvent();
 			
+			String eventContextString = event.getContext();
+			
 			String proxyStringNew = SakaiProxy.EVENT_SCHEDULE_NEW_EVENT;
 			
 			String proxyStringRemove = SakaiProxy.EVENT_SCHEDULE_REMOVE_EVENT;
@@ -195,9 +200,12 @@ public class ScheduleSupport{
 			if(entity != null && entity instanceof CalendarEvent) {
 			
 				CalendarEvent cEvent = (CalendarEvent) entity;
-				Context context = dashboardLogic.getContext(event.getContext());
+
+				String cEventReference = cEvent.getReference();
+				
+				Context context = dashboardLogic.getContext(eventContextString);
 				if(context == null) {
-					context = dashboardLogic.createContext(event.getContext());
+					context = dashboardLogic.createContext(eventContextString);
 				}
 				SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
 				if(sourceType == null) {
@@ -205,7 +213,7 @@ public class ScheduleSupport{
 				}
 				// TODO: Third parameter should be a key for a label such as "Due Date: " or "Accept Until: " 
 				// from dash_entity properties bundle for use in the dashboard list
-				CalendarItem calendarItem = dashboardLogic.createCalendarItem(cEvent.getDisplayName(), new Date(cEvent.getRange().firstTime().getTime()), "", cEvent.getReference(), "", context, sourceType);
+				CalendarItem calendarItem = dashboardLogic.createCalendarItem(cEvent.getDisplayName(), new Date(cEvent.getRange().firstTime().getTime()), "", cEventReference, sakaiProxy.getScheduleEventUrl(cEventReference), context, sourceType);
 				dashboardLogic.createCalendarLinks(calendarItem);
 				
 			} else {
@@ -213,6 +221,7 @@ public class ScheduleSupport{
 				logger.info(eventId + " is not processed for entityReference " + event.getResource());
 			}
 		}
+		
 	}
 	
 	/**

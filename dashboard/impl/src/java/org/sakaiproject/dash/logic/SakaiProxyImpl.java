@@ -26,6 +26,7 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -45,6 +46,8 @@ import org.sakaiproject.util.Validator;
 public class SakaiProxyImpl implements SakaiProxy {
 
 	private static final Logger logger = Logger.getLogger(SakaiProxyImpl.class);
+	
+	private static final String SCHEDULE_TOOL_ID = "sakai.schedule";
     
 	/************************************************************************
 	 * SakaiProxy methods
@@ -274,6 +277,36 @@ public class SakaiProxyImpl implements SakaiProxy {
 		session.setUserId("admin");
 		session.setUserEid("admin");
 		this.sessionManager.setCurrentSession(session);
+	}
+	
+	/**
+	 * get the deep link url of schedule event
+	 * @param eventRef
+	 * @return
+	 */
+	public String getScheduleEventUrl(String eventRef) {
+		
+		Reference ref = entityManager.newReference(eventRef);
+		
+		Site site = this.getSite(ref.getContext());
+		if (site != null)
+		{
+			StringBuilder url = new StringBuilder();
+			ToolConfiguration tc = site.getToolForCommonId(SCHEDULE_TOOL_ID);
+			if(tc != null) {
+				// found schedule tool configuration
+				url.append(this.serverConfigurationService.getPortalUrl());
+				url.append("/directtool/");
+				url.append(tc.getId());
+				url.append("?eventReference=");
+				url.append(eventRef);
+				url.append("&panel=Main&sakai_action=doDescription&sakai.state.reset=true");		
+				return url.toString();
+			}
+		}
+		
+		// no site or no schedule tool found
+		return null;
 	}
 	
 
