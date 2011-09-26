@@ -51,7 +51,7 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 		private static final long serialVersionUID = 1L;
 		
 		private FileUploadField fileUploadField;
-		private boolean fileHidden = true;
+		private boolean fileHidden = false;
 		private int priority = NotificationService.NOTI_NONE;
 		private boolean fileValidated = false;
 		
