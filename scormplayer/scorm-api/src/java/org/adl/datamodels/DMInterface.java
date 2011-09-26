@@ -26,6 +26,9 @@ package org.adl.datamodels;
 
 import java.util.NoSuchElementException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 
 /**
  * <strong>Filename:</strong>DMInterface.java<br><br>
@@ -50,7 +53,9 @@ import java.util.NoSuchElementException;
 public class DMInterface
 {
 
-   /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+	private static Log log = LogFactory.getLog(DMInterface.class);
+	
+	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
    
     Public Methods
    
@@ -134,10 +139,12 @@ public class DMInterface
          catch ( NullPointerException npe )
          {
             result = DMErrorCodes.INVALID_REQUEST; 
-         }
+            log.debug("NullPointerException in processGetValue -> result is INVALID_REQUEST.", npe);
+        }
          catch (NumberFormatException nfe)
          {
             result = DMErrorCodes.INVALID_REQUEST;
+            log.debug("NumberFormatException in processGetValue -> result is INVALID_REQUEST.", nfe);
          }
       }
       else
@@ -191,10 +198,12 @@ public class DMInterface
             catch ( NullPointerException npe )
             {
                result = DMErrorCodes.INVALID_REQUEST; 
+               log.debug("NullPointerException in processSetValue -> result is INVALID_REQUEST.", npe);
             }
             catch (NumberFormatException nfe)
             {
                result = DMErrorCodes.INVALID_REQUEST;
+               log.debug("NumberFormatException in processSetValue -> result is INVALID_REQUEST.", nfe);
             }
          }
          else
@@ -248,14 +257,17 @@ public class DMInterface
          catch ( NullPointerException npe )
          {
             result = DMErrorCodes.INVALID_REQUEST; 
+            log.debug("NullPointerException in processEquals -> result is INVALID_REQUEST.", npe);
          }
          catch (NumberFormatException nfe)
          {
             result = DMErrorCodes.INVALID_REQUEST;
+            log.debug("NumberFormatException in processEquals -> result is INVALID_REQUEST.", nfe);
          }
          catch (NoSuchElementException nee )
          {
             result = DMErrorCodes.INVALID_REQUEST;
+            log.debug("NoSuchElementException in processEquals -> result is INVALID_REQUEST.", nee);
          }
       }
       else
@@ -303,10 +315,12 @@ public class DMInterface
          catch ( NullPointerException npe )
          {
             result = DMErrorCodes.INVALID_REQUEST; 
+            log.debug("NullPointerException in processValidate -> result is INVALID_REQUEST.", npe);
          }
          catch (NumberFormatException nfe)
          {
             result = DMErrorCodes.INVALID_REQUEST;
+            log.debug("NumberFormatException in processValidate -> result is INVALID_REQUEST.", nfe);
          }
       }
       else
