@@ -963,23 +963,31 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 
 	public boolean unhideCalendarItem(String sakaiUserId, long calendarItemId) {
-		// TODO Auto-generated method stub
-		return false;
+		Person person = dao.getPersonBySakaiId(sakaiUserId);
+		CalendarLink link = dao.getCalendarLink(calendarItemId, person.getId().longValue());
+		link.setHidden(false);
+		return dao.updateCalendarLink(link);
 	}
 
 	public boolean unhideNewsItem(String sakaiUserId, long newsItemId) {
-		// TODO Auto-generated method stub
-		return false;
+		Person person = dao.getPersonBySakaiId(sakaiUserId);
+		NewsLink link = dao.getNewsLink(newsItemId, person.getId().longValue());
+		link.setHidden(false);
+		return dao.updateNewsLink(link);
 	}
 
 	public boolean unkeepCalendarItem(String sakaiUserId, long calendarItemId) {
-		// TODO Auto-generated method stub
-		return false;
+		Person person = dao.getPersonBySakaiId(sakaiUserId);
+		CalendarLink link = dao.getCalendarLink(calendarItemId, person.getId().longValue());
+		link.setSticky(false);
+		return dao.updateCalendarLink(link);
 	}
 
 	public boolean unkeepNewsItem(String sakaiUserId, long newsItemId) {
-		// TODO Auto-generated method stub
-		return false;
+		Person person = dao.getPersonBySakaiId(sakaiUserId);
+		NewsLink link = dao.getNewsLink(newsItemId, person.getId().longValue());
+		link.setSticky(false);
+		return dao.updateNewsLink(link);
 	}
 
 }
