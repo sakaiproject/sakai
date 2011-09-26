@@ -280,6 +280,24 @@ public class DeliveryActionListener
       case 1: // Take assessment
       case 5: // Take assessment via url
               log.debug("**** DeliveryActionListener #0");
+
+              if (ae != null && ae.getComponent().getId().startsWith("beginAssessment")) {
+            	  // #1. check password
+            	  if (!delivery.getSettings().getUsername().equals(""))
+            	  {
+            		  if ("passwordAccessError".equals(delivery.validatePassword())) {
+            			  return;
+            		  }
+            	  }
+
+            	  // #2. check IP
+            	  if (delivery.getSettings().getIpAddresses() != null && !delivery.getSettings().getIpAddresses().isEmpty())
+            	  {
+            		  if ("ipAccessError".equals(delivery.validateIP())) {
+            			  return;
+            		  }
+            	  }
+              }
               
               // If this is a linear access and user clicks on Show Feedback, we do not
               // get data from db. Use delivery bean instead
