@@ -55,7 +55,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 	protected abstract SiteService siteService();
 
 	protected abstract SecurityService securityService();
-
+	
 	public void init() {
 		boolean created = ensureCollection(ROOT_DIRECTORY, "scorm");
 		if (created) {
@@ -188,18 +188,6 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 
 		ContentResourceEdit edit = null;
 		try {
-			securityService().pushAdvisor(new SecurityAdvisor() {
-				// this should allow if current user has scorm.upload in current site.
-				public SecurityAdvice isAllowed(String userId, String function, String reference) {
-//					if (ContentHostingService.AUTH_RESOURCE_ADD.equals(function)) {
-//						return SecurityAdvice.ALLOWED;
-//					}
-//					if (ContentHostingService.AUTH_RESOURCE_READ.equals(function)) {
-//						return SecurityAdvice.ALLOWED;
-//					}
-					return SecurityAdvice.PASS;
-				}
-			});
 			edit = this.contentService().addResource(collectionId, Validator.escapeResourceName(basename), Validator.escapeResourceName(extension), MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 
 			edit.setContent(stream);
@@ -220,9 +208,6 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 				this.contentService().cancelResource(edit);
 
 			log.error("Failed to place resources in Sakai content repository", e);
-		}
-		finally {
-			securityService().popAdvisor();
 		}
 
 		return null;
@@ -418,7 +403,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 
 			String displayName = getDisplayName(entryName);
 
-			collection.setHidden();
+			//collection.setHidden();
 
 			ResourcePropertiesEdit props = collection.getPropertiesEdit();
 			props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
@@ -472,7 +457,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 
 			resource.setContent(outStream.toByteArray());
 			resource.setContentType(getMimeType(entry.getName()));
-			resource.setHidden();
+			//resource.setHidden();
 
 			ResourcePropertiesEdit props = resource.getPropertiesEdit();
 			props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, getDisplayName(entry.getName()));
