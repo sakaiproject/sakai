@@ -184,7 +184,7 @@ public class ListFilter extends LocaleRegexTokenFilter implements CacheFilter
 				if (bullet[i] != '.')
 				{
 					buffer.append(openList.get(new Character(bullet[i])))
-							.append("<li>\n");
+							.append("<li>");
 				}
 				goneUp = true;
 			}
