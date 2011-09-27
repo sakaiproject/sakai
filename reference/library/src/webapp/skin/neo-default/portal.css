@@ -1504,6 +1504,9 @@ background-image: url(/library/image/silk/comment.png);
 .icon-sakai-see-all-tools {
     background-image: url(../../image/silk/bullet_go.png);
 }
+.icon-sakai-signup {
+    background-image: url(../../image/silk/date.png);
+}
 
 
 /** Privacy Popup Styles **/
