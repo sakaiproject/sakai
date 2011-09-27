@@ -59,8 +59,8 @@ public class SimpleRSSPreferencesValidator implements PreferencesValidator  {
 			throw new ValidatorException("Invalid value, must be a number", Collections.singleton("max_items"));
 		}
 		
-		//check > 0
-		if(!integerValidator.minValue(maxItems, 0)) {
+		//check greater than or equal to a minimum of 1
+		if(!integerValidator.minValue(maxItems, Constants.MIN_ITEMS)) {
 			throw new ValidatorException("Invalid number, must be greater than 0", Collections.singleton("max_items"));
 		}
 		

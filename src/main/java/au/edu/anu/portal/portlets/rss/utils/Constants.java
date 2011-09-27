@@ -18,8 +18,9 @@ package au.edu.anu.portal.portlets.rss.utils;
 
 public class Constants {
 	
-	public static final String PORTLET_TITLE_DEFAULT="RSS Portlet";
+	public static final String PORTLET_TITLE_DEFAULT="My RSS Feed";
 	
+	public static final int MIN_ITEMS = 1;
 	public static final int MAX_ITEMS = 5;
 	
 	
