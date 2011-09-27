@@ -113,7 +113,9 @@ public class DashboardPage extends BasePage {
 							//logger.info(this.getModelObject());
 							
 							String sakaiUserId = sakaiProxy.getCurrentUserId();
-							dashboardLogic.keepCalendarItem(sakaiUserId, calendarItemId);
+							boolean sticky = dashboardLogic.keepCalendarItem(sakaiUserId, calendarItemId);
+							
+							// if sticky adjust UI, else report failure?
 						}
 	                	
 	                };
@@ -135,7 +137,9 @@ public class DashboardPage extends BasePage {
 							logger.info(calendarItemId);
 							//logger.info(this.getModelObject());
 							String sakaiUserId = sakaiProxy.getCurrentUserId();
-							dashboardLogic.hideCalendarItem(sakaiUserId, calendarItemId);
+							boolean hidden = dashboardLogic.hideCalendarItem(sakaiUserId, calendarItemId);
+							
+							// if hidden adjust UI, else report failure?
 						}
 	                	
 	                };
@@ -266,7 +270,9 @@ public class DashboardPage extends BasePage {
 						// need to keep one item
 						
 						String sakaiUserId = sakaiProxy.getCurrentUserId();
-						dashboardLogic.keepNewsItem(sakaiUserId, newsItemId);
+						boolean sticky = dashboardLogic.keepNewsItem(sakaiUserId, newsItemId);
+						
+						// if sticky adjust UI, else report failure?
 					}
                 	
                 };
@@ -287,7 +293,10 @@ public class DashboardPage extends BasePage {
 						// need to trash one item
 						
 						String sakaiUserId = sakaiProxy.getCurrentUserId();
-						dashboardLogic.hideNewsItem(sakaiUserId, newsItemId);
+						boolean hidden = dashboardLogic.hideNewsItem(sakaiUserId, newsItemId);
+						
+						// if hidden adjust UI, else report failure?
+						
 					}
                 	
                 };
@@ -299,13 +308,16 @@ public class DashboardPage extends BasePage {
                 MarkupContainer actionHideType = new WebMarkupContainer("actionHideType");
                 actionPanel.add(actionHideType);
                 AjaxLink<NewsItem> actionHideTypeLink = new AjaxLink<NewsItem>("actionHideTypeLink") {
-                	long type_id = nItem.getSourceType().getId();
-                	String type_name = nItem.getSourceType().getIdentifier();
+                	long sourceTypeId = nItem.getSourceType().getId();
+                	String sourceTypeName = nItem.getSourceType().getIdentifier();
 
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						logger.info(target.toString());
 						// need to trash one kind of item
+						
+						String sakaiUserId = sakaiProxy.getCurrentUserId();
+						boolean hidden = dashboardLogic.hideNewsItemsBySourceType(sakaiUserId, sourceTypeId);
 					}
                 	
                 };

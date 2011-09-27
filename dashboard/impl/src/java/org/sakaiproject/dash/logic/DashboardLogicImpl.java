@@ -990,4 +990,16 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return dao.updateNewsLink(link);
 	}
 
+	public boolean hideCalendarItemsBySourceType(String sakaiUserId,
+			long sourceTypeId) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	public boolean hideNewsItemsBySourceType(String sakaiUserId,
+			long sourceTypeId) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

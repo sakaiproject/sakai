@@ -121,12 +121,20 @@ public interface DashboardLogic {
 	public String getString(String key, String dflt, String entityTypeId);
 
 	/**
-	 * Hide a calendar item from views of calendar items by a particular user.
+	 * Hide a calendar item from views of calendar items for a particular user.
 	 * @param sakaiUserId
 	 * @param calendarItemId
 	 * @return
 	 */
 	public boolean hideCalendarItem(String sakaiUserId, long calendarItemId);
+
+	/**
+	 * Hide calendar items of a particular type from views of calendar items for a particular user.
+	 * @param sakaiUserId
+	 * @param sourceTypeId
+	 * @return
+	 */
+	public boolean hideCalendarItemsBySourceType(String sakaiUserId, long sourceTypeId);
 
 	/**
 	 * Hide a news item from views of news items by a particular user.
@@ -136,6 +144,14 @@ public interface DashboardLogic {
 	 */
 	public boolean hideNewsItem(String sakaiUserId, long newsItemId);
 	
+	/**
+	 * Hide news items of a particular type from views of news items for a particular user.
+	 * @param sakaiUserId
+	 * @param sourceTypeId
+	 * @return
+	 */
+	public boolean hideNewsItemsBySourceType(String sakaiUserId, long sourceTypeId);
+
 	/**
 	 * Check whether an entity is fully available to users with permission to access it 
 	 * (i.e. it is not hidden or restricted through some form of conditional release).

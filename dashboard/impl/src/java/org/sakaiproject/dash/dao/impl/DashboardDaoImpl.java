@@ -1083,6 +1083,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		executeSqlStatement("create.CalendarItem.table");
 		executeSqlStatement("create.CalendarLink.table");
 		executeSqlStatement("create.AvailabilityCheck.table");
+		executeSqlStatement("create.PersonContext.table");
+		executeSqlStatement("create.PersonContextSourceType.table");
+		executeSqlStatement("create.PersonSourceType.table");
 		
 	}
 
