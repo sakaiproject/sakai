@@ -560,13 +560,16 @@ function setBlockDivs()
     <!-- NAVIGATION -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.itemAccessType_isInstructorEditable==true}">
   <f:verbatim> <div class="longtext"></f:verbatim> <h:outputLabel for="itemNavigation" value="#{assessmentSettingsMessages.navigation}" /><f:verbatim></div><div class="tier3"></f:verbatim>
-      <h:panelGrid columns="2"  >
+      <h:panelGrid columns="1">
         <h:selectOneRadio id="itemNavigation" value="#{assessmentSettings.itemNavigation}"  layout="pageDirection" 
 		onclick="setBlockDivs();submitForm();">
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.linear_access}"/>
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.random_access}"/>
         </h:selectOneRadio>
       </h:panelGrid>
+      <f:verbatim><div class="samigo-linear-access-warning"></f:verbatim>
+      <h:outputText value="#{assessmentSettingsMessages.linear_access_warning} " />
+      <f:verbatim></div></f:verbatim>
 <f:verbatim></div></f:verbatim>
     </h:panelGroup>
 
@@ -644,23 +647,15 @@ function setBlockDivs()
     <h:panelGroup rendered="#{assessmentSettings.valueMap.submissionModel_isInstructorEditable==true}">
       <f:verbatim><div class="longtext"></f:verbatim> <h:outputLabel value="#{assessmentSettingsMessages.submissions}" /> <f:verbatim> </div> <div class="tier3"></f:verbatim>
       <f:verbatim><table><tr><td></f:verbatim>
-        <h:selectOneRadio id="unlimitedSubmissions1" value="#{assessmentSettings.unlimitedSubmissions}" layout="pageDirection" rendered="#{assessmentSettings.itemNavigation!=1}">
-          <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.unlimited_submission}"/>
-          <f:selectItem itemValue="0" itemLabel="#{assessmentSettingsMessages.only}" />
-        </h:selectOneRadio>
-        <h:selectOneRadio id="unlimitedSubmissions2" value="0" disabled="true" layout="pageDirection" rendered="#{assessmentSettings.itemNavigation==1}">
+        <h:selectOneRadio id="unlimitedSubmissions" value="#{assessmentSettings.unlimitedSubmissions}" layout="pageDirection">
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.unlimited_submission}"/>
           <f:selectItem itemValue="0" itemLabel="#{assessmentSettingsMessages.only}" />
         </h:selectOneRadio>
 
       <f:verbatim></td><td valign="bottom"></f:verbatim>
-        <h:panelGroup rendered="#{assessmentSettings.itemNavigation!=1}">
-          <h:inputText size="5"  id="submissions_Allowed1" value="#{assessmentSettings.submissionsAllowed}" />
-          <h:outputLabel for="submissions_Allowed1" value="#{assessmentSettingsMessages.limited_submission}" />
-        </h:panelGroup>
-        <h:panelGroup rendered="#{assessmentSettings.itemNavigation==1}">
-          <h:inputText size="5"  id="submissions_Allowed2" value="1" disabled="true" />
-          <h:outputLabel for="submissions_Allowed2" value="#{assessmentSettingsMessages.limited_submission}" />
+        <h:panelGroup>
+          <h:inputText size="5"  id="submissions_Allowed" value="#{assessmentSettings.submissionsAllowed}" />
+          <h:outputLabel for="submissions_Allowed" value="#{assessmentSettingsMessages.limited_submission}" />
         </h:panelGroup>
       <f:verbatim></td></tr></table></div></f:verbatim>
     </h:panelGroup>

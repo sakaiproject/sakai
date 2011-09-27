@@ -459,13 +459,16 @@ function uncheckOther(field){
   <h:panelGroup rendered="#{publishedSettings.valueMap.itemAccessType_isInstructorEditable==true}">
   <f:verbatim> <div class="longtext"></f:verbatim> <h:outputLabel for="itemNavigation" value="#{assessmentSettingsMessages.navigation}" />
   <f:verbatim></div><div class="tier3"></f:verbatim>
-    <h:panelGrid columns="2">
+    <h:panelGrid columns="1">
       <h:selectOneRadio id="itemNavigation" value="#{publishedSettings.itemNavigation}"  layout="pageDirection" 
 		onclick="setBlockDivs();submitForm();">
         <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.linear_access}"/>
         <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.random_access}"/>
       </h:selectOneRadio>
     </h:panelGrid>
+    <f:verbatim><div class="samigo-linear-access-warning"></f:verbatim>
+    <h:outputText value="#{assessmentSettingsMessages.linear_access_warning} " />
+    <f:verbatim></div></f:verbatim>
   <f:verbatim></div></f:verbatim>
   </h:panelGroup>
     
@@ -546,27 +549,18 @@ function uncheckOther(field){
 	 <f:verbatim></div><div class="tier3"></f:verbatim>
 	 <f:verbatim><table><tr><td></f:verbatim>
 
-        <h:selectOneRadio id="unlimitedSubmissions1" rendered="#{publishedSettings.itemNavigation!=1}"
-            value="#{publishedSettings.unlimitedSubmissions}" layout="pageDirection">
+        <h:selectOneRadio id="unlimitedSubmissions" value="#{publishedSettings.unlimitedSubmissions}" layout="pageDirection">
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.unlimited_submission}"/>
           <f:selectItem itemValue="0" itemLabel="#{assessmentSettingsMessages.only}" />
         </h:selectOneRadio>
-        <h:selectOneRadio id="unlimitedSubmissions2" disabled="true" rendered="#{publishedSettings.itemNavigation==1}"
-            value="0" layout="pageDirection">
-          <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.unlimited_submission}"/>
-          <f:selectItem itemValue="0" itemLabel="#{assessmentSettingsMessages.only}" />
-        </h:selectOneRadio>
+        
         <f:verbatim></td><td valign="bottom"></f:verbatim>
         
-        <h:panelGroup rendered="#{publishedSettings.itemNavigation!=1}">
+        <h:panelGroup>
           <h:inputText size="5" value="#{publishedSettings.submissionsAllowed}"/>
           <h:outputLabel value="#{assessmentSettingsMessages.limited_submission}" />
         </h:panelGroup>
-        <h:panelGroup rendered="#{publishedSettings.itemNavigation==1}">
-          <h:inputText size="5" value="1" disabled="true"/>
-          <h:outputLabel value="#{assessmentSettingsMessages.limited_submission}" />
-        </h:panelGroup>
-
+        
     <f:verbatim></td></tr></table></f:verbatim>
      <f:verbatim></div></f:verbatim>
    </h:panelGroup>

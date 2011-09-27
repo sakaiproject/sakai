@@ -377,3 +377,7 @@ a.hideDivision {
     border: 1px solid #bbb;
 }
 
+.samigo-linear-access-warning {
+    font-style: italic;
+}
+
