@@ -270,7 +270,16 @@ public class ConfirmPublishAssessmentListener
     }
     else {
     	if (assessmentSettings.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
-    		assessmentSettings.getGroupsAuthorized(); //populate groupsAuthorized;
+    		String[] groupsAuthorized = assessmentSettings.getGroupsAuthorized(); //populate groupsAuthorized;
+    		if (groupsAuthorized == null || groupsAuthorized.length == 0) {
+    			String releaseGroupError = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","choose_release_to");
+    			context.addMessage(null,new FacesMessage(releaseGroupError));
+    			error=true;
+    			assessmentSettings.setNoGroupSelectedError(true);
+    		}
+    		else {
+    			assessmentSettings.setNoGroupSelectedError(false);
+    		} 
     	}
     }
     
