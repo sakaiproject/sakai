@@ -18,7 +18,17 @@ BASIC STRUCTURE
 Lesson Builder has quite simple data structures. 
 
 * SimplePage - this is a page, as shown in the UI. It has items on it.
-   the key field for a page is its ID number.
+   the key field for a page is its ID number. Note that pages for student
+   content have owners. Pages with no owner field can be changed by
+   any instructor. Students can also change page that they own.
+* SimpleStudentPage - extra information just for pages owned by students,
+   i.e. student content pages. The problem is that normally an item
+   points to a specific object. However for student content, the item 
+   points to a list of pages. This object holds those lists, as well
+   as information on last update, and comments sections forced by
+   the instructor. Note that entries are not actually deleted, but only
+   marked as deleted. That is required to keep numbering of anonymous
+   authors stable.
 * SimplePageItem - this represents one thing on a page, e.g. a resource,
    test, assignment, etc. The key fields for an item are the id number
    and the thing it points to. There's a type code, e.g. RESOURCE or 
@@ -26,15 +36,17 @@ Lesson Builder has quite simple data structures.
    /assignment/23. The type code is the same for all tools of the
    type. I.e. ASSESSMENT is used for both Samigo and Mneme. The
    reference has the actual tool name.
-* SimplePageLogEntry - we keep an entry for each user and each page.
-   While we currently only create log entrie for pages, the record
-   has an item number. Note that in some cases you can get to a page 
+* SimplePageComment - a comment entry. Note that entries are not 
+   deleted, but the contents are set to full.
+* SimplePageLogEntry - we keep an entry for each user and each page,
+   as well as other types of item in some cases. Note that entries
+   are for items ids, not page ids. In some cases you can get to a page 
    in more than one way, because several pages can point to the
    same page. It turns out that we need to do bookkeeping separately
    for each. By using the item number, the log entry is specific to the
    way we got to the page.
       The log entry shows the first and last times they went 
-   to the page. Complete indicates whether they've completed all required
+   to the page/item. Complete indicates whether they've completed all required
    items on the page. Then there are a couple of weird fields: path is 
    used so that when we log off and log on, we can get back to the state
    we were in. We need to know not just what page the user was on before,
@@ -58,6 +70,19 @@ Lesson Builder has quite simple data structures.
    that group. As people meet the prerequeists for the test, we add them
    to the group. We can only do this for some tools, currently Samigo,
    Assignment, and I believe jForum.
+      Lesson Builder is also group-aware. We normally use the group
+   restrictions in the tool itself. E.g. if a resource is set to be
+   accessible by a group, that fact is recorded in ContentService.
+   However if Lesson Builder access control is applied to the same
+   items, we have to create our own group to do the access control.
+   In that case the original group list is copied into the
+   SimplePageGroup entry, and is enforced by Lesson Builder.
+      Older code could create multiple access groups with the same
+   name. That should now have been fixed. This means that if you
+   manage to access control two items with the same name, they'll
+   share the same access control group. It also means that if you
+   remove access control, the group is preserved. If you later put
+   it back, anyone who qualified previously will still be there.
    
 The main classes are
  ShowPageProducer - displays the main user page. Mostly UI code
@@ -263,8 +288,8 @@ arbitrary restrictions on where you can proceed without doing things.
 You can do a strict linear system, but you'll need to set all items as
 both required and depending upon previous items.
 
-I'm still thinking about how to do "back." But I want to test "next"
-carefully first.
+Back is simpler: it is stricty dynamic. It goes back to the page you
+just came from.
 
 GROUP AWARENESS
 
@@ -317,3 +342,40 @@ have the SimplePageItem by which we got to the page. At top level this
 is a special top-level item. Because we always know this, it give us
 more flexbility, and avoids special-purpose code for pages, by putting
 the groups in the item, not the page.
+
+
+PERMISSIONS
+
+Lesson Builder enforced permissions at three levels: The UI (i.e. the
+producer) should never show something you're not allowed to get to.
+
+SimplePageBean checks permissions for most actions, so even if 
+someone fakes up a POST it should be caught. Note that we use a
+new provision in RSF to declare which of the public methods can
+be called directly through EL expressions.
+
+The Dao checks permission for most updates. In theory the checks in
+SimplePageBean should be good enough, but the application is complex
+enough that I was concerned I might forget a check somewhere.
+Initially the check was pretty simple: only someone who can edit
+should be able to update most things, except primarily log entries.
+However things got more complex when we added student content. So the
+permissions checks now have to see whether the item being updated is
+on a student page. if so, the author of the page is allowed to do the
+update.
+
+Note that saveItem and update in SimplePageToolDaoImpl also do
+call EventTrackingService to register events.
+
+CACHING
+
+A lot of items are cached. I depend upon the hibernate caches, but
+also maintain my own. Most of them are in SimplePageBean, the
+/access/lessonbuilder maintains one as well. These use normal
+Sakai caches with the default timeout, typically 10 min.
+
+Note that there is no cache coherency between front ends. So if you
+change a Lesson Builder page, students (and other instructors) may not
+see the changes for 10 min. For group membership caching, there's a
+special hack so that the instructor's access bypasses the cache.
+Otherwise the instructor might get very misleading information.
