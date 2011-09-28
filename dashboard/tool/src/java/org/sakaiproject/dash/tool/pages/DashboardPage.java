@@ -159,6 +159,8 @@ public class DashboardPage extends BasePage {
 							logger.info(target.toString());
 							// need to trash one kind of item
 							logger.info(type_id + " " + type_name);
+							String sakaiUserId = sakaiProxy.getCurrentUserId();
+							boolean completed = dashboardLogic.hideCalendarItemsBySourceType(sakaiUserId, type_id);
 						}
 	                	
 	                };
@@ -179,6 +181,8 @@ public class DashboardPage extends BasePage {
 							logger.info(target.toString());
 							// need to trash items from one site
 							logger.info(context_id + " " + contextId);
+							String sakaiUserId = sakaiProxy.getCurrentUserId();
+							boolean completed = dashboardLogic.hideCalendarItemsByContext(sakaiUserId, context_id);
 						}
 	                	
 	                };
@@ -201,6 +205,8 @@ public class DashboardPage extends BasePage {
 							// need to trash one kind of item
 							logger.info(type_id + " " + type_name);
 							logger.info(context_id + " " + contextId);
+							String sakaiUserId = sakaiProxy.getCurrentUserId();
+							boolean completed = dashboardLogic.hideCalendarItemsByContextSourceType(sakaiUserId, context_id, type_id);
 						}
 	                	
 	                };
@@ -336,6 +342,8 @@ public class DashboardPage extends BasePage {
 					public void onClick(AjaxRequestTarget target) {
 						logger.info(target.toString());
 						// need to trash items from one site
+						String sakaiUserId = sakaiProxy.getCurrentUserId();
+						boolean completed = dashboardLogic.hideNewsItemsByContext(sakaiUserId, context_id);
 					}
                 	
                 };
@@ -356,7 +364,9 @@ public class DashboardPage extends BasePage {
 					@Override
 					public void onClick(AjaxRequestTarget target) {
 						logger.info(target.toString());
-						// need to trash one kind of item
+						// need to trash one kind of item in one site
+						String sakaiUserId = sakaiProxy.getCurrentUserId();
+						boolean completed = dashboardLogic.hideNewsItemsByContextSourceType(sakaiUserId, context_id, type_id);
 					}
                 	
                 };

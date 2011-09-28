@@ -32,6 +32,9 @@ import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.NewsLink;
 import org.sakaiproject.dash.model.Person;
+import org.sakaiproject.dash.model.PersonContext;
+import org.sakaiproject.dash.model.PersonContextSourceType;
+import org.sakaiproject.dash.model.PersonSourceType;
 import org.sakaiproject.dash.model.Realm;
 import org.sakaiproject.dash.model.SourceType;
 
@@ -56,10 +59,18 @@ public interface DashboardDao {
 	
 	public boolean addPerson(Person person);
 	
+	public boolean addPersonContext(PersonContext personContext);
+	
+	public boolean addPersonContextSourceType(PersonContextSourceType personContextSourceType);
+	
+	public boolean addPersonSourceType(PersonSourceType personSourceType);
+	
 	public boolean addRealm(Realm realm);
 	
 	public boolean addSourceType(SourceType identifier);
 	
+	public SourceType getSourceType(long sourceTypeId);
+
 	public SourceType getSourceType(String identifier);
 
 	public CalendarItem getCalendarItem(String entityReference, String calendarTimeLabelKey);

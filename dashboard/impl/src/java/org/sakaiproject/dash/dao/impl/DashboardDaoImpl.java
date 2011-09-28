@@ -21,34 +21,21 @@
 
 package org.sakaiproject.dash.dao.impl;
 
-import java.io.PrintWriter;
 import java.net.URL;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-
-import javax.sql.DataSource;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.reloading.InvariantReloadingStrategy;
 import org.apache.log4j.Logger;
-
 import org.sakaiproject.component.api.ServerConfigurationService;
-
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.support.JdbcDaoSupport;
-
 import org.sakaiproject.dash.dao.DashboardDao;
 import org.sakaiproject.dash.model.AvailabilityCheck;
 import org.sakaiproject.dash.model.CalendarItem;
@@ -57,12 +44,15 @@ import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.NewsLink;
 import org.sakaiproject.dash.model.Person;
+import org.sakaiproject.dash.model.PersonContext;
+import org.sakaiproject.dash.model.PersonContextSourceType;
+import org.sakaiproject.dash.model.PersonSourceType;
 import org.sakaiproject.dash.model.Realm;
 import org.sakaiproject.dash.model.SourceType;
-
-import org.sakaiproject.dash.dao.impl.CalendarItemMapper;
-import org.sakaiproject.dash.dao.impl.ContextMapper;
-import org.sakaiproject.dash.dao.impl.NewsItemMapper;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.support.JdbcDaoSupport;
 
 /**
  * Implementation of ProjectDao
@@ -251,6 +241,54 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return true;
 		} catch (DataAccessException ex) {
            log.error("addPerson: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return false;
+		}
+	}
+	
+	public boolean addPersonContext(PersonContext personContext) {
+		if(log.isDebugEnabled()) {
+			log.debug("addPersonContext( " + personContext.toString() + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("insert.PersonContext"),
+				new Object[]{personContext.getItemType().getValue(), personContext.getPerson().getId(), personContext.getContext().getId()}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("addPersonContext: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return false;
+		}
+	}
+
+	public boolean addPersonContextSourceType(PersonContextSourceType personContextSourceType) {
+		if(log.isDebugEnabled()) {
+			log.debug("addPersonContextSourceType( " + personContextSourceType.toString() + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("insert.PersonContextSourceType"),
+				new Object[]{personContextSourceType.getItemType().getValue() ,personContextSourceType.getPerson().getId(), personContextSourceType.getContext().getId(), personContextSourceType.getSourceType().getId()}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("addPersonContextSourceType: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return false;
+		}
+	}
+
+	public boolean addPersonSourceType(PersonSourceType personSourceType) {
+		if(log.isDebugEnabled()) {
+			log.debug("addPersonSourceType( " + personSourceType.toString() + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("insert.PersonSourceType"),
+				new Object[]{personSourceType.getItemType().getValue(), personSourceType.getPerson().getId(), personSourceType.getSourceType().getId()}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("addPersonSourceType: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
 			return false;
 		}
 	}
@@ -485,6 +523,23 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
+	public SourceType getSourceType(long sourceTypeId) {
+		if(log.isDebugEnabled()) {
+			log.debug("getSourceType( " + sourceTypeId + ")");
+		}
+		
+		try {
+			return (SourceType) getJdbcTemplate().queryForObject(getStatement("select.SourceType.by.id"),
+				new Object[]{sourceTypeId},
+				new SourceTypeMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getSourceType: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return null;
+		}
+	}
+
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#getSourceType(java.lang.String)
@@ -500,7 +555,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				new SourceTypeMapper()
 			);
 		} catch (DataAccessException ex) {
-           log.error("getContext: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.error("getSourceType: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return null;
 		}
 	}

@@ -11,6 +11,7 @@ package org.sakaiproject.dash.model;
 public class PersonContext {
 	
 	protected long id;
+	protected ItemType itemType;
 	protected Person person;
 	protected Context context;
 	
@@ -26,8 +27,9 @@ public class PersonContext {
 	 * @param person
 	 * @param context
 	 */
-	public PersonContext(Person person, Context context) {
+	public PersonContext(ItemType itemType, Person person, Context context) {
 		super();
+		this.itemType = itemType;
 		this.person = person;
 		this.context = context;
 	}
@@ -36,9 +38,10 @@ public class PersonContext {
 	 * @param person
 	 * @param context
 	 */
-	public PersonContext(long id, Person person, Context context) {
+	public PersonContext(long id, ItemType itemType, Person person, Context context) {
 		super();
 		this.id = id;
+		this.itemType = itemType;
 		this.person = person;
 		this.context = context;
 	}
@@ -48,6 +51,13 @@ public class PersonContext {
 	 */
 	public long getId() {
 		return id;
+	}
+
+	/**
+	 * @return the itemType
+	 */
+	public ItemType getItemType() {
+		return itemType;
 	}
 
 	/**
@@ -72,6 +82,13 @@ public class PersonContext {
 	}
 
 	/**
+	 * @param itemType the itemType to set
+	 */
+	public void setItemType(ItemType itemType) {
+		this.itemType = itemType;
+	}
+
+	/**
 	 * @param person the person to set
 	 */
 	public void setPerson(Person person) {
@@ -93,6 +110,8 @@ public class PersonContext {
 		StringBuilder builder = new StringBuilder();
 		builder.append("PersonContext [id=");
 		builder.append(id);
+		builder.append(", itemType=");
+		builder.append(itemType.getName());
 		builder.append(", person=");
 		builder.append(person);
 		builder.append(", context=");

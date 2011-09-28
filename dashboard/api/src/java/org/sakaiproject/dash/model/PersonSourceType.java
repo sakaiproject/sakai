@@ -10,6 +10,7 @@ package org.sakaiproject.dash.model;
 public class PersonSourceType {
 	
 	protected long id;
+	protected ItemType itemType;
 	protected Person person;
 	protected SourceType sourceType;
 	
@@ -25,8 +26,9 @@ public class PersonSourceType {
 	 * @param person
 	 * @param sourceType
 	 */
-	public PersonSourceType(Person person, SourceType sourceType) {
+	public PersonSourceType(ItemType itemType, Person person, SourceType sourceType) {
 		super();
+		this.itemType = itemType;
 		this.person = person;
 		this.sourceType = sourceType;
 	}
@@ -36,9 +38,10 @@ public class PersonSourceType {
 	 * @param person
 	 * @param sourceType
 	 */
-	public PersonSourceType(long id, Person person, SourceType sourceType) {
+	public PersonSourceType(long id, ItemType itemType, Person person, SourceType sourceType) {
 		super();
 		this.id = id;
+		this.itemType = itemType;
 		this.person = person;
 		this.sourceType = sourceType;
 	}
@@ -48,6 +51,13 @@ public class PersonSourceType {
 	 */
 	public long getId() {
 		return id;
+	}
+
+	/**
+	 * @return the itemType
+	 */
+	public ItemType getItemType() {
+		return itemType;
 	}
 
 	/**
@@ -72,6 +82,13 @@ public class PersonSourceType {
 	}
 
 	/**
+	 * @param itemType the itemType to set
+	 */
+	public void setItemType(ItemType itemType) {
+		this.itemType = itemType;
+	}
+
+	/**
 	 * @param person the person to set
 	 */
 	public void setPerson(Person person) {
@@ -93,6 +110,8 @@ public class PersonSourceType {
 		StringBuilder builder = new StringBuilder();
 		builder.append("PersonSourceType [id=");
 		builder.append(id);
+		builder.append(", itemType=");
+		builder.append(itemType.getName());
 		builder.append(", person=");
 		builder.append(person);
 		builder.append(", sourceType=");
