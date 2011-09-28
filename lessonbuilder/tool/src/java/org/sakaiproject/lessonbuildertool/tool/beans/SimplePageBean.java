@@ -2485,14 +2485,20 @@ public class SimplePageBean {
        public Collection<String>getResourceGroups (SimplePageItem i, boolean nocache) {
     	   SecurityAdvisor advisor = null;
     	   try {
-    		   if(getCurrentPage().getOwner() != null) {
+	       
+	       // do this before getting privs. It is implemented by seeing whether anon can access,
+	       // so the advisor will cause the wrong answer
+	   	   boolean inheritingPubView =  contentHostingService.isInheritingPubView(i.getSakaiId());
+
+  	   	  // for isItemVisible to work, users need to be able to get this all the time
+                   //if(getCurrentPage().getOwner() != null) {
     			   advisor = new SecurityAdvisor() {
 						public SecurityAdvice isAllowed(String userId, String function, String reference) {
 							return SecurityAdvice.ALLOWED;
 						}
 					};
 					securityService.pushAdvisor(advisor);
-    		   }
+		   //   }
     	   
     		   Collection<String> ret = null;
 
@@ -2505,7 +2511,6 @@ public class SimplePageBean {
     		   
     		   Collection<String>groups = null;
     		   AccessMode access = resource.getAccess();
-    		   boolean inheritingPubView =  contentHostingService.isInheritingPubView(i.getSakaiId());
     		   if(AccessMode.INHERITED.equals(access) || inheritingPubView) {
     			   access = resource.getInheritedAccess();
     			   // inherited means that we can't set it locally
@@ -3201,7 +3206,6 @@ public class SimplePageBean {
 		if (doSave) {
 		    try {
 			siteService.save(site);
-			System.out.println("site saved");
 		    } catch (Exception e) {
 			log.error("addPage unable to save site " + e);
 		    }
@@ -3508,8 +3512,9 @@ public class SimplePageBean {
     // if the item has a group requirement, are we in one of the groups.
     // this is called a lot and is fairly expensive, so results are cached
 	public boolean isItemVisible(SimplePageItem item) {
-		if (canEditPage())
+		if (canEditPage()) {
 		    return true;
+		}
         	Boolean ret = visibleCache.get(item.getId());
 		if (ret != null)
 		    return (boolean)ret;
@@ -3960,7 +3965,6 @@ public class SimplePageBean {
 			}else if(URL.startsWith("http://youtu.be/")) {
 				Matcher match = SHORT_YOUTUBE_PATTERN.matcher(URL);
 				if(match.find()) {
-					System.out.println(match.group());
 					return match.group();
 				}
 			}
