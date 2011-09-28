@@ -19,6 +19,7 @@ import java.util.ResourceBundle;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -451,7 +452,7 @@ public class PDFAssessmentBean implements Serializable {
 						contentBuffer.append("<table cols='20' width='100%'>");
 						for (int t=0; t<answers.size(); t++) {
 							PublishedAnswer answer = (PublishedAnswer)answers.get(t);
-							if (answer.getText() == null) break;
+							if (StringUtils.isBlank(answer.getText())) break;
 							contentBuffer.append("<tr>");
 							contentBuffer.append(getContentAnswer(item, answer, printSetting));
 							contentBuffer.append("</tr>");
@@ -521,7 +522,7 @@ public class PDFAssessmentBean implements Serializable {
 			else
 				contentBuffer.append("<td colspan='1'><img src='/samigo-app/images/radiounchecked.gif' /></td>");
 				
-			contentBuffer.append("<td colspan='10'");
+			contentBuffer.append("<td colspan='10'>");
 			if (!item.getItemData().getTypeId().equals(TypeIfc.MULTIPLE_CHOICE_SURVEY)) {
 				contentBuffer.append(answer.getLabel());
 				contentBuffer.append(". ");
