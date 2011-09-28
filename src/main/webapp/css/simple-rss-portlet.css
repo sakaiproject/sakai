@@ -11,6 +11,7 @@
 
 .simple-rss-portlet form input {
 	width: inherit !important;
+	font-weight: normal;
 }
 
 /* fake a link as a button */
