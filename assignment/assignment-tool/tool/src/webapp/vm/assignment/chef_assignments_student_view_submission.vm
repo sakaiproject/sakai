@@ -79,6 +79,7 @@ function submitform(id)
 	#if ($allowSubmit && !$submission && $!closeTime && $currentTime.after($closeTime) )
 		<div class="alertMessage">$tlang.getString("stuviewsubm.theclodat")</div><div class="clear"></div>
 	#end
+	$canSubmit$returned$submission$timeSubmitted
 	#if ($!canSubmit)
 		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 		#if ($!submission && $timeSubmitted)
@@ -520,8 +521,8 @@ function submitform(id)
 							##<h4>$tlang.getString("gen.yousub")</h4>
 							$validator.escapeHtmlFormattedText($!value_submission_text)
 						#else*#
-							$allowAddAssignment $allowSubmitByInstructor $student#if ($!allowAddAssignment && $!allowSubmitByInstructor && $!student) 
- 							<h4>$tlang.getString("submitforstudent")</h4>
+							#if ($!allowAddAssignment && $!allowSubmitByInstructor && $!student) 
+							<h4>$tlang.getString("submitforstudent")</h4>
 							<p class="instruction">
 								$student.getDisplayName()
 								<input type="hidden" name="submit_on_behalf_of" id="submit_on_behalf_of" value="$student.id" />		

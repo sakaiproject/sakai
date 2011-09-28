@@ -189,7 +189,7 @@
 								#end
 							#elseif ($!gradeType == 4)
 								#foreach ($i in ["Pass", "Fail"])
-									<option value="$i" #if($!defaultGrade && $!defaultGrade.equals($i))selected="selected"#end>$i</option>
+									<option value="$i" #if($!defaultGrade && $!defaultGrade.equals($i))selected="selected"#end>#if ($i=="Pass") $tlang.getString("pass") #elseif ($i=="Fail") $tlang.getString("fail") #end</option>
 								#end
 							#elseif ($!gradeType == 5)
 								<option value="Checked" #if($!defaultGrade && $!defaultGrade.equals("Checked"))selected="selected"#end>$tlang.getString("gen.checked")</option>
