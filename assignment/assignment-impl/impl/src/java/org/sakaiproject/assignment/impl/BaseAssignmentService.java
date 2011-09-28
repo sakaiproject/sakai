@@ -6118,25 +6118,18 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					int allowResubmitNumber = Integer.parseInt(allowResubmitNumString);
 					String allowResubmitCloseTime = submission != null ? (String) submission.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME):null;
 					Time resubmitCloseTime = null;
-					if (allowResubmitNumber == -1)
+					
+					if (allowResubmitCloseTime != null)
 					{
-						// unlimitted resubmission
-						return true;
+						// see if a resubmission close time is set on submission level
+						resubmitCloseTime = TimeService.newTime(Long.parseLong(allowResubmitCloseTime));
 					}
-					else if (allowResubmitNumber > 0)
+					else
 					{
-						if (allowResubmitCloseTime != null)
-						{
-							// see if a resubmission close time is set on submission level
-							resubmitCloseTime = TimeService.newTime(Long.parseLong(allowResubmitCloseTime));
-						}
-						else
-						{
-							// otherwise, use assignment close time as the resubmission close time
-							resubmitCloseTime = a.getCloseTime();
-						}
-						return allowResubmitNumber != 0 && resubmitCloseTime != null && currentTime.before(resubmitCloseTime);
+						// otherwise, use assignment close time as the resubmission close time
+						resubmitCloseTime = a.getCloseTime();
 					}
+					return (allowResubmitNumber > 0 /* additional submission number allowed */ || allowResubmitNumber == -1 /* unlimited submission times allowed */) && resubmitCloseTime != null && currentTime.before(resubmitCloseTime);
 				}
 				catch (NumberFormatException e)
 				{
