@@ -1847,13 +1847,6 @@ public class DeliveryBean
 
   public String validate()
   {
-    // check before proceed
-    String nextAction = checkBeforeProceed();
-    log.debug("***** next Action="+nextAction);
-    if (!("safeToProceed").equals(nextAction)){
-      return nextAction;
-    }
-
     try
     {
       String results = "";
@@ -1872,42 +1865,11 @@ public class DeliveryBean
          results = validateIP();
          log.debug("*** checked password & IP="+results);
       }
-      else{ // password error
-      }
-      
-      // #2.5. secure delivery START phase
-      setSecureDeliveryHTMLFragment( "" );
-      setBlockDelivery( false );
-      SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
-      if ( ("takeAssessment".equals(results) || "".equals(results)) && secureDelivery.isSecureDeliveryAvaliable() ) {
-   
-    	  String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
-    	  if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
-   		  
-    		  HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-    		  PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_START, publishedAssessment, request );
-    		  setSecureDeliveryHTMLFragment( 
-    		  			secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_START, status, new ResourceLoader().getLocale() ) );
-    		  setBlockDelivery( PhaseStatus.FAILURE == status );
-    		  if ( PhaseStatus.SUCCESS == status )
-    			  results = "takeAssessment";
-    		  else
-    			  results = "secureDeliveryError";
-    	  }    	  
-      } 
 
-      // #3. results="" => no security checking required
-      if ("".equals(results))
-      {
-        // in post 2.1, clicking at Begin Assessment takes users to the
-        // 1st question.
-        return "takeAssessment";
-      }
-
-      // #4. if results != "takeAssessment", stop the clock if it is a timed assessment
+      // if results != "takeAssessment", stop the clock if it is a timed assessment
       // Trouble was the timer was started by DeliveryActionListener before validate() is being run.
       // So, we need to remove the timer thread as soon as we realized that the validation fails.
-      if (!("takeAssessment".equals(results)) && adata!=null){
+      if (!("takeAssessment".equals(results)) && adata!=null) {
         TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
         TimedAssessmentGradingModel timedAG = (TimedAssessmentGradingModel)queue.
                                              get(adata.getAssessmentGradingId());
@@ -1920,12 +1882,48 @@ public class DeliveryBean
             // assessment. If the security check of the new one fails, it won't stop the clock for existing one.
             queue.remove(timedAG);
             timeRunning = false;
-	  }
+          }
         }
+        return results;
+      }
+      
+      // check before proceed
+      String nextAction = checkBeforeProceed();
+      log.debug("***** next Action="+nextAction);
+      if (!("safeToProceed").equals(nextAction)){
+        return nextAction;
+      }
+      
+      // secure delivery START phase
+      setSecureDeliveryHTMLFragment( "" );
+      setBlockDelivery( false );
+      SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+      if ( ("takeAssessment".equals(results) || "".equals(results)) && secureDelivery.isSecureDeliveryAvaliable() ) {
+   
+    	  String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
+    	  if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
+    		  HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+    		  PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_START, publishedAssessment, request );
+    		  setSecureDeliveryHTMLFragment( 
+    		  			secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_START, status, new ResourceLoader().getLocale() ) );
+    		  setBlockDelivery( PhaseStatus.FAILURE == status );
+    		  if ( PhaseStatus.SUCCESS == status )
+    			  results = "takeAssessment";
+    		  else
+    			  results = "secureDeliveryError";
+    	  }    	  
+    	  return results;
+      }
+
+      // #3. results="" => no security checking required
+      if ("".equals(results))
+      {
+        // in post 2.1, clicking at Begin Assessment takes users to the
+        // 1st question.
+        return "takeAssessment";
       }
       return results;
-    }
-    catch (Exception e)
+    } catch (Exception e)
     {
       e.printStackTrace();
       return "accessError";
