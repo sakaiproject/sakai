@@ -13,7 +13,9 @@ import org.sakaiproject.scorm.navigation.INavigable;
 import org.sakaiproject.scorm.navigation.INavigationEvent;
 import org.sakaiproject.scorm.service.api.ScormApplicationService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
+import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.cover.ToolManager;
 
@@ -139,9 +141,14 @@ public abstract class SCORM13API implements SCORM13APIInterface {
 			String context = placement.getContext();
 			long contentPackageId = getSessionBean().getContentPackage().getContentPackageId();
 			String assessmentExternalId = ""+contentPackageId+":"+dataManager.getScoId();
-			if (getGradebookExternalAssessmentService().isExternalAssignmentDefined(context, assessmentExternalId)) {
-				getGradebookExternalAssessmentService().updateExternalAssessmentScore(context, assessmentExternalId, getSessionBean().getLearnerId(), "" + score);
-			}
+			updateGradeBook(score, context, assessmentExternalId);
+		}
+	}
+
+	protected void updateGradeBook(double score, String context, String assessmentExternalId) {
+		GradebookExternalAssessmentService service = getGradebookExternalAssessmentService();
+		if (service.isGradebookDefined(context) && service.isExternalAssignmentDefined(context, assessmentExternalId)) {
+			service.updateExternalAssessmentScore(context, assessmentExternalId, getSessionBean().getLearnerId(), "" + score);
 		}
 	}
 	
