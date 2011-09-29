@@ -112,7 +112,8 @@
 				<h:outputText escape="false" value="<div id=\"#{message.message.id}_advanced_box\" class=\"otherActions\" style=\"margin:2px 0;\">" />
 					<%-- Email --%>
                     <h:panelGroup rendered="#{message.userCanEmail}">
-                    	<h:outputLink id="createEmail1" value="mailto:#{message.authorEmail}?subject=Feedback on #{message.message.title}">
+                    	<h:outputLink id="createEmail1" value="mailto:#{message.authorEmail}">
+                        	<f:param value="Feedback on #{message.message.title}" name="subject" />
                         	<h:outputText value="#{msgs.cdfm_button_bar_email}"/>
                         </h:outputLink>
 	                    <h:outputText value=" #{msgs.cdfm_toolbar_separator} " />
