@@ -152,8 +152,7 @@ public class ScoResultsPage extends BaseResultsPage {
 	
 	@Override
 	protected boolean isNextLinkVisible(String[] siblingIds) {
-		boolean canGrade = lms.canGrade(lms.currentContext());
-		return canGrade && siblingIds[1] != null && !siblingIds[1].equals("");
+		return siblingIds[1] != null && !siblingIds[1].equals("");
 	}
 	
 	@Override
