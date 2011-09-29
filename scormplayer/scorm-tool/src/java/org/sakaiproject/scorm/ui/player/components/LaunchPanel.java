@@ -25,11 +25,11 @@ public class LaunchPanel extends UISynchronizerPanel implements IHeaderContribut
 	private WebMarkupContainer contentPanel;
 	
 	@SpringBean
-	transient LearningManagementSystem lms;
+	LearningManagementSystem lms;
 	@SpringBean
-	transient ScormResourceService resourceService;
+	ScormResourceService resourceService;
 	@SpringBean
-	transient ScormSequencingService sequencingService;
+	ScormSequencingService sequencingService;
 	
 	public LaunchPanel(String id, final SessionBean sessionBean, PlayerPage view) {
 		super(id, new Model(sessionBean));
@@ -63,7 +63,7 @@ public class LaunchPanel extends UISynchronizerPanel implements IHeaderContribut
 		response.renderJavascriptReference(HEADSCRIPTS);
 		response.renderJavascriptReference(RESIZESCRIPT);
 		response.renderOnLoadJavascript("initResizing()");
-		response.renderOnEventJavacript("window", "resize", "onResize()");
+		response.renderOnEventJavascript("window", "resize", "onResize()");
 	}
 
 	public WebMarkupContainer getContentPanel() {

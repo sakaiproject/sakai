@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.ui.player.pages;
 
+import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -49,11 +50,11 @@ public class PlayerPage extends BaseToolPage {
 	private static final long serialVersionUID = 1L;
 
 	@SpringBean
-	transient LearningManagementSystem lms;
+	LearningManagementSystem lms;
 	@SpringBean
-	transient ScormContentService contentService;
+	ScormContentService contentService;
 	@SpringBean
-	transient ScormSequencingService sequencingService;
+	ScormSequencingService sequencingService;
 	
 	// Components
 	private LazyLaunchPanel lazyLaunchPanel;
@@ -97,7 +98,7 @@ public class PlayerPage extends BaseToolPage {
 		HttpServletRequest servletRequest = webRequest.getHttpServletRequest();
 		String toolUrl = servletRequest.getContextPath();
 		
-		Class<?> pageClass = PackageListPage.class;
+		Class<? extends Page> pageClass = PackageListPage.class;
 		
 		if (lms.canLaunchNewWindow())
 			pageClass = CompletionPage.class;
@@ -115,7 +116,7 @@ public class PlayerPage extends BaseToolPage {
 	
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
-		response.renderOnEventJavacript("window", "beforeunload", closeWindowBehavior.getCall());
+		response.renderOnEventJavascript("window", "beforeunload", closeWindowBehavior.getCall());
 	}
 	
 	public ButtonForm getButtonForm() {

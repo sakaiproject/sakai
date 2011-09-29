@@ -51,13 +51,13 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 	private static ResourceReference PREV_ICON = new ResourceReference(BaseResultsPage.class, "res/arrow_left.png");
 	
 	@SpringBean
-	transient LearningManagementSystem lms;
+	LearningManagementSystem lms;
 	@SpringBean
-	transient ScormContentService contentService;
+	ScormContentService contentService;
 	@SpringBean
-	transient ScormResultService resultService;
+	ScormResultService resultService;
 	@SpringBean
-	transient ScormSequencingService sequencingService;
+	ScormSequencingService sequencingService;
 	
 	private final RepeatingView attemptNumberLinks;
 	

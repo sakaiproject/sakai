@@ -50,14 +50,14 @@ public class CommunicationPanel extends Panel { //implements IHeaderContributor 
 	//private LaunchPanel launchPanel;
 	
 	/*@SpringBean
-	transient LearningManagementSystem lms;
+	LearningManagementSystem lms;
 	
 	@SpringBean
-	transient ScormApplicationService applicationService;
+	ScormApplicationService applicationService;
 	@SpringBean
-	transient ScormResourceService resourceService;
+	ScormResourceService resourceService;
 	@SpringBean
-	transient ScormSequencingService sequencingService;
+	ScormSequencingService sequencingService;
 	
 	private SessionBean sessionBean;*/
 	

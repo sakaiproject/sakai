@@ -50,11 +50,11 @@ public class LazyLaunchPanel extends LazyLoadPanel {
 	private static Log log = LogFactory.getLog(LazyLaunchPanel.class);
 	
 	@SpringBean
-	transient ScormResourceService resourceService;
+	ScormResourceService resourceService;
 	@SpringBean
-	transient ScormResultService resultService;
+	ScormResultService resultService;
 	@SpringBean
-	transient ScormSequencingService sequencingService;
+	ScormSequencingService sequencingService;
 	
 	private PlayerPage view;
 	private LaunchPanel launchPanel;
@@ -71,7 +71,7 @@ public class LazyLaunchPanel extends LazyLoadPanel {
 
 	@Override
     public Component getLazyLoadComponent(String lazyId, AjaxRequestTarget target) {
-		SessionBean sessionBean = (SessionBean)getModelObject();
+		SessionBean sessionBean = (SessionBean)getDefaultModelObject();
 		
 		modelChanging();
 		

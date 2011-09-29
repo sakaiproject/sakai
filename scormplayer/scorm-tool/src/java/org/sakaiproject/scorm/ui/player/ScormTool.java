@@ -48,26 +48,7 @@ public class ScormTool extends SakaiWebApplication {
 	public void init() {
 		super.init();
 
-//		Objects.setObjectStreamFactory(new org.apache.wicket.util.io.WicketObjectStreamFactory());
-		
-		/*mount(new BookmarkablePageRequestTargetUrlCodingStrategy("scormplayer", PlayerPage.class, null) {
-			public boolean matches(String path)
-			{
-				String mountPath = getMountPath();
-				if (path.startsWith(mountPath) && !path.contains("/contentPackages"))
-				{
-					String remainder = path.substring(mountPath.length());
-					if (remainder.length() == 0 || remainder.startsWith("/"))
-					{
-						return true;
-					}
-				}
-				return false;
-			}
-		});*/
-		
 		mount(new ContentPackageResourceMountStrategy("contentpackages"));
-		
 	}
 	
 	@Override

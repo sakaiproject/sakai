@@ -39,7 +39,7 @@ public class DisplayDesignatedPackage extends SakaiPortletWebPage implements IHe
 	LearningManagementSystem lms;
 	@SpringBean
 	ScormContentService contentService;
-
+	
 	public DisplayDesignatedPackage() {
 		log.debug("DisplayDesignatedPackage page entered...");
 
@@ -120,7 +120,7 @@ public class DisplayDesignatedPackage extends SakaiPortletWebPage implements IHe
 	 * @param pkg
 	 */
 	@SuppressWarnings("deprecation")
-	protected void addActionLinksForPackage(ContentPackage pkg) {
+	protected void addActionLinksForPackage(final ContentPackage pkg) {
 
 		PlayerPage playerPage = new PlayerPage(getParametersForPackage(pkg));
 		Link lnkGo = new PageLink("lnk_go", playerPage);
@@ -142,33 +142,37 @@ public class DisplayDesignatedPackage extends SakaiPortletWebPage implements IHe
 		lnkGo.setEnabled(true);
 		lnkGo.setVisible(true);
 
-		PageParameters params = getParametersForPackage(pkg);
+		final PageParameters params = getParametersForPackage(pkg);
 		params.add("no-toolbar", "true");
 
-		PackageConfigurationPage packageConfigurationPage = new PackageConfigurationPage(params);
-		Link lnkConfigure = new PageLink("lnk_configure", packageConfigurationPage) {
-			private static final long serialVersionUID = 1L;
-			public boolean isVisible() {
-				String context = lms.currentContext();
-				return lms.canConfigure(context);
+		String context = lms.currentContext();
+		final boolean canConfigure = lms.canConfigure(context);
+		final boolean canViewResults = lms.canViewResults(context);
+		final boolean canGrade = lms.canGrade(context);
+		
+		Link<?> lnkConfigure = new Link("lnk_configure") {
+			@Override
+			public void onClick() {
+				setResponsePage(new PackageConfigurationPage(params));
 			}
 		};
+		lnkConfigure.setVisible(canConfigure);
 
 		// the following link points to the results page for the designated package
 		/*
 		 * if (canViewResults) { actionColumn.addAction(new Action(new StringResourceModel("column.action.grade.label", this, null), LearnerResultsPage.class, paramPropertyExpressions)); }
 		 */
-		Page resultsPage = new LearnerResultsPage(getParametersForPersonalResults(pkg));
-		if (lms.canGrade(lms.currentContext())) {
-			resultsPage = new ResultsListPage(getParametersForResultsList(pkg));
-		}
-		Link lnkResults = new PageLink("lnk_results", resultsPage) {
-			private static final long serialVersionUID = 1L;
-			public boolean isVisible() {
-				String context = lms.currentContext();
-				return lms.canViewResults(context) || lms.canGrade(context);
+		Link<?> lnkResults = new Link("lnk_results") {
+			@Override
+			public void onClick() {
+				Page resultsPage = new LearnerResultsPage(getParametersForPersonalResults(pkg));
+				if (canGrade) {
+					resultsPage = new ResultsListPage(getParametersForResultsList(pkg));
+				}
+				setResponsePage(resultsPage);
 			}
 		};
+		lnkResults.setVisible(canViewResults || canGrade);
 
 		// add links to page
 		add(lnkGo);
