@@ -81,7 +81,7 @@ public class PackageRemovePage extends ConsoleBasePage {
 					setResponsePage(PackageListPage.class);
 				} catch (ResourceNotDeletedException rnde) {
 					log.warn("Failed to delete all underlying resources ", rnde);
-					alertLabel.setModel(new ResourceModel("exception.remove"));
+					alertLabel.setDefaultModel(new ResourceModel("exception.remove"));
 					submitButton.setVisible(false);
 					setResponsePage(PackageRemovePage.class, params);
 				}

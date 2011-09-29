@@ -35,11 +35,11 @@ public class TreePanel extends Panel {
 	private LaunchPanel launchPanel;
 		
 	@SpringBean
-	transient LearningManagementSystem lms;
+	LearningManagementSystem lms;
 	@SpringBean
-	transient ScormResourceService resourceService;
+	ScormResourceService resourceService;
 	@SpringBean
-	transient ScormSequencingService sequencingService;
+	ScormSequencingService sequencingService;
 	
 	public TreePanel(String id, final SessionBean sessionBean, LaunchPanel launchPanel) {
 		super(id);

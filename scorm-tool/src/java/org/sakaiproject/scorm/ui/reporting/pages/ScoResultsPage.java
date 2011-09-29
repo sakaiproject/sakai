@@ -64,7 +64,7 @@ public class ScoResultsPage extends BaseResultsPage {
 
 	
 	@SpringBean
-	transient ScormResultService resultService;
+	ScormResultService resultService;
 	
 	public ScoResultsPage(PageParameters pageParams) {
 		super(pageParams);

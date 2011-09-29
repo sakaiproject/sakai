@@ -71,11 +71,11 @@ public class ActivityTree extends LinkTree {
 	protected boolean isEmpty = true;
 	
 	@SpringBean
-	transient LearningManagementSystem lms;
+	LearningManagementSystem lms;
 	@SpringBean
-	transient ScormResourceService resourceService;
+	ScormResourceService resourceService;
 	@SpringBean
-	transient ScormSequencingService sequencingService;
+	ScormSequencingService sequencingService;
 	
 	
 	public ActivityTree(String id, SessionBean sessionBean, UISynchronizerPanel synchronizer) {
@@ -156,8 +156,8 @@ public class ActivityTree extends LinkTree {
 		return sequencingService.isControlModeFlow(sessionBean);
 	}
 	
-	protected void onNodeLinkClicked(TreeNode node, BaseTree tree, AjaxRequestTarget target)
-	{		
+	@Override
+	protected void onNodeLinkClicked(Object node, BaseTree tree, AjaxRequestTarget target) {
 		log.debug("onNodeLinkClicked");
 
 		ISeqActivity activity = (ISeqActivity)((DefaultMutableTreeNode)node).getUserObject();
@@ -313,7 +313,7 @@ public class ActivityTree extends LinkTree {
 			super(id, model, tree);
 		}
 		
-		protected void onNodeLinkClicked(TreeNode node, BaseTree tree, AjaxRequestTarget target)
+		protected void onNodeLinkClicked(Object node, BaseTree tree, AjaxRequestTarget target)
 		{
 			ActivityTree.this.onNodeLinkClicked(node, tree, target);
 		}

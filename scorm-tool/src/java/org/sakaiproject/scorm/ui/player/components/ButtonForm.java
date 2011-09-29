@@ -45,7 +45,7 @@ public class ButtonForm extends Form {
 	private PlayerPage view;
 	
 	@SpringBean
-	transient ScormSequencingService sequencingService;
+	ScormSequencingService sequencingService;
 	
 	public ButtonForm(String id, final SessionBean sessionBean, PlayerPage view) {
 		super(id);

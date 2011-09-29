@@ -54,15 +54,15 @@ public class SjaxContainer extends WebMarkupContainer implements IHeaderContribu
 	private static final ResourceReference SJAX = new JavascriptResourceReference(SjaxContainer.class, "res/scorm-sjax.js");
 	
 	@SpringBean
-	transient LearningManagementSystem lms;
+	LearningManagementSystem lms;
 	@SpringBean
-	transient ScormApplicationService applicationService;
+	ScormApplicationService applicationService;
 	@SpringBean
-	transient ScormResourceService resourceService;
+	ScormResourceService resourceService;
 	@SpringBean
-	transient ScormSequencingService sequencingService;
+	ScormSequencingService sequencingService;
 	@SpringBean(name="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService")
-	transient GradebookExternalAssessmentService gradebookExternalAssessmentService;
+	GradebookExternalAssessmentService gradebookExternalAssessmentService;
 	
 	private UISynchronizerPanel synchronizerPanel;
 	private SjaxCall[] calls = new SjaxCall[8]; 
@@ -216,7 +216,7 @@ public class SjaxContainer extends WebMarkupContainer implements IHeaderContribu
 		
 		@Override
 		protected SessionBean getSessionBean() {
-			return (SessionBean)getModelObject();
+			return (SessionBean)getDefaultModelObject();
 		}
 		
 		@Override

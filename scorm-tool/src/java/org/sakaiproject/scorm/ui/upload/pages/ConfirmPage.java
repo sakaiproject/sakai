@@ -23,7 +23,7 @@ public class ConfirmPage extends ConsoleBasePage implements ScormConstants {
 		Archive archive = resourceService.getArchive(resourceId);
 		
 		if (archive != null) {
-			setModel(new CompoundPropertyModel(archive));
+			setDefaultModel(new CompoundPropertyModel(archive));
 		}
 	
 		info(getNotification(status));

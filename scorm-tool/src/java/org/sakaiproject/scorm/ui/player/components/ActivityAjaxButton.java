@@ -58,11 +58,11 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 	private String rootSrc;
 	
 	@SpringBean
-	transient LearningManagementSystem lms;
+	LearningManagementSystem lms;
 	@SpringBean
-	transient ScormResourceService resourceService;
+	ScormResourceService resourceService;
 	@SpringBean
-	transient ScormSequencingService sequencingService;
+	ScormSequencingService sequencingService;
 	
 	public ActivityAjaxButton(final ButtonForm form, SessionBean sessionBean, String id, int seqRequest, String rootSrc) {
 		super(id, form);
@@ -137,7 +137,7 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 	}
 
 	protected void onSubmit(AjaxRequestTarget target, Form form) {
-		SessionBean sessionBean = (SessionBean)getModelObject();
+		SessionBean sessionBean = (SessionBean)getDefaultModelObject();
 		modelChanging();
 		doNavigate(sessionBean, seqRequest, target);
 		modelChanged();
