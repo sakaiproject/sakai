@@ -975,9 +975,17 @@ public class AnnouncementAction extends PagedResourceActionII
 					{
 						messages = getMessages(channel, null, true, state, portlet);
 					}
-					
+					//readResourcesPage expects messages to be in session, so put the entire messages list in the session
 					sstate.setAttribute("messages", messages);
+					//readResourcesPage just orders the list correctly, so we can trim a correct list
+					messages = readResourcesPage(sstate, 1, messages.size() + 1);
+					//this will trim the list for us to put into the session
+					messages = trimListToMaxNumberOfAnnouncements(messages, state.getDisplayOptions());
+					//now put it back into the session so we can prepare the page with a correctly sorted and trimmed message list
+					sstate.setAttribute("messages", messages);
+					
 					messages = prepPage(sstate);
+					
 					sstate.setAttribute(STATE_MESSAGES, messages);
 
 					menu_delete = false;
@@ -1550,7 +1558,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		messageList = getViewableMessages(messageList, ToolManager.getCurrentPlacement().getContext());
 		
 		
-		messageList = trimListToMaxNumberOfAnnouncements(messageList, state.getDisplayOptions());
+		
 		
 		return messageList;
 	}
@@ -1641,7 +1649,7 @@ public class AnnouncementAction extends PagedResourceActionII
 
 			// We need to go backwards through the list, limiting it to the number
 			// of announcements that we're allowed to display.
-			for (int i = messageList.size() - 1, curAnnouncementCount = 0; i >= 0 && curAnnouncementCount < numberOfAnnouncements; i--)
+			for (int i = 0, curAnnouncementCount = 0; i < messageList.size() && curAnnouncementCount < numberOfAnnouncements; i++)
 			{
 				AnnouncementMessage message = (AnnouncementMessage) messageList.get(i);
 
