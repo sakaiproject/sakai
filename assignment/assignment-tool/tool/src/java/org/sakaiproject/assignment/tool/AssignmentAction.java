@@ -152,6 +152,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
+import java.util.regex.*;
 /**
  * <p>
  * AssignmentAction is the action class for the assignment tool.
@@ -8382,11 +8383,27 @@ public class AssignmentAction extends PagedResourceActionII
 		oldValue = StringUtils.trimToNull(oldValue);
 		if (oldValue == null && value != null 
 				|| oldValue != null && value == null
-				|| oldValue != null && value != null && !oldValue.equals(value))
+				|| oldValue != null && value != null && 
+				!normalizeAttributeSpaces(oldValue).equals(normalizeAttributeSpaces(value)))
 		{
 			rv = true;
 		}
 		return rv;
+	}
+	
+	/**
+	Remove extraneous spaces between tag attributes, to allow a better
+	equality test in valueDiffFromStateAttribute.
+	@param the input string, to be normalized
+	@return the normalized string.
+	*/
+	String normalizeAttributeSpaces(String s) {
+		if (s == null) 
+			return s;
+		Pattern p = Pattern.compile("(=\".*?\")( +)");
+		Matcher m = p.matcher(s);
+		String c = m.replaceAll("$1 ");
+		return c;
 	}
 	
 	/**
