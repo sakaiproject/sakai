@@ -465,10 +465,12 @@ function uncheckOther(field){
         <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.linear_access}"/>
         <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.random_access}"/>
       </h:selectOneRadio>
+      <h:panelGroup>
+        <f:verbatim> <div class="samigo-linear-access-warning"></f:verbatim>
+        <h:outputText value="#{assessmentSettingsMessages.linear_access_warning} "/>
+        <f:verbatim> </div></f:verbatim>
+        </h:panelGroup>
     </h:panelGrid>
-    <f:verbatim><div class="samigo-linear-access-warning"></f:verbatim>
-    <h:outputText value="#{assessmentSettingsMessages.linear_access_warning} " />
-    <f:verbatim></div></f:verbatim>
   <f:verbatim></div></f:verbatim>
   </h:panelGroup>
     

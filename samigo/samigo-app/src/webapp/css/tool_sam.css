@@ -378,6 +378,12 @@ a.hideDivision {
 }
 
 .samigo-linear-access-warning {
-    font-style: italic;
+    background-color: #FAFAD6;
+    border: 1px solid #F6D87D;
+    margin: 0px 10px 10px 10px;
+    padding: 5px;
+    border-radius: 5px;
+    color: #404040;
+    font-family: Arial,Helvetica,sans-serif;
 }
 
