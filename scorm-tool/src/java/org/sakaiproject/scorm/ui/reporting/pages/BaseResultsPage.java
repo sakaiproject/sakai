@@ -67,6 +67,10 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 		long contentPackageId = pageParams.getLong("contentPackageId");
 		String learnerId = pageParams.getString("learnerId");
 		
+		if (learnerId == null) { // this is a student coming directly from the package list.
+			learnerId = lms.currentLearnerId();
+		}
+		
 		String learnerName = "[name unavailable]";
 		
 		Learner learner = null;
