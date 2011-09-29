@@ -1125,11 +1125,15 @@ public class AssessmentSettingsBean
       return date;
     }
 
-     try {
-    	 if (!dateValidation(dateString)) {
-    		 this.isValidDate = false;
-    		 return null;
-    	 }
+    if (displayDateFormat == null || displayFormat == null) {	
+    	setDisplayFormat(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_data_picker_w_sec"));
+    }
+
+    try {
+    	if (!dateValidation(dateString)) {
+    		this.isValidDate = false;
+    		return null;
+    	}
 
       //Date date= (Date) displayFormat.parse(dateString);
 // dateString is in client timezone, change it to server time zone
@@ -1180,7 +1184,7 @@ public class AssessmentSettingsBean
 			  date = Integer.parseInt(dateArray[1]);
 			  month = Integer.parseInt(dateArray[0]);
 			  year = Integer.parseInt(dateArray[2].substring(0, 4));
-		  }
+		  }		  
 	  }
 	  catch(NumberFormatException  ne){
 		  log.error("NumberFormatException: " + ne.getMessage());
