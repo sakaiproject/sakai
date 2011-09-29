@@ -32,8 +32,7 @@
                  -->
                 <h3 class="withNav">Calendar</h3>
                 <div id="activeCalendarItems">
-                	<h5>Upcoming events</h5>
-	                <div class="pager" wicket:id="calendarNavigator">
+                	<div class="pager" wicket:id="calendarNavigator">
 	                </div>
 	                <table cellspacing="0" id="sched" summary="List of upcoming tasks. Column 1: date and time when task is due. Column 2: task title and link to get more details. Column 3: link to site where task originated. Column 4: list of options managing items of this type or origin." border="0">
 	                    <thead>
@@ -92,7 +91,7 @@
 	                </table>
 	            </div>
 
-                <div id="expiredCalendarItems">
+                <div id="expiredCalendarItems" style="display:none;">
                 	<h5>Expired events</h5>
 	                <div class="pager" wicket:id="expiredCalendarNavigator">
 	                </div>
@@ -133,7 +132,7 @@
 	                </table>
 	            </div>
 
-                <div id="savedCalendarItems">
+                <div id="savedCalendarItems" style="display:none;">
                 	<h5>Saved events</h5>
 	                <div class="pager" wicket:id="savedCalendarNavigator">
 	                </div>
@@ -174,7 +173,7 @@
 	                </table>
 	            </div>
 
-                <div id="hiddenCalendarItems">
+                <div id="hiddenCalendarItems" style="display:none;">
                 	<h5>Hidden events</h5>
 	                <div class="pager" wicket:id="hiddenCalendarNavigator">
 	                </div>
