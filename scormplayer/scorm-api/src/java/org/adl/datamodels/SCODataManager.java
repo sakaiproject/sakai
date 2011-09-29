@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.adl.datamodels.ieee.IValidatorFactory;
+import org.adl.datamodels.ieee.SCORM_2004_DM;
 
 
 /**
@@ -414,6 +415,14 @@ public class SCODataManager implements IDataManager {
 	
 	public void setValidatorFactory(IValidatorFactory validatorFactory) {
 		this.validatorFactory = validatorFactory;
+		if (mDataModels != null) {
+			for (Object o : mDataModels.values()) {
+				if (o instanceof SCORM_2004_DM) {
+					SCORM_2004_DM dataModel = (SCORM_2004_DM)o;
+					dataModel.setValidatorFactory(validatorFactory);
+				}
+			}
+		}
 	}
 	
 	public String getCourseId() {
