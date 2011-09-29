@@ -43,6 +43,11 @@
 			<scope>provided</scope>
 		</dependency>
 
+		<dependency>
+	        <groupId>org.sakaiproject.scorm</groupId>
+	        <artifactId>sakai-scorm-adl-impl</artifactId>
+   		</dependency>
+
 		<!--  EDIA dependencies -->
 		<!-- 
 		<dependency>
