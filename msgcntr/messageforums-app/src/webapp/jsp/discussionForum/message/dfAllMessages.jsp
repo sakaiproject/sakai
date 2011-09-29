@@ -307,10 +307,10 @@
 				</f:facet>
 				<h:panelGroup rendered="#{!message.deleted}" >
 					<h:outputText value="#{message.message.created}" rendered="#{message.read}">
-						<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}"/>
+						<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>
 					</h:outputText>
 					<h:outputText styleClass="unreadMsg" value="#{message.message.created}" rendered="#{!message.read}">
-						<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}"/>
+						<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>
 					</h:outputText>
 				</h:panelGroup>
 			</h:column> 

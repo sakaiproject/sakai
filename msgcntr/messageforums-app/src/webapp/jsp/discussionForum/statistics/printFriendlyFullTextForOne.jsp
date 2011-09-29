@@ -51,7 +51,7 @@
 					<h:outputText  value= "#{stat.forumSubject} " />
 			
 					<h:outputText value="#{stat.forumDate}">
-						<f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" />
+						<f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>
 					</h:outputText>
 				<f:verbatim></p></f:verbatim>	
 				<mf:htmlShowArea value="#{stat.message}" hideBorder="true"/>

@@ -53,7 +53,7 @@
 		       <h:outputText value="#{msgs.pvt_date}"/>
 		    </f:facet>
 		     <h:outputText value="#{delItems.msg.created}">
-		         <f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{PrivateMessagesTool.userTimeZone}" />
+		         <f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{PrivateMessagesTool.userTimeZone}" locale="#{PrivateMessagesTool.userLocale}"/>
 		     </h:outputText>
 		  </h:column>
 		</h:dataTable>

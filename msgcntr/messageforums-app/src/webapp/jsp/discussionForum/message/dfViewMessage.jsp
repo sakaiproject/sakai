@@ -241,7 +241,7 @@
 						<h:outputText value="#{ForumTool.selectedMessage.message.author}" styleClass="textPanelFooter" rendered="#{!ForumTool.showProfileInfo}"/>
 						<h:outputText value=" #{msgs.cdfm_openb} "  styleClass="textPanelFooter" />
 						<h:outputText value="#{ForumTool.selectedMessage.message.created}"  styleClass="textPanelFooter" >
-							<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" />  
+							<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>  
 						</h:outputText>
 						<h:outputText value=" #{msgs.cdfm_closeb}"  styleClass="textPanelFooter" />
 					</h:panelGroup>                                                                                            

@@ -43,7 +43,7 @@
 					<h:outputText value="#{message.message.title}"  styleClass="title"/>		          	
 		          	<h:outputText value=" - #{message.message.author}"/>
                     <h:outputText value="#{message.message.created}">
-			   	         <f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" />
+			   	         <f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>
            			</h:outputText>
 				</h:panelGroup>
 						<mf:htmlShowArea value="#{message.message.body}" hideBorder="false" />

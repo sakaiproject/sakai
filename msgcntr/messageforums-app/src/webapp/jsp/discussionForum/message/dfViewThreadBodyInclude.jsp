@@ -65,10 +65,10 @@
 				<h:outputText  value="  #{message.message.author}" rendered="#{!message.read && !ForumTool.showProfileInfo}" styleClass="unreadMsg textPanelFooter md"/>
 				<%--date --%>
 				<h:outputText value="#{message.message.created}" rendered="#{message.read}" styleClass="textPanelFooter md">
-					<f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" />
+					<f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>
 				</h:outputText>
 				<h:outputText  value="#{message.message.created}" rendered="#{!message.read}" styleClass="unreadMsg textPanelFooter md">
-					<f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" />
+					<f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>
 				</h:outputText>
 				<h:outputText value="#{msgs.cdfm_readby}" />
 				<h:outputText value="#{message.message.numReaders}" />	

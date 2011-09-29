@@ -70,7 +70,7 @@
 					</h:commandLink>
   				</f:facet>
   				<h:outputText value="#{stat.topicDate}">
-  					<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" />
+  					<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>
   				</h:outputText>
   			</h:column>
   			<h:column>

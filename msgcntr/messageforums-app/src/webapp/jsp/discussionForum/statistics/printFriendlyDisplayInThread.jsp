@@ -50,7 +50,7 @@
 								<h:outputText value="#{msgDecorateBean.message.title}" />
 								<h:outputText  value= " - #{msgDecorateBean.message.author} " />
 								<h:outputText value="#{msgDecorateBean.message.created}">
-									<f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" />
+									<f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>
 								</h:outputText>	
 							</h:panelGroup>
 							<h:panelGroup styleClass="inactive" rendered="#{msgDecorateBean.message.deleted}">
@@ -73,7 +73,7 @@
 								<h:outputText value="#{msgDecorateBean.message.title}" />
 								<h:outputText  value= " - #{msgDecorateBean.message.author} " />
 								<h:outputText value="#{msgDecorateBean.message.created}">
-									<f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" />
+									<f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>
 								</h:outputText>
 							</h:panelGroup>
 				

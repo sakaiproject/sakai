@@ -253,7 +253,7 @@
 						<f:verbatim><h:outputText value=" / " /></f:verbatim>
 						<h:outputText  value= "#{stat.forumSubject} " />
 						<h:outputText value="#{stat.forumDate}" styleClass="textPanelFooter">
-							<f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" />
+							<f:convertDateTime pattern="#{msgs.date_format_paren}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>
 						</h:outputText>
 						<f:verbatim></p></f:verbatim>
 						<% if(!isDialogBox){ %>

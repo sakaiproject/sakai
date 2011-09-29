@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Locale;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1505,11 +1506,11 @@ public void processChangeSelectView(ValueChangeEvent eve)
 		replyToSubject = title;
 
 	// format the created date according to the setting in the bundle
-    SimpleDateFormat formatter_date = new SimpleDateFormat(getResourceBundleString("date_format_date"));
+    SimpleDateFormat formatter_date = new SimpleDateFormat(getResourceBundleString("date_format_date"), new ResourceLoader().getLocale());
 	formatter_date.setTimeZone(TimeService.getLocalTimeZone());
 	String formattedCreateDate = formatter_date.format(pm.getCreated());
 	
-	SimpleDateFormat formatter_date_time = new SimpleDateFormat(getResourceBundleString("date_format_time"));
+	SimpleDateFormat formatter_date_time = new SimpleDateFormat(getResourceBundleString("date_format_time"), new ResourceLoader().getLocale());
 	formatter_date_time.setTimeZone(TimeService.getLocalTimeZone());
 	String formattedCreateTime = formatter_date_time.format(pm.getCreated());
 
@@ -1577,7 +1578,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     		forwardSubject = title;
 
     	// format the created date according to the setting in the bundle
-	    SimpleDateFormat formatter = new SimpleDateFormat(getResourceBundleString("date_format"));
+	    SimpleDateFormat formatter = new SimpleDateFormat(getResourceBundleString("date_format"), new ResourceLoader().getLocale());
 		formatter.setTimeZone(TimeService.getLocalTimeZone());
 		String formattedCreateDate = formatter.format(pm.getCreated());
 		
@@ -1674,11 +1675,11 @@ private   int   getNum(char letter,   String   a)
 
 
     	// format the created date according to the setting in the bundle
-	    SimpleDateFormat formatter = new SimpleDateFormat(getResourceBundleString("date_format"));
+	    SimpleDateFormat formatter = new SimpleDateFormat(getResourceBundleString("date_format"), new ResourceLoader().getLocale());
 		formatter.setTimeZone(TimeService.getLocalTimeZone());
 		String formattedCreateDate = formatter.format(pm.getCreated());
 		
-		SimpleDateFormat formatter_date_time = new SimpleDateFormat(getResourceBundleString("date_format_time"));
+		SimpleDateFormat formatter_date_time = new SimpleDateFormat(getResourceBundleString("date_format_time"), new ResourceLoader().getLocale());
 		formatter_date_time.setTimeZone(TimeService.getLocalTimeZone());
 		String formattedCreateTime = formatter_date_time.format(pm.getCreated());
 
@@ -5114,4 +5115,7 @@ private   int   getNum(char letter,   String   a)
 		  
 		  return null;
 	  }
+		public Locale getUserLocale(){
+			return new ResourceLoader().getLocale();
+		}
 }

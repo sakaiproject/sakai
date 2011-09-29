@@ -221,7 +221,7 @@
 					</h:commandLink>
   				</f:facet>
   				<h:outputText value="#{stat.forumDate}">
-  					<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" />
+  					<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>
   				</h:outputText>
   			</h:column>
   			<h:column>
@@ -309,7 +309,7 @@
 					</h:commandLink>
   				</f:facet>
   				<h:outputText value="#{stat2.forumDate}">
-  					<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" />
+  					<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>
   				</h:outputText>
   			</h:column>
   			<h:column>
