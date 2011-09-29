@@ -244,15 +244,14 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 						String context = getContext();
 						boolean has = gradebookExternalAssessmentService.isExternalAssignmentDefined(context, assessmentExternalId);
 						String fixedTitle = getItemTitle(assessmentSetup, context);
-						if (has && !on) {
-							gradebookExternalAssessmentService.removeExternalAssessment(context, assessmentExternalId);
-						} else {
-							if (!has && on) {
-								gradebookExternalAssessmentService.addExternalAssessment(context, assessmentExternalId, null, fixedTitle, assessmentSetup.numberOffPoints, gradebookSetup.getContentPackage().getDueOn(), "SCORM player");
-							} else {
-								gradebookExternalAssessmentService.updateExternalAssessment(context, assessmentExternalId, null, fixedTitle, assessmentSetup.numberOffPoints, gradebookSetup.getContentPackage().getDueOn());
+						if (has && on) { 
+							gradebookExternalAssessmentService.updateExternalAssessment(context, assessmentExternalId, null, fixedTitle, assessmentSetup.numberOffPoints, gradebookSetup.getContentPackage().getDueOn()); 
+							} else if (!has && on) { 
+								gradebookExternalAssessmentService.addExternalAssessment(context, assessmentExternalId, null, fixedTitle, assessmentSetup.numberOffPoints, gradebookSetup.getContentPackage().getDueOn(), "SCORM player"); 
+							} else if (has && !on) { 
+								gradebookExternalAssessmentService.removeExternalAssessment(context, assessmentExternalId);
 							}
-						}
+						
 					}
 				}
 				contentService.updateContentPackage(contentPackage);
