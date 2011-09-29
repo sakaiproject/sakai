@@ -120,9 +120,8 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 		Icon previousIcon = new Icon("previousIcon", PREV_ICON);
 		Icon nextIcon = new Icon("nextIcon", NEXT_ICON);
 		
-		boolean canGrade = lms.canGrade(lms.currentContext());
-		previousLink.setVisible( canGrade && siblingIds[0] != null && !siblingIds[0].equals(""));
-		nextLink.setVisible( canGrade && siblingIds[1] != null && !siblingIds[1].equals("") );
+		previousLink.setVisible(isPreviousLinkVisible(siblingIds));
+		nextLink.setVisible(isNextLinkVisible(siblingIds));
 
 		previousIcon.setVisible(previousLink.isVisible());
 		nextIcon.setVisible(nextLink.isVisible());
@@ -140,10 +139,20 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 		return link;
 	}
 	
+	protected boolean isPreviousLinkVisible(String[] siblingIds) {
+		boolean canGrade = lms.canGrade(lms.currentContext());
+		return canGrade && siblingIds[0] != null && !siblingIds[0].equals("");
+	}
+	
 	protected Link newNextLink(String nextId, PageParameters pageParams) {
 		Link link = new PageLink("nextLink", BaseResultsPage.class);
 		link.setVisible(false);
 		return link;
+	}
+	
+	protected boolean isNextLinkVisible(String[] siblingIds) {
+		boolean canGrade = lms.canGrade(lms.currentContext());
+		return canGrade && siblingIds[1] != null && !siblingIds[1].equals("");
 	}
 	
 	protected abstract void initializePage(ContentPackage contentPackage, Learner learner, long attemptNumber, PageParameters pageParams);
@@ -158,9 +167,10 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 	 */
 	protected void addAttemptNumberLink(long i, PageParameters params, RepeatingView container, long current)
 	{
-		params.put("attemptNumber", i);
+		PageParameters newParams = new PageParameters(params);
+		newParams.put("attemptNumber", i);
 		
-		BookmarkablePageLabeledLink link = newAttemptNumberLink(i, params);
+		BookmarkablePageLabeledLink link = newAttemptNumberLink(i, newParams);
 
 		if (i == current) {
 			link.setEnabled(false);

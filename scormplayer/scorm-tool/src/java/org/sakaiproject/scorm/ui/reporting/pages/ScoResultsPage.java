@@ -127,6 +127,11 @@ public class ScoResultsPage extends BaseResultsPage {
 	}
 	
 	@Override
+	protected boolean isPreviousLinkVisible(String[] siblingIds) {
+		return siblingIds[0] != null && !siblingIds[0].equals("");
+	}
+	
+	@Override
 	protected Link newNextLink(String nextId, PageParameters pageParams) {
 		PageParameters nextParams = new PageParameters();
 		
@@ -143,6 +148,12 @@ public class ScoResultsPage extends BaseResultsPage {
 
 		link.setVisible(nextId.trim().length() > 0);
 		return link;
+	}
+	
+	@Override
+	protected boolean isNextLinkVisible(String[] siblingIds) {
+		boolean canGrade = lms.canGrade(lms.currentContext());
+		return canGrade && siblingIds[1] != null && !siblingIds[1].equals("");
 	}
 	
 	@Override
