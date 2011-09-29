@@ -240,7 +240,7 @@ public class ForumsEmailService {
 
 			Multipart multipart = new MimeMultipart();
 			MimeBodyPart messageBodyPart = new MimeBodyPart();
-			messageBodyPart.setContent(FormattedText.escapeHtmlFormattedText(content.toString()), "text/html");			
+			messageBodyPart.setContent(FormattedText.escapeHtmlFormattedText(content.toString()), "text/html; charset=utf-8");
 			messageBodyPart.addHeader("Content-Transfer-Encoding", "quoted-printable");
             multipart.addBodyPart(messageBodyPart);
 			msg.setContent(multipart);
