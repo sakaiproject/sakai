@@ -96,4 +96,12 @@ public class UsageSessionServiceSqlDefault implements UsageSessionServiceSql
 		return "update SAKAI_SESSION set SESSION_SERVER = ? where SESSION_ID = ?";
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.event.impl.ClusterEventTrackingServiceSql#getSessionsCountSql()
+	 */
+	public String getSessionsCountSql() {
+		return "select COUNT(*) from SAKAI_SESSION";
+	}
+
+
 }

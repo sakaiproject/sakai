@@ -26,5 +26,9 @@ package org.sakaiproject.event.impl;
  */
 public class UsageSessionServiceSqlMySql extends UsageSessionServiceSqlDefault
 {
-	
+
+	@Override
+	public String getSessionsCountSql() {
+		return "select TABLE_ROWS FROM information_schema.TABLES WHERE TABLE_NAME='SAKAI_SESSION' ORDER BY CREATE_TIME LIMIT 1;";
+	}
 }

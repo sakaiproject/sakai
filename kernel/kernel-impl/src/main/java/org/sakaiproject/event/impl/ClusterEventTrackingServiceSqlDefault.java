@@ -64,11 +64,4 @@ public class ClusterEventTrackingServiceSqlDefault implements ClusterEventTracki
         return "select COUNT(*) from SAKAI_EVENT";
     }
 
-    /* (non-Javadoc)
-     * @see org.sakaiproject.event.impl.ClusterEventTrackingServiceSql#getSessionsCountSql()
-     */
-    public String getSessionsCountSql() {
-        return "select COUNT(*) from SAKAI_SESSION";
-    }
-
 }

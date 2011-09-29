@@ -47,9 +47,4 @@ public class ClusterEventTrackingServiceSqlMySql extends ClusterEventTrackingSer
         return "select TABLE_ROWS FROM information_schema.TABLES WHERE TABLE_NAME='SAKAI_EVENT' ORDER BY CREATE_TIME LIMIT 1;";
     }
 
-    @Override
-    public String getSessionsCountSql() {
-        return "select TABLE_ROWS FROM information_schema.TABLES WHERE TABLE_NAME='SAKAI_SESSION' ORDER BY CREATE_TIME LIMIT 1;";
-    }
-
 }

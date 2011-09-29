@@ -70,6 +70,10 @@ import org.sakaiproject.user.api.UserDirectoryService;
  */
 public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 {
+	// see http://jira.sakaiproject.org/browse/SAK-3793 for more info about these numbers
+	private static final long WARNING_SAFE_SESSIONS_TABLE_SIZE = 1750000l;
+	private static final long MAX_SAFE_SESSIONS_TABLE_SIZE = 2000000l;
+
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(UsageSessionServiceAdaptor.class);
 
@@ -226,6 +230,22 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 			M_log.warn("init(): ", t);
 		}
 		setUsageSessionServiceSql(sqlService().getVendor());
+		
+		boolean sessionsSizeCheck = serverConfigurationService().getBoolean("sessions.size.check", true);
+		if (sessionsSizeCheck) {
+			long totalSessionsCount = getSessionsCount();
+			if (totalSessionsCount > WARNING_SAFE_SESSIONS_TABLE_SIZE) {
+				M_log.info("The SAKAI_SESSIONS table size ("+totalSessionsCount+") is approaching the point at which " +
+						"performance will begin to degrade ("+MAX_SAFE_SESSIONS_TABLE_SIZE+
+						"), we recommend you archive older sessions over to another table, " +
+						"remove older rows, or truncate this table before it reaches a size of "+MAX_SAFE_SESSIONS_TABLE_SIZE);
+			} else if (totalSessionsCount > MAX_SAFE_SESSIONS_TABLE_SIZE) {
+				M_log.warn("The SAKAI_SESSIONS table size ("+totalSessionsCount+") has passed the point at which " +
+						"performance will begin to degrade ("+MAX_SAFE_SESSIONS_TABLE_SIZE+
+						"), we recommend you archive older events over to another table, " +
+						"remove older rows, or truncate this table to ensure that performance is not affected negatively");
+			}
+		}
 	}
 
 	/**
@@ -1012,6 +1032,37 @@ public abstract class UsageSessionServiceAdaptor implements UsageSessionService
 
 			return sessions;
 		}
+	}
+
+	/**
+	 * @return the current total number of sessions in the sessions table (data storage)
+	 */
+	protected long getSessionsCount() {
+		/*
+		 * NOTE: this is a weird way to get the value out but it matches the existing code
+		 * Added for SAK-3793
+		 */
+		long totalSessionsCount = 0;
+		final String sessionCountStmt = usageSessionServiceSql.getSessionsCountSql();
+		try {
+			List<Long> counts = sqlService().dbRead(sessionCountStmt, null, new SqlReader() {
+				public Object readSqlResultRecord(ResultSet result) {
+					long value = 0;
+					try {
+						value = result.getLong(1);
+					} catch (SQLException ignore) {
+						M_log.info("Could not get count of sessions table using SQL (" + sessionCountStmt + ")");
+					}
+					return new Long(value);
+				}
+			});
+			if (counts.size() > 0) {
+				totalSessionsCount = counts.get(0);
+			}
+		} catch (Exception e) {
+			M_log.warn("Could not get count of sessions.", e);
+		}
+		return totalSessionsCount;
 	}
 
 	@SuppressWarnings("unchecked")

@@ -46,9 +46,4 @@ public interface ClusterEventTrackingServiceSql
      */
     String getEventsCountSql();
 
-    /**
-     * returns the sql statement which counts the number of sessions in the sessions table
-     */
-    String getSessionsCountSql();
-
 }
