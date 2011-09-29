@@ -101,7 +101,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable
    /**
     * Describes the data model elements managed by this data model.
     */
-   private Map mElements = null;
+   private Map<String, DMElement> mElements = null;
    
    /**
     * Default constructor required for serialization support.
@@ -117,7 +117,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable
       SCORM_2004_DMElement element = null;
       DMElementDescriptor desc = null;
       DMDelimiterDescriptor del = null;
-      mElements = new Hashtable();
+      mElements = new Hashtable<String, DMElement>();
 
 
       // Create and add the _version element to the data model
