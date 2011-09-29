@@ -24,6 +24,9 @@
 
 package org.adl.datamodels;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Defines run-time data model utilities.
  * <br><br>
@@ -50,6 +53,7 @@ package org.adl.datamodels;
  */
 public class DMTimeUtility 
 {
+	static final Log log = LogFactory.getLog(DMTimeUtility.class);
    /**
     * This method calls the timeStringParse method to convert a time interval 
     * string to integers for the year, month, day, hour, minute, second and 
@@ -350,9 +354,13 @@ public class DMTimeUtility
             }
          }
       }
-      catch (NumberFormatException nfe)
+      catch (Throwable t)
       {
-         // Do Nothing
+    	  if (log.isDebugEnabled()) {
+    		  log.warn(t.getClass() + ": Not able to extract number from " + iTime + ", the exception message is: " + t.getMessage(), t);
+    	  } else {
+    		  log.warn(t.getClass() + ": Not able to extract number from " + iTime + ", the exception message is: " + t.getMessage());
+    	  }
       }
 
       return;
