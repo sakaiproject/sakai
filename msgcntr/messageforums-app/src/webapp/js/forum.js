@@ -500,7 +500,7 @@ function msgcntr_word_count(forumHtml) {
  
  function getWordCount(msgStr) {
  
-     var matches = msgStr.replace(/<[^<|>]+?>|&nbsp;/gi,' ').match(/\b/g);
+     var matches = msgStr.replace(/<[^<|>]+?>|&nbsp;/gi,' ').replace(/[\u0080-\u202e\u2030-\u205f\u2061-\ufefe\uff00-\uffff]/g,'x').match(/\b/g);
     var count = 0;
     if(matches) {
         count = matches.length/2;
