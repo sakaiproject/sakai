@@ -145,10 +145,13 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		person = dao.getPersonBySakaiId(sakaiId);
 		
 		CalendarLink link = new CalendarLink(person, calendarItem, context, false, false);
-		boolean saved = dao.addCalendarLink(link);
-		assertTrue(saved);
+		boolean linkSaved = dao.addCalendarLink(link);
+		assertTrue(linkSaved);
 		
-		List<CalendarItem> items = dao.getCalendarItems(sakaiId, contextId);
+		boolean saved = false;
+		boolean hidden = false;
+		
+		List<CalendarItem> items = dao.getCalendarItems(sakaiId, contextId, saved, hidden);
 		assertNotNull(items);
 		assertTrue(items.size() > 0);
 		
@@ -419,10 +422,13 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		person = dao.getPersonBySakaiId(sakaiId);
 		
 		CalendarLink link = new CalendarLink(person, calendarItem, context, false, false);
-		boolean saved = dao.addCalendarLink(link);
-		assertTrue(saved);
+		boolean linkSaved = dao.addCalendarLink(link);
+		assertTrue(linkSaved);
 		
-		List<CalendarItem> items = dao.getCalendarItems(sakaiId, contextId);
+		boolean saved = false;
+		boolean hidden = false;
+		
+		List<CalendarItem> items = dao.getCalendarItems(sakaiId, contextId, saved, hidden);
 		assertNotNull(items);
 		assertTrue(items.size() > 0);
 		
@@ -440,7 +446,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		assertTrue(foundItem);
 		assertTrue(calendarItemIds.size() > 0);
 		
-		items = dao.getCalendarItems(sakaiId, contextId);
+		items = dao.getCalendarItems(sakaiId, contextId, saved, hidden);
 		
 		assertTrue(items.size() == 0);
 	}
@@ -477,16 +483,19 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		person = dao.getPersonBySakaiId(sakaiId);
 		
 		CalendarLink link = new CalendarLink(person, calendarItem, context, false, false);
-		boolean saved = dao.addCalendarLink(link);
-		assertTrue(saved);
+		boolean linkSaved = dao.addCalendarLink(link);
+		assertTrue(linkSaved);
 		
-		List<CalendarItem> items = dao.getCalendarItems(sakaiId, contextId);
+		boolean saved = false;
+		boolean hidden = false;
+		
+		List<CalendarItem> items = dao.getCalendarItems(sakaiId, contextId, saved, hidden);
 		assertNotNull(items);
 		assertTrue(items.size() > 0);
 		
 		boolean deleted = dao.deleteCalendarLinks(person.getId(), context.getId());
 		assertTrue(deleted);
-		items = dao.getCalendarItems(sakaiId, contextId);
+		items = dao.getCalendarItems(sakaiId, contextId, saved, hidden);
 		
 		assertTrue(items.size() == 0);
 	}

@@ -623,17 +623,29 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	 * @see org.sakaiproject.dash.dao.DashboardDao#getCalendarItems(java.lang.String, java.lang.String)
 	 */
 	public List<CalendarItem> getCalendarItems(String sakaiUserId,
-			String contextId) {
+			String contextId, boolean saved, boolean hidden) {
 		if(log.isDebugEnabled()) {
 			log.debug("getCalendarItems(" + sakaiUserId + "," + contextId + ")");
 		}
 		String sql = null;
 		Object[] params = null;
 		if(contextId == null) {
-			sql = getStatement("select.CalendarItems.by.sakaiId");
+			if(hidden) {
+				sql = getStatement("select.CalendarItems.by.sakaiId.hidden");
+			} else if(saved) {
+				sql = getStatement("select.CalendarItems.by.sakaiId.sticky");
+			} else {
+				sql = getStatement("select.CalendarItems.by.sakaiId");
+			}
 			params = new Object[]{sakaiUserId};
 		} else {
-			sql = getStatement("select.CalendarItems.by.sakaiId.contextId");
+			if(hidden) {
+				sql = getStatement("select.CalendarItems.by.sakaiId.contextId.hidden");
+			} else if(saved) {
+				sql = getStatement("select.CalendarItems.by.sakaiId.contextId.sticky");
+			} else {
+				sql = getStatement("select.CalendarItems.by.sakaiId.contextId");
+			}
 			params = new Object[]{sakaiUserId, contextId};
 		}
 		log.info("getCalendarItems(" + sakaiUserId + "," + contextId + ") sql = " + sql);

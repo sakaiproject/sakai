@@ -31,65 +31,151 @@
                 </div>
                  -->
                 <h3 class="withNav">Calendar</h3>
-                <div class="pager" wicket:id="calendarNavigator">
-                </div>
-                <table cellspacing="0" id="sched" summary="List of upcoming tasks. Column 1: date and time when task is due. Column 2: task title and link to get more details. Column 3: link to site where task originated. Column 4: list of options managing items of this type or origin." border="0">
-		                    <thead>
-		                        <tr class="header">
-		                            <th scope="col" class="one date">
-		                                Date and Time
-		                            </th>
-		                            <th scope="col"  class="two">
-		                                Title
-		                            </th>
-		                            <th scope="col"  class="three">
-		                                From site
-		                            </th>
-		                            <th  class="four">
-		                                Action
-		                            </th>
-		                        </tr>
-		                    </thead>
-		                    <tr class="" id="item1" wicket:id="calendarItems">
-		                        <td class="one date" >
-		                        	<span wicket:id="calendarTimeLabel">[Time Label]</span>
-		                            <span wicket:id="calendarDate">[Date]</span>
-									<span wicket:id="calendarTime">[Time]</span>
-									<span wicket:id="itemType" class="itemType" style="display:none;">[item type]</span>
-		                            <span wicket:id="entityReference" class="entityReference" style="display:none;">[entity reference]</span>
-		                        </td>
-		                        <td class="tab two">
-		                            <a href="#" wicket:id="itemLink" class="itemLink" target="_top">[Item Title]</a>
-		                        </td>
-		                        <td class="three">
-		                            <a href="#" wicket:id="siteLink"  class="siteLink" target="_top">[Site Title]</a>
-		                        </td>
-		                        <td class="action four">
-		                            <div class="actionPanelTrig" style="display:none">
-		                                <a href="#"></a>
-		                            </div>
-		                            <ul class="actionPanel"  wicket:id="actionPanel" style="display:none">
-		                                <li class="actionKeepThis" wicket:id="actionKeepThis">
-		                                    <a href="#" wicket:id="actionKeepThisLink"><span wicket:id="actionKeepThisLabel">Keep this item in my dashboard</span></a>
-		                                </li>
-		                                <li class="actionHideThis" wicket:id="actionHideThis">
-		                                    <a href="#" wicket:id="actionHideThisLink"><span wicket:id="actionHideThisLabel">Remove this item</span></a>
-		                                </li>
-		                                <li class="actionHideType" wicket:id="actionHideType">
-		                                    <a href="#" wicket:id="actionHideTypeLink"><span wicket:id="actionHideTypeLabel">Block all ?? items</span></a>
-		                                </li>
-		                                <li class="actionHideContext" wicket:id="actionHideContext">
-		                                    <a href="#" wicket:id="actionHideContextLink"><span wicket:id="actionHideContextLabel">Block everything from ??</span></a>
-		                                </li>
-		                                <li class="actionHideTypeInContext" wicket:id="actionHideTypeInContext">
-		                                    <a href="#"  wicket:id="actionHideTypeInContextLink"><span wicket:id="actionHideTypeInContextLabel">Block all ?? items from ??</span></a>
-		                                </li>
-		                            </ul>
-		                        </td>
-		                    </tr>
-		                </table>
-		                
-		                <h3 class="withNav">News</h3>
+                <div id="activeCalendarItems">
+                	<h5>Upcoming events</h5>
+	                <div class="pager" wicket:id="calendarNavigator">
+	                </div>
+	                <table cellspacing="0" id="sched" summary="List of upcoming tasks. Column 1: date and time when task is due. Column 2: task title and link to get more details. Column 3: link to site where task originated. Column 4: list of options managing items of this type or origin." border="0">
+	                    <thead>
+	                        <tr class="header">
+	                            <th scope="col" class="one date">
+	                                Date and Time
+	                            </th>
+	                            <th scope="col"  class="two">
+	                                Title
+	                            </th>
+	                            <th scope="col"  class="three">
+	                                From site
+	                            </th>
+	                            <th  class="four">
+	                                Action
+	                            </th>
+	                        </tr>
+	                    </thead>
+	                    <tr class="" id="item1" wicket:id="calendarItems">
+	                        <td class="one date" >
+	                        	<span wicket:id="calendarTimeLabel">[Time Label]</span>
+	                            <span wicket:id="calendarDate">[Date]</span>
+								<span wicket:id="calendarTime">[Time]</span>
+								<span wicket:id="itemType" class="itemType" style="display:none;">[item type]</span>
+	                            <span wicket:id="entityReference" class="entityReference" style="display:none;">[entity reference]</span>
+	                        </td>
+	                        <td class="tab two">
+	                            <a href="#" wicket:id="itemLink" class="itemLink" target="_top">[Item Title]</a>
+	                        </td>
+	                        <td class="three">
+	                            <a href="#" wicket:id="siteLink"  class="siteLink" target="_top">[Site Title]</a>
+	                        </td>
+	                        <td class="action four">
+	                            <div class="actionPanelTrig" style="display:none">
+	                                <a href="#"></a>
+	                            </div>
+	                            <ul class="actionPanel"  wicket:id="actionPanel" style="display:none">
+	                                <li class="actionKeepThis" wicket:id="actionKeepThis">
+	                                    <a href="#" wicket:id="actionKeepThisLink"><span wicket:id="actionKeepThisLabel">Keep this item in my dashboard</span></a>
+	                                </li>
+	                                <li class="actionHideThis" wicket:id="actionHideThis">
+	                                    <a href="#" wicket:id="actionHideThisLink"><span wicket:id="actionHideThisLabel">Remove this item</span></a>
+	                                </li>
+	                                <li class="actionHideType" wicket:id="actionHideType">
+	                                    <a href="#" wicket:id="actionHideTypeLink"><span wicket:id="actionHideTypeLabel">Block all ?? items</span></a>
+	                                </li>
+	                                <li class="actionHideContext" wicket:id="actionHideContext">
+	                                    <a href="#" wicket:id="actionHideContextLink"><span wicket:id="actionHideContextLabel">Block everything from ??</span></a>
+	                                </li>
+	                                <li class="actionHideTypeInContext" wicket:id="actionHideTypeInContext">
+	                                    <a href="#"  wicket:id="actionHideTypeInContextLink"><span wicket:id="actionHideTypeInContextLabel">Block all ?? items from ??</span></a>
+	                                </li>
+	                            </ul>
+	                        </td>
+	                    </tr>
+	                </table>
+	            </div>
+
+                <div id="savedCalendarItems">
+                	<h5>Saved events</h5>
+	                <div class="pager" wicket:id="savedCalendarNavigator">
+	                </div>
+	                <table cellspacing="0" id="savedCal-sched" summary="List of upcoming tasks. Column 1: date and time when task is due. Column 2: task title and link to get more details. Column 3: link to site where task originated. Column 4: list of options managing items of this type or origin." border="0">
+	                    <thead>
+	                        <tr class="header">
+	                            <th scope="col" class="one date">
+	                                Date and Time
+	                            </th>
+	                            <th scope="col" class="two">
+	                                Title
+	                            </th>
+	                            <th scope="col" class="three">
+	                                From site
+	                            </th>
+	                            <th class="four">
+	                                Action
+	                            </th>
+	                        </tr>
+	                    </thead>
+	                    <tr class="" id="item101" wicket:id="savedCalendarItems">
+	                        <td class="one date" >
+	                        	<span wicket:id="savedCalendarTimeLabel">[Time Label]</span>
+	                            <span wicket:id="savedCalendarDate">[Date]</span>
+								<span wicket:id="savedCalendarTime">[Time]</span>
+								<span wicket:id="savedCalendarItemType" class="itemType" style="display:none;">[item type]</span>
+	                            <span wicket:id="savedCalendarEntityReference" class="entityReference" style="display:none;">[entity reference]</span>
+	                        </td>
+	                        <td class="tab two">
+	                            <a href="#" wicket:id="savedCalendarItemLink" class="itemLink" target="_top">[Item Title]</a>
+	                        </td>
+	                        <td class="three">
+	                            <a href="#" wicket:id="savedCalendarSiteLink"  class="siteLink" target="_top">[Site Title]</a>
+	                        </td>
+	                        <td class="x-action four">
+	                        </td>
+	                    </tr>
+	                </table>
+	            </div>
+
+                <div id="hiddenCalendarItems">
+                	<h5>Hidden events</h5>
+	                <div class="pager" wicket:id="hiddenCalendarNavigator">
+	                </div>
+	                <table cellspacing="0" id="hiddenCal-sched" summary="List of upcoming tasks. Column 1: date and time when task is due. Column 2: task title and link to get more details. Column 3: link to site where task originated. Column 4: list of options managing items of this type or origin." border="0">
+	                    <thead>
+	                        <tr class="header">
+	                            <th scope="col" class="one date">
+	                                Date and Time
+	                            </th>
+	                            <th scope="col" class="two">
+	                                Title
+	                            </th>
+	                            <th scope="col" class="three">
+	                                From site
+	                            </th>
+	                            <th class="four">
+	                                Action
+	                            </th>
+	                        </tr>
+	                    </thead>
+	                    <tr class="" id="item102" wicket:id="hiddenCalendarItems">
+	                        <td class="one date" >
+	                        	<span wicket:id="hiddenCalendarTimeLabel">[Time Label]</span>
+	                            <span wicket:id="hiddenCalendarDate">[Date]</span>
+								<span wicket:id="hiddenCalendarTime">[Time]</span>
+								<span wicket:id="hiddenCalendarItemType" class="itemType" style="display:none;">[item type]</span>
+	                            <span wicket:id="hiddenCalendarEntityReference" class="entityReference" style="display:none;">[entity reference]</span>
+	                        </td>
+	                        <td class="tab two">
+	                            <a href="#" wicket:id="hiddenCalendarItemLink" class="itemLink" target="_top">[Item Title]</a>
+	                        </td>
+	                        <td class="three">
+	                            <a href="#" wicket:id="hiddenCalendarSiteLink"  class="siteLink" target="_top">[Site Title]</a>
+	                        </td>
+	                        <td class="x-action four">
+	                        </td>
+	                    </tr>
+	                </table>
+		        </div>
+		            
+		            <h3 class="withNav">News</h3>
+		            <div>
 		                <div class="pager" wicket:id="newsNavigator">
 		                </div>
 		                <table cellspacing="0" id="news" summary="List of recent events. Column 1: link to details on item. Column 2: link to site where event took place. Column 3: date and time when event took place. Column 4: list of options managing items of this type or origin." border="0">
@@ -145,8 +231,10 @@
 		                                    <a href="#"  wicket:id="actionHideTypeInContextLink"><span wicket:id="actionHideTypeInContextLabel">Block all ?? items from ??</span></a>
 		                                </li>
 		                            </ul>
-		                        </td>		                    </tr>
+		                        </td>
+		                    </tr>
 		                </table>
+		            </div>
 			</div>
       <div id="dialog"  style="display:none">
           

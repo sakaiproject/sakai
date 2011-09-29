@@ -77,7 +77,7 @@ public interface DashboardDao {
 	
 	public List<CalendarItem> getCalendarItems(String entityReference);
 	
-	public List<CalendarItem> getCalendarItems(String sakaiUserId, String contextId);
+	public List<CalendarItem> getCalendarItems(String sakaiUserId, String contextId, boolean saved, boolean hidden);
 
 	public List<CalendarItem> getCalendarItemsByContext(String contextId);
 

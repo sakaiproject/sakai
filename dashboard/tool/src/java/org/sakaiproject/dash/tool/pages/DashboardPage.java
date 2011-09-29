@@ -63,15 +63,21 @@ public class DashboardPage extends BasePage {
 	private static final String DATE_FORMAT = "dd-MMM-yyyy";
 	private static final String TIME_FORMAT = "HH:mm";
 	protected static final String DATETIME_FORMAT = "dd-MMM-yyyy HH:mm";
+	
+	protected int pageSize = 5;
 
 	NewsItemDataProvider newsItemsProvider;
 	CalendarItemDataProvider calendarItemsProvider;
+	CalendarItemDataProvider savedCalendarItemsProvider;
+	CalendarItemDataProvider hiddenCalendarItemsProvider;
 	
 	public DashboardPage() {
 		
 		//get list of items from db, wrapped in a dataprovider
 		newsItemsProvider = new NewsItemDataProvider();
-		calendarItemsProvider = new CalendarItemDataProvider();
+		calendarItemsProvider = new CalendarItemDataProvider(false, false);
+		savedCalendarItemsProvider = new CalendarItemDataProvider(true, false);
+		hiddenCalendarItemsProvider = new CalendarItemDataProvider(false, true);
 		
 		//present the calendar data in a table
 		final DataView<CalendarItem> calendarDataView = new DataView<CalendarItem>("calendarItems", calendarItemsProvider) {
@@ -218,7 +224,7 @@ public class DashboardPage extends BasePage {
 			}
         };
         calendarDataView.setItemReuseStrategy(new DefaultItemReuseStrategy());
-        calendarDataView.setItemsPerPage(5);
+        calendarDataView.setItemsPerPage(pageSize);
         add(calendarDataView);
 
         //add a pager to our table, only visible if we have more than 5 items
@@ -226,7 +232,7 @@ public class DashboardPage extends BasePage {
         	
         	@Override
         	public boolean isVisible() {
-        		if(calendarItemsProvider.size() > 5) {
+        		if(calendarItemsProvider.size() > pageSize) {
         			return true;
         		}
         		return false;
@@ -241,10 +247,108 @@ public class DashboardPage extends BasePage {
         	}
         });
         
+		//present the calendar data in a table
+		final DataView<CalendarItem> savedCalendarDataView = new DataView<CalendarItem>("savedCalendarItems", savedCalendarItemsProvider) {
+
+			@Override
+			protected void populateItem(Item<CalendarItem> item) {
+				if(item != null && item.getModelObject() != null) {
+	                final CalendarItem cItem = (CalendarItem) item.getModelObject();
+	                if(logger.isDebugEnabled()) {
+	                	logger.debug(this + "populateItem()  item: " + item);
+	                }
+	                String itemType = cItem.getSourceType().getIdentifier();
+	                item.add(new Label("savedCalendarItemType", itemType));
+	                item.add(new Label("savedCalendarEntityReference", cItem.getEntityReference()));
+	                String calendarTimeLabel = dashboardLogic.getString(cItem.getCalendarTimeLabelKey(), "", itemType);
+	                if(calendarTimeLabel == null) {
+	                	calendarTimeLabel = "";
+	                }
+					item.add(new Label("savedCalendarTimeLabel", calendarTimeLabel ));
+	                item.add(new Label("savedCalendarDate", new SimpleDateFormat(DATE_FORMAT).format(cItem.getCalendarTime())));
+	                item.add(new Label("savedCalendarTime", new SimpleDateFormat(TIME_FORMAT).format(cItem.getCalendarTime())));
+	                
+	                item.add(new ExternalLink("savedCalendarItemLink", cItem.getEntityUrl(), cItem.getTitle()));
+	                item.add(new ExternalLink("savedCalendarSiteLink", cItem.getContext().getContextUrl(), cItem.getContext().getContextTitle()));
+				}
+	      
+			}
+		};
+		
+		savedCalendarDataView.setItemReuseStrategy(new DefaultItemReuseStrategy());
+		savedCalendarDataView.setItemsPerPage(pageSize);
+		
+		add(savedCalendarDataView);
+		add(new PagingNavigator("savedCalendarNavigator", savedCalendarDataView){
+        	@Override
+        	public boolean isVisible() {
+        		if(savedCalendarItemsProvider.size() > pageSize) {
+        			return true;
+        		}
+        		return false;
+        	}
+        	
+        	@Override
+        	public void onBeforeRender() {
+        		super.onBeforeRender();
+        		
+        		//clear the feedback panel messages
+        		clearFeedback(feedbackPanel);
+        	}
+ 		});
+        
+		//present the calendar data in a table
+		final DataView<CalendarItem> hiddenCalendarDataView = new DataView<CalendarItem>("hiddenCalendarItems", hiddenCalendarItemsProvider) {
+
+			@Override
+			protected void populateItem(Item<CalendarItem> item) {
+				if(item != null && item.getModelObject() != null) {
+	                final CalendarItem cItem = (CalendarItem) item.getModelObject();
+	                if(logger.isDebugEnabled()) {
+	                	logger.debug(this + "populateItem()  item: " + item);
+	                }
+	                String itemType = cItem.getSourceType().getIdentifier();
+	                item.add(new Label("hiddenCalendarItemType", itemType));
+	                item.add(new Label("hiddenCalendarEntityReference", cItem.getEntityReference()));
+	                String calendarTimeLabel = dashboardLogic.getString(cItem.getCalendarTimeLabelKey(), "", itemType);
+	                if(calendarTimeLabel == null) {
+	                	calendarTimeLabel = "";
+	                }
+					item.add(new Label("hiddenCalendarTimeLabel", calendarTimeLabel ));
+	                item.add(new Label("hiddenCalendarDate", new SimpleDateFormat(DATE_FORMAT).format(cItem.getCalendarTime())));
+	                item.add(new Label("hiddenCalendarTime", new SimpleDateFormat(TIME_FORMAT).format(cItem.getCalendarTime())));
+	                
+	                item.add(new ExternalLink("hiddenCalendarItemLink", cItem.getEntityUrl(), cItem.getTitle()));
+	                item.add(new ExternalLink("hiddenCalendarSiteLink", cItem.getContext().getContextUrl(), cItem.getContext().getContextTitle()));
+				}
+	      
+			}
+		};
+		
+		hiddenCalendarDataView.setItemReuseStrategy(new DefaultItemReuseStrategy());
+		hiddenCalendarDataView.setItemsPerPage(pageSize);
+		
+		add(hiddenCalendarDataView);
+		add(new PagingNavigator("hiddenCalendarNavigator", hiddenCalendarDataView){
+        	@Override
+        	public boolean isVisible() {
+        		if(hiddenCalendarItemsProvider.size() > pageSize) {
+        			return true;
+        		}
+        		return false;
+        	}
+        	
+        	@Override
+        	public void onBeforeRender() {
+        		super.onBeforeRender();
+        		
+        		//clear the feedback panel messages
+        		clearFeedback(feedbackPanel);
+        	}
+ 		});
+        
 		//present the news data in a table
 		final DataView<NewsItem> newsDataView = new DataView<NewsItem>("newsItems", newsItemsProvider) {
-			
-			
 
 			@Override
 			public void populateItem(final Item item) {
@@ -382,7 +486,7 @@ public class DashboardPage extends BasePage {
         
         
         newsDataView.setItemReuseStrategy(new DefaultItemReuseStrategy());
-        newsDataView.setItemsPerPage(5);
+        newsDataView.setItemsPerPage(pageSize);
         add(newsDataView);
 
         //add a pager to our table, only visible if we have more than 5 items
@@ -390,7 +494,7 @@ public class DashboardPage extends BasePage {
         	
         	@Override
         	public boolean isVisible() {
-        		if(newsItemsProvider.size() > 5) {
+        		if(newsItemsProvider.size() > pageSize) {
         			return true;
         		}
         		return false;
@@ -462,6 +566,18 @@ public class DashboardPage extends BasePage {
 	private class CalendarItemDataProvider implements IDataProvider<CalendarItem> {
 	   
 		private List<CalendarItem> calendarItems;
+		private boolean saved = false;
+		private boolean hidden = false;
+		
+		public CalendarItemDataProvider() {
+			super();
+		}
+		
+		public CalendarItemDataProvider(boolean saved, boolean hidden) {
+			super();
+			this.saved = saved;
+			this.hidden = hidden;
+		}
 		
 		private List<CalendarItem> getData() {
 			if(calendarItems == null) {
@@ -474,9 +590,9 @@ public class DashboardPage extends BasePage {
 					return new ArrayList<CalendarItem>();
 				}
 				if(sakaiProxy.isWorksite(siteId)) {
-					calendarItems = dashboardLogic.getCalendarItems(sakaiId);
+					calendarItems = dashboardLogic.getCalendarItems(sakaiId, saved, hidden);
 				} else {
-					calendarItems = dashboardLogic.getCalendarItems(sakaiId, siteId);
+					calendarItems = dashboardLogic.getCalendarItems(sakaiId, siteId, saved, hidden);
 				}
 			}
 			if(calendarItems == null) {

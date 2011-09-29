@@ -78,9 +78,32 @@ public interface DashboardLogic {
 	
 	public CalendarItem getCalendarItem(String entityReference, String calendarTimeLabelKey);
 
-	public List<CalendarItem> getCalendarItems(String sakaiUserId);
+	/**
+	 * 
+	 * @param sakaiUserId
+	 * @param saved If true, the results will include only items that have sticky true for 
+	 * 		the user. Otherwise the results will not include items with sticky true.
+	 * @param hidden If true, the results will include items that are individually marked 
+	 * 		with hidden true. Otherwise, the results will not include items that are 
+	 * 		individually hidden or hidden because they have a source-type that is hidden 
+	 * 		for the user or because they are from a context that is hidden for the user. 
+	 * @return
+	 */
+	public List<CalendarItem> getCalendarItems(String sakaiUserId, boolean saved, boolean hidden);
 
-	public List<CalendarItem> getCalendarItems(String sakaiUserId, String contextId);
+	/**
+	 * 
+	 * @param sakaiUserId
+	 * @param contextId
+	 * @param saved If true, the results will include only items that have sticky true for 
+	 * 		the user. Otherwise the results will not include items with sticky true.
+	 * @param hidden If true, the results will include items that are individually marked 
+	 * 		with hidden true. Otherwise, the results will not include items that are 
+	 * 		individually hidden or hidden because they have a source-type that is hidden 
+	 * 		for the user or because they are from a context that is hidden for the user. 
+	 * @return
+	 */
+	public List<CalendarItem> getCalendarItems(String sakaiUserId, String contextId, boolean saved, boolean hidden);
 	
 	/**
 	 * Retrieve the Context with a particular contextId 
