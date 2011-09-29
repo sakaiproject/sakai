@@ -36,6 +36,7 @@ import org.sakaiproject.scorm.model.api.ActivitySummary;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.Learner;
 import org.sakaiproject.scorm.ui.console.pages.DisplayDesignatedPackage;
+import org.sakaiproject.scorm.ui.console.pages.PackageListPage;
 import org.sakaiproject.scorm.ui.reporting.util.SummaryProvider;
 import org.sakaiproject.wicket.markup.html.link.BookmarkablePageLabeledLink;
 import org.sakaiproject.wicket.markup.html.repeater.data.presenter.EnhancedDataPresenter;
@@ -64,11 +65,21 @@ public class LearnerResultsPage extends BaseResultsPage {
 		
 		IModel breadcrumbModel = new StringResourceModel("parent.breadcrumb", this, new Model(contentPackage));
 		// MvH
-		if (lms.canGrade(lms.currentContext())) {
-			addBreadcrumb(breadcrumbModel, ResultsListPage.class, uberparentParams, true);
+		if (isSinglePackageTool()) {
+			if (lms.canGrade(lms.currentContext())) {
+				addBreadcrumb(breadcrumbModel, ResultsListPage.class, uberparentParams, true);
+			}
+			else {
+				addBreadcrumb(breadcrumbModel, DisplayDesignatedPackage.class, uberparentParams, true);
+			}
 		}
 		else {
-			addBreadcrumb(breadcrumbModel, DisplayDesignatedPackage.class, uberparentParams, true);
+			if (lms.canGrade(lms.currentContext())) {
+				addBreadcrumb(breadcrumbModel, ResultsListPage.class, uberparentParams, true);
+			}
+			else {
+				addBreadcrumb(breadcrumbModel, PackageListPage.class, uberparentParams, true);
+			}
 		}
 		addBreadcrumb(new Model(learner.getDisplayName()), LearnerResultsPage.class, parentParams, false);
 		
