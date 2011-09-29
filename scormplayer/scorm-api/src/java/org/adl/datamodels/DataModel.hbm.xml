@@ -21,7 +21,7 @@
 			<map name="mElements" table="SCORM_MAP_ELEMENTS_T">
     			<key column="DATAMODEL_ID"/>
     			<map-key column="ELEMENT_BINDING" type="string"/>
-    			<many-to-many column="ELEMENT_ID" class="org.adl.datamodels.ieee.SCORM_2004_DMElement"/>
+    			<many-to-many column="ELEMENT_ID" class="org.adl.datamodels.DMElement"/>
 			</map>
 			
 		</subclass>
