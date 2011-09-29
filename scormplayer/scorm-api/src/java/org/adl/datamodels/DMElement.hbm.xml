@@ -58,7 +58,7 @@
 
 		<subclass name="org.adl.datamodels.ieee.SCORM_2004_DMElement" 
 			discriminator-value="org.adl.datamodels.ieee.SCORM_2004_DMElement">
-			<!-- <many-to-one name="mDM" column="ELEMENT_DM" class="org.adl.datamodels.ieee.SCORM_2004_DM" /> -->
+			<many-to-one name="mDM" column="ELEMENT_DM" class="org.adl.datamodels.ieee.SCORM_2004_DM" not-null="false"/>
 		</subclass>
 		
 		<subclass name="org.adl.datamodels.nav.SCORM_2004_NAV_DMElement"
