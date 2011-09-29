@@ -7,10 +7,12 @@
 	<h:messages globalOnly="true" infoClass="success" warnClass="validation" errorClass="validation" fatalClass="validation"/>
 </t:div>
 <script type="text/javascript">
-	var messageBlock= document.getElementById('gbForm:messageBlock');
-	if (messageBlock.children.length > 0){
-		messageBlock.setAttribute("tabindex", "-1"); 
-		messageBlock.focus(); 
-	}	
+	for (var i=0; i<document.forms.length; i++){
+		var messageBlock= document.getElementById(document.forms[i].id + ':messageBlock');
+		if (messageBlock && messageBlock.children.length > 0){
+			messageBlock.setAttribute("tabindex", "-1"); 
+			messageBlock.focus(); 
+		}	
+	}
 </script> 
  
