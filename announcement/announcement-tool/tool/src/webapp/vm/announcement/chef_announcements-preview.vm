@@ -13,10 +13,10 @@
 			<th>$tlang.getString("gen.from")</th>
 			<td>$validator.escapeHtml($user.DisplayName)</td>
 		</tr>
-		<tr>
-			<th>$tlang.getString("gen.date")</th>
-			<td>$date.toStringLocalFull()</td>
-		</tr>
+##		<tr>
+##			<th>$tlang.getString("gen.date")</th>
+##			<td>$date.toStringLocalFull()</td>
+##		</tr>
 ##		<tr>
 ##			<th>$tlang.getString("meta.public")</th>
 ##			<td>$IsPubView</td>
