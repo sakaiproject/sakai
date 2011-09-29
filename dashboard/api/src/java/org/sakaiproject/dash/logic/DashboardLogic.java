@@ -81,6 +81,8 @@ public interface DashboardLogic {
 	/**
 	 * 
 	 * @param sakaiUserId
+	 * @param showFuture If true, the results will include items in the future. Otherwise they will not.
+	 * @param showPast If true, the results will include items in the past. Otherwise they will not.
 	 * @param saved If true, the results will include only items that have sticky true for 
 	 * 		the user. Otherwise the results will not include items with sticky true.
 	 * @param hidden If true, the results will include items that are individually marked 
@@ -89,21 +91,30 @@ public interface DashboardLogic {
 	 * 		for the user or because they are from a context that is hidden for the user. 
 	 * @return
 	 */
-	public List<CalendarItem> getCalendarItems(String sakaiUserId, boolean saved, boolean hidden);
+	public List<CalendarItem> getCalendarItems(String sakaiUserId, boolean showFuture, boolean showPast, boolean saved, boolean hidden);
 
 	/**
-	 * 
+	 * Returns a list (possibly empty) of calendar-items for the specified user in the specified context.  
+	 * If contextId is null, the list will include items from all of the user's sites. If showFuture is true, 
+	 * the other three boolean parameters are ignored, and the results will include only non-sticky, 
+	 * non-hidden items with calendar-times in the future, in ascending order by calendar-time (i.e. 
+	 * earlier items before later items). Otherwise, if showPast is true, the other two boolean parameters 
+	 * will be ignored and the results will include only non-sticky, non-hidden items with calendar-times 
+	 * in the past, in descending order by calendar-time (i.e. items with most recent calendar-time first). 
+	 * Otherwise, if sticky is true, the results will include only items that have sticky true for the user. 
+	 * And if hidden is true, the results will include items that are individually marked with hidden true. 
+	 * If hidden is false, the results will not include items that are individually hidden or hidden because 
+	 * they have a source-type that is hidden for the user or because they are from a context that is hidden 
+	 * for the user. 
 	 * @param sakaiUserId
 	 * @param contextId
-	 * @param saved If true, the results will include only items that have sticky true for 
-	 * 		the user. Otherwise the results will not include items with sticky true.
-	 * @param hidden If true, the results will include items that are individually marked 
-	 * 		with hidden true. Otherwise, the results will not include items that are 
-	 * 		individually hidden or hidden because they have a source-type that is hidden 
-	 * 		for the user or because they are from a context that is hidden for the user. 
+	 * @param showFuture 
+	 * @param showPast 
+	 * @param saved 
+	 * @param hidden 
 	 * @return
 	 */
-	public List<CalendarItem> getCalendarItems(String sakaiUserId, String contextId, boolean saved, boolean hidden);
+	public List<CalendarItem> getCalendarItems(String sakaiUserId, String contextId, boolean showFuture, boolean showPast, boolean saved, boolean hidden);
 	
 	/**
 	 * Retrieve the Context with a particular contextId 

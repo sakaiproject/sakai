@@ -148,6 +148,8 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		boolean linkSaved = dao.addCalendarLink(link);
 		assertTrue(linkSaved);
 		
+		boolean showFuture = true;
+		boolean showPast = true;
 		boolean saved = false;
 		boolean hidden = false;
 		
@@ -425,6 +427,8 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		boolean linkSaved = dao.addCalendarLink(link);
 		assertTrue(linkSaved);
 		
+		boolean showFuture = true;
+		boolean showPast = true;
 		boolean saved = false;
 		boolean hidden = false;
 		
@@ -486,6 +490,8 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		boolean linkSaved = dao.addCalendarLink(link);
 		assertTrue(linkSaved);
 		
+		boolean showFuture = true;
+		boolean showPast = true;
 		boolean saved = false;
 		boolean hidden = false;
 		

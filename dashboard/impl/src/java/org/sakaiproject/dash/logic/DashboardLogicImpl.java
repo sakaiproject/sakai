@@ -296,14 +296,18 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 
 	public List<CalendarItem> getCalendarItems(String sakaiUserId,
-			String contextId, boolean saved, boolean hidden) {
-		
+			String contextId, boolean showFuture, boolean showPast, boolean saved, boolean hidden) {
+		if(showFuture) {
+			return dao.getFutureCalendarItems(sakaiUserId, contextId);
+		} else if(showPast) {
+			return dao.getPastCalendarItems(sakaiUserId, contextId);
+		}
 		return dao.getCalendarItems(sakaiUserId, contextId, saved, hidden);
 	}
 
-	public List<CalendarItem> getCalendarItems(String sakaiUserId, boolean saved, boolean hidden) {
+	public List<CalendarItem> getCalendarItems(String sakaiUserId, boolean showFuture, boolean showPast, boolean saved, boolean hidden) {
 		
-		return dao.getCalendarItems(sakaiUserId, null, saved, hidden);
+		return this.getCalendarItems(sakaiUserId, null, showFuture, showPast, saved, hidden);
 	}
 
 	public Context getContext(String contextId) {

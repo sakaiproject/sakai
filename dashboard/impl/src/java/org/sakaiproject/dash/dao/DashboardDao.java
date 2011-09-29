@@ -79,6 +79,26 @@ public interface DashboardDao {
 	
 	public List<CalendarItem> getCalendarItems(String sakaiUserId, String contextId, boolean saved, boolean hidden);
 
+	/**
+	 * Access a list of non-sticky, non-hidden calendar items for a user in which
+	 * the calendar-time is in the future. The list will be sorted in ascending order 
+	 * by calendar-time (i.e. item with earliest calendar-time first).
+	 * @param sakaiUserId
+	 * @param contextId
+	 * @return
+	 */
+	public List<CalendarItem> getFutureCalendarItems(String sakaiUserId, String contextId);
+
+	/**
+	 * Access a list of non-sticky, non-hidden calendar items for a user in which
+	 * the calendar-time is in the past. The list will be sorted in descending order 
+	 * by calendar-time (i.e. item with most recent calendar-time first).
+	 * @param sakaiUserId
+	 * @param contextId
+	 * @return
+	 */
+	public List<CalendarItem> getPastCalendarItems(String sakaiUserId, String contextId);
+
 	public List<CalendarItem> getCalendarItemsByContext(String contextId);
 
 	public Context getContext(long id);

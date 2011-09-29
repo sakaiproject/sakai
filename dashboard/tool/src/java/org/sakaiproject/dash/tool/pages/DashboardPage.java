@@ -68,6 +68,7 @@ public class DashboardPage extends BasePage {
 
 	NewsItemDataProvider newsItemsProvider;
 	CalendarItemDataProvider calendarItemsProvider;
+	CalendarItemDataProvider expiredCalendarItemsProvider;
 	CalendarItemDataProvider savedCalendarItemsProvider;
 	CalendarItemDataProvider hiddenCalendarItemsProvider;
 	
@@ -75,9 +76,11 @@ public class DashboardPage extends BasePage {
 		
 		//get list of items from db, wrapped in a dataprovider
 		newsItemsProvider = new NewsItemDataProvider();
-		calendarItemsProvider = new CalendarItemDataProvider(false, false);
-		savedCalendarItemsProvider = new CalendarItemDataProvider(true, false);
-		hiddenCalendarItemsProvider = new CalendarItemDataProvider(false, true);
+		
+		calendarItemsProvider = new CalendarItemDataProvider(true, false, false, false);
+		expiredCalendarItemsProvider = new CalendarItemDataProvider(false, true, false, false);
+		savedCalendarItemsProvider = new CalendarItemDataProvider(false, false, true, false);
+		hiddenCalendarItemsProvider = new CalendarItemDataProvider(false, false, false, true);
 		
 		//present the calendar data in a table
 		final DataView<CalendarItem> calendarDataView = new DataView<CalendarItem>("calendarItems", calendarItemsProvider) {
@@ -246,6 +249,56 @@ public class DashboardPage extends BasePage {
         		clearFeedback(feedbackPanel);
         	}
         });
+        
+		//present the calendar data in a table
+		final DataView<CalendarItem> expiredCalendarDataView = new DataView<CalendarItem>("expiredCalendarItems", expiredCalendarItemsProvider) {
+
+			@Override
+			protected void populateItem(Item<CalendarItem> item) {
+				if(item != null && item.getModelObject() != null) {
+	                final CalendarItem cItem = (CalendarItem) item.getModelObject();
+	                if(logger.isDebugEnabled()) {
+	                	logger.debug(this + "populateItem()  item: " + item);
+	                }
+	                String itemType = cItem.getSourceType().getIdentifier();
+	                item.add(new Label("expiredCalendarItemType", itemType));
+	                item.add(new Label("expiredCalendarEntityReference", cItem.getEntityReference()));
+	                String calendarTimeLabel = dashboardLogic.getString(cItem.getCalendarTimeLabelKey(), "", itemType);
+	                if(calendarTimeLabel == null) {
+	                	calendarTimeLabel = "";
+	                }
+					item.add(new Label("expiredCalendarTimeLabel", calendarTimeLabel ));
+	                item.add(new Label("expiredCalendarDate", new SimpleDateFormat(DATE_FORMAT).format(cItem.getCalendarTime())));
+	                item.add(new Label("expiredCalendarTime", new SimpleDateFormat(TIME_FORMAT).format(cItem.getCalendarTime())));
+	                
+	                item.add(new ExternalLink("expiredCalendarItemLink", cItem.getEntityUrl(), cItem.getTitle()));
+	                item.add(new ExternalLink("expiredCalendarSiteLink", cItem.getContext().getContextUrl(), cItem.getContext().getContextTitle()));
+				}
+	      
+			}
+		};
+		
+		expiredCalendarDataView.setItemReuseStrategy(new DefaultItemReuseStrategy());
+		expiredCalendarDataView.setItemsPerPage(pageSize);
+		
+		add(expiredCalendarDataView);
+		add(new PagingNavigator("expiredCalendarNavigator", expiredCalendarDataView){
+        	@Override
+        	public boolean isVisible() {
+        		if(expiredCalendarItemsProvider.size() > pageSize) {
+        			return true;
+        		}
+        		return false;
+        	}
+        	
+        	@Override
+        	public void onBeforeRender() {
+        		super.onBeforeRender();
+        		
+        		//clear the feedback panel messages
+        		clearFeedback(feedbackPanel);
+        	}
+ 		});
         
 		//present the calendar data in a table
 		final DataView<CalendarItem> savedCalendarDataView = new DataView<CalendarItem>("savedCalendarItems", savedCalendarItemsProvider) {
@@ -566,6 +619,8 @@ public class DashboardPage extends BasePage {
 	private class CalendarItemDataProvider implements IDataProvider<CalendarItem> {
 	   
 		private List<CalendarItem> calendarItems;
+		private boolean showFuture = true;
+		private boolean showPast = false;
 		private boolean saved = false;
 		private boolean hidden = false;
 		
@@ -573,8 +628,10 @@ public class DashboardPage extends BasePage {
 			super();
 		}
 		
-		public CalendarItemDataProvider(boolean saved, boolean hidden) {
+		public CalendarItemDataProvider(boolean showFuture, boolean showPast, boolean saved, boolean hidden) {
 			super();
+			this.showFuture = showFuture;
+			this.showPast = showPast;
 			this.saved = saved;
 			this.hidden = hidden;
 		}
@@ -590,9 +647,9 @@ public class DashboardPage extends BasePage {
 					return new ArrayList<CalendarItem>();
 				}
 				if(sakaiProxy.isWorksite(siteId)) {
-					calendarItems = dashboardLogic.getCalendarItems(sakaiId, saved, hidden);
+					calendarItems = dashboardLogic.getCalendarItems(sakaiId, showFuture, showPast, saved, hidden);
 				} else {
-					calendarItems = dashboardLogic.getCalendarItems(sakaiId, siteId, saved, hidden);
+					calendarItems = dashboardLogic.getCalendarItems(sakaiId, siteId, showFuture, showPast, saved, hidden);
 				}
 			}
 			if(calendarItems == null) {

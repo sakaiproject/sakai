@@ -622,8 +622,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#getCalendarItems(java.lang.String, java.lang.String)
 	 */
-	public List<CalendarItem> getCalendarItems(String sakaiUserId,
-			String contextId, boolean saved, boolean hidden) {
+	public List<CalendarItem> getCalendarItems(String sakaiUserId, String contextId, boolean saved, boolean hidden) {
 		if(log.isDebugEnabled()) {
 			log.debug("getCalendarItems(" + sakaiUserId + "," + contextId + ")");
 		}
@@ -646,6 +645,54 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			} else {
 				sql = getStatement("select.CalendarItems.by.sakaiId.contextId");
 			}
+			params = new Object[]{sakaiUserId, contextId};
+		}
+		log.info("getCalendarItems(" + sakaiUserId + "," + contextId + ") sql = " + sql);
+		try {
+			return (List<CalendarItem>) getJdbcTemplate().query(sql,params,
+				new CalendarItemMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return new ArrayList<CalendarItem>();
+		}
+	}
+	
+	public List<CalendarItem> getFutureCalendarItems(String sakaiUserId, String contextId) {
+		if(log.isDebugEnabled()) {
+			log.debug("getFutureCalendarItems(" + sakaiUserId + "," + contextId + ")");
+		}
+		String sql = null;
+		Object[] params = null;
+		if(contextId == null) {
+			sql = getStatement("select.CalendarItems.by.sakaiId.future");
+			params = new Object[]{sakaiUserId};
+		} else {
+			sql = getStatement("select.CalendarItems.by.sakaiId.contextId.future");
+			params = new Object[]{sakaiUserId, contextId};
+		}
+		log.info("getCalendarItems(" + sakaiUserId + "," + contextId + ") sql = " + sql);
+		try {
+			return (List<CalendarItem>) getJdbcTemplate().query(sql,params,
+				new CalendarItemMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return new ArrayList<CalendarItem>();
+		}
+	}
+
+	public List<CalendarItem> getPastCalendarItems(String sakaiUserId, String contextId) {
+		if(log.isDebugEnabled()) {
+			log.debug("getCalendarItems(" + sakaiUserId + "," + contextId + ")");
+		}
+		String sql = null;
+		Object[] params = null;
+		if(contextId == null) {
+			sql = getStatement("select.CalendarItems.by.sakaiId.past");
+			params = new Object[]{sakaiUserId};
+		} else {
+			sql = getStatement("select.CalendarItems.by.sakaiId.contextId.past");
 			params = new Object[]{sakaiUserId, contextId};
 		}
 		log.info("getCalendarItems(" + sakaiUserId + "," + contextId + ") sql = " + sql);

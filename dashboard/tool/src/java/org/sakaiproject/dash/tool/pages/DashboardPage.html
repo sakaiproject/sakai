@@ -92,6 +92,47 @@
 	                </table>
 	            </div>
 
+                <div id="expiredCalendarItems">
+                	<h5>Expired events</h5>
+	                <div class="pager" wicket:id="expiredCalendarNavigator">
+	                </div>
+	                <table cellspacing="0" id="expiredCal-sched" summary="List of upcoming tasks. Column 1: date and time when task is due. Column 2: task title and link to get more details. Column 3: link to site where task originated. Column 4: list of options managing items of this type or origin." border="0">
+	                    <thead>
+	                        <tr class="header">
+	                            <th scope="col" class="one date">
+	                                Date and Time
+	                            </th>
+	                            <th scope="col" class="two">
+	                                Title
+	                            </th>
+	                            <th scope="col" class="three">
+	                                From site
+	                            </th>
+	                            <th class="four">
+	                                Action
+	                            </th>
+	                        </tr>
+	                    </thead>
+	                    <tr class="" id="item103" wicket:id="expiredCalendarItems">
+	                        <td class="one date" >
+	                        	<span wicket:id="expiredCalendarTimeLabel">[Time Label]</span>
+	                            <span wicket:id="expiredCalendarDate">[Date]</span>
+								<span wicket:id="expiredCalendarTime">[Time]</span>
+								<span wicket:id="expiredCalendarItemType" class="itemType" style="display:none;">[item type]</span>
+	                            <span wicket:id="expiredCalendarEntityReference" class="entityReference" style="display:none;">[entity reference]</span>
+	                        </td>
+	                        <td class="tab two">
+	                            <a href="#" wicket:id="expiredCalendarItemLink" class="itemLink" target="_top">[Item Title]</a>
+	                        </td>
+	                        <td class="three">
+	                            <a href="#" wicket:id="expiredCalendarSiteLink"  class="siteLink" target="_top">[Site Title]</a>
+	                        </td>
+	                        <td class="x-action four">
+	                        </td>
+	                    </tr>
+	                </table>
+	            </div>
+
                 <div id="savedCalendarItems">
                 	<h5>Saved events</h5>
 	                <div class="pager" wicket:id="savedCalendarNavigator">
