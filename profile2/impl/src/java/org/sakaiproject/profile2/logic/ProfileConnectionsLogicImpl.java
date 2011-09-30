@@ -242,8 +242,8 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 		
 		//current user must be the user making the request
 		String currentUserId = sakaiProxy.getCurrentUserId();
-		if(!StringUtils.equals(currentUserId, fromUser)) {
-			log.error("User: " + currentUserId + " attempted to confirm connection request from " + toUser + " on behalf of " + fromUser);
+		if(!StringUtils.equals(currentUserId, toUser)) {
+			log.error("User: " + currentUserId + " attempted to confirm connection request from " + fromUser + " on behalf of " + toUser);
 			throw new SecurityException("You are not authorised to perform that action.");
 		}
 		
@@ -286,8 +286,8 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 		
 		//current user must be the user making the request
 		String currentUserId = sakaiProxy.getCurrentUserId();
-		if(!StringUtils.equals(currentUserId, fromUser)) {
-			log.error("User: " + currentUserId + " attempted to ignore connection request to " + toUser + " on behalf of " + fromUser);
+		if(!StringUtils.equals(currentUserId, toUser)) {
+			log.error("User: " + currentUserId + " attempted to ignore connection request from " + fromUser + " on behalf of " + toUser);
 			throw new SecurityException("You are not authorised to perform that action.");
 		}
 		
@@ -334,7 +334,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 				
 		//delete
 		if(dao.removeConnection(profileFriend)) {
-			log.info("User: " + userId + " remove friend: " + friendId);  
+			log.info("User: " + userId + " removed friend: " + friendId);  
 			
 			//invalidate the confirmed connection caches for each user as they are now stale
 			evictFromCache(userId);
