@@ -26,20 +26,32 @@
             <artifactId>sakai-dav-common</artifactId>
         </dependency>
         <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>catalina</artifactId>
-            <version>tomcat-${sakai.tomcat.version}</version>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-catalina</artifactId>
+            <version>${sakai.tomcat.version}</version>
         </dependency>
         <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>jmx</artifactId>
-            <version>tomcat-${sakai.tomcat.version}</version>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-catalina-jmx-remote</artifactId>
+            <version>${sakai.tomcat.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
         </dependency>
     </dependencies>
+    <repositories>
+      <repository>
+        <id>maven-repo2</id>
+        <name>Maven Repo 1</name>
+        <layout>default</layout>
+        <url>http://repo2.maven.org/maven2</url>
+        <snapshots>
+          <enabled>false</enabled>
+        </snapshots>
+      </repository>
+    </repositories>
+
     <build>
         <resources>
             <resource>

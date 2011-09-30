@@ -39,23 +39,28 @@
             <artifactId>sakai-dav-common</artifactId>
         </dependency>
         <!-- in tomcat common, so no need to bundle -->
+<!--
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>naming-resources</artifactId>
             <version>tomcat-${sakai.tomcat.version}</version>
         </dependency>
+-->
         <!-- in tomcat server lib, so we need it here, too -->
         <dependency>
-            <groupId>tomcat</groupId>
-            <artifactId>catalina</artifactId>
-            <version>tomcat-${sakai.tomcat.version}</version>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-catalina</artifactId>
+            <version>${sakai.tomcat.version}</version>
+	    <scope>provided</scope>
         </dependency>
         <!-- in tomcat server lib, so we need it here, too -->
+<!--
         <dependency>
             <groupId>tomcat</groupId>
             <artifactId>catalina-optional</artifactId>
             <version>tomcat-${sakai.tomcat.version}</version>
         </dependency>
+-->
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
@@ -68,6 +73,18 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+    <repositories>
+      <repository>
+        <id>maven-repo2</id>
+        <name>Maven Repo 1</name>
+        <layout>default</layout>
+        <url>http://repo2.maven.org/maven2</url>
+        <snapshots>
+          <enabled>false</enabled>
+        </snapshots>
+      </repository>
+    </repositories>
+
     <build>
         <resources />
     </build>

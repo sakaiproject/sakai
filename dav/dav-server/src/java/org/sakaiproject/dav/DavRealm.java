@@ -25,6 +25,7 @@ import java.security.Principal;
 
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.realm.RealmBase;
+import org.apache.catalina.Wrapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -94,36 +95,8 @@ public final class DavRealm extends RealmBase
 		return null;
 	}
 
-	/**
-	 * Prepare for active use of the public methods of this Component.
-	 * 
-	 * @exception IllegalStateException
-	 *            if this component has already been started
-	 * @exception LifecycleException
-	 *            if this component detects a fatal error that prevents it from being started
-	 */
-	public synchronized void start() throws LifecycleException
-	{
-		M_log.info("start()");
-
-		// Perform normal superclass initialization
-		super.start();
-	}
-
-	/**
-	 * Gracefully shut down active use of the public methods of this Component.
-	 * 
-	 * @exception IllegalStateException
-	 *            if this component has not been started
-	 * @exception LifecycleException
-	 *            if this component detects a fatal error that needs to be reported
-	 */
-	public synchronized void stop() throws LifecycleException
-	{
-		// Perform normal superclass finalization
-		super.stop();
-
-		// No shutdown activities required
+	public boolean hasRole(Wrapper wrapper, Principal principal, String role)  {
+	    return true;
 	}
 
 	public boolean hasRole(Principal principal, String role)
