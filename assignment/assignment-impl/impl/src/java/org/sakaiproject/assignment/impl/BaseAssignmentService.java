@@ -4261,25 +4261,27 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						        enableSecurityAdvisor();
 						        
 								AssignmentSubmissionEdit s = addSubmission(contextString, a.getId(), u.getId());
-								s.setSubmitted(true);
-								s.setAssignment(a);
-								
-								// set the resubmission properties
-								// get the assignment setting for resubmitting
-								ResourceProperties assignmentProperties = a.getProperties();
-								String assignmentAllowResubmitNumber = assignmentProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
-								if (assignmentAllowResubmitNumber != null)
+								if (s != null)
 								{
-									s.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, assignmentAllowResubmitNumber);
+									s.setSubmitted(true);
+									s.setAssignment(a);
 									
-									String assignmentAllowResubmitCloseDate = assignmentProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
-									// if assignment's setting of resubmit close time is null, use assignment close time as the close time for resubmit
-									s.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME, assignmentAllowResubmitCloseDate != null?assignmentAllowResubmitCloseDate:String.valueOf(a.getCloseTime().getTime()));
+									// set the resubmission properties
+									// get the assignment setting for resubmitting
+									ResourceProperties assignmentProperties = a.getProperties();
+									String assignmentAllowResubmitNumber = assignmentProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
+									if (assignmentAllowResubmitNumber != null)
+									{
+										s.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, assignmentAllowResubmitNumber);
+										
+										String assignmentAllowResubmitCloseDate = assignmentProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
+										// if assignment's setting of resubmit close time is null, use assignment close time as the close time for resubmit
+										s.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME, assignmentAllowResubmitCloseDate != null?assignmentAllowResubmitCloseDate:String.valueOf(a.getCloseTime().getTime()));
+									}
+									
+									commitEdit(s);
+									rv.add(u.getId());
 								}
-								
-								commitEdit(s);
-								rv.add(u.getId());
-	
 						        // clear the permission
 								disableSecurityAdvisor();
 							}
