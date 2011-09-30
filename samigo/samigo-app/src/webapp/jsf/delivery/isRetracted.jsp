@@ -39,7 +39,7 @@
 <div class="portletBody">
   <!-- content... -->
   <h3><h:outputText value="#{deliveryMessages.is_retracted_title}"/></h3>
-  <h:outputText value="#{deliveryMessages.is_retracted}"/>
+  <h:outputText value="#{deliveryMessages.is_retracted}..."/>
   <p></p> 
   <h:panelGroup  rendered="#{delivery.publishedAssessment.assessmentAccessControl.retractDate!=null}">
     <h:outputLabel value="#{deliveryMessages.retract_date}:" />
@@ -48,9 +48,11 @@
 
 
  <h:form id="isRetracted">
+ <h:outputText value="#{delivery.actionString}..."/>
+
  <p class="act">
        <h:commandButton value="#{deliveryMessages.button_return}" type="submit"
-         styleClass="active" action="select" rendered="#{delivery.actionString!='takeAssessmentViaUrl'">
+         styleClass="active" action="select" rendered="#{delivery.actionString!='takeAssessmentViaUrl'}">
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
        </h:commandButton>
