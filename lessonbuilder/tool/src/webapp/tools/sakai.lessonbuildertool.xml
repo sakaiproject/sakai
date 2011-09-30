@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <registration>
 	<tool id="sakai.lessonbuildertool"
-		title="Lesson Builder"
+		title="Lessons"
 		description="Create content modules and sequences; can be organized by week or unit" >
 		<category name="course" />
 		<category name="project" />
