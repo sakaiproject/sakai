@@ -92,6 +92,11 @@ public class ProfileStatusLogicImpl implements ProfileStatusLogic {
  	 */
 	public boolean setUserStatus(ProfileStatus profileStatus) {
 		
+		//current user must be the user making the request
+		if(!StringUtils.equals(sakaiProxy.getCurrentUserId(), profileStatus.getUserUuid())) {
+			throw new SecurityException("You are not authorised to perform that action.");
+		}
+		
 		//PRFL-588 ensure size limit. Column size is 255.
 		String tMessage = ProfileUtils.truncate(profileStatus.getMessage(), 255, false);
 		profileStatus.setMessage(tMessage);
@@ -115,6 +120,11 @@ public class ProfileStatusLogicImpl implements ProfileStatusLogic {
 		if(profileStatus == null){
 			log.error("ProfileStatus null for userId: " + userId); 
 			return false;
+		}
+		
+		//current user must be the user making the request
+		if(!StringUtils.equals(sakaiProxy.getCurrentUserId(), profileStatus.getUserUuid())) {
+			throw new SecurityException("You are not authorised to perform that action.");
 		}
 				
 		if(dao.clearUserStatus(profileStatus)) {
