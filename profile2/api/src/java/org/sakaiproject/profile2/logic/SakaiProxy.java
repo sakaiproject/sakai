@@ -774,4 +774,10 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public boolean isGoogleIntegrationEnabledGlobally();
+	
+	/**
+	 * Helper to check if the current user is logged in
+	 * @return
+	 */
+	public boolean isLoggedIn();
 }

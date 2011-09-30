@@ -150,6 +150,14 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
  	 * {@inheritDoc}
  	 */
 	public int getConnectionStatus(String userA, String userB) {
+		
+		//current user must be the user making the request
+		String currentUserId = sakaiProxy.getCurrentUserId();
+		if(!StringUtils.equals(currentUserId, userA)) {
+			log.error("User: " + currentUserId + " attempted to get the connection status with " + userB + " on behalf of " + userA);
+			throw new SecurityException("You are not authorised to perform that action.");
+		}
+		
 		ProfileFriend record = dao.getConnectionRecord(userA, userB);
 		
 		//no connection
@@ -185,7 +193,12 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 	  		throw new IllegalArgumentException("Null argument in ProfileLogic.getFriendsForUser"); 
 	  	}
 		
-		//TODO check values are valid, ie userId, friendId etc
+		//current user must be the user making the request
+		String currentUserId = sakaiProxy.getCurrentUserId();
+		if(!StringUtils.equals(currentUserId, userId)) {
+			log.error("User: " + currentUserId + " attempted to make connection request to " + friendId + " on behalf of " + userId);
+			throw new SecurityException("You are not authorised to perform that action.");
+		}
 		
 		//make a ProfileFriend object with 'Friend Request' constructor
 		ProfileFriend profileFriend = new ProfileFriend(userId, friendId, ProfileConstants.RELATIONSHIP_FRIEND);
@@ -227,6 +240,13 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 	  		throw new IllegalArgumentException("Null argument in ProfileLogic.confirmFriendRequest"); 
 	  	}
 		
+		//current user must be the user making the request
+		String currentUserId = sakaiProxy.getCurrentUserId();
+		if(!StringUtils.equals(currentUserId, fromUser)) {
+			log.error("User: " + currentUserId + " attempted to confirm connection request from " + toUser + " on behalf of " + fromUser);
+			throw new SecurityException("You are not authorised to perform that action.");
+		}
+		
 		//get pending ProfileFriend object request for the given details
 		ProfileFriend profileFriend = dao.getPendingConnection(fromUser, toUser);
 
@@ -264,6 +284,13 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 	  		throw new IllegalArgumentException("Null argument in ProfileLogic.ignoreFriendRequest"); 
 	  	}
 		
+		//current user must be the user making the request
+		String currentUserId = sakaiProxy.getCurrentUserId();
+		if(!StringUtils.equals(currentUserId, fromUser)) {
+			log.error("User: " + currentUserId + " attempted to ignore connection request to " + toUser + " on behalf of " + fromUser);
+			throw new SecurityException("You are not authorised to perform that action.");
+		}
+		
 		//get pending ProfileFriend object request for the given details
 		ProfileFriend profileFriend = dao.getPendingConnection(fromUser, toUser);
 
@@ -289,6 +316,13 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 		if(userId == null || friendId == null){
 	  		throw new IllegalArgumentException("Null argument in ProfileLogic.removeFriend"); 
 	  	}
+		
+		//current user must be the user making the request
+		String currentUserId = sakaiProxy.getCurrentUserId();
+		if(!StringUtils.equals(currentUserId, userId)) {
+			log.error("User: " + currentUserId + " attempted to remove connection with " + friendId + " on behalf of " + userId);
+			throw new SecurityException("You are not authorised to perform that action.");
+		}
 		
 		//get the friend object for this connection pair (could be any way around)
 		ProfileFriend profileFriend = dao.getConnectionRecord(userId, friendId);
