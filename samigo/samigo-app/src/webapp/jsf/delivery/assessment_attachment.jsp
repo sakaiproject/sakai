@@ -21,7 +21,7 @@
 --%>
 -->
 <!-- 2a ATTACHMENTS -->
- <f:verbatim><div class="tier1"></f:verbatim>
+ <f:verbatim><div class="attachments"></f:verbatim>
  <h:panelGroup rendered="#{delivery.hasAttachment}">
  	<f:verbatim><p></p></f:verbatim>
  </h:panelGroup>
