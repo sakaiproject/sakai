@@ -38,6 +38,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Redirectable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestAware;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Sampleable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Updateable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
@@ -65,7 +66,7 @@ import org.sakaiproject.profile2.util.ProfileUtils;
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
  */
-public class ProfileEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, Outputable, Updateable, Createable, Inputable, Sampleable, Describeable, Redirectable, ActionsExecutable, RequestAware {
+public class ProfileEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, Outputable, Resolvable, Sampleable, Describeable, Redirectable, ActionsExecutable, RequestAware {
 
 	public final static String ENTITY_PREFIX = "profile";
 	
@@ -318,45 +319,6 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		return "user/" + vars.get("id") + vars.get(TemplateParseUtil.DOT_EXTENSION);
 	}
 
-	
-	@Override
-	public void updateEntity(EntityReference ref, Object entity, Map<String, Object> params) {
-		
-		String userId = ref.getId();
-		if (StringUtils.isBlank(userId)) {
-			throw new IllegalArgumentException("Cannot update, No userId in provided reference: " + ref);
-		}
-		
-		if (entity.getClass().isAssignableFrom(UserProfile.class)) {
-			UserProfile userProfile = (UserProfile) entity;
-			profileLogic.saveUserProfile(userProfile);
-		} else {
-			 throw new IllegalArgumentException("Invalid entity for update, must be UserProfile object");
-		}	
-	}
-	
-	@Override
-	public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
-		
-		//reference will be the userUuid, which comes from the UserProfile
-		String userUuid = null;
-		
-		if (entity.getClass().isAssignableFrom(UserProfile.class)) {
-			UserProfile userProfile = (UserProfile) entity;
-			
-			if(profileLogic.saveUserProfile(userProfile)) {
-				userUuid = userProfile.getUserUuid();
-			}
-			if(userUuid == null) {
-				throw new EntityException("Could not create entity", ref.getReference());
-			}
-		} else {
-			 throw new IllegalArgumentException("Invalid entity for create, must be UserProfile object");
-		}
-		return userUuid;
-	}
-	
-	
 	
 	/**
 	 * {@inheritDoc}
@@ -650,13 +612,6 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 	public String[] getHandledOutputFormats() {
 		return new String[] {Formats.HTML, Formats.XML, Formats.JSON};
 	}
-
-	@Override
-	public String[] getHandledInputFormats() {
-		return new String[] {Formats.XML, Formats.JSON, Formats.HTML};
-	}
-
-	
 
 	
 	@Setter
