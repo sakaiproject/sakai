@@ -18,7 +18,7 @@
     <inceptionYear>2003</inceptionYear>
     <packaging>jar</packaging>
     <properties>
-        <deploy.target>server</deploy.target>
+        <deploy.target>common</deploy.target>
     </properties>
     <dependencies>
         <dependency>
