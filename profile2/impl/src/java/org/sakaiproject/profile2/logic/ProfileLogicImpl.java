@@ -416,7 +416,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 					String mimeType = "image/jpeg";
 					
 					//scale the main image
-					byte[] imageMain = ProfileUtils.scaleImage(image, ProfileConstants.MAX_IMAGE_XY);
+					byte[] imageMain = ProfileUtils.scaleImage(image, ProfileConstants.MAX_IMAGE_XY, mimeType);
 					
 					//create resource ID
 					String mainResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileConstants.PROFILE_IMAGE_MAIN);
@@ -432,7 +432,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 					 * THUMBNAIL PROFILE IMAGE
 					 */
 					//scale image
-					byte[] imageThumbnail = ProfileUtils.scaleImage(image, ProfileConstants.MAX_THUMBNAIL_IMAGE_XY);
+					byte[] imageThumbnail = ProfileUtils.scaleImage(image, ProfileConstants.MAX_THUMBNAIL_IMAGE_XY, mimeType);
 					 
 					//create resource ID
 					String thumbnailResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileConstants.PROFILE_IMAGE_THUMBNAIL);

@@ -32,6 +32,10 @@
       		<groupId>commons-codec</groupId>
       		<artifactId>commons-codec</artifactId>
    		</dependency>
+   		<dependency>
+			<groupId>com.thebuzzmedia</groupId>
+			<artifactId>imgscalr-lib</artifactId>
+		</dependency>
 		
    		   				
 		<!--  GENERIC SAKAI DEPENDENCIES -->

@@ -239,7 +239,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		 * MAIN PROFILE IMAGE
 		 */
 		//scale image
-		imageBytes = ProfileUtils.scaleImage(imageBytes, ProfileConstants.MAX_IMAGE_XY);
+		imageBytes = ProfileUtils.scaleImage(imageBytes, ProfileConstants.MAX_IMAGE_XY, mimeType);
 		 
 		//create resource ID
 		String mainResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileConstants.PROFILE_IMAGE_MAIN);
@@ -254,7 +254,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		 * THUMBNAIL PROFILE IMAGE
 		 */
 		//scale image
-		imageBytes = ProfileUtils.scaleImage(imageBytes, ProfileConstants.MAX_THUMBNAIL_IMAGE_XY);
+		imageBytes = ProfileUtils.scaleImage(imageBytes, ProfileConstants.MAX_THUMBNAIL_IMAGE_XY, mimeType);
 		 
 		//create resource ID
 		String thumbnailResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileConstants.PROFILE_IMAGE_THUMBNAIL);
@@ -348,7 +348,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		// create resource ID
 		String mainResourcePath = sakaiProxy.getProfileGalleryImagePath(userUuid, imageId);
 
-		byte[] scaledImageBytes = ProfileUtils.scaleImage(imageBytes, ProfileConstants.MAX_GALLERY_IMAGE_XY);
+		byte[] scaledImageBytes = ProfileUtils.scaleImage(imageBytes, ProfileConstants.MAX_GALLERY_IMAGE_XY, mimeType);
 		
 		// save image
 		if (!sakaiProxy.saveFile(mainResourcePath, userUuid, fileName, mimeType,scaledImageBytes)) {
@@ -357,7 +357,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		}
 
 		// create thumbnail
-		byte[] thumbnailBytes = ProfileUtils.scaleImage(imageBytes, ProfileConstants.MAX_GALLERY_THUMBNAIL_IMAGE_XY);
+		byte[] thumbnailBytes = ProfileUtils.scaleImage(imageBytes, ProfileConstants.MAX_GALLERY_THUMBNAIL_IMAGE_XY, mimeType);
 		String thumbnailResourcePath = sakaiProxy.getProfileGalleryThumbnailPath(userUuid, imageId);
 		sakaiProxy.saveFile(thumbnailResourcePath, userUuid, fileName, mimeType,thumbnailBytes);
 		

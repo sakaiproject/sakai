@@ -368,6 +368,12 @@
 				<version>${lombok.version}</version>
 				<scope>provided</scope>
 			</dependency>
+			<dependency>
+				<groupId>com.thebuzzmedia</groupId>
+				<artifactId>imgscalr-lib</artifactId>
+				<version>3.2</version>
+				<scope>compile</scope>
+			</dependency>
    			
    			<!-- additional sakai dependencies -->
 		    <dependency>
