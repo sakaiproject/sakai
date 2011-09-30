@@ -63,6 +63,13 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 			isSameUser = true;
 		}
 		
+		//if no current user we are not logged in (could be from entity provider)
+		if(StringUtils.isBlank(currentUserUuid)){
+			// this is where the logic for handling public profile images will go
+			//right now we throw a security exception.
+			throw new SecurityException("Must be logged in to request a profile image.");
+		}
+		
 		//check prefs supplied was valid, if given
 		if(prefs != null && !StringUtils.equals(userUuid, prefs.getUserUuid())) {
 			log.error("ProfilePreferences data supplied was not for user: " + userUuid);
