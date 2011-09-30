@@ -33,18 +33,6 @@
 	</bean>
 	
 	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
-		class="org.sakaiproject.profile2.tool.entityprovider.ProfilePrivacyEntityProvider">
-		<property name="privacyLogic" ref="org.sakaiproject.profile2.logic.ProfilePrivacyLogic" />
-		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
-	</bean>
-	
-	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
-		class="org.sakaiproject.profile2.tool.entityprovider.ProfilePreferencesEntityProvider">
-		<property name="preferencesLogic" ref="org.sakaiproject.profile2.logic.ProfilePreferencesLogic" />
-		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
-	</bean>
-		
-	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
 		class="org.sakaiproject.profile2.tool.entityprovider.ProfileStatusEntityProvider">
 		<property name="statusLogic" ref="org.sakaiproject.profile2.logic.ProfileStatusLogic" />
 		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
