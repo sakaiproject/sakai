@@ -103,6 +103,7 @@ import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.calendar.api.CalendarEvent.EventAccess;
 import org.sakaiproject.calendar.cover.ExternalCalendarSubscriptionService;
+import org.sakaiproject.util.CalendarUtil;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -6117,7 +6118,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 			Source src = new DOMSource(doc);
 			
-			CalendarUtil calUtil = new CalendarUtil();
+			java.util.Calendar c = java.util.Calendar.getInstance(TimeService.getLocalTimeZone(),new ResourceLoader().getLocale());
+			CalendarUtil calUtil = new CalendarUtil(c);
 			String[] dayNames = calUtil.getCalendarDaysOfWeekNames(true);
          
 			// Kludge: Xalan in JDK 1.4/1.5 does not properly resolve java classes 
@@ -6366,7 +6368,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 				eventList.setAttribute(MAX_CONCURRENT_EVENTS_NAME, Integer.toString(maxConcurrentEventsOverListNode));
 
 				// Calculate the day of the week.
-				CalendarUtil cal = new CalendarUtil();
+				java.util.Calendar c = java.util.Calendar.getInstance(TimeService.getLocalTimeZone(),new ResourceLoader().getLocale());
+				CalendarUtil cal = new CalendarUtil(c);
 
 				Time date = currentTimeRange.firstTime();
 				TimeBreakdown breakdown = date.breakdownLocal();
@@ -6657,7 +6660,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		writeStringNodeToDom(doc, eventElement, TITLE_NODE, event.getDisplayName());
 
 		// Add the event type node.
-		writeStringNodeToDom(doc, eventElement, TYPE_NODE, event.getType());
+		writeStringNodeToDom(doc, eventElement, TYPE_NODE, getEventDescription(event.getType()));
 
 		// Add the place/location node.
 		writeStringNodeToDom(doc, eventElement, PLACE_NODE, event.getLocation());
@@ -6671,6 +6674,50 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		parent.appendChild(eventElement);
 	}
 
+	protected String getEventDescription(String type){
+		ResourceLoader rl = new ResourceLoader("calendar");
+		if ((type!=null) && (type.trim()!="")){
+			if (type.equals("Academic Calendar"))
+				return rl.getString("legend.key1");
+			else if (type.equals("Activity"))
+				return rl.getString("legend.key2");
+			else if (type.equals("Cancellation"))
+				return rl.getString("legend.key3");
+			else if (type.equals("Class section - Discussion"))
+				return rl.getString("legend.key4");
+			else if (type.equals("Class section - Lab"))
+				return rl.getString("legend.key5");
+			else if (type.equals("Class section - Lecture"))
+				return rl.getString("legend.key6");
+			else if (type.equals("Class section - Small Group"))
+				return rl.getString("legend.key7");
+			else if (type.equals("Class session"))
+				return rl.getString("legend.key8");
+			else if (type.equals("Computer Session"))
+				return rl.getString("legend.key9");
+			else if (type.equals("Deadline"))
+				return rl.getString("legend.key10");
+			else if (type.equals("Exam"))
+				return rl.getString("legend.key11");
+			else if (type.equals("Meeting"))
+				return rl.getString("legend.key12");
+			else if (type.equals("Multidisciplinary Conference"))
+				return rl.getString("legend.key13");
+			else if (type.equals("Quiz"))
+				return rl.getString("legend.key14");
+			else if (type.equals("Special event"))
+				return rl.getString("legend.key15");
+			else if (type.equals("Web Assignment"))
+				return rl.getString("legend.key16");
+			else if (type.equals("Teletutoria"))
+				return rl.getString("legend.key17");
+			else
+				return rl.getString("legend.key2");				
+		}else{
+			return rl.getString("legend.key2");
+		}
+	}
+	
 	/*
 	 * Gets the daily start time parameter from a Properties object filled from URL parameters.
 	 */
