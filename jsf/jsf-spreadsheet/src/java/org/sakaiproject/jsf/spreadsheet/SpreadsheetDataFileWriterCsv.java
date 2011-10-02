@@ -44,7 +44,7 @@ public class SpreadsheetDataFileWriterCsv implements SpreadsheetDataFileWriter {
 
 	public void writeDataToResponse(List<List<Object>> spreadsheetData, String fileName, HttpServletResponse response) {
 		response.setContentType("text/comma-separated-values");
-		response.setHeader("Content-disposition", "attachment; filename=" + fileName + ".csv");
+		SpreadsheetUtil.setEscapedAttachmentHeader(response, fileName + ".csv");
 
 		String csvString = getAsCsv(spreadsheetData);
 		response.setContentLength(csvString.length());

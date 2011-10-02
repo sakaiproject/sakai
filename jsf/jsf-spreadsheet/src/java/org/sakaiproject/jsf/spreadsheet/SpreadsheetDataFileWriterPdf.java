@@ -31,7 +31,7 @@ public class SpreadsheetDataFileWriterPdf implements SpreadsheetDataFileWriter {
 
 	public void writeDataToResponse(List<List<Object>> spreadsheetData, String fileName, HttpServletResponse response) {
 		response.setContentType("application/pdf");
-		response.setHeader("Content-disposition", "attachment; filename=" + fileName + ".pdf");
+		SpreadsheetUtil.setEscapedAttachmentHeader(response, fileName + ".pdf");
 		
 		Document document = new Document(new Rectangle(842.0f, 595.0f), 0, 0, 0, 0);
 		//document.setMargins(0, 0, 0, 0);

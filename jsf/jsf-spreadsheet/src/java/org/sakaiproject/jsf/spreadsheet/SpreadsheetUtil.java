@@ -22,10 +22,15 @@
 
 package org.sakaiproject.jsf.spreadsheet;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 
 import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  *
@@ -76,4 +81,28 @@ public class SpreadsheetUtil {
         response.setHeader("Cache-Control", "public, must-revalidate, post-check=0, pre-check=0, max-age=0");	// New-style
     }
 
+	/**
+	 * Convenience method for setting the content-disposition:attachment header with escaping a file name.
+	 * @param response
+	 * @param fileName unescaped file name of the attachment
+	 */
+	protected static void setEscapedAttachmentHeader(final HttpServletResponse response, final String fileName) {
+		String escapedFilename;
+		try {
+			escapedFilename = URLEncoder.encode(fileName, "UTF-8").replaceAll("\\+", "%20");
+		} catch (UnsupportedEncodingException e) {
+			escapedFilename = fileName;
+		}
+
+		FacesContext faces = FacesContext.getCurrentInstance();
+		HttpServletRequest request = (HttpServletRequest) faces.getExternalContext().getRequest();
+		String userAgent = request.getHeader("User-Agent");
+		if (userAgent != null && userAgent.contains("MSIE")) {
+			response.setHeader("Content-Disposition", "attachment" +
+					((!StringUtils.isEmpty(escapedFilename)) ? ("; filename=\"" + escapedFilename + "\"") : ""));
+		} else {
+			response.setHeader("Content-Disposition", "attachment" +
+					((!StringUtils.isEmpty(escapedFilename)) ? ("; filename*=utf-8''" + escapedFilename) : ""));
+		}
+	}
 }

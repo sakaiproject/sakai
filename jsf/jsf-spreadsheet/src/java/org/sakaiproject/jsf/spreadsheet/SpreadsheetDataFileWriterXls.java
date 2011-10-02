@@ -44,7 +44,7 @@ public class SpreadsheetDataFileWriterXls implements SpreadsheetDataFileWriter {
 
 	public void writeDataToResponse(List<List<Object>> spreadsheetData, String fileName, HttpServletResponse response) {
 		response.setContentType("application/vnd.ms-excel");
-		response.setHeader("Content-disposition", "attachment; filename=" + fileName + ".xls");
+		SpreadsheetUtil.setEscapedAttachmentHeader(response, fileName + ".xls");
 
 		OutputStream out = null;
 		try {
