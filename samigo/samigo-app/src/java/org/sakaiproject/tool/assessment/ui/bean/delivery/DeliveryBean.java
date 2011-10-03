@@ -1849,7 +1849,7 @@ public class DeliveryBean
   {
     try
     {
-      String results = "";
+      String results = "takeAssessment";
       // #1. check password
       if (!getSettings().getUsername().equals(""))
       {
