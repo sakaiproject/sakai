@@ -21,17 +21,14 @@
 --%>
 -->
 <!-- 2a ATTACHMENTS -->
- <f:verbatim><div class="attachments"></f:verbatim>
  <h:panelGroup rendered="#{delivery.hasAttachment}">
  	<f:verbatim><p></p></f:verbatim>
  </h:panelGroup>
- <h:outputLabel value="#{deliveryMessages.attachments}" rendered="#{delivery.hasAttachment}"/>
-  <f:verbatim><br/></f:verbatim>
+
   <h:panelGroup rendered="#{delivery.hasAttachment}">
     <h:dataTable value="#{delivery.attachmentList}" var="attach" border="0">
       <h:column>
-        <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-
+        
       <h:outputText escape="false" value="
 	    <embed src=\"#{delivery.protocol}/samigo-app/servlet/ShowAttachmentMedia?resourceId=#{attach.encodedResourceId}&mimeType=#{attach.mimeType}&filename=#{attach.filename}\" volume=\"50\" height=\"350\" width=\"400\" autostart=\"false\"/>" rendered="#{attach.isInlineVideo && !delivery.isFromPrint}"/>
       <h:outputText escape="false" value="#{attach.filename}" rendered="#{attach.isInlineVideo && delivery.isFromPrint}"/>
@@ -62,5 +59,5 @@
     </h:dataTable>
   </h:panelGroup>
 
-<f:verbatim></div></f:verbatim>
+  <f:verbatim><br/></f:verbatim>
 
