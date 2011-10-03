@@ -4280,8 +4280,7 @@ public class SimplePageBean {
 			} else if (mmUrl != null && !mmUrl.trim().equals("")) {
 				// 	user specified a URL, create the item
 				String url = mmUrl.trim();
-				if (!url.startsWith("http:") &&
-						!url.startsWith("https:")) {
+				if (!url.matches("\\w+://.*")) {
 					if (!url.startsWith("//"))
 						url = "//" + url;
 					url = "http:" + url;

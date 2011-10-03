@@ -1246,6 +1246,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 					} else if ((mimeType != null && !mimeType.equals("text/html") && !mimeType.equals("application/xhtml+xml")) || (mimeType == null && Arrays.binarySearch(multimediaTypes, extension) >= 0)) {
 
+						if (mimeType == null)
+							mimeType = "";
 						// this code is used for everything that isn't an image,
 						// Youtube, or HTML. Typically
 						// this is a flash presentation or a movie. Try to be
