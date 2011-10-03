@@ -188,11 +188,14 @@ public class JsfUtil {
 		}
 
 		// Set the am/pm flag to ensure that the time is parsed properly
+		if(am) {
+			str = str + " " + new DateFormatSymbols(new ResourceLoader().getLocale()).getAmPmStrings()[0];
+		} else {
+			str = str + " " + new DateFormatSymbols(new ResourceLoader().getLocale()).getAmPmStrings()[1];
+		}
 
 		String pattern = (str.indexOf(':') != -1) ? JsfUtil.TIME_PATTERN_LONG : JsfUtil.TIME_PATTERN_SHORT;
 		SimpleDateFormat sdf = new SimpleDateFormat(pattern, new ResourceLoader().getLocale());
-		sdf.setDateFormatSymbols(new DateFormatSymbols(new ResourceLoader().getLocale()));
-		
 		Date date;
 		try {
 			date = sdf.parse(str);
