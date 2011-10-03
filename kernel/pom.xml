@@ -1,12 +1,11 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.sakaiproject</groupId>
 	<artifactId>kernel</artifactId>
 	<packaging>pom</packaging>
 	<name>Sakai Kernel</name>
-	<version>1.3.0-SNAPSHOT</version>
+	<version>1.3.0-a01</version>
 	<url>http://source.sakaiproject.org/release/kernel/${project.version}</url>
 	<description>The Sakai kernel provides core functionality for the Sakai framework</description>
 	<organization>
@@ -364,12 +363,12 @@
     </contributors>
     <scm>
         <connection>
-			scm:svn:https://source.sakaiproject.org/svn/kernel/trunk
+			scm:svn:https://source.sakaiproject.org/svn/kernel/tags/kernel-1.3.0-a01
 		</connection>
         <developerConnection>
-			scm:svn:https://source.sakaiproject.org/svn/kernel/trunk
+			scm:svn:https://source.sakaiproject.org/svn/kernel/tags/kernel-1.3.0-a01
 		</developerConnection>
-        <url>https://source.sakaiproject.org/svn/kernel/trunk</url>
+        <url>https://source.sakaiproject.org/svn/kernel/tags/kernel-1.3.0-a01</url>
     </scm>
     <distributionManagement>
         <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
