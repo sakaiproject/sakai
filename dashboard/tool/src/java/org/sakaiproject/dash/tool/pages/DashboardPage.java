@@ -67,6 +67,8 @@ public class DashboardPage extends BasePage {
 	protected int pageSize = 5;
 
 	NewsItemDataProvider newsItemsProvider;
+	NewsItemDataProvider savedNewsItemsProvider;
+	NewsItemDataProvider hiddenNewsItemsProvider;
 	CalendarItemDataProvider calendarItemsProvider;
 	CalendarItemDataProvider expiredCalendarItemsProvider;
 	CalendarItemDataProvider savedCalendarItemsProvider;
@@ -75,7 +77,9 @@ public class DashboardPage extends BasePage {
 	public DashboardPage() {
 		
 		//get list of items from db, wrapped in a dataprovider
-		newsItemsProvider = new NewsItemDataProvider();
+		newsItemsProvider = new NewsItemDataProvider(false, false);
+		savedNewsItemsProvider = new NewsItemDataProvider(true, false);
+		hiddenNewsItemsProvider = new NewsItemDataProvider(false, true);
 		
 		calendarItemsProvider = new CalendarItemDataProvider(true, false, false, false);
 		expiredCalendarItemsProvider = new CalendarItemDataProvider(false, true, false, false);
@@ -562,6 +566,96 @@ public class DashboardPage extends BasePage {
         	}
         });
         
+		final DataView<NewsItem> savedNewsDataView = new DataView<NewsItem>("savedNewsItems", savedNewsItemsProvider) {
+
+			@Override
+			public void populateItem(final Item item) {
+                final NewsItem nItem = (NewsItem) item.getModelObject();
+                if(logger.isDebugEnabled()) {
+                	logger.debug(this + "populateItem()  item: " + item);
+                }
+                
+                String itemType = nItem.getSourceType().getIdentifier();
+                item.add(new Label("itemType", itemType));
+                item.add(new Label("entityReference", nItem.getEntityReference()));
+
+                String siteTitle = nItem.getContext().getContextTitle();
+                item.add(new ExternalLink("itemLink", nItem.getEntityUrl(), nItem.getTitle()));
+                item.add(new ExternalLink("siteLink", nItem.getContext().getContextUrl(), siteTitle));
+                item.add(new Label("newsTime", new SimpleDateFormat(DATETIME_FORMAT).format(nItem.getNewsTime())));
+                
+			}
+		};
+
+        savedNewsDataView.setItemReuseStrategy(new DefaultItemReuseStrategy());
+        savedNewsDataView.setItemsPerPage(pageSize);
+        add(savedNewsDataView);
+
+        //add a pager to our table, only visible if we have more than 5 items
+        add(new PagingNavigator("savedNewsNavigator", savedNewsDataView) {
+        	
+        	@Override
+        	public boolean isVisible() {
+        		if(savedNewsItemsProvider.size() > pageSize) {
+        			return true;
+        		}
+        		return false;
+        	}
+        	
+        	@Override
+        	public void onBeforeRender() {
+        		super.onBeforeRender();
+        		
+        		//clear the feedback panel messages
+        		clearFeedback(feedbackPanel);
+        	}
+        });
+        
+		final DataView<NewsItem> hiddenNewsDataView = new DataView<NewsItem>("hiddenNewsItems", hiddenNewsItemsProvider) {
+
+			@Override
+			public void populateItem(final Item item) {
+                final NewsItem nItem = (NewsItem) item.getModelObject();
+                if(logger.isDebugEnabled()) {
+                	logger.debug(this + "populateItem()  item: " + item);
+                }
+                
+                String itemType = nItem.getSourceType().getIdentifier();
+                item.add(new Label("itemType", itemType));
+                item.add(new Label("entityReference", nItem.getEntityReference()));
+
+                String siteTitle = nItem.getContext().getContextTitle();
+                item.add(new ExternalLink("itemLink", nItem.getEntityUrl(), nItem.getTitle()));
+                item.add(new ExternalLink("siteLink", nItem.getContext().getContextUrl(), siteTitle));
+                item.add(new Label("newsTime", new SimpleDateFormat(DATETIME_FORMAT).format(nItem.getNewsTime())));
+                
+			}
+		};
+
+        hiddenNewsDataView.setItemReuseStrategy(new DefaultItemReuseStrategy());
+        hiddenNewsDataView.setItemsPerPage(pageSize);
+        add(hiddenNewsDataView);
+
+        //add a pager to our table, only visible if we have more than 5 items
+        add(new PagingNavigator("hiddenNewsNavigator", hiddenNewsDataView) {
+        	
+        	@Override
+        	public boolean isVisible() {
+        		if(hiddenNewsItemsProvider.size() > pageSize) {
+        			return true;
+        		}
+        		return false;
+        	}
+        	
+        	@Override
+        	public void onBeforeRender() {
+        		super.onBeforeRender();
+        		
+        		//clear the feedback panel messages
+        		clearFeedback(feedbackPanel);
+        	}
+        });
+
         AbstractAjaxBehavior entityDetailRequest = new AbstractAjaxBehavior() {
 
 			public void onRequest() {
@@ -683,6 +777,18 @@ public class DashboardPage extends BasePage {
 	private class NewsItemDataProvider implements IDataProvider<NewsItem> {
 	   
 		private List<NewsItem> newsItems;
+		private boolean saved = false;
+		private boolean hidden = false;
+		
+		public NewsItemDataProvider() {
+			super();
+		}
+		
+		public NewsItemDataProvider(boolean saved, boolean hidden) {
+			super();
+			this.saved = saved;
+			this.hidden = hidden;
+		}
 		
 		private List<NewsItem> getData() {
 			if(newsItems == null) {
@@ -695,9 +801,9 @@ public class DashboardPage extends BasePage {
 					return new ArrayList<NewsItem>();
 				}
 				if(sakaiProxy.isWorksite(siteId)) {
-					newsItems = dashboardLogic.getNewsItems(sakaiId);
+					newsItems = dashboardLogic.getNewsItems(sakaiId, saved, hidden);
 				} else {
-					newsItems = dashboardLogic.getNewsItems(sakaiId, siteId);
+					newsItems = dashboardLogic.getNewsItems(sakaiId, siteId, saved, hidden);
 				}
 			}
 			if(newsItems == null) {

@@ -111,7 +111,7 @@ public interface DashboardDao {
 	
 	public NewsItem getNewsItem(String entityReference);
 
-	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId);
+	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId, boolean saved, boolean hidden);
 
 	public List<NewsItem> getNewsItemsByContext(String contextId);
 

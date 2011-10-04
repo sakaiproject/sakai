@@ -331,14 +331,14 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return dao.getNewsItem(entityReference);
 	}
 
-	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId) {
+	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId, boolean saved, boolean hidden) {
 		
-		return dao.getNewsItems(sakaiUserId, contextId);
+		return dao.getNewsItems(sakaiUserId, contextId, saved, hidden);
 	}
 
-	public List<NewsItem> getNewsItems(String sakaiUserId) {
+	public List<NewsItem> getNewsItems(String sakaiUserId, boolean saved, boolean hidden) {
 		
-		return dao.getNewsItems(sakaiUserId, null);
+		return dao.getNewsItems(sakaiUserId, null, saved, hidden);
 	}
 
 	public SourceType getSourceType(String identifier) {

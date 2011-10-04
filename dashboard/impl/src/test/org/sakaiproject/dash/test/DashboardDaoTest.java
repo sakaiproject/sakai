@@ -288,10 +288,13 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		person = dao.getPersonBySakaiId(sakaiId);
 		
 		NewsLink link = new NewsLink(person, newsItem, context, false, false);
-		boolean saved = dao.addNewsLink(link);
-		assertTrue(saved);
+		boolean savedLink = dao.addNewsLink(link);
+		assertTrue(savedLink);
 		
-		List<NewsItem> items = dao.getNewsItems(sakaiId, contextId);
+		boolean saved = false;
+		boolean hidden = false;
+		
+		List<NewsItem> items = dao.getNewsItems(sakaiId, contextId, saved, hidden);
 		assertNotNull(items);
 		assertTrue(items.size() > 0);
 		

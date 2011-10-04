@@ -838,17 +838,29 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#getNewsItems(java.lang.String, java.lang.String)
 	 */
-	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId) {
+	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId, boolean saved, boolean hidden) {
 		if(log.isDebugEnabled()) {
 			log.debug("getNewsItems(" + sakaiUserId + "," + contextId + ")");
 		}
 		String sql = null;
 		Object[] params = null;
 		if(contextId == null) {
-			sql = getStatement("select.NewsItems.by.sakaiId");
+			if(saved) {
+				sql = getStatement("select.NewsItems.by.sakaiId.sticky");
+			} else if(hidden) {
+				sql = getStatement("select.NewsItems.by.sakaiId.hidden");
+			} else {
+				sql = getStatement("select.NewsItems.by.sakaiId");
+			}
 			params = new Object[]{sakaiUserId};
 		} else {
-			sql = getStatement("select.NewsItems.by.sakaiId.contextId");
+			if(saved) {
+				sql = getStatement("select.NewsItems.by.sakaiId.contextId.sticky");
+			} else if(hidden) {
+				sql = getStatement("select.NewsItems.by.sakaiId.contextId.hidden");
+			} else {
+				sql = getStatement("select.NewsItems.by.sakaiId.contextId");
+			}
 			params = new Object[]{sakaiUserId, contextId};
 		}
 		log.info("getNewsItems(" + sakaiUserId + "," + contextId + ") sql = " + sql);
