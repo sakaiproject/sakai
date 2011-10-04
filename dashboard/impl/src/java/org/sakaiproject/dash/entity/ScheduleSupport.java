@@ -64,6 +64,10 @@ public class ScheduleSupport{
 		this.dashboardLogic.registerEventProcessor(new ScheduleNewEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new ScheduleRemoveEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new ScheduleUpdateTitleEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ScheduleReviseEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ScheduleUpdateAccessEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ScheduleUpdateFrequencyEventProcessor());
+
 	}
 	/**
 	 * Inner class: ScheduleEntityType
@@ -185,6 +189,13 @@ public class ScheduleSupport{
 		 */
 		public void processEvent(Event event) {
 			
+			if(logger.isInfoEnabled()) {
+				logger.info("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
+			if(logger.isDebugEnabled()) {
+				logger.debug("removing links and item for " + event.getResource());
+			}
 			String resource =  event.getResource();
 			
 			String eventId = event.getEvent();
@@ -242,6 +253,10 @@ public class ScheduleSupport{
 		 */
 		public void processEvent(Event event) {
 			
+			if(logger.isInfoEnabled()) {
+				logger.info("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
 			if(logger.isDebugEnabled()) {
 				logger.debug("removing news links and news item for " + event.getResource());
 			}
@@ -272,8 +287,12 @@ public class ScheduleSupport{
 		 */
 		public void processEvent(Event event) {
 			
+			if(logger.isInfoEnabled()) {
+				logger.info("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
 			if(logger.isDebugEnabled()) {
-				logger.debug("removing calendar links and calendar item for " + event.getResource());
+				logger.debug("updating title of calendar item for " + event.getResource());
 			}
 			Entity entity = sakaiProxy.getEntity(event.getResource());
 			
@@ -296,4 +315,65 @@ public class ScheduleSupport{
 		}
 
 	}
+	
+	public class ScheduleReviseEventProcessor implements EventProcessor {
+
+		public String getEventIdentifer() {
+			return SakaiProxy.EVENT_SCHEDULE_REVISE_EVENT;
+		}
+
+		public void processEvent(Event event) {
+			if(logger.isInfoEnabled()) {
+				logger.info("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
+			if(logger.isDebugEnabled()) {
+				logger.debug("revising calendar item for " + event.getResource());
+			}
+
+		}
+		
+	}
+	
+	public class ScheduleUpdateAccessEventProcessor implements EventProcessor {
+
+		public String getEventIdentifer() {
+			
+			return SakaiProxy.EVENT_MODIFY_CALENDAR_EVENT_ACCESS;
+		}
+
+		public void processEvent(Event event) {
+			if(logger.isInfoEnabled()) {
+				logger.info("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
+			if(logger.isDebugEnabled()) {
+				logger.debug("revising calendar item for " + event.getResource());
+			}
+
+		}
+	
+	}
+	
+	public class ScheduleUpdateFrequencyEventProcessor implements EventProcessor {
+
+		public String getEventIdentifer() {
+			
+			return SakaiProxy.EVENT_MODIFY_CALENDAR_EVENT_FREQUENCY;
+		}
+
+		public void processEvent(Event event) {
+			if(logger.isInfoEnabled()) {
+				logger.info("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
+			if(logger.isDebugEnabled()) {
+				logger.debug("revising calendar item for " + event.getResource());
+			}
+
+		}
+	
+	}
+	
+	
 }
