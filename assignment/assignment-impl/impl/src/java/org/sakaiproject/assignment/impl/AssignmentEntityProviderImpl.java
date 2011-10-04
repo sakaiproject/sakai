@@ -47,6 +47,30 @@ import org.sakaiproject.tool.api.SessionManager;
 public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, CoreEntityProvider,
         Resolvable, ActionsExecutable, Describeable, AutoRegisterEntityProvider, PropertyProvideable, Outputable, Inputable {
 
+	public class DecoratedAttachment implements Comparable<Object> {
+
+		private String name;
+		private String url;
+		
+		public DecoratedAttachment(String name, String url) {
+			this.name = name;
+			this.url = url;
+		}
+		
+		public String getName() {
+			return this.name;
+		}
+		
+		public String getUrl() {
+			return this.url;
+		}
+		
+		public int compareTo(Object other) {
+			return this.getUrl().compareTo(((DecoratedAttachment) other).getUrl());
+		}
+		
+	}
+	
 	public class SimpleAssignment {
 		/**
 		 * the AssignmentContent of this Assignment.
@@ -164,14 +188,17 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
 		 */
 		private AssignmentAccess access;
 		
-		
+		/**
+		 * the attachment list
+		 */
+		private List<DecoratedAttachment> attachments;
 
 		public SimpleAssignment() {
 		}
 
 		public SimpleAssignment(Assignment a) {
 			super();
-			this.content = a.getContent();
+			//this.content = a.getContent();
 			this.contentReference = a.getContentReference();
 			this.openTime = a.getOpenTime();
 			this.openTimeString = a.getOpenTimeString();
@@ -194,6 +221,16 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
 			this.position_order = a.getPosition_order();
 			this.groups = a.getGroups();
 			this.access = a.getAccess();
+			
+			this.attachments = new ArrayList<DecoratedAttachment>();
+			List<Reference> attachment_list = (List<Reference>)a.getContent().getAttachments();
+			for(Reference attachment : attachment_list)
+			{
+				String url = attachment.getUrl();
+				String name = attachment.getProperties().getPropertyFormatted(attachment.getProperties().getNamePropDisplayName());
+				DecoratedAttachment decoratedAttachment = new DecoratedAttachment(name, url);
+				this.attachments.add(decoratedAttachment);
+			}
 		}
 
 		public AssignmentContent getContent() {
@@ -379,7 +416,16 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
 		public void setAccess(AssignmentAccess access) {
 			this.access = access;
 		}
+		
+		public List<DecoratedAttachment> getAttachments() {
+			return attachments;
+		}
+
+		public void setAttachments(List<DecoratedAttachment> attachments) {
+			this.attachments = attachments;
+		}
 	}
+	
     private AssignmentService assignmentService;
     private EntityBroker entityBroker;
     private SecurityService securityService;
@@ -428,9 +474,9 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
         if (ref == null || ref.getId() == null) {
             throw new IllegalArgumentException("ref and id must be set for assignments");
         }
-        Assignment assignment;
+        SimpleAssignment assignment;
         try {
-            assignment = assignmentService.getAssignment(ref.getId());
+            assignment = new SimpleAssignment(assignmentService.getAssignment(ref.getId()));
         } catch (IdUnusedException e) {
             throw new EntityNotFoundException("No assignment found: "+ref, ref.toString(), e);
         } catch (PermissionException e) {
@@ -672,13 +718,13 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
 	 */
 	@EntityCustomAction(action="site",viewKey=EntityView.VIEW_LIST)
 	public List<?> getAssignmentsForSite(EntityView view, Map<String, Object> params) {
-		List<Assignment> rv = new ArrayList<Assignment>();
+		List<SimpleAssignment> rv = new ArrayList<SimpleAssignment>();
 		String siteId = view.getPathSegment(2);
 		String userId = sessionManager.getCurrentSessionUserId();
 		for (Iterator aIterator = assignmentService.getAssignmentsForContext(siteId, userId); aIterator.hasNext();)
 		{
 			Assignment a = (Assignment) aIterator.next();
-			rv.add(a);
+			rv.add(new SimpleAssignment(a));
 			
 		}
 		return rv;
