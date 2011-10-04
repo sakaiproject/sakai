@@ -244,7 +244,7 @@ public class MyPreferences extends BasePage{
 			private static final long serialVersionUID = 1L;
 			protected void onUpdate(AjaxRequestTarget target) {
 				
-				//set gravatar to false
+				//set gravatar to false since we can't have both active
 				gravatarImage.setModelObject(false);
 				target.addComponent(gravatarImage);
 				
@@ -272,7 +272,7 @@ public class MyPreferences extends BasePage{
 			private static final long serialVersionUID = 1L;
 			protected void onUpdate(AjaxRequestTarget target) {
 				
-				//set official to false
+				//set gravatar to false since we can't have both active
 				officialImage.setModelObject(false);
             	target.addComponent(officialImage);
             	
