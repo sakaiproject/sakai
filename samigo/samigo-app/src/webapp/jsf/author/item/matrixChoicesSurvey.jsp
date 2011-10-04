@@ -87,9 +87,9 @@
  <!-- 1 POINTS -->
   <div class="tier2">
    <div class="shorttext"> <h:outputLabel value="#{authorMessages.answer_point_value}" />
-    	<h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}"required="true" size="6" onchange="toPoint(this.id);">
+    	<h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" required="true" size="6" onchange="toPoint(this.id);">
 		<f:validateDoubleRange /></h:inputText>
-		<h:message for="answerptr" styleClass="validate"/>
+		<h:message for="answerptr" styleClass="validate" />
    </div>
 	<br/>
 	
