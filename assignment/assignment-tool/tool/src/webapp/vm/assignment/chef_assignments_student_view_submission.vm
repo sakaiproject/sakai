@@ -79,7 +79,6 @@ function submitform(id)
 	#if ($allowSubmit && !$submission && $!closeTime && $currentTime.after($closeTime) )
 		<div class="alertMessage">$tlang.getString("stuviewsubm.theclodat")</div><div class="clear"></div>
 	#end
-	$canSubmit$returned$submission$timeSubmitted
 	#if ($!canSubmit)
 		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 		#if ($!submission && $timeSubmitted)
