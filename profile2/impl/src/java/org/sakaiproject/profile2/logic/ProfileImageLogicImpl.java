@@ -17,6 +17,7 @@ import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileImage;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
+import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.Messages;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -114,8 +115,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		
 		//if not allowed, check privacy record
 		if(!allowed) {
-			boolean friend = connectionsLogic.isUserXFriendOfUserY(userUuid, currentUserUuid);
-			allowed = privacyLogic.isUserXProfileImageVisibleByUserY(userUuid, privacy, currentUserUuid, friend);
+			allowed = privacyLogic.isActionAllowed(userUuid, currentUserUuid, PrivacyType.PRIVACY_OPTION_PROFILEIMAGE);
 		}
 		
 		//default if still not allowed

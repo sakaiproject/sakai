@@ -17,6 +17,7 @@ import org.sakaiproject.profile2.hbm.model.ProfileFriend;
 import org.sakaiproject.profile2.model.BasicConnection;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.types.EmailType;
+import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.user.api.User;
 
@@ -131,9 +132,8 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 				
 				//if we need to check messaging privacy setting
 				if(forMessaging){
-					boolean friend = isUserXFriendOfUserY(p.getUuid(), currentUserUuid);
 					//if not allowed to be messaged by this user
-					if(!privacyLogic.isUserXAbleToBeMessagedByUserY(p.getUuid(), currentUserUuid, friend)){
+					if(!privacyLogic.isActionAllowed(p.getUuid(), currentUserUuid, PrivacyType.PRIVACY_OPTION_MESSAGES)){
 						continue;
 					}
 				} 
@@ -470,8 +470,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 		List<User> users = new ArrayList<User>();
 		
 		//check privacy
-		boolean friend = isUserXFriendOfUserY(userUuid, currentUserUuid);
-		if(!privacyLogic.isUserXFriendsListVisibleByUserY(userUuid, currentUserUuid, friend)) {
+		if(!privacyLogic.isActionAllowed(userUuid, currentUserUuid, PrivacyType.PRIVACY_OPTION_MYFRIENDS)) {
 			return users;
 		}
 		

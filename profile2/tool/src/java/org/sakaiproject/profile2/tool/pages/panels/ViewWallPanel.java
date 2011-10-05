@@ -43,6 +43,7 @@ import org.sakaiproject.profile2.model.WallItem;
 import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import org.sakaiproject.profile2.tool.components.TextareaTinyMceSettings;
 import org.sakaiproject.profile2.tool.dataproviders.WallItemDataProvider;
+import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 import wicket.contrib.tinymce.TinyMceBehavior;
@@ -97,8 +98,7 @@ public class ViewWallPanel extends Panel {
 		form.setOutputMarkupId(true);
 		add(form);
 		
-		if (false == privacyLogic.isUserXWallVisibleByUserY(userUuid, sakaiProxy.getCurrentUserId(),
-				connectionsLogic.isUserXFriendOfUserY(userUuid, sakaiProxy.getCurrentUserId()))) {
+		if (false == privacyLogic.isActionAllowed(userUuid, sakaiProxy.getCurrentUserId(), PrivacyType.PRIVACY_OPTION_MYWALL)) {
 			form.setEnabled(false);
 			form.setVisible(false);
 		}
@@ -163,9 +163,7 @@ public class ViewWallPanel extends Panel {
 				
 		// if no wall items, display a message
 		if (0 == provider.size()) {
-			if (privacyLogic.isUserXWallVisibleByUserY(
-					userUuid, privacyLogic.getPrivacyRecordForUser(userUuid),
-					currentUserId, connectionsLogic.isUserXFriendOfUserY(userUuid, currentUserId))) {
+			if (privacyLogic.isActionAllowed(userUuid, currentUserId,PrivacyType.PRIVACY_OPTION_MYWALL)) {
 				
 				// this user has no items on their wall
 				add(new Label("wallInformationMessage",
@@ -193,10 +191,7 @@ public class ViewWallPanel extends Panel {
 				
 				if (ProfileConstants.WALL_ITEM_TYPE_STATUS == wallItem.getType()) {					
 					// only show if a super user or non-super user is permitted
-					if (!sakaiProxy.isSuperUser() && !privacyLogic.isUserXStatusVisibleByUserY(
-							wallItem.getCreatorUuid(), currentUserId, connectionsLogic
-									.isUserXFriendOfUserY(wallItem.getCreatorUuid(),
-											currentUserId))) {
+					if (!sakaiProxy.isSuperUser() && !privacyLogic.isActionAllowed(wallItem.getCreatorUuid(), currentUserId, PrivacyType.PRIVACY_OPTION_MYSTATUS)) {
 						
 						item.setVisible(false);
 					}

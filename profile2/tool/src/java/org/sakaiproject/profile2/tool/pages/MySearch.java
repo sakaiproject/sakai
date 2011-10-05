@@ -59,6 +59,7 @@ import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.tool.models.StringModel;
 import org.sakaiproject.profile2.tool.pages.windows.AddFriend;
+import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.util.FormattedText;
@@ -277,7 +278,7 @@ public class MySearch extends BasePage {
 		    	
 		    	
 		    	/* ACTIONS */
-				boolean isFriendsListVisible = privacyLogic.isUserXFriendsListVisibleByUserY(userUuid, currentUserUuid, friend);
+				boolean isFriendsListVisible = privacyLogic.isActionAllowed(userUuid, currentUserUuid, PrivacyType.PRIVACY_OPTION_MYFRIENDS);
 				boolean isConnectionAllowed = sakaiProxy.isConnectionAllowedBetweenUserTypes(userType, currentUserType);
 		    	
 
@@ -397,10 +398,8 @@ public class MySearch extends BasePage {
 		    	
 				c3.add(emailLink);
 				
-				if (StringUtils.isBlank(person.getProfile().getEmail()) || 
-						false == privacyLogic.isUserXContactInfoVisibleByUserY(
-								person.getUuid(), currentUserUuid, friend)) {
-					
+				if (StringUtils.isBlank(person.getProfile().getEmail()) ||
+						false == privacyLogic.isActionAllowed(person.getUuid(), currentUserUuid, PrivacyType.PRIVACY_OPTION_CONTACTINFO)) {
 					c3.setVisible(false);
 				}
 				item.add(c3);
@@ -416,8 +415,7 @@ public class MySearch extends BasePage {
 		    	c4.add(websiteLink);
 		    	
 				if (StringUtils.isBlank(person.getProfile().getHomepage()) || 
-						false == privacyLogic.isUserXContactInfoVisibleByUserY(
-								person.getUuid(), currentUserUuid, friend)) {
+						false == privacyLogic.isActionAllowed(person.getUuid(), currentUserUuid, PrivacyType.PRIVACY_OPTION_CONTACTINFO)) {
 					
 					c4.setVisible(false);
 				}
@@ -425,8 +423,8 @@ public class MySearch extends BasePage {
 				
 				// TODO personal, academic or business (see PRFL-35)
 				
-				if (true == privacyLogic.isUserXBasicInfoVisibleByUserY(
-						person.getUuid(), currentUserUuid, friend)) {
+				if (true == privacyLogic.isActionAllowed(
+						person.getUuid(), currentUserUuid,  PrivacyType.PRIVACY_OPTION_BASICINFO)) {
 					
 					item.add(new Label("searchResultSummary",
 							StringUtils.abbreviate(ProfileUtils.stripHtml(

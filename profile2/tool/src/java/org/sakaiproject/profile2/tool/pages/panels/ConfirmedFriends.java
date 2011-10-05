@@ -52,6 +52,7 @@ import org.sakaiproject.profile2.tool.pages.MySearch;
 import org.sakaiproject.profile2.tool.pages.ViewFriends;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
 import org.sakaiproject.profile2.tool.pages.windows.RemoveFriend;
+import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
@@ -292,7 +293,7 @@ public class ConfirmedFriends extends Panel {
 				viewFriendsLink.add(viewFriendsLabel);
 				
 				//hide if not allowed
-				if(!privacyLogic.isUserXFriendsListVisibleByUserY(userUuid, currentUserUuid, friend)) {
+				if(!privacyLogic.isActionAllowed(userUuid, currentUserUuid, PrivacyType.PRIVACY_OPTION_MYFRIENDS)) {
 					viewFriendsLink.setEnabled(false);
 					c2.setVisible(false);
 				}
@@ -310,8 +311,8 @@ public class ConfirmedFriends extends Panel {
 				c3.add(emailLink);
 				
 				if (StringUtils.isBlank(person.getProfile().getEmail()) || 
-						false == privacyLogic.isUserXContactInfoVisibleByUserY(
-								person.getUuid(), currentUserUuid, friend)) {
+						false == privacyLogic.isActionAllowed(
+								person.getUuid(), currentUserUuid, PrivacyType.PRIVACY_OPTION_CONTACTINFO)) {
 					
 					c3.setVisible(false);
 				}
@@ -328,16 +329,16 @@ public class ConfirmedFriends extends Panel {
 		    	c4.add(websiteLink);
 		    	
 				if (StringUtils.isBlank(person.getProfile().getHomepage()) || 
-						false == privacyLogic.isUserXContactInfoVisibleByUserY(
-								person.getUuid(), currentUserUuid, friend)) {
+						false == privacyLogic.isActionAllowed(
+								person.getUuid(), currentUserUuid, PrivacyType.PRIVACY_OPTION_CONTACTINFO)) {
 					
 					c4.setVisible(false);
 				}
 				item.add(c4);
 				
 				// basic info can be set to 'only me' so still need to check
-				if (true == privacyLogic.isUserXBasicInfoVisibleByUserY(
-						person.getUuid(), currentUserUuid, friend)) {
+				if (true == privacyLogic.isActionAllowed(
+						person.getUuid(), currentUserUuid, PrivacyType.PRIVACY_OPTION_BASICINFO)) {
 					
 					item.add(new Label("connectionSummary",
 							StringUtils.abbreviate(ProfileUtils.stripHtml(

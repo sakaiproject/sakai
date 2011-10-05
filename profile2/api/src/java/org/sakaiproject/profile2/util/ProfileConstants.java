@@ -182,6 +182,8 @@ public class ProfileConstants {
 	public static final int DEFAULT_PRIVACY_OPTION_MYKUDOS = PRIVACY_OPTION_EVERYONE;
 	public static final int DEFAULT_PRIVACY_OPTION_MYWALL = PRIVACY_OPTION_EVERYONE;
 	public static final int DEFAULT_PRIVACY_OPTION_SOCIALINFO = PRIVACY_OPTION_EVERYONE;
+	public static final int DEFAULT_PRIVACY_OPTION_ONLINESTATUS = PRIVACY_OPTION_EVERYONE;
+
 	public static final boolean DEFAULT_BIRTHYEAR_VISIBILITY = true;
 	
 	/*

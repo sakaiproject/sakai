@@ -32,6 +32,7 @@ import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.WallItem;
 import org.sakaiproject.profile2.model.WallItemComment;
 import org.sakaiproject.profile2.types.EmailType;
+import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 /**
@@ -203,9 +204,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 		}
 
 		if (false == StringUtils.equals(userUuid, currentUserUuid) && false == sakaiProxy.isSuperUser()) {
-			if (false == privacyLogic.isUserXWallVisibleByUserY(userUuid,
-					privacy, currentUserUuid, connectionsLogic
-							.isUserXFriendOfUserY(userUuid, currentUserUuid))) {
+			if (false == privacyLogic.isActionAllowed(userUuid, currentUserUuid, PrivacyType.PRIVACY_OPTION_MYWALL)) {
 				return new ArrayList<WallItem>();
 			}
 		}
@@ -220,8 +219,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 					true == sakaiProxy.isSuperUser()) {
 				filteredWallItems.add(wallItem);
 			// don't allow friend-of-a-friend if not connected
-			} else if (privacyLogic.isUserXWallVisibleByUserY(wallItem.getCreatorUuid(), currentUserUuid,
-					connectionsLogic.isUserXFriendOfUserY(wallItem.getCreatorUuid(), currentUserUuid))) {
+			} else if (privacyLogic.isActionAllowed(wallItem.getCreatorUuid(), currentUserUuid, PrivacyType.PRIVACY_OPTION_MYWALL)) {
 				filteredWallItems.add(wallItem);
 			}
 		}
@@ -265,9 +263,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 
 		if (false == StringUtils.equals(userUuid, currentUserUuid) && false == sakaiProxy.isSuperUser()) {
 
-			if (false == privacyLogic.isUserXWallVisibleByUserY(userUuid,
-					privacy, currentUserUuid, connectionsLogic
-							.isUserXFriendOfUserY(userUuid, currentUserUuid))) {
+			if (false == privacyLogic.isActionAllowed(userUuid, currentUserUuid, PrivacyType.PRIVACY_OPTION_MYWALL)) {
 				return 0;
 			}
 		}
@@ -282,8 +278,7 @@ public class ProfileWallLogicImpl implements ProfileWallLogic {
 					true == sakaiProxy.isSuperUser()) {
 				filteredWallItems.add(wallItem);
 			// don't allow friend-of-a-friend if not connected
-			} else if (privacyLogic.isUserXWallVisibleByUserY(wallItem.getCreatorUuid(), currentUserUuid,
-					connectionsLogic.isUserXFriendOfUserY(wallItem.getCreatorUuid(), currentUserUuid))) {
+			} else if (privacyLogic.isActionAllowed(wallItem.getCreatorUuid(), currentUserUuid, PrivacyType.PRIVACY_OPTION_MYWALL)) {
 				filteredWallItems.add(wallItem);
 			}
 		}

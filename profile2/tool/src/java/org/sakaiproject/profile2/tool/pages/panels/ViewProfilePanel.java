@@ -33,6 +33,7 @@ import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
+import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
@@ -77,13 +78,13 @@ public class ViewProfilePanel extends Panel {
 		//holds number of profile containers that are visible
 		int visibleContainerCount = 0;
 		
-		boolean isBasicInfoAllowed = privacyLogic.isUserXBasicInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
-		boolean isContactInfoAllowed = privacyLogic.isUserXContactInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
-		boolean isBusinessInfoAllowed = privacyLogic.isUserXBusinessInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
-		boolean isPersonalInfoAllowed = privacyLogic.isUserXPersonalInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
-		boolean isStaffInfoAllowed = privacyLogic.isUserXStaffInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
-		boolean isStudentInfoAllowed = privacyLogic.isUserXStudentInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
-		boolean isSocialNetworkingInfoAllowed = privacyLogic.isUserXSocialNetworkingInfoVisibleByUserY(userUuid, privacy, currentUserId, friend);
+		boolean isBasicInfoAllowed = privacyLogic.isActionAllowed(userUuid,currentUserId, PrivacyType.PRIVACY_OPTION_BASICINFO);
+		boolean isContactInfoAllowed = privacyLogic.isActionAllowed(userUuid, currentUserId, PrivacyType.PRIVACY_OPTION_CONTACTINFO);
+		boolean isBusinessInfoAllowed = privacyLogic.isActionAllowed(userUuid, currentUserId, PrivacyType.PRIVACY_OPTION_BUSINESSINFO);
+		boolean isPersonalInfoAllowed = privacyLogic.isActionAllowed(userUuid, currentUserId, PrivacyType.PRIVACY_OPTION_PERSONALINFO);
+		boolean isStaffInfoAllowed = privacyLogic.isActionAllowed(userUuid, currentUserId, PrivacyType.PRIVACY_OPTION_STAFFINFO);
+		boolean isStudentInfoAllowed = privacyLogic.isActionAllowed(userUuid, currentUserId, PrivacyType.PRIVACY_OPTION_STUDENTINFO);
+		boolean isSocialNetworkingInfoAllowed = privacyLogic.isActionAllowed(userUuid, currentUserId, PrivacyType.PRIVACY_OPTION_SOCIALINFO);
 		
 		/* BASIC INFO */
 		WebMarkupContainer basicInfoContainer = new WebMarkupContainer("mainSectionContainer_basic");

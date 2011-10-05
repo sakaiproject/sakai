@@ -1,7 +1,7 @@
 package org.sakaiproject.profile2.types;
 
 /**
- * The types of emails that can be sent. 
+ * The types of emails that can be sent. See also {@link PreferenceType}.
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  * @since 1.5

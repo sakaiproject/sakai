@@ -35,6 +35,7 @@ import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
+import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.user.api.User;
@@ -95,21 +96,20 @@ public class ProfileLogicImpl implements ProfileLogic {
 			return p;
 		}
 		
-		//get privacy record
-		ProfilePrivacy privacy = privacyLogic.getPrivacyRecordForUser(userUuid);
-		
-		//check friend status
-		boolean friend = connectionsLogic.isUserXFriendOfUserY(userUuid, currentUserUuid);
+		//REMOVE the birth year if not allowed
+		if(!privacyLogic.isBirthYearVisible(userUuid)){
+			p.setDateOfBirth(ProfileUtils.stripYear(p.getDateOfBirth()));
+		}
 		
 		//REMOVE basic info if not allowed
-		if(!privacyLogic.isUserXBasicInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+		if(!privacyLogic.isActionAllowed(userUuid,currentUserUuid, PrivacyType.PRIVACY_OPTION_BASICINFO)) {
 			p.setNickname(null);
 			p.setDateOfBirth(null);
 			p.setPersonalSummary(null);
 		}
 		
 		//ADD email if allowed, REMOVE contact info if not
-		if(privacyLogic.isUserXContactInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+		if(privacyLogic.isActionAllowed(userUuid, currentUserUuid, PrivacyType.PRIVACY_OPTION_CONTACTINFO)) {
 			p.setEmail(u.getEmail());
 		} else {
 			p.setEmail(null);
@@ -121,7 +121,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 		}
 		
 		//REMOVE staff info if not allowed
-		if(!privacyLogic.isUserXStaffInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+		if(!privacyLogic.isActionAllowed(userUuid, currentUserUuid, PrivacyType.PRIVACY_OPTION_STAFFINFO)) {
 			p.setDepartment(null);
 			p.setPosition(null);
 			p.setSchool(null);
@@ -133,13 +133,13 @@ public class ProfileLogicImpl implements ProfileLogic {
 		}
 		
 		//REMOVE student info if not allowed
-		if(!privacyLogic.isUserXStudentInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+		if(!privacyLogic.isActionAllowed(userUuid, currentUserUuid, PrivacyType.PRIVACY_OPTION_STUDENTINFO)) {
 			p.setCourse(null);
 			p.setSubjects(null);
 		}
 		
 		//REMOVE personal info if not allowed
-		if(!privacyLogic.isUserXPersonalInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+		if(!privacyLogic.isActionAllowed(userUuid, currentUserUuid, PrivacyType.PRIVACY_OPTION_PERSONALINFO)) {
 			p.setFavouriteBooks(null);
 			p.setFavouriteTvShows(null);
 			p.setFavouriteMovies(null);
@@ -147,13 +147,13 @@ public class ProfileLogicImpl implements ProfileLogic {
 		}
 		
 		//ADD social networking info if allowed
-		if(privacyLogic.isUserXSocialNetworkingInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+		if(privacyLogic.isActionAllowed(userUuid, currentUserUuid, PrivacyType.PRIVACY_OPTION_SOCIALINFO)) {
 			p.setSocialInfo(getSocialNetworkingInfo(userUuid));
 		}
 		
 		//ADD company info if activated and allowed, REMOVE business bio if not
 		if(sakaiProxy.isBusinessProfileEnabled()) {
-			if(privacyLogic.isUserXBusinessInfoVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+			if(privacyLogic.isActionAllowed(userUuid, currentUserUuid, PrivacyType.PRIVACY_OPTION_BUSINESSINFO)) {
 				p.setCompanyProfiles(getCompanyProfiles(userUuid));
 			} else {
 				p.setBusinessBiography(null);
@@ -163,7 +163,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 		}
 		
 		//ADD profile status if allowed
-		if(privacyLogic.isUserXStatusVisibleByUserY(userUuid, privacy, currentUserUuid, friend)) {
+		if(privacyLogic.isActionAllowed(userUuid, currentUserUuid, PrivacyType.PRIVACY_OPTION_MYSTATUS)) {
 			p.setStatus(statusLogic.getUserStatus(userUuid));
 		}
 		

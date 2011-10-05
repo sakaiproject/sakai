@@ -49,6 +49,7 @@ import org.sakaiproject.profile2.tool.pages.ViewFriends;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
 import org.sakaiproject.profile2.tool.pages.windows.ConfirmFriend;
 import org.sakaiproject.profile2.tool.pages.windows.IgnoreFriend;
+import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
@@ -260,8 +261,8 @@ public class RequestedFriends extends Panel {
 				final Label viewFriendsLabel = new Label("viewFriendsLabel", new ResourceModel("link.view.friends"));
 				viewFriendsLink.add(viewFriendsLabel);
 				
-				//hide if not allowed (friend is false currently)
-				if(!privacyLogic.isUserXFriendsListVisibleByUserY(userUuid, currentUserUuid, false)) {
+				//hide if not allowed
+				if(!privacyLogic.isActionAllowed(userUuid, currentUserUuid, PrivacyType.PRIVACY_OPTION_MYFRIENDS)) {
 					viewFriendsLink.setEnabled(false);
 					c3.setVisible(false);
 				}
@@ -280,8 +281,8 @@ public class RequestedFriends extends Panel {
 				
 				// friend=false
 				if (StringUtils.isBlank(person.getProfile().getEmail()) || 
-						false == privacyLogic.isUserXContactInfoVisibleByUserY(
-								person.getUuid(), currentUserUuid, false)) {
+						false == privacyLogic.isActionAllowed(
+								person.getUuid(), currentUserUuid, PrivacyType.PRIVACY_OPTION_CONTACTINFO)) {
 					
 					c4.setVisible(false);
 				}
@@ -299,16 +300,16 @@ public class RequestedFriends extends Panel {
 
 				// friend=false
 				if (StringUtils.isBlank(person.getProfile().getHomepage()) || 
-						false == privacyLogic.isUserXContactInfoVisibleByUserY(
-								person.getUuid(), currentUserUuid, false)) {
+						false == privacyLogic.isActionAllowed(
+								person.getUuid(), currentUserUuid, PrivacyType.PRIVACY_OPTION_CONTACTINFO)) {
 					
 					c5.setVisible(false);
 				}
 				item.add(c5);
 				
 				// not a friend yet, so friend=false
-				if (true == privacyLogic.isUserXBasicInfoVisibleByUserY(
-						person.getUuid(), sakaiProxy.getCurrentUserId(), false)) {
+				if (true == privacyLogic.isActionAllowed(
+						person.getUuid(), sakaiProxy.getCurrentUserId(), PrivacyType.PRIVACY_OPTION_BASICINFO)) {
 					
 					item.add(new Label("connectionSummary",
 							StringUtils.abbreviate(ProfileUtils.stripHtml(

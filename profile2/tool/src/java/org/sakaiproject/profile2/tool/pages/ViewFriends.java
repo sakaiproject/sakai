@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.sakaiproject.profile2.exception.ProfileFriendsIllegalAccessException;
 import org.sakaiproject.profile2.tool.pages.panels.ConfirmedFriends;
+import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 public class ViewFriends extends BasePage {
@@ -33,13 +34,10 @@ public class ViewFriends extends BasePage {
 		
 		//get user viewing this page
 		final String currentUserUuid = sakaiProxy.getCurrentUserId();
-		
-		//double check they are friends
-		boolean friend = connectionsLogic.isUserXFriendOfUserY(userUuid, currentUserUuid);
-		
-		//double check person viewing this page (currentuserId) is allowed to view userId's friends - unless admin
+				
+		//check person viewing this page (currentuserId) is allowed to view userId's friends - unless admin
 		if(!sakaiProxy.isSuperUser()){
-			boolean isFriendsListVisible = privacyLogic.isUserXFriendsListVisibleByUserY(userUuid, currentUserUuid, friend);
+			boolean isFriendsListVisible = privacyLogic.isActionAllowed(userUuid, currentUserUuid, PrivacyType.PRIVACY_OPTION_MYFRIENDS);
 			if(!isFriendsListVisible) {
 				throw new ProfileFriendsIllegalAccessException("User: " + currentUserUuid + " is not allowed to view the friends list for: " + userUuid);
 			}

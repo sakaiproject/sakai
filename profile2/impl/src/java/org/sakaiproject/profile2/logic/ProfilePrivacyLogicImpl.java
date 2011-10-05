@@ -9,6 +9,7 @@ import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.profile2.cache.CacheManager;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
+import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 /**
@@ -102,674 +103,12 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 		return false;
 	}
 	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean isUserXProfileImageVisibleByUserY(String userX, String userY, boolean friend) {
-		
-		//if user is requesting own info, they ARE allowed
-    	if(userY.equals(userX)) {
-    		return true;
-    	}
-		
-		//get privacy record for userX
-    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
-    	
-    	//pass to main
-    	return isUserXProfileImageVisibleByUserY(userX, profilePrivacy, userY, friend);
-	}
 	
 	
 	/**
  	 * {@inheritDoc}
  	 */
-	public boolean isUserXProfileImageVisibleByUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend) {
-		
-		//if user is requesting own info, they ARE allowed
-    	if(userY.equals(userX)) {
-    		return true;
-    	}
-    	
-		//if no privacy record, return whatever the flag is set as by default
-    	/* deprecated by PRFL-86, privacy object will never be null now it will always be default or overridden default
-    	if(profilePrivacy == null) {
-    		return ProfileConstants.DEFAULT_PROFILEIMAGE_VISIBILITY;
-    	}
-    	*/
-    	
-    	//if restricted to only self, not allowed
-    	/* DEPRECATED via PRFL-24 when the privacy settings were relaxed
-    	if(profilePrivacy.getProfile() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYME) {
-    		return false;
-    	}
-    	*/
-    	
-    	//if user is friend and friends are allowed
-    	if(friend && profilePrivacy.getProfileImage() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return true;
-    	}
-    	
-    	//if not friend and set to friends only
-    	if(!friend && profilePrivacy.getProfileImage() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return false;
-    	}
-    	
-    	//if everyone is allowed
-    	if(profilePrivacy.getProfileImage() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
-    		return true;
-    	}
-    	
-    	//uncaught rule, return false
-    	log.error("ProfileLogic.isUserProfileImageVisibleByCurrentUser. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);   
-    	return false;
-	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean isUserXBasicInfoVisibleByUserY(String userX, String userY, boolean friend) {
-		
-		//if user is requesting own info, they ARE allowed
-    	if(userY.equals(userX)) {
-    		return true;
-    	}
-		
-		//get privacy record for userX
-    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
-    	
-    	//pass to main
-    	return isUserXBasicInfoVisibleByUserY(userX, profilePrivacy, userY, friend);
-	}
-	
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean isUserXBasicInfoVisibleByUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend) {
-		
-		//if user is requesting own info, they ARE allowed
-    	if(userY.equals(userX)) {
-    		return true;
-    	}
-		
-		//if no privacy record, return whatever the flag is set as by default
-    	/* deprecated by PRFL-86, privacy object will never be null now it will always be default or overridden default
-    	if(profilePrivacy == null) {
-    		return ProfileConstants.DEFAULT_BASICINFO_VISIBILITY;
-    	}
-    	*/
-    	
-    	//if restricted to only self, not allowed
-    	if(profilePrivacy.getBasicInfo() == ProfileConstants.PRIVACY_OPTION_ONLYME) {
-    		return false;
-    	}
-    	
-    	//if user is friend and friends are allowed
-    	if(friend && profilePrivacy.getBasicInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return true;
-    	}
-    	
-    	//if not friend and set to friends only
-    	if(!friend && profilePrivacy.getBasicInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return false;
-    	}
-    	
-    	//if everyone is allowed
-    	if(profilePrivacy.getBasicInfo() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
-    		return true;
-    	}
-    	
-    	//uncaught rule, return false
-    	log.error("ProfileLogic.isUserXBasicInfoVisibleByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);   
-    	return false;
-	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean isUserXContactInfoVisibleByUserY(String userX, String userY, boolean friend) {
-		
-		//if user is requesting own info, they ARE allowed
-    	if(userY.equals(userX)) {
-    		return true;
-    	}
-		
-		//get privacy record for this user
-    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
-    	
-    	//pass to main
-    	return isUserXContactInfoVisibleByUserY(userX, profilePrivacy, userY, friend);
-	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean isUserXContactInfoVisibleByUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend) {
-		
-		//if user is requesting own info, they ARE allowed
-    	if(userY.equals(userX)) {
-    		return true;
-    	}
-		
-		//if no privacy record, return whatever the flag is set as by default
-    	/* deprecated by PRFL-86, privacy object will never be null now it will always be default or overridden default
-    	if(profilePrivacy == null) {
-    		return ProfileConstants.DEFAULT_CONTACTINFO_VISIBILITY;
-    	}
-    	*/
-    	
-    	//if restricted to only self, not allowed
-    	if(profilePrivacy.getContactInfo() == ProfileConstants.PRIVACY_OPTION_ONLYME) {
-    		return false;
-    	}
-    	
-    	//if user is friend and friends are allowed
-    	if(friend && profilePrivacy.getContactInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return true;
-    	}
-    	
-    	//if not friend and set to friends only
-    	if(!friend && profilePrivacy.getContactInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return false;
-    	}
-    	
-    	//if everyone is allowed
-    	if(profilePrivacy.getContactInfo() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
-    		return true;
-    	}
-    	
-    	//uncaught rule, return false
-    	log.error("ProfileLogic.isUserXContactInfoVisibleByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);   
-
-    	return false;
-	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean isUserXStaffInfoVisibleByUserY(String userX, String userY, boolean friend) {
-		
-		//if user is requesting own info, they ARE allowed
-    	if(userY.equals(userX)) {
-    		return true;
-    	}
-    	
-		//get privacy record for this user
-    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
-    	
-    	//pass to main
-    	return isUserXStaffInfoVisibleByUserY(userX, profilePrivacy, userY, friend);
-	}
-
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean isUserXStaffInfoVisibleByUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend) {
-		
-		//if user is requesting own info, they ARE allowed
-    	if(userY.equals(userX)) {
-    		return true;
-    	}
-		    	
-    	//if restricted to only self, not allowed
-    	if(profilePrivacy.getStaffInfo() == ProfileConstants.PRIVACY_OPTION_ONLYME) {
-    		return false;
-    	}
-    	
-    	//if user is friend and friends are allowed
-    	if(friend && profilePrivacy.getStaffInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return true;
-    	}
-    	
-    	//if not friend and set to friends only
-    	if(!friend && profilePrivacy.getStaffInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return false;
-    	}
-    	
-    	//if everyone is allowed
-    	if(profilePrivacy.getStaffInfo() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
-    		return true;
-    	}
-    	
-    	//uncaught rule, return false
-    	log.error("ProfileLogic.isUserXStaffInfoVisibleByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);   
-
-    	return false;
-	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean isUserXStudentInfoVisibleByUserY(String userX, String userY, boolean friend) {
-		
-		//if user is requesting own info, they ARE allowed
-    	if(userY.equals(userX)) {
-    		return true;
-    	}
-		
-		//get privacy record for this user
-    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
-    	
-    	//pass to main
-    	return isUserXStudentInfoVisibleByUserY(userX, profilePrivacy, userY, friend);
-	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean isUserXStudentInfoVisibleByUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend) {
-		
-		//if user is requesting own info, they ARE allowed
-    	if(userY.equals(userX)) {
-    		return true;
-    	}
-    	
-    	//if restricted to only self, not allowed
-    	if(profilePrivacy.getStudentInfo() == ProfileConstants.PRIVACY_OPTION_ONLYME) {
-    		return false;
-    	}
-    	
-    	//if user is friend and friends are allowed
-    	if(friend && profilePrivacy.getStudentInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return true;
-    	}
-    	
-    	//if not friend and set to friends only
-    	if(!friend && profilePrivacy.getStudentInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return false;
-    	}
-    	
-    	//if everyone is allowed
-    	if(profilePrivacy.getStudentInfo() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
-    		return true;
-    	}
-    	
-    	//uncaught rule, return false
-    	log.error("ProfileLogic.isUserXStudentInfoVisibleByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);   
-
-    	return false;
-	}
-
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean isUserXBusinessInfoVisibleByUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend) {
-		
-		//if user is requesting own info, they ARE allowed
-    	if(userY.equals(userX)) {
-    		return true;
-    	}
-    	
-    	//if restricted to only self, not allowed
-    	if(profilePrivacy.getBusinessInfo() == ProfileConstants.PRIVACY_OPTION_ONLYME) {
-    		return false;
-    	}
-    	
-    	//if user is friend and friends are allowed
-    	if(friend && profilePrivacy.getBusinessInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return true;
-    	}
-    	
-    	//if not friend and set to friends only
-    	if(!friend && profilePrivacy.getBusinessInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return false;
-    	}
-    	
-    	//if everyone is allowed
-    	if(profilePrivacy.getBusinessInfo() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
-    		return true;
-    	}
-    	
-    	//uncaught rule, return false
-    	log.error("ProfileLogic.isUserXBusinessInfoVisibleByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);  
-    	
-		return false;
-	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean isUserXSocialNetworkingInfoVisibleByUserY(String userX,
-			ProfilePrivacy profilePrivacy, String userY, boolean friend) {
-		
-		//if user is requesting own info, they ARE allowed
-    	if(userY.equals(userX)) {
-    		return true;
-    	}
-    	
-    	//if restricted to only self, not allowed
-    	if(profilePrivacy.getSocialNetworkingInfo() == ProfileConstants.PRIVACY_OPTION_ONLYME) {
-    		return false;
-    	}
-    	
-    	//if user is friend and friends are allowed
-    	if(friend && profilePrivacy.getSocialNetworkingInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return true;
-    	}
-    	
-    	//if not friend and set to friends only
-    	if(!friend && profilePrivacy.getSocialNetworkingInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return false;
-    	}
-    	
-    	//if everyone is allowed
-    	if(profilePrivacy.getSocialNetworkingInfo() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
-    		return true;
-    	}
-    	
-    	//uncaught rule, return false
-    	log.error("ProfileLogic.isUserXSocialNetworkingInfoVisibleByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);  
-    	
-		return false;
-	}
-
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean isUserXPersonalInfoVisibleByUserY(String userX, String userY, boolean friend) {
-		
-		//if user is requesting own info, they ARE allowed
-    	if(userY.equals(userX)) {
-    		return true;
-    	}
-		
-		//get privacy record for this user
-    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
-    	
-    	//pass to main
-    	return isUserXPersonalInfoVisibleByUserY(userX, profilePrivacy, userY, friend);
-	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean isUserXPersonalInfoVisibleByUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend) {
-		
-		//if user is requesting own info, they ARE allowed
-    	if(userY.equals(userX)) {
-    		return true;
-    	}
-		
-		//if no privacy record, return whatever the flag is set as by default
-    	/* deprecated by PRFL-86, privacy object will never be null now it will always be default or overridden default
-    	if(profilePrivacy == null) {
-    		return ProfileConstants.DEFAULT_PERSONALINFO_VISIBILITY;
-    	}
-    	*/
-    	
-    	//if restricted to only self, not allowed
-    	if(profilePrivacy.getPersonalInfo() == ProfileConstants.PRIVACY_OPTION_ONLYME) {
-    		return false;
-    	}
-    	
-    	//if user is friend and friends are allowed
-    	if(friend && profilePrivacy.getPersonalInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return true;
-    	}
-    	
-    	//if not friend and set to friends only
-    	if(!friend && profilePrivacy.getPersonalInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return false;
-    	}
-    	
-    	//if everyone is allowed
-    	if(profilePrivacy.getPersonalInfo() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
-    		return true;
-    	}
-    	    	
-    	//uncaught rule, return false
-    	log.error("ProfileLogic.isUserXPersonalInfoVisibleByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);   
-    	return false;
-	}
-	
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean isUserXFriendsListVisibleByUserY(String userX, String userY, boolean friend) {
-		
-		//if user is requesting own info, they ARE allowed
-    	if(userY.equals(userX)) {
-    		return true;
-    	}
-		
-		//get privacy record for this user
-    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
-    	
-    	//pass to main
-    	return isUserXFriendsListVisibleByUserY(userX, profilePrivacy, userY, friend);
-	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean isUserXFriendsListVisibleByUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend) {
-		
-		//if user is requesting own info, they ARE allowed
-    	if(userY.equals(userX)) {
-    		return true;
-    	}
-	
-		//if no privacy record, return whatever the flag is set as by default
-    	/* deprecated by PRFL-86, privacy object will never be null now it will always be default or overridden default
-    	if(profilePrivacy == null) {
-    		return ProfileConstants.DEFAULT_MYFRIENDS_VISIBILITY;
-    	}
-    	*/
-    	
-    	//if restricted to only self, not allowed
-    	if(profilePrivacy.getMyFriends() == ProfileConstants.PRIVACY_OPTION_ONLYME) {
-    		return false;
-    	}
-    	
-    	//if user is friend and friends are allowed
-    	if(friend && profilePrivacy.getMyFriends() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return true;
-    	}
-    	
-    	//if not friend and set to friends only
-    	if(!friend && profilePrivacy.getMyFriends() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return false;
-    	}
-    	
-    	//if everyone is allowed
-    	if(profilePrivacy.getMyFriends() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
-    		return true;
-    	}
-    	    	
-    	//uncaught rule, return false
-    	log.error("ProfileLogic.isUserXFriendsListVisibleByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);   
-    	return false;
-	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean isUserXGalleryVisibleByUser(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend) {
-		
-		// current user
-    	if(userY.equals(userX)) {
-    		return true;
-    	}
-    	
-    	// friend and friends allowed
-    	if (friend && profilePrivacy.getMyPictures() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return true;
-    	}
-    	
-    	// everyone else
-    	if(profilePrivacy.getMyPictures() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
-    		return true;
-    	} else {
-    		return false;
-    	}
-	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean isUserXStatusVisibleByUserY(String userX, String userY, boolean friend) {
-		
-		//if user is requesting own info, they ARE allowed
-    	if(userY.equals(userX)) {
-    		return true;
-    	}
-		
-		//get privacy record for this user
-    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
-    	
-    	//pass to main
-    	return isUserXStatusVisibleByUserY(userX, profilePrivacy, userY, friend);
-	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean isUserXStatusVisibleByUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend) {
-		
-		//if user is requesting own info, they ARE allowed
-    	if(userY.equals(userX)) {
-    		return true;
-    	}
-    	
-		//if no privacy record, return whatever the flag is set as by default
-    	/* deprecated by PRFL-86, privacy object will never be null now it will always be default or overridden default
-    	if(profilePrivacy == null) {
-    		return ProfileConstants.DEFAULT_MYSTATUS_VISIBILITY;
-    	}
-    	*/
-    	
-    	//if restricted to only self, not allowed
-    	/* DEPRECATED via PRFL-24 when the privacy settings were relaxed
-    	if(profilePrivacy.getMyStatus() == ProfilePrivacyManager.PRIVACY_OPTION_ONLYME) {
-    		return false;
-    	}
-    	*/
-    	
-    	//if user is friend and friends are allowed
-    	if(friend && profilePrivacy.getMyStatus() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return true;
-    	}
-    	
-    	//if not friend and set to friends only
-    	if(!friend && profilePrivacy.getMyStatus() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return false;
-    	}
-    	
-    	//if everyone is allowed
-    	if(profilePrivacy.getMyStatus() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
-    		return true;
-    	}
-    	    	
-    	//uncaught rule, return false
-    	log.error("ProfileLogic.isUserXStatusVisibleByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);   
-    	return false;
-	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean isUserXKudosVisibleByUserY(String userX, String userY, boolean friend) {
-		
-		//if user is requesting own info, they ARE allowed
-    	if(userY.equals(userX)) {
-    		return true;
-    	}
-		
-		//get privacy record for this user
-    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
-    	
-    	//pass to main
-    	return isUserXKudosVisibleByUserY(userX, profilePrivacy, userY, friend);
-	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean isUserXKudosVisibleByUserY(String userX, ProfilePrivacy profilePrivacy, String userY, boolean friend) {
-		
-		//if user is requesting own info, they ARE allowed
-    	if(userY.equals(userX)) {
-    		return true;
-    	}
-    	
-    	//if user is friend and friends are allowed
-    	if(friend && profilePrivacy.getMyKudos() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return true;
-    	}
-    	
-    	//if not friend and set to friends only
-    	if(!friend && profilePrivacy.getMyKudos() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return false;
-    	}
-    	
-    	//if everyone is allowed
-    	if(profilePrivacy.getMyKudos() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
-    		return true;
-    	}
-    	    	
-    	//uncaught rule, return false
-    	log.error("ProfileLogic.isUserXKudosVisibleByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);   
-    	return false;
-	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean isUserXWallVisibleByUserY(String userX, String userY,
-			boolean friend) {
-		
-		//if user is requesting own info, they ARE allowed
-    	if(userY.equals(userX)) {
-    		return true;
-    	}
-		
-		//get privacy record for this user
-    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
-    	
-    	//pass to main
-    	return isUserXWallVisibleByUserY(userX, profilePrivacy, userY, friend);
-	}
-	
-	
-
-
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean isUserXWallVisibleByUserY(String userX,
-			ProfilePrivacy profilePrivacy, String userY, boolean friend) {
-		
-		//if user is requesting own info, they ARE allowed
-    	if(userY.equals(userX)) {
-    		return true;
-    	}
-    	
-    	//if user is friend and friends are allowed
-    	if(friend && profilePrivacy.getMyWall() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return true;
-    	}
-    	
-    	//if not friend and set to friends only
-    	if(!friend && profilePrivacy.getMyWall() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return false;
-    	}
-    	
-    	//if everyone is allowed
-    	if(profilePrivacy.getMyWall() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
-    		return true;
-    	}
-    	    	
-    	//uncaught rule, return false
-    	log.error("ProfileLogic.isUserXWallVisibleByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);   
-    	return false;
-	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean isUserXOnlineStatusVisibleByUserY(String userX, String userY, boolean friend) {
+	public boolean isActionAllowed(final String userX, final String userY, final PrivacyType type) {
 		
 		//if user is requesting own info, they ARE allowed
     	if(userY.equals(userX)) {
@@ -778,88 +117,321 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
     	
     	//get privacy record for this user
     	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
-    	    	
-    	//if user is friend and friends are allowed
-    	if(friend && profilePrivacy.getOnlineStatus() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return true;
-    	}
-    	
-    	//if not friend and set to friends only
-    	if(!friend && profilePrivacy.getOnlineStatus() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return false;
-    	}
-    	
-    	//if everyone is allowed
-    	if(profilePrivacy.getMyKudos() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
-    		return true;
-    	}
-    	    	
-    	//uncaught rule, return false
-    	log.error("ProfileLogic.isUserXOnlineStatusVisibleByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend);   
-    	return false;
-	}
-
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean isBirthYearVisible(String userId) {
-		
-		//get privacy record for this user
-		ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userId);
-		
-		return isBirthYearVisible(profilePrivacy);
-	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean isBirthYearVisible(ProfilePrivacy profilePrivacy) {
-		
-		//return value or whatever the flag is set as by default
-		/* deprecated by PRFL-86, privacy object will never be null now it will always be default or overridden default
     	if(profilePrivacy == null) {
-    		return ProfileConstants.DEFAULT_BIRTHYEAR_VISIBILITY;
-    	} else {
-    	}
-    	*/
-    	return profilePrivacy.isShowBirthYear();
-	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
-	public boolean isUserXAbleToBeMessagedByUserY(String userX, String userY, boolean friend) {
-		
-		//if user is requesting own info, they ARE allowed
-    	if(userY.equals(userX)) {
-    		return true;
-    	}
-		
-		//get privacy record for this user
-    	ProfilePrivacy profilePrivacy = getPrivacyRecordForUser(userX);
-    	if(profilePrivacy == null) {
-    		log.error("ProfilePrivacyLogic.isUserXAbleToBeMessagedByUserY. Couldn't get a ProfilePrivacy record for userX: " + userX);   
+    		log.error("ProfilePrivacyLogic.isActionAllowed. Couldn't get a ProfilePrivacy record for userX: " + userX);   
         	return false;
     	}
     	
-    	//if nobody allowed
-    	if(profilePrivacy.getMessages() == ProfileConstants.PRIVACY_OPTION_NOBODY) {
-    		return false;
+    	boolean isConnected = connectionsLogic.isUserXFriendOfUserY(userX, userY);
+		
+    	boolean result=false;
+    	
+    	if(log.isDebugEnabled()){
+	    	log.debug("ProfilePrivacyLogic.isActionAllowed. userX: " + userX + ", userY: " + userY + ", type: " + type);  
     	}
+    	
+    	switch (type) {
+		
+	    	case PRIVACY_OPTION_PROFILEIMAGE:
+	    		
+	    		//if user is friend and friends are allowed
+	        	if(isConnected && profilePrivacy.getProfileImage() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = true; break;
+	        	}
+	        	
+	        	//if not friend and set to friends only
+	        	if(!isConnected && profilePrivacy.getProfileImage() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = false; break;
+	        	}
+	        	
+	        	//if everyone is allowed
+	        	if(profilePrivacy.getProfileImage() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
+	        		result = true; break;
+	        	}
+	        	
+	    	case PRIVACY_OPTION_BASICINFO:
+	    		
+	    		//if user is friend and friends are allowed
+	        	if(isConnected && profilePrivacy.getBasicInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = true; break;
+	        	}
+	        	
+	        	//if restricted to only self, not allowed
+	        	if(profilePrivacy.getBasicInfo() == ProfileConstants.PRIVACY_OPTION_ONLYME) {
+	        		result = false; break;
+	        	}
+	        	
+	        	//if not friend and set to friends only
+	        	if(!isConnected && profilePrivacy.getBasicInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = false; break;
+	        	}
+	        	
+	        	//if everyone is allowed
+	        	if(profilePrivacy.getBasicInfo() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
+	        		result = true; break;
+	        	}
+	        	
+	    	case PRIVACY_OPTION_CONTACTINFO:
+	    		
+	    		//if user is friend and friends are allowed
+	        	if(isConnected && profilePrivacy.getContactInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = true; break;
+	        	}
+	        	
+	        	//if restricted to only self, not allowed
+	        	if(profilePrivacy.getContactInfo() == ProfileConstants.PRIVACY_OPTION_ONLYME) {
+	        		result = false; break;
+	        	}
+	        	
+	        	//if not friend and set to friends only
+	        	if(!isConnected && profilePrivacy.getContactInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = false; break;
+	        	}
+	        	
+	        	//if everyone is allowed
+	        	if(profilePrivacy.getContactInfo() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
+	        		result = true; break;
+	        	}
+	        
+	    	case PRIVACY_OPTION_STAFFINFO:
+	    		
+	    		//if user is friend and friends are allowed
+	        	if(isConnected && profilePrivacy.getStaffInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = true; break;
+	        	}
+	        	
+	        	//if not friend and set to friends only
+	        	if(!isConnected && profilePrivacy.getStaffInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = false; break;
+	        	}
+	        	
+	        	//if everyone is allowed
+	        	if(profilePrivacy.getStaffInfo() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
+	        		result = true; break;
+	        	}
+	        
+	    	case PRIVACY_OPTION_STUDENTINFO:
+	    		
+	    		//if user is friend and friends are allowed
+	        	if(isConnected && profilePrivacy.getStudentInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = true; break;
+	        	}
+	        	
+	        	//if not friend and set to friends only
+	        	if(!isConnected && profilePrivacy.getStudentInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = false; break;
+	        	}
+	        	
+	        	//if everyone is allowed
+	        	if(profilePrivacy.getStudentInfo() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
+	        		result = true; break;
+	        	}
+	        	
+	    	case PRIVACY_OPTION_BUSINESSINFO:
+	    		
+	    		//if restricted to only self, not allowed
+	        	if(profilePrivacy.getBusinessInfo() == ProfileConstants.PRIVACY_OPTION_ONLYME) {
+	        		result = false; break;
+	        	}
+	        	
+	        	//if user is friend and friends are allowed
+	        	if(isConnected && profilePrivacy.getBusinessInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = true; break;
+	        	}
+	        	
+	        	//if not friend and set to friends only
+	        	if(!isConnected && profilePrivacy.getBusinessInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = false; break;
+	        	}
+	        	
+	        	//if everyone is allowed
+	        	if(profilePrivacy.getBusinessInfo() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
+	        		result = true; break;
+	        	}
+	        	
+	    	case PRIVACY_OPTION_SOCIALINFO:
+	    		
+	    		//if restricted to only self, not allowed
+	        	if(profilePrivacy.getSocialNetworkingInfo() == ProfileConstants.PRIVACY_OPTION_ONLYME) {
+	        		result = false; break;
+	        	}
+	        	
+	        	//if user is friend and friends are allowed
+	        	if(isConnected && profilePrivacy.getSocialNetworkingInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = true; break;
+	        	}
+	        	
+	        	//if not friend and set to friends only
+	        	if(!isConnected && profilePrivacy.getSocialNetworkingInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = false; break;
+	        	}
+	        	
+	        	//if everyone is allowed
+	        	if(profilePrivacy.getSocialNetworkingInfo() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
+	        		result = true; break;
+	        	}
+	        	
+	    	case PRIVACY_OPTION_PERSONALINFO:
+	    		
+	    		//if restricted to only self, not allowed
+	        	if(profilePrivacy.getPersonalInfo() == ProfileConstants.PRIVACY_OPTION_ONLYME) {
+	        		result = false; break;
+	        	}
+	        	
+	        	//if user is friend and friends are allowed
+	        	if(isConnected && profilePrivacy.getPersonalInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = true; break;
+	        	}
+	        	
+	        	//if not friend and set to friends only
+	        	if(!isConnected && profilePrivacy.getPersonalInfo() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = false; break;
+	        	}
+	        	
+	        	//if everyone is allowed
+	        	if(profilePrivacy.getPersonalInfo() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
+	        		result = true; break;
+	        	}
+	        	
+	    	case PRIVACY_OPTION_MYFRIENDS:
+	    		
+	    		//if restricted to only self, not allowed
+	        	if(profilePrivacy.getMyFriends() == ProfileConstants.PRIVACY_OPTION_ONLYME) {
+	        		result = false; break;
+	        	}
+	        	
+	        	//if user is friend and friends are allowed
+	        	if(isConnected && profilePrivacy.getMyFriends() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = true; break;
+	        	}
+	        	
+	        	//if not friend and set to friends only
+	        	if(!isConnected && profilePrivacy.getMyFriends() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = false; break;
+	        	}
+	        	
+	        	//if everyone is allowed
+	        	if(profilePrivacy.getMyFriends() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
+	        		result = true; break;
+	        	}
+	        	
+	    	case PRIVACY_OPTION_MYPICTURES:
+	    		
+	    		//if user is friend and friends are allowed
+	        	if (isConnected && profilePrivacy.getMyPictures() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = true; break;
+	        	}
+	        	
+	        	//if not friend and set to friends only
+	        	if(!isConnected && profilePrivacy.getMyPictures() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = false; break;
+	        	}
+	        	
+	        	//if everyone is allowed
+	        	if(profilePrivacy.getMyPictures() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
+	        		result = true; break;
+	        	}
+	        	
+	    	case PRIVACY_OPTION_MYSTATUS:
+	    		
+	    		//if user is friend and friends are allowed
+	        	if(isConnected && profilePrivacy.getMyStatus() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = true; break;
+	        	}
+	        	
+	        	//if not friend and set to friends only
+	        	if(!isConnected && profilePrivacy.getMyStatus() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = false; break;
+	        	}
+	        	
+	        	//if everyone is allowed
+	        	if(profilePrivacy.getMyStatus() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
+	        		result = true; break;
+	        	}
+	        	
+	    	case PRIVACY_OPTION_MYKUDOS:
+	    		//if user is friend and friends are allowed
+	        	if(isConnected && profilePrivacy.getMyKudos() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = true; break;
+	        	}
+	        	
+	        	//if not friend and set to friends only
+	        	if(!isConnected && profilePrivacy.getMyKudos() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = false; break;
+	        	}
+	        	
+	        	//if everyone is allowed
+	        	if(profilePrivacy.getMyKudos() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
+	        		result = true; break;
+	        	}
+	        	
+	    	case PRIVACY_OPTION_MYWALL:
+	    		
+	    		//if user is friend and friends are allowed
+	        	if(isConnected && profilePrivacy.getMyWall() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = true; break;
+	        	}
+	        	
+	        	//if not friend and set to friends only
+	        	if(!isConnected && profilePrivacy.getMyWall() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = false; break;
+	        	}
+	        	
+	        	//if everyone is allowed
+	        	if(profilePrivacy.getMyWall() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
+	        		result = true; break;
+	        	}
+	        	
+	    	case PRIVACY_OPTION_ONLINESTATUS:
+	    		
+	    		//if user is friend and friends are allowed
+	        	if(isConnected && profilePrivacy.getOnlineStatus() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = true; break;
+	        	}
+	        	
+	        	//if not friend and set to friends only
+	        	if(!isConnected && profilePrivacy.getOnlineStatus() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = false; break;
+	        	}
+	        	
+	        	//if everyone is allowed
+	        	if(profilePrivacy.getOnlineStatus() == ProfileConstants.PRIVACY_OPTION_EVERYONE) {
+	        		result = true; break;
+	        	}
+	        
+	    	case PRIVACY_OPTION_MESSAGES:
+	    		
+	    		//if nobody allowed
+	        	if(profilePrivacy.getMessages() == ProfileConstants.PRIVACY_OPTION_NOBODY) {
+	        		result = false; break;
+	        	}
 
-    	//if user is friend and friends are allowed
-    	if(friend && profilePrivacy.getMessages() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return true;
+	        	//if user is friend and friends are allowed
+	        	if(isConnected && profilePrivacy.getMessages() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = true; break;
+	        	}
+	        	
+	        	//if not friend and set to friends only
+	        	if(!isConnected && profilePrivacy.getMessages() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
+	        		result = true; break;
+	        	}
+	    		
+			
+			default: 
+				//invalid type
+		    	log.error("ProfilePrivacyLogic.isActionAllowed. False for userX: " + userX + ", userY: " + userY + ", type: " + type);  
+				result = false; 
+			break;
     	}
-    	
-    	//if not friend and set to friends only
-    	if(!friend && profilePrivacy.getMessages() == ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS) {
-    		return false;
-    	}
-    	
-    	//uncaught rule, return false
-    	log.error("ProfilePrivacyLogic.isUserXAbleToBeMessagedByUserY. Uncaught rule. userX: " + userX + ", userY: " + userY + ", friend: " + friend +", setting: " + profilePrivacy.getMessages());   
-    	return false;
+	
+    	return result;
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean isBirthYearVisible(String uuid) {
+		return getPrivacyRecordForUser(uuid).isShowBirthYear();
 	}
 
 	
@@ -892,6 +464,7 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 		privacy.setMyKudos((Integer)props.get("myKudos"));
 		privacy.setMyWall((Integer)props.get("myWall"));
 		privacy.setSocialNetworkingInfo((Integer)props.get("socialInfo"));
+		privacy.setOnlineStatus((Integer)props.get("onlineStatus"));
 		
 		return privacy;
 	}
@@ -908,5 +481,8 @@ public class ProfilePrivacyLogicImpl implements ProfilePrivacyLogic {
 	
 	@Setter
 	private CacheManager cacheManager;
+	
+	@Setter
+	private ProfileConnectionsLogic connectionsLogic;
 	
 }

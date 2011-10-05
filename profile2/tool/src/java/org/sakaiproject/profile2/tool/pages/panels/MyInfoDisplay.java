@@ -33,6 +33,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
+import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
@@ -81,6 +82,7 @@ public class MyInfoDisplay extends Panel {
 			birthday = ProfileUtils.convertDateToString(dateOfBirth, ProfileConstants.DEFAULT_DATE_FORMAT);
 			
 			//get privacy on display of birthday year and format accordingly
+			//note that this particular method doesn't need the second userId param but we send for completeness
 			if(privacyLogic.isBirthYearVisible(userId)) {
 				birthdayDisplay = birthday;
 			} else {

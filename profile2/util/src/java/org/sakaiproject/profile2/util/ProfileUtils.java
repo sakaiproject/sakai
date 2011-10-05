@@ -41,6 +41,7 @@ import javax.imageio.ImageIO;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
@@ -195,6 +196,16 @@ public class ProfileUtils {
 			log.error("Profile.convertStringToDate() failed. " + e.getClass() + ": " + e.getMessage());  
 			return null;
 		}       
+	}
+	
+	/**
+	 * Strip the year from a given date (actually just sets it to 1)
+	 * 
+	 * @param date	original date
+	 * @return
+	 */
+	public static Date stripYear(Date date){
+		return DateUtils.setYears(date, 1);
 	}
 	
 	/**

@@ -53,6 +53,7 @@ import org.sakaiproject.profile2.tool.pages.panels.KudosPanel;
 import org.sakaiproject.profile2.tool.pages.panels.ViewProfilePanel;
 import org.sakaiproject.profile2.tool.pages.panels.ViewWallPanel;
 import org.sakaiproject.profile2.tool.pages.windows.AddFriend;
+import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.user.api.User;
 
@@ -120,11 +121,11 @@ public class ViewProfile extends BasePage {
 		//privacy checks
 		final ProfilePrivacy privacy = privacyLogic.getPrivacyRecordForUser(userUuid);
 		
-		boolean isFriendsListVisible = privacyLogic.isUserXFriendsListVisibleByUserY(userUuid, privacy, currentUserId, friend);
-		boolean isKudosVisible = privacyLogic.isUserXKudosVisibleByUserY(userUuid, privacy, currentUserId, friend);
-		boolean isGalleryVisible = privacyLogic.isUserXGalleryVisibleByUser(userUuid, privacy, currentUserId, friend);
+		boolean isFriendsListVisible = privacyLogic.isActionAllowed(userUuid, currentUserId, PrivacyType.PRIVACY_OPTION_MYFRIENDS);
+		boolean isKudosVisible = privacyLogic.isActionAllowed(userUuid, currentUserId, PrivacyType.PRIVACY_OPTION_MYKUDOS);
+		boolean isGalleryVisible = privacyLogic.isActionAllowed(userUuid, currentUserId, PrivacyType.PRIVACY_OPTION_MYPICTURES);
 		boolean isConnectionAllowed = sakaiProxy.isConnectionAllowedBetweenUserTypes(currentUserType, userType);
-		boolean isOnlineStatusVisible = privacyLogic.isUserXOnlineStatusVisibleByUserY(userUuid, currentUserId, friend);
+		boolean isOnlineStatusVisible = privacyLogic.isActionAllowed(userUuid, currentUserId, PrivacyType.PRIVACY_OPTION_ONLINESTATUS);
 		
 		final ProfilePreferences prefs = preferencesLogic.getPreferencesRecordForUser(userUuid);
 

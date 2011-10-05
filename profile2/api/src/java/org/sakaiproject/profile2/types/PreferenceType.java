@@ -5,7 +5,7 @@ package org.sakaiproject.profile2.types;
  * <p>
  * We use these when checking if different options are enabled.
  * <p>
- * See also {@link EmailType}
+ * See also {@link EmailType}.
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  * @since 1.5
