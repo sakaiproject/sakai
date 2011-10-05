@@ -137,14 +137,10 @@ table.checkall td {padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bott
 
     <h:column id="colimport" rendered="#{questionpool.importToAuthoring == 'true'}" >
       <f:facet name="header">
-        <h:panelGroup>
-          <h:selectManyCheckbox immediate="true" id="selectallimport" onclick="toggleRemoveImport();checkUpdate()" title="#{questionPoolMessages.t_checkAll}" styleClass="checkall">
-            <f:selectItem itemValue="1"/>
-          </h:selectManyCheckbox>
-     	</h:panelGroup>
+        <h:outputText value="#{questionPoolMessages.impToAuthor}"/>
       </f:facet>
  	  <h:selectManyCheckbox immediate="true" id="importCheckbox" value ="#{questionpool.destItems}">
-        <f:selectItem itemValue="#{question.itemIdString}" itemLabel="#{questionPoolMessages.impToAuthor}"/>
+        <f:selectItem itemValue="#{question.itemIdString}" itemLabel=""/>
  	  </h:selectManyCheckbox>
      </h:column>
 
