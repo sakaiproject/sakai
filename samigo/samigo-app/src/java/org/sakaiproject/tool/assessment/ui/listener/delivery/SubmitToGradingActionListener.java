@@ -574,6 +574,15 @@ public class SubmitToGradingActionListener implements ActionListener {
 			ItemContentsBean item, HashSet adds, HashSet removes) {
 		ArrayList grading = item.getItemGradingDataArray();
 		int typeId = item.getItemData().getTypeId().intValue();
+		
+		//no matter what kinds of type questions, if it marks as review, add it in. (SAM-1301)
+		for (int m = 0; m < grading.size(); m++) {
+			ItemGradingData itemgrading = (ItemGradingData) grading.get(m);
+			if (itemgrading.getReview() == true) {
+				adds.addAll(grading);
+			} 
+		}
+		
 		// 1. add all the new itemgrading for MC/Survey and discard any
 		// itemgrading for MC/Survey
 		// 2. add any modified SAQ/TF/FIB/Matching/MCMR/Audio/FIN
