@@ -3,7 +3,7 @@
 	<subject>${senderDisplayName} confirmed your connection request on ${localSakaiName}</subject>
 	<message>${senderDisplayName} confirmed your connection request on ${localSakaiName}
 
-To view {senderDisplayName}'s profile, follow the url below:
+To view ${senderDisplayName}'s profile, follow the url below:
 ${connectionLink}
 
 ---
