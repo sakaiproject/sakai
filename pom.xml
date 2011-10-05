@@ -68,6 +68,8 @@
                 <!-- Indie tools -->
                 <module>basiclti</module>
                 <module>jobscheduler</module>
+                <module>lessonbuilder</module>
+                <module>mailsender</module>
                 <module>msgcntr</module>
                 <module>polls</module>
                 <module>profile</module>
@@ -151,6 +153,8 @@
                 <!-- Indie tools -->
                 <module>basiclti</module>
                 <module>jobscheduler</module>
+                <module>lessonbuilder</module>
+                <module>mailsender</module>
                 <module>msgcntr</module>
                 <module>polls</module>
                 <module>profile</module>
