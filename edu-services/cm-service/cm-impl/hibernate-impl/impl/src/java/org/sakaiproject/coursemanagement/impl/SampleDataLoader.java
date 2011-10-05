@@ -21,6 +21,7 @@
 package org.sakaiproject.coursemanagement.impl;
 
 import java.sql.Time;
+import java.text.DateFormatSymbols;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -81,6 +82,7 @@ public class SampleDataLoader implements BeanFactoryAware {
 	protected static final int ENROLLMENT_SETS_PER_ACADEMIC_SESSION = 2;
 	protected static final int ENROLLMENTS_PER_SET = 180;
 
+	protected static final String[] AMPM;
 
 	protected static final SimpleDateFormat sdf()
 	{
@@ -116,6 +118,8 @@ public class SampleDataLoader implements BeanFactoryAware {
 		endCal.set(ACADEMIC_SESSION_YEAR + 1, 0, 1);
 		ACADEMIC_SESSION_START_DATES[3] = startCal.getTime();
 		ACADEMIC_SESSION_END_DATES[3] = endCal.getTime();
+
+		AMPM = new DateFormatSymbols().getAmPmStrings();
 
 		df = new DecimalFormat("0000");
 	}
@@ -324,7 +328,7 @@ public class SampleDataLoader implements BeanFactoryAware {
 			Section lec1 = cmAdmin.createSection(lec1Eid, lec1Eid, lec1Eid + " Lecture",
 				lectureCategory.getCategoryCode(), null, co1Eid, co1Eid + ENROLLMENT_SET_SUFFIX);
 			Set<Meeting> lec1Meetings = new HashSet<Meeting>();
-			Meeting mtg1 = cmAdmin.newSectionMeeting(lec1.getEid(), "A Building 11", getTime("10:30am"), getTime("11:00am"), null);
+			Meeting mtg1 = cmAdmin.newSectionMeeting(lec1.getEid(), "A Building 11", getTime("10:30" + AMPM[0]), getTime("11:00" + AMPM[0]), null);
 			mtg1.setMonday(true);
 			mtg1.setWednesday(true);
 			mtg1.setFriday(true);
@@ -338,7 +342,7 @@ public class SampleDataLoader implements BeanFactoryAware {
 			Section lec2 = cmAdmin.createSection(lec2Eid, lec2Eid, lec2Eid + " Lecture",
 				lectureCategory.getCategoryCode(), null, co2Eid, co2Eid + ENROLLMENT_SET_SUFFIX);
 			Set<Meeting> lec2Meetings = new HashSet<Meeting>();
-			Meeting mtg2 = cmAdmin.newSectionMeeting(lec2.getEid(), "A Building 11", getTime("10:30am"), getTime("11:00am"), null);
+			Meeting mtg2 = cmAdmin.newSectionMeeting(lec2.getEid(), "A Building 11", getTime("10:30" + AMPM[0]), getTime("11:00" + AMPM[0]), null);
 			mtg2.setMonday(true);
 			mtg2.setWednesday(true);
 			mtg2.setFriday(true);
@@ -355,27 +359,27 @@ public class SampleDataLoader implements BeanFactoryAware {
 
 			loadDiscussionSection("Discussion 2 " + CC1, as.getEid(), co1Eid,
 					discussionCategory.getCategoryCode(), "B Building 202",
-					getTime("10:00AM"), getTime("11:30AM"),
+					getTime("10:00" + AMPM[0]), getTime("11:30" + AMPM[0]),
 					new boolean[]{false, true, false, true, false, false, false}, studentMemberCount, incrementStudentCount());
 
 			loadDiscussionSection("Discussion 3 " + CC1, as.getEid(), co1Eid,
 					discussionCategory.getCategoryCode(), "B Hall 11",
-					getTime("9:00AM"), getTime("10:30AM"),
+					getTime("9:00" + AMPM[0]), getTime("10:30" + AMPM[0]),
 					new boolean[]{false, true, false, true, false, false, false}, studentMemberCount, incrementStudentCount());
 
 			loadDiscussionSection("Discussion 4 " + CC1, as.getEid(), co1Eid,
 					discussionCategory.getCategoryCode(), "C Building 100",
-					getTime("1:30PM"), getTime("3:00PM"),
+					getTime("1:30" + AMPM[1]), getTime("3:00" + AMPM[1]),
 					new boolean[]{false, true, false, true, false, false, false}, studentMemberCount, incrementStudentCount());
 
 			loadDiscussionSection("Discussion 5 " + CC1, as.getEid(), co1Eid,
 					discussionCategory.getCategoryCode(), "Building 10",
-					getTime("9:00AM"), getTime("10:00AM"),
+					getTime("9:00" + AMPM[0]), getTime("10:00" + AMPM[0]),
 					new boolean[]{true, false, true, false, true, false, false}, studentMemberCount, incrementStudentCount());
 
 			loadDiscussionSection("Discussion 6 " + CC1, as.getEid(), co1Eid,
 					discussionCategory.getCategoryCode(), "Hall 200",
-					getTime("4:00PM"), getTime("5:00PM"),
+					getTime("4:00" + AMPM[1]), getTime("5:00" + AMPM[1]),
 					new boolean[]{true, false, true, false, true, false, false}, studentMemberCount, incrementStudentCount());
 
 			// Discussion sections, second Course Offering
@@ -386,27 +390,27 @@ public class SampleDataLoader implements BeanFactoryAware {
 
 			loadDiscussionSection("Discussion 2 " + CC2, as.getEid(), co2Eid,
 					discussionCategory.getCategoryCode(), "2 Building A",
-					getTime("11:30AM"), getTime("1:00PM"),
+					getTime("11:30" + AMPM[0]), getTime("1:00" + AMPM[1]),
 					new boolean[]{false, true, false, true, false, false, false}, studentMemberCount, incrementStudentCount());
 
 			loadDiscussionSection("Discussion 3 " + CC2, as.getEid(), co2Eid,
 					discussionCategory.getCategoryCode(), "101 Hall A",
-					getTime("10:00AM"), getTime("11:00AM"),
+					getTime("10:00" + AMPM[0]), getTime("11:00" + AMPM[0]),
 					new boolean[]{true, false, true, false, true, false, false}, studentMemberCount, incrementStudentCount());
 
 			loadDiscussionSection("Discussion 4 " + CC2, as.getEid(), co2Eid,
 					discussionCategory.getCategoryCode(), "202 Building",
-					getTime("8:00AM"), getTime("9:00AM"),
+					getTime("8:00" + AMPM[0]), getTime("9:00" + AMPM[0]),
 					new boolean[]{true, false, true, false, true, false, false}, studentMemberCount, incrementStudentCount());
 
 			loadDiscussionSection("Discussion 5 " + CC2, as.getEid(), co2Eid,
 					discussionCategory.getCategoryCode(), "11 Hall B",
-					getTime("2:00PM"), getTime("3:30PM"),
+					getTime("2:00" + AMPM[1]), getTime("3:30" + AMPM[1]),
 					new boolean[]{false, true, false, true, false, false, false}, studentMemberCount, incrementStudentCount());
 
 			loadDiscussionSection("Discussion 6 " + CC2, as.getEid(), co2Eid,
 					discussionCategory.getCategoryCode(), "100 Building C",
-					getTime("3:00PM"), getTime("4:00PM"),
+					getTime("3:00" + AMPM[1]), getTime("4:00" + AMPM[1]),
 					new boolean[]{true, false, true, false, true, false, false}, studentMemberCount, incrementStudentCount());
 		}
 
