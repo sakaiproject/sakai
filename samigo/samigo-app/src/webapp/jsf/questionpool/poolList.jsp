@@ -107,9 +107,9 @@
 <h:outputText rendered="#{questionpool.importToAuthoring == 'false' && authorization.createQuestionPool}" escape="false" value="</p>"/>
 </div>
 
-<h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
-
- <div class="tier2">
+<h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+ 
+<div class="tier2">
 <%@ include file="/jsf/questionpool/poolTreeTable.jsp" %>
 
  </div>

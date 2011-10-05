@@ -251,8 +251,8 @@ function uncheckOther(field){
   <%@ include file="/jsf/author/allHeadings.jsp" %>
 
 <p>
-  <h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
-</p>
+  <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+  </p>
 
     <h3>
      <h:outputText id="x1" value="#{assessmentSettingsMessages.settings} #{assessmentSettingsMessages.dash} #{publishedSettings.title}"/>

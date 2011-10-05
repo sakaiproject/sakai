@@ -164,7 +164,7 @@ $(document).ready(function() {
     <h:outputText value="#{authorFrontDoorMessages.assessments}"/>
   </h3>
 <p>
-  <h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
+  <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 </p>
 
 <div class="tier1">

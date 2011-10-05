@@ -223,7 +223,7 @@ document.links[newindex].onclick();
   <f:param name="itemSequence" value="0"/>
 </h:commandLink>
 
-<h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo" />
+<h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 
 <div class="tier1">
 <h:dataTable id="parts" width="100%"

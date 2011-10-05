@@ -37,7 +37,7 @@
 <!-- content... -->
 <div class="portletBody">
   <h:form id="templateCreateForm">
-<h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
+  <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
   <!-- HEADINGS -->
   <%@ include file="/jsf/template/templateHeadings.jsp" %>
 

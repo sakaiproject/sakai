@@ -107,8 +107,8 @@
 
  <h3><h:outputText value="#{questionPoolMessages.share_pool}"/></h3>
 
-<h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
-
+<h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+ 
 <div class="tier1">
 <h4><h:outputText value="#{questionPoolMessages.members_with_access} #{questionpoolshare.questionPoolName}"/></h4>
 </div>

@@ -105,7 +105,7 @@ function toPoint(id)
     </h:commandLink>
   </p>
 
-  <h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
+  <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 
 <f:verbatim><h4></f:verbatim>
 <h:outputText value="#{totalScores.assessmentName}" escape="false"/>

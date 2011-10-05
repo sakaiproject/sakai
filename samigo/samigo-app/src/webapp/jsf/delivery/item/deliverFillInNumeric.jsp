@@ -33,7 +33,7 @@ should be included in file importing DeliveryMessages
 <f:verbatim><br /></f:verbatim>
 <h:outputText value="#{deliveryMessages.fin_complex_example} " escape="false" />
 <f:verbatim><br /></f:verbatim>
-<h:outputText value="#{deliveryMessages.fin_invalid_characters_error} " escape="false" rendered="#{question.isInvalidFinInput}" styleClass="messageSamigo"/>
+<h:outputText value="#{deliveryMessages.fin_invalid_characters_error} " escape="false" rendered="#{question.isInvalidFinInput}" styleClass="messageSamigo3"/>
 <f:verbatim><br /></f:verbatim>
 
 <samigo:dataLine value="#{question.finArray}" var="answer"

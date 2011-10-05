@@ -44,7 +44,7 @@
    <h3><h:outputText  value="#{authorImportExport.import_qp}" /></h3>
     <div class="tier1">
      <div class="form_label">
-      <h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
+      <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
       <%-- currently import pool mirrors import assessment --%>
       <h:outputText value="#{authorImportExport.import_instructions}"/>
     </div>

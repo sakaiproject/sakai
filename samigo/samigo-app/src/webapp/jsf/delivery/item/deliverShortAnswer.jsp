@@ -46,7 +46,7 @@ should be included in file importing DeliveryMessages
   <f:param name="itemId" value="#{question.itemData.itemId}"/>
 </h:commandLink>
 
-<h:outputText value="#{deliveryMessages.sa_invalid_length_error} " escape="false" rendered="#{question.isInvalidSALengthInput}" styleClass="messageSamigo"/>
+<h:outputText value="#{deliveryMessages.sa_invalid_length_error} " escape="false" rendered="#{question.isInvalidSALengthInput}" styleClass="messageSamigo3"/>
 
 <%-- If studentRichText is true, show the rich text answer option --%>
 <h:panelGrid rendered="#{delivery.actionString!='reviewAssessment'

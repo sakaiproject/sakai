@@ -65,7 +65,7 @@
 <div class="tier1">
  <h4> <h:outputText value="\"#{delivery.assessmentTitle}\" #{deliveryMessages.for} #{delivery.courseName} " escape="false"/></h4>
 <div class="tier2">
-<h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
+<h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
  
 <!-- ASSESSMENT INTRODUCTION-->
 <div class="assessmentIntroduction"><h:outputText value="#{delivery.instructorMessage}" escape="false"/></div>

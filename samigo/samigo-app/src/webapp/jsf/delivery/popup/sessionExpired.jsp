@@ -42,7 +42,7 @@
   </h3>
   <%-- Clicking OK takes the user to authentication. --%>
   <h:form id="ok">
-  <h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
+   <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
    <h:commandButton value="#{authorMessages.button_ok}" type="submit"
      style="act" action="select" />
   </h:form>

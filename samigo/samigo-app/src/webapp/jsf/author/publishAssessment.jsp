@@ -46,8 +46,7 @@
 <div class="tier1">
 
   <!-- Error publishing assessment -->
-  <h:messages globalOnly="true" infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
-
+  <h:messages globalOnly="true"  styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 <h:panelGrid border="0" width="100%">
   <h:outputText value=" " />
   <h:panelGroup rendered="#{author.isEditPendingAssessmentFlow}">

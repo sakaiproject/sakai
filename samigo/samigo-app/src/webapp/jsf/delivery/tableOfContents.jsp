@@ -159,7 +159,7 @@ function clickSubmitForGrade(){
 <h:inputHidden id="outoftime" value="#{delivery.timeOutSubmission}"/>
 <h:commandLink id="submitforgrade" action="#{delivery.submitForGrade}" value="" />
 
-    <h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
+    <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
     <p style="margin-bottom:0"><h:outputText value="#{deliveryMessages.seeOrHide}" /> </p>
     <h:dataTable value="#{delivery.tableOfContents.partsContents}" var="part">
       <h:column>

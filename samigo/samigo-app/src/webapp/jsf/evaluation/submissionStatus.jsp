@@ -136,8 +136,8 @@ function escapeApostrophe(name) {
 
   </p>
 
-  <h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
-
+  <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
+  
   <div class="tier1">
      <h:outputText value="#{evaluationMessages.max_score_poss}" style="instruction"/>
      <h:outputText value="#{totalScores.maxScore}" style="instruction"/>

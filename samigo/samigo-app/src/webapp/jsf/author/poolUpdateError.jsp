@@ -38,7 +38,7 @@
 <div class="portletBody">
 <h:form id="redirectLoginForm">
   <h3><h:outputText value="#{authorImportExport.pool_error_title}"/></h3>
-<h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
+<h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 <f:subview id="errorView" rendered="#{!empty error}">
   <h:outputText  value="#{error}" styleClass="validation" />
 </f:subview>

@@ -273,7 +273,7 @@ document.links[newindex].onclick();
 </f:subview>
 
 <!-- FORM ... note, move these hiddens to whereever they are needed as fparams-->
-<h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
+<h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 <h:inputHidden id="assessmentID" value="#{delivery.assessmentId}"/>
 <h:inputHidden id="assessTitle" value="#{delivery.assessmentTitle}" />
 <!-- h:inputHidden id="ItemIdent" value="#{item.ItemIdent}"/ -->

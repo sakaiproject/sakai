@@ -42,7 +42,7 @@
     <div class="tier1">
      <div class="tier2">
       <div class="form_label">
-       <h:messages infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
+       <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
        <h:outputText value="#{authorImportExport.import_instructions}" escape="false"/>
       </div>
       <br />
