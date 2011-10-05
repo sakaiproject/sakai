@@ -28,9 +28,9 @@ shortenedurl https://source.sakaiproject.org/svn/shortenedurl/trunk
 sitestats https://source.sakaiproject.org/svn/sitestats/trunk
 
 # Indie experimental
-assignment2 https://source.sakaiproject.org/contrib/assignment2/trunk
+#assignment2 https://source.sakaiproject.org/contrib/assignment2/trunk
 hybrid https://source.sakaiproject.org/svn/hybrid/trunk
-roster2 https://source.sakaiproject.org/contrib/roster2/trunk
+#roster2 https://source.sakaiproject.org/contrib/roster2/trunk
 
 # Monolithic Sakai
 access https://source.sakaiproject.org/svn/access/trunk
@@ -81,8 +81,8 @@ was https://source.sakaiproject.org/svn/was/trunk
 web https://source.sakaiproject.org/svn/web/trunk
 
 # Zeckoski projects
-genericdao http://genericdao.googlecode.com/svn/trunk/
-reflectutils http://reflectutils.googlecode.com/svn/trunk/
+#genericdao http://genericdao.googlecode.com/svn/trunk/
+#reflectutils http://reflectutils.googlecode.com/svn/trunk/
 
 # Fluid Project Reasonable Server Faces (RSF)
 # rsf-ponderutilcore http://rsf.fluidproject.org/svn/projects/PonderUtilCore/trunk
