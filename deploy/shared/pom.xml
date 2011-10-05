@@ -26,8 +26,16 @@
     </properties>
 
     <dependencies>
+    
+        <!-- Required by Tomcat 7.  Can be dropped once it's confirmed that JSF-related tools are bundling it up in their webapps. -->
+        <dependency>
+            <groupId>commons-el</groupId>
+            <artifactId>commons-el</artifactId>
+            <version>1.0</version>
+            <scope>compile</scope>
+        </dependency>
 
-        <!-- incorporated jstl-shared-deploy pom -->
+        <!-- incorporated jstl-shared-deploy pom.  Can be dropped once it's confirmed that JSF-related tools are bundling it up in their webapps. -->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
