@@ -240,6 +240,11 @@
         		<value>org/sakaiproject/profile2/emailtemplates/template-wallPostConnectionWallNew.xml</value>
         		<value>org/sakaiproject/profile2/emailtemplates/template-wallStatusNew.xml</value>
         		<value>org/sakaiproject/profile2/emailtemplates/template-worksiteNew.xml</value>
+        		
+        		<value>org/sakaiproject/profile2/emailtemplates/template-messageNew_zh_CN.xml</value>
+				<value>org/sakaiproject/profile2/emailtemplates/template-messageReply_zh_CN.xml</value>
+				<value>org/sakaiproject/profile2/emailtemplates/template-connectionRequest_zh_CN.xml</value>
+				<value>org/sakaiproject/profile2/emailtemplates/template-connectionConfirm_zh_CN.xml</value>
       		</list>      
     	</constructor-arg>
   	</bean>
