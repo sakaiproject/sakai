@@ -46,7 +46,7 @@
      <div class="form_label">
       <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
       <%-- currently import pool mirrors import assessment --%>
-      <h:outputText value="#{authorImportExport.import_instructions}"/>
+      <h:outputText value="#{authorImportExport.import_pool_instructions}" escape="false"/>
     </div>
     <br />
    <div class="tier2">
