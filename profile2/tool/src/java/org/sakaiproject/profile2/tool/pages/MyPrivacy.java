@@ -116,7 +116,7 @@ public class MyPrivacy extends BasePage {
 		
 		//setup LinkedHashMap of privacy options for super duper strict things!
 		final LinkedHashMap<Integer, String> privacySettingsSuperStrict = new LinkedHashMap<Integer, String>();
-		privacySettingsSuperStrict.put(ProfileConstants.PRIVACY_OPTION_EVERYONE, new StringResourceModel("privacy.option.onlyfriends", this,null).getString());
+		privacySettingsSuperStrict.put(ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS, new StringResourceModel("privacy.option.onlyfriends", this,null).getString());
 		privacySettingsSuperStrict.put(ProfileConstants.PRIVACY_OPTION_NOBODY, new StringResourceModel("privacy.option.nobody", this,null).getString());
 		
 		//model that wraps our options
