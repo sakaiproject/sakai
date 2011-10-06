@@ -54,6 +54,8 @@ public class ScheduleSupport{
 	public void setDashboardLogic(DashboardLogic dashboardLogic) {
 		this.dashboardLogic = dashboardLogic;
 	}
+	
+	protected Map<String,String> scheduleEventTypeMap;
 
 	public static final String IDENTIFIER = "schedule";
 	
@@ -67,6 +69,25 @@ public class ScheduleSupport{
 		this.dashboardLogic.registerEventProcessor(new ScheduleReviseEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new ScheduleUpdateAccessEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new ScheduleUpdateFrequencyEventProcessor());
+		
+		scheduleEventTypeMap = new HashMap<String,String>();
+		
+		scheduleEventTypeMap.put("Academic Calendar", "schedule.key1");
+		scheduleEventTypeMap.put("Activity", "schedule.key2");
+		scheduleEventTypeMap.put("Cancellation", "schedule.key3");
+		scheduleEventTypeMap.put("Class section - Discussion", "schedule.key4");
+		scheduleEventTypeMap.put("Class section - Lab", "schedule.key5");
+		scheduleEventTypeMap.put("Class section - Lecture", "schedule.key6");
+		scheduleEventTypeMap.put("Class section - Small Group", "schedule.key7");
+		scheduleEventTypeMap.put("Class session", "schedule.key8");
+		scheduleEventTypeMap.put("Computer Session", "schedule.key9");
+		scheduleEventTypeMap.put("Deadline", "schedule.key10");
+		scheduleEventTypeMap.put("Exam", "schedule.key11");
+		scheduleEventTypeMap.put("Meeting", "schedule.key12");
+		scheduleEventTypeMap.put("Multidisciplinary Conference", "schedule.key13");
+		scheduleEventTypeMap.put("Quiz", "schedule.key14");
+		scheduleEventTypeMap.put("Special event", "schedule.key15");
+		scheduleEventTypeMap.put("Web Assignment", "schedule.key16");
 
 	}
 	/**
@@ -222,9 +243,21 @@ public class ScheduleSupport{
 				if(sourceType == null) {
 					sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_SCHEDULE_ACCESS, EntityLinkStrategy.SHOW_PROPERTIES);
 				}
-				// TODO: Third parameter should be a key for a label such as "Due Date: " or "Accept Until: " 
+				
+				// TODO: Third parameter in dashboardLogic.createCalendarItem() below should be a key for a label such as "Due Date: " or "Accept Until: " 
 				// from dash_entity properties bundle for use in the dashboard list
-				CalendarItem calendarItem = dashboardLogic.createCalendarItem(cEvent.getDisplayName(), new Date(cEvent.getRange().firstTime().getTime()), "", cEventReference, sakaiProxy.getScheduleEventUrl(cEventReference), context, sourceType);
+				String type = cEvent.getType();
+				// Based on the event-type, we may be able to select a key for a label? 
+				String key = null;
+				if(type == null) {
+					key = "";
+				} else {
+					key = scheduleEventTypeMap.get(type);
+					if(key == null) {
+						key = "";
+					}
+				}
+				CalendarItem calendarItem = dashboardLogic.createCalendarItem(cEvent.getDisplayName(), new Date(cEvent.getRange().firstTime().getTime()), key, cEventReference, sakaiProxy.getScheduleEventUrl(cEventReference), context, sourceType);
 				dashboardLogic.createCalendarLinks(calendarItem);
 				
 			} else {
