@@ -833,5 +833,12 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		}
 		return null;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isCsvExportEnabled() {
+		return serverConfigurationService.getBoolean("signup.csv.export.enabled", false);
+	}
 
 }

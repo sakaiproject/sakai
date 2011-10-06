@@ -20,7 +20,8 @@
 			
 		<h:form id="signupMeeting">
 			<sakai:tool_bar>
-				<sakai:tool_bar_item id="skTbar23" value="#{msgs.event_pageTop_link_for_download}" action="#{DownloadEventBean.downloadOneEvent}" />
+				<sakai:tool_bar_item id="download_xls" value="#{msgs.event_pageTop_link_for_download_xls}" action="#{DownloadEventBean.downloadOneEventAsExcel}" />
+				<sakai:tool_bar_item id="download_csv" value="#{msgs.event_pageTop_link_for_download_csv}" action="#{DownloadEventBean.downloadOneEventAsCsv}" rendered=#{DownloadEventBean.csvExportEnabled}"/>
 				<h:outputLink id="print" value="javascript:window.print();" style="vertical-align:bottom;">
 					<h:graphicImage url="/images/printer.png"
 							alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />

@@ -337,5 +337,11 @@ public interface SakaiFacade {
 	 * @return a user object or null if not found
 	 */
 	public User getUserByEid(String eid);
+	
+	/**
+	 * Is csv export enabled? signup.csv.export.enabled=true/false
+	 * @return
+	 */
+	public boolean isCsvExportEnabled();
 
 }

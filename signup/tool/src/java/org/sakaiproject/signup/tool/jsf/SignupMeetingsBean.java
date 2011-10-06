@@ -955,4 +955,12 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 		
 		return u.getDisplayName() + " (" + u.getEid() + ")";
 	}
+	
+	/**
+	 * Is CSV export enabled?
+	 * @return true or false, depending on signup.csv.export.enabled setting.
+	 */
+	public boolean isCsvExportEnabled() {
+		return sakaiFacade.isCsvExportEnabled();
+	}
 }
