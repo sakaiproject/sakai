@@ -421,7 +421,8 @@ public class ItemContentsBean implements Serializable {
 		else {
 		while (iter.hasNext()) {
 			ItemGradingData data = (ItemGradingData) iter.next();
-			if (getItemData().getTypeId().toString().equals("8")
+			if (getItemData().getTypeId().toString().equals("5")
+					|| getItemData().getTypeId().toString().equals("8")
 					|| getItemData().getTypeId().toString().equals("11")) // SAM-330
 			{
 				if (data.getAnswerText() != null
