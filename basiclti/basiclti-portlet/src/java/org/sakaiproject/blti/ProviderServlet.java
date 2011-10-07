@@ -476,6 +476,7 @@ public class ProviderServlet extends HttpServlet {
 					}
 					final String context_title = request.getParameter(BasicLTIConstants.CONTEXT_TITLE);
 					final String context_label = request.getParameter(BasicLTIConstants.CONTEXT_LABEL);
+                                        pushAdvisor();
 					try {
 
 						Site siteEdit = null;
@@ -493,15 +494,12 @@ public class ProviderServlet extends HttpServlet {
 						// record the original context_id to a site property
 						siteEdit.getPropertiesEdit().addProperty("lti_context_id",context_id);
 						saved = false;
-						pushAdvisor();
 						try {
 							SiteService.save(siteEdit);
 							M_log.info("Created  site=" + siteId + " label="+ context_label + " type=" + sakai_type + " title="+ context_title);
 							saved = true;
 						} catch (Exception e) {
 							doError(request, response, "launch.site.save", "siteId="+siteId, e);
-						} finally {
-							popAdvisor();
 						}
 						if (!saved) {
 							return;
@@ -509,6 +507,8 @@ public class ProviderServlet extends HttpServlet {
 					} catch (Exception e) {
 						doError(request, response, "launch.create.site", "siteId="+siteId, e);
 						return;
+				        } finally {
+						popAdvisor();
 					}
 				}
 			}
