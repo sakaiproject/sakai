@@ -483,7 +483,8 @@ public class SectionDecorator implements RowGroupable,Serializable, Comparable{
             StringBuilder sb = new StringBuilder();
 
             // Start time
-            DateFormat df = new SimpleDateFormat(JsfUtil.TIME_PATTERN_LONG);
+            ResourceLoader rl = new ResourceLoader();
+            DateFormat df = new SimpleDateFormat(JsfUtil.TIME_PATTERN_LONG, rl.getLocale());
             sb.append(" ");
             if(meeting.getStartTime() != null) {
                 sb.append(df.format(new Date(meeting.getStartTime().getTime())).toLowerCase());
