@@ -35,6 +35,7 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -168,9 +169,12 @@ public class ConfirmPublishAssessmentListener
     }
     // if auto-submit is enabled, make sure retract date is set
     if (assessmentSettings.getAutoSubmit() && retractDate == null) {
-    	String dateError4 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_required_with_auto_submit");
-    	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError4, null));
-    	error=true;
+    	String autoSubmitEnabled = ServerConfigurationService.getString("samigo.autoSubmit.enabled");
+  	  	if ("true".equalsIgnoreCase(autoSubmitEnabled)) {
+  	  		String dateError4 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_required_with_auto_submit");
+  	  		context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError4, null));
+  	  		error=true;
+  	  	}
     }
 
     if (!isFromActionSelect) {
