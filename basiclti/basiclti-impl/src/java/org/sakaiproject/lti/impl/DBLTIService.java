@@ -515,7 +515,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		String[] columns = foorm.getFields(model);
 
 		if (doAuthz && Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0 && !isAdmin()) {
-			statement += " AND SITE_ID = ? OR SITE_ID IS NULL";
+			statement += " AND (SITE_ID = ? OR SITE_ID IS NULL)";
 			fields = new Object[2];
 			fields[0] = key;
 			fields[1] = getContext();
@@ -554,7 +554,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		Object fields[] = null;
 		if (Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0) {
 			if (!isAdmin()) {
-				statement += " WHERE SITE_ID = ? OR SITE_ID IS NULL";
+				statement += " WHERE (SITE_ID = ? OR SITE_ID IS NULL)";
 				fields = new Object[1];
 				fields[0] = getContext();
 			}
