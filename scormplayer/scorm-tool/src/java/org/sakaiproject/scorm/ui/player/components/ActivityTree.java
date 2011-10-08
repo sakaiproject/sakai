@@ -292,7 +292,7 @@ public class ActivityTree extends LinkTree {
 						}
 					}
 									
-				}.setThrottleDelay(Duration.ONE_SECOND));
+				}.setThrottleDelay(Duration.milliseconds(50)));
 			//}
 			
 			add(new AttributeModifier("role", new Model(ARIA_TREEITEM_ROLE)));

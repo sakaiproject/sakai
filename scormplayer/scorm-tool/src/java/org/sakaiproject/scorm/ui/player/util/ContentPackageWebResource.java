@@ -12,13 +12,13 @@ public class ContentPackageWebResource extends WebResource {
 	
 	private static final long serialVersionUID = 1L;
 
-	private static final String[] candidateCompressionContentTypes = { /*"text/html"*/ };
+	private static final String[] candidateCompressionContentTypes = { "text/html", "text/javascript", "text/css"  };
 	
 	private ContentPackageResource resource;
 	private ContentPackageResourceStream resourceStream;
 	
 	public ContentPackageWebResource(ContentPackageResource resource) {
-		setCacheable(false);
+		setCacheable(true);
 		this.resource = resource;
 		this.resourceStream = new ContentPackageResourceStream(resource);
 	}
@@ -26,8 +26,9 @@ public class ContentPackageWebResource extends WebResource {
 	@Override
 	public IResourceStream getResourceStream() {
 		
-		if (canCompress())
+		if (canCompress()) {
 			return new CompressingContentPackageResourceStream(resource);
+		}
 		
 		return resourceStream;
 	}
@@ -49,7 +50,7 @@ public class ContentPackageWebResource extends WebResource {
 		
 		if (contentType != null)
 			for (int i=0;i<candidateCompressionContentTypes.length;i++) 
-				if (contentType.equals(candidateCompressionContentTypes[i]))
+				if (contentType.startsWith(candidateCompressionContentTypes[i]))
 					return true;
 		
 		return false;
