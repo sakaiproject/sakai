@@ -12117,6 +12117,9 @@ public class SiteAction extends PagedResourceActionII {
 				}
 				return;
 			} else if ("add".equals(option)) {
+				// get the uniqname input
+				String uniqname = StringUtils.trimToNull(params.getString("uniqname"));
+				state.setAttribute(STATE_SITE_QUEST_UNIQNAME, uniqname);
 				addRequestedSection(state);
 				return;
 			} else if ("manual".equals(option)) {
