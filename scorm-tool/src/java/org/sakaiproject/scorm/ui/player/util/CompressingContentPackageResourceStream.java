@@ -64,12 +64,11 @@ public class CompressingContentPackageResourceStream extends ContentPackageResou
 
 	/** Timestamp of the cache */
 	private Time timeStamp = null;
-	
-	
+
 	public CompressingContentPackageResourceStream(ContentPackageResource resource) {
 		super(resource);
 	}
-	
+
 	public InputStream getInputStream() throws ResourceStreamNotFoundException {
 		return new ByteArrayInputStream(getCompressedContent());
 	}
@@ -77,7 +76,7 @@ public class CompressingContentPackageResourceStream extends ContentPackageResou
 	private byte[] getCompressedContent() throws ResourceStreamNotFoundException {
 		InputStream stream = super.getInputStream();
 		try {
-			byte ret[] = (byte[])cache.get();
+			byte ret[] = (byte[]) cache.get();
 			if (ret != null && timeStamp != null)
 			{
 				if (timeStamp.equals(lastModifiedTime()))
@@ -95,12 +94,21 @@ public class CompressingContentPackageResourceStream extends ContentPackageResou
 			timeStamp = lastModifiedTime();
 			cache = new SoftReference(ret);
 			return ret;
-		}
-		catch (IOException e)
+		} catch (IOException e)
 		{
 			throw new RuntimeException(e);
 		}
 
 	}
-	
+
+	public long length() 
+	{
+		try {
+	        return getCompressedContent().length;
+        } catch (ResourceStreamNotFoundException e) {
+        	// No content, return null
+	        return 0;
+        }
+	}
+
 }

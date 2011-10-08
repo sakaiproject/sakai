@@ -113,7 +113,7 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 				return Utils.generateUrl(this, null, getComponent(), useRelativeUrls);
 			}
 		
-		}.setThrottleDelay(Duration.ONE_SECOND));
+		}.setThrottleDelay(Duration.milliseconds(50)));
 			
 	}
 	
