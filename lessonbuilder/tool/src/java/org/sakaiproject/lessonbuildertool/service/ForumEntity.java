@@ -78,7 +78,11 @@ import java.net.URLEncoder;
 import uk.org.ponder.messageutil.MessageLocator;
 
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.hibernate.SessionFactory;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 /**
  * Interface to Message Forums, the forum that comes with Sakai
@@ -867,12 +871,14 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 
 	setMasks();
 
+	//System.out.println("topic 1 " + topic + " " + groups);
 	if (topic == null)
 	    topic = getTopicById(true, id);
+	//System.out.println("topic 2 " + topic);
 	if (topic == null)
 	    return;
 
-	topicCache.remove(id);
+	// topicCache.remove(id);
 
 	// old entries
 	Set<DBMembershipItem> oldMembershipItemSet = uiPermissionsManager.getTopicItemsSet((DiscussionTopic)topic);
@@ -926,6 +932,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	    //    don't recommend that.
 
 	    for (DBMembershipItem item: oldMembershipItemSet) {
+		//System.out.println("old item " + item.getPermissionLevelName() + " " + item.getType() + " " + item.getName());
 		if (item.getPermissionLevelName().equals("Owner"))
 		    haveOwner = true;
 		if (item.getType().equals(MembershipItem.TYPE_ROLE) && roles.contains(item.getName()))
@@ -935,6 +942,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 		    if (!item.getPermissionLevelName().equals("Contributor") && 
 			!item.getPermissionLevelName().equals("Owner")) {
 
+			//System.out.println("make contributor");
 			PermissionLevel contributorLevel = permissionLevelManager.
 			    createPermissionLevel("Contributor",  IdManager.createUuid(), contributorMask);
 			permissionLevelManager.savePermissionLevel(contributorLevel);
@@ -945,11 +953,14 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 			permissionLevelManager.saveDBMembershipItem(membershipItem);	
 			membershipItemSet.add(membershipItem);
 			deleteItemSet.add(item);
-		    } else   // if it was contributor or owner, keep it
+		    } else {  // if it was contributor or owner, keep it
+			//System.out.println("keep");
 			membershipItemSet.add(item);
+		    }
 		    groupNames.remove(item.getName());   // it's done
 		} else if (item.getPermissionLevelName().equals("Contributor")) {  // only group members are contributors
 		    // remove contributor from anything else, both groups and roles
+		    //System.out.println("set none");
 		    PermissionLevel noneLevel = permissionLevelManager.
 			createPermissionLevel("None",  IdManager.createUuid(), noneMask);
 		    permissionLevelManager.savePermissionLevel(noneLevel);
@@ -961,11 +972,13 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 		    membershipItemSet.add(membershipItem);
 		    deleteItemSet.add(item);
 		} else {   // for other permission types, leave as is
+		    //System.out.println("leave alone");
 		    membershipItemSet.add(item);
 		}			
 	    }
 	    // do any left
 	    for (String name: groupNames) {
+		//System.out.println("make contributor: " + name);
 		PermissionLevel contributorLevel = permissionLevelManager.
 		    createPermissionLevel("Contributor",  IdManager.createUuid(), contributorMask);
 		permissionLevelManager.savePermissionLevel(contributorLevel);
@@ -977,6 +990,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 		membershipItemSet.add(membershipItem);
 	    }
 	    if (!haveOwner) {
+		//System.out.println("add owner");
 		PermissionLevel ownerLevel = permissionLevelManager.
 		    createPermissionLevel("Owner",  IdManager.createUuid(), ownerMask);
 		permissionLevelManager.savePermissionLevel(ownerLevel);
@@ -989,6 +1003,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 		roles.remove(maintainRole);  // we've processed this, so don't make it None
 	    }
 	    for (String name: roles) {
+		//System.out.println("make none " + name);
 		PermissionLevel noneLevel = permissionLevelManager.
 		    createPermissionLevel("None",  IdManager.createUuid(), noneMask);
 		permissionLevelManager.savePermissionLevel(noneLevel);
@@ -1037,6 +1052,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 		}			
 	    }
 	    if (!haveOwner) {
+		//System.out.println("make owner " +maintainRole);
 		PermissionLevel ownerLevel = permissionLevelManager.
 		    createPermissionLevel("Owner",  IdManager.createUuid(), ownerMask);
 		permissionLevelManager.savePermissionLevel(ownerLevel);
@@ -1049,6 +1065,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 		roles.remove(maintainRole);  // we've processed this, so don't make it None
 	    }
 	    for (String name: roles) {
+		//System.out.println("make contributor: " + name);
 		PermissionLevel contributorLevel = permissionLevelManager.
 		    createPermissionLevel("Contributor",  IdManager.createUuid(), contributorMask);
 		permissionLevelManager.savePermissionLevel(contributorLevel);
@@ -1061,8 +1078,14 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	    }
 	}
 
+	//System.out.println("delete " + deleteItemSet);
         permissionLevelManager.deleteMembershipItems(deleteItemSet);
 
+	//System.out.println("new membership list ");
+	//for (DBMembershipItem item: (Set<DBMembershipItem>)membershipItemSet) {
+	//    System.out.println(item.getPermissionLevelName() + " " + item.getType() + " " + item.getName());
+	//}
+	
 	topic.setMembershipItemSet(membershipItemSet);
 
 	// should do
@@ -1081,11 +1104,21 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	// which is typically the same request, you'll get the old value.
 	// Sorry about that.
 
+	Session session = sessionFactory.openSession();
+	Transaction tx = null;
+
 	try {
-	    setSessionFactory(sessionFactory);
-	    getHibernateTemplate().merge(topic);
+	    tx = session.beginTransaction();
+
+	    session.merge(topic);
+	    tx.commit();	    
+
 	} catch (Exception e) {
-	    System.out.println("exception in save " + e);
+	    if (tx != null)
+		tx.rollback();
+	} finally {
+	    if (session != null)
+		session.close();
 	}
 	
     }
