@@ -102,6 +102,9 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 	
 	public ActivityReport getActivityReport(long contentPackageId, String learnerId, long attemptNumber, String scoId) {
 		IDataManager dataManager = dataManagerDao().find(contentPackageId, learnerId, attemptNumber, scoId);
+		if (dataManager == null) {
+			return null;
+		}
 		
 		ActivityReport report = new ActivityReport();
 		Map<String,CMIData> map = this.getCMIDataMap(dataManager);
