@@ -231,12 +231,17 @@ public class LazyLaunchPanel extends LazyLoadPanel {
 			// If it worked, start again
 			if (result.equals("_ENDSESSION_")) {
 				sessionBean.setRestart(true);
-				result = sequencingService.navigate(SeqNavRequests.NAV_START, sessionBean, null, target);
+				IValidRequests state = sessionBean.getNavigationState();
+				result = sequencingService.navigate(SeqNavRequests.NAV_NONE, sessionBean, null, target);
+				state = sessionBean.getNavigationState();
+				// Only start if allowed...
+				if (state.isStartEnabled()) {
+					result = sequencingService.navigate(SeqNavRequests.NAV_START, sessionBean, null, target);
+				}
 			}
 		// Otherwise, we may need to issue a 'None' 
 		} else if (result.equals("_SEQBLOCKED_")) {
 			result = sequencingService.navigate(SeqNavRequests.NAV_NONE, sessionBean, null, target);
-		
 		}
 		if (result == null || result.contains("_TOC_")) {
 			sessionBean.setStarted(true);
