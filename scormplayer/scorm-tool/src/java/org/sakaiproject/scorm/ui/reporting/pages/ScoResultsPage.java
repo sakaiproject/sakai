@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.ui.reporting.pages;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -28,16 +29,18 @@ import org.apache.wicket.ResourceReference;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.link.PageLink;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.hibernate.mapping.Array;
 import org.sakaiproject.scorm.model.api.ActivityReport;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.Interaction;
 import org.sakaiproject.scorm.model.api.Learner;
+import org.sakaiproject.scorm.model.api.Progress;
+import org.sakaiproject.scorm.model.api.Score;
 import org.sakaiproject.scorm.service.api.ScormResultService;
 import org.sakaiproject.scorm.ui.reporting.components.InteractionPanel;
 import org.sakaiproject.scorm.ui.reporting.components.ProgressPanel;
@@ -88,18 +91,33 @@ public class ScoResultsPage extends BaseResultsPage {
 		parentParams.put("learnerId", learner.getId());
 		parentParams.put("attemptNumber", attemptNumber);
 		
-		ActivityReport report = resultService.getActivityReport(contentPackage.getContentPackageId(), learner.getId(), attemptNumber, scoId);
-		
-		add(new ScorePanel("scorePanel", report.getScore()));
-		
-		add(new ProgressPanel("progressPanel", report.getProgress()));
-		
 		IModel breadcrumbModel = new StringResourceModel("uberparent.breadcrumb", this, new Model(contentPackage));
 		addBreadcrumb(breadcrumbModel, ResultsListPage.class, uberparentParams, true);	
 		addBreadcrumb(new Model(learner.getDisplayName()), LearnerResultsPage.class, parentParams, true);
-		addBreadcrumb(new Model(report.getTitle()), ScoResultsPage.class, pageParams, false);
+
+		ActivityReport report = resultService.getActivityReport(contentPackage.getContentPackageId(), learner.getId(), attemptNumber, scoId);
 		
-		List<Interaction> interactions = report.getInteractions();
+		List<Interaction> interactions = null;
+		
+		if (report != null) {
+			addBreadcrumb(new Model(report.getTitle()), ScoResultsPage.class, pageParams, false);
+			
+			add(new ScorePanel("scorePanel", report.getScore()));
+			add(new ProgressPanel("progressPanel", report.getProgress()));
+
+			interactions = report.getInteractions();
+		}
+		
+		else {
+			addBreadcrumb(new Model("[no module]"), ScoResultsPage.class, pageParams, false);
+			
+			add(new ScorePanel("scorePanel", new Score()));
+			add(new ProgressPanel("progressPanel", new Progress()));
+			
+			interactions = new ArrayList<Interaction>();
+			
+		}
+		
 		InteractionProvider dataProvider = new InteractionProvider(interactions);
 		dataProvider.setTableTitle("Interactions");
 		EnhancedDataPresenter presenter = new EnhancedDataPresenter("interactionPresenter", getColumns(), dataProvider);
