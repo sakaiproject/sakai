@@ -43,6 +43,12 @@
     <body onload="<%= request.getAttribute("html.body.onload") %>">
 
 <script style="text/JavaScript">
+function updateItemNavigation(isFromItemNavigation)
+{
+  var inputhidden = document.getElementById("assessmentSettingsAction:itemNavigationUpdated");
+  inputhidden.value = isFromItemNavigation;
+}
+
 function submitForm()
 {
   document.forms[0].onsubmit();
@@ -246,7 +252,8 @@ function uncheckOther(field){
 <h:form id="assessmentSettingsAction" onsubmit="return editorCheck();">
   <h:inputHidden id="assessmentId" value="#{publishedSettings.assessmentId}"/>
   <h:inputHidden id="blockDivs"value="#{publishedSettings.blockDivs}"/>
-
+  <h:inputHidden id="itemNavigationUpdated" value="false" />
+  
   <!-- HEADINGS -->
   <%@ include file="/jsf/author/allHeadings.jsp" %>
 
@@ -461,7 +468,7 @@ function uncheckOther(field){
   <f:verbatim></div><div class="tier3"></f:verbatim>
     <h:panelGrid columns="1">
       <h:selectOneRadio id="itemNavigation" value="#{publishedSettings.itemNavigation}"  layout="pageDirection" 
-		onclick="setBlockDivs();submitForm();">
+		onclick="setBlockDivs();updateItemNavigation(true);submitForm();">
         <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.linear_access}"/>
         <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.random_access}"/>
       </h:selectOneRadio>
@@ -954,7 +961,7 @@ function uncheckOther(field){
 <p class="act">
 
   <!-- Save button -->
-  <h:commandButton type="submit" value="#{assessmentSettingsMessages.button_save_settings}" action="#{publishedSettings.getOutcome}"  styleClass="active" onclick="setBlockDivs();" >
+  <h:commandButton type="submit" value="#{assessmentSettingsMessages.button_save_settings}" action="#{publishedSettings.getOutcome}"  styleClass="active" onclick="setBlockDivs();updateItemNavigation(false);" >
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SavePublishedSettingsListener" />
   </h:commandButton>
   

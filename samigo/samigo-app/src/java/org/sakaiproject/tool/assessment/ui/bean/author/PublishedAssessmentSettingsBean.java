@@ -667,7 +667,18 @@ public class PublishedAssessmentSettingsBean
   }
 
   public void setUnlimitedSubmissions(String unlimitedSubmissions) {
-    this.unlimitedSubmissions = unlimitedSubmissions;
+	  String itemNavigationUpdated = ContextUtil.lookupParam("itemNavigationUpdated");
+	  if (itemNavigationUpdated != null && Boolean.parseBoolean(itemNavigationUpdated)) {
+		  if (itemNavigation != null && "1".equals(itemNavigation)) {
+			  this.unlimitedSubmissions = AssessmentAccessControlIfc.LIMITED_SUBMISSIONS.toString();
+		  }
+		  else {
+			  this.unlimitedSubmissions = unlimitedSubmissions;
+		  }
+	  }
+	  else {
+		  this.unlimitedSubmissions = unlimitedSubmissions;
+	  }
   }
 
   public String getSubmissionsAllowed() {
@@ -675,7 +686,18 @@ public class PublishedAssessmentSettingsBean
   }
 
   public void setSubmissionsAllowed(String submissionsAllowed) {
-      this.submissionsAllowed = submissionsAllowed;
+	  String itemNavigationUpdated = ContextUtil.lookupParam("itemNavigationUpdated");
+	  if (itemNavigationUpdated != null && Boolean.parseBoolean(itemNavigationUpdated)) {
+		  if (itemNavigation != null && "1".equals(itemNavigation)) {
+			  this.submissionsAllowed = "1";
+		  }
+		  else {
+			  this.submissionsAllowed = submissionsAllowed;
+		  }
+	  }
+	  else {
+		  this.submissionsAllowed = submissionsAllowed;
+	  }
   }
 
   public void setLateHandling(String lateHandling) {

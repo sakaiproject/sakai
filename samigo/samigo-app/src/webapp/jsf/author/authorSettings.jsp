@@ -66,8 +66,14 @@ function validateUrl0(){
   window.open(finalPageUrl.value,'validateUrl');
 }
 
-function submitForm()
+function updateItemNavigation(isFromItemNavigation)
 {
+  var inputhidden = document.getElementById("assessmentSettingsAction:itemNavigationUpdated");
+  inputhidden.value = isFromItemNavigation;
+}
+    
+function submitForm()
+{  
   document.forms[0].onsubmit();
   document.forms[0].submit();
 }
@@ -311,6 +317,7 @@ function setBlockDivs()
 
   <h:inputHidden id="assessmentId" value="#{assessmentSettings.assessmentId}"/>
   <h:inputHidden id="blockDivs" value="#{assessmentSettings.blockDivs}"/>
+  <h:inputHidden id="itemNavigationUpdated" value="false" />
 
   <!-- HEADINGS -->
   <%@ include file="/jsf/author/allHeadings.jsp" %>
@@ -562,7 +569,7 @@ function setBlockDivs()
   <f:verbatim> <div class="longtext"></f:verbatim> <h:outputLabel for="itemNavigation" value="#{assessmentSettingsMessages.navigation}" /><f:verbatim></div><div class="tier3"></f:verbatim>
       <h:panelGrid columns="1">
         <h:selectOneRadio id="itemNavigation" value="#{assessmentSettings.itemNavigation}"  layout="pageDirection" 
-		onclick="setBlockDivs();submitForm();">
+		onclick="setBlockDivs();updateItemNavigation(true);submitForm();">
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.linear_access}"/>
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.random_access}"/>
         </h:selectOneRadio>
@@ -984,7 +991,7 @@ function setBlockDivs()
 
  <!-- save & publish -->
   <h:commandButton  value="#{assessmentSettingsMessages.button_unique_save_and_publish}" type="submit" styleClass="active" rendered="#{assessmentSettings.hasQuestions}"
-      action="#{assessmentSettings.getOutcomePublish}" onclick="setBlockDivs();" >
+      action="#{assessmentSettings.getOutcomePublish}" onclick="setBlockDivs();updateItemNavigation(false);" >
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmPublishAssessmentListener" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.PublishAssessmentListener" />
   </h:commandButton>
@@ -993,7 +1000,7 @@ function setBlockDivs()
       action="#{assessmentSettings.getOutcomePublish}" disabled="true" />
       
 <!-- save -->
-  <h:commandButton type="submit" value="#{assessmentSettingsMessages.button_save_settings}" action="#{assessmentSettings.getOutcomeSave}"  onclick="setBlockDivs();">
+  <h:commandButton type="submit" value="#{assessmentSettingsMessages.button_save_settings}" action="#{assessmentSettings.getOutcomeSave}"  onclick="setBlockDivs();updateItemNavigation(false);">
       <f:param name="assessmentId" value="#{assessmentSettings.assessmentId}"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentSettingsListener"/>
   </h:commandButton>
