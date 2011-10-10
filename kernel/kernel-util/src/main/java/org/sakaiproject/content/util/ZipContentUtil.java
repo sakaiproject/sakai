@@ -59,6 +59,10 @@ public class ZipContentUtil {
         if(MAX_ZIP_EXTRACT_FILES == null){
             MAX_ZIP_EXTRACT_FILES = ServerConfigurationService.getInt(org.sakaiproject.content.api.ContentHostingService.RESOURCES_ZIP_EXPAND_MAX,MAX_ZIP_EXTRACT_FILES_DEFAULT);
         }
+        if (MAX_ZIP_EXTRACT_FILES <= 0) {
+            MAX_ZIP_EXTRACT_FILES = MAX_ZIP_EXTRACT_FILES_DEFAULT; // any less than this is useless so probably a mistake
+            LOG.warn("content.zip.expand.maxfiles is set to a value less than or equal to 0, defaulting to "+MAX_ZIP_EXTRACT_FILES_DEFAULT);
+        }
         return MAX_ZIP_EXTRACT_FILES;
     }
 
