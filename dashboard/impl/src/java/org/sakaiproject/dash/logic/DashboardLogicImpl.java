@@ -167,7 +167,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			Context context, SourceType sourceType) {
 		
 		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
-				calendarTimeLabelKey, entityReference, entityUrl, context, sourceType);
+				calendarTimeLabelKey, entityReference, context, sourceType);
 		
 		dao.addCalendarItem(calendarItem);
 		
@@ -204,11 +204,10 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 
 	public NewsItem createNewsItem(String title, Date newsTime,
-			String entityReference, String entityUrl, Context context,
-			SourceType sourceType) {
+			String entityReference, Context context, SourceType sourceType) {
 		
 		NewsItem newsItem = new NewsItem(title, newsTime, 
-				entityReference, entityUrl, context, sourceType);
+				entityReference, context, sourceType);
 		
 		dao.addNewsItem(newsItem);
 		

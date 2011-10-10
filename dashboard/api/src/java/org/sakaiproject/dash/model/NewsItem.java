@@ -42,7 +42,7 @@ public class NewsItem implements Serializable {
 	protected String title;
 	protected Date newsTime;
 	protected String entityReference;
-	protected String entityUrl;
+	//protected String entityUrl;
 	protected Context context;
 	protected SourceType sourceType;
 	
@@ -54,12 +54,11 @@ public class NewsItem implements Serializable {
 	}
 
 	public NewsItem(String title, Date newsTime, String entityReference,
-			String entityUrl, Context context, SourceType sourceType) {
+			Context context, SourceType sourceType) {
 		super();
 		this.title = title;
 		this.newsTime = newsTime;
 		this.entityReference = entityReference;
-		this.entityUrl = entityUrl;
 		this.context = context;
 		this.sourceType = sourceType;
 	}
@@ -74,14 +73,13 @@ public class NewsItem implements Serializable {
 	 * @param sourceType
 	 */
 	public NewsItem(Long id, String title, Date newsTime,
-			String entityReference, String entityUrl, Context context,
+			String entityReference, Context context,
 			SourceType sourceType) {
 		super();
 		this.id = id;
 		this.title = title;
 		this.newsTime = newsTime;
 		this.entityReference = entityReference;
-		this.entityUrl = entityUrl;
 		this.context = context;
 		this.sourceType = sourceType;
 }
@@ -112,13 +110,6 @@ public class NewsItem implements Serializable {
 	 */
 	public String getEntityReference() {
 		return entityReference;
-	}
-
-	/**
-	 * @return the entityUrl
-	 */
-	public String getEntityUrl() {
-		return entityUrl;
 	}
 
 	/**
@@ -164,13 +155,6 @@ public class NewsItem implements Serializable {
 	}
 
 	/**
-	 * @param entityUrl the entityUrl to set
-	 */
-	public void setEntityUrl(String entityUrl) {
-		this.entityUrl = entityUrl;
-	}
-
-	/**
 	 * @param context the context to set
 	 */
 	public void setContext(Context context) {
@@ -198,8 +182,6 @@ public class NewsItem implements Serializable {
 		builder.append(newsTime);
 		builder.append(", entityReference=");
 		builder.append(entityReference);
-		builder.append(", entityUrl=");
-		builder.append(entityUrl);
 		builder.append(", context=");
 		builder.append(context);
 		builder.append(", sourceType=");

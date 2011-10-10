@@ -113,7 +113,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			
 			template.update(sql,
 				new Object[]{calendarItem.getCalendarTime(), calendarItem.getCalendarTimeLabelKey(), calendarItem.getTitle(), 
-						calendarItem.getEntityUrl(), calendarItem.getEntityReference(),
+						calendarItem.getEntityReference(),
 						calendarItem.getSourceType().getId(), calendarItem.getContext().getId()}
 			);
 			return true;
@@ -189,8 +189,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		
 		try {
 			getJdbcTemplate().update(getStatement("insert.NewsItem"),
-				new Object[]{newsItem.getNewsTime(), newsItem.getTitle(), 
-						newsItem.getEntityUrl(), newsItem.getEntityReference(),
+				new Object[]{newsItem.getNewsTime(), newsItem.getTitle(), newsItem.getEntityReference(),
 						newsItem.getSourceType().getId(), newsItem.getContext().getId()}
 			);
 			return true;

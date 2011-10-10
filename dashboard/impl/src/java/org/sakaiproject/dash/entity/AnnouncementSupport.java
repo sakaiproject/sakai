@@ -264,13 +264,7 @@ public class AnnouncementSupport{
 		 */
 		public void processEvent(Event event) {
 			
-			String resource =  event.getResource();
-			
 			String eventId = event.getEvent();
-			
-			String proxyStringNew = SakaiProxy.EVENT_ANNOUNCEMENT_NEW;
-			
-			String proxyStringRemove = SakaiProxy.EVENT_ANNOUNCEMENT_REMOVE_OWN;
 			
 			Entity entity = sakaiProxy.getEntity(event.getResource());
 			// handle add events
@@ -286,7 +280,7 @@ public class AnnouncementSupport{
 					sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ANNOUNCEMENT_ACCESS, EntityLinkStrategy.SHOW_PROPERTIES);
 				}
 				String accessUrl = ann.getUrl();
-				NewsItem newsItem = dashboardLogic.createNewsItem(ann.getAnnouncementHeader().getSubject(), event.getEventTime(), event.getResource(), accessUrl, context, sourceType);
+				NewsItem newsItem = dashboardLogic.createNewsItem(ann.getAnnouncementHeader().getSubject(), event.getEventTime(), event.getResource(), context, sourceType);
 				if(dashboardLogic.isAvailable(newsItem.getEntityReference(), IDENTIFIER)) {
 					dashboardLogic.createNewsLinks(newsItem);
 					Date retractDate = getRetractDate(newsItem.getEntityReference());

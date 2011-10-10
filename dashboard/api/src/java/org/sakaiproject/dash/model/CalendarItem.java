@@ -37,7 +37,6 @@ public class CalendarItem implements Serializable {
 	protected Date calendarTime;
 	protected String calendarTimeLabelKey;
 	protected String entityReference;
-	protected String entityUrl;
 	protected Context context;
 	protected SourceType sourceType;
 	
@@ -50,14 +49,13 @@ public class CalendarItem implements Serializable {
 	}
 
 	public CalendarItem(String title, Date calendarTime,
-			String calendarTimeLabelKey, String entityReference, String entityUrl,
-			Context context, SourceType sourceType) {
+			String calendarTimeLabelKey, String entityReference, Context context,
+			SourceType sourceType) {
 		super();
 		this.title = title;
 		this.calendarTime = calendarTime;
 		this.calendarTimeLabelKey = calendarTimeLabelKey;
 		this.entityReference = entityReference;
-		this.entityUrl = entityUrl;
 		this.context = context;
 		this.sourceType = sourceType;
 	}
@@ -68,21 +66,19 @@ public class CalendarItem implements Serializable {
 	 * @param calendarTime
 	 * @param calendarTimeLabelKey TODO
 	 * @param entityReference
-	 * @param entityUrl
 	 * @param context
 	 * @param sourceType
 	 * @param realm
 	 */
 	public CalendarItem(Long id, String title, Date calendarTime,
-			String calendarTimeLabelKey, String entityReference, String entityUrl,
-			Context context, SourceType sourceType) {
+			String calendarTimeLabelKey, String entityReference, Context context,
+			SourceType sourceType) {
 		super();
 		this.id = id;
 		this.title = title;
 		this.calendarTime = calendarTime;
 		this.calendarTimeLabelKey = calendarTimeLabelKey;
 		this.entityReference = entityReference;
-		this.entityUrl = entityUrl;
 		this.context = context;
 		this.sourceType = sourceType;
 	}
@@ -121,13 +117,6 @@ public class CalendarItem implements Serializable {
 	 */
 	public String getEntityReference() {
 		return entityReference;
-	}
-
-	/**
-	 * @return the entityUrl
-	 */
-	public String getEntityUrl() {
-		return entityUrl;
 	}
 
 	/**
@@ -177,13 +166,6 @@ public class CalendarItem implements Serializable {
 	}
 
 	/**
-	 * @param entityUrl the entityUrl to set
-	 */
-	public void setEntityUrl(String entityUrl) {
-		this.entityUrl = entityUrl;
-	}
-
-	/**
 	 * @param context the context to set
 	 */
 	public void setContext(Context context) {
@@ -213,8 +195,6 @@ public class CalendarItem implements Serializable {
 		builder.append(calendarTimeLabelKey);
 		builder.append(", entityReference=");
 		builder.append(entityReference);
-		builder.append(", entityUrl=");
-		builder.append(entityUrl);
 		builder.append(", context=");
 		builder.append(context);
 		builder.append(", sourceType=");

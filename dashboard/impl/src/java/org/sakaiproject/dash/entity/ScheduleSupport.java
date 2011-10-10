@@ -217,15 +217,9 @@ public class ScheduleSupport{
 			if(logger.isDebugEnabled()) {
 				logger.debug("removing links and item for " + event.getResource());
 			}
-			String resource =  event.getResource();
-			
 			String eventId = event.getEvent();
 			
 			String eventContextString = event.getContext();
-			
-			String proxyStringNew = SakaiProxy.EVENT_SCHEDULE_NEW_EVENT;
-			
-			String proxyStringRemove = SakaiProxy.EVENT_SCHEDULE_REMOVE_EVENT;
 			
 			Entity entity = sakaiProxy.getEntity(event.getResource());
 			// handle add events
@@ -244,7 +238,7 @@ public class ScheduleSupport{
 					sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_SCHEDULE_ACCESS, EntityLinkStrategy.SHOW_PROPERTIES);
 				}
 				
-				// TODO: Third parameter in dashboardLogic.createCalendarItem() below should be a key for a label such as "Due Date: " or "Accept Until: " 
+				// Third parameter in dashboardLogic.createCalendarItem() below should be a key for a label such as "Due Date: " or "Accept Until: " 
 				// from dash_entity properties bundle for use in the dashboard list
 				String type = cEvent.getType();
 				// Based on the event-type, we may be able to select a key for a label? 

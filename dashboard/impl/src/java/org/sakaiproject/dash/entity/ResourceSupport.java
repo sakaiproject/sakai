@@ -352,7 +352,7 @@ public class ResourceSupport {
 						eventTime = new Date();
 					}
 					
-					NewsItem newsItem = dashboardLogic.createNewsItem(title , eventTime, resource.getReference(), resource.getUrl(), context, sourceType);
+					NewsItem newsItem = dashboardLogic.createNewsItem(title, eventTime, resource.getReference(), context, sourceType);
 					if(dashboardLogic.isAvailable(newsItem.getEntityReference(), ENTITY_TYPE_IDENTIFIER)) {
 						dashboardLogic.createNewsLinks(newsItem);
 						Date retractDate = getRetractDate(newsItem.getEntityReference());

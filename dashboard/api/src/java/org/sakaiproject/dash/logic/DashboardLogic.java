@@ -68,7 +68,7 @@ public interface DashboardLogic {
 
 	public Context createContext(String contextId);
 	
-	public NewsItem createNewsItem(String title, Date newsTime, String entityReference, String entityUrl, Context context, SourceType sourceType);
+	public NewsItem createNewsItem(String title, Date newsTime, String entityReference, Context context, SourceType sourceType);
 
 	public void createNewsLinks(NewsItem newsItem);
 	
