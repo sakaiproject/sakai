@@ -70,9 +70,6 @@
 <!-- ASSESSMENT INTRODUCTION-->
 <div class="assessmentIntroduction"><h:outputText value="#{delivery.instructorMessage}" escape="false"/></div>
    
-<!-- ASSESSMENT INTRODUCTION-->
-<div class="assessmentIntroduction"><h:outputText value="#{delivery.instructorMessage}" escape="false"/></div>
-   
   <!-- ASSESSMENT ATTACHMENTS -->
   <%@ include file="/jsf/delivery/assessment_attachment.jsp" %>
 
