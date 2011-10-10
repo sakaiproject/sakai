@@ -42,11 +42,16 @@ should be included in file importing DeliveryMessages
     </h:column>
   </h:dataTable>
 
-<h:outputText escape="false" value="<hr style='border:none;border-top:solid black 1px'/>" />
-
   <!-- 2. print out the matching text -->
   <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText">
     <h:column>
+      <h:panelGrid columns="2">
+        <h:selectOneMenu id="label" disabled="true">
+          <f:selectItem itemValue="" itemLabel="#{authorMessages.select_combo}"/>
+          <f:selectItem itemValue="" itemLabel="A"/>
+          <f:selectItem itemValue="" itemLabel="B"/>
+          <f:selectItem itemValue="" itemLabel="C"/>
+        </h:selectOneMenu>
         <h:outputText escape="false" value="#{itemText.sequence}. #{itemText.text}" />
 
         <h:outputText value="" />
@@ -67,6 +72,8 @@ should be included in file importing DeliveryMessages
             </h:column>
         </h:dataTable>
 
+        <h:outputText value="" />
+
         <h:dataTable value="#{itemText.answerArray}" var="answer">
             <h:column>
               <h:panelGroup rendered="#{answer.isCorrect && answer.incorrectAnswerFbIsNotEmpty && author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '1'}" styleClass="longtext">
@@ -78,17 +85,9 @@ should be included in file importing DeliveryMessages
                 <h:outputText escape="false" value="#{answer.inCorrectAnswerFeedback}" />
               </h:panelGroup>
             </h:column>
-            
-            <h:column>
-              <h:selectOneMenu id="label" disabled="true">
-                <f:selectItem itemValue="" itemLabel="#{authorMessages.select_combo}"/>
-                <f:selectItem itemValue="" itemLabel="A"/>
-                <f:selectItem itemValue="" itemLabel="B"/>
-                <f:selectItem itemValue="" itemLabel="C"/>
-              </h:selectOneMenu>
-            </h:column>
         </h:dataTable>
 
+      </h:panelGrid>
     </h:column>
   </h:dataTable>
 
