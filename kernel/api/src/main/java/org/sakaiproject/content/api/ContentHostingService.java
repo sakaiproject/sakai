@@ -217,6 +217,18 @@ public interface ContentHostingService extends EntityProducer
 
 	/** A "list" of all root-level collections */
     public static final Set<String> ROOT_COLLECTIONS = new TreeSet<String>();
+    
+    /** Enable zip content handling (affects resources) */
+    public static final String RESOURCES_ZIP_ENABLE = "content.zip.enabled";
+
+    /** Set the limit of the max number of files to extract from a zip archive */
+    public static final String RESOURCES_ZIP_EXPAND_MAX = "content.zip.expand.maxfiles";
+
+    /** Enable zip file expansion into content (affects resources) */
+    public static final String RESOURCES_ZIP_ENABLE_EXPAND = "content.zip.expand.enabled";
+    
+    /** Enable content compression into zip file (affects resources) */
+    public static final String RESOURCES_ZIP_ENABLE_COMPRESS = "content.zip.compress.enabled";
 
 	static final String ID_LENGTH_EXCEPTION = "id_length_exception";
 
@@ -1910,4 +1922,10 @@ public interface ContentHostingService extends EntityProducer
 	 */
 	public Collection<ContentResource> getContextResourcesOfType(String resourceType, Set<String> contextIds);
 
+	/**
+	 * Expand the supplied resource under its parent collection. See KNL-273
+	 *
+	 * @param resourceId The zip file resource that we want to expand
+	 */
+	public void expandZippedResource(String resourceId) throws Exception;
 }

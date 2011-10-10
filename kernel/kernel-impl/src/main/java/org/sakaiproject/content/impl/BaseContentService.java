@@ -90,6 +90,7 @@ import org.sakaiproject.content.api.providers.SiteContentAdvisorProvider;
 import org.sakaiproject.content.api.providers.SiteContentAdvisorTypeRegistry;
 import org.sakaiproject.content.impl.serialize.api.SerializableCollectionAccess;
 import org.sakaiproject.content.impl.serialize.api.SerializableResourceAccess;
+import org.sakaiproject.content.util.ZipContentUtil;
 import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
@@ -13194,5 +13195,21 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
         }
     }
     
+    /**
+     * Expand the supplied resource under its parent collection.If the zip
+     * is bigger than the max zip size specified in properties extraction will
+     * NOT occur.See KNL-273.
+     *
+     * @param resourceId The zip file resource that we want to expand
+     * @exception Exception Anything thrown by ZipContentUtil gets passed upwards.
+     */
+    public void expandZippedResource(String resourceId) throws Exception {
+    	int maxZipExtractSize = ZipContentUtil.getMaxZipExtractFiles();
+    	ZipContentUtil extractZipArchive = new ZipContentUtil();
+    	if(extractZipArchive.getZipManifest(resourceId) != null && extractZipArchive.getZipManifest(resourceId).size() < maxZipExtractSize){
+    		extractZipArchive.extractArchive(resourceId);
+    	}
+    }
+
 } // BaseContentService
 
