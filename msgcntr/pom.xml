@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.sakaiproject.purepoms</groupId>
-        <artifactId>sakai-standard-tool</artifactId>
+        <artifactId>sakai-edu-tool</artifactId>
         <version>2.9-SNAPSHOT</version>
     </parent>
     <name>Sakai Message Center Base POM</name>
@@ -23,8 +23,6 @@
     <properties>
         <url.localsite>scp://source.sakaiproject.org/var/www/html/release/msgcntr/${project.version}</url.localsite>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <sakai.common.version>1.2-SNAPSHOT</sakai.common.version>
-        <sakai.edu-services.version>1.2-SNAPSHOT</sakai.edu-services.version>
         <sakai.jsf.version>2.9-SNAPSHOT</sakai.jsf.version>
         <sakai.scheduler.version>2.9-SNAPSHOT</sakai.scheduler.version>
         <sakai.search.version>1.4-SNAPSHOT</sakai.search.version>
