@@ -140,7 +140,7 @@ function toPoint(id)
 	    </h:column>
       </samigo:dataLine>
 
-	  <h:outputFormat value="#{evaluationMessages.random_draw_info}" >
+	  <h:outputFormat value="#{evaluationMessages.random_draw_info}" rendered="#{partinit.isRandomDrawPart}">
 	  	<f:param value="#{partinit.numberQuestionsDraw}" />
 		<f:param value="#{partinit.numberQuestionsTotal}" />
 	  </h:outputFormat>
