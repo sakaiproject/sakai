@@ -69,8 +69,8 @@ public class ZipContentUtil {
 	/**
 	 * Compresses a ContentCollection to a new zip archive with the same folder name
 	 * 
-	 * @param reference
-	 * @throws Exception
+	 * @param reference sakai entity reference
+	 * @throws Exception on failure
 	 */
     public void compressFolder(Reference reference) { 
 		File temp = null;
@@ -172,10 +172,24 @@ public class ZipContentUtil {
 	}
 
 	/**
+     * Extracts a compressed (zip) ContentResource to a new folder with the same name.
+     * 
+     * @param reference the sakai entity reference
+     * @throws Exception on failure
+     * @deprecated 11 Oct 2011 -AZ, use {@link #extractArchive(String)} instead
+     */
+    public void extractArchive(Reference reference) throws Exception {
+        if (reference == null) {
+            throw new IllegalArgumentException("reference cannot be null");
+        }
+        extractArchive(reference.getId());
+    }
+
+	/**
 	 * Extracts a compressed (zip) ContentResource to a new folder with the same name.
 	 * 
-	 * @param reference
-	 * @throws Exception
+     * @param referenceId the sakai entity reference id
+	 * @throws Exception on failure
 	 */
 	public void extractArchive(String referenceId) throws Exception {
 		ContentResource resource = ContentHostingService.getResource(referenceId);
@@ -204,20 +218,31 @@ public class ZipContentUtil {
 				}
 			}
 			zipFile.close();
-		} 
-		catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
-		} 
-		finally {
+		} finally {
 			temp.delete();	
 		}
 		
 	}
-	
+
+   /**
+     * Get a list of the files in a zip and their size
+     * @param reference the sakai entity reference
+     * @return a map of file names to file sizes in the zip archive
+     * @deprecated 11 Oct 2011 -AZ, use {@link #getZipManifest(String)}
+     */
+    public Map<String, Long> getZipManifest(Reference reference) {
+        if (reference == null) {
+            throw new IllegalArgumentException("reference cannot be null");
+        }
+        return getZipManifest(reference.getId());
+    }
+
 	/**
 	 * Get a list of the files in a zip and their size
-	 * @param reference
-	 * @return 
+	 * @param referenceId the sakai entity reference id
+     * @return a map of file names to file sizes in the zip archive
 	 */
 	public Map<String, Long> getZipManifest(String referenceId) {
 		Map<String, Long> ret = new HashMap<String, Long>();
@@ -231,8 +256,7 @@ public class ZipContentUtil {
 		} catch (TypeException e1) {
 			return null;
 		}
-		String rootCollectionId = extractZipCollectionPrefix(resource);
-
+		//String rootCollectionId = extractZipCollectionPrefix(resource);
 		
 		// Extract Zip File	
 		File temp = null;		
@@ -308,7 +332,6 @@ public class ZipContentUtil {
 	 * 
 	 * @param resource
 	 * @return
-	 * 
 	 */
 	private File exportResourceToFile(ContentResource resource) {
 		File temp = null;
