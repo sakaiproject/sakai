@@ -152,7 +152,7 @@ public class GroupPermissionsService {
 				}
 			});
 
-			AuthzGroupService.joinGroup(groupId, rolename);
+			AuthzGroupService.joinGroup(groupId, rolename, Integer.MAX_VALUE);
 
 		} catch (Exception e) {
 			// Typically means group couldn't be found.
