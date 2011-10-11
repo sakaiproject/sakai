@@ -1962,18 +1962,33 @@ public class SiteAction extends PagedResourceActionII {
 					context.put("isCourseSite", Boolean.FALSE);
 				}
 				
+				Collection<Group> groups = null;
 				if ((allowUpdateSite || allowUpdateGroupMembership) 
 						&& (!isMyWorkspace
 							&& (ServerConfigurationService.getString("wsetup.group.support") == "" 
 							|| ServerConfigurationService.getString("wsetup.group.support").equalsIgnoreCase(Boolean.TRUE.toString())))) 
 				{
 					// show all site groups
-					context.put("groups", site.getGroups());
+					groups = site.getGroups();
 				}
 				else
 				{
 					// show groups that the current user is member of
-					context.put("groups", site.getGroupsWithMember(UserDirectoryService.getCurrentUser().getId()));
+					groups = site.getGroupsWithMember(UserDirectoryService.getCurrentUser().getId());
+				}
+				if (groups != null)
+				{
+					// filter out only those groups that are manageable by site-info
+					Collection<Group> filteredGroups = new ArrayList<Group>();
+					for (Group g : groups)
+					{
+						Object gProp = g.getProperties().getProperty(SiteConstants.GROUP_PROP_WSETUP_CREATED);
+						if (gProp != null && gProp.equals(Boolean.TRUE.toString()))
+						{
+							filteredGroups.add(g);
+						}
+					}
+					context.put("groups", filteredGroups);
 				}
 			} catch (Exception e) {
 				M_log.warn(this + " buildContextForTemplate chef_site-siteInfo-list.vm ", e);
