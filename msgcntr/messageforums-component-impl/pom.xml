@@ -58,8 +58,6 @@
     <dependency>
         <groupId>org.sakaiproject.edu-services.gradebook</groupId>
         <artifactId>gradebook-service-api</artifactId>
-        <version>${sakai.edu-services.version}</version>
-        <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>commons-beanutils</groupId>

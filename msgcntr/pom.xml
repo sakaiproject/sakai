@@ -144,24 +144,6 @@
                 <type>pom</type>
             </dependency>
             <dependency>
-                <groupId>org.sakaiproject.common</groupId>
-                <artifactId>sakai-privacy-api</artifactId>
-                <version>${sakai.common.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.common</groupId>
-                <artifactId>sakai-common-type-api</artifactId>
-                <version>${sakai.common.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.common</groupId>
-                <artifactId>sakai-common-manager-api</artifactId>
-                <version>${sakai.common.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
                 <groupId>org.sakaiproject.search</groupId>
                 <artifactId>search-api</artifactId>
                 <version>${sakai.search.version}</version>
