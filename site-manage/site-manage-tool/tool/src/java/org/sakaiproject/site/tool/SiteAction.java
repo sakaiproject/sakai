@@ -7632,22 +7632,26 @@ public class SiteAction extends PagedResourceActionII {
 								// save again
 								SiteService.save(site);
 								
-								if (siteType != null && siteType.equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) 
+								String realm = SiteService.siteReference(site.getId());
+								try 
 								{
-									// also remove the provider id attribute if any
-									String realm = SiteService.siteReference(site.getId());
-									try 
+									AuthzGroup realmEdit = AuthzGroupService.getAuthzGroup(realm);
+									if (siteType != null && siteType.equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE))) 
 									{
-										AuthzGroup realmEdit = AuthzGroupService.getAuthzGroup(realm);
+										// also remove the provider id attribute if any
 										realmEdit.setProviderGroupId(null);
-										AuthzGroupService.save(realmEdit);
-									} catch (GroupNotDefinedException e) {
-										M_log.warn(this + ".actionForTemplate chef_siteinfo-duplicate: IdUnusedException, not found, or not an AuthzGroup object "+ realm, e);
-										addAlert(state, rb.getString("java.realm"));
-									} catch (AuthzPermissionException e) {
-										addAlert(state, this + rb.getString("java.notaccess"));
-										M_log.warn(this + ".actionForTemplate chef_siteinfo-duplicate: " + rb.getString("java.notaccess"), e);
 									}
+									
+									// add current user as the maintainer
+									realmEdit.addMember(UserDirectoryService.getCurrentUser().getId(), site.getMaintainRole(), true, false);
+									
+									AuthzGroupService.save(realmEdit);
+								} catch (GroupNotDefinedException e) {
+									M_log.warn(this + ".actionForTemplate chef_siteinfo-duplicate: IdUnusedException, not found, or not an AuthzGroup object "+ realm, e);
+									addAlert(state, rb.getString("java.realm"));
+								} catch (AuthzPermissionException e) {
+									addAlert(state, this + rb.getString("java.notaccess"));
+									M_log.warn(this + ".actionForTemplate chef_siteinfo-duplicate: " + rb.getString("java.notaccess"), e);
 								}
 							
 							} catch (IdUnusedException e) {
