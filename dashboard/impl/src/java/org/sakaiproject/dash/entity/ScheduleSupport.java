@@ -184,6 +184,12 @@ public class ScheduleSupport{
 			return true;
 		}
 		
+		public boolean isUserPermitted(String sakaiUserId, String accessPermission,
+				String entityReference, String contextId) {
+			// TODO: verify correct way to determine permission for the particular entity
+			return sakaiProxy.isUserPermitted(sakaiUserId, accessPermission, contextId);
+		}
+		
 		public String getString(String key, String dflt) {
 			ResourceLoader rl = new ResourceLoader("dash_entity");
 			return rl.getString(key, dflt);

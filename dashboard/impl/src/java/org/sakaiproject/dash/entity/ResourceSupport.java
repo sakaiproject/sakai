@@ -225,6 +225,11 @@ public class ResourceSupport {
 			}
 			return isAvailable;
 		}
+		
+		public boolean isUserPermitted(String sakaiUserId, String accessPermission,
+				String entityReference, String contextId) {
+			return sakaiProxy.isUserPermitted(sakaiUserId, accessPermission, entityReference);
+		}
 
 		public String getString(String key, String dflt) {
 			ResourceLoader rl = new ResourceLoader("dash_entity");

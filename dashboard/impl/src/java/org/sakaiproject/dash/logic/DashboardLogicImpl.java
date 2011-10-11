@@ -123,7 +123,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 				logger.info(message.toString());
 			} else {
 				for(CalendarItem item: items) {
-					if( this.sakaiProxy.isUserPermitted(sakaiUserId, item.getSourceType().getAccessPermission(), item.getEntityReference()) ) {
+					SourceType sourceType = item.getSourceType();
+					EntityType entityType = this.entityTypes.get(sourceType.getIdentifier());
+					if(entityType != null && entityType.isUserPermitted(sakaiUserId, sourceType.getAccessPermission(), item.getEntityReference(), item.getContext().getContextId())) {
 						CalendarLink calendarLink = new CalendarLink(person, item, item.getContext(), false, false);
 						dao.addCalendarLink(calendarLink);
 					}

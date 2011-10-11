@@ -172,6 +172,16 @@ public interface SakaiProxy {
 	
 	public boolean isWorksite(String siteId);
 
+	/**
+	 * Determine whether a user is permitted to access a sakai entity in a 
+	 * particular way.  
+	 * @param sakaiUserId
+	 * @param accessPermission The identifier of the permission being checked.
+	 * @param entityReference The reference for the sakai entity in which the 
+	 * permission is being checked.  This may identify a specific entity or the 
+	 * site or group in which the entity exists.
+	 * @return
+	 */
 	public boolean isUserPermitted(String sakaiUserId,
 			String accessPermission, String entityReference);
 

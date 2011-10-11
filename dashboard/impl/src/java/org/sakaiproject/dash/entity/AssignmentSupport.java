@@ -262,6 +262,13 @@ public class AssignmentSupport {
 			ResourceLoader rl = new ResourceLoader("dash_entity");
 			return rl.getString(key, dflt);
 		}
+		
+		public boolean isUserPermitted(String sakaiUserId, String accessPermission,
+				String entityReference, String contextId) {
+			// TODO: verify correct way to determine permission for the particular entity
+			return sakaiProxy.isUserPermitted(sakaiUserId, accessPermission, contextId);
+		}
+		
 	}
 	
 	/**

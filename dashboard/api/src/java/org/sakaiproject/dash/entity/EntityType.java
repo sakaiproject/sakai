@@ -166,4 +166,16 @@ public interface EntityType {
 	 */
 	public String getString(String key, String dflt);
 
+	/**
+	 * Determine whether a user has permission to access a particular entity, using 
+	 * whichever parameters is appropriate for determining this permission.
+	 * @param sakaiUserId
+	 * @param accessPermission
+	 * @param entityReference
+	 * @param contextId
+	 * @return
+	 */
+	public boolean isUserPermitted(String sakaiUserId, String accessPermission,
+			String entityReference, String contextId);
+
 }
