@@ -172,8 +172,11 @@ table.templates p{margin:0 !important;  padding:0}
 				$tlang.getString("sitetype.template.notice")
 			<div class="indnt2">
 			<table class="templates">
+			<tr><th>$tlang.getString("sinfo.stitle")</th><th>$tlang.getString("sinfo.descr")</th></tr>
 			#foreach($templateSite in $templateSites)
-			<tr><td>$templateSite.title</td><td style="padding-left:0.5em">$templateSite.description</td></tr>
+				#set($description=false)
+				#set($description=$templateSite.description)
+				<tr><td valign="top">$templateSite.title</td><td style="padding-left:0.5em">#if($description)$description#end</td></tr>
 			#end				
 			</table>
 			</div>
