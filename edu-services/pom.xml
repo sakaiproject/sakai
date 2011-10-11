@@ -168,12 +168,6 @@
                 <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.common</groupId>
-                <artifactId>archive-api</artifactId>
-                <version>${sakai.common.version}</version>
-                <scope>provided</scope>
-            </dependency>
             <!-- Used only for test data. -->
             <dependency>
                 <groupId>org.sakaiproject.edu-services.sections</groupId>
