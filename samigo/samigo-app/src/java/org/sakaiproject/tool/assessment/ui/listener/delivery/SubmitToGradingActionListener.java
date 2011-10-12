@@ -580,6 +580,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 			ItemGradingData itemgrading = (ItemGradingData) grading.get(m);
 			if (itemgrading.getItemGradingId() == null && (itemgrading.getReview() != null && itemgrading.getReview().booleanValue())  == true) {
 				adds.addAll(grading);
+				break;
 			} 
 		}
 		
