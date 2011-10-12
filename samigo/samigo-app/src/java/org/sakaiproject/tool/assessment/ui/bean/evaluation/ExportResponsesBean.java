@@ -352,7 +352,7 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 		return wb;
 	}
 	
-	protected Workbook getAsWorkbook(List<List<Object>> spreadsheetData) {
+	public Workbook getAsWorkbook(List<List<Object>> spreadsheetData) {
         // outer list is rows, inner list is columns (cells in the row)
 	    int columns = findColumnSize(spreadsheetData);
 		Workbook wb;
