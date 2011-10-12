@@ -488,13 +488,6 @@ public class UsersAction extends PagedResourceActionII
 			catch (UserLockedException e)
 			{
 			}
-			
-			//SAK-19498
-			//check if user can change pw (this is used to determine if user should
-			//view createdBy and modifiedBy info (assuming you can't change pw for provided users)
-			if(UserDirectoryService.getInstance().allowUpdateUserPassword(id)){
-				context.put("viewCreatedModifiedBy", "true");
-			}
 
 			// disable auto-updates while not in list mode
 			disableObservers(state);

@@ -61,7 +61,7 @@
 						</td>
 					</tr>
 				</table>
-#if($viewCreatedModifiedBy)
+#if($enableEdit)
 			<table class="itemSummary" summary="$tlang.getString("usevie.revuseinf")">
 				<tr>
 					<th>$tlang.getString("useedi.creby")</th>
@@ -88,13 +88,11 @@
 					</td>
 				</tr>
 			</table>
-#end
-			<input type="hidden" id="id" name="id" value="$validator.escapeHtml($user.Id)" />
-#if($enableEdit)
 			<div class="act">
 				<input type="submit" name="eventSubmit_doModify" value="$tlang.getString("usevie.mod2")"  accesskey="s" />
 			</div>
 #end
+			<input type="hidden" id="id" name="id" value="$validator.escapeHtml($user.Id)" />
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
 	</div>
