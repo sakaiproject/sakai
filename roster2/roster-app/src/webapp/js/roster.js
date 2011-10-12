@@ -49,6 +49,7 @@ var skin = DEFAULT_SKIN;
 var rosterSiteId = null;
 var rosterCurrentUserPermissions = null;
 var rosterCurrentUser = null;
+var rosterSuperUser = false;
 var site = null;
 
 var rosterProfileUrl = null;
@@ -106,6 +107,12 @@ var lowResMode = null;
 		return;
 	}
 	rosterSiteId = arg.siteId;
+	
+	if (arg.superUser && 'true' == arg.superUser) {
+		rosterSuperUser = true;
+	} else {
+		rosterSuperUser = false;
+	}
 
 	rosterCurrentUser = SakaiUtils.getCurrentUser();
 
@@ -248,7 +255,7 @@ function switchState(state, arg, searchQuery) {
 	setColumnSortFields(state);
 			
 	// permissions
-    if (rosterCurrentUserPermissions.siteUpdate) {
+    if (true === rosterSuperUser) {
         $('#navbar_permissions_link').show();
     } else {
         $('#navbar_permissions_link').hide();

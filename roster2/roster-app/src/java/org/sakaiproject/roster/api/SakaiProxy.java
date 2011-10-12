@@ -179,4 +179,12 @@ public interface SakaiProxy {
 	 * @return the name of the skin of the current site.
 	 */
 	public String getSakaiSkin();
+
+	/**
+	 * Returns whether or not the current user is a super user.
+	 * 
+	 * @return <code>true</code> if the current user is a super user, else
+	 *         returns <code>false</code.
+	 */
+	public boolean isSuperUser();
 }

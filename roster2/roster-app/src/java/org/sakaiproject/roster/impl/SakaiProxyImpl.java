@@ -165,7 +165,10 @@ public class SakaiProxyImpl implements SakaiProxy {
         
 	}
 	
-	private boolean isSuperUser() {
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isSuperUser() {
 		return securityService.isSuperUser();
 	}
 	
