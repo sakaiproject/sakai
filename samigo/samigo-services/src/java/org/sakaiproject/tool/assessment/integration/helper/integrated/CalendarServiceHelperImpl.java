@@ -44,7 +44,6 @@ public class CalendarServiceHelperImpl implements CalendarServiceHelper {
 	private Map<String, Boolean> calendarExistCache = new HashMap<String, Boolean>();
 	private String calendarTitle;
 
-	@Override
 	public String getString(String key, String defaultValue) {
 		return (ServerConfigurationService.getString(key, defaultValue));
 	}
