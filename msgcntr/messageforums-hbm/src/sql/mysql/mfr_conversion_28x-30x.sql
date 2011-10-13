@@ -222,6 +222,24 @@ update  mfr_message_t set label='pvt_priority_low' where label='\u4f4e';
 --// Add Ability to hide specific groups
 --////////////////////////////////////////////////////
 
+CREATE TABLE MFR_HIDDEN_GROUPS_T  ( 
+    ID                bigint(20) AUTO_INCREMENT NOT NULL,
+    VERSION           int(11) NOT NULL,
+    a_surrogateKey    bigint(20) NULL,
+    GROUP_ID          varchar(255) NOT NULL,
+    PRIMARY KEY(ID)
+);
+
+ALTER TABLE MFR_HIDDEN_GROUPS_T
+    ADD CONSTRAINT FK1DDE4138A306F94D
+    FOREIGN KEY(a_surrogateKey)
+    REFERENCES mfr_area_t(ID)
+    ON DELETE RESTRICT 
+    ON UPDATE RESTRICT;
+
+CREATE INDEX FK1DDE4138A306F94D
+    ON MFR_HIDDEN_GROUPS_T(a_surrogateKey);
+
 
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'msg.permissions.viewHidden.groups');
 

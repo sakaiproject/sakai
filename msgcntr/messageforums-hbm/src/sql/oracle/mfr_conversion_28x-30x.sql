@@ -223,6 +223,24 @@ update table mfr_message_t set label='pvt_priority_low' where label='\u4f4e';
 --////////////////////////////////////////////////////
 
 
+CREATE TABLE MFR_HIDDEN_GROUPS_T  ( 
+    ID                number(20,0) AUTO_INCREMENT NOT NULL,
+    VERSION           number(11,0) NOT NULL,
+    a_surrogateKey    number(20,0) NULL,
+    GROUP_ID          varchar2(255) NOT NULL,
+    PRIMARY KEY(ID)
+);
+
+ALTER TABLE MFR_HIDDEN_GROUPS_T
+    ADD CONSTRAINT FK1DDE4138A306F94D
+    FOREIGN KEY(a_surrogateKey)
+    REFERENCES mfr_area_t(ID)
+    ON DELETE RESTRICT 
+    ON UPDATE RESTRICT;
+
+CREATE INDEX FK1DDE4138A306F94D
+    ON MFR_HIDDEN_GROUPS_T(a_surrogateKey);
+
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'msg.permissions.viewHidden.groups');
 
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'msg.permissions.viewHidden.groups'));
