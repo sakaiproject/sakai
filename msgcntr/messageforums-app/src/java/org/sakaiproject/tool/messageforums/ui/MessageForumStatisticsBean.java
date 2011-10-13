@@ -696,36 +696,40 @@ public class MessageForumStatisticsBean {
 		return statistics;
 	}
 
+	Map<String, List> userAuthoredStatisticsCache = new HashMap<String, List>();
 	public List getUserAuthoredStatistics(){
-		final List<DecoratedCompiledUserStatistics> statistics = new ArrayList<DecoratedCompiledUserStatistics>();
+		if(!userAuthoredStatisticsCache.containsKey(selectedSiteUserId)){
+			final List<DecoratedCompiledUserStatistics> statistics = new ArrayList<DecoratedCompiledUserStatistics>();
 
-		List<Message> messages;
-		if((selectedAllTopicsTopicId == null || "".equals(selectedAllTopicsTopicId))
-				&& (selectedAllTopicsForumId != null && !"".equals(selectedAllTopicsForumId))){
-			messages = messageManager.findAuthoredMessagesForStudentByForumId(selectedSiteUserId, Long.parseLong(selectedAllTopicsForumId));
-		}else if(selectedAllTopicsTopicId != null && !"".equals(selectedAllTopicsTopicId)){
-			messages = messageManager.findAuthoredMessagesForStudentByTopicId(selectedSiteUserId, Long.parseLong(selectedAllTopicsTopicId));
-		}else{
-			messages = messageManager.findAuthoredMessagesForStudent(selectedSiteUserId);	
+			List<Message> messages;
+			if((selectedAllTopicsTopicId == null || "".equals(selectedAllTopicsTopicId))
+					&& (selectedAllTopicsForumId != null && !"".equals(selectedAllTopicsForumId))){
+				messages = messageManager.findAuthoredMessagesForStudentByForumId(selectedSiteUserId, Long.parseLong(selectedAllTopicsForumId));
+			}else if(selectedAllTopicsTopicId != null && !"".equals(selectedAllTopicsTopicId)){
+				messages = messageManager.findAuthoredMessagesForStudentByTopicId(selectedSiteUserId, Long.parseLong(selectedAllTopicsTopicId));
+			}else{
+				messages = messageManager.findAuthoredMessagesForStudent(selectedSiteUserId);	
+			}
+			if (messages != null){
+				for (Message msg: messages) {
+					userAuthoredInfo = new DecoratedCompiledUserStatistics();
+					userAuthoredInfo.setSiteUserId(selectedSiteUserId);
+					userAuthoredInfo.setForumTitle(msg.getTopic().getOpenForum().getTitle());
+					userAuthoredInfo.setTopicTitle(msg.getTopic().getTitle());
+					userAuthoredInfo.setForumDate(msg.getCreated());
+					userAuthoredInfo.setForumSubject(msg.getTitle());
+					userAuthoredInfo.setMsgId(Long.toString(msg.getId()));
+					userAuthoredInfo.setTopicId(Long.toString(msg.getTopic().getId()));
+					userAuthoredInfo.setForumId(Long.toString(msg.getTopic().getOpenForum().getId()));
+					userAuthoredInfo.setMessage(msg.getBody());
+					statistics.add(userAuthoredInfo);
+				}
+
+				sortStatisticsByUser(statistics);
+			}
+			userAuthoredStatisticsCache.put(selectedSiteUserId, statistics);
 		}
-		if (messages == null) return statistics;
-
-		for (Message msg: messages) {
-			userAuthoredInfo = new DecoratedCompiledUserStatistics();
-			userAuthoredInfo.setSiteUserId(selectedSiteUserId);
-			userAuthoredInfo.setForumTitle(msg.getTopic().getOpenForum().getTitle());
-			userAuthoredInfo.setTopicTitle(msg.getTopic().getTitle());
-			userAuthoredInfo.setForumDate(msg.getCreated());
-			userAuthoredInfo.setForumSubject(msg.getTitle());
-			userAuthoredInfo.setMsgId(Long.toString(msg.getId()));
-			userAuthoredInfo.setTopicId(Long.toString(msg.getTopic().getId()));
-			userAuthoredInfo.setForumId(Long.toString(msg.getTopic().getOpenForum().getId()));
-			userAuthoredInfo.setMessage(msg.getBody());
-			statistics.add(userAuthoredInfo);
-		}
-
-		sortStatisticsByUser(statistics);
-		return statistics;
+		return userAuthoredStatisticsCache.get(selectedSiteUserId);
 	}
 	
 	public List getTopicStatistics(){
@@ -1012,33 +1016,38 @@ public class MessageForumStatisticsBean {
 		return statistics;
 	}
 
+	Map<String, List> userReadStatisticsCache = new HashMap<String, List>();
 	public List getUserReadStatistics(){
-		final List<DecoratedCompiledUserStatistics> statistics = new ArrayList();
+		if(!userReadStatisticsCache.containsKey(selectedSiteUserId)){
+			final List<DecoratedCompiledUserStatistics> statistics = new ArrayList();
 
-		List<Message> messages;
-		
-		if((selectedAllTopicsTopicId == null || "".equals(selectedAllTopicsTopicId))
-				&& (selectedAllTopicsForumId != null && !"".equals(selectedAllTopicsForumId))){
-			messages = messageManager.findReadMessagesForStudentByForumId(selectedSiteUserId, Long.parseLong(selectedAllTopicsForumId));
-		}else if(selectedAllTopicsTopicId != null && !"".equals(selectedAllTopicsTopicId)){
-			messages = messageManager.findReadMessagesForStudentByTopicId(selectedSiteUserId, Long.parseLong(selectedAllTopicsTopicId));
-		}else{
-			messages = messageManager.findReadMessagesForStudent(selectedSiteUserId);	
+			List<Message> messages;
+
+			if((selectedAllTopicsTopicId == null || "".equals(selectedAllTopicsTopicId))
+					&& (selectedAllTopicsForumId != null && !"".equals(selectedAllTopicsForumId))){
+				messages = messageManager.findReadMessagesForStudentByForumId(selectedSiteUserId, Long.parseLong(selectedAllTopicsForumId));
+			}else if(selectedAllTopicsTopicId != null && !"".equals(selectedAllTopicsTopicId)){
+				messages = messageManager.findReadMessagesForStudentByTopicId(selectedSiteUserId, Long.parseLong(selectedAllTopicsTopicId));
+			}else{
+				messages = messageManager.findReadMessagesForStudent(selectedSiteUserId);	
+			}
+			if (messages != null){
+				for (Message msg: messages) {
+					userAuthoredInfo = new DecoratedCompiledUserStatistics();
+					userAuthoredInfo.setSiteUserId(selectedSiteUserId);
+					userAuthoredInfo.setForumTitle(msg.getTopic().getOpenForum().getTitle());
+					userAuthoredInfo.setTopicTitle(msg.getTopic().getTitle());
+					userAuthoredInfo.setForumDate(msg.getCreated());
+					userAuthoredInfo.setForumSubject(msg.getTitle());
+					statistics.add(userAuthoredInfo);
+				}
+
+				sortStatisticsByUser2(statistics);
+			}
+
+			userReadStatisticsCache.put(selectedSiteUserId, statistics);
 		}
-		if (messages == null) return statistics;
-
-		for (Message msg: messages) {
-			userAuthoredInfo = new DecoratedCompiledUserStatistics();
-			userAuthoredInfo.setSiteUserId(selectedSiteUserId);
-			userAuthoredInfo.setForumTitle(msg.getTopic().getOpenForum().getTitle());
-			userAuthoredInfo.setTopicTitle(msg.getTopic().getTitle());
-			userAuthoredInfo.setForumDate(msg.getCreated());
-			userAuthoredInfo.setForumSubject(msg.getTitle());
-			statistics.add(userAuthoredInfo);
-		}
-
-		sortStatisticsByUser2(statistics);
-		return statistics;
+		return userReadStatisticsCache.get(selectedSiteUserId);
 	}
 	
 	public class dMessageStatusInfo{
@@ -1925,6 +1934,9 @@ public class MessageForumStatisticsBean {
 		LOG.debug("processActionStatisticsUser");
 		
 		selectedSiteUserId = getExternalParameterByKey(SITE_USER_ID);
+		//reset cache
+		userReadStatisticsCache = new HashMap<String, List>();
+		userAuthoredStatisticsCache = new HashMap<String, List>();
 		
 		return processActionStatisticsUserHelper();
 	}
