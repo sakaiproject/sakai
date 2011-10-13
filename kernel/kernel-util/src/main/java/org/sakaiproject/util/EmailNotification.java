@@ -26,9 +26,10 @@ import java.util.List;
 import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.email.cover.DigestService;
-import org.sakaiproject.email.cover.EmailService;
+import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -66,6 +67,7 @@ import org.w3c.dom.Element;
  * getClone() should also be extended to clone the proper type of object.
  * </p>
  */
+@SuppressWarnings({"deprecation","rawtypes","unchecked"})
 public class EmailNotification implements NotificationAction
 {
 	private final String MULTIPART_BOUNDARY = "======sakai-multi-part-boundary======";
@@ -160,6 +162,32 @@ public class EmailNotification implements NotificationAction
 	}
 
 	/**
+	 * Using this class to send the emails in a thread so that if anything dies we
+	 * don't kill the process that is attempting to send them emails,
+	 * this also keeps the email process from suspending the other process while
+	 * it does its thing -AZ
+	 */
+	public class RunSendToUsers implements Runnable {
+	    List immediate;
+	    List headers;
+	    String message;
+
+	    public RunSendToUsers(List immediate, List headers, String message) {
+	        this.immediate = immediate;
+	        this.headers = headers;
+	        this.message = message;
+	    }
+
+	    public void run() {
+	        EmailService emailService = (EmailService) ComponentManager.get(EmailService.class);
+	        if (emailService == null) {
+	            throw new RuntimeException("Unable to get EmailService to send emails");
+	        }
+	        emailService.sendToUsers(immediate, headers, message);
+	    }
+	}
+
+	/**
 	 * Resends a notification using the bits of data pulled from the original {@link Notification}
 	 * and {@link Event} objects passed into {@link notify(Notification, Event)}. Specifying the
 	 * bits of information to be used allows notifications to be partially serialized and delayed to
@@ -208,7 +236,10 @@ public class EmailNotification implements NotificationAction
 			String message = getMessage(event);
 			
 			// send message to immediates, with headers
-			EmailService.sendToUsers(immediate, headers, message);
+			// use thread, because this can take several minutes
+			(new Thread(new RunSendToUsers(immediate, headers, message))).start();
+
+			//EmailService.sendToUsers(immediate, headers, message);
 		}
 
 		// for the digesters
