@@ -308,13 +308,17 @@ public class AssignmentSupport {
 				
 				NewsItem newsItem = dashboardLogic.createNewsItem(assn.getTitle(), event.getEventTime(), assnReference, context, sourceType);
 				CalendarItem calendarDueDateItem = dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getDueTime().getTime()), "assignment.due.date", assnReference, "", context, sourceType);
-				CalendarItem calendarCloseDateItem = dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getCloseTime().getTime()), "assignment.close.date", assnReference, "", context, sourceType);
+				CalendarItem calendarCloseDateItem = assn.getCloseTime().equals(assn.getDueTime())? null : dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getCloseTime().getTime()), "assignment.close.date", assnReference, "", context, sourceType);
 				
 				if(dashboardLogic.isAvailable(assnReference, IDENTIFIER)) {
 					// if the assignment is open, add the news links
 					dashboardLogic.createNewsLinks(newsItem);
 					dashboardLogic.createCalendarLinks(calendarDueDateItem);
-					dashboardLogic.createCalendarLinks(calendarCloseDateItem);
+					if (calendarCloseDateItem != null)
+					{
+						// if the close time is different from due time, create a separate close time item
+						dashboardLogic.createCalendarLinks(calendarCloseDateItem);
+					}
 					// currently, we don't retract assignment item once it is available
 				}
 				else
