@@ -4,7 +4,7 @@
   <parent>
     <artifactId>common</artifactId>
     <groupId>org.sakaiproject.common</groupId>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.2.0-a01</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>archive-impl</name>
