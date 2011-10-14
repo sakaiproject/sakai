@@ -1830,7 +1830,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		AssessmentData assessmentData = loadAssessment(Long.valueOf(assessmentId));
 		assessmentData.setSectionSet(getSectionSetForAssessment(assessmentData));
 		
-		AssessmentData newAssessmentData = prepareAssessment(assessmentData, ServerConfigurationService.getServerUrl());
+		AssessmentData newAssessmentData = prepareAssessment(assessmentData, ServerConfigurationService.getServerUrl(), AgentFacade.getCurrentSiteId());
 		updateTitleForCopy(newAssessmentData, apepndCopyTitle);
 		getHibernateTemplate().saveOrUpdate(newAssessmentData);
 		
@@ -1965,14 +1965,16 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			}
 			else {
 				// if it's not anonymous, then set it to the whole site (removes group access too)
-				releaseTo = toContext;
-				try{
-					Site toSite = SiteService.getSite(toContext);
-					releaseTo = toSite.getTitle();
-				}catch (IdUnusedException e) {
-					log.debug("IdUnusedException: " + e.getMessage());
+				if(toContext != null){
+					releaseTo = toContext;
+					try{
+						Site toSite = SiteService.getSite(toContext);
+						releaseTo = toSite.getTitle();
+					}catch (IdUnusedException e) {
+						log.debug("IdUnusedException: " + e.getMessage());
+					}
+					newAccessControl.setReleaseTo(releaseTo);
 				}
-				newAccessControl.setReleaseTo(releaseTo);
 			}
 		}
 		else {
