@@ -5,7 +5,7 @@
     <parent>
         <artifactId>edu-services</artifactId>
         <groupId>org.sakaiproject.edu-services</groupId>
-        <version>1.2-SNAPSHOT</version>
+        <version>1.2.0-a01</version>
     </parent>
     
 	<name>Sakai Common Assembly</name>
