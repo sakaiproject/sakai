@@ -11,7 +11,7 @@
     <name>Sakai Job Scheduler Project (base pom)</name>
     <groupId>org.sakaiproject.scheduler</groupId>
     <artifactId>scheduler</artifactId>
-    <version>2.9-SNAPSHOT</version>
+    <version>2.9.0-a01</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -119,9 +119,9 @@
     </repositories>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/jobscheduler/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/jobscheduler/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/jobscheduler/trunk</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/jobscheduler/tags/scheduler-2.9.0-a01</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/jobscheduler/tags/scheduler-2.9.0-a01</developerConnection>
+        <url>https://source.sakaiproject.org/svn/jobscheduler/tags/scheduler-2.9.0-a01</url>
     </scm>
 
     <dependencyManagement>
