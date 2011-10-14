@@ -17,6 +17,7 @@
     <properties>
         <url.localsite>scp://source.sakaiproject.org/var/www/html/release/samigo/${project.version}</url.localsite>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <sakai.calendar.version>2.9.0-a01</sakai.calendar.version>
         <sakai.common.version>1.2.0-a01</sakai.common.version>
         <sakai.edu-services.version>1.2.0-a01</sakai.edu-services.version>
         <sakai.jsf.version>2.9.0-a01</sakai.jsf.version>
