@@ -386,7 +386,10 @@ public class Item extends ASIBaseClass
     return AuthoringConstantStrings.TF.equals(this.getItemType()) ? true : false;
   }
 
-
+  private boolean isCalculatedQuestion()
+  {
+    return AuthoringConstantStrings.CALCQ.equals(this.getItemType()) ? true : false;
+  }
 
   /**
    * Set the answer texts for item.

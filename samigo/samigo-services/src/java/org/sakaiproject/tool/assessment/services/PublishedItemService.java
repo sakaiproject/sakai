@@ -43,4 +43,24 @@ public class PublishedItemService extends ItemService {
 			throw new RuntimeException(e);
 		}
 	}
+
+    /**
+     * Save a question item.
+     */
+    public ItemFacade saveItem(PublishedItemFacade item)
+    {
+      try
+      {
+        return PersistenceService.getInstance().getPublishedItemFacadeQueries().saveItem(item);
+      }
+      catch(Exception e)
+      {
+        log.error(e);
+
+        return item;
+      }
+    }
+
 }
+	
+	

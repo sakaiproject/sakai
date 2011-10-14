@@ -199,6 +199,7 @@ public class ItemContentsBean implements Serializable {
 	 * In the case of an ordinary question, this will obtain the a set of text
 	 * with one element and return it; in FIB return multiple elements separated
 	 * by underscores.
+	 * For calculated question this will return the instruction instead.
 	 * 
 	 * @return text of question
 	 */
@@ -206,7 +207,12 @@ public class ItemContentsBean implements Serializable {
 		String text = "";
 
 		if (itemData != null) {
-			text = itemData.getText();
+			if (itemData.getTypeId().equals(TypeIfc.CALCULATED_QUESTION)) {
+				text = this.getInstruction();
+			}
+			else {
+				text = itemData.getText();
+			}
 		}
 
 		return text;

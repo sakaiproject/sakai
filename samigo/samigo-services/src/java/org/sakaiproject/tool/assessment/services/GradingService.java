@@ -24,6 +24,8 @@ package org.sakaiproject.tool.assessment.services;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,6 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
@@ -74,6 +77,8 @@ import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFa
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.util.FormatException;
+import org.sakaiproject.tool.assessment.util.SamigoExpressionParser;
+
 
 
 /**
@@ -767,10 +772,26 @@ public class GradingService
       // newly submitted answers, updated answers and MCMR/FIB/FIN answers ('cos we need the old ones to
       // calculate scores for new ones)
       Set itemGradingSet = data.getItemGradingSet();
+      
       if (itemGradingSet == null)
         itemGradingSet = new HashSet();
       log.debug("****itemGrading size="+itemGradingSet.size());
-      Iterator iter = itemGradingSet.iterator();
+      
+      List<Object> tempItemGradinglist = new ArrayList<Object>(itemGradingSet);
+      
+      // if this is a calc question. Carefully sort the list of answers
+      if (isCalcQuestion(tempItemGradinglist, publishedItemHash)) {
+	      Collections.sort(tempItemGradinglist, new Comparator(){
+	    	  public int compare(Object o1, Object o2) {
+	    		  ItemGradingIfc gradeData1 = (ItemGradingIfc) o1;
+	    		  ItemGradingIfc gradeData2 = (ItemGradingIfc) o2;
+	    		  return gradeData1.getPublishedAnswerId().compareTo(gradeData2.getPublishedAnswerId());
+	    	  }
+	      });
+      }
+      
+      //Iterator iter = itemGradingSet.iterator();
+      Iterator iter = tempItemGradinglist.iterator();
 
       // fibAnswersMap contains a map of HashSet of answers for a FIB item,
       // key =itemid, value= HashSet of answers for each item.  
@@ -785,10 +806,22 @@ public class GradingService
       HashMap totalItems = new HashMap();
       log.debug("****x2. "+(new Date()).getTime());
       float autoScore = (float) 0;
+      Long itemId = (long)0;
+      int calcQuestionAnswerSequence = 1; // sequence of answers for calculated questions
       while(iter.hasNext())
       {
         ItemGradingIfc itemGrading = (ItemGradingIfc) iter.next();
-        Long itemId = itemGrading.getPublishedItemId();
+        
+        // We increment this so we that calculated questions can know
+        // where we are in the sequence of answers.
+        if (itemGrading.getPublishedItemId().equals(itemId)) {
+        	calcQuestionAnswerSequence++;
+        }
+        else {
+        	calcQuestionAnswerSequence = 1;
+        }
+        
+        itemId = itemGrading.getPublishedItemId();
         ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(itemId);
         if (item == null) {
         	//this probably shouldn't happen
@@ -815,7 +848,7 @@ public class GradingService
         // note that totalItems & fibAnswersMap would be modified by the following method
         try {
         	autoScore = getScoreByQuestionType(itemGrading, item, itemType, publishedItemTextHash, 
-                               totalItems, fibAnswersMap, publishedAnswerHash, regrade);
+                               totalItems, fibAnswersMap, publishedAnswerHash, regrade, calcQuestionAnswerSequence );
         }
         catch (FinFormatException e) {
         	autoScore = 0f;
@@ -861,7 +894,7 @@ public class GradingService
       while(iter.hasNext())
       {
         ItemGradingIfc itemGrading = (ItemGradingIfc) iter.next();
-        Long itemId = itemGrading.getPublishedItemId();
+        itemId = itemGrading.getPublishedItemId();
         ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(itemId);
         Long itemType2 = item.getTypeId();
         //float autoScore = (float) 0;
@@ -956,7 +989,8 @@ public class GradingService
   private float getScoreByQuestionType(ItemGradingIfc itemGrading, ItemDataIfc item,
                                        Long itemType, HashMap publishedItemTextHash, 
                                        HashMap totalItems, HashMap fibAnswersMap,
-                                       HashMap publishedAnswerHash, boolean regrade) throws FinFormatException {
+                                       HashMap publishedAnswerHash, boolean regrade,
+                                       int calcQuestionAnswerSequence) throws FinFormatException {
     //float score = (float) 0;
     float initScore = (float) 0;
     float autoScore = (float) 0;
@@ -1050,9 +1084,16 @@ public class GradingService
                 totalItems.put(itemId, Float.valueOf(accumelateScore));
               }
               break;
+      case 14:  // CALCULATED_QUESTION
       case 11: // FIN
     	  try {
-    		  autoScore = getFINScore(itemGrading, item, publishedAnswerHash) / (float) ((ItemTextIfc) item.getItemTextSet().toArray()[0]).getAnswerSet().size();
+    	      if (type == 14) {  // CALCULATED_QUESTION
+	              HashMap calculatedAnswersMap = getCalculatedAnswersMap(itemGrading, item);
+	              int numAnswers = calculatedAnswersMap.size(); //TODO: make this the real number of answers
+	              autoScore = getCalcQScore(itemGrading, item, calculatedAnswersMap, calcQuestionAnswerSequence ) / (float) numAnswers;
+	          } else {
+	              autoScore = getFINScore(itemGrading, item, publishedAnswerHash) / (float) ((ItemTextIfc) item.getItemTextSet().toArray()[0]).getAnswerSet().size();
+	          }
     	  }
     	  catch (FinFormatException e) {
     		  throw e;
@@ -1571,6 +1612,53 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 
 	  return map;
   }
+  /**
+   * Returns a float score value for the ItemGrading element being scored for a Calculated Question
+   * 
+   * @param calcQuestionAnswerSequence the order of answers in the list
+   * @return score for the item.
+   */
+  public float getCalcQScore(ItemGradingIfc data,  ItemDataIfc itemdata, HashMap calculatedAnswersMap, int calcQuestionAnswerSequence)
+  {
+	  float totalScore = (float) 0;
+	  
+	  if (data.getAnswerText() == null) return totalScore; // zero for blank
+	  
+	  // this variable should look something like this "42.1|2,2"
+	  String allAnswerText = calculatedAnswersMap.get(calcQuestionAnswerSequence).toString();
+	  
+	  double correctAnswer = Double.valueOf(getAnswerExpression(allAnswerText));
+	  
+	  // Determine if the acceptable variance is a constant or a % of the answer
+	  String varianceString = allAnswerText.substring(allAnswerText.indexOf("|")+1, allAnswerText.indexOf(","));
+	  double acceptableVariance = (double)0;
+	  if (varianceString.contains("%")){
+		  double percentage = Double.valueOf(varianceString.substring(0, varianceString.indexOf("%")));
+		  acceptableVariance = (percentage/100) * correctAnswer;
+	  }
+	  else {
+		  acceptableVariance = Double.valueOf(varianceString);
+	  }
+	  
+	  String userAnswerString = data.getAnswerText().replaceAll(",", "").trim();
+	  double userAnswer;
+	  try {
+		  userAnswer = Double.parseDouble(userAnswerString);
+	  } catch(NumberFormatException nfe) {
+		  return totalScore; // zero because it's not even a number!
+	  }
+	  //double userAnswer = Double.valueOf(userAnswerString);
+	  
+	  
+	  // this compares the correctAnswer against the userAnsewr
+	  boolean closeEnough = (Math.abs(correctAnswer - userAnswer) <= acceptableVariance);
+	  if (closeEnough){
+		  totalScore += itemdata.getScore(); 
+	  }	
+	  return totalScore;
+	  
+  }
+  
   
   public float getTotalCorrectScore(ItemGradingIfc data, HashMap publishedAnswerHash)
   {
@@ -1933,6 +2021,303 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	      e.printStackTrace();
 	    }
 	    return hasGradingData;
+  }
+  
+  
+  private HashMap getCalculatedAnswersMap(ItemGradingIfc itemGrading, ItemDataIfc item) {
+	  HashMap calculatedAnswersMap = new HashMap();
+	  
+	  ArrayList texts = extractCalcQAnswersArray(calculatedAnswersMap, item, itemGrading.getAssessmentGradingId(), itemGrading.getAgentId());
+	  
+	  return calculatedAnswersMap;
+  }
+  
+  /**
+   * This is a busy method. It does three things:
+   * 1. It removes the answer expressions ie. {x+y} from the question text. This value is
+   * 	returned in the ArrayList texts. This format is necessary so that input boxes can be
+   * 	placed in the text where the {..}'s appear.
+   * 2. It will call methods to swap out the defined vairables with randomly generated values
+   * 	within the ranges defined by the user.
+   * 3. It updates the HashMap answerList with the calculated answers in sequence. It will 
+   * 	parse and calculate what each answer needs to be.
+   * *Note: If a divide by zero occurs. We change the random values and try again. It gets 100 chances to
+   * 	get valid values and then will return "infinity" as the answer.
+   * 
+   * @param answerList will enter the method empty and be filled with sequential answers to the question
+   * @return ArrayList of the pieces of text to display surrounding input boxes
+   */
+  public ArrayList extractCalcQAnswersArray(HashMap answerList, ItemDataIfc item, Long gradingId, String agentId)
+  {
+	  ArrayList texts = new ArrayList();
+	  HashMap variableRangeMap = buildVariableRangeMap(item);
+	  
+	  int validAnswersAttemptCount = 1; // in case of a divide by zero error we'll retry a few times to get valid values.
+	  boolean gotValidAnswerExpressions = false;
+	  while ((validAnswersAttemptCount < 100) && !gotValidAnswerExpressions) {
+		  
+		  texts.clear();
+		  HashMap variablesWithValues = determineRandomValuesForRanges(variableRangeMap,item.getItemId(), gradingId, agentId, validAnswersAttemptCount);
+		  String alltext = replaceTextVariablesWithValues(item, variablesWithValues);
+			
+		  	int sequence = 1; // order the answers appear in the question
+		  	// This loops through the question searching for the {} pairs...
+		  	boolean continueParse = true;
+		    while ((alltext.indexOf("{") > -1) && continueParse) {
+		      int alltextLeftIndex = alltext.indexOf("{");
+		      int alltextRightIndex = alltext.indexOf("}");
+	
+		      // This is the "(x+y)/z|2,2" string
+		      String rawAnswerText = alltext.substring(alltextLeftIndex+1, alltextRightIndex);
+		      String allAnswerText = defaultVarianceAndDecimal(rawAnswerText); // sets defaults
+		      
+		      String answerExpression = getAnswerExpression(allAnswerText); // This is just "(x+y)/z"
+		      
+		      String answerData = getAnswerData(allAnswerText); // Example: "|2,2" (variance & dec display)
+		      int decimalPlaces = getAnswerDecimalPlaces(allAnswerText);
+		      
+		      // This will replace x with 42.00 for example
+			  answerExpression = replaceMappedVariablesWithNumbers(answerExpression,variablesWithValues);
+		      
+			  SamigoExpressionParser parser = new SamigoExpressionParser(); // this will turn the expression into a number in string form
+			  String numericAnswerString = parser.parse(answerExpression); // final answer in string form
+			  			  
+			  validAnswersAttemptCount++;
+			  gotValidAnswerExpressions = isAnswerValid(numericAnswerString);
+			  if (gotValidAnswerExpressions) {
+				  Double calculatedAnswer = Double.valueOf(numericAnswerString);
+				  
+				  // Trim off excess decimal points based on decimalPlaces value
+				  BigDecimal bd = new BigDecimal(calculatedAnswer);
+				  bd = bd.setScale(decimalPlaces,BigDecimal.ROUND_HALF_UP);
+				  calculatedAnswer = bd.doubleValue();
+	
+				  String displayAnswer = calculatedAnswer.toString();
+				  
+				  if (decimalPlaces == 0) { // Remove ".0" if decimalPlaces ==0
+					  displayAnswer = displayAnswer.replace(".0", "");
+				  }
+				  
+			      answerList.put(sequence, displayAnswer + answerData); // later answerData will be used for scoring
+			      sequence++;
+			      
+			      // Construct the question text from the characters not inside of {}'s
+			      String tmp = alltext.substring(0, alltextLeftIndex);
+			      alltext = alltext.substring(alltextRightIndex + 1);
+			      texts.add(tmp);
+			      // there are no more "}", exit loop
+			      if (alltextRightIndex == -1) {
+			        break;
+			      }
+			  } // end if (gotValidAnswerExpressions)
+			  else {
+				  continueParse = false; // ends the parse loop
+				  gotValidAnswerExpressions = false; // tells the attempts loop we need to try again
+			  }
+		    } // end while (alltext.indexOf("{") > -1) 
+		    texts.add(alltext);
+	  } // end while validAnswersAttemptCount < 100
+	    return texts;
+  }
+  
+  	/**
+  	 * This returns the decimal places value in the stored answer data.
+  	 * @param allAnswerText
+  	 * @return
+  	 */
+	private int getAnswerDecimalPlaces(String allAnswerText) {
+		String answerData = getAnswerData(allAnswerText);
+		int decimalPlaces = Integer.valueOf(answerData.substring(answerData.indexOf(",")+1, answerData.length()));
+		return decimalPlaces;
+	}
+
+	/**
+	 * This returns the "|2,2" (variance and decimal display) from the stored answer data.
+	 * @param allAnswerText
+	 * @return
+	 */
+	private String getAnswerData(String allAnswerText) {
+		String answerData = allAnswerText.substring(allAnswerText.indexOf("|"), allAnswerText.length());
+		return answerData;
+	}
+
+	/**
+	 * This is just "(x+y)/z" or if values have been added to the expression it's the
+	 * calculated value as stored in the answer data.
+	 * @param allAnswerText
+	 * @return
+	 */
+	private String getAnswerExpression(String allAnswerText) {
+		String answerExpression = allAnswerText.substring(0, allAnswerText.indexOf("|"));
+		return answerExpression;
+	}
+
+/*
+   * Default acceptable variance and decimalPlaces. An asnwer is defined by an expression
+   * such as {x+y|1,2} if the variance and decimal places are left off. We have to default
+   * them to something.
+   */
+  private String defaultVarianceAndDecimal(String allAnswerText) {
+	  String defaultVariance = "0.001";
+	  String defaultDecimal = "3";
+	  
+	  if (!allAnswerText.contains("|")) {
+		  if (!allAnswerText.contains(","))
+			  allAnswerText = allAnswerText.concat("|"+defaultVariance+","+defaultDecimal);
+		  else
+			  allAnswerText = allAnswerText.replace(",","|"+defaultVariance+",");
+      }
+	  if (!allAnswerText.contains(","))
+		  allAnswerText = allAnswerText.concat(","+defaultDecimal);
+	  
+	  return allAnswerText;
+  }
+    
+  /*
+   * Takes a Map of answer strings and checks for the value returned
+   * by a divide by zero.
+   * Returns false if divide by zero is detected.
+   */
+  private boolean isAnswerValid(String answer) {
+	  String INFINITY = "Infinity";
+	  if (answer.length() == 0) return false;
+	  if (answer.equals(INFINITY)) return false;
+	  
+	  return true;
+  }
+  
+  /*
+   * This method is for the answer expression. It will replace x with 42.00 for example.
+   * HashMap variablesWithValues contains pairs of variable names and values.
+   */
+  private String replaceMappedVariablesWithNumbers(String answerExpression, HashMap variablesWithValues) {
+	  Iterator i = variablesWithValues.entrySet().iterator();
+	  while(i.hasNext()) {
+		  Map.Entry entry = (Map.Entry)i.next();
+		  answerExpression = answerExpression.replaceAll(entry.getKey().toString(), entry.getValue().toString());
+	  }
+	  return answerExpression;
+  }
+  
+  //In the question Instruction: replaces [[varName]] with a real value such as 42
+  private String replaceTextVariablesWithValues(ItemDataIfc item, HashMap variableValueMap) {
+	  if (item.getInstruction() == null) return null; // because it should be set up already in item
+	  
+	  String questionText = item.getInstruction();
+	  String openBrackets = "\\[\\[";
+	  String closeBrackets = "\\]\\]";
+	  
+	  Iterator i = variableValueMap.entrySet().iterator();
+	  while(i.hasNext())
+	  {
+		  Map.Entry entry = (Map.Entry)i.next();
+		  
+		  // not sure why these are happening?
+		  if (entry.getKey().toString().equals(item.getInstruction())) continue;
+		  		  
+		  String variableValue = entry.getValue().toString();
+		  
+		  if ((questionText.indexOf("[[") > -1) && (questionText.indexOf("]]") > -1))
+		  {
+			  String varPattern = openBrackets + entry.getKey() + closeBrackets;
+			  questionText = questionText.replaceAll(varPattern, variableValue);
+		  }
+	  }
+	  
+	  return questionText;
+  }
+  
+  // Takes a map of ranges and randomly chooses values for those ranges and stores them in 
+  // a new map.
+  private HashMap determineRandomValuesForRanges(HashMap variableRangeMap, long itemId, long gradingId, String agentId, int validAnswersAttemptCount) {
+	  HashMap variableValueMap = new HashMap();
+	  
+	  // seed random number generator
+	  long seed = getCalcuatedQuestionSeed(itemId, gradingId, agentId, validAnswersAttemptCount);
+	  Random generator = new Random(seed);
+	  
+	  Iterator i = variableRangeMap.entrySet().iterator();
+	  while(i.hasNext())
+	  {
+		  Map.Entry entry = (Map.Entry)i.next();
+		  
+		  String delimRange = entry.getValue().toString(); // ie. "-100|100,2"
+		  		  
+		  float minVal = Float.valueOf(delimRange.substring(0, delimRange.indexOf('|')));
+		  float maxVal = Float.valueOf(delimRange.substring(delimRange.indexOf('|')+1, delimRange.indexOf(',')));
+		  int decimalPlaces = Integer.valueOf(delimRange.substring(delimRange.indexOf(',')+1, delimRange.length()));
+		  		  
+		  // This line does the magic of creating the random variable value within the range.
+		  Double randomValue = minVal + (maxVal - minVal) * generator.nextDouble();
+		  
+		  // Trim off excess decimal points based on decimalPlaces value
+		  BigDecimal bd = new BigDecimal(randomValue);
+		  bd = bd.setScale(decimalPlaces,BigDecimal.ROUND_HALF_UP);
+		  randomValue = bd.doubleValue();
+		  
+		  String displayNumber = randomValue.toString();
+		  // Remove ".0" if decimalPlaces ==0
+		  if (decimalPlaces == 0) {
+			  displayNumber = displayNumber.replace(".0", "");
+		  }
+		  
+		  variableValueMap.put(entry.getKey(), displayNumber);
+	  }
+	  
+	  return variableValueMap;
+  }
+  
+  /*
+   * Accepts an ItemDataIfc and returns a HashMap with the pairs of 
+   * variable names and variable ranges.
+   */
+  private HashMap buildVariableRangeMap(ItemDataIfc item) {
+	  HashMap variableRangeMap = new HashMap();
+	  
+	  // Loop through each VarName
+	  Iterator varNameIter = item.getItemTextArraySorted().iterator();
+	  while (varNameIter.hasNext())
+	  {
+		  ItemTextIfc varName = (ItemTextIfc) varNameIter.next();
+		  
+		  Iterator rangeIter = varName.getAnswerArraySorted().iterator();
+		  while (rangeIter.hasNext())
+		  {
+		      AnswerIfc range = (AnswerIfc) rangeIter.next();
+		      if (!(range.getLabel() == null)) { // answer records and variable records are in the same set
+			      // TODO: this is a hack. Recycling the matching sturcture we pair A(65) with 1, B(66) with 2, ...
+			      if (((range.getLabel().charAt(0)-64) == varName.getSequence()) && range.getText().contains("|")) {
+			    	  variableRangeMap.put(varName.getText(), range.getText());
+			      }
+		      }
+		  }
+	  }
+	  
+	  return variableRangeMap;
+  }
+  
+  
+  //Make seed by combining user id, item (question) id, grading (submission) id, and attempt count (due to div by 0)
+  private long getCalcuatedQuestionSeed(long itemId, long gradingId, String agentId, int validAnswersAttemptCount) {
+	  long userSeed = (long) agentId.hashCode();
+	  return userSeed * itemId * gradingId * validAnswersAttemptCount;
+  }
+  
+  // Simple to chack to see if this is a calculated question. It's used in storeGrades() to see
+  // if the sort is necessary.
+  private boolean isCalcQuestion(List tempItemGradinglist, HashMap publishedItemHash) {
+	  if (tempItemGradinglist == null) return false;
+	  if (tempItemGradinglist.size() == 0) return false;
+	  
+	  Iterator iter = tempItemGradinglist.iterator();
+	  ItemGradingIfc itemCheck = (ItemGradingIfc) iter.next();
+	  Long itemId = itemCheck.getPublishedItemId();
+      ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(itemId);
+      if (item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION)) {
+    	  return true;
+      }
+          
+      return false;
   }
   
   public ArrayList getHasGradingDataAndHasSubmission(Long publishedAssessmentId) {

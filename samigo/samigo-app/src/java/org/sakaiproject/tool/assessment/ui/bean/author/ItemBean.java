@@ -90,10 +90,13 @@ public class ItemBean
   private String randomized = "false";
   private String rationale = "false";
 
-// for matching only
+// for matching and calculated questions only
   private String instruction;  // matching's question text
   private ArrayList matchItemBeanList;  // store List of MatchItemBean, used for Matching only
   private MatchItemBean currentMatchPair;  // do not need this ?   store List of MatchItemBeans, used for Matching only
+  private String currentMin;
+  private String currentMax;
+  private String currentDecimalPlaces;
 
 // begin DELETEME
   private String[] matches;
@@ -682,7 +685,36 @@ public class ItemBean
   {
         return currentMatchPair;
   }
+  
+  public void setCurrentMin(String currentMin)
+  {
+	  this.currentMin = currentMin;
+  }
+  
+  public String getCurrentMin()
+  {
+	  return currentMin;
+  }
+  
+  public void setCurrentMax(String currentMax)
+  {
+	  this.currentMax = currentMax;
+  }
+  
+  public String getCurrentMax()
+  {
+	  return currentMax;
+  }
 
+  public void setCurrentDecimalPlaces(String currentDecimalPlaces)
+  {
+	  this.currentDecimalPlaces = currentDecimalPlaces;
+  }
+  
+  public String getCurrentDecimalPlaces()
+  {
+	  return currentDecimalPlaces;
+  }
 
   /**
    * for multiple choice questions, multiple correct?
@@ -1169,6 +1201,74 @@ public class ItemBean
 	}
 	return false;
     }
+    
+    /*
+     * This methods checks for validation errors. And also cleans up issues with white space.
+     */
+    private boolean isCalcQVariableError() {
+    	String choice=(currentMatchPair.getChoice().trim());
+    	if(choice==null ||choice.equals("")){
+    	    FacesContext context=FacesContext.getCurrentInstance();
+    	    ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
+    	    context.addMessage(null,new FacesMessage(rb.getString("calc_question_varname_error")));
+    	    return true;
+    	}
+    	
+    	// Drop comments and spaces and default decimal places to zero if blank
+    	currentMin = currentMin.trim().replace(",", "");
+    	currentMax = currentMax.trim().replace(",", "");
+    	if (currentDecimalPlaces.trim().length() == 0) currentDecimalPlaces = "0";
+    	
+    	if (!isDouble(currentMin)) {
+    		FacesContext context=FacesContext.getCurrentInstance();
+    	    ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
+    	    context.addMessage(null,new FacesMessage(rb.getString("calc_question_minnum_error")));
+    	    return true;
+    	}
+    	if (!isDouble(currentMax)) {
+    		FacesContext context=FacesContext.getCurrentInstance();
+    	    ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
+    	    context.addMessage(null,new FacesMessage(rb.getString("calc_question_maxnum_error")));
+    	    return true;
+    	}
+    	if ((currentDecimalPlaces.trim().length() > 0) && !isValidDecimalPlaces(currentDecimalPlaces.trim())){
+    		FacesContext context=FacesContext.getCurrentInstance();
+    	    ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
+    	    context.addMessage(null,new FacesMessage(rb.getString("calc_question_bad_decimal")));
+    	    return true;
+    	}
+    	
+    	double minVal = Double.valueOf(currentMin);
+    	double maxVal = Double.valueOf(currentMax);
+    	if (maxVal <= minVal) {
+    		FacesContext context=FacesContext.getCurrentInstance();
+    	    ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
+    	    context.addMessage(null,new FacesMessage(rb.getString("calc_question_max_error")));
+    	    return true;
+    	}
+    	return false;
+    }
+    
+    private boolean isDouble(String numberString) {
+    	try{
+    		Double.parseDouble(numberString);
+    	} catch(NumberFormatException nfe) {
+    		return false;
+    	}
+    	return true;
+    }
+    
+    private boolean isValidDecimalPlaces(String numberString) {
+    	try{
+    		int decPlaces = Integer.parseInt(numberString);
+    		if ((decPlaces > 6) || (decPlaces < 0)) {
+    			return false;
+    		}
+    	} catch(NumberFormatException nfe) {
+    		return false;
+    	}
+    	return true;
+    }
 
   public String addMatchPair() {
       if (!isMatchError()){
@@ -1226,6 +1326,50 @@ public class ItemBean
       }
     return "matchingItem";
   }
+  
+  public String addVariablePair() {
+	  if (!isCalcQVariableError()){
+
+	    // get existing list
+	    ArrayList list = getMatchItemBeanList();
+	    MatchItemBean currpair = this.getCurrentMatchPair();
+	    if (!currpair.getSequence().equals(new Long(-1))) {
+	      // for modify
+	      int seqno =  currpair.getSequence().intValue()-1;
+	      MatchItemBean newpair= (MatchItemBean)  this.getMatchItemBeanList().get(seqno);
+	      newpair.setSequence(currpair.getSequence());
+	      newpair.setChoice(currpair.getChoice());
+	      String varRange = currentMin.trim() + "|" + currentMax.trim();
+	      varRange = varRange.replaceAll(",", "");
+	      varRange = varRange.concat("," + currentDecimalPlaces.trim());
+	      
+	      newpair.setMatch(varRange);
+	      newpair.setIsCorrect(Boolean.TRUE);
+	    }
+	    else {
+	      // for new pair
+	      MatchItemBean newpair = new MatchItemBean();
+	      newpair.setChoice(currpair.getChoice());
+	      String varRange = currentMin.trim() + "|" + currentMax.trim();
+	      varRange = varRange.replaceAll(",", "");
+	      varRange = varRange.concat("," + currentDecimalPlaces.trim());
+	      newpair.setMatch(varRange);
+	      newpair.setIsCorrect(Boolean.TRUE);
+	      newpair.setSequence(new Long(list.size()+1));
+	
+	      list.add(newpair);
+	    }
+	    
+	    this.setMatchItemBeanList(list); // get existing list
+	    
+	    MatchItemBean matchitem = new MatchItemBean();
+	    this.setCurrentMatchPair(matchitem);
+	    this.setCurrentMin("");
+	    this.setCurrentMax("");
+	    this.setCurrentDecimalPlaces("");
+      }
+    return "calculatedQuestionVariableItem";
+  }
 
 
 
@@ -1239,6 +1383,24 @@ public class ItemBean
     this.setCurrentMatchPair(pairForEdit);
     return "matchingItem";
   }
+
+  public String editVariablePair() {
+
+	String seqnostr = ContextUtil.lookupParam("sequence");
+     int seqno = new Integer(seqnostr).intValue()-1;
+    // get currentmatchpair by sequence.
+
+    MatchItemBean pairForEdit= (MatchItemBean) this.getMatchItemBeanList().get(seqno);
+    this.setCurrentMatchPair(pairForEdit);
+    String rangeString = pairForEdit.getMatch(); // this gets "0|100,2" range format
+    this.setCurrentMin(rangeString.substring(0, rangeString.indexOf('|')));
+    this.setCurrentMax(rangeString.substring(rangeString.indexOf('|')+1, rangeString.indexOf(',')));
+    this.setCurrentDecimalPlaces(rangeString.substring(rangeString.indexOf(',')+1, rangeString.length()));
+    
+    return "calculatedQuestionVariableItem";
+  }
+   
+  
 
 
 
@@ -1270,7 +1432,7 @@ public class ItemBean
 
     MatchItemBean matchitem = new MatchItemBean();
     this.setCurrentMatchPair(matchitem);
-    return "matchingItem";
+    return "calculatedQuestion";
   }
 
   

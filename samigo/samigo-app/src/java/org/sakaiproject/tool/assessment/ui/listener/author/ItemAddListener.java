@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -64,6 +65,7 @@ import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedItemFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
+import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
@@ -121,13 +123,14 @@ public class ItemAddListener
    
     // SAK-6050
     // if((!iType.equals(TypeFacade.MATCHING.toString())&&((iText==null)||(iText.replaceAll("<.*?>", "").trim().equals(""))))|| (iType.equals(TypeFacade.MATCHING.toString()) && ((iInstruction==null)||(iInstruction.replaceAll("<.*?>", "").trim().equals(""))))){
-    if((!iType.equals(TypeFacade.MATCHING.toString())&&((iText==null)||(iText.toLowerCase().replaceAll("<^[^(img)]*?>", "").trim().equals(""))))|| (iType.equals(TypeFacade.MATCHING.toString()) && ((iInstruction==null)||(iInstruction.toLowerCase().replaceAll("<^[^(img)]*?>", "").trim().equals(""))))){ 
-	
- 
-	String emptyText_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","emptyText_error");     
-	context.addMessage(null,new FacesMessage(emptyText_err));
-	return;
-
+    if( (!iType.equals(TypeFacade.MATCHING.toString())&&((iText==null) ||(iText.toLowerCase().replaceAll("<^[^(img)]*?>", "").trim().equals(""))))|| (iType.equals(TypeFacade.MATCHING.toString()) && ((iInstruction==null)||(iInstruction.toLowerCase().replaceAll("<^[^(img)]*?>", "").trim().equals(""))))){
+    	
+    	// Like Matching CaculatedQuestion will also use Instruction instead of itemText
+    	if (!iType.equals(TypeFacade.CALCULATED_QUESTION.toString())) {
+			String emptyText_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","emptyText_error");     
+			context.addMessage(null,new FacesMessage(emptyText_err));
+			return;
+    	}
     }   
    
     if(iType.equals(TypeFacade.MULTIPLE_CHOICE.toString()))
@@ -230,7 +233,30 @@ public class ItemAddListener
     		item.setPoolOutcome("matrixChoicesSurveyItem");
     		return;
     	}
-    } 
+    }
+
+    if (iType.equals(TypeFacade.CALCULATED_QUESTION.toString())) {   
+        int calcQError = isErrorCalcQ();
+        if(calcQError > 0){
+            if (calcQError == 1)
+                err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","pool_missingBracket_error");
+            if (calcQError == 2)
+                err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","calc_question_error_syntax");
+            if (calcQError == 3)
+                err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","calc_question_error_expression");
+            context.addMessage(null,new FacesMessage(err));
+            item.setOutcome("calculatedQuestion");
+            item.setPoolOutcome("calculatedQuestion");
+            return;
+        }
+        ArrayList l=item.getMatchItemBeanList();
+        if (l==null || l.size()==0){
+            String noPairMatching_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","noMatchingPair_error");
+            context.addMessage(null,new FacesMessage(noPairMatching_err));
+            error=true;
+        }
+        if(error) return;
+    }
 
 	try {
 		saveItem(itemauthorbean);
@@ -241,6 +267,18 @@ public class ItemAddListener
 	    item.setOutcome("fillInNumericItem");
 	    item.setPoolOutcome("fillInNumericItem");
 	    return;
+	}
+
+	// After we've saved let's make sure the calculated question answer expression
+	// will at least not cause an error that could easily be avoided
+	if (iType.equals(TypeFacade.CALCULATED_QUESTION.toString())) {
+	    if (isCalcQExpressionError(itemauthorbean.getItemId())) {
+	        item.setOutcome("calculatedQuestion");
+	        item.setPoolOutcome("calculatedQuestion");
+	        err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","calc_question_error_expression");
+	        context.addMessage(null,new FacesMessage(err));
+	        return;
+	    } 
 	}
 
     item.setOutcome("editAssessment");
@@ -372,7 +410,9 @@ public class ItemAddListener
 	int closecount=0;
 	boolean notEmpty=false;
 	int indexOfOpen=-1;
-	String text=item.getItemText();
+	String text = null;
+	text=item.getItemText();
+
 	while(index<text.length()){ 
 	    char c=text.charAt(index);
 	    if(c=='{'){
@@ -487,6 +527,77 @@ public class ItemAddListener
         }
     }
     
+    /* Determines if there is an error in the quesiton. Returns and error code
+     * depending on where the error is.
+     * 
+     * return int:	0 - All is well. No errors.
+     * 				1 - No matching {}
+     * 				2 - Improper syntax
+     * 				3 - Error in answer expression
+     */
+    public int isErrorCalcQ() {
+    	ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
+    	ItemBean item =itemauthorbean.getCurrentItem();
+    	String text = item.getInstruction();
+    	
+    	// if they don't have {}'s, it's wrong!
+    	if (!(text.contains("{") && text.contains("}"))) return 1;
+    	
+    	// Loop through each pair of {}'s
+    	while(text.contains("{")) {
+    		int indexOpen = text.indexOf('{');
+    		int indexClose = text.indexOf('}', indexOpen);
+    		if (indexClose == -1) return 1; // missing the closing }, it's wrong!
+    		
+			// get the substring between { and }
+    		String answerInfo = text.substring(indexOpen+1, indexClose);
+    		String answerExpression = "";
+    		String answerFormat = "";
+    		answerInfo.replaceAll(" ", ""); // drop white space
+   
+    		// split the answerExpression and the stuff past the "|" delim (answerFormat)
+    		if (answerInfo.contains("|")) {
+    			answerExpression = answerInfo.substring(0, answerInfo.indexOf('|'));
+    			answerFormat = answerInfo.substring(answerInfo.indexOf('|')+1, answerInfo.length());
+    			if (answerFormat.length() == 0) return 2; // blank formatting
+    			
+    			if (!Pattern.matches("(\\d{0,2})?(\\.)?(\\d{0,6})?%(,[0-6])?", answerFormat) &&
+    					!Pattern.matches("(\\d{0,12})?(\\.)?(\\d{0,6})?(,[0-6])?", answerFormat) ) {
+    				return 2; // bad syntax on "1%,2" type formatting, so it's wrong!
+    			}
+    		}
+    		else {
+    			answerExpression = answerInfo;
+    		}
+    		
+    		// Check the answer expression for errors
+    		if (answerExpression.length() < 1) return 3; // no expression, it's wrong!
+    		
+			// remove everything  before the } from text
+    		text = text.substring(indexClose+1, text.length());
+    	}
+    	return 0;
+    }
+    
+    /*
+     * Returns true if there is a mathematical error (that can easily be detected)
+     * else false 
+     */
+    private boolean isCalcQExpressionError(String itemId) {
+    	HashMap answersMap = new HashMap();
+    	GradingService service = new GradingService();
+    	ItemService delegate = new ItemService();
+    	ItemDataIfc item = (ItemDataIfc) delegate.getItem(itemId);
+    	
+    	try {
+    		service.extractCalcQAnswersArray(answersMap, item, (long)1, "1");
+    	}
+    	catch(Exception e) { //TODO: catch the specific exceptions
+    		return true;
+    	}
+    	
+  	  	return false;
+    }
     public boolean isRowEmpty() {
     	ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
     	ItemBean item =itemauthorbean.getCurrentItem();
@@ -612,7 +723,8 @@ public class ItemAddListener
       }
       else {
     	  //prepare itemText, including answers
-    	  if (item.getTypeId().equals(TypeFacade.MATCHING)) {
+    	  if (item.getTypeId().equals(TypeFacade.MATCHING)
+    	          || item.getTypeId().equals(TypeFacade.CALCULATED_QUESTION)) {
     		  item.setItemTextSet(prepareTextForMatching(item, bean, itemauthor));
     	  }
     	  else if(item.getTypeId().equals(TypeFacade.MATRIX_CHOICES_SURVEY)) {
@@ -1090,7 +1202,29 @@ public class ItemAddListener
 			textSet.add(text1);
 
 		}
+		
+		/*
+		else if (item.getTypeId().equals(TypeFacade.CALCULATED_QUESTION)) {
+			// this is for fill in numeric
+			String entiretext = bean.getInstruction();
+			String fintext = entiretext.replaceAll("[\\{][^\\}]*[\\}]", "{}");
+			text1.setText(fintext);
+			// log.info(" new text without answer is = " + fintext);
+			//Object[] finanswers = getFINanswers(entiretext).toArray();
+			Integer answerCount = 10; //entiretext.split("{").length-1; // gets number of answers
+			for (int i = 0; i < answerCount; i++) {
+				String oneanswer = ""+(i+1); // putting sequence as a place holder TODO: make this better?
+				Answer answer1 = new Answer(text1, oneanswer, new Long(i + 1),
+						null, Boolean.TRUE, null,
+						new Float(bean.getItemScore()), Float.valueOf(bean.getItemDiscount()));
+				answerSet1.add(answer1);
+			}
+			answerSet1.addAll(text1.getAnswerArraySorted()); // add the var pairs and the answers
+			text1.setAnswerSet(answerSet1);
+			textSet.add(text1);
 
+		}
+		*/
 		else if ((item.getTypeId().equals(TypeFacade.MULTIPLE_CHOICE))
 				|| (item.getTypeId().equals(TypeFacade.MULTIPLE_CORRECT))
 				|| (item.getTypeId().equals(TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION))) {

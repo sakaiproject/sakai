@@ -365,6 +365,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 
 			HashMap fibMap = getFIBMap(publishedAssessment);
 			HashMap finMap = getFINMap(publishedAssessment);
+			HashMap calcQuestionMap = getCalcQuestionMap(publishedAssessment);
 			HashMap mcmrMap = getMCMRMap(publishedAssessment);
 			Set itemGradingSet = adata.getItemGradingSet();
 			log.debug("*** 2a. before removal & addition " + (new Date()));
@@ -396,7 +397,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 						+ adds.size());
 
 				HashSet updateItemGradingSet = getUpdateItemGradingSet(
-						itemGradingSet, adds, fibMap, finMap, mcmrMap, adata);
+						itemGradingSet, adds, fibMap, finMap, calcQuestionMap,mcmrMap, adata);
 				adata.setItemGradingSet(updateItemGradingSet);
 			}
 		}
@@ -454,6 +455,11 @@ public class SubmitToGradingActionListener implements ActionListener {
 	    PublishedAssessmentService s = new PublishedAssessmentService();
 	    return s.prepareFINItemHash(publishedAssessment);
 	}
+  	
+  	private HashMap getCalcQuestionMap(PublishedAssessmentIfc publishedAssessment){
+	    PublishedAssessmentService s = new PublishedAssessmentService();
+	    return s.prepareCalcQuestionItemHash(publishedAssessment);
+	}
   
 
 	private HashMap getMCMRMap(PublishedAssessmentIfc publishedAssessment) {
@@ -462,7 +468,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 	}
 
 	private HashSet getUpdateItemGradingSet(Set oldItemGradingSet,
-			Set newItemGradingSet, HashMap fibMap, HashMap finMap, HashMap mcmrMap,
+			Set newItemGradingSet, HashMap fibMap, HashMap finMap, HashMap calcQuestionMap, HashMap mcmrMap,
 			AssessmentGradingData adata) {
 		log.debug("Submitforgrading: oldItemGradingSet.size = "
 				+ oldItemGradingSet.size());
@@ -510,6 +516,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 								.equals(oldAnswerText))
 						|| fibMap.get(oldItem.getPublishedItemId()) != null
 						|| finMap.get(oldItem.getPublishedItemId())!=null
+						|| calcQuestionMap.get(oldItem.getPublishedItemId())!=null
 						|| mcmrMap.get(oldItem.getPublishedItemId()) != null) {
 					oldItem.setReview(newItem.getReview());
 					oldItem.setPublishedAnswerId(newItem.getPublishedAnswerId());
@@ -679,6 +686,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 			}
 			break;			
 		case 8: // FIB
+		case 14: // CALCULATED_QUESTION
 		case 11: // FIN
 			boolean addedToAdds = false;
 			for (int m = 0; m < grading.size(); m++) {
@@ -705,6 +713,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 				}
 			}
 			break;
+			
 		case 2: // MCMR
 			for (int m = 0; m < grading.size(); m++) {
 				ItemGradingData itemgrading = (ItemGradingData) grading.get(m);

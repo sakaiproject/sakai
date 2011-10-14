@@ -123,6 +123,7 @@ public class ItemModifyListener implements ActionListener
     	  assessdelegate = new PublishedAssessmentService();
       }
     try{
+    	String pbd1=AgentFacade.getAgentString();
       ItemFacade itemfacade = delegate.getItem(new Long(itemId), AgentFacade
 				.getAgentString());
       bean.setItemId(itemfacade.getItemId().toString());
@@ -186,7 +187,8 @@ public class ItemModifyListener implements ActionListener
       bean.setGeneralFeedback(itemfacade.getGeneralItemFeedback());
       populateMetaData(itemauthorbean, itemfacade, bean);
 
-      if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.MATCHING)) {
+      if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.MATCHING) ||
+    		  new Long(itemauthorbean.getItemType()).equals(TypeFacade.CALCULATED_QUESTION)) {
     	  populateItemTextForMatching(itemauthorbean, itemfacade, bean);
       }
       else if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.MATRIX_CHOICES_SURVEY)){
@@ -261,6 +263,12 @@ public class ItemModifyListener implements ActionListener
                 	    itemauthorbean.setItemTypeString("Matrix Choices Survey");  //  need to get it from properties file
                 	    nextpage = "matrixChoicesSurveyItem";
                 	    break;
+                case 14: // CALCULATED_QUESTION
+                    itemauthorbean.setItemTypeString("Calculated Question");  //  need to get it from properties file
+                    MatchItemBean variableItem = new MatchItemBean();
+                    bean.setCurrentMatchPair(variableItem);
+                    nextpage = "calculatedQuestionVariableItem";
+                    break;
         }
     }
     catch(RuntimeException e)

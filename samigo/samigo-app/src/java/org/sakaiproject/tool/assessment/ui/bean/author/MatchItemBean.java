@@ -128,6 +128,25 @@ public class MatchItemBean implements Serializable {
     this.incorrMatchFeedback= param;
   }
 
-
+  /*
+   * This is for display purposes. ONLY for calculated questions.
+   */
+  public String getCalculatedQuestionVariableMin() {
+	  return match.substring(0, match.indexOf('|'));
+  }
+  
+  /*
+  * This is for display purposes. ONLY for calculated questions.
+  */
+ public String getCalculatedQuestionVariableMax() {
+	  return match.substring(match.indexOf('|')+1, match.indexOf(','));
+ }
+  
+  /*
+  * This is for display purposes. ONLY for calculated questions.
+  */
+ public String getCalculatedQuestionVariableDecimalPlaces() {
+	  return match.substring(match.indexOf(',')+1, match.length());
+ }
 
 }

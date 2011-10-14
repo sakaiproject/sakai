@@ -189,6 +189,27 @@ function disablePartialCreditField(){
 
 function clickAddChoiceLink(){
 
+// To show or hide the large block of text in calc questions
+var state = 'none';
+function showhide(layer_ref) {
+
+if (state == 'block') {
+state = 'none';
+}
+else {
+state = 'block';
+}
+if (document.all) { //IS IE 4 or 5 (or 6 beta)
+eval( "document.all." + layer_ref + ".style.display = state");
+}
+if (document.layers) { //IS NETSCAPE 4 or below
+document.layers[layer_ref].display = state;
+}
+if (document.getElementById &&!document.all) {
+hza = document.getElementById(layer_ref);
+hza.style.display = state;
+}
+}
 var newindex = 0;
 for (i=0; i<document.links.length; i++) {
   if ( document.links[i].id.indexOf("hiddenAddChoicelink") >=0){

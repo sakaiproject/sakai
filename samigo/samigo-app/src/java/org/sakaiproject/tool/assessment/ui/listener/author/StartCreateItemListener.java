@@ -216,6 +216,12 @@ log.debug("after getting item.getItemType() ");
       			item.setMatchItemBeanList(new ArrayList());
                         nextpage = "matchingItem";
                         break;
+                case 14: // CALCULATED_QUESTION
+                	MatchItemBean variableItem = new MatchItemBean();
+          			item.setCurrentMatchPair(variableItem);
+          			item.setMatchItemBeanList(new ArrayList());
+                    nextpage = "calculatedQuestionVariableItem";
+                    break;
                 case 10:
     			QuestionPoolBean qpoolBean= (QuestionPoolBean) ContextUtil.lookupBean("questionpool");
 			qpoolBean.setImportToAuthoring(true);

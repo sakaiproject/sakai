@@ -146,3 +146,4 @@ table.checkall td {padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bott
 
 
   </h:dataTable>
+     <h:outputText rendered="#{question.typeId== 13}" value="#{authorMessages.calculated_question}"/>

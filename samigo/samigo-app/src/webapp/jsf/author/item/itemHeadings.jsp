@@ -172,6 +172,7 @@ listener set selectFromQuestionPool, eliminating the rendered attribute
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 9}" value="#{authorMessages.matching}"/>
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 7}" value="#{authorMessages.audio_recording}"/>
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 6}" value="#{authorMessages.file_upload}"/>
+     <h:outputText rendered="#{itemauthor.currentItem.itemType== 13}" value="#{authorMessages.calculated_question}"/>
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 10}" value="#{authorMessages.import_from_q}"/>
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 13}" value="#{authorMessages.matrix_choices_surv}"/>
    </b>

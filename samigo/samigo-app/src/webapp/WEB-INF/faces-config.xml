@@ -328,6 +328,10 @@
       <property-name>showMatrixSurvey</property-name>
       <value>true</value>
     </managed-property>
+    <managed-property>
+      <property-name>showCalculatedQuestion</property-name>
+      <value>true</value>
+    </managed-property>
   </managed-bean>
   <managed-bean>
     <description>For authorization</description>
@@ -928,6 +932,14 @@
     <navigation-case>
       <from-outcome>confirmAssessmentRetract</from-outcome>
       <to-view-id>/jsf/author/confirmAssessmentRetract.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>variableItem</from-outcome>
+      <to-view-id>/jsf/author/item/calculatedQuestion.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>calculatedQuestionVariableItem</from-outcome>
+      <to-view-id>/jsf/author/item/calculatedQuestion.jsp</to-view-id>
     </navigation-case>
 
   <!-- ITEM AUTHORING -->
