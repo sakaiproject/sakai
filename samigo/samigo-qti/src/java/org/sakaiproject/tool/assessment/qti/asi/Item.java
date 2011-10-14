@@ -208,7 +208,7 @@ public class Item extends ASIBaseClass
     }
     
     String instruction = item.getInstruction();
-    if (this.isMatching() || this.isFIB() || this.isFIN() || this.isMXSURVEY())
+    if (this.isMatching() || this.isFIB() || this.isFIN() || this.isMXSURVEY() || this.isCalculatedQuestion())
     {
       if ( instruction != null)
         {

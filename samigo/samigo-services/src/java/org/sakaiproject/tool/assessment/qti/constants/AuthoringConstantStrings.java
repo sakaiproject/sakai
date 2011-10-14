@@ -22,8 +22,6 @@
 
 package org.sakaiproject.tool.assessment.qti.constants;
 
-import org.sakaiproject.util.ResourceLoader;
-
 /**
  * A set of strings for QTI XML item characteristics
  *
@@ -113,7 +111,7 @@ file = File Upload
   // I'm just adding an "" to make FIN the itemTypes[11].  This is used in ItemTypeExtractionStrategy.getValidType()
   
   public static final String[] itemTypes =
-  { "Unknown Type", MCSC, MCMC, SURVEY, TF, ESSAY, FILE, AUDIO, FIB, MATCHING,"", FIN, MCMCSS, MATRIX};
+  { "Unknown Type", MCSC, MCMC, SURVEY, TF, ESSAY, FILE, AUDIO, FIB, MATCHING,"", FIN, MCMCSS, MATRIX, CALCQ};
   
 
   // Feedback Type
