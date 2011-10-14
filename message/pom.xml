@@ -12,6 +12,7 @@
     <name>sakai-message base pom</name>
     <groupId>org.sakaiproject.message</groupId>
     <artifactId>message-base</artifactId>
+    <version>2.9-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
