@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.purepoms</groupId>
         <artifactId>sakai-commons-tool</artifactId>
-        <version>2.9.0-a01</version>
+        <version>2.9-SNAPSHOT</version>
     </parent>
 
     <name>Sakai educational Services Project</name>
@@ -171,7 +171,7 @@
             <dependency>
                 <groupId>org.sakaiproject.common</groupId>
                 <artifactId>archive-api</artifactId>
-                <version>1.2.0-a01</version>
+                <version>1.2-SNAPSHOT</version>
                 <scope>provided</scope>
             </dependency>
             <!-- Used only for test data. -->
