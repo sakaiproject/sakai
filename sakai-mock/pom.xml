@@ -11,7 +11,7 @@
     <name>Sakai Mock (sakai-mock)</name>
     <groupId>org.sakaiproject.mock</groupId>
     <artifactId>sakai-mock</artifactId>
-    <version>2.9.0-a01</version>
+    <version>2.9-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -83,9 +83,9 @@
     </repositories>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/sakai-mock/tags/sakai-mock-2.9.0-a01</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/sakai-mock/tags/sakai-mock-2.9.0-a01</developerConnection>
-        <url>https://source.sakaiproject.org/svn/sakai-mock/tags/sakai-mock-2.9.0-a01</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/sakai-mock/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/sakai-mock/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/svn/sakai-mock/trunk</url>
     </scm>
 
     <dependencies>
