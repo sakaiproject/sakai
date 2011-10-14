@@ -29,6 +29,7 @@ import java.util.Map;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.Person;
+import org.sakaiproject.dash.model.RepeatingCalendarItem;
 import org.sakaiproject.dash.model.SourceType;
 import org.sakaiproject.dash.entity.EntityLinkStrategy;
 import org.sakaiproject.dash.entity.EntityType;
@@ -62,7 +63,19 @@ public interface DashboardLogic {
 	 */
 	public void addNewsLinks(String sakaiUserId, String contextId);
 
-	public CalendarItem createCalendarItem(String title, Date calendarTime, String calendarTimeLabelKey, String entityReference, String entityUrl, Context context, SourceType sourceType);
+	/**
+	 * 
+	 * @param title
+	 * @param calendarTime
+	 * @param calendarTimeLabelKey
+	 * @param entityReference
+	 * @param context
+	 * @param sourceType
+	 * @param repeatingCalendarItem The RepeatingCalendarItem of which this is an instance, or null if this item does not repeat.
+	 * @param sequenceNumber The index of this item in the sequence of repeating events, or null if this item does not repeat.
+	 * @return
+	 */
+	public CalendarItem createCalendarItem(String title, Date calendarTime, String calendarTimeLabelKey, String entityReference, Context context, SourceType sourceType, RepeatingCalendarItem repeatingCalendarItem, Integer sequenceNumber);
 
 	public void createCalendarLinks(CalendarItem calendarItem);
 
@@ -71,6 +84,10 @@ public interface DashboardLogic {
 	public NewsItem createNewsItem(String title, Date newsTime, String entityReference, Context context, SourceType sourceType);
 
 	public void createNewsLinks(NewsItem newsItem);
+	
+	public RepeatingCalendarItem createRepeatingCalendarItem(String title, Date firstTime,
+			Date lastTime, String calendarTimeLabelKey, String entityReference, Context context, 
+			SourceType sourceType, String frequency, int count);
 	
 	public SourceType createSourceType(String identifier, String accessPermission, EntityLinkStrategy entityLinkStrategy);
 
@@ -344,6 +361,8 @@ public interface DashboardLogic {
 	public void updateNewsLinks(String entityReference);
 
 	public void updateCalendarLinks(String entityReference);
+
+	
 
 	// todo:
 	// add methods to revise news items, calendar items, news links, calendar links, etc.

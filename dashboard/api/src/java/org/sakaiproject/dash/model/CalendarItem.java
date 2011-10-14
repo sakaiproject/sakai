@@ -39,18 +39,30 @@ public class CalendarItem implements Serializable {
 	protected String entityReference;
 	protected Context context;
 	protected SourceType sourceType;
+	protected RepeatingCalendarItem repeatingCalendarItem = null;
+	protected Integer sequenceNumber = null;
 	
 	/**
 	 * 
 	 */
 	public CalendarItem() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
+	/**
+	 * 
+	 * @param title
+	 * @param calendarTime
+	 * @param calendarTimeLabelKey
+	 * @param entityReference
+	 * @param context
+	 * @param sourceType
+	 * @param repeatingCalendarItem
+	 * @param sequenceNumber TODO
+	 */
 	public CalendarItem(String title, Date calendarTime,
 			String calendarTimeLabelKey, String entityReference, Context context,
-			SourceType sourceType) {
+			SourceType sourceType, RepeatingCalendarItem repeatingCalendarItem, Integer sequenceNumber) {
 		super();
 		this.title = title;
 		this.calendarTime = calendarTime;
@@ -58,21 +70,25 @@ public class CalendarItem implements Serializable {
 		this.entityReference = entityReference;
 		this.context = context;
 		this.sourceType = sourceType;
+		this.repeatingCalendarItem = repeatingCalendarItem;
+		this.sequenceNumber = sequenceNumber;
 	}
 
 	/**
 	 * @param id
 	 * @param title
 	 * @param calendarTime
-	 * @param calendarTimeLabelKey TODO
+	 * @param calendarTimeLabelKey 
 	 * @param entityReference
 	 * @param context
 	 * @param sourceType
+	 * @param repeatingCalendarItem 
+	 * @param sequenceNumber TODO
 	 * @param realm
 	 */
 	public CalendarItem(Long id, String title, Date calendarTime,
-			String calendarTimeLabelKey, String entityReference, Context context,
-			SourceType sourceType) {
+			String calendarTimeLabelKey, String entityReference, Context context, SourceType sourceType, 
+			RepeatingCalendarItem repeatingCalendarItem, Integer sequenceNumber) {
 		super();
 		this.id = id;
 		this.title = title;
@@ -81,6 +97,7 @@ public class CalendarItem implements Serializable {
 		this.entityReference = entityReference;
 		this.context = context;
 		this.sourceType = sourceType;
+		this.repeatingCalendarItem = repeatingCalendarItem;
 	}
 
 	/**
@@ -124,6 +141,20 @@ public class CalendarItem implements Serializable {
 	 */
 	public Context getContext() {
 		return context;
+	}
+
+	/**
+	 * @return the repeatingCalendarItem
+	 */
+	public RepeatingCalendarItem getRepeatingCalendarItem() {
+		return repeatingCalendarItem;
+	}
+
+	/**
+	 * @return the sequenceNumber
+	 */
+	public Integer getSequenceNumber() {
+		return sequenceNumber;
 	}
 
 	/**
@@ -173,6 +204,20 @@ public class CalendarItem implements Serializable {
 	}
 
 	/**
+	 * @param repeatingCalendarItem the repeatingCalendarItem to set
+	 */
+	public void setRepeatingCalendarItem(RepeatingCalendarItem repeatingCalendarItem) {
+		this.repeatingCalendarItem = repeatingCalendarItem;
+	}
+
+	/**
+	 * @param sequenceNumber the sequenceNumber to set
+	 */
+	public void setSequenceNumber(Integer sequenceNumber) {
+		this.sequenceNumber = sequenceNumber;
+	}
+
+	/**
 	 * @param sourceType the sourceType to set
 	 */
 	public void setSourceType(SourceType sourceType) {
@@ -199,6 +244,10 @@ public class CalendarItem implements Serializable {
 		builder.append(context);
 		builder.append(", sourceType=");
 		builder.append(sourceType);
+		builder.append(", repeatingCalendarItem=");
+		builder.append(repeatingCalendarItem);
+		builder.append(", sequenceNumber=");
+		builder.append(sequenceNumber);
 		builder.append("]");
 		return builder.toString();
 	}

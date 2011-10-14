@@ -36,6 +36,7 @@ import org.sakaiproject.dash.model.PersonContext;
 import org.sakaiproject.dash.model.PersonContextSourceType;
 import org.sakaiproject.dash.model.PersonSourceType;
 import org.sakaiproject.dash.model.Realm;
+import org.sakaiproject.dash.model.RepeatingCalendarItem;
 import org.sakaiproject.dash.model.SourceType;
 
 /**
@@ -67,13 +68,15 @@ public interface DashboardDao {
 	
 	public boolean addRealm(Realm realm);
 	
-	public boolean addSourceType(SourceType identifier);
+	public boolean addRepeatingCalendarItem(RepeatingCalendarItem repeatingCalendarItem);
+
+	public boolean addSourceType(SourceType sourceType);
 	
 	public SourceType getSourceType(long sourceTypeId);
 
 	public SourceType getSourceType(String identifier);
 
-	public CalendarItem getCalendarItem(String entityReference, String calendarTimeLabelKey);
+	public CalendarItem getCalendarItem(String entityReference, String calendarTimeLabelKey, Integer sequenceNumber);
 	
 	public List<CalendarItem> getCalendarItems(String entityReference);
 	
@@ -118,6 +121,10 @@ public interface DashboardDao {
 	public NewsItem getNewsItem(long id);
 
 	public CalendarItem getCalendarItem(long id);
+
+	public RepeatingCalendarItem getRepeatingCalendarItem(String entityReference, String calendarTimeLabelKey);
+
+	public List<RepeatingCalendarItem> getRepeatingCalendarItems();
 
 	public boolean deleteAvailabilityChecks(String entityReference);
 

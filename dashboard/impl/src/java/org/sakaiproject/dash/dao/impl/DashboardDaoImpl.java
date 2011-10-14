@@ -48,6 +48,7 @@ import org.sakaiproject.dash.model.PersonContext;
 import org.sakaiproject.dash.model.PersonContextSourceType;
 import org.sakaiproject.dash.model.PersonSourceType;
 import org.sakaiproject.dash.model.Realm;
+import org.sakaiproject.dash.model.RepeatingCalendarItem;
 import org.sakaiproject.dash.model.SourceType;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -106,22 +107,33 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 		
 		// calendar_time, title , entity_url, entity_ref, source_type, context_id, realm_id
-		
+
 		try {
 			JdbcTemplate template = getJdbcTemplate();
-			String sql = getStatement("insert.CalendarItem");
-			
-			template.update(sql,
-				new Object[]{calendarItem.getCalendarTime(), calendarItem.getCalendarTimeLabelKey(), calendarItem.getTitle(), 
+			Object[] params = null;
+			String sql = null;
+			if(calendarItem.getRepeatingCalendarItem() == null) {
+				sql = getStatement("insert.CalendarItem");
+				params = new Object[]{calendarItem.getCalendarTime(), calendarItem.getCalendarTimeLabelKey(), calendarItem.getTitle(), 
 						calendarItem.getEntityReference(),
-						calendarItem.getSourceType().getId(), calendarItem.getContext().getId()}
-			);
+						calendarItem.getSourceType().getId(), calendarItem.getContext().getId()};
+			} else {
+				sql = getStatement("insert.CalendarItem.repeats");
+				params = new Object[]{calendarItem.getCalendarTime(), calendarItem.getCalendarTimeLabelKey(), calendarItem.getTitle(), 
+						calendarItem.getEntityReference(),
+						calendarItem.getSourceType().getId(), calendarItem.getContext().getId(), 
+						calendarItem.getRepeatingCalendarItem().getId(), calendarItem.getSequenceNumber()};
+			}
+
+			template.update(sql,params);
 			return true;
 		} catch (DataAccessException ex) {
             log.error("addCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+	        System.out.println("addCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
             return false;
 		} catch (Exception e) {
 	        log.error("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
+	        System.out.println("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
 	        return false;
 		}
 	}
@@ -313,6 +325,34 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return false;
 		}
 	}
+	
+	public boolean addRepeatingCalendarItem(RepeatingCalendarItem repeatingCalendarItem) {
+		if(log.isDebugEnabled()) {
+			log.debug("addRepeatingCalendarItem( " + repeatingCalendarItem.toString() + ")");
+		}
+		System.out.println("addRepeatingCalendarItem( " + repeatingCalendarItem.toString() + ")");
+		
+		//  first_time, last_time, frequency, count, calendar_time_label_key, title, entity_ref, entity_type, context_id
+		String sql = getStatement("insert.RepeatingEvent");
+		System.out.println("addRepeatingCalendarItem() sql == " + sql);
+		long sourceTypeId = repeatingCalendarItem.getSourceType().getId();
+		long contextId = repeatingCalendarItem.getContext().getId();
+		Object[] params = new Object[]{
+				repeatingCalendarItem.getFirstTime(), repeatingCalendarItem.getLastTime(), 
+				repeatingCalendarItem.getFrequency(), repeatingCalendarItem.getMaxCount(), 
+				repeatingCalendarItem.getCalendarTimeLabelKey(), repeatingCalendarItem.getTitle(),
+				repeatingCalendarItem.getEntityReference(), sourceTypeId, contextId
+			};
+		
+		try {
+			getJdbcTemplate().update(sql, params);
+			return true;
+		} catch (DataAccessException ex) {
+			log.error("addRepeatingCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+			System.out.println("addRepeatingCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return false;
+		}
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -323,7 +363,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			log.debug("addSourceType( " + sourceType.toString() + ")");
 		}
 		
-		// name
+		// identifier, accessPermission
 		
 		try {
 			getJdbcTemplate().update(getStatement("insert.SourceType"),
@@ -521,6 +561,39 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            return new ArrayList<AvailabilityCheck>();
 		}
 	}
+	
+	public RepeatingCalendarItem getRepeatingCalendarItem(String entityReference, String calendarTimeLabelKey) {
+		if(log.isDebugEnabled()) {
+			log.debug("getRepeatingCalendarItem(" + entityReference + "," + calendarTimeLabelKey + ")");
+		}
+		
+		try {
+			return (RepeatingCalendarItem) getJdbcTemplate().queryForObject(getStatement("select.RepeatingCalendarItem.by.entityReference.calendarTimeLabelKey"),
+				new Object[]{entityReference, calendarTimeLabelKey},
+				new RepeatingCalendarItemMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getRepeatingCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return null;
+		}
+	}
+
+
+	
+	public List<RepeatingCalendarItem> getRepeatingCalendarItems() {
+		if(log.isDebugEnabled()) {
+			log.debug("getRepeatingCalendarItems()");
+		}
+		String sql = getStatement("select.RepeatingEvents");
+		try {
+			return (List<RepeatingCalendarItem>) getJdbcTemplate().query(sql,
+				new RepeatingCalendarItemMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getRepeatingCalendarItems: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return new ArrayList<RepeatingCalendarItem>();
+		}
+	}
 
 	public SourceType getSourceType(long sourceTypeId) {
 		if(log.isDebugEnabled()) {
@@ -580,19 +653,33 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 
 	}
 
-	public CalendarItem getCalendarItem(String entityReference, String calendarTimeLabelKey) {
+	public CalendarItem getCalendarItem(String entityReference, String calendarTimeLabelKey, Integer sequenceNumber) {
 		if(log.isDebugEnabled()) {
-			log.debug("getCalendarItem(" + entityReference + "," + calendarTimeLabelKey + ")");
+			log.debug("getCalendarItem(" + entityReference + "," + calendarTimeLabelKey + "," + sequenceNumber + ")");
 		}
 		
+		String sql = null;
+		Object[] params = null;	
+		if(sequenceNumber == null) {
+			sql = getStatement("select.CalendarItem.by.entityReference.calendarTimeLabelKey");
+			params = new Object[]{entityReference, calendarTimeLabelKey};	
+		} else {
+			sql = getStatement("select.CalendarItem.by.entityReference.calendarTimeLabelKey.sequenceNumber");
+			params = new Object[]{entityReference, calendarTimeLabelKey, sequenceNumber};
+		}
 		try {
-			return (CalendarItem) getJdbcTemplate().queryForObject(getStatement("select.CalendarItem.by.entityReference.calendarTimeLabelKey"),
-				new Object[]{entityReference, calendarTimeLabelKey},
+			return (CalendarItem) getJdbcTemplate().queryForObject(sql,
+				params,
 				new CalendarItemMapper()
 			);
-		} catch (DataAccessException ex) {
-           log.error("getCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+		} catch (DataAccessException e) {
+           log.error("getCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
+	        System.out.println("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
            return null;
+		} catch (Exception e) {
+	        log.error("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
+	        System.out.println("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
+	        return null;
 		}
 	}
 
@@ -1200,18 +1287,23 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	 * Sets up our tables
 	 */
 	protected void initTables() {
-		executeSqlStatement("create.Context.table");
-		executeSqlStatement("create.Person.table");
-		executeSqlStatement("create.SourceType.table");
-		executeSqlStatement("create.NewsItem.table");
-		executeSqlStatement("create.NewsLink.table");
-		executeSqlStatement("create.CalendarItem.table");
-		executeSqlStatement("create.CalendarLink.table");
-		executeSqlStatement("create.AvailabilityCheck.table");
-		executeSqlStatement("create.PersonContext.table");
-		executeSqlStatement("create.PersonContextSourceType.table");
-		executeSqlStatement("create.PersonSourceType.table");
-		
+		try {
+			executeSqlStatement("create.Context.table");
+			executeSqlStatement("create.Person.table");
+			executeSqlStatement("create.SourceType.table");
+			executeSqlStatement("create.NewsItem.table");
+			executeSqlStatement("create.NewsLink.table");
+			executeSqlStatement("create.CalendarItem.table");
+			executeSqlStatement("create.CalendarLink.table");
+			executeSqlStatement("create.AvailabilityCheck.table");
+			executeSqlStatement("create.PersonContext.table");
+			executeSqlStatement("create.PersonContextSourceType.table");
+			executeSqlStatement("create.PersonSourceType.table");
+			executeSqlStatement("create.RepeatingEvent.table");
+		} catch(Exception e) {
+	        System.out.println("\ninitTables: Error executing query: " + e.getClass() + ":\n" + e.getMessage() + "\n");
+
+		}
 	}
 
 	/**
@@ -1231,6 +1323,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 							
 						} catch (DataAccessException ex) {
 							log.warn("Error executing SQL statement with key: " + key + " -- " + ex.getClass() + ": " + ex.getMessage());
+					        System.out.println("\nError executing SQL statement with key: " + key + " -- " + ex.getClass() + ": \n" + ex.getMessage() + "\n");
 						}
 					}
 				}

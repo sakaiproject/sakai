@@ -1,12 +1,16 @@
 package org.sakaiproject.dash.test;
 
 import java.util.Date;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.sakaiproject.dash.entity.EntityLinkStrategy;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.logic.SakaiProxy;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.NewsItem;
+import org.sakaiproject.dash.model.RepeatingCalendarItem;
 import org.sakaiproject.dash.model.SourceType;
 import org.springframework.test.AbstractTransactionalSpringContextTests;
 
@@ -17,7 +21,14 @@ import org.springframework.test.AbstractTransactionalSpringContextTests;
 public class DashboardLogicTest extends AbstractTransactionalSpringContextTests 
 {
 	protected SakaiProxy sakaiProxy;
+
+	protected static AtomicInteger counter = new AtomicInteger(999);
 	
+	private static final long ONE_MINUTE = 1000L * 60L;
+	private static final long ONE_HOUR = ONE_MINUTE * 60L;
+	private static final long ONE_DAY = ONE_HOUR * 24L;
+	private static final long ONE_WEEK = ONE_DAY * 7L;
+
 	public DashboardLogicTest() {
 		super();
 		this.setDependencyCheck(false);
@@ -196,5 +207,37 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 		String entityReference;
 		String newTitle;
 	}
+	
+	public void testGenerateCalendarItems() {
+		
+		String title = getUniqueIdentifier();
+		String entityReference = getUniqueIdentifier();
+		String frequency = RepeatingCalendarItem.REPEATS_DAILY;
+		String timeLabel = getUniqueIdentifier();
+		Date firstTime = new Date();
+		Date lastTime = new Date(firstTime.getTime() + ONE_WEEK + ONE_HOUR);
+		int maxCount = 5;
+		
+		String identifier1 = getUniqueIdentifier();
+		String accessPermission = getUniqueIdentifier();
+		SourceType sourceType = new  SourceType(identifier1, accessPermission, EntityLinkStrategy.ACCESS_URL);
+		
+		String contextId = getUniqueIdentifier();
+		String contextTitle = getUniqueIdentifier();
+		String contextUrl = getUniqueIdentifier();
+		Context context = new Context(contextId, contextTitle, contextUrl );
+		
+		RepeatingCalendarItem repeatingCalendarItem = new RepeatingCalendarItem(title, firstTime, lastTime, timeLabel, entityReference, context, sourceType, frequency, maxCount);
+		
+		//List<CalendarItem> items = repeatingCalendarItem.generateCalendarItems(lastTime);
+		//assertNotNull(items);
+		//assertFalse(items.isEmpty());
+		
+	}
+	
+	protected String getUniqueIdentifier() {
+		return "unique-identifier-" + counter.incrementAndGet();
+	}
+
 
 }

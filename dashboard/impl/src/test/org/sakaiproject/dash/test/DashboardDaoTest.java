@@ -16,6 +16,7 @@ import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.NewsLink;
 import org.sakaiproject.dash.model.Person;
+import org.sakaiproject.dash.model.RepeatingCalendarItem;
 import org.sakaiproject.dash.model.SourceType;
 import org.springframework.test.AbstractTransactionalSpringContextTests;
 
@@ -29,8 +30,14 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 	
 	protected static AtomicInteger counter = new AtomicInteger(999);
 
-	private static final long ONE_DAY = 1000L * 60L * 60L * 24L;
+	private static final long ONE_MINUTE = 1000L * 60L;
+	private static final long ONE_HOUR = ONE_MINUTE * 60L;
+	private static final long ONE_DAY = ONE_HOUR * 24L;
+	private static final long ONE_WEEK = ONE_DAY * 7L;
+	
 	private static final long TIME_DELTA = 1000L * 60L * 1L;
+
+
 
 	public DashboardDaoTest() {
 		super();
@@ -79,12 +86,13 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
 
 		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
-				calendarTimeLabelKey, entityReference, context, sourceType);
+				calendarTimeLabelKey, entityReference, context, sourceType, null, null);
 		boolean saved = dao.addCalendarItem(calendarItem);
 		
 		assertTrue(saved);
 		
-		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey);
+		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
+		System.out.println("calendarItem == " + calendarItem);
 
 		assertNotNull(calendarItem);
 		assertNotNull(calendarItem.getId());
@@ -131,9 +139,9 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
 
 		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
-				calendarTimeLabelKey, entityReference, context, sourceType);
+				calendarTimeLabelKey, entityReference, context, sourceType, null, null);
 		dao.addCalendarItem(calendarItem);
-		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey);
+		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
 		
 		String sakaiId = getUniqueIdentifier();
 		String userId = getUniqueIdentifier();
@@ -326,6 +334,57 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		assertEquals(sakaiId,person.getSakaiId());
 		assertEquals(userId,person.getUserId());
 	}
+	
+	public void testAddRepeatingCalendarItem() {
+		String title = getUniqueIdentifier();
+		String entityReference = getUniqueIdentifier();
+		String frequency = RepeatingCalendarItem.REPEATS_DAILY;
+		String timeLabel = getUniqueIdentifier();
+		Date firstTime = new Date();
+		Date lastTime = new Date(firstTime.getTime() + ONE_WEEK + ONE_HOUR);
+		int maxCount = 5;
+		
+		String identifier1 = getUniqueIdentifier();
+		String accessPermission = getUniqueIdentifier();
+		SourceType sourceType = new  SourceType(identifier1, accessPermission, EntityLinkStrategy.ACCESS_URL);
+		dao.addSourceType(sourceType);
+		sourceType = dao.getSourceType(identifier1);
+		assertNotNull(sourceType);
+		
+		String contextId = getUniqueIdentifier();
+		String contextTitle = getUniqueIdentifier();
+		String contextUrl = getUniqueIdentifier();
+		Context context = new Context(contextId, contextTitle, contextUrl );
+		dao.addContext(context);
+		context = dao.getContext(contextId);
+		assertNotNull(context);
+		
+		RepeatingCalendarItem repeatingCalendarItem = new RepeatingCalendarItem(title, firstTime, lastTime, timeLabel, entityReference, context, sourceType, frequency, maxCount);
+		boolean savedItem = dao.addRepeatingCalendarItem(repeatingCalendarItem);
+		
+		assertTrue(savedItem);
+		
+		RepeatingCalendarItem repeatingCalendarItem1 = dao.getRepeatingCalendarItem(entityReference, timeLabel);
+		
+		assertNotNull(repeatingCalendarItem1);
+		assertNotNull(repeatingCalendarItem1.getId());
+		assertEquals(title, repeatingCalendarItem1.getTitle());
+		assertEquals(entityReference, repeatingCalendarItem1.getEntityReference());
+		assertEquals(frequency, repeatingCalendarItem1.getFrequency());
+		assertEquals(timeLabel, repeatingCalendarItem1.getCalendarTimeLabelKey());
+		assertEquals(maxCount,repeatingCalendarItem1.getMaxCount());
+		
+		assertNotNull(repeatingCalendarItem1.getFirstTime());
+		assertEquals(firstTime.getTime(),  repeatingCalendarItem1.getFirstTime().getTime());
+		assertNotNull(repeatingCalendarItem1.getLastTime());
+		assertEquals(lastTime.getTime(), repeatingCalendarItem1.getLastTime().getTime());
+		
+		assertNotNull(repeatingCalendarItem1.getContext());
+		assertEquals(contextId, repeatingCalendarItem1.getContext().getContextId());
+		
+		assertNotNull(repeatingCalendarItem1.getSourceType());
+		assertEquals(identifier1, repeatingCalendarItem1.getSourceType().getIdentifier());
+	}
 
     /**
      * This method actually depends on being able to save and retrieve SourceType objects. 
@@ -371,16 +430,16 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
 
 		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
-				calendarTimeLabelKey, entityReference, context, sourceType);
+				calendarTimeLabelKey, entityReference, context, sourceType, null, null);
 		boolean saved = dao.addCalendarItem(calendarItem);
-		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey);
+		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
 		assertNotNull(calendarItem);
 		assertNotNull(calendarItem.getId());
 		boolean removed = dao.deleteCalendarItem(calendarItem.getId());
 		assertTrue(removed);
 		calendarItem = dao.getCalendarItem(calendarItem.getId());
 		assertNull(calendarItem);
-		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey);
+		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
 		assertNull(calendarItem);		
 	}
 
@@ -404,9 +463,9 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
 
 		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
-				calendarTimeLabelKey, entityReference, context, sourceType);
+				calendarTimeLabelKey, entityReference, context, sourceType, null, null);
 		dao.addCalendarItem(calendarItem);
-		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey);
+		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
 		
 		String sakaiId = getUniqueIdentifier();
 		String userId = getUniqueIdentifier();
@@ -466,9 +525,9 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
 
 		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
-				calendarTimeLabelKey, entityReference, context, sourceType);
+				calendarTimeLabelKey, entityReference, context, sourceType, null, null);
 		dao.addCalendarItem(calendarItem);
-		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey);
+		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
 		
 		String sakaiId = getUniqueIdentifier();
 		String userId = getUniqueIdentifier();
@@ -534,9 +593,9 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
 
 		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
-				calendarTimeLabelKey, entityReference, context, sourceType);
+				calendarTimeLabelKey, entityReference, context, sourceType, null, null);
 		boolean saved = dao.addCalendarItem(calendarItem);
-		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey);
+		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
 		assertNotNull(calendarItem);
 		assertNotNull(calendarItem.getId());
 		
@@ -578,9 +637,9 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
 
 		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
-				calendarTimeLabelKey, entityReference, context, sourceType);
+				calendarTimeLabelKey, entityReference, context, sourceType, null, null);
 		boolean saved = dao.addCalendarItem(calendarItem);
-		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey);
+		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
 		assertNotNull(calendarItem);
 		assertNotNull(calendarItem.getId());
 		
@@ -658,9 +717,9 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
 
 		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
-				calendarTimeLabelKey, entityReference, context, sourceType);
+				calendarTimeLabelKey, entityReference, context, sourceType, null, null);
 		boolean saved = dao.addCalendarItem(calendarItem);
-		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey);
+		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
 		assertNotNull(calendarItem);
 		assertNotNull(calendarItem.getId());
 		

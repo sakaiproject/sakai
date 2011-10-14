@@ -44,6 +44,7 @@ import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.dash.dao.DashboardDao;
 import org.sakaiproject.dash.entity.EntityLinkStrategy;
 import org.sakaiproject.dash.entity.EntityType;
+import org.sakaiproject.dash.entity.RepeatingEventGenerator;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.model.AvailabilityCheck;
 import org.sakaiproject.dash.model.CalendarItem;
@@ -57,6 +58,7 @@ import org.sakaiproject.dash.model.PersonContext;
 import org.sakaiproject.dash.model.PersonContextSourceType;
 import org.sakaiproject.dash.model.PersonSourceType;
 import org.sakaiproject.dash.model.Realm;
+import org.sakaiproject.dash.model.RepeatingCalendarItem;
 import org.sakaiproject.dash.model.SourceType;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.site.api.Site;
@@ -71,7 +73,24 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	private static Logger logger = Logger.getLogger(DashboardLogicImpl.class);
 	
 	public static final long TIME_BETWEEN_AVAILABILITY_CHECKS = 1000L * 60L * 1L;
+
+	private static final long ONE_DAY = 1000L * 60L * 60L * 24L;
+	private static final long ONE_YEAR = ONE_DAY * 365L;
 	
+	// this will be a setting
+	protected long daysToHorizon = 30L;
+	public void setDaysToHorizon(long daysToHorizon) {
+		this.daysToHorizon = daysToHorizon;
+	}
+	
+	protected long daysBetweenHorizonUpdates = 7L;
+	public void setDaysBetweenHorizonUpdates(long daysBetweenHorizonUpdates) {
+		this.daysBetweenHorizonUpdates = daysBetweenHorizonUpdates;
+	}
+	
+	protected Date nextHorizonUpdate = new Date();
+	private Date horizon = new Date();
+		
 	protected long nextTimeToQueryAvailabilityChecks = System.currentTimeMillis();
 	
 	protected Map<String,EntityType> entityTypes = new HashMap<String,EntityType>();
@@ -95,6 +114,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 	
 	protected Cache cache;
+
+	protected static boolean timeToQuit = false;
+
 	public void setCache(Cache cache) {
 		this.cache = cache;
 	}
@@ -102,7 +124,59 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	/************************************************************************
 	 * Dashboard Logic methods
 	 ************************************************************************/
-	
+
+	/**
+	 * Add calendar items and links for any instances of a repeating event between two dates.
+	 * @param repeatingEvent
+	 * @param beginDate
+	 * @param endDate 
+	 */
+	public void addCalendarItemsForRepeatingCalendarItem(RepeatingCalendarItem repeatingEvent, Date beginDate, Date endDate) {
+		if(beginDate.before(endDate)) {
+			if(repeatingEvent == null || repeatingEvent.getSourceType() == null || repeatingEvent.getSourceType().getIdentifier() == null) {
+				// TODO: handle error: invalid parameters?
+			} else {
+				EntityType entityType = entityTypes.get(repeatingEvent.getSourceType().getIdentifier());
+				if(entityType == null) {
+					// TODO: handle error: entityType cannot be null
+				} else if(entityType instanceof RepeatingEventGenerator) {
+					
+					Map<Integer, Date> dates = ((RepeatingEventGenerator) entityType).generateRepeatingEventDates(repeatingEvent.getEntityReference(), beginDate, endDate);
+					if(dates != null) {
+						for(Map.Entry<Integer, Date> entry : dates.entrySet()) {
+							try {
+								// create an instance
+								CalendarItem calendarItem = createCalendarItem(repeatingEvent.getTitle(), entry.getValue(), repeatingEvent.getCalendarTimeLabelKey(), 
+										repeatingEvent.getEntityReference(), repeatingEvent.getContext(), repeatingEvent.getSourceType(), repeatingEvent, entry.getKey());
+								dao.addCalendarItem(calendarItem);
+								calendarItem = dao.getCalendarItem(repeatingEvent.getEntityReference(), repeatingEvent.getCalendarTimeLabelKey(), entry.getKey());
+								createCalendarLinks(calendarItem);
+							} catch(Exception e) {
+								// this could occur if we are trying to add an instance that has already been added
+								StringBuilder buf = new StringBuilder();
+								buf.append("Error trying to add calendar item for repeating event (");
+								buf.append(repeatingEvent);
+								buf.append(") for date (");
+								buf.append(entry.getValue());
+								buf.append(") and sequence number (");
+								buf.append(entry.getKey());
+								buf.append("). Exception: ");
+								buf.append(e);
+								buf.append(" Message: ");
+								buf.append(e.getMessage());
+								logger.warn(buf);
+							}
+						}
+					}
+				} else {
+					// TODO: handle error: entityType must be a RepeatingEventGenerator
+				}
+			}
+		} else {
+			// TODO: handle error: invalid parameters? beginDate must be before endDate
+		}
+	}
+
 	public void addCalendarLinks(String sakaiUserId, String contextId) {
 		if(logger.isDebugEnabled()) {
 			logger.debug("addCalendarLinks(" + sakaiUserId + "," + contextId + ") ");
@@ -165,15 +239,31 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 
 	public CalendarItem createCalendarItem(String title, Date calendarTime,
-			String calendarTimeLabelKey, String entityReference, String entityUrl,
-			Context context, SourceType sourceType) {
+			String calendarTimeLabelKey, String entityReference, Context context,
+			SourceType sourceType, RepeatingCalendarItem repeatingCalendarItem, Integer sequenceNumber) {
 		
 		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
-				calendarTimeLabelKey, entityReference, context, sourceType);
+				calendarTimeLabelKey, entityReference, context, sourceType, repeatingCalendarItem, sequenceNumber);
 		
 		dao.addCalendarItem(calendarItem);
 		
-		return dao.getCalendarItem(entityReference, calendarTimeLabelKey);
+		return dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
+	}
+
+	public RepeatingCalendarItem createRepeatingCalendarItem(String title, Date firstTime,
+			Date lastTime, String calendarTimeLabelKey, String entityReference, Context context, 
+			SourceType sourceType, String frequency, int count) {
+		
+		RepeatingCalendarItem repeatingCalendarItem = new RepeatingCalendarItem(title, firstTime,
+				lastTime, calendarTimeLabelKey, entityReference, context, sourceType, frequency, count);
+		
+		dao.addRepeatingCalendarItem(repeatingCalendarItem);
+		
+		repeatingCalendarItem = dao.getRepeatingCalendarItem(entityReference, calendarTimeLabelKey);
+		
+		this.addCalendarItemsForRepeatingCalendarItem(repeatingCalendarItem, new Date(), horizon);
+		
+		return repeatingCalendarItem;
 	}
 
 	/*
@@ -188,10 +278,12 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			List<String> sakaiIds = this.sakaiProxy.getUsersWithReadAccess(calendarItem.getEntityReference(), calendarItem.getSourceType().getAccessPermission());
 			for(String sakaiId : sakaiIds) {
 				Person person = getOrCreatePerson(sakaiId);
-				
-				CalendarLink link = new CalendarLink(person, calendarItem, calendarItem.getContext(), false, false);
-				
-				dao.addCalendarLink(link);
+				if(person == null) {
+					logger.warn("Error retrieving user " + sakaiId);
+				} else {
+					CalendarLink link = new CalendarLink(person, calendarItem, calendarItem.getContext(), false, false);
+					dao.addCalendarLink(link);
+				}
 			}
 		}
 	}
@@ -199,7 +291,6 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	public Context createContext(String contextId) {
 		
 		Site site = this.sakaiProxy.getSite(contextId);
-		
 		Context context = new Context(site.getId(), site.getTitle(), site.getUrl());
 		dao.addContext(context);
 		return dao.getContext(contextId);
@@ -225,12 +316,15 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			List<String> sakaiIds = this.sakaiProxy.getUsersWithReadAccess(newsItem.getEntityReference(), newsItem.getSourceType().getAccessPermission());
 			if(sakaiIds != null && sakaiIds.size() > 0) {
 				for(String sakaiId : sakaiIds) {
-					
-					Person person = getOrCreatePerson(sakaiId);
-					
-					NewsLink link = new NewsLink(person, newsItem, newsItem.getContext(), false, false);
-					
-					dao.addNewsLink(link);
+					try {
+						Person person = getOrCreatePerson(sakaiId);
+						if(person != null) {
+							NewsLink link = new NewsLink(person, newsItem, newsItem.getContext(), false, false);
+							dao.addNewsLink(link);
+						}
+					} catch(Exception e) {
+						logger.warn("Error trying to retrieve or add person " + sakaiId + " for news-item " + newsItem, e);
+					}
 				}
 			}
 		}
@@ -293,7 +387,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	
 	public CalendarItem getCalendarItem(String entityReference, String calendarTimeLabelKey) {
 		
-		return dao.getCalendarItem(entityReference, calendarTimeLabelKey);
+		return dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
 	}
 
 	public List<CalendarItem> getCalendarItems(String sakaiUserId,
@@ -720,13 +814,17 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		this.eventProcessingThread.start();
 		
 		this.sakaiProxy.addLocalEventListener(this);
+		
+		this.horizon = new Date(System.currentTimeMillis() + daysToHorizon * ONE_DAY);
 	}
 	
 	public void destroy() {
 		logger.info("destroy()");
 		
-		// need to shut down daemon once it's done processing events??
-		//this.daemon.
+		// shut down daemon once it's done processing events
+		timeToQuit = true;
+		
+		
 	}
 
 	/************************************************************************
@@ -884,13 +982,20 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 
 		public void run() {
 			logger.info("Started Dashboard Event Processing Thread");
+			boolean timeToHandleAvailabilityChecks = true;
 			sakaiProxy.startAdminSession();
-			while(true) {
+			while(! timeToQuit) {
 				if(logger.isDebugEnabled()) {
 					logger.debug("Dashboard Event Processing Thread checking event queue: " + eventQueue.size());
 				}
 				if(eventQueue.isEmpty()) {
-					handleAvailabilityChecks();
+					if(timeToHandleAvailabilityChecks) {
+						handleAvailabilityChecks();
+						timeToHandleAvailabilityChecks = false;
+					} else {
+						updateRepeatingEvents();
+						timeToHandleAvailabilityChecks = true;
+					}
 					try {
 						Thread.sleep(sleepTime * 1000L);
 					} catch (InterruptedException e) {
@@ -915,6 +1020,27 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 				}
 			}
 		}
+
+		protected void updateRepeatingEvents() {
+			
+			if(nextHorizonUpdate != null && System.currentTimeMillis() > nextHorizonUpdate.getTime()) {
+				// time to update
+				Date oldHorizon = horizon;
+				horizon = new Date(System.currentTimeMillis() + daysToHorizon * ONE_DAY);
+				
+				if(horizon.after(oldHorizon)) {
+					List<RepeatingCalendarItem> repeatingEvents = dao.getRepeatingCalendarItems();
+					if(repeatingEvents != null) {
+						for(RepeatingCalendarItem repeatingEvent: repeatingEvents) {
+							addCalendarItemsForRepeatingCalendarItem(repeatingEvent, oldHorizon, horizon);
+
+						}
+					}
+				}
+				nextHorizonUpdate = new Date(nextHorizonUpdate.getTime() + daysBetweenHorizonUpdates * ONE_DAY);
+			}
+		}
+
 	}
 	
 	public class DashboardLogicSecurityAdvisor implements SecurityAdvisor 

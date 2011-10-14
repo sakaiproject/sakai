@@ -7,14 +7,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.sakaiproject.dash.model.CalendarItem;
-import org.sakaiproject.dash.model.CalendarLink;
 import org.sakaiproject.dash.model.Context;
-import org.sakaiproject.dash.model.NewsItem;
-import org.sakaiproject.dash.model.NewsLink;
-import org.sakaiproject.dash.model.Person;
-import org.sakaiproject.dash.model.Realm;
+import org.sakaiproject.dash.model.RepeatingCalendarItem;
 import org.sakaiproject.dash.model.SourceType;
-
 import org.springframework.jdbc.core.RowMapper;
 
 /**
@@ -34,6 +29,10 @@ public class CalendarItemMapper implements RowMapper {
 		calendarItem.setCalendarTimeLabelKey(rs.getString("ci_calendar_time_label_key"));
 		calendarItem.setTitle(rs.getString("ci_title"));
 		calendarItem.setEntityReference(rs.getString("ci_entity_ref"));
+		
+		// repeating_event_id
+		RepeatingCalendarItem repeatingCalendarItem = (RepeatingCalendarItem) (new RepeatingCalendarItemMapper()).mapRow(rs, rowNum);
+		calendarItem.setRepeatingCalendarItem(repeatingCalendarItem);
 		
 		// source_type
 		SourceType sourceType = (SourceType) (new SourceTypeMapper()).mapRow(rs, rowNum);
