@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.purepoms</groupId>
         <artifactId>sakai-edu-tool</artifactId>
-        <version>2.9.0-a01</version>
+        <version>2.9-SNAPSHOT</version>
     </parent>
     
     <name>sakai-assignment base pom</name>
@@ -26,12 +26,12 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <sakai.announcement.version>2.9.0-a01</sakai.announcement.version>
-        <sakai.calendar.version>2.9.0-a01</sakai.calendar.version>
-        <sakai.contentreview.version>2.9.2-a01</sakai.contentreview.version>
-        <sakai.message.version>2.9.0-a01</sakai.message.version>
-        <sakai.taggable.version>2.9.0-a01</sakai.taggable.version>
-        <sakai.velocity.version>2.9.0-a01</sakai.velocity.version>
+        <sakai.announcement.version>2.9-SNAPSHOT</sakai.announcement.version>
+        <sakai.calendar.version>2.9-SNAPSHOT</sakai.calendar.version>
+        <sakai.contentreview.version>2.9.2-SNAPSHOT</sakai.contentreview.version>
+        <sakai.message.version>2.9-SNAPSHOT</sakai.message.version>
+        <sakai.taggable.version>2.9-SNAPSHOT</sakai.taggable.version>
+        <sakai.velocity.version>2.9-SNAPSHOT</sakai.velocity.version>
         <url.localsite>scp://source.sakaiproject.org/var/www/html/release/assignment/${project.version}</url.localsite>
     </properties>
 
