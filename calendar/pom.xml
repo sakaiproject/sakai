@@ -31,6 +31,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <sakai.assignment.version>2.9.0-a01</sakai.assignment.version>
         <sakai.jsf.version>2.9.0-a01</sakai.jsf.version>
+        <sakai.jsf111.version>2.9-jsf111-a01</sakai.jsf111.version>
         <sakai.site.version>2.9.0-a01</sakai.site.version>
         <sakai.velocity.version>2.9.0-a01</sakai.velocity.version>
         <url.localsite>scp://source.sakaiproject.org/var/www/html/release/calendar/${project.version}</url.localsite>   
