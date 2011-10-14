@@ -4,12 +4,20 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
+        <groupId>org.sakaiproject.purepoms</groupId>
+        <artifactId>sakai-standard-tool</artifactId>
+        <version>2.9.0-a01</version>
+    </parent>
+
+    <!--
+    <parent>
         <groupId>org.sakaiproject.courier</groupId>
         <artifactId>courier-base</artifactId>
         <version>2.9-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-
+    -->
+    
     <name>sakai-courier-api</name>
     <groupId>org.sakaiproject.courier</groupId>
     <artifactId>sakai-courier-api</artifactId>
@@ -23,6 +31,12 @@
     <properties>
         <deploy.target>shared</deploy.target>
     </properties>
+    
+    <scm>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/courier/trunk/courier-api</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/courier/trunk/courier-api</developerConnection>
+        <url>https://source.sakaiproject.org/svn/courier/trunk/courier-api</url>
+    </scm>
 
     <dependencies>
         <dependency>
