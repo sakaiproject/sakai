@@ -21,6 +21,7 @@
     <name>sakai-calendar-api</name>
     <groupId>org.sakaiproject.calendar</groupId>
     <artifactId>sakai-calendar-api</artifactId>
+    <version>2.9-SNAPSHOT</version>
     <organization>
         <name>The Sakai Foundation</name>
         <url>http://sakaiproject.org/</url>
