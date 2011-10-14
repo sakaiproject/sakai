@@ -8,7 +8,7 @@
     </parent>
     <name>Sakai Message Center Base POM</name>
     <groupId>org.sakaiproject.msgcntr</groupId>
-    <version>3.0.0-a01</version>
+    <version>3.0-SNAPSHOT</version>
     <artifactId>msgcntr</artifactId>
     <packaging>pom</packaging>
     <modules>
@@ -28,9 +28,9 @@
         <sakai.search.version>1.4.0-a01</sakai.search.version>
     </properties>
     <scm>
-      <connection>scm:svn:https://source.sakaiproject.org/svn/msgcntr/tags/msgcntr-3.0.0-a01</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/msgcntr/tags/msgcntr-3.0.0-a01</developerConnection>
-    <url>https://source.sakaiproject.org/svn/msgcntr/tags/msgcntr-3.0.0-a01</url>
+      <connection>scm:svn:https://source.sakaiproject.org/svn/msgcntr/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/msgcntr/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/msgcntr/trunk</url>
   </scm>
     <distributionManagement>
         <downloadUrl>http://source.sakaiproject.org/maven2/
