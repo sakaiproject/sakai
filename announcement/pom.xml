@@ -10,7 +10,7 @@
 
     <name>sakai-announcement base pom</name>
     <groupId>org.sakaiproject.announcement</groupId>
-    <artifactId>announcement-base</artifactId>
+    <artifactId>announcement</artifactId>
     <version>2.9-SNAPSHOT</version>
     <packaging>pom</packaging>
 
