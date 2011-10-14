@@ -9,7 +9,7 @@
 	<name>Reset Password and Account Validator</name>
 	<groupId>org.sakaiproject.reset-pass</groupId>
 	<artifactId>reset-pass</artifactId>
-    <version>2.9.0-a01</version>
+    <version>2.9-SNAPSHOT</version>
 	<packaging>pom</packaging>
     
 	<properties>
@@ -60,9 +60,9 @@
 	</developers>
     
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/reset-pass/tags/reset-pass-2.9.0-a01</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/reset-pass/tags/reset-pass-2.9.0-a01</developerConnection>
-        <url>https://source.sakaiproject.org/svn/reset-pass/tags/reset-pass-2.9.0-a01</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/reset-pass/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/reset-pass/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/svn/reset-pass/trunk</url>
     </scm>
     
 	<distributionManagement>
