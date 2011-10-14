@@ -20,7 +20,7 @@
     <name>sakai-calendar-api</name>
     <groupId>org.sakaiproject.calendar</groupId>
     <artifactId>sakai-calendar-api</artifactId>
-    <version>2.9-SNAPSHOT</version>
+    <version>2.9.0-a01</version>
     <organization>
         <name>The Sakai Foundation</name>
         <url>http://sakaiproject.org/</url>
@@ -33,9 +33,9 @@
     </properties>
     
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/calendar/trunk/calendar-api/api</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/calendar/trunk/calendar-api/api</developerConnection>
-        <url>https://source.sakaiproject.org/svn/calendar/trunk/calendar-api/api</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/calendar/tags/calendar-2.9.0-a01/calendar-api/api</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/calendar/tags/calendar-2.9.0-a01/calendar-api/api</developerConnection>
+        <url>https://source.sakaiproject.org/svn/calendar/tags/calendar-2.9.0-a01/calendar-api/api</url>
     </scm>
 
     <dependencies>
