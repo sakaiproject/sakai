@@ -11,7 +11,7 @@
 	<name>Sakai Samigo Project (base POM)</name>
 	<groupId>org.sakaiproject.samigo</groupId>
 	<artifactId>samigo</artifactId>
-	<version>2.9.0-a01</version>
+	<version>2.9-SNAPSHOT</version>
 	<packaging>pom</packaging>
     
     <properties>
@@ -39,9 +39,9 @@
 	</modules>
 	
 	<scm>
-		<connection>scm:svn:https://source.sakaiproject.org/svn/sam/tags/samigo-2.9.0-a01</connection>
-		<developerConnection>scm:svn:https://source.sakaiproject.org/svn/sam/tags/samigo-2.9.0-a01</developerConnection>
-		<url>https://source.sakaiproject.org/svn/sam/tags/samigo-2.9.0-a01</url>
+		<connection>scm:svn:https://source.sakaiproject.org/svn/sam/trunk</connection>
+		<developerConnection>scm:svn:https://source.sakaiproject.org/svn/sam/trunk</developerConnection>
+		<url>https://source.sakaiproject.org/svn/sam/trunk</url>
 	</scm>
 	
 	<distributionManagement>
