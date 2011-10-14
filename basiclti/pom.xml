@@ -44,7 +44,7 @@
             <properties>
                 <sakai.entitybroker.version>1.5.0-a01</sakai.entitybroker.version>
                 <sakai.velocity.groupId>org.sakaiproject.velocity</sakai.velocity.groupId>
-                <sakai.velocity.version>2.9-SNAPSHOT</sakai.velocity.version>
+                <sakai.velocity.version>2.9.0-a01</sakai.velocity.version>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
                 <url.localsite>scp://source.sakaiproject.org/var/www/html/release/basiclti/${project.version}</url.localsite>
             </properties>
