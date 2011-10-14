@@ -6,12 +6,12 @@
     <parent>
         <groupId>org.sakaiproject.purepoms</groupId>
         <artifactId>sakai-standard-tool</artifactId>
-        <version>2.9-SNAPSHOT</version>
+        <version>2.9.0-a01</version>
     </parent>
 
     <name>sakai-calendar base pom</name>
     <groupId>org.sakaiproject.calendar</groupId>
-    <artifactId>calendar-base</artifactId>
+    <artifactId>calendar</artifactId>
     <version>2.9-SNAPSHOT</version>
     <packaging>pom</packaging>
 
@@ -28,8 +28,12 @@
     </modules>
     
     <properties>
-        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/calendar/${project.version}</url.localsite>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <sakai.assignment.version>2.9-SNAPSHOT</sakai.assignment.version>
+        <sakai.jsf.version>2.9.0-a01</sakai.jsf.version>
+        <sakai.site.version>2.9.0-a01</sakai.site.version>
+        <sakai.velocity.version>2.9.0-a01</sakai.velocity.version>
+        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/calendar/${project.version}</url.localsite>   
     </properties>
 
     <scm>
@@ -145,40 +149,40 @@
             <dependency>
                 <groupId>org.sakaiproject.assignment</groupId>
                 <artifactId>sakai-assignment-api</artifactId>
-                <version>2.9-SNAPSHOT</version>
+                <version>${sakai.assignment.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.jsf</groupId>
                 <artifactId>jsf-tool</artifactId>
-                <version>2.9-SNAPSHOT</version>
+                <version>${sakai.jsf.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.jsf</groupId>
                 <artifactId>jsf-app</artifactId>
-                <version>2.9-SNAPSHOT</version>
+                <version>${sakai.jsf.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.jsf</groupId>
                 <artifactId>myfaces-widgets-depend</artifactId>
-                <version>2.9-SNAPSHOT</version>
+                <version>${sakai.jsf.version}</version>
                 <type>pom</type>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.site</groupId>
                 <artifactId>sakai-mergedlist-util</artifactId>
-                <version>2.9-SNAPSHOT</version>
+                <version>${sakai.site.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.velocity</groupId>
                 <artifactId>sakai-velocity-tool-api</artifactId>
-                <version>2.9-SNAPSHOT</version>
+                <version>${sakai.velocity.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.velocity</groupId>
                 <artifactId>sakai-velocity-tool</artifactId>
-                <version>2.9-SNAPSHOT</version>
+                <version>${sakai.velocity.version}</version>
             </dependency>  
         </dependencies>
     </dependencyManagement>
