@@ -11,7 +11,7 @@
     <name>sakai-announcement base pom</name>
     <groupId>org.sakaiproject.announcement</groupId>
     <artifactId>announcement-base</artifactId>
-    <version>2.9-SNAPSHOT</version>
+    <version>2.9.0-a01</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -35,9 +35,9 @@
     </properties>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/announcement/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/announcement/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/announcement/trunk</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/announcement/tags/announcement-base-2.9.0-a01</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/announcement/tags/announcement-base-2.9.0-a01</developerConnection>
+        <url>https://source.sakaiproject.org/svn/announcement/tags/announcement-base-2.9.0-a01</url>
     </scm>
 
     <distributionManagement>
