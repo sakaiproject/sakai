@@ -29,7 +29,7 @@
     
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <sakai.assignment.version>2.9-SNAPSHOT</sakai.assignment.version>
+        <sakai.assignment.version>2.9.0-a01</sakai.assignment.version>
         <sakai.jsf.version>2.9.0-a01</sakai.jsf.version>
         <sakai.site.version>2.9.0-a01</sakai.site.version>
         <sakai.velocity.version>2.9.0-a01</sakai.velocity.version>

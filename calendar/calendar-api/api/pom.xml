@@ -4,11 +4,19 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
+        <groupId>org.sakaiproject.purepoms</groupId>
+        <artifactId>sakai-standard-tool</artifactId>
+        <version>2.9.0-a01</version>
+    </parent>
+
+    <!--
+    <parent>
         <groupId>org.sakaiproject.calendar</groupId>
-        <artifactId>calendar-base</artifactId>
+        <artifactId>calendar</artifactId>
         <version>2.9-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
+    -->
 
     <name>sakai-calendar-api</name>
     <groupId>org.sakaiproject.calendar</groupId>
@@ -23,6 +31,12 @@
     <properties>
         <deploy.target>shared</deploy.target>
     </properties>
+    
+    <scm>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/calendar/trunk/calendar-api/api</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/calendar/trunk/calendar-api/api</developerConnection>
+        <url>https://source.sakaiproject.org/svn/calendar/trunk/calendar-api/api</url>
+    </scm>
 
     <dependencies>
         <dependency>
