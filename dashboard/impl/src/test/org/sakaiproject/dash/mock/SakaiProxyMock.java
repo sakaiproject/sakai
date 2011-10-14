@@ -162,5 +162,16 @@ public class SakaiProxyMock implements SakaiProxy {
 		return null;
 	
 	}
+	
+	public String getSiteReference(String siteId)	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	public List<User> unlockUsers(String lock, String reference)
+	{
+		// TODO Auto-generated mathod stub
+		return null;
+	}
 
 }

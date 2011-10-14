@@ -15,6 +15,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
 import org.sakaiproject.assignment.api.Assignment;
+import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.logic.DashboardLogic;
@@ -52,6 +53,12 @@ public class AssignmentSupport {
 	protected SakaiProxy sakaiProxy;
 	public void setSakaiProxy(SakaiProxy proxy) {
 		this.sakaiProxy = proxy;
+	}
+	
+	protected AssignmentService assignmentService;
+	public void setAssignmentService(AssignmentService assignmentService)
+	{
+		this.assignmentService = assignmentService;
 	}
 	
 	protected EntityBroker entityBroker;
@@ -265,8 +272,17 @@ public class AssignmentSupport {
 		
 		public boolean isUserPermitted(String sakaiUserId, String accessPermission,
 				String entityReference, String contextId) {
-			// TODO: verify correct way to determine permission for the particular entity
-			return sakaiProxy.isUserPermitted(sakaiUserId, accessPermission, contextId);
+			// for now just check the permission for submit assignment
+			List users = assignmentService.allowAddSubmissionUsers(entityReference);
+			for (Object user : users)
+			{
+				if (sakaiUserId.equals(((User) user).getId()))
+				{
+					// user can submit
+					return true;
+				}
+			}
+			return false;
 		}
 		
 	}

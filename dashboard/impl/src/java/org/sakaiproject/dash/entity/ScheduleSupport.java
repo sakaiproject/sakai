@@ -199,8 +199,17 @@ public class ScheduleSupport{
 		
 		public boolean isUserPermitted(String sakaiUserId, String accessPermission,
 				String entityReference, String contextId) {
-			// TODO: verify correct way to determine permission for the particular entity
-			return sakaiProxy.isUserPermitted(sakaiUserId, accessPermission, contextId);
+			// use message read permission
+			List users = sakaiProxy.unlockUsers(accessPermission, sakaiProxy.getSiteReference(contextId));
+			for (Object user : users)
+			{
+				if (sakaiUserId.equals(((User) user).getId()))
+				{
+					// user can submit
+					return true;
+				}
+			}
+			return false;
 		}
 		
 		public String getString(String key, String dflt) {

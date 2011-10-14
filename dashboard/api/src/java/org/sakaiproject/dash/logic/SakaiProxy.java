@@ -206,4 +206,19 @@ public interface SakaiProxy {
 	 */
 	public String getScheduleEventUrl(String eventRef);
 
+	
+	/**
+	 * returns the site reference string based on the site id
+	 * @param siteId
+	 * @return
+	 */
+	public String getSiteReference(String siteId);
+	
+	/**
+	 * returns a list of users with permission to given reference
+	 * @param lock
+	 * @param reference
+	 * @return
+	 */
+	public List<User> unlockUsers(String lock, String reference);
 }

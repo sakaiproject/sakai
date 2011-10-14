@@ -309,6 +309,22 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return null;
 	}
 	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getSiteReference(String siteId)
+	{
+		return siteService.siteReference(siteId);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<User> unlockUsers(String lock, String reference)
+	{
+		return securityService.unlockUsers(lock, reference);
+	}
 
 	/************************************************************************
 	 * Spring-injected classes

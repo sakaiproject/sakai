@@ -13,8 +13,10 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
+import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
+import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.logic.DashboardLogic;
@@ -48,6 +50,11 @@ public class AnnouncementSupport{
 	protected DashboardLogic dashboardLogic;
 	public void setDashboardLogic(DashboardLogic dashboardLogic) {
 		this.dashboardLogic = dashboardLogic;
+	}
+
+	protected AnnouncementService announcementService;
+	public void setAnnouncementService(AnnouncementService announcementService) {
+		this.announcementService = announcementService;
 	}
 
 	public static final String IDENTIFIER = "announcement";
@@ -240,8 +247,18 @@ public class AnnouncementSupport{
 		
 		public boolean isUserPermitted(String sakaiUserId, String accessPermission,
 				String entityReference, String contextId) {
-			// TODO: verify correct way to determine permission for the particular entity
-			return sakaiProxy.isUserPermitted(sakaiUserId, accessPermission, contextId);
+			// use the message access checking for now
+			// use message read permission
+			List users = sakaiProxy.unlockUsers(accessPermission, sakaiProxy.getSiteReference(contextId));
+			for (Object user : users)
+			{
+				if (sakaiUserId.equals(((User) user).getId()))
+				{
+					// user can submit
+					return true;
+				}
+			}
+			return false;
 		}
 
 		public String getString(String key, String dflt) {
@@ -286,7 +303,7 @@ public class AnnouncementSupport{
 					sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ANNOUNCEMENT_ACCESS, EntityLinkStrategy.SHOW_PROPERTIES);
 				}
 				String accessUrl = ann.getUrl();
-				NewsItem newsItem = dashboardLogic.createNewsItem(ann.getAnnouncementHeader().getSubject(), event.getEventTime(), event.getResource(), context, sourceType);
+				NewsItem newsItem = dashboardLogic.createNewsItem(ann.getAnnouncementHeader().getSubject(), event.getEventTime(), ann.getReference(), context, sourceType);
 				if(dashboardLogic.isAvailable(newsItem.getEntityReference(), IDENTIFIER)) {
 					dashboardLogic.createNewsLinks(newsItem);
 					Date retractDate = getRetractDate(newsItem.getEntityReference());
