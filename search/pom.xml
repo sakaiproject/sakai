@@ -9,7 +9,7 @@
     <name>Sakai Search Project</name>
     <groupId>org.sakaiproject.search</groupId>
     <artifactId>search</artifactId>
-    <version>1.4-SNAPSHOT</version>
+    <version>1.4.0-a01</version>
     <packaging>pom</packaging>
     
     <properties>
@@ -18,9 +18,9 @@
     </properties>
     
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/search/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/search/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/search/trunk</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/search/tags/search-1.4.0-a01</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/search/tags/search-1.4.0-a01</developerConnection>
+        <url>https://source.sakaiproject.org/svn/search/tags/search-1.4.0-a01</url>
     </scm>
     
     <profiles>
