@@ -35,7 +35,12 @@
 	      	<groupId>org.sakaiproject.kernel</groupId>
 	      	<artifactId>sakai-component-manager</artifactId>
 	    </dependency>
-
+        <dependency> 
+            <groupId>org.sakaiproject.samigo</groupId> 
+            <artifactId>samigo-qti</artifactId> 
+            <version>${sakai.samigo.version}</version> 
+        </dependency>
+        
 		<!--  external dependencies -->
     	<dependency>
       		<groupId>org.apache.axis</groupId>
@@ -76,14 +81,7 @@
 	      	<groupId>commons-discovery</groupId>
 	      	<artifactId>commons-discovery</artifactId>
 	      	<version>0.2</version>
-	    </dependency>
-	    
-	    <dependency> 
-      		<groupId>org.sakaiproject.samigo</groupId> 
-      		<artifactId>samigo-qti</artifactId> 
-      		<version>2.9-SNAPSHOT</version> 
-    	</dependency> 
-	    
+	    </dependency>  
 	</dependencies>
   
   	<build>

@@ -49,8 +49,9 @@
     </modules>
     
     <properties>
-        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/webservices/${project.version}</url.localsite>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/webservices/${project.version}</url.localsite>
+        <sakai.samigo.version>2.9.0-a01</sakai.samigo.version>
     </properties>
     
     <scm>
