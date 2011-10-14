@@ -73,6 +73,11 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
 	
 	public class SimpleAssignment {
 		/**
+		 * the assignment id
+		 */
+		private String id;
+		
+		/**
 		 * the AssignmentContent of this Assignment.
 		 */
 		private AssignmentContent content;
@@ -198,7 +203,7 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
 
 		public SimpleAssignment(Assignment a) {
 			super();
-			//this.content = a.getContent();
+			this.id = a.getId();
 			this.contentReference = a.getContentReference();
 			this.openTime = a.getOpenTime();
 			this.openTimeString = a.getOpenTimeString();
@@ -231,6 +236,15 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
 				DecoratedAttachment decoratedAttachment = new DecoratedAttachment(name, url);
 				this.attachments.add(decoratedAttachment);
 			}
+		}
+		
+		public String getId() {
+			return id;
+		}
+		
+		public void setId(String id)
+		{
+			this.id = id;
 		}
 
 		public AssignmentContent getContent() {
