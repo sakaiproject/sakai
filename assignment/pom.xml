@@ -6,12 +6,12 @@
     <parent>
         <groupId>org.sakaiproject.purepoms</groupId>
         <artifactId>sakai-edu-tool</artifactId>
-        <version>2.9-SNAPSHOT</version>
+        <version>2.9.0-a01</version>
     </parent>
     
     <name>sakai-assignment base pom</name>
     <groupId>org.sakaiproject.assignment</groupId>
-    <artifactId>assignment-base</artifactId>
+    <artifactId>assignment</artifactId>
     <version>2.9-SNAPSHOT</version>
     <packaging>pom</packaging>
 
@@ -26,8 +26,14 @@
     </modules>
 
     <properties>
-        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/assignment/${project.version}</url.localsite>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <sakai.announcement.version>2.9.0-a01</sakai.announcement.version>
+        <sakai.calendar.version>2.9.0-a01</sakai.calendar.version>
+        <sakai.contentreview.version>2.9.2-a01</sakai.contentreview.version>
+        <sakai.message.version>2.9.0-a01</sakai.message.version>
+        <sakai.taggable.version>2.9.0-a01</sakai.taggable.version>
+        <sakai.velocity.version>2.9.0-a01</sakai.velocity.version>
+        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/assignment/${project.version}</url.localsite>
     </properties>
 
     <scm>
@@ -143,49 +149,49 @@
             <dependency>
                 <groupId>org.sakaiproject.announcement</groupId>
                 <artifactId>sakai-announcement-api</artifactId>
-                <version>2.9-SNAPSHOT</version>
+                <version>${sakai.announcement.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.calendar</groupId>
                 <artifactId>sakai-calendar-api</artifactId>
-                <version>2.9-SNAPSHOT</version>
+                <version>${sakai.calendar.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.contentreview</groupId>
                 <artifactId>contentreview-model-api</artifactId>
-                <version>2.9.2-SNAPSHOT</version>
+                <version>${sakai.contentreview.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.contentreview</groupId>
                 <artifactId>contentreview-service-api</artifactId>
-                <version>2.9.2-SNAPSHOT</version>
+                <version>${sakai.contentreview.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.message</groupId>
                 <artifactId>sakai-message-api</artifactId>
-                <version>2.9-SNAPSHOT</version>
+                <version>${sakai.message.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.taggable</groupId>
                 <artifactId>sakai-taggable-api</artifactId>
-                <version>2.9-SNAPSHOT</version>
+                <version>${sakai.taggable.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.velocity</groupId>
                 <artifactId>sakai-velocity-tool-api</artifactId>
-                <version>2.9-SNAPSHOT</version>
+                <version>${sakai.velocity.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.velocity</groupId>
                 <artifactId>sakai-velocity-tool</artifactId>
-                <version>2.9-SNAPSHOT</version>
+                <version>${sakai.velocity.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
