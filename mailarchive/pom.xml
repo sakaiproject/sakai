@@ -11,7 +11,7 @@
     <name>Sakai Mail Archive Project</name>
     <groupId>org.sakaiproject.mailarchive</groupId>
     <artifactId>mailarchive</artifactId>
-    <version>2.9.0-a01</version>
+    <version>2.9-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -37,9 +37,9 @@
     </properties>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/mailarchive/tags/mailarchive-2.9.0-a01</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/mailarchive/tags/mailarchive-2.9.0-a01</developerConnection>
-        <url>https://source.sakaiproject.org/svn/mailarchive/tags/mailarchive-2.9.0-a01</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/mailarchive/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/mailarchive/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/svn/mailarchive/trunk</url>
     </scm>
       
     <distributionManagement>
