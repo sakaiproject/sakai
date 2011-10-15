@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<assembly>
+    <id>tomcat-overlay</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>shared/lib/</outputDirectory>
+            <useTransitiveDependencies>false
+            </useTransitiveDependencies>
+            <includes>
+                <include>org.sakaiproject.mailarchive:sakai-mailarchive-api:jar:*</include>
+                <include>org.sakaiproject.mailarchive:sakai-mailarchive-help:jar:*</include>
+            </includes>
+            <unpack>false</unpack>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>components/sakai-mailarchive-pack</outputDirectory>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.sakaiproject.mailarchive:sakai-mailarchive-pack:war:*</include>
+            </includes>
+            <unpack>true</unpack>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>components/sakai-search-adapters-pack</outputDirectory>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.sakaiproject.mailarchive:sakai-search-adapters-pack:war:*</include>
+            </includes>
+            <unpack>true</unpack>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>webapps/</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}.war</outputFileNameMapping>
+            <!-- <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping> -->
+            <!-- <outputFileNameMapping>imsblti.war</outputFileNameMapping> -->
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                 <include>org.sakaiproject.mailarchive:sakai-mailarchive-tool:war:*</include>
+            </includes>
+            <unpack>false</unpack>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>webapps/</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}.war</outputFileNameMapping>
+            <!-- <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping> -->
+            <!-- <outputFileNameMapping>imsblti.war</outputFileNameMapping> -->
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                 <include>org.sakaiproject.mailarchive:sakai-mailarchive-james:war:*</include>
+            </includes>
+            <unpack>false</unpack>
+        </dependencySet>
+    </dependencySets>
+    <fileSets>
+        <fileSet>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>${project.basedir}/README*</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+</assembly>
