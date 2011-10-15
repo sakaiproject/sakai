@@ -6,12 +6,12 @@
     <parent>
         <groupId>org.sakaiproject.purepoms</groupId>
         <artifactId>sakai-standard-tool</artifactId>
-        <version>2.9-SNAPSHOT</version>
+        <version>2.9.0-a01</version>
     </parent>
 
     <name>sakai-courier base pom</name>
     <groupId>org.sakaiproject.courier</groupId>
-    <artifactId>courier-base</artifactId>
+    <artifactId>courier</artifactId>
     <version>2.9-SNAPSHOT</version>
     <packaging>pom</packaging>
 
@@ -25,8 +25,9 @@
     </modules>
     
     <properties>
+    	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    	<sakai.presence.version>2.9.0-a01</sakai.presence.version>
         <url.localsite>scp://source.sakaiproject.org/var/www/html/release/courier/${project.version}</url.localsite>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     
     <scm>
@@ -137,7 +138,7 @@
             <dependency>
                 <groupId>org.sakaiproject.presence</groupId>
                 <artifactId>sakai-presence-api</artifactId>
-                <version>2.9-SNAPSHOT</version>
+                <version>${sakai.presence.version}</version>
                 <scope>provided</scope>
             </dependency>
         </dependencies>
