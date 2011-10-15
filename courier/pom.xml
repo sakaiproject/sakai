@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.purepoms</groupId>
         <artifactId>sakai-standard-tool</artifactId>
-        <version>2.9.0-a01</version>
+        <version>2.9-SNAPSHOT</version>
     </parent>
 
     <name>sakai-courier base pom</name>
@@ -25,7 +25,7 @@
     
     <properties>
     	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    	<sakai.presence.version>2.9.0-a01</sakai.presence.version>
+    	<sakai.presence.version>2.9-SNAPSHOT</sakai.presence.version>
         <url.localsite>scp://source.sakaiproject.org/var/www/html/release/courier/${project.version}</url.localsite>
     </properties>
     
