@@ -78,11 +78,11 @@
 
         <!-- sakai -->
         <dependency>
-            <groupId>org.sakaiproject.mailarchive</groupId>
+            <groupId>${sakai.mailarchive.groupId}</groupId>
             <artifactId>sakai-mailarchive-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject</groupId>
+            <groupId>${sakai.message.groupId}</groupId>
             <artifactId>sakai-message-api</artifactId>
         </dependency>
 
