@@ -22,7 +22,7 @@
     <groupId>org.sakaiproject.mailsender</groupId>
     <artifactId>mailsender-base</artifactId>
     <name>Sakai Mail Sender Project</name>
-    <version>1.7.0-a01</version>
+    <version>1.7-SNAPSHOT</version>
     <description>Mail Sender base pom.</description>
     <organization>
         <name>Sakai Project</name>
@@ -144,9 +144,9 @@
     </developers>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/mailsender/tags/mailsender-base-1.7.0-a01</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/mailsender/tags/mailsender-base-1.7.0-a01</developerConnection>
-        <url>https://source.sakaiproject.org/svn/mailsender/tags/mailsender-base-1.7.0-a01</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/mailsender/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/mailsender/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/svn/mailsender/trunk</url>
     </scm>
 
     <distributionManagement>

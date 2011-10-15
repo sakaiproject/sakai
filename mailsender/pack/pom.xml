@@ -5,12 +5,13 @@
 	<parent>
 		<groupId>org.sakaiproject.mailsender</groupId>
 		<artifactId>mailsender-base</artifactId>
-		<version>1.7.0-a01</version>
+		<version>1.7-SNAPSHOT</version>
 	</parent>
     
 	<name>Sakai Mail Sender Components Pack</name>
     <groupId>org.sakaiproject.mailsender</groupId>
 	<artifactId>mailsender-pack</artifactId>
+  <version>1.7.0-a01</version>
     <description>Mail Sender components pack (special Sakai convention)</description>
 	<organization>
 		<name>Sakai Project</name>
