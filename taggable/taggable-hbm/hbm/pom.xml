@@ -4,7 +4,7 @@
 
     <parent>
         <groupId>org.sakaiproject.taggable</groupId>
-        <artifactId>taggable-base</artifactId>
+        <artifactId>taggable</artifactId>
         <version>2.9-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
