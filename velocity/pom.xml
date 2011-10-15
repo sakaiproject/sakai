@@ -11,7 +11,7 @@
     <name>sakai-velocity base pom</name>
     <groupId>org.sakaiproject.velocity</groupId>
     <artifactId>velocity</artifactId>
-    <version>2.9-SNAPSHOT</version>
+    <version>2.9.0-a01</version>
     <packaging>pom</packaging>
     
     <modules>
@@ -27,9 +27,9 @@
     </properties>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/velocity/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/velocity/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/velocity/trunk</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/velocity/tags/velocity-2.9.0-a01</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/velocity/tags/velocity-2.9.0-a01</developerConnection>
+        <url>https://source.sakaiproject.org/svn/velocity/tags/velocity-2.9.0-a01</url>
     </scm>
     
     <distributionManagement>
