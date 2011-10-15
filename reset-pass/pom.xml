@@ -13,8 +13,10 @@
 	<packaging>pom</packaging>
     
 	<properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <sakai.entitybroker.version>1.5-SNAPSHOT</sakai.entitybroker.version>
+        <sakai.emailtemplateservice.version>0.6-SNAPSHOT</sakai.emailtemplateservice.version>
 		<url.localsite>scp://source.sakaiproject.org/var/www/html/release/reset-pass/${project.version}</url.localsite>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	
 	<modules>
@@ -162,12 +164,12 @@
             <dependency>
                 <groupId>org.sakaiproject.entitybroker</groupId>
                 <artifactId>entitybroker-utils</artifactId>
-                <version>1.5-SNAPSHOT</version>
+                <version>${sakai.entitybroker.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.emailtemplateservice</groupId>
                 <artifactId>emailtemplateservice-api</artifactId>
-                <version>0.6-SNAPSHOT</version>
+                <version>${sakai.emailtemplateservice.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
