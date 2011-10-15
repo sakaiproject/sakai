@@ -6,6 +6,7 @@
         <groupId>org.sakaiproject.mailarchive</groupId>
         <artifactId>mailarchive</artifactId>
         <version>2.9-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <name>sakai-mailarchive-assembly</name>
