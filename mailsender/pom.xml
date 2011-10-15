@@ -144,9 +144,9 @@
     </developers>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/contrib/mailsender/tags/mailsender-base-1.7.0-a01</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/mailsender/tags/mailsender-base-1.7.0-a01</developerConnection>
-        <url>https://source.sakaiproject.org/contrib/mailsender/tags/mailsender-base-1.7.0-a01</url>
+        <connection>scm:svn:https://source.sakaiproject.org/contrib/mailsender/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/mailsender/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/contrib/mailsender/tags/trunk</url>
     </scm>
 
     <distributionManagement>
