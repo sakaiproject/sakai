@@ -554,7 +554,7 @@
             </dependency>
             <!--org.sakaiprojectsakai-jcr-api${sakai.version}provided-->
             <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.mailarchive</groupId>
                 <artifactId>sakai-mailarchive-api</artifactId>
                 <version>${sakai.version}</version>
                 <scope>provided</scope>
