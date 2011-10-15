@@ -11,7 +11,7 @@
     <name>sakai-taggable base pom</name>
     <groupId>org.sakaiproject.taggable</groupId>
     <artifactId>taggable</artifactId>
-    <version>2.9.0-a01</version>
+    <version>2.9-SNAPSHOT</version>
     <packaging>pom</packaging>
     
     <modules>
@@ -28,9 +28,9 @@
     </properties>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/taggable/tags/taggable-2.9.0-a01</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/taggable/tags/taggable-2.9.0-a01</developerConnection>
-        <url>https://source.sakaiproject.org/svn/taggable/tags/taggable-2.9.0-a01</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/taggable/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/taggable/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/svn/taggable/trunk</url>
     </scm>
     
     <distributionManagement>
