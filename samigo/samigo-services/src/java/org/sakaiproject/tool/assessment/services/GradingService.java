@@ -785,6 +785,12 @@ public class GradingService
 	    	  public int compare(Object o1, Object o2) {
 	    		  ItemGradingIfc gradeData1 = (ItemGradingIfc) o1;
 	    		  ItemGradingIfc gradeData2 = (ItemGradingIfc) o2;
+	    		  
+	    		  // protect against blank ones in samigo initial setup.
+	    		  if (gradeData1 == null) return -1; 
+	    		  if (gradeData2 == null) return 1;
+	    		  if (gradeData1.getPublishedAnswerId() == null) return -1; 
+	    		  if (gradeData2.getPublishedAnswerId() == null) return 1; 
 	    		  return gradeData1.getPublishedAnswerId().compareTo(gradeData2.getPublishedAnswerId());
 	    	  }
 	      });
@@ -1089,7 +1095,7 @@ public class GradingService
     	  try {
     	      if (type == 14) {  // CALCULATED_QUESTION
 	              HashMap calculatedAnswersMap = getCalculatedAnswersMap(itemGrading, item);
-	              int numAnswers = calculatedAnswersMap.size(); //TODO: make this the real number of answers
+	              int numAnswers = calculatedAnswersMap.size();
 	              autoScore = getCalcQScore(itemGrading, item, calculatedAnswersMap, calcQuestionAnswerSequence ) / (float) numAnswers;
 	          } else {
 	              autoScore = getFINScore(itemGrading, item, publishedAnswerHash) / (float) ((ItemTextIfc) item.getItemTextSet().toArray()[0]).getAnswerSet().size();
@@ -1651,7 +1657,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  
 	  
 	  // this compares the correctAnswer against the userAnsewr
-	  boolean closeEnough = (Math.abs(correctAnswer - userAnswer) <= acceptableVariance);
+	  boolean closeEnough = (Math.abs(correctAnswer - userAnswer) <= Math.abs(acceptableVariance));
 	  if (closeEnough){
 		  totalScore += itemdata.getScore(); 
 	  }	

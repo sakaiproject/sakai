@@ -2602,6 +2602,9 @@ public class DeliveryActionListener
 		  		agentId = delivery.getAssessmentGrading().getAgentId();
 		  	}
 		  	else { // Instructor or TA is accessing the data
+		  		if (itemBean.getItemGradingDataArray().size() == 0) {
+		  			return "error";
+		  		}
 		  		Iterator iterForAgent = itemBean.getItemGradingDataArray().iterator();
 		  		ItemGradingIfc dataForAgent = (ItemGradingIfc) iterForAgent.next();
 		  		agentId = dataForAgent.getAgentId();
