@@ -11,7 +11,7 @@
     <name>sakai-site base pom</name>
     <groupId>org.sakaiproject.site</groupId>
     <artifactId>site</artifactId>
-    <version>2.9-SNAPSHOT</version>
+    <version>2.9.0-a01</version>
     <packaging>pom</packaging>
     
     <profiles>
@@ -43,9 +43,9 @@
     </properties>
     
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/site/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/site/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/site/trunk</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/site/tags/site-2.9.0-a01</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/site/tags/site-2.9.0-a01</developerConnection>
+        <url>https://source.sakaiproject.org/svn/site/tags/site-2.9.0-a01</url>
     </scm>
     
     <distributionManagement>
