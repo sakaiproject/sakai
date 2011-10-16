@@ -1,277 +1,321 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <name>Sakai SiteStats Implementation</name>
-  <groupId>org.sakaiproject.sitestats</groupId>
-  <artifactId>sitestats-impl</artifactId>
-  <organization>
-    <name>Universidade Fernando Pessoa</name>
-    <url>http://www.ufp.pt</url>
-  </organization>
-  <inceptionYear>2006</inceptionYear>
-
-  <!-- Parent: Sakai SiteStats base -->
-  <parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <name>Sakai SiteStats Implementation</name>
     <groupId>org.sakaiproject.sitestats</groupId>
-    <artifactId>sitestats</artifactId>
-    <version>2.3-SNAPSHOT</version><!-- sitestats.version --> 
-  </parent>
-  
-  <!-- Packaging -->
-  <packaging>jar</packaging>
-  
-  <!-- Profiles -->
-  <profiles>
-    <profile>
-      <!-- Execute performance tests (instead) -->
-      <id>perftests</id>
-      <properties>
-        <perftests.includes>**/*TestPerf.java</perftests.includes>
-      </properties>
-    </profile>
-  </profiles>
-  
-  <!-- Dependencies -->
-  <dependencies>
-    <!-- Kernel -->
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-util</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-component-manager</artifactId>
-    </dependency>
-    
-    <!-- SiteStats -->
-    <dependency>
-      <groupId>org.sakaiproject.sitestats</groupId>
-      <artifactId>sitestats-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.sitestats</groupId>
-      <artifactId>sitestats-impl-hib</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.sitestats</groupId>
-      <artifactId>sitestats-bundle</artifactId>
-    </dependency>
-    
-    <!-- Other Sakai -->
-    <dependency>
-      <groupId>org.sakaiproject.entitybroker</groupId>
-      <artifactId>entitybroker-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.scheduler</groupId>
-      <artifactId>scheduler-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.scheduler</groupId>
-      <artifactId>scheduler-component-shared</artifactId>
-    </dependency>
-    
-    <!-- Spring & Hibernate -->
-    <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework</groupId>
-        <artifactId>spring</artifactId>
-    </dependency>
-    
-    <!-- Apache Commons -->
-    <dependency>
-      <groupId>commons-pool</groupId>
-      <artifactId>commons-pool</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-digester</groupId>
-      <artifactId>commons-digester</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-beanutils</groupId>
-          <artifactId>commons-beanutils</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>commons-betwixt</groupId>
-      <artifactId>commons-betwixt</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-beanutils</groupId>
-      <artifactId>commons-beanutils-core</artifactId>
-    </dependency>
-    
-    <!-- Apache others -->
-    <dependency>
-      <groupId>org.apache.xmlgraphics</groupId>
-      <artifactId>fop</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.poi</groupId>
-      <artifactId>poi</artifactId>
-    </dependency>
-    
-    <!-- Quartz -->
-    <dependency>
-        <groupId>org.opensymphony.quartz</groupId>
-        <artifactId>quartz</artifactId>
-        <version>1.6.6</version>
-        <scope>provided</scope>
-    </dependency>
-    
-    <!--  JFreeChart -->
-    <dependency>
-      <groupId>jfree</groupId>
-      <artifactId>jfreechart</artifactId>
-    </dependency>
+    <artifactId>sitestats-impl</artifactId>
+    <organization>
+        <name>Universidade Fernando Pessoa</name>
+        <url>http://www.ufp.pt</url>
+    </organization>
+    <inceptionYear>2006</inceptionYear>
 
-    <!-- Testing dependencies -->
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>hsqldb</groupId>
-      <artifactId>hsqldb</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <scope>test</scope>
-    </dependency> 
-    <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <!-- <dependency>
-      <groupId>com.oracle</groupId>
-      <artifactId>ojdbc14</artifactId>
-      <scope>test</scope>
-    </dependency> -->
-    <dependency>
-      <groupId>dom4j</groupId>
-      <artifactId>dom4j</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>jta</groupId>
-      <artifactId>jta</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>cglib</groupId>
-      <artifactId>cglib-nodep</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache-core</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.easymock</groupId>
-      <artifactId>easymock</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.easymock</groupId>
-      <artifactId>easymockclassextension</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.mock</groupId>
-      <artifactId>sakai-mock</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <type>jar</type>
-      <scope>test</scope>
-    </dependency>
+    <!-- Parent: Sakai SiteStats base -->
+    <parent>
+        <groupId>org.sakaiproject.sitestats</groupId>
+        <artifactId>sitestats</artifactId>
+        <version>2.3-SNAPSHOT</version><!-- sitestats.version -->
+    </parent>
 
-	<dependency>
-	  <groupId>org.slf4j</groupId>
-   	  <artifactId>slf4j-log4j12</artifactId>
-	  </dependency>
-  </dependencies>
+    <!-- Packaging -->
+    <packaging>jar</packaging>
 
-  <!-- Build -->
-  <build>
-    <resources>
-      <resource>
-        <directory>src/java</directory>
-        <includes>
-          <include>**/*.xml</include>
-        </includes>
-        <excludes>
-          <exclude>**/web.xml</exclude>
-        </excludes>
-      </resource>
-    </resources>
-    
-    <!-- Unit testing -->
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.6</version>
-        <configuration>
-          <includes>
-          	<include>**/*Test.java</include>
-            <include>${perftests.includes}</include>
-          </includes>
-        </configuration>
-      </plugin>
-    </plugins>
-    <testResources>
-      <testResource>
-        <directory>src/test</directory>
-        <includes>
-          <include>**/*.xml</include>
-          <include>**/*.properties</include>
-        </includes>
-      </testResource>
-      <testResource>
-        <directory>${basedir}/../sitestats-pack/src/webapp/WEB-INF</directory>
-        <includes>
-          <!--<include>hbm-db.xml</include>-->
-        </includes>
-      </testResource>
-    </testResources>  
-  </build>
+    <!-- Dependencies -->
+    <dependencies>
+        <!-- Kernel -->
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+
+        <!-- SiteStats -->
+        <dependency>
+            <groupId>org.sakaiproject.sitestats</groupId>
+            <artifactId>sitestats-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.sitestats</groupId>
+            <artifactId>sitestats-impl-hib</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.sitestats</groupId>
+            <artifactId>sitestats-bundle</artifactId>
+        </dependency>
+
+        <!-- Other Sakai -->
+        <dependency>
+            <groupId>org.sakaiproject.entitybroker</groupId>
+            <artifactId>entitybroker-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.scheduler</groupId>
+            <artifactId>scheduler-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.scheduler</groupId>
+            <artifactId>scheduler-component-shared</artifactId>
+        </dependency>
+
+        <!-- Spring & Hibernate -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring</artifactId>
+        </dependency>
+
+        <!-- Apache Commons -->
+        <dependency>
+            <groupId>commons-pool</groupId>
+            <artifactId>commons-pool</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-digester</groupId>
+            <artifactId>commons-digester</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-beanutils</groupId>
+                    <artifactId>commons-beanutils</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>commons-betwixt</groupId>
+            <artifactId>commons-betwixt</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils-core</artifactId>
+        </dependency>
+
+        <!-- Apache others -->
+        <dependency>
+            <groupId>org.apache.xmlgraphics</groupId>
+            <artifactId>fop</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+        </dependency>
+
+        <!-- Quartz -->
+        <dependency>
+            <groupId>org.opensymphony.quartz</groupId>
+            <artifactId>quartz</artifactId>
+            <version>1.6.6</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- JFreeChart -->
+        <dependency>
+            <groupId>jfree</groupId>
+            <artifactId>jfreechart</artifactId>
+        </dependency>
+
+        <!-- Testing dependencies -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- <dependency> <groupId>com.oracle</groupId> <artifactId>ojdbc14</artifactId> 
+            <scope>test</scope> </dependency> -->
+        <dependency>
+            <groupId>dom4j</groupId>
+            <artifactId>dom4j</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>jta</groupId>
+            <artifactId>jta</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-nodep</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymockclassextension</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.mock</groupId>
+            <artifactId>sakai-mock</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <type>jar</type>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+        </dependency>
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <resources>
+                    <resource>
+                        <directory>src/java</directory>
+                        <includes>
+                            <include>**/*.xml</include>
+                        </includes>
+                        <excludes>
+                            <exclude>**/web.xml</exclude>
+                        </excludes>
+                    </resource>
+                </resources>
+
+                <!-- Unit testing -->
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.6</version>
+                        <configuration>
+                            <includes>
+                                <include>**/*Test.java</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+                <testResources>
+                    <testResource>
+                        <directory>src/test</directory>
+                        <includes>
+                            <include>**/*.xml</include>
+                            <include>**/*.properties</include>
+                        </includes>
+                    </testResource>
+                    <testResource>
+                        <directory>${basedir}/../sitestats-pack/src/webapp/WEB-INF</directory>
+                        <includes>
+                            <include>hbm-db.xml</include>
+                        </includes>
+                    </testResource>
+                </testResources>
+            </build>
+        </profile>
+        <profile>
+            <!-- Execute performance tests (instead) -->
+            <id>perftests</id>
+            <properties>
+                <perftests.includes>**/*TestPerf.java</perftests.includes>
+            </properties>
+
+            <build>
+                <resources>
+                    <resource>
+                        <directory>src/java</directory>
+                        <includes>
+                            <include>**/*.xml</include>
+                        </includes>
+                        <excludes>
+                            <exclude>**/web.xml</exclude>
+                        </excludes>
+                    </resource>
+                </resources>
+
+                <!-- Unit testing -->
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.6</version>
+                        <configuration>
+                            <includes>
+                                <include>**/*Test.java</include>
+                                <include>${perftests.includes}</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                </plugins>
+                <testResources>
+                    <testResource>
+                        <directory>src/test</directory>
+                        <includes>
+                            <include>**/*.xml</include>
+                            <include>**/*.properties</include>
+                        </includes>
+                    </testResource>
+                    <testResource>
+                        <directory>${basedir}/../sitestats-pack/src/webapp/WEB-INF</directory>
+                        <includes>
+                            <include>hbm-db.xml</include>
+                        </includes>
+                    </testResource>
+                </testResources>
+            </build>
+        </profile>
+    </profiles>
 </project>
