@@ -24,7 +24,6 @@
 	</parent>
 	<name>Sakai Mail Sender Tool</name>
 	<artifactId>mailsender-tool</artifactId>
-  <version>1.7.0-a01</version>
 	<description>This project creates a WAR containing the Mail Sender Tool for Sakai.</description>
 	<packaging>war</packaging>
 	<!-- RSF (CARET) maven 2 repositories -->

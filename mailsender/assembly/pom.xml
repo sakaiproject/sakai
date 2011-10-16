@@ -12,7 +12,6 @@
     <name>Sakai Mail Sender Assembly</name>
     <groupId>org.sakaiproject.mailsender</groupId>
     <artifactId>mailsender-assembly</artifactId>
-  <version>1.7.0-a01</version>
     <description>Mail Sender assembly module</description>
     <organization>
         <name>Sakai Project</name>

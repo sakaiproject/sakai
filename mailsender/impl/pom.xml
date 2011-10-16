@@ -12,7 +12,6 @@
     <name>Sakai Mail Sender Impl</name>
     <groupId>org.sakaiproject.mailsender</groupId>
     <artifactId>mailsender-impl</artifactId>
-  <version>1.7.0-a01</version>
     <description>Mail Sender Internal Implementation (uses internal mail service)</description>
     <organization>
         <name>Sakai Project</name>

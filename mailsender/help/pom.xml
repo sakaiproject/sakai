@@ -12,7 +12,6 @@
     <name>Sakai Mail Sender Help</name>
     <groupId>org.sakaiproject.mailsender</groupId>
     <artifactId>mailsender-help</artifactId>
-  <version>1.7.0-a01</version>
     <description>Mail Sender help module.</description>
     <organization>
         <name>Sakai Project</name>
