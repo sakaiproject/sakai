@@ -5,7 +5,7 @@
     <parent>
         <artifactId>sakai-standard-tool</artifactId>
         <groupId>org.sakaiproject.purepoms</groupId>
-        <version>2.9-SNAPSHOT</version>
+        <version>2.9.0-a01</version>
     </parent>
 
     <name>Sakai SiteStats</name>
@@ -34,8 +34,8 @@
         <poi.version>3.7</poi.version>
         <jfreechart.version>1.0.5</jfreechart.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <sakai.sakai-mock.version>2.9-SNAPSHOT</sakai.sakai-mock.version>
-        <sakai.scheduler.version>2.9-SNAPSHOT</sakai.scheduler.version>
+        <sakai.sakai-mock.version>2.9.0-a01</sakai.sakai-mock.version>
+        <sakai.scheduler.version>2.9.0-a01</sakai.scheduler.version>
         <sst.wicket.version>1.4.9</sst.wicket.version>
         <sst.slf4j.version>1.4.3</sst.slf4j.version>
         <url.localsite>scp://source.sakaiproject.org/var/www/html/release/sitestats/${project.version}</url.localsite>
