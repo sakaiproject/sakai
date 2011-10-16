@@ -27,12 +27,14 @@
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
+        <!--
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>mailsender-impl</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
+        -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>mailsender-pack</artifactId>
@@ -47,7 +49,6 @@
             <scope>compile</scope>
             <type>war</type>
         </dependency>
-
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>mailsender-help</artifactId>
