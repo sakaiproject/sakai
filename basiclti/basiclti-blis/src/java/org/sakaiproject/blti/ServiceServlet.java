@@ -901,8 +901,9 @@ public class ServiceServlet extends HttpServlet {
 					theGrade = g.getAssignmentScoreString(siteId, assignment, user_id);
 					dGrade = new Double(theGrade);
 					dGrade = dGrade / assignmentObject.getPoints();
-					theMap.put("/readResult/result/sourcedId", sourced_id);
-					theMap.put("/readResult/result/resultScore/textString", dGrade.toString());
+					theMap.put("/readResultResponse/result/sourcedId", sourced_id);
+					theMap.put("/readResultResponse/result/resultScore/textString", dGrade.toString());
+					theMap.put("/readResultResponse/result/resultScore/language", "en");
 					message = "Result read";
 				} else { 
 					dGrade = new Double(result_resultscore_textstring);
@@ -910,7 +911,7 @@ public class ServiceServlet extends HttpServlet {
 					g.setAssignmentScore(siteId, assignment, user_id, dGrade, "External Outcome");
 
 					M_log.info("Stored Score=" + siteId + " assignment="+ assignment + " user_id=" + user_id + " score="+ result_resultscore_textstring);
-					theMap.put("/replaceResult", "");
+					theMap.put("/replaceResultResponse", "");
 					message = "Result replaced";
 				}
 				success = true;
