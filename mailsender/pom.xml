@@ -31,12 +31,6 @@
     <inceptionYear>2007</inceptionYear>
     <packaging>pom</packaging>
 
-    <properties>
-        <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
-        <rsfutil.version>0.7.4</rsfutil.version>
-        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/mailsender/${project.version}</url.localsite>
-    </properties>
-
     <modules>
         <module>api</module>
         <module>assembly</module>
@@ -57,6 +51,8 @@
                 <sakai.mailarchive.version>2.9.0-a01</sakai.mailarchive.version>
                 <sakai.message.groupId>org.sakaiproject.message</sakai.message.groupId>
                 <sakai.message.version>2.9.0-a01</sakai.message.version>
+                <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
+                <rsfutil.version>0.7.4</rsfutil.version>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
                 <url.localsite>scp://source.sakaiproject.org/var/www/html/release/mailsender/${project.version}</url.localsite>
             </properties>
@@ -68,6 +64,8 @@
                 <sakai.mailarchive.version>2.8.1</sakai.mailarchive.version>
                 <sakai.message.groupId>org.sakaiproject</sakai.message.groupId>
                 <sakai.message.version>2.8.1</sakai.message.version>
+                <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
+                <rsfutil.version>0.7.4</rsfutil.version>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
                 <url.localsite>scp://source.sakaiproject.org/var/www/html/release/mailsender/${project.version}</url.localsite>
             </properties>
@@ -79,6 +77,8 @@
                 <sakai.mailarchive.version>2.7.2</sakai.mailarchive.version>
                 <sakai.message.groupId>org.sakaiproject</sakai.message.groupId>
                 <sakai.message.version>2.7.2</sakai.message.version>
+                <sakairsf.sakai.version>2.2.x</sakairsf.sakai.version>
+                <rsfutil.version>0.7.4</rsfutil.version>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
                 <url.localsite>scp://source.sakaiproject.org/var/www/html/release/mailsender/${project.version}</url.localsite>
             </properties>
