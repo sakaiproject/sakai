@@ -77,10 +77,13 @@ public class ScheduleSupport{
 		this.dashboardLogic.registerEntityType(scheduleEntityType);
 		this.dashboardLogic.registerEventProcessor(new ScheduleNewEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new ScheduleRemoveEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ScheduleUpdateTimeEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new ScheduleUpdateTitleEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new ScheduleReviseEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new ScheduleUpdateAccessEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new ScheduleUpdateFrequencyEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ScheduleUpdateExcludedEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ScheduleUpdateExclusionsEventProcessor());
 		
 		scheduleEventTypeMap = new HashMap<String,String>();
 		
@@ -466,6 +469,51 @@ public class ScheduleSupport{
 
 	}
 	
+	/**
+	 * Inner Class: ScheduleUpdateTitleEventProcessor
+	 */
+	public class ScheduleUpdateTimeEventProcessor implements EventProcessor {
+		
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#getEventIdentifer()
+		 */
+		public String getEventIdentifer() {
+			
+			return SakaiProxy.EVENT_MODIFY_CALENDAR_EVENT_TIME;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
+		 */
+		public void processEvent(Event event) {
+			
+			if(logger.isInfoEnabled()) {
+				logger.info("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
+			if(logger.isDebugEnabled()) {
+				logger.debug("updating time of calendar item for " + event.getResource());
+			}
+			Entity entity = sakaiProxy.getEntity(event.getResource());
+			
+			if(entity != null && entity instanceof CalendarEvent) {
+				// get the assignment entity and its current title
+				CalendarEvent cEvent = (CalendarEvent) entity;
+				
+				TimeRange range = cEvent.getRange();
+				
+				// update calendar item title
+				dashboardLogic.reviseCalendarItemsTime(cEvent.getReference(), new Date(range.firstTime().getTime()));
+			}
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug("removing news links and news item for " + event.getResource());
+			}
+
+		}
+
+	}
+
 	public class ScheduleReviseEventProcessor implements EventProcessor {
 
 		public String getEventIdentifer() {
@@ -521,6 +569,93 @@ public class ScheduleSupport{
 				logger.debug("revising calendar item for " + event.getResource());
 			}
 
+		}
+	
+	}
+	
+	public class ScheduleUpdateExcludedEventProcessor implements EventProcessor {
+
+		public String getEventIdentifer() {
+			
+			return SakaiProxy.EVENT_MODIFY_CALENDAR_EVENT_EXCLUDED;
+		}
+
+		public void processEvent(Event event) {
+			if(logger.isInfoEnabled()) {
+				logger.info("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
+			
+			// This is a case of a revision to one instance of a repeating event. If effect, 
+			// a new calendar-event entity has been created to represent the instance that 
+			// was excluded from the recurring event.  
+			String eventId = event.getEvent();
+			
+			String eventContextString = event.getContext();
+			
+			Entity entity = sakaiProxy.getEntity(event.getResource());
+			// handle add events
+			if(entity != null && entity instanceof CalendarEvent) {
+			
+				CalendarEvent cEvent = (CalendarEvent) entity;
+
+				String cEventReference = cEvent.getReference();
+				
+				Context context = dashboardLogic.getContext(eventContextString);
+				if(context == null) {
+					context = dashboardLogic.createContext(eventContextString);
+				}
+				SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
+				if(sourceType == null) {
+					sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_SCHEDULE_ACCESS, EntityLinkStrategy.SHOW_PROPERTIES);
+				}
+				
+				// Third parameter in dashboardLogic.createCalendarItem() below should be a key for a label such as "Due Date: " or "Accept Until: " 
+				// from dash_entity properties bundle for use in the dashboard list
+				String type = cEvent.getType();
+				// Based on the event-type, we may be able to select a key for a label? 
+				String key = null;
+				if(type == null) {
+					key = "";
+				} else {
+					key = scheduleEventTypeMap.get(type);
+					if(key == null) {
+						key = "";
+					}
+				}
+				
+				// The schedule tool and/or service does not save a recurrence rule for the newly  
+				// separated calendar event, though the UI elements are presented to the user,
+				// so we will assume this to be a non-repeating event.
+				CalendarItem calendarItem = dashboardLogic.createCalendarItem(cEvent.getDisplayName(), new Date(cEvent.getRange().firstTime().getTime()), key, cEventReference, context, sourceType, null, null);
+				dashboardLogic.createCalendarLinks(calendarItem);
+			} else {
+				// for now, let's log the error
+				logger.info(eventId + " is not processed for entityReference " + event.getResource());
+			}
+		}
+	
+	}
+	
+	public class ScheduleUpdateExclusionsEventProcessor implements EventProcessor {
+
+		public String getEventIdentifer() {
+			
+			return SakaiProxy.EVENT_MODIFY_CALENDAR_EVENT_EXCLUSIONS;
+		}
+
+		public void processEvent(Event event) {
+			if(logger.isInfoEnabled()) {
+				logger.info("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
+			
+			// This is a case of a revision to one instance of a repeating event, which is 
+			// then no longer an instance of the repeating event. This event processor handles
+			// the change to the repeating event: exclusion of one instance from the sequence.
+			
+			// TODO: remove the calendar item if it has already been created.
+			
 		}
 	
 	}
