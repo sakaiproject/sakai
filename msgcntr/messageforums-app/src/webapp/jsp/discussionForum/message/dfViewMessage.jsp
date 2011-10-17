@@ -226,20 +226,20 @@
 					<h:outputText rendered="#{ForumTool.selectedMessage.message.deleted && !ForumTool.needToPostFirst}"  value="#{msgs.cdfm_msg_deleted_label}" styleClass="instruction"/>
 					<h:outputText value="#{msgs.cdfm_postFirst_warning}" rendered="#{ForumTool.needToPostFirst}" styleClass="messageAlert"/>
 					<h:panelGroup rendered="#{!ForumTool.selectedMessage.message.deleted}" style="display:block">
-						<h:panelGroup styleClass="authorImage">
-							<h:outputLink value="#{ForumTool.serverUrl}/direct/profile/#{ForumTool.selectedMessage.message.authorId}/formatted" styleClass="authorProfile" rendered="#{ForumTool.showProfileInfo}">
+						<h:panelGroup styleClass="authorImage" rendered="#{ForumTool.showProfileInfo}">
+							<h:outputLink value="#{ForumTool.serverUrl}/direct/profile/#{ForumTool.selectedMessage.message.authorId}/formatted" styleClass="authorProfile" rendered="#{ForumTool.showProfileLink}">
 								<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{ForumTool.selectedMessage.message.authorId}/image/thumb" alt="#{ForumTool.selectedMessage.message.author}" />
 							</h:outputLink>
-							<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{ForumTool.selectedMessage.message.authorId}/image/thumb" alt="#{ForumTool.selectedMessage.message.author}" rendered="#{!ForumTool.showProfileInfo}"/>
+							<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{ForumTool.selectedMessage.message.authorId}/image/thumb" alt="#{ForumTool.selectedMessage.message.author}" rendered="#{!ForumTool.showProfileLink}"/>
 						</h:panelGroup>
 						<h:outputText rendered="#{ ForumTool.selectedMessage.msgDenied}" value="#{msgs.cdfm_msg_denied_label}" styleClass="messageDenied"/>
 						<h:outputText 	rendered="#{ForumTool.allowedToApproveMsg && ForumTool.allowedToDenyMsg}" value="#{msgs.cdfm_msg_pending_label}" styleClass="messagePending"/>
 						<h:outputText value="#{ForumTool.selectedMessage.message.title}"  styleClass="title" />
 						<h:outputText value="<br />" escape="false" />
-						<h:outputLink value="#{ForumTool.serverUrl}/direct/profile/#{ForumTool.selectedMessage.message.authorId}/formatted" styleClass="authorProfile" rendered="#{ForumTool.showProfileInfo}">
+						<h:outputLink value="#{ForumTool.serverUrl}/direct/profile/#{ForumTool.selectedMessage.message.authorId}/formatted" styleClass="authorProfile" rendered="#{ForumTool.showProfileLink}">
 							<h:outputText value="#{ForumTool.selectedMessage.message.author}" styleClass="textPanelFooter"/>
 						</h:outputLink>
-						<h:outputText value="#{ForumTool.selectedMessage.message.author}" styleClass="textPanelFooter" rendered="#{!ForumTool.showProfileInfo}"/>
+						<h:outputText value="#{ForumTool.selectedMessage.message.author}" styleClass="textPanelFooter" rendered="#{!ForumTool.showProfileLink}"/>
 						<h:outputText value=" #{msgs.cdfm_openb} "  styleClass="textPanelFooter" />
 						<h:outputText value="#{ForumTool.selectedMessage.message.created}"  styleClass="textPanelFooter" >
 							<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>  

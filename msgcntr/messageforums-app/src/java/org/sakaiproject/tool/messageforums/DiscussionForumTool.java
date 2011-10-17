@@ -261,7 +261,8 @@ public class DiscussionForumTool
   private boolean showForumLinksInNav = true;
   private boolean showShortDescription = true;
   private boolean collapsePermissionPanel = false;
-  private boolean showProfileInfo = true;
+  private boolean showProfileInfo = false;
+  private boolean showProfileLink = false;
 
   // compose
   private MessageForumsMessageManager messageManager;
@@ -387,8 +388,8 @@ public class DiscussionForumTool
     showForumLinksInNav = ServerConfigurationService.getBoolean("mc.showForumLinksInNav", true);
     showShortDescription = ServerConfigurationService.getBoolean("mc.showShortDescription", true);
     collapsePermissionPanel = ServerConfigurationService.getBoolean("mc.collapsePermissionPanel", false);
-    showProfileInfo = ServerConfigurationService.getBoolean("profile2.profile.link.enabled", true);
-
+    showProfileInfo = ServerConfigurationService.getBoolean("msgcntr.forums.showProfileInfo", false);
+    showProfileLink = showProfileInfo && ServerConfigurationService.getBoolean("profile2.profile.link.enabled", true);
   }
 
   // Is Gradebook defined for the site?
@@ -8680,11 +8681,11 @@ public class DiscussionForumTool
 	}
 	
 	public boolean getShowProfileInfo() {
-		if (showProfileInfo) {
-			return true;
-		} else {
-			return false;
-		}
+	    return showProfileInfo;
+	}
+	
+	public boolean getShowProfileLink() {
+		return showProfileLink;
 	}
 	public Locale getUserLocale(){
 		return new ResourceLoader().getLocale();
