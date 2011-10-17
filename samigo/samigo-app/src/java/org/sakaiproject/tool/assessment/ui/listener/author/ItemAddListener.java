@@ -235,6 +235,7 @@ public class ItemAddListener
     	}
     }
 
+    // CALCULATED_QUESTION
     if (iType.equals(TypeFacade.CALCULATED_QUESTION.toString())) {   
         int calcQError = isErrorCalcQ();
         if(calcQError > 0){
@@ -269,7 +270,7 @@ public class ItemAddListener
 	    return;
 	}
 
-	// After we've saved let's make sure the calculated question answer expression
+	// CALCULATED_QUESTION - After we've saved let's make sure the calculated question answer expression
 	// will at least not cause an error that could easily be avoided
 	if (iType.equals(TypeFacade.CALCULATED_QUESTION.toString())) {
 	    if (isCalcQExpressionError(itemauthorbean.getItemId())) {
@@ -1203,28 +1204,6 @@ public class ItemAddListener
 
 		}
 		
-		/*
-		else if (item.getTypeId().equals(TypeFacade.CALCULATED_QUESTION)) {
-			// this is for fill in numeric
-			String entiretext = bean.getInstruction();
-			String fintext = entiretext.replaceAll("[\\{][^\\}]*[\\}]", "{}");
-			text1.setText(fintext);
-			// log.info(" new text without answer is = " + fintext);
-			//Object[] finanswers = getFINanswers(entiretext).toArray();
-			Integer answerCount = 10; //entiretext.split("{").length-1; // gets number of answers
-			for (int i = 0; i < answerCount; i++) {
-				String oneanswer = ""+(i+1); // putting sequence as a place holder TODO: make this better?
-				Answer answer1 = new Answer(text1, oneanswer, new Long(i + 1),
-						null, Boolean.TRUE, null,
-						new Float(bean.getItemScore()), Float.valueOf(bean.getItemDiscount()));
-				answerSet1.add(answer1);
-			}
-			answerSet1.addAll(text1.getAnswerArraySorted()); // add the var pairs and the answers
-			text1.setAnswerSet(answerSet1);
-			textSet.add(text1);
-
-		}
-		*/
 		else if ((item.getTypeId().equals(TypeFacade.MULTIPLE_CHOICE))
 				|| (item.getTypeId().equals(TypeFacade.MULTIPLE_CORRECT))
 				|| (item.getTypeId().equals(TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION))) {

@@ -94,9 +94,12 @@ public class ItemBean
   private String instruction;  // matching's question text
   private ArrayList matchItemBeanList;  // store List of MatchItemBean, used for Matching only
   private MatchItemBean currentMatchPair;  // do not need this ?   store List of MatchItemBeans, used for Matching only
+
+  // CALCULATED_QUESTION - start
   private String currentMin;
   private String currentMax;
   private String currentDecimalPlaces;
+  // CALCULATED_QUESTION - end
 
 // begin DELETEME
   private String[] matches;
@@ -685,7 +688,8 @@ public class ItemBean
   {
         return currentMatchPair;
   }
-  
+
+  // CALCULATED_QUESTION - Start
   public void setCurrentMin(String currentMin)
   {
 	  this.currentMin = currentMin;
@@ -715,6 +719,7 @@ public class ItemBean
   {
 	  return currentDecimalPlaces;
   }
+  // CALCULATED_QUESTION - End
 
   /**
    * for multiple choice questions, multiple correct?
@@ -1202,10 +1207,12 @@ public class ItemBean
 	return false;
     }
     
-    /*
+
+    /* CALCULATED_QUESTION
      * This methods checks for validation errors. And also cleans up issues with white space.
      */
     private boolean isCalcQVariableError() {
+        // CALCULATED_QUESTION
     	String choice=(currentMatchPair.getChoice().trim());
     	if(choice==null ||choice.equals("")){
     	    FacesContext context=FacesContext.getCurrentInstance();
@@ -1248,8 +1255,9 @@ public class ItemBean
     	}
     	return false;
     }
-    
+
     private boolean isDouble(String numberString) {
+        // CALCULATED_QUESTION
     	try{
     		Double.parseDouble(numberString);
     	} catch(NumberFormatException nfe) {
@@ -1257,8 +1265,9 @@ public class ItemBean
     	}
     	return true;
     }
-    
+
     private boolean isValidDecimalPlaces(String numberString) {
+        // CALCULATED_QUESTION
     	try{
     		int decPlaces = Integer.parseInt(numberString);
     		if ((decPlaces > 6) || (decPlaces < 0)) {
@@ -1269,6 +1278,95 @@ public class ItemBean
     	}
     	return true;
     }
+
+    public String addVariablePair() {
+        // CALCULATED_QUESTION
+        // NOTE: this seems to mostly just reuse the matching code
+        if (!isCalcQVariableError()){
+
+            // get existing list
+            ArrayList list = getMatchItemBeanList();
+            MatchItemBean currpair = this.getCurrentMatchPair();
+            if (!currpair.getSequence().equals(new Long(-1))) {
+                // for modify
+                int seqno =  currpair.getSequence().intValue()-1;
+                MatchItemBean newpair= (MatchItemBean)  this.getMatchItemBeanList().get(seqno);
+                newpair.setSequence(currpair.getSequence());
+                newpair.setChoice(currpair.getChoice());
+                String varRange = currentMin.trim() + "|" + currentMax.trim();
+                varRange = varRange.replaceAll(",", "");
+                varRange = varRange.concat("," + currentDecimalPlaces.trim());
+
+                newpair.setMatch(varRange);
+                newpair.setIsCorrect(Boolean.TRUE);
+            }
+            else {
+                // for new pair
+                MatchItemBean newpair = new MatchItemBean();
+                newpair.setChoice(currpair.getChoice());
+                String varRange = currentMin.trim() + "|" + currentMax.trim();
+                varRange = varRange.replaceAll(",", "");
+                varRange = varRange.concat("," + currentDecimalPlaces.trim());
+                newpair.setMatch(varRange);
+                newpair.setIsCorrect(Boolean.TRUE);
+                newpair.setSequence(new Long(list.size()+1));
+
+                list.add(newpair);
+            }
+
+            this.setMatchItemBeanList(list); // get existing list
+
+            MatchItemBean matchitem = new MatchItemBean();
+            this.setCurrentMatchPair(matchitem);
+            this.setCurrentMin("");
+            this.setCurrentMax("");
+            this.setCurrentDecimalPlaces("");
+        }
+        return "calculatedQuestionVariableItem";
+    }
+
+    public String editVariablePair() {
+        // CALCULATED_QUESTION
+        // NOTE: this seems to just reuse the matching code
+
+        String seqnostr = ContextUtil.lookupParam("sequence");
+        int seqno = new Integer(seqnostr).intValue()-1;
+        // get currentmatchpair by sequence.
+
+        MatchItemBean pairForEdit= (MatchItemBean) this.getMatchItemBeanList().get(seqno);
+        this.setCurrentMatchPair(pairForEdit);
+        String rangeString = pairForEdit.getMatch(); // this gets "0|100,2" range format
+        this.setCurrentMin(rangeString.substring(0, rangeString.indexOf('|')));
+        this.setCurrentMax(rangeString.substring(rangeString.indexOf('|')+1, rangeString.indexOf(',')));
+        this.setCurrentDecimalPlaces(rangeString.substring(rangeString.indexOf(',')+1, rangeString.length()));
+
+        return "calculatedQuestionVariableItem";
+    }
+
+    public String removeVariablePair() {
+        // CALCULATED_QUESTION
+        // NOTE: this seems to just reuse the matching code
+
+        String seqnostr = ContextUtil.lookupParam("sequence");
+        int seqno = Integer.valueOf(seqnostr).intValue()-1;
+        // get currentmatchpair by sequence.
+
+        this.getMatchItemBeanList().remove(seqno);
+        // shift seqno
+        Iterator iter = this.getMatchItemBeanList().iterator();
+        int i = 1;
+        while(iter.hasNext())
+        {
+            MatchItemBean apair = (MatchItemBean) iter.next();
+            apair.setSequence( Long.valueOf(i));
+            i++;
+        }
+
+        MatchItemBean matchitem = new MatchItemBean();
+        this.setCurrentMatchPair(matchitem);
+        return "calculatedQuestion";
+    }
+
 
   public String addMatchPair() {
       if (!isMatchError()){
@@ -1326,52 +1424,6 @@ public class ItemBean
       }
     return "matchingItem";
   }
-  
-  public String addVariablePair() {
-	  if (!isCalcQVariableError()){
-
-	    // get existing list
-	    ArrayList list = getMatchItemBeanList();
-	    MatchItemBean currpair = this.getCurrentMatchPair();
-	    if (!currpair.getSequence().equals(new Long(-1))) {
-	      // for modify
-	      int seqno =  currpair.getSequence().intValue()-1;
-	      MatchItemBean newpair= (MatchItemBean)  this.getMatchItemBeanList().get(seqno);
-	      newpair.setSequence(currpair.getSequence());
-	      newpair.setChoice(currpair.getChoice());
-	      String varRange = currentMin.trim() + "|" + currentMax.trim();
-	      varRange = varRange.replaceAll(",", "");
-	      varRange = varRange.concat("," + currentDecimalPlaces.trim());
-	      
-	      newpair.setMatch(varRange);
-	      newpair.setIsCorrect(Boolean.TRUE);
-	    }
-	    else {
-	      // for new pair
-	      MatchItemBean newpair = new MatchItemBean();
-	      newpair.setChoice(currpair.getChoice());
-	      String varRange = currentMin.trim() + "|" + currentMax.trim();
-	      varRange = varRange.replaceAll(",", "");
-	      varRange = varRange.concat("," + currentDecimalPlaces.trim());
-	      newpair.setMatch(varRange);
-	      newpair.setIsCorrect(Boolean.TRUE);
-	      newpair.setSequence(new Long(list.size()+1));
-	
-	      list.add(newpair);
-	    }
-	    
-	    this.setMatchItemBeanList(list); // get existing list
-	    
-	    MatchItemBean matchitem = new MatchItemBean();
-	    this.setCurrentMatchPair(matchitem);
-	    this.setCurrentMin("");
-	    this.setCurrentMax("");
-	    this.setCurrentDecimalPlaces("");
-      }
-    return "calculatedQuestionVariableItem";
-  }
-
-
 
   public String editMatchPair() {
 
@@ -1383,25 +1435,6 @@ public class ItemBean
     this.setCurrentMatchPair(pairForEdit);
     return "matchingItem";
   }
-
-  public String editVariablePair() {
-
-	String seqnostr = ContextUtil.lookupParam("sequence");
-     int seqno = new Integer(seqnostr).intValue()-1;
-    // get currentmatchpair by sequence.
-
-    MatchItemBean pairForEdit= (MatchItemBean) this.getMatchItemBeanList().get(seqno);
-    this.setCurrentMatchPair(pairForEdit);
-    String rangeString = pairForEdit.getMatch(); // this gets "0|100,2" range format
-    this.setCurrentMin(rangeString.substring(0, rangeString.indexOf('|')));
-    this.setCurrentMax(rangeString.substring(rangeString.indexOf('|')+1, rangeString.indexOf(',')));
-    this.setCurrentDecimalPlaces(rangeString.substring(rangeString.indexOf(',')+1, rangeString.length()));
-    
-    return "calculatedQuestionVariableItem";
-  }
-   
-  
-
 
 
   public String removeMatchPair() {
@@ -1432,7 +1465,7 @@ public class ItemBean
 
     MatchItemBean matchitem = new MatchItemBean();
     this.setCurrentMatchPair(matchitem);
-    return "calculatedQuestion";
+    return "matchingItem";
   }
 
   

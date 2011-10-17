@@ -62,8 +62,8 @@ private static final String msgResource =
   private boolean showFillInNumeric;
   private boolean selectFromQuestionPool;
   private boolean selectFromQuestionBank;
-  private boolean showCalculatedQuestion;
   private boolean showMatrixSurvey;
+  private boolean showCalculatedQuestion; // CALCULATED_QUESTION
 
   /**
    * Should we show file upload question?
@@ -314,9 +314,9 @@ if (showFillInNumeric)
 
     if (selectFromQuestionPool)
       list.add(new SelectItem("10", getResourceDisplayName("import_from_q")));
-    
+
     if (showCalculatedQuestion)
-        list.add(new SelectItem("13", getResourceDisplayName("calculated_question")));
+        list.add(new SelectItem("14", getResourceDisplayName("calculated_question"))); // CALCULATED_QUESTION
 
     if (isSelectFromQuestionBank()) {
     	// Check if the question bank tool is installed and not stealthed or hidden

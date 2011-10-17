@@ -328,6 +328,7 @@
       <property-name>showMatrixSurvey</property-name>
       <value>true</value>
     </managed-property>
+    <!-- // CALCULATED_QUESTION -->
     <managed-property>
       <property-name>showCalculatedQuestion</property-name>
       <value>true</value>

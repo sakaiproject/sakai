@@ -83,7 +83,7 @@ file = File Upload
   public static final String ESSAY_ALT = "Essay";
   public static final String AUDIO = "Audio Recording";
   public static final String FILE = "File Upload";
-  public static final String CALCQ =  "Calculated Question";
+  public static final String CALCQ =  "Calculated Question"; // CALCULATED_QUESTION
   public static final String MATRIX = "Survey Matrix";
 
   /*

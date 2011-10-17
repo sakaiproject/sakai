@@ -47,6 +47,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
@@ -510,19 +511,26 @@ public class PublishedAssessmentService extends AssessmentService{
 	    return map;
   }
 
+  /**
+   * CALCULATED_QUESTION
+   * @param publishedAssessment
+   * @return the map of item id -> item for calc questions in this map
+   */
   public HashMap prepareCalcQuestionItemHash(PublishedAssessmentIfc publishedAssessment){
-	    HashMap map = new HashMap();
-	    ArrayList sectionArray = publishedAssessment.getSectionArray();
-	    for (int i=0;i<sectionArray.size(); i++){
-	      SectionDataIfc section = (SectionDataIfc)sectionArray.get(i);
-	      ArrayList itemArray = section.getItemArray();
-	      for (int j=0;j<itemArray.size(); j++){
-	        ItemDataIfc item = (ItemDataIfc)itemArray.get(j);
-	        if (item.getTypeId().equals(new Long(13))) // Calc Question
-	          map.put(item.getItemId(), item);
-	      }
-	    }
-	    return map;
+      // CALCULATED_QUESTION
+      HashMap map = new HashMap();
+      ArrayList sectionArray = publishedAssessment.getSectionArray();
+      for (int i=0;i<sectionArray.size(); i++) {
+          SectionDataIfc section = (SectionDataIfc)sectionArray.get(i);
+          ArrayList itemArray = section.getItemArray();
+          for (int j=0;j<itemArray.size(); j++) {
+              ItemDataIfc item = (ItemDataIfc)itemArray.get(j);
+              if (item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION)) { // CALCULATED_QUESTION
+                  map.put(item.getItemId(), item);
+              }
+          }
+      }
+      return map;
   }
   
   public HashMap prepareMCMRItemHash(PublishedAssessmentIfc publishedAssessment){

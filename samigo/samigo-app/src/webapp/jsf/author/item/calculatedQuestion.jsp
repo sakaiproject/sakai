@@ -214,7 +214,7 @@
           <h:outputText value="#{authorMessages.matching_currently_editing}" rendered="#{itemauthor.currentItem.currentMatchPair.sequence== pair.sequence}"/>
           <h:outputText value=" #{authorMessages.separator} " rendered="#{itemauthor.currentItem.currentMatchPair.sequence != pair.sequence}"/>
 
-<h:commandLink id="removelink" immediate="true" action="#{itemauthor.currentItem.removeMatchPair}" rendered="#{itemauthor.currentItem.currentMatchPair.sequence != pair.sequence}">
+<h:commandLink id="removelink" immediate="true" action="#{itemauthor.currentItem.removeVariablePair}" rendered="#{itemauthor.currentItem.currentMatchPair.sequence != pair.sequence}">
   <h:outputText id="removetext" value="#{authorMessages.button_remove}"/>
   <f:param name="sequence" value="#{pair.sequence}"/>
 </h:commandLink>
