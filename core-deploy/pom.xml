@@ -54,24 +54,54 @@
                     components/mailsender-pack;
                     components/msgcntr-component;
                     components/polls-pack;
+                    components/pcservice-pack;
                     components/profile-component;
                     components/profile2-pack;
+                    components/sakai-announcement-pack;
+                    components/sakai-assignment-pack;
+                    components/sakai-calendar-pack;
+                    components/sakai-courier-pack;
                     components/sakai-common-components;
+                    components/sakai-portal-render-pack;
+                    components/sakai-portal-service-pack;
+                    components/sakai-presence-pack;
                     components/sakai-privacy-pack;
+                    components/sakai-taggable-pack;
                     components/samigo-pack;
                     components/scheduler-component;
                     components/search-pack;
                     components/sections-pack;
                     components/shortenedurl-pack;
-                    components/sitestats-component
+                    components/sitestats-component        
                 </clean.targets>
                 <deploy.target>tomcat-overlay</deploy.target>
             </properties>
             <dependencies>
                 <dependency>
+                    <groupId>org.sakaiproject.announcement</groupId>
+                    <artifactId>sakai-announcement-assembly</artifactId>
+                    <version>${sakai.announcement.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.assignment</groupId>
+                    <artifactId>sakai-assignment-assembly</artifactId>
+                    <version>${sakai.assignment.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
                     <groupId>org.sakaiproject.basiclti</groupId>
                     <artifactId>basiclti-assembly</artifactId>
                     <version>${sakai.basiclti.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.calendar</groupId>
+                    <artifactId>sakai-calendar-assembly</artifactId>
+                    <version>${sakai.calendar.version}</version>
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
@@ -86,6 +116,13 @@
                     <groupId>org.sakaiproject.contentreview</groupId>
                     <artifactId>sakai-contentreview-assembly</artifactId>
                     <version>${sakai.contentreview.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.courier</groupId>
+                    <artifactId>sakai-courier-assembly</artifactId>
+                    <version>${sakai.courier.version}</version>
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
@@ -125,12 +162,26 @@
                     <type>zip</type>
                 </dependency>
                 <dependency>
-		    <groupId>org.sakaiproject.mailsender</groupId>
+                    <groupId>org.sakaiproject.mailarchive</groupId>
+                    <artifactId>sakai-mailarchive-assembly</artifactId>
+                    <version>${sakai.mailarchive.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.mailsender</groupId>
                     <artifactId>mailsender-assembly</artifactId>
                     <version>${sakai.mailsender.version}</version>
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
-		</dependency>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.message</groupId>
+                    <artifactId>sakai-message-assembly</artifactId>
+                    <version>${sakai.message.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
                 <dependency>
                     <groupId>org.sakaiproject.msgcntr</groupId>
                     <artifactId>messageforums-assembly</artifactId>
@@ -142,6 +193,20 @@
                     <groupId>org.sakaiproject.polls</groupId>
                     <artifactId>polls-assembly</artifactId>
                     <version>${sakai.polls.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.portal</groupId>
+                    <artifactId>sakai-portal-assembly</artifactId>
+                    <version>${sakai.portal.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.presence</groupId>
+                    <artifactId>sakai-presence-assembly</artifactId>
+                    <version>${sakai.presence.version}</version>
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
@@ -195,9 +260,30 @@
                     <type>zip</type>
                 </dependency>
                 <dependency>
+                    <groupId>org.sakaiproject.site</groupId>
+                    <artifactId>sakai-site-assembly</artifactId>
+                    <version>${sakai.site.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
                     <groupId>org.sakaiproject.sitestats</groupId>
                     <artifactId>sitestats-assembly</artifactId>
                     <version>${sakai.sitestats.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.taggable</groupId>
+                    <artifactId>sakai-taggable-assembly</artifactId>
+                    <version>${sakai.taggable.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.velocity</groupId>
+                    <artifactId>sakai-velocity-assembly</artifactId>
+                    <version>${sakai.velocity-tool.version}</version>
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
@@ -223,27 +309,58 @@
                     components/emailtemplateservice-pack;
                     components/coursemanagement-hibernate-pack;
                     components/gradebook-service-pack;
+                    components/sakai-lessionbuildertool-components;
                     components/mailsender-pack;
                     components/msgcntr-component;
                     components/polls-pack;
+                    components/pcservice-pack;
                     components/profile-component;
                     components/profile2-pack;
+                    components/sakai-announcement-pack;
+                    components/sakai-assignment-pack;
+                    components/sakai-calendar-pack;
+                    components/sakai-courier-pack;
                     components/sakai-common-components;
+                    components/sakai-portal-render-pack;
+                    components/sakai-portal-service-pack;
+                    components/sakai-presence-pack;
                     components/sakai-privacy-pack;
+                    components/sakai-taggable-pack;
                     components/samigo-pack;
                     components/scheduler-component;
                     components/search-pack;
                     components/sections-pack;
                     components/shortenedurl-pack;
-                    components/sitestats-component
+                    components/sitestats-component        
                 </clean.targets>
                 <deploy.target>tomcat-overlay</deploy.target>
             </properties>
             <dependencies>
                 <dependency>
+                    <groupId>org.sakaiproject.announcement</groupId>
+                    <artifactId>sakai-announcement-assembly</artifactId>
+                    <version>${sakai.announcement.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.assignment</groupId>
+                    <artifactId>sakai-assignment-assembly</artifactId>
+                    <version>${sakai.assignment.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
                     <groupId>org.sakaiproject.basiclti</groupId>
                     <artifactId>basiclti-assembly</artifactId>
                     <version>${sakai.basiclti.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.calendar</groupId>
+                    <artifactId>sakai-calendar-assembly</artifactId>
+                    <version>${sakai.calendar.version}</version>
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
@@ -258,6 +375,13 @@
                     <groupId>org.sakaiproject.contentreview</groupId>
                     <artifactId>sakai-contentreview-assembly</artifactId>
                     <version>${sakai.contentreview.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.courier</groupId>
+                    <artifactId>sakai-courier-assembly</artifactId>
+                    <version>${sakai.courier.version}</version>
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
@@ -289,16 +413,34 @@
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
-                
-                <!-- mailsender evaluation -->
                 <dependency>
-                    <groupId>org.sakaiproject.mailsender</groupId>
-                    <artifactId>mailsender-assembly</artifactId>
-                    <version>1.7.0-SNAPSHOT</version>
+                    <groupId>org.sakaiproject.lessonbuilder</groupId>
+                    <artifactId>sakai-lessonbuildertool-assembly</artifactId>
+                    <version>${sakai.lessonbuilder.version}</version>
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
-                
+                <dependency>
+                    <groupId>org.sakaiproject.mailarchive</groupId>
+                    <artifactId>sakai-mailarchive-assembly</artifactId>
+                    <version>${sakai.mailarchive.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.mailsender</groupId>
+                    <artifactId>mailsender-assembly</artifactId>
+                    <version>${sakai.mailsender.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.message</groupId>
+                    <artifactId>sakai-message-assembly</artifactId>
+                    <version>${sakai.message.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
                 <dependency>
                     <groupId>org.sakaiproject.msgcntr</groupId>
                     <artifactId>messageforums-assembly</artifactId>
@@ -310,6 +452,20 @@
                     <groupId>org.sakaiproject.polls</groupId>
                     <artifactId>polls-assembly</artifactId>
                     <version>${sakai.polls.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.portal</groupId>
+                    <artifactId>sakai-portal-assembly</artifactId>
+                    <version>${sakai.portal.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.presence</groupId>
+                    <artifactId>sakai-presence-assembly</artifactId>
+                    <version>${sakai.presence.version}</version>
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
@@ -334,16 +490,6 @@
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
-                
-                <!-- roster2 evaluation -->
-                <dependency>
-                    <groupId>org.sakaiproject.roster2</groupId>
-                    <artifactId>sakai-roster2-assembly</artifactId>
-                    <version>1.0-SNAPSHOT</version>
-                    <classifier>tomcat-overlay</classifier>
-                    <type>zip</type>
-                </dependency>
-                
                 <dependency>
                     <groupId>org.sakaiproject.samigo</groupId>
                     <artifactId>samigo-assembly</artifactId>
@@ -373,9 +519,30 @@
                     <type>zip</type>
                 </dependency>
                 <dependency>
+                    <groupId>org.sakaiproject.site</groupId>
+                    <artifactId>sakai-site-assembly</artifactId>
+                    <version>${sakai.site.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
                     <groupId>org.sakaiproject.sitestats</groupId>
                     <artifactId>sitestats-assembly</artifactId>
                     <version>${sakai.sitestats.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.taggable</groupId>
+                    <artifactId>sakai-taggable-assembly</artifactId>
+                    <version>${sakai.taggable.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.velocity</groupId>
+                    <artifactId>sakai-velocity-assembly</artifactId>
+                    <version>${sakai.velocity-tool.version}</version>
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
@@ -394,16 +561,40 @@
                 <clean.targets>
                     components/archive-pack;
                     components/emailtemplateservice-pack;
+                    components/sakai-announcement-pack;
+                    components/sakai-courier-pack;
+                    components/sakai-presence-pack;
                     components/scheduler-component
                 </clean.targets>
                 <deploy.target>tomcat-overlay</deploy.target>
             </properties>
             <dependencies>
                 <dependency>
+                    <groupId>org.sakaiproject.announcement</groupId>
+                    <artifactId>sakai-announcement-assembly</artifactId>
+                    <version>${sakai.announcement.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
                     <groupId>org.sakaiproject.common</groupId>
                     <artifactId>archive-assembly</artifactId>
                     <classifier>tomcat-overlay</classifier>
                     <version>${sakai.common.version}</version>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.contentreview</groupId>
+                    <artifactId>sakai-contentreview-assembly</artifactId>
+                    <version>${sakai.contentreview.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.courier</groupId>
+                    <artifactId>sakai-courier-assembly</artifactId>
+                    <version>${sakai.courier.version}</version>
+                    <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
                 <dependency>
@@ -421,23 +612,44 @@
                     <type>zip</type>
                 </dependency>
                 <dependency>
+                    <groupId>org.sakaiproject.message</groupId>
+                    <artifactId>sakai-message-assembly</artifactId>
+                    <version>${sakai.message.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.presence</groupId>
+                    <artifactId>sakai-presence-assembly</artifactId>
+                    <version>${sakai.presence.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
+                    <groupId>org.sakaiproject.reset-pass</groupId>
+                    <artifactId>reset-pass-assembly</artifactId>
+                    <version>${sakai.resetpass.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
+                <dependency>
                     <groupId>org.sakaiproject.scheduler</groupId>
                     <artifactId>scheduler-assembly</artifactId>
                     <version>${sakai.scheduler.version}</version>
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
-		<dependency>
-		  <groupId>org.sakaiproject.contentreview</groupId>
-		  <artifactId>sakai-contentreview-assembly</artifactId>
-		  <version>${sakai.contentreview.version}</version>
-		  <classifier>tomcat-overlay</classifier>
-                  <type>zip</type>
-		</dependency>
+                 <dependency>
+                    <groupId>org.sakaiproject.site</groupId>
+                    <artifactId>sakai-site-assembly</artifactId>
+                    <version>${sakai.site.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
                 <dependency>
-                    <groupId>org.sakaiproject.reset-pass</groupId>
-                    <artifactId>reset-pass-assembly</artifactId>
-                    <version>${sakai.resetpass.version}</version>
+                    <groupId>org.sakaiproject.velocity</groupId>
+                    <artifactId>sakai-velocity-assembly</artifactId>
+                    <version>${sakai.velocity-tool.version}</version>
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
