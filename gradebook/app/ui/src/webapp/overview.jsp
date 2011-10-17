@@ -214,13 +214,13 @@
                     <%/* -AZ- hacks needed for safari: style="text-decoration: none !important;" 
                          AND <h:outputText value="&nbsp;" escape="false" /> */%>
                     <h:commandLink action="#{overviewBean.sortUp}" rendered="#{!gradebookItem.first}" 
-                            title="Sort Up" styleClass="sortUp" style="text-decoration: none !important;">
+                            title="#{msgs.overview_assignments_sort_up}" styleClass="sortUp" style="text-decoration: none !important;">
                         <f:param name="assignmentId" value="#{gradebookItem.id}"/>
                         <h:outputText value="&nbsp;" escape="false" />
                     </h:commandLink>
                     <h:outputText value="&nbsp;" escape="false" rendered="#{gradebookItem.first}" styleClass="sortSpacer" />
                     <h:commandLink action="#{overviewBean.sortDown}" rendered="#{!gradebookItem.last}" 
-                            title="Sort Down" styleClass="sortDown" style="text-decoration: none !important;">
+                            title="#{msgs.overview_assignments_sort_down}" styleClass="sortDown" style="text-decoration: none !important;">
                         <f:param name="assignmentId" value="#{gradebookItem.id}"/>
                         <h:outputText value="&nbsp;" escape="false" />
                     </h:commandLink>

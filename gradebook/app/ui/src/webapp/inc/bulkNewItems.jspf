@@ -58,13 +58,13 @@
 					<h:panelGroup rendered="#{rowIndex != 0}">
 						<h:commandLink title="#{msgs.add_assignment_remove_title}" styleClass="indnt2"
 								onclick="removeItem(event, 'gbForm:bulkNewAssignmentsTable:', #{rowIndex}); return false;" >
-							<h:graphicImage value="/../library/image/silk/cross.png" title="Remove Gradebook Item" />
+							<h:graphicImage value="/../library/image/silk/cross.png" title="#{msgs.add_assignment_remove_title}" />
 						</h:commandLink>
 					</h:panelGroup>
 					<%-- Hide for first item, but display if more than one. Will remove this pane from the page --%>
 					<h:panelGroup rendered="#{rowIndex == 0}">
 						<h:commandLink onclick="removeItem(event, 'gbForm:bulkNewAssignmentsTable:', #{rowIndex}); return false;" title="#{msgs.add_assignment_remove_title}" styleClass="hideRemove indnt2">
-							<h:graphicImage value="/../library/image/silk/cross.png" title="Remove Gradebook Item" />
+							<h:graphicImage value="/../library/image/silk/cross.png" title="#{msgs.add_assignment_remove_title}" />
 						</h:commandLink>
 					</h:panelGroup>  
 				</h:panelGroup>
