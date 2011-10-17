@@ -224,7 +224,7 @@ update mfr_message_t set label='pvt_priority_low' where label='\u4f4e';
 
 
 CREATE TABLE MFR_HIDDEN_GROUPS_T  ( 
-    ID                number(20,0) AUTO_INCREMENT NOT NULL,
+    ID                number(20,0) NOT NULL,
     VERSION           number(11,0) NOT NULL,
     a_surrogateKey    number(20,0) NULL,
     GROUP_ID          varchar2(255) NOT NULL,
