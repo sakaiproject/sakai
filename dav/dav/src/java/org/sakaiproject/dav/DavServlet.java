@@ -135,6 +135,7 @@ import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
@@ -2712,6 +2713,22 @@ public class DavServlet extends HttpServlet
 		String contentType = "";
 		InputStream inputStream = req.getInputStream();
 		contentType = req.getContentType();
+
+		// For MS office, ignore the supplied content type if we can figure out one from file type
+		// they send text/xml for doc and docx files
+		if (contentType != null) {
+		    UsageSession session = UsageSessionService.getSession();
+		    String agent = null;
+		    if (session != null)
+			agent = session.getUserAgent();
+		    System.out.println("agent " + agent);
+		    if (agent != null && agent.startsWith("Microsoft Office Core Storage Infrastructure")) {
+			String fileContentType = getServletContext().getMimeType(path);
+			if (fileContentType != null) {
+			    contentType = fileContentType;
+			}
+		    }
+		}
 
 		if (M_log.isDebugEnabled()) M_log.debug("  req.contentType() =" + contentType);
 
