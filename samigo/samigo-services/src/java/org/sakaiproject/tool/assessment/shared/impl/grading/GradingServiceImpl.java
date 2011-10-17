@@ -242,23 +242,6 @@ public class GradingServiceImpl implements GradingServiceAPI
 
   /**
    *
-   * @return
-   */
-  public Map getSubmissionSizeOfAllPublishedAssessments()
-  {
-    try
-    {
-      GradingService service = new GradingService();
-      return service.getSubmissionSizeOfAllPublishedAssessments();
-    }
-    catch (Exception ex)
-    {
-      throw new GradingServiceException(ex);
-    }
-  }
-
-  /**
-   *
    * @param media
    * @param mimeType
    * @return
