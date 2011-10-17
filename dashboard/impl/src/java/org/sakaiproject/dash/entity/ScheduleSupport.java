@@ -152,6 +152,23 @@ public class ScheduleSupport{
 				infoList.add(infoItem);
 				values.put(VALUE_MORE_INFO, infoList);
 				
+				// "attachments": [ ... ]
+				List<Reference> attachments = cEvent.getAttachments();
+				if(attachments != null && ! attachments.isEmpty()) {
+					List<Map<String,String>> attList = new ArrayList<Map<String,String>>();
+					for(Reference ref : attachments) {
+						ContentResource resource = (ContentResource) ref.getEntity();
+						Map<String, String> attInfo = new HashMap<String, String>();
+						attInfo.put(VALUE_ATTACHMENT_TITLE, resource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+						attInfo.put(VALUE_ATTACHMENT_URL, resource.getUrl());
+						attInfo.put(VALUE_ATTACHMENT_MIMETYPE, resource.getContentType());
+						attInfo.put(VALUE_ATTACHMENT_SIZE, Long.toString(resource.getContentLength()));
+						attInfo.put(VALUE_ATTACHMENT_TARGET, sakaiProxy.getTargetForMimetype(resource.getContentType()));
+						attList.add(attInfo );
+					}
+					values.put(VALUE_ATTACHMENTS, attList);
+				}
+				
 			}
 			
 			return values;
@@ -183,8 +200,11 @@ public class ScheduleSupport{
 			section2.add(VALUE_DESCRIPTION);
 			order.add(section2);
 			List<String> section3 = new ArrayList<String>();
-			section3.add(VALUE_MORE_INFO);
+			section3.add(VALUE_ATTACHMENTS);
 			order.add(section3);
+			List<String> section4 = new ArrayList<String>();
+			section4.add(VALUE_MORE_INFO);
+			order.add(section4);
 			return order;
 		}
 
