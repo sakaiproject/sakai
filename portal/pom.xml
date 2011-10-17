@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.sakaiproject.purepoms</groupId>
         <artifactId>sakai-standard-tool</artifactId>
-        <version>2.9.0-a01</version>
+        <version>2.9-SNAPSHOT</version>
     </parent>
 
     <name>sakai-portal base (neo)</name>
@@ -39,7 +39,7 @@
 
     <properties>
         <sakai.pluto.version>1.1.7</sakai.pluto.version>
-        <sakai.presence.version>2.9.0-a01</sakai.presence.version>
+        <sakai.presence.version>2.9-SNAPSHOT</sakai.presence.version>
         <url.localsite>scp://source.sakaiproject.org/var/www/html/release/portal/${project.version}</url.localsite>
     	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
