@@ -21,7 +21,7 @@
 			classpath:conf/blank-applicationContext.xml,
 			classpath:conf/sakai-applicationContext.xml,
 			classpath:conf/components-applicationContext.xml,
-			/WEB-INF/applicationContext.xml
+			/WEB-INF/*applicationContext.xml
 		</param-value>
   	</context-param>
 	<!-- Configure "request scope" Spring application contexts (RSAC).

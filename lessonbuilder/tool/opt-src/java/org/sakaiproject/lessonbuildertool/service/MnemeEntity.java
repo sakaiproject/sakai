@@ -100,6 +100,11 @@ public class MnemeEntity implements LessonEntity, QuizEntity {
 	return nextEntity;
     }
     
+    // stick ourselves after the last required entity
+    public void setPrevEntity(LessonEntity e) {
+	e.setNextEntity(this);
+    }
+
     static MemoryService memoryService = null;
     public void setMemoryService(MemoryService m) {
 	memoryService = m;

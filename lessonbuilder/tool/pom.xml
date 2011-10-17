@@ -116,19 +116,6 @@
             <version>${sakai.samigo.version}</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.yaft</groupId>
-            <artifactId>yaft-api</artifactId>
-            <version>${sakai.yaft.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency> 
-	  <groupId>org.etudes.mneme</groupId>
-	  <artifactId>etudes-mneme-api</artifactId> 
-          <version>${sakai.mneme.version}</version> 
-	  <scope>${sakai.mneme.scope}</scope> 
-	</dependency> 
 
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -184,9 +171,74 @@
             <version>${rsfutil.version}</version>
             <type>war</type>
         </dependency>
+
+<!-- 
+  To enable YAFT and MNEME, uncomment the two dependencies and the plugin below.
+  It would be possible to enable just one of them. To do that remove or comment
+  out the one you don't want from opt-applicationContext.xml as well as well as
+  uncommenting just the one you want below.
+ -->
+
+<!--
+        <dependency>
+            <groupId>org.sakaiproject.yaft</groupId>
+            <artifactId>yaft-api</artifactId>
+            <version>${sakai.yaft.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency> 
+	  <groupId>org.etudes.mneme</groupId>
+	  <artifactId>etudes-mneme-api</artifactId> 
+          <version>${sakai.mneme.version}</version> 
+	  <scope>${sakai.mneme.scope}</scope> 
+	</dependency> 
+
+-->
+
     </dependencies>
 
     <build>
+
+<!--
+      <plugins>
+	<plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>1.7</version>
+          <executions>
+            <execution>
+              <id>add-source</id>
+              <phase>generate-sources</phase>
+              <goals>
+		<goal>add-source</goal>
+              </goals>
+              <configuration>
+		<sources>
+                  <source>opt-src/java</source>
+		</sources>
+              </configuration>
+            </execution>
+	    <execution>
+              <id>add-resource</id>
+              <phase>generate-resources</phase>
+              <goals>
+		<goal>add-resource</goal>
+              </goals>
+              <configuration>
+		<resources>
+                  <resource>
+                    <directory>opt-src/webapp/WEB-INF</directory>
+                    <targetPath>${project.build.directory}/sakai-lessonbuildertool-tool-${project.version}/WEB-INF</targetPath>
+                  </resource>
+              </resources>
+            </configuration>
+          </execution>
+          </executions>
+	</plugin>
+      </plugins>
+-->
+
         <resources>
             <resource>
                 <directory>${basedir}/src/resources</directory>

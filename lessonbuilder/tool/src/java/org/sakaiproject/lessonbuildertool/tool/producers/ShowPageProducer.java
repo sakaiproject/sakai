@@ -166,7 +166,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	private static List urlCacheLock = new ArrayList();
 	private static Cache urlCache = null;
-        String browserString = null; // set by checkIEVersion;
+        String browserString = ""; // set by checkIEVersion;
 
 	protected static final int DEFAULT_EXPIRATION = 10 * 60;
 

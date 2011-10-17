@@ -70,6 +70,11 @@ public class YaftTopicEntity implements LessonEntity, ForumInterface {
 		return nextEntity;
 	}
 
+        // stick ourselves after the last required entity
+	public void setPrevEntity(LessonEntity e) {
+	    e.setNextEntity(this);
+	}
+
 	static MessageLocator messageLocator = null;
 	public void setMessageLocator(MessageLocator m) {
 		messageLocator = m;
