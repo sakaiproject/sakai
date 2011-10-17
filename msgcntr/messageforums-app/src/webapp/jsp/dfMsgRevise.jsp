@@ -41,7 +41,7 @@
 			<h:panelGroup>
 				<h:outputLabel for="df_compose_title" style="display:block;float:none;clear:both;padding-bottom:.3em">
 							     <h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStar"/>
-					<h:outputText value="#{msgs.cdfm_reply_title}" />
+					<h:outputText value="#{msgs.cdfm_title}" />
 				</h:outputLabel>
 					   <h:inputText value="#{ForumTool.composeTitle}" size="40" required="true" id="df_compose_title">
 						 <f:validator validatorId="MessageTitle" />
