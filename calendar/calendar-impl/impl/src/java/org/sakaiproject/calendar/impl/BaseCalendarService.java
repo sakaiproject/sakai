@@ -3121,7 +3121,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			}
 
 			BaseCalendarEventEdit bedit = (BaseCalendarEventEdit) edit;
-         
+			         
          // If creator doesn't exist, set it now (backward compatibility)
          if ( edit.getCreator() == null || edit.getCreator().equals("") )
             edit.setCreator(); 
@@ -3130,10 +3130,12 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
          edit.setModifiedBy(); 
 
 			// if the id has a time range encoded, as for one of a sequence of recurring events, separate that out
+         	String indivEventEntityRef = null;
 			TimeRange timeRange = null;
 			int sequence = 0;
 			if (bedit.m_id.startsWith("!"))
 			{
+				indivEventEntityRef = bedit.getReference();
 				String[] parts = bedit.m_id.substring(1).split("!");
 				try
 				{
@@ -3161,6 +3163,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 					newEvent.setPartial(edit);
 					m_storage.commitEvent(this, newEvent);
 					EventTrackingService.post(EventTrackingService.newEvent(EVENT_MODIFY_CALENDAR, newEvent.getReference(), true));
+					EventTrackingService.post(EventTrackingService.newEvent(EVENT_MODIFY_CALENDAR_EVENT_EXCLUDED, newEvent.getReference(), true));
+					EventTrackingService.post(EventTrackingService.newEvent(EVENT_MODIFY_CALENDAR_EVENT_EXCLUSIONS, indivEventEntityRef, true));
 
 					// get the edit back to initial values... so only the exclusion is changed
 					edit = (CalendarEventEdit) m_storage.getEvent(this, bedit.m_id);
@@ -3182,6 +3186,9 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 					// adjust the base range if there was an edit to range
 					bedit.m_range.adjust(timeRange, newTimeRange);
+					
+					postEventsForChanges(bedit);
+					
 				}
 			}
 
@@ -3226,6 +3233,71 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			}
 
 		} // commitEvent
+
+		/**
+		 * @param newEvent
+		 */
+		public void postEventsForChanges(BaseCalendarEventEdit newEvent) {
+			// determine which events should be posted by comparing with saved properties
+			BaseCalendarEventEdit savedEvent = (BaseCalendarEventEdit) this.findEvent(newEvent.m_id);
+			if(savedEvent == null) {
+				
+			} else {
+				// has title changed?
+				if(savedEvent.getDisplayName() != null && ! savedEvent.getDisplayName().equals(newEvent.getDisplayName())) {
+					// post title-change event
+					EventTrackingService.post(EventTrackingService.newEvent(EVENT_MODIFY_CALENDAR_EVENT_TITLE, newEvent.getReference(), true));
+				}
+				
+				// has start-time changed?
+				TimeRange savedRange = savedEvent.getRange();
+				TimeRange newRange = newEvent.getRange();
+				if(savedRange == null || newRange == null) {
+					// TODO: Is this an error?
+				} else if(savedRange.firstTime() != null && savedRange.firstTime().compareTo(newRange.firstTime()) != 0) {
+					// post time-change event 
+					EventTrackingService.post(EventTrackingService.newEvent(EVENT_MODIFY_CALENDAR_EVENT_TIME, newEvent.getReference(), true));
+				}
+				
+				// has access changed?
+				if(savedEvent.getAccess() != newEvent.getAccess()) {
+					// post access-change event
+					EventTrackingService.post(EventTrackingService.newEvent(EVENT_MODIFY_CALENDAR_EVENT_ACCESS, newEvent.getReference(), true));
+				} else {
+					Collection savedGroups = savedEvent.getGroups();
+					Collection newGroups = newEvent.getGroups();
+					if(! (savedGroups.containsAll(newGroups) && newGroups.containsAll(savedGroups))) {
+						// post access-change event
+						EventTrackingService.post(EventTrackingService.newEvent(EVENT_MODIFY_CALENDAR_EVENT_ACCESS, newEvent.getReference(), true));
+					}
+				}
+				
+				// has frequency changed (other than exclusions)? 
+				RecurrenceRule savedRule = savedEvent.getRecurrenceRule();
+				RecurrenceRule newRule = newEvent.getRecurrenceRule();
+				if(savedRule == null && newRule == null) {
+					// do nothing -- no change
+				} else if(savedRule == null || newRule == null) {
+					// post frequency-change event
+					EventTrackingService.post(EventTrackingService.newEvent(EVENT_MODIFY_CALENDAR_EVENT_FREQUENCY, newEvent.getReference(), true));
+				} else {
+					// check for changes in properties of the rules
+					// (rule.getCount() rule.getFrequency() rule.getInterval() rule.getUntil() 
+					if(savedRule.getCount() != newRule.getCount() || savedRule.getInterval() != newRule.getInterval()) {
+						// post frequency-change event
+						EventTrackingService.post(EventTrackingService.newEvent(EVENT_MODIFY_CALENDAR_EVENT_FREQUENCY, newEvent.getReference(), true));								
+					} else if((savedRule.getFrequency() != null && ! savedRule.getFrequency().equals(newRule.getFrequency())) || (savedRule.getFrequency() == null && newRule.getFrequency() != null)) {
+						// post frequency-change event
+						EventTrackingService.post(EventTrackingService.newEvent(EVENT_MODIFY_CALENDAR_EVENT_FREQUENCY, newEvent.getReference(), true));								
+					} else if((savedRule.getUntil() == null && newRule.getUntil() != null) 
+							|| (savedRule.getUntil() != null && newRule.getUntil() == null)
+							|| (savedRule.getUntil() != null && savedRule.getUntil().getTime() != newRule.getUntil().getTime())) {
+						// post frequency-change event
+						EventTrackingService.post(EventTrackingService.newEvent(EVENT_MODIFY_CALENDAR_EVENT_FREQUENCY, newEvent.getReference(), true));								
+					}
+				}
+			}
+		}
 
 		/**
 		 * Cancel the changes made to a CalendarEventEdit object, and release the lock. The CalendarEventEdit is disabled, and not to be used after this call.

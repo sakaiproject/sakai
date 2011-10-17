@@ -71,10 +71,11 @@ public class CalendarService
 	public static int LIST_VIEW = org.sakaiproject.calendar.api.CalendarService.LIST_VIEW;
 	/** events */
 	public static java.lang.String EVENT_MODIFY_CALENDAR_EVENT_TITLE = org.sakaiproject.calendar.api.CalendarService.EVENT_MODIFY_CALENDAR_EVENT_TITLE;
+	public static java.lang.String EVENT_MODIFY_CALENDAR_EVENT_TIME = org.sakaiproject.calendar.api.CalendarService.EVENT_MODIFY_CALENDAR_EVENT_TIME;
 	public static java.lang.String EVENT_MODIFY_CALENDAR_EVENT_ACCESS = org.sakaiproject.calendar.api.CalendarService.EVENT_MODIFY_CALENDAR_EVENT_ACCESS;
 	public static java.lang.String EVENT_MODIFY_CALENDAR_EVENT_FREQUENCY = org.sakaiproject.calendar.api.CalendarService.EVENT_MODIFY_CALENDAR_EVENT_FREQUENCY;
-
-	
+	public static java.lang.String EVENT_MODIFY_CALENDAR_EVENT_EXCLUSIONS = org.sakaiproject.calendar.api.CalendarService.EVENT_MODIFY_CALENDAR_EVENT_EXCLUSIONS;
+	public static java.lang.String EVENT_MODIFY_CALENDAR_EVENT_EXCLUDED = org.sakaiproject.calendar.api.CalendarService.EVENT_MODIFY_CALENDAR_EVENT_EXCLUDED;
 
 	public static java.lang.String calendarReference(java.lang.String param0, java.lang.String param1)
 	{
