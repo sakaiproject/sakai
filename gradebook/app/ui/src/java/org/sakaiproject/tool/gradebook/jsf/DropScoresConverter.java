@@ -7,6 +7,8 @@ import javax.faces.convert.ConverterException;
 import javax.faces.convert.NumberConverter;
 import javax.faces.validator.ValidatorException;
 
+import org.sakaiproject.util.ResourceLoader;
+
 /*
  * converts drop scores values to Integer (from the default Long) to avoid a ClassCastException
  * as JSF tries to assign the Long values to Category Integer attributes (dropLowest, dropHighest, keepHighest).
@@ -15,6 +17,7 @@ public class DropScoresConverter extends NumberConverter {
 
     public DropScoresConverter() {
         setType("number");
+        setLocale(new ResourceLoader().getLocale());         
     }
     
     public Object getAsObject(FacesContext context, UIComponent component, String newValue) throws ConverterException {
