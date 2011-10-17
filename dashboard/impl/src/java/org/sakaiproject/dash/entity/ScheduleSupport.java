@@ -213,7 +213,6 @@ public class ScheduleSupport{
 
 		public void init() {
 			logger.info("init()");
-			dashboardLogic.registerEntityType(this);
 		}
 
 		public boolean isAvailable(String entityReference) {
@@ -656,6 +655,43 @@ public class ScheduleSupport{
 			
 			// TODO: remove the calendar item if it has already been created.
 			
+			// sample entityReference /calendar/event/f971f216-625c-4e5e-9609-05313f836ae2/main/!20111125131500000]20111125141500000!49!c4c1f3f5-c331-4c5e-8afe-07168ff0cc72
+			String entityReference = null;
+			int sequenceNumber = -1;
+			if(event != null && event.getResource() != null) {
+				String[] parts = event.getResource().split("/");
+				if(parts.length > 5) {
+					StringBuilder buf = new StringBuilder();
+					buf.append("/");
+					// 'calendar'
+					buf.append(parts[1]);
+					buf.append("/");
+					// 'event'
+					buf.append(parts[2]);
+					buf.append("/");
+					// site-id
+					buf.append(parts[3]);
+					buf.append("/");
+					// 'main'
+					buf.append(parts[4]);
+					buf.append("/");
+					String[] subparts = parts[5].split("!");
+					if(subparts.length > 3) {
+						// event-id
+						buf.append(subparts[3]);
+						sequenceNumber = Integer.parseInt(subparts[2]);
+					}
+					entityReference = buf.toString();
+				}
+				logger.info("processEvent() " + entityReference + " " + sequenceNumber);
+				
+				if(entityReference != null && sequenceNumber >= -1) {
+					String calendarTimeLabelKey = null;
+					CalendarItem calendarItem = dashboardLogic.getCalendarItem(entityReference, calendarTimeLabelKey, sequenceNumber);
+					dashboardLogic.removeCalendarItem(entityReference, calendarTimeLabelKey, sequenceNumber);
+				}
+				
+			}
 		}
 	
 	}

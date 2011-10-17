@@ -663,6 +663,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		if(sequenceNumber == null) {
 			sql = getStatement("select.CalendarItem.by.entityReference.calendarTimeLabelKey");
 			params = new Object[]{entityReference, calendarTimeLabelKey};	
+		} else if(calendarTimeLabelKey == null) {
+			sql = getStatement("select.CalendarItem.by.entityReference.sequenceNumber");
+			params = new Object[]{entityReference, sequenceNumber};
 		} else {
 			sql = getStatement("select.CalendarItem.by.entityReference.calendarTimeLabelKey.sequenceNumber");
 			params = new Object[]{entityReference, calendarTimeLabelKey, sequenceNumber};

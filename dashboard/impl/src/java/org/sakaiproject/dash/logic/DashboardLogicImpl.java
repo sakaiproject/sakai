@@ -249,7 +249,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 		dao.addCalendarItem(calendarItem);
 		
-		return dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
+		return dao.getCalendarItem(entityReference, calendarTimeLabelKey, sequenceNumber);
 	}
 
 	public RepeatingCalendarItem createRepeatingCalendarItem(String title, Date firstTime,
@@ -387,9 +387,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return dao.getCalendarItem(id);
 	}
 	
-	public CalendarItem getCalendarItem(String entityReference, String calendarTimeLabelKey) {
+	public CalendarItem getCalendarItem(String entityReference, String calendarTimeLabelKey, Integer sequenceNumber) {
 		
-		return dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
+		return dao.getCalendarItem(entityReference, calendarTimeLabelKey, sequenceNumber);
 	}
 
 	public List<CalendarItem> getCalendarItems(String sakaiUserId,
@@ -547,18 +547,18 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 	}
 
-	public void removeCalendarItems(String entityReference) {
+	public void removeCalendarItem(String entityReference,
+			String calendarTimeLabelKey, Integer sequenceNumber) {
 		
 		if(logger.isDebugEnabled()) {
-			logger.debug("removing calendar links and calendar item for " + entityReference);
+			logger.debug("removing calendar links and calendar item for " + entityReference + " " + calendarTimeLabelKey + " " + sequenceNumber);
 		}
-		List<CalendarItem> items = dao.getCalendarItems(entityReference);
-		if(items != null && items.size() > 0) {
-			for(CalendarItem item : items) {
-		if(logger.isDebugEnabled()) {
-			logger.debug("removing calendar links and calendar item for item: " + item);
-		}
-		
+		CalendarItem item = dao.getCalendarItem(entityReference, calendarTimeLabelKey, sequenceNumber);
+		if(item != null ) {
+			if(logger.isDebugEnabled()) {
+				logger.debug("removing calendar links and calendar item for item: " + item);
+			}
+			
 			if(logger.isDebugEnabled()) {
 				logger.debug("removing calendar links for item: " + item);
 			}
@@ -568,7 +568,31 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			}
 			dao.deleteCalendarItem(item.getId());
 		}
+		
 	}
+
+	public void removeCalendarItems(String entityReference) {
+		
+		if(logger.isDebugEnabled()) {
+			logger.debug("removing calendar links and calendar item for " + entityReference);
+		}
+		List<CalendarItem> items = dao.getCalendarItems(entityReference);
+		if(items != null && items.size() > 0) {
+			for(CalendarItem item : items) {
+			if(logger.isDebugEnabled()) {
+				logger.debug("removing calendar links and calendar item for item: " + item);
+			}
+			
+				if(logger.isDebugEnabled()) {
+					logger.debug("removing calendar links for item: " + item);
+				}
+				dao.deleteCalendarLinks(item.getId());
+				if(logger.isDebugEnabled()) {
+					logger.debug("removing calendar item: " + item);
+				}
+				dao.deleteCalendarItem(item.getId());
+			}
+		}
 	}
 
 	public void removeNewsItem(String entityReference) {

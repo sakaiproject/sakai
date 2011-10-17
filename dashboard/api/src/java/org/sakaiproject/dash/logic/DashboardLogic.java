@@ -93,7 +93,14 @@ public interface DashboardLogic {
 
 	public CalendarItem getCalendarItem(long id);
 	
-	public CalendarItem getCalendarItem(String entityReference, String calendarTimeLabelKey);
+	/**
+	 * 
+	 * @param entityReference
+	 * @param calendarTimeLabelKey
+	 * @param sequenceNumber
+	 * @return
+	 */
+	public CalendarItem getCalendarItem(String entityReference, String calendarTimeLabelKey, Integer sequenceNumber);
 
 	/**
 	 * 
@@ -265,6 +272,9 @@ public interface DashboardLogic {
 	public void registerEntityType(EntityType entityType);
 	
 	public void registerEventProcessor(EventProcessor eventProcessor);
+
+	public void removeCalendarItem(String entityReference,
+			String calendarTimeLabelKey, Integer sequenceNumber);
 
 	/** 
 	 * Remove all calendar links and the calendar item referencing a particular entity.
