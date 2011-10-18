@@ -29,6 +29,7 @@ import org.apache.wicket.ResourceReference;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
@@ -142,6 +143,12 @@ public class ScoResultsPage extends BaseResultsPage {
 		Link link = new BookmarkablePageLabeledLink("previousLink", new ResourceModel("previous.link.label"), ScoResultsPage.class, prevParams);
 		link.setVisible(previousId.trim().length() > 0);
 		return link;
+	}
+	@Override
+	protected void addAttemptNumberLink(long i, PageParameters params, RepeatingView container, long current, ContentPackage contentPackage, String scoId, Learner learner){
+		if (resultService.getActivityReport(contentPackage.getContentPackageId(), learner.getId(), current, scoId) != null) {
+			super.addAttemptNumberLink(i, params, container, current, contentPackage, scoId, learner);
+		}
 	}
 	
 	@Override
