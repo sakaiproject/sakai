@@ -1,10 +1,10 @@
 package org.sakaiproject.emailtemplateservice.logic.test;
 
 import java.util.Date;
+import java.util.Locale;
 
 import org.sakaiproject.emailtemplateservice.dao.impl.EmailTemplateServiceDao;
 import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
-import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.emailtemplateservice.service.impl.EmailTemplateServiceImpl;
 import org.springframework.test.AbstractTransactionalSpringContextTests;
 
@@ -17,6 +17,8 @@ public class TestEmailTemplateService extends AbstractTransactionalSpringContext
 	private static final String KEY_2 = "key2";
 	
 	private static final String DEFAULT_LOCALE = null;
+	
+	private static final String US_LOCALE = "en_us";
 
 	private static final String ADMIN_USER = "admin";
 
@@ -79,6 +81,7 @@ public class TestEmailTemplateService extends AbstractTransactionalSpringContext
 		
 		
 		
+		
 	}
 
 
@@ -91,7 +94,15 @@ public class TestEmailTemplateService extends AbstractTransactionalSpringContext
 
 
 	public void testGetEmailTemplate() {
-
+		EmailTemplate ti = emailTemplateService.getEmailTemplate(KEY_1, null);
+		assertNotNull(ti);
+		
+		
+		//There is no specific template for en_us we still expect the default
+		EmailTemplate t2 = emailTemplateService.getEmailTemplate(KEY_1, new Locale("en", "us"));
+		assertNotNull(t2);
+		
+		
 	}
 
 
