@@ -15,8 +15,8 @@ alter table SAKAI_REALM modify PROVIDER_ID varchar2(4000);
 
 -- KNL-705 new soft deletion of sites
 -- TODO needs checking for correct syntax - DH
-alter table SAKAI_SITE add IS_SOFTLY_DELETED char(1) not null default 0;
-alter table SAKAI_SITE add SOFTLY_DELETED_DATE datetime;
+alter table SAKAI_SITE add IS_SOFTLY_DELETED char(1) default 0 not null;
+alter table SAKAI_SITE add SOFTLY_DELETED_DATE timestamp;
 
 -- KNL-725 use a datetype with timezone
 -- Make sure sakai is stopped when running this.
@@ -38,14 +38,14 @@ alter table SAKAI_SESSION MODIFY (SESSION_START timestamp with time zone);
 alter table SAKAI_SESSION MODIFY (SESSION_END timestamp with time zone); 
 
 --SAK-19964 Gradebook drop highest and/or lowest or keep highest score for a student
-alter table GB_CATEGORY_T add column DROP_HIGHEST number(11,0) null;
+alter table GB_CATEGORY_T add DROP_HIGHEST number(11,0) null;
 update GB_CATEGORY_T set DROP_HIGHEST = 0;
 
-alter table GB_CATEGORY_T add column KEEP_HIGHEST number(11,0) null;
+alter table GB_CATEGORY_T add KEEP_HIGHEST number(11,0) null;
 update GB_CATEGORY_T set KEEP_HIGHEST = 0; 
 
 --SAK-19731 Add ability to hide columns in All Grades View for instructors
-alter table GB_GRADABLE_OBJECT_T add column (HIDE_IN_ALL_GRADES_TABLE bit default false);
+alter table GB_GRADABLE_OBJECT_T add (HIDE_IN_ALL_GRADES_TABLE number(1,0) default 0);
 update GB_GRADABLE_OBJECT_T set HIDE_IN_ALL_GRADES_TABLE=0 where HIDE_IN_ALL_GRADES_TABLE is null;
 
 -- SAK-20598 change column type to mediumtext (On Oracle we need to copy the column content first though)
@@ -123,7 +123,7 @@ INSERT INTO SAM_TYPE_T ("TYPEID" ,"AUTHORITY" ,"DOMAIN" ,"KEYWORD",
 -- SAM-1255    
 Update SAM_ASSESSEVALUATION_T
 Set ANONYMOUSGRADING = 2
-WHERE ASSESSMENTID = (Select ID from SAM_ASSESSMENTBASE_T where TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1)    
+WHERE ASSESSMENTID = (Select ID from SAM_ASSESSMENTBASE_T where TITLE='Default Assessment Type' AND TYPEID='142' AND ISTEMPLATE=1);
 
 -- SAM-1205
 INSERT INTO SAM_ASSESSMETADATA_T ("ASSESSMENTMETADATAID", "ASSESSMENTID","LABEL",
