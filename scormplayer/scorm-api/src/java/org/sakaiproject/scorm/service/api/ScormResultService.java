@@ -33,6 +33,8 @@ public interface ScormResultService {
 
 	public ActivityReport getActivityReport(long contentPackageId, String learnerId, long attemptNumber, String scoId);
 	
+	public boolean existsActivityReport(long contentPackageId, String learnerId, long attemptNumber, String scoId);
+	
 	public List<ActivitySummary> getActivitySummaries(long contentPackageId, String learnerId, long attemptNumber);
 	
 	public Interaction getInteraction(long contentPackageId, String learnerId, long attemptNumber, String scoId, String interactionId);

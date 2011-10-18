@@ -29,6 +29,7 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.link.PageLink;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.scorm.exceptions.LearnerNotDefinedException;
 import org.sakaiproject.scorm.model.api.ContentPackage;
@@ -39,6 +40,7 @@ import org.sakaiproject.scorm.service.api.ScormResultService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.scorm.ui.Icon;
 import org.sakaiproject.scorm.ui.console.pages.ConsoleBasePage;
+import org.sakaiproject.scorm.ui.reporting.components.LearnerDetailsPanel;
 import org.sakaiproject.wicket.markup.html.link.BookmarkablePageLabeledLink;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.DecoratedPropertyColumn;
 
@@ -74,10 +76,10 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 		String learnerName = "[name unavailable]";
 		
 		Learner learner = null;
-		
+		boolean learnerFound = false;
 		try {
 			learner = lms.getLearner(learnerId);
-			
+			learnerFound = true;
 			learnerName = new StringBuilder(learner.getDisplayName()).append(" (")
 				.append(learner.getDisplayId()).append(")").toString();
 			
@@ -86,6 +88,10 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 			
 			learner = new Learner(learnerId, learnerName, "[id unavailable]");
 		}
+		
+		LearnerDetailsPanel learnerDetailsPanel = new LearnerDetailsPanel("learnerDetails", new Model<Learner>(learner));
+		add(learnerDetailsPanel);
+		learnerDetailsPanel.setVisible(learnerFound);
 
 		ContentPackage contentPackage = contentService.getContentPackage(contentPackageId);
 		String scoId = pageParams.getString("scoId");
@@ -106,7 +112,7 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 		add(attemptNumberLinks);
 		
 		for (long i=1;i<=numberOfAttempts;i++) {
-			this.addAttemptNumberLink(i, pageParams, attemptNumberLinks, attemptNumber, contentPackage, scoId, learner);
+			addAttemptNumberLink(i, pageParams, attemptNumberLinks, attemptNumber, contentPackage, scoId, learner);
 		}
 		
 		initializePage(contentPackage, learner, attemptNumber, pageParams);
@@ -174,6 +180,8 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 
 		if (i == current) {
 			link.setEnabled(false);
+		} else {
+			link.setVisible(attemptExists(i, scoId, learner.getId(), contentPackage.getContentPackageId()));
 		}
 			
 		WebMarkupContainer item = new WebMarkupContainer(container.newChildId());
@@ -183,8 +191,9 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 		container.add(item);
 	}
 	
-	
-	
+	protected boolean attemptExists(long attemptId, String scoId, String learnerId, long contentPackageId) {
+		return true;
+	}
 	
 	public class PercentageColumn extends DecoratedPropertyColumn {
 

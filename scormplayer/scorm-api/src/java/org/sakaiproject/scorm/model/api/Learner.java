@@ -1,8 +1,9 @@
 package org.sakaiproject.scorm.model.api;
 
+import java.io.Serializable;
 import java.util.Properties;
 
-public class Learner {
+public class Learner implements Serializable {
 
 	private String id;
 	private String displayName;
