@@ -118,7 +118,10 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 		return report;
 	}
 	
-	
+	public boolean existsActivityReport(long contentPackageId, String learnerId, long attemptNumber, String scoId) {
+		IDataManager dataManager = dataManagerDao().find(contentPackageId, learnerId, attemptNumber, scoId);
+		return dataManager != null;
+	}
 	public List<ActivitySummary> getActivitySummaries(long contentPackageId, String learnerId, long attemptNumber) {
 		List<IDataManager> dataManagers = dataManagerDao().find(contentPackageId, learnerId, attemptNumber);
 		List<ActivitySummary> summaries = new LinkedList<ActivitySummary>();

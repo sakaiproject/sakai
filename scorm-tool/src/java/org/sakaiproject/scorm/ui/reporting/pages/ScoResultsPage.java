@@ -144,12 +144,11 @@ public class ScoResultsPage extends BaseResultsPage {
 		link.setVisible(previousId.trim().length() > 0);
 		return link;
 	}
+
 	@Override
-	protected void addAttemptNumberLink(long i, PageParameters params, RepeatingView container, long current, ContentPackage contentPackage, String scoId, Learner learner){
-		if (resultService.getActivityReport(contentPackage.getContentPackageId(), learner.getId(), current, scoId) != null) {
-			super.addAttemptNumberLink(i, params, container, current, contentPackage, scoId, learner);
-		}
-	}
+	protected boolean attemptExists(long attemptId, String scoId, String learnerId, long contentPackageId) {
+	    return resultService.existsActivityReport(contentPackageId, learnerId, attemptId, scoId);
+    }
 	
 	@Override
 	protected boolean isPreviousLinkVisible(String[] siblingIds) {
