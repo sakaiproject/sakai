@@ -54,7 +54,16 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 		private boolean fileHidden = false;
 		private int priority = NotificationService.NOTI_NONE;
 		private boolean fileValidated = false;
+		private FileUpload fileInput;
 		
+		public FileUpload getFileInput() {
+        	return fileInput;
+        }
+
+		public void setFileInput(FileUpload fileUpload) {
+        	this.fileInput = fileUpload;
+        }
+
 		public FileUploadForm(String id) {
 			super(id);
 			
