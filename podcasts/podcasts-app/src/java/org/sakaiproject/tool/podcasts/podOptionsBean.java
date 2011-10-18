@@ -67,6 +67,14 @@ public class podOptionsBean {
 
 	/** Returns the options of what the podcast folder can be set to **/
 	public SelectItem[] getDisplayItems() {
+		// Reset labels for i18n
+		for (SelectItem displayItem : displayItems) {
+			if (Integer.valueOf(PUBLIC).equals(displayItem.getValue())) {
+				displayItem.setLabel(rb.getString(OPTIONS_PUBLIC));
+			} else if (Integer.valueOf(SITE).equals(displayItem.getValue())) {
+				displayItem.setLabel(rb.getString(OPTIONS_SITE));
+			}
+		}
 		return displayItems;
 	}
 
