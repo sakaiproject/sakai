@@ -24,8 +24,12 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.faces.event.AbortProcessingException;
@@ -54,7 +58,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.MatchItemBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.FormattedText;
-
+import org.apache.commons.collections.comparators.NullComparator;
 /**
  * <p>Title: Samigo</p>
  * <p>Description: Sakai Assessment Manager</p>
@@ -524,46 +528,88 @@ public class ItemModifyListener implements ActionListener
 
  private void populateItemTextForMatching(ItemAuthorBean itemauthorbean, ItemFacade itemfacade, ItemBean bean)  {
 
-    Set itemtextSet = itemfacade.getItemTextSet();
-    Iterator iter = itemtextSet.iterator();
-    ArrayList matchItemBeanList = new ArrayList();
+	Set itemtextSet = itemfacade.getItemTextSet();
+	Iterator<ItemTextIfc> iter = itemtextSet.iterator();
+	ArrayList<MatchItemBean> matchItemBeanList = new ArrayList<MatchItemBean>();
 
+    // build a list of MatchItemBean matches for each answer.  By default
+	// all are distractors.  Since all possible matches are included with each 
+	// choice, you only need to look at the first choice to find the matches
+    Map<String, MatchItemBean> matches = new HashMap<String, MatchItemBean>();
+    ItemTextIfc firstItemText = (ItemTextIfc) itemtextSet.toArray()[0];
+    Iterator answerIter = firstItemText.getAnswerSet().iterator();
+    while(answerIter.hasNext()) {
+    	AnswerIfc answer = (AnswerIfc) answerIter.next();
+    	MatchItemBean choicebean = new MatchItemBean();
+        choicebean.setChoice(MatchItemBean.CONTROLLING_SEQUENCE_DISTRACTOR);
+        choicebean.setControllingSequence(MatchItemBean.CONTROLLING_SEQUENCE_DISTRACTOR);
+        choicebean.setIsCorrect(Boolean.FALSE);
+        choicebean.setMatch(answer.getText());
+        choicebean.setSequence(answer.getSequence());
+        choicebean.setSequenceStr(answer.getSequence().toString());
+        
+        Set feedbackSet = answer.getAnswerFeedbackSet();
+        Iterator iter2 = feedbackSet.iterator();
+        while (iter2.hasNext()){
 
+     	  AnswerFeedbackIfc feedback =(AnswerFeedbackIfc) iter2.next();
+          if (feedback.getTypeId().equals(AnswerFeedbackIfc.CORRECT_FEEDBACK)) {
+            choicebean.setCorrMatchFeedback(feedback.getText());
+          }
+          else if (feedback.getTypeId().equals(AnswerFeedbackIfc.INCORRECT_FEEDBACK)) {
+            choicebean.setIncorrMatchFeedback(feedback.getText());
+          }
+        }        
+        matches.put(choicebean.getMatch(), choicebean);
+    }
+    
+    // Loop through each choice.  For each choice, loop through each answer to 
+    // find the correct answer.  Every choice should have a correct answer.  
+    // Once the correct answer is found, find the MatchItemBean for this choice
+    // (created above) and make it not a distractor.
     while (iter.hasNext()){
-       ItemTextIfc  itemText = (ItemTextIfc) iter.next();
-       MatchItemBean choicebean =  new MatchItemBean();
-       choicebean.setChoice(itemText.getText());
-       choicebean.setSequence(itemText.getSequence());
+       ItemTextIfc itemText = iter.next();
+       String controllingSequence = MatchItemBean.CONTROLLING_SEQUENCE_DEFAULT;
        
        Set answerSet = itemText.getAnswerSet();
-       Iterator iter1 = answerSet.iterator();
+       Iterator<AnswerIfc> iter1 = answerSet.iterator();
        while (iter1.hasNext()){
-    	 AnswerIfc answer = (AnswerIfc) iter1.next();
+    	 AnswerIfc answer = iter1.next();
          if (answer.getIsCorrect() != null &&
              answer.getIsCorrect().booleanValue()){
-           choicebean.setMatch(answer.getText());
-           //choicebean.setSequence(answer.getSequence());
-           choicebean.setIsCorrect(Boolean.TRUE);
-           Set feedbackSet = answer.getAnswerFeedbackSet();
-           Iterator iter2 = feedbackSet.iterator();
-           while (iter2.hasNext()){
-
-        	   AnswerFeedbackIfc feedback =(AnswerFeedbackIfc) iter2.next();
-             if (feedback.getTypeId().equals(AnswerFeedbackIfc.CORRECT_FEEDBACK)) {
-               choicebean.setCorrMatchFeedback(feedback.getText());
-             }
-             else if (feedback.getTypeId().equals(AnswerFeedbackIfc.INCORRECT_FEEDBACK)) {
-               choicebean.setIncorrMatchFeedback(feedback.getText());
-             }
+           MatchItemBean choicebean = matches.get(answer.getText());
+           if (choicebean != null) {
+	           choicebean.setChoice(itemText.getText());
+	           choicebean.setIsCorrect(Boolean.TRUE);
+	           
+	           // controllingSequence will be the default for the first match.  
+	           // All subsequent matches will refer to the first match's sequence number
+	           choicebean.setControllingSequence(controllingSequence);
+	           if (MatchItemBean.CONTROLLING_SEQUENCE_DEFAULT.equals(controllingSequence)) {
+	        	   controllingSequence = choicebean.getSequenceStr();
+	           }	           
            }
          }
        }
-       matchItemBeanList.add(choicebean);
      }
-
+    
+    // All of the valid choices have now modified the MatchItemBean that matches.
+    // Some MatchItemBeans have not been modified; they are the distractors
+    // Add all to results list
+    for (MatchItemBean choicebean : matches.values()) {
+   		matchItemBeanList.add(choicebean);
+    }
+    
+    // the list needs to be sorted in sequence order.
+    // the sequence number needs to line up with the order displayed on the page for the
+    // edit and remove links to work correctly.
+    Collections.sort(matchItemBeanList, new Comparator<MatchItemBean>() {
+		public int compare(MatchItemBean bean1, MatchItemBean bean2) {
+			return new NullComparator(true).compare(bean1.getSequence(), bean2.getSequence());
+		}
+    });
+    
      bean.setMatchItemBeanList(matchItemBeanList);
-     //	bean.getMatchItemBeanList().size()  );
-
 
   }
 

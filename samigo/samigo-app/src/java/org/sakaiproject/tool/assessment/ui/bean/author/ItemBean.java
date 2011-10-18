@@ -37,6 +37,7 @@ import org.sakaiproject.util.ResourceLoader;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
@@ -666,6 +667,34 @@ public class ItemBean
     this.matchItemBeanList= list;
   }
 
+  /**
+   * getSelfSequenceList examines the MatchItemBean list and returns a list of SelectItemOptions that
+   * correspond to beans that have a controlling sequence of "Self", meaning that they do not depend 
+   * upon any other beans for their choice value.
+   * @return a list of SelectItems, to be used to build a dropdown list in matching.jsp
+   * @TODO - this may not belong here.  May belong in a helper class that just takes the MatchItemBean list
+   */
+  public List<SelectItem> getSelfSequenceList() {
+	  List<SelectItem> options = new ArrayList<SelectItem>();
+	  String selfSequence = MatchItemBean.CONTROLLING_SEQUENCE_DEFAULT;
+	  String distractorSequence = MatchItemBean.CONTROLLING_SEQUENCE_DISTRACTOR;
+	  
+	  SelectItem selfOption = new SelectItem(selfSequence, selfSequence, selfSequence);
+	  options.add(selfOption);
+	  SelectItem distractorOption = new SelectItem(distractorSequence, distractorSequence, distractorSequence);
+	  options.add(distractorOption);
+	  
+	  Iterator<MatchItemBean> iter = matchItemBeanList.iterator();
+	  while (iter.hasNext()) {
+		  MatchItemBean bean = iter.next();
+		  if (MatchItemBean.CONTROLLING_SEQUENCE_DEFAULT.equals(bean.getControllingSequence()) &&
+				  bean.getSequence() != this.currentMatchPair.getSequence()) {
+			  SelectItem option = new SelectItem(bean.getSequenceStr(), bean.getMatch(), bean.getMatch());
+			  options.add(option);
+		  }
+	  }
+	  return options;
+  }
 
   public ArrayList getMatchItemBeanList()
   {
@@ -1170,6 +1199,29 @@ public class ItemBean
 	return false;
     }
 
+	public void changeControllingSequence(javax.faces.event.ValueChangeEvent ce) {
+	    MatchItemBean bean = this.getCurrentMatchPair();
+	    String value = (String) ce.getNewValue();
+	    System.out.println("in SequenceChangeListener");
+	    System.out.println("value: '" + value + "'");
+	    if (MatchItemBean.CONTROLLING_SEQUENCE_DEFAULT.equals(value)) {
+	    	System.out.println("in self");
+	    	System.out.println("old choice: " + bean.getChoice());
+	    	System.out.println("old match: " + bean.getMatch());
+	    	bean.setChoice("");
+	    	bean.setMatch("");
+	    } else if (MatchItemBean.CONTROLLING_SEQUENCE_DISTRACTOR.equals(value)) {
+	    	System.out.println("in distractor");
+	    	System.out.println("old choice: " + bean.getChoice());
+	    	bean.setChoice("");
+	    } else {
+	    	System.out.println("in other");
+	    	System.out.println("old match: " + bean.getMatch());
+	    	bean.setMatch("");
+	    }
+	}    
+    
+    
   public String addMatchPair() {
       if (!isMatchError()){
 
@@ -1194,6 +1246,7 @@ public class ItemBean
       newpair.setCorrMatchFeedback(currpair.getCorrMatchFeedback());
       newpair.setIncorrMatchFeedback(currpair.getIncorrMatchFeedback());
       newpair.setIsCorrect(Boolean.TRUE);
+      newpair.setControllingSequence(currpair.getControllingSequence());
     }
     else {
       // for new pair
@@ -1204,8 +1257,8 @@ public class ItemBean
       newpair.setIncorrMatchFeedback(currpair.getIncorrMatchFeedback());
       newpair.setIsCorrect(Boolean.TRUE);
       newpair.setSequence( Long.valueOf(list.size()+1));
-
-    list.add(newpair);
+      newpair.setControllingSequence(currpair.getControllingSequence());
+      list.add(newpair);
     }
 
 

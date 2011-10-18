@@ -44,6 +44,7 @@
       <samigo:script path="/jsf/widget/wysiwyg/samigo/wysiwyg.js"/>
       <!-- AUTHORING -->
       <samigo:script path="/js/authoring.js"/>
+      
 <%--
 <script type="text/JavaScript">
 <!--
@@ -180,15 +181,24 @@
 <div class="tier2">
    
           <h:outputText value=" #{authorMessages.matching_choice_col}"/>
+	<h:selectOneMenu value="#{itemauthor.currentItem.currentMatchPair.controllingSequence }"
+		immediate="true"
+		onchange="submit()">
+		<f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.SequenceChangeListener" />
+		<f:selectItems value="#{itemauthor.currentItem.selfSequenceList }" />
+	</h:selectOneMenu>
 <h:panelGrid>
-  <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.choice}" hasToggle="yes">
-     <f:validateLength maximum="4000"/>
-   </samigo:wysiwyg>
+  <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.choice}" hasToggle="yes" 
+  	justArea="#{matching.controllingSequence != 'Distractor' ? 'yes' : 'no'}">
+     <f:validateLength maximum="4000" />
+   </samigo:wysiwyg>  
+   
 </h:panelGrid>
-          <h:outputText value=" #{authorMessages.matching_match_col}"/>
+    <h:outputText value=" #{authorMessages.matching_match_col}"/>
 
  <h:panelGrid>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.match}" hasToggle="yes">
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.match}" hasToggle="yes" 
+   	justArea="#{matching.controllingSequence == 'Distractor' || matching.controllingSequence == 'Self' ? 'yes' : 'no' }">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
 
