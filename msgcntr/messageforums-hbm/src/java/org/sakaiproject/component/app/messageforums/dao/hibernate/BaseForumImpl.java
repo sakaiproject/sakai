@@ -105,21 +105,26 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
     }
 
     public List getTopics() {
-        List topics =  Util.setToList(topicsSet);
-        boolean isUnsorted = true;
-        for(Iterator i = topics.iterator(); i.hasNext(); ) {
+        boolean isUnsorted = false;
+		int c = 1;
+        for(Iterator i = this.topicsSet.iterator(); i.hasNext(); c++) {
            Topic topic = (Topic)i.next();
-           if(topic.getSortIndex().intValue() != 0)
-              isUnsorted = false;
+           if(topic.getSortIndex().intValue() != c) {
+              isUnsorted = true;
+              break;
+           }  
         }
         if(isUnsorted) {
+           SortedSet sortedTopics = new TreeSet(new TopicBySortIndexAscAndCreatedDateDesc());
+           sortedTopics.addAll(this.topicsSet);
            int x = 1;
-           for(Iterator i = topics.iterator(); i.hasNext(); x++) {
+           for(Iterator i = sortedTopics.iterator(); i.hasNext(); x++) {
               Topic topic = (Topic)i.next();
               topic.setSortIndex(Integer.valueOf(x));
            }
+           this.topicsSet = sortedTopics;
         }
-        return topics;
+        return Util.setToList(this.topicsSet);
     }
 
     public void setTopics(List topics) {
