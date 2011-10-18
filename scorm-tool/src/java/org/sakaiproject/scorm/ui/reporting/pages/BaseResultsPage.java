@@ -88,6 +88,8 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 		}
 
 		ContentPackage contentPackage = contentService.getContentPackage(contentPackageId);
+		String scoId = pageParams.getString("scoId");
+		String interactionId = pageParams.getString("interactionId");
 						
 		int numberOfAttempts = resultService.getNumberOfAttempts(contentPackageId, learnerId);
 		
@@ -104,13 +106,11 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 		add(attemptNumberLinks);
 		
 		for (long i=1;i<=numberOfAttempts;i++) {
-			this.addAttemptNumberLink(i, pageParams, attemptNumberLinks, attemptNumber);
+			this.addAttemptNumberLink(i, pageParams, attemptNumberLinks, attemptNumber, contentPackage, scoId, learner);
 		}
 		
 		initializePage(contentPackage, learner, attemptNumber, pageParams);
 		
-		String scoId = pageParams.getString("scoId");
-		String interactionId = pageParams.getString("interactionId");
 		
 		String[] siblingIds = resultService.getSiblingIds(contentPackageId, learnerId, attemptNumber, scoId, interactionId);
 		
@@ -165,7 +165,7 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 	 * 	org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable
 	 * originally authored by Igor Vaynberg (ivaynberg)
 	 */
-	protected void addAttemptNumberLink(long i, PageParameters params, RepeatingView container, long current)
+	protected void addAttemptNumberLink(long i, PageParameters params, RepeatingView container, long current, ContentPackage contentPackage, String scoId, Learner learner)
 	{
 		PageParameters newParams = new PageParameters(params);
 		newParams.put("attemptNumber", i);
