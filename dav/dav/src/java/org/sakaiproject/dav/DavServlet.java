@@ -2721,7 +2721,6 @@ public class DavServlet extends HttpServlet
 		    String agent = null;
 		    if (session != null)
 			agent = session.getUserAgent();
-		    System.out.println("agent " + agent);
 		    if (agent != null && agent.startsWith("Microsoft Office Core Storage Infrastructure")) {
 			String fileContentType = getServletContext().getMimeType(path);
 			if (fileContentType != null) {
