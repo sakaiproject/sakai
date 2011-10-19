@@ -220,7 +220,7 @@ function escapeApostrophe(name) {
 	 </span>
      </h:panelGroup>
 
-	 <h:outputText value=" #{evaluationMessages.separator} " rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != '' &&  description.retakeAllowed}" />
+	 <h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.anonymous eq 'false' && description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != '' &&  description.retakeAllowed}" />
 
 	 <span class="itemAction">
      <h:commandLink title="#{evaluationMessages.t_retake}" id="retakeAssessment1" immediate="true" 
@@ -266,7 +266,7 @@ function escapeApostrophe(name) {
 	 </span>
      </h:panelGroup>
 	
-	 <h:outputText value=" #{evaluationMessages.separator} " rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != '' &&  description.retakeAllowed}" />
+	 <h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.anonymous eq 'false' && description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != '' &&  description.retakeAllowed}" />
 
 	 <span class="itemAction">
      <h:commandLink title="#{evaluationMessages.t_retake}" id="retakeAssessment2" immediate="true" 
@@ -313,7 +313,7 @@ function escapeApostrophe(name) {
 	 </span>
      </h:panelGroup>
 	
-	<h:outputText value=" #{evaluationMessages.separator} " rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != '' &&  description.retakeAllowed}" />
+	<h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.anonymous eq 'false' && description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != '' &&  description.retakeAllowed}" />
 
 	 <span class="itemAction">
      <h:commandLink title="#{evaluationMessages.t_retake}" id="retakeAssessment3" immediate="true" 
