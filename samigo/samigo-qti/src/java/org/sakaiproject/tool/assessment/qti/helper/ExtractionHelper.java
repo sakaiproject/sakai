@@ -1597,7 +1597,11 @@ public class ExtractionHelper
       if (item.getTypeId().equals(TypeIfc.ESSAY_QUESTION)) {
     	score = "1";
       }
-      else if (item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) || item.getTypeId().equals(TypeIfc.FILL_IN_BLANK) || item.getTypeId().equals(TypeIfc.MATCHING)) {
+      else if (item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) 
+              || item.getTypeId().equals(TypeIfc.FILL_IN_BLANK) 
+              || item.getTypeId().equals(TypeIfc.MATCHING)
+              || item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION) // CALCULATED_QUESTION
+              ) {
         score = (String) itemMap.get("score");
       }
       else {
