@@ -43,6 +43,7 @@
       <samigo:script path="/htmlarea/navigo_js/navigo_editor.js"/>
       <samigo:script path="/jsf/widget/wysiwyg/samigo/wysiwyg.js"/>
       <!-- AUTHORING -->
+      <samigo:script path="/js/jquery-1.3.2.min.js" />
       <samigo:script path="/js/authoring.js"/>
       
 <%--
@@ -181,24 +182,23 @@
 <div class="tier2">
    
           <h:outputText value=" #{authorMessages.matching_choice_col}"/>
-	<h:selectOneMenu value="#{itemauthor.currentItem.currentMatchPair.controllingSequence }"
-		immediate="true"
-		onchange="submit()">
-		<f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.SequenceChangeListener" />
-		<f:selectItems value="#{itemauthor.currentItem.selfSequenceList }" />
-	</h:selectOneMenu>
 <h:panelGrid>
-  <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.choice}" hasToggle="yes" 
-  	justArea="#{matching.controllingSequence != 'Distractor' ? 'yes' : 'no'}">
+  <samigo:wysiwyg value="#{itemauthor.currentItem.currentMatchPair.choice}"
+  	rows="140"   
+  	hasToggle="yes">
      <f:validateLength maximum="4000" />
    </samigo:wysiwyg>  
    
 </h:panelGrid>
     <h:outputText value=" #{authorMessages.matching_match_col}"/>
+	<h:selectOneMenu value="#{itemauthor.currentItem.currentMatchPair.controllingSequence }" id="controllingSequence">
+		<f:selectItems value="#{itemauthor.currentItem.selfSequenceList }" />
+	</h:selectOneMenu>
 
  <h:panelGrid>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.currentMatchPair.match}" hasToggle="yes" 
-   	justArea="#{matching.controllingSequence == 'Distractor' || matching.controllingSequence == 'Self' ? 'yes' : 'no' }">
+   <samigo:wysiwyg value="#{itemauthor.currentItem.currentMatchPair.match}"
+    rows="140"   
+   	hasToggle="yes">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
 
@@ -362,7 +362,9 @@
 </h:form>
 <!-- end content -->
 </div>
-
+<script type="text/javascript">
+applyMenuListener("controllingSequence");
+</script>
     </body>
   </html>
 </f:view>

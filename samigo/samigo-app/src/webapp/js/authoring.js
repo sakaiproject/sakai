@@ -251,3 +251,20 @@ function toPoint(id)
   document.getElementById(id).value=x.replace(',','.')
 }
 
+/**
+ * adds a change handler to the pulldown menu, which shows/hides the rich text editor
+ * for the match part of the MatchItemBean.  Odd syntax for id required to find the
+ * jsf pulldown menu, standard #<pulldown> would not retrieve the component.
+ * @param pulldown
+ */
+function applyMenuListener(pulldown) {
+	var $pulldownHolder = $("[id=itemForm:" + pulldown + "]");	
+	$pulldownHolder.change( function() {
+		var $editor = $(this).parent("div").find("div.toggle_link_container").parent("td:last");
+		if (this.value === "*new*") {
+			$editor.show();
+		} else {
+			$editor.hide();			
+		}
+	});
+};

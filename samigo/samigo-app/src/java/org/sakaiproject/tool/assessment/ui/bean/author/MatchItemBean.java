@@ -27,8 +27,8 @@ import java.io.Serializable;
 public class MatchItemBean implements Serializable {
 
   private static final long serialVersionUID = 7526471155622776147L;
-  public static final String CONTROLLING_SEQUENCE_DEFAULT = "Self";
-  public static final String CONTROLLING_SEQUENCE_DISTRACTOR = "Distractor";
+  public static final String CONTROLLING_SEQUENCE_DEFAULT = "*new*";
+  public static final String CONTROLLING_SEQUENCE_DISTRACTOR = "*distractor*";
 //  private String text;
   private Long sequence;
 //  private String corrfeedback;

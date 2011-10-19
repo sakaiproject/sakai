@@ -882,42 +882,43 @@ public class ItemAddListener
 	  choicetext.setText(stripPtags(choicebean.getChoice()));
 
 	  // need to loop through matches for in matchItemBean list
-	  // and add all possible matches to this choice
+	  // and add all non-distractor matches to this choice
 	  Iterator<MatchItemBean>answeriter = matchItemBeanList.iterator();
 	  HashSet<Answer> answerSet = new HashSet<Answer>();
 	  Answer answer = null;
 	  while (answeriter.hasNext()) {
 		  MatchItemBean answerbean = (MatchItemBean) answeriter.next();
-
-		  if (answerbean.getSequence().equals(choicebean.getSequence()) ||
-				  answerbean.getControllingSequence().equals(choicebean.getSequenceStr())) {
-			  // correct answers
-			  answer = new Answer(choicetext, stripPtags(answerbean
-					  .getMatch()), answerbean.getSequence(), AnswerBean
-					  .getChoiceLabels()[answerbean.getSequence()
-					                     .intValue() - 1], Boolean.TRUE, null, Float.valueOf(
-					                    		 bean.getItemScore()), Float.valueOf(0f), Float.valueOf(bean.getItemDiscount()));
-
-		  } else {
-			  // incorrect answers
-			  answer = new Answer(choicetext, stripPtags(answerbean
-					  .getMatch()), answerbean.getSequence(), AnswerBean
-					  .getChoiceLabels()[answerbean.getSequence()
-					                     .intValue() - 1], Boolean.FALSE, null,  Float.valueOf(
-					                    		 bean.getItemScore()), Float.valueOf(0f), Float.valueOf(bean.getItemDiscount()));
+		  if (!MatchItemBean.CONTROLLING_SEQUENCE_DISTRACTOR.equals(answerbean.getControllingSequence())) {
+			  if (answerbean.getSequence().equals(choicebean.getSequence()) ||
+					  answerbean.getControllingSequence().equals(choicebean.getSequenceStr())) {
+				  // correct answers
+				  answer = new Answer(choicetext, stripPtags(answerbean
+						  .getMatch()), answerbean.getSequence(), AnswerBean
+						  .getChoiceLabels()[answerbean.getSequence()
+						                     .intValue() - 1], Boolean.TRUE, null, Float.valueOf(
+						                    		 bean.getItemScore()), Float.valueOf(0f), Float.valueOf(bean.getItemDiscount()));
+	
+			  } else {
+				  // incorrect answers
+				  answer = new Answer(choicetext, stripPtags(answerbean
+						  .getMatch()), answerbean.getSequence(), AnswerBean
+						  .getChoiceLabels()[answerbean.getSequence()
+						                     .intValue() - 1], Boolean.FALSE, null,  Float.valueOf(
+						                    		 bean.getItemScore()), Float.valueOf(0f), Float.valueOf(bean.getItemDiscount()));
+			  }
+	
+			  // record answers for all combination of pairs
+	
+			  HashSet<AnswerFeedback> answerFeedbackSet = new HashSet<AnswerFeedback>();
+			  answerFeedbackSet.add(new AnswerFeedback(answer,
+					  AnswerFeedbackIfc.CORRECT_FEEDBACK,
+					  stripPtags(answerbean.getCorrMatchFeedback())));
+			  answerFeedbackSet.add(new AnswerFeedback(answer,
+					  AnswerFeedbackIfc.INCORRECT_FEEDBACK,
+					  stripPtags(answerbean.getIncorrMatchFeedback())));
+			  answer.setAnswerFeedbackSet(answerFeedbackSet);
+			  updateAnswerSet(answer, answerSet);
 		  }
-
-		  // record answers for all combination of pairs
-
-		  HashSet<AnswerFeedback> answerFeedbackSet = new HashSet<AnswerFeedback>();
-		  answerFeedbackSet.add(new AnswerFeedback(answer,
-				  AnswerFeedbackIfc.CORRECT_FEEDBACK,
-				  stripPtags(answerbean.getCorrMatchFeedback())));
-		  answerFeedbackSet.add(new AnswerFeedback(answer,
-				  AnswerFeedbackIfc.INCORRECT_FEEDBACK,
-				  stripPtags(answerbean.getIncorrMatchFeedback())));
-		  answer.setAnswerFeedbackSet(answerFeedbackSet);
-		  updateAnswerSet(answer, answerSet);
 	  }
 	  choicetext.setAnswerSet(answerSet);
 	  return choicetext;
@@ -928,16 +929,12 @@ public class ItemAddListener
 		  ItemAuthorBean itemauthor) {
 	  ArrayList<MatchItemBean>matchItemBeanList = bean.getMatchItemBeanList();
 	  HashSet<ItemText> textSet = new HashSet<ItemText>();
-	  // looping through matchItemBean, ignoring distractor choices
+	  
 	  Iterator<MatchItemBean> choiceiter = matchItemBeanList.iterator();
 	  while (choiceiter.hasNext()) {
 		  MatchItemBean choicebean = choiceiter.next();
-
-		  if (!MatchItemBean.CONTROLLING_SEQUENCE_DISTRACTOR.equals(choicebean.getControllingSequence())) {
-			  ItemText choicetext = selectAnswers(choicebean, matchItemBeanList, item, bean);
-			  textSet.add(choicetext);  
-		  }
-
+		  ItemText choicetext = selectAnswers(choicebean, matchItemBeanList, item, bean);
+		  textSet.add(choicetext);  
 	  }
 	  return textSet;
   }
