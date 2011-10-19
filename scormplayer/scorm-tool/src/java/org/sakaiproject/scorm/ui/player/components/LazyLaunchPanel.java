@@ -31,7 +31,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebResource;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.scorm.model.api.ActivityTreeHolder;
 import org.sakaiproject.scorm.model.api.Attempt;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
@@ -201,7 +200,8 @@ public class LazyLaunchPanel extends LazyLoadPanel {
 		for (ContentPackageResource cpResource : resources) {
 			String resourceName = cpResource.getPath();
 			
-			if (getApplication().getSharedResources().get(resourceName) == null) {
+			ContentPackageWebResource resource = (ContentPackageWebResource)getApplication().getSharedResources().get(PlayerPage.class, resourceName, null, null, false);
+			if (resource == null || resource.lastModifiedTime().getMilliseconds() != cpResource.getLastModified()) {
 				
 				WebResource webResource = new ContentPackageWebResource(cpResource);
 				
