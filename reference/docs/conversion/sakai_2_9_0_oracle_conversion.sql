@@ -144,3 +144,7 @@ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL,
       'lockedBrowser_isInstructorEditable', 'true')
 ;  
 
+alter table GB_GRADEBOOK_T
+add (
+	DO_SHOW_STATISTICS_CHART number(1,0)
+);
