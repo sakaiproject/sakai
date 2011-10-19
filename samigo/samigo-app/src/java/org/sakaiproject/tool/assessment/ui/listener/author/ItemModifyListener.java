@@ -525,30 +525,43 @@ public class ItemModifyListener implements ActionListener
  private void populateItemTextForMatching(ItemAuthorBean itemauthorbean, ItemFacade itemfacade, ItemBean bean)  {
 
     Set itemtextSet = itemfacade.getItemTextSet();
-    Iterator iter = itemtextSet.iterator();
-    ArrayList matchItemBeanList = new ArrayList();
+    Iterator<ItemTextIfc> choiceIter = itemtextSet.iterator();
+    ArrayList<MatchItemBean> matchItemBeanList = new ArrayList<MatchItemBean>();
 
+    // once a match has been assigned to a choice, subsequent matches set the controlling sequences
+    List<String> alreadyMatched = new ArrayList<String>();
 
-    while (iter.hasNext()){
-       ItemTextIfc  itemText = (ItemTextIfc) iter.next();
+    // loop through all choices
+    while (choiceIter.hasNext()){
+       ItemTextIfc itemText = choiceIter.next();
        MatchItemBean choicebean =  new MatchItemBean();
        choicebean.setChoice(itemText.getText());
        choicebean.setSequence(itemText.getSequence());
+       choicebean.setSequenceStr(itemText.getSequence().toString());
+       Set<AnswerIfc> answerSet = itemText.getAnswerSet();
+       Iterator<AnswerIfc> answerIter = answerSet.iterator();
        
-       Set answerSet = itemText.getAnswerSet();
-       Iterator iter1 = answerSet.iterator();
-       while (iter1.hasNext()){
-    	 AnswerIfc answer = (AnswerIfc) iter1.next();
+       // loop through all matches
+       while (answerIter.hasNext()){
+    	 AnswerIfc answer = answerIter.next();
          if (answer.getIsCorrect() != null &&
              answer.getIsCorrect().booleanValue()){
            choicebean.setMatch(answer.getText());
-           //choicebean.setSequence(answer.getSequence());
            choicebean.setIsCorrect(Boolean.TRUE);
-           Set feedbackSet = answer.getAnswerFeedbackSet();
-           Iterator iter2 = feedbackSet.iterator();
-           while (iter2.hasNext()){
+           
+           // if match has been used already, set the controlling sequence
+           if (alreadyMatched.contains(answer.getLabel())) {
+        	   choicebean.setControllingSequence(answer.getSequence().toString());
+           } else {
+        	   alreadyMatched.add(answer.getLabel());
+           }
+           
+           // add feedback
+           Set<AnswerFeedbackIfc> feedbackSet = answer.getAnswerFeedbackSet();
+           Iterator<AnswerFeedbackIfc> feedbackIter = feedbackSet.iterator();
+           while (feedbackIter.hasNext()){
 
-        	   AnswerFeedbackIfc feedback =(AnswerFeedbackIfc) iter2.next();
+        	   AnswerFeedbackIfc feedback = feedbackIter.next();
              if (feedback.getTypeId().equals(AnswerFeedbackIfc.CORRECT_FEEDBACK)) {
                choicebean.setCorrMatchFeedback(feedback.getText());
              }
@@ -558,6 +571,8 @@ public class ItemModifyListener implements ActionListener
            }
          }
        }
+       
+       // if match was not found, must be a distractor
        if (choicebean.getMatch() == null || "".equals(choicebean.getMatch())) {
     	   choicebean.setMatch(MatchItemBean.CONTROLLING_SEQUENCE_DISTRACTOR);
     	   choicebean.setIsCorrect(Boolean.TRUE);
@@ -567,9 +582,6 @@ public class ItemModifyListener implements ActionListener
      }
 
      bean.setMatchItemBeanList(matchItemBeanList);
-     //	bean.getMatchItemBeanList().size()  );
-
-
   }
 
   private void populateMetaData(ItemAuthorBean itemauthorbean, ItemFacade itemfacade, ItemBean bean)  {

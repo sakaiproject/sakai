@@ -267,4 +267,7 @@ function applyMenuListener(pulldown) {
 			$editor.hide();			
 		}
 	});
+	
+	// hide the match if needed
+	$pulldownHolder.change();
 };

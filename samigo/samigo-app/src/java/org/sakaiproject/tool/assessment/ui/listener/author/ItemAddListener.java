@@ -837,35 +837,6 @@ public class ItemAddListener
       itemauthor.setItemId(item.getItemId().toString());
   }
   
-  /**
-   * updateAnswerSet looks at the answer and tries to find the same answer choice in the answerSet.
-   * Because an answer (match) can match multiple choices, we only want to add a unique answer to the sam_answer_t
-   * table.  Because of distractors, it is also possible to have no answers that match a choice, so we have to
-   * ensure the correct answer is always added if it's there, but allow an incorrect answer if no correct answer
-   * is there.   
-   * @param answer
-   * @param answerSet
-   */
-  private void updateAnswerSet(Answer answer, HashSet<Answer> answerSet) {
-	  Iterator<Answer> answerIter = answerSet.iterator();
-	  boolean answerFound = false;
-	  while (answerIter.hasNext()) {
-		  Answer curAnswer = answerIter.next();
-		  if (curAnswer.getText().equals(answer.getText())) {
-			  // replace incorrect answer with correct answer
-			  // ignore if answer is not correct (it's already in answerSet)
-			  if (answer.getIsCorrect() == Boolean.TRUE) {
-				  answerIter.remove();
-			  } else {
-				  answerFound = true;				  
-			  }
-		  }
-	  }
-	  if (!answerFound) {
-		  answerSet.add(answer);
-	  }
-  }
-  
 /**
  * for the current choice, loop through all answers and add unique matches to the list of valid matches for the choice. 
  * @param choicebean current choice
@@ -875,50 +846,57 @@ public class ItemAddListener
  * @return
  */
   private ItemText selectAnswers(MatchItemBean choicebean, ArrayList<MatchItemBean> matchItemBeanList, ItemFacade item, ItemBean bean) {
+	  
+	  // Create a list of valid answers to loop through.  Ignore answers that are distractors
+	  // or are controlled by another MatchItemBean
+	  List<MatchItemBean> validAnswers = new ArrayList<MatchItemBean>();
+	  Iterator<MatchItemBean>validAnswerIter = matchItemBeanList.iterator();
+	  while (validAnswerIter.hasNext()) {
+		  MatchItemBean validAnswer = validAnswerIter.next();
+		  if (MatchItemBean.CONTROLLING_SEQUENCE_DEFAULT.equals(validAnswer.getControllingSequence())) {
+			  validAnswers.add(validAnswer);
+		  }
+	  }
+	  
 	  ItemText choicetext = new ItemText();
 	  choicetext.setItem(item.getData()); // all set to the same
-	  // ItemFacade
 	  choicetext.setSequence(choicebean.getSequence());
 	  choicetext.setText(stripPtags(choicebean.getChoice()));
 
-	  // need to loop through matches for in matchItemBean list
-	  // and add all non-distractor matches to this choice
-	  Iterator<MatchItemBean>answeriter = matchItemBeanList.iterator();
+	  // loop through matches for in validAnswers list and add all to this choice
+	  Iterator<MatchItemBean>answeriter = validAnswers.iterator();	  
 	  HashSet<Answer> answerSet = new HashSet<Answer>();
-	  Answer answer = null;
 	  while (answeriter.hasNext()) {
+		  Answer answer = null;
 		  MatchItemBean answerbean = (MatchItemBean) answeriter.next();
-		  if (!MatchItemBean.CONTROLLING_SEQUENCE_DISTRACTOR.equals(answerbean.getControllingSequence())) {
-			  if (answerbean.getSequence().equals(choicebean.getSequence()) ||
-					  answerbean.getControllingSequence().equals(choicebean.getSequenceStr())) {
-				  // correct answers
-				  answer = new Answer(choicetext, stripPtags(answerbean
-						  .getMatch()), answerbean.getSequence(), AnswerBean
-						  .getChoiceLabels()[answerbean.getSequence()
-						                     .intValue() - 1], Boolean.TRUE, null, Float.valueOf(
-						                    		 bean.getItemScore()), Float.valueOf(0f), Float.valueOf(bean.getItemDiscount()));
-	
-			  } else {
-				  // incorrect answers
-				  answer = new Answer(choicetext, stripPtags(answerbean
-						  .getMatch()), answerbean.getSequence(), AnswerBean
-						  .getChoiceLabels()[answerbean.getSequence()
-						                     .intValue() - 1], Boolean.FALSE, null,  Float.valueOf(
-						                    		 bean.getItemScore()), Float.valueOf(0f), Float.valueOf(bean.getItemDiscount()));
-			  }
-	
-			  // record answers for all combination of pairs
-	
-			  HashSet<AnswerFeedback> answerFeedbackSet = new HashSet<AnswerFeedback>();
-			  answerFeedbackSet.add(new AnswerFeedback(answer,
-					  AnswerFeedbackIfc.CORRECT_FEEDBACK,
-					  stripPtags(answerbean.getCorrMatchFeedback())));
-			  answerFeedbackSet.add(new AnswerFeedback(answer,
-					  AnswerFeedbackIfc.INCORRECT_FEEDBACK,
-					  stripPtags(answerbean.getIncorrMatchFeedback())));
-			  answer.setAnswerFeedbackSet(answerFeedbackSet);
-			  updateAnswerSet(answer, answerSet);
+		  if (answerbean.getSequence().equals(choicebean.getSequence()) ||
+				  answerbean.getSequenceStr().equals(choicebean.getControllingSequence())) {
+			  // correct answers
+			  answer = new Answer(choicetext, stripPtags(answerbean
+					  .getMatch()), answerbean.getSequence(), AnswerBean
+					  .getChoiceLabels()[answerbean.getSequence()
+					                     .intValue() - 1], Boolean.TRUE, null, Float.valueOf(
+					                    		 bean.getItemScore()), Float.valueOf(0f), Float.valueOf(bean.getItemDiscount()));
+
+		  } else {
+			  // incorrect answers
+			  answer = new Answer(choicetext, stripPtags(answerbean
+					  .getMatch()), answerbean.getSequence(), AnswerBean
+					  .getChoiceLabels()[answerbean.getSequence()
+					                     .intValue() - 1], Boolean.FALSE, null,  Float.valueOf(
+					                    		 bean.getItemScore()), Float.valueOf(0f), Float.valueOf(bean.getItemDiscount()));
 		  }
+
+		  // record answers for all combination of pairs
+		  HashSet<AnswerFeedback> answerFeedbackSet = new HashSet<AnswerFeedback>();
+		  answerFeedbackSet.add(new AnswerFeedback(answer,
+				  AnswerFeedbackIfc.CORRECT_FEEDBACK,
+				  stripPtags(answerbean.getCorrMatchFeedback())));
+		  answerFeedbackSet.add(new AnswerFeedback(answer,
+				  AnswerFeedbackIfc.INCORRECT_FEEDBACK,
+				  stripPtags(answerbean.getIncorrMatchFeedback())));
+		  answer.setAnswerFeedbackSet(answerFeedbackSet);
+		  answerSet.add(answer);
 	  }
 	  choicetext.setAnswerSet(answerSet);
 	  return choicetext;
