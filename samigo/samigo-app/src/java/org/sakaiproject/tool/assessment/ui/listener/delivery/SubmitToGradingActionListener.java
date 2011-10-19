@@ -365,7 +365,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 
 			HashMap fibMap = getFIBMap(publishedAssessment);
 			HashMap finMap = getFINMap(publishedAssessment);
-			HashMap calcQuestionMap = getCalcQuestionMap(publishedAssessment);
+			HashMap calcQuestionMap = getCalcQuestionMap(publishedAssessment); // CALCULATED_QUESTION
 			HashMap mcmrMap = getMCMRMap(publishedAssessment);
 			Set itemGradingSet = adata.getItemGradingSet();
 			log.debug("*** 2a. before removal & addition " + (new Date()));
@@ -456,6 +456,11 @@ public class SubmitToGradingActionListener implements ActionListener {
 	    return s.prepareFINItemHash(publishedAssessment);
 	}
   	
+  	/**
+  	 * CALCULATED_QUESTION
+  	 * @param publishedAssessment
+  	 * @return map of calc items
+  	 */
   	private HashMap getCalcQuestionMap(PublishedAssessmentIfc publishedAssessment){
 	    PublishedAssessmentService s = new PublishedAssessmentService();
 	    return s.prepareCalcQuestionItemHash(publishedAssessment);

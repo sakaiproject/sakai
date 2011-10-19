@@ -82,7 +82,6 @@ import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.ui.bean.delivery.CalculatedQuestionBean;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.Phase;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.PhaseStatus;
@@ -1267,7 +1266,7 @@ public class DeliveryActionListener
       if (randomize && !(item.getTypeId().equals(TypeIfc.FILL_IN_BLANK)||
     		  item.getTypeId().equals(TypeIfc.FILL_IN_NUMERIC) || 
     		  item.getTypeId().equals(TypeIfc.MATRIX_CHOICES_SURVEY)) ||
-    		  item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION) ||
+    		  item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION) || // CALCULATED_QUESTION
     		  item.getTypeId().equals(TypeIfc.MATCHING))
       {
             ArrayList shuffled = new ArrayList();
@@ -1370,10 +1369,6 @@ public class DeliveryActionListener
         			  key = answer.getLabel() + "&nbsp;<span style='color: green'>(" + pc + "%&nbsp;" + correct + ")</span>";
         		  }else{
         			  key += ",&nbsp;" + answer.getLabel() + "&nbsp;<span style='color: green'>(" + pc + "%&nbsp;" + correct + ")</span>";
-          if (item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION))
-          {
-	          	key = commaDelimtedCalcQuestionAnswers(item, delivery, itemBean);
-          }
         		  }
         	  }
           }
@@ -1408,6 +1403,11 @@ public class DeliveryActionListener
             {
               key += ", " + answer.getText();
             }
+          }
+          // CALCULATED_QUESTION
+          if (item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION))
+          {
+                key = commaDelimtedCalcQuestionAnswers(item, delivery, itemBean);
           }
           //myanswers will get the answer even for matrix and multiple choices survey
           myanswers.add(answer);
@@ -1555,6 +1555,7 @@ public class DeliveryActionListener
     {
     	populateMatrixChoices(item, itemBean, publishedAnswerHash);
     }
+    // CALCULATED_QUESTION
     else if (item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION))
     {
         populateCalculatedQuestion(item, itemBean, delivery);
@@ -2039,6 +2040,7 @@ public class DeliveryActionListener
 */
   
   /**
+   * CALCULATED_QUESTION
    * This method essentially will convert a CalculatedQuestion item which is initially structured
    * like a Matching item and reshape it into something more akin to a Fill-in-the-blank numeric
    * item.
@@ -2565,7 +2567,8 @@ public class DeliveryActionListener
   }
   
   
-  /*
+  /**
+   * CALCULATED_QUESTION
    * This returns the comma delimted answer key for display such as "42.1,23.19"
    */
   private String commaDelimtedCalcQuestionAnswers(ItemDataIfc item, DeliveryBean delivery, ItemContentsBean itemBean) {
@@ -2591,7 +2594,8 @@ public class DeliveryActionListener
 	  return keysString;
   }
   
-  /*
+  /**
+   * CALCULATED_QUESTION
    * We need the agentIds in order to properly set the pseudorandom seed
    * for calculated questions.
    */
@@ -2617,7 +2621,8 @@ public class DeliveryActionListener
 	  return agentId;
   }
   
-  /*
+  /**
+   * CALCULATED_QUESTION
    * We need the gradingIds in order to properly set the pseudorandom seed
    * for calculated questions.
    */

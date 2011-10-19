@@ -769,7 +769,7 @@ public class GradingService
       
       List<Object> tempItemGradinglist = new ArrayList<Object>(itemGradingSet);
       
-      // if this is a calc question. Carefully sort the list of answers
+      // CALCULATED_QUESTION - if this is a calc question. Carefully sort the list of answers
       if (isCalcQuestion(tempItemGradinglist, publishedItemHash)) {
 	      Collections.sort(tempItemGradinglist, new Comparator(){
 	    	  public int compare(Object o1, Object o2) {
@@ -803,13 +803,13 @@ public class GradingService
       log.debug("****x2. "+(new Date()).getTime());
       float autoScore = (float) 0;
       Long itemId = (long)0;
-      int calcQuestionAnswerSequence = 1; // sequence of answers for calculated questions
+      int calcQuestionAnswerSequence = 1; // sequence of answers for CALCULATED_QUESTION
       while(iter.hasNext())
       {
         ItemGradingIfc itemGrading = (ItemGradingIfc) iter.next();
         
-        // We increment this so we that calculated questions can know
-        // where we are in the sequence of answers.
+        // CALCULATED_QUESTION - We increment this so we that calculated 
+        // questions can know where we are in the sequence of answers.
         if (itemGrading.getPublishedItemId().equals(itemId)) {
         	calcQuestionAnswerSequence++;
         }
@@ -1609,6 +1609,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  return map;
   }
   /**
+   * CALCULATED_QUESTION
    * Returns a float score value for the ItemGrading element being scored for a Calculated Question
    * 
    * @param calcQuestionAnswerSequence the order of answers in the list
@@ -2019,7 +2020,13 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    return hasGradingData;
   }
   
-  
+
+  /**
+   * CALCULATED_QUESTION
+   * @param itemGrading
+   * @param item
+   * @return map of calc answers
+   */
   private HashMap getCalculatedAnswersMap(ItemGradingIfc itemGrading, ItemDataIfc item) {
 	  HashMap calculatedAnswersMap = new HashMap();
 	  
@@ -2029,6 +2036,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   }
   
   /**
+   * CALCULATED_QUESTION
    * This is a busy method. It does three things:
    * 1. It removes the answer expressions ie. {x+y} from the question text. This value is
    * 	returned in the ArrayList texts. This format is necessary so that input boxes can be
@@ -2117,6 +2125,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   }
   
   	/**
+  	 * CALCULATED_QUESTION
   	 * This returns the decimal places value in the stored answer data.
   	 * @param allAnswerText
   	 * @return
@@ -2128,6 +2137,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	}
 
 	/**
+	 * CALCULATED_QUESTION
 	 * This returns the "|2,2" (variance and decimal display) from the stored answer data.
 	 * @param allAnswerText
 	 * @return
@@ -2138,6 +2148,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	}
 
 	/**
+	 * CALCULATED_QUESTION
 	 * This is just "(x+y)/z" or if values have been added to the expression it's the
 	 * calculated value as stored in the answer data.
 	 * @param allAnswerText
@@ -2148,7 +2159,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		return answerExpression;
 	}
 
-/*
+  /**
+   * CALCULATED_QUESTION
    * Default acceptable variance and decimalPlaces. An asnwer is defined by an expression
    * such as {x+y|1,2} if the variance and decimal places are left off. We have to default
    * them to something.
@@ -2169,7 +2181,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  return allAnswerText;
   }
     
-  /*
+  /**
+   * CALCULATED_QUESTION
    * Takes a Map of answer strings and checks for the value returned
    * by a divide by zero.
    * Returns false if divide by zero is detected.
@@ -2182,7 +2195,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  return true;
   }
   
-  /*
+  /**
+   * CALCULATED_QUESTION
    * This method is for the answer expression. It will replace x with 42.00 for example.
    * HashMap variablesWithValues contains pairs of variable names and values.
    */
@@ -2194,8 +2208,14 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  }
 	  return answerExpression;
   }
-  
-  //In the question Instruction: replaces [[varName]] with a real value such as 42
+
+  /**
+   * CALCULATED_QUESTION
+   * In the question Instruction: replaces [[varName]] with a real value such as 42
+   * @param item
+   * @param variableValueMap
+   * @return
+   */
   private String replaceTextVariablesWithValues(ItemDataIfc item, HashMap variableValueMap) {
 	  if (item.getInstruction() == null) return null; // because it should be set up already in item
 	  
@@ -2222,9 +2242,11 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  
 	  return questionText;
   }
-  
-  // Takes a map of ranges and randomly chooses values for those ranges and stores them in 
-  // a new map.
+
+  /**
+   * CALCULATED_QUESTION
+   * Takes a map of ranges and randomly chooses values for those ranges and stores them in a new map.
+   */
   private HashMap determineRandomValuesForRanges(HashMap variableRangeMap, long itemId, long gradingId, String agentId, int validAnswersAttemptCount) {
 	  HashMap variableValueMap = new HashMap();
 	  
@@ -2263,7 +2285,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  return variableValueMap;
   }
   
-  /*
+  /**
+   * CALCULATED_QUESTION
    * Accepts an ItemDataIfc and returns a HashMap with the pairs of 
    * variable names and variable ranges.
    */
@@ -2293,14 +2316,19 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   }
   
   
-  //Make seed by combining user id, item (question) id, grading (submission) id, and attempt count (due to div by 0)
+  /**
+   * CALCULATED_QUESTION
+   * Make seed by combining user id, item (question) id, grading (submission) id, and attempt count (due to div by 0)
+   */
   private long getCalcuatedQuestionSeed(long itemId, long gradingId, String agentId, int validAnswersAttemptCount) {
 	  long userSeed = (long) agentId.hashCode();
 	  return userSeed * itemId * gradingId * validAnswersAttemptCount;
   }
-  
-  // Simple to chack to see if this is a calculated question. It's used in storeGrades() to see
-  // if the sort is necessary.
+
+  /**
+   * CALCULATED_QUESTION
+   * Simple to check to see if this is a calculated question. It's used in storeGrades() to see if the sort is necessary.
+   */
   private boolean isCalcQuestion(List tempItemGradinglist, HashMap publishedItemHash) {
 	  if (tempItemGradinglist == null) return false;
 	  if (tempItemGradinglist.size() == 0) return false;
@@ -2315,6 +2343,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
           
       return false;
   }
+
   
   public ArrayList getHasGradingDataAndHasSubmission(Long publishedAssessmentId) {
 	  ArrayList al = new ArrayList();

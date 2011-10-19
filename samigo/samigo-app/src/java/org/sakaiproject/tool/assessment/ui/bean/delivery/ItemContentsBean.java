@@ -207,6 +207,7 @@ public class ItemContentsBean implements Serializable {
 
 		if (itemData != null) {
 			if (itemData.getTypeId().equals(TypeIfc.CALCULATED_QUESTION)) {
+			    // CALCULATED_QUESTION
 				text = this.getInstruction();
 			}
 			else {

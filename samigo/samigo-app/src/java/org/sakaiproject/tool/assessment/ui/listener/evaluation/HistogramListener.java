@@ -667,6 +667,7 @@ public class HistogramListener
         qbean.getQuestionType().equals("9") || // matching
         qbean.getQuestionType().equals("8") || // Fill in the blank
     	qbean.getQuestionType().equals("11") ||  //  Numeric Response
+        qbean.getQuestionType().equals("14") || // CALCULATED_QUESTION
     	qbean.getQuestionType().equals("13"))  // matrix survey 
       doAnswerStatistics(pub, qbean, itemScores);
     if (qbean.getQuestionType().equals("5") || // essay
@@ -721,6 +722,8 @@ public class HistogramListener
     //    getFINMCMCScores(publishedItemHash, publishedAnswerHash, scores, qbean, answers);
     else if (qbean.getQuestionType().equals("9"))
       getMatchingScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
+    else if (qbean.getQuestionType().equals("14")) // CALCULATED_QUESTION
+        getMatchingScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
     else if (qbean.getQuestionType().equals("13")) // matrix survey question
       getMatrixSurveyScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
   }
