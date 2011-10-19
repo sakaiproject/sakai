@@ -213,6 +213,15 @@ public interface DashboardDao {
 	public boolean updateCalendarItemTitle(Long id, String newTitle);
 	
 	/**
+	 * 
+	 * @param entityReference
+	 * @param oldLabelKey
+	 * @param newLabelKey
+	 * @return true if any items are revised, false otherwise.
+	 */
+	public boolean updateCalendarItemsLabelKey(String entityReference, String oldLabelKey, String newLabelKey);
+
+	/**
 	 * Revise the title property of one NewsItem, if it exists.
 	 * @param id
 	 * @param newTitle
@@ -220,6 +229,8 @@ public interface DashboardDao {
 	 */
 	public boolean updateNewsItemTitle(Long id, String newTitle);
 
+	public boolean updateRepeatingCalendarItemsLabelKey(String entityReference, String oldLabelKey, String newLabelKey);
+	
 	public abstract List<AvailabilityCheck> getAvailabilityChecksBeforeTime(Date time);
 
 	public Set<String> getSakaIdsForUserWithCalendarLinks(String entityReference);

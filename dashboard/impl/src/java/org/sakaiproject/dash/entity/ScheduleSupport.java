@@ -43,7 +43,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
- * THIS WILL BE MOVED TO THE assignment PROJECT IN SAKAI CORE ONCE THE INTERFACE IS MOVED TO KERNEL
+ * THIS WILL BE MOVED TO THE calendar PROJECT IN SAKAI CORE ONCE THE INTERFACE IS MOVED TO KERNEL
  *
  */
 public class ScheduleSupport{
@@ -79,6 +79,7 @@ public class ScheduleSupport{
 		this.dashboardLogic.registerEventProcessor(new ScheduleRemoveEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new ScheduleUpdateTimeEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new ScheduleUpdateTitleEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ScheduleUpdateTypeEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new ScheduleReviseEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new ScheduleUpdateAccessEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new ScheduleUpdateFrequencyEventProcessor());
@@ -349,11 +350,11 @@ public class ScheduleSupport{
 				// Based on the event-type, we may be able to select a key for a label? 
 				String key = null;
 				if(type == null) {
-					key = "";
+					key = "schedule.key2";
 				} else {
 					key = scheduleEventTypeMap.get(type);
 					if(key == null) {
-						key = "";
+						key = "schedule.key2";
 					}
 				}
 				// is this a repeating event?
@@ -380,7 +381,8 @@ public class ScheduleSupport{
 				} 
 				
 			} else {
-				// for now, let's log the error
+				// for now, let's log the error. 
+				// this event is posted for creation of a calendar as well as for creation of calendar events, so this is not necessarily an error.
 				logger.info(eventId + " is not processed for entityReference " + event.getResource());
 			}
 		}
@@ -397,7 +399,7 @@ public class ScheduleSupport{
 		 */
 		public String getEventIdentifer() {
 
-			return SakaiProxy.EVENT_SCHEDULE_REMOVE_EVENT;
+			return SakaiProxy.EVENT_REMOVE_CALENDAR_EVENT;
 		}
 
 		/* (non-Javadoc)
@@ -469,7 +471,7 @@ public class ScheduleSupport{
 	}
 	
 	/**
-	 * Inner Class: ScheduleUpdateTitleEventProcessor
+	 * Inner Class: ScheduleUpdateTimeEventProcessor
 	 */
 	public class ScheduleUpdateTimeEventProcessor implements EventProcessor {
 		
@@ -493,20 +495,94 @@ public class ScheduleSupport{
 			if(logger.isDebugEnabled()) {
 				logger.debug("updating time of calendar item for " + event.getResource());
 			}
-			Entity entity = sakaiProxy.getEntity(event.getResource());
+			
+			String entityReference = event.getResource();
+			Entity entity = sakaiProxy.getEntity(entityReference );
 			
 			if(entity != null && entity instanceof CalendarEvent) {
-				// get the assignment entity and its current title
+				// get the assignment entity and its new time
 				CalendarEvent cEvent = (CalendarEvent) entity;
-				
 				TimeRange range = cEvent.getRange();
+				String calendarTimeLabelKey = scheduleEventTypeMap.get(cEvent.getType());
 				
-				// update calendar item title
-				dashboardLogic.reviseCalendarItemsTime(cEvent.getReference(), new Date(range.firstTime().getTime()));
+				if(cEvent.getRecurrenceRule() != null) {
+					// change times for the repeating calendar item and all instances 
+					RepeatingCalendarItem item = dashboardLogic.getRepeatingCalendarItem(entityReference, calendarTimeLabelKey);
+					// remove and replace existing instances?  Or better yet update the time of each instance?
+					
+				} else {
+					// update calendar item title
+					dashboardLogic.reviseCalendarItemsTime(cEvent.getReference(), new Date(range.firstTime().getTime()));
+					
+				}
+				
 			}
 			
 			if(logger.isDebugEnabled()) {
 				logger.debug("removing news links and news item for " + event.getResource());
+			}
+
+		}
+
+	}
+
+	/**
+	 * Inner Class: ScheduleUpdateTypeEventProcessor
+	 */
+	public class ScheduleUpdateTypeEventProcessor implements EventProcessor {
+		
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#getEventIdentifer()
+		 */
+		public String getEventIdentifer() {
+			
+			return SakaiProxy.EVENT_MODIFY_CALENDAR_EVENT_TYPE;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
+		 */
+		public void processEvent(Event event) {
+			
+			if(logger.isInfoEnabled()) {
+				logger.info("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
+			if(logger.isDebugEnabled()) {
+				logger.debug("updating type of calendar item for " + event.getResource());
+			}
+			
+			String[] parts = event.getResource().split("::");
+			if(parts.length > 2) {
+				String entityReference = parts[0];
+				String oldType = parts[1];
+				String newType = parts[2];
+				
+				String oldLabelKey = scheduleEventTypeMap.get(oldType);
+				String newLabelKey = scheduleEventTypeMap.get(newType);
+				
+				Entity entity = sakaiProxy.getEntity(entityReference);
+				
+				if(entity != null && entity instanceof CalendarEvent) {
+					// get the assignment entity and its new time
+					CalendarEvent cEvent = (CalendarEvent) entity;
+					
+					if(logger.isDebugEnabled()) {
+						logger.debug("removing news links and news item for " + entityReference);
+					}
+					if(cEvent.getRecurrenceRule() != null) {
+						// update the label key for the repeating calendar item 
+						dashboardLogic.reviseRepeatingCalendarItemsLabelKey(entityReference, oldLabelKey, newLabelKey);
+						// update the label key for all instances
+						dashboardLogic.reviseCalendarItemsLabelKey(entityReference, oldLabelKey, newLabelKey);
+						
+					} else {
+						// update calendar item title
+						dashboardLogic.reviseCalendarItemsLabelKey(entityReference, oldLabelKey, newLabelKey);
+						
+					}
+					
+				}
 			}
 
 		}
@@ -615,11 +691,11 @@ public class ScheduleSupport{
 				// Based on the event-type, we may be able to select a key for a label? 
 				String key = null;
 				if(type == null) {
-					key = "";
+					key = "schedule.key2";
 				} else {
 					key = scheduleEventTypeMap.get(type);
 					if(key == null) {
-						key = "";
+						key = "schedule.key2";
 					}
 				}
 				

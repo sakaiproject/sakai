@@ -26,16 +26,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.sakaiproject.dash.model.CalendarItem;
-import org.sakaiproject.dash.model.Context;
-import org.sakaiproject.dash.model.Person;
-import org.sakaiproject.dash.model.RepeatingCalendarItem;
-import org.sakaiproject.dash.model.SourceType;
 import org.sakaiproject.dash.entity.EntityLinkStrategy;
 import org.sakaiproject.dash.entity.EntityType;
 import org.sakaiproject.dash.listener.EventProcessor;
-import org.sakaiproject.dash.model.Realm;
+import org.sakaiproject.dash.model.CalendarItem;
+import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.NewsItem;
+import org.sakaiproject.dash.model.RepeatingCalendarItem;
+import org.sakaiproject.dash.model.SourceType;
 
 /**
  * DashboardLogic
@@ -155,6 +153,8 @@ public interface DashboardLogic {
 	
 	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId, boolean saved, boolean hidden);
 	
+	public RepeatingCalendarItem getRepeatingCalendarItem(String entityReference, String calendarTimeLabelKey);
+
 	/**
 	 * Retrieve the SourceType with a particular identifier  
 	 * @param identifier 
@@ -172,7 +172,7 @@ public interface DashboardLogic {
 	 * Retrieve a localized string value specific to a particular type of entity using
 	 * the provided key. 
 	 * @param key
-	 * @param dflt TODO
+	 * @param dflt 
 	 * @param entityTypeId
 	 * @return the value or null if no value is found
 	 */
@@ -318,14 +318,27 @@ public interface DashboardLogic {
 	public void reviseCalendarItemsTime(String entityReference, Date newTime);
 	public void reviseCalendarItemsTitle(String entityReference, String newTitle);
 	
-	public void reviseNewsItemTitle(String entityReference, String newTitle);
+	/**
+	 * Change the value of the label key to newLabelKey for all calendar items with specified
+	 * entityReference and oldLabelKey. Does nothing if any of the parameters are null.  
+	 * @param entityReference
+	 * @param oldLabelKey
+	 * @param newLabelKey
+	 */
+	public void reviseCalendarItemsLabelKey(String entityReference, String oldLabelKey, String newLabelKey);
 	
+	public void reviseNewsItemTitle(String entityReference, String newTitle);
+
+	public void reviseRepeatingCalendarItemsLabelKey(String entityReference,
+			String oldType, String newType);
+	
+
 	/**
 	 * If an entity uses some form of scheduled release, this method is called to 
 	 * perform a check at the scheduled-release time to add links for that item. 
 	 * 
 	 * @param entityReference
-	 * @param entityTypeId TODO
+	 * @param entityTypeId 
 	 * @param scheduledTime
 	 */
 	public void scheduleAvailabilityCheck(String entityReference, String entityTypeId, Date scheduledTime);
@@ -372,7 +385,6 @@ public interface DashboardLogic {
 
 	public void updateCalendarLinks(String entityReference);
 
-	
 
 	// todo:
 	// add methods to revise news items, calendar items, news links, calendar links, etc.

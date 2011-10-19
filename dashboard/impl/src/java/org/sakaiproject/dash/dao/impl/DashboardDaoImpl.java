@@ -1151,6 +1151,22 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            return false;
 		}				
 	}
+	
+	public boolean updateCalendarItemsLabelKey(String entityReference, String oldLabelKey, String newLabelKey) {
+		if(log.isDebugEnabled()) {
+			log.debug("updateCalendarItemTime( " + entityReference + "," + oldLabelKey + "," + newLabelKey + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("update.CalendarItemsLabelKey.entityReference.oldLabelKey"),
+				new Object[]{newLabelKey, entityReference, oldLabelKey}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("updateCalendarsItemLabelKey: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}				
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -1231,6 +1247,22 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
+	public boolean updateRepeatingCalendarItemsLabelKey(String entityReference, String oldLabelKey, String newLabelKey) {
+		if(log.isDebugEnabled()) {
+			log.debug("updateRepeatingCalendarItemsLabelKey( " + entityReference + "," + oldLabelKey + "," + newLabelKey + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("update.RepeatingEventsLabelKey.entityReference.oldLabelKey"),
+				new Object[]{newLabelKey, entityReference, oldLabelKey}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("updateRepeatingCalendarItemsLabelKey: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}				
+	}
+	
 	/**
 	 * Get an SQL statement for the appropriate vendor from the bundle
 	

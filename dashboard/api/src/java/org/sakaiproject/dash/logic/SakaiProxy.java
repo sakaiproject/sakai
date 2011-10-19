@@ -49,10 +49,11 @@ public interface SakaiProxy {
    
 	
 	public final static String EVENT_SCHEDULE_NEW_EVENT = CalendarService.EVENT_ADD_CALENDAR;
-	public final static String EVENT_SCHEDULE_REMOVE_EVENT = CalendarService.EVENT_REMOVE_CALENDAR;
+	public final static String EVENT_REMOVE_CALENDAR_EVENT = CalendarService.EVENT_REMOVE_CALENDAR_EVENT;
 	public final static String EVENT_SCHEDULE_REVISE_EVENT = CalendarService.EVENT_MODIFY_CALENDAR;
 	public static final String EVENT_MODIFY_CALENDAR_EVENT_TITLE = CalendarService.EVENT_MODIFY_CALENDAR_EVENT_TITLE;
 	public static final String EVENT_MODIFY_CALENDAR_EVENT_TIME = CalendarService.EVENT_MODIFY_CALENDAR_EVENT_TIME;
+	public static final String EVENT_MODIFY_CALENDAR_EVENT_TYPE = CalendarService.EVENT_MODIFY_CALENDAR_EVENT_TYPE;
 	public static final String EVENT_MODIFY_CALENDAR_EVENT_ACCESS = CalendarService.EVENT_MODIFY_CALENDAR_EVENT_ACCESS;
 	public static final String EVENT_MODIFY_CALENDAR_EVENT_FREQUENCY = CalendarService.EVENT_MODIFY_CALENDAR_EVENT_FREQUENCY;
 	public static final String EVENT_MODIFY_CALENDAR_EVENT_EXCLUDED = CalendarService.EVENT_MODIFY_CALENDAR_EVENT_EXCLUDED;

@@ -437,6 +437,10 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 		return dao.getNewsItems(sakaiUserId, null, saved, hidden);
 	}
+	
+	public RepeatingCalendarItem getRepeatingCalendarItem(String entityReference, String calendarTimeLabelKey) {
+		return dao.getRepeatingCalendarItem(entityReference, calendarTimeLabelKey);
+	}
 
 	public SourceType getSourceType(String identifier) {
 		try {
@@ -699,6 +703,14 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 	}
 
+	public void reviseCalendarItemsLabelKey(String entityReference, String oldLabelKey, String newLabelKey) {
+		if(entityReference == null || oldLabelKey == null || newLabelKey == null) {
+			return;
+		}
+		
+		dao.updateCalendarItemsLabelKey(entityReference, oldLabelKey, newLabelKey);
+	}
+
 	public void reviseNewsItemTitle(String entityReference, String newTitle) {
 		
 		NewsItem item = dao.getNewsItem(entityReference);
@@ -707,6 +719,13 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 		
 	}
+	
+	public void reviseRepeatingCalendarItemsLabelKey(String entityReference, String oldLabelKey, String newLabelKey) {
+		dao.updateRepeatingCalendarItemsLabelKey(entityReference, oldLabelKey, newLabelKey);
+		
+	}
+	
+
 
 	public void scheduleAvailabilityCheck(String entityReference, String entityTypeId, Date scheduledTime) {
 		AvailabilityCheck availabilityCheck = new AvailabilityCheck(entityReference, entityTypeId, scheduledTime);
