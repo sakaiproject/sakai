@@ -50,7 +50,6 @@ import java.lang.ref.SoftReference;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.wicket.util.io.Streams;
-import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
 import org.apache.wicket.util.time.Time;
 import org.sakaiproject.scorm.model.api.ContentPackageResource;

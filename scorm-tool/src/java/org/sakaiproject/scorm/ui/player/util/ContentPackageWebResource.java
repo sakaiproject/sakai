@@ -6,9 +6,11 @@ import org.apache.wicket.markup.html.WebResource;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.util.resource.IResourceStream;
+import org.apache.wicket.util.time.Time;
+import org.apache.wicket.util.watch.IModifiable;
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
 
-public class ContentPackageWebResource extends WebResource {
+public class ContentPackageWebResource extends WebResource implements IModifiable {
 	
 	private static final long serialVersionUID = 1L;
 
@@ -75,4 +77,8 @@ public class ContentPackageWebResource extends WebResource {
 			return s.indexOf("gzip") >= 0;
 		}
 	}
+
+	public Time lastModifiedTime() {
+	    return resourceStream.lastModifiedTime();
+    }
 }
