@@ -195,7 +195,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	/** Security lock / event root for generic message events to make it a mail event. */
 	public static final String SECURE_SCHEDULE_ROOT = "calendar.";
 
-   private TransformerFactory transformerFactory = null;
+	private TransformerFactory transformerFactory = null;
    
    private DocumentBuilder docBuilder = null;
    
@@ -2919,10 +2919,12 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			BaseCalendarEventEdit bedit = (BaseCalendarEventEdit) edit;
 
 			// if the id has a time range encoded, as for one of a sequence of recurring events, separate that out
+			String indivEventEntityRef = null;
 			TimeRange timeRange = null;
 			int sequence = 0;
 			if (bedit.m_id.startsWith("!"))
 			{
+				indivEventEntityRef = bedit.getReference();
 				String[] parts = bedit.m_id.substring(1).split("!");
 				try
 				{
@@ -2952,12 +2954,15 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 					// complete the edit
 					m_storage.commitEvent(this, edit);
+					// post event for excluding the instance
+					EventTrackingService.post(EventTrackingService.newEvent(EVENT_MODIFY_CALENDAR_EVENT_EXCLUSIONS, indivEventEntityRef, true));
 				}
 
 				// delete them all, i.e. the one initial event
 				else
 				{
 					m_storage.removeEvent(this, edit);
+					EventTrackingService.post(EventTrackingService.newEvent(EVENT_REMOVE_CALENDAR_EVENT, edit.getReference(), true));
 				}
 			}
 
@@ -2965,12 +2970,13 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			else
 			{
 				m_storage.removeEvent(this, edit);
+				EventTrackingService.post(EventTrackingService.newEvent(EVENT_REMOVE_CALENDAR_EVENT, edit.getReference(), true));
 			}
 
 			// track event
 			Event event = EventTrackingService.newEvent(EVENT_MODIFY_CALENDAR, edit.getReference(), true);
 			EventTrackingService.post(event);
-
+			
 			// calendar notification
 			notify(event);
 
@@ -3243,6 +3249,19 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			if(savedEvent == null) {
 				
 			} else {
+				// has type changed? 
+				String savedType = savedEvent.getType();
+				String newType = newEvent.getType();
+				if(savedType == null || newType == null) {
+					// TODO: is this an error?
+				} else {
+					if (!newType.equals(savedType))
+					{
+						// post type-change event
+						EventTrackingService.post(EventTrackingService.newEvent(EVENT_MODIFY_CALENDAR_EVENT_TYPE, newEvent.getReference() + "::" + savedType + "::" + newType, true));
+					}
+				}
+				
 				// has title changed?
 				if(savedEvent.getDisplayName() != null && ! savedEvent.getDisplayName().equals(newEvent.getDisplayName())) {
 					// post title-change event

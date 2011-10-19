@@ -65,6 +65,9 @@ public interface CalendarService
 	/** Name for the event of changing the start time of a calendar event */
 	public static final String EVENT_MODIFY_CALENDAR_EVENT_TIME = "calendar.revise.event.time";
 	
+	/** Name for the event of changing the start time of a calendar event */
+	public static final String EVENT_MODIFY_CALENDAR_EVENT_TYPE = "calendar.revise.event.type";
+	
 	/** Name for the event of changing event access settings */
 	public static final String EVENT_MODIFY_CALENDAR_EVENT_ACCESS = "calendar.revise.event.access";
 	
@@ -77,6 +80,9 @@ public interface CalendarService
 	/** Name for the event of excluding an item from a recurring event (the entity ref identifies the newly independent event) */
 	public static final String EVENT_MODIFY_CALENDAR_EVENT_EXCLUDED = "calendar.revise.event.excluded";
 
+	/** Name for the event of deleting a calendar event or a repeating calendar event */ 
+	public static final String EVENT_REMOVE_CALENDAR_EVENT = "calendar.delete.event";
+	
    /** Security lock for adding a calendar event */
 	public static final String AUTH_ADD_CALENDAR = "calendar.new";
 
@@ -165,6 +171,7 @@ public interface CalendarService
 
    /** session attribute for list of all calendars user can reference */   
    public static final String SESSION_CALENDAR_LIST = "calendar.ref.list";
+
 
 	/**
 	* Return a List of all the defined calendars.
