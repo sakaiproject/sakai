@@ -260,7 +260,7 @@ function toPoint(id)
 <h:outputText value="#{author.updateFormTime}" />
 <h:inputHidden value="#{author.currentFormTime}" />
 
-<h:panelGroup rendered="#{studentScores.email != null && studentScores.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
+<h:panelGroup rendered="#{totalScores.anonymous eq 'false' && studentScores.email != null && studentScores.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
   <h:outputText value="<a href=\"mailto:" escape="false" />
   <h:outputText value="#{studentScores.email}" escape="false" />
   <h:outputText value="?subject=" escape="false" />

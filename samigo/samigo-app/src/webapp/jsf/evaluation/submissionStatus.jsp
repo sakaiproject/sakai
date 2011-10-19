@@ -209,7 +209,7 @@ function escapeApostrophe(name) {
        <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
        <f:verbatim><br/></f:verbatim>
 	   <span class="itemAction">
-	   <h:panelGroup rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
+	   <h:panelGroup rendered="#{totalScores.anonymous eq 'false' && description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
 		 <h:outputText value="<a href=\"mailto:" escape="false" />
 	     <h:outputText value="#{description.email}" escape="false" />
 	     <h:outputText value="?subject=" escape="false" />
@@ -255,7 +255,7 @@ function escapeApostrophe(name) {
        <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
        <f:verbatim><br/></f:verbatim>
 	   <span class="itemAction">
-	   <h:panelGroup rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
+	   <h:panelGroup rendered="#{totalScores.anonymous eq 'false' && description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
 		 <h:outputText value="<a href=\"mailto:" escape="false" />
 	     <h:outputText value="#{description.email}" escape="false" />
 	     <h:outputText value="?subject=" escape="false" />
@@ -302,7 +302,7 @@ function escapeApostrophe(name) {
        <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
        <f:verbatim><br/></f:verbatim>
 	   <span class="itemAction">
-	   <h:panelGroup rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
+	   <h:panelGroup rendered="#{totalScores.anonymous eq 'false' && description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}">
 		 <h:outputText value="<a href=\"mailto:" escape="false" />
 	     <h:outputText value="#{description.email}" escape="false" />
 	     <h:outputText value="?subject=" escape="false" />
