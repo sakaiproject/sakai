@@ -1699,6 +1699,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	}
 
 	public HashMap getFeedbackHash() {
+		String siteId = AgentFacade.getCurrentSiteId();
 		HashMap h = new HashMap();
 		String query = "select new PublishedFeedback("
 				+ " p.assessment.publishedAssessmentId,"
@@ -1707,8 +1708,10 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				+ " p.showStudentScore," + " p.showStudentQuestionScore,"
 				+ " p.showQuestionLevelFeedback, p.showSelectionLevelFeedback,"
 				+ " p.showGraderComments, p.showStatistics)"
-				+ " from PublishedFeedback p";
-		List l = getHibernateTemplate().find(query);
+				+ " from PublishedFeedback p, AuthorizationData az"
+				+ " where az.qualifierId = p.assessment.publishedAssessmentId and az.agentIdString=? and az.functionId=?";
+		Object [] values = {siteId, "TAKE_PUBLISHED_ASSESSMENT"};
+		List l = getHibernateTemplate().find(query, values);
 		for (int i = 0; i < l.size(); i++) {
 			PublishedFeedback f = (PublishedFeedback) l.get(i);
 			h.put(f.getAssessmentId(), f);

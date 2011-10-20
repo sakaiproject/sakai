@@ -103,12 +103,6 @@ public interface GradingServiceAPI
 
   /**
    *
-   * @return
-   */
-  public Map getSubmissionSizeOfAllPublishedAssessments();
-
-  /**
-   *
    * @param media
    * @param mimeType
    * @return
