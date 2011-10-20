@@ -1584,7 +1584,8 @@ public class DeliveryActionListener
                                    ""));
       }
       
-      if (item.hasDistractors()) {
+      GradingService gs = new GradingService();
+      if (gs.hasDistractors(item)) {
     	  choices.add(new SelectItem("None of the Above",
     			  					"None of the Above",
     			  					""));

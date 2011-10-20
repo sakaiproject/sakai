@@ -29,6 +29,7 @@ import java.util.Iterator;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+import org.sakaiproject.tool.assessment.services.GradingService;
 
 /**
  * @author rgollub@stanford.edu
@@ -168,7 +169,8 @@ public class MatchingBean
   }
   
   public boolean getIsDistractor() {
-	  return this.getItemText().isDistractor();
+	  GradingService gs = new GradingService();
+	  return gs.isDistractor(this.getItemText());
   }
 
 }
