@@ -22,7 +22,7 @@
             <!-- <outputFileNameMapping>imsblti.war</outputFileNameMapping> -->
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
-                 <include>org.sakaiproject.presence:sakai-site-tool:war:*</include>
+                 <include>org.sakaiproject.site:sakai-site-tool:war:*</include>
             </includes>
             <unpack>false</unpack>
         </dependencySet>
