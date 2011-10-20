@@ -144,7 +144,7 @@
 					</h:panelGroup>
 					<%-- Delete other action --%>
 					<h:panelGroup rendered="#{message.userCanDelete}" >
-						<h:commandLink action="#{ForumTool.processDfMsgDeleteConfirm}" value="#{msgs.cdfm_button_bar_delete}">
+						<h:commandLink action="#{ForumTool.processDfMsgDeleteConfirm}" value="#{msgs.cdfm_button_bar_delete_message}">
 							<f:param value="#{message.message.id}" name="messageId" />
 							<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId" />
 							<f:param value="#{ForumTool.selectedTopic.topic.baseForum.id}" name="forumId" />

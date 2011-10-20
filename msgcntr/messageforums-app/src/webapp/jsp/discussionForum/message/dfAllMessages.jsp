@@ -70,7 +70,7 @@
 				rendered="#{ForumTool.selectedTopic.changeSettings}" /> 
 				
 				<h:commandLink action="#{ForumTool.processActionDeleteTopicConfirm}" id="delete_confirm" 
-				value="#{msgs.cdfm_button_bar_delete}" accesskey="d" rendered="#{!ForumTool.selectedTopic.markForDeletion && ForumTool.displayTopicDeleteOption}">
+				value="#{msgs.cdfm_button_bar_delete_topic}" accesskey="d" rendered="#{!ForumTool.selectedTopic.markForDeletion && ForumTool.displayTopicDeleteOption}">
 				<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
 				</h:commandLink>
 				

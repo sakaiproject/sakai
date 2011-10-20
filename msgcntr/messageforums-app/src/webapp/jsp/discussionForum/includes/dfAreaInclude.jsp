@@ -129,7 +129,7 @@ $(document).ready(function() {
 				<f:verbatim></li></f:verbatim>	
 
 				<f:verbatim><li></f:verbatim>                
-					<h:commandLink id="delete" action="#{ForumTool.processActionDeleteForumMainConfirm}" value="#{msgs.cdfm_button_bar_delete}" rendered="#{forum.changeSettings}">
+					<h:commandLink id="delete" action="#{ForumTool.processActionDeleteForumMainConfirm}" value="#{msgs.cdfm_button_bar_delete_forum}" rendered="#{forum.changeSettings}">
 						<f:param value="#{forum.forum.id}" name="forumId"/>
 					</h:commandLink>
 				<f:verbatim></li></f:verbatim>	
@@ -249,7 +249,7 @@ $(document).ready(function() {
 								<f:verbatim></li></f:verbatim>
 								                            
 								<f:verbatim><li></f:verbatim>							
-							<h:commandLink action="#{ForumTool.processActionDeleteTopicMainConfirm}" id="delete_confirm" value="#{msgs.cdfm_button_bar_delete}" accesskey="d" rendered="#{topic.changeSettings}"
+							<h:commandLink action="#{ForumTool.processActionDeleteTopicMainConfirm}" id="delete_confirm" value="#{msgs.cdfm_button_bar_delete_topic}" accesskey="d" rendered="#{topic.changeSettings}"
 							title="#{msgs.cdfm_button_bar_delete}">
 									<f:param value="#{topic.topic.id}" name="topicId"/>
 									<f:param value="#{forum.forum.id}" name="forumId"/>
