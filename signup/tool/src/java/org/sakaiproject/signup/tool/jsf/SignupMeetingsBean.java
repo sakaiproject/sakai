@@ -963,4 +963,17 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	public boolean isCsvExportEnabled() {
 		return sakaiFacade.isCsvExportEnabled();
 	}
+	
+	/**
+	 * Is the current user allowed to update the site? Used for some permission checks
+	 * @return
+	 */
+	public boolean isCurrentUserAllowedUpdateSite() {
+		String currentUserId = sakaiFacade.getCurrentUserId();
+		String currentSiteId = sakaiFacade.getCurrentLocationId();
+		boolean isAllowedUpdateSite = (sakaiFacade.isAllowedSite(currentUserId, sakaiFacade.SIGNUP_UPDATE_SITE, currentSiteId) 
+				|| sakaiFacade.isAllowedSite(currentUserId, sakaiFacade.SIGNUP_CREATE_SITE, currentSiteId));
+
+		return isAllowedUpdateSite;
+	}
 }

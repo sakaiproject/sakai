@@ -274,15 +274,6 @@ public class DownloadEventBean extends SignupMeetingsBean {
 		return DOWNLOAD_ACT_URL;
 	}
 
-	private boolean isCurrentUserAllowedUpdateSite() {
-		String currentUserId = sakaiFacade.getCurrentUserId();
-		String currentSiteId = sakaiFacade.getCurrentLocationId();
-		boolean isAllowedUpdateSite = (sakaiFacade.isAllowedSite(currentUserId,
-				sakaiFacade.SIGNUP_UPDATE_SITE, currentSiteId) || sakaiFacade.isAllowedSite(
-				currentUserId, sakaiFacade.SIGNUP_CREATE_SITE, currentSiteId));
-
-		return isAllowedUpdateSite;
-	}
 
 	private void excelSpreadsheet(OutputStream os, List<SignupMeetingWrapper> meetingWrappers,
 			String downloadType) throws IOException {
