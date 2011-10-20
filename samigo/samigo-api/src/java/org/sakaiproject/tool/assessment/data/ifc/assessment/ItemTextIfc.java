@@ -52,11 +52,4 @@ public interface ItemTextIfc
   ArrayList getAnswerArray();
 
   ArrayList getAnswerArraySorted();
-  
-  /**
-   * checks if this ItemTextIfc is a distractor, i.e. at least one AnswerIfc objects 
-   * associated with this ItemTextIfc is correct
-   * @return true if no answers are correct, false if at least one answer is correct
-   */
-  boolean isDistractor();
 }

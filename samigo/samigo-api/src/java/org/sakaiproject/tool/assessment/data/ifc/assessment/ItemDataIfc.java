@@ -174,10 +174,4 @@ public interface ItemDataIfc extends java.io.Serializable {
   void setItemAttachmentSet(Set itemAttachmentSet);
 
   List getItemAttachmentList();
-  
-  /**
-   * checks if any ItemTextIfc objects associated with this ItemDataIfc are distractors (i.e have no correct answers)
-   * @return
-   */
-  boolean hasDistractors();
 }
