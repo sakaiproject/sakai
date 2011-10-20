@@ -43,6 +43,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.osid.assessment.impl.ItemImpl;
@@ -1088,5 +1089,18 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
 		  throw new DataFacadeException(ex.getMessage());
 	  }
 	  return this.data.getPartialCreditFlag();
+  }
+  
+  public boolean hasDistractors() {
+	  	boolean hasDistractor = false;
+	    Iterator<ItemTextIfc> itemIter = this.getItemTextArraySorted().iterator();
+	    while (itemIter.hasNext()) {
+	    	ItemTextIfc curItem = itemIter.next();
+	    	if (curItem.isDistractor()) {
+	    		hasDistractor = true;
+	    		break;
+	    	}
+	    }
+	    return hasDistractor;	  
   }
 }
