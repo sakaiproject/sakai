@@ -5585,6 +5585,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	private void checkUpdateContentEncoding(String id) {
 		M_log.debug("checkUpdateContentEncoding(" + id);
 		ContentResourceEdit edit = null;
+		InputStream content = null;
 		try
 		{
 			edit = editResource(id);
@@ -5601,7 +5602,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			}
 			String encoding = null;
 			CharsetDetector detector = new CharsetDetector();
-			InputStream content = edit.streamContent();
+			content = edit.streamContent();
 			//we don't want the whole file the first couple of bytes should do
 			int len = 1000;
 			byte[] contentBytes = new byte[len];
@@ -5663,11 +5664,21 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			e.printStackTrace();
 		}
 		finally {
+			if (content != null) {
+				try {
+					content.close();
+				} catch (IOException e) {
+					//not much we can do
+				}
+			}
+			
 			if (edit != null && edit.isActiveEdit())
 			{
 				
 				cancelResource(edit);
 			}
+			
+						
 		}
 		
 	}
