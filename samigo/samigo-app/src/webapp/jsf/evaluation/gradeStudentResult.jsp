@@ -212,7 +212,7 @@ function toPoint(id)
               </f:subview>
             </h:panelGroup>
 
-            <h:panelGroup rendered="#{question.itemData.typeId == 13}">
+            <h:panelGroup rendered="#{question.itemData.typeId == 14}"><!-- // CALCULATED_QUESTION -->
               <f:subview id="deliverCalculatedQuestion">
                 <%@ include file="/jsf/delivery/item/deliverCalculatedQuestion.jsp" %>
               </f:subview>
