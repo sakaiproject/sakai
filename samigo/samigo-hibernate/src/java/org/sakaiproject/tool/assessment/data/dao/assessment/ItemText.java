@@ -28,7 +28,6 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.log4j.Category;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 
@@ -122,18 +121,4 @@ public class ItemText
     return list;
   }
 
-  public boolean isDistractor() {
-	  // look for items that do not have any correct answers
-  	boolean hasCorrectAnswer = false;
-  	ArrayList<AnswerIfc> answers = this.getAnswerArray();
-  	Iterator<AnswerIfc> answerIter = answers.iterator();
-  	while (answerIter.hasNext()) {
-  		AnswerIfc answer = answerIter.next();
-  		if (answer.getIsCorrect() != null && answer.getIsCorrect() == Boolean.TRUE) {
-  			hasCorrectAnswer = true;
-  			break;
-  		}
-  	}
-  	return !hasCorrectAnswer;	  
-  }
 }

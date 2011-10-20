@@ -863,17 +863,4 @@ public class ItemData
 	  else
 		  return "";
   }
-  
-  public boolean hasDistractors() {
-	  	boolean hasDistractor = false;
-	    Iterator<ItemTextIfc> itemIter = this.getItemTextArraySorted().iterator();
-	    while (itemIter.hasNext()) {
-	    	ItemTextIfc curItem = itemIter.next();
-	    	if (curItem.isDistractor()) {
-	    		hasDistractor = true;
-	    		break;
-	    	}
-	    }
-	    return hasDistractor;	  
-  }
 }

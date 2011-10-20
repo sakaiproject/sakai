@@ -20,7 +20,6 @@
  **********************************************************************************/
 
 package org.sakaiproject.tool.assessment.data.dao.assessment;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 
@@ -118,17 +117,5 @@ public class PublishedItemText
       PublishedItemText a = (PublishedItemText)o;
       return sequence.compareTo(a.sequence);
   }
-  public boolean isDistractor() {
-	  	boolean hasCorrectAnswer = false;
-	  	ArrayList<AnswerIfc> answers = this.getAnswerArray();
-	  	Iterator<AnswerIfc> answerIter = answers.iterator();
-	  	while (answerIter.hasNext()) {
-	  		AnswerIfc answer = answerIter.next();
-	  		if (answer.getIsCorrect() != null && answer.getIsCorrect() == Boolean.TRUE) {
-	  			hasCorrectAnswer = true;
-	  			break;
-	  		}
-	  	}
-	  	return !hasCorrectAnswer;
-  	}
+
 }
