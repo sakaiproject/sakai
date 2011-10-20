@@ -1016,11 +1016,10 @@ public class GradingService
           	    	Iterator<ItemTextIfc> itemIter = item.getItemTextArraySorted().iterator();
           	    	while (itemIter.hasNext()) {
           	    		ItemTextIfc curItem = itemIter.next();
-          	    		if (!curItem.isDistractor()) {
+          	    		if (!isDistractor(curItem)) {
           	    			nonDistractors++;
           	    		}
           	    	}            	  
-//                  autoScore = initScore / ((float) item.getItemTextSet().size());
                     autoScore = initScore / nonDistractors;
               	}
               //overridescore?
@@ -2046,7 +2045,50 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  }
 	  return (answer.getItem().getScore().floatValue()*answer.getPartialCredit().floatValue())/100f;
   }
+	
+  	/**
+  	 * hasDistractors looks at an itemData object for a Matching question and determines
+  	 * if all of the choices have correct matches or not.
+  	 * @param item
+  	 * @return true if any of the choices do not have a correct answer (a distractor choice), or false
+  	 * if all choices have at least one correct answer
+  	 */
+  	public boolean hasDistractors(ItemDataIfc item) {
+		boolean hasDistractor = false;
+		Iterator<ItemTextIfc> itemIter = item.getItemTextArraySorted().iterator();
+		while (itemIter.hasNext()) {
+			ItemTextIfc curItem = itemIter.next();
+			if (isDistractor(curItem)) {
+				hasDistractor = true;
+				break;
+			}
+		}
+		return hasDistractor;	  
+	}
 
+  	/**
+  	 * determines if the passed parameter is a distractor
+  	 * <p>For ItemTextIfc objects that hold data for matching type questions, a distractor 
+  	 * is a choice that has no valid matches (i.e. no correct answers).  This function returns
+  	 * if this ItemTextIfc object has any correct answers
+  	 * @param itemText
+  	 * @return true if itemtext has no correct answers (a distrator) or false if itemtext has at least
+  	 * one correct answer
+  	 */
+	public boolean isDistractor(ItemTextIfc itemText) {
+		// look for items that do not have any correct answers
+		boolean hasCorrectAnswer = false;
+		ArrayList<AnswerIfc> answers = itemText.getAnswerArray();
+		Iterator<AnswerIfc> answerIter = answers.iterator();
+		while (answerIter.hasNext()) {
+			AnswerIfc answer = answerIter.next();
+			if (answer.getIsCorrect() != null && answer.getIsCorrect() == Boolean.TRUE) {
+				hasCorrectAnswer = true;
+				break;
+			}
+		}
+		return !hasCorrectAnswer;	  
+	}
 }
 
 
