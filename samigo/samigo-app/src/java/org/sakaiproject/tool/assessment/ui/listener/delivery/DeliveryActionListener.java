@@ -1583,6 +1583,12 @@ public class DeliveryActionListener
                                    Character.toString(alphabet.charAt(i++)),
                                    ""));
       }
+      
+      if (item.hasDistractors()) {
+    	  choices.add(new SelectItem("None of the Above",
+    			  					"None of the Above",
+    			  					""));
+      }
 
       mbean.setChoices(choices); // Set the A/B/C... pulldown
 

@@ -166,5 +166,9 @@ public class MatchingBean
       */
     return isCorrect;
   }
+  
+  public boolean getIsDistractor() {
+	  return this.getItemText().isDistractor();
+  }
 
 }
