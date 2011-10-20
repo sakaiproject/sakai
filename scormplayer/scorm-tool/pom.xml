@@ -85,7 +85,7 @@
 
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-wicket</artifactId>
+			<artifactId>sakai-wicket-for-scorm</artifactId>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
