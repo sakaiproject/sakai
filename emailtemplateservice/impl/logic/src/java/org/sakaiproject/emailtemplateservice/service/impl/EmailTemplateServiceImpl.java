@@ -106,7 +106,20 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 	   this.userDirectoryService = userDirectoryService;
    }
 
-
+   private EmailTemplate getEmailTemplateNoDefault(String key, Locale locale) {
+	   if (key == null || "".equals(key)) {
+		   throw new IllegalArgumentException("key cannot be null or empty");
+	   }
+	   EmailTemplate et = null;
+	   if (locale != null) {
+		   Search search = new Search("key", key);
+		   search.addRestriction( new Restriction("locale", locale.toString()) );
+		   et = dao.findOneBySearch(EmailTemplate.class, search);
+	   } else {
+		   et = dao.findOneBySearch(EmailTemplate.class, new Search("key", key));
+	   }
+	   return et;
+	}
    
 
    public EmailTemplate getEmailTemplate(String key, Locale locale) {
@@ -412,7 +425,7 @@ private List<User> getUsersEmail(List<String> userIds) {
 				loc = new Locale(template.getLocale()); 
 			}
 			
-			EmailTemplate existingTemplate = getEmailTemplate(template.getKey(), loc);
+			EmailTemplate existingTemplate = getEmailTemplateNoDefault(template.getKey(), loc);
 			if(existingTemplate == null) {
 				//no existing, save this one
 				Session sakaiSession = sessionManager.getCurrentSession();
