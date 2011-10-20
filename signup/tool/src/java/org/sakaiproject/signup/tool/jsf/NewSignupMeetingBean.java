@@ -531,19 +531,27 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 		if (step.equals("step1")) {
 			
+			boolean locationSet = false;
+			
 			//Set Location		
 			if (StringUtils.isNotBlank(customLocation)){
+				logger.debug("custom location set: " + customLocation);
 				this.signupMeeting.setLocation(customLocation);
-				
+				locationSet = true;
 			}
-			else{
-				if (StringUtils.equals(selectedLocation, Utilities.rb.getString("select_location"))){
-					validationError = true;
-					Utilities.addErrorMessage(Utilities.rb.getString("event.location_not_assigned"));
-					return;
-				}
+			
+			if (!locationSet && StringUtils.isNotBlank(selectedLocation) && !StringUtils.equals(selectedLocation, Utilities.rb.getString("select_location"))){
 				this.signupMeeting.setLocation(selectedLocation);
+				logger.debug("chose a location: " + selectedLocation);
+				locationSet = true;
 			}
+			
+			if(!locationSet) {
+				validationError = true;
+				Utilities.addErrorMessage(Utilities.rb.getString("event.location_not_assigned"));
+				return;
+			}
+			
 			
 			//Set Category	
 			//custom
