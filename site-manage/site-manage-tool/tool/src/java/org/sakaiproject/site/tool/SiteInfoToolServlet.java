@@ -183,7 +183,7 @@ public class SiteInfoToolServlet extends HttpServlet
 		{
 			String siteReference = SiteService.siteReference(siteId);
 			// check whether the user has permission to view the site roster or is super user
-			if (AuthzGroupService.isAllowed(userId, SiteService.SECURE_VIEW_ROSTER, siteReference) || SecurityService.isSuperUser())
+			if (SecurityService.unlock(userId, SiteService.SECURE_VIEW_ROSTER, siteReference) || SecurityService.isSuperUser())
 			{
 				print_participant(siteId);
 			}
