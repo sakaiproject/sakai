@@ -528,7 +528,9 @@ public class ItemAddListener
         }
     }
     
-    /* Determines if there is an error in the quesiton. Returns and error code
+    /**
+     * CALCULATED_QUESTION 
+     * Determines if there is an error in the quesiton. Returns and error code
      * depending on where the error is.
      * 
      * return int:	0 - All is well. No errors.
@@ -580,7 +582,8 @@ public class ItemAddListener
     	return 0;
     }
     
-    /*
+    /**
+     * CALCULATED_QUESTION
      * Returns true if there is a mathematical error (that can easily be detected)
      * else false 
      */
@@ -599,6 +602,8 @@ public class ItemAddListener
     	
   	  	return false;
     }
+
+
     public boolean isRowEmpty() {
     	ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
     	ItemBean item =itemauthorbean.getCurrentItem();
@@ -725,7 +730,8 @@ public class ItemAddListener
       else {
     	  //prepare itemText, including answers
     	  if (item.getTypeId().equals(TypeFacade.MATCHING)
-    	          || item.getTypeId().equals(TypeFacade.CALCULATED_QUESTION)) {
+    	          || item.getTypeId().equals(TypeFacade.CALCULATED_QUESTION)
+    	          ) {
     		  item.setItemTextSet(prepareTextForMatching(item, bean, itemauthor));
     	  }
     	  else if(item.getTypeId().equals(TypeFacade.MATRIX_CHOICES_SURVEY)) {

@@ -262,6 +262,15 @@ public class ItemTypeExtractionStrategy
    {
      itemType = AuthoringConstantStrings.FIN;
    }
+    // CALCULATED_QUESTION
+    else if (toGuess.indexOf("calcq") != -1 ||
+            toGuess.indexOf("calculated_question") != -1 ||
+            toGuess.indexOf("c.q.") != -1 ||
+            toGuess.indexOf("cq") != -1
+            )
+    {
+        itemType = AuthoringConstantStrings.CALCQ;
+    }
     else if (toGuess.indexOf("essay") != -1 ||
              toGuess.indexOf("short") != -1)
     {
