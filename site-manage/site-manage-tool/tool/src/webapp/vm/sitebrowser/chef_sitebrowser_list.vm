@@ -40,10 +40,15 @@
 			<div class="viewNav">
 				<p class="instruction">
 				#if ("$!siteType" == "") #set($siteType="Any") #end
+					#if($siteType=="Any")
+						#set($siteTypeDisplay=$tlang.getString("se.any"))
+					#else
+						#set($siteTypeDisplay=$siteType)
+					#end
 						#if ($termSelection)
-							$allMsgNumber $tlang.getString("list.sites") "$siteType" $tlang.getString("list.type2") "$!searchText" $tlang.getString("list.text") "$termSelection" $tlang.getString("list.aca")    	
+							$allMsgNumber $tlang.getString("list.sites") "$siteTypeDisplay" $tlang.getString("list.type2") "$!searchText" $tlang.getString("list.text") "$termSelection" $tlang.getString("list.aca")    	
 						#else
-							$allMsgNumber $tlang.getString("list.sites") "$siteType" $tlang.getString("list.type1") "$!searchText".
+							$allMsgNumber $tlang.getString("list.sites") "$siteTypeDisplay" $tlang.getString("list.type1") "$!searchText".
 						#end
 					</p>	
 			</div>
@@ -129,7 +134,11 @@
                         </td>
                         
                         <td headers="joinable">
-                        $site.isJoinable()
+                        #if ($site.isJoinable())
+                        	$tlang.getString("list.joinable")
+                        #else
+                        	$tlang.getString("list.notjoinable")
+                        #end
                         </td>
 
                         <td headers="term">
@@ -137,7 +146,7 @@
              				#if ($site.getProperties().getProperty($termProp))
 	                        	$site.getProperties().getProperty($termProp)
 	                        #else
-	                        	n/a
+	                        	$tlang.getString("list.noterm")
 	                        #end
              			#else
 	                        n/a
