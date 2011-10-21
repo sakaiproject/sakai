@@ -264,7 +264,6 @@ public class ItemTypeExtractionStrategy
    }
     // CALCULATED_QUESTION
     else if (toGuess.indexOf("calcq") != -1 ||
-            toGuess.indexOf("calculated_question") != -1 ||
             toGuess.indexOf("c.q.") != -1 ||
             toGuess.indexOf("cq") != -1
             )
