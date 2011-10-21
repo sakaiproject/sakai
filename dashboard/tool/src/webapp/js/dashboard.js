@@ -210,8 +210,12 @@ var setupLang = function(){
 
 var setupIcons = function(){
     $('.itemLink').each(function(i){
-        if ($(this).closest('tr').find('.itemType').text() === 'resource') {
+        var itemType = $(this).closest('tr').find('.itemType').text();
+        if (itemType === 'resource') {
             $(this).addClass(getFileExtension($(this).attr('href')));
+        }
+        else{
+            $(this).addClass(itemType + '-icon');
         }
     });
     function getFileExtension(filename){

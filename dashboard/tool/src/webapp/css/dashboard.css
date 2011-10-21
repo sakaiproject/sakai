@@ -247,14 +247,24 @@ ul.attachList li {
     margin-left:10px;
 }
 
-/*file listings*/
+/*file and item type listings*/
 a.itemLink {
     display: block;
     padding: 3px;
     padding-left: 21px;
     background: url(../../../../library/image/sakai/generic.gif) center left no-repeat;
 }
+a.assignment-icon{
+    background: url("/library/image/silk/page_edit.png") center left no-repeat !important    
+}
 
+a.announcement-icon{
+    background: url("/library/image/silk/flag_blue.png") center left no-repeat !important    
+}
+
+a.schedule-icon{
+    background: url("/library/image/silk/calendar.png") center left no-repeat !important    
+}
 /*file exensions to match*/
 .doc, .rtf, .docx, .docm, .dotx, .dotm {
     background: url(../../../../library/image/sakai/word.gif) center left no-repeat !important
@@ -325,10 +335,10 @@ a.itemLink {
 }
 
 #sched .one,#news .two{
-    width: 20%;
+    width: 30%;
 }
 #sched .two, #sched .tab, #news .three,  #news .tab{
-    width: 50%;
+    width: 40%;
 }
 
 #sched .three,#news .four{
