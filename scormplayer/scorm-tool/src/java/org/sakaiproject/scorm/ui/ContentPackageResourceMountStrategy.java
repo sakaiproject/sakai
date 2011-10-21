@@ -214,9 +214,9 @@ public class ContentPackageResourceMountStrategy extends AbstractRequestTargetUr
 			if (log.isDebugEnabled()) {
 				for (Iterator keyIterator = urlParameters.keySet().iterator();keyIterator.hasNext();) {
 					String key = (String)keyIterator.next();
-					String value = (String)urlParameters.get(key);
+					Object value = urlParameters.get(key);
 					
-					log.debug("URL PARAMS KEY: " + key + " VALUE: " + value);
+					log.debug("URL PARAMS KEY: " + key + " VALUE: " + value.toString());
 				}
 			}
 			
