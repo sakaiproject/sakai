@@ -907,6 +907,9 @@ public class ServiceServlet extends HttpServlet {
 					message = "Result read";
 				} else { 
 					dGrade = new Double(result_resultscore_textstring);
+					if ( dGrade < 0.0 || dGrade > 1.0 ) {
+						throw new Exception("Grade out of range");
+					}
 					dGrade = dGrade * assignmentObject.getPoints();
 					g.setAssignmentScore(siteId, assignment, user_id, dGrade, "External Outcome");
 
@@ -922,15 +925,12 @@ public class ServiceServlet extends HttpServlet {
 				popAdvisor();
 			}
 
+			if ( !success ) return;
+
 			String output = null;
-			if ( success ) {
-				String theXml = "";
-				if ( theMap.size() > 0 ) theXml = XMLMap.getXMLFragment(theMap, true);
-				output = pox.getResponseSuccess(message, theXml);
-			} else {
-				// TODO: Think about any code minors that we want.
-				output = pox.getResponseSuccess(message, null);
-			}
+			String theXml = "";
+			if ( theMap.size() > 0 ) theXml = XMLMap.getXMLFragment(theMap, true);
+			output = pox.getResponseSuccess(message, theXml);
 
 			response.setContentType("application/xml");
 			PrintWriter out = response.getWriter();
