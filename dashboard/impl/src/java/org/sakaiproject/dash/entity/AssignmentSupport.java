@@ -379,7 +379,9 @@ public class AssignmentSupport {
 				logger.debug("removing news links and news item for " + event.getResource());
 			}
 			dashboardLogic.removeNewsItem(ref);
-
+			
+			// also remove all availability checks
+			dashboardLogic.removeAllScheduledAvailabilityChecks(ref);
 		}
 
 	}
@@ -490,7 +492,24 @@ public class AssignmentSupport {
 			if(entity != null && entity instanceof Assignment) {
 				// get the assignment entity and its current title
 				Assignment assn = (Assignment) entity;
-				dashboardLogic.reviseCalendarItemsTime(assn.getReference(), new Date(assn.getOpenTime().getTime()));
+				String assnReference = assn.getReference();
+				
+				//1. remove all scheduled availability checks for this assignment reference
+				dashboardLogic.removeAllScheduledAvailabilityChecks(assnReference);
+				
+				// 2. check the availability based on updated open time
+				if(dashboardLogic.isAvailable(assnReference, IDENTIFIER)) {
+					// TODO: DASH-82 for updatet News item event
+				}
+				else
+				{
+					// if the assignment if not open now, remove any previous assignment calendar items and links
+					dashboardLogic.removeCalendarItems(assnReference);
+					dashboardLogic.removeNewsItem(assnReference);
+					
+					// assignment is not open yet, schedule for check later
+					dashboardLogic.scheduleAvailabilityCheck(assnReference, IDENTIFIER, new Date(assn.getOpenTime().getTime()));
+				}
 			}
 			
 			if(logger.isDebugEnabled()) {
