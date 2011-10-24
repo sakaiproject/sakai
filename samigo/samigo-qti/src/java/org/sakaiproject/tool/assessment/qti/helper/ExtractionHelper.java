@@ -2405,8 +2405,13 @@ public class ExtractionHelper
         float score = getCorrectScore(item, 1);
         float discount = getCorrectDiscount(item);
         
-        // if this answer is the indexed one, flag as correct
-        if (a + 1 == targetIndex)
+        // assume that the xslt creates the three important lists in the correct order
+        // sourceList and target list individually don't matter
+        // indexList must be ordered by source, then target, in the same order
+        // as source and target are ordered
+        int index = a + i * targetList.size();
+        String correctStatus = (String) indexList.get(index);
+        if ("CorrectMatch".equals(correctStatus))
         {
           target.setIsCorrect(Boolean.TRUE);
 //          score = getCorrectScore(item, targetList.size());
