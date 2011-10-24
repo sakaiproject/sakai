@@ -8256,6 +8256,9 @@ public class SiteAction extends PagedResourceActionII {
 
 		}
 
+                //reload the site object after changes group realms have been removed from the site.
+                site = getStateSite(state); 
+
 		// the manual request course into properties
 		setSiteSectionProperty(manualCourseSectionList, site, PROP_SITE_REQUEST_COURSE);
 		
