@@ -24,8 +24,10 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.faces.event.AbortProcessingException;
@@ -529,7 +531,7 @@ public class ItemModifyListener implements ActionListener
     ArrayList<MatchItemBean> matchItemBeanList = new ArrayList<MatchItemBean>();
 
     // once a match has been assigned to a choice, subsequent matches set the controlling sequences
-    List<String> alreadyMatched = new ArrayList<String>();
+    Map<String, MatchItemBean> alreadyMatched = new HashMap<String, MatchItemBean>();
 
     // loop through all choices
     while (choiceIter.hasNext()){
@@ -550,10 +552,11 @@ public class ItemModifyListener implements ActionListener
            choicebean.setIsCorrect(Boolean.TRUE);
            
            // if match has been used already, set the controlling sequence
-           if (alreadyMatched.contains(answer.getLabel())) {
-        	   choicebean.setControllingSequence(answer.getSequence().toString());
+           if (alreadyMatched.containsKey(answer.getLabel())) {
+        	   MatchItemBean matchBean = alreadyMatched.get(answer.getLabel());
+        	   choicebean.setControllingSequence(matchBean.getSequenceStr());
            } else {
-        	   alreadyMatched.add(answer.getLabel());
+        	   alreadyMatched.put(answer.getLabel(), choicebean);
            }
            
            // add feedback
