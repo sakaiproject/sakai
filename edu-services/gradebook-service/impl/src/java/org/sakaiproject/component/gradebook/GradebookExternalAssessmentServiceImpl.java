@@ -23,6 +23,7 @@ package org.sakaiproject.component.gradebook;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -41,6 +42,8 @@ import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
+import org.sakaiproject.service.gradebook.shared.ExternalAssignmentProvider;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.InvalidCategoryException;
@@ -66,7 +69,53 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
     public void setEventTrackingService(EventTrackingService eventTrackingService) {
         this.eventTrackingService = eventTrackingService;
     }
-    
+
+	private ConcurrentHashMap<String, ExternalAssignmentProvider> externalProviders =
+			new ConcurrentHashMap<String, ExternalAssignmentProvider>();
+
+    public ConcurrentHashMap<String, ExternalAssignmentProvider> getExternalAssignmentProviders() {
+        if (externalProviders == null) {
+            externalProviders = new ConcurrentHashMap<String, ExternalAssignmentProvider>(0);
+        }
+        return externalProviders;
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService#registerExternalAssignmentProvider(org.sakaiproject.service.gradebook.shared.ExternalAssignmentProvider)
+     */
+    public void registerExternalAssignmentProvider(ExternalAssignmentProvider provider) {
+        if (provider == null) {
+            throw new IllegalArgumentException("provider cannot be null");
+        } else {
+            getExternalAssignmentProviders().put(provider.getAppKey(), provider);
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService#unregisterExternalAssignmentProvider(java.lang.String)
+     */
+    public void unregisterExternalAssignmentProvider(String providerAppKey) {
+        if (providerAppKey == null || "".equals(providerAppKey)) {
+            throw new IllegalArgumentException("providerAppKey must be set");
+        } else {
+            getExternalAssignmentProviders().remove(providerAppKey);
+        }
+    }
+
+
+    public void init() {
+        log.info("INIT");
+    }
+
+    public void destroy() {
+        log.info("DESTROY");
+        if (externalProviders != null) {
+            externalProviders.clear();
+            externalProviders = null;
+        }
+    }
+
+
     /**
      * Property in sakai.properties used to allow this service to update scores in the db every
      * time the update method is called. By default, scores are only updated if the
@@ -434,10 +483,59 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
         return (assignment != null);
     }
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService#isExternalAssignmentDefined(java.lang.String, java.lang.String)
+	 */
 	public boolean isExternalAssignmentDefined(String gradebookUid, String externalId) throws GradebookNotFoundException {
+        // SAK-19668
         Assignment assignment = getExternalAssignment(gradebookUid, externalId);
         return (assignment != null);
 	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService#isExternalAssignmentGrouped(java.lang.String, java.lang.String)
+	 */
+	public boolean isExternalAssignmentGrouped(String gradebookUid, String externalId)
+		throws GradebookNotFoundException
+	{
+        // SAK-19668
+		final Assignment assignment = getExternalAssignment(gradebookUid, externalId);
+		boolean result = false;
+		if (assignment == null) {
+            result = false;
+            log.info("No assignment found for external assignment check: gradebookUid="+gradebookUid+", externalId="+externalId);
+		} else {
+	        for (ExternalAssignmentProvider provider : getExternalAssignmentProviders().values()) {
+	            if (provider.isAssignmentDefined(externalId)) {
+	                result = provider.isAssignmentGrouped(externalId);
+	            }
+	        }
+		}
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService#isExternalAssignmentVisible(java.lang.String, java.lang.String, java.lang.String)
+	 */
+	public boolean isExternalAssignmentVisible(String gradebookUid, String externalId, String userId)
+		throws GradebookNotFoundException
+	{
+	    // SAK-19668
+		final Assignment assignment = getExternalAssignment(gradebookUid, externalId);
+		boolean result = false;
+		if (assignment == null) {
+		    result = false;
+			log.info("No assignment found for external assignment check: gradebookUid="+gradebookUid+", externalId="+externalId);
+		} else {
+    		for (ExternalAssignmentProvider provider : getExternalAssignmentProviders().values()) {
+    			if (provider.isAssignmentDefined(externalId)) {
+    			    result = provider.isAssignmentVisible(externalId, userId);
+    			}
+    		}
+		}
+		return result;
+	}
+
 
 	public void setExternalAssessmentToGradebookAssignment(final String gradebookUid, final String externalId) {
         final Assignment assignment = getExternalAssignment(gradebookUid, externalId);

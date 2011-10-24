@@ -212,6 +212,44 @@ public interface GradebookExternalAssessmentService {
         throws GradebookNotFoundException;
 
 	/**
+	 * Check with the appropriate external service if a specific assignment is
+	 * available only to groups.
+	 *
+	 * @param gradebookUid The gradebook's unique identifier
+	 * @param externalId The external assessment's external identifier
+	 */
+	public boolean isExternalAssignmentGrouped(String gradebookUid, String externalId)
+		throws GradebookNotFoundException;
+
+	/**
+	 * Check with the appropriate external service if a specific assignment is
+	 * available to a specific user (i.e., the user is in an appropriate group).
+	 * 
+	 * @param gradebookUid The gradebook's unique identifier
+	 * @param externalId The external assessment's external identifier
+	 * @param userId The user ID to check
+	 */
+	public boolean isExternalAssignmentVisible(String gradebookUid, String externalId, String userId)
+		throws GradebookNotFoundException;
+
+	/**
+	 * Register a new ExternalAssignmentProvider for handling the integration of external
+	 * assessment sources with the sakai gradebook
+	 * Registering more than once will overwrite the current with the new one
+	 * 
+	 * @param provider the provider implementation object
+	 */
+	public void registerExternalAssignmentProvider(ExternalAssignmentProvider provider);
+
+	/**
+	 * Remove/unregister any ExternalAssignmentProvider which is currently registered,
+	 * does nothing if they provider does not exist
+	 * 
+	 * @param providerAppKey the unique app key for a provider
+	 */
+    public void unregisterExternalAssignmentProvider(String providerAppKey);
+
+	/**
 	 * Checks to see whether a gradebook with the given uid exists.
 	 *
 	 * @param gradebookUid

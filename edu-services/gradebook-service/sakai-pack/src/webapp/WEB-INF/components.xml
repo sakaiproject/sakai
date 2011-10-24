@@ -56,7 +56,8 @@
 
 	<bean id="org_sakaiproject_service_gradebook_GradebookExternalAssessmentServiceTarget"
 		class="org.sakaiproject.component.gradebook.GradebookExternalAssessmentServiceImpl"
-		name="org.sakaiproject.service.gradebook.GradebookExternalAssessmentServiceTarget">
+		name="org.sakaiproject.service.gradebook.GradebookExternalAssessmentServiceTarget"
+        init-method="init" destroy-method="destroy">
 		<property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
 		<property name="authn">
 			<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
