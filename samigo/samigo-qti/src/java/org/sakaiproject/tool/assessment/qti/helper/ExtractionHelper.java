@@ -800,7 +800,7 @@ public class ExtractionHelper
       releasedTo = AuthoringConstantStrings.ANONYMOUS;
     }
     else if (releasedTo != null && releasedTo.indexOf("Selected Groups") > -1){
-    	releasedTo = AgentFacade.getCurrentSiteId();
+    	releasedTo = AgentFacade.getCurrentSiteName();
     }
 
     if (releasedTo != null) {
