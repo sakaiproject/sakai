@@ -31,8 +31,18 @@
     display: block;
     float: left;
     width: 100%;
+    margin-bottom: 1em;
+}
+
+/* reduce the amount of white space around the headings of feeds */
+.news-items h3 {
+	margin:0;
 }
 
 .news-item-attachment {
 	font-size: 0.9em;
+	padding: 1em;
+	background-color: #EAEFF1;
+	border: 1px solid #D6E0E3;
+	margin-top: 1em;
 }
