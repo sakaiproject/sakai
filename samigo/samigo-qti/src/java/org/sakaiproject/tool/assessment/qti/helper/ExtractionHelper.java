@@ -2469,10 +2469,6 @@ public class ExtractionHelper
 		  item.setInstruction(makeFCKAttachmentFromRespondus((String) itemTextList.get(0)));
 	  }
 	  
-	  if (Math.pow(sourceList.size(), 2) != targetList.size()) {
-		  throw new RespondusMatchingException("Matching question error!");
-	  }
-	  
 	  HashMap<String, String> sourceMap = new HashMap<String, String>();
 	  if (sourceList != null) {
 		  Iterator iter = sourceList.iterator();
@@ -2540,7 +2536,7 @@ public class ExtractionHelper
 
 			  ident = source.getKey();
 			  correctVar = correctMap.get(ident);
-			  if (correctVar.equals(target.getKey())) {
+			  if (target.getKey().equals(correctVar)) {
 				  answer.setIsCorrect(Boolean.TRUE);
 			  }
 			  else {
