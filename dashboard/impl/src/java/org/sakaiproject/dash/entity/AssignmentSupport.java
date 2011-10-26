@@ -454,8 +454,18 @@ public class AssignmentSupport {
 			if(entity != null && entity instanceof Assignment) {
 				// get the assignment entity and its current title
 				Assignment assn = (Assignment) entity;
+				String assnReference = assn.getReference();
 				
-				// TODO
+				if(dashboardLogic.isAvailable(assnReference, IDENTIFIER)) {
+					// update the calendar and news links
+					dashboardLogic.updateCalendarLinks(assn.getReference());
+					dashboardLogic.updateNewsLinks(assnReference);
+				}
+				else
+				{
+					// assignment is not open yet, schedule for check later
+					dashboardLogic.scheduleAvailabilityCheck(assnReference, IDENTIFIER, new Date(assn.getOpenTime().getTime()));
+				}
 			}
 			
 			if(logger.isDebugEnabled()) {
