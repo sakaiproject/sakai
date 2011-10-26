@@ -1,27 +1,40 @@
 package org.sakaiproject.profile2.conversion;
 
-import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import lombok.Setter;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.log4j.Logger;
+import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.dao.ProfileDao;
+import org.sakaiproject.profile2.exception.ProfileNotDefinedException;
 import org.sakaiproject.profile2.hbm.model.ProfileImageExternal;
 import org.sakaiproject.profile2.hbm.model.ProfileImageUploaded;
+import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
+import org.sakaiproject.profile2.model.ImportableUserProfile;
+import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
 import au.com.bytecode.opencsv.CSVReader;
+import au.com.bytecode.opencsv.bean.CsvToBean;
+import au.com.bytecode.opencsv.bean.HeaderColumnNameTranslateMappingStrategy;
 
-
+/**
+ * Handles the conversion and import of profiles and images. This is not part of the public API.
+ * 
+ * @author Steve Swinsburg (steve.swinsburg@gmail.com)
+ *
+ */
 public class ProfileConverter {
 
 	private static final Logger log = Logger.getLogger(ProfileConverter.class);
@@ -32,9 +45,9 @@ public class ProfileConverter {
 	@Setter
 	private ProfileDao dao;
 	
-	private static final String CSV_MIME_TYPE="text/csv";
-
-
+	@Setter
+	private ProfileImageLogic imageLogic;
+	
 	public void init() {
 		log.info("Profile2: ==============================="); 
 		log.info("Profile2: Conversion utility starting up."); 
@@ -151,13 +164,41 @@ public class ProfileConverter {
 	}
 	
 	/**
-	 * Import profiles form the given CSV file
+	 * Import profiles from the given CSV file
 	 * 
-	 * Format is:
+	 * <p>The CSV file may contain any of the following headings, in any order:
+	 *  
+	 *  <ul>
+	 *  <li>eid</li>
+	 *  <li>nickname</li>
+	 *  <li>position</li>
+	 *  <li>department</li>
+	 *  <li>school</li>
+	 *  <li>room</li>
+	 *  <li>web site</li>
+	 *  <li>work phone</li>
+	 *  <li>home phone</li>
+	 *  <li>mobile phone</li>
+	 *  <li>fax</li>
+	 *  <li>books</li>
+	 *  <li>tv</li>
+	 *  <li>movies</li>
+	 *  <li>quotes</li>
+	 *  <li>summary</li>
+	 *  <li>course</li>
+	 *  <li>subjects</li>
+	 *  <li>staff profile</li>
+	 *  <li>uni profile url</li>
+	 *  <li>academic profile url</li>
+	 *  <li>publications</li>
+	 *  <li>official image url</li>
+	 *  </ul>
 	 * 
-	 * TBA
+	 * <p>Column headings must match EXACTLY the list above. They do not need to be in the same order, or even all present.
 	 * 
-	 * Files must be comma separated and each field surrounded with double quotes
+	 * <p>Fields must be comma separated and each field surrounded with double quotes.
+	 * 
+	 * <p>Only users that do not currently have a profile will be imported.
 	 * 
 	 * @param path	path to CSV file on the server
 	 */
@@ -167,32 +208,183 @@ public class ProfileConverter {
 			log.warn("Profile2 importer: invalid path to CSV file. Aborting.");
 			return;
 		}
-				
-		CSVReader reader;
-		try {
-			reader = new CSVReader(new FileReader(path));
-			List<String[]> lines = reader.readAll();
-			for(String[] line: lines){
-					
-				//String eid = line[0]
-				//TODO other fields
-               
-                //TODO create object 
-				
-				//TODO check if this user already exists. they are skipped if so.
-				
-				//TODO import this user
-			}
-			
-			//catch some errors that mean we can safely skip, like indexoutofbounds etc
-			
-		} catch (Exception e) {
-			log.error("Profile2 importer: " + e.getClass() + " : " + e.getMessage());
-		}
-			
 		
+        HeaderColumnNameTranslateMappingStrategy<ImportableUserProfile> strat = new HeaderColumnNameTranslateMappingStrategy<ImportableUserProfile>();
+        strat.setType(ImportableUserProfile.class);
+        
+        //map the column headers to the field names in the UserProfile class
+        //this mapping is not exhaustive and can be added to at any time since we are mapping
+        //on column name not position
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("eid", "eid");
+        map.put("nickname", "nickname");
+        map.put("position", "position");
+        map.put("department", "department");
+        map.put("school", "school");
+        map.put("room", "room");
+        map.put("web site", "homepage");
+        map.put("work phone", "workphone");
+        map.put("home phone", "homephone");
+        map.put("mobile phone", "mobilephone");
+        map.put("fax", "facsimile");
+        map.put("books", "favouriteBooks");
+        map.put("tv", "favouriteTvShows");
+        map.put("movies", "favouriteMovies");
+        map.put("quotes", "favouriteQuotes");
+        map.put("summary", "personalSummary");
+        map.put("course", "course");
+        map.put("subjects", "subjects");
+        map.put("staff profile", "staffProfile");
+        map.put("uni profile url", "universityProfileUrl");
+        map.put("academic profile url", "academicProfileUrl");
+        map.put("publications", "publications");
+        map.put("official image url", "officialImageUrl");
+        
+        strat.setColumnMapping(map);
+
+        CsvToBean<ImportableUserProfile> csv = new CsvToBean<ImportableUserProfile>();
+        List<ImportableUserProfile> list = new ArrayList<ImportableUserProfile>();
+        try {
+			list = csv.parse(strat, new CSVReader(new FileReader(path)));
+		} catch (FileNotFoundException fnfe) {
+			log.error("Profile2 importer: Couldn't find file: " + fnfe.getClass() + " : " + fnfe.getMessage());
+		}
+        
+        //process each
+        for(ImportableUserProfile profile: list) {
+
+        	log.info("Processing user: " + profile.getEid());
+        	
+        	//get uuid
+        	String uuid = sakaiProxy.getUserIdForEid(profile.getEid());
+        	if(StringUtils.isBlank(uuid)) {
+        		log.error("Invalid user: " + profile.getEid() + ". Skipping...");
+        		continue;
+        	}
+        	
+        	profile.setUserUuid(uuid);
+        	        	
+        	//check if user already has a profile. Skip if so.
+        	if(hasPersistentProfile(uuid)) {
+        		log.warn("User: " + profile.getEid() + " already has a profile. Skipping...");
+        		continue;
+        	}
+        	
+        	//persist user profile
+        	try {
+        		SakaiPerson sp = transformUserProfileToSakaiPerson(profile);
+        		
+        		if(sp == null){
+        			//already logged
+        			continue;
+        		}
+        		
+        		//TODO get a security advisor here
+        		
+        		if(sakaiProxy.updateSakaiPerson(sp)) {
+        			log.info("Profile saved for user: " + profile.getEid());
+        		} else {
+        			log.error("Couldn't save profile for user: " + profile.getEid());
+        			continue;
+        		}
+        	} catch (ProfileNotDefinedException pnde) {
+        		//already logged
+        		continue;
+        	}
+        	
+        	//add official image, if set
+        	if(StringUtils.isNotBlank(profile.getOfficialImageUrl())) {
+        		if(imageLogic.saveOfficialImageUrl(uuid, profile.getOfficialImageUrl())) {
+        			log.info("Official image saved for user: " + profile.getEid());
+        		} else {
+        			log.error("Couldn't save official image for user: " + profile.getEid());
+        		}
+        	}
+        	
+        }
 		
 	}
 	
+	/**
+	 * Does the given user already have a <b>persistent</b> user profile?
+	 * 
+	 * @param userUuid	uuid of the user
+	 * @return
+	 */
+	private boolean hasPersistentProfile(String userUuid) {
+				
+		SakaiPerson sp = sakaiProxy.getSakaiPerson(userUuid);
+		if(sp != null){
+			return true;
+		} 
+		return false;
+	}
+	
+	
+	/**
+	 * Convenience method to map a UserProfile object onto a SakaiPerson object for persisting
+	 * 
+	 * @param up 		input UserProfile
+	 * @return			returns a SakaiPerson representation of the UserProfile object which can be persisted
+	 */
+	private SakaiPerson transformUserProfileToSakaiPerson(UserProfile up) {
+	
+		log.info("Transforming: " + up.toString());
+		
+		String userUuid = up.getUserUuid();
+		
+		if(StringUtils.isBlank(userUuid)) {
+			log.error("Profile was invalid (missing uuid), cannot transform.");
+			return null;
+		}
+		
+		//get SakaiPerson
+		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
+		
+		//if null, create one 
+		if(sakaiPerson == null) {
+			sakaiPerson = sakaiProxy.createSakaiPerson(userUuid);
+			//if its still null, throw exception
+			if(sakaiPerson == null) {
+				throw new ProfileNotDefinedException("Couldn't create a SakaiPerson for " + userUuid);
+			}
+		} 
+		
+		//map fields from UserProfile to SakaiPerson
+		
+		//basic info
+		sakaiPerson.setNickname(up.getNickname());
+		sakaiPerson.setDateOfBirth(up.getDateOfBirth());
+		
+		//contact info
+		sakaiPerson.setLabeledURI(up.getHomepage());
+		sakaiPerson.setTelephoneNumber(up.getWorkphone());
+		sakaiPerson.setHomePhone(up.getHomephone());
+		sakaiPerson.setMobile(up.getMobilephone());
+		sakaiPerson.setFacsimileTelephoneNumber(up.getFacsimile());
+		
+		//staff info
+		sakaiPerson.setOrganizationalUnit(up.getDepartment());
+		sakaiPerson.setTitle(up.getPosition());
+		sakaiPerson.setCampus(up.getSchool());
+		sakaiPerson.setRoomNumber(up.getRoom());
+		sakaiPerson.setStaffProfile(up.getStaffProfile());
+		sakaiPerson.setUniversityProfileUrl(up.getUniversityProfileUrl());
+		sakaiPerson.setAcademicProfileUrl(up.getAcademicProfileUrl());
+		sakaiPerson.setPublications(up.getPublications());
+		
+		// student info
+		sakaiPerson.setEducationCourse(up.getCourse());
+		sakaiPerson.setEducationSubjects(up.getSubjects());
+				
+		//personal info
+		sakaiPerson.setFavouriteBooks(up.getFavouriteBooks());
+		sakaiPerson.setFavouriteTvShows(up.getFavouriteTvShows());
+		sakaiPerson.setFavouriteMovies(up.getFavouriteMovies());
+		sakaiPerson.setFavouriteQuotes(up.getFavouriteQuotes());
+		sakaiPerson.setNotes(up.getPersonalSummary());
+		
+		return sakaiPerson;
+	}
 	
 }

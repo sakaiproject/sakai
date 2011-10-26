@@ -378,6 +378,7 @@
     	init-method="init">
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
+    	<property name="imageLogic" ref="org.sakaiproject.profile2.logic.ProfileImageLogic" />
 	</bean>
 
 </beans>

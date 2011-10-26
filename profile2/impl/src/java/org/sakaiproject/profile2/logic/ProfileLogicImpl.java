@@ -176,21 +176,7 @@ public class ProfileLogicImpl implements ProfileLogic {
  	 */
 	public boolean saveUserProfile(UserProfile p) {
 		
-		SakaiPerson sp = transformUserProfileToSakaiPerson(p);
-		
-		//update SakaiPerson obj
-		
-		if(sakaiProxy.updateSakaiPerson(sp)) {
-			
-			if(p.getImageUrl() != null) {
-				imageLogic.saveOfficialImageUrl(p.getUserUuid(), p.getImageUrl());
-			}
-			
-			//TODO the fields that can update the Account need to be done as well, if allowed.
-			//TODO if profile is locked,should not update, but will need to get the existing record if exists, then check that.
-			
-			return true;
-		} 
+		//TODO
 		
 		return false;
 	}
@@ -438,58 +424,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 		return p;
 	}
 	
-	/**
-	 * Convenience method to map a UserProfile object onto a SakaiPerson object for persisting
-	 * 
-	 * @param up 		input SakaiPerson
-	 * @return			returns a SakaiPerson representation of the UserProfile object
-	 */
-	private SakaiPerson transformUserProfileToSakaiPerson(UserProfile up) {
 	
-		String userUuid = up.getUserUuid();
-		
-		//get SakaiPerson
-		SakaiPerson sakaiPerson = sakaiProxy.getSakaiPerson(userUuid);
-		
-		//if null, create one 
-		if(sakaiPerson == null) {
-			sakaiPerson = sakaiProxy.createSakaiPerson(userUuid);
-			//if its still null, throw exception
-			if(sakaiPerson == null) {
-				throw new ProfileNotDefinedException("Couldn't create a SakaiPerson for " + userUuid);
-			}
-		} 
-		
-		//map fields from UserProfile to SakaiPerson
-		
-		//basic info
-		sakaiPerson.setNickname(up.getNickname());
-		sakaiPerson.setDateOfBirth(up.getDateOfBirth());
-		
-		//contact info
-		sakaiPerson.setLabeledURI(up.getHomepage());
-		sakaiPerson.setTelephoneNumber(up.getWorkphone());
-		sakaiPerson.setHomePhone(up.getHomephone());
-		sakaiPerson.setMobile(up.getMobilephone());
-		sakaiPerson.setFacsimileTelephoneNumber(up.getFacsimile());
-		
-		//academic info
-		sakaiPerson.setOrganizationalUnit(up.getDepartment());
-		sakaiPerson.setTitle(up.getPosition());
-		sakaiPerson.setCampus(up.getSchool());
-		sakaiPerson.setRoomNumber(up.getRoom());
-		sakaiPerson.setEducationCourse(up.getCourse());
-		sakaiPerson.setEducationSubjects(up.getSubjects());
-		
-		//personal info
-		sakaiPerson.setFavouriteBooks(up.getFavouriteBooks());
-		sakaiPerson.setFavouriteTvShows(up.getFavouriteTvShows());
-		sakaiPerson.setFavouriteMovies(up.getFavouriteMovies());
-		sakaiPerson.setFavouriteQuotes(up.getFavouriteQuotes());
-		sakaiPerson.setNotes(up.getPersonalSummary());
-
-		return sakaiPerson;
-	}
 	
 	@Setter
 	private SakaiProxy sakaiProxy;

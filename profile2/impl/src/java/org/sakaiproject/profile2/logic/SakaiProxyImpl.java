@@ -417,6 +417,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 			return true;
 		} catch (Exception e) {
 			log.error("SakaiProxy.updateSakaiPerson(): Couldn't update SakaiPerson: " + e.getClass() + " : " + e.getMessage());
+			e.printStackTrace();
 		}
 		return false;
 	}
