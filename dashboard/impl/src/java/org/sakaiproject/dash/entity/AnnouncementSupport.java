@@ -12,8 +12,6 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.Logger;
-import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementService;
@@ -115,6 +113,8 @@ public class AnnouncementSupport{
 	 */
 	public class AnnouncementEntityType implements EntityType {
 		
+		protected static final String LABEL_METADATA = "annc_metadata-label";
+
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.dash.entity.EntityType#getIdentifier()
 		 */
@@ -187,8 +187,7 @@ public class AnnouncementSupport{
 				String localeCode) {
 			ResourceLoader rl = new ResourceLoader("dash_entity");
 			Map<String, String> props = new HashMap<String, String>();
-			props.put(LABEL_NEWS_TIME, rl.getString("announcement.news.time"));
-			props.put(LABEL_USER_NAME, rl.getString("announcement.user.name"));
+			props.put(LABEL_METADATA, rl.getString("announcement.metadata"));
 			//props.put(LABEL_ATTACHMENTS, rl.getString("announcement.attachments"));
 			return props;
 		}
@@ -198,12 +197,13 @@ public class AnnouncementSupport{
 		 */
 		public List<List<String>> getOrder(String entityReference, String localeCode) {
 			List<List<String>> order = new ArrayList<List<String>>();
+			
 			List<String> section0 = new ArrayList<String>();
 			section0.add(VALUE_TITLE);
 			order.add(section0);
+			
 			List<String> section1 = new ArrayList<String>();
-			section1.add(VALUE_NEWS_TIME);
-			section1.add(VALUE_USER_NAME);
+			section1.add(LABEL_METADATA);
 			order.add(section1);
 			List<String> section2 = new ArrayList<String>();
 			section2.add(VALUE_DESCRIPTION);
@@ -265,6 +265,12 @@ public class AnnouncementSupport{
 			ResourceLoader rl = new ResourceLoader("dash_entity");
 			return rl.getString(key, dflt);
 		}
+
+		public String getGroupTitle(int numberOfItems, String contextTitle) {
+			ResourceLoader rl = new ResourceLoader("dash_entity");
+			Object[] args = new Object[]{ numberOfItems, contextTitle };
+			return rl.getFormattedMessage("announcement.grouped.title", args );
+	}
 	}
 	
 	/**

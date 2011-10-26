@@ -78,6 +78,16 @@ public class SourceType implements Serializable {
 		this.entityLinkStrategy = entityLinkStrategy;
 	}
 
+	public SourceType(SourceType other) {
+		super();
+		if(other.id != null) {
+			this.id = new Long(other.id.longValue());
+		}
+		this.identifier = other.identifier;
+		this.accessPermission = other.accessPermission;
+		this.entityLinkStrategy = other.entityLinkStrategy;
+	}
+
 	/**
 	 * @return the id
 	 */

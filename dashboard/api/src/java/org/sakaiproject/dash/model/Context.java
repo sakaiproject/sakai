@@ -65,6 +65,16 @@ public class Context implements Serializable {
 		this.contextUrl = contextUrl;
 }
 
+	public Context(Context other) {
+		super();
+		if(other.id != null) {
+			this.id = new Long(other.id.longValue());
+		}
+		this.contextId = other.contextId;
+		this.contextTitle = other.contextTitle;
+		this.contextUrl = other.contextUrl;
+	}
+
 	/**
 	 * @return the id
 	 */

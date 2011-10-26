@@ -114,6 +114,8 @@ public class ScheduleSupport{
 	 */
 	public class ScheduleEntityType implements RepeatingEventGenerator {
 		
+		public static final String LABEL_METADATA = "calendar_metadata-label";
+		
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.dash.entity.EntityType#getIdentifier()
 		 */
@@ -138,7 +140,13 @@ public class ScheduleSupport{
 				values.put(EntityType.VALUE_ENTITY_TYPE, IDENTIFIER);
 				values.put(VALUE_TITLE, cEvent.getDisplayName());
 				values.put(VALUE_CALENDAR_TIME, df.format(new Date(cEvent.getRange().firstTime().getTime())));
-				
+				try {
+					values.put(VALUE_NEWS_TIME, df.format(new Date(props.getTimeProperty(ResourceProperties.PROP_CREATION_DATE).getTime())));
+				} catch (EntityPropertyNotDefinedException e) {
+					logger.warn("getValues(" + entityReference + "," + localeCode + ") EntityPropertyNotDefinedException: " + e);
+				} catch (EntityPropertyTypeException e) {
+					logger.warn("getValues(" + entityReference + "," + localeCode + ") EntityPropertyTypeException: " + e);
+				}
 				
 				values.put(EntityType.VALUE_ENTITY_TYPE, IDENTIFIER);
 				values.put(VALUE_DESCRIPTION, cEvent.getDescription());
@@ -185,7 +193,7 @@ public class ScheduleSupport{
 				String localeCode) {
 			ResourceLoader rl = new ResourceLoader("dash_entity");
 			Map<String, String> props = new HashMap<String, String>();
-			props.put(LABEL_NEWS_TIME, rl.getString("schedule.news.time"));
+			props.put(LABEL_METADATA, rl.getString("schedule.metadata"));
 			return props;
 		}
 
@@ -194,21 +202,27 @@ public class ScheduleSupport{
 		 */
 		public List<List<String>> getOrder(String entityReference, String localeCode) {
 			List<List<String>> order = new ArrayList<List<String>>();
+			
 			List<String> section0 = new ArrayList<String>();
 			section0.add(VALUE_TITLE);
 			order.add(section0);
+			
 			List<String> section1 = new ArrayList<String>();
-			section1.add(VALUE_NEWS_TIME);
+			section1.add(LABEL_METADATA);
 			order.add(section1);
+			
 			List<String> section2 = new ArrayList<String>();
 			section2.add(VALUE_DESCRIPTION);
 			order.add(section2);
+			
 			List<String> section3 = new ArrayList<String>();
 			section3.add(VALUE_ATTACHMENTS);
 			order.add(section3);
+			
 			List<String> section4 = new ArrayList<String>();
 			section4.add(VALUE_MORE_INFO);
 			order.add(section4);
+			
 			return order;
 		}
 
@@ -294,6 +308,12 @@ public class ScheduleSupport{
 			
 			return dateMap;
 		}
+		
+		public String getGroupTitle(int numberOfItems, String contextTitle) {
+			ResourceLoader rl = new ResourceLoader("dash_entity");
+			Object[] args = new Object[]{ numberOfItems, contextTitle };
+			return rl.getFormattedMessage("announcement.grouped.title", args );
+	}
 	}
 	
 	/**

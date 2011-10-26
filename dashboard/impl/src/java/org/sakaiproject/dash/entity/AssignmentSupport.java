@@ -5,14 +5,11 @@ package org.sakaiproject.dash.entity;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
 import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.assignment.api.AssignmentService;
@@ -24,22 +21,16 @@ import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.SourceType;
-import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
-import org.sakaiproject.entity.api.EntityPropertyTypeException;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.util.ResourceLoader;
-
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.ResourceLoader;
 
 public class AssignmentSupport {
 	
@@ -93,17 +84,16 @@ public class AssignmentSupport {
 			return IDENTIFIER;
 		}
 
-		public static final String VALUE_MAX_GRADE = "grade-max";
-		public static final String LABEL_MAX_GRADE = "grade-max-label";
-		public static final String VALUE_OPEN_TIME = "open-time";
-		public static final String LABEL_OPEN_TIME = "open-time-label";
+		public static final String LABEL_METADATA = "assn_metadata-label";
+		public static final String LABEL_DATA = "assn_data-label";
+		
+		// {due-time} {close-time} {grade-type} {grade-max}
+		// {user-name} {news-time} {open-time}
 		public static final String VALUE_DUE_TIME = "due-time";
-		public static final String LABEL_DUE_TIME = "due-time-label";
 		public static final String VALUE_CLOSE_TIME = "close-time";
-		public static final String LABEL_CLOSE_TIME = "close-time-label";
-		public static final String VALUE_SUBMISSION_STATUS = "submission-status";
-		public static final String LABEL_SUBMISSION_STATUS = "submission-status-label";
-
+		public static final String VALUE_GRADE_TYPE = "grade-type";
+		public static final String VALUE_MAX_GRADE = "grade-max";
+		public static final String VALUE_OPEN_TIME = "open-time";
 
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.dash.entity.EntityType#getEntityLinkStrategy(java.lang.String)
@@ -119,21 +109,16 @@ public class AssignmentSupport {
 		public Map<String, Object> getValues(String entityReference,
 				String localeCode) {
 			Map<String, Object> values = new HashMap<String, Object>();
+
 			Assignment assn = (Assignment) sakaiProxy.getEntity(entityReference);
 			ResourceLoader rl = new ResourceLoader("dash_entity");
 			if(assn != null) {
+				// {grade-type} {grade-max}
+				// {user-name} 
 				ResourceProperties props = assn.getProperties();
-				// "entity-type": "assignment"
-				values.put(EntityType.VALUE_ENTITY_TYPE, IDENTIFIER);
 				// "grade-type": ""
 				values.put(VALUE_GRADE_TYPE, assn.getContent().getTypeOfGradeString(assn.getContent().getTypeOfGrade()));
-				// "submission-type": ""
-				//values.put(VALUE_SUBMISSION_TYPE, Integer.toString(assn.getContent().getTypeOfSubmission()));
-				if(Assignment.SCORE_GRADE_TYPE == assn.getContent().getTypeOfGrade()) {
-					values.put(VALUE_MAX_GRADE, assn.getContent().getMaxGradePointDisplay());
-				}
-				// "calendar-time": 1234567890
-				values.put(VALUE_CALENDAR_TIME, assn.getDueTimeString());
+
 				try {
 					DateFormat df = DateFormat.getDateTimeInstance();
 					values.put(VALUE_NEWS_TIME, df.format(new Date(props.getTimeProperty(ResourceProperties.PROP_CREATION_DATE).getTime())));
@@ -146,6 +131,17 @@ public class AssignmentSupport {
 				} catch (EntityPropertyTypeException e) {
 					logger.warn("getValues(" + entityReference + "," + localeCode + ") EntityPropertyTypeException: " + e);
 				}
+				// "entity-type": "assignment"
+				values.put(EntityType.VALUE_ENTITY_TYPE, IDENTIFIER);
+				
+				
+				// "submission-type": ""
+				//values.put(VALUE_SUBMISSION_TYPE, Integer.toString(assn.getContent().getTypeOfSubmission()));
+				if(Assignment.SCORE_GRADE_TYPE == assn.getContent().getTypeOfGrade()) {
+					values.put(VALUE_MAX_GRADE, assn.getContent().getMaxGradePointDisplay());
+				}
+				// "calendar-time": 1234567890
+				values.put(VALUE_CALENDAR_TIME, assn.getDueTimeString());
 				// "description": "Long thing, markup, escaped",
 				values.put(VALUE_DESCRIPTION, assn.getContent().getInstructions());
 				// "title": "Assignment hoedown"
@@ -202,15 +198,11 @@ public class AssignmentSupport {
 			// TODO: create language bundle here or have SakaiProxy get the language bundle from assn??
 			ResourceLoader rl = new ResourceLoader("dash_entity");
 			Map<String, String> props = new HashMap<String, String>();
-			props.put(LABEL_CALENDAR_TIME, rl.getString("assignment.calendar.time"));
-			props.put(LABEL_NEWS_TIME, rl.getString("assignment.news.time"));
-			props.put(LABEL_USER_NAME, rl.getString("assignment.user.name"));
-			props.put(LABEL_GRADE_TYPE, rl.getString("assignment.grade.type"));
-			props.put(LABEL_MAX_GRADE, rl.getString("assignment.max.grade"));
-			props.put(LABEL_OPEN_TIME, rl.getString("assignment.open.time"));
-			props.put(LABEL_DUE_TIME, rl.getString("assignment.due.time"));
-			props.put(LABEL_CLOSE_TIME, rl.getString("assignment.close.time"));
+			props.put(LABEL_DATA, rl.getString("assignment.data"));
+			props.put(LABEL_METADATA, rl.getString("assignment.metadata"));
+			//props.put(LABEL_DESCRIPTION, rl.getString("assignment.description"));
 			//props.put(LABEL_ATTACHMENTS, rl.getString("assignment.attachments"));
+			
 			return props;
 		}
 
@@ -219,27 +211,30 @@ public class AssignmentSupport {
 		 */
 		public List<List<String>> getOrder(String entityReference, String localeCode) {
 			List<List<String>> order = new ArrayList<List<String>>();
-			List<String> valueList = new ArrayList<String>(Arrays.asList(VALUE_TITLE, VALUE_USER_NAME, VALUE_NEWS_TIME, VALUE_OPEN_TIME, VALUE_DUE_TIME, VALUE_CLOSE_TIME));
 			
-			for (String value : valueList)
-			{
-				List<String> section = new ArrayList<String>();
-				section.add(value);
-				order.add(section);
-			}		
 			List<String> section1 = new ArrayList<String>();
-			section1.add(VALUE_GRADE_TYPE);
-			section1.add(VALUE_MAX_GRADE);
+			section1.add(VALUE_TITLE);
 			order.add(section1);
+			
 			List<String> section2 = new ArrayList<String>();
-			section2.add(VALUE_DESCRIPTION);
+			section2.add(LABEL_DATA);
 			order.add(section2);
+			
 			List<String> section3 = new ArrayList<String>();
-			section3.add(VALUE_ATTACHMENTS);
+			section3.add(VALUE_DESCRIPTION);
 			order.add(section3);
+			
+			List<String> section4 = new ArrayList<String>();
+			section4.add(VALUE_ATTACHMENTS);
+			order.add(section4);
+			
 			List<String> section5 = new ArrayList<String>();
-			section5.add(VALUE_MORE_INFO);
+			section5.add(LABEL_METADATA);
 			order.add(section5);
+			
+			List<String> section6 = new ArrayList<String>();
+			section6.add(VALUE_MORE_INFO);
+			order.add(section6);
 
 			return order;
 		}
@@ -285,6 +280,11 @@ public class AssignmentSupport {
 			return false;
 		}
 		
+		public String getGroupTitle(int numberOfItems, String contextTitle) {
+			ResourceLoader rl = new ResourceLoader("dash_entity");
+			Object[] args = new Object[]{ numberOfItems, contextTitle };
+			return rl.getFormattedMessage("assignment.grouped.title", args );
+	}
 	}
 	
 	/**

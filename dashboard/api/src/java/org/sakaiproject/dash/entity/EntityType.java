@@ -169,6 +169,15 @@ public interface EntityType {
 	public String getString(String key, String dflt);
 
 	/**
+	 * Retrieve a localized string from the properties bundle suitable for use as the title 
+	 * of a grouped news item indicating that the grouped item represents some number of 
+	 * individual items of this entity type were added within the context.  
+	 * @param numberOfItems
+	 * @param contextTitle
+	 */
+	public String getGroupTitle(int numberOfItems, String contextTitle);
+
+	/**
 	 * Determine whether a user has permission to access a particular entity, using 
 	 * whichever parameters is appropriate for determining this permission.
 	 * @param sakaiUserId

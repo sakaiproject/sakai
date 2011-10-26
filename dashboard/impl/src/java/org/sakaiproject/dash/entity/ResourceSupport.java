@@ -107,6 +107,8 @@ public class ResourceSupport {
 	
 	public class ResourceEntityType implements EntityType {
 		
+		public static final String LABEL_RESOURCE_METADATA = "resource_metadata-label";
+		
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.dash.entity.EntityType#getIdentifier()
 		 */
@@ -182,8 +184,7 @@ public class ResourceSupport {
 			
 			Map<String, String> props = new HashMap<String, String>();
 			
-			props.put(LABEL_NEWS_TIME, rl.getString("resource.news.time"));
-			props.put(LABEL_USER_NAME, rl.getString("resource.user.name"));
+			props.put(LABEL_RESOURCE_METADATA, rl.getString("resource.metadata"));
 			
 			return props ;
 		}
@@ -193,12 +194,13 @@ public class ResourceSupport {
 		 */
 		public List<List<String>> getOrder(String entityReference, String localeCode) {
 			List<List<String>> order = new ArrayList<List<String>>();
+			
 			List<String> section0 = new ArrayList<String>();
 			section0.add(VALUE_TITLE);
 			order.add(section0);
+			
 			List<String> section1 = new ArrayList<String>();
-			section1.add(VALUE_NEWS_TIME);
-			section1.add(VALUE_USER_NAME);
+			section1.add(LABEL_RESOURCE_METADATA);
 			order.add(section1);
 			List<String> section2 = new ArrayList<String>();
 			section2.add(VALUE_DESCRIPTION);
@@ -235,6 +237,12 @@ public class ResourceSupport {
 			ResourceLoader rl = new ResourceLoader("dash_entity");
 			return rl.getString(key, dflt);
 		}
+		
+		public String getGroupTitle(int numberOfItems, String contextTitle) {
+			ResourceLoader rl = new ResourceLoader("dash_entity");
+			Object[] args = new Object[]{ numberOfItems, contextTitle };
+			return rl.getFormattedMessage("resource.grouped.title", args );
+	}
 	}
 
 
