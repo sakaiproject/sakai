@@ -456,6 +456,23 @@ public interface SakaiProxy {
 	 */
 	public boolean isProfileConversionEnabled();
 	
+	/**
+	 * Is the profile2.import flag set in sakai.properties?
+	 * If not set, defaults to false
+	 * 
+	 * <p>This will import profiles from a csv file specified by the profile2.import.csv property</p>
+	 * 
+	 * @return
+	 */
+	public boolean isProfileImportEnabled();
+	
+	/**
+	 * Get the path to the CSV file to import, specified by the profile2.import.csv property
+	 * 
+	 * @return
+	 */
+	public String getProfileImportCsvPath();
+	
 	
 	/**
 	 * Is the profile2.integration.twitter.enabled flag set in sakai.properties?

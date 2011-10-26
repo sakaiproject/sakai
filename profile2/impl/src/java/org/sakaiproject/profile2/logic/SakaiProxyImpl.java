@@ -980,6 +980,21 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
  	* {@inheritDoc}
  	*/
+	public boolean isProfileImportEnabled() {
+		return serverConfigurationService.getBoolean("profile2.import", ProfileConstants.SAKAI_PROP_PROFILE2_IMPORT_ENABLED);
+
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public String getProfileImportCsvPath() {
+		return serverConfigurationService.getString("profile2.import.csv", null);
+	}
+	
+	/**
+ 	* {@inheritDoc}
+ 	*/
 	public boolean isTwitterIntegrationEnabledGlobally() {
 		return serverConfigurationService.getBoolean("profile2.integration.twitter.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_TWITTER_INTEGRATION_ENABLED);
 	}

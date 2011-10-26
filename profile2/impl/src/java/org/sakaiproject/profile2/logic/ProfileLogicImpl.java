@@ -25,6 +25,7 @@ import lombok.Setter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
+import org.sakaiproject.profile2.conversion.ProfileConverter;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.exception.ProfileNotDefinedException;
 import org.sakaiproject.profile2.hbm.model.ProfileImageExternal;
@@ -372,121 +373,22 @@ public class ProfileLogicImpl implements ProfileLogic {
 		
 		log.info("Profile2: init()"); 
 		
-		//do we need to run the conversion utility?
+		//do we need to run the image conversion utility?
 		if(sakaiProxy.isProfileConversionEnabled()) {
-			convertProfile();
+			//run the profile image converter
+			converter.convertProfileImages();
+		}
+		
+		//do we need to import profiles?
+		if(sakaiProxy.isProfileImportEnabled()) {
+			
+			String csv = sakaiProxy.getProfileImportCsvPath();
+			//run the profile importer
+			converter.importProfiles(csv);
 		}
 	}
 	
-	//method to convert profileImages
-	private void convertProfile() {
-		log.info("Profile2: ==============================="); 
-		log.info("Profile2: Conversion utility starting up."); 
-		log.info("Profile2: ==============================="); 
-
-		//get list of users
-		List<String> allUsers = new ArrayList<String>(getAllSakaiPersonIds());
-		
-		if(allUsers.isEmpty()){
-			log.info("Profile2 conversion util: No SakaiPersons to process.");
-			return;
-		}
-		//for each, do they have a profile image record. if so, skip (perhaps null the SakaiPerson JPEG_PHOTO bytes?)
-		for(Iterator<String> i = allUsers.iterator(); i.hasNext();) {
-			String userUuid = (String)i.next();
-			
-			//get image record from dao directly, we don't need privacy/prefs here
-			ProfileImageUploaded uploadedProfileImage = dao.getCurrentProfileImageRecord(userUuid);
-			
-			if(uploadedProfileImage != null) {
-				log.info("Profile2 conversion util: ProfileImage record exists for " + userUuid + ". Nothing to do here, skipping to next section...");
-			} else {
-				log.info("Profile2 conversion util: No existing ProfileImage record for " + userUuid + ". Processing...");
-				
-				//get photo from SakaiPerson
-				byte[] image = sakaiProxy.getSakaiPersonJpegPhoto(userUuid);
-				
-				//if none, nothing to do
-				if(image == null || image.length == 0) {
-					log.info("Profile2 conversion util: No image binary to convert for " + userUuid + ". Skipping to next section...");
-				} else {
-					
-					//set some defaults for the image we are adding to ContentHosting
-					String fileName = "Profile Image";
-					String mimeType = "image/jpeg";
-					
-					//scale the main image
-					byte[] imageMain = ProfileUtils.scaleImage(image, ProfileConstants.MAX_IMAGE_XY, mimeType);
-					
-					//create resource ID
-					String mainResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileConstants.PROFILE_IMAGE_MAIN);
-					log.info("Profile2 conversion util: mainResourceId: " + mainResourceId);
-					
-					//save, if error, log and return.
-					if(!sakaiProxy.saveFile(mainResourceId, userUuid, fileName, mimeType, imageMain)) {
-						log.error("Profile2 conversion util: Saving main profile image failed.");
-						continue;
-					}
 	
-					/*
-					 * THUMBNAIL PROFILE IMAGE
-					 */
-					//scale image
-					byte[] imageThumbnail = ProfileUtils.scaleImage(image, ProfileConstants.MAX_THUMBNAIL_IMAGE_XY, mimeType);
-					 
-					//create resource ID
-					String thumbnailResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileConstants.PROFILE_IMAGE_THUMBNAIL);
-	
-					log.info("Profile2 conversion util: thumbnailResourceId:" + thumbnailResourceId);
-					
-					//save, if error, log and return.
-					if(!sakaiProxy.saveFile(thumbnailResourceId, userUuid, fileName, mimeType, imageThumbnail)) {
-						log.warn("Profile2 conversion util: Saving thumbnail profile image failed. Main image will be used instead.");
-						thumbnailResourceId = null;
-					}
-	
-					/*
-					 * SAVE IMAGE RESOURCE IDS
-					 */
-					uploadedProfileImage = new ProfileImageUploaded(userUuid, mainResourceId, thumbnailResourceId, true);
-					if(dao.addNewProfileImage(uploadedProfileImage)){
-						log.info("Profile2 conversion util: Binary image converted and saved for " + userUuid);
-					} else {
-						log.warn("Profile2 conversion util: Binary image conversion failed for " + userUuid);
-					}					
-					
-				}
-			} 
-			
-			//process any image URLs, if they don't already have a valid record.
-			ProfileImageExternal externalProfileImage = dao.getExternalImageRecordForUser(userUuid);
-			if(externalProfileImage != null) {
-				log.info("Profile2 conversion util: ProfileImageExternal record exists for " + userUuid + ". Nothing to do here, skipping...");
-			} else {
-				log.info("Profile2 conversion util: No existing ProfileImageExternal record for " + userUuid + ". Processing...");
-				
-				String url = sakaiProxy.getSakaiPersonImageUrl(userUuid);
-				
-				//if none, nothing to do
-				if(StringUtils.isBlank(url)) {
-					log.info("Profile2 conversion util: No url image to convert for " + userUuid + ". Skipping...");
-				} else {
-					externalProfileImage = new ProfileImageExternal(userUuid, url, null);
-					if(dao.saveExternalImage(externalProfileImage)) {
-						log.info("Profile2 conversion util: Url image converted and saved for " + userUuid);
-					} else {
-						log.warn("Profile2 conversion util: Url image conversion failed for " + userUuid);
-					}
-				}
-				
-			}
-			
-			log.info("Profile2 conversion util: Finished converting user profile for: " + userUuid);
-			//go to next user
-		}
-		
-		return;
-	}
 	
 	/**
 	 * Convenience method to map a SakaiPerson object onto a UserProfile object
@@ -610,5 +512,7 @@ public class ProfileLogicImpl implements ProfileLogic {
 	@Setter
 	private ProfileImageLogic imageLogic;
 	
+	@Setter
+	private ProfileConverter converter;
 	
 }

@@ -205,6 +205,8 @@ public class ProfileConstants {
 	public static final boolean SAKAI_PROP_PROFILE2_WALL_ENABLED = true; //profile2.wall.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_WALL_DEFAULT = false; //profile2.wall.default
 	public static final boolean SAKAI_PROP_PROFILE2_GOOGLE_INTEGRATION_ENABLED = false; //profile2.integration.google.enabled
+	public static final boolean SAKAI_PROP_PROFILE2_IMPORT_ENABLED = false; //profile2.import
+
 
 	
 	/*
