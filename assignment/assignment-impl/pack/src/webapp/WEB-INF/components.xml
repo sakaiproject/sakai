@@ -119,5 +119,14 @@
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 	</bean>
+
+    <bean id="org.sakaiproject.assignment.impl.AssignmentGradeInfoProvider"
+        class="org.sakaiproject.assignment.impl.AssignmentGradeInfoProvider"
+        singleton="true" lazy-init="false" init-method="init" destroy-method="destroy">
+        <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
+        <property name="gradebookExternalAssessmentService" ref="org_sakaiproject_service_gradebook_GradebookExternalAssessmentService"/>
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+    </bean>
   
 </beans>
