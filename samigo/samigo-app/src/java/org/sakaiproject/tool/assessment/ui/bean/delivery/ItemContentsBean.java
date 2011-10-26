@@ -408,7 +408,7 @@ public class ItemContentsBean implements Serializable {
 		Iterator iter = itemgradingdataArray.iterator();
 		int itemgradingsize =itemgradingdataArray.size();
 		int publishedanswer_notnull = 0;
-		if (getItemData().getTypeId().toString().equals("9")) 
+		if (getItemData().getTypeId().equals(TypeIfc.MATCHING)) 
 			// SAM-776: Every choice has to be filled in before a question is considered answered 
 		{
 			while (iter.hasNext()) {
@@ -427,9 +427,10 @@ public class ItemContentsBean implements Serializable {
 		else {
 		while (iter.hasNext()) {
 			ItemGradingData data = (ItemGradingData) iter.next();
-			if (getItemData().getTypeId().toString().equals("5")
-					|| getItemData().getTypeId().toString().equals("8")
-					|| getItemData().getTypeId().toString().equals("11")) // SAM-330
+			if (getItemData().getTypeId().equals(TypeIfc.ESSAY_QUESTION)
+					|| getItemData().getTypeId().equals(TypeIfc.FILL_IN_BLANK)
+					|| getItemData().getTypeId().equals(TypeIfc.FILL_IN_NUMERIC) // SAM-330
+					) 
 			{
 				if (data.getAnswerText() != null
 						&& !data.getAnswerText().equals("")) {
