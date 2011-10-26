@@ -1,4 +1,126 @@
 {
+ "title": "Title of event",
+ "calendar-time": "Oct 26, 2011 10:00:00 PM",
+ "news-time": "Oct 22, 2011 10:00:00 PM",
+
+ "order":    [
+    ["title"],
+    ["calendar_data-label"],
+    ["description"],
+    ["attachments"],
+    ["more-info"]
+ ],
+ "description": "\r\tDescription of an event, which is rich text.?\r",
+ "entity-type": "schedule",
+ "calendar_data-label":"Event date: {calendar-time}. Posted on {news-time}",
+ "attachments":    [
+          {
+       "attachment-target": "_blank",
+       "attachment-size": "2517",
+       "attachment-title": "Cameroon.gif",
+       "attachment-url": "http://localhost:8080/access/content/attachment/f971f216-625c-4e5e-9609-05313f836ae2/Schedule/709853ea-a2d3-4afb-9515-d47338ac4d90/Cameroon.gif",
+       "attachment-mimetype": "image/gif"
+    },
+          {
+       "attachment-target": "_blank",
+       "attachment-size": "2702",
+       "attachment-title": "Canada.gif",
+       "attachment-url": "http://localhost:8080/access/content/attachment/f971f216-625c-4e5e-9609-05313f836ae2/Schedule/f8564f93-c9c5-4580-9223-44fad375274c/Canada.gif",
+       "attachment-mimetype": "image/gif"
+    }
+ ],
+ "more-info": [   {
+    "info_link-title": "More info.",
+    "info_link-url": "http://localhost:8080/portal/directtool/18bfb8fb-e5d3-4c48-bfac-25c0c3c6e2a0?eventReference=/calendar/event/f971f216-625c-4e5e-9609-05313f836ae2/main/86dde4a5-6d0f-4ced-b4e2-31e52c68d993&panel=Main&sakai_action=doDescription&sakai.state.reset=true"
+ }]
+}
+
+
+{
+   "user-name": "Sakai Administrator",
+   "title": "Annc Title",
+   "order": [
+       [
+           "title"
+       ],
+       [
+           "announcement_data-label"
+       ],
+       [
+           "description"
+       ],
+       [
+           "attachments"
+       ],
+       [
+           "more-info"
+       ]
+   ],
+   "announcement_data-label": "Posted by {user-name} on {news-time}",
+   "news-time": "Oct 26, 2011 3:40:49 PM",
+   "description": "<p>\r\n\tBody of the Announcement.</p>\r\n<p>\r\n\tBody of the Announcement.</p>\r\n<p>\r\n\tBody of the Announcement.</p>\r\n<p>\r\n\tBody of the Announcement.</p>\r\n<p>\r\n\tBody of the Announcement.</p>",
+   "entity-type": "announcement",
+   "attachments": [
+       {
+           "attachment-target": "_blank",
+           "attachment-size": "2580",
+           "attachment-title": "Belgium.gif",
+           "attachment-url": "http://localhost:8080/access/content/attachment/f971f216-625c-4e5e-9609-05313f836ae2/Announcements/863d4067-2748-4742-8c27-52eafbe52ee2/Belgium.gif",
+           "attachment-mimetype": "image/gif"
+       },
+       {
+           "attachment-target": "_blank",
+           "attachment-size": "2628",
+           "attachment-title": "Brazil.gif",
+           "attachment-url": "http://localhost:8080/access/content/attachment/f971f216-625c-4e5e-9609-05313f836ae2/Announcements/6387b70c-0557-4a9e-9274-20dac707e082/Brazil.gif",
+           "attachment-mimetype": "image/gif"
+       }
+   ],
+   "more-info": [
+       {
+           "info_link-title": "More info.",
+           "info_link-url": "http://localhost:8080/access/announcement/msg/f971f216-625c-4e5e-9609-05313f836ae2/main/55518b9c-d8b1-4dec-9983-f0001fff95d6"
+       }
+   ]
+}
+
+
+
+{
+   "user-name": "Sakai Administrator",
+   "title": "Argentina.gif",
+   "order": [
+       [
+           "title"
+       ],
+       [
+           "resource_data-label"
+       ],
+       [
+           "description"
+       ],
+       [
+           "more-info"
+       ]
+   ],
+   "resource_data-label": "Posted by {user-name} on {news-time}",
+   "news-time": "Oct 14, 2011 9:12:48 AM",
+   "description": "Desription of a resource, which is flat text.",
+   "entity-type": "resource",
+   "more-info": [
+       {
+           "info_link-target": "_blank",
+           "info_link-mimetype": "image/gif",
+           "info_link-title": "Download this resource.",
+           "info_link-size": "2513",
+           "info_link-url": "http://localhost:8080/access/content/group/f971f216-625c-4e5e-9609-05313f836ae2/Argentina.gif"
+       }
+   ]
+}
+
+
+
+{
     "assignment_data-label": "Due: {due-time}. Accept until: {close-time}. {grade-type}. Max points: {grade-max}",
     "assignmentmetadata-label": "Posted by {user-name} on {news-time}. Assignment opened {open-time}.",
     "description-label": "Description",
