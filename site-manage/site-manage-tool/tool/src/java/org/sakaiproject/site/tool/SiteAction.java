@@ -2457,7 +2457,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put(STATE_TOOL_REGISTRATION_LIST, state
 					.getAttribute(STATE_TOOL_REGISTRATION_LIST));
 			context.put("selectedTools", orderToolIds(state, site_type,
-			        importableTools, false)); // String toolId's
+			        originalToolIds((List<String>) importableTools, state), false));
 			context.put("importSites", state.getAttribute(STATE_IMPORT_SITES));
 			context.put("importSitesTools", state
 					.getAttribute(STATE_IMPORT_SITE_TOOL));
@@ -4002,8 +4002,8 @@ public class SiteAction extends PagedResourceActionII {
 		Hashtable importTools = new Hashtable();
 
 		// the tools for current site
-		List selectedTools = (List) state
-				.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST); // String
+		List selectedTools = originalToolIds((List<String>) state
+				.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST), state); // String
 		// toolId's
 		if (selectedTools != null)
 		{
@@ -6161,7 +6161,22 @@ public class SiteAction extends PagedResourceActionII {
 		}
 	}
 
+	// replace fake tool ids with real ones. Don't duplicate, since several fake tool ids may appear for the same real one
+	// it's far from clear that we need to be using fake tool ids at all. But I don't know the code well enough
+	// to get rid of the fakes completely.
+	private List<String> originalToolIds(List<String>toolIds, SessionState state) {    
+		Set<String>found = new HashSet<String>();
+		List<String>rv = new ArrayList<String>();
 
+		for (String toolId: toolIds) {
+		    String origToolId = findOriginalToolId(state, toolId);
+		    if (!found.contains(origToolId)) {
+			    rv.add(origToolId);
+			    found.add(origToolId);
+		    }
+		}
+		return rv;
+	}
 
 	private String originalToolId(String toolId, String toolRegistrationId) {
 		String rv = null;
@@ -6189,7 +6204,7 @@ public class SiteAction extends PagedResourceActionII {
 				catch (Exception e)
 				{
 					// not the right tool id
-					M_log.debug(this + ".findOriginalToolId not matchign tool id = " + toolRegistrationId + " original tool id=" + toolId + e.getMessage(), e);
+					M_log.debug(this + ".findOriginalToolId not matching tool id = " + toolRegistrationId + " original tool id=" + toolId + e.getMessage(), e);
 				}
 			}
 			
@@ -7452,8 +7467,8 @@ public class SiteAction extends PagedResourceActionII {
 					if (select_import_tools(params, state)) {
 						Hashtable importTools = (Hashtable) state
 								.getAttribute(STATE_IMPORT_SITE_TOOL);
-						List selectedTools = (List) state
-								.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
+						List selectedTools = originalToolIds((List<String>) state
+								.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST), state);
 						importToolIntoSite(selectedTools, importTools,
 								existingSite);
 
