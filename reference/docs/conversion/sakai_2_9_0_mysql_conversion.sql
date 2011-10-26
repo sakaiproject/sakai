@@ -88,3 +88,49 @@ INSERT INTO SAM_ASSESSMETADATA_T (ASSESSMENTMETADATAID, ASSESSMENTID, LABEL,
      AND TYPEID='142' AND ISTEMPLATE=1),
       'lockedBrowser_isInstructorEditable', 'true')
 ;
+
+-- Profile2 v 1.5 conversion START
+
+-- PRFL-498 add the gravatar column, default to 0
+alter table PROFILE_PREFERENCES_T add USE_GRAVATAR bit not null DEFAULT false;
+
+-- PRFL-528 add the wall email notification column, default to 1
+alter table PROFILE_PREFERENCES_T add EMAIL_WALL_ITEM_NEW bit not null DEFAULT true;
+
+-- PRFL-388 add the worksite email notification column, default to 1
+alter table PROFILE_PREFERENCES_T add EMAIL_WORKSITE_NEW bit not null DEFAULT true;
+
+-- PRFL-513 add the wall privacy setting, default to 0
+alter table PROFILE_PRIVACY_T add MY_WALL int not null DEFAULT 0;
+
+-- PRFL-518 add profile wall items table
+create table PROFILE_WALL_ITEMS_T (
+	WALL_ITEM_ID bigint not null auto_increment,
+	USER_UUID varchar(99) not null,
+	CREATOR_UUID varchar(99) not null,
+	WALL_ITEM_TYPE integer not null,
+	WALL_ITEM_TEXT text not null,
+	WALL_ITEM_DATE datetime not null,
+	primary key (WALL_ITEM_ID)
+);
+
+create table PROFILE_WALL_ITEM_COMMENTS_T (
+	WALL_ITEM_COMMENT_ID bigint not null auto_increment,
+	WALL_ITEM_ID bigint not null,
+	CREATOR_UUID varchar(99) not null,
+	WALL_ITEM_COMMENT_TEXT text not null,
+	WALL_ITEM_COMMENT_DATE datetime not null,
+	primary key (WALL_ITEM_COMMENT_ID)
+);
+
+alter table PROFILE_WALL_ITEM_COMMENTS_T 
+	add index FK32185F67BEE209 (WALL_ITEM_ID), 
+	add constraint FK32185F67BEE209 
+	foreign key (WALL_ITEM_ID) 
+	references PROFILE_WALL_ITEMS_T (WALL_ITEM_ID);
+	
+-- PRFL-350 add the show online status column, default to 1
+alter table PROFILE_PREFERENCES_T add SHOW_ONLINE_STATUS bit not null DEFAULT true;
+alter table PROFILE_PRIVACY_T add ONLINE_STATUS int not null DEFAULT 0;
+
+-- Profile2 v 1.5 conversion END
