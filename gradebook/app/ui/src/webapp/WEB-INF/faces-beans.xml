@@ -46,6 +46,11 @@
 			<property-name>gradebookPermissionService</property-name>
 			<value>#{org_sakaiproject_service_gradebook_GradebookPermissionService}</value>
 		</managed-property>
+		<managed-property>
+			<description>Gradebook Externally Managed Assessment Service</description>
+			<property-name>gradebookExternalAssessmentService</property-name>
+			<value>#{org_sakaiproject_service_gradebook_GradebookExternalAssessmentService}</value>
+		</managed-property>
         <managed-property>
 			<property-name>configurationBean</property-name>
 			<value>#{configurationBean}</value>

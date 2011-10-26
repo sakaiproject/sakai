@@ -31,6 +31,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.service.gradebook.shared.UnknownUserException;
 import org.sakaiproject.tool.gradebook.Assignment;
@@ -520,6 +521,20 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     		if(!assignmentGradeRow.getAssociatedAssignment().isReleased() && !isInstructorView) 
     			i.remove();
     	}
+
+		i = gradeRows.iterator();
+		while (i.hasNext()) {
+			Assignment assignment = ((AssignmentGradeRow)i.next()).getAssociatedAssignment();
+			GradebookExternalAssessmentService gext = getGradebookExternalAssessmentService();
+			if (assignment.isExternallyMaintained()) {
+				if (gext.isExternalAssignmentGrouped(gradebook.getUid(), assignment.getExternalId())) {
+					if (!gext.isExternalAssignmentVisible(gradebook.getUid(), assignment.getExternalId(), getUserUid())) {
+						i.remove();
+					}
+				}
+			}
+		}
+
     	
     	if (!sortColumn.equals(Category.SORT_BY_WEIGHT)) {
 	    	Collections.sort(gradeRows, (Comparator)columnSortMap.get(sortColumn));

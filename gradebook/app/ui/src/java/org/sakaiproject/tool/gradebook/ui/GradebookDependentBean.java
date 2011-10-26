@@ -42,6 +42,7 @@ import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -167,6 +168,10 @@ public abstract class GradebookDependentBean extends InitializableBean {
 	
 	public GradebookPermissionService getGradebookPermissionService() {
 		return getGradebookBean().getGradebookPermissionService();
+	}
+
+	public GradebookExternalAssessmentService getGradebookExternalAssessmentService() {
+		return getGradebookBean().getGradebookExternalAssessmentService();
 	}
 
 	// Because these methods are referred to inside "rendered" tag attributes,
