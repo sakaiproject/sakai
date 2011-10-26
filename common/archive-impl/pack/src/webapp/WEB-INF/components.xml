@@ -29,6 +29,7 @@
 				<value>RWikiObjectService</value>
 				<value>DiscussionForumService</value>
 				<value>WebService</value>
+				<value>LessonBuilderEntityProducer</value>
 			</list>
 		</property>
 		<property name="mergeFilteredSakaiRoles">
