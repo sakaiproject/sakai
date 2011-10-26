@@ -112,14 +112,10 @@ table tr.newRow:hover {
     }
     
 h3.withNav {
-    float: left;
-    margin: 10px 0 0 0;
-    padding-top: 5px;
+    margin:0;
 }
 
 .pager {
-    margin: 10px 0 0 0;
-    padding: 3px;
     width: 95%;
     color: #aaa;
     text-align: right;
@@ -321,30 +317,37 @@ a.schedule-icon{
 .swf {
     background: url(../../../../library/image/sakai/shockwave.gif) center left no-repeat !important
 }
-#news td,#sched td{
+.news td,.sched td{
     padding: 3px 3px 3px 21px;
 }
-#sched td.date,#news td.date{
+.sched td.date,.news td.date{
     padding-left:5px;
     }
-#news .newRow td,#sched .newRow td{
+.news .newRow td,.sched .newRow td{
     padding:0
 }
-#news .one{
+.news .one{
     display:none;
 }
 
-#sched .one,#news .two{
+.sched .one,.news .two{
     width: 30%;
 }
-#sched .two, #sched .tab, #news .three,  #news .tab{
+.sched .two, .sched .tab, .news .three,  .news .tab{
     width: 40%;
 }
 
-#sched .three,#news .four{
+.sched .three,.news .four{
     width: 25%;
 }
 
-#sched .four,#news .five{
+.sched .four,.news .five{
     width: 5%;
 }    
+.listHeader {
+    margin-bottom:0px
+}
+.listHeader td{
+    border:2xp solid red  !important;
+    vertical-align:middle;
+}
