@@ -14,6 +14,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.exception.ProfileNotDefinedException;
 import org.sakaiproject.profile2.hbm.model.ProfileImageExternal;
@@ -44,6 +47,9 @@ public class ProfileConverter {
 	
 	@Setter
 	private ProfileDao dao;
+	
+	@Setter
+	private SecurityService securityService;
 	
 	@Setter
 	private ProfileImageLogic imageLogic;
@@ -250,6 +256,14 @@ public class ProfileConverter {
 			log.error("Profile2 importer: Couldn't find file: " + fnfe.getClass() + " : " + fnfe.getMessage());
 		}
         
+		//setup a security advisor so we can save profiles
+		SecurityAdvisor securityAdvisor = new SecurityAdvisor(){
+			public SecurityAdvice isAllowed(String userId, String function, String reference){
+				  return SecurityAdvice.ALLOWED;
+			}
+		};
+		enableSecurityAdvisor(securityAdvisor);
+		
         //process each
         for(ImportableUserProfile profile: list) {
 
@@ -279,8 +293,6 @@ public class ProfileConverter {
         			continue;
         		}
         		
-        		//TODO get a security advisor here
-        		
         		if(sakaiProxy.updateSakaiPerson(sp)) {
         			log.info("Profile saved for user: " + profile.getEid());
         		} else {
@@ -292,7 +304,7 @@ public class ProfileConverter {
         		continue;
         	}
         	
-        	//add official image, if set
+        	//add/update official image, if supplied in the CSV
         	if(StringUtils.isNotBlank(profile.getOfficialImageUrl())) {
         		if(imageLogic.saveOfficialImageUrl(uuid, profile.getOfficialImageUrl())) {
         			log.info("Official image saved for user: " + profile.getEid());
@@ -300,8 +312,8 @@ public class ProfileConverter {
         			log.error("Couldn't save official image for user: " + profile.getEid());
         		}
         	}
-        	
         }
+        disableSecurityAdvisor(securityAdvisor);
 		
 	}
 	
@@ -385,6 +397,20 @@ public class ProfileConverter {
 		sakaiPerson.setNotes(up.getPersonalSummary());
 		
 		return sakaiPerson;
+	}
+	
+	/**
+	 * Add the supplied security advisor to the stack for this transaction
+	 */
+	private void enableSecurityAdvisor(SecurityAdvisor securityAdvisor) {
+		securityService.pushAdvisor(securityAdvisor);
+	}
+
+	/**
+	 * Remove security advisor from the stack
+	 */
+	private void disableSecurityAdvisor(SecurityAdvisor advisor){
+		securityService.popAdvisor(advisor);
 	}
 	
 }
