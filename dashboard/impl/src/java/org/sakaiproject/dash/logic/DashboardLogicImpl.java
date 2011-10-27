@@ -77,6 +77,8 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	private static final long ONE_DAY = 1000L * 60L * 60L * 24L;
 	private static final long ONE_YEAR = ONE_DAY * 365L;
 	
+	public static final String MOTD_CONTEXT = "!site";
+	
 	// this will be a setting
 	protected long daysToHorizon = 30L;
 	public void setDaysToHorizon(long daysToHorizon) {
@@ -290,12 +292,24 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 	}
 	
-	public Context createContext(String contextId) {
-		
-		Site site = this.sakaiProxy.getSite(contextId);
-		Context context = new Context(site.getId(), site.getTitle(), site.getUrl());
-		dao.addContext(context);
-		return dao.getContext(contextId);
+	public Context createContext(String contextId) { 
+		Context context = null;
+		if (contextId.equals(MOTD_CONTEXT))
+		{
+			// add an exception for MOTD announcement, where the context id is "!site"
+			context = new Context("!site", "MOTD", this.sakaiProxy.getConfigParam("serverUr", "")+ "/access/content/public/MOTD%20files/");
+		}
+		else
+		{
+			// get the site id, title and url
+			Site site = this.sakaiProxy.getSite(contextId);
+			context = new Context(site.getId(), site.getTitle(), site.getUrl());
+		}
+		if (context != null)
+		{
+			dao.addContext(context);
+		}
+		return context;
 	}
 
 	public NewsItem createNewsItem(String title, Date newsTime,
