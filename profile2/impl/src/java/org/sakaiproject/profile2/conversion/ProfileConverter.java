@@ -202,7 +202,7 @@ public class ProfileConverter {
 	 * 
 	 * <p>Column headings must match EXACTLY the list above. They do not need to be in the same order, or even all present.
 	 * 
-	 * <p>Fields must be comma separated and each field surrounded with double quotes.
+	 * <p>Fields must be comma separated and each field surrounded with double quotes. There must be no spaces between fields.
 	 * 
 	 * <p>Only users that do not currently have a profile will be imported.
 	 * 
