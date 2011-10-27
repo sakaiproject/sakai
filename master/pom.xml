@@ -876,6 +876,9 @@
                                 <requireMavenVersion>
                                     <version>2.2.1</version>
                                 </requireMavenVersion>
+                                <requireJavaVersion>
+                                    <version>1.6</version>
+                                </requireJavaVersion>
                             </rules>
                         </configuration>
                     </execution>
