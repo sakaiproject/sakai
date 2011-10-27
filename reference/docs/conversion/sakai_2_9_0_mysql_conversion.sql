@@ -143,11 +143,17 @@ alter table PROFILE_PRIVACY_T add ONLINE_STATUS int not null DEFAULT 0;
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'sitestats.admin.view');
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'sitestats.view');
 
+-- SAK-20618 make Roleswap enabled by default
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'site.roleswap');
+
 -- for each realm that has a role matching something in this table, we will add to that role the function from this table
 CREATE TABLE PERMISSIONS_SRC_TEMP (ROLE_NAME VARCHAR(99), FUNCTION_NAME VARCHAR(99));
 
 INSERT INTO PERMISSIONS_SRC_TEMP values ('maintain','sitestats.view');
 INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','sitestats.view');
+
+INSERT INTO PERMISSIONS_SRC_TEMP values ('maintain','site.roleswap');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','site.roleswap');
 
 -- lookup the role and function numbers
 CREATE TABLE PERMISSIONS_TEMP (ROLE_KEY INTEGER, FUNCTION_KEY INTEGER);
