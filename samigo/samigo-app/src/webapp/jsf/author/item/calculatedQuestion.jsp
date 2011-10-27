@@ -77,14 +77,14 @@
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
 
-  <h:commandButton accesskey="#{authorMessages.a_cancel}" rendered="#{itemauthor.target=='assessment'}" value="#{authorMessages.button_cancel}" action="editAssessment" immediate="true">
+  <h:commandButton accesskey="#{authorMessages.a_cancel}" rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.cancel_action}" action="editAssessment" immediate="true">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
   </h:commandButton>
 
- <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{authorMessages.button_cancel}" action="editPool" immediate="true">
+ <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{commonMessages.cancel_action}" action="editPool" immediate="true">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
  </h:commandButton>
@@ -150,6 +150,11 @@
    </samigo:wysiwyg>
 
   </h:panelGrid>
+  
+  <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="Extract" action="#{itemauthor.currentItem.extractFromInstructions}" styleClass="active">
+  </h:commandButton>
+  
+  
   </div>
 
   <!-- 2a ATTACHMENTS -->
@@ -160,7 +165,7 @@
 <div class="tier2">
   <!-- display existing pairs -->
 
-<h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="pairs" value="#{itemauthor.currentItem.matchItemBeanList}" var="pair">
+<h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="pairs" value="#{itemauthor.currentItem.matchItemBeanVariableList}" var="variable">
       
       <h:column>
         <f:facet name="header">
@@ -168,35 +173,37 @@
           <h:outputText value=""  />
         </f:facet>
 
-          <h:outputText value="#{pair.sequence}"  />
+          <h:outputText value="#{variable.sequence}"  />
       </h:column>
 
       <h:column>
         <f:facet name="header">
           <h:outputText value="#{authorMessages.calc_question_varname_col}"  />
         </f:facet>
-          <h:outputText escape="false" value="#{pair.choice}"  />
+          <h:outputText escape="false" value="#{variable.choice}"  />
       </h:column>
 
       <h:column>
         <f:facet name="header">
           <h:outputText value="#{authorMessages.calc_question_min}"  />
         </f:facet>
-          <h:outputText escape="false" value="#{pair.calculatedQuestionVariableMin}" />
+          <h:inputText required="true" value="#{variable.calculatedQuestionVariableMin}" />
       </h:column>
 
       <h:column>
         <f:facet name="header">
           <h:outputText value="#{authorMessages.calc_question_max}"  />
         </f:facet>
-          <h:outputText escape="false" value="#{pair.calculatedQuestionVariableMax}" />
+          <h:inputText required="true" value="#{variable.calculatedQuestionVariableMax}" />
       </h:column>
 
       <h:column>
         <f:facet name="header">
           <h:outputText value="#{authorMessages.calc_question_dec}"  />
         </f:facet>
-          <h:outputText escape="false" value="#{pair.calculatedQuestionVariableDecimalPlaces}" />
+		  <h:selectOneMenu id="assignToPart" value="#{variable.calculatedQuestionVariableDecimalPlaces}">
+     		<f:selectItems  value="#{itemauthor.decimalPlaceList}" />
+  		</h:selectOneMenu>
       </h:column>
 
       <h:column>
@@ -206,29 +213,63 @@
 
      <h:panelGrid>
      <h:panelGroup>
-<h:commandLink rendered="#{itemauthor.currentItem.currentMatchPair.sequence != pair.sequence}" id="modifylink" immediate="true" action="#{itemauthor.currentItem.editVariablePair}">
-  <h:outputText id="modifytext" value="#{authorMessages.button_edit}"/>
-  <f:param name="sequence" value="#{pair.sequence}"/>
-</h:commandLink>
 
-          <h:outputText value="#{authorMessages.matching_currently_editing}" rendered="#{itemauthor.currentItem.currentMatchPair.sequence== pair.sequence}"/>
-          <h:outputText value=" #{authorMessages.separator} " rendered="#{itemauthor.currentItem.currentMatchPair.sequence != pair.sequence}"/>
-
-<h:commandLink id="removelink" immediate="true" action="#{itemauthor.currentItem.removeVariablePair}" rendered="#{itemauthor.currentItem.currentMatchPair.sequence != pair.sequence}">
-  <h:outputText id="removetext" value="#{authorMessages.button_remove}"/>
-  <f:param name="sequence" value="#{pair.sequence}"/>
-</h:commandLink>
      </h:panelGroup>
      </h:panelGrid>
       </h:column>
 
      </h:dataTable>
-<h:outputLabel value="<p>#{authorMessages.no_variables_defined}</p>" rendered="#{itemauthor.currentItem.matchItemBeanList eq '[]'}"/>
+<h:outputLabel value="<p>#{authorMessages.no_variables_defined}</p>" rendered="#{itemauthor.currentItem.matchItemBeanVariableList eq '[]'}"/>
+
+<h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="formulas" value="#{itemauthor.currentItem.matchItemBeanFormulaList}" var="formula">
+      <h:column>
+        <f:facet name="header">
+          
+          <h:outputText value=""  />
+        </f:facet>
+
+          <h:outputText value="#{formula.sequence}"  />
+      </h:column>
+
+      <h:column>
+        <f:facet name="header">
+          <h:outputText value="#{authorMessages.calc_question_formulaname_col}"  />
+        </f:facet>
+          <h:outputText escape="false" value="#{formula.choice}"  />
+      </h:column>
+
+      <h:column>
+        <f:facet name="header">
+          <h:outputText value="#{authorMessages.calc_question_formula_col}"  />
+        </f:facet>
+		   <samigo:wysiwyg rows="140" value="#{formula.calculatedQuestionFormula}" hasToggle="no">
+		     <f:validateLength maximum="60000"/>
+		   </samigo:wysiwyg>
+      </h:column>
+      
+      <h:column>
+        <f:facet name="header">
+          <h:outputText value="#{authorMessages.calc_question_tolerance}"  />
+        </f:facet>
+          <h:inputText required="true" value="#{formula.calculatedQuestionFormulaTolerance}"  />
+      </h:column>
+      
+      <h:column>
+        <f:facet name="header">
+          <h:outputText value="#{authorMessages.calc_question_dec}"  />
+        </f:facet>
+		  <h:selectOneMenu id="assignToPart" value="#{formula.calculatedQuestionFormulaDecimalPlaces}">
+     		<f:selectItems  value="#{itemauthor.decimalPlaceList}" />
+  		</h:selectOneMenu>
+          
+      </h:column>
+</h:dataTable>
+<h:outputLabel value="<p>#{authorMessages.no_formulas_defined}</p>" rendered="#{itemauthor.currentItem.matchItemBeanFormulaList eq '[]'}"/>
 
 </div>
 
         <!-- Entry for Variables -->
-<div class="tier2">
+<div class="tier2" style="display:none;">
 	<h:panelGrid border="0" columns="8" cellspacing="3">
 		
 		<h:outputText value="#{authorMessages.calc_question_varname}"/>

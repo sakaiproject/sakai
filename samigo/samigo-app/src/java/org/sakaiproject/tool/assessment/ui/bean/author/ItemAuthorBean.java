@@ -673,6 +673,14 @@ public class ItemAuthorBean
    * @return ArrayList of model SelectItems
    */
 
+  public List<SelectItem> getDecimalPlaceList() {
+	  List<SelectItem> options = new ArrayList<SelectItem>();
+	  for (int i = 0; i < 10; i++) {
+		  SelectItem item = new SelectItem(i+"", i+"", "");
+		  options.add(item);
+	  }
+	  return options;
+  }
 // TODO use sectionBean.getsectionNumberList when its ready
 
   public ArrayList getSectionSelectList() {

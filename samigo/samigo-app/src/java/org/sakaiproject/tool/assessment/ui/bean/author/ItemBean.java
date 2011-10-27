@@ -32,6 +32,8 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.sakaiproject.util.ResourceLoader;
 
@@ -44,6 +46,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService; 
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoices;
@@ -672,6 +675,51 @@ public class ItemBean
     this.matchItemBeanList= list;
   }
 
+  public List<MatchItemBean> getMatchItemBeanVariableList() {
+	  List<MatchItemBean> results = new ArrayList<MatchItemBean>();
+	  
+	  String instructions = this.getInstruction();
+	  GradingService gs = new GradingService();
+	  List<String> variables = gs.extractVariables(instructions);
+	  List<String> alreadyAdded = new ArrayList<String>();
+	  
+	  // look through all MatchItemBeans and return only the beans that are variables
+	  ArrayList<MatchItemBean> beans = this.getMatchItemBeanList();
+	  for (MatchItemBean bean : beans) {
+		  for (String variable : variables) {
+			  if (bean.getChoice().equals(variable)) {
+				  if (!alreadyAdded.contains(variable)) {
+					  results.add(bean);
+					  alreadyAdded.add(variable);
+				  }
+			  }
+		  }
+	  }
+	  return results;
+  }
+  
+  public List<MatchItemBean> getMatchItemBeanFormulaList() {
+	  List<MatchItemBean> results = new ArrayList<MatchItemBean>();
+	  
+	  String instructions = this.getInstruction();
+	  GradingService gs = new GradingService();
+	  List<String> formulas = gs.extractFormulas(instructions);
+	  List<String> alreadyAdded = new ArrayList<String>();
+	  
+	  // look through all MatchItemBeans and return only the beans that are formulas
+	  ArrayList<MatchItemBean> beans = this.getMatchItemBeanList();
+	  for (MatchItemBean bean : beans) {
+		  for (String formula : formulas) {
+			  if (bean.getChoice().equals(formula)) {
+				  if (!alreadyAdded.contains(formula)) {
+					  results.add(bean);
+					  alreadyAdded.add(formula);
+				  }
+			  }
+		  }
+	  }
+	  return results;
+  }
 
   public ArrayList getMatchItemBeanList()
   {
@@ -1924,4 +1972,67 @@ public class ItemBean
 			} 
 		}
 	}
+	
+	public void extractFromInstructions() {
+		extractFormulasFromInstructions();
+		extractVariablesFromInstructions();
+	}
+	
+	private void extractFormulasFromInstructions() {
+		  String instructions = this.getInstruction();
+		  GradingService gs = new GradingService();
+		  List<String> formulas = gs.extractFormulas(instructions);
+		  
+		  // add any missing variables
+		  ArrayList<MatchItemBean> beans = this.getMatchItemBeanList();
+		  for (String formula : formulas) {
+			  boolean found = false;
+			  for (MatchItemBean bean : beans) {
+				  if (bean.getChoice().equals(formula)) {
+					  found = true;
+					  break;
+				  }
+			  }
+			  if (!found) {
+      		  MatchItemBean newBean = new MatchItemBean();
+      		  newBean.setChoice(formula);
+      		  newBean.setMatch("0|0.1,0"); //formula|tolerance,decimalplaces
+              newBean.setIsCorrect(Boolean.TRUE);
+              newBean.setSequence(new Long(beans.size()+1));
+      		  beans.add(newBean);				  
+			  }
+		  }		    		
+	}
+	
+	/**
+	 * extractVariablesFromInstructions examines the question instructions, pulls 
+	 * any variables that are not already defined as MatchItemBeans and adds them
+	 * to the list.
+	 */
+	  private void extractVariablesFromInstructions() {
+		  String instructions = this.getInstruction();
+		  GradingService gs = new GradingService();
+		  List<String> variables = gs.extractVariables(instructions);
+		  
+		  // add any missing variables
+		  ArrayList<MatchItemBean> beans = this.getMatchItemBeanList();
+		  for (String variable : variables) {
+			  boolean found = false;
+			  for (MatchItemBean bean : beans) {
+				  if (bean.getChoice().equals(variable)) {
+					  found = true;
+					  break;
+				  }
+			  }
+			  if (!found) {
+        		  MatchItemBean newBean = new MatchItemBean();
+        		  newBean.setChoice(variable);
+                  String varRange = "0|0,0"; // min|max,decimalplaces
+                  newBean.setMatch(varRange);
+                  newBean.setIsCorrect(Boolean.TRUE);
+                  newBean.setSequence(new Long(beans.size()+1));
+        		  beans.add(newBean);				  
+			  }
+		  }		    
+	  }
 }
