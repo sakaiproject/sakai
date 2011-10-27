@@ -151,7 +151,7 @@
 
   </h:panelGrid>
   
-  <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="Extract" action="#{itemauthor.currentItem.extractFromInstructions}" styleClass="active">
+  <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{authorMessages.calc_question_extract_button}" action="#{itemauthor.currentItem.extractFromInstructions}" styleClass="active">
   </h:commandButton>
   
   
@@ -161,10 +161,9 @@
   <%@ include file="/jsf/author/item/attachment.jsp" %>
 
   <!-- 3 ANSWER -->
-  <div class="longtext"> <h:outputLabel value="#{authorMessages.create_calc_pairing} " /></div>
+<!-- display variables -->
+<div class="longtext"> <h:outputLabel value="#{authorMessages.create_calc_variable} " /></div>
 <div class="tier2">
-  <!-- display existing pairs -->
-
 <h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="pairs" value="#{itemauthor.currentItem.matchItemBeanVariableList}" var="variable">
       
       <h:column>
@@ -220,7 +219,11 @@
 
      </h:dataTable>
 <h:outputLabel value="<p>#{authorMessages.no_variables_defined}</p>" rendered="#{itemauthor.currentItem.matchItemBeanVariableList eq '[]'}"/>
+</div>
 
+<!-- display formulas -->
+<div class="longtext"> <h:outputLabel value="#{authorMessages.create_calc_formula} " /></div>
+<div class="tier2">
 <h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="formulas" value="#{itemauthor.currentItem.matchItemBeanFormulaList}" var="formula">
       <h:column>
         <f:facet name="header">
