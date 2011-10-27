@@ -2036,6 +2036,61 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   }
   
   /**
+   * looks through a block of text for anything that is encoded as a formula
+   * and returns a list of any matches.  A formula is enclosed in {{ }}.
+   * <p>For example, if the passed parameter is
+   * {a} + {b} = {{{a} + {b}|0,0.1}}, the resulting list would contain
+   * one entry, with a string of {a} + {b}|0,0.1
+   * @param text contents to be searched
+   * @return a list of matching formulas.  If no formulas are found, the list will be empty.
+   */
+  public List<String> extractFormulas(String text) {
+	  List<String> formulas = new ArrayList<String>();
+	  if (text == null || text.length() == 0) {
+		  return formulas;
+	  }
+	  
+	  Pattern formulaPattern = Pattern.compile("\\{\\{\\w\\}\\}");
+	  Matcher formulaMatcher = formulaPattern.matcher(text);
+	  while (formulaMatcher.find()) {
+		  String formula = formulaMatcher.group(0);
+		  formula = formula.substring(2, formula.length() - 2); //strip out curly braces
+		  // now add these to a formula list
+		  formulas.add(formula);
+	  }
+	  return formulas;
+  }
+  
+  /**
+   * looks through a block of text for anything that is encoded as a variable and returns
+   * a list of any matches.  A variable is enclosed in { }.  Since variables are very similar
+   * to formulas, variables that are also formulas are not returned.
+   * <p>For example, if the passed parameter is
+   * {a} + {b} = {{{a} + {b}|0,0.1}}, the resulting list would contain
+   * two etnries, with strings of "a" and "b"
+   * @param text content to be searched
+   * @return a list of matching variables.  If no variables are found, the list will be empty
+   */
+  public List<String> extractVariables(String text) {
+	  List<String> variables = new ArrayList<String>();
+	  if (text == null || text.length() == 0) {
+		  return variables;
+	  }
+	  
+	  List<String> formulas = this.extractFormulas(text);
+	  Pattern variablePattern = Pattern.compile("(\\{\\w\\})");
+	  Matcher variableMatcher = variablePattern.matcher(text);
+	  while (variableMatcher.find()) {
+		  String variable = variableMatcher.group(0);
+          variable = variable.substring(1, variable.length() - 1); // strip out curly braces
+          if (!formulas.contains(variable)) {
+        	  variables.add(variable);
+          }
+	  }
+	  return variables;	  
+  }
+  
+  /**
    * CALCULATED_QUESTION
    * This is a busy method. It does three things:
    * 1. It removes the answer expressions ie. {x+y} from the question text. This value is
@@ -2053,6 +2108,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    */
   public ArrayList extractCalcQAnswersArray(HashMap answerList, ItemDataIfc item, Long gradingId, String agentId)
   {
+	  final String FUNCTION_BEGIN = "{{";
+	  final String FUNCTION_END = "}}";
 	  ArrayList texts = new ArrayList();
 	  HashMap variableRangeMap = buildVariableRangeMap(item);
 	  
@@ -2067,12 +2124,12 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		  	int sequence = 1; // order the answers appear in the question
 		  	// This loops through the question searching for the {} pairs...
 		  	boolean continueParse = true;
-		    while ((alltext.indexOf("{") > -1) && continueParse) {
-		      int alltextLeftIndex = alltext.indexOf("{");
-		      int alltextRightIndex = alltext.indexOf("}");
+		    while ((alltext.indexOf(FUNCTION_BEGIN) > -1) && continueParse) {
+		      int alltextLeftIndex = alltext.indexOf(FUNCTION_BEGIN);
+		      int alltextRightIndex = alltext.indexOf(FUNCTION_END);
 	
 		      // This is the "(x+y)/z|2,2" string
-		      String rawAnswerText = alltext.substring(alltextLeftIndex+1, alltextRightIndex);
+		      String rawAnswerText = alltext.substring(alltextLeftIndex + FUNCTION_BEGIN.length(), alltextRightIndex);
 		      String allAnswerText = defaultVarianceAndDecimal(rawAnswerText); // sets defaults
 		      
 		      String answerExpression = getAnswerExpression(allAnswerText); // This is just "(x+y)/z"
@@ -2107,7 +2164,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 			      
 			      // Construct the question text from the characters not inside of {}'s
 			      String tmp = alltext.substring(0, alltextLeftIndex);
-			      alltext = alltext.substring(alltextRightIndex + 1);
+			      alltext = alltext.substring(alltextRightIndex + FUNCTION_END.length());
 			      texts.add(tmp);
 			      // there are no more "}", exit loop
 			      if (alltextRightIndex == -1) {
@@ -2220,8 +2277,11 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  if (item.getInstruction() == null) return null; // because it should be set up already in item
 	  
 	  String questionText = item.getInstruction();
-	  String openBrackets = "\\[\\[";
-	  String closeBrackets = "\\]\\]";
+//	  String openBrackets = "\\[\\[";
+//	  String closeBrackets = "\\]\\]";
+	  
+	  String openBrackets = "\\{";
+	  String closeBrackets = "\\}";
 	  
 	  Iterator i = variableValueMap.entrySet().iterator();
 	  while(i.hasNext())
@@ -2233,7 +2293,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		  		  
 		  String variableValue = entry.getValue().toString();
 		  
-		  if ((questionText.indexOf("[[") > -1) && (questionText.indexOf("]]") > -1))
+		  if ((questionText.indexOf("{") > -1) && (questionText.indexOf("}") > -1))
 		  {
 			  String varPattern = openBrackets + entry.getKey() + closeBrackets;
 			  questionText = questionText.replaceAll(varPattern, variableValue);
@@ -2294,6 +2354,9 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  HashMap variableRangeMap = new HashMap();
 	  
 	  // Loop through each VarName
+	  String instructions = item.getInCorrectItemFeedback();
+	  List<String> variables = this.extractVariables(instructions);
+	  
 	  Iterator varNameIter = item.getItemTextArraySorted().iterator();
 	  while (varNameIter.hasNext())
 	  {
@@ -2303,7 +2366,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		  while (rangeIter.hasNext())
 		  {
 		      AnswerIfc range = (AnswerIfc) rangeIter.next();
-		      if (!(range.getLabel() == null)) { // answer records and variable records are in the same set
+		      if (!(range.getLabel() == null) && variables.contains(range.getLabel())) { // answer records and variable records are in the same set
 			      // TODO: this is a hack. Recycling the matching sturcture we pair A(65) with 1, B(66) with 2, ...
 			      if (((range.getLabel().charAt(0)-64) == varName.getSequence()) && range.getText().contains("|")) {
 			    	  variableRangeMap.put(varName.getText(), range.getText());
