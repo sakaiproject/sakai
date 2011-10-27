@@ -29,6 +29,9 @@ import java.util.Date;
 
 public interface SakaiPerson extends EduPerson
 {
+	
+	public static final String PROFILE_SAVE_PERMISSION = "profile.save";
+	
 	/**
 	 * Person's pictureUrl, url to user picture provided.
 	 * 
