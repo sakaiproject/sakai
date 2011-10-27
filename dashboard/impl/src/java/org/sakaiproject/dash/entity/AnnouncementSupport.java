@@ -15,6 +15,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementService;
+import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.logic.DashboardLogic;
@@ -27,10 +28,14 @@ import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.message.api.Message;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 
 /**
  * THIS WILL BE MOVED TO THE ANNOUNCEMENT PROJECT IN SAKAI CORE ONCE THE INTERFACE IS MOVED TO KERNEL
@@ -54,6 +59,11 @@ public class AnnouncementSupport{
 	public void setAnnouncementService(AnnouncementService announcementService) {
 		this.announcementService = announcementService;
 	}
+	
+	protected EntityManager entityManager;
+	public void setEntityManager(EntityManager entityManager) {
+		this.entityManager = entityManager;
+	}
 
 	public static final String IDENTIFIER = "announcement";
 	
@@ -65,6 +75,7 @@ public class AnnouncementSupport{
 		this.dashboardLogic.registerEventProcessor(new AnnouncementRemoveAnyEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new AnnouncementRemoveOwnEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new AnnouncementUpdateTitleEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new AnnouncementUpdateAccessEventProcessor());
 	}
 	
 	public Date getReleaseDate(String entityReference) {
@@ -245,20 +256,52 @@ public class AnnouncementSupport{
 			return false;
 		}
 		
+		/**
+		 * Get the channel id from a message reference.
+		 */
+		private String getChannelIdFromReference(String messageReference)
+		{
+			// "crack" the reference (a.k.a dereference, i.e. make a Reference)
+			// and get the event id and channel reference
+			Reference ref = entityManager.newReference(messageReference);
+			String channelId = announcementService.channelReference(ref.getContext(), ref.getContainer());
+			return channelId;
+		} // getChannelIdFromReference
+		
 		public boolean isUserPermitted(String sakaiUserId, String accessPermission,
 				String entityReference, String contextId) {
-			// use the message access checking for now
-			// use message read permission
-			List users = sakaiProxy.unlockUsers(accessPermission, sakaiProxy.getSiteReference(contextId));
-			for (Object user : users)
+			boolean rv = false;
+			
+			String channelId = getChannelIdFromReference(entityReference);
+			if (announcementService.allowGetChannel(channelId))
 			{
-				if (sakaiUserId.equals(((User) user).getId()))
+				try
 				{
-					// user can submit
-					return true;
+					AnnouncementChannel c = announcementService.getAnnouncementChannel(channelId);
+					List<Message> messages = c.getMessages(null, true);
+					if (messages != null)
+					{
+						for (Message m : messages)
+						{
+							if (m.getReference().equals(entityReference))
+							{
+								rv = true;
+								break;
+							}
+						}
+					}
+				}
+				catch (IdUnusedException e)
+				{
+					logger.debug("isUserPermitted IdUnusedException: cannot find announcement channel id=" + channelId);
+				}
+				catch (PermissionException e)
+				{
+					logger.debug("isUserPermitted PermissionException: cannot get announcement channel id=" + channelId);
 				}
 			}
-			return false;
+			
+			return rv;
 		}
 
 		public String getString(String key, String dflt) {
@@ -425,6 +468,47 @@ public class AnnouncementSupport{
 				
 				// update calendar item title
 				dashboardLogic.reviseCalendarItemsTitle(annc.getReference(), title);
+			}
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug("removing news links and news item for " + event.getResource());
+			}
+
+		}
+
+	}
+	
+	/**
+	 * Inner Class: AnnouncementUpdateAccessEventProcessor
+	 */
+	public class AnnouncementUpdateAccessEventProcessor implements EventProcessor {
+		
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#getEventIdentifer()
+		 */
+		public String getEventIdentifer() {
+			
+			return SakaiProxy.EVENT_ANNC_UPDATE_ACCESS;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
+		 */
+		public void processEvent(Event event) {
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug("removing calendar links and calendar item for " + event.getResource());
+			}
+			Entity entity = sakaiProxy.getEntity(event.getResource());
+			
+			if(entity != null && entity instanceof AnnouncementMessage) {
+				// get the announcement entity
+				AnnouncementMessage annc = (AnnouncementMessage) entity;
+				String anncReference = annc.getReference();
+				
+				// update the calendar/news item links according to current announcement
+				dashboardLogic.updateNewsLinks(anncReference);
+				dashboardLogic.updateCalendarLinks(anncReference);
 			}
 			
 			if(logger.isDebugEnabled()) {

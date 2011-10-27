@@ -15,6 +15,7 @@ import java.util.TimeZone;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
+import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarService;
@@ -643,6 +644,23 @@ public class ScheduleSupport{
 			if(logger.isDebugEnabled()) {
 				logger.debug("revising calendar item for " + event.getResource());
 			}
+			
+			Entity entity = sakaiProxy.getEntity(event.getResource());
+			
+			if(entity != null && entity instanceof AnnouncementMessage) {
+				// get the calendar event entity
+				CalendarEvent cEvent = (CalendarEvent) entity;
+				String cReference = cEvent.getReference();
+				
+				// update the calendar/news item links according to current announcement
+				dashboardLogic.updateNewsLinks(cReference);
+				dashboardLogic.updateCalendarLinks(cReference);
+			}
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug("removing news links and news item for " + event.getResource());
+			}
+
 
 		}
 	
