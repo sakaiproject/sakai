@@ -215,7 +215,8 @@ h3.withNav {
     margin-top:5px;
     border-top:1px solid #ccc;
 }
-.moreInfo {
+ul.moreInfo {
+    list-style:none;
     position:absolute;
     top:15px;
     right:10px;

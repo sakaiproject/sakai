@@ -111,37 +111,55 @@ var setupLinks = function(){
                 contentType: 'application/json',
                 dataType: 'json',
                 success: function(json){
+                    delimitLeft = "{";
+                    delimitRight = "}";
+                    
                     var results = '<div class=\"results\" style=\"display:none\">';
                     if (json.order.length !== 0) {
                     
+                    
                         $(json.order).each(function(i){
                             var o = this;
-                            if (o.length > 1) {
-                                results = results + '<p class=\"metadataLine\">'
-                                for (i = 0; i < o.length; i++) {
-                                
-                                    if (json[o[i].toString()]) {
-                                        if (json[o[i].toString() + '-label']) {
-                                            var label = json[o[i].toString() + '-label']
-                                            var value = '<em>' + json[o[i].toString()] + '</em>'
-                                            results = results + '<span class=\"data\">' + label.replace('{0}', value) + ' </span>';
-                                        }
-                                        else {
-                                            results = results + '<span class=\"data\">' + json[o[i].toString()] + ' </span>';
+                            var w = o.toString();
+                            
+                            if (get_type(json[w]) === "String") {
+                                // a string
+                                if (json[w].split(delimitLeft).length - 1 > 0) {
+                                    // a string that has substitions, replace them
+                                    var endString = json[w];
+                                    var arr = json[w].split(delimitRight);
+                                    for (i = 0; i < arr.length; i++) {
+                                        var arr2 = arr[i].split(delimitLeft);
+                                        if (arr2[1]) {
+                                            endString = endString.replace(delimitLeft + arr2[1] + delimitRight, json[arr2[1]]);
                                         }
                                     }
+                                    // should do a check here, to make sure that all the keys had a value
+                                    // increase a counter for each successful arr2[1] and compare in the end with
+                                    // the length of json[w].split('{').length - 1
+                                    results = results + '<div class="metadataLine">' + endString + '</div>';
                                 }
-                                results = results + '</p>';
+                                else 
+                                    if (json[w + '-label']) {
+                                        // a string with a label counterpart
+                                        results = results + '<h5>' + json[w + '-label'] + '</h5><div class="block">' + json[w] + '</div>';
+                                        
+                                    }
+                                    else {
+                                        if (w === 'title') {
+                                            // a title string
+                                            results = results + '<h4>' + json[w] + '</h4>';
+                                        }
+                                        else {
+                                            //all other strings
+                                            results = results + '<div class="block">' + json[w] + '</div>';
+                                        }
+                                    }
+                                
+                                
                             }
                             else {
-                                var w = o.toString()
-                                if (w === 'title' && json[w]) {
-                                    results = results + '<h4>' + json[w] + '</h4>';
-                                }
-                                
-                                if (w === 'description' && json[w]) {
-                                    results = results + '<div class=\"description\">' + json[w] + '</div>';
-                                }
+                                // is an object, treat special
                                 if (w === 'attachments' && json[w]) {
                                     var atts = "";
                                     for (i = 0; i < json[w].length; i++) {
@@ -156,35 +174,22 @@ var setupLinks = function(){
                                         var target = "";
                                         var size = "";
                                         if (json['more-info'][i]['info_link-target']) {
-                                            target = 'target=\"' + json['more-info'][i]['info_link-target'] + '\"'
+                                            target = 'target=\"' + json['more-info'][i]['info_link-target'] + '\"';
                                         }
                                         if (json['more-info'][i]['info_link-size']) {
-                                            size = ' (' + json['more-info'][i]['info_link-size'] + ') '
+                                            size = ' (' + json['more-info'][i]['info_link-size'] + ') ';
                                         }
                                         
-                                        moreinfo = moreinfo + '<a ' + target + ' href=\"' + json['more-info'][i]['info_link-url'] + '\">' + json['more-info'][i]['info_link-title'] + '<span class=\"size\">' + size + '</span></a>';
-                                        ;
+                                        moreinfo = moreinfo + '<li><a ' + target + ' href=\"' + json['more-info'][i]['info_link-url'] + '\">' + json['more-info'][i]['info_link-title'] + '<span class=\"size\">' + size + '</span></a></li>';
+                                        
                                     }
                                     
-                                    results = results + '<div class=\"moreInfo\">' + moreinfo + ' </div>';
+                                    results = results + '<ul class=\"moreInfo\">' + moreinfo + ' </ul>';
                                 }
-                                //ew
-                                if (w !== 'more-info' && w !== 'title' && w !== 'description' && w !== 'attachments' && json[w]) {
-                                    if (json[w].toString() + '-label') {
-                                        var label = json[[w].toString() + '-label']
-                                        var value = '<em>' + json[w].toString() + '</em>'
-                                        results = results + '<div class=\"unknownType\">' +  label.replace('{0}', value) + '</div>';
-                                    }
-                                    else {
-                                        results = results + '<div class=\"unknownType\">' +  value + '</div>';
-                                    }
-                                    
-                                }
-                                
                             }
                             
                         });
-                        results = results + '</div>'
+                        results = results + '</div>';
                     }
                     else {
                         results = results + 'This item type has not specified an order :( </div>';
@@ -204,8 +209,17 @@ var setupLinks = function(){
     });
 };
 
+
+
+function get_type(thing){
+    if (thing === null) {
+        return "[object Null]";
+    }
+    return Object.prototype.toString.call(thing).match(/^\[object (.*)\]$/)[1];
+}
+
 var setupLang = function(){
-    langdata = eval('(' + $('#lang-holder').text() + ')');
+    //langdata = eval('(' + $('#lang-holder').text() + ')');
 };
 
 var setupIcons = function(){
@@ -214,7 +228,7 @@ var setupIcons = function(){
         if (itemType === 'resource') {
             $(this).addClass(getFileExtension($(this).attr('href')));
         }
-        else{
+        else {
             $(this).addClass(itemType + '-icon');
         }
     });
