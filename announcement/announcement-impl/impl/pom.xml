@@ -69,6 +69,10 @@
             <version>2.6.2</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.site</groupId>
+            <artifactId>sakai-mergedlist-util</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
