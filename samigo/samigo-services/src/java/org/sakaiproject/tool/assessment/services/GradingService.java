@@ -87,6 +87,8 @@ import org.sakaiproject.tool.assessment.util.SamigoExpressionParser;
  */
 public class GradingService
 {
+	  private final String OPEN_BRACKET = "\\{";
+	  private final String CLOSE_BRACKET = "\\}";
   private static Log log = LogFactory.getLog(GradingService.class);
 
   /**
@@ -2050,7 +2052,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		  return formulas;
 	  }
 	  
-	  Pattern formulaPattern = Pattern.compile("\\{\\{\\w\\}\\}");
+	  Pattern formulaPattern = Pattern.compile(OPEN_BRACKET + OPEN_BRACKET + "\\w" + CLOSE_BRACKET + CLOSE_BRACKET);
 	  Matcher formulaMatcher = formulaPattern.matcher(text);
 	  while (formulaMatcher.find()) {
 		  String formula = formulaMatcher.group(0);
@@ -2078,7 +2080,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  }
 	  
 	  List<String> formulas = this.extractFormulas(text);
-	  Pattern variablePattern = Pattern.compile("(\\{\\w\\})");
+	  Pattern variablePattern = Pattern.compile("(" + OPEN_BRACKET + "\\w" + CLOSE_BRACKET + ")");
 	  Matcher variableMatcher = variablePattern.matcher(text);
 	  while (variableMatcher.find()) {
 		  String variable = variableMatcher.group(0);
@@ -2088,6 +2090,23 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
           }
 	  }
 	  return variables;	  
+  }
+  
+  private String replaceFormulaNameWithFormula(ItemDataIfc item, String formulaName) {
+	  String result = "";
+	  List<ItemTextIfc> items = item.getItemTextArray();
+	  for (ItemTextIfc itemText : items) {
+		  if (itemText.getText().equals(formulaName)) {
+			  List<AnswerIfc> answers = itemText.getAnswerArray();
+			  for (AnswerIfc answer : answers) {
+				  if (itemText.getSequence().equals(answer.getSequence())) {
+					  result = answer.getText();
+					  break;
+				  }
+			  }
+		  }
+	  }
+	  return result;
   }
   
   /**
@@ -2130,9 +2149,9 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	
 		      // This is the "(x+y)/z|2,2" string
 		      String rawAnswerText = alltext.substring(alltextLeftIndex + FUNCTION_BEGIN.length(), alltextRightIndex);
-		      String allAnswerText = defaultVarianceAndDecimal(rawAnswerText); // sets defaults
-		      
-		      String answerExpression = getAnswerExpression(allAnswerText); // This is just "(x+y)/z"
+		      String allAnswerText = replaceFormulaNameWithFormula(item, rawAnswerText);
+		      String answerExpression = defaultVarianceAndDecimal(allAnswerText); // sets defaults
+		      answerExpression = getAnswerExpression(answerExpression); // This is just "(x+y)/z"
 		      
 		      String answerData = getAnswerData(allAnswerText); // Example: "|2,2" (variance & dec display)
 		      int decimalPlaces = getAnswerDecimalPlaces(allAnswerText);
@@ -2261,7 +2280,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  Iterator i = variablesWithValues.entrySet().iterator();
 	  while(i.hasNext()) {
 		  Map.Entry entry = (Map.Entry)i.next();
-		  answerExpression = answerExpression.replaceAll(entry.getKey().toString(), entry.getValue().toString());
+		  answerExpression = answerExpression.replaceAll(OPEN_BRACKET + entry.getKey().toString() + CLOSE_BRACKET, entry.getValue().toString());
 	  }
 	  return answerExpression;
   }
@@ -2280,8 +2299,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 //	  String openBrackets = "\\[\\[";
 //	  String closeBrackets = "\\]\\]";
 	  
-	  String openBrackets = "\\{";
-	  String closeBrackets = "\\}";
+	  String openBrackets = OPEN_BRACKET;
+	  String closeBrackets = CLOSE_BRACKET;
 	  
 	  Iterator i = variableValueMap.entrySet().iterator();
 	  while(i.hasNext())
@@ -2354,7 +2373,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  HashMap variableRangeMap = new HashMap();
 	  
 	  // Loop through each VarName
-	  String instructions = item.getInCorrectItemFeedback();
+	  String instructions = item.getInstruction();
 	  List<String> variables = this.extractVariables(instructions);
 	  
 	  Iterator varNameIter = item.getItemTextArraySorted().iterator();
@@ -2362,16 +2381,19 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  {
 		  ItemTextIfc varName = (ItemTextIfc) varNameIter.next();
 		  
-		  Iterator rangeIter = varName.getAnswerArraySorted().iterator();
-		  while (rangeIter.hasNext())
-		  {
-		      AnswerIfc range = (AnswerIfc) rangeIter.next();
-		      if (!(range.getLabel() == null) && variables.contains(range.getLabel())) { // answer records and variable records are in the same set
-			      // TODO: this is a hack. Recycling the matching sturcture we pair A(65) with 1, B(66) with 2, ...
-			      if (((range.getLabel().charAt(0)-64) == varName.getSequence()) && range.getText().contains("|")) {
-			    	  variableRangeMap.put(varName.getText(), range.getText());
+		  // only look at variables for substitution, ignore formulas
+		  if (variables.contains(varName.getText())) {
+			  Iterator rangeIter = varName.getAnswerArraySorted().iterator();
+			  while (rangeIter.hasNext())
+			  {
+			      AnswerIfc range = (AnswerIfc) rangeIter.next();
+			      if (!(range.getLabel() == null) ) { // answer records and variable records are in the same set
+				      // TODO: this is a hack. Recycling the matching sturcture we pair A(65) with 1, B(66) with 2, ...
+				      if (((range.getLabel().charAt(0)-64) == varName.getSequence()) && range.getText().contains("|")) {
+				    	  variableRangeMap.put(varName.getText(), range.getText());
+				      }
 			      }
-		      }
+			  }
 		  }
 	  }
 	  
