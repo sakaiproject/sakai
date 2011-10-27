@@ -3940,7 +3940,9 @@ public class SimplePageBean {
 			
 			// 	make sure it's a URL
 			if (resource == null ||
-					!resource.getResourceType().equals("org.sakaiproject.content.types.urlResource") ||
+			    // copying resources does not preserve this field, so if we do this test, things won't
+			    // work in copied sites
+			    //		!resource.getResourceType().equals("org.sakaiproject.content.types.urlResource") ||
 					!resource.getContentType().equals("text/url")) {
 				return null;
 			}
