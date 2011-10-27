@@ -250,11 +250,34 @@ public class ItemAddListener
             item.setPoolOutcome("calculatedQuestion");
             return;
         }
-        ArrayList l=item.getMatchItemBeanList();
+        ArrayList<MatchItemBean> l=item.getMatchItemBeanList();
         if (l==null || l.size()==0){
             String noPairMatching_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","noMatchingPair_error");
             context.addMessage(null,new FacesMessage(noPairMatching_err));
             error=true;
+        }
+        
+        // Get all variables referenced inside of all formulas
+        GradingService gs = new GradingService();
+        List<String> formulaVariables = new ArrayList<String>();
+        for (MatchItemBean bean : item.getMatchItemBeanFormulaList()) {
+        	String formula = bean.getCalculatedQuestionFormula();
+        	formulaVariables.addAll(gs.extractVariables(formula));
+        }
+        
+        // Compare formula variables to the list of all instruction variables extracted 
+        // Before saving, remove variables that were created but are no longer in instructions or formulas
+        List<String> instructionVariables = gs.extractVariables(item.getInstruction());
+        List<String> formulas = gs.extractFormulas(item.getInstruction());
+        List<MatchItemBean> beans = item.getMatchItemBeanList();
+        Iterator<MatchItemBean> beanIter = beans.iterator();
+        while (beanIter.hasNext()) {
+        	MatchItemBean bean = beanIter.next();
+        	if (!instructionVariables.contains(bean.getChoice()) && 
+        			!formulaVariables.contains(bean.getChoice()) && 
+        			!formulas.contains(bean.getChoice())) {
+        		beanIter.remove();
+        	}
         }
         if(error) return;
     }
@@ -273,6 +296,32 @@ public class ItemAddListener
 	// CALCULATED_QUESTION - After we've saved let's make sure the calculated question answer expression
 	// will at least not cause an error that could easily be avoided
 	if (iType.equals(TypeFacade.CALCULATED_QUESTION.toString())) {
+		
+		// look through all of the formulas.  Examine the variables that they reference
+		// return an error if the formula references a variable that has not been defined
+		// in the instructions
+		String instructions = item.getInstruction();
+		GradingService gs = new GradingService();
+		List<String> variables = gs.extractVariables(instructions);
+		List<String> formulas = gs.extractFormulas(instructions);
+		for (Object objBean : item.getMatchItemBeanList()) {
+			MatchItemBean bean = (MatchItemBean) objBean;
+			String choice = bean.getChoice();
+			if (formulas.contains(choice)) {
+				String formula = bean.getCalculatedQuestionFormula();
+				List<String> formulaVariables = gs.extractVariables(formula);
+				for (String formulaVariable : formulaVariables) {
+					if (!variables.contains(formulaVariable)) {
+				        item.setOutcome("calculatedQuestion");
+				        item.setPoolOutcome("calculatedQuestion");
+				        err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","calc_question_error_expression_variables");
+				        context.addMessage(null,new FacesMessage(err));
+				        return;
+					}
+				}
+			}
+		}
+		
 	    if (isCalcQExpressionError(itemauthorbean.getItemId())) {
 	        item.setOutcome("calculatedQuestion");
 	        item.setPoolOutcome("calculatedQuestion");
@@ -587,7 +636,7 @@ public class ItemAddListener
      * Returns true if there is a mathematical error (that can easily be detected)
      * else false 
      */
-    private boolean isCalcQExpressionError(String itemId) {
+    private boolean isCalcQExpressionError(String itemId) {    	
     	HashMap answersMap = new HashMap();
     	GradingService service = new GradingService();
     	ItemService delegate = new ItemService();

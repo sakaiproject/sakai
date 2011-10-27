@@ -680,20 +680,22 @@ public class ItemBean
 	  
 	  String instructions = this.getInstruction();
 	  GradingService gs = new GradingService();
-	  List<String> variables = gs.extractVariables(instructions);
-	  List<String> alreadyAdded = new ArrayList<String>();
+	  List<String> formulas = gs.extractFormulas(instructions);
 	  
-	  // look through all MatchItemBeans and return only the beans that are variables
+	  // look through all MatchItemBeans and return only the beans that are not formulas
 	  ArrayList<MatchItemBean> beans = this.getMatchItemBeanList();
 	  for (MatchItemBean bean : beans) {
-		  for (String variable : variables) {
-			  if (bean.getChoice().equals(variable)) {
-				  if (!alreadyAdded.contains(variable)) {
-					  results.add(bean);
-					  alreadyAdded.add(variable);
-				  }
+		  boolean isFormula = false;
+		  for (String formula : formulas) {
+			  if (bean.getChoice().equals(formula)) {
+				  isFormula = true;
+				  break;
 			  }
 		  }
+		  if (!isFormula) {
+			  results.add(bean);
+		  }
+			  
 	  }
 	  return results;
   }
