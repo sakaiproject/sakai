@@ -163,8 +163,9 @@ public class ConfirmPublishAssessmentListener
     
     // SAM-1088
     // if late submissions not allowed and retract date is null, set retract date to due date
-    if (assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION.equals(assessmentSettings.getLateHandling()) &&
+    if (assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling()) &&
     		retractDate == null && dueDate != null && assessmentSettings.getAutoSubmit()) {
+    	retractDate = dueDate;
     	assessmentSettings.setRetractDate(dueDate);
     }
     // if auto-submit is enabled, make sure retract date is set
