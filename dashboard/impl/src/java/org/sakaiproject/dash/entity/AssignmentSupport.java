@@ -198,7 +198,16 @@ public class AssignmentSupport {
 			// TODO: create language bundle here or have SakaiProxy get the language bundle from assn??
 			ResourceLoader rl = new ResourceLoader("dash_entity");
 			Map<String, String> props = new HashMap<String, String>();
-			props.put(LABEL_DATA, rl.getString("assignment.data"));
+			
+			// detect the assignment type, so that maxpoint is only shown when the assignment grading is point-based.
+			Assignment assn = (Assignment) sakaiProxy.getEntity(entityReference);
+			if(Assignment.SCORE_GRADE_TYPE == assn.getContent().getTypeOfGrade()) {
+				props.put(LABEL_DATA, rl.getString("assignment.data.with.maxpoint"));
+			}
+			else
+			{
+				props.put(LABEL_DATA, rl.getString("assignment.data"));
+			}
 			props.put(LABEL_METADATA, rl.getString("assignment.metadata"));
 			//props.put(LABEL_DESCRIPTION, rl.getString("assignment.description"));
 			//props.put(LABEL_ATTACHMENTS, rl.getString("assignment.attachments"));
