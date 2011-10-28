@@ -331,7 +331,9 @@ public class SakaiBLTIUtil {
 		// Let tools know we are coming from Sakai
 		String sakaiVersion = ServerConfigurationService.getString("version.sakai","2");
 		setProperty(props,"ext_lms", "sakai-"+sakaiVersion);  
-		setProperty(props,"lti_lms", "sakai-"+sakaiVersion);  
+		setProperty(props,BasicLTIConstants.TOOL_CONSUMER_INFO_PRODUCT_FAMILY_CODE, 
+			sakaiVersion);  
+		setProperty(props,BasicLTIConstants.TOOL_CONSUMER_INFO_VERSION, sakaiVersion);  
 		// Sakai-Unique fields - compatible with LinkTool
 		Session s = SessionManager.getCurrentSession();
 		if (s != null) {

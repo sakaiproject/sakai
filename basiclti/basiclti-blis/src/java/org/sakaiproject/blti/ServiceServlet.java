@@ -682,8 +682,8 @@ public class ServiceServlet extends HttpServlet {
 
 			String sourcedid = null;
 			String message_type = null;
-			if ( ( "replaceResultRequest".equals(lti_message_type) || "readResultRequest".equals(lti_message_type) )  
-					&& allowOutcomes != null ) {
+			if ( ( "replaceResultRequest".equals(lti_message_type) || "readResultRequest".equals(lti_message_type) ||
+                   "deleteResultRequest".equals(lti_message_type) )  && allowOutcomes != null ) {
 				Map<String,String> bodyMap = pox.getBodyMap();
 				sourcedid = bodyMap.get("/resultRecord/sourcedGUID/sourcedId");
 				// System.out.println("sourcedid="+sourcedid);
@@ -863,13 +863,14 @@ public class ServiceServlet extends HttpServlet {
 
 			// Things look good - time to process the grade
 			boolean isRead = BasicLTIUtil.equals(lti_message_type, "readResultRequest");
+			boolean isDelete = BasicLTIUtil.equals(lti_message_type, "deleteResultRequest");
 
 			Map<String,String> bodyMap = pox.getBodyMap();
 			String result_resultscore_textstring = bodyMap.get("/resultRecord/result/resultScore/textString");
 			String sourced_id = bodyMap.get("/resultRecord/result/sourcedId");
-			System.out.println("grade="+result_resultscore_textstring);
+			// System.out.println("grade="+result_resultscore_textstring);
 
-			if(BasicLTIUtil.isBlank(result_resultscore_textstring) && ! isRead ) {
+			if(BasicLTIUtil.isBlank(result_resultscore_textstring) && ! isRead && ! isDelete ) {
 				doErrorXml(request, response, pox, "outcomes.missing", "result_resultscore_textstring", null);
 				return;
 			}
@@ -899,12 +900,20 @@ public class ServiceServlet extends HttpServlet {
 				Double dGrade;
 				if ( isRead ) {
 					theGrade = g.getAssignmentScoreString(siteId, assignment, user_id);
+					String sGrade = "";
 					dGrade = new Double(theGrade);
 					dGrade = dGrade / assignmentObject.getPoints();
+					if ( dGrade != 0.0 ) sGrade = dGrade.toString();
 					theMap.put("/readResultResponse/result/sourcedId", sourced_id);
-					theMap.put("/readResultResponse/result/resultScore/textString", dGrade.toString());
+					theMap.put("/readResultResponse/result/resultScore/textString", sGrade);
 					theMap.put("/readResultResponse/result/resultScore/language", "en");
 					message = "Result read";
+				} else if ( isDelete ) { 
+					// It would be nice to empty it out but we can't
+					g.setAssignmentScore(siteId, assignment, user_id, new Double(0.0), "External Outcome");
+					M_log.info("Delete Score site=" + siteId + " assignment="+ assignment + " user_id=" + user_id);
+					theMap.put("/deleteResultResponse", "");
+					message = "Result deleted";
 				} else { 
 					dGrade = new Double(result_resultscore_textstring);
 					if ( dGrade < 0.0 || dGrade > 1.0 ) {

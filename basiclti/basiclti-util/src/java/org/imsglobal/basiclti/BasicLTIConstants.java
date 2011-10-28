@@ -242,31 +242,36 @@ public class BasicLTIConstants {
 	// launch settings per spec - computed not stored
 
    /** 
-     * lti_lms=desire2learn-9.2
-     * <p>
-     * In order to better assist tools in using extensions and 
-     * also making their user interface fit into the LMS that they 
-     * are being called from, each LMS is encouraged to include the 
-     * lti_lms parameter.  This is a simple vocabulary that is the 
-     * name of the learning management system followed by version 
-     * information.  Possible example values for this field might be:
-     * 
-     *       blackboard-9.1SP6     
-     *       desire2learn-9.2
-     *       sakai-2.8.1
-     *       olat-7.1
-     * 
-     * The general pattern is that the LMS name and major release are 
-     * separated by a dash (-) and the major release is a number (possibly 
-     * more than one digit) and the separation between the major release 
-     * and minor release is any non-digit.  There is no particlar rule 
-     * for minor release information.  Both the major and minor release 
-     * values are optional - so for example, a Blackboard consumer may send 
-     * 'blackboard' for all versions of Blackboard if it so desires.  The 
-     * Tool Provider should be flexible when parsing this field.  This 
-     * parameter is optional.
+    * tool_consumer_info_product_family_code=desire2learn
+    * <p>
+    * In order to better assist tools in using extensions and also making their user 
+    * interface fit into the TC's user interface that they are being called from, 
+    * each TC is encouraged to include the this parameter.   Possible example values 
+    * for this field might be:
+    * 
+    * 	learn 
+    * 	desire2learn
+    * 	sakai
+    * 	eracer
+    * 	olat
+    * 	webct
+    * This parameter is optional but recommended.
+    */
+	public static final String TOOL_CONSUMER_INFO_PRODUCT_FAMILY_CODE = "tool_consumer_info_product_family_code";
+
+   /** 
+    * tool_consumer_info_version=9.2.4
+    * <p>
+    * This field should have a major release number followed by a period.  The format of the minor release is flexible.  Possible vaues for this field might be:
+    * 
+    * 	9.1.7081     
+    * 	2.8-01
+    * 	7.1
+    * 	8
+    * The Tool Provider should be flexible when parsing this field.  This parameter is optional but recommended.
+
      */
-	public static final String LTI_LMS = "lti_lms";
+	public static final String TOOL_CONSUMER_INFO_VERSION = "tool_consumer_info_version";
 
 	/**
 	 * resource_link_id=88391-e1919-bb3456
@@ -375,7 +380,9 @@ public class BasicLTIConstants {
 		LAUNCH_PRESENTATION_DOCUMENT_TARGET, LAUNCH_PRESENTATION_HEIGHT,
 		LAUNCH_PRESENTATION_LOCALE, LAUNCH_PRESENTATION_RETURN_URL,
 		LAUNCH_PRESENTATION_WIDTH, LIS_PERSON_CONTACT_EMAIL_PRIMARY,
-		LAUNCH_PRESENTATION_CSS_URL, LTI_LMS, 
+		LAUNCH_PRESENTATION_CSS_URL, 
+		TOOL_CONSUMER_INFO_PRODUCT_FAMILY_CODE,
+		TOOL_CONSUMER_INFO_VERSION,
 		LIS_PERSON_NAME_FAMILY, LIS_PERSON_NAME_FULL, LIS_PERSON_NAME_GIVEN,
 		LIS_PERSON_SOURCEDID, LIS_COURSE_OFFERING_SOURCEDID, 
 		LIS_COURSE_SECTION_SOURCEDID, 
