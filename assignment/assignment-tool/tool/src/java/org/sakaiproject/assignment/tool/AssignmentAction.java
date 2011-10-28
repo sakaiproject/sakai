@@ -8741,13 +8741,12 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		if (state.getAttribute(NEW_ASSIGNMENT_YEAR_RANGE_FROM) == null)
 		{
-			state.setAttribute(NEW_ASSIGNMENT_YEAR_RANGE_FROM, Integer.valueOf(2002));
+			state.setAttribute(NEW_ASSIGNMENT_YEAR_RANGE_FROM, Integer.valueOf(GregorianCalendar.getInstance().get(GregorianCalendar.YEAR)-4));
 		}
 		
 		if (state.getAttribute(NEW_ASSIGNMENT_YEAR_RANGE_TO) == null)
 		{
-			state.setAttribute(NEW_ASSIGNMENT_YEAR_RANGE_TO, Integer.valueOf(new Integer(java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)+5)));
-		}
+			state.setAttribute(NEW_ASSIGNMENT_YEAR_RANGE_TO, Integer.valueOf(GregorianCalendar.getInstance().get(GregorianCalendar.YEAR)+4));		}
 	} // initState
 
 
