@@ -1082,7 +1082,7 @@
 		var selectElement = document.getElementById("copyright${DOT}" + index );
 		if(selectElement && selectElement.value)
 		{
-			var selection = selectElement.value;
+			var selection = selectElement.selectedIndex;
 			var selectionText = selectElement.options[selection].text;
 			var copyrightDiv = document.getElementById("copyright_status${DOT}" + index );
 			if(copyrightDiv)
