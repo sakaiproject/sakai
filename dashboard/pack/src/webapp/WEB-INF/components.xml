@@ -86,6 +86,8 @@
 		init-method="init">
 		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
     	<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy"></property>
+		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
+		<property name="announcementService" ref="org.sakaiproject.announcement.api.AnnouncementService" />
 	</bean>
 
 	<bean id="org.sakaiproject.dash.entity.AssignmentSupport" 
