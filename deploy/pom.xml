@@ -7,7 +7,7 @@
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
         <version>2.9-SNAPSHOT</version>
-        <relativePath>../../master/pom.xml</relativePath>
+        <relativePath>../master/pom.xml</relativePath>
     </parent>
     
   <name>Sakai Deploy: Base POM</name>
