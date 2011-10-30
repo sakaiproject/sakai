@@ -23,6 +23,8 @@
 package org.sakaiproject.component.gradebook;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -69,6 +71,7 @@ import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.Category;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -2541,11 +2544,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				AssignmentGradeRecord gradeRecord = getAssignmentGradeRecord(assignment, studentUid, session);
 				if (gradeRecord == null) {
 					// Creating a new grade record.
-					gradeRecord = new AssignmentGradeRecord(assignment, studentUid, Double.valueOf(score));
+					gradeRecord = new AssignmentGradeRecord(assignment, studentUid, convertStringToDouble(score));
 					//TODO: test if it's ungraded item or not. if yes, set ungraded grade for this record. if not, need validation??
 				} else {
 					//TODO: test if it's ungraded item or not. if yes, set ungraded grade for this record. if not, need validation??
-					gradeRecord.setPointsEarned(Double.valueOf(score));
+					gradeRecord.setPointsEarned(convertStringToDouble(score));
 				}
 				gradeRecord.setGraderId(graderId);
 				gradeRecord.setDateRecorded(now);
@@ -2876,4 +2879,24 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
         return PointsPossibleValidation.VALID;
     }
 
+    /**
+	 *
+	 * @param doubleAsString
+	 * @return a locale-aware Double value representation of the given String
+	 * @throws ParseException
+	 */
+	private Double convertStringToDouble(String doubleAsString) {
+	    Double scoreAsDouble = null;
+	    if (doubleAsString != null) {
+	        try {
+	        	NumberFormat numberFormat = NumberFormat.getInstance(new ResourceLoader().getLocale());
+				Number numericScore = numberFormat.parse(doubleAsString.trim());
+				scoreAsDouble = numericScore.doubleValue();
+			} catch (ParseException e) {
+				log.error(e);
+			}
+	    }
+
+	    return scoreAsDouble;
+	}
 }
