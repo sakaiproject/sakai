@@ -761,6 +761,44 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		String newTitle;
 	}
 
+	public void testUpdateNewsItemTime() {
+		Date eventTime = new Date(System.currentTimeMillis() - ONE_DAY);
+		String title = getUniqueIdentifier();
+		String entityReference = getUniqueIdentifier();
+		
+		String contextId = getUniqueIdentifier();
+		String contextTitle = getUniqueIdentifier();
+		String contextUrl = getUniqueIdentifier();
+		Context context = new Context(contextId, contextTitle, contextUrl );
+		dao.addContext(context);
+		context = dao.getContext(contextId);
+		
+		String sourceTypeIdentifier = getUniqueIdentifier();
+		String accessPermission = getUniqueIdentifier();
+		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission, EntityLinkStrategy.ACCESS_URL);
+		dao.addSourceType(sourceType);
+		sourceType = dao.getSourceType(sourceTypeIdentifier);
+
+		NewsItem newsItem = new NewsItem(title, eventTime,
+			entityReference, context, sourceType);
+		boolean saved = dao.addNewsItem(newsItem);
+		
+		assertTrue(saved);
+		
+		NewsItem savedItem = dao.getNewsItem(entityReference);
+		assertNotNull(savedItem);
+		assertNotNull(savedItem.getId());
+		assertTrue(savedItem.getId().longValue() >= 0L);
+		
+		Date newTime = new Date();
+		dao.updateNewsItemTime(savedItem.getId(), newTime);
+		NewsItem revisedItem = dao.getNewsItem(savedItem.getId());
+		assertNotNull(revisedItem);
+		assertEquals(newTime.getTime(), revisedItem.getNewsTime().getTime());
+		
+		
+	}
+
 	protected String getUniqueIdentifier() {
 		return "unique-identifier-" + counter.incrementAndGet();
 	}

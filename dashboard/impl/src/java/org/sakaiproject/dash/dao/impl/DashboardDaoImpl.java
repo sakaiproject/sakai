@@ -1206,6 +1206,26 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            return false;
 		}
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#updateNewsItemTime(java.lang.Long, java.util.Date)
+	 */
+	public boolean updateNewsItemTime(Long id, Date newTime) {
+		if(log.isDebugEnabled()) {
+			log.debug("updateNewsItemTime( " + id + "," + newTime + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("update.NewsItem.newsTime"),
+				new Object[]{newTime, id}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("updateNewsItemTime: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}		
+	}
 
 	/*
 	 * (non-Javadoc)

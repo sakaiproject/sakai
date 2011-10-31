@@ -245,4 +245,6 @@ public interface DashboardDao {
 
 	public boolean updateNewsLink(NewsLink link);
 
+	public boolean updateNewsItemTime(Long id, Date newTime);
+
 }
