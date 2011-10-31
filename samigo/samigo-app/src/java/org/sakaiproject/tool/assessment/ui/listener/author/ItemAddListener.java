@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -74,6 +75,9 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.ui.bean.author.AnswerBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionFormulaBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionVariableBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.MatchItemBean;
@@ -250,35 +254,6 @@ public class ItemAddListener
             item.setPoolOutcome("calculatedQuestion");
             return;
         }
-        ArrayList<MatchItemBean> l=item.getMatchItemBeanList();
-        if (l==null || l.size()==0){
-            String noPairMatching_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","noMatchingPair_error");
-            context.addMessage(null,new FacesMessage(noPairMatching_err));
-            error=true;
-        }
-        
-        // Get all variables referenced inside of all formulas
-        GradingService gs = new GradingService();
-        List<String> formulaVariables = new ArrayList<String>();
-        for (MatchItemBean bean : item.getMatchItemBeanFormulaList()) {
-        	String formula = bean.getCalculatedQuestionFormula();
-        	formulaVariables.addAll(gs.extractVariables(formula));
-        }
-        
-        // Compare formula variables to the list of all instruction variables extracted 
-        // Before saving, remove variables that were created but are no longer in instructions or formulas
-        List<String> instructionVariables = gs.extractVariables(item.getInstruction());
-        List<String> formulas = gs.extractFormulas(item.getInstruction());
-        List<MatchItemBean> beans = item.getMatchItemBeanList();
-        Iterator<MatchItemBean> beanIter = beans.iterator();
-        while (beanIter.hasNext()) {
-        	MatchItemBean bean = beanIter.next();
-        	if (!instructionVariables.contains(bean.getChoice()) && 
-        			!formulaVariables.contains(bean.getChoice()) && 
-        			!formulas.contains(bean.getChoice())) {
-        		beanIter.remove();
-        	}
-        }
         if(error) return;
     }
 
@@ -296,32 +271,6 @@ public class ItemAddListener
 	// CALCULATED_QUESTION - After we've saved let's make sure the calculated question answer expression
 	// will at least not cause an error that could easily be avoided
 	if (iType.equals(TypeFacade.CALCULATED_QUESTION.toString())) {
-		
-		// look through all of the formulas.  Examine the variables that they reference
-		// return an error if the formula references a variable that has not been defined
-		// in the instructions
-		String instructions = item.getInstruction();
-		GradingService gs = new GradingService();
-		List<String> variables = gs.extractVariables(instructions);
-		List<String> formulas = gs.extractFormulas(instructions);
-		for (Object objBean : item.getMatchItemBeanList()) {
-			MatchItemBean bean = (MatchItemBean) objBean;
-			String choice = bean.getChoice();
-			if (formulas.contains(choice)) {
-				String formula = bean.getCalculatedQuestionFormula();
-				List<String> formulaVariables = gs.extractVariables(formula);
-				for (String formulaVariable : formulaVariables) {
-					if (!variables.contains(formulaVariable)) {
-				        item.setOutcome("calculatedQuestion");
-				        item.setPoolOutcome("calculatedQuestion");
-				        err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","calc_question_error_expression_variables");
-				        context.addMessage(null,new FacesMessage(err));
-				        return;
-					}
-				}
-			}
-		}
-		
 	    if (isCalcQExpressionError(itemauthorbean.getItemId())) {
 	        item.setOutcome("calculatedQuestion");
 	        item.setPoolOutcome("calculatedQuestion");
@@ -778,10 +727,11 @@ public class ItemAddListener
       }
       else {
     	  //prepare itemText, including answers
-    	  if (item.getTypeId().equals(TypeFacade.MATCHING)
-    	          || item.getTypeId().equals(TypeFacade.CALCULATED_QUESTION)
-    	          ) {
+    	  if (item.getTypeId().equals(TypeFacade.MATCHING)) {
     		  item.setItemTextSet(prepareTextForMatching(item, bean, itemauthor));
+    	  } else if(item.getTypeId().equals(TypeFacade.CALCULATED_QUESTION)) {
+//              item.setItemTextSet(prepareTextForMatching(item, bean, itemauthor));
+              item.setItemTextSet(prepareTextForCalculatedQuestion(item, bean, itemauthor));
     	  }
     	  else if(item.getTypeId().equals(TypeFacade.MATRIX_CHOICES_SURVEY)) {
     		  item.setItemTextSet(prepareTextForMatrixChoice(item, bean, itemauthor));
@@ -1005,6 +955,80 @@ public class ItemAddListener
       itemauthor.setItemId(item.getItemId().toString());
   }
 
+  /**
+   * prepareTextForCalculatedquestion takes the formulas and variables that are 
+   * stored in CalculatedQuestionFormulaBeans and CalculatedQuestionVariableBeans
+   * and translates them into ItemTextIfc and AnswerIfc objects.  The only difference
+   * between the formula and the variable is what information is actually kept in
+   * the answer.text field.  ItemText has the name of the formula or variable in ItemTextIfc.text
+   * AnswerIfc.text stores either a formula as (formula string)|(tolerance),(decimal places) or a
+   * variable as (min)|(max),(decimal places).
+   * <p>Unlike matching answers, answerfeedback is not kept here; only the feedback associated with the entire
+   * question is persisted.
+   * @param item
+   * @param bean
+   * @param itemauthor
+   * @return
+   */
+  private HashSet prepareTextForCalculatedQuestion(ItemFacade item, ItemBean bean,
+          ItemAuthorBean itemauthor) {
+      CalculatedQuestionBean calcBean = bean.getCalculatedQuestion();
+      HashSet<ItemText> textSet = new HashSet<ItemText>();
+            
+      Map<String,CalculatedQuestionFormulaBean> formulaMap = calcBean.getFormulas();
+      for (CalculatedQuestionFormulaBean formula : formulaMap.values()) {
+          ItemText choiceText = new ItemText();
+          choiceText.setItem(item.getData());
+          choiceText.setSequence(formula.getSequence());
+          choiceText.setText(formula.getName());
+          String match = formula.getText() + "|" + formula.getTolerance() + "," + formula.getDecimalPlaces();
+          int seq = formula.getSequence().intValue();
+          String score = bean.getItemScore();
+          String discount = bean.getItemDiscount();
+          Answer answer = new Answer(choiceText, 
+                  match, 
+                  formula.getSequence(), 
+                  AnswerBean.getChoiceLabels()[seq], 
+                  Boolean.TRUE, 
+                  null, 
+                  Float.valueOf(score), 
+                  Float.valueOf(0f), 
+                  Float.valueOf(discount));
+          HashSet<Answer> answerSet = new HashSet<Answer>();
+          answerSet.add(answer);
+          choiceText.setAnswerSet(answerSet);
+          textSet.add(choiceText);
+      }
+      
+      // variables
+      Map<String,CalculatedQuestionVariableBean> variableMap = calcBean.getVariables();
+      for (CalculatedQuestionVariableBean variable : variableMap.values()) {
+          ItemText choiceText = new ItemText();
+          choiceText.setItem(item.getData());
+          choiceText.setSequence(variable.getSequence());
+          choiceText.setText(variable.getName());
+          String match = variable.getMin() + "|" + variable.getMax() + "," + variable.getDecimalPlaces();
+          int seq = variable.getSequence().intValue() - 1;
+          String score = bean.getItemScore();
+          String discount = bean.getItemDiscount();
+          Answer answer = new Answer(choiceText, 
+                  match, 
+                  variable.getSequence(), 
+                  AnswerBean.getChoiceLabels()[seq], 
+                  Boolean.TRUE, 
+                  null, 
+                  Float.valueOf(score), 
+                  Float.valueOf(0f), 
+                  Float.valueOf(discount));
+          HashSet<Answer> answerSet = new HashSet<Answer>();
+          answerSet.add(answer);
+          choiceText.setAnswerSet(answerSet);
+          textSet.add(choiceText);
+      }
+      
+      return textSet;
+  }
+  
   private HashSet prepareTextForMatching(ItemFacade item, ItemBean bean,
 		  ItemAuthorBean itemauthor) {
 	  // looping through matchItemBean

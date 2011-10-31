@@ -164,7 +164,7 @@
 <!-- display variables -->
 <div class="longtext"> <h:outputLabel value="#{authorMessages.create_calc_variable} " /></div>
 <div class="tier2">
-<h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="pairs" value="#{itemauthor.currentItem.matchItemBeanVariableList}" var="variable">
+<h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="pairs" value="#{itemauthor.currentItem.calculatedQuestion.variablesList}" var="variable">
       
       <h:column>
         <f:facet name="header">
@@ -179,52 +179,42 @@
         <f:facet name="header">
           <h:outputText value="#{authorMessages.calc_question_varname_col}"  />
         </f:facet>
-          <h:outputText escape="false" value="#{variable.choice}"  />
+          <h:outputText escape="false" value="#{variable.name}"  />
       </h:column>
 
       <h:column>
         <f:facet name="header">
           <h:outputText value="#{authorMessages.calc_question_min}"  />
         </f:facet>
-          <h:inputText required="true" value="#{variable.calculatedQuestionVariableMin}" />
+          <h:inputText required="true" value="#{variable.min}" >
+          </h:inputText>>
       </h:column>
 
       <h:column>
         <f:facet name="header">
           <h:outputText value="#{authorMessages.calc_question_max}"  />
         </f:facet>
-          <h:inputText required="true" value="#{variable.calculatedQuestionVariableMax}" />
+          <h:inputText required="true" value="#{variable.max}">
+          </h:inputText>
       </h:column>
 
       <h:column>
         <f:facet name="header">
           <h:outputText value="#{authorMessages.calc_question_dec}"  />
         </f:facet>
-		  <h:selectOneMenu id="assignToPart" value="#{variable.calculatedQuestionVariableDecimalPlaces}">
-     		<f:selectItems  value="#{itemauthor.decimalPlaceList}" />
+		  <h:selectOneMenu value="#{variable.decimalPlaces}">
+     		<f:selectItems value="#{itemauthor.decimalPlaceList}" />
   		</h:selectOneMenu>
       </h:column>
 
-      <h:column>
-        <f:facet name="header">
-          <h:outputText value=""/>
-        </f:facet>
-
-     <h:panelGrid>
-     <h:panelGroup>
-
-     </h:panelGroup>
-     </h:panelGrid>
-      </h:column>
-
      </h:dataTable>
-<h:outputLabel value="<p>#{authorMessages.no_variables_defined}</p>" rendered="#{itemauthor.currentItem.matchItemBeanVariableList eq '[]'}"/>
+<h:outputLabel value="<p>#{authorMessages.no_variables_defined}</p>" rendered="#{itemauthor.currentItem.calculatedQuestion.variablesList eq '[]'}"/>
 </div>
 
 <!-- display formulas -->
 <div class="longtext"> <h:outputLabel value="#{authorMessages.create_calc_formula} " /></div>
 <div class="tier2">
-<h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="formulas" value="#{itemauthor.currentItem.matchItemBeanFormulaList}" var="formula">
+<h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="formulas" value="#{itemauthor.currentItem.calculatedQuestion.formulasList}" var="formula">
       <h:column>
         <f:facet name="header">
           
@@ -238,14 +228,14 @@
         <f:facet name="header">
           <h:outputText value="#{authorMessages.calc_question_formulaname_col}"  />
         </f:facet>
-          <h:outputText escape="false" value="#{formula.choice}"  />
+          <h:outputText escape="false" value="#{formula.name}"  />
       </h:column>
 
       <h:column>
         <f:facet name="header">
           <h:outputText value="#{authorMessages.calc_question_formula_col}"  />
         </f:facet>
-		   <samigo:wysiwyg rows="140" value="#{formula.calculatedQuestionFormula}" hasToggle="no">
+		   <samigo:wysiwyg rows="140" value="#{formula.text}" hasToggle="no">
 		     <f:validateLength maximum="60000"/>
 		   </samigo:wysiwyg>
       </h:column>
@@ -254,44 +244,21 @@
         <f:facet name="header">
           <h:outputText value="#{authorMessages.calc_question_tolerance}"  />
         </f:facet>
-          <h:inputText required="true" value="#{formula.calculatedQuestionFormulaTolerance}"  />
+          <h:inputText required="true" value="#{formula.tolerance}"  />
       </h:column>
       
       <h:column>
         <f:facet name="header">
           <h:outputText value="#{authorMessages.calc_question_dec}"  />
         </f:facet>
-		  <h:selectOneMenu id="assignToPart" value="#{formula.calculatedQuestionFormulaDecimalPlaces}">
+		  <h:selectOneMenu id="assignToPart" value="#{formula.decimalPlaces}">
      		<f:selectItems  value="#{itemauthor.decimalPlaceList}" />
   		</h:selectOneMenu>
           
       </h:column>
 </h:dataTable>
-<h:outputLabel value="<p>#{authorMessages.no_formulas_defined}</p>" rendered="#{itemauthor.currentItem.matchItemBeanFormulaList eq '[]'}"/>
+<h:outputLabel value="<p>#{authorMessages.no_formulas_defined}</p>" rendered="#{itemauthor.currentItem.calculatedQuestion.formulasList eq '[]'}"/>
 
-</div>
-
-        <!-- Entry for Variables -->
-<div class="tier2" style="display:none;">
-	<h:panelGrid border="0" columns="8" cellspacing="3">
-		
-		<h:outputText value="#{authorMessages.calc_question_varname}"/>
-		<h:inputText value="#{itemauthor.currentItem.currentMatchPair.choice}" required="false" size="5"></h:inputText>
-		
-		<h:outputText value="#{authorMessages.calc_question_min}"/>
-		<h:inputText value="#{itemauthor.currentItem.currentMin}" required="false" size="5"></h:inputText>
-		
-		<h:outputText value="#{authorMessages.calc_question_max}"/>	
-		<h:inputText value="#{itemauthor.currentItem.currentMax}" required="false" size="5"></h:inputText>
-		
-		<h:outputText value="#{authorMessages.calc_question_dec}"/>
-		<h:inputText value="#{itemauthor.currentItem.currentDecimalPlaces}" required="false" size="1"></h:inputText>
-  
-	</h:panelGrid>
-	
-	<f:verbatim><br/></f:verbatim>
-		<h:commandButton accesskey="#{authorMessages.a_create}" value="#{authorMessages.button_save_variable}" action="#{itemauthor.currentItem.addVariablePair}">
-	</h:commandButton>
 </div>
 
 <f:verbatim><br/></f:verbatim>

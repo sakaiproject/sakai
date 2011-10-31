@@ -38,6 +38,7 @@ import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.MatchItemBean;
@@ -217,9 +218,8 @@ log.debug("after getting item.getItemType() ");
                         nextpage = "matchingItem";
                         break;
                 case 14: // CALCULATED_QUESTION
-                	MatchItemBean variableItem = new MatchItemBean();
-          			item.setCurrentMatchPair(variableItem);
-          			item.setMatchItemBeanList(new ArrayList());
+                    CalculatedQuestionBean bean = new CalculatedQuestionBean();
+                    item.setCalculatedQuestion(bean);
                     nextpage = "calculatedQuestionVariableItem";
                     break;
                 case 10:

@@ -42,6 +42,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
+import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -49,9 +50,12 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.ui.bean.author.AnswerBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionFormulaBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionVariableBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.MatchItemBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.FormattedText;
 
@@ -187,9 +191,11 @@ public class ItemModifyListener implements ActionListener
       bean.setGeneralFeedback(itemfacade.getGeneralItemFeedback());
       populateMetaData(itemauthorbean, itemfacade, bean);
 
-      if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.MATCHING) ||
-    		  new Long(itemauthorbean.getItemType()).equals(TypeFacade.CALCULATED_QUESTION)) {
+      if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.MATCHING)) {
     	  populateItemTextForMatching(itemauthorbean, itemfacade, bean);
+      }
+      else if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.CALCULATED_QUESTION)) {
+          populateItemTextForCalculatedQuestion(itemauthorbean, itemfacade, bean);          
       }
       else if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.MATRIX_CHOICES_SURVEY)){
     	  populateItemTextForMatrix(itemauthorbean, itemfacade, bean);
@@ -530,6 +536,44 @@ public class ItemModifyListener implements ActionListener
 	  bean.setItemText(itemfacade.getText());
   }
 
+  private void populateItemTextForCalculatedQuestion(ItemAuthorBean itemauthorbean, ItemFacade itemfacade, ItemBean bean) {
+      CalculatedQuestionBean calcQuestionBean = new CalculatedQuestionBean(); 
+      String instructions = itemfacade.getInstruction();
+      GradingService gs = new GradingService();
+      List<String> variables = gs.extractVariables(instructions);
+      List<ItemTextIfc> list = itemfacade.getItemTextArray();
+      for (ItemTextIfc itemBean : list) {
+          if (variables.contains(itemBean.getText())) {
+              CalculatedQuestionVariableBean variable = new CalculatedQuestionVariableBean();
+              List<AnswerIfc> answers = itemBean.getAnswerArray();
+              String text = answers.get(0).getText();
+              String min = text.substring(0, text.indexOf("|"));
+              String max = text.substring(text.indexOf("|") + 1, text.indexOf(","));
+              String decimalPlaces = text.substring(text.indexOf(",") + 1);              
+              variable.setName(itemBean.getText());
+              variable.setSequence(itemBean.getSequence());
+              variable.setMin(min);
+              variable.setMax(max);
+              variable.setDecimalPlaces(decimalPlaces);
+              calcQuestionBean.addVariable(variable);
+          } else {
+              CalculatedQuestionFormulaBean formula = new CalculatedQuestionFormulaBean();
+              List<AnswerIfc> answers = itemBean.getAnswerArray();
+              String text = answers.get(0).getText();
+              String formulaStr = text.substring(0, text.indexOf("|"));
+              String tolerance = text.substring(text.indexOf("|") + 1, text.indexOf(","));
+              String decimalPlaces = text.substring(text.indexOf(",") + 1);
+              formula.setName(itemBean.getText());
+              formula.setSequence(itemBean.getSequence());
+              formula.setText(formulaStr);
+              formula.setTolerance(tolerance);
+              formula.setDecimalPlaces(decimalPlaces);
+              calcQuestionBean.addFormula(formula);
+          }
+      }
+      bean.setCalculatedQuestion(calcQuestionBean);
+  }
+  
  private void populateItemTextForMatching(ItemAuthorBean itemauthorbean, ItemFacade itemfacade, ItemBean bean)  {
 
     Set itemtextSet = itemfacade.getItemTextSet();

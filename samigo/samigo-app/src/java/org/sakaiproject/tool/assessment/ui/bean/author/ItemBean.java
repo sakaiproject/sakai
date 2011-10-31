@@ -83,6 +83,7 @@ public class ItemBean
   private ArrayList multipleChoiceAnswers;  // store List of answers multiple choice items, ArrayList of AnswerBean
   private String additionalChoices = "0";  // additonal multiple choice answers to be add. for the select menu
   private int totalMCAsnwers;
+  private CalculatedQuestionBean calculatedQuestion;
   
   private boolean[] choiceCorrectArray;
   private String maxRecordingTime;
@@ -1976,65 +1977,15 @@ public class ItemBean
 	}
 	
 	public void extractFromInstructions() {
-		extractFormulasFromInstructions();
-		extractVariablesFromInstructions();
+	    this.calculatedQuestion.extractFromInstructions(this.getInstruction());
 	}
 	
-	private void extractFormulasFromInstructions() {
-		  String instructions = this.getInstruction();
-		  GradingService gs = new GradingService();
-		  List<String> formulas = gs.extractFormulas(instructions);
-		  
-		  // add any missing variables
-		  ArrayList<MatchItemBean> beans = this.getMatchItemBeanList();
-		  for (String formula : formulas) {
-			  boolean found = false;
-			  for (MatchItemBean bean : beans) {
-				  if (bean.getChoice().equals(formula)) {
-					  found = true;
-					  break;
-				  }
-			  }
-			  if (!found) {
-      		  MatchItemBean newBean = new MatchItemBean();
-      		  newBean.setChoice(formula);
-      		  newBean.setMatch("0|0.1,0"); //formula|tolerance,decimalplaces
-              newBean.setIsCorrect(Boolean.TRUE);
-              newBean.setSequence(new Long(beans.size()+1));
-      		  beans.add(newBean);				  
-			  }
-		  }		    		
+	public void setCalculatedQuestion(CalculatedQuestionBean calculatedQuestion) {
+	    this.calculatedQuestion = calculatedQuestion;
 	}
 	
-	/**
-	 * extractVariablesFromInstructions examines the question instructions, pulls 
-	 * any variables that are not already defined as MatchItemBeans and adds them
-	 * to the list.
-	 */
-	  private void extractVariablesFromInstructions() {
-		  String instructions = this.getInstruction();
-		  GradingService gs = new GradingService();
-		  List<String> variables = gs.extractVariables(instructions);
-		  
-		  // add any missing variables
-		  ArrayList<MatchItemBean> beans = this.getMatchItemBeanList();
-		  for (String variable : variables) {
-			  boolean found = false;
-			  for (MatchItemBean bean : beans) {
-				  if (bean.getChoice().equals(variable)) {
-					  found = true;
-					  break;
-				  }
-			  }
-			  if (!found) {
-        		  MatchItemBean newBean = new MatchItemBean();
-        		  newBean.setChoice(variable);
-                  String varRange = "0|0,0"; // min|max,decimalplaces
-                  newBean.setMatch(varRange);
-                  newBean.setIsCorrect(Boolean.TRUE);
-                  newBean.setSequence(new Long(beans.size()+1));
-        		  beans.add(newBean);				  
-			  }
-		  }		    
-	  }
+	public CalculatedQuestionBean getCalculatedQuestion() {
+	    return this.calculatedQuestion;
+	}
+	
 }
