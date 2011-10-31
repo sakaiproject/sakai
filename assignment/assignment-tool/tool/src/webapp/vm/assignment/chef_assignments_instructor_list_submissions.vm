@@ -255,12 +255,12 @@
 					#end
 					#if ($goLPButton == "true")
 						<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-							<fieldset><legend>$tlang.getString('gen.last')</legend><input type="submit" name="eventSubmit_doList_last" value=">&gt;" title="$tlang.getString('gen.last')" /></fieldset>
+							<fieldset><legend>$tlang.getString('gen.last')</legend><input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString('gen.last')" /></fieldset>
 							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 						</form>
 					#else
 						<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-							<fieldset><legend>$tlang.getString('gen.last')</legend><input type="submit" name="eventSubmit_doList_last" value=">&gt;" disabled="disabled" /></fieldset>
+							<fieldset><legend>$tlang.getString('gen.last')</legend><input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" /></fieldset>
 							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 						</form>
 					#end
