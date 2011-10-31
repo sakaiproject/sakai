@@ -2372,24 +2372,18 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   private HashMap buildVariableRangeMap(ItemDataIfc item) {
 	  HashMap variableRangeMap = new HashMap();
 	  
-	  // Loop through each VarName
 	  String instructions = item.getInstruction();
 	  List<String> variables = this.extractVariables(instructions);
 	  
-	  Iterator varNameIter = item.getItemTextArraySorted().iterator();
-	  while (varNameIter.hasNext())
-	  {
-		  ItemTextIfc varName = (ItemTextIfc) varNameIter.next();
-		  
+      // Loop through each VarName
+	  List<ItemTextIfc> itemTextList = item.getItemTextArraySorted();
+	  for (ItemTextIfc varName : itemTextList) {
 		  // only look at variables for substitution, ignore formulas
 		  if (variables.contains(varName.getText())) {
-			  Iterator rangeIter = varName.getAnswerArraySorted().iterator();
-			  while (rangeIter.hasNext())
-			  {
-			      AnswerIfc range = (AnswerIfc) rangeIter.next();
+		      List<AnswerIfc> answerList = varName.getAnswerArray();
+		      for (AnswerIfc range : answerList) {
 			      if (!(range.getLabel() == null) ) { // answer records and variable records are in the same set
-				      // TODO: this is a hack. Recycling the matching sturcture we pair A(65) with 1, B(66) with 2, ...
-				      if (((range.getLabel().charAt(0)-64) == varName.getSequence()) && range.getText().contains("|")) {
+			          if (range.getSequence().equals(varName.getSequence()) && range.getText().contains("|")) {
 				    	  variableRangeMap.put(varName.getText(), range.getText());
 				      }
 			      }
