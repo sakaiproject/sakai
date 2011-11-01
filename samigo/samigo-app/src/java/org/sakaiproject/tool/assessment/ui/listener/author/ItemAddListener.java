@@ -24,6 +24,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -240,21 +241,56 @@ public class ItemAddListener
     }
 
     // CALCULATED_QUESTION
-    if (iType.equals(TypeFacade.CALCULATED_QUESTION.toString())) {   
-        int calcQError = isErrorCalcQ();
-        if(calcQError > 0){
-            if (calcQError == 1)
-                err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","pool_missingBracket_error");
-            if (calcQError == 2)
-                err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","calc_question_error_syntax");
-            if (calcQError == 3)
-                err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","calc_question_error_expression");
-            context.addMessage(null,new FacesMessage(err));
+    if (iType.equals(TypeFacade.CALCULATED_QUESTION.toString())) {
+        // make sure the latest updates are handled, even if the user hasn't pressed the Extract button
+        item.extractFromInstructions();
+        
+        // remove disabled variables and formulas
+        CalculatedQuestionBean question = item.getCalculatedQuestion();
+        Iterator<CalculatedQuestionVariableBean> variableIter = question.getVariables().values().iterator();        
+        while (variableIter.hasNext()) {
+            CalculatedQuestionVariableBean variable = variableIter.next();
+            if (!variable.getActive()) {
+                variableIter.remove();
+            }
+        }
+        Iterator<CalculatedQuestionFormulaBean> formulaIter = question.getFormulas().values().iterator();
+        while (formulaIter.hasNext()) {
+            CalculatedQuestionFormulaBean formula = formulaIter.next();
+            if (!formula.getActive()) {
+                formulaIter.remove();
+            }
+        }
+        
+        // question must have at least on variable and one formula
+        if (question.getVariables().size() == 0) {
+            context.addMessage(null, new FacesMessage("No variables have been defined"));
+            error = true;
+        }
+        if (question.getFormulas().size() == 0) {
+            context.addMessage(null, new FacesMessage("No formulas have been defined"));
+            error = true;
+        }
+        
+        // variables max must be greater than min
+        for (CalculatedQuestionVariableBean variable : question.getVariables().values()) {
+            if (variable.getMax() < variable.getMin()) {
+                context.addMessage(null, new FacesMessage("Variable '" + variable.getName() + "' has a Max less than its Min"));
+                error = true;
+            }
+        }
+        
+        // throw an error if variables and formulas share any names
+        if (!Collections.disjoint(question.getFormulas().keySet(), question.getVariables().keySet())) {
+            context.addMessage(null, new FacesMessage("Variables and Formulas must have unique names"));
+            error = true;
+        }
+        
+        if(error) {
             item.setOutcome("calculatedQuestion");
             item.setPoolOutcome("calculatedQuestion");
             return;
         }
-        if(error) return;
     }
 
 	try {
@@ -525,61 +561,7 @@ public class ItemAddListener
     	return false;
         }
     }
-    
-    /**
-     * CALCULATED_QUESTION 
-     * Determines if there is an error in the quesiton. Returns and error code
-     * depending on where the error is.
-     * 
-     * return int:	0 - All is well. No errors.
-     * 				1 - No matching {}
-     * 				2 - Improper syntax
-     * 				3 - Error in answer expression
-     */
-    public int isErrorCalcQ() {
-    	ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
-    	ItemBean item =itemauthorbean.getCurrentItem();
-    	String text = item.getInstruction();
-    	
-    	// if they don't have {}'s, it's wrong!
-    	if (!(text.contains("{") && text.contains("}"))) return 1;
-    	
-    	// Loop through each pair of {}'s
-    	while(text.contains("{")) {
-    		int indexOpen = text.indexOf('{');
-    		int indexClose = text.indexOf('}', indexOpen);
-    		if (indexClose == -1) return 1; // missing the closing }, it's wrong!
-    		
-			// get the substring between { and }
-    		String answerInfo = text.substring(indexOpen+1, indexClose);
-    		String answerExpression = "";
-    		String answerFormat = "";
-    		answerInfo.replaceAll(" ", ""); // drop white space
-   
-    		// split the answerExpression and the stuff past the "|" delim (answerFormat)
-    		if (answerInfo.contains("|")) {
-    			answerExpression = answerInfo.substring(0, answerInfo.indexOf('|'));
-    			answerFormat = answerInfo.substring(answerInfo.indexOf('|')+1, answerInfo.length());
-    			if (answerFormat.length() == 0) return 2; // blank formatting
-    			
-    			if (!Pattern.matches("(\\d{0,2})?(\\.)?(\\d{0,6})?%(,[0-6])?", answerFormat) &&
-    					!Pattern.matches("(\\d{0,12})?(\\.)?(\\d{0,6})?(,[0-6])?", answerFormat) ) {
-    				return 2; // bad syntax on "1%,2" type formatting, so it's wrong!
-    			}
-    		}
-    		else {
-    			answerExpression = answerInfo;
-    		}
-    		
-    		// Check the answer expression for errors
-    		if (answerExpression.length() < 1) return 3; // no expression, it's wrong!
-    		
-			// remove everything  before the } from text
-    		text = text.substring(indexClose+1, text.length());
-    	}
-    	return 0;
-    }
-    
+        
     /**
      * CALCULATED_QUESTION
      * Returns true if there is a mathematical error (that can easily be detected)

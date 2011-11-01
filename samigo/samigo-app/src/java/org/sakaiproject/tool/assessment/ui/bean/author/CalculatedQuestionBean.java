@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.faces.context.FacesContext;
+
 import org.sakaiproject.tool.assessment.services.GradingService;
 
 public class CalculatedQuestionBean implements Serializable {
@@ -108,8 +110,19 @@ public class CalculatedQuestionBean implements Serializable {
     }
     
     public void extractFromInstructions(String instructions) {
+        // set beans and variables inactive.
+        // once the new ones are read in, they will be reactivated.
+        // if a variable is not found on a new extract, it will be left inactive
+        for (CalculatedQuestionFormulaBean bean : formulas.values()) {
+            bean.setActive(false);
+        }
+        for (CalculatedQuestionVariableBean bean : variables.values()) {
+            bean.setActive(false);
+        }
+        
+        // create or activate formulas and variables
         extractFormulasFromInstructions(instructions);
-        extractVariablesFromInstructions(instructions);
+        extractVariablesFromInstructions(instructions);            
     }
     
     private void extractFormulasFromInstructions(String instructions) {
@@ -123,6 +136,9 @@ public class CalculatedQuestionBean implements Serializable {
                 bean.setName(formulaName);
                 bean.setSequence(new Long(this.variables.size() + this.formulas.size() + 1));
                 this.addFormula(bean);
+            } else {
+                CalculatedQuestionFormulaBean bean = formulas.get(formulaName);
+                bean.setActive(true);
             }
         }                 
     }
@@ -143,6 +159,9 @@ public class CalculatedQuestionBean implements Serializable {
                 bean.setName(variableName);
                 bean.setSequence(new Long(this.variables.size() + this.formulas.size() + 1));
                 this.addVariable(bean);
+            } else {
+                CalculatedQuestionVariableBean bean = variables.get(variableName);
+                bean.setActive(true);
             }
         }         
     }

@@ -35,17 +35,15 @@ public class CalculatedQuestionVariableBean implements Serializable {
     private static final long serialVersionUID = -7835973840484043575L;
     private Long sequence;
     private String name;
-    private String min;
-    private String max;
+    private double min;
+    private double max;
     private String decimalPlaces;
-    public static final String DEFAULT_MIN = "0";
-    public static final String DEFAULT_MAX = "0";
+    private boolean active;
     public static final String DEFAULT_DECIMAL_PLACES = "0";
 
     public CalculatedQuestionVariableBean() {
-        this.min = DEFAULT_MIN;
-        this.max = DEFAULT_MAX;
         this.decimalPlaces = DEFAULT_DECIMAL_PLACES;
+        this.active = true;
     }
     
     public void setSequence(Long sequence) {
@@ -64,25 +62,19 @@ public class CalculatedQuestionVariableBean implements Serializable {
         return this.name;
     }
     
-    public void setMin(String min) {
+    public void setMin(double min) {
         this.min = min;
     }
     
-    public String getMin() {
-        if (this.min == null) {
-            return DEFAULT_MIN;
-        }
+    public double getMin() {
         return this.min;
     }
     
-    public void setMax(String max) {
+    public void setMax(double max) {
         this.max = max;
     }
     
-    public String getMax() {
-        if (this.max == null) {
-            return DEFAULT_MAX;
-        }
+    public double getMax() {
         return this.max;
     }
     
@@ -95,5 +87,13 @@ public class CalculatedQuestionVariableBean implements Serializable {
             return DEFAULT_DECIMAL_PLACES;
         }
         return this.decimalPlaces;
+    }
+    
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+    
+    public boolean getActive() {
+        return this.active;
     }
 }

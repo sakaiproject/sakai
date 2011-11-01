@@ -169,10 +169,10 @@
       <h:column>
         <f:facet name="header">
           
-          <h:outputText value=""  />
+          <h:outputText value="" />
         </f:facet>
 
-          <h:outputText value="#{variable.sequence}"  />
+          <h:outputText value="" />
       </h:column>
 
       <h:column>
@@ -186,15 +186,17 @@
         <f:facet name="header">
           <h:outputText value="#{authorMessages.calc_question_min}"  />
         </f:facet>
-          <h:inputText required="true" value="#{variable.min}" >
-          </h:inputText>>
+          <h:inputText required="true" value="#{variable.min}" disabled="#{!variable.active }">
+		  	<f:converter converterId="javax.faces.Double" />
+          </h:inputText>
       </h:column>
 
       <h:column>
         <f:facet name="header">
           <h:outputText value="#{authorMessages.calc_question_max}"  />
         </f:facet>
-          <h:inputText required="true" value="#{variable.max}">
+          <h:inputText required="true" value="#{variable.max}" disabled="#{!variable.active }">
+		  	<f:converter converterId="javax.faces.Double" />
           </h:inputText>
       </h:column>
 
@@ -202,7 +204,7 @@
         <f:facet name="header">
           <h:outputText value="#{authorMessages.calc_question_dec}"  />
         </f:facet>
-		  <h:selectOneMenu value="#{variable.decimalPlaces}">
+		  <h:selectOneMenu value="#{variable.decimalPlaces}" disabled="#{!variable.active }">
      		<f:selectItems value="#{itemauthor.decimalPlaceList}" />
   		</h:selectOneMenu>
       </h:column>
@@ -221,7 +223,7 @@
           <h:outputText value=""  />
         </f:facet>
 
-          <h:outputText value="#{formula.sequence}"  />
+          <h:outputText value="" />
       </h:column>
 
       <h:column>
@@ -235,23 +237,23 @@
         <f:facet name="header">
           <h:outputText value="#{authorMessages.calc_question_formula_col}"  />
         </f:facet>
-		   <samigo:wysiwyg rows="140" value="#{formula.text}" hasToggle="no">
-		     <f:validateLength maximum="60000"/>
-		   </samigo:wysiwyg>
+        	<h:inputText value="#{formula.text }" disabled="#{!formula.active }" />
       </h:column>
       
       <h:column>
         <f:facet name="header">
           <h:outputText value="#{authorMessages.calc_question_tolerance}"  />
         </f:facet>
-          <h:inputText required="true" value="#{formula.tolerance}"  />
+          <h:inputText required="true" value="#{formula.tolerance}"  disabled="#{!formula.active }">
+		  	<f:converter converterId="javax.faces.Double" />
+          </h:inputText>
       </h:column>
       
       <h:column>
         <f:facet name="header">
           <h:outputText value="#{authorMessages.calc_question_dec}"  />
         </f:facet>
-		  <h:selectOneMenu id="assignToPart" value="#{formula.decimalPlaces}">
+		  <h:selectOneMenu id="assignToPart" value="#{formula.decimalPlaces}" disabled="#{!formula.active }">
      		<f:selectItems  value="#{itemauthor.decimalPlaceList}" />
   		</h:selectOneMenu>
           

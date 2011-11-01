@@ -547,8 +547,8 @@ public class ItemModifyListener implements ActionListener
               CalculatedQuestionVariableBean variable = new CalculatedQuestionVariableBean();
               List<AnswerIfc> answers = itemBean.getAnswerArray();
               String text = answers.get(0).getText();
-              String min = text.substring(0, text.indexOf("|"));
-              String max = text.substring(text.indexOf("|") + 1, text.indexOf(","));
+              double min = Double.valueOf(text.substring(0, text.indexOf("|")));
+              double max = Double.valueOf(text.substring(text.indexOf("|") + 1, text.indexOf(",")));
               String decimalPlaces = text.substring(text.indexOf(",") + 1);              
               variable.setName(itemBean.getText());
               variable.setSequence(itemBean.getSequence());
@@ -561,7 +561,7 @@ public class ItemModifyListener implements ActionListener
               List<AnswerIfc> answers = itemBean.getAnswerArray();
               String text = answers.get(0).getText();
               String formulaStr = text.substring(0, text.indexOf("|"));
-              String tolerance = text.substring(text.indexOf("|") + 1, text.indexOf(","));
+              double tolerance = Double.valueOf(text.substring(text.indexOf("|") + 1, text.indexOf(",")));
               String decimalPlaces = text.substring(text.indexOf(",") + 1);
               formula.setName(itemBean.getText());
               formula.setSequence(itemBean.getSequence());
