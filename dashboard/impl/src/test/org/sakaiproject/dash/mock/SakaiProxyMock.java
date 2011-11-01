@@ -174,4 +174,9 @@ public class SakaiProxyMock implements SakaiProxy {
 		return null;
 	}
 
+	public String getContentTypeImageUrl(String contenttype) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

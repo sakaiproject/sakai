@@ -6,19 +6,15 @@ import java.util.List;
 import java.util.Observer;
 import java.util.Set;
 
-//import lombok.Getter;
-//import lombok.Setter;
-
 import org.apache.log4j.Logger;
-import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
@@ -80,6 +76,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 */
 	public String getConfigParam(String param, String dflt) {
 		return serverConfigurationService.getString(param, dflt);
+	}
+	
+	public String getContentTypeImageUrl(String contenttype) {
+		return this.contentTypeImageService.getContentTypeImage(contenttype);
 	}
 	
 	/*
@@ -362,6 +362,9 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 	//@Getter @Setter
 	protected AssignmentService assignmentService;
+	
+	protected ContentTypeImageService contentTypeImageService;
+	
 	/**
 	 * @param toolManager the toolManager to set
 	 */
@@ -438,6 +441,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 */
 	public void setAssignmentService( AssignmentService assignmentService) {
 		this.assignmentService = assignmentService;
+	}
+
+	/**
+	 * @param contentTypeImageService the contentTypeImageService to set
+	 */
+	public void setContentTypeImageService(ContentTypeImageService contentTypeImageService) {
+		this.contentTypeImageService = contentTypeImageService;
 	}
 
 	/************************************************************************

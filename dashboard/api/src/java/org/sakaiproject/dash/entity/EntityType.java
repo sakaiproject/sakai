@@ -188,5 +188,13 @@ public interface EntityType {
 	 */
 	public boolean isUserPermitted(String sakaiUserId, String accessPermission,
 			String entityReference, String contextId);
+	
+	/**
+	 * Determine the correct icon to use for a particular entity in the dashboard list 
+	 * based on its "subtype".
+	 * @param subtype
+	 * @return
+	 */
+	public String getIconUrl(String subtype);
 
 }

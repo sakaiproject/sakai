@@ -90,6 +90,13 @@ public interface SakaiProxy {
 	public String getConfigParam(String param, String dflt);
 	
 	/**
+	 * Retrieve the URL for an icon that represents items of a particular content-type (or mimetype).
+	 * @param contenttype
+	 * @return
+	 */
+	public String getContentTypeImageUrl(String contenttype);
+
+	/**
 	 * Get current siteid
 	 * @return
 	 */
@@ -225,4 +232,5 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public List<User> unlockUsers(String lock, String reference);
+
 }

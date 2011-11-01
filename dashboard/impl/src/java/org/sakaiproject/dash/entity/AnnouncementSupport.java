@@ -314,6 +314,11 @@ public class AnnouncementSupport{
 			Object[] args = new Object[]{ numberOfItems, contextTitle };
 			return rl.getFormattedMessage("announcement.grouped.title", args );
 	}
+
+		public String getIconUrl(String subtype) {
+			// TODO return the url for an icon for the announcement
+			return null;
+		}
 	}
 	
 	/**

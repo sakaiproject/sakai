@@ -67,6 +67,7 @@ public class ScheduleSupport{
 	}
 	
 	protected Map<String,String> scheduleEventTypeMap;
+	protected Map<String,String> eventTypeImageUrlMap;
 	
 	protected RepeatingEventGenerator scheduleEntityType;
 
@@ -105,6 +106,25 @@ public class ScheduleSupport{
 		scheduleEventTypeMap.put("Quiz", "schedule.key14");
 		scheduleEventTypeMap.put("Special event", "schedule.key15");
 		scheduleEventTypeMap.put("Web Assignment", "schedule.key16");
+		
+		eventTypeImageUrlMap = new HashMap<String,String>();
+		
+		eventTypeImageUrlMap.put("Academic Calendar", "/library/images/sakai/academic_calendar.gif");
+		eventTypeImageUrlMap.put("Activity", "/library/images/sakai/activity.gif");
+		eventTypeImageUrlMap.put("Cancellation", "/library/images/sakai/cancelled.gif");
+		eventTypeImageUrlMap.put("Class section - Discussion", "/library/images/sakai/class_dis.gif");
+		eventTypeImageUrlMap.put("Class section - Lab", "/library/images/sakai/class_lab.gif");
+		eventTypeImageUrlMap.put("Class section - Lecture", "/library/images/sakai/class_lec.gif");
+		eventTypeImageUrlMap.put("Class section - Small Group", "/library/images/sakai/class_sma.gif");
+		eventTypeImageUrlMap.put("Class session", "/library/images/sakai/class_session.gif");
+		eventTypeImageUrlMap.put("Computer Session", "/library/images/sakai/computersession.gif");
+		eventTypeImageUrlMap.put("Deadline", "/library/images/sakai/deadline.gif");
+		eventTypeImageUrlMap.put("Exam", "/library/images/silk/accept.png");
+		eventTypeImageUrlMap.put("Meeting", "/library/images/sakai/meeting.gif");
+		eventTypeImageUrlMap.put("Multidisciplinary Conference", "/library/images/sakai/multi-conference.gif");
+		eventTypeImageUrlMap.put("Quiz", "/library/images/silk/star.png");
+		eventTypeImageUrlMap.put("Special event", "/library/images/sakai/special_event.gif");
+		eventTypeImageUrlMap.put("Web Assignment", "/library/images/sakai/webassignment.gif");
 
 	}
 	
@@ -315,6 +335,16 @@ public class ScheduleSupport{
 			Object[] args = new Object[]{ numberOfItems, contextTitle };
 			return rl.getFormattedMessage("announcement.grouped.title", args );
 	}
+
+		public String getIconUrl(String subtype) {
+			// TODO The param "subtype" will be the "type" of the event.  How does schedule look up icon based on "type"?
+			
+			String url = eventTypeImageUrlMap.get(subtype);
+			if(url == null) {
+				// url = SOME_DEFAULT_IMAGE_URL
+			}
+			return url ;
+		}
 	}
 	
 	/**

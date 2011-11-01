@@ -294,6 +294,11 @@ public class AssignmentSupport {
 			Object[] args = new Object[]{ numberOfItems, contextTitle };
 			return rl.getFormattedMessage("assignment.grouped.title", args );
 	}
+
+		public String getIconUrl(String subtype) {
+			// TODO return an icon for an assignment?
+			return null;
+		}
 	}
 	
 	/**

@@ -243,6 +243,15 @@ public class ResourceSupport {
 			Object[] args = new Object[]{ numberOfItems, contextTitle };
 			return rl.getFormattedMessage("resource.grouped.title", args );
 	}
+
+		public String getIconUrl(String subtype) {
+			
+			String url = sakaiProxy.getContentTypeImageUrl(subtype);
+			if(url == null) {
+				// url = DEFAULT_OF_SOME_SORT?
+			}
+			return url ;
+		}
 	}
 
 
