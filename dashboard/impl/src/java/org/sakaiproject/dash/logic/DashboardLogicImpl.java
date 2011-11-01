@@ -316,7 +316,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			String entityReference, Context context, SourceType sourceType) {
 		
 		NewsItem newsItem = new NewsItem(title, newsTime, 
-				entityReference, context, sourceType);
+				null, entityReference, context, sourceType);
 		
 		dao.addNewsItem(newsItem);
 		
@@ -735,6 +735,15 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		NewsItem item = dao.getNewsItem(entityReference);
 		if(item != null) {
 			dao.updateNewsItemTitle(item.getId(), newTitle);
+		}
+		
+	}
+	
+	public void reviseNewsItemLabelKey(String entityReference, String newLabelKey) {
+		
+		NewsItem item = dao.getNewsItem(entityReference);
+		if(item != null) {
+			dao.updateNewsItemLabelKey(item.getId(), newLabelKey);
 		}
 		
 	}

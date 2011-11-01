@@ -41,6 +41,7 @@ public class NewsItem implements Serializable {
 	protected Long id;
 	protected String title;
 	protected Date newsTime;
+	protected String newsTimeLabelKey;
 	protected String entityReference;
 	//protected String entityUrl;
 	protected Context context;
@@ -53,11 +54,12 @@ public class NewsItem implements Serializable {
 		super();
 	}
 
-	public NewsItem(String title, Date newsTime, String entityReference,
-			Context context, SourceType sourceType) {
+	public NewsItem(String title, Date newsTime, String newsTimeLabelKey,
+			String entityReference, Context context, SourceType sourceType) {
 		super();
 		this.title = title;
 		this.newsTime = newsTime;
+		this.newsTimeLabelKey = newsTimeLabelKey;
 		this.entityReference = entityReference;
 		this.context = context;
 		this.sourceType = sourceType;
@@ -67,18 +69,20 @@ public class NewsItem implements Serializable {
 	 * @param id
 	 * @param title
 	 * @param newsTime
+	 * @param newsTimeLabelKey TODO
 	 * @param entityReference
-	 * @param entityUrl
 	 * @param context
 	 * @param sourceType
+	 * @param entityUrl
 	 */
 	public NewsItem(Long id, String title, Date newsTime,
-			String entityReference, Context context,
-			SourceType sourceType) {
+			String newsTimeLabelKey, String entityReference,
+			Context context, SourceType sourceType) {
 		super();
 		this.id = id;
 		this.title = title;
 		this.newsTime = newsTime;
+		this.newsTimeLabelKey = newsTimeLabelKey;
 		this.entityReference = entityReference;
 		this.context = context;
 		this.sourceType = sourceType;
@@ -117,6 +121,13 @@ public class NewsItem implements Serializable {
 	 */
 	public Context getContext() {
 		return context;
+	}
+
+	/**
+	 * @return the newsTimeLabelKey
+	 */
+	public String getNewsTimeLabelKey() {
+		return newsTimeLabelKey;
 	}
 
 	/**
@@ -162,6 +173,13 @@ public class NewsItem implements Serializable {
 	}
 
 	/**
+	 * @param newsTimeLabelKey the newsTimeLabelKey to set
+	 */
+	public void setNewsTimeLabelKey(String newsTimeLabelKey) {
+		this.newsTimeLabelKey = newsTimeLabelKey;
+	}
+
+	/**
 	 * @param sourceType the sourceType to set
 	 */
 	public void setSourceType(SourceType sourceType) {
@@ -180,6 +198,8 @@ public class NewsItem implements Serializable {
 		builder.append(title);
 		builder.append(", newsTime=");
 		builder.append(newsTime);
+		builder.append(", newsTimeLabelKey=");
+		builder.append(newsTimeLabelKey);
 		builder.append(", entityReference=");
 		builder.append(entityReference);
 		builder.append(", context=");

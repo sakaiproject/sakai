@@ -201,7 +201,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		
 		try {
 			getJdbcTemplate().update(getStatement("insert.NewsItem"),
-				new Object[]{newsItem.getNewsTime(), newsItem.getTitle(), newsItem.getEntityReference(),
+				new Object[]{newsItem.getNewsTime(), newsItem.getTitle(), newsItem.getNewsTimeLabelKey(), newsItem.getEntityReference(),
 						newsItem.getSourceType().getId(), newsItem.getContext().getId()}
 			);
 			return true;
@@ -1243,6 +1243,27 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return true;
 		} catch (DataAccessException ex) {
            log.error("updateNewsItemTitle: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}		
+		
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#updateNewsItemLabelKey(java.lang.Long, java.lang.String)
+	 */
+	public boolean updateNewsItemLabelKey(Long id, String labelKey) {
+		if(log.isDebugEnabled()) {
+			log.debug("updateNewsItemLabelKey( " + id + "," + labelKey + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("update.NewsItem.newsTimeLabelKey"),
+				new Object[]{labelKey, id}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("updateNewsItemLabelKey: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}		
 		

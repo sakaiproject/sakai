@@ -211,6 +211,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		Date eventTime = new Date(System.currentTimeMillis() - ONE_DAY);
 		String title = getUniqueIdentifier();
 		String entityReference = getUniqueIdentifier();
+		String labelKey = getUniqueIdentifier();
 		
 		String contextId = getUniqueIdentifier();
 		String contextTitle = getUniqueIdentifier();
@@ -226,7 +227,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
 
 		NewsItem newsItem = new NewsItem(title, eventTime,
-			entityReference, context, sourceType);
+			labelKey, entityReference, context, sourceType);
 		boolean saved = dao.addNewsItem(newsItem);
 		
 		assertTrue(saved);
@@ -238,6 +239,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		
 		assertEquals(title, newsItem.getTitle());
 		assertEquals(entityReference, newsItem.getEntityReference());
+		assertEquals(labelKey, newsItem.getNewsTimeLabelKey());
 
 		assertEquals(eventTime.getTime(), newsItem.getNewsTime().getTime());
 		//assertTrue(eventTime.getTime() + TIME_DELTA > newsItem.getNewsTime().getTime());
@@ -276,7 +278,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
 
 		NewsItem newsItem = new NewsItem(title, eventTime,
-			entityReference, context, sourceType);
+			null, entityReference, context, sourceType);
 		dao.addNewsItem(newsItem);
 		newsItem = dao.getNewsItem(entityReference);
 		
@@ -780,7 +782,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		sourceType = dao.getSourceType(sourceTypeIdentifier);
 
 		NewsItem newsItem = new NewsItem(title, eventTime,
-			entityReference, context, sourceType);
+			null, entityReference, context, sourceType);
 		boolean saved = dao.addNewsItem(newsItem);
 		
 		assertTrue(saved);
@@ -795,6 +797,48 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		NewsItem revisedItem = dao.getNewsItem(savedItem.getId());
 		assertNotNull(revisedItem);
 		assertEquals(newTime.getTime(), revisedItem.getNewsTime().getTime());
+		
+		
+	}
+
+	public void testUpdateNewsItemLabelKey() {
+		Date eventTime = new Date(System.currentTimeMillis() - ONE_DAY);
+		String title = getUniqueIdentifier();
+		String entityReference = getUniqueIdentifier();
+		String labelKey1 = getUniqueIdentifier();
+		
+		String contextId = getUniqueIdentifier();
+		String contextTitle = getUniqueIdentifier();
+		String contextUrl = getUniqueIdentifier();
+		Context context = new Context(contextId, contextTitle, contextUrl );
+		dao.addContext(context);
+		context = dao.getContext(contextId);
+		
+		String sourceTypeIdentifier = getUniqueIdentifier();
+		String accessPermission = getUniqueIdentifier();
+		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission, EntityLinkStrategy.ACCESS_URL);
+		dao.addSourceType(sourceType);
+		sourceType = dao.getSourceType(sourceTypeIdentifier);
+
+		NewsItem newsItem = new NewsItem(title, eventTime,
+			labelKey1, entityReference, context, sourceType);
+		boolean saved = dao.addNewsItem(newsItem);
+		
+		assertTrue(saved);
+		
+		NewsItem savedItem = dao.getNewsItem(entityReference);
+		assertNotNull(savedItem);
+		assertNotNull(savedItem.getId());
+		assertTrue(savedItem.getId().longValue() >= 0L);
+		assertEquals(labelKey1, savedItem.getNewsTimeLabelKey());
+
+		String labelKey2 = getUniqueIdentifier();
+		assertFalse(labelKey1.equals(labelKey2));
+
+		dao.updateNewsItemLabelKey(savedItem.getId(), labelKey2);
+		NewsItem revisedItem = dao.getNewsItem(savedItem.getId());
+		assertNotNull(revisedItem);
+		assertEquals(labelKey2, revisedItem.getNewsTimeLabelKey());
 		
 		
 	}

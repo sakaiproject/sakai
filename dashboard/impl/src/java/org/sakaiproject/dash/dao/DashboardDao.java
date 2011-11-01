@@ -247,4 +247,6 @@ public interface DashboardDao {
 
 	public boolean updateNewsItemTime(Long id, Date newTime);
 
+	public abstract boolean updateNewsItemLabelKey(Long id, String labelKey);
+
 }

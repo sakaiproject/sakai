@@ -31,6 +31,7 @@ public class NewsItemMapper implements RowMapper {
 		NewsItem newsItem = new NewsItem();
 		newsItem.setId(rs.getLong("ni_id"));
 		newsItem.setNewsTime(rs.getTimestamp("ni_news_time"));
+		newsItem.setNewsTimeLabelKey(rs.getString("ni_news_time_label_key"));
 		newsItem.setTitle(rs.getString("ni_title"));
 		newsItem.setEntityReference(rs.getString("ni_entity_ref"));
 		
