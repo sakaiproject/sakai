@@ -22,6 +22,9 @@
 package org.sakaiproject.dash.model;
 
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.FieldPosition;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 //import lombok.AllArgsConstructor;
@@ -47,6 +50,9 @@ public class NewsItem implements Serializable {
 	protected Context context;
 	protected SourceType sourceType;
 	protected String subtype;
+	protected String groupingIdentifier;
+
+	protected static final String FORMAT_YEAR_DAY = "yyyyDDD";
 	
 	/**
 	 * 
@@ -65,6 +71,7 @@ public class NewsItem implements Serializable {
 		this.context = context;
 		this.sourceType = sourceType;
 		this.subtype = subtype;
+		generateGroupingIdentifier();
 	}
 
 	/**
@@ -90,6 +97,7 @@ public class NewsItem implements Serializable {
 		this.context = context;
 		this.sourceType = sourceType;
 		this.subtype = subtype;
+		generateGroupingIdentifier();
 }
 
 	/**
@@ -118,6 +126,13 @@ public class NewsItem implements Serializable {
 	 */
 	public String getEntityReference() {
 		return entityReference;
+	}
+
+	/**
+	 * @return the groupingIdentifier
+	 */
+	public String getGroupingIdentifier() {
+		return groupingIdentifier;
 	}
 
 	/**
@@ -167,6 +182,7 @@ public class NewsItem implements Serializable {
 	 */
 	public void setNewsTime(Date newsTime) {
 		this.newsTime = newsTime;
+		generateGroupingIdentifier();
 	}
 
 	/**
@@ -188,6 +204,7 @@ public class NewsItem implements Serializable {
 	 */
 	public void setContext(Context context) {
 		this.context = context;
+		generateGroupingIdentifier();
 	}
 
 	/**
@@ -202,6 +219,7 @@ public class NewsItem implements Serializable {
 	 */
 	public void setSourceType(SourceType sourceType) {
 		this.sourceType = sourceType;
+		generateGroupingIdentifier();
 	}
 
 	/* (non-Javadoc)
@@ -226,8 +244,32 @@ public class NewsItem implements Serializable {
 		builder.append(sourceType);
 		builder.append(", subtype=");
 		builder.append(subtype);
+		builder.append(", groupingIdentifier=");
+		builder.append(groupingIdentifier);
 		builder.append("]");
 		return builder.toString();
 	}
 
+	protected void generateGroupingIdentifier() {
+		StringBuilder buf = new StringBuilder();
+		DateFormat df = new SimpleDateFormat(FORMAT_YEAR_DAY);
+		if(newsTime == null) {
+			buf.append(df.format(new Date()));
+		} else {
+			buf.append(df.format(newsTime));
+		}
+		buf.append("-");
+		if(context == null) {
+			buf.append("unknown.site");		
+		} else {
+			buf.append(context.getContextId());
+		}
+		buf.append("-");
+		if(sourceType == null) {
+			buf.append("unknown.type");		
+		} else {
+			buf.append(sourceType.getIdentifier());
+		}
+		this.groupingIdentifier = buf.toString();
+	}
 }

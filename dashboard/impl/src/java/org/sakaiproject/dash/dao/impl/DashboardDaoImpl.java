@@ -202,7 +202,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		try {
 			getJdbcTemplate().update(getStatement("insert.NewsItem"),
 				new Object[]{newsItem.getNewsTime(), newsItem.getTitle(), newsItem.getNewsTimeLabelKey(), newsItem.getEntityReference(),
-						newsItem.getSubtype(), newsItem.getSourceType().getId(), newsItem.getContext().getId()}
+						newsItem.getSubtype(), newsItem.getSourceType().getId(), newsItem.getContext().getId(), newsItem.getGroupingIdentifier()}
 			);
 			return true;
 		} catch (DataAccessException ex) {
