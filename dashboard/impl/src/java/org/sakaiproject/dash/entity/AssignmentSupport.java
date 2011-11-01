@@ -166,6 +166,7 @@ public class AssignmentSupport {
 				Map<String,String> infoItem = new HashMap<String,String>();
 				infoItem.put(VALUE_INFO_LINK_URL, assignmentUrl);
 				infoItem.put(VALUE_INFO_LINK_TITLE, rl.getString("assignment.info.link"));
+				infoItem.put(VALUE_INFO_LINK_TARGET, "_top");
 				infoList.add(infoItem);
 				values.put(VALUE_MORE_INFO, infoList);
 				

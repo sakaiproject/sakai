@@ -182,6 +182,7 @@ public class ScheduleSupport{
 				Map<String,String> infoItem = new HashMap<String,String>();
 				infoItem.put(VALUE_INFO_LINK_URL, sakaiProxy.getScheduleEventUrl(cEvent.getReference()));
 				infoItem.put(VALUE_INFO_LINK_TITLE, rl.getString("schedule.info.link"));
+				infoItem.put(VALUE_INFO_LINK_TARGET, "_top");
 				infoList.add(infoItem);
 				values.put(VALUE_MORE_INFO, infoList);
 				
