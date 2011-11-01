@@ -731,6 +731,11 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		dao.updateCalendarItemsLabelKey(entityReference, oldLabelKey, newLabelKey);
 	}
 	
+	public void reviseContextTitle(String contextId, String newContextTitle) {
+		boolean updated = dao.updateContextTitle(contextId, newContextTitle);
+		
+	}
+	
 	public void reviseNewsItemTime(String entityReference, Date newTime) {
 		NewsItem item = dao.getNewsItem(entityReference);
 		dao.updateNewsItemTime(item.getId(), newTime);

@@ -811,6 +811,35 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		Long id;
 		String newTitle;
 	}
+	
+	public void testUpdateContextTitle() {
+		String contextId = getUniqueIdentifier();
+		String contextTitle1 = getUniqueIdentifier();
+		String contextUrl = getUniqueIdentifier();
+		Context context = new Context(contextId, contextTitle1, contextUrl );
+		
+		boolean saved = dao.addContext(context);
+		assertTrue(saved);
+		
+		context = dao.getContext(contextId);		
+		assertNotNull(context);
+		assertNotNull(context.getId());
+		assertEquals(contextId, context.getContextId());
+		assertEquals(contextTitle1, context.getContextTitle());
+		assertEquals(contextUrl, context.getContextUrl());
+		
+		String contextTitle2 = getUniqueIdentifier();
+		boolean updated = dao.updateContextTitle(contextId, contextTitle2);
+		
+		assertTrue(updated);
+		Context revisedContext = dao.getContext(contextId);	
+		
+		assertNotNull(revisedContext);
+		assertNotNull(revisedContext.getId());
+		assertEquals(contextId, revisedContext.getContextId());
+		assertEquals(contextTitle2, revisedContext.getContextTitle());
+		assertEquals(contextUrl, revisedContext.getContextUrl());
+	}
 
 	public void testUpdateNewsItemTitle() {
 		Long id;

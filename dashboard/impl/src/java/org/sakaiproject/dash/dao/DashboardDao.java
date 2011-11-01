@@ -241,6 +241,8 @@ public interface DashboardDao {
 
 	public boolean updateCalendarLink(CalendarLink link);
 
+	public boolean updateContextTitle(String contextId, String newContextTitle);
+
 	public NewsLink getNewsLink(long newsItemId, long personId);
 
 	public boolean updateNewsLink(NewsLink link);

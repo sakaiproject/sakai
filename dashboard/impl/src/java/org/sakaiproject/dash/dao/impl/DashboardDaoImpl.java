@@ -1227,6 +1227,23 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 	
+	public boolean updateContextTitle(String contextId, String newContextTitle) {
+		if(log.isDebugEnabled()) {
+			log.debug("updateContextTitle( " + contextId + "," + newContextTitle + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("update.Context.title"),
+				new Object[]{newContextTitle, contextId}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("updateContextTitle: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}		
+		
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#updateNewsItemSubtype(java.lang.Long, java.lang.String)

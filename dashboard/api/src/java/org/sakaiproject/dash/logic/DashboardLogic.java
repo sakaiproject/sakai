@@ -327,6 +327,8 @@ public interface DashboardLogic {
 	 */
 	public void reviseCalendarItemsLabelKey(String entityReference, String oldLabelKey, String newLabelKey);
 	
+	public void reviseContextTitle(String contextId, String newContextTitle);
+	
 	public void reviseNewsItemLabelKey(String entityReference, String newLabelKey);
 
 	public void reviseNewsItemTime(String entityReference, Date newTime);
