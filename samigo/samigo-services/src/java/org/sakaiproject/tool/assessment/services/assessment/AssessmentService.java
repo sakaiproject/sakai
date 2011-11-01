@@ -21,6 +21,7 @@
 
 package org.sakaiproject.tool.assessment.services.assessment;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -496,7 +497,7 @@ public class AssessmentService {
 				}
 
 				//update meta data for date:
-				section.addSectionMetaData(SectionDataIfc.QUESTIONS_RANDOM_DRAW_DATE, new Date().toString());
+				section.addSectionMetaData(SectionDataIfc.QUESTIONS_RANDOM_DRAW_DATE, DateFormat.getDateTimeInstance().format(new Date()));
 
 				saveOrUpdateSection(section);
 			}else{

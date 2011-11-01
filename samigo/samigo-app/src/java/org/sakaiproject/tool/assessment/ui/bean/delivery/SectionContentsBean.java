@@ -422,7 +422,7 @@ private String text;
           String randomDrawDate = section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_RANDOM_DRAW_DATE);
           if(randomDrawDate != null && !"".equals(randomDrawDate)){
         	  try{          
-        		  Date drawDate = new Date(randomDrawDate);
+        		  Date drawDate = DateFormat.getDateTimeInstance().parse(randomDrawDate);
         		  setRandomQuestionsDrawDate(DateFormat.getDateInstance().format(drawDate));
         		  setRandomQuestionsDrawTime(DateFormat.getTimeInstance().format(drawDate));
         	  }catch(Exception e){
