@@ -184,6 +184,25 @@
 	        </filterset>
 	    </copy>
 		<delete file="${basedir}/target/pack/conf/server-temp.xml" />
+
+      <echo message="[INFO] Modify Tomcat catalina.properties for Tomcat 7" />
+      <copy file="${basedir}/target/pack/conf/catalina.properties"
+        tofile="${basedir}/target/pack/conf/catalina-orig.properties"
+          overwrite="true" />
+
+        <!-- Hopefully these won't break for Tomcat 5, but pack-demo doesn't target Tomcat 5 -->
+        <replaceregexp file="${basedir}/target/pack/conf/catalina.properties"
+          match="common.loader=(.*)"
+          replace="common.loader=${catalina.base}/common/lib/*.jar,\1"
+          byline="true"
+          />
+
+        <replaceregexp file="${basedir}/target/pack/conf/catalina.properties"
+          match="shared.loader=(.*)"
+          replace="shared.loader=${catalina.base}/shared/classes,${catalina.base}/shared/lib/*.jar,\1"
+          byline="true"
+          />
+
 	</target>
 	
 	<target name="tar" depends="add" description="Tar sakai-demo-${sakai.version}.tar.gz.">
