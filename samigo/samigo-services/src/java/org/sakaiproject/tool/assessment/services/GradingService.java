@@ -2041,8 +2041,9 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * looks through a block of text for anything that is encoded as a formula
    * and returns a list of any matches.  A formula is enclosed in {{ }}.
    * <p>For example, if the passed parameter is
-   * {a} + {b} = {{{a} + {b}|0,0.1}}, the resulting list would contain
-   * one entry, with a string of {a} + {b}|0,0.1
+   * {a} + {b} = {{c}}, the resulting list would contain
+   * one entry, with a string of "c"
+   * <p>Formulas must begin with an alpha, but subsequent character can be alpha-numeric
    * @param text contents to be searched
    * @return a list of matching formulas.  If no formulas are found, the list will be empty.
    */
@@ -2052,12 +2053,10 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		  return formulas;
 	  }
 	  
-	  Pattern formulaPattern = Pattern.compile(OPEN_BRACKET + OPEN_BRACKET + "\\w" + CLOSE_BRACKET + CLOSE_BRACKET);
+	  Pattern formulaPattern = Pattern.compile(OPEN_BRACKET + OPEN_BRACKET + "([a-zA-Z]\\w*)" + CLOSE_BRACKET + CLOSE_BRACKET);
 	  Matcher formulaMatcher = formulaPattern.matcher(text);
 	  while (formulaMatcher.find()) {
-		  String formula = formulaMatcher.group(0);
-		  formula = formula.substring(2, formula.length() - 2); //strip out curly braces
-		  // now add these to a formula list
+		  String formula = formulaMatcher.group(1);
 		  formulas.add(formula);
 	  }
 	  return formulas;
@@ -2065,11 +2064,11 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   
   /**
    * looks through a block of text for anything that is encoded as a variable and returns
-   * a list of any matches.  A variable is enclosed in { }.  Since variables are very similar
-   * to formulas, variables that are also formulas are not returned.
+   * a list of any matches.  A variable is enclosed in { }.
    * <p>For example, if the passed parameter is
-   * {a} + {b} = {{{a} + {b}|0,0.1}}, the resulting list would contain
-   * two etnries, with strings of "a" and "b"
+   * {a} + {b} = {{c}}, the resulting list would contain
+   * two entries, with strings of "a" and "b"
+   * <p>Variables must begin with an alpha, but subsequent character can be alpha-numeric
    * @param text content to be searched
    * @return a list of matching variables.  If no variables are found, the list will be empty
    */
@@ -2079,15 +2078,17 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		  return variables;
 	  }
 	  
-	  List<String> formulas = this.extractFormulas(text);
-	  Pattern variablePattern = Pattern.compile("(" + OPEN_BRACKET + "\\w" + CLOSE_BRACKET + ")");
-	  Matcher variableMatcher = variablePattern.matcher(text);
+	  Pattern variablePattern = Pattern.compile("[^" + OPEN_BRACKET + "]" + 
+	          OPEN_BRACKET + "([a-zA-Z]\\w*)" + CLOSE_BRACKET + 
+	          "[^" + CLOSE_BRACKET + "]");
+	  
+	  // I padded the text so that the regex will examine the space before the 
+	  // variable and confirm it doesn't have another wrapping {}, which would 
+	  // make it a formula.  This is a hack - find a better regex.
+	  Matcher variableMatcher = variablePattern.matcher(" " + text + " ");
 	  while (variableMatcher.find()) {
-		  String variable = variableMatcher.group(0);
-          variable = variable.substring(1, variable.length() - 1); // strip out curly braces
-          if (!formulas.contains(variable)) {
-        	  variables.add(variable);
-          }
+		  String variable = variableMatcher.group(1);
+		  variables.add(variable);
 	  }
 	  return variables;	  
   }
