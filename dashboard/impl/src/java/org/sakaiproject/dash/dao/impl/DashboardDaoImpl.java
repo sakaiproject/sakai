@@ -115,12 +115,12 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			if(calendarItem.getRepeatingCalendarItem() == null) {
 				sql = getStatement("insert.CalendarItem");
 				params = new Object[]{calendarItem.getCalendarTime(), calendarItem.getCalendarTimeLabelKey(), calendarItem.getTitle(), 
-						calendarItem.getEntityReference(),
+						calendarItem.getEntityReference(), calendarItem.getSubtype(),
 						calendarItem.getSourceType().getId(), calendarItem.getContext().getId()};
 			} else {
 				sql = getStatement("insert.CalendarItem.repeats");
 				params = new Object[]{calendarItem.getCalendarTime(), calendarItem.getCalendarTimeLabelKey(), calendarItem.getTitle(), 
-						calendarItem.getEntityReference(),
+						calendarItem.getEntityReference(), calendarItem.getSubtype(),
 						calendarItem.getSourceType().getId(), calendarItem.getContext().getId(), 
 						calendarItem.getRepeatingCalendarItem().getId(), calendarItem.getSequenceNumber()};
 			}
@@ -202,7 +202,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		try {
 			getJdbcTemplate().update(getStatement("insert.NewsItem"),
 				new Object[]{newsItem.getNewsTime(), newsItem.getTitle(), newsItem.getNewsTimeLabelKey(), newsItem.getEntityReference(),
-						newsItem.getSourceType().getId(), newsItem.getContext().getId()}
+						newsItem.getSubtype(), newsItem.getSourceType().getId(), newsItem.getContext().getId()}
 			);
 			return true;
 		} catch (DataAccessException ex) {
@@ -341,7 +341,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				repeatingCalendarItem.getFirstTime(), repeatingCalendarItem.getLastTime(), 
 				repeatingCalendarItem.getFrequency(), repeatingCalendarItem.getMaxCount(), 
 				repeatingCalendarItem.getCalendarTimeLabelKey(), repeatingCalendarItem.getTitle(),
-				repeatingCalendarItem.getEntityReference(), sourceTypeId, contextId
+				repeatingCalendarItem.getEntityReference(), repeatingCalendarItem.getSubtype(), sourceTypeId, contextId
 			};
 		
 		try {
@@ -1152,6 +1152,26 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}				
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#updateCalendarItemSubtype(java.lang.Long, java.lang.String)
+	 */
+	public boolean updateCalendarItemSubtype(Long id, String newSubtype) {
+		if(log.isDebugEnabled()) {
+			log.debug("updateCalendarItemSubtype( " + id + "," + newSubtype + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("update.CalendarItem.subtype"),
+				new Object[]{newSubtype, id}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("updateCalendarItemSubtype: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}				
+	}
+	
 	public boolean updateCalendarItemsLabelKey(String entityReference, String oldLabelKey, String newLabelKey) {
 		if(log.isDebugEnabled()) {
 			log.debug("updateCalendarItemTime( " + entityReference + "," + oldLabelKey + "," + newLabelKey + ")");
@@ -1207,6 +1227,27 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#updateNewsItemSubtype(java.lang.Long, java.lang.String)
+	 */
+	public boolean updateNewsItemSubtype(Long id, String newSubtype) {
+		if(log.isDebugEnabled()) {
+			log.debug("updateNewsItemSubtype( " + id + "," + newSubtype + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("update.NewsItem.subtype"),
+				new Object[]{newSubtype, id}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("updateNewsItemSubtype: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}		
+		
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#updateNewsItemTime(java.lang.Long, java.util.Date)
@@ -1288,6 +1329,10 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#updateRepeatingCalendarItemsLabelKey(java.lang.String, java.lang.String, java.lang.String)
+	 */
 	public boolean updateRepeatingCalendarItemsLabelKey(String entityReference, String oldLabelKey, String newLabelKey) {
 		if(log.isDebugEnabled()) {
 			log.debug("updateRepeatingCalendarItemsLabelKey( " + entityReference + "," + oldLabelKey + "," + newLabelKey + ")");
@@ -1300,6 +1345,26 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return true;
 		} catch (DataAccessException ex) {
            log.error("updateRepeatingCalendarItemsLabelKey: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}				
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#updateRepeatingCalendarItemsSubtype(java.lang.String, java.lang.String, java.lang.String)
+	 */
+	public boolean updateRepeatingCalendarItemsSubtype(String entityReference, String labelKey, String newSubtype) {
+		if(log.isDebugEnabled()) {
+			log.debug("updateRepeatingCalendarItemsSubtype( " + entityReference + "," + labelKey + "," + newSubtype + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("update.RepeatingEventsSubtype.entityReference.labelKey"),
+				new Object[]{newSubtype, entityReference, labelKey}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("updateRepeatingCalendarItemsSubtype: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}				
 	}

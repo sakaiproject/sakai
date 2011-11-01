@@ -46,6 +46,7 @@ public class NewsItem implements Serializable {
 	//protected String entityUrl;
 	protected Context context;
 	protected SourceType sourceType;
+	protected String subtype;
 	
 	/**
 	 * 
@@ -55,7 +56,7 @@ public class NewsItem implements Serializable {
 	}
 
 	public NewsItem(String title, Date newsTime, String newsTimeLabelKey,
-			String entityReference, Context context, SourceType sourceType) {
+			String entityReference, Context context, SourceType sourceType, String subtype) {
 		super();
 		this.title = title;
 		this.newsTime = newsTime;
@@ -63,6 +64,7 @@ public class NewsItem implements Serializable {
 		this.entityReference = entityReference;
 		this.context = context;
 		this.sourceType = sourceType;
+		this.subtype = subtype;
 	}
 
 	/**
@@ -73,11 +75,12 @@ public class NewsItem implements Serializable {
 	 * @param entityReference
 	 * @param context
 	 * @param sourceType
+	 * @param subtype TODO
 	 * @param entityUrl
 	 */
 	public NewsItem(Long id, String title, Date newsTime,
 			String newsTimeLabelKey, String entityReference,
-			Context context, SourceType sourceType) {
+			Context context, SourceType sourceType, String subtype) {
 		super();
 		this.id = id;
 		this.title = title;
@@ -86,6 +89,7 @@ public class NewsItem implements Serializable {
 		this.entityReference = entityReference;
 		this.context = context;
 		this.sourceType = sourceType;
+		this.subtype = subtype;
 }
 
 	/**
@@ -114,6 +118,13 @@ public class NewsItem implements Serializable {
 	 */
 	public String getEntityReference() {
 		return entityReference;
+	}
+
+	/**
+	 * @return the subtype
+	 */
+	public String getSubtype() {
+		return subtype;
 	}
 
 	/**
@@ -166,6 +177,13 @@ public class NewsItem implements Serializable {
 	}
 
 	/**
+	 * @param subtype the subtype to set
+	 */
+	public void setSubtype(String subtype) {
+		this.subtype = subtype;
+	}
+
+	/**
 	 * @param context the context to set
 	 */
 	public void setContext(Context context) {
@@ -206,6 +224,8 @@ public class NewsItem implements Serializable {
 		builder.append(context);
 		builder.append(", sourceType=");
 		builder.append(sourceType);
+		builder.append(", subtype=");
+		builder.append(subtype);
 		builder.append("]");
 		return builder.toString();
 	}

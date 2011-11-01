@@ -227,7 +227,7 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 		String contextUrl = getUniqueIdentifier();
 		Context context = new Context(contextId, contextTitle, contextUrl );
 		
-		RepeatingCalendarItem repeatingCalendarItem = new RepeatingCalendarItem(title, firstTime, lastTime, timeLabel, entityReference, context, sourceType, frequency, maxCount);
+		RepeatingCalendarItem repeatingCalendarItem = new RepeatingCalendarItem(title, firstTime, lastTime, timeLabel, entityReference, null, context, sourceType, frequency, maxCount);
 		
 		//List<CalendarItem> items = repeatingCalendarItem.generateCalendarItems(lastTime);
 		//assertNotNull(items);

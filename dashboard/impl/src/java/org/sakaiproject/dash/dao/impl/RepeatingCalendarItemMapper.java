@@ -30,6 +30,7 @@ public class RepeatingCalendarItemMapper implements RowMapper {
 		calendarItem.setCalendarTimeLabelKey(rs.getString("rep_calendar_time_label_key"));
 		calendarItem.setTitle(rs.getString("rep_title"));
 		calendarItem.setEntityReference(rs.getString("rep_entity_ref"));
+		calendarItem.setSubtype(rs.getString("rep_subtype"));
 		
 		
 		// source_type

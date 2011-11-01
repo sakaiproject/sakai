@@ -34,6 +34,7 @@ public class NewsItemMapper implements RowMapper {
 		newsItem.setNewsTimeLabelKey(rs.getString("ni_news_time_label_key"));
 		newsItem.setTitle(rs.getString("ni_title"));
 		newsItem.setEntityReference(rs.getString("ni_entity_ref"));
+		newsItem.setSubtype(rs.getString("ni_subtype"));
 		
 		// source_type
 		SourceType sourceType = (SourceType) (new SourceTypeMapper()).mapRow(rs, rowNum);

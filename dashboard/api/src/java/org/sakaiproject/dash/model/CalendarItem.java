@@ -39,6 +39,7 @@ public class CalendarItem implements Serializable {
 	protected String entityReference;
 	protected Context context;
 	protected SourceType sourceType;
+	protected String subtype;
 	protected RepeatingCalendarItem repeatingCalendarItem = null;
 	protected Integer sequenceNumber = null;
 	
@@ -57,12 +58,13 @@ public class CalendarItem implements Serializable {
 	 * @param entityReference
 	 * @param context
 	 * @param sourceType
+	 * @param subtype TODO
 	 * @param repeatingCalendarItem
 	 * @param sequenceNumber TODO
 	 */
 	public CalendarItem(String title, Date calendarTime,
 			String calendarTimeLabelKey, String entityReference, Context context,
-			SourceType sourceType, RepeatingCalendarItem repeatingCalendarItem, Integer sequenceNumber) {
+			SourceType sourceType, String subtype, RepeatingCalendarItem repeatingCalendarItem, Integer sequenceNumber) {
 		super();
 		this.title = title;
 		this.calendarTime = calendarTime;
@@ -70,6 +72,7 @@ public class CalendarItem implements Serializable {
 		this.entityReference = entityReference;
 		this.context = context;
 		this.sourceType = sourceType;
+		this.subtype = subtype;
 		this.repeatingCalendarItem = repeatingCalendarItem;
 		this.sequenceNumber = sequenceNumber;
 	}
@@ -82,13 +85,14 @@ public class CalendarItem implements Serializable {
 	 * @param entityReference
 	 * @param context
 	 * @param sourceType
+	 * @param subtype TODO
 	 * @param repeatingCalendarItem 
 	 * @param sequenceNumber TODO
 	 * @param realm
 	 */
 	public CalendarItem(Long id, String title, Date calendarTime,
 			String calendarTimeLabelKey, String entityReference, Context context, SourceType sourceType, 
-			RepeatingCalendarItem repeatingCalendarItem, Integer sequenceNumber) {
+			String subtype, RepeatingCalendarItem repeatingCalendarItem, Integer sequenceNumber) {
 		super();
 		this.id = id;
 		this.title = title;
@@ -97,7 +101,9 @@ public class CalendarItem implements Serializable {
 		this.entityReference = entityReference;
 		this.context = context;
 		this.sourceType = sourceType;
+		this.subtype = subtype;
 		this.repeatingCalendarItem = repeatingCalendarItem;
+		this.sequenceNumber = sequenceNumber;
 	}
 
 	/**
@@ -165,6 +171,13 @@ public class CalendarItem implements Serializable {
 	}
 
 	/**
+	 * @return the subtype
+	 */
+	public String getSubtype() {
+		return subtype;
+	}
+
+	/**
 	 * @param id the id to set
 	 */
 	public void setId(Long id) {
@@ -224,6 +237,13 @@ public class CalendarItem implements Serializable {
 		this.sourceType = sourceType;
 	}
 
+	/**
+	 * @param subtype the subtype to set
+	 */
+	public void setSubtype(String subtype) {
+		this.subtype = subtype;
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -244,6 +264,8 @@ public class CalendarItem implements Serializable {
 		builder.append(context);
 		builder.append(", sourceType=");
 		builder.append(sourceType);
+		builder.append(", subtype=");
+		builder.append(subtype);
 		builder.append(", repeatingCalendarItem=");
 		builder.append(repeatingCalendarItem);
 		builder.append(", sequenceNumber=");

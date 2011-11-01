@@ -249,4 +249,11 @@ public interface DashboardDao {
 
 	public abstract boolean updateNewsItemLabelKey(Long id, String labelKey);
 
+	public abstract boolean updateNewsItemSubtype(Long id, String newSubtype);
+
+	public abstract boolean updateCalendarItemSubtype(Long id, String newSubtype);
+
+	public abstract boolean updateRepeatingCalendarItemsSubtype(String entityReference,
+			String labelKey, String newSubtype);
+
 }

@@ -247,7 +247,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			SourceType sourceType, RepeatingCalendarItem repeatingCalendarItem, Integer sequenceNumber) {
 		
 		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
-				calendarTimeLabelKey, entityReference, context, sourceType, repeatingCalendarItem, sequenceNumber);
+				calendarTimeLabelKey, entityReference, context, sourceType, null, repeatingCalendarItem, sequenceNumber);
 		
 		dao.addCalendarItem(calendarItem);
 		
@@ -259,7 +259,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			SourceType sourceType, String frequency, int count) {
 		
 		RepeatingCalendarItem repeatingCalendarItem = new RepeatingCalendarItem(title, firstTime,
-				lastTime, calendarTimeLabelKey, entityReference, context, sourceType, frequency, count);
+				lastTime, calendarTimeLabelKey, entityReference, null, context, sourceType, frequency, count);
 		
 		dao.addRepeatingCalendarItem(repeatingCalendarItem);
 		
@@ -316,7 +316,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			String entityReference, Context context, SourceType sourceType) {
 		
 		NewsItem newsItem = new NewsItem(title, newsTime, 
-				null, entityReference, context, sourceType);
+				null, entityReference, context, sourceType, null);
 		
 		dao.addNewsItem(newsItem);
 		
@@ -717,6 +717,12 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 	}
 
+	public void reviseCalendarItemsSubtype(String entityReference, String labelKey, Integer sequenceNumber, String newSubtype) {
+		
+		CalendarItem item = dao.getCalendarItem(entityReference, labelKey, sequenceNumber);
+		dao.updateCalendarItemSubtype(item.getId(), newSubtype);
+	}
+
 	public void reviseCalendarItemsLabelKey(String entityReference, String oldLabelKey, String newLabelKey) {
 		if(entityReference == null || oldLabelKey == null || newLabelKey == null) {
 			return;
@@ -748,12 +754,27 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 	}
 	
+	public void reviseNewsItemSubtype(String entityReference, String newSubtype) {
+		
+		NewsItem item = dao.getNewsItem(entityReference);
+		if(item != null) {
+			dao.updateNewsItemSubtype(item.getId(), newSubtype);
+		}
+		
+	}
+	
 	public void reviseRepeatingCalendarItemsLabelKey(String entityReference, String oldLabelKey, String newLabelKey) {
 		dao.updateRepeatingCalendarItemsLabelKey(entityReference, oldLabelKey, newLabelKey);
 		
 	}
 	
-
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseRepeatingCalendarItemSubtype(java.lang.String, java.lang.String, java.lang.String)
+	 */
+	public void reviseRepeatingCalendarItemSubtype(String entityReference, String labelKey, String newSubtype) {
+		dao.updateRepeatingCalendarItemsSubtype(entityReference, labelKey, newSubtype);
+	}
 
 	public void scheduleAvailabilityCheck(String entityReference, String entityTypeId, Date scheduledTime) {
 		AvailabilityCheck availabilityCheck = new AvailabilityCheck(entityReference, entityTypeId, scheduledTime);

@@ -332,9 +332,23 @@ public interface DashboardLogic {
 	public void reviseNewsItemTime(String entityReference, Date newTime);
 	public void reviseNewsItemTitle(String entityReference, String newTitle);
 
+	/**
+	 * 
+	 * @param entityReference
+	 * @param oldType
+	 * @param newType
+	 */
 	public void reviseRepeatingCalendarItemsLabelKey(String entityReference,
 			String oldType, String newType);
 	
+	/**
+	 * 
+	 * @param entityReference
+	 * @param labelKey
+	 * @param newSubtype
+	 */
+	public void reviseRepeatingCalendarItemSubtype(String entityReference,
+			String labelKey, String newSubtype);
 
 	/**
 	 * If an entity uses some form of scheduled release, this method is called to 
@@ -387,7 +401,6 @@ public interface DashboardLogic {
 	public void updateNewsLinks(String entityReference);
 
 	public void updateCalendarLinks(String entityReference);
-
 
 	// todo:
 	// add methods to revise news items, calendar items, news links, calendar links, etc.

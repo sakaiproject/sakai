@@ -39,6 +39,7 @@ public class RepeatingCalendarItem implements Serializable {
 	protected String entityReference;
 	protected Context context;
 	protected SourceType sourceType;
+	protected String subtype;
 	protected String frequency;
 	protected int maxCount;
 	protected Date lastTime;
@@ -56,6 +57,7 @@ public class RepeatingCalendarItem implements Serializable {
 	 * @param lastTime 
 	 * @param calendarTimeLabelKey
 	 * @param entityReference
+	 * @param subtype TODO
 	 * @param context
 	 * @param sourceType
 	 * @param frequency 
@@ -63,7 +65,7 @@ public class RepeatingCalendarItem implements Serializable {
 	 */
 	public RepeatingCalendarItem(String title, Date firstTime,
 			Date lastTime, String calendarTimeLabelKey,
-			String entityReference, Context context, SourceType sourceType, String frequency, int maxCount) {
+			String entityReference, String subtype, Context context, SourceType sourceType, String frequency, int maxCount) {
 		super();
 		this.title = title;
 		this.firstTime = firstTime;
@@ -74,6 +76,7 @@ public class RepeatingCalendarItem implements Serializable {
 		this.frequency = frequency;
 		this.maxCount = maxCount;
 		this.lastTime = lastTime;
+		this.subtype = subtype;
 	}
 	
 	/**
@@ -83,6 +86,7 @@ public class RepeatingCalendarItem implements Serializable {
 	 * @param lastTime 
 	 * @param calendarTimeLabelKey
 	 * @param entityReference
+	 * @param subtype TODO
 	 * @param context
 	 * @param sourceType
 	 * @param frequency 
@@ -90,7 +94,7 @@ public class RepeatingCalendarItem implements Serializable {
 	 */
 	public RepeatingCalendarItem(Long id, String title, Date firstTime,
 			Date lastTime, String calendarTimeLabelKey,
-			String entityReference, Context context, SourceType sourceType, String frequency, int maxCount) {
+			String entityReference, String subtype, Context context, SourceType sourceType, String frequency, int maxCount) {
 		super();
 		this.id = id;
 		this.title = title;
@@ -102,6 +106,7 @@ public class RepeatingCalendarItem implements Serializable {
 		this.frequency = frequency;
 		this.maxCount = maxCount;
 		this.lastTime = lastTime;
+		this.subtype = subtype;
 	}
 
 	/**
@@ -139,6 +144,13 @@ public class RepeatingCalendarItem implements Serializable {
 		return entityReference;
 	}
 
+	/**
+	 * @return the subtype
+	 */
+	public String getSubtype() {
+		return subtype;
+	}
+	
 	/**
 	 * @return the context
 	 */
@@ -209,6 +221,14 @@ public class RepeatingCalendarItem implements Serializable {
 		this.entityReference = entityReference;
 	}
 
+
+	/**
+	 * @param subtype the subtype to set
+	 */
+	public void setSubtype(String subtype) {
+		this.subtype = subtype;
+	}
+
 	/**
 	 * @param context the context to set
 	 */
@@ -266,6 +286,8 @@ public class RepeatingCalendarItem implements Serializable {
 		builder.append(calendarTimeLabelKey);
 		builder.append(", entityReference=");
 		builder.append(entityReference);
+		builder.append(", subtype=");
+		builder.append(subtype);
 		builder.append(", context=");
 		builder.append(context);
 		builder.append(", sourceType=");
