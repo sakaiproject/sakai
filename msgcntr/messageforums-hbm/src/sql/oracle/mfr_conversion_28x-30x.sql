@@ -122,24 +122,20 @@ DROP TABLE PERMISSIONS_SRC_TEMP;
 --// Post First Option in Forums
 --////////////////////////////////////////////////////
 -- add column to allow POST_FIRST as template setting
-alter table MFR_AREA_T add (POST_FIRST NUMBER(1,0));
-update MFR_AREA_T set POST_FIRST =0 where POST_FIRST is NULL;
+alter table MFR_AREA_T add (POST_FIRST NUMBER(1,0) default 0);
 alter table MFR_AREA_T modify (POST_FIRST NUMBER(1,0) not null);
 
 -- add column to allow POST_FIRST to be set at the forum level
-alter table MFR_OPEN_FORUM_T add (POST_FIRST NUMBER(1,0));
-update MFR_OPEN_FORUM_T set POST_FIRST =0 where POST_FIRST is NULL;
+alter table MFR_OPEN_FORUM_T add (POST_FIRST NUMBER(1,0) default 0);
 alter table MFR_OPEN_FORUM_T modify (POST_FIRST NUMBER(1,0) not null);
 
 -- add column to allow POST_FIRST to be set at the topic level
-alter table MFR_TOPIC_T add (POST_FIRST NUMBER(1,0));
-update MFR_TOPIC_T set POST_FIRST =0 where POST_FIRST is NULL;
+alter table MFR_TOPIC_T add (POST_FIRST NUMBER(1,0) default 0);
 alter table MFR_TOPIC_T modify (POST_FIRST NUMBER(1,0) not null);
 
 
 -- MSGCNTR-329 - Add BCC option to Messages
-alter table MFR_PVT_MSG_USR_T add (BCC NUMBER(1,0));
-update MFR_PVT_MSG_USR_T set BCC=0 where BCC is NULL;
+alter table MFR_PVT_MSG_USR_T add (BCC NUMBER(1,0) default 0);
 alter table MFR_PVT_MSG_USR_T modify (BCC NUMBER(1,0) not null); 
 alter table MFR_MESSAGE_T add (RECIPIENTS_AS_TEXT_BCC VARCHAR2(4000));
 
