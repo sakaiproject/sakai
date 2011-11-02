@@ -4415,6 +4415,22 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 				context.put("other_sites", otherSites);
 				
+				// SAK-20927
+				for(ListItem lItem : otherSites)
+				{
+					if(lItem.hasMultipleItemActions())
+					{
+						for(String listActionId : lItem.getMultipleItemActions().keySet())
+						{
+							ServiceLevelAction listAction = registry.getMultiItemAction(listActionId);
+							if(listAction != null)
+							{
+								listActions.put(listActionId, listAction);
+							}
+						}
+					}
+				}
+
 				if (state.getAttribute(STATE_NUM_MESSAGES) != null)
 				{
 					context.put("allMsgNumber", state.getAttribute(STATE_NUM_MESSAGES).toString());

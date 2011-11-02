@@ -568,6 +568,7 @@ $(document).ready(function() {
 					################################################################ Eng Paging widgets
 					#foreach($item in $other_sites)
 						#set($qid=$item.id.replaceAll("'","\\'").replaceAll("\"", "&quot;"))
+						#set($dqid=$item.id.replaceAll("\"", "&quot;"))
 						############################### Show top level folder #################
 					#set ($addCount=($addCount - 1))
 					#set ($actionCount=($actionCount - 1))
@@ -591,6 +592,7 @@ $(document).ready(function() {
 						class="even#if($item.isSelectedForCopy()) selectedCopy#end#if($item.isSelectedForMove()) selectedMove#end#if(!$item.isAvailable()) inactive#end"
 					#end>
 
+					#set ($num=$num + 1)
 							<td headers="expansion">
 							</td>
 							<td headers="checkboxes">
