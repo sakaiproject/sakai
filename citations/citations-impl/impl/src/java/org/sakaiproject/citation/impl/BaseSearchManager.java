@@ -2694,16 +2694,18 @@ public class BaseSearchManager implements SearchManager, Observer
 	 * Establish a security advisor to allow the "embedded" azg work to occur
 	 * with no need for additional security permissions.
 	 */
-	protected void enableSecurityAdvisor()
+	protected SecurityAdvisor enableSecurityAdvisor()
 	{
-		// put in a security advisor so we can create citationAdmin site without need
-		// of further permissions
-		SecurityService.pushAdvisor(new SecurityAdvisor() {
+		SecurityAdvisor advisor = new SecurityAdvisor() {
 			public SecurityAdvice isAllowed(String userId, String function, String reference)
 			{
 				return SecurityAdvice.ALLOWED;
 			}
-		});
+		};
+		// put in a security advisor so we can create citationAdmin site without need
+		// of further permissions
+		SecurityService.pushAdvisor(advisor);
+		return advisor;
 	}
 
   /**
@@ -2737,22 +2739,32 @@ public class BaseSearchManager implements SearchManager, Observer
                                                       ServerOverloadException,
                                                       TypeException
   {
-    Reference       reference;
-    ContentResource resource;
+	String content = null;
+    Reference reference = EntityManager.newReference(resourceReference);
+	if (reference == null)
+	{
+	  return null;
+	}
 
-    reference = EntityManager.newReference(resourceReference);
-		if (reference == null)
-		{
-		  return null;
+	SecurityAdvisor pushed = enableSecurityAdvisor();
+	try {
+		ContentResource resource = ContentHostingService.getResource(reference.getId());
+		if(resource != null) {
+			content = getResourceContent(resource);
 		}
-
-		enableSecurityAdvisor();
-		resource = ContentHostingService.getResource(reference.getId());
-		if (resource == null)
-		{
-      return null;
-    }
-    return getResourceContent(resource);
+	} catch(Exception e) {
+		m_log.warn("getReourceContent() " + e);
+	} finally {
+		if(pushed != null) {
+			boolean found = false;
+			while(SecurityService.hasAdvisors() && ! found) {
+				SecurityAdvisor popped = SecurityService.popAdvisor();
+				found = popped == pushed;
+			}
+		}
+	}
+	
+	return content;
   }
 
   /**
