@@ -128,7 +128,7 @@
 
 			
 			<p class="instruction" style="margin-top:1em">
-  	    <h:outputText value="#{msgs.cdfm_required}"rendered="#{ForumTool.allowedToGradeItem}"/> 
+  	    <h:outputText value="#{msgs.cdfm_required}" rendered="#{ForumTool.allowedToGradeItem}"/> 
   	    <h:outputText value="#{msgs.pvt_star}" styleClass="reqStarInline" rendered="#{ForumTool.allowedToGradeItem}" />
 			</p>
    

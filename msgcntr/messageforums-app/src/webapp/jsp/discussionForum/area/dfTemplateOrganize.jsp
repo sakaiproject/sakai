@@ -144,7 +144,7 @@
 								<h:selectOneMenu id="topicIndex" value="#{topic.sortIndex}" onchange="updateTopics(#{ForumTool.forumTable.rowIndex}, this);" style="margin-left:.3em;margin-right:1em">
 		            <f:selectItems value="#{forum.topicSelectItems}"/>
 		         </h:selectOneMenu>
-								<h:outputText id="topicTitle" value="#{topic.title}"style="font-weight:bold;font-size:1.2em;"/>
+								<h:outputText id="topicTitle" value="#{topic.title}" style="font-weight:bold;font-size:1.2em;"/>
 							</h:panelGroup>
 		   </h:column>
         </h:dataTable>			
