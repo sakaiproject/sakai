@@ -16,7 +16,7 @@
 						    <h:inputText value="#{QuestionTool.lastName}" disabled="true" />
 
 							<h:outputText value="#{msgs.firstname}"/>
-							<h:inputText value="#{QuestionTool.firstName}"disabled="true" />
+							<h:inputText value="#{QuestionTool.firstName}" disabled="true" />
 							
 							<h:outputText value="#{msgs.username}"/>
 						    <h:inputText value="#{QuestionTool.userName}" disabled="true" />
