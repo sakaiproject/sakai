@@ -25,9 +25,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -373,7 +375,20 @@ public class SiteInfoToolServlet extends HttpServlet
 	 */
 	protected void generatePDF(Document doc, OutputStream streamOut)
 	{
-		String xslFileName = "participants-all-attrs.xsl";
+ 		String xslFileName = "participants-all-attrs.xsl";
+		Locale currentLocale = rb.getLocale();
+		if (currentLocale!=null){
+			String fullLocale = currentLocale.toString();
+			xslFileName = "participants-all-attrs_" + fullLocale + ".xsl";
+			if (getClass().getClassLoader().getResourceAsStream(xslFileName) == null){
+				xslFileName = "participants-all-attrs_" + currentLocale.getCountry() + ".xsl";
+				if (getClass().getClassLoader().getResourceAsStream(xslFileName) == null){
+					//We use the default file
+					xslFileName = "participants-all-attrs.xsl";
+				}
+			}
+		}
+
 		Driver driver = new Driver();
 
 		org.apache.avalon.framework.logger.Logger logger = new ConsoleLogger(ConsoleLogger.LEVEL_ERROR);
@@ -386,6 +401,9 @@ public class SiteInfoToolServlet extends HttpServlet
 		try
 		{
 			InputStream in = getClass().getClassLoader().getResourceAsStream(xslFileName);
+			if(in==null)
+				in = getClass().getClassLoader().getResourceAsStream("participants-all-attrs.xsl");
+			
 			Transformer transformer = transformerFactory.newTransformer(new StreamSource(in));
 
 			Source src = new DOMSource(doc);
