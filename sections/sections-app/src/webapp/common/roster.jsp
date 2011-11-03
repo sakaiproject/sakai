@@ -5,7 +5,7 @@
     <sakai:flowState bean="#{rosterBean}"/>
 
     <t:aliasBean alias="#{viewName}" value="roster">
-        <%@include file="/inc/navMenu.jspf"%>
+        <%@ include file="/inc/navMenu.jspf"%>
     </t:aliasBean>
 
 	<div class="instructions">
@@ -14,7 +14,7 @@
 			rendered="#{ ! rosterBean.externallyManaged}"/>
 	</div>
 
-    <%@include file="/inc/globalMessages.jspf"%>
+    <%@ include file="/inc/globalMessages.jspf"%>
 
 	<t:div>
 		<h:outputText value="#{msgs.roster_view_students}"/>

@@ -5,7 +5,7 @@
     <sakai:flowState bean="#{overviewBean}"/>
 
     <t:aliasBean alias="#{viewName}" value="overview">
-        <%@include file="/inc/navMenu.jspf"%>
+        <%@ include file="/inc/navMenu.jspf"%>
     </t:aliasBean>
 
 	<div class="instructions">
@@ -17,10 +17,10 @@
 		<h:outputText value="#{overviewBean.instructions}"/>
 	</div>
 
-    <%@include file="/inc/globalMessages.jspf"%>
+    <%@ include file="/inc/globalMessages.jspf"%>
 
     <t:aliasBean alias="#{filterBean}" value="#{overviewBean}">
-        <%@include file="/inc/sectionFilter.jspf"%>
+        <%@ include file="/inc/sectionFilter.jspf"%>
     </t:aliasBean>
 
     <sec:rowGroupTable cellpadding="0" cellspacing="0"

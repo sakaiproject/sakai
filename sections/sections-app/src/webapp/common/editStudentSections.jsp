@@ -6,7 +6,7 @@
 	<h:inputHidden id="elementToFocus" value="#{editStudentSectionsBean.elementToFocus}"/>
 
     <t:aliasBean alias="#{viewName}" value="editSection">
-        <%@include file="/inc/navMenu.jspf"%>
+        <%@ include file="/inc/navMenu.jspf"%>
     </t:aliasBean>
 
         <h3>
@@ -45,14 +45,14 @@
             </h:dataTable>
 		</t:div>
 
-        <%@include file="/inc/globalMessages.jspf"%>
+        <%@ include file="/inc/globalMessages.jspf"%>
     
         <t:div styleClass="instructions">
             <h:outputText value="#{msgs.edit_student_sections_instructions}"/>
         </t:div>
 
 		<t:aliasBean alias="#{filterBean}" value="#{editStudentSectionsBean}">
-	        <%@include file="/inc/sectionFilter.jspf"%>
+	        <%@ include file="/inc/sectionFilter.jspf"%>
 	    </t:aliasBean>
 
         <sec:rowGroupTable cellpadding="0" cellspacing="0"

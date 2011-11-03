@@ -5,7 +5,7 @@
     <sakai:flowState bean="#{overviewBean}"/>
 
     <t:aliasBean alias="#{viewName}" value="overview">
-        <%@include file="/inc/navMenu.jspf"%>
+        <%@ include file="/inc/navMenu.jspf"%>
     </t:aliasBean>
 
 	<h3 class="instructions">

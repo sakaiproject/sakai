@@ -5,13 +5,13 @@
     <sakai:flowState bean="#{optionsBean}"/>
 
     <t:aliasBean alias="#{viewName}" value="options">
-        <%@include file="/inc/navMenu.jspf"%>
+        <%@ include file="/inc/navMenu.jspf"%>
     </t:aliasBean>
 
         <h3><h:outputText value="#{msgs.options_page_header}"/></h3>
         <h4><h:outputText value="#{msgs.options_page_subheader}"/></h4>
         
-        <%@include file="/inc/globalMessages.jspf"%>
+        <%@ include file="/inc/globalMessages.jspf"%>
         
         <t:div rendered="#{optionsBean.confirmMode}" styleClass="validation">
         	<h:panelGrid columns="1">

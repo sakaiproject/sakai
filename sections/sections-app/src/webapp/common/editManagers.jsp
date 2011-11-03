@@ -6,14 +6,14 @@
 
     <h:panelGroup rendered="#{ ! editManagersBean.externallyManaged}">
         <t:aliasBean alias="#{viewName}" value="editManagers">
-            <%@include file="/inc/navMenu.jspf"%>
+            <%@ include file="/inc/navMenu.jspf"%>
         </t:aliasBean>
     </h:panelGroup>
 
         <h3><h:outputText value="#{msgs.edit_manager_page_header}"/></h3>
         <h4><h:outputText value="#{editManagersBean.sectionDescription}"/></h4>
 
-        <%@include file="/inc/globalMessages.jspf"%>
+        <%@ include file="/inc/globalMessages.jspf"%>
 
         <h:panelGrid id="transferTable" columns="3" columnClasses="available,transferButtons,selected">
         
@@ -29,7 +29,7 @@
                 </t:div>
             </h:panelGroup>
         
-            <%@include file="/inc/transferButtons.jspf"%>
+            <%@ include file="/inc/transferButtons.jspf"%>
             
             <h:panelGroup>
                 <h:outputFormat value="#{msgs.edit_manager_selected_label}" style="white-space:nowrap;">

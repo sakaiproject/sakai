@@ -5,13 +5,13 @@
     <sakai:flowState bean="#{editStudentsBean}"/>
 
     <t:aliasBean alias="#{viewName}" value="editStudents">
-        <%@include file="/inc/navMenu.jspf"%>
+        <%@ include file="/inc/navMenu.jspf"%>
     </t:aliasBean>
 
         <h3><h:outputText value="#{msgs.edit_student_page_header}"/></h3>
         <h4><h:outputText value="#{editStudentsBean.sectionDescription}"/></h4>
 
-        <%@include file="/inc/globalMessages.jspf"%>
+        <%@ include file="/inc/globalMessages.jspf"%>
 
         <h:panelGrid id="transferTable" columns="3" columnClasses="available,transferButtons,selected">
         
@@ -28,7 +28,7 @@
                 </t:div>
             </h:panelGroup>
 
-            <%@include file="/inc/transferButtons.jspf"%>
+            <%@ include file="/inc/transferButtons.jspf"%>
             
             <h:panelGroup>
                 <h:panelGrid styleClass="sectionContainerNav" columns="3" columnClasses="sectionLeftNav,sectionRightNav,sectionRightNav">

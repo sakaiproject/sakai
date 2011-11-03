@@ -16,7 +16,7 @@
             <h:outputText value="#{studentViewBean.instructions}"/>
         </t:div>
 
-        <%@include file="/inc/globalMessages.jspf"%>
+        <%@ include file="/inc/globalMessages.jspf"%>
 
 		<t:div>
 			<h:outputText value="#{msgs.student_view_view}"/>

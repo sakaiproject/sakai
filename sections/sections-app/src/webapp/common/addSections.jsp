@@ -5,7 +5,7 @@
 	<sakai:flowState bean="#{addSectionsBean}"/>
 
 	<t:aliasBean alias="#{viewName}" value="addSections">
-		<%@include file="/inc/navMenu.jspf"%>
+		<%@ include file="/inc/navMenu.jspf"%>
 	</t:aliasBean>
 
 	<h3><h:outputText value="#{msgs.add_sections}"/></h3>
@@ -14,7 +14,7 @@
 		<h:outputText value="#{msgs.add_section_instructions}"/>
 	</t:div>
 
-	<%@include file="/inc/globalMessages.jspf"%>
+	<%@ include file="/inc/globalMessages.jspf"%>
 	
 	<h:outputText value="#{msgs.add}"/>
 	<h:selectOneMenu
@@ -38,7 +38,7 @@
 	<h:outputText value="#{msgs.add_section_category}"/>
 
 	<t:aliasBean alias="#{bean}" value="#{addSectionsBean}">
-		<%@include file="/inc/sectionEditor.jspf"%>
+		<%@ include file="/inc/sectionEditor.jspf"%>
 	</t:aliasBean>
 
 	<t:div styleClass="act">
