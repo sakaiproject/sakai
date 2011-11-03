@@ -67,7 +67,7 @@ var chat2_messageCountTemplate = "<h:outputText value="#{ChatTool.messagesShownT
 </script>
 				<sakai:messages  rendered="#{!empty facesContext.maximumSeverity}" />
 				<div id="Monitor" class="chatListMonitor">
-					<%@include file="roomMonitor.jspf" %>
+					<%@ include file="roomMonitor.jspf" %>
 				</div>
 			</div>	
 			<div id="chatPresenceWrapper">			
