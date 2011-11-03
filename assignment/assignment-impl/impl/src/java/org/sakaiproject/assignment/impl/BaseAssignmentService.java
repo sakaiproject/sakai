@@ -4256,34 +4256,47 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							// construct fake submissions for grading purpose if the user has right for grading
 							if (allowGradeSubmission(a.getReference()))
 							{
-							
-								// temporarily allow the user to read and write from assignments (asn.revise permission)
-						        enableSecurityAdvisorToAddUpdateAssignmentSubmission();
-						        
-								AssignmentSubmissionEdit s = addSubmission(contextString, a.getId(), u.getId());
-								if (s != null)
-								{
-									s.setSubmitted(true);
-									s.setAssignment(a);
-									
-									// set the resubmission properties
-									// get the assignment setting for resubmitting
-									ResourceProperties assignmentProperties = a.getProperties();
-									String assignmentAllowResubmitNumber = assignmentProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
-									if (assignmentAllowResubmitNumber != null)
+								try
+						        {
+									// temporarily allow the user to read and write from assignments (asn.revise permission)
+						            SecurityService.pushAdvisor(
+						            		new MySecurityAdvisor(
+						            				SessionManager.getCurrentSessionUserId(), 
+						            				new ArrayList<String>(Arrays.asList(SECURE_ADD_ASSIGNMENT_SUBMISSION, SECURE_UPDATE_ASSIGNMENT_SUBMISSION)),
+						            				""/* no submission id yet, pass the empty string to advisor*/));
+							        
+						            AssignmentSubmissionEdit s = addSubmission(contextString, a.getId(), u.getId());
+									if (s != null)
 									{
-										s.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, assignmentAllowResubmitNumber);
+										s.setSubmitted(true);
+										s.setAssignment(a);
 										
-										String assignmentAllowResubmitCloseDate = assignmentProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
-										// if assignment's setting of resubmit close time is null, use assignment close time as the close time for resubmit
-										s.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME, assignmentAllowResubmitCloseDate != null?assignmentAllowResubmitCloseDate:String.valueOf(a.getCloseTime().getTime()));
+										// set the resubmission properties
+										// get the assignment setting for resubmitting
+										ResourceProperties assignmentProperties = a.getProperties();
+										String assignmentAllowResubmitNumber = assignmentProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
+										if (assignmentAllowResubmitNumber != null)
+										{
+											s.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, assignmentAllowResubmitNumber);
+											
+											String assignmentAllowResubmitCloseDate = assignmentProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
+											// if assignment's setting of resubmit close time is null, use assignment close time as the close time for resubmit
+											s.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME, assignmentAllowResubmitCloseDate != null?assignmentAllowResubmitCloseDate:String.valueOf(a.getCloseTime().getTime()));
+										}
+										
+										commitEdit(s);
+										rv.add(u.getId());
 									}
-									
-									commitEdit(s);
-									rv.add(u.getId());
-								}
-						        // clear the permission
-								disableSecurityAdvisor();
+						        }
+						        catch (Exception e)
+						        {
+						        	// exception
+						        }
+						        finally
+						        {
+						        	// clear the permission
+						        	SecurityService.popAdvisor();
+						        }
 							}
 						}
 					}
@@ -9857,6 +9870,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public String getGrade(boolean overrideWithGradebookValue)
 		{
+			String rv = m_grade;
+			
 			if (!overrideWithGradebookValue)
 			{
 				// use assignment submission grade
@@ -9870,33 +9885,41 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				if (gAssignmentName != null)
 				{
 					GradebookService g = (GradebookService)  ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-					// add the grade permission ("gradebook.gradeAll", or "gradebook.gradeSection") in order to use g.getAssignmentScoreString()
-					enableSecurityAdvisorToGradebook();
-					
 					String gradebookUid = m.getContext();
-					if (g.isGradebookDefined(gradebookUid) && g.isAssignmentDefined(gradebookUid, gAssignmentName))
+					
+					// return student score from Gradebook
+					String userId = (String) m_submitters.get(0);
+					
+					try
 					{
-						// return student score from Gradebook
-						String userId = (String) m_submitters.get(0);
-						try
+						// add the grade permission ("gradebook.gradeAll", "gradebook.gradeSection", "gradebook.editAssignments", or "gradebook.viewOwnGrades") in order to use g.getAssignmentScoreString()
+						SecurityService.pushAdvisor(
+								new MySecurityAdvisor(
+										SessionManager.getCurrentSessionUserId(), 
+										new ArrayList<String>(Arrays.asList("gradebook.gradeAll", "gradebook.gradeSection", "gradebook.editAssignments", "gradebook.viewOwnGrades")),
+										gradebookUid));
+					
+						if (g.isGradebookDefined(gradebookUid) && g.isAssignmentDefined(gradebookUid, gAssignmentName))
 						{
 							String gString = StringUtils.trimToNull(g.getAssignmentScoreString(gradebookUid, gAssignmentName, userId));
 							if (gString != null)
 							{
-								disableSecurityAdvisor();
-								return gString;
+								rv = gString;
 							}
 						}
-						catch (Exception e)
-						{
-							M_log.warn(" BaseAssignmentSubmission getGrade getAssignmentScoreString from GradebookService " + e.getMessage() + " context=" + m_context + " assignment id=" + m_assignment + " userId=" + userId + " gAssignmentName=" + gAssignmentName); 
-						}
 					}
-					
-					disableSecurityAdvisor();
+					catch (Exception e)
+					{
+						M_log.warn(" BaseAssignmentSubmission getGrade getAssignmentScoreString from GradebookService " + e.getMessage() + " context=" + m_context + " assignment id=" + m_assignment + " userId=" + userId + " gAssignmentName=" + gAssignmentName); 
+					}
+					finally
+					{
+						// remove advisor
+						SecurityService.popAdvisor();
+					}
 				}
 			}
-			return m_grade;
+			return rv;
 		}
 
 		/**
@@ -12383,8 +12406,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		if(transversalMap != null && transversalMap.size() > 0){
 			Set<Entry<String, String>> entrySet = (Set<Entry<String, String>>) transversalMap.entrySet();
 			
-			enableSecurityAdvisorToUpdateAssignment();
-
 			String toSiteId = toContext;
 			Iterator assignmentsIter = getAssignmentsForContext(toSiteId);
 			while (assignmentsIter.hasNext())
@@ -12405,18 +12426,35 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						}								
 					}	
 					if(updated){
-						AssignmentContentEdit cEdit = editAssignmentContent(assignment.getContentReference());
-						cEdit.setInstructions(msgBody);
-						commitEdit(cEdit);
+						try
+						{
+							// add permission to update assignment content
+							SecurityService.pushAdvisor(
+				            		new MySecurityAdvisor(SessionManager.getCurrentSessionUserId(), 
+				            							new ArrayList<String>(Arrays.asList(SECURE_UPDATE_ASSIGNMENT_CONTENT)),
+				            							assignment.getContentReference()));
+							
+							AssignmentContentEdit cEdit = editAssignmentContent(assignment.getContentReference());
+							cEdit.setInstructions(msgBody);
+							commitEdit(cEdit);
+						}
+						catch (Exception e)
+						{
+							// exception
+							M_log.warn("UpdateEntityReference: cannot get assignment content for " + assignment.getId() + e.getMessage());
+						}
+						finally
+						{
+							// remove advisor
+							SecurityService.popAdvisor();
+						}
 					}					
 				}
 				catch(Exception ee)
 				{
-					M_log.warn(":transferCopyEntities: remove Assignment and all references for " + assignment.getId() + ee.getMessage());
+					M_log.warn("UpdateEntityReference: remove Assignment and all references for " + assignment.getId() + ee.getMessage());
 				}
 			}
-
-			disableSecurityAdvisor();
 		}
 	}
 
@@ -12432,16 +12470,21 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			if(cleanup == true)
 			{
-				enableSecurityAdvisorToUpdateRemoveAssignment();
-
 				String toSiteId = toContext;
 				Iterator assignmentsIter = getAssignmentsForContext(toSiteId);
 				while (assignmentsIter.hasNext())
 				{
 					Assignment assignment = (Assignment) assignmentsIter.next();
 					String assignmentId = assignment.getId();
+					
 					try 
 					{
+						// advisor to allow edit and remove assignment
+						SecurityService.pushAdvisor(
+			            		new MySecurityAdvisor(SessionManager.getCurrentSessionUserId(), 
+			            							new ArrayList<String>(Arrays.asList(SECURE_UPDATE_ASSIGNMENT, SECURE_REMOVE_ASSIGNMENT)),
+			            							assignmentId));
+						
 						AssignmentEdit aEdit = editAssignment(assignmentId);
 						
 						// remove this assignment with all its associated items
@@ -12451,9 +12494,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					{
 						M_log.warn(":transferCopyEntities: remove Assignment and all references for " + assignment.getId() + ee.getMessage());
 					}
+					finally
+					{
+						// remove SecurityAdvisor
+						SecurityService.popAdvisor();
+					}
 				}
-				
-				disableSecurityAdvisor();
 			}
 			transversalMap.putAll(transferCopyEntitiesRefMigrator(fromContext, toContext, ids));
 		}
@@ -12518,87 +12564,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		return body;
 	}
-	
-    /**
-     * remove the recent added security advisor
-     */
-    protected void disableSecurityAdvisor()
-    {
-    	// remove the recent added security advisor
-    	SecurityService.popAdvisor();
-    }
-
-    /**
-     * Establish a security advisor to allow add or update assignment submission
-     */
-    protected void enableSecurityAdvisorToAddUpdateAssignmentSubmission()
-    {
-      // put in a security advisor so we can create citationAdmin site without need
-      // of further permissions
-      SecurityService.pushAdvisor(new SecurityAdvisor() {
-        public SecurityAdvice isAllowed(String userId, String function, String reference)
-        {
-        	if (function.equals(SECURE_ADD_ASSIGNMENT_SUBMISSION) || function.equals(SECURE_UPDATE_ASSIGNMENT_SUBMISSION))
-        		return SecurityAdvice.ALLOWED;
-        	else
-        		return SecurityAdvice.NOT_ALLOWED;
-        }
-      });
-    }
-    
-    /**
-     * Establish a security advisor to allow add the grade permission ("gradebook.gradeAll", or "gradebook.gradeSection") in order to use g.getAssignmentScoreString()
-     */
-    protected void enableSecurityAdvisorToGradebook()
-    {
-      // put in a security advisor so we can create citationAdmin site without need
-      // of further permissions
-      SecurityService.pushAdvisor(new SecurityAdvisor() {
-        public SecurityAdvice isAllowed(String userId, String function, String reference)
-        {
-        	if (function.equals("gradebook.gradeAll") || function.equals("gradebook.gradeSection"))
-        		return SecurityAdvice.ALLOWED;
-        	else
-        		return SecurityAdvice.NOT_ALLOWED;
-        }
-      });
-    }
-    
-    /**
-     * Establish a security advisor to allow update or remove assignment
-     */
-    protected void enableSecurityAdvisorToUpdateRemoveAssignment()
-    {
-      // put in a security advisor so we can create citationAdmin site without need
-      // of further permissions
-      SecurityService.pushAdvisor(new SecurityAdvisor() {
-        public SecurityAdvice isAllowed(String userId, String function, String reference)
-        {
-        	if (function.equals(SECURE_UPDATE_ASSIGNMENT) || function.equals(SECURE_REMOVE_ASSIGNMENT))
-        		return SecurityAdvice.ALLOWED;
-        	else
-        		return SecurityAdvice.NOT_ALLOWED;
-        }
-      });
-    }
-    
-    /**
-     * Establish a security advisor to allow update assignment
-     */
-    protected void enableSecurityAdvisorToUpdateAssignment()
-    {
-      // put in a security advisor so we can create citationAdmin site without need
-      // of further permissions
-      SecurityService.pushAdvisor(new SecurityAdvisor() {
-        public SecurityAdvice isAllowed(String userId, String function, String reference)
-        {
-        	if (function.equals(SECURE_UPDATE_ASSIGNMENT))
-        		return SecurityAdvice.ALLOWED;
-        	else
-        		return SecurityAdvice.NOT_ALLOWED;
-        }
-      });
-    }
 
 } // BaseAssignmentService
 

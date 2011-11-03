@@ -38,6 +38,8 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.service.gradebook.shared.ExternalAssignmentProvider;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
 
 public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider {
 
@@ -48,14 +50,7 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider {
     private GradebookExternalAssessmentService geaService;
     private AuthzGroupService authzGroupService;
     private SecurityService securityService;
-
-    // This allows us to check assignment existence by ID, regardless of role.
-    // It is not used to allow actual access to entities.
-    private SecurityAdvisor allowAllAdvisor = new SecurityAdvisor() {
-        public SecurityAdvice isAllowed(String userId, String function, String reference) {
-            return SecurityAdvice.ALLOWED;
-        }
-    };
+    private SessionManager sessionManager;
 
     public void init() {
         log.info("INIT and register AssignmentGradeInfoProvider");
@@ -74,7 +69,10 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider {
     private Assignment getAssignment(String id) {
         Assignment assignment = null;
         try {
-            securityService.pushAdvisor(allowAllAdvisor);
+            securityService.pushAdvisor(
+            		new MySecurityAdvisor(sessionManager.getCurrentSessionUserId(), 
+            							assignmentService.SECURE_ACCESS_ASSIGNMENT,
+            							id));
             assignment = assignmentService.getAssignment(id);
         } catch (IdUnusedException e) {
             if (log.isDebugEnabled()) {
@@ -85,7 +83,6 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider {
                     + "for assignment with ID: " + id);
         } finally {
             securityService.popAdvisor();
-            //securityService.popAdvisor(allowAllAdvisor);
         }
         return assignment;
     }
@@ -149,5 +146,10 @@ public class AssignmentGradeInfoProvider implements ExternalAssignmentProvider {
     public SecurityService getSecurityService() {
         return securityService;
     }
+
+    public void setSessionManager(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
+    }
+
 }
 

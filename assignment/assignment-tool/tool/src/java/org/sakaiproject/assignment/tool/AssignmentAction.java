@@ -1521,12 +1521,11 @@ public class AssignmentAction extends PagedResourceActionII
 				urlMap.put(url, url.replaceFirst("access/content", "access/" + decoratedContentWrapper + "/content"));					
 			}
 			context.put("decoratedUrlMap", urlMap);
+			SecurityService.popAdvisor(); 
 		}
 		SecurityAdvisor asgnAdvisor = (SecurityAdvisor)session.getAttribute("assignment.security.advisor");
-		
 		if (asgnAdvisor != null) {
 			SecurityService.pushAdvisor(asgnAdvisor);
-
 			session.removeAttribute("assignment.security.advisor");
 		}
 		
@@ -1546,9 +1545,6 @@ public class AssignmentAction extends PagedResourceActionII
 			
 			// can the student view model answer or not
 			canViewAssignmentIntoContext(context, assignment, submission);
-
-			SecurityService.popAdvisor(); 
-			//should be the asgnAdvisor that gets popped
 		}
 
 		TaggingManager taggingManager = (TaggingManager) ComponentManager
@@ -1580,6 +1576,10 @@ public class AssignmentAction extends PagedResourceActionII
 
 		// put supplement item into context
 		supplementItemIntoContext(state, context, assignment, submission);
+		
+		if (asgnAdvisor != null) {
+			SecurityService.popAdvisor();
+		}
 		
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_STUDENT_VIEW_GRADE;
@@ -6603,25 +6603,40 @@ public class AssignmentAction extends PagedResourceActionII
 		List assignments = prepPage(state);
 		
 		Iterator it = assignments.iterator();
-		
-		// temporarily allow the user to read and write from assignments (asn.revise permission)
-        enableSecurityAdvisorToReviseAssignment();
         
         while (it.hasNext()) // reads and writes the parameter for default ordering
         {
             Assignment a = (Assignment) it.next();
             String assignmentid = a.getId();
             String assignmentposition = params.getString("position_" + assignmentid);
-            AssignmentEdit ae = editAssignment(assignmentid, "reorderAssignments", state, true);
-            if (ae != null)
+            
+            try
             {
-	            ae.setPosition_order(Long.valueOf(assignmentposition).intValue());
-	            AssignmentService.commitEdit(ae);
+        		// put in a security advisor so we can create citationAdmin site without need
+        		// of further permissions
+        		SecurityService.pushAdvisor(new SecurityAdvisor() {
+        			public SecurityAdvice isAllowed(String userId, String function, String reference)
+        			{
+        				return function.equals(AssignmentService.SECURE_UPDATE_ASSIGNMENT)?SecurityAdvice.ALLOWED:SecurityAdvice.PASS;
+        			}
+        		});
+	            AssignmentEdit ae = editAssignment(assignmentid, "reorderAssignments", state, true);
+	            if (ae != null)
+	            {
+		            ae.setPosition_order(Long.valueOf(assignmentposition).intValue());
+		            AssignmentService.commitEdit(ae);
+	            }
+            }
+            catch (Exception e)
+            {
+            	M_log.warn(this + ":reorderAssignments : not able to edit assignment " + assignmentid + e.toString());
+            }
+            finally
+            {
+            	// remove advisor
+            	SecurityService.popAdvisor();
             }
         }
-        
-        // clear the permission
-        disableSecurityAdvisor();
 		
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
@@ -12789,9 +12804,15 @@ public class AssignmentAction extends PagedResourceActionII
 						String siteId = ToolManager.getCurrentPlacement().getContext();
 						
 						// add attachment
-						enableSecurityAdvisorToAddAttachment();
+						// put in a security advisor so we can create citationAdmin site without need
+						// of further permissions
+						SecurityService.pushAdvisor(new SecurityAdvisor() {
+							public SecurityAdvice isAllowed(String userId, String function, String reference)
+							{
+								return function.equals(m_contentHostingService.AUTH_RESOURCE_ADD)?SecurityAdvice.ALLOWED:SecurityAdvice.PASS;
+							}
+						});
 						ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, "Assignments", contentType, fileContentStream, props);
-						disableSecurityAdvisor();
 						
 						try
 						{
@@ -12802,6 +12823,7 @@ public class AssignmentAction extends PagedResourceActionII
 						{
 							M_log.warn(this + "doAttachUpload cannot find reference for " + attachment.getId() + ee.getMessage());
 						}
+						
 						state.setAttribute(ATTACHMENTS, attachments);
 					}
 					catch (PermissionException e)
@@ -12832,6 +12854,10 @@ public class AssignmentAction extends PagedResourceActionII
 						// other exceptions should be caught earlier
 						M_log.debug(this + ".doAttachupload ***** Unknown Exception ***** " + ignore.getMessage());
 						addAlert(state, rb.getString("failed"));
+					}
+					finally
+					{
+						SecurityService.popAdvisor();
 					}
 				}
 				else
@@ -12869,45 +12895,6 @@ public class AssignmentAction extends PagedResourceActionII
 			throw e;
 		}
 	}
-	
-    /**
-     * remove recent added security advisor
-     */
-    protected void disableSecurityAdvisor()
-    {
-    	// remove recent added security advisor
-    	SecurityService.popAdvisor();
-    }
-
-    /**
-     * Establish a security advisor to allow permission check for updating assignment
-     */
-    protected void enableSecurityAdvisorToReviseAssignment()
-    {
-      // put in a security advisor so we can create citationAdmin site without need
-      // of further permissions
-      SecurityService.pushAdvisor(new SecurityAdvisor() {
-        public SecurityAdvice isAllowed(String userId, String function, String reference)
-        {
-          return function.equals(AssignmentService.SECURE_UPDATE_ASSIGNMENT)?SecurityAdvice.ALLOWED:SecurityAdvice.NOT_ALLOWED;
-        }
-      });
-    }
-    
-    /**
-     * Establish a security advisor to allow permission check for adding attachment resource
-     */
-    protected void enableSecurityAdvisorToAddAttachment()
-    {
-      // put in a security advisor so we can create citationAdmin site without need
-      // of further permissions
-      SecurityService.pushAdvisor(new SecurityAdvisor() {
-        public SecurityAdvice isAllowed(String userId, String function, String reference)
-        {
-          return function.equals(m_contentHostingService.AUTH_RESOURCE_ADD)?SecurityAdvice.ALLOWED:SecurityAdvice.NOT_ALLOWED;
-        }
-      });
-    }
     
     /**
      * Categories are represented as Integers. Right now this feature only will

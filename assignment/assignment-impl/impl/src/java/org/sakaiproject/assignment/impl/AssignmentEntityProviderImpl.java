@@ -14,7 +14,6 @@ import org.sakaiproject.assignment.api.AssignmentEntityProvider;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.assignment.api.Assignment.AssignmentAccess;
-import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
@@ -870,13 +869,26 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
 
                 if (!"".equals(submissionId)) {
                     props.put("security.assignment.ref", submissionId);
-                    securityService.pushAdvisor(new MySecurityAdvisor(sessionManager
-                            .getCurrentSessionUserId(), AssignmentService.SECURE_ACCESS_ASSIGNMENT,
-                            submissionId));
-                    AssignmentSubmission as = assignmentService.getSubmission(submissionId);
-                    securityService.popAdvisor();
-                    attachments.addAll(as.getSubmittedAttachments());
-                    attachments.addAll(as.getFeedbackAttachments());
+                    try
+                    {
+                    	// enable permission to access submission
+                        securityService.pushAdvisor(new MySecurityAdvisor(
+    							sessionManager.getCurrentSessionUserId(), 
+    							AssignmentService.SECURE_ACCESS_ASSIGNMENT_SUBMISSION,
+    							submissionId));
+                    	AssignmentSubmission as = assignmentService.getSubmission(submissionId);
+	                    attachments.addAll(as.getSubmittedAttachments());
+	                    attachments.addAll(as.getFeedbackAttachments());
+                    }
+                    catch (Exception e)
+                    {
+                    	// exception
+                    }
+                    finally
+                    {
+                    	// remove security advisor
+                    	securityService.popAdvisor();
+                    }
                 }
 
                 props.put("assignment.content.decoration.wrapper", decWrapper);
@@ -927,40 +939,6 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
      */
     public void setPropertyValue(String reference, String name, String value) {
         // TODO: add ability to set properties of an assignment
-    }
-
-    /**
-     * A simple SecurityAdviser that can be used to override permissions on one reference string for
-     * one user for one function.
-     */
-    static private class MySecurityAdvisor implements SecurityAdvisor {
-
-        protected String m_userId;
-
-        protected String m_function;
-
-        protected List<String> m_references = new ArrayList<String>();
-
-        public MySecurityAdvisor(String userId, String function, String reference) {
-            m_userId = userId;
-            m_function = function;
-            m_references.add(reference);
-        }
-
-        public MySecurityAdvisor(String userId, String function, List<String> references) {
-            m_userId = userId;
-            m_function = function;
-            m_references = references;
-        }
-
-        public SecurityAdvice isAllowed(String userId, String function, String reference) {
-            SecurityAdvice rv = SecurityAdvice.PASS;
-            if (m_userId.equals(userId) && m_function.equals(function)
-                    && m_references.contains(reference)) {
-                rv = SecurityAdvice.ALLOWED;
-            }
-            return rv;
-        }
     }
 
     // SETTERS
