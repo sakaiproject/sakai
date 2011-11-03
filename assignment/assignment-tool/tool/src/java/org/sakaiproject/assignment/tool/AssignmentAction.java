@@ -6605,7 +6605,7 @@ public class AssignmentAction extends PagedResourceActionII
 		Iterator it = assignments.iterator();
 		
 		// temporarily allow the user to read and write from assignments (asn.revise permission)
-        enableSecurityAdvisor();
+        enableSecurityAdvisorToReviseAssignment();
         
         while (it.hasNext()) // reads and writes the parameter for default ordering
         {
@@ -12789,7 +12789,7 @@ public class AssignmentAction extends PagedResourceActionII
 						String siteId = ToolManager.getCurrentPlacement().getContext();
 						
 						// add attachment
-						enableSecurityAdvisor();
+						enableSecurityAdvisorToAddAttachment();
 						ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, "Assignments", contentType, fileContentStream, props);
 						disableSecurityAdvisor();
 						
@@ -12880,17 +12880,31 @@ public class AssignmentAction extends PagedResourceActionII
     }
 
     /**
-     * Establish a security advisor to allow the "embedded" azg work to occur
-     * with no need for additional security permissions.
+     * Establish a security advisor to allow permission check for updating assignment
      */
-    protected void enableSecurityAdvisor()
+    protected void enableSecurityAdvisorToReviseAssignment()
     {
       // put in a security advisor so we can create citationAdmin site without need
       // of further permissions
       SecurityService.pushAdvisor(new SecurityAdvisor() {
         public SecurityAdvice isAllowed(String userId, String function, String reference)
         {
-          return SecurityAdvice.ALLOWED;
+          return function.equals(AssignmentService.SECURE_UPDATE_ASSIGNMENT)?SecurityAdvice.ALLOWED:SecurityAdvice.NOT_ALLOWED;
+        }
+      });
+    }
+    
+    /**
+     * Establish a security advisor to allow permission check for adding attachment resource
+     */
+    protected void enableSecurityAdvisorToAddAttachment()
+    {
+      // put in a security advisor so we can create citationAdmin site without need
+      // of further permissions
+      SecurityService.pushAdvisor(new SecurityAdvisor() {
+        public SecurityAdvice isAllowed(String userId, String function, String reference)
+        {
+          return function.equals(m_contentHostingService.AUTH_RESOURCE_ADD)?SecurityAdvice.ALLOWED:SecurityAdvice.NOT_ALLOWED;
         }
       });
     }
