@@ -478,7 +478,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		final Reference ref = EntityManager.newReference(opaqueContext);
 		
 		// needed to access the message
-		enableSecurityAdvisor();
+		enableSecurityAdvisorToGetAnnouncement();
 		
 		final AnnouncementMessage msg = (AnnouncementMessage) ref.getEntity();
 		final AnnouncementMessageHeader hdr = (AnnouncementMessageHeader) msg.getAnnouncementHeader();
@@ -515,13 +515,16 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	 * Establish a security advisor to allow the "embedded" azg work to occur
 	 * with no need for additional security permissions.
 	 */
-	protected void enableSecurityAdvisor() {
+	protected void enableSecurityAdvisorToGetAnnouncement() {
 		// put in a security advisor so we can do our podcast work without need
 		// of further permissions
 		SecurityService.pushAdvisor(new SecurityAdvisor() {
 			public SecurityAdvice isAllowed(String userId, String function,
 					String reference) {
-				return SecurityAdvice.ALLOWED;
+				if (function.equals(AnnouncementService.SECURE_ANNC_READ))
+					return SecurityAdvice.ALLOWED;
+				else
+					return SecurityAdvice.NOT_ALLOWED;
 			}
 		});
 	}
