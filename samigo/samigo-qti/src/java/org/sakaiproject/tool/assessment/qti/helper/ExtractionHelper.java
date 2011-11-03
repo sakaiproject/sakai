@@ -800,12 +800,15 @@ public class ExtractionHelper
       releasedTo = AuthoringConstantStrings.ANONYMOUS;
     }
     else if (releasedTo != null && releasedTo.indexOf("Selected Groups") > -1){
-    	releasedTo = AgentFacade.getCurrentSiteId();
+    	releasedTo = AgentFacade.getCurrentSiteName();
     }
-
-    if (releasedTo != null) {
-      log.debug("control.setReleaseTo(releasedTo)='"+releasedTo+"'.");
-      control.setReleaseTo(releasedTo);
+    else {
+    	if (AgentFacade.getCurrentSiteName() != null) {
+    		releasedTo = AgentFacade.getCurrentSiteName();
+    	}
+    	else {
+    		control.setReleaseTo(releasedTo);
+    	}
     }
     
     // Timed Assessment
