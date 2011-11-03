@@ -17,7 +17,7 @@
     	      </f:facet>
     	      <h:panelGroup>
    	          <h:outputText value="#{triggers.trigger.name}    "/>
-     	        <h:outputText rendered="#{triggers.cron}"value="(#{triggers.trigger.cronExpression})"/>
+     	        <h:outputText rendered="#{triggers.cron}" value="(#{triggers.trigger.cronExpression})"/>
    	        </h:panelGroup>
     	    </h:column>  	     
         </h:dataTable>        
