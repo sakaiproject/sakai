@@ -5,15 +5,15 @@
 		<sakai:flowState bean="#{editAssignmentBean}" />
 
 		<t:aliasBean alias="#{bean}" value="#{editAssignmentBean}">
-			<%@include file="/inc/appMenu.jspf"%>
+			<%@ include file="/inc/appMenu.jspf"%>
 
-			<%@include file="/inc/breadcrumb.jspf" %>
+			<%@ include file="/inc/breadcrumb.jspf" %>
 		</t:aliasBean>
 
 		<div class="indnt1">
 
 		<t:aliasBean alias="#{bean}" value="#{editAssignmentBean}">
-			<%@include file="/inc/assignmentEditing.jspf"%>
+			<%@ include file="/inc/assignmentEditing.jspf"%>
 		</t:aliasBean>
 
 		</div>

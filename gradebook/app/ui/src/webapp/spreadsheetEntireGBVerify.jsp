@@ -5,7 +5,7 @@
         <h:form id="form">
 
               <t:aliasBean alias="#{bean}" value="#{spreadsheetUploadBean}">
-                <%@include file="/inc/appMenu.jspf"%>
+                <%@ include file="/inc/appMenu.jspf"%>
             </t:aliasBean>
 
             <sakai:flowState bean="#{spreadsheetUploadBean}" />
@@ -28,7 +28,7 @@
                 <h:outputText value="#{msgs.import_preview_nomatch}" escape="false" rendered="#{spreadsheetUploadBean.hasUnknownUser}"/>
             </p>
 
-            <%@include file="/inc/globalMessages.jspf"%>
+            <%@ include file="/inc/globalMessages.jspf"%>
             <p/>
  
             <t:dataTable id="table1"

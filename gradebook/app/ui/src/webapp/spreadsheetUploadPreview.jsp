@@ -4,7 +4,7 @@
     <div class="portletBody">
         <h:form id="form">
             <t:aliasBean alias="#{bean}" value="#{spreadsheetUploadBean}">
-                <%@include file="/inc/appMenu.jspf"%>
+                <%@ include file="/inc/appMenu.jspf"%>
             </t:aliasBean>
 
             <h2><h:outputText value="#{msgs.upload_preview_page_title}"/></h2>
@@ -21,7 +21,7 @@
             <p class="instruction">
                 <h:outputText value="#{msgs.upload_preview_additional_text}" escape="false"/>
             </p>
-            <%@include file="/inc/globalMessages.jspf"%>
+            <%@ include file="/inc/globalMessages.jspf"%>
             <t:dataTable id="table1" value="#{spreadsheetUploadBean.studentRows}" var="row" rowIndexVar="rowIndex" styleClass="listHier" columnClasses="center">
                 <t:column styleClass="left">
                     <f:facet name="header">

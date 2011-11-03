@@ -11,9 +11,9 @@
 		<sakai:flowState bean="#{assignmentDetailsBean}" />
 
 		<t:aliasBean alias="#{bean}" value="#{assignmentDetailsBean}">
-			<%@include file="/inc/appMenu.jspf"%>
+			<%@ include file="/inc/appMenu.jspf"%>
 		
-			<%@include file="/inc/breadcrumb.jspf" %>
+			<%@ include file="/inc/breadcrumb.jspf" %>
 		</t:aliasBean> 
 
 		<h3><h:outputText value="#{msgs.assignment_details_page_title}"/></h3>
@@ -125,10 +125,10 @@
 		<h4><h:outputText value="#{msgs.assignment_details_grading_table}"/></h4>
 		<div class="indnt1">
 
-		<%@include file="/inc/globalMessages.jspf"%>
+		<%@ include file="/inc/globalMessages.jspf"%>
 
 		<t:aliasBean alias="#{bean}" value="#{assignmentDetailsBean}">
-			<%@include file="/inc/filterPaging.jspf"%>
+			<%@ include file="/inc/filterPaging.jspf"%>
 		</t:aliasBean>
 		
 		<div id="buttonDiv1" class="act gbButtonBar">
@@ -289,7 +289,7 @@
 		</t:dataTable>
 
 		<t:aliasBean alias="#{bean}" value="#{assignmentDetailsBean}">
-			<%@include file="/inc/gradingEventLogs.jspf"%>
+			<%@ include file="/inc/gradingEventLogs.jspf"%>
 		</t:aliasBean>
 
 		<p class="instruction">

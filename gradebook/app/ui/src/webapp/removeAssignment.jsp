@@ -2,7 +2,7 @@
 	<div class="portletBody">
 	  <h:form id="gbForm">
 		<t:aliasBean alias="#{bean}" value="#{removeAssignmentBean}">
-			<%@include file="/inc/appMenu.jspf"%>
+			<%@ include file="/inc/appMenu.jspf"%>
 		</t:aliasBean>
 
 		<sakai:flowState bean="#{removeAssignmentBean}" />
@@ -17,7 +17,7 @@
 			</h:outputFormat>
 		</p>
 
-		<%@include file="/inc/globalMessages.jspf"%>
+		<%@ include file="/inc/globalMessages.jspf"%>
 
 		<div class="indnt1">
 			<h:panelGrid cellpadding="0" cellspacing="0" columns="2"

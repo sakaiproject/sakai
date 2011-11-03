@@ -5,14 +5,14 @@
 	  <h:form id="gbForm">
 
 			<t:aliasBean alias="#{bean}" value="#{gradebookSetupBean}">
-				<%@include file="/inc/appMenu.jspf"%>
+				<%@ include file="/inc/appMenu.jspf"%>
 			</t:aliasBean>
 	
 			<sakai:flowState bean="#{gradebookSetupBean}" />
 	
 			<h2><h:outputText value="#{msgs.gb_setup_title}"/></h2>
 			
-			<%@include file="/inc/globalMessages.jspf"%>
+			<%@ include file="/inc/globalMessages.jspf"%>
 			
 			<p class="instruction">
 				<h:outputText value="* " styleClass="reqStarInline"/>
@@ -107,7 +107,7 @@
 			--%>
 	 
 		  <t:aliasBean alias="#{bean}" value="#{gradebookSetupBean}">
-				<%@include file="/inc/categoryEdit.jspf"%>
+				<%@ include file="/inc/categoryEdit.jspf"%>
 			</t:aliasBean>
 			
 			<div class="act calendarPadding">

@@ -5,7 +5,7 @@
 	  <h:form id="gbForm">
 
 		<t:aliasBean alias="#{bean}" value="#{courseGradeDetailsBean}">
-			<%@include file="/inc/appMenu.jspf"%>
+			<%@ include file="/inc/appMenu.jspf"%>
 		</t:aliasBean>
 
 		<!-- Course Grade Summary -->
@@ -41,12 +41,12 @@
 		<h4><h:outputText value="#{msgs.assignment_details_grading_table}"/></h4>
 		<div class="indnt1">
 
-		<%@include file="/inc/globalMessages.jspf"%>
+		<%@ include file="/inc/globalMessages.jspf"%>
 		
 		<div class="instruction"><h:outputText value="#{msgs.course_grade_details_instruction}" escape="false"/></div>
 
 		<t:aliasBean alias="#{bean}" value="#{courseGradeDetailsBean}">
-			<%@include file="/inc/filterPaging.jspf"%>
+			<%@ include file="/inc/filterPaging.jspf"%>
 		</t:aliasBean>
 
 		<!-- Grading Table -->
@@ -140,7 +140,7 @@
 		</t:dataTable>
 
 		<t:aliasBean alias="#{bean}" value="#{courseGradeDetailsBean}">
-			<%@include file="/inc/gradingEventLogs.jspf"%>
+			<%@ include file="/inc/gradingEventLogs.jspf"%>
 		</t:aliasBean>
 
 		<p class="instruction">

@@ -9,11 +9,11 @@
 		<sakai:flowState bean="#{instructorViewBean}" />
 		
 		<t:aliasBean alias="#{bean}" value="#{instructorViewBean}">
-			<%@include file="/inc/appMenu.jspf" %>
+			<%@ include file="/inc/appMenu.jspf" %>
 		</t:aliasBean>
 
 		<t:aliasBean alias="#{bean}" value="#{instructorViewBean}">
-			<%@include file="/inc/breadcrumbInstructor.jspf" %>
+			<%@ include file="/inc/breadcrumbInstructor.jspf" %>
 		</t:aliasBean>
 
 		<h:panelGrid columns="2" width="99%" columnClasses="bogus,right">
@@ -95,7 +95,7 @@
 			</h:panelGroup>	
 		</h:panelGrid>
 		
-		<%@include file="/inc/globalMessages.jspf"%>
+		<%@ include file="/inc/globalMessages.jspf"%>
 		
 		<div>
 			<div class="act" style="display: inline;float: left;">
@@ -309,7 +309,7 @@
 		  </gbx:gradebookItemTable>
 		  
 		  <t:aliasBean alias="#{bean}" value="#{instructorViewBean}">
-			 <%@include file="/inc/gradingEventLogsInstView.jspf"%>
+			 <%@ include file="/inc/gradingEventLogsInstView.jspf"%>
 		  </t:aliasBean>
 		
 		

@@ -25,7 +25,7 @@
 	<div class="portletBody">
 	  <h:form id="gbForm">
 		<t:aliasBean alias="#{bean}" value="#{rosterBean}">
-			<%@include file="/inc/appMenu.jspf"%>
+			<%@ include file="/inc/appMenu.jspf"%>
 		</t:aliasBean>
 		
 		<div id="dialogDiv" title="Grade Messages" style="display:none;">
@@ -77,7 +77,7 @@
 		</h:panelGrid>
 
 		<t:aliasBean alias="#{bean}" value="#{rosterBean}">
-			<%@include file="/inc/filterPagingRoster.jspf"%>
+			<%@ include file="/inc/filterPagingRoster.jspf"%>
 		</t:aliasBean>
 
 		<gbx:spreadsheetUI 

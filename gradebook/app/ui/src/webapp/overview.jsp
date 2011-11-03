@@ -6,7 +6,7 @@
   <div class="portletBody">
 	<h:form id="gbForm">
 	  <t:aliasBean alias="#{bean}" value="#{overviewBean}">
-		<%@include file="/inc/appMenu.jspf"%>
+		<%@ include file="/inc/appMenu.jspf"%>
 	  </t:aliasBean>
 
 	  <sakai:flowState bean="#{overviewBean}" />
@@ -43,7 +43,7 @@
 			</h:panelGroup>	
 		</h:panelGrid>
 
-		<%@include file="/inc/globalMessages.jspf"%>
+		<%@ include file="/inc/globalMessages.jspf"%>
 		
 		<h:panelGroup rendered="#{overviewBean.isLetterGrade}" styleClass="validation">
 		  <h:outputText value="#{msgs.overview_lettergrade1}" rendered="#{overviewBean.isLetterGrade}"/>

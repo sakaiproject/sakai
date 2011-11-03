@@ -4,8 +4,8 @@
     <div class="portletBody">
         <h:form id="gbForm">
             <t:aliasBean alias="#{bean}" value="#{spreadsheetUploadBean}">
-                <%@include file="/inc/appMenu.jspf"%>
-           		<%@include file="/inc/breadcrumb.jspf" %>
+                <%@ include file="/inc/appMenu.jspf"%>
+           		<%@ include file="/inc/breadcrumb.jspf" %>
             </t:aliasBean>
  <%--           <h2><h:outputText value="#{msgs.loading_dock_page_title}"/></h2> --%>
             <div class="instruction">
@@ -19,7 +19,7 @@
             </h:panelGroup>
             <p/>
             <p/>
-            <%@include file="/inc/globalMessages.jspf"%>
+            <%@ include file="/inc/globalMessages.jspf"%>
             <h4><h:outputText value="#{msgs.loading_dock_table_header}"/></h4>
             <t:dataTable id="table1" value="#{spreadsheetUploadBean.spreadsheets}" var="row" rowIndexVar="rowIndex"
                          columnClasses="left,left,rightpadded,rightpadded,rightpadded"                         

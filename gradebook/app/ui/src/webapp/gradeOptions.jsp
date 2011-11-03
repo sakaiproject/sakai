@@ -2,7 +2,7 @@
   <div class="portletBody">
 	<h:form id="gbForm">
 		<t:aliasBean alias="#{bean}" value="#{feedbackOptionsBean}">
-			<%@include file="/inc/appMenu.jspf"%>
+			<%@ include file="/inc/appMenu.jspf"%>
 		</t:aliasBean>
 
 		<sakai:flowState bean="#{feedbackOptionsBean}" />
@@ -44,7 +44,7 @@
 			</h:panelGroup>
 		</h:panelGrid>
 
-		<%@include file="/inc/globalMessages.jspf"%>
+		<%@ include file="/inc/globalMessages.jspf"%>
 
 		<h:panelGroup rendered="#{!feedbackOptionsBean.isExistingConflictScale}" styleClass="validation">
 		  <h:outputText value="#{msgs.feedback_options_existing_conflict1}" rendered="#{!feedbackOptionsBean.isExistingConflictScale}"/>

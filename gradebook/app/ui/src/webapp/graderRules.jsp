@@ -4,7 +4,7 @@
 	  <h:form id="gbForm">
 
 			<t:aliasBean alias="#{bean}" value="#{graderRulesBean}">
-				<%@include file="/inc/appMenu.jspf"%>
+				<%@ include file="/inc/appMenu.jspf"%>
 			</t:aliasBean>
 	
 			<sakai:flowState bean="#{graderRulesBean}" />
@@ -13,7 +13,7 @@
 					<h:outputText value="#{msgs.grader_rules_title}" />
 			</h2>
 			
-			<%@include file="/inc/globalMessages.jspf"%>
+			<%@ include file="/inc/globalMessages.jspf"%>
 			
 			<h:panelGroup rendered="#{!graderRulesBean.assistantsDefined || (!graderRulesBean.categoriesDefined && !graderRulesBean.sectionsDefined)}">
 				<f:verbatim><div class="indnt1 instruction"></f:verbatim>

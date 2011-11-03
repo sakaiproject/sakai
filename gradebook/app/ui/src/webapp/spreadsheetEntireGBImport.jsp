@@ -7,7 +7,7 @@
  		<%-- This form ends after step 1 since want to bypass validation of Step 3 --%>
         <h:form>
               <t:aliasBean alias="#{bean}" value="#{spreadsheetUploadBean}">
-                <%@include file="/inc/appMenu.jspf"%>
+                <%@ include file="/inc/appMenu.jspf"%>
             </t:aliasBean>
 
             <sakai:flowState bean="#{spreadsheetUploadBean}" />
@@ -17,10 +17,10 @@
                 <h:outputText value="#{msgs.import_entire_instructions}" escape="false"/>
             </div>
             <p/>
-            <%@include file="/inc/globalMessages.jspf"%>
+            <%@ include file="/inc/globalMessages.jspf"%>
             
             <%-- To display formatted error messages that occured during import --%>
-            <%@include file="/inc/importErrorMessages.jspf" %>
+            <%@ include file="/inc/importErrorMessages.jspf" %>
             
             <h:outputText value="#{spreadsheetUploadBean.externallyMaintainedImportMsg}"
             	rendered="#{spreadsheetUploadBean.externallyMaintainedImportMsg != null}"

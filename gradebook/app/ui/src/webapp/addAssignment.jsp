@@ -19,9 +19,9 @@
 	<h:form id="gbForm">
 
 		<t:aliasBean alias="#{bean}" value="#{addAssignmentBean}">
-			<%@include file="/inc/appMenu.jspf"%>
+			<%@ include file="/inc/appMenu.jspf"%>
 			
-			<%@include file="/inc/breadcrumb.jspf" %>
+			<%@ include file="/inc/breadcrumb.jspf" %>
 		</t:aliasBean>
 
 		<sakai:flowState bean="#{addAssignmentBean}" />
@@ -38,11 +38,11 @@
 		</p>
 --%>
 		<t:aliasBean alias="#{bean}" value="#{addAssignmentBean}">
-<%--			<%@include file="/inc/assignmentEditing.jspf"%> --%>
-			<%@include file="/inc/globalMessages.jspf"%>
+<%--			<%@ include file="/inc/assignmentEditing.jspf"%> --%>
+			<%@ include file="/inc/globalMessages.jspf"%>
 
 			<%-- Allows bulk creation of Gradebook Items --%>
-			<%@include file="/inc/bulkNewItems.jspf" %>
+			<%@ include file="/inc/bulkNewItems.jspf" %>
 		</t:aliasBean>
 
 		<%-- Calls a javascript function to add another Add Gradebook Item Pane --%>

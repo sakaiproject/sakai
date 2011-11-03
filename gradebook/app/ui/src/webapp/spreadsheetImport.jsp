@@ -2,7 +2,7 @@
 	<div class="portletBody">
      <h:form id="gbForm">
        <t:aliasBean alias="#{bean}" value="#{spreadsheetUploadBean}">
-           <%@include file="/inc/appMenu.jspf"%>
+           <%@ include file="/inc/appMenu.jspf"%>
        </t:aliasBean>
        <sakai:flowState bean="#{spreadsheetUploadBean}" />
        <h2><h:outputText value="#{msgs.import_assignment_page_title}"/></h2>
@@ -10,7 +10,7 @@
            <h:outputText value="#{msgs.import_assignment_instruction}" escape="false"/>
        </div>
        <p/>
-       <%@include file="/inc/globalMessages.jspf"%>
+       <%@ include file="/inc/globalMessages.jspf"%>
        <h4><h:outputText value="#{msgs.import_assignment_header}"/></h4>
 
 			 <h:panelGrid cellpadding="0" cellspacing="0" columns="2" columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" styleClass="itemSummaryLite">
