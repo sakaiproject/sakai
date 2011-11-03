@@ -524,7 +524,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 				if (function.equals(AnnouncementService.SECURE_ANNC_READ))
 					return SecurityAdvice.ALLOWED;
 				else
-					return SecurityAdvice.NOT_ALLOWED;
+					return SecurityAdvice.PASS;
 			}
 		});
 	}
