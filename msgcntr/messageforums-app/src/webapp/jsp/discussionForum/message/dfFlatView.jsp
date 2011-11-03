@@ -142,7 +142,7 @@
 		<mf:hierDataTable id="expandedThreadedMessages" value="#{ForumTool.messages}" var="message" 
    	 		noarrows="true" styleClass="listHier messagesThreaded" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column id="_msg_subject">
-				<%@include file="dfViewThreadBodyInclude.jsp" %>
+				<%@ include file="dfViewThreadBodyInclude.jsp" %>
 			</h:column>
 		</mf:hierDataTable>
 				

@@ -294,7 +294,7 @@
 					</h:panelGrid>
 				</div>
 				<div id="createOneTopicPanel" class="createOneTopicPanel">
-					<%@include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
+					<%@ include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
 				</div>
 
 				<div id="createTopicsForGroupsPanel" class="createTopicsForGroupsPanel" style="display:none" >

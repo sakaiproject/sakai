@@ -15,10 +15,10 @@
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 			<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>		
 			
-			<%@include file="topNav.jsp" %>
+			<%@ include file="topNav.jsp" %>
 
 			<h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}"/>
-			<%@include file="msgHeader.jsp"%>
+			<%@ include file="msgHeader.jsp"%>
 
 
 	  <h:dataTable styleClass="listHier lines nolines" cellpadding="0" cellspacing="0"  id="pvtmsgs" width="100%" value="#{PrivateMessagesTool.searchPvtMsgs}" var="rcvdItems" 

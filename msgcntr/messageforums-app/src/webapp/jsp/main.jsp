@@ -46,13 +46,13 @@
 		
 			<h:inputHidden id="mainOrHp" value="main" />
         
-   	    	<%@include file="privateMsg/pvtArea.jsp"%>
+   	    	<%@ include file="privateMsg/pvtArea.jsp"%>
         </mf:forumHideDivision>
 
 
 		<%-- include hide division here so that dfArea can be used w/o div within Forums tool --%>        
 		<mf:forumHideDivision title="#{msgs.cdfm_discussion_forums}" id="_test_div" >
-	        <%@include file="discussionForum/area/dfArea.jsp"%>
+	        <%@ include file="discussionForum/area/dfArea.jsp"%>
         	<h:inputHidden id="mainOrForumOrTopic" value="main" />
 
     	</mf:forumHideDivision>

@@ -206,7 +206,7 @@ if (thisId == null)
 
 		<div id="permissionReadOnlyW">
 		<div id="permissionReadOnly">	
-      <%@include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
+      <%@ include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
 		</div>	
 		</div>
       --%>      

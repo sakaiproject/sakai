@@ -187,7 +187,7 @@
 					<f:verbatim></div></f:verbatim>
 				</h:panelGroup>
 			</h:panelGrid>	
-				<%--<%@include file="dfViewSearchBar.jsp"%> --%>
+				<%--<%@ include file="dfViewSearchBar.jsp"%> --%>
    		
 			<%--//designNote: need a rendered attribute here that will toggle the display of the table (if messages) or a textblock (class="instruction") if there are no messages--%>
 			<h:outputText styleClass="messageAlert" value="#{msgs.cdfm_postFirst_warning}" rendered="#{ForumTool.needToPostFirst}"/>				

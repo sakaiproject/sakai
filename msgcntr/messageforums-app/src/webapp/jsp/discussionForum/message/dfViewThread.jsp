@@ -145,7 +145,7 @@
 	    	</div>
 		</f:verbatim>
 		
-				 <%@include file="dfViewSearchBarThread.jsp"%>
+				 <%@ include file="dfViewSearchBarThread.jsp"%>
 		
 		<h:outputText value="#{msgs.cdfm_postFirst_warning}" rendered="#{ForumTool.needToPostFirst}" styleClass="messageAlert"/>
 		<h:outputText value="#{msgs.cdfm_no_unread_messages}" rendered="#{empty ForumTool.selectedThread && !ForumTool.needToPostFirst}" styleClass="instruction" style="display:block;"/>
@@ -155,7 +155,7 @@
    	 		styleClass="listHier messagesFlat specialLink" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column>
 			
-				<%@include file="dfViewThreadBodyInclude.jsp" %>
+				<%@ include file="dfViewThreadBodyInclude.jsp" %>
 			</h:column>
 		</h:dataTable>
 		
@@ -163,7 +163,7 @@
 		<mf:hierDataTable id="expandedThreadedMessages" value="#{ForumTool.selectedThread}" var="message" rendered="#{ForumTool.threaded}"
    	 		noarrows="true" styleClass="listHier messagesThreaded specialLink" border="0" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column id="_msg_subject">
-				<%@include file="dfViewThreadBodyInclude.jsp" %>
+				<%@ include file="dfViewThreadBodyInclude.jsp" %>
 			</h:column>
 		</mf:hierDataTable>
 				

@@ -119,7 +119,7 @@
 				  </h:panelGroup>
 			    </h:panelGrid>
 			  
-		 		<%@include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
+		 		<%@ include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
 		 		
         <div class="act">
           <h:commandButton action="#{ForumTool.processActionReviseTemplateSettings}" 

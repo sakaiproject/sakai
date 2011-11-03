@@ -13,5 +13,5 @@
 	<mf:forum_bar_link id="pending_msgs" title="#{msgs.cdfm_msg_pending_queue}" value="#{msgs.cdfm_msg_pending_queue} #{msgs.cdfm_openb}#{ForumTool.numPendingMessages}#{msgs.cdfm_closeb}" 
 		action="#{ForumTool.processPendingMsgQueue}" rendered="#{ForumTool.displayPendingMsgQueue}"/>  
 
-	<%@include file="/jsp/discussionForum/includes/dfAreaInclude.jsp"%>
+	<%@ include file="/jsp/discussionForum/includes/dfAreaInclude.jsp"%>
  

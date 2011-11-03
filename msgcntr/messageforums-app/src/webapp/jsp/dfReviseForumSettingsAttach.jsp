@@ -264,7 +264,7 @@
 			    </h:panelGroup>
 			  </h:panelGrid>
 
-			<%@include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
+			<%@ include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
 
 				
 

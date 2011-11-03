@@ -10,8 +10,8 @@
   <sakai:view_container title="#{msgs.cdfm_container_title}">
     <sakai:view_content>
       <h:form id="msgForum">
-      	<%@include file="privateMsg/pvtArea.jsp"%>
-        <%@include file="discussionForum/dfArea.jsp"%>
+      	<%@ include file="privateMsg/pvtArea.jsp" %>
+        <%@ include file="discussionForum/dfArea.jsp" %>
         <sakai:group_box>
           <h:dataTable 
               id="messages-id" 
