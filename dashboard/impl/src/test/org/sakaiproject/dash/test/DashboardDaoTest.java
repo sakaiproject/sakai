@@ -93,7 +93,7 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		assertTrue(saved);
 		
 		calendarItem = dao.getCalendarItem(entityReference, calendarTimeLabelKey, null);
-		System.out.println("calendarItem == " + calendarItem);
+		//System.out.println("calendarItem == " + calendarItem);
 
 		assertNotNull(calendarItem);
 		assertNotNull(calendarItem.getId());
@@ -694,8 +694,116 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		String contextId;
 	}
 
+	public void testGetNewsItemsStringStringInt() {
+
+		String contextId = getUniqueIdentifier();
+		String contextTitle = getUniqueIdentifier();
+		String contextUrl = getUniqueIdentifier();
+		Context context = new Context(contextId, contextTitle, contextUrl );
+		dao.addContext(context);
+		context = dao.getContext(contextId);
+		
+		String sourceTypeIdentifier = getUniqueIdentifier();
+		String accessPermission = getUniqueIdentifier();
+		SourceType sourceType = new SourceType(sourceTypeIdentifier, accessPermission, EntityLinkStrategy.ACCESS_URL);
+		dao.addSourceType(sourceType);
+		sourceType = dao.getSourceType(sourceTypeIdentifier);
+
+		String userId = getUniqueIdentifier();
+		String sakaiUserId = getUniqueIdentifier();
+		Person person = new Person(sakaiUserId, userId);
+		dao.addPerson(person);
+		person = dao.getPersonBySakaiId(sakaiUserId);
+		assertNotNull(person);
+		
+		String labelKey = getUniqueIdentifier();
+		String subtype = getUniqueIdentifier();
+		
+		Date eventTime01 = new Date(System.currentTimeMillis() - ONE_DAY);
+		String title01 = getUniqueIdentifier();
+		String entityReference01 = getUniqueIdentifier();
+		
+		NewsItem newsItem01 = new NewsItem(title01, eventTime01,
+			labelKey, entityReference01, context, sourceType, subtype);
+		boolean saved = dao.addNewsItem(newsItem01);
+		assertTrue(saved);
+		
+		newsItem01 = dao.getNewsItem(entityReference01);
+		assertNotNull(newsItem01);
+		
+		NewsLink newsLink01 = new NewsLink(person, newsItem01, context, false, false);
+		saved = dao.addNewsLink(newsLink01);
+		assertTrue(saved);
+		
+		newsLink01 = dao.getNewsLink(newsItem01.getId(), person.getId());
+		assertNotNull(newsLink01);
+
+		List<NewsItem> items = dao.getNewsItems(sakaiUserId, null, 2);
+		assertEquals(1, items.size());
+		
+		items = dao.getNewsItems(sakaiUserId, contextId, 2);
+		assertEquals(1, items.size());
+		
+		Date eventTime02 = new Date(System.currentTimeMillis() - ONE_DAY);
+		String title02 = getUniqueIdentifier();
+		String entityReference02 = getUniqueIdentifier();
+
+		NewsItem newsItem02 = new NewsItem(title02, eventTime02,
+				labelKey, entityReference02, context, sourceType, subtype);
+		saved = dao.addNewsItem(newsItem02);
+		assertTrue(saved);
+			
+		newsItem02 = dao.getNewsItem(entityReference02);
+		assertNotNull(newsItem02);
+			
+		NewsLink newsLink02 = new NewsLink(person, newsItem02, context, false, false);
+		saved = dao.addNewsLink(newsLink02);
+		assertTrue(saved);
+			
+		newsLink02 = dao.getNewsLink(newsItem02.getId(), person.getId());
+		assertNotNull(newsLink02);
+
+		items = dao.getNewsItems(sakaiUserId, null, 2);
+		assertEquals(2, items.size());
+		
+		items = dao.getNewsItems(sakaiUserId, contextId, 2);
+		assertEquals(2, items.size());
+		
+		Date eventTime = new Date(System.currentTimeMillis() - ONE_DAY);
+		String title = getUniqueIdentifier();
+		String entityReference = getUniqueIdentifier();
+
+		NewsItem newsItem = new NewsItem(title, eventTime,
+				labelKey, entityReference, context, sourceType, subtype);
+		saved = dao.addNewsItem(newsItem);
+		assertTrue(saved);
+			
+		newsItem = dao.getNewsItem(entityReference);
+		assertNotNull(newsItem);
+			
+		NewsLink newsLink = new NewsLink(person, newsItem, context, false, false);
+		saved = dao.addNewsLink(newsLink);
+		assertTrue(saved);
+			
+		newsLink = dao.getNewsLink(newsItem.getId(), person.getId());
+		assertNotNull(newsLink);
+
+		items = dao.getNewsItems(sakaiUserId, null, 2);
+		assertEquals(1, items.size());
+		
+		items = dao.getNewsItems(sakaiUserId, contextId, 2);
+		assertEquals(1, items.size());
+	
+		items = dao.getNewsItems(sakaiUserId, null, 3);
+		assertEquals(3, items.size());
+		
+		items = dao.getNewsItems(sakaiUserId, contextId, 3);
+		assertEquals(3, items.size());
+	
+	}
+	
 	public void testGetNewsItemsByContext() {
-		String contextId;
+
 	}
 
 	public void testGetPersonBySakaiId() {

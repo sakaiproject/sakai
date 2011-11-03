@@ -337,7 +337,7 @@ public class AssignmentSupport {
 				
 				String assnReference = assn.getReference();
 				
-				NewsItem newsItem = dashboardLogic.createNewsItem(assn.getTitle(), event.getEventTime(), assnReference, context, sourceType);
+				NewsItem newsItem = dashboardLogic.createNewsItem(assn.getTitle(), event.getEventTime(), null, assnReference, context, sourceType, null);
 				CalendarItem calendarDueDateItem = dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getDueTime().getTime()), "assignment.due.date", assnReference, context, sourceType, null, null);
 				CalendarItem calendarCloseDateItem = assn.getCloseTime().equals(assn.getDueTime())? null : dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getCloseTime().getTime()), "assignment.close.date", assnReference, context, sourceType, null, null);
 				

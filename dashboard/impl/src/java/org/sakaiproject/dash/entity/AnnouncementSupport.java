@@ -357,7 +357,7 @@ public class AnnouncementSupport{
 					sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ANNOUNCEMENT_ACCESS, EntityLinkStrategy.SHOW_PROPERTIES);
 				}
 				String accessUrl = ann.getUrl();
-				NewsItem newsItem = dashboardLogic.createNewsItem(ann.getAnnouncementHeader().getSubject(), event.getEventTime(), ann.getReference(), context, sourceType);
+				NewsItem newsItem = dashboardLogic.createNewsItem(ann.getAnnouncementHeader().getSubject(), event.getEventTime(), null, ann.getReference(), context, sourceType, null);
 				if(dashboardLogic.isAvailable(newsItem.getEntityReference(), IDENTIFIER)) {
 					dashboardLogic.createNewsLinks(newsItem);
 					Date retractDate = getRetractDate(newsItem.getEntityReference());

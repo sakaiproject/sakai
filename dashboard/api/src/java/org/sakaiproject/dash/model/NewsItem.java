@@ -51,6 +51,10 @@ public class NewsItem implements Serializable {
 	protected SourceType sourceType;
 	protected String subtype;
 	protected String groupingIdentifier;
+	
+	protected int itemCount = 0;
+	
+	private boolean sticky = false;
 
 	protected static final String FORMAT_YEAR_DAY = "yyyyDDD";
 	
@@ -98,7 +102,25 @@ public class NewsItem implements Serializable {
 		this.sourceType = sourceType;
 		this.subtype = subtype;
 		generateGroupingIdentifier();
-}
+	}
+	
+	public NewsItem(NewsItem other) {
+		super();
+		if(other.id != null) {
+			this.id = new Long(other.id.longValue());
+		}
+		this.title = other.title;
+		this.newsTime = other.newsTime;
+		this.newsTimeLabelKey = other.newsTimeLabelKey;
+		this.entityReference = other.entityReference;
+		this.context = new Context(other.context);
+		this.sourceType = new SourceType(other.sourceType);
+		this.subtype = other.subtype;
+		this.itemCount = other.itemCount;
+		this.sticky = other.sticky;
+		generateGroupingIdentifier();
+
+	}
 
 	/**
 	 * @return the id
@@ -136,6 +158,13 @@ public class NewsItem implements Serializable {
 	}
 
 	/**
+	 * @return the itemCount
+	 */
+	public int getItemCount() {
+		return itemCount;
+	}
+
+	/**
 	 * @return the subtype
 	 */
 	public String getSubtype() {
@@ -161,6 +190,13 @@ public class NewsItem implements Serializable {
 	 */
 	public SourceType getSourceType() {
 		return sourceType;
+	}
+
+	/**
+	 * @return the sticky
+	 */
+	public boolean isSticky() {
+		return sticky;
 	}
 
 	/**
@@ -193,6 +229,13 @@ public class NewsItem implements Serializable {
 	}
 
 	/**
+	 * @param itemCount the itemCount to set
+	 */
+	public void setItemCount(int itemCount) {
+		this.itemCount = itemCount;
+	}
+
+	/**
 	 * @param subtype the subtype to set
 	 */
 	public void setSubtype(String subtype) {
@@ -222,6 +265,10 @@ public class NewsItem implements Serializable {
 		generateGroupingIdentifier();
 	}
 
+	public void setSticky(boolean sticky) {
+		this.sticky = sticky;
+	}
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -272,4 +319,5 @@ public class NewsItem implements Serializable {
 		}
 		this.groupingIdentifier = buf.toString();
 	}
+
 }

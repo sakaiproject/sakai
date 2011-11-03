@@ -21,6 +21,7 @@
 
 package org.sakaiproject.dash.logic;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -79,7 +80,7 @@ public interface DashboardLogic {
 
 	public Context createContext(String contextId);
 	
-	public NewsItem createNewsItem(String title, Date newsTime, String entityReference, Context context, SourceType sourceType);
+	public NewsItem createNewsItem(String title, Date newsTime, String labelKey, String entityReference, Context context, SourceType sourceType, String subtype);
 
 	public void createNewsLinks(NewsItem newsItem);
 	
@@ -149,9 +150,14 @@ public interface DashboardLogic {
 	
 	public NewsItem getNewsItem(String entityReference);
 	
+	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId, int collapseCount);
+	
 	public List<NewsItem> getNewsItems(String sakaiUserId, boolean saved, boolean hidden);
 	
 	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId, boolean saved, boolean hidden);
+	
+	public List<NewsItem> getNewsItemsByGroupId(String sakaiUserId,
+			String groupId, int pageSize, int pageNumber);
 	
 	public RepeatingCalendarItem getRepeatingCalendarItem(String entityReference, String calendarTimeLabelKey);
 
@@ -403,6 +409,8 @@ public interface DashboardLogic {
 	public void updateNewsLinks(String entityReference);
 
 	public void updateCalendarLinks(String entityReference);
+
+	public String getEntityIconUrl(String type, String subtype);
 
 	// todo:
 	// add methods to revise news items, calendar items, news links, calendar links, etc.

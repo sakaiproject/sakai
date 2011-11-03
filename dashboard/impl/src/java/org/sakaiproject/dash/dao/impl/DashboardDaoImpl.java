@@ -129,11 +129,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return true;
 		} catch (DataAccessException ex) {
             log.error("addCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-	        System.out.println("addCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+	        //System.out.println("addCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
             return false;
 		} catch (Exception e) {
 	        log.error("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
-	        System.out.println("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
+	        //System.out.println("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
 	        return false;
 		}
 	}
@@ -330,11 +330,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		if(log.isDebugEnabled()) {
 			log.debug("addRepeatingCalendarItem( " + repeatingCalendarItem.toString() + ")");
 		}
-		System.out.println("addRepeatingCalendarItem( " + repeatingCalendarItem.toString() + ")");
+		//System.out.println("addRepeatingCalendarItem( " + repeatingCalendarItem.toString() + ")");
 		
 		//  first_time, last_time, frequency, count, calendar_time_label_key, title, entity_ref, entity_type, context_id
 		String sql = getStatement("insert.RepeatingEvent");
-		System.out.println("addRepeatingCalendarItem() sql == " + sql);
+		//System.out.println("addRepeatingCalendarItem() sql == " + sql);
 		long sourceTypeId = repeatingCalendarItem.getSourceType().getId();
 		long contextId = repeatingCalendarItem.getContext().getId();
 		Object[] params = new Object[]{
@@ -349,7 +349,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return true;
 		} catch (DataAccessException ex) {
 			log.error("addRepeatingCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-			System.out.println("addRepeatingCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+			//System.out.println("addRepeatingCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
 			return false;
 		}
 	}
@@ -677,11 +677,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 		} catch (DataAccessException e) {
            log.error("getCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
-	        System.out.println("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
+	        //System.out.println("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
            return null;
 		} catch (Exception e) {
 	        log.error("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
-	        System.out.println("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
+	        //System.out.println("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
 	        return null;
 		}
 	}
@@ -736,7 +736,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			}
 			params = new Object[]{sakaiUserId, contextId};
 		}
-		log.info("getCalendarItems(" + sakaiUserId + "," + contextId + ") sql = " + sql);
+		//log.info("getCalendarItems(" + sakaiUserId + "," + contextId + ") sql = " + sql);
 		try {
 			return (List<CalendarItem>) getJdbcTemplate().query(sql,params,
 				new CalendarItemMapper()
@@ -760,7 +760,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			sql = getStatement("select.CalendarItems.by.sakaiId.contextId.future");
 			params = new Object[]{sakaiUserId, contextId};
 		}
-		log.info("getCalendarItems(" + sakaiUserId + "," + contextId + ") sql = " + sql);
+		//log.info("getCalendarItems(" + sakaiUserId + "," + contextId + ") sql = " + sql);
 		try {
 			return (List<CalendarItem>) getJdbcTemplate().query(sql,params,
 				new CalendarItemMapper()
@@ -922,6 +922,39 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            return null;
 		}
 	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getNewsItems(java.lang.String, java.lang.String, int)
+	 */
+	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId, int collapseCount) {
+		if(log.isDebugEnabled()) {
+			log.debug("getNewsItems(" + sakaiUserId + "," + contextId + "," + collapseCount + ")");
+		}
+		System.out.println("getNewsItems(" + sakaiUserId + "," + contextId + "," + collapseCount + ")");
+		String sql = null; 
+		Object[] params = null;
+		if(contextId == null) {
+			sql = getStatement("select.NewsItems.sakaiId.collapseCount");
+			//params = new Object[]{sakaiUserId, collapseCount, sakaiUserId, collapseCount};
+			params = new Object[]{sakaiUserId, collapseCount, sakaiUserId, sakaiUserId, collapseCount};
+		} else {
+			sql = getStatement("select.NewsItems.sakaiId.contextId.collapseCount");
+			params = new Object[]{sakaiUserId, contextId, collapseCount, sakaiUserId, sakaiUserId, contextId, collapseCount};
+		}
+		//System.out.println("getNewsItems() " + sql + " " + params);
+		
+		try {
+			return (List<NewsItem>) getJdbcTemplate().query(sql,params,
+				new NewsItemMapper()
+			);
+		} catch (DataAccessException ex) {
+			System.out.println("\n\ngetNewsItems() " + ex + "\n\n");
+		
+        	log.error("getNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+        	return new ArrayList<NewsItem>();
+		}
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -962,6 +995,29 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            return new ArrayList<NewsItem>();
 		}
 	}
+	
+	public List<NewsItem> getNewsItemsByGroupId(String sakaiUserId,
+			String groupId, int pageSize, int pageNumber) {
+		List<NewsItem> items = null;
+		if(log.isDebugEnabled()) {
+			log.debug("getNewsItemsByGroupId(" + sakaiUserId + "," + groupId + "," + pageSize + "," + pageNumber + ")");
+		}
+		if(sakaiUserId == null || groupId == null) {
+			return new ArrayList<NewsItem>();
+		}
+		String sql = getStatement("select.NewsItems.by.sakaiId.groupId.paged");
+		Object[] params = new Object[]{sakaiUserId, groupId, pageSize, pageNumber * pageSize};
+		try {
+			return (List<NewsItem>) getJdbcTemplate().query(sql,params,
+				new NewsItemMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getNewsItemsByGroupId: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return new ArrayList<NewsItem>();
+		}
+	}
+
+
 
 	/*
 	 * (non-Javadoc)
@@ -1459,7 +1515,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			executeSqlStatement("create.PersonSourceType.table");
 			executeSqlStatement("create.RepeatingEvent.table");
 		} catch(Exception e) {
-	        System.out.println("\ninitTables: Error executing query: " + e.getClass() + ":\n" + e.getMessage() + "\n");
+	        //System.out.println("\ninitTables: Error executing query: " + e.getClass() + ":\n" + e.getMessage() + "\n");
 
 		}
 	}
@@ -1481,7 +1537,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 							
 						} catch (DataAccessException ex) {
 							log.warn("Error executing SQL statement with key: " + key + " -- " + ex.getClass() + ": " + ex.getMessage());
-					        System.out.println("\nError executing SQL statement with key: " + key + " -- " + ex.getClass() + ": \n" + ex.getMessage() + "\n");
+					        //System.out.println("\nError executing SQL statement with key: " + key + " -- " + ex.getClass() + ": \n" + ex.getMessage() + "\n");
 						}
 					}
 				}

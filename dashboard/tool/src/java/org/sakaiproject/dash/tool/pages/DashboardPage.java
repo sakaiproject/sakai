@@ -98,6 +98,7 @@ public class DashboardPage extends BasePage {
 	                }
 	                String itemType = cItem.getSourceType().getIdentifier();
 	                item.add(new Label("itemType", itemType));
+	                item.add(new Label("itemCount", "1"));
 	                item.add(new Label("entityReference", cItem.getEntityReference()));
 	                String calendarTimeLabel = dashboardLogic.getString(cItem.getCalendarTimeLabelKey(), "", itemType);
 	                if(calendarTimeLabel == null) {
@@ -266,6 +267,7 @@ public class DashboardPage extends BasePage {
 	                }
 	                String itemType = cItem.getSourceType().getIdentifier();
 	                item.add(new Label("expiredCalendarItemType", itemType));
+	                item.add(new Label("itemCount", "1"));
 	                item.add(new Label("expiredCalendarEntityReference", cItem.getEntityReference()));
 	                String calendarTimeLabel = dashboardLogic.getString(cItem.getCalendarTimeLabelKey(), "", itemType);
 	                if(calendarTimeLabel == null) {
@@ -316,6 +318,7 @@ public class DashboardPage extends BasePage {
 	                }
 	                String itemType = cItem.getSourceType().getIdentifier();
 	                item.add(new Label("savedCalendarItemType", itemType));
+	                item.add(new Label("itemCount", "1"));
 	                item.add(new Label("savedCalendarEntityReference", cItem.getEntityReference()));
 	                String calendarTimeLabel = dashboardLogic.getString(cItem.getCalendarTimeLabelKey(), "", itemType);
 	                if(calendarTimeLabel == null) {
@@ -366,6 +369,7 @@ public class DashboardPage extends BasePage {
 	                }
 	                String itemType = cItem.getSourceType().getIdentifier();
 	                item.add(new Label("hiddenCalendarItemType", itemType));
+	                item.add(new Label("itemCount", "1"));
 	                item.add(new Label("hiddenCalendarEntityReference", cItem.getEntityReference()));
 	                String calendarTimeLabel = dashboardLogic.getString(cItem.getCalendarTimeLabelKey(), "", itemType);
 	                if(calendarTimeLabel == null) {
@@ -414,8 +418,11 @@ public class DashboardPage extends BasePage {
                 	logger.debug(this + "populateItem()  item: " + item);
                 }
                 
+                logger.info("populateItem() " + nItem);
+                
                 String itemType = nItem.getSourceType().getIdentifier();
                 item.add(new Label("itemType", itemType));
+                item.add(new Label("itemCount", Integer.toString(nItem.getItemCount())));
                 item.add(new Label("entityReference", nItem.getEntityReference()));
 
                 String siteTitle = nItem.getContext().getContextTitle();
@@ -577,6 +584,7 @@ public class DashboardPage extends BasePage {
                 
                 String itemType = nItem.getSourceType().getIdentifier();
                 item.add(new Label("itemType", itemType));
+                item.add(new Label("itemCount", Integer.toString(nItem.getItemCount())));
                 item.add(new Label("entityReference", nItem.getEntityReference()));
 
                 String siteTitle = nItem.getContext().getContextTitle();
@@ -622,6 +630,7 @@ public class DashboardPage extends BasePage {
                 
                 String itemType = nItem.getSourceType().getIdentifier();
                 item.add(new Label("itemType", itemType));
+                item.add(new Label("itemCount", Integer.toString(nItem.getItemCount())));
                 item.add(new Label("entityReference", nItem.getEntityReference()));
 
                 String siteTitle = nItem.getContext().getContextTitle();
@@ -668,6 +677,7 @@ public class DashboardPage extends BasePage {
                 
                 String entityReference = null;
                 String entityType = null;
+                int itemCount = 0;
                 try {
                    BufferedReader br = hsr.getReader();
 
@@ -682,7 +692,8 @@ public class DashboardPage extends BasePage {
                        JSONObject jsonObject = JSONObject.fromObject(jsonString);
                        
                        entityReference = jsonObject.optString("entityReference", "");
-                       entityType = jsonObject.optString("entityType", "");  
+                       entityType = jsonObject.optString("entityType", "");
+                       itemCount = jsonObject.optInt("itemCount", 1);
 
                    }
                    
@@ -693,12 +704,24 @@ public class DashboardPage extends BasePage {
 
                 Locale locale = hsr.getLocale();
  				if(entityReference != null && ! entityReference.trim().equals("") && entityType != null && ! entityType.trim().equals("")) {
-	                Map<String,Object> entityMap = dashboardLogic.getEntityMapping(entityType, entityReference, locale);
-	                
-	                String jsonString = getJsonStringFromMap(entityMap);
-	                logger.debug("Returning JSON:\n" + jsonString);
-	                IRequestTarget t = new StringRequestTarget("application/json", "UTF-8", jsonString);
-	                getRequestCycle().setRequestTarget(t);
+ 					if(itemCount > 1) {
+ 						int pageSize = 20;
+ 						int pageNumber = 0;
+ 						String sakaiUserId = sakaiProxy.getCurrentUserId();
+						List<NewsItem> items = dashboardLogic.getNewsItemsByGroupId(sakaiUserId, entityReference, pageSize, pageNumber);
+						String jsonString = getJsonArrayFromList(items).toString();
+		                logger.debug("Returning JSON:\n" + jsonString);
+		                IRequestTarget t = new StringRequestTarget("application/json", "UTF-8", jsonString);
+		                getRequestCycle().setRequestTarget(t);
+ 					} else {
+ 					
+		                Map<String,Object> entityMap = dashboardLogic.getEntityMapping(entityType, entityReference, locale);
+		                
+		                String jsonString = getJsonStringFromMap(entityMap);
+		                logger.debug("Returning JSON:\n" + jsonString);
+		                IRequestTarget t = new StringRequestTarget("application/json", "UTF-8", jsonString);
+		                getRequestCycle().setRequestTarget(t);
+	 				}
 	 			}
 			}
         };
@@ -801,11 +824,21 @@ public class DashboardPage extends BasePage {
 					return new ArrayList<NewsItem>();
 				}
 				if(sakaiProxy.isWorksite(siteId)) {
-					newsItems = dashboardLogic.getNewsItems(sakaiId, saved, hidden);
+					if(saved || hidden) {
+						newsItems = dashboardLogic.getNewsItems(sakaiId, saved, hidden);
+					} else {
+						newsItems = dashboardLogic.getNewsItems(sakaiId, null, 2);
+					}
 				} else {
-					newsItems = dashboardLogic.getNewsItems(sakaiId, siteId, saved, hidden);
+					if(saved || hidden) {
+						newsItems = dashboardLogic.getNewsItems(sakaiId, siteId, saved, hidden);
+					} else {
+						newsItems = dashboardLogic.getNewsItems(sakaiId, siteId, 2);
+					}
 				}
 			}
+			
+			logger.info("NewsItemDataProvider saved=" + saved + " hidden=" + hidden + " newsItems=" + newsItems);
 			if(newsItems == null) {
 				logger.warn("Error getting news items");
 				return new ArrayList<NewsItem>();
@@ -895,27 +928,30 @@ public class DashboardPage extends BasePage {
 	 */
 	private class DetachableNewsItemModel extends LoadableDetachableModel<NewsItem>{
 
-		private Long id = null;
+		private NewsItem newsItem = null;
 		
 		/**
 		 * @param m
 		 */
 		public DetachableNewsItemModel(NewsItem t){
-			this.id = t.getId();
+			this.newsItem  = new NewsItem(t); 
 		}
 		
 		/**
 		 * @param id
 		 */
-		public DetachableNewsItemModel(long id){
-			this.id = id;
-		}
+//		public DetachableNewsItemModel(long id){
+//			this.id = id;
+//		}
 		
 		/**
 		 * @see java.lang.Object#hashCode()
 		 */
 		public int hashCode() {
-			return Long.valueOf(id).hashCode();
+			if(this.newsItem == null || this.newsItem.getId() == null) {
+				return Long.valueOf(0L).hashCode();
+			}
+			return Long.valueOf(this.newsItem.getId()).hashCode();
 		}
 		
 		/**
@@ -930,10 +966,16 @@ public class DashboardPage extends BasePage {
 			}
 			else if (obj == null){
 				return false;
+			} 
+			else if(this.newsItem == null) {
+				return false;
 			}
 			else if (obj instanceof DetachableNewsItemModel) {
 				DetachableNewsItemModel other = (DetachableNewsItemModel)obj;
-				return other.id == id;
+				if(other.newsItem == null) {
+					return false;
+				}
+				return other.newsItem.getId() == this.newsItem.getId();
 			}
 			return false;
 		}
@@ -944,7 +986,7 @@ public class DashboardPage extends BasePage {
 		protected NewsItem load(){
 			
 			// get the news item
-			return dashboardLogic.getNewsItem(id);
+			return new NewsItem(this.newsItem);
 		}
 	}
 	
@@ -991,10 +1033,25 @@ public class DashboardPage extends BasePage {
 					json.element(getJsonObjectFromMap((Map<String, Object>) value));
 				} else if(value instanceof List) {
 					json.element(getJsonArrayFromList((List) value));
+				} else if(value instanceof NewsItem) {
+					json.element(getJsonObjectFromNewsItem((NewsItem) value));
 				}
 				
 			}
 		}
+		return json;
+	}
+
+	private JSONObject getJsonObjectFromNewsItem(NewsItem newsItem) {
+		JSONObject json = new JSONObject();
+		json.element("entityReference", newsItem.getEntityReference());
+		json.element("id", newsItem.getId());
+		json.element("newsTime", newsItem.getNewsTime());
+		json.element("label", newsItem.getNewsTimeLabelKey());
+		json.element("entityType", newsItem.getSourceType().getIdentifier());
+		json.element("subtype", newsItem.getSubtype());
+		json.element("title", newsItem.getTitle());
+		json.element("iconUrl", dashboardLogic.getEntityIconUrl(newsItem.getSourceType().getIdentifier(), newsItem.getSubtype()));
 		return json;
 	}
 

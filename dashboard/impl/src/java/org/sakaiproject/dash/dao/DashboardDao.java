@@ -113,6 +113,8 @@ public interface DashboardDao {
 	public Realm getRealm(long id);
 	
 	public NewsItem getNewsItem(String entityReference);
+	
+	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId, int collapseCount);
 
 	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId, boolean saved, boolean hidden);
 
@@ -121,6 +123,9 @@ public interface DashboardDao {
 	public NewsItem getNewsItem(long id);
 
 	public CalendarItem getCalendarItem(long id);
+
+	public List<NewsItem> getNewsItemsByGroupId(String sakaiUserId,
+			String groupId, int pageSize, int pageNumber);
 
 	public RepeatingCalendarItem getRepeatingCalendarItem(String entityReference, String calendarTimeLabelKey);
 

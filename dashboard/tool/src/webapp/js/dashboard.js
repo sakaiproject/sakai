@@ -84,6 +84,7 @@ var setupLinks = function(){
         
         var itemType = $(this).closest('tr').find('.itemType').text();
         var entityReference = $(this).closest('tr').find('.entityReference').text();
+        var itemCount = $(this).closest('tr').find('.itemCount').text();
         var callBackUrl = $(this).closest('body').find('.callBackUrl').text();
         
         //if disclosure in DOM, either hide or show, do not request data
@@ -101,7 +102,8 @@ var setupLinks = function(){
             $(parentCell).attr('class', 'activeCell tab');
             params = {
                 'entityType': itemType,
-                'entityReference': entityReference
+                'entityReference': entityReference,
+                'itemCount': itemCount
             };
             jQuery.ajax({
                 url: callBackUrl,

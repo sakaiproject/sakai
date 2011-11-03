@@ -313,10 +313,10 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 
 	public NewsItem createNewsItem(String title, Date newsTime,
-			String entityReference, Context context, SourceType sourceType) {
+			String labelKey, String entityReference, Context context, SourceType sourceType, String subtype) {
 		
 		NewsItem newsItem = new NewsItem(title, newsTime, 
-				null, entityReference, context, sourceType, null);
+				labelKey, entityReference, context, sourceType, subtype);
 		
 		dao.addNewsItem(newsItem);
 		
@@ -441,6 +441,25 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 		return dao.getNewsItem(entityReference);
 	}
+	
+	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId, int collapseCount) {
+		List<NewsItem> items = dao.getNewsItems(sakaiUserId, contextId, collapseCount);
+		if(items != null) {
+			for(NewsItem item : items) {
+				if(item != null && item.getItemCount() > 1) {
+					int itemCount = item.getItemCount();
+					SourceType sourceType = item.getSourceType();
+					if(sourceType != null) {
+						EntityType typeObj = this.entityTypes.get(sourceType.getIdentifier());
+						if(typeObj != null) {
+							item.setTitle(typeObj.getGroupTitle(itemCount, item.getContext().getContextTitle()));
+						}
+					}
+				}
+			}
+		}
+		return items;
+	}
 
 	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId, boolean saved, boolean hidden) {
 		
@@ -450,6 +469,11 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	public List<NewsItem> getNewsItems(String sakaiUserId, boolean saved, boolean hidden) {
 		
 		return dao.getNewsItems(sakaiUserId, null, saved, hidden);
+	}
+	
+	public List<NewsItem> getNewsItemsByGroupId(String sakaiUserId,
+			String groupId, int pageSize, int pageNumber) {
+		return dao.getNewsItemsByGroupId(sakaiUserId, groupId, pageSize, pageNumber);
 	}
 	
 	public RepeatingCalendarItem getRepeatingCalendarItem(String entityReference, String calendarTimeLabelKey) {
@@ -1272,6 +1296,17 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		SourceType sourceType = dao.getSourceType(sourceTypeId);
 		PersonSourceType personSourceType = new PersonSourceType(ItemType.NEWS_ITEM, person, sourceType);
 		return dao.addPersonSourceType(personSourceType);
+	}
+
+	public String getEntityIconUrl(String type, String subtype) {
+		String url = "#"; 
+		if(type != null) {
+			EntityType typeObj = this.entityTypes.get(type);
+			if(typeObj != null) {
+				url = typeObj.getIconUrl(subtype);
+			}
+		}
+		return url;
 	}
 
 }
