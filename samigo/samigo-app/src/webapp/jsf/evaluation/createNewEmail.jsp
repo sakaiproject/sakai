@@ -91,7 +91,7 @@ $Id: createNewEmail.jsp 18063 2006-11-09 00:00:17Z ktsao@stanford.edu $
 
 			<h:panelGrid columns="2" border="0">
 				<h:commandButton id="send" styleClass="active" value="#{evaluationMessages.send}" action="#{email.send}" type="submit" />
-				<h:commandButton id="cancel"onclick="window.close();" onkeypress="window.close();"  value="#{commonMessages.cancel_action}" action="#{email.cancel}"/>
+				<h:commandButton id="cancel" onclick="window.close();" onkeypress="window.close();"  value="#{commonMessages.cancel_action}" action="#{email.cancel}"/>
 			</h:panelGrid>
 		</h:panelGrid>
 	</f:facet>
