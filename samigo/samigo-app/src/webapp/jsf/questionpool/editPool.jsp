@@ -156,9 +156,9 @@ function textCounter(field, maxlimit) {
 <h:panelGrid width="100%" columns="2" columnClasses="h3text,navList">
 <h:panelGroup >
 <h:outputText value="#{questionpool.currentPool.numberOfQuestions}"/>
-<h:outputText rendered ="#{questionpool.currentPool.numberOfQuestions >1}"value=" #{questionPoolMessages.qs}"/>
-<h:outputText rendered ="#{questionpool.currentPool.numberOfQuestions ==1}"value=" #{questionPoolMessages.q}"/>
-<h:outputText rendered ="#{questionpool.currentPool.numberOfQuestions ==0}"value=" #{questionPoolMessages.qs}"/>
+<h:outputText rendered ="#{questionpool.currentPool.numberOfQuestions >1}" value=" #{questionPoolMessages.qs}"/>
+<h:outputText rendered ="#{questionpool.currentPool.numberOfQuestions ==1}" value=" #{questionPoolMessages.q}"/>
+<h:outputText rendered ="#{questionpool.currentPool.numberOfQuestions ==0}" value=" #{questionPoolMessages.qs}"/>
 </h:panelGroup>
 <h:commandLink title="#{questionPoolMessages.t_addQuestion}" rendered="#{questionpool.importToAuthoring != 'true'}" id="addQlink" immediate="true" action="#{questionpool.selectQuestionType}">
   <h:outputText id="addq" value="#{questionPoolMessages.add}"/>
