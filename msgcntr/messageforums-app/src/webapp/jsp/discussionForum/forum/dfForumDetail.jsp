@@ -117,7 +117,7 @@
 
 
 				  	<h:outputText id="topic_moderated" value="#{msgs.cdfm_topic_moderated_flag}" styleClass="textPanelFooter" rendered="#{topic.moderated == 'true'}" />
-    	      <h:outputText value=" #{msgs.cdfm_closeb}"styleClass="textPanelFooter" rendered="#{topic.isRead}" />
+    	      <h:outputText value=" #{msgs.cdfm_closeb}" styleClass="textPanelFooter" rendered="#{topic.isRead}" />
 
 						<h:outputText styleClass="childrenNew" value=" #{msgs.cdfm_newflagparent}"  rendered="#{topic.unreadNoMessages > 0 }" />
 

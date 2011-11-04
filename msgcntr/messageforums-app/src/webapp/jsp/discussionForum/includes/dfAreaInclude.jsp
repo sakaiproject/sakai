@@ -212,7 +212,7 @@ $(document).ready(function() {
 					   <h:outputText id="topic_msg_count56" value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msgs} - #{topic.unreadNoMessages} #{msgs.cdfm_unread}" 
 								rendered="#{topic.isRead && (topic.totalNoMessages > 1 || topic.totalNoMessages == 0) }" styleClass="textPanelFooter" />
 				     <h:outputText id="topic_moderated" value="#{msgs.cdfm_topic_moderated_flag}" styleClass="textPanelFooter" rendered="#{topic.moderated == 'true' && topic.isRead}" />
-    	        <h:outputText value=" #{msgs.cdfm_closeb}"styleClass="textPanelFooter" rendered="#{topic.isRead}"/>
+    	        <h:outputText value=" #{msgs.cdfm_closeb}" styleClass="textPanelFooter" rendered="#{topic.isRead}"/>
 							<%--//desNote: only show the new "new" message if there are no unread messages --%>
 							<h:outputText styleClass="childrenNew" value=" #{msgs.cdfm_newflagparent}"  rendered="#{topic.unreadNoMessages > 0 }" />
 
