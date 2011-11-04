@@ -546,29 +546,41 @@ public class ItemModifyListener implements ActionListener
           if (variables.contains(itemBean.getText())) {
               CalculatedQuestionVariableBean variable = new CalculatedQuestionVariableBean();
               List<AnswerIfc> answers = itemBean.getAnswerArray();
-              String text = answers.get(0).getText();
-              double min = Double.valueOf(text.substring(0, text.indexOf("|")));
-              double max = Double.valueOf(text.substring(text.indexOf("|") + 1, text.indexOf(",")));
-              String decimalPlaces = text.substring(text.indexOf(",") + 1);              
-              variable.setName(itemBean.getText());
-              variable.setSequence(itemBean.getSequence());
-              variable.setMin(min);
-              variable.setMax(max);
-              variable.setDecimalPlaces(decimalPlaces);
-              calcQuestionBean.addVariable(variable);
+              for (AnswerIfc answer : answers) {
+                  if (answer.getIsCorrect()) {
+//                      String text = answers.get(0).getText();
+                      String text = answer.getText();
+                      double min = Double.valueOf(text.substring(0, text.indexOf("|")));
+                      double max = Double.valueOf(text.substring(text.indexOf("|") + 1, text.indexOf(",")));
+                      String decimalPlaces = text.substring(text.indexOf(",") + 1);              
+                      variable.setName(itemBean.getText());
+                      variable.setSequence(itemBean.getSequence());
+                      variable.setMin(min);
+                      variable.setMax(max);
+                      variable.setDecimalPlaces(decimalPlaces);
+                      calcQuestionBean.addVariable(variable);
+                      break;
+                  }
+              }
           } else {
               CalculatedQuestionFormulaBean formula = new CalculatedQuestionFormulaBean();
               List<AnswerIfc> answers = itemBean.getAnswerArray();
-              String text = answers.get(0).getText();
-              String formulaStr = text.substring(0, text.indexOf("|"));
-              double tolerance = Double.valueOf(text.substring(text.indexOf("|") + 1, text.indexOf(",")));
-              String decimalPlaces = text.substring(text.indexOf(",") + 1);
-              formula.setName(itemBean.getText());
-              formula.setSequence(itemBean.getSequence());
-              formula.setText(formulaStr);
-              formula.setTolerance(tolerance);
-              formula.setDecimalPlaces(decimalPlaces);
-              calcQuestionBean.addFormula(formula);
+              for (AnswerIfc answer : answers) {
+                  if (answer.getIsCorrect()) {
+//                      String text = answers.get(0).getText();
+                      String text = answer.getText();
+                      String formulaStr = text.substring(0, text.indexOf("|"));
+                      double tolerance = Double.valueOf(text.substring(text.indexOf("|") + 1, text.indexOf(",")));
+                      String decimalPlaces = text.substring(text.indexOf(",") + 1);
+                      formula.setName(itemBean.getText());
+                      formula.setSequence(itemBean.getSequence());
+                      formula.setText(formulaStr);
+                      formula.setTolerance(tolerance);
+                      formula.setDecimalPlaces(decimalPlaces);
+                      calcQuestionBean.addFormula(formula);
+                      break;
+                  }
+              }
           }
       }
       bean.setCalculatedQuestion(calcQuestionBean);

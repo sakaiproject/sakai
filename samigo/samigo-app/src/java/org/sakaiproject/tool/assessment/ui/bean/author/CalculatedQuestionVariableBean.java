@@ -30,7 +30,7 @@ import java.io.Serializable;
  * time that it is taken. 
  * @author mgillian
  */
-public class CalculatedQuestionVariableBean implements Serializable {
+public class CalculatedQuestionVariableBean implements Serializable, CalculatedQuestionAnswerIfc {
 
     private static final long serialVersionUID = -7835973840484043575L;
     private Long sequence;
@@ -95,5 +95,13 @@ public class CalculatedQuestionVariableBean implements Serializable {
     
     public boolean getActive() {
         return this.active;
+    }
+    
+    public String getMatch() {
+        String match = this.getMin() + "|" + 
+                this.getMax() + "," + 
+                this.getDecimalPlaces();
+        return match;
+        
     }
 }

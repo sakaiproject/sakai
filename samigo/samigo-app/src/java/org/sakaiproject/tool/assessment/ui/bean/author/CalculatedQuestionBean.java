@@ -29,17 +29,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import javax.faces.context.FacesContext;
-
-import org.sakaiproject.tool.assessment.services.GradingService;
 
 public class CalculatedQuestionBean implements Serializable {
 
-    /**
-	 * 
-	 */
     private static final long serialVersionUID = -5567978724454506570L;
     private Map<String, CalculatedQuestionFormulaBean> formulas;
     private Map<String, CalculatedQuestionVariableBean> variables;
@@ -107,62 +99,5 @@ public class CalculatedQuestionBean implements Serializable {
     
     public void removeVariable(String name) {
         variables.remove(name);
-    }
-    
-    public void extractFromInstructions(String instructions) {
-        // set beans and variables inactive.
-        // once the new ones are read in, they will be reactivated.
-        // if a variable is not found on a new extract, it will be left inactive
-        for (CalculatedQuestionFormulaBean bean : formulas.values()) {
-            bean.setActive(false);
-        }
-        for (CalculatedQuestionVariableBean bean : variables.values()) {
-            bean.setActive(false);
-        }
-        
-        // create or activate formulas and variables
-        extractFormulasFromInstructions(instructions);
-        extractVariablesFromInstructions(instructions);            
-    }
-    
-    private void extractFormulasFromInstructions(String instructions) {
-        GradingService gs = new GradingService();
-        List<String> formulaNames = gs.extractFormulas(instructions);
-          
-        // add any missing formulas
-        for (String formulaName : formulaNames) {
-            if (!this.formulas.containsKey(formulaName)) {
-                CalculatedQuestionFormulaBean bean = new CalculatedQuestionFormulaBean();
-                bean.setName(formulaName);
-                bean.setSequence(new Long(this.variables.size() + this.formulas.size() + 1));
-                this.addFormula(bean);
-            } else {
-                CalculatedQuestionFormulaBean bean = formulas.get(formulaName);
-                bean.setActive(true);
-            }
-        }                 
-    }
-    
-    /**
-     * extractVariablesFromInstructions examines the question instructions, pulls 
-     * any variables that are not already defined as MatchItemBeans and adds them
-     * to the list.
-     */
-    private void extractVariablesFromInstructions(String instructions) {
-        GradingService gs = new GradingService();
-        List<String> variableNames = gs.extractVariables(instructions);
-        
-        // add any missing variables
-        for (String variableName : variableNames) {
-            if (!this.variables.containsKey(variableName)) {
-                CalculatedQuestionVariableBean bean = new CalculatedQuestionVariableBean();
-                bean.setName(variableName);
-                bean.setSequence(new Long(this.variables.size() + this.formulas.size() + 1));
-                this.addVariable(bean);
-            } else {
-                CalculatedQuestionVariableBean bean = variables.get(variableName);
-                bean.setActive(true);
-            }
-        }         
-    }
+    }    
 }

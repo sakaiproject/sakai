@@ -26,14 +26,11 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.sakaiproject.util.ResourceLoader;
 
@@ -46,7 +43,6 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService; 
 
 import org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoices;
@@ -676,6 +672,7 @@ public class ItemBean
     this.matchItemBeanList= list;
   }
 
+  /*
   public List<MatchItemBean> getMatchItemBeanVariableList() {
 	  List<MatchItemBean> results = new ArrayList<MatchItemBean>();
 	  
@@ -723,6 +720,7 @@ public class ItemBean
 	  }
 	  return results;
   }
+  */
 
   public ArrayList getMatchItemBeanList()
   {
@@ -1975,11 +1973,7 @@ public class ItemBean
 			} 
 		}
 	}
-	
-	public void extractFromInstructions() {
-	    this.calculatedQuestion.extractFromInstructions(this.getInstruction());
-	}
-	
+		
 	public void setCalculatedQuestion(CalculatedQuestionBean calculatedQuestion) {
 	    this.calculatedQuestion = calculatedQuestion;
 	}

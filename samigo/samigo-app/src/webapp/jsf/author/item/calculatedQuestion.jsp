@@ -69,12 +69,10 @@
 <h:form id="itemForm">
 <p class="act">
   <h:commandButton accesskey="#{authorMessages.a_save}" rendered="#{itemauthor.target=='assessment'}" value="#{authorMessages.button_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
-        <f:actionListener
-           type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
   <h:commandButton accesskey="#{authorMessages.a_save}" rendered="#{itemauthor.target=='questionpool'}" value="#{authorMessages.button_save}" action="#{itemauthor.currentItem.getPoolOutcome}" styleClass="active">
-        <f:actionListener
-           type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
 
   <h:commandButton accesskey="#{authorMessages.a_cancel}" rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.cancel_action}" action="editAssessment" immediate="true">
@@ -151,7 +149,8 @@
 
   </h:panelGrid>
   
-  <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{authorMessages.calc_question_extract_button}" action="#{itemauthor.currentItem.extractFromInstructions}" styleClass="active">
+  <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{authorMessages.calc_question_extract_button}" action="calculatedQuestion" styleClass="active">
+  		<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.CalculatedQuestionExtractListener" />
   </h:commandButton>
   
   
@@ -179,7 +178,8 @@
         <f:facet name="header">
           <h:outputText value="#{authorMessages.calc_question_varname_col}"  />
         </f:facet>
-          <h:outputText escape="false" value="#{variable.name}"  />
+          <h:outputText escape="false" value="#{variable.name}" rendered="#{variable.active }" />
+          <h:outputText escape="false" value="#{variable.name}" rendered="#{!variable.active }" style="color:red; text-decoration: line-through;" />
       </h:column>
 
       <h:column>
@@ -230,7 +230,8 @@
         <f:facet name="header">
           <h:outputText value="#{authorMessages.calc_question_formulaname_col}"  />
         </f:facet>
-          <h:outputText escape="false" value="#{formula.name}"  />
+          <h:outputText escape="false" value="#{formula.name}" rendered="#{formula.active }" />
+          <h:outputText escape="false" value="#{formula.name}" rendered="#{!formula.active }" style="color:red; text-decoration: line-through;" />
       </h:column>
 
       <h:column>
@@ -238,6 +239,7 @@
           <h:outputText value="#{authorMessages.calc_question_formula_col}"  />
         </f:facet>
         	<h:inputText value="#{formula.text }" disabled="#{!formula.active }" />
+        	
       </h:column>
       
       <h:column>
@@ -251,7 +253,7 @@
       
       <h:column>
         <f:facet name="header">
-          <h:outputText value="#{authorMessages.calc_question_dec}"  />
+          <h:outputText value="#{authorMessages.calc_question_dec}" />
         </f:facet>
 		  <h:selectOneMenu id="assignToPart" value="#{formula.decimalPlaces}" disabled="#{!formula.active }">
      		<f:selectItems  value="#{itemauthor.decimalPlaceList}" />

@@ -78,6 +78,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionFormulaBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionAnswerIfc;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionVariableBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemBean;
@@ -242,10 +243,25 @@ public class ItemAddListener
 
     // CALCULATED_QUESTION
     if (iType.equals(TypeFacade.CALCULATED_QUESTION.toString())) {
-        // make sure the latest updates are handled, even if the user hasn't pressed the Extract button
-        item.extractFromInstructions();
         
-        // remove disabled variables and formulas
+        // make sure any last minute updates to instructions are handles
+        // this also does the standard validations
+        CalculatedQuestionExtractListener extractListener = new CalculatedQuestionExtractListener();
+        List<String> errors = extractListener.validate(item);
+        if (errors.size() > 0) {
+            for (String curError : errors) {
+                context.addMessage(null, new FacesMessage(curError));
+            }
+            error = true;
+        }
+                
+        if(error) {
+            item.setOutcome("calculatedQuestion");
+            item.setPoolOutcome("calculatedQuestion");
+            return;
+        }
+        
+        // if no errors remove disabled variables and formulas before saving
         CalculatedQuestionBean question = item.getCalculatedQuestion();
         Iterator<CalculatedQuestionVariableBean> variableIter = question.getVariables().values().iterator();        
         while (variableIter.hasNext()) {
@@ -260,36 +276,6 @@ public class ItemAddListener
             if (!formula.getActive()) {
                 formulaIter.remove();
             }
-        }
-        
-        // question must have at least on variable and one formula
-        if (question.getVariables().size() == 0) {
-            context.addMessage(null, new FacesMessage("No variables have been defined"));
-            error = true;
-        }
-        if (question.getFormulas().size() == 0) {
-            context.addMessage(null, new FacesMessage("No formulas have been defined"));
-            error = true;
-        }
-        
-        // variables max must be greater than min
-        for (CalculatedQuestionVariableBean variable : question.getVariables().values()) {
-            if (variable.getMax() < variable.getMin()) {
-                context.addMessage(null, new FacesMessage("Variable '" + variable.getName() + "' has a Max less than its Min"));
-                error = true;
-            }
-        }
-        
-        // throw an error if variables and formulas share any names
-        if (!Collections.disjoint(question.getFormulas().keySet(), question.getVariables().keySet())) {
-            context.addMessage(null, new FacesMessage("Variables and Formulas must have unique names"));
-            error = true;
-        }
-        
-        if(error) {
-            item.setOutcome("calculatedQuestion");
-            item.setPoolOutcome("calculatedQuestion");
-            return;
         }
     }
 
@@ -306,6 +292,9 @@ public class ItemAddListener
 
 	// CALCULATED_QUESTION - After we've saved let's make sure the calculated question answer expression
 	// will at least not cause an error that could easily be avoided
+	// this should never fail, as the validations should all pass before we get to the save.
+	// However, the full validation requires the ItemDataIfc object to exist, meaning that the
+	// object must have already been saved.
 	if (iType.equals(TypeFacade.CALCULATED_QUESTION.toString())) {
 	    if (isCalcQExpressionError(itemauthorbean.getItemId())) {
 	        item.setOutcome("calculatedQuestion");
@@ -954,60 +943,53 @@ public class ItemAddListener
    */
   private HashSet prepareTextForCalculatedQuestion(ItemFacade item, ItemBean bean,
           ItemAuthorBean itemauthor) {
-      CalculatedQuestionBean calcBean = bean.getCalculatedQuestion();
+      CalculatedQuestionBean calcBean = bean.getCalculatedQuestion();      
       HashSet<ItemText> textSet = new HashSet<ItemText>();
+      float score = Float.valueOf(bean.getItemScore());
+      float partialCredit = 0f;
+      float discount = Float.valueOf(bean.getItemDiscount());
+      String grade = null;            
+      
+      // Variables and formulas are very similar, and both have entries in the 
+      // sam_itemtext_t table.  Because of the way the data is structured, every 
+      // answer stored in sam_answer_t is a possible match to every ItemText 
+      // stored in sam_itemtext_t.   If there is one variable and one formula, 
+      // there are 2 entries in sam_itemtext_t and 4 entries in sam_answer_t.  
+      // 2 variables and 2 formulas has 4 entries in sam_itemtext_t and 16 entries 
+      // in sam_answer_t.  This is required for the current design (which makes 
+      // more sense for other question types; we're just trying to work within 
+      // that structure.  We loop through each formula and variable to create 
+      // an entry in sam_itemtext_t (ItemText choiceText).  Then for each 
+      // choicetext, we loop through all variables and formulas to create the 
+      // answer objects.
+      List<CalculatedQuestionAnswerIfc> list = new ArrayList<CalculatedQuestionAnswerIfc>();
+      list.addAll(calcBean.getFormulas().values());
+      list.addAll(calcBean.getVariables().values());
+      
+      // loop through all variables and formulas to create ItemText objects
+      for (CalculatedQuestionAnswerIfc varFormula : list) {
+          ItemText choiceText = new ItemText();
+          choiceText.setItem(item.getData());
+          choiceText.setText(varFormula.getName());
+          Long sequence = varFormula.getSequence();
+          choiceText.setSequence(sequence);
+          
+          HashSet<Answer> answerSet = new HashSet<Answer>();
+          
+          // loop through all variables and formulas to create all answers for the ItemText object
+          for (CalculatedQuestionAnswerIfc curVarFormula : list) {
+              String match = curVarFormula.getMatch();
+              Long curSequence = curVarFormula.getSequence();
+              boolean isCorrect = curSequence.equals(sequence);
+              String choiceLabel = AnswerBean.getChoiceLabels()[curSequence.intValue()];
+              Answer answer = new Answer(choiceText, match, curSequence, choiceLabel,
+                      isCorrect, grade, score, partialCredit, discount);
+              answerSet.add(answer);
+          }
+          choiceText.setAnswerSet(answerSet);
+          textSet.add(choiceText);          
+      }
             
-      Map<String,CalculatedQuestionFormulaBean> formulaMap = calcBean.getFormulas();
-      for (CalculatedQuestionFormulaBean formula : formulaMap.values()) {
-          ItemText choiceText = new ItemText();
-          choiceText.setItem(item.getData());
-          choiceText.setSequence(formula.getSequence());
-          choiceText.setText(formula.getName());
-          String match = formula.getText() + "|" + formula.getTolerance() + "," + formula.getDecimalPlaces();
-          int seq = formula.getSequence().intValue();
-          String score = bean.getItemScore();
-          String discount = bean.getItemDiscount();
-          Answer answer = new Answer(choiceText, 
-                  match, 
-                  formula.getSequence(), 
-                  AnswerBean.getChoiceLabels()[seq], 
-                  Boolean.TRUE, 
-                  null, 
-                  Float.valueOf(score), 
-                  Float.valueOf(0f), 
-                  Float.valueOf(discount));
-          HashSet<Answer> answerSet = new HashSet<Answer>();
-          answerSet.add(answer);
-          choiceText.setAnswerSet(answerSet);
-          textSet.add(choiceText);
-      }
-      
-      // variables
-      Map<String,CalculatedQuestionVariableBean> variableMap = calcBean.getVariables();
-      for (CalculatedQuestionVariableBean variable : variableMap.values()) {
-          ItemText choiceText = new ItemText();
-          choiceText.setItem(item.getData());
-          choiceText.setSequence(variable.getSequence());
-          choiceText.setText(variable.getName());
-          String match = variable.getMin() + "|" + variable.getMax() + "," + variable.getDecimalPlaces();
-          int seq = variable.getSequence().intValue() - 1;
-          String score = bean.getItemScore();
-          String discount = bean.getItemDiscount();
-          Answer answer = new Answer(choiceText, 
-                  match, 
-                  variable.getSequence(), 
-                  AnswerBean.getChoiceLabels()[seq], 
-                  Boolean.TRUE, 
-                  null, 
-                  Float.valueOf(score), 
-                  Float.valueOf(0f), 
-                  Float.valueOf(discount));
-          HashSet<Answer> answerSet = new HashSet<Answer>();
-          answerSet.add(answer);
-          choiceText.setAnswerSet(answerSet);
-          textSet.add(choiceText);
-      }
-      
       return textSet;
   }
   

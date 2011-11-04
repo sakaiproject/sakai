@@ -29,12 +29,12 @@ import java.io.Serializable;
  * which allows a test to have different variables and answers each time that it is taken.
  * @author mgillian
  */
-public class CalculatedQuestionFormulaBean implements Serializable {
+public class CalculatedQuestionFormulaBean implements Serializable, CalculatedQuestionAnswerIfc {
 
     private static final long serialVersionUID = 1747088544228808857L;
     private Long sequence;
     private String name;
-    private String text;
+    private String formula;
     private double tolerance;
     private String decimalPlaces;
     private boolean active;
@@ -44,7 +44,7 @@ public class CalculatedQuestionFormulaBean implements Serializable {
     private static final double DEFAULT_TOLERANCE = 0.01;
     
     public CalculatedQuestionFormulaBean() {
-        this.text = DEFAULT_FORMULA;
+        this.formula = DEFAULT_FORMULA;
         this.decimalPlaces = DEFAULT_DECIMAL_PLACES;
         this.tolerance = DEFAULT_TOLERANCE;
         this.active = true;
@@ -66,15 +66,15 @@ public class CalculatedQuestionFormulaBean implements Serializable {
         return this.name;
     }
 
-    public void setText(String text) {
-        this.text = text;
+    public void setText(String formula) {
+        this.formula = formula;
     }
 
     public String getText() {
-        if (this.text == null) {
+        if (this.formula == null) {
             return DEFAULT_FORMULA;
         }
-        return this.text;
+        return this.formula;
     }
 
     public void setTolerance(double tolerance) {
@@ -102,5 +102,12 @@ public class CalculatedQuestionFormulaBean implements Serializable {
     
     public boolean getActive() {
         return this.active;
+    }
+    
+    public String getMatch() {
+        String match = this.getText() + "|" + 
+                this.getTolerance() + "," + 
+                this.getDecimalPlaces();
+        return match;
     }
 }
