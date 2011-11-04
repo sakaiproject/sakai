@@ -72,7 +72,8 @@ var setupMenus = function(){
 };
 
 var setupLinks = function(){
-    $('.itemLink').click(function(e){
+
+    $(".itemLink").live("click", function(e){
         e.preventDefault();
         var actionLink = "";
         var action = "";
@@ -86,15 +87,16 @@ var setupLinks = function(){
         var entityReference = $(this).closest('tr').find('.entityReference').text();
         var itemCount = $(this).closest('tr').find('.itemCount').text();
         var callBackUrl = $(this).closest('body').find('.callBackUrl').text();
-        
         //if disclosure in DOM, either hide or show, do not request data
         if ($(parentRow).next('tr.newRow').length === 1) {
             $(parentRow).next('tr.newRow').find('.results').fadeToggle('fast', '', function(){
                 if ($(parentRow).next('tr.newRow').find('.results:visible').length === 0) {
                     $(parentCell).attr('class', 'tab');
+                    $(parentRow).next('tr.newRow').toggle();
                 }
                 else {
                     $(parentCell).attr('class', 'activeCell tab');
+                    $(parentRow).next('tr.newRow').show();
                 }
             });
         }
@@ -105,107 +107,155 @@ var setupLinks = function(){
                 'entityReference': entityReference,
                 'itemCount': itemCount
             };
-            jQuery.ajax({
-                url: callBackUrl,
-                type: 'post',
-                cache: false,
-                data: JSON.stringify(params),
-                contentType: 'application/json',
-                dataType: 'json',
-                success: function(json){
-                    delimitLeft = "{";
-                    delimitRight = "}";
-                    
-                    var results = '<div class=\"results\" style=\"display:none\">';
-                    if (json.order.length !== 0) {
-                    
-                    
-                        $(json.order).each(function(i){
-                            var o = this;
-                            var w = o.toString();
-                            
-                            if (get_type(json[w]) === "String") {
-                                // a string
-                                if (json[w].split(delimitLeft).length - 1 > 0) {
-                                    // a string that has substitions, replace them
-                                    var endString = json[w];
-                                    var arr = json[w].split(delimitRight);
-                                    for (i = 0; i < arr.length; i++) {
-                                        var arr2 = arr[i].split(delimitLeft);
-                                        if (arr2[1]) {
-                                            endString = endString.replace(delimitLeft + arr2[1] + delimitRight, json[arr2[1]]);
+            
+            if (itemCount == 1) {
+                jQuery.ajax({
+                    url: callBackUrl,
+                    type: 'post',
+                    cache: false,
+                    data: JSON.stringify(params),
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    success: function(json){
+                        delimitLeft = "{";
+                        delimitRight = "}";
+                        
+                        var results = '<div class=\"results\" style=\"display:none\">';
+                        if (json.order.length !== 0) {
+                        
+                        
+                            $(json.order).each(function(i){
+                                var o = this;
+                                var w = o.toString();
+                                
+                                if (get_type(json[w]) === "String") {
+                                    // a string
+                                    if (json[w].split(delimitLeft).length - 1 > 0) {
+                                        // a string that has substitions, replace them
+                                        var endString = json[w];
+                                        var arr = json[w].split(delimitRight);
+                                        for (i = 0; i < arr.length; i++) {
+                                            var arr2 = arr[i].split(delimitLeft);
+                                            if (arr2[1]) {
+                                                endString = endString.replace(delimitLeft + arr2[1] + delimitRight, json[arr2[1]]);
+                                            }
                                         }
+                                        // should do a check here, to make sure that all the keys had a value
+                                        // increase a counter for each successful arr2[1] and compare in the end with
+                                        // the length of json[w].split('{').length - 1
+                                        results = results + '<div class="metadataLine">' + endString + '</div>';
                                     }
-                                    // should do a check here, to make sure that all the keys had a value
-                                    // increase a counter for each successful arr2[1] and compare in the end with
-                                    // the length of json[w].split('{').length - 1
-                                    results = results + '<div class="metadataLine">' + endString + '</div>';
-                                }
-                                else 
-                                    if (json[w + '-label']) {
-                                        // a string with a label counterpart
-                                        results = results + '<h5>' + json[w + '-label'] + '</h5><div class="block">' + json[w] + '</div>';
-                                        
-                                    }
-                                    else {
-                                        if (w === 'title') {
-                                            // a title string
-                                            results = results + '<h4>' + json[w] + '</h4>';
+                                    else 
+                                        if (json[w + '-label']) {
+                                            // a string with a label counterpart
+                                            results = results + '<h5>' + json[w + '-label'] + '</h5><div class="block">' + json[w] + '</div>';
+                                            
                                         }
                                         else {
-                                            //all other strings
-                                            results = results + '<div class="block">' + json[w] + '</div>';
+                                            if (w === 'title') {
+                                                // a title string
+                                                results = results + '<h4>' + json[w] + '</h4>';
+                                            }
+                                            else {
+                                                //all other strings
+                                                results = results + '<div class="block">' + json[w] + '</div>';
+                                            }
                                         }
+                                    
+                                    
+                                }
+                                else {
+                                    // is an object, treat special
+                                    if (w === 'attachments' && json[w]) {
+                                        var atts = "";
+                                        for (i = 0; i < json[w].length; i++) {
+                                        
+                                            atts = atts + '<li><a href=\"' + json[w][i]['attachment-url'] + '\">' + json[w][i]['attachment-title'] + '</a></li>';
+                                        }
+                                        results = results + '<ul class=\"attachList\">' + atts + '</ul>';
                                     }
+                                    if (w === 'more-info' && json[w]) {
+                                        var moreinfo = "";
+                                        for (i = 0; i < json['more-info'].length; i++) {
+                                            var target = "";
+                                            var size = "";
+                                            if (json['more-info'][i]['info_link-target']) {
+                                                target = 'target=\"' + json['more-info'][i]['info_link-target'] + '\"';
+                                            }
+                                            if (json['more-info'][i]['info_link-size']) {
+                                                size = ' (' + json['more-info'][i]['info_link-size'] + ') ';
+                                            }
+                                            
+                                            moreinfo = moreinfo + '<li><a ' + target + ' href=\"' + json['more-info'][i]['info_link-url'] + '\">' + json['more-info'][i]['info_link-title'] + '<span class=\"size\">' + size + '</span></a></li>';
+                                            
+                                        }
+                                        
+                                        results = results + '<ul class=\"moreInfo\">' + moreinfo + ' </ul>';
+                                    }
+                                }
                                 
-                                
+                            });
+                            results = results + '</div>';
+                        }
+                        else {
+                            results = results + 'This item type has not specified an order :( </div>';
+                        }
+                        $('<tr class=\"newRow\"><td colspan=\"' + colCount + '\">' + results + '</td></tr>').insertAfter(parentRow);
+                        $(parentRow).next('tr.newRow').find('.results').slideDown('slow', function(){
+                            resizeFrame('grow');
+                        });
+                        
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown){
+                        alert("error :" + XMLHttpRequest.responseText);
+                    }
+                });
+            }
+            else {
+            
+                jQuery.ajax({
+                    url: callBackUrl,
+                    type: 'post',
+                    cache: false,
+                    data: JSON.stringify(params),
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    success: function(json){
+                        var results = '<div class=\"results\" style=\"display:none\"><table class=\"itemCollection\" cellpadding=\"0\" cellspacing=\"0\">';
+                        $(json).each(function(i){
+                            var icon = "";
+                            
+                            if (this.iconUrl) {
+                                icon = '<img class=\"resIcon\" src=\"/library/image/' + this.iconUrl + '\"/> ';
                             }
                             else {
-                                // is an object, treat special
-                                if (w === 'attachments' && json[w]) {
-                                    var atts = "";
-                                    for (i = 0; i < json[w].length; i++) {
-                                    
-                                        atts = atts + '<li><a href=\"' + json[w][i]['attachment-url'] + '\">' + json[w][i]['attachment-title'] + '</a></li>';
-                                    }
-                                    results = results + '<ul class=\"attachList\">' + atts + '</ul>';
-                                }
-                                if (w === 'more-info' && json[w]) {
-                                    var moreinfo = "";
-                                    for (i = 0; i < json['more-info'].length; i++) {
-                                        var target = "";
-                                        var size = "";
-                                        if (json['more-info'][i]['info_link-target']) {
-                                            target = 'target=\"' + json['more-info'][i]['info_link-target'] + '\"';
-                                        }
-                                        if (json['more-info'][i]['info_link-size']) {
-                                            size = ' (' + json['more-info'][i]['info_link-size'] + ') ';
-                                        }
-                                        
-                                        moreinfo = moreinfo + '<li><a ' + target + ' href=\"' + json['more-info'][i]['info_link-url'] + '\">' + json['more-info'][i]['info_link-title'] + '<span class=\"size\">' + size + '</span></a></li>';
-                                        
-                                    }
-                                    
-                                    results = results + '<ul class=\"moreInfo\">' + moreinfo + ' </ul>';
-                                }
+                                icon = '';
+                            }
+                            var link = '';
+                            if (itemType === "resource") {
+                                row = '<td style=\"width:50%\" class=\"toggleCell resourceLink\"><a href=\"#\" class =\"itemLink\">' + icon + this.title + '</a></td><td style=\"width:50%\"><em style=\"display:none\"><span class=\"itemType\">' + itemType + '</span><span class=\"itemCount\">1</span><span class=\"entityReference\">' + this.entityReference + '</span></em><a href=\"/access' + this.entityReference + '\" target =\"_blank\">Download</a></td>'
+                            }
+                            else {
+                                row = '<td class=\"toggleCell\"><em style=\"display:none\"><span class=\"itemType\">' + itemType + '</span><span class=\"itemCount\">1</span><span class=\"entityReference\">' + this.entityReference + '</span></em><a href=\"#\" class =\"itemLink ' + itemType + '-icon\">' + icon + this.title + '</a></td>'
                             }
                             
+                            results = results + '<tr class=\"' + this.entityType + ' row' + i % 2 + '\">' + row + '</tr>'
                         });
-                        results = results + '</div>';
+                        results = results + '</table></div>'
+                        
+                        
+                        $('<tr class=\"newRow\"><td colspan=\"' + colCount + '\">' + results + '</td></tr>').insertAfter(parentRow);
+                        $(parentRow).next('tr.newRow').find('.results').slideDown('slow', function(){
+                            resizeFrame('grow');
+                        });
+                        
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown){
+                        alert("error :" + XMLHttpRequest.responseText);
                     }
-                    else {
-                        results = results + 'This item type has not specified an order :( </div>';
-                    }
-                    $('<tr class=\"newRow\"><td colspan=\"' + colCount + '\">' + results + '</td></tr>').insertAfter(parentRow);
-                    $(parentRow).next('tr.newRow').find('.results').slideDown('slow', function(){
-                        resizeFrame('grow');
-                    });
-                    
-                },
-                error: function(XMLHttpRequest, textStatus, errorThrown){
-                    alert("error :" + XMLHttpRequest.responseText);
-                }
-            });
+                });
+                
+            }
         }
         
     });

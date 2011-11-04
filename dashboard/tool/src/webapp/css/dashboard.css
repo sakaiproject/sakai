@@ -352,3 +352,27 @@ a.schedule-icon{
     border:2xp solid red  !important;
     vertical-align:middle;
 }
+.itemCollection{
+    border:none !important
+}
+.itemCollection td, .itemCollection tr{
+    padding:5px !important;
+}
+.itemCollection tr.row1, .itemCollection tr.row1 td,.itemCollection tr.row0, .itemCollection tr.row0 td{
+    background-color:#ffe;
+}
+.itemCollection a{
+    text-decoration:none;
+}
+
+.itemCollection img.resIcon{
+    padding:0 3px 0 0;
+}
+.itemCollection .results{
+    border:none;
+}
+.itemCollection .resource  td.resourceLink a.itemLink, .itemCollection .resource td.activeCell a.itemLink,  .itemCollection .resource td.tab a.itemLink{
+    background-image: none;
+    padding:3px;
+    display:inline important!;    
+}
