@@ -146,6 +146,10 @@ INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'sitestats.view');
 -- SAK-20618 make Roleswap enabled by default
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'site.roleswap');
 
+-- SAK-21332 LessonBuilder permissions
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'lessonbuilder.read');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'lessonbuilder.upd');
+
 -- for each realm that has a role matching something in this table, we will add to that role the function from this table
 CREATE TABLE PERMISSIONS_SRC_TEMP (ROLE_NAME VARCHAR(99), FUNCTION_NAME VARCHAR(99));
 
@@ -154,6 +158,21 @@ INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','sitestats.view');
 
 INSERT INTO PERMISSIONS_SRC_TEMP values ('maintain','site.roleswap');
 INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','site.roleswap');
+
+INSERT INTO PERMISSIONS_SRC_TEMP values ('maintain','lessonbuilder.read');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('access','lessonbuilder.read');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','lessonbuilder.read');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Teaching Assistant','lessonbuilder.read');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Student','lessonbuilder.read');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('CIG Coordinator','lessonbuilder.read');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Evaluator','lessonbuilder.read');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Reviewer','lessonbuilder.read');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('CIG Participant','lessonbuilder.read');
+
+INSERT INTO PERMISSIONS_SRC_TEMP values ('maintain','lessonbuilder.upd');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','lessonbuilder.upd');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Teaching Assistant','lessonbuilder.upd');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('CIG Coordinator','lessonbuilder.upd');
 
 -- lookup the role and function numbers
 CREATE TABLE PERMISSIONS_TEMP (ROLE_KEY INTEGER, FUNCTION_KEY INTEGER);
