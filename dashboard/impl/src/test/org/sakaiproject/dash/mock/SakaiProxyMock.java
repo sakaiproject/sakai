@@ -178,5 +178,10 @@ public class SakaiProxyMock implements SakaiProxy {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	public boolean isEventProcessingThreadDisabled() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 }

@@ -933,12 +933,14 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 
 	public void init() {
 		logger.info("init()");
-		
-		this.eventProcessingThread.start();
-		
-		this.sakaiProxy.addLocalEventListener(this);
-		
-		this.horizon = new Date(System.currentTimeMillis() + daysToHorizon * ONE_DAY);
+		if (!sakaiProxy.isEventProcessingThreadDisabled())
+		{
+			this.eventProcessingThread.start();
+			
+			this.sakaiProxy.addLocalEventListener(this);
+			
+			this.horizon = new Date(System.currentTimeMillis() + daysToHorizon * ONE_DAY);
+		}
 	}
 	
 	public void destroy() {

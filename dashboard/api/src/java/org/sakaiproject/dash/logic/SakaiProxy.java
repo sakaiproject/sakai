@@ -67,6 +67,8 @@ public interface SakaiProxy {
 	public static final String ANNOUNCEMENT_RELEASE_DATE = AnnouncementService.RELEASE_DATE;
 	public static final String ANNOUNCEMENT_RETRACT_DATE = AnnouncementService.RETRACT_DATE;
 	
+	public static final String CONFIG_DISABLE_DASHBOARD_EVENTPROCESSING = "disable.dashboard.eventprocessing";
+	
 	/**
 	 * 
 	 * @param observer
@@ -232,5 +234,11 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public List<User> unlockUsers(String lock, String reference);
+	
+	/**
+	 * check with the server configuration whether the Dashboard event process thread should be disabled or not
+	 * @return
+	 */
+	public boolean isEventProcessingThreadDisabled();
 
 }

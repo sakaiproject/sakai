@@ -309,6 +309,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return null;
 	}
 	
+	public boolean isEventProcessingThreadDisabled()
+	{
+		return serverConfigurationService.getBoolean(CONFIG_DISABLE_DASHBOARD_EVENTPROCESSING, false);
+	}
+	
 	
 	/**
 	 * {@inheritDoc}
