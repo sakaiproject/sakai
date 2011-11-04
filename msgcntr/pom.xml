@@ -25,7 +25,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <sakai.jsf.version>2.9-SNAPSHOT</sakai.jsf.version>
         <sakai.scheduler.version>2.9-SNAPSHOT</sakai.scheduler.version>
-        <sakai.search.version>1.4.0-a01</sakai.search.version>
+        <sakai.search.version>1.4-SNAPSHOT</sakai.search.version>
     </properties>
     <scm>
       <connection>scm:svn:https://source.sakaiproject.org/svn/msgcntr/trunk</connection>
