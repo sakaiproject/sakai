@@ -78,7 +78,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  */
 public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager, Observer {
 
-    private static final int MESSAGES_MAX = 100;
+    private int messagesMax = 100;
 
     protected final transient Log logger = LogFactory.getLog(getClass());
 
@@ -273,8 +273,8 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
         if (localStart < 0) {
             localStart = 0;
         }
-        if (localMax < 0 || localMax > MESSAGES_MAX) {
-            localMax = MESSAGES_MAX;
+        if (localMax < 0 || localMax > messagesMax) {
+            localMax = messagesMax;
         }
 
         Criteria c = this.getSession().createCriteria(ChatMessage.class);
@@ -1088,4 +1088,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
         this.defaultChannelSettings = defaultChannelSettings;
     }
 
+    public void setMessagesMax(int messagesMax) {
+        this.messagesMax = messagesMax;
+    }
 }
