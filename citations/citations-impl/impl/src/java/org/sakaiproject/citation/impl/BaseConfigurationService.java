@@ -1620,6 +1620,7 @@ public Collection<String> getAllCategoryXml()
    */
   private boolean exists(String resourceName)
   {
+    SecurityAdvisor pushed = null;
     try
     {
     	String configFolderRef  = getConfigFolderReference();
@@ -1632,7 +1633,7 @@ public Collection<String> getAllCategoryXml()
         Reference reference = EntityManager.newReference(referenceName);
     		if (reference == null) return false;
 
-    		enableSecurityAdvisor();
+    		pushed = enableSecurityAdvisor();
     		ContentResource resource = org.sakaiproject.content.cover.ContentHostingService.getResource(reference.getId());
 
         return (resource != null);
@@ -1646,6 +1647,15 @@ public Collection<String> getAllCategoryXml()
     {
       m_log.warn("exists() failed find resource: ", exception);
     }
+    finally {
+    	  if(pushed != null) {
+    		  boolean found = false;
+    		  while(SecurityService.hasAdvisors() && ! found) {
+    			  SecurityAdvisor popped = SecurityService.popAdvisor();
+    			  found = popped == pushed;
+    		  }
+    	  }
+      }
    	return false;
   }
 
