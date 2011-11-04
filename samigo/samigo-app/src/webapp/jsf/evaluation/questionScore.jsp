@@ -129,7 +129,7 @@ function toPoint(id)
     <h:column>
       <samigo:dataLine value="#{partinit.questionNumberList}" var="iteminit" separator=" | " first="0" rows="#{partinit.numberQuestionsTotal}" rendered="#{!partinit.isRandomDrawPart}" >
         <h:column>
-          <h:commandLink title="#{evaluationMessages.t_questionScores}"action="questionScores" immediate="true" >
+          <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true" >
             <h:outputText value="#{evaluationMessages.q}&nbsp;#{iteminit.partNumber} " escape="false"/>
 			<f:actionListener
               type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScorePagerListener" />
@@ -147,7 +147,7 @@ function toPoint(id)
 
 	  <samigo:dataLine value="#{partinit.questionNumberList}" var="iteminit" separator=" | " first="0" rows="#{partinit.numberQuestionsTotal}" rendered="#{partinit.isRandomDrawPart}" >
         <h:column>
-          <h:commandLink title="#{evaluationMessages.t_questionScores}"action="questionScores" immediate="true" >
+          <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true" >
             <h:outputText value="#{evaluationMessages.q} #{iteminit.partNumber} "/>
 			<f:actionListener
               type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScorePagerListener" />

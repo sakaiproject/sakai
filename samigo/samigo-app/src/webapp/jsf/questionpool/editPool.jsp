@@ -87,7 +87,7 @@ function textCounter(field, maxlimit) {
   <h:outputText id="ownerfield" value="#{questionpool.currentPool.owner}"/>
 
   <h:outputLabel rendered="!#{questionpool.currentPool.showParentPools}"  for="orgfield" value="#{questionPoolMessages.dept}"/>
-  <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt() "id="orgfield" size="30" maxlength="255" value="#{questionpool.currentPool.organizationName}" rendered="!#{questionpool.currentPool.showParentPools}"/>
+  <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt() " id="orgfield" size="30" maxlength="255" value="#{questionpool.currentPool.organizationName}" rendered="!#{questionpool.currentPool.showParentPools}"/>
     
   <h:outputLabel rendered="!#{questionpool.currentPool.showParentPools}" for="descfield" value="#{questionPoolMessages.desc}" />
   <h:inputTextarea readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt();textCounter(this,255);" id="descfield" rendered="!#{questionpool.currentPool.showParentPools}" value="#{questionpool.currentPool.description}" cols="40" rows="6"
@@ -156,9 +156,9 @@ function textCounter(field, maxlimit) {
 <h:panelGrid width="100%" columns="2" columnClasses="h3text,navList">
 <h:panelGroup >
 <h:outputText value="#{questionpool.currentPool.numberOfQuestions}"/>
-<h:outputText rendered ="#{questionpool.currentPool.numberOfQuestions >1}"value=" #{questionPoolMessages.qs}"/>
-<h:outputText rendered ="#{questionpool.currentPool.numberOfQuestions ==1}"value=" #{questionPoolMessages.q}"/>
-<h:outputText rendered ="#{questionpool.currentPool.numberOfQuestions ==0}"value=" #{questionPoolMessages.qs}"/>
+<h:outputText rendered ="#{questionpool.currentPool.numberOfQuestions >1}" value=" #{questionPoolMessages.qs}"/>
+<h:outputText rendered ="#{questionpool.currentPool.numberOfQuestions ==1}" value=" #{questionPoolMessages.q}"/>
+<h:outputText rendered ="#{questionpool.currentPool.numberOfQuestions ==0}" value=" #{questionPoolMessages.qs}"/>
 </h:panelGroup>
 <h:commandLink title="#{questionPoolMessages.t_addQuestion}" rendered="#{questionpool.importToAuthoring != 'true'}" id="addQlink" immediate="true" action="#{questionpool.selectQuestionType}">
   <h:outputText id="addq" value="#{questionPoolMessages.add}"/>
