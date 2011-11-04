@@ -77,6 +77,7 @@ import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFa
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.util.FormatException;
+import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
 import org.sakaiproject.tool.assessment.util.SamigoExpressionParser;
 
 
@@ -2109,7 +2110,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  }
 	  return result;
   }
-  
+      
   /**
    * CALCULATED_QUESTION
    * This is a busy method. It does three things:
@@ -2126,8 +2127,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @param answerList will enter the method empty and be filled with sequential answers to the question
    * @return ArrayList of the pieces of text to display surrounding input boxes
    */
-  public ArrayList extractCalcQAnswersArray(HashMap answerList, ItemDataIfc item, Long gradingId, String agentId)
-  {
+  public ArrayList extractCalcQAnswersArray(HashMap answerList, ItemDataIfc item, Long gradingId, String agentId)   {
 	  final String FUNCTION_BEGIN = "{{";
 	  final String FUNCTION_END = "}}";
 	  ArrayList texts = new ArrayList();
@@ -2138,8 +2138,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  while ((validAnswersAttemptCount < 100) && !gotValidAnswerExpressions) {
 		  
 		  texts.clear();
-		  HashMap variablesWithValues = determineRandomValuesForRanges(variableRangeMap,item.getItemId(), gradingId, agentId, validAnswersAttemptCount);
-		  String alltext = replaceTextVariablesWithValues(item, variablesWithValues);
+		  Map<String, String> variablesWithValues = determineRandomValuesForRanges(variableRangeMap,item.getItemId(), gradingId, agentId, validAnswersAttemptCount);
+		  String alltext = replaceTextVariablesWithValues(item.getInstruction(), variablesWithValues);
 			
 		  	int sequence = 1; // order the answers appear in the question
 		  	// This loops through the question searching for the {} pairs...
@@ -2161,8 +2161,13 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 			  answerExpression = replaceMappedVariablesWithNumbers(answerExpression,variablesWithValues);
 		      
 			  SamigoExpressionParser parser = new SamigoExpressionParser(); // this will turn the expression into a number in string form
-			  String numericAnswerString = parser.parse(answerExpression); // final answer in string form
-			  			  
+			  String numericAnswerString = "0.0";
+			  try {
+			      numericAnswerString = parser.parse(answerExpression); // final answer in string form
+			  } catch (SamigoExpressionError e) {
+			      log.error("Error parsing formula that should have been caught before here: " + e.getMessage() + ", " + 
+			              answerExpression, e);
+			  }
 			  validAnswersAttemptCount++;
 			  gotValidAnswerExpressions = isAnswerValid(numericAnswerString);
 			  if (gotValidAnswerExpressions) {
@@ -2277,7 +2282,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * This method is for the answer expression. It will replace x with 42.00 for example.
    * HashMap variablesWithValues contains pairs of variable names and values.
    */
-  private String replaceMappedVariablesWithNumbers(String answerExpression, HashMap variablesWithValues) {
+  public String replaceMappedVariablesWithNumbers(String answerExpression, Map<String, String> variablesWithValues) {
 	  Iterator i = variablesWithValues.entrySet().iterator();
 	  while(i.hasNext()) {
 		  Map.Entry entry = (Map.Entry)i.next();
@@ -2293,23 +2298,19 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @param variableValueMap
    * @return
    */
-  private String replaceTextVariablesWithValues(ItemDataIfc item, HashMap variableValueMap) {
-	  if (item.getInstruction() == null) return null; // because it should be set up already in item
-	  
-	  String questionText = item.getInstruction();
-//	  String openBrackets = "\\[\\[";
-//	  String closeBrackets = "\\]\\]";
-	  
+    private String replaceTextVariablesWithValues(String questionText, Map<String, String> variableValueMap) {
+	  if (questionText == null) return null; // because it should be set up already in item
+	  	  
 	  String openBrackets = OPEN_BRACKET;
 	  String closeBrackets = CLOSE_BRACKET;
 	  
 	  Iterator i = variableValueMap.entrySet().iterator();
 	  while(i.hasNext())
 	  {
-		  Map.Entry entry = (Map.Entry)i.next();
+		  Map.Entry<String, String> entry = (Map.Entry)i.next();
 		  
 		  // not sure why these are happening?
-		  if (entry.getKey().toString().equals(item.getInstruction())) continue;
+		  if (entry.getKey().toString().equals(questionText)) continue;
 		  		  
 		  String variableValue = entry.getValue().toString();
 		  
@@ -2327,8 +2328,9 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * CALCULATED_QUESTION
    * Takes a map of ranges and randomly chooses values for those ranges and stores them in a new map.
    */
-  private HashMap determineRandomValuesForRanges(HashMap variableRangeMap, long itemId, long gradingId, String agentId, int validAnswersAttemptCount) {
-	  HashMap variableValueMap = new HashMap();
+//   public HashMap determineRandomValuesForRanges(HashMap variableRangeMap, long itemId, long gradingId, String agentId, int validAnswersAttemptCount) {
+   public Map<String, String> determineRandomValuesForRanges(Map<String, String> variableRangeMap, long itemId, long gradingId, String agentId, int validAnswersAttemptCount) {
+	  Map<String, String> variableValueMap = new HashMap();
 	  
 	  // seed random number generator
 	  long seed = getCalcuatedQuestionSeed(itemId, gradingId, agentId, validAnswersAttemptCount);
@@ -2337,7 +2339,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  Iterator i = variableRangeMap.entrySet().iterator();
 	  while(i.hasNext())
 	  {
-		  Map.Entry entry = (Map.Entry)i.next();
+		  Map.Entry<String, String>entry = (Map.Entry)i.next();
 		  
 		  String delimRange = entry.getValue().toString(); // ie. "-100|100,2"
 		  		  
