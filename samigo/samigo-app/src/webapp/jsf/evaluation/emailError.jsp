@@ -44,7 +44,7 @@ $Id: createNewEmail.jsp 18063 2006-11-09 00:00:17Z ktsao@stanford.edu $
 
 <p>
  <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/></p>
-<h:commandButton id="close"onclick="window.close();" onkeypress="window.close();"  value="#{evaluationMessages.close}"/>
+<h:commandButton id="close" onclick="window.close();" onkeypress="window.close();"  value="#{evaluationMessages.close}"/>
 
 </div>	
 

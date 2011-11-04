@@ -138,9 +138,13 @@ public class TemplateLoadListener
         }
         if (aac.getLateHandling() != null)
           templateBean.setLateHandling(aac.getLateHandling().toString());
-        if (aac.getAutoSubmit() != null)
-          templateBean.setAutoSave(aac.getAutoSubmit().toString());
-      }
+        if (aac.getAutoSubmit() != null && aac.getAutoSubmit().intValue() == 1) {
+        		templateBean.setAutomaticSubmission(Boolean.TRUE);
+        	}
+        }
+        else {
+        	templateBean.setAutomaticSubmission(Boolean.FALSE);
+        }
 
       // Evaluation Model
       EvaluationModel model = (EvaluationModel) template.getEvaluationModel();

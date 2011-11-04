@@ -251,7 +251,7 @@ function uncheckOther(field){
 <!-- content... -->
 <h:form id="assessmentSettingsAction" onsubmit="return editorCheck();">
   <h:inputHidden id="assessmentId" value="#{publishedSettings.assessmentId}"/>
-  <h:inputHidden id="blockDivs"value="#{publishedSettings.blockDivs}"/>
+  <h:inputHidden id="blockDivs" value="#{publishedSettings.blockDivs}"/>
   <h:inputHidden id="itemNavigationUpdated" value="false" />
   
   <!-- HEADINGS -->

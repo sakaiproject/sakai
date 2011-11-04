@@ -2811,18 +2811,13 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    					adata.setFinalScore(0f);
 	    				}
 	    				// SAM-1088
-	    				if (adata.getSubmittedDate() == null) {
-	    					adata.setIsAutoSubmitted(Boolean.TRUE);
-	    				}
-	    				else if (adata.getSubmittedDate() != null && assessment != null && assessment.getDueDate() != null &&
+	    				if (adata.getSubmittedDate() != null && assessment != null && assessment.getDueDate() != null &&
 	    						adata.getSubmittedDate().after(assessment.getDueDate())) {
 	    					adata.setIsLate(true);
 	    				}
-	    				else if (adata.getSubmittedDate() != null && assessment != null && assessment.getDueDate() != null &&
-	    						adata.getSubmittedDate().before(assessment.getDueDate())) {
-	    					adata.setIsAutoSubmitted(Boolean.TRUE);
-	    				}
-	    				adata.setSubmittedDate(new Date());
+	    				
+	    				//adata.setSubmittedDate(new Date());
+	    				adata.setIsAutoSubmitted(Boolean.TRUE);
 	    				adata.setStatus(Integer.valueOf(1));
 	    				toBeAutoSubmittedList.add(adata);
 	    				completeItemGradingData(adata, sectionSetMap);
@@ -2843,18 +2838,13 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     					adata.setFinalScore(0f);
     				}
 	    			// SAM-1088
-    				if (adata.getSubmittedDate() == null) {
-    					adata.setIsAutoSubmitted(Boolean.TRUE);
-    				}
-    				else if (adata.getSubmittedDate() != null && assessment != null && assessment.getDueDate() != null &&
+    				if (adata.getSubmittedDate() != null && assessment != null && assessment.getDueDate() != null &&
     						adata.getSubmittedDate().after(assessment.getDueDate())) {
     					adata.setIsLate(true);
     				}
-    				else if (adata.getSubmittedDate() != null && assessment != null && assessment.getDueDate() != null &&
-    						adata.getSubmittedDate().before(assessment.getDueDate())) {
-    					adata.setIsAutoSubmitted(Boolean.TRUE);
-    				}
-	    			adata.setSubmittedDate(new Date());
+    				
+	    			//adata.setSubmittedDate(new Date());
+    				adata.setIsAutoSubmitted(Boolean.TRUE);
 	    			adata.setStatus(Integer.valueOf(1));
 	    			toBeAutoSubmittedList.add(adata);
 	    			completeItemGradingData(adata, sectionSetMap);
