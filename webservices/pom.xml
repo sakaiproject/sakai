@@ -11,7 +11,7 @@
   	<parent>
 		<groupId>org.sakaiproject.purepoms</groupId>
 		<artifactId>sakai-basic-tool</artifactId>
-		<version>2.9.0-a01</version>
+		<version>2.9-SNAPSHOT</version>
 	</parent>
   	
   	<organization>
@@ -51,7 +51,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <url.localsite>scp://source.sakaiproject.org/var/www/html/release/webservices/${project.version}</url.localsite>
-        <sakai.samigo.version>2.9.0-a01</sakai.samigo.version>
+        <sakai.samigo.version>2.9-SNAPSHOT</sakai.samigo.version>
     </properties>
     
     <scm>
