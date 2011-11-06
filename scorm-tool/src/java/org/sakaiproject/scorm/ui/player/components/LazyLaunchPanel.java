@@ -117,15 +117,16 @@ public class LazyLaunchPanel extends LazyLoadPanel {
 				resultService.saveAttempt(attempt);
 			} else if (attempt.isNotExited()) {
 				// Or if the server crashed mid-session or something, then abandon the old one and start over
-				attemptNumber = attempt.getAttemptNumber() + 1;
-				/*log.warn("Abandoning old attempt and re-starting . . . ");
+				attemptNumber = attempt.getAttemptNumber();
+				/*log.warn("Abandoning old attempt and re-starting . . . ");*/
 				sessionBean.setRestart(true);
-				String result = sequencingService.navigate(SeqNavRequests.NAV_ABANDONALL, sessionBean, navigator, target);
-			
+				// Try exit all.
+				String result = sequencingService.navigate(SeqNavRequests.NAV_EXITALL, sessionBean, navigator, target);
 				if (result != null && result.equals("_ENDSESSION_")) {
+					navRequest = SeqNavRequests.NAV_START;
 					attempt.setNotExited(false);
 					resultService.saveAttempt(attempt);
-				}*/
+				}
 			} else {
 				// Otherwise, we can start a new one
 				attemptNumber = attempt.getAttemptNumber() + 1;
