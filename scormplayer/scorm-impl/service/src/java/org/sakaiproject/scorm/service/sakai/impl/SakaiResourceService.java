@@ -31,6 +31,7 @@ import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.scorm.exceptions.InvalidArchiveException;
 import org.sakaiproject.scorm.exceptions.ResourceNotDeletedException;
+import org.sakaiproject.scorm.exceptions.ResourceStorageException;
 import org.sakaiproject.scorm.model.api.Archive;
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
 import org.sakaiproject.scorm.service.impl.AbstractResourceService;
@@ -56,7 +57,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 
 	protected abstract SecurityService securityService();
 	
-	public void init() {
+	public void init() throws ResourceStorageException {
 		boolean created = ensureCollection(ROOT_DIRECTORY, "scorm");
 		if (created) {
 			try {
@@ -72,7 +73,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 		}
 	}
 
-	public String convertArchive(String resourceId, String title) throws InvalidArchiveException {
+	public String convertArchive(String resourceId, String title) throws InvalidArchiveException, ResourceStorageException {
 		String uuid = null;
 		uuid = super.convertArchive(resourceId, title);
 
@@ -102,12 +103,13 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 			catch (Exception ex) {
 				log.warn("Failed to cancel collection edit for " + uuid);
 			}
+			throw new ResourceStorageException("Unable to rename the root collection for " + uuid + " to " + title + ", reason: " + e.getMessage(), e);
 		}
 
 		return uuid;
 	}
 
-	public Archive getArchive(String resourceId) {
+	public Archive getArchive(String resourceId) throws ResourceStorageException {
 		Archive archive = null;
 		try {
 			ContentResource resource = this.contentService().getResource(resourceId);
@@ -125,12 +127,13 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 		}
 		catch (Exception e) {
 			log.error("Failed to retrieve resource from content hosting ", e);
+			throw new ResourceStorageException("Failed to retrieve resource from content hosting, reason: " + e.getMessage(),e);
 		}
 
 		return archive;
 	}
 
-	public InputStream getArchiveStream(String resourceId) {
+	public InputStream getArchiveStream(String resourceId) throws ResourceStorageException {
 		try {
 			ContentResource resource = this.contentService().getResource(resourceId);
 
@@ -139,9 +142,9 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 		}
 		catch (Exception e) {
 			log.error("Failed to retrieve resource from content hosting ", e);
+			throw new ResourceStorageException("Failed to retrieve resource from content hosting, reason: " + e.getMessage(), e);
 		}
 
-		return null;
 	}
 
 	public int getMaximumUploadFileSize() {
@@ -173,12 +176,12 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 		return pathBuilder.toString(); // .replace(" ", "%20");
 	}
 
-	public List<ContentPackageResource> getResources(String uuid) {
+	public List<ContentPackageResource> getResources(String uuid) throws ResourceStorageException {
 		String contentPackageDirectoryId = getContentPackageDirectoryPath(uuid);
 		return getContentResourcesRecursive(contentPackageDirectoryId, uuid, "");
 	}
 
-	public String putArchive(InputStream stream, String name, String mimeType, boolean isHidden, int priority) {
+	public String putArchive(InputStream stream, String name, String mimeType, boolean isHidden, int priority) throws ResourceStorageException {
 		String collectionId = getRootDirectoryPath();
 
 		String fileName = new String(name);
@@ -204,16 +207,17 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 			return edit.getId();
 		}
 		catch (Exception e) {
-			if (edit != null)
+			if (edit != null) {
 				this.contentService().cancelResource(edit);
 
-			log.error("Failed to place resources in Sakai content repository", e);
+				log.error("Failed to place resources in Sakai content repository", e);
+			}
+			throw new ResourceStorageException(e);
 		}
 
-		return null;
 	}
 
-	public List<Archive> getUnvalidatedArchives() {
+	public List<Archive> getUnvalidatedArchives() throws ResourceStorageException {
 		String siteCollectionId = getRootDirectoryPath();
 
 		return findUnvalidatedArchives(siteCollectionId);
@@ -249,7 +253,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 		return new StringBuilder(getRootDirectoryPath()).append(uuid).append("/").toString();
 	}
 
-	private boolean ensureCollection(String collectionId, String name) {
+	private boolean ensureCollection(String collectionId, String name) throws ResourceStorageException {
 		boolean created = false;
 		try {
 			securityService().pushAdvisor(new SecurityAdvisor() {
@@ -268,6 +272,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 		}
 		catch (Exception e) {
 			log.error("Unexpected exception while checking for collection", e);
+			throw new ResourceStorageException("Unexpected exception while checking for collection, reason: " + e.getMessage(), e);
 		}
 		finally {
 			securityService().popAdvisor();
@@ -276,7 +281,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 	}
 
 	@SuppressWarnings("deprecation")
-	private void forceCreateCollection(String collectionId, String name) {
+	private void forceCreateCollection(String collectionId, String name) throws ResourceStorageException {
 		try {
 			securityService().pushAdvisor(new SecurityAdvisor() {
 				
@@ -294,6 +299,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 		}
 		catch (Exception e) {
 			log.error("Unexpected exception while creating collection", e);
+			throw new ResourceStorageException("Unexpected exception while creating collection, reason: " + e.getMessage(), e);
 		}
 		finally {
 			securityService().popAdvisor();
@@ -338,7 +344,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 		}
 	}
 
-	protected List<ContentPackageResource> getContentResourcesRecursive(String collectionId, String uuid, String path) {
+	protected List<ContentPackageResource> getContentResourcesRecursive(String collectionId, String uuid, String path) throws ResourceStorageException {
 
 		List<ContentPackageResource> resources = new LinkedList<ContentPackageResource>();
 		try {
@@ -380,12 +386,13 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 		}
 		catch (Exception e) {
 			log.error("Caught an exception looking for content packages", e);
+			throw new ResourceStorageException("Caught an exception looking for content packages, reason: " + e.getMessage(), e);
 		}
 
 		return resources;
 	}
 
-	protected String newFolder(String uuid, ZipEntry entry) {
+	protected String newFolder(String uuid, ZipEntry entry) throws ResourceStorageException {
 		String entryName = entry.getName();
 
 		if (entryName.indexOf('\\') != -1)
@@ -419,13 +426,13 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 			if (collection != null)
 				this.contentService().cancelCollection(collection);
 
-			return null;
+			throw new ResourceStorageException("Failed to add a folder with id " + collectionId + ", reason: " + e.getMessage(), e);
 		}
 
 		return collectionId;
 	}
 
-	protected String newItem(String uuid, ZipInputStream zipStream, ZipEntry entry) {
+	protected String newItem(String uuid, ZipInputStream zipStream, ZipEntry entry) throws ResourceStorageException {
 		String entryName = entry.getName();
 
 		if (entryName.indexOf('\\') != -1)
@@ -472,13 +479,13 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 			if (resource != null)
 				this.contentService().cancelResource(resource);
 
-			return null;
+			throw new ResourceStorageException(e);
 		}
 
 		return resourceId;
 	}
 
-	private int countExistingContentPackages(String title) {
+	private int countExistingContentPackages(String title) throws ResourceStorageException {
 		int count = 1;
 
 		String rootCollectionId = getRootDirectoryPath();
@@ -507,6 +514,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 		}
 		catch (Exception e) {
 			log.warn("Unable to find existing content packages with title " + title);
+			throw new ResourceStorageException("Unable to find existing content packages with title " + title + ", reason: " + e.getMessage(), e);
 		}
 
 		return count;
@@ -521,7 +529,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 		return parts[parts.length - 1];
 	}
 
-	private List<Archive> findUnvalidatedArchives(String collectionId) {
+	private List<Archive> findUnvalidatedArchives(String collectionId) throws ResourceStorageException {
 		List<Archive> archives = new LinkedList<Archive>();
 		try {
 			ContentCollection collection = this.contentService().getCollection(collectionId);
@@ -544,6 +552,7 @@ public abstract class SakaiResourceService extends AbstractResourceService {
 		}
 		catch (Exception e) {
 			log.error("Caught an exception looking for content packages", e);
+			throw new ResourceStorageException("Caught an exception looking for content packages, reason: " + e.getMessage(), e);
 		}
 
 		return archives;

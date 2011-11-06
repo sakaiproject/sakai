@@ -10,6 +10,7 @@ import javax.activation.MimetypesFileTypeMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.scorm.exceptions.InvalidArchiveException;
+import org.sakaiproject.scorm.exceptions.ResourceStorageException;
 import org.sakaiproject.scorm.model.api.Archive;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 
@@ -17,7 +18,7 @@ public abstract class AbstractResourceService implements ScormResourceService {
 
 	private static Log log = LogFactory.getLog(AbstractResourceService.class);
 
-	public String convertArchive(String resourceId, String title) throws InvalidArchiveException {
+	public String convertArchive(String resourceId, String title) throws InvalidArchiveException, ResourceStorageException {
 		return unpack(resourceId);
 	}
 
@@ -52,9 +53,9 @@ public abstract class AbstractResourceService implements ScormResourceService {
 
 	}
 
-	protected abstract String newFolder(String uuid, ZipEntry entry);
+	protected abstract String newFolder(String uuid, ZipEntry entry) throws ResourceStorageException;
 
-	protected abstract String newItem(String uuid, ZipInputStream zipStream, ZipEntry entry);
+	protected abstract String newItem(String uuid, ZipInputStream zipStream, ZipEntry entry) throws ResourceStorageException;
 
 	protected abstract String getRootDirectoryPath();
 
@@ -69,7 +70,7 @@ public abstract class AbstractResourceService implements ScormResourceService {
 		return name.substring(0, indexOf);
 	}
 
-	protected String unpack(String resourceId) throws InvalidArchiveException {
+	protected String unpack(String resourceId) throws InvalidArchiveException, ResourceStorageException {
 		Archive archive = getArchive(resourceId);
 
 		String uuid = UUID.randomUUID().toString();
@@ -85,7 +86,7 @@ public abstract class AbstractResourceService implements ScormResourceService {
 		return uuid;
 	}
 
-	protected void unpackEntry(String parentPath, ZipInputStream stream, ZipEntry entry) {
+	protected void unpackEntry(String parentPath, ZipInputStream stream, ZipEntry entry) throws ResourceStorageException {
 		if (entry.isDirectory())
 			newFolder(parentPath, entry);
 		else {
@@ -93,7 +94,7 @@ public abstract class AbstractResourceService implements ScormResourceService {
 		}
 	}
 
-	protected void unzip(String parentPath, ZipInputStream zipStream) {
+	protected void unzip(String parentPath, ZipInputStream zipStream) throws ResourceStorageException {
 		ZipEntry entry;
 		try {
 			entry = (ZipEntry) zipStream.getNextEntry();
