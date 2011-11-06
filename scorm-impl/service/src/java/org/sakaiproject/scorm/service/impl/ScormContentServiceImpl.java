@@ -44,6 +44,7 @@ import org.sakaiproject.scorm.dao.api.ContentPackageManifestDao;
 import org.sakaiproject.scorm.dao.api.DataManagerDao;
 import org.sakaiproject.scorm.exceptions.InvalidArchiveException;
 import org.sakaiproject.scorm.exceptions.ResourceNotDeletedException;
+import org.sakaiproject.scorm.exceptions.ResourceStorageException;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
@@ -169,7 +170,7 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 		contentPackageDao().save(contentPackage);
 	}
 
-	public int validate(String resourceId, boolean isManifestOnly, boolean isValidateToSchema) {
+	public int validate(String resourceId, boolean isManifestOnly, boolean isValidateToSchema) throws ResourceStorageException {
 		File file = createFile(resourceService().getArchiveStream(resourceId));
 
 		int result = VALIDATION_SUCCESS;

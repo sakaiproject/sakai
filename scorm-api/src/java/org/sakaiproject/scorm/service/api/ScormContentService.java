@@ -24,16 +24,17 @@ import java.util.List;
 
 import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.exceptions.ResourceNotDeletedException;
+import org.sakaiproject.scorm.exceptions.ResourceStorageException;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.w3c.dom.Document;
 
 public interface ScormContentService extends ScormConstants {
 
-	public ContentPackage getContentPackage(long contentPackageId);
+	public ContentPackage getContentPackage(long contentPackageId) throws ResourceStorageException;
 	
-	public ContentPackage getContentPackageByResourceId(String resourceId);
+	public ContentPackage getContentPackageByResourceId(String resourceId) throws ResourceStorageException;
 	
-	public List<ContentPackage> getContentPackages();
+	public List<ContentPackage> getContentPackages() throws ResourceStorageException;
 	
 	public int getContentPackageStatus(ContentPackage contentPackage);
 	
@@ -41,8 +42,8 @@ public interface ScormContentService extends ScormConstants {
 
 	public void removeContentPackage(long contentPackageId) throws ResourceNotDeletedException;
 	
-	public void updateContentPackage(ContentPackage contentPackage);
+	public void updateContentPackage(ContentPackage contentPackage) throws ResourceStorageException;
 	
-	public int validate(String resourceId, boolean isManifestOnly, boolean isValidateToSchema);
+	public int validate(String resourceId, boolean isManifestOnly, boolean isValidateToSchema) throws ResourceStorageException;
 
 }
