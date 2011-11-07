@@ -4,24 +4,18 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
 import net.sf.json.JSONArray;
-import net.sf.json.JSONNull;
 import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.IRequestTarget;
-import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -29,25 +23,17 @@ import org.apache.wicket.behavior.AbstractAjaxBehavior;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.ExternalLink;
-import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.repeater.DefaultItemReuseStrategy;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
-import org.apache.wicket.model.ComponentModel;
-import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.request.target.basic.StringRequestTarget;
-
-import org.sakaiproject.dash.logic.DashboardLogic;
-import org.sakaiproject.dash.logic.SakaiProxy;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.util.ResourceLoader;
@@ -76,11 +62,15 @@ public class DashboardPage extends BasePage {
 	CalendarItemDataProvider savedCalendarItemsProvider;
 	CalendarItemDataProvider hiddenCalendarItemsProvider;
 	
-	protected String selectedCalendarTab = "upcoming";
-	protected String selectedNewsTab = "current";
+	protected String selectedCalendarTab;
+	protected String selectedNewsTab;
 	
 	
 	public DashboardPage() {
+		
+		final WebMarkupContainer dashboardPage = new WebMarkupContainer("dashboard-page");
+		dashboardPage.setOutputMarkupId(true);
+		add(dashboardPage);
 		
 		//get list of items from db, wrapped in a dataprovider
 		newsItemsProvider = new NewsItemDataProvider(false, false);
@@ -94,11 +84,11 @@ public class DashboardPage extends BasePage {
 		
 		ResourceLoader rl = new ResourceLoader("dash_entity");
 		
-		final MarkupContainer calendarItemsDiv = new WebMarkupContainer("calendarItemsDiv");
+		final WebMarkupContainer calendarItemsDiv = new WebMarkupContainer("calendarItemsDiv");
 		calendarItemsDiv.setOutputMarkupId(true);
 
         @SuppressWarnings("rawtypes")
-		AjaxLink upcomingCalendarLink = new AjaxLink("link") {
+		AjaxLink upcomingCalendarLink = new AjaxLink("link", new PropertyModel<String>(this, "selectedCalendarTab")) {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
@@ -114,15 +104,15 @@ public class DashboardPage extends BasePage {
         };
         
         upcomingCalendarLink.add(new Label("label", rl.getString("dash.calendar.upcoming")));
-		MarkupContainer upcomingCalendarTab = new WebMarkupContainer("upcomingCalendarTab");
-		if(selectedCalendarTab != null && "upcoming".equalsIgnoreCase(selectedCalendarTab)) {
+		WebMarkupContainer upcomingCalendarTab = new WebMarkupContainer("upcomingCalendarTab");
+		if(selectedCalendarTab == null || "upcoming".equalsIgnoreCase(selectedCalendarTab)) {
 			upcomingCalendarTab.add(new SimpleAttributeModifier("class", "activeTab"));
 		}
 		upcomingCalendarTab.add(upcomingCalendarLink);
         calendarItemsDiv.add(upcomingCalendarTab);
 
         @SuppressWarnings("rawtypes")
-		AjaxLink pastCalendarLink = new AjaxLink("link") {
+		AjaxLink pastCalendarLink = new AjaxLink("link", new PropertyModel<String>(this, "selectedCalendarTab")) {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
@@ -137,7 +127,7 @@ public class DashboardPage extends BasePage {
         	
         };
         pastCalendarLink.add(new Label("label", rl.getString("dash.calendar.past")));
-		MarkupContainer pastCalendarTab = new WebMarkupContainer("pastCalendarTab");
+		WebMarkupContainer pastCalendarTab = new WebMarkupContainer("pastCalendarTab");
 		if(selectedCalendarTab != null && "past".equalsIgnoreCase(selectedCalendarTab)) {
 			pastCalendarTab.add(new SimpleAttributeModifier("class", "activeTab"));
 		}
@@ -145,7 +135,7 @@ public class DashboardPage extends BasePage {
         calendarItemsDiv.add(pastCalendarTab);
 
         @SuppressWarnings("rawtypes")
-		AjaxLink starredCalendarLink = new AjaxLink("link") {
+		AjaxLink starredCalendarLink = new AjaxLink("link", new PropertyModel<String>(this, "selectedCalendarTab")) {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
@@ -160,7 +150,7 @@ public class DashboardPage extends BasePage {
         	
         };
         starredCalendarLink.add(new Label("label", rl.getString("dash.calendar.starred")));
-		MarkupContainer starredCalendarTab = new WebMarkupContainer("starredCalendarTab");
+		WebMarkupContainer starredCalendarTab = new WebMarkupContainer("starredCalendarTab");
 		if(selectedCalendarTab != null && "starred".equalsIgnoreCase(selectedCalendarTab)) {
 			starredCalendarTab.add(new SimpleAttributeModifier("class", "activeTab"));
 		}
@@ -168,7 +158,7 @@ public class DashboardPage extends BasePage {
         calendarItemsDiv.add(starredCalendarTab);
 
         @SuppressWarnings("rawtypes")
-		AjaxLink hiddenCalendarLink = new AjaxLink("link") {
+		AjaxLink hiddenCalendarLink = new AjaxLink("link", new PropertyModel<String>(this, "selectedCalendarTab")) {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
@@ -183,7 +173,7 @@ public class DashboardPage extends BasePage {
         	
         };
         hiddenCalendarLink.add(new Label("label", rl.getString("dash.calendar.hidden")));
-		MarkupContainer hiddenCalendarTab = new WebMarkupContainer("hiddenCalendarTab");
+		WebMarkupContainer hiddenCalendarTab = new WebMarkupContainer("hiddenCalendarTab");
 		if(selectedCalendarTab != null && "hidden".equalsIgnoreCase(selectedCalendarTab)) {
 			hiddenCalendarTab.add(new SimpleAttributeModifier("class", "activeTab"));
 		}
@@ -215,10 +205,10 @@ public class DashboardPage extends BasePage {
 	                item.add(new ExternalLink("itemLink", "#", cItem.getTitle()));
 	                item.add(new ExternalLink("siteLink", cItem.getContext().getContextUrl(), cItem.getContext().getContextTitle()));
 	      
-	                MarkupContainer actionPanel = new WebMarkupContainer("actionPanel");
+	                WebMarkupContainer actionPanel = new WebMarkupContainer("actionPanel");
 	                item.add(actionPanel);
 	                
-	                MarkupContainer actionKeepThis = new WebMarkupContainer("actionKeepThis");
+	                WebMarkupContainer actionKeepThis = new WebMarkupContainer("actionKeepThis");
 	                actionPanel.add(actionKeepThis);
 	                AjaxLink<CalendarItem> actionKeepThisLink = new AjaxLink<CalendarItem>("actionKeepThisLink") {
 	                	protected long calendarItemId = cItem.getId();
@@ -243,7 +233,7 @@ public class DashboardPage extends BasePage {
 	                actionKeepThis.add(actionKeepThisLink);
 	                actionKeepThisLink.add(new Label("actionKeepThisLabel", "Make me stay here"));
 	                
-	                MarkupContainer actionHideThis = new WebMarkupContainer("actionHideThis");
+	                WebMarkupContainer actionHideThis = new WebMarkupContainer("actionHideThis");
 	                actionPanel.add(actionHideThis);
 	                AjaxLink<CalendarItem> actionHideThisLink = new AjaxLink<CalendarItem>("actionHideThisLink") {
 	                	protected long calendarItemId = cItem.getId();
@@ -266,7 +256,7 @@ public class DashboardPage extends BasePage {
 	                actionHideThis.add(actionHideThisLink);
 	                actionHideThisLink.add(new Label("actionHideThisLabel", "Dump me in the TrAsH"));
 	                
-	                MarkupContainer actionHideType = new WebMarkupContainer("actionHideType");
+	                WebMarkupContainer actionHideType = new WebMarkupContainer("actionHideType");
 	                actionPanel.add(actionHideType);
 	                AjaxLink<CalendarItem> actionHideTypeLink = new AjaxLink<CalendarItem>("actionHideTypeLink") {
 	                	long type_id = cItem.getSourceType().getId();
@@ -288,7 +278,7 @@ public class DashboardPage extends BasePage {
 	                actionHideTypeLink.add(new Label("actionHideTypeLabel", "Dump all " + itemType + "s in the tRaSh"));
 	                
 	                String siteTitle = cItem.getContext().getContextTitle();
-	                MarkupContainer actionHideContext = new WebMarkupContainer("actionHideContext");
+	                WebMarkupContainer actionHideContext = new WebMarkupContainer("actionHideContext");
 	                actionPanel.add(actionHideContext);
 	                AjaxLink<CalendarItem> actionHideContextLink = new AjaxLink<CalendarItem>("actionHideContextLink") {
 	                	long context_id = cItem.getContext().getId();
@@ -309,7 +299,7 @@ public class DashboardPage extends BasePage {
 	                actionHideContext.add(actionHideContextLink);
 	                actionHideContextLink.add(new Label("actionHideContextLabel", "Dump everything from " + siteTitle + " in the TrAsH"));
 	                
-	                MarkupContainer actionHideTypeInContext = new WebMarkupContainer("actionHideTypeInContext");
+	                WebMarkupContainer actionHideTypeInContext = new WebMarkupContainer("actionHideTypeInContext");
 	                actionPanel.add(actionHideTypeInContext);
 	                AjaxLink<CalendarItem> actionHideTypeInContextLink = new AjaxLink<CalendarItem>("actionHideTypeInContextLink") {
 	                	long type_id = cItem.getSourceType().getId();
@@ -359,13 +349,13 @@ public class DashboardPage extends BasePage {
         	}
         });
         
-        add(calendarItemsDiv);
+        dashboardPage.add(calendarItemsDiv);
         
-        final MarkupContainer newsItemsDiv = new WebMarkupContainer("newsItemsDiv");
+        final WebMarkupContainer newsItemsDiv = new WebMarkupContainer("newsItemsDiv");
         newsItemsDiv.setOutputMarkupId(true);
         
         @SuppressWarnings("rawtypes")
-		AjaxLink currentNewsLink = new AjaxLink("link") {
+		AjaxLink currentNewsLink = new AjaxLink("link", new PropertyModel<String>(this, "selectedNewsTab")) {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
@@ -380,15 +370,15 @@ public class DashboardPage extends BasePage {
         	
         };
         currentNewsLink.add(new Label("label", rl.getString("dash.news.current")));
-		MarkupContainer currentNewsTab = new WebMarkupContainer("currentNewsTab");
-		if(selectedNewsTab != null && "current".equalsIgnoreCase(selectedNewsTab)) {
+		WebMarkupContainer currentNewsTab = new WebMarkupContainer("currentNewsTab");
+		if(selectedNewsTab == null || "current".equalsIgnoreCase(selectedNewsTab)) {
 			currentNewsTab.add(new SimpleAttributeModifier("class", "activeTab"));
 		}
 		currentNewsTab.add(currentNewsLink);
 		newsItemsDiv.add(currentNewsTab);
 
         @SuppressWarnings("rawtypes")
-		AjaxLink starredNewsLink = new AjaxLink("link") {
+		AjaxLink starredNewsLink = new AjaxLink("link", new PropertyModel<String>(this, "selectedNewsTab")) {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
@@ -403,7 +393,7 @@ public class DashboardPage extends BasePage {
         	
         };
         starredNewsLink.add(new Label("label", rl.getString("dash.news.starred")));
-		MarkupContainer starredNewsTab = new WebMarkupContainer("starredNewsTab");
+		WebMarkupContainer starredNewsTab = new WebMarkupContainer("starredNewsTab");
 		if(selectedNewsTab != null && "starred".equalsIgnoreCase(selectedNewsTab)) {
 			starredNewsTab.add(new SimpleAttributeModifier("class", "activeTab"));
 		}
@@ -411,7 +401,7 @@ public class DashboardPage extends BasePage {
 		newsItemsDiv.add(starredNewsTab);
 
         @SuppressWarnings("rawtypes")
-		AjaxLink hiddenNewsLink = new AjaxLink("link") {
+		AjaxLink hiddenNewsLink = new AjaxLink("link", new PropertyModel<String>(this, "selectedNewsTab")) {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
@@ -426,7 +416,7 @@ public class DashboardPage extends BasePage {
         	
         };
         hiddenNewsLink.add(new Label("label", rl.getString("dash.news.hidden")));
-		MarkupContainer hiddenNewsTab = new WebMarkupContainer("hiddenNewsTab");
+		WebMarkupContainer hiddenNewsTab = new WebMarkupContainer("hiddenNewsTab");
 		if(selectedNewsTab != null && "hidden".equalsIgnoreCase(selectedNewsTab)) {
 			hiddenNewsTab.add(new SimpleAttributeModifier("class", "activeTab"));
 		}
@@ -455,10 +445,10 @@ public class DashboardPage extends BasePage {
                 item.add(new ExternalLink("siteLink", nItem.getContext().getContextUrl(), siteTitle));
                 item.add(new Label("newsTime", new SimpleDateFormat(DATETIME_FORMAT).format(nItem.getNewsTime())));
                 
-                MarkupContainer actionPanel = new WebMarkupContainer("actionPanel");
+                WebMarkupContainer actionPanel = new WebMarkupContainer("actionPanel");
                 item.add(actionPanel);
                 
-                MarkupContainer actionKeepThis = new WebMarkupContainer("actionKeepThis");
+                WebMarkupContainer actionKeepThis = new WebMarkupContainer("actionKeepThis");
                 actionPanel.add(actionKeepThis);
                 AjaxLink<NewsItem> actionKeepThisLink = new AjaxLink<NewsItem>("actionKeepThisLink") {
                 	protected long newsItemId = nItem.getId();
@@ -481,7 +471,7 @@ public class DashboardPage extends BasePage {
                 actionKeepThis.add(actionKeepThisLink);
                 actionKeepThisLink.add(new Label("actionKeepThisLabel", "Make me stay here"));
                 
-                MarkupContainer actionHideThis = new WebMarkupContainer("actionHideThis");
+                WebMarkupContainer actionHideThis = new WebMarkupContainer("actionHideThis");
                 actionPanel.add(actionHideThis);
                 AjaxLink<NewsItem> actionHideThisLink = new AjaxLink<NewsItem>("actionHideThisLink") {
                 	protected long newsItemId = nItem.getId();
@@ -504,7 +494,7 @@ public class DashboardPage extends BasePage {
                 actionHideThis.add(actionHideThisLink);
                 actionHideThisLink.add(new Label("actionHideThisLabel", "Dump me in the TrAsH"));
                 
-                MarkupContainer actionHideType = new WebMarkupContainer("actionHideType");
+                WebMarkupContainer actionHideType = new WebMarkupContainer("actionHideType");
                 actionPanel.add(actionHideType);
                 AjaxLink<NewsItem> actionHideTypeLink = new AjaxLink<NewsItem>("actionHideTypeLink") {
                 	long sourceTypeId = nItem.getSourceType().getId();
@@ -525,7 +515,7 @@ public class DashboardPage extends BasePage {
                 actionHideType.add(actionHideTypeLink);
                 actionHideTypeLink.add(new Label("actionHideTypeLabel", "Dump all " + itemType + "s in the tRaSh"));
                 
-                MarkupContainer actionHideContext = new WebMarkupContainer("actionHideContext");
+                WebMarkupContainer actionHideContext = new WebMarkupContainer("actionHideContext");
                 actionPanel.add(actionHideContext);
                 AjaxLink<NewsItem> actionHideContextLink = new AjaxLink<NewsItem>("actionHideContextLink") {
                 	long context_id = nItem.getContext().getId();
@@ -546,7 +536,7 @@ public class DashboardPage extends BasePage {
                 actionHideContext.add(actionHideContextLink);
                 actionHideContextLink.add(new Label("actionHideContextLabel", "Dump everything from " + siteTitle + " in the TrAsH"));
                 
-                MarkupContainer actionHideTypeInContext = new WebMarkupContainer("actionHideTypeInContext");
+                WebMarkupContainer actionHideTypeInContext = new WebMarkupContainer("actionHideTypeInContext");
                 actionPanel.add(actionHideTypeInContext);
                 AjaxLink<NewsItem> actionHideTypeInContextLink = new AjaxLink<NewsItem>("actionHideTypeInContextLink") {
                 	long type_id = nItem.getSourceType().getId();
@@ -598,7 +588,7 @@ public class DashboardPage extends BasePage {
         	}
         });
         
-        add(newsItemsDiv);
+        dashboardPage.add(newsItemsDiv);
         
         AbstractAjaxBehavior entityDetailRequest = new AbstractAjaxBehavior() {
 
@@ -660,8 +650,8 @@ public class DashboardPage extends BasePage {
 	 			}
 			}
         };
-        add(entityDetailRequest);
-        add(new Label("callbackUrl", entityDetailRequest.getCallbackUrl().toString()));
+        dashboardPage.add(entityDetailRequest);
+        dashboardPage.add(new Label("callbackUrl", entityDetailRequest.getCallbackUrl().toString()));
 	}
 		
 	/**
@@ -988,6 +978,34 @@ public class DashboardPage extends BasePage {
 		json.element("title", newsItem.getTitle());
 		json.element("iconUrl", dashboardLogic.getEntityIconUrl(newsItem.getSourceType().getIdentifier(), newsItem.getSubtype()));
 		return json;
+	}
+
+	/**
+	 * @return the selectedCalendarTab
+	 */
+	public String getSelectedCalendarTab() {
+		return selectedCalendarTab;
+	}
+
+	/**
+	 * @return the selectedNewsTab
+	 */
+	public String getSelectedNewsTab() {
+		return selectedNewsTab;
+	}
+
+	/**
+	 * @param selectedCalendarTab the selectedCalendarTab to set
+	 */
+	public void setSelectedCalendarTab(String selectedCalendarTab) {
+		this.selectedCalendarTab = selectedCalendarTab;
+	}
+
+	/**
+	 * @param selectedNewsTab the selectedNewsTab to set
+	 */
+	public void setSelectedNewsTab(String selectedNewsTab) {
+		this.selectedNewsTab = selectedNewsTab;
 	}
 
 }
