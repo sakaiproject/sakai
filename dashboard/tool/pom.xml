@@ -22,6 +22,11 @@
       		<groupId>org.sakaiproject.dash</groupId>
       		<artifactId>dashboard-api</artifactId>
     	</dependency>
+        <dependency>
+            <groupId>org.sakaiproject.dash</groupId>
+			<artifactId>dashboard-bundles</artifactId>
+        </dependency>
+
     	
     	<!-- third party dependencies -->
 		<dependency>

@@ -55,12 +55,7 @@ public class DashboardPage extends BasePage {
 	protected int pageSize = 5;
 
 	NewsItemDataProvider newsItemsProvider;
-	NewsItemDataProvider savedNewsItemsProvider;
-	NewsItemDataProvider hiddenNewsItemsProvider;
 	CalendarItemDataProvider calendarItemsProvider;
-	CalendarItemDataProvider expiredCalendarItemsProvider;
-	CalendarItemDataProvider savedCalendarItemsProvider;
-	CalendarItemDataProvider hiddenCalendarItemsProvider;
 	
 	protected String selectedCalendarTab;
 	protected String selectedNewsTab;
@@ -74,13 +69,7 @@ public class DashboardPage extends BasePage {
 		
 		//get list of items from db, wrapped in a dataprovider
 		newsItemsProvider = new NewsItemDataProvider(false, false);
-		savedNewsItemsProvider = new NewsItemDataProvider(true, false);
-		hiddenNewsItemsProvider = new NewsItemDataProvider(false, true);
-		
 		calendarItemsProvider = new CalendarItemDataProvider(true, false, false, false);
-		expiredCalendarItemsProvider = new CalendarItemDataProvider(false, true, false, false);
-		savedCalendarItemsProvider = new CalendarItemDataProvider(false, false, true, false);
-		hiddenCalendarItemsProvider = new CalendarItemDataProvider(false, false, false, true);
 		
 		ResourceLoader rl = new ResourceLoader("dash_entity");
 		
