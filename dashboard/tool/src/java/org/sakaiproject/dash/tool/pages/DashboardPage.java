@@ -26,6 +26,7 @@ import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.AbstractAjaxBehavior;
+import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -49,6 +50,7 @@ import org.sakaiproject.dash.logic.DashboardLogic;
 import org.sakaiproject.dash.logic.SakaiProxy;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.NewsItem;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * 
@@ -74,6 +76,10 @@ public class DashboardPage extends BasePage {
 	CalendarItemDataProvider savedCalendarItemsProvider;
 	CalendarItemDataProvider hiddenCalendarItemsProvider;
 	
+	protected String selectedCalendarTab = "upcoming";
+	protected String selectedNewsTab = "current";
+	
+	
 	public DashboardPage() {
 		
 		//get list of items from db, wrapped in a dataprovider
@@ -86,63 +92,103 @@ public class DashboardPage extends BasePage {
 		savedCalendarItemsProvider = new CalendarItemDataProvider(false, false, true, false);
 		hiddenCalendarItemsProvider = new CalendarItemDataProvider(false, false, false, true);
 		
-		MarkupContainer calendarItemsDiv = new WebMarkupContainer("calendarItemsDiv");
+		ResourceLoader rl = new ResourceLoader("dash_entity");
+		
+		final MarkupContainer calendarItemsDiv = new WebMarkupContainer("calendarItemsDiv");
+		calendarItemsDiv.setOutputMarkupId(true);
 
         @SuppressWarnings("rawtypes")
-		AjaxLink upcomingCalendarLink = new AjaxLink("upcomingCalendarLink") {
+		AjaxLink upcomingCalendarLink = new AjaxLink("link") {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
 				logger.info("upcomingCalendarLink onClick called");
+				// set currentCalendarTab to "upcoming"
+				selectedCalendarTab = "upcoming";
 				// reset calendar dataview to show upcoming stuff
 				
 				// refresh calendarItemsDiv
+				target.addComponent(calendarItemsDiv);
 			}
         	
         };
-        calendarItemsDiv.add(upcomingCalendarLink);
+        
+        upcomingCalendarLink.add(new Label("label", rl.getString("dash.calendar.upcoming")));
+		MarkupContainer upcomingCalendarTab = new WebMarkupContainer("upcomingCalendarTab");
+		if(selectedCalendarTab != null && "upcoming".equalsIgnoreCase(selectedCalendarTab)) {
+			upcomingCalendarTab.add(new SimpleAttributeModifier("class", "activeTab"));
+		}
+		upcomingCalendarTab.add(upcomingCalendarLink);
+        calendarItemsDiv.add(upcomingCalendarTab);
 
         @SuppressWarnings("rawtypes")
-		AjaxLink pastCalendarLink = new AjaxLink("pastCalendarLink") {
+		AjaxLink pastCalendarLink = new AjaxLink("link") {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
 				logger.info("pastCalendarLink onClick called");
+				// set currentCalendarTab to "past"
+				selectedCalendarTab = "past";
 				// reset calendar dataview to show past stuff
 				
 				// refresh calendarItemsDiv
+				target.addComponent(calendarItemsDiv);
 			}
         	
         };
-        calendarItemsDiv.add(pastCalendarLink);
+        pastCalendarLink.add(new Label("label", rl.getString("dash.calendar.past")));
+		MarkupContainer pastCalendarTab = new WebMarkupContainer("pastCalendarTab");
+		if(selectedCalendarTab != null && "past".equalsIgnoreCase(selectedCalendarTab)) {
+			pastCalendarTab.add(new SimpleAttributeModifier("class", "activeTab"));
+		}
+		pastCalendarTab.add(pastCalendarLink);
+        calendarItemsDiv.add(pastCalendarTab);
 
         @SuppressWarnings("rawtypes")
-		AjaxLink starredCalendarLink = new AjaxLink("starredCalendarLink") {
+		AjaxLink starredCalendarLink = new AjaxLink("link") {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
 				logger.info("starredCalendarLink onClick called");
+				// set currentCalendarTab to "starred"
+				selectedCalendarTab = "starred";
 				// reset calendar dataview to show starred stuff
 				
 				// refresh calendarItemsDiv
+				target.addComponent(calendarItemsDiv);
 			}
         	
         };
-        calendarItemsDiv.add(starredCalendarLink);
+        starredCalendarLink.add(new Label("label", rl.getString("dash.calendar.starred")));
+		MarkupContainer starredCalendarTab = new WebMarkupContainer("starredCalendarTab");
+		if(selectedCalendarTab != null && "starred".equalsIgnoreCase(selectedCalendarTab)) {
+			starredCalendarTab.add(new SimpleAttributeModifier("class", "activeTab"));
+		}
+		starredCalendarTab.add(starredCalendarLink);
+        calendarItemsDiv.add(starredCalendarTab);
 
         @SuppressWarnings("rawtypes")
-		AjaxLink hiddenCalendarLink = new AjaxLink("hiddenCalendarLink") {
+		AjaxLink hiddenCalendarLink = new AjaxLink("link") {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
 				logger.info("hiddenCalendarLink onClick called");
+				// set currentCalendarTab to "hidden"
+				selectedCalendarTab = "hidden";
 				// reset calendar dataview to show hidden stuff
 				
 				// refresh calendarItemsDiv
+				target.addComponent(calendarItemsDiv);
 			}
         	
         };
-        calendarItemsDiv.add(hiddenCalendarLink);
+        hiddenCalendarLink.add(new Label("label", rl.getString("dash.calendar.hidden")));
+		MarkupContainer hiddenCalendarTab = new WebMarkupContainer("hiddenCalendarTab");
+		if(selectedCalendarTab != null && "hidden".equalsIgnoreCase(selectedCalendarTab)) {
+			hiddenCalendarTab.add(new SimpleAttributeModifier("class", "activeTab"));
+		}
+		hiddenCalendarTab.add(hiddenCalendarLink);
+        calendarItemsDiv.add(hiddenCalendarTab);
 
 		//present the calendar data in a table
 		final DataView<CalendarItem> calendarDataView = new DataView<CalendarItem>("calendarItems", calendarItemsProvider) {
@@ -315,49 +361,77 @@ public class DashboardPage extends BasePage {
         
         add(calendarItemsDiv);
         
-        MarkupContainer newsItemsDiv = new WebMarkupContainer("newsItemsDiv");
+        final MarkupContainer newsItemsDiv = new WebMarkupContainer("newsItemsDiv");
+        newsItemsDiv.setOutputMarkupId(true);
         
         @SuppressWarnings("rawtypes")
-		AjaxLink currentNewsLink = new AjaxLink("currentNewsLink") {
+		AjaxLink currentNewsLink = new AjaxLink("link") {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
 				logger.info("currentNewsLink onClick called");
+				// set currentNewsTab to "current"
+				selectedNewsTab = "current";
 				// reset news dataview to show current stuff
 				
 				// refresh newsItemsDiv
+				target.addComponent(newsItemsDiv);
 			}
         	
         };
-        newsItemsDiv.add(currentNewsLink);
-        
+        currentNewsLink.add(new Label("label", rl.getString("dash.news.current")));
+		MarkupContainer currentNewsTab = new WebMarkupContainer("currentNewsTab");
+		if(selectedNewsTab != null && "current".equalsIgnoreCase(selectedNewsTab)) {
+			currentNewsTab.add(new SimpleAttributeModifier("class", "activeTab"));
+		}
+		currentNewsTab.add(currentNewsLink);
+		newsItemsDiv.add(currentNewsTab);
+
         @SuppressWarnings("rawtypes")
-		AjaxLink starredNewsLink = new AjaxLink("starredNewsLink") {
+		AjaxLink starredNewsLink = new AjaxLink("link") {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
 				logger.info("starredNewsLink onClick called");
+				// set currentNewsTab to "starred"
+				selectedNewsTab = "starred";
 				// reset news dataview to show starred stuff
 				
 				// refresh newsItemsDiv
+				target.addComponent(newsItemsDiv);
 			}
         	
         };
-        newsItemsDiv.add(starredNewsLink);
-        
+        starredNewsLink.add(new Label("label", rl.getString("dash.news.starred")));
+		MarkupContainer starredNewsTab = new WebMarkupContainer("starredNewsTab");
+		if(selectedNewsTab != null && "starred".equalsIgnoreCase(selectedNewsTab)) {
+			starredNewsTab.add(new SimpleAttributeModifier("class", "activeTab"));
+		}
+		starredNewsTab.add(starredNewsLink);
+		newsItemsDiv.add(starredNewsTab);
+
         @SuppressWarnings("rawtypes")
-		AjaxLink hiddenNewsLink = new AjaxLink("hiddenNewsLink") {
+		AjaxLink hiddenNewsLink = new AjaxLink("link") {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
 				logger.info("hiddenNewsLink onClick called");
+				// set currentNewsTab to "hidden"
+				selectedNewsTab = "hidden";
 				// reset news dataview to show hidden stuff
 				
 				// refresh newsItemsDiv
+				target.addComponent(newsItemsDiv);
 			}
         	
         };
-        newsItemsDiv.add(hiddenNewsLink);
+        hiddenNewsLink.add(new Label("label", rl.getString("dash.news.hidden")));
+		MarkupContainer hiddenNewsTab = new WebMarkupContainer("hiddenNewsTab");
+		if(selectedNewsTab != null && "hidden".equalsIgnoreCase(selectedNewsTab)) {
+			hiddenNewsTab.add(new SimpleAttributeModifier("class", "activeTab"));
+		}
+		hiddenNewsTab.add(hiddenNewsLink);
+		newsItemsDiv.add(hiddenNewsTab);
                 
 		//present the news data in a table
 		final DataView<NewsItem> newsDataView = new DataView<NewsItem>("newsItems", newsItemsProvider) {
@@ -915,6 +989,5 @@ public class DashboardPage extends BasePage {
 		json.element("iconUrl", dashboardLogic.getEntityIconUrl(newsItem.getSourceType().getIdentifier(), newsItem.getSubtype()));
 		return json;
 	}
-
 
 }
