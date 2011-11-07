@@ -86,6 +86,64 @@ public class DashboardPage extends BasePage {
 		savedCalendarItemsProvider = new CalendarItemDataProvider(false, false, true, false);
 		hiddenCalendarItemsProvider = new CalendarItemDataProvider(false, false, false, true);
 		
+		MarkupContainer calendarItemsDiv = new WebMarkupContainer("calendarItemsDiv");
+
+        @SuppressWarnings("rawtypes")
+		AjaxLink upcomingCalendarLink = new AjaxLink("upcomingCalendarLink") {
+
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				logger.info("upcomingCalendarLink onClick called");
+				// reset calendar dataview to show upcoming stuff
+				
+				// refresh calendarItemsDiv
+			}
+        	
+        };
+        calendarItemsDiv.add(upcomingCalendarLink);
+
+        @SuppressWarnings("rawtypes")
+		AjaxLink pastCalendarLink = new AjaxLink("pastCalendarLink") {
+
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				logger.info("pastCalendarLink onClick called");
+				// reset calendar dataview to show past stuff
+				
+				// refresh calendarItemsDiv
+			}
+        	
+        };
+        calendarItemsDiv.add(pastCalendarLink);
+
+        @SuppressWarnings("rawtypes")
+		AjaxLink starredCalendarLink = new AjaxLink("starredCalendarLink") {
+
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				logger.info("starredCalendarLink onClick called");
+				// reset calendar dataview to show starred stuff
+				
+				// refresh calendarItemsDiv
+			}
+        	
+        };
+        calendarItemsDiv.add(starredCalendarLink);
+
+        @SuppressWarnings("rawtypes")
+		AjaxLink hiddenCalendarLink = new AjaxLink("hiddenCalendarLink") {
+
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				logger.info("hiddenCalendarLink onClick called");
+				// reset calendar dataview to show hidden stuff
+				
+				// refresh calendarItemsDiv
+			}
+        	
+        };
+        calendarItemsDiv.add(hiddenCalendarLink);
+
 		//present the calendar data in a table
 		final DataView<CalendarItem> calendarDataView = new DataView<CalendarItem>("calendarItems", calendarItemsProvider) {
 
@@ -233,10 +291,10 @@ public class DashboardPage extends BasePage {
         };
         calendarDataView.setItemReuseStrategy(new DefaultItemReuseStrategy());
         calendarDataView.setItemsPerPage(pageSize);
-        add(calendarDataView);
+        calendarItemsDiv.add(calendarDataView);
 
         //add a pager to our table, only visible if we have more than 5 items
-        add(new PagingNavigator("calendarNavigator", calendarDataView) {
+        calendarItemsDiv.add(new PagingNavigator("calendarNavigator", calendarDataView) {
         	
         	@Override
         	public boolean isVisible() {
@@ -255,159 +313,52 @@ public class DashboardPage extends BasePage {
         	}
         });
         
-		//present the calendar data in a table
-		final DataView<CalendarItem> expiredCalendarDataView = new DataView<CalendarItem>("expiredCalendarItems", expiredCalendarItemsProvider) {
+        add(calendarItemsDiv);
+        
+        MarkupContainer newsItemsDiv = new WebMarkupContainer("newsItemsDiv");
+        
+        @SuppressWarnings("rawtypes")
+		AjaxLink currentNewsLink = new AjaxLink("currentNewsLink") {
 
 			@Override
-			protected void populateItem(Item<CalendarItem> item) {
-				if(item != null && item.getModelObject() != null) {
-	                final CalendarItem cItem = (CalendarItem) item.getModelObject();
-	                if(logger.isDebugEnabled()) {
-	                	logger.debug(this + "populateItem()  item: " + item);
-	                }
-	                String itemType = cItem.getSourceType().getIdentifier();
-	                item.add(new Label("expiredCalendarItemType", itemType));
-	                item.add(new Label("itemCount", "1"));
-	                item.add(new Label("expiredCalendarEntityReference", cItem.getEntityReference()));
-	                String calendarTimeLabel = dashboardLogic.getString(cItem.getCalendarTimeLabelKey(), "", itemType);
-	                if(calendarTimeLabel == null) {
-	                	calendarTimeLabel = "";
-	                }
-					item.add(new Label("expiredCalendarTimeLabel", calendarTimeLabel ));
-	                item.add(new Label("expiredCalendarDate", new SimpleDateFormat(DATE_FORMAT).format(cItem.getCalendarTime())));
-	                item.add(new Label("expiredCalendarTime", new SimpleDateFormat(TIME_FORMAT).format(cItem.getCalendarTime())));
-	                
-	                item.add(new ExternalLink("expiredCalendarItemLink", "#", cItem.getTitle()));
-	                item.add(new ExternalLink("expiredCalendarSiteLink", cItem.getContext().getContextUrl(), cItem.getContext().getContextTitle()));
-				}
-	      
+			public void onClick(AjaxRequestTarget target) {
+				logger.info("currentNewsLink onClick called");
+				// reset news dataview to show current stuff
+				
+				// refresh newsItemsDiv
 			}
-		};
-		
-		expiredCalendarDataView.setItemReuseStrategy(new DefaultItemReuseStrategy());
-		expiredCalendarDataView.setItemsPerPage(pageSize);
-		
-		add(expiredCalendarDataView);
-		add(new PagingNavigator("expiredCalendarNavigator", expiredCalendarDataView){
-        	@Override
-        	public boolean isVisible() {
-        		if(expiredCalendarItemsProvider.size() > pageSize) {
-        			return true;
-        		}
-        		return false;
-        	}
         	
-        	@Override
-        	public void onBeforeRender() {
-        		super.onBeforeRender();
-        		
-        		//clear the feedback panel messages
-        		clearFeedback(feedbackPanel);
-        	}
- 		});
+        };
+        newsItemsDiv.add(currentNewsLink);
         
-		//present the calendar data in a table
-		final DataView<CalendarItem> savedCalendarDataView = new DataView<CalendarItem>("savedCalendarItems", savedCalendarItemsProvider) {
+        @SuppressWarnings("rawtypes")
+		AjaxLink starredNewsLink = new AjaxLink("starredNewsLink") {
 
 			@Override
-			protected void populateItem(Item<CalendarItem> item) {
-				if(item != null && item.getModelObject() != null) {
-	                final CalendarItem cItem = (CalendarItem) item.getModelObject();
-	                if(logger.isDebugEnabled()) {
-	                	logger.debug(this + "populateItem()  item: " + item);
-	                }
-	                String itemType = cItem.getSourceType().getIdentifier();
-	                item.add(new Label("savedCalendarItemType", itemType));
-	                item.add(new Label("itemCount", "1"));
-	                item.add(new Label("savedCalendarEntityReference", cItem.getEntityReference()));
-	                String calendarTimeLabel = dashboardLogic.getString(cItem.getCalendarTimeLabelKey(), "", itemType);
-	                if(calendarTimeLabel == null) {
-	                	calendarTimeLabel = "";
-	                }
-					item.add(new Label("savedCalendarTimeLabel", calendarTimeLabel ));
-	                item.add(new Label("savedCalendarDate", new SimpleDateFormat(DATE_FORMAT).format(cItem.getCalendarTime())));
-	                item.add(new Label("savedCalendarTime", new SimpleDateFormat(TIME_FORMAT).format(cItem.getCalendarTime())));
-	                
-	                item.add(new ExternalLink("savedCalendarItemLink", "#", cItem.getTitle()));
-	                item.add(new ExternalLink("savedCalendarSiteLink", cItem.getContext().getContextUrl(), cItem.getContext().getContextTitle()));
-				}
-	      
+			public void onClick(AjaxRequestTarget target) {
+				logger.info("starredNewsLink onClick called");
+				// reset news dataview to show starred stuff
+				
+				// refresh newsItemsDiv
 			}
-		};
-		
-		savedCalendarDataView.setItemReuseStrategy(new DefaultItemReuseStrategy());
-		savedCalendarDataView.setItemsPerPage(pageSize);
-		
-		add(savedCalendarDataView);
-		add(new PagingNavigator("savedCalendarNavigator", savedCalendarDataView){
-        	@Override
-        	public boolean isVisible() {
-        		if(savedCalendarItemsProvider.size() > pageSize) {
-        			return true;
-        		}
-        		return false;
-        	}
         	
-        	@Override
-        	public void onBeforeRender() {
-        		super.onBeforeRender();
-        		
-        		//clear the feedback panel messages
-        		clearFeedback(feedbackPanel);
-        	}
- 		});
+        };
+        newsItemsDiv.add(starredNewsLink);
         
-		//present the calendar data in a table
-		final DataView<CalendarItem> hiddenCalendarDataView = new DataView<CalendarItem>("hiddenCalendarItems", hiddenCalendarItemsProvider) {
+        @SuppressWarnings("rawtypes")
+		AjaxLink hiddenNewsLink = new AjaxLink("hiddenNewsLink") {
 
 			@Override
-			protected void populateItem(Item<CalendarItem> item) {
-				if(item != null && item.getModelObject() != null) {
-	                final CalendarItem cItem = (CalendarItem) item.getModelObject();
-	                if(logger.isDebugEnabled()) {
-	                	logger.debug(this + "populateItem()  item: " + item);
-	                }
-	                String itemType = cItem.getSourceType().getIdentifier();
-	                item.add(new Label("hiddenCalendarItemType", itemType));
-	                item.add(new Label("itemCount", "1"));
-	                item.add(new Label("hiddenCalendarEntityReference", cItem.getEntityReference()));
-	                String calendarTimeLabel = dashboardLogic.getString(cItem.getCalendarTimeLabelKey(), "", itemType);
-	                if(calendarTimeLabel == null) {
-	                	calendarTimeLabel = "";
-	                }
-					item.add(new Label("hiddenCalendarTimeLabel", calendarTimeLabel ));
-	                item.add(new Label("hiddenCalendarDate", new SimpleDateFormat(DATE_FORMAT).format(cItem.getCalendarTime())));
-	                item.add(new Label("hiddenCalendarTime", new SimpleDateFormat(TIME_FORMAT).format(cItem.getCalendarTime())));
-	                
-	                item.add(new ExternalLink("hiddenCalendarItemLink", "#", cItem.getTitle()));
-	                item.add(new ExternalLink("hiddenCalendarSiteLink", cItem.getContext().getContextUrl(), cItem.getContext().getContextTitle()));
-				}
-	      
+			public void onClick(AjaxRequestTarget target) {
+				logger.info("hiddenNewsLink onClick called");
+				// reset news dataview to show hidden stuff
+				
+				// refresh newsItemsDiv
 			}
-		};
-		
-		hiddenCalendarDataView.setItemReuseStrategy(new DefaultItemReuseStrategy());
-		hiddenCalendarDataView.setItemsPerPage(pageSize);
-		
-		add(hiddenCalendarDataView);
-		add(new PagingNavigator("hiddenCalendarNavigator", hiddenCalendarDataView){
-        	@Override
-        	public boolean isVisible() {
-        		if(hiddenCalendarItemsProvider.size() > pageSize) {
-        			return true;
-        		}
-        		return false;
-        	}
         	
-        	@Override
-        	public void onBeforeRender() {
-        		super.onBeforeRender();
-        		
-        		//clear the feedback panel messages
-        		clearFeedback(feedbackPanel);
-        	}
- 		});
-        
+        };
+        newsItemsDiv.add(hiddenNewsLink);
+                
 		//present the news data in a table
 		final DataView<NewsItem> newsDataView = new DataView<NewsItem>("newsItems", newsItemsProvider) {
 
@@ -551,10 +502,10 @@ public class DashboardPage extends BasePage {
         
         newsDataView.setItemReuseStrategy(new DefaultItemReuseStrategy());
         newsDataView.setItemsPerPage(pageSize);
-        add(newsDataView);
+        newsItemsDiv.add(newsDataView);
 
         //add a pager to our table, only visible if we have more than 5 items
-        add(new PagingNavigator("newsNavigator", newsDataView) {
+        newsItemsDiv.add(new PagingNavigator("newsNavigator", newsDataView) {
         	
         	@Override
         	public boolean isVisible() {
@@ -573,98 +524,8 @@ public class DashboardPage extends BasePage {
         	}
         });
         
-		final DataView<NewsItem> savedNewsDataView = new DataView<NewsItem>("savedNewsItems", savedNewsItemsProvider) {
-
-			@Override
-			public void populateItem(final Item item) {
-                final NewsItem nItem = (NewsItem) item.getModelObject();
-                if(logger.isDebugEnabled()) {
-                	logger.debug(this + "populateItem()  item: " + item);
-                }
-                
-                String itemType = nItem.getSourceType().getIdentifier();
-                item.add(new Label("itemType", itemType));
-                item.add(new Label("itemCount", Integer.toString(nItem.getItemCount())));
-                item.add(new Label("entityReference", nItem.getEntityReference()));
-
-                String siteTitle = nItem.getContext().getContextTitle();
-                item.add(new ExternalLink("itemLink", "#", nItem.getTitle()));
-                item.add(new ExternalLink("siteLink", nItem.getContext().getContextUrl(), siteTitle));
-                item.add(new Label("newsTime", new SimpleDateFormat(DATETIME_FORMAT).format(nItem.getNewsTime())));
-                
-			}
-		};
-
-        savedNewsDataView.setItemReuseStrategy(new DefaultItemReuseStrategy());
-        savedNewsDataView.setItemsPerPage(pageSize);
-        add(savedNewsDataView);
-
-        //add a pager to our table, only visible if we have more than 5 items
-        add(new PagingNavigator("savedNewsNavigator", savedNewsDataView) {
-        	
-        	@Override
-        	public boolean isVisible() {
-        		if(savedNewsItemsProvider.size() > pageSize) {
-        			return true;
-        		}
-        		return false;
-        	}
-        	
-        	@Override
-        	public void onBeforeRender() {
-        		super.onBeforeRender();
-        		
-        		//clear the feedback panel messages
-        		clearFeedback(feedbackPanel);
-        	}
-        });
+        add(newsItemsDiv);
         
-		final DataView<NewsItem> hiddenNewsDataView = new DataView<NewsItem>("hiddenNewsItems", hiddenNewsItemsProvider) {
-
-			@Override
-			public void populateItem(final Item item) {
-                final NewsItem nItem = (NewsItem) item.getModelObject();
-                if(logger.isDebugEnabled()) {
-                	logger.debug(this + "populateItem()  item: " + item);
-                }
-                
-                String itemType = nItem.getSourceType().getIdentifier();
-                item.add(new Label("itemType", itemType));
-                item.add(new Label("itemCount", Integer.toString(nItem.getItemCount())));
-                item.add(new Label("entityReference", nItem.getEntityReference()));
-
-                String siteTitle = nItem.getContext().getContextTitle();
-                item.add(new ExternalLink("itemLink", "#", nItem.getTitle()));
-                item.add(new ExternalLink("siteLink", nItem.getContext().getContextUrl(), siteTitle));
-                item.add(new Label("newsTime", new SimpleDateFormat(DATETIME_FORMAT).format(nItem.getNewsTime())));
-                
-			}
-		};
-
-        hiddenNewsDataView.setItemReuseStrategy(new DefaultItemReuseStrategy());
-        hiddenNewsDataView.setItemsPerPage(pageSize);
-        add(hiddenNewsDataView);
-
-        //add a pager to our table, only visible if we have more than 5 items
-        add(new PagingNavigator("hiddenNewsNavigator", hiddenNewsDataView) {
-        	
-        	@Override
-        	public boolean isVisible() {
-        		if(hiddenNewsItemsProvider.size() > pageSize) {
-        			return true;
-        		}
-        		return false;
-        	}
-        	
-        	@Override
-        	public void onBeforeRender() {
-        		super.onBeforeRender();
-        		
-        		//clear the feedback panel messages
-        		clearFeedback(feedbackPanel);
-        	}
-        });
-
         AbstractAjaxBehavior entityDetailRequest = new AbstractAjaxBehavior() {
 
 			public void onRequest() {

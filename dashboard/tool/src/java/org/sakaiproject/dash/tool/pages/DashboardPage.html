@@ -28,11 +28,17 @@
                 </div>
                 </div>
                 -->
-                <div id="activeCalendarItems">
+                <div id="activeCalendarItems"  wicket:id="calendarItemsDiv">
                     <table class="listHeader" cellpadding="0" cellspacing="0" border="0">
                         <tr>
                             <td style="width:70%">
-                                <h3 class="withNav">Calendar</h3>
+                               <h3 class="withNav">Calendar</h3>
+			                   <ul>
+			                    	<li><a href="#" wicket:id="upcomingCalendarLink">Upcoming</a></li>
+			                    	<li><a href="#" wicket:id="pastCalendarLink">Past</a></li>
+			                    	<li><a href="#" wicket:id="starredCalendarLink">Starred</a></li>
+			                    	<li><a href="#" wicket:id="hiddenCalendarLink">Hidden</a></li>
+			                   </ul>
                             </td>
                             <td style="width:5%">
                                 <span class="toggle">Toggle</span>
@@ -100,145 +106,16 @@
                         </tr>
                     </table>
                 </div>
-                <div id="expiredCalendarItems" style="display:none;">
-                    <h5>Expired events</h5>
-                    <div class="pager" wicket:id="expiredCalendarNavigator">
-                    </div>
-                    <table cellspacing="0" id="expiredCal-sched" class="sched" summary="List of upcoming tasks. Column 1: date and time when task is due. Column 2: task title and link to get more details. Column 3: link to site where task originated. Column 4: list of options managing items of this type or origin." border="0">
-                        <thead>
-                            <tr class="header">
-                                <th scope="col" class="one date">
-                                    Date and Time
-                                </th>
-                                <th scope="col" class="two">
-                                    Title
-                                </th>
-                                <th scope="col" class="three">
-                                    From site
-                                </th>
-                                <th class="four">
-                                    Action
-                                </th>
-                            </tr>
-                        </thead>
-                        <tr class="" id="item103" wicket:id="expiredCalendarItems">
-                            <td class="one date">
-                                <span wicket:id="expiredCalendarTimeLabel">[Time Label]</span>
-                                <span wicket:id="expiredCalendarDate">[Date]</span>
-                                <span wicket:id="expiredCalendarTime">[Time]</span>
-                                <span wicket:id="expiredCalendarItemType" class="itemType" style="display:none;">[item type]</span>
-                                <span wicket:id="itemCount" class="itemCount" style="display:none;">[item count]</span>
-                                <span wicket:id="expiredCalendarEntityReference" class="entityReference" style="display:none;">[entity reference]</span>
-                            </td>
-                            <td class="tab two">
-                                <a href="#" wicket:id="expiredCalendarItemLink" class="itemLink" target="_top">[Item Title]</a>
-                            </td>
-                            <td class="three">
-                                <a href="#" wicket:id="expiredCalendarSiteLink" class="siteLink" target="_top">[Site Title]</a>
-                            </td>
-                            <td class="x-action four">
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-                <div id="savedCalendarItems" style="display:none">
+                <div id="activeNewsItems" wicket:id="newsItemsDiv">
                     <table class="listHeader" cellpadding="0" cellspacing="0" border="0">
                         <tr>
                             <td style="width:70%">
-                                <h3 class="withNav">Saved events</h3>
-                            </td>
-                            <td style="width:5%">
-                                <span class="toggle">Toggle</span>
-                            </td>
-                            <td style="width:20%">
-                                <div class="pager" wicket:id="savedCalendarNavigator">
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
-                    <table cellspacing="0" id="savedCal-sched" class="sched" summary="List of upcoming tasks. Column 1: date and time when task is due. Column 2: task title and link to get more details. Column 3: link to site where task originated. Column 4: list of options managing items of this type or origin." border="0">
-                        <thead>
-                            <tr class="header">
-                                <th scope="col" class="one date">
-                                    Date and Time
-                                </th>
-                                <th scope="col" class="two">
-                                    Title
-                                </th>
-                                <th scope="col" class="three">
-                                    From site
-                                </th>
-                                <th class="four">
-                                    Action
-                                </th>
-                            </tr>
-                        </thead>
-                        <tr class="one" id="item101" wicket:id="savedCalendarItems">
-                            <td class="one date">
-                                <span wicket:id="savedCalendarTimeLabel">[Time Label]</span>
-                                <span wicket:id="savedCalendarDate">[Date]</span>
-                                <span wicket:id="savedCalendarTime">[Time]</span>
-                                <span wicket:id="savedCalendarItemType" class="itemType" style="display:none;">[item type]</span>
-                                <span wicket:id="itemCount" class="itemCount" style="display:none;">[item count]</span>
-                                <span wicket:id="savedCalendarEntityReference" class="entityReference" style="display:none;">[entity reference]</span>
-                            </td>
-                            <td class="tab two">
-                                <a href="#" wicket:id="savedCalendarItemLink" class="itemLink" target="_top">[Item Title]</a>
-                            </td>
-                            <td class="three">
-                                <a href="#" wicket:id="savedCalendarSiteLink" class="siteLink" target="_top">[Site Title]</a>
-                            </td>
-                            <td class="x-action four">
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-                <div id="hiddenCalendarItems" style="display:none;">
-                    <h5>Hidden events</h5>
-                    <div class="pager" wicket:id="hiddenCalendarNavigator">
-                    </div>
-                    <table cellspacing="0" id="hiddenCal-sched" class="sched" summary="List of upcoming tasks. Column 1: date and time when task is due. Column 2: task title and link to get more details. Column 3: link to site where task originated. Column 4: list of options managing items of this type or origin." border="0">
-                        <thead>
-                            <tr class="header">
-                                <th scope="col" class="one date">
-                                    Date and Time
-                                </th>
-                                <th scope="col" class="two">
-                                    Title
-                                </th>
-                                <th scope="col" class="three">
-                                    From site
-                                </th>
-                                <th class="four">
-                                    Action
-                                </th>
-                            </tr>
-                        </thead>
-                        <tr class="" id="item102" wicket:id="hiddenCalendarItems">
-                            <td class="one date">
-                                <span wicket:id="hiddenCalendarTimeLabel">[Time Label]</span>
-                                <span wicket:id="hiddenCalendarDate">[Date]</span>
-                                <span wicket:id="hiddenCalendarTime">[Time]</span>
-                                <span wicket:id="hiddenCalendarItemType" class="itemType" style="display:none;">[item type]</span>
-                                <span wicket:id="itemCount" class="itemCount" style="display:none;">[item count]</span>
-                                <span wicket:id="hiddenCalendarEntityReference" class="entityReference" style="display:none;">[entity reference]</span>
-                            </td>
-                            <td class="tab two">
-                                <a href="#" wicket:id="hiddenCalendarItemLink" class="itemLink" target="_top">[Item Title]</a>
-                            </td>
-                            <td class="three">
-                                <a href="#" wicket:id="hiddenCalendarSiteLink" class="siteLink" target="_top">[Site Title]</a>
-                            </td>
-                            <td class="x-action four">
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-                <div id="activeNewsItems">
-                    <table class="listHeader" cellpadding="0" cellspacing="0" border="0">
-                        <tr>
-                            <td style="width:70%">
-                                <h3 class="withNav">Recent Activity</h3>
+                               <h3 class="withNav">Recent Activity</h3>
+			                   <ul>
+			                    	<li><a href="#" wicket:id="currentNewsLink">Current Stuff</a></li>
+			                    	<li><a href="#" wicket:id="starredNewsLink">Starred</a></li>
+			                    	<li><a href="#" wicket:id="hiddenNewsLink">Hidden</a></li>
+			                   </ul>
                             </td>
                             <td style="width:5%">
                                 <span class="toggle">Toggle</span>
@@ -302,99 +179,6 @@
                                         <a href="#" wicket:id="actionHideTypeInContextLink"><span wicket:id="actionHideTypeInContextLabel">Block all ?? items from ??</span></a>
                                     </li>
                                 </ul>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-                <div id="savedNewsItems" style="display:none">
-                    <table class="listHeader" cellpadding="0" cellspacing="0" border="0">
-                        <tr>
-                            <td style="width:70%">
-                                <h3 class="withNav">Saved News</h3>
-                            </td>
-                            <td style="width:5%">
-                                <span class="toggle"></span>
-                            </td>
-                            <td style="width:20%">
-                                <div class="pager" wicket:id="savedNewsNavigator">
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
-                    <table cellspacing="0" id="savedNews" class="news" summary="List of recent events. Column 1: link to details on item. Column 2: link to site where event took place. Column 3: date and time when event took place. Column 4: list of options managing items of this type or origin." border="0">
-                        <thead>
-                            <tr class="header">
-                                <th scope="col" class="one">
-                                    What
-                                </th>
-                                <th scope="col" class="two">
-                                    From where
-                                </th>
-                                <th scope="col" class="three">
-                                    When
-                                </th>
-                                <th class="four">
-                                    Action
-                                </th>
-                            </tr>
-                        </thead>
-                        <tr class="alt newsItem" id="item11" wicket:id="savedNewsItems">
-                            <td class="one">
-                                <span wicket:id="itemType" class="itemType" style="display:none;">[item type]</span>
-                                <span wicket:id="itemCount" class="itemCount" style="display:none;">[item count]</span>
-                                <span wicket:id="entityReference" class="entityReference" style="display:none;">[entity reference]</span>
-                            </td>
-                            <td class="two date">
-                                <span wicket:id="newsTime">[news time]</span>
-                            </td>
-                            <td class="tab three">
-                                <a href="#" wicket:id="itemLink" class="itemLink" target="_top">[item title]</a>
-                            </td>
-                            <td class="four">
-                                <a href="#" wicket:id="siteLink" class="siteLink" target="_top">[site title]</a>
-                            </td>
-                            <td class="action five">
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-                <div id="hiddenNewsItems" style="display:none;">
-                    <h5>Hidden news</h5>
-                    <div class="pager" wicket:id="hiddenNewsNavigator">
-                    </div>
-                    <table cellspacing="0" id="news" class="news" summary="List of recent events. Column 1: link to details on item. Column 2: link to site where event took place. Column 3: date and time when event took place. Column 4: list of options managing items of this type or origin." border="0">
-                        <thead>
-                            <tr class="header">
-                                <th scope="col" class="one">
-                                    What
-                                </th>
-                                <th scope="col" class="two">
-                                    From where
-                                </th>
-                                <th scope="col" class="three">
-                                    When
-                                </th>
-                                <th class="four">
-                                    Action
-                                </th>
-                            </tr>
-                        </thead>
-                        <tr class="alt newsItem" id="item11" wicket:id="hiddenNewsItems">
-                            <td class="one">
-                                <span wicket:id="itemType" class="itemType" style="display:none;">[item type]</span>
-                                <span wicket:id="itemCount" class="itemCount" style="display:none;">[item count]</span>
-                                <span wicket:id="entityReference" class="entityReference" style="display:none;">[entity reference]</span>
-                            </td>
-                            <td class="two date">
-                                <span wicket:id="newsTime">[news time]</span>
-                            </td>
-                            <td class="tab three">
-                                <a href="#" wicket:id="itemLink" class="itemLink" target="_top">[item title]</a>
-                            </td>
-                            <td class="four">
-                                <a href="#" wicket:id="siteLink" class="siteLink" target="_top">[site title]</a>
-                            </td>
-                            <td class="action five">
                             </td>
                         </tr>
                     </table>
