@@ -14,6 +14,7 @@
                 <include>org.sakaiproject.scheduler:scheduler-api:jar:*</include>
                 <include>org.sakaiproject.scheduler:scheduler-events-model:jar:*</include>
                 <include>org.sakaiproject.scheduler:scheduler-component-shared:jar:*</include>
+                <include>org.sakaiproject.scheduler:scheduler-test-component-shared:jar:*</include>
                 <include>org.opensymphony.quartz:quartz:jar:*</include>
             </includes>
             <unpack>false</unpack>
@@ -26,6 +27,14 @@
             </includes>
             <unpack>true</unpack>
         </dependencySet>
+        <dependencySet>
+            <outputDirectory>components/scheduler-test-component</outputDirectory>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <includes>
+                <include>org.sakaiproject.scheduler:scheduler-test-component:war:*</include>
+            </includes>
+            <unpack>true</unpack>
+        </dependencySet> 
         <dependencySet>
             <outputDirectory>webapps/</outputDirectory>
             <outputFileNameMapping>${artifact.artifactId}.war</outputFileNameMapping>

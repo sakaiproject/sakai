@@ -18,18 +18,14 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>scheduler-api</artifactId>
             <version>${project.version}</version>
+            <type>jar</type>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>scheduler-events-model</artifactId>
             <version>${project.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>scheduler-component-shared</artifactId>
-            <version>${project.version}</version>
+            <type>jar</type>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -37,7 +33,27 @@
             <artifactId>scheduler-component</artifactId>
             <version>${project.version}</version>
             <type>war</type>
-            <!-- <type>sakai-component</type> -->
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>scheduler-component-shared</artifactId>
+            <version>${project.version}</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>    
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>scheduler-test-component</artifactId>
+            <version>${project.version}</version>
+            <type>war</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>scheduler-test-component-shared</artifactId>
+            <version>${project.version}</version>
+            <type>jar</type>
             <scope>compile</scope>
         </dependency>
         <dependency>
