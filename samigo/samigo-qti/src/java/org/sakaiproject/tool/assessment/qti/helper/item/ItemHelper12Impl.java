@@ -23,6 +23,7 @@
 
 package org.sakaiproject.tool.assessment.qti.helper.item;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,10 +34,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -45,6 +50,7 @@ import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.helper.AuthoringXml;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
+import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
 
 /**
@@ -495,7 +501,122 @@ public class ItemHelper12Impl extends ItemHelperBase
 	  }
 	  updateAllSourceMatchGroup(itemXml);
   }
+  
+  /**
+   * setItemTextCalculatedQuestion() adds the variables and formulas associated with 
+   * the Calculated Question.  Variables and Formulas are both stored in sam_itemtext_t and
+   * sam_answer_t table.  This function adds those variable and formula definitions to
+   * the item/presentation/flow path
+   * @param itemTextList list of all variables and formulas (stored as ItemTextIfc and AnswerIfc
+   * objects)
+   * @param itemXml XML document to be updated.  New data will be appended under "item/presentation/flow"
+   */
+  private void setItemTextCalculatedQuestion(List<ItemTextIfc> itemTextList, Item itemXml) {
+      String xpath = "item/presentation/flow";
+      itemXml.add(xpath, "variables");
+      itemXml.add(xpath, "formulas");
+      GradingService gs = new GradingService();
+      String instructions = itemXml.getItemText();
+      List<String> formulaNames = gs.extractFormulas(instructions);
+      List<String> variableNames = gs.extractVariables(instructions);
+      for (ItemTextIfc itemText : itemTextList) {
+          if (variableNames.contains(itemText.getText())) {              
+              this.addCalculatedQuestionVariable(itemText, itemXml, xpath + "/variables");
+          }
+          else if (formulaNames.contains(itemText.getText())){
+              this.addCalculatedQuestionFormula(itemText, itemXml, xpath + "/formulas");
+          } else {
+              log.error("Calculated Question export failed, '" + itemText.getText() + "'" +
+                      "was not identified as either a variable or formula, so there must be " +
+                      "an error with the Calculated Question definition, " + 
+                      "question id: " + itemText.getItem().getItemIdString());
+          }
+      }
+  }
 
+  /**
+   * addCalculatedQuestionVariable() adds a new formula node with required subnodes 
+   * into xpath location defined by the calling function
+   * @param itemText - ItemText object, persisted in sam_itemtext_t, which contains 
+   * the data needed for the node 
+   * @param itemXml - XML object being created, with will be the result of the export
+   * @param xpath - where in the XML object the formula should be added
+   * always edit the last node in the array.
+   */
+  private void addCalculatedQuestionVariable(ItemTextIfc itemText, Item itemXml, String xpath) {
+      itemXml.add(xpath, "variable");              
+      String updatedXpath = xpath + "/variable[last()]";
+      try {
+          List<AnswerIfc> answers = itemText.getAnswerArray();
+          
+          // find the matching answer, since the answer list will have multiple answer objects
+          // for each ItemTextIfc object
+          for (AnswerIfc answer : answers) {
+              if (answer.getIsCorrect()) {
+                  String text = answer.getText();
+                  String min = text.substring(0, text.indexOf("|"));
+                  String max = text.substring(text.indexOf("|") + 1, text.indexOf(","));
+                  String decimalPlaces = text.substring(text.indexOf(",") + 1);
+                  
+                  // add nodes
+                  itemXml.add(updatedXpath, "name");
+                  itemXml.update(updatedXpath + "/name", itemText.getText());
+                  itemXml.add(updatedXpath, "min");
+                  itemXml.update(updatedXpath + "/min", min);
+                  itemXml.add(updatedXpath, "max");
+                  itemXml.update(updatedXpath + "/max", max);
+                  itemXml.add(updatedXpath, "decimalPlaces");
+                  itemXml.update(updatedXpath + "/decimalPlaces", decimalPlaces);
+                  break;
+              }
+          }
+      } catch (Exception e) {
+          log.error(e.getMessage(), e);
+      }
+  }
+  
+  /**
+   * addCalculatedQuestionFormula() adds a new formula node with required subnodes 
+   * into xpath location defined by the calling function
+   * @param itemText - ItemText object, persisted in sam_itemtext_t, which contains 
+   * the data needed for the node 
+   * @param itemXml - XML object being created, with will be the result of the export
+   * @param xpath - where in the XML object the formula should be added
+   * always edit the last node in the array.
+   */
+  private void addCalculatedQuestionFormula(ItemTextIfc itemText, Item itemXml, String xpath) {
+      itemXml.add(xpath, "formula");              
+      String updatedXpath = xpath + "/formula[last()]";
+      try {
+          List<AnswerIfc> answers = itemText.getAnswerArray();
+          
+          // find the matching answer, since the answer list will have multiple answer objects
+          // for each ItemTextIfc object
+          for (AnswerIfc answer : answers) {
+              if (answer.getIsCorrect()) {
+                  String text = answer.getText();
+                  String formula = text.substring(0, text.indexOf("|"));
+                  String tolerance = text.substring(text.indexOf("|") + 1, text.indexOf(","));
+                  String decimalPlaces = text.substring(text.indexOf(",") + 1);
+                  
+                  // add nodes
+                  itemXml.add(updatedXpath, "name");
+                  itemXml.update(updatedXpath + "/name", itemText.getText());
+                  itemXml.add(updatedXpath, "formula");
+                  itemXml.update(updatedXpath + "/formula", formula);
+                  itemXml.add(updatedXpath, "tolerance");
+                  itemXml.update(updatedXpath + "/tolerance", tolerance);
+                  itemXml.add(updatedXpath, "decimalPlaces");
+                  itemXml.update(updatedXpath + "/decimalPlaces", decimalPlaces);
+                  break;
+              }
+          }
+      } catch (Exception e) {
+          log.error(e.getMessage(), e);
+      }
+  }
+  
+  
   //////////////////////////////////////////////////////////////////////////////
   // FILL IN THE BLANK
   //////////////////////////////////////////////////////////////////////////////
@@ -1473,6 +1594,10 @@ public class ItemHelper12Impl extends ItemHelperBase
     else if (itemXml.isMXSURVEY()) {
 	        setItemTextMatrix(itemTextList, itemXml);
 	        return;
+    }
+    else if (itemXml.isCalculatedQuestion()) {
+        setItemTextCalculatedQuestion(itemTextList, itemXml);
+        return;
     }
     
     String text = ( (ItemTextIfc) itemTextList.get(0)).getText();

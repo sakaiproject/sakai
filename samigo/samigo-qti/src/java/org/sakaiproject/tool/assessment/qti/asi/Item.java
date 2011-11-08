@@ -387,7 +387,7 @@ public class Item extends ASIBaseClass
   }
 
   // CALCULATED_QUESTION
-  private boolean isCalculatedQuestion()
+  public boolean isCalculatedQuestion()
   {
     return AuthoringConstantStrings.CALCQ.equals(this.getItemType()) ? true : false;
   }
