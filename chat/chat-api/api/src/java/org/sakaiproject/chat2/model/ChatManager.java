@@ -257,5 +257,11 @@ public interface ChatManager extends EntitySummary {
     * @param values Object[] of data to bind into the sql statement
     */
    public void migrateMessage(String sql, Object[] values);
+
+    /**
+     *
+     * @return the max number of messages that are returned from storage
+     */
+   public int getMessagesMax();
    
 }

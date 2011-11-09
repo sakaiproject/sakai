@@ -40,8 +40,7 @@ public class ChatChannel implements Entity {
    public static final String FILTER_TODAY = "SelectTodaysMessages";
    public static final String FILTER_ALL = "SelectAllMessages";
    public static final String FILTER_NONE = "SelectNoneMessages";
-   public static final int MAX_MESSAGES = 250;
-   
+
    private String id;
    private String placement;
    private String context;

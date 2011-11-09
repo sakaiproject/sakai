@@ -1334,14 +1334,14 @@ public class ChatTool implements RoomObserver, PresenceObserver {
        if (Integer.parseInt(getMessageOptions()) == MESSAGEOPTIONS_MESSAGES_BY_DATE) {
            int x = dChannel != null? dChannel.getChatChannel().getTimeParam():0;
            xDaysOld = getChatManager().calculateDateByOffset(x);
-           maxMessages = ChatChannel.MAX_MESSAGES;
+           maxMessages = getChatManager().getMessagesMax();
        }
        else if (Integer.parseInt(getMessageOptions()) == MESSAGEOPTIONS_MESSAGES_BY_NUMBER) {
            int x = dChannel != null?dChannel.getChatChannel().getNumberParam():0;
            maxMessages = x;
        }
        else if (Integer.parseInt(getMessageOptions()) == MESSAGEOPTIONS_ALL_MESSAGES) {
-           maxMessages = ChatChannel.MAX_MESSAGES;
+           maxMessages = getChatManager().getMessagesMax();
        }
        else if (Integer.parseInt(getMessageOptions()) == MESSAGEOPTIONS_NO_MESSAGES) {
            maxMessages = 0;
@@ -1386,8 +1386,8 @@ public class ChatTool implements RoomObserver, PresenceObserver {
     */
    protected List<DecoratedChatMessage> getMessages(String context, Date limitDate, int numMessages, boolean sortAsc)
    {
-      if (numMessages > ChatChannel.MAX_MESSAGES) {
-          numMessages = ChatChannel.MAX_MESSAGES;
+      if (numMessages > getChatManager().getMessagesMax()) {
+          numMessages = getChatManager().getMessagesMax();
       }
       List<ChatMessage> messages = new ArrayList<ChatMessage>();
       try {

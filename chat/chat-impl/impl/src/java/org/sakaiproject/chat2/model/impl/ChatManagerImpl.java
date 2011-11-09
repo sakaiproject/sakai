@@ -1091,4 +1091,8 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
     public void setMessagesMax(int messagesMax) {
         this.messagesMax = messagesMax;
     }
+
+    public int getMessagesMax() {
+        return messagesMax;
+    }
 }
