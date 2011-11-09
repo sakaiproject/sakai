@@ -3905,6 +3905,22 @@ public class SimplePageBean {
 			return null;
 	}
 		
+       private String getYoutubeKeyFromUrl(String URL) {
+	   // 	see if it has a Youtube ID
+	   if (URL.startsWith("http://www.youtube.com/") || URL.startsWith("http://youtube.com/")) {
+	       Matcher match = YOUTUBE_PATTERN.matcher(URL);
+	       if (match.find()) {
+		   return match.group().substring(2);
+	       }
+	   }else if(URL.startsWith("http://youtu.be/")) {
+	       Matcher match = SHORT_YOUTUBE_PATTERN.matcher(URL);
+	       if(match.find()) {
+		   return match.group();
+	       }
+	   }
+	   return null;
+       }
+
     /* 
      * return 11-char youtube ID for a URL, or null if it doesn't match
      * we store URLs as content objects, so we have to retrieve the object
@@ -3958,18 +3974,7 @@ public class SimplePageBean {
 				return null;
 			}
 			
-			// 	see if it has a Youtube ID
-			if (URL.startsWith("http://www.youtube.com/") || URL.startsWith("http://youtube.com/")) {
-				Matcher match = YOUTUBE_PATTERN.matcher(URL);
-				if (match.find()) {
-					return match.group().substring(2);
-				}
-			}else if(URL.startsWith("http://youtu.be/")) {
-				Matcher match = SHORT_YOUTUBE_PATTERN.matcher(URL);
-				if(match.find()) {
-					return match.group();
-				}
-			}
+			return getYoutubeKeyFromUrl(URL);
 			
 		}catch(Exception ex) {
 			ex.printStackTrace();
@@ -4474,12 +4479,12 @@ public class SimplePageBean {
 		SimplePageItem item = findItem(youtubeId);
 
 		// find the new key, if the new thing is a legit youtube url
-		Matcher match = YOUTUBE_PATTERN.matcher(youtubeURL);
-		String key = null;
-		if (match.find()) {
-		    key = match.group().substring(2);
+		String key = getYoutubeKeyFromUrl(youtubeURL);
+		if (key == null) {
+		    setErrMessage(messageLocator.getMessage("simplepage.must_be_youtube"));
+		    return;
 		}
-			
+
 		// oldkey had better work, since the youtube edit woudln't
 		// be displayed if it wasn't recognized
 		String oldkey = getYoutubeKey(item);
