@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+	<wicket:panel>
+	    <div id="activeCalendarItems"  wicket:id="calendarItemsDiv">
+	        <table class="listHeader" cellpadding="0" cellspacing="0" border="0">
+	            <tr>
+	                <td style="width:70%">
+	                   <h3 class="withNav">Calendar</h3>
+	          <ul>
+	           	<li wicket:id="upcomingCalendarTab"><a href="#" wicket:id="link"><span wicket:id="label">[ Upcoming ]</span></a></li>
+	           	<li wicket:id="pastCalendarTab"><a href="#" wicket:id="link"><span wicket:id="label">[ Past ]</span></a></li>
+	           	<li wicket:id="starredCalendarTab"><a href="#" wicket:id="link"><span wicket:id="label">[ Starred ]</span></a></li>
+	           	<li wicket:id="hiddenCalendarTab"><a href="#" wicket:id="link"><span wicket:id="label">[ Hidden ]</span></a></li>
+	          </ul>
+	                </td>
+	                <td style="width:5%">
+	                    <span class="toggle">Toggle</span>
+	                </td>
+	                <td style="width:20%">
+	                    <div class="pager" style="float:right" wicket:id="calendarNavigator">
+	                    </div>
+	                </td>
+	            </tr>
+	        </table>
+	        <table cellspacing="0" id="sched" class="sched" summary="List of upcoming tasks. Column 1: date and time when task is due. Column 2: task title and link to get more details. Column 3: link to site where task originated. Column 4: list of options managing items of this type or origin." border="0">
+	            <thead>
+	                <tr class="header">
+	                    <th scope="col" class="one date">
+	                        Date and Time
+	                    </th>
+	                    <th scope="col" class="two">
+	                        Title
+	                    </th>
+	                    <th scope="col" class="three">
+	                        From site
+	                    </th>
+	                    <th class="four">
+	                        Action
+	                    </th>
+	                </tr>
+	            </thead>
+	            <tr class="" id="item1" wicket:id="calendarItems">
+	                <td class="one date">
+	                    <span wicket:id="calendarTimeLabel">[Time Label]</span>
+	                    <span wicket:id="calendarDate">[Date]</span>
+	                    <span wicket:id="calendarTime">[Time]</span>
+	                    <span wicket:id="itemType" class="itemType" style="display:none;">[item type]</span>
+	                    <span wicket:id="itemCount" class="itemCount" style="display:none;">[item count]</span>
+	                    <span wicket:id="entityReference" class="entityReference" style="display:none;">[entity reference]</span>
+	                </td>
+	                <td class="tab two">
+	                    <a href="#" wicket:id="itemLink" class="itemLink" target="_top">[Item Title]</a>
+	                </td>
+	                <td class="three">
+	                    <a href="#" wicket:id="siteLink" class="siteLink" target="_top">[Site Title]</a>
+	                </td>
+	                <td class="action four">
+	                	<div wicket:id="actionPanel">
+		                    <a href="#" wicket:id="starringAction"><span wicket:id="starringActionLabel">[ Star This]</span></a>
+		                    <a href="#" wicket:id="hidingAction"><span wicket:id="hidingActionLabel">[ Hide This]</span></a>
+	                    </div>
+	                </td>
+	            </tr>
+	        </table>
+	    </div>
+		
+	</wicket:panel>
+</html>

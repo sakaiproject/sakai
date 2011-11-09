@@ -103,7 +103,40 @@ public interface DashboardDao {
 	public List<CalendarItem> getPastCalendarItems(String sakaiUserId, String contextId);
 
 	public List<CalendarItem> getCalendarItemsByContext(String contextId);
+	
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public CalendarLink getCalendarLink(long id);
+	
+	/**
+	 * 
+	 * @param sakaiUserId
+	 * @param contextId
+	 * @param hidden 
+	 * @return
+	 */
+	public List<CalendarLink> getFutureCalendarLinks(String sakaiUserId, String contextId, boolean hidden);
 
+	/**
+	 * 
+	 * @param sakaiUserId
+	 * @param contextId
+	 * @param hidden
+	 * @return
+	 */
+	public List<CalendarLink> getPastCalendarLinks(String sakaiUserId, String contextId, boolean hidden);
+
+	/**
+	 * 
+	 * @param sakaiUserId
+	 * @param contextId
+	 * @return
+	 */
+	public List<CalendarLink> getStarredCalendarLinks(String sakaiUserId, String contextId);
+	
 	public Context getContext(long id);
 	
 	public Context getContext(String contextId);
@@ -254,13 +287,13 @@ public interface DashboardDao {
 
 	public boolean updateNewsItemTime(Long id, Date newTime);
 
-	public abstract boolean updateNewsItemLabelKey(Long id, String labelKey);
+	public boolean updateNewsItemLabelKey(Long id, String labelKey);
 
-	public abstract boolean updateNewsItemSubtype(Long id, String newSubtype);
+	public boolean updateNewsItemSubtype(Long id, String newSubtype);
 
-	public abstract boolean updateCalendarItemSubtype(Long id, String newSubtype);
+	public boolean updateCalendarItemSubtype(Long id, String newSubtype);
 
-	public abstract boolean updateRepeatingCalendarItemsSubtype(String entityReference,
+	public boolean updateRepeatingCalendarItemsSubtype(String entityReference,
 			String labelKey, String newSubtype);
 
 }

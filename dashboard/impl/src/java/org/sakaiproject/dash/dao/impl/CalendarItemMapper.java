@@ -6,6 +6,8 @@ package org.sakaiproject.dash.dao.impl;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.RepeatingCalendarItem;
@@ -17,6 +19,8 @@ import org.springframework.jdbc.core.RowMapper;
  *
  */
 public class CalendarItemMapper implements RowMapper {
+	
+	private static Log logger = LogFactory.getLog(CalendarItemMapper.class);
 
 	/* (non-Javadoc)
 	 * @see org.springframework.jdbc.core.RowMapper#mapRow(java.sql.ResultSet, int)
@@ -42,6 +46,8 @@ public class CalendarItemMapper implements RowMapper {
 		// context
 		Context context = (Context) (new ContextMapper()).mapRow(rs, rowNum);
 		calendarItem.setContext(context);
+		
+		logger.info(calendarItem);
 		
 		return calendarItem;
 	}

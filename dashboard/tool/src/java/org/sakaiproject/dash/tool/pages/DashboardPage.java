@@ -36,6 +36,7 @@ import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.request.target.basic.StringRequestTarget;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.NewsItem;
+import org.sakaiproject.dash.tool.panels.CalendarLinksPanel;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -55,7 +56,6 @@ public class DashboardPage extends BasePage {
 	protected int pageSize = 5;
 
 	NewsItemDataProvider newsItemsProvider;
-	CalendarItemDataProvider calendarItemsProvider;
 	
 	protected String selectedCalendarTab;
 	protected String selectedNewsTab;
@@ -63,283 +63,19 @@ public class DashboardPage extends BasePage {
 	
 	public DashboardPage() {
 		
+		ResourceLoader rl = new ResourceLoader("dash_entity");
+				
 		final WebMarkupContainer dashboardPage = new WebMarkupContainer("dashboard-page");
 		dashboardPage.setOutputMarkupId(true);
 		add(dashboardPage);
 		
+		CalendarLinksPanel calendarPanel = new CalendarLinksPanel("calendarPanel");
+		calendarPanel.setOutputMarkupId(true);
+		dashboardPage.add(calendarPanel);
+		
 		//get list of items from db, wrapped in a dataprovider
 		newsItemsProvider = new NewsItemDataProvider(false, false);
-		calendarItemsProvider = new CalendarItemDataProvider(true, false, false, false);
 		
-		ResourceLoader rl = new ResourceLoader("dash_entity");
-		
-		final WebMarkupContainer calendarItemsDiv = new WebMarkupContainer("calendarItemsDiv");
-		calendarItemsDiv.setOutputMarkupId(true);
-
-        @SuppressWarnings("rawtypes")
-		AjaxLink upcomingCalendarLink = new AjaxLink("link", new PropertyModel<String>(this, "selectedCalendarTab")) {
-
-			@Override
-			public void onClick(AjaxRequestTarget target) {
-				logger.info("upcomingCalendarLink onClick called");
-				// set currentCalendarTab to "upcoming"
-				selectedCalendarTab = "upcoming";
-				// reset calendar dataview to show upcoming stuff
-				
-				// refresh calendarItemsDiv
-				target.addComponent(calendarItemsDiv);
-			}
-        	
-        };
-        
-        upcomingCalendarLink.add(new Label("label", rl.getString("dash.calendar.upcoming")));
-		WebMarkupContainer upcomingCalendarTab = new WebMarkupContainer("upcomingCalendarTab");
-		if(selectedCalendarTab == null || "upcoming".equalsIgnoreCase(selectedCalendarTab)) {
-			upcomingCalendarTab.add(new SimpleAttributeModifier("class", "activeTab"));
-		}
-		upcomingCalendarTab.add(upcomingCalendarLink);
-        calendarItemsDiv.add(upcomingCalendarTab);
-
-        @SuppressWarnings("rawtypes")
-		AjaxLink pastCalendarLink = new AjaxLink("link", new PropertyModel<String>(this, "selectedCalendarTab")) {
-
-			@Override
-			public void onClick(AjaxRequestTarget target) {
-				logger.info("pastCalendarLink onClick called");
-				// set currentCalendarTab to "past"
-				selectedCalendarTab = "past";
-				// reset calendar dataview to show past stuff
-				
-				// refresh calendarItemsDiv
-				target.addComponent(calendarItemsDiv);
-			}
-        	
-        };
-        pastCalendarLink.add(new Label("label", rl.getString("dash.calendar.past")));
-		WebMarkupContainer pastCalendarTab = new WebMarkupContainer("pastCalendarTab");
-		if(selectedCalendarTab != null && "past".equalsIgnoreCase(selectedCalendarTab)) {
-			pastCalendarTab.add(new SimpleAttributeModifier("class", "activeTab"));
-		}
-		pastCalendarTab.add(pastCalendarLink);
-        calendarItemsDiv.add(pastCalendarTab);
-
-        @SuppressWarnings("rawtypes")
-		AjaxLink starredCalendarLink = new AjaxLink("link", new PropertyModel<String>(this, "selectedCalendarTab")) {
-
-			@Override
-			public void onClick(AjaxRequestTarget target) {
-				logger.info("starredCalendarLink onClick called");
-				// set currentCalendarTab to "starred"
-				selectedCalendarTab = "starred";
-				// reset calendar dataview to show starred stuff
-				
-				// refresh calendarItemsDiv
-				target.addComponent(calendarItemsDiv);
-			}
-        	
-        };
-        starredCalendarLink.add(new Label("label", rl.getString("dash.calendar.starred")));
-		WebMarkupContainer starredCalendarTab = new WebMarkupContainer("starredCalendarTab");
-		if(selectedCalendarTab != null && "starred".equalsIgnoreCase(selectedCalendarTab)) {
-			starredCalendarTab.add(new SimpleAttributeModifier("class", "activeTab"));
-		}
-		starredCalendarTab.add(starredCalendarLink);
-        calendarItemsDiv.add(starredCalendarTab);
-
-        @SuppressWarnings("rawtypes")
-		AjaxLink hiddenCalendarLink = new AjaxLink("link", new PropertyModel<String>(this, "selectedCalendarTab")) {
-
-			@Override
-			public void onClick(AjaxRequestTarget target) {
-				logger.info("hiddenCalendarLink onClick called");
-				// set currentCalendarTab to "hidden"
-				selectedCalendarTab = "hidden";
-				// reset calendar dataview to show hidden stuff
-				
-				// refresh calendarItemsDiv
-				target.addComponent(calendarItemsDiv);
-			}
-        	
-        };
-        hiddenCalendarLink.add(new Label("label", rl.getString("dash.calendar.hidden")));
-		WebMarkupContainer hiddenCalendarTab = new WebMarkupContainer("hiddenCalendarTab");
-		if(selectedCalendarTab != null && "hidden".equalsIgnoreCase(selectedCalendarTab)) {
-			hiddenCalendarTab.add(new SimpleAttributeModifier("class", "activeTab"));
-		}
-		hiddenCalendarTab.add(hiddenCalendarLink);
-        calendarItemsDiv.add(hiddenCalendarTab);
-
-		//present the calendar data in a table
-		final DataView<CalendarItem> calendarDataView = new DataView<CalendarItem>("calendarItems", calendarItemsProvider) {
-
-			@Override
-			public void populateItem(final Item item) {
-				if(item != null && item.getModelObject() != null) {
-	                final CalendarItem cItem = (CalendarItem) item.getModelObject();
-	                if(logger.isDebugEnabled()) {
-	                	logger.debug(this + "populateItem()  item: " + item);
-	                }
-	                String itemType = cItem.getSourceType().getIdentifier();
-	                item.add(new Label("itemType", itemType));
-	                item.add(new Label("itemCount", "1"));
-	                item.add(new Label("entityReference", cItem.getEntityReference()));
-	                String calendarTimeLabel = dashboardLogic.getString(cItem.getCalendarTimeLabelKey(), "", itemType);
-	                if(calendarTimeLabel == null) {
-	                	calendarTimeLabel = "";
-	                }
-					item.add(new Label("calendarTimeLabel", calendarTimeLabel ));
-	                item.add(new Label("calendarDate", new SimpleDateFormat(DATE_FORMAT).format(cItem.getCalendarTime())));
-	                item.add(new Label("calendarTime", new SimpleDateFormat(TIME_FORMAT).format(cItem.getCalendarTime())));
-	                
-	                item.add(new ExternalLink("itemLink", "#", cItem.getTitle()));
-	                item.add(new ExternalLink("siteLink", cItem.getContext().getContextUrl(), cItem.getContext().getContextTitle()));
-	      
-	                WebMarkupContainer actionPanel = new WebMarkupContainer("actionPanel");
-	                item.add(actionPanel);
-	                
-	                WebMarkupContainer actionKeepThis = new WebMarkupContainer("actionKeepThis");
-	                actionPanel.add(actionKeepThis);
-	                AjaxLink<CalendarItem> actionKeepThisLink = new AjaxLink<CalendarItem>("actionKeepThisLink") {
-	                	protected long calendarItemId = cItem.getId();
-	                	
-						@Override
-						public void onClick(AjaxRequestTarget target) {
-							logger.info(target.toString());
-							// need to keep one item
-							logger.info(calendarItemId);
-							//logger.info(this.getModelObject());
-							
-							String sakaiUserId = sakaiProxy.getCurrentUserId();
-							boolean sticky = dashboardLogic.keepCalendarItem(sakaiUserId, calendarItemId);
-							
-							// if sticky adjust UI, else report failure?
-						}
-	                	
-	                };
-	                actionKeepThisLink.setDefaultModel(item.getModel());
-	                //actionKeepThisLink.setModelObject(cItem);
-	                
-	                actionKeepThis.add(actionKeepThisLink);
-	                actionKeepThisLink.add(new Label("actionKeepThisLabel", "Make me stay here"));
-	                
-	                WebMarkupContainer actionHideThis = new WebMarkupContainer("actionHideThis");
-	                actionPanel.add(actionHideThis);
-	                AjaxLink<CalendarItem> actionHideThisLink = new AjaxLink<CalendarItem>("actionHideThisLink") {
-	                	protected long calendarItemId = cItem.getId();
-
-						@Override
-						public void onClick(AjaxRequestTarget target) {
-							logger.info(target.toString());
-							// need to trash one item
-							logger.info(calendarItemId);
-							//logger.info(this.getModelObject());
-							String sakaiUserId = sakaiProxy.getCurrentUserId();
-							boolean hidden = dashboardLogic.hideCalendarItem(sakaiUserId, calendarItemId);
-							
-							// if hidden adjust UI, else report failure?
-						}
-	                	
-	                };
-	                actionHideThisLink.setDefaultModel(item.getModel());
-	                //actionHideThisLink.setModelObject(cItem);
-	                actionHideThis.add(actionHideThisLink);
-	                actionHideThisLink.add(new Label("actionHideThisLabel", "Dump me in the TrAsH"));
-	                
-	                WebMarkupContainer actionHideType = new WebMarkupContainer("actionHideType");
-	                actionPanel.add(actionHideType);
-	                AjaxLink<CalendarItem> actionHideTypeLink = new AjaxLink<CalendarItem>("actionHideTypeLink") {
-	                	long type_id = cItem.getSourceType().getId();
-	                	String type_name = cItem.getSourceType().getIdentifier();
-	                	
-						@Override
-						public void onClick(AjaxRequestTarget target) {
-							logger.info(target.toString());
-							// need to trash one kind of item
-							logger.info(type_id + " " + type_name);
-							String sakaiUserId = sakaiProxy.getCurrentUserId();
-							boolean completed = dashboardLogic.hideCalendarItemsBySourceType(sakaiUserId, type_id);
-						}
-	                	
-	                };
-	                actionHideTypeLink.setDefaultModel(item.getModel());
-	                //actionHideTypeLink.setModelObject(cItem);
-	                actionHideType.add(actionHideTypeLink);
-	                actionHideTypeLink.add(new Label("actionHideTypeLabel", "Dump all " + itemType + "s in the tRaSh"));
-	                
-	                String siteTitle = cItem.getContext().getContextTitle();
-	                WebMarkupContainer actionHideContext = new WebMarkupContainer("actionHideContext");
-	                actionPanel.add(actionHideContext);
-	                AjaxLink<CalendarItem> actionHideContextLink = new AjaxLink<CalendarItem>("actionHideContextLink") {
-	                	long context_id = cItem.getContext().getId();
-	                	String contextId = cItem.getContext().getContextId();
-	                	
-						@Override
-						public void onClick(AjaxRequestTarget target) {
-							logger.info(target.toString());
-							// need to trash items from one site
-							logger.info(context_id + " " + contextId);
-							String sakaiUserId = sakaiProxy.getCurrentUserId();
-							boolean completed = dashboardLogic.hideCalendarItemsByContext(sakaiUserId, context_id);
-						}
-	                	
-	                };
-	                actionHideContextLink.setDefaultModel(item.getDefaultModel());
-	                //actionHideContextLink.setModelObject(cItem);
-	                actionHideContext.add(actionHideContextLink);
-	                actionHideContextLink.add(new Label("actionHideContextLabel", "Dump everything from " + siteTitle + " in the TrAsH"));
-	                
-	                WebMarkupContainer actionHideTypeInContext = new WebMarkupContainer("actionHideTypeInContext");
-	                actionPanel.add(actionHideTypeInContext);
-	                AjaxLink<CalendarItem> actionHideTypeInContextLink = new AjaxLink<CalendarItem>("actionHideTypeInContextLink") {
-	                	long type_id = cItem.getSourceType().getId();
-	                	String type_name = cItem.getSourceType().getIdentifier();
-	                	long context_id = cItem.getContext().getId();
-	                	String contextId = cItem.getContext().getContextId();
-
-						@Override
-						public void onClick(AjaxRequestTarget target) {
-							logger.info(target.toString());
-							// need to trash one kind of item
-							logger.info(type_id + " " + type_name);
-							logger.info(context_id + " " + contextId);
-							String sakaiUserId = sakaiProxy.getCurrentUserId();
-							boolean completed = dashboardLogic.hideCalendarItemsByContextSourceType(sakaiUserId, context_id, type_id);
-						}
-	                	
-	                };
-	                actionHideTypeInContextLink.setDefaultModel(item.getDefaultModel());
-	                //actionHideTypeInContextLink.setModelObject(cItem);
-	                actionHideTypeInContext.add(actionHideTypeInContextLink);
-	                actionHideTypeInContextLink.add(new Label("actionHideTypeInContextLabel", "Pulverize all " + itemType + "s from " + siteTitle));
-				}
-			}
-        };
-        calendarDataView.setItemReuseStrategy(new DefaultItemReuseStrategy());
-        calendarDataView.setItemsPerPage(pageSize);
-        calendarItemsDiv.add(calendarDataView);
-
-        //add a pager to our table, only visible if we have more than 5 items
-        calendarItemsDiv.add(new PagingNavigator("calendarNavigator", calendarDataView) {
-        	
-        	@Override
-        	public boolean isVisible() {
-        		if(calendarItemsProvider.size() > pageSize) {
-        			return true;
-        		}
-        		return false;
-        	}
-        	
-        	@Override
-        	public void onBeforeRender() {
-        		super.onBeforeRender();
-        		
-        		//clear the feedback panel messages
-        		clearFeedback(feedbackPanel);
-        	}
-        });
-        
-        dashboardPage.add(calendarItemsDiv);
-        
         final WebMarkupContainer newsItemsDiv = new WebMarkupContainer("newsItemsDiv");
         newsItemsDiv.setOutputMarkupId(true);
         
@@ -647,70 +383,6 @@ public class DashboardPage extends BasePage {
 	 * DataProvider to manage our list
 	 * 
 	 */
-	private class CalendarItemDataProvider implements IDataProvider<CalendarItem> {
-	   
-		private List<CalendarItem> calendarItems;
-		private boolean showFuture = true;
-		private boolean showPast = false;
-		private boolean saved = false;
-		private boolean hidden = false;
-		
-		public CalendarItemDataProvider() {
-			super();
-		}
-		
-		public CalendarItemDataProvider(boolean showFuture, boolean showPast, boolean saved, boolean hidden) {
-			super();
-			this.showFuture = showFuture;
-			this.showPast = showPast;
-			this.saved = saved;
-			this.hidden = hidden;
-		}
-		
-		private List<CalendarItem> getData() {
-			if(calendarItems == null) {
-				String siteId = sakaiProxy.getCurrentSiteId();
-				String sakaiId = sakaiProxy.getCurrentUserId();
-				if(siteId == null || sakaiId == null) {
-					if(logger.isDebugEnabled()) {
-						logger.debug("CalendarItemDataProvider.getData() siteId:" + siteId + "  sakaiId:" + sakaiId);
-					}
-					return new ArrayList<CalendarItem>();
-				}
-				if(sakaiProxy.isWorksite(siteId)) {
-					calendarItems = dashboardLogic.getCalendarItems(sakaiId, showFuture, showPast, saved, hidden);
-				} else {
-					calendarItems = dashboardLogic.getCalendarItems(sakaiId, siteId, showFuture, showPast, saved, hidden);
-				}
-			}
-			if(calendarItems == null) {
-				logger.warn("Error getting calendarItems");
-				return new ArrayList<CalendarItem>();
-			}
-			return calendarItems;
-		}
-		
-		public Iterator<CalendarItem> iterator(int first, int count){
-			return getData().subList(first, first + count).iterator();
-		}
-		
-		public int size(){
-			return getData().size();
-		}
-		
-		public IModel<CalendarItem> model(CalendarItem object){
-			return new DetachableCalendarItemModel(object);
-		}
-
-		public void detach(){
-			calendarItems = null;
-		}
-	}
-
-	/**
-	 * DataProvider to manage our list
-	 * 
-	 */
 	private class NewsItemDataProvider implements IDataProvider<NewsItem> {
 	   
 		private List<NewsItem> newsItems;
@@ -774,65 +446,6 @@ public class DashboardPage extends BasePage {
 
 		public void detach(){
 			newsItems = null;
-		}
-	}
-
-	/**
-	 * Detachable model to wrap a CalendarItem
-	 * 
-	 */
-	private class DetachableCalendarItemModel extends LoadableDetachableModel<CalendarItem>{
-
-		private Long id = null;
-		
-		/**
-		 * @param m
-		 */
-		public DetachableCalendarItemModel(CalendarItem t){
-			this.id = t.getId();
-		}
-		
-		/**
-		 * @param id
-		 */
-		public DetachableCalendarItemModel(long id){
-			this.id = id;
-		}
-		
-		/**
-		 * @see java.lang.Object#hashCode()
-		 */
-		public int hashCode() {
-			return Long.valueOf(id).hashCode();
-		}
-		
-		/**
-		 * used for dataview with ReuseIfModelsEqualStrategy item reuse strategy
-		 * 
-		 * @see org.apache.wicket.markup.repeater.ReuseIfModelsEqualStrategy
-		 * @see java.lang.Object#equals(java.lang.Object)
-		 */
-		public boolean equals(final Object obj){
-			if (obj == this){
-				return true;
-			}
-			else if (obj == null){
-				return false;
-			}
-			else if (obj instanceof DetachableCalendarItemModel) {
-				DetachableCalendarItemModel other = (DetachableCalendarItemModel)obj;
-				return other.id == id;
-			}
-			return false;
-		}
-		
-		/**
-		 * @see org.apache.wicket.model.LoadableDetachableModel#load()
-		 */
-		protected CalendarItem load(){
-			
-			// get the calendar item
-			return dashboardLogic.getCalendarItem(id);
 		}
 	}
 

@@ -31,6 +31,7 @@ import org.sakaiproject.dash.entity.EntityLinkStrategy;
 import org.sakaiproject.dash.entity.EntityType;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.model.CalendarItem;
+import org.sakaiproject.dash.model.CalendarLink;
 import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.RepeatingCalendarItem;
@@ -138,6 +139,39 @@ public interface DashboardLogic {
 	 * @return
 	 */
 	public List<CalendarItem> getCalendarItems(String sakaiUserId, String contextId, boolean showFuture, boolean showPast, boolean saved, boolean hidden);
+	
+	/**
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public CalendarLink getCalendarLink(Long id);
+	
+	/**
+	 * 
+	 * @param sakaiUserId
+	 * @param contextId
+	 * @param hidden 
+	 * @return
+	 */
+	public List<CalendarLink> getFutureCalendarLinks(String sakaiUserId, String contextId, boolean hidden);
+
+	/**
+	 * 
+	 * @param sakaiUserId
+	 * @param contextId
+	 * @param hidden
+	 * @return
+	 */
+	public List<CalendarLink> getPastCalendarLinks(String sakaiUserId, String contextId, boolean hidden);
+
+	/**
+	 * 
+	 * @param sakaiUserId
+	 * @param contextId
+	 * @return
+	 */
+	public List<CalendarLink> getStarredCalendarLinks(String sakaiUserId, String contextId);
 	
 	/**
 	 * Retrieve the Context with a particular contextId 

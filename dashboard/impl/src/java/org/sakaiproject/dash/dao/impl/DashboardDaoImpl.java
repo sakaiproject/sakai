@@ -25,6 +25,7 @@ import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -836,6 +837,129 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            log.error("getCalendarLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return null;
 		}
+	}
+
+	public CalendarLink getCalendarLink(long id) {
+		if(log.isDebugEnabled()) {
+			log.debug("getCalendarLink(" + id + ")");
+		}
+		
+		try {
+			return (CalendarLink) getJdbcTemplate().queryForObject(getStatement("select.CalendarLink.by.id"),
+				new Object[]{id},
+				new CalendarLinkMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getCalendarLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return null;
+		}
+	}
+
+	public List<CalendarLink> getFutureCalendarLinks(String sakaiUserId, String contextId, boolean hidden) {
+		if(log.isDebugEnabled()) {
+			log.debug("getFutureCalendarLinks(" + sakaiUserId + "," + contextId + "," + hidden + ")");
+		}
+		
+		if(sakaiUserId == null) {
+			logger.warn("getFutureCalendarLinks() called with null sakaiUserId");
+			return null;
+		}
+		String sql = null;
+		Object[] params = null;
+		
+		if( contextId == null) {
+			sql = getStatement("select.future.CalendarLinks.by.sakaiId.hidden");
+			params = new Object[]{sakaiUserId, Boolean.valueOf(hidden), getPreviousMidnight()};
+		} else {
+			sql = getStatement("select.future.CalendarLinks.by.sakaiId.contextId.hidden");
+			params = new Object[]{sakaiUserId, contextId, Boolean.valueOf(hidden), getPreviousMidnight()};
+		} 
+		
+		try {
+			return (List<CalendarLink>) getJdbcTemplate().query(sql,
+				params,
+				new CalendarLinkMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getFutureCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return null;
+		}
+	}
+
+	public List<CalendarLink> getPastCalendarLinks(String sakaiUserId, String contextId, boolean hidden) {
+		if(log.isDebugEnabled()) {
+			log.debug("getPastCalendarLinks(" + sakaiUserId + "," + contextId + "," + hidden + ")");
+		}
+		
+		if(sakaiUserId == null) {
+			logger.warn("getPastCalendarLinks() called with null sakaiUserId");
+			return null;
+		}
+		String sql = null;
+		Object[] params = null;
+		
+		if( contextId == null) {
+			sql = getStatement("select.past.CalendarLinks.by.sakaiId.hidden");
+			params = new Object[]{sakaiUserId, Boolean.valueOf(hidden), new Date()};
+		} else {
+			sql = getStatement("select.past.CalendarLinks.by.sakaiId.contextId.hidden");
+			params = new Object[]{sakaiUserId, contextId, Boolean.valueOf(hidden), new Date()};
+		} 
+		
+		try {
+			return (List<CalendarLink>) getJdbcTemplate().query(sql,
+				params,
+				new CalendarLinkMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getPastCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return null;
+		}
+	}
+
+	public List<CalendarLink> getStarredCalendarLinks(String sakaiUserId, String contextId) {
+		if(log.isDebugEnabled()) {
+			log.debug("getStarredCalendarLinks(" + sakaiUserId + "," + contextId + ")");
+		}
+		
+		if(sakaiUserId == null) {
+			logger.warn("getStarredCalendarLinks() called with null sakaiUserId");
+			return null;
+		}
+		String sql = null;
+		Object[] params = null;
+		
+		if( contextId == null) {
+			sql = getStatement("select.starred.CalendarLinks.by.sakaiId");
+			params = new Object[]{sakaiUserId};
+		} else {
+			sql = getStatement("select.starred.CalendarLinks.by.sakaiId.contextId");
+			params = new Object[]{sakaiUserId, contextId};
+		} 
+		
+		try {
+			return (List<CalendarLink>) getJdbcTemplate().query(sql,
+				params,
+				new CalendarLinkMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getStarredCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return null;
+		}
+	}
+
+	/**
+	 * @return
+	 */
+	protected Date getPreviousMidnight() {
+		Date thisAM = null;
+		Calendar midnight = Calendar.getInstance();
+		midnight.set(Calendar.MILLISECOND, 0);
+		midnight.set(Calendar.SECOND, 0);
+		midnight.set(Calendar.MINUTE, 0);
+		midnight.set(Calendar.HOUR, 0);
+		thisAM = midnight.getTime();
+		return thisAM;
 	}
 
 	/*

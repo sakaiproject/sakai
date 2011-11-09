@@ -420,6 +420,24 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 		return this.getCalendarItems(sakaiUserId, null, showFuture, showPast, saved, hidden);
 	}
+	
+	public CalendarLink getCalendarLink(Long id) {
+		return dao.getCalendarLink(id);
+	}
+	
+	public List<CalendarLink> getFutureCalendarLinks(String sakaiUserId, String contextId, boolean hidden) {
+		return dao.getFutureCalendarLinks(sakaiUserId, contextId, hidden);
+	}
+
+	public List<CalendarLink> getPastCalendarLinks(String sakaiUserId, String contextId, boolean hidden) {
+		return dao.getPastCalendarLinks(sakaiUserId, contextId, hidden);
+	}
+
+	public List<CalendarLink> getStarredCalendarLinks(String sakaiUserId, String contextId) {
+		return dao.getStarredCalendarLinks(sakaiUserId, contextId);
+	}
+	
+
 
 	public Context getContext(String contextId) {
 		try {
