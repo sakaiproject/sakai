@@ -246,9 +246,6 @@ public class CalendarLinksPanel extends Panel {
 	                item.add(new ExternalLink("itemLink", "#", cItem.getTitle()));
 	                item.add(new ExternalLink("siteLink", cItem.getContext().getContextUrl(), cItem.getContext().getContextTitle()));
 	      
-	                WebMarkupContainer actionPanel = new WebMarkupContainer("actionPanel");
-	                item.add(actionPanel);
-	                
 	                if(cLink.isSticky()) {
 		                AjaxLink<CalendarLink> starringAction = new AjaxLink<CalendarLink>("starringAction") {
 		                	protected long calendarItemId = cItem.getId();
@@ -263,19 +260,19 @@ public class CalendarLinksPanel extends Panel {
 								
 								String sakaiUserId = sakaiProxy.getCurrentUserId();
 								boolean success = dashboardLogic.unkeepCalendarItem(sakaiUserId, calendarItemId);
+								
+								// if success adjust UI, else report failure?
 								if(success) {
-									String javascript = "alert('this item is no longer starred. (" + thisRow.getMarkupId() + ")');";
-									target.appendJavascript(javascript );
+									target.addComponent(CalendarLinksPanel.this);
+									//String javascript = "alert('success. (" + thisRow.getMarkupId() + ")');";
+									//target.appendJavascript(javascript );
 								}
-
-								// if sticky adjust UI, else report failure?
-								target.addComponent(thisRow);
 							}
 		                	
 		                };
 		                
 		                starringAction.setDefaultModel(item.getModel());
-		                actionPanel.add(starringAction);
+		                item.add(starringAction);
 		                starringAction.add(new Label("starringActionLabel", "Unstar"));
 		                
 		                if(cLink.isHidden()) {
@@ -297,17 +294,18 @@ public class CalendarLinksPanel extends Panel {
 								
 								String sakaiUserId = sakaiProxy.getCurrentUserId();
 								boolean success = dashboardLogic.keepCalendarItem(sakaiUserId, calendarItemId);
-								if(success) {
-									String javascript = "alert('this item is now starred. (" + thisRow.getMarkupId() + ")');";
-									target.appendJavascript(javascript );
-								}
 								
-								target.addComponent(thisRow);
+								// if success adjust UI, else report failure?
+								if(success) {
+									target.addComponent(CalendarLinksPanel.this);
+									//String javascript = "alert('success. (" + thisRow.getMarkupId() + ")');";
+									//target.appendJavascript(javascript );
+								}
 							}
 							
 		                };
 		                starringAction.add(new Label("starringActionLabel", "Star"));
-		                actionPanel.add(starringAction);
+		                item.add(starringAction);
 
 		                if(cLink.isHidden()) {
 		                	starringAction.setVisible(false);
@@ -327,20 +325,20 @@ public class CalendarLinksPanel extends Panel {
 								logger.info(calendarItemId);
 								//logger.info(this.getModelObject());
 								String sakaiUserId = sakaiProxy.getCurrentUserId();
-								boolean success = dashboardLogic.hideCalendarItem(sakaiUserId, calendarItemId);
-								if(success) {
-									String javascript = "alert('this item is no longer hidden. (" + thisRow.getMarkupId() + ")');";
-									target.appendJavascript(javascript );
-								}
+								boolean success = dashboardLogic.unhideCalendarItem(sakaiUserId, calendarItemId);
 								
-								// if hidden adjust UI, else report failure?
-								target.addComponent(thisRow);
+								// if success adjust UI, else report failure?
+								if(success) {
+									target.addComponent(CalendarLinksPanel.this);
+									//String javascript = "alert('success. (" + thisRow.getMarkupId() + ")');";
+									//target.appendJavascript(javascript );
+								}
 							}
 		                	
 		                };
 		                hidingAction.setDefaultModel(item.getModel());
 		                //actionHideThisLink.setModelObject(cItem);
-		                actionPanel.add(hidingAction);
+		                item.add(hidingAction);
 		                hidingAction.add(new Label("hidingActionLabel", "Show"));
 		                
 		                if(cLink.isSticky()) {
@@ -362,20 +360,20 @@ public class CalendarLinksPanel extends Panel {
 								//logger.info(this.getModelObject());
 								String sakaiUserId = sakaiProxy.getCurrentUserId();
 								boolean success = dashboardLogic.hideCalendarItem(sakaiUserId, calendarItemId);
-								if(success) {
-									String javascript = "alert('this item is now hidden. (" + thisRow.getMarkupId() + ")');";
-									target.appendJavascript(javascript );
-								}
 								
-								// if hidden adjust UI, else report failure?
-								target.addComponent(thisRow);
+								// if success adjust UI, else report failure?
+								if(success) {
+									target.addComponent(CalendarLinksPanel.this);
+									//String javascript = "alert('success. (" + thisRow.getMarkupId() + ")');";
+									//target.appendJavascript(javascript );
+								}
 							}
 		                	
 		                };
 		                hidingAction.setDefaultModel(item.getModel());
 		                
 		                //actionHideThisLink.setModelObject(cItem);
-		                actionPanel.add(hidingAction);
+		                item.add(hidingAction);
 		                hidingAction.add(new Label("hidingActionLabel", "Hide"));
 		                
 		                if(cLink.isSticky()) {

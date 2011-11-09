@@ -33,12 +33,6 @@ public class NewsItemMapper implements RowMapper {
 			newsItem.setEntityReference(rs.getString("ni_entity_ref"));
 			newsItem.setSubtype(rs.getString("ni_subtype"));
 			try {
-				newsItem.setSticky(rs.getBoolean("nl_sticky"));
-			} catch (SQLException e) {
-				// this means that "nl_sticky" is not valid, so set sticky to false
-				newsItem.setSticky(false);
-			}
-			try {
 				newsItem.setItemCount(rs.getInt("ni_count"));
 			} catch(SQLException e) {
 				// this means that "ni_count" is not valid, so set itemCount to 1

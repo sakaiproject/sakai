@@ -1485,10 +1485,10 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	
 	public boolean updateCalendarLink(CalendarLink calendarLink) {
 		if(log.isDebugEnabled()) {
-			log.debug("addCalendarLink( " + calendarLink.toString() + ")");
+			log.debug("updateCalendarLink( " + calendarLink.toString() + ")");
 		}
 		
-		//  person_id, item_id, context_id, realm_id
+		//  update dash_calendar_link set person_id=?, item_id=?, context_id=?, hidden=?, sticky=? where id=? 
 		
 		try {
 			getJdbcTemplate().update(getStatement("update.CalendarLink"),
@@ -1497,7 +1497,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("addCalendarLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.error("updateCalendarLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}
 	}
@@ -1604,10 +1604,10 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 
 	public boolean updateNewsLink(NewsLink newsLink) {
 		if(log.isDebugEnabled()) {
-			log.debug("addNewsLink( " + newsLink.toString() + ")");
+			log.debug("updateNewsLink( " + newsLink.toString() + ")");
 		}
 		
-		//  person_id, item_id, context_id, realm_id
+		//  update dash_news_link set person_id=?, item_id=?, context_id=?, hidden=?, sticky=?  where id=?
 		
 		try {
 			getJdbcTemplate().update(getStatement("update.NewsLink"),
@@ -1616,7 +1616,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("addNewsLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.error("updateNewsLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}
 	}

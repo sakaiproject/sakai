@@ -54,8 +54,6 @@ public class NewsItem implements Serializable {
 	
 	protected int itemCount = 0;
 	
-	private boolean sticky = false;
-
 	protected static final String FORMAT_YEAR_DAY = "yyyyDDD";
 	
 	/**
@@ -117,7 +115,6 @@ public class NewsItem implements Serializable {
 		this.sourceType = new SourceType(other.sourceType);
 		this.subtype = other.subtype;
 		this.itemCount = other.itemCount;
-		this.sticky = other.sticky;
 		generateGroupingIdentifier();
 
 	}
@@ -193,13 +190,6 @@ public class NewsItem implements Serializable {
 	}
 
 	/**
-	 * @return the sticky
-	 */
-	public boolean isSticky() {
-		return sticky;
-	}
-
-	/**
 	 * @param id the id to set
 	 */
 	public void setId(Long id) {
@@ -265,10 +255,6 @@ public class NewsItem implements Serializable {
 		generateGroupingIdentifier();
 	}
 
-	public void setSticky(boolean sticky) {
-		this.sticky = sticky;
-	}
-	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */

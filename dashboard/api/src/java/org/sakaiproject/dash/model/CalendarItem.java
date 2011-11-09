@@ -42,8 +42,6 @@ public class CalendarItem implements Serializable {
 	protected String subtype;
 	protected RepeatingCalendarItem repeatingCalendarItem = null;
 	protected Integer sequenceNumber = null;
-	protected boolean starred;
-	protected boolean hidden;
 	
 	
 	/**
@@ -181,20 +179,6 @@ public class CalendarItem implements Serializable {
 	}
 
 	/**
-	 * @return the starred
-	 */
-	public boolean isStarred() {
-		return starred;
-	}
-
-	/**
-	 * @return the hidden
-	 */
-	public boolean isHidden() {
-		return hidden;
-	}
-
-	/**
 	 * @param id the id to set
 	 */
 	public void setId(Long id) {
@@ -234,13 +218,6 @@ public class CalendarItem implements Serializable {
 	}
 
 	/**
-	 * @param hidden the hidden to set
-	 */
-	public void setHidden(boolean hidden) {
-		this.hidden = hidden;
-	}
-
-	/**
 	 * @param repeatingCalendarItem the repeatingCalendarItem to set
 	 */
 	public void setRepeatingCalendarItem(RepeatingCalendarItem repeatingCalendarItem) {
@@ -259,13 +236,6 @@ public class CalendarItem implements Serializable {
 	 */
 	public void setSourceType(SourceType sourceType) {
 		this.sourceType = sourceType;
-	}
-
-	/**
-	 * @param starred the starred to set
-	 */
-	public void setStarred(boolean starred) {
-		this.starred = starred;
 	}
 
 	/**
@@ -301,10 +271,6 @@ public class CalendarItem implements Serializable {
 		builder.append(repeatingCalendarItem);
 		builder.append(", sequenceNumber=");
 		builder.append(sequenceNumber);
-		builder.append(", starred=");
-		builder.append(starred);
-		builder.append(", hidden=");
-		builder.append(hidden);
 		builder.append("]");
 		return builder.toString();
 	}

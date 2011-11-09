@@ -203,9 +203,6 @@ public class NewsLinksPanel extends Panel {
                 item.add(new ExternalLink("siteLink", nItem.getContext().getContextUrl(), siteTitle));
                 item.add(new Label("newsTime", new SimpleDateFormat(DATETIME_FORMAT).format(nItem.getNewsTime())));
                 
-                WebMarkupContainer actionPanel = new WebMarkupContainer("actionPanel");
-                item.add(actionPanel);
-                
                 if(nLink.isSticky()) {
 	                AjaxLink<NewsLink> starringAction = new AjaxLink<NewsLink>("starringAction") {
 	                	protected long newsItemId = nItem.getId();
@@ -221,19 +218,18 @@ public class NewsLinksPanel extends Panel {
 							String sakaiUserId = sakaiProxy.getCurrentUserId();
 							boolean success = dashboardLogic.unkeepNewsItem(sakaiUserId, newsItemId);
 							
-							// if sticky adjust UI, else report failure?
+							// if success adjust UI, else report failure?
 							if(success) {
-								String javascript = "alert('this item is no longer starred. (" + thisRow.getMarkupId() + ")');";
-								target.appendJavascript(javascript );
+								target.addComponent(NewsLinksPanel.this);
+								//String javascript = "alert('success. (" + thisRow.getMarkupId() + ")');";
+								//target.appendJavascript(javascript );
 							}
-
-							target.addComponent(thisRow);
 						}
 	                	
 	                };
 	                
 	                starringAction.setDefaultModel(item.getModel());
-	                actionPanel.add(starringAction);
+	                item.add(starringAction);
 	                starringAction.add(new Label("starringActionLabel", "Unstar"));
 	                
 	                if(nLink.isHidden()) {
@@ -256,16 +252,17 @@ public class NewsLinksPanel extends Panel {
 							String sakaiUserId = sakaiProxy.getCurrentUserId();
 							boolean success = dashboardLogic.keepNewsItem(sakaiUserId, newsItemId);
 							
+							// if success adjust UI, else report failure?
 							if(success) {
-								String javascript = "alert('this item is now starred. (" + thisRow.getMarkupId() + ")');";
-								target.appendJavascript(javascript );
+								target.addComponent(NewsLinksPanel.this);
+								//String javascript = "alert('success. (" + thisRow.getMarkupId() + ")');";
+								//target.appendJavascript(javascript );
 							}
-							target.addComponent(thisRow);
 						}
 						
 	                };
 	                starringAction.add(new Label("starringActionLabel", "Star"));
-	                actionPanel.add(starringAction);
+	                item.add(starringAction);
 
 	                if(nLink.isHidden()) {
 	                	starringAction.setVisible(false);
@@ -285,21 +282,20 @@ public class NewsLinksPanel extends Panel {
 							logger.info(newsItemId);
 							//logger.info(this.getModelObject());
 							String sakaiUserId = sakaiProxy.getCurrentUserId();
-							boolean success = dashboardLogic.hideNewsItem(sakaiUserId, newsItemId);
+							boolean success = dashboardLogic.unhideNewsItem(sakaiUserId, newsItemId);
 							
 							// if success adjust UI, else report failure?
 							if(success) {
-								String javascript = "alert('this item is no longer hidden. (" + thisRow.getMarkupId() + ")');";
-								target.appendJavascript(javascript );
+								target.addComponent(NewsLinksPanel.this);
+								//String javascript = "alert('success. (" + thisRow.getMarkupId() + ")');";
+								//target.appendJavascript(javascript );
 							}
-
-							target.addComponent(thisRow);
 						}
 	                	
 	                };
 	                hidingAction.setDefaultModel(item.getModel());
 	                //actionHideThisLink.setModelObject(nItem);
-	                actionPanel.add(hidingAction);
+	                item.add(hidingAction);
 	                hidingAction.add(new Label("hidingActionLabel", "Show"));
 	                
 	                if(nLink.isSticky()) {
@@ -324,17 +320,17 @@ public class NewsLinksPanel extends Panel {
 							
 							// if success adjust UI, else report failure?
 							if(success) {
-								String javascript = "alert('this item is now hidden. (" + thisRow.getMarkupId() + ")');";
-								target.appendJavascript(javascript );
+								target.addComponent(NewsLinksPanel.this);
+								//String javascript = "alert('success. (" + thisRow.getMarkupId() + ")');";
+								//target.appendJavascript(javascript );
 							}
-							target.addComponent(thisRow);
 						}
 	                	
 	                };
 	                hidingAction.setDefaultModel(item.getModel());
 	                
 	                //actionHideThisLink.setModelObject(nItem);
-	                actionPanel.add(hidingAction);
+	                item.add(hidingAction);
 	                hidingAction.add(new Label("hidingActionLabel", "Hide"));
 	                
 	                if(nLink.isSticky()) {

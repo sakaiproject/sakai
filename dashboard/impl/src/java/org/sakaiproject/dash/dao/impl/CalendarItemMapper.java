@@ -47,7 +47,7 @@ public class CalendarItemMapper implements RowMapper {
 		Context context = (Context) (new ContextMapper()).mapRow(rs, rowNum);
 		calendarItem.setContext(context);
 		
-		logger.info(calendarItem);
+		//logger.info(calendarItem);
 		
 		return calendarItem;
 	}
