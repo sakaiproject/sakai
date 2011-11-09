@@ -313,3 +313,7 @@ var resizeFrame = function(updown){
         // throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
     }
 };
+
+var reportSuccess = function(msg, item, url){
+	alert('reportSuccess(' + msg + ')');
+};

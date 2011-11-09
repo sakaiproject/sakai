@@ -29,6 +29,8 @@ import org.sakaiproject.dash.logic.DashboardLogic;
 import org.sakaiproject.dash.logic.SakaiProxy;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.CalendarLink;
+import org.sakaiproject.dash.tool.pages.DashboardPage;
+import org.sakaiproject.dash.tool.util.JsonHelper;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -54,8 +56,10 @@ public class CalendarLinksPanel extends Panel {
 	
 	@SpringBean(name="org.sakaiproject.dash.logic.DashboardLogic")
 	protected DashboardLogic dashboardLogic;
-	
+		
 	protected CalendarLinksDataProvider calendarLinksProvider = null;
+	
+	protected DashboardPage dashboardPage;
 		 
 	protected String selectedCalendarTab = null;
 	protected String calendarItemsDivId = null;
@@ -257,15 +261,20 @@ public class CalendarLinksPanel extends Panel {
 								// need to keep one item
 								logger.info(calendarItemId);
 								//logger.info(this.getModelObject());
-								
+
 								String sakaiUserId = sakaiProxy.getCurrentUserId();
 								boolean success = dashboardLogic.unkeepCalendarItem(sakaiUserId, calendarItemId);
 								
 								// if success adjust UI, else report failure?
 								if(success) {
 									target.addComponent(CalendarLinksPanel.this);
-									//String javascript = "alert('success. (" + thisRow.getMarkupId() + ")');";
-									//target.appendJavascript(javascript );
+									if(TAB_ID_STARRED.equals(selectedCalendarTab)) {
+										CalendarItem changedItem = dashboardLogic.getCalendarItem(calendarItemId);
+										JsonHelper jsonHelper = new JsonHelper(dashboardLogic);
+										String jsonStr = jsonHelper.getJsonObjectFromCalendarItem(changedItem).toString();
+										String javascript = "reportSuccess('item is no longer starred.'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
+										target.appendJavascript(javascript);
+									}
 								}
 							}
 		                	
@@ -330,8 +339,11 @@ public class CalendarLinksPanel extends Panel {
 								// if success adjust UI, else report failure?
 								if(success) {
 									target.addComponent(CalendarLinksPanel.this);
-									//String javascript = "alert('success. (" + thisRow.getMarkupId() + ")');";
-									//target.appendJavascript(javascript );
+									CalendarItem changedItem = dashboardLogic.getCalendarItem(calendarItemId);
+									JsonHelper jsonHelper = new JsonHelper(dashboardLogic);
+									String jsonStr = jsonHelper.getJsonObjectFromCalendarItem(changedItem).toString();
+									String javascript = "reportSuccess('item is no longer hidden.'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
+									target.appendJavascript(javascript );
 								}
 							}
 		                	
@@ -364,8 +376,11 @@ public class CalendarLinksPanel extends Panel {
 								// if success adjust UI, else report failure?
 								if(success) {
 									target.addComponent(CalendarLinksPanel.this);
-									//String javascript = "alert('success. (" + thisRow.getMarkupId() + ")');";
-									//target.appendJavascript(javascript );
+									CalendarItem changedItem = dashboardLogic.getCalendarItem(calendarItemId);
+									JsonHelper jsonHelper = new JsonHelper(dashboardLogic);
+									String jsonStr = jsonHelper.getJsonObjectFromCalendarItem(changedItem).toString();
+									String javascript = "reportSuccess('item is now hidden.'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
+									target.appendJavascript(javascript );
 								}
 							}
 		                	

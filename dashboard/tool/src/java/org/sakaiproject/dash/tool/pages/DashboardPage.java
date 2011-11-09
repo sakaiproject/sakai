@@ -38,6 +38,7 @@ import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.tool.panels.CalendarLinksPanel;
 import org.sakaiproject.dash.tool.panels.NewsLinksPanel;
+import org.sakaiproject.dash.tool.util.JsonHelper;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -58,7 +59,6 @@ public class DashboardPage extends BasePage {
 
 	protected String selectedCalendarTab;
 	protected String selectedNewsTab;
-	
 	
 	public DashboardPage() {
 		
@@ -120,7 +120,8 @@ public class DashboardPage extends BasePage {
  						int pageNumber = 0;
  						String sakaiUserId = sakaiProxy.getCurrentUserId();
 						List<NewsItem> items = dashboardLogic.getNewsItemsByGroupId(sakaiUserId, entityReference, pageSize, pageNumber);
-						String jsonString = getJsonArrayFromList(items).toString();
+						JsonHelper jsonHelper = new JsonHelper(dashboardLogic);
+						String jsonString = jsonHelper.getJsonArrayFromList(items).toString();
 		                logger.debug("Returning JSON:\n" + jsonString);
 		                IRequestTarget t = new StringRequestTarget("application/json", "UTF-8", jsonString);
 		                getRequestCycle().setRequestTarget(t);
@@ -140,70 +141,12 @@ public class DashboardPage extends BasePage {
         dashboardPage.add(new Label("callbackUrl", entityDetailRequest.getCallbackUrl().toString()));
 	}
 		
-	
+	// should this be in JsonHelper ??
 	protected String getJsonStringFromMap(Map<String, Object> map) {
-		JSONObject json = getJsonObjectFromMap(map);
-		logger.info("Returning json: " + json.toString(3));
+		JsonHelper jsonHelper = new JsonHelper(dashboardLogic);
+		JSONObject json = jsonHelper.getJsonObjectFromMap(map);
+		//logger.info("Returning json: " + json.toString(3));
 		return json.toString();
-	}
-
-	private JSONObject getJsonObjectFromMap(Map<String, Object> map) {
-		JSONObject json = new JSONObject();
-		if(map != null) {
-			for(Map.Entry<String, Object> entry : map.entrySet()) {
-				String key = entry.getKey();
-				Object value = entry.getValue();
-				if(value instanceof String) {
-					json.element(key, value);
-				} else if(value instanceof Boolean) {
-					json.element(key, value);
-				} else if(value instanceof Number) {
-					json.element(key, value);
-				} else if(value instanceof Map) {
-					json.element(key, getJsonObjectFromMap((Map<String, Object>) value));
-				} else if(value instanceof List) {
-					json.element(key, getJsonArrayFromList((List) value));
-				}
-			}
-				
-		}
-		return json;
-	}
-
-	private JSONArray getJsonArrayFromList(List list) {
-		JSONArray json = new JSONArray();
-		if(list != null) {
-			for(Object value : list) {
-				if(value instanceof String) {
-					json.element(value);
-				} else if(value instanceof Boolean) {
-					json.element(value);
-				} else if(value instanceof Number) {
-					json.element(value);
-				} else if(value instanceof Map) {
-					json.element(getJsonObjectFromMap((Map<String, Object>) value));
-				} else if(value instanceof List) {
-					json.element(getJsonArrayFromList((List) value));
-				} else if(value instanceof NewsItem) {
-					json.element(getJsonObjectFromNewsItem((NewsItem) value));
-				}
-				
-			}
-		}
-		return json;
-	}
-
-	private JSONObject getJsonObjectFromNewsItem(NewsItem newsItem) {
-		JSONObject json = new JSONObject();
-		json.element("entityReference", newsItem.getEntityReference());
-		json.element("id", newsItem.getId());
-		json.element("newsTime", newsItem.getNewsTime());
-		json.element("label", newsItem.getNewsTimeLabelKey());
-		json.element("entityType", newsItem.getSourceType().getIdentifier());
-		json.element("subtype", newsItem.getSubtype());
-		json.element("title", newsItem.getTitle());
-		json.element("iconUrl", dashboardLogic.getEntityIconUrl(newsItem.getSourceType().getIdentifier(), newsItem.getSubtype()));
-		return json;
 	}
 
 	/**

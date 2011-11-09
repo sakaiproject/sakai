@@ -27,8 +27,10 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.dash.logic.DashboardLogic;
 import org.sakaiproject.dash.logic.SakaiProxy;
+import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.NewsLink;
+import org.sakaiproject.dash.tool.util.JsonHelper;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -221,8 +223,13 @@ public class NewsLinksPanel extends Panel {
 							// if success adjust UI, else report failure?
 							if(success) {
 								target.addComponent(NewsLinksPanel.this);
-								//String javascript = "alert('success. (" + thisRow.getMarkupId() + ")');";
-								//target.appendJavascript(javascript );
+								if(TAB_ID_STARRED.equals(selectedNewsTab)) {
+									NewsItem changedItem = dashboardLogic.getNewsItem(newsItemId);
+									JsonHelper jsonHelper = new JsonHelper(dashboardLogic);
+									String jsonStr = jsonHelper.getJsonObjectFromNewsItem(changedItem).toString();
+									String javascript = "reportSuccess('item is no longer starred.'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
+									target.appendJavascript(javascript );
+								}
 							}
 						}
 	                	
@@ -287,8 +294,11 @@ public class NewsLinksPanel extends Panel {
 							// if success adjust UI, else report failure?
 							if(success) {
 								target.addComponent(NewsLinksPanel.this);
-								//String javascript = "alert('success. (" + thisRow.getMarkupId() + ")');";
-								//target.appendJavascript(javascript );
+								NewsItem changedItem = dashboardLogic.getNewsItem(newsItemId);
+								JsonHelper jsonHelper = new JsonHelper(dashboardLogic);
+								String jsonStr = jsonHelper.getJsonObjectFromNewsItem(changedItem).toString();
+								String javascript = "reportSuccess('item is no longer hidden.'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
+								target.appendJavascript(javascript );
 							}
 						}
 	                	
@@ -321,8 +331,11 @@ public class NewsLinksPanel extends Panel {
 							// if success adjust UI, else report failure?
 							if(success) {
 								target.addComponent(NewsLinksPanel.this);
-								//String javascript = "alert('success. (" + thisRow.getMarkupId() + ")');";
-								//target.appendJavascript(javascript );
+								NewsItem changedItem = dashboardLogic.getNewsItem(newsItemId);
+								JsonHelper jsonHelper = new JsonHelper(dashboardLogic);
+								String jsonStr = jsonHelper.getJsonObjectFromNewsItem(changedItem).toString();
+								String javascript = "reportSuccess('item is now hidden.'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
+								target.appendJavascript(javascript );
 							}
 						}
 	                	
