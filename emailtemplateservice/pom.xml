@@ -62,7 +62,6 @@
     
     <modules>
         <module>api</module>
-        <!-- <module>assembly</module> -->
         <module>deploy</module>
         <module>impl/logic</module>
         <module>pack</module>
