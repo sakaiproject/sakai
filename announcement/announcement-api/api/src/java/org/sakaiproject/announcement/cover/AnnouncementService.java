@@ -23,6 +23,9 @@ package org.sakaiproject.announcement.cover;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.javax.Filter;
+import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 
 /**
@@ -342,4 +345,28 @@ public class AnnouncementService
 			service.clearMessagesCache(channelRef);
 		}
 	}
+	
+	/**
+	 * Return a list of messages from the provided channel (merged flag returns merged messages)
+	 * 
+	 * @param channelReference
+	 *        Channel's reference String
+	 * @param filter
+	 *        A filtering object to accept messages, or null if no filtering is desired.
+	 * @param order
+	 *        Order of messages, ascending if true, descending if false
+	 * @param merged
+	 * 		  flag to include merged channel messages, true returns ALL messages including merged sites/channels
+	 * @return a list of Message objects or specializations of Message objects (may be empty).
+	 * @exception PermissionException
+	 *            if the user does not have read permission to the channel.
+	 */
+	public static  java.util.List getMessages(String channelReference, Filter filter, boolean order, boolean merged) throws org.sakaiproject.exception.PermissionException
+	{
+		org.sakaiproject.announcement.api.AnnouncementService service = getInstance();
+		if (service == null) return null;
+		
+		return service.getMessages(channelReference,filter, order, merged);	
+	}
+	
 }

@@ -21,12 +21,15 @@
 
 package org.sakaiproject.announcement.api;
 
+import java.util.List;
+
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.javax.Filter;
 import org.sakaiproject.message.api.MessageService;
 
 /**
@@ -169,4 +172,22 @@ public interface AnnouncementService extends MessageService
 	 * @param channelRef
 	 */
 	public void clearMessagesCache(String channelRef);
+	
+	/**
+	 * Return a list of messages from the provided channel (merged flag returns merged messages)
+	 * 
+	 * @param channelReference
+	 *        Channel's reference String
+	 * @param filter
+	 *        A filtering object to accept messages, or null if no filtering is desired.
+	 * @param order
+	 *        Order of messages, ascending if true, descending if false
+	 * @param merged
+	 * 		  flag to include merged channel messages, true returns ALL messages including merged sites/channels
+	 * @return a list of Message objects or specializations of Message objects (may be empty).
+	 * @exception PermissionException
+	 *            if the user does not have read permission to the channel.
+	 */
+	public List getMessages(String channelReference, Filter filter, boolean order, boolean merged) throws PermissionException;
+	
 }

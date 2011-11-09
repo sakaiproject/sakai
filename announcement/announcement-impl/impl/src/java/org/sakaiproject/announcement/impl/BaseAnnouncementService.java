@@ -25,7 +25,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -91,6 +93,7 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.MergedList;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
@@ -112,6 +115,8 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 	/** private constants definitions */
 	private final static String SAKAI_ANNOUNCEMENT_TOOL_ID = "sakai.announcements";
 	private final static String ANNOUNCEMENT_CHANNEL_PROPERTY = "channel";
+	private static final String PORTLET_CONFIG_PARM_MERGED_CHANNELS = "mergedAnnouncementChannels";
+
 	
 	/** Messages, for the http access. */
 	protected static ResourceLoader rb = new ResourceLoader("annc-access");
@@ -1024,7 +1029,8 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * AnnouncementService implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
-
+	
+	
 	/**
 	 * Return a specific announcement channel.
 	 * 
@@ -1062,6 +1068,78 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 
 	} // addAnnouncementChannel
 
+	/**
+	 * Return a list of messages from the provided channel (merged flag returns merged messages)
+	 * 
+	 * @param channelReference
+	 *        Channel's reference String
+	 * @param filter
+	 *        A filtering object to accept messages, or null if no filtering is desired.
+	 * @param order
+	 *        Order of messages, ascending if true, descending if false
+	 * @param merged
+	 * 		  flag to include merged channel messages, true returns ALL messages including merged sites/channels
+	 * @return a list of Message objects or specializations of Message objects (may be empty).
+	 * @exception PermissionException
+	 *            if the user does not have read permission to the channel.
+	 */
+	public List getMessages(String channelReference,Filter filter, boolean order, boolean merged) throws PermissionException
+	{
+		List<Message> messageList = new ArrayList();	
+		filter = new PrivacyFilter(filter);  		// filter out drafts this user cannot see
+		Site site = null;
+		String initMergeList = null;
+	
+		try{
+			site = org.sakaiproject.site.cover.SiteService.getSite(getAnnouncementChannel(channelReference).getContext());
+
+			ToolConfiguration tc=site.getToolForCommonId(SAKAI_ANNOUNCEMENT_TOOL_ID);
+			if (tc!=null){
+				initMergeList = tc.getPlacementConfig().getProperty(PORTLET_CONFIG_PARM_MERGED_CHANNELS);	
+			}
+			
+			MergedList mergedAnnouncementList = new MergedList();
+			String[] channelArrayFromConfigParameterValue = null;	
+			
+			//get array of associated channels: similar logic as found in AnnouncementAction.getMessages() for viewing
+			channelArrayFromConfigParameterValue = mergedAnnouncementList.getChannelReferenceArrayFromDelimitedString(channelReference, initMergeList);
+			
+			//get messages for each channel
+			for(int i=0; i<channelArrayFromConfigParameterValue.length;i++)
+			{
+				MessageChannel siteChannel = getAnnouncementChannel(channelArrayFromConfigParameterValue[i]);
+				if (siteChannel != null)
+				{
+					if (allowGetChannel(siteChannel.getReference()))
+					{
+						//merged flag = true then add all channel's messages
+						//merged flag = false only add the calling channel's messages
+						if(merged || siteChannel.getContext().equals(site.getId()))
+								messageList.addAll(siteChannel.getMessages(filter,order));
+					}
+				}
+			}
+			
+			//sort messages
+			Collections.sort(messageList);
+			if (!order)
+			{
+				Collections.reverse(messageList);
+			}			
+		} catch (IdUnusedException e) {
+			M_log.warn(e.getMessage());
+		}
+		catch (PermissionException e) {
+			M_log.warn(e.getMessage());
+		}
+		catch (NullPointerException e) {
+			M_log.warn(e.getMessage());
+		}
+		return messageList;
+
+	} // getMessages
+	
+	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * ResourceService implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -1443,6 +1521,7 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 			return super.getMessages(filter, ascending);
 
 		} // getMessages
+
 		
 		/**
 		 * A (AnnouncementMessageEdit) cover for editMessage. Return a specific channel message, as specified by message name, locked for update. Must commitEdit() to make official, or cancelEdit() when done!
