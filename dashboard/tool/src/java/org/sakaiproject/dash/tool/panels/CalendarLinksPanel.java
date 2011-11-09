@@ -597,5 +597,5 @@ public class CalendarLinksPanel extends Panel {
 			return dashboardLogic.getCalendarLink(id);
 		}
 	}
-
+	
 }

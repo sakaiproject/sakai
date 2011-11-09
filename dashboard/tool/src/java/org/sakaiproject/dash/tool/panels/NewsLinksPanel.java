@@ -27,7 +27,6 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.dash.logic.DashboardLogic;
 import org.sakaiproject.dash.logic.SakaiProxy;
-import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.NewsLink;
 import org.sakaiproject.dash.tool.util.JsonHelper;
@@ -95,8 +94,7 @@ public class NewsLinksPanel extends Panel {
         add(newsLinksDiv);
         this.newsLinksDivId = newsLinksDiv.getId();
         
-        @SuppressWarnings("rawtypes")
-		AjaxLink<IModel<List<NewsLink>>> currentNewsLink = new AjaxLink<IModel<List<NewsLink>>>("link") {
+        AjaxLink<IModel<List<NewsLink>>> currentNewsLink = new AjaxLink<IModel<List<NewsLink>>>("link") {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
@@ -124,8 +122,7 @@ public class NewsLinksPanel extends Panel {
 		currentNewsTab.add(currentNewsLink);
 		newsLinksDiv.add(currentNewsTab);
 
-        @SuppressWarnings("rawtypes")
-		AjaxLink<IModel<List<NewsLink>>> starredNewsLink = new AjaxLink<IModel<List<NewsLink>>>("link") {
+        AjaxLink<IModel<List<NewsLink>>> starredNewsLink = new AjaxLink<IModel<List<NewsLink>>>("link") {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
@@ -153,8 +150,7 @@ public class NewsLinksPanel extends Panel {
 		starredNewsTab.add(starredNewsLink);
 		newsLinksDiv.add(starredNewsTab);
 
-        @SuppressWarnings("rawtypes")
-		AjaxLink<IModel<List<NewsLink>>> hiddenNewsLink = new AjaxLink<IModel<List<NewsLink>>>("link") {
+        AjaxLink<IModel<List<NewsLink>>> hiddenNewsLink = new AjaxLink<IModel<List<NewsLink>>>("link") {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
@@ -181,7 +177,9 @@ public class NewsLinksPanel extends Panel {
 		}
 		hiddenNewsTab.add(hiddenNewsLink);
 		newsLinksDiv.add(hiddenNewsTab);
-                
+             
+		
+		
 		//present the news data in a table
 		final DataView<NewsLink> newsDataView = new DataView<NewsLink>("newsLinks", newsLinksProvider) {
 
@@ -194,6 +192,8 @@ public class NewsLinksPanel extends Panel {
                 if(logger.isDebugEnabled()) {
                 	logger.debug(this + "populateItem()  item: " + item);
                 }
+                
+                
                 
                 String itemType = nItem.getSourceType().getIdentifier();
                 item.add(new Label("itemType", itemType));
