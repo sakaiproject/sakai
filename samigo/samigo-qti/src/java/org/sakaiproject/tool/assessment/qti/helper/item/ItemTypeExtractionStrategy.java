@@ -256,7 +256,7 @@ public class ItemTypeExtractionStrategy
     }
     // place holder for numerical responses questions
     else if (toGuess.indexOf("numerical") != -1 ||
-            toGuess.indexOf("calculate") != -1 ||
+            (toGuess.indexOf("calculate") != -1 && toGuess.indexOf("question") == -1) ||
             toGuess.indexOf("math") != -1
             )
    {
@@ -265,7 +265,8 @@ public class ItemTypeExtractionStrategy
     // CALCULATED_QUESTION
     else if (toGuess.indexOf("calcq") != -1 ||
             toGuess.indexOf("c.q.") != -1 ||
-            toGuess.indexOf("cq") != -1
+            toGuess.indexOf("cq") != -1 ||
+            (toGuess.indexOf("calculate") != -1 && toGuess.indexOf("question") != -1)
             )
     {
         itemType = AuthoringConstantStrings.CALCQ;
