@@ -80,6 +80,15 @@ public class NewsLink implements Serializable {
 		this.sticky = sticky;
 	}
 
+	public NewsLink(NewsLink other) {
+		this.id = other.getId();
+		this.hidden = other.isHidden();
+		this.sticky = other.isSticky();
+		this.newsItem = new NewsItem(other.getNewsItem());
+		this.context = this.newsItem.getContext();
+		this.person = new Person(other.getPerson());
+	}
+
 	/**
 	 * @return the id
 	 */

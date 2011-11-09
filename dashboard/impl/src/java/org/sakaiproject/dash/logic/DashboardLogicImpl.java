@@ -494,6 +494,22 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return dao.getNewsItemsByGroupId(sakaiUserId, groupId, pageSize, pageNumber);
 	}
 	
+	public NewsLink getNewsLink(Long id) {
+		return dao.getNewsLink(id);
+	}
+
+	public List<NewsLink> getCurrentNewsLinks(String sakaiId, String siteId) {
+		return dao.getCurrentNewsLinks(sakaiId, siteId);
+	}
+
+	public List<NewsLink> getStarredNewsLinks(String sakaiId, String siteId) {
+		return dao.getStarredNewsLinks(sakaiId, siteId);
+	}
+
+	public List<NewsLink> getHiddenNewsLinks(String sakaiId, String siteId) {
+		return dao.getHiddenNewsLinks(sakaiId, siteId);
+	}
+
 	public RepeatingCalendarItem getRepeatingCalendarItem(String entityReference, String calendarTimeLabelKey) {
 		return dao.getRepeatingCalendarItem(entityReference, calendarTimeLabelKey);
 	}

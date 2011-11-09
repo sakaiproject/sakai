@@ -45,8 +45,8 @@ public class CalendarLinksPanel extends Panel {
 
 	private static final Logger logger = Logger.getLogger(CalendarLinksPanel.class);
 	
-	private static final String DATE_FORMAT = "dd-MMM-yyyy";
-	private static final String TIME_FORMAT = "HH:mm";
+	protected static final String DATE_FORMAT = "dd-MMM-yyyy";
+	protected static final String TIME_FORMAT = "HH:mm";
 	protected static final String DATETIME_FORMAT = "dd-MMM-yyyy HH:mm";
 	
 	@SpringBean(name="org.sakaiproject.dash.logic.SakaiProxy")
@@ -226,10 +226,11 @@ public class CalendarLinksPanel extends Panel {
 					item.setOutputMarkupId(true);
 	                final CalendarLink cLink = (CalendarLink) item.getModelObject();
 	                final CalendarItem cItem = cLink.getCalendarItem();
-	                logger.info(cItem);
+	                
 	                if(logger.isDebugEnabled()) {
 	                	logger.debug(this + "populateItem()  item: " + item);
 	                }
+	                
 	                String itemType = cItem.getSourceType().getIdentifier();
 	                item.add(new Label("itemType", itemType));
 	                item.add(new Label("itemCount", "1"));
@@ -261,8 +262,12 @@ public class CalendarLinksPanel extends Panel {
 								//logger.info(this.getModelObject());
 								
 								String sakaiUserId = sakaiProxy.getCurrentUserId();
-								boolean sticky = dashboardLogic.unkeepCalendarItem(sakaiUserId, calendarItemId);
-								
+								boolean success = dashboardLogic.unkeepCalendarItem(sakaiUserId, calendarItemId);
+								if(success) {
+									String javascript = "alert('this item is no longer starred. (" + thisRow.getMarkupId() + ")');";
+									target.appendJavascript(javascript );
+								}
+
 								// if sticky adjust UI, else report failure?
 								target.addComponent(thisRow);
 							}
@@ -291,7 +296,11 @@ public class CalendarLinksPanel extends Panel {
 								//logger.info(this.getModelObject());
 								
 								String sakaiUserId = sakaiProxy.getCurrentUserId();
-								boolean sticky = dashboardLogic.keepCalendarItem(sakaiUserId, calendarItemId);
+								boolean success = dashboardLogic.keepCalendarItem(sakaiUserId, calendarItemId);
+								if(success) {
+									String javascript = "alert('this item is now starred. (" + thisRow.getMarkupId() + ")');";
+									target.appendJavascript(javascript );
+								}
 								
 								target.addComponent(thisRow);
 							}
@@ -318,7 +327,11 @@ public class CalendarLinksPanel extends Panel {
 								logger.info(calendarItemId);
 								//logger.info(this.getModelObject());
 								String sakaiUserId = sakaiProxy.getCurrentUserId();
-								boolean hidden = dashboardLogic.hideCalendarItem(sakaiUserId, calendarItemId);
+								boolean success = dashboardLogic.hideCalendarItem(sakaiUserId, calendarItemId);
+								if(success) {
+									String javascript = "alert('this item is no longer hidden. (" + thisRow.getMarkupId() + ")');";
+									target.appendJavascript(javascript );
+								}
 								
 								// if hidden adjust UI, else report failure?
 								target.addComponent(thisRow);
@@ -348,7 +361,11 @@ public class CalendarLinksPanel extends Panel {
 								logger.info(calendarItemId);
 								//logger.info(this.getModelObject());
 								String sakaiUserId = sakaiProxy.getCurrentUserId();
-								boolean hidden = dashboardLogic.hideCalendarItem(sakaiUserId, calendarItemId);
+								boolean success = dashboardLogic.hideCalendarItem(sakaiUserId, calendarItemId);
+								if(success) {
+									String javascript = "alert('this item is now hidden. (" + thisRow.getMarkupId() + ")');";
+									target.appendJavascript(javascript );
+								}
 								
 								// if hidden adjust UI, else report failure?
 								target.addComponent(thisRow);
@@ -435,6 +452,14 @@ public class CalendarLinksPanel extends Panel {
 			super();
 		}
 		
+		public CalendarLinksDataProvider(String calendarTabId) {
+			super();
+			this.calendarTabId = calendarTabId;
+			if(this.calendarTabId == null) {
+				this.calendarTabId = TAB_ID_UPCOMING;
+			}
+		}
+				
 		public void setCalendarTab(String calendarTabId) {
 			if(this.calendarTabId == null || ! this.calendarTabId.equals(calendarTabId)) {
 				// force refresh of dataProvider
@@ -444,14 +469,6 @@ public class CalendarLinksPanel extends Panel {
 			
 		}
 
-		public CalendarLinksDataProvider(String calendarTabId) {
-			super();
-			this.calendarTabId = calendarTabId;
-			if(this.calendarTabId == null) {
-				this.calendarTabId = TAB_ID_UPCOMING;
-			}
-		}
-				
 		private List<CalendarLink> getData() {
 			
 			if(calendarLinks == null) {

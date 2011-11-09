@@ -1185,6 +1185,101 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            return null;
 		}
 	}
+	
+	public NewsLink getNewsLink(long id) {
+		if(log.isDebugEnabled()) {
+			log.debug("getNewsLink(" + id + ")");
+		}
+		
+		try {
+			return (NewsLink) getJdbcTemplate().queryForObject(getStatement("select.NewsLink.by.id"),
+				new Object[]{id},
+				new NewsLinkMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getNewsLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return null;
+		}
+	}
+
+	public List<NewsLink> getCurrentNewsLinks(String sakaiUserId, String contextId) {
+		if(log.isDebugEnabled()) {
+			log.debug("getCurrentNewsLinks(" + sakaiUserId + "," + contextId + ")");
+		}
+		
+		String sql = null;
+		Object[] params = null;
+		if(contextId == null) {
+			sql = getStatement("select.current.NewsLinks.by.sakaiUserId");
+			params = new Object[]{sakaiUserId};
+		} else {
+			sql = getStatement("select.current.NewsLinks.by.sakaiUserId.contextId");
+			params = new Object[]{sakaiUserId, contextId};
+			
+		}
+		
+		try {
+			return (List<NewsLink>) getJdbcTemplate().query(sql,params,
+				new NewsLinkMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getCurrentNewsLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return new ArrayList<NewsLink>();
+		}
+	}
+
+	public List<NewsLink> getStarredNewsLinks(String sakaiUserId, String contextId) {
+		if(log.isDebugEnabled()) {
+			log.debug("getStarredNewsLinks(" + sakaiUserId + "," + contextId + ")");
+		}
+		
+		String sql = null;
+		Object[] params = null;
+		if(contextId == null) {
+			sql = getStatement("select.starred.NewsLinks.by.sakaiUserId");
+			params = new Object[]{sakaiUserId};
+		} else {
+			sql = getStatement("select.starred.NewsLinks.by.sakaiUserId.contextId");
+			params = new Object[]{sakaiUserId, contextId};
+			
+		}
+		
+		try {
+			return (List<NewsLink>) getJdbcTemplate().query(sql,params,
+				new NewsLinkMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getStarredNewsLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return new ArrayList<NewsLink>();
+		}
+	}
+
+	public List<NewsLink> getHiddenNewsLinks(String sakaiUserId, String contextId) {
+		if(log.isDebugEnabled()) {
+			log.debug("getHiddenNewsLinks(" + sakaiUserId + "," + contextId + ")");
+		}
+		
+		String sql = null;
+		Object[] params = null;
+		if(contextId == null) {
+			sql = getStatement("select.hidden.NewsLinks.by.sakaiUserId");
+			params = new Object[]{sakaiUserId};
+		} else {
+			sql = getStatement("select.hidden.NewsLinks.by.sakaiUserId.contextId");
+			params = new Object[]{sakaiUserId, contextId};
+			
+		}
+		
+		try {
+			return (List<NewsLink>) getJdbcTemplate().query(sql,params,
+				new NewsLinkMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getHiddenNewsLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return new ArrayList<NewsLink>();
+		}
+	}
+
 
 	/*
 	 * (non-Javadoc)

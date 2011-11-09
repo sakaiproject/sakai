@@ -52,6 +52,13 @@ public class Person implements Serializable {
 		this.userId = userId;
 	}
 
+	public Person(Person other) {
+		super();
+		this.id = other.getId();
+		this.sakaiId = other.getSakaiId();
+		this.userId = other.getUserId();
+	}
+
 	/**
 	 * @return the id
 	 */

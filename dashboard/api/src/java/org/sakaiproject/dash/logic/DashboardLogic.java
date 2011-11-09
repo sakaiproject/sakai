@@ -34,6 +34,7 @@ import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.CalendarLink;
 import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.NewsItem;
+import org.sakaiproject.dash.model.NewsLink;
 import org.sakaiproject.dash.model.RepeatingCalendarItem;
 import org.sakaiproject.dash.model.SourceType;
 
@@ -193,6 +194,14 @@ public interface DashboardLogic {
 	public List<NewsItem> getNewsItemsByGroupId(String sakaiUserId,
 			String groupId, int pageSize, int pageNumber);
 	
+	public NewsLink getNewsLink(Long id);
+
+	public List<NewsLink> getCurrentNewsLinks(String sakaiId, String siteId);
+
+	public List<NewsLink> getStarredNewsLinks(String sakaiId, String siteId);
+
+	public List<NewsLink> getHiddenNewsLinks(String sakaiId, String siteId);
+
 	public RepeatingCalendarItem getRepeatingCalendarItem(String entityReference, String calendarTimeLabelKey);
 
 	/**

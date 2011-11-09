@@ -155,6 +155,14 @@ public interface DashboardDao {
 
 	public NewsItem getNewsItem(long id);
 
+	public NewsLink getNewsLink(long id);
+
+	public List<NewsLink> getCurrentNewsLinks(String sakaiId, String siteId);
+
+	public List<NewsLink> getStarredNewsLinks(String sakaiId, String siteId);
+
+	public List<NewsLink> getHiddenNewsLinks(String sakaiId, String siteId);
+
 	public CalendarItem getCalendarItem(long id);
 
 	public List<NewsItem> getNewsItemsByGroupId(String sakaiUserId,

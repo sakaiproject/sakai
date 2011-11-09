@@ -33,83 +33,9 @@
                 <div id="calendarPanel"  wicket:id="calendarPanel">
                 </div>
                 
-                <div id="activeNewsItems" wicket:id="newsItemsDiv">
-                    <table class="listHeader" cellpadding="0" cellspacing="0" border="0">
-                        <tr>
-                            <td style="width:70%">
-                               <h3 class="withNav">Recent Activity</h3>
-			                   <ul>
-			                    	<li wicket:id="currentNewsTab"><a href="#" wicket:id="link"><span wicket:id="label">[ Current ]</span></a></li>
-			                    	<li wicket:id="starredNewsTab"><a href="#" wicket:id="link"><span wicket:id="label">[ Starred ]</span></a></li>
-			                    	<li wicket:id="hiddenNewsTab"><a href="#" wicket:id="link"><span wicket:id="label">[ Hidden ]</span></a></li>
-			                   </ul>
-                            </td>
-                            <td style="width:5%">
-                                <span class="toggle">Toggle</span>
-                            </td>
-                            <td style="width:20%">
-                                <div class="pager" wicket:id="newsNavigator">
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
-                    <table cellspacing="0" id="news" class="news" summary="List of recent events. Column 1: link to details on item. Column 2: link to site where event took place. Column 3: date and time when event took place. Column 4: list of options managing items of this type or origin." border="0">
-                        <thead>
-                            <tr class="header">
-                                <th scope="col" class="one">
-                                    What
-                                </th>
-                                <th scope="col" class="two">
-                                    From where
-                                </th>
-                                <th scope="col" class="three">
-                                    When
-                                </th>
-                                <th class="four">
-                                    Action
-                                </th>
-                            </tr>
-                        </thead>
-                        <tr class="alt newsItem" id="item11" wicket:id="newsItems">
-                            <td class="one">
-                                <span wicket:id="itemType" class="itemType" style="display:none;">[item type]</span>
-                                <span wicket:id="itemCount" class="itemCount" style="display:none;">[item count]</span>
-                                <span wicket:id="entityReference" class="entityReference" style="display:none;">[entity reference]</span>
-                            </td>
-                            <td class="two date">
-                                <span wicket:id="newsTime">[news time]</span>
-                            </td>
-                            <td class="tab three">
-                                <a href="#" wicket:id="itemLink" class="itemLink" target="_top">[item title]</a>
-                            </td>
-                            <td class="four">
-                                <a href="#" wicket:id="siteLink" class="siteLink" target="_top">[site title]</a>
-                            </td>
-                            <td class="action five">
-                                <div class="actionPanelTrig" style="display:none">
-                                    <a href="#"></a>
-                                </div>
-                                <ul class="actionPanel" wicket:id="actionPanel" style="display:none">
-                                    <li class="actionKeepThis" wicket:id="actionKeepThis">
-                                        <a href="#" wicket:id="actionKeepThisLink"><span wicket:id="actionKeepThisLabel">Keep this item in my dashboard</span></a>
-                                    </li>
-                                    <li class="actionHideThis" wicket:id="actionHideThis">
-                                        <a href="#" wicket:id="actionHideThisLink"><span wicket:id="actionHideThisLabel">Remove this item</span></a>
-                                    </li>
-                                    <li class="actionHideType" wicket:id="actionHideType">
-                                        <a href="#" wicket:id="actionHideTypeLink"><span wicket:id="actionHideTypeLabel">Block all ?? items</span></a>
-                                    </li>
-                                    <li class="actionHideContext" wicket:id="actionHideContext">
-                                        <a href="#" wicket:id="actionHideContextLink"><span wicket:id="actionHideContextLabel">Block everything from ??</span></a>
-                                    </li>
-                                    <li class="actionHideTypeInContext" wicket:id="actionHideTypeInContext">
-                                        <a href="#" wicket:id="actionHideTypeInContextLink"><span wicket:id="actionHideTypeInContextLabel">Block all ?? items from ??</span></a>
-                                    </li>
-                                </ul>
-                            </td>
-                        </tr>
-                    </table>
+                <div id="newsPanel" wicket:id="newsPanel">
                 </div>
+                
                 <div id="dialog" style="display:none">
                 </div>
                 <div id="dialogDum">
