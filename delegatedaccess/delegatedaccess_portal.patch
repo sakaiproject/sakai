@@ -1,0 +1,49 @@
+Index: portal-impl/impl/src/java/org/sakaiproject/portal/charon/ToolHelperImpl.java
+===================================================================
+--- portal-impl/impl/src/java/org/sakaiproject/portal/charon/ToolHelperImpl.java	(revision 100571)
++++ portal-impl/impl/src/java/org/sakaiproject/portal/charon/ToolHelperImpl.java	(working copy)
+@@ -22,6 +22,8 @@
+ package org.sakaiproject.portal.charon;
+ 
+ import java.util.Arrays;
++import java.util.List;
++import java.util.Map;
+ 
+ import org.apache.commons.lang.StringUtils;
+ import org.apache.commons.logging.Log;
+@@ -29,6 +31,8 @@
+ import org.sakaiproject.authz.cover.SecurityService;
+ import org.sakaiproject.site.api.Site;
+ import org.sakaiproject.tool.api.Placement;
++import org.sakaiproject.tool.api.Session;
++import org.sakaiproject.tool.cover.SessionManager;
+ 
+ /**
+  * @author ieb
+@@ -58,6 +62,26 @@
+ 	 */
+ 	public boolean allowTool(Site site, Placement placement)
+ 	{
++		if(allowToolHelper(site, placement)){
++			try{
++				//delegated access sets a session attribute that determines if the user can't view a tool in a site
++				//delegatedaccess.deniedToolsMap = SiteId => List{toolid, toolid ...}
++				//if this tool shows up, return false, otherwise return true
++				Session session = SessionManager.getCurrentSession();
++				if(session.getAttribute("delegatedaccess.deniedToolsMap") != null && ((Map) session.getAttribute("delegatedaccess.deniedToolsMap")).containsKey(site.getId())
++						&& ((List) ((Map) session.getAttribute("delegatedaccess.deniedToolsMap")).get(site.getId())).contains(placement.getToolId())){
++					return false;
++				}
++			}catch (Exception e) {
++			}
++			return true;
++		}else{
++			return false;
++		}
++	}
++	
++	public boolean allowToolHelper(Site site, Placement placement)
++	{
+ 		// No way to render an opinion
+ 		if (placement == null || site == null) return true;
+ 
