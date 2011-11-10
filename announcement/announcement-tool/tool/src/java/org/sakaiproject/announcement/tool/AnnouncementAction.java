@@ -4783,8 +4783,15 @@ public class AnnouncementAction extends PagedResourceActionII
 			String[] messageReferences2 = rundata.getParameters().getStrings("selectedMembers2");
 			if (messageReferences2 != null)
 			{
+				
+				
+				try {
+				//grab all messages before the order changes:	
+				List<Message> allMessages = AnnouncementService.getChannel(state.getChannelId()).getMessages(null, true);
+				//store the updated message ids so we know which ones didn't get updated
+				List<String> updatedMessageIds = new ArrayList<String>();
 				Vector v2 = new Vector();
-				int j= messageReferences2.length;
+				int j= allMessages.size();
 				for (int i = 0; i < messageReferences2.length; i++)
 				{
 					// get the message object through service
@@ -4800,7 +4807,7 @@ public class AnnouncementAction extends PagedResourceActionII
 						AnnouncementMessageHeaderEdit header2 = msg.getAnnouncementHeaderEdit();
 						header2.setMessage_order(j--);						
 						channel2.commitMessage_order(msg);
-
+						updatedMessageIds.add(msg.getId());
 						//v2.addElement(message2);
 					}
 					catch (IdUnusedException e)
@@ -4813,6 +4820,37 @@ public class AnnouncementAction extends PagedResourceActionII
 						if (M_log.isDebugEnabled()) M_log.debug(this + ".doDeleteannouncement()", e);
 						addAlert(sstate, rb.getString("java.alert.youdelann")	+ messageReferences2[i]);
 					}
+				}
+				if(allMessages.size() > messageReferences2.length){
+					//need to update the message order of the remaining messages (only sorts the top 10)
+				
+					//order by message order:
+					SortedIterator messagesSorted = new SortedIterator(allMessages.iterator(), new AnnouncementComparator(SORT_MESSAGE_ORDER, true));
+					//start at last message and increment up
+					int messageOrder = 1;
+					while(messagesSorted.hasNext()){
+						Message message = (Message) messagesSorted.next();
+						if(!updatedMessageIds.contains(message.getId())){
+							//since this list is ordered, we can assign the message order in order:
+							AnnouncementChannel channel2 = AnnouncementService.getAnnouncementChannel(this
+									.getChannelIdFromReference(message.getReference()));
+							// get the message object through service
+							AnnouncementMessage message2 = channel2.getAnnouncementMessage(this
+									.getMessageIDFromReference(message.getReference()));
+							AnnouncementMessageEdit msg =(AnnouncementMessageEdit)message2;
+							AnnouncementMessageHeaderEdit header2 = msg.getAnnouncementHeaderEdit();
+							header2.setMessage_order(messageOrder);						
+							channel2.commitMessage_order(msg);
+							messageOrder++;
+						}
+					}
+				}
+				} catch (PermissionException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IdUnusedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
 			}
 		}
