@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+
+<body>
+<wicket:extend>
+	
+	<h3>Search for users:</h3>
+	<form wicket:id="form">
+		<input type="text" wicket:id="search" />
+		<input type="submit"/>
+	</form>	
+	<br/>	
+	<span wicket:id="searchResultsTitle">Results for: </span><span wicket:id="searchString" style="font-weight: bold">user search string</span>
+	<br/>
+	<div wicket:id="navigatorTop"></div>
+	<wicket:enclosure child="searchResult">
+	<table cellspacing="0" class="dataview listHier lines nolines">
+    <tbody>
+    	<tr>
+    	<th><a wicket:id="userIdSortLink"><wicket:message key="userIdHeader"/></a></th>
+    	<th><a wicket:id="nameSortLink"><wicket:message key="nameHeader"/></a></th>
+    	<th><a wicket:id="emailSortLink"><wicket:message key="emailHeader"/></a></th>
+    	<th><a wicket:id="typeSortLink"><wicket:message key="typeHeader"/></a></th>
+    	</tr>
+       <tr wicket:id="searchResult">
+       	 <td><a wicket:id="userIdLink"><span wicket:id="userId">test</span></a></td>
+       	 <td><span wicket:id="name">Last, First</span></td>
+         <td><span wicket:id="email">test@test.com</span></td>
+         <td><span wicket:id="type">Student</span></td>
+       </tr>
+    </tbody>
+	</table>
+	</wicket:enclosure>
+	<div wicket:id="navigatorBottom"></div>
+			
+	
+	
+	
+</wicket:extend>
+</body>
+</html>
