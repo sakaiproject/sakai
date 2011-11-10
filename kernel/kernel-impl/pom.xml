@@ -34,20 +34,11 @@
           <!-- <redirectTestOutputToFile>true</redirectTestOutputToFile> -->
           <testFailureIgnore>false</testFailureIgnore> 
           <forkMode>pertest</forkMode>
-          <systemProperties>
-            <property>
-              <name>derby.stream.error.file</name>
-              <value>${project.build.directory}/derby.log</value>
-            </property>
-            <property>
-              <name>derby.system.durability</name>
-              <value>test</value>
-            </property>
-            <property>
-              <name>known.issues</name>
-              <value />
-            </property>
-          </systemProperties>
+          <systemPropertyVariables>
+            <derby.stream.error.file>${project.build.directory}/derby.log</derby.stream.error.file>
+            <derby.system.durability>test</derby.system.durability>
+            <known.issues></known.issues>
+          </systemPropertyVariables>
         </configuration>
       </plugin>
     </plugins>
