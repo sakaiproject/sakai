@@ -454,14 +454,8 @@
                     <systemProperties>
                         <!-- Pass through important service-integration 
                             test properties. -->
-                        <property>
-                            <name>maven.tomcat.home</name>
-                            <value>${maven.tomcat.home}</value>
-                        </property>
-                        <property>
-                            <name>test.sakai.home</name>
-                            <value>${test.sakai.home}</value>
-                        </property>
+						<maven.tomcat.home>${maven.tomcat.home}</maven.tomcat.home>
+						<test.sakai.home>${test.sakai.home}</test.sakai.home>
                     </systemProperties>
                 </configuration>
             </plugin>
