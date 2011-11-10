@@ -1,0 +1,55 @@
+<h1>Delegated Access Tool</h1>
+<br/>
+The delegated access tool allows administrators to search for users and delegate site and role access without enrolling the user in the site.  It also allows you to select specific tools the user should not have access to.<br/>
+<br/>
+<h3>Getting it to work:</h3>
+<br/>
+<h2>Step 1: Apply kernel and portal patches:<h2>
+<br/>
+delegatedaccess_kernel.patch<br/>
+delegatedaccess_portal.patch<br/>
+<br/>
+Then build and deploy.<br/>
+<br/>
+<h2>Step 2: Build Delegate Access</h2>
+<br/>
+Build and deploy the delegated access tool<br/>
+<br/>
+<h2>Step 3:  Create a hierarchy</h2>
+<br/>
+The default hierarchy is based on a site's property values (in order):<br/>
+<br/>
+School<br/>
+Department<br/>
+Subject<br/>
+<br/>
+You can overwrite the hierarchy structure in sakai.properties with: delegatedaccess.hierarchy.site.properties <br/><br/>
+	ex:<br/>
+	delegatedaccess.hierarchy.site.properties.count=3<br/>
+	delegatedaccess.hierarchy.site.properties.1=Top<br/>
+	delegatedaccess.hierarchy.site.properties.2=Middle<br/>
+	delegatedaccess.hierarchy.site.properties.3=Bottom<br/>
+<br/>
+<br/>
+Once you have set up your hierarchy properties, you will need to add these properties to your sites.  This can be done during your site integration job.<br/>
+<br/>
+<h2>Step 4: Quartz Job to Populate Your Hierarchy Structure</h2>
+<br/>
+DelegatedAccessSiteHierarchyJob<br/>
+<br/>
+This is the default quartz job to populate/update(add/remove) the Delegated Access site hierarchy.  It searches through all sites in Sakai and looks for structure properties tied to the site.  You can run it as many times as you want.   The best bet would be to set up a quartz trigger to go off after every time your site integration runs.<br/>
+<br/>
+<h2>Step 5: Add tool to Administrative Workspace</h2>
+<br/>
+Only an admin will be able to assign delegated access to users.<br/>
+<br/>
+Step 6: Delegate Access as Admin<br/>
+<br/>
+The easiest way to think of how the tool works is liking it to the Role Swap feature in Sakai.  Instead of just swapping the role, you can specify the realm and role the user will receive for that particular site or node in the hierarchy.<br/>
+<br/>
+Go to the tool and click "Search Users" and find a user you want to delegate access for.  Click their name.  Now you will be able to select which nodes they will have access to and which role they will emulate.  You can also restrict tools by clicking the "Restrict Tools" link.  Every child of the selected node will inherit these settings but will be able to override them by selecting the node and choosing its own values.  When done, click save.<br/>
+<br/>
+<h2>Step 7: Get Access as a User</h2>
+<br/>
+By default the tool can be added to a user's My Workspace.  Since only administrators can delegate access, a regular user won't be able to modify anything.  If the user doesn't have any access delegated to them, they will see a message saying so.  Otherwise, you will see a node structure in which you can navigate and click on the sites you've been granted access to.  Since this tool populates the delegated access information during login, a user could also use direct links to a delegated site.<br/>
+
