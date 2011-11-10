@@ -230,14 +230,14 @@
             <uniqueVersion>false</uniqueVersion>
             <id>sakai-maven-snapshots-scp</id>
             <name>Sakai snapshot Repo</name>
-            <url>scp://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
+            <url>scpexe://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
             <layout>default</layout>
         </snapshotRepository>
         <repository>
             <uniqueVersion>false</uniqueVersion>
             <id>sakai-maven2-scp</id>
             <name>Sakai maven2 repository</name>
-            <url>scp://source.sakaiproject.org/var/www/html/maven2</url>
+            <url>scpexe://source.sakaiproject.org/var/www/html/maven2</url>
             <layout>default</layout>
         </repository>
         <site>
@@ -260,7 +260,7 @@
     	<genericdao.version>0.9.18</genericdao.version>
     	<commons.codec.version>1.4</commons.codec.version>
     	<legacy.profile.api.version>2.9-SNAPSHOT</legacy.profile.api.version>
-		<url.localsite>scp://source.sakaiproject.org/var/www/html/release/profile2/${project.version}</url.localsite>
+		<url.localsite>scpexe://source.sakaiproject.org/var/www/html/release/profile2/${project.version}</url.localsite>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <search-api.version>1.4-SNAPSHOT</search-api.version>
 		<entitybroker.version>1.5-SNAPSHOT</entitybroker.version>
@@ -517,5 +517,14 @@
 			</plugin>
             
         </plugins>
+        
+        <extensions>
+            <!-- Enabling the use of external ssh -->
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh-external</artifactId>
+                <version>2.0</version>
+            </extension>
+        </extensions>
     </build>
 </project>
