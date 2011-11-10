@@ -297,7 +297,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		if (contextId.equals(MOTD_CONTEXT))
 		{
 			// add an exception for MOTD announcement, where the context id is "!site"
-			context = new Context("!site", "MOTD", this.sakaiProxy.getConfigParam("serverUr", "")+ "/access/content/public/MOTD%20files/");
+			context = new Context(contextId, "MOTD", this.sakaiProxy.getConfigParam("serverUr", "")+ "/access/content/public/MOTD%20files/");
 		}
 		else
 		{
@@ -309,6 +309,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		{
 			dao.addContext(context);
 		}
+		context = dao.getContext(contextId);
 		return context;
 	}
 
