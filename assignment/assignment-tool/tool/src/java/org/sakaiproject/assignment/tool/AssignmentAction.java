@@ -6366,7 +6366,7 @@ public class AssignmentAction extends PagedResourceActionII
 								/* location */"",
 								/* access */ eAccess,
 								/* groups */ eGroups,
-								/* attachments */EntityManager.newReferenceList());
+								/* attachments */aEdit.getContent().getAttachments());
 
 						aEdit.getProperties().addProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED, Boolean.TRUE.toString());
 						if (e != null)
