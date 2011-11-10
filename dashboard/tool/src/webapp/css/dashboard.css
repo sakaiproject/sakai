@@ -1,8 +1,7 @@
 /* zero out */
 table {
-    margin: 10px 0px;
-    width: 95%;
-    background-color: #eee;
+    margin: 0;
+    width: 100%;
     float: none;
     clear: both
 }
@@ -34,7 +33,7 @@ table tr td {
 }
 .tab{
     padding-left:15px;
-    }
+}
 .activeCell{
     -webkit-border-top-right-radius: 7px;
     -webkit-border-top-left-radius: 7px;
@@ -112,13 +111,18 @@ table tr.newRow:hover {
     }
     
 h3.withNav {
-    margin:0;
+    margin:1em 0;
 }
-
+.pagerCell{
+    vertical-align:bottom !important;
+    text-align:right;
+    padding:5px 0 
+}
 .pager {
-    width: 95%;
+    width:100%;
     color: #aaa;
     text-align: right;
+    margin:0;
 }
 
 .pager > a, .pager > span {
@@ -346,7 +350,10 @@ a.schedule-icon{
     width: 5%;
 }    
 .listHeader {
-    margin-bottom:0px
+    margin-bottom:10px;
+    margin-bottom:5px;
+    border-bottom:10px solid #ddd;
+    
 }
 .listHeader td{
     border:2xp solid red  !important;
@@ -374,5 +381,52 @@ a.schedule-icon{
 .itemCollection .resource  td.resourceLink a.itemLink, .itemCollection .resource td.activeCell a.itemLink,  .itemCollection .resource td.tab a.itemLink{
     background-image: none;
     padding:3px;
-    display:inline important!;    
+    display:inline !important;    
+}
+
+ul.tabPanel, li{
+    border:0; margin:0; padding:0; list-style:none;
+}
+ul.tabPanel{
+    height:29px;
+    margin:-bottom:3px;
+}
+.tabPanel li{float:left; margin-right:2px;background:#eee;
+    -webkit-border-top-left-radius: 7px;
+    -webkit-border-top-right-radius: 7px;
+    -moz-border-radius-topleft: 7px;
+    -moz-border-radius-topright: 7px;
+    border-top-left-radius: 7px;
+    border-top-right-radius: 7px;
+}
+
+.tabPanel a:link, .tabPanel a:visited{
+    background:url(img/tab-round.png) right 60px;
+    color:#666 !important;
+    display:block;
+    font-weight:bold;
+    height:30px;
+    line-height:30px;
+    text-decoration:none;
+}
+.tabPanel a span{
+    background:url(img/tab-round.png) left 60px;
+    display:block;
+    height:30px;
+    margin-right:14px;
+    padding-left:14px;
+}
+.tabPanel a:hover{
+    display:block;
+    color:#000;
+}
+.tabPanel a:hover span{
+    background:url(img/tab-round.png) left 30px;
+    display:block;
+}
+.tabPanel .activeTab{
+    background:#ddd
+}
+.panel{
+    padding:5px;
 }
