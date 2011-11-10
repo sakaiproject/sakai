@@ -451,12 +451,12 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.6</version>
                 <configuration>
-                    <systemProperties>
+                    <systemPropertyVariables>
                         <!-- Pass through important service-integration 
                             test properties. -->
 						<maven.tomcat.home>${maven.tomcat.home}</maven.tomcat.home>
 						<test.sakai.home>${test.sakai.home}</test.sakai.home>
-                    </systemProperties>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
             <!-- Comment out; causes build failures when Jenkins fails to find external template -->
