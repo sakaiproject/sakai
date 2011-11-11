@@ -1067,10 +1067,9 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 		return (AnnouncementChannelEdit) addChannel(ref);
 
 	} // addAnnouncementChannel
-
+	
 	/**
 	 * Return a list of messages from the provided channel (merged flag returns merged messages)
-	 * 
 	 * @param channelReference
 	 *        Channel's reference String
 	 * @param filter
@@ -1080,10 +1079,13 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 	 * @param merged
 	 * 		  flag to include merged channel messages, true returns ALL messages including merged sites/channels
 	 * @return a list of Message objects or specializations of Message objects (may be empty).
+	 * @exception IdUnusedException
+	 *            If this name is not defined for a announcement channel.
 	 * @exception PermissionException
 	 *            if the user does not have read permission to the channel.
+	 * @exception NullPointerException
 	 */
-	public List getMessages(String channelReference,Filter filter, boolean order, boolean merged) throws PermissionException
+	public List getMessages(String channelReference,Filter filter, boolean order, boolean merged) throws IdUnusedException, PermissionException, NullPointerException
 	{
 		List<Message> messageList = new ArrayList();	
 		filter = new PrivacyFilter(filter);  		// filter out drafts this user cannot see

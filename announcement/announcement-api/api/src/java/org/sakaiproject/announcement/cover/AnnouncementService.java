@@ -535,10 +535,13 @@ public class AnnouncementService
 	 * @param merged
 	 * 		  flag to include merged channel messages, true returns ALL messages including merged sites/channels
 	 * @return a list of Message objects or specializations of Message objects (may be empty).
+	 * @exception IdUnusedException
+	 *            If this name is not defined for a announcement channel.
 	 * @exception PermissionException
 	 *            if the user does not have read permission to the channel.
+	 * @exception NullPointerException
 	 */
-	public static  java.util.List getMessages(String channelReference, Filter filter, boolean order, boolean merged) throws org.sakaiproject.exception.PermissionException
+	public static  java.util.List getMessages(String channelReference, Filter filter, boolean order, boolean merged) throws org.sakaiproject.exception.IdUnusedException, org.sakaiproject.exception.PermissionException, NullPointerException
 	{
 		org.sakaiproject.announcement.api.AnnouncementService service = getInstance();
 		if (service == null) return null;
