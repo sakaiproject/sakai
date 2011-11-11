@@ -68,7 +68,7 @@ public class CalendarLinksPanel extends Panel {
 		 
 	protected String selectedCalendarTab = null;
 	protected String calendarLinksDivId = null;
-	protected String noCalendarLinksDivId = null;
+	protected String calendarLinksCountId = null;
 	protected int pageSize = 5;
 	
 	public CalendarLinksPanel(String id) {
@@ -122,6 +122,7 @@ public class CalendarLinksPanel extends Panel {
 				// refresh calendarItemsDiv
 		        initPanel();
 				target.addComponent(CalendarLinksPanel.this);
+				target.appendJavascript("resizeFrame('grow');");
 			}
         	
         };
@@ -152,6 +153,7 @@ public class CalendarLinksPanel extends Panel {
 				// refresh calendarItemsDiv
 		        initPanel();
 				target.addComponent(CalendarLinksPanel.this);
+				target.appendJavascript("resizeFrame('grow');");
 			}
         	
         };
@@ -181,6 +183,7 @@ public class CalendarLinksPanel extends Panel {
 				// refresh calendarItemsDiv
 		        initPanel();
 				target.addComponent(CalendarLinksPanel.this);
+				target.appendJavascript("resizeFrame('grow');");
 			}
         	
         };
@@ -210,6 +213,7 @@ public class CalendarLinksPanel extends Panel {
 				// refresh calendarItemsDiv
 		        initPanel();
 				target.addComponent(CalendarLinksPanel.this);
+				target.appendJavascript("resizeFrame('grow');");
 			}
         	
         };
@@ -283,6 +287,7 @@ public class CalendarLinksPanel extends Panel {
 										String jsonStr = jsonHelper.getJsonObjectFromCalendarItem(changedItem).toString();
 										String javascript = "reportSuccess('item is no longer starred.'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
 										target.appendJavascript(javascript);
+										target.appendJavascript("resizeFrame('grow');");
 									}
 								}
 							}
@@ -338,6 +343,7 @@ public class CalendarLinksPanel extends Panel {
 									target.addComponent(CalendarLinksPanel.this);
 									//String javascript = "alert('success. (" + thisRow.getMarkupId() + ")');";
 									//target.appendJavascript(javascript );
+									target.appendJavascript("resizeFrame('grow');");
 								}
 							}
 							
@@ -393,6 +399,7 @@ public class CalendarLinksPanel extends Panel {
 									String jsonStr = jsonHelper.getJsonObjectFromCalendarItem(changedItem).toString();
 									String javascript = "reportSuccess('item is no longer hidden.'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
 									target.appendJavascript(javascript );
+									target.appendJavascript("resizeFrame('grow');");
 								}
 							}
 		                	
@@ -449,6 +456,7 @@ public class CalendarLinksPanel extends Panel {
 									String jsonStr = jsonHelper.getJsonObjectFromCalendarItem(changedItem).toString();
 									String javascript = "reportSuccess('item is now hidden.'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
 									target.appendJavascript(javascript );
+									target.appendJavascript("resizeFrame('grow');");
 								}
 							}
 		                	
@@ -508,6 +516,8 @@ public class CalendarLinksPanel extends Panel {
         	public void onBeforeRender() {
         		super.onBeforeRender();
         		
+        		renderItemCounter(calendarLinksDiv, calendarDataView); 
+       		
         		//clear the feedback panel messages
         		//clearFeedback(feedbackPanel);
         	}
@@ -527,13 +537,14 @@ public class CalendarLinksPanel extends Panel {
 			noCalendarLinksLabel = rl.getString("dash.calendar.nohidden");
 		}
 		haveNoLinks.add(new Label("message", noCalendarLinksLabel));
-        
+   
+		renderItemCounter(calendarLinksDiv, calendarDataView); 
+
         int itemCount = 0;
-        if(calendarLinksProvider != null) {
-        	itemCount = calendarLinksProvider.size();
+        if(calendarDataView != null) {
+        	itemCount = calendarDataView.getItemCount();
         } 
-    	// add the count to the calendarLinksDiv
-        calendarLinksDiv.add(new Label("calendarLinksCount", rl.getFormattedMessage("dash.calendar.linksCount", new Object[]{ new Integer(itemCount) })));
+                
         if(itemCount > 0) {
         	// show the haveLinks
         	haveLinks.setVisible(true);
@@ -547,6 +558,57 @@ public class CalendarLinksPanel extends Panel {
         }
 	}
 	
+	/**
+	 * @param rl
+	 * @param calendarLinksDiv
+	 * @param calendarDataView
+	 */
+	protected void renderItemCounter(final WebMarkupContainer calendarLinksDiv,
+			final DataView<CalendarLink> calendarDataView) {
+		
+		ResourceLoader rl = new ResourceLoader("dash_entity");
+		
+		if(calendarLinksCountId != null) {
+			Iterator itx = calendarLinksDiv.iterator();
+			while(itx.hasNext()) {
+				Component child = (Component) itx.next();
+				if(calendarLinksCountId.equals(child.getId())) {
+					calendarLinksDiv.remove(child);
+					break;
+				}
+			}
+		}
+
+		int itemCount = 0;
+		String pagerStatus = "";
+		if(calendarDataView != null) {
+		    int first = 0;
+		    int last = 0;
+			itemCount = calendarDataView.getItemCount();
+		    int pageSize = calendarDataView.getItemsPerPage();
+			if(itemCount > pageSize) {
+				int page = calendarDataView.getCurrentPage();
+				first = page * pageSize + 1;
+				last = Math.min(itemCount, (page + 1) * pageSize);
+				if(first == last) {
+		    		pagerStatus = rl.getFormattedMessage("dash.calendar.linksCount2", new Object[]{new Integer(first), new Integer(itemCount)});
+				} else {
+		    		pagerStatus = rl.getFormattedMessage("dash.calendar.linksCount3", new Object[]{new Integer(first), new Integer(last), new Integer(itemCount)});
+				}
+			} else if(itemCount > 1) {
+				pagerStatus = rl.getFormattedMessage("dash.calendar.linksCount3", new Object[]{new Integer(1), new Integer(itemCount), new Integer(itemCount)});
+			} else if(itemCount > 0) {
+				pagerStatus = rl.getString("dash.calendar.linksCount1");
+			} else {
+				pagerStatus = rl.getString("dash.calendar.linksCount0");
+			}
+		}
+		Label calendarLinksCount = new Label("calendarLinksCount", pagerStatus);
+    	// add the count to the calendarLinksDiv
+        calendarLinksDiv.add(calendarLinksCount);
+        calendarLinksCountId = calendarLinksCount.getId();
+	}
+
 	private class CalendarLinkListDataProvider implements IDataProvider<List<CalendarLink>> {
 
 		public void detach() {

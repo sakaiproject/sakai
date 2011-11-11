@@ -60,6 +60,7 @@ public class NewsLinksPanel extends Panel {
 	protected NewsLinksDataProvider newsLinksProvider = null;
 	protected String selectedNewsTab;
 	protected String newsLinksDivId = null;
+	protected String newsLinksCountId = null;
 	protected int pageSize = 5;
 
 	public NewsLinksPanel(String id) {
@@ -114,6 +115,7 @@ public class NewsLinksPanel extends Panel {
 				
 				// refresh newsLinksDiv
 				target.addComponent(NewsLinksPanel.this);
+				target.appendJavascript("resizeFrame('grow');");
 			}
         	
         };
@@ -142,6 +144,7 @@ public class NewsLinksPanel extends Panel {
 				
 				// refresh newsLinksDiv
 				target.addComponent(NewsLinksPanel.this);
+				target.appendJavascript("resizeFrame('grow');");
 			}
         	
         };
@@ -170,6 +173,7 @@ public class NewsLinksPanel extends Panel {
 				
 				// refresh newsLinksDiv
 				target.addComponent(NewsLinksPanel.this);
+				target.appendJavascript("resizeFrame('grow');");
 			}
         	
         };
@@ -240,6 +244,7 @@ public class NewsLinksPanel extends Panel {
 									String javascript = "reportSuccess('item is no longer starred.'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
 									target.appendJavascript(javascript );
 								}
+								target.appendJavascript("resizeFrame('grow');");
 							}
 						}
 	                	
@@ -295,6 +300,7 @@ public class NewsLinksPanel extends Panel {
 								//String javascript = "alert('success. (" + thisRow.getMarkupId() + ")');";
 								//target.appendJavascript(javascript );
 							}
+							target.appendJavascript("resizeFrame('grow');");
 						}
 						
 	                };
@@ -349,6 +355,7 @@ public class NewsLinksPanel extends Panel {
 								String javascript = "reportSuccess('item is no longer hidden.'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
 								target.appendJavascript(javascript );
 							}
+							target.appendJavascript("resizeFrame('grow');");
 						}
 	                	
 	                };
@@ -405,6 +412,7 @@ public class NewsLinksPanel extends Panel {
 								String javascript = "reportSuccess('item is now hidden.'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
 								target.appendJavascript(javascript );
 							}
+							target.appendJavascript("resizeFrame('grow');");
 						}
 	                	
 	                };
@@ -462,10 +470,13 @@ public class NewsLinksPanel extends Panel {
         	@Override
         	public void onBeforeRender() {
         		super.onBeforeRender();
-        		
+
+                renderItemCounter(newsLinksDiv, newsDataView);
+
         		//clear the feedback panel messages
         		//clearFeedback(feedbackPanel);
         	}
+        	
         });
         
         WebMarkupContainer haveNoLinks = new WebMarkupContainer("haveNoLinks");
@@ -481,12 +492,12 @@ public class NewsLinksPanel extends Panel {
 		}
         haveNoLinks.add(new Label("message", noNewsLinksLabel));
         
+        renderItemCounter(newsLinksDiv, newsDataView);
         int itemCount = 0;
-        if(newsLinksProvider != null) {
-        	itemCount = newsLinksProvider.size();
-        } 
-    	// add the count to the newsLinksDiv
-        newsLinksDiv.add(new Label("newsLinksCount", rl.getFormattedMessage("dash.news.linksCount", new Object[]{ new Integer(itemCount) })));
+        if(newsDataView != null) {
+        	itemCount = newsDataView.getItemCount();
+        }
+       
         if(itemCount > 0) {
         	// show the haveLinks
         	haveLinks.setVisible(true);
@@ -500,6 +511,60 @@ public class NewsLinksPanel extends Panel {
         }
 	}
 	
+	/**
+	 * @param rl
+	 * @param newsLinksDiv
+	 * @param newsDataView
+	 */
+	protected void renderItemCounter(
+			final WebMarkupContainer newsLinksDiv,
+			final DataView<NewsLink> newsDataView) {
+		
+		ResourceLoader rl = new ResourceLoader("dash_entity");
+				
+		if(newsLinksCountId != null) {
+			Iterator itx = newsLinksDiv.iterator();
+			while(itx.hasNext()) {
+				Component child = (Component) itx.next();
+				if(newsLinksCountId.equals(child.getId())) {
+					newsLinksDiv.remove(child);
+					break;
+				}
+			}
+		}
+
+		int itemCount = 0;
+		String pagerStatus = "";
+		if(newsDataView != null) {
+		    int first = 0;
+		    int last = 0;
+			itemCount = newsDataView.getItemCount();
+		    int pageSize = newsDataView.getItemsPerPage();
+			if(itemCount > pageSize) {
+				int page = newsDataView.getCurrentPage();
+				first = page * pageSize + 1;
+				last = Math.min(itemCount, (page + 1) * pageSize);
+				if(first == last) {
+		    		pagerStatus = rl.getFormattedMessage("dash.news.linksCount2", new Object[]{new Integer(first), new Integer(itemCount)});
+				} else {
+		    		pagerStatus = rl.getFormattedMessage("dash.news.linksCount3", new Object[]{new Integer(first), new Integer(last), new Integer(itemCount)});
+				}
+			} else if(itemCount > 1) {
+				pagerStatus = rl.getFormattedMessage("dash.news.linksCount3", new Object[]{new Integer(1), new Integer(itemCount), new Integer(itemCount)});
+			} else if(itemCount > 0) {
+				pagerStatus = rl.getString("dash.news.linksCount1");
+			} else {
+				pagerStatus = rl.getString("dash.news.linksCount0");
+			}
+		} 
+		Label newsLinksCount = new Label("newsLinksCount", pagerStatus);
+		newsLinksCount.setOutputMarkupId(true);
+		// add the count to the newsLinksDiv
+		newsLinksDiv.add(newsLinksCount);
+		
+		newsLinksCountId = newsLinksCount.getId();
+	}
+
 	/**
 	 * DataProvider to manage our list
 	 * 
