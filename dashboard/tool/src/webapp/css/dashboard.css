@@ -251,9 +251,19 @@ ul.attachList li {
 /*file and item type listings*/
 a.itemLink {
     display: block;
+    float:left;
     padding: 3px;
     padding-left: 21px;
     background: url(../../../../library/image/sakai/generic.gif) center left no-repeat;
+}
+div.titleModLabel{
+    color:#555;
+    font-size:.9em;
+    float:left;
+    padding:5px 5px 0 0px;
+}
+div.titleModLabel:before{
+    content:" - ";
 }
 a.assignment-icon{
     background: url("/library/image/silk/page_edit.png") center left no-repeat !important    
