@@ -85,7 +85,7 @@ public class NewsLinksPanel extends Panel {
 		if(this.newsLinksDivId != null) {
 			this.remove(newsLinksDivId );
 		}
-
+		
 		//get list of items from db, wrapped in a dataprovider
 		newsLinksProvider = new NewsLinksDataProvider(this.selectedNewsTab);
 		
@@ -178,8 +178,9 @@ public class NewsLinksPanel extends Panel {
 		hiddenNewsTab.add(hiddenNewsLink);
 		newsLinksDiv.add(hiddenNewsTab);
              
-		
-		
+        WebMarkupContainer haveLinks = new WebMarkupContainer("haveLinks");
+        newsLinksDiv.add(haveLinks);
+        
 		//present the news data in a table
 		final DataView<NewsLink> newsDataView = new DataView<NewsLink>("newsLinks", newsLinksProvider) {
 
@@ -202,6 +203,12 @@ public class NewsLinksPanel extends Panel {
 
                 String siteTitle = nItem.getContext().getContextTitle();
                 item.add(new ExternalLink("itemLink", "#", nItem.getTitle()));
+                
+                String newsItemLabel = dashboardLogic.getString(nItem.getNewsTimeLabelKey(), "", itemType);
+                if(newsItemLabel == null) {
+                	newsItemLabel = "";
+                }
+				item.add(new Label("itemLabel", newsItemLabel));
                 item.add(new ExternalLink("siteLink", nItem.getContext().getContextUrl(), siteTitle));
                 item.add(new Label("newsTime", new SimpleDateFormat(DATETIME_FORMAT).format(nItem.getNewsTime())));
                 
@@ -359,7 +366,7 @@ public class NewsLinksPanel extends Panel {
         
         newsDataView.setItemReuseStrategy(new DefaultItemReuseStrategy());
         newsDataView.setItemsPerPage(pageSize);
-        newsLinksDiv.add(newsDataView);
+        haveLinks.add(newsDataView);
 
         //add a pager to our table, only visible if we have more than 5 items
         newsLinksDiv.add(new PagingNavigator("newsNavigator", newsDataView) {
@@ -381,6 +388,36 @@ public class NewsLinksPanel extends Panel {
         	}
         });
         
+        WebMarkupContainer haveNoLinks = new WebMarkupContainer("haveNoLinks");
+        newsLinksDiv.add(haveNoLinks);
+        
+        String noNewsLinksLabel = null;
+		if(TAB_ID_CURRENT.equals(selectedNewsTab)) {
+			noNewsLinksLabel = rl.getString("dash.news.nocurrent");
+		} else if(TAB_ID_STARRED.equals(selectedNewsTab)) {
+			noNewsLinksLabel = rl.getString("dash.news.nostarred");
+		} else if(TAB_ID_HIDDEN.equals(selectedNewsTab)) {
+			noNewsLinksLabel = rl.getString("dash.news.nohidden");
+		}
+        haveNoLinks.add(new Label("message", noNewsLinksLabel));
+        
+        int itemCount = 0;
+        if(newsLinksProvider != null) {
+        	itemCount = newsLinksProvider.size();
+        } 
+    	// add the count to the newsLinksDiv
+        newsLinksDiv.add(new Label("newsLinksCount", rl.getFormattedMessage("dash.news.linksCount", new Object[]{ new Integer(itemCount) })));
+        if(itemCount > 0) {
+        	// show the haveLinks
+        	haveLinks.setVisible(true);
+        	// hide the noNewsLinksDiv
+        	haveNoLinks.setVisible(false);
+        } else {
+        	// show the noNewsLinksDiv
+        	haveNoLinks.setVisible(true);
+        	// hide the haveLinks
+        	haveLinks.setVisible(false);
+        }
 	}
 	
 	/**

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
     <wicket:panel>
-        <div id="activeCalendarItems" wicket:id="calendarItemsDiv">
+        <div id="activeCalendarItems" wicket:id="calendarLinksDiv">
             <table class="listHeader" cellpadding="0" cellspacing="0" border="0">
                 <tr>
                     <td style="width:70%;padding:0">
@@ -20,6 +20,7 @@
                                 <a href="#" wicket:id="link"><span wicket:id="label">[ Hidden ]</span></a>
                             </li>
                         </ul>
+                        <span wicket:id="calendarLinksCount">[[ cero puntos ]]</span>
                     </td>
                     <td style="width:30%" class="pagerCell">
                         <div class="pager" style="float:right" wicket:id="calendarNavigator">
@@ -27,7 +28,7 @@
                     </td>
                 </tr>
             </table>
-            <div class="panel">
+            <div class="panel" wicket:id="haveLinks">
                 <table cellspacing="0" id="sched" class="sched" summary="List of upcoming tasks. Column 1: date and time when task is due. Column 2: task title and link to get more details. Column 3: link to site where task originated. Column 4: list of options managing items of this type or origin." border="0">
                     <thead>
                         <tr class="header">
@@ -50,7 +51,6 @@
                     </thead>
                     <tr class="" id="item1" wicket:id="calendarItems">
                         <td class="one date">
-                            <span wicket:id="calendarTimeLabel">[Time Label]</span>
                             <span wicket:id="calendarDate">[Date]</span>
                             <span wicket:id="calendarTime">[Time]</span>
                             <span wicket:id="itemType" class="itemType" style="display:none;">[item type]</span>
@@ -59,6 +59,7 @@
                         </td>
                         <td class="tab two">
                             <a href="#" wicket:id="itemLink" class="itemLink" target="_top">[Item Title]</a>
+                            <span wicket:id="itemLabel" class="dashboardLabel">[Item Label]</span>
                         </td>
                         <td class="three">
                             <a href="#" wicket:id="siteLink" class="siteLink" target="_top">[Site Title]</a>
@@ -80,6 +81,9 @@
                     </tr>
                 </table>
             </div>
+	        <div wicket:id="haveNoLinks">
+	            <p wicket:id="message">[[ I got nothing for ya. ]]</p>
+	        </div>
         </div>
     </wicket:panel>
 </html>

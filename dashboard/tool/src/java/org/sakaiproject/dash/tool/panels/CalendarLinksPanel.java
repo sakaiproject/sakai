@@ -62,7 +62,8 @@ public class CalendarLinksPanel extends Panel {
 	protected DashboardPage dashboardPage;
 		 
 	protected String selectedCalendarTab = null;
-	protected String calendarItemsDivId = null;
+	protected String calendarLinksDivId = null;
+	protected String noCalendarLinksDivId = null;
 	protected int pageSize = 5;
 	
 	public CalendarLinksPanel(String id) {
@@ -90,14 +91,14 @@ public class CalendarLinksPanel extends Panel {
 			selectedCalendarTab = TAB_ID_UPCOMING;
 		}
 
-		if(this.calendarItemsDivId != null) {
-			this.remove(calendarItemsDivId);
+		if(this.calendarLinksDivId != null) {
+			this.remove(calendarLinksDivId);
 		}
 
-		final WebMarkupContainer calendarItemsDiv = new WebMarkupContainer("calendarItemsDiv");
-		calendarItemsDiv.setOutputMarkupId(true);
-		add(calendarItemsDiv);
-		this.calendarItemsDivId = calendarItemsDiv.getId();
+		final WebMarkupContainer calendarLinksDiv = new WebMarkupContainer("calendarLinksDiv");
+		calendarLinksDiv.setOutputMarkupId(true);
+		add(calendarLinksDiv);
+		this.calendarLinksDivId = calendarLinksDiv.getId();
 
         AjaxLink<IModel<List<CalendarLink>>> upcomingCalendarLink = new AjaxLink<IModel<List<CalendarLink>>>("link") {
 
@@ -126,7 +127,7 @@ public class CalendarLinksPanel extends Panel {
 			upcomingCalendarTab.add(new SimpleAttributeModifier("class", "activeTab"));
 		}
 		upcomingCalendarTab.add(upcomingCalendarLink);
-        calendarItemsDiv.add(upcomingCalendarTab);
+        calendarLinksDiv.add(upcomingCalendarTab);
 
 		AjaxLink<IModel<List<CalendarLink>>> pastCalendarLink = new AjaxLink<IModel<List<CalendarLink>>>("link") {
 
@@ -155,7 +156,7 @@ public class CalendarLinksPanel extends Panel {
 			pastCalendarTab.add(new SimpleAttributeModifier("class", "activeTab"));
 		}
 		pastCalendarTab.add(pastCalendarLink);
-        calendarItemsDiv.add(pastCalendarTab);
+        calendarLinksDiv.add(pastCalendarTab);
 
 		AjaxLink<IModel<List<CalendarLink>>> starredCalendarLink = new AjaxLink<IModel<List<CalendarLink>>>("link") {
 
@@ -184,7 +185,7 @@ public class CalendarLinksPanel extends Panel {
 			starredCalendarTab.add(new SimpleAttributeModifier("class", "activeTab"));
 		}
 		starredCalendarTab.add(starredCalendarLink);
-        calendarItemsDiv.add(starredCalendarTab);
+        calendarLinksDiv.add(starredCalendarTab);
 
 		AjaxLink<IModel<List<CalendarLink>>> hiddenCalendarLink = new AjaxLink<IModel<List<CalendarLink>>>("link") {
 
@@ -213,14 +214,17 @@ public class CalendarLinksPanel extends Panel {
 			hiddenCalendarTab.add(new SimpleAttributeModifier("class", "activeTab"));
 		}
 		hiddenCalendarTab.add(hiddenCalendarLink);
-        calendarItemsDiv.add(hiddenCalendarTab);
+        calendarLinksDiv.add(hiddenCalendarTab);
 
         if(calendarLinksProvider == null) {
         	calendarLinksProvider = new CalendarLinksDataProvider(selectedCalendarTab);
         } else {
         	calendarLinksProvider.setCalendarTab(selectedCalendarTab);
         }
-		
+        
+        WebMarkupContainer haveLinks = new WebMarkupContainer("haveLinks");
+        calendarLinksDiv.add(haveLinks);
+
 		//present the calendar data in a table
 		final DataView<CalendarLink> calendarDataView = new DataView<CalendarLink>("calendarItems", calendarLinksProvider) {
 
@@ -239,15 +243,15 @@ public class CalendarLinksPanel extends Panel {
 	                item.add(new Label("itemType", itemType));
 	                item.add(new Label("itemCount", "1"));
 	                item.add(new Label("entityReference", cItem.getEntityReference()));
-	                String calendarTimeLabel = dashboardLogic.getString(cItem.getCalendarTimeLabelKey(), "", itemType);
-	                if(calendarTimeLabel == null) {
-	                	calendarTimeLabel = "";
-	                }
-					item.add(new Label("calendarTimeLabel", calendarTimeLabel ));
 	                item.add(new Label("calendarDate", new SimpleDateFormat(DATE_FORMAT).format(cItem.getCalendarTime())));
 	                item.add(new Label("calendarTime", new SimpleDateFormat(TIME_FORMAT).format(cItem.getCalendarTime())));
 	                
 	                item.add(new ExternalLink("itemLink", "#", cItem.getTitle()));
+	                String calendarItemLabel = dashboardLogic.getString(cItem.getCalendarTimeLabelKey(), "", itemType);
+	                if(calendarItemLabel == null) {
+	                	calendarItemLabel = "";
+	                }
+					item.add(new Label("itemLabel", calendarItemLabel ));
 	                item.add(new ExternalLink("siteLink", cItem.getContext().getContextUrl(), cItem.getContext().getContextTitle()));
 	      
 	                if(cLink.isSticky()) {
@@ -404,10 +408,10 @@ public class CalendarLinksPanel extends Panel {
         };
         calendarDataView.setItemReuseStrategy(new DefaultItemReuseStrategy());
         calendarDataView.setItemsPerPage(pageSize);
-        calendarItemsDiv.add(calendarDataView);
+        haveLinks.add(calendarDataView);
 
         //add a pager to our table, only visible if we have more than 5 items
-        calendarItemsDiv.add(new PagingNavigator("calendarNavigator", calendarDataView) {
+        calendarLinksDiv.add(new PagingNavigator("calendarNavigator", calendarDataView) {
         	
         	@Override
         	public boolean isVisible() {
@@ -425,6 +429,39 @@ public class CalendarLinksPanel extends Panel {
         		//clearFeedback(feedbackPanel);
         	}
         });
+
+        WebMarkupContainer haveNoLinks = new WebMarkupContainer("haveNoLinks");
+        calendarLinksDiv.add(haveNoLinks);
+        
+        String noCalendarLinksLabel = null;
+		if(TAB_ID_UPCOMING.equals(selectedCalendarTab)) {
+			noCalendarLinksLabel = rl.getString("dash.calendar.noupcoming");
+		} else if(TAB_ID_PAST.equals(selectedCalendarTab)) {
+			noCalendarLinksLabel = rl.getString("dash.calendar.nopast");
+		} else if(TAB_ID_STARRED.equals(selectedCalendarTab)) {
+			noCalendarLinksLabel = rl.getString("dash.calendar.nostarred");
+		} else if(TAB_ID_HIDDEN.equals(selectedCalendarTab)) {
+			noCalendarLinksLabel = rl.getString("dash.calendar.nohidden");
+		}
+		haveNoLinks.add(new Label("message", noCalendarLinksLabel));
+        
+        int itemCount = 0;
+        if(calendarLinksProvider != null) {
+        	itemCount = calendarLinksProvider.size();
+        } 
+    	// add the count to the calendarLinksDiv
+        calendarLinksDiv.add(new Label("calendarLinksCount", rl.getFormattedMessage("dash.calendar.linksCount", new Object[]{ new Integer(itemCount) })));
+        if(itemCount > 0) {
+        	// show the haveLinks
+        	haveLinks.setVisible(true);
+        	// hide the haveNoLinks
+        	haveNoLinks.setVisible(false);
+        } else {
+        	// show the haveNoLinks
+        	haveNoLinks.setVisible(true);
+        	// hide the haveLinks
+        	haveLinks.setVisible(false);
+        }
 	}
 	
 	private class CalendarLinkListDataProvider implements IDataProvider<List<CalendarLink>> {
