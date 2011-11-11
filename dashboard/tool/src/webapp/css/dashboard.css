@@ -124,7 +124,9 @@ h3.withNav {
     text-align: right;
     margin:0;
 }
-
+.itemCount+span.pager{
+    padding-left:20px;
+}
 .pager > a, .pager > span {
     padding: 0 5px;
     text-align: center;
@@ -256,13 +258,14 @@ a.itemLink {
     padding-left: 21px;
     background: url(../../../../library/image/sakai/generic.gif) center left no-repeat;
 }
-div.titleModLabel{
+.dashboardLabel{
+    display:block;
     color:#555;
     font-size:.9em;
     float:left;
     padding:5px 5px 0 0px;
 }
-div.titleModLabel:before{
+.dashboardLabel:before{
     content:" - ";
 }
 a.assignment-icon{
