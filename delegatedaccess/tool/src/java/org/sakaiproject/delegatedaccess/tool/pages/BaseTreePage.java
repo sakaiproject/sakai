@@ -337,7 +337,6 @@ public abstract class BaseTreePage extends BasePage
 	 *
 	 */
 	private class NodeListComparator implements Comparator<List>{
-		@Override
 		public int compare(List o1, List o2) {
 			return ((HierarchyNodeSerialized) o1.get(0)).title.compareToIgnoreCase(((HierarchyNodeSerialized) o2.get(0)).title);
 		}

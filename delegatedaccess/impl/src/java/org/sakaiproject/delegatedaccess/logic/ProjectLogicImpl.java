@@ -58,7 +58,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public Set<HierarchyNodeSerialized> getNodesForCurrentUser() {
 		return getNodesForUser(sakaiProxy.getCurrentUserId());
 	}
@@ -108,7 +107,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public Set<HierarchyNodeSerialized> getNodesForUser(String userId) {
 		return convertToSerializedNodeSet(hierarchyService.getNodesForUserPerm(userId, "site.visit"));
 	}
@@ -230,7 +228,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 		if(children != null && children.size() > 0){
 			List<HierarchyNode> childrenList = new ArrayList<HierarchyNode>(children);
 			Collections.sort(childrenList, new Comparator<HierarchyNode>(){
-				@Override
 				public int compare(HierarchyNode o1, HierarchyNode o2) {
 					return o1.title.compareToIgnoreCase(o2.title);
 				}
@@ -250,7 +247,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public List<SearchResult> searchUsers(String search, int first, int last) {
 		List<User> searchResult = sakaiProxy.searchUsers(search, first, last);
 		List<SearchResult> returnList = new ArrayList<SearchResult>();
@@ -461,7 +457,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 			returnList.add(new ToolSerialized(tool.getId(), tool.getTitle() + "(" + tool.getId() + ")", restrictedTools.contains(tool.getId())));
 		}
 		Collections.sort(returnList, new Comparator<ToolSerialized>() {
-			@Override
 			public int compare(ToolSerialized arg0, ToolSerialized arg1) {
 				return arg0.getToolName().compareTo(arg1.getToolName());
 			}

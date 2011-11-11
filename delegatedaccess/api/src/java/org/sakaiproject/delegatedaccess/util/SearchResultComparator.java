@@ -12,7 +12,6 @@ public class SearchResultComparator implements Comparator<SearchResult>{
 		this.compareField = compareField;
 	}
 
-	@Override
 	public int compare(SearchResult o1, SearchResult o2) {
 		switch (compareField) {
 		case DelegatedAccessConstants.SEARCH_COMPARE_EMAIL:

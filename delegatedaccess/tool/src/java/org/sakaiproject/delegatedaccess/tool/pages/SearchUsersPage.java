@@ -202,17 +202,14 @@ public class SearchUsersPage extends BasePage {
 		private int lastOrderBy = DelegatedAccessConstants.SEARCH_COMPARE_DEFAULT;
 
 		private List<SearchResult> list;
-		@Override
 		public void detach() {
 			list = null;
 		}
 
-		@Override
 		public Iterator<? extends SearchResult> iterator(int first, int count) {
 			return getData().subList(first, first + count).iterator();
 		}
 
-		@Override
 		public IModel<SearchResult> model(final SearchResult object) {
 			return new AbstractReadOnlyModel<SearchResult>() {
 				private static final long serialVersionUID = 1L;
@@ -224,7 +221,6 @@ public class SearchUsersPage extends BasePage {
 			};
 		}
 
-		@Override
 		public int size() {
 			return getData().size();
 		}

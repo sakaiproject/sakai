@@ -11,7 +11,7 @@ delegatedaccess_portal.patch
 
 Then build and deploy.
 
-Step 2: Build Delegate Access
+Step 2: Build Delegated Access
 
 Build and deploy the delegated access tool
 

@@ -139,7 +139,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public List<User> searchUsers(String search, int first, int last) {
 		List<User> returnList = new ArrayList<User>();
 		returnList.addAll(userDirectoryService.searchExternalUsers(search, first, last));

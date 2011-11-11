@@ -35,7 +35,6 @@ public class DelegatedAccessObserver implements Observer {
 		eventTrackingService.addObserver(this);
 	}
 
-	@Override
 	public void update(Observable arg0, Object arg) {
 		if (!(arg instanceof Event))
 			return;

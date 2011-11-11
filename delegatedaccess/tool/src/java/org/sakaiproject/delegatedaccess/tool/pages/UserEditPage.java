@@ -90,13 +90,13 @@ public class UserEditPage  extends BaseTreePage{
 			realmMap.put(group.getId(), roles);
 		}
 		IColumn columns[] = new IColumn[] {
-				new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.MIDDLE, 1, Unit.PROPORTIONAL), new StringResourceModel("access", null).getString(),
+				new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.LEFT, 55, Unit.PX), new StringResourceModel("access", null).getString(),
 						"userObject.directAccess"),
-				new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 8, Unit.PROPORTIONAL),
+				new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 50, Unit.PROPORTIONAL),
 						"", "userObject.node.title"),
-				new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.MIDDLE, 8, Unit.PROPORTIONAL), new StringResourceModel("role", null).getString(),
+				new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.MIDDLE, 50, Unit.PROPORTIONAL), new StringResourceModel("role", null).getString(),
 						"userObject.realmModel", realmMap),
-				new PropertyEditableColumnList(new ColumnLocation(Alignment.MIDDLE, 2, Unit.PROPORTIONAL), new StringResourceModel("restrictedToolsHeader", null).getString(),
+				new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 96, Unit.PX), new StringResourceModel("restrictedToolsHeader", null).getString(),
 						"userObject.restrictedTools"),
 		};
 

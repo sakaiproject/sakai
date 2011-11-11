@@ -52,7 +52,6 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 
 	}
 
-	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 
 
