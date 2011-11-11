@@ -9,12 +9,14 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -22,6 +24,7 @@ import org.apache.wicket.markup.repeater.DefaultItemReuseStrategy;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
+import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -76,7 +79,7 @@ public class NewsLinksPanel extends Panel {
 
 	protected void initPanel() {
 		
-		ResourceLoader rl = new ResourceLoader("dash_entity");
+		final ResourceLoader rl = new ResourceLoader("dash_entity");
 		
 		if(this.selectedNewsTab == null) {
 			this.selectedNewsTab = TAB_ID_CURRENT;
@@ -244,7 +247,27 @@ public class NewsLinksPanel extends Panel {
 	                
 	                starringAction.setDefaultModel(item.getModel());
 	                item.add(starringAction);
-	                starringAction.add(new Label("starringActionLabel", "Unstar"));
+					Image starringActionIcon = new Image("starringActionIcon");
+					starringActionIcon.add(new AttributeModifier("src", true, new AbstractReadOnlyModel(){
+
+						@Override
+						public Object getObject() {
+							return "/dashboard-tool/css/img/star-act.png";
+						}
+						
+					}));
+					starringActionIcon.add(new AttributeModifier("title", true, new AbstractReadOnlyModel(){
+
+						@Override
+						public Object getObject() {
+							// TODO Auto-generated method stub
+							return rl.getString("dash.unstar");
+						}
+						
+					}));
+					starringAction.add(starringActionIcon);
+
+	                //starringAction.add(new Label("starringActionLabel", "Unstar"));
 	                
 	                if(nLink.isHidden()) {
 	                	// this shouldn't happen, but just in case ...
@@ -275,7 +298,26 @@ public class NewsLinksPanel extends Panel {
 						}
 						
 	                };
-	                starringAction.add(new Label("starringActionLabel", "Star"));
+					Image starringActionIcon = new Image("starringActionIcon");
+					starringActionIcon.add(new AttributeModifier("src", true, new AbstractReadOnlyModel(){
+
+						@Override
+						public Object getObject() {
+							return "/dashboard-tool/css/img/star-inact.png";
+						}
+						
+					}));
+					starringActionIcon.add(new AttributeModifier("title", true, new AbstractReadOnlyModel(){
+
+						@Override
+						public Object getObject() {
+							// TODO Auto-generated method stub
+							return rl.getString("dash.star");
+						}
+						
+					}));
+					starringAction.add(starringActionIcon);
+	                // starringAction.add(new Label("starringActionLabel", "Star"));
 	                item.add(starringAction);
 
 	                if(nLink.isHidden()) {
@@ -313,7 +355,26 @@ public class NewsLinksPanel extends Panel {
 	                hidingAction.setDefaultModel(item.getModel());
 	                //actionHideThisLink.setModelObject(nItem);
 	                item.add(hidingAction);
-	                hidingAction.add(new Label("hidingActionLabel", "Show"));
+					Image hidingActionIcon = new Image("hidingActionIcon");
+					hidingActionIcon.add(new AttributeModifier("src", true, new AbstractReadOnlyModel(){
+
+						@Override
+						public Object getObject() {
+							return "/dashboard-tool/css/img/accept.png";
+						}
+						
+					}));
+					hidingActionIcon.add(new AttributeModifier("title", true, new AbstractReadOnlyModel(){
+
+						@Override
+						public Object getObject() {
+							// TODO Auto-generated method stub
+							return rl.getString("dash.show");
+						}
+						
+					}));
+					hidingAction.add(hidingActionIcon);
+	                //hidingAction.add(new Label("hidingActionLabel", "Show"));
 	                
 	                if(nLink.isSticky()) {
 	                	// this shouldn't happen, but just in case ...
@@ -351,7 +412,26 @@ public class NewsLinksPanel extends Panel {
 	                
 	                //actionHideThisLink.setModelObject(nItem);
 	                item.add(hidingAction);
-	                hidingAction.add(new Label("hidingActionLabel", "Hide"));
+					Image hidingActionIcon = new Image("hidingActionIcon");
+					hidingActionIcon.add(new AttributeModifier("src", true, new AbstractReadOnlyModel(){
+
+						@Override
+						public Object getObject() {
+							return "/dashboard-tool/css/img/cancel.png";
+						}
+						
+					}));
+					hidingActionIcon.add(new AttributeModifier("title", true, new AbstractReadOnlyModel(){
+
+						@Override
+						public Object getObject() {
+							// TODO Auto-generated method stub
+							return rl.getString("dash.hide");
+						}
+						
+					}));
+					hidingAction.add(hidingActionIcon);
+	                //hidingAction.add(new Label("hidingActionLabel", "Hide"));
 	                
 	                if(nLink.isSticky()) {
 		                hidingAction.setVisible(false);
