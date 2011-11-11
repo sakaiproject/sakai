@@ -271,7 +271,7 @@ ul.attachList li{
 .listNav div.instruction, .searchNav div.instruction{
 	text-align: center;
 	font-size: .9em;
-    font-family: verdana, arial, helvetica, sans-serif\0/;
+    font-family: verdana, arial, helvetica, sans-serif;
 }
 /*listNav inputs have punct. marks as labels, adding a screen reader only fieldset with the real label makes them usable */
 div.listNav fieldset { 
