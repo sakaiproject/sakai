@@ -481,25 +481,25 @@ var sakai = sakai ||
  args: id of table, id of select all checkbox, highlight row class
  */
 sakai.setupSelectListMultiple = function(list, allcontrol, highlightClass){
-    $('.' + list + ' :checked').parent("td").parent("tr").addClass(highlightClass);
-    $('.waitListed :checked').parent("td").parent("tr").addClass(highlightClass);
-    $('.' + allcontrol).click(function(){
+    jQuery('.' + list + ' :checked').parent("td").parent("tr").addClass(highlightClass);
+    jQuery('.waitListed :checked').parent("td").parent("tr").addClass(highlightClass);
+    jQuery('.' + allcontrol).click(function(){
         if (this.checked) {
-            $(this).parents('table.availableSpots').children('tbody').find('input').attr('checked',true);
-            $(this).parents('table.availableSpots').children('tbody').find('tr').addClass(highlightClass);
+            jQuery(this).parents('table.availableSpots').children('tbody').find('input').attr('checked',true);
+            jQuery(this).parents('table.availableSpots').children('tbody').find('tr').addClass(highlightClass);
         }
         else {
-            $(this).parents('label').parents('table.availableSpots').children('tbody').find('input').attr('checked',false);
-            $(this).parents('table.availableSpots').children('tbody').find('tr').removeClass(highlightClass);
+            jQuery(this).parents('label').parents('table.availableSpots').children('tbody').find('input').attr('checked',false);
+            jQuery(this).parents('table.availableSpots').children('tbody').find('tr').removeClass(highlightClass);
         }
     });
     
-    $('.' + list + ' :checkbox, .waitListed :checkbox').click(function(){
+    jQuery('.' + list + ' :checkbox, .waitListed :checkbox').click(function(){
         if (this.checked) {
-            $(this).parent('td').parent('tr').addClass(highlightClass);
+            jQuery(this).parent('td').parent('tr').addClass(highlightClass);
         }
         else {
-            $(this).parent('td').parent('tr').removeClass(highlightClass);
+            jQuery(this).parent('td').parent('tr').removeClass(highlightClass);
         }
     });
 };
@@ -507,28 +507,28 @@ sakai.setupSelectListMultiple = function(list, allcontrol, highlightClass){
 
 sakai.setupPrintPreview = function(){
   if (window.name == 'printwindow') {
-    $('.portletBody').addClass('portletBodyPrint');
-    $("h3").append(' (<a href="javascript:window.print()">Print</a>)');
+    jQuery('.portletBody').addClass('portletBodyPrint');
+    jQuery("h3").append(' (<a href="javascript:window.print()">Print</a>)');
     /*
     manipulate checkboxes
     */
-   $('#attendanceList :checkbox').each(function(){
-       if ($(this).attr('checked') ===true){
-           $(this).before('<span class="printCheckbox">X</span>')
+   jQuery('#attendanceList :checkbox').each(function(){
+       if (jQuery(this).attr('checked') ===true){
+           jQuery(this).before('<span class="printCheckbox">X</span>')
        }
        else{
-           $(this).before('<span class="printCheckbox">&nbsp;&nbsp;</span>')
+           jQuery(this).before('<span class="printCheckbox">&nbsp;&nbsp;</span>')
        }
    })
   }
 }	
 
 sakai.setupWaitListed = function(){
-    if ($('.waitListed').length > 0) {
-        $('.toggle').show();
+    if (jQuery('.waitListed').length > 0) {
+        jQuery('.toggle').show();
     }
-    $('.toggle a').click(function(){
-        $('.waitListed').toggle();
+    jQuery('.toggle a').click(function(){
+        jQuery('.waitListed').toggle();
     })
 }
 
@@ -544,10 +544,10 @@ sakai.updateSignupBeginsExact = function() {
 	
 	//get offset
 	//need special selector syntax because of the :
-	var signupBeginsOffset = $('[id=meeting:signupBegins]').val();
+	var signupBeginsOffset = jQuery('[id=meeting:signupBegins]').val();
 	
 	//get offset type
-	var signupBeginsOffsetType = $('[id=meeting:signupBeginsType]').val();
+	var signupBeginsOffsetType = jQuery('[id=meeting:signupBeginsType]').val();
 	
 	//calculate actual signupBegin time
 	var signupBeginsExact = '';
@@ -571,7 +571,7 @@ sakai.updateSignupBeginsExact = function() {
 	*/
 	
 	//set the new date into the fields
-	$('[id=meeting:signupBeginsExact]').text(signupBeginsExact.toString());
+	jQuery('[id=meeting:signupBeginsExact]').text(signupBeginsExact.toString());
 }
 
 sakai.updateSignupEndsExact = function() {
@@ -580,10 +580,10 @@ sakai.updateSignupEndsExact = function() {
 	var endTime = new Date(getSignupDateTime('endTime'));
 	
 	//get offset
-	var signupEndsOffset = $('[id=meeting:signupDeadline]').val();
+	var signupEndsOffset = jQuery('[id=meeting:signupDeadline]').val();
 	
 	//get offset type
-	var signupEndsOffsetType = $('[id=meeting:signupDeadlineType]').val();
+	var signupEndsOffsetType = jQuery('[id=meeting:signupDeadlineType]').val();
 	
 	//calculate actual signupEnd time
 	var signupEndsExact = '';
@@ -604,19 +604,19 @@ sakai.updateSignupEndsExact = function() {
 	 */
 	
 	//set the new date into the fields
-	$('[id=meeting:signupEndsExact]').text(signupEndsExact.toString());
+	jQuery('[id=meeting:signupEndsExact]').text(signupEndsExact.toString());
 }
 
 sakai.toggleExactDateVisibility = function() {
 	
 	//only visible when the meeting is once only, so check for that.
-	var recurrence = $('[id=meeting:recurSelector]').val();
+	var recurrence = jQuery('[id=meeting:recurSelector]').val();
 	if(recurrence == 'no_repeat') {
-		$('[id=meeting:signupBeginsExact]').show();
-		$('[id=meeting:signupEndsExact]').show();
+		jQuery('[id=meeting:signupBeginsExact]').show();
+		jQuery('[id=meeting:signupEndsExact]').show();
 	} else {
-		$('[id=meeting:signupBeginsExact]').hide();
-		$('[id=meeting:signupEndsExact]').hide();
+		jQuery('[id=meeting:signupBeginsExact]').hide();
+		jQuery('[id=meeting:signupEndsExact]').hide();
 	}
 	
 	

@@ -13,6 +13,7 @@
 			</style>
 			<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/signupScript.js"></script>
 			<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/jquery.js"></script>	
+			<script>jQuery.noConflict();</script>
 				
 		<sakai:view_content>
 			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>      			
@@ -171,7 +172,7 @@
 				  }
 			}	
 			
-			$(document).ready(function() {
+			jQuery(document).ready(function() {
 				
 				var MIN_ATTENDEES = 1;
 				var MAX_ATTENDEES = 500;
@@ -179,7 +180,7 @@
 				/**
 				* check input is only numeric
 				*/
-				$(".numericOnly").keydown(function(event) {
+				jQuery(".numericOnly").keydown(function(event) {
 			        // Allow only backspace and delete
 			        if ( event.keyCode == 46 || event.keyCode == 8 ) {
 			            // let it happen, don't do anything
@@ -196,13 +197,13 @@
 				* check the range of a field after it has been input, and set it to default if out of range
 				* Don't do it if it's blank though as that is handled separately.
 				*/
-				$(".ranged").keyup(function(event) {
+				jQuery(".ranged").keyup(function(event) {
 					
-					var n = $(this).val();
+					var n = jQuery(this).val();
 					
 					if(n.length>0 && (n < MIN_ATTENDEES || n > MAX_ATTENDEES)) {
 						alert("The number of attendees must be between " + MIN_ATTENDEES + " and " + MAX_ATTENDEES + ".");
-						$(this).val(MIN_ATTENDEES);
+						jQuery(this).val(MIN_ATTENDEES);
 					}
 					
 				});
@@ -211,12 +212,12 @@
 				* check if a form field is blank. if it is, set to default
 				*/
 				
-				$(".notblank").blur(function(event) {
+				jQuery(".notblank").blur(function(event) {
 					
-					var n = $(this).val();
+					var n = jQuery(this).val();
 					
 					if(n == '') {
-						$(this).val(MIN_ATTENDEES);
+						jQuery(this).val(MIN_ATTENDEES);
 					}
 					
 				});

@@ -18,7 +18,8 @@
         <script type="text/javascript" src="/sakai-signup-tool/js/newMeetingStep1.js"></script>  
         
 		<script type="text/javascript">
-        	$(document).ready(function(){
+			jQuery.noConflict();
+			jQuery(document).ready(function(){
         		sakai.toggleExactDateVisibility();
         		sakai.initSignupBeginAndEndsExact();
         	});
