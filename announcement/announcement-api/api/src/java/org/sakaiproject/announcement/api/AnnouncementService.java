@@ -164,6 +164,8 @@ public interface AnnouncementService extends MessageService
 	
 	/**
 	 * Determine if message viewable based on release/retract dates (if set)
+	 * @param AnnouncementMessage
+	 * @return boolean
 	 */
 	public boolean isMessageViewable(AnnouncementMessage message);
 	
