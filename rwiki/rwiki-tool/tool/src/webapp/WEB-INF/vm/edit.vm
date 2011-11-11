@@ -169,7 +169,7 @@
 						        <div id="textarea_inner_sizing_divx">
 						           #edittoolbar()
 						           #if ( ${editBean.saveType} && ("preview" ==  ${editBean.saveType}|| ${editBean.saveType.startsWith("attach")}) )
-								   <label for="content" class="">${rlb.jsp_edit_content_label}</label>
+								   <label for="content" class="hidden">${rlb.jsp_edit_content_label}</label>
 						           <textarea cols="60" 
 						                     rows="25" 
 						                     name="content" 
@@ -178,7 +178,7 @@
 						                     onclick="storeCaret(this)" 
 						                     onkeyup="storeCaret(this)" >${util.escapeHtml($editBean.previousContent)}</textarea>
 						 	         #else
-								   <label for="content" class="">${rlb.jsp_edit_content_label}</label>
+								   <label for="content" class="hidden">${rlb.jsp_edit_content_label}</label>
 						           <textarea cols="60" 
 						                     rows="25" 
 						                     name="content" 
