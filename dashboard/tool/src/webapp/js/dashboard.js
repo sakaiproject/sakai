@@ -233,15 +233,15 @@ var setupLinks = function(){
                             }
                             var link = '';
                             if (itemType === "resource") {
-                                row = '<td style=\"width:50%\" class=\"toggleCell resourceLink\"><a href=\"#\" class =\"itemLink\">' + icon + this.title + '</a></td><td style=\"width:50%\"><em style=\"display:none\"><span class=\"itemType\">' + itemType + '</span><span class=\"itemCount\">1</span><span class=\"entityReference\">' + this.entityReference + '</span></em><a href=\"/access' + this.entityReference + '\" target =\"_blank\">Download</a></td>'
+                                row = '<td style=\"width:50%\" class=\"toggleCell resourceLink\"><a href=\"#\" class =\"itemLink\">' + icon + this.title + '</a></td><td style=\"width:50%\"><em style=\"display:none\"><span class=\"itemType\">' + itemType + '</span><span class=\"itemCount\">1</span><span class=\"entityReference\">' + this.entityReference + '</span></em><a href=\"/access' + this.entityReference + '\" target =\"_blank\">Download</a></td>';
                             }
                             else {
-                                row = '<td class=\"toggleCell\"><em style=\"display:none\"><span class=\"itemType\">' + itemType + '</span><span class=\"itemCount\">1</span><span class=\"entityReference\">' + this.entityReference + '</span></em><a href=\"#\" class =\"itemLink ' + itemType + '-icon\">' + icon + this.title + '</a></td>'
+                                row = '<td class=\"toggleCell\"><em style=\"display:none\"><span class=\"itemType\">' + itemType + '</span><span class=\"itemCount\">1</span><span class=\"entityReference\">' + this.entityReference + '</span></em><a href=\"#\" class =\"itemLink ' + itemType + '-icon\">' + icon + this.title + '</a></td>';
                             }
                             
-                            results = results + '<tr class=\"' + this.entityType + ' row' + i % 2 + '\">' + row + '</tr>'
+                            results = results + '<tr class=\"' + this.entityType + ' row' + i % 2 + '\">' + row + '</tr>';
                         });
-                        results = results + '</table></div>'
+                        results = results + '</table></div>';
                         
                         
                         $('<tr class=\"newRow\"><td colspan=\"' + colCount + '\">' + results + '</td></tr>').insertAfter(parentRow);
@@ -315,5 +315,5 @@ var resizeFrame = function(updown){
 };
 
 var reportSuccess = function(msg, item, url){
-	alert('reportSuccess(' + msg + ')');
+    $('#messagePanel').html(msg).fadeTo("slow", 1).animate({opacity: 1.0}, 5000).fadeTo(3000, 0);
 };
