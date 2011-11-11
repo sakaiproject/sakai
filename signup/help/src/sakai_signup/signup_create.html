@@ -12,45 +12,244 @@ media="all" rel="stylesheet" />
 <body>
 <div class="helpBody">
 
-<h2>Sign-up Tool: Creating meetings </h2>
-<p>There are three types of events or meetings:</p>
-<ul>
-   <li><strong>Multiple slots:</strong> a single time slot can be divided into
-     any number of meetings of equal length. For example, a two hour 
-meeting could
-     have four half-hour slots or eight quarter-hour slots. For each slot there
-     is a maximum number of participants. Participants are required to 
-sign up. <br />
-     <br />
-   </li>
-   <li><strong>Single slot:</strong>     a single time slot is created and the
-     number of participants can be limited or unlimited. Participants 
-are required
-     to sign up.<br />
-     <br />
-   </li>
-   <li><strong>Announcement:</strong> creates a single time slot for 
-an event or meeting. Participants
-     are not required to sign up.</li>
-  </ul>
-<p><strong>Note:</strong> All these meeting types can be set up as recurring events. </p>
+<h2>Sign-up Tool: Creating meetings</h2>
+
 <p>To create a meeting:</p>
-<ol>
-   <li><strong>Click Add,</strong> then choose the type of meeting and
-       complete all the required information about dates, times and 
-place of meeting.</li><br />
-   <li>If you want this to be a recurring meeting select the desired option next to &quot;Meeting Frequency.&quot; <br /><br />
-   </li>
-   <li><strong>Check the appropriate boxes </strong>to manage email 
-     notifications
-     and the display of participant names.<br />
-     <br />
-   </li>
-   <li><strong>Publish </strong>by clicking either <strong>Publish 
-</strong>or<strong> Assign
-     Participants &amp; Publish. </strong> You have the option of 
-assigning participants
-     or allowing them to choose their own time slots. </li>
+<p>
+</p>
+<ol start="1" type="1">
+<li>
+<strong>Click Add,</strong>
+then choose the type of meeting and complete all the required information about dates, times and 
+
+place of meeting.
+</li>
+<ul>
+<li>
+<p>
+<strong>Title</strong>
+:&nbsp; This field will identify the meeting in this site&#8217;s list of meetings<strong>.</strong>
+</p>
+</li>
+<li>
+<p>
+<strong>Location</strong>
+:&nbsp; This field will appear in the Meeting Details.
+</p>
+</li>
+<li>
+<p>
+<strong>Description</strong>
+:&nbsp; This field appears on the Meeting Details and the student Sign-up screen.
+</p>
+</li>
+<li>
+<p>
+<strong>Start Time</strong>:&nbsp; Fill out the date (with, optionally,
+the date picker) and the time showing when the meeting will
+begin.&nbsp; The 24-hour clock is not available, so AM and PM must be used.
+</p>
+</li>
+<li>
+<p>
+<strong>End Time</strong>:&nbsp; Fill out the date (with, optionally,
+the date picker) and the time showing when the meeting will end.&nbsp;
+The 24-hour clock is not available, so AM and PM must be used.
+</p>
+</li>
+<li>
+<p>
+<strong>Meeting frequency</strong>:&nbsp; To set up recurring meetings,
+choose an option here.&nbsp; Any of the meeting types can be
+recurring.&nbsp; Selection of a meeting frequency
+other than &#8220;Once Only&#8221; will create a series of entries in the meetings
+table with the same name but different details, where any of the
+individual entries can be modified as necessary (see &#8220;Editing a
+meeting&#8221;).
+</p>
+</li>
+<li>
+<p>
+<strong>Sign-up begins</strong>:&nbsp; Enter the point at which the
+meeting should be opened for sign-up.&nbsp; Before then, participants
+will not have an active Sign-up button next to a meeting entry.&nbsp; To 
+allow immediate sign-up, choose &#8220;Start Now&#8221; from the drop-down box.
+</p>
+</li>
+<li>
+<p>
+<strong>Sign-up ends</strong>:&nbsp; Enter the point relative to the
+meeting at which to close the sign-up process.&nbsp; This blocks
+further sign-up by participants, and also
+blocks cancellation of a meeting for which a participant has already
+signed up.&nbsp; This period is measured from the scheduled meeting
+end, allowing sign-up even after the meeting has started, when that is appropriate.
+</p>
+</li>
+<li>
+<p>
+<strong>Available to</strong>:&nbsp; This field allows you to determine
+who can sign up for the meeting.&nbsp; You can limit sign-up to members
+of a group (defined on this site) or
+extend the sign-up offer to the membership of other sites, by selecting
+the appropriate checkboxes.&nbsp; The option to extend to other sites
+allows inclusion of those sites&#8217; members, or groups defined there.&nbsp; The
+other site must also have the Sign-up Tool in order for its members to
+participate.&nbsp; Default:&nbsp; Available to members of this site
+only.
+</p>
+</li>
+<li>
+<p>
+<strong><a href="content.hlp?docId=signup_meetingType">Meeting Type</a></strong>:
+</p>
+<p>
+</p>
+<p>
+The relevant options for each of the three meeting types appear when that meeting type is selected 
+
+via its radio button.
+</p>
+
+<p>
+<em>Open meeting</em>
+&#8212;&nbsp; No relevant options.
+</p>
+
+<p>
+<em>Single slot</em>
+&#8212;&nbsp;Options to choose between Max number (in which case, enter the number of participants 
+
+allowed) and Unlimited.
+</p>
+
+<p>
+<em>Multiple slots</em>&#8212;Options create timeslots, either (1) computed
+to occupy a single continuous time span, or (2) occupying separate
+irregular time spans manually defined, covering one or more days.&nbsp; Each method 
+creates a single meeting with multiple entries in a timeslot table.&nbsp;
+</p>
+</li>
+<ol type='a'>
+<li>
+<p>Number of slots available for sign-up:&nbsp; Enter
+the number of individual timeslots over which to divide the meeting time.
+</p>
+</li>
+<li>
+<p>
+Number of participants per slot:&nbsp; Enter the number of people that can sign up for each slot.
+</p>
+</li>
+<li>
+<p>Estimate duration per timeslot (min):&nbsp; This figure, in red, is
+calculated as a function of the total meeting time span and the number
+of slots available, and cannot be edited.&nbsp; It allocates the available time
+across the slots.&nbsp; For example, if the number of slots is defined
+to be 5, and the start and end times of the meeting span two hours, the duration
+will be set to 24 (120 minutes divided by 5).&nbsp; A number of slots
+that does not divide the period evenly will give rise to a warning message and an
+adjustment of the total span.&nbsp; Note:&nbsp; In any case, the
+resulting timeslots can be edited, after the meeting is published, through the
+&#8220;Modify&#8221; process by selecting &#8220;Advanced user-defined
+timeslots.&#8221;&nbsp; See below, &#8220;Editing a meeting.&#8221;
+</p>
+</li>
+<li>
+<p>Advanced user-defined timeslots: &nbsp;Allows a
+multiple-slot meeting to be defined as a set of irregular timeslot
+choices, over several days at different times.&nbsp; (Each person can sign up for
+only one.)&nbsp; Select this checkbox,&#8221; then select the &#8220;Edit
+Timeslots&#8221; link that appears. &nbsp;Enter new timeslots with the &#8220;Add a
+new timeslot&#8221; link, edit the data, and delete extraneous ones
+with the red X.&nbsp; This option does not allow unlimited
+participation.&nbsp; A warning that this meeting covers more than one
+day can be ignored.</p>
+</li>
 </ol>
+</ul>
+
+
+<li>Continue to the second page (using <strong>&#8220;Next&#8221;</strong>), the Meeting Summary, to
+verify the details set so far, then complete the meeting settings, as follows.
+</li>
+
+<ul>
+<li>
+<p><strong>Check the appropriate boxes </strong>
+to manage email notifications and the display of participant names.&nbsp; These settings are 
+off by default (value is &#8220;no&#8221;):
+</p>
+</li>
+
+<li>
+<p><strong>Display Participant Names</strong>
+:&nbsp; &#8220;Yes&#8221; means that names of participants will be visible to others.</p>
+</li>
+
+<li>
+<p><strong>Receive Notification</strong>:&nbsp; &#8220;Yes&#8221; means that the
+meeting creator will receive email notification when a participant
+signs up or cancels an appointment.</p>
+</li>
+
+<li>
+<p><strong>Announce Availability</strong>
+:&nbsp; &#8220;Yes&#8221; means that all the potential participants will receive e-mail announcing 
+that this meeting has been published.</p>
+</li>
+
+<p>
+Just below that, other default settings can be opened, all with initial values of &#8220;Yes&#8221;:
+</p>
+
+
+<li><p>
+<strong>Allow Wait List</strong>
+:&nbsp; &#8220;Yes&#8221; means that a Wait List will be kept, and participants can join it if this 
+meeting is filled to capacity.</p>
+</li>
+
+<li>
+<p><strong>User ID InputMode:</strong> &nbsp;Yes, I want to use User ID input mode for adding
+participants. &#8211; allows organizer to use User Id rather than choosing from drop down
+list.&nbsp; Useful for very large classes where drop down list is very
+long.
+</p>
+</li>
+
+<li>
+<p><strong>Allow Adding Comment</strong>
+:&nbsp; &#8220;Yes&#8221; means that a participant can add a comment during sign-up.</p>
+</li>
+
+<li>
+<p><strong>Auto Reminder</strong>
+:&nbsp; &#8220;Yes&#8221; means that all attendees of the meeting will receive an e-mail reminder one 
+
+day in advance.</p>
+</li>
+
+<li>
+<p><strong>Publish to Schedule</strong>:&nbsp; &#8220;Yes&#8221; means that the
+meeting will appear on this site&#8217;s Schedule or Calendar tool,
+regardless of attendance status of the current user.</p>
+</li>
+</ul>
+
+
+<li>
+<p><strong>Publish </strong>
+by clicking either <strong>Publish </strong>or<strong> Assign Participants &amp; Publish. 
+
+</strong>You have the option of assigning participants or
+allowing them to choose their own timeslots. &nbsp;If you do not choose
+to assign participants at this time, you may do so later by editing the
+meeting settings, as described below.&nbsp;</p>
+</li>
+</ol>
+
+<p>&nbsp;</p>
+
 </div>
 </body></html>

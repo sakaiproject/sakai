@@ -19,7 +19,7 @@
    
     <bean id="signupStudent" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>signup_student</value></property>
-      <property name="name"><value>Student view</value></property>
+      <property name="name"><value>Student or participant process</value></property>
       <property name="location"><value>/sakai_signup/signup_student.html</value></property>
       <property name="defaultForTool"><value>sakai.signup</value></property>
    </bean>
@@ -28,6 +28,34 @@
       <property name="docId"><value>signup_uses</value></property>
       <property name="name"><value>Suggestions for use</value></property>
       <property name="location"><value>/sakai_signup/signup_uses.html</value></property>
+      <property name="defaultForTool"><value>sakai.signup</value></property>
+   </bean>
+   
+   <bean id="signupMeetingType" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>signup_meetingType</value></property>
+      <property name="name"><value>Meeting Types</value></property>
+      <property name="location"><value>/sakai_signup/signup_meetingType.html</value></property>
+      <property name="defaultForTool"><value>sakai.signup</value></property>
+   </bean>
+   
+   <bean id="signupEditMeeting" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>signup_editMeeting</value></property>
+      <property name="name"><value>Editing a meeting</value></property>
+      <property name="location"><value>/sakai_signup/signup_editMeeting.html</value></property>
+      <property name="defaultForTool"><value>sakai.signup</value></property>
+   </bean>
+   
+   <bean id="signupExporting" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>signup_exporting</value></property>
+      <property name="name"><value>Exporting meeting data</value></property>
+      <property name="location"><value>/sakai_signup/signup_exporting.html</value></property>
+      <property name="defaultForTool"><value>sakai.signup</value></property>
+   </bean>
+   
+   <bean id="signupDispPermission" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>signup_displayPermission</value></property>
+      <property name="name"><value>Participation, permissions and display</value></property>
+      <property name="location"><value>/sakai_signup/signup_displayPermission.html</value></property>
       <property name="defaultForTool"><value>sakai.signup</value></property>
    </bean>
       
@@ -41,8 +69,12 @@
                <property name="resources">
                   <list>
                     <ref bean="signupOverview"/>
+                    <ref bean="signupMeetingType"/>
 					<ref bean="signupCreate"/>
+					<ref bean="signupDispPermission"/>
+					<ref bean="signupEditMeeting"/>
 					<ref bean="signupStudent"/>
+					<ref bean="signupExporting"/>
 					<ref bean="signupUses"/>
                   </list>
                </property>
