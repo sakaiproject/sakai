@@ -6376,7 +6376,7 @@ public class AssignmentAction extends PagedResourceActionII
 		                     // edit the calendar ojbject and add an assignment id field
 	                        CalendarEventEdit edit = c.getEditEvent(e.getId(), org.sakaiproject.calendar.api.CalendarService.EVENT_ADD_CALENDAR);
 	                                
-	                        edit.setField(AssignmentConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID, a.getReference());
+	                        edit.setField(AssignmentConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID, a.getId());
 	                        
 	                        c.commitEvent(edit);
 						}
