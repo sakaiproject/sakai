@@ -337,6 +337,8 @@
 					waiting = true;
 					setEndtimeMonthDateYear();
 					getSignupDurationNoDecimal();
+					sakai.updateSignupBeginsExact();
+					sakai.updateSignupEndsExact(); 
 				  	setTimeout("waiting=false;", 1500);//1.5 sec
 				}			
 		}
