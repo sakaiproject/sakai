@@ -45,12 +45,12 @@
             <artifactId>sakai-calendar-util</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.assignment</groupId>
-            <artifactId>sakai-assignment-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.sakaiproject.site</groupId>
             <artifactId>sakai-mergedlist-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.entitybroker</groupId>
+            <artifactId>entitybroker-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.velocity</groupId>

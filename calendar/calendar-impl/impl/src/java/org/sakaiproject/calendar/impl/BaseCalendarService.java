@@ -88,7 +88,6 @@ import org.apache.fop.configuration.Configuration;
 import org.apache.fop.messaging.MessageHandler;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.cover.AliasService;
-import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.cover.AuthzGroupService;
@@ -1942,7 +1941,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 					try
 					{
 						// Skip calendar events based on assignment due dates
-						String assignmentId = oEvent.getField(AssignmentConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
+						String assignmentId = oEvent.getField(CalendarUtil.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
 						if (assignmentId != null && assignmentId.length() > 0)
 							continue;
 

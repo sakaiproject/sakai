@@ -45,6 +45,8 @@ public class CalendarUtil
 	DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
 	ResourceLoader rb = new ResourceLoader("calendar");
 
+	public final static String NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID = "new_assignment_duedate_calendar_assignment_id";
+	
 	/**
 	* Construct.
 	*/
@@ -378,7 +380,6 @@ public class CalendarUtil
 	 * @return
 	 */
 	public static String getLocalAMString() {
-		M_log.info("getLocalAMString()");
 		
 		//we need an AM date
 		DateTime dt = new DateTime().withTime(1, 0, 0, 0);
@@ -391,7 +392,6 @@ public class CalendarUtil
 	 * @return
 	 */
 	public static String getLocalPMString() {
-		M_log.info("getLocalPMString()");
 
 		//we need an PM date
 		DateTime dt = new DateTime().withTime(14, 0, 0, 0);

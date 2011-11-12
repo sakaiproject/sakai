@@ -24,6 +24,7 @@ package org.sakaiproject.calendar.tool;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.File;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -49,8 +50,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.cover.AliasService;
-import org.sakaiproject.assignment.api.Assignment;
-import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
@@ -79,6 +78,8 @@ import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.entitybroker.EntityBroker;
+import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
@@ -180,7 +181,6 @@ extends VelocityPortletStateAction
 	private static final String FORM_ICAL_ENABLE = "icalEnable";
 	
 	/** The attachments from assignment */
-	private final static String NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID = "new_assignment_duedate_calendar_assignment_id";
 	private static final String ATTACHMENTS = "Assignment.attachments";
 	
 	/** state selected view */
@@ -199,9 +199,14 @@ extends VelocityPortletStateAction
 	private final static String STATE_SCHEDULE_TO_GROUPS = "scheduleToGroups";
 	private static final String STATE_SELECTED_GROUPS_FILTER = "groups_filters";
 	
-	private AssignmentService assignmentService;
-	
 	private ContentHostingService contentHostingService;
+   
+	private EntityBroker entityBroker;
+   
+	// tbd fix shared definition from org.sakaiproject.assignment.api.AssignmentEntityProvider
+	private final static String ASSN_ENTITY_ID     = "assignment";
+	private final static String ASSN_ENTITY_ACTION = "deepLink";
+	private final static String ASSN_ENTITY_PREFIX = File.separator+ASSN_ENTITY_ID+File.separator+ASSN_ENTITY_ACTION+File.separator;
    
 	private NumberFormat monthFormat = null;
 	
@@ -2879,54 +2884,25 @@ extends VelocityPortletStateAction
 				context.put("config",configProps);
 				
 				// Get the attachments from assignment tool for viewing
-				String assignmentId = calEvent.getField(NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
+				String assignmentId = calEvent.getField(CalendarUtil.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
 				
 				if (assignmentId != null && assignmentId.length() > 0)
 				{
-					try
-					{
-						Assignment a = assignmentService.getAssignment(assignmentId);
-						
-						if (a != null) {
-							
-						context.put("assignment", a);
-
-						String assignmentContext = a.getContext(); // assignment context
-						boolean allowReadAssignment = assignmentService.allowGetAssignment(assignmentContext); // check for read permission
-						
-						if (allowReadAssignment && a.getOpenTime().before(TimeService.newTime())) // this checks if we want to display an assignment link based on the open date
-						{
-							Site site = SiteService.getSite(assignmentContext); // site id
-							ToolConfiguration fromTool = site.getToolForCommonId("sakai.assignment.grades");
-							boolean allowAddAssignment = assignmentService.allowAddAssignment(assignmentContext); // this checks for the asn.new permission and determines the url we present the user
-							
-							if (fromTool != null)
-							{
-								// Two different urls to be rendered depending on the user's permission
-								if (allowAddAssignment)
-								{
-									context.put("assignmenturl", ServerConfigurationService.getPortalUrl() + "/directtool/" + fromTool.getId() + "?assignmentId=" + a.getReference() + "&panel=Main&sakai_action=doView_assignment");
-								}
-								else
-								{
-									context.put("assignmenturl", ServerConfigurationService.getPortalUrl() + "/directtool/" + fromTool.getId() + "?assignmentReference=" + a.getReference() + "&panel=Main&sakai_action=doView_submission");
-								}
-							}
-						}
-						
-						sstate.setAttribute(ATTACHMENTS, a.getContent().getAttachments());						
-						}
+					// pass in the assignment reference to get the assignment data we need
+					Map<String, Object> assignData = new HashMap<String, Object>();
+					StringBuilder entityId = new StringBuilder( ASSN_ENTITY_PREFIX );
+					entityId.append( (CalendarService.getCalendar(calEvent.getCalendarReference())).getContext() );
+					entityId.append( File.separator );
+					entityId.append( assignmentId );
+					ActionReturn ret = entityBroker.executeCustomAction(entityId.toString(), ASSN_ENTITY_ACTION, null, null);
+					if (ret != null && ret.getEntityData() != null) {
+						Object returnData = ret.getEntityData().getData();
+						assignData = (Map<String, Object>)returnData;
 					}
-					catch (IdUnusedException e)
-					{
-						addAlert(sstate, rb.getString("Cannot Find AssignmentID") + ": " + assignmentId);
-					}
-					catch (PermissionException e)
-					{
-						addAlert(sstate, rb.getString("AssignmentID Permission Error") + ": " + assignmentId);
-					}
+					context.put("assignmenturl", (String) assignData.get("assignmentUrl"));
+					context.put("assignmentTitle", (String) assignData.get("assignmentTitle"));
 				}
-				
+						
 				
 				String ownerId = calEvent.getCreator();
 				if ( ownerId != null && ! ownerId.equals("") )
@@ -7885,10 +7861,11 @@ extends VelocityPortletStateAction
 			contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
 		}
 		
-		if (assignmentService == null)
+		if (entityBroker == null)
 		{
-			assignmentService = (AssignmentService) ComponentManager.get("org.sakaiproject.assignment.api.AssignmentService");
+			entityBroker = (EntityBroker) ComponentManager.get("org.sakaiproject.entitybroker.EntityBroker");
 		}
+
 
 		// retrieve the state from state object
 		CalendarActionState calState = (CalendarActionState)getState( portlet, rundata, CalendarActionState.class );
