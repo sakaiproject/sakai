@@ -31,6 +31,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.message.api.Message;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
@@ -63,6 +64,11 @@ public class AnnouncementSupport{
 	protected EntityManager entityManager;
 	public void setEntityManager(EntityManager entityManager) {
 		this.entityManager = entityManager;
+	}
+	protected ThreadLocalManager m_threadLocalManager = null;
+	public void setThreadLocalManager(ThreadLocalManager service)
+	{
+		m_threadLocalManager = service;
 	}
 
 	public static final String IDENTIFIER = "announcement";
@@ -461,8 +467,9 @@ public class AnnouncementSupport{
 			if(logger.isDebugEnabled()) {
 				logger.debug("removing calendar links and calendar item for " + event.getResource());
 			}
+			// clean the threadlocal cache
+			m_threadLocalManager.set(event.getResource(), null);
 			Entity entity = sakaiProxy.getEntity(event.getResource());
-			
 			if(entity != null && entity instanceof AnnouncementMessage) {
 				// get the assignment entity and its current title
 				AnnouncementMessage annc = (AnnouncementMessage) entity;
@@ -504,6 +511,8 @@ public class AnnouncementSupport{
 			if(logger.isDebugEnabled()) {
 				logger.debug("removing calendar links and calendar item for " + event.getResource());
 			}
+			// clean the threadlocal cache
+			m_threadLocalManager.set(event.getResource(), null);
 			Entity entity = sakaiProxy.getEntity(event.getResource());
 			
 			if(entity != null && entity instanceof AnnouncementMessage) {

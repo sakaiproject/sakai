@@ -89,6 +89,7 @@
     	<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy"></property>
 		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
 		<property name="announcementService" ref="org.sakaiproject.announcement.api.AnnouncementService" />
+		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
 	</bean>
 
 	<bean id="org.sakaiproject.dash.entity.AssignmentSupport" 
