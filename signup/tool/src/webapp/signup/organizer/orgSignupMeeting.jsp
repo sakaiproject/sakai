@@ -32,7 +32,8 @@
 		<sakai:view_content>
 
 			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>      			
-				
+			<h:outputText value="#{messageUIBean.infoMessage}" styleClass="success" escape="false" rendered="#{messageUIBean.info}"/>      			
+			
 			<h:form id="meeting">
 			
 				<h:inputHidden id="userActionType" value="#{OrganizerSignupMBean.userActionType}"/>
@@ -228,7 +229,7 @@
 					<%-- Organizer's editing main table --%>
 					 <h:dataTable id="timeslots" value="#{OrganizerSignupMBean.timeslotWrappers}" binding="#{OrganizerSignupMBean.timeslotWrapperTable}" var="timeSlotWrapper"
 					 rendered="#{!OrganizerSignupMBean.announcementType}"
-					 columnClasses="orgTimeslotCol,orgMaxAttsCol,orgSlotStatusCol,orgWaiterStatusCol"	
+					 columnClasses="orgTimeslotCol,orgMaxAttsCol,orgSlotStatusCol,orgGroupSync,orgWaiterStatusCol"	
 					 rowClasses="oddRow,evenRow"
 					 styleClass="signupTable" style="width:98%">
 							<h:column>		   
@@ -459,6 +460,14 @@
 						   				
 						   			</h:panelGrid>
 						   		</h:panelGroup>	
+					   		</h:column>
+					   		
+					   		<%-- sync button. Rendered only is sync is enabled for this meeting and the meeting has not expired--%>
+					   		<h:column rendered="#{OrganizerSignupMBean.meetingWrapper.meeting.createGroups && !OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}">		   
+								<f:facet name="header">
+									<h:outputText value="#{msgs.group_synchronise_heading}"/>
+								</f:facet>
+						   		<h:commandButton value="#{msgs.group_synchronise_button}" action="#{OrganizerSignupMBean.synchroniseGroupMembership}"/>
 					   		</h:column>
 					   		
 					   		<h:column rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.allowWaitList}">		   

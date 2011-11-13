@@ -22,6 +22,7 @@
  **********************************************************************************/
 package org.sakaiproject.signup.tool.jsf;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -70,7 +71,7 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 										"signup.default.email.notification", "true")) ? true : false;
 
 	protected static boolean DEFAULT_EXPORT_TO_CALENDAR_TOOL = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal("signup.default.export.to.calendar.setting", "true")) ? true : false;
-
+	
 	protected boolean publishToCalendar = DEFAULT_EXPORT_TO_CALENDAR_TOOL;
 	
 	protected boolean sendEmail = DEFAULT_SEND_EMAIL;
@@ -584,5 +585,50 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		return eids;
 	}
 	
+	// Generate a group title based on the input given
+	public String generateGroupTitle(String meetingTitle, SignupTimeslot timeslot) {
+		
+		final char SEPARATOR = '-';
+		
+		SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmm");
+		
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append(meetingTitle);
+		sb.append(SEPARATOR);
+		sb.append(df.format(timeslot.getStartTime()));
+		sb.append(SEPARATOR);
+		sb.append(df.format(timeslot.getEndTime()));
+		
+		return sb.toString();
+	}
+	
+	//generate a group description
+	public String generateGroupDescription(String meetingTitle, SignupTimeslot timeslot) {
+		return Utilities.rb.getString("group.description.default");
+	}
+	//convert a list of SignupAttendees to a list of userIds
+	public List<String> convertAttendeesToUuids(List<SignupAttendee> attendees) {
+		
+		List<String> uuids = new ArrayList<String>();
+		
+		for(SignupAttendee a: attendees) {
+			uuids.add(a.getAttendeeUserId());
+		}
+		
+		return uuids;
+	}
+	
+	//convert a list of AttendeeWrappers to a list of userIds
+	public List<String> convertAttendeeWrappersToUuids(List<AttendeeWrapper> attendees) {
+		
+		List<String> uuids = new ArrayList<String>();
+		
+		for(AttendeeWrapper a: attendees) {
+			uuids.add(a.getSignupAttendee().getAttendeeUserId());
+		}
+		
+		return uuids;
+	}
 
 }

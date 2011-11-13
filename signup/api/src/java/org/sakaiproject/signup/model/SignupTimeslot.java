@@ -44,6 +44,8 @@ public class SignupTimeslot implements Comparable{
 	private Date endTime;
 
 	private boolean locked;
+	
+	private String groupId;
 
 	private boolean canceled;
 
@@ -116,6 +118,14 @@ public class SignupTimeslot implements Comparable{
 	 */
 	public boolean isLocked() {
 		return locked;
+	}
+
+	
+	public void setGroupId(String groupId) {
+		this.groupId = groupId;
+	}
+	public String getGroupId() {
+		return groupId;
 	}
 
 	/**

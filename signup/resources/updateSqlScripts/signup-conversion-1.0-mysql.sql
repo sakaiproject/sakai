@@ -2,4 +2,8 @@
 
 ALTER TABLE `signup_meetings` ADD `category` VARCHAR(255)  NOT NULL  DEFAULT '';
 
+ALTER TABLE `signup_meetings` ADD create_groups bit(1) default '\0';
+
+ALTER TABLE `signup_ts` ADD `group_id` VARCHAR(255)  NULL  DEFAULT NULL;
+
 

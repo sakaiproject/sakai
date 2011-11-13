@@ -20,6 +20,7 @@
 		<property name="displayAttendees" column="display_attendees" type="boolean" />
 		<property name="canceled" column="canceled" type="boolean" />
 		<property name="locked" column="locked" type="boolean" />
+		<property name="groupId" column="group_id" type="string" not-null="false" />
 				
 		<list name="attendees" cascade="save-update,delete" table="signup_ts_attendees" fetch="join">
 			<key column="timeslot_id" not-null="true"/>

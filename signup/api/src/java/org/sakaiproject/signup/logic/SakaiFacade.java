@@ -22,6 +22,7 @@
  **********************************************************************************/
 package org.sakaiproject.signup.logic;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.sakaiproject.calendar.api.Calendar;
@@ -32,6 +33,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupSite;
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
@@ -79,6 +81,14 @@ public interface SakaiFacade {
 	
 	public static final String REALM_ID_FOR_LOGIN_REQUIRED_ONLY =".auth";
 
+	public static final String GROUP_PREFIX = "SIGNUP_";
+	
+	// see https://jira.sakaiproject.org/browse/SAK-21403
+	//this is currently hardcode but could be moved later
+	public static final String GROUP_PROP_SITEINFO_VISIBLE = "group_prop_wsetup_created";
+	
+	public static final String GROUP_PROP_SIGNUP_IGNORE = "group_prop_signup_ignore";
+	
 	/**
 	 * check to see if the user is Admin
 	 * 
@@ -343,5 +353,50 @@ public interface SakaiFacade {
 	 * @return
 	 */
 	public boolean isCsvExportEnabled();
-
+		
+	/**
+	 * Create a group in the specified site with the given title and description and optionally, a list of user uuids to populate it.
+	 * The title will be prefixed with the constant GROUP_PREFIX
+	 * @param siteId		site to create this group in
+	 * @param title			group title
+	 * @param description	group description
+	 * @param userIds		list of users to populate the group with, optional. 
+	 * @return The groupId
+	 */
+	public String createGroup(String siteId, String title, String description, List<String> userUuids);
+	
+	/**
+	 * Add the users to the given group in the given site
+	 * @param userIds		Collection of users, could be a single user
+	 * @param siteId		id of the site
+	 * @param groupId		id of the group
+	 * @return	true if users added, false if not
+	 */
+	public boolean addUsersToGroup(Collection<String> userIds, String siteId, String groupId);
+	
+	/**
+	 * Remove the user from the given group in the given site
+	 * @param userId		uuid of the user
+	 * @param siteId		id of the site
+	 * @param groupId		id of the group
+	 * @return	true if user removed, false if not
+	 */
+	public boolean removeUserFromGroup(String userId, String siteId, String groupId);
+	
+	/**
+	 * Get the list of users in a group
+	 * @param siteId		id of the site
+	 * @param groupId		id of the group
+	 * @return list of uuids for users in the group
+	 */
+	public List<String> getGroupMembers(String siteId, String groupId);
+	
+	/**
+	 * Check if a group with the given id exists
+	 * @param siteId		id of the site
+	 * @param groupId		id of the group
+	 * @return	true if group exists, false if not.
+	 */
+	public boolean checkForGroup(String siteId, String groupId);
+	
 }

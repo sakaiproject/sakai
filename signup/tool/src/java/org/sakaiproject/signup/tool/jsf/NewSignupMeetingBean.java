@@ -149,7 +149,11 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	
 	private static boolean DEFAULT_EXPORT_TO_CALENDAR_TOOL = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal("signup.default.export.to.calendar.setting", "true")) ? true : false;
 
+	private static boolean DEFAULT_CREATE_GROUPS = "true".equalsIgnoreCase(Utilities.getSignupConfigParamVal("signup.default.create.groups.setting", "true")) ? true : false;
+
 	private boolean publishToCalendar = DEFAULT_EXPORT_TO_CALENDAR_TOOL;
+	
+	private boolean createGroups = DEFAULT_CREATE_GROUPS;
 	
 	private boolean allowWaitList = DEFAULT_ALLOW_WAITLIST;
 	
@@ -370,6 +374,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		allowWaitList = DEFAULT_ALLOW_WAITLIST;
 		autoReminder = DEFAULT_AUTO_RIMINDER;
 		publishToCalendar= DEFAULT_EXPORT_TO_CALENDAR_TOOL;
+		createGroups = DEFAULT_CREATE_GROUPS;
 		currentStepHiddenInfo = null;
 		eidInputMode = false;
 		repeatType = ONCE_ONLY;
@@ -848,6 +853,8 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		signupMeeting.setEidInputMode(this.eidInputMode);
 		/* add attachments */
 		signupMeeting.setSignupAttachments(this.attachments);
+		
+		signupMeeting.setCreateGroups(this.createGroups);
 		
 	}
 
@@ -1720,7 +1727,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		
 		/*pass who should receive the emails*/
 		signupMeeting.setEmailAttendeesOnly(getSendEmailAttendeeOnly());
-		
+				
 		CreateMeetings createMeeting = new CreateMeetings(signupMeeting, sendEmail,
 				!assignParicitpantsToAllRecurEvents, assignParicitpantsToAllRecurEvents, getSignupBegins(),
 				getSignupBeginsType(), getDeadlineTime(), getDeadlineTimeType(), getRecurLengthChoice(), sakaiFacade, signupMeetingService,
@@ -1729,6 +1736,10 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		try {
 			/*need push to calendar tool*/
 			createMeeting.setPublishToCalendar(getPublishToCalendar());
+						
+			/*do we want to also create groups? */
+			createMeeting.setCreateGroups(this.createGroups);
+			
 			createMeeting.processSaveMeetings();
 			
 			/*handle attachments and it should not be cleaned up in CHS*/
@@ -1943,6 +1954,14 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 
 	public void setPublishToCalendar(boolean publishToCalendar) {
 		this.publishToCalendar = publishToCalendar;
+	}
+	
+	public boolean getCreateGroups() {
+		return createGroups;
+	}
+
+	public void setCreateGroups(boolean createGroups) {
+		this.createGroups = createGroups;
 	}
 
 	public boolean getSendEmailAttendeeOnly() {

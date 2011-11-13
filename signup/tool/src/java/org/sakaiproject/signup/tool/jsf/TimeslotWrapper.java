@@ -517,4 +517,12 @@ public class TimeslotWrapper implements Comparable{
 	public void setErrorStyle(String errorStyle) {
 		this.errorStyle = errorStyle;
 	}
+	
+	/**
+	 * Helper to get the groupId associated with a timeslot
+	 * @return
+	 */
+	public String getGroupId() {
+		return timeSlot.getGroupId();
+	}
 }

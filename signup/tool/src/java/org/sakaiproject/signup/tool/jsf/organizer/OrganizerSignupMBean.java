@@ -1253,5 +1253,103 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 	public void setCollapsedMeetingInfo(boolean collapsedMeetingInfo) {
 		this.collapsedMeetingInfo = collapsedMeetingInfo;
 	}
+	
+	
+	/**
+	 * Synchronise the users in a timeslot with the users in a group.
+	 * <p>Ensures that both lists have the same users in each, but does NOT remove any users from the group.
+	 
+	 * @return url to the same page which will trigger a reload
+	 */
+	public String synchroniseGroupMembership() {
+		
+		TimeslotWrapper timeslotWrapper = (TimeslotWrapper) timeslotWrapperTable.getRowData();
+	
+		//get groupId for timeslot
+		String groupId = timeslotWrapper.getGroupId();
+		
+		if(StringUtils.isBlank(groupId)){
+			//TODO. 
+			//Create the group. Grab the list of attendees in the timeslot and add all at once.
+			//Will need to also save the groupId into the timeslot.
+			//For now, we just give a message.
+			
+			Utilities.addErrorMessage(Utilities.rb.getString("error.no_group_for_timeslot"));
+			return ORGANIZER_MEETING_PAGE_URL;
+		} else {
+			List<String> attendeeUserIds = convertAttendeeWrappersToUuids(timeslotWrapper.getAttendeeWrappers());
+			
+			//add timeslot attendees to the group and save
+			if(!sakaiFacade.addUsersToGroup(attendeeUserIds, currentSiteId(), groupId)) {
+				Utilities.addErrorMessage(Utilities.rb.getString("error.group_sync_failed"));
+				return ORGANIZER_MEETING_PAGE_URL;
+			}
+			
+			//add group members to the timeslot and save
+			List<String> groupMembers = sakaiFacade.getGroupMembers(currentSiteId(), groupId);
+			
+			//remove all of the existing attendees from this list to remove duplicates
+			groupMembers.removeAll(attendeeUserIds);
+	
+			//add members and go to return page
+			return addAttendeesToTimeslot(currentSiteId(),timeslotWrapper, groupMembers);
+		}
+	}
+	
+	/**
+	 * Helper to add users to a timeslot and get the return URL
+	 * @param userId
+	 * @return
+	 */
+	private String addAttendeesToTimeslot(String siteId, TimeslotWrapper timeslotWrapper, List<String> userIds) {
+		
+		boolean errors = false;
+		SignupMeeting meeting = null;
+		
+		//foreach userId, add to timeslot
+		for(String userId: userIds) {
+		
+			SignupAttendee attendee = new SignupAttendee(userId, siteId);
+			timeslotWrapper.setNewAttendee(attendee);
+			
+			try {
+				AddAttendee addAttendee = new AddAttendee(signupMeetingService, currentUserId(), currentSiteId(), true);
+				meeting = addAttendee.signup(getMeetingWrapper().getMeeting(), timeslotWrapper.getTimeSlot(),timeslotWrapper.getNewAttendee());
+	
+				if (sendEmail) {
+					try {
+						signupMeetingService.sendEmailToParticipantsByOrganizerAction(addAttendee.getSignupEventTrackingInfo());
+					} catch (Exception e) {
+						logger.error(Utilities.rb.getString("email.exception") + " - " + e.getMessage(), e);
+					}
+				}
+			} catch (SignupUserActionException ue) {
+				Utilities.addErrorMessage(ue.getMessage());
+				logger.error(ue.getMessage());
+				errors = true;
+				break;
+	
+			} catch (Exception e) {
+				logger.error(Utilities.rb.getString("error.occurred_try_again") + " - " + e.getMessage(), e);
+				errors = true;
+				break;
+			}
+		}
+		
+		if(errors) {
+			Utilities.addErrorMessage(Utilities.rb.getString("error.occurred_try_again"));
+			return ORGANIZER_MEETING_PAGE_URL;
+		}
+		
+		String nextPage = updateMeetingwrapper(meeting, ORGANIZER_MEETING_PAGE_URL);
+
+		if (ORGANIZER_MEETING_PAGE_URL.equals(nextPage)) {
+			setAddNewAttendee(false);
+			setSelectedTimeslotId(null);
+			
+			Utilities.addInfoMessage(Utilities.rb.getString("group_synchronise_done"));
+		}
+		return nextPage;
+	}
 
 }

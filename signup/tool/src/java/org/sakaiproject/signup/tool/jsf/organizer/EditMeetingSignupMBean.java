@@ -191,7 +191,7 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		}
 			
 		getUserDefineTimeslotBean().init(this.signupMeeting, MODIFY_MEETING_PAGE_URL, this.customTimeSlotWrpList, UserDefineTimeslotBean.MODIFY_MEETING);
-
+		
 	}
 
 	/* get the relative time out */
@@ -361,6 +361,13 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 			/* disable the association with other related recurrence events */
 			editMeeting.setConvertToNoRecurrent(convertToNoRecurrent);
 			
+			//signup-51 send sakaifacade into the edit meetings wrapper
+			editMeeting.setSakaiFacade(getSakaiFacade());
+			
+			//signup-51 set the value in edit meetings so we can process the timeslot groups if needed
+			editMeeting.setCreateGroups(meeting.isCreateGroups());
+
+						
 			/* Case: custom defined TS */
 			if(isUserDefinedTS()){
 				if(this.customTimeSlotWrpList !=null){
@@ -377,10 +384,11 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 			
 			/*set latest attachments changes*/
 			/*pre-check if there is any attachment changes*/
-			if(!areAttachmentChanges())
+			if(!areAttachmentChanges()) {
 				editMeeting.setCurrentAttachList(null);
-			else
+			} else {
 				editMeeting.setCurrentAttachList(this.readyToModifyAttachmentCopyList);
+			}
 			
 			/* update to DB */
 			editMeeting.saveModifiedMeeting(meeting);
@@ -451,6 +459,7 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 				/*remove calendar if any*/
 				signupMeetingService.removeCalendarEventsOnModifiedMeeting(successUpdatedMeetings);
 			}
+			
 
 		} catch (PermissionException pe) {
 			Utilities.addErrorMessage(Utilities.rb.getString("no.permissoin.do_it"));
@@ -1013,5 +1022,5 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 	public List<SelectItem> getInstructors() {
 		return Utilities.getSignupMeetingsBean().getInstructors(signupMeeting);
 	}
-
+	
 }

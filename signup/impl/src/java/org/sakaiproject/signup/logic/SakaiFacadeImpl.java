@@ -23,6 +23,7 @@
 package org.sakaiproject.signup.logic;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -30,12 +31,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarService;
@@ -433,6 +436,13 @@ public class SakaiFacadeImpl implements SakaiFacade {
 				Collection tmpGroup = element.getGroups();
 				for (Iterator iterator = tmpGroup.iterator(); iterator.hasNext();) {
 					Group grp = (Group) iterator.next();
+										
+					//signup-51 don't show the hidden groups (if property exists, skip this group)
+					String gProp = grp.getProperties().getProperty(GROUP_PROP_SIGNUP_IGNORE);
+    				if (gProp != null && gProp.equals(Boolean.TRUE.toString())) {
+    					continue;
+    				}
+    				    				
 					SignupGroup sgrp = new SignupGroup();
 					sgrp.setGroupId(grp.getId());
 					sgrp.setTitle(grp.getTitle());
@@ -839,6 +849,261 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	 */
 	public boolean isCsvExportEnabled() {
 		return serverConfigurationService.getBoolean("signup.csv.export.enabled", false);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String createGroup(String siteId, String title, String description, List<String> userUuids) {
+				
+		Site site = null;
+		try {
+			site = siteService.getSite(siteId);
+		} catch (Exception e) {
+			log.error("createGroup failed for site: " + site.getId(), e);
+            return null;
+		}
+							
+		SecurityAdvisor securityAdvisor = new SecurityAdvisor(){
+			public SecurityAdvice isAllowed(String userId, String function, String reference){
+				return SecurityAdvice.ALLOWED;
+			}
+		};
+		enableSecurityAdvisor(securityAdvisor);
+				
+		try {
+			
+			//add new group
+			Group group=site.addGroup();
+			
+			group.setTitle(GROUP_PREFIX + title);
+	        group.setDescription(description);   
+	        
+	        //set this property so the groups shows in site info
+		    group.getProperties().addProperty(GROUP_PROP_SITEINFO_VISIBLE, Boolean.TRUE.toString());
+		    
+		    //set this so the group does not show in the list of groups in signups
+		    group.getProperties().addProperty(GROUP_PROP_SIGNUP_IGNORE, Boolean.TRUE.toString());
+
+		    
+		    if(userUuids != null) {
+		    	group.removeMembers();
+		    			    	
+		    	for(String userUuid: userUuids) {
+		    		group = addUserToGroup(userUuid, group);
+		    	}
+		    }
+	   		    
+		    // save the changes
+			siteService.save(site);
+			
+			return group.getId();
+			
+		} catch (Exception e) {
+        	log.error("createGroup failed for site: " + site.getId(), e);
+        } finally {
+        	disableSecurityAdvisor(securityAdvisor);
+        }
+		
+		return null;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean addUsersToGroup(Collection<String> userIds, String siteId, String groupId) {
+		
+		log.debug("addUsersToGroup(userIds=" + Arrays.asList(userIds).toString() + ", siteId=" + siteId + ", groupId=" + groupId);
+		
+		Site site = null;
+		try {
+			site = siteService.getSite(siteId);
+		} catch (Exception e) {
+			log.error("addUserToGroup failed to retrieve site: " + siteId, e);
+            return false;
+		}
+							
+		SecurityAdvisor securityAdvisor = new SecurityAdvisor(){
+			public SecurityAdvice isAllowed(String userId, String function, String reference){
+				return SecurityAdvice.ALLOWED;
+			}
+		};
+		enableSecurityAdvisor(securityAdvisor);
+		
+		Group group = site.getGroup(groupId);
+		
+		if(group == null) {
+        	log.error("No group for id: " + groupId);
+			return false;
+		}
+		
+		try {
+			
+			for(String userId: userIds) {
+				group = addUserToGroup(userId, group);
+			}
+			siteService.save(site);
+			
+			return true;
+			
+		} catch (Exception e) {
+        	log.error("addUsersToGroup failed for users: " + Arrays.asList(userIds).toString() + " and group: " + groupId, e);
+        } finally {
+        	disableSecurityAdvisor(securityAdvisor);
+        }
+		
+		return false;
+	}
+	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean removeUserFromGroup(String userId, String siteId, String groupId) {
+		
+		log.debug("removeUserFromGroup(userId=" + userId + ", siteId=" + siteId + ", groupId=" + groupId);
+		
+		Site site = null;
+		try {
+			site = siteService.getSite(siteId);
+		} catch (Exception e) {
+			log.error("removeUserFromGroup failed to retrieve site: " + siteId, e);
+            return false;
+		}
+							
+		SecurityAdvisor securityAdvisor = new SecurityAdvisor(){
+			public SecurityAdvice isAllowed(String userId, String function, String reference){
+				return SecurityAdvice.ALLOWED;
+			}
+		};
+		enableSecurityAdvisor(securityAdvisor);
+		
+		Group group = site.getGroup(groupId);
+		
+		try {
+			group.removeMember(userId);
+			siteService.save(site);
+			
+			return true;
+			
+		} catch (Exception e) {
+        	log.error("removeUserFromGroup failed for user: " + userId + " and group: " + groupId, e);
+        } finally {
+        	disableSecurityAdvisor(securityAdvisor);
+        }
+		
+		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<String> getGroupMembers(String siteId, String groupId) {
+		
+		List<String> users = new ArrayList<String>();
+		
+		Site site = null;
+		try {
+			site = siteService.getSite(siteId);
+		} catch (Exception e) {
+			log.error("getGroupMembers failed to retrieve site: " + siteId, e);
+            return users;
+		}
+							
+		SecurityAdvisor securityAdvisor = new SecurityAdvisor(){
+			public SecurityAdvice isAllowed(String userId, String function, String reference){
+				return SecurityAdvice.ALLOWED;
+			}
+		};
+		enableSecurityAdvisor(securityAdvisor);
+		
+		try {
+			Group group = site.getGroup(groupId);
+			Set<Member> members = group.getMembers();
+		
+			for(Member m: members) {
+				users.add(m.getUserId());
+				log.error("Added user: " + m.getUserId() + " to group: " + groupId);
+			}
+			return users;
+		} catch (Exception e) {
+        	log.error("getGroupMembers failed for site: " + siteId + " and group: " + groupId, e);
+        } finally {
+        	disableSecurityAdvisor(securityAdvisor);
+        }
+		
+		return users;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean checkForGroup(String siteId, String groupId) {
+		
+		log.debug("checkForGroup: siteId=" + siteId + ", groupId=" + groupId);
+		
+		Site site = null;
+		try {
+			site = siteService.getSite(siteId);
+		} catch (Exception e) {
+			log.error("checkForGroup failed to retrieve site: " + siteId, e);
+            return false;
+		}
+		
+		/*
+		SecurityAdvisor securityAdvisor = new SecurityAdvisor(){
+			public SecurityAdvice isAllowed(String userId, String function, String reference){
+				return SecurityAdvice.ALLOWED;
+			}
+		};
+		enableSecurityAdvisor(securityAdvisor);
+		*/
+		
+		Group group = site.getGroup(groupId);
+		
+		if(group != null) {
+			return true;
+		}
+		return false;
+	}
+	
+	
+	/**
+	 * Helper to add a user to a group. THIS DOES NOT SAVE ANYTHING. It is merely a helper to add the user to the group object and return it.
+	 * 
+	 * @param userUuid	uuid of user
+	 * @param group		Group obj
+	 * @return
+	 */
+	private Group addUserToGroup(String userUuid, Group group) {
+		
+		Site site = group.getContainingSite();
+		
+		//same logic as in site-manage
+		Role r = site.getUserRole(userUuid);
+		Member m = site.getMember(userUuid);
+		Role memberRole = m != null ? m.getRole() : null;
+		
+		//Each user should be marked as non provided
+		//Get role first from site definition. 
+		//However, if the user is inactive, getUserRole would return null; then use member role instead
+		group.addMember(userUuid, r != null ? r.getId() : memberRole != null? memberRole.getId() : "", m != null ? m.isActive() : true, false);
+		
+		return group;
+	}
+		
+	/**
+	 * Setup the security advisor for this transaction
+	 */
+	private void enableSecurityAdvisor(SecurityAdvisor securityAdvisor) {
+		securityService.pushAdvisor(securityAdvisor);
+	}
+
+	/**
+	 * Remove security advisor from the stack
+	 */
+	private void disableSecurityAdvisor(SecurityAdvisor securityAdvisor){
+		securityService.popAdvisor(securityAdvisor);
 	}
 
 }

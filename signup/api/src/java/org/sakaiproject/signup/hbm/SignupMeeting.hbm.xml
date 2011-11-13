@@ -47,6 +47,10 @@
 		<property name="recurrenceId"  column="recurrence_id" type="long" not-null="false"/>
 		<property name="repeatType" column="repeat_type" type="string" length="20" not-null="false" />
 		
+		<property name="createGroups"  type="boolean" >
+			<column name="create_groups" default="0"/>
+		</property>
+		
 		<list name="signupTimeSlots" cascade="save-update,delete" fetch="join">
 			<key column="meeting_id" not-null="true"/>
 			<list-index column="list_index" />

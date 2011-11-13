@@ -34,6 +34,7 @@ create table signup_meetings (
   	eid_input_mode bit(1) default '\0',
   	auto_reminder bit(1) default '\0',
   	allow_attendance bit(1) default '\0',
+  	create_groups bit(1) default '\0',
 	primary key (id)
 ) type=InnoDB;
 
@@ -69,6 +70,7 @@ create table signup_ts (
 	canceled bit, locked bit, 
 	meeting_id bigint not null, 
 	list_index integer, 
+	group_id varchar(255), 
 	primary key (id)
 ) type=InnoDB;
 

@@ -86,6 +86,8 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 	private String recurLengthDataType;
 	
 	private boolean publishToCalendar = true;
+	
+	private boolean createGroups;
 
 	/**
 	 * Constructor
@@ -343,6 +345,30 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 	private void postMeetings(List<SignupMeeting> signupMeetings) throws PermissionException, Exception
 
 	{
+		
+		//create the groups for the timeslots if enabled
+		//this also loads the groupId into the timeslot object to be saved afterwards
+		if(isCreateGroups()){
+			logger.info("Creating groups for each timeslot ...");
+			
+			for(SignupMeeting s: signupMeetings) {
+				
+				List<SignupTimeslot> timeslots = s.getSignupTimeSlots();
+				for(SignupTimeslot t: timeslots) {
+					
+					String title = generateGroupTitle(s.getTitle(), t);
+					String description = generateGroupDescription(s.getTitle(), t);
+					List<String> attendees = convertAttendeesToUuids(t.getAttendees());
+					
+					String groupId = sakaiFacade.createGroup(sakaiFacade.getCurrentLocationId(), title, description, attendees);
+
+					logger.debug("Created group for timeslot: " + groupId);
+					
+					t.setGroupId(groupId);
+				}
+			}			
+		}
+		
 		this.signupMeetingService.saveMeetings(signupMeetings, sakaiFacade.getCurrentUserId());
 		/* refresh main-page to catch the changes */
 		Utilities.resetMeetingList();
@@ -409,7 +435,8 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 					+ sakaiFacade.getTimeService().newTime(signupMeetings.get(i).getStartTime().getTime()).toStringLocalFull() 
 					+ recurringInfo);
 		}
-
+		
+		
 	}
 
 	/**
@@ -514,6 +541,7 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 		copy.setAutoReminder(s.isAutoReminder());
 		copy.setEidInputMode(s.isEidInputMode());
 		copy.setAllowAttendance(s.isAllowAttendance());
+		copy.setCreateGroups(s.isCreateGroups());
 
 		return copy;
 
@@ -557,6 +585,14 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 
 	public void setPublishToCalendar(boolean publishToCalendar) {
 		this.publishToCalendar = publishToCalendar;
+	}
+	
+	public boolean isCreateGroups() {
+		return createGroups;
+	}
+
+	public void setCreateGroups(boolean createGroups) {
+		this.createGroups = createGroups;
 	}
 
 }

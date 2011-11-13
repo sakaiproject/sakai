@@ -96,6 +96,8 @@ public class SignupMeeting implements MeetingTypes {
 	private boolean emailAttendeesOnly;
 	
 	private boolean allowAttendance;
+	
+	private boolean createGroups;
 
 	/**
 	 * check if the meeting/event is cancelled
@@ -746,6 +748,15 @@ public class SignupMeeting implements MeetingTypes {
 
 	public void setEmailAttendeesOnly(boolean emailAttendeesOnly) {
 		this.emailAttendeesOnly = emailAttendeesOnly;
+	}
+	
+	public boolean isCreateGroups() {
+		return createGroups;
+	}
+
+	
+	public void setCreateGroups(boolean createGroups) {
+		this.createGroups = createGroups;
 	}
 	
 }

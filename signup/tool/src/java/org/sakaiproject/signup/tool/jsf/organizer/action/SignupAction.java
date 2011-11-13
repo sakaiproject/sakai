@@ -22,7 +22,10 @@
  **********************************************************************************/
 package org.sakaiproject.signup.tool.jsf.organizer.action;
 
+import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -38,6 +41,7 @@ import org.sakaiproject.signup.model.SignupAttendee;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.util.SignupBeanConstants;
+import org.sakaiproject.signup.tool.util.Utilities;
 
 /**
  * <p>
@@ -222,6 +226,40 @@ public abstract class SignupAction implements SignupBeanConstants{
 			}
 		}
 		return tmp;
+	}
+	
+	// Generate a group title based on the input given
+	public String generateGroupTitle(String meetingTitle, SignupTimeslot timeslot) {
+		
+		final char SEPARATOR = '-';
+		
+		SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmm");
+		
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append(meetingTitle);
+		sb.append(SEPARATOR);
+		sb.append(df.format(timeslot.getStartTime()));
+		sb.append(SEPARATOR);
+		sb.append(df.format(timeslot.getEndTime()));
+		
+		return sb.toString();
+	}
+	
+	//generate a group description
+	public String generateGroupDescription(String meetingTitle, SignupTimeslot timeslot) {
+		return Utilities.rb.getString("group_description_default");
+	}
+	//convert a list of SignupAttendees to a list of userIds
+	public List<String> convertAttendeesToUuids(List<SignupAttendee> attendees) {
+		
+		List<String> uuids = new ArrayList<String>();
+		
+		for(SignupAttendee a: attendees) {
+			uuids.add(a.getAttendeeUserId());
+		}
+		
+		return uuids;
 	}
 
 }

@@ -388,6 +388,12 @@
 									<h:outputText value="#{msgs.event_yes_publish_to_calendar}" escape="false"/>
 							</h:panelGroup>
 							
+							<h:outputText id="otherSetting_11" style="display:none" value="#{msgs.event_create_groups}" styleClass="titleText" escape="false" />
+							<h:panelGroup id="otherSetting_12" style="display:none" styleClass="longtext">
+								<h:selectBooleanCheckbox value="#{EditMeetingSignupMBean.signupMeeting.createGroups}"/>
+								<h:outputText value="#{msgs.event_yes_create_groups}" escape="false"/>
+							</h:panelGroup>
+							
 						</h:panelGrid>
 				</h:panelGrid>
 					

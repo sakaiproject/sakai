@@ -31,6 +31,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.logic.SignupEmailFacade;
 import org.sakaiproject.signup.logic.SignupMeetingService;
 import org.sakaiproject.signup.logic.SignupUserActionException;
@@ -111,6 +112,10 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 	private UserDefineTimeslotBean userDefineTimeslotBean;
 	
 	private List<SignupTimeslot> toBedeletedTSList = null;
+	
+	private SakaiFacade sakaiFacade;
+	
+	private boolean createGroups;
 	
 	public EditMeeting(String userId, String siteId, SignupMeetingService signupMeetingService, AttachmentHandler attachmentHandler, boolean isOrganizer) {
 		super(userId, siteId, signupMeetingService, isOrganizer);
@@ -249,6 +254,7 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 		newlyModifyMeeting.setAutoReminder(modifiedMeeting.isAutoReminder());
 		newlyModifyMeeting.setEidInputMode(modifiedMeeting.isEidInputMode());
 		newlyModifyMeeting.setAllowAttendance(modifiedMeeting.isAllowAttendance());
+		newlyModifyMeeting.setCreateGroups(modifiedMeeting.isCreateGroups());
 		
 		/*new attachments changes*/
 		if(this.currentAttachList !=null){
@@ -277,6 +283,23 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 				if(!newlyModifyMeeting.isAllowWaitList()){
 					timeslot.setWaitingList(null);
 				}
+				
+				//create the groups for the timeslots, if enabled
+				//this also loads the groupId into the timeslot object to be saved afterwards
+				if(isCreateGroups()){
+					logger.error("Timeslot groupId: " + timeslot.getGroupId());
+						
+					//if we don't already have a group for this timeslot, or the group has been deleted, create a group and set into timeslot
+					if(StringUtils.isBlank(timeslot.getGroupId()) || !sakaiFacade.checkForGroup(sakaiFacade.getCurrentLocationId(), timeslot.getGroupId())) {
+						logger.error("Need to create a group for timeslot... ");
+						String title = generateGroupTitle(newlyModifyMeeting.getTitle(), timeslot);
+						String description = generateGroupDescription(newlyModifyMeeting.getTitle(), timeslot);
+						String groupId = sakaiFacade.createGroup(sakaiFacade.getCurrentLocationId(), title, description, null);
+						logger.error("Created group for timeslot: " + groupId);
+						timeslot.setGroupId(groupId);
+					}
+				}
+				
 			}
 		}
 		
@@ -816,6 +839,22 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 
 	public void setUserDefineTimeslotBean(UserDefineTimeslotBean userDefineTimeslotBean) {
 		this.userDefineTimeslotBean = userDefineTimeslotBean;
+	}
+
+	public SakaiFacade getSakaiFacade() {
+		return sakaiFacade;
+	}
+
+	public void setSakaiFacade(SakaiFacade sakaiFacade) {
+		this.sakaiFacade = sakaiFacade;
+	}
+
+	public boolean isCreateGroups() {
+		return createGroups;
+	}
+
+	public void setCreateGroups(boolean createGroups) {
+		this.createGroups = createGroups;
 	}
 	
 	
