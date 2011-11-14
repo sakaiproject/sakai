@@ -11,7 +11,7 @@
 			rowIndexVar="sectionIndex"
 			rowClasses="#{bean.rowStyleClasses}">
 			<h:column>
-				<h:panelGrid rowClasses="none" columns="2" rowClasses="paddedSectionRow">
+				<h:panelGrid columns="2" rowClasses="paddedSectionRow">
 
 					<% // Title %>
 
