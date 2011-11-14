@@ -255,6 +255,17 @@ public class CalendarLinksPanel extends Panel {
 	                item.add(new Label("calendarDate", new SimpleDateFormat(DATE_FORMAT).format(cItem.getCalendarTime())));
 	                item.add(new Label("calendarTime", new SimpleDateFormat(TIME_FORMAT).format(cItem.getCalendarTime())));
 	                
+	                Image icon = new Image("icon");
+	                icon.add(new AttributeModifier("src", true, new AbstractReadOnlyModel(){
+
+						@Override
+						public Object getObject() {
+							// TODO Auto-generated method stub
+							return dashboardLogic.getEntityIconUrl(cItem.getSourceType().getIdentifier(), cItem.getSubtype());
+						}
+	                	
+	                }));
+	                item.add(icon);
 	                item.add(new ExternalLink("itemLink", "#", cItem.getTitle()));
 	                String calendarItemLabel = dashboardLogic.getString(cItem.getCalendarTimeLabelKey(), "", itemType);
 	                if(calendarItemLabel == null) {

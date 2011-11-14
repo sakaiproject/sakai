@@ -211,6 +211,17 @@ public class NewsLinksPanel extends Panel {
                 String siteTitle = nItem.getContext().getContextTitle();
                 item.add(new ExternalLink("itemLink", "#", nItem.getTitle()));
                 
+                Image icon = new Image("icon");
+                icon.add(new AttributeModifier("src", true, new AbstractReadOnlyModel(){
+
+					@Override
+					public Object getObject() {
+						// TODO Auto-generated method stub
+						return dashboardLogic.getEntityIconUrl(nItem.getSourceType().getIdentifier(), nItem.getSubtype());
+					}
+                	
+                }));
+                item.add(icon);
                 String newsItemLabel = dashboardLogic.getString(nItem.getNewsTimeLabelKey(), "", itemType);
                 if(newsItemLabel == null) {
                 	newsItemLabel = "";

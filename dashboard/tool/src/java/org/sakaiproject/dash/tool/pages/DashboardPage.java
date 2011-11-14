@@ -22,7 +22,6 @@ import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.tool.panels.CalendarLinksPanel;
 import org.sakaiproject.dash.tool.panels.NewsLinksPanel;
 import org.sakaiproject.dash.tool.util.JsonHelper;
-import org.sakaiproject.util.ResourceLoader;
 
 /**
  * 
@@ -45,8 +44,6 @@ public class DashboardPage extends BasePage {
 	
 	public DashboardPage() {
 		
-		ResourceLoader rl = new ResourceLoader("dash_entity");
-				
 		final WebMarkupContainer dashboardPage = new WebMarkupContainer("dashboard-page");
 		dashboardPage.setOutputMarkupId(true);
 		add(dashboardPage);
@@ -62,6 +59,9 @@ public class DashboardPage extends BasePage {
         AbstractAjaxBehavior entityDetailRequest = new AbstractAjaxBehavior() {
 
 			public void onRequest() {
+				
+				logger.info("entityDetailRequest.onClick() ");
+				
 				//get parameters
                 final RequestCycle requestCycle = RequestCycle.get();
 
