@@ -297,8 +297,8 @@ public class AssignmentSupport {
 	}
 
 		public String getIconUrl(String subtype) {
-			// TODO return an icon for an assignment?
-			return null;
+			// we will use the Deadline icon for now, the same as the one used in schedule tool
+			return "/library/images/sakai/deadline.gif";
 		}
 	}
 	

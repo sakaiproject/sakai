@@ -374,8 +374,8 @@ public class AnnouncementSupport{
 	}
 
 		public String getIconUrl(String subtype) {
-			// TODO return the url for an icon for the announcement
-			return null;
+			// return the same image as used with Announcement tool
+			return "/library/image/silk/flag_blue.png";
 		}
 	}
 	
