@@ -183,6 +183,7 @@
     <module>tool</module>
     <module>api</module>
     <module>impl</module>
+    <module>util</module>
     <module>pack</module>
   </modules>
 </project>
