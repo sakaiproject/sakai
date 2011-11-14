@@ -124,6 +124,9 @@ h3.withNav {
     text-align: right;
     margin:0;
 }
+.itemCount{
+    font-size:80%
+}
 .itemCount+span.pager{
     padding-left:20px;
 }
