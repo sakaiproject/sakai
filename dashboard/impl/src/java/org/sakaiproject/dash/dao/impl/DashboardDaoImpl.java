@@ -1211,10 +1211,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		Object[] params = null;
 		if(contextId == null) {
 			sql = getStatement("select.current.NewsLinks.by.sakaiUserId");
-			params = new Object[]{sakaiUserId};
+			params = new Object[]{sakaiUserId, 2, sakaiUserId, 2, sakaiUserId};
 		} else {
 			sql = getStatement("select.current.NewsLinks.by.sakaiUserId.contextId");
-			params = new Object[]{sakaiUserId, contextId};
+			// sakai-id context-id gr-count sakai-id gr-count sakai-id context-id 
+			params = new Object[]{sakaiUserId, contextId, 2, sakaiUserId, 2, sakaiUserId, contextId};
 			
 		}
 		

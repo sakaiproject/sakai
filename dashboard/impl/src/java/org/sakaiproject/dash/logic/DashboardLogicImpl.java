@@ -63,6 +63,7 @@ import org.sakaiproject.dash.model.SourceType;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * 
@@ -470,7 +471,11 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 					SourceType sourceType = item.getSourceType();
 					if(sourceType != null) {
 						EntityType typeObj = this.entityTypes.get(sourceType.getIdentifier());
-						if(typeObj != null) {
+						if(typeObj == null) {
+							ResourceLoader rl = new ResourceLoader("dash_entity");
+							Object[] args = new Object[]{itemCount, sourceType.getIdentifier(), item.getContext().getContextTitle()};
+							rl.getFormattedMessage("dash.grouped.title", args );
+						} else {
 							item.setTitle(typeObj.getGroupTitle(itemCount, item.getContext().getContextTitle()));
 						}
 					}
@@ -500,7 +505,29 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 
 	public List<NewsLink> getCurrentNewsLinks(String sakaiId, String siteId) {
-		return dao.getCurrentNewsLinks(sakaiId, siteId);
+		List<NewsLink> links = dao.getCurrentNewsLinks(sakaiId, siteId);
+		
+		if(links != null) {
+			for(NewsLink link : links) {
+				NewsItem item = link.getNewsItem();
+				if(item != null && item.getItemCount() > 1) {
+					int itemCount = item.getItemCount();
+					SourceType sourceType = item.getSourceType();
+					if(sourceType != null) {
+						EntityType typeObj = this.entityTypes.get(sourceType.getIdentifier());
+						if(typeObj == null) {
+							ResourceLoader rl = new ResourceLoader("dash_entity");
+							Object[] args = new Object[]{itemCount, sourceType.getIdentifier(), item.getContext().getContextTitle()};
+							rl.getFormattedMessage("dash.grouped.title", args );
+						} else {
+							item.setTitle(typeObj.getGroupTitle(itemCount, item.getContext().getContextTitle()));
+						}
+					}
+				}
+			}
+		}
+		
+		return links;
 	}
 
 	public List<NewsLink> getStarredNewsLinks(String sakaiId, String siteId) {
