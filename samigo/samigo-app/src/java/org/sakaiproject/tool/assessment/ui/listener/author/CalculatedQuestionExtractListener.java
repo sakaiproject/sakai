@@ -217,24 +217,69 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         long dummyItemId = 1;
         long dummyGradingId = 1;
         String dummyAgentId = "dummy";
-        int dummyValidAnswersAttemptCount = 1;
         
-        // create random values for the variables to substitute into the formulas
-        Map<String, String> answersMap = service.determineRandomValuesForRanges(variableRangeMap, dummyItemId, 
-                dummyGradingId, dummyAgentId, dummyValidAnswersAttemptCount);
+        for (int attemptCnt = 0; attemptCnt < 100; attemptCnt++) {
         
-        // evaluate each formula
-        for (CalculatedQuestionFormulaBean formulaBean : item.getCalculatedQuestion().getFormulas().values()) {
-            if (formulaBean.getActive()) {
-                String formulaStr = formulaBean.getText();
-                String substitutedFormulaStr = service.replaceMappedVariablesWithNumbers(formulaStr, answersMap);
-                try {
-                    parser.parse(substitutedFormulaStr);
-                } catch (SamigoExpressionError e) {
-                    errors.put(Integer.valueOf(e.get_id()), e.get());
+            // create random values for the variables to substitute into the formulas
+            Map<String, String> answersMap = service.determineRandomValuesForRanges(variableRangeMap, dummyItemId, 
+                    dummyGradingId, dummyAgentId, attemptCnt);
+            
+            // evaluate each formula
+            for (CalculatedQuestionFormulaBean formulaBean : item.getCalculatedQuestion().getFormulas().values()) {
+                if (formulaBean.getActive()) {
+                    String formulaStr = formulaBean.getText();
+                    String substitutedFormulaStr = service.replaceMappedVariablesWithNumbers(formulaStr, answersMap);
+                    try {
+                        if (isNegativeSqrt(substitutedFormulaStr)) {
+                            errors.put(8, "Negative Squrare Root");
+                        } else {
+                            String numericAnswerString = parser.parse(substitutedFormulaStr);
+                            if (!service.isAnswerValid(numericAnswerString)) {
+                                throw new Exception("invalid answer, try again");
+                            }
+                        }
+                    } catch (SamigoExpressionError e) {
+                        errors.put(Integer.valueOf(e.get_id()), e.get());
+                    } catch (Exception e) {
+                        errors.put(500, e.getMessage());
+                    }
                 }
+            }
+            if (errors.size() > 0) {
+                break;
             }
         }
         return errors;
+    }
+    
+    /**
+     * isNegativeSqrt() looks at the incoming expression and looks specifically
+     * to see if it executes the SQRT function.  If it does, it evaluates it.  If
+     * it has an error, it assumes that the SQRT function tried to evaluate a 
+     * negative number and evaluated to NaN.
+     * @param expression a mathematical formula, with all variables replaced by
+     * real values, to be evaluated
+     * @return true if the function uses the SQRT function, and the SQRT function
+     * evaluates as an error; else false
+     * @throws SamigoExpressionError if the evaluation of the SQRT function throws
+     * som other parse error
+     */
+    private boolean isNegativeSqrt(String expression) throws SamigoExpressionError {
+        final String SQRT = "sqrt(";
+        boolean isNegative = false;
+        GradingService service = new GradingService();
+        
+        expression = expression.toLowerCase();
+        int startIndex = expression.indexOf(SQRT);
+        if (startIndex > -1) {
+            int endIndex = expression.indexOf(')', startIndex);
+            String sqrtExpression = expression.substring(startIndex, endIndex + 1);
+            SamigoExpressionParser parser = new SamigoExpressionParser();
+            String numericAnswerString = parser.parse(sqrtExpression);
+            if (!service.isAnswerValid(numericAnswerString)) {
+                isNegative = true;
+            }            
+        }
+        return isNegative;
     }
 }

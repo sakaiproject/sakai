@@ -39,7 +39,7 @@ public class CalculatedQuestionVariableBean implements Serializable, CalculatedQ
     private double max;
     private String decimalPlaces;
     private boolean active;
-    public static final String DEFAULT_DECIMAL_PLACES = "0";
+    public static final String DEFAULT_DECIMAL_PLACES = "3";
 
     public CalculatedQuestionVariableBean() {
         this.decimalPlaces = DEFAULT_DECIMAL_PLACES;

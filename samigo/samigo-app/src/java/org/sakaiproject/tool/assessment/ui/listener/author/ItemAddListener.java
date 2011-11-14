@@ -557,19 +557,19 @@ public class ItemAddListener
      * else false 
      */
     private boolean isCalcQExpressionError(String itemId) {    	
-    	HashMap answersMap = new HashMap();
-    	GradingService service = new GradingService();
-    	ItemService delegate = new ItemService();
-    	ItemDataIfc item = (ItemDataIfc) delegate.getItem(itemId);
+//    	HashMap answersMap = new HashMap();
+//    	GradingService service = new GradingService();
+//    	ItemService delegate = new ItemService();
+//    	ItemDataIfc item = (ItemDataIfc) delegate.getItem(itemId);
     	
-    	try {
-    		service.extractCalcQAnswersArray(answersMap, item, (long)1, "1");
-    	}
-    	catch(Exception e) { //TODO: catch the specific exceptions
-    		return true;
-    	}
+//    	try {
+//    		service.extractCalcQAnswersArray(answersMap, item, (long)1, "1");
+//    	}
+//    	catch(Exception e) { //TODO: catch the specific exceptions
+//    		return true;
+//    	}
     	
-  	  	return false;
+ 	  	return false;
     }
 
 
@@ -1338,6 +1338,9 @@ public class ItemAddListener
 	  else if (item.getTypeId().equals(TypeFacade.MATCHING)) {
 		  preparePublishedTextForMatching(item, bean, delegate);
 	  }
+	  else if (item.getTypeId().equals(TypeFacade.CALCULATED_QUESTION)) {
+	      preparePublishedTextForCalculatedQueston(item, bean, delegate);
+	  }
 	  else if(item.getTypeId().equals(TypeFacade.MATRIX_CHOICES_SURVEY)) {
 		  preparePublishedTextForMatrixSurvey(item,bean,delegate);
 	  }
@@ -1559,6 +1562,102 @@ public class ItemAddListener
 			delegate.deleteSet(toBeRemovedSet);
 		}
   }
+  
+  private void preparePublishedTextForCalculatedQueston(ItemFacade item, ItemBean bean, ItemService delegate) {
+      Set<ItemTextIfc> itemTextSet = item.getItemTextSet();            
+      CalculatedQuestionBean calcBean = bean.getCalculatedQuestion();      
+      float score = Float.valueOf(bean.getItemScore());
+      float partialCredit = 0f;
+      float discount = Float.valueOf(bean.getItemDiscount());
+      String grade = null;            
+      
+      // Variables and formulas are very similar, and both have entries in the 
+      // sam_itemtext_t table.  Because of the way the data is structured, every 
+      // answer stored in sam_answer_t is a possible match to every ItemText 
+      // stored in sam_itemtext_t.   If there is one variable and one formula, 
+      // there are 2 entries in sam_itemtext_t and 4 entries in sam_answer_t.  
+      // 2 variables and 2 formulas has 4 entries in sam_itemtext_t and 16 entries 
+      // in sam_answer_t.  This is required for the current design (which makes 
+      // more sense for other question types; we're just trying to work within 
+      // that structure.  We loop through each formula and variable to create 
+      // an entry in sam_itemtext_t (ItemText choiceText).  Then for each 
+      // choicetext, we loop through all variables and formulas to create the 
+      // answer objects.
+      List<CalculatedQuestionAnswerIfc> list = new ArrayList<CalculatedQuestionAnswerIfc>();
+      list.addAll(calcBean.getFormulas().values());
+      list.addAll(calcBean.getVariables().values());
+      
+      // loop through all variables and formulas to create ItemText objects
+      for (CalculatedQuestionAnswerIfc varFormula : list) {
+          ItemTextIfc choiceText = null;
+          for (ItemTextIfc itemText : itemTextSet) {
+              if (itemText.getSequence().equals(varFormula.getSequence())) {
+                  choiceText = itemText;
+              }
+          }
+          if (choiceText == null) {
+              choiceText = new PublishedItemText();
+              choiceText.setItem(item.getData());
+              choiceText.setSequence(varFormula.getSequence());
+              itemTextSet.add(choiceText);
+          }
+          choiceText.setText(varFormula.getName());
+          Long sequence = choiceText.getSequence();
+          
+          Set<AnswerIfc> answerSet = choiceText.getAnswerSet();
+          if (answerSet == null) {
+              answerSet = new HashSet<AnswerIfc>();
+              choiceText.setAnswerSet(answerSet);
+          }
+          
+          // loop through all variables and formulas to create all answers for the ItemText object
+          for (CalculatedQuestionAnswerIfc curVarFormula : list) {
+              String match = curVarFormula.getMatch();
+              Long curSequence = curVarFormula.getSequence();
+              boolean isCorrect = curSequence.equals(sequence);
+              String choiceLabel = AnswerBean.getChoiceLabels()[curSequence.intValue()];
+              boolean foundAnswer = false;
+              for (AnswerIfc curAnswer : answerSet) {
+                  if (curAnswer.getSequence().equals(sequence)) {
+                      curAnswer.setText(varFormula.getMatch());
+                      foundAnswer = true;
+                      break;
+                  }
+              }
+              if (!foundAnswer) {
+                  AnswerIfc answer = new PublishedAnswer(choiceText, match, curSequence, choiceLabel,
+                          isCorrect, grade, score, partialCredit, discount);
+                  answerSet.add(answer);
+              }
+          }
+      }
+      
+      // If we're saving fewer variables/formulas than are currently in  the 
+      // itemtext/answer list, we need to delete the extra ones.
+      // ASSUMPTION - that sequences in sam_itemtext_t and sam_answer_t have no gaps.  If
+      // there are 3 entries in sam_itemtext_t, they are numbered 1, 2, and 3 
+      // (not 1, 2, 4 for example).  This assumption should be verified
+      if (list.size() < itemTextSet.size()) {
+          Set<ItemTextIfc> toBeRemovedTextSet = new HashSet<ItemTextIfc>();
+          Set<AnswerIfc> toBeRemovedAnswerSet = new HashSet<AnswerIfc>();
+          for (ItemTextIfc curItemText : itemTextSet) {
+              Set<AnswerIfc> answerSet = curItemText.getAnswerSet();
+              for (AnswerIfc curAnswer : answerSet) {
+                  if (curAnswer.getSequence() > list.size()) {
+                      toBeRemovedAnswerSet.add(curAnswer);
+                  }
+              }
+              answerSet.removeAll(toBeRemovedAnswerSet);
+              delegate.deleteSet(toBeRemovedAnswerSet);
+              if (curItemText.getSequence() > list.size()) {
+                  toBeRemovedTextSet.add(curItemText);
+              }
+          }
+          itemTextSet.removeAll(toBeRemovedTextSet);
+          delegate.deleteSet(toBeRemovedTextSet);          
+      }
+  }
+
   
   private void preparePublishedTextForMatching(ItemFacade item,
 			ItemBean bean, ItemService delegate) {

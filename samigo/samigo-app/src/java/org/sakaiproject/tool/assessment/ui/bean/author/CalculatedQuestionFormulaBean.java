@@ -40,7 +40,7 @@ public class CalculatedQuestionFormulaBean implements Serializable, CalculatedQu
     private boolean active;
     
     private static final String DEFAULT_FORMULA = "0";
-    private static final String DEFAULT_DECIMAL_PLACES = "0";
+    private static final String DEFAULT_DECIMAL_PLACES = "3";
     private static final double DEFAULT_TOLERANCE = 0.01;
     
     public CalculatedQuestionFormulaBean() {
