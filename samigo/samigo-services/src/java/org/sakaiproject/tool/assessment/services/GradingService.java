@@ -2033,20 +2033,23 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   private HashMap getCalculatedAnswersMap(ItemGradingIfc itemGrading, ItemDataIfc item) {
 	  HashMap calculatedAnswersMap = new HashMap();
 	  
-	  ArrayList texts = extractCalcQAnswersArray(calculatedAnswersMap, item, itemGrading.getAssessmentGradingId(), itemGrading.getAgentId());
+	  List<String> texts = extractCalcQAnswersArray(calculatedAnswersMap, item, itemGrading.getAssessmentGradingId(), itemGrading.getAgentId());
 	  
 	  return calculatedAnswersMap;
   }
   
   /**
-   * looks through a block of text for anything that is encoded as a formula
-   * and returns a list of any matches.  A formula is enclosed in {{ }}.
-   * <p>For example, if the passed parameter is
-   * {a} + {b} = {{c}}, the resulting list would contain
-   * one entry, with a string of "c"
-   * <p>Formulas must begin with an alpha, but subsequent character can be alpha-numeric
+   * extractFormulas() is a utility function for Calculated Questions.  It takes
+   * one parameter, which is a block of text, and looks for any formula names
+   * that are encoded in the text.  A formula name is enclosed in {{ }}.  The 
+   * formula itself is encoded elsewhere.
+   * <p>For example, if the passed parameter is <code>{a} + {b} = {{c}}</code>, 
+   * the resulting list would contain one entry: a string of "c"
+   * <p>Formulas must begin with an alpha, but subsequent character can be 
+   * alpha-numeric
    * @param text contents to be searched
-   * @return a list of matching formulas.  If no formulas are found, the list will be empty.
+   * @return a list of matching formula names.  If no formulas are found, the 
+   * list will be empty.
    */
   public List<String> extractFormulas(String text) {
 	  List<String> formulas = new ArrayList<String>();
@@ -2054,7 +2057,9 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		  return formulas;
 	  }
 	  
-	  Pattern formulaPattern = Pattern.compile(OPEN_BRACKET + OPEN_BRACKET + "([a-zA-Z]\\w*)" + CLOSE_BRACKET + CLOSE_BRACKET);
+	  Pattern formulaPattern = Pattern.compile(OPEN_BRACKET + 
+	          OPEN_BRACKET + "([a-zA-Z]\\w*)" + CLOSE_BRACKET + 
+	          CLOSE_BRACKET);
 	  Matcher formulaMatcher = formulaPattern.matcher(text);
 	  while (formulaMatcher.find()) {
 		  String formula = formulaMatcher.group(1);
@@ -2064,33 +2069,40 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   }
   
   /**
-   * looks through a block of text for anything that is encoded as a variable and returns
-   * a list of any matches.  A variable is enclosed in { }.
-   * <p>For example, if the passed parameter is
-   * {a} + {b} = {{c}}, the resulting list would contain
-   * two entries, with strings of "a" and "b"
-   * <p>Variables must begin with an alpha, but subsequent character can be alpha-numeric
+   * extractVariables() is a utility function for Calculated Questions.  It 
+   * takes one parameter, which is a block of text, and looks for any variable 
+   * names that are encoded in the text.  A variable name is enclosed in { }.  
+   * The values of the variable are encoded elsewhere.
+   * <p>For example, if the passed parameter is <code>{a} + {b} = {{c}}</code>, 
+   * the resulting list would contain two entries: strings of "a" and "b"
+   * <p>Variables must begin with an alpha, but subsequent character can be 
+   * alpha-numeric.
+   * <p>Note - a formula, encoded as {{ }}, will not be mistaken for a variable.
    * @param text content to be searched
-   * @return a list of matching variables.  If no variables are found, the list will be empty
+   * @return a list of matching variable names.  If no variables are found, the 
+   * list will be empty
    */
   public List<String> extractVariables(String text) {
 	  List<String> variables = new ArrayList<String>();
 	  if (text == null || text.length() == 0) {
 		  return variables;
 	  }
-	  
-	  Pattern variablePattern = Pattern.compile("[^" + OPEN_BRACKET + "]" + 
-	          OPEN_BRACKET + "([a-zA-Z]\\w*)" + CLOSE_BRACKET + 
-	          "[^" + CLOSE_BRACKET + "]");
-	  
-	  // I padded the text so that the regex will examine the space before the 
-	  // variable and confirm it doesn't have another wrapping {}, which would 
-	  // make it a formula.  This is a hack - find a better regex.
-	  Matcher variableMatcher = variablePattern.matcher(" " + text + " ");
-	  while (variableMatcher.find()) {
-		  String variable = variableMatcher.group(1);
-		  variables.add(variable);
-	  }
+      Pattern variablePattern = Pattern.compile(OPEN_BRACKET + "([a-zA-Z]\\w*)" + CLOSE_BRACKET);        
+      Matcher variableMatcher = variablePattern.matcher(text);
+      while (variableMatcher.find()) {
+          String variable = variableMatcher.group(1);
+          
+          // first character before matching group
+          int start = variableMatcher.start(1) - 2;
+          
+          // first character after matching group
+          int end = variableMatcher.end(1) + 1; // first character after the matching group
+          
+          // if matching group is not wrapped by {}, it's a variable
+          if (start < 0 || text.charAt(start) != '{' || end >= text.length() || text.charAt(end) != '}') {
+              variables.add(variable);                
+          }
+      }
 	  return variables;	  
   }
   
@@ -2110,100 +2122,140 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  }
 	  return result;
   }
+   
+  /**
+   * takes the instructions and breaks it into segments, based on the location 
+   * of formula names.  One formula would give two segments, two formulas gives
+   * three segments, etc.
+   * <p>Note - in this context, it would probably be easier if any variable value
+   * substitutions have occurred before the breakup is done; otherwise,
+   * each segment will need to have substitutions done.
+   * @param instructions string to be broken up
+   * @return the original string, broken up based on the formula name delimiters
+   */
+  private List<String> extractInstructionSegments(String instructions) {
+      final String FUNCTION_BEGIN = "{{";
+      final String FUNCTION_END = "}}";
+      List<String> segments = new ArrayList<String>();
+      while (instructions.indexOf(FUNCTION_BEGIN) > -1 && instructions.indexOf(FUNCTION_END) > -1) {
+          String segment = instructions.substring(0, instructions.indexOf(FUNCTION_BEGIN));
+          instructions = instructions.substring(instructions.indexOf(FUNCTION_END) + FUNCTION_END.length());
+          segments.add(segment);
+      }
+      segments.add(instructions);
+      return segments;
+  }
+  
+  /**
+   * applyPrecisionToNumberString() takes a string representation of a number and returns
+   * a string representation of that number, rounded to the specified number of
+   * decimal places, including trimming decimal places if needed.
+   * @param numberStr
+   * @param decimalPlaces
+   * @return
+   */
+  private String applyPrecisionToNumberString(String numberStr, int decimalPlaces) {
+      Double calculatedAnswer = Double.valueOf(numberStr);
       
+      // Trim off excess decimal points based on decimalPlaces value
+      BigDecimal bd = new BigDecimal(calculatedAnswer);
+      bd = bd.setScale(decimalPlaces,BigDecimal.ROUND_HALF_UP);
+      calculatedAnswer = bd.doubleValue();
+
+      String displayAnswer = calculatedAnswer.toString();
+      if (decimalPlaces == 0) { // Remove ".0" if decimalPlaces ==0
+          displayAnswer = displayAnswer.replace(".0", "");
+      }
+      return displayAnswer;
+  }
+  
+  /**
+   * calculateFormulaValues() evaluates all formulas referenced in the 
+   * instructions.  For each formula name it finds, it retrieves the formula
+   * for the name, substitutes the randomized value for the variables,
+   * evaluates the formula to a real answer, and put the answer, along with
+   * the needed precision and decimal places in the returning Map. 
+   * @param variables a Map<String, String> of variables,  The key is the 
+   * variable name, the value is the text representation, after randomization, 
+   * of a number in the variable's defined range.
+   * @param item The question itself, which is needed to provide additional 
+   * information for called functions
+   * @return a Map<Integer, String>.  the Integer is simply the sequence.  
+   * Answers are returned in the order that the formulas are found.
+   * The String is the result of the formula, encoded as (value)|(tolerance),(decimal places)
+   * @throws Exception if either the formula expression fails to pass the 
+   * Samgio expression parser, which should never happen as this is validated
+   * when the question is saved, or if a divide by zero error occurs.
+   */
+  private Map<Integer, String> calculateFormulaValues(Map<String, String> variables, ItemDataIfc item) throws Exception {
+      Map<Integer, String> values = new HashMap<Integer, String>();
+      String instructions = item.getInstruction();
+      List<String> formulaNames = this.extractFormulas(instructions);
+      for (int i = 0; i < formulaNames.size(); i++) {
+          String formulaName = formulaNames.get(i);
+          String longFormula = replaceFormulaNameWithFormula(item, formulaName); // {a}+{b}|0.1,1
+          longFormula = defaultVarianceAndDecimal(longFormula); // sets defaults, in case tolerance or precision isn't set
+          
+          String formula = getAnswerExpression(longFormula); // returns just the formula
+          String answerData = getAnswerData(longFormula); // returns just tolerance and precision
+          int decimalPlaces = getAnswerDecimalPlaces(answerData);
+          
+          String substitutedFormula = replaceMappedVariablesWithNumbers(formula,variables);
+          SamigoExpressionParser parser = new SamigoExpressionParser(); // this will turn the expression into a number in string form
+          String numericAnswerString;
+          try {
+              numericAnswerString = parser.parse(substitutedFormula);
+              if (this.isAnswerValid(numericAnswerString)) {
+                  String displayAnswer = applyPrecisionToNumberString(numericAnswerString, decimalPlaces);                
+                  values.put(i + 1, displayAnswer + answerData); // later answerData will be used for scoring
+              } else {
+                  throw new Exception("invalid answer, try again");
+              }
+          } catch (SamigoExpressionError e) {
+              throw e;
+          }          
+      }
+      return values;
+  }
+  
   /**
    * CALCULATED_QUESTION
    * This is a busy method. It does three things:
-   * 1. It removes the answer expressions ie. {x+y} from the question text. This value is
-   * 	returned in the ArrayList texts. This format is necessary so that input boxes can be
-   * 	placed in the text where the {..}'s appear.
-   * 2. It will call methods to swap out the defined vairables with randomly generated values
-   * 	within the ranges defined by the user.
-   * 3. It updates the HashMap answerList with the calculated answers in sequence. It will 
-   * 	parse and calculate what each answer needs to be.
-   * *Note: If a divide by zero occurs. We change the random values and try again. It gets 100 chances to
-   * 	get valid values and then will return "infinity" as the answer.
-   * 
+   * <br>1. It removes the answer expressions ie. {{x+y}} from the question text. This value is
+   *    returned in the ArrayList texts. This format is necessary so that input boxes can be
+   *    placed in the text where the {{..}}'s appear.
+   * <br>2. It will call methods to swap out the defined variables with randomly generated values
+   *    within the ranges defined by the user.
+   * <br>3. It updates the HashMap answerList with the calculated answers in sequence. It will 
+   *    parse and calculate what each answer needs to be.
+   * <p>Note: If a divide by zero occurs. We change the random values and try again. It gets limited chances to
+   *    get valid values and then will return "infinity" as the answer.
    * @param answerList will enter the method empty and be filled with sequential answers to the question
    * @return ArrayList of the pieces of text to display surrounding input boxes
    */
-  public ArrayList extractCalcQAnswersArray(HashMap answerList, ItemDataIfc item, Long gradingId, String agentId)   {
-	  final String FUNCTION_BEGIN = "{{";
-	  final String FUNCTION_END = "}}";
-	  ArrayList texts = new ArrayList();
-	  HashMap variableRangeMap = buildVariableRangeMap(item);
-	  
-	  int validAnswersAttemptCount = 1; // in case of a divide by zero error we'll retry a few times to get valid values.
-	  boolean gotValidAnswerExpressions = false;
-	  while ((validAnswersAttemptCount < 100) && !gotValidAnswerExpressions) {
-		  
-		  texts.clear();
-		  Map<String, String> variablesWithValues = determineRandomValuesForRanges(variableRangeMap,item.getItemId(), gradingId, agentId, validAnswersAttemptCount);
-		  String alltext = replaceTextVariablesWithValues(item.getInstruction(), variablesWithValues);
-			
-		  	int sequence = 1; // order the answers appear in the question
-		  	// This loops through the question searching for the {} pairs...
-		  	boolean continueParse = true;
-		    while ((alltext.indexOf(FUNCTION_BEGIN) > -1) && continueParse) {
-		      int alltextLeftIndex = alltext.indexOf(FUNCTION_BEGIN);
-		      int alltextRightIndex = alltext.indexOf(FUNCTION_END);
-	
-		      // This is the "(x+y)/z|2,2" string
-		      String rawAnswerText = alltext.substring(alltextLeftIndex + FUNCTION_BEGIN.length(), alltextRightIndex);
-		      String allAnswerText = replaceFormulaNameWithFormula(item, rawAnswerText);
-		      String answerExpression = defaultVarianceAndDecimal(allAnswerText); // sets defaults
-		      answerExpression = getAnswerExpression(answerExpression); // This is just "(x+y)/z"
-		      
-		      String answerData = getAnswerData(allAnswerText); // Example: "|2,2" (variance & dec display)
-		      int decimalPlaces = getAnswerDecimalPlaces(allAnswerText);
-		      
-		      // This will replace x with 42.00 for example
-			  answerExpression = replaceMappedVariablesWithNumbers(answerExpression,variablesWithValues);
-		      
-			  SamigoExpressionParser parser = new SamigoExpressionParser(); // this will turn the expression into a number in string form
-			  String numericAnswerString = "0.0";
-			  try {
-			      numericAnswerString = parser.parse(answerExpression); // final answer in string form
-			  } catch (SamigoExpressionError e) {
-			      log.error("Error parsing formula that should have been caught before here: " + e.getMessage() + ", " + 
-			              answerExpression, e);
-			  }
-			  validAnswersAttemptCount++;
-			  gotValidAnswerExpressions = isAnswerValid(numericAnswerString);
-			  if (gotValidAnswerExpressions) {
-				  Double calculatedAnswer = Double.valueOf(numericAnswerString);
-				  
-				  // Trim off excess decimal points based on decimalPlaces value
-				  BigDecimal bd = new BigDecimal(calculatedAnswer);
-				  bd = bd.setScale(decimalPlaces,BigDecimal.ROUND_HALF_UP);
-				  calculatedAnswer = bd.doubleValue();
-	
-				  String displayAnswer = calculatedAnswer.toString();
-				  
-				  if (decimalPlaces == 0) { // Remove ".0" if decimalPlaces ==0
-					  displayAnswer = displayAnswer.replace(".0", "");
-				  }
-				  
-			      answerList.put(sequence, displayAnswer + answerData); // later answerData will be used for scoring
-			      sequence++;
-			      
-			      // Construct the question text from the characters not inside of {}'s
-			      String tmp = alltext.substring(0, alltextLeftIndex);
-			      alltext = alltext.substring(alltextRightIndex + FUNCTION_END.length());
-			      texts.add(tmp);
-			      // there are no more "}", exit loop
-			      if (alltextRightIndex == -1) {
-			        break;
-			      }
-			  } // end if (gotValidAnswerExpressions)
-			  else {
-				  continueParse = false; // ends the parse loop
-				  gotValidAnswerExpressions = false; // tells the attempts loop we need to try again
-			  }
-		    } // end while (alltext.indexOf("{") > -1) 
-		    texts.add(alltext);
-	  } // end while validAnswersAttemptCount < 100
-	    return texts;
+  public ArrayList extractCalcQAnswersArray(HashMap answerList, ItemDataIfc item, Long gradingId, String agentId) {
+      final int MAX_ERROR_TRIES = 100;
+      boolean hasErrors = true;
+      Map<String, String> variableRangeMap = buildVariableRangeMap(item);
+      List<String> instructionSegments = new ArrayList<String>();
+      
+      int attemptCount = 1;
+      while (hasErrors && attemptCount <= MAX_ERROR_TRIES) {
+          instructionSegments.clear();
+          Map<String, String> variablesWithValues = determineRandomValuesForRanges(variableRangeMap,item.getItemId(), gradingId, agentId, attemptCount);
+          String instructions = item.getInstruction();
+          String instructionsWithSubstitutions  = replaceMappedVariablesWithNumbers(instructions, variablesWithValues);
+          
+          instructionSegments = extractInstructionSegments(instructionsWithSubstitutions);
+          try {
+              Map<Integer, String> evaluatedFormulas = calculateFormulaValues(variablesWithValues, item);
+              answerList.putAll(evaluatedFormulas);
+              hasErrors = false;
+          } catch (Exception e) {
+              attemptCount++;
+          }
+      }
+      return (ArrayList) instructionSegments;
   }
   
   	/**
@@ -2265,70 +2317,83 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     
   /**
    * CALCULATED_QUESTION
-   * Takes a Map of answer strings and checks for the value returned
-   * by a divide by zero.
+   * Takes an answer string and checks for the value returned
+   * is NaN or Infinity, indicating a Samigo formula parse error
    * Returns false if divide by zero is detected.
    */
-  private boolean isAnswerValid(String answer) {
+  public boolean isAnswerValid(String answer) {
 	  String INFINITY = "Infinity";
+	  String NaN = "NaN";
 	  if (answer.length() == 0) return false;
 	  if (answer.equals(INFINITY)) return false;
+	  if (answer.equals(NaN)) return false;
 	  
 	  return true;
   }
   
   /**
    * CALCULATED_QUESTION
-   * This method is for the answer expression. It will replace x with 42.00 for example.
-   * HashMap variablesWithValues contains pairs of variable names and values.
+   * replaceMappedVariablesWithNumbers() takes a string and substitutes any variable
+   * names found with the value of the variable.  Variables look like {a}, the name of 
+   * that variable is "a", and the value of that variable is in variablesWithValues
+   * <p>Note - this function comprehends syntax like "5{x}".  If "x" is 37, the
+   * result would be "5*37"
+   * @param expression - the string being substituted into
+   * @param variables - Map key is the variable name, value is what will be 
+   * substituted into the expression.
+   * @return a string with values substituted.  If answerExpression is null, 
+   * returns a blank string (i.e "").  If variablesWithValues is null, returns
+   * the original answerExpression 
    */
-  public String replaceMappedVariablesWithNumbers(String answerExpression, Map<String, String> variablesWithValues) {
-	  Iterator i = variablesWithValues.entrySet().iterator();
-	  while(i.hasNext()) {
-		  Map.Entry entry = (Map.Entry)i.next();
-		  answerExpression = answerExpression.replaceAll(OPEN_BRACKET + entry.getKey().toString() + CLOSE_BRACKET, entry.getValue().toString());
-	  }
-	  return answerExpression;
-  }
-
-  /**
-   * CALCULATED_QUESTION
-   * In the question Instruction: replaces [[varName]] with a real value such as 42
-   * @param item
-   * @param variableValueMap
-   * @return
-   */
-    private String replaceTextVariablesWithValues(String questionText, Map<String, String> variableValueMap) {
-	  if (questionText == null) return null; // because it should be set up already in item
-	  	  
-	  String openBrackets = OPEN_BRACKET;
-	  String closeBrackets = CLOSE_BRACKET;
-	  
-	  Iterator i = variableValueMap.entrySet().iterator();
-	  while(i.hasNext())
-	  {
-		  Map.Entry<String, String> entry = (Map.Entry)i.next();
-		  
-		  // not sure why these are happening?
-		  if (entry.getKey().toString().equals(questionText)) continue;
-		  		  
-		  String variableValue = entry.getValue().toString();
-		  
-		  if ((questionText.indexOf("{") > -1) && (questionText.indexOf("}") > -1))
-		  {
-			  String varPattern = openBrackets + entry.getKey() + closeBrackets;
-			  questionText = questionText.replaceAll(varPattern, variableValue);
-		  }
-	  }
-	  
-	  return questionText;
-  }
+    public String replaceMappedVariablesWithNumbers(String expression, 
+          Map<String, String> variables) {
+      
+        if (expression == null) {
+            expression = "";
+        }
+        
+        if (variables == null) {
+            variables = new HashMap<String, String>();
+        }
+        
+        for (Map.Entry<String, String> entry : variables.entrySet()) {
+            String name = "{" + entry.getKey() + "}";
+            String value = entry.getValue();
+          
+            // not doing string replace or replaceAll because the value being
+            // substituted can change for each occurrence of the variable.
+            int index = expression.indexOf(name);
+            while (index > -1) {
+                String prefix = expression.substring(0, index);
+                String suffix = expression.substring(index + name.length());
+              
+                String replacementValue = value;                
+                // if last character of prefix is a number or the edge of parenthesis, multiply by the variable
+                // if x = 37, 5{x} -> 5*37
+                // if x = 37 (5+2){x} -> (5+2)*37 (prefix is (5+2)
+                if (prefix.length() > 0 && (Character.isDigit(prefix.charAt(prefix.length() - 1)) || prefix.charAt(prefix.length() - 1) == ')')) {
+                    replacementValue = "*" + replacementValue;                    
+                }  
+              
+                // if first character of suffix is a number or the edge of parenthesis, multiply by the variable
+                // if x = 37, {x}5 -> 37*5
+                // if x = 37, {x}(5+2) -> 37*(5+2) (suffix is (5+2)
+                if (suffix.length() > 0 && (Character.isDigit(suffix.charAt(0)) || suffix.charAt(0) == '(')) {
+                    replacementValue = replacementValue + "*";                    
+                }
+          
+                // perform substitution, then look for the next instance of current variable
+                expression = prefix + replacementValue + suffix;
+                index = expression.indexOf(name);
+            }       
+        }
+        return expression;
+    }
 
   /**
    * CALCULATED_QUESTION
    * Takes a map of ranges and randomly chooses values for those ranges and stores them in a new map.
    */
-//   public HashMap determineRandomValuesForRanges(HashMap variableRangeMap, long itemId, long gradingId, String agentId, int validAnswersAttemptCount) {
    public Map<String, String> determineRandomValuesForRanges(Map<String, String> variableRangeMap, long itemId, long gradingId, String agentId, int validAnswersAttemptCount) {
 	  Map<String, String> variableValueMap = new HashMap();
 	  
