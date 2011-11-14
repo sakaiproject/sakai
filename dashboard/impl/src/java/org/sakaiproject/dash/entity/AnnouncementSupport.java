@@ -151,7 +151,7 @@ public class AnnouncementSupport{
 		if (newsItem == null)
 		{
 			// create NewsItem if not exist yet
-			newsItem = dashboardLogic.createNewsItem(anncTitle, event.getEventTime(), null, anncReference, context, sourceType, null);
+			newsItem = dashboardLogic.createNewsItem(anncTitle, event.getEventTime(), "announcement.added", anncReference, context, sourceType, null);
 		}
 		else
 		{
