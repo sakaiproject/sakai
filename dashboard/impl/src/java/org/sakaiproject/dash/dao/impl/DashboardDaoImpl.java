@@ -1734,6 +1734,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			executeSqlStatement("create.PersonContextSourceType.table");
 			executeSqlStatement("create.PersonSourceType.table");
 			executeSqlStatement("create.RepeatingEvent.table");
+			executeSqlStatement("create.Config.table");
 		} catch(Exception e) {
 	        //System.out.println("\ninitTables: Error executing query: " + e.getClass() + ":\n" + e.getMessage() + "\n");
 
@@ -1763,6 +1764,64 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				}
 			}
 		}
+	}
+
+	public Integer getConfigProperty(String propertyName) {
+		
+		if(log.isDebugEnabled()) {
+			log.debug("getConfigProperty( " + propertyName + ")");
+		}
+		
+		Integer value = null;
+		String sql = getStatement("select.Config.by.propertyName");
+		Object[] params = new Object[]{
+				propertyName	
+		};
+		
+		JdbcTemplate jdbcTemplate = getJdbcTemplate();
+		try {
+			value = jdbcTemplate.queryForInt(sql, params);
+		} catch (DataAccessException ex) {
+            log.error("getConfigProperty: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+		} catch (Exception ex) {
+	        log.error("getConfigProperty: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+		}
+		
+		return value ;
+	}
+
+	public void setConfigProperty(String propertyName, Integer propertyValue) {
+		
+		if(log.isDebugEnabled()) {
+			log.debug("setConfigProperty( " + propertyName + "," + propertyValue + ")");
+		}
+		
+		// insert into dash_config (property_name, property_value) values (?, ?)
+		String sql_insert = getStatement("insert.Config");
+		Object[] params_insert = new Object[]{
+			propertyName, propertyValue	
+		};
+		
+		// update dash_config set property_value=? where property_name=?
+		String sql_update = getStatement("update.Config.propertyName");
+		Object[] params_update = new Object[]{
+				propertyValue, propertyName
+		};
+		
+		JdbcTemplate jdbcTemplate = getJdbcTemplate();
+		try {
+			jdbcTemplate.update(sql_insert, params_insert);
+		} catch (Exception e) {
+			// insert failed -- try update instead of insert
+	        try {
+	        	jdbcTemplate.update(sql_update, params_update);
+	        } catch (DataAccessException ex) {
+	            log.error("setConfigProperty: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+			} catch (Exception ex) {
+		        log.error("setConfigProperty: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+			}
+		}
+		
 	}
 
 }

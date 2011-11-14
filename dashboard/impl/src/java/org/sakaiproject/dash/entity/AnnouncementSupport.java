@@ -377,6 +377,15 @@ public class AnnouncementSupport{
 			// return the same image as used with Announcement tool
 			return "/library/image/silk/flag_blue.png";
 		}
+
+		public String getAccessUrlLabel(String subtype) {
+			ResourceLoader rl = new ResourceLoader("dash_entity");
+			
+			String key = "announcement.access.label";
+			String label = rl.getString(key);
+			
+			return label;
+		}
 	}
 	
 	/**

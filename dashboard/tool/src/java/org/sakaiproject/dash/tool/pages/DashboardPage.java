@@ -18,6 +18,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.request.target.basic.StringRequestTarget;
+import org.sakaiproject.dash.logic.DashboardConfig;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.tool.panels.CalendarLinksPanel;
 import org.sakaiproject.dash.tool.panels.NewsLinksPanel;
@@ -37,8 +38,6 @@ public class DashboardPage extends BasePage {
 	private static final String TIME_FORMAT = "HH:mm";
 	protected static final String DATETIME_FORMAT = "dd-MMM-yyyy HH:mm";
 	
-	protected int pageSize = 5;
-
 	protected String selectedCalendarTab;
 	protected String selectedNewsTab;
 	
@@ -99,7 +98,7 @@ public class DashboardPage extends BasePage {
                 Locale locale = hsr.getLocale();
  				if(entityReference != null && ! entityReference.trim().equals("") && entityType != null && ! entityType.trim().equals("")) {
  					if(itemCount > 1) {
- 						int pageSize = 20;
+ 						int pageSize = dashboardConfig.getConfigValue(DashboardConfig.PROP_DEFAULT_ITEMS_IN_DISCLOSURE, 20);
  						int pageNumber = 0;
  						String sakaiUserId = sakaiProxy.getCurrentUserId();
 						List<NewsItem> items = dashboardLogic.getNewsItemsByGroupId(sakaiUserId, entityReference, pageSize, pageNumber);

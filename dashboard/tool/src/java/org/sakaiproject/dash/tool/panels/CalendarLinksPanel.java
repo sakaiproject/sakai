@@ -30,6 +30,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.value.ValueMap;
+import org.sakaiproject.dash.logic.DashboardConfig;
 import org.sakaiproject.dash.logic.DashboardLogic;
 import org.sakaiproject.dash.logic.SakaiProxy;
 import org.sakaiproject.dash.model.CalendarItem;
@@ -62,6 +63,9 @@ public class CalendarLinksPanel extends Panel {
 	@SpringBean(name="org.sakaiproject.dash.logic.DashboardLogic")
 	protected DashboardLogic dashboardLogic;
 		
+	@SpringBean(name="org.sakaiproject.dash.logic.DashboardConfig")
+	protected DashboardConfig dashboardConfig;
+	
 	protected CalendarLinksDataProvider calendarLinksProvider = null;
 	
 	protected DashboardPage dashboardPage;
@@ -69,7 +73,7 @@ public class CalendarLinksPanel extends Panel {
 	protected String selectedCalendarTab = null;
 	protected String calendarLinksDivId = null;
 	protected String calendarLinksCountId = null;
-	protected int pageSize = 5;
+	protected int pageSize = dashboardConfig.getConfigValue(DashboardConfig.PROP_DEFAULT_ITEMS_IN_PANEL, 5);
 	
 	public CalendarLinksPanel(String id) {
 		super(id);

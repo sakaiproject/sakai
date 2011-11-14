@@ -17,6 +17,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
+import org.sakaiproject.dash.logic.DashboardConfig;
 import org.sakaiproject.dash.logic.DashboardLogic;
 import org.sakaiproject.dash.logic.SakaiProxy;
 
@@ -40,6 +41,9 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	
 	@SpringBean(name="org.sakaiproject.dash.logic.DashboardLogic")
 	protected DashboardLogic dashboardLogic;
+	
+	@SpringBean(name="org.sakaiproject.dash.logic.DashboardConfig")
+	protected DashboardConfig dashboardConfig;
 	
 	Link<Void> dashboardLink;
 	Link<Void> optionsLink;

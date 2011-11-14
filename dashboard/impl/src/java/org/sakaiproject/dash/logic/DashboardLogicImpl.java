@@ -80,12 +80,13 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	
 	public static final String MOTD_CONTEXT = "!site";
 	
-	// this will be a setting
+	// TODO: MOVE TO CONFIG 
 	protected long daysToHorizon = 30L;
 	public void setDaysToHorizon(long daysToHorizon) {
 		this.daysToHorizon = daysToHorizon;
 	}
 	
+	// TODO: MOVE TO CONFIG 
 	protected long daysBetweenHorizonUpdates = 7L;
 	public void setDaysBetweenHorizonUpdates(long daysBetweenHorizonUpdates) {
 		this.daysBetweenHorizonUpdates = daysBetweenHorizonUpdates;
@@ -102,6 +103,8 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	protected DashboardEventProcessingThread eventProcessingThread = new DashboardEventProcessingThread();
 	protected Queue<EventCopy> eventQueue = new ConcurrentLinkedQueue<EventCopy>();
 		
+	protected static boolean timeToQuit = false;
+
 	/************************************************************************
 	 * Spring-injected classes
 	 ************************************************************************/
@@ -116,10 +119,12 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		this.dao = dao;
 	}
 	
+	protected DashboardConfig dashboardConfig;
+	public void setDashboardConfig(DashboardConfig dashboardConfig) {
+		this.dashboardConfig = dashboardConfig;
+	}
+
 	protected Cache cache;
-
-	protected static boolean timeToQuit = false;
-
 	public void setCache(Cache cache) {
 		this.cache = cache;
 	}
