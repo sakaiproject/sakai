@@ -76,7 +76,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			//if direct access, add permissions, otherwise, leave it blank
 
 			//site access permission
-			hierarchyService.assignUserNodePerm(userId, nodeModel.getNodeId(), "site.visit", false);
+			hierarchyService.assignUserNodePerm(userId, nodeModel.getNodeId(), DelegatedAccessConstants.NODE_PERM_SITE_VISIT, false);
 
 			//realm & role permissions
 			saveRealmAndRoleAccess(userId, nodeModel.getRealm(), nodeModel.getRole(), nodeModel.getNodeId());
@@ -112,7 +112,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * @return
 	 */
 	public Set<HierarchyNodeSerialized> getNodesForUser(String userId) {
-		return convertToSerializedNodeSet(hierarchyService.getNodesForUserPerm(userId, "site.visit"));
+		return convertToSerializedNodeSet(hierarchyService.getNodesForUserPerm(userId, DelegatedAccessConstants.NODE_PERM_SITE_VISIT));
 	}
 
 	/**
@@ -147,8 +147,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 					toolMap.put(nodeModel.getNode().description, nodeModel.getNodeRestrictedTools());
 				}
 			}
-			session.setAttribute("delegatedaccess.accessmap", accessMap);
-			session.setAttribute("delegatedaccess.deniedToolsMap", toolMap);
+			session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_ACCESS_MAP, accessMap);
+			session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DENIED_TOOLS, toolMap);
 			sakaiProxy.refreshCurrentUserAuthz();
 		}
 	}
@@ -173,7 +173,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 */
 	public void grantAccessToSite(NodeModel nodeModel){
 		Session session = sakaiProxy.getCurrentSession();
-		Object sessionDelegatedAccessMap = session.getAttribute("delegatedaccess.accessmap");
+		Object sessionDelegatedAccessMap = session.getAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_ACCESS_MAP);
 		Map<String, String[]> delegatedAccessMap = new HashMap<String, String[]>();
 		if(sessionDelegatedAccessMap != null){
 			delegatedAccessMap = (Map<String, String[]>) sessionDelegatedAccessMap;
@@ -189,11 +189,11 @@ public class ProjectLogicImpl implements ProjectLogic {
 		else{
 			delegatedAccessMap.put(nodeModel.getNode().description, new String[]{"", ""});
 		}
-		session.setAttribute("delegatedaccess.accessmap", delegatedAccessMap);
+		session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_ACCESS_MAP, delegatedAccessMap);
 
 		//Denied Tools List
 		Map<String, String[]> deniedToolsMap = new HashMap<String, String[]>();
-		Object sessionDeniedToolsMap = session.getAttribute("delegatedaccess.deniedToolsMap");
+		Object sessionDeniedToolsMap = session.getAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DENIED_TOOLS);
 		if(sessionDeniedToolsMap != null){
 			deniedToolsMap = (Map<String, String[]>) sessionDeniedToolsMap;
 		}
@@ -205,7 +205,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			deniedToolsMap.put(nodeModel.getNode().description, new String[0]);
 		}
 
-		session.setAttribute("delegatedaccess.deniedToolsMap", deniedToolsMap);
+		session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DENIED_TOOLS, deniedToolsMap);
 
 
 		sakaiProxy.refreshCurrentUserAuthz();
@@ -320,8 +320,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 		if(node != null){
 			NodeModel nodeModel = (NodeModel) node.getUserObject();
 			if(nodeModel.getNode().description.startsWith("/site/")){
-				if("".equals(search) || nodeModel.getNode().title.toLowerCase().contains(search)
-						|| nodeModel.getNode().description.substring(6).toLowerCase().contains(search)){
+				if("".equals(search) || nodeModel.getNode().title.toLowerCase().contains(search.toLowerCase())
+						|| nodeModel.getNode().description.substring(6).toLowerCase().contains(search.toLowerCase())){
 					returnList.add(nodeModel);
 				}
 

@@ -121,6 +121,16 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 			}
 			//all the children nodes have been deleted, no its safe to delete
 			hierarchyService.removeNode(node.id);
+			Set<String> userIds = hierarchyService.getUserIdsForNodesPerm(new String[]{node.id}, DelegatedAccessConstants.NODE_PERM_SITE_VISIT);
+			for(String userId : userIds){
+				removeAllUserPermissions(node.id, userId);
+			}
+		}
+	}
+	
+	private void removeAllUserPermissions(String nodeId, String userId){
+		for(String perm : hierarchyService.getPermsForUserNodes(userId, new String[]{nodeId})){
+			hierarchyService.removeUserNodePerm(userId, nodeId, perm, false);
 		}
 	}
 
