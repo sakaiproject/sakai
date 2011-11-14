@@ -1,5 +1,11 @@
 package org.sakaiproject.delegatedaccess.util;
 
+/**
+ * Stores all constants for the delegated access tool
+ * 
+ * @author Bryan Holladay (holladay@longsight.com)
+ *
+ */
 public class DelegatedAccessConstants {
 
 	public static final int SEARCH_RESULTS_MAX = 99;

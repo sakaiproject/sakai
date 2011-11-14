@@ -89,7 +89,7 @@ public class NodeModel implements Serializable {
 		}
 		return directAccessOrig != directAccess || realmChanged || roleChanged || isRestrictedToolsModified();
 	}
-	
+
 	private boolean isRestrictedToolsModified(){
 		for(ToolSerialized origTool : restrictedToolsOrig){
 			for(ToolSerialized tool : restrictedTools){
@@ -134,7 +134,7 @@ public class NodeModel implements Serializable {
 			return myAccessRealmRole;
 		}
 	}
-	
+
 	public String[] getInheritedAccessRealmRole(){
 		return getInheritedAccessRealmRoleHelper(parentNode);
 	}
@@ -164,13 +164,13 @@ public class NodeModel implements Serializable {
 	public void setRestrictedTools(List<ToolSerialized> restrictedTools) {
 		this.restrictedTools = restrictedTools;
 	}
-	
+
 	public String[] getNodeRestrictedTools(){
 		List<ToolSerialized> myRestrictedTools = getSelectedRestrictedTools();
 		if(myRestrictedTools == null || myRestrictedTools.size() == 0){
 			myRestrictedTools = getInheritedRestrictedTools();
 		}
-		
+
 		if(myRestrictedTools == null || myRestrictedTools.size() == 0){
 			return new String[0];
 		}else{
@@ -183,12 +183,12 @@ public class NodeModel implements Serializable {
 			return restrictedToolsArray;
 		}
 	}
-	
-	
+
+
 	public List<ToolSerialized> getInheritedRestrictedTools(){
 		return getInheritedRestrictedToolsHelper(parentNode);
 	}
-	
+
 	private List<ToolSerialized> getInheritedRestrictedToolsHelper(NodeModel parent){
 		if(parent == null){
 			return Collections.emptyList();
@@ -198,7 +198,7 @@ public class NodeModel implements Serializable {
 			return getInheritedRestrictedToolsHelper(parent.getParentNode());
 		}
 	}
-	
+
 	public List<ToolSerialized> getSelectedRestrictedTools(){
 		List<ToolSerialized> returnList = new ArrayList<ToolSerialized>();
 		for(ToolSerialized tool : restrictedTools){
@@ -207,7 +207,7 @@ public class NodeModel implements Serializable {
 		}
 		return returnList;
 	}
-	
+
 	public boolean hasAnyRestrictedToolsSelected(){
 		for(ToolSerialized tool : restrictedTools){
 			if(tool.isSelected())
@@ -215,11 +215,11 @@ public class NodeModel implements Serializable {
 		}
 		return false;
 	}
-	
+
 	public void addRestrictedToolId(ToolSerialized tool){
 		restrictedTools.add(tool);
 	}
-	
+
 	public void setToolRestricted(String toolId, boolean restricted){
 		for(ToolSerialized tool : restrictedTools){
 			if(tool.getToolId().equals(toolId)){

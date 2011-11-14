@@ -60,7 +60,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 	@Getter @Setter
 	private EntityManager entityManager;
-	
+
 	@Getter @Setter
 	private ToolManager toolManager;
 	/**
@@ -107,7 +107,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public void postEvent(String event,String reference,boolean modify) {
 		eventTrackingService.post(eventTrackingService.newEvent(event,reference,modify));
 	}
-	
+
 	public Set<Tool> getAllTools(){
 		return toolManager.findTools(null, null);
 	}
@@ -161,7 +161,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 		return site;
 	}
-	
+
 	public Site getSiteById(String siteId){
 		Site site = null;
 		try {

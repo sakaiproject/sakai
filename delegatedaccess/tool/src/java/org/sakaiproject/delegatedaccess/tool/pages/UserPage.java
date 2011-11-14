@@ -2,9 +2,6 @@ package org.sakaiproject.delegatedaccess.tool.pages;
 
 
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 
@@ -20,7 +17,6 @@ import org.apache.wicket.markup.html.tree.LinkTree;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
-import org.sakaiproject.delegatedaccess.model.ToolSerialized;
 import org.sakaiproject.site.api.Site;
 
 /**
@@ -124,9 +120,9 @@ public class UserPage  extends BaseTreePage{
 				return treeModel != null;
 			}
 		});
-		
+
 		add(form);
-		
+
 
 	}
 

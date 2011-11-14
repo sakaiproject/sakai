@@ -1,7 +1,6 @@
 package org.sakaiproject.delegatedaccess.logic;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -91,7 +90,7 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public Site getSiteById(String siteId);
-	
+
 	/**
 	 * will return Sakai's name for the root of the hierarchy.  Looks first for
 	 * sakai.property: HIERARCHY_ROOT_TITLE_PROPERTY, then ui.service, then finally
@@ -118,7 +117,7 @@ public interface SakaiProxy {
 	 * call authzGroupService.refreshUser for current user
 	 */
 	public void refreshCurrentUserAuthz();
-	
+
 	/**
 	 * returns all available tools in Sakai
 	 * Map: ToolId -> Tool Name

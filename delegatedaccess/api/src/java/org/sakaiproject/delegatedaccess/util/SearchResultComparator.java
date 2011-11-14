@@ -4,6 +4,13 @@ import java.util.Comparator;
 
 import org.sakaiproject.delegatedaccess.model.SearchResult;
 
+/**
+ * 
+ * Compares user search results for sorting
+ * 
+ * @author Bryan Holladay (holladay@longsight.com)
+ *
+ */
 public class SearchResultComparator implements Comparator<SearchResult>{
 
 	private int compareField = -1;

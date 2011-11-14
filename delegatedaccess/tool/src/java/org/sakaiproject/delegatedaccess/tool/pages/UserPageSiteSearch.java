@@ -26,6 +26,13 @@ import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.delegatedaccess.util.NodeModelComparator;
 import org.sakaiproject.site.api.Site;
 
+/**
+ * 
+ * This page sorts and searches a user's access sites
+ * 
+ * @author Bryan Holladay (holladay@longsight.com)
+ *
+ */
 public class UserPageSiteSearch extends BasePage {
 
 	private String searchModel = "";
@@ -34,8 +41,8 @@ public class UserPageSiteSearch extends BasePage {
 	private NodeModelDataProvider provider;
 	private String search = "";
 	private TreeModel treeModel;
-	
-	
+
+
 	public UserPageSiteSearch(final String search, TreeModel treeModel){
 		this.search = search;
 		this.treeModel = treeModel;
@@ -44,7 +51,7 @@ public class UserPageSiteSearch extends BasePage {
 		Form<?> form = new Form("form");
 		form.add(new TextField<String>("search", messageModel));
 		add(form);
-		
+
 		//show user's search (if not null)
 		add(new Label("searchResultsTitle", new StringResourceModel("searchResultsTitle", null)){
 			@Override
@@ -58,7 +65,7 @@ public class UserPageSiteSearch extends BasePage {
 				return messageModel.getObject() != null && !"".equals(messageModel.getObject());
 			}
 		});
-		
+
 		//search result table:
 		//Headers
 		Link<Void> siteTitleSort = new Link<Void>("siteTitleSortLink"){
@@ -85,7 +92,7 @@ public class UserPageSiteSearch extends BasePage {
 			}
 		};
 		add(siteIdSort);
-		
+
 		//Data:
 		provider = new NodeModelDataProvider();
 		final DataView<NodeModel> dataView = new DataView<NodeModel>("searchResult", provider) {
@@ -110,7 +117,7 @@ public class UserPageSiteSearch extends BasePage {
 				if(siteId.startsWith("/site/")){
 					siteId = siteId.substring(6);
 				}
-				
+
 				item.add(new Label("siteId", siteId));
 			}
 			@Override
@@ -184,7 +191,7 @@ public class UserPageSiteSearch extends BasePage {
 	private class NodeModelDataProvider implements IDataProvider<NodeModel>{
 
 		private static final long serialVersionUID = 1L;
-		
+
 		private boolean lastOrderAsc = true;
 		private int lastOrderBy = DelegatedAccessConstants.SEARCH_COMPARE_DEFAULT;
 
@@ -240,5 +247,5 @@ public class UserPageSiteSearch extends BasePage {
 	public void setSearch(String search) {
 		this.search = search;
 	}
-	
+
 }

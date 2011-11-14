@@ -1,11 +1,9 @@
 package org.sakaiproject.delegatedaccess.logic;
 
 import java.util.List;
-import java.util.Set;
 
 import javax.swing.tree.TreeModel;
 
-import org.sakaiproject.delegatedaccess.model.HierarchyNodeSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.model.SearchResult;
 
@@ -51,7 +49,7 @@ public interface ProjectLogic {
 	 * 
 	 */
 	public void initializeDelegatedAccessSession(String userId);
-	
+
 	/**
 	 * Searches user access sites by siteId and siteTitle
 	 * 
@@ -60,7 +58,7 @@ public interface ProjectLogic {
 	 * @return
 	 */
 	public List<NodeModel> searchUserSites(String search, TreeModel treeModel);
-	
+
 	/**
 	 * returns the tree model of a user's delegated access.  Each node in the tree has the NodeModel object
 	 * completely initialized.
@@ -70,9 +68,9 @@ public interface ProjectLogic {
 	 * @param cascade
 	 * @return
 	 */
-	
+
 	public TreeModel createTreeModelForUser(String userId, boolean addDirectChildren, boolean cascade);
-	
+
 	/**
 	 * Adds children node to a node that hasn't had it's children populated.  This is used to increase the efficiency
 	 * of the tree so you can create the structure on the fly with ajax

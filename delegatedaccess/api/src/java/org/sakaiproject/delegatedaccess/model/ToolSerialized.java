@@ -1,12 +1,20 @@
 package org.sakaiproject.delegatedaccess.model;
 
+
 import java.io.Serializable;
+
+/**
+ * This is a serialized representation of a Sakai Tool
+ * 
+ * @author Bryan Holladay (holladay@longsight.com)
+ *
+ */
 
 public class ToolSerialized implements Serializable {
 	private String toolId;
 	private String toolName;
 	private boolean selected = false;
-	
+
 	public ToolSerialized(String toolId, String toolName, boolean selected){
 		this.toolId = toolId;
 		this.toolName = toolName;

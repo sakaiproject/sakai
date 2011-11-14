@@ -1,9 +1,6 @@
 package org.sakaiproject.delegatedaccess.tool.pages;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.tree.TreeNode;
 
@@ -24,50 +21,43 @@ import org.apache.wicket.util.string.Strings;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.model.ToolSerialized;
 
+/**
+ * 
+ * This is the panel (table cell) for the restricted tools column
+ * 
+ * @author Bryan Holladay (holladay@longsight.com)
+ *
+ */
+
 public class EditablePanelList  extends Panel
 {
 
-	/**
-	 * Panel constructor.
-	 * 
-	 * @param id
-	 *            Markup id
-	 * 
-	 * @param inputModel
-	 *            Model of the text field
-	 */
 	private NodeModel nodeModel;
 	private TreeNode node;
 	private List<ToolSerialized> localToolList = null;
-	/**
-	 * Creates a simple checkbox panel for TreeTable's access column.
-	 * @param id
-	 * @param inputModel
-	 * @param nodeModel
-	 * @param node
-	 */
+	
 	public EditablePanelList(String id, IModel inputModel, final NodeModel nodeModel, final TreeNode node)
 	{
 		super(id);
 
 		this.nodeModel = nodeModel;
 		this.node = node;
-		
+
 		if(localToolList == null){
 			localToolList = nodeModel.getRestrictedTools();
 		}
-		
+
 		WebMarkupContainer editableSpan = new WebMarkupContainer("editableSpan");
 		editableSpan.setOutputMarkupId(true);
 		final String editableSpanId = editableSpan.getMarkupId();
 		add(editableSpan);
-		
+
 		WebMarkupContainer inheritedSpan = new WebMarkupContainer("inheritedSpan");
 		inheritedSpan.setOutputMarkupId(true);
 		final String inheritedSpanId = inheritedSpan.getMarkupId();
 		add(inheritedSpan);
-		
-		
+
+
 		AjaxLink<Void> restrictToolsLink = new AjaxLink<Void>("restrictToolsLink"){
 			private static final long serialVersionUID = 1L;
 			@Override
@@ -84,7 +74,7 @@ public class EditablePanelList  extends Panel
 			}
 		};
 		add(restrictToolsLink);
-		
+
 		AjaxLink<Void> inheritedToolsLink = new AjaxLink<Void>("inheritedToolsLink"){
 			private static final long serialVersionUID = 1L;
 			@Override
@@ -101,7 +91,7 @@ public class EditablePanelList  extends Panel
 			}
 		};
 		add(inheritedToolsLink);
-		
+
 		AjaxLink<Void> switchEditableSpanLink = new AjaxLink<Void>("switchEditableSpanLink") {
 			private static final long serialVersionUID = 1L;
 			@Override
@@ -111,7 +101,7 @@ public class EditablePanelList  extends Panel
 			}
 		};
 		editableSpan.add(switchEditableSpanLink);
-		
+
 		AjaxLink<Void> saveEditableSpanLink = new AjaxLink<Void>("saveEditableSpanLink") {
 			private static final long serialVersionUID = 1L;
 			@Override
@@ -129,10 +119,10 @@ public class EditablePanelList  extends Panel
 			}
 		};
 		editableSpan.add(saveEditableSpanLink);
-		
+
 		Label editableSpanLabel = new Label("editableNodeTitle", nodeModel.getNode().title);
 		editableSpan.add(editableSpanLabel);
-		
+
 		AjaxLink<Void> switchInheritedSpanLink = new AjaxLink<Void>("switchInheritedSpanLink") {
 			private static final long serialVersionUID = 1L;
 			@Override
@@ -146,7 +136,7 @@ public class EditablePanelList  extends Panel
 			}
 		};
 		inheritedSpan.add(switchInheritedSpanLink);
-		
+
 		Label inheritedMenuSpan = new Label("inheritedMenuSpan", " | "){
 			@Override
 			public boolean isVisible() {
@@ -154,7 +144,7 @@ public class EditablePanelList  extends Panel
 			}
 		};
 		inheritedSpan.add(inheritedMenuSpan);
-		
+
 		AjaxLink<Void> closeInheritedSpanLink = new AjaxLink<Void>("closeInheritedSpanLink") {
 			private static final long serialVersionUID = 1L;
 			@Override
@@ -174,15 +164,15 @@ public class EditablePanelList  extends Panel
 			}
 		};
 		inheritedSpan.add(closeInheritedSpanLink);
-		
+
 		Label inheritedNodeTitle = new Label("inheritedNodeTitle", nodeModel.getNode().title);
 		inheritedSpan.add(inheritedNodeTitle);
-		
-		
+
+
 		ListView<ToolSerialized> listView = new ListView<ToolSerialized>("list", nodeModel.getRestrictedTools()) {
 
 			private static final long serialVersionUID = 1L;
-			
+
 			@Override
 			protected void populateItem(ListItem<ToolSerialized> item) {
 				ToolSerialized wrapper = item.getModelObject();
@@ -195,7 +185,7 @@ public class EditablePanelList  extends Panel
 					protected void onUpdate(AjaxRequestTarget target){
 						nodeModel.setToolRestricted(toolId, isChecked());
 					}
-					
+
 					private boolean isChecked(){
 						final String value = checkBox.getValue();
 						if (value != null)
@@ -213,11 +203,11 @@ public class EditablePanelList  extends Panel
 					}
 				});
 				item.add(checkBox);
-					
+
 			}
 		};
 		editableSpan.add(listView);
-		
+
 
 		IModel<List<? extends ToolSerialized>> inheritedRestrictedToolsModel = new AbstractReadOnlyModel<List<? extends ToolSerialized>>(){
 			private static final long serialVersionUID = 1L;
@@ -228,9 +218,9 @@ public class EditablePanelList  extends Panel
 			}
 
 		};
-		
-		
-		
+
+
+
 		ListView<ToolSerialized> inheritedListView = new ListView<ToolSerialized>("inheritedRestrictedTools",inheritedRestrictedToolsModel){
 			private static final long serialVersionUID = 1L;
 			@Override
@@ -239,21 +229,21 @@ public class EditablePanelList  extends Panel
 				Label name = new Label("name", tool.getToolName());
 				item.add(name);
 			}
-			
+
 			@Override
 			public boolean isVisible() {
 				return nodeModel.getInheritedRestrictedTools() != null && !nodeModel.getInheritedRestrictedTools().isEmpty();
 			}
 		};
 		inheritedSpan.add(inheritedListView);
-		
+
 		Label noInheritedToolsLabel = new Label("noToolsInherited", new StringResourceModel("noToolsInherited", null)){
 			public boolean isVisible() {
 				return nodeModel.getInheritedRestrictedTools() == null || nodeModel.getInheritedRestrictedTools().isEmpty();
 			};
 		};
 		inheritedSpan.add(noInheritedToolsLabel);
-		
+
 	}
-	
+
 }

@@ -110,7 +110,7 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 			}
 		}
 	}
-	
+
 	private void removeMissingNodesHelper(HierarchyNode node){
 		if(node != null){
 			if(node.childNodeIds != null && !node.childNodeIds.isEmpty()){

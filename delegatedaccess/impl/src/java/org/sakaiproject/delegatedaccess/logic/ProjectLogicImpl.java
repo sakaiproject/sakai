@@ -71,16 +71,16 @@ public class ProjectLogicImpl implements ProjectLogic {
 	public void updateNodePermissionsForUser(NodeModel nodeModel, String userId){
 		//first step, remove all permissions so you can have a clear palet
 		removeAllUserPermissions(nodeModel.getNodeId(), userId);
-		
+
 		if(nodeModel.isDirectAccess()){
 			//if direct access, add permissions, otherwise, leave it blank
-			
+
 			//site access permission
 			hierarchyService.assignUserNodePerm(userId, nodeModel.getNodeId(), "site.visit", false);
-			
+
 			//realm & role permissions
 			saveRealmAndRoleAccess(userId, nodeModel.getRealm(), nodeModel.getRole(), nodeModel.getNodeId());
-			
+
 			//tool permissions:
 			List<String> restrictedTools = new ArrayList<String>();
 			for(ToolSerialized tool : nodeModel.getRestrictedTools()){
@@ -92,15 +92,15 @@ public class ProjectLogicImpl implements ProjectLogic {
 				saveRestrictedToolsForUser(userId, nodeModel.getNodeId(), restrictedTools);
 			}
 		}
-		
-		
+
+
 		if(nodeModel.isDirectAccess()){
 			sakaiProxy.postEvent(DelegatedAccessConstants.EVENT_ADD_USER_PERMS, "/user/" + userId + "/node/" + nodeModel.getNodeId() + "/realm/" + nodeModel.getRealm() + "/role/" + nodeModel.getRole(), true);
 		}else{
 			sakaiProxy.postEvent(DelegatedAccessConstants.EVENT_DELETE_USER_PERMS, "/user/" + userId + "/node/" + nodeModel.getNodeId(), true);
 		}
 	}
-	
+
 	private void removeAllUserPermissions(String nodeId, String userId){
 		for(String perm : hierarchyService.getPermsForUserNodes(userId, new String[]{nodeId})){
 			hierarchyService.removeUserNodePerm(userId, nodeId, perm, false);
@@ -152,7 +152,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			sakaiProxy.refreshCurrentUserAuthz();
 		}
 	}
-	
+
 	private List<NodeModel> getSiteNodes(DefaultMutableTreeNode treeNode){
 		List<NodeModel> returnList = new ArrayList<NodeModel>();
 		if(treeNode != null){
@@ -164,53 +164,9 @@ public class ProjectLogicImpl implements ProjectLogic {
 				returnList.addAll(getSiteNodes((DefaultMutableTreeNode)treeNode.getChildAt(i)));
 			}
 		}
-		
+
 		return returnList;
 	}
-	
-
-//	/**
-//	 * returns a map of siteRef -> List[realm, role] for the user
-//	 *  
-//	 * @param level
-//	 * @param directNodeIds
-//	 * @param parentAccess
-//	 * @param userId
-//	 * @return
-//	 */
-//	private Map<String, List<String[]>> generateAuthzRoleAccessMap(List<List> level, List<String> directNodeIds, String[] parentAccess, String userId, List<String> restrictedToolsInherited){
-//		Map<String, List<String[]>> returnMap = new HashMap<String, List<String[]>>();
-//
-//		for(List child : level){
-//			if(child.size() == 2){
-//				//1: node  2: list of children nodes
-//				HierarchyNodeSerialized node = (HierarchyNodeSerialized) child.get(0);
-//				if(directNodeIds.contains(node.id)){
-//					//only need to check access for nodes that have direct access (chosen, not inherited)
-//					String[] nodeAccess = getAccessRealmRole(userId, node.id);
-//					if(nodeAccess.length == 2 && !"".equals(nodeAccess[0]) && !"".equals(nodeAccess[1])){
-//						parentAccess = nodeAccess;
-//					}
-//					
-//					List<String> restrictedTools = getRestrictedToolsForUser(userId, node.id);
-//					if(restrictedTools != null && !restrictedTools.isEmpty()){
-//						restrictedToolsInherited = restrictedTools;
-//					}
-//				}
-//
-//				if(node.description.startsWith("/site/")){
-//					List<String[]> roleAndToolList = new ArrayList<String[]>();
-//					roleAndToolList.add(parentAccess);
-//					roleAndToolList.add(convertToArray(restrictedToolsInherited));
-//					returnMap.put(node.description, roleAndToolList);
-//				}
-//				returnMap.putAll(generateAuthzRoleAccessMap((List<List>) child.get(1), directNodeIds, parentAccess, userId, restrictedToolsInherited));
-//			}
-//		}
-//
-//
-//		return returnMap;
-//	}
 
 	/**
 	 * {@inheritDoc}
@@ -234,7 +190,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			delegatedAccessMap.put(nodeModel.getNode().description, new String[]{"", ""});
 		}
 		session.setAttribute("delegatedaccess.accessmap", delegatedAccessMap);
-		
+
 		//Denied Tools List
 		Map<String, String[]> deniedToolsMap = new HashMap<String, String[]>();
 		Object sessionDeniedToolsMap = session.getAttribute("delegatedaccess.deniedToolsMap");
@@ -250,27 +206,10 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 
 		session.setAttribute("delegatedaccess.deniedToolsMap", deniedToolsMap);
-		
-		
+
+
 		sakaiProxy.refreshCurrentUserAuthz();
 	}
-
-//	/**
-//	 * {@inheritDoc}
-//	 */
-//	public Set<HierarchyNodeSerialized> getDirectChildrenNodes(String nodeId){
-//		Set<HierarchyNode> children = hierarchyService.getChildNodes(nodeId, true);
-//		if(children != null && children.size() > 0){
-//			List<HierarchyNode> childrenList = new ArrayList<HierarchyNode>(children);
-//			Collections.sort(childrenList, new Comparator<HierarchyNode>(){
-//				public int compare(HierarchyNode o1, HierarchyNode o2) {
-//					return o1.title.compareToIgnoreCase(o2.title);
-//				}
-//			});
-//			children = new HashSet<HierarchyNode>(childrenList);
-//		}
-//		return convertToSerializedNodeSet(children);
-//	}
 
 	private HierarchyNodeSerialized getRootNode(){
 		return new HierarchyNodeSerialized(hierarchyService.getRootNode(DelegatedAccessConstants.HIERARCHY_ID));
@@ -331,161 +270,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 		return new String[]{realmId, roleId};
 	}
 
-//	/**
-//	 * {@inheritDoc}
-//	 */
-//	public List<List> getTreeListForUser(String userId, boolean addDirectChildren, boolean cascade, List<String> accessNodes){
-//		Set<HierarchyNodeSerialized> nodes = getNodesForUser(userId);
-//
-//		return getTreeListForUser(userId, addDirectChildren, cascade, accessNodes, nodes);
-//	}
-
-//	/**
-//	 * helper funciton to generate the tree list for the user
-//	 * 
-//	 * @param userId
-//	 * @param addDirectChildren
-//	 * @param cascade
-//	 * @param accessNodes
-//	 * @param nodes
-//	 * @return
-//	 */
-//	private List<List> getTreeListForUser(String userId, boolean addDirectChildren, boolean cascade, List<String> accessNodes, Set<HierarchyNodeSerialized> nodes){
-//		List<List> l1 = new ArrayList<List>();
-//		List<List> currentLevel = l1;
-//
-//		for(HierarchyNodeSerialized node : nodes){
-//			for(String parentId : node.parentNodeIds){
-//				HierarchyNodeSerialized parentNode = getNode(parentId);
-//
-//				if(!hasNode(parentNode, currentLevel)){
-//					List newNode = new ArrayList();
-//					newNode.add(parentNode);
-//					newNode.add(new ArrayList());
-//					currentLevel.add(newNode);
-//				}
-//				currentLevel = getChildrenForNode(parentNode.id, currentLevel);
-//				if(addDirectChildren){
-//					for(List nodeList : getDirectChildren(parentNode)){
-//						if(!hasNode((HierarchyNodeSerialized) nodeList.get(0), currentLevel)){
-//							currentLevel.add(nodeList);
-//						}
-//					}
-//				}
-//			}
-//			if(!hasNode(node, currentLevel)){
-//				List child = new ArrayList();
-//				child.add(node);
-//				child.add(new ArrayList());
-//				currentLevel.add(child);
-//			}
-//			if(cascade){
-//				//we need to grab all children (children of children, ect) for this node since this an access node
-//				getCascadingChildren(node, getChildrenForNode(node.id, currentLevel));
-//			}
-//
-//			accessNodes.add(node.id);
-//
-//			currentLevel = l1;
-//		}
-//		if(l1.isEmpty() && addDirectChildren){
-//			//since we want direct children, include the root's direct children (when the node model is empty)
-//			HierarchyNodeSerialized root = getRootNode();
-//			if(root != null && root.id != null && !"".equals(root.id)){
-//				List child = new ArrayList();
-//				child.add(root);
-//				child.add(getDirectChildren(root));
-//				l1.add(child);
-//			}
-//		}
-//
-//		return l1;
-//	}
-
-//	/**
-//	 * checks if the node exist in the list
-//	 * 
-//	 * @param node
-//	 * @param level
-//	 * @return
-//	 */
-//	private boolean hasNode(HierarchyNodeSerialized node, List<List> level){
-//		for(List nodeList : level){
-//			HierarchyNodeSerialized n = (HierarchyNodeSerialized) nodeList.get(0);
-//			if(n.id.equals(node.id)){
-//				return true;
-//			}
-//		}
-//		return false;
-//	}
-
-//	/**
-//	 * returns the children for this node
-//	 * 
-//	 * @param id
-//	 * @param level
-//	 * @return
-//	 */
-//	private List<List> getChildrenForNode(String id, List<List> level){
-//		for(List nodeList : level){
-//			HierarchyNodeSerialized n = (HierarchyNodeSerialized) nodeList.get(0);
-//			if(n.id.equals(id)){
-//				return (List<List>) nodeList.get(1);
-//			}
-//		}
-//		return null;
-//	}
-
-//	/**
-//	 * returns direct children for the parent.  Children will have empty lists.
-//	 * 
-//	 * @param parent
-//	 * @return
-//	 */
-//	private List<List> getDirectChildren(HierarchyNodeSerialized parent){
-//		List<List>returnList = new ArrayList<List>();
-//
-//		if(parent != null){
-//			Set<String> parentChildren = parent.directChildNodeIds;
-//			for(String childId : parentChildren){
-//				List child = new ArrayList();
-//				child.add(getNode(childId));
-//				child.add(new ArrayList());
-//				returnList.add(child);
-//			}
-//		}
-//		return returnList;
-//	}
-//
-//	/**
-//	 * Finds all children of chilren and returns the hierarchy
-//	 * 
-//	 * @param parent
-//	 * @param children
-//	 * @return
-//	 */
-//	private List<List> getCascadingChildren(HierarchyNodeSerialized parent, List<List> children){
-//		Set<String> parentChildren = parent.directChildNodeIds;
-//		for(String childId : parentChildren){
-//			HierarchyNodeSerialized childNode = getNode(childId);
-//
-//			List childMap = getChildrenForNode(childNode.id, children);
-//			if(childMap == null){
-//				childMap = new ArrayList();
-//			}
-//
-//			childMap = getCascadingChildren(childNode, childMap);
-//			if(!hasNode(childNode, children)){
-//				List childList = new ArrayList();
-//				childList.add(childNode);
-//				childList.add(childMap);
-//				children.add(childList);
-//			}
-//		}
-//
-//		return children;
-//	}
-	
 	/**
 	 * Returns a list of ToolSerialized that initialized the selected field
 	 * @param userId
@@ -505,7 +289,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		});
 		return returnList;
 	}
-	
+
 	private List<String> getRestrictedToolsForUser(String userId, String nodeId){
 		List<String> returnList = new ArrayList<String>();
 		Set<String> userPerms = hierarchyService.getPermsForUserNodes(userId, new String[]{nodeId});
@@ -516,7 +300,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 		return returnList;
 	}
-	
+
 	private void saveRestrictedToolsForUser(String userId, String nodeId, List<String> toolIds){
 		//add new tools:
 		for(String newTool : toolIds){
@@ -530,7 +314,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 		return searchUserTree(search, (DefaultMutableTreeNode) treeModel.getRoot());
 	}
-	
+
 	private List<NodeModel> searchUserTree(String search, DefaultMutableTreeNode node){
 		List<NodeModel> returnList = new ArrayList<NodeModel>();
 		if(node != null){
@@ -540,7 +324,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 						|| nodeModel.getNode().description.substring(6).toLowerCase().contains(search)){
 					returnList.add(nodeModel);
 				}
-				
+
 			}
 			for(int i = 0; i < node.getChildCount(); i++){
 				returnList.addAll(searchUserTree(search, (DefaultMutableTreeNode) node.getChildAt(i)));
@@ -548,37 +332,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 		return returnList;
 	}
-	
-//	private List<String> getInheritedRestrictedTools(String userId, HierarchyNodeSerialized node){
-//		List<String> restrictedTools = getRestrictedToolsForUser(userId, node.id);
-//		if(restrictedTools == null || restrictedTools.isEmpty()){
-//			List<String> returnList = new ArrayList<String>();
-//			if(node.parentNodeIds != null){
-//				for(String parentId : node.parentNodeIds){
-//					returnList = getInheritedRestrictedTools(userId, getNode(parentId));
-//				}
-//			}
-//			return returnList;
-//		}else{
-//			return restrictedTools;
-//		}
-//	}
-	
-//	private String[] getInheritedAccess(String userId, HierarchyNodeSerialized node){
-//		String[] access = getAccessRealmRole(userId, node.id);
-//		if(access == null || "".equals(access[0]) || "".equals(access[1])){
-//			access = new String[]{"",""};
-//			if(node.parentNodeIds != null){
-//				for(String parentId : node.parentNodeIds){
-//					access = getInheritedAccess(userId, getNode(parentId));
-//				}
-//			}
-//			return access;
-//		}else{
-//			return access;
-//		}
-//	}
-	
+
 	private String[] convertToArray(List<String> list){
 		String[] returnArray = new String[]{};
 		if(!list.isEmpty()){
@@ -589,11 +343,11 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 		return returnArray;
 	}
-	
-	
-	
+
+
+
 	//TREE MODEL FUNCTIONS:
-	
+
 	//NodeCache stores HierarchyNodeSerialed nodes for faster lookups
 	private Map<String,HierarchyNodeSerialized> nodeCache = new HashMap<String, HierarchyNodeSerialized>();
 	private List<String> accessNodes = new ArrayList<String>();
@@ -613,7 +367,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 
 		return convertToTreeModel(l1, userId);
 	}
-	
+
 	/**
 	 * Takes a list representation of a tree and creates the TreeModel
 	 * 
@@ -631,7 +385,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 		return model;
 	}
-	
+
 	/**
 	 * Adds node to parent and creates the NodeModel to store in the tree
 	 * @param parent
@@ -674,7 +428,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 		return root;
 	}
-	
+
 	/**
 	 * returns a map of all realms and their roles from sakaiProxy.getSiteTemplates()
 	 * 
@@ -705,7 +459,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			Collections.sort(hierarchy, new NodeListComparator());
 		}
 	}
-	
+
 	/**
 	 * This is a simple comparator to order the tree nodes alphabetically
 	 *
@@ -715,7 +469,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			return ((HierarchyNodeSerialized) o1.get(0)).title.compareToIgnoreCase(((HierarchyNodeSerialized) o2.get(0)).title);
 		}
 	}
-	
+
 	private List<List> getTreeListForUser(String userId, boolean addDirectChildren, boolean cascade, Set<HierarchyNodeSerialized> nodes){
 		List<List> l1 = new ArrayList<List>();
 		List<List> currentLevel = l1;
@@ -767,8 +521,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 
 		return l1;
 	}
-	
-	
+
+
 	/**
 	 * Checks nodeCache for node with given id.  If not found,
 	 * looks up the node in the db and saves it in the cache
@@ -784,7 +538,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 		return node;
 	}
-	
+
 	/**
 	 * returns the children for this node
 	 * 
@@ -801,7 +555,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * returns direct children for the parent.  Children will have empty lists.
 	 * 
@@ -851,7 +605,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 
 		return children;
 	}
-	
+
 	/**
 	 * checks if the node exist in the list
 	 * 
@@ -868,7 +622,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Adds children node to a node that hasn't had it's children populated.  This is used to increase the efficiency
 	 * of the tree so you can create the structure on the fly with ajax
@@ -894,7 +648,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 		return anyAdded;
 	}
-	
+
 	/**
 	 * This is a helper function for addChildrenNodes.  It will add the child nodes to the parent node and create the NodeModel.
 	 * 
@@ -916,17 +670,17 @@ public class ProjectLogicImpl implements ProjectLogic {
 			}
 			DefaultMutableTreeNode child = new DelegatedAccessMutableTreeNode();
 			child.setUserObject(new NodeModel(childNode.id, childNode,
-							accessNodes.contains(childNode.id), realmMap,
-							realm, role,
-							((NodeModel) parentNode.getUserObject()),
-							getRestrictedToolSerializedList(userId,
-									childNode.id)));
+					accessNodes.contains(childNode.id), realmMap,
+					realm, role,
+					((NodeModel) parentNode.getUserObject()),
+					getRestrictedToolSerializedList(userId,
+							childNode.id)));
 			parentNode.add(child);
 			added = true;
 		}
 		return added;
 	}
-	
+
 	/**
 	 * Determines if the child exists in the tree structure.  This is a helper function for addChildNodeToTree to ensure 
 	 * the duplicate child nodes aren't added
