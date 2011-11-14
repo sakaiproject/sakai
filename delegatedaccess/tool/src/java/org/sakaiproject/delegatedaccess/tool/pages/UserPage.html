@@ -21,7 +21,14 @@
 <wicket:extend>
 	<br/>
 	<span wicket:id="noAccess"></span>
+	<form wicket:id="form">
+		<h3 wicket:id="searchHeader"><wicket:message key="searchSites"/></h3>
+		<input type="text" wicket:id="search" />
+		<input type="submit" wicket:id="submitButton"/>
+	</form>	
 	<br/>
+	
+	
 	<a wicket:id="expandAll"><span wicket:id="expandCollapse">Expand All Nodes</span></a>&nbsp;&nbsp;
 	<br/>
 	<br/>

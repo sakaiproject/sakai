@@ -149,7 +149,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
 	 * {@inheritDoc}
 	 */
-	public Site getSite(String siteRef){
+	public Site getSiteByRef(String siteRef){
 		Site site = null;
 		Reference r = entityManager.newReference(siteRef);
 		if(r.getType().equals(SiteService.APPLICATION_ID)){
@@ -158,6 +158,16 @@ public class SakaiProxyImpl implements SakaiProxy {
 			} catch (IdUnusedException e) {
 				log.error(e);
 			}
+		}
+		return site;
+	}
+	
+	public Site getSiteById(String siteId){
+		Site site = null;
+		try {
+			site = siteService.getSite(siteId);
+		} catch (IdUnusedException e) {
+			log.error(e);
 		}
 		return site;
 	}

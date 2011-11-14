@@ -1,6 +1,6 @@
 Index: portal-impl/impl/src/java/org/sakaiproject/portal/charon/ToolHelperImpl.java
 ===================================================================
---- portal-impl/impl/src/java/org/sakaiproject/portal/charon/ToolHelperImpl.java	(revision 100571)
+--- portal-impl/impl/src/java/org/sakaiproject/portal/charon/ToolHelperImpl.java	(revision 100712)
 +++ portal-impl/impl/src/java/org/sakaiproject/portal/charon/ToolHelperImpl.java	(working copy)
 @@ -22,6 +22,8 @@
  package org.sakaiproject.portal.charon;
@@ -20,7 +20,7 @@ Index: portal-impl/impl/src/java/org/sakaiproject/portal/charon/ToolHelperImpl.j
  
  /**
   * @author ieb
-@@ -58,6 +62,26 @@
+@@ -58,6 +62,37 @@
  	 */
  	public boolean allowTool(Site site, Placement placement)
  	{
@@ -30,8 +30,8 @@ Index: portal-impl/impl/src/java/org/sakaiproject/portal/charon/ToolHelperImpl.j
 +				//delegatedaccess.deniedToolsMap = SiteId => List{toolid, toolid ...}
 +				//if this tool shows up, return false, otherwise return true
 +				Session session = SessionManager.getCurrentSession();
-+				if(session.getAttribute("delegatedaccess.deniedToolsMap") != null && ((Map) session.getAttribute("delegatedaccess.deniedToolsMap")).containsKey(site.getId())
-+						&& ((List) ((Map) session.getAttribute("delegatedaccess.deniedToolsMap")).get(site.getId())).contains(placement.getToolId())){
++				if(session.getAttribute("delegatedaccess.deniedToolsMap") != null && ((Map) session.getAttribute("delegatedaccess.deniedToolsMap")).containsKey(site.getReference())
++						&& arrayContains(((Map) session.getAttribute("delegatedaccess.deniedToolsMap")).get(site.getReference()), placement.getToolId())){
 +					return false;
 +				}
 +			}catch (Exception e) {
@@ -40,6 +40,17 @@ Index: portal-impl/impl/src/java/org/sakaiproject/portal/charon/ToolHelperImpl.j
 +		}else{
 +			return false;
 +		}
++	}
++	
++	private boolean arrayContains(Object obj, String item){
++		if(obj != null && obj instanceof String[]){
++			String[] array = (String[]) obj;
++			for(int i = 0; i < array.length; i++){
++				if(array[i].equals(item))
++					return true;
++			}
++		}
++		return false;
 +	}
 +	
 +	public boolean allowToolHelper(Site site, Placement placement)

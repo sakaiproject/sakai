@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 
@@ -100,7 +101,7 @@ public class UserEditPage  extends BaseTreePage{
 						"userObject.restrictedTools"),
 		};
 
-		final TreeModel treeModel = createTreeModelForUser(searchResult.getId(), true, false);
+		final TreeModel treeModel = projectLogic.createTreeModelForUser(searchResult.getId(), true, false);
 
 		//a null model means the tree is empty
 		tree = new TreeTable("treeTable", treeModel, columns){
@@ -111,7 +112,10 @@ public class UserEditPage  extends BaseTreePage{
 			protected void onNodeLinkClicked(AjaxRequestTarget target, TreeNode node) {
 				//the nodes are generated on the fly with ajax.  This will add any child nodes that 
 				//are missing in the tree.  Expanding and collapsing will refresh the tree node
-				boolean anyAdded = addChildrenNodes(node, tree, target, searchResult.getId());
+				boolean anyAdded = projectLogic.addChildrenNodes(node, searchResult.getId());
+				if(anyAdded){
+					collapseEmptyFoldersHelper((DefaultMutableTreeNode) node);
+				}
 				if(!tree.getTreeState().isNodeExpanded(node) || anyAdded){
 					tree.getTreeState().collapseNode(node);
 					tree.getTreeState().expandNode(node);
@@ -122,7 +126,10 @@ public class UserEditPage  extends BaseTreePage{
 			protected void onJunctionLinkClicked(AjaxRequestTarget target, TreeNode node) {
 				//the nodes are generated on the fly with ajax.  This will add any child nodes that 
 				//are missing in the tree.  Expanding and collapsing will refresh the tree node
-				boolean anyAdded = addChildrenNodes(node, tree, target, searchResult.getId());
+				boolean anyAdded = projectLogic.addChildrenNodes(node, searchResult.getId());
+				if(anyAdded){
+					collapseEmptyFoldersHelper((DefaultMutableTreeNode) node);
+				}
 				if(anyAdded){
 					tree.getTreeState().collapseNode(node);
 					tree.getTreeState().expandNode(node);

@@ -106,8 +106,21 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 		for(String child : rootNode.childNodeIds){
 			if(!newHiearchyNodeIds.contains(child)){
 				//this site has either moved or been deleted
-				hierarchyService.removeNode(child);
+				removeMissingNodesHelper(hierarchyService.getNodeById(child));
 			}
+		}
+	}
+	
+	private void removeMissingNodesHelper(HierarchyNode node){
+		if(node != null){
+			if(node.childNodeIds != null && !node.childNodeIds.isEmpty()){
+				//we can delete this, otherwise, delete the children first the children
+				for(String childId : node.childNodeIds){
+					removeMissingNodesHelper(hierarchyService.getNodeById(childId));
+				}
+			}
+			//all the children nodes have been deleted, no its safe to delete
+			hierarchyService.removeNode(node.id);
 		}
 	}
 

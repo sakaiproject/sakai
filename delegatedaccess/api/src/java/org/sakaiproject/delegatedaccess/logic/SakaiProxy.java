@@ -83,8 +83,15 @@ public interface SakaiProxy {
 	 * @param siteRef
 	 * @return
 	 */
-	public Site getSite(String siteRef);
+	public Site getSiteByRef(String siteRef);
 
+	/**
+	 * Returns the site for the site id
+	 * @param siteId
+	 * @return
+	 */
+	public Site getSiteById(String siteId);
+	
 	/**
 	 * will return Sakai's name for the root of the hierarchy.  Looks first for
 	 * sakai.property: HIERARCHY_ROOT_TITLE_PROPERTY, then ui.service, then finally

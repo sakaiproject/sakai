@@ -56,12 +56,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			public void onClick() {
 				setResponsePage(new UserPage());
 			}
-
-			@Override
-			public boolean isVisible() {
-				//only allow a super admin to see this link
-				return sakaiProxy.isSuperUser();
-			}
 		};
 		firstLink.add(new Label("firstLinkLabel",new ResourceModel("link.first")).setRenderBodyOnly(true));
 		firstLink.add(new AttributeModifier("title", true, new ResourceModel("link.first.tooltip")));

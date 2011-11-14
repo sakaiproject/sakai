@@ -123,6 +123,18 @@ public class NodeModel implements Serializable {
 	 * Will return the inherited role from it's parents and "" if not found
 	 * @return
 	 */
+	public String[] getNodeAccessRealmRole(){
+		String[] myAccessRealmRole = new String[]{getRealm(), getRole()};
+		if(myAccessRealmRole == null || "".equals(myAccessRealmRole[0]) || "".equals(myAccessRealmRole[1])){
+			myAccessRealmRole = getInheritedAccessRealmRole();
+		}
+		if(myAccessRealmRole == null || "".equals(myAccessRealmRole[0]) || "".equals(myAccessRealmRole[1])){
+			return new String[]{"",""};
+		}else{
+			return myAccessRealmRole;
+		}
+	}
+	
 	public String[] getInheritedAccessRealmRole(){
 		return getInheritedAccessRealmRoleHelper(parentNode);
 	}
@@ -152,6 +164,26 @@ public class NodeModel implements Serializable {
 	public void setRestrictedTools(List<ToolSerialized> restrictedTools) {
 		this.restrictedTools = restrictedTools;
 	}
+	
+	public String[] getNodeRestrictedTools(){
+		List<ToolSerialized> myRestrictedTools = getSelectedRestrictedTools();
+		if(myRestrictedTools == null || myRestrictedTools.size() == 0){
+			myRestrictedTools = getInheritedRestrictedTools();
+		}
+		
+		if(myRestrictedTools == null || myRestrictedTools.size() == 0){
+			return new String[0];
+		}else{
+			String[] restrictedToolsArray = new String[myRestrictedTools.size()];
+			int i = 0;
+			for(ToolSerialized tool : myRestrictedTools){
+				restrictedToolsArray[i] = tool.getToolId();
+				i++;
+			}
+			return restrictedToolsArray;
+		}
+	}
+	
 	
 	public List<ToolSerialized> getInheritedRestrictedTools(){
 		return getInheritedRestrictedToolsHelper(parentNode);
