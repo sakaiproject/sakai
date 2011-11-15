@@ -296,7 +296,7 @@ public class CalendarLinksPanel extends Panel {
 								// need to keep one item
 								logger.info(calendarItemId);
 								//logger.info(this.getModelObject());
-
+								
 								String sakaiUserId = sakaiProxy.getCurrentUserId();
 								boolean success = dashboardLogic.unkeepCalendarItem(sakaiUserId, calendarItemId);
 								
@@ -304,10 +304,12 @@ public class CalendarLinksPanel extends Panel {
 								if(success) {
 									target.addComponent(CalendarLinksPanel.this);
 									if(TAB_ID_STARRED.equals(selectedCalendarTab)) {
+										ResourceLoader rl = new ResourceLoader("dash_entity");
+
 										CalendarItem changedItem = dashboardLogic.getCalendarItem(calendarItemId);
 										JsonHelper jsonHelper = new JsonHelper(dashboardLogic);
 										String jsonStr = jsonHelper.getJsonObjectFromCalendarItem(changedItem).toString();
-										String javascript = "reportSuccess('item is no longer starred.'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
+										String javascript = "reportSuccess('" + rl.getString("dash.ajax.unstar.success") + "'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
 										target.appendJavascript(javascript);
 										target.appendJavascript("resizeFrame('grow');");
 									}
@@ -357,6 +359,8 @@ public class CalendarLinksPanel extends Panel {
 								logger.info(calendarItemId);
 								//logger.info(this.getModelObject());
 								
+								ResourceLoader rl = new ResourceLoader("dash_entity");
+
 								String sakaiUserId = sakaiProxy.getCurrentUserId();
 								boolean success = dashboardLogic.keepCalendarItem(sakaiUserId, calendarItemId);
 								
@@ -415,11 +419,13 @@ public class CalendarLinksPanel extends Panel {
 								
 								// if success adjust UI, else report failure?
 								if(success) {
+									ResourceLoader rl = new ResourceLoader("dash_entity");
+
 									target.addComponent(CalendarLinksPanel.this);
 									CalendarItem changedItem = dashboardLogic.getCalendarItem(calendarItemId);
 									JsonHelper jsonHelper = new JsonHelper(dashboardLogic);
 									String jsonStr = jsonHelper.getJsonObjectFromCalendarItem(changedItem).toString();
-									String javascript = "reportSuccess('item is no longer hidden.'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
+									String javascript = "reportSuccess('" + rl.getString("dash.ajax.show.success") + "'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
 									target.appendJavascript(javascript );
 									target.appendJavascript("resizeFrame('grow');");
 								}
@@ -472,11 +478,12 @@ public class CalendarLinksPanel extends Panel {
 								
 								// if success adjust UI, else report failure?
 								if(success) {
+									ResourceLoader rl = new ResourceLoader("dash_entity");
 									target.addComponent(CalendarLinksPanel.this);
 									CalendarItem changedItem = dashboardLogic.getCalendarItem(calendarItemId);
 									JsonHelper jsonHelper = new JsonHelper(dashboardLogic);
 									String jsonStr = jsonHelper.getJsonObjectFromCalendarItem(changedItem).toString();
-									String javascript = "reportSuccess('item is now hidden.'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
+									String javascript = "reportSuccess('" + rl.getString("dash.ajax.hide.success") + "'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
 									target.appendJavascript(javascript );
 									target.appendJavascript("resizeFrame('grow');");
 								}

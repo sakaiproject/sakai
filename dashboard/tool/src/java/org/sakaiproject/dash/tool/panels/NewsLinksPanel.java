@@ -259,10 +259,11 @@ public class NewsLinksPanel extends Panel {
 							if(success) {
 								target.addComponent(NewsLinksPanel.this);
 								if(TAB_ID_STARRED.equals(selectedNewsTab)) {
+									ResourceLoader rl = new ResourceLoader("dash_entity");
 									NewsItem changedItem = dashboardLogic.getNewsItem(newsItemId);
 									JsonHelper jsonHelper = new JsonHelper(dashboardLogic);
 									String jsonStr = jsonHelper.getJsonObjectFromNewsItem(changedItem).toString();
-									String javascript = "reportSuccess('item is no longer starred.'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
+									String javascript = "reportSuccess('" + rl.getString("dash.ajax.unstar.success") + "'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
 									target.appendJavascript(javascript );
 								}
 								target.appendJavascript("resizeFrame('grow');");
@@ -369,11 +370,12 @@ public class NewsLinksPanel extends Panel {
 							
 							// if success adjust UI, else report failure?
 							if(success) {
+								ResourceLoader rl = new ResourceLoader("dash_entity");
 								target.addComponent(NewsLinksPanel.this);
 								NewsItem changedItem = dashboardLogic.getNewsItem(newsItemId);
 								JsonHelper jsonHelper = new JsonHelper(dashboardLogic);
 								String jsonStr = jsonHelper.getJsonObjectFromNewsItem(changedItem).toString();
-								String javascript = "reportSuccess('item is no longer hidden.'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
+								String javascript = "reportSuccess('" + rl.getString("dash.ajax.show.success") + "'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
 								target.appendJavascript(javascript );
 							}
 							target.appendJavascript("resizeFrame('grow');");
@@ -426,11 +428,12 @@ public class NewsLinksPanel extends Panel {
 							
 							// if success adjust UI, else report failure?
 							if(success) {
+								ResourceLoader rl = new ResourceLoader("dash_entity");
 								target.addComponent(NewsLinksPanel.this);
 								NewsItem changedItem = dashboardLogic.getNewsItem(newsItemId);
 								JsonHelper jsonHelper = new JsonHelper(dashboardLogic);
 								String jsonStr = jsonHelper.getJsonObjectFromNewsItem(changedItem).toString();
-								String javascript = "reportSuccess('item is now hidden.'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
+								String javascript = "reportSuccess('" + rl.getString("dash.ajax.hide.success") + "'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
 								target.appendJavascript(javascript );
 							}
 							target.appendJavascript("resizeFrame('grow');");
