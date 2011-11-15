@@ -63,9 +63,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
  	 * {@inheritDoc}
  	 */	
 	public List<Person> getConnectionRequestsForUser(final String userId) {
-		
 		List<User> users = sakaiProxy.getUsers(dao.getRequestedConnectionUserIdsForUser(userId));
-		
 		return profileLogic.getPersons(users);
 	}
 	
@@ -73,7 +71,7 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
  	 * {@inheritDoc}
  	 */	
 	public int getConnectionRequestsForUserCount(final String userId) {
-		return dao.getConnectionRequestsForUserCount(userId);
+		return getConnectionRequestsForUser(userId).size();
 	}
 
 	/**

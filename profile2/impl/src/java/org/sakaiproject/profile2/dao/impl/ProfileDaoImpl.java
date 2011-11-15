@@ -257,25 +257,6 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 	/**
  	 * {@inheritDoc}
  	 */
-	public int getConnectionRequestsForUserCount(final String userId) {
-		
-		//get 
-		HibernateCallback hcb = new HibernateCallback() {
-	  		public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	  		
-	  			Query q = session.getNamedQuery(QUERY_GET_FRIEND_REQUESTS_FOR_USER_COUNT);
-	  			q.setParameter(USER_UUID, userId, Hibernate.STRING);
-	  			q.setBoolean("false", Boolean.FALSE); 
-	  			return q.uniqueResult();
-	  		}
-	  	};
-	  	
-	  	return ((Integer)getHibernateTemplate().execute(hcb)).intValue();
-	}
-	
-	/**
- 	 * {@inheritDoc}
- 	 */
 	public boolean addNewConnection(ProfileFriend profileFriend) {
 		
 		try {

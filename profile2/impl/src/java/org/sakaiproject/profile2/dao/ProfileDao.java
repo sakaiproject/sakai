@@ -108,13 +108,6 @@ public interface ProfileDao {
 	public boolean saveOfficialImageUrl(ProfileImageOfficial officialImage);
 	
 	/**
-	 * Get the number of connection requests a user has
-	 * @param userId		uuid of the user
-	 * @return
-	 */
-	public int getConnectionRequestsForUserCount(final String userId);
-	
-	/**
 	 * Get a connection record for a user/friend pair
 	 * <p>This tries both column arrangements, ie user/friend and friend/user</p>
 	 * @param userId		uuid of the user
@@ -538,7 +531,6 @@ public interface ProfileDao {
 	final String QUERY_GET_COMPANY_PROFILES = "getCompanyProfiles";
 	
 	final String QUERY_GET_FRIEND_REQUESTS_FOR_USER = "getFriendRequestsForUser"; 
-	final String QUERY_GET_FRIEND_REQUESTS_FOR_USER_COUNT = "getFriendRequestsForUserCount"; 
 	final String QUERY_GET_CONFIRMED_FRIEND_USERIDS_FOR_USER = "getConfirmedFriendUserIdsForUser"; 
 	final String QUERY_GET_FRIEND_REQUEST = "getFriendRequest"; 
 	final String QUERY_GET_FRIEND_RECORD = "getFriendRecord"; 
