@@ -254,33 +254,26 @@ ul.attachList li {
 }
 
 /*file and item type listings*/
+img.itemIcon{
+    float:left;
+    vertical-align:bottom;
+    padding-top:3px;
+    margin-right:5px;
+}
 a.itemLink {
     display: block;
-    float:left;
     padding: 3px;
-    padding-left: 21px;
-    background: url(../../../../library/image/sakai/generic.gif) center left no-repeat;
+    float:left;
 }
-.dashboardLabel{
+.itemLabel{
     display:block;
     color:#555;
     font-size:.9em;
     float:left;
     padding:5px 5px 0 0px;
 }
-.dashboardLabel:before{
+.itemLabel:before{
     content:" - ";
-}
-a.assignment-icon{
-    background: url("/library/image/silk/page_edit.png") center left no-repeat !important    
-}
-
-a.announcement-icon{
-    background: url("/library/image/silk/flag_blue.png") center left no-repeat !important    
-}
-
-a.schedule-icon{
-    background: url("/library/image/silk/calendar.png") center left no-repeat !important    
 }
 /*file exensions to match*/
 .doc, .rtf, .docx, .docm, .dotx, .dotm {

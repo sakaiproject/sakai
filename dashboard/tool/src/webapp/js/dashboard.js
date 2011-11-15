@@ -90,14 +90,8 @@ var setupLinks = function(){
         //if disclosure in DOM, either hide or show, do not request data
         if ($(parentRow).next('tr.newRow').length === 1) {
             $(parentRow).next('tr.newRow').find('.results').fadeToggle('fast', '', function(){
-                if ($(parentRow).next('tr.newRow').find('.results:visible').length === 0) {
-                    $(parentCell).attr('class', 'tab');
+                    $(parentCell).toggleClass('activeCell')
                     $(parentRow).next('tr.newRow').toggle();
-                }
-                else {
-                    $(parentCell).attr('class', 'activeCell tab');
-                    $(parentRow).next('tr.newRow').show();
-                }
             });
         }
         else {

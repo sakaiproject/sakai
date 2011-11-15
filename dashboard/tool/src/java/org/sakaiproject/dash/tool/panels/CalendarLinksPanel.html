@@ -7,17 +7,17 @@
                     <td style="width:50%;padding:0">
                         <h3 class="withNav">Calendar</h3>
                         <ul class="tabPanel">
-                            <li wicket:id="upcomingCalendarTab">
+                            <li wicket:id="upcomingCalendarTab"ap>
                                 <a href="#" wicket:id="link"><span wicket:id="label">[ Upcoming ]</span></a>
-                            </li>
-                            <li wicket:id="pastCalendarTab">
-                                <a href="#" wicket:id="link"><span wicket:id="label">[ Past ]</span></a>
                             </li>
                             <li wicket:id="starredCalendarTab">
                                 <a href="#" wicket:id="link"><span wicket:id="label">[ Starred ]</span></a>
                             </li>
                             <li wicket:id="hiddenCalendarTab">
                                 <a href="#" wicket:id="link"><span wicket:id="label">[ Hidden ]</span></a>
+                            </li>
+                            <li wicket:id="pastCalendarTab">
+                                <a href="#" wicket:id="link"><span wicket:id="label">[ Past ]</span></a>
                             </li>
                         </ul>
                     </td>
@@ -57,9 +57,9 @@
                             <span wicket:id="entityReference" class="entityReference" style="display:none;">[entity reference]</span>
                         </td>
                         <td class="tab two">
-                            <img wicket:id="icon" />
+                            <img wicket:id="icon" class="itemIcon"/>
                             <a href="#" wicket:id="itemLink" class="itemLink" target="_top">[Item Title]</a>
-                            <span wicket:id="itemLabel" class="dashboardLabel">[Item Label]</span>
+                            <span wicket:id="itemLabel" class="itemLabel">[Item Label]</span>
                         </td>
                         <td class="three">
                             <a href="#" wicket:id="siteLink" class="siteLink" target="_top">[Site Title]</a>
