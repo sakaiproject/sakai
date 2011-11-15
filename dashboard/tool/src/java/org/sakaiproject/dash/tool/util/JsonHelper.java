@@ -9,17 +9,22 @@ import java.util.Map;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.dash.logic.DashboardLogic;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.util.DateUtil;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * 
  *
  */
 public class JsonHelper {
+	
+	private static Log logger = LogFactory.getLog(JsonHelper.class);
 	
 	protected DashboardLogic dashboardLogic;
 	
@@ -83,7 +88,12 @@ public class JsonHelper {
 		json.element("label", dashboardLogic.getString(newsItem.getNewsTimeLabelKey(), "", newsItem.getSourceType().getIdentifier()));
 		json.element("entityType", newsItem.getSourceType().getIdentifier());
 		json.element("subtype", newsItem.getSubtype());
-		json.element("title", newsItem.getTitle());
+		StringBuilder errorMessages = new StringBuilder();
+		String title = FormattedText.processFormattedText(newsItem.getTitle(), errorMessages , true, true);
+		if(errorMessages != null && errorMessages.length() > 0) {
+			logger.warn("Error(s) encountered while cleaning calendarItem title:\n" + errorMessages);
+		}
+		json.element("title", title);
 		json.element("iconUrl", dashboardLogic.getEntityIconUrl(newsItem.getSourceType().getIdentifier(), newsItem.getSubtype()));
 		return json;
 	}
@@ -98,7 +108,12 @@ public class JsonHelper {
 		json.element("label", dashboardLogic.getString(calendarItem.getCalendarTimeLabelKey(), "", calendarItem.getSourceType().getIdentifier()));
 		json.element("entityType", calendarItem.getSourceType().getIdentifier());
 		json.element("subtype", calendarItem.getSubtype());
-		json.element("title", calendarItem.getTitle());
+		StringBuilder errorMessages = new StringBuilder();
+		String title = FormattedText.processFormattedText(calendarItem.getTitle(), errorMessages , true, true);
+		if(errorMessages != null && errorMessages.length() > 0) {
+			logger.warn("Error(s) encountered while cleaning calendarItem title:\n" + errorMessages);
+		}
+		json.element("title", title);
 		json.element("iconUrl", dashboardLogic.getEntityIconUrl(calendarItem.getSourceType().getIdentifier(), calendarItem.getSubtype()));
 		return json;
 	}

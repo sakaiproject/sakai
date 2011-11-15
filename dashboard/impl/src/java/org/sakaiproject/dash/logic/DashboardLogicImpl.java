@@ -25,6 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -63,6 +64,7 @@ import org.sakaiproject.dash.model.SourceType;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -564,7 +566,8 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		EntityType entityTypeDef = this.entityTypes.get(entityType);
 		if(entityTypeDef != null) {
 			logger.info("getEntityMapping(" + entityType + "," + entityReference + "," + locale + ") " + entityTypeDef);
-			map.putAll(entityTypeDef.getValues(entityReference, locale.toString()));
+			Map<String, Object> values = processFormattedText(entityTypeDef.getValues(entityReference, locale.toString()), 6);
+			map.putAll(values);
 			map.putAll(entityTypeDef.getProperties(entityReference, locale.toString()));
 			map.put(EntityType.VALUES_ORDER, entityTypeDef.getOrder(entityReference, locale.toString()));
 		}
@@ -601,6 +604,48 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 //		}
 //		return date;
 //	}
+
+	private Map processFormattedText(Map<String,Object> map, int maxDepth) {
+		if(maxDepth <= 0) {
+			return null;
+		}
+		for(Map.Entry<String,Object> entry : map.entrySet()) {
+			Object val = entry.getValue();
+			if(val instanceof String) {
+				StringBuilder errorMessages = new StringBuilder();
+				entry.setValue(FormattedText.processFormattedText((String) val, errorMessages , true, true));
+				if(errorMessages != null && errorMessages.length() > 0) {
+					logger.warn("Error encountered while processing values map:\n" + errorMessages);
+				}
+			} else if(val instanceof Map) {
+				entry.setValue(processFormattedText((Map) val, maxDepth - 1));
+			} else if(val instanceof List) {
+				entry.setValue(processFormattedText((List) val, maxDepth - 1));
+			}
+		}
+		return map;
+	}
+
+	private List processFormattedText(List list, int maxDepth) {
+		if(maxDepth <= 0) {
+			return null;
+		}
+		for(int i = 0; i < list.size(); i++) {
+			Object item = list.get(i);
+			if(item instanceof String) {
+				StringBuilder errorMessages = new StringBuilder();
+				list.set(i, FormattedText.processFormattedText((String) item, errorMessages , true, true));
+				if(errorMessages != null && errorMessages.length() > 0) {
+					logger.warn("Error encountered while processing values map:\n" + errorMessages);
+				}
+			} else if(item instanceof Map) {
+				processFormattedText((Map) item, maxDepth - 1);
+			} else if(item instanceof List) {
+				processFormattedText((List) item, maxDepth - 1);
+			}
+		}
+		return list;
+	}
 
 	public String getString(String key, String dflt, String entityTypeId) {
 		if(dflt == null) {

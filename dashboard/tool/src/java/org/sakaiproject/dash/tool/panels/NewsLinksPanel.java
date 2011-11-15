@@ -34,6 +34,7 @@ import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.NewsLink;
 import org.sakaiproject.dash.tool.util.JsonHelper;
 import org.sakaiproject.dash.util.DateUtil;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -209,7 +210,12 @@ public class NewsLinksPanel extends Panel {
                 item.add(new Label("entityReference", nItem.getEntityReference()));
 
                 String siteTitle = nItem.getContext().getContextTitle();
-                item.add(new ExternalLink("itemLink", "#", nItem.getTitle()));
+				StringBuilder errorMessages = new StringBuilder();
+				String title = FormattedText.processFormattedText(nItem.getTitle(), errorMessages  , true, true);
+				if(errorMessages != null && errorMessages.length() > 0) {
+					logger.warn("Error(s) encountered while processing newsItem title:\n" + errorMessages);
+				}
+                item.add(new ExternalLink("itemLink", "#", title));
                 
                 Image icon = new Image("icon");
                 icon.add(new AttributeModifier("src", true, new AbstractReadOnlyModel(){

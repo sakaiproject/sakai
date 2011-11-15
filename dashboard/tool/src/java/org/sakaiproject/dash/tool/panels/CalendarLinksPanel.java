@@ -35,6 +35,7 @@ import org.sakaiproject.dash.model.CalendarLink;
 import org.sakaiproject.dash.tool.pages.DashboardPage;
 import org.sakaiproject.dash.tool.util.JsonHelper;
 import org.sakaiproject.dash.util.DateUtil;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -277,7 +278,12 @@ public class CalendarLinksPanel extends Panel {
 	                	
 	                }));
 	                item.add(icon);
-	                item.add(new ExternalLink("itemLink", "#", cItem.getTitle()));
+	                StringBuilder errorMessages = new StringBuilder();
+					String title = FormattedText.processFormattedText(cItem.getTitle(), errorMessages , true, true);
+					if(errorMessages != null && errorMessages.length() > 0) {
+						logger.warn("Error(s) encountered while cleaning calendarItem title:\n" + errorMessages);
+					}
+					item.add(new ExternalLink("itemLink", "#", title ));
 	                String calendarItemLabel = dashboardLogic.getString(cItem.getCalendarTimeLabelKey(), "", itemType);
 	                if(calendarItemLabel == null) {
 	                	calendarItemLabel = "";
