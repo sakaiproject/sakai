@@ -162,48 +162,49 @@ public class ResourceSupport {
 				List<Map<String,String>> infoList = new ArrayList<Map<String,String>>();
 				Map<String,String> infoItem = new HashMap<String,String>();
 				infoItem.put(VALUE_INFO_LINK_URL, resource.getUrl());
-				infoItem.put(VALUE_INFO_LINK_SIZE, Long.toString(resource.getContentLength()));
 				infoItem.put(VALUE_INFO_LINK_MIMETYPE, resource.getContentType());
 				infoItem.put(VALUE_INFO_LINK_TARGET, "_blank");
 				// TODO: VALUE_INFO_LINK_TITLE depends on VALUE_INFO_LINK_TARGET. If new window, title might be "View the damned item". Otherwise "Download the stupid thing"? 
-				infoItem.put(VALUE_INFO_LINK_TITLE, rl.getString("resource.info.link"));
+				infoItem.put(VALUE_INFO_LINK_TITLE, getMoreInfoTitleForMimetype(rl, resource.getResourceType(), Long.toString(resource.getContentLength())));
 				infoList.add(infoItem);
 				values.put(VALUE_MORE_INFO, infoList);
-				
-
 			}
 			return values ;
 		}
 		
-		protected String getMoreInfoTitleForMimetype(String contentType)
+		/**
+		 * get more info title based on content type
+		 * @param contentType
+		 * @return
+		 */
+		protected String getMoreInfoTitleForMimetype(ResourceLoader rl, String contentType, String size)
 		{
 			String rv = null;
 			if (contentType.equals(ResourceType.TYPE_UPLOAD))
 			{
 				// uploaded file type
-				rv = "resource.info.link.file";
+				rv = rl.getFormattedMessage("resource.info.link.file", new String[]{size});
 			}
 			else if (contentType.equals(ResourceType.TYPE_TEXT))
 			{
 				// text type
-				rv = "resource.info.link.text";
+				rv = rl.getString("resource.info.link.text");
 			}
 			else if (contentType.equals(ResourceType.TYPE_HTML))
 			{
 				// html type
-				rv = "resource.info.link.html";
+				rv = rl.getString("resource.info.link.html");
 			}
 			else if (contentType.equals(ResourceType.TYPE_URL))
 			{
 				// url link type
-				rv = "resource.info.link.url";
+				rv = rl.getString("resource.info.link.url");
 			}
 			else if (contentType.equals("org.sakaiproject.citation.impl.CitationList"))
 			{
 				// citation list type
-				rv = "resource.info.link.citationlist";
+				rv = rl.getString("resource.info.link.citationlist");
 			}
-			
 			return rv;
 		}
 
