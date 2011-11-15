@@ -298,7 +298,7 @@ public class AssignmentSupport {
 
 		public String getIconUrl(String subtype) {
 			// we will use the Deadline icon for now, the same as the one used in schedule tool
-			return "/library/images/sakai/deadline.gif";
+			return "/library/image/sakai/deadline.gif";
 		}
 	}
 	

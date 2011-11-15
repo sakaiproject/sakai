@@ -286,7 +286,7 @@ public class ResourceSupport {
 			else
 			{
 				// add the library path
-				url = "/library/images/" + url;
+				url = "/library/image/" + url;
 			}
 			return url ;
 		}

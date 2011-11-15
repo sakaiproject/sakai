@@ -109,22 +109,22 @@ public class ScheduleSupport{
 		
 		eventTypeImageUrlMap = new HashMap<String,String>();
 		
-		eventTypeImageUrlMap.put("Academic Calendar", "/library/images/sakai/academic_calendar.gif");
-		eventTypeImageUrlMap.put("Activity", "/library/images/sakai/activity.gif");
-		eventTypeImageUrlMap.put("Cancellation", "/library/images/sakai/cancelled.gif");
-		eventTypeImageUrlMap.put("Class section - Discussion", "/library/images/sakai/class_dis.gif");
-		eventTypeImageUrlMap.put("Class section - Lab", "/library/images/sakai/class_lab.gif");
-		eventTypeImageUrlMap.put("Class section - Lecture", "/library/images/sakai/class_lec.gif");
-		eventTypeImageUrlMap.put("Class section - Small Group", "/library/images/sakai/class_sma.gif");
-		eventTypeImageUrlMap.put("Class session", "/library/images/sakai/class_session.gif");
-		eventTypeImageUrlMap.put("Computer Session", "/library/images/sakai/computersession.gif");
-		eventTypeImageUrlMap.put("Deadline", "/library/images/sakai/deadline.gif");
-		eventTypeImageUrlMap.put("Exam", "/library/images/silk/accept.png");
-		eventTypeImageUrlMap.put("Meeting", "/library/images/sakai/meeting.gif");
-		eventTypeImageUrlMap.put("Multidisciplinary Conference", "/library/images/sakai/multi-conference.gif");
-		eventTypeImageUrlMap.put("Quiz", "/library/images/silk/star.png");
-		eventTypeImageUrlMap.put("Special event", "/library/images/sakai/special_event.gif");
-		eventTypeImageUrlMap.put("Web Assignment", "/library/images/sakai/webassignment.gif");
+		eventTypeImageUrlMap.put("Academic Calendar", "/library/image/sakai/academic_calendar.gif");
+		eventTypeImageUrlMap.put("Activity", "/library/image/sakai/activity.gif");
+		eventTypeImageUrlMap.put("Cancellation", "/library/image/sakai/cancelled.gif");
+		eventTypeImageUrlMap.put("Class section - Discussion", "/library/image/sakai/class_dis.gif");
+		eventTypeImageUrlMap.put("Class section - Lab", "/library/image/sakai/class_lab.gif");
+		eventTypeImageUrlMap.put("Class section - Lecture", "/library/image/sakai/class_lec.gif");
+		eventTypeImageUrlMap.put("Class section - Small Group", "/library/image/sakai/class_sma.gif");
+		eventTypeImageUrlMap.put("Class session", "/library/image/sakai/class_session.gif");
+		eventTypeImageUrlMap.put("Computer Session", "/library/image/sakai/computersession.gif");
+		eventTypeImageUrlMap.put("Deadline", "/library/image/sakai/deadline.gif");
+		eventTypeImageUrlMap.put("Exam", "/library/image/silk/accept.png");
+		eventTypeImageUrlMap.put("Meeting", "/library/image/sakai/meeting.gif");
+		eventTypeImageUrlMap.put("Multidisciplinary Conference", "/library/image/sakai/multi-conference.gif");
+		eventTypeImageUrlMap.put("Quiz", "/library/image/silk/star.png");
+		eventTypeImageUrlMap.put("Special event", "/library/image/sakai/special_event.gif");
+		eventTypeImageUrlMap.put("Web Assignment", "/library/image/sakai/webassignment.gif");
 
 	}
 	
