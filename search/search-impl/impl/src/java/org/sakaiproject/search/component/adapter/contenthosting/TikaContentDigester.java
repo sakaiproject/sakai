@@ -31,6 +31,7 @@ import org.sakaiproject.content.api.ContentResource;
 import org.xml.sax.ContentHandler;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
+import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.BodyContentHandler;
 
@@ -66,7 +67,7 @@ public class TikaContentDigester extends BaseContentDigester
 			ContentHandler handler = new BodyContentHandler();
 			Parser parser = new AutoDetectParser();
 				
-			parser.parse(contentStream, handler, metadata);
+			parser.parse(contentStream, handler, metadata, new ParseContext());
 			return handler.toString();
 		}
 		catch (Exception e)
