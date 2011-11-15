@@ -519,7 +519,7 @@ public class ResourceSupport {
 				ContentResource resource = (ContentResource) entity;
 				String title = resource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 				if(title != null) {
-					dashboardLogic.reviseNewsItemTitle(event.getResource(), title);
+					dashboardLogic.reviseNewsItemTitle(event.getResource(), title, null, null);
 				}
 			}
 		}

@@ -271,9 +271,11 @@ public interface DashboardDao {
 	 * Revise the title property of one NewsItem, if it exists.
 	 * @param id
 	 * @param newTitle
+	 * @param newNewsTime TODO
+	 * @param newLabelKey TODO
 	 * @return true if any items are revised, false otherwise.
 	 */
-	public boolean updateNewsItemTitle(Long id, String newTitle);
+	public boolean updateNewsItemTitle(Long id, String newTitle, Date newNewsTime, String newLabelKey);
 
 	public boolean updateRepeatingCalendarItemsLabelKey(String entityReference, String oldLabelKey, String newLabelKey);
 	
@@ -297,7 +299,7 @@ public interface DashboardDao {
 
 	public boolean updateNewsItemLabelKey(Long id, String labelKey);
 
-	public boolean updateNewsItemSubtype(Long id, String newSubtype);
+	public boolean updateNewsItemSubtype(Long id, String newSubtype, Date newNewsTime, String newLabelKey);
 
 	public boolean updateCalendarItemSubtype(Long id, String newSubtype);
 

@@ -832,11 +832,11 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		dao.updateNewsItemTime(item.getId(), newTime);
 	}
 
-	public void reviseNewsItemTitle(String entityReference, String newTitle) {
+	public void reviseNewsItemTitle(String entityReference, String newTitle, Date newNewsTime, String newLabelKey) {
 		
 		NewsItem item = dao.getNewsItem(entityReference);
 		if(item != null) {
-			dao.updateNewsItemTitle(item.getId(), newTitle);
+			dao.updateNewsItemTitle(item.getId(), newTitle, newNewsTime, newLabelKey);
 		}
 		
 	}
@@ -850,11 +850,11 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 	}
 	
-	public void reviseNewsItemSubtype(String entityReference, String newSubtype) {
+	public void reviseNewsItemSubtype(String entityReference, String newSubtype, Date newNewsTime, String newLabelKey) {
 		
 		NewsItem item = dao.getNewsItem(entityReference);
 		if(item != null) {
-			dao.updateNewsItemSubtype(item.getId(), newSubtype);
+			dao.updateNewsItemSubtype(item.getId(), newSubtype, newNewsTime, newLabelKey);
 		}
 		
 	}

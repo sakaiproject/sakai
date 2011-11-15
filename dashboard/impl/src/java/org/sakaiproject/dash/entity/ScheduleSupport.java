@@ -508,7 +508,7 @@ public class ScheduleSupport{
 				
 				String title = cEvent.getDisplayName();
 				// update news item title
-				dashboardLogic.reviseNewsItemTitle(cEvent.getReference(), title);
+				dashboardLogic.reviseNewsItemTitle(cEvent.getReference(), title, null, null);
 				
 				// update calendar item title
 				dashboardLogic.reviseCalendarItemsTitle(cEvent.getReference(), title);

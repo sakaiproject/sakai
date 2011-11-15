@@ -15,6 +15,10 @@ public interface DashboardConfig {
 	public static final String PROP_REMOVE_ITEMS_AFTER_WEEKS = "PROP_REMOVE_ITEMS_AFTER_WEEKS";
 	public static final String PROP_REMOVE_STARRED_ITEMS_AFTER_WEEKS = "PROP_REMOVE_STARRED_ITEMS_AFTER_WEEKS";
 	
+	// horizon settings
+	
+	
+	
 	public Integer getConfigValue(String propertyName, Integer propertyValue);
 	
 	public void setConfigValue(String propertyName, Integer propertyValue);

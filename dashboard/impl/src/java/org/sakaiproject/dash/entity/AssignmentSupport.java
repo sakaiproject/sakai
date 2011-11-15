@@ -429,7 +429,7 @@ public class AssignmentSupport {
 				Assignment assn = (Assignment) entity;
 				
 				// update news item title
-				dashboardLogic.reviseNewsItemTitle(assn.getReference(), assn.getTitle());
+				dashboardLogic.reviseNewsItemTitle(assn.getReference(), assn.getTitle(), null, null);
 				
 				// update news item title
 				dashboardLogic.reviseCalendarItemsTitle(assn.getReference(), assn.getTitle());

@@ -517,7 +517,7 @@ public class AnnouncementSupport{
 				
 				String title = annc.getAnnouncementHeader().getSubject();
 				// update news item title
-				dashboardLogic.reviseNewsItemTitle(annc.getReference(), title);
+				dashboardLogic.reviseNewsItemTitle(annc.getReference(), title, null, null);
 				
 				// update calendar item title
 				dashboardLogic.reviseCalendarItemsTitle(annc.getReference(), title);

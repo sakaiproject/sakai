@@ -1068,11 +1068,14 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		String subtype2 = getUniqueIdentifier();
 		assertFalse(subtype1.equals(subtype2));
 
-		dao.updateNewsItemSubtype(savedItem.getId(), subtype2);
+		Date newNewsTime = new Date();
+		String newLabelKey = getUniqueIdentifier();
+		dao.updateNewsItemSubtype(savedItem.getId(), subtype2, newNewsTime, newLabelKey);
 		NewsItem revisedItem = dao.getNewsItem(savedItem.getId());
 		assertNotNull(revisedItem);
 		assertEquals(subtype2, revisedItem.getSubtype());
-		
+		assertEquals(newNewsTime, revisedItem.getNewsTime());
+		assertEquals(newLabelKey, revisedItem.getNewsTimeLabelKey());
 		
 	}
 	

@@ -1524,14 +1524,19 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#updateNewsItemSubtype(java.lang.Long, java.lang.String)
 	 */
-	public boolean updateNewsItemSubtype(Long id, String newSubtype) {
+	public boolean updateNewsItemSubtype(Long id, String newSubtype, Date newNewsTime, String newLabelKey) {
 		if(log.isDebugEnabled()) {
 			log.debug("updateNewsItemSubtype( " + id + "," + newSubtype + ")");
 		}
 		
+		if(id == null || newSubtype == null || newNewsTime == null || newLabelKey == null) {
+			log.error("updateNewsItemSubtype() called with null values");
+			return false;
+		}
+		
 		try {
 			getJdbcTemplate().update(getStatement("update.NewsItem.subtype"),
-				new Object[]{newSubtype, id}
+				new Object[]{newSubtype, newNewsTime, newLabelKey, id}
 			);
 			return true;
 		} catch (DataAccessException ex) {
@@ -1565,14 +1570,19 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#updateNewsItemTitle(java.lang.Long, java.lang.String)
 	 */
-	public boolean updateNewsItemTitle(Long id, String newTitle) {
+	public boolean updateNewsItemTitle(Long id, String newTitle, Date newNewsTime, String newLabelKey) {
 		if(log.isDebugEnabled()) {
 			log.debug("updateNewsItemTitle( " + id + "," + newTitle + ")");
 		}
 		
+		if(id == null || newTitle == null || newNewsTime == null || newLabelKey == null) {
+			log.error("updateNewsItemTitle() called with null values");
+			return false;
+		}
+		
 		try {
 			getJdbcTemplate().update(getStatement("update.NewsItem.title"),
-				new Object[]{newTitle, id}
+				new Object[]{newTitle, newNewsTime, newLabelKey, id}
 			);
 			return true;
 		} catch (DataAccessException ex) {
