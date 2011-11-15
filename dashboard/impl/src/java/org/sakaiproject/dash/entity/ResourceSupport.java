@@ -250,6 +250,11 @@ public class ResourceSupport {
 			if(url == null) {
 				// url = DEFAULT_OF_SOME_SORT?
 			}
+			else
+			{
+				// add the library path
+				url = "/library/images/" + url;
+			}
 			return url ;
 		}
 	}
