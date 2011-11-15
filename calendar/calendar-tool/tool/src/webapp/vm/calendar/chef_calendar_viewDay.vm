@@ -211,7 +211,7 @@
 		$tlang.getString('view.after')</a>
 	#else
 		#if($page== "second")
-			<a href="#toolLink("$action" "doDpagen")" title="Go later">
+			<a href="#toolLink("$action" "doDpagen")" title="$tlang.getString('view.golater')">
 			$tlang.getString('view.after')</a>
 		#else ## --third page
 			<a href="#" onclick="location='#toolLink("$action" "doNextday")';return false;" title="$tlang.getString('view.golater')">
