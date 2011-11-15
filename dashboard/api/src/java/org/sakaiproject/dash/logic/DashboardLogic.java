@@ -404,7 +404,7 @@ public interface DashboardLogic {
 	public void reviseRepeatingCalendarItemSubtype(String entityReference,
 			String labelKey, String newSubtype);
 
-	public void reviseRepeatingCalendarItemTime(String entityReference, Date newTime);
+	public void reviseRepeatingCalendarItemTime(String entityReference, Date newFirstTime, Date newLastTime);
 
 	public void reviseRepeatingCalendarItemTitle(String entityReference, String newTitle);
 

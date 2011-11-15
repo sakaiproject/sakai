@@ -923,11 +923,10 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		dao.updateRepeatingCalendarItemsSubtype(entityReference, labelKey, newSubtype);
 	}
 	
-	public void reviseRepeatingCalendarItemTime(String entityReference, Date newTime) {
-		boolean done = dao.updateRepeatingCalendarItemTime(entityReference, newTime);
+	public void reviseRepeatingCalendarItemTime(String entityReference, Date newFirstTime, Date newLastTime) {
+		boolean done = dao.updateRepeatingCalendarItemTime(entityReference, newFirstTime, newLastTime);
 	}
 	
-
 	public void reviseRepeatingCalendarItemTitle(String entityReference, String newTitle) {
 		dao.updateRepeatingCalendarItemTitle(entityReference, newTitle);
 	}

@@ -579,11 +579,17 @@ public class ScheduleSupport{
 				TimeRange range = cEvent.getRange();
 				String calendarTimeLabelKey = scheduleEventTypeMap.get(cEvent.getType());
 				Date newTime = new Date(range.firstTime().getTime());
-				if(cEvent.getRecurrenceRule() != null) {
+				RecurrenceRule rule = cEvent.getRecurrenceRule();
+				if(rule != null) {
 					// change times for the repeating calendar item and all instances 
 					RepeatingCalendarItem item = dashboardLogic.getRepeatingCalendarItem(entityReference, calendarTimeLabelKey);
-					// remove and replace existing instances?  Or better yet update the time of each instance?
-					dashboardLogic.reviseRepeatingCalendarItemTime(entityReference, newTime);
+					// update the time of the repating item and each instance
+					if(rule.getUntil() != null) {
+						Date lastTime = new Date(rule.getUntil().getTime());
+					}
+					dashboardLogic.reviseRepeatingCalendarItemTime(entityReference, newTime, null);
+					
+					
 					dashboardLogic.reviseCalendarItemsTime(entityReference, newTime);
 					
 				} else {
