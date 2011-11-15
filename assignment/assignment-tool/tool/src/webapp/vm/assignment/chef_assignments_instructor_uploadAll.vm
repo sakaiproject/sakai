@@ -101,7 +101,7 @@
 			#end
 			<p class="checkbox indnt2">
 			 ## select-all box
-			 <input type="checkbox" name="selectall" id="selectall" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'choices')"  />
+			 <input type="checkbox" name="selectall" id="selectall" title="$tlang.getString('gen.toggle')" onclick="javascript:toggleSelectAll(this, 'choices')"  />
 			 <label for="selectall">$tlang.getString("all")</label><br/>
 			 #if ($!includeSubmissionText)
 					## student submission text
