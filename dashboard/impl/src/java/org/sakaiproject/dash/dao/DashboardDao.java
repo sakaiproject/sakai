@@ -306,6 +306,9 @@ public interface DashboardDao {
 	public boolean updateRepeatingCalendarItemsSubtype(String entityReference,
 			String labelKey, String newSubtype);
 
+	public boolean updateRepeatingCalendarItemTime(String entityReference,
+			Date newTime);
+
 	public boolean updateRepeatingCalendarItemTitle(String entityReference,
 			String newTitle);
 

@@ -530,7 +530,7 @@ public class ScheduleSupport{
 					dashboardLogic.reviseCalendarItemsTitle(cEvent.getReference(), title);
 				} else {
 					// update repeating calendar item
-					dashboardLogic.reviseRepeatingCalendarItemTitle(cEvent.getReference(), key, title);
+					dashboardLogic.reviseRepeatingCalendarItemTitle(cEvent.getReference(), title);
 					// update all instances of repeating calendar item
 					dashboardLogic.reviseCalendarItemsTitle(cEvent.getReference(), title);
 				}
@@ -578,15 +578,17 @@ public class ScheduleSupport{
 				CalendarEvent cEvent = (CalendarEvent) entity;
 				TimeRange range = cEvent.getRange();
 				String calendarTimeLabelKey = scheduleEventTypeMap.get(cEvent.getType());
-				
+				Date newTime = new Date(range.firstTime().getTime());
 				if(cEvent.getRecurrenceRule() != null) {
 					// change times for the repeating calendar item and all instances 
 					RepeatingCalendarItem item = dashboardLogic.getRepeatingCalendarItem(entityReference, calendarTimeLabelKey);
 					// remove and replace existing instances?  Or better yet update the time of each instance?
+					dashboardLogic.reviseRepeatingCalendarItemTime(entityReference, newTime);
+					dashboardLogic.reviseCalendarItemsTime(entityReference, newTime);
 					
 				} else {
 					// update calendar item title
-					dashboardLogic.reviseCalendarItemsTime(cEvent.getReference(), new Date(range.firstTime().getTime()));
+					dashboardLogic.reviseCalendarItemsTime(entityReference, newTime);
 					
 				}
 				
