@@ -81,8 +81,6 @@ public class NewsLinksPanel extends Panel {
 
 	protected void initPanel() {
 		
-		final ResourceLoader rl = new ResourceLoader("dash_entity");
-		
 		if(this.selectedNewsTab == null) {
 			this.selectedNewsTab = TAB_ID_CURRENT;
 		}
@@ -120,6 +118,7 @@ public class NewsLinksPanel extends Panel {
 			}
         	
         };
+        ResourceLoader rl = new ResourceLoader("dash_entity");
         currentNewsLink.add(new Label("label", rl.getString("dash.news.current")));
 		WebMarkupContainer currentNewsTab = new WebMarkupContainer("currentNewsTab");
 		if(selectedNewsTab == null || TAB_ID_CURRENT.equalsIgnoreCase(selectedNewsTab)) {
@@ -287,7 +286,7 @@ public class NewsLinksPanel extends Panel {
 
 						@Override
 						public Object getObject() {
-							// TODO Auto-generated method stub
+							ResourceLoader rl = new ResourceLoader("dash_entity");
 							return rl.getString("dash.unstar");
 						}
 						
@@ -339,7 +338,7 @@ public class NewsLinksPanel extends Panel {
 
 						@Override
 						public Object getObject() {
-							// TODO Auto-generated method stub
+							ResourceLoader rl = new ResourceLoader("dash_entity");
 							return rl.getString("dash.star");
 						}
 						
@@ -397,7 +396,7 @@ public class NewsLinksPanel extends Panel {
 
 						@Override
 						public Object getObject() {
-							// TODO Auto-generated method stub
+							ResourceLoader rl = new ResourceLoader("dash_entity");
 							return rl.getString("dash.show");
 						}
 						
@@ -455,7 +454,7 @@ public class NewsLinksPanel extends Panel {
 
 						@Override
 						public Object getObject() {
-							// TODO Auto-generated method stub
+							ResourceLoader rl = new ResourceLoader("dash_entity");
 							return rl.getString("dash.hide");
 						}
 						

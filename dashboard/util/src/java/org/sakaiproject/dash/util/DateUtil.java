@@ -24,26 +24,39 @@ public class DateUtil {
 			timeStr = rl.getString("dash.date.unknown.time");
 		} else {
 		
-			Calendar midnightTonight = Calendar.getInstance();
-			midnightTonight.set(Calendar.HOUR_OF_DAY, 23);
-			midnightTonight.set(Calendar.MINUTE, 59);
-			midnightTonight.set(Calendar.SECOND, 59);
-			midnightTonight.set(Calendar.MILLISECOND, 999);
+			Calendar midnightThisMorning = Calendar.getInstance();
+			midnightThisMorning.set(midnightThisMorning.get(Calendar.YEAR), midnightThisMorning.get(Calendar.MONTH), midnightThisMorning.get(Calendar.DAY_OF_MONTH), 0, 0, 0);
 			
-			Calendar today = Calendar.getInstance();
-			today.set(today.get(Calendar.YEAR), Calendar.MONTH, Calendar.DAY_OF_MONTH, 0, 0, 0);
+			Calendar midnightTonight = Calendar.getInstance();
+			midnightTonight.setTimeInMillis(midnightThisMorning.getTimeInMillis() + ONE_DAY_IN_MILLIS);
+			
+			Calendar yesterday = Calendar.getInstance();
+			yesterday.setTimeInMillis(midnightThisMorning.getTimeInMillis() - ONE_DAY_IN_MILLIS);
+			
+			Calendar beginningOfThisYear = Calendar.getInstance();
+			beginningOfThisYear.set(beginningOfThisYear.get(Calendar.YEAR), 1, 1, 0, 0, 0);
 			
 			Calendar midnightTomorrow = Calendar.getInstance();
 			midnightTomorrow.setTimeInMillis(midnightTonight.getTimeInMillis() + ONE_DAY_IN_MILLIS);
 			
-			Calendar newYearsEve = Calendar.getInstance();
-			newYearsEve.set(midnightTonight.get(Calendar.YEAR),12,31,23,59,59);
+			Calendar beginningOfNextYear = Calendar.getInstance();
+			beginningOfNextYear.set(beginningOfNextYear.get(Calendar.YEAR) + 1,1,1,0,0,0);
 			
-			if(date.before(today.getTime())) {
-				// Any posting date greater than current date + 1Day will be displayed with the Month abbreviation; Date ; HH:MM PM
+			if(date.before(beginningOfThisYear.getTime())) {
+				// Any posting date before the current year will be displayed with the Month abbreviation; Date Year ; HH:MM PM
 				// 	Example: OCT 30, 2015 1:00PM
 				DateFormat df = new SimpleDateFormat("MMM dd, yyyy hh:mm a");
 				timeStr = df.format(date);
+			} else if(date.before(yesterday.getTime())) {
+				// Any posting date within the current year and before yesterday will be displayed with the Month abbreviation; Date ; HH:MM PM
+				// 	Example: OCT 30 1:00PM
+				DateFormat df = new SimpleDateFormat("MMM dd hh:mm a");
+				timeStr = df.format(date);
+			} else if(date.before(midnightThisMorning.getTime())) {
+				// Any posting date within yesterday will be displayed with Yesterday ; HH:MM PM
+				// 	Example: Yesterday 1:00PM
+				DateFormat df = new SimpleDateFormat("hh:mm a");
+				timeStr = rl.getFormattedMessage("dash.date.yesterday.time", new String[]{ df.format(date) });
 			} else if(date.before(midnightTonight.getTime())) {
 				// Any posting date that equals the current date will display "Today"; HH:MM PM.
 				//	 	Example: Today 5:00 PM
@@ -54,7 +67,7 @@ public class DateUtil {
 				//	 	Example: Tomorrow 9:00 AM
 				DateFormat df = SimpleDateFormat.getTimeInstance(DateFormat.SHORT);
 				timeStr = rl.getFormattedMessage("dash.date.tomorrow.time", new String[]{ df.format(date) });
-			} else if(date.before(newYearsEve.getTime())) {
+			} else if(date.before(beginningOfNextYear.getTime())) {
 				// Any posting date greater than current date + 1Day will be displayed with the Month abbreviation; Date ; HH:MM PM
 				// 	Example: OCT 30 1:00PM
 				DateFormat df = new SimpleDateFormat("MMM dd hh:mm a");
@@ -129,7 +142,7 @@ public class DateUtil {
 	}
 	
 	public static String getFullDateString(Date date) {
-		DateFormat df = SimpleDateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
+		DateFormat df = new SimpleDateFormat("MMM dd, yyyy hh:mm a");
 		return df.format(date);
 	}
 

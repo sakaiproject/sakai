@@ -92,8 +92,6 @@ public class CalendarLinksPanel extends Panel {
 	 */
 	protected void initPanel() {
 		
-		final ResourceLoader rl = new ResourceLoader("dash_entity");
-
 		if(selectedCalendarTab == null) {
 			selectedCalendarTab = TAB_ID_UPCOMING;
 		}
@@ -129,6 +127,7 @@ public class CalendarLinksPanel extends Panel {
         	
         };
         
+        ResourceLoader rl = new ResourceLoader("dash_entity");
         upcomingCalendarLink.add(new Label("label", rl.getString("dash.calendar.upcoming")));
 		WebMarkupContainer upcomingCalendarTab = new WebMarkupContainer("upcomingCalendarTab");
 		if(selectedCalendarTab == null || TAB_ID_UPCOMING.equalsIgnoreCase(selectedCalendarTab)) {
@@ -333,7 +332,7 @@ public class CalendarLinksPanel extends Panel {
 
 							@Override
 							public Object getObject() {
-								// TODO Auto-generated method stub
+								ResourceLoader rl = new ResourceLoader("dash_entity");
 								return rl.getString("dash.unstar");
 							}
 							
@@ -384,7 +383,7 @@ public class CalendarLinksPanel extends Panel {
 
 							@Override
 							public Object getObject() {
-								// TODO Auto-generated method stub
+								ResourceLoader rl = new ResourceLoader("dash_entity");
 								return rl.getString("dash.star");
 							}
 							
@@ -443,7 +442,7 @@ public class CalendarLinksPanel extends Panel {
 
 							@Override
 							public Object getObject() {
-								// TODO Auto-generated method stub
+								ResourceLoader rl = new ResourceLoader("dash_entity");
 								return rl.getString("dash.show");
 							}
 							
@@ -501,7 +500,7 @@ public class CalendarLinksPanel extends Panel {
 
 							@Override
 							public Object getObject() {
-								// TODO Auto-generated method stub
+								ResourceLoader rl = new ResourceLoader("dash_entity");
 								return rl.getString("dash.hide");
 							}
 							
