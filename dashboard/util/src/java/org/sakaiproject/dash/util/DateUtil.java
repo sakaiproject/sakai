@@ -128,13 +128,21 @@ public class DateUtil {
 				// 	Example: 3 hours ago
 				long hours = ((now.getTime() - date.getTime()) / ONE_HOUR_IN_MILLIS) 
 					+ (((now.getTime() - date.getTime()) % ONE_HOUR_IN_MILLIS) > ONE_HOUR_IN_MILLIS/2 ? 1 : 0);
-				timeStr = rl.getFormattedMessage("dash.date.hours.ago", new Long[]{ hours });
+				if(hours <= 1) {
+					timeStr = rl.getString("dash.date.hour.ago");
+				} else {
+					timeStr = rl.getFormattedMessage("dash.date.hours.ago", new Long[]{ hours });
+				}
 			} else {
 				// Any posting date that is less than 1 hour before the current time will display "X minutes ago"
 				// 	Example: 6 minutes ago
 				long minutes = ((now.getTime() - date.getTime()) / ONE_MINUTE_IN_MILLIS) 
 					+ (((now.getTime() - date.getTime()) % ONE_MINUTE_IN_MILLIS) > ONE_MINUTE_IN_MILLIS/2 ? 1 : 0);
-				timeStr = rl.getFormattedMessage("dash.date.minutes.ago", new Long[]{ minutes });
+				if(minutes <= 1) {
+					timeStr = rl.getString("dash.date.minute.ago");
+				} else {
+					timeStr = rl.getFormattedMessage("dash.date.minutes.ago", new Long[]{ minutes });
+				}
 			}
 		}
 		

@@ -13,6 +13,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.dash.logic.DashboardLogic;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.NewsItem;
+import org.sakaiproject.dash.util.DateUtil;
 
 /**
  * 
@@ -77,7 +78,9 @@ public class JsonHelper {
 		json.element("entityReference", newsItem.getEntityReference());
 		json.element("id", newsItem.getId());
 		json.element("newsTime", newsItem.getNewsTime());
-		json.element("label", newsItem.getNewsTimeLabelKey());
+		json.element("newsTimeShortString", DateUtil.getNewsTimeString(newsItem.getNewsTime()));
+		json.element("newsTimeFullString", DateUtil.getFullDateString(newsItem.getNewsTime()));
+		json.element("label", dashboardLogic.getString(newsItem.getNewsTimeLabelKey(), "", newsItem.getSourceType().getIdentifier()));
 		json.element("entityType", newsItem.getSourceType().getIdentifier());
 		json.element("subtype", newsItem.getSubtype());
 		json.element("title", newsItem.getTitle());
@@ -90,7 +93,9 @@ public class JsonHelper {
 		json.element("entityReference", calendarItem.getEntityReference());
 		json.element("id", calendarItem.getId());
 		json.element("calendarTime", calendarItem.getCalendarTime());
-		json.element("label", calendarItem.getCalendarTimeLabelKey());
+		json.element("calendarTimeShortString", DateUtil.getCalendarTimeString(calendarItem.getCalendarTime()));
+		json.element("calendarTimeFullString", DateUtil.getFullDateString(calendarItem.getCalendarTime()));
+		json.element("label", dashboardLogic.getString(calendarItem.getCalendarTimeLabelKey(), "", calendarItem.getSourceType().getIdentifier()));
 		json.element("entityType", calendarItem.getSourceType().getIdentifier());
 		json.element("subtype", calendarItem.getSubtype());
 		json.element("title", calendarItem.getTitle());
