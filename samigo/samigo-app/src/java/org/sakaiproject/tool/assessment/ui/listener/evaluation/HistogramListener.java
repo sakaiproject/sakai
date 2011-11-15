@@ -1176,21 +1176,21 @@ public class HistogramListener
 							.toString((int) (((float) correctresponses / (float) qbean.getNumResponses()) * 100)));
 	}
 
-  
 private void getCalculatedQuestionScores(Map<Long, ItemTextIfc> publishedItemTextHash, Map<Integer, AnswerIfc> publishedAnswerHash, 
         List<ItemGradingData> scores, HistogramQuestionScoresBean qbean, ArrayList labels) {
     final String CORRECT = "Correct";
     final String INCORRECT = "Incorrect";
+    final int COLUMN_MAX_HEIGHT = 600;
+    
     ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
     ResourceLoader rc = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
     
-    // put every answer to every question in the results table
+    // count incorrect and correct to support column height calculation
     Map<String, Integer> results = new HashMap<String, Integer>();
     results.put(CORRECT, Integer.valueOf(0));
     results.put(INCORRECT, Integer.valueOf(0));
     
     for (ItemGradingData score : scores) {
-        Long questionId = score.getPublishedItemTextId();
         if (score.getAutoScore() > 0) {
             Integer value = results.get(CORRECT);
             results.put(CORRECT, ++value);
@@ -1213,37 +1213,31 @@ private void getCalculatedQuestionScores(Map<Long, ItemTextIfc> publishedItemTex
         }
         bar.setNumStudentsText(entry.getValue() + " " + entry.getKey());
         bar.setIsCorrect(entry.getKey().equals(CORRECT));
+        int height = 0;
+        if (scores.size() > 0) {
+            height = COLUMN_MAX_HEIGHT * entry.getValue() / scores.size();
+        }
+        bar.setColumnHeight(Integer.toString(height));
         barList.add(bar);
     }    
-    
-    // numarray stores the number of students who answered each question, so 
-    // that the length of the bar can be calculated.
-    int[] numarray = new int[results.keySet().size()];
-    for (int i = 0; i < numarray.length; i++) {
-        numarray[i] = barList.get(i).getNumStudents();
-    }
-    
-    // set length of bar for correct/incorrect
-    int[] heights = calColumnHeight(numarray, qbean.getNumResponses());
-    for (int i = 0; i<barList.size(); i++) {
-        try {
-            // adjust height to reflect multiple answers
-            int height = heights[i] / scores.size();            
-            barList.get(i).setColumnHeight(Integer.toString(height));
-        }
-        catch (NullPointerException npe) {
-            log.warn("bars[" + i + "] is null. " + npe);
-        }
-    }   
     
     HistogramBarBean[] bars = new HistogramBarBean[barList.size()];
     bars = barList.toArray(bars);
     qbean.setHistogramBars(bars);
     
+    // store any assessment grading ID's that are incorrect.
+    // this will allow us to calculate % Students All correct by giving
+    // us a count of assessmnets that had an incorrect answer 
+    Set<Long> assessmentQuestionIncorrect = new HashSet<Long>();
+    for (ItemGradingData score : scores) {
+        if (score.getAutoScore() == 0) {
+            assessmentQuestionIncorrect.add(score.getAssessmentGradingId());
+        }
+    }
+    
     if (qbean.getNumResponses() > 0) {
-        int correct = results.get(CORRECT);
-        int incorrect = results.get(INCORRECT);
-        int total = correct + incorrect;
+        int correct = qbean.getNumResponses() - assessmentQuestionIncorrect.size();
+        int total = qbean.getNumResponses();
         float percentCorrect = ((float) correct / (float) total) * 100;
         String percentCorrectStr = Float.toString(percentCorrect);
         qbean.setPercentCorrect(percentCorrectStr);
