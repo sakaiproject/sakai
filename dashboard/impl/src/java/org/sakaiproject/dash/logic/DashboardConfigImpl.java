@@ -3,9 +3,13 @@ package org.sakaiproject.dash.logic;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.dash.dao.DashboardDao;
 
 public class DashboardConfigImpl implements DashboardConfig {
+	
+	private static Log logger = LogFactory.getLog(DashboardConfigImpl.class);
 	
 	public static final String DASHBOARD_CACHE_PREFIX = "org.sakaiproject.dash.logic.DashboardConfig.";
 
@@ -67,6 +71,10 @@ public class DashboardConfigImpl implements DashboardConfig {
 			cache.put(new Element(cacheKey, propertyValue, CACHE_ETERNAL, CACHE_TIME_TO_IDLE, CACHE_TIME_TO_LIVE));
 			
 		}
+	}
+	
+	public void init() {
+		logger.info("init()");
 	}
 	
 }
