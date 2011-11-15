@@ -30,13 +30,21 @@ public class DateUtil {
 			midnightTonight.set(Calendar.SECOND, 59);
 			midnightTonight.set(Calendar.MILLISECOND, 999);
 			
+			Calendar today = Calendar.getInstance();
+			today.set(today.get(Calendar.YEAR), Calendar.MONTH, Calendar.DAY_OF_MONTH, 0, 0, 0);
+			
 			Calendar midnightTomorrow = Calendar.getInstance();
 			midnightTomorrow.setTimeInMillis(midnightTonight.getTimeInMillis() + ONE_DAY_IN_MILLIS);
 			
 			Calendar newYearsEve = Calendar.getInstance();
 			newYearsEve.set(midnightTonight.get(Calendar.YEAR),12,31,23,59,59);
 			
-			if(date.before(midnightTonight.getTime())) {
+			if(date.before(today.getTime())) {
+				// Any posting date greater than current date + 1Day will be displayed with the Month abbreviation; Date ; HH:MM PM
+				// 	Example: OCT 30, 2015 1:00PM
+				DateFormat df = new SimpleDateFormat("MMM dd, yyyy hh:mm a");
+				timeStr = df.format(date);
+			} else if(date.before(midnightTonight.getTime())) {
 				// Any posting date that equals the current date will display "Today"; HH:MM PM.
 				//	 	Example: Today 5:00 PM
 				DateFormat df = SimpleDateFormat.getTimeInstance(DateFormat.SHORT);
@@ -120,6 +128,9 @@ public class DateUtil {
 		return timeStr;
 	}
 	
-
+	public static String getFullDateString(Date date) {
+		DateFormat df = SimpleDateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
+		return df.format(date);
+	}
 
 }

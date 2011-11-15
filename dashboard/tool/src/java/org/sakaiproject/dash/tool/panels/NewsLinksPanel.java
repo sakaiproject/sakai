@@ -229,7 +229,17 @@ public class NewsLinksPanel extends Panel {
                 }
 				item.add(new Label("itemLabel", newsItemLabel));
                 item.add(new ExternalLink("siteLink", nItem.getContext().getContextUrl(), siteTitle));
-                item.add(new Label("newsTime", DateUtil.getNewsTimeString(nItem.getNewsTime())));
+                Component timeLabel = new Label("newsTime", DateUtil.getNewsTimeString(nItem.getNewsTime()));
+                timeLabel.add(new AttributeModifier("title", true, new AbstractReadOnlyModel(){
+
+					@Override
+					public Object getObject() {
+						// TODO Auto-generated method stub
+						return DateUtil.getFullDateString(nItem.getNewsTime());
+					}
+                	
+                }));
+				item.add(timeLabel );
                 
                 if(nLink.isSticky()) {
 	                AjaxLink<NewsLink> starringAction = new AjaxLink<NewsLink>("starringAction") {

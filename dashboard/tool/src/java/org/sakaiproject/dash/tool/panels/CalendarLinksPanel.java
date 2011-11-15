@@ -254,7 +254,17 @@ public class CalendarLinksPanel extends Panel {
 	                item.add(new Label("itemType", itemType));
 	                item.add(new Label("itemCount", "1"));
 	                item.add(new Label("entityReference", cItem.getEntityReference()));
-	                item.add(new Label("calendarDate", DateUtil.getCalendarTimeString(cItem.getCalendarTime())));
+	                Component timeLabel = new Label("calendarDate", DateUtil.getCalendarTimeString(cItem.getCalendarTime()));
+	                timeLabel.add(new AttributeModifier("title", true, new AbstractReadOnlyModel(){
+
+						@Override
+						public Object getObject() {
+							// TODO Auto-generated method stub
+							return DateUtil.getFullDateString(cItem.getCalendarTime());
+						}
+	                	
+	                }));
+					item.add(timeLabel );
 	                //item.add(new Label("calendarTime", new SimpleDateFormat(TIME_FORMAT).format(cItem.getCalendarTime())));
 	                
 	                Image icon = new Image("icon");
