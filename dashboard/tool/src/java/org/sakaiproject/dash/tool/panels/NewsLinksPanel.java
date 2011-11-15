@@ -33,6 +33,7 @@ import org.sakaiproject.dash.logic.SakaiProxy;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.NewsLink;
 import org.sakaiproject.dash.tool.util.JsonHelper;
+import org.sakaiproject.dash.util.DateUtil;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -228,7 +229,7 @@ public class NewsLinksPanel extends Panel {
                 }
 				item.add(new Label("itemLabel", newsItemLabel));
                 item.add(new ExternalLink("siteLink", nItem.getContext().getContextUrl(), siteTitle));
-                item.add(new Label("newsTime", new SimpleDateFormat(DATETIME_FORMAT).format(nItem.getNewsTime())));
+                item.add(new Label("newsTime", DateUtil.getNewsTimeString(nItem.getNewsTime())));
                 
                 if(nLink.isSticky()) {
 	                AjaxLink<NewsLink> starringAction = new AjaxLink<NewsLink>("starringAction") {

@@ -3,7 +3,6 @@
  */
 package org.sakaiproject.dash.tool.panels;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -11,7 +10,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
-import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
@@ -29,7 +27,6 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.wicket.util.value.ValueMap;
 import org.sakaiproject.dash.logic.DashboardConfig;
 import org.sakaiproject.dash.logic.DashboardLogic;
 import org.sakaiproject.dash.logic.SakaiProxy;
@@ -37,6 +34,7 @@ import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.CalendarLink;
 import org.sakaiproject.dash.tool.pages.DashboardPage;
 import org.sakaiproject.dash.tool.util.JsonHelper;
+import org.sakaiproject.dash.util.DateUtil;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -256,8 +254,8 @@ public class CalendarLinksPanel extends Panel {
 	                item.add(new Label("itemType", itemType));
 	                item.add(new Label("itemCount", "1"));
 	                item.add(new Label("entityReference", cItem.getEntityReference()));
-	                item.add(new Label("calendarDate", new SimpleDateFormat(DATE_FORMAT).format(cItem.getCalendarTime())));
-	                item.add(new Label("calendarTime", new SimpleDateFormat(TIME_FORMAT).format(cItem.getCalendarTime())));
+	                item.add(new Label("calendarDate", DateUtil.getCalendarTimeString(cItem.getCalendarTime())));
+	                //item.add(new Label("calendarTime", new SimpleDateFormat(TIME_FORMAT).format(cItem.getCalendarTime())));
 	                
 	                Image icon = new Image("icon");
 	                icon.add(new AttributeModifier("src", true, new AbstractReadOnlyModel(){
