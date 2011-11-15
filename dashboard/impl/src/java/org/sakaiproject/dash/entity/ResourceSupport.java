@@ -16,6 +16,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.logic.DashboardLogic;
 import org.sakaiproject.dash.logic.SakaiProxy;
@@ -163,7 +164,7 @@ public class ResourceSupport {
 				infoItem.put(VALUE_INFO_LINK_URL, resource.getUrl());
 				infoItem.put(VALUE_INFO_LINK_SIZE, Long.toString(resource.getContentLength()));
 				infoItem.put(VALUE_INFO_LINK_MIMETYPE, resource.getContentType());
-				infoItem.put(VALUE_INFO_LINK_TARGET, sakaiProxy.getTargetForMimetype(resource.getContentType()));
+				infoItem.put(VALUE_INFO_LINK_TARGET, "_blank");
 				// TODO: VALUE_INFO_LINK_TITLE depends on VALUE_INFO_LINK_TARGET. If new window, title might be "View the damned item". Otherwise "Download the stupid thing"? 
 				infoItem.put(VALUE_INFO_LINK_TITLE, rl.getString("resource.info.link"));
 				infoList.add(infoItem);
@@ -172,6 +173,38 @@ public class ResourceSupport {
 
 			}
 			return values ;
+		}
+		
+		protected String getMoreInfoTitleForMimetype(String contentType)
+		{
+			String rv = null;
+			if (contentType.equals(ResourceType.TYPE_UPLOAD))
+			{
+				// uploaded file type
+				rv = "resource.info.link.file";
+			}
+			else if (contentType.equals(ResourceType.TYPE_TEXT))
+			{
+				// text type
+				rv = "resource.info.link.text";
+			}
+			else if (contentType.equals(ResourceType.TYPE_HTML))
+			{
+				// html type
+				rv = "resource.info.link.html";
+			}
+			else if (contentType.equals(ResourceType.TYPE_URL))
+			{
+				// url link type
+				rv = "resource.info.link.url";
+			}
+			else if (contentType.equals("org.sakaiproject.citation.impl.CitationList"))
+			{
+				// citation list type
+				rv = "resource.info.link.citationlist";
+			}
+			
+			return rv;
 		}
 
 		/* (non-Javadoc)
