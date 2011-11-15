@@ -50,7 +50,9 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.ItemBarBean;
 
 /**
@@ -723,7 +725,8 @@ public class HistogramListener
     else if (qbean.getQuestionType().equals("9"))
       getMatchingScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
     else if (qbean.getQuestionType().equals("14")) // CALCULATED_QUESTION
-        getMatchingScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
+//        getMatchingScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
+        getCalculatedQuestionScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
     else if (qbean.getQuestionType().equals("13")) // matrix survey question
       getMatrixSurveyScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
   }
@@ -1173,8 +1176,79 @@ public class HistogramListener
 							.toString((int) (((float) correctresponses / (float) qbean.getNumResponses()) * 100)));
 	}
 
-
-
+  
+private void getCalculatedQuestionScores(Map<Long, ItemTextIfc> publishedItemTextHash, Map<Integer, AnswerIfc> publishedAnswerHash, 
+        List<ItemGradingData> scores, HistogramQuestionScoresBean qbean, ArrayList labels) {
+    final String CORRECT = "Correct";
+    final String INCORRECT = "Incorrect";
+    ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
+    ResourceLoader rc = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
+    
+    // put every answer to every question in the results table
+    Map<String, Integer> results = new HashMap<String, Integer>();
+    results.put(CORRECT, Integer.valueOf(0));
+    results.put(INCORRECT, Integer.valueOf(0));
+    
+    for (ItemGradingData score : scores) {
+        Long questionId = score.getPublishedItemTextId();
+        if (score.getAutoScore() > 0) {
+            Integer value = results.get(CORRECT);
+            results.put(CORRECT, ++value);
+        } else {
+            Integer value = results.get(INCORRECT);
+            results.put(INCORRECT, ++value);
+        }
+    }
+    
+    // build the histogram bar for correct/incorrect answers
+    List<HistogramBarBean> barList = new ArrayList<HistogramBarBean>();    
+    for (Map.Entry<String, Integer> entry : results.entrySet()) {
+        HistogramBarBean bar = new HistogramBarBean();
+        bar.setLabel(entry.getKey());
+        bar.setNumStudents(entry.getValue());
+        if (entry.getValue() > 1) {
+            bar.setNumStudentsText(entry.getValue() + " " + rb.getString("correct_responses"));
+        } else {
+            bar.setNumStudentsText(entry.getValue() + " " + rc.getString("correct_response"));
+        }
+        bar.setNumStudentsText(entry.getValue() + " " + entry.getKey());
+        bar.setIsCorrect(entry.getKey().equals(CORRECT));
+        barList.add(bar);
+    }    
+    
+    // numarray stores the number of students who answered each question, so 
+    // that the length of the bar can be calculated.
+    int[] numarray = new int[results.keySet().size()];
+    for (int i = 0; i < numarray.length; i++) {
+        numarray[i] = barList.get(i).getNumStudents();
+    }
+    
+    // set length of bar for correct/incorrect
+    int[] heights = calColumnHeight(numarray, qbean.getNumResponses());
+    for (int i = 0; i<barList.size(); i++) {
+        try {
+            // adjust height to reflect multiple answers
+            int height = heights[i] / scores.size();            
+            barList.get(i).setColumnHeight(Integer.toString(height));
+        }
+        catch (NullPointerException npe) {
+            log.warn("bars[" + i + "] is null. " + npe);
+        }
+    }   
+    
+    HistogramBarBean[] bars = new HistogramBarBean[barList.size()];
+    bars = barList.toArray(bars);
+    qbean.setHistogramBars(bars);
+    
+    if (qbean.getNumResponses() > 0) {
+        int correct = results.get(CORRECT);
+        int incorrect = results.get(INCORRECT);
+        int total = correct + incorrect;
+        float percentCorrect = ((float) correct / (float) total) * 100;
+        String percentCorrectStr = Float.toString(percentCorrect);
+        qbean.setPercentCorrect(percentCorrectStr);
+    }
+}
 
   private void getMatchingScores(HashMap publishedItemTextHash, HashMap publishedAnswerHash,
     ArrayList scores, HistogramQuestionScoresBean qbean, ArrayList labels)
@@ -2003,6 +2077,19 @@ public class HistogramListener
     return height;
   }
   */
+  
+  private List<Integer> calColumnHeight(List<Integer> numStudents, int totalResponse) {
+      List<Integer> results = new ArrayList<Integer>();
+      for (Integer response : numStudents) {
+          if (totalResponse > 0) {
+              Integer height = 600 * response / totalResponse;
+              results.add(height);
+          } else {
+              results.add(Integer.valueOf(0));
+          }
+      }
+      return results;
+  }
   
     private static int[] calColumnHeight(int[] numStudents, int totalResponse)
   {
