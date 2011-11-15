@@ -82,18 +82,6 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	
 	public static final String MOTD_CONTEXT = "!site";
 	
-	// TODO: MOVE TO CONFIG 
-	protected long daysToHorizon = 30L;
-	public void setDaysToHorizon(long daysToHorizon) {
-		this.daysToHorizon = daysToHorizon;
-	}
-	
-	// TODO: MOVE TO CONFIG 
-	protected long daysBetweenHorizonUpdates = 7L;
-	public void setDaysBetweenHorizonUpdates(long daysBetweenHorizonUpdates) {
-		this.daysBetweenHorizonUpdates = daysBetweenHorizonUpdates;
-	}
-	
 	protected Date nextHorizonUpdate = new Date();
 	private Date horizon = new Date();
 		
@@ -1064,8 +1052,8 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			this.eventProcessingThread.start();
 			
 			this.sakaiProxy.addLocalEventListener(this);
-			
-			this.horizon = new Date(System.currentTimeMillis() + daysToHorizon * ONE_DAY);
+			Integer weeksToHorizon = dashboardConfig.getConfigValue(DashboardConfig.PROP_WEEKS_TO_HORIZON, new Integer(4));
+			this.horizon = new Date(System.currentTimeMillis() + weeksToHorizon.longValue() * 7L * ONE_DAY);
 		}
 	}
 	
@@ -1277,7 +1265,8 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			if(nextHorizonUpdate != null && System.currentTimeMillis() > nextHorizonUpdate.getTime()) {
 				// time to update
 				Date oldHorizon = horizon;
-				horizon = new Date(System.currentTimeMillis() + daysToHorizon * ONE_DAY);
+				Integer weeksToHorizon = dashboardConfig.getConfigValue(DashboardConfig.PROP_WEEKS_TO_HORIZON, new Integer(4));
+				horizon = new Date(System.currentTimeMillis() + weeksToHorizon * 7L * ONE_DAY);
 				
 				if(horizon.after(oldHorizon)) {
 					List<RepeatingCalendarItem> repeatingEvents = dao.getRepeatingCalendarItems();
@@ -1288,7 +1277,8 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 						}
 					}
 				}
-				nextHorizonUpdate = new Date(nextHorizonUpdate.getTime() + daysBetweenHorizonUpdates * ONE_DAY);
+				Integer daysBetweenHorizonUpdates = dashboardConfig.getConfigValue(DashboardConfig.PROP_DAYS_BETWEEN_HORIZ0N_UPDATES, new Integer(1));
+				nextHorizonUpdate = new Date(nextHorizonUpdate.getTime() + daysBetweenHorizonUpdates.longValue() * ONE_DAY);
 			}
 		}
 

@@ -36,13 +36,6 @@
     	<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy"></property>
     	<property name="dao" ref="org.sakaiproject.dash.dao.DashboardDao" />	
     	<property name="cache" ref="org.sakaiproject.dash.cache" />	
-    	<!--  TODO: MOVE TO CONFIG  -->
-    	<property name="daysToHorizon">
-    		<value>45</value>
-    	</property>
-    	<property name="daysBetweenHorizonUpdates">
-    		<value>1</value>
-    	</property>
     	<property name="dashboardConfig" ref="org.sakaiproject.dash.logic.DashboardConfig" />
     </bean>
     
