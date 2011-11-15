@@ -1672,6 +1672,22 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}				
 	}
 	
+	public boolean updateRepeatingCalendarItemTitle(String entityReference, String newTitle) {
+		if(log.isDebugEnabled()) {
+			log.debug("updateRepeatingCalendarItemTitle( " + entityReference + "," + newTitle + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("update.RepeatingEventsTitle.entityReference"),
+				new Object[]{newTitle, entityReference}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("updateRepeatingCalendarItemTitle: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}				
+	}
+	
 	/**
 	 * Get an SQL statement for the appropriate vendor from the bundle
 	

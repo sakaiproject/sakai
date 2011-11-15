@@ -874,13 +874,19 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	
 	public void reviseNewsItemTime(String entityReference, Date newTime) {
 		NewsItem item = dao.getNewsItem(entityReference);
-		dao.updateNewsItemTime(item.getId(), newTime);
+		if(item == null) {
+			logger.warn("Attempting to revise time of non-existent news item: " + entityReference);
+		} else {
+			dao.updateNewsItemTime(item.getId(), newTime);
+		}
 	}
 
 	public void reviseNewsItemTitle(String entityReference, String newTitle, Date newNewsTime, String newLabelKey) {
 		
 		NewsItem item = dao.getNewsItem(entityReference);
-		if(item != null) {
+		if(item == null) {
+			logger.warn("Attempting to revise title of non-existent news item: " + entityReference);
+		} else {
 			dao.updateNewsItemTitle(item.getId(), newTitle, newNewsTime, newLabelKey);
 		}
 		
@@ -915,6 +921,10 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	 */
 	public void reviseRepeatingCalendarItemSubtype(String entityReference, String labelKey, String newSubtype) {
 		dao.updateRepeatingCalendarItemsSubtype(entityReference, labelKey, newSubtype);
+	}
+	
+	public void reviseRepeatingCalendarItemTitle(String entityReference, String labelKey, String newTitle) {
+		dao.updateRepeatingCalendarItemTitle(entityReference, newTitle);
 	}
 
 	public void scheduleAvailabilityCheck(String entityReference, String entityTypeId, Date scheduledTime) {

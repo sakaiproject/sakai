@@ -404,6 +404,8 @@ public interface DashboardLogic {
 	public void reviseRepeatingCalendarItemSubtype(String entityReference,
 			String labelKey, String newSubtype);
 
+	public void reviseRepeatingCalendarItemTitle(String entityReference, String labelKey, String newTitle);
+
 	/**
 	 * If an entity uses some form of scheduled release, this method is called to 
 	 * perform a check at the scheduled-release time to add links for that item. 
@@ -457,6 +459,7 @@ public interface DashboardLogic {
 	public void updateCalendarLinks(String entityReference);
 
 	public String getEntityIconUrl(String type, String subtype);
+
 
 	// todo:
 	// add methods to revise news items, calendar items, news links, calendar links, etc.

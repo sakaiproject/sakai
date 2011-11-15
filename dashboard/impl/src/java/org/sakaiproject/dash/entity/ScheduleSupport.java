@@ -507,11 +507,33 @@ public class ScheduleSupport{
 				CalendarEvent cEvent = (CalendarEvent) entity;
 				
 				String title = cEvent.getDisplayName();
-				// update news item title
-				dashboardLogic.reviseNewsItemTitle(cEvent.getReference(), title, null, null);
 				
-				// update calendar item title
-				dashboardLogic.reviseCalendarItemsTitle(cEvent.getReference(), title);
+				
+				// update news item title
+				//dashboardLogic.reviseNewsItemTitle(cEvent.getReference(), title, null, null);
+				
+				String type = cEvent.getType();
+				// Based on the event-type, we may be able to select a key for a label? 
+				String key = null;
+				if(type == null) {
+					key = "schedule.key2";
+				} else {
+					key = scheduleEventTypeMap.get(type);
+					if(key == null) {
+						key = "schedule.key2";
+					}
+				}
+				
+				RecurrenceRule rule = cEvent.getRecurrenceRule();
+				if(rule == null) {
+					// update calendar item title
+					dashboardLogic.reviseCalendarItemsTitle(cEvent.getReference(), title);
+				} else {
+					// update repeating calendar item
+					dashboardLogic.reviseRepeatingCalendarItemTitle(cEvent.getReference(), key, title);
+					// update all instances of repeating calendar item
+					dashboardLogic.reviseCalendarItemsTitle(cEvent.getReference(), title);
+				}
 			}
 			
 			if(logger.isDebugEnabled()) {
