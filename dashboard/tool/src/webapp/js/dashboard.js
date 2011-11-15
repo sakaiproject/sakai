@@ -220,7 +220,7 @@ var setupLinks = function(){
                             var icon = "";
                             
                             if (this.iconUrl) {
-                                icon = '<img class=\"resIcon\" src=\"/library/image/' + this.iconUrl + '\"/> ';
+                                icon = '<img class=\"resIcon\" src=\"' + this.iconUrl + '\"/> ';
                             }
                             else {
                                 icon = '';
