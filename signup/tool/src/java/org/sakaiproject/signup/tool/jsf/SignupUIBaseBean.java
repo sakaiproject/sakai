@@ -124,16 +124,37 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		setCurrentUserSignedup(false);// reset and make sure to capture new
 		// changes
 		int i = 0;
+		int totalSignedupSlots=0;
 		for (Iterator iter = timeslots.iterator(); iter.hasNext();) {
 			SignupTimeslot elm = (SignupTimeslot) iter.next();
 			TimeslotWrapper tsw = new TimeslotWrapper(elm, sakaiFacade.getCurrentUserId());
-			tsw.setAttendeeWrappers(wrapAttendees(elm.getAttendees()));
+			
+			List<AttendeeWrapper> attendeeWrp = new ArrayList<AttendeeWrapper>();
+			int posIndex = 0;
+			//clean the list
+			List<SignupAttendee> cleanedList = getValidAttendees(elm.getAttendees());
+			for (SignupAttendee attendee : cleanedList) {
+				AttendeeWrapper attWrp = new AttendeeWrapper(attendee, sakaiFacade.getUserDisplayName(attendee
+						.getAttendeeUserId()));
+				attWrp.setPositionIndex(posIndex++);
+				attendeeWrp.add(attWrp);
+
+				/* current user is already signed up in one of the timeslot */
+				if (attendee.getAttendeeUserId().equals(sakaiFacade.getCurrentUserId()))
+					//setCurrentUserSignedup(true);
+					totalSignedupSlots++;
+			}
+			tsw.setAttendeeWrappers(attendeeWrp);
+
 			tsw.setWaitingList(wrapWaiters(elm.getWaitingList()));
 			tsw.setPositionInTSlist(i++);
 			timeslotWrapperList.add(tsw);
 
 		}
-
+		int preferredSlot = meeting.getMaxNumOfSlots();
+		if (totalSignedupSlots >= preferredSlot){
+			setCurrentUserSignedup(true);
+		}
 		setTimeslotWrappers(timeslotWrapperList);
 
 	}
@@ -194,7 +215,7 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	}
 
 	/** convert SignupAttendee to AttendeeWrapper object */
-	private List<AttendeeWrapper> wrapAttendees(List<SignupAttendee> attendees) {
+	/*private List<AttendeeWrapper> wrapAttendees(List<SignupAttendee> attendees) {
 		List<AttendeeWrapper> attendeeWrp = new ArrayList<AttendeeWrapper>();
 		int posIndex = 0;
 		
@@ -206,13 +227,13 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 			attWrp.setPositionIndex(posIndex++);
 			attendeeWrp.add(attWrp);
 
-			/* current user is already signed up in one of the timeslot */
+			// current user is already signed up in one of the timeslot 
 			if (attendee.getAttendeeUserId().equals(sakaiFacade.getCurrentUserId())) {
 				setCurrentUserSignedup(true);
 			}
 		}
 		return attendeeWrp;
-	}
+	}*/
 
 	/** convert SignupAttendee to AttendeeWrapper object */
 	private List<AttendeeWrapper> wrapWaiters(List<SignupAttendee> attendees) {

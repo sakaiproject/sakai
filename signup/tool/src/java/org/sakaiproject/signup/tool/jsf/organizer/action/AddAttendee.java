@@ -185,12 +185,18 @@ public class AddAttendee extends SignupAction {
 	private void checkForPromotion(SignupMeeting meeting, SignupAttendee newAttendee) throws Exception {
 		String attendeeUserId = newAttendee.getAttendeeUserId();
 		List<SignupTimeslot> signupTimeSlots = meeting.getSignupTimeSlots();
+		int totalSignupSlots=0;
 		for (SignupTimeslot timeslot : signupTimeSlots) {
 			List<SignupAttendee> attendees = timeslot.getAttendees();
 			for (SignupAttendee attendee : attendees) {
-				if (attendee.getAttendeeUserId().equals(attendeeUserId))
-					throw new SignupUserActionException(Utilities.rb.getString("you.promoted.to.another.ts_meanwhile"));
+				if (attendee.getAttendeeUserId().equals(attendeeUserId)){
+					totalSignupSlots++;
+				}
 			}
+		}
+		int preferredSlot = meeting.getMaxNumOfSlots().intValue();
+		if (totalSignupSlots >=preferredSlot){
+			throw new SignupUserActionException(Utilities.rb.getString("you.promoted.to.another.ts_meanwhile"));
 		}
 	}
 

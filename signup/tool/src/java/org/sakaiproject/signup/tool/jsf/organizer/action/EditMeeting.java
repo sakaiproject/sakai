@@ -255,6 +255,7 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 		newlyModifyMeeting.setEidInputMode(modifiedMeeting.isEidInputMode());
 		newlyModifyMeeting.setAllowAttendance(modifiedMeeting.isAllowAttendance());
 		newlyModifyMeeting.setCreateGroups(modifiedMeeting.isCreateGroups());
+		newlyModifyMeeting.setMaxNumOfSlots(modifiedMeeting.getMaxNumOfSlots());
 		
 		/*new attachments changes*/
 		if(this.currentAttachList !=null){
@@ -431,6 +432,7 @@ public class EditMeeting extends SignupAction implements MeetingTypes {
 						.getRecurrenceId() != null && originalMeetingCopy.getRecurrenceId().equals(
 						upTodateMeeting.getRecurrenceId())))
 				|| originalMeetingCopy.getNoOfTimeSlots() != upTodateMeeting.getNoOfTimeSlots()
+				|| originalMeetingCopy.getMaxNumOfSlots().intValue() != upTodateMeeting.getMaxNumOfSlots().intValue()
 				|| !((originalMeetingCopy.getDescription() == null && upTodateMeeting.getDescription() == null) || (originalMeetingCopy
 						.getDescription() != null && upTodateMeeting.getDescription() != null)
 						&& (originalMeetingCopy.getDescription().length() == upTodateMeeting.getDescription().length()))

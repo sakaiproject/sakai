@@ -161,22 +161,34 @@ public abstract class SignupAction implements SignupBeanConstants{
 			SignupAttendee attendee) {
 		String attendeeUserId = attendee.getAttendeeUserId();
 		List<SignupTimeslot> signupTimeSlots = meeting.getSignupTimeSlots();
+		int maxAllowedTimeslotsPerAttn = meeting.getMaxNumOfSlots();
+		int currentCountForAttn = 1;
 		for (SignupTimeslot upToDateTimeslot : signupTimeSlots) {
 			/* prevent from removing this attendee from just promoted spot */
 			if (currentTimeslot.getId().equals(upToDateTimeslot.getId()))
 				continue;
 
 			List<SignupAttendee> attendees = upToDateTimeslot.getAttendees();
+			/*TODO we only remove attn one time (randomly by now) since it allows multiple timeslots*/
+			boolean foundAttendee = false; 
 			for (Iterator iter = attendees.iterator(); iter.hasNext();) {
 				SignupAttendee att = (SignupAttendee) iter.next();
 				if (attendeeUserId.equals(att.getAttendeeUserId())) {
-					iter.remove();
-					signupEventTrackingInfo.addOrUpdateAttendeeAllocationInfo(att, upToDateTimeslot,
-							SignupEmailFacade.SIGNUP_ATTENDEE_CANCEL, false);
-
-					promoteAttendeeFromWaitingList(meeting, upToDateTimeslot);
-					break;
+					currentCountForAttn++;
+					if(currentCountForAttn > maxAllowedTimeslotsPerAttn){
+						iter.remove();
+						signupEventTrackingInfo.addOrUpdateAttendeeAllocationInfo(att, upToDateTimeslot,
+								SignupEmailFacade.SIGNUP_ATTENDEE_CANCEL, false);
+	
+						promoteAttendeeFromWaitingList(meeting, upToDateTimeslot);
+						foundAttendee=true;
+						break;
+					}
 				}
+			}
+			
+			if(foundAttendee){
+				break;
 			}
 		}
 	}

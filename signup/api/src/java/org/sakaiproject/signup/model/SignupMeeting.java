@@ -98,6 +98,24 @@ public class SignupMeeting implements MeetingTypes {
 	private boolean allowAttendance;
 	
 	private boolean createGroups;
+	
+	private Integer maxNumOfSlots;
+	
+	/**
+	 * get how many slots allowed for one user to sign in in this meeting
+	 * 
+	 * @return Integer.
+	 */
+	public Integer getMaxNumOfSlots() {
+		if(maxNumOfSlots == null){
+			maxNumOfSlots= new Integer(1);//default
+		}
+		return maxNumOfSlots;
+	}
+
+	public void setMaxNumOfSlots(Integer maxNumOfSlots) {
+		this.maxNumOfSlots = maxNumOfSlots;
+	}
 
 	/**
 	 * check if the meeting/event is cancelled

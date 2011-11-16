@@ -318,6 +318,13 @@
 									<h:outputText value="#{msgs.event_yes_create_groups}" escape="false"/>
 								</h:panelGroup>
 								
+								<h:outputText id="otherSetting_13" style="display:none" value="#{msgs.event_allowed_slots }" styleClass="titleText" escape="false" />
+								<h:panelGroup id="otherSetting_14" style="display:none" styleClass="longtext">
+									<h:selectOneMenu value="#{ NewSignupMeetingBean.maxNumOfSlots}">  
+										 <f:selectItems  value="#{NewSignupMeetingBean.slots}"   /> 
+									</h:selectOneMenu>
+									<h:outputText value="#{msgs.event_allowed_slots_comments}" escape="false"/>
+								</h:panelGroup>								
 								
 						</h:panelGrid>
 						

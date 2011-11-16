@@ -91,6 +91,7 @@ public class SignupObjectConverter {
 		se.setAllowAttendance(sm.isAllowAttendance());
 		se.setAutoReminder(sm.isAutoReminder());
 		se.setEidInputMode(sm.isEidInputMode());
+		se.setMaxNumOfSlots(sm.getMaxNumOfSlots());
 		if (isDeepCopy) {
 			se.setSignupTimeSlotItems(getSignupTimeslotItems(sm.getSignupTimeSlots(), sm.getPermission().isUpdate(),
 					sakaiFacade));

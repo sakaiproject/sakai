@@ -123,6 +123,9 @@ public class SignupEvent implements Entity, MeetingTypes {
 	private String userActionType;
 	
 	private boolean allowAttendance;
+	
+	/*max # of slots, which user is allowed to sign-up*/
+	private Integer maxNumOfSlots;
 
 	public String getId() {
 		if (entityID == null) {
@@ -766,6 +769,14 @@ public class SignupEvent implements Entity, MeetingTypes {
 
 	public void setUserActionWarningMsg(String userActionWarningMsg) {
 		this.userActionWarningMsg = userActionWarningMsg;
+	}
+
+	public Integer getMaxNumOfSlots() {
+		return maxNumOfSlots;
+	}
+
+	public void setMaxNumOfSlots(Integer maxNumOfSlots) {
+		this.maxNumOfSlots = maxNumOfSlots;
 	}
 
 }

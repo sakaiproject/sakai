@@ -216,6 +216,26 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	/* used for jsf parameter passing */
 	private final static String PARAM_NAME_FOR_ATTENDEE_USERID = "attendeeUserId";
 
+	/* to remember the number of the meeting slots */
+	private int maxNumOfSlots;
+	/* Used for populate the drop down box for the allowed number of meeting slots */
+	private List<SelectItem> slots;
+	
+	public int getMaxNumOfSlots() {
+		return maxNumOfSlots;
+	}
+	
+	public void setMaxNumOfSlots(int preferredSlot) {
+		this.maxNumOfSlots = preferredSlot;
+	}
+	
+	public List<SelectItem> getSlots(){
+		
+		slots = new ArrayList<SelectItem>();
+		for (int i =1; i <= numberOfSlots;i++) slots.add(new SelectItem(i, i+""));
+		return slots;
+	}
+	
 	public String getCurrentUserDisplayName() {
 		return sakaiFacade.getUserDisplayName(sakaiFacade.getCurrentUserId());
 	}
@@ -851,6 +871,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		signupMeeting.setAllowComment(this.allowComment);
 		signupMeeting.setAutoReminder(this.autoReminder);
 		signupMeeting.setEidInputMode(this.eidInputMode);
+		signupMeeting.setMaxNumOfSlots(new Integer(this.maxNumOfSlots));
 		/* add attachments */
 		signupMeeting.setSignupAttachments(this.attachments);
 		
