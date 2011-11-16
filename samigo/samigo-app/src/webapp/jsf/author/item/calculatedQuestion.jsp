@@ -238,7 +238,7 @@
         <f:facet name="header">
           <h:outputText value="#{authorMessages.calc_question_formula_col}"  />
         </f:facet>
-        	<h:inputText value="#{formula.text }" disabled="#{!formula.active }" />
+        	<h:inputText value="#{formula.text }" disabled="#{!formula.active }" style="#{(!formula.validated ? 'background-color:#ffeeee' : '')}"/>
         	
       </h:column>
       

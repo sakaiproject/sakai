@@ -247,24 +247,28 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             
             // evaluate each formula
             for (CalculatedQuestionFormulaBean formulaBean : item.getCalculatedQuestion().getActiveFormulas().values()) {
-                if (formulaBean.getActive()) {
+//                if (formulaBean.getActive()) {
                     String formulaStr = formulaBean.getText();
+                    formulaBean.setValidated(true);
                     String substitutedFormulaStr = service.replaceMappedVariablesWithNumbers(formulaStr, answersMap);
                     try {
                         if (isNegativeSqrt(substitutedFormulaStr)) {
+                            formulaBean.setValidated(false);
                             errors.put(8, "Negative Squrare Root");
                         } else {
                             String numericAnswerString = parser.parse(substitutedFormulaStr);
-                            if (!service.isAnswerValid(numericAnswerString)) {
+                            if (!service.isAnswerValid(numericAnswerString)) {                                
                                 throw new Exception("invalid answer, try again");
                             }
                         }
                     } catch (SamigoExpressionError e) {
+                        formulaBean.setValidated(false);
                         errors.put(Integer.valueOf(e.get_id()), e.get());
                     } catch (Exception e) {
+                        formulaBean.setValidated(false);
                         errors.put(500, e.getMessage());
                     }
-                }
+//                }
             }
             if (errors.size() > 0) {
                 break;

@@ -38,6 +38,7 @@ public class CalculatedQuestionFormulaBean implements Serializable, CalculatedQu
     private double tolerance;
     private String decimalPlaces;
     private boolean active;
+    private boolean validated;
     
     private static final String DEFAULT_FORMULA = "0";
     private static final String DEFAULT_DECIMAL_PLACES = "3";
@@ -102,6 +103,26 @@ public class CalculatedQuestionFormulaBean implements Serializable, CalculatedQu
     
     public boolean getActive() {
         return this.active;
+    }
+    
+    /**
+     * setValidated() controls whether the formula has been successfully
+     * validated for syntax and returns a real answer
+     * @param validated true if the formula passes all syntax checks and returns
+     * a valid value, otherwise false
+     */
+    public void setValidated(boolean validated) {
+        this.validated = validated;
+    }
+    
+    /**
+     * getValidated() returns whether the formula has been successfully
+     * validated for syntax and returns a real answer
+     * @return true if the formula passes all syntax checks and returns a valid
+     * value, otherwise false
+     */
+    public boolean getValidated() {
+        return this.validated;
     }
     
     public String getMatch() {
