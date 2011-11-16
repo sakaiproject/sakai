@@ -102,7 +102,7 @@
   <div class="tier2">
   	<h:panelGrid>
    	<samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes">
-     	<f:validateLength minimum="1" maximum="4000"/>
+     	<f:validateLength minimum="1" maximum="60000"/>
    	</samigo:wysiwyg>
   	</h:panelGrid>
   </div>

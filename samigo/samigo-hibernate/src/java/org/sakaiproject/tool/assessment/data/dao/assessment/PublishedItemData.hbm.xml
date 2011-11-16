@@ -17,7 +17,7 @@
     <property name="sequence" type="integer" column="SEQUENCE" not-null="false" />
     <property name="duration" type="integer" column="DURATION" not-null="false"/>
     <property name="triesAllowed" type="integer" column="TRIESALLOWED" not-null="false" />
-    <property name="instruction" type="string" length="4000" column="INSTRUCTION" not-null="false" />
+    <property name="instruction" type="text" column="INSTRUCTION" not-null="false" />
     <property name="description" type="string" length="4000" column="DESCRIPTION" not-null="false" />
     <property name="typeId" type="long" column="TYPEID" not-null="true" />
     <property name="grade" type="string" length="80" column="GRADE" not-null="false" />
