@@ -43,6 +43,8 @@ public class ResourceSupport {
 
 	private static Log logger = LogFactory.getLog(ResourceEntityType.class); 
 
+	ResourceLoader rl = new ResourceLoader("dash_entity");
+	
 	protected SakaiProxy sakaiProxy;
 	public void setSakaiProxy(SakaiProxy sakaiProxy) {
 		this.sakaiProxy = sakaiProxy;
@@ -66,6 +68,7 @@ public class ResourceSupport {
 		this.dashboardLogic.registerEventProcessor(new ContentAvailableEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new ContentReviseEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new ContentRemoveEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ContentUpdateEventProcessor());
 	}
 	
 	public Date getReleaseDate(String entityReference) {
@@ -132,7 +135,6 @@ public class ResourceSupport {
 				String localeCode) {
 			Map<String, Object> values = new HashMap<String, Object>();
 			ContentResource resource = (ContentResource) sakaiProxy.getEntity(entityReference);
-			ResourceLoader rl = new ResourceLoader("dash_entity");
 			if(resource != null) {
 				ResourceProperties props = resource.getProperties();
 				values.put(VALUE_TITLE, props.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
@@ -561,6 +563,55 @@ public class ResourceSupport {
 					dashboardLogic.reviseNewsItemTitle(event.getResource(), title, null, null);
 				}
 			}
+		}
+	}
+	
+	/**
+	 * Inner Class: ContentUpdateEventProcessor
+	 */
+	public class ContentUpdateEventProcessor implements EventProcessor {
+		
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#getEventIdentifer()
+		 */
+		public String getEventIdentifer() {
+			
+			return SakaiProxy.EVENT_CONTENT_REVISE;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
+		 */
+		public void processEvent(Event event) {
+			
+			if(logger.isInfoEnabled()) {
+				logger.info("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
+			
+			// update NewsItem Title
+			updateNewsItemTimeTitle(event); 
+		}
+
+	}
+	
+	/**
+	 * update NewsItem time and title related to an event
+	 * @param event
+	 */
+	protected void updateNewsItemTimeTitle(Event event) {
+		NewsItem nItem = dashboardLogic.getNewsItem(event.getResource());
+		
+		if (nItem != null)
+		{
+			String title = nItem.getTitle();
+			
+			if (title.indexOf(rl.getString("updated")) != -1)
+			{
+				// attached updated into newsitem title
+				title = title + rl.getString("updated");
+			}
+			dashboardLogic.reviseNewsItemTitle(event.getResource(), title, new Date(), nItem.getNewsTimeLabelKey());
 		}
 	}
 }

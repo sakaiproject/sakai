@@ -33,9 +33,10 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.message.api.Message;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 
@@ -46,6 +47,8 @@ import org.sakaiproject.exception.PermissionException;
 public class AnnouncementSupport{
 	
 	private Log logger = LogFactory.getLog(AnnouncementSupport.class);
+	
+	ResourceLoader rl = new ResourceLoader("dash_entity");
 	
 	protected SakaiProxy sakaiProxy;
 	public void setSakaiProxy(SakaiProxy sakaiProxy) {
@@ -85,6 +88,8 @@ public class AnnouncementSupport{
 		this.dashboardLogic.registerEventProcessor(new AnnouncementUpdateTitleEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new AnnouncementUpdateAccessEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new AnnouncementUpdateAvailabilityEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new AnnouncementUpdateAnyEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new AnnouncementUpdateOwnEventProcessor());
 	}
 	
 	public Date getReleaseDate(Entity announcement) {
@@ -206,7 +211,6 @@ public class AnnouncementSupport{
 				String localeCode) {
 			Map<String, Object> values = new HashMap<String, Object>();
 			AnnouncementMessage announcement = (AnnouncementMessage) sakaiProxy.getEntity(entityReference);
-			ResourceLoader rl = new ResourceLoader("dash_entity");
 			if(announcement != null) {
 				AnnouncementMessageHeader header = announcement.getAnnouncementHeader();
 				ResourceProperties props = announcement.getProperties();
@@ -574,6 +578,7 @@ public class AnnouncementSupport{
 		}
 
 	}
+	
 	/**
 	 * Inner Class: AnnouncementUpdateAvailabilityEventProcessor
 	 */
@@ -618,4 +623,79 @@ public class AnnouncementSupport{
 			}
 		}
 	}
+	
+	/**
+	 * Inner Class: AnnouncementUpdateOwnEventProcessor
+	 */
+	public class AnnouncementUpdateOwnEventProcessor implements EventProcessor {
+		
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#getEventIdentifer()
+		 */
+		public String getEventIdentifer() {
+			
+				return SakaiProxy.EVENT_ANNC_UPDATE_OWN;
+		 }
+			
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
+		 */
+		public void processEvent(Event event) {
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug("Announcement update own:" + event.getResource());
+			}
+			
+			// update NewsItem Title and title
+			updateNewsItemTimeTitle(event);
+		}
+	}
+	
+	/**
+	 * Inner Class: AnnouncementUpdateAnyEventProcessor
+	 */
+	public class AnnouncementUpdateAnyEventProcessor implements EventProcessor {
+		
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#getEventIdentifer()
+		 */
+		public String getEventIdentifer() {
+			
+				return SakaiProxy.EVENT_ANNC_UPDATE_ANY;
+		 }
+			
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
+		 */
+		public void processEvent(Event event) {
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug("Announcement update any:" + event.getResource());
+			}
+			
+			// update NewsItem Title and title
+			updateNewsItemTimeTitle(event);
+		}
+	}
+	
+	/**
+	 * update NewsItem time and title related to an event
+	 * @param event
+	 */
+	protected void updateNewsItemTimeTitle(Event event) {
+		NewsItem nItem = dashboardLogic.getNewsItem(event.getResource());
+		
+		if (nItem != null)
+		{
+			String title = nItem.getTitle();
+			
+			if (title.indexOf(rl.getString("updated")) != -1)
+			{
+				// attached updated into newsitem title
+				title = title + rl.getString("updated");
+			}
+			dashboardLogic.reviseNewsItemTitle(event.getResource(), title, new Date(), nItem.getNewsTimeLabelKey());
+		}
+	}
+	
 }

@@ -35,6 +35,8 @@ import org.sakaiproject.util.ResourceLoader;
 public class AssignmentSupport {
 	
 	private static Logger logger = Logger.getLogger(AssignmentSupport.class);
+
+	ResourceLoader rl = new ResourceLoader("dash_entity");
 	
 	protected DashboardLogic dashboardLogic;
 	public void setDashboardLogic(DashboardLogic dashboardLogic) {
@@ -68,6 +70,7 @@ public class AssignmentSupport {
 		this.dashboardLogic.registerEventProcessor(new AssignmentUpdateTitleEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new AssignmentUpdateAccessEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new AssignmentUpdateOpenDateEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new AssignmentUpdateEventProcessor());
 	}
 	
 	/**
@@ -111,7 +114,6 @@ public class AssignmentSupport {
 			Map<String, Object> values = new HashMap<String, Object>();
 
 			Assignment assn = (Assignment) sakaiProxy.getEntity(entityReference);
-			ResourceLoader rl = new ResourceLoader("dash_entity");
 			if(assn != null) {
 				// {grade-type} {grade-max}
 				// {user-name} 
@@ -543,5 +545,53 @@ public class AssignmentSupport {
 
 		}
 
+	}
+	
+	/**
+	 * Inner Class: AssignmentUpdateEventProcessor
+	 */
+	public class AssignmentUpdateEventProcessor implements EventProcessor {
+		
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#getEventIdentifer()
+		 */
+		public String getEventIdentifer() {
+			
+			return SakaiProxy.EVENT_UPDATE_ASSIGNMENT;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
+		 */
+		public void processEvent(Event event) {
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug("update assignment event " + event.getResource());
+			}
+			
+			// update event related NewsItem
+			updateNewsItemTimeTitle(event);
+		}
+
+	}
+	
+	/**
+	 * update NewsItem time and title related to an event
+	 * @param event
+	 */
+	protected void updateNewsItemTimeTitle(Event event) {
+		NewsItem nItem = dashboardLogic.getNewsItem(event.getResource());
+		
+		if (nItem != null)
+		{
+			String title = nItem.getTitle();
+			
+			if (title.indexOf(rl.getString("updated")) != -1)
+			{
+				// attached updated into newsitem title
+				title = title + rl.getString("updated");
+			}
+			dashboardLogic.reviseNewsItemTitle(event.getResource(), title, new Date(), nItem.getNewsTimeLabelKey());
+		}
 	}
 }

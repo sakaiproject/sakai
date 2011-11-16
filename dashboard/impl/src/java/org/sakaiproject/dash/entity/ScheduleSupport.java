@@ -51,6 +51,8 @@ public class ScheduleSupport{
 	
 	private Log logger = LogFactory.getLog(ScheduleSupport.class);
 	
+	ResourceLoader rl = new ResourceLoader("dash_entity");
+	
 	protected SakaiProxy sakaiProxy;
 	public void setSakaiProxy(SakaiProxy sakaiProxy) {
 		this.sakaiProxy = sakaiProxy;
@@ -87,6 +89,7 @@ public class ScheduleSupport{
 		this.dashboardLogic.registerEventProcessor(new ScheduleUpdateFrequencyEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new ScheduleUpdateExcludedEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new ScheduleUpdateExclusionsEventProcessor());
+		this.dashboardLogic.registerEventProcessor(new ScheduleUpdateEventProcessor());
 		
 		scheduleEventTypeMap = new HashMap<String,String>();
 		
@@ -151,7 +154,6 @@ public class ScheduleSupport{
 				String localeCode) {
 			Map<String, Object> values = new HashMap<String, Object>();
 			CalendarEvent cEvent = (CalendarEvent) sakaiProxy.getEntity(entityReference);
-			ResourceLoader rl = new ResourceLoader("dash_entity");
 			
 			if(cEvent != null) {
 
@@ -871,5 +873,53 @@ public class ScheduleSupport{
 	
 	}
 	
+	/**
+	 * Inner Class: ScheduleUpdateEventProcessor
+	 */
+	public class ScheduleUpdateEventProcessor implements EventProcessor {
+		
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#getEventIdentifer()
+		 */
+		public String getEventIdentifer() {
+			
+			return SakaiProxy.EVENT_SCHEDULE_REVISE_EVENT;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.listener.EventProcessor#processEvent(org.sakaiproject.event.api.Event)
+		 */
+		public void processEvent(Event event) {
+			
+			if(logger.isInfoEnabled()) {
+				logger.info("\n\n\n=============================================================\n" + event  
+						+ "\n=============================================================\n\n\n");
+			}
+			
+			// update NewsItem Title
+			updateNewsItemTimeTitle(event); 
+		}
+
+	}
+	
+	/**
+	 * update NewsItem time and title related to an event
+	 * @param event
+	 */
+	protected void updateNewsItemTimeTitle(Event event) {
+		NewsItem nItem = dashboardLogic.getNewsItem(event.getResource());
+		
+		if (nItem != null)
+		{
+			String title = nItem.getTitle();
+			
+			if (title.indexOf(rl.getString("updated")) != -1)
+			{
+				// attached updated into newsitem title
+				title = title + rl.getString("updated");
+			}
+			dashboardLogic.reviseNewsItemTitle(event.getResource(), title, new Date(), nItem.getNewsTimeLabelKey());
+		}
+	}
 	
 }

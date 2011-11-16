@@ -30,6 +30,7 @@ public interface SakaiProxy {
 	public final static String EVENT_UPDATE_ASSIGNMENT_TITLE = AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_TITLE;
 	public static final String EVENT_UPDATE_ASSIGNMENT_OPENDATE = AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_OPENDATE;
 	public static final String EVENT_UPDATE_ASSIGNMENT_ACCESS = AssignmentConstants.EVENT_UPDATE_ASSIGNMENT_ACCESS;
+	public static final String EVENT_UPDATE_ASSIGNMENT = AssignmentConstants.EVENT_UPDATE_ASSIGNMENT;
 	
 	public static final String EVENT_CONTENT_UPD_ACCESS = ContentHostingService.EVENT_RESOURCE_UPD_ACCESS;
 	public static final String EVENT_CONTENT_UPD_TITLE = ContentHostingService.EVENT_RESOURCE_UPD_TITLE;
@@ -46,7 +47,8 @@ public interface SakaiProxy {
 	public static final String EVENT_ANNC_UPDATE_TITLE = AnnouncementService.EVENT_ANNC_UPDATE_TITLE;
     public static final String EVENT_ANNC_UPDATE_ACCESS = AnnouncementService.EVENT_ANNC_UPDATE_ACCESS;
     public static final String EVENT_ANNC_UPDATE_AVAILABILITY = AnnouncementService.EVENT_ANNC_UPDATE_AVAILABILITY;
-   
+    public static final String EVENT_ANNC_UPDATE_ANY = AnnouncementService.SECURE_ANNC_UPDATE_ANY;
+    public static final String EVENT_ANNC_UPDATE_OWN = AnnouncementService.SECURE_ANNC_UPDATE_OWN;
 	
 	public final static String EVENT_SCHEDULE_NEW_EVENT = CalendarService.EVENT_ADD_CALENDAR;
 	public final static String EVENT_REMOVE_CALENDAR_EVENT = CalendarService.EVENT_REMOVE_CALENDAR_EVENT;
@@ -58,7 +60,7 @@ public interface SakaiProxy {
 	public static final String EVENT_MODIFY_CALENDAR_EVENT_FREQUENCY = CalendarService.EVENT_MODIFY_CALENDAR_EVENT_FREQUENCY;
 	public static final String EVENT_MODIFY_CALENDAR_EVENT_EXCLUDED = CalendarService.EVENT_MODIFY_CALENDAR_EVENT_EXCLUDED;
 	public static final String EVENT_MODIFY_CALENDAR_EVENT_EXCLUSIONS = CalendarService.EVENT_MODIFY_CALENDAR_EVENT_EXCLUSIONS;
-
+	
 	public static final String PERMIT_ANNOUNCEMENT_ACCESS = AnnouncementService.SECURE_ANNC_READ;
 	public static final String PERMIT_ASSIGNMENT_ACCESS = AssignmentService.SECURE_ACCESS_ASSIGNMENT;
 	public static final String PERMIT_RESOURCE_ACCESS = ContentHostingService.AUTH_RESOURCE_READ;
