@@ -112,6 +112,19 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             }
         }
         
+        // formula tolerances must be numbers or percentages
+        for (CalculatedQuestionFormulaBean formula : question.getActiveFormulas().values()) {
+            String tolerance = formula.getTolerance();
+            if (!tolerance.matches("^\\s*[0-9]+\\.?[0-9]*\\%\\s*$")) {
+                try {
+                    Double.parseDouble(tolerance);
+                } catch (NumberFormatException n) {
+                    String err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "invalid_tolerance");
+                    errors.add(err);
+                }
+            }
+        }
+        
         // throw an error if variables and formulas share any names
         if (!Collections.disjoint(question.getActiveFormulas().keySet(), question.getActiveVariables().keySet())) {
             String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","unique_names");
@@ -247,28 +260,26 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             
             // evaluate each formula
             for (CalculatedQuestionFormulaBean formulaBean : item.getCalculatedQuestion().getActiveFormulas().values()) {
-//                if (formulaBean.getActive()) {
-                    String formulaStr = formulaBean.getText();
-                    formulaBean.setValidated(true);
-                    String substitutedFormulaStr = service.replaceMappedVariablesWithNumbers(formulaStr, answersMap);
-                    try {
-                        if (isNegativeSqrt(substitutedFormulaStr)) {
-                            formulaBean.setValidated(false);
-                            errors.put(8, "Negative Squrare Root");
-                        } else {
-                            String numericAnswerString = parser.parse(substitutedFormulaStr);
-                            if (!service.isAnswerValid(numericAnswerString)) {                                
-                                throw new Exception("invalid answer, try again");
-                            }
+                String formulaStr = formulaBean.getText();
+                formulaBean.setValidated(true);
+                String substitutedFormulaStr = service.replaceMappedVariablesWithNumbers(formulaStr, answersMap);
+                try {
+                    if (isNegativeSqrt(substitutedFormulaStr)) {
+                        formulaBean.setValidated(false);
+                        errors.put(8, "Negative Squrare Root");
+                    } else {
+                        String numericAnswerString = parser.parse(substitutedFormulaStr);
+                        if (!service.isAnswerValid(numericAnswerString)) {                                
+                            throw new Exception("invalid answer, try again");
                         }
-                    } catch (SamigoExpressionError e) {
-                        formulaBean.setValidated(false);
-                        errors.put(Integer.valueOf(e.get_id()), e.get());
-                    } catch (Exception e) {
-                        formulaBean.setValidated(false);
-                        errors.put(500, e.getMessage());
                     }
-//                }
+                } catch (SamigoExpressionError e) {
+                    formulaBean.setValidated(false);
+                    errors.put(Integer.valueOf(e.get_id()), e.get());
+                } catch (Exception e) {
+                    formulaBean.setValidated(false);
+                    errors.put(500, e.getMessage());
+                }
             }
             if (errors.size() > 0) {
                 break;

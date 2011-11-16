@@ -35,20 +35,21 @@ public class CalculatedQuestionFormulaBean implements Serializable, CalculatedQu
     private Long sequence;
     private String name;
     private String formula;
-    private double tolerance;
+    private String tolerance;
     private String decimalPlaces;
     private boolean active;
     private boolean validated;
     
     private static final String DEFAULT_FORMULA = "0";
     private static final String DEFAULT_DECIMAL_PLACES = "3";
-    private static final double DEFAULT_TOLERANCE = 0.01;
+    private static final String DEFAULT_TOLERANCE = "0.01";
     
     public CalculatedQuestionFormulaBean() {
         this.formula = DEFAULT_FORMULA;
         this.decimalPlaces = DEFAULT_DECIMAL_PLACES;
         this.tolerance = DEFAULT_TOLERANCE;
         this.active = true;
+        this.validated = true;
     }
 
     public void setSequence(Long sequence) {
@@ -78,11 +79,11 @@ public class CalculatedQuestionFormulaBean implements Serializable, CalculatedQu
         return this.formula;
     }
 
-    public void setTolerance(double tolerance) {
+    public void setTolerance(String tolerance) {
         this.tolerance = tolerance;
     }
 
-    public double getTolerance() {
+    public String getTolerance() {
         return this.tolerance;
     }
 

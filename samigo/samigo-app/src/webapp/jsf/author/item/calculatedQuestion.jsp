@@ -247,7 +247,6 @@
           <h:outputText value="#{authorMessages.calc_question_tolerance}"  />
         </f:facet>
           <h:inputText required="true" value="#{formula.tolerance}"  disabled="#{!formula.active }">
-		  	<f:converter converterId="javax.faces.Double" />
           </h:inputText>
       </h:column>
       
