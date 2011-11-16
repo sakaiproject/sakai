@@ -95,17 +95,17 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         CalculatedQuestionBean question = item.getCalculatedQuestion();
         
         // question must have at least on variable and one formula
-        if (question.getVariables().size() == 0) {
+        if (question.getActiveVariables().size() == 0) {
             String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","no_variables");
             errors.add(err);
         }
-        if (question.getFormulas().size() == 0) {
+        if (question.getActiveFormulas().size() == 0) {
             String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","no_formulas");
             errors.add(err);
         }
         
         // variables max must be greater than min
-        for (CalculatedQuestionVariableBean variable : question.getVariables().values()) {
+        for (CalculatedQuestionVariableBean variable : question.getActiveVariables().values()) {
             if (variable.getMax() < variable.getMin()) {
                 String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","max_less_than_min");
                 errors.add(err);
@@ -229,7 +229,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         
         // list of variables to substitute
         Map<String, String> variableRangeMap = new HashMap<String, String>();
-        for (CalculatedQuestionVariableBean variable : item.getCalculatedQuestion().getVariables().values()) {
+        for (CalculatedQuestionVariableBean variable : item.getCalculatedQuestion().getActiveVariables().values()) {
             String match = variable.getMin() + "|" + variable.getMax() + "," + variable.getDecimalPlaces();
             variableRangeMap.put(variable.getName(), match);
         }
@@ -246,7 +246,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
                     dummyGradingId, dummyAgentId, attemptCnt);
             
             // evaluate each formula
-            for (CalculatedQuestionFormulaBean formulaBean : item.getCalculatedQuestion().getFormulas().values()) {
+            for (CalculatedQuestionFormulaBean formulaBean : item.getCalculatedQuestion().getActiveFormulas().values()) {
                 if (formulaBean.getActive()) {
                     String formulaStr = formulaBean.getText();
                     String substitutedFormulaStr = service.replaceMappedVariablesWithNumbers(formulaStr, answersMap);
