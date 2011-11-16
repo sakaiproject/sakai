@@ -584,14 +584,11 @@ public class AssignmentSupport {
 		
 		if (nItem != null)
 		{
-			String title = nItem.getTitle();
-			
-			if (title.indexOf(rl.getString("updated")) != -1)
+			if (nItem.getNewsTime().getTime() - (new Date()).getTime() < 1000)
 			{
-				// attached updated into newsitem title
-				title = title + rl.getString("updated");
+				// if this is not an update within object creation
+				dashboardLogic.reviseNewsItemTitle(event.getResource(), nItem.getTitle(), new Date(), rl.getString("updated"));
 			}
-			dashboardLogic.reviseNewsItemTitle(event.getResource(), title, new Date(), nItem.getNewsTimeLabelKey());
 		}
 	}
 }
