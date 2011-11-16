@@ -981,7 +981,7 @@ public class ItemAddListener
               String match = curVarFormula.getMatch();
               Long curSequence = curVarFormula.getSequence();
               boolean isCorrect = curSequence.equals(sequence);
-              String choiceLabel = AnswerBean.getChoiceLabels()[curSequence.intValue()];
+              String choiceLabel = curVarFormula.getName();
               Answer answer = new Answer(choiceText, match, curSequence, choiceLabel,
                       isCorrect, grade, score, partialCredit, discount);
               answerSet.add(answer);
