@@ -455,3 +455,30 @@ ul.tabPanel{
     border-bottom-right-radius: 10px;
     border-bottom-left-radius: 10px;
 }
+#motdTextDiv{
+    border:1px solid #FFCC66;
+    margin-top:10px;
+    padding: 10px;
+    background:#ffffee;
+}
+#motdTextDiv h3{
+    margin-top:0;
+}
+#motdTextDiv .motdText{
+    padding: 10px 0;
+}
+
+#motdTextDivDismiss{
+    position:absolute;
+    background:#fff;
+    font-weight:bold;
+    border:1px solid #FFCC66;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    right:10px;
+    padding:3px 6px;
+    display:block;
+    
+    text-decoration:none;
+}

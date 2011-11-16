@@ -90,7 +90,7 @@ var setupLinks = function(){
         //if disclosure in DOM, either hide or show, do not request data
         if ($(parentRow).next('tr.newRow').length === 1) {
             $(parentRow).next('tr.newRow').find('.results').fadeToggle('fast', '', function(){
-                    $(parentCell).toggleClass('activeCell')
+                    $(parentCell).toggleClass('activeCell');
                     $(parentRow).next('tr.newRow').toggle();
             });
         }
@@ -310,4 +310,72 @@ var resizeFrame = function(updown){
 
 var reportSuccess = function(msg, item, url){
     $('#messagePanel').html(msg).fadeTo("slow", 1).animate({opacity: 1.0}, 5000).fadeTo(3000, 0);
+};
+
+var setupDismissMOTD = function(){
+    if (utils_readCookie('motdHide')){
+        $('.motdPanel').css('display','none');
+    } 
+    else{
+        $('.motdPanel').css('display','block');
+    }
+    $('#motdTextDivDismiss').click(function(){
+        dismissMessage('.motdPanel');
+    });
+};
+
+
+function dismissMessage(target){
+    utils_createCookie('motdHide','true');
+    $(target).fadeToggle(1000, 0);
+}
+
+/**
+ * cookie create
+ * @param {Object} name
+ * @param {Object} value
+ * @param {Object} days
+ */
+utils_createCookie = function(name, value, days){
+    var expires = "";
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toGMTString();
+    }
+    else {
+        expires = "";
+        document.cookie = name + "=" + value + expires + "; path=/";
+    }
+};
+
+/**
+ * cookie read
+ * @param {Object} name
+ */
+utils_readCookie = function(name){
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1, c.length);
+        }
+        if (c.indexOf(nameEQ) === 0) {
+            return c.substring(nameEQ.length, c.length);
+        }
+    }
+    return null;
+};
+
+/**
+ * cookie delete
+ * @param {Object} name
+ */
+utils_eraseCookie = function(name){
+    createCookie(name, "", -1);
+};
+
+utils_trim = function(stringToTrim){
+    return stringToTrim.replace(/^\s+|\s+$/g, "");
 };
