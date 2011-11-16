@@ -317,4 +317,6 @@ public interface DashboardDao {
 	public void setConfigProperty(String propertyName,
 			Integer propertyValue);
 
+	public abstract List<NewsItem> getMOTD(String motdContextId);
+
 }

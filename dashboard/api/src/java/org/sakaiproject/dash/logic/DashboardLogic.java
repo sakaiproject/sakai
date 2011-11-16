@@ -462,6 +462,8 @@ public interface DashboardLogic {
 
 	public String getEntityIconUrl(String type, String subtype);
 
+	public abstract List<NewsItem> getMOTD();
+
 
 	// todo:
 	// add methods to revise news items, calendar items, news links, calendar links, etc.

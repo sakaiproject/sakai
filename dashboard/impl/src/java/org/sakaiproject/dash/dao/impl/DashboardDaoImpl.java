@@ -1006,6 +1006,27 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	        return null;
 		}
 	}
+	
+	public List<NewsItem> getMOTD(String motdContextId) {
+		if(log.isDebugEnabled()) {
+			log.debug("getMOTD()");
+		}
+		
+		String sql = getStatement("select.motd.recent");
+		Object[] params = new Object[]{
+				motdContextId
+		};
+		
+		try {
+			return (List<NewsItem>) getJdbcTemplate().query(sql,params,
+				new NewsItemMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getMOTD: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return new ArrayList<NewsItem>();
+		}
+		
+	}
 
 	/*
 	 * (non-Javadoc)

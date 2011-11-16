@@ -21,6 +21,7 @@ import org.apache.wicket.request.target.basic.StringRequestTarget;
 import org.sakaiproject.dash.logic.DashboardConfig;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.tool.panels.CalendarLinksPanel;
+import org.sakaiproject.dash.tool.panels.MOTDPanel;
 import org.sakaiproject.dash.tool.panels.NewsLinksPanel;
 import org.sakaiproject.dash.tool.util.JsonHelper;
 
@@ -46,6 +47,10 @@ public class DashboardPage extends BasePage {
 		final WebMarkupContainer dashboardPage = new WebMarkupContainer("dashboard-page");
 		dashboardPage.setOutputMarkupId(true);
 		add(dashboardPage);
+		
+		MOTDPanel motdPanel = new MOTDPanel("motdPanel");
+		motdPanel.setOutputMarkupId(true);
+		dashboardPage.add(motdPanel);
 		
 		CalendarLinksPanel calendarPanel = new CalendarLinksPanel("calendarPanel");
 		calendarPanel.setOutputMarkupId(true);

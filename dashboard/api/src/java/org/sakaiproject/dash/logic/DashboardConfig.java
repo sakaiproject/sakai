@@ -19,6 +19,9 @@ public interface DashboardConfig {
 	public static final String PROP_DAYS_BETWEEN_HORIZ0N_UPDATES = "PROP_DAYS_BETWEEN_HORIZ0N_UPDATES";
 	public static final String PROP_WEEKS_TO_HORIZON = "PROP_WEEKS_TO_HORIZON";
 	
+	/** Modes are TEXT (1), LIST (2) or HIDDEN (0). Default is TEXT.  */
+	public static final String PROP_MOTD_MODE = "PROP_MOTD_MODE";
+	
 	// horizon settings
 	
 	

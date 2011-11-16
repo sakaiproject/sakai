@@ -446,6 +446,10 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 		return null;
 	}
+	
+	public List<NewsItem> getMOTD() {
+		return dao.getMOTD(MOTD_CONTEXT);
+	}
 
 	public NewsItem getNewsItem(long id) {
 		
