@@ -91,7 +91,7 @@ public class MOTDPanel extends Panel {
 			motdDiv.add(new Label("motdTitle", (String) info.get("title")));
 			motdDiv.add(new Label("motdText", (String) info.get("description")));
 		}
-		if(motdMode != MOTD_MODE_TEXT) {
+		if(motdMode != MOTD_MODE_TEXT || motdList == null || motdList.isEmpty()) {
 			motdDiv.setVisibilityAllowed(false);
 			motdDiv.setVisible(false);
 		}
@@ -271,7 +271,8 @@ public class MOTDPanel extends Panel {
         	// hide the haveLinks
         	haveLinks.setVisible(false);
         }
-		if(motdMode != MOTD_MODE_LIST) {
+        
+		if(motdMode != MOTD_MODE_LIST || itemCount < 1) {
 			motdDiv.setVisibilityAllowed(false);
 			motdDiv.setVisible(false);
 		}
