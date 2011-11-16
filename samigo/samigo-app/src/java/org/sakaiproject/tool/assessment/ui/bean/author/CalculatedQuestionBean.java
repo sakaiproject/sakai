@@ -46,6 +46,21 @@ public class CalculatedQuestionBean implements Serializable {
     }
 
     /**
+     * getActiveVariables() returns a map of all variables that return getActive() of true
+     * @return a map of all variables that return getActive() of true.  If no variables are active,
+     * the map will have zero elements.
+     */
+    public Map<String, CalculatedQuestionFormulaBean> getActiveFormulas() {
+        Map<String, CalculatedQuestionFormulaBean> results = new HashMap<String, CalculatedQuestionFormulaBean>();
+        for (CalculatedQuestionFormulaBean formula : formulas.values()) {
+            if (formula.getActive()) {
+                results.put(formula.getName(), formula);
+            }
+        }
+        return results;
+    }
+    
+    /**
      * getFormulasList returns a List of all formulas, sorted by formula name
      * @return
      */
@@ -73,6 +88,21 @@ public class CalculatedQuestionBean implements Serializable {
 
     public Map<String, CalculatedQuestionVariableBean> getVariables() {
         return variables;
+    }
+    
+    /**
+     * getActiveVariables() returns a map of all variables that return getActive() of true
+     * @return a map of all variables that return getActive() of true.  If no variables are active,
+     * the map will have zero elements.
+     */
+    public Map<String, CalculatedQuestionVariableBean> getActiveVariables() {
+        Map<String, CalculatedQuestionVariableBean> results = new HashMap<String, CalculatedQuestionVariableBean>();
+        for (CalculatedQuestionVariableBean variable : variables.values()) {
+            if (variable.getActive()) {
+                results.put(variable.getName(), variable);
+            }
+        }
+        return results;
     }
     
     /**
