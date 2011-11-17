@@ -35,6 +35,7 @@
       <title><h:outputText value="#{authorMessages.item_display_author}"/></title>
       <!-- HTMLAREA -->
       <samigo:stylesheet path="/htmlarea/htmlarea.css"/>
+      <samigo:script path="/js/jquery-1.3.2.min.js"/>
       <samigo:script path="/htmlarea/htmlarea.js"/>
       <samigo:script path="/htmlarea/lang/en.js"/>
       <samigo:script path="/htmlarea/dialog.js"/>
@@ -119,7 +120,7 @@
   <h:outputText value="#{authorMessages.calc_question_answer_variance}" />
   <br/><br/>
 
-<h:outputLink value="#" onclick="$('#calcQInstructions').toggle();"><h:outputText value="#{authorMessages.calc_question_hideshow}"/> </h:outputLink>
+<h:outputLink onclick="$('#calcQInstructions').toggle();" value="#"><h:outputText value="#{authorMessages.calc_question_hideshow}"/> </h:outputLink>
 <div id="calcQInstructions" style='display:none;'>
   
   <h:outputText value="#{authorMessages.calc_question_answer_decimal}" />
