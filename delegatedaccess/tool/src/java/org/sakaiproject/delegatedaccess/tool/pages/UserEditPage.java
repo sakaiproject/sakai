@@ -29,7 +29,10 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.delegatedaccess.model.NodeModel;
+import org.sakaiproject.delegatedaccess.model.PermissionSerialized;
 import org.sakaiproject.delegatedaccess.model.SearchResult;
+import org.sakaiproject.delegatedaccess.model.ToolSerialized;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnCheckbox;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnDropdown;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnList;
@@ -102,7 +105,8 @@ public class UserEditPage  extends BaseTreePage{
 		};
 
 		final TreeModel treeModel = projectLogic.createTreeModelForUser(searchResult.getId(), true, false);
-
+		final List<ToolSerialized> blankRestrictedTools = projectLogic.getEntireToolsList();
+		final List<PermissionSerialized> blankPermissions = projectLogic.getEntireShoppingPeriodPermissions();
 		//a null model means the tree is empty
 		tree = new TreeTable("treeTable", treeModel, columns){
 			@Override
@@ -112,12 +116,15 @@ public class UserEditPage  extends BaseTreePage{
 			protected void onNodeLinkClicked(AjaxRequestTarget target, TreeNode node) {
 				//the nodes are generated on the fly with ajax.  This will add any child nodes that 
 				//are missing in the tree.  Expanding and collapsing will refresh the tree node
-				boolean anyAdded = projectLogic.addChildrenNodes(node, searchResult.getId());
+				boolean anyAdded = false;
+				if(!tree.getTreeState().isNodeExpanded(node) && !((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isAddedDirectChildrenFlag()){
+					anyAdded = projectLogic.addChildrenNodes(node, searchResult.getId(), blankRestrictedTools, blankPermissions);
+					((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).setAddedDirectChildrenFlag(true);
+				}
 				if(anyAdded){
 					collapseEmptyFoldersHelper((DefaultMutableTreeNode) node);
 				}
 				if(!tree.getTreeState().isNodeExpanded(node) || anyAdded){
-					tree.getTreeState().collapseNode(node);
 					tree.getTreeState().expandNode(node);
 				}else{
 					tree.getTreeState().collapseNode(node);
@@ -126,15 +133,18 @@ public class UserEditPage  extends BaseTreePage{
 			protected void onJunctionLinkClicked(AjaxRequestTarget target, TreeNode node) {
 				//the nodes are generated on the fly with ajax.  This will add any child nodes that 
 				//are missing in the tree.  Expanding and collapsing will refresh the tree node
-				boolean anyAdded = projectLogic.addChildrenNodes(node, searchResult.getId());
-				if(anyAdded){
-					collapseEmptyFoldersHelper((DefaultMutableTreeNode) node);
-				}
-				if(anyAdded){
-					tree.getTreeState().collapseNode(node);
-					tree.getTreeState().expandNode(node);
+				if(!tree.getTreeState().isNodeExpanded(node) && !((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isAddedDirectChildrenFlag()){
+					boolean anyAdded = projectLogic.addChildrenNodes(node, searchResult.getId(), blankRestrictedTools, blankPermissions);
+					((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).setAddedDirectChildrenFlag(true);
+					if(anyAdded){
+						collapseEmptyFoldersHelper((DefaultMutableTreeNode) node);
+					}
 				}
 			}
+			@Override
+			protected boolean isForceRebuildOnSelectionChange() {
+				return false;
+			};
 		};
 		form.add(tree);
 

@@ -77,6 +77,10 @@ public class UserPage  extends BaseTreePage{
 					}
 				}
 			};
+			@Override
+			protected boolean isForceRebuildOnSelectionChange() {
+				return false;
+			};
 		};
 		tree.setRootLess(true);
 		add(tree);

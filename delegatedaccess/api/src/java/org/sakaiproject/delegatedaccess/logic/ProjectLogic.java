@@ -5,7 +5,9 @@ import java.util.List;
 import javax.swing.tree.TreeModel;
 
 import org.sakaiproject.delegatedaccess.model.NodeModel;
+import org.sakaiproject.delegatedaccess.model.PermissionSerialized;
 import org.sakaiproject.delegatedaccess.model.SearchResult;
+import org.sakaiproject.delegatedaccess.model.ToolSerialized;
 
 
 
@@ -87,5 +89,17 @@ public interface ProjectLogic {
 	 * @param userId
 	 * @return
 	 */
-	public boolean addChildrenNodes(Object node, String userId);
+	public boolean addChildrenNodes(Object node, String userId, List<ToolSerialized> blankRestrictedTools, List<PermissionSerialized> blankShoppingPeriodPerms);
+	
+	/**
+	 * returns a blank (unselected) list of all permission options for the shopping period
+	 * @return
+	 */
+	public List<PermissionSerialized> getEntireShoppingPeriodPermissions();
+	
+	/**
+	 * returns a blank (unselected) list of all the tool options for restricting tools
+	 * @return
+	 */
+	public List<ToolSerialized> getEntireToolsList();
 }

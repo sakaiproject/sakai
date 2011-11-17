@@ -102,6 +102,10 @@ public class ShoppingPeriodPage extends BaseTreePage{
 					tree.getTreeState().collapseNode(node);
 				}
 			}
+			@Override
+			protected boolean isForceRebuildOnSelectionChange() {
+				return false;
+			};
 		};
 		form.add(tree);
 

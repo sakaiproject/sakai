@@ -36,6 +36,7 @@ public class NodeModel implements Serializable {
 	private String shoppingPeriodAuthOrig;
 	private List<PermissionSerialized> shoppingPeriodPerms;
 	private List<PermissionSerialized> shoppingPeriodPermsOrig;
+	private boolean addedDirectChildrenFlag = false;
 
 	public NodeModel(String nodeId, HierarchyNodeSerialized node,
 			boolean directAccess, final Map<String, List<String>> realmMap,
@@ -43,7 +44,7 @@ public class NodeModel implements Serializable {
 			List<ToolSerialized> restrictedTools, Date shoppingPeriodStartDate,
 			Date shoppingPeriodEndDate,
 			List<PermissionSerialized> shoppingPeriodPerms,
-			String shoppingPeriodAuth){
+			String shoppingPeriodAuth, boolean addedDirectChildrenFlag){
 		this.nodeId = nodeId;
 		this.node = node;
 		this.directAccessOrig = directAccess;
@@ -63,6 +64,7 @@ public class NodeModel implements Serializable {
 		this.shoppingPeriodStartDateOrig = shoppingPeriodStartDate;
 		this.shoppingPeriodPerms = shoppingPeriodPerms;
 		this.shoppingPeriodPermsOrig = copyPermsList(shoppingPeriodPerms);
+		this.addedDirectChildrenFlag = addedDirectChildrenFlag;
 	}
 	
 	private List<PermissionSerialized> copyPermsList(List<PermissionSerialized> permsList){
@@ -213,7 +215,49 @@ public class NodeModel implements Serializable {
 			return getInheritedAccessRealmRoleHelper(parent.getParentNode());
 		}
 	}
+	
+	public Date getInheritedShoppingPeriodEndDate(){
+		return 	getInheritedShoppingPeriodEndDateHelper(parentNode);
+	}
+	
+	private Date getInheritedShoppingPeriodEndDateHelper(NodeModel parent){
+		if(parent == null){
+			return null;
+		}else if(parent.isDirectAccess()){
+			return parent.getShoppingPeriodEndDate();
+		}else{
+			return getInheritedShoppingPeriodEndDateHelper(parent.getParentNode());
+		}
+	}
+	
+	public Date getInheritedShoppingPeriodStartDate(){
+		return getInheritedShoppingPeriodStartDateHelper(parentNode);
+	}
 
+	private Date getInheritedShoppingPeriodStartDateHelper(NodeModel parent){
+		if(parent == null){
+			return null;
+		}else if(parent.isDirectAccess()){
+			return parent.getShoppingPeriodStartDate();
+		}else{
+			return getInheritedShoppingPeriodStartDateHelper(parent.getParentNode());
+		}
+	}
+	
+	public String getInheritedShoppingPeriodAuth(){
+		return getInheritedShoppingPeriodAuthHelper(parentNode);
+	}
+	
+	private String getInheritedShoppingPeriodAuthHelper(NodeModel parent){
+		if(parent == null){
+			return "";
+		}else if(parent.isDirectAccess()){
+			return parent.getShoppingPeriodAuth();
+		}else{
+			return getInheritedShoppingPeriodAuthHelper(parent.getParentNode());
+		}
+	}
+	
 	public NodeModel getParentNode() {
 		return parentNode;
 	}
@@ -382,5 +426,13 @@ public class NodeModel implements Serializable {
 				returnList.add(perm);
 		}
 		return returnList;
+	}
+
+	public boolean isAddedDirectChildrenFlag() {
+		return addedDirectChildrenFlag;
+	}
+
+	public void setAddedDirectChildrenFlag(boolean addedDirectChildrenFlag) {
+		this.addedDirectChildrenFlag = addedDirectChildrenFlag;
 	}
 }
