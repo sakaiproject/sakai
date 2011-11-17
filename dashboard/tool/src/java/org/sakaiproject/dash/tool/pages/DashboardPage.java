@@ -79,6 +79,7 @@ public class DashboardPage extends BasePage {
                 String entityReference = null;
                 String entityType = null;
                 int itemCount = 0;
+                String dashEvent = null;
                 try {
                    BufferedReader br = hsr.getReader();
 
@@ -95,6 +96,7 @@ public class DashboardPage extends BasePage {
                        entityReference = jsonObject.optString("entityReference", "");
                        entityType = jsonObject.optString("entityType", "");
                        itemCount = jsonObject.optInt("itemCount", 1);
+                       dashEvent = jsonObject.optString("dashEvent", "");
 
                    }
                    
@@ -116,17 +118,17 @@ public class DashboardPage extends BasePage {
 		                IRequestTarget t = new StringRequestTarget("application/json", "UTF-8", jsonString);
 		                getRequestCycle().setRequestTarget(t);
 						dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_VIEW_GROUP, "/dashboard/news/current/" + entityReference);
- 					} else if(itemCount < 1) {
- 						// this reports that MOTD is hidden
- 	    				dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_HIDE_MOTD, "/dashboard/page/" + sakaiProxy.getCurrentSiteId());
- 					} else {
-		                Map<String,Object> entityMap = dashboardLogic.getEntityMapping(entityType, entityReference, locale);
+ 					} else if(itemCount == 1) {
+ 		                Map<String,Object> entityMap = dashboardLogic.getEntityMapping(entityType, entityReference, locale);
 		                
 		                String jsonString = getJsonStringFromMap(entityMap);
 		                logger.debug("Returning JSON:\n" + jsonString);
 		                IRequestTarget t = new StringRequestTarget("application/json", "UTF-8", jsonString);
 		                getRequestCycle().setRequestTarget(t);
-						dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_ITEM_DETAILS, "/dashboard/news/current/" + entityReference);
+						dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_ITEM_DETAILS, "/dashboard/?/?/" + entityReference);
+					} else if(dashEvent != null && ! dashEvent.trim().equals("")) {
+ 						// report the event
+ 						dashboardLogic.recordDashboardActivity(dashEvent, entityReference);
 	 				}
 	 			}
 			}

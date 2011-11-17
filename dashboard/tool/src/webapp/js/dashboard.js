@@ -173,14 +173,19 @@ var setupLinks = function(){
                                         for (i = 0; i < json['more-info'].length; i++) {
                                             var target = "";
                                             var size = "";
+                                            var dashEvent = "dash.access.url";
                                             if (json['more-info'][i]['info_link-target']) {
                                                 target = 'target=\"' + json['more-info'][i]['info_link-target'] + '\"';
+                                                if(json['more-info'][i]['info_link-target'] === '_top') {
+                                                	dashEvent = "dash.follow.link";
+                                                }
                                             }
                                             if (json['more-info'][i]['info_link-size']) {
                                                 size = ' (' + json['more-info'][i]['info_link-size'] + ') ';
                                             }
                                             
-                                            moreinfo = moreinfo + '<li><a ' + target + ' href=\"' + json['more-info'][i]['info_link-url'] + '\">' + json['more-info'][i]['info_link-title'] + '<span class=\"size\">' + size + '</span></a></li>';
+                                            moreinfo = moreinfo + '<li><a ' + target + ' href=\"' + json['more-info'][i]['info_link-url'] + '\" onClick=\"reportEvent(this,\'/dashboard/link' 
+                                            + entityReference + '\',\'' + itemType + '\',\'' + dashEvent + '\');\">' + json['more-info'][i]['info_link-title'] + '<span class=\"size\">' + size + '</span></a></li>';
                                             
                                         }
                                         
@@ -255,7 +260,26 @@ var setupLinks = function(){
     });
 };
 
-
+function reportEvent(element, entityRef, entityType, dashEvent) {
+    var callBackUrl = $(element).closest('body').find('.callBackUrl').text();
+    var params = {
+            'entityType': entityType,
+            'entityReference': entityRef,
+            'dashEvent': dashEvent,
+            'itemCount': '0'
+        };
+    jQuery.ajax({
+        url: callBackUrl,
+        type: 'post',
+        cache: false,
+        data: JSON.stringify(params),
+        contentType: 'application/json',
+        dataType: 'json',
+        success: function(json){
+        }
+    });
+	
+}
 
 function get_type(thing){
     if (thing === null) {
@@ -329,22 +353,7 @@ function dismissMessage(target){
     utils_createCookie('motdHide','true');
     $(target).fadeToggle(1000, 0);
     // report that MOTD has been hidden
-    var callBackUrl = $(this).closest('body').find('.callBackUrl').text();
-    var params = {
-            'entityType': 'MOTD',
-            'entityReference': '!site',
-            'itemCount': '0'
-        };
-    jQuery.ajax({
-        url: callBackUrl,
-        type: 'post',
-        cache: false,
-        data: JSON.stringify(params),
-        contentType: 'application/json',
-        dataType: 'json',
-        success: function(json){
-        }
-    });
+    reportEvent(target, '/dashboard/MOTD', 'MOTD', 'dash.hide.motd');
 }
 
 /**
