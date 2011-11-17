@@ -549,8 +549,8 @@ public class ItemModifyListener implements ActionListener
               for (AnswerIfc answer : answers) {
                   if (answer.getIsCorrect()) {
                       String text = answer.getText();
-                      double min = Double.valueOf(text.substring(0, text.indexOf("|")));
-                      double max = Double.valueOf(text.substring(text.indexOf("|") + 1, text.indexOf(",")));
+                      String min = text.substring(0, text.indexOf("|"));
+                      String max = text.substring(text.indexOf("|") + 1, text.indexOf(","));
                       String decimalPlaces = text.substring(text.indexOf(",") + 1);              
                       variable.setName(itemBean.getText());
                       variable.setSequence(itemBean.getSequence());

@@ -188,7 +188,6 @@
           <h:outputText value="#{authorMessages.calc_question_min}"  />
         </f:facet>
           <h:inputText required="true" value="#{variable.min}" disabled="#{!variable.active }">
-		  	<f:converter converterId="javax.faces.Double" />
           </h:inputText>
       </h:column>
 
@@ -197,7 +196,6 @@
           <h:outputText value="#{authorMessages.calc_question_max}"  />
         </f:facet>
           <h:inputText required="true" value="#{variable.max}" disabled="#{!variable.active }">
-		  	<f:converter converterId="javax.faces.Double" />
           </h:inputText>
       </h:column>
 

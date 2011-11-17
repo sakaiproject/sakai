@@ -35,15 +35,19 @@ public class CalculatedQuestionVariableBean implements Serializable, CalculatedQ
     private static final long serialVersionUID = -7835973840484043575L;
     private Long sequence;
     private String name;
-    private double min;
-    private double max;
+    private String min;
+    private String max;
     private String decimalPlaces;
     private boolean active;
     public static final String DEFAULT_DECIMAL_PLACES = "3";
+    public static final String DEFAULT_MIN = "0";
+    public static final String DEFAULT_MAX = "0";
 
     public CalculatedQuestionVariableBean() {
         this.decimalPlaces = DEFAULT_DECIMAL_PLACES;
         this.active = true;
+        this.min = DEFAULT_MIN;
+        this.max = DEFAULT_MAX;
     }
     
     public void setSequence(Long sequence) {
@@ -62,19 +66,19 @@ public class CalculatedQuestionVariableBean implements Serializable, CalculatedQ
         return this.name;
     }
     
-    public void setMin(double min) {
+    public void setMin(String min) {
         this.min = min;
     }
     
-    public double getMin() {
+    public String getMin() {
         return this.min;
     }
     
-    public void setMax(double max) {
+    public void setMax(String max) {
         this.max = max;
     }
     
-    public double getMax() {
+    public String getMax() {
         return this.max;
     }
     

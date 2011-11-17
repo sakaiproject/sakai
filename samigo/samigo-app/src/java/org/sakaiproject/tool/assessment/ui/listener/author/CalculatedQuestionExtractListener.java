@@ -124,12 +124,26 @@ public class CalculatedQuestionExtractListener implements ActionListener{
                 String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","no_formulas");
                 errors.add(err);
             }
-            
-            // variables max must be greater than min
+                        
+            // variable mins and maxes must be numbers, and max must be greater than min
             for (CalculatedQuestionVariableBean variable : question.getActiveVariables().values()) {
-                if (variable.getMax() < variable.getMin()) {
+                double min = 0d;
+                try {
+                    min = Double.parseDouble(variable.getMin());
+                } catch (NumberFormatException n) {
+                    String err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "invalid_min");
+                    errors.add(err);                    
+                }
+                double max = 0d;
+                try {
+                    max = Double.parseDouble(variable.getMax());
+                } catch (NumberFormatException n) {
+                    String err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "invalid_max");
+                    errors.add(err);                    
+                }
+                if (max < min) {
                     String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","max_less_than_min");
-                    errors.add(err);
+                    errors.add(err);                    
                 }
             }
             
@@ -146,18 +160,25 @@ public class CalculatedQuestionExtractListener implements ActionListener{
                 }
             }
             
-            // capture formula errors
-            // TODO - there is more information available in the SamigoExpressionError 
-            // object that we are not using, may want to return the Error object, instead
-            // of the string here.
-            Map<Integer, String> formulaErrors = this.validateFormulas(item);
-            if (formulaErrors.size() > 0) {
-                for (Map.Entry<Integer, String> error : formulaErrors.entrySet()) {
-                    Integer key = error.getKey();
-                    String err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", 
-                            "samigo_formula_error_" + key.toString());
-                    errors.add(err);
-                };
+            // don't bother looking at formulas if any data validations have failed.
+            if (errors.size() == 0) {
+                // capture formula errors
+                // TODO - there is more information available in the SamigoExpressionError 
+                // object that we are not using, may want to return the Error object, instead
+                // of the string here.
+                Map<Integer, String> formulaErrors = this.validateFormulas(item);
+                if (formulaErrors.size() > 0) {
+                    for (Map.Entry<Integer, String> error : formulaErrors.entrySet()) {
+                        Integer key = error.getKey();
+                        String err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", 
+                                "samigo_formula_error_" + key.toString());
+                        errors.add(err);
+                    };
+                }
+            } else {
+                String err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", 
+                        "formulas_not_validated");
+                errors.add(err);
             }
         }
         return errors;
@@ -274,22 +295,30 @@ public class CalculatedQuestionExtractListener implements ActionListener{
                 String formulaStr = formulaBean.getText();
                 formulaBean.setValidated(true);
                 String substitutedFormulaStr = service.replaceMappedVariablesWithNumbers(formulaStr, answersMap);
-                try {
-                    if (isNegativeSqrt(substitutedFormulaStr)) {
-                        formulaBean.setValidated(false);
-                        errors.put(8, "Negative Squrare Root");
-                    } else {
-                        String numericAnswerString = parser.parse(substitutedFormulaStr);
-                        if (!service.isAnswerValid(numericAnswerString)) {                                
-                            throw new Exception("invalid answer, try again");
+                
+                // look for wrapped variables that haven't been replaced (undefined variable)
+                List<String> unwrappedVariables = service.extractVariables(substitutedFormulaStr);
+                if (unwrappedVariables.size() > 0) {
+                    formulaBean.setValidated(false);
+                    errors.put(9, "Wrapped variable not found");
+                } else {
+                    try {
+                        if (isNegativeSqrt(substitutedFormulaStr)) {
+                            formulaBean.setValidated(false);
+                            errors.put(8, "Negative Squrare Root");
+                        } else {
+                            String numericAnswerString = parser.parse(substitutedFormulaStr);
+                            if (!service.isAnswerValid(numericAnswerString)) {                                
+                                throw new Exception("invalid answer, try again");
+                            }
                         }
+                    } catch (SamigoExpressionError e) {
+                        formulaBean.setValidated(false);
+                        errors.put(Integer.valueOf(e.get_id()), e.get());
+                    } catch (Exception e) {
+                        formulaBean.setValidated(false);
+                        errors.put(500, e.getMessage());
                     }
-                } catch (SamigoExpressionError e) {
-                    formulaBean.setValidated(false);
-                    errors.put(Integer.valueOf(e.get_id()), e.get());
-                } catch (Exception e) {
-                    formulaBean.setValidated(false);
-                    errors.put(500, e.getMessage());
                 }
             }
             if (errors.size() > 0) {
