@@ -238,14 +238,26 @@ public class AnnouncementSupport{
 				if(attachments != null && ! attachments.isEmpty()) {
 					List<Map<String,String>> attList = new ArrayList<Map<String,String>>();
 					for(Reference ref : attachments) {
-						ContentResource resource = (ContentResource) ref.getEntity();
-						Map<String, String> attInfo = new HashMap<String, String>();
-						attInfo.put(VALUE_ATTACHMENT_TITLE, resource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME));
-						attInfo.put(VALUE_ATTACHMENT_URL, resource.getUrl());
-						attInfo.put(VALUE_ATTACHMENT_MIMETYPE, resource.getContentType());
-						attInfo.put(VALUE_ATTACHMENT_SIZE, Long.toString(resource.getContentLength()));
-						attInfo.put(VALUE_ATTACHMENT_TARGET, sakaiProxy.getTargetForMimetype(resource.getContentType()));
-						attList.add(attInfo );
+						if(ref != null) {
+							ContentResource resource = (ContentResource) ref.getEntity();
+							if(resource != null) {
+								Map<String, String> attInfo = new HashMap<String, String>();
+								ResourceProperties attProps = resource.getProperties();
+								String attTitle = null;
+								if(attProps != null && attProps.getProperty(ResourceProperties.PROP_DISPLAY_NAME) != null) {
+									attTitle = attProps.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+								} 
+								if(attTitle == null) {
+									attTitle = rl.getString("dash.attachment");
+								}
+								attInfo.put(VALUE_ATTACHMENT_TITLE, attTitle);
+								attInfo.put(VALUE_ATTACHMENT_URL, resource.getUrl());
+								attInfo.put(VALUE_ATTACHMENT_MIMETYPE, resource.getContentType());
+								attInfo.put(VALUE_ATTACHMENT_SIZE, Long.toString(resource.getContentLength()));
+								attInfo.put(VALUE_ATTACHMENT_TARGET, sakaiProxy.getTargetForMimetype(resource.getContentType()));
+								attList.add(attInfo );
+							}
+						}
 					}
 					values.put(VALUE_ATTACHMENTS, attList);
 				}
