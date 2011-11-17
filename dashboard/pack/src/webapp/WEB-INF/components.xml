@@ -117,4 +117,10 @@
     	<property name="sakaiProxy" ref="org.sakaiproject.dash.logic.SakaiProxy"></property>
     	<property name="timeService" ref="org.sakaiproject.time.api.TimeService"></property>
 	</bean>
+	
+	<bean id="org.sakaiproject.dash.entity.EntitySupportUtil" 
+		class="org.sakaiproject.dash.entity.EntitySupportUtil" 
+		init-method="init">
+		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
+	</bean>
 </beans>

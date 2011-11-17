@@ -647,7 +647,7 @@ public class AnnouncementSupport{
 			}
 			
 			// update NewsItem Title and title
-			updateNewsItemTimeTitle(event);
+			EntitySupportUtil.updateNewsItemTimeTitle(event);
 		}
 	}
 	
@@ -674,24 +674,7 @@ public class AnnouncementSupport{
 			}
 			
 			// update NewsItem Title and title
-			updateNewsItemTimeTitle(event);
-		}
-	}
-	
-	/**
-	 * update NewsItem time and title related to an event
-	 * @param event
-	 */
-	protected void updateNewsItemTimeTitle(Event event) {
-		NewsItem nItem = dashboardLogic.getNewsItem(event.getResource());
-		
-		if (nItem != null)
-		{
-			if (nItem.getNewsTime().getTime() - (new Date()).getTime() < 1000)
-			{
-				// if this is not an update within object creation
-				dashboardLogic.reviseNewsItemTitle(event.getResource(), nItem.getTitle(), new Date(), rl.getString("updated"));
-			}
+			EntitySupportUtil.updateNewsItemTimeTitle(event);
 		}
 	}
 	
