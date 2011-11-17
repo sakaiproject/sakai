@@ -72,6 +72,14 @@ public interface ProjectLogic {
 	public TreeModel createTreeModelForUser(String userId, boolean addDirectChildren, boolean cascade);
 
 	/**
+	 * returns the tree model that looks up the shopping period information for the sites the user has access to
+	 * 
+	 * @param userId
+	 * @return
+	 */
+	public TreeModel createTreeModelForShoppingPeriod(String userId);
+	
+	/**
 	 * Adds children node to a node that hasn't had it's children populated.  This is used to increase the efficiency
 	 * of the tree so you can create the structure on the fly with ajax
 	 * 

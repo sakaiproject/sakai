@@ -17,6 +17,8 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
 import org.sakaiproject.delegatedaccess.logic.SakaiProxy;
+import org.sakaiproject.delegatedaccess.model.SearchResult;
+import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 
 
 
@@ -42,6 +44,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 
 	Link<Void> firstLink;
 	Link<Void> secondLink;
+	Link<Void> thirdLink;
 
 	FeedbackPanel feedbackPanel;
 
@@ -79,6 +82,21 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		secondLink.add(new AttributeModifier("title", true, new ResourceModel("link.second.tooltip")));
 		add(secondLink);
 
+		//third link
+		thirdLink = new Link<Void>("thirdLink") {
+			private static final long serialVersionUID = 1L;
+			public void onClick() {
+				setResponsePage(new ShoppingPeriodPage());
+			}
+			@Override
+			public boolean isVisible() {
+				//maybe add a sakai permission for this??
+				return true;
+			}
+		};
+		thirdLink.add(new Label("thirdLinkLabel",new ResourceModel("link.third")).setRenderBodyOnly(true));
+		thirdLink.add(new AttributeModifier("title", true, new ResourceModel("link.third.tooltip")));
+		add(thirdLink);
 
 		// Add a FeedbackPanel for displaying our messages
 		feedbackPanel = new FeedbackPanel("feedback"){

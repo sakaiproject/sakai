@@ -19,33 +19,19 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.util.string.Strings;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
-import org.sakaiproject.delegatedaccess.model.ToolSerialized;
+import org.sakaiproject.delegatedaccess.model.PermissionSerialized;
 
-/**
- * 
- * This is the panel (table cell) for the restricted tools column
- * 
- * @author Bryan Holladay (holladay@longsight.com)
- *
- */
-
-public class EditablePanelList  extends Panel
-{
+public class EditablePanelPermList extends Panel{
 
 	private NodeModel nodeModel;
 	private TreeNode node;
-	private List<ToolSerialized> localToolList = null;
 	
-	public EditablePanelList(String id, IModel inputModel, final NodeModel nodeModel, final TreeNode node)
-	{
+	
+	public EditablePanelPermList(String id, IModel model, final NodeModel nodeModel, final TreeNode node) {
 		super(id);
 
 		this.nodeModel = nodeModel;
 		this.node = node;
-
-		if(localToolList == null){
-			localToolList = nodeModel.getRestrictedTools();
-		}
 
 		WebMarkupContainer editableSpan = new WebMarkupContainer("editableSpan");
 		editableSpan.setOutputMarkupId(true);
@@ -58,7 +44,7 @@ public class EditablePanelList  extends Panel
 		add(inheritedSpan);
 
 
-		AjaxLink<Void> restrictToolsLink = new AjaxLink<Void>("restrictToolsLink"){
+		AjaxLink<Void> restrictLink = new AjaxLink<Void>("restrictLink"){
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onClick(AjaxRequestTarget target) {
@@ -73,9 +59,9 @@ public class EditablePanelList  extends Panel
 				return nodeModel.isDirectAccess();
 			}
 		};
-		add(restrictToolsLink);
+		add(restrictLink);
 
-		AjaxLink<Void> inheritedToolsLink = new AjaxLink<Void>("inheritedToolsLink"){
+		AjaxLink<Void> inheritedLink = new AjaxLink<Void>("inheritedLink"){
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onClick(AjaxRequestTarget target) {
@@ -87,10 +73,10 @@ public class EditablePanelList  extends Panel
 			}
 			@Override
 			public boolean isVisible() {
-				return !nodeModel.isDirectAccess() && nodeModel.getInheritedRestrictedTools() != null && !nodeModel.getInheritedRestrictedTools().isEmpty();
+				return !nodeModel.isDirectAccess() && nodeModel.getInheritedSelectedPermissions() != null && !nodeModel.getInheritedSelectedPermissions().isEmpty();
 			}
 		};
-		add(inheritedToolsLink);
+		add(inheritedLink);
 
 		AjaxLink<Void> switchEditableSpanLink = new AjaxLink<Void>("switchEditableSpanLink") {
 			private static final long serialVersionUID = 1L;
@@ -169,21 +155,21 @@ public class EditablePanelList  extends Panel
 		inheritedSpan.add(inheritedNodeTitle);
 
 
-		ListView<ToolSerialized> listView = new ListView<ToolSerialized>("list", nodeModel.getRestrictedTools()) {
+		ListView<PermissionSerialized> listView = new ListView<PermissionSerialized>("list", nodeModel.getShoppingPeriodPerms()) {
 
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void populateItem(ListItem<ToolSerialized> item) {
-				ToolSerialized wrapper = item.getModelObject();
-				item.add(new Label("name", wrapper.getToolName()));
+			protected void populateItem(ListItem<PermissionSerialized> item) {
+				PermissionSerialized wrapper = item.getModelObject();
+				item.add(new Label("name", wrapper.getPermissionId()));
 				final CheckBox checkBox = new CheckBox("check", new PropertyModel(wrapper, "selected"));
 				checkBox.setOutputMarkupId(true);
-				final String toolId = wrapper.getToolId();
+				final String permId = wrapper.getPermissionId();
 				checkBox.add(new AjaxFormComponentUpdatingBehavior("onClick")
 				{
 					protected void onUpdate(AjaxRequestTarget target){
-						nodeModel.setToolRestricted(toolId, isChecked());
+						nodeModel.setPermissionSelected(permId, isChecked());
 					}
 
 					private boolean isChecked(){
@@ -209,41 +195,42 @@ public class EditablePanelList  extends Panel
 		editableSpan.add(listView);
 
 
-		IModel<List<? extends ToolSerialized>> inheritedRestrictedToolsModel = new AbstractReadOnlyModel<List<? extends ToolSerialized>>(){
+		IModel<List<? extends PermissionSerialized>> inheritedPermsModel = new AbstractReadOnlyModel<List<? extends PermissionSerialized>>(){
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public List<? extends ToolSerialized> getObject() {
-				return nodeModel.getInheritedRestrictedTools();
+			public List<? extends PermissionSerialized> getObject() {
+				return nodeModel.getInheritedSelectedPermissions();
 			}
 
 		};
 
 
 
-		ListView<ToolSerialized> inheritedListView = new ListView<ToolSerialized>("inheritedRestrictedTools",inheritedRestrictedToolsModel){
+		ListView<PermissionSerialized> inheritedListView = new ListView<PermissionSerialized>("inheritedPerms",inheritedPermsModel){
 			private static final long serialVersionUID = 1L;
 			@Override
-			protected void populateItem(ListItem<ToolSerialized> item) {
-				ToolSerialized tool = (ToolSerialized) item.getModelObject();
-				Label name = new Label("name", tool.getToolName());
+			protected void populateItem(ListItem<PermissionSerialized> item) {
+				PermissionSerialized perm = (PermissionSerialized) item.getModelObject();
+				Label name = new Label("name", perm.getPermissionId());
 				item.add(name);
 			}
 
 			@Override
 			public boolean isVisible() {
-				return nodeModel.getInheritedRestrictedTools() != null && !nodeModel.getInheritedRestrictedTools().isEmpty();
+				return nodeModel.getInheritedSelectedPermissions() != null && !nodeModel.getInheritedSelectedPermissions().isEmpty();
 			}
 		};
 		inheritedSpan.add(inheritedListView);
 
-		Label noInheritedToolsLabel = new Label("noToolsInherited", new StringResourceModel("noToolsInherited", null)){
+		Label noInheritedLabel = new Label("noPermsInherited", new StringResourceModel("noPermsInherited", null)){
 			public boolean isVisible() {
-				return nodeModel.getInheritedRestrictedTools() == null || nodeModel.getInheritedRestrictedTools().isEmpty();
+				return nodeModel.getInheritedSelectedPermissions() == null || nodeModel.getInheritedSelectedPermissions().isEmpty();
 			};
 		};
-		inheritedSpan.add(noInheritedToolsLabel);
-
+		inheritedSpan.add(noInheritedLabel);
+		
+		
 	}
 
 }

@@ -29,8 +29,14 @@ public class DelegatedAccessConstants {
 	public static final String NODE_PERM_ROLE_PREFIX = "role:";
 	public static final String NODE_PERM_DENY_TOOL_PREFIX = "denyTool:";
 	public static final String NODE_PERM_SITE_VISIT = "site.visit";
+	public static final String NODE_PERM_SHOPPING_START_DATE = "shoppingStartDate:";
+	public static final String NODE_PERM_SHOPPING_END_DATE = "shoppingEndDate:";
+	public static final String NODE_PERM_SHOPPING_PERMS = "shoppingPerms:";
+	public static final String NODE_PERM_SHOPPING_AUTH = "shoppingAuth:";
 	public static final String EVENT_ADD_USER_PERMS = "delegatedaccess.nodeperms.add";
 	public static final String EVENT_DELETE_USER_PERMS = "delegatedaccess.nodeperms.delete";
 	public static final String SESSION_ATTRIBUTE_ACCESS_MAP = "delegatedaccess.accessmap";
 	public static final String SESSION_ATTRIBUTE_DENIED_TOOLS = "delegatedaccess.deniedToolsMap";
+	public static final String SHOPPING_PERIOD_USER = "120dv0f43cv90sdf0asv9";
+	public static final String SHOPPING_PERIOD_FUNCITONS_PROP = "shopping.period.available.functions";
 }

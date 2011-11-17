@@ -54,12 +54,12 @@ public class EditablePanelCheckbox extends Panel
 				//In order for the models to refresh, you have to call "expand" or "collapse" then "updateTree",
 				//since I don't want to expand or collapse, I just call whichever one the node is already
 				//Refreshing the tree will update all the models and information (like role) will be generated onClick
-				if(((UserEditPage)target.getPage()).getTree().getTreeState().isNodeExpanded(node)){
-					((UserEditPage)target.getPage()).getTree().getTreeState().expandNode(node);
+				if(((BaseTreePage)target.getPage()).getTree().getTreeState().isNodeExpanded(node)){
+					((BaseTreePage)target.getPage()).getTree().getTreeState().expandNode(node);
 				}else{
-					((UserEditPage)target.getPage()).getTree().getTreeState().collapseNode(node);
+					((BaseTreePage)target.getPage()).getTree().getTreeState().collapseNode(node);
 				}
-				((UserEditPage)target.getPage()).getTree().updateTree(target);
+				((BaseTreePage)target.getPage()).getTree().updateTree(target);
 			}
 		});
 	}
