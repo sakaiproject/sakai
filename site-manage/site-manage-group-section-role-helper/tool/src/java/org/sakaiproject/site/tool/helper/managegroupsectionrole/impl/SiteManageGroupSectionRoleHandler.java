@@ -1,5 +1,7 @@
 package org.sakaiproject.site.tool.helper.managegroupsectionrole.impl;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -12,6 +14,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.servlet.http.HttpServletRequest;
+
+import lombok.Getter;
+import lombok.Setter;
+
+import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,9 +44,14 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.RequestFilter;
 
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
+import au.com.bytecode.opencsv.CSVReader;
 /**
  * 
  * @author 
@@ -101,6 +114,8 @@ public class SiteManageGroupSectionRoleHandler {
 
     // Tool session attribute name used to schedule a whole page refresh.
     public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh"; 
+    
+	private static final String CSV_MIME_TYPE="text/csv";
 	
 	public TargettedMessageList messages;
 	public void setMessages(TargettedMessageList messages) {
@@ -171,6 +186,8 @@ public class SiteManageGroupSectionRoleHandler {
 	    numToSplitGroup = "";
 	    groupTitleUser = "";
 	    groupTitleGroup = "";
+	    
+	    importedGroups = null;
 	    
 	}
 	 
@@ -1186,6 +1203,250 @@ public class SiteManageGroupSectionRoleHandler {
           return ((Group)o1).getTitle().compareToIgnoreCase( ((Group)o2).getTitle() );
        }
     }
+    
+    /**
+     * Grabs the uploaded file from the groupfile request attribute and extracts the group details
+     * from it, adding them to the importedGroups list as it goes. Expects at least three columns,
+     * the first three being first name, last name and email respectively.
+     */
+    public String processUploadAndCheck() {
+        String uploadsDone = (String) httpServletRequest.getAttribute(RequestFilter.ATTR_UPLOADS_DONE);
+        
+        FileItem usersFileItem;
+        
+        if (uploadsDone != null && uploadsDone.equals(RequestFilter.ATTR_UPLOADS_DONE)) {
+
+            try {
+                usersFileItem = (FileItem) httpServletRequest.getAttribute("groupfile");
+                
+                if(usersFileItem != null && usersFileItem.getSize() > 0) {
+                	
+                	String mimetype = usersFileItem.getContentType();
+                	
+                	if(StringUtils.equals(mimetype, CSV_MIME_TYPE)) {
+                		if(processCsvFile(usersFileItem)) {
+                			return "success";
+                		}
+                	} else {
+                		M_log.error("Invalid file type: " + mimetype);
+                		return "error";
+                	}
+                }
+            }
+            catch (Exception e){
+            	M_log.error(e.getClass() + " : " + e.getMessage());
+                return "error";
+            }
+        }
+
+        return "error";
+    }
+
+	/**
+	 * Helper to process the uploaded CSV file
+	 * 
+	 * @param fileItem
+	 * @return
+	 */
+	private boolean processCsvFile(FileItem fileItem){
+		
+		M_log.debug("CSV file uploaded");
+		
+		importedGroups = new ArrayList<ImportedGroup>();
+		
+		CSVReader reader;
+		try {
+			reader = new CSVReader(new InputStreamReader(fileItem.getInputStream()));
+			List<String[]> lines = reader.readAll();
+			
+			//maintain a map of the groups and their titles in case the CSV file is unordered
+			//this way we can still lookup the group and add members to it
+			Map<String, ImportedGroup> groupMap = new HashMap<String, ImportedGroup>();
+			
+			for(String[] line: lines){
+								
+	            String groupTitle = StringUtils.trim(line[0]);
+	            String userId = StringUtils.trim(line[1]);
+	            
+	            //if we already have an occurrence of this group, get the group and update the user list within it
+	            if(groupMap.containsKey(groupTitle)){
+	            	ImportedGroup group = groupMap.get(groupTitle);
+	            	group.addUser(userId);
+	            } else {
+	            	ImportedGroup group = new ImportedGroup(groupTitle, userId);
+	            	groupMap.put(groupTitle, group);
+	            }
+			}
+			
+			 //extract all of the imported groups from the map
+            importedGroups.addAll(groupMap.values());
+			
+		} catch (IOException ioe) {
+			M_log.error(ioe.getClass() + " : " + ioe.getMessage());
+			return false;
+		} catch (ArrayIndexOutOfBoundsException ae){
+			M_log.error(ae.getClass() + " : " + ae.getMessage());
+			return false;
+		}
+	    
+		return true;
+	}
+	
+	/**
+	 * Helper to check for a valid user in a site, given an eid
+	 * @param eid	eid of user,v eg jsmith26
+	 * @return
+	 */
+	public boolean isValidSiteUser(String eid) {
+		try {
+			User u = userDirectoryService.getUserByEid(eid);
+			if(u != null){
+				
+				Member m = site.getMember(u.getId());
+				if(m != null) {
+					return true;
+				}
+			}
+		} catch (UserNotDefinedException e) {
+			//not a valid user
+			return false;
+		}
+		return false;
+	}
+	
+	/**
+	 * Helper to get a userId given an eid
+	 * @param eid	eid of user,v eg jsmith26
+	 * @return
+	 */
+	public String getUserId(String eid) {
+		try {
+			return userDirectoryService.getUserId(eid);
+		} catch (UserNotDefinedException e) {
+			M_log.error("The eid: " + eid + "is invalid.");
+			return null;
+		}
+	}
+	
+	/**
+	 * Does the actual import of the groups into the site.
+	 * @return
+	 */
+	public String processImportedGroups() {
+		
+		//get current groups in this site
+		List<Group> existingGroups = getGroups();
+		
+		//for each imported group...
+		for(ImportedGroup importedGroup: importedGroups) {
+			
+			Group group = null;
+			
+			//check if the groups already exists
+			for(Group g : existingGroups) {
+            	if(StringUtils.equals(g.getTitle(), importedGroup.getGroupTitle())) {
+            		//use existing group
+            		group = g;
+            	}
+			}
+			
+			if(group == null){
+        		//create new group
+    	        group= site.addGroup();
+    	        group.getProperties().addProperty(SiteConstants.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
+    	        group.setTitle(importedGroup.getGroupTitle());
+			}
+			
+			//add all of the imported members to the group
+    		for(String eid: importedGroup.getUserIds()){
+    			this.addUserToGroup(eid, group);
+    		}
+    		
+    		try {
+    			siteService.save(site);
+    			// post event about the participant update
+    			EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP, group.getId(),true));
+    		
+    		} catch (Exception e) {
+            	M_log.error("processImportedGroups failed for site: " + site.getId(), e);
+            	return "error";
+    		}
+		}
+		
+		return "success";
+	}
+	
+	/**
+	 * Helper to get a list of user eids in a group
+	 * @param g	the group
+	 * @return
+	 */
+	public List<String> getGroupUserIds(Group g) {
+		
+		List<String> userIds = new ArrayList<String>();
+
+		if(g == null) {
+			return userIds;
+		}
+		
+		Set<Member> members= g.getMembers();
+		for(Member m: members) {
+			userIds.add(m.getUserEid());
+		}
+		return userIds;
+	}
+	
+	
+	/**
+	 * Helper to add a user to a group. Takes care of the role selection.
+	 * @param eid	eid of the user eg jsmith26
+	 * @param g		the group
+	 */
+	private void addUserToGroup(String eid, Group g) {
+		
+		//is this a valid site user?
+		if(!isValidSiteUser(eid)){
+			return;
+		}
+		
+		//get userId
+		String userId = getUserId(eid);
+		if(StringUtils.isBlank(userId)) {
+			return;
+		}
+		
+		//is user already in the group?
+		if(g.getUserRole(userId) != null) {
+			return;
+		}
+		
+		//add user to group with correct role. This is the same logic as above
+		Role r = site.getUserRole(userId);
+		Member m = site.getMember(userId);
+		Role memberRole = m != null ? m.getRole() : null;
+		g.addMember(userId, r != null ? r.getId() : memberRole != null? memberRole.getId() : "", m != null ? m.isActive() : true, false);
+		
+	}
+	
+	
+	
+	@Setter
+	private UserDirectoryService userDirectoryService;
+	
+	 /**
+     * We need this to get the uploaded file as snaffled by the request filter.
+     */
+	@Setter
+    private HttpServletRequest httpServletRequest;
+   
+    
+    /**
+     * As we import groups we store the details here for use in further stages
+     * of the import sequence.
+     */
+    @Getter
+    private List<ImportedGroup> importedGroups;
+   
    
 }
 

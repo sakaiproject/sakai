@@ -99,7 +99,8 @@ public class GroupListProducer
     	UIBranchContainer actions = UIBranchContainer.make(tofill,"actions:",Integer.toString(0));
     	UIInternalLink.make(actions,"add",UIMessage.make("group.newgroup"), new GroupEditViewParameters(GroupEditProducer.VIEW_ID, null));
     	UIInternalLink.make(actions,"auto_add",UIMessage.make("group.auto.newgroup"), new GroupAutoCreateViewParameters(GroupAutoCreateProducer.VIEW_ID, null));
-    	
+    	UIInternalLink.make(actions,"import_add",UIMessage.make("group.import"), new GroupImportViewParameters(GroupImportStep1Producer.VIEW_ID, null));
+
 		UIOutput.make(tofill, "group-list-title", messageLocator.getMessage("group.list"));
 		
 		UIForm deleteForm = UIForm.make(tofill, "delete-group-form");

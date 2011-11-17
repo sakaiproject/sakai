@@ -43,6 +43,8 @@
     <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
     <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
     <property name="messages" ref="targettedMessageList" />
+    <property name="httpServletRequest" ref="httpServletRequest" />
+    <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
   </bean>
   
     <bean id="GroupDelProdcuer" 
@@ -52,4 +54,21 @@
     <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
     <property name="targettedMessageList" ref="targettedMessageList" />
   </bean>
+  
+  <bean id="GroupImportStep1Producer"
+     class="org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf.GroupImportStep1Producer">
+    <property name="handler" ref="SiteManageGroupSectionRoleHandler" />
+    <property name="messageLocator" ref="messageLocator"/>
+    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+    <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
+  </bean>
+  
+  <bean id="GroupImportStep2Producer"
+     class="org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf.GroupImportStep2Producer">
+    <property name="handler" ref="SiteManageGroupSectionRoleHandler" />
+    <property name="messageLocator" ref="messageLocator"/>
+    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+    <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
+  </bean>
+  
 </beans>
