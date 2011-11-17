@@ -89,99 +89,112 @@ public class CalculatedQuestionExtractListener implements ActionListener{
      * @returns a List<String> of error messages to be displayed in the context messager.
      */
     public List<String> validate(ItemBean item) {
-        this.extractFromInstructions(item);
-        
         List<String> errors = new ArrayList<String>();
-        CalculatedQuestionBean question = item.getCalculatedQuestion();
         
-        // question must have at least on variable and one formula
-        if (question.getActiveVariables().size() == 0) {
-            String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","no_variables");
-            errors.add(err);
-        }
-        if (question.getActiveFormulas().size() == 0) {
-            String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","no_formulas");
-            errors.add(err);
-        }
+        // prepare any already existing variables and formula for new extracts
+        this.initializeVariables(item);
+        this.initializeFormulas(item);
         
-        // variables max must be greater than min
-        for (CalculatedQuestionVariableBean variable : question.getActiveVariables().values()) {
-            if (variable.getMax() < variable.getMin()) {
-                String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","max_less_than_min");
+        // extract variable and formula names defined in the instructions
+        String instructions = item.getInstruction();
+        GradingService gs = new GradingService();
+        List<String> formulaNames = gs.extractFormulas(instructions);
+        List<String> variableNames = gs.extractVariables(instructions);
+
+        // throw an error if variables and formulas share any names
+        // don't continue processing if there are problems with the extract
+        if (!Collections.disjoint(formulaNames, variableNames)) {
+            String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","unique_names");
+            errors.add(err);
+        } else {
+        
+            
+            // add any new variables/formulas
+            createFormulasFromInstructions(item, formulaNames);
+            createVariablesFromInstructions(item, variableNames);       
+            
+            CalculatedQuestionBean question = item.getCalculatedQuestion();
+            
+            // question must have at least on variable and one formula
+            if (question.getActiveVariables().size() == 0) {
+                String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","no_variables");
                 errors.add(err);
             }
-        }
-        
-        // formula tolerances must be numbers or percentages
-        for (CalculatedQuestionFormulaBean formula : question.getActiveFormulas().values()) {
-            String tolerance = formula.getTolerance();
-            if (!tolerance.matches("^\\s*[0-9]+\\.?[0-9]*\\%\\s*$")) {
-                try {
-                    Double.parseDouble(tolerance);
-                } catch (NumberFormatException n) {
-                    String err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "invalid_tolerance");
+            if (question.getActiveFormulas().size() == 0) {
+                String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","no_formulas");
+                errors.add(err);
+            }
+            
+            // variables max must be greater than min
+            for (CalculatedQuestionVariableBean variable : question.getActiveVariables().values()) {
+                if (variable.getMax() < variable.getMin()) {
+                    String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","max_less_than_min");
                     errors.add(err);
                 }
             }
+            
+            // formula tolerances must be numbers or percentages
+            for (CalculatedQuestionFormulaBean formula : question.getActiveFormulas().values()) {
+                String tolerance = formula.getTolerance();
+                if (!tolerance.matches("^\\s*[0-9]+\\.?[0-9]*\\%\\s*$")) {
+                    try {
+                        Double.parseDouble(tolerance);
+                    } catch (NumberFormatException n) {
+                        String err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "invalid_tolerance");
+                        errors.add(err);
+                    }
+                }
+            }
+            
+            // capture formula errors
+            // TODO - there is more information available in the SamigoExpressionError 
+            // object that we are not using, may want to return the Error object, instead
+            // of the string here.
+            Map<Integer, String> formulaErrors = this.validateFormulas(item);
+            if (formulaErrors.size() > 0) {
+                for (Map.Entry<Integer, String> error : formulaErrors.entrySet()) {
+                    Integer key = error.getKey();
+                    String err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", 
+                            "samigo_formula_error_" + key.toString());
+                    errors.add(err);
+                };
+            }
         }
-        
-        // throw an error if variables and formulas share any names
-        if (!Collections.disjoint(question.getActiveFormulas().keySet(), question.getActiveVariables().keySet())) {
-            String err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","unique_names");
-            errors.add(err);
-        }
-        
-        // capture formula errors
-        // TODO - there is more information available in the SamigoExpressionError 
-        // object that we are not using, may want to return the Error object, instead
-        // of the string here.
-        Map<Integer, String> formulaErrors = this.validateFormulas(item);
-        if (formulaErrors.size() > 0) {
-            for (Map.Entry<Integer, String> error : formulaErrors.entrySet()) {
-                Integer key = error.getKey();
-                String err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", 
-                        "samigo_formula_error_" + key.toString());
-                errors.add(err);
-            };
-        }
-        
         return errors;
     }
     
     /**
-     * extractFromInstructions examines the instructions for this calculated
-     * question and creates any new variables or formulas that are found.
-     * Variables are identified by single curly-braces (i.e. {a}).  Formula
-     * are identified by double curly-braces (i.e. {{a}}).  Variables and
-     * formulas that are found are created if missing.  Any variable or
-     * formula found is also made active, allowing the UI to distinguish
-     * between variables that are defined but not used in the instructions.
-     * Unused variables and formulas are deleted when the question is saved.
-     * @param instructions
+     * initializeVariables() prepares any previously defined variables for updates
+     * that occur when extracting new variables from instructions
+     * @param item
      */
-    public void extractFromInstructions(ItemBean item) {
-        Map<String, CalculatedQuestionFormulaBean> formulas = item.getCalculatedQuestion().getFormulas();
+    private void initializeVariables(ItemBean item) {
         Map<String, CalculatedQuestionVariableBean> variables = item.getCalculatedQuestion().getVariables();
-        // set beans and variables inactive.
-        // once the new ones are read in, they will be reactivated.
-        // if a variable is not found on a new extract, it will be left inactive
-        for (CalculatedQuestionFormulaBean bean : formulas.values()) {
-            bean.setActive(false);
-        }
         for (CalculatedQuestionVariableBean bean : variables.values()) {
             bean.setActive(false);
-        }
-        
-        // create or activate formulas and variables
-        extractFormulasFromInstructions(item);
-        extractVariablesFromInstructions(item);       
-        
+        }        
     }
     
-    private void extractFormulasFromInstructions(ItemBean item) {
-        String instructions = item.getInstruction();
-        GradingService gs = new GradingService();
-        List<String> formulaNames = gs.extractFormulas(instructions);
+    /**
+     * initializeFormulas() prepares any previously defined formulas for updates
+     * that occur when extracting new formulas from instructions 
+     * @param item
+     */
+    private void initializeFormulas(ItemBean item) {
+        Map<String, CalculatedQuestionFormulaBean> formulas = item.getCalculatedQuestion().getFormulas();
+        for (CalculatedQuestionFormulaBean bean : formulas.values()) {
+            bean.setActive(false);
+            bean.setValidated(true);
+        }        
+    }
+    
+    /**
+     * createFormulasFromInstructions adds any formulas that exist in the list of formulaNames
+     * but do not already exist in the question
+     * @param item
+     * @param formulaNames
+     */
+    private void createFormulasFromInstructions(ItemBean item, List<String> formulaNames) {
         Map<String, CalculatedQuestionFormulaBean> formulas = item.getCalculatedQuestion().getFormulas();
         Map<String, CalculatedQuestionVariableBean> variables = item.getCalculatedQuestion().getVariables();
           
@@ -200,14 +213,12 @@ public class CalculatedQuestionExtractListener implements ActionListener{
     }
     
     /**
-     * extractVariablesFromInstructions examines the question instructions, pulls 
-     * any variables that are not already defined as MatchItemBeans and adds them
-     * to the list.
+     * createVariablesFromInstructions adds any variables that exist in the list of variableNames
+     * but do not already exist in the question
+     * @param item
+     * @param variableNames
      */
-    private void extractVariablesFromInstructions(ItemBean item) {
-        String instructions = item.getInstruction();
-        GradingService gs = new GradingService();
-        List<String> variableNames = gs.extractVariables(instructions);
+    private void createVariablesFromInstructions(ItemBean item, List<String> variableNames) {
         Map<String, CalculatedQuestionFormulaBean> formulas = item.getCalculatedQuestion().getFormulas();
         Map<String, CalculatedQuestionVariableBean> variables = item.getCalculatedQuestion().getVariables();
         

@@ -119,7 +119,7 @@
   <h:outputText value="#{authorMessages.calc_question_answer_variance}" />
   <br/><br/>
 
-<h:outputLink value="#" onclick="javascript:showhide('calcQInstructions');"><h:outputText value="#{authorMessages.calc_question_hideshow}"/> </h:outputLink>
+<h:outputLink value="#" onclick="$('#calcQInstructions').toggle();"><h:outputText value="#{authorMessages.calc_question_hideshow}"/> </h:outputLink>
 <div id="calcQInstructions" style='display:none;'>
   
   <h:outputText value="#{authorMessages.calc_question_answer_decimal}" />
