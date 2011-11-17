@@ -15,7 +15,6 @@ create index lesson_builder_comments_author on lesson_builder_comments(pageId, a
 create index lesson_builder_log_index3 on lesson_builder_log(itemId);
 create index lesson_builder_log_index2 on lesson_builder_log(userId,toolId);
 create index lesson_builder_groups_itemid on lesson_builder_groups(itemId);
-create index lesson_builder_pages_pageid on lesson_builder_pages(pageId);
 create index lesson_builder_pages_toolid on lesson_builder_pages(toolId, parent);
 create index lesson_builder_items_pageid on lesson_builder_items(pageId);
 create index lesson_builder_items_sakaiid on lesson_builder_items(sakaiId);
