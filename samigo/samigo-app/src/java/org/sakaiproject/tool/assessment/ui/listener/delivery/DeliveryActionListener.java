@@ -451,8 +451,6 @@ public class DeliveryActionListener
     	  delivery.setPageContents(getPageContents(publishedAssessment, delivery, itemGradingHash, publishedAnswerHash));
 	}
       }
-      
-      
     }
     catch (RuntimeException e)
     {
