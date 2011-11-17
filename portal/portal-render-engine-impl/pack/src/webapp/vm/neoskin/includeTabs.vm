@@ -76,8 +76,8 @@
 
 
 						<a id="sitetabs" class="skip" name="sitetabs"></a>
-							<h1 class="skip">${rloader.sit_worksiteshead}</h1>
-<ul class="topnav" id="topnav" role="navigation">
+							<h1 class="skip"  role="navigation">${rloader.sit_worksiteshead}</h1>
+<ul class="topnav" id="topnav">
 						#foreach ( $site in $tabsSites.tabsSites ) 
 							#if (${site.isCurrentSite})
 								#if (${site.isMyWorkspace})
