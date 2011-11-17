@@ -21,13 +21,10 @@
 
 package org.sakaiproject.dash.logic;
 
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import org.sakaiproject.dash.entity.EntityLinkStrategy;
 import org.sakaiproject.dash.entity.EntityType;
@@ -48,6 +45,8 @@ public interface DashboardLogic {
 	
 	public static final String EVENT_DASH_VISIT = "dash.visit";
 	public static final String EVENT_DASH_FOLLOW_LINK = "dash.follow.link";
+	public static final String EVENT_DASH_ACCESS_URL = "dash.access.url";
+	public static final String EVENT_VIEW_ATTACHMENT = "dash.view.attachment";
 	public static final String EVENT_DASH_TABBING = "dash.tabbing";
 	public static final String EVENT_DASH_PAGING = "dash.paging";
 

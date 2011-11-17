@@ -164,7 +164,11 @@ var setupLinks = function(){
                                         var atts = "";
                                         for (i = 0; i < json[w].length; i++) {
                                         
-                                            atts = atts + '<li><a href=\"' + json[w][i]['attachment-url'] + '\">' + json[w][i]['attachment-title'] + '</a></li>';
+                                            atts = atts + '<li><a href=\"' + json[w][i]['attachment-url'] + '\" onClick=\"reportEvent(this,\'/dashboard/link' 
+                                            + entityReference + '\',\'' + itemType + '\',\'dash.view.attachment\');\">' + json[w][i]['attachment-title'] + '</a></li>';
+                                            
+                                            
+                                            
                                         }
                                         results = results + '<ul class=\"attachList\">' + atts + '</ul>';
                                     }
