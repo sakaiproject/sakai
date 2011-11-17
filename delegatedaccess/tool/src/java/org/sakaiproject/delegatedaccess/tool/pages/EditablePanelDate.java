@@ -14,7 +14,7 @@ public class EditablePanelDate  extends Panel{
 	public EditablePanelDate(String id, IModel inputModel, final NodeModel nodeModel, final TreeNode node, final boolean startDate)
 	{
 		super(id);
-		final DateTextField date = new DateTextField("dateTextField", inputModel, "MM/dd/yyyy"){
+		final DateTextField date = new DateTextField("dateTextField", inputModel, "dd MMMM yyyy"){
 			@Override
 			public boolean isVisible() {
 				return nodeModel.isDirectAccess();

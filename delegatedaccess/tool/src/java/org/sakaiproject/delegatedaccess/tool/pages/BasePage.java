@@ -154,6 +154,14 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		response.renderString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");
 		//response.renderCSSReference("css/my_tool_styles.css");
 		//response.renderJavascriptReference("js/my_tool_javascript.js");
+		
+		//for jQuery
+		response.renderJavascriptReference("/library/js/jquery-latest.min.js");
+			
+		//for datepicker
+		response.renderCSSReference("css/flora.datepicker.css");
+		response.renderJavascriptReference("javascript/jquery.ui.core-1.5.2.min.js");
+		response.renderJavascriptReference("javascript/jquery.datepicker-1.5.2.min.js");
 
 	}
 
