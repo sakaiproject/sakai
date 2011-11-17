@@ -31,6 +31,7 @@ import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnAuthDropdown;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnCheckbox;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnDate;
+import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnDropdown;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnPermList;
 
 public class ShoppingPeriodPage extends BaseTreePage{
@@ -78,13 +79,16 @@ public class ShoppingPeriodPage extends BaseTreePage{
 		IColumn columns[] = new IColumn[] {
 				new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.LEFT, 55, Unit.PX), new StringResourceModel("access", null).getString(),
 					"userObject.directAccess"),
-				new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 100, Unit.PROPORTIONAL),
+				new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 50, Unit.PROPORTIONAL),
 					"", "userObject.node.title"),
+				new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.MIDDLE, 50, Unit.PROPORTIONAL), new StringResourceModel("role", null).getString(),
+							"userObject.realmModel", realmMap),
 				new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 200, Unit.PX), new StringResourceModel("startDate", null).getString(), "userObject.shoppingPeriodStartDate", true),
 				new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 200, Unit.PX), new StringResourceModel("endDate", null).getString(), "userObject.shoppingPeriodEndDate", false),
 				new PropertyEditableColumnAuthDropdown(new ColumnLocation(Alignment.RIGHT, 100, Unit.PX), new StringResourceModel("shoppingPeriodAuth", null).getString(), "userObject.shoppingPeriodAuth"),
 				new PropertyEditableColumnPermList(new ColumnLocation(Alignment.RIGHT, 96, Unit.PX), new StringResourceModel("shoppingPeriodPerms", null).getString(),
-				"userObject.shoppingPeriodPerms")
+				"userObject.shoppingPeriodPerms"),
+				
 		};
 
 		final TreeModel treeModel = projectLogic.createTreeModelForShoppingPeriod(sakaiProxy.getCurrentUserId());

@@ -60,6 +60,26 @@
           <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
        </property>
     </bean>
+    
+    <bean id="org.sakaiproject.delegatedaccess.jobs.DelegatedAccessShoppingPeriodJob"
+		class="org.sakaiproject.delegatedaccess.jobs.DelegatedAccessShoppingPeriodJob"
+		init-method="init">
+		<property name="projectLogic" ref="org.sakaiproject.delegatedaccess.logic.ProjectLogic" />
+	</bean>
+	
+	<bean id="DelegatedAccessShoppingPeriodJob"
+       class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+       singleton="true" init-method="init">
+       <property name="beanId">
+          <value>org.sakaiproject.delegatedaccess.jobs.DelegatedAccessShoppingPeriodJob</value>
+       </property>
+       <property name="jobName">
+          <value>Delegated Access Shopping Period Job</value>
+       </property>
+       <property name="schedulerManager">
+          <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+       </property>
+    </bean>
 	
 	<!-- Cache: ttl=1 hour -->
     <bean id="org.sakaiproject.delegatedaccess.cache"
