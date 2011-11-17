@@ -120,10 +120,14 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 	}
 	private void saveShoppingPeriodStartDate(Date startDate, String nodeId){
-		hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SHOPPING_PERIOD_USER, nodeId, DelegatedAccessConstants.NODE_PERM_SHOPPING_START_DATE + startDate.getTime(), false);
+		if(startDate != null){
+			hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SHOPPING_PERIOD_USER, nodeId, DelegatedAccessConstants.NODE_PERM_SHOPPING_START_DATE + startDate.getTime(), false);
+		}
 	}
 	private void saveShoppinPeriodEndDate(Date endDate, String nodeId){
-		hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SHOPPING_PERIOD_USER, nodeId, DelegatedAccessConstants.NODE_PERM_SHOPPING_END_DATE + endDate.getTime(), false);
+		if(endDate != null){
+			hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SHOPPING_PERIOD_USER, nodeId, DelegatedAccessConstants.NODE_PERM_SHOPPING_END_DATE + endDate.getTime(), false);
+		}
 	}
 
 	private void removeAllUserPermissions(String nodeId, String userId){
