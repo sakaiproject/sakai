@@ -1081,13 +1081,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					// over time as we get more experience with different
 					// object types and browsers.
 
-					String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
-					String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString);
-					if (itemGroupTitles != null) {
+				 	String itemGroupString = null;
+					String itemGroupTitles = null;
+					if (canEditPage) {
+					    itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+					    itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString);
+					    if (itemGroupTitles != null) {
 						itemGroupTitles = "[" + itemGroupTitles + "]";
+					    }
+					    UIOutput.make(tableRow, "item-groups", itemGroupString);
 					}
-
-					UIOutput.make(tableRow, "item-groups", itemGroupString);
 
 					// the reason this code is complex is that we try to choose
 					// the best
