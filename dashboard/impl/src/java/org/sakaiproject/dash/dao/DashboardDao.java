@@ -140,7 +140,9 @@ public interface DashboardDao {
 	public Context getContext(long id);
 	
 	public Context getContext(String contextId);
-	
+
+	public List<NewsItem> getMOTD(String motdContextId);
+
 	public Person getPersonBySakaiId(String sakaiId);
 
 	public Realm getRealm(long id);
@@ -235,6 +237,19 @@ public interface DashboardDao {
 	public boolean deleteNewsLinks(Long personId, Long contextId);
 
 	/**
+	 * 
+	 * @param eventDate
+	 * @param event
+	 * @param itemRef
+	 * @param contextId
+	 * @param sessionId
+	 * @param eventCode
+	 * @return
+	 */
+	public boolean addEvent(Date eventDate, String event, String itemRef,
+			String contextId, String sessionId, String eventCode);
+
+	/**
 	 * Revise the title property of one CalendarItem, if it exists.
 	 * @param id
 	 * @param newTitle
@@ -316,7 +331,5 @@ public interface DashboardDao {
 
 	public void setConfigProperty(String propertyName,
 			Integer propertyValue);
-
-	public abstract List<NewsItem> getMOTD(String motdContextId);
 
 }

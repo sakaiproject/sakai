@@ -8,26 +8,22 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.Logger;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
-import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
-import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.calendar.api.RecurrenceRule;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.logic.DashboardLogic;
 import org.sakaiproject.dash.logic.SakaiProxy;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.Context;
-import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.RepeatingCalendarItem;
 import org.sakaiproject.dash.model.SourceType;
 import org.sakaiproject.entity.api.Entity;
@@ -36,8 +32,6 @@ import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
@@ -579,23 +573,29 @@ public class ScheduleSupport{
 				CalendarEvent cEvent = (CalendarEvent) entity;
 				TimeRange range = cEvent.getRange();
 				String calendarTimeLabelKey = scheduleEventTypeMap.get(cEvent.getType());
-				Date newTime = new Date(range.firstTime().getTime());
+				Date newStartTime = new Date(range.firstTime().getTime());
+				//Date newEndTime = new Date(range.lastTime().getTime());
+				
 				RecurrenceRule rule = cEvent.getRecurrenceRule();
 				if(rule != null) {
 					// change times for the repeating calendar item and all instances 
+					// remove all instances and add new instances
+					ResourceProperties props = cEvent.getProperties();
 					RepeatingCalendarItem item = dashboardLogic.getRepeatingCalendarItem(entityReference, calendarTimeLabelKey);
+					 
+					
 					// update the time of the repating item and each instance
 					if(rule.getUntil() != null) {
 						Date lastTime = new Date(rule.getUntil().getTime());
 					}
-					dashboardLogic.reviseRepeatingCalendarItemTime(entityReference, newTime, null);
+					dashboardLogic.reviseRepeatingCalendarItemTime(entityReference, newStartTime, null);
 					
 					
-					dashboardLogic.reviseCalendarItemsTime(entityReference, newTime);
+					dashboardLogic.reviseCalendarItemsTime(entityReference, newStartTime);
 					
 				} else {
 					// update calendar item title
-					dashboardLogic.reviseCalendarItemsTime(entityReference, newTime);
+					dashboardLogic.reviseCalendarItemsTime(entityReference, newStartTime);
 					
 				}
 				

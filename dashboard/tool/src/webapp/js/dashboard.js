@@ -328,6 +328,23 @@ var setupDismissMOTD = function(){
 function dismissMessage(target){
     utils_createCookie('motdHide','true');
     $(target).fadeToggle(1000, 0);
+    // report that MOTD has been hidden
+    var callBackUrl = $(this).closest('body').find('.callBackUrl').text();
+    var params = {
+            'entityType': 'MOTD',
+            'entityReference': '!site',
+            'itemCount': '0'
+        };
+    jQuery.ajax({
+        url: callBackUrl,
+        type: 'post',
+        cache: false,
+        data: JSON.stringify(params),
+        contentType: 'application/json',
+        dataType: 'json',
+        success: function(json){
+        }
+    });
 }
 
 /**

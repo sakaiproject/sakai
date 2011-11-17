@@ -23,9 +23,11 @@ package org.sakaiproject.dash.logic;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import org.sakaiproject.dash.entity.EntityLinkStrategy;
 import org.sakaiproject.dash.entity.EntityType;
@@ -43,7 +45,22 @@ import org.sakaiproject.dash.model.SourceType;
  *
  */
 public interface DashboardLogic {
+	
+	public static final String EVENT_DASH_VISIT = "dash.visit";
+	public static final String EVENT_DASH_FOLLOW_LINK = "dash.follow.link";
+	public static final String EVENT_DASH_TABBING = "dash.tabbing";
+	public static final String EVENT_DASH_PAGING = "dash.paging";
 
+	public static final String EVENT_DASH_ITEM_DETAILS = "dash.item.details";
+	public static final String EVENT_DASH_VIEW_GROUP = "dash.view.group";
+	
+	public static final String EVENT_DASH_STAR = "dash.star.item";
+	public static final String EVENT_DASH_UNSTAR = "dash.unstar.item";
+	public static final String EVENT_DASH_HIDE = "dash.hide.item";
+	public static final String EVENT_DASH_SHOW = "dash.show.item";
+	public static final String EVENT_DASH_HIDE_MOTD = "dash.hide.motd";
+
+	
 	/**
 	 * Add links to calendar items in a context for a particular user. Links
 	 * will be limited to items referencing entities for which the user has 
@@ -317,6 +334,13 @@ public interface DashboardLogic {
 	 * @return
 	 */
 	public boolean keepNewsItem(String sakaiUserId, long newsItemId);
+	
+	/**
+	 * 
+	 * @param event
+	 * @param itemRef
+	 */
+	public void recordDashboardActivity(String event, String itemRef);
 
 	public void registerEntityType(EntityType entityType);
 	
@@ -462,7 +486,7 @@ public interface DashboardLogic {
 
 	public String getEntityIconUrl(String type, String subtype);
 
-	public abstract List<NewsItem> getMOTD();
+	public List<NewsItem> getMOTD();
 
 
 	// todo:

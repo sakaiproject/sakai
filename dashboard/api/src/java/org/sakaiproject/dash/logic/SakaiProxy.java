@@ -101,6 +101,12 @@ public interface SakaiProxy {
 	public String getContentTypeImageUrl(String contenttype);
 
 	/**
+	 * 
+	 * @return
+	 */
+	public String getCurrentSessionId();
+
+	/**
 	 * Get current siteid
 	 * @return
 	 */

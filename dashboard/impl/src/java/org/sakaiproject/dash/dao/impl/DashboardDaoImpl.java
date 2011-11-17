@@ -1408,6 +1408,31 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            return new HashSet<String>();
 		}
 	}
+	
+	public boolean addEvent(Date eventDate, String event, String itemRef,
+			String contextId, String sessionId, String eventCode) {
+		if(log.isDebugEnabled()) {
+			log.debug("saveEvent( " + eventDate + "," + event + "," + itemRef + "," + contextId + "," + sessionId + "," + eventCode + ")");
+		}
+		
+		//  insert.EventLog = insert into dash_event (event_date, event, ref, context, session_id, event_code) values (?, ?, ?, ?, ?, ?)
+		String sql = getStatement("insert.EventLog");
+		Object[] params = new Object[]{
+				eventDate, event, itemRef, contextId, sessionId, eventCode
+			};
+		
+		try {
+			getJdbcTemplate().update(sql, params);
+			return true;
+		} catch (DataAccessException ex) {
+			log.error("saveEvent: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+			//System.out.println("addRepeatingCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return false;
+		}
+		
+	}
+
+
 
 	/*
 	 * (non-Javadoc)
@@ -1799,9 +1824,10 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			executeSqlStatement("create.PersonSourceType.table");
 			executeSqlStatement("create.RepeatingEvent.table");
 			executeSqlStatement("create.Config.table");
+			executeSqlStatement("create.EventLog.table");
 		} catch(Exception e) {
 	        //System.out.println("\ninitTables: Error executing query: " + e.getClass() + ":\n" + e.getMessage() + "\n");
-
+			logger.warn("initTables() " + e);
 		}
 	}
 

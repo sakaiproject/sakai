@@ -19,6 +19,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.request.target.basic.StringRequestTarget;
 import org.sakaiproject.dash.logic.DashboardConfig;
+import org.sakaiproject.dash.logic.DashboardLogic;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.tool.panels.CalendarLinksPanel;
 import org.sakaiproject.dash.tool.panels.MOTDPanel;
@@ -43,6 +44,8 @@ public class DashboardPage extends BasePage {
 	protected String selectedNewsTab;
 	
 	public DashboardPage() {
+		
+		dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_VISIT, "/dashboard/page/" + sakaiProxy.getCurrentSiteId());
 		
 		final WebMarkupContainer dashboardPage = new WebMarkupContainer("dashboard-page");
 		dashboardPage.setOutputMarkupId(true);
@@ -112,14 +115,18 @@ public class DashboardPage extends BasePage {
 		                logger.debug("Returning JSON:\n" + jsonString);
 		                IRequestTarget t = new StringRequestTarget("application/json", "UTF-8", jsonString);
 		                getRequestCycle().setRequestTarget(t);
+						dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_VIEW_GROUP, "/dashboard/news/current/" + entityReference);
+ 					} else if(itemCount < 1) {
+ 						// this reports that MOTD is hidden
+ 	    				dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_HIDE_MOTD, "/dashboard/page/" + sakaiProxy.getCurrentSiteId());
  					} else {
- 					
 		                Map<String,Object> entityMap = dashboardLogic.getEntityMapping(entityType, entityReference, locale);
 		                
 		                String jsonString = getJsonStringFromMap(entityMap);
 		                logger.debug("Returning JSON:\n" + jsonString);
 		                IRequestTarget t = new StringRequestTarget("application/json", "UTF-8", jsonString);
 		                getRequestCycle().setRequestTarget(t);
+						dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_ITEM_DETAILS, "/dashboard/news/current/" + entityReference);
 	 				}
 	 			}
 			}

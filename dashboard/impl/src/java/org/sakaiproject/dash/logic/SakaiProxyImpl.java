@@ -81,7 +81,16 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public String getContentTypeImageUrl(String contenttype) {
 		return this.contentTypeImageService.getContentTypeImage(contenttype);
 	}
-	
+
+	public String getCurrentSessionId() {
+		String sessionId = null;
+		Session session = this.sessionManager.getCurrentSession();
+		if(session != null) {
+			sessionId = session.getId();
+		}
+		return sessionId;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.SakaiProxy#getCurrentSiteId()

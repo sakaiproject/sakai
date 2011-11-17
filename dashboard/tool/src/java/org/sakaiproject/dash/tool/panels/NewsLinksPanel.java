@@ -115,6 +115,7 @@ public class NewsLinksPanel extends Panel {
 		        	newsLinksProvider = new NewsLinksDataProvider(selectedNewsTab);
 		        } else {
 		        	newsLinksProvider.setNewsTab(selectedNewsTab);
+					dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_TABBING, "/dashboard/news/" + selectedNewsTab);
 		        }
 				initPanel();
 				
@@ -145,6 +146,7 @@ public class NewsLinksPanel extends Panel {
 		        	newsLinksProvider = new NewsLinksDataProvider(selectedNewsTab);
 		        } else {
 		        	newsLinksProvider.setNewsTab(selectedNewsTab);
+					dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_TABBING, "/dashboard/news/" + selectedNewsTab);
 		        }
 				initPanel();
 				
@@ -174,6 +176,7 @@ public class NewsLinksPanel extends Panel {
 		        	newsLinksProvider = new NewsLinksDataProvider(selectedNewsTab);
 		        } else {
 		        	newsLinksProvider.setNewsTab(selectedNewsTab);
+					dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_TABBING, "/dashboard/news/" + selectedNewsTab);
 		        }
 				initPanel();
 				
@@ -265,6 +268,7 @@ public class NewsLinksPanel extends Panel {
 							
 							String sakaiUserId = sakaiProxy.getCurrentUserId();
 							boolean success = dashboardLogic.unkeepNewsItem(sakaiUserId, newsItemId);
+							dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_UNSTAR, "/dashboard/news/" + selectedNewsTab + "/" + newsItemId);
 							
 							// if success adjust UI, else report failure?
 							if(success) {
@@ -326,6 +330,7 @@ public class NewsLinksPanel extends Panel {
 							
 							String sakaiUserId = sakaiProxy.getCurrentUserId();
 							boolean success = dashboardLogic.keepNewsItem(sakaiUserId, newsItemId);
+							dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_STAR, "/dashboard/news/" + selectedNewsTab + "/" + newsItemId);
 							
 							// if success adjust UI, else report failure?
 							if(success) {
@@ -378,6 +383,7 @@ public class NewsLinksPanel extends Panel {
 							//logger.info(this.getModelObject());
 							String sakaiUserId = sakaiProxy.getCurrentUserId();
 							boolean success = dashboardLogic.unhideNewsItem(sakaiUserId, newsItemId);
+							dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_SHOW, "/dashboard/news/" + selectedNewsTab + "/" + newsItemId);
 							
 							// if success adjust UI, else report failure?
 							if(success) {
@@ -436,6 +442,7 @@ public class NewsLinksPanel extends Panel {
 							//logger.info(this.getModelObject());
 							String sakaiUserId = sakaiProxy.getCurrentUserId();
 							boolean success = dashboardLogic.hideNewsItem(sakaiUserId, newsItemId);
+							dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_HIDE, "/dashboard/news/" + selectedNewsTab + "/" + newsItemId);
 							
 							// if success adjust UI, else report failure?
 							if(success) {
@@ -494,6 +501,8 @@ public class NewsLinksPanel extends Panel {
         //add a pager to our table, only visible if we have more than 5 items
         newsLinksDiv.add(new PagingNavigator("newsNavigator", newsDataView) {
         	
+        	protected int currentPage = 1;
+        	
         	@Override
         	public boolean isVisible() {
         		if(newsLinksProvider.size() > pageSize) {
@@ -505,7 +514,12 @@ public class NewsLinksPanel extends Panel {
         	@Override
         	public void onBeforeRender() {
         		super.onBeforeRender();
-
+        		
+        		if(this.getPageable().getCurrentPage() != currentPage) {
+    				dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_PAGING, "/dashboard/news/" + selectedNewsTab);
+    				currentPage = this.getPageable().getCurrentPage();
+        		}
+        		
                 renderItemCounter(newsLinksDiv, newsDataView);
 
         		//clear the feedback panel messages

@@ -184,4 +184,9 @@ public class SakaiProxyMock implements SakaiProxy {
 		return false;
 	}
 
+	public String getCurrentSessionId() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

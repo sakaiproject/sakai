@@ -25,6 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -94,7 +95,32 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	protected Queue<EventCopy> eventQueue = new ConcurrentLinkedQueue<EventCopy>();
 		
 	protected static boolean timeToQuit = false;
+	
+	public static final Set<String> NAVIGATION_EVENTS = new HashSet<String>();
+	public static final Set<String> ITEM_DETAIL_EVENTS = new HashSet<String>();
+	public static final Set<String> PREFERENCE_EVENTS = new HashSet<String>();
 
+	public static final int LOG_MODE_NONE = 0;
+	public static final int LOG_MODE_SAVE = 1;
+	public static final int LOG_MODE_POST = 2;
+	public static final int LOG_MODE_SAVE_AND_POST = 3;
+
+	static {
+		NAVIGATION_EVENTS.add(EVENT_DASH_VISIT);
+		NAVIGATION_EVENTS.add(EVENT_DASH_FOLLOW_LINK);
+		NAVIGATION_EVENTS.add(EVENT_DASH_TABBING);
+		NAVIGATION_EVENTS.add(EVENT_DASH_PAGING);
+		
+		ITEM_DETAIL_EVENTS.add(EVENT_DASH_ITEM_DETAILS);
+		ITEM_DETAIL_EVENTS.add(EVENT_DASH_VIEW_GROUP);
+		
+		PREFERENCE_EVENTS.add(EVENT_DASH_STAR);
+		PREFERENCE_EVENTS.add(EVENT_DASH_UNSTAR);
+		PREFERENCE_EVENTS.add(EVENT_DASH_HIDE);
+		PREFERENCE_EVENTS.add(EVENT_DASH_SHOW);
+		PREFERENCE_EVENTS.add(EVENT_DASH_HIDE_MOTD);
+	}	
+	
 	/************************************************************************
 	 * Spring-injected classes
 	 ************************************************************************/
@@ -132,15 +158,19 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	public void addCalendarItemsForRepeatingCalendarItem(RepeatingCalendarItem repeatingEvent, Date beginDate, Date endDate) {
 		if(beginDate.before(endDate)) {
 			if(repeatingEvent == null || repeatingEvent.getSourceType() == null || repeatingEvent.getSourceType().getIdentifier() == null) {
-				// TODO: handle error: invalid parameters?
+				// TODO: handle error: null parameters?
+				logger.warn("TODO: handle error: null parameters?");
 			} else {
 				EntityType entityType = entityTypes.get(repeatingEvent.getSourceType().getIdentifier());
 				if(entityType == null) {
 					// TODO: handle error: entityType cannot be null
+					logger.warn("TODO: handle error: entityType cannot be null");
 				} else if(entityType instanceof RepeatingEventGenerator) {
 					
 					Map<Integer, Date> dates = ((RepeatingEventGenerator) entityType).generateRepeatingEventDates(repeatingEvent.getEntityReference(), beginDate, endDate);
-					if(dates != null) {
+					if(dates == null) {
+						// ignore: there are no new dates to add at this time
+					} else {
 						for(Map.Entry<Integer, Date> entry : dates.entrySet()) {
 							try {
 								// create an instance
@@ -168,10 +198,35 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 					}
 				} else {
 					// TODO: handle error: entityType must be a RepeatingEventGenerator
+					logger.warn("TODO: handle error: entityType must be a RepeatingEventGenerator");
 				}
 			}
 		} else {
 			// TODO: handle error: invalid parameters? beginDate must be before endDate
+			logger.warn("TODO: handle error: invalid parameters? beginDate must be before endDate");
+		}
+	}
+	
+	public void updateTimeOfRepeatingCalendarItem(RepeatingCalendarItem repeatingEvent, Date oldTime, Date newTime) {
+		if(repeatingEvent == null) {
+			logger.warn("updateTimeOfRepeatingCalendarItem() called with null parameter ");
+		} else {
+			EntityType entityType = entityTypes.get(repeatingEvent.getSourceType().getIdentifier());
+			if(entityType == null) {
+				// TODO: handle error: entityType cannot be null
+				logger.warn("updateTimeOfRepeatingCalendarItem() handle error: entityType cannot be null");
+			} else if(entityType instanceof RepeatingEventGenerator) {
+				Date beginDate = repeatingEvent.getFirstTime();
+				Date endDate = repeatingEvent.getLastTime();
+				Map<Integer, Date> dates = ((RepeatingEventGenerator) entityType).generateRepeatingEventDates(repeatingEvent.getEntityReference(), beginDate, endDate);
+				for(Map.Entry<Integer, Date> entry : dates.entrySet()) {
+					
+				}
+				
+			} else {
+				// TODO: handle error: entityType cannot be null
+				logger.warn("updateTimeOfRepeatingCalendarItem() handle error: entityType must be RepeatingEventGenerator");
+			}
 		}
 	}
 
@@ -671,6 +726,51 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			}
 		}
 		return isAvailable;
+	}
+
+	protected void saveEventLocally(String event, String itemRef, boolean b) {
+		// event_date timestamp, event varchar (32), itemRef varchar (255), 
+		// contextId varchar (255), session_id varchar (163), event_code varchar (1)
+		Date eventDate = new Date();
+		String contextId = sakaiProxy.getCurrentSiteId();
+		String sessionId = sakaiProxy.getCurrentSessionId();
+		String eventCode = "X";
+		
+		boolean success = dao.addEvent(eventDate, event, itemRef, contextId, sessionId, eventCode);
+	}
+
+	public void recordDashboardActivity(String event, String itemRef) {
+		if(event == null) {
+			// log error and return
+			logger.warn("attempting to record dashboard activity with null event. itemRef == " + itemRef);
+			return;
+		} else if(itemRef == null) {
+			// log error and return
+			logger.warn("attempting to record dashboard activity with null itemRef. event == " + event);
+			return;
+		}
+		
+		int disposition = LOG_MODE_NONE;
+		if(NAVIGATION_EVENTS.contains(event)) {
+			disposition = this.getLogModeNavigationEvents();
+		} else if (ITEM_DETAIL_EVENTS.contains(event)) {
+			disposition = this.getLogModeItemDetailEvents();
+		} else if (PREFERENCE_EVENTS.contains(event)) {
+			disposition = this.getLogModePreferenceEvents();
+		} else {
+			// log error and return
+			logger.warn("attempting to record dashboard activity with invalid event. event == " + event);
+			return;
+		}
+		
+		if(disposition == LOG_MODE_SAVE_AND_POST) {
+			sakaiProxy.postEvent(event, itemRef, false);
+			this.saveEventLocally(event, itemRef, false);
+		} else if (disposition == LOG_MODE_POST) {
+			sakaiProxy.postEvent(event, itemRef, false);
+		} else if (disposition == LOG_MODE_SAVE) {
+			this.saveEventLocally(event, itemRef, false);
+		}
 	}
 	
 	public void registerEntityType(EntityType entityType) {
@@ -1429,6 +1529,16 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			}
 		}
 		return url;
+	}
+
+	protected int getLogModeNavigationEvents() {
+		return dashboardConfig.getConfigValue(DashboardConfig.PROP_LOG_MODE_FOR_NAVIGATION_EVENTS, new Integer(2));
+	}
+	protected int getLogModeItemDetailEvents() {
+		return dashboardConfig.getConfigValue(DashboardConfig.PROP_LOG_MODE_FOR_ITEM_DETAIL_EVENTS, new Integer(2));
+	}
+	protected int getLogModePreferenceEvents() {
+		return dashboardConfig.getConfigValue(DashboardConfig.PROP_LOG_MODE_FOR_PREFERENCE_EVENTS, new Integer(2));
 	}
 
 }

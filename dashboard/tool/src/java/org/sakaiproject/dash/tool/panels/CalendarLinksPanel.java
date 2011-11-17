@@ -124,6 +124,7 @@ public class CalendarLinksPanel extends Panel {
 		        initPanel();
 				target.addComponent(CalendarLinksPanel.this);
 				target.appendJavascript("resizeFrame('grow');");
+				dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_TABBING, "/dashboard/calendar/upcoming");
 			}
         	
         };
@@ -156,6 +157,7 @@ public class CalendarLinksPanel extends Panel {
 		        initPanel();
 				target.addComponent(CalendarLinksPanel.this);
 				target.appendJavascript("resizeFrame('grow');");
+				dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_TABBING, "/dashboard/calendar/past");
 			}
         	
         };
@@ -186,6 +188,7 @@ public class CalendarLinksPanel extends Panel {
 		        initPanel();
 				target.addComponent(CalendarLinksPanel.this);
 				target.appendJavascript("resizeFrame('grow');");
+				dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_TABBING, "/dashboard/calendar/starred");
 			}
         	
         };
@@ -216,6 +219,7 @@ public class CalendarLinksPanel extends Panel {
 		        initPanel();
 				target.addComponent(CalendarLinksPanel.this);
 				target.appendJavascript("resizeFrame('grow');");
+				dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_TABBING, "/dashboard/calendar/hidden");
 			}
         	
         };
@@ -305,6 +309,7 @@ public class CalendarLinksPanel extends Panel {
 								
 								String sakaiUserId = sakaiProxy.getCurrentUserId();
 								boolean success = dashboardLogic.unkeepCalendarItem(sakaiUserId, calendarItemId);
+								dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_UNSTAR, "/dashboard/calendar/" + selectedCalendarTab + "/" + calendarItemId);
 								
 								// if success adjust UI, else report failure?
 								if(success) {
@@ -369,6 +374,7 @@ public class CalendarLinksPanel extends Panel {
 
 								String sakaiUserId = sakaiProxy.getCurrentUserId();
 								boolean success = dashboardLogic.keepCalendarItem(sakaiUserId, calendarItemId);
+								dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_STAR, "/dashboard/calendar/" + selectedCalendarTab + "/" + calendarItemId);
 								
 								// if success adjust UI, else report failure?
 								if(success) {
@@ -422,6 +428,7 @@ public class CalendarLinksPanel extends Panel {
 								//logger.info(this.getModelObject());
 								String sakaiUserId = sakaiProxy.getCurrentUserId();
 								boolean success = dashboardLogic.unhideCalendarItem(sakaiUserId, calendarItemId);
+								dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_SHOW, "/dashboard/calendar/" + selectedCalendarTab + "/" + calendarItemId);
 								
 								// if success adjust UI, else report failure?
 								if(success) {
@@ -481,6 +488,7 @@ public class CalendarLinksPanel extends Panel {
 								//logger.info(this.getModelObject());
 								String sakaiUserId = sakaiProxy.getCurrentUserId();
 								boolean success = dashboardLogic.hideCalendarItem(sakaiUserId, calendarItemId);
+								dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_HIDE, "/dashboard/calendar/" + selectedCalendarTab + "/" + calendarItemId);
 								
 								// if success adjust UI, else report failure?
 								if(success) {
@@ -539,6 +547,8 @@ public class CalendarLinksPanel extends Panel {
         //add a pager to our table, only visible if we have more than 5 items
         calendarLinksDiv.add(new PagingNavigator("calendarNavigator", calendarDataView) {
         	
+        	protected int currentPage = 1;
+        	
         	@Override
         	public boolean isVisible() {
         		if(calendarLinksProvider != null && calendarLinksProvider.size() > pageSize) {
@@ -551,11 +561,17 @@ public class CalendarLinksPanel extends Panel {
         	public void onBeforeRender() {
         		super.onBeforeRender();
         		
+        		if(this.getPageable().getCurrentPage() != currentPage) {
+    				dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_PAGING, "/dashboard/calendar/" + selectedCalendarTab);
+    				currentPage = this.getPageable().getCurrentPage();
+        		}
+
         		renderItemCounter(calendarLinksDiv, calendarDataView); 
        		
         		//clear the feedback panel messages
         		//clearFeedback(feedbackPanel);
         	}
+        	
         });
 
         WebMarkupContainer haveNoLinks = new WebMarkupContainer("haveNoLinks");
