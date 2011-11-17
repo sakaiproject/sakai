@@ -11619,7 +11619,14 @@ public class AssignmentAction extends PagedResourceActionII
 								User[] users = s.getSubmitters();
 								if (users != null && users.length > 0 && users[0] != null)
 								{
-									submissionTable.put(users[0].getEid(), new UploadGradeWrapper(s.getGrade(), s.getSubmittedText(), s.getFeedbackComment(), hasSubmissionAttachment?new ArrayList():s.getSubmittedAttachments(), hasFeedbackAttachment?new ArrayList():s.getFeedbackAttachments(), (s.getSubmitted() && s.getTimeSubmitted() != null)?s.getTimeSubmitted().toString():"", s.getFeedbackText()));
+									// if Eid contains non ascii characters, internal user id is used
+									String userEid = users[0].getEid();
+									String candidateEid = AssignmentService.escapeInvalidCharsEntry(userEid);
+									if (candidateEid.equals(userEid)){
+										submissionTable.put(candidateEid, new UploadGradeWrapper(s.getGrade(), s.getSubmittedText(), s.getFeedbackComment(), hasSubmissionAttachment?new ArrayList():s.getSubmittedAttachments(), hasFeedbackAttachment?new ArrayList():s.getFeedbackAttachments(), (s.getSubmitted() && s.getTimeSubmitted() != null)?s.getTimeSubmitted().toString():"", s.getFeedbackText()));
+									} else {
+										submissionTable.put(users[0].getId(), new UploadGradeWrapper(s.getGrade(), s.getSubmittedText(), s.getFeedbackComment(), hasSubmissionAttachment?new ArrayList():s.getSubmittedAttachments(), hasFeedbackAttachment?new ArrayList():s.getFeedbackAttachments(), (s.getSubmitted() && s.getTimeSubmitted() != null)?s.getTimeSubmitted().toString():"", s.getFeedbackText()));
+									}
 								}
 							}
 						}
@@ -11743,7 +11750,13 @@ public class AssignmentAction extends PagedResourceActionII
 						        			User u = UserDirectoryService.getUserByEid(items[1]/*user eid*/);
 						        			if (u != null)
 						        			{
-							        			UploadGradeWrapper w = (UploadGradeWrapper) submissionTable.get(u.getEid());
+						        				String userEid = u.getEid();
+						        				UploadGradeWrapper w = null;
+						        				if (submissionTable.containsKey(userEid)){w = (UploadGradeWrapper) submissionTable.get(userEid);
+						        				} else {
+						        					// internal user id is used because eid contains non ascii characters
+						        					w = (UploadGradeWrapper) submissionTable.get(u.getId());
+						        				}
 							        			if (w != null)
 							        			{
 							        				String itemString = items[4];
@@ -11759,7 +11772,11 @@ public class AssignmentAction extends PagedResourceActionII
 							        				if (state.getAttribute(STATE_MESSAGE) == null)
 							        				{
 								        				w.setGrade(gradeType == Assignment.SCORE_GRADE_TYPE?scalePointGrade(state, itemString):itemString);
-								        				submissionTable.put(u.getEid(), w);
+								        				if (submissionTable.containsKey(userEid)){
+								        					submissionTable.put(userEid, w);
+								        				} else {
+								        					submissionTable.put(u.getId(), w);
+								        				}
 							        				}
 							        			}
 						        			}
@@ -11782,28 +11799,28 @@ public class AssignmentAction extends PagedResourceActionII
 						}	
 						else 
 						{
-							// get user eid part
-							String userEid = "";
+							// if Eid contains non ascii characters, internal user id is used
+							// to avoid confusion the string variable is named userId
+							String userId = "";
 							if (entryName.indexOf("/") != -1)
 							{
 								// there is folder structure inside zip
 								if (!zipHasFolder) zipHasFolder = true;
 								
 								// remove the part of zip name
-								userEid = entryName.substring(entryName.indexOf("/")+1);
+								userId = entryName.substring(entryName.indexOf("/")+1);
 								// get out the user name part
-								if (userEid.indexOf("/") != -1)
+								if (userId.indexOf("/") != -1)
 								{
-									userEid = userEid.substring(0, userEid.indexOf("/"));
+									userId = userId.substring(0, userId.indexOf("/"));
 								}
-								// get the eid part
-								if (userEid.indexOf("(") != -1)
+								if (userId.indexOf("(") != -1)
 								{
-									userEid = userEid.substring(userEid.indexOf("(")+1, userEid.indexOf(")"));
+									userId = userId.substring(userId.indexOf("(")+1, userId.indexOf(")"));
 								}
-								userEid=StringUtils.trimToNull(userEid);
+								userId=StringUtils.trimToNull(userId);
 							}
-							if (submissionTable.containsKey(userEid))
+							if (submissionTable.containsKey(userId))
 							{
 								if (!zipHasFolderValidUserId) zipHasFolderValidUserId = true;
 								
@@ -11813,9 +11830,9 @@ public class AssignmentAction extends PagedResourceActionII
 									String comment = getBodyTextFromZipHtml(zipFile.getInputStream(entry));
 							        if (comment != null)
 							        {
-							        		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userEid);
+							        		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userId);
 							        		r.setComment(comment);
-							        		submissionTable.put(userEid, r);
+							        		submissionTable.put(userId, r);
 							        }
 								}
 								if (hasFeedbackText && entryName.indexOf("feedbackText") != -1)
@@ -11824,9 +11841,9 @@ public class AssignmentAction extends PagedResourceActionII
 									String text = getBodyTextFromZipHtml(zipFile.getInputStream(entry));
 									if (text != null)
 							        {
-							        		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userEid);
+							        		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userId);
 							        		r.setFeedbackText(text);
-							        		submissionTable.put(userEid, r);
+							        		submissionTable.put(userId, r);
 							        }
 								}
 								if (hasSubmissionText && entryName.indexOf("_submissionText") != -1)
@@ -11835,9 +11852,9 @@ public class AssignmentAction extends PagedResourceActionII
 									String text = getBodyTextFromZipHtml(zipFile.getInputStream(entry));
 									if (text != null)
 							        {
-							        		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userEid);
+							        		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userId);
 							        		r.setText(text);
-							        		submissionTable.put(userEid, r);
+							        		submissionTable.put(userId, r);
 							        }
 								}
 								if (hasSubmissionAttachment)
@@ -11847,9 +11864,9 @@ public class AssignmentAction extends PagedResourceActionII
 									if ( entryName.indexOf(submissionFolder) != -1)
 									{
 										// clear the submission attachment first
-										UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userEid);
-										submissionTable.put(userEid, r);
-										submissionTable = uploadZipAttachments(state, submissionTable, zipFile.getInputStream(entry), entry, entryName, userEid, "submission");
+										UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userId);
+										submissionTable.put(userId, r);
+										submissionTable = uploadZipAttachments(state, submissionTable, zipFile.getInputStream(entry), entry, entryName, userId, "submission");
 									}
 								}
 								if (hasFeedbackAttachment)
@@ -11859,9 +11876,9 @@ public class AssignmentAction extends PagedResourceActionII
 									if ( entryName.indexOf(submissionFolder) != -1)
 									{
 										// clear the feedback attachment first
-										UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userEid);
-										submissionTable.put(userEid, r);
-										submissionTable = uploadZipAttachments(state, submissionTable, zipFile.getInputStream(entry), entry, entryName, userEid, "feedback");
+										UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userId);
+										submissionTable.put(userId, r);
+										submissionTable = uploadZipAttachments(state, submissionTable, zipFile.getInputStream(entry), entry, entryName, userId, "feedback");
 									}
 								}
 								
@@ -11869,9 +11886,9 @@ public class AssignmentAction extends PagedResourceActionII
 								if (entryName.indexOf("timestamp") != -1)
 								{
 									byte[] timeStamp = readIntoBytes(zipFile.getInputStream(entry), entryName, entry.getSize());
-									UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userEid);
+									UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userId);
 					        		r.setSubmissionTimestamp(new String(timeStamp));
-					        		submissionTable.put(userEid, r);
+					        		submissionTable.put(userId, r);
 								}
 							}
 						}
@@ -11953,7 +11970,12 @@ public class AssignmentAction extends PagedResourceActionII
 				User[] users = s.getSubmitters();
 				if (users != null && users.length > 0 && users[0] != null)
 				{
+					// if Eid contains non ascii characters, internal user id is used
 					String uName = users[0].getEid();
+					String uNameCandidate = AssignmentService.escapeInvalidCharsEntry(uName);
+					if (!uNameCandidate.equals(uName)){
+						uName = users[0].getId();
+					}
 					if (submissionTable.containsKey(uName))
 					{
 						// update the AssignmetnSubmission record
@@ -12075,10 +12097,12 @@ public class AssignmentAction extends PagedResourceActionII
 	 * @param zin
 	 * @param entry
 	 * @param entryName
-	 * @param userEid
+	 * @param userId
 	 * @param submissionOrFeedback
 	 */
-	private HashMap uploadZipAttachments(SessionState state, HashMap submissionTable, InputStream zin, ZipEntry entry, String entryName, String userEid, String submissionOrFeedback) {
+	// if Eid contains non ascii characters, internal user id is used
+	// to avoid confusion the string parameter is named userId
+	private HashMap uploadZipAttachments(SessionState state, HashMap submissionTable, InputStream zin, ZipEntry entry, String entryName, String userId, String submissionOrFeedback) {
 		// upload all the files as instructor attachments to the submission for grading purpose
 		String fName = entryName.substring(entryName.lastIndexOf("/") + 1, entryName.length());
 		ContentTypeImageService iService = (ContentTypeImageService) state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE);
@@ -12107,7 +12131,7 @@ public class AssignmentAction extends PagedResourceActionII
 						attachment.getPropertiesEdit().addAll(properties);
 						m_contentHostingService.commitResource(attachment);
 						
-			    		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userEid);
+			    		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userId);
 			    		List attachments = "submission".equals(submissionOrFeedback)?r.getSubmissionAttachments():r.getFeedbackAttachments();
 			    		attachments.add(EntityManager.newReference(attachment.getReference()));
 			    		if ("submission".equals(submissionOrFeedback))
@@ -12118,7 +12142,7 @@ public class AssignmentAction extends PagedResourceActionII
 			    		{
 			    			r.setFeedbackAttachments(attachments);
 			    		}
-			    		submissionTable.put(userEid, r);
+			    		submissionTable.put(userId, r);
 					}
 					catch (Exception e)
 					{

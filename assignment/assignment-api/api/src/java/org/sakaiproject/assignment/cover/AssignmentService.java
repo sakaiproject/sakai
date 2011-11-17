@@ -783,4 +783,10 @@ public class AssignmentService {
 
 		return service.getSubmitterIdList(param0, param1, param2, param3, param4);
 	}	
+	public static String escapeInvalidCharsEntry(java.lang.String param0) {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return null;
+		return service.escapeInvalidCharsEntry(param0);
+	}
 }

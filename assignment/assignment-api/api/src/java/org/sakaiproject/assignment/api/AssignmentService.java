@@ -830,4 +830,6 @@ public interface AssignmentService extends EntityProducer
 	 * @return
 	 */
 	public List<String> getSubmitterIdList(String searchFilterOnly, String allOrOneGroup, String search, String aRef, String contextString);	
+
+	public String escapeInvalidCharsEntry(String accentedString);
 }
