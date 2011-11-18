@@ -30,7 +30,7 @@ public class DelegatedAccessShoppingPeriodJob  implements Job{
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		long startTime = System.currentTimeMillis();
 		
-		TreeModel treeModel = projectLogic.createTreeModelForShoppingPeriod(DelegatedAccessConstants.SHOPPING_PERIOD_USER);
+		TreeModel treeModel = projectLogic.createTreeModelForUser(DelegatedAccessConstants.SHOPPING_PERIOD_USER, false, true);
 		if (treeModel != null && treeModel.getRoot() != null) {
 			treeModelShoppingPeriodTraverser((DefaultMutableTreeNode) treeModel.getRoot());
 		}
@@ -55,10 +55,12 @@ public class DelegatedAccessShoppingPeriodJob  implements Job{
 		Date endDate = null;
 		String auth = node.getShoppingPeriodAuth();
 		
-		if(node.getShoppingPeriodStartDate() != null)
-			startDate = node.getShoppingPeriodStartDate();
-		if(node.getShoppingPeriodEndDate() != null)
-			endDate = node.getShoppingPeriodEndDate();
+		if(auth == null || "".equals(auth)){
+			auth = node.getInheritedShoppingPeriodAuth();
+		}
+		
+		startDate = node.getShoppingPeriodStartDate();
+		endDate = node.getShoppingPeriodEndDate();
 		if(startDate == null)
 			startDate = node.getInheritedShoppingPeriodStartDate();
 		if(endDate == null)
@@ -80,6 +82,11 @@ public class DelegatedAccessShoppingPeriodJob  implements Job{
 			addAuth = addAuth && true;
 		}else{
 			addAuth = false;
+		}
+		if(auth == null || "".equals(auth)){
+			addAuth = false;
+		}else{
+			addAuth = addAuth && true;
 		}
 		
 		if(addAuth && (".anon".equals(auth) || ".auth".equals(auth))){
