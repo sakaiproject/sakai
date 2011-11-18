@@ -180,14 +180,14 @@
           <h:outputText value="#{authorMessages.calc_question_varname_col}"  />
         </f:facet>
           <h:outputText escape="false" value="#{variable.name}" rendered="#{variable.active }" />
-          <h:outputText escape="false" value="#{variable.name}" rendered="#{!variable.active }" style="color:red; text-decoration: line-through;" />
+          <h:outputText escape="false" value="#{variable.name}" rendered="#{!variable.active }" styleClass="disabledField" />
       </h:column>
 
       <h:column>
         <f:facet name="header">
           <h:outputText value="#{authorMessages.calc_question_min}"  />
         </f:facet>
-          <h:inputText required="true" value="#{variable.min}" disabled="#{!variable.active }">
+          <h:inputText value="#{variable.min}" disabled="#{!variable.active }" styleClass="#{(!variable.validMin ? 'validationError' : '') }">
           </h:inputText>
       </h:column>
 
@@ -195,7 +195,7 @@
         <f:facet name="header">
           <h:outputText value="#{authorMessages.calc_question_max}"  />
         </f:facet>
-          <h:inputText required="true" value="#{variable.max}" disabled="#{!variable.active }">
+          <h:inputText value="#{variable.max}" disabled="#{!variable.active }" styleClass="#{(!variable.validMax ? 'validationError' : '') }">
           </h:inputText>
       </h:column>
 
@@ -230,14 +230,14 @@
           <h:outputText value="#{authorMessages.calc_question_formulaname_col}"  />
         </f:facet>
           <h:outputText escape="false" value="#{formula.name}" rendered="#{formula.active }" />
-          <h:outputText escape="false" value="#{formula.name}" rendered="#{!formula.active }" style="color:red; text-decoration: line-through;" />
+          <h:outputText escape="false" value="#{formula.name}" rendered="#{!formula.active }" styleClass="disabledField" />
       </h:column>
 
       <h:column>
         <f:facet name="header">
           <h:outputText value="#{authorMessages.calc_question_formula_col}"  />
         </f:facet>
-        	<h:inputText value="#{formula.text }" disabled="#{!formula.active }" style="#{(!formula.validated ? 'background-color:#ffeeee' : '')}"/>
+        	<h:inputText value="#{formula.text }" disabled="#{!formula.active }" styleClass="#{(!formula.validFormula ? 'validationError' : '')}"/>
         	
       </h:column>
       
@@ -245,8 +245,7 @@
         <f:facet name="header">
           <h:outputText value="#{authorMessages.calc_question_tolerance}"  />
         </f:facet>
-          <h:inputText required="true" value="#{formula.tolerance}"  disabled="#{!formula.active }">
-          </h:inputText>
+          <h:inputText value="#{formula.tolerance}"  disabled="#{!formula.active }" styleClass="#{(!formula.validTolerance ? 'validationError' : '')}"/>
       </h:column>
       
       <h:column>

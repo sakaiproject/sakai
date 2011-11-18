@@ -38,7 +38,8 @@ public class CalculatedQuestionFormulaBean implements Serializable, CalculatedQu
     private String tolerance;
     private String decimalPlaces;
     private boolean active;
-    private boolean validated;
+    private transient boolean validatedFormula;
+    private transient boolean validatedTolerance;
     
     private static final String DEFAULT_FORMULA = "0";
     private static final String DEFAULT_DECIMAL_PLACES = "3";
@@ -49,7 +50,8 @@ public class CalculatedQuestionFormulaBean implements Serializable, CalculatedQu
         this.decimalPlaces = DEFAULT_DECIMAL_PLACES;
         this.tolerance = DEFAULT_TOLERANCE;
         this.active = true;
-        this.validated = true;
+        this.validatedFormula = true;
+        this.validatedTolerance = true;
     }
 
     public void setSequence(Long sequence) {
@@ -107,23 +109,42 @@ public class CalculatedQuestionFormulaBean implements Serializable, CalculatedQu
     }
     
     /**
-     * setValidated() controls whether the formula has been successfully
+     * setValidFormula() controls whether the formula has been successfully
      * validated for syntax and returns a real answer
      * @param validated true if the formula passes all syntax checks and returns
      * a valid value, otherwise false
      */
-    public void setValidated(boolean validated) {
-        this.validated = validated;
+    public void setValidFormula(boolean validatedFormula) {
+        this.validatedFormula = validatedFormula;
     }
     
     /**
-     * getValidated() returns whether the formula has been successfully
+     * getValidFormula() returns whether the formula has been successfully
      * validated for syntax and returns a real answer
      * @return true if the formula passes all syntax checks and returns a valid
      * value, otherwise false
      */
-    public boolean getValidated() {
-        return this.validated;
+    public boolean getValidFormula() {
+        return this.validatedFormula;
+    }
+    
+    /**
+     * setValidTolerance() controls whether the tolerance has been successfully
+     * validated for syntax and returns a real answer
+     * @param validatedTolerance
+     */
+    public void setValidTolerance(boolean validatedTolerance) {
+        this.validatedTolerance = validatedTolerance;
+    }
+    
+    /**
+     * getValidTolerance() returns whether the tolerance has been successfully
+     * validated for syntax a returns a real answer
+     * @return true if tolerance passes all syntax checks and returns a valid
+     * value, otherwise false
+     */
+    public boolean getValidTolerance() {
+        return this.validatedTolerance;
     }
     
     public String getMatch() {

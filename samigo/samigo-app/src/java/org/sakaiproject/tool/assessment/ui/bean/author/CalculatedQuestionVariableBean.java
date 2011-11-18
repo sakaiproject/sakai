@@ -39,6 +39,8 @@ public class CalculatedQuestionVariableBean implements Serializable, CalculatedQ
     private String max;
     private String decimalPlaces;
     private boolean active;
+    private transient boolean validMin;
+    private transient boolean validMax;
     public static final String DEFAULT_DECIMAL_PLACES = "3";
     public static final String DEFAULT_MIN = "0";
     public static final String DEFAULT_MAX = "0";
@@ -48,6 +50,8 @@ public class CalculatedQuestionVariableBean implements Serializable, CalculatedQ
         this.active = true;
         this.min = DEFAULT_MIN;
         this.max = DEFAULT_MAX;
+        this.validMin = true;
+        this.validMax = true;
     }
     
     public void setSequence(Long sequence) {
@@ -99,6 +103,38 @@ public class CalculatedQuestionVariableBean implements Serializable, CalculatedQ
     
     public boolean getActive() {
         return this.active;
+    }
+    
+    /**
+     * setValidMin() sets whether the min value has been calculated correctly
+     * @param validMin
+     */
+    public void setValidMin(boolean validMin) {
+        this.validMin = validMin;
+    }
+    
+    /**
+     * getValidMin() returns whether the min has been calculated correctly
+     * @return
+     */
+    public boolean getValidMin() {
+        return this.validMin;
+    }
+    
+    /**
+     * setValidMax() sets whether the max value has been calculated correctly;
+     * @param validMax
+     */
+    public void setValidMax(boolean validMax) {
+        this.validMax = validMax;
+    }
+    
+    /**
+     * getValidMax() returns whether the max value has been calculated correctly.
+     * @return
+     */
+    public boolean getValidMax() {
+        return this.validMax;
     }
     
     public String getMatch() {

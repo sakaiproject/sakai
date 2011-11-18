@@ -178,3 +178,12 @@
 }
 
 form { margin: 0px; border: none; }
+
+.validationError {
+	background-color: #ffeeee;
+}
+
+.disabledField {
+	color: red;
+	text-decoration: line-through;
+}

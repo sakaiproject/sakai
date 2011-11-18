@@ -251,3 +251,18 @@ function toPoint(id)
   document.getElementById(id).value=x.replace(',','.')
 }
 
+(function() {
+    var dirty = false;
+    $(document).ready(function() {
+       $("input, select").change(function() {
+           dirty = true;
+       });
+       $(":submit[value=Save]").click(function() {
+         if (!dirty) {
+             if (!confirm("You have not changed variables or formulas.  Are you sure that you want to Save?")) {
+                 return false;
+             }
+         }           
+       });
+    });
+})();
