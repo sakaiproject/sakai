@@ -299,8 +299,8 @@ public class AssignmentSupport {
 	}
 
 		public String getIconUrl(String subtype) {
-			// we will use the Deadline icon for now, the same as the one used in schedule tool
-			return "/library/image/sakai/deadline.gif";
+			// we will use the Assignment tool icon for now
+			return "/library/image/silk/page_edit.png";
 		}
 	}
 	
@@ -340,13 +340,13 @@ public class AssignmentSupport {
 				String assnReference = assn.getReference();
 				
 				NewsItem newsItem = dashboardLogic.createNewsItem(assn.getTitle(), event.getEventTime(), "assignment.added", assnReference, context, sourceType, null);
-				CalendarItem calendarDueDateItem = dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getDueTime().getTime()), "assignment.due.date", assnReference, context, sourceType, null, null);
-				CalendarItem calendarCloseDateItem = assn.getCloseTime().equals(assn.getDueTime())? null : dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getCloseTime().getTime()), "assignment.close.date", assnReference, context, sourceType, null, null);
+				// don't create calendar item now, if the assignment is posting to schedule tool, dashboard will get the calendar item from schedule tool post event
+				//CalendarItem calendarDueDateItem = dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getDueTime().getTime()), "assignment.due.date", assnReference, context, sourceType, null, null);
+				CalendarItem calendarCloseDateItem = assn.getCloseTime().equals(assn.getDueTime())? null : dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getCloseTime().getTime()), "assignment.close.date", assnReference, context, sourceType, "Deadline", null, null);
 				
 				if(dashboardLogic.isAvailable(assnReference, IDENTIFIER)) {
 					// if the assignment is open, add the news links
 					dashboardLogic.createNewsLinks(newsItem);
-					dashboardLogic.createCalendarLinks(calendarDueDateItem);
 					if (calendarCloseDateItem != null)
 					{
 						// if the close time is different from due time, create a separate close time item
