@@ -337,7 +337,8 @@ public class ScheduleSupport{
 			
 			String url = eventTypeImageUrlMap.get(subtype);
 			if(url == null) {
-				// url = SOME_DEFAULT_IMAGE_URL
+				// default url to activity.gif
+				url = "/library/image/sakai/activity.gif";
 			}
 			return url ;
 		}
@@ -408,7 +409,7 @@ public class ScheduleSupport{
 				RecurrenceRule recurrenceRule = cEvent.getRecurrenceRule();
 				if(recurrenceRule == null) {
 					// not a repeating event so create one calendar event
-					CalendarItem calendarItem = dashboardLogic.createCalendarItem(cEvent.getDisplayName(), new Date(cEvent.getRange().firstTime().getTime()), key, cEventReference, context, sourceType, null, null);
+					CalendarItem calendarItem = dashboardLogic.createCalendarItem(cEvent.getDisplayName(), new Date(cEvent.getRange().firstTime().getTime()), key, cEventReference, context, sourceType, type, null, null);
 					dashboardLogic.createCalendarLinks(calendarItem);
 				} else {
 					// this is a repeating event -- create a repeating calendar item
@@ -802,7 +803,7 @@ public class ScheduleSupport{
 				// The schedule tool and/or service does not save a recurrence rule for the newly  
 				// separated calendar event, though the UI elements are presented to the user,
 				// so we will assume this to be a non-repeating event.
-				CalendarItem calendarItem = dashboardLogic.createCalendarItem(cEvent.getDisplayName(), new Date(cEvent.getRange().firstTime().getTime()), key, cEventReference, context, sourceType, null, null);
+				CalendarItem calendarItem = dashboardLogic.createCalendarItem(cEvent.getDisplayName(), new Date(cEvent.getRange().firstTime().getTime()), key, cEventReference, context, sourceType, type, null, null);
 				dashboardLogic.createCalendarLinks(calendarItem);
 			} else {
 				// for now, let's log the error

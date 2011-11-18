@@ -90,11 +90,12 @@ public interface DashboardLogic {
 	 * @param entityReference
 	 * @param context
 	 * @param sourceType
+	 * @param subtype
 	 * @param repeatingCalendarItem The RepeatingCalendarItem of which this is an instance, or null if this item does not repeat.
 	 * @param sequenceNumber The index of this item in the sequence of repeating events, or null if this item does not repeat.
 	 * @return
 	 */
-	public CalendarItem createCalendarItem(String title, Date calendarTime, String calendarTimeLabelKey, String entityReference, Context context, SourceType sourceType, RepeatingCalendarItem repeatingCalendarItem, Integer sequenceNumber);
+	public CalendarItem createCalendarItem(String title, Date calendarTime, String calendarTimeLabelKey, String entityReference, Context context, SourceType sourceType, String subtype, RepeatingCalendarItem repeatingCalendarItem, Integer sequenceNumber);
 
 	public void createCalendarLinks(CalendarItem calendarItem);
 

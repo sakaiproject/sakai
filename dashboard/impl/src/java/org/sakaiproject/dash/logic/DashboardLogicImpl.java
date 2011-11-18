@@ -180,7 +180,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 							try {
 								// create an instance
 								CalendarItem calendarItem = createCalendarItem(repeatingEvent.getTitle(), entry.getValue(), repeatingEvent.getCalendarTimeLabelKey(), 
-										repeatingEvent.getEntityReference(), repeatingEvent.getContext(), repeatingEvent.getSourceType(), repeatingEvent, entry.getKey());
+										repeatingEvent.getEntityReference(), repeatingEvent.getContext(), repeatingEvent.getSourceType(), repeatingEvent.getSubtype(), repeatingEvent, entry.getKey());
 								dao.addCalendarItem(calendarItem);
 								calendarItem = dao.getCalendarItem(repeatingEvent.getEntityReference(), repeatingEvent.getCalendarTimeLabelKey(), entry.getKey());
 								createCalendarLinks(calendarItem);
@@ -300,10 +300,10 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 
 	public CalendarItem createCalendarItem(String title, Date calendarTime,
 			String calendarTimeLabelKey, String entityReference, Context context,
-			SourceType sourceType, RepeatingCalendarItem repeatingCalendarItem, Integer sequenceNumber) {
+			SourceType sourceType, String subtype, RepeatingCalendarItem repeatingCalendarItem, Integer sequenceNumber) {
 		
 		CalendarItem calendarItem = new CalendarItem(title, calendarTime,
-				calendarTimeLabelKey, entityReference, context, sourceType, null, repeatingCalendarItem, sequenceNumber);
+				calendarTimeLabelKey, entityReference, context, sourceType, subtype, repeatingCalendarItem, sequenceNumber);
 		
 		dao.addCalendarItem(calendarItem);
 		
