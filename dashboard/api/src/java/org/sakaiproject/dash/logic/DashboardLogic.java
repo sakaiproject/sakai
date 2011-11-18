@@ -44,9 +44,11 @@ import org.sakaiproject.dash.model.SourceType;
 public interface DashboardLogic {
 	
 	public static final String EVENT_DASH_VISIT = "dash.visit";
-	public static final String EVENT_DASH_FOLLOW_LINK = "dash.follow.link";
+	public static final String EVENT_DASH_FOLLOW_TOOL_LINK = "dash.follow.tool.link";
+	public static final String EVENT_DASH_FOLLOW_SITE_LINK = "dash.follow.site.link";
 	public static final String EVENT_DASH_ACCESS_URL = "dash.access.url";
 	public static final String EVENT_VIEW_ATTACHMENT = "dash.view.attachment";
+	
 	public static final String EVENT_DASH_TABBING = "dash.tabbing";
 	public static final String EVENT_DASH_PAGING = "dash.paging";
 

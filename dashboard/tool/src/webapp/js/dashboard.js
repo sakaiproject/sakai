@@ -72,7 +72,12 @@ var setupMenus = function(){
 };
 
 var setupLinks = function(){
-
+	$(".siteLink").live("click", function(e){
+		// DO NOT CALL:  e.preventDefault();
+        var itemType = $(this).closest('tr').find('.itemType').text();
+        var entityReference = $(this).closest('tr').find('.entityReference').text();
+        reportEvent(e.target, entityReference, itemType, "dash.follow.site.link");
+	});
     $(".itemLink").live("click", function(e){
         e.preventDefault();
         var actionLink = "";
@@ -181,7 +186,7 @@ var setupLinks = function(){
                                             if (json['more-info'][i]['info_link-target']) {
                                                 target = 'target=\"' + json['more-info'][i]['info_link-target'] + '\"';
                                                 if(json['more-info'][i]['info_link-target'] === '_top') {
-                                                	dashEvent = "dash.follow.link";
+                                                	dashEvent = "dash.follow.tool.link";
                                                 }
                                             }
                                             if (json['more-info'][i]['info_link-size']) {

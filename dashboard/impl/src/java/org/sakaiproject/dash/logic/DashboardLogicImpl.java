@@ -97,6 +97,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	protected static boolean timeToQuit = false;
 	
 	public static final Set<String> NAVIGATION_EVENTS = new HashSet<String>();
+	public static final Set<String> DASH_NAV_EVENTS = new HashSet<String>();
 	public static final Set<String> ITEM_DETAIL_EVENTS = new HashSet<String>();
 	public static final Set<String> PREFERENCE_EVENTS = new HashSet<String>();
 
@@ -107,11 +108,13 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 
 	static {
 		NAVIGATION_EVENTS.add(EVENT_DASH_VISIT);
-		NAVIGATION_EVENTS.add(EVENT_DASH_FOLLOW_LINK);
-		NAVIGATION_EVENTS.add(EVENT_DASH_TABBING);
-		NAVIGATION_EVENTS.add(EVENT_DASH_PAGING);
+		NAVIGATION_EVENTS.add(EVENT_DASH_FOLLOW_TOOL_LINK);
+		NAVIGATION_EVENTS.add(EVENT_DASH_FOLLOW_SITE_LINK);
 		NAVIGATION_EVENTS.add(EVENT_DASH_ACCESS_URL);
 		NAVIGATION_EVENTS.add(EVENT_VIEW_ATTACHMENT);
+		
+		DASH_NAV_EVENTS.add(EVENT_DASH_TABBING);
+		DASH_NAV_EVENTS.add(EVENT_DASH_PAGING);		
 		
 		ITEM_DETAIL_EVENTS.add(EVENT_DASH_ITEM_DETAILS);
 		ITEM_DETAIL_EVENTS.add(EVENT_DASH_VIEW_GROUP);
@@ -755,6 +758,8 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		int disposition = LOG_MODE_NONE;
 		if(NAVIGATION_EVENTS.contains(event)) {
 			disposition = this.getLogModeNavigationEvents();
+		} else if (DASH_NAV_EVENTS.contains(event)) {
+			disposition = this.getLogModeDashboardNavigationEvents();
 		} else if (ITEM_DETAIL_EVENTS.contains(event)) {
 			disposition = this.getLogModeItemDetailEvents();
 		} else if (PREFERENCE_EVENTS.contains(event)) {
@@ -1535,6 +1540,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 
 	protected int getLogModeNavigationEvents() {
 		return dashboardConfig.getConfigValue(DashboardConfig.PROP_LOG_MODE_FOR_NAVIGATION_EVENTS, new Integer(2));
+	}
+	public int getLogModeDashboardNavigationEvents() {
+		return dashboardConfig.getConfigValue(DashboardConfig.PROP_LOG_MODE_FOR_DASH_NAV_EVENTS, new Integer(2));
 	}
 	protected int getLogModeItemDetailEvents() {
 		return dashboardConfig.getConfigValue(DashboardConfig.PROP_LOG_MODE_FOR_ITEM_DETAIL_EVENTS, new Integer(2));
