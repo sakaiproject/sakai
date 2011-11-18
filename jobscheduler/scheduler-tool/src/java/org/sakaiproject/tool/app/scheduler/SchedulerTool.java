@@ -34,6 +34,7 @@ import javax.faces.validator.ValidatorException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.CronTrigger;
+import org.quartz.InterruptableJob;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
@@ -80,7 +81,7 @@ public class SchedulerTool
   private Map<String, String> configurableJobResources;
   private List<ConfigurablePropertyWrapper> configurableJobProperties;
   private JobDetail jobDetail;
-  private ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.scheduler.bundle.Messages");
+  protected ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.scheduler.bundle.Messages");
   private TriggerWrapper triggerWrapper = null;
 
   private TriggerEventManager
@@ -1255,6 +1256,39 @@ public class SchedulerTool
        LOG.error("Failed to trigger job now");
        return "error";
      }
+  }
+  
+  public List<JobExecutionContextWrapperBean> getRunningJobs() {
+	  List<JobExecutionContext> currentJobs = new ArrayList<JobExecutionContext>();
+	  List<JobExecutionContextWrapperBean> currentWrappedJobs = new ArrayList<JobExecutionContextWrapperBean>();
+	  Scheduler scheduler = schedulerManager.getScheduler();
+	  if (scheduler == null)
+	  {
+		  LOG.error("Scheduler is down!");
+	  }
+	  else {
+		  try {
+			  currentJobs = scheduler.getCurrentlyExecutingJobs();
+		  } catch (SchedulerException e) {
+			  LOG.warn("Unable to get currently executing jobs");
+		  }
+	  }
+
+	  for (JobExecutionContext jec : currentJobs)
+	  {
+		  JobExecutionContextWrapperBean jobExecutionContextWrapper = new JobExecutionContextWrapperBean(this, jec);
+		  jobExecutionContextWrapper.setIsKillable(isJobKillable(jec.getJobDetail()));
+		  currentWrappedJobs.add(jobExecutionContextWrapper);
+	  }
+
+	  return currentWrappedJobs;
+  }
+  
+  public boolean isJobKillable(JobDetail detail) {
+	  if (InterruptableJob.class.isAssignableFrom(detail.getJobClass())) {
+		  return true;
+	  }
+	  return false;
   }
 
   public String processRefreshFilteredJobs()

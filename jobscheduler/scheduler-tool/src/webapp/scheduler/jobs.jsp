@@ -18,6 +18,9 @@
 		   <sakai:tool_bar_item
 		     action="main"
 			   value="#{msgs.bar_event_log}"/>
+		<sakai:tool_bar_item
+		     action="runningJobs"
+			   value="#{msgs.running_jobs}"/>
 	  
    	  </sakai:tool_bar>
    	  <sakai:view_content>

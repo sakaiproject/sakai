@@ -16,7 +16,11 @@
 			      value="#{schedulerTool.schedulerManager.globalTriggerListener.isViewAllSelected ? msgs.select_today : msgs.select_all}"/>		  
 		      <sakai:tool_bar_item
 		        action="#{schedulerTool.processRefreshJobs}"
-			      value="#{msgs.bar_jobs}"/>		            		      
+			      value="#{msgs.bar_jobs}"/>		   
+			  <sakai:tool_bar_item
+		     	action="runningJobs"
+			   	value="#{msgs.running_jobs}"/>
+			           		      
      	  </sakai:tool_bar>           
       	
   	    <sakai:panel_titled title="#{msgs.event_log}">
