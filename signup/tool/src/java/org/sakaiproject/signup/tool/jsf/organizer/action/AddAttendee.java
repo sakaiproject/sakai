@@ -22,6 +22,7 @@
  **********************************************************************************/
 package org.sakaiproject.signup.tool.jsf.organizer.action;
 
+import java.util.Date;
 import java.util.List;
 
 import org.sakaiproject.exception.PermissionException;
@@ -164,6 +165,11 @@ public class AddAttendee extends SignupAction {
 	private void checkTimeSlotStillAvailable(SignupMeeting meeting, SignupTimeslot currentTimeslot) throws Exception {
 		List<SignupTimeslot> signupTimeSlots = meeting.getSignupTimeSlots();
 		Long changedTimeslotId = currentTimeslot.getId();
+		//check if sign-up deadline is hit
+		if((new Date()).after(meeting.getSignupDeadline())){
+			throw new SignupUserActionException(Utilities.rb.getString("event.signup.deadline.passed"));
+		}
+		
 		for (SignupTimeslot upTodateTimeslot : signupTimeSlots) {
 			if (upTodateTimeslot.getId().equals(changedTimeslotId)) {
 				if (upTodateTimeslot.isCanceled())
