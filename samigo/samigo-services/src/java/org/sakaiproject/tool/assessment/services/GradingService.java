@@ -2057,9 +2057,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		  return formulas;
 	  }
 	  
-//	  Pattern formulaPattern = Pattern.compile(OPEN_BRACKET + 
-//	          OPEN_BRACKET + "([a-zA-Z]\\w*)" + CLOSE_BRACKET + 
-//	          CLOSE_BRACKET);
       Pattern formulaPattern = Pattern.compile(OPEN_BRACKET + 
               OPEN_BRACKET + "([\\w\\s\\.\\-\\^\\$\\&\\@\\?]+?)" + CLOSE_BRACKET + 
               CLOSE_BRACKET);
@@ -2090,7 +2087,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  if (text == null || text.length() == 0) {
 		  return variables;
 	  }
-//    Pattern variablePattern = Pattern.compile(OPEN_BRACKET + "([a-zA-Z]\\w*)" + CLOSE_BRACKET);        
       Pattern variablePattern = Pattern.compile(OPEN_BRACKET + "([\\w\\s\\.\\-\\^\\$\\&\\@\\?]+?)" + CLOSE_BRACKET);        
       Matcher variableMatcher = variablePattern.matcher(text);
       while (variableMatcher.find()) {
