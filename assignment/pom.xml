@@ -44,7 +44,7 @@
         <site>
             <id>sakai-site</id>
             <name>Sakai release Site</name>
-            <url>scpexe://source.sakaiproject.org/var/www/html/release/common/${project.version}</url>
+            <url>scpexe://source.sakaiproject.org/var/www/html/release/assignment/${project.version}</url>
         </site>
     </distributionManagement>
 
