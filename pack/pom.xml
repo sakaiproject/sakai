@@ -63,25 +63,6 @@
         <developerConnection>scm:svn:https://source.sakaiproject.org/svn/pack/trunk</developerConnection>
         <url>https://source.sakaiproject.org/svn/pack/trunk</url>
     </scm>
-    
-    <distributionManagement>
-        <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
-        <snapshotRepository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>sakai-maven-snapshots-scp</id>
-            <name>Sakai snapshot Repo</name>
-            <url>scp://source.sakaiproject.org/var/www/html/maven2-snapshots
-            </url>
-            <layout>default</layout>
-        </snapshotRepository>
-        <repository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>sakai-maven2-scp</id>
-            <name>Sakai maven2 repository</name>
-            <url>scp://source.sakaiproject.org/var/www/html/maven2</url>
-            <layout>default</layout>
-        </repository>
-    </distributionManagement>
 
     <pluginRepositories>
         <pluginRepository>
