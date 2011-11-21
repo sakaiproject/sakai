@@ -88,8 +88,8 @@ import org.sakaiproject.tool.assessment.util.SamigoExpressionParser;
  */
 public class GradingService
 {
-	  private final String OPEN_BRACKET = "\\{";
-	  private final String CLOSE_BRACKET = "\\}";
+  private final String OPEN_BRACKET = "\\{";
+  private final String CLOSE_BRACKET = "\\}";
   private static Log log = LogFactory.getLog(GradingService.class);
 
   /**
@@ -2258,40 +2258,40 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       return (ArrayList) instructionSegments;
   }
   
-  	/**
-  	 * CALCULATED_QUESTION
-  	 * This returns the decimal places value in the stored answer data.
-  	 * @param allAnswerText
-  	 * @return
-  	 */
-	private int getAnswerDecimalPlaces(String allAnswerText) {
-		String answerData = getAnswerData(allAnswerText);
-		int decimalPlaces = Integer.valueOf(answerData.substring(answerData.indexOf(",")+1, answerData.length()));
-		return decimalPlaces;
-	}
+  /**
+   * CALCULATED_QUESTION
+   * This returns the decimal places value in the stored answer data.
+   * @param allAnswerText
+   * @return
+   */
+  private int getAnswerDecimalPlaces(String allAnswerText) {
+	String answerData = getAnswerData(allAnswerText);
+	int decimalPlaces = Integer.valueOf(answerData.substring(answerData.indexOf(",")+1, answerData.length()));
+	return decimalPlaces;
+  }
 
-	/**
-	 * CALCULATED_QUESTION
-	 * This returns the "|2,2" (variance and decimal display) from the stored answer data.
-	 * @param allAnswerText
-	 * @return
-	 */
-	private String getAnswerData(String allAnswerText) {
-		String answerData = allAnswerText.substring(allAnswerText.indexOf("|"), allAnswerText.length());
-		return answerData;
-	}
+  /**
+	* CALCULATED_QUESTION
+	* This returns the "|2,2" (variance and decimal display) from the stored answer data.
+	* @param allAnswerText
+	* @return
+	*/
+  private String getAnswerData(String allAnswerText) {
+      String answerData = allAnswerText.substring(allAnswerText.indexOf("|"), allAnswerText.length());
+      return answerData;
+  }
 
-	/**
-	 * CALCULATED_QUESTION
-	 * This is just "(x+y)/z" or if values have been added to the expression it's the
-	 * calculated value as stored in the answer data.
-	 * @param allAnswerText
-	 * @return
-	 */
-	private String getAnswerExpression(String allAnswerText) {
-		String answerExpression = allAnswerText.substring(0, allAnswerText.indexOf("|"));
-		return answerExpression;
-	}
+  /**
+   * CALCULATED_QUESTION
+   * This is just "(x+y)/z" or if values have been added to the expression it's the
+   * calculated value as stored in the answer data.
+   * @param allAnswerText
+   * @return
+   */
+  private String getAnswerExpression(String allAnswerText) {
+	  String answerExpression = allAnswerText.substring(0, allAnswerText.indexOf("|"));
+	  return answerExpression;
+  }
 
   /**
    * CALCULATED_QUESTION
@@ -2326,8 +2326,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  String NaN = "NaN";
 	  if (answer.length() == 0) return false;
 	  if (answer.equals(INFINITY)) return false;
-	  if (answer.equals(NaN)) return false;
-	  
+	  if (answer.equals(NaN)) return false;	  
 	  return true;
   }
   
@@ -2345,50 +2344,50 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * returns a blank string (i.e "").  If variablesWithValues is null, returns
    * the original answerExpression 
    */
-    public String replaceMappedVariablesWithNumbers(String expression, 
-          Map<String, String> variables) {
+  public String replaceMappedVariablesWithNumbers(String expression, Map<String, 
+          String> variables) {
       
-        if (expression == null) {
-            expression = "";
-        }
+      if (expression == null) {
+          expression = "";
+      }
         
-        if (variables == null) {
-            variables = new HashMap<String, String>();
-        }
+      if (variables == null) {
+          variables = new HashMap<String, String>();
+      }
         
-        for (Map.Entry<String, String> entry : variables.entrySet()) {
-            String name = "{" + entry.getKey() + "}";
-            String value = entry.getValue();
+      for (Map.Entry<String, String> entry : variables.entrySet()) {
+          String name = "{" + entry.getKey() + "}";
+          String value = entry.getValue();
           
-            // not doing string replace or replaceAll because the value being
-            // substituted can change for each occurrence of the variable.
-            int index = expression.indexOf(name);
-            while (index > -1) {
-                String prefix = expression.substring(0, index);
-                String suffix = expression.substring(index + name.length());
+          // not doing string replace or replaceAll because the value being
+          // substituted can change for each occurrence of the variable.
+          int index = expression.indexOf(name);
+          while (index > -1) {
+              String prefix = expression.substring(0, index);
+              String suffix = expression.substring(index + name.length());
               
-                String replacementValue = value;                
-                // if last character of prefix is a number or the edge of parenthesis, multiply by the variable
-                // if x = 37, 5{x} -> 5*37
-                // if x = 37 (5+2){x} -> (5+2)*37 (prefix is (5+2)
-                if (prefix.length() > 0 && (Character.isDigit(prefix.charAt(prefix.length() - 1)) || prefix.charAt(prefix.length() - 1) == ')')) {
-                    replacementValue = "*" + replacementValue;                    
-                }  
+              String replacementValue = value;                
+              // if last character of prefix is a number or the edge of parenthesis, multiply by the variable
+              // if x = 37, 5{x} -> 5*37
+              // if x = 37 (5+2){x} -> (5+2)*37 (prefix is (5+2)
+              if (prefix.length() > 0 && (Character.isDigit(prefix.charAt(prefix.length() - 1)) || prefix.charAt(prefix.length() - 1) == ')')) {
+                  replacementValue = "*" + replacementValue;                    
+              }  
               
-                // if first character of suffix is a number or the edge of parenthesis, multiply by the variable
-                // if x = 37, {x}5 -> 37*5
-                // if x = 37, {x}(5+2) -> 37*(5+2) (suffix is (5+2)
-                if (suffix.length() > 0 && (Character.isDigit(suffix.charAt(0)) || suffix.charAt(0) == '(')) {
-                    replacementValue = replacementValue + "*";                    
-                }
+              // if first character of suffix is a number or the edge of parenthesis, multiply by the variable
+              // if x = 37, {x}5 -> 37*5
+              // if x = 37, {x}(5+2) -> 37*(5+2) (suffix is (5+2)
+              if (suffix.length() > 0 && (Character.isDigit(suffix.charAt(0)) || suffix.charAt(0) == '(')) {
+                  replacementValue = replacementValue + "*";                    
+              }
           
-                // perform substitution, then look for the next instance of current variable
-                expression = prefix + replacementValue + suffix;
-                index = expression.indexOf(name);
-            }       
-        }
-        return expression;
-    }
+              // perform substitution, then look for the next instance of current variable
+              expression = prefix + replacementValue + suffix;
+              index = expression.indexOf(name);
+          }       
+      }
+      return expression;
+  }
 
   /**
    * CALCULATED_QUESTION
