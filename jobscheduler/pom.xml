@@ -17,7 +17,6 @@
     <properties>
         <sakai.jsf.version>2.9-SNAPSHOT</sakai.jsf.version>
         <sakai.quartz.version>1.6.6</sakai.quartz.version>
-        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/scheduler/${project.version}</url.localsite>
     </properties>
 
     <profiles>
@@ -123,6 +122,14 @@
         <developerConnection>scm:svn:https://source.sakaiproject.org/svn/jobscheduler/trunk</developerConnection>
         <url>https://source.sakaiproject.org/svn/jobscheduler/trunk</url>
     </scm>
+    
+    <distributionManagement>
+        <site>
+            <id>sakai-site</id>
+            <name>Sakai release Site</name>
+            <url>scpexe://source.sakaiproject.org/var/www/html/release/scheduler/${project.version}</url>
+        </site>
+    </distributionManagement>
 
     <dependencyManagement>
         <dependencies>
