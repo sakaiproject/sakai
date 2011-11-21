@@ -44,8 +44,7 @@
                 <rsfutil.version>0.8-SNAPSHOT</rsfutil.version>
                 <sakairsf.version>0.8-SNAPSHOT</sakairsf.version>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
-                <url.localsite>scp://source.sakaiproject.org/var/www/html/release/lessonbuilder/${project.version}</url.localsite>
-		<sakai.blti.version>2.0-SNAPSHOT</sakai.blti.version>
+		        <sakai.blti.version>2.0-SNAPSHOT</sakai.blti.version>
             </properties>
         </profile>
         <profile>
@@ -64,8 +63,7 @@
                 <rsfutil.version>0.8-SNAPSHOT</rsfutil.version>
                 <sakairsf.version>0.8-SNAPSHOT</sakairsf.version>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
-                <url.localsite>scp://source.sakaiproject.org/var/www/html/release/lessonbuilder/${project.version}</url.localsite>
-		<sakai.blti.version>2.0-SNAPSHOT</sakai.blti.version>
+		        <sakai.blti.version>2.0-SNAPSHOT</sakai.blti.version>
             </properties>
         </profile>
     </profiles>
@@ -77,25 +75,10 @@
     </scm>
 
     <distributionManagement>
-        <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
-        <snapshotRepository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>sakai-maven-snapshots-scp</id>
-            <name>Sakai snapshot Repo</name>
-            <url>scp://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
-            <layout>default</layout>
-        </snapshotRepository>
-        <repository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>sakai-maven2-scp</id>
-            <name>Sakai maven2 repository</name>
-            <url>scp://source.sakaiproject.org/var/www/html/maven2</url>
-            <layout>default</layout>
-        </repository>
         <site>
             <id>sakai-site</id>
             <name>Sakai release Site</name>
-            <url>${url.localsite}</url>
+            <url>scpexe://source.sakaiproject.org/var/www/html/release/lessonbuilder/${project.version}</url>
         </site>
     </distributionManagement>
 
