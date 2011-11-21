@@ -14,11 +14,6 @@
     <version>2.9-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <properties>
-        <deploy.target />
-        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/sakai-mock/${project.version}</url.localsite>
-    </properties>
-
     <pluginRepositories>
         <pluginRepository>
             <id>maven2-central-repo</id>
@@ -87,6 +82,14 @@
         <developerConnection>scm:svn:https://source.sakaiproject.org/svn/sakai-mock/trunk</developerConnection>
         <url>https://source.sakaiproject.org/svn/sakai-mock/trunk</url>
     </scm>
+    
+    <distributionManagement>
+        <site>
+            <id>sakai-site</id>
+            <name>Sakai release Site</name>
+            <url>scpexe://source.sakaiproject.org/var/www/html/release/sakai-mock/${project.version}</url>
+        </site>
+    </distributionManagement>
 
     <dependencies>
         <dependency>
