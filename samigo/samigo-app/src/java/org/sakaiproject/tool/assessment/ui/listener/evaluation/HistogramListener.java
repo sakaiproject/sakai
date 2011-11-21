@@ -2073,19 +2073,6 @@ private void getCalculatedQuestionScores(Map<Long, ItemTextIfc> publishedItemTex
   }
   */
   
-  private List<Integer> calColumnHeight(List<Integer> numStudents, int totalResponse) {
-      List<Integer> results = new ArrayList<Integer>();
-      for (Integer response : numStudents) {
-          if (totalResponse > 0) {
-              Integer height = 600 * response / totalResponse;
-              results.add(height);
-          } else {
-              results.add(Integer.valueOf(0));
-          }
-      }
-      return results;
-  }
-  
     private static int[] calColumnHeight(int[] numStudents, int totalResponse)
   {
     int[] height = new int[numStudents.length];

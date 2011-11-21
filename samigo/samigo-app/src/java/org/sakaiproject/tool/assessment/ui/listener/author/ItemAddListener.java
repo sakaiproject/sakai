@@ -238,8 +238,8 @@ public class ItemAddListener
     		item.setOutcome("matrixChoicesSurveyItem");
     		item.setPoolOutcome("matrixChoicesSurveyItem");
     		return;
-    	} 
-    }
+    	}
+    } 
 
     // CALCULATED_QUESTION
     if (iType.equals(TypeFacade.CALCULATED_QUESTION.toString())) {

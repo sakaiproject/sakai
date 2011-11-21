@@ -684,6 +684,7 @@ public class ItemBean
         return currentMatchPair;
   }
 
+
   /**
    * for multiple choice questions, multiple correct?
    * @return
@@ -1181,8 +1182,6 @@ public class ItemBean
     }
     */
 
-          
-          
     // get existing list
     ArrayList list = getMatchItemBeanList();
     MatchItemBean currpair = this.getCurrentMatchPair();
@@ -1241,7 +1240,7 @@ public class ItemBean
   }
 
 
-  
+
   public String removeMatchPair() {
 
 	String seqnostr = ContextUtil.lookupParam("sequence");

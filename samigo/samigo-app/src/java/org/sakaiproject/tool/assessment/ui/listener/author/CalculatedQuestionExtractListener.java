@@ -176,7 +176,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             }
         }                 
         if (item.getCalculatedQuestion().getActiveFormulas().size() == 0) {
-            errors.add(getErrorMessage("no_formulas"));
+            errors.add(getErrorMessage("no_formulas_defined"));
         }
         return errors;
     }
@@ -205,7 +205,7 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             }
         }         
         if (item.getCalculatedQuestion().getActiveVariables().size() == 0) {
-            errors.add(getErrorMessage("no_variables"));
+            errors.add(getErrorMessage("no_variables_defined"));
         }
         return errors;
     }
