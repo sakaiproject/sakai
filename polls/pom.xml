@@ -33,10 +33,9 @@
     </modules>
     
     <properties>
-         <sakai.entitybroker.version>1.5-SNAPSHOT</sakai.entitybroker.version>
+        <sakai.entitybroker.version>1.5-SNAPSHOT</sakai.entitybroker.version>
         <sakai.ets.version>0.6-SNAPSHOT</sakai.ets.version>
-        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/polls/${project.version}</url.localsite>
-	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <scm>
@@ -46,25 +45,10 @@
     </scm>
 
     <distributionManagement>
-        <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
-        <snapshotRepository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>sakai-maven-snapshots-scp</id>
-            <name>Sakai snapshot Repo</name>
-            <url>scp://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
-            <layout>default</layout>
-        </snapshotRepository>
-        <repository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>sakai-maven2-scp</id>
-            <name>Sakai maven2 repository</name>
-            <url>scp://source.sakaiproject.org/var/www/html/maven2</url>
-            <layout>default</layout>
-        </repository>
         <site>
             <id>sakai-site</id>
             <name>Sakai release Site</name>
-            <url>${url.localsite}</url>
+            <url>scpexe://source.sakaiproject.org/var/www/html/release/polls/${project.version}</url>
         </site>
     </distributionManagement>
     
