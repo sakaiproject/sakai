@@ -25,8 +25,6 @@ public class DelegatedAccessObserver implements Observer {
 	private ProjectLogic projectLogic;
 	@Getter @Setter
 	private EventTrackingService eventTrackingService;	
-	@Getter @Setter
-	private SessionManager sessionManager;
 
 	private static final Logger log = Logger.getLogger(DelegatedAccessObserver.class);
 
@@ -44,7 +42,7 @@ public class DelegatedAccessObserver implements Observer {
 		// check the event function against the functions we have notifications watching for
 		if (UsageSessionService.EVENT_LOGIN.equals(event.getEvent())
 				|| UsageSessionService.EVENT_LOGIN_CONTAINER.equals(event.getEvent())) {
-			projectLogic.initializeDelegatedAccessSession(sessionManager.getCurrentSessionUserId());
+			projectLogic.initializeDelegatedAccessSession();
 		}
 	}
 

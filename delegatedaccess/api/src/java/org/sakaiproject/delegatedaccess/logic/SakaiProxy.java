@@ -124,5 +124,11 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public Set<Tool> getAllTools();
+	
+	/**
+	 * returns a list of site references that the current user has access to
+	 * @return
+	 */
+	public Set<String> getUserMembershipForCurrentUser();
 }
 

@@ -29,6 +29,7 @@ import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessMutableTreeNode;
 import org.sakaiproject.hierarchy.HierarchyService;
 import org.sakaiproject.hierarchy.model.HierarchyNode;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.user.api.User;
@@ -163,7 +164,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 	/**
 	 * {@inheritDoc}
 	 */
-	public void initializeDelegatedAccessSession(String userId){
+	public void initializeDelegatedAccessSession(){
+		String userId = sakaiProxy.getCurrentUserId();
 		if(userId != null && !"".equals(userId)){
 			Session session = sakaiProxy.getCurrentSession();
 			Map<String, String[]> accessMap = new HashMap<String, String[]>();
@@ -174,6 +176,14 @@ public class ProjectLogicImpl implements ProjectLogic {
 				for(NodeModel nodeModel : siteNodes){
 					accessMap.put(nodeModel.getNode().description, nodeModel.getNodeAccessRealmRole());
 					toolMap.put(nodeModel.getNode().description, nodeModel.getNodeRestrictedTools());
+				}
+			}
+			//only worry about this if there is any delegated access:
+			if(accessMap != null && accessMap.size() > 0){
+				//remove any access to sites the user is a member of
+				for(String ref : sakaiProxy.getUserMembershipForCurrentUser()){
+					accessMap.remove(ref);
+					toolMap.remove(ref);
 				}
 			}
 			session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_ACCESS_MAP, accessMap);
@@ -201,43 +211,48 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * {@inheritDoc}
 	 */
 	public void grantAccessToSite(NodeModel nodeModel){
-		Session session = sakaiProxy.getCurrentSession();
-		Object sessionDelegatedAccessMap = session.getAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_ACCESS_MAP);
-		Map<String, String[]> delegatedAccessMap = new HashMap<String, String[]>();
-		if(sessionDelegatedAccessMap != null){
-			delegatedAccessMap = (Map<String, String[]>) sessionDelegatedAccessMap;
-		}
-		String[] access = nodeModel.getNodeAccessRealmRole();
-		if (access != null && access.length == 2
-				&& access[0] != null
-				&& access[1] != null
-				&& !"".equals(access[0])
-				&& !"".equals(access[1])) {
-			delegatedAccessMap.put(nodeModel.getNode().description, access);
-		}
-		else{
-			delegatedAccessMap.put(nodeModel.getNode().description, new String[]{"", ""});
-		}
-		session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_ACCESS_MAP, delegatedAccessMap);
+		Site site = sakaiProxy.getSiteByRef(nodeModel.getNode().description);
 
-		//Denied Tools List
-		Map<String, String[]> deniedToolsMap = new HashMap<String, String[]>();
-		Object sessionDeniedToolsMap = session.getAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DENIED_TOOLS);
-		if(sessionDeniedToolsMap != null){
-			deniedToolsMap = (Map<String, String[]>) sessionDeniedToolsMap;
+		//only grant access to sites the user isn't a member of
+		if(site != null && site.getUserRole(sakaiProxy.getCurrentUserId()) == null){
+			Session session = sakaiProxy.getCurrentSession();
+			Object sessionDelegatedAccessMap = session.getAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_ACCESS_MAP);
+			Map<String, String[]> delegatedAccessMap = new HashMap<String, String[]>();
+			if(sessionDelegatedAccessMap != null){
+				delegatedAccessMap = (Map<String, String[]>) sessionDelegatedAccessMap;
+			}
+			String[] access = nodeModel.getNodeAccessRealmRole();
+			if (access != null && access.length == 2
+					&& access[0] != null
+					&& access[1] != null
+					&& !"".equals(access[0])
+					&& !"".equals(access[1])) {
+				delegatedAccessMap.put(nodeModel.getNode().description, access);
+			}
+			else{
+				delegatedAccessMap.put(nodeModel.getNode().description, new String[]{"", ""});
+			}
+			session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_ACCESS_MAP, delegatedAccessMap);
+
+			//Denied Tools List
+			Map<String, String[]> deniedToolsMap = new HashMap<String, String[]>();
+			Object sessionDeniedToolsMap = session.getAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DENIED_TOOLS);
+			if(sessionDeniedToolsMap != null){
+				deniedToolsMap = (Map<String, String[]>) sessionDeniedToolsMap;
+			}
+
+			String[] deniedTools = nodeModel.getNodeRestrictedTools();
+			if(deniedTools != null){
+				deniedToolsMap.put(nodeModel.getNode().description, deniedTools);
+			}else{
+				deniedToolsMap.put(nodeModel.getNode().description, new String[0]);
+			}
+
+			session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DENIED_TOOLS, deniedToolsMap);
+
+
+			sakaiProxy.refreshCurrentUserAuthz();
 		}
-
-		String[] deniedTools = nodeModel.getNodeRestrictedTools();
-		if(deniedTools != null){
-			deniedToolsMap.put(nodeModel.getNode().description, deniedTools);
-		}else{
-			deniedToolsMap.put(nodeModel.getNode().description, new String[0]);
-		}
-
-		session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DENIED_TOOLS, deniedToolsMap);
-
-
-		sakaiProxy.refreshCurrentUserAuthz();
 	}
 
 	private HierarchyNodeSerialized getRootNode(){

@@ -44,7 +44,8 @@ public class ShoppingPeriodPage extends BaseTreePage{
 	}
 
 	public ShoppingPeriodPage(){
-
+		disableLink(thirdLink);
+		
 		//Form Feedback (Saved/Error)
 		final Label formFeedback = new Label("formFeedback");
 		formFeedback.setOutputMarkupPlaceholderTag(true);

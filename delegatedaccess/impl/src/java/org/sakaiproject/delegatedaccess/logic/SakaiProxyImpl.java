@@ -1,6 +1,7 @@
 package org.sakaiproject.delegatedaccess.logic;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -201,5 +202,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 */
 	public void refreshCurrentUserAuthz(){
 		authzGroupService.refreshUser(getCurrentUserId());
+	}
+	
+	public Set<String> getUserMembershipForCurrentUser(){
+		Set<String> returnSet = new HashSet<String>();
+		for(Site site: siteService.getSites(SelectionType.ACCESS, null, null, null, null, null)){
+			returnSet.add(site.getReference());
+		}
+		return returnSet;
 	}
 }

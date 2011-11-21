@@ -50,7 +50,7 @@ public interface ProjectLogic {
 	 * permissions for that site.  If the nodeId doesn't have an access role specified, it will grant the inherited access role.
 	 * 
 	 */
-	public void initializeDelegatedAccessSession(String userId);
+	public void initializeDelegatedAccessSession();
 
 	/**
 	 * Searches user access sites by siteId and siteTitle

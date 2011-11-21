@@ -35,7 +35,6 @@
     	init-method="init">
    		<property name="projectLogic" ref="org.sakaiproject.delegatedaccess.logic.ProjectLogic" />
    		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
-   		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
     </bean>
     
     
