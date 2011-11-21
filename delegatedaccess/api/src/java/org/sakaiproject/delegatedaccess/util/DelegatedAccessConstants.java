@@ -31,7 +31,6 @@ public class DelegatedAccessConstants {
 	public static final String NODE_PERM_SITE_VISIT = "site.visit";
 	public static final String NODE_PERM_SHOPPING_START_DATE = "shoppingStartDate:";
 	public static final String NODE_PERM_SHOPPING_END_DATE = "shoppingEndDate:";
-	public static final String NODE_PERM_SHOPPING_PERMS = "shoppingPerms:";
 	public static final String NODE_PERM_SHOPPING_AUTH = "shoppingAuth:";
 	public static final String EVENT_ADD_USER_PERMS = "delegatedaccess.nodeperms.add";
 	public static final String EVENT_DELETE_USER_PERMS = "delegatedaccess.nodeperms.delete";

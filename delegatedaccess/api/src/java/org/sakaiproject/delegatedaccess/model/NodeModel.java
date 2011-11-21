@@ -34,8 +34,6 @@ public class NodeModel implements Serializable {
 	private Date shoppingPeriodEndDateOrig = new Date();
 	private String shoppingPeriodAuth;
 	private String shoppingPeriodAuthOrig;
-	private List<PermissionSerialized> shoppingPeriodPerms;
-	private List<PermissionSerialized> shoppingPeriodPermsOrig;
 	private boolean addedDirectChildrenFlag = false;
 
 	public NodeModel(String nodeId, HierarchyNodeSerialized node,
@@ -43,7 +41,6 @@ public class NodeModel implements Serializable {
 			String realm, String role, NodeModel parentNode,
 			List<ToolSerialized> restrictedTools, Date shoppingPeriodStartDate,
 			Date shoppingPeriodEndDate,
-			List<PermissionSerialized> shoppingPeriodPerms,
 			String shoppingPeriodAuth, boolean addedDirectChildrenFlag){
 		this.nodeId = nodeId;
 		this.node = node;
@@ -62,20 +59,9 @@ public class NodeModel implements Serializable {
 		this.shoppingPeriodEndDateOrig = shoppingPeriodEndDate;
 		this.shoppingPeriodStartDate = shoppingPeriodStartDate;
 		this.shoppingPeriodStartDateOrig = shoppingPeriodStartDate;
-		this.shoppingPeriodPerms = shoppingPeriodPerms;
-		this.shoppingPeriodPermsOrig = copyPermsList(shoppingPeriodPerms);
 		this.addedDirectChildrenFlag = addedDirectChildrenFlag;
 	}
 	
-	private List<PermissionSerialized> copyPermsList(List<PermissionSerialized> permsList){
-		List<PermissionSerialized> returnList = new ArrayList<PermissionSerialized>();
-		for(PermissionSerialized permS : permsList){
-			returnList.add(new PermissionSerialized(permS.getPermissionId(), permS.isSelected()));
-		}
-		
-		return returnList;
-	}
-
 	public String getNodeId() {
 		return nodeId;
 	}
@@ -142,20 +128,9 @@ public class NodeModel implements Serializable {
 		}else if(shoppingPeriodAuth == null || shoppingPeriodAuthOrig == null){
 			return true;
 		}
-		return directAccessOrig != directAccess || isRestrictedToolsModified() || isSelectedPermsModified();
+		return directAccessOrig != directAccess || isRestrictedToolsModified();
 	}
-	private boolean isSelectedPermsModified(){
-		for(PermissionSerialized origPerm : shoppingPeriodPermsOrig){
-			for(PermissionSerialized perm : shoppingPeriodPerms){
-				if(perm.getPermissionId().equals(origPerm.getPermissionId())){
-					if(perm.isSelected() != origPerm.isSelected()){
-						return true;
-					}
-				}
-			}
-		}
-		return false;
-	}
+	
 	
 	private boolean isRestrictedToolsModified(){
 		for(ToolSerialized origTool : restrictedToolsOrig){
@@ -356,76 +331,6 @@ public class NodeModel implements Serializable {
 
 	public void setShoppingPeriodAuth(String shoppingPeriodAuth) {
 		this.shoppingPeriodAuth = shoppingPeriodAuth;
-	}
-
-	public List<PermissionSerialized> getShoppingPeriodPerms() {
-		return shoppingPeriodPerms;
-	}
-
-	public void setShoppingPeriodPerms(List<PermissionSerialized> shoppingPeriodPerms) {
-		this.shoppingPeriodPerms = shoppingPeriodPerms;
-	}
-	
-	public void setPermissionSelected(String permId, boolean restricted){
-		for(PermissionSerialized perm : shoppingPeriodPerms){
-			if(perm.getPermissionId().equals(permId)){
-				perm.setSelected(restricted);
-				break;
-			}
-		}
-	}
-	
-	public boolean hasAnySelectedPermissions(){
-		if(shoppingPeriodPerms != null){
-			for(PermissionSerialized perm : shoppingPeriodPerms){
-				if(perm.isSelected())
-					return true;
-			}
-		}
-		return false;
-	}
-
-	public String[] getNodePermissionsSelected(){
-		List<PermissionSerialized> mySelectedPermissions = getSelectedPermissions();
-		if(mySelectedPermissions == null || mySelectedPermissions.size() == 0){
-			mySelectedPermissions = getInheritedSelectedPermissions();
-		}
-
-		if(mySelectedPermissions == null || mySelectedPermissions.size() == 0){
-			return new String[0];
-		}else{
-			String[] selectedPermissionsArray = new String[mySelectedPermissions.size()];
-			int i = 0;
-			for(PermissionSerialized perm : mySelectedPermissions){
-				selectedPermissionsArray[i] = perm.getPermissionId();
-				i++;
-			}
-			return selectedPermissionsArray;
-		}
-	}
-
-
-	public List<PermissionSerialized> getInheritedSelectedPermissions(){
-		return getInheritedSelectedPermissionsHelper(parentNode);
-	}
-
-	private List<PermissionSerialized> getInheritedSelectedPermissionsHelper(NodeModel parent){
-		if(parent == null){
-			return Collections.emptyList();
-		}else if(parent.isDirectAccess() && parent.hasAnySelectedPermissions()){
-			return parent.getSelectedPermissions();
-		}else{
-			return getInheritedSelectedPermissionsHelper(parent.getParentNode());
-		}
-	}
-
-	public List<PermissionSerialized> getSelectedPermissions(){
-		List<PermissionSerialized> returnList = new ArrayList<PermissionSerialized>();
-		for(PermissionSerialized perm : shoppingPeriodPerms){
-			if(perm.isSelected())
-				returnList.add(perm);
-		}
-		return returnList;
 	}
 
 	public boolean isAddedDirectChildrenFlag() {

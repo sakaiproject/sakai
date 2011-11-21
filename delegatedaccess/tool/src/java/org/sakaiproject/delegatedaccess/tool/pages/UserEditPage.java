@@ -30,7 +30,6 @@ import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
-import org.sakaiproject.delegatedaccess.model.PermissionSerialized;
 import org.sakaiproject.delegatedaccess.model.SearchResult;
 import org.sakaiproject.delegatedaccess.model.ToolSerialized;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnCheckbox;
@@ -94,19 +93,16 @@ public class UserEditPage  extends BaseTreePage{
 			realmMap.put(group.getId(), roles);
 		}
 		IColumn columns[] = new IColumn[] {
-				new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.LEFT, 55, Unit.PX), new StringResourceModel("access", null).getString(),
-				"userObject.directAccess"),
-				new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 40, Unit.PROPORTIONAL),
-						"", "userObject.node.title"),
-						new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.MIDDLE, 60, Unit.PROPORTIONAL), new StringResourceModel("role", null).getString(),
-								"userObject.realmModel", realmMap),
-								new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 96, Unit.PX), new StringResourceModel("restrictedToolsHeader", null).getString(),
-								"userObject.restrictedTools"),
+				new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.LEFT, 35, Unit.PX), "", "userObject.directAccess"),
+				new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 40, Unit.PROPORTIONAL),	"", "userObject.node.title"),
+				new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.MIDDLE, 60, Unit.PROPORTIONAL), new StringResourceModel("userBecomes", null).getString(),
+					"userObject.realmModel", realmMap),
+				new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 96, Unit.PX), new StringResourceModel("restrictedToolsHeader", null).getString(),
+					"userObject.restrictedTools"),
 		};
 
 		final TreeModel treeModel = projectLogic.createTreeModelForUser(searchResult.getId(), true, false);
 		final List<ToolSerialized> blankRestrictedTools = projectLogic.getEntireToolsList();
-		final List<PermissionSerialized> blankPermissions = projectLogic.getEntireShoppingPeriodPermissions();
 		//a null model means the tree is empty
 		tree = new TreeTable("treeTable", treeModel, columns){
 			@Override
@@ -118,7 +114,7 @@ public class UserEditPage  extends BaseTreePage{
 				//are missing in the tree.  Expanding and collapsing will refresh the tree node
 				boolean anyAdded = false;
 				if(!tree.getTreeState().isNodeExpanded(node) && !((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isAddedDirectChildrenFlag()){
-					anyAdded = projectLogic.addChildrenNodes(node, searchResult.getId(), blankRestrictedTools, blankPermissions);
+					anyAdded = projectLogic.addChildrenNodes(node, searchResult.getId(), blankRestrictedTools);
 					((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).setAddedDirectChildrenFlag(true);
 				}
 				if(anyAdded){
@@ -134,7 +130,7 @@ public class UserEditPage  extends BaseTreePage{
 				//the nodes are generated on the fly with ajax.  This will add any child nodes that 
 				//are missing in the tree.  Expanding and collapsing will refresh the tree node
 				if(!tree.getTreeState().isNodeExpanded(node) && !((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isAddedDirectChildrenFlag()){
-					boolean anyAdded = projectLogic.addChildrenNodes(node, searchResult.getId(), blankRestrictedTools, blankPermissions);
+					boolean anyAdded = projectLogic.addChildrenNodes(node, searchResult.getId(), blankRestrictedTools);
 					((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).setAddedDirectChildrenFlag(true);
 					if(anyAdded){
 						collapseEmptyFoldersHelper((DefaultMutableTreeNode) node);

@@ -32,7 +32,6 @@ import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnAuthDropdown
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnCheckbox;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnDate;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnDropdown;
-import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnPermList;
 
 public class ShoppingPeriodPage extends BaseTreePage{
 	private TreeTable tree;
@@ -78,15 +77,14 @@ public class ShoppingPeriodPage extends BaseTreePage{
 			realmMap.put(group.getId(), roles);
 		}
 		IColumn columns[] = new IColumn[] {
-				new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.LEFT, 55, Unit.PX), new StringResourceModel("access", null).getString(),
-					"userObject.directAccess"),
-				new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 40, Unit.PROPORTIONAL),
-					"", "userObject.node.title"),
-				new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.MIDDLE, 60, Unit.PROPORTIONAL), new StringResourceModel("role", null).getString(),
+				new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.LEFT, 35, Unit.PX), "",	"userObject.directAccess"),
+				new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 39, Unit.PROPORTIONAL),	"", "userObject.node.title"),
+				new PropertyEditableColumnAuthDropdown(new ColumnLocation(Alignment.MIDDLE, 16, Unit.PROPORTIONAL), new StringResourceModel("shoppingPeriodAuth", null).getString(), "userObject.shoppingPeriodAuth"),
+				new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.MIDDLE, 45, Unit.PROPORTIONAL), new StringResourceModel("shoppersBecome", null).getString(),
 							"userObject.realmModel", realmMap),
 				new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 100, Unit.PX), new StringResourceModel("startDate", null).getString(), "userObject.shoppingPeriodStartDate", true),
 				new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 100, Unit.PX), new StringResourceModel("endDate", null).getString(), "userObject.shoppingPeriodEndDate", false),
-				new PropertyEditableColumnAuthDropdown(new ColumnLocation(Alignment.RIGHT, 115, Unit.PX), new StringResourceModel("shoppingPeriodAuth", null).getString(), "userObject.shoppingPeriodAuth"),
+				
 		};
 
 		final TreeModel treeModel = projectLogic.createTreeModelForShoppingPeriod(sakaiProxy.getCurrentUserId());
