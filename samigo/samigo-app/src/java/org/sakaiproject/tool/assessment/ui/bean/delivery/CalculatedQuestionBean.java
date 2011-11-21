@@ -19,79 +19,73 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.bean.delivery;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 
-/**
- * $Id:  $
- */
 public class CalculatedQuestionBean
 {
 
-	private ItemContentsBean parent;
-	  private ItemTextIfc itemText;
-	  private ItemGradingData data;
-	  private String response;
-	  private ArrayList choices;
-	  private String text;
-	  private String feedback;
-	  private AnswerIfc answer;
-	  private boolean isCorrect;
+    private ItemContentsBean parent;
+    private ItemTextIfc itemText;
+    private ItemGradingData data;
+	private String response;
+	private ArrayList choices;
+	private String text;
+	private String feedback;
+	private AnswerIfc answer;
+	private boolean isCorrect;
 
-	  public ItemContentsBean getItemContentsBean()
-	  {
+	public ItemContentsBean getItemContentsBean()
+	{
 	    return parent;
-	  }
+	}
 
-	  public void setItemContentsBean(ItemContentsBean bean)
-	  {
+	public void setItemContentsBean(ItemContentsBean bean)
+	{
 	    parent = bean;
-	  }
+	}
 
-	  public ItemTextIfc getItemText()
-	  {
+	public ItemTextIfc getItemText()
+	{
 	    return itemText;
-	  }
+	}
 
-	  public void setItemText(ItemTextIfc newtext)
-	  {
+	public void setItemText(ItemTextIfc newtext)
+	{
 	    itemText = newtext;
-	  }
+	}
 
-	  public ItemGradingData getItemGradingData()
-	  {
+	public ItemGradingData getItemGradingData()
+	{
 	    return data;
-	  }
+	}
 
-	  public void setItemGradingData(ItemGradingData newdata)
-	  {
+	public void setItemGradingData(ItemGradingData newdata)
+	{
 	    data = newdata;
-	  }
+	}
 
-	  public String getResponse()
-	  {
+	public String getResponse()
+	{
 	    return response;
-	  }
+	}
 
-	  public void setResponse(String newresp)
-	  {
+	public void setResponse(String newresp)
+	{
 	    response = newresp;
 	    if (data == null)
 	    {
-	      data = new ItemGradingData();
-	      data.setPublishedItemId(parent.getItemData().getItemId());
-	      data.setPublishedItemTextId(itemText.getId());
-	      ArrayList items = parent.getItemGradingDataArray();
-	      items.add(data);
-	      parent.setItemGradingDataArray(items);
+	        data = new ItemGradingData();
+	        data.setPublishedItemId(parent.getItemData().getItemId());
+	        data.setPublishedItemTextId(itemText.getId());
+	        ArrayList items = parent.getItemGradingDataArray();
+	        items.add(data);
+	        parent.setItemGradingDataArray(items);
 	    }
 	    
 	    // Fixed for SAK-5535
@@ -103,67 +97,61 @@ public class CalculatedQuestionBean
 	    Iterator iter = itemText.getAnswerSet().iterator();
 	    while (iter.hasNext())
 	    {
-	      AnswerIfc answer = (AnswerIfc) iter.next();
-	      if (answer.getId().toString().equals(newresp))
-	      {
-	        data.setPublishedAnswerId(answer.getId());
-	        break;
-	      }
+	        AnswerIfc answer = (AnswerIfc) iter.next();
+	        if (answer.getId().toString().equals(newresp))
+	        {
+	            data.setPublishedAnswerId(answer.getId());
+	            break;
+	        }
 	    }
-	  }
-
-	  public ArrayList getChoices()
-	  {
-	    return choices;
-	  }
-
-	  public void setChoices(ArrayList newch)
-	  {
-	    choices = newch;
-	  }
-
-	  public String getText()
-	  {
-	    return text;
-	  }
-
-	  public void setText(String newtext)
-	  {
-	    text = newtext;
-	  }
-
-	  public String getFeedback()
-	  {
-	    return feedback;
-	  }
-
-	  public void setFeedback(String newfb)
-	  {
-	    feedback = newfb;
-	  }
-
-
-	  public void setAnswer(AnswerIfc answer){
-	    this.answer = answer;
-	  }
-
-	  public AnswerIfc getAnswer(){
-	    return answer;
-	  }
-
-	  public void setIsCorrect(boolean isCorrect){
-	    this.isCorrect = isCorrect;
-	  }
-	  public boolean getIsCorrect()
-	  {
-	      /*
-	    if (data != null && data.getPublishedAnswerId() != null &&
-	        answer.getIsCorrect() != null &&
-	        answer.getIsCorrect().booleanValue())
-	      return true;
-	    return false;
-	      */
-	    return isCorrect;
-	  }
-
 	}
+
+	public ArrayList getChoices()
+	{
+	    return choices;
+	}
+
+	public void setChoices(ArrayList newch)
+	{
+	    choices = newch;
+	}
+
+	public String getText()
+	{
+	    return text;
+	}
+
+	public void setText(String newtext)
+	{
+	    text = newtext;
+	}
+
+	public String getFeedback()
+	{
+	    return feedback;
+	}
+
+	public void setFeedback(String newfb)
+	{
+	    feedback = newfb;
+	}
+
+	public void setAnswer(AnswerIfc answer)
+	{
+	    this.answer = answer;
+	}
+
+	public AnswerIfc getAnswer(){
+	    return answer;
+	}
+
+	public void setIsCorrect(boolean isCorrect)
+	{
+	    this.isCorrect = isCorrect;
+	}
+	  
+	public boolean getIsCorrect()
+	{
+	    return isCorrect;
+	}
+}

@@ -672,7 +672,6 @@ public class ItemBean
 	return matchItemBeanList;
   }
 
-
   public void setCurrentMatchPair(MatchItemBean param)
   {
     this.currentMatchPair= param;
@@ -1227,6 +1226,8 @@ public class ItemBean
       }
     return "matchingItem";
   }
+
+
 
   public String editMatchPair() {
 

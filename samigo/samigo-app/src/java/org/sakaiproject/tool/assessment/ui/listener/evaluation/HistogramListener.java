@@ -50,9 +50,7 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
-import org.sakaiproject.tool.assessment.ui.bean.delivery.ItemContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.ItemBarBean;
 
 /**
@@ -725,7 +723,7 @@ public class HistogramListener
     else if (qbean.getQuestionType().equals("9"))
       getMatchingScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
     else if (qbean.getQuestionType().equals("14")) // CALCULATED_QUESTION
-        getCalculatedQuestionScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
+        getCalculatedQuestionScores(scores, qbean, text);
     else if (qbean.getQuestionType().equals("13")) // matrix survey question
       getMatrixSurveyScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
   }
@@ -1177,8 +1175,7 @@ public class HistogramListener
 
 
 
-private void getCalculatedQuestionScores(Map<Long, ItemTextIfc> publishedItemTextHash, Map<Integer, AnswerIfc> publishedAnswerHash, 
-        List<ItemGradingData> scores, HistogramQuestionScoresBean qbean, ArrayList labels) {
+private void getCalculatedQuestionScores(List<ItemGradingData> scores, HistogramQuestionScoresBean qbean, ArrayList labels) {
     final String CORRECT = "Correct";
     final String INCORRECT = "Incorrect";
     final int COLUMN_MAX_HEIGHT = 600;

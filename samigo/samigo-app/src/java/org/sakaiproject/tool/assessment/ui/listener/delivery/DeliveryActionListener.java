@@ -52,14 +52,7 @@ import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
-import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
-import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
@@ -71,16 +64,11 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.facade.PublishedItemFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.services.ItemService;
-import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.Phase;
@@ -97,7 +85,6 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.SelectionBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.MatrixSurveyBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.StudentScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
-import org.sakaiproject.tool.assessment.util.SamigoExpressionParser;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
 import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
@@ -2051,11 +2038,11 @@ public class DeliveryActionListener
 	GradingService service = new GradingService();
 	// texts is the display text that will show in the question. AnswersMap gets populated with
 	// pairs such as key:x, value:42.0
-	ArrayList texts = service.extractCalcQAnswersArray(answersMap, item, gradingId, agentId);
-	String questionText = (String)texts.get(0);
+	ArrayList<String> texts = service.extractCalcQAnswersArray(answersMap, item, gradingId, agentId);
+	String questionText = texts.get(0);
 	
 	ItemTextIfc text = (ItemTextIfc) item.getItemTextArraySorted().toArray()[0];
-    ArrayList fins = new ArrayList();
+    List<FinBean> fins = new ArrayList<FinBean>();
     bean.setInstruction(questionText); // will be referenced in table of contents
     
     int numOfAnswers = answersMap.size();
@@ -2069,20 +2056,18 @@ public class DeliveryActionListener
     // answers too.
     // I sort this list by answer id so that it will come back from the student in a 
     // predictable order.
-    Collections.sort(calcQuestionEntities, new Comparator(){
-    	public int compare(Object o1, Object o2) {
-    		AnswerIfc a1 = (AnswerIfc) o1;
-    		AnswerIfc a2 = (AnswerIfc) o2;
+    Collections.sort(calcQuestionEntities, new Comparator<AnswerIfc>(){
+    	public int compare(AnswerIfc a1, AnswerIfc a2) {
     		return a1.getId().compareTo(a2.getId());
     	}
     });
     
-    Iterator iter = calcQuestionEntities.iterator();
+    Iterator<AnswerIfc> iter = calcQuestionEntities.iterator();
     while (iter.hasNext())
     {
     	if (i == numOfAnswers) break; // AnswerArray holds the vars so there may be more than we need
     	
-      AnswerIfc answer = (AnswerIfc) iter.next();
+      AnswerIfc answer = iter.next();
       
       answer.setIsCorrect(true);
       
@@ -2095,17 +2080,14 @@ public class DeliveryActionListener
         fbean.setText("");
       fbean.setHasInput(true); // input box
 
-      ArrayList datas = bean.getItemGradingDataArray();
+      ArrayList<ItemGradingData> datas = bean.getItemGradingDataArray();
       if (datas == null || datas.isEmpty())
       {
         fbean.setIsCorrect(false);
       }
       else
       {
-        Iterator iter2 = datas.iterator();
-        while (iter2.hasNext())
-        {
-          ItemGradingData data = (ItemGradingData) iter2.next();
+        for (ItemGradingData data : datas) {
           
           if ((data.getPublishedAnswerId()!=null) && (data.getPublishedAnswerId().equals(answer.getId())))
           {
@@ -2143,7 +2125,7 @@ public class DeliveryActionListener
     fbean.setHasInput(false);
     fins.add(fbean);
 
-    bean.setFinArray(fins);
+    bean.setFinArray((ArrayList) fins);
 	    
   }
   

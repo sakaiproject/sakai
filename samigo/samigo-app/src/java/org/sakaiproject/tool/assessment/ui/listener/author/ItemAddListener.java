@@ -24,15 +24,12 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -67,7 +64,6 @@ import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedItemFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
-import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
@@ -76,13 +72,13 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.ui.bean.author.AnswerBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
-import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionBean;
-import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionFormulaBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionAnswerIfc;
+import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionFormulaBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionVariableBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.MatchItemBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolDataBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -419,8 +415,7 @@ public class ItemAddListener
 	int closecount=0;
 	boolean notEmpty=false;
 	int indexOfOpen=-1;
-	String text = null;
-	text=item.getItemText();
+	String text=item.getItemText();
 
 	while(index<text.length()){ 
 	    char c=text.charAt(index);
@@ -889,7 +884,7 @@ public class ItemAddListener
   }
 
   /**
-   * prepareTextForCalculatedquestion takes the formulas and variables that are 
+   * prepareTextForCalculatedqQestion takes the formulas and variables that are 
    * stored in CalculatedQuestionFormulaBeans and CalculatedQuestionVariableBeans
    * and translates them into ItemTextIfc and AnswerIfc objects.  The only difference
    * between the formula and the variable is what information is actually kept in
@@ -903,10 +898,10 @@ public class ItemAddListener
    * @param itemauthor
    * @return
    */
-  private HashSet prepareTextForCalculatedQuestion(ItemFacade item, ItemBean bean,
+  private Set<ItemText> prepareTextForCalculatedQuestion(ItemFacade item, ItemBean bean,
           ItemAuthorBean itemauthor) {
       CalculatedQuestionBean calcBean = bean.getCalculatedQuestion();      
-      HashSet<ItemText> textSet = new HashSet<ItemText>();
+      Set<ItemText> textSet = new HashSet<ItemText>();
       float score = Float.valueOf(bean.getItemScore());
       float partialCredit = 0f;
       float discount = Float.valueOf(bean.getItemDiscount());
