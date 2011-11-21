@@ -1143,7 +1143,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				}
 				catch (PermissionException e)
 				{
-					M_log.warn(" assignments(String, String) user don't have permission to get assignment " + tempAssignment.getReference() + " context=" + context);
+					// remove the PermissionException log message, since it is not necessary to log this message and it is possible to cause large message volume in production log file 
+					//M_log.warn(" assignments(String, String) user don't have permission to get assignment " + tempAssignment.getReference() + " context=" + context);
 				}
 			}
 		}
