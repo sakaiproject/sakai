@@ -2057,9 +2057,9 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		  return formulas;
 	  }
 	  
-      Pattern formulaPattern = Pattern.compile(OPEN_BRACKET + 
-              OPEN_BRACKET + "([\\w\\s\\.\\-\\^\\$\\&\\@\\?]+?)" + CLOSE_BRACKET + 
-              CLOSE_BRACKET);
+      Pattern formulaPattern = Pattern.compile(OPEN_BRACKET + OPEN_BRACKET + 
+              "([\\w\\s\\.\\-\\^\\$\\&\\@\\?]+?)" + 
+              CLOSE_BRACKET + CLOSE_BRACKET);
 	  Matcher formulaMatcher = formulaPattern.matcher(text);
 	  while (formulaMatcher.find()) {
 		  String formula = formulaMatcher.group(1);
@@ -2087,7 +2087,9 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  if (text == null || text.length() == 0) {
 		  return variables;
 	  }
-      Pattern variablePattern = Pattern.compile(OPEN_BRACKET + "([\\w\\s\\.\\-\\^\\$\\&\\@\\?]+?)" + CLOSE_BRACKET);        
+      Pattern variablePattern = Pattern.compile(OPEN_BRACKET + 
+              "([\\w\\s\\.\\-\\^\\$\\&\\@\\?]+?)" + 
+              CLOSE_BRACKET);        
       Matcher variableMatcher = variablePattern.matcher(text);
       while (variableMatcher.find()) {
           String variable = variableMatcher.group(1);
@@ -2271,11 +2273,11 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   }
 
   /**
-	* CALCULATED_QUESTION
-	* This returns the "|2,2" (variance and decimal display) from the stored answer data.
-	* @param allAnswerText
-	* @return
-	*/
+   * CALCULATED_QUESTION
+   * This returns the "|2,2" (variance and decimal display) from the stored answer data.
+   * @param allAnswerText
+   * @return
+   */
   private String getAnswerData(String allAnswerText) {
       String answerData = allAnswerText.substring(allAnswerText.indexOf("|"), allAnswerText.length());
       return answerData;

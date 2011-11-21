@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.Collection;
 
@@ -516,15 +517,15 @@ public class PublishedAssessmentService extends AssessmentService{
    * @param publishedAssessment
    * @return the map of item id -> item for calc questions in this map
    */
-  public HashMap prepareCalcQuestionItemHash(PublishedAssessmentIfc publishedAssessment){
+  public Map<Long, ItemDataIfc> prepareCalcQuestionItemHash(PublishedAssessmentIfc publishedAssessment){
       // CALCULATED_QUESTION
-      HashMap map = new HashMap();
-      ArrayList sectionArray = publishedAssessment.getSectionArray();
+      Map<Long, ItemDataIfc> map = new HashMap<Long, ItemDataIfc>();
+      List<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
       for (int i=0;i<sectionArray.size(); i++) {
-          SectionDataIfc section = (SectionDataIfc)sectionArray.get(i);
-          ArrayList itemArray = section.getItemArray();
+          SectionDataIfc section = sectionArray.get(i);
+          List<ItemDataIfc> itemArray = section.getItemArray();
           for (int j=0;j<itemArray.size(); j++) {
-              ItemDataIfc item = (ItemDataIfc)itemArray.get(j);
+              ItemDataIfc item = itemArray.get(j);
               if (item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION)) { // CALCULATED_QUESTION
                   map.put(item.getItemId(), item);
               }
