@@ -31,7 +31,6 @@
         <sakai.scheduler.version>2.9-SNAPSHOT</sakai.scheduler.version>
         <sakai.site.version>2.9-SNAPSHOT</sakai.site.version>
         <sakai.velocity.version>2.9-SNAPSHOT</sakai.velocity.version>
-        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/announcement/${project.version}</url.localsite>
     </properties>
 
     <scm>
@@ -41,25 +40,10 @@
     </scm>
 
     <distributionManagement>
-        <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
-        <snapshotRepository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>sakai-maven-snapshots-scp</id>
-            <name>Sakai snapshot Repo</name>
-            <url>scp://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
-            <layout>default</layout>
-        </snapshotRepository>
-        <repository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>sakai-maven2-scp</id>
-            <name>Sakai maven2 repository</name>
-            <url>scp://source.sakaiproject.org/var/www/html/maven2</url>
-            <layout>default</layout>
-        </repository>
         <site>
             <id>sakai-site</id>
             <name>Sakai release Site</name>
-            <url>${url.localsite}</url>
+            <url>scpexe://source.sakaiproject.org/var/www/html/release/announcement/${project.version}</url>
         </site>
     </distributionManagement>
 
