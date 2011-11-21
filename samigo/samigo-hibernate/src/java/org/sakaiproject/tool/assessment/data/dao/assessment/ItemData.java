@@ -569,7 +569,7 @@ public class ItemData
    public String getText() {
      String text = "";
      if (getTypeId().equals(TypeIfc.MATCHING) 
-             || (getTypeId().equals(TypeIfc.CALCULATED_QUESTION))
+             || getTypeId().equals(TypeIfc.CALCULATED_QUESTION)
              || getTypeId().equals(TypeIfc.MATRIX_CHOICES_SURVEY))
        return instruction;
      Set set = this.getItemTextSet();
