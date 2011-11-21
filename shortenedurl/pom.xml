@@ -51,8 +51,7 @@
     
     <properties>
         <sakai.servletapi.version>2.4</sakai.servletapi.version>
-        <entitybroker.version>1.4.0-a02</entitybroker.version>
-        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/shortenedurl/${project.version}</url.localsite>
+        <entitybroker.version>1.5-SNAPSHOT</entitybroker.version>
    		<encoding>UTF-8</encoding>
    </properties>
     
@@ -63,25 +62,10 @@
     </scm>
     
     <distributionManagement>
-        <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
-        <snapshotRepository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>sakai-maven-snapshots-scp</id>
-            <name>Sakai snapshot Repo</name>
-            <url>scp://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
-            <layout>default</layout>
-        </snapshotRepository>
-        <repository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>sakai-maven2-scp</id>
-            <name>Sakai maven2 repository</name>
-            <url>scp://source.sakaiproject.org/var/www/html/maven2</url>
-            <layout>default</layout>
-        </repository>
         <site>
             <id>sakai-site</id>
             <name>Sakai release Site</name>
-            <url>${url.localsite}</url>
+            <url>scpexe://source.sakaiproject.org/var/www/html/release/shortenedurl/${project.version}</url>
         </site>
     </distributionManagement>
     
@@ -192,10 +176,6 @@
 				<version>1.0</version>
 				<scope>provided</scope>
 			</dependency>
-	
     	</dependencies>
     </dependencyManagement>
-    
-    <build />
-    
 </project>
