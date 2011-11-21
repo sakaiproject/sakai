@@ -463,7 +463,7 @@ public class SubmitToGradingActionListener implements ActionListener {
   	 */
   	private HashMap getCalcQuestionMap(PublishedAssessmentIfc publishedAssessment){
 	    PublishedAssessmentService s = new PublishedAssessmentService();
-	    return s.prepareCalcQuestionItemHash(publishedAssessment);
+	    return (HashMap) s.prepareCalcQuestionItemHash(publishedAssessment);
 	}
   
 
