@@ -225,25 +225,10 @@
 	</repositories>
 	
 	<distributionManagement>
-        <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
-        <snapshotRepository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>sakai-maven-snapshots-scp</id>
-            <name>Sakai snapshot Repo</name>
-            <url>scpexe://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
-            <layout>default</layout>
-        </snapshotRepository>
-        <repository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>sakai-maven2-scp</id>
-            <name>Sakai maven2 repository</name>
-            <url>scpexe://source.sakaiproject.org/var/www/html/maven2</url>
-            <layout>default</layout>
-        </repository>
         <site>
             <id>sakai-site</id>
             <name>Sakai release Site</name>
-            <url>${url.localsite}</url>
+            <url>scpexe://source.sakaiproject.org/var/www/html/release/profile2/${project.version}</url>
         </site>
     </distributionManagement>
 	    
@@ -260,7 +245,6 @@
     	<genericdao.version>0.9.18</genericdao.version>
     	<commons.codec.version>1.4</commons.codec.version>
     	<legacy.profile.api.version>2.9-SNAPSHOT</legacy.profile.api.version>
-		<url.localsite>scpexe://source.sakaiproject.org/var/www/html/release/profile2/${project.version}</url.localsite>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <search-api.version>1.4-SNAPSHOT</search-api.version>
 		<entitybroker.version>1.5-SNAPSHOT</entitybroker.version>
