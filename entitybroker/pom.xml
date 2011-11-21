@@ -36,7 +36,6 @@
         <hsqldb.version>1.8.0.5</hsqldb.version>
         <easymock.version>2.0</easymock.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/entitybroker/${project.version}</url.localsite>
     </properties>
     
     <!-- Define the modules that are part of this -->
@@ -191,21 +190,10 @@
     </repositories>
     
     <distributionManagement>
-        <repository>
-            <id>sakai-maven2-scp</id>
-            <name>Sakaiproject Maven 2 repository</name>
-            <url>scp://source.sakaiproject.org/var/www/html/maven2</url>
-        </repository>
-        <snapshotRepository>
-            <id>sakai-maven-snapshots-scp</id>
-            <name>Sakaiproject Maven 2 snapshot repository</name>
-            <uniqueVersion>false</uniqueVersion>
-            <url>scp://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
-        </snapshotRepository>
         <site>
             <id>sakai-site</id>
             <name>Sakai release Site</name>
-            <url>${url.localsite}</url>
+            <url>scpexe://source.sakaiproject.org/var/www/html/release/entitybroker/${project.version}</url>
         </site>
     </distributionManagement>
     
@@ -345,6 +333,15 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        
+        <extensions>
+            <!-- Enabling the use of external ssh -->
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh-external</artifactId>
+                <version>2.0</version>
+            </extension>
+        </extensions>
     </build>
 
     <reporting>
@@ -402,5 +399,4 @@
             </plugin>
         </plugins>
     </reporting>
-
 </project>
