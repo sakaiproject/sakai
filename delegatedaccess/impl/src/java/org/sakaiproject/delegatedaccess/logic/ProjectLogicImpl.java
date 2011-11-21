@@ -113,7 +113,9 @@ public class ProjectLogicImpl implements ProjectLogic {
 	}
 	
 	private void saveShoppingPeriodAuth(String auth, String nodeId){
-		hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SHOPPING_PERIOD_USER, nodeId, DelegatedAccessConstants.NODE_PERM_SHOPPING_AUTH + auth, false);
+		if(auth != null && !"".equals(auth) && !"null".equals(auth)){
+			hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SHOPPING_PERIOD_USER, nodeId, DelegatedAccessConstants.NODE_PERM_SHOPPING_AUTH + auth, false);
+		}
 	}
 	private void saveShoppingPeriodPerms(String[] perms, String nodeId){
 		for(int i = 0; i < perms.length; i++){
