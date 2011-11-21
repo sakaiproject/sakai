@@ -165,7 +165,7 @@ public class ServiceServlet extends HttpServlet {
 	@SuppressWarnings("unchecked")
 		protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 			String contentType = request.getContentType();
-			if ( "application/xml".equals(contentType) ) {
+			if ( contentType != null && contentType.startsWith("application/xml") ) {
 				doPostXml(request, response);
 			} else {
 				doPostForm(request, response);
@@ -657,15 +657,7 @@ public class ServiceServlet extends HttpServlet {
 					SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, null);
 			if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
 
-			String allowSettings = ServerConfigurationService.getString(
-					SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, null);
-			if ( ! "true".equals(allowSettings) ) allowSettings = null;
-
-			String allowRoster = ServerConfigurationService.getString(
-					SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, null);
-			if ( ! "true".equals(allowRoster) ) allowRoster = null;
-
-			if (allowOutcomes == null && allowSettings == null && allowRoster == null ) {
+			if (allowOutcomes == null ) {
 				M_log.warn("Basic LTI Services are disabled IP=" + ipAddress);
 				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 				return;
