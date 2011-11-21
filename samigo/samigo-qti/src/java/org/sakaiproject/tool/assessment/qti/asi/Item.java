@@ -392,6 +392,7 @@ public class Item extends ASIBaseClass
     return AuthoringConstantStrings.CALCQ.equals(this.getItemType()) ? true : false;
   }
 
+
   /**
    * Set the answer texts for item.
    * @param itemTextList the text(s) for item
