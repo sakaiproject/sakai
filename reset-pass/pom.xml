@@ -16,7 +16,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <sakai.entitybroker.version>1.5-SNAPSHOT</sakai.entitybroker.version>
         <sakai.emailtemplateservice.version>0.6-SNAPSHOT</sakai.emailtemplateservice.version>
-		<url.localsite>scp://source.sakaiproject.org/var/www/html/release/reset-pass/${project.version}</url.localsite>
 	</properties>
 	
 	<modules>
@@ -68,27 +67,12 @@
     </scm>
     
 	<distributionManagement>
-		<downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
-		<snapshotRepository>
-			<uniqueVersion>false</uniqueVersion>
-			<id>sakai-maven-snapshots-scp</id>
-			<name>Sakai snapshot Repo</name>
-			<url>scp://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
-			<layout>default</layout>
-		</snapshotRepository>
-		<repository>
-			<uniqueVersion>false</uniqueVersion>
-			<id>sakai-maven2-scp</id>
-			<name>Sakai maven2 repository</name>
-			<url>scp://source.sakaiproject.org/var/www/html/maven2</url>
-			<layout>default</layout>
-		</repository>
-		<site>
-			<id>sakai-site</id>
-			<name>Sakai release Site</name>
-			<url>${url.localsite}</url>
-		</site>
-	</distributionManagement>
+        <site>
+            <id>sakai-site</id>
+            <name>Sakai release Site</name>
+            <url>scpexe://source.sakaiproject.org/var/www/html/release/reset-pass/${project.version}</url>
+        </site>
+    </distributionManagement>
     
     <pluginRepositories>
         <pluginRepository>
