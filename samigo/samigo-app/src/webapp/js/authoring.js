@@ -251,18 +251,18 @@ function toPoint(id)
   document.getElementById(id).value=x.replace(',','.')
 }
 
-(function() {
+// display a prompt if the user tries to save the question but has not edited 
+// any formulas or variables.  Called on document.ready() for Calculated questions
+function initCalcQuestion() {
     var dirty = false;
-    $(document).ready(function() {
-       $("input, select").change(function() {
-           dirty = true;
-       });
-       $(":submit[value=Save]").click(function() {
-         if (!dirty) {
-             if (!confirm("You have not changed variables or formulas.  Are you sure that you want to Save?")) {
-                 return false;
-             }
-         }           
-       });
+    $("input, select").change(function() {
+            dirty = true;
     });
-})();
+    $(".saveButton").click(function() {
+        if (!dirty) {
+            if (!confirm("You have not changed variables or formulas.  Are you sure that you want to Save?")) {
+                return false;
+            }
+        }           
+    });
+}

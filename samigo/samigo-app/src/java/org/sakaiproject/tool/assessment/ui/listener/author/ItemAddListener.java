@@ -290,21 +290,6 @@ public class ItemAddListener
 	    return;
 	}
 
-	// CALCULATED_QUESTION - After we've saved let's make sure the calculated question answer expression
-	// will at least not cause an error that could easily be avoided
-	// this should never fail, as the validations should all pass before we get to the save.
-	// However, the full validation requires the ItemDataIfc object to exist, meaning that the
-	// object must have already been saved.
-	if (iType.equals(TypeFacade.CALCULATED_QUESTION.toString())) {
-	    if (isCalcQExpressionError(itemauthorbean.getItemId())) {
-	        item.setOutcome("calculatedQuestion");
-	        item.setPoolOutcome("calculatedQuestion");
-	        err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","calc_question_error_expression");
-	        context.addMessage(null,new FacesMessage(err));
-	        return;
-	    } 
-	}
-
     item.setOutcome("editAssessment");
     item.setPoolOutcome("editPool");
     itemauthorbean.setItemTypeString("");
@@ -551,28 +536,6 @@ public class ItemAddListener
         }
     }
         
-    /**
-     * CALCULATED_QUESTION
-     * Returns true if there is a mathematical error (that can easily be detected)
-     * else false 
-     */
-    private boolean isCalcQExpressionError(String itemId) {    	
-//    	HashMap answersMap = new HashMap();
-//    	GradingService service = new GradingService();
-//    	ItemService delegate = new ItemService();
-//    	ItemDataIfc item = (ItemDataIfc) delegate.getItem(itemId);
-    	
-//    	try {
-//    		service.extractCalcQAnswersArray(answersMap, item, (long)1, "1");
-//    	}
-//    	catch(Exception e) { //TODO: catch the specific exceptions
-//    		return true;
-//    	}
-    	
- 	  	return false;
-    }
-
-
     public boolean isRowEmpty() {
     	ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
     	ItemBean item =itemauthorbean.getCurrentItem();

@@ -725,7 +725,6 @@ public class HistogramListener
     else if (qbean.getQuestionType().equals("9"))
       getMatchingScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
     else if (qbean.getQuestionType().equals("14")) // CALCULATED_QUESTION
-//        getMatchingScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
         getCalculatedQuestionScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
     else if (qbean.getQuestionType().equals("13")) // matrix survey question
       getMatrixSurveyScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
@@ -1175,6 +1174,8 @@ public class HistogramListener
 					.setPercentCorrect(Integer
 							.toString((int) (((float) correctresponses / (float) qbean.getNumResponses()) * 100)));
 	}
+
+
 
 private void getCalculatedQuestionScores(Map<Long, ItemTextIfc> publishedItemTextHash, Map<Integer, AnswerIfc> publishedAnswerHash, 
         List<ItemGradingData> scores, HistogramQuestionScoresBean qbean, ArrayList labels) {

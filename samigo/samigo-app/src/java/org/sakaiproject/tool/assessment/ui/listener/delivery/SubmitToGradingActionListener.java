@@ -718,7 +718,6 @@ public class SubmitToGradingActionListener implements ActionListener {
 				}
 			}
 			break;
-			
 		case 2: // MCMR
 			for (int m = 0; m < grading.size(); m++) {
 				ItemGradingData itemgrading = (ItemGradingData) grading.get(m);

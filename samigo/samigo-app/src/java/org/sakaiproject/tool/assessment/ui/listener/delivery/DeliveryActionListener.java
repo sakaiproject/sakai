@@ -438,7 +438,6 @@ public class DeliveryActionListener
       HashMap publishedAnswerHash = pubService.preparePublishedAnswerHash(publishedAssessment);
       delivery.setTableOfContents(getContents(publishedAssessment, itemGradingHash,
                                               delivery, publishedAnswerHash));
-      
       // get current page contents
       log.debug("**** resetPageContents="+this.resetPageContents);
       // If it comes from Show Feedback link clicks, call getShowFeedbackPageContents() to 
@@ -2148,8 +2147,6 @@ public class DeliveryActionListener
 	    
   }
   
-  
-  
   public String getAgentString(){
     PersonBean person = (PersonBean) ContextUtil.lookupBean("person");
     String agentString = person.getId();
@@ -2527,7 +2524,6 @@ public class DeliveryActionListener
     return list;
     }
   }
-  
 
   // SAK-6990: if DeliveryActionListener is called by beginAssessment.jsp, a timerId
   // is assigned to timedAssessment that we need to attach to TimedAssessmentGradingModel
@@ -2563,7 +2559,6 @@ public class DeliveryActionListener
 	Integer status = pubService.getPublishedAssessmentStatus(publishedAssessmentId);
 	delivery.getPublishedAssessment().setStatus(status);
   }
-  
   
   /**
    * CALCULATED_QUESTION
