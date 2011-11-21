@@ -38,7 +38,6 @@
         <sakai.scheduler.version>2.9-SNAPSHOT</sakai.scheduler.version>
         <sst.wicket.version>1.4.9</sst.wicket.version>
         <sst.slf4j.version>1.4.3</sst.slf4j.version>
-        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/sitestats/${project.version}</url.localsite>
     </properties>
 
     <!-- Project modules -->
@@ -126,25 +125,10 @@
     
     <!-- Distribution Management -->
     <distributionManagement>
-      <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
-        <snapshotRepository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>sakai-maven-snapshots-scp</id>
-            <name>Sakai snapshot Repo</name>
-            <url>scp://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
-            <layout>default</layout>
-        </snapshotRepository>
-        <repository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>sakai-maven2-scp</id>
-            <name>Sakai maven2 repository</name>
-            <url>scp://source.sakaiproject.org/var/www/html/maven2</url>
-            <layout>default</layout>
-        </repository>
         <site>
             <id>sakai-site</id>
             <name>Sakai release Site</name>
-            <url>${url.localsite}</url>
+            <url>scpexe://source.sakaiproject.org/var/www/html/release/sitestats/${project.version}</url>
         </site>
     </distributionManagement>
     
@@ -508,6 +492,15 @@
             </plugin>
             -->
         </plugins>
+        
+        <extensions>
+            <!-- Enabling the use of external ssh -->
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh-external</artifactId>
+                <version>2.0</version>
+            </extension>
+        </extensions>
     </build>
 
     <!-- Reporting (mvn site) -->
