@@ -79,16 +79,13 @@ public class ShoppingPeriodPage extends BaseTreePage{
 		IColumn columns[] = new IColumn[] {
 				new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.LEFT, 55, Unit.PX), new StringResourceModel("access", null).getString(),
 					"userObject.directAccess"),
-				new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 50, Unit.PROPORTIONAL),
+				new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 40, Unit.PROPORTIONAL),
 					"", "userObject.node.title"),
-				new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.MIDDLE, 50, Unit.PROPORTIONAL), new StringResourceModel("role", null).getString(),
+				new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.MIDDLE, 60, Unit.PROPORTIONAL), new StringResourceModel("role", null).getString(),
 							"userObject.realmModel", realmMap),
-				new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 200, Unit.PX), new StringResourceModel("startDate", null).getString(), "userObject.shoppingPeriodStartDate", true),
-				new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 200, Unit.PX), new StringResourceModel("endDate", null).getString(), "userObject.shoppingPeriodEndDate", false),
-				new PropertyEditableColumnAuthDropdown(new ColumnLocation(Alignment.RIGHT, 100, Unit.PX), new StringResourceModel("shoppingPeriodAuth", null).getString(), "userObject.shoppingPeriodAuth"),
-				new PropertyEditableColumnPermList(new ColumnLocation(Alignment.RIGHT, 96, Unit.PX), new StringResourceModel("shoppingPeriodPerms", null).getString(),
-				"userObject.shoppingPeriodPerms"),
-				
+				new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 100, Unit.PX), new StringResourceModel("startDate", null).getString(), "userObject.shoppingPeriodStartDate", true),
+				new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 100, Unit.PX), new StringResourceModel("endDate", null).getString(), "userObject.shoppingPeriodEndDate", false),
+				new PropertyEditableColumnAuthDropdown(new ColumnLocation(Alignment.RIGHT, 115, Unit.PX), new StringResourceModel("shoppingPeriodAuth", null).getString(), "userObject.shoppingPeriodAuth"),
 		};
 
 		final TreeModel treeModel = projectLogic.createTreeModelForShoppingPeriod(sakaiProxy.getCurrentUserId());

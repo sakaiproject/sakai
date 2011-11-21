@@ -96,9 +96,9 @@ public class UserEditPage  extends BaseTreePage{
 		IColumn columns[] = new IColumn[] {
 				new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.LEFT, 55, Unit.PX), new StringResourceModel("access", null).getString(),
 				"userObject.directAccess"),
-				new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 50, Unit.PROPORTIONAL),
+				new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 40, Unit.PROPORTIONAL),
 						"", "userObject.node.title"),
-						new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.MIDDLE, 50, Unit.PROPORTIONAL), new StringResourceModel("role", null).getString(),
+						new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.MIDDLE, 60, Unit.PROPORTIONAL), new StringResourceModel("role", null).getString(),
 								"userObject.realmModel", realmMap),
 								new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 96, Unit.PX), new StringResourceModel("restrictedToolsHeader", null).getString(),
 								"userObject.restrictedTools"),

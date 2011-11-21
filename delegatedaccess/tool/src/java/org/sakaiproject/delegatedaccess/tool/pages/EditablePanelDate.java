@@ -16,7 +16,7 @@ import org.sakaiproject.delegatedaccess.model.NodeModel;
 
 public class EditablePanelDate  extends Panel{
 	
-	SimpleDateFormat format = new SimpleDateFormat("dd MMMM yyyy");
+	SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
 
 	public EditablePanelDate(String id, IModel inputModel, final NodeModel nodeModel, final TreeNode node, final boolean startDate)
 	{
