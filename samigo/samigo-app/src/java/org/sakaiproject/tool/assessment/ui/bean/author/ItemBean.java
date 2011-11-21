@@ -666,60 +666,12 @@ public class ItemBean
     this.matchItemBeanList= list;
   }
 
-  /*
-  public List<MatchItemBean> getMatchItemBeanVariableList() {
-	  List<MatchItemBean> results = new ArrayList<MatchItemBean>();
-	  
-	  String instructions = this.getInstruction();
-	  GradingService gs = new GradingService();
-	  List<String> formulas = gs.extractFormulas(instructions);
-	  
-	  // look through all MatchItemBeans and return only the beans that are not formulas
-	  ArrayList<MatchItemBean> beans = this.getMatchItemBeanList();
-	  for (MatchItemBean bean : beans) {
-		  boolean isFormula = false;
-		  for (String formula : formulas) {
-			  if (bean.getChoice().equals(formula)) {
-				  isFormula = true;
-				  break;
-			  }
-		  }
-		  if (!isFormula) {
-			  results.add(bean);
-		  }
-			  
-	  }
-	  return results;
-  }
-  
-  public List<MatchItemBean> getMatchItemBeanFormulaList() {
-	  List<MatchItemBean> results = new ArrayList<MatchItemBean>();
-	  
-	  String instructions = this.getInstruction();
-	  GradingService gs = new GradingService();
-	  List<String> formulas = gs.extractFormulas(instructions);
-	  List<String> alreadyAdded = new ArrayList<String>();
-	  
-	  // look through all MatchItemBeans and return only the beans that are formulas
-	  ArrayList<MatchItemBean> beans = this.getMatchItemBeanList();
-	  for (MatchItemBean bean : beans) {
-		  for (String formula : formulas) {
-			  if (bean.getChoice().equals(formula)) {
-				  if (!alreadyAdded.contains(formula)) {
-					  results.add(bean);
-					  alreadyAdded.add(formula);
-				  }
-			  }
-		  }
-	  }
-	  return results;
-  }
-  */
 
   public ArrayList getMatchItemBeanList()
   {
 	return matchItemBeanList;
   }
+
 
   public void setCurrentMatchPair(MatchItemBean param)
   {
@@ -1217,7 +1169,6 @@ public class ItemBean
 	}
 	return false;
     }
-    
 
   public String addMatchPair() {
       if (!isMatchError()){
@@ -1230,6 +1181,8 @@ public class ItemBean
     }
     */
 
+          
+          
     // get existing list
     ArrayList list = getMatchItemBeanList();
     MatchItemBean currpair = this.getCurrentMatchPair();
@@ -1288,6 +1241,7 @@ public class ItemBean
   }
 
 
+  
   public String removeMatchPair() {
 
 	String seqnostr = ContextUtil.lookupParam("sequence");

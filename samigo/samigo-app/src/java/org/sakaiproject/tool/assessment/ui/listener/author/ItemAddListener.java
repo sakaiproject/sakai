@@ -238,7 +238,7 @@ public class ItemAddListener
     		item.setOutcome("matrixChoicesSurveyItem");
     		item.setPoolOutcome("matrixChoicesSurveyItem");
     		return;
-    	}
+    	} 
     }
 
     // CALCULATED_QUESTION
@@ -535,7 +535,7 @@ public class ItemAddListener
     	return false;
         }
     }
-        
+    
     public boolean isRowEmpty() {
     	ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
     	ItemBean item =itemauthorbean.getCurrentItem();
@@ -664,7 +664,6 @@ public class ItemAddListener
     	  if (item.getTypeId().equals(TypeFacade.MATCHING)) {
     		  item.setItemTextSet(prepareTextForMatching(item, bean, itemauthor));
     	  } else if(item.getTypeId().equals(TypeFacade.CALCULATED_QUESTION)) {
-//              item.setItemTextSet(prepareTextForMatching(item, bean, itemauthor));
               item.setItemTextSet(prepareTextForCalculatedQuestion(item, bean, itemauthor));
     	  }
     	  else if(item.getTypeId().equals(TypeFacade.MATRIX_CHOICES_SURVEY)) {
@@ -1209,7 +1208,7 @@ public class ItemAddListener
 			textSet.add(text1);
 
 		}
-		
+
 		else if ((item.getTypeId().equals(TypeFacade.MULTIPLE_CHOICE))
 				|| (item.getTypeId().equals(TypeFacade.MULTIPLE_CORRECT))
 				|| (item.getTypeId().equals(TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION))) {
