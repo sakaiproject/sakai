@@ -34,10 +34,6 @@
     </ciManagement>
     <inceptionYear>2003</inceptionYear>
     <properties>
-        <!--
-            <url.localsite>dav:http://source.sakaiproject.org/release/kernel/${project.version}</url.localsite>
-        -->
-        <url.localsite>scp://source.sakaiproject.org/var/www/html/release/kernel/${project.version}</url.localsite>
 	 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
     </properties>
     <mailingLists>
@@ -374,22 +370,22 @@
         <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
         <snapshotRepository>
             <uniqueVersion>false</uniqueVersion>
-            <id>sakai-maven-snapshots-scp</id>
-            <name>Sakai snapshot Repo</name>
-            <url>scp://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
-            <layout>default</layout>
+			<id>sakai-maven-snapshots-scp</id>
+			<name>Sakai snapshot Repo</name>
+			<url>scpexe://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
+			<layout>default</layout>
         </snapshotRepository>
         <repository>
             <uniqueVersion>false</uniqueVersion>
-            <id>sakai-maven2-scp</id>
-            <name>Sakai maven2 repository</name>
-            <url>scp://source.sakaiproject.org/var/www/html/maven2</url>
-            <layout>default</layout>
+			<id>sakai-maven2-scp</id>
+			<name>Sakai maven2 repository</name>
+			<url>scpexe://source.sakaiproject.org/var/www/html/maven2</url>
+			<layout>default</layout>
         </repository>
         <site>
             <id>sakai-site</id>
             <name>Sakai release Site</name>
-            <url>${url.localsite}</url>
+            <url>scpexe://source.sakaiproject.org/var/www/html/release/kernel/${project.version}</url>
         </site>
     </distributionManagement>
     <pluginRepositories>
@@ -1007,7 +1003,7 @@
                 <inherited>true</inherited>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-		<version>2.3.2</version>
+		        <version>2.3.2</version>
                 <configuration>
                     <source>1.5</source>
                     <target>1.5</target>
@@ -1125,6 +1121,14 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <extensions> 
+           <!-- Enable the use of external ssh for deploys --> 
+            <extension> 
+                <groupId>org.apache.maven.wagon</groupId> 
+                <artifactId>wagon-ssh-external</artifactId> 
+                <version>2.0</version> 
+            </extension> 
+        </extensions>
     </build>
     <modules>
         <module>api</module>
