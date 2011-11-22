@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.swing.tree.TreeModel;
 
+import org.sakaiproject.delegatedaccess.model.HierarchyNodeSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.model.SearchResult;
 import org.sakaiproject.delegatedaccess.model.ToolSerialized;
@@ -96,4 +97,9 @@ public interface ProjectLogic {
 	 * @return
 	 */
 	public List<ToolSerialized> getEntireToolsList();
+	
+	
+	public NodeModel getNodeModel(String nodeId, String userId);
+	
+	public HierarchyNodeSerialized getNode(String id);
 }

@@ -37,8 +37,7 @@ public class NodeModel implements Serializable {
 	private boolean addedDirectChildrenFlag = false;
 
 	public NodeModel(String nodeId, HierarchyNodeSerialized node,
-			boolean directAccess, final Map<String, List<String>> realmMap,
-			String realm, String role, NodeModel parentNode,
+			boolean directAccess, String realm, String role, NodeModel parentNode,
 			List<ToolSerialized> restrictedTools, Date shoppingPeriodStartDate,
 			Date shoppingPeriodEndDate,
 			String shoppingPeriodAuth, boolean addedDirectChildrenFlag){
@@ -176,7 +175,31 @@ public class NodeModel implements Serializable {
 			return myAccessRealmRole;
 		}
 	}
+	
+	public String getNodeShoppingPeriodAuth(){
+		if(getShoppingPeriodAuth() != null && !"".equals(getShoppingPeriodAuth()) && !"none".equals(getShoppingPeriodAuth())){
+			return getShoppingPeriodAuth();
+		}else{
+			return getInheritedShoppingPeriodAuth();
+		}
+	}
 
+	public Date getNodeShoppingPeriodStartDate(){
+		if(getShoppingPeriodStartDate() != null){
+			return getShoppingPeriodStartDate();
+		}else{
+			return getInheritedShoppingPeriodStartDate();
+		}
+	}
+	
+	public Date getNodeShoppingPeriodEndDate(){
+		if(getShoppingPeriodEndDate() != null){
+			return getShoppingPeriodEndDate();
+		}else{
+			return getInheritedShoppingPeriodEndDate();
+		}
+	}
+	
 	public String[] getInheritedAccessRealmRole(){
 		return getInheritedAccessRealmRoleHelper(parentNode);
 	}

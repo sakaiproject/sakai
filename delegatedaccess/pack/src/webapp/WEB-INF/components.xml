@@ -95,5 +95,10 @@
         <property name="timeToLive" value="3600" />
         <property name="timeToIdle" value="3600" />
     </bean>
+    
+    <bean id="org.sakaiproject.delegatedaccess.entity.DelegatedAccessEntityProvider"
+            class="org.sakaiproject.delegatedaccess.entity.DelegatedAccessEntityProviderImpl">
+            <property name="projectLogic" ref="org.sakaiproject.delegatedaccess.logic.ProjectLogic" />
+    </bean>
 
 </beans>

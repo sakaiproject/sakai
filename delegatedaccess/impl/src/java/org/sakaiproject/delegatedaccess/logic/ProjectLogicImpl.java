@@ -447,7 +447,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		TreeModel model = null;
 		if(!map.isEmpty() && map.size() == 1){
 
-			DefaultMutableTreeNode rootNode = add(null, map, getRealmMap(), userId, blankRestrictedTools, addDirectChildren);
+			DefaultMutableTreeNode rootNode = add(null, map, userId, blankRestrictedTools, addDirectChildren);
 			model = new DefaultTreeModel(rootNode);
 		}
 		return model;
@@ -492,16 +492,23 @@ public class ProjectLogicImpl implements ProjectLogic {
 		return "";
 	}
 	
+	private boolean getIsDirectAccess(Set<String> perms){
+		for(String perm : perms){
+			if(perm.equals(DelegatedAccessConstants.NODE_PERM_SITE_VISIT)){
+				return true;
+			}
+		}
+		return false;
+	}
 	
 	/**
 	 * Adds node to parent and creates the NodeModel to store in the tree
 	 * @param parent
 	 * @param sub
-	 * @param realmMap
 	 * @param userId
 	 * @return
 	 */
-	private DefaultMutableTreeNode add(DefaultMutableTreeNode parent, List<List> sub, Map<String, List<String>> realmMap, String userId, List<ToolSerialized> blankRestrictedTools, boolean addDirectChildren)
+	private DefaultMutableTreeNode add(DefaultMutableTreeNode parent, List<List> sub, String userId, List<ToolSerialized> blankRestrictedTools, boolean addDirectChildren)
 	{
 		DefaultMutableTreeNode root = null;
 		for (List nodeList : sub)
@@ -535,7 +542,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 				parentNodeModel = ((NodeModel) parent.getUserObject());
 			}
 			DefaultMutableTreeNode child = new DelegatedAccessMutableTreeNode();
-			child.setUserObject(new NodeModel(node.id, node, selected, realmMap, realm, role, parentNodeModel, 
+			child.setUserObject(new NodeModel(node.id, node, selected, realm, role, parentNodeModel, 
 					restrictedTools, startDate, endDate, shoppingPeriodAuth, addDirectChildren && !children.isEmpty()));
 			if(parent == null){
 				//we have the root, set it
@@ -544,7 +551,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 				parent.add(child);
 			}
 			if(!children.isEmpty()){
-				add(child, children, realmMap, userId, blankRestrictedTools, addDirectChildren);
+				add(child, children, userId, blankRestrictedTools, addDirectChildren);
 			}
 		}
 		return root;
@@ -759,11 +766,10 @@ public class ProjectLogicImpl implements ProjectLogic {
 		DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) node;
 		NodeModel nodeModel = (NodeModel) ((DefaultMutableTreeNode) node).getUserObject();
 		if(nodeModel.getNode() != null){
-			Map<String, List<String>> realmMap = getRealmMap();
 			List<List> childrenNodes = getDirectChildren(nodeModel.getNode());
 			Collections.sort(childrenNodes, new NodeListComparator());
 			for(List childList : childrenNodes){
-				boolean newlyAdded = addChildNodeToTree((HierarchyNodeSerialized) childList.get(0), parentNode, realmMap, userId, blankRestrictedTools);
+				boolean newlyAdded = addChildNodeToTree((HierarchyNodeSerialized) childList.get(0), parentNode, userId, blankRestrictedTools);
 				anyAdded = anyAdded || newlyAdded;
 			}
 		}
@@ -779,7 +785,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * @param userId
 	 * @return
 	 */
-	private boolean addChildNodeToTree(HierarchyNodeSerialized childNode, DefaultMutableTreeNode parentNode, Map<String, List<String>> realmMap, String userId, List<ToolSerialized> blankRestrictedTools){
+	private boolean addChildNodeToTree(HierarchyNodeSerialized childNode, DefaultMutableTreeNode parentNode, String userId, List<ToolSerialized> blankRestrictedTools){
 		boolean added = false;
 		if(!doesChildExist(childNode.id, parentNode)){
 			
@@ -808,7 +814,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 
 			DefaultMutableTreeNode child = new DelegatedAccessMutableTreeNode();
 			child.setUserObject(new NodeModel(childNode.id, childNode,
-					accessNodes.contains(childNode.id), realmMap,
+					accessNodes.contains(childNode.id),
 					realm, role,
 					((NodeModel) parentNode.getUserObject()),
 					restrictedTools, startDate, endDate, shoppingPeriodAuth, false));
@@ -840,4 +846,25 @@ public class ProjectLogicImpl implements ProjectLogic {
 		return exists;
 	}
 
+	public NodeModel getNodeModel(String nodeId, String userId){
+		HierarchyNodeSerialized node = getNode(nodeId);
+		NodeModel parentNodeModel = null;
+		if(node.parentNodeIds != null && node.parentNodeIds.size() > 0){
+			//grad the last parent in the Set (this is the closest parent)
+			parentNodeModel = getNodeModel((String) node.parentNodeIds.toArray()[node.parentNodeIds.size() -1], userId);
+		}
+		Set<String> nodePerms = hierarchyService.getPermsForUserNodes(userId, new String[]{nodeId});
+		Set<String> perms = getPermsForUserNodes(userId, node.id);
+		String[] realmRole = getAccessRealmRole(perms);
+		String realm = realmRole[0];
+		String role = realmRole[1];
+		Date startDate = getShoppingStartDate(perms);
+		Date endDate = getShoppingEndDate(perms);
+		String shoppingPeriodAuth = getShoppingPeriodAuth(perms);
+		List<ToolSerialized> restrictedTools = getRestrictedToolSerializedList(perms, getEntireToolsList());
+		
+		NodeModel nodeModel = new NodeModel(node.id, node, getIsDirectAccess(nodePerms),
+				realm, role, parentNodeModel, restrictedTools, startDate, endDate, shoppingPeriodAuth, false);
+		return nodeModel;
+	}
 }
