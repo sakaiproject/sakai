@@ -338,5 +338,13 @@
                 -->
             </plugin>
         </plugins>
+        <extensions>
+            <!-- Enabling the use of external ssh -->
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh-external</artifactId>
+                <version>2.0</version>
+            </extension>
+        </extensions>
     </build>
 </project>
