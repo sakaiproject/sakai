@@ -24,7 +24,7 @@ public class EditablePanelDate  extends Panel{
 		final DateTextField date = new DateTextField("dateTextField", inputModel, format.toPattern()){
 			@Override
 			public boolean isVisible() {
-				return nodeModel.isDirectAccess();
+				return nodeModel.isDirectAccess() && nodeModel.getNodeShoppingPeriodAdmin();
 			}
 		};
 		date.add(new AjaxFormComponentUpdatingBehavior("onchange")
@@ -59,9 +59,15 @@ public class EditablePanelDate  extends Panel{
 			public String getObject() {
 				Date date = null;
 				if(startDate)
-					date = nodeModel.getInheritedShoppingPeriodStartDate();
+					if(nodeModel.isDirectAccess())
+						date = nodeModel.getNodeShoppingPeriodStartDate();
+					else
+						date = nodeModel.getInheritedShoppingPeriodStartDate();
 				else
-					date = nodeModel.getInheritedShoppingPeriodEndDate();
+					if(nodeModel.isDirectAccess())
+						date = nodeModel.getNodeShoppingPeriodEndDate();
+					else
+						date = nodeModel.getInheritedShoppingPeriodEndDate();
 				if(date == null){
 					return "";
 				}else{
@@ -71,7 +77,7 @@ public class EditablePanelDate  extends Panel{
 		};
 		add(new Label("inherited", labelModel){
 			public boolean isVisible() {
-				return !nodeModel.isDirectAccess();
+				return !nodeModel.isDirectAccess() || !nodeModel.getNodeShoppingPeriodAdmin();
 			};
 		});
 	}

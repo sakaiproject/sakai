@@ -26,11 +26,13 @@ public class PropertyEditableColumnDropdown extends PropertyRenderableColumn
 {
 
 	private Map<String, List<String>> realmMap;
-
-	public PropertyEditableColumnDropdown(ColumnLocation location, String header, String propertyExpression, Map<String, List<String>> realmMap)
+	private int type;
+	
+	public PropertyEditableColumnDropdown(ColumnLocation location, String header, String propertyExpression, Map<String, List<String>> realmMap, int type)
 	{
 		super(location, header, propertyExpression);
 		this.realmMap = realmMap;
+		this.type = type;
 	}
 
 	/**
@@ -38,7 +40,7 @@ public class PropertyEditableColumnDropdown extends PropertyRenderableColumn
 	 */
 	public Component newCell(MarkupContainer parent, String id, TreeNode node, int level)
 	{
-		return new EditablePanelDropdown(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, realmMap);
+		return new EditablePanelDropdown(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, realmMap, type);
 	}
 
 	/**

@@ -74,6 +74,9 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//first step, remove all permissions so you can have a clear palet
 		removeAllUserPermissions(nodeModel.getNodeId(), userId);
 
+		//save shopping period admin information
+		saveShoppingPeriodAdmin(nodeModel.isShoppingPeriodAdmin(), nodeModel.getNodeId(), userId);
+		
 		if(nodeModel.isDirectAccess()){
 			//if direct access, add permissions, otherwise, leave it blank
 
@@ -110,6 +113,12 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 	}
 	
+	private void saveShoppingPeriodAdmin(boolean admin, String nodeId, String userId){
+		if(admin){
+			hierarchyService.assignUserNodePerm(userId, nodeId, DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN, false);
+		}
+	}
+	
 	private void saveShoppingPeriodAuth(String auth, String nodeId){
 		if(auth != null && !"".equals(auth) && !"null".equals(auth)){
 			hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SHOPPING_PERIOD_USER, nodeId, DelegatedAccessConstants.NODE_PERM_SHOPPING_AUTH + auth, false);
@@ -136,10 +145,35 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * returns a list of nodes the user has site.access permission (aka access).  Only direct nodes, nothing inherited.
 	 * @return
 	 */
-	public Set<HierarchyNodeSerialized> getNodesForUser(String userId) {
-		return convertToSerializedNodeSet(hierarchyService.getNodesForUserPerm(userId, DelegatedAccessConstants.NODE_PERM_SITE_VISIT));
+	public Set<HierarchyNodeSerialized> getAllNodesForUser(String userId) {
+		
+		Set<HierarchyNodeSerialized> accessNodes = getAccessNodesForUser(userId);
+		Set<HierarchyNodeSerialized> adminNodes = getShoppingPeriodAdminNodesForUser(userId);
+		
+		accessNodes.addAll(adminNodes);
+		return accessNodes;
 	}
 
+	public Set<HierarchyNodeSerialized> getAccessNodesForUser(String userId) {
+		accessNodes = new ArrayList<String>();
+		
+		Set<HierarchyNodeSerialized> directAccessNodes = convertToSerializedNodeSet(hierarchyService.getNodesForUserPerm(userId, DelegatedAccessConstants.NODE_PERM_SITE_VISIT));
+		//set the access and admin noes list for other functions to determine if a node is an access or admin node
+		for(HierarchyNodeSerialized node : directAccessNodes){
+			accessNodes.add(node.id);
+		}
+		return directAccessNodes;
+	}
+	
+	public Set<HierarchyNodeSerialized> getShoppingPeriodAdminNodesForUser(String userId) {
+		shoppingPeriodAdminNodes = new ArrayList<String>();
+		
+		Set<HierarchyNodeSerialized> adminNodes = convertToSerializedNodeSet(hierarchyService.getNodesForUserPerm(userId, DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN));
+		for(HierarchyNodeSerialized node : adminNodes){
+			shoppingPeriodAdminNodes.add(node.id);
+		}
+		return adminNodes;
+	}
 	/**
 	 * returns a serialized version for Hierarchy nodes.
 	 * 
@@ -221,7 +255,9 @@ public class ProjectLogicImpl implements ProjectLogic {
 					&& access[0] != null
 					&& access[1] != null
 					&& !"".equals(access[0])
-					&& !"".equals(access[1])) {
+					&& !"".equals(access[1])
+					&& !"null".equals(access[0])
+					&& !"null".equals(access[1])) {
 				delegatedAccessMap.put(nodeModel.getNode().description, access);
 			}
 			else{
@@ -282,7 +318,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * {@inheritDoc}
 	 */
 	private void saveRealmAndRoleAccess(String userId, String realmId, String role, String nodeId){
-		if(realmId != null && role != null && !"".equals(realmId) && !"".equals(role)){
+		if(realmId != null && role != null && !"".equals(realmId) && !"".equals(role) && !"null".equals(realmId) && !"null".equals(role)){
 			hierarchyService.assignUserNodePerm(userId, nodeId, DelegatedAccessConstants.NODE_PERM_REALM_PREFIX +realmId, false);
 			hierarchyService.assignUserNodePerm(userId, nodeId, DelegatedAccessConstants.NODE_PERM_ROLE_PREFIX +role, false);
 		}
@@ -405,6 +441,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	//NodeCache stores HierarchyNodeSerialed nodes for faster lookups
 	private Map<String,HierarchyNodeSerialized> nodeCache = new HashMap<String, HierarchyNodeSerialized>();
 	private List<String> accessNodes = new ArrayList<String>();
+	private List<String> shoppingPeriodAdminNodes = new ArrayList<String>();
 	/**
 	 * Creates the model that feeds the tree.
 	 * 
@@ -414,8 +451,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	{
 		//Returns a List that represents the tree/node architecture:
 		//  List{ List{node, List<children>}, List{node, List<children>}, ...}.
-		accessNodes = new ArrayList<String>();
-		List<List> l1 = getTreeListForUser(userId, addDirectChildren, cascade, getNodesForUser(userId));
+		List<List> l1 = getTreeListForUser(userId, addDirectChildren, cascade, getAllNodesForUser(userId));
 		//order tree model:
 		orderTreeModel(l1);
 
@@ -427,8 +463,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//Returns a List that represents the tree/node architecture:
 		//  List{ List{node, List<children>}, List{node, List<children>}, ...}.
 		
-		List<List> l1 = getTreeListForUser(DelegatedAccessConstants.SHOPPING_PERIOD_USER, false, true, getNodesForUser(userId));
-		accessNodes = new ArrayList<String>();
+		List<List> l1 = getTreeListForUser(DelegatedAccessConstants.SHOPPING_PERIOD_USER, false, true, getShoppingPeriodAdminNodesForUser(userId));
+		
 		//order tree model:
 		orderTreeModel(l1);
 
@@ -492,6 +528,15 @@ public class ProjectLogicImpl implements ProjectLogic {
 		return "";
 	}
 	
+	private boolean isShoppingPeriodAdmin(Set<String> perms){
+		for(String perm : perms){
+			if(perm.startsWith(DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	private boolean getIsDirectAccess(Set<String> perms){
 		for(String perm : perms){
 			if(perm.equals(DelegatedAccessConstants.NODE_PERM_SITE_VISIT)){
@@ -517,12 +562,13 @@ public class ProjectLogicImpl implements ProjectLogic {
 			List children = (List) nodeList.get(1);
 			String realm = "";
 			String role = "";
-			boolean selected = false;
+			boolean directAccess = false;
 			Date startDate = null;
 			Date endDate = null;
 			String shoppingPeriodAuth = "";
 			List<ToolSerialized> restrictedTools = blankRestrictedTools;
-			if(DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId) || accessNodes.contains(node.id)){
+			boolean shoppingPeriodAdmin = shoppingPeriodAdminNodes.contains(node.id);
+			if(DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId) || accessNodes.contains(node.id) || shoppingPeriodAdminNodes.contains(node.id)){
 				Set<String> perms = getPermsForUserNodes(userId, node.id);
 				String[] realmRole = getAccessRealmRole(perms);
 				realm = realmRole[0];
@@ -531,19 +577,15 @@ public class ProjectLogicImpl implements ProjectLogic {
 				endDate = getShoppingEndDate(perms);
 				shoppingPeriodAuth = getShoppingPeriodAuth(perms);
 				restrictedTools = getRestrictedToolSerializedList(perms, blankRestrictedTools);
-				if(DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId)){
-					selected = startDate != null;
-				}else{
-					selected = true;
-				}
+				directAccess = getIsDirectAccess(perms);
 			}
 			NodeModel parentNodeModel = null;
 			if(parent != null){
 				parentNodeModel = ((NodeModel) parent.getUserObject());
 			}
 			DefaultMutableTreeNode child = new DelegatedAccessMutableTreeNode();
-			child.setUserObject(new NodeModel(node.id, node, selected, realm, role, parentNodeModel, 
-					restrictedTools, startDate, endDate, shoppingPeriodAuth, addDirectChildren && !children.isEmpty()));
+			child.setUserObject(new NodeModel(node.id, node, directAccess, realm, role, parentNodeModel, 
+					restrictedTools, startDate, endDate, shoppingPeriodAuth, addDirectChildren && !children.isEmpty(), shoppingPeriodAdmin));
 			if(parent == null){
 				//we have the root, set it
 				root = child;
@@ -631,9 +673,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 				//we need to grab all children (children of children, ect) for this node since this an access node
 				getCascadingChildren(node, getChildrenForNode(node.id, currentLevel));
 			}
-
-			accessNodes.add(node.id);
-
 			currentLevel = l1;
 		}
 		if(l1.isEmpty() && addDirectChildren){
@@ -788,7 +827,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	private boolean addChildNodeToTree(HierarchyNodeSerialized childNode, DefaultMutableTreeNode parentNode, String userId, List<ToolSerialized> blankRestrictedTools){
 		boolean added = false;
 		if(!doesChildExist(childNode.id, parentNode)){
-			
+			//just create a blank child since the user should already have all the nodes with information in the db
 			String realm = "";
 			String role = "";
 			boolean selected = false;
@@ -796,28 +835,28 @@ public class ProjectLogicImpl implements ProjectLogic {
 			Date endDate = null;
 			String shoppingPeriodAuth = "";
 			List<ToolSerialized> restrictedTools = blankRestrictedTools;
-			if(DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId) || accessNodes.contains(childNode.id)){
-				Set<String> perms = getPermsForUserNodes(userId, childNode.id);
-				String[] realmRole = getAccessRealmRole(perms);
-				realm = realmRole[0];
-				role = realmRole[1];
-				startDate = getShoppingStartDate(perms);
-				endDate = getShoppingEndDate(perms);
-				shoppingPeriodAuth = getShoppingPeriodAuth(perms);
-				restrictedTools = getRestrictedToolSerializedList(perms, blankRestrictedTools);
-				if(DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId)){
-					selected = startDate != null;
-				}else{
-					selected = true;
-				}
-			}
+			boolean shoppingPeriodAdmin = false;
+//			if(DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId) || accessNodes.contains(childNode.id)){
+//				Set<String> perms = getPermsForUserNodes(userId, childNode.id);
+//				String[] realmRole = getAccessRealmRole(perms);
+//				realm = realmRole[0];
+//				role = realmRole[1];
+//				startDate = getShoppingStartDate(perms);
+//				endDate = getShoppingEndDate(perms);
+//				shoppingPeriodAuth = getShoppingPeriodAuth(perms);
+//				restrictedTools = getRestrictedToolSerializedList(perms, blankRestrictedTools);
+//				if(DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId)){
+//					selected = startDate != null;
+//				}else{
+//					selected = true;
+//				}
+//			}
 
 			DefaultMutableTreeNode child = new DelegatedAccessMutableTreeNode();
-			child.setUserObject(new NodeModel(childNode.id, childNode,
-					accessNodes.contains(childNode.id),
+			child.setUserObject(new NodeModel(childNode.id, childNode, false,
 					realm, role,
 					((NodeModel) parentNode.getUserObject()),
-					restrictedTools, startDate, endDate, shoppingPeriodAuth, false));
+					restrictedTools, startDate, endDate, shoppingPeriodAuth, false, shoppingPeriodAdmin));
 			parentNode.add(child);
 			added = true;
 		}
@@ -862,9 +901,10 @@ public class ProjectLogicImpl implements ProjectLogic {
 		Date endDate = getShoppingEndDate(perms);
 		String shoppingPeriodAuth = getShoppingPeriodAuth(perms);
 		List<ToolSerialized> restrictedTools = getRestrictedToolSerializedList(perms, getEntireToolsList());
+		boolean shoppingPeriodAdmin = isShoppingPeriodAdmin(perms);
 		
 		NodeModel nodeModel = new NodeModel(node.id, node, getIsDirectAccess(nodePerms),
-				realm, role, parentNodeModel, restrictedTools, startDate, endDate, shoppingPeriodAuth, false);
+				realm, role, parentNodeModel, restrictedTools, startDate, endDate, shoppingPeriodAuth, false, shoppingPeriodAdmin);
 		return nodeModel;
 	}
 }

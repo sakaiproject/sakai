@@ -70,12 +70,11 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		secondLink = new Link<Void>("secondLink") {
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
-				setResponsePage(new SearchUsersPage());
+				setResponsePage(new ShoppingPeriodPage());
 			}
 			@Override
 			public boolean isVisible() {
-				//only allow a super admin to see this link
-				return sakaiProxy.isSuperUser();
+				return true;
 			}
 		};
 		secondLink.add(new Label("secondLinkLabel",new ResourceModel("link.second")).setRenderBodyOnly(true));
@@ -86,12 +85,11 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		thirdLink = new Link<Void>("thirdLink") {
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
-				setResponsePage(new ShoppingPeriodPage());
+				setResponsePage(new SearchUsersPage());
 			}
 			@Override
 			public boolean isVisible() {
-				//maybe add a sakai permission for this??
-				return true;
+				return sakaiProxy.isSuperUser();
 			}
 		};
 		thirdLink.add(new Label("thirdLinkLabel",new ResourceModel("link.third")).setRenderBodyOnly(true));

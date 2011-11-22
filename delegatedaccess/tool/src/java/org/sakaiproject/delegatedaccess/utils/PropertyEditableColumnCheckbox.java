@@ -21,16 +21,12 @@ import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelCheckbox;
  */
 public class PropertyEditableColumnCheckbox extends PropertyRenderableColumn
 {
-	/**
-	 * Column constructor.
-	 * 
-	 * @param location
-	 * @param header
-	 * @param propertyExpression
-	 */
-	public PropertyEditableColumnCheckbox(ColumnLocation location, String header, String propertyExpression)
+	private int type;
+	
+	public PropertyEditableColumnCheckbox(ColumnLocation location, String header, String propertyExpression, int type)
 	{
 		super(location, header, propertyExpression);
+		this.type = type;
 	}
 
 	/**
@@ -38,7 +34,7 @@ public class PropertyEditableColumnCheckbox extends PropertyRenderableColumn
 	 */
 	public Component newCell(MarkupContainer parent, String id, TreeNode node, int level)
 	{
-		return new EditablePanelCheckbox(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node);
+		return new EditablePanelCheckbox(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, type);
 	}
 
 	/**

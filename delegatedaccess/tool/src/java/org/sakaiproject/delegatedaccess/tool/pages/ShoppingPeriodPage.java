@@ -43,7 +43,7 @@ public class ShoppingPeriodPage extends BaseTreePage{
 	}
 
 	public ShoppingPeriodPage(){
-		disableLink(thirdLink);
+		disableLink(secondLink);
 		
 		//Form Feedback (Saved/Error)
 		final Label formFeedback = new Label("formFeedback");
@@ -76,18 +76,22 @@ public class ShoppingPeriodPage extends BaseTreePage{
 			}
 			realmMap.put(group.getId(), roles);
 		}
+		
+		final TreeModel treeModel = projectLogic.createTreeModelForShoppingPeriod(sakaiProxy.getCurrentUserId());
+		
+		
 		IColumn columns[] = new IColumn[] {
-				new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.LEFT, 35, Unit.PX), "",	"userObject.directAccess"),
-				new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 39, Unit.PROPORTIONAL),	"", "userObject.node.title"),
-				new PropertyEditableColumnAuthDropdown(new ColumnLocation(Alignment.MIDDLE, 16, Unit.PROPORTIONAL), new StringResourceModel("shoppingPeriodAuth", null).getString(), "userObject.shoppingPeriodAuth"),
-				new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.MIDDLE, 45, Unit.PROPORTIONAL), new StringResourceModel("shoppersBecome", null).getString(),
-							"userObject.realmModel", realmMap),
+				new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.LEFT, 35, Unit.PX), "",	"userObject.directAccess", DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER),
+				new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 100, Unit.PROPORTIONAL),	"", "userObject.node.title"),
+				new PropertyEditableColumnAuthDropdown(new ColumnLocation(Alignment.RIGHT, 115, Unit.PX), new StringResourceModel("shoppingPeriodAuth", null).getString(), "userObject.shoppingPeriodAuth"),
+				new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.RIGHT, 360, Unit.PX), new StringResourceModel("shoppersBecome", null).getString(),
+							"userObject.realmModel", realmMap, DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER),
 				new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 100, Unit.PX), new StringResourceModel("startDate", null).getString(), "userObject.shoppingPeriodStartDate", true),
 				new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 100, Unit.PX), new StringResourceModel("endDate", null).getString(), "userObject.shoppingPeriodEndDate", false),
 				
 		};
 
-		final TreeModel treeModel = projectLogic.createTreeModelForShoppingPeriod(sakaiProxy.getCurrentUserId());
+		
 
 		//a null model means the tree is empty
 		tree = new TreeTable("treeTable", treeModel, columns){

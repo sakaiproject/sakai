@@ -78,7 +78,8 @@ public class DelegatedAccessShoppingPeriodJob  implements Job{
 			addAuth = endDate.after(new Date());
 		}
 		String[] nodeAccessRealmRole = node.getNodeAccessRealmRole();
-		if(nodeAccessRealmRole != null && nodeAccessRealmRole.length == 2 && !"".equals(nodeAccessRealmRole[0]) && !"".equals(nodeAccessRealmRole[1])){
+		if(nodeAccessRealmRole != null && nodeAccessRealmRole.length == 2 && !"".equals(nodeAccessRealmRole[0]) && !"".equals(nodeAccessRealmRole[1])
+				&& !"null".equals(nodeAccessRealmRole[0]) && !"null".equals(nodeAccessRealmRole[1])){
 			addAuth = addAuth && true;
 		}else{
 			addAuth = false;

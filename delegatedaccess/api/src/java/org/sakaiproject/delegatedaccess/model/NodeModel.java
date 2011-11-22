@@ -35,12 +35,14 @@ public class NodeModel implements Serializable {
 	private String shoppingPeriodAuth;
 	private String shoppingPeriodAuthOrig;
 	private boolean addedDirectChildrenFlag = false;
+	private boolean shoppingPeriodAdmin = false;
+	private boolean shoppingPeriodAdminOrig = false;
 
 	public NodeModel(String nodeId, HierarchyNodeSerialized node,
 			boolean directAccess, String realm, String role, NodeModel parentNode,
 			List<ToolSerialized> restrictedTools, Date shoppingPeriodStartDate,
 			Date shoppingPeriodEndDate,
-			String shoppingPeriodAuth, boolean addedDirectChildrenFlag){
+			String shoppingPeriodAuth, boolean addedDirectChildrenFlag, boolean shoppingPeriodAdmin){
 		this.nodeId = nodeId;
 		this.node = node;
 		this.directAccessOrig = directAccess;
@@ -59,6 +61,8 @@ public class NodeModel implements Serializable {
 		this.shoppingPeriodStartDate = shoppingPeriodStartDate;
 		this.shoppingPeriodStartDateOrig = shoppingPeriodStartDate;
 		this.addedDirectChildrenFlag = addedDirectChildrenFlag;
+		this.shoppingPeriodAdmin = shoppingPeriodAdmin;
+		this.shoppingPeriodAdminOrig = shoppingPeriodAdmin;
 	}
 	
 	public String getNodeId() {
@@ -127,7 +131,20 @@ public class NodeModel implements Serializable {
 		}else if(shoppingPeriodAuth == null || shoppingPeriodAuthOrig == null){
 			return true;
 		}
-		return directAccessOrig != directAccess || isRestrictedToolsModified();
+		
+		if(directAccessOrig != directAccess){
+			return true;
+		}
+		
+		if(shoppingPeriodAdmin != shoppingPeriodAdminOrig){
+			return true;
+		}
+		
+		if(isRestrictedToolsModified()){
+			return true;
+		}
+		
+		return false;
 	}
 	
 	
@@ -207,7 +224,10 @@ public class NodeModel implements Serializable {
 	private String[] getInheritedAccessRealmRoleHelper(NodeModel parent){
 		if(parent == null){
 			return new String[]{"",""};
-		}else if(parent.isDirectAccess() && !"".equals(parent.getRealm()) && !"".equals(parent.getRole())){
+		} else if (parent.isDirectAccess() && !"null".equals(parent.getRealm())
+				&& !"".equals(parent.getRealm())
+				&& !"".equals(parent.getRole())
+				&& !"null".equals(parent.getRole())) {
 			return new String[]{parent.getRealm(), parent.getRole()};
 		}else{
 			return getInheritedAccessRealmRoleHelper(parent.getParentNode());
@@ -362,5 +382,35 @@ public class NodeModel implements Serializable {
 
 	public void setAddedDirectChildrenFlag(boolean addedDirectChildrenFlag) {
 		this.addedDirectChildrenFlag = addedDirectChildrenFlag;
+	}
+
+	public boolean isShoppingPeriodAdmin() {
+		return shoppingPeriodAdmin;
+	}
+
+	public void setShoppingPeriodAdmin(boolean shoppingPeriodAdmin) {
+		this.shoppingPeriodAdmin = shoppingPeriodAdmin;
+	}
+	
+	public boolean getNodeShoppingPeriodAdmin(){
+		if(isShoppingPeriodAdmin()){
+			return true;
+		}else{
+			return getInheritedShoppingPeriodAdmin();
+		}
+	}
+	
+	public boolean getInheritedShoppingPeriodAdmin(){
+		return getInheritedShoppingPeriodAdminHelper(parentNode);
+	}
+	
+	private boolean getInheritedShoppingPeriodAdminHelper(NodeModel parent){
+		if(parent == null){
+			return false;
+		}else if(parent.isShoppingPeriodAdmin()){
+			return true;
+		}else{
+			return getInheritedShoppingPeriodAdminHelper(parent.getParentNode());
+		}
 	}
 }

@@ -1,7 +1,6 @@
 package org.sakaiproject.delegatedaccess.tool.pages;
 
 import java.util.Arrays;
-import java.util.Date;
 
 import javax.swing.tree.TreeNode;
 
@@ -22,7 +21,7 @@ public class EditablePanelAuthDropdown extends Panel{
 		final DropDownChoice choice=new DropDownChoice("dropDownChoice", model, Arrays.asList(".auth", ".anon")){
 			@Override
 			public boolean isVisible() {
-				return nodeModel.isDirectAccess();
+				return nodeModel.isDirectAccess() && nodeModel.getNodeShoppingPeriodAdmin();
 			}
 		};
 		choice.add(new AjaxFormComponentUpdatingBehavior("onchange")
@@ -49,12 +48,16 @@ public class EditablePanelAuthDropdown extends Panel{
 		IModel<String> labelModel = new AbstractReadOnlyModel<String>() {
 			@Override
 			public String getObject() {
-				return nodeModel.getInheritedShoppingPeriodAuth();
+				if(nodeModel.isDirectAccess()){
+					return nodeModel.getNodeShoppingPeriodAuth();
+				}else{
+					return nodeModel.getInheritedShoppingPeriodAuth();
+				}
 			}
 		};
 		add(new Label("inherited", labelModel){
 			public boolean isVisible() {
-				return !nodeModel.isDirectAccess();
+				return !nodeModel.isDirectAccess() || !nodeModel.getNodeShoppingPeriodAdmin();
 			};
 		});
 	}

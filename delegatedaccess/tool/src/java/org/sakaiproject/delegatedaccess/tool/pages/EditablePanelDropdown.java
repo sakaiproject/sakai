@@ -16,6 +16,7 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
+import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 
 /**
  * Creates the dropdown panel for the "Role" column in TreeTable
@@ -29,7 +30,7 @@ public class EditablePanelDropdown extends Panel
 	private NodeModel nodeModel;
 	private TreeNode node;
 
-	public EditablePanelDropdown(String id, IModel inputModel, final NodeModel nodeModel, final TreeNode node, final Map<String, List<String>> realmMap)
+	public EditablePanelDropdown(String id, IModel inputModel, final NodeModel nodeModel, final TreeNode node, final Map<String, List<String>> realmMap, final int type)
 	{
 		super(id);
 
@@ -64,7 +65,11 @@ public class EditablePanelDropdown extends Panel
 		final DropDownChoice<String> roleChoices = new DropDownChoice<String>("roleChoices", new PropertyModel<String>(nodeModel, "role"), roleChoicesModel){
 			@Override
 			public boolean isVisible() {
-				return nodeModel.isDirectAccess();
+				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
+					return nodeModel.isDirectAccess() && nodeModel.getNodeShoppingPeriodAdmin();
+				}else{
+					return nodeModel.isDirectAccess();
+				}
 			}
 		};
 		roleChoices.setOutputMarkupId(true);
@@ -90,7 +95,11 @@ public class EditablePanelDropdown extends Panel
 		final DropDownChoice realmChoices = new DropDownChoice("realmChoices", new PropertyModel<String>(nodeModel, "realm"), realmChoicesModel){
 			@Override
 			public boolean isVisible() {
-				return nodeModel.isDirectAccess();
+				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
+					return nodeModel.isDirectAccess() && nodeModel.getNodeShoppingPeriodAdmin();
+				}else{
+					return nodeModel.isDirectAccess();
+				}
 			}
 		};
 		realmChoices.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -119,7 +128,12 @@ public class EditablePanelDropdown extends Panel
 		IModel<String> labelModel = new AbstractReadOnlyModel<String>() {
 			@Override
 			public String getObject() {
-				String[] inheritedAccess = nodeModel.getInheritedAccessRealmRole();
+				String[] inheritedAccess;
+				if(nodeModel.isDirectAccess()){
+					inheritedAccess = nodeModel.getNodeAccessRealmRole();
+				}else{
+					inheritedAccess = nodeModel.getInheritedAccessRealmRole();
+				}
 				if("".equals(inheritedAccess[0])){
 					return "";
 				}else{
@@ -129,7 +143,11 @@ public class EditablePanelDropdown extends Panel
 		};
 		Label label = new Label("realmRole", labelModel){
 			public boolean isVisible() {
-				return !nodeModel.isDirectAccess();
+				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
+					return !nodeModel.isDirectAccess() || !nodeModel.getNodeShoppingPeriodAdmin();
+				}else{
+					return !nodeModel.isDirectAccess();
+				}
 			};
 		};
 		add(label);
