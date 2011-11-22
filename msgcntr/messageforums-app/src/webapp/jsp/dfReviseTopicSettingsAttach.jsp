@@ -349,11 +349,11 @@ $(function () {
 	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/> 
           </h:commandButton>
           <h:commandButton action="#{ForumTool.processActionDeleteTopicConfirm}" id="delete_confirm" 
-                           value="#{msgs.cdfm_button_bar_delete}" accesskey="d" rendered="#{!ForumTool.selectedTopic.markForDeletion && ForumTool.displayTopicDeleteOption}">
+                           value="#{msgs.cdfm_button_bar_delete_topic}" accesskey="d" rendered="#{!ForumTool.selectedTopic.markForDeletion && ForumTool.displayTopicDeleteOption}">
 	        	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
           </h:commandButton>
           <h:commandButton action="#{ForumTool.processActionDeleteTopic}" id="delete" accesskey="d"
-                           value="#{msgs.cdfm_button_bar_delete}" rendered="#{ForumTool.selectedTopic.markForDeletion}">
+                           value="#{msgs.cdfm_button_bar_delete_topic}" rendered="#{ForumTool.selectedTopic.markForDeletion}">
 	        	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
           </h:commandButton>
           <h:commandButton  action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_button_bar_cancel}" accesskey="c" />

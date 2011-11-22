@@ -283,13 +283,13 @@
           </h:commandButton>
 				<%-- // designNote: these next 2 actions  should be available in the list view instead of here --%>
           <h:commandButton id="delete_confirm" action="#{ForumTool.processActionDeleteForumConfirm}" 
-                           value="#{msgs.cdfm_button_bar_delete}" rendered="#{!ForumTool.selectedForum.markForDeletion && ForumTool.displayForumDeleteOption}"
+                           value="#{msgs.cdfm_button_bar_delete_forum}" rendered="#{!ForumTool.selectedForum.markForDeletion && ForumTool.displayForumDeleteOption}"
                            accesskey="d">
 	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
           </h:commandButton>
           
           <h:commandButton id="delete" action="#{ForumTool.processActionDeleteForum}" 
-                           value="#{msgs.cdfm_button_bar_delete}" rendered="#{ForumTool.selectedForum.markForDeletion}"
+                           value="#{msgs.cdfm_button_bar_delete_forum}" rendered="#{ForumTool.selectedForum.markForDeletion}"
                            accesskey="d">
 	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
           </h:commandButton>

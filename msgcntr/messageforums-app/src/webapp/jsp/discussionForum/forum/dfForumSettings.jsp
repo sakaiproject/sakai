@@ -218,13 +218,13 @@ if (thisId == null)
           </h:commandButton>
           
           <h:commandButton id="delete_confirm" action="#{ForumTool.processActionDeleteForumConfirm}" 
-                           value="#{msgs.cdfm_button_bar_delete}" rendered="#{!ForumTool.selectedForum.markForDeletion && !ForumTool.selectedForum.markForDuplication}"
+                           value="#{msgs.cdfm_button_bar_delete_forum}" rendered="#{!ForumTool.selectedForum.markForDeletion && !ForumTool.selectedForum.markForDuplication}"
                            accesskey="">
 	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
           </h:commandButton>
           
           <h:commandButton id="delete" action="#{ForumTool.processActionDeleteForum}" 
-                           value="#{msgs.cdfm_button_bar_delete}" rendered="#{ForumTool.selectedForum.markForDeletion}"
+                           value="#{msgs.cdfm_button_bar_delete_forum}" rendered="#{ForumTool.selectedForum.markForDeletion}"
                            accesskey="">
 	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
           </h:commandButton>

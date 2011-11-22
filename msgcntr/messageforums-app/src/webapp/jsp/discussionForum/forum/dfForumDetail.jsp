@@ -143,7 +143,7 @@
 			          	</h:commandLink>
                                     			
 						<h:outputText  value=" | "   rendered="#{topic.changeSettings}" />
-						<h:commandLink action="#{ForumTool.processActionDeleteTopicMainConfirm}" id="delete_confirm" value="#{msgs.cdfm_button_bar_delete}" 
+						<h:commandLink action="#{ForumTool.processActionDeleteTopicMainConfirm}" id="delete_confirm" value="#{msgs.cdfm_button_bar_delete_topic}" 
 							accesskey="d" rendered="#{topic.changeSettings}">							
 									<f:param value="#{topic.topic.id}" name="topicId"/>
 									<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>

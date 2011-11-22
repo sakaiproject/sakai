@@ -250,7 +250,7 @@ $(document).ready(function() {
 								                            
 								<f:verbatim><li></f:verbatim>							
 							<h:commandLink action="#{ForumTool.processActionDeleteTopicMainConfirm}" id="delete_confirm" value="#{msgs.cdfm_button_bar_delete_topic}" accesskey="d" rendered="#{topic.changeSettings}"
-							title="#{msgs.cdfm_button_bar_delete}">
+							title="#{msgs.cdfm_button_bar_delete_topic}">
 									<f:param value="#{topic.topic.id}" name="topicId"/>
 									<f:param value="#{forum.forum.id}" name="forumId"/>
 							</h:commandLink>
