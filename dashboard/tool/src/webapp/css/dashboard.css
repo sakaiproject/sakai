@@ -452,13 +452,9 @@ ul.tabPanel{
     margin:auto;
     padding:5px 10px;
     background:#9cf;
-    -webkit-border-bottom-right-radius: 10px;
-    -webkit-border-bottom-left-radius: 10px;
-    -moz-border-radius-bottomright: 10px;
-    -moz-border-radius-bottomleft: 10px;
-    border-bottom-right-radius: 10px;
-    border-bottom-left-radius: 10px;
-}
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;}
 #motdTextDiv{
     border:1px solid #FFCC66;
     margin-top:10px;
