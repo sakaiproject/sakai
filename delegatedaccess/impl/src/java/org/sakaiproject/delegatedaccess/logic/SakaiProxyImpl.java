@@ -302,5 +302,21 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 	}
 
+	public SecurityAdvisor addSiteUpdateSecurityAdvisor(){
+		// Cheating to become admin in order to modify authz groups
+		SecurityAdvisor yesMan = new SecurityAdvisor() {
+			public SecurityAdvice isAllowed(String userId, String function, String reference) {
+				if("site.upd".equals(function))
+					return SecurityAdvice.ALLOWED;
+				
+				return SecurityAdvice.PASS;
+			}
+		};
+		securityService.pushAdvisor(yesMan);
+		return yesMan;
+	}
 	
+	public void popSecurityAdvisor(SecurityAdvisor advisor){
+		securityService.popAdvisor(advisor);
+	}
 }

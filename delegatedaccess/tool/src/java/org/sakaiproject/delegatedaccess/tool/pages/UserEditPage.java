@@ -100,7 +100,7 @@ public class UserEditPage  extends BaseTreePage{
 				new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.RIGHT, 360, Unit.PX), new StringResourceModel("userBecomes", null).getString(),
 					"userObject.realmModel", realmMap, DelegatedAccessConstants.TYPE_ACCESS),
 				new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 96, Unit.PX), new StringResourceModel("restrictedToolsHeader", null).getString(),
-					"userObject.restrictedTools"),
+					"userObject.restrictedTools", DelegatedAccessConstants.TYPE_ACCESS),
 		};
 
 		final TreeModel treeModel = projectLogic.createTreeModelForUser(searchResult.getId(), true, false);

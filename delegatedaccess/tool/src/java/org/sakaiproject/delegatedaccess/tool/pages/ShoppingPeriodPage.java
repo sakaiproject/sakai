@@ -32,6 +32,7 @@ import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnAuthDropdown
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnCheckbox;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnDate;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnDropdown;
+import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnList;
 
 public class ShoppingPeriodPage extends BaseTreePage{
 	private TreeTable tree;
@@ -88,6 +89,8 @@ public class ShoppingPeriodPage extends BaseTreePage{
 							"userObject.realmModel", realmMap, DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER),
 				new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 100, Unit.PX), new StringResourceModel("startDate", null).getString(), "userObject.shoppingPeriodStartDate", true),
 				new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 100, Unit.PX), new StringResourceModel("endDate", null).getString(), "userObject.shoppingPeriodEndDate", false),
+				new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 96, Unit.PX), new StringResourceModel("restrictedToolsHeader", null).getString(),
+				"userObject.restrictedTools", DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER),
 				
 		};
 

@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
@@ -181,5 +182,8 @@ public interface SakaiProxy {
 			String newRole);
 
 	
-
+	public SecurityAdvisor addSiteUpdateSecurityAdvisor();
+	
+	public void popSecurityAdvisor(SecurityAdvisor advisor);
+	
 }

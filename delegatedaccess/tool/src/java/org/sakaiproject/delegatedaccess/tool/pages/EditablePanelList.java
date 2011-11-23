@@ -20,6 +20,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.util.string.Strings;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.model.ToolSerialized;
+import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 
 /**
  * 
@@ -36,7 +37,7 @@ public class EditablePanelList  extends Panel
 	private TreeNode node;
 	private List<ToolSerialized> localToolList = null;
 	
-	public EditablePanelList(String id, IModel inputModel, final NodeModel nodeModel, final TreeNode node)
+	public EditablePanelList(String id, IModel inputModel, final NodeModel nodeModel, final TreeNode node, final int type)
 	{
 		super(id);
 
@@ -62,15 +63,15 @@ public class EditablePanelList  extends Panel
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onClick(AjaxRequestTarget target) {
-				if(nodeModel.isDirectAccess()){
-					target.appendJavascript("document.getElementById('" + editableSpanId + "').style.display='';");
-				}else{
-					target.appendJavascript("document.getElementById('" + inheritedSpanId + "').style.display='';");
-				}
+				target.appendJavascript("document.getElementById('" + editableSpanId + "').style.display='';");
 			}
 			@Override
 			public boolean isVisible() {
-				return nodeModel.isDirectAccess();
+				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
+					return nodeModel.isDirectAccess() && nodeModel.getNodeShoppingPeriodAdmin();
+				}else{
+					return nodeModel.isDirectAccess();
+				}
 			}
 		};
 		add(restrictToolsLink);
@@ -79,15 +80,16 @@ public class EditablePanelList  extends Panel
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onClick(AjaxRequestTarget target) {
-				if(nodeModel.isDirectAccess()){
-					target.appendJavascript("document.getElementById('" + editableSpanId + "').style.display='';");
-				}else{
-					target.appendJavascript("document.getElementById('" + inheritedSpanId + "').style.display='';");
-				}
+				target.appendJavascript("document.getElementById('" + inheritedSpanId + "').style.display='';");
 			}
 			@Override
 			public boolean isVisible() {
-				return !nodeModel.isDirectAccess() && nodeModel.getInheritedRestrictedTools() != null && !nodeModel.getInheritedRestrictedTools().isEmpty();
+				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
+					return (!nodeModel.isDirectAccess() && nodeModel.getInheritedRestrictedTools() != null && !nodeModel.getInheritedRestrictedTools().isEmpty())
+								|| (!nodeModel.getNodeShoppingPeriodAdmin() && nodeModel.getNodeRestrictedTools().length > 0);
+				}else{
+					return !nodeModel.isDirectAccess() && nodeModel.getInheritedRestrictedTools() != null && !nodeModel.getInheritedRestrictedTools().isEmpty();
+				}
 			}
 		};
 		add(inheritedToolsLink);
@@ -132,7 +134,11 @@ public class EditablePanelList  extends Panel
 			}
 			@Override
 			public boolean isVisible() {
-				return nodeModel.isDirectAccess();
+				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
+					return nodeModel.isDirectAccess() && nodeModel.getNodeShoppingPeriodAdmin();
+				}else{
+					return nodeModel.isDirectAccess();
+				}
 			}
 		};
 		inheritedSpan.add(switchInheritedSpanLink);
@@ -140,7 +146,11 @@ public class EditablePanelList  extends Panel
 		Label inheritedMenuSpan = new Label("inheritedMenuSpan", " | "){
 			@Override
 			public boolean isVisible() {
-				return nodeModel.isDirectAccess();
+				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
+					return nodeModel.isDirectAccess() && nodeModel.getNodeShoppingPeriodAdmin();
+				}else{
+					return nodeModel.isDirectAccess();
+				}
 			}
 		};
 		inheritedSpan.add(inheritedMenuSpan);
@@ -214,7 +224,15 @@ public class EditablePanelList  extends Panel
 
 			@Override
 			public List<? extends ToolSerialized> getObject() {
-				return nodeModel.getInheritedRestrictedTools();
+				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type && !nodeModel.getNodeShoppingPeriodAdmin()){
+					List<ToolSerialized> returnList = nodeModel.getSelectedRestrictedTools();
+					if(returnList.isEmpty()){
+						returnList = nodeModel.getInheritedRestrictedTools();
+					}
+					return returnList;
+				}else{
+					return nodeModel.getInheritedRestrictedTools();
+				}
 			}
 
 		};
@@ -232,14 +250,25 @@ public class EditablePanelList  extends Panel
 
 			@Override
 			public boolean isVisible() {
-				return nodeModel.getInheritedRestrictedTools() != null && !nodeModel.getInheritedRestrictedTools().isEmpty();
+				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
+					return (nodeModel.getInheritedRestrictedTools() != null && !nodeModel.getInheritedRestrictedTools().isEmpty())
+								|| (!nodeModel.getNodeShoppingPeriodAdmin() && nodeModel.getNodeRestrictedTools().length > 0);
+				}else{
+					return nodeModel.getInheritedRestrictedTools() != null && !nodeModel.getInheritedRestrictedTools().isEmpty();
+				}
 			}
 		};
 		inheritedSpan.add(inheritedListView);
 
 		Label noInheritedToolsLabel = new Label("noToolsInherited", new StringResourceModel("noToolsInherited", null)){
 			public boolean isVisible() {
-				return nodeModel.getInheritedRestrictedTools() == null || nodeModel.getInheritedRestrictedTools().isEmpty();
+				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
+					return (nodeModel.getNodeShoppingPeriodAdmin() && (nodeModel.getInheritedRestrictedTools() == null || nodeModel.getInheritedRestrictedTools().isEmpty()))
+								|| (!nodeModel.getNodeShoppingPeriodAdmin() && nodeModel.getNodeRestrictedTools().length == 0);
+				}else{
+					return nodeModel.getInheritedRestrictedTools() == null || nodeModel.getInheritedRestrictedTools().isEmpty();
+				}
+				
 			};
 		};
 		inheritedSpan.add(noInheritedToolsLabel);

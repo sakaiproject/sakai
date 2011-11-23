@@ -579,6 +579,14 @@ public class ProjectLogicImpl implements ProjectLogic {
 		return false;
 	}
 	
+	private List<ToolSerialized> copyRestrictedTools(List<ToolSerialized> tools){
+		List<ToolSerialized> returnList = new ArrayList<ToolSerialized>();
+		for(ToolSerialized tool : tools){
+			returnList.add(new ToolSerialized(tool.getToolId(), tool.getToolName(), tool.isSelected()));
+		}
+		return returnList;
+	}
+	
 	/**
 	 * Adds node to parent and creates the NodeModel to store in the tree
 	 * @param parent
@@ -602,7 +610,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 			Date updated = null;
 			Date processed = null;
 
-			List<ToolSerialized> restrictedTools = blankRestrictedTools;
+			//you must copy in order not to pass changes to other nodes
+			List<ToolSerialized> restrictedTools = copyRestrictedTools(blankRestrictedTools);
 			boolean shoppingPeriodAdmin = shoppingPeriodAdminNodes.contains(node.id);
 			if(DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId) || accessNodes.contains(node.id) || shoppingPeriodAdminNodes.contains(node.id)){
 				Set<String> perms = getPermsForUserNodes(userId, node.id);
@@ -612,7 +621,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 				startDate = getShoppingStartDate(perms);
 				endDate = getShoppingEndDate(perms);
 				shoppingPeriodAuth = getShoppingPeriodAuth(perms);
-				restrictedTools = getRestrictedToolSerializedList(perms, blankRestrictedTools);
+				restrictedTools = getRestrictedToolSerializedList(perms, restrictedTools);
 				directAccess = getIsDirectAccess(perms);
 				updated = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_UPDATED_DATE);
 				processed = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_PROCESSED_DATE);
@@ -872,7 +881,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 			Date startDate = null;
 			Date endDate = null;
 			String shoppingPeriodAuth = "";
-			List<ToolSerialized> restrictedTools = blankRestrictedTools;
+			//you must copy to not pass changes to other nodes
+			List<ToolSerialized> restrictedTools = copyRestrictedTools(blankRestrictedTools);
 			Date updated= null;
 			Date processed = null;
 			boolean shoppingPeriodAdmin = false;

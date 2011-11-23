@@ -14,6 +14,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
 import org.sakaiproject.delegatedaccess.logic.SakaiProxy;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
@@ -31,11 +32,14 @@ public class DelegatedAccessShoppingPeriodJob implements Job{
 
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		long startTime = System.currentTimeMillis();
+		SecurityAdvisor advisor = sakaiProxy.addSiteUpdateSecurityAdvisor();
 		
 		TreeModel treeModel = projectLogic.getEntireTreeForUser(DelegatedAccessConstants.SHOPPING_PERIOD_USER);
 		if (treeModel != null && treeModel.getRoot() != null) {
 			treeModelShoppingPeriodTraverser((DefaultMutableTreeNode) treeModel.getRoot());
 		}
+		
+		sakaiProxy.popSecurityAdvisor(advisor);		
 		log.info("PopulateSiteHierarchyJob finished in " + (System.currentTimeMillis() - startTime) + " ms");
 	}
 	
@@ -92,9 +96,20 @@ public class DelegatedAccessShoppingPeriodJob implements Job{
 		}else{
 			addAuth = addAuth && true;
 		}
+		
+		String restrictedToolsList = "";
+		
 
 		if(addAuth && (".anon".equals(auth) || ".auth".equals(auth))){
 			if (updated != null && updated.after(processed)){
+				//update the restricted tools list, otherwise it will be cleared:
+				for(String tool : node.getNodeRestrictedTools()){
+					if(!"".equals(restrictedToolsList)){
+						restrictedToolsList += ";";
+					}
+					restrictedToolsList += tool;
+				}
+				
 				removeAnonAndAuthRoles(node.getNode().description);
 				//add either .anon or .auth role:
 				copyNewRole(node.getNode().description, nodeAccessRealmRole[0], nodeAccessRealmRole[1], auth);
@@ -110,7 +125,8 @@ public class DelegatedAccessShoppingPeriodJob implements Job{
 
 		Site site = sakaiProxy.getSiteByRef(node.getNode().description);
 		if (site != null){
-			site.getPropertiesEdit().addProperty("hierarchy-node-id", node.getNode().id);
+			site.getPropertiesEdit().addProperty(DelegatedAccessConstants.SITE_PROP_HIERARCHY_NODE_ID, node.getNode().id);
+			site.getPropertiesEdit().addProperty(DelegatedAccessConstants.SITE_PROP_RESTRICTED_TOOLS, restrictedToolsList);
 			sakaiProxy.saveSite(site);
 		}
 	}

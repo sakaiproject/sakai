@@ -58,7 +58,7 @@ public class NodeModel implements Serializable {
 		this.roleOrig = role;
 		this.parentNode = parentNode;
 		this.restrictedTools = restrictedTools;
-		this.restrictedToolsOrig = restrictedTools;
+		this.restrictedToolsOrig = copyRestrictedTools(restrictedTools);
 		this.shoppingPeriodAuth = shoppingPeriodAuth;
 		this.shoppingPeriodAuthOrig = shoppingPeriodAuth;
 		this.shoppingPeriodEndDate = shoppingPeriodEndDate;
@@ -70,6 +70,14 @@ public class NodeModel implements Serializable {
 		this.shoppingPeriodAdminOrig = shoppingPeriodAdmin;
 		this.updatedDate = updatedDate;
 		this.processedDate = processedDate;
+	}
+	
+	private List<ToolSerialized> copyRestrictedTools(List<ToolSerialized> tools){
+		List<ToolSerialized> returnList = new ArrayList<ToolSerialized>();
+		for(ToolSerialized tool : tools){
+			returnList.add(new ToolSerialized(tool.getToolId(), tool.getToolName(), tool.isSelected()));
+		}
+		return returnList;
 	}
 	
 	public String getNodeId() {
@@ -105,40 +113,6 @@ public class NodeModel implements Serializable {
 	}
 
 	public boolean isModified(){
-		if(realm != null && realmOrig != null){
-			if(!realm.equals(realmOrig))
-				return true;
-		}else if(realm == null || realmOrig == null){
-			return true;
-		}
-		if(shoppingPeriodStartDate != null && shoppingPeriodStartDateOrig != null){
-			if(!shoppingPeriodStartDate.equals(shoppingPeriodStartDateOrig))
-				return true;
-		}else if(shoppingPeriodStartDate == null || shoppingPeriodStartDateOrig == null){
-			return true;
-		}
-		if(shoppingPeriodEndDate != null && shoppingPeriodEndDateOrig != null){
-			if(!shoppingPeriodEndDate.equals(shoppingPeriodEndDateOrig))
-				return true;
-		}else if(shoppingPeriodEndDate == null || shoppingPeriodEndDateOrig == null){
-			return true;
-		}
-		
-		
-		if(role != null && roleOrig != null){
-			if(!role.equals(roleOrig))
-				return true;
-		}else if(role == null || roleOrig == null){
-			return true;
-		}
-		
-		if(shoppingPeriodAuth != null && shoppingPeriodAuthOrig != null){
-			if(!shoppingPeriodAuth.equals(shoppingPeriodAuthOrig))
-				return true;
-		}else if(shoppingPeriodAuth == null || shoppingPeriodAuthOrig == null){
-			return true;
-		}
-		
 		if(directAccessOrig != directAccess){
 			return true;
 		}
@@ -146,9 +120,49 @@ public class NodeModel implements Serializable {
 		if(shoppingPeriodAdmin != shoppingPeriodAdminOrig){
 			return true;
 		}
-		
-		if(isRestrictedToolsModified()){
-			return true;
+		//only worry about modifications to a direct access node
+		if(directAccess){
+			if(realm != null && realmOrig != null){
+				if(!realm.equals(realmOrig))
+					return true;
+			}else if(realm == null || realmOrig == null){
+				return true;
+			}
+			if(shoppingPeriodStartDate != null && shoppingPeriodStartDateOrig != null){
+				if(!shoppingPeriodStartDate.equals(shoppingPeriodStartDateOrig))
+					return true;
+			}else if(shoppingPeriodStartDate == null || shoppingPeriodStartDateOrig == null){
+				return true;
+			}
+			if(shoppingPeriodEndDate != null && shoppingPeriodEndDateOrig != null){
+				if(!shoppingPeriodEndDate.equals(shoppingPeriodEndDateOrig))
+					return true;
+			}else if(shoppingPeriodEndDate == null || shoppingPeriodEndDateOrig == null){
+				return true;
+			}
+
+
+			if(role != null && roleOrig != null){
+				if(!role.equals(roleOrig))
+					return true;
+			}else if(role == null || roleOrig == null){
+				return true;
+			}
+
+			if(shoppingPeriodAuth != null && shoppingPeriodAuthOrig != null){
+				if(!shoppingPeriodAuth.equals(shoppingPeriodAuthOrig))
+					return true;
+			}else if(shoppingPeriodAuth == null || shoppingPeriodAuthOrig == null){
+				return true;
+			}
+
+
+
+			
+
+			if(isRestrictedToolsModified()){
+				return true;
+			}
 		}
 		
 		return false;
