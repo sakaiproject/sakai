@@ -1,8 +1,6 @@
 package org.sakaiproject.delegatedaccess.jobs;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
@@ -14,23 +12,27 @@ import org.apache.log4j.Logger;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
+import org.sakaiproject.delegatedaccess.logic.SakaiProxy;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
+import org.sakaiproject.site.api.Site;
 
-public class DelegatedAccessShoppingPeriodJob  implements Job{
+public class DelegatedAccessShoppingPeriodJob implements Job{
 	private static final Logger log = Logger.getLogger(DelegatedAccessShoppingPeriodJob.class);
 	@Getter @Setter
 	private ProjectLogic projectLogic;
+	@Getter @Setter	
+	private SakaiProxy sakaiProxy;
 	
-	public void init() {
-
-	}
+	public void init() { }
 
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		long startTime = System.currentTimeMillis();
 		
-		TreeModel treeModel = projectLogic.createTreeModelForUser(DelegatedAccessConstants.SHOPPING_PERIOD_USER, false, true);
+		TreeModel treeModel = projectLogic.getEntireTreeForUser(DelegatedAccessConstants.SHOPPING_PERIOD_USER);
 		if (treeModel != null && treeModel.getRoot() != null) {
 			treeModelShoppingPeriodTraverser((DefaultMutableTreeNode) treeModel.getRoot());
 		}
@@ -38,12 +40,10 @@ public class DelegatedAccessShoppingPeriodJob  implements Job{
 	}
 	
 	private void treeModelShoppingPeriodTraverser(DefaultMutableTreeNode node){
-		List<NodeModel> returnList = new ArrayList<NodeModel>();
 		if(node != null){
 			NodeModel nodeModel = (NodeModel) node.getUserObject();
-			if(nodeModel.getNode().description.startsWith("/site/")){
-				
-			}
+			if(nodeModel.getNode().description.startsWith("/site/")){ 
+				shoppingPeriodRoleHelper(nodeModel);			}
 			for(int i = 0; i < node.getChildCount(); i++){
 				treeModelShoppingPeriodTraverser((DefaultMutableTreeNode) node.getChildAt(i));
 			}
@@ -53,29 +53,32 @@ public class DelegatedAccessShoppingPeriodJob  implements Job{
 	private void shoppingPeriodRoleHelper(NodeModel node){
 		Date startDate = null;
 		Date endDate = null;
-		String auth = node.getShoppingPeriodAuth();
-		
-		if(auth == null || "".equals(auth)){
-			auth = node.getInheritedShoppingPeriodAuth();
+		Date now = new Date();
+
+		String auth = node.getNodeShoppingPeriodAuth();
+		startDate = node.getNodeShoppingPeriodStartDate();
+		endDate = node.getNodeShoppingPeriodEndDate();
+
+		//we need to grab the updated date of the modification, even if it's inherited
+		Date updated = node.getNodeUpdatedDate();
+		//we are only interested in this node's process date, not the inheritance
+		Date processed = node.getProcessedDate();
+		if(!node.isDirectAccess()){
+			//if the node isn't a direct access node, we need to instantiate the date information
+			processed = projectLogic.getShoppingPeriodProccessedDate(DelegatedAccessConstants.SHOPPING_PERIOD_USER, node.getNodeId());
 		}
-		
-		startDate = node.getShoppingPeriodStartDate();
-		endDate = node.getShoppingPeriodEndDate();
-		if(startDate == null)
-			startDate = node.getInheritedShoppingPeriodStartDate();
-		if(endDate == null)
-			endDate = node.getInheritedShoppingPeriodEndDate();
-		
-		
-		
+		if (processed == null){
+			processed = new Date(0L); // will always be older than other dates
+		}
+
 		boolean addAuth = false;
 		
 		if(startDate != null && endDate != null){
-			addAuth = startDate.before(new Date()) && endDate.after(new Date());
+			addAuth = startDate.before(now) && endDate.after(now);
 		}else if(startDate != null){
-			addAuth = startDate.before(new Date());
+			addAuth = startDate.before(now);
 		}else if(endDate != null){
-			addAuth = endDate.after(new Date());
+			addAuth = endDate.after(now);
 		}
 		String[] nodeAccessRealmRole = node.getNodeAccessRealmRole();
 		if(nodeAccessRealmRole != null && nodeAccessRealmRole.length == 2 && !"".equals(nodeAccessRealmRole[0]) && !"".equals(nodeAccessRealmRole[1])
@@ -89,26 +92,42 @@ public class DelegatedAccessShoppingPeriodJob  implements Job{
 		}else{
 			addAuth = addAuth && true;
 		}
-		
+
 		if(addAuth && (".anon".equals(auth) || ".auth".equals(auth))){
-			//remove old roles
-			//TODO: We could either remove all .anon and .auth roles every time or
-			//just skip if the role to add already exists in the site????
-			removeAnonAndAuthRoles(node.getNode().description);
-			//add either .anon or .auth role:
-			copyNewRole(node.getNode().description, nodeAccessRealmRole[0], nodeAccessRealmRole[1], auth);
-		}else{
+			if (updated != null && updated.after(processed)){
+				removeAnonAndAuthRoles(node.getNode().description);
+				//add either .anon or .auth role:
+				copyNewRole(node.getNode().description, nodeAccessRealmRole[0], nodeAccessRealmRole[1], auth);
+				// update the processed date
+				processed = now;
+				projectLogic.assignUserNodePerm(DelegatedAccessConstants.SHOPPING_PERIOD_USER, node.getNodeId(), DelegatedAccessConstants.NODE_PERM_SHOPPING_PROCESSED_DATE + processed.getTime(), false);
+				
+			}
+		} else{
 			//remove .anon and .auth roles
 			removeAnonAndAuthRoles(node.getNode().description);
 		}
-		
+
+		Site site = sakaiProxy.getSiteByRef(node.getNode().description);
+		if (site != null){
+			site.getPropertiesEdit().addProperty("hierarchy-node-id", node.getNode().id);
+			sakaiProxy.saveSite(site);
+		}
 	}
 	
 	private void removeAnonAndAuthRoles(String siteRef){
-		
+		Site site = sakaiProxy.getSiteByRef(siteRef);
+		AuthzGroup ag = sakaiProxy.getAuthzGroup(siteRef);
+		log.debug("Removing .auth and.anon roles for " + siteRef);
+		for (Role role: site.getRoles()){
+			if (role.getId().equals(".auth") || role.getId().equals(".anon")){
+				sakaiProxy.removeRoleFromAuthzGroup(ag, role);
+			}
+		}
 	}
 	
 	private void copyNewRole(String siteRef, String copyRealm, String copyRole, String newRole){
-		
+		log.debug("Copying " + copyRole + " to " + newRole + " for " + siteRef);
+		sakaiProxy.copyNewRole(siteRef, copyRealm, copyRole, newRole);
 	}
 }

@@ -34,15 +34,20 @@ public class NodeModel implements Serializable {
 	private Date shoppingPeriodEndDateOrig = new Date();
 	private String shoppingPeriodAuth;
 	private String shoppingPeriodAuthOrig;
-	private boolean addedDirectChildrenFlag = false;
+	private boolean addedDirectChildrenFlag = false;	
 	private boolean shoppingPeriodAdmin = false;
 	private boolean shoppingPeriodAdminOrig = false;
+	private Date updatedDate = new Date();
+	private Date processedDate = new Date();
+
 
 	public NodeModel(String nodeId, HierarchyNodeSerialized node,
 			boolean directAccess, String realm, String role, NodeModel parentNode,
 			List<ToolSerialized> restrictedTools, Date shoppingPeriodStartDate,
 			Date shoppingPeriodEndDate,
-			String shoppingPeriodAuth, boolean addedDirectChildrenFlag, boolean shoppingPeriodAdmin){
+			String shoppingPeriodAuth, boolean addedDirectChildrenFlag, boolean shoppingPeriodAdmin,
+			Date updatedDate, Date processedDate){
+
 		this.nodeId = nodeId;
 		this.node = node;
 		this.directAccessOrig = directAccess;
@@ -63,6 +68,8 @@ public class NodeModel implements Serializable {
 		this.addedDirectChildrenFlag = addedDirectChildrenFlag;
 		this.shoppingPeriodAdmin = shoppingPeriodAdmin;
 		this.shoppingPeriodAdminOrig = shoppingPeriodAdmin;
+		this.updatedDate = updatedDate;
+		this.processedDate = processedDate;
 	}
 	
 	public String getNodeId() {
@@ -374,6 +381,36 @@ public class NodeModel implements Serializable {
 
 	public void setShoppingPeriodAuth(String shoppingPeriodAuth) {
 		this.shoppingPeriodAuth = shoppingPeriodAuth;
+	}
+
+	public Date getUpdatedDate() {
+		return updatedDate;
+	}
+	
+	public Date getNodeUpdatedDate(){
+		if(updatedDate != null){
+			return updatedDate;
+		}else{
+			return getInheritedUpdatedDate();
+		}
+	}
+	
+	public Date getInheritedUpdatedDate(){
+		return 	getInheritedUpdatedDateHelper(parentNode);
+	}
+	
+	private Date getInheritedUpdatedDateHelper(NodeModel parent){
+		if(parent == null){
+			return null;
+		}else if(parent.isDirectAccess()){
+			return parent.getUpdatedDate();
+		}else{
+			return getInheritedUpdatedDateHelper(parent.getParentNode());
+		}
+	}
+
+	public Date getProcessedDate() {
+		return processedDate;
 	}
 
 	public boolean isAddedDirectChildrenFlag() {

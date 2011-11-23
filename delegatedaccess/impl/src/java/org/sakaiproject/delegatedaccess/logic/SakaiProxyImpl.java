@@ -11,6 +11,11 @@ import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzPermissionException;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
+import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
@@ -18,6 +23,8 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.hierarchy.HierarchyService;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -64,11 +71,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 	@Getter @Setter
 	private ToolManager toolManager;
+	
 	/**
 	 * init - perform any actions required here for when this bean starts up
 	 */
 	public void init() {
-		log.info("init");
 	}
 
 
@@ -112,9 +119,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public Set<Tool> getAllTools(){
 		return toolManager.findTools(null, null);
 	}
-
-
-
 
 	/**
 	 * {@inheritDoc}
@@ -172,6 +176,19 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 		return site;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void saveSite(Site site){
+		try {
+			siteService.save(site);
+		} catch (IdUnusedException e) {
+			log.error(e);
+		} catch (PermissionException e) {
+			log.error(e);
+		}
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -203,7 +220,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public void refreshCurrentUserAuthz(){
 		authzGroupService.refreshUser(getCurrentUserId());
 	}
-	
+
 	public Set<String> getUserMembershipForCurrentUser(){
 		Set<String> returnSet = new HashSet<String>();
 		for(Site site: siteService.getSites(SelectionType.ACCESS, null, null, null, null, null)){
@@ -211,4 +228,79 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 		return returnSet;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public AuthzGroup getAuthzGroup(String siteId){
+		AuthzGroup group = null;
+		try {
+			group = authzGroupService.getAuthzGroup(siteId);
+		} catch (GroupNotDefinedException e) {
+			log.error(e);
+		}
+		return group;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void removeRoleFromAuthzGroup(AuthzGroup group, Role role) {
+		// Cheating to become admin in order to modify authz groups
+		SecurityAdvisor yesMan = new SecurityAdvisor() {
+			public SecurityAdvice isAllowed(String userId, String function, String reference) {
+				return SecurityAdvice.ALLOWED;
+			}
+		};
+		try {
+			group.removeRole(role.getId());
+			securityService.pushAdvisor(yesMan);
+			authzGroupService.save(group);
+		} catch (AuthzPermissionException e) {
+			log.error(e);
+		} catch (GroupNotDefinedException e) {
+			log.error(e);
+		} finally {
+			securityService.pushAdvisor(yesMan);
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void copyNewRole(String siteRef, String copyRealm, String copyRole, String newRole){
+		// Cheating to become admin in order to modify authz groups
+		SecurityAdvisor yesMan = new SecurityAdvisor() {
+			public SecurityAdvice isAllowed(String userId, String function, String reference) {
+				return SecurityAdvice.ALLOWED;
+			}
+		};
+
+		try {
+			// become admin
+			securityService.pushAdvisor(yesMan);
+			
+			// Get the source realm and role
+			AuthzGroup sourceGroup = authzGroupService.getAuthzGroup(copyRealm);
+			Role copyFromRole = sourceGroup.getRole(copyRole);
+			
+			// Copy the role to the dest role 
+			AuthzGroup destGroup = authzGroupService.getAuthzGroup(siteRef);
+			destGroup.removeRole(newRole);
+			authzGroupService.save(destGroup);
+			destGroup.addRole(newRole, copyFromRole);
+			authzGroupService.save(destGroup);
+			
+		} catch (RoleAlreadyDefinedException e) {
+			log.error(e); // wtf?
+		} catch (GroupNotDefinedException e) {
+			log.error(e);
+		} catch (AuthzPermissionException e) {
+			log.error(e);
+		} finally {
+			securityService.popAdvisor(yesMan);
+		}
+	}
+
+	
 }

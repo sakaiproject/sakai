@@ -64,6 +64,7 @@
 		class="org.sakaiproject.delegatedaccess.jobs.DelegatedAccessShoppingPeriodJob"
 		init-method="init">
 		<property name="projectLogic" ref="org.sakaiproject.delegatedaccess.logic.ProjectLogic" />
+		<property name="sakaiProxy" ref="org.sakaiproject.delegatedaccess.logic.SakaiProxy"/>
 	</bean>
 	
 	<bean id="DelegatedAccessShoppingPeriodJob"

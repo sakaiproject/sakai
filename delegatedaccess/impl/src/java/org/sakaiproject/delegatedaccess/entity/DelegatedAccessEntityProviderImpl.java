@@ -49,10 +49,12 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		if(node == null){
 			throw new IllegalArgumentException("NodeId: " + nodeId + " doesn't exist");
 		}
-		Map valuesMap = new HashMap<String, String>();
+		Map<String,String> valuesMap = new HashMap<String, String>();
 		valuesMap.put("shoppingAuth", node.getNodeShoppingPeriodAuth());
-		valuesMap.put("shoppingStartDate", node.getNodeShoppingPeriodStartDate());
-		valuesMap.put("shoppingEndDate", node.getNodeShoppingPeriodEndDate());
+		valuesMap.put("shoppingStartDate", Long.toString(node.getNodeShoppingPeriodStartDate().getTime()));
+		valuesMap.put("shoppingEndDate", Long.toString(node.getNodeShoppingPeriodEndDate().getTime()));
+		valuesMap.put("shoppingRealm", node.getNodeAccessRealmRole()[0]);
+		valuesMap.put("shoppingRole", node.getNodeAccessRealmRole()[1]);
 		
 		return valuesMap;
 	}
@@ -87,6 +89,8 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		String shoppingAuth = (String) params.get("shoppingAuth");
 		String shoppingStartDateStr = (String) params.get("shoppingStartDate");
 		String shoppingEndDateStr = (String) params.get("shoppingEndDate");
+		String role = (String) params.get("shoppingRole");
+		String realm = (String) params.get("shoppingRealm");
 		Date shoppingStartDate = null;
 		Date shoppingEndDate = null;
 		if(shoppingStartDateStr != null && !"".equals(shoppingStartDateStr)){
@@ -103,15 +107,18 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 				throw new IllegalArgumentException("shoppingEndDate: " + shoppingEndDateStr + " is not a valid date time.");
 			}
 		}
-		
+
 		//get the node to store the information:
 		NodeModel node = projectLogic.getNodeModel(nodeId, DelegatedAccessConstants.SHOPPING_PERIOD_USER);
 		node.setShoppingPeriodAuth(shoppingAuth);
 		node.setShoppingPeriodStartDate(shoppingStartDate);
 		node.setShoppingPeriodEndDate(shoppingEndDate);
+		node.setRealm(realm);
+		node.setRole(role);
 
 		//to enable these settings, you must set the direct access to true, disabled = false
-		if((shoppingAuth == null || "".equals(shoppingAuth)) && shoppingStartDate == null && shoppingEndDate == null){
+		if((shoppingAuth == null || "".equals(shoppingAuth)) && shoppingStartDate == null && shoppingEndDate == null ||
+				realm == null || "".equals(realm) || role == null || "".equals(role)){
 			//user wants to remove information, so make the direct access == false:
 			node.setDirectAccess(false);
 		}else{
@@ -133,7 +140,9 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		valuesMap.put("shoppingAuth", node.getNodeShoppingPeriodAuth());
 		valuesMap.put("shoppingStartDate", node.getNodeShoppingPeriodStartDate());
 		valuesMap.put("shoppingEndDate", node.getNodeShoppingPeriodEndDate());
-		
+		valuesMap.put("shoppingRealm", node.getNodeAccessRealmRole()[0]);
+		valuesMap.put("shoppingRole", node.getNodeAccessRealmRole()[1]);
+
 		return valuesMap;
 	}
 

@@ -1,5 +1,6 @@
 package org.sakaiproject.delegatedaccess.logic;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.tree.TreeModel;
@@ -102,4 +103,24 @@ public interface ProjectLogic {
 	public NodeModel getNodeModel(String nodeId, String userId);
 	
 	public HierarchyNodeSerialized getNode(String id);
+	
+	/**
+	 * Store a permission on a hierarchy node
+	 * 
+	 * @param userId
+	 *            the id of the user being granted a permission
+	 * @param nodeId
+	 *            the id of the hierarchy node
+	 * @param perm
+	 *            the permission name
+	 * @param cascade
+	 *            cascade down to child nodes
+	 */
+	public void assignUserNodePerm(String userId, String nodeId, String perm,
+			boolean cascade);
+	
+	
+	public Date getShoppingPeriodProccessedDate(String userId, String nodeId);
+	
+	public TreeModel getEntireTreeForUser(String userId);
 }

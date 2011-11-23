@@ -33,11 +33,13 @@ public class DelegatedAccessConstants {
 	public static final String NODE_PERM_SHOPPING_END_DATE = "shoppingEndDate:";
 	public static final String NODE_PERM_SHOPPING_AUTH = "shoppingAuth:";
 	public static final String NODE_PERM_SHOPPING_ADMIN = "shoppingAdmin";
+	public static final String NODE_PERM_SHOPPING_PROCESSED_DATE = "processedDate:";
+	public static final String NODE_PERM_SHOPPING_UPDATED_DATE = "updatedDate:";
 	public static final String EVENT_ADD_USER_PERMS = "delegatedaccess.nodeperms.add";
 	public static final String EVENT_DELETE_USER_PERMS = "delegatedaccess.nodeperms.delete";
 	public static final String SESSION_ATTRIBUTE_ACCESS_MAP = "delegatedaccess.accessmap";
 	public static final String SESSION_ATTRIBUTE_DENIED_TOOLS = "delegatedaccess.deniedToolsMap";
-	public static final String SHOPPING_PERIOD_USER = "120dv0f43cv90sdf0asv9";
+	public static final String SHOPPING_PERIOD_USER = "120dv0f43cv90sdf0asv9";	
 	public static final String SHOPPING_PERIOD_FUNCITONS_PROP = "shopping.period.available.functions";
 	public static final int TYPE_ACCESS = 1;
 	public static final int TYPE_ACCESS_SHOPPING_PERIOD_USER = 2;
