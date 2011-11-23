@@ -31,7 +31,7 @@
         }
         
         div.my-tree{
-        	overflow: auto;
+        	overflow: -moz-scrollbars-horizontal;;
         	width: 100%;
         }
         div.header{
@@ -54,8 +54,10 @@
 <body>
 <wicket:extend>
 	<div wicket:id="formFeedback" id="formFeedback">[formFeedback]</div>
+	<br/>
 	<div style="font-size: 150%" wicket:id="userName"></div>
-	<img wicket:id="userImage"/>
+	<br/>
+	<span class="instruction" style="white-space: normal"><wicket:message key="editUsersInstructions"/></span>
 	<br/>
 	<br/>
 	<form wicket:id="form">

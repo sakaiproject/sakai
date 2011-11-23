@@ -22,7 +22,6 @@ import org.apache.wicket.extensions.markup.html.tree.table.TreeTable;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.tree.AbstractTree;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
@@ -69,10 +68,6 @@ public class UserEditPage  extends BaseTreePage{
 
 		//USER NAME & IMAGE:
 		add(new Label("userName", searchResult.getDisplayName()));
-		Image userImage = new Image("userImage");
-		userImage.add(new AttributeModifier("src", true, new Model("/direct/profile/" + searchResult.getId() + "/image")));
-		add(userImage);
-
 		//FORM:
 		Form form = new Form("form");
 		add(form);

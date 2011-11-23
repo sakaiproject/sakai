@@ -145,6 +145,10 @@ public class ShoppingPeriodPage extends BaseTreePage{
 				target.appendJavascript("hideFeedbackTimer('" + formFeedbackId + "');");
 				target.appendJavascript("hideFeedbackTimer('" + formFeedback2Id + "');");
 			}
+			@Override
+			public boolean isVisible() {
+				return treeModel != null;
+			}
 		};
 		form.add(updateButton);
 
@@ -154,8 +158,24 @@ public class ShoppingPeriodPage extends BaseTreePage{
 			public void onSubmit() {
 				setResponsePage(new UserPage());
 			}
+			@Override
+			public boolean isVisible() {
+				return treeModel != null;
+			}
 		};
 		form.add(cancelButton);
+		
+		
+		//Access Warning:
+		Label noAccessLabel = new Label("noAccess"){
+			@Override
+			public boolean isVisible() {
+				return treeModel == null;
+			}
+		};
+
+		noAccessLabel.setDefaultModel(new StringResourceModel("noShoppingAdminAccess", null));        
+		add(noAccessLabel);
 
 	}
 

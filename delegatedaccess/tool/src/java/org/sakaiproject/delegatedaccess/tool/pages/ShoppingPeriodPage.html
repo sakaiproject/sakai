@@ -3,6 +3,9 @@
 
 <wicket:head>
     <style>
+    	div.my-tree{
+            overflow: -moz-scrollbars-horizontal;
+        }
         table.wicket-tree-content {
             width: 100%;
         }
@@ -37,6 +40,8 @@
 <body>
 <wicket:extend>
 	<div wicket:id="formFeedback" id="formFeedback">[formFeedback]</div>
+	<br/>
+	<span wicket:id="noAccess"></span>
 	<br/>
 	<form wicket:id="form">
 		<a wicket:id="expandAll"><span wicket:id="expandCollapse">Expand All Nodes</span></a>&nbsp;&nbsp;
