@@ -72,8 +72,10 @@ public interface ProjectLogic {
 	 * @return
 	 */
 
-	public TreeModel createTreeModelForUser(String userId, boolean addDirectChildren, boolean cascade);
+	public TreeModel createAccessTreeModelForUser(String userId, boolean addDirectChildren, boolean cascade);
 
+	public TreeModel createEntireTreeModelForUser(String userId, boolean addDirectChildren, boolean cascade);
+	
 	/**
 	 * returns the tree model that looks up the shopping period information for the sites the user has access to
 	 * 
@@ -122,5 +124,5 @@ public interface ProjectLogic {
 	
 	public Date getShoppingPeriodProccessedDate(String userId, String nodeId);
 	
-	public TreeModel getEntireTreeForUser(String userId);
+	public TreeModel getEntireTreePlusUserPerms(String userId);
 }

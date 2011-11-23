@@ -34,7 +34,7 @@ public class DelegatedAccessShoppingPeriodJob implements Job{
 		long startTime = System.currentTimeMillis();
 		SecurityAdvisor advisor = sakaiProxy.addSiteUpdateSecurityAdvisor();
 		
-		TreeModel treeModel = projectLogic.getEntireTreeForUser(DelegatedAccessConstants.SHOPPING_PERIOD_USER);
+		TreeModel treeModel = projectLogic.getEntireTreePlusUserPerms(DelegatedAccessConstants.SHOPPING_PERIOD_USER);
 		if (treeModel != null && treeModel.getRoot() != null) {
 			treeModelShoppingPeriodTraverser((DefaultMutableTreeNode) treeModel.getRoot());
 		}

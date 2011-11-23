@@ -47,7 +47,7 @@ public class UserPage  extends BaseTreePage{
 		//Expand/Collapse Link
 		add(getExpandCollapseLink());
 
-		final TreeModel treeModel = projectLogic.createTreeModelForUser(userId, false, true);
+		final TreeModel treeModel = projectLogic.createAccessTreeModelForUser(userId, false, true);
 
 		//a null model means the user doesn't have any associations
 		tree = new LinkTree("tree", treeModel){

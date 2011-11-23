@@ -98,7 +98,7 @@ public class UserEditPage  extends BaseTreePage{
 					"userObject.restrictedTools", DelegatedAccessConstants.TYPE_ACCESS),
 		};
 
-		final TreeModel treeModel = projectLogic.createTreeModelForUser(searchResult.getId(), true, false);
+		final TreeModel treeModel = projectLogic.createEntireTreeModelForUser(searchResult.getId(), true, false);
 		final List<ToolSerialized> blankRestrictedTools = projectLogic.getEntireToolsList();
 		//a null model means the tree is empty
 		tree = new TreeTable("treeTable", treeModel, columns){

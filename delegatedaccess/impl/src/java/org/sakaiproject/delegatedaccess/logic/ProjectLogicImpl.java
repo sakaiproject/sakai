@@ -204,7 +204,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			Session session = sakaiProxy.getCurrentSession();
 			Map<String, String[]> accessMap = new HashMap<String, String[]>();
 			Map<String, String[]> toolMap = new HashMap<String, String[]>();
-			TreeModel userTreeModel = createTreeModelForUser(userId, false, true);
+			TreeModel userTreeModel = createAccessTreeModelForUser(userId, false, true);
 			if(userTreeModel != null){
 				List<NodeModel> siteNodes = getSiteNodes(((DefaultMutableTreeNode) userTreeModel.getRoot()));
 				for(NodeModel nodeModel : siteNodes){
@@ -452,7 +452,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * 
 	 * @return New instance of tree model.
 	 */
-	public TreeModel createTreeModelForUser(String userId, boolean addDirectChildren, boolean cascade)
+	public TreeModel createEntireTreeModelForUser(String userId, boolean addDirectChildren, boolean cascade)
 	{
 		//Returns a List that represents the tree/node architecture:
 		//  List{ List{node, List<children>}, List{node, List<children>}, ...}.
@@ -463,8 +463,19 @@ public class ProjectLogicImpl implements ProjectLogic {
 		return convertToTreeModel(l1, userId, getEntireToolsList(), addDirectChildren);
 	}
 
+	public TreeModel createAccessTreeModelForUser(String userId, boolean addDirectChildren, boolean cascade)
+	{
+		//Returns a List that represents the tree/node architecture:
+		//  List{ List{node, List<children>}, List{node, List<children>}, ...}.
+		List<List> l1 = getTreeListForUser(userId, addDirectChildren, cascade, getAccessNodesForUser(userId));
+		//order tree model:
+		orderTreeModel(l1);
+
+		return convertToTreeModel(l1, userId, getEntireToolsList(), addDirectChildren);
+	}
+	
 	//get the entire tree for a user and populates the information that may exist
-	public TreeModel getEntireTreeForUser(String userId){
+	public TreeModel getEntireTreePlusUserPerms(String userId){
 		//call this to instantiated the accessNodes and shoppingPeriodAdminNodes lists
 		getAllNodesForUser(userId);
 		//just get the root of the tree and then ask for all cascading nodes
