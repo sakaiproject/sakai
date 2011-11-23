@@ -174,8 +174,9 @@ public interface EntityType {
 	 * individual items of this entity type were added within the context.  
 	 * @param numberOfItems
 	 * @param contextTitle
+	 * @param labelKey TODO
 	 */
-	public String getGroupTitle(int numberOfItems, String contextTitle);
+	public String getGroupTitle(int numberOfItems, String contextTitle, String labelKey);
 
 	/**
 	 * Determine whether a user has permission to access a particular entity, using 

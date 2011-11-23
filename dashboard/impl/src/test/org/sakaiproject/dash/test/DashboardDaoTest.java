@@ -984,7 +984,8 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		assertTrue(savedItem.getId().longValue() >= 0L);
 		
 		Date newTime = new Date();
-		dao.updateNewsItemTime(savedItem.getId(), newTime);
+		String newGroupingIdentifier = getUniqueIdentifier();
+		dao.updateNewsItemTime(savedItem.getId(), newTime, newGroupingIdentifier);
 		NewsItem revisedItem = dao.getNewsItem(savedItem.getId());
 		assertNotNull(revisedItem);
 		assertEquals(newTime.getTime(), revisedItem.getNewsTime().getTime());
@@ -1026,7 +1027,8 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		String labelKey2 = getUniqueIdentifier();
 		assertFalse(labelKey1.equals(labelKey2));
 
-		dao.updateNewsItemLabelKey(savedItem.getId(), labelKey2);
+		String newGroupingIdentifier = getUniqueIdentifier();
+		dao.updateNewsItemLabelKey(savedItem.getId(), labelKey2, newGroupingIdentifier);
 		NewsItem revisedItem = dao.getNewsItem(savedItem.getId());
 		assertNotNull(revisedItem);
 		assertEquals(labelKey2, revisedItem.getNewsTimeLabelKey());
@@ -1069,8 +1071,10 @@ public class DashboardDaoTest extends AbstractTransactionalSpringContextTests {
 		assertFalse(subtype1.equals(subtype2));
 
 		Date newNewsTime = new Date();
+		
 		String newLabelKey = getUniqueIdentifier();
-		dao.updateNewsItemSubtype(savedItem.getId(), subtype2, newNewsTime, newLabelKey);
+		String newGroupingIdentifier = getUniqueIdentifier();
+		dao.updateNewsItemSubtype(savedItem.getId(), subtype2, newNewsTime, newLabelKey, newGroupingIdentifier);
 		NewsItem revisedItem = dao.getNewsItem(savedItem.getId());
 		assertNotNull(revisedItem);
 		assertEquals(subtype2, revisedItem.getSubtype());

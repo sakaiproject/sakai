@@ -245,6 +245,7 @@ public class NewsItem implements Serializable {
 	 */
 	public void setNewsTimeLabelKey(String newsTimeLabelKey) {
 		this.newsTimeLabelKey = newsTimeLabelKey;
+		generateGroupingIdentifier();
 	}
 
 	/**
@@ -302,6 +303,12 @@ public class NewsItem implements Serializable {
 			buf.append("unknown.type");		
 		} else {
 			buf.append(sourceType.getIdentifier());
+		}
+		buf.append("-");
+		if(this.newsTimeLabelKey == null) {
+			buf.append("unknown.key");		
+		} else {
+			buf.append(this.newsTimeLabelKey);
 		}
 		this.groupingIdentifier = buf.toString();
 	}

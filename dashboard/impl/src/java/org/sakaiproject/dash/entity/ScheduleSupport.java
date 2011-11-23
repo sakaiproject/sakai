@@ -326,7 +326,7 @@ public class ScheduleSupport{
 			return dateMap;
 		}
 		
-		public String getGroupTitle(int numberOfItems, String contextTitle) {
+		public String getGroupTitle(int numberOfItems, String contextTitle, String labelKey) {
 			ResourceLoader rl = new ResourceLoader("dash_entity");
 			Object[] args = new Object[]{ numberOfItems, contextTitle };
 			return rl.getFormattedMessage("announcement.grouped.title", args );

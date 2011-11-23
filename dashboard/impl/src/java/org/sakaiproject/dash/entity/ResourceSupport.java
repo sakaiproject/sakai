@@ -274,10 +274,14 @@ public class ResourceSupport {
 			return rl.getString(key, dflt);
 		}
 		
-		public String getGroupTitle(int numberOfItems, String contextTitle) {
+		public String getGroupTitle(int numberOfItems, String contextTitle, String labelKey) {
+			String titleKey = "resource.grouped.created";
+			if(labelKey != null && "dash.updated".equals(labelKey)) {
+				titleKey = "resource.grouped.updated";
+			} 
 			ResourceLoader rl = new ResourceLoader("dash_entity");
 			Object[] args = new Object[]{ numberOfItems, contextTitle };
-			return rl.getFormattedMessage("resource.grouped.title", args );
+			return rl.getFormattedMessage(titleKey, args );
 	}
 
 		public String getIconUrl(String subtype) {
@@ -559,8 +563,19 @@ public class ResourceSupport {
 			if(entity != null && entity instanceof ContentResource) {
 				ContentResource resource = (ContentResource) entity;
 				String title = resource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+				
 				if(title != null) {
-					dashboardLogic.reviseNewsItemTitle(event.getResource(), title, null, null);
+					NewsItem item = dashboardLogic.getNewsItem(event.getResource());
+					Date newTime = new Date();
+					String labelKey = "dash.updated";
+					if(item == null) {
+						// TODO: in this case, we need to create a new NewsItem (with label key for "revised" and save it (along with links for every user who can see it)
+					} else {
+						// set values on the item to trigger calculation of new grouping identifier
+						item.setNewsTime(newTime);
+						item.setNewsTimeLabelKey(labelKey);
+						dashboardLogic.reviseNewsItemTitle(event.getResource(), title, newTime, labelKey, item.getGroupingIdentifier());
+					}
 				}
 			}
 		}

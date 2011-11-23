@@ -1570,7 +1570,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#updateNewsItemSubtype(java.lang.Long, java.lang.String)
 	 */
-	public boolean updateNewsItemSubtype(Long id, String newSubtype, Date newNewsTime, String newLabelKey) {
+	public boolean updateNewsItemSubtype(Long id, String newSubtype, Date newNewsTime, String newLabelKey, String newGroupingIdentifier) {
 		if(log.isDebugEnabled()) {
 			log.debug("updateNewsItemSubtype( " + id + "," + newSubtype + ")");
 		}
@@ -1582,7 +1582,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		
 		try {
 			getJdbcTemplate().update(getStatement("update.NewsItem.subtype"),
-				new Object[]{newSubtype, newNewsTime, newLabelKey, id}
+				new Object[]{newSubtype, newNewsTime, newLabelKey, newGroupingIdentifier, id}
 			);
 			return true;
 		} catch (DataAccessException ex) {
@@ -1596,14 +1596,14 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#updateNewsItemTime(java.lang.Long, java.util.Date)
 	 */
-	public boolean updateNewsItemTime(Long id, Date newTime) {
+	public boolean updateNewsItemTime(Long id, Date newTime, String newGroupingIdentifier) {
 		if(log.isDebugEnabled()) {
 			log.debug("updateNewsItemTime( " + id + "," + newTime + ")");
 		}
 		
 		try {
 			getJdbcTemplate().update(getStatement("update.NewsItem.newsTime"),
-				new Object[]{newTime, id}
+				new Object[]{newTime, newGroupingIdentifier, id}
 			);
 			return true;
 		} catch (DataAccessException ex) {
@@ -1616,7 +1616,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#updateNewsItemTitle(java.lang.Long, java.lang.String)
 	 */
-	public boolean updateNewsItemTitle(Long id, String newTitle, Date newNewsTime, String newLabelKey) {
+	public boolean updateNewsItemTitle(Long id, String newTitle, Date newNewsTime, String newLabelKey, String newGroupingIdentifier) {
 		if(log.isDebugEnabled()) {
 			log.debug("updateNewsItemTitle( " + id + "," + newTitle + ")");
 		}
@@ -1628,7 +1628,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		
 		try {
 			getJdbcTemplate().update(getStatement("update.NewsItem.title"),
-				new Object[]{newTitle, newNewsTime, newLabelKey, id}
+				new Object[]{newTitle, newNewsTime, newLabelKey, newGroupingIdentifier, id}
 			);
 			return true;
 		} catch (DataAccessException ex) {
@@ -1642,14 +1642,14 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#updateNewsItemLabelKey(java.lang.Long, java.lang.String)
 	 */
-	public boolean updateNewsItemLabelKey(Long id, String labelKey) {
+	public boolean updateNewsItemLabelKey(Long id, String labelKey, String newGroupingIdentifier) {
 		if(log.isDebugEnabled()) {
 			log.debug("updateNewsItemLabelKey( " + id + "," + labelKey + ")");
 		}
 		
 		try {
 			getJdbcTemplate().update(getStatement("update.NewsItem.newsTimeLabelKey"),
-				new Object[]{labelKey, id}
+				new Object[]{labelKey, newGroupingIdentifier, id}
 			);
 			return true;
 		} catch (DataAccessException ex) {

@@ -535,7 +535,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 							Object[] args = new Object[]{itemCount, sourceType.getIdentifier(), item.getContext().getContextTitle()};
 							rl.getFormattedMessage("dash.grouped.title", args );
 						} else {
-							item.setTitle(typeObj.getGroupTitle(itemCount, item.getContext().getContextTitle()));
+							item.setTitle(typeObj.getGroupTitle(itemCount, item.getContext().getContextTitle(), item.getNewsTimeLabelKey()));
 						}
 					}
 				}
@@ -579,7 +579,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 							Object[] args = new Object[]{itemCount, sourceType.getIdentifier(), item.getContext().getContextTitle()};
 							rl.getFormattedMessage("dash.grouped.title", args );
 						} else {
-							item.setTitle(typeObj.getGroupTitle(itemCount, item.getContext().getContextTitle()));
+							item.setTitle(typeObj.getGroupTitle(itemCount, item.getContext().getContextTitle(), item.getNewsTimeLabelKey()));
 						}
 					}
 				}
@@ -971,40 +971,41 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 	}
 	
-	public void reviseNewsItemTime(String entityReference, Date newTime) {
+	public void reviseNewsItemTime(String entityReference, Date newTime, String newGroupingIdentifier) {
 		NewsItem item = dao.getNewsItem(entityReference);
+		item.setNewsTime(newTime);
 		if(item == null) {
 			logger.warn("Attempting to revise time of non-existent news item: " + entityReference);
 		} else {
-			dao.updateNewsItemTime(item.getId(), newTime);
+			dao.updateNewsItemTime(item.getId(), newTime, newGroupingIdentifier);
 		}
 	}
 
-	public void reviseNewsItemTitle(String entityReference, String newTitle, Date newNewsTime, String newLabelKey) {
+	public void reviseNewsItemTitle(String entityReference, String newTitle, Date newNewsTime, String newLabelKey, String newGroupingIdentifier) {
 		
 		NewsItem item = dao.getNewsItem(entityReference);
 		if(item == null) {
 			logger.warn("Attempting to revise title of non-existent news item: " + entityReference);
 		} else {
-			dao.updateNewsItemTitle(item.getId(), newTitle, newNewsTime, newLabelKey);
+			dao.updateNewsItemTitle(item.getId(), newTitle, newNewsTime, newLabelKey, newGroupingIdentifier);
 		}
 		
 	}
 	
-	public void reviseNewsItemLabelKey(String entityReference, String newLabelKey) {
+	public void reviseNewsItemLabelKey(String entityReference, String newLabelKey, String newGroupingIdentifier) {
 		
 		NewsItem item = dao.getNewsItem(entityReference);
 		if(item != null) {
-			dao.updateNewsItemLabelKey(item.getId(), newLabelKey);
+			dao.updateNewsItemLabelKey(item.getId(), newLabelKey, newGroupingIdentifier);
 		}
 		
 	}
 	
-	public void reviseNewsItemSubtype(String entityReference, String newSubtype, Date newNewsTime, String newLabelKey) {
+	public void reviseNewsItemSubtype(String entityReference, String newSubtype, Date newNewsTime, String newLabelKey, String newGroupingIdentifier) {
 		
 		NewsItem item = dao.getNewsItem(entityReference);
 		if(item != null) {
-			dao.updateNewsItemSubtype(item.getId(), newSubtype, newNewsTime, newLabelKey);
+			dao.updateNewsItemSubtype(item.getId(), newSubtype, newNewsTime, newLabelKey, newGroupingIdentifier);
 		}
 		
 	}

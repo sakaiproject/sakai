@@ -404,13 +404,13 @@ public interface DashboardLogic {
 	
 	public void reviseContextTitle(String contextId, String newContextTitle);
 	
-	public void reviseNewsItemLabelKey(String entityReference, String newLabelKey);
+	public void reviseNewsItemLabelKey(String entityReference, String newLabelKey, String newGroupingIdentifier);
 	
-	public void reviseNewsItemSubtype(String entityReference, String newSubtype, Date newNewsTime, String newLabelKey);
+	public void reviseNewsItemSubtype(String entityReference, String newSubtype, Date newNewsTime, String newLabelKey, String newGroupingIdentifier);
 
-	public void reviseNewsItemTime(String entityReference, Date newTime);
+	public void reviseNewsItemTime(String entityReference, Date newTime, String newGroupingIdentifier);
 	
-	public void reviseNewsItemTitle(String entityReference, String newTitle, Date newNewsTime, String newLabelKey);
+	public void reviseNewsItemTitle(String entityReference, String newTitle, Date newNewsTime, String newLabelKey, String newGroupingIdentifier);
 
 	/**
 	 * 

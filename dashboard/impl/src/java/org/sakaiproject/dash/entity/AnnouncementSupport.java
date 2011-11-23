@@ -384,10 +384,14 @@ public class AnnouncementSupport{
 			return rl.getString(key, dflt);
 		}
 
-		public String getGroupTitle(int numberOfItems, String contextTitle) {
+		public String getGroupTitle(int numberOfItems, String contextTitle, String labelKey) {
 			ResourceLoader rl = new ResourceLoader("dash_entity");
+			String titleKey = "announcement.grouped.created";
+			if(labelKey != null && "dash.updated".equals(labelKey)) {
+				titleKey = "announcement.grouped.updated";
+			}
 			Object[] args = new Object[]{ numberOfItems, contextTitle };
-			return rl.getFormattedMessage("announcement.grouped.title", args );
+			return rl.getFormattedMessage(titleKey, args );
 	}
 
 		public String getIconUrl(String subtype) {
@@ -533,8 +537,16 @@ public class AnnouncementSupport{
 				AnnouncementMessage annc = (AnnouncementMessage) entity;
 				
 				String title = annc.getAnnouncementHeader().getSubject();
-				// update news item title
-				dashboardLogic.reviseNewsItemTitle(annc.getReference(), title, null, null);
+				NewsItem item = dashboardLogic.getNewsItem(event.getResource());
+				if(item == null) {
+					// TODO: need to save a newly created item (with label key set to "dash.updated") and save all necessary links to it 
+				} else {
+					// set values on the item to trigger calculation of new grouping identifier
+					item.setNewsTime(event.getEventTime());
+					item.setNewsTimeLabelKey("dash.updated");
+					// update news item title
+					dashboardLogic.reviseNewsItemTitle(annc.getReference(), title, item.getNewsTime(), item.getNewsTimeLabelKey(), item.getGroupingIdentifier());
+				}
 				
 				// update calendar item title
 				dashboardLogic.reviseCalendarItemsTitle(annc.getReference(), title);

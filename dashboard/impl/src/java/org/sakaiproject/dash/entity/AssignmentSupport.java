@@ -20,6 +20,7 @@ import org.sakaiproject.dash.logic.SakaiProxy;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.NewsItem;
+import org.sakaiproject.dash.model.RepeatingCalendarItem;
 import org.sakaiproject.dash.model.SourceType;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
@@ -292,10 +293,14 @@ public class AssignmentSupport {
 			return false;
 		}
 		
-		public String getGroupTitle(int numberOfItems, String contextTitle) {
+		public String getGroupTitle(int numberOfItems, String contextTitle, String labelKey) {
 			ResourceLoader rl = new ResourceLoader("dash_entity");
+			String titleKey = "assignment.grouped.created";
+			if(labelKey != null && "dash.updated".equals(labelKey)) {
+				titleKey = "assignment.grouped.updated";
+			}
 			Object[] args = new Object[]{ numberOfItems, contextTitle };
-			return rl.getFormattedMessage("assignment.grouped.title", args );
+			return rl.getFormattedMessage(titleKey, args );
 	}
 
 		public String getIconUrl(String subtype) {
@@ -342,7 +347,7 @@ public class AssignmentSupport {
 				NewsItem newsItem = dashboardLogic.createNewsItem(assn.getTitle(), event.getEventTime(), "assignment.added", assnReference, context, sourceType, null);
 				// don't create calendar item now, if the assignment is posting to schedule tool, dashboard will get the calendar item from schedule tool post event
 				//CalendarItem calendarDueDateItem = dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getDueTime().getTime()), "assignment.due.date", assnReference, context, sourceType, null, null);
-				CalendarItem calendarCloseDateItem = assn.getCloseTime().equals(assn.getDueTime())? null : dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getCloseTime().getTime()), "assignment.close.date", assnReference, context, sourceType, "Deadline", null, null);
+				CalendarItem calendarCloseDateItem = assn.getCloseTime().equals(assn.getDueTime())? null : dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getCloseTime().getTime()), "assignment.close.date", assnReference, context, sourceType, (String) null, (RepeatingCalendarItem) null, (Integer) null);
 				
 				if(dashboardLogic.isAvailable(assnReference, IDENTIFIER)) {
 					// if the assignment is open, add the news links
@@ -429,9 +434,16 @@ public class AssignmentSupport {
 			if(entity != null && entity instanceof Assignment) {
 				// get the assignment entity and its current title
 				Assignment assn = (Assignment) entity;
-				
-				// update news item title
-				dashboardLogic.reviseNewsItemTitle(assn.getReference(), assn.getTitle(), null, null);
+				NewsItem item = dashboardLogic.getNewsItem(assn.getReference()); 
+				if(item == null) {
+					// TODO: need to create item with "update" label key and add news-links for the new item
+				} else {
+					// set values on the item to trigger calculation of new grouping identifier
+					item.setNewsTime(event.getEventTime());
+					item.setNewsTimeLabelKey("dash.updated");
+					// update news item title
+					dashboardLogic.reviseNewsItemTitle(assn.getReference(), assn.getTitle(), item.getNewsTime(), item.getNewsTimeLabelKey(), item.getGroupingIdentifier());
+				}
 				
 				// update news item title
 				dashboardLogic.reviseCalendarItemsTitle(assn.getReference(), assn.getTitle());
@@ -529,13 +541,15 @@ public class AssignmentSupport {
 				// get the assignment entity and its current title
 				Assignment assn = (Assignment) entity;
 				String assnReference = assn.getReference();
-				
-				// update the open time
-				dashboardLogic.reviseNewsItemTime(assnReference, new Date(assn.getOpenTime().getTime()));
-				
 				NewsItem nItem = dashboardLogic.getNewsItem(assnReference);
+				
 				if (nItem != null)
 				{
+					Date newTime = new Date(assn.getOpenTime().getTime());
+					nItem.setNewsTime(newTime);
+					// update the open time
+					dashboardLogic.reviseNewsItemTime(assnReference, newTime, nItem.getGroupingIdentifier());
+					
 					if(!dashboardLogic.isAvailable(assnReference, IDENTIFIER)) {
 						// remove all NewsItem links if any
 						dashboardLogic.removeNewsLinks(assnReference);

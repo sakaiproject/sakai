@@ -288,9 +288,10 @@ public interface DashboardDao {
 	 * @param newTitle
 	 * @param newNewsTime TODO
 	 * @param newLabelKey TODO
+	 * @param newGroupingIdentifier TODO
 	 * @return true if any items are revised, false otherwise.
 	 */
-	public boolean updateNewsItemTitle(Long id, String newTitle, Date newNewsTime, String newLabelKey);
+	public boolean updateNewsItemTitle(Long id, String newTitle, Date newNewsTime, String newLabelKey, String newGroupingIdentifier);
 
 	public boolean updateRepeatingCalendarItemsLabelKey(String entityReference, String oldLabelKey, String newLabelKey);
 	
@@ -310,11 +311,11 @@ public interface DashboardDao {
 
 	public boolean updateNewsLink(NewsLink link);
 
-	public boolean updateNewsItemTime(Long id, Date newTime);
+	public boolean updateNewsItemTime(Long id, Date newTime, String newGroupingIdentifier);
 
-	public boolean updateNewsItemLabelKey(Long id, String labelKey);
+	public boolean updateNewsItemLabelKey(Long id, String labelKey, String newGroupingIdentifier);
 
-	public boolean updateNewsItemSubtype(Long id, String newSubtype, Date newNewsTime, String newLabelKey);
+	public boolean updateNewsItemSubtype(Long id, String newSubtype, Date newNewsTime, String newLabelKey, String newGroupingIdentifier);
 
 	public boolean updateCalendarItemSubtype(Long id, String newSubtype);
 
