@@ -124,31 +124,58 @@ styling.
   <br/></div>
 	<div class="tier2">
 	
-	  <h:outputText value="#{authorMessages.calc_question_define_vars}" />
-	  <br/>
-	  <h:outputText value="#{authorMessages.calc_question_answer_expression}" />
-	  <br/>
-	  <h:outputText value="#{authorMessages.calc_question_answer_variance}" />
-	  <br/><br/>
+	  	<h:outputText value="#{authorMessages.calc_question_define_vars}" /><br/>
+	  	<h:outputText value="#{authorMessages.calc_question_answer_expression}" /><br/>
+	  	<h:outputText value="#{authorMessages.calc_question_answer_variance}" /><br/><br/>
 	
 		<h:outputLink onclick="$('#calcQInstructions').toggle();" value="#">
 			<h:outputText value="#{authorMessages.calc_question_hideshow}"/> 
 		</h:outputLink>
 		<div id="calcQInstructions" style='display:none;'>
-	  
-	  		<h:outputText value="#{authorMessages.calc_question_answer_decimal}" />
-	  		<br/>
-	  		<h:outputText value="#{authorMessages.calc_question_operators}" />
-	  		<br/>
-	  		<h:outputText value="#{authorMessages.calc_question_functions}" />
-			<br/>
-			<h:outputText value="#{authorMessages.calc_question_constants}" />
-			<br/><br/>
-			<h:outputText value="#{authorMessages.calc_question_example1}" />
-			<br/>
-			<h:outputText value="#{authorMessages.calc_question_example2}" />
-			<br/><br/>
-			<h:outputText value="#{authorMessages.calc_question_preview}" style="font-weight: bold;"/>
+			<div class="longtext"><h:outputLabel value="#{authorMessages.calc_question_general_instructsion_label}" /></div>
+			<div class="tier2">
+				<h:outputText value="#{authorMessages.calc_question_general_instructions1 }" /><br/>
+				<h:outputText value="#{authorMessages.calc_question_general_instructions2 }" /><br/>
+				<h:outputText value="#{authorMessages.calc_question_general_instructions3 }" />
+			</div>
+			<div class="longtext"><h:outputLabel value="#{authorMessages.calc_question_walkthrough_label}" /></div>
+			<div class="tier2">
+				<ol>
+					<li><h:outputText value="#{authorMessages.calc_question_walkthrough1 }" /></li>
+					<li><h:outputText value="#{authorMessages.calc_question_walkthrough2 }" /></li>
+					<li><h:outputText value="#{authorMessages.calc_question_walkthrough3 }" /></li>
+					<li><h:outputText value="#{authorMessages.calc_question_walkthrough4 }" /></li>
+					<li><h:outputText value="#{authorMessages.calc_question_walkthrough5 }" /></li>
+					<li><h:outputText value="#{authorMessages.calc_question_walkthrough6 }" /></li>
+				</ol>
+			</div>
+			<div class="longtext"><h:outputLabel value="#{authorMessages.variables_label}" /></div>
+			<div class="tier2">
+				<h:outputText value="#{authorMessages.calc_question_define_vars}" />
+			</div>
+			<div class="longtext"><h:outputLabel value="#{authorMessages.example_label}" /></div>
+			<div class="tier2">
+				<h:outputText value="#{authorMessages.calc_question_example1}" />
+			</div>
+			<div class="longtext"><h:outputLabel value="#{authorMessages.formulas_label}" /></div>
+			<div class="tier2">
+				<h:outputText value="#{authorMessages.calc_question_answer_expression}" />
+			</div>
+			<div class="longtext"><h:outputLabel value="#{authorMessages.example_label}" /></div>
+			<div class="tier2">
+				<h:outputText value="#{authorMessages.calc_question_example2}" />
+			</div>
+			<div class="longtext">Additional Information</div>
+			<div class="tier2">
+				<ul>
+					<li><h:outputText value="#{authorMessages.calc_question_answer_variance}" /></li>
+					<li><h:outputText value="#{authorMessages.calc_question_answer_decimal}" /></li>
+					<li><h:outputText value="#{authorMessages.calc_question_operators}" /></li>
+					<li><h:outputText value="#{authorMessages.calc_question_functions}" /></li>
+					<li><h:outputText value="#{authorMessages.calc_question_constants}" /></li>
+					<li><h:outputText value="#{authorMessages.calc_question_unique_names}"/></li>
+				</ul>
+			</div>
 		</div>
 	  
 	  	<br/>
@@ -250,7 +277,8 @@ styling.
 	        	<f:facet name="header">
 	          		<h:outputText value="#{authorMessages.calc_question_formula_col}"  />
 	        	</f:facet>
-	        	<h:inputText value="#{formula.text }" 
+	        	<h:inputTextarea value="#{formula.text }"
+	        			cols="40" rows="3" 
 	        			disabled="#{!formula.active }" 
 	        			styleClass="#{(!formula.validFormula ? 'validationError' : '')}"/>        	
 	      </h:column>
