@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+ 
+<head>
+	<title><wicket:message key="page.title" /></title>
+	<script type="text/javascript">
+		function hideFeedbackPanel(id){
+			var formFeedback = document.getElementById(id);
+			if(formFeedback != null){
+				formFeedback.style.display = 'none';
+			}
+		}
+		
+		function hideFeedbackTimer(id){
+			setTimeout('hideFeedbackPanel("' + id + '")', 5000);
+		}
+	</script>
+</head>     
+<body>
+	<div class="portletBody">
+		<wicket:enclosure child="firstLink">
+		<ul class="navIntraTool actionToolbar" role="menu">
+			<li class="firstToolBarItem" role="menuitem">
+				<span>
+					<a wicket:id="firstLink">
+						<span wicket:id="firstLinkLabel">[firstLinkLabel]</span>
+					</a>
+				</span>
+			</li>
+		</ul>
+		</wicket:enclosure>
+		
+		<span wicket:id="feedback">feedbackmessages will be put here</span>
+		
+		<wicket:child />
+	
+	</div>
+</body>
+</html>

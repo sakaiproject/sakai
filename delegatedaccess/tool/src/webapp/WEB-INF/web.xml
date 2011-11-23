@@ -17,6 +17,16 @@
 		<load-on-startup>1</load-on-startup>
   	</servlet>
   	
+  	<servlet>
+		<servlet-name>sakai.delegatedaccess.shopping</servlet-name>
+	    <servlet-class>org.apache.wicket.protocol.http.WicketServlet</servlet-class>
+	    <init-param>
+	      	<param-name>applicationClassName</param-name>
+	      	<param-value>org.sakaiproject.delegatedaccess.tool.ShoppingApplication</param-value>
+	    </init-param>
+		<load-on-startup>1</load-on-startup>
+  	</servlet>
+  	
 	<!-- Deploy mode -->
 	<context-param>
             <param-name>configuration</param-name>
