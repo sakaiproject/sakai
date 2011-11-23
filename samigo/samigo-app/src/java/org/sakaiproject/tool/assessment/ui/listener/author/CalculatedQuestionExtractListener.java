@@ -261,15 +261,32 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         
         // formula tolerances must be numbers or percentages
         for (CalculatedQuestionFormulaBean formula : question.getActiveFormulas().values()) {
-            String toleranceStr = formula.getTolerance();
+            String toleranceStr = formula.getTolerance().trim();
+            
+            // cannot be blank
             if (toleranceStr == null || toleranceStr.length() == 0) {
                 errors.add(getErrorMessage("empty_field"));                    
                 formula.setValidTolerance(false);
-            }
+            }            
+
+            // no non-number characters (although percentage is allowed
+            // allow a negative here, we'll catch negative tolerances in another place
             if (formula.getValidTolerance()) {
-                if (!toleranceStr.matches("^\\s*[0-9]+\\.?[0-9]*\\%\\s*$")) {
+                if (!toleranceStr.matches("[0-9\\.\\-\\%]+")) {
+                    errors.add(getErrorMessage("invalid_tolerance"));
+                    formula.setValidTolerance(false);
+                }
+            }
+            
+            // if not a percentage, try to convert to a double to validate format
+            if (formula.getValidTolerance()) {
+                if (!toleranceStr.matches("[0-9]+\\.?[0-9]*\\%")) {
                     try {
                         double tolerance = Double.parseDouble(toleranceStr);
+                        
+                        // this strips out any leading spaces or zeroes
+                        formula.setTolerance(Double.toString(tolerance));
+                        
                         if (tolerance < 0) {
                             errors.add(getErrorMessage("tolerance_negative"));
                             formula.setValidTolerance(false);
@@ -298,14 +315,18 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         for (CalculatedQuestionVariableBean variable : question.getActiveVariables().values()) {
             
             // min
+            String minStr = variable.getMin().trim();
             double min = 0d;
-            if (variable.getMin() == null || variable.getMin().length() == 0) {
+            if (minStr == null || minStr.length() == 0) {
                 errors.add(getErrorMessage("empty_field"));                    
                 variable.setValidMin(false);
             }
             if (variable.getValidMin()) {
                 try {                    
-                    min = Double.parseDouble(variable.getMin());
+                    min = Double.parseDouble(minStr);
+                    
+                    // this strips out any leading spaces or zeroes
+                    variable.setMin(Double.toString(min));
                 } catch (NumberFormatException n) {
                     errors.add(getErrorMessage("invalid_min"));                    
                     variable.setValidMin(false);
@@ -313,14 +334,18 @@ public class CalculatedQuestionExtractListener implements ActionListener{
             }
             
             // max
+            String maxStr = variable.getMax().trim();
             double max = 0d;
-            if (variable.getMax() == null || variable.getMax().length() == 0) {
+            if (maxStr == null || maxStr.length() == 0) {
                 errors.add(getErrorMessage("empty_field"));                    
                 variable.setValidMax(false);
             }
             if (variable.getValidMax()) {
                 try {
-                    max = Double.parseDouble(variable.getMax());
+                    max = Double.parseDouble(maxStr);
+                    
+                    // this strips out any leading spaces or zeroes
+                    variable.setMax(Double.toString(max));
                 } catch (NumberFormatException n) {
                     errors.add(getErrorMessage("invalid_max"));       
                     variable.setValidMax(false);
