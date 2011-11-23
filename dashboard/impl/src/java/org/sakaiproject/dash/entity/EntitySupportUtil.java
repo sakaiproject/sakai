@@ -66,13 +66,17 @@ public class EntitySupportUtil{
 	 */
 	public static void updateNewsItemTimeTitle(Event event) {
 		NewsItem nItem = dashboardLogic.getNewsItem(event.getResource());
-		
 		if (nItem != null)
 		{
-			if (((new Date()).getTime() - nItem.getNewsTime().getTime()) > 1000)
+			Date newTime = event.getEventTime();
+			if ((newTime.getTime() - nItem.getNewsTime().getTime()) > 1000)
 			{
+				// set values on the item to trigger calculation of new grouping identifier
+				String newLabelKey = "dash.updated";
+				nItem.setNewsTime(newTime);
+				nItem.setNewsTimeLabelKey(newLabelKey);
 				// if this is not an update within object creation
-				dashboardLogic.reviseNewsItemTitle(event.getResource(), nItem.getTitle(), new Date(), rl.getString("updated"));
+				dashboardLogic.reviseNewsItemTitle(event.getResource(), nItem.getTitle(), newTime, newLabelKey, nItem.getGroupingIdentifier());
 			}
 		}
 	}
