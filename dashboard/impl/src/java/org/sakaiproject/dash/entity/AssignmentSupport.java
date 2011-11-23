@@ -512,39 +512,53 @@ public class AssignmentSupport {
 		public void processEvent(Event event) {
 			
 			if(logger.isDebugEnabled()) {
-				logger.debug("removing calendar links and calendar item for " + event.getResource());
+				logger.debug("assignment update event processor " + event.getResource());
 			}
 			Entity entity = sakaiProxy.getEntity(event.getResource());
+			Context context = dashboardLogic.getContext(event.getContext());
+			if(context == null) {
+				context = dashboardLogic.createContext(event.getContext());
+			}
+            
+			SourceType sourceType = dashboardLogic.getSourceType("assignment");
+			if(sourceType == null) {
+				sourceType = dashboardLogic.createSourceType("assignment", SakaiProxy.PERMIT_ASSIGNMENT_ACCESS, EntityLinkStrategy.SHOW_PROPERTIES);
+			}
 			
 			if(entity != null && entity instanceof Assignment) {
 				// get the assignment entity and its current title
 				Assignment assn = (Assignment) entity;
 				String assnReference = assn.getReference();
 				
-				//1. remove all scheduled availability checks for this assignment reference
-				dashboardLogic.removeAllScheduledAvailabilityChecks(assnReference);
+				// update the open time
+				dashboardLogic.reviseNewsItemTime(assnReference, new Date(assn.getOpenTime().getTime()));
 				
-				// 2. check the availability based on updated open time
-				if(dashboardLogic.isAvailable(assnReference, IDENTIFIER)) {
-					// TODO: DASH-82 for updatet News item event
+				NewsItem nItem = dashboardLogic.getNewsItem(assnReference);
+				if (nItem != null)
+				{
+					if(!dashboardLogic.isAvailable(assnReference, IDENTIFIER)) {
+						// remove all NewsItem links if any
+						dashboardLogic.removeNewsLinks(assnReference);
+						// schedule the availability check into future date
+						dashboardLogic.scheduleAvailabilityCheck(assnReference, IDENTIFIER, new Date(assn.getOpenTime().getTime()));
+					}
+					else
+					{
+						// create all NewsItem links
+						dashboardLogic.createNewsLinks(nItem);
+					}
 				}
 				else
 				{
-					// if the assignment if not open now, remove any previous assignment calendar items and links
-					dashboardLogic.removeCalendarItems(assnReference);
-					dashboardLogic.removeNewsItem(assnReference);
-					
-					// assignment is not open yet, schedule for check later
-					dashboardLogic.scheduleAvailabilityCheck(assnReference, IDENTIFIER, new Date(assn.getOpenTime().getTime()));
+					if(dashboardLogic.isAvailable(assnReference, IDENTIFIER))
+					{
+						// add NewsItem and links
+						nItem = dashboardLogic.createNewsItem(assn.getTitle(), event.getEventTime(), "assignment.added", assnReference, context, sourceType, null);
+						dashboardLogic.createNewsLinks(nItem);
+					}
 				}
 			}
-			
-			if(logger.isDebugEnabled()) {
-				logger.debug("removing news links and news item for " + event.getResource());
-			}
-
 		}
-
 	}
 	
 	/**
