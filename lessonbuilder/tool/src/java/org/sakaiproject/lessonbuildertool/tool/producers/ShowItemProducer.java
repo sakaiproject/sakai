@@ -174,6 +174,8 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    if (item != null)
 		simplePageBean.adjustBackPath(params.getBackPath(), params.getSendingPage(), item.getId(), item.getName());
 
+	    String returnView = params.getReturnView();
+
 	    // return to lesson doesn't make sense for resources, since they aren't separate applications in
 	    // the same sense. But we do want breadcrumbs.
 	    if (sendingPage != -1 && breadcrumbs != null && breadcrumbs.size() > 0) {
@@ -200,7 +202,6 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		    }
 		} else {
 
-		    String returnView = params.getReturnView();
 		    if (returnView == null || returnView.equals("")) {
 			GeneralViewParameters view = new GeneralViewParameters(ShowPageProducer.VIEW_ID);
 			view.setSendingPage(entry.pageId);
@@ -219,7 +220,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    }
 
 	    // see if we can add a next button
-	    if (item != null) {
+	    if (item != null && (returnView == null || returnView.equals(""))) {
 		simplePageBean.addPrevLink(tofill, item);
 		simplePageBean.addNextLink(tofill, item);
 	    }
