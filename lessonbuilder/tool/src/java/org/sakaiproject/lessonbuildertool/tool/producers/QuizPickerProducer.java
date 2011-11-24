@@ -138,6 +138,13 @@ public class QuizPickerProducer implements ViewComponentProducer, NavigationCase
 
 			List<LessonEntity> plist = quizEntity.getEntitiesInSite();
 
+			if (createLinks.size() == 0) {
+			    UIOutput.make(tofill, "error-div");
+			    UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.no_assessment_tool"));
+			    UICommand.make(tofill, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
+			    return;
+			}
+
 			if (plist == null || plist.size() < 1) {
 			    UIOutput.make(tofill, "error-div");
 			    UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.no_assessments"));

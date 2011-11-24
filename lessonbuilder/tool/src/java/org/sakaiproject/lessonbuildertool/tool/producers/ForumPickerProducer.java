@@ -134,6 +134,13 @@ public class ForumPickerProducer implements ViewComponentProducer, NavigationCas
 
 			UIForm form = UIForm.make(tofill, "forum-picker");
 
+			if (createLinks.size() == 0) {
+			    UIOutput.make(tofill, "error-div");
+			    UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.no_forum_tools"));
+			    UICommand.make(tofill, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
+			    return;
+			}
+
 			ArrayList<String> values = new ArrayList<String>();
 			for (LessonEntity topic: topics)
 				values.add(topic.getReference());
