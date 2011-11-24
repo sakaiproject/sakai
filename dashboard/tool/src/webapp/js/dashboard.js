@@ -232,6 +232,8 @@ var setupLinks = function(){
                         var results = '<div class=\"results\" style=\"display:none\"><table class=\"itemCollection\" cellpadding=\"0\" cellspacing=\"0\">';
                         $(json).each(function(i){
                             var icon = "";
+                            var starIcon = "#";
+                            var hideIcon = "#"
                             
                             if (this.iconUrl) {
                                 icon = '<img class=\"resIcon\" src=\"' + this.iconUrl + '\"/> ';
@@ -239,13 +241,25 @@ var setupLinks = function(){
                             else {
                                 icon = '';
                             }
+                            if(this.sticky) {
+                            	starIcon = '/dashboard-tool/css/img/star-act.png';
+                            } else {
+                            	starIcon = '/dashboard-tool/css/img/star-inact.png'
+                            }
+                            if (this.hidden) {
+                            	hideIcon = '/dashboard-tool/css/img/accept.png';
+                            } else {
+                            	hideIcon = '/dashboard-tool/css/img/cancel.png';
+                            }
                             var link = '';
-                            if (itemType === "resource") {
-                                row = '<td style=\"width:50%\" class=\"toggleCell resourceLink\"><a href=\"#\" class =\"itemLink\">' + icon + this.title + '</a></td><td style=\"width:50%\"><em style=\"display:none\"><span class=\"itemType\">' + itemType + '</span><span class=\"itemCount\">1</span><span class=\"entityReference\">' + this.entityReference + '</span></em><a href=\"/access' + this.entityReference + '\" target =\"_blank\">Download</a></td>';
-                            }
-                            else {
-                                row = '<td class=\"toggleCell\"><em style=\"display:none\"><span class=\"itemType\">' + itemType + '</span><span class=\"itemCount\">1</span><span class=\"entityReference\">' + this.entityReference + '</span></em><a href=\"#\" class =\"itemLink ' + itemType + '-icon\">' + icon + this.title + '</a></td>';
-                            }
+                            row = '<td class="one">\n<span class="itemType" style="display:none;">' + this.itemType + '</span>\n<span class="itemCount" style="display:none;">0</span>\n<span class="entityReference" style="display:none;">' + this.entityReference + '</span>\n</td>\n<td class="two date"></td>\n<td class="tab three">\n<a href="#" class="itemLink" target="_top">' + icon + ' ' + this.title + '</a><span class="itemLabel">' + this.label + '</span>\n</td>\n<td class="four"></td>\n<td class="action five">\n<a href="#"><img alt="[ Star/Unstar This ]" src="' + starIcon + '" /></a>\n</td>\n<td class="action six">\n<a href="#"><img alt="[ Hide/Show This ]" src="' + hideIcon + '" /></a>\n</td>\n'
+
+                            //if (itemType === "resource") {
+                            //    row = '<td style=\"width:50%\" class=\"toggleCell resourceLink\"><a href=\"#\" class =\"itemLink\">' + icon + this.title + '</a></td><td style=\"width:50%\"><em style=\"display:none\"><span class=\"itemType\">' + itemType + '</span><span class=\"itemCount\">1</span><span class=\"entityReference\">' + this.entityReference + '</span></em><a href=\"/access' + this.entityReference + '\" target =\"_blank\">Download</a></td>';
+                            //}
+                            //else {
+                            //    row = '<td class=\"toggleCell\"><em style=\"display:none\"><span class=\"itemType\">' + itemType + '</span><span class=\"itemCount\">1</span><span class=\"entityReference\">' + this.entityReference + '</span></em><a href=\"#\" class =\"itemLink ' + itemType + '-icon\">' + icon + this.title + '</a></td>';
+                            //}
                             
                             results = results + '<tr class=\"' + this.entityType + ' row' + i % 2 + '\">' + row + '</tr>';
                         });
