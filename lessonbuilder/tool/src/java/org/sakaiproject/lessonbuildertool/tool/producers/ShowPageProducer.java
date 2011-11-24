@@ -2043,12 +2043,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		link.decorate(new UIFreeAttributeDecorator("onclick", "return false"));
 		link.decorate(new UIDisabledDecorator());
 		link.decorate(new UIStyleDecorator("disabled"));
+		link.decorate(new UIFreeAttributeDecorator("style", "color:#999 !important"));
 		link.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.complete_required")));
 	}
 
 	// show is if it was disabled but don't actually
 	private static void fakeDisableLink(UILink link, MessageLocator messageLocator) {
-		link.decorate(new UIFreeAttributeDecorator("style", "color:#999"));
+		link.decorate(new UIFreeAttributeDecorator("style", "color:#999 !important"));
 		link.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.complete_required")));
 	}
 
