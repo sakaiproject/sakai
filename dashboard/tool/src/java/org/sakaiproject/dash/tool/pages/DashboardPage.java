@@ -2,6 +2,7 @@ package org.sakaiproject.dash.tool.pages;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -25,6 +26,7 @@ import org.sakaiproject.dash.tool.panels.CalendarLinksPanel;
 import org.sakaiproject.dash.tool.panels.MOTDPanel;
 import org.sakaiproject.dash.tool.panels.NewsLinksPanel;
 import org.sakaiproject.dash.tool.util.JsonHelper;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * 
@@ -135,6 +137,97 @@ public class DashboardPage extends BasePage {
         };
         dashboardPage.add(entityDetailRequest);
         dashboardPage.add(new Label("callbackUrl", entityDetailRequest.getCallbackUrl().toString()));
+        
+        AbstractAjaxBehavior starHandler = new AbstractAjaxBehavior() {
+
+			public void onRequest() {
+				logger.info("starHandler.onRequest() ");
+
+				String message = null;
+				boolean success = true;
+		        ResourceLoader rl = new ResourceLoader("dash_entity");
+				//get parameters
+				final RequestCycle requestCycle = RequestCycle.get();
+
+				WebRequest wr=(WebRequest)requestCycle.getRequest();
+
+				HttpServletRequest hsr = wr.getHttpServletRequest();
+
+				long itemId = -1L;
+				String action = null;
+				try {
+					BufferedReader br = hsr.getReader();
+
+					String  jsonString = br.readLine();
+					if((jsonString == null) || jsonString.isEmpty()){
+						logger.error(" no json found ");
+						message = rl.getString("dash.ajax.failed");
+						success = false;
+					}
+					else {
+						if(logger.isDebugEnabled()) {
+							logger.info(" json  is :"+ jsonString);
+						}
+						JSONObject jsonObject = JSONObject.fromObject(jsonString);
+
+						itemId = jsonObject.optLong("itemId", Long.MIN_VALUE);
+						action = jsonObject.optString("dashAction");
+					}
+
+
+				} catch (IOException ex) {
+					logger.error(ex);
+					message = rl.getString("dash.ajax.failed");
+					success = false;
+				}
+
+				if(itemId < 1 || action == null || action.trim().equals("")) {
+					logger.error("invalid values found " + action + " " + itemId);
+					message = rl.getString("");
+				} else if(success) {
+					if("star".equalsIgnoreCase(action)) {
+						if(dashboardLogic.keepNewsItem(sakaiProxy.getCurrentUserId(), itemId)) {
+							message = rl.getString("dash.ajax.star.success");
+						} else {
+							message = rl.getString("dash.ajax.star.failed");
+							success = false;
+						}
+					} else if("unstar".equalsIgnoreCase(action)) {
+						if(dashboardLogic.unkeepNewsItem(sakaiProxy.getCurrentUserId(), itemId)) {
+							message = rl.getString("dash.ajax.unstar.success");
+						} else {
+							message = rl.getString("dash.ajax.unstar.failed");
+							success = false;
+						}
+					} else if("hide".equalsIgnoreCase(action)) {
+						if(dashboardLogic.hideNewsItem(sakaiProxy.getCurrentUserId(), itemId)) {
+							message = rl.getString("dash.ajax.hide.success");
+						} else {
+							message = rl.getString("dash.ajax.hide.failed");
+							success = false;
+						}
+					} else if("show".equalsIgnoreCase(action)) {
+						if(dashboardLogic.unhideNewsItem(sakaiProxy.getCurrentUserId(), itemId)) {
+							message = rl.getString("dash.ajax.show.success");
+						} else {
+							message = rl.getString("dash.ajax.show.failed");
+							success = false;
+						}
+					}
+				}
+                Map<String,Object> results = new HashMap<String,Object>();
+                results.put("message", message);
+                results.put("success", Boolean.valueOf(success));
+                String jsonString = getJsonStringFromMap(results);
+                logger.debug("Returning JSON:\n" + jsonString);
+                IRequestTarget t = new StringRequestTarget("application/json", "UTF-8", jsonString);
+                getRequestCycle().setRequestTarget(t);				
+				
+			}
+		};
+		dashboardPage.add(starHandler);
+		dashboardPage.add(new Label("dashActionHandler", starHandler.getCallbackUrl().toString()));
+			
 	}
 		
 	// should this be in JsonHelper ??
