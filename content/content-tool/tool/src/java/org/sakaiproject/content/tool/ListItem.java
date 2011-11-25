@@ -674,7 +674,7 @@ public class ListItem
 		else 
 		{
 			ContentResource resource = (ContentResource) entity;
-			this.mimetype = resource.getContentType();
+			this.mimetype = resource.getContentType().replaceAll("\"", "");
 			if(this.mimetype == null)
 			{
 				this.mimetype = props.getProperty(ResourceProperties.PROP_CONTENT_TYPE);
