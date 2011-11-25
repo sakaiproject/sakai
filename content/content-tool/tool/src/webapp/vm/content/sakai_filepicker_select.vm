@@ -357,12 +357,12 @@ $(document).ready(function() {
 									<div class="instruction" style="margin-bottom:.3em;">$tlang.getString("viewing") $topMsgPos - $btmMsgPos $tlang.getString("of") $allMsgNumber $tlang.getString("items")</div>
 									#if ("$pagesize" != "0")
 										#if ($goPPButton == "true")
-											<input type="button" name="List_first" value="|&lt;" title="First" onclick="javascript: document.getElementById('sakai_action').value='doList_first';document.getElementById('attachForm').submit();" />
+											<input type="button" name="List_first" value="|&lt;" title="$tlang.getString('gen.first')" onclick="javascript: document.getElementById('sakai_action').value='doList_first';document.getElementById('attachForm').submit();" />
 										#else
 											<input type="button" name="List_first" value="|&lt;" disabled="disabled" />
 										#end
 										#if ($goPPButton == "true")
-											<input type="button" name="List_prev" value="&lt;" title="Previous $pagesize" onclick="javascript: document.getElementById('sakai_action').value='doList_prev';document.getElementById('attachForm').submit();" />
+											<input type="button" name="List_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize" onclick="javascript: document.getElementById('sakai_action').value='doList_prev';document.getElementById('attachForm').submit();" />
 										#else
 											<input type="button" name="List_prev" value="&lt;" disabled="disabled" />
 										#end
@@ -378,12 +378,12 @@ $(document).ready(function() {
 									</select>
 									#if ("$pagesize" != "0")
 										#if ($goNPButton == "true")
-											<input type="button" name="List_next" value="&gt;" title="Next $pagesize" onclick="javascript: document.getElementById('sakai_action').value='doList_next';document.getElementById('attachForm').submit();" />
+											<input type="button" name="List_next" value="&gt;" title="$tlang.getString('gen.next') $pagesize" onclick="javascript: document.getElementById('sakai_action').value='doList_next';document.getElementById('attachForm').submit();" />
 										#else
 											<input type="button" name="List_next" value="&gt;" disabled="disabled" />
 										#end
 										#if ($goNPButton == "true")
-											<input type="button" name="List_last" value="&gt;|" title="Last" onclick="javascript: document.getElementById('sakai_action').value='doList_last';document.getElementById('attachForm').submit();" />
+											<input type="button" name="List_last" value="&gt;|" title="$tlang.getString('gen.last')" onclick="javascript: document.getElementById('sakai_action').value='doList_last';document.getElementById('attachForm').submit();" />
 										#else
 											<input type="button" name="List_last" value="&gt;|" disabled="disabled" />
 										#end

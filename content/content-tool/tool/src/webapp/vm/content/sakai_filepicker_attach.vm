@@ -299,15 +299,15 @@
 						<tr class="exclude">
 							<td colspan="7">
 								<div class="rightNav">
-									<span class="instruction" style="margin-bottom:.3em;">Viewing $topMsgPos - $btmMsgPos of $allMsgNumber items</span>
+									<span class="instruction" style="margin-bottom:.3em;">$tlang.getString("viewing") $topMsgPos - $btmMsgPos $tlang.getString("of") $allMsgNumber $tlang.getString("items")</span>
 									#if ("$pagesize" != "0")
 										#if ($goPPButton == "true")
-											<input type="button" name="List_first" value="|&lt;" title="First" onclick="javascript: document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doList_first")'; submitform('attachForm');" />
+											<input type="button" name="List_first" value="|&lt;" title="$tlang.getString('gen.first')" onclick="javascript: document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doList_first")'; submitform('attachForm');" />
 										#else
 											<input type="button" name="List_first" value="|&lt;" disabled="disabled" />
 										#end
 										#if ($goPPButton == "true")
-											<input type="button" name="List_prev" value="&lt;" title="Previous $pagesize" onclick="javascript: document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doList_prev")'; submitform('attachForm');" />
+											<input type="button" name="List_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize" onclick="javascript: document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doList_prev")'; submitform('attachForm');" />
 										#else
 											<input type="button" name="List_prev" value="&lt;" disabled="disabled" />
 										#end
@@ -323,12 +323,12 @@
 									</select>
 									#if ("$pagesize" != "0")
 										#if ($goNPButton == "true")
-											<input type="button" name="List_next" value="&gt;" title="Next $pagesize" onclick="javascript: document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doList_next")'; submitform('attachForm');" />
+											<input type="button" name="List_next" value="&gt;" title="$tlang.getString('gen.next') $pagesize" onclick="javascript: document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doList_next")'; submitform('attachForm');" />
 										#else
 											<input type="button" name="List_next" value="&gt;" disabled="disabled" />
 										#end
 										#if ($goNPButton == "true")
-											<input type="button" name="List_last" value="&gt;" title="Next $pagesize" onclick="javascript: document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doList_last")'; submitform('attachForm');" />
+											<input type="button" name="List_last" value="&gt;|" title="$tlang.getString('gen.last')" onclick="javascript: document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doList_last")'; submitform('attachForm');" />
 										#else
 											<input type="button" name="List_last" value="&gt;|" disabled="disabled" />
 										#end
