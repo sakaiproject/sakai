@@ -73,6 +73,8 @@ public interface ProjectLogic {
 	 */
 
 	public TreeModel createAccessTreeModelForUser(String userId, boolean addDirectChildren, boolean cascade);
+	
+	public TreeModel getTreeModelForShoppingPeriod();
 
 	public TreeModel createEntireTreeModelForUser(String userId, boolean addDirectChildren, boolean cascade);
 	

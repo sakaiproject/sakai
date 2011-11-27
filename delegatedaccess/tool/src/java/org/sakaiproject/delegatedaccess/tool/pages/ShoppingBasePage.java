@@ -41,7 +41,7 @@ public class ShoppingBasePage  extends WebPage implements IHeaderContributor {
 		firstLink = new Link<Void>("firstLink") {
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
-				setResponsePage(new UserPage());
+				setResponsePage(new ShoppingPage());
 			}
 		};
 		firstLink.add(new Label("firstLinkLabel",new ResourceModel("link.first")).setRenderBodyOnly(true));

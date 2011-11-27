@@ -40,7 +40,7 @@ public class ShoppingPage extends ShoppingBasePage{
 		//Expand/Collapse Link
 		add(getExpandCollapseLink());
 
-		final TreeModel treeModel = projectLogic.createAccessTreeModelForUser(DelegatedAccessConstants.SHOPPING_PERIOD_USER, false, true);
+		final TreeModel treeModel = projectLogic.getTreeModelForShoppingPeriod();
 
 		//a null model means the user doesn't have any associations
 		tree = new LinkTree("tree", treeModel){

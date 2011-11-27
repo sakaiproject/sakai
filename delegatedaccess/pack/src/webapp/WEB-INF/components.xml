@@ -65,6 +65,7 @@
 		init-method="init">
 		<property name="projectLogic" ref="org.sakaiproject.delegatedaccess.logic.ProjectLogic" />
 		<property name="sakaiProxy" ref="org.sakaiproject.delegatedaccess.logic.SakaiProxy"/>
+		<property name="hierarchyService" ref="org.sakaiproject.hierarchy.HierarchyService" />	
 	</bean>
 	
 	<bean id="DelegatedAccessShoppingPeriodJob"

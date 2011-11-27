@@ -467,11 +467,26 @@ public class ProjectLogicImpl implements ProjectLogic {
 	{
 		//Returns a List that represents the tree/node architecture:
 		//  List{ List{node, List<children>}, List{node, List<children>}, ...}.
+		accessNodes = new ArrayList<String>();
+		shoppingPeriodAdminNodes = new ArrayList<String>();
+		
 		List<List> l1 = getTreeListForUser(userId, addDirectChildren, cascade, getAccessNodesForUser(userId));
 		//order tree model:
 		orderTreeModel(l1);
 
 		return convertToTreeModel(l1, userId, getEntireToolsList(), addDirectChildren);
+	}
+	
+	public TreeModel getTreeModelForShoppingPeriod(){
+		//Returns a List that represents the tree/node architecture:
+		//  List{ List{node, List<children>}, List{node, List<children>}, ...}.
+		Set<HierarchyNodeSerialized> rootSet = new HashSet<HierarchyNodeSerialized>();
+		rootSet.add(new HierarchyNodeSerialized(hierarchyService.getRootNode(DelegatedAccessConstants.SHOPPING_PERIOD_HIERARCHY_ID)));
+		List<List> l1 = getTreeListForUser("", false, true, rootSet);
+		//order tree model:
+		orderTreeModel(l1);
+
+		return convertToTreeModel(l1, "", getEntireToolsList(), false);
 	}
 	
 	//get the entire tree for a user and populates the information that may exist

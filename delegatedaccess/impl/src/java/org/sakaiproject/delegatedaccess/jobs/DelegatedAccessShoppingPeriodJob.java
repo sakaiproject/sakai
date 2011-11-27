@@ -1,6 +1,9 @@
 package org.sakaiproject.delegatedaccess.jobs;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
@@ -19,6 +22,8 @@ import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
 import org.sakaiproject.delegatedaccess.logic.SakaiProxy;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
+import org.sakaiproject.hierarchy.HierarchyService;
+import org.sakaiproject.hierarchy.model.HierarchyNode;
 import org.sakaiproject.site.api.Site;
 
 public class DelegatedAccessShoppingPeriodJob implements Job{
@@ -27,15 +32,28 @@ public class DelegatedAccessShoppingPeriodJob implements Job{
 	private ProjectLogic projectLogic;
 	@Getter @Setter	
 	private SakaiProxy sakaiProxy;
+	@Getter @Setter
+	private HierarchyService hierarchyService;
+	//old node Id -> new node Id
+	private Map<String,String> migratedHierarchyIds;
 	
 	public void init() { }
 
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 		long startTime = System.currentTimeMillis();
 		SecurityAdvisor advisor = sakaiProxy.addSiteUpdateSecurityAdvisor();
+		migratedHierarchyIds = new HashMap<String, String>();
 		
 		TreeModel treeModel = projectLogic.getEntireTreePlusUserPerms(DelegatedAccessConstants.SHOPPING_PERIOD_USER);
 		if (treeModel != null && treeModel.getRoot() != null) {
+			//delete old shopping period hierarchy:
+			hierarchyService.destroyHierarchy(DelegatedAccessConstants.SHOPPING_PERIOD_HIERARCHY_ID);
+			//create new hierarchy:
+			HierarchyNode delegatedRootNode = hierarchyService.getRootNode(DelegatedAccessConstants.HIERARCHY_ID);
+			HierarchyNode rootNode = hierarchyService.createHierarchy(DelegatedAccessConstants.SHOPPING_PERIOD_HIERARCHY_ID);
+			hierarchyService.saveNodeMetaData(rootNode.id, delegatedRootNode.title, delegatedRootNode.description, null);
+			migratedHierarchyIds.put(delegatedRootNode.id, rootNode.id);
+			
 			treeModelShoppingPeriodTraverser((DefaultMutableTreeNode) treeModel.getRoot());
 		}
 		
@@ -64,16 +82,16 @@ public class DelegatedAccessShoppingPeriodJob implements Job{
 		endDate = node.getNodeShoppingPeriodEndDate();
 
 		//we need to grab the updated date of the modification, even if it's inherited
-		Date updated = node.getNodeUpdatedDate();
+		//Date updated = node.getNodeUpdatedDate();
 		//we are only interested in this node's process date, not the inheritance
-		Date processed = node.getProcessedDate();
-		if(!node.isDirectAccess()){
-			//if the node isn't a direct access node, we need to instantiate the date information
-			processed = projectLogic.getShoppingPeriodProccessedDate(DelegatedAccessConstants.SHOPPING_PERIOD_USER, node.getNodeId());
-		}
-		if (processed == null){
-			processed = new Date(0L); // will always be older than other dates
-		}
+		//Date processed = node.getProcessedDate();
+//		if(!node.isDirectAccess()){
+//			//if the node isn't a direct access node, we need to instantiate the date information
+//			processed = projectLogic.getShoppingPeriodProccessedDate(DelegatedAccessConstants.SHOPPING_PERIOD_USER, node.getNodeId());
+//		}
+//		if (processed == null){
+//			processed = new Date(0L); // will always be older than other dates
+//		}
 
 		boolean addAuth = false;
 		
@@ -101,7 +119,7 @@ public class DelegatedAccessShoppingPeriodJob implements Job{
 		
 
 		if(addAuth && (".anon".equals(auth) || ".auth".equals(auth))){
-			if (updated != null && updated.after(processed)){
+			//if (updated != null && updated.after(processed)){
 				//update the restricted tools list, otherwise it will be cleared:
 				for(String tool : node.getNodeRestrictedTools()){
 					if(!"".equals(restrictedToolsList)){
@@ -113,11 +131,15 @@ public class DelegatedAccessShoppingPeriodJob implements Job{
 				removeAnonAndAuthRoles(node.getNode().description);
 				//add either .anon or .auth role:
 				copyNewRole(node.getNode().description, nodeAccessRealmRole[0], nodeAccessRealmRole[1], auth);
-				// update the processed date
-				processed = now;
-				projectLogic.assignUserNodePerm(DelegatedAccessConstants.SHOPPING_PERIOD_USER, node.getNodeId(), DelegatedAccessConstants.NODE_PERM_SHOPPING_PROCESSED_DATE + processed.getTime(), false);
 				
-			}
+				//add node to shopping tree:
+				checkAndAddNode(node);
+				
+				// update the processed date
+			//	processed = now;
+			//	projectLogic.assignUserNodePerm(DelegatedAccessConstants.SHOPPING_PERIOD_USER, node.getNodeId(), DelegatedAccessConstants.NODE_PERM_SHOPPING_PROCESSED_DATE + processed.getTime(), false);
+				
+			//}
 		} else{
 			//remove .anon and .auth roles
 			removeAnonAndAuthRoles(node.getNode().description);
@@ -145,5 +167,20 @@ public class DelegatedAccessShoppingPeriodJob implements Job{
 	private void copyNewRole(String siteRef, String copyRealm, String copyRole, String newRole){
 		log.debug("Copying " + copyRole + " to " + newRole + " for " + siteRef);
 		sakaiProxy.copyNewRole(siteRef, copyRealm, copyRole, newRole);
+	}
+	
+	private void checkAndAddNode(NodeModel node){
+		NodeModel parent = node.getParentNode();
+		if(parent != null){
+			checkAndAddNode(parent);
+		}
+		
+		if(!migratedHierarchyIds.containsKey(node.getNodeId()) && parent != null && migratedHierarchyIds.containsKey(parent.getNodeId())){
+			//if this parent/child relationship hasn't been created, create it
+			HierarchyNode newNode = hierarchyService.addNode(DelegatedAccessConstants.SHOPPING_PERIOD_HIERARCHY_ID, migratedHierarchyIds.get(parent.getNodeId()));
+			hierarchyService.saveNodeMetaData(newNode.id, node.getNode().title, node.getNode().description, null);
+			hierarchyService.addChildRelation(migratedHierarchyIds.get(parent.getNodeId()), newNode.id);			
+			migratedHierarchyIds.put(node.getNodeId(), newNode.id);
+		}
 	}
 }
