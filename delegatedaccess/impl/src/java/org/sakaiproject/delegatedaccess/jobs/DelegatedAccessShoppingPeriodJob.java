@@ -46,8 +46,12 @@ public class DelegatedAccessShoppingPeriodJob implements Job{
 		
 		TreeModel treeModel = projectLogic.getEntireTreePlusUserPerms(DelegatedAccessConstants.SHOPPING_PERIOD_USER);
 		if (treeModel != null && treeModel.getRoot() != null) {
-			//delete old shopping period hierarchy:
-			hierarchyService.destroyHierarchy(DelegatedAccessConstants.SHOPPING_PERIOD_HIERARCHY_ID);
+			try{
+				//delete old shopping period hierarchy:
+				hierarchyService.destroyHierarchy(DelegatedAccessConstants.SHOPPING_PERIOD_HIERARCHY_ID);
+			}catch(Exception e){
+				//doesn't exist, don't worry
+			}
 			//create new hierarchy:
 			HierarchyNode delegatedRootNode = hierarchyService.getRootNode(DelegatedAccessConstants.HIERARCHY_ID);
 			HierarchyNode rootNode = hierarchyService.createHierarchy(DelegatedAccessConstants.SHOPPING_PERIOD_HIERARCHY_ID);

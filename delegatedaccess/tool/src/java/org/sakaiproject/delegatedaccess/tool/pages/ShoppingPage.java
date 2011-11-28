@@ -23,6 +23,7 @@ public class ShoppingPage extends ShoppingBasePage{
 	private BaseTree tree;
 	boolean expand = true;
 	private String search = "";
+	private TreeModel treeModel = null;
 
 	protected AbstractTree getTree()
 	{
@@ -40,7 +41,10 @@ public class ShoppingPage extends ShoppingBasePage{
 		//Expand/Collapse Link
 		add(getExpandCollapseLink());
 
-		final TreeModel treeModel = projectLogic.getTreeModelForShoppingPeriod();
+		treeModel = projectLogic.getTreeModelForShoppingPeriod();
+		if(treeModel != null && ((DefaultMutableTreeNode) treeModel.getRoot()).getChildCount() == 0){
+			treeModel = null;
+		}
 
 		//a null model means the user doesn't have any associations
 		tree = new LinkTree("tree", treeModel){

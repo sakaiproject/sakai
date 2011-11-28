@@ -1,6 +1,7 @@
 package org.sakaiproject.delegatedaccess.logic;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -121,22 +122,24 @@ public class SakaiProxyImpl implements SakaiProxy {
 		String[] toolsList = null;
 		String siteType = serverConfigurationService.getString(DelegatedAccessConstants.PROP_TOOL_LIST_TEMPLATE);
 		if(siteType != null && !"".equals(siteType)){
-			toolsList = serverConfigurationService.getToolOrder(siteType).toArray(new String[0]);
+			toolSet = toolManager.findTools(new HashSet<String>(Arrays.asList(siteType)), null);
 		}
-		if(toolsList == null || toolsList.length == 0){
+		if(toolSet.size() == 0){
 			toolsList = serverConfigurationService.getStrings(DelegatedAccessConstants.PROP_TOOL_LIST);
-		}
-		
-		if(toolsList != null && toolsList.length > 0){
-			for(String toolId : toolsList){
-				Tool tool = toolManager.getTool(toolId);
-				if(tool != null){
-					toolSet.add(tool);
+			if(toolsList != null && toolsList.length > 0){
+				for(String toolId : toolsList){
+					Tool tool = toolManager.getTool(toolId);
+					if(tool != null){
+						toolSet.add(tool);
+					}
 				}
 			}
-			return toolSet;
+		}
+
+		if(toolSet.size() == 0){
+			return toolManager.findTools(new HashSet<String>(), null);
 		}else{
-			return toolManager.findTools(null, null);
+			return toolSet;
 		}
 	}
 
