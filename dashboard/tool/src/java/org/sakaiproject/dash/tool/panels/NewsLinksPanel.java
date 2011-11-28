@@ -286,7 +286,7 @@ public class NewsLinksPanel extends Panel {
 								if(TAB_ID_STARRED.equals(selectedNewsTab)) {
 									ResourceLoader rl = new ResourceLoader("dash_entity");
 									NewsItem changedItem = dashboardLogic.getNewsItem(newsItemId);
-									JsonHelper jsonHelper = new JsonHelper(dashboardLogic);
+									JsonHelper jsonHelper = new JsonHelper(dashboardLogic, dashboardConfig);
 									String jsonStr = jsonHelper.getJsonObjectFromNewsItem(changedItem).toString();
 									String javascript = "reportSuccess('" + rl.getString("dash.ajax.unstar.success") + "'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
 									target.appendJavascript(javascript );
@@ -304,7 +304,7 @@ public class NewsLinksPanel extends Panel {
 
 						@Override
 						public Object getObject() {
-							return "/dashboard-tool/css/img/star-act.png";
+							return dashboardConfig.getActionIcon(dashboardConfig.ACTION_UNSTAR);
 						}
 						
 					}));
@@ -357,7 +357,7 @@ public class NewsLinksPanel extends Panel {
 
 						@Override
 						public Object getObject() {
-							return "/dashboard-tool/css/img/star-inact.png";
+							return dashboardConfig.getActionIcon(dashboardConfig.ACTION_STAR);
 						}
 						
 					}));
@@ -400,7 +400,7 @@ public class NewsLinksPanel extends Panel {
 								ResourceLoader rl = new ResourceLoader("dash_entity");
 								target.addComponent(NewsLinksPanel.this);
 								NewsItem changedItem = dashboardLogic.getNewsItem(newsItemId);
-								JsonHelper jsonHelper = new JsonHelper(dashboardLogic);
+								JsonHelper jsonHelper = new JsonHelper(dashboardLogic, dashboardConfig);
 								String jsonStr = jsonHelper.getJsonObjectFromNewsItem(changedItem).toString();
 								String javascript = "reportSuccess('" + rl.getString("dash.ajax.show.success") + "'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
 								target.appendJavascript(javascript );
@@ -417,7 +417,7 @@ public class NewsLinksPanel extends Panel {
 
 						@Override
 						public Object getObject() {
-							return "/dashboard-tool/css/img/accept.png";
+							return dashboardConfig.getActionIcon(dashboardConfig.ACTION_SHOW);
 						}
 						
 					}));
@@ -459,7 +459,7 @@ public class NewsLinksPanel extends Panel {
 								ResourceLoader rl = new ResourceLoader("dash_entity");
 								target.addComponent(NewsLinksPanel.this);
 								NewsItem changedItem = dashboardLogic.getNewsItem(newsItemId);
-								JsonHelper jsonHelper = new JsonHelper(dashboardLogic);
+								JsonHelper jsonHelper = new JsonHelper(dashboardLogic, dashboardConfig);
 								String jsonStr = jsonHelper.getJsonObjectFromNewsItem(changedItem).toString();
 								String javascript = "reportSuccess('" + rl.getString("dash.ajax.hide.success") + "'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
 								target.appendJavascript(javascript );
@@ -477,7 +477,7 @@ public class NewsLinksPanel extends Panel {
 
 						@Override
 						public Object getObject() {
-							return "/dashboard-tool/css/img/cancel.png";
+							return dashboardConfig.getActionIcon(dashboardConfig.ACTION_HIDE);
 						}
 						
 					}));

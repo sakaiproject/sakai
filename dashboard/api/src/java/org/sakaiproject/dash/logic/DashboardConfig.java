@@ -28,11 +28,16 @@ public interface DashboardConfig {
 	public static final String PROP_LOG_MODE_FOR_PREFERENCE_EVENTS = "PROP_LOG_MODE_FOR_PREFERENCE_EVENTS";
 	public static final String PROP_LOG_MODE_FOR_DASH_NAV_EVENTS = "PROP_LOG_MODE_FOR_DASH_NAV_EVENTS";
 	
-	
+	public static final String ACTION_STAR = "star";
+	public static final String ACTION_UNSTAR = "unstar";
+	public static final String ACTION_HIDE = "hide";
+	public static final String ACTION_SHOW = "show";
 	
 	
 	public Integer getConfigValue(String propertyName, Integer propertyValue);
 	
 	public void setConfigValue(String propertyName, Integer propertyValue);
+	
+	public String getActionIcon(String actionId);
 	
 }

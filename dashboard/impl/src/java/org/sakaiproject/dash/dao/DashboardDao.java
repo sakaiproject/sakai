@@ -167,7 +167,7 @@ public interface DashboardDao {
 
 	public CalendarItem getCalendarItem(long id);
 
-	public List<NewsItem> getNewsItemsByGroupId(String sakaiUserId,
+	public List<NewsLink> getNewsLinksByGroupId(String sakaiUserId,
 			String groupId, int pageSize, int pageNumber);
 
 	public RepeatingCalendarItem getRepeatingCalendarItem(String entityReference, String calendarTimeLabelKey);

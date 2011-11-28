@@ -1,5 +1,8 @@
 package org.sakaiproject.dash.logic;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
@@ -16,6 +19,8 @@ public class DashboardConfigImpl implements DashboardConfig {
 	private static final Boolean CACHE_ETERNAL = new Boolean(false);
 	private static final Integer CACHE_TIME_TO_IDLE = new Integer(300);
 	private static final Integer CACHE_TIME_TO_LIVE = new Integer(300);
+	
+	protected Map<String,String> actionIconMap = new HashMap<String,String>();
 
 	private Object configLock = new Object();
 	
@@ -60,6 +65,7 @@ public class DashboardConfigImpl implements DashboardConfig {
 		}
 		return value;
 	}
+	
 	public void setConfigValue(String propertyName, Integer propertyValue) {
 
 		String cacheKey = DASHBOARD_CACHE_PREFIX + propertyName;
@@ -75,6 +81,16 @@ public class DashboardConfigImpl implements DashboardConfig {
 	
 	public void init() {
 		logger.info("init()");
+		
+		actionIconMap.put(ACTION_UNSTAR, "/dashboard-tool/css/img/star-act.png");
+		actionIconMap.put(ACTION_STAR, "/dashboard-tool/css/img/star-inact.png");
+		actionIconMap.put(ACTION_SHOW, "/dashboard-tool/css/img/cancel.png");
+		actionIconMap.put(ACTION_HIDE, "/dashboard-tool/css/img/accept.png");
+		
+	}
+
+	public String getActionIcon(String actionId) {
+		return actionIconMap.get(actionId);
 	}
 	
 }

@@ -1141,24 +1141,24 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 	
-	public List<NewsItem> getNewsItemsByGroupId(String sakaiUserId,
+	public List<NewsLink> getNewsLinksByGroupId(String sakaiUserId,
 			String groupId, int pageSize, int pageNumber) {
 		List<NewsItem> items = null;
 		if(log.isDebugEnabled()) {
 			log.debug("getNewsItemsByGroupId(" + sakaiUserId + "," + groupId + "," + pageSize + "," + pageNumber + ")");
 		}
 		if(sakaiUserId == null || groupId == null) {
-			return new ArrayList<NewsItem>();
+			return new ArrayList<NewsLink>();
 		}
-		String sql = getStatement("select.NewsItems.by.sakaiId.groupId.paged");
+		String sql = getStatement("select.NewsLinks.by.sakaiId.groupId.paged");
 		Object[] params = new Object[]{sakaiUserId, groupId, pageSize, pageNumber * pageSize};
 		try {
-			return (List<NewsItem>) getJdbcTemplate().query(sql,params,
-				new NewsItemMapper()
+			return (List<NewsLink>) getJdbcTemplate().query(sql,params,
+				new NewsLinkMapper()
 			);
 		} catch (DataAccessException ex) {
            log.error("getNewsItemsByGroupId: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return new ArrayList<NewsItem>();
+           return new ArrayList<NewsLink>();
 		}
 	}
 

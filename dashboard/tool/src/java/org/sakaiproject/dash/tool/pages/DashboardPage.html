@@ -6,67 +6,65 @@
         <wicket:extend>
             <div class="portletBody">
             	<div wicket:id="dashboard-page">
-                <link rel="stylesheet" type="text/css" href="/library/js/jquery/ui/1.8.4/css/ui-lightness/jquery-ui-1.8.4.full.css" />
-                <script type="text/javascript" src="/library/js/jquery/1.4.2/jquery-1.4.2.min.js">
-                </script>
-                <script type="text/javascript" src="/library/js/jquery/ui/1.8.4/jquery-ui-1.8.4.full.min.js">
-                </script>
-                <script type="text/javascript" src="js/dashboard.js">
-                </script>
-                <div id="messagePanel" style="display:none"></div>
-                <!--
-                <div class="portletMainWrap">
-                <div id="message">
-                <h1>From the CTools Team</h1>
-                <h2>CTools Service Outage: Saturday, March 26th, 4:30am-7am!</h2>
-                <p>
-                CTools will be temporarily out of service starting at 4:30 am on Saturday, March 26th in order to release CTools version 2.7.1C.
-                We expect to be back in service by 7:00 am of that same day.  We apologize for any inconvenience this may cause and we appreciate
-                your patience while we work to improve CTools.
-                </p>
-                <p>
-                &#x2014; CTools Implementation Group
-                </p>
-                </div>
-                </div>
-                -->
-                <div id="motdPanel"  wicket:id="motdPanel" class="motdPanel">
-                </div>
-                
-                <div id="calendarPanel"  wicket:id="calendarPanel">
-                </div>
-                
-                <div id="newsPanel" wicket:id="newsPanel">
-                </div>
-                
-                <div id="dialog" style="display:none">
-                </div>
-                <div id="dialogDum">
-                </div>
-                <div id="results" style="display:none">
-                </div>
-                <div id="instructionHolder" style="display:none">
-                </div>
-                <script type="text/javascript">
-                    $(document).ready(function(){
-                        setupTableStriping()
-                        $('.pager').htmlClean();
-                        $('.pager').cssInstrument();
-                        setupLinks();
-                        setupMenus();
-                        setupLang(); //evaluate the language held in #lang-holder for use in the js
-                        setupIcons();
-                        setupDismissMOTD();
-                        
-                    });
-                </script>
-                <div wicket:id="callbackUrl" class="callBackUrl skip">
-                    [callback url]
-                </div>
-                <div wicket:id="dashActionHandler" class="dashActionHandler skip">
-                	[[ dashActionHandler ]]
-                </div>
-            </div>
+            		<!-- 
+            			TODO: These script and link tags need to be moved to the head tag.  
+            			Wicket can include them in the head tag if done properly from the java code. 
+            		-->
+	                <link rel="stylesheet" type="text/css" href="/library/js/jquery/ui/1.8.4/css/ui-lightness/jquery-ui-1.8.4.full.css" />
+	                <script type="text/javascript" src="/library/js/jquery/1.4.2/jquery-1.4.2.min.js">
+	                </script>
+	                <script type="text/javascript" src="/library/js/jquery/ui/1.8.4/jquery-ui-1.8.4.full.min.js">
+	                </script>
+	                <script type="text/javascript" src="js/dashboard.js">
+	                </script>
+	                
+	                <div id="messagePanel" style="display:none">
+	                </div>
+	                
+	                <div id="motdPanel"  wicket:id="motdPanel" class="motdPanel">
+	                </div>
+	                
+	                <div id="calendarPanel"  wicket:id="calendarPanel">
+	                </div>
+	                
+	                <div id="newsPanel" wicket:id="newsPanel">
+	                </div>
+	                
+	                <div id="dialog" style="display:none">
+	                </div>
+	                
+	                <div id="dialogDum">
+	                </div>
+	                
+	                <div id="results" style="display:none">
+	                </div>
+	                
+	                <div id="instructionHolder" style="display:none">
+	                </div>
+	                
+	                <script type="text/javascript">
+	                    $(document).ready(function(){
+	                        setupTableStriping()
+	                        $('.pager').htmlClean();
+	                        $('.pager').cssInstrument();
+	                        setupLinks();
+	                        setupMenus();
+	                        setupLang(); //evaluate the language held in #lang-holder for use in the js
+	                        setupIcons();
+	                        setupDismissMOTD();
+	                        
+	                    });
+	                </script>
+	                
+	                <div wicket:id="callbackUrl" class="callBackUrl skip">
+	                    [callback url]
+	                </div>
+	                
+	                <div wicket:id="dashActionHandler" class="dashActionHandler skip">
+	                	[[ dashActionHandler ]]
+	                </div>
+	                
+	            </div>
             </div>
         </wicket:extend>
     </body>

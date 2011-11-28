@@ -554,9 +554,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return dao.getNewsItems(sakaiUserId, null, saved, hidden);
 	}
 	
-	public List<NewsItem> getNewsItemsByGroupId(String sakaiUserId,
+	public List<NewsLink> getNewsLinksByGroupId(String sakaiUserId,
 			String groupId, int pageSize, int pageNumber) {
-		return dao.getNewsItemsByGroupId(sakaiUserId, groupId, pageSize, pageNumber);
+		return dao.getNewsLinksByGroupId(sakaiUserId, groupId, pageSize, pageNumber);
 	}
 	
 	public NewsLink getNewsLink(Long id) {

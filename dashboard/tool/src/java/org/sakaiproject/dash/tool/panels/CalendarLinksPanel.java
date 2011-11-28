@@ -318,7 +318,7 @@ public class CalendarLinksPanel extends Panel {
 										ResourceLoader rl = new ResourceLoader("dash_entity");
 
 										CalendarItem changedItem = dashboardLogic.getCalendarItem(calendarItemId);
-										JsonHelper jsonHelper = new JsonHelper(dashboardLogic);
+										JsonHelper jsonHelper = new JsonHelper(dashboardLogic, dashboardConfig);
 										String jsonStr = jsonHelper.getJsonObjectFromCalendarItem(changedItem).toString();
 										String javascript = "reportSuccess('" + rl.getString("dash.ajax.unstar.success") + "'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
 										target.appendJavascript(javascript);
@@ -337,7 +337,7 @@ public class CalendarLinksPanel extends Panel {
 
 							@Override
 							public Object getObject() {
-								return "/dashboard-tool/css/img/star-act.png";
+								return dashboardConfig.getActionIcon(dashboardConfig.ACTION_STAR);
 							}
 							
 						}));
@@ -391,7 +391,7 @@ public class CalendarLinksPanel extends Panel {
 
 							@Override
 							public Object getObject() {
-								return "/dashboard-tool/css/img/star-inact.png";
+								return dashboardConfig.getActionIcon(dashboardConfig.ACTION_UNSTAR);
 							}
 							
 						}));
@@ -436,7 +436,7 @@ public class CalendarLinksPanel extends Panel {
 
 									target.addComponent(CalendarLinksPanel.this);
 									CalendarItem changedItem = dashboardLogic.getCalendarItem(calendarItemId);
-									JsonHelper jsonHelper = new JsonHelper(dashboardLogic);
+									JsonHelper jsonHelper = new JsonHelper(dashboardLogic, dashboardConfig);
 									String jsonStr = jsonHelper.getJsonObjectFromCalendarItem(changedItem).toString();
 									String javascript = "reportSuccess('" + rl.getString("dash.ajax.show.success") + "'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
 									target.appendJavascript(javascript );
@@ -453,7 +453,7 @@ public class CalendarLinksPanel extends Panel {
 
 							@Override
 							public Object getObject() {
-								return "/dashboard-tool/css/img/accept.png";
+								return dashboardConfig.getActionIcon(dashboardConfig.ACTION_SHOW);
 							}
 							
 						}));
@@ -495,7 +495,7 @@ public class CalendarLinksPanel extends Panel {
 									ResourceLoader rl = new ResourceLoader("dash_entity");
 									target.addComponent(CalendarLinksPanel.this);
 									CalendarItem changedItem = dashboardLogic.getCalendarItem(calendarItemId);
-									JsonHelper jsonHelper = new JsonHelper(dashboardLogic);
+									JsonHelper jsonHelper = new JsonHelper(dashboardLogic, dashboardConfig);
 									String jsonStr = jsonHelper.getJsonObjectFromCalendarItem(changedItem).toString();
 									String javascript = "reportSuccess('" + rl.getString("dash.ajax.hide.success") + "'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
 									target.appendJavascript(javascript );
@@ -513,7 +513,7 @@ public class CalendarLinksPanel extends Panel {
 
 							@Override
 							public Object getObject() {
-								return "/dashboard-tool/css/img/cancel.png";
+								return dashboardConfig.getActionIcon(dashboardConfig.ACTION_HIDE);
 							}
 							
 						}));

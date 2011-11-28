@@ -3,6 +3,7 @@
  */
 package org.sakaiproject.dash.tool.util;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -12,9 +13,11 @@ import net.sf.json.JSONObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.dash.logic.DashboardConfig;
 import org.sakaiproject.dash.logic.DashboardLogic;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.NewsItem;
+import org.sakaiproject.dash.model.NewsLink;
 import org.sakaiproject.dash.util.DateUtil;
 import org.sakaiproject.util.FormattedText;
 
@@ -27,10 +30,13 @@ public class JsonHelper {
 	private static Log logger = LogFactory.getLog(JsonHelper.class);
 	
 	protected DashboardLogic dashboardLogic;
+	protected DashboardConfig dashboardConfig;
 	
-	public JsonHelper(DashboardLogic dashboardLogic) {
+	public JsonHelper(DashboardLogic dashboardLogic, DashboardConfig dashboardConfig) {
 		this.dashboardLogic = dashboardLogic;
+		this.dashboardConfig = dashboardConfig;
 	}
+	
 	
 	public JSONObject getJsonObjectFromMap(Map<String, Object> map) {
 		JSONObject json = new JSONObject();
@@ -71,6 +77,8 @@ public class JsonHelper {
 					json.element(getJsonArrayFromList((List) value));
 				} else if(value instanceof NewsItem) {
 					json.element(getJsonObjectFromNewsItem((NewsItem) value));
+				} else if(value instanceof NewsLink) {
+					json.element(getJsonObjectFromNewsLink((NewsLink) value));
 				}
 				
 			}
@@ -78,10 +86,28 @@ public class JsonHelper {
 		return json;
 	}
 
+	private JSONObject getJsonObjectFromNewsLink(NewsLink newsLink) {
+		JSONObject json = getJsonObjectFromNewsItem(newsLink.getNewsItem());
+		json.element("sticky", newsLink.isSticky());
+		json.element("hidden", newsLink.isHidden());
+		json.element("newsLinkId", newsLink.getId());
+		if(newsLink.isHidden()) {
+			json.element("hidingActionIcon", dashboardConfig.getActionIcon(DashboardConfig.ACTION_SHOW));
+		} else {
+			json.element("hidingActionIcon", dashboardConfig.getActionIcon(DashboardConfig.ACTION_HIDE));
+		}
+		if(newsLink.isSticky()) {
+			json.element("starringActionIcon", dashboardConfig.getActionIcon(DashboardConfig.ACTION_UNSTAR));
+		} else {
+			json.element("starringActionIcon", dashboardConfig.getActionIcon(DashboardConfig.ACTION_STAR));
+		}
+		return json;
+	}
+
 	public JSONObject getJsonObjectFromNewsItem(NewsItem newsItem) {
 		JSONObject json = new JSONObject();
 		json.element("entityReference", newsItem.getEntityReference());
-		json.element("id", newsItem.getId());
+		json.element("newsItemId", newsItem.getId());
 		json.element("newsTime", newsItem.getNewsTime());
 		json.element("newsTimeShortString", DateUtil.getNewsTimeString(newsItem.getNewsTime()));
 		json.element("newsTimeFullString", DateUtil.getFullDateString(newsItem.getNewsTime()));
@@ -101,7 +127,7 @@ public class JsonHelper {
 	public JSONObject getJsonObjectFromCalendarItem(CalendarItem calendarItem) {
 		JSONObject json = new JSONObject();
 		json.element("entityReference", calendarItem.getEntityReference());
-		json.element("id", calendarItem.getId());
+		json.element("calendarItemId", calendarItem.getId());
 		json.element("calendarTime", calendarItem.getCalendarTime());
 		json.element("calendarTimeShortString", DateUtil.getCalendarTimeString(calendarItem.getCalendarTime()));
 		json.element("calendarTimeFullString", DateUtil.getFullDateString(calendarItem.getCalendarTime()));

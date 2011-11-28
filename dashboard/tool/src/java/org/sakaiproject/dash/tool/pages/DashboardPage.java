@@ -21,7 +21,7 @@ import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.request.target.basic.StringRequestTarget;
 import org.sakaiproject.dash.logic.DashboardConfig;
 import org.sakaiproject.dash.logic.DashboardLogic;
-import org.sakaiproject.dash.model.NewsItem;
+import org.sakaiproject.dash.model.NewsLink;
 import org.sakaiproject.dash.tool.panels.CalendarLinksPanel;
 import org.sakaiproject.dash.tool.panels.MOTDPanel;
 import org.sakaiproject.dash.tool.panels.NewsLinksPanel;
@@ -38,8 +38,6 @@ public class DashboardPage extends BasePage {
 	
 	private static final Logger logger = Logger.getLogger(DashboardPage.class); 
 	
-	private static final String DATE_FORMAT = "dd-MMM-yyyy";
-	private static final String TIME_FORMAT = "HH:mm";
 	protected static final String DATETIME_FORMAT = "dd-MMM-yyyy HH:mm";
 	
 	protected String selectedCalendarTab;
@@ -113,8 +111,8 @@ public class DashboardPage extends BasePage {
  						int pageSize = dashboardConfig.getConfigValue(DashboardConfig.PROP_DEFAULT_ITEMS_IN_DISCLOSURE, 20);
  						int pageNumber = 0;
  						String sakaiUserId = sakaiProxy.getCurrentUserId();
-						List<NewsItem> items = dashboardLogic.getNewsItemsByGroupId(sakaiUserId, entityReference, pageSize, pageNumber);
-						JsonHelper jsonHelper = new JsonHelper(dashboardLogic);
+						List<NewsLink> items = dashboardLogic.getNewsLinksByGroupId(sakaiUserId, entityReference, pageSize, pageNumber);
+						JsonHelper jsonHelper = new JsonHelper(dashboardLogic, dashboardConfig);
 						String jsonString = jsonHelper.getJsonArrayFromList(items).toString();
 		                logger.debug("Returning JSON:\n" + jsonString);
 		                IRequestTarget t = new StringRequestTarget("application/json", "UTF-8", jsonString);
@@ -186,28 +184,50 @@ public class DashboardPage extends BasePage {
 					message = rl.getString("");
 				} else if(success) {
 					if("star".equalsIgnoreCase(action)) {
-						if(dashboardLogic.keepNewsItem(sakaiProxy.getCurrentUserId(), itemId)) {
+						try {
+							success = dashboardLogic.keepNewsItem(sakaiProxy.getCurrentUserId(), itemId);
+						} catch(Exception e) {
+							logger.warn("Error trying to star news-link for user " + sakaiProxy.getCurrentUserId() + ", newsLinkId == " + itemId);
+							success = false;
+						}
+						if(success) {
 							message = rl.getString("dash.ajax.star.success");
 						} else {
 							message = rl.getString("dash.ajax.star.failed");
-							success = false;
 						}
 					} else if("unstar".equalsIgnoreCase(action)) {
-						if(dashboardLogic.unkeepNewsItem(sakaiProxy.getCurrentUserId(), itemId)) {
+						try {
+							success = dashboardLogic.unkeepNewsItem(sakaiProxy.getCurrentUserId(), itemId);
+						} catch(Exception e) {
+							logger.warn("Error trying to unstar news-link for user " + sakaiProxy.getCurrentUserId() + ", newsLinkId == " + itemId);
+							success = false;
+						}
+						if(success) {
 							message = rl.getString("dash.ajax.unstar.success");
 						} else {
 							message = rl.getString("dash.ajax.unstar.failed");
-							success = false;
 						}
 					} else if("hide".equalsIgnoreCase(action)) {
-						if(dashboardLogic.hideNewsItem(sakaiProxy.getCurrentUserId(), itemId)) {
+						try {
+							success = dashboardLogic.hideNewsItem(sakaiProxy.getCurrentUserId(), itemId);
+						} catch(Exception e) {
+							logger.warn("Error trying to hide news-link for user " + sakaiProxy.getCurrentUserId() + ", newsLinkId == " + itemId);
+							success = false;
+						}
+						if(success) {
 							message = rl.getString("dash.ajax.hide.success");
 						} else {
 							message = rl.getString("dash.ajax.hide.failed");
 							success = false;
 						}
 					} else if("show".equalsIgnoreCase(action)) {
-						if(dashboardLogic.unhideNewsItem(sakaiProxy.getCurrentUserId(), itemId)) {
+						try {
+							success = dashboardLogic.unhideNewsItem(sakaiProxy.getCurrentUserId(), itemId);
+						} catch(Exception e) {
+							logger.warn("Error trying to show news-link for user " + sakaiProxy.getCurrentUserId() + ", newsLinkId == " + itemId);
+							success = false;
+						}
+						if(success) {
 							message = rl.getString("dash.ajax.show.success");
 						} else {
 							message = rl.getString("dash.ajax.show.failed");
@@ -232,7 +252,7 @@ public class DashboardPage extends BasePage {
 		
 	// should this be in JsonHelper ??
 	protected String getJsonStringFromMap(Map<String, Object> map) {
-		JsonHelper jsonHelper = new JsonHelper(dashboardLogic);
+		JsonHelper jsonHelper = new JsonHelper(dashboardLogic, dashboardConfig);
 		JSONObject json = jsonHelper.getJsonObjectFromMap(map);
 		//logger.info("Returning json: " + json.toString(3));
 		return json.toString();

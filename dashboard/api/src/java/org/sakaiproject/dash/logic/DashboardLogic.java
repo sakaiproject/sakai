@@ -60,8 +60,7 @@ public interface DashboardLogic {
 	public static final String EVENT_DASH_HIDE = "dash.hide.item";
 	public static final String EVENT_DASH_SHOW = "dash.show.item";
 	public static final String EVENT_DASH_HIDE_MOTD = "dash.hide.motd";
-
-	
+		
 	/**
 	 * Add links to calendar items in a context for a particular user. Links
 	 * will be limited to items referencing entities for which the user has 
@@ -210,7 +209,7 @@ public interface DashboardLogic {
 	
 	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId, boolean saved, boolean hidden);
 	
-	public List<NewsItem> getNewsItemsByGroupId(String sakaiUserId,
+	public List<NewsLink> getNewsLinksByGroupId(String sakaiUserId,
 			String groupId, int pageSize, int pageNumber);
 	
 	public NewsLink getNewsLink(Long id);
@@ -489,7 +488,6 @@ public interface DashboardLogic {
 	public String getEntityIconUrl(String type, String subtype);
 
 	public List<NewsItem> getMOTD();
-
 
 	// todo:
 	// add methods to revise news items, calendar items, news links, calendar links, etc.
