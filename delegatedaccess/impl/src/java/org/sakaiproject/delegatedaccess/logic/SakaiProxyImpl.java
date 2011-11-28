@@ -117,7 +117,27 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 
 	public Set<Tool> getAllTools(){
-		return toolManager.findTools(null, null);
+		Set<Tool> toolSet = new HashSet<Tool>();
+		String[] toolsList = null;
+		String siteType = serverConfigurationService.getString(DelegatedAccessConstants.PROP_TOOL_LIST_TEMPLATE);
+		if(siteType != null && !"".equals(siteType)){
+			toolsList = serverConfigurationService.getToolOrder(siteType).toArray(new String[0]);
+		}
+		if(toolsList == null || toolsList.length == 0){
+			toolsList = serverConfigurationService.getStrings(DelegatedAccessConstants.PROP_TOOL_LIST);
+		}
+		
+		if(toolsList != null && toolsList.length > 0){
+			for(String toolId : toolsList){
+				Tool tool = toolManager.getTool(toolId);
+				if(tool != null){
+					toolSet.add(tool);
+				}
+			}
+			return toolSet;
+		}else{
+			return toolManager.findTools(null, null);
+		}
 	}
 
 	/**
