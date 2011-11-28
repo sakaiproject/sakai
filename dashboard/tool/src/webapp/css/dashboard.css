@@ -117,10 +117,11 @@ table tr.newRow:hover {
 h3.withNav {
     margin:1em 0;
 }
+
 .pagerCell{
-    vertical-align:bottom !important;
-    text-align:right;
-    padding:5px 0 
+    position:absolute;
+    top:40px;
+    right:0;
 }
 .pager {
     width:100%;
@@ -481,4 +482,7 @@ ul.tabPanel{
     display:block;
     
     text-decoration:none;
+}
+.mainPanel{
+    position:relative
 }

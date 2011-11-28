@@ -1,31 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
     <wicket:panel>
-        <div id="activeNewsItems" wicket:id="newsLinksDiv">
-            <table class="listHeader" cellpadding="0" cellspacing="0" border="0">
-                <tr>
-                    <td style="width:50%;padding:0">
-                        <h3 class="withNav">Recent Activity</h3>
-                        <ul class="tabPanel">
-                            <li wicket:id="currentNewsTab">
-                                <a href="#" wicket:id="link"><span wicket:id="label">[ Current ]</span></a>
-                            </li>
-                            <li wicket:id="starredNewsTab">
-                                <a href="#" wicket:id="link"><span wicket:id="label">[ Starred ]</span></a>
-                            </li>
-                            <li wicket:id="hiddenNewsTab">
-                                <a href="#" wicket:id="link"><span wicket:id="label">[ Hidden ]</span></a>
-                            </li>
-                        </ul>
-                        
-                    </td>
-                    <td style="width:50%" class="pagerCell">
-                        <span class="itemCount instruction" wicket:id="newsLinksCount">[[ cero puntos ]]</span>
-                        <span class="pager" wicket:id="newsNavigator">
-                        </span>
-                    </td>
-                </tr>
-            </table>
+        <div id="activeNewsItems" wicket:id="newsLinksDiv" class="mainPanel">
+            <div class="listHeader">
+                <h3 class="withNav">Recent Activity</h3>
+                <ul class="tabPanel">
+                    <li wicket:id="currentNewsTab">
+                        <a href="#" wicket:id="link"><span wicket:id="label">[ Current ]</span></a>
+                    </li>
+                    <li wicket:id="starredNewsTab">
+                        <a href="#" wicket:id="link"><span wicket:id="label">[ Starred ]</span></a>
+                    </li>
+                    <li wicket:id="hiddenNewsTab">
+                        <a href="#" wicket:id="link"><span wicket:id="label">[ Hidden ]</span></a>
+                    </li>
+                </ul>
+            </div>
+            <div class="pagerCell">
+                <span class="itemCount instruction" wicket:id="newsLinksCount">[[ cero puntos ]]</span>
+                <span class="pager" wicket:id="newsNavigator"></span>
+            </div>
             <div class="panel" wicket:id="haveLinks">
                 <table cellspacing="0" id="news" class="news" summary="List of recent events. Column 1: link to details on item. Column 2: link to site where event took place. Column 3: date and time when event took place. Column 4: list of options managing items of this type or origin." border="0">
                     <thead>
@@ -60,29 +54,26 @@
                             <span wicket:id="newsTime">[news time]</span>
                         </td>
                         <td class="tab three">
-                        	<img wicket:id="icon" class="itemIcon"/>
-                            <a href="#" wicket:id="itemLink" class="itemLink" target="_top">[item title]</a>
+                            <img wicket:id="icon" class="itemIcon"/><a href="#" wicket:id="itemLink" class="itemLink" target="_top">[item title]</a>
                             <span wicket:id="itemLabel" class="itemLabel">[Item Label]</span>
                         </td>
                         <td class="four">
                             <a href="#" wicket:id="siteLink" class="siteLink" target="_top">[site title]</a>
                         </td>
                         <td class="action five">
-                             <a href="#" wicket:id="starringAction">
-                            	<img wicket:id="starringActionIcon" alt="[ Star/Unstar This ]" src="#" />
-                            </a>
-                       </td>
-                        <td class="action six">                      
-                            <a href="#" wicket:id="hidingAction">
-                            	<img wicket:id="hidingActionIcon" alt="[ Hide/Show This ]" src="#" />
-                            </a>
+                            <a href="#" wicket:id="starringAction"><img wicket:id="starringActionIcon" alt="[ Star/Unstar This ]" src="#" /></a>
+                        </td>
+                        <td class="action six">
+                            <a href="#" wicket:id="hidingAction"><img wicket:id="hidingActionIcon" alt="[ Hide/Show This ]" src="#" /></a>
                         </td>
                     </tr>
                 </table>
             </div>
-	        <div wicket:id="haveNoLinks">
-	            <p wicket:id="message">[[ I got nothing for ya. ]]</p>
-	        </div>
+            <div wicket:id="haveNoLinks">
+                <p wicket:id="message">
+                    [[ I got nothing for ya. ]]
+                </p>
+            </div>
         </div>
     </wicket:panel>
 </html>
