@@ -20,7 +20,7 @@ Index: portal-impl/impl/src/java/org/sakaiproject/portal/charon/ToolHelperImpl.j
  
  /**
   * @author ieb
-@@ -58,6 +62,37 @@
+@@ -58,6 +62,41 @@
  	 */
  	public boolean allowTool(Site site, Placement placement)
  	{
@@ -33,6 +33,10 @@ Index: portal-impl/impl/src/java/org/sakaiproject/portal/charon/ToolHelperImpl.j
 +				if(session.getAttribute("delegatedaccess.deniedToolsMap") != null && ((Map) session.getAttribute("delegatedaccess.deniedToolsMap")).containsKey(site.getReference())
 +						&& arrayContains(((Map) session.getAttribute("delegatedaccess.deniedToolsMap")).get(site.getReference()), placement.getToolId())){
 +					return false;
++				}
++				if(site.getMember(session.getUserId()) == null && site.getProperties().get("shopping-period-restricted-tools") != null){
++					//this is .anon or .auth role in a site that needs to restrict the tools:
++					return !arrayContains(((String) site.getProperties().get("shopping-period-restricted-tools")).split(";"), placement.getToolId());
 +				}
 +			}catch (Exception e) {
 +			}
