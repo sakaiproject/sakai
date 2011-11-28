@@ -84,8 +84,8 @@ public class DashboardConfigImpl implements DashboardConfig {
 		
 		actionIconMap.put(ACTION_UNSTAR, "/dashboard-tool/css/img/star-act.png");
 		actionIconMap.put(ACTION_STAR, "/dashboard-tool/css/img/star-inact.png");
-		actionIconMap.put(ACTION_SHOW, "/dashboard-tool/css/img/cancel.png");
-		actionIconMap.put(ACTION_HIDE, "/dashboard-tool/css/img/accept.png");
+		actionIconMap.put(ACTION_HIDE, "/dashboard-tool/css/img/cancel.png");
+		actionIconMap.put(ACTION_SHOW, "/dashboard-tool/css/img/accept.png");
 		
 	}
 

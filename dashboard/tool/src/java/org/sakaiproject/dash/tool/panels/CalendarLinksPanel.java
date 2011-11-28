@@ -337,7 +337,7 @@ public class CalendarLinksPanel extends Panel {
 
 							@Override
 							public Object getObject() {
-								return dashboardConfig.getActionIcon(dashboardConfig.ACTION_STAR);
+								return dashboardConfig.getActionIcon(dashboardConfig.ACTION_UNSTAR);
 							}
 							
 						}));
@@ -391,7 +391,7 @@ public class CalendarLinksPanel extends Panel {
 
 							@Override
 							public Object getObject() {
-								return dashboardConfig.getActionIcon(dashboardConfig.ACTION_UNSTAR);
+								return dashboardConfig.getActionIcon(dashboardConfig.ACTION_STAR);
 							}
 							
 						}));
@@ -469,7 +469,7 @@ public class CalendarLinksPanel extends Panel {
 						hidingAction.add(hidingActionIcon);
 		                //hidingAction.add(new Label("hidingActionLabel", "Show"));
 		                
-		                if(cLink.isSticky()) {
+		                if(cLink.isSticky() || TAB_ID_PAST.equals(selectedCalendarTab)) {
 		                	// this shouldn't happen, but just in case ...
 		                	hidingAction.setVisible(false);
 		                	hidingAction.setVisibilityAllowed(false);
@@ -529,7 +529,7 @@ public class CalendarLinksPanel extends Panel {
 						hidingAction.add(hidingActionIcon);
 		                //hidingAction.add(new Label("hidingActionLabel", "Hide"));
 		                
-		                if(cLink.isSticky()) {
+		                if(cLink.isSticky() || TAB_ID_PAST.equals(selectedCalendarTab)) {
 			                hidingAction.setVisible(false);
 		                	hidingAction.setVisibilityAllowed(false);
 		                } 
