@@ -199,6 +199,27 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
    }
 
    public void saveTemplate(EmailTemplate template) {
+	   //check that fields are set
+	   if (template == null) {
+		   throw new IllegalArgumentException("Template can't be null");
+	   }
+	   
+	   if (template.getKey() == null) {
+		   throw new IllegalArgumentException("Template key can't be null");
+	   }
+	   
+	   if (template.getOwner() == null) {
+		   throw new IllegalArgumentException("Template owner can't be null");
+	   }
+	   
+	   if (template.getSubject() == null) {
+		   throw new IllegalArgumentException("Template subject can't be null");
+	   }
+	   
+	   if (template.getMessage() == null) {
+		   throw new IllegalArgumentException("Template message can't be null");
+	   }
+	   
       //update the modified date
       template.setLastModified(new Date());
 

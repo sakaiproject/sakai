@@ -104,6 +104,76 @@ public class TestEmailTemplateService extends AbstractTransactionalSpringContext
 		
 		
 	}
+	
+	public void testEmptyTemplate() {
+		
+		EmailTemplate badTemplate = new EmailTemplate();
+		try {
+		emailTemplateService.saveTemplate(badTemplate);
+		fail();
+		}
+		catch (IllegalArgumentException e) {
+			//we expect this
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			fail();
+		}
+		
+		badTemplate.setKey("someKey");
+		try {
+			emailTemplateService.saveTemplate(badTemplate);
+			fail();
+		}
+		catch (IllegalArgumentException e) {
+			//we expect this
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			fail();
+		}
+		
+		
+		badTemplate.setOwner("admin");
+		try {
+			emailTemplateService.saveTemplate(badTemplate);
+			fail();
+		}
+		catch (IllegalArgumentException e) {
+			//we expect this
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			fail();
+		}
+		
+		
+		badTemplate.setSubject("something");
+		try {
+			emailTemplateService.saveTemplate(badTemplate);
+			fail();
+		}
+		catch (IllegalArgumentException e) {
+			//we expect this
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			fail();
+		}
+		
+		badTemplate.setMessage("something");
+				
+		//this should now work
+		try {
+			emailTemplateService.saveTemplate(badTemplate);
+			
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			fail();
+		}
+
+	}
 
 
 }
