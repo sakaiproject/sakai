@@ -1,0 +1,285 @@
+Index: site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java
+===================================================================
+--- site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java	(revision 100298)
++++ site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java	(working copy)
+@@ -21,11 +21,15 @@
+ 
+ import java.io.IOException;
+ import java.lang.reflect.Method;
++import java.text.DateFormat;
++import java.text.ParseException;
++import java.text.SimpleDateFormat;
+ import java.util.ArrayList;
+ import java.util.Arrays;
+ import java.util.Calendar;
+ import java.util.Collection;
+ import java.util.Collections;
++import java.util.Date;
+ import java.util.HashMap;
+ import java.util.HashSet;
+ import java.util.Hashtable;
+@@ -177,6 +181,9 @@
+ 	private static org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService questionService = (org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService) ComponentManager
+ 	.get(org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService.class);
+ 	
++	private static org.sakaiproject.email.api.EmailService emailService = (org.sakaiproject.email.api.EmailService) ComponentManager
++	.get(org.sakaiproject.email.api.EmailService.class);
++	
+ 	private static final String SITE_MODE_SITESETUP = "sitesetup";
+ 
+ 	private static final String SITE_MODE_SITEINFO = "siteinfo";
+@@ -417,7 +424,18 @@
+ 	private static final String STATE_SITE_ACCESS_PUBLISH = "state_site_access_publish";
+ 	
+ 	private static final String STATE_SITE_ACCESS_INCLUDE = "state_site_access_include";
++	
++	/** Shopping Period state */
++	private static final String STATE_SITE_ACCESS_SHOPPING_VISIBILITY = "state_site_access_visibility";
+ 
++	private static final String STATE_SITE_ACCESS_SHOPPING_VISIBILITY_START = "state_site_access_shopping_start";
++
++	private static final String STATE_SITE_ACCESS_SHOPPING_VISIBILITY_END = "state_site_access_shopping_end";
++	
++	private static final String STATE_SITE_ACCESS_SHOPPING_ROLE = "state_site_access_shopping_role";
++	
++	private static final String STATE_SITE_ACCESS_SHOPPING_REALM = "state_site_access_shopping_realm";
++
+ 	/** the list of selected user */
+ 	private static final String STATE_SELECTED_USER_LIST = "state_selected_user_list";
+ 
+@@ -965,10 +983,8 @@
+ 				}
+ 	
+ 				state.setAttribute(STATE_SITE_MODE, site_mode);
+-			}
++		}
+ 
+-
+-		
+ 	} // initState
+ 	
+ 	
+@@ -2228,6 +2244,19 @@
+ 				}
+ 				context.put("published", state.getAttribute(STATE_SITE_ACCESS_PUBLISH));
+ 				context.put("include", state.getAttribute(STATE_SITE_ACCESS_INCLUDE));
++				context.put("shopping_visibility", state.getAttribute(STATE_SITE_ACCESS_SHOPPING_VISIBILITY));
++				String start = (String) state.getAttribute(STATE_SITE_ACCESS_SHOPPING_VISIBILITY_START);
++				if (start == null) {
++					start = "";
++				}
++				String end = (String) state.getAttribute(STATE_SITE_ACCESS_SHOPPING_VISIBILITY_END);
++				if (end == null) {
++					end = "";
++				}
++				context.put("shopping_visibility_start", start);
++				context.put("shopping_visibility_end", end);
++				context.put("all_roles", site.getRoles());
++				context.put("hierarchy_node_id", site.getPropertiesEdit().get("hierarchy-node-id"));
+ 
+ 				if (siteType != null && !unJoinableSiteTypes.contains(siteType)) {
+ 					// site can be set as joinable
+@@ -6407,7 +6436,7 @@
+ 					}
+ 				}
+ 			}
+-			state.setAttribute(STATE_JOINERROLE, joinerRole); 
++			state.setAttribute(STATE_JOINERROLE, joinerRole);
+ 		}
+ 		catch (Exception e)
+ 		{
+@@ -6992,6 +7021,9 @@
+ 		readInputAndUpdateStateVariable(state, params, "include", STATE_SITE_ACCESS_INCLUDE, true);
+ 		readInputAndUpdateStateVariable(state, params, "joinable", STATE_JOINABLE, true);
+ 		readInputAndUpdateStateVariable(state, params, "joinerRole", STATE_JOINERROLE, false);
++		readInputAndUpdateStateVariable(state, params, "shoppingVisibility",      STATE_SITE_ACCESS_SHOPPING_VISIBILITY, false);
++		readInputAndUpdateStateVariable(state, params, "shoppingVisibilityStart", STATE_SITE_ACCESS_SHOPPING_VISIBILITY_START, false);
++		readInputAndUpdateStateVariable(state, params, "shoppingVisibilityEnd",   STATE_SITE_ACCESS_SHOPPING_VISIBILITY_END, false);
+ 		
+ 		boolean publishUnpublish = state.getAttribute(STATE_SITE_ACCESS_PUBLISH) != null ? ((Boolean) state.getAttribute(STATE_SITE_ACCESS_PUBLISH)).booleanValue() : false;
+ 		
+Index: site-manage-tool/tool/src/bundle/sitesetupgeneric.properties
+===================================================================
+--- site-manage-tool/tool/src/bundle/sitesetupgeneric.properties	(revision 100298)
++++ site-manage-tool/tool/src/bundle/sitesetupgeneric.properties	(working copy)
+@@ -1093,3 +1093,14 @@
+ ##Additional site info
+ sitegen.siteinfolist.modify = Modification date
+ sitegen.siteinfolist.usermodify = Modified by
++
++## Site Shopping Period
++shopping.header = Shopping Period Access
++shopping.public = public
++shopping.authenticated = Logged in Users
++shopping.start.label = Shopping Period Start Date
++shopping.end.label = Shopping Period End Date
++shopping.visibility.label = Shopping Period Visibility
++shopping.realm.label = Shoppers realm
++shopping.role.label = Shoppers role
++shopping.role.instructions = Shoppers have the same access as this realm/role.
+\ No newline at end of file
+Index: site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAccess.vm
+===================================================================
+--- site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAccess.vm	(revision 100298)
++++ site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAccess.vm	(working copy)
+@@ -4,6 +4,9 @@
+ <script type="text/javascript" src="/library/js/jquery/jquery-ui/js/jquery-ui.js"></script>
+ <link type="text/css" href="/library/js/jquery/jquery-ui/css/smoothness/jquery-ui.css" rel="stylesheet" media="screen" />
+ <script type="text/javascript" src="/sakai-site-manage-tool/js/site-manage.js"></script>
++#if ($hierarchy_node_id)
++	<script type="text/javascript" src="/sakai-site-manage-tool/js/site-manage-shopping.js"></script>
++#end
+ <script type="text/javascript">
+ <!-- hide from non-JS browsers
+ 	function checkPublish(checked)
+@@ -42,6 +45,8 @@
+ 			utils.resizeFrame('shrink');
+ 		}
+ 	}
++	
++	
+ // -->	
+ </script>
+ <link type="text/css" href="/sakai-site-manage-tool/css/site-manage.css" rel="stylesheet" media="screen" />
+@@ -212,12 +217,64 @@
+ 			</p>
+ 			<p/>
+ 		</div>
++
++		
++		#if ($hierarchy_node_id)
++			<!-- easy access for JS -->
++			<span id="siteId" style="display:none">$site.id</span>
++			<span id="hierarchyNodeId" style="display:none">$hierarchy_node_id</span>
++			
++			<h4>$tlang.getString("shopping.header")</h4>
++			
++			<div id="shoppingVisibilityDiv">
++			 	<label for="shoppingVisibility">$tlang.getString("shopping.visibility.label"): </label>
++				<select name="shoppingVisibility" id="shoppingVisibility">
++					<option value=".anon" #if (".anon" == $shopping_visibility) selected="selected" #end >$tlang.getString("shopping.public")</option>
++					<option value=".auth" #if (".auth" == $shopping_visibility) selected="selected" #end >$tlang.getString("shopping.authenticated")</option>
++				</select>
++			</div>
++			
++			<div id="shoppingVisibilityStartDiv">
++				<label for="shoppingVisibilityStart">$tlang.getString("shopping.start.label"): </label>
++				<input type="text" id="shoppingVisibilityStart" name="shoppingVisibilityStart" value="$shopping_visibility_start"/>
++			</div>
++			
++			<div id="shoppingVisibilityEndDiv">
++				<label for="shoppingVisibilityEnd">$tlang.getString("shopping.end.label"): </label>
++				<input type="text" id="shoppingVisibilityEnd" name="shoppingVisibilityEnd" value="$shopping_visibility_end"/>
++			</div>
++
++			<div id="shoppingRealmDiv">
++				<label for="shoppingRealm">$tlang.getString("shopping.realm.label"): </label> <span id="shoppingRealmText"></span>
++				<input type="hidden" name="shoppingRealm" id="shoppingRealm" value=""/>
++			</div>
++
++			<div id="shoppingRoleDiv">	
++				<label for="shoppingRole">$tlang.getString("shopping.role.label"): </label> <span id="shoppingRoleText"></span>
++				<input type="hidden" name="shoppingRole" id="shoppingRealm" value=""/>
++			</div>	
++
++			<!-- div id="shoppingRoleDiv">
++				<p class="instruction">$tlang.getString("shopping.role.instructions")</p>
++				<label for="shoppingRole">$tlang.getString("shopping.role.label"): </label>
++				<select id="shoppingRole" name="shoppingRole">
++					#foreach($role in $all_roles)
++						#if ($role.id.startsWith(".") == false)
++							<option value="$role.id">$role.id</option>
++						#end
++					#end
++				</select
++			-->
++			</div>
++
++		#end
+ 		<input type="hidden" name="continue" value="$!continue" />
+ 		<input type="hidden" name="back" value="$!backIndex" />
+ 		<input type="hidden" name="templateIndex" value="$!templateIndex" />
+ 		<div class ="act">
+ 			#if($!site)
+-				<input type="submit" accesskey="s" class="active" name="eventSubmit_doUpdate_site_access" value="$tlang.getString("ediacc.upd")" />
++				<input type="submit" accesskey="s" id="updateButton" 
++					class="active" name="eventSubmit_doUpdate_site_access" value="$tlang.getString("ediacc.upd")" />
+ 				<input type="submit" accesskey="x"  name="eventSubmit_doCancel" value="$tlang.getString("ediacc.bac")" />
+ #else
+ 				<input type="submit" accesskey="s" class="active" name="eventSubmit_doUpdate_site_access" value="$tlang.getString("ediacc.con")" />
+@@ -225,5 +282,7 @@
+ 				<input type="submit" accesskey="x" name="eventSubmit_doCancel_create" value="$tlang.getString("ediacc.can")" />
+ 			#end
+ 		</div>
++		
++		
+ 	</form>
+ </div>
+Index: site-manage-tool/tool/src/webapp/js/site-manage-shopping.js
+===================================================================
+--- site-manage-tool/tool/src/webapp/js/site-manage-shopping.js	(revision 0)
++++ site-manage-tool/tool/src/webapp/js/site-manage-shopping.js	(revision 0)
+@@ -0,0 +1,63 @@
++// Shopping Period JS
++$(document).ready(function(){
++
++	// Decorate the date inputs
++	$("#shoppingVisibilityStart").datepicker();
++	$("#shoppingVisibilityEnd").datepicker();
++	
++	// Get the shopping info for this site from a WS
++	$.getJSON("/direct/delegated_access/" + $('#hierarchyNodeId').html() + ".json",
++		function(response){
++            var data = response.data;
++            $('#shoppingVisibility').val(data.shoppingAuth);
++            
++            if (data.shoppingStartDate != undefined && data.shoppingStartDate != ""){
++                var shoppingStartDate = new Date(parseInt(data.shoppingStartDate));
++                $('#shoppingVisibilityStart').val($.datepicker.formatDate("mm/dd/yy", shoppingStartDate));
++            }
++            if (data.shoppingEndDate != undefined && data.shoppingEndDate != ""){
++                var shoppingEndDate = new Date(parseInt(data.shoppingEndDate));
++                $('#shoppingVisibilityEnd').val($.datepicker.formatDate("mm/dd/yy", shoppingEndDate));
++            }
++            $('#shoppingRole').val(data.shoppingRole);
++            $('#shoppingRealm').val(data.shoppingRealm);
++            
++            $('#shoppingRoleText').html(data.shoppingRole);
++            $('#shoppingRealmText').html(data.shoppingRealm);
++	    }
++	);
++	
++	// Gather the shopping variables and save them to a WS
++	$("#updateButton").click(function(){
++        try {
++            var start = $.datepicker.parseDate("mm/dd/yy", $('#shoppingVisibilityStart').val());
++            var end   = $.datepicker.parseDate("mm/dd/yy", $('#shoppingVisibilityEnd').val());
++            var data = {
++                'shoppingAuth'      : $('#shoppingVisibility option:selected').val(),
++                'shoppingStartDate' : start.getTime(),
++                'shoppingEndDate'   : end.getTime(),
++                'shoppingRealm'     : '/site/' + $('#siteId').html(),
++                'shoppingRole'      : $('#shoppingRole option:selected').val(),
++            };
++            var form = $('form[name=editParticipantForm]');
++
++            $.ajax({
++                type: 'POST',
++                url: "/direct/delegated_access/" + $('#hierarchyNodeId').html() + ".json",
++                data: data,
++                async:false,
++                success: function(data){
++                    alert("success");
++                    $(form).submit();
++                    },
++                failure: function failure(data){
++                    // TODO: internationalize
++                    alert("There was an error saving the shopping period info.");
++                    },
++                });
++        }
++        catch (error){
++            console.log(error);
++        }
++	});
++});
