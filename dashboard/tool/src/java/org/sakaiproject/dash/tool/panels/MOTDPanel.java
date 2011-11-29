@@ -89,7 +89,9 @@ public class MOTDPanel extends Panel {
 			NewsItem motd = motdList.get(0);
 			Map<String, Object> info = dashboardLogic.getEntityMapping(motd.getSourceType().getIdentifier(), motd.getEntityReference(), getLocale());
 			motdDiv.add(new Label("motdTitle", (String) info.get("title")));
-			motdDiv.add(new Label("motdText", (String) info.get("description")));
+			Label motdText = new Label("motdText", (String) info.get("description"));
+			motdText.setEscapeModelStrings(false);
+			motdDiv.add(motdText);
 		}
 		if(motdMode != MOTD_MODE_TEXT || motdList == null || motdList.isEmpty()) {
 			motdDiv.setVisibilityAllowed(false);
