@@ -320,19 +320,22 @@ function updateItemStatus(element, dashAction, itemId) {
         contentType: 'application/json',
         dataType: 'json',
         success: function(json){
-            if (dashAction ==='hide' || dashAction ==='unHide'){
-              $(element).closest('tr').fadeOut('slow');
+            if (dashAction === 'hide' || dashAction === 'unHide') {
+                $(element).closest('tr').fadeOut('slow');
+                   reportSuccess(json.message);
             }
-            else{
-               if (dashAction === 'unstar') {
-                   $(element).attr('src', '/dashboard-tool/css/img/star-inact.png');
-               }
-               else {
-                   $(element).attr('src', '/dashboard-tool/css/img/star-act.png');
-               }
-               
+            else {
+                $(element).attr('src', json.newIcon);
+                if (dashAction === 'unstar') {
+                    $(element).parent('a').attr('class', 'starThis')
+                }
+                else {
+                    $(element).parent('a').attr('class', 'unstarThis')
+                }
             }
-            reportSuccess(json.message);
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown){
+            alert("error :" + XMLHttpRequest.responseText);
         }
     });    
 }
