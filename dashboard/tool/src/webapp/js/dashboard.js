@@ -72,12 +72,12 @@ var setupMenus = function(){
 };
 
 var setupLinks = function(){
-	$(".siteLink").live("click", function(e){
-		// DO NOT CALL:  e.preventDefault();
+    $(".siteLink").live("click", function(e){
+        // DO NOT CALL:  e.preventDefault();
         var itemType = $(this).closest('tr').find('.itemType').text();
         var entityReference = $(this).closest('tr').find('.entityReference').text();
         reportEvent(e.target, entityReference, itemType, "dash.follow.site.link");
-	});
+    });
     $(".itemLink").live("click", function(e){
         e.preventDefault();
         var actionLink = "";
@@ -106,7 +106,6 @@ var setupLinks = function(){
                 'entityReference': entityReference,
                 'itemCount': itemCount
             };
-            
             if (itemCount == 1) {
                 jQuery.ajax({
                     url: callBackUrl,
@@ -186,7 +185,7 @@ var setupLinks = function(){
                                             if (json['more-info'][i]['info_link-target']) {
                                                 target = 'target=\"' + json['more-info'][i]['info_link-target'] + '\"';
                                                 if(json['more-info'][i]['info_link-target'] === '_top') {
-                                                	dashEvent = "dash.follow.tool.link";
+                                                    dashEvent = "dash.follow.tool.link";
                                                 }
                                             }
                                             if (json['more-info'][i]['info_link-size']) {
@@ -229,11 +228,11 @@ var setupLinks = function(){
                     contentType: 'application/json',
                     dataType: 'json',
                     success: function(json){
-                    	var items = json.items;
-                    	var totalCount = json.totalCount;
-                    	var count = json.count;
-                    	var offset = json.offset;
-                    	
+                        var items = json.items;
+                        var totalCount = json.totalCount;
+                        var count = json.count;
+                        var offset = json.offset;
+                        
                         var results = '<div class=\"results newList\" style=\"display:none\"><table class=\"itemCollection\" cellpadding=\"0\" cellspacing=\"0\">';
                         $(items).each(function(i){
                             var icon = "";
@@ -241,25 +240,29 @@ var setupLinks = function(){
                             var starAction = "starThis";
                             var hideIcon = "#";
                             var hideAction = "hideThis";
-                            
+                            var hideLink=""
                             if (this.iconUrl) {
                                 icon = '<img class=\"resIcon\" src=\"' + this.iconUrl + '\"/> ';
                             }
                             else {
                                 icon = '';
                             }
-                            if(this.sticky) {
-                            	starAction = "unstarThis";
-                            } else {
-                            	starAction = "starThis";
-                            }
                             if (this.hidden) {
-                            	hideAction = "showThis";
+                                hideAction = "showThis";
                             } else {
-                            	hideAction = "hideThis";
+                                hideAction = "hideThis";
                             }
+                            if(this.sticky) {
+                                starAction = "unstarThis";
+                                hideLink = '<a style=\"display:none\" class="' + hideAction + '" href="#"><img alt="[ Hide/Show This ]" src="' + this.hidingActionIcon + '" /></a>';
+                            } else {
+                                starAction = "starThis";
+                                hideLink = '<a class="' + hideAction + '" href="#"><img alt="[ Hide/Show This ]" src="' + this.hidingActionIcon + '" /></a>';
+                            }
+                            
+
                             var link = '';
-                            row = '<td class="one">\n<span class="itemType" style="display:none;">' + this.itemType + '</span>\n<span class="actionTargetId" style="display:none;">' + this.newsItemId + '</span>\n<span class="itemCount" style="display:none;">0</span>\n<span class="entityReference" style="display:none;">' + this.entityReference + '</span>\n</td>\n<td class="two date"></td>\n<td class="tab three">\n<a href="#" class="itemLink" target="_top">' + icon + ' ' + this.title + '</a><span class="itemLabel">' + this.label + '</span>\n</td>\n<td class="four"></td>\n<td class="action five">\n<a class="' + starAction + '" href="#"><img alt="[ Star/Unstar This ]" src="' + this.starringActionIcon + '" /></a>\n</td>\n<td class="action six">\n<a class="' + hideAction + '" href="#"><img alt="[ Hide/Show This ]" src="' + this.hidingActionIcon + '" /></a>\n</td>\n';
+                            row = '<td class="one">\n<span class="itemType" style="display:none;">' + this.entityType + '</span>\n<span class="actionTargetId" style="display:none;">' + this.newsItemId + '</span>\n<span class="itemCount" style="display:none;">1</span>\n<span class="entityReference" style="display:none;">' + this.entityReference + '</span>\n</td>\n<td class="two date"></td>\n<td class="tab three">\n<a href="#" class="itemLink" target="_top">' + icon + ' ' + this.title + '</a><span class="itemLabel">' + this.label + '</span>\n</td>\n<td class="four"></td>\n<td class="action five">\n<a class="' + starAction + '" href="#"><img alt="[ Star/Unstar This ]" src="' + this.starringActionIcon + '" /></a>\n</td>\n<td class="action six">\n' + hideLink +'\n</td>\n';
 
                             //if (itemType === "resource") {
                             //    row = '<td style=\"width:50%\" class=\"toggleCell resourceLink\"><a href=\"#\" class =\"itemLink\">' + icon + this.title + '</a></td><td style=\"width:50%\"><em style=\"display:none\"><span class=\"itemType\">' + itemType + '</span><span class=\"itemCount\">1</span><span class=\"entityReference\">' + this.entityReference + '</span></em><a href=\"/access' + this.entityReference + '\" target =\"_blank\">Download</a></td>';
@@ -276,20 +279,20 @@ var setupLinks = function(){
                         $('<tr class=\"newRow\"><td colspan=\"' + colCount + '\">' + results + '</td></tr>').insertAfter(parentRow);
                         // add click handlers to star and hide links
                         $('div.newList .starThis').live('click', function(e){
-                        	var targetItemId = $(e.target).closest('tr').find('.actionTargetId').text();
-                        	updateItemStatus(e.target, 'star',targetItemId);
+                            var targetItemId = $(e.target).closest('tr').find('.actionTargetId').text();
+                            updateItemStatus(e.target, 'star',targetItemId);
                         });
                         $('div.newList .unstarThis').live('click', function(e){
-                        	var targetItemId = $(e.target).closest('tr').find('.actionTargetId').text();
-                        	updateItemStatus(e.target, 'unstar',targetItemId);
+                            var targetItemId = $(e.target).closest('tr').find('.actionTargetId').text();
+                            updateItemStatus(e.target, 'unstar',targetItemId);
                         });
                         $('div.newList .hideThis').live('click', function(e){
-                        	var targetItemId = $(e.target).closest('tr').find('.actionTargetId').text();
-                        	updateItemStatus(e.target, 'hide',targetItemId);
+                            var targetItemId = $(e.target).closest('tr').find('.actionTargetId').text();
+                            updateItemStatus(e.target, 'hide',targetItemId);
                         });
                         $('div.newList .showThis').live('click', function(e){
-                        	var targetItemId = $(e.target).closest('tr').find('.actionTargetId').text();
-                        	updateItemStatus(e.target, 'show',targetItemId);
+                            var targetItemId = $(e.target).closest('tr').find('.actionTargetId').text();
+                            updateItemStatus(e.target, 'show',targetItemId);
                         });
                         $(parentRow).next('tr.newRow').find('.results').slideDown('slow', function(){
                             resizeFrame('grow');
@@ -327,10 +330,12 @@ function updateItemStatus(element, dashAction, itemId) {
             else {
                 $(element).attr('src', json.newIcon);
                 if (dashAction === 'unstar') {
-                    $(element).parent('a').attr('class', 'starThis')
+                    $(element).parent('a').attr('class', 'starThis');
+                    $(element).closest('tr').find('.hideThis').show();
                 }
                 else {
-                    $(element).parent('a').attr('class', 'unstarThis')
+                    $(element).closest('tr').find('.hideThis').hide();
+                    $(element).parent('a').attr('class', 'unstarThis');
                 }
             }
         },
@@ -358,7 +363,7 @@ function reportEvent(element, entityRef, entityType, dashEvent) {
         success: function(json){
         }
     });
-	
+    
 }
 
 function get_type(thing){
