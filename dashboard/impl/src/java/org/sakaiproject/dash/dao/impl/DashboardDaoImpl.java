@@ -72,6 +72,8 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	}
 	
 	protected PropertiesConfiguration statements;
+
+	protected String databaseVendor;
 	
 	public boolean addAvailabilityCheck(AvailabilityCheck availabilityCheck) {
 		if(log.isDebugEnabled()) {
@@ -1307,7 +1309,13 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return new ArrayList<NewsLink>();
 		}
 		String sql = getStatement("select.NewsLinks.by.sakaiId.groupId.paged");
-		Object[] params = new Object[]{sakaiUserId, groupId, limit, offset};
+		
+		Object[] params = null;
+		if("oracle".equalsIgnoreCase(this.databaseVendor)) {
+			params = new Object[]{sakaiUserId, groupId, offset + limit, offset};
+		} else {
+			params = new Object[]{sakaiUserId, groupId, limit, offset};
+		}
 		try {
 			return (List<NewsLink>) getJdbcTemplate().query(sql,params,
 				new NewsLinkMapper()
@@ -1789,10 +1797,10 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		log.info("init()");
 		
 		//setup the vendor
-		String vendor = serverConfigurationService.getString("vendor@org.sakaiproject.db.api.SqlService", null);
+		this.databaseVendor = serverConfigurationService.getString("vendor@org.sakaiproject.db.api.SqlService", null);
 		
 		//initialise the statements
-		initStatements(vendor);
+		initStatements(databaseVendor);
 		
 		//setup tables if we have auto.ddl enabled.
 		boolean autoddl = serverConfigurationService.getBoolean("auto.ddl", true);
