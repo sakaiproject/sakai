@@ -119,20 +119,15 @@ public class DashboardPage extends BasePage {
 						
 						Map<String,Object> results = new HashMap<String,Object>();
 						results.put("totalCount", totalItems);
-						List<NewsLink> items = null;
 						if(offset > totalItems) {
 							results.put("items", new ArrayList<NewsLink>());
 							results.put("count", 0);
 						} else {
-							items = dashboardLogic.getNewsLinksByGroupId(sakaiUserId, entityReference, limit, offset);
+							List<NewsLink> items = dashboardLogic.getNewsLinksByGroupId(sakaiUserId, entityReference, limit, offset);
 							results.put("items", items);
 							results.put("count", items.size());
 						}
-						if(totalItems > offset) {
-							results.put("offset", offset);
-						} else {
-							results.put("offset", 0);
-						}
+						results.put("offset", offset);
 						
 						JsonHelper jsonHelper = new JsonHelper(dashboardLogic, dashboardConfig);
 						String jsonString = jsonHelper.getJsonObjectFromMap(results).toString();
