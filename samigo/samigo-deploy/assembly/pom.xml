@@ -58,6 +58,10 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math</artifactId>
+        </dependency>
+        <dependency>
             <groupId>OKI</groupId>
             <artifactId>OkiOSID</artifactId>
         </dependency>
