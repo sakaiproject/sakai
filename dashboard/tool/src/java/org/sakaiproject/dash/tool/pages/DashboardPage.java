@@ -200,6 +200,8 @@ public class DashboardPage extends BasePage {
 					message = rl.getString("dash.ajax.failed");
 					success = false;
 				}
+				
+				String newIcon = null;
 
 				if(itemId < 1 || action == null || action.trim().equals("")) {
 					logger.error("invalid values found " + action + " " + itemId);
@@ -214,6 +216,7 @@ public class DashboardPage extends BasePage {
 						}
 						if(success) {
 							message = rl.getString("dash.ajax.star.success");
+							newIcon = dashboardConfig.getActionIcon(DashboardConfig.ACTION_UNSTAR);
 						} else {
 							message = rl.getString("dash.ajax.star.failed");
 						}
@@ -226,6 +229,7 @@ public class DashboardPage extends BasePage {
 						}
 						if(success) {
 							message = rl.getString("dash.ajax.unstar.success");
+							newIcon = dashboardConfig.getActionIcon(DashboardConfig.ACTION_STAR);
 						} else {
 							message = rl.getString("dash.ajax.unstar.failed");
 						}
@@ -260,6 +264,9 @@ public class DashboardPage extends BasePage {
                 Map<String,Object> results = new HashMap<String,Object>();
                 results.put("message", message);
                 results.put("success", Boolean.valueOf(success));
+                if(newIcon != null) {
+                	results.put("newIcon", newIcon);
+                }
                 String jsonString = getJsonStringFromMap(results);
                 logger.debug("Returning JSON:\n" + jsonString);
                 IRequestTarget t = new StringRequestTarget("application/json", "UTF-8", jsonString);
