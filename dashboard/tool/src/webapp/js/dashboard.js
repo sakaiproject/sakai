@@ -229,8 +229,13 @@ var setupLinks = function(){
                     contentType: 'application/json',
                     dataType: 'json',
                     success: function(json){
+                    	var items = json.items;
+                    	var totalCount = json.totalCount;
+                    	var count = json.count;
+                    	var offset = json.offset;
+                    	
                         var results = '<div class=\"results newList\" style=\"display:none\"><table class=\"itemCollection\" cellpadding=\"0\" cellspacing=\"0\">';
-                        $(json).each(function(i){
+                        $(items).each(function(i){
                             var icon = "";
                             var starIcon = "#";
                             var starAction = "starThis";

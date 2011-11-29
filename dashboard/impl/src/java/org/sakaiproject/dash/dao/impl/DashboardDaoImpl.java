@@ -1141,29 +1141,6 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 	
-	public List<NewsLink> getNewsLinksByGroupId(String sakaiUserId,
-			String groupId, int pageSize, int pageNumber) {
-		List<NewsItem> items = null;
-		if(log.isDebugEnabled()) {
-			log.debug("getNewsItemsByGroupId(" + sakaiUserId + "," + groupId + "," + pageSize + "," + pageNumber + ")");
-		}
-		if(sakaiUserId == null || groupId == null) {
-			return new ArrayList<NewsLink>();
-		}
-		String sql = getStatement("select.NewsLinks.by.sakaiId.groupId.paged");
-		Object[] params = new Object[]{sakaiUserId, groupId, pageSize, pageNumber * pageSize};
-		try {
-			return (List<NewsLink>) getJdbcTemplate().query(sql,params,
-				new NewsLinkMapper()
-			);
-		} catch (DataAccessException ex) {
-           log.error("getNewsItemsByGroupId: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return new ArrayList<NewsLink>();
-		}
-	}
-
-
-
 	/*
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#getNewsItemsByContext(java.lang.String)
@@ -1298,6 +1275,45 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 		} catch (DataAccessException ex) {
            log.error("getHiddenNewsLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return new ArrayList<NewsLink>();
+		}
+	}
+
+	public int countNewsLinksByGroupId(String sakaiUserId, String groupId) {
+		if(log.isDebugEnabled()) {
+			log.debug("getNewsItemsByGroupId(" + sakaiUserId + "," + groupId + ")");
+		}
+		if(sakaiUserId == null || groupId == null) {
+			return 0;
+		}
+		String sql = getStatement("count.NewsLinks.by.sakaiId.groupId");
+		Object[] params = new Object[]{sakaiUserId, groupId};
+		try {
+			return getJdbcTemplate().queryForInt(sql,params);
+		} catch (DataAccessException ex) {
+           log.error("getNewsItemsByGroupId: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return 0;
+		}
+	}
+
+	
+	public List<NewsLink> getNewsLinksByGroupId(String sakaiUserId,
+			String groupId, int limit, int offset) {
+		List<NewsItem> items = null;
+		if(log.isDebugEnabled()) {
+			log.debug("getNewsItemsByGroupId(" + sakaiUserId + "," + groupId + "," + limit + "," + offset + ")");
+		}
+		if(sakaiUserId == null || groupId == null) {
+			return new ArrayList<NewsLink>();
+		}
+		String sql = getStatement("select.NewsLinks.by.sakaiId.groupId.paged");
+		Object[] params = new Object[]{sakaiUserId, groupId, limit, offset};
+		try {
+			return (List<NewsLink>) getJdbcTemplate().query(sql,params,
+				new NewsLinkMapper()
+			);
+		} catch (DataAccessException ex) {
+           log.error("getNewsItemsByGroupId: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return new ArrayList<NewsLink>();
 		}
 	}

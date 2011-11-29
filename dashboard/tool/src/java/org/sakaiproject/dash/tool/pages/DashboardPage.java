@@ -2,6 +2,7 @@ package org.sakaiproject.dash.tool.pages;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -79,6 +80,7 @@ public class DashboardPage extends BasePage {
                 String entityReference = null;
                 String entityType = null;
                 int itemCount = 0;
+                int offset = -1;
                 String dashEvent = null;
                 try {
                    BufferedReader br = hsr.getReader();
@@ -97,7 +99,7 @@ public class DashboardPage extends BasePage {
                        entityType = jsonObject.optString("entityType", "");
                        itemCount = jsonObject.optInt("itemCount", 1);
                        dashEvent = jsonObject.optString("dashEvent", "");
-
+                       offset = jsonObject.optInt("offset", -1);
                    }
                    
 
@@ -108,12 +110,32 @@ public class DashboardPage extends BasePage {
                 Locale locale = hsr.getLocale();
  				if(entityReference != null && ! entityReference.trim().equals("") && entityType != null && ! entityType.trim().equals("")) {
  					if(itemCount > 1) {
- 						int pageSize = dashboardConfig.getConfigValue(DashboardConfig.PROP_DEFAULT_ITEMS_IN_DISCLOSURE, 20);
- 						int pageNumber = 0;
+ 						int limit = dashboardConfig.getConfigValue(DashboardConfig.PROP_DEFAULT_ITEMS_IN_DISCLOSURE, 20);
+ 						if(offset < 0) {
+ 							offset = 0;
+ 						}
  						String sakaiUserId = sakaiProxy.getCurrentUserId();
-						List<NewsLink> items = dashboardLogic.getNewsLinksByGroupId(sakaiUserId, entityReference, pageSize, pageNumber);
+						int totalItems = dashboardLogic.countNewsLinksByGroupId(sakaiUserId, entityReference);
+						
+						Map<String,Object> results = new HashMap<String,Object>();
+						results.put("totalCount", totalItems);
+						List<NewsLink> items = null;
+						if(offset > totalItems) {
+							results.put("items", new ArrayList<NewsLink>());
+							results.put("count", 0);
+						} else {
+							items = dashboardLogic.getNewsLinksByGroupId(sakaiUserId, entityReference, limit, offset);
+							results.put("items", items);
+							results.put("count", items.size());
+						}
+						if(totalItems > offset) {
+							results.put("offset", offset);
+						} else {
+							results.put("offset", 0);
+						}
+						
 						JsonHelper jsonHelper = new JsonHelper(dashboardLogic, dashboardConfig);
-						String jsonString = jsonHelper.getJsonArrayFromList(items).toString();
+						String jsonString = jsonHelper.getJsonObjectFromMap(results).toString();
 		                logger.debug("Returning JSON:\n" + jsonString);
 		                IRequestTarget t = new StringRequestTarget("application/json", "UTF-8", jsonString);
 		                getRequestCycle().setRequestTarget(t);

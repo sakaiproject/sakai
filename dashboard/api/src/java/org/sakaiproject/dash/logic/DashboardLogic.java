@@ -209,8 +209,10 @@ public interface DashboardLogic {
 	
 	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId, boolean saved, boolean hidden);
 	
+	public int countNewsLinksByGroupId(String sakaiUserId, String entityReference);
+
 	public List<NewsLink> getNewsLinksByGroupId(String sakaiUserId,
-			String groupId, int pageSize, int pageNumber);
+			String groupId, int limit, int offset);
 	
 	public NewsLink getNewsLink(Long id);
 

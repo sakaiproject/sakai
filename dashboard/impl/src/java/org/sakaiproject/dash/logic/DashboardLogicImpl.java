@@ -26,7 +26,6 @@ import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -554,9 +553,15 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return dao.getNewsItems(sakaiUserId, null, saved, hidden);
 	}
 	
+	public int countNewsLinksByGroupId(String sakaiUserId,
+			String groupId) {
+		// TODO Auto-generated method stub
+		return dao.countNewsLinksByGroupId(sakaiUserId,groupId);
+	}
+	
 	public List<NewsLink> getNewsLinksByGroupId(String sakaiUserId,
-			String groupId, int pageSize, int pageNumber) {
-		return dao.getNewsLinksByGroupId(sakaiUserId, groupId, pageSize, pageNumber);
+			String groupId, int limit, int offset) {
+		return dao.getNewsLinksByGroupId(sakaiUserId, groupId, limit, offset);
 	}
 	
 	public NewsLink getNewsLink(Long id) {
