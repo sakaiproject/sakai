@@ -739,11 +739,11 @@ public class CalendarLinksPanel extends Panel {
 				} else if(TAB_ID_PAST.equals(this.calendarTabId) ) {
 					calendarLinks = dashboardLogic.getPastCalendarLinks(sakaiId, siteId, false);
 				} else if(TAB_ID_HIDDEN.equals(this.calendarTabId) && sakaiProxy.isWorksite(siteId)) {
-					calendarLinks = dashboardLogic.getFutureCalendarLinks(sakaiId, siteId, true);
+					calendarLinks = dashboardLogic.getFutureCalendarLinks(sakaiId, null, true);
 				} else if(TAB_ID_HIDDEN.equals(this.calendarTabId)) {
 					calendarLinks = dashboardLogic.getFutureCalendarLinks(sakaiId, siteId, true);
 				} else if(TAB_ID_PAST_HIDDEN.equals(this.calendarTabId) && sakaiProxy.isWorksite(siteId)) {
-					calendarLinks = dashboardLogic.getPastCalendarLinks(sakaiId, siteId, false);
+					calendarLinks = dashboardLogic.getPastCalendarLinks(sakaiId, null, false);
 				} else {
 					calendarLinks = dashboardLogic.getPastCalendarLinks(sakaiId, siteId, false);
 				} 
