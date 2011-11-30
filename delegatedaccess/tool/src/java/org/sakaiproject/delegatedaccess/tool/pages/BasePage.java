@@ -17,8 +17,6 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
 import org.sakaiproject.delegatedaccess.logic.SakaiProxy;
-import org.sakaiproject.delegatedaccess.model.SearchResult;
-import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 
 
 
@@ -70,7 +68,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		secondLink = new Link<Void>("secondLink") {
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
-				setResponsePage(new ShoppingPeriodPage());
+				setResponsePage(new ShoppingEditPage());
 			}
 			@Override
 			public boolean isVisible() {
@@ -152,10 +150,10 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		response.renderString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");
 		//response.renderCSSReference("css/my_tool_styles.css");
 		//response.renderJavascriptReference("js/my_tool_javascript.js");
-		
+
 		//for jQuery
 		response.renderJavascriptReference("/library/js/jquery-latest.min.js");
-			
+
 		//for datepicker
 		response.renderCSSReference("css/flora.datepicker.css");
 		response.renderJavascriptReference("javascript/jquery.ui.core-1.5.2.min.js");

@@ -56,7 +56,7 @@ public class EditablePanelCheckbox extends Panel
 					return true;
 				}
 			}
-			
+
 		};
 		add(field);
 
@@ -64,15 +64,15 @@ public class EditablePanelCheckbox extends Panel
 		{
 			protected void onUpdate(AjaxRequestTarget target)
 			{
-					//In order for the models to refresh, you have to call "expand" or "collapse" then "updateTree",
-					//since I don't want to expand or collapse, I just call whichever one the node is already
-					//Refreshing the tree will update all the models and information (like role) will be generated onClick
-					if(((BaseTreePage)target.getPage()).getTree().getTreeState().isNodeExpanded(node)){
-						((BaseTreePage)target.getPage()).getTree().getTreeState().expandNode(node);
-					}else{
-						((BaseTreePage)target.getPage()).getTree().getTreeState().collapseNode(node);
-					}
-					((BaseTreePage)target.getPage()).getTree().updateTree(target);
+				//In order for the models to refresh, you have to call "expand" or "collapse" then "updateTree",
+				//since I don't want to expand or collapse, I just call whichever one the node is already
+				//Refreshing the tree will update all the models and information (like role) will be generated onClick
+				if(((BaseTreePage)target.getPage()).getTree().getTreeState().isNodeExpanded(node)){
+					((BaseTreePage)target.getPage()).getTree().getTreeState().expandNode(node);
+				}else{
+					((BaseTreePage)target.getPage()).getTree().getTreeState().collapseNode(node);
+				}
+				((BaseTreePage)target.getPage()).getTree().updateTree(target);
 			}
 		});
 	}

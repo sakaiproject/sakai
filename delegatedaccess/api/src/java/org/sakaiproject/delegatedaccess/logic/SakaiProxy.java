@@ -96,13 +96,6 @@ public interface SakaiProxy {
 	 */
 	public Site getSiteByRef(String siteRef);
 
-	/**
-	 * Returns the site for the site id
-	 * 
-	 * @param siteId
-	 * @return
-	 */
-	public Site getSiteById(String siteId);
 
 	/**
 	 * Save a Sakai site via the SiteService.
@@ -181,9 +174,19 @@ public interface SakaiProxy {
 	public void copyNewRole(String siteRef, String copyRealm, String copyRole,
 			String newRole);
 
-	
+
+	/**
+	 * Adds a security advisor to allow site.update
+	 * 
+	 * @return
+	 */
 	public SecurityAdvisor addSiteUpdateSecurityAdvisor();
-	
+
+	/**
+	 * pops the site.update security advisor
+	 * 
+	 * @param advisor
+	 */
 	public void popSecurityAdvisor(SecurityAdvisor advisor);
-	
+
 }

@@ -93,9 +93,9 @@ public class UserEditPage  extends BaseTreePage{
 				new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 70, Unit.PX), new StringResourceModel("shoppingPeriodAdmin", null).getString(), "userObject.shoppingPeriodAdmin", DelegatedAccessConstants.TYPE_SHOPPING_PERIOD_ADMIN),
 				new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 55, Unit.PX), new StringResourceModel("siteAccess", null).getString(), "userObject.directAccess", DelegatedAccessConstants.TYPE_ACCESS),
 				new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.RIGHT, 360, Unit.PX), new StringResourceModel("userBecomes", null).getString(),
-					"userObject.realmModel", realmMap, DelegatedAccessConstants.TYPE_ACCESS),
-				new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 96, Unit.PX), new StringResourceModel("restrictedToolsHeader", null).getString(),
-					"userObject.restrictedTools", DelegatedAccessConstants.TYPE_ACCESS),
+						"userObject.realmModel", realmMap, DelegatedAccessConstants.TYPE_ACCESS),
+						new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 96, Unit.PX), new StringResourceModel("restrictedToolsHeader", null).getString(),
+								"userObject.restrictedTools", DelegatedAccessConstants.TYPE_ACCESS),
 		};
 
 		final TreeModel treeModel = projectLogic.createEntireTreeModelForUser(searchResult.getId(), true, false);

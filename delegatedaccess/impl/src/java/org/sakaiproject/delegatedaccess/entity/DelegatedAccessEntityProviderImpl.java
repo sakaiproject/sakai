@@ -24,11 +24,18 @@ import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 
+/**
+ * This is the RESTful service for the Shopping Period Admin.  This allows an instructor to
+ * update their own shopping period information through site-manage
+ * 
+ * @author Bryan Holladay (holladay@longsight.com)
+ *
+ */
 public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityProvider, CoreEntityProvider, AutoRegisterEntityProvider, PropertyProvideable, RequestStorable, RESTful, RequestAware {
-	
+
 	@Getter @Setter
 	private ProjectLogic projectLogic;
-	
+
 	public String getEntityPrefix() {
 		return ENTITY_PREFIX;
 	}
@@ -38,7 +45,7 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		return node != null && !"".equals(node.id);
 	}
 
-	
+
 	public String getPropertyValue(String reference, String name) {
 		return getProperties(reference).get(name);
 	}
@@ -55,13 +62,13 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		valuesMap.put("shoppingEndDate", Long.toString(node.getNodeShoppingPeriodEndDate().getTime()));
 		valuesMap.put("shoppingRealm", node.getNodeAccessRealmRole()[0]);
 		valuesMap.put("shoppingRole", node.getNodeAccessRealmRole()[1]);
-		
+
 		return valuesMap;
 	}
 
 	public void setPropertyValue(String reference, String name, String value) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public List<String> findEntityRefs(String[] prefixes, String[] name,
@@ -84,7 +91,7 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 	public void updateEntity(EntityReference ref, Object entity,
 			Map<String, Object> params) {
 		//TODO: verify user's credentials:
-		
+
 		String nodeId = ref.getId();
 		String shoppingAuth = (String) params.get("shoppingAuth");
 		String shoppingStartDateStr = (String) params.get("shoppingStartDate");
@@ -125,7 +132,7 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 			//user is adding/updating information, so make sure direct access is true
 			node.setDirectAccess(true);
 		}
-		
+
 		projectLogic.updateNodePermissionsForUser(node, DelegatedAccessConstants.SHOPPING_PERIOD_USER);
 	}
 
@@ -148,7 +155,7 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 
 	public void deleteEntity(EntityReference ref, Map<String, Object> params) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public List<?> getEntities(EntityReference ref, Search search) {
@@ -167,11 +174,11 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 
 	public void setRequestGetter(RequestGetter requestGetter) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	public void setRequestStorage(RequestStorage requestStorage) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

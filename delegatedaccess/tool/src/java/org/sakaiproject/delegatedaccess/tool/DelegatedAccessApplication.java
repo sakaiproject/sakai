@@ -9,9 +9,16 @@ import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
-import org.sakaiproject.delegatedaccess.tool.pages.ShoppingPage;
+import org.sakaiproject.delegatedaccess.tool.pages.UserPage;
 
-public class ShoppingApplication  extends WebApplication {    
+
+/**
+ * Main application class for delegated access
+ * 
+ * @author Bryan Holladay (holladay@longsight.com)
+ *
+ */
+public class DelegatedAccessApplication extends WebApplication {    
 
 	/**
 	 * Configure your app here
@@ -33,8 +40,8 @@ public class ShoppingApplication  extends WebApplication {
 		getMarkupSettings().setDefaultAfterDisabledLink(null);
 
 		// On Wicket session timeout, redirect to main page
-		getApplicationSettings().setPageExpiredErrorPage(ShoppingPage.class);
-		getApplicationSettings().setAccessDeniedPage(ShoppingPage.class);
+		getApplicationSettings().setPageExpiredErrorPage(UserPage.class);
+		getApplicationSettings().setAccessDeniedPage(UserPage.class);
 
 		//to put this app into deployment mode, see web.xml
 
@@ -60,16 +67,18 @@ public class ShoppingApplication  extends WebApplication {
 	 * 
 	 * @see org.apache.wicket.Application#getHomePage()
 	 */
-	public Class<ShoppingPage> getHomePage() {
-		return ShoppingPage.class;
+	public Class<UserPage> getHomePage() {
+		return UserPage.class;
 	}
 
 
 	/**
 	 * Constructor
 	 */
-	public ShoppingApplication()
+	public DelegatedAccessApplication()
 	{
 	}
+
+
 
 }

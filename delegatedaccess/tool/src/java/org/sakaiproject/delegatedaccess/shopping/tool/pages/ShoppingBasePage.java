@@ -1,4 +1,4 @@
-package org.sakaiproject.delegatedaccess.tool.pages;
+package org.sakaiproject.delegatedaccess.shopping.tool.pages;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
@@ -17,7 +17,14 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
 import org.sakaiproject.delegatedaccess.logic.SakaiProxy;
+import org.sakaiproject.delegatedaccess.tool.pages.BasePage;
 
+/**
+ * This is the base page for the shopping period tool
+ * 
+ * @author Bryan Holladay (holladay@longsight.com)
+ *
+ */
 public class ShoppingBasePage  extends WebPage implements IHeaderContributor {
 
 	private static final Logger log = Logger.getLogger(BasePage.class); 
@@ -106,10 +113,10 @@ public class ShoppingBasePage  extends WebPage implements IHeaderContributor {
 		response.renderString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");
 		//response.renderCSSReference("css/my_tool_styles.css");
 		//response.renderJavascriptReference("js/my_tool_javascript.js");
-		
+
 		//for jQuery
 		response.renderJavascriptReference("/library/js/jquery-latest.min.js");
-			
+
 		//for datepicker
 		response.renderCSSReference("css/flora.datepicker.css");
 		response.renderJavascriptReference("javascript/jquery.ui.core-1.5.2.min.js");

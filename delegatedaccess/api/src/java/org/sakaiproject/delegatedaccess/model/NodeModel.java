@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -71,7 +70,7 @@ public class NodeModel implements Serializable {
 		this.updatedDate = updatedDate;
 		this.processedDate = processedDate;
 	}
-	
+
 	private List<ToolSerialized> copyRestrictedTools(List<ToolSerialized> tools){
 		List<ToolSerialized> returnList = new ArrayList<ToolSerialized>();
 		for(ToolSerialized tool : tools){
@@ -79,7 +78,7 @@ public class NodeModel implements Serializable {
 		}
 		return returnList;
 	}
-	
+
 	public String getNodeId() {
 		return nodeId;
 	}
@@ -116,7 +115,7 @@ public class NodeModel implements Serializable {
 		if(directAccessOrig != directAccess){
 			return true;
 		}
-		
+
 		if(shoppingPeriodAdmin != shoppingPeriodAdminOrig){
 			return true;
 		}
@@ -158,17 +157,17 @@ public class NodeModel implements Serializable {
 
 
 
-			
+
 
 			if(isRestrictedToolsModified()){
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
-	
+
+
 	private boolean isRestrictedToolsModified(){
 		for(ToolSerialized origTool : restrictedToolsOrig){
 			for(ToolSerialized tool : restrictedTools){
@@ -213,7 +212,7 @@ public class NodeModel implements Serializable {
 			return myAccessRealmRole;
 		}
 	}
-	
+
 	public String getNodeShoppingPeriodAuth(){
 		if(getShoppingPeriodAuth() != null && !"".equals(getShoppingPeriodAuth()) && !"none".equals(getShoppingPeriodAuth())){
 			return getShoppingPeriodAuth();
@@ -229,7 +228,7 @@ public class NodeModel implements Serializable {
 			return getInheritedShoppingPeriodStartDate();
 		}
 	}
-	
+
 	public Date getNodeShoppingPeriodEndDate(){
 		if(getShoppingPeriodEndDate() != null){
 			return getShoppingPeriodEndDate();
@@ -237,7 +236,7 @@ public class NodeModel implements Serializable {
 			return getInheritedShoppingPeriodEndDate();
 		}
 	}
-	
+
 	public String[] getInheritedAccessRealmRole(){
 		return getInheritedAccessRealmRoleHelper(parentNode);
 	}
@@ -254,11 +253,11 @@ public class NodeModel implements Serializable {
 			return getInheritedAccessRealmRoleHelper(parent.getParentNode());
 		}
 	}
-	
+
 	public Date getInheritedShoppingPeriodEndDate(){
 		return 	getInheritedShoppingPeriodEndDateHelper(parentNode);
 	}
-	
+
 	private Date getInheritedShoppingPeriodEndDateHelper(NodeModel parent){
 		if(parent == null){
 			return null;
@@ -268,7 +267,7 @@ public class NodeModel implements Serializable {
 			return getInheritedShoppingPeriodEndDateHelper(parent.getParentNode());
 		}
 	}
-	
+
 	public Date getInheritedShoppingPeriodStartDate(){
 		return getInheritedShoppingPeriodStartDateHelper(parentNode);
 	}
@@ -282,11 +281,11 @@ public class NodeModel implements Serializable {
 			return getInheritedShoppingPeriodStartDateHelper(parent.getParentNode());
 		}
 	}
-	
+
 	public String getInheritedShoppingPeriodAuth(){
 		return getInheritedShoppingPeriodAuthHelper(parentNode);
 	}
-	
+
 	private String getInheritedShoppingPeriodAuthHelper(NodeModel parent){
 		if(parent == null){
 			return "";
@@ -296,7 +295,7 @@ public class NodeModel implements Serializable {
 			return getInheritedShoppingPeriodAuthHelper(parent.getParentNode());
 		}
 	}
-	
+
 	public NodeModel getParentNode() {
 		return parentNode;
 	}
@@ -400,7 +399,7 @@ public class NodeModel implements Serializable {
 	public Date getUpdatedDate() {
 		return updatedDate;
 	}
-	
+
 	public Date getNodeUpdatedDate(){
 		if(updatedDate != null){
 			return updatedDate;
@@ -408,11 +407,11 @@ public class NodeModel implements Serializable {
 			return getInheritedUpdatedDate();
 		}
 	}
-	
+
 	public Date getInheritedUpdatedDate(){
 		return 	getInheritedUpdatedDateHelper(parentNode);
 	}
-	
+
 	private Date getInheritedUpdatedDateHelper(NodeModel parent){
 		if(parent == null){
 			return null;
@@ -442,7 +441,7 @@ public class NodeModel implements Serializable {
 	public void setShoppingPeriodAdmin(boolean shoppingPeriodAdmin) {
 		this.shoppingPeriodAdmin = shoppingPeriodAdmin;
 	}
-	
+
 	public boolean getNodeShoppingPeriodAdmin(){
 		if(isShoppingPeriodAdmin()){
 			return true;
@@ -450,11 +449,11 @@ public class NodeModel implements Serializable {
 			return getInheritedShoppingPeriodAdmin();
 		}
 	}
-	
+
 	public boolean getInheritedShoppingPeriodAdmin(){
 		return getInheritedShoppingPeriodAdminHelper(parentNode);
 	}
-	
+
 	private boolean getInheritedShoppingPeriodAdminHelper(NodeModel parent){
 		if(parent == null){
 			return false;

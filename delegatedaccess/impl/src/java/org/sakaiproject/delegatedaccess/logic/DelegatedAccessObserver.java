@@ -10,7 +10,6 @@ import org.apache.log4j.Logger;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
-import org.sakaiproject.tool.api.SessionManager;
 
 /**
  * This is an Observer for Delegated Access.  It listens for a user to login and checks

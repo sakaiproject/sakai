@@ -73,11 +73,22 @@ public interface ProjectLogic {
 	 */
 
 	public TreeModel createAccessTreeModelForUser(String userId, boolean addDirectChildren, boolean cascade);
-	
+
+	/**
+	 * This returns the shopping tree model in the shopping period hierarchy.
+	 * @return
+	 */
 	public TreeModel getTreeModelForShoppingPeriod();
 
+	/**
+	 * This returns a full tree model for a user.  It will reference both their access and shopping period admin permissions.
+	 * @param userId
+	 * @param addDirectChildren
+	 * @param cascade
+	 * @return
+	 */
 	public TreeModel createEntireTreeModelForUser(String userId, boolean addDirectChildren, boolean cascade);
-	
+
 	/**
 	 * returns the tree model that looks up the shopping period information for the sites the user has access to
 	 * 
@@ -85,7 +96,7 @@ public interface ProjectLogic {
 	 * @return
 	 */
 	public TreeModel createTreeModelForShoppingPeriod(String userId);
-	
+
 	/**
 	 * Adds children node to a node that hasn't had it's children populated.  This is used to increase the efficiency
 	 * of the tree so you can create the structure on the fly with ajax
@@ -96,35 +107,37 @@ public interface ProjectLogic {
 	 * @return
 	 */
 	public boolean addChildrenNodes(Object node, String userId, List<ToolSerialized> blankRestrictedTools);
-		
+
 	/**
 	 * returns a blank (unselected) list of all the tool options for restricting tools
 	 * @return
 	 */
 	public List<ToolSerialized> getEntireToolsList();
-	
-	
-	public NodeModel getNodeModel(String nodeId, String userId);
-	
-	public HierarchyNodeSerialized getNode(String id);
-	
+
+
 	/**
-	 * Store a permission on a hierarchy node
+	 * This will return a fully instantiated NodeModel for that user and id.  It will look up it's parents nodes and instantiate
+	 * them as well.
+	 * 
+	 * @param nodeId
+	 * @param userId
+	 * @return
+	 */
+	public NodeModel getNodeModel(String nodeId, String userId);
+
+	/**
+	 * returns a HierarchyNodeSerialized node
+	 * @param id
+	 * @return
+	 */
+	public HierarchyNodeSerialized getNode(String id);
+
+
+	/**
+	 * This returns the entire tree plus any permissions set for a user
 	 * 
 	 * @param userId
-	 *            the id of the user being granted a permission
-	 * @param nodeId
-	 *            the id of the hierarchy node
-	 * @param perm
-	 *            the permission name
-	 * @param cascade
-	 *            cascade down to child nodes
+	 * @return
 	 */
-	public void assignUserNodePerm(String userId, String nodeId, String perm,
-			boolean cascade);
-	
-	
-	public Date getShoppingPeriodProccessedDate(String userId, String nodeId);
-	
 	public TreeModel getEntireTreePlusUserPerms(String userId);
 }

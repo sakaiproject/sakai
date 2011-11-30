@@ -36,7 +36,7 @@ public class EditablePanelList  extends Panel
 	private NodeModel nodeModel;
 	private TreeNode node;
 	private List<ToolSerialized> localToolList = null;
-	
+
 	public EditablePanelList(String id, IModel inputModel, final NodeModel nodeModel, final TreeNode node, final int type)
 	{
 		super(id);
@@ -86,7 +86,7 @@ public class EditablePanelList  extends Panel
 			public boolean isVisible() {
 				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
 					return (!nodeModel.isDirectAccess() && nodeModel.getInheritedRestrictedTools() != null && !nodeModel.getInheritedRestrictedTools().isEmpty())
-								|| (!nodeModel.getNodeShoppingPeriodAdmin() && nodeModel.getNodeRestrictedTools().length > 0);
+					|| (!nodeModel.getNodeShoppingPeriodAdmin() && nodeModel.getNodeRestrictedTools().length > 0);
 				}else{
 					return !nodeModel.isDirectAccess() && nodeModel.getInheritedRestrictedTools() != null && !nodeModel.getInheritedRestrictedTools().isEmpty();
 				}
@@ -252,7 +252,7 @@ public class EditablePanelList  extends Panel
 			public boolean isVisible() {
 				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
 					return (nodeModel.getInheritedRestrictedTools() != null && !nodeModel.getInheritedRestrictedTools().isEmpty())
-								|| (!nodeModel.getNodeShoppingPeriodAdmin() && nodeModel.getNodeRestrictedTools().length > 0);
+					|| (!nodeModel.getNodeShoppingPeriodAdmin() && nodeModel.getNodeRestrictedTools().length > 0);
 				}else{
 					return nodeModel.getInheritedRestrictedTools() != null && !nodeModel.getInheritedRestrictedTools().isEmpty();
 				}
@@ -264,11 +264,11 @@ public class EditablePanelList  extends Panel
 			public boolean isVisible() {
 				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
 					return (nodeModel.getNodeShoppingPeriodAdmin() && (nodeModel.getInheritedRestrictedTools() == null || nodeModel.getInheritedRestrictedTools().isEmpty()))
-								|| (!nodeModel.getNodeShoppingPeriodAdmin() && nodeModel.getNodeRestrictedTools().length == 0);
+					|| (!nodeModel.getNodeShoppingPeriodAdmin() && nodeModel.getNodeRestrictedTools().length == 0);
 				}else{
 					return nodeModel.getInheritedRestrictedTools() == null || nodeModel.getInheritedRestrictedTools().isEmpty();
 				}
-				
+
 			};
 		};
 		inheritedSpan.add(noInheritedToolsLabel);

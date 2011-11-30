@@ -48,5 +48,5 @@ public class DelegatedAccessConstants {
 	public static final String SITE_PROP_RESTRICTED_TOOLS = "shopping-period-restricted-tools";
 	public static final String PROP_TOOL_LIST = "delegatedaccess.toolslist";
 	public static final String PROP_TOOL_LIST_TEMPLATE = "delegatedaccess.toolslist.sitetype";
-		
+
 }

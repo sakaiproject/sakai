@@ -25,7 +25,6 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.hierarchy.HierarchyService;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -72,7 +71,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 	@Getter @Setter
 	private ToolManager toolManager;
-	
+
 	/**
 	 * init - perform any actions required here for when this bean starts up
 	 */
@@ -190,16 +189,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return site;
 	}
 
-	public Site getSiteById(String siteId){
-		Site site = null;
-		try {
-			site = siteService.getSite(siteId);
-		} catch (IdUnusedException e) {
-			log.error(e);
-		}
-		return site;
-	}
-	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -287,7 +276,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 			securityService.pushAdvisor(yesMan);
 		}
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -302,18 +291,18 @@ public class SakaiProxyImpl implements SakaiProxy {
 		try {
 			// become admin
 			securityService.pushAdvisor(yesMan);
-			
+
 			// Get the source realm and role
 			AuthzGroup sourceGroup = authzGroupService.getAuthzGroup(copyRealm);
 			Role copyFromRole = sourceGroup.getRole(copyRole);
-			
+
 			// Copy the role to the dest role 
 			AuthzGroup destGroup = authzGroupService.getAuthzGroup(siteRef);
 			destGroup.removeRole(newRole);
 			authzGroupService.save(destGroup);
 			destGroup.addRole(newRole, copyFromRole);
 			authzGroupService.save(destGroup);
-			
+
 		} catch (RoleAlreadyDefinedException e) {
 			log.error(e); // wtf?
 		} catch (GroupNotDefinedException e) {
@@ -331,14 +320,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 			public SecurityAdvice isAllowed(String userId, String function, String reference) {
 				if("site.upd".equals(function))
 					return SecurityAdvice.ALLOWED;
-				
+
 				return SecurityAdvice.PASS;
 			}
 		};
 		securityService.pushAdvisor(yesMan);
 		return yesMan;
 	}
-	
+
 	public void popSecurityAdvisor(SecurityAdvisor advisor){
 		securityService.popAdvisor(advisor);
 	}

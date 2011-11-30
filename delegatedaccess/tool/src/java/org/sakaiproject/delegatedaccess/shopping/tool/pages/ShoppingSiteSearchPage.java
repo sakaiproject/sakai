@@ -1,4 +1,4 @@
-package org.sakaiproject.delegatedaccess.tool.pages;
+package org.sakaiproject.delegatedaccess.shopping.tool.pages;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -26,7 +26,13 @@ import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.delegatedaccess.util.NodeModelComparator;
 import org.sakaiproject.site.api.Site;
 
-public class ShoppingPageSiteSearch  extends ShoppingBasePage {
+/**
+ * This is the shopping period search page.
+ * 
+ * @author Bryan Holladay (holladay@longsight.com)
+ *
+ */
+public class ShoppingSiteSearchPage  extends ShoppingBasePage {
 
 	private String searchModel = "";
 	private int orderBy = DelegatedAccessConstants.SEARCH_COMPARE_DEFAULT;
@@ -36,7 +42,7 @@ public class ShoppingPageSiteSearch  extends ShoppingBasePage {
 	private TreeModel treeModel;
 
 
-	public ShoppingPageSiteSearch(final String search, TreeModel treeModel){
+	public ShoppingSiteSearchPage(final String search, TreeModel treeModel){
 		this.search = search;
 		this.treeModel = treeModel;
 		//Create Search Form:

@@ -34,18 +34,24 @@ import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnDate;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnDropdown;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnList;
 
-public class ShoppingPeriodPage extends BaseTreePage{
+/**
+ * This is the page to edit the shopping period information used by shopping period admins
+ * 
+ * @author Bryan Holladay (holladay@longsight.com)
+ *
+ */
+public class ShoppingEditPage extends BaseTreePage{
 	private TreeTable tree;
-	private static final Logger log = Logger.getLogger(ShoppingPeriodPage.class);
+	private static final Logger log = Logger.getLogger(ShoppingEditPage.class);
 
 	@Override
 	protected AbstractTree getTree() {
 		return  tree;
 	}
 
-	public ShoppingPeriodPage(){
+	public ShoppingEditPage(){
 		disableLink(secondLink);
-		
+
 		//Form Feedback (Saved/Error)
 		final Label formFeedback = new Label("formFeedback");
 		formFeedback.setOutputMarkupPlaceholderTag(true);
@@ -77,24 +83,24 @@ public class ShoppingPeriodPage extends BaseTreePage{
 			}
 			realmMap.put(group.getId(), roles);
 		}
-		
+
 		final TreeModel treeModel = projectLogic.createTreeModelForShoppingPeriod(sakaiProxy.getCurrentUserId());
-		
-		
+
+
 		IColumn columns[] = new IColumn[] {
 				new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.LEFT, 35, Unit.PX), "",	"userObject.directAccess", DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER),
 				new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 100, Unit.PROPORTIONAL),	"", "userObject.node.title"),
 				new PropertyEditableColumnAuthDropdown(new ColumnLocation(Alignment.RIGHT, 115, Unit.PX), new StringResourceModel("shoppingPeriodAuth", null).getString(), "userObject.shoppingPeriodAuth"),
 				new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.RIGHT, 360, Unit.PX), new StringResourceModel("shoppersBecome", null).getString(),
-							"userObject.realmModel", realmMap, DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER),
-				new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 100, Unit.PX), new StringResourceModel("startDate", null).getString(), "userObject.shoppingPeriodStartDate", true),
-				new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 100, Unit.PX), new StringResourceModel("endDate", null).getString(), "userObject.shoppingPeriodEndDate", false),
-				new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 96, Unit.PX), new StringResourceModel("restrictedToolsHeader", null).getString(),
-				"userObject.restrictedTools", DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER),
-				
+						"userObject.realmModel", realmMap, DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER),
+						new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 100, Unit.PX), new StringResourceModel("startDate", null).getString(), "userObject.shoppingPeriodStartDate", true),
+						new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 100, Unit.PX), new StringResourceModel("endDate", null).getString(), "userObject.shoppingPeriodEndDate", false),
+						new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 96, Unit.PX), new StringResourceModel("restrictedToolsHeader", null).getString(),
+								"userObject.restrictedTools", DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER),
+
 		};
 
-		
+
 
 		//a null model means the tree is empty
 		tree = new TreeTable("treeTable", treeModel, columns){
@@ -124,7 +130,7 @@ public class ShoppingPeriodPage extends BaseTreePage{
 					//save node access and roll information:
 					updateNodeAccess(DelegatedAccessConstants.SHOPPING_PERIOD_USER);
 
-					
+
 					//display a "saved" message
 					formFeedback.setDefaultModel(new ResourceModel("success.save"));
 					formFeedback.add(new AttributeModifier("class", true, new Model("success")));
@@ -164,8 +170,8 @@ public class ShoppingPeriodPage extends BaseTreePage{
 			}
 		};
 		form.add(cancelButton);
-		
-		
+
+
 		//Access Warning:
 		Label noAccessLabel = new Label("noAccess"){
 			@Override

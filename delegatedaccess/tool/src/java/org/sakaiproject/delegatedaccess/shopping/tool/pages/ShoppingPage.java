@@ -1,4 +1,4 @@
-package org.sakaiproject.delegatedaccess.tool.pages;
+package org.sakaiproject.delegatedaccess.shopping.tool.pages;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
@@ -16,9 +16,14 @@ import org.apache.wicket.markup.html.tree.LinkTree;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
-import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.site.api.Site;
 
+/**
+ * This is the shopping period landing page
+ * 
+ * @author Bryan Holladay (holladay@longsight.com)
+ *
+ */
 public class ShoppingPage extends ShoppingBasePage{
 	private BaseTree tree;
 	boolean expand = true;
@@ -98,7 +103,7 @@ public class ShoppingPage extends ShoppingBasePage{
 		Form<?> form = new Form("form"){
 			@Override
 			protected void onSubmit() {	
-				setResponsePage(new ShoppingPageSiteSearch(search, treeModel));
+				setResponsePage(new ShoppingSiteSearchPage(search, treeModel));
 			}
 		};
 		form.add(new TextField<String>("search", messageModel){
@@ -172,7 +177,7 @@ public class ShoppingPage extends ShoppingBasePage{
 		expandLink.add(expandCollapse);
 		return expandLink;
 	}
-	
+
 	/**
 	 * This collapses all empty folders in the tree.  This helps the user know that they need to click on the folder
 	 * in order to populate the children nodes.  (used when the structure is being populated on the fly w/ajax and the

@@ -127,7 +127,7 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 			}
 		}
 	}
-	
+
 	private void removeAllUserPermissions(String nodeId, String userId){
 		for(String perm : hierarchyService.getPermsForUserNodes(userId, new String[]{nodeId})){
 			hierarchyService.removeUserNodePerm(userId, nodeId, perm, false);
