@@ -90,6 +90,12 @@ public class GradingService
 {
   private final String OPEN_BRACKET = "\\{";
   private final String CLOSE_BRACKET = "\\}";
+  
+  /**
+   * regular expression for matching the contents of a variable or formula name 
+   * in Calculated Questions
+   */
+  private final String CALCQ_VAR_FORM_NAME_EXPRESSION = "([\\w\\s\\.\\-\\^\\$\\!\\&\\@\\?\\*\\%\\(\\)\\+=#]+?)";
   private static Log log = LogFactory.getLog(GradingService.class);
 
   /**
@@ -765,7 +771,6 @@ public class GradingService
       // newly submitted answers, updated answers and MCMR/FIB/FIN answers ('cos we need the old ones to
       // calculate scores for new ones)
       Set itemGradingSet = data.getItemGradingSet();
-      
       if (itemGradingSet == null)
         itemGradingSet = new HashSet();
       log.debug("****itemGrading size="+itemGradingSet.size());
@@ -789,7 +794,6 @@ public class GradingService
 	      });
       }
       
-      //Iterator iter = itemGradingSet.iterator();
       Iterator iter = tempItemGradinglist.iterator();
 
       // fibAnswersMap contains a map of HashSet of answers for a FIB item,
@@ -2058,14 +2062,14 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  }
 	  
       Pattern formulaPattern = Pattern.compile(OPEN_BRACKET + OPEN_BRACKET + 
-              "([\\w\\s\\.\\-\\^\\$\\&\\@\\?]+?)" + 
+              CALCQ_VAR_FORM_NAME_EXPRESSION +
               CLOSE_BRACKET + CLOSE_BRACKET);
-	  Matcher formulaMatcher = formulaPattern.matcher(text);
-	  while (formulaMatcher.find()) {
-		  String formula = formulaMatcher.group(1);
+      Matcher formulaMatcher = formulaPattern.matcher(text);
+      while (formulaMatcher.find()) {
+          String formula = formulaMatcher.group(1);
 		  formulas.add(formula);
-	  }
-	  return formulas;
+      }
+      return formulas;
   }
   
   /**
@@ -2088,7 +2092,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		  return variables;
 	  }
       Pattern variablePattern = Pattern.compile(OPEN_BRACKET + 
-              "([\\w\\s\\.\\-\\^\\$\\&\\@\\?]+?)" + 
+              CALCQ_VAR_FORM_NAME_EXPRESSION +
               CLOSE_BRACKET);        
       Matcher variableMatcher = variablePattern.matcher(text);
       while (variableMatcher.find()) {
@@ -2105,7 +2109,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
               variables.add(variable);                
           }
       }
-	  return variables;	  
+      return variables;	  
   }
   
   private String replaceFormulaNameWithFormula(ItemDataIfc item, String formulaName) {
