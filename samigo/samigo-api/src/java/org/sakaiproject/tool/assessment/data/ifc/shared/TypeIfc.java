@@ -39,7 +39,6 @@ public interface TypeIfc extends java.io.Serializable {
   public static Long MULTIPLE_CORRECT_SINGLE_SELECTION = Long.valueOf(12);
   public static Long MATRIX_CHOICES_SURVEY = Long.valueOf(13);
   public static Long CALCULATED_QUESTION = Long.valueOf(14); // CALCULATED_QUESTION
-
   // these are section type available in this site,
   public static Long DEFAULT_SECTION = Long.valueOf(21);
   // these are assessment template type available in this site,
