@@ -26,6 +26,7 @@ package org.sakaiproject.tool.assessment.qti.helper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -54,6 +55,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SecuredIPAddress;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
@@ -2500,7 +2502,7 @@ public class ExtractionHelper
 		  }
 	  }
 
-	  HashSet itemTextSet = new HashSet();
+	  Set<ItemText> itemTextSet = new HashSet<ItemText>();
 	  String ident = "";
 	  String correctVar = "";
 	  String sourceText = "";
@@ -2550,6 +2552,23 @@ public class ExtractionHelper
 
 		  sourceItemText.setAnswerSet(targetSet);
 		  itemTextSet.add(sourceItemText);
+	  }
+	  
+	  // Respondus allows for more matches than choices.  
+	  // If any answer does not have a correct choice, throw an exception
+	  Set<String> correctAnswers = new HashSet<String>();
+	  Set<String> allAnswers = new HashSet<String>();
+	  for (ItemText itemText : itemTextSet) {
+		  Set<AnswerIfc> answers = itemText.getAnswerSet();
+		  for (AnswerIfc answer : answers) {
+			  allAnswers.add(answer.getText());
+			  if (answer.getIsCorrect()) {
+				  correctAnswers.add(answer.getText());
+			  }
+		  }		  
+	  }
+	  if (!correctAnswers.containsAll(allAnswers)) {
+		  throw new RespondusMatchingException("All answers do not have a valid choice.");
 	  }
 	  
 	  item.setItemTextSet(itemTextSet);
