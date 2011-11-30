@@ -14,6 +14,7 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -23,12 +24,15 @@ import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.DefaultItemReuseStrategy;
 import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.dash.entity.EntityType;
 import org.sakaiproject.dash.logic.DashboardConfig;
 import org.sakaiproject.dash.logic.DashboardLogic;
 import org.sakaiproject.dash.logic.SakaiProxy;
@@ -85,13 +89,36 @@ public class MOTDPanel extends Panel {
 		List<NewsItem> motdList = dashboardLogic.getMOTD();
 		if(motdList == null || motdList.isEmpty()) {
 			motdDiv.add(new Label("motdText", "No new messages"));
+			RepeatingView attachments = new RepeatingView("attachments");
+			motdDiv.add(attachments);
+			WebMarkupContainer attItem = new WebMarkupContainer(attachments.newChildId());
+			attachments.add(attItem);
+			attItem.add(new ExternalLink("attachment-link", "#", "---"));
+			attachments.setVisible(false);
 		} else {
 			NewsItem motd = motdList.get(0);
 			Map<String, Object> info = dashboardLogic.getEntityMapping(motd.getSourceType().getIdentifier(), motd.getEntityReference(), getLocale());
-			motdDiv.add(new Label("motdTitle", (String) info.get("title")));
-			Label motdText = new Label("motdText", (String) info.get("description"));
+			motdDiv.add(new Label("motdTitle", (String) info.get(EntityType.VALUE_TITLE)));
+			Label motdText = new Label("motdText", (String) info.get(EntityType.VALUE_DESCRIPTION));
 			motdText.setEscapeModelStrings(false);
 			motdDiv.add(motdText);
+			RepeatingView attachments = new RepeatingView("attachments");
+			motdDiv.add(attachments);
+			if(info.containsKey(EntityType.VALUE_ATTACHMENTS)) {
+				List<Map<String,String>> list = (List) info.get(EntityType.VALUE_ATTACHMENTS);
+				for(Map<String,String> attInfo : list) {
+					WebMarkupContainer attItem = new WebMarkupContainer(attachments.newChildId());
+					attachments.add(attItem);
+					ExternalLink attLink = new ExternalLink("attachment-link", attInfo.get(EntityType.VALUE_ATTACHMENT_URL), attInfo.get(EntityType.VALUE_ATTACHMENT_TITLE));
+					attLink.add(new AttributeModifier("target", true, new Model<String>( attInfo.get(EntityType.VALUE_ATTACHMENT_TARGET) )));
+					attItem.add(attLink);
+				}
+			} else {
+				WebMarkupContainer attItem = new WebMarkupContainer(attachments.newChildId());
+				attachments.add(attItem);
+				attItem.add(new ExternalLink("attachment-link", "#", "---"));
+				attachments.setVisible(false);
+			}
 		}
 		if(motdMode != MOTD_MODE_TEXT || motdList == null || motdList.isEmpty()) {
 			motdDiv.setVisibilityAllowed(false);
