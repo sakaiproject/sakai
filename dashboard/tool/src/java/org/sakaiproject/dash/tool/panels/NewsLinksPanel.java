@@ -322,7 +322,6 @@ public class NewsLinksPanel extends Panel {
 	                //starringAction.add(new Label("starringActionLabel", "Unstar"));
 	                
 	                if(nLink.isHidden() || hideActionLinks) {
-	                	// this shouldn't happen, but just in case ...
 	                	starringAction.setVisible(false);
 	                	starringAction.setVisibilityAllowed(false);
 	                }
@@ -434,7 +433,6 @@ public class NewsLinksPanel extends Panel {
 	                //hidingAction.add(new Label("hidingActionLabel", "Show"));
 	                
 	                if(nLink.isSticky() || hideActionLinks) {
-	                	// this shouldn't happen, but just in case ...
 	                	hidingAction.setVisible(false);
 	                	hidingAction.setVisibilityAllowed(false);
 	                } 
