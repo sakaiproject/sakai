@@ -255,7 +255,7 @@ function toPoint(id)
 // any formulas or variables.  Called on document.ready() for Calculated questions
 function initCalcQuestion() {
     var dirty = false;
-    $("input, select").change(function() {
+    $(".changeWatch").change(function() {
             dirty = true;
     });
     $(".saveButton").click(function() {

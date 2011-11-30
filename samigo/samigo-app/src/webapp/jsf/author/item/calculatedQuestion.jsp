@@ -33,6 +33,10 @@
 saveButton style is used only on save buttons to attach a click handler, so that javascript
 can throw a confirm dialog box if nothing has been changed.  saveButton style doesn't do any
 styling.
+
+changeWatch style is used only on fields that should be watched for changes, with the saveButton 
+above.  If a changeWatch field is changed, the saveButton buttons will not trigger a 
+confirmation dialog
 --%>
 <f:view>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -117,11 +121,9 @@ styling.
 		<br/>
 	</div>
 
-
-
-  <%-- 2 QUESTION TEXT --%>
-  <div class="longtext"> <h:outputLabel value="#{authorMessages.q_text}" />
-  <br/></div>
+    <%-- 2 QUESTION TEXT --%>
+    <div class="longtext"> <h:outputLabel value="#{authorMessages.q_text}" />
+    <br/></div>
 	<div class="tier2">
 	
 	  	<h:outputText value="#{authorMessages.calc_question_define_vars}" /><br/>
@@ -149,19 +151,19 @@ styling.
 					<li><h:outputText value="#{authorMessages.calc_question_walkthrough6 }" /></li>
 				</ol>
 			</div>
-			<div class="longtext"><h:outputLabel value="#{authorMessages.variables_label}" /></div>
+			<div class="longtext"><h:outputLabel value="#{authorMessages.calc_question_var_label}" /></div>
 			<div class="tier2">
 				<h:outputText value="#{authorMessages.calc_question_define_vars}" />
 			</div>
-			<div class="longtext"><h:outputLabel value="#{authorMessages.example_label}" /></div>
+			<div class="longtext"><h:outputLabel value="#{authorMessages.calc_question_example_label}" /></div>
 			<div class="tier2">
 				<h:outputText value="#{authorMessages.calc_question_example1}" />
 			</div>
-			<div class="longtext"><h:outputLabel value="#{authorMessages.formulas_label}" /></div>
+			<div class="longtext"><h:outputLabel value="#{authorMessages.calc_question_formula_label}" /></div>
 			<div class="tier2">
 				<h:outputText value="#{authorMessages.calc_question_answer_expression}" />
 			</div>
-			<div class="longtext"><h:outputLabel value="#{authorMessages.example_label}" /></div>
+			<div class="longtext"><h:outputLabel value="#{authorMessages.calc_question_example_label}" /></div>
 			<div class="tier2">
 				<h:outputText value="#{authorMessages.calc_question_example2}" />
 			</div>
@@ -201,7 +203,7 @@ styling.
 
   	<!-- 3 ANSWER -->
 	<!-- display variables -->
-	<div class="longtext"> <h:outputLabel value="#{authorMessages.create_calc_variable} " /></div>
+	<div class="longtext"> <h:outputLabel value="#{authorMessages.calc_question_var_label} " /></div>
 	<div class="tier2">
 		<h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="pairs" 
 				value="#{itemauthor.currentItem.calculatedQuestion.variablesList}" var="variable">
@@ -228,7 +230,7 @@ styling.
 	          		<h:outputText value="#{authorMessages.calc_question_min}"  />
 	        	</f:facet>
 	          	<h:inputText value="#{variable.min}" disabled="#{!variable.active }" 
-	          			styleClass="#{(!variable.validMin ? 'validationError' : '') }"/>
+	          			styleClass="#{(!variable.validMin ? 'validationError' : '') } changeWatch"/>
 	      	</h:column>
 	
 	      	<h:column>
@@ -236,14 +238,14 @@ styling.
 	          		<h:outputText value="#{authorMessages.calc_question_max}"  />
 	        	</f:facet>
 	          	<h:inputText value="#{variable.max}" disabled="#{!variable.active }" 
-	          			styleClass="#{(!variable.validMax ? 'validationError' : '') }"/>
+	          			styleClass="#{(!variable.validMax ? 'validationError' : '') } changeWatch"/>
 	      	</h:column>
 	
 	      	<h:column>
 	        	<f:facet name="header">
 	          		<h:outputText value="#{authorMessages.calc_question_dec}"  />
 	        	</f:facet>
-			  	<h:selectOneMenu value="#{variable.decimalPlaces}" disabled="#{!variable.active }">
+			  	<h:selectOneMenu value="#{variable.decimalPlaces}" disabled="#{!variable.active }" styleClass="changeWatch">
 		     		<f:selectItems value="#{itemauthor.decimalPlaceList}" />
 	  			</h:selectOneMenu>
 	      	</h:column>
@@ -254,7 +256,7 @@ styling.
 	</div>
 
 	<!-- display formulas -->
-	<div class="longtext"> <h:outputLabel value="#{authorMessages.create_calc_formula} " /></div>
+	<div class="longtext"> <h:outputLabel value="#{authorMessages.calc_question_formula_label} " /></div>
 	<div class="tier2">
 		<h:dataTable cellpadding="0" cellspacing="0" styleClass="listHier" id="formulas" 
 				value="#{itemauthor.currentItem.calculatedQuestion.formulasList}" var="formula">
@@ -280,7 +282,7 @@ styling.
 	        	<h:inputTextarea value="#{formula.text }"
 	        			cols="40" rows="3" 
 	        			disabled="#{!formula.active }" 
-	        			styleClass="#{(!formula.validFormula ? 'validationError' : '')}"/>        	
+	        			styleClass="#{(!formula.validFormula ? 'validationError' : '')} changeWatch"/>        	
 	      </h:column>
 	      
 	      <h:column>
@@ -289,14 +291,14 @@ styling.
 	        	</f:facet>
 	          	<h:inputText value="#{formula.tolerance}"  
 	          			disabled="#{!formula.active }" 
-	          			styleClass="#{(!formula.validTolerance ? 'validationError' : '')}"/>
+	          			styleClass="#{(!formula.validTolerance ? 'validationError' : '')} changeWatch"/>
 	      </h:column>
 	      
 	      <h:column>
 	        	<f:facet name="header">
 	          		<h:outputText value="#{authorMessages.calc_question_dec}" />
 	        	</f:facet>
-			  	<h:selectOneMenu id="assignToPart" value="#{formula.decimalPlaces}" disabled="#{!formula.active }">
+			  	<h:selectOneMenu id="assignToPart" value="#{formula.decimalPlaces}" disabled="#{!formula.active }" styleClass="changeWatch">
 	     			<f:selectItems  value="#{itemauthor.decimalPlaceList}" />
 	  			</h:selectOneMenu>          
 	      </h:column>

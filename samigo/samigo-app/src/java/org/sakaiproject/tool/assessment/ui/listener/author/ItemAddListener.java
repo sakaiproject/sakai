@@ -416,7 +416,6 @@ public class ItemAddListener
 	boolean notEmpty=false;
 	int indexOfOpen=-1;
 	String text=item.getItemText();
-
 	while(index<text.length()){ 
 	    char c=text.charAt(index);
 	    if(c=='{'){

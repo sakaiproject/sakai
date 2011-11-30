@@ -1,5 +1,5 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/sam/trunk/samigo-app/src/java/org/sakaiproject/tool/assessment/ui/bean/author/MatchItemBean.java $
+ * $URL: https://source.sakaiproject.org/svn/sam/trunk/samigo-app/src/java/org/sakaiproject/tool/assessment/ui/listener/author/Calculated QuestionExtractListener.java $
  * $Id: MatchItemBean.java 59684 2009-04-03 23:33:27Z arwhyte@umich.edu $
  ***********************************************************************************
  *
@@ -74,7 +74,6 @@ public class CalculatedQuestionExtractListener implements ActionListener{
         }
     }
 
-        
     /**
      * validate() returns a list of error strings to display to the context.
      * <p>Errors include <ul><li>no variables or formulas named in the instructions</li>
