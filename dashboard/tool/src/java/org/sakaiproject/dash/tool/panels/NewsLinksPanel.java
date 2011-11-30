@@ -220,7 +220,7 @@ public class NewsLinksPanel extends Panel {
                 	logger.debug(this + "populateItem()  item: " + item);
                 }
                 
-                
+                boolean hideActionLinks = nItem.getItemCount() > 1;
                 
                 String itemType = nItem.getSourceType().getIdentifier();
                 item.add(new Label("itemType", itemType));
@@ -321,7 +321,7 @@ public class NewsLinksPanel extends Panel {
 
 	                //starringAction.add(new Label("starringActionLabel", "Unstar"));
 	                
-	                if(nLink.isHidden()) {
+	                if(nLink.isHidden() || hideActionLinks) {
 	                	// this shouldn't happen, but just in case ...
 	                	starringAction.setVisible(false);
 	                	starringAction.setVisibilityAllowed(false);
@@ -374,7 +374,7 @@ public class NewsLinksPanel extends Panel {
 	                // starringAction.add(new Label("starringActionLabel", "Star"));
 	                item.add(starringAction);
 
-	                if(nLink.isHidden()) {
+	                if(nLink.isHidden() || hideActionLinks) {
 	                	starringAction.setVisible(false);
 	                	starringAction.setVisibilityAllowed(false);
 	                }
@@ -433,7 +433,7 @@ public class NewsLinksPanel extends Panel {
 					hidingAction.add(hidingActionIcon);
 	                //hidingAction.add(new Label("hidingActionLabel", "Show"));
 	                
-	                if(nLink.isSticky()) {
+	                if(nLink.isSticky() || hideActionLinks) {
 	                	// this shouldn't happen, but just in case ...
 	                	hidingAction.setVisible(false);
 	                	hidingAction.setVisibilityAllowed(false);
@@ -493,7 +493,7 @@ public class NewsLinksPanel extends Panel {
 					hidingAction.add(hidingActionIcon);
 	                //hidingAction.add(new Label("hidingActionLabel", "Hide"));
 	                
-	                if(nLink.isSticky()) {
+	                if(nLink.isSticky() || hideActionLinks) {
 		                hidingAction.setVisible(false);
 	                	hidingAction.setVisibilityAllowed(false);
 	                } 
