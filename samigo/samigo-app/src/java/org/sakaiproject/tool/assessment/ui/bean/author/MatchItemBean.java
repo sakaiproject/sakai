@@ -57,7 +57,7 @@ public class MatchItemBean implements Serializable {
     this.text = text;
   }
 */
-  
+
   /**
    * controllingSequence determines if the choice for this matching bean is defined
    * within the bean or within another bean in a list of beans.  If the controllingSequence

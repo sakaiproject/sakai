@@ -45,7 +45,6 @@
       <!-- AUTHORING -->
       <samigo:script path="/js/jquery-1.3.2.min.js" />
       <samigo:script path="/js/authoring.js"/>
-      
 <%--
 <script type="text/JavaScript">
 <!--
@@ -362,6 +361,7 @@
 </h:form>
 <!-- end content -->
 </div>
+
 <script type="text/javascript">
 applyMenuListener("controllingSequence");
 </script>
