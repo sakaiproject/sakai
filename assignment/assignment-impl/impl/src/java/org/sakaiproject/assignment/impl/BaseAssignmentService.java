@@ -9013,7 +9013,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
                     }
                     
                     if (errorMessage == null) {
-                        errorMessage = rb.getString("assignment2.content_review.error");
+                        errorMessage = rb.getString("content_review.error");
                     }
                     
                     return errorMessage;
