@@ -335,7 +335,7 @@ function mySetMainFrameHeightViewCell(id)
 </script> 
   
   	<%-- Used to store where to redirect to so javascript can grab it. --%>
-    <h:inputHidden id="longPageLoad" value="#{msgs.longPageLoadLite}" />
+    <h:inputHidden id="longPageLoad" value="synMainLite" />
 
 	<%-- Firefox browser needs to use AJAX to get actual page. Retrieved page then
 		 stuffed into this div --%>
