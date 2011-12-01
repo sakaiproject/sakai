@@ -670,7 +670,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			Object val = entry.getValue();
 			if(val instanceof String) {
 				StringBuilder errorMessages = new StringBuilder();
-				entry.setValue(FormattedText.processFormattedText((String) val, errorMessages , true, true));
+				entry.setValue(FormattedText.processFormattedText((String) val, errorMessages , true, false));
 				if(errorMessages != null && errorMessages.length() > 0) {
 					logger.warn("Error encountered while processing values map:\n" + errorMessages);
 				}
@@ -691,7 +691,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			Object item = list.get(i);
 			if(item instanceof String) {
 				StringBuilder errorMessages = new StringBuilder();
-				list.set(i, FormattedText.processFormattedText((String) item, errorMessages , true, true));
+				list.set(i, FormattedText.processFormattedText((String) item, errorMessages , true, false));
 				if(errorMessages != null && errorMessages.length() > 0) {
 					logger.warn("Error encountered while processing values map:\n" + errorMessages);
 				}

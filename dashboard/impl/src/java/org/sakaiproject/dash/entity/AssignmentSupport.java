@@ -337,9 +337,9 @@ public class AssignmentSupport {
 					context = dashboardLogic.createContext(event.getContext());
 				}
 	            
-				SourceType sourceType = dashboardLogic.getSourceType("assignment");
+				SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
 				if(sourceType == null) {
-					sourceType = dashboardLogic.createSourceType("assignment", SakaiProxy.PERMIT_ASSIGNMENT_ACCESS, EntityLinkStrategy.SHOW_PROPERTIES);
+					sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ASSIGNMENT_ACCESS, EntityLinkStrategy.SHOW_PROPERTIES);
 				}
 				
 				String assnReference = assn.getReference();
@@ -532,9 +532,9 @@ public class AssignmentSupport {
 				context = dashboardLogic.createContext(event.getContext());
 			}
             
-			SourceType sourceType = dashboardLogic.getSourceType("assignment");
+			SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
 			if(sourceType == null) {
-				sourceType = dashboardLogic.createSourceType("assignment", SakaiProxy.PERMIT_ASSIGNMENT_ACCESS, EntityLinkStrategy.SHOW_PROPERTIES);
+				sourceType = dashboardLogic.createSourceType(IDENTIFIER, SakaiProxy.PERMIT_ASSIGNMENT_ACCESS, EntityLinkStrategy.SHOW_PROPERTIES);
 			}
 			
 			if(entity != null && entity instanceof Assignment) {
