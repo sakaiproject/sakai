@@ -447,7 +447,6 @@ public class ItemHelper12Impl extends ItemHelperBase
       addMatchingResponseLabelTarget(itemXml, responseNo, respIdent, answerText);
 
     }
-//    updateAllSourceMatchGroup(itemXml);
   }
 
   private void setItemTextMatrix(List itemTextList, Item itemXml)
