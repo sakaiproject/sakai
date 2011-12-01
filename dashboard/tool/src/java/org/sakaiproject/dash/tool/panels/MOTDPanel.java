@@ -84,8 +84,13 @@ public class MOTDPanel extends Panel {
 	
 	protected void initText() {
 		
+        ResourceLoader rl = new ResourceLoader("dash_entity");
+		
 		WebMarkupContainer motdDiv = new WebMarkupContainer("motdTextDiv");
 		add(motdDiv);
+		
+		motdDiv.add(new Label("motdPanelTitle", rl.getString("dash.motd.title")));
+		
 		List<NewsItem> motdList = dashboardLogic.getMOTD();
 		if(motdList == null || motdList.isEmpty()) {
 			motdDiv.add(new Label("motdText", "No new messages"));
@@ -131,7 +136,9 @@ public class MOTDPanel extends Panel {
 		if(this.motdDivId != null) {
 			this.remove(motdDivId );
 		}
-		
+
+        ResourceLoader rl = new ResourceLoader("dash_entity");
+
 		//get list of items from db, wrapped in a dataprovider
 		motdProvider = new NewsLinksDataProvider();
 		
@@ -140,7 +147,8 @@ public class MOTDPanel extends Panel {
         add(motdDiv);
         this.motdDivId = motdDiv.getId();
         
-        ResourceLoader rl = new ResourceLoader("dash_entity");
+		motdDiv.add(new Label("motdPanelTitle", rl.getString("dash.motd.title")));
+
         WebMarkupContainer haveLinks = new WebMarkupContainer("haveLinks");
         motdDiv.add(haveLinks);
         

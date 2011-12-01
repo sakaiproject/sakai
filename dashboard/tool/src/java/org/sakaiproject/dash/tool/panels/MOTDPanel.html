@@ -3,7 +3,7 @@
     <wicket:panel>
         <div id="motdTextDiv" wicket:id="motdTextDiv">
            <a id="motdTextDivDismiss" href="#" title="Hide this message for the session">x</a> 
-           <h3>Message of the day</h3> 
+           <h3 wicket:id="motdPanelTitle">[[ Message of the day ]]</h3> 
             <h4 wicket:id="motdTitle">[[ MOTD Title ]]</h4>
             <div id="motdText" class="motdText" wicket:id="motdText">
             	[[ Text of latest MOTD ]]
@@ -17,7 +17,7 @@
                 <tr>
                     <td style="width:50%;padding:0">
                         <h3 class="withNav">Message of the Day</h3>
-                  </td>
+                    </td>
                     <td style="width:50%" class="pagerCell">
                         <span class="itemCount instruction" wicket:id="motdCount">[[ cero puntos ]]</span>
                         <span class="pager" wicket:id="newsNavigator">
