@@ -389,31 +389,6 @@ public interface DashboardLogic {
 	public boolean hideCalendarItem(String sakaiUserId, long calendarItemId);
 
 	/**
-	 * Hide calendar items of a particular type from views of calendar items for a particular user.
-	 * @param sakaiUserId
-	 * @param sourceTypeId
-	 * @return
-	 */
-	public boolean hideCalendarItemsByContext(String sakaiUserId, long contextId);
-
-	/**
-	 * Hide calendar items of a particular type from views of calendar items for a particular user.
-	 * @param sakaiUserId
-	 * @param contextId
-	 * @return
-	 */
-	public boolean hideCalendarItemsByContextSourceType(String sakaiUserId, long contextId, long sourceTypeId);
-
-	/**
-	 * Hide calendar items of a particular type from views of calendar items for a particular user.
-	 * @param sakaiUserId
-	 * @param contextId
-	 * @param sourceTypeId
-	 * @return
-	 */
-	public boolean hideCalendarItemsBySourceType(String sakaiUserId, long sourceTypeId);
-
-	/**
 	 * Hide a news item from views of news items by a particular user.
 	 * @param sakaiUserId
 	 * @param newsItemId
@@ -421,31 +396,6 @@ public interface DashboardLogic {
 	 */
 	public boolean hideNewsItem(String sakaiUserId, long newsItemId);
 	
-	/**
-	 * Hide news items of a particular type from views of news items for a particular user.
-	 * @param sakaiUserId
-	 * @param contextId
-	 * @return
-	 */
-	public boolean hideNewsItemsByContext(String sakaiUserId, long contextId);
-
-	/**
-	 * Hide news items of a particular type from views of news items for a particular user.
-	 * @param sakaiUserId
-	 * @param contextId
-	 * @param sourceTypeId
-	 * @return
-	 */
-	public boolean hideNewsItemsByContextSourceType(String sakaiUserId, long contextId, long sourceTypeId);
-
-	/**
-	 * Hide news items of a particular type from views of news items for a particular user.
-	 * @param sakaiUserId
-	 * @param sourceTypeId
-	 * @return
-	 */
-	public boolean hideNewsItemsBySourceType(String sakaiUserId, long sourceTypeId);
-
 	/**
 	 * Check whether an entity is fully available to users with permission to access it 
 	 * (i.e. it is not hidden or restricted through some form of conditional release).

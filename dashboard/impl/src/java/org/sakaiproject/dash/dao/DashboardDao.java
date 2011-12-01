@@ -59,15 +59,7 @@ public interface DashboardDao {
 	public boolean addNewsLink(NewsLink newsLink);
 	
 	public boolean addPerson(Person person);
-	
-	public boolean addPersonContext(PersonContext personContext);
-	
-	public boolean addPersonContextSourceType(PersonContextSourceType personContextSourceType);
-	
-	public boolean addPersonSourceType(PersonSourceType personSourceType);
-	
-	public boolean addRealm(Realm realm);
-	
+		
 	public boolean addRepeatingCalendarItem(RepeatingCalendarItem repeatingCalendarItem);
 
 	public boolean addSourceType(SourceType sourceType);

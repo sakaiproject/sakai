@@ -259,76 +259,6 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 	
-	public boolean addPersonContext(PersonContext personContext) {
-		if(log.isDebugEnabled()) {
-			log.debug("addPersonContext( " + personContext.toString() + ")");
-		}
-		
-		try {
-			getJdbcTemplate().update(getStatement("insert.PersonContext"),
-				new Object[]{personContext.getItemType().getValue(), personContext.getPerson().getId(), personContext.getContext().getId()}
-			);
-			return true;
-		} catch (DataAccessException ex) {
-           log.error("addPersonContext: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-			return false;
-		}
-	}
-
-	public boolean addPersonContextSourceType(PersonContextSourceType personContextSourceType) {
-		if(log.isDebugEnabled()) {
-			log.debug("addPersonContextSourceType( " + personContextSourceType.toString() + ")");
-		}
-		
-		try {
-			getJdbcTemplate().update(getStatement("insert.PersonContextSourceType"),
-				new Object[]{personContextSourceType.getItemType().getValue() ,personContextSourceType.getPerson().getId(), personContextSourceType.getContext().getId(), personContextSourceType.getSourceType().getId()}
-			);
-			return true;
-		} catch (DataAccessException ex) {
-           log.error("addPersonContextSourceType: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-			return false;
-		}
-	}
-
-	public boolean addPersonSourceType(PersonSourceType personSourceType) {
-		if(log.isDebugEnabled()) {
-			log.debug("addPersonSourceType( " + personSourceType.toString() + ")");
-		}
-		
-		try {
-			getJdbcTemplate().update(getStatement("insert.PersonSourceType"),
-				new Object[]{personSourceType.getItemType().getValue(), personSourceType.getPerson().getId(), personSourceType.getSourceType().getId()}
-			);
-			return true;
-		} catch (DataAccessException ex) {
-           log.error("addPersonSourceType: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-			return false;
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.dao.DashboardDao#addRealm(org.sakaiproject.dash.model.Realm)
-	 */
-	public boolean addRealm(Realm realm) {
-		if(log.isDebugEnabled()) {
-			log.debug("addRealm( " + realm.toString() + ")");
-		}
-		
-		//  realm_id
-		
-		try {
-			getJdbcTemplate().update(getStatement("insert.Realm"),
-				new Object[]{realm.getRealmId()}
-			);
-			return true;
-		} catch (DataAccessException ex) {
-           log.error("addRealm: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-			return false;
-		}
-	}
-	
 	public boolean addRepeatingCalendarItem(RepeatingCalendarItem repeatingCalendarItem) {
 		if(log.isDebugEnabled()) {
 			log.debug("addRepeatingCalendarItem( " + repeatingCalendarItem.toString() + ")");
@@ -1843,12 +1773,15 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			executeSqlStatement("create.CalendarItem.table");
 			executeSqlStatement("create.CalendarLink.table");
 			executeSqlStatement("create.AvailabilityCheck.table");
-			executeSqlStatement("create.PersonContext.table");
-			executeSqlStatement("create.PersonContextSourceType.table");
-			executeSqlStatement("create.PersonSourceType.table");
 			executeSqlStatement("create.RepeatingEvent.table");
 			executeSqlStatement("create.Config.table");
 			executeSqlStatement("create.EventLog.table");
+
+			// TODO: eliminate all references to these three tables in the sql files and the dao, including these three lines
+			executeSqlStatement("create.PersonContext.table");
+			executeSqlStatement("create.PersonContextSourceType.table");
+			executeSqlStatement("create.PersonSourceType.table");
+
 		} catch(Exception e) {
 	        //System.out.println("\ninitTables: Error executing query: " + e.getClass() + ":\n" + e.getMessage() + "\n");
 			logger.warn("initTables() " + e);

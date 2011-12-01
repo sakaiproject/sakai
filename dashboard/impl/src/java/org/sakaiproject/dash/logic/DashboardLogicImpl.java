@@ -1483,55 +1483,55 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return dao.updateNewsLink(link);
 	}
 
-	public boolean hideCalendarItemsByContext(String sakaiUserId,
-			long contextId) {
-		Person person = dao.getPersonBySakaiId(sakaiUserId);
-		Context context = dao.getContext(contextId);
-		PersonContext personContext = new PersonContext(ItemType.CALENDAR_ITEM, person, context);
-		return dao.addPersonContext(personContext);
-	}
-
-	public boolean hideCalendarItemsByContextSourceType(String sakaiUserId,
-			long contextId, long sourceTypeId) {
-		Person person = dao.getPersonBySakaiId(sakaiUserId);
-		Context context = dao.getContext(contextId);
-		SourceType sourceType = dao.getSourceType(sourceTypeId);
-		PersonContextSourceType personContextSourceType = new PersonContextSourceType(ItemType.CALENDAR_ITEM, person, context, sourceType);
-		return dao.addPersonContextSourceType(personContextSourceType);
-	}
-
-	public boolean hideCalendarItemsBySourceType(String sakaiUserId,
-			long sourceTypeId) {
-		Person person = dao.getPersonBySakaiId(sakaiUserId);
-		SourceType sourceType = dao.getSourceType(sourceTypeId);
-		PersonSourceType personSourceType = new PersonSourceType(ItemType.CALENDAR_ITEM, person, sourceType);
-		return dao.addPersonSourceType(personSourceType);
-	}
-
-	public boolean hideNewsItemsByContext(String sakaiUserId,
-			long contextId) {
-		Person person = dao.getPersonBySakaiId(sakaiUserId);
-		Context context = dao.getContext(contextId);
-		PersonContext personContext = new PersonContext(ItemType.NEWS_ITEM, person, context);
-		return dao.addPersonContext(personContext);
-	}
-
-	public boolean hideNewsItemsByContextSourceType(String sakaiUserId,
-			long contextId, long sourceTypeId) {
-		Person person = dao.getPersonBySakaiId(sakaiUserId);
-		Context context = dao.getContext(contextId);
-		SourceType sourceType = dao.getSourceType(sourceTypeId);
-		PersonContextSourceType personContextSourceType = new PersonContextSourceType(ItemType.NEWS_ITEM, person, context, sourceType);
-		return dao.addPersonContextSourceType(personContextSourceType);
-	}
-
-	public boolean hideNewsItemsBySourceType(String sakaiUserId,
-			long sourceTypeId) {
-		Person person = dao.getPersonBySakaiId(sakaiUserId);
-		SourceType sourceType = dao.getSourceType(sourceTypeId);
-		PersonSourceType personSourceType = new PersonSourceType(ItemType.NEWS_ITEM, person, sourceType);
-		return dao.addPersonSourceType(personSourceType);
-	}
+//	public boolean hideCalendarItemsByContext(String sakaiUserId,
+//			long contextId) {
+//		Person person = dao.getPersonBySakaiId(sakaiUserId);
+//		Context context = dao.getContext(contextId);
+//		PersonContext personContext = new PersonContext(ItemType.CALENDAR_ITEM, person, context);
+//		return dao.addPersonContext(personContext);
+//	}
+//
+//	public boolean hideCalendarItemsByContextSourceType(String sakaiUserId,
+//			long contextId, long sourceTypeId) {
+//		Person person = dao.getPersonBySakaiId(sakaiUserId);
+//		Context context = dao.getContext(contextId);
+//		SourceType sourceType = dao.getSourceType(sourceTypeId);
+//		PersonContextSourceType personContextSourceType = new PersonContextSourceType(ItemType.CALENDAR_ITEM, person, context, sourceType);
+//		return dao.addPersonContextSourceType(personContextSourceType);
+//	}
+//
+//	public boolean hideCalendarItemsBySourceType(String sakaiUserId,
+//			long sourceTypeId) {
+//		Person person = dao.getPersonBySakaiId(sakaiUserId);
+//		SourceType sourceType = dao.getSourceType(sourceTypeId);
+//		PersonSourceType personSourceType = new PersonSourceType(ItemType.CALENDAR_ITEM, person, sourceType);
+//		return dao.addPersonSourceType(personSourceType);
+//	}
+//
+//	public boolean hideNewsItemsByContext(String sakaiUserId,
+//			long contextId) {
+//		Person person = dao.getPersonBySakaiId(sakaiUserId);
+//		Context context = dao.getContext(contextId);
+//		PersonContext personContext = new PersonContext(ItemType.NEWS_ITEM, person, context);
+//		return dao.addPersonContext(personContext);
+//	}
+//
+//	public boolean hideNewsItemsByContextSourceType(String sakaiUserId,
+//			long contextId, long sourceTypeId) {
+//		Person person = dao.getPersonBySakaiId(sakaiUserId);
+//		Context context = dao.getContext(contextId);
+//		SourceType sourceType = dao.getSourceType(sourceTypeId);
+//		PersonContextSourceType personContextSourceType = new PersonContextSourceType(ItemType.NEWS_ITEM, person, context, sourceType);
+//		return dao.addPersonContextSourceType(personContextSourceType);
+//	}
+//
+//	public boolean hideNewsItemsBySourceType(String sakaiUserId,
+//			long sourceTypeId) {
+//		Person person = dao.getPersonBySakaiId(sakaiUserId);
+//		SourceType sourceType = dao.getSourceType(sourceTypeId);
+//		PersonSourceType personSourceType = new PersonSourceType(ItemType.NEWS_ITEM, person, sourceType);
+//		return dao.addPersonSourceType(personSourceType);
+//	}
 
 	public String getEntityIconUrl(String type, String subtype) {
 		String url = "#"; 
