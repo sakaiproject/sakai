@@ -2173,7 +2173,7 @@ private   int   getNum(char letter,   String   a)
       }
       else {
     	  sendToHiddenString.delete(sendToHiddenString.length()-2, sendToHiddenString.length()); //remove last comma and space
-    	  aMsg.setRecipientsAsText(sendToString.toString() + " (" + sendToHiddenString.toString() + ")");
+    	  aMsg.setRecipientsAsText(sendToString.toString() + " " + PrivateMessage.HIDDEN_RECIPIENTS_START + sendToHiddenString.toString() + PrivateMessage.HIDDEN_RECIPIENTS_END);
       }
       //clean up sendToBccString
       if (! "".equals(sendToBccString.toString())) {
@@ -2185,7 +2185,7 @@ private   int   getNum(char letter,   String   a)
       }
       else {
     	  sendToBccHiddenString.delete(sendToBccHiddenString.length()-2, sendToBccHiddenString.length()); //remove last comma and space
-    	  aMsg.setRecipientsAsTextBcc(sendToBccString.toString() + " (" + sendToBccHiddenString.toString() + ")");
+    	  aMsg.setRecipientsAsTextBcc(sendToBccString.toString() + " " + PrivateMessage.HIDDEN_RECIPIENTS_START + sendToBccHiddenString.toString() + PrivateMessage.HIDDEN_RECIPIENTS_END);
       }
 
     }
@@ -2714,7 +2714,7 @@ private   int   getNum(char letter,   String   a)
     	}
     	else {
     		sendToHiddenString.delete(sendToHiddenString.length()-2, sendToHiddenString.length()); //remove last comma and space    
-    		rrepMsg.setRecipientsAsText(sendToString.toString() + " (" + sendToHiddenString.toString() + ")");
+    		rrepMsg.setRecipientsAsText(sendToString.toString() + " " + PrivateMessage.HIDDEN_RECIPIENTS_START + sendToHiddenString.toString() + PrivateMessage.HIDDEN_RECIPIENTS_END);
     	}    
 
     	//clean sendToBccString
@@ -2728,7 +2728,7 @@ private   int   getNum(char letter,   String   a)
     	}
     	else {
     		sendToBccHiddenString.delete(sendToBccHiddenString.length()-2, sendToBccHiddenString.length()); //remove last comma and space    
-    		rrepMsg.setRecipientsAsTextBcc(sendToBccString.toString() + " (" + sendToBccHiddenString.toString() + ")");
+    		rrepMsg.setRecipientsAsTextBcc(sendToBccString.toString() + " " + PrivateMessage.HIDDEN_RECIPIENTS_START + sendToBccHiddenString.toString() + PrivateMessage.HIDDEN_RECIPIENTS_END);
     	}  
     	
     	//Add attachments

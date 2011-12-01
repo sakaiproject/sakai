@@ -165,7 +165,7 @@ public class PrivateMessageDecoratedBean
 
   public String getVisibleRecipientsAsText() {
 	String recips = msg.getRecipientsAsText();
-	final int parenIndex = recips.indexOf("(");
+	final int parenIndex = recips.indexOf(PrivateMessage.HIDDEN_RECIPIENTS_START);
 	
 	if (parenIndex > 0) {
 		return recips.substring(0, parenIndex-1);
