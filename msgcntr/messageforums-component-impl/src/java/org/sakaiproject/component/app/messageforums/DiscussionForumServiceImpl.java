@@ -409,6 +409,8 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
         public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List resourceIds)
 	{
 		Map<String, String> transversalMap = new HashMap<String, String>();
+		
+		boolean importOpenCloseDates = ServerConfigurationService.getBoolean("msgcntr.forums.import.openCloseDates", false);
 		try 
 		{
 			LOG.debug("transfer copy mc items by transferCopyEntities");
@@ -439,6 +441,12 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 						newForum.setModerated(fromForum.getModerated());
 						newForum.setPostFirst(fromForum.getPostFirst());
 						newForum.setAutoMarkThreadsRead(fromForum.getAutoMarkThreadsRead());
+						if(importOpenCloseDates){
+							newForum.setOpenDate(fromForum.getOpenDate());
+							newForum.setCloseDate(fromForum.getCloseDate());
+							newForum.setAvailability(fromForum.getAvailability());
+							newForum.setAvailabilityRestricted(fromForum.getAvailabilityRestricted());
+						}
 
 						// set the forum order. any existing forums will be first
 						// if the "from" forum has a 0 sort index, there is no sort order
@@ -536,6 +544,12 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 								newTopic.setPostFirst(fromTopic.getPostFirst());
 								newTopic.setSortIndex(fromTopic.getSortIndex());
 								newTopic.setAutoMarkThreadsRead(fromTopic.getAutoMarkThreadsRead());
+								if(importOpenCloseDates){
+									newTopic.setOpenDate(fromTopic.getOpenDate());
+									newTopic.setCloseDate(fromTopic.getCloseDate());
+									newTopic.setAvailability(fromTopic.getAvailability());
+									newTopic.setAvailabilityRestricted(fromTopic.getAvailabilityRestricted());
+								}
 
 								// Get/set the topic's permissions
 								Set topicMembershipItemSet = fromTopic.getMembershipItemSet();
