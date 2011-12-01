@@ -64,6 +64,7 @@ public interface SakaiProxy {
 	public static final String PERMIT_ANNOUNCEMENT_ACCESS = AnnouncementService.SECURE_ANNC_READ;
 	public static final String PERMIT_ASSIGNMENT_ACCESS = AssignmentService.SECURE_ACCESS_ASSIGNMENT;
 	public static final String PERMIT_RESOURCE_ACCESS = ContentHostingService.AUTH_RESOURCE_READ;
+	public static final String PERMIT_DROPBOX_ACCESS = ContentHostingService.AUTH_DROPBOX_OWN;
 	public static final String PERMIT_SCHEDULE_ACCESS = CalendarService.AUTH_READ_CALENDAR;
 	
 	public static final String ANNOUNCEMENT_RELEASE_DATE = AnnouncementService.RELEASE_DATE;
@@ -215,6 +216,13 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public boolean isAttachmentResource(String resourceId);
+	
+	/**
+	 * Whether the resource is in a dropbox
+	 * @param resourceId
+	 * @return
+	 */
+	public boolean isDropboxResource(String resourceId);
 
 	public void startAdminSession();
 
@@ -248,5 +256,6 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public boolean isEventProcessingThreadDisabled();
+
 
 }

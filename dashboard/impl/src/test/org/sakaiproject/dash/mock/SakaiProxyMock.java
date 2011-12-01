@@ -189,4 +189,8 @@ public class SakaiProxyMock implements SakaiProxy {
 		return null;
 	}
 
+	public boolean isDropboxResource(String entityReference) {
+		return false;
+	}
+
 }

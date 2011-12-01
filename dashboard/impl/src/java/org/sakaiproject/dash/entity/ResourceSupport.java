@@ -55,7 +55,8 @@ public class ResourceSupport {
 		this.dashboardLogic = dashboardLogic;
 	}
 
-	public static final String ENTITY_TYPE_IDENTIFIER = "resource";
+	public static final String RESOURCE_TYPE_IDENTIFIER = "resource";
+	public static final String DROPBOX_TYPE_IDENTIFIER = "dropbox";
 	
 	public void init() {
 		logger.info("init()");
@@ -117,7 +118,7 @@ public class ResourceSupport {
 		 * @see org.sakaiproject.dash.entity.EntityType#getIdentifier()
 		 */
 		public String getIdentifier() {
-			return ENTITY_TYPE_IDENTIFIER;
+			return RESOURCE_TYPE_IDENTIFIER;
 		}
 
 		/* (non-Javadoc)
@@ -153,7 +154,7 @@ public class ResourceSupport {
 					logger.warn("getValues(" + entityReference + "," + localeCode + ") EntityPropertyTypeException: " + e);
 				}
 				
-				values.put(VALUE_ENTITY_TYPE, ENTITY_TYPE_IDENTIFIER);
+				values.put(VALUE_ENTITY_TYPE, RESOURCE_TYPE_IDENTIFIER);
 				
 				User user = sakaiProxy.getUser(props.getProperty(ResourceProperties.PROP_CREATOR));
 				if(user != null) {
@@ -299,7 +300,6 @@ public class ResourceSupport {
 		}
 	}
 
-
 	/**
 	 * 
 	 */
@@ -370,7 +370,7 @@ public class ResourceSupport {
 			if(entity != null && entity instanceof ContentResource) {
 				ContentResource resource = (ContentResource) entity;
 				
-				if (!sakaiProxy.isAttachmentResource(resource.getId()))
+				if (!sakaiProxy.isAttachmentResource(resource.getId()) && ! sakaiProxy.isDropboxResource(resource.getId()))
 				{
 					// only when the resource is not attachment
 					Context context = dashboardLogic.getContext(event.getContext());
@@ -378,9 +378,11 @@ public class ResourceSupport {
 						context = dashboardLogic.createContext(event.getContext());
 					}
 					
-					SourceType sourceType = dashboardLogic.getSourceType(ENTITY_TYPE_IDENTIFIER);
+					String labelKey = "resource.added";
+
+					SourceType sourceType = dashboardLogic.getSourceType(RESOURCE_TYPE_IDENTIFIER);
 					if(sourceType == null) {
-						sourceType = dashboardLogic.createSourceType(ENTITY_TYPE_IDENTIFIER, SakaiProxy.PERMIT_RESOURCE_ACCESS, EntityLinkStrategy.ACCESS_URL);
+						sourceType = dashboardLogic.createSourceType(RESOURCE_TYPE_IDENTIFIER, SakaiProxy.PERMIT_RESOURCE_ACCESS, EntityLinkStrategy.ACCESS_URL);
 					}
 					
 					ResourceProperties props = resource.getProperties();
@@ -419,18 +421,18 @@ public class ResourceSupport {
 						eventTime = new Date();
 					}
 					
-					NewsItem newsItem = dashboardLogic.createNewsItem(title, eventTime, "resource.added", resource.getReference(), context, sourceType, resource.getContentType());
-					if(dashboardLogic.isAvailable(newsItem.getEntityReference(), ENTITY_TYPE_IDENTIFIER)) {
+					NewsItem newsItem = dashboardLogic.createNewsItem(title, eventTime, labelKey , resource.getReference(), context, sourceType, resource.getContentType());
+					if(dashboardLogic.isAvailable(newsItem.getEntityReference(), RESOURCE_TYPE_IDENTIFIER)) {
 						dashboardLogic.createNewsLinks(newsItem);
 						Date retractDate = getRetractDate(newsItem.getEntityReference());
 						if(retractDate != null && retractDate.after(new Date())) {
-							dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), ENTITY_TYPE_IDENTIFIER, retractDate);
+							dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), RESOURCE_TYPE_IDENTIFIER, retractDate);
 						}
 					} else {
 						
 						Date releaseDate = getReleaseDate(newsItem.getEntityReference());
 						if(releaseDate != null && releaseDate.after(new Date())) {
-							dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), ENTITY_TYPE_IDENTIFIER, releaseDate);
+							dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), RESOURCE_TYPE_IDENTIFIER, releaseDate);
 						}
 					}
 				}

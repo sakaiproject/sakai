@@ -218,6 +218,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return new ArrayList<String>(sakaiIds);
 	}
 	
+	public boolean isDropboxResource(String resourceId) {
+		return contentHostingService.isInDropbox(resourceId);
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.SakaiProxy#isSuperUser()
