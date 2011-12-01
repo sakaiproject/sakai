@@ -101,10 +101,14 @@ public class CalendarLinksPanel extends Panel {
 			this.remove(calendarLinksDivId);
 		}
 
+        ResourceLoader rl = new ResourceLoader("dash_entity");
+
 		final WebMarkupContainer calendarLinksDiv = new WebMarkupContainer("calendarLinksDiv");
 		calendarLinksDiv.setOutputMarkupId(true);
 		add(calendarLinksDiv);
 		this.calendarLinksDivId = calendarLinksDiv.getId();
+		
+		calendarLinksDiv.add(new Label("calendarTitle",rl.getString("dash.calendar.title")));
 
         AjaxLink<IModel<List<CalendarLink>>> upcomingCalendarLink = new AjaxLink<IModel<List<CalendarLink>>>("link") {
 
@@ -129,7 +133,6 @@ public class CalendarLinksPanel extends Panel {
         	
         };
         
-        ResourceLoader rl = new ResourceLoader("dash_entity");
         upcomingCalendarLink.add(new Label("label", rl.getString("dash.calendar.upcoming")));
 		WebMarkupContainer upcomingCalendarTab = new WebMarkupContainer("upcomingCalendarTab");
 		if(selectedCalendarTab == null || TAB_ID_UPCOMING.equalsIgnoreCase(selectedCalendarTab)) {

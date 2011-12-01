@@ -105,6 +105,8 @@ public class NewsLinksPanel extends Panel {
 			this.remove(newsLinksDivId );
 		}
 		
+		ResourceLoader rl = new ResourceLoader("dash_entity");
+		
 		//get list of items from db, wrapped in a dataprovider
 		newsLinksProvider = new NewsLinksDataProvider(this.selectedNewsTab);
 		
@@ -112,6 +114,8 @@ public class NewsLinksPanel extends Panel {
         newsLinksDiv.setOutputMarkupId(true);
         add(newsLinksDiv);
         this.newsLinksDivId = newsLinksDiv.getId();
+        
+        newsLinksDiv.add(new Label("newsTitle", rl.getString("dash.news.title")));
         
         AjaxLink<IModel<List<NewsLink>>> currentNewsLink = new AjaxLink<IModel<List<NewsLink>>>("link") {
 
@@ -135,7 +139,7 @@ public class NewsLinksPanel extends Panel {
 			}
         	
         };
-        ResourceLoader rl = new ResourceLoader("dash_entity");
+        
         currentNewsLink.add(new Label("label", rl.getString("dash.news.current")));
 		WebMarkupContainer currentNewsTab = new WebMarkupContainer("currentNewsTab");
 		if(selectedNewsTab == null || TAB_ID_CURRENT.equalsIgnoreCase(selectedNewsTab)) {
