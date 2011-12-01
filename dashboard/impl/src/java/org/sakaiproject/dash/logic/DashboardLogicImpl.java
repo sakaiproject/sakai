@@ -462,20 +462,20 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return dao.getCalendarItem(entityReference, calendarTimeLabelKey, sequenceNumber);
 	}
 
-	public List<CalendarItem> getCalendarItems(String sakaiUserId,
-			String contextId, boolean showFuture, boolean showPast, boolean saved, boolean hidden) {
-		if(showFuture) {
-			return dao.getFutureCalendarItems(sakaiUserId, contextId);
-		} else if(showPast) {
-			return dao.getPastCalendarItems(sakaiUserId, contextId);
-		}
-		return dao.getCalendarItems(sakaiUserId, contextId, saved, hidden);
-	}
-
-	public List<CalendarItem> getCalendarItems(String sakaiUserId, boolean showFuture, boolean showPast, boolean saved, boolean hidden) {
-		
-		return this.getCalendarItems(sakaiUserId, null, showFuture, showPast, saved, hidden);
-	}
+//	public List<CalendarItem> getCalendarItems(String sakaiUserId,
+//			String contextId, boolean showFuture, boolean showPast, boolean saved, boolean hidden) {
+//		if(showFuture) {
+//			return dao.getFutureCalendarItems(sakaiUserId, contextId);
+//		} else if(showPast) {
+//			return dao.getPastCalendarItems(sakaiUserId, contextId);
+//		}
+//		return dao.getCalendarItems(sakaiUserId, contextId, saved, hidden);
+//	}
+//
+//	public List<CalendarItem> getCalendarItems(String sakaiUserId, boolean showFuture, boolean showPast, boolean saved, boolean hidden) {
+//		
+//		return this.getCalendarItems(sakaiUserId, null, showFuture, showPast, saved, hidden);
+//	}
 	
 	public CalendarLink getCalendarLink(Long id) {
 		return dao.getCalendarLink(id);
@@ -520,38 +520,38 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return dao.getNewsItem(entityReference);
 	}
 	
-	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId, int collapseCount) {
-		List<NewsItem> items = dao.getNewsItems(sakaiUserId, contextId, collapseCount);
-		if(items != null) {
-			for(NewsItem item : items) {
-				if(item != null && item.getItemCount() > 1) {
-					int itemCount = item.getItemCount();
-					SourceType sourceType = item.getSourceType();
-					if(sourceType != null) {
-						EntityType typeObj = this.entityTypes.get(sourceType.getIdentifier());
-						if(typeObj == null) {
-							ResourceLoader rl = new ResourceLoader("dash_entity");
-							Object[] args = new Object[]{itemCount, sourceType.getIdentifier(), item.getContext().getContextTitle()};
-							rl.getFormattedMessage("dash.grouped.title", args );
-						} else {
-							item.setTitle(typeObj.getGroupTitle(itemCount, item.getContext().getContextTitle(), item.getNewsTimeLabelKey()));
-						}
-					}
-				}
-			}
-		}
-		return items;
-	}
-
-	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId, boolean saved, boolean hidden) {
-		
-		return dao.getNewsItems(sakaiUserId, contextId, saved, hidden);
-	}
-
-	public List<NewsItem> getNewsItems(String sakaiUserId, boolean saved, boolean hidden) {
-		
-		return dao.getNewsItems(sakaiUserId, null, saved, hidden);
-	}
+//	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId, int collapseCount) {
+//		List<NewsItem> items = dao.getNewsItems(sakaiUserId, contextId, collapseCount);
+//		if(items != null) {
+//			for(NewsItem item : items) {
+//				if(item != null && item.getItemCount() > 1) {
+//					int itemCount = item.getItemCount();
+//					SourceType sourceType = item.getSourceType();
+//					if(sourceType != null) {
+//						EntityType typeObj = this.entityTypes.get(sourceType.getIdentifier());
+//						if(typeObj == null) {
+//							ResourceLoader rl = new ResourceLoader("dash_entity");
+//							Object[] args = new Object[]{itemCount, sourceType.getIdentifier(), item.getContext().getContextTitle()};
+//							rl.getFormattedMessage("dash.grouped.title", args );
+//						} else {
+//							item.setTitle(typeObj.getGroupTitle(itemCount, item.getContext().getContextTitle(), item.getNewsTimeLabelKey()));
+//						}
+//					}
+//				}
+//			}
+//		}
+//		return items;
+//	}
+//
+//	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId, boolean saved, boolean hidden) {
+//		
+//		return dao.getNewsItems(sakaiUserId, contextId, saved, hidden);
+//	}
+//
+//	public List<NewsItem> getNewsItems(String sakaiUserId, boolean saved, boolean hidden) {
+//		
+//		return dao.getNewsItems(sakaiUserId, null, saved, hidden);
+//	}
 	
 	public int countNewsLinksByGroupId(String sakaiUserId,
 			String groupId) {
