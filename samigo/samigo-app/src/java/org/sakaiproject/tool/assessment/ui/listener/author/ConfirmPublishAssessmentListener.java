@@ -308,7 +308,7 @@ public class ConfirmPublishAssessmentListener
     String toGradebook = assessmentSettings.getToDefaultGradebook();
     try{
 	if (toGradebook!=null && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString()) &&
-	    gbsHelper.isAssignmentDefined(assessmentName, g)){
+	    gbsHelper.isAssignmentDefined(assessmentSettings.getTitle(), g)){
         String gbConflict_err= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages" , "gbConflict_error");
         context.addMessage(null,new FacesMessage(gbConflict_err));
         error=true;

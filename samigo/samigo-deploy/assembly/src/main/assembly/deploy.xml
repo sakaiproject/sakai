@@ -15,7 +15,8 @@
                 <include>org.sakaiproject.samigo:samigo-help:jar:*</include>
                 <include>org.sakaiproject.samigo:samigo-hibernate:jar:*</include>
                 <include>org.sakaiproject.samigo:samigo-services:jar:*</include>
-                 <include>OKI:OkiOSID:jar:*</include>
+                <include>org.apache.commons:commons-math:jar:*</include>
+                <include>OKI:OkiOSID:jar:*</include>
             </includes>
         </dependencySet>
         <!-- stuff that goes into components -->

@@ -2337,20 +2337,24 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		    		+ "a.qualifierId = ? ";
 		    Object [] values = {"TAKE_PUBLISHED_ASSESSMENT", publishedAssessmentId};
 		    List l = getHibernateTemplate().find(query, values);
-		    if (l.size()>0){
-		    	AuthorizationData a = (AuthorizationData) l.get(0);
-		    	// gopalrc - added first condition to take account of group releases
-		    	PublishedAssessmentData publishedAssessment = 
-		    		loadPublishedAssessment(Long.valueOf(publishedAssessmentId));
-		    	if (publishedAssessment.getAssessmentAccessControl().getReleaseTo()
-		    			.equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
-		    		return siteService.findGroup(a.getAgentIdString()).getContainingSite().getId();
+
+		    PublishedAssessmentData publishedAssessment = 
+	    		loadPublishedAssessment(Long.valueOf(publishedAssessmentId));
+		    boolean releaseToGroups = AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS.equals(publishedAssessment.getAssessmentAccessControl().getReleaseTo());
+		    for (int i = 0; i < l.size(); i++) {
+		    	AuthorizationData a = (AuthorizationData) l.get(i);
+		    	if (releaseToGroups) {
+		    		String agentId = a.getAgentIdString();
+		    		if (siteService.findGroup(agentId) != null && siteService.findGroup(agentId).getContainingSite() != null) {
+		    			return siteService.findGroup(a.getAgentIdString()).getContainingSite().getId();
+		    		}
 		    	}
 		    	else {
 		    		return a.getAgentIdString();
 		    	}
 		    }
-		    else return null;
+		    
+		    return "";
 	}
 	  
 	/**

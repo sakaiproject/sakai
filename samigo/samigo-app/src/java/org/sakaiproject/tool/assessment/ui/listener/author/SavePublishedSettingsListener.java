@@ -137,7 +137,11 @@ implements ActionListener
 			return;
 		}
 
-		updateGB(assessmentSettings, assessment, isTitleChanged);
+		boolean gbUpdated = updateGB(assessmentSettings, assessment, isTitleChanged, context);
+		if (!gbUpdated){
+			assessmentSettings.setOutcome("editPublishedAssessmentSettings");
+			return;
+		}
 		
 		assessment.setLastModifiedBy(AgentFacade.getAgentString());
 		assessment.setLastModifiedDate(new Date());
@@ -576,7 +580,7 @@ implements ActionListener
 		return gbError;
 	}
 
-	public void updateGB(PublishedAssessmentSettingsBean assessmentSettings, PublishedAssessmentFacade assessment, boolean isTitleChanged) {
+	public boolean updateGB(PublishedAssessmentSettingsBean assessmentSettings, PublishedAssessmentFacade assessment, boolean isTitleChanged, FacesContext context) {
 		//#3 - add or remove external assessment to gradebook
 		// a. if Gradebook does not exists, do nothing, 'cos setting should have been hidden
 		// b. if Gradebook exists, just call addExternal and removeExternal and swallow any exception. The
@@ -596,6 +600,20 @@ implements ActionListener
 				evaluation = new PublishedEvaluationModel();
 				evaluation.setAssessmentBase(assessment.getData());
 			}
+			
+			try{
+				String assessmentName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getTitle().trim());
+				if (assessmentSettings.getToDefaultGradebook()!=null && assessmentSettings.getToDefaultGradebook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString()) &&
+						gbsHelper.isAssignmentDefined(assessmentName, g)){
+					String gbConflict_error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
+					context.addMessage(null,new FacesMessage(gbConflict_error));
+					return false;
+				}
+			}
+			catch(Exception e){
+				log.warn("external assessment in GB has the same title:"+e.getMessage());
+			}
+			
 			// If there is value set for toDefaultGradebook, we reset it
 			// Otherwise, do nothing
 			if (assessmentSettings.getToDefaultGradebook() != null) {
@@ -604,7 +622,7 @@ implements ActionListener
 
 			// If the assessment is retracted for edit, we don't sync with gradebook (only until it is republished)
 			if(AssessmentBaseIfc.RETRACT_FOR_EDIT_STATUS.equals(assessment.getStatus())) {
-				return;
+				return true;
 			}
 			Integer scoringType = evaluation.getScoringType();
 			if (evaluation.getToGradeBook()!=null && 
@@ -676,6 +694,7 @@ implements ActionListener
 				}
 			}
 		}
+		return true;
 	}
 
 	public void resetPublishedAssessmentsList(AuthorBean author,
