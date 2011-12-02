@@ -128,6 +128,8 @@ public class DashboardPage extends BasePage {
 							results.put("count", items.size());
 						}
 						results.put("offset", offset);
+						ResourceLoader rl = new ResourceLoader("dash_entity");
+						results.put("more-label", rl.getString("dash.grouped.more", "[[ Show more ... ]]"));
 						
 						JsonHelper jsonHelper = new JsonHelper(dashboardLogic, dashboardConfig);
 						String jsonString = jsonHelper.getJsonObjectFromMap(results).toString();
