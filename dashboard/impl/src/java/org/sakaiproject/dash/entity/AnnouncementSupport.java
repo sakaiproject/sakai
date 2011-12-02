@@ -12,11 +12,10 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementService;
-import org.sakaiproject.announcement.api.AnnouncementChannel;
-import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.logic.DashboardLogic;
@@ -25,20 +24,19 @@ import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.SourceType;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.Event;
-import org.sakaiproject.message.api.Message;
-import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.message.api.Message;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * THIS WILL BE MOVED TO THE ANNOUNCEMENT PROJECT IN SAKAI CORE ONCE THE INTERFACE IS MOVED TO KERNEL

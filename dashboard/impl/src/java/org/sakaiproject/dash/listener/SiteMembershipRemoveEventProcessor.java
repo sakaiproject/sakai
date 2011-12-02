@@ -3,20 +3,9 @@
  */
 package org.sakaiproject.dash.listener;
 
-import java.util.Date;
-import java.util.List;
-
 import org.apache.log4j.Logger;
-import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.dash.logic.DashboardLogic;
-import org.sakaiproject.dash.logic.DashboardLogicImpl;
 import org.sakaiproject.dash.logic.SakaiProxy;
-import org.sakaiproject.dash.model.CalendarItem;
-import org.sakaiproject.dash.model.Context;
-import org.sakaiproject.dash.model.NewsItem;
-import org.sakaiproject.dash.model.Realm;
-import org.sakaiproject.dash.model.SourceType;
-import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.site.api.SiteService;
 
