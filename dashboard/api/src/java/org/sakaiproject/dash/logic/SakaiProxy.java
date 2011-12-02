@@ -1,18 +1,16 @@
 package org.sakaiproject.dash.logic;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Observer;
 
+import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
@@ -65,6 +63,7 @@ public interface SakaiProxy {
 	public static final String PERMIT_ASSIGNMENT_ACCESS = AssignmentService.SECURE_ACCESS_ASSIGNMENT;
 	public static final String PERMIT_RESOURCE_ACCESS = ContentHostingService.AUTH_RESOURCE_READ;
 	public static final String PERMIT_DROPBOX_ACCESS = ContentHostingService.AUTH_DROPBOX_OWN;
+	public static final String PERMIT_DROPBOX_MAINTAIN = ContentHostingService.AUTH_DROPBOX_MAINTAIN;
 	public static final String PERMIT_SCHEDULE_ACCESS = CalendarService.AUTH_READ_CALENDAR;
 	
 	public static final String ANNOUNCEMENT_RELEASE_DATE = AnnouncementService.RELEASE_DATE;
@@ -165,7 +164,7 @@ public interface SakaiProxy {
 	
 	/**
 	 * 
-	 * @param realmId
+	 * @param entityReference
 	 * @param accessPermission
 	 * @return
 	 */

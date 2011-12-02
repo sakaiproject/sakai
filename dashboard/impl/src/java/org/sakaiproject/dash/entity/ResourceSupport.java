@@ -62,6 +62,7 @@ public class ResourceSupport {
 		logger.info("init()");
 		
 		this.dashboardLogic.registerEntityType(new ResourceEntityType());
+		this.dashboardLogic.registerEntityType(new DropboxEntityType());
 		this.dashboardLogic.registerEventProcessor(new ContentNewEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new ContentAccessUpdateEventProcessor());
 		this.dashboardLogic.registerEventProcessor(new ContentTitleUpdateEventProcessor());
@@ -283,7 +284,7 @@ public class ResourceSupport {
 			ResourceLoader rl = new ResourceLoader("dash_entity");
 			Object[] args = new Object[]{ numberOfItems, contextTitle };
 			return rl.getFormattedMessage(titleKey, args );
-	}
+		}
 
 		public String getIconUrl(String subtype) {
 			
@@ -298,6 +299,27 @@ public class ResourceSupport {
 			}
 			return url ;
 		}
+	}
+	
+	public class DropboxEntityType extends ResourceEntityType {
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.dash.entity.EntityType#getIdentifier()
+		 */
+		public String getIdentifier() {
+			return DROPBOX_TYPE_IDENTIFIER;
+		}
+
+		public String getGroupTitle(int numberOfItems, String contextTitle, String labelKey) {
+			String titleKey = "dropbox.grouped.created";
+			if(labelKey != null && "dash.updated".equals(labelKey)) {
+				titleKey = "dropbox.grouped.updated";
+			} 
+			ResourceLoader rl = new ResourceLoader("dash_entity");
+			Object[] args = new Object[]{ numberOfItems, contextTitle };
+			return rl.getFormattedMessage(titleKey, args );
+		}
+
 	}
 
 	/**
@@ -370,7 +392,7 @@ public class ResourceSupport {
 			if(entity != null && entity instanceof ContentResource) {
 				ContentResource resource = (ContentResource) entity;
 				
-				if (!sakaiProxy.isAttachmentResource(resource.getId()) && ! sakaiProxy.isDropboxResource(resource.getId()))
+				if (!sakaiProxy.isAttachmentResource(resource.getId()))
 				{
 					// only when the resource is not attachment
 					Context context = dashboardLogic.getContext(event.getContext());
@@ -379,10 +401,19 @@ public class ResourceSupport {
 					}
 					
 					String labelKey = "resource.added";
-
-					SourceType sourceType = dashboardLogic.getSourceType(RESOURCE_TYPE_IDENTIFIER);
-					if(sourceType == null) {
-						sourceType = dashboardLogic.createSourceType(RESOURCE_TYPE_IDENTIFIER, SakaiProxy.PERMIT_RESOURCE_ACCESS, EntityLinkStrategy.ACCESS_URL);
+					SourceType sourceType = null;
+					boolean isDropboxResource = sakaiProxy.isDropboxResource(resource.getId());
+					if(isDropboxResource ) {
+						sourceType = dashboardLogic.getSourceType(DROPBOX_TYPE_IDENTIFIER);
+						if(sourceType == null) {
+							sourceType = dashboardLogic.createSourceType(DROPBOX_TYPE_IDENTIFIER, SakaiProxy.PERMIT_DROPBOX_MAINTAIN, EntityLinkStrategy.ACCESS_URL);
+						}
+						labelKey = "dropbox.added";
+					} else {
+						sourceType = dashboardLogic.getSourceType(RESOURCE_TYPE_IDENTIFIER);
+						if(sourceType == null) {
+							sourceType = dashboardLogic.createSourceType(RESOURCE_TYPE_IDENTIFIER, SakaiProxy.PERMIT_RESOURCE_ACCESS, EntityLinkStrategy.ACCESS_URL);
+						}
 					}
 					
 					ResourceProperties props = resource.getProperties();
@@ -611,4 +642,5 @@ public class ResourceSupport {
 		}
 
 	}
+
 }
