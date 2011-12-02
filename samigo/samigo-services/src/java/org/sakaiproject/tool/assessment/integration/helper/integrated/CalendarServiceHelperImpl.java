@@ -161,7 +161,7 @@ public class CalendarServiceHelperImpl implements CalendarServiceHelper {
 		List<Group> authorizedGroups = getAuthorizedGroups(releaseTo, groupsAuthorized);
 
 		//Due Date
-		if (addDueDateToCalendar) {
+		if (addDueDateToCalendar && pub.getAssessmentAccessControl().getDueDate() != null) {
 			newDueDateEventId = addCalendarEvent(
 					AgentFacade.getCurrentSiteId(),
 					dueDateTitlePrefix + pub.getTitle(), eventDesc, pub

@@ -250,6 +250,7 @@ public class AuthorActionListener
 
 	  for (int i = 0; i < assessmentList.size(); i++) {
 		  PublishedAssessmentFacade f = (PublishedAssessmentFacade)assessmentList.get(i);
+		  f.setTitle(FormattedText.convertFormattedTextToPlaintext(f.getTitle()));
 		  Long publishedAssessmentId = f.getPublishedAssessmentId();
 		  if (isActive(f, (HashMap) submissionCountHash.get(publishedAssessmentId), (HashMap) inProgressCountHash.get(publishedAssessmentId), 
 				  (HashMap) numberRetakeHash.get(publishedAssessmentId), (HashMap) actualNumberRetake.get(publishedAssessmentId), needResubmitList)) {

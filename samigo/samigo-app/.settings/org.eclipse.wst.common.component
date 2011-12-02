@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="samigo-app">
+        <wb-resource deploy-path="/" source-path="/src/webapp"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/java"/>
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/samigo-qti/samigo-qti">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <property name="context-root" value="samigo-app"/>
+        <property name="java-output-path" value="/samigo-app/target/classes"/>
+    </wb-module>
+</project-modules>

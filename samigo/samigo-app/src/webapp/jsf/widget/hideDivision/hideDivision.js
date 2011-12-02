@@ -295,6 +295,7 @@ function retainHideUnhideStatus(action)
 
     for (i=0;i<myDocumentElements.length;i++)
     {
+      //alert("myDocumentElements.length=" + myDocumentElements.length);  
       var unhide = "false";
       divisionNo = "" + myDocumentElements[i].id;
       if(divisionNo != null && exceptionIdArray.length != 0)
@@ -310,11 +311,12 @@ function retainHideUnhideStatus(action)
 				 var imgNo = getTheElement(exceptionImgId);
 				 if(imgNo) {
 					 imgNo.src = "/samigo-app/images/down_arrow.gif";
-					 imgEle.alt = "Click to hide.";
+					 imgNo.alt = "Click to hide.";
 				 }
 				 break;
 			 }
 		 }
+		 //alert("i=" + i);
       }
 
       if (unhide == "false" && divisionNo.indexOf("__hide_division_")==0)
