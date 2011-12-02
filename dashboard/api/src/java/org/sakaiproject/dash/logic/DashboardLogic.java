@@ -70,6 +70,16 @@ public interface DashboardLogic {
 	 * @param contextId
 	 */
 	public void addCalendarLinks(String sakaiUserId, String contextId);
+	
+	/**
+	 * Add link to a previously persisted news item for a particular user. Creates "Person" 
+	 * record for user if it doesn't exist (provided sakaiUserId identifies a valid sakai
+	 * user).  Does not check permissions before adding the link.
+	 * @param sakaiUserId
+	 * @param newsItem
+	 * @return
+	 */
+	public NewsLink addNewsLink(String sakaiUserId, NewsItem newsItem);
 
 	/**
 	 * Add links to news items in a context for a particular user. Links

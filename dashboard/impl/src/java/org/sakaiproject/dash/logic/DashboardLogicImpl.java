@@ -39,9 +39,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import net.sf.ehcache.Cache;
 
 import org.apache.log4j.Logger;
-
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.dash.dao.DashboardDao;
 import org.sakaiproject.dash.entity.EntityLinkStrategy;
 import org.sakaiproject.dash.entity.EntityType;
@@ -51,13 +49,9 @@ import org.sakaiproject.dash.model.AvailabilityCheck;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.CalendarLink;
 import org.sakaiproject.dash.model.Context;
-import org.sakaiproject.dash.model.ItemType;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.NewsLink;
 import org.sakaiproject.dash.model.Person;
-import org.sakaiproject.dash.model.PersonContext;
-import org.sakaiproject.dash.model.PersonContextSourceType;
-import org.sakaiproject.dash.model.PersonSourceType;
 import org.sakaiproject.dash.model.Realm;
 import org.sakaiproject.dash.model.RepeatingCalendarItem;
 import org.sakaiproject.dash.model.SourceType;
@@ -265,6 +259,29 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 		
 	}
+	
+	public NewsLink addNewsLink(String sakaiUserId, NewsItem newsItem) {
+		if(logger.isDebugEnabled()) {
+			logger.debug("addNewsLink(" + sakaiUserId + "," + newsItem + ") ");
+		}
+		NewsLink link = null;
+		Person person = this.getOrCreatePerson(sakaiUserId);
+		if(person == null) {
+			logger.warn("Attempting to add news link for non-existent user: " + sakaiUserId);
+		} else if(newsItem == null || newsItem.getId() == null || newsItem.getId().longValue() < 1L) {
+			logger.warn("Attempting to add news link for unsaved news item : " + newsItem);
+		} else {
+			SourceType sourceType = newsItem.getSourceType();
+			EntityType entityType = this.entityTypes.get(sourceType.getIdentifier());
+			NewsLink newsLink = new NewsLink(person, newsItem, newsItem.getContext(), false, false);
+			if(dao.addNewsLink(newsLink)) {
+				link = dao.getNewsLink(newsItem.getId(), person.getId());
+			}
+		}
+		return link;
+	}
+
+
 
 	public void addNewsLinks(String sakaiUserId, String contextId) {
 		if(logger.isDebugEnabled()) {
