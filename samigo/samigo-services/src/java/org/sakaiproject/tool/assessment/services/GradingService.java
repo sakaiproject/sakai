@@ -94,8 +94,11 @@ public class GradingService
   /**
    * regular expression for matching the contents of a variable or formula name 
    * in Calculated Questions
+   * TODO - this regular expression is way too complicated.  There must be 
+   * a better way to include any character except for the curly braces inside 
+   * the contents of the group.
    */
-  private final String CALCQ_VAR_FORM_NAME_EXPRESSION = "([\\w\\s\\.\\-\\^\\$\\!\\&\\@\\?\\*\\%\\(\\)\\+=#]+?)";
+  private final String CALCQ_VAR_FORM_NAME_EXPRESSION = "([\\w\\s\\.\\-\\^\\$\\!\\&\\@\\?\\*\\%\\(\\)\\+=#`~&:;|,/<>\\[\\]\\\\\\'\"]+?)";
   private static Log log = LogFactory.getLog(GradingService.class);
 
   /**
