@@ -278,7 +278,7 @@ public class ResourceSupport {
 		
 		public String getGroupTitle(int numberOfItems, String contextTitle, String labelKey) {
 			String titleKey = "resource.grouped.created";
-			if(labelKey != null && "dash.updated".equals(labelKey)) {
+			if(labelKey != null && ("dash.updated".equals(labelKey) || ("resource.updated".equals(labelKey)))) {
 				titleKey = "resource.grouped.updated";
 			} 
 			ResourceLoader rl = new ResourceLoader("dash_entity");
@@ -312,7 +312,7 @@ public class ResourceSupport {
 
 		public String getGroupTitle(int numberOfItems, String contextTitle, String labelKey) {
 			String titleKey = "dropbox.grouped.created";
-			if(labelKey != null && "dash.updated".equals(labelKey)) {
+			if(labelKey != null && ("dash.updated".equals(labelKey) || ("dropbox.updated".equals(labelKey)))) {
 				titleKey = "dropbox.grouped.updated";
 			} 
 			ResourceLoader rl = new ResourceLoader("dash_entity");
