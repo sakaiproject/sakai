@@ -84,9 +84,9 @@
         <sakai.servletapi.version>2.4</sakai.servletapi.version>
         <sakai.spring.groupId>org.springframework</sakai.spring.groupId>
         <sakai.spring.artifactId>spring</sakai.spring.artifactId>
-        <sakai.spring.version>2.5.6.SEC01</sakai.spring.version>
+        <sakai.spring.version>2.5.6.SEC03</sakai.spring.version>
         <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
-        <sakai.spring.test.version>2.5.6.SEC01</sakai.spring.test.version>
+        <sakai.spring.test.version>2.5.6.SEC03</sakai.spring.test.version>
         <sakai.tomcat.version>7.0.21</sakai.tomcat.version>
         <sakai.xerces.impl.version>2.6.2</sakai.xerces.impl.version>
         <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
