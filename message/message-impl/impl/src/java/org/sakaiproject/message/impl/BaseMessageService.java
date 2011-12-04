@@ -4065,7 +4065,13 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 				m_from = m_userDirectoryService.getAnonymousUser();
 			}
 			m_date = m_timeService.newTimeGmt(el.getAttribute("date"));
-			m_message_order=Integer.parseInt(el.getAttribute("message_order"));
+			String order = el.getAttribute("message_order");
+			if (order !=null && !"".equals(order)) 
+			{
+				m_message_order=Integer.parseInt(order);
+			} else {
+				m_message_order = 0;
+			}
 			try
 			{
 				m_draft = Boolean.valueOf(el.getAttribute("draft")).booleanValue();
