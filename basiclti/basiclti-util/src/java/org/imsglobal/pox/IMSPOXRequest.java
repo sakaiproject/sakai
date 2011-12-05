@@ -180,14 +180,17 @@ public class IMSPOXRequest {
 		String contentType = request.getContentType();
 		if ( ! "application/xml".equals(contentType) ) {
 			errorMessage = "Content Type must be application/xml";
+			Log.info(errorMessage+"\n"+contentType);
 			return;
 		}
 
 		header = request.getHeader("Authorization");
 		oauth_body_hash = null;
 		if ( header != null ) {
+			if (header.startsWith("OAuth ")) header = header.substring(5);
 			String [] parms = header.split(",");
 			for ( String parm : parms ) {
+				parm = parm.trim();
 				if ( parm.startsWith("oauth_body_hash=") ) {
 					String [] pieces = parm.split("\"");
 					oauth_body_hash = URLDecoder.decode(pieces[1]);
@@ -199,9 +202,14 @@ public class IMSPOXRequest {
 			}
 		}		
 
+		if ( oauth_body_hash == null ) {
+			errorMessage = "Did not find oauth_body_hash";
+			Log.info(errorMessage+"\n"+header);
+			return;
+		}
+
 		// System.out.println("OBH="+oauth_body_hash);
 		final char[] buffer = new char[0x10000];
-
 		try {
 			StringBuilder out = new StringBuilder();
 			Reader in = request.getReader();
