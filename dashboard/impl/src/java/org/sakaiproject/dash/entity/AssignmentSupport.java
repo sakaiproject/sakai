@@ -345,13 +345,22 @@ public class AssignmentSupport {
 				String assnReference = assn.getReference();
 				
 				NewsItem newsItem = dashboardLogic.createNewsItem(assn.getTitle(), event.getEventTime(), "assignment.added", assnReference, context, sourceType, null);
-				// don't create calendar item now, if the assignment is posting to schedule tool, dashboard will get the calendar item from schedule tool post event
-				//CalendarItem calendarDueDateItem = dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getDueTime().getTime()), "assignment.due.date", assnReference, context, sourceType, null, null);
+				CalendarItem calendarDueDateItem = null;
+				if (assn.getProperties().getProperty(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE)  == null)
+				{
+					// don't create calendar item now, if the assignment is posting to schedule tool, dashboard will get the calendar item from schedule tool post event
+					calendarDueDateItem = dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getDueTime().getTime()), "assignment.due.date", assnReference, context, sourceType, (String) null, (RepeatingCalendarItem) null, (Integer) null);
+				}
 				CalendarItem calendarCloseDateItem = assn.getCloseTime().equals(assn.getDueTime())? null : dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getCloseTime().getTime()), "assignment.close.date", assnReference, context, sourceType, (String) null, (RepeatingCalendarItem) null, (Integer) null);
 				
 				if(dashboardLogic.isAvailable(assnReference, IDENTIFIER)) {
 					// if the assignment is open, add the news links
 					dashboardLogic.createNewsLinks(newsItem);
+					if (calendarDueDateItem != null)
+					{
+						// create links for due date Calendar item
+						dashboardLogic.createCalendarLinks(calendarDueDateItem);
+					}
 					if (calendarCloseDateItem != null)
 					{
 						// if the close time is different from due time, create a separate close time item
