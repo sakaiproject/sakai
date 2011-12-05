@@ -489,3 +489,18 @@ ul.tabPanel{
 .mainPanel{
     position:relative
 }
+.getMore{
+    padding:10px;
+    text-align:center
+}
+
+.getMore a{
+        -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    text-decoration:none;
+    padding:5px;
+    background: #cceeff;
+    text-align:center;
+    margin:5px;
+}      
