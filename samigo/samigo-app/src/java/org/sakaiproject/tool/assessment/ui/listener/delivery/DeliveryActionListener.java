@@ -1596,13 +1596,6 @@ public class DeliveryActionListener
                                    Character.toString(alphabet.charAt(i++)),
                                    ""));
       }
-      
-      GradingService gs = new GradingService();
-      if (gs.hasDistractors(item)) {
-    	  choices.add(new SelectItem("None of the Above",
-    			  					"None of the Above",
-    			  					""));
-      }
 
       mbean.setChoices(choices); // Set the A/B/C... pulldown
 

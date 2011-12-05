@@ -54,7 +54,6 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SecuredIPAddress;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
@@ -2547,13 +2546,8 @@ public class ExtractionHelper
         float score = getCorrectScore(item, 1);
         float discount = getCorrectDiscount(item);
         
-        // assume that the xslt creates the three important lists in the correct order
-        // sourceList and target list individually don't matter
-        // indexList must be ordered by source, then target, in the same order
-        // as source and target are ordered
-        int index = a + i * targetList.size();
-        String correctStatus = (String) indexList.get(index);
-        if ("CorrectMatch".equals(correctStatus))
+        // if this answer is the indexed one, flag as correct
+        if (a + 1 == targetIndex)
         {
           target.setIsCorrect(Boolean.TRUE);
 //          score = getCorrectScore(item, targetList.size());
@@ -2611,6 +2605,10 @@ public class ExtractionHelper
 		  item.setInstruction(makeFCKAttachmentFromRespondus((String) itemTextList.get(0)));
 	  }
 	  
+	  if (Math.pow(sourceList.size(), 2) != targetList.size()) {
+		  throw new RespondusMatchingException("Matching question error!");
+	  }
+	  
 	  HashMap<String, String> sourceMap = new HashMap<String, String>();
 	  if (sourceList != null) {
 		  Iterator iter = sourceList.iterator();
@@ -2639,7 +2637,7 @@ public class ExtractionHelper
 		  }
 	  }
 
-	  Set<ItemText> itemTextSet = new HashSet<ItemText>();
+	  HashSet itemTextSet = new HashSet();
 	  String ident = "";
 	  String correctVar = "";
 	  String sourceText = "";
@@ -2678,7 +2676,7 @@ public class ExtractionHelper
 
 			  ident = source.getKey();
 			  correctVar = correctMap.get(ident);
-			  if (target.getKey().equals(correctVar)) {
+			  if (correctVar.equals(target.getKey())) {
 				  answer.setIsCorrect(Boolean.TRUE);
 			  }
 			  else {
@@ -2689,23 +2687,6 @@ public class ExtractionHelper
 
 		  sourceItemText.setAnswerSet(targetSet);
 		  itemTextSet.add(sourceItemText);
-	  }
-	  
-	  // Respondus allows for more matches than choices.  
-	  // If any answer does not have a correct choice, throw an exception
-	  Set<String> correctAnswers = new HashSet<String>();
-	  Set<String> allAnswers = new HashSet<String>();
-	  for (ItemText itemText : itemTextSet) {
-		  Set<AnswerIfc> answers = itemText.getAnswerSet();
-		  for (AnswerIfc answer : answers) {
-			  allAnswers.add(answer.getText());
-			  if (answer.getIsCorrect()) {
-				  correctAnswers.add(answer.getText());
-			  }
-		  }		  
-	  }
-	  if (!correctAnswers.containsAll(allAnswers)) {
-		  throw new RespondusMatchingException("All answers do not have a valid choice.");
 	  }
 	  
 	  item.setItemTextSet(itemTextSet);
