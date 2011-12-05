@@ -586,7 +586,7 @@ public class SiteAddParticipantHandler {
 						EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP, realmEdit.getId(),false));
 						
 						// check the configuration setting, whether logging membership change at individual level is allowed
-						if (serverConfigurationService.getBoolean(SiteHelper.WSETUP_TRACK_USER_MEMBERSHIP_CHANGE, false))
+						if (serverConfigurationService.getBoolean(SiteHelper.WSETUP_TRACK_USER_MEMBERSHIP_CHANGE, true))
 						{
 							for(String userInfo : addedUserInfos)
 							{
