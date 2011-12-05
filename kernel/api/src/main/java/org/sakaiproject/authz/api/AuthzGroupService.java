@@ -453,4 +453,13 @@ public interface AuthzGroupService extends EntityProducer
 	 * must not be "compound IDs", as defined by the GroupProvider's String[] unpackId(String id) method.
 	 */
 	public Set<String> getProviderIds(String authzGroupId); 
+
+    /**
+     * Get list of users who are in a set of groups
+     * 
+     * @param groupIds IDs of authZ groups (AuthzGroup selection criteria)
+     * @return list of user IDs who are in a set of groups
+     */
+    public Collection<String> getAuthzUsersInGroups(Set<String> groupIds);
+
 }

@@ -329,6 +329,14 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	/**
 	 * {@inheritDoc}
 	 */
+	public Collection<String> getAuthzUsersInGroups(Set<String> groupIds)
+	{
+		return m_storage.getAuthzUsersInGroups(groupIds);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public int countAuthzGroups(String criteria)
 	{
 		return m_storage.countAuthzGroups(criteria);
@@ -1258,6 +1266,14 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 		 * @return The List (AuthzGroup) that meet specified criteria.
 		 */
 		List getAuthzUserGroupIds(ArrayList authzGroupIds, String user_id);
+
+		/**
+		 * Return a list of users in the specified group list
+		 *
+		 * @param groupIds set of authz group ids
+		 * @return collection of user ids
+		 */
+		Collection<String> getAuthzUsersInGroups(Set<String> groupIds);
 
 		/**
 		 * Count the AuthzGroup objets that meet specified criteria.

@@ -24,6 +24,8 @@ package org.sakaiproject.site.impl;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -851,6 +853,23 @@ public class BaseSite implements Site
 		}
 
 		return m_groups;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+    public Collection<String> getMembersInGroups(Set<String> groupIds) {
+        @SuppressWarnings("unchecked")
+        Collection<Group> siteGroups = getGroups();
+		HashSet<String> siteGroupRefs = new HashSet<String>(siteGroups.size());
+        for (Group group : siteGroups) {
+            if (groupIds == null || // null groupIds includes all groups in the site
+                    groupIds.contains(group.getId())) {
+                siteGroupRefs.add(group.getReference());
+            }
+        }
+        Collection<String> membersInGroups = AuthzGroupService.getAuthzUsersInGroups(siteGroupRefs);
+		return membersInGroups;
 	}
 
 	/**

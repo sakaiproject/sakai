@@ -254,4 +254,9 @@ public class MockAuthzGroupService implements AuthzGroupService {
 		return false;
 	}
 
+    public Collection<String> getAuthzUsersInGroups(Set<String> groupIds) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

@@ -25,8 +25,10 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
@@ -229,6 +231,15 @@ public interface Site extends Edit, Comparable, Serializable, AuthzGroup
 	 * @return A collection (Group) of groups defined in the site that have this user as a member with this role, empty if there are none.
 	 */
 	Collection<Group> getGroupsWithMemberHasRole(String userId, String role);
+
+    /**
+     * Get user IDs of members of a set of groups in this site
+     * 
+     * @param groupIds IDs of authZ groups (AuthzGroup selection criteria),
+     *      a null groupIds includes all groups in the site, an empty set includes none of them
+     * @return collection of user IDs who are in (members of) a set of site groups
+     */
+    Collection<String> getMembersInGroups(Set<String> groupIds);
 
 	/**
 	 * Does the site have any groups defined?

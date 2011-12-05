@@ -21,6 +21,7 @@
 
 package org.sakaiproject.authz.cover;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -345,4 +346,13 @@ public class AuthzGroupService
 
 		return service.getUsersRole(param0, param1);
 	}
+
+    public static Collection<String> getAuthzUsersInGroups(Set<String> groupIds)
+    {
+        org.sakaiproject.authz.api.AuthzGroupService service = getInstance();
+        if (service == null) return null;
+
+        return service.getAuthzUsersInGroups(groupIds);
+    }
+
 }

@@ -736,6 +736,24 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			return rv;
 		}
 
+        /**
+         * {@inheritDoc}
+         */
+        public Collection<String> getAuthzUsersInGroups(Set<String> groupIds)
+        {
+            if (groupIds == null || groupIds.isEmpty()) {
+                return new ArrayList<String>(); // empty list
+            }
+
+            // make a big where condition for groupIds with ORs
+            String inClause = orInClause( groupIds.size(), "SR.REALM_ID" );
+            String statement = dbAuthzGroupSql.getSelectRealmUsersInGroupsSql(inClause);
+            Object[] fields = groupIds.toArray();
+            @SuppressWarnings("unchecked")
+            List<String> results = sqlService().dbRead(statement, fields, null);
+            return results;
+        }
+
 		/**
 		 * {@inheritDoc}
 		 */
