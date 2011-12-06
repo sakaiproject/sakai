@@ -369,7 +369,7 @@ public class FakeSite implements Site {
 		return null;
 	}
 
-	public Element toXml(Document arg0, Stack arg1) {
+	public Element toXml(Document arg0, Stack<Element> arg1) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -516,6 +516,11 @@ public class FakeSite implements Site {
 	public void setSoftlyDeleted(boolean arg0) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	public Collection<String> getMembersInGroups(Set<String> groupIds) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 

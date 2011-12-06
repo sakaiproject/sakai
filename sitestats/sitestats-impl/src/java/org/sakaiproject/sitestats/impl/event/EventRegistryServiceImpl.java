@@ -405,7 +405,7 @@ public class EventRegistryServiceImpl implements EventRegistry, EventRegistrySer
 		}
 	}
 
-	@Override
+	
 	public List<String> getServerEventIds() {
 		return serverEventIds;
 	}
