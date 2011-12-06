@@ -45,7 +45,6 @@ $(document).ready(function() {
 
 </style>
 <script type="text/javascript">
-	<!--
     function SetMaxPoint(obj_option, obj_textfield)
     {
 		if(obj_option.value==3)
@@ -89,7 +88,6 @@ $(document).ready(function() {
 			}
 		}
 	*#
-	-->
 	
 	function toggleReviewServiceOptions(checked){
 		var section = document.getElementById("reviewServiceOptions");
