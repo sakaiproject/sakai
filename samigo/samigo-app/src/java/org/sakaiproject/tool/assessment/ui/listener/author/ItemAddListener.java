@@ -882,7 +882,6 @@ public class ItemAddListener
       itemauthor.setItemId(item.getItemId().toString());
   }
 
-  
   private HashSet prepareTextForMatching(ItemFacade item, ItemBean bean,
 		  ItemAuthorBean itemauthor) {
 	  // looping through matchItemBean
