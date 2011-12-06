@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletConfig;
@@ -223,13 +224,39 @@ public class BaseCitationServlet extends VmServlet
 	}
 
 
+	public Citation findOpenURLVersion01(ParameterParser params) {
+		String genre = params.getString("genre");
+		String[] authors = params.getStrings("au");
+		String title = params.getString("title");
+		String atitle = params.getString("atitle");
+		String volume = params.getString("volume");
+		String issue = params.getString("issue");
+		String pages = params.getString("pages");
+		String publisher = params.getString("publisher");
+		String date = params.getString("date");
+		String id = params.getString("id");
+
+        HashMap map = new HashMap();
+		map.put("genre", genre);
+		map.put("au", authors);
+		map.put("title", title);
+		map.put("atitle", atitle);
+		map.put("volume", volume);
+		map.put("issue", issue);
+		map.put("pages", pages);
+		map.put("publisher", publisher);
+		map.put("date", date);
+		map.put("id", id);
+        return findOpenURLVersion01(map);
+    }
+
 	/**
 	 * Try and extract a Citation from the request.
 	 *
 	 * @param req  HttpServletRequest object with the client request
 	 * @param res  HttpServletResponse object back to the client
 	 */
-	public Citation findOpenURLVersion01(ParameterParser params) {
+	public Citation findOpenURLVersion01(Map params) {
 
 		// http://localhost:8080/savecite/71b84348-5962-4e0e-aa49-4ce5824ed84f
 		// ?sakai.session.key=nada&sid=google&genre=book&au=Siever,+E.&au=Figgins,+S.&au=Love,+R.&au=Robbins,+A.
@@ -241,16 +268,16 @@ public class BaseCitationServlet extends VmServlet
 		// http://localhost:8080/savecite/71b84348-5962-4e0e-aa49-4ce5824ed84f?sakai.session.key=nada&sid=google&genre=article&au=Elsworth,+JD&au=Glover,+V.&au=Reynolds,+GP&au=Sandler,+M.&au=Lees,+AJ&au=Phuapradit,+P.&au=Shaw,+KM&au=Stern,+GM&au=Kumar,+P.&atitle=Deprenyl+administration+in+man:+a+selective+monoamine+oxidase+B+inhibitor+without+the+%E2%80%98cheese+effect%E2%80%99&title=Psychopharmacology&volume=57&issue=1&pages=33-38&date=1978&publisher=Springer
 		// http://oxfordsfx.hosted.exlibrisgroup.com/oxford?sid=google&auinit=JD&aulast=Elsworth&atitle=Deprenyl+administration+in+man:+a+selective+monoamine+oxidase+B+inhibitor+without+the+%E2%80%98cheese+effect%E2%80%99&id=doi:10.1007/BF00426954&title=Psychopharmacology&volume=57&issue=1&date=1978&spage=33&issn=0033-3158
 
-		String genre = params.getString("genre");
-		String[] authors = params.getStrings("au");
-		String title = params.getString("title");
-		String atitle = params.getString("atitle");
-		String volume = params.getString("volume");
-		String issue = params.getString("issue");
-		String pages = params.getString("pages");
-		String publisher = params.getString("publisher");
-		String date = params.getString("date");
-		String id = params.getString("id");
+		String genre = (String) params.get("genre");
+		String[] authors = (String[]) params.get("au");
+		String title = (String) params.get("title");
+		String atitle = (String) params.get("atitle");
+		String volume = (String) params.get("volume");
+		String issue = (String) params.get("issue");
+		String pages = (String) params.get("pages");
+		String publisher = (String) params.get("publisher");
+		String date = (String) params.get("date");
+		String id = (String) params.get("id");
 
 		// do we have enough info for a meaningful citation?
 		if ((title == null || title.trim().equals(""))
