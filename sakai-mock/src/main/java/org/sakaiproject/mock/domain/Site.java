@@ -104,6 +104,21 @@ public class Site extends AuthzGroup implements org.sakaiproject.site.api.Site {
 		return groupsWithMember;
 	}
 
+    public Collection<String> getMembersInGroups(Set<String> groupIds) {
+        Collection<Group> siteGroups = getGroups();
+        Collection<String> membersInGroups = new HashSet<String>();
+        for (Group group : siteGroups) {
+            if (groupIds == null || // null groupIds includes all groups in the site
+                    groupIds.contains(group.getId())) {
+                Set<org.sakaiproject.authz.api.Member> members = group.getMembers();
+                for (org.sakaiproject.authz.api.Member member : members) {
+                    membersInGroups.add(member.getUserId());
+                }
+            }
+        }
+        return membersInGroups;
+    }
+
 	public String getIconUrlFull() {
 		return iconUrl;
 	}
