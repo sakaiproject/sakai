@@ -5515,12 +5515,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		
 		commitResourceEdit(edit, priority);
 
-		//check the content type if this is an HTML or TEXT file upload
-		if (ResourceType.TYPE_UPLOAD.equals(edit.getResourceType()) && 
-			(ResourceType.MIME_TYPE_HTML.equals(edit.getContentType()) || ResourceType.MIME_TYPE_TEXT.equals(edit.getContentType()))) {
-			checkUpdateContentEncoding(edit.getId());
-		}
-		
 		if (virusScanner.getEnabled()) {
 			try {
 				virusScanner.scanContent(edit.getId());
@@ -5582,17 +5576,20 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 	} // commitResource
 
-	private void checkUpdateContentEncoding(String id) {
-		M_log.debug("checkUpdateContentEncoding(" + id);
-		ContentResourceEdit edit = null;
+	private boolean checkUpdateContentEncoding(ContentResourceEdit edit) {
+		if (edit == null) {
+			return false;
+		}
+		M_log.debug("checkUpdateContentEncoding(" + edit.getId() + ")");
+
 		InputStream content = null;
+		boolean updated = false;
 		try
 		{
-			edit = editResource(id);
 			//no point in doing this for 0 size resources
 			if (edit.getContentLength() == 0)
 			{
-				return;
+				return false;
 			}
 			
 			String contentEncoding = edit.getProperties().getProperty(ResourceProperties.PROP_CONTENT_ENCODING);
@@ -5621,7 +5618,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			}
 			else
 			{
-				return;
+				return false;
 			}
 			//KNL-682 do not set content as UTF-32LE or UTF-16
 			if (encoding.indexOf("UTF-16") > -1 || encoding.indexOf("UTF-32") > -1) {
@@ -5637,29 +5634,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				ResourcePropertiesEdit rpe = edit.getPropertiesEdit();
 				rpe.removeProperty(ResourceProperties.PROP_CONTENT_ENCODING);
 				rpe.addProperty(ResourceProperties.PROP_CONTENT_ENCODING, encoding);
-				//KNL-653 This update should never send a notification
-				commitResource(edit, NotificationService.NOTI_NONE);
+				updated = true;
 			} 
 			
-		} catch (PermissionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IdUnusedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (TypeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InUseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (ServerOverloadException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (OverQuotaException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -5671,16 +5652,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 					//not much we can do
 				}
 			}
-			
-			if (edit != null && edit.isActiveEdit())
-			{
-				
-				cancelResource(edit);
-			}
-			
-						
 		}
-		
+		return updated;
 	}
 
 	/**
@@ -5735,8 +5708,31 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			this.eventTrackingService.post(this.eventTrackingService.newEvent(EVENT_RESOURCE_UPD_ACCESS, edit.getReference(), true, priority));
 		}
 		
+		// Flag whether we have a body update or not. This will save expensive DB/IO if we don't need to check the encoding.
+		boolean contentUpdated = ((BaseResourceEdit) edit).m_body != null || ((BaseResourceEdit) edit).m_contentStream != null;
+
 		// complete the edit
 		m_storage.commitResource(edit);
+
+		// Now that the data is committed, we can update the encoding if needed.
+		// Check the content type if this is an HTML or TEXT file upload.
+		if (contentUpdated && ResourceType.TYPE_UPLOAD.equals(edit.getResourceType()) && 
+			(ResourceType.MIME_TYPE_HTML.equals(edit.getContentType()) || ResourceType.MIME_TYPE_TEXT.equals(edit.getContentType()))) {
+
+			// Any body bytes lying around erroneously should be thrown away
+			// because they would already be committed. We also purge the stream
+			// reference because it would be used up. Additional calls to
+			// streamContent() will generate new ones from storage like we need.
+			((BaseResourceEdit) edit).m_body = null;
+			((BaseResourceEdit) edit).m_contentStream = null;
+
+			if (edit.isActiveEdit() && checkUpdateContentEncoding(edit)) {
+
+				// The encoding was changed, so we have to flush the metadata.
+				// Since we already cleaned up, we won't write the body again.
+				m_storage.commitResource(edit);
+			}
+		}
 
 		// close the edit object
 		((BaseResourceEdit) edit).closeEdit();
