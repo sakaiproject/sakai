@@ -798,4 +798,11 @@ public class EntitySite implements Site {
 		
 	}
 
+    public Collection<String> getMembersInGroups(Set<String> groupIds) {
+        if (site != null) {
+            return site.getMembersInGroups(groupIds);
+        }
+        throw new UnsupportedOperationException();
+    }
+
 }
