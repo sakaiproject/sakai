@@ -14,7 +14,7 @@ public class MySecurityAdvisor implements SecurityAdvisor {
     
     protected String m_userId;
     
-    protected List<String> m_functions;
+    protected List<String> m_functions = new ArrayList<String>();
     
     protected List<String> m_references = new ArrayList<String>();
     
