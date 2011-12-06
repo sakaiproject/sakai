@@ -323,9 +323,14 @@ public class SiteManageGroupHandler {
         
         id = StringUtils.trimToNull(id);
         
-    	String siteReference = siteService.siteReference(site.getId());
-    	
-    	if (title != null && title.length() > SiteConstants.SITE_GROUP_TITLE_LIMIT)
+    	title = StringUtils.trimToNull(title);
+    	if (title == null)
+    	{
+    		//we need something in the title field SAK-21517
+    		messages.addMessage(new TargettedMessage("editgroup.titlemissing",new Object[]{}, TargettedMessage.SEVERITY_ERROR));
+    		return null;
+    	}
+    	else if (title != null && title.length() > SiteConstants.SITE_GROUP_TITLE_LIMIT)
     	{
     		messages.addMessage(new TargettedMessage("site_group_title_length_limit",new Object[] { String.valueOf(SiteConstants.SITE_GROUP_TITLE_LIMIT) }, TargettedMessage.SEVERITY_ERROR));
     		return null;
