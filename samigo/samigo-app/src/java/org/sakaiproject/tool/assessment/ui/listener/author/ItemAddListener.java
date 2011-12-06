@@ -882,72 +882,6 @@ public class ItemAddListener
       itemauthor.setItemId(item.getItemId().toString());
   }
 
-  /**
-   * prepareTextForCalculatedqQestion takes the formulas and variables that are 
-   * stored in CalculatedQuestionFormulaBeans and CalculatedQuestionVariableBeans
-   * and translates them into ItemTextIfc and AnswerIfc objects.  The only difference
-   * between the formula and the variable is what information is actually kept in
-   * the answer.text field.  ItemText has the name of the formula or variable in ItemTextIfc.text
-   * AnswerIfc.text stores either a formula as (formula string)|(tolerance),(decimal places) or a
-   * variable as (min)|(max),(decimal places).
-   * <p>Unlike matching answers, answerfeedback is not kept here; only the feedback associated with the entire
-   * question is persisted.
-   * @param item
-   * @param bean
-   * @param itemauthor
-   * @return
-   */
-  private Set<ItemText> prepareTextForCalculatedQuestion(ItemFacade item, ItemBean bean,
-          ItemAuthorBean itemauthor) {
-      CalculatedQuestionBean calcBean = bean.getCalculatedQuestion();      
-      Set<ItemText> textSet = new HashSet<ItemText>();
-      float score = Float.valueOf(bean.getItemScore());
-      float partialCredit = 0f;
-      float discount = Float.valueOf(bean.getItemDiscount());
-      String grade = null;            
-      
-      // Variables and formulas are very similar, and both have entries in the 
-      // sam_itemtext_t table.  Because of the way the data is structured, every 
-      // answer stored in sam_answer_t is a possible match to every ItemText 
-      // stored in sam_itemtext_t.   If there is one variable and one formula, 
-      // there are 2 entries in sam_itemtext_t and 4 entries in sam_answer_t.  
-      // 2 variables and 2 formulas has 4 entries in sam_itemtext_t and 16 entries 
-      // in sam_answer_t.  This is required for the current design (which makes 
-      // more sense for other question types; we're just trying to work within 
-      // that structure.  We loop through each formula and variable to create 
-      // an entry in sam_itemtext_t (ItemText choiceText).  Then for each 
-      // choicetext, we loop through all variables and formulas to create the 
-      // answer objects.
-      List<CalculatedQuestionAnswerIfc> list = new ArrayList<CalculatedQuestionAnswerIfc>();
-      list.addAll(calcBean.getFormulas().values());
-      list.addAll(calcBean.getVariables().values());
-      
-      // loop through all variables and formulas to create ItemText objects
-      for (CalculatedQuestionAnswerIfc varFormula : list) {
-          ItemText choiceText = new ItemText();
-          choiceText.setItem(item.getData());
-          choiceText.setText(varFormula.getName());
-          Long sequence = varFormula.getSequence();
-          choiceText.setSequence(sequence);
-          
-          HashSet<Answer> answerSet = new HashSet<Answer>();
-          
-          // loop through all variables and formulas to create all answers for the ItemText object
-          for (CalculatedQuestionAnswerIfc curVarFormula : list) {
-              String match = curVarFormula.getMatch();
-              Long curSequence = curVarFormula.getSequence();
-              boolean isCorrect = curSequence.equals(sequence);
-              String choiceLabel = curVarFormula.getName();
-              Answer answer = new Answer(choiceText, match, curSequence, choiceLabel,
-                      isCorrect, grade, score, partialCredit, discount);
-              answerSet.add(answer);
-          }
-          choiceText.setAnswerSet(answerSet);
-          textSet.add(choiceText);          
-      }
-            
-      return textSet;
-  }
   
   private HashSet prepareTextForMatching(ItemFacade item, ItemBean bean,
 		  ItemAuthorBean itemauthor) {
@@ -1269,6 +1203,73 @@ public class ItemAddListener
 		return textSet;
 	} 
 
+	  /**
+	   * prepareTextForCalculatedqQestion takes the formulas and variables that are 
+	   * stored in CalculatedQuestionFormulaBeans and CalculatedQuestionVariableBeans
+	   * and translates them into ItemTextIfc and AnswerIfc objects.  The only difference
+	   * between the formula and the variable is what information is actually kept in
+	   * the answer.text field.  ItemText has the name of the formula or variable in ItemTextIfc.text
+	   * AnswerIfc.text stores either a formula as (formula string)|(tolerance),(decimal places) or a
+	   * variable as (min)|(max),(decimal places).
+	   * <p>Unlike matching answers, answerfeedback is not kept here; only the feedback associated with the entire
+	   * question is persisted.
+	   * @param item
+	   * @param bean
+	   * @param itemauthor
+	   * @return
+	   */
+	  private Set<ItemText> prepareTextForCalculatedQuestion(ItemFacade item, ItemBean bean,
+	          ItemAuthorBean itemauthor) {
+	      CalculatedQuestionBean calcBean = bean.getCalculatedQuestion();      
+	      Set<ItemText> textSet = new HashSet<ItemText>();
+	      float score = Float.valueOf(bean.getItemScore());
+	      float partialCredit = 0f;
+	      float discount = Float.valueOf(bean.getItemDiscount());
+	      String grade = null;            
+	      
+	      // Variables and formulas are very similar, and both have entries in the 
+	      // sam_itemtext_t table.  Because of the way the data is structured, every 
+	      // answer stored in sam_answer_t is a possible match to every ItemText 
+	      // stored in sam_itemtext_t.   If there is one variable and one formula, 
+	      // there are 2 entries in sam_itemtext_t and 4 entries in sam_answer_t.  
+	      // 2 variables and 2 formulas has 4 entries in sam_itemtext_t and 16 entries 
+	      // in sam_answer_t.  This is required for the current design (which makes 
+	      // more sense for other question types; we're just trying to work within 
+	      // that structure.  We loop through each formula and variable to create 
+	      // an entry in sam_itemtext_t (ItemText choiceText).  Then for each 
+	      // choicetext, we loop through all variables and formulas to create the 
+	      // answer objects.
+	      List<CalculatedQuestionAnswerIfc> list = new ArrayList<CalculatedQuestionAnswerIfc>();
+	      list.addAll(calcBean.getFormulas().values());
+	      list.addAll(calcBean.getVariables().values());
+	      
+	      // loop through all variables and formulas to create ItemText objects
+	      for (CalculatedQuestionAnswerIfc varFormula : list) {
+	          ItemText choiceText = new ItemText();
+	          choiceText.setItem(item.getData());
+	          choiceText.setText(varFormula.getName());
+	          Long sequence = varFormula.getSequence();
+	          choiceText.setSequence(sequence);
+	          
+	          HashSet<Answer> answerSet = new HashSet<Answer>();
+	          
+	          // loop through all variables and formulas to create all answers for the ItemText object
+	          for (CalculatedQuestionAnswerIfc curVarFormula : list) {
+	              String match = curVarFormula.getMatch();
+	              Long curSequence = curVarFormula.getSequence();
+	              boolean isCorrect = curSequence.equals(sequence);
+	              String choiceLabel = curVarFormula.getName();
+	              Answer answer = new Answer(choiceText, match, curSequence, choiceLabel,
+	                      isCorrect, grade, score, partialCredit, discount);
+	              answerSet.add(answer);
+	          }
+	          choiceText.setAnswerSet(answerSet);
+	          textSet.add(choiceText);          
+	      }
+	            
+	      return textSet;
+	  }
+	  
   private Set preparePublishedText(ItemFacade item, ItemBean bean, ItemService delegate) throws FinFormatException{
 
 	  if (item.getTypeId().equals(TypeFacade.TRUE_FALSE)) {
