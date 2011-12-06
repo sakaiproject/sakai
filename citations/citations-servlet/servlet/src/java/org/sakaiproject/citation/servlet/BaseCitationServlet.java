@@ -79,7 +79,7 @@ public class BaseCitationServlet extends VmServlet
 //	private String collectionTitle = null;
 	
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(CitationServlet.class);
+	private static Log M_log = LogFactory.getLog(BaseCitationServlet.class);
 
 	/** Resource bundle using current language locale */
 	protected static ResourceLoader rb = new ResourceLoader("citations");
@@ -89,9 +89,9 @@ public class BaseCitationServlet extends VmServlet
 
 	protected BasicAuth basicAuth = null;
 
-	private ContentHostingService contentService;
+	protected ContentHostingService contentService;
 
-	private CitationService citationService;
+	protected CitationService citationService;
 
 	protected enum Status
 	{
@@ -163,7 +163,7 @@ public class BaseCitationServlet extends VmServlet
 	 * @param req
 	 * @return
 	 */
-	private Citation findOpenUrlCitation(HttpServletRequest req) {
+	protected Citation findOpenUrlCitation(HttpServletRequest req) {
 		Citation citation = citationService.addCitation(req);
 		return citation;
 	}
@@ -332,7 +332,7 @@ public class BaseCitationServlet extends VmServlet
 	/**
 	 * Setup the request/response ready for Velocity.
 	 */
-	private void setupResponse(HttpServletRequest req, HttpServletResponse res) {
+	protected void setupResponse(HttpServletRequest req, HttpServletResponse res) {
 		// the context wraps our real vm attribute set
 		ResourceProperties props = new org.sakaiproject.util.BaseResourceProperties();
 		setVmReference("props", props, req);

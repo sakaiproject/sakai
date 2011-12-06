@@ -71,6 +71,8 @@ import org.sakaiproject.util.Web;
 public class CitationServlet extends BaseCitationServlet
 {
 
+	private static Log M_log = LogFactory.getLog(CitationServlet.class);
+
 	/**
 	 * respond to an HTTP GET request
 	 * 
