@@ -505,7 +505,7 @@ function PortalChat() {
         if(match && match.length == 2) siteId = match[1];
 
 		jQuery.ajax({
-			url : '/direct/portal-chat/' + portal.user.id + '/latestData.json?siteId=' + siteId + '&online=' + !portalChat.offline,
+			url : '/direct/portal-chat/' + portal.user.id + '/latestData.json?auto=true&siteId=' + siteId + '&online=' + !portalChat.offline,
 			dataType : "json",
 			cache: false,
 			success : function (data,status) {
