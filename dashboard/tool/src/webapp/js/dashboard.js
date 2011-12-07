@@ -139,8 +139,8 @@ var setupLinks = function(){
                             resizeFrame('grow');
                         });
                     },
-                    error: function(XMLHttpRequest, textStatus, errorThrown){
-                        alert("error :" + XMLHttpRequest.responseText);
+                    error:function(xhr, status, error){
+                        reportError (error)
                     }
                 });
             }
@@ -260,8 +260,7 @@ var renderCollection = function(callBackUrl, params, parentRow, colCount, initCh
             });
         },
         error: function(XMLHttpRequest, textStatus, errorThrown){
-            alert("error :" + XMLHttpRequest.responseText);
-        }
+            reportError()        }
     });
 };
 function updateItemStatus(element, dashAction, itemId){
@@ -295,7 +294,7 @@ function updateItemStatus(element, dashAction, itemId){
             }
         },
         error: function(XMLHttpRequest, textStatus, errorThrown){
-            alert("error :" + XMLHttpRequest.responseText);
+           reportError();
         }
     });
 }
@@ -343,6 +342,20 @@ var reportSuccess = function(msg, item, url){
         opacity: 1.0
     }, 5000).fadeTo(3000, 0);
 };
+
+
+/*
+ * There has been an error
+ *
+ *  
+*/
+var reportError= function(){
+    var genericErrorMsg =$('#genericErrorMessage').text();
+    $('#messageError').html(genericErrorMsg).fadeTo("slow", 1).animate({
+        opacity: 1.0
+    }, 5000).fadeTo(3000, 0);
+};
+
 
 /*
  * MOTD messages can be dismissed. If so a cookie gets set so that
@@ -573,4 +586,3 @@ var setupIcons = function(){
     }
     
 };
-

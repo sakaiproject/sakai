@@ -20,7 +20,9 @@
 	                
 	                <div id="messagePanel" style="display:none">
 	                </div>
-	                
+	                <div id="messageError" style="display:none">
+	                </div>
+
 	                <div id="motdPanel"  wicket:id="motdPanel" class="motdPanel">
 	                </div>
 	                
@@ -29,19 +31,15 @@
 	                
 	                <div id="newsPanel" wicket:id="newsPanel">
 	                </div>
-	                
-	                <div id="dialog" style="display:none">
-	                </div>
-	                
-	                <div id="dialogDum">
-	                </div>
-	                
+
 	                <div id="results" style="display:none">
 	                </div>
 	                
 	                <div id="instructionHolder" style="display:none">
 	                </div>
-	                
+	                <span id="genericErrorMessage" style="display:none">
+	                    Oops. Are you logged out perhaps?
+                    </span>    
 	                <script type="text/javascript">
 	                    $(document).ready(function(){
 	                        setupTableStriping()

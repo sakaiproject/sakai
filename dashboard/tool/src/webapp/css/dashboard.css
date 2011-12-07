@@ -450,7 +450,7 @@ ul.tabPanel{
 }
 #messagePanel,#messageError{
     position:absolute;
-    top:29px;
+    top:3px;
     left:30%;
     right:30%;
     width:400px;
