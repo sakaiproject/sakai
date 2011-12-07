@@ -36,7 +36,7 @@
 
     <servlet>
         <servlet-name>
-           sakai.savecitebatch
+           sakai.savecite
         </servlet-name>
         <servlet-class>
             org.sakaiproject.citation.servlet.BatchCitationServlet
@@ -46,29 +46,10 @@
 
     <servlet-mapping>
        <servlet-name>
-          sakai.savecitebatch
-       </servlet-name>
-       <url-pattern>
-         /batch/*
-       </url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>
-           sakai.savecite
-        </servlet-name>
-        <servlet-class>
-            org.sakaiproject.citation.servlet.CitationServlet
-        </servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-
-    <servlet-mapping>
-       <servlet-name>
           sakai.savecite
        </servlet-name>
        <url-pattern>
-         /
+         /*
        </url-pattern>
     </servlet-mapping>
 
