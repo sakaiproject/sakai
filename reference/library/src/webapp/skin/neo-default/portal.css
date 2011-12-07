@@ -1158,7 +1158,6 @@ below they are contextually defined depending on the column as an example,as you
      width:auto;
      padding:0;
      background:#eee url(images/appTrayBack.png) top left repeat-x;
-    border:1px solid #ccc;
 }
 #footerAppPresence{
     height:100%;
@@ -1166,6 +1165,7 @@ below they are contextually defined depending on the column as an example,as you
     vertical-align:middle;
     float:right;
     padding: 5px 3px;
+    border:1px solid #ccc;
 }
 #footerAppChat{
     height:35px;
@@ -1175,6 +1175,7 @@ below they are contextually defined depending on the column as an example,as you
     text-align:left;
     width:200px;
     padding: 5px;
+    border:1px solid #ccc;
 }
 #presenceToggle{
 	color: white;
