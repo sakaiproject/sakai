@@ -935,6 +935,11 @@ a#toggleToolMenu{
     padding:3px;
     text-decoration:none;
 }    
+#pc_title #pc_chat_close {
+    padding:0;
+    width:16px;
+    height:16px;
+}
 /*of presence iframe*/
 #presenceIframe{
 	height: 100px;
