@@ -31,7 +31,13 @@ body{
     height:35px;
 }
 /*accessibility links wrapper */
-#skipNav{
+#skipNav a.skip:focus, #skipNav a.skip:active {
+  height:auto;
+  width: auto;
+  outline: black dotted thin;
+  position: static !important;
+  margin-left: 10px;
+  font-size: 1.5em;
 }
 
 /*site hierarchy breadcrumb*/
