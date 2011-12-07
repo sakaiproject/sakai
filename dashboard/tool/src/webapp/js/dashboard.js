@@ -226,14 +226,12 @@ var renderCollection = function(callBackUrl, params, parentRow, colCount, initCh
             }
             //this needs to be conditional on if being a "get More" action
             var showingRows = $(parentRow).next('tr.newRow').find('tr').length
-            if (showingRows < totalCount) {
+
+           if (showingRows < totalCount) {
                 if ($(parentRow).next('tr.newRow').find('.getMore').length === 0) {
-                    $('<div class="getMore"><a href="#">' + moreLabel + '</a>' + 'Showing <span class=\"showingCount\">' + showingRows  +'</span> of <span class=\"totalCount\">' + totalCount + '</span> total </div>').insertAfter((parentRow).next('tr.newRow').find('.itemCollection'));
+                    $('<div class="getMore"><a href="#">' +  json['more-link'] + '</a><span class=\"showingCount instruction textPanelFooter"></span></div>').insertAfter((parentRow).next('tr.newRow').find('.itemCollection'));
                 }
-                else{
-                    $(parentRow).next('tr.newRow').find('.getMore').find('.showingCount').text(showingRows);
-                    $(parentRow).next('tr.newRow').find('.getMore').find('.totalCount').text(totalCount);
-                }
+                $(parentRow).next('tr.newRow').find('.getMore').find('.showingCount').text(updateCount(json['more-status-last'],showingRows,totalCount,parentRow))
             }
             else {
                 $(parentRow).next('tr.newRow').find('.getMore').fadeOut('slow').remove();
@@ -322,6 +320,17 @@ function reportEvent(element, entityRef, entityType, dashEvent){
     });
     
 }
+
+
+var updateCount = function (label,showingRows,totalCount,rowId){
+  var repLabel = label.replace('{0}',showingRows).replace('{1}',totalCount);
+  return(repLabel)  
+ // $(parentRow).next('tr.newRow').find('.getMore').find('.showingCount').text(showingRows);
+
+
+}
+
+
 
 /*
  * used in the json returned by actions that
