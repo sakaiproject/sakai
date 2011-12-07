@@ -201,7 +201,7 @@
 #if ( ${loggedIn})
 				<div id="footerAppTray">
 #if ( $neoChat )
-					<div id="footerAppChat" aria-live="polite" aria-atomic="false" aria-relevant="all">
+					<div id="footerAppChat" aria-live="polite" aria-atomic="false" aria-relevant="all" style="display:none">
 						<a href="#" id="chatToggle"><img src="/library/image/silk/comment.png" style="vertical-align: middle;"/> Chat 
 						<span id="chattableCount"></span>
 						</a>

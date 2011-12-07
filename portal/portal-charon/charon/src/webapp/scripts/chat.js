@@ -824,4 +824,9 @@ function PortalChat() {
 	this.init();
 }
 
-var portalChat = new PortalChat()
+if (typeof sessionStorage !== 'undefined' && typeof JSON !== 'undefined') {
+  var portalChat = new PortalChat();
+  $(document).ready(function() {
+    $('#footerAppChat').show();
+  });
+}
