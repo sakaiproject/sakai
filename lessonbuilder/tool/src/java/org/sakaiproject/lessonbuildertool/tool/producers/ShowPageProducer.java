@@ -53,6 +53,7 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 
 import javax.servlet.http.HttpServletRequest;
+import org.springframework.web.context.support.ServletContextResource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -263,12 +264,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	}
 
 	public String myUrl() {
-		String url = httpServletRequest.getScheme() + "://" + httpServletRequest.getServerName();
-		int port = httpServletRequest.getServerPort();
-		if (!((url.startsWith("http:") && port == 80) || (url.startsWith("https:") && port == 443))) {
-			url = url + ":" + Integer.toString(port);
-		}
-		return url;
+	    // previously we computed something, but this will give us the official one
+	        return ServerConfigurationService.getServerUrl();
 	}
 
 	// NOTE:
@@ -2881,6 +2878,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			suffix = "";
 		}
 
+		// if user specified, we make up an absolute URL
+		// otherwise use one relative to the servlet context
 		if (helploc != null) {
 			// user has specified a base URL. Will be absolute, but may not have
 			// http and hostname
@@ -2892,9 +2891,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				testPrefix = myUrl(); // relative, need to make absolute
 			}
 		} else {
-			defaultPath = "/sakai-lessonbuildertool-tool/templates/instructions/" + fileName;
-			prefix = "/sakai-lessonbuildertool-tool/templates/instructions/" + prefix;
-			testPrefix = myUrl();
+			// actual URL will be related to templates
+			defaultPath = "instructions/" + fileName;
+			prefix = "instructions/" + prefix;
+			// but have to test relative to servlet base
+			testPrefix = "/templates/";
 		}
 
 		String[] localeDetails = locale.toString().split("_");
@@ -2927,26 +2928,54 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	}
 
+    // this can be either a fully specified URL starting with http: or https: 
+    // or something relative to the servlet base, e.g. /template/instructions/general.html
 	private boolean UrlOk(String url) {
 		Boolean cached = (Boolean) urlCache.get(url);
 		if (cached != null)
-			return (boolean) cached;
+		    return (boolean) cached;
 
-		try {
+		if (url.startsWith("http:") || url.startsWith("https:")) {
+		    // actual URL, check it out
+
+		    try {
 			HttpURLConnection.setFollowRedirects(false);
 			HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
 			con.setRequestMethod("HEAD");
+			con.setConnectTimeout(30 * 1000);
 			boolean ret = (con.getResponseCode() == HttpURLConnection.HTTP_OK);
 			urlCache.put(url, (Boolean) ret);
 			return ret;
-		} catch (ProtocolException e) {
+		    } catch (java.net.SocketTimeoutException e) {
+			log.error("Internationalization url lookup timed out for " + url + ": Please check lessonbuilder.helpfolder. It appears that the host specified is not responding.");
 			urlCache.put(url, (Boolean) false);
 			return false;
-		} catch (IOException e) {
+		    } catch (ProtocolException e) {
 			urlCache.put(url, (Boolean) false);
 			return false;
-		}
+		    } catch (IOException e) {
+			urlCache.put(url, (Boolean) false);
+			return false;
+		    }
+		} else {
+		    try {
+			// inside the war file, check the file system. That avoid issues
+			// with odd deployments behind load balancers, where the user's URL may not
+			// work from one of the front ends
+			if (httpServletRequest.getSession().getServletContext().getResource(url) == null) {
+			    urlCache.put(url, (Boolean) false);
+			    return false;
+			} else {
+			    urlCache.put(url, (Boolean) true);
+			    return true;
+			}
+		    } catch (Exception e) {  // probably malfformed url
+			log.error("Internationalization url lookup failed for " + url + ": " + e);
+			urlCache.put(url, (Boolean) true);
+			return true;
+		    }
 
+		}
 	}
 
 	private long findMostRecentComment() {
