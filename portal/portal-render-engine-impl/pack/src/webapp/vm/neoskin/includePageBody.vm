@@ -202,7 +202,7 @@
 				<div id="footerAppTray">
 #if ( $neoChat )
 					<div id="footerAppChat" aria-live="polite" aria-atomic="false" aria-relevant="all" style="display:none">
-						<a href="#" id="chatToggle"><img src="/library/image/silk/comment.png" style="vertical-align: middle;"/> Chat 
+						<a href="#" id="chatToggle"><img src="/library/image/silk/comment.png" style="vertical-align: middle;" alt="" /> Chat 
 						<span id="chattableCount"></span>
 						</a>
 						<!-- chat tray, will hold chat containers (as many as ongoing chats) -->
