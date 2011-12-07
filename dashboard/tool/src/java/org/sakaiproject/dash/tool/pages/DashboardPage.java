@@ -129,7 +129,10 @@ public class DashboardPage extends BasePage {
 						}
 						results.put("offset", offset);
 						ResourceLoader rl = new ResourceLoader("dash_entity");
-						results.put("more-label", rl.getString("dash.grouped.more", "[[ Show more ... ]]"));
+						results.put("more-link", rl.getString("dash.grouped.more.link", "[[ Show more ... ]]"));
+						results.put("more-status", rl.getString("dash.grouped.more.status", "[[ Showing {0} of {1} items ]]"));
+						results.put("more-status-last", rl.getString("dash.news.linksCount2", "[[ Showing item {0} of {1} items ]]"));
+						results.put("more-status-range", rl.getString("dash.news.linksCount3", "[[ Showing {0} to {1} of {2} items ]]"));
 						
 						JsonHelper jsonHelper = new JsonHelper(dashboardLogic, dashboardConfig);
 						String jsonString = jsonHelper.getJsonObjectFromMap(results).toString();
