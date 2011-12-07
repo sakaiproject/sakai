@@ -27,6 +27,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.ExternalLink;
+import org.apache.wicket.markup.html.navigation.paging.IPagingLabelProvider;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.DefaultItemReuseStrategy;
@@ -510,8 +511,42 @@ public class NewsLinksPanel extends Panel {
         newsDataView.setItemsPerPage(pageSize);
         haveLinks.add(newsDataView);
 
+        IPagingLabelProvider pagingLabelProvider = new IPagingLabelProvider() {
+
+			public String getPageLabel(int page) {
+		        ResourceLoader rl = new ResourceLoader("dash_entity");
+				
+				int itemCount = 0;
+				String pagerStatus = "";
+				if(newsDataView != null) {
+				    int first = 0;
+				    int last = 0;
+					itemCount = newsDataView.getItemCount();
+				    int pageSize = newsDataView.getItemsPerPage();
+					if(itemCount > pageSize) {
+						//int page = calendarDataView.getCurrentPage();
+						first = page * pageSize + 1;
+						last = Math.min(itemCount, (page + 1) * pageSize);
+						if(first == last) {
+				    		pagerStatus = Integer.toString(first);
+						} else {
+				    		pagerStatus = rl.getFormattedMessage("dash.pager.range", new Object[]{new Integer(first), new Integer(last)});
+						}
+					} else if(itemCount > 1) {
+						pagerStatus = rl.getFormattedMessage("dash.pager.range", new Object[]{new Integer(1), new Integer(itemCount)});
+					} else if(itemCount > 0) {
+						pagerStatus = "1";
+					} else {
+						pagerStatus = "0";
+					}
+				}
+				logger.info("getPageLabel() " + pagerStatus);
+				return pagerStatus;
+			}
+        };
+
         //add a pager to our table, only visible if we have more than 5 items
-        newsLinksDiv.add(new PagingNavigator("newsNavigator", newsDataView) {
+        newsLinksDiv.add(new PagingNavigator("newsNavigator", newsDataView, pagingLabelProvider) {
         	
         	protected int currentPage = 1;
         	
@@ -532,7 +567,7 @@ public class NewsLinksPanel extends Panel {
     				currentPage = this.getPageable().getCurrentPage();
         		}
         		
-                renderItemCounter(newsLinksDiv, newsDataView);
+                //renderItemCounter(newsLinksDiv, newsDataView);
 
         		//clear the feedback panel messages
         		//clearFeedback(feedbackPanel);
@@ -553,7 +588,7 @@ public class NewsLinksPanel extends Panel {
 		}
         haveNoLinks.add(new Label("message", noNewsLinksLabel));
         
-        renderItemCounter(newsLinksDiv, newsDataView);
+        //renderItemCounter(newsLinksDiv, newsDataView);
         int itemCount = 0;
         if(newsDataView != null) {
         	itemCount = newsDataView.getItemCount();

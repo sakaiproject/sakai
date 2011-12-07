@@ -17,6 +17,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.ExternalLink;
+import org.apache.wicket.markup.html.navigation.paging.IPagingLabelProvider;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.DefaultItemReuseStrategy;
@@ -496,7 +497,9 @@ public class CalendarLinksPanel extends Panel {
 								// if success adjust UI, else report failure?
 								if(success) {
 									ResourceLoader rl = new ResourceLoader("dash_entity");
+									//renderItemCounter(calendarLinksDiv, calendarDataView); 
 									target.addComponent(CalendarLinksPanel.this);
+									
 									CalendarItem changedItem = dashboardLogic.getCalendarItem(calendarItemId);
 									JsonHelper jsonHelper = new JsonHelper(dashboardLogic, dashboardConfig);
 									String jsonStr = jsonHelper.getJsonObjectFromCalendarItem(changedItem).toString();
@@ -547,8 +550,41 @@ public class CalendarLinksPanel extends Panel {
         calendarDataView.setItemsPerPage(pageSize);
         haveLinks.add(calendarDataView);
 
-        //add a pager to our table, only visible if we have more than 5 items
-        calendarLinksDiv.add(new PagingNavigator("calendarNavigator", calendarDataView) {
+        IPagingLabelProvider pagingLabelProvider = new IPagingLabelProvider() {
+
+			public String getPageLabel(int page) {
+		        ResourceLoader rl = new ResourceLoader("dash_entity");
+				
+				int itemCount = 0;
+				String pagerStatus = "";
+				if(calendarDataView != null) {
+				    int first = 0;
+				    int last = 0;
+					itemCount = calendarDataView.getItemCount();
+				    int pageSize = calendarDataView.getItemsPerPage();
+					if(itemCount > pageSize) {
+						//int page = calendarDataView.getCurrentPage();
+						first = page * pageSize + 1;
+						last = Math.min(itemCount, (page + 1) * pageSize);
+						if(first == last) {
+				    		pagerStatus = Integer.toString(first);
+						} else {
+				    		pagerStatus = rl.getFormattedMessage("dash.pager.range", new Object[]{new Integer(first), new Integer(last)});
+						}
+					} else if(itemCount > 1) {
+						pagerStatus = rl.getFormattedMessage("dash.pager.range", new Object[]{new Integer(1), new Integer(itemCount)});
+					} else if(itemCount > 0) {
+						pagerStatus = "1";
+					} else {
+						pagerStatus = "0";
+					}
+				}
+				logger.info("getPageLabel() " + pagerStatus);
+				return pagerStatus;
+			}
+        };
+		//add a pager to our table, only visible if we have more than 5 items
+        calendarLinksDiv.add(new PagingNavigator("calendarNavigator", calendarDataView, pagingLabelProvider ) {
         	
         	protected int currentPage = 1;
         	
@@ -569,7 +605,7 @@ public class CalendarLinksPanel extends Panel {
     				currentPage = this.getPageable().getCurrentPage();
         		}
 
-        		renderItemCounter(calendarLinksDiv, calendarDataView); 
+        		//renderItemCounter(calendarLinksDiv, (DataView<CalendarLink>) getPageable()); 
        		
         		//clear the feedback panel messages
         		//clearFeedback(feedbackPanel);
@@ -592,7 +628,7 @@ public class CalendarLinksPanel extends Panel {
 		}
 		haveNoLinks.add(new Label("message", noCalendarLinksLabel));
    
-		renderItemCounter(calendarLinksDiv, calendarDataView); 
+		//renderItemCounter(calendarLinksDiv, calendarDataView); 
 
         int itemCount = 0;
         if(calendarDataView != null) {
@@ -617,8 +653,8 @@ public class CalendarLinksPanel extends Panel {
 	 * @param calendarLinksDiv
 	 * @param calendarDataView
 	 */
-	protected void renderItemCounter(final WebMarkupContainer calendarLinksDiv,
-			final DataView<CalendarLink> calendarDataView) {
+	protected void renderItemCounter(WebMarkupContainer calendarLinksDiv,
+			DataView<CalendarLink> calendarDataView) {
 		
 		ResourceLoader rl = new ResourceLoader("dash_entity");
 		
