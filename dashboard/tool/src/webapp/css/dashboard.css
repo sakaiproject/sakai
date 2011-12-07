@@ -73,13 +73,13 @@ table thead th {
 
 table thead {
    position: absolute;
-   clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+   clip: rect(1px 1px 1px 1px);
    clip: rect(1px, 1px, 1px, 1px);
    overflow:hidden;
    width:1px;
    height:1px;
 }
-}
+
 table tr:hover {
     
 }
@@ -448,7 +448,7 @@ ul.tabPanel{
 .panel{
     padding:5px;
 }
-#messagePanel{
+#messagePanel,#messageError{
     position:absolute;
     top:29px;
     left:30%;
@@ -459,7 +459,12 @@ ul.tabPanel{
     background:#9cf;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
-    border-radius: 5px;}
+    border-radius: 5px;
+}
+#messageError{
+  background:#b11;
+  color:#fff;
+}
 #motdTextDiv{
     border:1px solid #FFCC66;
     margin-top:10px;
@@ -496,7 +501,7 @@ ul.tabPanel{
 }
 
 .getMore a{
-        -webkit-border-radius: 5px;
+    -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
     text-decoration:none;
