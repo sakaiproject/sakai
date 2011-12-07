@@ -141,6 +141,7 @@ h3.withNav {
     margin: 2px;
     border: 1px solid #ccc;
     -moz-border-radius: 4px;
+    background:#fff;
     border-radius: 4px;
 }
 
