@@ -160,6 +160,74 @@ public class CitationServlet extends VmServlet
 
 
 	/**
+	 * respond to an HTTP GET request
+	 * 
+	 * @param req
+	 *        HttpServletRequest object with the client request
+	 * @param res
+	 *        HttpServletResponse object back to the client
+	 * @exception ServletException
+	 *            in case of difficulties
+	 * @exception IOException
+	 *            in case of difficulties
+	 */
+	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
+	{
+		// process any login that might be present
+		basicAuth.doLogin(req);
+		
+		// catch the login helper requests
+		String option = req.getPathInfo();
+		String[] parts = option.split("/");
+		
+		if ((parts.length == 2) && ((parts[1].equals("login"))))
+		{
+			doLogin( req, res, null );
+		}
+		else
+		{
+			// Setup velocity.
+			setupResponse(req, res);
+			ContentResource resource = null;
+			try
+			{
+				ParameterParser paramParser = (ParameterParser) req
+					.getAttribute(ATTR_PARAMS);
+				resource = findResource(paramParser, option);
+       
+				boolean fromGoogle = false;
+				Citation citation = findOpenURLVersion01(paramParser);
+				if (citation == null) {
+         
+					citation = findOpenUrlCitation(req);
+				}
+				// set the success flag
+				setVmReference("success", citation != null, req);
+       
+				if (citation != null) {
+					addCitation(resource, citation);
+					setVmReference( "citation", citation, req );
+					setVmReference("topRefresh", Boolean.TRUE, req ); // TODO
+				} else {
+					// return failure
+					setVmReference("error", rb.getString("error.notfound"), req);
+				}
+			} catch (IdUnusedException iue) {
+				setVmReference("error", rb.getString("error.noid"), req);
+			} catch (ServerOverloadException e) {
+				setVmReference("error", rb.getString("error.unavailable"), req);
+			} catch (PermissionException e) {
+				setVmReference("error", rb.getString("error.permission"), req);
+			}
+			// Set near end so we always have something
+			setVmReference( "titleArgs",  new String[]{ getCollectionTitle(resource) }, req );
+			// return the servlet template
+			includeVm( SERVLET_TEMPLATE, req, res );
+
+		}
+	}
+
+	/**
 	 * Looks for an OpenURL citation in the request.
 	 * @param req
 	 * @return
@@ -168,6 +236,41 @@ public class CitationServlet extends VmServlet
 		Citation citation = citationService.addCitation(req);
 		return citation;
 	}
+
+		
+	/**
+	 * 
+	 * @param req
+	 *        HttpServletRequest object with the client request
+	 * @param res
+	 *        HttpServletResponse object back to the client
+	 * @exception ServletException
+	 *            in case of difficulties
+	 * @exception IOException
+	 *            in case of difficulties
+	 */
+	public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
+	{
+		// process any login that might be present
+		basicAuth.doLogin(req);
+		
+		// catch the login helper posts
+		String option = req.getPathInfo();
+		String[] parts = option.split("/");
+		
+		if ((parts.length == 2) && ((parts[1].equals("login"))))
+		{
+			doLogin(req, res, null);
+		}
+
+		else
+		{
+			// don't handle POSTs
+			sendError(res, HttpServletResponse.SC_NOT_FOUND);
+		}
+	}
+
+
 
       public ContentResource findResource(ParameterParser params, String option) throws PermissionException, IdUnusedException {
 		// get the path info
@@ -445,105 +548,4 @@ public class CitationServlet extends VmServlet
 			M_log.warn("sendError: " + t);
 		}
 	}
-
-	/**
-	 * respond to an HTTP GET request
-	 * 
-	 * @param req
-	 *        HttpServletRequest object with the client request
-	 * @param res
-	 *        HttpServletResponse object back to the client
-	 * @exception ServletException
-	 *            in case of difficulties
-	 * @exception IOException
-	 *            in case of difficulties
-	 */
-	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
-	{
-		// process any login that might be present
-		basicAuth.doLogin(req);
-		
-		// catch the login helper requests
-		String option = req.getPathInfo();
-		String[] parts = option.split("/");
-		
-		if ((parts.length == 2) && ((parts[1].equals("login"))))
-		{
-			doLogin( req, res, null );
-		}
-		else
-		{
-			// Setup velocity.
-			setupResponse(req, res);
-			ContentResource resource = null;
-			try
-			{
-				ParameterParser paramParser = (ParameterParser) req
-					.getAttribute(ATTR_PARAMS);
-				resource = findResource(paramParser, option);
-       
-				boolean fromGoogle = false;
-				Citation citation = findOpenURLVersion01(paramParser);
-				if (citation == null) {
-         
-					citation = findOpenUrlCitation(req);
-				}
-				// set the success flag
-				setVmReference("success", citation != null, req);
-       
-				if (citation != null) {
-					addCitation(resource, citation);
-					setVmReference( "citation", citation, req );
-					setVmReference("topRefresh", Boolean.TRUE, req ); // TODO
-				} else {
-					// return failure
-					setVmReference("error", rb.getString("error.notfound"), req);
-				}
-			} catch (IdUnusedException iue) {
-				setVmReference("error", rb.getString("error.noid"), req);
-			} catch (ServerOverloadException e) {
-				setVmReference("error", rb.getString("error.unavailable"), req);
-			} catch (PermissionException e) {
-				setVmReference("error", rb.getString("error.permission"), req);
-			}
-			// Set near end so we always have something
-			setVmReference( "titleArgs",  new String[]{ getCollectionTitle(resource) }, req );
-			// return the servlet template
-			includeVm( SERVLET_TEMPLATE, req, res );
-
-		}
-	}
-
-	/**
-	 * 
-	 * @param req
-	 *        HttpServletRequest object with the client request
-	 * @param res
-	 *        HttpServletResponse object back to the client
-	 * @exception ServletException
-	 *            in case of difficulties
-	 * @exception IOException
-	 *            in case of difficulties
-	 */
-	public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
-	{
-		// process any login that might be present
-		basicAuth.doLogin(req);
-		
-		// catch the login helper posts
-		String option = req.getPathInfo();
-		String[] parts = option.split("/");
-		
-		if ((parts.length == 2) && ((parts[1].equals("login"))))
-		{
-			doLogin(req, res, null);
-		}
-
-		else
-		{
-			// don't handle POSTs
-			sendError(res, HttpServletResponse.SC_NOT_FOUND);
-		}
-	}
-	
 }
