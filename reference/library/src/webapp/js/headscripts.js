@@ -238,7 +238,6 @@ function setMainFrameHeight(id)
 {
 	// some browsers need a moment to finish rendering so the height and scroll are correct
 	setTimeout("setMainFrameHeightNow('"+id+"')",1);
-        setTimeout("jQuerySetup('"+id+"');",500);
 }
 
 function setMainFrameHeightNow(id)
@@ -262,6 +261,8 @@ function setMainFrameHeightNow(id)
 
 		var objToResize = (frame.style) ? frame.style : frame;
   
+    // SAK-11014 revert           if ( false ) {
+
 		var height; 		
 		var offsetH = document.body.offsetHeight;
 		var innerDocScrollH = null;
@@ -274,7 +275,7 @@ function setMainFrameHeightNow(id)
  			var innerDoc = (frame.contentDocument) ? frame.contentDocument : frame.contentWindow.document;
 			innerDocScrollH = (innerDoc != null) ? innerDoc.body.scrollHeight : null;
 		}
-
+	
 		if (document.all && innerDocScrollH != null)
 		{
 			// IE on Windows only
@@ -285,6 +286,10 @@ function setMainFrameHeightNow(id)
 			// every other browser!
 			height = offsetH;
 		}
+   // SAK-11014 revert		} 
+
+   // SAK-11014 revert             var height = getFrameHeight(frame);
+
 		// here we fudge to get a little bigger
 		var newHeight = height + 40;
 
@@ -304,33 +309,26 @@ function setMainFrameHeightNow(id)
 			parent.window.scrollTo(position[0]+scroll[0], position[1]+scroll[1]);
 		}
 
-		// optional hook triggered after the head script fires.
+// optional hook triggered after the head script fires.
+
 		if (parent.postIframeResize){ 
 			parent.postIframeResize(id);
 		}
 	}
 }
 
-// Inspired by http://stackoverflow.com/questions/681087/how-can-i-detect-a-scrollbar-presence-using-javascript-in-html-iframe
-function haveScrollBars (frame)
+/* get height of an iframe document */
+function getFrameHeight (frame)
 {
-        var vHeight = 0;
-        if (document.all) {
-          if (document.documentElement) {
-            vHeight = document.documentElement.clientHeight;
-          } else {
-            vHeight = document.body.clientHeight
-          }
-        } else {
-          vHeight = window.innerHeight;
-        }
+   var document = frame.contentWindow.document;
+   var doc_height = document.height ? document.height : 0; // Safari uses document.height
 
-        if (document.body.offsetHeight > vHeight) {
-          return true;
-        }else{
-          return false;
-        }
+if (document.documentElement && document.documentElement.scrollHeight) /* Strict mode */
+      return Math.max (document.documentElement.scrollHeight, doc_height);
+   else /* quirks mode */
+      return Math.max (document.body.scrollHeight, doc_height);
 }
+
 
 // find the object position in its window
 // inspired by http://www.quirksmode.org/js/findpos.html
@@ -635,65 +633,4 @@ function browserSafeDocHeight() {
 		winHeight =  document.body.clientHeight;
 	}
 	return Math.max(winHeight,docHeight); 
-}
-
-var resizeTimerId = 0;
-var jQueryLoaded = 0;
-
-// From http://snipplr.com/view/132/detect-ie/
-function isIE()
-{
-  return /msie/i.test(navigator.userAgent) && !/opera/i.test(navigator.userAgent);
-}
-
-var jQuerySetupDebug = "";
-var resizeCount = 20; // This is double
-
-function jQuerySetup(id) {
-	if (jQueryLoaded == 0 && (typeof jQuery) == 'undefined') { 
-		if ( isIE() ) return;  // Stuff just breaks
-		jQuerySetupDebug += "Loading jQuery; ";
-  		var fileref=document.createElement('script');
-  		fileref.setAttribute("type","text/javascript");
-  		fileref.setAttribute("src", "/library/js/jquery.js");
-  		document.getElementsByTagName("head")[0].appendChild(fileref);
-		jQueryLoaded = 1;
-	}
-	// Need to wait until the load of jQuery completes
-	if ((typeof jQuery) == 'undefined') { 
-		jQuerySetupDebug += "Waiting for jQuery Load; ";
-        	setTimeout("jQuerySetup('"+id+"');",500);
-	} else {
-		if ( jQueryLoaded == 1 ) {
-			jQuerySetupDebug += "jQuery Load complete "+(typeof jQuery)+"; ";
-		} else {
-			jQuerySetupDebug += "jQuery loaded for us "+(typeof jQuery)+"; ";
-		}
-		// This captures FF/Safari/Chrome
-		if ( haveScrollBars() ) {
-			setMainFrameHeightNow(id);
-			jQuerySetupDebug += 'Detected Scroll Bars in Chrome/Safari/FF; ';
-			// alert('Detected Scroll Bars in Chrome/Safari/FF');
-		} else {  // Lets just make sure with an on-ready event
-			$(document).ready(function() {
-				setMainFrameHeightNow(id)
-				jQuerySetupDebug += 'jQuery ready event Safari/Chrome; ';
-				// alert('jQuery ready event Safari/Chrome');
-			});
-		}
-
-		// Note that this may fire twice in a sense because
-		// We are resizing when we call setMainFrameHeight
-		$(window).resize(function() {
-			if ( resizeTimerId != 0 ) clearTimeout( resizeTimerId);
-			resizeTimerId = 0;
-                        resizeTimerId = setTimeout ( 'processResize("'+id+'")', 500 );
-		});
-	}
-}
-
-function processResize(id) {
-   resizeCount --;
-   if ( resizeCount < 0 ) return;
-   setMainFrameHeightNow(id)
 }
