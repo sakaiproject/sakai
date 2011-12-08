@@ -74,6 +74,7 @@ import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFa
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.util.FormatException;
+import org.sakaiproject.tool.assessment.util.TextFormat;
 
 
 /**
@@ -1288,7 +1289,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
         String answer = st.nextToken().trim();
         if ("true".equalsIgnoreCase(casesensitive)) {
           if (data.getAnswerText() != null){
-        	  studentanswer= data.getAnswerText().trim();
+        	  studentanswer= TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, data.getAnswerText().trim());
             matchresult = fibmatch(answer, studentanswer, true);
              
           }
@@ -1296,7 +1297,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
         else {
         // case insensitive , if casesensitive is false, or null, or "".
           if (data.getAnswerText() != null){
-        	  studentanswer= data.getAnswerText().trim();
+        	  studentanswer= TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, data.getAnswerText().trim());
     	    matchresult = fibmatch(answer, studentanswer, false);
            }
         }  // else , case insensitive
@@ -1708,27 +1709,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 
 	  
 		try {
-			
-		  	// comment this part out if using the jdk 1.5 version
-			
-		/*
-		String REGEX = answer.replaceAll("\\*", ".+");
-		Pattern p;
-		if (casesensitive) {
-			p = Pattern.compile(REGEX);
-		} else {
-			p = Pattern.compile(REGEX, Pattern.CASE_INSENSITIVE);
-		}
-
-		Matcher m = p.matcher(input);
-		boolean matchresult = m.matches();
-		return matchresult;
-
-        */
-			
-		 
-		// requires jdk 1.5 for Pattern.quote(), allow metacharacters, such as a+b.
-		 
  		 StringBuilder regex_quotebuf = new StringBuilder();
 		 
 		 String REGEX = answer.replaceAll("\\*", "|*|");
@@ -1739,7 +1719,6 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 			 }
 			 else {
 				 regex_quotebuf.append(Pattern.quote(oneblank[j]));
-
 			 }
 		 }
 
