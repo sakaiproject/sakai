@@ -2515,9 +2515,6 @@ public class ExtractionHelper
 		  log.debug("sourceText: " + sourceText);
 
 		  ItemText sourceItemText = new ItemText();
-		  sourceItemText.setText(makeFCKAttachmentFromRespondus(sourceText));
-		  sourceItemText.setItem(item.getData());
-		  sourceItemText.setSequence(Long.valueOf(itemSequence++)); 
 
 		  int answerSequence = 1;
 		  HashSet targetSet = new HashSet();
@@ -2548,11 +2545,12 @@ public class ExtractionHelper
 			  }
 			  targetSet.add(answer);
 		  }
-
+		  sourceItemText.setText(makeFCKAttachmentFromRespondus(sourceText));
+		  sourceItemText.setItem(item.getData());
+		  sourceItemText.setSequence(Long.valueOf(itemSequence++)); 
 		  sourceItemText.setAnswerSet(targetSet);
 		  itemTextSet.add(sourceItemText);
 	  }
-	  
 	  // Respondus allows for more matches than choices.  
 	  // If any answer does not have a correct choice, throw an exception
 	  Set<String> correctAnswers = new HashSet<String>();
