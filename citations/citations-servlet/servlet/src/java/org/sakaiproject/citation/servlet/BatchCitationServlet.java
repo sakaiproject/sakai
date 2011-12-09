@@ -80,6 +80,8 @@ import org.sakaiproject.util.Web;
 public class BatchCitationServlet extends CitationServlet
 {
 
+	private static Log log = LogFactory.getLog(BatchCitationServlet.class);
+
 	/**
 	 * respond to an HTTP GET request
 	 * 
@@ -186,12 +188,52 @@ public class BatchCitationServlet extends CitationServlet
 		}
 	}
 
+	// This is a little adapter to return parsed values rather than the raw
+	// ones supplied in the real request. This is to avoid needing to modify
+	// the existing parsing code in citations-impl (OpenURLServiceImpl,
+	// InlineHttpTransport, etc.). We parse the real POST body and supply these
+	// faked requests to CitationService.addCitation. Each one looks like a GET
+	// request with the decoded parameters on the query string as a standard
+	// Open URL 1.0 request would appear.
+
 	public class OpenUrlRequest extends HttpServletRequestWrapper {
 		private Map<String, String[]> openUrlParams;
+
+		private StringBuilder queryString;
 
 		public OpenUrlRequest(HttpServletRequest request, Map<String, String[]> openUrlParams) {
 			super(request);
 			this.openUrlParams = openUrlParams;
+
+			queryString = new StringBuilder();
+			for (String key : openUrlParams.keySet()) {
+				if (queryString.length() > 0) {
+					queryString.append("&");
+				}
+				boolean first = true;
+				for (String val : openUrlParams.get(key)) {
+					if (!first) {
+						queryString.append("&");
+						first = false;
+					}
+					try {
+						queryString.append(URLEncoder.encode(key, "UTF-8"));
+						queryString.append("=");
+						queryString.append(URLEncoder.encode(val, "UTF-8"));
+					} catch (UnsupportedEncodingException uee) {
+						// These should really never happen since UTF-8 is the W3C advised encoding
+						log.info("Error encoding key/value pairs for OpenURL 1.0. [" + key + " => " + val + "] -- " + uee.getLocalizedMessage());
+					}
+				}
+			}
+		}
+
+		public String getMethod() {
+			return "GET";
+		}
+
+		public String getQueryString() {
+			return queryString.toString();
 		}
 
 		public Map<String, String[]> getParameterMap() {
@@ -207,7 +249,7 @@ public class BatchCitationServlet extends CitationServlet
 		}
 
 		public Enumeration<String> getParameterNames() {
-			return Collections.enumeration(openUrlParams.keySet());
+			return Collections.enumeration(Collections.unmodifiableSet(openUrlParams.keySet()));
 		}
 
 		public String[] getParameterValues(String name) {
@@ -223,10 +265,8 @@ public class BatchCitationServlet extends CitationServlet
 	
 	public static Map<String, String[]> getUrlParameters(String url) throws UnsupportedEncodingException {
 		Map<String, List<String>> params = new HashMap<String, List<String>>();
-		String[] urlParts = url.split("\\?");
-		if (urlParts.length > 1) {
-			String query = urlParts[1];
-			for (String param : query.split("&")) {
+		if (url != null) {
+			for (String param : url.split("&")) {
 				String pair[] = param.split("=");
 				String key = URLDecoder.decode(pair[0], "UTF-8");
 				String value = "";
