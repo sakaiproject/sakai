@@ -339,7 +339,7 @@ public class CitationServlet extends VmServlet
 		String date = params.getString("date");
 		String id = params.getString("id");
 
-        HashMap map = new HashMap();
+		HashMap map = new HashMap();
 		map.put("genre", genre);
 		map.put("au", authors);
 		map.put("title", title);
@@ -350,8 +350,8 @@ public class CitationServlet extends VmServlet
 		map.put("publisher", publisher);
 		map.put("date", date);
 		map.put("id", id);
-        return findOpenURLVersion01(map);
-    }
+		return findOpenURLVersion01(map);
+	}
 
 	/**
 	 * Try and extract a Citation from the request.
