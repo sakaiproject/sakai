@@ -363,11 +363,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		// Find the MSIE version, if we're running it.
 		int ieVersion = checkIEVersion();
-
-		// browserString set by checkIEVersion
 		// as far as I can tell, none of these supports fck or ck
 		// we can make it configurable if necessary, or use WURFL
-		boolean noEditor = browserString.toLowerCase().indexOf("mobile") >= 0;
+		// however this test is consistent with CKeditor's check.
+		// that desireable, since if CKeditor is going to use a bare
+		// text block, we want to handle it as noEditor
+		String userAgent = httpServletRequest.getHeader("User-Agent");
+		if (userAgent == null)
+		    userAgent = "";
+		boolean noEditor = userAgent.toLowerCase().indexOf("mobile") >= 0;
 
 		if (simplePageBean.getTopRefresh()) {
 			UIOutput.make(tofill, "refresh");
@@ -1513,9 +1517,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    fckInput.decorate(new UIFreeAttributeDecorator("aria-label", messageLocator.getMessage("simplepage.editor")));
 					    fckInput.decorate(new UIFreeAttributeDecorator("role", "dialog"));
 
-					    if (!noEditor)
+					    if (!noEditor) {
+						fckInput.decorate(new UIStyleDecorator("using-editor"));  // javascript needs to know
 						((SakaiFCKTextEvolver) richTextEvolver).evolveTextInput(fckInput, "" + commentsCount);
-
+					    }
 					    UICommand.make(form, "add-comment", "#{simplePageBean.addComment}");
 					}
 

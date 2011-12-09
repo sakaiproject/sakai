@@ -13,7 +13,7 @@ var ckEditor = false;
 
 $(function() {
 	
-	noEditor = ($("div.evolved-box").size() == 0);
+	noEditor = ($(".using-editor").size() == 0);
 	if (!noEditor) {
 	    try {
 		if (sakai.editor.editors.ckeditor==undefined)
