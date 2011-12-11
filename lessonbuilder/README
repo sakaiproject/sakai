@@ -140,14 +140,15 @@ anything beyond this point.
 
 THE PDA PORTAL
 
-If you want to use iPhones, etc, Sakai gives you a separate UI.
-This UI turns out to cause problems for certain internal operations.
-In order go get grading screens to work properly on an Iphone, you'll
-want to add the following line to your sakai.properties.
+If you want to use iPhones, etc, Sakai gives you a separate UI. This
+UI turns out to cause problems for certain internal operations. In
+order go get web resources to open properly, and grading screens to
+work properly on an Iphone, you'll want to add the following line to
+your sakai.properties.
 
-portal.pda.bypass.sakai.lessonbuildertool=/uvbview$|\.jpg$|\.gif$|\.js$|\.png$|\.jepg$|\.css$|\.zip$|\.pdf\.mov$|\.json$|\.jsonp$\.xml$|\.ajax$|\.xls|\.xlsx|\.doc|\.docx
+portal.pda.bypass.sakai.lessonbuildertool=linktracker$|/uvbview$|\.jpg$|\.gif$|\.js$|\.png$|\.jepg$|\.css$|\.zip$|\.pdf\.mov$|\.json$|\.jsonp$\.xml$|\.ajax$|\.xls|\.xlsx|\.doc|\.docx
 
-The first alternative, i.e. /uvbview$, is the critical one. The rest
+The first two alternatives, i.e. linktracker$|/uvbview$, are the critical ones. The rest
 are the defaults. It's not clear whether they're actually used.
 
 
