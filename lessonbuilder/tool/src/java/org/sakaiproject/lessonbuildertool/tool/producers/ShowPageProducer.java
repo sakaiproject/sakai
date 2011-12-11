@@ -2897,10 +2897,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			}
 		} else {
 			// actual URL will be related to templates
-			defaultPath = "instructions/" + fileName;
-			prefix = "instructions/" + prefix;
+			defaultPath = "/sakai-lessonbuildertool-tool/templates/instructions/" + fileName;
+			prefix = "/sakai-lessonbuildertool-tool/templates/instructions/" + prefix;
 			// but have to test relative to servlet base
-			testPrefix = "/templates/";
+			testPrefix = "";  // urlok will have to remove /sakai-lessonbuildertool-tool
 		}
 
 		String[] localeDetails = locale.toString().split("_");
@@ -2934,7 +2934,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	}
 
     // this can be either a fully specified URL starting with http: or https: 
-    // or something relative to the servlet base, e.g. /template/instructions/general.html
+    // or something relative to the servlet base, e.g. /sakai-lessonbuildertool-tool/template/instructions/general.html
 	private boolean UrlOk(String url) {
 		Boolean cached = (Boolean) urlCache.get(url);
 		if (cached != null)
@@ -2963,6 +2963,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			return false;
 		    }
 		} else {
+		    // remove the leading /sakai-lessonbuildertool-tool, since getresource is
+		    // relative to the top of the servlet
+		    int i = url.indexOf("/", 1);
+		    url = url.substring(i);
 		    try {
 			// inside the war file, check the file system. That avoid issues
 			// with odd deployments behind load balancers, where the user's URL may not
