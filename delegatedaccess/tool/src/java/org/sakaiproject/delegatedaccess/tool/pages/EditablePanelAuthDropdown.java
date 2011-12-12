@@ -7,11 +7,14 @@ import javax.swing.tree.TreeNode;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
+import org.sakaiproject.delegatedaccess.model.SelectOption;
 
 /**
  * This is the .auth or .anon dropdown option for shopping period admin
@@ -24,7 +27,9 @@ public class EditablePanelAuthDropdown extends Panel{
 	public EditablePanelAuthDropdown(String id, IModel model, final NodeModel nodeModel, final TreeNode node) {
 		super(id, model);
 
-		final DropDownChoice choice=new DropDownChoice("dropDownChoice", model, Arrays.asList(".auth", ".anon")){
+		SelectOption[] options = new SelectOption[] {new SelectOption("Logged In", ".auth"), new SelectOption("Public", ".anon")};
+		ChoiceRenderer choiceRenderer = new ChoiceRenderer("label", "value");
+		final DropDownChoice choice=new DropDownChoice("dropDownChoice", model, Arrays.asList(options), choiceRenderer){
 			@Override
 			public boolean isVisible() {
 				return nodeModel.isDirectAccess() && nodeModel.getNodeShoppingPeriodAdmin();
@@ -35,7 +40,7 @@ public class EditablePanelAuthDropdown extends Panel{
 			@Override
 			protected void onUpdate(AjaxRequestTarget target)
 			{
-				nodeModel.setShoppingPeriodAuth(choice.getModelObject().toString());
+				nodeModel.setShoppingPeriodAuthOption((SelectOption) choice.getModelObject());
 
 				//In order for the models to refresh, you have to call "expand" or "collapse" then "updateTree",
 				//since I don't want to expand or collapse, I just call whichever one the node is already
@@ -54,10 +59,16 @@ public class EditablePanelAuthDropdown extends Panel{
 		IModel<String> labelModel = new AbstractReadOnlyModel<String>() {
 			@Override
 			public String getObject() {
+				String auth = null;
 				if(nodeModel.isDirectAccess()){
-					return nodeModel.getNodeShoppingPeriodAuth();
+					auth = nodeModel.getNodeShoppingPeriodAuth();
 				}else{
-					return nodeModel.getInheritedShoppingPeriodAuth();
+					auth = nodeModel.getInheritedShoppingPeriodAuth();
+				}
+				if(auth != null && !"".equals(auth)){
+					return new StringResourceModel(auth, null).getString();
+				}else{
+					return "";
 				}
 			}
 		};
@@ -67,5 +78,4 @@ public class EditablePanelAuthDropdown extends Panel{
 			};
 		});
 	}
-
 }

@@ -17,6 +17,8 @@ public class DelegatedAccessConstants {
 	public static final int SEARCH_COMPARE_DEFAULT = SEARCH_COMPARE_EID;
 	public static final int SEARCH_COMPARE_SITE_TITLE = 1;
 	public static final int SEARCH_COMPARE_SITE_ID = 2;
+	public static final int SEARCH_COMPARE_TERM = 3;
+	public static final int SEARCH_COMPARE_INSTRUCTOR = 4;
 	public static final String SCHOOL_PROPERTY = "School";
 	public static final String DEPEARTMENT_PROPERTY = "Department";
 	public static final String SUBJECT_PROPERTY = "Subject";
@@ -48,5 +50,7 @@ public class DelegatedAccessConstants {
 	public static final String SITE_PROP_RESTRICTED_TOOLS = "shopping-period-restricted-tools";
 	public static final String PROP_TOOL_LIST = "delegatedaccess.toolslist";
 	public static final String PROP_TOOL_LIST_TEMPLATE = "delegatedaccess.toolslist.sitetype";
+	public static final String ADVANCED_SEARCH_INSTRUCTOR = "instructorField";
+	public static final String ADVANCED_SEARCH_TERM = "termField";
 
 }

@@ -2,6 +2,9 @@ package org.sakaiproject.delegatedaccess.tool.pages;
 
 
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 
@@ -17,6 +20,7 @@ import org.apache.wicket.markup.html.tree.LinkTree;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
+import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.site.api.Site;
 
 /**
@@ -30,7 +34,10 @@ public class UserPage  extends BaseTreePage{
 	private BaseTree tree;
 	boolean expand = true;
 	private String search = "";
-
+	private String instructorField = "";
+	private String termField = "";
+	private TreeModel treeModel = null;
+	
 	protected AbstractTree getTree()
 	{
 		return tree;
@@ -40,14 +47,44 @@ public class UserPage  extends BaseTreePage{
 		disableLink(firstLink);
 
 		//this is the home page so set user as current user
-		String userId = sakaiProxy.getCurrentUserId();
+		String userId;
+		if(isShoppingPeriodTool()){
+			userId = DelegatedAccessConstants.SHOPPING_PERIOD_USER;
+		}else{
+			userId = sakaiProxy.getCurrentUserId();
+		}
 
+		//Title
+		Label title = new Label("title");
+		if(isShoppingPeriodTool()){
+			title.setDefaultModel(new StringResourceModel("shoppingTitle", null));
+		}else{
+			title.setDefaultModel(new StringResourceModel("delegatedAccessTitle", null));
+		}
+		add(title);
+		
+		//Description
+		Label description = new Label("description");
+		if(isShoppingPeriodTool()){
+			description.setDefaultModel(new StringResourceModel("shoppingInstruction", null));
+		}else{
+			description.setDefaultModel(new StringResourceModel("delegatedAccessInstructions", null));
+		}
+		add(description);
+		
 		//tree:
 
 		//Expand/Collapse Link
 		add(getExpandCollapseLink());
 
-		final TreeModel treeModel = projectLogic.createAccessTreeModelForUser(userId, false, true);
+		if(isShoppingPeriodTool()){
+			treeModel = projectLogic.getTreeModelForShoppingPeriod();
+			if(treeModel != null && ((DefaultMutableTreeNode) treeModel.getRoot()).getChildCount() == 0){
+				treeModel = null;
+			}
+		}else{
+			treeModel = projectLogic.createAccessTreeModelForUser(userId, false, true);
+		}
 
 		//a null model means the user doesn't have any associations
 		tree = new LinkTree("tree", treeModel){
@@ -69,8 +106,10 @@ public class UserPage  extends BaseTreePage{
 					if(nodeModel.getNode().description != null && nodeModel.getNode().description.startsWith("/site/")){
 						Site site = sakaiProxy.getSiteByRef(nodeModel.getNode().description);
 						if(site != null){
-							//ensure the access for this user has been granted
-							projectLogic.grantAccessToSite(nodeModel);
+							if(!isShoppingPeriodTool()){
+								//ensure the access for this user has been granted
+								projectLogic.grantAccessToSite(nodeModel);
+							}
 							//redirect the user to the site
 							target.appendJavascript("top.location='" + site.getUrl() + "'");
 						}
@@ -93,37 +132,41 @@ public class UserPage  extends BaseTreePage{
 				return treeModel == null;
 			}
 		};
-
-		noAccessLabel.setDefaultModel(new StringResourceModel("noDelegatedAccess", null));        
+		if(isShoppingPeriodTool()){
+			noAccessLabel.setDefaultModel(new StringResourceModel("noShoppingSites", null));
+			
+		}else{
+			noAccessLabel.setDefaultModel(new StringResourceModel("noDelegatedAccess", null));
+		}
 		add(noAccessLabel);
 
 
 		//Create Search Form:
 		final PropertyModel<String> messageModel = new PropertyModel<String>(this, "search");
+		final PropertyModel<String> instructorFieldModel = new PropertyModel<String>(this, "instructorField");
+		final PropertyModel<String> termFieldModel = new PropertyModel<String>(this, "termField");
 		Form<?> form = new Form("form"){
 			@Override
 			protected void onSubmit() {	
-				setResponsePage(new UserPageSiteSearch(search, treeModel));
+				Map<String, String> advancedOptions = new HashMap<String,String>();
+				if(termField != null && !"".equals(termField)){
+					advancedOptions.put(DelegatedAccessConstants.ADVANCED_SEARCH_TERM, termField);
+				}
+				if(instructorField != null && !"".equals(instructorField)){
+					advancedOptions.put(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR, instructorField);
+				}
+				setResponsePage(new UserPageSiteSearch(search, advancedOptions, treeModel));
+			}
+			@Override
+			public boolean isVisible() {
+				return treeModel != null;
 			}
 		};
-		form.add(new TextField<String>("search", messageModel){
-			@Override
-			public boolean isVisible() {
-				return treeModel != null;
-			}
-		});
-		form.add(new WebMarkupContainer("searchHeader"){
-			@Override
-			public boolean isVisible() {
-				return treeModel != null;
-			};
-		});
-		form.add(new Button("submitButton"){
-			@Override
-			public boolean isVisible() {
-				return treeModel != null;
-			}
-		});
+		form.add(new TextField<String>("search", messageModel));
+		form.add(new TextField<String>("instructorField", instructorFieldModel));
+		form.add(new TextField<String>("termField", termFieldModel));
+		form.add(new WebMarkupContainer("searchHeader"));
+		form.add(new Button("submitButton"));
 
 		add(form);
 

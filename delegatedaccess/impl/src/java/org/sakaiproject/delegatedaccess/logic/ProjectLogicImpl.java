@@ -1,14 +1,18 @@
 package org.sakaiproject.delegatedaccess.logic;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -29,6 +33,8 @@ import org.sakaiproject.delegatedaccess.util.DelegatedAccessMutableTreeNode;
 import org.sakaiproject.hierarchy.HierarchyService;
 import org.sakaiproject.hierarchy.model.HierarchyNode;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService.SelectionType;
+import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.user.api.User;
@@ -403,31 +409,129 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 	}
 
-	public List<NodeModel> searchUserSites(String search, TreeModel treeModel){
+	public List<NodeModel> searchUserSites(String search, TreeModel treeModel, Map<String, String> advancedOptions){
 		if(search == null){
 			search = "";
 		}
-		return searchUserTree(search, (DefaultMutableTreeNode) treeModel.getRoot());
+		Map<String, SiteSearchData> siteSubset = null;
+		if(!"".equals(search) || (advancedOptions != null && !advancedOptions.isEmpty())){
+			siteSubset = searchSites(search, advancedOptions);
+		}
+		return searchUserTree((DefaultMutableTreeNode) treeModel.getRoot(), siteSubset);
 	}
 
-	private List<NodeModel> searchUserTree(String search, DefaultMutableTreeNode node){
+	private List<NodeModel> searchUserTree(DefaultMutableTreeNode node, Map<String, SiteSearchData> siteSubset){
 		List<NodeModel> returnList = new ArrayList<NodeModel>();
-		if(node != null){
+		if(node != null && siteSubset != null && !siteSubset.isEmpty()){
 			NodeModel nodeModel = (NodeModel) node.getUserObject();
 			if(nodeModel.getNode().description.startsWith("/site/")){
-				if("".equals(search) || nodeModel.getNode().title.toLowerCase().contains(search.toLowerCase())
-						|| nodeModel.getNode().description.substring(6).toLowerCase().contains(search.toLowerCase())){
+				String siteId = nodeModel.getNode().description.substring(6);
+				if(siteSubset.containsKey(siteId)){
+					String term = siteSubset.get(siteId).getTerm();
+					nodeModel.setSiteTerm(term == null ? "" : term);
+					String instructors = "";
+					for(User user : siteSubset.get(siteId).getInstructors()){
+						if(!"".equals(instructors)){
+							instructors += "; ";
+						}
+						instructors += user.getSortName();
+					}
+					nodeModel.setSiteInstructors(instructors);
 					returnList.add(nodeModel);
 				}
-
 			}
 			for(int i = 0; i < node.getChildCount(); i++){
-				returnList.addAll(searchUserTree(search, (DefaultMutableTreeNode) node.getChildAt(i)));
+				returnList.addAll(searchUserTree((DefaultMutableTreeNode) node.getChildAt(i), siteSubset));
 			}
 		}
 		return returnList;
 	}
 
+	public Map<String, SiteSearchData> searchSites(String search, Map<String, String> advancedOptions){
+		Map<String, SiteSearchData> sites = new HashMap<String, SiteSearchData>();
+		Map<String, String> propsMap = null;
+		
+		if (advancedOptions != null
+				&& (advancedOptions
+						.containsKey(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR) || advancedOptions
+						.containsKey(DelegatedAccessConstants.ADVANCED_SEARCH_TERM))) {
+			//Advanced Search
+			
+			if (advancedOptions
+					.containsKey(DelegatedAccessConstants.ADVANCED_SEARCH_TERM)) {
+				propsMap = new HashMap<String, String>();
+				propsMap.put("term", advancedOptions
+						.get(DelegatedAccessConstants.ADVANCED_SEARCH_TERM));
+			}
+			// find all user's with this name/id/email
+			if (advancedOptions
+					.containsKey(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR)) {
+				List<User> searchUsers = sakaiProxy
+						.searchUsers(
+								advancedOptions
+										.get(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR),
+								1, DelegatedAccessConstants.SEARCH_RESULTS_MAX);
+				for (User user : searchUsers) {
+					for (Site site : getUserUpdatePermissionMembership(
+							user.getId(), search, propsMap)) {
+						if(sites.containsKey(site.getId())){
+							sites.get(site.getId()).getInstructors().add(user);
+						}else{
+							List<User> usersList = new ArrayList<User>();
+							usersList.add(user);
+							sites.put(site.getId(), new SiteSearchData(site, usersList));
+						}
+					}
+				}
+
+			}
+			if (advancedOptions
+					.containsKey(DelegatedAccessConstants.ADVANCED_SEARCH_TERM)) {
+				if (sites.isEmpty()) {
+					// grab all sites in term since there are no other
+					// restrictions
+					for (Site site : sakaiProxy.getSites(SelectionType.ANY,
+							search, propsMap)) {
+						sites.put(site.getId(), new SiteSearchData(site, new ArrayList<User>()));
+					}
+				} else {
+					for (Iterator iterator = sites.entrySet().iterator(); iterator
+							.hasNext();) {
+						Entry<String, SiteSearchData> entry = (Entry<String, SiteSearchData>) iterator
+								.next();
+						if (entry.getValue().getTerm() == null
+								|| !entry.getValue().getTerm().toLowerCase().contains(
+												advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_TERM).toLowerCase())){
+							sites.remove(entry.getKey());
+						}
+					}
+				}
+
+			}
+		} else {
+			// search title or id
+			for (Site site : sakaiProxy.getSites(SelectionType.ANY, search,
+					null)) {
+				sites.put(site.getId(), new SiteSearchData(site, new ArrayList<User>()));
+			}
+		}
+		return sites;
+	}
+	
+	private List<Site> getUserUpdatePermissionMembership(String userId, String search, Map<String, String> propsMap){
+		String currentUserId = sakaiProxy.getCurrentUserId();
+		//set session user id to this id:
+		Session sakaiSession = sakaiProxy.getCurrentSession();
+		sakaiSession.setUserId(userId);
+		sakaiSession.setUserEid(userId);
+		List<Site> siteList = sakaiProxy.getSites(SelectionType.UPDATE, search, propsMap);
+		//return to current user id
+		sakaiSession.setUserId(currentUserId);
+		sakaiSession.setUserEid(currentUserId);
+		
+		return siteList;
+	}
+	
 	private String[] convertToArray(List<String> list){
 		String[] returnArray = new String[]{};
 		if(!list.isEmpty()){
@@ -672,23 +776,23 @@ public class ProjectLogicImpl implements ProjectLogic {
 		return root;
 	}
 
-	/**
-	 * returns a map of all realms and their roles from sakaiProxy.getSiteTemplates()
-	 * 
-	 * @return
-	 */
-	private Map<String, List<String>> getRealmMap(){
-		List<AuthzGroup> siteTemplates = sakaiProxy.getSiteTemplates();
-		final Map<String, List<String>> realmMap = new HashMap<String, List<String>>();
-		for(AuthzGroup group : siteTemplates){
-			List<String> roles = new ArrayList<String>();
-			for(Role role : group.getRoles()){
-				roles.add(role.getId());
-			}
-			realmMap.put(group.getId(), roles);
-		}
-		return realmMap;
-	}
+//	/**
+//	 * returns a map of all realms and their roles from sakaiProxy.getSiteTemplates()
+//	 * 
+//	 * @return
+//	 */
+//	private Map<String, List<String>> getRealmMap(){
+//		List<AuthzGroup> siteTemplates = sakaiProxy.getSiteTemplates();
+//		final Map<String, List<String>> realmMap = new HashMap<String, List<String>>();
+//		for(AuthzGroup group : siteTemplates){
+//			List<String> roles = new ArrayList<String>();
+//			for(Role role : group.getRoles()){
+//				roles.add(role.getId());
+//			}
+//			realmMap.put(group.getId(), roles);
+//		}
+//		return realmMap;
+//	}
 
 	/**
 	 * takes a list representation of the tree and orders it Alphabetically
@@ -1009,5 +1113,31 @@ public class ProjectLogicImpl implements ProjectLogic {
 			}
 		}
 		return returnDate;
+	}
+	
+	private class SiteSearchData{
+		private Site site;
+		private List<User> instructors = new ArrayList();
+		
+		public SiteSearchData(Site site, List<User> instructors){
+			this.site = site;
+			this.instructors = instructors;
+		}
+		public Site getSite() {
+			return site;
+		}
+		public void setSite(Site site) {
+			this.site = site;
+		}
+		public List<User> getInstructors() {
+			return instructors;
+		}
+		public void setInstructors(List<User> instructors) {
+			this.instructors = instructors;
+		}
+		
+		public String getTerm(){
+			return site.getProperties().getProperty("term");
+		}
 	}
 }

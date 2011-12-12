@@ -96,8 +96,8 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		String shoppingAuth = (String) params.get("shoppingAuth");
 		String shoppingStartDateStr = (String) params.get("shoppingStartDate");
 		String shoppingEndDateStr = (String) params.get("shoppingEndDate");
-		String role = (String) params.get("shoppingRole");
-		String realm = (String) params.get("shoppingRealm");
+		//String role = (String) params.get("shoppingRole");
+		//String realm = (String) params.get("shoppingRealm");
 		Date shoppingStartDate = null;
 		Date shoppingEndDate = null;
 		if(shoppingStartDateStr != null && !"".equals(shoppingStartDateStr)){
@@ -120,12 +120,9 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		node.setShoppingPeriodAuth(shoppingAuth);
 		node.setShoppingPeriodStartDate(shoppingStartDate);
 		node.setShoppingPeriodEndDate(shoppingEndDate);
-		node.setRealm(realm);
-		node.setRole(role);
 
 		//to enable these settings, you must set the direct access to true, disabled = false
-		if((shoppingAuth == null || "".equals(shoppingAuth)) && shoppingStartDate == null && shoppingEndDate == null ||
-				realm == null || "".equals(realm) || role == null || "".equals(role)){
+		if((shoppingAuth == null || "".equals(shoppingAuth)) && shoppingStartDate == null && shoppingEndDate == null){
 			//user wants to remove information, so make the direct access == false:
 			node.setDirectAccess(false);
 		}else{

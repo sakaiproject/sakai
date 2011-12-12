@@ -1,8 +1,11 @@
 package org.sakaiproject.delegatedaccess.tool.pages;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.tree.TreeModel;
 
@@ -35,34 +38,78 @@ import org.sakaiproject.site.api.Site;
  */
 public class UserPageSiteSearch extends BasePage {
 
-	private String searchModel = "";
 	private int orderBy = DelegatedAccessConstants.SEARCH_COMPARE_DEFAULT;
 	private boolean orderAsc = true;
 	private NodeModelDataProvider provider;
 	private String search = "";
+	private String instructorField = "";
+	private String termField = "";
 	private TreeModel treeModel;
 
-
-	public UserPageSiteSearch(final String search, TreeModel treeModel){
+	public UserPageSiteSearch(final String search, final Map<String, String> advancedFields, TreeModel treeModel){
 		this.search = search;
 		this.treeModel = treeModel;
+		if(advancedFields != null){
+			for(Entry<String, String> entry : advancedFields.entrySet()){
+				if(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR.equals(entry.getKey())){
+					instructorField = entry.getValue();
+				}
+				if(DelegatedAccessConstants.ADVANCED_SEARCH_TERM.equals(entry.getKey())){
+					termField = entry.getValue();
+				}
+			}
+		}
 		//Create Search Form:
-		final PropertyModel<String> messageModel = new PropertyModel<String>(this, "search");
+		final PropertyModel<String> searchModel = new PropertyModel<String>(this, "search");
+		final PropertyModel<String> instructorFieldModel = new PropertyModel<String>(this, "instructorField");
+		final PropertyModel<String> termFieldModel = new PropertyModel<String>(this, "termField");
+		final IModel<String> searchStringModel = new IModel<String>() {
+			
+			public void detach() {
+			}
+			
+			public void setObject(String arg0) {
+			}
+			
+			public String getObject() {
+				String searchString = "";
+				if(searchModel.getObject() != null){
+					searchString += new StringResourceModel("siteIdTitleField", null).getString() + " " + searchModel.getObject();
+				}
+				if(instructorFieldModel.getObject() != null && !"".equals(instructorFieldModel.getObject())){
+					if(!"".equals(searchString))
+						searchString += ", ";
+					searchString += new StringResourceModel("instructorField", null).getString() + " " + instructorFieldModel.getObject();
+				}
+				if(termFieldModel.getObject() != null && !"".equals(termFieldModel.getObject())){
+					if(!"".equals(searchString))
+						searchString += ", ";
+					searchString += new StringResourceModel("termField", null).getString() + " " + termFieldModel.getObject();
+				}
+				return searchString;
+			}
+		};
 		Form<?> form = new Form("form");
-		form.add(new TextField<String>("search", messageModel));
+		form.add(new TextField<String>("search", searchModel));
+		form.add(new TextField<String>("instructorField", instructorFieldModel));
+		form.add(new TextField<String>("termField", termFieldModel));
 		add(form);
 
 		//show user's search (if not null)
 		add(new Label("searchResultsTitle", new StringResourceModel("searchResultsTitle", null)){
 			@Override
 			public boolean isVisible() {
-				return messageModel.getObject() != null && !"".equals(messageModel.getObject());
+				return (searchModel.getObject() != null && !"".equals(searchModel.getObject()))
+				|| (instructorFieldModel.getObject() != null && !"".equals(instructorFieldModel.getObject()))
+				|| (termFieldModel.getObject() != null && !"".equals(termFieldModel.getObject()));
 			}
 		});
-		add(new Label("searchString",messageModel){
+		add(new Label("searchString",searchStringModel){
 			@Override
 			public boolean isVisible() {
-				return messageModel.getObject() != null && !"".equals(messageModel.getObject());
+				return (searchModel.getObject() != null && !"".equals(searchModel.getObject()))
+				|| (instructorFieldModel.getObject() != null && !"".equals(instructorFieldModel.getObject()))
+				|| (termFieldModel.getObject() != null && !"".equals(termFieldModel.getObject()));
 			}
 		});
 
@@ -92,6 +139,30 @@ public class UserPageSiteSearch extends BasePage {
 			}
 		};
 		add(siteIdSort);
+		Link<Void> termSort = new Link<Void>("termSortLink"){
+			private static final long serialVersionUID = 1L;
+			public void onClick() {
+				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_TERM);
+			}
+
+			@Override
+			public boolean isVisible() {
+				return provider.size() > 0;
+			}
+		};
+		add(termSort);
+		Link<Void> instructorSort = new Link<Void>("instructorSortLink"){
+			private static final long serialVersionUID = 1L;
+			public void onClick() {
+				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_INSTRUCTOR);
+			}
+
+			@Override
+			public boolean isVisible() {
+				return provider.size() > 0 && instructorField != null && !"".equals(instructorField);
+			}
+		};
+		add(instructorSort);
 
 		//Data:
 		provider = new NodeModelDataProvider();
@@ -104,8 +175,10 @@ public class UserPageSiteSearch extends BasePage {
 					public void onClick(AjaxRequestTarget target) {
 						Site site = sakaiProxy.getSiteByRef(nodeModel.getNode().description);
 						if(site != null){
-							//ensure the access for this user has been granted
-							projectLogic.grantAccessToSite(nodeModel);
+							if(!isShoppingPeriodTool()){
+								//ensure the access for this user has been granted
+								projectLogic.grantAccessToSite(nodeModel);
+							}
 							//redirect the user to the site
 							target.appendJavascript("top.location='" + site.getUrl() + "'");
 						}
@@ -119,6 +192,8 @@ public class UserPageSiteSearch extends BasePage {
 				}
 
 				item.add(new Label("siteId", siteId));
+				item.add(new Label("term", nodeModel.getSiteTerm()));
+				item.add(new Label("instructor", nodeModel.getSiteInstructors()));
 			}
 			@Override
 			public boolean isVisible() {
@@ -221,7 +296,14 @@ public class UserPageSiteSearch extends BasePage {
 
 		private List<NodeModel> getData(){
 			if(list == null){
-				list = projectLogic.searchUserSites(getSearch(), treeModel);
+				Map<String, String> advancedOptions = new HashMap<String,String>();
+				if(termField != null && !"".equals(termField)){
+					advancedOptions.put(DelegatedAccessConstants.ADVANCED_SEARCH_TERM, termField);
+				}
+				if(instructorField != null && !"".equals(instructorField)){
+					advancedOptions.put(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR, instructorField);
+				}
+				list = projectLogic.searchUserSites(getSearch(), treeModel, advancedOptions.isEmpty() ? null : advancedOptions);
 				sortList();
 			}else if(lastOrderAsc != orderAsc || lastOrderBy != orderBy){
 				sortList();

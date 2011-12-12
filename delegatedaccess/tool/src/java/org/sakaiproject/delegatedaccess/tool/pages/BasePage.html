@@ -14,6 +14,23 @@
 		function hideFeedbackTimer(id){
 			setTimeout('hideFeedbackPanel("' + id + '")', 5000);
 		}
+		
+		var show = true;
+		function toggleAdvancedSearch(){
+			var advancedSearchSpan = document.getElementById('advancedSearchSpan');
+			var showAdvancedSearchLink = document.getElementById('showAdvancedSearchLink');
+			var hideAdvancedSearchLink = document.getElementById('hideAdvancedSearchLink');
+			if(show){
+				advancedSearchSpan.style.display = '';
+				showAdvancedSearchLink = 'none';
+				hideAdvancedSearchLink = '';
+			}else{
+				advancedSearchSpan.style.display = 'none';
+				showAdvancedSearchLink = '';
+				hideAdvancedSearchLink = 'none';
+			}
+			show = !show;
+		}
 	</script>
 </head>     
 <body>

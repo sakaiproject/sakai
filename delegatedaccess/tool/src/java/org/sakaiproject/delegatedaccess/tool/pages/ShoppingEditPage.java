@@ -74,7 +74,7 @@ public class ShoppingEditPage extends BaseTreePage{
 		//tree:
 
 		//create a map of the realms and their roles for the Role column
-		List<AuthzGroup> siteTemplates = sakaiProxy.getSiteTemplates();
+		List<AuthzGroup> siteTemplates = sakaiProxy.getShoppingRealmOptions();
 		final Map<String, List<String>> realmMap = new HashMap<String, List<String>>();
 		for(AuthzGroup group : siteTemplates){
 			List<String> roles = new ArrayList<String>();
@@ -90,7 +90,7 @@ public class ShoppingEditPage extends BaseTreePage{
 		IColumn columns[] = new IColumn[] {
 				new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.LEFT, 35, Unit.PX), "",	"userObject.directAccess", DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER),
 				new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 100, Unit.PROPORTIONAL),	"", "userObject.node.title"),
-				new PropertyEditableColumnAuthDropdown(new ColumnLocation(Alignment.RIGHT, 115, Unit.PX), new StringResourceModel("shoppingPeriodAuth", null).getString(), "userObject.shoppingPeriodAuth"),
+				new PropertyEditableColumnAuthDropdown(new ColumnLocation(Alignment.RIGHT, 115, Unit.PX), new StringResourceModel("shoppingPeriodAuth", null).getString(), "userObject.shoppingPeriodAuthOption"),
 				new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.RIGHT, 360, Unit.PX), new StringResourceModel("shoppersBecome", null).getString(),
 						"userObject.realmModel", realmMap, DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER),
 						new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 100, Unit.PX), new StringResourceModel("startDate", null).getString(), "userObject.shoppingPeriodStartDate", true),

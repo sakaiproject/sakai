@@ -20,17 +20,48 @@
 <body>
 <wicket:extend>
 	<br/>
-	<div style="font-size: 150%"><wicket:message key="delegatedAccessTitle"/></div>
+	<div style="font-size: 150%" wicket:id="title">Title</div>
 	<br/>
-	<span class="instruction" style="white-space: normal"><wicket:message key="delegatedAccessInstructions"/></span>
+	<span class="instruction" style="white-space: normal" wicket:id="description">Instructions here</span>
 	<br/>
 	<br/>
 	<span wicket:id="noAccess"></span>
 	<form wicket:id="form">
-		<h3 wicket:id="searchHeader"><wicket:message key="searchSites"/></h3>
-		<input type="text" wicket:id="search" />
-		<input type="submit" wicket:id="submitButton"/>
-	</form>	
+		<h3><wicket:message key="searchSites"/></h3>
+		<table>
+			<tr>
+				<td align='right'>
+					<wicket:message key="siteIdTitleField"/>
+				</td>
+				<td>
+					<input type="text" wicket:id="search" />
+					
+				</td>
+			</tr>
+			<tr>
+				<td align='right'>
+					<wicket:message key="instructorField"/>
+				</td>
+				<td>
+					<input type="text" wicket:id="instructorField" />
+				</td>
+			</tr>
+			<tr>
+				<td align='right'>
+					<wicket:message key="termField"/>
+				</td>
+				<td>
+					<input type="text" wicket:id="termField" />
+				</td>
+			</tr>
+			<tr>
+				<td/>
+				<td align='right'>
+					<input type="submit"/>
+				</td>
+			</tr>
+		</table>
+	</form>
 	<br/>
 	
 	

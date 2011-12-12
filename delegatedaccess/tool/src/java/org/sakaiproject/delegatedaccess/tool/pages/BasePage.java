@@ -45,11 +45,14 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	Link<Void> thirdLink;
 
 	FeedbackPanel feedbackPanel;
+	
+	boolean shoppingPeriodTool = false;
 
 	public BasePage() {
 
 		log.debug("BasePage()");
 
+		shoppingPeriodTool = sakaiProxy.isShoppingTool();
 
 		//first link
 		firstLink = new Link<Void>("firstLink") {
@@ -58,8 +61,13 @@ public class BasePage extends WebPage implements IHeaderContributor {
 				setResponsePage(new UserPage());
 			}
 		};
-		firstLink.add(new Label("firstLinkLabel",new ResourceModel("link.first")).setRenderBodyOnly(true));
-		firstLink.add(new AttributeModifier("title", true, new ResourceModel("link.first.tooltip")));
+		if(shoppingPeriodTool){
+			firstLink.add(new Label("firstLinkLabel",new ResourceModel("link.first.shopping")).setRenderBodyOnly(true));
+			firstLink.add(new AttributeModifier("title", true, new ResourceModel("link.first.tooltip.shopping")));
+		}else{
+			firstLink.add(new Label("firstLinkLabel",new ResourceModel("link.first")).setRenderBodyOnly(true));
+			firstLink.add(new AttributeModifier("title", true, new ResourceModel("link.first.tooltip")));
+		}
 		add(firstLink);
 
 
@@ -72,7 +80,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			}
 			@Override
 			public boolean isVisible() {
-				return true;
+				return !shoppingPeriodTool;
 			}
 		};
 		secondLink.add(new Label("secondLinkLabel",new ResourceModel("link.second")).setRenderBodyOnly(true));
@@ -87,7 +95,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			}
 			@Override
 			public boolean isVisible() {
-				return sakaiProxy.isSuperUser();
+				return sakaiProxy.isSuperUser() && !shoppingPeriodTool;
 			}
 		};
 		thirdLink.add(new Label("thirdLinkLabel",new ResourceModel("link.third")).setRenderBodyOnly(true));
@@ -114,7 +122,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			}
 		};
 		add(feedbackPanel); 
-
+		
+		
 	}
 
 	/**
@@ -171,4 +180,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		l.setEnabled(false);
 	}
 
+	protected boolean isShoppingPeriodTool(){
+		return shoppingPeriodTool;
+	}
 }

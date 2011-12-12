@@ -79,7 +79,7 @@ public class UserEditPage  extends BaseTreePage{
 		//tree:
 
 		//create a map of the realms and their roles for the Role column
-		List<AuthzGroup> siteTemplates = sakaiProxy.getSiteTemplates();
+		List<AuthzGroup> siteTemplates = sakaiProxy.getDelegatedAccessRealmOptions();
 		final Map<String, List<String>> realmMap = new HashMap<String, List<String>>();
 		for(AuthzGroup group : siteTemplates){
 			List<String> roles = new ArrayList<String>();

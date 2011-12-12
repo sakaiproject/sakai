@@ -1,15 +1,44 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
-
 <body>
 <wicket:extend>
-
 	<br/>
 	<form wicket:id="form">
 		<h3><wicket:message key="searchSites"/></h3>
-		<input type="text" wicket:id="search" />
-		<input type="submit"/>
-	</form>	
+		<table>
+			<tr>
+				<td align='right'>
+					<wicket:message key="siteIdTitleField"/>
+				</td>
+				<td>
+					<input type="text" wicket:id="search" />
+					
+				</td>
+			</tr>
+			<tr>
+				<td align='right'>
+					<wicket:message key="instructorField"/>
+				</td>
+				<td>
+					<input type="text" wicket:id="instructorField" />
+				</td>
+			</tr>
+			<tr>
+				<td align='right'>
+					<wicket:message key="termField"/>
+				</td>
+				<td>
+					<input type="text" wicket:id="termField" />
+				</td>
+			</tr>
+			<tr>
+				<td/>
+				<td align='right'>
+					<input type="submit"/>
+				</td>
+			</tr>
+		</table>
+	</form>
 	<br/>
 	<br/>	
 	<span wicket:id="searchResultsTitle">Results for: </span><span wicket:id="searchString" style="font-weight: bold">user search string</span>
@@ -21,10 +50,14 @@
     	<tr>
     	<th><a wicket:id="siteTitleSortLink"><wicket:message key="siteTitleHeader"/></a></th>
     	<th><a wicket:id="siteIdSortLink"><wicket:message key="siteIdHeader"/></a></th>
+    	<th><a wicket:id="termSortLink"><wicket:message key="termHeader"/></a></th>
+    	<th><a wicket:id="instructorSortLink"><wicket:message key="instructorHeader"/></a></th>
     	</tr>
        <tr wicket:id="searchResult">
        	 <td><a wicket:id="siteTitleLink"><span wicket:id="siteTitle">test</span></a></td>
        	 <td><span wicket:id="siteId">site id</span></td>
+       	 <td><span wicket:id="term">term</span></td>
+       	 <td><span wicket:id="instructor">Last, First</span></td>
        </tr>
     </tbody>
 	</table>

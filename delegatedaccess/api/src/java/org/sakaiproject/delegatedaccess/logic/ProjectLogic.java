@@ -2,6 +2,7 @@ package org.sakaiproject.delegatedaccess.logic;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.tree.TreeModel;
 
@@ -60,7 +61,7 @@ public interface ProjectLogic {
 	 * @param treeModel
 	 * @return
 	 */
-	public List<NodeModel> searchUserSites(String search, TreeModel treeModel);
+	public List<NodeModel> searchUserSites(String search, TreeModel treeModel, Map<String, String> advancedOptions);
 
 	/**
 	 * returns the tree model of a user's delegated access.  Each node in the tree has the NodeModel object

@@ -2,8 +2,12 @@ package org.sakaiproject.delegatedaccess.logic;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import lombok.Getter;
@@ -29,6 +33,7 @@ import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
+import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
@@ -226,6 +231,36 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return authzGroupService.getAuthzGroups("!site.", new PagingPosition(1, DelegatedAccessConstants.SEARCH_RESULTS_MAX));
 	}
 
+	public List<AuthzGroup> getShoppingRealmOptions(){
+		String[] authzGroups = serverConfigurationService.getStrings("delegatedaccess.realmoptions.shopping");
+		if(authzGroups != null && authzGroups.length != 0){
+			return getGroupsById(authzGroups);
+		}else{
+			return getSiteTemplates();
+		}
+	}
+	
+	public List<AuthzGroup> getDelegatedAccessRealmOptions(){
+		String[] authzGroups = serverConfigurationService.getStrings("delegatedaccess.realmoptions.delegatedaccess");
+		if(authzGroups != null && authzGroups.length != 0){
+			return getGroupsById(authzGroups);
+		}else{
+			return getSiteTemplates();
+		}
+	}
+	
+	private List<AuthzGroup> getGroupsById(String[] groups){
+		List<AuthzGroup> returnList = new ArrayList<AuthzGroup>();
+		for(int i = 0; i < groups.length; i++){
+			try {
+				returnList.add(authzGroupService.getAuthzGroup(groups[i]));
+			} catch (GroupNotDefinedException e) {
+				log.error(e);
+			}
+		}
+		return returnList;
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -235,12 +270,20 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 	public Set<String> getUserMembershipForCurrentUser(){
 		Set<String> returnSet = new HashSet<String>();
-		for(Site site: siteService.getSites(SelectionType.ACCESS, null, null, null, null, null)){
+		for(Site site: siteService.getSites(SelectionType.ACCESS, null, null, null, SortType.NONE, null)){
 			returnSet.add(site.getReference());
 		}
 		return returnSet;
 	}
-
+	
+	public List<Site> getSites(SelectionType type, String search, Map<String, String> propsMap){
+		return siteService.getSites(type, null, search, propsMap, SortType.NONE, null);
+	}
+	
+	public boolean isShoppingTool(){
+		return "sakai.delegatedaccess.shopping".equals(toolManager.getCurrentPlacement().getToolId());
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */

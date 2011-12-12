@@ -1,12 +1,14 @@
 package org.sakaiproject.delegatedaccess.logic;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.user.api.User;
@@ -122,11 +124,24 @@ public interface SakaiProxy {
 	public String[] getServerConfigurationStrings(String property);
 
 	/**
-	 * Returns all site realm templates that start with "!site."
+	 * Returns a list of realm/role options for the shopping period role
+	 * 
+	 * first checks the sakai.property: delegatedaccess.realmoptions.shopping
+	 * if not found, defaults to: all site realm templates that start with "!site."
 	 * 
 	 * @return
 	 */
-	public List<AuthzGroup> getSiteTemplates();
+	public List<AuthzGroup> getShoppingRealmOptions();
+	
+	/**
+	 * Returns a list of realm/role options for the shopping period role
+	 * 
+	 * first checks the sakai.property: delegatedaccess.realmoptions.delegatedaccess
+	 * if not found, defaults to: all site realm templates that start with "!site."
+	 * 
+	 * @return
+	 */
+	public List<AuthzGroup> getDelegatedAccessRealmOptions();
 
 	/**
 	 * call authzGroupService.refreshUser for current user
@@ -189,4 +204,18 @@ public interface SakaiProxy {
 	 */
 	public void popSecurityAdvisor(SecurityAdvisor advisor);
 
+	/**
+	 * Returns a list of sites based on the attributes sent in
+	 * @param type
+	 * @param search
+	 * @param propsMap
+	 * @return
+	 */
+	public List<Site> getSites(SelectionType type, String search, Map<String, String> propsMap);
+	
+	/**
+	 * returns true if this is the shopping period tool
+	 * @return
+	 */
+	public boolean isShoppingTool();
 }

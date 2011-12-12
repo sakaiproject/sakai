@@ -31,14 +31,16 @@ public class NodeModel implements Serializable {
 	private Date shoppingPeriodStartDateOrig = new Date();
 	private Date shoppingPeriodEndDate = new Date();
 	private Date shoppingPeriodEndDateOrig = new Date();
-	private String shoppingPeriodAuth;
+//	private String shoppingPeriodAuth;
 	private String shoppingPeriodAuthOrig;
 	private boolean addedDirectChildrenFlag = false;	
 	private boolean shoppingPeriodAdmin = false;
 	private boolean shoppingPeriodAdminOrig = false;
 	private Date updatedDate = new Date();
 	private Date processedDate = new Date();
-
+	private String siteTerm;
+	private String siteInstructors;
+	private SelectOption shoppingPeriodAuthOption;
 
 	public NodeModel(String nodeId, HierarchyNodeSerialized node,
 			boolean directAccess, String realm, String role, NodeModel parentNode,
@@ -58,7 +60,7 @@ public class NodeModel implements Serializable {
 		this.parentNode = parentNode;
 		this.restrictedTools = restrictedTools;
 		this.restrictedToolsOrig = copyRestrictedTools(restrictedTools);
-		this.shoppingPeriodAuth = shoppingPeriodAuth;
+		setShoppingPeriodAuth(shoppingPeriodAuth);
 		this.shoppingPeriodAuthOrig = shoppingPeriodAuth;
 		this.shoppingPeriodEndDate = shoppingPeriodEndDate;
 		this.shoppingPeriodEndDateOrig = shoppingPeriodEndDate;
@@ -148,10 +150,10 @@ public class NodeModel implements Serializable {
 				return true;
 			}
 
-			if(shoppingPeriodAuth != null && shoppingPeriodAuthOrig != null){
-				if(!shoppingPeriodAuth.equals(shoppingPeriodAuthOrig))
+			if(getShoppingPeriodAuth() != null && shoppingPeriodAuthOrig != null){
+				if(!getShoppingPeriodAuth().equals(shoppingPeriodAuthOrig))
 					return true;
-			}else if(shoppingPeriodAuth == null || shoppingPeriodAuthOrig == null){
+			}else if(getShoppingPeriodAuth() == null || shoppingPeriodAuthOrig == null){
 				return true;
 			}
 
@@ -389,13 +391,21 @@ public class NodeModel implements Serializable {
 	}
 
 	public String getShoppingPeriodAuth() {
+		String shoppingPeriodAuth = null;
+		if(shoppingPeriodAuthOption != null){
+			shoppingPeriodAuth = shoppingPeriodAuthOption.getValue();
+		}
 		return shoppingPeriodAuth;
 	}
 
-	public void setShoppingPeriodAuth(String shoppingPeriodAuth) {
-		this.shoppingPeriodAuth = shoppingPeriodAuth;
+	public void setShoppingPeriodAuth(String shoppingPeriodAuth){
+		if(shoppingPeriodAuthOption == null){
+			shoppingPeriodAuthOption = new SelectOption("", shoppingPeriodAuth);
+		}else{
+			shoppingPeriodAuthOption.setValue(shoppingPeriodAuth);
+			shoppingPeriodAuthOption.setLabel("");
+		}
 	}
-
 	public Date getUpdatedDate() {
 		return updatedDate;
 	}
@@ -462,5 +472,29 @@ public class NodeModel implements Serializable {
 		}else{
 			return getInheritedShoppingPeriodAdminHelper(parent.getParentNode());
 		}
+	}
+
+	public String getSiteTerm() {
+		return siteTerm;
+	}
+
+	public void setSiteTerm(String siteTerm) {
+		this.siteTerm = siteTerm;
+	}
+
+	public String getSiteInstructors() {
+		return siteInstructors;
+	}
+
+	public void setSiteInstructors(String siteInstructors) {
+		this.siteInstructors = siteInstructors;
+	}
+
+	public void setShoppingPeriodAuthOption(SelectOption shoppingPeriodAuthOption) {
+		this.shoppingPeriodAuthOption = shoppingPeriodAuthOption;
+	}
+
+	public SelectOption getShoppingPeriodAuthOption() {
+		return shoppingPeriodAuthOption;
 	}
 }
