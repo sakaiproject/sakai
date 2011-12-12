@@ -26,8 +26,9 @@ import java.util.Stack;
 
 /**
  * StackIterator is both a java.util.Iterator and a stack (though not a java.util.Collection)
- *
+ * @deprecated use commons-collection EmptyIterator
  */
+@Deprecated 
 public class StackIterator<E> implements Iterator<E>
 {
 	protected Stack<E> stack;

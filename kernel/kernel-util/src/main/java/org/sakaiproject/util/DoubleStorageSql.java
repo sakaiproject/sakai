@@ -21,7 +21,6 @@
 
 package org.sakaiproject.util;
 
-import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.javax.Order;
 
 /**

@@ -28,8 +28,8 @@ import java.util.Iterator;
 /**
  * <p>
  * EmptyIterator is an iterator which is empty.
- * @deprecated use commons-collection EmptyIterator
  * </p>
+ * @deprecated use commons-collection EmptyIterator
  */
 @Deprecated 
 public class EmptyIterator implements Iterator

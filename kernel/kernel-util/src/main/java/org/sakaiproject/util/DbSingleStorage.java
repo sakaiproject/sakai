@@ -21,7 +21,6 @@
 
 package org.sakaiproject.util;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -33,10 +32,11 @@ import org.sakaiproject.javax.Filter;
  * @author ieb
  *
  */
+@SuppressWarnings("rawtypes")
 public interface DbSingleStorage
 {
 
-	void setDatabaseBeans(Map databaseBeans);
+    void setDatabaseBeans(Map databaseBeans);
 
 	/**
 	 * sets which bean containing database dependent code should be used depending on the database vendor.

@@ -29,7 +29,9 @@ import java.util.Iterator;
  * <p>
  * StringUtil collects together some string utility classes.
  * </p>
+ * @deprecated use commons-lang StringUtils
  */
+@Deprecated 
 public class StringUtil
 {
 	/**

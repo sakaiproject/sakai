@@ -36,6 +36,7 @@ import org.apache.commons.logging.LogFactory;
  * <p>
  * Based on the library available from http://justwild.us/examples/password/
  * </p>
+ * @deprecated unused as of 12 Dec 2011, planned for removal after 2.9
  */
 public class PasswordCheck {
 	

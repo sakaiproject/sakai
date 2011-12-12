@@ -233,7 +233,7 @@ public class RemoteHostFilter implements Filter {
 
         StringTokenizer st = new StringTokenizer(list, ",");
 
-        ArrayList patterns = new ArrayList();
+        ArrayList<Pattern> patterns = new ArrayList<Pattern>();
         while (st.hasMoreTokens()) {
             String token = st.nextToken().trim();
             try {

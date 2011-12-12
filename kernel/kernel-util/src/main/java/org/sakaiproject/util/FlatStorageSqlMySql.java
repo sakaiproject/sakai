@@ -21,9 +21,6 @@
 
 package org.sakaiproject.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  * methods for accessing flat storage data in a mysql database.
  */
