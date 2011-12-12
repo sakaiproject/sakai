@@ -3193,14 +3193,14 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 					// adjust the base range if there was an edit to range
 					bedit.m_range.adjust(timeRange, newTimeRange);
 					
-					postEventsForChanges(bedit);
-					
 				}
 			}
 
 			// update the properties
 			// addLiveUpdateProperties(edit.getPropertiesEdit());//%%%
-
+			
+			postEventsForChanges(bedit);
+			
 			// complete the edit
 			m_storage.commitEvent(this, edit);
 
