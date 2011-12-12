@@ -23,6 +23,7 @@ package org.sakaiproject.citation.servlet;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -151,6 +152,7 @@ public class BatchCitationServlet extends CitationServlet
 						Citation citation = findOpenUrlCitation(wrappedReq);
 						if (citation != null) {
 							citations.add(citation);
+							addCitation(resource, citation);
 						}
 						else {
 							failures.add(url);
@@ -158,17 +160,11 @@ public class BatchCitationServlet extends CitationServlet
 					}
 				}
 
-				Citation citation = null;
-				if (citations.size() > 0) {
-					citation = citations.get(0);
-				}
-
 				// set the success flag
-				setVmReference("success", citation != null, req);
+				setVmReference("success", citations.size() > 0, req);
 
-				if (citation != null) {
-					addCitation(resource, citation);
-					setVmReference( "citation", citation, req );
+				if (citations.size() > 0) {
+					setVmReference( "citations", citations, req );
 					setVmReference("topRefresh", Boolean.TRUE, req ); // TODO
 				} else {
 					// return failure
