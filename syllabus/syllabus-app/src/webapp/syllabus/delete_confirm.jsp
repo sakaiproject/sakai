@@ -34,7 +34,7 @@
 						<f:facet name="header">
 							<h:outputText value="#{msgs.delConfHeaderPublicView}" />
 						</f:facet>
-						<h:outputText value="#{eachEntry.entry.view}"/>
+						<h:outputText value="#{msgs[eachEntry.entry.view]}"/>
 					</h:column>
 				</sakai:flat_list>
 				<sakai:button_bar>
