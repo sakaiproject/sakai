@@ -276,6 +276,9 @@ public class DashboardPage extends BasePage {
 		};
 		dashboardPage.add(starHandler);
 		dashboardPage.add(new Label("dashActionHandler", starHandler.getCallbackUrl().toString()));
+		
+		ResourceLoader rl = new ResourceLoader("dash_entity");
+		dashboardPage.add(new Label("genericErrorMessage", rl.getString("dash.generic.error")));
 			
 	}
 		
