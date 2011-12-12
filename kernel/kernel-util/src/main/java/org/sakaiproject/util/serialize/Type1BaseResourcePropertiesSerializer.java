@@ -95,7 +95,7 @@ public class Type1BaseResourcePropertiesSerializer implements DataStreamEntitySe
 							{
 								String key = ds.readUTF();
 								int n = ds.readInt();
-								List l = new Vector();
+								List<String> l = new Vector<String>();
 								for (int j = 0; j < n; j++)
 								{
 									l.add(ds.readUTF());
@@ -152,7 +152,7 @@ public class Type1BaseResourcePropertiesSerializer implements DataStreamEntitySe
 			ds.writeInt(TYPE1);
 			ds.writeInt(BLOCK1);
 			int ps = properties.keySet().size();
-			for (Iterator i = properties.keySet().iterator(); i.hasNext();)
+			for (Iterator<String> i = properties.keySet().iterator(); i.hasNext();)
 			{
 				if ( i.next() == null ) {
 					ps--;
@@ -175,9 +175,9 @@ public class Type1BaseResourcePropertiesSerializer implements DataStreamEntitySe
 					{
 						ds.writeInt(BLOCK3);
 						ds.writeUTF(key);
-						List l = (List) value;
+						List<?> l = (List<?>) value;
 						int s = l.size();
-						for (Iterator il = l.iterator(); il.hasNext();)
+						for (Iterator<?> il = l.iterator(); il.hasNext();)
 						{
 							if (il.next() == null)
 							{
@@ -185,7 +185,7 @@ public class Type1BaseResourcePropertiesSerializer implements DataStreamEntitySe
 							}
 						}
 						ds.writeInt(s);
-						for (Iterator il = l.iterator(); il.hasNext();)
+						for (Iterator<?> il = l.iterator(); il.hasNext();)
 						{
 							Object v = il.next();
 							if (v != null)

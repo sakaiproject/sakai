@@ -34,6 +34,7 @@ import org.sakaiproject.util.ByteStorageConversion;
 
 /**
  * @author ieb
+ * @deprecated unused as of 12 Dec 2011, planned for removal after 2.9
  */
 public class CheckConnection
 {

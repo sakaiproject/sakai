@@ -47,6 +47,7 @@ import org.sakaiproject.jcr.api.JCRRegistrationService;
  * </pre>
  * 
  * @author Steve Githens
+ * @deprecated unused as of 12 Dec 2011, planned for removal after 2.9
  */
 public class AdditionalNodeTypes
 {

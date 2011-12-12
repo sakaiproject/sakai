@@ -37,7 +37,7 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 
-@SuppressWarnings("deprecation")
+@SuppressWarnings({ "deprecation", "restriction" })
 public class ZipContentUtil {
 	
 	protected static final Log LOG = LogFactory.getLog(ZipContentUtil.class);

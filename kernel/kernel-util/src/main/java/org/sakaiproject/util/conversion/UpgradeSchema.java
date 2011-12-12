@@ -31,8 +31,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import javax.management.RuntimeErrorException;
-
 import org.apache.commons.dbcp.cpdsadapter.DriverAdapterCPDS;
 import org.apache.commons.dbcp.datasources.SharedPoolDataSource;
 import org.apache.commons.logging.Log;
@@ -182,7 +180,7 @@ public class UpgradeSchema
 					log.info("Early termination requested");
 					break;
 				}
-				Class handlerClass = Class.forName(spec.getHandlerClass());
+				Class<?> handlerClass = Class.forName(spec.getHandlerClass());
 				SchemaConversionHandler sch = (SchemaConversionHandler) handlerClass
 						.newInstance();
 				log.info("Migrating using Handler " + spec.getHandler());

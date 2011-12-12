@@ -36,10 +36,10 @@ import java.util.List;
 public class BaseInteractionAction extends BaseResourceAction implements InteractionAction {
 
    private String helperId;
-   private List requiredPropertyKeys;
+   private List<String> requiredPropertyKeys;
 
    public BaseInteractionAction(String id, ActionType actionType, String typeId,
-                                String helperId, List requiredPropertyKeys) {
+                                String helperId, List<String> requiredPropertyKeys) {
       super(id, actionType, typeId);
       this.helperId = helperId;
       this.requiredPropertyKeys = requiredPropertyKeys;
@@ -62,7 +62,7 @@ public class BaseInteractionAction extends BaseResourceAction implements Interac
     *
     * @return a List of Strings if property values are required.
     */
-   public List getRequiredPropertyKeys() {
+   public List<String> getRequiredPropertyKeys() {
       return requiredPropertyKeys;
    }
 

@@ -27,38 +27,21 @@ package org.sakaiproject.util.conversion;
  * 
  * @author ieb
  */
-public class SchemaConversionException extends Exception
-{
+public class SchemaConversionException extends Exception {
 
-	/**
-	 * 
-	 */
-	public SchemaConversionException()
-	{
-	}
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * @param arg0
-	 */
-	public SchemaConversionException(String arg0)
-	{
+	public SchemaConversionException() { }
+
+	public SchemaConversionException(String arg0) {
 		super(arg0);
 	}
 
-	/**
-	 * @param arg0
-	 */
-	public SchemaConversionException(Throwable arg0)
-	{
+	public SchemaConversionException(Throwable arg0) {
 		super(arg0);
 	}
 
-	/**
-	 * @param arg0
-	 * @param arg1
-	 */
-	public SchemaConversionException(String arg0, Throwable arg1)
-	{
+	public SchemaConversionException(String arg0, Throwable arg1) {
 		super(arg0, arg1);
 	}
 

@@ -28,8 +28,7 @@ import java.sql.SQLException;
 /**
  * @author ieb
  */
-public interface SchemaConversionHandler
-{
+public interface SchemaConversionHandler {
 
 	/**
 	 * Retrievs a single source object form a ResultSet, returns null if the

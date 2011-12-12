@@ -440,7 +440,6 @@ public class SchemaConversionController
 			throws SQLException
 	{
 		Statement stmt = null;
-		ResultSet rs = null;
 		try
 		{
 			stmt = connection.createStatement();

@@ -23,9 +23,11 @@ package org.sakaiproject.util.commonscodec;
  * 
  * @author Apache Software Foundation
  * @version SourceVersion: DecoderException.java,v 1.9 2004/02/29 04:08:31 tobrien Exp
- * 
+ * @deprecated use commons-codec/commons-codec/1.5 instead
  */
 public class CommonsDecoderException extends Exception {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * Creates a DecoderException

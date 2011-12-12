@@ -30,7 +30,7 @@ package org.sakaiproject.util.commonscodec;
  * @author Apache Software Foundation
  * @since 1.0-dev
  * @version SourceVerion: Base64.java,v 1.20 2004/05/24 00:21:24 ggregory Exp 
- * 
+ * @deprecated use commons-codec/commons-codec/1.5 instead
  */
 public class CommonsCodecBase64  {
 

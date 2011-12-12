@@ -26,17 +26,11 @@ import java.util.Properties;
 /**
  * @author ieb
  */
-public class SchemaConversionDriver
-{
+public class SchemaConversionDriver {
 
 	private Properties p;
 
 	private String base;
-
-	public SchemaConversionDriver()
-	{
-
-	}
 
 	public void load(Properties p, String base)
 	{

@@ -32,11 +32,12 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.web.context.WebApplicationContext;
 
 /**
+ * Currently used by the portal and library projects to get access to the spring WAC
+ * 
  * Created by IntelliJ IDEA.
  * User: johnellis
  * Date: Feb 1, 2008
  * Time: 9:36:58 AM
- * To change this template use File | Settings | File Templates.
  */
 public class WebappResourceManagerImpl implements WebappResourceManager, ApplicationContextAware {
 
