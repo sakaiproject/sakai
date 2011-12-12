@@ -2899,7 +2899,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				AnnouncementMessageHeaderEdit header = msg.getAnnouncementHeaderEdit();
 				String oSubject = header.getSubject();
 				header.setSubject(subject);
-				if (!oSubject.equals(subject))
+				if (StringUtils.trimToNull(oSubject) != null && StringUtils.trimToNull(subject) != null && !oSubject.equals(subject))
 				{
 					// announcement title changed
 					titleChanged = true;
