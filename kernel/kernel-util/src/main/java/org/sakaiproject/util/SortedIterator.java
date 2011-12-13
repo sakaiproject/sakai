@@ -28,11 +28,12 @@ import java.util.Collections;
 
 /**
  * <p>
- * SortedIterator is a wrapper iterator that iterates over the wrapped iterator in a sorted order, the order controlled by a Comparator function provided at construction.
- * @deprecated use commons-collection
- * </p>
+ * SortedIterator is a wrapper iterator that iterates over the wrapped iterator in a sorted order, 
+ * the order controlled by a Comparator function provided at construction.
+ * 
+ * @deprecated use commons-collection instead, this will be removed after 2.9 - Dec 2011
  */
-@Deprecated
+@Deprecated 
 public class SortedIterator implements Iterator
 {
 	/** The sorted iterator. */

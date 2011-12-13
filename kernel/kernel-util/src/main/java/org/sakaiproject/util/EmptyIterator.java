@@ -22,14 +22,13 @@
 // package
 package org.sakaiproject.util;
 
-// imports
 import java.util.Iterator;
 
 /**
  * <p>
  * EmptyIterator is an iterator which is empty.
  * </p>
- * @deprecated use commons-collection EmptyIterator
+ * @deprecated use commons-collection instead, this will be removed after 2.9 - Dec 2011
  */
 @Deprecated 
 public class EmptyIterator implements Iterator

@@ -28,9 +28,9 @@ import java.util.Iterator;
  * <p>
  * IteratorEnumeration is an enumeration over an iterator.
  * </p>
- * @deprecated use Commoms-Collection IteratorEnumeration
+ * @deprecated use commons-collection instead, this will be removed after 2.9 - Dec 2011
  */
-
+@Deprecated 
 public class IteratorEnumeration implements Enumeration
 {
 	/** The iterator over which this enumerates. */

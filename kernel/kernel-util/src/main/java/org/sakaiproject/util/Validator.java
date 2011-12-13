@@ -36,7 +36,9 @@ import org.sakaiproject.exception.IdInvalidException;
  * <p>
  * Validator is utility class that helps to validate stuff.
  * </p>
+ * @deprecated use apache commons utils or {@link org.sakaiproject.util.api.FormattedText}, this will be removed after 2.9 - Dec 2011
  */
+@Deprecated 
 public class Validator
 {
 	/** Our logger. */
@@ -164,18 +166,103 @@ public class Validator
 	}
 
 	/**
-	 * escapeHtml(), but also fix the case where we start with &#169; and treat it as copyright (c) Note: ResourcesAction used to (before 1.1.05) place this as the copyright symbol. -ggolden
+	 * escapeHtml(), but also fix the case where we start with &#169; and treat it as copyright (c) 
+	 * Note: ResourcesAction used to (before 1.1.05) place this as the copyright symbol. -ggolden
+	 * 
+	 * @deprecated this is a non-i18n compliant method, DO NOT USE, it will be removed after 2.9 - Dec 2011
 	 */
-	public static String escapeHtmlFixCopyright(String value)
-	{
-		if (value.startsWith("&#169;"))
-		{
+	public static String escapeHtmlFixCopyright(String value) {
+		if (value.startsWith("&#169;")) {
 			value = "copyright (c)" + value.substring(6);
 		}
-
 		return FormattedText.escapeHtml(value, true);
 
 	} // escapeHtmlFixCopyright
+
+    /**
+     * Return a string based on value that is safe to place into a sql statement: sql statements use the single quote, and this must be doubled as an escape.
+     * 
+     * @param value
+     *        The string to escape.
+     * @return value escaped.
+     * @deprecated use commons-lang StringEscapeUtils
+     */
+    public static String escapeSql(String value)
+    {
+        if (value == null) return "";
+        try
+        {
+            StringBuilder buf = new StringBuilder();
+            for (int i = 0; i < value.length(); i++)
+            {
+                char c = value.charAt(i);
+                if (c == '\'')
+                {
+                    buf.append("''");
+                }
+                else
+                {
+                    buf.append(c);
+                }
+            }
+
+            String rv = buf.toString();
+            return rv;
+        }
+        catch (Exception e)
+        {
+            M_log.warn("Validator.escapeSql: ", e);
+            return "";
+        }
+
+    } // escapeSql
+
+    /**
+     * Return a string based on value that is safe to place into a javascript / html identifier: anything not alphanumeric change to 'x'. If the first character is not alphabetic, a letter 'i' is prepended.
+     * 
+     * @param value
+     *        The string to escape.
+     * @return value fully escaped using javascript / html identifier rules.
+     * @deprecated use commons-lang StringEscapeUtils
+     */
+    public static String escapeJavascript(String value)
+    {
+        if (value == null || "".equals(value)) return "";
+        try
+        {
+            StringBuilder buf = new StringBuilder();
+
+            // prepend 'i' if first character is not a letter
+            if (!java.lang.Character.isLetter(value.charAt(0)))
+            {
+                buf.append("i");
+            }
+
+            // change non-alphanumeric characters to 'x'
+            for (int i = 0; i < value.length(); i++)
+            {
+                char c = value.charAt(i);
+                if (!java.lang.Character.isLetterOrDigit(c))
+                {
+                    buf.append("x");
+                }
+                else
+                {
+                    buf.append(c);
+                }
+            }
+
+            String rv = buf.toString();
+            return rv;
+        }
+        catch (Exception e)
+        {
+            M_log.warn("Validator.escapeJavascript: ", e);
+            return "";
+        }
+
+    } // escapeJavascript
+
 
 	/**
 	 * Return a string based on id that is fully escaped using URL rules, using a UTF-8 underlying encoding.
@@ -234,7 +321,44 @@ public class Validator
 		}
 
 	} // escapeUrl
+    
+    /**
+     * Is this a valid local part of an email id?
+     * @deprecated use commons-validator EmailValidator
+     */
+    public static boolean checkEmailLocal(String id)
+    {
+        // rules based on rfc2882, but a bit more conservative
 
+        for (int i = 0; i < id.length(); i++)
+        {
+            if (VALID_EMAIL.indexOf(id.charAt(i)) == -1) return false;
+        }
+
+        return true;
+
+    } // checkEmailLocal
+
+    /**
+     * Limit the formatted to a certain number of DISPLAYED characters, adding "..." if it was truncated. For example, <xmp>trim("Hello \n<b>World</b>!", 7)</xmp> returns <xmp>"Hello \n<b>W</b>..."</xmp>
+     * 
+     * @param value
+     *        The formatted text to limit.
+     * @param the
+     *        length to limit to (as an int).
+     * @return The limited string.
+     * @deprecated use {@link org.sakaiproject.util.api.FormattedText#trimFormattedText(String, int, StringBuilder)} instead
+     */
+    public static String limitFormattedText(String value, int length)
+    {
+        StringBuilder ret = new StringBuilder();
+        value = FormattedText.escapeHtmlFormattedTextSupressNewlines(value);
+        boolean didTrim = FormattedText.trimFormattedText(value, length, ret);
+        if (didTrim) ret.append("...");
+        return ret.toString();
+    }
+
+ 
 	/**
 	 * Return a string based on id that is valid according to Resource name validity rules.
 	 * 
@@ -442,90 +566,6 @@ public class Validator
 	} // escapeJsQuoted
 
 	/**
-	 * Return a string based on value that is safe to place into a sql statement: sql statements use the single quote, and this must be doubled as an escape.
-	 * 
-	 * @param value
-	 *        The string to escape.
-	 * @return value escaped.
-	 * @deprecated use commons-lang StringEscapeUtils
-	 */
-	public static String escapeSql(String value)
-	{
-		if (value == null) return "";
-		try
-		{
-			StringBuilder buf = new StringBuilder();
-			for (int i = 0; i < value.length(); i++)
-			{
-				char c = value.charAt(i);
-				if (c == '\'')
-				{
-					buf.append("''");
-				}
-				else
-				{
-					buf.append(c);
-				}
-			}
-
-			String rv = buf.toString();
-			return rv;
-		}
-		catch (Exception e)
-		{
-			M_log.warn("Validator.escapeSql: ", e);
-			return "";
-		}
-
-	} // escapeSql
-
-	/**
-	 * Return a string based on value that is safe to place into a javascript / html identifier: anything not alphanumeric change to 'x'. If the first character is not alphabetic, a letter 'i' is prepended.
-	 * 
-	 * @param value
-	 *        The string to escape.
-	 * @return value fully escaped using javascript / html identifier rules.
-	 * @deprecated use commons-lang StringEscapeUtils
-	 */
-	public static String escapeJavascript(String value)
-	{
-		if (value == null || "".equals(value)) return "";
-		try
-		{
-			StringBuilder buf = new StringBuilder();
-
-			// prepend 'i' if first character is not a letter
-			if (!java.lang.Character.isLetter(value.charAt(0)))
-			{
-				buf.append("i");
-			}
-
-			// change non-alphanumeric characters to 'x'
-			for (int i = 0; i < value.length(); i++)
-			{
-				char c = value.charAt(i);
-				if (!java.lang.Character.isLetterOrDigit(c))
-				{
-					buf.append("x");
-				}
-				else
-				{
-					buf.append(c);
-				}
-			}
-
-			String rv = buf.toString();
-			return rv;
-		}
-		catch (Exception e)
-		{
-			M_log.warn("Validator.escapeJavascript: ", e);
-			return "";
-		}
-
-	} // escapeJavascript
-
-	/**
 	 * Check for a valid user id.
 	 * 
 	 * @exception IdInvalidException
@@ -626,24 +666,6 @@ public class Validator
 		return true;
 
 	} // checkSiteSkin
-		
-	
-	/**
-	 * Is this a valid local part of an email id?
-	 * @deprecated use commons-validator EmailValidator
-	 */
-	public static boolean checkEmailLocal(String id)
-	{
-		// rules based on rfc2882, but a bit more conservative
-
-		for (int i = 0; i < id.length(); i++)
-		{
-			if (VALID_EMAIL.indexOf(id.charAt(i)) == -1) return false;
-		}
-
-		return true;
-
-	} // checkEmailLocal
 
 	/**
 	 * Isolate and return just the file name part of a full drive and path file name.
@@ -825,24 +847,6 @@ public class Validator
 	} // limit
 
 	/**
-	 * Limit the formatted to a certain number of DISPLAYED characters, adding "..." if it was truncated. For example, <xmp>trim("Hello \n<b>World</b>!", 7)</xmp> returns <xmp>"Hello \n<b>W</b>..."</xmp>
-	 * 
-	 * @param value
-	 *        The formatted text to limit.
-	 * @param the
-	 *        length to limit to (as an int).
-	 * @return The limited string.
-	 */
-	public static String limitFormattedText(String value, int length)
-	{
-		StringBuilder ret = new StringBuilder();
-		value = FormattedText.escapeHtmlFormattedTextSupressNewlines(value);
-		boolean didTrim = FormattedText.trimFormattedText(value, length, ret);
-		if (didTrim) ret.append("...");
-		return ret.toString();
-	}
-
-	/**
 	 * Clean the user input string of strange newlines, etc.
 	 * 
 	 * @param value
@@ -917,8 +921,8 @@ public class Validator
 		for (int i = 0; i < len; i++)
 		{
 			char c = value.charAt(i);
-			char next = 0;
-			if (i + 1 < len) next = value.charAt(i + 1);
+			//char next = 0;
+			//if (i + 1 < len) next = value.charAt(i + 1);
 
 			switch (c)
 			{
