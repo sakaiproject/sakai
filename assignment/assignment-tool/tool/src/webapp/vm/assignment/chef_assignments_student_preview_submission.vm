@@ -131,7 +131,7 @@
 	#if ($assignment.getContent().honorPledge!=1) 
 		#if ($honor_pledge_yes.equals("true"))
 			<p class="checkbox highlightPanel">
-				<label for="yes">$tlang.getString("gen.honple2")</label>
+				<label for="yes">$honor_pledge_text</label>
 				<input name="Yes" type="checkbox" value="" checked="checked" id="yes"  disabled="disabled" />
 			</p>	
 		#else
@@ -139,7 +139,7 @@
 				$tlang.getString("gen.honple2val")
 			</div>
 				<p class="checkbox highlightPanel">
-					<label for="yes">$tlang.getString("gen.honple2")</label>
+					<label for="yes">$honor_pledge_text</label>
 					<input name="Yes" type="checkbox" value="" disabled="disabled" />
 				</p>
 

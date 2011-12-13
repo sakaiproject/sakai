@@ -803,7 +803,7 @@ function submitform(id)
 				#if ($!assignment.getContent().HonorPledge!=1)
 					<p class="checkbox highlightPanel">
 						<label for="$name_submission_honor_pledge_yes">
-							$tlang.getString("gen.honple2")
+							$honor_pledge_text
 						</label>
 						#if (!$!canSubmit)
 							## for submitted submission not yet returned; or returned but resubmitted submission; or after the close time

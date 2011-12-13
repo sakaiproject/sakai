@@ -342,7 +342,7 @@
 						#end
 						## if honor pledge is required
 						#if ($value_CheckAddHonorPledge!="1")
-							<p class="checkbox">$tlang.getString("gen.honple2")<input name="Yes" id="yes" type="checkbox" value="" disabled="disabled" /><label for="yes"> $tlang.getString("gen.yes")</label>
+							<p class="checkbox">$honor_pledge_text<input name="Yes" id="yes" type="checkbox" value="" disabled="disabled" /><label for="yes"> $tlang.getString("gen.yes")</label>
 							<br />$tlang.getString("gen.youmus")</p>
 						#end
 					#end
