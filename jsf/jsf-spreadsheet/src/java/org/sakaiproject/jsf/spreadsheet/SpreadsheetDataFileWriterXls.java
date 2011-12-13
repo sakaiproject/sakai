@@ -32,9 +32,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
 
 /**
  *
@@ -65,13 +67,21 @@ public class SpreadsheetDataFileWriterXls implements SpreadsheetDataFileWriter {
 	private HSSFWorkbook getAsWorkbook(List<List<Object>> spreadsheetData) {
 		HSSFWorkbook wb = new HSSFWorkbook();
 		HSSFSheet sheet = wb.createSheet();
+		HSSFCellStyle headerCs = wb.createCellStyle();
 		Iterator<List<Object>> dataIter = spreadsheetData.iterator();
 		
+		// Set the header style
+		headerCs.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+		headerCs.setFillBackgroundColor(HSSFColor.BLUE_GREY.index);
+
 		// By convention, the first list in the list contains column headers.
 		HSSFRow headerRow = sheet.createRow((short)0);
 		List<Object> headerList = dataIter.next();
 		for (short i = 0; i < headerList.size(); i++) {
-			createCell(headerRow, i).setCellValue((String)headerList.get(i));
+			HSSFCell headerCell = createCell(headerRow, i);
+			headerCell.setCellValue((String)headerList.get(i));
+			headerCell.setCellStyle(headerCs);
+			sheet.autoSizeColumn(i);
 		}
 		
 		short rowPos = 1;
