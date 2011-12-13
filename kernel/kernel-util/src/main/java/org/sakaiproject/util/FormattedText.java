@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/svn/kernel/trunk/kernel-util/src/main/java/org/sakaiproject/util/FormattedText.java $
+ * $Id: FormattedText.java 101657 2011-12-13 00:04:51Z aaronz@vt.edu $
  ***********************************************************************************
  *
  * Copyright (c) 2003, 2004, 2005, 2006, 2007, 2008 Sakai Foundation
@@ -21,7 +21,10 @@
 
 package org.sakaiproject.util;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.util.api.MockFormattedText;
 import org.w3c.dom.Element;
 
 /**
@@ -34,22 +37,24 @@ import org.w3c.dom.Element;
 @Deprecated
 public class FormattedText {
 
+    private static final Log log = LogFactory.getLog(FormattedText.class);
+
     private static Object LOCK = new Object();
-
-    private static org.sakaiproject.util.api.FormattedText FormattedText;
-
+    private static org.sakaiproject.util.api.FormattedText formattedText;
     protected static org.sakaiproject.util.api.FormattedText getFormattedText() {
-        if (FormattedText == null) {
+        if (formattedText == null) {
             synchronized (LOCK) {
                 org.sakaiproject.util.api.FormattedText component = (org.sakaiproject.util.api.FormattedText) ComponentManager.get(org.sakaiproject.util.api.FormattedText.class);
                 if (component == null) {
-                    throw new IllegalStateException("Unable to find the FormattedText using the ComponentManager");
+                    log.warn("Unable to find the FormattedText using the ComponentManager (this is OK if this is a unit test)");
+                    // we will just make a new mock one each time but we will also keep trying to find one in the CM
+                    return new MockFormattedText();
                 } else {
-                    FormattedText = component;
+                    formattedText = component;
                 }
             }
         }
-        return FormattedText;
+        return formattedText;
     }
 
     public static String processFormattedText(String strFromBrowser, StringBuffer errorMessages) {

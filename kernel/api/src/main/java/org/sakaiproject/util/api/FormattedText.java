@@ -23,6 +23,15 @@ package org.sakaiproject.util.api;
 
 import org.w3c.dom.Element;
 
+/**
+ * These Utils provide support for user entry of formatted text (typically HTML). This
+ * includes text formatting in user input such as bold, underline, and fonts.
+ * There are also utils which support other kinds of text processing (e.g. javascript)
+ * and escaping (e.g. SQL). Generally anything related to text which is not simply
+ * plaintext and has some kind of formatting.
+ * 
+ * @author Aaron Zeckoski (azeckoski @ vt.edu)
+ */
 public interface FormattedText {
 
     /**
@@ -298,10 +307,10 @@ public interface FormattedText {
      * Note: java.net.URLEncode.encode() provides a more standard option
      *       FormattedText.decodeNumericCharacterReferences() undoes this operation
      * 
-     * @param id
+     * @param value
      *        The string to escape.
-     * @return id fully escaped using URL rules.
+     * @return value fully escaped using URL rules.
      */
-    public String escapeUrl(String id);
+    public String escapeUrl(String value);
 
 }

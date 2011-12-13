@@ -34,7 +34,7 @@ import org.sakaiproject.component.api.ComponentManager;
  * This is a totally fake component manager which is just going to pretend to try to find services,
  * maybe later this could try to use the sakai mock stuff but for now it is just here to stop the CM from firing up during unit tests
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings("rawtypes")
 public class MockCompMgr implements ComponentManager {
 
     private static Log M_log = LogFactory.getLog(MockCompMgr.class);
