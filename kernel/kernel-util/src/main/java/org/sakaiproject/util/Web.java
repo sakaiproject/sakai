@@ -106,6 +106,7 @@ public class Web
 	 * @param value
 	 *        The string to escape.
 	 * @return value escaped for HTML.
+	 * @deprecated this is a passthrough for {@link FormattedText#escapeHtmlFormattedText(String)} so use that instead
 	 */
 	public static String escapeHtmlFormattedText(String value)
 	{

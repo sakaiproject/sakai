@@ -79,12 +79,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	protected static SessionManager getSessionManager() {
         if (sessionManager == null) {
             synchronized (LOCK) {
-                SessionManager sm = (SessionManager) ComponentManager.get(SessionManager.class);
-                if (sm == null) {
-                    throw new IllegalStateException("Unable to find the SessionManager using the ComponentManager");
-                } else {
-                    sessionManager = sm;
-                }
+                sessionManager = (SessionManager) ComponentManager.get(SessionManager.class);
             }
         }
         return sessionManager;
@@ -93,13 +88,8 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	private static PreferencesService preferencesService;
 	protected static PreferencesService getPreferencesService() {
 	    if (preferencesService == null) {
-	        synchronized (APPLICATION_ID) {
-	            PreferencesService ps = (PreferencesService) ComponentManager.get(PreferencesService.class);
-	            if (ps == null) {
-	                throw new IllegalStateException("Unable to find the PreferencesService using the ComponentManager");
-	            } else {
-	                preferencesService = ps;
-	            }
+	        synchronized (LOCK) {
+	            preferencesService = (PreferencesService) ComponentManager.get(PreferencesService.class);
             }
 	    }
 	    return preferencesService;

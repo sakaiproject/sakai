@@ -348,7 +348,7 @@ public class EmailNotification implements NotificationAction
 	}
 	
 	protected String htmlContent(Event event) {
-		return Web.encodeUrlsAsHtml(FormattedText.escapeHtml(plainTextContent(event),true));
+		return Web.encodeUrlsAsHtml(Web.escapeHtml(plainTextContent(event),true));
 	}
 	
 	protected String htmlEnd() {
