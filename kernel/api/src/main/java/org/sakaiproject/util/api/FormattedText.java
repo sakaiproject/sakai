@@ -110,6 +110,7 @@ public interface FormattedText {
      * @param value
      *        The formatted text to output in an HTML document.
      * @return The string to include in an HTML document.
+     * @see FormattedText#escapeHtml(String, boolean)
      */
     public String escapeHtmlFormattedText(String value);
 
@@ -119,6 +120,7 @@ public interface FormattedText {
      * @param value
      *        The formatted text to output in an HTML document.
      * @return The string to include in an HTML document.
+     * @see FormattedText#escapeHtml(String, boolean)
      */
     public String escapeHtmlFormattedTextSupressNewlines(String value);
 
@@ -128,6 +130,7 @@ public interface FormattedText {
      * @param value
      *        The formatted text to escape
      * @return The string to use as the value of the formatted textarea widget
+     * @see FormattedText#escapeHtml(String, boolean)
      */
     public String escapeHtmlFormattedTextarea(String value);
 
@@ -142,18 +145,16 @@ public interface FormattedText {
     public String convertPlaintextToFormattedText(String value);
 
     /**
-     * Escape the given value so that it appears as-is in HTML - that is, HTML meta-characters like '<' are escaped to HTML character entity references like '&lt;'. Markup, amper, quote are escaped. Whitespace is not.
+     * Escape the given value so that it appears as-is in HTML - 
+     * that is, HTML meta-characters like '<' are escaped to HTML character entity references like '&lt;'. 
+     * Markup, amper, quote are escaped. Whitespace is not.
      * 
-     * @param value
-     *        The string to escape.
+     * @param value The string containing html to escape (can be null or "")
      * @param escapeNewlines
-     *        Whether to escape newlines as "&lt;br /&gt;\n" so that they appear as HTML line breaks.
-     * @return value fully escaped for HTML.
-     * @deprecated user {@link Web.#escapeHtml(String, boolean)}
-     * @deprecated use commons-lang StringEscapeUtils() though note that newlines
-     * will not be escaped to <code><br></code>
+     *        Whether to convert newlines (\n) to "&lt;br /&gt;\n" so that they appear as HTML line breaks.
+     * @return value fully escaped for HTML (this will never return a null but will instead return empty string - "")
      */
-    public String escapeHtml(String value, boolean escapeNewlines); // escapeHtml
+    public String escapeHtml(String value, boolean escapeNewlines);
 
     /**
      * Store the given formatted text in the given XML element; stores both a formatted text representation, and a plaintext representation (plaintext means the formatting has been stripped).
