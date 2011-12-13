@@ -24,6 +24,7 @@ package org.sakaiproject.content.impl;
 import java.util.List;
 
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentResource;
@@ -40,7 +41,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.EmailNotification;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SiteEmailNotification;
@@ -53,7 +54,6 @@ import org.sakaiproject.util.StringUtil;
  * 
  * @author Sakai Software Development Team
  */
-@SuppressWarnings("deprecation")
 public class SiteEmailNotificationContent extends SiteEmailNotification
 {
 	
@@ -66,7 +66,25 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 	private String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
 	private ResourceLoader rb = new Resource().getLoader(resourceClass, resourceBundle);
 	// private static ResourceBundle rb = ResourceBundle.getBundle("siteemacon");
-	
+
+    private static Object LOCK = new Object();
+
+    private static FormattedText formattedText;
+
+    protected static FormattedText getFormattedText() {
+        if (formattedText == null) {
+            synchronized (LOCK) {
+                FormattedText component = (FormattedText) ComponentManager.get(FormattedText.class);
+                if (component == null) {
+                    throw new IllegalStateException("Unable to find the FormattedText using the ComponentManager");
+                } else {
+                    formattedText = component;
+                }
+            }
+        }
+        return formattedText;
+    }
+
 	protected String plainTextContent(Event event) {
 		return generateContentForType(false, event);
 	}
@@ -144,10 +162,10 @@ public class SiteEmailNotificationContent extends SiteEmailNotification
 
 		if ( doHtml ) 
 		{
-			title = FormattedText.escapeHtmlFormattedTextarea(title);
+			title = getFormattedText().escapeHtmlFormattedTextarea(title);
 			//subject = FormattedText.escapeHtmlFormattedTextarea(subject);
-			resourceName = FormattedText.escapeHtmlFormattedTextarea(resourceName);
-			description = FormattedText.escapeHtmlFormattedTextarea(description);
+			resourceName = getFormattedText().escapeHtmlFormattedTextarea(resourceName);
+			description = getFormattedText().escapeHtmlFormattedTextarea(description);
 			blankLine = "\n</p><p>\n";
 			newLine = "<br/>\n";
 		}

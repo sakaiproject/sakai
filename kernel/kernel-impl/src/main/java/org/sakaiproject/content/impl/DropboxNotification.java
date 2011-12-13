@@ -28,6 +28,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.cover.ContentHostingService;
@@ -45,10 +46,10 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.EmailNotification;
-import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * <p>
@@ -86,7 +87,25 @@ public class DropboxNotification extends EmailNotification
 	private final String TERMINATION_LINE = "\n\n--"+MULTIPART_BOUNDARY+"--\n\n";
 
 	private final String MIME_ADVISORY = "This message is for MIME-compliant mail readers.";
-	
+
+    private static Object LOCK = new Object();
+
+    private static FormattedText formattedText;
+
+    protected static FormattedText getFormattedText() {
+        if (formattedText == null) {
+            synchronized (LOCK) {
+                FormattedText component = (FormattedText) ComponentManager.get(FormattedText.class);
+                if (component == null) {
+                    throw new IllegalStateException("Unable to find the FormattedText using the ComponentManager");
+                } else {
+                    formattedText = component;
+                }
+            }
+        }
+        return formattedText;
+    }
+
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.util.EmailNotification#getClone()
 	 */
@@ -276,11 +295,11 @@ public class DropboxNotification extends EmailNotification
 
 		if ( doHtml ) 
 		{
-			siteTitle = FormattedText.escapeHtmlFormattedTextarea(siteTitle);
-			subject = FormattedText.escapeHtmlFormattedTextarea(subject);
-			resourceName = FormattedText.escapeHtmlFormattedTextarea(resourceName);
-			description = FormattedText.escapeHtmlFormattedTextarea(description);
-			dropboxTitle = FormattedText.escapeHtmlFormattedTextarea(dropboxTitle);
+			siteTitle = getFormattedText().escapeHtmlFormattedTextarea(siteTitle);
+			subject = getFormattedText().escapeHtmlFormattedTextarea(subject);
+			resourceName = getFormattedText().escapeHtmlFormattedTextarea(resourceName);
+			description = getFormattedText().escapeHtmlFormattedTextarea(description);
+			dropboxTitle = getFormattedText().escapeHtmlFormattedTextarea(dropboxTitle);
 			blankLine = "\n</p><p>\n";
 			newLine = "<br/>\n";
 		}

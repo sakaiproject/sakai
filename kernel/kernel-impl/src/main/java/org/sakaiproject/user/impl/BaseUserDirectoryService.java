@@ -81,7 +81,7 @@ import org.sakaiproject.user.api.UserPermissionException;
 import org.sakaiproject.user.api.UsersShareEmailUDP;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.api.FormattedText;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
@@ -505,6 +505,11 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 * @return the IdManager collaborator.
 	 */
 	protected abstract IdManager idManager();
+
+	/**
+	 * @return the FormattedTextProcessor collaborator
+	 */
+    protected abstract FormattedText formattedText();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -2546,7 +2551,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		{
 		    if(!m_restrictedFirstName) {
 		        // https://jira.sakaiproject.org/browse/SAK-20226 - removed html from name
-		    	m_firstName = FormattedText.convertFormattedTextToPlaintext(name);
+		    	m_firstName = formattedText().convertFormattedTextToPlaintext(name);
 		    	m_sortName = null;
 		    }
 		}
@@ -2558,7 +2563,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		{
 			if(!m_restrictedLastName) {
                 // https://jira.sakaiproject.org/browse/SAK-20226 - removed html from name
-		    	m_lastName = FormattedText.convertFormattedTextToPlaintext(name);
+		    	m_lastName = formattedText().convertFormattedTextToPlaintext(name);
 		    	m_sortName = null;
 		    }
 		}
