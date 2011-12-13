@@ -151,6 +151,16 @@ portal.pda.bypass.sakai.lessonbuildertool=linktracker$|/uvbview$|\.jpg$|\.gif$|\
 The first two alternatives, i.e. linktracker$|/uvbview$, are the critical ones. The rest
 are the defaults. It's not clear whether they're actually used.
 
+If you are using a Sakai version older than 2.8.0 (even a beta of 2.8)
+you will need a minor change to the portal to make this
+property functional. You should be able to do the following
+
+patch ../portal/portal-impl/impl/src/java/org/sakaiproject/portal/charon/handlers/PDAHandler.java <PDAHandler.java.diff
+
+That is, the file PDFHandler.java.diff in this directory contains the
+patch, which should be applied to the file 
+portal/portal-impl/impl/src/java/org/sakaiproject/portal/charon/handlers/PDAHandler.java
+in your source tree.
 
 MNEME, JAFT, BASIC LTI AND JFORUM DEPENDENCIES
 
