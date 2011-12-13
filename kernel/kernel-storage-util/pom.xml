@@ -23,6 +23,7 @@
   </scm>
 
   <packaging>jar</packaging>
+
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
@@ -39,44 +40,13 @@
       <artifactId>commons-logging</artifactId>
     </dependency>
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring</artifactId>
-    </dependency>
-    <dependency>
       <groupId>commons-dbcp</groupId>
       <artifactId>commons-dbcp</artifactId>
     </dependency>
-    <dependency>
-      <groupId>javax.mail</groupId>
-      <artifactId>mail</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
-	</dependency>
 	<dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-    </dependency>
-
-    <dependency>
-        <groupId>org.mockito</groupId>
-        <artifactId>mockito-all</artifactId>
-        <version>1.8.5</version>
-        <scope>test</scope>
-    </dependency>
   </dependencies>
+
 </project>
