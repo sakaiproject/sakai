@@ -126,12 +126,32 @@ public class Web
 
     } // escapeUrl
 
+    /**
+     * Returns a String with HTML entity references converted to characters suitable for processing as formatted text.
+     * 
+     * @param value
+     *        The text containing entity references (e.g., a News item description).
+     * @return The HTML, ready for processing.
+     * @deprecated just a copy of {@link org.sakaiproject.util.api.FormattedText#unEscapeHtml(String)} so use that instead
+     */
+    public static String unEscapeHtml(String value)
+    {
+        // FIXME delete this method
+        if (value == null) return "";
+        if (value.equals("")) return "";
+        value = value.replaceAll("&lt;", "<");
+        value = value.replaceAll("&gt;", ">");
+        value = value.replaceAll("&amp;", "&");
+        value = value.replaceAll("&quot;", "\"");
+        return value;
+    }
 
     /**
      * For converting plain-text URLs in a String to HTML &lt;a&gt; tags
      * Any URLs in the source text that happen to be already in a &lt;a&gt; tag will be unaffected.
      * @param text the plain text to convert
      * @return the full source text with URLs converted to HTML.
+     * @deprecated just a copy of {@link org.sakaiproject.util.api.FormattedText#encodeUrlsAsHtml(String)} so use that instead
      */
     public static String encodeUrlsAsHtml(String text)
     {
@@ -146,23 +166,6 @@ public class Web
         return buf.toString();
     }
 
-	/**
-	 * Returns a String with HTML entity references converted to characters suitable for processing as formatted text.
-	 * 
-	 * @param value
-	 *        The text containing entity references (e.g., a News item description).
-	 * @return The HTML, ready for processing.
-	 */
-	public static String unEscapeHtml(String value)
-	{
-		if (value == null) return "";
-		if (value.equals("")) return "";
-		value = value.replaceAll("&lt;", "<");
-		value = value.replaceAll("&gt;", ">");
-		value = value.replaceAll("&amp;", "&");
-		value = value.replaceAll("&quot;", "\"");
-		return value;
-	}
 
 	/**
 	 * Return a string based on value that is safe to place into a javascript / html identifier: anything not alphanumeric change to 'x'. If the first character is not alphabetic, a letter 'i' is prepended.
