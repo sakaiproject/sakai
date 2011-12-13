@@ -402,7 +402,11 @@ public class FormattedTextImpl implements FormattedText
      * @see org.sakaiproject.utils.impl.FormattedText#escapeHtml(java.lang.String, boolean)
      */
 	public String escapeHtml(String value, boolean escapeNewlines) {
-	    String val = value;
+	    /*
+	     * Velocity tools depend on this returning empty string (and never null),
+	     * they also depend on this handling a null input and converting it to null
+	     */
+	    String val = "";
 	    if (value != null && !"".equals(value)) {
 	        val = StringEscapeUtils.escapeHtml(value);
 	        if (escapeNewlines && val != null) {
