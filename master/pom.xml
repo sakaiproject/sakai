@@ -223,9 +223,14 @@
 			<type>pom</type>
 			<scope>import</scope>
 		</dependency>
-		 <dependency>
+            <dependency>
                 <groupId>org.sakaiproject.kernel</groupId>
                 <artifactId>sakai-kernel-util</artifactId>
+                <version>${sakai.kernel.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.kernel</groupId>
+                <artifactId>sakai-kernel-storage-util</artifactId>
                 <version>${sakai.kernel.version}</version>
             </dependency>
             <dependency>
