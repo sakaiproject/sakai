@@ -59,6 +59,11 @@
       <artifactId>sakai-kernel-util</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-storage-util</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     
     <!--  needed to make the tests work as we need to bring up the Component Manager -->
     <dependency>

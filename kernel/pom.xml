@@ -1140,6 +1140,7 @@
         <!-- <module>kernel-impl-experimental</module> -->
         <module>kernel-tim</module>
         <module>kernel-util</module>
+        <module>kernel-storage-util</module>
         <module>loader</module>
         <module>deploy</module>
         <module>kernel-site</module>
