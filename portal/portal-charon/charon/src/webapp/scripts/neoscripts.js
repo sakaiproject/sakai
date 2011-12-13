@@ -56,8 +56,8 @@ var dhtml_view_sites = function(){
     // then recast the function to the post initialized state which will run from then on
     dhtml_view_sites = function(){
         if (jQuery('#selectSite').css('display') == 'none') {
-
-            jQuery('div#selectSite').slideDown('slow', function(){
+            jQuery('div#selectSite div').show();
+            jQuery('div#selectSite').slideDown('fast', function(){
                 // check if $('#otherSiteList li').length > some number, then show search
                 // otherwise not
                    if(jQuery('div#otherSitesCategorWrap').height() > 300){
@@ -65,7 +65,6 @@ var dhtml_view_sites = function(){
                 }
 
 
-                jQuery('div#selectSite div').show();
                 jQuery('#txtSearch').focus();
             });
             createDHTMLMask(dhtml_view_sites);
