@@ -145,6 +145,18 @@ public interface FormattedText {
     public String convertPlaintextToFormattedText(String value);
 
     /**
+     * Escape a plaintext string so that it can be output as part of an HTML document. 
+     * Amperstand, greater-than, less-than, newlines, etc, will be escaped so that they display (instead of being interpreted as formatting).
+     * Automatically converts newlines.
+     * 
+     * @param value
+     *        The string to escape.
+     * @return value fully escaped for HTML.
+     * @see #escapeHtml(String, boolean)
+     */
+    public String escapeHtml(String value);
+
+    /**
      * Escape the given value so that it appears as-is in HTML - 
      * that is, HTML meta-characters like '<' are escaped to HTML character entity references like '&lt;'. 
      * Markup, amper, quote are escaped. Whitespace is not.
@@ -169,6 +181,15 @@ public interface FormattedText {
      * @return The encoded text.
      */
     public String encodeUnicode(String value);
+
+    /**
+     * For converting plain-text URLs in a String to HTML &lt;a&gt; tags
+     * Any URLs in the source text that happen to be already in a &lt;a&gt; tag will be unaffected.
+     * 
+     * @param text the plain text to convert
+     * @return the full source text with URLs converted to HTML.
+     */
+    public String encodeUrlsAsHtml(String text);
 
     /**
      * Returns a String with HTML entity references converted to characters suitable for processing as formatted text.
