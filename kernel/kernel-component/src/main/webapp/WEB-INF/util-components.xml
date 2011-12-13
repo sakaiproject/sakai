@@ -76,4 +76,8 @@
 		
 	</bean>
 
+    <bean id="org.sakaiproject.util.api.FormattedText"
+            class="org.sakaiproject.util.impl.FormattedTextImpl"
+            init-method="init" singleton="true" />
+
 </beans>
