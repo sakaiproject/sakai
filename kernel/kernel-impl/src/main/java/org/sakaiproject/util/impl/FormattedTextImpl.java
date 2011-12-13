@@ -401,11 +401,13 @@ public class FormattedTextImpl implements FormattedText
 	/* (non-Javadoc)
      * @see org.sakaiproject.utils.impl.FormattedText#escapeHtml(java.lang.String, boolean)
      */
-	public String escapeHtml(String value, boolean escapeNewlines)
-	{
-	    String val = StringEscapeUtils.escapeHtml(value);
-	    if (escapeNewlines && val !=null) {
-	        val.replace("\n", "<br/>\n");
+	public String escapeHtml(String value, boolean escapeNewlines) {
+	    String val = value;
+	    if (value != null && !"".equals(value)) {
+	        val = StringEscapeUtils.escapeHtml(value);
+	        if (escapeNewlines && val != null) {
+	            val.replace("\n", "<br/>\n");
+	        }
 	    }
 	    return val;
 	} // escapeHtml
