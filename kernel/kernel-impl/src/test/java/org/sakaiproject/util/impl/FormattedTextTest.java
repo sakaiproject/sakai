@@ -318,4 +318,12 @@ public class FormattedTextTest extends TestCase {
 
     }
 
+    public void testNullParams() {
+    	//KNL-862 test we don't NPE if a null string is passed with Newlines == true - DH
+    	try {
+    		formattedText.escapeHtml(null, true);
+    	} catch (Exception e) {
+    		fail();
+    	}
+    }
 }

@@ -404,7 +404,7 @@ public class FormattedTextImpl implements FormattedText
 	public String escapeHtml(String value, boolean escapeNewlines)
 	{
 	    String val = StringEscapeUtils.escapeHtml(value);
-	    if (escapeNewlines) {
+	    if (escapeNewlines && val !=null) {
 	        val.replace("\n", "<br/>\n");
 	    }
 	    return val;
