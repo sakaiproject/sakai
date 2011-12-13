@@ -21,6 +21,7 @@
 
 package org.sakaiproject.util.impl;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -97,14 +98,15 @@ public class FormattedTextImpl implements FormattedText
         M_evilValues = "javascript:,behavior:,vbscript:,mocha:,livescript:,expression".split(",");
 
         try {
-            resourceLoader = new ResourceLoader(RESOURCE_BUNDLE, ComponentManager.get(RESOURCE_CLASS).getClass().getClassLoader());
+            ClassLoader cl = ComponentManager.get(RESOURCE_CLASS).getClass().getClassLoader();
+            resourceLoader = new ResourceLoader(RESOURCE_BUNDLE, cl);
             M_evilTags = getResourceLoader().getString("evilTags").split(",");
             M_goodTags = getResourceLoader().getString("goodTags").split(",");
             M_goodAttributes = getResourceLoader().getString("goodAttributes").split(",");
             M_evilValues = getResourceLoader().getString("evilValues").split(",");
         } catch (Exception e) {
             // this is a failure and cannot really be recovered from
-            M_log.error("Error collecting formattedtext.properties (using defaults)", e);
+            M_log.warn("Error collecting formattedtext.properties (using defaults instead) - if this is a test then everything is OK, if this is live then there is a problem BUT things will probably still work OK if you are english speaking");
         }
 
         M_evilTagsPatterns = new Pattern[M_evilTags.length];
@@ -1078,7 +1080,167 @@ public class FormattedTextImpl implements FormattedText
         return buf.toString();
     }
 
+    public String escapeJavascript(String value) {
+        if (value == null || "".equals(value)) return "";
+        try
+        {
+            StringBuilder buf = new StringBuilder();
+
+            // prepend 'i' if first character is not a letter
+            if (!java.lang.Character.isLetter(value.charAt(0)))
+            {
+                buf.append("i");
+            }
+
+            // change non-alphanumeric characters to 'x'
+            for (int i = 0; i < value.length(); i++)
+            {
+                char c = value.charAt(i);
+                if (!java.lang.Character.isLetterOrDigit(c))
+                {
+                    buf.append("x");
+                }
+                else
+                {
+                    buf.append(c);
+                }
+            }
+
+            String rv = buf.toString();
+            return rv;
+        }
+        catch (Exception e)
+        {
+            M_log.warn("escapeJavascript: ", e);
+            return value;
+        }
+    }
+
+    public String escapeJsQuoted(String value) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /** These characters are escaped when making a URL */
+    // protected static final String ESCAPE_URL = "#%?&='\"+ ";
+    // not '/' as that is assumed to be part of the path
+    protected static final String ESCAPE_URL = "$&+,:;=?@ '\"<>#%{}|\\^~[]`";
+
+    /**
+     * These can't be encoded in URLs safely even using %nn notation, so encode them using our own custom URL encoding
+     */
+    protected static final String ESCAPE_URL_SPECIAL = "^?;";
+
+    public String escapeUrl(String id) {
+        if (id == null) return "";
+        id = id.trim();
+        try
+        {
+            // convert the string to bytes in UTF-8
+            byte[] bytes = id.getBytes("UTF-8");
+
+            StringBuilder buf = new StringBuilder();
+            for (int i = 0; i < bytes.length; i++)
+            {
+                byte b = bytes[i];
+                // escape ascii control characters, ascii high bits, specials
+                if (ESCAPE_URL_SPECIAL.indexOf((char) b) != -1)
+                {
+                    buf.append("^^x"); // special funky way to encode bad URL characters 
+                    buf.append(toHex(b));
+                    buf.append('^');
+                }
+                // 0x1F is the last control character
+                // 0x7F is DEL chatecter
+                // 0x80 is the start of the top of the 256bit set.
+                else if ((ESCAPE_URL.indexOf((char) b) != -1) || (b <= 0x1F) || (b == 0x7F) || (b >= 0x80))
+                {
+                    buf.append("%");
+                    buf.append(toHex(b));
+                }
+                else
+                {
+                    buf.append((char) b);
+                }
+            }
+
+            String rv = buf.toString();
+            return rv;
+        }
+        catch (UnsupportedEncodingException e)
+        {
+            M_log.warn("Validator.escapeUrl: ", e);
+            return "";
+        }
+    }
+
     // PRIVATE STUFF
+
+    /**
+     * Returns a hex representation of a byte.
+     * 
+     * @param b
+     *        The byte to convert to hex.
+     * @return The 2-digit hex value of the supplied byte.
+     */
+    protected static final String toHex(byte b) {
+        char ret[] = new char[2];
+
+        ret[0] = hexDigit((b >>> 4) & (byte) 0x0F);
+        ret[1] = hexDigit((b >>> 0) & (byte) 0x0F);
+
+        return new String(ret);
+    }
+
+    /**
+     * Returns the hex digit corresponding to a number between 0 and 15.
+     * 
+     * @param i
+     *        The number to get the hex digit for.
+     * @return The hex digit corresponding to that number.
+     * @exception java.lang.IllegalArgumentException
+     *            If supplied digit is not between 0 and 15 inclusive.
+     */
+    protected static final char hexDigit(int i)
+    {
+        switch (i)
+        {
+            case 0:
+                return '0';
+            case 1:
+                return '1';
+            case 2:
+                return '2';
+            case 3:
+                return '3';
+            case 4:
+                return '4';
+            case 5:
+                return '5';
+            case 6:
+                return '6';
+            case 7:
+                return '7';
+            case 8:
+                return '8';
+            case 9:
+                return '9';
+            case 10:
+                return 'A';
+            case 11:
+                return 'B';
+            case 12:
+                return 'C';
+            case 13:
+                return 'D';
+            case 14:
+                return 'E';
+            case 15:
+                return 'F';
+        }
+
+        throw new IllegalArgumentException("Invalid digit:" + i);
+    }
 
     /**
      * HTML character entity references. These abreviations are used in HTML to escape certain Unicode characters, including characters used in HTML markup. These character entity references were taken directly from the HTML 4.0 specification at:
@@ -1139,4 +1301,5 @@ public class FormattedTextImpl implements FormattedText
         }
         return resourceLoader;
     }
+
 }

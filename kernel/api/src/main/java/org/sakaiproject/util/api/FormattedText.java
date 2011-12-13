@@ -266,4 +266,42 @@ public interface FormattedText {
      */
     public String decodeNumericCharacterReferences(String value);
 
+    /**
+     * WEB Utility -
+     * Return a string based on value that is safe to place into a javascript / html identifier: 
+     * anything not alphanumeric change to the char 'x'. 
+     * If the first character is not alphabetic, a letter 'i' is prepended.
+     * Used for generating javascript variable and field names.
+     * 
+     * @param value
+     *        The string to escape.
+     * @return value fully escaped using javascript / html identifier rules.
+     */
+    public String escapeJavascript(String value);
+
+    /**
+     * WEB Utility -
+     * Return a string based on value that is safe to place into a javascript value that is in single quotes.
+     * Useful to use with JSON or Javascript variables which are being set dynamically.
+     * Can also be accomplished with: Use http://commons.apache.org/lang/api/org/apache/commons/lang/StringEscapeUtils.html
+     * 
+     * @param value
+     *        The string to escape.
+     * @return value String escaped for JSON or JS.
+     */
+    public String escapeJsQuoted(String value);
+
+    /**
+     * WEB Utility -
+     * Return a string based on id that is fully escaped using URL rules, using a UTF-8 underlying encoding.
+     * 
+     * Note: java.net.URLEncode.encode() provides a more standard option
+     *       FormattedText.decodeNumericCharacterReferences() undoes this operation
+     * 
+     * @param id
+     *        The string to escape.
+     * @return id fully escaped using URL rules.
+     */
+    public String escapeUrl(String id);
+
 }

@@ -173,24 +173,29 @@ public class SpringCompMgr implements ComponentManager {
 		// dump the configuration values out
 		try {
 		    final ServerConfigurationService scs = (ServerConfigurationService) this.get(ServerConfigurationService.class);
-		    ConfigData cd = scs.getConfigData();
-            M_log.info("Configuration loaded "+cd.getTotalConfigItems()+" values, "+cd.getRegisteredConfigItems()+" registered");
-		    if (scs.getBoolean("config.dump.to.log", false)) {
-		        // output the config logs now and then output then again in 120 seconds
-	            M_log.info("Configuration values:\n" + cd.toString());
-	            Timer timer = new Timer(true);
-	            timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        M_log.info("Configuration values: (delay 1):\n" + scs.getConfigData().toString());
-                    }
-	            }, 120*1000);
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        M_log.info("Configuration values: (delay 2):\n" + scs.getConfigData().toString());
-                    }
-                }, 300*1000);
+		    if (scs != null) {
+	            ConfigData cd = scs.getConfigData();
+	            M_log.info("Configuration loaded "+cd.getTotalConfigItems()+" values, "+cd.getRegisteredConfigItems()+" registered");
+	            if (scs.getBoolean("config.dump.to.log", false)) {
+	                // output the config logs now and then output then again in 120 seconds
+	                M_log.info("Configuration values:\n" + cd.toString());
+	                Timer timer = new Timer(true);
+	                timer.schedule(new TimerTask() {
+	                    @Override
+	                    public void run() {
+	                        M_log.info("Configuration values: (delay 1):\n" + scs.getConfigData().toString());
+	                    }
+	                }, 120*1000);
+	                timer.schedule(new TimerTask() {
+	                    @Override
+	                    public void run() {
+	                        M_log.info("Configuration values: (delay 2):\n" + scs.getConfigData().toString());
+	                    }
+	                }, 300*1000);
+	            }
+		    } else {
+		        // probably testing so just say we cannot dump the config
+	            M_log.warn("Configuration: Unable to get and dump out the registered server config values because no ServerConfigurationService is available - this is OK if this is part of a test, this is very bad otherwise");
 		    }
 		} catch (Exception e) {
 		    M_log.error("Configuration: Unable to get and dump out the registered server config values (config.dump.to.log): "+e, e);
