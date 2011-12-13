@@ -1,3 +1,9 @@
+.project
+.classpath
+.settings
+**/target
+**/.settings
+bin
 target
 sakai-demo.tar.gz
 sakai-demo.zip
