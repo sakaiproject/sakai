@@ -36,6 +36,7 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
@@ -159,6 +160,13 @@ public interface SakaiFacade {
 	 * @return true if the user has access, false otherwise
 	 */
 	boolean isAllowedGroup(String userId, String permission, String siteId, String groupId);
+	
+	/**
+	 * get the ToolManager object.
+	 * 
+	 * @return a ToolManager object.
+	 */
+	public ToolManager getToolManager();
 	
 	/**
 	 * get all the published sites, which user joins in

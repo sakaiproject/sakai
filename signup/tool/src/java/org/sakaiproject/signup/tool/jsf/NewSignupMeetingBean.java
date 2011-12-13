@@ -60,7 +60,6 @@ import org.sakaiproject.signup.tool.util.Utilities;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.tool.cover.ToolManager;
 
 /**
  * <p>
@@ -286,7 +285,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		//checking for sakai property
 		String sakaiProperty= "false".equalsIgnoreCase(sakaiFacade.getServerConfigurationService().getString("signup.otherSitesAvailability", "true"))? "false" : "true" ;
 		//checking for tool property, if it doesn't exist take sakaiproperty value as default
-		String toolProperty = ToolManager.getCurrentPlacement().getConfig().getProperty("signup.other.sites.availability", sakaiProperty);
+		String toolProperty = sakaiFacade.getToolManager().getCurrentPlacement().getConfig().getProperty("signup.other.sites.availability", sakaiProperty);
 		if (toolProperty.equals("null")) toolProperty = sakaiProperty;
 		//tool property would take precedence over sakai property
 		otherSitesAvailability= "false".equalsIgnoreCase(toolProperty)? false : true;
