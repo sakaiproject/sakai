@@ -22,11 +22,10 @@
 package org.sakaiproject.util;
 
 import junit.framework.TestCase;
-import org.sakaiproject.util.*;
-import org.springframework.mock.web.MockHttpServletRequest;
 
 /** 
  ** JUnit UTF-8 test cases for the sakai-util package
+ * NOTE: this does not actually do anything - Dec 2011 - fix or remove this
  **/
 public class UTF8Test extends TestCase {
 
