@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Sakai Kernel">
+  <version position="navigation-top" />
+  <publishDate position="navigation-bottom" format="MM-dd-yy"/>
+  
+  <bannerLeft>
+    <name>Sakai Kernel Project ( ${project.name} ) </name>
+    <href>/</href>
+  </bannerLeft>
+  <bannerRight>
+    <name>Sakai Kernel Project ( ${project.name} ) </name>
+    <src>/images/logo.gif</src>
+    <href>http://www.sakaiproject.org/</href>
+  </bannerRight>
+  <skin>
+    <groupId>org.sakaiproject.kernel</groupId>
+    <artifactId>kernel-site</artifactId>
+    <version>1.0RC2-SNAPSHOT</version>
+  </skin>
+  
+  <body>
+
+    
+    <links>
+      <item name="Sakai JIRA" href="http://jira.sakaiporject.org"/>
+      <item name="Kernel Wiki" href="http://confluence.sakaiproject.org/confluence/display/FRAME/Home"/>
+    </links>
+
+    <menu name="${project.name}">
+       <item name="API" href="../sakai-content-api/index.html"/>
+       <item name="DB Implementation" href="../component/db/sakai-content-impl/index.html"/>
+       <item name="DB Lock Implementation" href="../component/db/sakai-content-lock-hbm/index.html"/>
+       <item name="JCR Implementation" href="../component/jcr/sakai-content-jcr-impl/index.html"/>
+       <item name="Migration API" href="../component/migration/sakai-content-jcr-migration-api/index.html"/>
+       <item name="Migration Implementation" href="../component/migration/sakai-content-jcr-migration-impl/index.html"/>
+       <item name="Content Util" href="../sakai-content-util/index.html"/>
+    </menu>
+
+    <menu ref="reports" />
+    
+    <menu name="The Sakai Kernel Project">
+      <item name="Documentation" collapse="true" href="../../index.html" >
+        <item name="About Sakai Kernel Project" href="../../about.html"/>
+        <item name="Mission" href="../../mission.html"/>
+        <item name="Download" href="../../download.html"/>
+        <item name="JavaDoc" href="../../apidocs/index.html"/>
+        <item name="News" href="../../news.html"/>
+        <item name="FAQ" href="../../faq.html"/>
+        <item name="Wiki" href="http://confluence.sakaiproject.org/confluence/display/FRAME/Home"/>
+        <item name="Powered By Sakai" href="../../powered.html"/>
+        <item name="Get Involved" href="../../get-involved.html"/>
+        <item name="Getting Started" href="../../getting-started.html"/>
+        <item name="Deploying" href="../../deploying.html"/>
+        <item name="App Servers" href="../../app-servers.html"/>
+        <item name="Architecture" href="../../architecture.html"/>
+        <item name="Resources" href="../../resources.html"/>
+      </item>
+      <item name="Sakai Kernel Subprojects" collapse="true" href="../../subprojects.html"  >
+        <item name="Alias" href="../../alias/index.html"/>
+        <item name="AuthZ" href="../../authz/index.html"/>
+        <item name="Cluster" href="../../cluster/index.html"/>
+        <item name="Component" href="../../component/index.html"/>
+        <item name="Content" href="../../content/index.html"/>
+        <item name="DB" href="../../db/index.html"/>
+        <item name="Email" href="../../email/index.html"/>
+        <item name="Entity" href="../../entity/index.html"/>
+        <item name="Event" href="../../event/index.html"/>
+        <item name="JCR" href="../../jcr/index.html"/>
+        <item name="Memory" href="../../memory/index.html"/>
+        <item name="Site" href="../../site/index.html"/>
+        <item name="Test" href="../../test/index.html"/>
+        <item name="Tool" href="../../tool/index.html"/>
+        <item name="User" href="../../user/index.html"/>
+        <item name="Util" href="../../util/index.html"/>
+      </item>
+    </menu>
+
+
+    
+  </body>
+  
+</project>
