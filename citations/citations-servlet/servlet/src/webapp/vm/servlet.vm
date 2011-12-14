@@ -30,7 +30,11 @@
 						opener.citationsHelperFrame.refreshCitationsHelper();
 					  }
 					</script>
-					#foreach($citation in $citations)
+					#if( $citations )
+						#foreach($citation in $citations)
+							#parse( "vm/_citation.vm" )
+						#end
+					#else
 						#parse( "vm/_citation.vm" )
 					#end
 					
