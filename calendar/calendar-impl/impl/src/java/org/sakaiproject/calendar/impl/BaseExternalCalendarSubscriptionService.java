@@ -44,6 +44,8 @@ import java.util.Vector;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -79,7 +81,6 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.util.commonscodec.CommonsCodecBase64;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -549,19 +550,17 @@ public class BaseExternalCalendarSubscriptionService implements
 	public String getIdFromSubscriptionUrl(String url)
 	{
 		// use Base64
-		byte[] encoded = CommonsCodecBase64.encodeBase64(url.getBytes());
-		// '/' cannot be used in Reference => use '.' instead (not part of
-		// Base64 alphabet)
-		String encStr = new String(encoded).replaceAll("/", "\\.");
+		byte[] encoded = Base64.encodeBase64(url.getBytes());
+		// '/' cannot be used in Reference => use '.' instead (not part of Base64 alphabet)
+		String encStr = StringUtils.newStringUtf8(encoded).replaceAll("/", "\\.");
 		return encStr;
 	}
 
 	public String getSubscriptionUrlFromId(String id)
 	{
 		// use Base64
-		byte[] decoded = CommonsCodecBase64.decodeBase64(id.replaceAll("\\.", "/")
-				.getBytes());
-		return new String(decoded);
+		byte[] decoded = Base64.decodeBase64(id.replaceAll("\\.", "/").getBytes());
+		return StringUtils.newStringUtf8(decoded);
 	}
 
 	// ######################################################
@@ -1158,8 +1157,8 @@ public class BaseExternalCalendarSubscriptionService implements
 					id = getHexStringFromBytes(bytes);
 				}catch(NoSuchAlgorithmException e){
 					// fall back to Base64
-					byte[] encoded = CommonsCodecBase64.encodeBase64(bytes);
-					id = new String(encoded);
+					byte[] encoded = Base64.encodeBase64(bytes);
+					id = StringUtils.newStringUtf8(encoded);
 				}
 				if (!m_storage.containsKey(id)) unique = true;
 				else key.append(n++);
