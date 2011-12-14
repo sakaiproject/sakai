@@ -3749,7 +3749,7 @@ extends VelocityPortletStateAction
 
 		DateFormat formatter = DateFormat.getDateInstance(DateFormat.FULL, new ResourceLoader().getLocale());			
 		try{
-			context.put("beginWeek",formatter.format(calObj.getPrevTime(7-dayofweek)));
+			context.put("beginWeek", formatter.format(calObj.getPrevTime(calObj.getFirstDayOfWeek())));
 		}catch(Exception e){
 			context.put("beginWeek", calObj.getTodayDate());
 		}
