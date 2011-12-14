@@ -972,7 +972,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				new NewsItemMapper()
 			);
 		} catch (DataAccessException ex) {
-           log.error("getNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.error("getNewsItem(long): Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return null;
 		}
 	}
@@ -992,7 +992,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				new NewsItemMapper()
 			);
 		} catch (DataAccessException ex) {
-           log.error("getNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.error("getNewsItem(String): Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return null;
 		}
 	}
@@ -1025,7 +1025,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		} catch (DataAccessException ex) {
 			System.out.println("\n\ngetNewsItems() " + ex + "\n\n");
 		
-        	log.error("getNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+        	log.error("getNewsItems(String, String, int): Error executing query: " + ex.getClass() + ":" + ex.getMessage());
         	return new ArrayList<NewsItem>();
 		}
 	}
@@ -1065,7 +1065,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				new NewsItemMapper()
 			);
 		} catch (DataAccessException ex) {
-           log.error("getNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.error("getNewsItems(String, String, boolean, boolean): Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return new ArrayList<NewsItem>();
 		}
 	}
@@ -1092,7 +1092,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				new NewsItemMapper()
 			);
 		} catch (DataAccessException ex) {
-           log.error("getNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.error("getNewsItemsByContext(String): Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return new ArrayList<NewsItem>();
 		}
 	}

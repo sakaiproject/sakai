@@ -521,7 +521,14 @@ public class ResourceSupport {
 				if(logger.isDebugEnabled()) {
 					logger.debug("updating links to resource " + entity.getId());
 				}
-				dashboardLogic.updateNewsLinks(event.getResource());
+				if (((ContentResource) entity).isHidden())
+				{
+					dashboardLogic.removeNewsLinks(entity.getReference());
+				}
+				else
+				{
+					dashboardLogic.updateNewsLinks(event.getResource());
+				}
 			} else if(entity!= null && entity instanceof ContentCollection) {
 				ContentCollection collection = (ContentCollection) entity;
 				List<ContentResource> resources = sakaiProxy.getAllContentResources(collection.getId());
