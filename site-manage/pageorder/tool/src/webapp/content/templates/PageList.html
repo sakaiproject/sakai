@@ -18,21 +18,13 @@
 
 <body>
  	<div id="page-order-body" class="portletBody">
-	 	<div class="navIntraTool">
-			<a href="#" rsf:id="add-link" class="item_control" title="Display Pages Currently Available To Add To This Site" onclick="">Add Page</a>
-		</div>
 		<a href="#" rsf:id="redirect">go back</a>
 		<div rsf:id="content:">
-			<h3 class="alertMessage" id="call-results">
+			<h3 rsf:id="msg=page_title">page_title</h3>
+			<div class="alertMessage" id="call-results">
 				<span rsf:id="msg=welcome">Note: Changes to page ordering will not take effect until you click 'Save'. Deleting, Adding or Editing a Page is saved immediately</span>
-			</h3>
-
+			</div>
 			<form rsf:id="pages-form" class="order_action_form">
-				<p class="act">
-					<input rsf:id="save" class="active" value="Save" type="submit" onclick="serialize('sort1');"/>
-					<input rsf:id="revert" value="Cancel" type="submit"/>
-					<input rsf:id="reset" value="Reset" type="submit" onclick="return checkReset();"/>
-				</p>
 	 			<table id="page-list">
 	  				<tr><td>
 						<div class="tool_list">
