@@ -28,14 +28,11 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.util.conversion.SchemaConversionHandler;
-
-import org.sakaiproject.util.commonscodec.CommonsCodecBase64;
 
 /**
  * @author ieb
@@ -124,8 +121,8 @@ public class ExtractXMLToColumns implements SchemaConversionHandler
 		{
 			if ( body != null ) 
 			{
-				decoded = CommonsCodecBase64.decodeBase64(body.getBytes("UTF-8"));
-				body = new String(decoded, "UTF-8");
+				decoded = Base64.decodeBase64(body); // UTF-8 by default
+				body = org.apache.commons.codec.binary.StringUtils.newStringUtf8(decoded);
 			}
 		} 
 		catch (Exception e) 

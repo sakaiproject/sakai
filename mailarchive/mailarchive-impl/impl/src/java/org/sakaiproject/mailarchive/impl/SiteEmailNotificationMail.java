@@ -34,7 +34,6 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.mailarchive.api.MailArchiveMessage;
 import org.sakaiproject.mailarchive.api.MailArchiveMessageHeader;
 import org.sakaiproject.mailarchive.api.MailArchiveService;
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.util.EmailNotification;
 import org.sakaiproject.util.FormattedText;
