@@ -33,6 +33,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.courier.api.PresenceUpdater;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -57,7 +58,7 @@ import org.w3c.dom.Element;
  * Implements the PresenceService, all but a Storage model.
  * </p>
  */
-public abstract class BasePresenceService implements PresenceService
+public abstract class BasePresenceService implements PresenceService, PresenceUpdater
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(BasePresenceService.class);

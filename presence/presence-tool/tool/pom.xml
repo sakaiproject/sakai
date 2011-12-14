@@ -42,10 +42,6 @@
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.courier</groupId>
-            <artifactId>sakai-courier-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.courier</groupId>
             <artifactId>sakai-courier-util</artifactId>
         </dependency>
         <dependency>
