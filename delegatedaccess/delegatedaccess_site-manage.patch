@@ -1,6 +1,6 @@
 Index: site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java
 ===================================================================
---- site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java	(revision 100298)
+--- site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java	(revision 101737)
 +++ site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java	(working copy)
 @@ -21,11 +21,15 @@
  
@@ -18,7 +18,7 @@ Index: site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java
  import java.util.HashMap;
  import java.util.HashSet;
  import java.util.Hashtable;
-@@ -177,6 +181,9 @@
+@@ -181,6 +185,9 @@
  	private static org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService questionService = (org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService) ComponentManager
  	.get(org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService.class);
  	
@@ -28,7 +28,7 @@ Index: site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java
  	private static final String SITE_MODE_SITESETUP = "sitesetup";
  
  	private static final String SITE_MODE_SITEINFO = "siteinfo";
-@@ -417,7 +424,18 @@
+@@ -430,7 +437,18 @@
  	private static final String STATE_SITE_ACCESS_PUBLISH = "state_site_access_publish";
  	
  	private static final String STATE_SITE_ACCESS_INCLUDE = "state_site_access_include";
@@ -47,7 +47,7 @@ Index: site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java
  	/** the list of selected user */
  	private static final String STATE_SELECTED_USER_LIST = "state_selected_user_list";
  
-@@ -965,10 +983,8 @@
+@@ -967,10 +985,8 @@
  				}
  	
  				state.setAttribute(STATE_SITE_MODE, site_mode);
@@ -59,7 +59,7 @@ Index: site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java
  	} // initState
  	
  	
-@@ -2228,6 +2244,19 @@
+@@ -2298,6 +2314,19 @@
  				}
  				context.put("published", state.getAttribute(STATE_SITE_ACCESS_PUBLISH));
  				context.put("include", state.getAttribute(STATE_SITE_ACCESS_INCLUDE));
@@ -79,7 +79,7 @@ Index: site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java
  
  				if (siteType != null && !unJoinableSiteTypes.contains(siteType)) {
  					// site can be set as joinable
-@@ -6407,7 +6436,7 @@
+@@ -6563,7 +6592,7 @@
  					}
  				}
  			}
@@ -88,7 +88,7 @@ Index: site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java
  		}
  		catch (Exception e)
  		{
-@@ -6992,6 +7021,9 @@
+@@ -7205,6 +7234,9 @@
  		readInputAndUpdateStateVariable(state, params, "include", STATE_SITE_ACCESS_INCLUDE, true);
  		readInputAndUpdateStateVariable(state, params, "joinable", STATE_JOINABLE, true);
  		readInputAndUpdateStateVariable(state, params, "joinerRole", STATE_JOINERROLE, false);
@@ -100,12 +100,12 @@ Index: site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java
  		
 Index: site-manage-tool/tool/src/bundle/sitesetupgeneric.properties
 ===================================================================
---- site-manage-tool/tool/src/bundle/sitesetupgeneric.properties	(revision 100298)
+--- site-manage-tool/tool/src/bundle/sitesetupgeneric.properties	(revision 101737)
 +++ site-manage-tool/tool/src/bundle/sitesetupgeneric.properties	(working copy)
-@@ -1093,3 +1093,14 @@
- ##Additional site info
- sitegen.siteinfolist.modify = Modification date
+@@ -1056,3 +1056,16 @@
  sitegen.siteinfolist.usermodify = Modified by
+ 
+ useOfficialDescription=Use Official Description
 +
 +## Site Shopping Period
 +shopping.header = Shopping Period Access
@@ -117,10 +117,11 @@ Index: site-manage-tool/tool/src/bundle/sitesetupgeneric.properties
 +shopping.realm.label = Shoppers realm
 +shopping.role.label = Shoppers role
 +shopping.role.instructions = Shoppers have the same access as this realm/role.
-\ No newline at end of file
++shopping.instructions=You have the ability to add, update, or remove your site's shopping access.  To add or update, just fill in the fields below.  To remove, clear all fields and set all options to none.
++shopping.noauth=none
 Index: site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAccess.vm
 ===================================================================
---- site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAccess.vm	(revision 100298)
+--- site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAccess.vm	(revision 101737)
 +++ site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAccess.vm	(working copy)
 @@ -4,6 +4,9 @@
  <script type="text/javascript" src="/library/js/jquery/jquery-ui/js/jquery-ui.js"></script>
@@ -141,7 +142,7 @@ Index: site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAcce
  // -->	
  </script>
  <link type="text/css" href="/sakai-site-manage-tool/css/site-manage.css" rel="stylesheet" media="screen" />
-@@ -212,12 +217,64 @@
+@@ -212,12 +217,77 @@
  			</p>
  			<p/>
  		</div>
@@ -153,46 +154,59 @@ Index: site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAcce
 +			<span id="hierarchyNodeId" style="display:none">$hierarchy_node_id</span>
 +			
 +			<h4>$tlang.getString("shopping.header")</h4>
-+			
-+			<div id="shoppingVisibilityDiv">
++			<p class="instruction">
++				$tlang.getString("shopping.instructions")
++			</p>
++			<div id="shoppingVisibilityDiv" class="indnt1">
++				<table>
++				<tr>
++				<td align="right">
 +			 	<label for="shoppingVisibility">$tlang.getString("shopping.visibility.label"): </label>
++				</td>
++				<td>
 +				<select name="shoppingVisibility" id="shoppingVisibility">
++					<option value="">$tlang.getString("shopping.noauth")</option>
 +					<option value=".anon" #if (".anon" == $shopping_visibility) selected="selected" #end >$tlang.getString("shopping.public")</option>
 +					<option value=".auth" #if (".auth" == $shopping_visibility) selected="selected" #end >$tlang.getString("shopping.authenticated")</option>
 +				</select>
-+			</div>
-+			
-+			<div id="shoppingVisibilityStartDiv">
++				</td>
++				</tr>
++				<tr>
++                                <td align="right">
 +				<label for="shoppingVisibilityStart">$tlang.getString("shopping.start.label"): </label>
++				</td>
++				<td>
 +				<input type="text" id="shoppingVisibilityStart" name="shoppingVisibilityStart" value="$shopping_visibility_start"/>
-+			</div>
-+			
-+			<div id="shoppingVisibilityEndDiv">
++				</td>
++				</tr>
++                                <tr>
++                                <td align="right">
 +				<label for="shoppingVisibilityEnd">$tlang.getString("shopping.end.label"): </label>
++				</td>
++                                <td>
 +				<input type="text" id="shoppingVisibilityEnd" name="shoppingVisibilityEnd" value="$shopping_visibility_end"/>
-+			</div>
-+
-+			<div id="shoppingRealmDiv">
-+				<label for="shoppingRealm">$tlang.getString("shopping.realm.label"): </label> <span id="shoppingRealmText"></span>
-+				<input type="hidden" name="shoppingRealm" id="shoppingRealm" value=""/>
-+			</div>
-+
-+			<div id="shoppingRoleDiv">	
-+				<label for="shoppingRole">$tlang.getString("shopping.role.label"): </label> <span id="shoppingRoleText"></span>
-+				<input type="hidden" name="shoppingRole" id="shoppingRealm" value=""/>
-+			</div>	
-+
-+			<!-- div id="shoppingRoleDiv">
-+				<p class="instruction">$tlang.getString("shopping.role.instructions")</p>
++				</td>
++                                </tr>
++                                <tr>
++                                <td align="right">
++				<label for="shoppingRealm">$tlang.getString("shopping.realm.label"): </label> 
++				</td>
++				<td>
++				<span id="shoppingRealmText"></span>
++				</td>
++				</tr>
++				<tr>
++				<td align="right">
 +				<label for="shoppingRole">$tlang.getString("shopping.role.label"): </label>
-+				<select id="shoppingRole" name="shoppingRole">
-+					#foreach($role in $all_roles)
-+						#if ($role.id.startsWith(".") == false)
-+							<option value="$role.id">$role.id</option>
-+						#end
-+					#end
-+				</select
-+			-->
++				</td>
++				<td>
++				<span id="shoppingRoleText"></span>
++				</td>
++				</tr>
++				</table>
++				<input type="hidden" name="shoppingRealm" id="shoppingRealm" value=""/>
++				<input type="hidden" name="shoppingRole" id="shoppingRole" value=""/>
++			</div>
 +			</div>
 +
 +		#end
@@ -207,19 +221,11 @@ Index: site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAcce
  				<input type="submit" accesskey="x"  name="eventSubmit_doCancel" value="$tlang.getString("ediacc.bac")" />
  #else
  				<input type="submit" accesskey="s" class="active" name="eventSubmit_doUpdate_site_access" value="$tlang.getString("ediacc.con")" />
-@@ -225,5 +282,7 @@
- 				<input type="submit" accesskey="x" name="eventSubmit_doCancel_create" value="$tlang.getString("ediacc.can")" />
- 			#end
- 		</div>
-+		
-+		
- 	</form>
- </div>
 Index: site-manage-tool/tool/src/webapp/js/site-manage-shopping.js
 ===================================================================
 --- site-manage-tool/tool/src/webapp/js/site-manage-shopping.js	(revision 0)
 +++ site-manage-tool/tool/src/webapp/js/site-manage-shopping.js	(revision 0)
-@@ -0,0 +1,63 @@
+@@ -0,0 +1,66 @@
 +// Shopping Period JS
 +$(document).ready(function(){
 +
@@ -252,12 +258,19 @@ Index: site-manage-tool/tool/src/webapp/js/site-manage-shopping.js
 +	// Gather the shopping variables and save them to a WS
 +	$("#updateButton").click(function(){
 +        try {
-+            var start = $.datepicker.parseDate("mm/dd/yy", $('#shoppingVisibilityStart').val());
-+            var end   = $.datepicker.parseDate("mm/dd/yy", $('#shoppingVisibilityEnd').val());
++	     
++            var start = "";
++	    try{
++		start  = $.datepicker.parseDate("mm/dd/yy", $('#shoppingVisibilityStart').val()).getTime();
++	    }catch(err){}
++	    var end = "";
++	    try{
++		end   = $.datepicker.parseDate("mm/dd/yy", $('#shoppingVisibilityEnd').val()).getTime();
++	    }catch(err){}
 +            var data = {
 +                'shoppingAuth'      : $('#shoppingVisibility option:selected').val(),
-+                'shoppingStartDate' : start.getTime(),
-+                'shoppingEndDate'   : end.getTime(),
++                'shoppingStartDate' : start,
++                'shoppingEndDate'   : end,
 +                'shoppingRealm'     : '/site/' + $('#siteId').html(),
 +                'shoppingRole'      : $('#shoppingRole option:selected').val(),
 +            };
@@ -268,10 +281,6 @@ Index: site-manage-tool/tool/src/webapp/js/site-manage-shopping.js
 +                url: "/direct/delegated_access/" + $('#hierarchyNodeId').html() + ".json",
 +                data: data,
 +                async:false,
-+                success: function(data){
-+                    alert("success");
-+                    $(form).submit();
-+                    },
 +                failure: function failure(data){
 +                    // TODO: internationalize
 +                    alert("There was an error saving the shopping period info.");
@@ -283,3 +292,11 @@ Index: site-manage-tool/tool/src/webapp/js/site-manage-shopping.js
 +        }
 +	});
 +});
+
+Property changes on: site-manage-tool/tool/src/webapp/js/site-manage-shopping.js
+___________________________________________________________________
+Added: svn:keywords
+   + Date Revision Author HeadURL Id
+Added: svn:eol-style
+   + native
+

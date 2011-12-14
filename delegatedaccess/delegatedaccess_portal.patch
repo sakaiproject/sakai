@@ -1,6 +1,6 @@
 Index: portal-impl/impl/src/java/org/sakaiproject/portal/charon/ToolHelperImpl.java
 ===================================================================
---- portal-impl/impl/src/java/org/sakaiproject/portal/charon/ToolHelperImpl.java	(revision 100712)
+--- portal-impl/impl/src/java/org/sakaiproject/portal/charon/ToolHelperImpl.java	(revision 101737)
 +++ portal-impl/impl/src/java/org/sakaiproject/portal/charon/ToolHelperImpl.java	(working copy)
 @@ -22,6 +22,8 @@
  package org.sakaiproject.portal.charon;
@@ -38,7 +38,7 @@ Index: portal-impl/impl/src/java/org/sakaiproject/portal/charon/ToolHelperImpl.j
 +					}
 +					if(site.getMember(session.getUserId()) == null && site.getProperties().get("shopping-period-restricted-tools") != null){
 +						//this is .anon or .auth role in a site that needs to restrict the tools:
-+						return !arrayContains(((String) site.getProperties().get("shopping-period-restricted-tools")).split(";"), placement.getToolId());
++						return arrayContains(((String) site.getProperties().get("shopping-period-restricted-tools")).split(";"), placement.getToolId());
 +					}
 +
 +				}catch (Exception e) {
