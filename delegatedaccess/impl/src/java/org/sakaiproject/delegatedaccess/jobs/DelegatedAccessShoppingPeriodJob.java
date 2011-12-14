@@ -68,7 +68,7 @@ public class DelegatedAccessShoppingPeriodJob implements Job{
 		}
 
 		sakaiProxy.popSecurityAdvisor(advisor);		
-		log.info("PopulateSiteHierarchyJob finished in " + (System.currentTimeMillis() - startTime) + " ms");
+		log.info("DelegatedAccessShoppingPeriodJob finished in " + (System.currentTimeMillis() - startTime) + " ms");
 	}
 
 	private void treeModelShoppingPeriodTraverser(DefaultMutableTreeNode node){
@@ -131,6 +131,10 @@ public class DelegatedAccessShoppingPeriodJob implements Job{
 		if(addAuth && (".anon".equals(auth) || ".auth".equals(auth))){
 			//if (updated != null && updated.after(processed)){
 			//update the restricted tools list, otherwise it will be cleared:
+			
+			//set the restricted tools list to a non empty string, otherwise, the site property won't be saved
+			//when the string is empty (no tools allowed to view).
+			restrictedToolsList = ";";
 			for(String tool : node.getNodeRestrictedTools()){
 				if(!"".equals(restrictedToolsList)){
 					restrictedToolsList += ";";

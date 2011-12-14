@@ -75,6 +75,15 @@ public class EditablePanelList  extends Panel
 			}
 		};
 		add(restrictToolsLink);
+		
+		Label restrictToolsLinkLabel = new Label("restrictToolsSpan");
+		if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
+			restrictToolsLinkLabel.setDefaultModel(new StringResourceModel("showToolsHeader", null));
+		}else{
+			restrictToolsLinkLabel.setDefaultModel(new StringResourceModel("restrictedToolsHeader", null));
+		}
+		restrictToolsLink.add(restrictToolsLinkLabel);
+		
 
 		AjaxLink<Void> inheritedToolsLink = new AjaxLink<Void>("inheritedToolsLink"){
 			private static final long serialVersionUID = 1L;
@@ -142,6 +151,14 @@ public class EditablePanelList  extends Panel
 			}
 		};
 		inheritedSpan.add(switchInheritedSpanLink);
+		
+		Label restrictToolsLinkSpan = new Label("switchInheritedSpan");
+		if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
+			restrictToolsLinkSpan.setDefaultModel(new StringResourceModel("showToolsHeader", null));
+		}else{
+			restrictToolsLinkSpan.setDefaultModel(new StringResourceModel("restrictedToolsHeader", null));
+		}
+		switchInheritedSpanLink.add(restrictToolsLinkSpan);
 
 		Label inheritedMenuSpan = new Label("inheritedMenuSpan", " | "){
 			@Override
@@ -272,6 +289,22 @@ public class EditablePanelList  extends Panel
 			};
 		};
 		inheritedSpan.add(noInheritedToolsLabel);
+		
+		Label editToolsTitle = new Label("editToolsTitle");
+		if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
+			editToolsTitle.setDefaultModel(new StringResourceModel("editableShowToolsTitle", null));
+		}else{
+			editToolsTitle.setDefaultModel(new StringResourceModel("editableRestrictedToolsTitle", null));
+		}
+		editableSpan.add(editToolsTitle);
+		
+		Label editToolsInstructions = new Label("editToolsInstructions");
+		if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
+			editToolsInstructions.setDefaultModel(new StringResourceModel("editableShowToolsDescription", null));
+		}else{
+			editToolsInstructions.setDefaultModel(new StringResourceModel("editableRestrictedToolsDescription", null));
+		}
+		editableSpan.add(editToolsInstructions);
 
 	}
 
