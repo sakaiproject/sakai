@@ -643,7 +643,6 @@ html>body .dhtml_more_tabs {
 }
 
 #toolMenu li, #subSites li{
-    
 	margin: 3px 0;
 	width: auto;
 	padding: 0;
@@ -659,7 +658,8 @@ also hide if are going to be using icon links (as background of <a> nad <li>
 #toolMenu li span, #subSites li span{
     background-repeat:no-repeat;
     background-position:right;
-    padding-right : 22px;
+    padding:3px 22px 3px 0px;
+    
 }
 
 #toolMenu li.selectedTool span, #toolMenu li.selectedTool a{

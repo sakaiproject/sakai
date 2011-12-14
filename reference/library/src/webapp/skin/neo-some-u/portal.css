@@ -684,8 +684,8 @@ also hide if are going to be using icon links (as background of <a> nad <li>
 
 #toolMenu li span, #subSites li span{
     background-repeat:no-repeat;
-    padding-right:22px;
-    background-position:center right;
+    background-position:right;
+    padding:3px 22px 3px 0px;
 }
 
 #toolMenu li.selectedTool span, #toolMenu li.selectedTool a{

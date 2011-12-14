@@ -633,18 +633,16 @@ html>body .dhtml_more_tabs {
 
 }
 
-/*span shim for fine grained manipulation of link display (decorative)
-also hide if are going to be using icon links (as background of <a> nad <li>
-*/
-
-
 #toolMenu li{
     padding-right:5px;
 }
-#toolMenu li a span, #subSites li a span{
+/*span shim for fine grained manipulation of link display (decorative)
+also hide if are going to be using icon links (as background of <a> nad <li>
+*/
+#toolMenu li span, #subSites li span{
     background-repeat:no-repeat;
     background-position:right;
-    padding-right : 22px;
+    padding:3px 22px 3px 0px;
 }
 
 #toolMenu li.selectedTool{
