@@ -43,7 +43,7 @@
  </div>
 
 <p class="act">
-  <h:commandButton value="#{deliveryMessages.button_continue}" type="button"
+  <h:commandButton value="#{deliveryMessages.button_return_to_assessment}" type="button"
      styleClass="active" onclick="javascript:history.go(-1);" onkeypress="javascript:history.go(-1);" />
 
 </p>
