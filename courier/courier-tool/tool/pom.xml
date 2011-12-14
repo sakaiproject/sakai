@@ -33,10 +33,6 @@
             <artifactId>sakai-component-manager</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.sakaiproject.presence</groupId>
-            <artifactId>sakai-presence-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
         </dependency>

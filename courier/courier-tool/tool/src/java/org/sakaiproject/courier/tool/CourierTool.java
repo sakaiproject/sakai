@@ -41,7 +41,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.courier.api.Delivery;
 import org.sakaiproject.courier.api.DeliveryProvider;
 import org.sakaiproject.courier.cover.CourierService;
-import org.sakaiproject.presence.cover.PresenceService;
+import org.sakaiproject.courier.cover.PresenceUpdater;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -134,14 +134,14 @@ public class CourierTool extends HttpServlet
 	
 					// refresh our presence at the location (placement)
 					if (M_log.isDebugEnabled()) M_log.debug("setting presence: " + placementId);
-					PresenceService.setPresence(placementId);
+					PresenceUpdater.setPresence(placementId);
 	
 					// register another presence if present
 					if (parts.length == 3)
 					{
 						String secondPlacementId = parts[2];
 						if (M_log.isDebugEnabled()) M_log.debug("setting second presence: " + secondPlacementId);
-						PresenceService.setPresence(secondPlacementId);
+						PresenceUpdater.setPresence(secondPlacementId);
 					}
 				} else {
 					//This courier request was not meant for this user (i.e., session), so we won't honour it

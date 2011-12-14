@@ -25,7 +25,6 @@
     
     <properties>
     	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    	<sakai.presence.version>2.9-SNAPSHOT</sakai.presence.version>
     </properties>
     
     <scm>
@@ -117,12 +116,6 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactId>sakai-courier-impl</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.presence</groupId>
-                <artifactId>sakai-presence-api</artifactId>
-                <version>${sakai.presence.version}</version>
-                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
