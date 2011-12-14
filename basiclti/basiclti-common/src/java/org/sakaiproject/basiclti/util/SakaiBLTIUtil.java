@@ -136,9 +136,9 @@ public class SakaiBLTIUtil {
 				String key = BasicLTIUtil.mapKeyName(param.substring(0,pos));
 				if ( key == null ) continue;
 				String value = param.substring(pos+1);
+                if ( value == null ) continue;
 				value = value.trim();
 				if ( value.length() < 1 ) continue;
-				if ( value == null ) continue;
 				setProperty(info, "custom_"+key, value);
 			}
 		}

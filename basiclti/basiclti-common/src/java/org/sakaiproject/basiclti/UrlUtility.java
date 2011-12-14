@@ -18,7 +18,7 @@
  */
 package org.sakaiproject.basiclti;
 
-import org.sakaiproject.util.commonscodec.CommonsCodecBase64;
+import org.apache.commons.codec.binary.Base64;
 
 /**
  * Utility class implementing the Base64 modified Base64 for URL variant. See:
@@ -62,7 +62,7 @@ public class UrlUtility {
 	 * @return Encoded String, not guaranteed to be URL-safe
 	 */
 	public static String rawEncodeUrl(String url) {
-		return new String(CommonsCodecBase64.encodeBase64(url.getBytes()));
+		return new String(Base64.encodeBase64(url.getBytes()));
 	}
 
 	/**
@@ -74,8 +74,7 @@ public class UrlUtility {
 	 * @return Decoded String URL
 	 */
 	public static String rawDecodeUrl(String encodedUrl) {
-		return new String(CommonsCodecBase64
-				.decodeBase64(encodedUrl.getBytes()));
+		return new String(Base64.decodeBase64(encodedUrl.getBytes()));
 	}
 
 	/**
@@ -110,7 +109,7 @@ public class UrlUtility {
 	}
 
 	public static void main(String[] args) {
-		String sample = "12345:/sites/foo/bar !@#$%^&*()_+|}{\":?><[]\';/.,'а╙ё╒╟╓╕╔╩╪п╜гтр╧©Ж╛═╗╚о▄╤д╘ЗфШби╬жЁ╡╣Вц█е╫";
+		String sample = "12345:/sites/foo/bar !@#$%^&*()_+|}{\":?><[]\';/.,'О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫п╜О©╫О©╫р╧О©╫О©╫О©╫О©╫О©╫О©╫о▄О©╫д╘О©╫О©╫О©╫О©╫и╬жЁО©╫О©╫О©╫ц█е╫";
 		String encoded = encodeUrl(sample);
 		String decoded = decodeUrl(encoded);
 		boolean same = sample.equals(decoded);
