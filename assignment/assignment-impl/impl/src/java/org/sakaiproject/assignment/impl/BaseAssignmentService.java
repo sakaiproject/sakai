@@ -46,6 +46,7 @@ import java.util.zip.ZipOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -70,7 +71,6 @@ import org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
-import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -149,7 +149,6 @@ import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Xml;
-import org.sakaiproject.util.commonscodec.CommonsCodecBase64;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -12568,13 +12567,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		String body = StringUtils.trimToNull(attributes.getValue(tag));
 		if (body != null)
 		{
-			try
-			{
-				byte[] decoded = CommonsCodecBase64.decodeBase64(body.getBytes("UTF-8"));
-				body = new String(decoded, charset);
-			}
-			catch (Exception e)
-			{
+			try {
+	            byte[] decoded = Base64.decodeBase64(body); // UTF-8 by default
+	            body = org.apache.commons.codec.binary.StringUtils.newString(decoded, charset);
+			} catch (IllegalStateException e) {
 				M_log.warn(" XmlDecodeAttribute: " + e.getMessage() + " tag=" + tag);
 			}
 		}

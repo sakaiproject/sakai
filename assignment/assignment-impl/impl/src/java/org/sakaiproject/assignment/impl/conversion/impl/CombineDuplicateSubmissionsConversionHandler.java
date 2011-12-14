@@ -33,17 +33,14 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.util.conversion.SchemaConversionHandler;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
 
 import org.apache.commons.codec.binary.Base64;
 
-
-import org.sakaiproject.util.StringUtil;
-import org.sakaiproject.util.commonscodec.CommonsCodecBase64;
 
 public class CombineDuplicateSubmissionsConversionHandler implements SchemaConversionHandler 
 {
@@ -168,8 +165,8 @@ public class CombineDuplicateSubmissionsConversionHandler implements SchemaConve
 			Integer t2 = getIntegerObject(item2.getDatesubmitted());
 			if (t1 != null && t2 != null)
 			{
-				String grade1= StringUtil.trimToNull(item1.getGrade());
-				String grade2 = StringUtil.trimToNull(item2.getGrade());
+				String grade1= StringUtils.trimToNull(item1.getGrade());
+				String grade2 = StringUtils.trimToNull(item2.getGrade());
 				if (item1.getGradereleased().equalsIgnoreCase(Boolean.TRUE.toString()) && item2.getGradereleased().equalsIgnoreCase(Boolean.TRUE.toString()))
 				{
 					// if both grades has been released
@@ -239,13 +236,13 @@ public class CombineDuplicateSubmissionsConversionHandler implements SchemaConve
 		else
 		{
 			// if there is no student submission, just duplicate instructor record
-			if (StringUtil.trimToNull(item1.getFeedbacktext()) != null || StringUtil.trimToNull(item1.getFeedbackcomment()) != null || StringUtil.trimToNull(item1.getGrade()) != null)
+			if (StringUtils.trimToNull(item1.getFeedbacktext()) != null || StringUtils.trimToNull(item1.getFeedbackcomment()) != null || StringUtils.trimToNull(item1.getGrade()) != null)
 			{
 				// item 1 has some grading data
 				keepItem = item1;
 				removeItem = item2;
 			}
-			else if (StringUtil.trimToNull(item2.getFeedbacktext()) != null || StringUtil.trimToNull(item2.getFeedbackcomment()) != null || StringUtil.trimToNull(item2.getGrade()) != null)
+			else if (StringUtils.trimToNull(item2.getFeedbacktext()) != null || StringUtils.trimToNull(item2.getFeedbackcomment()) != null || StringUtils.trimToNull(item2.getGrade()) != null)
 			{
 				// item 2 has some grading data
 				keepItem = item2;
@@ -329,9 +326,9 @@ public class CombineDuplicateSubmissionsConversionHandler implements SchemaConve
 						previousAttachments = previousAttachments.concat(",").concat(nAttachment);
 					}
 				}
-				if (StringUtil.trimToNull(previousAttachments) != null)
+				if (StringUtils.trimToNull(previousAttachments) != null)
 				{
-					propertiesMap.put(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS, StringUtil.trimToNull(previousAttachments));
+					propertiesMap.put(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS, StringUtils.trimToNull(previousAttachments));
 				}
 			}
 			// reset the properties
@@ -481,8 +478,8 @@ public class CombineDuplicateSubmissionsConversionHandler implements SchemaConve
 	}
 
 	private String combine(String text, boolean textEncoded, String rText, boolean rTextEncoded, String date) {
-		text = StringUtil.trimToNull(text);
-		rText = StringUtil.trimToNull(rText);
+		text = StringUtils.trimToNull(text);
+		rText = StringUtils.trimToNull(rText);
 		if(rText != null && date != null)
 		{
 			String decodedRText = rText;
