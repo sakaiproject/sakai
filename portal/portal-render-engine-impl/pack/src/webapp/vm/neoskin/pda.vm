@@ -91,7 +91,7 @@ ${responseHead}
 			#end
 	    #end
 	  #else
-	   <li class="currentSiteTitle"><span>${currentSite.siteTitle}</span></li>
+	   <li class="currentSiteTitle"><span>#if(!$currentSite.isMyWorkspace)${currentSite.siteTitle}#else $rloader.getString('sit_mywor') #end</span></li>
 	  #end
 #end
 
@@ -99,7 +99,7 @@ ${responseHead}
   ##user is in a tool
   #if ( ${bufferedResponse} && ${responseBody} ) 
 	<li class="sitesLink backLink notSmallDev"><span><a href="${portalTopUrl}" title="$rloader.getString("pda_back_to_sites")">$rloader.getString("pda_sites")</a></span></li> 
-    <li class="currentSiteLink backLink"><span><a href="${currentSite.siteUrl}" title="${currentSite.siteTitle}">${currentSite.siteTitle}</a></span></li>
+    <li class="currentSiteLink backLink"><span><a href="${currentSite.siteUrl}" title="${currentSite.siteTitle}">#if(!$currentSite.isMyWorkspace)${currentSite.siteTitle}#else $rloader.getString('sit_mywor') #end</a></span></li>
 
     <li class="currentToolTitle"><span>${currentPlacement.toolTitle}</span></li>
 	#if ($showResetButton)
@@ -241,7 +241,7 @@ ${responseBody}
 		      #end
 	        <span> 
 		        <a href="${site.siteUrl}" title="${site.siteTitle}">
-		          ${site.siteTitle}
+		         #if(!$site.isMyWorkspace)${site.siteTitle}#else $rloader.getString('sit_mywor') #end	
 		        </a>
 	        </span>
 	      </li>
