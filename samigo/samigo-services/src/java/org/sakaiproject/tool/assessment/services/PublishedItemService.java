@@ -60,7 +60,4 @@ public class PublishedItemService extends ItemService {
         return item;
       }
     }
-
 }
-	
-	
