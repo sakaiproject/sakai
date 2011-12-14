@@ -135,8 +135,8 @@ public class HtmlSortHeaderRenderer extends HtmlLinkRendererBase {
 
 					writer.startElement(HTML.IMG_ELEM, image);
 					writer.writeURIAttribute("src", image.getValue(), null);
-					writer.writeURIAttribute("alt", image.getAlt(), null);
-					writer.writeURIAttribute("title", image.getTitle(), null);
+					writer.writeAttribute("alt", image.getAlt(), null);
+					writer.writeAttribute("title", image.getTitle(), null);
 					writer.endElement(HTML.IMG_ELEM);
 				}
 				super.encodeEnd(facesContext, component);
