@@ -33,10 +33,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
+
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 /**
  *
@@ -74,6 +77,17 @@ public class SpreadsheetDataFileWriterXls implements SpreadsheetDataFileWriter {
 		headerCs.setBorderBottom(HSSFCellStyle.BORDER_THIN);
 		headerCs.setFillBackgroundColor(HSSFColor.BLUE_GREY.index);
 
+		// Set the font
+		HSSFCellStyle cellStyle = null;
+		String fontName = ServerConfigurationService.getString("spreadsheet.font");
+		if (fontName != null) {
+			HSSFFont font = wb.createFont();
+			font.setFontName(fontName);
+			headerCs.setFont(font);
+			cellStyle = wb.createCellStyle();
+			cellStyle.setFont(font);
+		}
+
 		// By convention, the first list in the list contains column headers.
 		HSSFRow headerRow = sheet.createRow((short)0);
 		List<Object> headerList = dataIter.next();
@@ -96,6 +110,9 @@ public class SpreadsheetDataFileWriterXls implements SpreadsheetDataFileWriter {
 						cell.setCellValue(((Double)data).doubleValue());
 					} else {
 						cell.setCellValue(data.toString());
+					}
+					if (cellStyle != null) {
+						cell.setCellStyle(cellStyle);
 					}
 				}
 			}
