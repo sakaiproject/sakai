@@ -39,6 +39,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -193,9 +194,9 @@ public class SimpleRSSPortlet extends GenericPortlet{
 		boolean success = true;
 		//get prefs and submitted values
 		PortletPreferences prefs = request.getPreferences();
-		String portletTitle = request.getParameter("portletTitle");
-		String maxItems = request.getParameter("maxItems");
-		String feedUrl = request.getParameter("feedUrl");
+		String portletTitle = StringEscapeUtils.escapeHtml(StringUtils.trim(request.getParameter("portletTitle")));
+		String maxItems = StringUtils.trim(request.getParameter("maxItems"));
+		String feedUrl = StringUtils.trim(request.getParameter("feedUrl"));
 		
 		//portlet title could be blank, set to default
 		if(StringUtils.isBlank(portletTitle)){
