@@ -27,9 +27,9 @@
     </modules>
     
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/mailarchive/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/mailarchive/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/mailarchive/trunk</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/mailarchive/branches/mailarchive-2.9.x</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/mailarchive/branches/mailarchive-2.9.x</developerConnection>
+        <url>https://source.sakaiproject.org/svn/mailarchive/branches/mailarchive-2.9.x</url>
     </scm>
       
     <distributionManagement>
