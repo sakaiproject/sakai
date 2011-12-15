@@ -231,7 +231,7 @@
 							<%--//designNote:  not sure what this controls - seems to affect all threads except the deleted, pending and denied--%>
 					<h:commandLink action="#{ForumTool.processActionDisplayThread}" immediate="true" title="#{message.message.title}"
 						rendered="#{message.depth == 0}">
-				   		<h:outputText escape="false" value="#{message.message.title}" rendered="#{message.read && message.childUnread == 0 }" />
+				   		<h:outputText value="#{message.message.title}" rendered="#{message.read && message.childUnread == 0 }" />
 							
     	        		<h:outputText styleClass="unreadMsg" value="#{message.message.title}" rendered="#{!message.read || message.childUnread > 0}"/>
 	       	    		<f:param value="#{message.message.id}" name="messageId"/>
