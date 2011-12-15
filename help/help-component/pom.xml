@@ -55,16 +55,16 @@
     <dependency>
       <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-core</artifactId>
-      <version>3.3.0</version>
+      <version>3.5.0</version>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
     </dependency>
-	<dependency>
-		<groupId>commons-codec</groupId>
-		<artifactId>commons-codec</artifactId>
-		<version>1.5</version>
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>1.5</version>
     </dependency>
   </dependencies>
   
