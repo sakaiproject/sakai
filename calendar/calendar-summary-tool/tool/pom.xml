@@ -57,12 +57,10 @@
         <dependency>
             <groupId>org.sakaiproject.jsf</groupId>
             <artifactId>jsf-tool</artifactId>
-            <version>${sakai.jsf111.version}</version>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.jsf</groupId>
             <artifactId>jsf-app</artifactId>
-            <version>${sakai.jsf111.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>javax.faces</groupId>
@@ -73,7 +71,6 @@
         <dependency>
             <groupId>org.sakaiproject.jsf</groupId>
             <artifactId>myfaces-widgets-depend</artifactId>
-            <version>${sakai.jsf111.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.myfaces.tomahawk</groupId>
