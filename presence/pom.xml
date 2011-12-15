@@ -24,9 +24,9 @@
     </modules>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/presence/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/presence/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/presence/trunk</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/presence/branches/presence-2.9.x</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/presence/branches/presence-2.9.x</developerConnection>
+        <url>https://source.sakaiproject.org/svn/presence/branches/presence-2.9.x</url>
     </scm>
 
     <distributionManagement>
