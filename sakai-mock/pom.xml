@@ -3,8 +3,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.sakaiproject.purepoms</groupId>
-        <artifactId>sakai-standard-tool</artifactId>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>master</artifactId>
         <version>2.9-SNAPSHOT</version>
     </parent>
 
@@ -13,69 +13,6 @@
     <artifactId>sakai-mock</artifactId>
     <version>2.9-SNAPSHOT</version>
     <packaging>jar</packaging>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>maven2-central-repo</id>
-            <name>Maven2 Central Repo</name>
-            <url>http://repo1.maven.org/maven2/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-        <pluginRepository>
-            <id>Sakai Plugin Repo</id>
-            <url>http://source.sakaiproject.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
-
-    <repositories>
-        <repository>
-            <id>sakai-maven2</id>
-            <name>Sakai Maven Repository</name>
-            <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>sakai-maven2-snapshots</id>
-            <name>Sakai Maven Repo Snapshots</name>
-            <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2-snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>default</id>
-            <name>Maven Repository Switchboard</name>
-            <layout>default</layout>
-            <url>http://repo1.maven.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 
     <scm>
         <connection>scm:svn:https://source.sakaiproject.org/svn/sakai-mock/trunk</connection>
@@ -108,35 +45,4 @@
         <testSourceDirectory>src/test/java</testSourceDirectory>
     </build>
 
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <reportSets>
-                    <reportSet>
-                        <id>aggregate</id>
-                        <configuration>
-                            <aggregate>true</aggregate>
-                            <source>1.5</source>
-                            <encoding>UTF-8</encoding>
-                            <links>
-                                <link>http://java.sun.com/j2se/1.5.0/docs/api</link>
-                                <link>http://java.sun.com/products/servlet/2.3/javadoc/</link>
-                            </links>
-                            <breakiterator>true</breakiterator>
-                            <verbose>false</verbose>
-                            <maxmemory>512m</maxmemory>
-                            <additionalJOption>
-                                -J-Xms168m -J-Xmx512m -J-XX:PermSize=128m -J-XX:NewSize=64m
-                            </additionalJOption>
-                        </configuration>
-                        <reports>
-                            <report>aggregate</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-        </plugins>
-    </reporting>
 </project>
