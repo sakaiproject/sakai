@@ -5,13 +5,13 @@
     <parent>
         <groupId>org.sakaiproject.pack</groupId>
         <artifactId>pack</artifactId>
-        <version>2.9-SNAPSHOT</version>
+        <version>2.10-SNAPSHOT</version>
     </parent>
 
     <name>Sakai Pack Binary</name>
     <groupId>org.sakaiproject.pack</groupId>
     <artifactId>pack-bin</artifactId>
-    <version>2.9-SNAPSHOT</version>
+    <version>2.10-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <organization>
@@ -29,9 +29,9 @@
     </prerequisites>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/pack/branches/sakai-2.9.x</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/pack/branches/sakai-2.9.x</developerConnection>
-        <url>https://source.sakaiproject.org/svn/pack/branches/sakai-2.9.x</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/pack/branches/pack-2.8.xpack-bin</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/pack/branches/pack-2.8.xpack-bin</developerConnection>
+        <url>https://source.sakaiproject.org/svn/pack/branches/pack-2.8.xpack-bin</url>
     </scm>
 
     <build>
