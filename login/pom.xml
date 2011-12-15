@@ -10,14 +10,14 @@
 	<name>Sakai Login Project</name>
 	<groupId>org.sakaiproject.login</groupId>
 	<artifactId>login</artifactId>
-  <version>2.9-SNAPSHOT</version>
+  <version>2.10-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<scm>
-		<connection>scm:svn:https://source.sakaiproject.org/svn/login/branches/sakai-2.9.x
+		<connection>scm:svn:https://source.sakaiproject.org/svn/login/trunk
 		</connection>
-		<developerConnection>scm:svn:https://source.sakaiproject.org/svn/login/branches/sakai-2.9.x
+		<developerConnection>scm:svn:https://source.sakaiproject.org/svn/login/trunk
 		</developerConnection>
-		<url>https://source.sakaiproject.org/svn/login/branches/sakai-2.9.x</url>
+		<url>https://source.sakaiproject.org/svn/login/trunk</url>
 	</scm>
 	<modules>
 		<module>login-api/api</module>
