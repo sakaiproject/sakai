@@ -15,9 +15,9 @@
     <packaging>pom</packaging>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/edu-services/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/edu-services/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/edu-services/trunk</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/edu-services/branches/edu-services-1.2.x</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/edu-services/branches/edu-services-1.2.x</developerConnection>
+        <url>https://source.sakaiproject.org/svn/edu-services/branches/edu-services-1.2.x</url>
     </scm>
 
     <modules>
