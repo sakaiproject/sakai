@@ -2,8 +2,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.sakaiproject.purepoms</groupId>
-        <artifactId>sakai-standard-tool</artifactId>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>master</artifactId>
         <version>2.9-SNAPSHOT</version>
     </parent>
     <name>Sakai Search Project</name>
@@ -11,11 +11,6 @@
     <artifactId>search</artifactId>
     <version>1.4-SNAPSHOT</version>
     <packaging>pom</packaging>
-    
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <sakai.entitybroker.version>1.5-SNAPSHOT</sakai.entitybroker.version>  
-    </properties>
     
     <scm>
         <connection>scm:svn:https://source.sakaiproject.org/svn/search/trunk</connection>
@@ -61,46 +56,29 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.sakaiproject.search</groupId>
-                <artifactId>search-api</artifactId>
-                <version>${project.version}</version>
-                <type>jar</type>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.search</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>search-model</artifactId>
                 <version>${project.version}</version>
                 <type>jar</type>
             </dependency>
             <dependency>
-                <groupId>org.sakaiproject.search</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>search-impl</artifactId>
                 <version>${project.version}</version>
                 <type>jar</type>
             </dependency>
             <dependency>
-                <groupId>org.sakaiproject.search</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>search-util</artifactId>
                 <version>${project.version}</version>
                 <type>jar</type>
             </dependency>
             <dependency>
-                <groupId>org.sakaiproject.search</groupId>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>search-adapters-impl</artifactId>
                 <version>${project.version}</version>
                 <type>jar</type>
             </dependency>
-            <!--
-                remove BELOW HERE after search is updated to point to
-                newer version of sakai master poms
-            -->
-            <dependency>
-                <groupId>org.sakaiproject.entitybroker</groupId>
-                <artifactId>entitybroker-utils</artifactId>
-                <version>${sakai.entitybroker.version}</version>
-            </dependency>
-            <!-- remove ABOVE HERE -->
         </dependencies>
     </dependencyManagement>
     
@@ -112,58 +90,6 @@
         </site>
     </distributionManagement>
     
-    <pluginRepositories>
-        <pluginRepository>
-            <id>Sakai Plugin Repo</id>
-            <url>http://source.sakaiproject.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
-    
-    <repositories>
-        <repository>
-            <id>sakai-maven2</id>
-            <name>Sakai Maven Repository</name>
-            <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>sakai-maven2-snapshots</id>
-            <name>Sakai Maven Repo Snapshots</name>
-            <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2-snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>default</id>
-            <name>Maven Repository Switchboard</name>
-            <layout>default</layout>
-            <url>http://repo1.maven.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
     <developers>
         <developer>
             <id>david.horwitz@uct.ac.za</id>
@@ -394,14 +320,5 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-        
-        <extensions>
-            <!-- Enabling the use of external ssh -->
-            <extension>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-ssh-external</artifactId>
-                <version>2.0</version>
-            </extension>
-        </extensions>
     </build>
 </project>
