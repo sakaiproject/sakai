@@ -19,7 +19,7 @@
   <properties>
     <deploy.target>shared</deploy.target>
   </properties>
-  <dependencies/>
+  <dependencies />
   <build>
     <resources>
       <resource>
