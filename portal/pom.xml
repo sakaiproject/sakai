@@ -3,8 +3,8 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>org.sakaiproject.purepoms</groupId>
-        <artifactId>sakai-standard-tool</artifactId>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>master</artifactId>
         <version>2.9-SNAPSHOT</version>
     </parent>
 
@@ -37,12 +37,6 @@
         <module>portal-util/util</module>
     </modules>
 
-    <properties>
-        <sakai.pluto.version>1.1.7</sakai.pluto.version>
-        <sakai.presence.version>2.9-SNAPSHOT</sakai.presence.version>
-    	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
     <scm>
         <connection>scm:svn:https://source.sakaiproject.org/svn/portal/trunk</connection>
         <developerConnection>scm:svn:https://source.sakaiproject.org/svn/portal/trunk</developerConnection>
@@ -57,87 +51,12 @@
         </site>
     </distributionManagement>
 
-    <pluginRepositories>
-        <pluginRepository>
-            <id>maven2-central-repo</id>
-            <name>Maven2 Central Repo</name>
-            <url>http://repo1.maven.org/maven2/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-        <pluginRepository>
-            <id>Sakai Plugin Repo</id>
-            <url>http://source.sakaiproject.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
-
-    <repositories>
-        <repository>
-            <id>sakai-maven</id>
-            <name>Sakai Maven Repo</name>
-            <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>sakai-maven2-snapshots</id>
-            <name>Sakai Maven Repo</name>
-            <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2-snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>default</id>
-            <name>Maven Repository Switchboard</name>
-            <layout>default</layout>
-            <url>http://repo1.maven.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>sakai-portal-api</artifactId>
-                <version>${project.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>sakai-portal-impl</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>sakai-portal-render-api</artifactId>
-                <version>${project.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
@@ -160,39 +79,9 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.sakaiproject.presence</groupId>
-                <artifactId>sakai-presence-api</artifactId>
-                <version>${sakai.presence.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>castor</groupId>
-                <artifactId>castor</artifactId>
-                <version>1.0</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>javax.portlet</groupId>
-                <artifactId>portlet-api</artifactId>
-                <version>1.0</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
                 <groupId>jtidy</groupId>
                 <artifactId>jtidy</artifactId>
                 <version>r938</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.pluto</groupId>
-                <artifactId>pluto-container</artifactId>
-                <version>${sakai.pluto.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.pluto</groupId>
-                <artifactId>pluto-descriptor-api</artifactId>
-                <version>${sakai.pluto.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.velocity</groupId>
