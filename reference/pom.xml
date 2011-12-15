@@ -10,12 +10,12 @@
   <name>Sakai Library Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>reference-base</artifactId>
-  <version>2.9-SNAPSHOT</version>
+  <version>2.10-SNAPSHOT</version>
   <packaging>pom</packaging>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/reference/branches/sakai-2.9.x</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/reference/branches/sakai-2.9.x</developerConnection>
-    <url>https://source.sakaiproject.org/svn/reference/branches/sakai-2.9.x</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/reference/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/reference/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/reference/trunk</url>
   </scm>
   <modules>
     <module>library</module>
