@@ -10,12 +10,12 @@
   <name>Sakai Chat Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>chat-base</artifactId>
-  <version>2.9-SNAPSHOT</version>
+  <version>2.10-SNAPSHOT</version>
   <packaging>pom</packaging>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/chat/branches/sakai-2.9.x</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/chat/branches/sakai-2.9.x</developerConnection>
-    <url>https://source.sakaiproject.org/svn/chat/branches/sakai-2.9.x</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/chat/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/chat/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/chat/trunk</url>
   </scm>
   <modules>
     <module>chat-api/api</module>
@@ -34,7 +34,7 @@
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-chat-impl</artifactId>
-        <version>2.9-SNAPSHOT</version>
+        <version>2.10-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.presence</groupId>
