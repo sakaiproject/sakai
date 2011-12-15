@@ -31,7 +31,7 @@
     </dependency>
   </dependencies>
   <build>
-    <resources/>
+    <resources />
     <testResources>
       <testResource>
         <directory>${basedir}/src/testBundle</directory>
