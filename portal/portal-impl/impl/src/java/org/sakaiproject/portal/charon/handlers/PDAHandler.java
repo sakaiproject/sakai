@@ -78,7 +78,7 @@ public class PDAHandler extends PageHandler
 	
 	private static final String TOOLCONFIG_SHOW_RESET_BUTTON = "reset.button";
 
-	private static final String DEFAULT_BYPASS_PATTERN = "\\.jpg$|\\.gif$|\\.js$|\\.png$|\\.jpeg$|\\.css$|\\.zip$|\\.pdf\\.mov$|\\.json$|\\.jsonp$\\.xml$|\\.ajax$|\\.xls$|\\.xlsx$|\\.doc$|\\.docx$|uvbview$";
+	private static final String DEFAULT_BYPASS_PATTERN = "\\.jpg$|\\.gif$|\\.js$|\\.png$|\\.jpeg$|\\.css$|\\.zip$|\\.pdf\\.mov$|\\.json$|\\.jsonp$\\.xml$|\\.ajax$|\\.xls$|\\.xlsx$|\\.doc$|\\.docx$|uvbview$|linktracker$";
 	
 	public PDAHandler()
 	{
