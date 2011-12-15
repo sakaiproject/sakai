@@ -14,9 +14,9 @@
     <packaging>pom</packaging>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/common/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/common/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/common/trunk</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/common/branches/common-1.2.x</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/common/branches/common-1.2.x</developerConnection>
+        <url>https://source.sakaiproject.org/svn/common/branches/common-1.2.x</url>
     </scm>
 
     <modules>
