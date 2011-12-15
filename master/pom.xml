@@ -593,7 +593,7 @@
             <dependency>
                 <groupId>org.sakaiproject.mailarchive</groupId>
                 <artifactId>sakai-mailarchive-api</artifactId>
-                <version>${sakai.version}</version>
+                <version>${sakai.mailarchive.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
