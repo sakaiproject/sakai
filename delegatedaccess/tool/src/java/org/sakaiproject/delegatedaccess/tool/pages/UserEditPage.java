@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation;
 import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation.Alignment;
 import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation.Unit;
@@ -47,7 +48,8 @@ public class UserEditPage  extends BaseTreePage{
 
 	private TreeTable tree;
 	private static final Logger log = Logger.getLogger(UserEditPage.class);
-
+	private String[] defaultRole = null;
+	
 	@Override
 	protected AbstractTree getTree() {
 		return  tree;
@@ -79,24 +81,24 @@ public class UserEditPage  extends BaseTreePage{
 		//tree:
 
 		//create a map of the realms and their roles for the Role column
-		List<AuthzGroup> siteTemplates = sakaiProxy.getDelegatedAccessRealmOptions();
-		final Map<String, List<String>> realmMap = new HashMap<String, List<String>>();
-		for(AuthzGroup group : siteTemplates){
-			List<String> roles = new ArrayList<String>();
-			for(Role role : group.getRoles()){
-				roles.add(role.getId());
-			}
-			realmMap.put(group.getId(), roles);
+		final Map<String, List<String>> realmMap = sakaiProxy.getDelegatedAccessRealmOptions();
+		boolean singleRoleOptions = false;
+		if(realmMap.size() == 1 && ((List<String>) realmMap.values().toArray()[0]).size() == 1){
+			//only one option for role, so don't bother showing it in the table
+			singleRoleOptions = true;
+			defaultRole = new String[]{(String) realmMap.keySet().toArray()[0], ((List<String>) realmMap.values().toArray()[0]).get(0)};
 		}
-		IColumn columns[] = new IColumn[] {
-				new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 100, Unit.PROPORTIONAL),	"", "userObject.node.title"),
-				new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 70, Unit.PX), new StringResourceModel("shoppingPeriodAdmin", null).getString(), "userObject.shoppingPeriodAdmin", DelegatedAccessConstants.TYPE_SHOPPING_PERIOD_ADMIN),
-				new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 55, Unit.PX), new StringResourceModel("siteAccess", null).getString(), "userObject.directAccess", DelegatedAccessConstants.TYPE_ACCESS),
-				new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.RIGHT, 360, Unit.PX), new StringResourceModel("userBecomes", null).getString(),
-						"userObject.realmModel", realmMap, DelegatedAccessConstants.TYPE_ACCESS),
-						new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 96, Unit.PX), new StringResourceModel("restrictedToolsHeader", null).getString(),
-								"userObject.restrictedTools", DelegatedAccessConstants.TYPE_ACCESS),
-		};
+		List<IColumn> columnsList = new ArrayList<IColumn>();
+		columnsList.add(new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 100, Unit.PROPORTIONAL),	"", "userObject.node.title"));
+		columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 70, Unit.PX), new StringResourceModel("shoppingPeriodAdmin", null).getString(), "userObject.shoppingPeriodAdmin", DelegatedAccessConstants.TYPE_SHOPPING_PERIOD_ADMIN));
+		columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 55, Unit.PX), new StringResourceModel("siteAccess", null).getString(), "userObject.directAccess", DelegatedAccessConstants.TYPE_ACCESS));
+		if(!singleRoleOptions){
+			columnsList.add(new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.RIGHT, 360, Unit.PX), new StringResourceModel("userBecomes", null).getString(),
+					"userObject.realmModel", realmMap, DelegatedAccessConstants.TYPE_ACCESS));
+		}
+		columnsList.add(new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 96, Unit.PX), new StringResourceModel("restrictedToolsHeader", null).getString(),
+				"userObject.restrictedTools", DelegatedAccessConstants.TYPE_ACCESS));
+		IColumn columns[] = columnsList.toArray(new IColumn[columnsList.size()]);
 
 		final TreeModel treeModel = projectLogic.createEntireTreeModelForUser(searchResult.getId(), true, false);
 		final List<ToolSerialized> blankRestrictedTools = projectLogic.getEntireToolsList();
@@ -139,6 +141,9 @@ public class UserEditPage  extends BaseTreePage{
 				return false;
 			};
 		};
+		if(singleRoleOptions){
+			tree.add(new AttributeAppender("class", new Model("noRoles"), " "));
+		}
 		form.add(tree);
 
 		//updateButton button:
@@ -147,7 +152,7 @@ public class UserEditPage  extends BaseTreePage{
 			protected void onSubmit(AjaxRequestTarget target, Form arg1) {
 				try{
 					//save node access and roll information:
-					updateNodeAccess(searchResult.getId());
+					updateNodeAccess(searchResult.getId(), defaultRole);
 
 					//display a "saved" message
 					formFeedback.setDefaultModel(new ResourceModel("success.save"));

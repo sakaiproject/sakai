@@ -131,7 +131,7 @@ public interface SakaiProxy {
 	 * 
 	 * @return
 	 */
-	public List<AuthzGroup> getShoppingRealmOptions();
+	public Map<String, List<String>> getShoppingRealmOptions();
 	
 	/**
 	 * Returns a list of realm/role options for the shopping period role
@@ -141,7 +141,7 @@ public interface SakaiProxy {
 	 * 
 	 * @return
 	 */
-	public List<AuthzGroup> getDelegatedAccessRealmOptions();
+	public Map<String, List<String>> getDelegatedAccessRealmOptions();
 
 	/**
 	 * call authzGroupService.refreshUser for current user

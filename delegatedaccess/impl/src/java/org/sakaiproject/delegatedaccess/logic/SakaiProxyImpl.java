@@ -227,38 +227,73 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
 	 * {@inheritDoc}
 	 */
-	public List<AuthzGroup> getSiteTemplates(){
-		return authzGroupService.getAuthzGroups("!site.", new PagingPosition(1, DelegatedAccessConstants.SEARCH_RESULTS_MAX));
+	public Map<String, List<String>> getSiteTemplates(){
+		Map<String, List<String>> returnList = new HashMap<String, List<String>>();
+		for(AuthzGroup group : authzGroupService.getAuthzGroups("!site.", new PagingPosition(1, DelegatedAccessConstants.SEARCH_RESULTS_MAX))){
+			returnList.put(group.getId(), getFilteredRoles(group, null));
+		}
+		return returnList;
 	}
 
-	public List<AuthzGroup> getShoppingRealmOptions(){
+	public Map<String, List<String>> getShoppingRealmOptions(){
 		String[] authzGroups = serverConfigurationService.getStrings("delegatedaccess.realmoptions.shopping");
 		if(authzGroups != null && authzGroups.length != 0){
-			return getGroupsById(authzGroups);
+			String[] filterRoles = serverConfigurationService.getStrings("delegatedaccess.roleoptions.shopping");
+			return getGroupsById(authzGroups, filterRoles);
 		}else{
 			return getSiteTemplates();
 		}
 	}
 	
-	public List<AuthzGroup> getDelegatedAccessRealmOptions(){
+	public Map<String, List<String>> getDelegatedAccessRealmOptions(){
 		String[] authzGroups = serverConfigurationService.getStrings("delegatedaccess.realmoptions.delegatedaccess");
 		if(authzGroups != null && authzGroups.length != 0){
-			return getGroupsById(authzGroups);
+			String[] filterRoles = serverConfigurationService.getStrings("delegatedaccess.roleoptions.delegatedaccess");
+			return getGroupsById(authzGroups, filterRoles);
 		}else{
 			return getSiteTemplates();
 		}
 	}
 	
-	private List<AuthzGroup> getGroupsById(String[] groups){
-		List<AuthzGroup> returnList = new ArrayList<AuthzGroup>();
+	private Map<String, List<String>> getGroupsById(String[] groups, String[] filterRoles){
+		Map<String, List<String>> returnList = new HashMap<String, List<String>>();
 		for(int i = 0; i < groups.length; i++){
 			try {
-				returnList.add(authzGroupService.getAuthzGroup(groups[i]));
+				AuthzGroup group = authzGroupService.getAuthzGroup(groups[i]);
+				if(group != null){
+					returnList.put(group.getId(), getFilteredRoles(group, filterRoles));
+				}
 			} catch (GroupNotDefinedException e) {
 				log.error(e);
 			}
 		}
 		return returnList;
+	}
+	/**
+	 * this will remove any role that isn't in the list of roles passed in.
+	 * If roles is null or empty, it will not filter any roles
+	 * 
+	 * @param groups
+	 * @param roles
+	 * @return
+	 */
+	private List<String> getFilteredRoles(AuthzGroup group, String[] filterRoles){
+		List<String> returnRoles = new ArrayList<String>();
+		if(group != null){
+			for(Role role : group.getRoles()){
+				if(filterRoles != null){
+					for(int i = 0; i < filterRoles.length; i++){
+						if(role.getId().equals(filterRoles[i])){
+							returnRoles.add(role.getId());
+							break;
+						}
+					}
+				}else{
+					returnRoles.add(role.getId());
+				}
+			}
+		}
+		return returnRoles;
 	}
 	
 	/**

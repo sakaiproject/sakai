@@ -29,31 +29,39 @@ public abstract class BaseTreePage extends BasePage
 	/**
 	 * This saves the state of the tree.  It goes through the entire structure and saves the access and role information
 	 * for each node.  It will remove and add all information.
+	 * 
 	 * @param userId
+	 * @param defaultRole  pass this in if there is a default Role, if null, it will be ignored
 	 */
-	protected void updateNodeAccess(String userId){
+	protected void updateNodeAccess(String userId, String[] defaultRole){
 		if(getTree() != null){
 			DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) getTree().getModelObject().getRoot();
 			if(rootNode != null){
-				updateNodeAccessHelper(rootNode, userId);
+				updateNodeAccessHelper(rootNode, userId, defaultRole);
 			}
 		}
 	}
 	/**
-	 * This is a helper function for updateNodeAccess.
+	 * This is a helper function for updateNodeAccess
+	 * 
 	 * @param node
 	 * @param userId
+	 * @param defaultRole
 	 */
-	private void updateNodeAccessHelper(DefaultMutableTreeNode node, String userId){
+	private void updateNodeAccessHelper(DefaultMutableTreeNode node, String userId, String[] defaultRole){
 		if(node.getUserObject() != null){
 			NodeModel nodeModel = (NodeModel) node.getUserObject();
+			if(defaultRole != null && defaultRole.length == 2){
+				nodeModel.setRealm(defaultRole[0]);
+				nodeModel.setRole(defaultRole[1]);
+			}
 			if(nodeModel.isModified()){
 				projectLogic.updateNodePermissionsForUser(nodeModel, userId);
 			}
 
 			//check the rest of the children:
 			for(int i = 0; i < node.getChildCount(); i++){
-				updateNodeAccessHelper((DefaultMutableTreeNode)node.getChildAt(i), userId);
+				updateNodeAccessHelper((DefaultMutableTreeNode)node.getChildAt(i), userId, defaultRole);
 			}
 		}
 	}

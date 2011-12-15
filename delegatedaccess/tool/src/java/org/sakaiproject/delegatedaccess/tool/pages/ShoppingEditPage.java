@@ -1,7 +1,6 @@
 package org.sakaiproject.delegatedaccess.tool.pages;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation;
 import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation.Alignment;
 import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation.Unit;
@@ -25,8 +25,6 @@ import org.apache.wicket.markup.html.tree.AbstractTree;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnAuthDropdown;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnCheckbox;
@@ -43,6 +41,7 @@ import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnList;
 public class ShoppingEditPage extends BaseTreePage{
 	private TreeTable tree;
 	private static final Logger log = Logger.getLogger(ShoppingEditPage.class);
+	private String[] defaultRole = null;
 
 	@Override
 	protected AbstractTree getTree() {
@@ -74,33 +73,28 @@ public class ShoppingEditPage extends BaseTreePage{
 		//tree:
 
 		//create a map of the realms and their roles for the Role column
-		List<AuthzGroup> siteTemplates = sakaiProxy.getShoppingRealmOptions();
-		final Map<String, List<String>> realmMap = new HashMap<String, List<String>>();
-		for(AuthzGroup group : siteTemplates){
-			List<String> roles = new ArrayList<String>();
-			for(Role role : group.getRoles()){
-				roles.add(role.getId());
-			}
-			realmMap.put(group.getId(), roles);
+		final Map<String, List<String>> realmMap = sakaiProxy.getShoppingRealmOptions();
+		boolean singleRoleOptions = false;
+		if(realmMap.size() == 1 && ((List<String>) realmMap.values().toArray()[0]).size() == 1){
+			//only one option for role, so don't bother showing it in the table
+			singleRoleOptions = true;
+			defaultRole = new String[]{(String) realmMap.keySet().toArray()[0], ((List<String>) realmMap.values().toArray()[0]).get(0)};
 		}
-
 		final TreeModel treeModel = projectLogic.createTreeModelForShoppingPeriod(sakaiProxy.getCurrentUserId());
 
-
-		IColumn columns[] = new IColumn[] {
-				new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.LEFT, 35, Unit.PX), "",	"userObject.directAccess", DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER),
-				new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 100, Unit.PROPORTIONAL),	"", "userObject.node.title"),
-				new PropertyEditableColumnAuthDropdown(new ColumnLocation(Alignment.RIGHT, 115, Unit.PX), new StringResourceModel("shoppingPeriodAuth", null).getString(), "userObject.shoppingPeriodAuthOption"),
-				new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.RIGHT, 360, Unit.PX), new StringResourceModel("shoppersBecome", null).getString(),
-						"userObject.realmModel", realmMap, DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER),
-						new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 100, Unit.PX), new StringResourceModel("startDate", null).getString(), "userObject.shoppingPeriodStartDate", true),
-						new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 100, Unit.PX), new StringResourceModel("endDate", null).getString(), "userObject.shoppingPeriodEndDate", false),
-						new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 96, Unit.PX), new StringResourceModel("showToolsHeader", null).getString(),
-								"userObject.restrictedTools", DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER),
-
-		};
-
-
+		List<IColumn> columnsList = new ArrayList<IColumn>();
+		columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.LEFT, 35, Unit.PX), "",	"userObject.directAccess", DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER));
+		columnsList.add(new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 100, Unit.PROPORTIONAL),	"", "userObject.node.title"));
+		columnsList.add(new PropertyEditableColumnAuthDropdown(new ColumnLocation(Alignment.RIGHT, 115, Unit.PX), new StringResourceModel("shoppingPeriodAuth", null).getString(), "userObject.shoppingPeriodAuthOption"));
+		if(!singleRoleOptions){
+			columnsList.add(new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.RIGHT, 360, Unit.PX), new StringResourceModel("shoppersBecome", null).getString(),
+					"userObject.realmModel", realmMap, DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER));
+		}
+		columnsList.add(new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 100, Unit.PX), new StringResourceModel("startDate", null).getString(), "userObject.shoppingPeriodStartDate", true));
+		columnsList.add(new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 100, Unit.PX), new StringResourceModel("endDate", null).getString(), "userObject.shoppingPeriodEndDate", false));
+		columnsList.add(new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 96, Unit.PX), new StringResourceModel("showToolsHeader", null).getString(),
+				"userObject.restrictedTools", DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER));
+		IColumn columns[] = columnsList.toArray(new IColumn[columnsList.size()]);
 
 		//a null model means the tree is empty
 		tree = new TreeTable("treeTable", treeModel, columns){
@@ -120,6 +114,9 @@ public class ShoppingEditPage extends BaseTreePage{
 				return false;
 			};
 		};
+		if(singleRoleOptions){
+			tree.add(new AttributeAppender("class", new Model("noRoles"), " "));
+		}
 		form.add(tree);
 
 		//updateButton button:
@@ -128,7 +125,7 @@ public class ShoppingEditPage extends BaseTreePage{
 			protected void onSubmit(AjaxRequestTarget target, Form arg1) {
 				try{
 					//save node access and roll information:
-					updateNodeAccess(DelegatedAccessConstants.SHOPPING_PERIOD_USER);
+					updateNodeAccess(DelegatedAccessConstants.SHOPPING_PERIOD_USER, defaultRole);
 
 
 					//display a "saved" message
