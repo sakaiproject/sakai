@@ -10,12 +10,12 @@
   <name>Sakai User Project</name>
   <groupId>org.sakaiproject.user</groupId>
   <artifactId>user</artifactId>
-  <version>2.9-SNAPSHOT</version>
+  <version>2.10-SNAPSHOT</version>
   <packaging>pom</packaging>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/user/branches/sakai-2.9.x</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/user/branches/sakai-2.9.x</developerConnection>
-    <url>https://source.sakaiproject.org/svn/user/branches/sakai-2.9.x</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/user/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/user/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/user/trunk</url>
   </scm>
   <profiles>
     <profile>
