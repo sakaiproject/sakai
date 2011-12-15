@@ -10,12 +10,12 @@
   <name>Sakai Alias Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>alias-base</artifactId>
-  <version>2.9-SNAPSHOT</version>
+  <version>2.10-SNAPSHOT</version>
   <packaging>pom</packaging>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/alias/branches/sakai-2.9.x</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/alias/branches/sakai-2.9.x</developerConnection>
-    <url>https://source.sakaiproject.org/svn/alias/branches/sakai-2.9.x</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/alias/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/alias/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/alias/trunk</url>
   </scm>
   <modules>
     <module>alias-tool/tool</module>
