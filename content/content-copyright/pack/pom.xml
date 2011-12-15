@@ -23,7 +23,7 @@
     <dependency>
       <groupId>org.sakaiproject.content</groupId>
       <artifactId>content-copyright-impl</artifactId>
-      <version>${sakai.version}</version>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
   <build>

@@ -76,7 +76,7 @@
     <dependency>
       <groupId>org.sakaiproject.content</groupId>
       <artifactId>content-copyright-api</artifactId>
-      <version>${sakai.version}</version>
+      <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
