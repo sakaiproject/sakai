@@ -239,9 +239,9 @@
     
     <!-- define source code repository location -->
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/entitybroker/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/entitybroker/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/viewsvn/entitybroker/</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/entitybroker/branches/entitybroker-1.5.x</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/entitybroker/branches/entitybroker-1.5.x</developerConnection>
+        <url>https://source.sakaiproject.org/viewsvn/entitybroker/branches/entitybroker-1.5.x</url>
     </scm>
     
     <dependencyManagement>
