@@ -11,7 +11,7 @@
     <name>sakai-message base pom</name>
     <groupId>org.sakaiproject.message</groupId>
     <artifactId>message</artifactId>
-    <version>2.9-SNAPSHOT</version>
+    <version>2.10-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -22,9 +22,9 @@
     </modules>
     
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/message/branches/message-2.9.x</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/message/branches/message-2.9.x</developerConnection>
-        <url>https://source.sakaiproject.org/svn/message/branches/message-2.9.x</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/message/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/message/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/svn/message/trunk</url>
     </scm>
     
     <distributionManagement>
