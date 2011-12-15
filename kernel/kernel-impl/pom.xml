@@ -17,9 +17,9 @@
   </organization>
   <inceptionYear>2003</inceptionYear>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.3.x/kernel-impl</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.3.x/kernel-impl</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/branches/kernel-1.3.x/kernel-impl</url>
   </scm>
   <packaging>jar</packaging>
   <properties>
@@ -37,7 +37,7 @@
           <systemPropertyVariables>
             <derby.stream.error.file>${project.build.directory}/derby.log</derby.stream.error.file>
             <derby.system.durability>test</derby.system.durability>
-            <known.issues></known.issues>
+            <known.issues />
           </systemPropertyVariables>
         </configuration>
       </plugin>

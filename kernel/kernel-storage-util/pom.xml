@@ -17,9 +17,9 @@
   </organization>
   <inceptionYear>2003</inceptionYear>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-storage-util</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-storage-util</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/trunk/kernel-storage-util</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.3.x/kernel-storage-util</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/branches/kernel-1.3.x/kernel-storage-util</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/branches/kernel-1.3.x/kernel-storage-util</url>
   </scm>
 
   <packaging>jar</packaging>
