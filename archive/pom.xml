@@ -27,12 +27,12 @@
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-archive-impl</artifactId>
-        <version>2.9-SNAPSHOT</version>
+        <version>2.10-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-archive-impl2</artifactId>
-        <version>2.9-SNAPSHOT</version>
+        <version>2.10-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.velocity</groupId>
@@ -42,22 +42,22 @@
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-import-impl</artifactId>
-        <version>2.9-SNAPSHOT</version>
+        <version>2.10-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-import-content</artifactId>
-        <version>2.9-SNAPSHOT</version>
+        <version>2.10-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-common-cartridge</artifactId>
-        <version>2.9-SNAPSHOT</version>
+        <version>2.10-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-archive-import</artifactId>
-        <version>2.9-SNAPSHOT</version>
+        <version>2.10-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
