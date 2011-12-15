@@ -9,12 +9,12 @@
   </parent>
   <groupId>org.sakaiproject</groupId>
   <artifactId>usermembership-base</artifactId>
-  <version>2.9-SNAPSHOT</version>
+  <version>2.10-SNAPSHOT</version>
   <name>Sakai User Membership  Project</name>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/usermembership/branches/sakai-2.9.x</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/usermembership/branches/sakai-2.9.x</developerConnection>
-    <url>https://source.sakaiproject.org/svn/usermembership/branches/sakai-2.9.x</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/usermembership/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/usermembership/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/usermembership/trunk</url>
   </scm>
   <packaging>pom</packaging>
   <modules>
@@ -29,7 +29,7 @@
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-usermembership-impl</artifactId>
-        <version>2.9-SNAPSHOT</version>
+        <version>2.10-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.jsf</groupId>
