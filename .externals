@@ -10,7 +10,6 @@ content https://source.sakaiproject.org/svn/content/trunk
 dav https://source.sakaiproject.org/svn/dav/trunk
 gradebook https://source.sakaiproject.org/svn/gradebook/trunk
 help https://source.sakaiproject.org/svn/help/trunk
-lessonbuilder https://source.sakaiproject.org/svn/lessonbuilder/trunk
 linktool https://source.sakaiproject.org/svn/linktool/trunk
 login https://source.sakaiproject.org/svn/login/trunk
 master https://source.sakaiproject.org/svn/master/trunk
