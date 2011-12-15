@@ -33,9 +33,9 @@
     </modules>
     
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/polls/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/polls/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/polls/trunk</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/polls/branches/polls-1.5.x</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/polls/branches/polls-1.5.x</developerConnection>
+        <url>https://source.sakaiproject.org/svn/polls/branches/polls-1.5.x</url>
     </scm>
 
     <distributionManagement>
