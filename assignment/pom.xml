@@ -3,9 +3,10 @@
     <modelVersion>4.0.0</modelVersion>
     
     <parent>
-        <groupId>org.sakaiproject.purepoms</groupId>
-        <artifactId>sakai-edu-tool</artifactId>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>master</artifactId>
         <version>2.9-SNAPSHOT</version>
+        <relativePath>../master</relativePath>
     </parent>
     
     <name>sakai-assignment base pom</name>
@@ -24,16 +25,6 @@
         <module>assignment-tool/tool</module>
     </modules>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <sakai.announcement.version>2.9-SNAPSHOT</sakai.announcement.version>
-        <sakai.calendar.version>2.9-SNAPSHOT</sakai.calendar.version>
-        <sakai.contentreview.version>2.9.2-SNAPSHOT</sakai.contentreview.version>
-        <sakai.message.version>2.9-SNAPSHOT</sakai.message.version>
-        <sakai.taggable.version>2.9-SNAPSHOT</sakai.taggable.version>
-        <sakai.velocity.version>2.9-SNAPSHOT</sakai.velocity.version>
-    </properties>
-
     <scm>
         <connection>scm:svn:https://source.sakaiproject.org/svn/assignment/trunk</connection>
         <developerConnection>scm:svn:https://source.sakaiproject.org/svn/assignment/trunk</developerConnection>
@@ -47,30 +38,6 @@
             <url>scpexe://source.sakaiproject.org/var/www/html/release/assignment/${project.version}</url>
         </site>
     </distributionManagement>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>maven2-central-repo</id>
-            <name>Maven2 Central Repo</name>
-            <url>http://repo1.maven.org/maven2/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-        <pluginRepository>
-            <id>Sakai Plugin Repo</id>
-            <url>http://source.sakaiproject.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
 
     <repositories>
         <repository>
@@ -97,18 +64,6 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-        <repository>
-            <id>default</id>
-            <name>Maven Repository Switchboard</name>
-            <layout>default</layout>
-            <url>http://repo1.maven.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
     </repositories>
 
     <dependencyManagement>
@@ -129,76 +84,7 @@
                 <artifactId>sakai-assignment-bundles</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.announcement</groupId>
-                <artifactId>sakai-announcement-api</artifactId>
-                <version>${sakai.announcement.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.calendar</groupId>
-                <artifactId>sakai-calendar-api</artifactId>
-                <version>${sakai.calendar.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.contentreview</groupId>
-                <artifactId>contentreview-model-api</artifactId>
-                <version>${sakai.contentreview.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.contentreview</groupId>
-                <artifactId>contentreview-service-api</artifactId>
-                <version>${sakai.contentreview.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.message</groupId>
-                <artifactId>sakai-message-api</artifactId>
-                <version>${sakai.message.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.taggable</groupId>
-                <artifactId>sakai-taggable-api</artifactId>
-                <version>${sakai.taggable.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.velocity</groupId>
-                <artifactId>sakai-velocity-tool-api</artifactId>
-                <version>${sakai.velocity.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.velocity</groupId>
-                <artifactId>sakai-velocity-tool</artifactId>
-                <version>${sakai.velocity.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
     
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.7</version>
-                <configuration>
-                    <debug>true</debug>
-                    <links>
-                        <link>http://download.oracle.com/javase/1.5.0/docs/api/</link>
-                        <link>http://download.oracle.com/javase/6/docs/api/</link>
-                    </links>
-                    <breakiterator>true</breakiterator>
-                    <verbose>false</verbose>
-                    <aggregate>true</aggregate>
-                    <minmemory>168m</minmemory>
-                    <maxmemory>1024m</maxmemory>
-                    <additionalJOption>-J-Xms168m -J-Xmx1024m -J-XX:PermSize=128m -J-XX:NewSize=64m</additionalJOption>
-                </configuration>
-            </plugin>
-        </plugins>
-    </reporting>
 </project>
