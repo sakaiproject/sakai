@@ -3,8 +3,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.sakaiproject.purepoms</groupId>
-        <artifactId>sakai-commons-tool</artifactId>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>master</artifactId>
         <version>2.9-SNAPSHOT</version>
     </parent>
 
@@ -13,15 +13,6 @@
     <artifactId>edu-services</artifactId>
     <version>1.2-SNAPSHOT</version>
     <packaging>pom</packaging>
-
-    <properties>
-        <sakai.spring.groupId>org.springframework</sakai.spring.groupId>
-        <sakai.spring.artifactId>spring</sakai.spring.artifactId>
-        <sakai.spring.version>2.5.6.SEC01</sakai.spring.version>
-        <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
-        <sakai.spring.test.version>2.5.6.SEC01</sakai.spring.test.version>
-	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
-    </properties>
 
     <scm>
         <connection>scm:svn:https://source.sakaiproject.org/svn/edu-services/trunk</connection>
@@ -43,76 +34,6 @@
             <url>scpexe://source.sakaiproject.org/var/www/html/release/edu-services/${project.version}</url>
         </site>
     </distributionManagement>
-
-    <pluginRepositories>
-	<pluginRepository>
-		<id>maven2-central-repo</id>
-		<name>Maven2 Central Repo</name>
-		<url>http://repo1.maven.org/maven2/</url>
-		<releases>
-			<enabled>true</enabled>
-		</releases>
-		<snapshots>
-			<enabled>false</enabled>
-		</snapshots>
-	</pluginRepository>
-	<pluginRepository>
-		<id>Sakai Plugin Repo</id>
-		<url>http://source.sakaiproject.org/maven2</url>
-		<releases>
-			<enabled>true</enabled>
-		</releases>
-		<snapshots>
-			<enabled>false</enabled>
-		</snapshots>
-	</pluginRepository>
-	<pluginRepository>
-		<id>codehaus plugin repository</id>
-		<url>https://nexus.codehaus.org/content/repositories/releases/</url>
-		<releases>
-			<enabled>true</enabled>
-		</releases>
-	</pluginRepository>
-</pluginRepositories>
-
-    <repositories>
-        <repository>
-            <id>sakai-maven2</id>
-            <name>Sakai Maven Repository</name>
-            <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>sakai-maven2-snapshots</id>
-            <name>Sakai Maven Repo Snapshots</name>
-            <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2-snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>default</id>
-            <name>Maven Repository Switchboard</name>
-            <layout>default</layout>
-            <url>http://repo1.maven.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 
     <dependencyManagement>
         <dependencies>
@@ -150,12 +71,6 @@
                 <groupId>org.sakaiproject.edu-services.course-management</groupId>
                 <artifactId>coursemanagement-api</artifactId>
                 <version>${project.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.common</groupId>
-                <artifactId>archive-api</artifactId>
-                <version>1.2-SNAPSHOT</version>
                 <scope>provided</scope>
             </dependency>
             <!-- Used only for test data. -->
