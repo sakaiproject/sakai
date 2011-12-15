@@ -39,7 +39,7 @@
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-rights-impl</artifactId>
-      <version>${sakai.version}</version>
+      <version>${project.version}</version>
     </dependency>
 <!-- FIXME: ieb I am not certain that thises are needed, should be checked -->
 <!--org.sakaiprojectsakai-util${sakai.version}-->
