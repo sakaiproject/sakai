@@ -29,9 +29,9 @@
     </properties>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/announcement/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/announcement/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/announcement/trunk</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/announcement/branches/announcement-2.9.x</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/announcement/branches/announcement-2.9.x</developerConnection>
+        <url>https://source.sakaiproject.org/svn/announcement/branches/announcement-2.9.x</url>
     </scm>
 
     <distributionManagement>
