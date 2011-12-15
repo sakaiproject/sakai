@@ -29,9 +29,9 @@
     </prerequisites>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/pack/branches/pack-2.8.xpack-demo</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/pack/branches/pack-2.8.xpack-demo</developerConnection>
-        <url>https://source.sakaiproject.org/svn/pack/branches/pack-2.8.xpack-demo</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/pack/branches/sakai-2.9.x</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/pack/branches/sakai-2.9.x</developerConnection>
+        <url>https://source.sakaiproject.org/svn/pack/branches/sakai-2.9.x</url>
     </scm>
 
     <dependencies>
