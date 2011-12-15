@@ -55,9 +55,9 @@
 	</developers>
     
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/reset-pass/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/reset-pass/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/reset-pass/trunk</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/reset-pass/branches/reset-pass-2.9.x</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/reset-pass/branches/reset-pass-2.9.x</developerConnection>
+        <url>https://source.sakaiproject.org/svn/reset-pass/branches/reset-pass-2.9.x</url>
     </scm>
     
 	<distributionManagement>
