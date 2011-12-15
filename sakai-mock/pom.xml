@@ -15,9 +15,9 @@
     <packaging>jar</packaging>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/sakai-mock/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/sakai-mock/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/sakai-mock/trunk</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/sakai-mock/branches/sakai-mock-2.9.x</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/sakai-mock/branches/sakai-mock-2.9.x</developerConnection>
+        <url>https://source.sakaiproject.org/svn/sakai-mock/branches/sakai-mock-2.9.x</url>
     </scm>
     
     <distributionManagement>
