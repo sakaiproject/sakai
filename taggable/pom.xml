@@ -23,9 +23,9 @@
     </modules>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/taggable/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/taggable/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/taggable/trunk</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/taggable/branches/taggable-2.9.x</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/taggable/branches/taggable-2.9.x</developerConnection>
+        <url>https://source.sakaiproject.org/svn/taggable/branches/taggable-2.9.x</url>
     </scm>
     
     <distributionManagement>
