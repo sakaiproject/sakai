@@ -29,7 +29,7 @@
       <dependency>
         <groupId>org.sakaiproject.message</groupId>
         <artifactId>sakai-message-impl</artifactId>
-        <version>2.10-SNAPSHOT</version>
+        <version>${sakai.message.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
