@@ -21,9 +21,9 @@
     </modules>
     
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/velocity/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/velocity/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/velocity/trunk</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/velocity/branches/velocity-2.9.x</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/velocity/branches/velocity-2.9.x</developerConnection>
+        <url>https://source.sakaiproject.org/svn/velocity/branches/velocity-2.9.x</url>
     </scm>
     
     <distributionManagement>
