@@ -25,9 +25,9 @@
     </properties>
     
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/calendar/trunk/calendar-api/api</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/calendar/trunk/calendar-api/api</developerConnection>
-        <url>https://source.sakaiproject.org/svn/calendar/trunk/calendar-api/api</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/calendar/branches/calendar-2.9.x/calendar-api/api</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/calendar/branches/calendar-2.9.x/calendar-api/api</developerConnection>
+        <url>https://source.sakaiproject.org/svn/calendar/branches/calendar-2.9.x/calendar-api/api</url>
     </scm>
 
     <dependencies>
