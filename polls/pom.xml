@@ -3,8 +3,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.sakaiproject.purepoms</groupId>
-        <artifactId>sakai-standard-tool</artifactId>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>master</artifactId>
         <version>2.9-SNAPSHOT</version>
     </parent>
 
@@ -32,12 +32,6 @@
         <module>tool</module>
     </modules>
     
-    <properties>
-        <sakai.entitybroker.version>1.5-SNAPSHOT</sakai.entitybroker.version>
-        <sakai.ets.version>0.6-SNAPSHOT</sakai.ets.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-
     <scm>
         <connection>scm:svn:https://source.sakaiproject.org/svn/polls/trunk</connection>
         <developerConnection>scm:svn:https://source.sakaiproject.org/svn/polls/trunk</developerConnection>
@@ -52,58 +46,6 @@
         </site>
     </distributionManagement>
     
-    <pluginRepositories>
-        <pluginRepository>
-            <id>Sakai Plugin Repo</id>
-            <url>http://source.sakaiproject.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
-
-    <repositories>
-        <repository>
-            <id>sakai-maven2</id>
-            <name>Sakai Maven Repository</name>
-            <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>sakai-maven2-snapshots</id>
-            <name>Sakai Maven Repo Snapshots</name>
-            <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2-snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>default</id>
-            <name>Maven Repository Switchboard</name>
-            <layout>default</layout>
-            <url>http://repo1.maven.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -117,35 +59,7 @@
                 <artifactId>polls-impl</artifactId>
                 <version>${project.version}</version>
             </dependency>
-       <dependency>
-        	<groupId>org.sakaiproject.emailtemplateservice</groupId>
-        	<artifactId>emailtemplateservice-api</artifactId>
-        	<version>${sakai.ets.version}</version>
-        	<scope>provided</scope>
-        </dependency>
-        	
-        
         </dependencies>
     </dependencyManagement>
     
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.6.1</version>
-                <configuration>
-                    <debug>true</debug>
-                    <links>
-                        <link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
-                    </links>
-                    <breakiterator>true</breakiterator>
-                    <verbose>false</verbose>
-                    <aggregate>true</aggregate>
-                    <maxmemory>512m</maxmemory>
-                    <additionalJOption>-J-Xms168m -J-Xmx512m -J-XX:PermSize=128m -J-XX:NewSize=64m</additionalJOption>
-                </configuration>
-            </plugin>
-        </plugins>
-    </reporting>
 </project>
