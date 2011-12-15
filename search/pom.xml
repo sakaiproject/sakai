@@ -13,9 +13,9 @@
     <packaging>pom</packaging>
     
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/search/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/search/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/search/trunk</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/search/branches/search-1.4.x</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/search/branches/search-1.4.x</developerConnection>
+        <url>https://source.sakaiproject.org/svn/search/branches/search-1.4.x</url>
     </scm>
     
     <profiles>
