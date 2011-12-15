@@ -10,12 +10,12 @@
   <name>Sakai Syllabus Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>syllabus-base</artifactId>
-  <version>2.9-SNAPSHOT</version>
+  <version>2.10-SNAPSHOT</version>
   <packaging>pom</packaging>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/syllabus/branches/sakai-2.9.x</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/syllabus/branches/sakai-2.9.x</developerConnection>
-    <url>https://source.sakaiproject.org/svn/syllabus/branches/sakai-2.9.x</url>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/syllabus/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/syllabus/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/syllabus/trunk</url>
   </scm>
   <modules>
     <module>components</module>
@@ -35,7 +35,7 @@
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-syllabus-hbm</artifactId>
-        <version>2.9-SNAPSHOT</version>
+        <version>2.10-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.jsf</groupId>
