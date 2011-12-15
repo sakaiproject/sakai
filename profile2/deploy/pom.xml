@@ -37,7 +37,7 @@
 		<dependency>
 			<groupId>org.sakaiproject.profile</groupId>
 			<artifactId>profile-assembly</artifactId>
-			<version>${legacy.profile.api.version}</version>
+			<version>${sakai.profile.version}</version>
 			<classifier>tomcat-overlay</classifier>
 			<type>zip</type>
 		</dependency>

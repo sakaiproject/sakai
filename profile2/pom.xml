@@ -10,8 +10,8 @@
 	<version>1.5-SNAPSHOT</version>
 	
 	<parent>
-		<groupId>org.sakaiproject.purepoms</groupId>
-		<artifactId>sakai-commons-tool</artifactId>
+		<groupId>org.sakaiproject</groupId>
+		<artifactId>master</artifactId>
 		<version>2.9-SNAPSHOT</version>
 	</parent>
 	
@@ -185,45 +185,6 @@
         </license>
     </licenses>
 	
-	<repositories>
-		<repository>
-			<id>sakai-maven</id>
-			<name>Sakai Maven Repo</name>
-			<layout>default</layout>
-			<url>http://source.sakaiproject.org/maven2</url>
-			<releases>
-                <enabled>true</enabled>
-            </releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-      		<id>sakai-maven2-snapshots</id>
-      		<name>Sakai Maven Repo</name>
-      		<layout>default</layout>
-      		<url>http://source.sakaiproject.org/maven2-snapshots</url>
-      		<releases>
-                <enabled>false</enabled>
-            </releases>
-      		<snapshots>
-        		<enabled>true</enabled>
-      		</snapshots>
-    	</repository>
-    	<repository>
-            <id>default</id>
-            <name>Maven Repository Switchboard</name>
-            <layout>default</layout>
-            <url>http://repo1.maven.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-	</repositories>
-	
 	<distributionManagement>
         <site>
             <id>sakai-site</id>
@@ -239,15 +200,9 @@
     	<twitter4j.version>2.1.2</twitter4j.version>
     	<wicketstuff.tinymce.version>1.4.13</wicketstuff.tinymce.version>
     	<wicketstuff.objectautocomplete.version>1.4.13</wicketstuff.objectautocomplete.version>
-        <sakai.common.version>1.2-SNAPSHOT</sakai.common.version>
-    	<sakai.ets.version>0.6-SNAPSHOT</sakai.ets.version>
-    	<quartz.version>1.6.6</quartz.version>
     	<genericdao.version>0.9.18</genericdao.version>
     	<commons.codec.version>1.4</commons.codec.version>
-    	<legacy.profile.api.version>2.9-SNAPSHOT</legacy.profile.api.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <search-api.version>1.4-SNAPSHOT</search-api.version>
-		<entitybroker.version>1.5-SNAPSHOT</entitybroker.version>
 		<yuicompressor.plugin.version>1.2</yuicompressor.plugin.version>
 		<lombok.version>0.9.3</lombok.version>
 	</properties>
@@ -316,12 +271,6 @@
   				<artifactId>objectautocomplete</artifactId>
   				<version>${wicketstuff.objectautocomplete.version}</version>
   			</dependency>
-			<dependency>
-				<groupId>org.opensymphony.quartz</groupId>
-				<artifactId>quartz</artifactId>
-				<version>${quartz.version}</version>
-				<scope>provided</scope>
-			</dependency>
 	        <dependency>
 	            <groupId>org.sakaiproject</groupId>
 	            <artifactId>generic-dao</artifactId>
@@ -366,27 +315,6 @@
 				<scope>compile</scope>
 			</dependency>
    			
-   			<!-- additional sakai dependencies -->
-		    <dependency>
-    			<groupId>org.sakaiproject.emailtemplateservice</groupId>
-    			<artifactId>emailtemplateservice-api</artifactId>
-    			<version>${sakai.ets.version}</version>
-    			<scope>provided</scope>
-    		</dependency>
-            <dependency>
-                <groupId>org.sakaiproject.search</groupId>
-                <artifactId>search-api</artifactId>
-                <version>${search-api.version}</version>
-            </dependency>
-            
-		    <!-- legacy dependency-->
-		    <dependency>
-		      	<groupId>org.sakaiproject.profile</groupId>
-  				<artifactId>profile-api</artifactId>
-  				<version>${legacy.profile.api.version}</version>
-		      	<scope>provided</scope>
-		    </dependency>
-		    
     	</dependencies>
     </dependencyManagement>
 
@@ -412,30 +340,6 @@
     	<developerConnection>scm:svn:https://source.sakaiproject.org/svn/profile2/trunk</developerConnection>
     	<url>https://source.sakaiproject.org/svn/profile2/trunk</url>
   	</scm>
-    
-	<pluginRepositories>
-		<pluginRepository>
-			<id>maven2-central-repo</id>
-			<name>Maven2 Central Repo</name>
-			<url>http://repo1.maven.org/maven2/</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</pluginRepository>
-		<pluginRepository>
-			<id>Sakai Plugin Repo</id>
-			<url>http://source.sakaiproject.org/maven2</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</pluginRepository>
-	</pluginRepositories>
     
     <build>
         <plugins>
