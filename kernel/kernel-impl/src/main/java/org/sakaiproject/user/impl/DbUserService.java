@@ -856,7 +856,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 				try
 				{
 					String idFromMap = result.getString(1);
-					String eidFromMap = result.getString(2);
+					String eidFromMap = cleanEid(result.getString(2));
 
 					// If it's a provided user, then all these will be null.
 					String idFromSakaiUser = result.getString(3);
