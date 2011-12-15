@@ -3,8 +3,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.sakaiproject.purepoms</groupId>
-        <artifactId>sakai-standard-tool</artifactId>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>master</artifactId>
         <version>2.9-SNAPSHOT</version>
     </parent>
 
@@ -13,11 +13,6 @@
     <artifactId>scheduler</artifactId>
     <version>2.9-SNAPSHOT</version>
     <packaging>pom</packaging>
-
-    <properties>
-        <sakai.jsf.version>2.9-SNAPSHOT</sakai.jsf.version>
-        <sakai.quartz.version>1.6.6</sakai.quartz.version>
-    </properties>
 
     <profiles>
         <profile>
@@ -54,69 +49,6 @@
          </profile>
     </profiles>
 
-    <pluginRepositories>
-        <pluginRepository>
-            <id>maven2-central-repo</id>
-            <name>Maven2 Central Repo</name>
-            <url>http://repo1.maven.org/maven2/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-        <pluginRepository>
-            <id>Sakai Plugin Repo</id>
-            <url>http://source.sakaiproject.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
-
-    <repositories>
-        <repository>
-            <id>sakai-maven2</id>
-            <name>Sakai Maven Repository</name>
-            <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>sakai-maven2-snapshots</id>
-            <name>Sakai Maven Repo Snapshots</name>
-            <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2-snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>default</id>
-            <name>Maven Repository Switchboard</name>
-            <layout>default</layout>
-            <url>http://repo1.maven.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
     <scm>
         <connection>scm:svn:https://source.sakaiproject.org/svn/jobscheduler/trunk</connection>
         <developerConnection>scm:svn:https://source.sakaiproject.org/svn/jobscheduler/trunk</developerConnection>
@@ -130,30 +62,6 @@
             <url>scpexe://source.sakaiproject.org/var/www/html/release/scheduler/${project.version}</url>
         </site>
     </distributionManagement>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>scheduler-api</artifactId>
-                <version>${project.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>scheduler-component-shared</artifactId>
-                <version>${project.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <!-- Job Scheduler deploys quartz to shared. -->
-            <dependency>
-                <groupId>org.opensymphony.quartz</groupId>
-                <artifactId>quartz</artifactId>
-                <version>${sakai.quartz.version}</version>
-                <scope>provided</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <reporting>
         <plugins>
