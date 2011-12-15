@@ -73,7 +73,6 @@
     <dependency>
       <groupId>org.sakaiproject.velocity</groupId>
       <artifactId>sakai-velocity-tool</artifactId>
-      <version>${sakai.version}</version>
     </dependency>
     <dependency>
       <groupId>net.sf.ehcache</groupId>
