@@ -52,8 +52,6 @@
         <dependency>
             <groupId>org.sakaiproject.emailtemplateservice</groupId>
             <artifactId>emailtemplateservice-api</artifactId>
-            <version>${sakai.emailtemplateservice.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
