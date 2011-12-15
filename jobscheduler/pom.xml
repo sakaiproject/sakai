@@ -50,9 +50,9 @@
     </profiles>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/jobscheduler/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/jobscheduler/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/jobscheduler/trunk</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/jobscheduler/branches/jobscheduler-2.9.x</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/jobscheduler/branches/jobscheduler-2.9.x</developerConnection>
+        <url>https://source.sakaiproject.org/svn/jobscheduler/branches/jobscheduler-2.9.x</url>
     </scm>
     
     <distributionManagement>
