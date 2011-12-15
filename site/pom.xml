@@ -37,9 +37,9 @@
     </profiles>
     
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/site/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/site/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/site/trunk</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/site/branches/site-2.9.x</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/site/branches/site-2.9.x</developerConnection>
+        <url>https://source.sakaiproject.org/svn/site/branches/site-2.9.x</url>
     </scm>
     
     <distributionManagement>
