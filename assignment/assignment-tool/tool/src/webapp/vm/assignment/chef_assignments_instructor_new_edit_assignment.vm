@@ -1343,8 +1343,6 @@ $(document).ready(function() {
 					#foreach ($role in $!roleUsers.keySet())
 
 						#set ($roleCount=$roleCount + 1)
-
-						#set($allString=$tlang.getString("all").concat(" ").concat($role))
 						#set($expandString=$tlang.getString("allPurpose.show.expand").concat(" ").concat($role).concat(" ").concat($tlang.getString("allPurpose.show.list")))
 						#set($collapseString=$tlang.getString("allPurpose.show.collapse").concat(" ").concat($role).concat(" ").concat($tlang.getString("allPurpose.show.list")))
 						#set($expandId = "expand_")
@@ -1364,7 +1362,7 @@ $(document).ready(function() {
 								</a>
 								<input id="$showInputString" name="showInputString_$roleCount" #if ($!value_allPurposeAccessList.contains($role)) checked="checked" #end type="checkbox" name="allPurpose_$role" class="selectAllMembers"/>
 								<label for="showInputString_$roleCount">
-									$allString
+									$role
 								</label>
 								(<span class="highlight countDisplay"></span> <span class="highlight">$tlang.getString("allPurpose.user.selection.count")</span>)
 								<ul id="roleDiv_$roleCount"  style="display:none;" class="attachList userList">
