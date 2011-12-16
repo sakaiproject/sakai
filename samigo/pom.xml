@@ -3,25 +3,17 @@
 	<modelVersion>4.0.0</modelVersion>
 	
     <parent>
-        <groupId>org.sakaiproject.purepoms</groupId>
-        <artifactId>sakai-edu-tool</artifactId>
-        <version>2.9-SNAPSHOT</version>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>master</artifactId>
+        <version>2.10-SNAPSHOT</version>
     </parent>
 	
 	<name>Sakai Samigo Project (base POM)</name>
 	<groupId>org.sakaiproject.samigo</groupId>
 	<artifactId>samigo</artifactId>
-	<version>2.9-SNAPSHOT</version>
+	<version>2.10-SNAPSHOT</version>
 	<packaging>pom</packaging>
     
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <sakai.calendar.version>2.9-SNAPSHOT</sakai.calendar.version>
-        <sakai.common.version>1.2-SNAPSHOT</sakai.common.version>
-        <sakai.edu-services.version>1.2-SNAPSHOT</sakai.edu-services.version>
-        <sakai.jsf.version>2.9-SNAPSHOT</sakai.jsf.version>
-    </properties>
-	
 	<modules>
 		<module>samigo-api</module>
 		<module>samigo-app</module>
@@ -51,64 +43,8 @@
         </site>
     </distributionManagement>
     
-    <repositories>
-        <repository>
-            <id>sakai-maven2</id>
-            <name>Sakai Maven Repository</name>
-            <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>sakai-maven2-snapshots</id>
-            <name>Sakai Maven Repo Snapshots</name>
-            <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2-snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>default</id>
-            <name>Maven Repository Switchboard</name>
-            <layout>default</layout>
-            <url>http://repo1.maven.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-    
-    <pluginRepositories>
-        <pluginRepository>
-            <id>Sakai Plugin Repo</id>
-            <url>http://source.sakaiproject.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </pluginRepository>
-    </pluginRepositories>
-	
 	<dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.sakaiproject.samigo</groupId>
-                <artifactId>samigo-api</artifactId>
-                <version>${project.version}</version>
-                <type>jar</type>
-                <scope>provided</scope>
-            </dependency>
             <dependency>
                 <groupId>org.sakaiproject.samigo</groupId>
                 <artifactId>samigo-audio</artifactId>
@@ -135,13 +71,6 @@
                 <version>${project.version}</version>
                 <type>jar</type>
             </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.samigo</groupId>
-                <artifactId>samigo-services</artifactId>
-                <version>${project.version}</version>
-                <type>jar</type>
-                <scope>provided</scope>
-            </dependency>
             <!-- Samigo Lite -->
             <dependency>
                 <groupId>org.sakaiproject.samigo</groupId>
@@ -163,22 +92,6 @@
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.jsf</groupId>
-                <artifactId>jsf-tool</artifactId>
-                <version>${sakai.jsf.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.jsf</groupId>
-                <artifactId>jsf-app</artifactId>
-                <version>${sakai.jsf.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.jsf</groupId>
-                <artifactId>jsf-widgets-sun-depend</artifactId>
-                <version>${sakai.jsf.version}</version>
-                <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.jsf</groupId>
                 <artifactId>jsf-spreadsheet</artifactId>
                 <version>${sakai.jsf.version}</version>
             </dependency>
@@ -187,22 +100,6 @@
     
     <reporting>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.6.1</version>
-                <configuration>
-                    <debug>true</debug>
-                    <links>
-                        <link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
-                    </links>
-                    <breakiterator>true</breakiterator>
-                    <verbose>false</verbose>
-                    <aggregate>true</aggregate>
-                    <maxmemory>512m</maxmemory>
-                    <additionalJOption>-J-Xms168m -J-Xmx512m -J-XX:PermSize=128m -J-XX:NewSize=64m</additionalJOption>
-                </configuration>
-            </plugin>
             <!-- Retest this plugin; currently causes release plugin to fail -->
             <!--
             <plugin>
