@@ -138,7 +138,19 @@ public class DelegatedAccessShoppingPeriodJob implements Job{
 				if(!"".equals(restrictedToolsList)){
 					restrictedToolsList += ";";
 				}
-				restrictedToolsList += tool;
+				if("Home".equals(tool)){
+					String homeToolsVal = "";
+					String[] homeTools = sakaiProxy.getHomeTools();
+					for(String toolId : homeTools){
+						if(!"".equals(homeToolsVal)){
+							homeToolsVal += ";";
+						}
+						homeToolsVal += toolId;
+					}
+					restrictedToolsList += homeToolsVal;
+				}else{
+					restrictedToolsList += tool;
+				}
 			}
 
 			removeAnonAndAuthRoles(node.getNode().description);

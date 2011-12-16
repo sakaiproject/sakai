@@ -227,4 +227,13 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public String getTermField();
+	
+	/**
+	 * returns sakai.properties setting of home tool ids
+	 * 
+	 * delegatedaccess.hometools
+	 * 
+	 * @return
+	 */
+	public String[] getHomeTools();
 }

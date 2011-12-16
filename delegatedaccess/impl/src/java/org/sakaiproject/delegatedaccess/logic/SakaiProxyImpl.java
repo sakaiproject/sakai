@@ -146,6 +146,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 			return toolSet;
 		}
 	}
+	
+	public String[] getHomeTools(){
+		return serverConfigurationService.getStrings("delegatedaccess.hometools");
+	}
 
 	/**
 	 * {@inheritDoc}

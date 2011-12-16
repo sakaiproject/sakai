@@ -227,7 +227,22 @@ public class ProjectLogicImpl implements ProjectLogic {
 				List<NodeModel> siteNodes = getSiteNodes(((DefaultMutableTreeNode) userTreeModel.getRoot()));
 				for(NodeModel nodeModel : siteNodes){
 					accessMap.put(nodeModel.getNode().description, nodeModel.getNodeAccessRealmRole());
-					toolMap.put(nodeModel.getNode().description, nodeModel.getNodeRestrictedTools());
+					String[] deniedTools = nodeModel.getNodeRestrictedTools();
+					for(String tool : deniedTools){
+						if("Home".equals(tool)){
+							String[] homeTools = sakaiProxy.getHomeTools();
+							String[] newDeniedTools = new String[homeTools.length + deniedTools.length];
+							for(int i = 0; i < homeTools.length; i++){
+								newDeniedTools[i] = homeTools[i];
+							}
+							for(int i = homeTools.length; i < homeTools.length + deniedTools.length; i++){
+								newDeniedTools[i] = deniedTools[i - homeTools.length];
+							}
+							deniedTools = newDeniedTools;
+						}
+					}
+					
+					toolMap.put(nodeModel.getNode().description, deniedTools);
 				}
 			}
 			//only worry about this if there is any delegated access:
@@ -296,6 +311,19 @@ public class ProjectLogicImpl implements ProjectLogic {
 			}
 
 			String[] deniedTools = nodeModel.getNodeRestrictedTools();
+			for(String tool : deniedTools){
+				if("Home".equals(tool)){
+					String[] homeTools = sakaiProxy.getHomeTools();
+					String[] newDeniedTools = new String[homeTools.length + deniedTools.length];
+					for(int i = 0; i < homeTools.length; i++){
+						newDeniedTools[i] = homeTools[i];
+					}
+					for(int i = homeTools.length; i < homeTools.length + deniedTools.length; i++){
+						newDeniedTools[i] = deniedTools[i - homeTools.length];
+					}
+					deniedTools = newDeniedTools;
+				}
+			}
 			if(deniedTools != null){
 				deniedToolsMap.put(nodeModel.getNode().description, deniedTools);
 			}else{
@@ -395,6 +423,11 @@ public class ProjectLogicImpl implements ProjectLogic {
 		List<ListOptionSerialized> returnList = new ArrayList<ListOptionSerialized>();
 		for(Tool tool : sakaiProxy.getAllTools()){
 			returnList.add(new ListOptionSerialized(tool.getId(), tool.getTitle() + "(" + tool.getId() + ")", false));
+		}
+		//the home tool is special, so add this case
+		String[] homeTools = sakaiProxy.getHomeTools();
+		if(homeTools != null && homeTools.length > 0){
+			returnList.add(new ListOptionSerialized("Home", "Home", false));
 		}
 		Collections.sort(returnList, new Comparator<ListOptionSerialized>() {
 			public int compare(ListOptionSerialized arg0, ListOptionSerialized arg1) {
