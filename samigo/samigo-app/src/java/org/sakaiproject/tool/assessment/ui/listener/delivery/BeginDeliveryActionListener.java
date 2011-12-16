@@ -190,6 +190,14 @@ public class BeginDeliveryActionListener implements ActionListener
     FeedbackComponent component = populateFeedbackComponent(pubAssessment);
     delivery.setFeedbackComponent(component);
 
+    // feedback component option
+    if (pubAssessment.getFeedbackComponentOption() != null) {
+    	delivery.setFeedbackComponentOption(pubAssessment.getFeedbackComponentOption().toString());
+    }
+    else {
+    	delivery.setFeedbackComponentOption("1");
+    }
+    
     // important: set feedbackOnDate last
     Date currentDate = new Date();
     if (component.getShowDateFeedback() && control.getFeedbackDate()!= null && currentDate.after(control.getFeedbackDate())) {
@@ -216,7 +224,7 @@ public class BeginDeliveryActionListener implements ActionListener
     }
     return component;
   }
-
+ 
   /**
    * This grabs the assessment and its AssessmentAccessControlIfc &
    * puts it in the SettingsDeliveryBean.

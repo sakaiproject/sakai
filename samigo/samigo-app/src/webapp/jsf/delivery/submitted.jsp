@@ -48,6 +48,16 @@ for (i=0; i<document.links.length; i++) {
 
 document.links[newindex].onclick();
 }
+
+function closeWindow() {alert("1"); self.opener=this; self.close(); }
+
+function CloseWin()
+
+{
+window.opener = top ;
+
+window.close();
+}
 </script>
 
       <body onload="<%= request.getAttribute("html.body.onload") %>">
@@ -68,6 +78,8 @@ document.links[newindex].onclick();
   <h:outputText value="#{deliveryMessages.submission_info}" />
 </h4>
 
+<f:verbatim><br /></f:verbatim>
+
 <h:form id="submittedForm">
 <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 
@@ -76,7 +88,7 @@ document.links[newindex].onclick();
     <h:outputText escape="false" value="<br /> #{delivery.submissionMessage}" />
 
   <f:verbatim><p/></f:verbatim>
-  <h:panelGrid columns="2">
+  <h:panelGrid columns="2" width="900px" columnClasses="submissionInfoCol1, submissionInfoCol2">
 
     <h:outputLabel value="#{deliveryMessages.course_name}"/>
     <h:outputText value="#{delivery.courseName}" />
@@ -108,8 +120,11 @@ document.links[newindex].onclick();
        onclick="window.open('#{delivery.url}','new_window');" onkeypress="window.open('#{delivery.url}','new_window');">
         <h:outputText value="#{delivery.url}" escape="false"/>
     </h:outputLink>
+    
+    <h:outputLabel value="<b>#{deliveryMessages.anonymousScore}</b>" rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin && delivery.feedbackComponentOption=='1'}"/>
+    <h:outputText value="<b>#{delivery.roundedRawScoreViaURL}</b>" rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin && delivery.feedbackComponentOption=='1'}" escape="false"/>
+  </h:panelGrid>  
 
-  </h:panelGrid>
 </div>
 
 <br /><br />
@@ -123,16 +138,17 @@ document.links[newindex].onclick();
        style="act" onclick="javascript:window.open('#{delivery.selectURL}','_top')" onkeypress="javascript:window.open('#{delivery.selectURL}','_top')" />
 
     <h:commandButton value="#{deliveryMessages.review_results}" type="button" id="reviewAssessment"
-       rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin}" 
+       rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin && delivery.feedbackComponentOption=='2'}" 
        style="act" onclick="reviewAssessment(this);" onkeypress="reviewAssessment(this);" />
 
-    <h:commandLink id="hiddenlink" action="takeAssessment" rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin}">
+    <h:commandLink id="hiddenlink" action="takeAssessment" rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin && delivery.feedbackComponentOption=='2'}">
       <f:param name="publishedId" value="#{delivery.assessmentId}" />
       <f:param name="nofeedback" value="false"/>
       <f:param name="actionString" value="reviewAssessment"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener"/>
     </h:commandLink>
+
   </h:panelGrid>
 </div>
 

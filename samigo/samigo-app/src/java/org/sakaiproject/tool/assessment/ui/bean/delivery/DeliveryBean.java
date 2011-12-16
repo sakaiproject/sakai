@@ -145,6 +145,7 @@ public class DeliveryBean
   private String creatorName;
 
   private FeedbackComponent feedbackComponent;
+  private String feedbackComponentOption;
   private boolean feedbackOnDate;
   private String errorMessage;
   private SettingsDeliveryBean settings;
@@ -897,6 +898,16 @@ public class DeliveryBean
     this.feedbackComponent = feedbackComponent;
   }
 
+  public String getFeedbackComponentOption()
+  {
+    return feedbackComponentOption;
+  }
+
+  public void setFeedbackComponentOption(String feedbackComponentOption)
+  {
+    this.feedbackComponentOption = feedbackComponentOption;
+  }
+  
   /**
    * Types of feedback in FeedbackComponent:
    *
@@ -1096,6 +1107,24 @@ public class DeliveryBean
       return Validator.check(rawScore, "0");
     }
 
+  }
+  
+  public String getRoundedRawScoreViaURL() {
+	  if (adata.getFinalScore() != null){
+		  rawScore = adata.getFinalScore().toString();
+	  }
+	  else {
+		  rawScore = "0";
+	  }
+
+	  try {
+		  String newscore= ContextUtil.getRoundedValue(rawScore, 2);
+		  return Validator.check(newscore, "N/A");
+	  }
+	  catch (Exception e) {
+		  // encountered some weird number format/locale
+		  return Validator.check(rawScore, "0");
+	  }
   }
 
 
