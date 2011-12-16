@@ -218,4 +218,13 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public boolean isShoppingTool();
+	
+	/**
+	 * returns the systems term field based on a sakai.property (delegatedaccess.termfield)
+	 * 
+	 * default is term_eid
+	 * 
+	 * @return
+	 */
+	public String getTermField();
 }

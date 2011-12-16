@@ -92,7 +92,7 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 			if(!rootNode.id.equals(siteParentId)){
 				//save the site under the parent hierarchy if any data was found
 				//Site
-				checkAndAddNode(siteParentId, site.getTitle(), site.getReference(), site.getProperties().getProperty("term_eid"));
+				checkAndAddNode(siteParentId, site.getTitle(), site.getReference(), site.getProperties().getProperty(sakaiProxy.getTermField()));
 			}
 		}
 

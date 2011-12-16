@@ -409,4 +409,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public void popSecurityAdvisor(SecurityAdvisor advisor){
 		securityService.popAdvisor(advisor);
 	}
+	
+	public String getTermField(){
+		return serverConfigurationService.getString(DelegatedAccessConstants.PROPERTIES_TERMFIELD, "term_eid");
+	}
 }

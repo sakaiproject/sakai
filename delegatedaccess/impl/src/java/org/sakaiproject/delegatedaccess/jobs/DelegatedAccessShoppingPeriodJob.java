@@ -162,7 +162,7 @@ public class DelegatedAccessShoppingPeriodJob implements Job{
 	
 	private boolean checkTerm(String[] terms, Site site){
 		boolean returnVal = true;
-		String siteTerm = site.getProperties().getProperty("term_eid");
+		String siteTerm = site.getProperties().getProperty(sakaiProxy.getTermField());
 		if(terms != null && terms.length > 0){
 			returnVal = false;
 			if(siteTerm != null && !"".equals(siteTerm)){
