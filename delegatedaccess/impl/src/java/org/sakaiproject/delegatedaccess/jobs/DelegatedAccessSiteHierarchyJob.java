@@ -147,6 +147,9 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 				hierarchyService.saveNodeMetaData(newNode.id, title, description, term);
 				hierarchyService.addChildRelation(parentId, newNode.id);
 				nodeId = newNode.id;
+			}else{
+				//just update the node's metadata
+				hierarchyService.saveNodeMetaData(nodeId, title, description, term);
 			}
 			newHiearchyNodeIds.add(nodeId);
 		}
