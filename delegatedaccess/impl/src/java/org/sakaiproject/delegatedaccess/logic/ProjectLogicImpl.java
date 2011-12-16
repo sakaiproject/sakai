@@ -656,8 +656,9 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//need a remove map b/c you can't remove nodes while you are searching, must do it afterwards
 		Map<DefaultMutableTreeNode, List<DefaultMutableTreeNode>> removeMap = new HashMap<DefaultMutableTreeNode, List<DefaultMutableTreeNode>>();
 		
-		trimTreeForTermsHelper((DefaultMutableTreeNode) treeModel.getRoot(), null, removeMap);
-		
+		if(treeModel != null && treeModel.getRoot() != null){
+			trimTreeForTermsHelper((DefaultMutableTreeNode) treeModel.getRoot(), null, removeMap);
+		}
 		//now remove everything that was found
 		for(Entry<DefaultMutableTreeNode, List<DefaultMutableTreeNode>> entry : removeMap.entrySet()){
 			DefaultMutableTreeNode removeParent = entry.getKey();
