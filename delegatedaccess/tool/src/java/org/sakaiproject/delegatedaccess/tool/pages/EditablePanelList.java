@@ -19,7 +19,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.util.string.Strings;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
-import org.sakaiproject.delegatedaccess.model.ToolSerialized;
+import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 
 /**
@@ -35,18 +35,13 @@ public class EditablePanelList  extends Panel
 
 	private NodeModel nodeModel;
 	private TreeNode node;
-	private List<ToolSerialized> localToolList = null;
 
-	public EditablePanelList(String id, IModel inputModel, final NodeModel nodeModel, final TreeNode node, final int type)
+	public EditablePanelList(String id, IModel inputModel, final NodeModel nodeModel, final TreeNode node, final int userType, final int fieldType)
 	{
 		super(id);
 
 		this.nodeModel = nodeModel;
 		this.node = node;
-
-		if(localToolList == null){
-			localToolList = nodeModel.getRestrictedTools();
-		}
 
 		WebMarkupContainer editableSpan = new WebMarkupContainer("editableSpan");
 		editableSpan.setOutputMarkupId(true);
@@ -67,7 +62,7 @@ public class EditablePanelList  extends Panel
 			}
 			@Override
 			public boolean isVisible() {
-				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
+				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == userType){
 					return nodeModel.isDirectAccess() && nodeModel.getNodeShoppingPeriodAdmin();
 				}else{
 					return nodeModel.isDirectAccess();
@@ -77,10 +72,14 @@ public class EditablePanelList  extends Panel
 		add(restrictToolsLink);
 		
 		Label restrictToolsLinkLabel = new Label("restrictToolsSpan");
-		if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
-			restrictToolsLinkLabel.setDefaultModel(new StringResourceModel("showToolsHeader", null));
+		if(DelegatedAccessConstants.TYPE_LISTFIELD_TERMS == fieldType){
+			restrictToolsLinkLabel.setDefaultModel(new StringResourceModel("termHeader", null));
 		}else{
-			restrictToolsLinkLabel.setDefaultModel(new StringResourceModel("restrictedToolsHeader", null));
+			if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == userType){
+				restrictToolsLinkLabel.setDefaultModel(new StringResourceModel("showToolsHeader", null));
+			}else{
+				restrictToolsLinkLabel.setDefaultModel(new StringResourceModel("restrictedToolsHeader", null));
+			}
 		}
 		restrictToolsLink.add(restrictToolsLinkLabel);
 		
@@ -93,15 +92,26 @@ public class EditablePanelList  extends Panel
 			}
 			@Override
 			public boolean isVisible() {
-				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
-					return (!nodeModel.isDirectAccess() && nodeModel.getInheritedRestrictedTools() != null && !nodeModel.getInheritedRestrictedTools().isEmpty())
-					|| (!nodeModel.getNodeShoppingPeriodAdmin() && nodeModel.getNodeRestrictedTools().length > 0);
+				List<ListOptionSerialized> inheritedOptions = null;
+				String[] nodeOptions = null;
+				if(DelegatedAccessConstants.TYPE_LISTFIELD_TERMS == fieldType){
+					inheritedOptions = nodeModel.getInheritedTerms();
+					nodeOptions = nodeModel.getNodeTerms();
 				}else{
-					return !nodeModel.isDirectAccess() && nodeModel.getInheritedRestrictedTools() != null && !nodeModel.getInheritedRestrictedTools().isEmpty();
+					inheritedOptions = nodeModel.getInheritedRestrictedTools();
+					nodeOptions = nodeModel.getNodeRestrictedTools();
+				}
+				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == userType){
+					return (!nodeModel.isDirectAccess() && inheritedOptions != null && !inheritedOptions.isEmpty())
+					|| (!nodeModel.getNodeShoppingPeriodAdmin() && nodeOptions.length > 0);
+				}else{
+					return !nodeModel.isDirectAccess() && inheritedOptions != null && !inheritedOptions.isEmpty();
 				}
 			}
 		};
+		
 		add(inheritedToolsLink);
+		
 
 		AjaxLink<Void> switchEditableSpanLink = new AjaxLink<Void>("switchEditableSpanLink") {
 			private static final long serialVersionUID = 1L;
@@ -112,6 +122,14 @@ public class EditablePanelList  extends Panel
 			}
 		};
 		editableSpan.add(switchEditableSpanLink);
+		Label switchEditableSpanLinkTitle = new Label("switchEditableSpanLinkTitle");
+		if(fieldType == DelegatedAccessConstants.TYPE_LISTFIELD_TERMS){
+			switchEditableSpanLinkTitle.setDefaultModel(new StringResourceModel("switchEditableTerms", null));
+		}else{
+			switchEditableSpanLinkTitle.setDefaultModel(new StringResourceModel("switchEditableTools", null));
+		}
+		switchEditableSpanLink.add(switchEditableSpanLinkTitle);
+		
 
 		AjaxLink<Void> saveEditableSpanLink = new AjaxLink<Void>("saveEditableSpanLink") {
 			private static final long serialVersionUID = 1L;
@@ -143,7 +161,7 @@ public class EditablePanelList  extends Panel
 			}
 			@Override
 			public boolean isVisible() {
-				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
+				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == userType){
 					return nodeModel.isDirectAccess() && nodeModel.getNodeShoppingPeriodAdmin();
 				}else{
 					return nodeModel.isDirectAccess();
@@ -153,17 +171,21 @@ public class EditablePanelList  extends Panel
 		inheritedSpan.add(switchInheritedSpanLink);
 		
 		Label restrictToolsLinkSpan = new Label("switchInheritedSpan");
-		if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
-			restrictToolsLinkSpan.setDefaultModel(new StringResourceModel("showToolsHeader", null));
+		if(DelegatedAccessConstants.TYPE_LISTFIELD_TERMS == fieldType){
+			restrictToolsLinkSpan.setDefaultModel(new StringResourceModel("termHeader", null));
 		}else{
-			restrictToolsLinkSpan.setDefaultModel(new StringResourceModel("restrictedToolsHeader", null));
+			if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == userType){
+				restrictToolsLinkSpan.setDefaultModel(new StringResourceModel("showToolsHeader", null));
+			}else{
+				restrictToolsLinkSpan.setDefaultModel(new StringResourceModel("restrictedToolsHeader", null));
+			}
 		}
 		switchInheritedSpanLink.add(restrictToolsLinkSpan);
 
 		Label inheritedMenuSpan = new Label("inheritedMenuSpan", " | "){
 			@Override
 			public boolean isVisible() {
-				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
+				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == userType){
 					return nodeModel.isDirectAccess() && nodeModel.getNodeShoppingPeriodAdmin();
 				}else{
 					return nodeModel.isDirectAccess();
@@ -195,22 +217,31 @@ public class EditablePanelList  extends Panel
 		Label inheritedNodeTitle = new Label("inheritedNodeTitle", nodeModel.getNode().title);
 		inheritedSpan.add(inheritedNodeTitle);
 
-
-		ListView<ToolSerialized> listView = new ListView<ToolSerialized>("list", nodeModel.getRestrictedTools()) {
+		List<ListOptionSerialized> listOptions = null;
+		if(DelegatedAccessConstants.TYPE_LISTFIELD_TERMS == fieldType){
+			listOptions = nodeModel.getTerms();
+		}else{
+			listOptions = nodeModel.getRestrictedTools();
+		}
+		ListView<ListOptionSerialized> listView = new ListView<ListOptionSerialized>("list", listOptions) {
 
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void populateItem(ListItem<ToolSerialized> item) {
-				ToolSerialized wrapper = item.getModelObject();
-				item.add(new Label("name", wrapper.getToolName()));
+			protected void populateItem(ListItem<ListOptionSerialized> item) {
+				ListOptionSerialized wrapper = item.getModelObject();
+				item.add(new Label("name", wrapper.getName()));
 				final CheckBox checkBox = new CheckBox("check", new PropertyModel(wrapper, "selected"));
 				checkBox.setOutputMarkupId(true);
-				final String toolId = wrapper.getToolId();
+				final String toolId = wrapper.getId();
 				checkBox.add(new AjaxFormComponentUpdatingBehavior("onClick")
 				{
 					protected void onUpdate(AjaxRequestTarget target){
-						nodeModel.setToolRestricted(toolId, isChecked());
+						if(DelegatedAccessConstants.TYPE_LISTFIELD_TERMS == fieldType){
+							nodeModel.setTerm(toolId, isChecked());
+						}else{
+							nodeModel.setToolRestricted(toolId, isChecked());
+						}
 					}
 
 					private boolean isChecked(){
@@ -236,19 +267,29 @@ public class EditablePanelList  extends Panel
 		editableSpan.add(listView);
 
 
-		IModel<List<? extends ToolSerialized>> inheritedRestrictedToolsModel = new AbstractReadOnlyModel<List<? extends ToolSerialized>>(){
+		IModel<List<? extends ListOptionSerialized>> inheritedRestrictedToolsModel = new AbstractReadOnlyModel<List<? extends ListOptionSerialized>>(){
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public List<? extends ToolSerialized> getObject() {
-				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type && !nodeModel.getNodeShoppingPeriodAdmin()){
-					List<ToolSerialized> returnList = nodeModel.getSelectedRestrictedTools();
+			public List<? extends ListOptionSerialized> getObject() {
+				List<ListOptionSerialized> selectedOptions = null;
+				List<ListOptionSerialized> inheritedOptions = null;
+				if(DelegatedAccessConstants.TYPE_LISTFIELD_TERMS == fieldType){
+					selectedOptions = nodeModel.getSelectedTerms();
+					inheritedOptions = nodeModel.getInheritedTerms();
+				}else{
+					selectedOptions = nodeModel.getSelectedRestrictedTools();
+					inheritedOptions = nodeModel.getInheritedRestrictedTools();
+				}
+				
+				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == userType && !nodeModel.getNodeShoppingPeriodAdmin()){
+					List<ListOptionSerialized> returnList =selectedOptions;
 					if(returnList.isEmpty()){
-						returnList = nodeModel.getInheritedRestrictedTools();
+						returnList = inheritedOptions;
 					}
 					return returnList;
 				}else{
-					return nodeModel.getInheritedRestrictedTools();
+					return inheritedOptions;
 				}
 			}
 
@@ -256,34 +297,52 @@ public class EditablePanelList  extends Panel
 
 
 
-		ListView<ToolSerialized> inheritedListView = new ListView<ToolSerialized>("inheritedRestrictedTools",inheritedRestrictedToolsModel){
+		ListView<ListOptionSerialized> inheritedListView = new ListView<ListOptionSerialized>("inheritedRestrictedTools",inheritedRestrictedToolsModel){
 			private static final long serialVersionUID = 1L;
 			@Override
-			protected void populateItem(ListItem<ToolSerialized> item) {
-				ToolSerialized tool = (ToolSerialized) item.getModelObject();
-				Label name = new Label("name", tool.getToolName());
+			protected void populateItem(ListItem<ListOptionSerialized> item) {
+				ListOptionSerialized tool = (ListOptionSerialized) item.getModelObject();
+				Label name = new Label("name", tool.getName());
 				item.add(name);
 			}
 
 			@Override
 			public boolean isVisible() {
-				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
-					return (nodeModel.getInheritedRestrictedTools() != null && !nodeModel.getInheritedRestrictedTools().isEmpty())
-					|| (!nodeModel.getNodeShoppingPeriodAdmin() && nodeModel.getNodeRestrictedTools().length > 0);
+				List<ListOptionSerialized> inheritedOptions = null;
+				String[] nodeOptions = null;
+				if(DelegatedAccessConstants.TYPE_LISTFIELD_TERMS == fieldType){
+					inheritedOptions = nodeModel.getInheritedTerms();
+					nodeOptions = nodeModel.getNodeTerms();
 				}else{
-					return nodeModel.getInheritedRestrictedTools() != null && !nodeModel.getInheritedRestrictedTools().isEmpty();
+					inheritedOptions = nodeModel.getInheritedRestrictedTools();
+					nodeOptions = nodeModel.getNodeRestrictedTools();
+				}
+				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == userType){
+					return (inheritedOptions != null && !inheritedOptions.isEmpty())
+					|| (!nodeModel.getNodeShoppingPeriodAdmin() && nodeOptions.length > 0);
+				}else{
+					return inheritedOptions != null && !inheritedOptions.isEmpty();
 				}
 			}
 		};
 		inheritedSpan.add(inheritedListView);
 
-		Label noInheritedToolsLabel = new Label("noToolsInherited", new StringResourceModel("noToolsInherited", null)){
+		Label noInheritedToolsLabel = new Label("noToolsInherited", new StringResourceModel("inheritedNothing", null)){
 			public boolean isVisible() {
-				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
-					return (nodeModel.getNodeShoppingPeriodAdmin() && (nodeModel.getInheritedRestrictedTools() == null || nodeModel.getInheritedRestrictedTools().isEmpty()))
-					|| (!nodeModel.getNodeShoppingPeriodAdmin() && nodeModel.getNodeRestrictedTools().length == 0);
+				List<ListOptionSerialized> inheritedOptions = null;
+				String[] nodeOptions = null;
+				if(DelegatedAccessConstants.TYPE_LISTFIELD_TERMS == fieldType){
+					inheritedOptions = nodeModel.getInheritedTerms();
+					nodeOptions = nodeModel.getNodeTerms();
 				}else{
-					return nodeModel.getInheritedRestrictedTools() == null || nodeModel.getInheritedRestrictedTools().isEmpty();
+					inheritedOptions = nodeModel.getInheritedRestrictedTools();
+					nodeOptions = nodeModel.getNodeRestrictedTools();
+				}
+				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == userType){
+					return (nodeModel.getNodeShoppingPeriodAdmin() && (inheritedOptions == null || inheritedOptions.isEmpty()))
+					|| (!nodeModel.getNodeShoppingPeriodAdmin() && nodeOptions.length == 0);
+				}else{
+					return inheritedOptions == null || inheritedOptions.isEmpty();
 				}
 
 			};
@@ -291,18 +350,26 @@ public class EditablePanelList  extends Panel
 		inheritedSpan.add(noInheritedToolsLabel);
 		
 		Label editToolsTitle = new Label("editToolsTitle");
-		if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
-			editToolsTitle.setDefaultModel(new StringResourceModel("editableShowToolsTitle", null));
+		if(DelegatedAccessConstants.TYPE_LISTFIELD_TERMS == fieldType){
+			editToolsTitle.setDefaultModel(new StringResourceModel("editableTermsTitle", null));
 		}else{
-			editToolsTitle.setDefaultModel(new StringResourceModel("editableRestrictedToolsTitle", null));
+			if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == userType){
+				editToolsTitle.setDefaultModel(new StringResourceModel("editableShowToolsTitle", null));
+			}else{
+				editToolsTitle.setDefaultModel(new StringResourceModel("editableRestrictedToolsTitle", null));
+			}
 		}
 		editableSpan.add(editToolsTitle);
 		
 		Label editToolsInstructions = new Label("editToolsInstructions");
-		if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
-			editToolsInstructions.setDefaultModel(new StringResourceModel("editableShowToolsDescription", null));
+		if(DelegatedAccessConstants.TYPE_LISTFIELD_TERMS == fieldType){
+			editToolsInstructions.setDefaultModel(new StringResourceModel("editableTermsDescription", null));
 		}else{
-			editToolsInstructions.setDefaultModel(new StringResourceModel("editableRestrictedToolsDescription", null));
+			if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == userType){
+				editToolsInstructions.setDefaultModel(new StringResourceModel("editableShowToolsDescription", null));
+			}else{
+				editToolsInstructions.setDefaultModel(new StringResourceModel("editableRestrictedToolsDescription", null));
+			}
 		}
 		editableSpan.add(editToolsInstructions);
 

@@ -31,6 +31,7 @@ public class DelegatedAccessConstants {
 	public static final String NODE_PERM_REALM_PREFIX = "realm:";
 	public static final String NODE_PERM_ROLE_PREFIX = "role:";
 	public static final String NODE_PERM_DENY_TOOL_PREFIX = "denyTool:";
+	public static final String NODE_PERM_TERM_PREFIX = "term:";
 	public static final String NODE_PERM_SITE_VISIT = "site.visit";
 	public static final String NODE_PERM_SHOPPING_START_DATE = "shoppingStartDate:";
 	public static final String NODE_PERM_SHOPPING_END_DATE = "shoppingEndDate:";
@@ -45,6 +46,8 @@ public class DelegatedAccessConstants {
 	public static final String SHOPPING_PERIOD_USER = "120dv0f43cv90sdf0asv9";	
 	public static final int TYPE_ACCESS = 1;
 	public static final int TYPE_ACCESS_SHOPPING_PERIOD_USER = 2;
+	public static final int TYPE_LISTFIELD_TOOLS = 1;
+	public static final int TYPE_LISTFIELD_TERMS = 2;
 	public static final int TYPE_SHOPPING_PERIOD_ADMIN = 3;
 	public static final String SITE_PROP_HIERARCHY_NODE_ID = "hierarchy-node-id";
 	public static final String SITE_PROP_RESTRICTED_TOOLS = "shopping-period-restricted-tools";

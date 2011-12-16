@@ -9,7 +9,7 @@ import javax.swing.tree.TreeModel;
 import org.sakaiproject.delegatedaccess.model.HierarchyNodeSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.model.SearchResult;
-import org.sakaiproject.delegatedaccess.model.ToolSerialized;
+import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 
 
 
@@ -105,15 +105,22 @@ public interface ProjectLogic {
 	 * @param node
 	 * @param userId
 	 * @param blankRestrictedTools
+	 * @param blankTerms
 	 * @return
 	 */
-	public boolean addChildrenNodes(Object node, String userId, List<ToolSerialized> blankRestrictedTools);
+	public boolean addChildrenNodes(Object node, String userId, List<ListOptionSerialized> blankRestrictedTools, List<ListOptionSerialized> blankTerms);
 
 	/**
 	 * returns a blank (unselected) list of all the tool options for restricting tools
 	 * @return
 	 */
-	public List<ToolSerialized> getEntireToolsList();
+	public List<ListOptionSerialized> getEntireToolsList();
+	
+	/**
+	 * returns a blank (unselected) list of all the term options for restricting terms
+	 * @return
+	 */
+	public List<ListOptionSerialized> getEntireTermsList();
 
 
 	/**

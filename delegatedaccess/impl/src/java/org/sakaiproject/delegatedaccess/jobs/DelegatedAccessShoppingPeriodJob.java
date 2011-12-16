@@ -127,11 +127,10 @@ public class DelegatedAccessShoppingPeriodJob implements Job{
 
 		String restrictedToolsList = "";
 
-
-		if(addAuth && (".anon".equals(auth) || ".auth".equals(auth))){
-			//if (updated != null && updated.after(processed)){
-			//update the restricted tools list, otherwise it will be cleared:
-			
+		Site site = sakaiProxy.getSiteByRef(node.getNode().description);
+		
+		if(addAuth && (".anon".equals(auth) || ".auth".equals(auth)) && checkTerm(node.getNodeTerms(), site)){
+			//update the restricted tools list, otherwise it will be cleared:			
 			//set the restricted tools list to a non empty string, otherwise, the site property won't be saved
 			//when the string is empty (no tools allowed to view).
 			restrictedToolsList = ";";
@@ -148,23 +147,34 @@ public class DelegatedAccessShoppingPeriodJob implements Job{
 
 			//add node to shopping tree:
 			checkAndAddNode(node);
-
-			// update the processed date
-			//	processed = now;
-			//	projectLogic.assignUserNodePerm(DelegatedAccessConstants.SHOPPING_PERIOD_USER, node.getNodeId(), DelegatedAccessConstants.NODE_PERM_SHOPPING_PROCESSED_DATE + processed.getTime(), false);
-
-			//}
 		} else{
 			//remove .anon and .auth roles
 			removeAnonAndAuthRoles(node.getNode().description);
 		}
 
-		Site site = sakaiProxy.getSiteByRef(node.getNode().description);
+		
 		if (site != null){
 			site.getPropertiesEdit().addProperty(DelegatedAccessConstants.SITE_PROP_HIERARCHY_NODE_ID, node.getNode().id);
 			site.getPropertiesEdit().addProperty(DelegatedAccessConstants.SITE_PROP_RESTRICTED_TOOLS, restrictedToolsList);
 			sakaiProxy.saveSite(site);
 		}
+	}
+	
+	private boolean checkTerm(String[] terms, Site site){
+		boolean returnVal = true;
+		String siteTerm = site.getProperties().getProperty("term_eid");
+		if(terms != null && terms.length > 0){
+			returnVal = false;
+			if(siteTerm != null && !"".equals(siteTerm)){
+				for(String term : terms){
+					if(term.equals(siteTerm)){
+						returnVal = true;
+						break;
+					}
+				}
+			}
+		}
+		return returnVal;
 	}
 
 	private void removeAnonAndAuthRoles(String siteRef){

@@ -77,6 +77,10 @@
             <artifactId>entitybroker-api</artifactId>
             <scope>provided</scope>
     </dependency>
+	<dependency>
+      		<groupId>org.sakaiproject.edu-services.course-management</groupId>
+		<artifactId>coursemanagement-api</artifactId>
+	</dependency>
 
   	</dependencies>
   	

@@ -16,12 +16,14 @@ import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelList;
 public class PropertyEditableColumnList extends PropertyRenderableColumn
 {
 
-	private int type;
+	private int userType;
+	private int fieldType;
 	
-	public PropertyEditableColumnList(ColumnLocation location, String header, String propertyExpression, int type)
+	public PropertyEditableColumnList(ColumnLocation location, String header, String propertyExpression, int userType, int fieldType)
 	{
 		super(location, header, propertyExpression);
-		this.type = type;
+		this.userType = userType;
+		this.fieldType = fieldType;
 	}
 
 	/**
@@ -29,7 +31,7 @@ public class PropertyEditableColumnList extends PropertyRenderableColumn
 	 */
 	public Component newCell(MarkupContainer parent, String id, TreeNode node, int level)
 	{
-		return new EditablePanelList(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, type);
+		return new EditablePanelList(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, userType, fieldType);
 	}
 
 	/**

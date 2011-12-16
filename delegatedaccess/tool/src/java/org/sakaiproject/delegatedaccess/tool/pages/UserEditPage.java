@@ -31,7 +31,7 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.model.SearchResult;
-import org.sakaiproject.delegatedaccess.model.ToolSerialized;
+import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnCheckbox;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnDropdown;
@@ -97,11 +97,14 @@ public class UserEditPage  extends BaseTreePage{
 					"userObject.realmModel", realmMap, DelegatedAccessConstants.TYPE_ACCESS));
 		}
 		columnsList.add(new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 96, Unit.PX), new StringResourceModel("restrictedToolsHeader", null).getString(),
-				"userObject.restrictedTools", DelegatedAccessConstants.TYPE_ACCESS));
+				"userObject.restrictedTools", DelegatedAccessConstants.TYPE_ACCESS, DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS));
+		columnsList.add(new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 65, Unit.PX), new StringResourceModel("termHeader", null).getString(),
+				"userObject.terms", DelegatedAccessConstants.TYPE_ACCESS, DelegatedAccessConstants.TYPE_LISTFIELD_TERMS));
 		IColumn columns[] = columnsList.toArray(new IColumn[columnsList.size()]);
 
 		final TreeModel treeModel = projectLogic.createEntireTreeModelForUser(searchResult.getId(), true, false);
-		final List<ToolSerialized> blankRestrictedTools = projectLogic.getEntireToolsList();
+		final List<ListOptionSerialized> blankRestrictedTools = projectLogic.getEntireToolsList();
+		final List<ListOptionSerialized> blankTerms = projectLogic.getEntireTermsList();
 		//a null model means the tree is empty
 		tree = new TreeTable("treeTable", treeModel, columns){
 			@Override
@@ -113,7 +116,7 @@ public class UserEditPage  extends BaseTreePage{
 				//are missing in the tree.  Expanding and collapsing will refresh the tree node
 				boolean anyAdded = false;
 				if(!tree.getTreeState().isNodeExpanded(node) && !((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isAddedDirectChildrenFlag()){
-					anyAdded = projectLogic.addChildrenNodes(node, searchResult.getId(), blankRestrictedTools);
+					anyAdded = projectLogic.addChildrenNodes(node, searchResult.getId(), blankRestrictedTools, blankTerms);
 					((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).setAddedDirectChildrenFlag(true);
 				}
 				if(anyAdded){
@@ -129,7 +132,7 @@ public class UserEditPage  extends BaseTreePage{
 				//the nodes are generated on the fly with ajax.  This will add any child nodes that 
 				//are missing in the tree.  Expanding and collapsing will refresh the tree node
 				if(tree.getTreeState().isNodeExpanded(node) && !((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isAddedDirectChildrenFlag()){
-					boolean anyAdded = projectLogic.addChildrenNodes(node, searchResult.getId(), blankRestrictedTools);
+					boolean anyAdded = projectLogic.addChildrenNodes(node, searchResult.getId(), blankRestrictedTools, blankTerms);
 					((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).setAddedDirectChildrenFlag(true);
 					if(anyAdded){
 						collapseEmptyFoldersHelper((DefaultMutableTreeNode) node);

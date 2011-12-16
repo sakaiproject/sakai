@@ -82,7 +82,7 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 			for(String hiearchyProperty : hierarchy){
 				String siteProperty = site.getProperties().getProperty(hiearchyProperty);
 				if(siteProperty != null && !"".equals(siteProperty)){
-					siteParentId = checkAndAddNode(siteParentId, siteProperty, siteProperty);
+					siteParentId = checkAndAddNode(siteParentId, siteProperty, siteProperty, null);
 				}else{
 					//nothing, so break
 					break;
@@ -92,7 +92,7 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 			if(!rootNode.id.equals(siteParentId)){
 				//save the site under the parent hierarchy if any data was found
 				//Site
-				checkAndAddNode(siteParentId, site.getTitle(), site.getReference());
+				checkAndAddNode(siteParentId, site.getTitle(), site.getReference(), site.getProperties().getProperty("term_eid"));
 			}
 		}
 
@@ -136,7 +136,7 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 
 
 
-	private String checkAndAddNode(String parentId, String title, String description){
+	private String checkAndAddNode(String parentId, String title, String description, String term){
 		String nodeId = "";
 		if(title != null && !"".equals(title)){
 
@@ -144,7 +144,7 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 			if(nodeId == null){
 				//if this parent/child relationship hasn't been created, create it
 				HierarchyNode newNode = hierarchyService.addNode(DelegatedAccessConstants.HIERARCHY_ID, parentId);
-				hierarchyService.saveNodeMetaData(newNode.id, title, description, null);
+				hierarchyService.saveNodeMetaData(newNode.id, title, description, term);
 				hierarchyService.addChildRelation(parentId, newNode.id);
 				nodeId = newNode.id;
 			}

@@ -21,6 +21,7 @@ public class HierarchyNodeSerialized implements Serializable {
 	public Set<String> directChildNodeIds = new HashSet<String>();
 	public Set<String> childNodeIds = new HashSet<String>();
 	public String id = "";
+	public String permKey = "";
 
 	public HierarchyNodeSerialized(HierarchyNode hierarchyNode){
 		if(hierarchyNode != null){
@@ -30,6 +31,7 @@ public class HierarchyNodeSerialized implements Serializable {
 			this.id = hierarchyNode.id;
 			this.directChildNodeIds = hierarchyNode.directChildNodeIds;
 			this.childNodeIds = hierarchyNode.childNodeIds;
+			this.permKey = hierarchyNode.permToken;
 		}
 	}
 }

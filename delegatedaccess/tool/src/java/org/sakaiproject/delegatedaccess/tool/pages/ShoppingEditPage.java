@@ -93,7 +93,9 @@ public class ShoppingEditPage extends BaseTreePage{
 		columnsList.add(new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 100, Unit.PX), new StringResourceModel("startDate", null).getString(), "userObject.shoppingPeriodStartDate", true));
 		columnsList.add(new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 100, Unit.PX), new StringResourceModel("endDate", null).getString(), "userObject.shoppingPeriodEndDate", false));
 		columnsList.add(new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 96, Unit.PX), new StringResourceModel("showToolsHeader", null).getString(),
-				"userObject.restrictedTools", DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER));
+				"userObject.restrictedTools", DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER, DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS));
+		columnsList.add(new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 65, Unit.PX), new StringResourceModel("termHeader", null).getString(),
+				"userObject.terms", DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER, DelegatedAccessConstants.TYPE_LISTFIELD_TERMS));
 		IColumn columns[] = columnsList.toArray(new IColumn[columnsList.size()]);
 
 		//a null model means the tree is empty
