@@ -105,7 +105,7 @@ public class TimeoutDialogHandler extends BasePortalHandler
 						/* toolId */null, req.getContextPath() + req.getServletPath(),
 						/* prefix */"site", /* doPages */true, /* resetTools */false,
 						/* includeSummary */false, /* expandSite */true);
-				portal.sendResponse(rcontext, res, parts[1], "text/html");
+				portal.sendResponse(rcontext, res, parts[1], "text/html; charset=UTF-8");
 			} catch (Exception e) {
 				throw new PortalHandlerException(e);
 			}
