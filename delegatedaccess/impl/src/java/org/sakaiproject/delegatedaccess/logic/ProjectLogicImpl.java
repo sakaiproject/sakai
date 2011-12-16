@@ -440,7 +440,11 @@ public class ProjectLogicImpl implements ProjectLogic {
 		List<ListOptionSerialized> returnList = new ArrayList<ListOptionSerialized>();
 		
 		for(AcademicSession session : cms.getAcademicSessions()){
-			returnList.add(new ListOptionSerialized(session.getEid(), session.getTitle(), false));
+			String termId = session.getEid();
+			if(!"term_eid".equals(sakaiProxy.getTermField())){
+				termId = session.getTitle();
+			}
+			returnList.add(new ListOptionSerialized(termId, session.getTitle(), false));
 		}
 		
 		return returnList;
