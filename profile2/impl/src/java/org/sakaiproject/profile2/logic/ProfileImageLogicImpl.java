@@ -125,6 +125,15 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 			return image;
 		}
 		
+		//check if we have an image for this user type (if enabled)
+		//if we have one, return it. otherwise continue to the rest of the checks.
+		String userTypeImageUrl = getUserTypeImageUrl(userUuid);
+		if(StringUtils.isNotBlank(userTypeImageUrl)){
+			image.setExternalImageUrl(userTypeImageUrl);
+			image.setAltText(getAltText(userUuid, isSameUser, true));
+			return image;
+		}
+		
 		//lookup global image setting, this will be used if no preferences were supplied.
 		int imageType = sakaiProxy.getProfilePictureType();
 		
@@ -662,6 +671,29 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		return null;
 	}
 	
+	/**
+	 * Gets the url to the user type image (PRFL-691)
+	 * 
+	 *<p>This first checks if the option is enabled (profile2.user.type.image.enabled=true). 
+	 *<p>If so, it attempts to get the value for profile.user.type.image.&lt;usertype&gt; which should be an absolute URL.
+	 *<p>If there is one, it is returned, if not, return null. Also returns null if userType is undefined.
+	 * @param userUuid	uuid of the user to get the image for
+	 * @return url or null.
+	 */
+	private String getUserTypeImageUrl(String userUuid) {
+		
+		boolean enabled = Boolean.valueOf(sakaiProxy.getServerConfigurationParameter("profile2.user.type.image.enabled", "false"));
+		
+		String imageUrl = null;
+		
+		if(enabled) {
+			String userType = sakaiProxy.getUserType(userUuid);
+			if(StringUtils.isNotBlank(userType)) {
+				imageUrl = sakaiProxy.getServerConfigurationParameter("profile.user.type.image."+userType, null);
+			}
+		}
+		return imageUrl;
+	}
 	
 	
 	
