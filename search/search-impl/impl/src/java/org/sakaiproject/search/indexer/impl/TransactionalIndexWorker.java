@@ -28,7 +28,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
+import org.apache.commons.collections.iterators.EntrySetMapIterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.document.Document;
@@ -409,14 +412,16 @@ public class TransactionalIndexWorker implements IndexWorker
 
 								// add the custom properties
 
-								Map m = sep.getCustomProperties(ref);
+								Map<String, ?> m = sep.getCustomProperties(ref);
 								if (m != null)
 								{
-									for (Iterator cprops = m.keySet().iterator(); cprops
+									Set<?> entries = m.entrySet();
+									for (Iterator<?> cprops = entries.iterator(); cprops
 											.hasNext();)
 									{
-										String key = (String) cprops.next();
-										Object value = m.get(key);
+										Entry<String, ?> entry = (Entry<String, ?>) cprops.next();
+										String key = entry.getKey();
+										Object value = entry.getValue();
 										String[] values = null;
 										if (value instanceof String)
 										{
