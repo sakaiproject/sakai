@@ -585,13 +585,13 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 							{
 								log.info("Merging \n" + status);
 							}
-							mergeIndexWriter.addIndexes((Directory[]) indexes
+							mergeIndexWriter.addIndexesNoOptimize((Directory[]) indexes
 									.toArray(new Directory[indexes.size()]));
 							mergeIndexWriter.optimize();
 							if (diagnostics)
 							{
 								log.info("Merged Segment contians "
-										+ mergeIndexWriter.docCount() + " documents ");
+										+ mergeIndexWriter.maxDoc() + " documents ");
 							}
 
 							
