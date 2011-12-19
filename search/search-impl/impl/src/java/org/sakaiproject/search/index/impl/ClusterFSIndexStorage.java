@@ -97,25 +97,6 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 			SegmentInfo segment = i.next();
 			try
 			{
-				if (false)
-				{
-
-					// this code will simulate a massive index failure, where
-					// evey 5th segment is dammaged beyond repair.
-					// only enable if you want to test the recovery mechanism
-					if (j % 5 == 0)
-					{
-						File f = segment.getSegmentLocation();
-						log.warn("Removing Segment for test " + f);
-						File[] files = f.listFiles();
-						for (int k = 0; k < files.length; k++)
-						{
-							files[k].delete();
-						}
-						f.delete();
-					}
-				}
-
 				if (!segment.checkSegmentValidity(diagnostics, "getIndexReader "))
 				{
 					log.warn("Checksum Failed on  " + segment);
@@ -213,59 +194,15 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 		// we will open a temporary index, which will be merged on completion
 		SegmentInfo currentSegment = null;
 		IndexWriter indexWriter = null;
-		if (false)
-		{
-			List<SegmentInfo> segments = clusterFS.updateSegments();
-			if (log.isDebugEnabled())
-				log.debug("Found " + segments.size() + " segments ");
-			if (segments.size() > 0)
-			{
-				currentSegment = segments.get(segments.size() - 1);
-				if (!currentSegment.isClusterSegment()
-						|| currentSegment.getTotalSize() > segmentThreshold)
-				{
-					currentSegment = null;
-				}
+		File tempIndex = clusterFS.getTemporarySegment(true);
+		indexWriter = new IndexWriter(tempIndex, getAnalyzer(), true);
+		indexWriter.setUseCompoundFile(true);
+		// indexWriter.setInfoStream(System.out);
+		indexWriter.setMaxMergeDocs(50);
+		indexWriter.setMergeFactor(50);
+		if (log.isDebugEnabled())
+			log.debug("Using Temp Index Writer " + tempIndex.getPath());
 
-			}
-			if (currentSegment == null)
-			{
-				currentSegment = clusterFS.newSegment();
-				if (log.isDebugEnabled())
-					log.debug("Created new segment " + currentSegment.getName());
-				currentSegment.touchSegment();
-				indexWriter = new IndexWriter(currentSegment.getSegmentLocation(),
-						getAnalyzer(), true);
-				indexWriter.setUseCompoundFile(true);
-				// indexWriter.setInfoStream(System.out);
-				indexWriter.setMaxMergeDocs(50);
-				indexWriter.setMergeFactor(50);
-			}
-			else
-			{
-				currentSegment.touchSegment();
-				indexWriter = new IndexWriter(currentSegment.getSegmentLocation(),
-						getAnalyzer(), false);
-				indexWriter.setUseCompoundFile(true);
-				// indexWriter.setInfoStream(System.out);
-				indexWriter.setMaxMergeDocs(50);
-				indexWriter.setMergeFactor(50);
-			}
-			if (log.isDebugEnabled())
-				log.debug("Using Current Index Writer "
-						+ currentSegment.getSegmentLocation().getPath());
-		}
-		else
-		{
-			File tempIndex = clusterFS.getTemporarySegment(true);
-			indexWriter = new IndexWriter(tempIndex, getAnalyzer(), true);
-			indexWriter.setUseCompoundFile(true);
-			// indexWriter.setInfoStream(System.out);
-			indexWriter.setMaxMergeDocs(50);
-			indexWriter.setMergeFactor(50);
-			if (log.isDebugEnabled())
-				log.debug("Using Temp Index Writer " + tempIndex.getPath());
-		}
 		return indexWriter;
 	}
 
