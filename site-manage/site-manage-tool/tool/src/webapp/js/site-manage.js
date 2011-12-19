@@ -37,7 +37,7 @@ sakai.getSiteInfo = function(trigger, dialogTarget, nosd, nold){
                 }
                 
                 if (data.props['contact-email']) {
-                    email = " (<a href=\"" + data.props['contact-email'].escapeHTML() + "\" id=\"email\">" + data.props['contact-email'].escapeHTML() + "</a>)";
+                    email = " (<a href=\"mailto:" + data.props['contact-email'].escapeHTML() + "\" id=\"email\">" + data.props['contact-email'].escapeHTML() + "</a>)";
                 }
             }
             sitetitle = data.title.escapeHTML();
