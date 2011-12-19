@@ -34,7 +34,7 @@ public interface ProfileSearchLogic {
 	 * @param search 	string to search for
 	 * @return List 	Persons
 	 */
-	public List<Person> findUsersByInterest(String search, boolean includeBusinessBio);
+	public List<Person> findUsersByInterest(String search);
 		
 	/**
 	 * Retrieves the last search term made by the user with the given UUID.

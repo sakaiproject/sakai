@@ -69,10 +69,10 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 	/**
  	 * {@inheritDoc}
  	 */
-	public List<Person> findUsersByInterest(String search, boolean includeBusinessBio) {
+	public List<Person> findUsersByInterest(String search) {
 				
 		//add users from SakaiPerson		
-		List<String> sakaiPersonUuids = dao.findSakaiPersonsByInterest(search, includeBusinessBio);
+		List<String> sakaiPersonUuids = dao.findSakaiPersonsByInterest(search, sakaiProxy.isBusinessProfileEnabled());
 		List<User> users = sakaiProxy.getUsers(sakaiPersonUuids);
 		
 		//restrict to only return the max number. UI will print message
