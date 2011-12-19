@@ -192,10 +192,9 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 		// to ensure that we dont dammage the index due to OutOfMemory, if it
 		// should ever happen
 		// we will open a temporary index, which will be merged on completion
-		SegmentInfo currentSegment = null;
 		IndexWriter indexWriter = null;
 		File tempIndex = clusterFS.getTemporarySegment(true);
-		indexWriter = new IndexWriter(tempIndex, getAnalyzer(), true);
+		indexWriter = new IndexWriter(FSDirectory.open(tempIndex), getAnalyzer(), true, IndexWriter.MaxFieldLength.UNLIMITED);
 		indexWriter.setUseCompoundFile(true);
 		// indexWriter.setInfoStream(System.out);
 		indexWriter.setMaxMergeDocs(50);
@@ -267,7 +266,7 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 	{
 		if (log.isDebugEnabled()) log.debug("Start Index Cycle");
 		// dont enable locks
-		FSDirectory.setDisableLocks(true);
+		//FSDirectory.setDisableLocks(true);
 
 	}
 
@@ -279,7 +278,7 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 	{
 		if (merge)
 		{
-			FSDirectory.setDisableLocks(true);
+			//FSDirectory.setDisableLocks(true);
 			// get the tmp index
 			File tmpSegment = clusterFS.getTemporarySegment(false);
 			Directory[] tmpDirectory = new Directory[1];
@@ -518,7 +517,7 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 						{
 							mergeIndexWriter = new IndexWriter(FSDirectory.open(
 									mergeSegment.getSegmentLocation()),
-									getAnalyzer(), true);
+									getAnalyzer(), true, IndexWriter.MaxFieldLength.UNLIMITED);
 							mergeIndexWriter.setUseCompoundFile(true);
 							// indexWriter.setInfoStream(System.out);
 							mergeIndexWriter.setMaxMergeDocs(50);
