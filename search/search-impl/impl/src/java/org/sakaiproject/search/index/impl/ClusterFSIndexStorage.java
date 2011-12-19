@@ -102,7 +102,7 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 					log.warn("Checksum Failed on  " + segment);
 					segment.checkSegmentValidity(true, "getIndexReader Failed");
 				}
-				readers[j] = IndexReader.open(segment.getSegmentLocation());
+				readers[j] = IndexReader.open(FSDirectory.open(segment.getSegmentLocation()), false);
 			}
 			catch (Exception ex)
 			{
@@ -130,7 +130,7 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 											+ ex.getClass().getName() + ":"
 											+ ex.getMessage(), ex);
 					clusterFS.recoverSegment(segment);
-					readers[j] = IndexReader.open(segment.getSegmentLocation());
+					readers[j] = IndexReader.open(FSDirectory.open(segment.getSegmentLocation()), false);
 					log
 							.warn("Recovery complete, resuming normal operations having restored, ignore previous problems with this segment "
 									+ segment.getName());
@@ -283,7 +283,7 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 			// get the tmp index
 			File tmpSegment = clusterFS.getTemporarySegment(false);
 			Directory[] tmpDirectory = new Directory[1];
-			tmpDirectory[0] = FSDirectory.getDirectory(tmpSegment, false);
+			tmpDirectory[0] = FSDirectory.open(tmpSegment);
 
 			// Need to fix checksums before merging.... is that really true,
 			// 
@@ -354,8 +354,8 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 					if (log.isDebugEnabled())
 						log.debug("Using Existing Segment " + currentSegment.getName());
 					currentSegment.touchSegment();
-					indexWriter = new IndexWriter(FSDirectory.getDirectory(currentSegment
-							.getSegmentLocation(), false), getAnalyzer(), false);
+					Directory dir = FSDirectory.open(currentSegment.getSegmentLocation());
+					indexWriter = new IndexWriter(dir, getAnalyzer(), false, IndexWriter.MaxFieldLength.UNLIMITED);
 					indexWriter.setUseCompoundFile(true);
 					// indexWriter.setInfoStream(System.out);
 					indexWriter.setMaxMergeDocs(50);
@@ -367,7 +367,7 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 							log.debug("Merging Temp segment " + tmpSegment.getPath()
 									+ " with current segment "
 									+ currentSegment.getSegmentLocation().getPath());
-						indexWriter.addIndexes(tmpDirectory);
+						indexWriter.addIndexesNoOptimize(tmpDirectory);
 						indexWriter.optimize();
 					}
 					else
@@ -516,8 +516,8 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 						boolean mergeOk = false;
 						try
 						{
-							mergeIndexWriter = new IndexWriter(FSDirectory.getDirectory(
-									mergeSegment.getSegmentLocation(), false),
+							mergeIndexWriter = new IndexWriter(FSDirectory.open(
+									mergeSegment.getSegmentLocation()),
 									getAnalyzer(), true);
 							mergeIndexWriter.setUseCompoundFile(true);
 							// indexWriter.setInfoStream(System.out);
@@ -548,8 +548,8 @@ public class ClusterFSIndexStorage extends BaseIndexStorage
 									{
 										currentSize += si.getSize();
 
-										Directory d = FSDirectory.getDirectory(si
-												.getSegmentLocation(), false);
+										Directory d = FSDirectory.open(si
+												.getSegmentLocation());
 										if (d.fileExists("segments.gen"))
 										{
 											status.append("   Merge ").append(
