@@ -202,7 +202,12 @@ public interface SakaiProxy {
 	public SakaiPerson createSakaiPerson(String userId);
 
 	/**
-	 * Update a SakaiPerson object in the db
+	 * Update a SakaiPerson object in the db.
+	 * <p>If you are doing this from the UI you should use the {@link ProfileLogic.updateUserProfile} method instead
+	 * as it will also handle any email notifications that may be required.
+	 * 
+	 * <p>We keep this because for direct actions like converting profiles etc we dont need email notifications.
+	 *  
 	 * @param sakaiPerson
 	 * @return
 	 */

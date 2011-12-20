@@ -210,7 +210,7 @@ public class MyInterestsEdit extends Panel {
 		sakaiPerson.setFavouriteQuotes(userProfile.getFavouriteQuotes());
 
 		//update SakaiPerson
-		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
+		if(profileLogic.saveUserProfile(sakaiPerson)) {
 			log.info("Saved SakaiPerson for: " + userId );
 			return true;
 		} else {

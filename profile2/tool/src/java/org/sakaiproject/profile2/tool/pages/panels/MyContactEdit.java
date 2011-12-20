@@ -40,6 +40,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
 import org.apache.wicket.validation.validator.UrlValidator;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
+import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
@@ -59,6 +60,9 @@ public class MyContactEdit extends Panel {
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileWallLogic")
 	private ProfileWallLogic wallLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	private ProfileLogic profileLogic;
 	
     public MyContactEdit(final String id, final UserProfile userProfile) {
 		super(id);
@@ -354,7 +358,7 @@ public class MyContactEdit extends Panel {
 		sakaiPerson.setMobile(userProfile.getMobilephone()); //mobilephone
 		sakaiPerson.setFacsimileTelephoneNumber(userProfile.getFacsimile()); //facsimile
 
-		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
+		if(profileLogic.saveUserProfile(sakaiPerson)) {
 			log.info("Saved SakaiPerson for: " + userId );
 			
 			//update their email address in their account if allowed

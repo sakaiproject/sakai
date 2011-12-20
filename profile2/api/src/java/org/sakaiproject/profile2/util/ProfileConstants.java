@@ -348,6 +348,7 @@ public class ProfileConstants {
 	public static final String EMAIL_TEMPLATE_KEY_WALL_POST_CONNECTION_NEW = "profile2.wallPostConnectionWallNew";
 	public static final String EMAIL_TEMPLATE_KEY_WALL_STATUS_NEW = "profile2.wallStatusNew";
 	public static final String EMAIL_TEMPLATE_KEY_WORKSITE_NEW = "profile2.worksiteNew";
+	public static final String EMAIL_TEMPLATE_KEY_PROFILE_CHANGE_NOTIFICATION = "profile2.profileChangeNotification";
 	
 	/*
 	 * DIRECT LINKS

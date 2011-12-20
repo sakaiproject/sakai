@@ -18,6 +18,7 @@ package org.sakaiproject.profile2.logic;
 
 import java.util.List;
 
+import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.model.BasicPerson;
 import org.sakaiproject.profile2.model.CompanyProfile;
 import org.sakaiproject.profile2.model.Person;
@@ -50,14 +51,14 @@ public interface ProfileLogic {
 	public UserProfile getUserProfile(String userUuid);
 	
 	/**
-	 * Persist a UserProfile
+	 * Persist a SakaiPerson object and send an email notification, if required.
 	 * 
-	 * <p>Not yet implemented, will return false.</p>
+	 * <p>Note that this may eventually change to UserProfile, when SakaiPerson is reimplemented.
 	 * 
-	 * @param userProfile	UserProfile obj, can only save own.
+	 * @param sp	SakaiPerson obj
 	 * @return	
 	 */
-	public boolean saveUserProfile(UserProfile userProfile);
+	public boolean saveUserProfile(SakaiPerson sp);
 	
 	/**
 	 * Adds a new company profile to the database.

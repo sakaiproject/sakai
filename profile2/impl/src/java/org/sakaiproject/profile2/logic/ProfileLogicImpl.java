@@ -17,8 +17,10 @@
 package org.sakaiproject.profile2.logic;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import lombok.Setter;
 
@@ -36,6 +38,7 @@ import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.SocialNetworkingInfo;
 import org.sakaiproject.profile2.model.UserProfile;
+import org.sakaiproject.profile2.types.EmailType;
 import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -174,9 +177,13 @@ public class ProfileLogicImpl implements ProfileLogic {
 	/**
  	 * {@inheritDoc}
  	 */
-	public boolean saveUserProfile(UserProfile p) {
+	public boolean saveUserProfile(SakaiPerson sp) {
 		
-		//TODO
+		if(sakaiProxy.updateSakaiPerson(sp)) {
+			sendProfileChangeEmailNotification(sp.getAgentUuid());
+			
+			return true;
+		}
 		
 		return false;
 	}
@@ -424,6 +431,47 @@ public class ProfileLogicImpl implements ProfileLogic {
 		return p;
 	}
 	
+
+	/**
+	 * Sends an email notification when a user changes their profile, if enabled.
+	 * @param toUuid		the uuid of the user who changed their profile
+	 */
+	private void sendProfileChangeEmailNotification(final String userUuid) {
+		
+		//check if option is enabled
+		boolean enabled = Boolean.valueOf(sakaiProxy.getServerConfigurationParameter("profile2.profile.change.email.enabled", "false"));
+		if(!enabled) {
+			return;
+		}
+		
+		//get the user to send to. THis will be translated into an internal ID. Since SakaiProxy.sendEmail takes a userId as a param
+		//it was easier to require an eid here (and thus the person needs to have an account) rather than create a new method that takes an email address.
+		String eidTo = sakaiProxy.getServerConfigurationParameter("profile2.profile.change.email.eid", null);
+		if(StringUtils.isBlank(eidTo)){
+			log.error("Profile change email notification is enabled but no user eid to send it to is set. Please set 'profile2.profile.change.email.eid' in sakai.properties");
+			return;
+		}
+		
+		//get internal id for this user
+		String userUuidTo = sakaiProxy.getUserIdForEid(eidTo);
+		if(StringUtils.isBlank(userUuidTo)) {
+			log.error("Profile change email notification is setup with an invalid eid. Please adjust 'profile2.profile.change.email.eid' in sakai.properties");
+			return;
+		}
+		
+		String emailTemplateKey = ProfileConstants.EMAIL_TEMPLATE_KEY_PROFILE_CHANGE_NOTIFICATION;
+			
+		//create the map of replacement values for this email template
+		Map<String,String> replacementValues = new HashMap<String,String>();
+		replacementValues.put("userDisplayName", sakaiProxy.getUserDisplayName(userUuid));
+		replacementValues.put("localSakaiName", sakaiProxy.getServiceName());
+		replacementValues.put("profileLink", linkLogic.getEntityLinkToProfileHome(userUuid));
+		replacementValues.put("localSakaiUrl", sakaiProxy.getPortalUrl());
+
+		sakaiProxy.sendEmail(userUuidTo, emailTemplateKey, replacementValues);
+		return;
+		
+	}
 	
 	
 	@Setter
@@ -449,5 +497,8 @@ public class ProfileLogicImpl implements ProfileLogic {
 	
 	@Setter
 	private ProfileConverter converter;
+	
+	@Setter
+	private ProfileLinkLogic linkLogic;
 	
 }

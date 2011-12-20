@@ -35,6 +35,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.validation.validator.UrlValidator;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
+import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
@@ -57,6 +58,9 @@ public class MyStaffEdit extends Panel {
 	
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileWallLogic")
 	private ProfileWallLogic wallLogic;
+	
+	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
+	private ProfileLogic profileLogic;
 	
     public MyStaffEdit(final String id, final UserProfile userProfile) {
 		super(id);
@@ -297,7 +301,7 @@ public class MyStaffEdit extends Panel {
 		sakaiPerson.setPublications(userProfile.getPublications());
 		
 		//update SakaiPerson
-		if(sakaiProxy.updateSakaiPerson(sakaiPerson)) {
+		if(profileLogic.saveUserProfile(sakaiPerson)) {
 			log.info("Saved SakaiPerson for: " + userId );
 			return true;
 		} else {

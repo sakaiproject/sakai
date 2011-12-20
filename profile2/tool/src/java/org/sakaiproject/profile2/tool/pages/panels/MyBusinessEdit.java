@@ -390,7 +390,7 @@ public class MyBusinessEdit extends Panel {
 		}
 
 		// update SakaiPerson
-		if (sakaiProxy.updateSakaiPerson(sakaiPerson)) {
+		if (profileLogic.saveUserProfile(sakaiPerson)) {
 			log.info("Saved SakaiPerson for: " + userId);
 			return true;
 		} else {
