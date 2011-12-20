@@ -10,7 +10,7 @@
   <name>Sakai Deployment Project</name>
   <groupId>org.sakaiproject.kernel</groupId>
   <artifactId>deploy</artifactId>
-  <version>1.4-SNAPSHOT</version>
+  <version>1.4.0-SNAPSHOT</version>
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy</connection>
     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy</developerConnection>

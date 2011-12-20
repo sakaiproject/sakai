@@ -4,7 +4,7 @@
   <parent>
     <artifactId>deploy</artifactId>
     <groupId>org.sakaiproject.kernel</groupId>
-    <version>1.4-SNAPSHOT</version>
+    <version>1.4.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <description>Kernel Assembly</description>

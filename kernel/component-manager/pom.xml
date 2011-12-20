@@ -10,7 +10,7 @@
   <name>Sakai Component Manager</name>
   <groupId>org.sakaiproject.kernel</groupId>
   <artifactId>sakai-component-manager</artifactId>
-  <version>1.4-SNAPSHOT</version>
+  <version>1.4.0-SNAPSHOT</version>
   <organization>
     <name>The Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>

@@ -10,7 +10,7 @@
   <name>Sakai Kernel Private Package</name>
   <groupId>org.sakaiproject.kernel</groupId>
   <artifactId>sakai-kernel-private</artifactId>
-  <version>1.4-SNAPSHOT</version>
+  <version>1.4.0-SNAPSHOT</version>
   <organization>
     <name>The Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>

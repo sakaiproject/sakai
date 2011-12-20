@@ -10,7 +10,7 @@
   <name>Sakai Core Kernel Implementation</name>
   <groupId>org.sakaiproject.kernel</groupId>
   <artifactId>sakai-kernel-impl</artifactId>
-  <version>1.4-SNAPSHOT</version>
+  <version>1.4.0-SNAPSHOT</version>
   <organization>
     <name>Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>

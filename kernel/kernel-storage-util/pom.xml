@@ -10,7 +10,7 @@
   <name>Sakai Kernel Storage Util</name>
   <groupId>org.sakaiproject.kernel</groupId>
   <artifactId>sakai-kernel-storage-util</artifactId>
-  <version>1.4-SNAPSHOT</version>
+  <version>1.4.0-SNAPSHOT</version>
   <organization>
     <name>The Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>

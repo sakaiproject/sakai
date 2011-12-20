@@ -11,7 +11,7 @@
     <name>Kernel Direct Shared Deployer</name>
     <groupId>org.sakaiproject.kernel.deploy</groupId>
     <artifactId>shared</artifactId>
-    <version>1.4-SNAPSHOT</version>
+    <version>1.4.0-SNAPSHOT</version>
     <organization>
         <name>Sakai Foundation</name>
         <url>http://sakaiproject.org/</url>

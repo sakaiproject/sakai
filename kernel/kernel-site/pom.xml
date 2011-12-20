@@ -10,7 +10,7 @@
   <name>Sakai Kernel Site Skin</name>
   <groupId>org.sakaiproject.kernel</groupId>
   <artifactId>kernel-site</artifactId>
-  <version>1.4-SNAPSHOT</version>
+  <version>1.4.0-SNAPSHOT</version>
   <organization>
     <name>The Sakai Foundation</name>
     <url>http://www.sakaiproject.org/</url>
