@@ -99,6 +99,7 @@ public class CourseSetRoleResolver extends BaseRoleResolver {
 	 * {@inheritDoc}
 	 */
 	public Map<String, String> getGroupRoles(CourseManagementService cmService, String userEid) {
+		log.debug("getGroupRoles: " + userEid);
 		Map<String, String> sectionRoles = new HashMap<String, String>();
 
 		// Don't bother doing anything if the integration is configured to ignore
@@ -110,17 +111,19 @@ public class CourseSetRoleResolver extends BaseRoleResolver {
 		Map<String, String> courseSetRoles = cmService.findCourseSetRoles(userEid);
 		
 		// Look at each of the course sets for which this user has a role
-		for(Entry<String, String> csEid : courseSetRoles.entrySet()) {
-			String csRole = csEid.getKey();
+		for(Entry<String, String> csEntry : courseSetRoles.entrySet()) {
+			//we want the users role in this Set
+			String csRole = csEntry.getValue();
 			
 			// If this course set role shouldn't be added to the site, ignore this course set
 			String sakaiRole = convertRole(csRole);
+			log.debug("got role " + sakaiRole + " for section " + csEntry.getKey());
 			if(sakaiRole == null) {
 				continue;
 			}
 			
 			// Look at each of the course offerings in the course set
-			Set<CourseOffering> courseOfferings = cmService.getCourseOfferingsInCourseSet(csEid.getKey());
+			Set<CourseOffering> courseOfferings = cmService.getCourseOfferingsInCourseSet(csEntry.getKey());
 			for(CourseOffering co : courseOfferings) {
 				// Get the sections in each course offering
 				Set<Section> sections = cmService.getSections(co.getEid());
