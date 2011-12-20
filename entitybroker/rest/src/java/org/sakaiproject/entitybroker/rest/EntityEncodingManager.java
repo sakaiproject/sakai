@@ -54,6 +54,7 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProviderManager;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityFieldRequired;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Createable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Deleteable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.DepthLimitable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.InputTranslatable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.OutputFormattable;
@@ -838,9 +839,20 @@ public class EntityEncodingManager {
         }
         String encoded = "";
         if (data != null) {
+            int maxDepth = 0;
+            if (name != null) {
+                DepthLimitable provider = (DepthLimitable) entityProviderManager.getProviderByPrefixAndCapability(name, DepthLimitable.class);
+                if (provider != null) {
+                    maxDepth = provider.getMaxDepth();
+                }
+            }
             Transcoder transcoder = getTranscoder(format);
             try {
-                encoded = transcoder.encode(data, name, properties);
+                if (maxDepth == 0) {
+                    encoded = transcoder.encode(data, name, properties);
+                } else {
+                    encoded = transcoder.encode(data, name, properties, maxDepth);
+                }
             } catch (RuntimeException e) {
                 // convert failure to UOE
                 throw new UnsupportedOperationException("Failure encoding data ("+data+") of type ("+data.getClass()+"): " + e.getMessage(), e);

@@ -51,6 +51,7 @@ import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomActi
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityParameters;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityURLRedirect;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.DepthLimitable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Redirectable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestStorable;
@@ -85,7 +86,15 @@ import org.sakaiproject.util.FormattedText;
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 public class SiteEntityProvider extends AbstractEntityProvider implements CoreEntityProvider,
-RESTful, ActionsExecutable, Redirectable, RequestStorable {
+RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
+
+    private int maxDepth = 7;
+    public void setMaxDepth(int maxDepth) {
+        this.maxDepth = maxDepth;
+    }
+    public int getMaxDepth() {
+        return maxDepth;
+    }
 
     private static Log log = LogFactory.getLog(SiteEntityProvider.class);
 

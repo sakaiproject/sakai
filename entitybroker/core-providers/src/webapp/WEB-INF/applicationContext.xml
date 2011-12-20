@@ -21,6 +21,7 @@
 		<property name="functionManager" ref="org.sakaiproject.authz.api.FunctionManager" />
         <property name="userEntityProvider" ref="org.sakaiproject.entitybroker.providers.UserEntityProvider" />
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+        <property name="maxDepth" value="8"/>
     </bean>
 
     <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
