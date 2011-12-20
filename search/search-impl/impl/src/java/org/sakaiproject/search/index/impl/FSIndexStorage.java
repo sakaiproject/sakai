@@ -77,7 +77,7 @@ public class FSIndexStorage extends BaseIndexStorage
 			log.debug("Indexing in " + f.getAbsolutePath());
 		}
 
-		if (IndexReader.isLocked(searchIndexDirectory))
+		if (IndexWriter.isLocked(FSDirectory.open(f)))
 		{
 			// this could be dangerous, I am assuming that
 			// the locking mechanism implemented here is
@@ -85,14 +85,15 @@ public class FSIndexStorage extends BaseIndexStorage
 			// already prevents multiple modifiers.
 			// A more
 
-			IndexReader.unlock(FSDirectory.getDirectory(searchIndexDirectory, true));
+			IndexWriter.unlock(FSDirectory.open(f));
 			log.warn("Unlocked Lucene Directory for update, hope this is Ok");
 		}
 	}
 
 	public IndexReader getIndexReader() throws IOException
 	{
-		return IndexReader.open(searchIndexDirectory);
+		File f = new File(searchIndexDirectory);
+		return IndexReader.open(FSDirectory.open(f), true);
 	}
 
 	public IndexWriter getIndexWriter(boolean create) throws IOException
