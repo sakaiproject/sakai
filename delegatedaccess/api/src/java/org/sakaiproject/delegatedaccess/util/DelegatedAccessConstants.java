@@ -58,6 +58,6 @@ public class DelegatedAccessConstants {
 	public static final String PROPERTIES_TERMFIELD = "delegatedaccess.termfield";
 	public static final String PROPERTIES_SHOW_TERM_SHOPPING = "delegatedaccess.showtermcolumn.shopping";
 	public static final String PROPERTIES_SHOW_TERM_ACCESS = "delegatedaccess.showtermcolumn.access";
-	public static final String PROPERTIES_TERM_OPTIONS = "delegatedaccess.termoptions";
+	public static final String PROPERTIES_TERM_USE_CM_API = "delegatedaccess.term.useCourseManagmentApi";
 
 }

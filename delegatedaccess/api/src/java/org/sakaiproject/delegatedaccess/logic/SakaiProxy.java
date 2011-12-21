@@ -253,13 +253,17 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public boolean isShowTermColumnAccess();
-	
+
 	/**
-	 * returns the user's sakai.properties list of term options (which will override the coursemanagement API options)
+	 * default is true
 	 * 
-	 * delegatedaccess.termoptions
+	 * if this is true, then the term options will be loaded from the CourseManagement API,
+	 * otherwise, a distinct query will be ran against site properties based on the 
+	 * term field
+	 * 
+	 * delegatedaccess.term.useCourseManagmentApi
 	 * 
 	 * @return
 	 */
-	public String[] getTermOptions();
+	public boolean useCourseManagementApiForTerms();
 }

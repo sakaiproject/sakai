@@ -28,6 +28,7 @@
     	<property name="sakaiProxy" ref="org.sakaiproject.delegatedaccess.logic.SakaiProxy" />	
     	<property name="hierarchyService" ref="org.sakaiproject.hierarchy.HierarchyService" />	
     	<property name="cms"><ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/></property>
+    	<property name="dao" ref="org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao" />
     </bean>
     
     <bean id="org.sakaiproject.delegatedaccess.logic.DelegatedAccessObserver"
@@ -37,6 +38,18 @@
    		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
     </bean>
     
+    <!-- DAO. This uses the DataSource that has already been setup by Sakai  -->
+	<bean id="org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao"
+		class="org.sakaiproject.delegatedaccess.dao.impl.DelegatedAccessDaoImpl"
+		init-method="init">
+		<property name="jdbcTemplate">
+			<bean class="org.springframework.jdbc.core.JdbcTemplate">
+				<constructor-arg type="javax.sql.DataSource">
+					<ref bean="javax.sql.DataSource" />
+				</constructor-arg>
+			</bean>
+		</property>	
+	</bean>
     
 	<!-- Quartz Job -->
 	<bean id="org.sakaiproject.delegatedaccess.jobs.DelegatedAccessSiteHierarchyJob"

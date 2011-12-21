@@ -21,6 +21,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.apache.log4j.Logger;
+import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
 import org.sakaiproject.delegatedaccess.model.HierarchyNodeSerialized;
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
@@ -54,7 +55,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 	private HierarchyService hierarchyService;
 	@Getter @Setter
 	private CourseManagementService cms;
-
+	@Getter @Setter
+	private DelegatedAccessDao dao;
 
 
 	/**
@@ -472,12 +474,10 @@ public class ProjectLogicImpl implements ProjectLogic {
 	public List<ListOptionSerialized> getEntireTermsList(){
 		List<ListOptionSerialized> returnList = new ArrayList<ListOptionSerialized>();
 		
-		String[] termOptions = sakaiProxy.getTermOptions();
-		
-		if(termOptions != null && termOptions.length > 0){
+		if(!sakaiProxy.useCourseManagementApiForTerms()){
 			//user has set sakai.properties to override the coursemanagement API
 			
-			for(String term : termOptions){
+			for(String term : dao.getDistinctSiteTerms(sakaiProxy.getTermField())){
 				returnList.add(new ListOptionSerialized(term, term, false));
 			}
 		}else{

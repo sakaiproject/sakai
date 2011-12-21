@@ -425,8 +425,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public boolean isShowTermColumnAccess(){
 		return serverConfigurationService.getBoolean(DelegatedAccessConstants.PROPERTIES_SHOW_TERM_ACCESS, true);
 	}
-	
-	public String[] getTermOptions(){
-		return serverConfigurationService.getStrings(DelegatedAccessConstants.PROPERTIES_TERM_OPTIONS);
+	public boolean useCourseManagementApiForTerms(){
+		return serverConfigurationService.getBoolean(DelegatedAccessConstants.PROPERTIES_TERM_USE_CM_API, true);
 	}
 }
