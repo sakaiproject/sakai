@@ -47,13 +47,22 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 	private SakaiProxy sakaiProxy;
 	private static final String[] defaultHierarchy = new String[]{DelegatedAccessConstants.SCHOOL_PROPERTY, DelegatedAccessConstants.DEPEARTMENT_PROPERTY, DelegatedAccessConstants.SUBJECT_PROPERTY};
 	private Set<String> newHiearchyNodeIds;
+	
+	private static boolean semaphore = false;
 
 	public void init() {
 
 	}
 
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-
+		//this will stop the job if there is already another instance running
+		if(semaphore){
+			log.warn("Stopping job since this job is already running");
+			return;
+		}
+		semaphore = true;
+		
+		try{
 
 		long startTime = System.currentTimeMillis();
 
@@ -100,6 +109,11 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 		removeMissingNodes(rootNode);
 
 		log.info("PopulateSiteHierarchyJob finished in " + (System.currentTimeMillis() - startTime) + " ms");
+		}catch (Exception e) {
+			log.error(e);
+		}finally{
+			semaphore = false;
+		}
 	}
 
 	private void removeMissingNodes(HierarchyNode rootNode){

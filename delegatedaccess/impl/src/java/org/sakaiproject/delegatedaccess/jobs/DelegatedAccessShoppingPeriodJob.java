@@ -2,6 +2,7 @@ package org.sakaiproject.delegatedaccess.jobs;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -12,8 +13,11 @@ import lombok.Setter;
 
 import org.apache.log4j.Logger;
 import org.quartz.Job;
+import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.quartz.SchedulerException;
+import org.quartz.StatefulJob;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -32,7 +36,7 @@ import org.sakaiproject.site.api.Site;
  * @author Bryan Holladay
  *
  */
-public class DelegatedAccessShoppingPeriodJob implements Job{
+public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 	private static final Logger log = Logger.getLogger(DelegatedAccessShoppingPeriodJob.class);
 	@Getter @Setter
 	private ProjectLogic projectLogic;
@@ -43,13 +47,32 @@ public class DelegatedAccessShoppingPeriodJob implements Job{
 	//old node Id -> new node Id
 	private Map<String,String> migratedHierarchyIds;
 
+	private static boolean semaphore = false;
+	
 	public void init() { }
 
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+		//this will stop the job if there is already another instance running
+		if(semaphore){
+			log.warn("Stopping job since this job is already running");
+			return;
+		}
+		semaphore = true;
+		
+		try{
 		long startTime = System.currentTimeMillis();
 		SecurityAdvisor advisor = sakaiProxy.addSiteUpdateSecurityAdvisor();
 		migratedHierarchyIds = new HashMap<String, String>();
 
+		log.info("waiting");
+		 long t0,t1;
+	        t0=System.currentTimeMillis();
+	        do{
+	            t1=System.currentTimeMillis();
+	        }
+	        while (t1-t0<60000);
+	        log.info("done waiting");
+		
 		TreeModel treeModel = projectLogic.getEntireTreePlusUserPerms(DelegatedAccessConstants.SHOPPING_PERIOD_USER);
 		if (treeModel != null && treeModel.getRoot() != null) {
 			try{
@@ -69,6 +92,11 @@ public class DelegatedAccessShoppingPeriodJob implements Job{
 
 		sakaiProxy.popSecurityAdvisor(advisor);		
 		log.info("DelegatedAccessShoppingPeriodJob finished in " + (System.currentTimeMillis() - startTime) + " ms");
+		}catch (Exception e) {
+			log.error(e);
+		}finally{
+			semaphore = false;
+		}
 	}
 
 	private void treeModelShoppingPeriodTraverser(DefaultMutableTreeNode node){
