@@ -338,7 +338,7 @@ function postGlobalAlert(data){
                 // test for cookie with this safe id as value
                 if (!utils_readCookie('messageId' + itemId)) {
                     //no cookie - so new message, add to DOM
-                    if (item.priority === "3") {
+                    if (item.priority === 3) {
                         $('#portalMessageContainer3').append('<div role=\"alert\" aria-live\"assertive\" aria-relevant=\"text\" id=\"' + itemId + '\" ts=\"' + item.timestamp + '\" class=\"portalMessage portalMessageShadow portalMessagePriority' + item.priority + '\"><div class=\"messageHolder\">' + item.message + '</div>' + dismissLink + '</div>');
                     }
                     else {
@@ -349,7 +349,7 @@ function postGlobalAlert(data){
                     //message has been dismissed, but has been updated - so re-add to DOM
                      //  console.log(utils_readCookie('messageId' + itemId) +  "="  + item.timestamp);
                     if (utils_readCookie('messageId' + itemId) !== item.timestamp) {
-                        if (item.priority === "3") {
+                        if (item.priority === 3) {
                             $('#portalMessageContainer3').append('<div role=\"alert\" aria-live\"assertive\" aria-relevant=\"text\" id=\"' + itemId + '\" ts=\"' + item.timestamp + '\" class=\"portalMessage portalMessageShadow portalMessagePriority' + item.priority + '\"><div class=\"messageHolder\">Update:&nbsp;&nbsp;' + item.message + '</div>' + dismissLink + '</div>');
                         }
                         else {
