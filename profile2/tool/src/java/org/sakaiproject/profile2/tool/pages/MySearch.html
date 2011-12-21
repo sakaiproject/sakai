@@ -34,61 +34,59 @@
 		-->
 		
 		<div id="fullWidth">
-                        
-            <!--  search by name form -->
-            <div class="mainSectionContentForm">
-	            <h3 wicket:id="sbnHeading" class="header icon search">[searchByNameHeading]</h3>
-	            
-	            <form wicket:id="sbnForm" class="profileForm">
-					<table class="profileContent">
-						
-						<tr>
-							<td class="label" wicket:id="sbnNameLabel">[sbnNameLabel]</td>
-							<td class="content">
-								<input type="text" wicket:id="searchName" class="formInputField" wicket:message="title:text.search.byname.tooltip" />
-							</td>
-							<td class="toolTip"><span wicket:id="sbnNameToolTip">[searchToolTip]</span></td>
-						</tr>
-						
-					</table>
-					
-					<div class="pageFormButtons">
-						<input type="submit" wicket:id="sbnSubmit" value="Search" />
-					</div>
-					
-					<!-- work around for IE and single form element submit with Enter button, PRFL-378 -->
-					<input type="text" style="display:none;" />
-				</form>	
-			</div>
-			
-			
-			<!--  search by interest form -->
-			<div class="mainSectionContentForm" style="margin-top: 10px;">
-				<h3 wicket:id="sbiHeading" class="header icon search">[searchByInterestHeading]</h3>
+			<!-- search form -->
+			<div class="mainSectionContentForm">
+				<h3 wicket:id="searchHeading" class="header icon search">[searchHeading]</h3>
 				
-				<form wicket:id="sbiForm" class="profileForm">
+				<form wicket:id="searchForm" class="profileForm">
 					<table class="profileContent">
-						
 						<tr>
-							<td class="label" wicket:id="sbiInterestLabel">[sbiInterestLabel]</td>
+							<td class="label" wicket:id="searchLabel">[searchLabel]</td>
 							<td class="content">
-								<input type="text" wicket:id="searchInterest" class="formInputField" wicket:message="title:text.search.byinterest.tooltip" />
+								<input type="text" wicket:id="searchField" class="formInputField" wicket:message="title:text.search.terms.tooltip" />
 							</td>
-							<td class="toolTip"><span wicket:id="sbiInterestToolTip">[searchToolTip]</span></td>
+							<td class="toolTip"><span wicket:id="searchToolTip">[searchToolTip]</span></td>
 						</tr>
-						
+					</table>
+					
+					<table class="profileContent">
+						<tr wicket:id="searchTypeRadioGroup">
+							<td wicket:id="searchTypeNameLabel">[searchTypeNameLabel]</td>
+							<td>
+								<label>
+									<input type="radio" wicket:id="searchTypeName" />
+									<span class="accessibility-label"><wicket:message key="accessibility.search.byname" /></span>
+								</label>
+							</td>
+							<td wicket:id="searchTypeInterestLabel">[searchTypeInterestLabel]</td>
+							<td>
+								<label>
+									<input type="radio" wicket:id="searchTypeInterest" />
+									<span class="accessibility-label"><wicket:message key="accessibility.search.byinterest" /></span>
+								</label>
+							</td>
+						</tr>
+						<tr>
+							<td class="label" wicket:id="includeConnectionsLabel">[includeConnectionsLabel]</td>
+							<td>
+								<label>
+									<input type="checkbox" wicket:id="includeConnections"  />
+									<span class="accessibility-label"><wicket:message key="accessibility.search.connections" /></span>
+								</label>
+							</td>
+						</tr>
 					</table>
 					
 					<div class="pageFormButtons">
-						<input type="submit" wicket:id="sbiSubmit" value="Search" />
+						<input type="submit" wicket:id="searchSubmit" value="Search" />
 					</div>
 					
 					<!-- work around for IE and single form element submit with Enter button, PRFL-378 -->
 					<input type="text" style="display:none;" />
-					
-				</form>	
+				</form>
+				
 			</div>
-			
+						
 			<!--  search history -->
 			<div wicket:id="searchHistoryContainer" style="margin-top: 10px;">
 				<span wicket:id="searchHistoryLabel">[searchHistoryLabel]</span>

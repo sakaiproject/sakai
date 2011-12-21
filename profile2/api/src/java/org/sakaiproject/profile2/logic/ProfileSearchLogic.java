@@ -24,7 +24,7 @@ public interface ProfileSearchLogic {
 	 * @param search 	string to search for
 	 * @return List 	Persons
 	 */
-	public List<Person> findUsersByNameOrEmail(String search);
+	public List<Person> findUsersByNameOrEmail(String search, boolean includeConnections);
 
 	/**
 	 * Find all users that match the search string in any of the relevant SakaiPerson fields
@@ -34,7 +34,7 @@ public interface ProfileSearchLogic {
 	 * @param search 	string to search for
 	 * @return List 	Persons
 	 */
-	public List<Person> findUsersByInterest(String search);
+	public List<Person> findUsersByInterest(String search, boolean includeConnections);
 		
 	/**
 	 * Retrieves the last search term made by the user with the given UUID.

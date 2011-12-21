@@ -167,6 +167,7 @@
 		class="org.sakaiproject.profile2.logic.ProfileSearchLogicImpl"
 		init-method="init" singleton="true" depends-on="org.sakaiproject.profile2.cache.search">
 		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
+		<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
 		<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
 		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
 		<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />

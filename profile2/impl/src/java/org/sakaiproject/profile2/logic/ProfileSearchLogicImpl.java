@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.profile2.cache.CacheManager;
 import org.sakaiproject.profile2.dao.ProfileDao;
+import org.sakaiproject.profile2.model.BasicConnection;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileSearchTerm;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -37,10 +38,10 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 	/**
  	 * {@inheritDoc}
  	 */
-	public List<Person> findUsersByNameOrEmail(String search) {
+	public List<Person> findUsersByNameOrEmail(String search, boolean includeConnections) {
 				
 		//add users from SakaiPerson (clean list)
-		List<String> sakaiPersonUuids = dao.findSakaiPersonsByNameOrEmail(search);
+		List<String> sakaiPersonUuids = dao.findSakaiPersonsByNameOrEmail(search);	
 		List<User> users = sakaiProxy.getUsers(sakaiPersonUuids);
 
 		//add local users from UserDirectoryService
@@ -51,6 +52,11 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 		
 		//remove duplicates
 		ProfileUtils.removeDuplicates(users);
+		
+		//remove connections if requested
+		if (false == includeConnections) {
+			removeConnectionsFromUsers(users);
+		}
 		
 		log.debug("Found " + users.size() + " results for search: " + search);
 		
@@ -69,10 +75,16 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 	/**
  	 * {@inheritDoc}
  	 */
-	public List<Person> findUsersByInterest(String search) {
+	public List<Person> findUsersByInterest(String search, boolean includeConnections) {
 				
 		//add users from SakaiPerson		
 		List<String> sakaiPersonUuids = dao.findSakaiPersonsByInterest(search, sakaiProxy.isBusinessProfileEnabled());
+		
+		//remove connections if requested
+		if (false == includeConnections) {
+			removeConnectionsFromUserIds(sakaiPersonUuids);
+		}
+		
 		List<User> users = sakaiProxy.getUsers(sakaiPersonUuids);
 		
 		//restrict to only return the max number. UI will print message
@@ -191,6 +203,41 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 		return users;
 	}
 	
+	/**
+	 * Remove any connections from list of users.
+	 * 
+	 * @param users
+	 */
+	private void removeConnectionsFromUsers(List<User> users) {
+
+		List<BasicConnection> connections = connectionsLogic.getBasicConnectionsForUser(sakaiProxy.getCurrentUserId());
+		for (BasicConnection connection : connections) {
+			for (User user : users) {
+				if (user.getId().equals(connection.getUuid())) {
+					users.remove(user);
+					break;
+				}
+			}
+
+		}
+	}
+	
+	/**
+	 * Remove any connections from list of user ids.
+	 * 
+	 * @param userIds
+	 */
+	private void removeConnectionsFromUserIds(List<String> userIds) {
+
+		List<BasicConnection> connections = connectionsLogic.getBasicConnectionsForUser(sakaiProxy.getCurrentUserId());
+		for (BasicConnection connection : connections) {
+			if (userIds.contains(connection.getUuid())) {
+				userIds.remove(connection.getUuid());
+			}
+
+		}
+	}
+	
 	public void init() {
 		cache = cacheManager.createCache(CACHE_NAME);
 	}
@@ -203,6 +250,9 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 	
 	@Setter
 	private ProfileLogic profileLogic;
+	
+	@Setter
+	private ProfileConnectionsLogic connectionsLogic;
 	
 	@Setter
 	private CacheManager cacheManager;

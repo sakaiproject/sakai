@@ -36,7 +36,10 @@ import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.Radio;
+import org.apache.wicket.markup.html.form.RadioGroup;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
@@ -62,7 +65,6 @@ import org.sakaiproject.profile2.tool.pages.windows.AddFriend;
 import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
-import org.sakaiproject.util.FormattedText;
 
 
 public class MySearch extends BasePage {
@@ -75,8 +77,8 @@ public class MySearch extends BasePage {
 	private WebMarkupContainer resultsContainer;
 	private AjaxButton clearButton;
 	private AjaxButton clearHistoryButton;
-	private TextField<String> sbiInterestField;
-	private TextField<String> sbnNameField;
+	private TextField<String> searchField;
+	private RadioGroup<String> searchTypeRadioGroup;
 	
 	// Used independently of search history for current search, and
 	// transient because Cookie isn't serializable	 
@@ -97,55 +99,47 @@ public class MySearch extends BasePage {
 		//get current user info
 		final String currentUserUuid = sakaiProxy.getCurrentUserId();
 		final String currentUserType = sakaiProxy.getUserType(currentUserUuid);
-				
-		/* 
-		 * 
-		 * SEARCH BY NAME FORM
-		 * 
+		
+		/*
+		 * Combined search form 
 		 */
 		
-        //heading	
-		Label sbnHeading = new Label("sbnHeading", new ResourceModel("heading.search.byname"));
-		add(sbnHeading);
-		
-		//setup form	
-        final StringModel sbnStringModel = new StringModel();        
-        Form<StringModel> sbnForm = new Form<StringModel>("sbnForm", new Model<StringModel>(sbnStringModel));
-        sbnForm.setOutputMarkupId(true);
-		
-		//search field
-        sbnForm.add(new Label("sbnNameLabel", new ResourceModel("text.search.byname")));
-        sbnNameField = new TextField<String>("searchName", new PropertyModel<String>(sbnStringModel, "string"));
-		sbnNameField.setRequired(true);
-		sbnNameField.setOutputMarkupId(true);
-		sbnForm.add(sbnNameField);
-		sbnForm.add(new IconWithClueTip("sbnNameToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.search.byname.tooltip")));
-		
-		
-		
-		/* 
-		 * 
-		 * SEARCH BY INTEREST FORM
-		 * 
-		 */
-		
-        //heading	
-		Label sbiHeading = new Label("sbiHeading", new ResourceModel("heading.search.byinterest"));
-		add(sbiHeading);
-		
+		//heading
+		Label searchHeading = new Label("searchHeading", new ResourceModel("heading.search"));
+		add(searchHeading);
 		
 		//setup form
-        final StringModel sbiStringModel = new StringModel();
-        Form<StringModel> sbiForm = new Form<StringModel>("sbiForm", new Model<StringModel>(sbiStringModel));
-        sbiForm.setOutputMarkupId(true);
+        final StringModel searchStringModel = new StringModel();        
+        Form<StringModel> searchForm = new Form<StringModel>("searchForm", new Model<StringModel>(searchStringModel));
+        searchForm.setOutputMarkupId(true);
+        
+        //search field
+        searchForm.add(new Label("searchLabel", new ResourceModel("text.search.terms")));
+        searchField = new TextField<String>("searchField", new PropertyModel<String>(searchStringModel, "string"));
+        searchField.setRequired(true);
+        searchField.setOutputMarkupId(true);
+        searchForm.add(searchField);
+        searchForm.add(new IconWithClueTip("searchToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.search.terms.tooltip")));
 		
-		//search field
-        sbiForm.add(new Label("sbiInterestLabel", new ResourceModel("text.search.byinterest")));
-        sbiInterestField = new TextField<String>("searchInterest", new PropertyModel<String>(sbiStringModel, "string"));
-		sbiInterestField.setRequired(true);
-		sbiInterestField.setOutputMarkupId(true);
-		sbiForm.add(sbiInterestField);
-		sbiForm.add(new IconWithClueTip("sbiInterestToolTip", ProfileConstants.INFO_IMAGE, new ResourceModel("text.search.byinterest.tooltip")));
+        //by name or by interest radio group        
+		searchTypeRadioGroup = new RadioGroup<String>("searchTypeRadioGroup");
+		// so we can repaint after clicking on search history links
+		searchTypeRadioGroup.setOutputMarkupId(true);
+		searchTypeRadioGroup.setRenderBodyOnly(false);
+		Radio<String> searchTypeRadioName = new Radio<String>("searchTypeName", new Model<String>(ProfileConstants.SEARCH_TYPE_NAME));
+		searchTypeRadioName.add(new AttributeModifier("title", true, new ResourceModel("text.search.byname.tooltip")));
+		searchTypeRadioGroup.add(searchTypeRadioName);
+		Radio<String> searchTypeRadioInterest = new Radio<String>("searchTypeInterest", new Model<String>(ProfileConstants.SEARCH_TYPE_INTEREST));
+		searchTypeRadioInterest.add(new AttributeModifier("title", true, new ResourceModel("text.search.byinterest.tooltip")));
+		searchTypeRadioGroup.add(searchTypeRadioInterest);
+		searchTypeRadioGroup.add(new Label("searchTypeNameLabel", new ResourceModel("text.search.byname")));
+		searchTypeRadioGroup.add(new Label("searchTypeInterestLabel", new ResourceModel("text.search.byinterest")));
+		searchForm.add(searchTypeRadioGroup);
+		
+		searchForm.add(new Label("includeConnectionsLabel", new ResourceModel("text.search.include.connections")));
+		final CheckBox includeConnections = new CheckBox("includeConnections", new Model<Boolean>(true));
+		//includeConnections.add(new AttributeModifier("title", true, new ResourceModel("text.search.include.connections.tooltip")));
+		searchForm.add(includeConnections);
 		
 		/* 
 		 * 
@@ -176,18 +170,14 @@ public class MySearch extends BasePage {
                 }
                 
 				//clear the fields, hide self, then repaint
-				sbnNameField.clearInput();
-				sbnNameField.updateModel();
-				
-				sbiInterestField.clearInput();
-				sbiInterestField.updateModel();
-				
+                searchField.clearInput();
+                searchField.updateModel();
+                				
 				numSearchResultsContainer.setVisible(false);
 				resultsContainer.setVisible(false);
 				clearButton.setVisible(false);
 				
-				target.addComponent(sbnNameField);
-				target.addComponent(sbiInterestField);
+				target.addComponent(searchField);
 				target.addComponent(numSearchResultsContainer);
 				target.addComponent(resultsContainer);
 				target.addComponent(this);
@@ -496,15 +486,18 @@ public class MySearch extends BasePage {
 							// this will update its position in list
 							searchLogic.addSearchTermToHistory(currentUserUuid, searchTerm);
 							
+							searchStringModel.setString(searchTerm.getSearchTerm());
+							searchTypeRadioGroup.setModel(new Model<String>(searchTerm.getSearchType()));
+							
 							if (ProfileConstants.SEARCH_TYPE_NAME.equals(searchTerm.getSearchType())) {
-								sbnStringModel.setString(searchTerm.getSearchTerm());
+								
 								searchByName(resultsListView, searchResultsNavigator,
-										searchHistoryContainer, target, searchTerm.getSearchTerm());
+										searchHistoryContainer, target, searchTerm.getSearchTerm(), includeConnections.getModelObject());
 								
 							} else if (ProfileConstants.SEARCH_TYPE_INTEREST.equals(searchTerm.getSearchType())) {
-								sbiStringModel.setString(searchTerm.getSearchTerm());
+
 								searchByInterest(resultsListView, searchResultsNavigator,
-										searchHistoryContainer, target, searchTerm.getSearchTerm());
+										searchHistoryContainer, target, searchTerm.getSearchTerm(), includeConnections.getModelObject());
 							}
 						}
 					}
@@ -534,17 +527,13 @@ public class MySearch extends BasePage {
 				searchLogic.clearSearchHistory(currentUserUuid);
 				
 				//clear the fields, hide self, then repaint
-				sbnNameField.clearInput();
-				sbnNameField.updateModel();
-				
-				sbiInterestField.clearInput();
-				sbiInterestField.updateModel();
-				
+				searchField.clearInput();
+				searchField.updateModel();
+								
 				searchHistoryContainer.setVisible(false);
 				clearHistoryButton.setVisible(false);
 				
-				target.addComponent(sbnNameField);
-				target.addComponent(sbiInterestField);
+				target.addComponent(searchField);
 				target.addComponent(searchHistoryContainer);
 				target.addComponent(this);
 			}				
@@ -558,74 +547,24 @@ public class MySearch extends BasePage {
 		clearHistoryForm.add(clearHistoryButton);
 		searchHistoryContainer.add(clearHistoryForm);
 		
-		/* 
-		 * 
-		 * SEARCH BY NAME SUBMIT
-		 * 
+		/*
+		 * Combined search submit
 		 */
-		
-		IndicatingAjaxButton sbnSubmitButton = new IndicatingAjaxButton("sbnSubmit", sbnForm) {
+		IndicatingAjaxButton searchSubmitButton = new IndicatingAjaxButton("searchSubmit", searchForm) {
 			
 			private static final long serialVersionUID = 1L;
 
 			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-
-				if(target != null) {
-					
-					//get the model and text entered
-					StringModel model = (StringModel) form.getModelObject();
-					String searchText = ProfileUtils.stripHtml(model.getString());
-										
-					log.debug("MySearch() search.getSearchName(): " + searchText);
-					
-					if(StringUtils.isBlank(searchText)){
-						return;
-					}
 				
-					// save search terms
-					ProfileSearchTerm searchTerm = new ProfileSearchTerm();
-					searchTerm.setUserUuid(currentUserUuid);
-					searchTerm.setSearchType(ProfileConstants.SEARCH_TYPE_NAME);
-					searchTerm.setSearchTerm(searchText);
-					searchTerm.setSearchPageNumber(0);
-					searchTerm.setSearchDate(new Date());
-					
-					searchLogic.addSearchTermToHistory(currentUserUuid, searchTerm);
-					
-					// set cookie for current search (page 0 when submitting new search)
-					setSearchCookie(ProfileConstants.SEARCH_TYPE_NAME, searchText, 0);
-					
-					//post view event
-					sakaiProxy.postEvent(ProfileConstants.EVENT_SEARCH_BY_NAME, "/profile/"+currentUserUuid, false);
-					
-					searchByName(resultsListView, searchResultsNavigator, searchHistoryContainer,
-							target, searchText);	
-				}				
-            }
-		};
-		sbnSubmitButton.setModel(new ResourceModel("button.search.byname"));
-		sbnForm.add(sbnSubmitButton);
-        add(sbnForm);
-        
-        /* 
-		 * 
-		 * SEARCH BY INTEREST SUBMIT
-		 * 
-		 */
-		
-        IndicatingAjaxButton sbiSubmitButton = new IndicatingAjaxButton("sbiSubmit", sbiForm) {
-			
-			private static final long serialVersionUID = 1L;
-        	
-        	protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-
 				if(target != null) {
-					
 					//get the model and text entered
 					StringModel model = (StringModel) form.getModelObject();
 					String searchText = ProfileUtils.stripHtml(model.getString());
-
-					log.debug("MySearch() search.getSearchInterest(): " + searchText);
+					
+					//get search type
+					String searchType = searchTypeRadioGroup.getModelObject();
+					
+					log.debug("MySearch search by " + searchType + ": " + searchText);
 					
 					if(StringUtils.isBlank(searchText)){
 						return;
@@ -634,7 +573,7 @@ public class MySearch extends BasePage {
 					// save search terms
 					ProfileSearchTerm searchTerm = new ProfileSearchTerm();
 					searchTerm.setUserUuid(currentUserUuid);
-					searchTerm.setSearchType(ProfileConstants.SEARCH_TYPE_INTEREST);
+					searchTerm.setSearchType(searchType);
 					searchTerm.setSearchTerm(searchText);
 					searchTerm.setSearchPageNumber(0);
 					searchTerm.setSearchDate(new Date());
@@ -642,31 +581,44 @@ public class MySearch extends BasePage {
 					searchLogic.addSearchTermToHistory(currentUserUuid, searchTerm);
 					
 					// set cookie for current search (page 0 when submitting new search)
-					setSearchCookie(ProfileConstants.SEARCH_TYPE_INTEREST, searchText, 0);
+					setSearchCookie(searchType, searchText, 0);
 					
-					//post view event
-					sakaiProxy.postEvent(ProfileConstants.EVENT_SEARCH_BY_INTEREST, "/profile/"+currentUserUuid, false);
-					
-					searchByInterest(resultsListView, searchResultsNavigator,
-							searchHistoryContainer,	target, searchText);
+					if (ProfileConstants.SEARCH_TYPE_NAME.equals(searchType)) {
+						
+						searchByName(resultsListView, searchResultsNavigator, searchHistoryContainer, target, searchText, includeConnections.getModelObject());
+						
+						//post view event
+						sakaiProxy.postEvent(ProfileConstants.EVENT_SEARCH_BY_NAME, "/profile/"+currentUserUuid, false);
+					} else if (ProfileConstants.SEARCH_TYPE_INTEREST.equals(searchType)) {
+						
+						searchByInterest(resultsListView, searchResultsNavigator, searchHistoryContainer, target, searchText, includeConnections.getModelObject());
+						
+						//post view event
+						sakaiProxy.postEvent(ProfileConstants.EVENT_SEARCH_BY_INTEREST, "/profile/"+currentUserUuid, false);
+					}
 				}
-            }
+			}
 		};
-		sbiSubmitButton.setModel(new ResourceModel("button.search.byinterest"));
-		sbiForm.add(sbiSubmitButton);
-        add(sbiForm);
-        
+		searchSubmitButton.setModel(new ResourceModel("button.search"));
+		searchForm.add(searchSubmitButton);
+        add(searchForm);
+		                
         if (null != searchCookie) {
         	
         	String searchString = getCookieSearchString(searchCookie.getValue());
+        	searchStringModel.setString(searchString);
         	
         	if (searchCookie.getValue().startsWith(ProfileConstants.SEARCH_TYPE_NAME)) {
-				searchByName(resultsListView, searchResultsNavigator, searchHistoryContainer, null, searchString);
-				sbnStringModel.setString(searchString);
+        		searchTypeRadioGroup.setModel(new Model<String>(ProfileConstants.SEARCH_TYPE_NAME));
+				searchByName(resultsListView, searchResultsNavigator, searchHistoryContainer, null, searchString, includeConnections.getModelObject());
+
         	} else if (searchCookie.getValue().startsWith(ProfileConstants.SEARCH_TYPE_INTEREST)) {
-        		searchByInterest(resultsListView, searchResultsNavigator, searchHistoryContainer, null, searchString);
-        		sbiStringModel.setString(searchString);
+        		searchTypeRadioGroup.setModel(new Model<String>(ProfileConstants.SEARCH_TYPE_INTEREST));
+        		searchByInterest(resultsListView, searchResultsNavigator, searchHistoryContainer, null, searchString, includeConnections.getModelObject());
         	}
+        } else {
+        	// default search type is name
+        	searchTypeRadioGroup.setModel(new Model<String>(ProfileConstants.SEARCH_TYPE_NAME));
         }
 	}
 	
@@ -675,14 +627,10 @@ public class MySearch extends BasePage {
 			final PageableListView<Person> resultsListView,
 			final PagingNavigator searchResultsNavigator,
 			final WebMarkupContainer searchHistoryContainer,
-			AjaxRequestTarget target, String searchTerm) {
-		
-		//clear the interest search field
-		sbiInterestField.clearInput();
-		sbiInterestField.updateModel();
-				
+			AjaxRequestTarget target, String searchTerm, boolean includeConnections) {
+						
 		//search both UDP and SakaiPerson for matches.
-		results = new ArrayList<Person>(searchLogic.findUsersByNameOrEmail(searchTerm));
+		results = new ArrayList<Person>(searchLogic.findUsersByNameOrEmail(searchTerm, includeConnections));
 		Collections.sort(results);
 		
 		int numResults = results.size();
@@ -723,8 +671,8 @@ public class MySearch extends BasePage {
 		
 		if (null != target) {
 			//repaint components
-			target.addComponent(sbnNameField);
-			target.addComponent(sbiInterestField);
+			target.addComponent(searchField);
+			target.addComponent(searchTypeRadioGroup);
 			target.addComponent(clearButton);
 			target.addComponent(numSearchResultsContainer);
 			clearButton.setVisible(true);
@@ -741,14 +689,10 @@ public class MySearch extends BasePage {
 			final PageableListView<Person> resultsListView,
 			final PagingNavigator searchResultsNavigator,
 			WebMarkupContainer searchHistoryContainer,
-			AjaxRequestTarget target, String searchTerm) {
-		
-		//clear the name search field
-		sbnNameField.clearInput();
-		sbnNameField.updateModel();
-		
+			AjaxRequestTarget target, String searchTerm, boolean includeConnections) {
+						
 		//search SakaiPerson for matches
-		results = new ArrayList<Person>(searchLogic.findUsersByInterest(searchTerm));
+		results = new ArrayList<Person>(searchLogic.findUsersByInterest(searchTerm, includeConnections));
 		Collections.sort(results);
 		
 		int numResults = results.size();
@@ -789,8 +733,8 @@ public class MySearch extends BasePage {
 		
 		if (null != target) {
 			//repaint components
-			target.addComponent(sbnNameField);
-			target.addComponent(sbiInterestField);
+			target.addComponent(searchField);
+			target.addComponent(searchTypeRadioGroup);
 			target.addComponent(clearButton);
 			target.addComponent(numSearchResultsContainer);
 			clearButton.setVisible(true);
