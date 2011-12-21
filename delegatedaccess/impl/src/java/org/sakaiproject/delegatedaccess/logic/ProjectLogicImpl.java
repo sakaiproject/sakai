@@ -472,14 +472,25 @@ public class ProjectLogicImpl implements ProjectLogic {
 	public List<ListOptionSerialized> getEntireTermsList(){
 		List<ListOptionSerialized> returnList = new ArrayList<ListOptionSerialized>();
 		
-		for(AcademicSession session : cms.getAcademicSessions()){
-			String termId = session.getEid();
-			if(!"term_eid".equals(sakaiProxy.getTermField())){
-				termId = session.getTitle();
-			}
-			returnList.add(new ListOptionSerialized(termId, session.getTitle(), false));
-		}
+		String[] termOptions = sakaiProxy.getTermOptions();
 		
+		if(termOptions != null && termOptions.length > 0){
+			//user has set sakai.properties to override the coursemanagement API
+			
+			for(String term : termOptions){
+				returnList.add(new ListOptionSerialized(term, term, false));
+			}
+		}else{
+			//use sakai's coursemanagement API to get the term options
+			
+			for(AcademicSession session : cms.getAcademicSessions()){
+				String termId = session.getEid();
+				if(!"term_eid".equals(sakaiProxy.getTermField())){
+					termId = session.getTitle();
+				}
+				returnList.add(new ListOptionSerialized(termId, session.getTitle(), false));
+			}
+		}
 		return returnList;
 	}
 

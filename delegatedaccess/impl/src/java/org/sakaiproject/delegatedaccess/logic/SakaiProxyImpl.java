@@ -417,4 +417,16 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public String getTermField(){
 		return serverConfigurationService.getString(DelegatedAccessConstants.PROPERTIES_TERMFIELD, "term_eid");
 	}
+	
+	public boolean isShowTermColumnShopping(){
+		return serverConfigurationService.getBoolean(DelegatedAccessConstants.PROPERTIES_SHOW_TERM_SHOPPING, true);
+	}
+	
+	public boolean isShowTermColumnAccess(){
+		return serverConfigurationService.getBoolean(DelegatedAccessConstants.PROPERTIES_SHOW_TERM_ACCESS, true);
+	}
+	
+	public String[] getTermOptions(){
+		return serverConfigurationService.getStrings(DelegatedAccessConstants.PROPERTIES_TERM_OPTIONS);
+	}
 }

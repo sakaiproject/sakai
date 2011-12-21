@@ -236,4 +236,30 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public String[] getHomeTools();
+	
+	/**
+	 * default is true, otherwise looks up sakai.property
+	 * 
+	 * delegatedaccess.showtermcolumn.shopping
+	 * 
+	 * @return
+	 */
+	public boolean isShowTermColumnShopping();
+	
+	/**
+	 * default is true, otherwise looks up sakai.property
+	 * 
+	 * delegatedaccess.showtermcolumn.access
+	 * @return
+	 */
+	public boolean isShowTermColumnAccess();
+	
+	/**
+	 * returns the user's sakai.properties list of term options (which will override the coursemanagement API options)
+	 * 
+	 * delegatedaccess.termoptions
+	 * 
+	 * @return
+	 */
+	public String[] getTermOptions();
 }

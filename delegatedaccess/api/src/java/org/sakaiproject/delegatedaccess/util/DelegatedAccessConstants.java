@@ -56,5 +56,8 @@ public class DelegatedAccessConstants {
 	public static final String ADVANCED_SEARCH_INSTRUCTOR = "instructorField";
 	public static final String ADVANCED_SEARCH_TERM = "termField";
 	public static final String PROPERTIES_TERMFIELD = "delegatedaccess.termfield";
+	public static final String PROPERTIES_SHOW_TERM_SHOPPING = "delegatedaccess.showtermcolumn.shopping";
+	public static final String PROPERTIES_SHOW_TERM_ACCESS = "delegatedaccess.showtermcolumn.access";
+	public static final String PROPERTIES_TERM_OPTIONS = "delegatedaccess.termoptions";
 
 }
