@@ -107,6 +107,7 @@ public class ShoppingEditPage extends BaseTreePage{
 				return treeModel != null;
 			}
 			protected void onNodeLinkClicked(AjaxRequestTarget target, TreeNode node) {
+				tree.getTreeState().selectNode(node, false);
 				if(!tree.getTreeState().isNodeExpanded(node)){
 					tree.getTreeState().expandNode(node);
 				}else{
@@ -115,7 +116,7 @@ public class ShoppingEditPage extends BaseTreePage{
 			}
 			@Override
 			protected boolean isForceRebuildOnSelectionChange() {
-				return false;
+				return true;
 			};
 		};
 		if(singleRoleOptions){

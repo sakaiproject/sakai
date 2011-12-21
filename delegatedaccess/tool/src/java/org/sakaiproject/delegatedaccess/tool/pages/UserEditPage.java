@@ -116,6 +116,9 @@ public class UserEditPage  extends BaseTreePage{
 			protected void onNodeLinkClicked(AjaxRequestTarget target, TreeNode node) {
 				//the nodes are generated on the fly with ajax.  This will add any child nodes that 
 				//are missing in the tree.  Expanding and collapsing will refresh the tree node
+				
+				tree.getTreeState().selectNode(node, false);
+				
 				boolean anyAdded = false;
 				if(!tree.getTreeState().isNodeExpanded(node) && !((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isAddedDirectChildrenFlag()){
 					anyAdded = projectLogic.addChildrenNodes(node, searchResult.getId(), blankRestrictedTools, blankTerms);
@@ -143,7 +146,7 @@ public class UserEditPage  extends BaseTreePage{
 			}
 			@Override
 			protected boolean isForceRebuildOnSelectionChange() {
-				return false;
+				return true;
 			};
 		};
 		if(singleRoleOptions){
@@ -192,6 +195,4 @@ public class UserEditPage  extends BaseTreePage{
 		form.add(cancelButton);
 
 	}
-
-
 }

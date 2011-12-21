@@ -123,35 +123,6 @@ public class EditablePanelDropdown extends Panel
 			}
 		});
 		add(realmChoices);
-
-		//show the inherited role if the user hasn't selected this node
-		IModel<String> labelModel = new AbstractReadOnlyModel<String>() {
-			@Override
-			public String getObject() {
-				String[] inheritedAccess;
-				if(nodeModel.isDirectAccess()){
-					inheritedAccess = nodeModel.getNodeAccessRealmRole();
-				}else{
-					inheritedAccess = nodeModel.getInheritedAccessRealmRole();
-				}
-				if("".equals(inheritedAccess[0])){
-					return "";
-				}else{
-					return inheritedAccess[0] + " : " + inheritedAccess[1];
-				}
-			}
-		};
-		Label label = new Label("realmRole", labelModel){
-			public boolean isVisible() {
-				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
-					return !nodeModel.isDirectAccess() || !nodeModel.getNodeShoppingPeriodAdmin();
-				}else{
-					return !nodeModel.isDirectAccess();
-				}
-			};
-		};
-		add(label);
-
 	}
 
 

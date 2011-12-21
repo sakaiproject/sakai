@@ -59,33 +59,6 @@ public class EditablePanelDate  extends Panel{
 
 		});
 		add(date);
-
-		IModel<String> labelModel = new AbstractReadOnlyModel<String>() {
-			@Override
-			public String getObject() {
-				Date date = null;
-				if(startDate)
-					if(nodeModel.isDirectAccess())
-						date = nodeModel.getNodeShoppingPeriodStartDate();
-					else
-						date = nodeModel.getInheritedShoppingPeriodStartDate();
-				else
-					if(nodeModel.isDirectAccess())
-						date = nodeModel.getNodeShoppingPeriodEndDate();
-					else
-						date = nodeModel.getInheritedShoppingPeriodEndDate();
-				if(date == null){
-					return "";
-				}else{
-					return format.format(date);
-				}
-			}
-		};
-		add(new Label("inherited", labelModel){
-			public boolean isVisible() {
-				return !nodeModel.isDirectAccess() || !nodeModel.getNodeShoppingPeriodAdmin();
-			};
-		});
 	}
 
 }

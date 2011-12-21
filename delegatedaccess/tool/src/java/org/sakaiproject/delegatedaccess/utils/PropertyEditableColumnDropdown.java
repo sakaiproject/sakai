@@ -15,6 +15,7 @@ import org.apache.wicket.extensions.markup.html.tree.table.PropertyRenderableCol
 import org.apache.wicket.model.PropertyModel;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelDropdown;
+import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelDropdownText;
 
 /**
  * Column renderer for the dropdown column (role)
@@ -40,7 +41,11 @@ public class PropertyEditableColumnDropdown extends PropertyRenderableColumn
 	 */
 	public Component newCell(MarkupContainer parent, String id, TreeNode node, int level)
 	{
-		return new EditablePanelDropdown(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, realmMap, type);
+		if(((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isDirectAccess()){
+			return new EditablePanelDropdown(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, realmMap, type);
+		}else{
+			return new EditablePanelDropdownText(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, realmMap, type);
+		}
 	}
 
 	/**

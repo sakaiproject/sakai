@@ -1,12 +1,20 @@
 package org.sakaiproject.delegatedaccess.tool.pages;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.tree.AbstractTree;
+import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 
 /**
@@ -121,6 +129,52 @@ public abstract class BaseTreePage extends BasePage
 		};
 		expandLink.add(expandCollapse);
 		return expandLink;
+	}
+	
+	private void createInheritedSpan(){
+		WebMarkupContainer inheritedSpan = new WebMarkupContainer("inheritedSpan");
+		inheritedSpan.setOutputMarkupId(true);
+		final String inheritedSpanId = inheritedSpan.getMarkupId();
+		add(inheritedSpan);
+		
+		AbstractReadOnlyModel<List<? extends ListOptionSerialized>> inheritedRestrictedToolsModel = new AbstractReadOnlyModel<List<? extends ListOptionSerialized>>(){
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public List<? extends ListOptionSerialized> getObject() {
+				return new ArrayList<ListOptionSerialized>();
+			}
+
+		};
+		
+		final ListView<ListOptionSerialized> inheritedListView = new ListView<ListOptionSerialized>("inheritedRestrictedTools",inheritedRestrictedToolsModel){
+			private static final long serialVersionUID = 1L;
+			@Override
+			protected void populateItem(ListItem<ListOptionSerialized> item) {
+				ListOptionSerialized tool = (ListOptionSerialized) item.getModelObject();
+				Label name = new Label("name", tool.getName());
+				item.add(name);
+			}
+		};
+		inheritedListView.setOutputMarkupId(true);
+		inheritedSpan.add(inheritedListView);
+		
+		
+		AjaxLink<Void> closeInheritedSpanLink = new AjaxLink("closeInheritedSpanLink"){
+			@Override
+			public void onClick(AjaxRequestTarget arg0) {
+			}
+		};
+		inheritedSpan.add(closeInheritedSpanLink);
+
+		Label inheritedNodeTitle = new Label("inheritedNodeTitle", "");
+		inheritedSpan.add(inheritedNodeTitle);
+		
+		
+		
+		Label noInheritedToolsLabel = new Label("noToolsInherited", new StringResourceModel("inheritedNothing", null));
+		inheritedSpan.add(noInheritedToolsLabel);
+	
 	}
 
 }
