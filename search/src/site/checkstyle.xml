@@ -52,7 +52,7 @@
 
     <!-- Checks that a package.html file exists for each package.     -->
     <!-- See http://checkstyle.sf.net/config_javadoc.html#PackageHtml -->
-    <module name="PackageHtml">
+    <module name="JavadocPackage">
         <property name="severity" value="warning"/>
     </module>
 
@@ -67,7 +67,6 @@
     <module name="Translation"/>
 
     <module name="StrictDuplicateCode">
-      <property name="charset" value="UTF-8"/>
        <property name="min" value="30"/>
     </module>
 
@@ -109,9 +108,11 @@
 
         <!-- Checks for Headers                                -->
         <!-- See http://checkstyle.sf.net/config_header.html   -->
+<!--
         <module name="RegexpHeader">
            <property name="headerFile" value="src/site/java.header"/>
         </module>
+-->
 
         <!-- Following interprets the header file as regular expressions. -->
         <!-- <module name="RegexpHeader"/>                                -->
@@ -131,9 +132,11 @@
 
         <!-- Checks for Size Violations.                    -->
         <!-- See http://checkstyle.sf.net/config_sizes.html -->
+<!--
         <module name="FileLength">
                 <property name="severity" value="warning"/>
         </module> 
+-->
         <module name="LineLength" >
             <property name="max" value="100"/>
         </module>
@@ -249,10 +252,12 @@
         <!-- 
         <module name="FinalParameters"/>
         -->
+<!--
         <module name="GenericIllegalRegexp">
             <property name="format" value="\s+$"/>
             <property name="message" value="Line has trailing spaces."/>
         </module>
+-->
 <!-- 
         <module name="TodoComment">
             <property name="severity" value="info"/>
