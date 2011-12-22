@@ -119,9 +119,9 @@
     </developers>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/basiclti/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/basiclti/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/basiclti/trunk</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/basiclti/branches/basiclti-2.0.x</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/basiclti/branches/basiclti-2.0.x</developerConnection>
+        <url>https://source.sakaiproject.org/svn/basiclti/branches/basiclti-2.0.x</url>
     </scm>
 
     <distributionManagement>
