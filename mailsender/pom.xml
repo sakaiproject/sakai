@@ -22,7 +22,7 @@
     <groupId>org.sakaiproject.mailsender</groupId>
     <artifactId>mailsender-base</artifactId>
     <name>Sakai Mail Sender Project</name>
-    <version>1.7-SNAPSHOT</version>
+    <version>1.8-SNAPSHOT</version>
     <description>Mail Sender base pom.</description>
     <organization>
         <name>Sakai Project</name>
