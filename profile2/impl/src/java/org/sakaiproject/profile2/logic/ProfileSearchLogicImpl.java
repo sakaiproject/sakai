@@ -8,10 +8,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import lombok.Setter;
 
 import org.apache.log4j.Logger;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.profile2.cache.CacheManager;
 import org.sakaiproject.profile2.dao.ProfileDao;
@@ -20,6 +22,7 @@ import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileSearchTerm;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -38,7 +41,7 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 	/**
  	 * {@inheritDoc}
  	 */
-	public List<Person> findUsersByNameOrEmail(String search, boolean includeConnections) {
+	public List<Person> findUsersByNameOrEmail(String search, boolean includeConnections, String worksiteId) {
 				
 		//add users from SakaiPerson (clean list)
 		List<String> sakaiPersonUuids = dao.findSakaiPersonsByNameOrEmail(search);	
@@ -58,6 +61,12 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 			removeConnectionsFromUsers(users);
 		}
 		
+		//if worksite id is specified
+		if (null != worksiteId) {
+			//remove any matches that are not in specified worksite
+			users = removeNonWorksiteMembersFromUsers(users, worksiteId);
+		}
+		
 		log.debug("Found " + users.size() + " results for search: " + search);
 		
 		//restrict to only return the max number. UI will print message
@@ -75,7 +84,7 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 	/**
  	 * {@inheritDoc}
  	 */
-	public List<Person> findUsersByInterest(String search, boolean includeConnections) {
+	public List<Person> findUsersByInterest(String search, boolean includeConnections, String worksiteId) {
 				
 		//add users from SakaiPerson		
 		List<String> sakaiPersonUuids = dao.findSakaiPersonsByInterest(search, sakaiProxy.isBusinessProfileEnabled());
@@ -83,6 +92,12 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 		//remove connections if requested
 		if (false == includeConnections) {
 			removeConnectionsFromUserIds(sakaiPersonUuids);
+		}
+		
+		//if worksite id is specified
+		if (null != worksiteId) {
+			//remove any matches that are not in specified worksite
+			sakaiPersonUuids = removeNonWorksiteMembersFromUserIds(sakaiPersonUuids, worksiteId);
 		}
 		
 		List<User> users = sakaiProxy.getUsers(sakaiPersonUuids);
@@ -236,6 +251,64 @@ public class ProfileSearchLogicImpl implements ProfileSearchLogic {
 			}
 
 		}
+	}
+	
+	/**
+	 * Remove any non-worksite members from list of users.
+	 * 
+	 * @param users
+	 * @param worksiteId
+	 * @return a list of matching worksite member users.
+	 */
+	private List<User> removeNonWorksiteMembersFromUsers(List<User> users, String worksiteId) {
+		
+		List<User> worksiteMembers = new ArrayList<User>();
+		
+		Site site = sakaiProxy.getSite(worksiteId);
+		if (null == site) {
+			log.error("Unable to receive worksite with id: " + worksiteId);
+		} else {
+			Set<Member> members = sakaiProxy.getSite(worksiteId).getMembers();
+			for (Member member : members) {
+				for (User user : users) {
+					if (user.getId().equals(member.getUserId())) {
+						worksiteMembers.add(user);
+						break;
+					}
+				}
+			}
+		}
+		
+		return worksiteMembers;
+	}
+	
+	/**
+	 * Remove any non-worksite members from list of user ids.
+	 * 
+	 * @param userIds
+	 * @param worksiteId
+	 * @return a list of matching worksite member user ids.
+	 */
+	private List<String> removeNonWorksiteMembersFromUserIds(List<String> userIds, String worksiteId) {
+		
+		List<String> worksiteMemberIds = new ArrayList<String>();
+		
+		Site site = sakaiProxy.getSite(worksiteId);
+		if (null == site) {
+			log.error("Unable to receive worksite with id: " + worksiteId);
+		} else {
+			Set<Member> members = sakaiProxy.getSite(worksiteId).getMembers();
+			for (Member member : members) {
+				for (String userId : userIds) {
+					if (userId.equals(member.getUserId())) {
+						worksiteMemberIds.add(userId);
+						break;
+					}
+				}
+			}
+		}
+
+		return worksiteMemberIds;
 	}
 	
 	public void init() {

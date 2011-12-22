@@ -21,20 +21,24 @@ public interface ProfileSearchLogic {
 	 * 
 	 * <p>This list is automatically cleaned for non-existent users by way of UserDirectoryService.getUsers.</p>
 	 * 
-	 * @param search 	string to search for
-	 * @return List 	Persons
+	 * @param search string to search for
+	 * @param includeConnections should connections be returned in results
+	 * @param worksiteId optional parameter to limit search to a single worksite. Specify <code>null</code> to search all users.
+	 * @return List Persons
 	 */
-	public List<Person> findUsersByNameOrEmail(String search, boolean includeConnections);
-
+	public List<Person> findUsersByNameOrEmail(String search, boolean includeConnections, String worksiteId);
+	
 	/**
 	 * Find all users that match the search string in any of the relevant SakaiPerson fields
 	 *
 	 * <p>This list is automatically cleaned for non-existent users by way of UserDirectoryService.getUsers.</p>
 	 * 
-	 * @param search 	string to search for
-	 * @return List 	Persons
+	 * @param search string to search for
+	 * @param includeConnections should connections be returned in results
+	 * @param worksiteId optional parameter to limit search to a single worksite. Specify <code>null</code> to search all users.
+	 * @return List Persons
 	 */
-	public List<Person> findUsersByInterest(String search, boolean includeConnections);
+	public List<Person> findUsersByInterest(String search, boolean includeConnections, String worksiteId);
 		
 	/**
 	 * Retrieves the last search term made by the user with the given UUID.

@@ -770,6 +770,21 @@ public interface SakaiProxy {
 	public boolean saveSite(Site site);
 	
 	/**
+	 * Return a reference to the specified site.
+	 * 
+	 * @param siteId
+	 * @return a reference to the specified site.
+	 */
+	public Site getSite(String siteId);
+	
+	/**
+	 * Return all user sites for the current user (i.e. worksites that the user has at least 'access' permission to).
+	 * 
+	 * @return all user sites for the current user.
+	 */
+	public List<Site> getUserSites();
+	
+	/**
 	 * Returns a reference to the specified Sakai tool.
 	 * 
 	 * @param id the id of the tool required.

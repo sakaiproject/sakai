@@ -55,6 +55,8 @@ import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.SiteService.SelectionType;
+import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
@@ -1400,6 +1402,25 @@ public class SakaiProxyImpl implements SakaiProxy {
 			return false;
 		}
 		return true;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Site getSite(String siteId) {
+		try {
+			return siteService.getSite(siteId);
+		} catch (IdUnusedException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<Site> getUserSites() {
+		return siteService.getSites(SelectionType.ACCESS, null, null, null, SortType.TITLE_ASC, null);
 	}
 	
 	/**

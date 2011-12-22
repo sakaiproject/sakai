@@ -20,6 +20,7 @@ package org.sakaiproject.profile2.tool.pages;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import javax.servlet.http.Cookie;
@@ -37,6 +38,7 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.Radio;
 import org.apache.wicket.markup.html.form.RadioGroup;
@@ -56,6 +58,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileSearchTerm;
+import org.sakaiproject.profile2.tool.components.HashMapChoiceRenderer;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
@@ -65,6 +68,7 @@ import org.sakaiproject.profile2.tool.pages.windows.AddFriend;
 import org.sakaiproject.profile2.types.PrivacyType;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
+import org.sakaiproject.site.api.Site;
 
 
 public class MySearch extends BasePage {
@@ -137,9 +141,33 @@ public class MySearch extends BasePage {
 		searchForm.add(searchTypeRadioGroup);
 		
 		searchForm.add(new Label("includeConnectionsLabel", new ResourceModel("text.search.include.connections")));
+		// model is true (include connections by default)
 		final CheckBox includeConnections = new CheckBox("includeConnections", new Model<Boolean>(true));
-		//includeConnections.add(new AttributeModifier("title", true, new ResourceModel("text.search.include.connections.tooltip")));
 		searchForm.add(includeConnections);
+		
+		searchForm.add(new Label("selectedWorksiteLabel", new ResourceModel("text.search.include.worksite")));
+		// model is false (include all worksites by default)
+		final CheckBox selectedWorksite = new CheckBox("selectedWorksite", new Model<Boolean>(false));
+		searchForm.add(selectedWorksite);
+				
+		final List<Site> worksites = sakaiProxy.getUserSites();
+		final LinkedHashMap<String, String> worksiteMap = new LinkedHashMap<String, String>();
+		for (Site worksite : worksites) {
+			worksiteMap.put(worksite.getId(), worksite.getTitle());
+		}
+		
+		IModel worksitesModel = new Model() {
+
+			public ArrayList<String> getObject() {
+				return new ArrayList<String>(worksiteMap.keySet());
+			}
+		};
+		
+		// TODO need to handle this in cookie and repainting
+		final DropDownChoice worksiteChoice = new DropDownChoice("worksiteChoice", new Model(worksites.get(0).getId()), worksitesModel, new HashMapChoiceRenderer(worksiteMap));
+		worksiteChoice.setOutputMarkupId(true);
+		worksiteChoice.setNullValid(false);
+		searchForm.add(worksiteChoice);
 		
 		/* 
 		 * 
@@ -492,12 +520,12 @@ public class MySearch extends BasePage {
 							if (ProfileConstants.SEARCH_TYPE_NAME.equals(searchTerm.getSearchType())) {
 								
 								searchByName(resultsListView, searchResultsNavigator,
-										searchHistoryContainer, target, searchTerm.getSearchTerm(), includeConnections.getModelObject());
+										searchHistoryContainer, target, searchTerm.getSearchTerm(), includeConnections.getModelObject(), (selectedWorksite.getModelObject() == true) ? worksiteChoice.getValue() : null);
 								
 							} else if (ProfileConstants.SEARCH_TYPE_INTEREST.equals(searchTerm.getSearchType())) {
 
 								searchByInterest(resultsListView, searchResultsNavigator,
-										searchHistoryContainer, target, searchTerm.getSearchTerm(), includeConnections.getModelObject());
+										searchHistoryContainer, target, searchTerm.getSearchTerm(), includeConnections.getModelObject(), (selectedWorksite.getModelObject() == true) ? worksiteChoice.getValue() : null);
 							}
 						}
 					}
@@ -585,13 +613,13 @@ public class MySearch extends BasePage {
 					
 					if (ProfileConstants.SEARCH_TYPE_NAME.equals(searchType)) {
 						
-						searchByName(resultsListView, searchResultsNavigator, searchHistoryContainer, target, searchText, includeConnections.getModelObject());
+						searchByName(resultsListView, searchResultsNavigator, searchHistoryContainer, target, searchText, includeConnections.getModelObject(), (selectedWorksite.getModelObject() == true) ? worksiteChoice.getValue() : null);
 						
 						//post view event
 						sakaiProxy.postEvent(ProfileConstants.EVENT_SEARCH_BY_NAME, "/profile/"+currentUserUuid, false);
 					} else if (ProfileConstants.SEARCH_TYPE_INTEREST.equals(searchType)) {
 						
-						searchByInterest(resultsListView, searchResultsNavigator, searchHistoryContainer, target, searchText, includeConnections.getModelObject());
+						searchByInterest(resultsListView, searchResultsNavigator, searchHistoryContainer, target, searchText, includeConnections.getModelObject(), (selectedWorksite.getModelObject() == true) ? worksiteChoice.getValue() : null);
 						
 						//post view event
 						sakaiProxy.postEvent(ProfileConstants.EVENT_SEARCH_BY_INTEREST, "/profile/"+currentUserUuid, false);
@@ -610,11 +638,12 @@ public class MySearch extends BasePage {
         	
         	if (searchCookie.getValue().startsWith(ProfileConstants.SEARCH_TYPE_NAME)) {
         		searchTypeRadioGroup.setModel(new Model<String>(ProfileConstants.SEARCH_TYPE_NAME));
-				searchByName(resultsListView, searchResultsNavigator, searchHistoryContainer, null, searchString, includeConnections.getModelObject());
+        		// TODO connection and worksite from cookie
+				searchByName(resultsListView, searchResultsNavigator, searchHistoryContainer, null, searchString, includeConnections.getModelObject(), (selectedWorksite.getModelObject() == true) ? worksiteChoice.getValue() : null);
 
         	} else if (searchCookie.getValue().startsWith(ProfileConstants.SEARCH_TYPE_INTEREST)) {
         		searchTypeRadioGroup.setModel(new Model<String>(ProfileConstants.SEARCH_TYPE_INTEREST));
-        		searchByInterest(resultsListView, searchResultsNavigator, searchHistoryContainer, null, searchString, includeConnections.getModelObject());
+        		searchByInterest(resultsListView, searchResultsNavigator, searchHistoryContainer, null, searchString, includeConnections.getModelObject(), (selectedWorksite.getModelObject() == true) ? worksiteChoice.getValue() : null);
         	}
         } else {
         	// default search type is name
@@ -627,10 +656,11 @@ public class MySearch extends BasePage {
 			final PageableListView<Person> resultsListView,
 			final PagingNavigator searchResultsNavigator,
 			final WebMarkupContainer searchHistoryContainer,
-			AjaxRequestTarget target, String searchTerm, boolean includeConnections) {
+			AjaxRequestTarget target, String searchTerm, boolean includeConnections,
+			String worksiteId) {
 						
 		//search both UDP and SakaiPerson for matches.
-		results = new ArrayList<Person>(searchLogic.findUsersByNameOrEmail(searchTerm, includeConnections));
+		results = new ArrayList<Person>(searchLogic.findUsersByNameOrEmail(searchTerm, includeConnections, worksiteId));
 		Collections.sort(results);
 		
 		int numResults = results.size();
@@ -689,10 +719,11 @@ public class MySearch extends BasePage {
 			final PageableListView<Person> resultsListView,
 			final PagingNavigator searchResultsNavigator,
 			WebMarkupContainer searchHistoryContainer,
-			AjaxRequestTarget target, String searchTerm, boolean includeConnections) {
+			AjaxRequestTarget target, String searchTerm, boolean includeConnections,
+			String worksiteId) {
 						
 		//search SakaiPerson for matches
-		results = new ArrayList<Person>(searchLogic.findUsersByInterest(searchTerm, includeConnections));
+		results = new ArrayList<Person>(searchLogic.findUsersByInterest(searchTerm, includeConnections, worksiteId));
 		Collections.sort(results);
 		
 		int numResults = results.size();
