@@ -9008,6 +9008,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
                             errorMessage = rb.getString("content_review.error.SUBMISSION_ERROR_RETRY_EXCEEDED_CODE");
                         } else if (status.equals(ContentReviewItem.SUBMISSION_ERROR_USER_DETAILS_CODE)) {
                             errorMessage = rb.getString("content_review.error.SUBMISSION_ERROR_USER_DETAILS_CODE");
+                        } else if (ContentReviewItem.SUBMITTED_AWAITING_REPORT_CODE.equals(status)
+                                || ContentReviewItem.NOT_SUBMITTED_CODE.equals(status)) {
+                        	errorMessage = rb.getString("content_review.pending.info");
                         }
                     }
                     
