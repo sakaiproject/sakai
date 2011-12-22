@@ -149,7 +149,12 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 	
 	
 	public void resetMessagesAndForumSynopticInfo(String userId, String siteId) {
-
+		
+		//MSGCNTR-430 we can't do this if we don't know the user -DH
+		if (userId == null) {
+			return;
+		}
+		
 		DecoratedCompiledMessageStats dcmStats = this.getSiteInfo(siteId,
 				userId);
 
