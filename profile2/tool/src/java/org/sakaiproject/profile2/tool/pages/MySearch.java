@@ -83,6 +83,9 @@ public class MySearch extends BasePage {
 	private AjaxButton clearHistoryButton;
 	private TextField<String> searchField;
 	private RadioGroup<String> searchTypeRadioGroup;
+	private CheckBox connectionsCheckBox;
+	private CheckBox worksiteCheckBox;
+	private DropDownChoice worksiteChoice;
 	
 	// Used independently of search history for current search, and
 	// transient because Cookie isn't serializable	 
@@ -140,17 +143,21 @@ public class MySearch extends BasePage {
 		searchTypeRadioGroup.add(new Label("searchTypeInterestLabel", new ResourceModel("text.search.byinterest")));
 		searchForm.add(searchTypeRadioGroup);
 		
-		searchForm.add(new Label("includeConnectionsLabel", new ResourceModel("text.search.include.connections")));
+		searchForm.add(new Label("connectionsLabel", new ResourceModel("text.search.include.connections")));
 		// model is true (include connections by default)
-		final CheckBox includeConnections = new CheckBox("includeConnections", new Model<Boolean>(true));
-		searchForm.add(includeConnections);
+		connectionsCheckBox = new CheckBox("connectionsCheckBox", new Model<Boolean>(true));
+		connectionsCheckBox.setOutputMarkupId(true);
+		searchForm.add(connectionsCheckBox);
 		
-		searchForm.add(new Label("selectedWorksiteLabel", new ResourceModel("text.search.include.worksite")));
+		searchForm.add(new Label("worksiteLabel", new ResourceModel("text.search.include.worksite")));
 		// model is false (include all worksites by default)
-		final CheckBox selectedWorksite = new CheckBox("selectedWorksite", new Model<Boolean>(false));
-		searchForm.add(selectedWorksite);
-				
+		worksiteCheckBox = new CheckBox("worksiteCheckBox", new Model<Boolean>(false));
+		worksiteCheckBox.setOutputMarkupId(true);
+		searchForm.add(worksiteCheckBox);
+		
 		final List<Site> worksites = sakaiProxy.getUserSites();
+		final String defaultWorksiteId = worksites.get(0).getId();
+		
 		final LinkedHashMap<String, String> worksiteMap = new LinkedHashMap<String, String>();
 		for (Site worksite : worksites) {
 			worksiteMap.put(worksite.getId(), worksite.getTitle());
@@ -163,8 +170,7 @@ public class MySearch extends BasePage {
 			}
 		};
 		
-		// TODO need to handle this in cookie and repainting
-		final DropDownChoice worksiteChoice = new DropDownChoice("worksiteChoice", new Model(worksites.get(0).getId()), worksitesModel, new HashMapChoiceRenderer(worksiteMap));
+		worksiteChoice = new DropDownChoice("worksiteChoice", new Model(defaultWorksiteId), worksitesModel, new HashMapChoiceRenderer(worksiteMap));
 		worksiteChoice.setOutputMarkupId(true);
 		worksiteChoice.setNullValid(false);
 		searchForm.add(worksiteChoice);
@@ -516,16 +522,27 @@ public class MySearch extends BasePage {
 							
 							searchStringModel.setString(searchTerm.getSearchTerm());
 							searchTypeRadioGroup.setModel(new Model<String>(searchTerm.getSearchType()));
+							connectionsCheckBox.setModel(new Model<Boolean>(searchTerm.isConnections()));
+							
+							if (null == searchTerm.getWorksite()) {
+								worksiteCheckBox.setModel(new Model<Boolean>(false));
+								worksiteChoice.setModel(new Model(defaultWorksiteId));
+							} else {
+								worksiteCheckBox.setModel(new Model<Boolean>(true));
+								worksiteChoice.setModel(new Model(searchTerm.getWorksite()));
+							}
+							
+							setSearchCookie(searchTerm.getSearchType(), searchTerm.getSearchTerm(), searchTerm.getSearchPageNumber(), searchTerm.isConnections(), searchTerm.getWorksite());
 							
 							if (ProfileConstants.SEARCH_TYPE_NAME.equals(searchTerm.getSearchType())) {
 								
 								searchByName(resultsListView, searchResultsNavigator,
-										searchHistoryContainer, target, searchTerm.getSearchTerm(), includeConnections.getModelObject(), (selectedWorksite.getModelObject() == true) ? worksiteChoice.getValue() : null);
+										searchHistoryContainer, target, searchTerm.getSearchTerm(), searchTerm.isConnections(), searchTerm.getWorksite());
 								
 							} else if (ProfileConstants.SEARCH_TYPE_INTEREST.equals(searchTerm.getSearchType())) {
 
 								searchByInterest(resultsListView, searchResultsNavigator,
-										searchHistoryContainer, target, searchTerm.getSearchTerm(), includeConnections.getModelObject(), (selectedWorksite.getModelObject() == true) ? worksiteChoice.getValue() : null);
+										searchHistoryContainer, target, searchTerm.getSearchTerm(), searchTerm.isConnections(), searchTerm.getWorksite());
 							}
 						}
 					}
@@ -605,21 +622,24 @@ public class MySearch extends BasePage {
 					searchTerm.setSearchTerm(searchText);
 					searchTerm.setSearchPageNumber(0);
 					searchTerm.setSearchDate(new Date());
+					searchTerm.setConnections(connectionsCheckBox.getModelObject());
+					// set to worksite or empty depending on value of checkbox
+					searchTerm.setWorksite((worksiteCheckBox.getModelObject() == true) ? worksiteChoice.getValue() : null);
 					
 					searchLogic.addSearchTermToHistory(currentUserUuid, searchTerm);
 					
 					// set cookie for current search (page 0 when submitting new search)
-					setSearchCookie(searchType, searchText, 0);
+					setSearchCookie(searchTerm.getSearchType(), searchTerm.getSearchTerm(), searchTerm.getSearchPageNumber(), searchTerm.isConnections(), searchTerm.getWorksite());
 					
 					if (ProfileConstants.SEARCH_TYPE_NAME.equals(searchType)) {
 						
-						searchByName(resultsListView, searchResultsNavigator, searchHistoryContainer, target, searchText, includeConnections.getModelObject(), (selectedWorksite.getModelObject() == true) ? worksiteChoice.getValue() : null);
+						searchByName(resultsListView, searchResultsNavigator, searchHistoryContainer, target, searchTerm.getSearchTerm(), searchTerm.isConnections(), searchTerm.getWorksite());
 						
 						//post view event
 						sakaiProxy.postEvent(ProfileConstants.EVENT_SEARCH_BY_NAME, "/profile/"+currentUserUuid, false);
 					} else if (ProfileConstants.SEARCH_TYPE_INTEREST.equals(searchType)) {
 						
-						searchByInterest(resultsListView, searchResultsNavigator, searchHistoryContainer, target, searchText, includeConnections.getModelObject(), (selectedWorksite.getModelObject() == true) ? worksiteChoice.getValue() : null);
+						searchByInterest(resultsListView, searchResultsNavigator, searchHistoryContainer, target, searchTerm.getSearchTerm(), searchTerm.isConnections(), searchTerm.getWorksite());
 						
 						//post view event
 						sakaiProxy.postEvent(ProfileConstants.EVENT_SEARCH_BY_INTEREST, "/profile/"+currentUserUuid, false);
@@ -636,14 +656,21 @@ public class MySearch extends BasePage {
         	String searchString = getCookieSearchString(searchCookie.getValue());
         	searchStringModel.setString(searchString);
         	
+        	Boolean filterConnections = getCookieFilterConnections(searchCookie.getValue());
+        	String worksiteId = getCookieFilterWorksite(searchCookie.getValue());
+        	Boolean filterWorksite = (null == worksiteId) ? false : true;
+        	
+    		connectionsCheckBox.setModel(new Model<Boolean>(filterConnections));
+    		worksiteCheckBox.setModel(new Model<Boolean>(filterWorksite));
+    		worksiteChoice.setModel(new Model((null == worksiteId) ? defaultWorksiteId : worksiteId));
+    		
         	if (searchCookie.getValue().startsWith(ProfileConstants.SEARCH_TYPE_NAME)) {
         		searchTypeRadioGroup.setModel(new Model<String>(ProfileConstants.SEARCH_TYPE_NAME));
-        		// TODO connection and worksite from cookie
-				searchByName(resultsListView, searchResultsNavigator, searchHistoryContainer, null, searchString, includeConnections.getModelObject(), (selectedWorksite.getModelObject() == true) ? worksiteChoice.getValue() : null);
+				searchByName(resultsListView, searchResultsNavigator, searchHistoryContainer, null, searchString, filterConnections, worksiteId);
 
         	} else if (searchCookie.getValue().startsWith(ProfileConstants.SEARCH_TYPE_INTEREST)) {
         		searchTypeRadioGroup.setModel(new Model<String>(ProfileConstants.SEARCH_TYPE_INTEREST));
-        		searchByInterest(resultsListView, searchResultsNavigator, searchHistoryContainer, null, searchString, includeConnections.getModelObject(), (selectedWorksite.getModelObject() == true) ? worksiteChoice.getValue() : null);
+        		searchByInterest(resultsListView, searchResultsNavigator, searchHistoryContainer, null, searchString, filterConnections, worksiteId);
         	}
         } else {
         	// default search type is name
@@ -656,11 +683,11 @@ public class MySearch extends BasePage {
 			final PageableListView<Person> resultsListView,
 			final PagingNavigator searchResultsNavigator,
 			final WebMarkupContainer searchHistoryContainer,
-			AjaxRequestTarget target, String searchTerm, boolean includeConnections,
+			AjaxRequestTarget target, String searchTerm, boolean connections,
 			String worksiteId) {
 						
 		//search both UDP and SakaiPerson for matches.
-		results = new ArrayList<Person>(searchLogic.findUsersByNameOrEmail(searchTerm, includeConnections, worksiteId));
+		results = new ArrayList<Person>(searchLogic.findUsersByNameOrEmail(searchTerm, connections, worksiteId));
 		Collections.sort(results);
 		
 		int numResults = results.size();
@@ -703,6 +730,9 @@ public class MySearch extends BasePage {
 			//repaint components
 			target.addComponent(searchField);
 			target.addComponent(searchTypeRadioGroup);
+			target.addComponent(connectionsCheckBox);
+			target.addComponent(worksiteCheckBox);
+			target.addComponent(worksiteChoice);
 			target.addComponent(clearButton);
 			target.addComponent(numSearchResultsContainer);
 			clearButton.setVisible(true);
@@ -719,11 +749,11 @@ public class MySearch extends BasePage {
 			final PageableListView<Person> resultsListView,
 			final PagingNavigator searchResultsNavigator,
 			WebMarkupContainer searchHistoryContainer,
-			AjaxRequestTarget target, String searchTerm, boolean includeConnections,
+			AjaxRequestTarget target, String searchTerm, boolean connections,
 			String worksiteId) {
 						
 		//search SakaiPerson for matches
-		results = new ArrayList<Person>(searchLogic.findUsersByInterest(searchTerm, includeConnections, worksiteId));
+		results = new ArrayList<Person>(searchLogic.findUsersByInterest(searchTerm, connections, worksiteId));
 		Collections.sort(results);
 		
 		int numResults = results.size();
@@ -766,6 +796,9 @@ public class MySearch extends BasePage {
 			//repaint components
 			target.addComponent(searchField);
 			target.addComponent(searchTypeRadioGroup);
+			target.addComponent(connectionsCheckBox);
+			target.addComponent(worksiteCheckBox);
+			target.addComponent(worksiteChoice);
 			target.addComponent(clearButton);
 			target.addComponent(numSearchResultsContainer);
 			clearButton.setVisible(true);
@@ -787,26 +820,32 @@ public class MySearch extends BasePage {
 	
 	private int getCookiePageNumber() {
 		return Integer.parseInt(searchCookie.getValue().substring(
-			searchCookie.getValue().indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_PREFIX_PAGE_MARKER) + 1,
-			searchCookie.getValue().indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_PREFIX_TERMINATOR)));
+			searchCookie.getValue().indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_PAGE_MARKER) + 1,
+			searchCookie.getValue().indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_SEARCH_MARKER)));
 	}
 	
 	private void updatePageNumber(int pageNumber, String cookieString) {
-		String searchType = getCookieSearchType(cookieString);
-		String searchString = getCookieSearchString(cookieString);
-
-		setSearchCookie(searchType, searchString, pageNumber);
+		setSearchCookie(getCookieSearchType(cookieString),
+				getCookieSearchString(cookieString),
+				pageNumber,
+				getCookieFilterConnections(cookieString),
+				getCookieFilterWorksite(cookieString));
 	}
 	
 	private void setSearchCookie(String searchCookieValuePrefix,
-			String searchText, int searchPageNumber) {
+			String searchText, int searchPageNumber, boolean connections,
+			String worksiteId) {
 
 		searchCookie = new Cookie(
 				ProfileConstants.SEARCH_COOKIE,
 				searchCookieValuePrefix
-						+ ProfileConstants.SEARCH_COOKIE_VALUE_PREFIX_PAGE_MARKER
+						+ ProfileConstants.SEARCH_COOKIE_VALUE_CONNECTIONS_MARKER
+						+ connections
+						+ ProfileConstants.SEARCH_COOKIE_VALUE_WORKSITE_MARKER
+						+ worksiteId
+						+ ProfileConstants.SEARCH_COOKIE_VALUE_PAGE_MARKER
 						+ searchPageNumber
-						+ ProfileConstants.SEARCH_COOKIE_VALUE_PREFIX_TERMINATOR
+						+ ProfileConstants.SEARCH_COOKIE_VALUE_SEARCH_MARKER
 						+ searchText);
 		// don't persist indefinitely
 		searchCookie.setMaxAge(-1);
@@ -814,11 +853,24 @@ public class MySearch extends BasePage {
 	}
 	
 	private String getCookieSearchString(String cookieString) {
-		return cookieString.substring(cookieString.indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_PREFIX_TERMINATOR) + 1);
+		return cookieString.substring(cookieString.indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_SEARCH_MARKER) + 1);
 	}
 
 	private String getCookieSearchType(String cookieString) {
-		return cookieString.substring(0, cookieString.indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_PREFIX_PAGE_MARKER));
+		return cookieString.substring(0, cookieString.indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_CONNECTIONS_MARKER));
+	}
+	
+	private boolean getCookieFilterConnections(String cookieString) {
+		return Boolean.parseBoolean(
+				cookieString.substring(cookieString.indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_CONNECTIONS_MARKER) + 1,
+				cookieString.indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_WORKSITE_MARKER)));
+	}
+	
+	private String getCookieFilterWorksite(String cookieString) {
+		String worksiteId = cookieString.substring(cookieString.indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_WORKSITE_MARKER) + 1,
+				cookieString.indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_PAGE_MARKER));
+		
+		return (true == worksiteId.equals("null") ? null : worksiteId);
 	}
 		         
 	// behaviour so we can set the current search cookie when the navigator page changes	 

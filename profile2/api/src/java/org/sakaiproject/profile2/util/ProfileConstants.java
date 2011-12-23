@@ -135,8 +135,10 @@ public class ProfileConstants {
 	public static final String SEARCH_COOKIE = "profile2-search";
 	public static final String SEARCH_TYPE_NAME = "name";
 	public static final String SEARCH_TYPE_INTEREST = "interest";
-	public static final String SEARCH_COOKIE_VALUE_PREFIX_PAGE_MARKER = "[";
-	public static final String SEARCH_COOKIE_VALUE_PREFIX_TERMINATOR = "]";
+	public static final String SEARCH_COOKIE_VALUE_PAGE_MARKER = "[";
+	public static final String SEARCH_COOKIE_VALUE_SEARCH_MARKER = "]";
+	public static final String SEARCH_COOKIE_VALUE_CONNECTIONS_MARKER = "(";
+	public static final String SEARCH_COOKIE_VALUE_WORKSITE_MARKER = ")";
 
 	/*
 	 * PREFERENCES

@@ -29,6 +29,13 @@ public class ProfileSearchTerm implements Comparable<ProfileSearchTerm>, Seriali
 	// last page number of search
 	private int searchPageNumber = 0;
 	
+	// filters
+	
+	// include connections in search results
+	private boolean connections;
+	// limit search to selected worksite
+	private String worksite;
+	
 	@Override
 	public int compareTo(ProfileSearchTerm searchTerm) {
 		
