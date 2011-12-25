@@ -43,8 +43,8 @@
                 <sakai.yaft.version>1.2.1-SNAPSHOT</sakai.yaft.version>
                 <sakai.mneme.version>1.2-hack</sakai.mneme.version>
                 <sakai.mneme.scope>compile</sakai.mneme.scope>
-                <rsfutil.version>0.8-SNAPSHOT</rsfutil.version>
-                <sakairsf.version>0.8-SNAPSHOT</sakairsf.version>
+                <rsfutil.version>0.7.5</rsfutil.version>
+                <sakairsf.version>0.7.5</sakairsf.version>
                 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
 		        <sakai.blti.version>2.0-SNAPSHOT</sakai.blti.version>
             </properties>
