@@ -109,14 +109,12 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.api.ToolURL;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BasicAuth;
 import org.sakaiproject.util.EditorConfiguration;
 import org.sakaiproject.util.ResourceLoader;
-import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 
@@ -302,7 +300,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 			if (e != null)
 			{
-				boolean first = true;
 				while (e.hasMoreElements())
 				{
 					String param = (String) e.nextElement();
@@ -523,8 +520,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			Map m = includeTool(res, req, placement);
 			if (m != null) rcontext.put("currentPlacement", m);
 		}
-
-		boolean loggedIn = session.getUserId() != null;
 
 		if (site != null)
 		{
@@ -899,7 +894,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			if (stat == PortalHandler.NEXT)
 			{
 
-				List<PortalHandler> urlHandlers;
 				for (Iterator<PortalHandler> i = handlerMap.values().iterator(); i.hasNext();)
 				{
 					ph = i.next();
@@ -1160,8 +1154,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		
 		// show the mobile link or not
-		Session session = SessionManager.getCurrentSession();
-		if (session.getAttribute("is_wireless_device") == null && request != null)
+		if (s.getAttribute("is_wireless_device") == null && request != null)
 		{
 			// when user logs out, all session variables are cleaned, this is to reset the is_wireless_device attribute in portal
 			Device device = null;
@@ -1169,14 +1162,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				device = wurfl.getDeviceForRequest(request);
 				String deviceName = device.getId();
 
-				// Not a device recognized by WURFL
-				if (StringUtils.isBlank(deviceName) || deviceName.startsWith("generic") ) { 
-				} else {
-					//if this is a mobile device 
+				// this is a mobile device 
+				if (StringUtils.isNotBlank(deviceName) && !deviceName.startsWith("generic") ) { 
 					String isMobile = device.getCapability("is_wireless_device");
 					Boolean isMobileBool = Boolean.valueOf(isMobile);
 					if (isMobileBool.booleanValue()) {
-						session.setAttribute("is_wireless_device", Boolean.TRUE);
+						s.setAttribute("is_wireless_device", Boolean.TRUE);
 					}
 				}
 			} catch (DeviceNotDefinedException e) {
@@ -1187,7 +1178,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				}
 			}
 		}
-		boolean isWirelessDevice = session.getAttribute("is_wireless_device") != null ? ((Boolean) session.getAttribute("is_wireless_device")).booleanValue():false;
+		boolean isWirelessDevice = s.getAttribute("is_wireless_device") != null ? ((Boolean) s.getAttribute("is_wireless_device")).booleanValue():false;
 		rcontext.put("portal_add_mobile_link",Boolean.valueOf( "true".equals(addMLnk) && isWirelessDevice ) ) ;
 		return rcontext;
 	}
