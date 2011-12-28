@@ -348,13 +348,12 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
     public String escapeSearchFilterTerm(String term) {
         if (term == null) return null;
         //From RFC 2254
-        String escapedStr = new String(term);
-        escapedStr = escapedStr.replaceAll("\\\\","\\\\5c");
-        escapedStr = escapedStr.replaceAll("\\*","\\\\2a");
-        escapedStr = escapedStr.replaceAll("\\(","\\\\28");
-        escapedStr = escapedStr.replaceAll("\\)","\\\\29");
-        escapedStr = escapedStr.replaceAll("\\"+Character.toString('\u0000'), "\\\\00");
-        return escapedStr;
+        term = term.replaceAll("\\\\","\\\\5c");
+        term = term.replaceAll("\\*","\\\\2a");
+        term = term.replaceAll("\\(","\\\\28");
+        term = term.replaceAll("\\)","\\\\29");
+        term = term.replaceAll("\\"+Character.toString('\u0000'), "\\\\00");
+        return term;
     }
     
     /**

@@ -21,9 +21,11 @@
 
 package edu.amc.sakai.user;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -99,7 +101,7 @@ public class EntryAttributeToUserTypeMapper implements UserTypeMapper {
 		String userType = mapUserTypeAttributeValues(userTypeAttrValues);
 		if ( M_log.isDebugEnabled() ) {
 			M_log.debug("mapLdapEntryToSakaiUserType(): finished mapping [user type = " + 
-					userType + "][entry values = " + userTypeAttrValues + 
+					userType + "][entry values = " + Arrays.toString(userTypeAttrValues) + 
 					"][entry DN = " + ldapEntry.getDN() + "]");
 		}
 		return userType;
@@ -126,7 +128,7 @@ public class EntryAttributeToUserTypeMapper implements UserTypeMapper {
 					ldapEntry.getDN() + "]");
 		}
 		
-		if ( logicalAttributeName == null || logicalAttributeName.trim().length() == 0 ) {
+		if ( StringUtils.isBlank(logicalAttributeName) ) {
 			M_log.debug("getUserTypeAttribute(): no logical attribute name specified, returning null");
 			return null;
 		}

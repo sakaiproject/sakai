@@ -379,7 +379,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	 * 
 	 * @see #lookupUserBindDn(String, LDAPConnection)
 	 */
-	public boolean authenticateUser(String userLogin, UserEdit edit, String password)
+	public boolean authenticateUser(final String userLogin, final UserEdit edit, final String password)
 	{
 		if ( M_log.isDebugEnabled() ) {
 			M_log.debug("authenticateUser(): [userLogin = " + userLogin + "]");
@@ -390,8 +390,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 			return false;
 		}
 		
-		boolean isPassword = (password != null) && (password.trim().length() > 0);
-		if ( !(isPassword) )
+		if ( StringUtils.isBlank(password) )
 		{
 			if ( M_log.isDebugEnabled() ) {
 				M_log.debug("authenticateUser(): returning false, blank password");
@@ -414,7 +413,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 			// arbitrary depth below getBasePath().
 			// TODO: optimization opportunity if user entries are 
 			// directly below getBasePath()
-			String endUserDN = lookupUserBindDn(userLogin, conn);
+			final String endUserDN = lookupUserBindDn(userLogin, conn);
 
 			if ( endUserDN == null ) {
 				if ( M_log.isDebugEnabled() ) {

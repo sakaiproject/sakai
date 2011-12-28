@@ -267,7 +267,7 @@ implements LdapConnectionLivenessValidator {
 	 * @return
 	 */
 	protected String generateUniqueToken() {
-		return "" + System.currentTimeMillis();
+		return Long.toString(System.currentTimeMillis());
 	}
 
 	public String getSearchStamp() {

@@ -29,9 +29,6 @@ import com.novell.ldap.LDAPConnection;
 import com.novell.ldap.LDAPConstraints;
 import com.novell.ldap.LDAPException;
 import com.novell.ldap.LDAPTLSSocketFactory;
-import com.novell.ldap.LDAPSearchConstraints;
-import com.novell.ldap.LDAPSearchResults;
-import com.novell.ldap.LDAPEntry;
 
 /**
  * An object factory for managing <code>PooledLDAPConnection<code>s

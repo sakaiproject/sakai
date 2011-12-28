@@ -25,6 +25,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * Implements <code>User</code> EID "validation" by checking
  * for matches in a configurable blacklist, entries in which
@@ -60,7 +62,7 @@ public class RegexpBlacklistEidValidator implements EidValidator {
 	 *   null or entirely whitespace
 	 */
 	protected boolean isMinimallyValidEid(String eid) {
-		return eid != null && eid.trim().length() > 0;
+		return StringUtils.isNotBlank(eid);
 	}
 
 	/**
