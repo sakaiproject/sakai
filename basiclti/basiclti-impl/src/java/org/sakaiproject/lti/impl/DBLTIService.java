@@ -109,16 +109,12 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			jdbcTemplate = new JdbcTemplate(dataSource);
 
 		try {
-			// if we are auto-creating our schema, check and create
-			if (m_autoDdl) {
-				// Use very carefully - for testing table creation
-				boolean doReset = false;
-				if (doReset) M_log.error("DO NOT RUN IN PRODUCTION WITH doReset TRUE");
+			boolean doReset = false;
+			if (doReset) M_log.error("DO NOT RUN IN PRODUCTION WITH doReset TRUE");
 
-				foorm.autoDDL("lti_mapping", LTIService.MAPPING_MODEL, m_sql, doReset, M_log);
-				foorm.autoDDL("lti_content", LTIService.CONTENT_MODEL, m_sql, doReset, M_log);
-				foorm.autoDDL("lti_tools", LTIService.TOOL_MODEL, m_sql, doReset, M_log);
-			}
+			foorm.autoDDL("lti_mapping", LTIService.MAPPING_MODEL, m_sql, m_autoDdl, doReset, M_log);
+			foorm.autoDDL("lti_content", LTIService.CONTENT_MODEL, m_sql, m_autoDdl, doReset, M_log);
+			foorm.autoDDL("lti_tools", LTIService.TOOL_MODEL, m_sql, m_autoDdl, doReset, M_log);
 			super.init();
 		} catch (Exception t) {
 			M_log.warn("init(): ", t);

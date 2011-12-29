@@ -40,7 +40,8 @@ public class SakaiFoorm extends Foorm {
 			return super.loadI18N(str, loader);
 		}
 
-	public void autoDDL(String table, String[] model, SqlService m_sql, boolean doReset, Log M_log)
+	public void autoDDL(String table, String[] model, SqlService m_sql, boolean m_autoDdl, 
+				boolean doReset, Log M_log)
 	{
 		// Use very carefully - for testing table creation
 		if (doReset)
@@ -71,8 +72,16 @@ public class SakaiFoorm extends Foorm {
 
 		}
 		for (String sql : sqls) { 
-			M_log.info("SQL="+sql);  // Comment this out later...
-			if (m_sql.dbWriteFailQuiet(null, sql, null)) M_log.info(sql);
+			M_log.debug(sql);  
+			if ( m_autoDdl ) {
+				if (m_sql.dbWriteFailQuiet(null, sql, null)) {
+					M_log.debug("SQL Success:\n"+sql);
+				} else {
+					M_log.error("SQL Failure:\n"+sql);
+				}
+			} else {
+				M_log.error("SQL Needed:\n"+sql);
+			}
 		}
 	}
 
