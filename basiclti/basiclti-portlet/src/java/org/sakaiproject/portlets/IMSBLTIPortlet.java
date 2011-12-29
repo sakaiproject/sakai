@@ -612,7 +612,8 @@ public class IMSBLTIPortlet extends GenericPortlet {
 					ToolConfiguration toolConfig = SiteService.findTool(placement.getId());
 					Site site = SiteService.getSite(toolConfig.getSiteId());
 					SitePage page = site.getPage(toolConfig.getPageId());
-					page.setTitle(imsTIPageTitle);
+					if ( imsTIPageTitle.length() > 99 ) imsTIPageTitle = imsTIPageTitle.substring(0,99);
+					page.setTitle(imsTIPageTitle.trim());
 					page.setTitleCustom(true);
 					SiteService.save(site);
 				} catch (Exception e) {
