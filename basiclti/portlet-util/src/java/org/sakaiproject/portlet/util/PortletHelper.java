@@ -66,6 +66,7 @@ public class PortletHelper {
 		PortletSession pSession = request.getPortletSession(true);
 		pSession.removeAttribute("error.message");
 		pSession.removeAttribute("error.output");
+		pSession.removeAttribute("error.map");
 	}
 
 	public static String getErrorMessage(PortletRequest request)
@@ -83,6 +84,16 @@ public class PortletHelper {
 		PortletSession pSession = request.getPortletSession(true);
 		try {
 			return (String) pSession.getAttribute("error.output");
+		} catch (Throwable t) {
+			return null;
+		}
+	}
+
+	public static Map getErrorMap(PortletRequest request)
+	{   
+		PortletSession pSession = request.getPortletSession(true);
+		try {
+			return (Map) pSession.getAttribute("error.map");
 		} catch (Throwable t) {
 			return null;
 		}
@@ -119,6 +130,9 @@ public class PortletHelper {
 		errorOut.append("\n-->\n");
 
 		pSession.setAttribute("error.output",errorOut.toString());
+
+		Map map = request.getParameterMap();
+		pSession.setAttribute("error.map",map);
 	}  
 
 	public static void clearDebugOutput(PortletRequest request)

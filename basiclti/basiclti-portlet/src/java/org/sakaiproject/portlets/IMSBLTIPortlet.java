@@ -29,6 +29,7 @@ import java.net.URL;
 import java.net.URI;
 import java.util.UUID;
 import java.util.Properties;
+import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -215,6 +216,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 				out.println(rb.getString("not.configured"));
 			}
 
+			clearErrorMessage(request);
 			dPrint("==== doView complete ====");
 		}
 
@@ -239,11 +241,25 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
 		// Hand up the old values
 		Properties oldValues = new Properties();
+		Map map = getErrorMap(request);
 		addProperty(oldValues, request, "launch", "");
 		for (String element : fieldList) {
 			if ( "launch".equals(element) ) continue;
+			String propKey = "imsti."+element;
 			// addProperty(oldValues, request, element, null);
 			String propValue = getCorrectProperty(request, element, null);
+			if ( map != null ) {
+				if ( map.containsKey(propKey) ) {
+					Object obj = null;
+					try {
+						String[] arr = (String []) map.get(propKey);
+						obj = arr[0];
+					} catch(Exception e) {
+						obj = null;
+					}
+					if ( obj instanceof String ) propValue = (String) obj;
+				}
+			}
 			if ( propValue != null ) {
 				if ( "xml".equals(element)) {
 					propValue = propValue.replace("&amp;","&amp;amp;");
@@ -251,7 +267,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 				if ( "secret".equals(element)) {
 					propValue = LEAVE_SECRET_ALONE;
 				}
-				oldValues.setProperty("imsti."+element, Validator.escapeHtml(propValue));
+				oldValues.setProperty(propKey, Validator.escapeHtml(propValue));
 			}
 		}
 
@@ -269,6 +285,8 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		request.setAttribute("allowRoster", new Boolean("true".equals(allowRoster)));
 		String allowContentLink = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_CONTENTLINK_ENABLED, null);
 		request.setAttribute("allowContentLink", new Boolean("true".equals(allowContentLink)));
+
+		clearErrorMessage(request);
 	}
 
 	public void addProperty(Properties values, RenderRequest request,
@@ -367,6 +385,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 				sendToJSP(request, response, "/edit.jsp");
 			}
 
+			clearErrorMessage(request);
 			dPrint("==== doEdit called ====");
 		}
 
@@ -377,6 +396,8 @@ public class IMSBLTIPortlet extends GenericPortlet {
 			String title = getTitleString(request);
 			if ( title != null ) response.setTitle(title);
 			sendToJSP(request, response, "/help.jsp");
+
+			clearErrorMessage(request);
 			dPrint("==== doHelp done  ====");
 		}
 
@@ -390,6 +411,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
 			PortletSession pSession = request.getPortletSession(true);
 
+			// Clear before Action
 			clearErrorMessage(request);
 
 			String view = (String) pSession.getAttribute("sakai.view");
@@ -701,6 +723,11 @@ public class IMSBLTIPortlet extends GenericPortlet {
 	public void clearErrorMessage(PortletRequest request)
 	{
 		PortletHelper.clearErrorMessage(request);
+	}
+
+	public Map getErrorMap(PortletRequest request)
+	{
+		return PortletHelper.getErrorMap(request);
 	}
 
 	public void setErrorMessage(PortletRequest request, String errorMsg)
