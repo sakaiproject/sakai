@@ -287,6 +287,21 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		} catch (Exception e) {
 			return rb.getString("error.invalid.toolid");
 		}
+
+		// Load the tool we are aiming for
+		Map<String, Object> tool = getTool(toolKey);
+		if ( tool == null ) {
+			return rb.getString("error.invalid.toolid");
+		}
+
+		Long visible = foorm.getLongNull(tool.get(LTIService.LTI_VISIBLE));
+		if ( visible == null ) visible = new Long(0);
+		if ( ! isAdmin() ) {
+			if ( visible == 1 ) {
+				return rb.getString("error.invalid.toolid");
+			}
+		}
+
 		String[] contentModel = getContentModel(toolKey);
 		if (contentModel == null)
 			return rb.getString("error.invalid.toolid");
@@ -334,28 +349,43 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * @see org.sakaiproject.lti.impl.BaseLTIService#updateContent(java.lang.Long, java.lang.Object)
 	 */
 	public Object updateContent(Long key, Object newProps) {
-		// Make sure we like the proposed tool_id
-		String toolId = (String) foorm.getField(newProps, LTIService.LTI_TOOL_ID);
 
-		if ( toolId == null ) {
-			Map<String,Object> content = getContent(key);
-			if (  content == null ) {
-				return rb.getString("error.content.not.found");
-			}
-			Long toolKey = foorm.getLongNull(content.get(LTIService.LTI_TOOL_ID));
-			if ( toolKey != null ) toolId = toolKey.toString();
+		// Load the content item
+		Map<String,Object> content = getContent(key);
+		if (  content == null ) {
+			return rb.getString("error.content.not.found");
 		}
+		Long oldToolKey = foorm.getLongNull(content.get(LTIService.LTI_TOOL_ID));
 
-		if (toolId == null)
-			return rb.getString("error.missing.toolid");
+		// Make sure we like the proposed tool_id
+		String newToolId = (String) foorm.getField(newProps, LTIService.LTI_TOOL_ID);
+		Long newToolKey = null;
+		if ( newToolId != null ) {
+			try {
+				newToolKey = new Long(newToolId);
+			} catch (Exception e) {
+				return rb.getString("error.invalid.toolid");
+			}
+		}
+		if ( newToolKey == null ) newToolKey = oldToolKey;
 
-		Long toolKey = null;
-		try {
-			toolKey = new Long(toolId);
-		} catch (Exception e) {
+		// Load the tool we are aiming for
+		Map<String, Object> tool = getTool(newToolKey);
+		if ( tool == null ) {
 			return rb.getString("error.invalid.toolid");
 		}
-		String[] contentModel = getContentModel(toolKey);
+
+		// If the user is not an admin, they cannot switch to 
+		// a tool that is stealthed
+		Long visible = foorm.getLongNull(tool.get(LTIService.LTI_VISIBLE));
+		if ( visible == null ) visible = new Long(0);
+		if ( ( !isAdmin() ) && ( ! oldToolKey.equals(newToolKey) )  ) {
+			if ( visible == 1 ) {
+				return rb.getString("error.invalid.toolid");
+			}
+		}
+
+		String[] contentModel = getContentModel(tool);
 		if (contentModel == null)
 			return rb.getString("error.invalid.toolid");
 
@@ -549,16 +579,15 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		String whereClause = "";
 
 		Object fields[] = null;
-		if (Arrays.asList(columns).indexOf(LTIService.LTI_VISIBLE) >= 0) {
-			if (!isAdmin()) {
-				whereClause = " ("+LTIService.LTI_VISIBLE+" = 0)";
-			}
-		}
-
-		if (Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0) {
-			if (!isAdmin()) {
-				if ( whereClause.length() > 0 ) whereClause += " AND ";
-				whereClause += " ("+LTIService.LTI_SITE_ID+" = ? OR "+LTIService.LTI_SITE_ID+" IS NULL)";
+		if ( ! isAdmin() ) {
+			if (Arrays.asList(columns).indexOf(LTIService.LTI_VISIBLE) >= 0 && 
+				Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0 ) {
+				whereClause = " ("+LTIService.LTI_SITE_ID+" = ? OR "+
+					"("+LTIService.LTI_SITE_ID+" IS NULL AND "+LTIService.LTI_VISIBLE+" != 1 ) ) ";
+				fields = new Object[1];
+				fields[0] = getContext();
+			} else if (Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0) {
+				whereClause = " ("+LTIService.LTI_SITE_ID+" = ? OR "+LTIService.LTI_SITE_ID+" IS NULL)";
 				fields = new Object[1];
 				fields[0] = getContext();
 			}

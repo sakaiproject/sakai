@@ -214,11 +214,19 @@ public abstract class BaseLTIService implements LTIService {
 	 * @see org.sakaiproject.lti.api.LTIService#getContentModel(java.lang.Long)
 	 */
 	public String[] getContentModel(Long tool_id) {
-		if (!isMaintain())
-			return null;
+		if (!isMaintain()) return null;
 		Map<String, Object> tool = getTool(tool_id);
-		if (tool == null)
-			return null;
+		if (tool == null) return null;
+		return getContentModel(tool);
+	}
+
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * 
+	 * @see org.sakaiproject.lti.api.LTIService#getContentModel(Map<String,Object>)
+	 */
+	public String[] getContentModel(Map<String, Object> tool) {
 		String[] retval = foorm.filterForm(tool, CONTENT_MODEL);
 		if (!isAdmin())
 			retval = foorm.filterForm(null, retval, null, ".*:role=admin.*");

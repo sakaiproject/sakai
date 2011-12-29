@@ -187,6 +187,13 @@ public interface LTIService {
 
 	/**
 	 * 
+	 * @param tool
+	 * @return
+	 */
+	public String[] getContentModel(Map<String,Object> tool);
+
+	/**
+	 * 
 	 * @param newProps
 	 * @return
 	 */
