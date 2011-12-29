@@ -26,7 +26,7 @@
    <p>$validator.escapeHtml($tool_description)</p>
    #end
 #else
-<p>No Tools Available</p>
+<p>$tlang.getString("content.no.tools")</p>
 #end
 #if ( $toolId ) 
 #else

@@ -812,7 +812,8 @@ public class Foorm {
 			Object loader) {
 		int val = getInt(value);
 		String str = getI18N(label, loader);
-		if ( val != 1 ) str = "(Off) " + str;
+		String off = getI18N("bl_off", "(Off)", loader);
+		if ( val != 1 ) str = off + " " + str;
 		return formOutputText(str, field, label, loader);
 	}
 	/**
