@@ -642,7 +642,12 @@ public class ServiceServlet extends HttpServlet {
 			M_log.info(msg);
 			response.setContentType("application/xml");
 			PrintWriter out = response.getWriter();
-			String output = IMSPOXRequest.getFatalResponse(msg);
+            String output = null;
+            if ( pox == null ) {
+                output = IMSPOXRequest.getFatalResponse(msg);
+            } else {
+                output = pox.getResponseFailure(msg, null);
+            }
 			out.println(output);
 		}
 
@@ -920,7 +925,7 @@ public class ServiceServlet extends HttpServlet {
 				}
 				success = true;
 			} catch (Exception e) {
-				doErrorXml(request, response, pox, "outcome.grade.fail", "siteId="+siteId, e);
+				doErrorXml(request, response, pox, "outcome.grade.fail", e.getMessage()+" siteId="+siteId, e);
 			} finally {
 				sess.invalidate(); // Make sure to leave no traces
 				popAdvisor();
