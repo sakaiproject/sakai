@@ -38,6 +38,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -177,13 +178,28 @@ public class SakaiBLTIUtil {
 		String theRole = "Learner";
 		if ( SecurityService.isSuperUser() )
 		{
-			theRole = "Instructor";
+			theRole = "Instructor,Administrator";
 		}
 		else if ( SiteService.allowUpdateSite(context) ) 
 		{
 			theRole = "Instructor";
 		}
-		setProperty(props,"roles",theRole);
+		setProperty(props,BasicLTIConstants.ROLES,theRole);
+
+		String realmId = SiteService.siteReference(context);
+		try {
+			User user = UserDirectoryService.getCurrentUser();
+			if ( user != null ) {
+				Role role = null;
+				String roleId = null;
+				AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
+				if ( realm != null ) role = realm.getUserRole(user.getId());
+				if ( role != null ) roleId = role.getId();
+				if ( roleId != null && roleId.length() > 0 ) setProperty(props, "ext_sakai_role", roleId);
+			}
+		} catch (GroupNotDefinedException e) {
+			dPrint("SiteParticipantHelper.getExternalRealmId: site realm not found"+e.getMessage());
+		}
 	}
 
 	// Retrieve the Sakai information about users, etc.
