@@ -52,6 +52,7 @@
 		</p>	
 #if ($source)
 		<p class="shorttext indnt1">
+			<span class="reqStar">*</span>
 			<label for="source">$tlang.getString("gen.url")</label>
 			<input type="text" name="source" id="source" value="$!validator.escapeHtml($source)" size="40"/>
 		</p>

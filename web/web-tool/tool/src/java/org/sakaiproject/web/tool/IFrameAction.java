@@ -21,18 +21,17 @@
 
 package org.sakaiproject.web.tool;
 
+import java.io.File;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Properties;
-import java.util.Collections;
 import java.util.Locale;
-import java.net.URLEncoder;
-import java.io.File;
+import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.apache.commons.validator.UrlValidator;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
@@ -46,6 +45,8 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
@@ -57,13 +58,11 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * <p>
@@ -1138,9 +1137,25 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		if (state.getAttribute(SPECIAL) == null)
 		{
 			String source = StringUtils.trimToEmpty(data.getParameters().getString(SOURCE));
-			if ((source != null) && (source.length() > 0) && (!source.startsWith("/")) && (source.indexOf("://") == -1))
+			
+			// User entered nothing in the source box; give the user an alert
+			if (StringUtils.isBlank(source))
+			{
+				addAlert(state, rb.getString("gen.url.empty"));
+				return;		
+			}
+			
+			if ((!source.startsWith("/")) && (source.indexOf("://") == -1))
 			{
 				source = "http://" + source;
+			}
+			
+			// Validate the url
+			UrlValidator urlValidator = new UrlValidator();
+			if (!urlValidator.isValid(source)) 
+			{
+				addAlert(state, rb.getString("gen.url.invalid"));
+				return;
 			}
 
 			// update state
