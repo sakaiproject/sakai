@@ -4,8 +4,8 @@
 
 	<tool
 			id="sakai.basiclti.admin"
-			title="External Tools"
-			description="This tool manages external tools launchable via Basic LTI.">
+			title="External Tool Manager"
+			description="This tool manages external tools launchable via IMS LTI.">
 
 		<configuration name="reset.button" value="true"/>
 
@@ -18,12 +18,12 @@
 
 	<tool
 			id="sakai.basiclti.admin.helper"
-			title="External Tools"
-			description="This tool manages external tools launchable via Basic LTI.">
+			title="External Tool Manager"
+			description="This tool manages external tools launchable via IMS LTI.">
 
 		<configuration name="reset.button" value="true"/>
 
-		<category name="helper" />
+		<category name="sakai.helper" />
 
 		<!-- Allow this to be set -->
 		<configuration name="functions.require" /> 

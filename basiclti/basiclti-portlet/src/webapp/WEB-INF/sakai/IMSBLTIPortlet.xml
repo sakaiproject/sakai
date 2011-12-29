@@ -2,8 +2,8 @@
 <registration>
         <tool
                         id="sakai.basiclti"
-                        title="Basic LTI"
-                        description="IMS Basic Learning Tools Interoperability.">
+                        title="External Tool"
+                        description="Launch external tools using IMS Learning Tools Interoperability.">
 
                 <configuration name="sakai:portlet-pre-render" value="true" />
 
@@ -75,7 +75,7 @@
         <tool
                         id="sakai.imstestlti"
                         title="Awsomeness"
-                        description="IMS Basic LTI Test.">
+                        description="IMS LTI Test.">
 
                 <configuration name="sakai:portlet-pre-render" value="true" />
 

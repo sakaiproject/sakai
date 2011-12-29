@@ -6,7 +6,7 @@
 
     <portlet>
         <portlet-name>IMSBLTIPortlet</portlet-name>
-        <display-name xml:lang="en">IMS Basic Learning Tool Interoperability</display-name>
+        <display-name xml:lang="en">IMS Learning Tool Interoperability</display-name>
         <portlet-class>org.sakaiproject.portlets.IMSBLTIPortlet</portlet-class>
 
        <init-param>
@@ -23,8 +23,8 @@
         <supported-locale>en</supported-locale>
 
         <portlet-info>
-            <title>IMS Basic Learning Tool Interoperability</title>
-            <short-title>Basic LTI</short-title>
+            <title>IMS Learning Tool Interoperability</title>
+            <short-title>IMS LTI</short-title>
             <keywords>Sakai</keywords>
         </portlet-info>
     </portlet>
