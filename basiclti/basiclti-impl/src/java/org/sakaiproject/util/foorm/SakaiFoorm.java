@@ -75,7 +75,12 @@ public class SakaiFoorm extends Foorm {
 			M_log.debug(sql);  
 			if ( m_autoDdl ) {
 				if (m_sql.dbWriteFailQuiet(null, sql, null)) {
-					M_log.debug("SQL Success:\n"+sql);
+					// Schema modifications are more interesting
+					if ( sql.trim().toLowerCase().startsWith("alter") ) {
+						M_log.info("SQL Success:\n"+sql);
+					} else {
+						M_log.debug("SQL Success:\n"+sql);
+					}
 				} else {
 					M_log.error("SQL Failure:\n"+sql);
 				}

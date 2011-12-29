@@ -316,7 +316,7 @@ public interface LTIService {
 		"title:text:label=bl_title:required=true:maxlength=255",
 		"description:textarea:label=bl_description:maxlength=4096:",
 		"status:radio:label=bl_status:choices=enable,disable",
-		"visible:radio:label=bl_visible:choices=visible,stealth",
+		"visible:radio:label=bl_visible:choices=visible,stealth:role=admin",
 		"launch:url:label=bl_launch:required=true:maxlength=255",
 		"consumerkey:text:label=bl_consumerkey:required=true:maxlength=255",
 		"secret:text:required=true:label=bl_secret:maxlength=255",

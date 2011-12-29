@@ -546,15 +546,24 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		}
 		String statement = "SELECT " + foorm.formSelect(model) + " FROM " + table;
 		String[] columns = foorm.getFields(model);
+		String whereClause = "";
 
 		Object fields[] = null;
+		if (Arrays.asList(columns).indexOf(LTIService.LTI_VISIBLE) >= 0) {
+			if (!isAdmin()) {
+				whereClause = " ("+LTIService.LTI_VISIBLE+" = 0)";
+			}
+		}
+
 		if (Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0) {
 			if (!isAdmin()) {
-				statement += " WHERE (SITE_ID = ? OR SITE_ID IS NULL)";
+				if ( whereClause.length() > 0 ) whereClause += " AND ";
+				whereClause += " ("+LTIService.LTI_SITE_ID+" = ? OR "+LTIService.LTI_SITE_ID+" IS NULL)";
 				fields = new Object[1];
 				fields[0] = getContext();
 			}
 		}
+		if ( whereClause.length() > 0 ) statement += " WHERE " + whereClause;
 
 		if (last != 0) {
 			String pagedStatement = foorm.getPagedSelect(statement, first, last,
