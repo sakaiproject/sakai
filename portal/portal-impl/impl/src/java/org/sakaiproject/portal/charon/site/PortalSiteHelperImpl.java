@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -603,6 +604,11 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				{
 					String menuClass = firstTool.getToolId();
 					menuClass = "icon-" + menuClass.replace('.', '-');
+					Properties tmp = firstTool.getConfig();
+					if ( tmp != null ) {
+						String mc = tmp.getProperty("sakai:menuClass");
+						if ( mc != null && mc.length() > 0 ) menuClass = mc;
+					}
 					m.put("menuClass", menuClass);
 				}
 				else
@@ -638,6 +644,11 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					m.put("toolrefUrl", toolrefUrl);
 					String menuClass = placement.getToolId();
 					menuClass = "icon-" + menuClass.replace('.', '-');
+					Properties tmp = placement.getConfig();
+					if ( tmp != null ) {
+						String mc = tmp.getProperty("sakai:menuClass");
+						if ( mc != null && mc.length() > 0 ) menuClass = mc;
+					}
 					m.put("menuClass", menuClass);
 					// this is here to allow the tool reorder to work if requried.
 					m.put("_placement", placement);
