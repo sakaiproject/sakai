@@ -1628,7 +1628,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			String loginUserDispName = null;
 			String loginUserDispId = null;
 			boolean displayUserloginInfo = ServerConfigurationService.
-			getBoolean("display.userlogin.info", false);
+			getBoolean("display.userlogin.info", true);
 
 			// check for the top.login (where the login fields are present
 			// instead
