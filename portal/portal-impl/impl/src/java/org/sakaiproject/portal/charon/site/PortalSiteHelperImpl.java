@@ -580,6 +580,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				boolean siteUpdate = SecurityService.unlock("site.upd", site.getReference());
 				if ( ! siteUpdate ) addMoreToolsUrl = null;
 
+				if ( ! ServerConfigurationService.getBoolean("portal.experimental.addmoretools", false) ) addMoreToolsUrl = null;
+
 				m.put("isPage", Boolean.valueOf(true));
 				m.put("current", Boolean.valueOf(current));
 				m.put("ispopup", Boolean.valueOf(p.isPopUp()));
