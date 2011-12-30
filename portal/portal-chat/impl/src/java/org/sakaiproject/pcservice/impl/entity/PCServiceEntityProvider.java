@@ -249,8 +249,9 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 		User currentUser = userDirectoryService.getCurrentUser();
 		User anon = userDirectoryService.getAnonymousUser();
 		
-		if(anon.equals(currentUser))
-			throw new SecurityException("You must be logged in to use this service");
+		if(anon.equals(currentUser)) {
+			return new HashMap<String,Object>(0);
+		}
 		
 		String online = (String) params.get("online");
 		
