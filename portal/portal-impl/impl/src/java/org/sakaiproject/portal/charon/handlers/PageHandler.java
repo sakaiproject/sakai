@@ -186,6 +186,7 @@ public class PageHandler extends BasePortalHandler
 	{
 		int toolCount = 0;
 
+		if ( page == null ) return;
 		if (rcontext.uses(INCLUDE_PAGE))
 		{
 

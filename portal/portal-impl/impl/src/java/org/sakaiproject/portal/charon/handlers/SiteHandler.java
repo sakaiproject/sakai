@@ -239,21 +239,22 @@ public class SiteHandler extends WorksiteHandler
 			pageId = findPageIdFromToolId(pageId, req.getPathInfo(), site);
 		}
 		
-		// Lookup the page in the site - enforcing access control
-		// business rules
-		SitePage page = portal.getSiteHelper().lookupSitePage(pageId, site);
-		if (page == null)
-		{
-			portal.doError(req, res, session, Portal.ERROR_SITE);
-			return;
-		}
-
-		// store the last page visited
-		session.setAttribute(Portal.ATTR_SITE_PAGE + siteId, page.getId());
+		// clear the last page visited
+		session.removeAttribute(Portal.ATTR_SITE_PAGE + siteId);
 
 		// form a context sensitive title
 		String title = ServerConfigurationService.getString("ui.service") + " : "
-				+ site.getTitle() + " : " + page.getTitle();
+				+ site.getTitle();
+
+		// Lookup the page in the site - enforcing access control
+		// business rules
+		SitePage page = portal.getSiteHelper().lookupSitePage(pageId, site);
+		if (page != null)
+		{
+			// store the last page visited
+			session.setAttribute(Portal.ATTR_SITE_PAGE + siteId, page.getId());
+			title += " : " + page.getTitle();
+		}
 
 		// start the response
 		String siteType = portal.calcSiteType(siteId);
