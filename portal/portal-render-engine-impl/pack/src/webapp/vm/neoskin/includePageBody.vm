@@ -208,11 +208,13 @@
 						<!-- chat tray, will hold chat containers (as many as ongoing chats) -->
 					</div>	
 #else
+#if ( ${sitePages.pageNavShowPresenceLoggedIn})
 					<h1 class="skip">${rloader.sit_presencehead}</h1>
 					<div id="footerAppPresence" aria-live="polite"  aria-atomic="false" aria-relevant="all">
 						<a href="#" id="presenceToggle"><img src="/library/image/silk/user_green.png" style="vertical-align: middle;"/><span class="skip">Toggle users present panel</span></a>
 						<span class="skip">Number of users present:</span> <span id="presenceCount"></span>
 					</div>
+#end
 #end
 				</div>
 			</div>
@@ -333,7 +335,7 @@
 
 				</div>
                            </div>
-			#end
+#end
 
 
 #else
