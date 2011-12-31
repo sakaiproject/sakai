@@ -1968,7 +1968,7 @@ public class ListItem
     		}
     		else
     		{
-	    		names[index] = group.getTitle();
+	    		names[index] = Validator.escapeHtml(group.getTitle());
 	    		index++;
     		}
     	}
