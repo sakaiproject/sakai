@@ -25,20 +25,20 @@
 		  		#if (${page.current})
 						<li class="selectedTool">
 							<a class="toolMenuLink #if(${page.hidden})hidden#end" title="${page.pageTitle}" role="presentation" aria-disabled="true">
-							<span class="toolMenuIcon ${page.menuClass}">${page.pageTitle}</span>
+							<span class="toolMenuIcon ${page.menuClass} ${page.menuClassOverride}">${page.pageTitle}</span>
 							</a>
 						</li>
 		  		#else
 		  			 #if (${page.ispopup})
 						<li>
 							<a class="toolMenuLink #if(${page.hidden})hidden#end" href="javascript:;" title="${page.pageTitle}" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
-							<span class="toolMenuIcon ${page.menuClass}">${page.pageTitle}</span>
+							<span class="toolMenuIcon ${page.menuClass} ${page.menuClassOverride}">${page.pageTitle}</span>
 							</a>
 						</li>
 		   			#else
 						<li>
 							<a class="toolMenuLink #if(${page.hidden})hidden#end" #if(${page.hidden})hidden#end" href="${page.pageRefUrl}" title="${page.description}">
-							<span class="toolMenuIcon ${page.menuClass}">${page.pageTitle}</span>
+							<span class="toolMenuIcon ${page.menuClass} ${page.menuClassOverride}">${page.pageTitle}</span>
 							</a>
 						</li>
 		   			#end

@@ -95,6 +95,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 	private static final String PROP_HTML_INCLUDE = "sakai:htmlInclude";
 
+	private static final String PROP_MENU_CLASS = "sakai:menuClass";
+
 	protected final static String CURRENT_PLACEMENT = "sakai:ToolComponent:current.placement";
 
 	private Portal portal;
@@ -604,16 +606,16 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				{
 					String menuClass = firstTool.getToolId();
 					menuClass = "icon-" + menuClass.replace('.', '-');
-					Properties tmp = firstTool.getConfig();
-					if ( tmp != null ) {
-						String mc = tmp.getProperty("sakai:menuClass");
-						if ( mc != null && mc.length() > 0 ) menuClass = mc;
-					}
 					m.put("menuClass", menuClass);
 				}
 				else
 				{
 					m.put("menuClass", "icon-default-tool");
+				}
+				Properties tmp = firstTool.getConfig();
+				if ( tmp != null ) {
+					String mc = tmp.getProperty(PROP_MENU_CLASS);
+					if ( mc != null && mc.length() > 0 ) m.put("menuClassOverride", mc);
 				}
 				m.put("pageProps", createPageProps(p));
 				// this is here to allow the tool reorder to work
@@ -644,12 +646,12 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					m.put("toolrefUrl", toolrefUrl);
 					String menuClass = placement.getToolId();
 					menuClass = "icon-" + menuClass.replace('.', '-');
-					Properties tmp = placement.getConfig();
-					if ( tmp != null ) {
-						String mc = tmp.getProperty("sakai:menuClass");
-						if ( mc != null && mc.length() > 0 ) menuClass = mc;
-					}
 					m.put("menuClass", menuClass);
+					Properties tmp = firstTool.getConfig();
+					if ( tmp != null ) {
+						String mc = tmp.getProperty(PROP_MENU_CLASS);
+						if ( mc != null && mc.length() > 0 ) m.put("menuClassOverride", mc);
+					}
 					// this is here to allow the tool reorder to work if requried.
 					m.put("_placement", placement);
 					l.add(m);
