@@ -90,7 +90,7 @@ function updateShownText() {
     var countText = chat2_messageCountTemplate + '';
     countText = countText.replace('*SHOWN*', chat2_shownMessages);
     countText = countText.replace('*TOTAL*', chat2_totalMessages);
-    $("#chat2_messages_shown_total").text(countText);
+    $("#chat2_messages_shown_total").html(countText);
 }
 
 //Library to ajaxify the Chatroom message submit action
