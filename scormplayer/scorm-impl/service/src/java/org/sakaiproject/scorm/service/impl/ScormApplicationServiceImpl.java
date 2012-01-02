@@ -3,16 +3,21 @@ package org.sakaiproject.scorm.service.impl;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 
 import org.adl.api.ecmascript.APIErrorCodes;
 import org.adl.api.ecmascript.IErrorManager;
+import org.adl.datamodels.DMElement;
 import org.adl.datamodels.DMErrorCodes;
 import org.adl.datamodels.DMFactory;
 import org.adl.datamodels.DMInterface;
 import org.adl.datamodels.DMProcessingInfo;
+import org.adl.datamodels.DataModel;
 import org.adl.datamodels.IDataManager;
 import org.adl.datamodels.SCODataManager;
+import org.adl.datamodels.ieee.SCORM_2004_DM;
 import org.adl.datamodels.ieee.ValidatorFactory;
 import org.adl.datamodels.nav.SCORM_2004_NAV_DM;
 import org.adl.sequencer.ADLObjStatus;
@@ -132,7 +137,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			log.warn("Non-null or empty param passed to commit");
 			errorManager.setCurrentErrorCode(DMErrorCodes.GEN_ARGUMENT_ERROR);
 		} else {
-			if (!scoBean.isInitialized()) {
+			if (scoBean == null || !scoBean.isInitialized()) {
 				log.warn("Attempting to commit prior to initialization");
 				// LMS is not initialized
 				errorManager.setCurrentErrorCode(APIErrorCodes.COMMIT_BEFORE_INIT);
@@ -368,6 +373,10 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		boolean isSuccessful = false;
 		
 		IErrorManager errorManager = sessionBean.getErrorManager();
+		if (scoBean == null) {
+			errorManager.setCurrentErrorCode(APIErrorCodes.TERMINATE_BEFORE_INIT);
+			return isSuccessful;
+		}
 		
 		// already terminated
 		if (scoBean.isTerminated()) {

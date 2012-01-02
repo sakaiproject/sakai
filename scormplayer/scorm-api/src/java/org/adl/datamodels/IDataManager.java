@@ -28,9 +28,9 @@ import org.adl.datamodels.ieee.IValidatorFactory;
 
 public interface IDataManager extends Serializable {
 
-	public long getId();
+	public Long getId();
 	
-	public void setId(long id);
+	public void setId(Long id);
 	
 	public String getCourseId();
 	

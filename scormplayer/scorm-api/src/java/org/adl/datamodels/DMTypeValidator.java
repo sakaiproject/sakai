@@ -27,7 +27,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Vector;
 
-
 /**
  * <br><br>
  * 
@@ -53,86 +52,105 @@ import java.util.Vector;
 public abstract class DMTypeValidator implements Serializable
 {
 
-	protected long id;
+	protected Long id;
+
+	/** 
+	 * Describes the data type being validated.
+	 */
+	protected String mType = null;
+
+	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 	
+	 Public Methods
 	
-   /** 
-    * Describes the data type being validated.
-    */
-   protected String mType = null;
+	-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
 
+	/**
+	 * Compares two valid data model elements for equality.
+	 * 
+	 * @param iFirst  The first value being compared.
+	 * 
+	 * @param iSecond The second value being compared.
+	 * 
+	 * @param iDelimiters
+	 *                The common set of delimiters associated with the
+	 *                values being compared.
+	 * 
+	 * @return Returns <code>true</code> if the two values are equal, otherwise
+	 *         <code>false</code>.
+	 */
+	public boolean compare(String iFirst, String iSecond, List iDelimiters)
+	{
+		boolean equal = true;
 
-   /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-   
-    Public Methods
-   
-   -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
+		if (iFirst == null || iSecond == null)
+		{
+			equal = false;
+		}
+		else
+		{
+			equal = iFirst.equals(iSecond);
+		}
 
-   /**
-    * Compares two valid data model elements for equality.
-    * 
-    * @param iFirst  The first value being compared.
-    * 
-    * @param iSecond The second value being compared.
-    * 
-    * @param iDelimiters
-    *                The common set of delimiters associated with the
-    *                values being compared.
-    * 
-    * @return Returns <code>true</code> if the two values are equal, otherwise
-    *         <code>false</code>.
-    */
-   public boolean compare(String iFirst, String iSecond, List iDelimiters)
-   {
-      boolean equal = true;
+		return equal;
+	}
 
-      if ( iFirst == null || iSecond == null )
-      {
-         equal = false;
-      }
-      else
-      {
-         equal = iFirst.equals(iSecond);
-      }
+	/**
+	 * Provides a human-readable description of the type.
+	 * 
+	 * @return Returns a <code>String</code> that describes the data type being
+	 *         validated.
+	 */
+	public String getTypeName()
+	{
+		return mType;
+	}
 
-      return equal;
-   }
+	/**
+	 * Truncates the value to meet the DataType's SPM
+	 * 
+	 * @param  iValue  The value to be truncated
+	 * 
+	 * @return Returns the value truncated at the DataType's SPM
+	 */
+	public String trunc(String iValue)
+	{
+		return iValue;
+	}
 
+	/**
+	 * Validates the provided string against a known format.
+	 * 
+	 * @param iValue The value being validated.
+	 * 
+	 * @return An abstract data model error code indicating the result of this
+	 *         operation.
+	 */
+	public abstract int validate(String iValue);
 
-   /**
-    * Provides a human-readable description of the type.
-    * 
-    * @return Returns a <code>String</code> that describes the data type being
-    *         validated.
-    */
-   public String getTypeName()
-   {
-      return mType;
-   }
+	@Override
+    public int hashCode() {
+	    final int prime = 31;
+	    int result = 1;
+	    result = prime * result + ((id == null) ? 0 : id.hashCode());
+	    return result;
+    }
 
-
-   /**
-    * Truncates the value to meet the DataType's SPM
-    * 
-    * @param  iValue  The value to be truncated
-    * 
-    * @return Returns the value truncated at the DataType's SPM
-    */
-   public String trunc(String iValue)
-   {
-      return iValue;
-   }
-
-
-   /**
-    * Validates the provided string against a known format.
-    * 
-    * @param iValue The value being validated.
-    * 
-    * @return An abstract data model error code indicating the result of this
-    *         operation.
-    */
-   public abstract int validate(String iValue);
-
+	@Override
+    public boolean equals(Object obj) {
+	    if (this == obj)
+		    return true;
+	    if (obj == null)
+		    return false;
+	    if (getClass() != obj.getClass())
+		    return false;
+	    DMTypeValidator other = (DMTypeValidator) obj;
+	    if (id == null) {
+		    if (other.id != null)
+			    return false;
+	    } else if (!id.equals(other.id))
+		    return false;
+	    return true;
+    }
 
 } // End DMTypeValidator

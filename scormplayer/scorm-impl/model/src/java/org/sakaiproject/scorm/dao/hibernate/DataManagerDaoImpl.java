@@ -20,11 +20,12 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.dao.hibernate;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.adl.datamodels.DMDelimiter;
 import org.adl.datamodels.DMElement;
 import org.adl.datamodels.DataModel;
 import org.adl.datamodels.IDataManager;
@@ -200,11 +201,15 @@ public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManag
 	
 	private void merge(DMElement element) {
 		if (element.getDescription() != null) {
-			//if (element.getDescription().getId() > 0)
-				getHibernateTemplate().saveOrUpdate(element.getDescription());
-			//else 
-			//	getHibernateTemplate().merge(element.getDescription());
+			getHibernateTemplate().saveOrUpdate(element.getDescription());
 		}
+		
+		Map<String, DMElement> children = element.getChildren();
+		Collection<DMElement> values = (children != null ? children.values() : Collections.<DMElement>emptySet());
+		for (DMElement el : values) {
+	        merge(el);
+        }
+		getHibernateTemplate().saveOrUpdate(element);
 		
 		/*List<DMDelimiter> delims = element.getDelimiters();
 		

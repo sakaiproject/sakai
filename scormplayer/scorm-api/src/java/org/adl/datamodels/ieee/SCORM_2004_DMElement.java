@@ -109,6 +109,10 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable
 
       // Set the parent
       mParent = iParent;
+      
+      if (iParent != null && !iParent.getChildren().containsValue(this)) {
+    	  iParent.putChild(iDescription.mBinding, this);
+      }
 
       // Set the data model
       mDM = iDM;

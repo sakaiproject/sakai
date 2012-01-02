@@ -59,17 +59,48 @@ import java.io.Serializable;
  */ 
 public class DMElementDescriptor implements Serializable, Cloneable  
 {
-	private long id;
+
+	/**
+     * serialVersionUID
+     */
+    private static final long serialVersionUID = 3543841115992404332L;
+
+	private Long id;
 	
-   /**
+   @Override
+    public int hashCode() {
+	    final int prime = 31;
+	    int result = 1;
+	    result = prime * result + ((id == null) ? 0 : id.hashCode());
+	    return result;
+    }
+
+	@Override
+    public boolean equals(Object obj) {
+	    if (this == obj)
+		    return true;
+	    if (obj == null)
+		    return false;
+	    if (getClass() != obj.getClass())
+		    return false;
+	    DMElementDescriptor other = (DMElementDescriptor) obj;
+	    if (id == null) {
+		    if (other.id != null)
+			    return false;
+	    } else if (!id.equals(other.id))
+		    return false;
+	    return true;
+    }
+
+/**
     * Describes the dot-notation binding of the data model element
     */
-   public String mBinding = null;
+   public String mBinding;
 
    /**
     * Describes the children of the element
     */
-   public List mChildren = null;
+   public List<DMElementDescriptor> mChildren = null;
 
    /**
     * Describes if the data model element's value can be read
@@ -84,7 +115,7 @@ public class DMElementDescriptor implements Serializable, Cloneable
    /**
     * Describes the set of delimiters available to this element
     */
-   public List mDelimiters = null;
+   public List<DMDelimiterDescriptor> mDelimiters = null;
 
    /**
     * Describes the initial value for this element
@@ -95,7 +126,7 @@ public class DMElementDescriptor implements Serializable, Cloneable
     * Describes an order dependency of this data model element in relation to 
     * its siblings
     */
-   public List mDependentOn = null;
+   public List<String> mDependentOn = null;
 
    /** 
     * Describes if the value of this data model element is unique within its
@@ -138,7 +169,7 @@ public class DMElementDescriptor implements Serializable, Cloneable
     */
    public DMTypeValidator mValidator = null;
 
-   public DMElementDescriptor() {}
+   public DMElementDescriptor() {mBinding = null;}
    
    /**
     * Provides a way to store element information such as dot-notation binding, 
@@ -148,7 +179,7 @@ public class DMElementDescriptor implements Serializable, Cloneable
     * @param iChildren  Describes the children of the element
     * @param iSPM  Describes the SPM number of children records that should be allowed
     */
-   public DMElementDescriptor(String iBinding, Vector iChildren, int iSPM)
+   public DMElementDescriptor(String iBinding, Vector<DMElementDescriptor> iChildren, int iSPM)
    {
       mBinding = iBinding;
       mChildren = iChildren;
@@ -163,7 +194,7 @@ public class DMElementDescriptor implements Serializable, Cloneable
     * @param iBinding  Describes the dot-notation binding of the data model element
     * @param iChildren  Describes the children of the element
     */
-   public DMElementDescriptor(String iBinding, Vector iChildren)
+   public DMElementDescriptor(String iBinding, Vector<DMElementDescriptor> iChildren)
    {
       mBinding = iBinding;
       mChildren = iChildren;
@@ -217,7 +248,11 @@ public class DMElementDescriptor implements Serializable, Cloneable
    public Object clone() {
       try
       {
-         return super.clone();
+    	DMElementDescriptor clone = (DMElementDescriptor)super.clone();
+    	clone.mChildren = cloneList(clone.mChildren);
+    	clone.mDelimiters = cloneList(clone.mDelimiters);
+        clone.id = null;
+		return clone;
       }
       catch ( CloneNotSupportedException e )
       {
@@ -225,7 +260,14 @@ public class DMElementDescriptor implements Serializable, Cloneable
       }
    }
 
-	public long getId() {
+	private <T> List<T> cloneList(List<T> list) {
+		if (list != null) {
+			return new Vector<T>(list);
+		}
+		return null;
+	}
+
+	public Long getId() {
 		return id;
 	}
 

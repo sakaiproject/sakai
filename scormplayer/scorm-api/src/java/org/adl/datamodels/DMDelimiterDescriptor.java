@@ -57,7 +57,7 @@ import java.io.Serializable;
  */ 
 public class DMDelimiterDescriptor implements Serializable 
 {
-	private long id;
+	private Long id;
 	
 
    /**
@@ -126,6 +126,28 @@ public class DMDelimiterDescriptor implements Serializable
       mValueSPM = iValueSPM;
       mValidator = iValidator;
    }
+
+@Override
+public int hashCode() {
+	final int prime = 31;
+	int result = 1;
+	result = prime * result + (int) (id ^ (id >>> 32));
+	return result;
+}
+
+@Override
+public boolean equals(Object obj) {
+	if (this == obj)
+		return true;
+	if (obj == null)
+		return false;
+	if (getClass() != obj.getClass())
+		return false;
+	DMDelimiterDescriptor other = (DMDelimiterDescriptor) obj;
+	if (id != other.id)
+		return false;
+	return true;
+}
 
 
 }  // end DMDelimiterDescriptor
