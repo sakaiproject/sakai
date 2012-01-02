@@ -44,9 +44,11 @@
 			<a href="#totoolmenu"  class="skip" title="${rloader.sit_jumptools}" accesskey="l">
 				${rloader.sit_jumptools}
 			</a>
-			<a href="#sitetabs" class="skip" title="${rloader.sit_jumpworksite}" accesskey="w">
-				${rloader.sit_jumpworksite}
-			</a>
+			#if (${tabsSites} )
+				<a href="#sitetabs" class="skip" title="${rloader.sit_jumpworksite}" accesskey="w">
+					${rloader.sit_jumpworksite}
+				</a>
+			#end
 		</div>
 		#if (${tabsSites} )
 		<div id="headerMax">
