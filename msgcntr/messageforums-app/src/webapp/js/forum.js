@@ -515,14 +515,28 @@ function InsertHTML(header) {
 
 	document.forms['dfCompose'].elements[rteId].value = finalhtml;
 	// Get the editor instance that we want to interact with.
-	var oEditor = FCKeditorAPI.GetInstance(rteId);
-	// Check the active editing mode.
-	if ( oEditor.EditMode == FCK_EDITMODE_WYSIWYG )
+	if (typeof(FCKeditorAPI) != 'undefined')
 	{
-	// Insert the desired HTML.
-		oEditor.InsertHtml( finalhtml );
+		var oEditor = FCKeditorAPI.GetInstance(rteId);
+		// Check the active editing mode.
+		if ( oEditor.EditMode == FCK_EDITMODE_WYSIWYG )
+		{
+			// Insert the desired HTML.
+			oEditor.InsertHtml( finalhtml );
+		}
+		else alert( 'You must be in WYSIWYG mode!' );
 	}
-	else alert( 'You must be in WYSIWYG mode!' );
+	else if (typeof(CKEDITOR) != 'undefined')
+	{
+		var oEditor = CKEDITOR.instances[sakaiCKEditorName];
+		// Check the active editing mode.
+		if ( oEditor.mode == 'wysiwyg' )
+		{
+			// Insert the desired HTML.
+			oEditor.insertHtml( finalhtml );
+		}
+		else alert( 'You must be in WYSIWYG mode!' );
+	}
 }
 
 var setupLongDesc = function(){
