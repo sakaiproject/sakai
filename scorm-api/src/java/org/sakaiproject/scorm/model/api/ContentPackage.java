@@ -29,7 +29,7 @@ public class ContentPackage implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
-	private long contentPackageId;
+	private Long contentPackageId;
 	private String context;
 	private String title;
 	private String resourceId;
@@ -160,11 +160,11 @@ public class ContentPackage implements Serializable {
 		this.numberOfTries = numberOfTries;
 	}
 
-	public long getContentPackageId() {
+	public Long getContentPackageId() {
 		return contentPackageId;
 	}
 
-	public void setContentPackageId(long contentPackageId) {
+	public void setContentPackageId(Long contentPackageId) {
 		this.contentPackageId = contentPackageId;
 	}
 	
@@ -207,5 +207,30 @@ public class ContentPackage implements Serializable {
 	public void setDeleted(boolean isDeleted) {
 		this.isDeleted = isDeleted;
 	}
+
+	@Override
+    public int hashCode() {
+	    final int prime = 31;
+	    int result = 1;
+	    result = prime * result + ((contentPackageId == null) ? 0 : contentPackageId.hashCode());
+	    return result;
+    }
+
+	@Override
+    public boolean equals(Object obj) {
+	    if (this == obj)
+		    return true;
+	    if (obj == null)
+		    return false;
+	    if (getClass() != obj.getClass())
+		    return false;
+	    ContentPackage other = (ContentPackage) obj;
+	    if (contentPackageId == null) {
+		    if (other.contentPackageId != null)
+			    return false;
+	    } else if (!contentPackageId.equals(other.contentPackageId))
+		    return false;
+	    return true;
+    }
 
 }

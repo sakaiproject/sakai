@@ -61,6 +61,11 @@ import org.adl.util.MessageCollection;
 public class SCORM_2004_DM extends DataModel implements Serializable
 {
 	/**
+     * serialVersionUID
+     */
+    private static final long serialVersionUID = 1L;
+
+	/**
 	 * Constant for the smallest permitted maximum for suspend_data
 	 */
 	public static final int SUSPEND_DATA_SPM = 64000;
@@ -112,8 +117,8 @@ public class SCORM_2004_DM extends DataModel implements Serializable
    {
 	  this.validatorFactory = validatorFactory;
 	   
-      Vector children = null;
-      Vector subchildren = null;
+      Vector<DMElementDescriptor> children = null;
+      Vector<DMElementDescriptor> subchildren = null;
       SCORM_2004_DMElement element = null;
       DMElementDescriptor desc = null;
       DMDelimiterDescriptor del = null;
@@ -130,7 +135,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable
       mElements.put(version.getDMElementBindingString(), version);
 
       // comments_from_learner
-      children = new Vector();
+      children = new Vector<DMElementDescriptor>();
 
       // comment
       desc = new DMElementDescriptor("comment", null,
@@ -140,7 +145,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable
                                       SHORT_SPM,
                                       new LangStringValidator());
 
-      desc.mDelimiters = new Vector();
+      desc.mDelimiters = new Vector<DMDelimiterDescriptor>();
       desc.mDelimiters.add(del);
 
       children.add(desc);
@@ -162,7 +167,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable
       mElements.put(desc.mBinding, element);
 
       // comments_from_lms
-      children = new Vector();
+      children = new Vector<DMElementDescriptor>();
 
       // comment
       desc = new DMElementDescriptor("comment", null,
@@ -172,7 +177,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable
                                       SHORT_SPM,
                                       new LangStringValidator());
 
-      desc.mDelimiters = new Vector();
+      desc.mDelimiters = new Vector<DMDelimiterDescriptor>();
       desc.mDelimiters.add(del);
       desc.mIsWriteable = false;
 
@@ -252,7 +257,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable
       mElements.put(desc.mBinding, element);
 
       // interactions
-      children = new Vector();
+      children = new Vector<DMElementDescriptor>();
 
       // interaction id
       desc =
@@ -271,13 +276,13 @@ public class SCORM_2004_DM extends DataModel implements Serializable
       desc = new DMElementDescriptor("type", null,
                                      new VocabularyValidator(typeFormat));
 
-      desc.mDependentOn = new Vector();
+      desc.mDependentOn = new Vector<String>();
       desc.mDependentOn.add(new String("id"));
 
       children.add(desc);
 
       // interaction objectives
-      subchildren = new Vector();
+      subchildren = new Vector<DMElementDescriptor>();
 
       // interaction objectives id
       desc =
@@ -290,20 +295,20 @@ public class SCORM_2004_DM extends DataModel implements Serializable
 
       desc = new DMElementDescriptor("objectives", subchildren, 10);
       desc.mShowChildren = false;
-      desc.mDependentOn = new Vector();
+      desc.mDependentOn = new Vector<String>();
       desc.mDependentOn.add(new String("id"));
 
       children.add(desc);
 
       // interaction timestamp
       desc = new DMElementDescriptor("timestamp", null, validatorFactory.newDateTimeValidator(true));
-      desc.mDependentOn = new Vector();
+      desc.mDependentOn = new Vector<String>();
       desc.mDependentOn.add(new String("id"));
 
       children.add(desc);
 
       // interaction correct_responses
-      subchildren = new Vector();
+      subchildren = new Vector<DMElementDescriptor>();
 
       // interaction correct_responses pattern
       desc = new DMElementDescriptor("pattern", null, null);
@@ -311,7 +316,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable
 
       desc = new DMElementDescriptor("correct_responses", subchildren, 250);
       desc.mShowChildren = false;
-      desc.mDependentOn = new Vector();
+      desc.mDependentOn = new Vector<String>();
       desc.mDependentOn.add(new String("type"));
 
       children.add(desc);
@@ -320,14 +325,14 @@ public class SCORM_2004_DM extends DataModel implements Serializable
       desc = new DMElementDescriptor("weighting", null,
                                      new RealRangeValidator(null,
                                                             null));
-      desc.mDependentOn = new Vector();
+      desc.mDependentOn = new Vector<String>();
       desc.mDependentOn.add(new String("id"));
 
       children.add(desc);
 
       // interaction learner_response
       desc = new DMElementDescriptor("learner_response", null, null);
-      desc.mDependentOn = new Vector();
+      desc.mDependentOn = new Vector<String>();
       desc.mDependentOn.add(new String("type"));
 
       children.add(desc);
@@ -337,7 +342,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable
          "neutral"};
       desc = new DMElementDescriptor("result", null,
                                      new ResultValidator(resultFormat));
-      desc.mDependentOn = new Vector();
+      desc.mDependentOn = new Vector<String>();
       desc.mDependentOn.add(new String("id"));
 
       children.add(desc);
@@ -345,7 +350,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable
       // interaction latency
       desc = new DMElementDescriptor("latency", null,
                                      new DurationValidator());
-      desc.mDependentOn = new Vector();
+      desc.mDependentOn = new Vector<String>();
       desc.mDependentOn.add(new String("id"));
 
       children.add(desc);
@@ -358,9 +363,9 @@ public class SCORM_2004_DM extends DataModel implements Serializable
       del = new DMDelimiterDescriptor("lang", "en",
                                       SHORT_SPM,
                                       new LangStringValidator());
-      desc.mDelimiters = new Vector();
+      desc.mDelimiters = new Vector<DMDelimiterDescriptor>();
       desc.mDelimiters.add(del);
-      desc.mDependentOn = new Vector();
+      desc.mDependentOn = new Vector<String>();
       desc.mDependentOn.add(new String("id"));
 
       children.add(desc);
@@ -399,7 +404,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable
       del = new DMDelimiterDescriptor("lang", "en",
                                       SHORT_SPM,
                                       new LangStringValidator());
-      desc.mDelimiters = new Vector();
+      desc.mDelimiters = new Vector<DMDelimiterDescriptor>();
       desc.mDelimiters.add(del);
       desc.mIsWriteable = false;
 
@@ -407,7 +412,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable
       mElements.put(desc.mBinding, element);
 
       // learner_preference
-      children = new Vector();
+      children = new Vector<DMElementDescriptor>();
 
       // learner_preference audio_level
       desc = new DMElementDescriptor("audio_level", "1",
@@ -469,7 +474,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable
       mElements.put(desc.mBinding, element);
 
       // objectives
-      children = new Vector();
+      children = new Vector<DMElementDescriptor>();
 
       // objectives id
       desc =
@@ -483,7 +488,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable
       children.add(desc);
 
       // objectives score
-      subchildren = new Vector();
+      subchildren = new Vector<DMElementDescriptor>();
 
       // objectives score scaled
       desc = new DMElementDescriptor("scaled", null,
@@ -508,7 +513,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable
 
       // Create the score
       desc = new DMElementDescriptor("score", subchildren);
-      desc.mDependentOn = new Vector();
+      desc.mDependentOn = new Vector<String>();
       desc.mDependentOn.add(new String("id"));
 
       // Add the score and its children to the objectives children
@@ -518,7 +523,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable
       String [] successFormat = {"passed", "failed", "unknown"};
       desc = new DMElementDescriptor("success_status", "unknown",
                                      new VocabularyValidator(successFormat));
-      desc.mDependentOn = new Vector();
+      desc.mDependentOn = new Vector<String>();
       desc.mDependentOn.add(new String("id"));
 
       children.add(desc);
@@ -528,7 +533,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable
          "unknown"};
       desc = new DMElementDescriptor("completion_status", "unknown",
                                      new VocabularyValidator(completionFormat));
-      desc.mDependentOn = new Vector();
+      desc.mDependentOn = new Vector<String>();
       desc.mDependentOn.add(new String("id"));
 
       children.add(desc);
@@ -537,7 +542,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable
       desc = new DMElementDescriptor("progress_measure", null,
                                      new RealRangeValidator(new Double(0),
                                                             new Double(1.0)));
-      desc.mDependentOn = new Vector();
+      desc.mDependentOn = new Vector<String>();
       desc.mDependentOn.add(new String("id"));
 
       children.add(desc);
@@ -551,9 +556,9 @@ public class SCORM_2004_DM extends DataModel implements Serializable
                                       SHORT_SPM,
                                       new LangStringValidator());
 
-      desc.mDelimiters = new Vector();
+      desc.mDelimiters = new Vector<DMDelimiterDescriptor>();
       desc.mDelimiters.add(del);
-      desc.mDependentOn = new Vector();
+      desc.mDependentOn = new Vector<String>();
       desc.mDependentOn.add(new String("id"));
 
       children.add(desc);
@@ -580,7 +585,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable
       mElements.put(desc.mBinding, element);
 
       // score
-      children = new Vector();
+      children = new Vector<DMElementDescriptor>();
 
       // score scaled
       desc = new DMElementDescriptor("scaled", null,
@@ -652,7 +657,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable
       mElements.put(desc.mBinding, element);
    }
    
-   public Map getElements() {
+   public Map<String, DMElement> getElements() {
 	   return mElements;
    }
 
@@ -927,7 +932,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable
 				   System.out.println("DMElement Desc Binding " + desc.mBinding);
 				   System.out.println("DMElement Desc Initial " + desc.mInitial);
 				   
-				   List delims = desc.mDelimiters;
+				   List<DMDelimiterDescriptor> delims = desc.mDelimiters;
 				   
 				   if (null != delims) {
 					   for (Object o : delims) {

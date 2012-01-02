@@ -8,7 +8,7 @@ public class ActivityTreeHolder implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
-	private long id;
+	private Long id;
 	private long contentPackageId;
 	private String learnerId;
 	private SeqActivityTree seqActivityTree;
@@ -21,10 +21,10 @@ public class ActivityTreeHolder implements Serializable {
 		this.learnerId = learnerId;
 	}
 	
-	public long getId() {
+	public Long getId() {
 		return id;
 	}
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 	public long getContentPackageId() {
@@ -45,6 +45,31 @@ public class ActivityTreeHolder implements Serializable {
 	public void setSeqActivityTree(SeqActivityTree seqActivityTree) {
 		this.seqActivityTree = seqActivityTree;
 	}
+
+	@Override
+    public int hashCode() {
+	    final int prime = 31;
+	    int result = 1;
+	    result = prime * result + ((id == null) ? 0 : id.hashCode());
+	    return result;
+    }
+
+	@Override
+    public boolean equals(Object obj) {
+	    if (this == obj)
+		    return true;
+	    if (obj == null)
+		    return false;
+	    if (getClass() != obj.getClass())
+		    return false;
+	    ActivityTreeHolder other = (ActivityTreeHolder) obj;
+	    if (id == null) {
+		    if (other.id != null)
+			    return false;
+	    } else if (!id.equals(other.id))
+		    return false;
+	    return true;
+    }
 	
 	
 }

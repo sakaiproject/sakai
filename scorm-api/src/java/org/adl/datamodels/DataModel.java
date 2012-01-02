@@ -51,7 +51,7 @@ package org.adl.datamodels;
  */
 public abstract class DataModel implements IDataModel
 {
-	protected long id;
+	protected Long id;
 	
 	
    /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -167,6 +167,33 @@ public abstract class DataModel implements IDataModel
     * Displays the contents of the entire data model.
     */
    public abstract void showAllElements();
+
+
+@Override
+public int hashCode() {
+	final int prime = 31;
+	int result = 1;
+	result = prime * result + ((id == null) ? 0 : id.hashCode());
+	return result;
+}
+
+
+@Override
+public boolean equals(Object obj) {
+	if (this == obj)
+		return true;
+	if (obj == null)
+		return false;
+	if (getClass() != obj.getClass())
+		return false;
+	DataModel other = (DataModel) obj;
+	if (id == null) {
+		if (other.id != null)
+			return false;
+	} else if (!id.equals(other.id))
+		return false;
+	return true;
+}
 
 
 } // end DataModel

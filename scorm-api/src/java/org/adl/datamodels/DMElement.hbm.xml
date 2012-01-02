@@ -13,7 +13,7 @@
 
 		<discriminator column="CLASS_TYPE" type="string"/>
 
-		<many-to-one name="mDescription" column="DESCRIPTION" cascade="none" class="org.adl.datamodels.DMElementDescriptor"/>
+		<many-to-one name="mDescription" column="DESCRIPTION" cascade="all" class="org.adl.datamodels.DMElementDescriptor"/>
 
 		<!-- JLR removed index="SCORM_ELEMENT_DESC_IDX"  from line below 1/28/2008 -->
 		<!--many-to-one insert="false" update="false" name="mDescription" column="DESCRIPTION" index="SCORM_ELEMENT_DESC_IDX" class="org.adl.datamodels.DMElementDescriptor" fetch="join" /-->
