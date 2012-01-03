@@ -98,8 +98,6 @@
         primary key (id)
     );
 
-    create index logindex on lesson_builder_log (itemId, userId);
-
     create table hibernate_unique_key (
          next_hi integer 
     );

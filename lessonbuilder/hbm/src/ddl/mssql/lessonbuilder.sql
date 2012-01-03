@@ -97,5 +97,3 @@
         points double precision null,
         primary key (id)
     );
-
-    create index logindex on lesson_builder_log (itemId, userId);
