@@ -69,6 +69,15 @@ take the appropriate sql file, e.g.
 
 ./hbm/src/ddl/mysql/lessonbuilder.sql
 
+Indices are created separately, so once the tables exist
+you will want to create the indices using
+
+./components/src/ddl/mysql/simplepage.sql
+
+You may get an error because there is one index created by
+the first sql script.
+
+
 BLTI
 
 A note on the two sakai.blti properties, sakai.blti.version and
