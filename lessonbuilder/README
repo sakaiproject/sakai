@@ -61,6 +61,14 @@ Other than that, the properties can be left as is. In particular,
 don't change the version of RSF. We depend upon a newer version than
 the rest of Sakai.
 
+DATABASE SETUP
+
+If you run with auto.ddl set, Lesson Builder will create the
+necessary tables. Otherwise BEFORE YOU DEPLOY IT, please
+take the appropriate sql file, e.g.
+
+./hbm/src/ddl/mysql/lessonbuilder.sql
+
 BLTI
 
 A note on the two sakai.blti properties, sakai.blti.version and
