@@ -54,24 +54,38 @@ Quan tingueu el vostre compte de convidat, ja podeu accedir-hi. ${localSakaiName
  <locale>ca</locale>
 </emailTemplate>
 <emailTemplate>
- <subject>${localSakaiName} </subject>
- <message>${userName}:
+	<subject>${localSakaiName} Site Notification</subject>
+	<message>
+		Dear ${userName},
 
- ${localSakaiName}
- ${userName}. 
+		You have been added to the following ${localSakaiName} site: 
+			${siteName}
+		by ${currentUserName}.
+			
+		&lt;#if newNonOfficialAccount == "true" &gt;
+			&lt;#if hasNonOfficialAccountUrl == "true" &gt;	
+				To get a guest account, open the following site:
+					${nonOfficialAccountUrl}
+				and follow the steps listed.
+			
+			&lt;/#if&gt;
+			Once you have your guest account, you can log in to ${localSakaiName}:
+			
+				1. Open ${localSakaiName}: ${localSakaiURL}
+				2. Click the Login button.
+				3. Type your guest account login and password, and click Login.
+				4. Click on the site tab to go to the site. (You will see two or more tabs in a row across the upper part of the screen.)
+		
+		&lt;#else&gt;		
+			To log in:
 
-&lt;#if newNonOfficialAccount == "true" &gt;Insert your institutions specific instructions for new guest users here 
-
- ${localSakaiName} : 
- ${localSakaiName} : ${localSakaiURL}
-
-
-&lt;#else &gt;
- ${localSakaiName} : ${localSakaiURL}
-
-
-&lt;/#if&gt;</message>
- <locale>en_GB</locale>
+				1. Open ${localSakaiName}: ${localSakaiURL}
+				2. Click the Login button.
+				3. Enter your username and password, and click Login.
+				4. Click on the site tab to go to the site. (You will see two or more tabs in a row across the upper part of the screen.)
+		&lt;/#if&gt;
+	</message>
+	<locale>en_GB</locale>
 </emailTemplate>
 <emailTemplate>
  <subject>${localSakaiName} Site melding</subject>
