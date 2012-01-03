@@ -192,7 +192,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	protected Cache m_submissionCache = null;
 
 	/** The access point URL. */
-	protected String m_relativeAccessPoint = null;
+	protected static String m_relativeAccessPoint = null;
 	
 	private static final String NEW_ASSIGNMENT_DUE_DATE_SCHEDULED = "new_assignment_due_date_scheduled";
 
@@ -246,7 +246,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 *        if true, form within the access path only (i.e. starting with /msg)
 	 * @return the partial URL that forms the root of resource URLs.
 	 */
-	protected String getAccessPoint(boolean relative)
+	static protected String getAccessPoint(boolean relative)
 	{
 		return (relative ? "" : m_serverConfigurationService.getAccessUrl()) + m_relativeAccessPoint;
 
@@ -502,7 +502,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	}
 
 	/** Dependency: ServerConfigurationService. */
-	protected ServerConfigurationService m_serverConfigurationService = null;
+	static protected ServerConfigurationService m_serverConfigurationService = null;
 
 	/**
 	 * Dependency: ServerConfigurationService.
@@ -3403,7 +3403,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public boolean allowReceiveSubmissionNotification(String context)
 	{
-		String resourceString = getAccessPoint(true) + Entity.SEPARATOR + "a" + Entity.SEPARATOR + context + Entity.SEPARATOR;
+		String resourceString = getContextReference(context);
 
 		
 		{
@@ -3421,7 +3421,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public List allowReceiveSubmissionNotificationUsers(String context)
 	{
-		String resourceString = getAccessPoint(true) + Entity.SEPARATOR + "a" + Entity.SEPARATOR + context + Entity.SEPARATOR;
+		String resourceString = getContextReference(context);
 		
 		{
 			M_log.debug(this + " allowReceiveSubmissionNotificationUsers with resource string : " + resourceString);
@@ -3436,7 +3436,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public boolean allowAddAssignment(String context)
 	{
-		String resourceString = getAccessPoint(true) + Entity.SEPARATOR + "a" + Entity.SEPARATOR + context + Entity.SEPARATOR;
+		String resourceString = getContextReference(context);
 		// base the check for SECURE_ADD_ASSIGNMENT on the site and any of the site's groups
 		// if the user can SECURE_ADD_ASSIGNMENT anywhere in that mix, they can add an assignment
 		// this stack is not the normal azg set for site, so use a special refernce to get this behavior
@@ -3459,7 +3459,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	public boolean allowAddSiteAssignment(String context)
 	{
 		// check for assignments that will be site-wide:
-		String resourceString = getAccessPoint(true) + Entity.SEPARATOR + "a" + Entity.SEPARATOR + context  + Entity.SEPARATOR;
+		String resourceString = getContextReference(context);
 
 		
 		{
@@ -3475,7 +3475,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public boolean allowAllGroups(String context)
 	{
-		String resourceString = getAccessPoint(true) + Entity.SEPARATOR + "a" + Entity.SEPARATOR + context + Entity.SEPARATOR;
+		String resourceString = getContextReference(context);
 
 		
 		{
@@ -3543,7 +3543,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public boolean allowGetAssignment(String context)
 	{
-		String resourceString = getAccessPoint(true) + Entity.SEPARATOR + "a" + Entity.SEPARATOR + context + Entity.SEPARATOR;
+		String resourceString = getContextReference(context);
 
 		
 		{
@@ -3878,7 +3878,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public List allowAddAssignmentUsers(String context)
 	{
-		String resourceString = getAccessPoint(true) + Entity.SEPARATOR + "a" + Entity.SEPARATOR + context + Entity.SEPARATOR;
+		String resourceString = getContextReference(context);
 		
 		{
 			M_log.debug(this + " allowAddAssignmentUsers with resource string : " + resourceString);
@@ -12582,6 +12582,17 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		return body;
 	}
+	
+    /**
+     * construct the right path for context string, used for permission checkings
+     * @param context
+     * @return
+     */
+    static protected String getContextReference(String context) 
+    {   
+            String resourceString = getAccessPoint(true) + Entity.SEPARATOR + "a" + Entity.SEPARATOR + context + Entity.SEPARATOR;
+            return resourceString;
+    }
 
 } // BaseAssignmentService
 

@@ -511,8 +511,13 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
         }
         try
         {
-            Assignment a = assignmentService.getAssignment(assignmentId);
+            // enable permission to view possible draft assignment
+            securityService.pushAdvisor(new MySecurityAdvisor(
+					sessionManager.getCurrentSessionUserId(),
+					AssignmentService.SECURE_ADD_ASSIGNMENT,
+					BaseAssignmentService.getContextReference(context)));
             
+        	Assignment a = assignmentService.getAssignment(assignmentService.assignmentReference(context, assignmentId));
             assignData.put("assignment", a);
             assignData.put("context", context);
             assignData.put("assignmentId", assignmentId);
@@ -584,6 +589,9 @@ public class AssignmentEntityProviderImpl implements AssignmentEntityProvider, C
             assignData.remove("assignmentTitle");
             assignData.remove("assignmentUrl");
             throw new SecurityException(e);
+        }
+        finally {
+            securityService.popAdvisor();
         }
         return assignData;
     }
