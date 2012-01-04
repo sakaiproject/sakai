@@ -1583,6 +1583,12 @@ public class ItemAddListener
 		set.add(new ItemMetaData(item.getData(),
 					ItemMetaDataIfc.RANDOMIZE, bean.getRandomized()));
 		}
+		// MSMC property got left out, added in metadata
+		if (bean.getMcmsPartialCredit() != null) {
+		set.add(new ItemMetaData(item.getData(),
+					ItemMetaDataIfc.MCMS_PARTIAL_CREDIT, bean.getMcmsPartialCredit()));
+		}
+		
 		// 2/19/06 use PREDEFINED_SCALE to be in sync with what we are using
 		// for import/export
 		if (bean.getScaleName() != null) {
@@ -1683,6 +1689,8 @@ public class ItemAddListener
 		  }
 		  else if (itemMetaData.getLabel().equals(ItemMetaDataIfc.KEYWORD)){
 			  itemMetaData.setEntry(bean.getKeyword());
+		  }else if(itemMetaData.getLabel().equals(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT)){
+			  itemMetaData.setEntry(bean.getMcmsPartialCredit());
 		  }
 	  
 		  // save settings for mutually exclusive for FIB. Default=false

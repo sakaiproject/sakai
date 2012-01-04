@@ -849,12 +849,20 @@ public class GradingService
       // the following procedure ensure total score awarded per question is no less than 0
       // this probably only applies to MCMR question type - daisyf
       iter = itemGradingSet.iterator();
+      float totalAutoScoreCheck = 0;
+      //get item information to check if it's MCMS and Not Partial Credit
+      Long itemType2 = -1l;
+      String mcmsPartialCredit = "";
+      float itemScore = -1;
       while(iter.hasNext())
       {
         ItemGradingIfc itemGrading = (ItemGradingIfc) iter.next();
         Long itemId = itemGrading.getPublishedItemId();
         ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(itemId);
-        Long itemType2 = item.getTypeId();
+        itemType2 = item.getTypeId();
+        //get item information to check if it's MCMS and Not Partial Credit
+        mcmsPartialCredit = item.getItemMetaDataByLabel(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT);
+        itemScore = item.getScore();
         //float autoScore = (float) 0;
 
         float eachItemScore = ((Float) totalItems.get(itemId)).floatValue();
@@ -862,7 +870,19 @@ public class GradingService
         {
         	itemGrading.setAutoScore( Float.valueOf(0));
         }
+        totalAutoScoreCheck += itemGrading.getAutoScore();
       }
+      //if it's MCMS and Not Partial Credit and the score isn't 100%, that means the user didn't
+      //answer all of the correct answers only.  We need to set their score to 0 for all ItemGrading items
+      if(TypeIfc.MULTIPLE_CORRECT.equals(itemType2) && "false".equals(mcmsPartialCredit) && totalAutoScoreCheck != itemScore){
+    	  //reset all scores to 0 since the user didn't get all correct answers
+    	  iter = itemGradingSet.iterator();
+    	  while(iter.hasNext()){
+    		  ItemGradingIfc itemGrading = (ItemGradingIfc) iter.next();
+    		  itemGrading.setAutoScore(Float.valueOf(0));
+    	  }
+      }
+      
       log.debug("****x4. "+(new Date()).getTime());
 
       // save#1: this itemGrading Set is a partial set of answers submitted. it contains new answers and

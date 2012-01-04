@@ -586,6 +586,9 @@ public class ItemModifyListener implements ActionListener
        if (meta.getLabel().equals(ItemMetaDataIfc.RANDOMIZE)){
 	 bean.setRandomized(meta.getEntry());
        }
+       if (meta.getLabel().equals(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT)){
+    	   bean.setMcmsPartialCredit(meta.getEntry());
+       }
 
        // for Multiple Choice Survey get survey type 
        // use PREDEFINED_SCALE

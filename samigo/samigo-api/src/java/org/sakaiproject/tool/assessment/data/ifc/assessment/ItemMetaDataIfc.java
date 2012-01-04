@@ -31,6 +31,7 @@ public interface ItemMetaDataIfc
   public static final String KEYWORD= "KEYWORD";
   public static final String RUBRIC= "RUBRIC";
   public static final String RANDOMIZE= "RANDOMIZE";
+  public static final String MCMS_PARTIAL_CREDIT = "MCMS_PARTIAL_CREDIT";
   public static final String SCALENAME= "SCALENAME";
   public static final String PARTID= "PARTID";
   public static final String POOLID= "POOLID";
