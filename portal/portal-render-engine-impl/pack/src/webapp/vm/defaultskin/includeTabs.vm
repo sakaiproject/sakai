@@ -19,8 +19,7 @@
 			<div class="${tabsCssClass}">
 				<div id="siteNav">
 					<div id="linkNav">
-						<a id="sitetabs" class="skip" name="sitetabs"></a>
-							<h1 class="skip">${rloader.sit_worksiteshead}</h1>
+							<h1 class="skip" id="sitetabs">${rloader.sit_worksiteshead}</h1>
 							<ul id="siteLinkList">
 						#foreach ( $site in $tabsSites.tabsSites ) 
 							#if (${site.isCurrentSite})

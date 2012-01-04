@@ -7,7 +7,10 @@
 #if ( $pageTop )
 <script type="text/javascript" language="JavaScript">
 	var sakaiPortalWindow = "";
-	</script>
+  $(document).ready(function() {
+     setupSkipNav();
+  });
+</script>
 #end
 <!-- END Header -->
 #if (!${loginTopLogin})
@@ -49,14 +52,14 @@
 			</a>
 		#end
 
-			<a href="#tocontent"  class="skip" title="${rloader.sit_jumpcontent}" accesskey="c">
+			<a href="#tocontent"  class="skip internalSkip" title="${rloader.sit_jumpcontent}" accesskey="c">
 			${rloader.sit_jumpcontent}
 			</a>
-			<a href="#totoolmenu"  class="skip" title="${rloader.sit_jumptools}" accesskey="l">
+			<a href="#totoolmenu"  class="skip internalSkip" title="${rloader.sit_jumptools}" accesskey="l">
 				${rloader.sit_jumptools}
 			</a>
 			#if (${tabsSites} )
-				<a href="#sitetabs" class="skip" title="${rloader.sit_jumpworksite}" accesskey="w">
+				<a href="#sitetabs" class="skip internalSkip" title="${rloader.sit_jumpworksite}" accesskey="w">
 					${rloader.sit_jumpworksite}
 				</a>
 			#end

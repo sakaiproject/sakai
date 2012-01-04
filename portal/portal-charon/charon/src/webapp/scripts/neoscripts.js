@@ -539,3 +539,10 @@ function publishSite(siteId) {
     }).responseText; 
 }
 
+var setupSkipNav = function(){
+    // function called from site.vm to enable skip links for all browsers
+     $('#skipNav a.internalSkip').click(function(){
+         var target = $(this).attr('href');
+        $(target).attr('tabindex','-1').focus();
+     });
+};
