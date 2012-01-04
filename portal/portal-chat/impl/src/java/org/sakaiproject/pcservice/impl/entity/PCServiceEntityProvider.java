@@ -27,6 +27,7 @@ import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.presence.api.PresenceService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.ResourceLoader;
 
 import org.jgroups.Address;
 import org.jgroups.Channel;
@@ -43,6 +44,8 @@ import org.jgroups.ReceiverAdapter;
 public class PCServiceEntityProvider extends ReceiverAdapter implements EntityProvider, Createable, Inputable, Outputable, ActionsExecutable, AutoRegisterEntityProvider {
 
 	protected final Logger logger = Logger.getLogger(getClass());
+	/** messages. */
+	private static ResourceLoader rb = new ResourceLoader("portal-chat");
 
 	public final static String ENTITY_PREFIX = "portal-chat";
 
@@ -365,7 +368,7 @@ public class PCServiceEntityProvider extends ReceiverAdapter implements EntityPr
 		
 		try {
 			String email = userDirectoryService.getUser(userId).getEmail();
-            new EmailSender(email, "[Sakai Chat] Chat Invitation", currentUser.getDisplayName() + " wants you to come and chat on " + service + "\n\nFollow the link below:\n\n" + portalUrl);
+            new EmailSender(email, rb.getString("email.subject"), rb.getFormattedMessage("email.body", new String[]{currentUser.getDisplayName(), service, portalUrl}));
 		}
 		catch(Exception e) {
 			throw new EntityException("Failed to send email",userId);
