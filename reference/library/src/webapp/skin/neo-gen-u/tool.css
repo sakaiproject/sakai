@@ -1147,3 +1147,13 @@ ul.makeMenu li.menuClose a:hover {
                 border: 3px solid #eee;
                 padding: 2em;
 }
+/*
+neoportal stuff
+*/
+/* below to supply same rendering in tool
+* as #col1 .portletTitleWrap supplies in portal
+*/ 
+.neoPortletTitleWrap{
+    width: 99%;
+    border-bottom: 2px solid #09C;
+}
