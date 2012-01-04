@@ -171,6 +171,19 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		}
 	    }
 
+	    String helpurl = (String)toolSession.getAttribute("sakai-portal:help-action");
+	    String reseturl = (String)toolSession.getAttribute("sakai-portal:reset-action");
+
+	    if (helpurl != null)
+		UILink.make(tofill, "helpbutton2").
+		    decorate(new UIFreeAttributeDecorator("onclick",
+					  "openWindow('" + helpurl + "', 'Help', 'resizeable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false"));
+	    
+	    if (reseturl != null)
+		UILink.make(tofill, "resetbutton2").
+		    decorate(new UIFreeAttributeDecorator("onclick",
+					  "location.href='" + reseturl + "'; return false"));
+
 	    if (item != null)
 		simplePageBean.adjustBackPath(params.getBackPath(), params.getSendingPage(), item.getId(), item.getName());
 

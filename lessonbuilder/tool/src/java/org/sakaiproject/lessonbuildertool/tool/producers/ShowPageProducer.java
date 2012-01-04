@@ -289,6 +289,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		
 		// security model:
 		// canEditPage and canReadPage are normal Sakai privileges. They apply
+
 		// to all
 		// pages in the site.
 		// However when presented with a page, we need to make sure it's
@@ -719,9 +720,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			List<SimplePageBean.PathEntry> breadcrumbs = simplePageBean.getHierarchy();
 
 			int index = 0;
-			if (breadcrumbs.size() > 1) {
+			if (breadcrumbs.size() > 1 || reseturl != null || helpurl !=  null) {
 				UIOutput.make(tofill, "crumbdiv");
-				for (SimplePageBean.PathEntry e : breadcrumbs) {
+				if (breadcrumbs.size() > 1)
+				    for (SimplePageBean.PathEntry e : breadcrumbs) {
 					// don't show current page. We already have a title. This
 					// was too much
 					UIBranchContainer crumb = UIBranchContainer.make(tofill, "crumb:");
@@ -738,7 +740,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					}
 
 					index++;
-				}
+				    }
 			}
 		}
 
