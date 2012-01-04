@@ -218,7 +218,7 @@ function allowClick(object)
 						</a>
 					</th>
 					<th id="openDate">
-						<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=opendate")'; return false;"  title="$tlang.getString("listassig.sorbysec")">
+						<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=opendate")'; return false;"  title="$tlang.getString("listassig.sorbyope")">
 							$tlang.getString("gen.open")
 							#if ($sortedBy.equals("opendate")) 
 								#if ($sortedAsc.equals("true")) 

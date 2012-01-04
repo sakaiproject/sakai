@@ -142,7 +142,7 @@
 						</th>
 						<th id="assignment">
 							<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_submission" "criteria=$!sortedBy_assignment")'; return false;" 
-							  title="$tlang.getString("check")">
+							  title="$tlang.getString("listassig.sorbytit")">
 								$tlang.getString("gen.assig")
 								#if ($sortedBy.equals($!sortedBy_assignment)) 
 									#if ($sortedAsc.equals("true")) 
