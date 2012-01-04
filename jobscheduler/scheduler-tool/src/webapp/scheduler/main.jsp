@@ -27,7 +27,7 @@
                            firstItem="#{schedulerTool.eventPager.firstItem}"
                            pageSize="#{schedulerTool.eventPager.pageSize}"
                            valueChangeListener="#{schedulerTool.eventPager.handleValueChange}"
-                           textItem="events"
+                           textItem="#{msgs.events}"
                            accesskeys="true"
                            immediate="true"/>
 
@@ -52,7 +52,7 @@
     	          <h:outputText value="#{msgs.timestamp}"/>
     	        </f:facet>
   	          <h:outputText value="#{event.time}">
-  	            <f:convertDateTime pattern="MM/dd/yy 'at' HH:mm:ss"/>
+  	            <f:convertDateTime pattern="#{msgs.date_format}"/>
   	          </h:outputText>
   	        </h:column>            	      
             <h:column>

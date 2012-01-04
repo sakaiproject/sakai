@@ -1293,9 +1293,8 @@ public class SchedulerTool
     {
       try
       {
-          //TODO: These messages should be put into properties
           if (((String) value).length() > 80) {
-              FacesMessage message = new FacesMessage("Job name is too long");
+              FacesMessage message = new FacesMessage(rb.getString("too_long_job_name"));
               message.setSeverity(FacesMessage.SEVERITY_WARN);
               throw new ValidatorException(message);
           }
@@ -1303,7 +1302,7 @@ public class SchedulerTool
             (String) value, Scheduler.DEFAULT_GROUP);
         if (jd != null)
         {
-          FacesMessage message = new FacesMessage("Existing Job Name");
+          FacesMessage message = new FacesMessage(rb.getString("existing_job_name"));
           message.setSeverity(FacesMessage.SEVERITY_WARN);
           throw new ValidatorException(message);
         }
@@ -1326,7 +1325,7 @@ public class SchedulerTool
             (String) value, Scheduler.DEFAULT_GROUP);
         if (trigger != null)
         {
-          FacesMessage message = new FacesMessage("Existing Trigger Name");
+          FacesMessage message = new FacesMessage(rb.getString("existing_trigger_name"));
           message.setSeverity(FacesMessage.SEVERITY_WARN);
           throw new ValidatorException(message);
         }
@@ -1368,7 +1367,7 @@ public class SchedulerTool
       catch (ParseException e)
       {
         // not giving a detailed message to prevent line wraps
-        FacesMessage message = new FacesMessage("Parse Exception");
+        FacesMessage message = new FacesMessage(rb.getString("parse_exception"));
         message.setSeverity(FacesMessage.SEVERITY_WARN);
         throw new ValidatorException(message);
       }

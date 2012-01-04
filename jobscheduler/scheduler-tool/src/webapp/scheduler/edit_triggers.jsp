@@ -48,7 +48,9 @@
     	      <f:facet name="header">
     	        <h:outputText value="#{msgs.trigger_willrun}"/>
     	      </f:facet>
-   	        <h:outputText value="#{wrapper.trigger.nextFireTime}"/>
+    	      <h:outputText value="#{wrapper.trigger.nextFireTime}">
+    	        <f:convertDateTime pattern="#{msgs.date_format}"/>
+    	      </h:outputText>
     	    </h:column>  	      
         </h:dataTable>
 		  </sakai:view_content>
