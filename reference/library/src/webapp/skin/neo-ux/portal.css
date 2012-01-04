@@ -1225,14 +1225,48 @@ below they are contextually defined depending on the column as an example,as you
 }    
 /*PART 8 - CONVENIENCE*/
 /*used to hide various blocks from sighted users that are in the source to help with accessibility*/
-.skip{
-	display: inline;
-	position: absolute;
-	top: -999px;
-	left: -999px;
-	height: 0;
-
+.portalBody .skip{
+    display: inline !important; 
+    position: fixed !important; 
+    height: 1px !important; 
+    width: 1px !important; 
+    overflow: hidden !important;
+    top:0px !important;
+    left:0px; 
+} 
+/*jump-to links, tabbing into  */
+#skipNav a.internalSkip:focus, #skipNav a.internalSkip:active {
+    text-decoration:none;
+    font-size:90%;
+    position:fixed !important;
+    background:#0d0d0d;
+    border-color:#222;
+    border-width: 0 2px 2px 0;
+    border-style:solid;
+    -webkit-border-bottom-right-radius: 5px;
+    -moz-border-radius-bottomright: 5px;
+    border-bottom-right-radius: 5px;
+    vertical-align:middle;
+    padding:6px 10px;
+    outline:none;
+    z-index:200000;
+    box-shadow:0px 0px 10px #000;
+    -webkit-box-shadow:0px 0px 10px #000;
+    -moz-box-shadow:0px 0px 10px #000000;
+    top:35px !important;
+    left:0  !important;
+    height:auto  !important;
+    color:#fff;
+    width: auto  !important;
 }
+
+#headerMin #skipNav a.internalSkip:focus, #headerMin #skipNav a.internalSkip:active {
+    top:0 !important;
+    left:0  !important;
+}
+/*append the value of the accesskey attr to the text*/
+.internalSkip:after {content:' [' attr(accesskey) ']'}
+
 
 /* PART 9 - Tool Icons */
 
