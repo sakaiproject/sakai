@@ -27,3 +27,11 @@
 		padding:.3em 0;
 		border-bottom:2px solid #ccc
 	}
+.smallCol{
+    width:25px
+}
+#allowResubmission_shownInner{padding:1em}
+#allowResubmission_shownInner p {border:none}
+.highLightBlock{
+    background:#eee;
+}
