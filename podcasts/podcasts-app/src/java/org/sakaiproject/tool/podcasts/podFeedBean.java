@@ -37,7 +37,7 @@ public class podFeedBean {
 	public static final String NO_TITLE_ALERT = "notitle";
 
 	/** the resource bundle */
-	private static ResourceLoader rb = new ResourceLoader("podcasts");
+	private static ResourceLoader rb = new ResourceLoader(FacesContext.getCurrentInstance().getApplication().getMessageBundle());
 
 	// inject podfeedService into here to use
 	private PodfeedService podfeedService;
