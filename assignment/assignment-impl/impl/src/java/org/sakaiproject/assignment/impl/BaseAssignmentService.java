@@ -3319,7 +3319,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		if (submission == null) throw new IdUnusedException(submissionId);
 		
 		// double check the submission submitter information:
-		// if current user is not the original submitter and if he doesn't have grading permission, he should have access to other people's submission.
+		// if current user is not the original submitter and if he doesn't have grading permission, he should not have access to other people's submission.
 		String assignmentRef = assignmentReference(submission.getContext(), submission.getAssignmentId());
 		if (!allowGradeSubmission(assignmentRef))
 		{
