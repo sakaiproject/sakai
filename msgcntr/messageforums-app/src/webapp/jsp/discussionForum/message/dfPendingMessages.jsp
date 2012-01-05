@@ -104,9 +104,9 @@
 					<h:outputText value="#{message.message.created}" styleClass="textPanelFooter">
 			  	<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>
 			  </h:outputText>
-				<h:outputText value="#{msgs.cdfm_closeb}" />
+				<h:outputText value="#{msgs.cdfm_closeb}" styleClass="textPanelFooter" />
 					<%--designNote: need to i18N --%>
-					<h:outputText value=" - in  "/>
+					<h:outputText value=" - #{msgs.cdfm_in} "/>
 					<h:commandLink action="#{ForumTool.processActionDisplayForum}"  value="#{message.message.topic.openForum.title}" title=" #{message.message.topic.openForum.title}">
 						<f:param value="#{message.message.topic.openForum.id}" name="forumId"/>
 					</h:commandLink>
