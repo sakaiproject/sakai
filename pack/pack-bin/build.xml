@@ -110,7 +110,7 @@
 	        <tarfileset
 	            dir="${basedir}/target/pack/server"
 	            prefix="/server" dirmode="750"
-	            filemode="750" erroronmissingarchive="false" />
+	            filemode="750" erroronmissingdir="false" />
 	        <tarfileset
 	            dir="${basedir}/target/pack/shared"
 	            prefix="/shared" dirmode="750"
@@ -152,7 +152,7 @@
 	        <zipfileset
 	            dir="${basedir}/target/pack/server"
 	            prefix="/server" dirmode="750"
-	            filemode="750" erroronmissingarchive="false" />
+	            filemode="750" erroronmissingdir="false" />
 	        <zipfileset
 	            dir="${basedir}/target/pack/shared"
 	            prefix="/shared" dirmode="750"
