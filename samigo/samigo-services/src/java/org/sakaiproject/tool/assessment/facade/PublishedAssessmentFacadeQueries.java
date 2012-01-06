@@ -1677,6 +1677,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			PublishedAssessmentData p = (PublishedAssessmentData) l.get(0);
 			p.setSectionSet(getSectionSetForAssessment(p));
 			PublishedAssessmentFacade f = new PublishedAssessmentFacade(p);
+			f.setFeedbackComponentOption(p.getAssessmentFeedback().getFeedbackComponentOption());
 			return f;
 		} else {
 			return null;
