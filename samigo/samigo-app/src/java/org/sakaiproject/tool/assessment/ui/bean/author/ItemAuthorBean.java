@@ -722,18 +722,21 @@ public class ItemAuthorBean
 
   public ArrayList getSelectRelativeWidthList() {
 	  ArrayList<SelectItem> list = new ArrayList();
-
+	  ResourceLoader rb = new ResourceLoader(
+		"org.sakaiproject.tool.assessment.bundle.AuthorMessages");
+	  
 	  final String[] widthLists = {
-			  "Use browser defaults for column widths", 
-			  "10% row choices column/90% column choices column",
-			  "20% row choices column/80% column choices column",
-			  "30% row choices column/70% column choices column",
-			  "40% row choices column/60% column choices column",
-			  "50% row choices column/50% column choices column",
-			  "60% row choices column/40% column choices column",
-			  "70% row choices column/30% column choices column",
-			  "80% row choices column/20% column choices column",
-			  "90% row choices column/10% column choices column"};
+			  rb.getString("matrix_width_list_default"),
+			  rb.getString("matrix_width_list_1"),
+			  rb.getString("matrix_width_list_2"),
+			  rb.getString("matrix_width_list_3"),
+			  rb.getString("matrix_width_list_4"),
+			  rb.getString("matrix_width_list_5"),
+			  rb.getString("matrix_width_list_6"),
+			  rb.getString("matrix_width_list_7"),
+			  rb.getString("matrix_width_list_8"),
+			  rb.getString("matrix_width_list_9")};
+	  
 	  for (int i=0; i<widthLists.length;i++)
 	  {
 		  SelectItem selectItem = new SelectItem();
