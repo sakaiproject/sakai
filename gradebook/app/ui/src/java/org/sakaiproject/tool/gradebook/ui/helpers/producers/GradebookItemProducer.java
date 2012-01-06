@@ -188,6 +188,9 @@ ViewComponentProducer, ViewParamsReporter, DefaultView {
             }
         }
         
+		UIBoundBoolean.make(form, "extraCredit", assignmentOTP + ".extraCredit");
+		UIMessage.make(form, "extraCredit_label", "gradebook.add-gradebook-item.extra_credit");
+        
         Boolean require_due_date = (assignment.getDueDate() != null);
 		UIBoundBoolean.make(form, "require_due_date", "#{GradebookItemBean.requireDueDate}", require_due_date);
 		UIMessage.make(form, "require_due_date_label", "gradebook.add-gradebook-item.require_due_date");

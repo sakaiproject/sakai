@@ -32,6 +32,12 @@
 						<h:message for="points" styleClass="alertMessageInline" />
 						<h:outputText id="pointsDropScores" value="#{spreadsheetUploadBean.assignmentCategory.itemValue}" rendered="#{spreadsheetUploadBean.selectedCategoryDropsScores && !empty spreadsheetUploadBean.assignmentCategory.assignmentList && (spreadsheetUploadBean.assignment.selectedGradeEntryValue != msgs.add_assignment_type_adjustment)}" />
 					</h:panelGroup>
+					
+					<h:outputText value=""/>
+					<h:panelGrid columns="2" columnClasses="prefixedCheckbox">
+						<h:selectBooleanCheckbox id="extraCredit" value="#{spreadsheetUploadBean.assignment.isExtraCredit}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
+						<h:outputLabel for="extraCredit" value="#{msgs.add_assignment_extra_credit}" />
+					</h:panelGrid>
            
 					<h:panelGroup>
 						<h:outputLabel for="dueDate" id="dueDateLabel" value="#{msgs.due_date}"/>

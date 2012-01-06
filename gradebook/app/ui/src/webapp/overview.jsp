@@ -109,9 +109,12 @@
 							<f:param name="assignmentId" value="#{gradebookItem.id}"/>
 						</h:commandLink>
 					</h:panelGroup>
+					<h:outputText value=" (#{msgs.add_assignment_extra_credit})" rendered="#{gradebookItem.isExtraCredit && (gradebookItem.category == null || !gradebookItem.category.isExtraCredit) }"/>
 				</h:panelGroup>
 				
+				
 				<h:outputText value="#{gradebookItem.name}" styleClass="categoryHeading" rendered="#{gradebookItem.isCategory}" />
+				<h:outputText value=" (#{msgs.add_assignment_extra_credit})" rendered="#{gradebookItem.isCategory && gradebookItem.isExtraCredit}"/>
 				<h:outputText value=" (" rendered="#{gradebookItem.isCategory && (gradebookItem.dropHighest != 0 || gradebookItem.drop_lowest != 0 || gradebookItem.keepHighest != 0)}" />
             <h:outputFormat value="#{msgs.cat_drop_highest_display}" rendered="#{gradebookItem.isCategory && gradebookItem.dropHighest != 0}" >
                 <f:param value="#{gradebookItem.dropHighest}"/>

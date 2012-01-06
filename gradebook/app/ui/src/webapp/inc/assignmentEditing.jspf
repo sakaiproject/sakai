@@ -50,6 +50,11 @@
 		<h:outputText style="color: #BB1111" value="#{bean.selectedCategory.itemValue}" rendered="#{bean.assignment.pointsPossible != bean.selectedCategory.itemValue}"/>
 		<h:outputText styleClass="validation" value="#{msgs.cat_external_value_warning}" rendered="#{bean.assignment.pointsPossible != bean.selectedCategory.itemValue}"/>
 	</h:panelGroup>
+	<h:outputText value=""/>
+	<h:panelGrid columns="2" columnClasses="prefixedCheckbox">
+		<h:selectBooleanCheckbox id="extraCredit" value="#{bean.assignment.isExtraCredit}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
+		<h:outputLabel for="extraCredit" value="#{msgs.add_assignment_extra_credit}" />
+	</h:panelGrid>
 
 	<h:panelGroup rendered="#{!bean.assignment.externallyMaintained}">
 		<h:outputLabel for="dueDate" id="dueDateLabel" value="#{msgs.due_date}"/>

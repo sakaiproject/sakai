@@ -1272,7 +1272,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
         		if (pointsPossible != null) {
         			// params: gradebook id, name of assignment, points possible, due date, NOT counted, is released
-        			assignmentId = getGradebookManager().createAssignment(getGradebookId(), assignmentName, pointsPossible, null, Boolean.FALSE, Boolean.TRUE);
+        			assignmentId = getGradebookManager().createAssignment(getGradebookId(), assignmentName, pointsPossible, null, Boolean.FALSE, Boolean.TRUE, Boolean.FALSE);
         			assignment = getGradebookManager().getAssignment(assignmentId);
         		}
         		else {
@@ -1771,9 +1771,9 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         try {
         	Category newCategory = retrieveSelectedCategory();
         	if (newCategory != null) {
-        		assignmentId = getGradebookManager().createAssignmentForCategory(getGradebookId(), newCategory.getId(), assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()),new Boolean(assignment.isReleased()));
+        		assignmentId = getGradebookManager().createAssignmentForCategory(getGradebookId(), newCategory.getId(), assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()),new Boolean(assignment.isReleased()), new Boolean(assignment.isExtraCredit()));
         	} else {
-        		assignmentId = getGradebookManager().createAssignment(getGradebookId(), assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()),new Boolean(assignment.isReleased()));
+        		assignmentId = getGradebookManager().createAssignment(getGradebookId(), assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()),new Boolean(assignment.isReleased()), new Boolean(assignment.isExtraCredit()));
         	}
 
             FacesUtil.addRedirectSafeMessage(getLocalizedString("add_assignment_save", new String[] {assignment.getName()}));

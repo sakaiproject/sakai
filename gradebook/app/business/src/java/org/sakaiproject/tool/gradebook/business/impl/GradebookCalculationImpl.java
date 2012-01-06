@@ -269,7 +269,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
 					for(int i=0; i<categories.size(); i++)
 					{
 						Category cate = (Category) categories.get(i);
-						if(cate != null && !cate.isRemoved() && asgn.getCategory() != null && cate.getId().equals(asgn.getCategory().getId()))
+						if(cate != null && !cate.isRemoved() && asgn.getCategory() != null && cate.getId().equals(asgn.getCategory().getId()) && !asgn.isExtraCredit())
 						{
 
 							if(cateTotalScoreMap.get(cate.getId()) == null)
@@ -330,9 +330,10 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
         List<AssignmentGradeRecord> countedGradeRecs = new ArrayList<AssignmentGradeRecord>();
         for (AssignmentGradeRecord gradeRec : studentGradeRecs) {
             Assignment assign = gradeRec.getAssignment();
-            boolean extraCredit = false;
-            if (assign.isExtraCredit()!=null)
-            	extraCredit = assign.isExtraCredit();
+            boolean extraCredit = assign.isExtraCredit();
+            if(gradebook.getCategory_type() != GradebookService.CATEGORY_TYPE_NO_CATEGORY && assign.getCategory() != null && assign.getCategory().isExtraCredit())
+            	extraCredit = true;
+            
             if (assign.isCounted() && !assign.getUngraded() && !assign.isRemoved() && 
                     assign.getPointsPossible() != null && assign.getPointsPossible() > 0 && !gradeRec.getDroppedFromGrade() && !extraCredit) {
                 countedGradeRecs.add(gradeRec);
@@ -353,12 +354,14 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
 		            {
 		                assignmentsTaken.add(go.getId());
 		            }
-		            else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && go != null)
+		            else if ((gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY || gradebook
+		            		.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY)
+		            		&& go != null && categories != null)
 		            {
-		                assignmentsTaken.add(go.getId());
-		            }
-		            else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY && go != null && categories != null)
-		            {
+//		                assignmentsTaken.add(go.getId());
+//		            }
+//		            else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY && go != null && categories != null)
+//		            {
 		                for(int i=0; i<categories.size(); i++)
 		                {
 		                    Category cate = (Category) categories.get(i);

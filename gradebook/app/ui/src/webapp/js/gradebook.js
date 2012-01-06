@@ -155,22 +155,20 @@ function getTheElement(thisid)
 // Update the running total
 function updateRunningTotal(thisForm) {
 	var runningTotal = 0.0;
-	
-  for (var i=0; i < thisForm.elements.length; ++i) {
-  	formElement = thisForm.elements[i];
-    elementName = formElement.name;
-    var elementNamePieces = elementName.split(":");
-    var highlightTotal = true;
 
-    if (elementNamePieces[3] == "weightInput") {
-        weight = parseFloat(formElement.value);
-
-        if (weight >= 0) {
+  	var row = 0;
+  	var weightInput = getTheElement(thisForm.name + ":categoriesTable:" + row + ":weightInput");
+  	//just threw 10000 in there just in case as an out
+  	while(weightInput && row < 10000){
+  		weight = parseFloat(weightInput.value);
+  		var extraCreditCheckbox = getTheElement(thisForm.name + ":categoriesTable:" + row + ":catExtraCredit");
+		if (weight >= 0 && extraCreditCheckbox != null && !extraCreditCheckbox.checked) {
             runningTotal += weight;
         }
-    }
-  }
-  
+  		row++;
+  		weightInput = getTheElement(thisForm.name + ":categoriesTable:" + row + ":weightInput");
+  	}
+
   var neededTotal = 100.0 - runningTotal;
 
   var runningTotalValEl = getTheElement(thisForm.name + ":runningTotalVal");
@@ -322,10 +320,10 @@ function toggleVisibilityDropScoresFields() {
     var header = thead.item(0);
     var headerRows = header.getElementsByTagName('th');
 
-    if(headerRows.length == 6) {
-        var dropHighestIdx = 2;  // the index of 1st drop column, if Categories is selected
+    if(headerRows.length == 7) {
+        var dropHighestIdx = 3;  // the index of 1st drop column, if Categories is selected
     } else {
-        var dropHighestIdx = 3;  // the index of 1st drop column, if Categories & Weighting is selected
+        var dropHighestIdx = 4;  // the index of 1st drop column, if Categories & Weighting is selected
     }
 
     if(showDropHighest == undefined || showDropHighest.checked == false) {
@@ -346,7 +344,7 @@ function toggleVisibilityDropScoresFields() {
     headerRows[dropHighestIdx].style.display=dropHighestVisibility;
     headerRows[dropHighestIdx+1].style.display=dropLowestVisibility;
     headerRows[dropHighestIdx+2].style.display=keepHighestVisibility;
-    headerRows[dropHighestIdx+3].style.display=itemValueVisibility;
+  //  headerRows[dropHighestIdx+3].style.display=itemValueVisibility;
     var rows = tbl.getElementsByTagName('tr');
     for (var row=0; row<rows.length;row++) {
         var cels = rows[row].getElementsByTagName('td')
@@ -354,7 +352,7 @@ function toggleVisibilityDropScoresFields() {
             cels[dropHighestIdx].style.display=dropHighestVisibility;
             cels[dropHighestIdx+1].style.display=dropLowestVisibility;
             cels[dropHighestIdx+2].style.display=keepHighestVisibility;
-            cels[dropHighestIdx+3].style.display=itemValueVisibility;
+  //          cels[dropHighestIdx+3].style.display=itemValueVisibility; 
         }
     }
     dropScoresAdjust();
@@ -696,3 +694,4 @@ function disableButton(divId, button) {
   var div = document.getElementById(divId); 
   div.insertBefore(newButton, button);      
 }
+

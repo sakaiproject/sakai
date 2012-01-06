@@ -9,6 +9,7 @@ public class AssignmentCreator {
 		togo.setCounted(false); // default to false
 		togo.setReleased(false); // default to false
 		togo.setDueDate(null); // default to no due date
+		togo.setExtraCredit(Boolean.FALSE);
 		return togo;
 	}
 	

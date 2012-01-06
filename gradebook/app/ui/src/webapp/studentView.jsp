@@ -87,6 +87,8 @@
 					</f:facet>
 					<h:outputText value="#{row.associatedAssignment.name}" rendered="#{row.assignment}"/>
 					<h:outputText value="#{row.name}" styleClass="categoryHeading" rendered="#{row.isCategory}"/>
+					<h:outputText value=" (#{msgs.add_assignment_extra_credit})" rendered="#{row.isCategory && row.isExtraCredit}"/>
+					<h:outputText value=" (#{msgs.add_assignment_extra_credit})" rendered="#{!row.isCategory && row.associatedAssignment.isExtraCredit && (row.associatedAssignment.category == null || !row.associatedAssignment.category.isExtraCredit) }"/>
 		            <h:outputText value=" (" styleClass="categoryHeading" rendered="#{row.isCategory && (row.dropHighest != 0 || row.drop_lowest != 0 || row.keepHighest != 0)}" />
 		            <h:outputFormat value="#{msgs.cat_drop_highest_display}" styleClass="categoryHeading" rendered="#{row.isCategory && row.dropHighest != 0}" >
 		                <f:param value="#{row.dropHighest}"/>

@@ -2920,7 +2920,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     }
     
     /** synchronize from external application - override createAssignment method in BaseHibernateManager.*/
-    public Long createAssignment(final Long gradebookId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased) throws ConflictingAssignmentNameException, StaleObjectModificationException {
+    public Long createAssignment(final Long gradebookId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased, final Boolean isExtraCredit) throws ConflictingAssignmentNameException, StaleObjectModificationException {
 
     	HibernateCallback hc = new HibernateCallback() {
     		public Object doInHibernate(Session session) throws HibernateException {
@@ -2949,6 +2949,9 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     			if (isNotCounted != null) {
     				asn.setNotCounted(isNotCounted.booleanValue());
     			}
+    			if(isExtraCredit != null){
+    				asn.setExtraCredit(isExtraCredit.booleanValue());
+    			}
 
     			if(isReleased!=null){
     				asn.setReleased(isReleased.booleanValue());
@@ -2970,7 +2973,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     }
 
     /** synchronize from external application - override createAssignmentForCategory method in BaseHibernateManager.*/
-    public Long createAssignmentForCategory(final Long gradebookId, final Long categoryId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased)
+    public Long createAssignmentForCategory(final Long gradebookId, final Long categoryId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased, final Boolean isExtraCredit)
     throws ConflictingAssignmentNameException, StaleObjectModificationException, IllegalArgumentException
     {
     	if(gradebookId == null || categoryId == null)
@@ -3012,6 +3015,10 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     			if(isReleased!=null){
     				asn.setReleased(isReleased.booleanValue());
     			}
+    			
+    			if(isExtraCredit != null){
+    				asn.setExtraCredit(isExtraCredit.booleanValue());
+    			}
 
     			/** synchronize from external application */
     			if (synchronizer != null && !synchronizer.isProjectSite())
@@ -3044,10 +3051,10 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     			Assignment assign = (Assignment) iter.next();
     			if(assign.getCategory() == null)
     			{
-    				assignIds.add(createAssignment(gradebookId, assign.getName(), assign.getPointsPossible(), assign.getDueDate(), assign.isNotCounted(), assign.isReleased()));
+    				assignIds.add(createAssignment(gradebookId, assign.getName(), assign.getPointsPossible(), assign.getDueDate(), assign.isNotCounted(), assign.isReleased(), assign.isExtraCredit()));
     			}
     			else
-    				assignIds.add(createAssignmentForCategory(gradebookId, assign.getCategory().getId(), assign.getName(), assign.getPointsPossible(), assign.getDueDate(), assign.isNotCounted(), assign.isReleased()));
+    				assignIds.add(createAssignmentForCategory(gradebookId, assign.getCategory().getId(), assign.getName(), assign.getPointsPossible(), assign.getDueDate(), assign.isNotCounted(), assign.isReleased(), assign.isExtraCredit()));
     		}
     	}
     	catch(Exception e)

@@ -117,10 +117,10 @@ public class GradebookItemBean {
 				try {
 					if (this.categoryId != null && this.categoryId != CATEGORY_UNASSIGNED){
 						id = gradebookManager.createAssignmentForCategory(this.gradebookId, this.categoryId, assignment.getName(), 
-								assignment.getPointsPossible(), assignment.getDueDate(), assignment.isNotCounted(), assignment.isReleased());
+								assignment.getPointsPossible(), assignment.getDueDate(), assignment.isNotCounted(), assignment.isReleased(), assignment.isExtraCredit());
 					} else {
 						id = gradebookManager.createAssignment(this.gradebookId, assignment.getName(), assignment.getPointsPossible(), 
-								assignment.getDueDate(), assignment.isNotCounted(), assignment.isReleased());
+								assignment.getDueDate(), assignment.isNotCounted(), assignment.isReleased(), assignment.isExtraCredit());
 					}
 					assignment.setId(id);
 					//new UIELBinding("Assignment." + key + ".id", id);

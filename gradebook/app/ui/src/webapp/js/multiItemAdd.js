@@ -189,6 +189,10 @@ function copyPanes(rowIndex1, rowIndex2, idPrefix) {
 	curEl2 = getEl(idPrefix + rowIndex2 + ':countAssignment');
 	curEl1.checked = curEl2.checked;
 	
+	curEl1 = getEl(idPrefix + rowIndex1 + ':extraCredit');
+	curEl2 = getEl(idPrefix + rowIndex2 + ':extraCredit');
+	curEl1.checked = curEl2.checked;
+	
 	// copy/hide error messages
 	curEl1 = getEl(idPrefix + rowIndex1 + ':noTitleErrMsg');
 	if (!curEl1) curEl1 = getEl(idPrefix + rowIndex1 + ':noTitleErrMsgH');
@@ -281,8 +285,13 @@ function eraseAndHide(idPrefix, rowIndex) {
 	curEl.value = true;
 	curEl.checked = true;
 	
-	curEl = getEl(idPrefix + ':hiddenAdd');
+	curEl = getEl(idPrefix + ':countAssignment');
+	curEl.value = true;
+	curEl.checked = true;
+	
+	curEl = getEl(idPrefix + ':extraCredit');
 	curEl.value = 'false';
+	curEl.checked = false;
 	
 //	Commented out with non-graded item roll back
 //	curEl = document.getElementsByName(idPrefix + ':assignNonGraded');

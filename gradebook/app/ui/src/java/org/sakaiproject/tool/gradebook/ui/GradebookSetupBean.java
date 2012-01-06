@@ -614,7 +614,9 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 						uiCategory.setWeight(new Double(0));
 					}
 					
-					if (localGradebook.getCategory_type() != GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY || uiCategory.isExtraCredit() == null)
+					if ((localGradebook.getCategory_type() != GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY 
+							&& localGradebook.getCategory_type() != GradebookService.CATEGORY_TYPE_ONLY_CATEGORY)
+							|| uiCategory.isExtraCredit() == null)
 					{
 						uiCategory.setExtraCredit(null);
 					}

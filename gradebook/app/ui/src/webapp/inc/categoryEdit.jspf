@@ -1,4 +1,5 @@
 <script type="text/javascript" src="/library/js/jquery.js"></script>
+
 <h4><h:outputText value="#{msgs.cat_heading}" styleClass="gbSection" /></h4>
 
 <div class="indnt1 gbSection">
@@ -34,7 +35,7 @@
 				id="categoriesTable"
 				value="#{gradebookSetupBean.categories}"
 				var="category"
-	      columnClasses="left_nowrap,left_nowrap,left_nowrap,left_nowrap,left_nowrap,left_nowrap,left_nowrap,right,specialLink"
+	      columnClasses="left_nowrap,left_nowrap,left_nowrap,left_nowrap,left_nowrap,left_nowrap,left_nowrap,left_nowrap,right,specialLink"
 	      		rowClasses="#{gradebookSetupBean.rowClasses}"
 				styleClass="listHier narrowTable"
 				rowIndexVar="rowIndex">
@@ -55,7 +56,15 @@
 						<f:validateDoubleRange maximum="100"/>
 						<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
 					</h:inputText>
+					<f:verbatim>
+					</f:verbatim>
 					<h:message for="weightInput" styleClass="alertMessageInline"/>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="#{msgs.cat_extra_credit}" />
+					</f:facet>
+					<h:selectBooleanCheckbox id="catExtraCredit" value="#{category.isExtraCredit}" onchange="javascript:updateRunningTotal(this.form);"/>
 				</h:column>
 				<h:column>
 					<f:facet name="header">
@@ -251,5 +260,6 @@ $(window).load(function(){
 	// show/hide options based upon the selected grade entry
 	toggleVisibilityDropScoresFields();
 });
+
 //]]>
 </script>
