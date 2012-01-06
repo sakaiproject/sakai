@@ -959,7 +959,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					List<AssignmentGradeRecord> studentGradeRecs = gradeRecMap.get(cgr.getStudentId());
     				
     				applyDropScores(studentGradeRecs);
-					List totalEarned = getTotalPointsEarnedInternal(gradebookId, cgr.getStudentId(), session, gradebook, cates);
+					List totalEarned = getTotalPointsEarnedInternal(gradebookId, cgr.getStudentId(), session, gradebook, cates, studentGradeRecs);
 					double totalPointsEarned = ((Double)totalEarned.get(0)).doubleValue();
 					double literalTotalPointsEarned = ((Double)totalEarned.get(1)).doubleValue();
 					double totalPointsPossible = getTotalPointsInternal(gradebookId, session, gradebook, cates, cgr.getStudentId(), studentGradeRecs, countedAssigns);
@@ -1013,7 +1013,27 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   		Object[] returned = (Object[])scoresIter.next();
   		Double pointsEarned = (Double)returned[0];
   		Assignment go = (Assignment) returned[1];
+  		//don't count extra credit assignments
+  		boolean extraCredit = false;
+        if (go.isExtraCredit()!=null)
+        	extraCredit = go.isExtraCredit();
+        if(extraCredit){
+        	continue;
+        }
   		if (pointsEarned != null) {
+  			//check if assignment is dropped from grade
+  			boolean skip = false;
+  			for(AssignmentGradeRecord gr : studentGradeRecs){
+  				if(gr.getAssignment().getId().equals(go.getId())){
+  					if(gr.getDroppedFromGrade()){
+  						skip = true;
+  					}
+  					break;
+  				}
+  			}
+  			if(skip){
+  				continue;
+  			}
   			if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY)
   			{
   				assignmentsTaken.add(go.getId());
@@ -1076,7 +1096,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   	return totalPointsPossible;
 	}
 
-	private List getTotalPointsEarnedInternal(final Long gradebookId, final String studentId, final Session session, final Gradebook gradebook, final List categories) 
+	private List getTotalPointsEarnedInternal(final Long gradebookId, final String studentId, final Session session, final Gradebook gradebook, final List categories, List<AssignmentGradeRecord> studentGradeRecs) 
 	{
   	double totalPointsEarned = 0;
   	double literalTotalPointsEarned = 0;
@@ -1100,6 +1120,18 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   		Double pointsEarned = (Double)returned[0];
   		Assignment go = (Assignment) returned[1];
   		if (go != null && go.isCounted() && pointsEarned != null) {
+  			boolean skip = false;
+  			for(AssignmentGradeRecord gr : studentGradeRecs){
+  				if(gr.getAssignment().getId().equals(go.getId())){
+  					if(gr.getDroppedFromGrade()){
+  						skip = true;
+  					}
+  					break;
+  				}
+  			}
+  			if(skip){
+  				continue;
+  			}
   			if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY)
   			{
   				totalPointsEarned += pointsEarned.doubleValue();
@@ -2014,7 +2046,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	  return convertedValue;
   }
   
-	private List getTotalPointsEarnedInternalFixing(final Long gradebookId, final String studentId, final Session session, final Gradebook gradebook, final List categories) 
+	private List getTotalPointsEarnedInternalFixing(final Long gradebookId, final String studentId, final Session session, final Gradebook gradebook, final List categories, List<AssignmentGradeRecord> studentGradeRecs) 
 	{
   	double totalPointsEarned = 0;
   	double literalTotalPointsEarned = 0;
@@ -2038,6 +2070,19 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   		Double pointsEarned = (Double)returned[0]; 
   		Assignment go = (Assignment) returned[1];  		
   		if (go != null && go.isCounted() && pointsEarned != null) {
+  			boolean skip = false;
+  			for(AssignmentGradeRecord gr : studentGradeRecs){
+  				if(gr.getAssignment().getId().equals(go.getId())){
+  					if(gr.getDroppedFromGrade()){
+  						skip = true;
+  					}
+  					break;
+  				}
+  			}
+  			if(skip){
+  				continue;
+  			}
+  			
   			Double fixingPointsEarned = fixingPointsEarned(pointsEarned, go, gradebook);
   			if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY)
   			{
@@ -2229,7 +2274,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     				
     				applyDropScores(studentGradeRecs);
 					//double totalPointsEarned = getTotalPointsEarnedInternal(gradebookId, cgr.getStudentId(), session);
-					List totalEarned = getTotalPointsEarnedInternalFixing(gradebookId, cgr.getStudentId(), session, gradebook, cates);
+					List totalEarned = getTotalPointsEarnedInternalFixing(gradebookId, cgr.getStudentId(), session, gradebook, cates, studentGradeRecs);
 					double totalPointsEarned = ((Double)totalEarned.get(0)).doubleValue();
 					double literalTotalPointsEarned = ((Double)totalEarned.get(1)).doubleValue();
 					double totalPointsPossible = getTotalPointsInternal(gradebookId, session, gradebook, cates, cgr.getStudentId(), studentGradeRecs, countedAssigns);
