@@ -21,7 +21,7 @@
 
 package org.sakaiproject.importer.impl;
 
-import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -38,9 +38,9 @@ public class SakaiArchiveDataSource extends BasicImportDataSource implements Sak
 	private String sourceFolder;
 	private String localArchiveFolder;
 	private String pathToArchive;
-	private byte[] fileData;
+	private InputStream fileData;
 
-	public SakaiArchiveDataSource(byte[] fileData, String localArchiveFolder, String pathToArchive) {
+	public SakaiArchiveDataSource(InputStream fileData, String localArchiveFolder, String pathToArchive) {
 		this.fileData = fileData;
 		this.localArchiveFolder = localArchiveFolder;
 		this.pathToArchive = pathToArchive;
@@ -65,7 +65,7 @@ public class SakaiArchiveDataSource extends BasicImportDataSource implements Sak
 	    {
 	        ImportMetadata impvalue = (ImportMetadata) i.next();
 	        String selectedFileName = impvalue.getFileName();
-	        ZipInputStream zipStream = new ZipInputStream(new ByteArrayInputStream(fileData));
+	        ZipInputStream zipStream = new ZipInputStream(fileData);
 	        try {
     	        ZipEntry entry;
     	        String entryName;
@@ -137,7 +137,7 @@ public class SakaiArchiveDataSource extends BasicImportDataSource implements Sak
 	        }
 	    }
 	    // now take care of attachment files
-	    ZipInputStream zipStream = new ZipInputStream(new ByteArrayInputStream(fileData));
+	    ZipInputStream zipStream = new ZipInputStream(fileData);
 	    try {
     	    ZipEntry entry;
     	    String entryName;

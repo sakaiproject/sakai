@@ -22,6 +22,7 @@
 package org.sakaiproject.importer.impl;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.w3c.dom.Node;
 
@@ -32,6 +33,8 @@ public interface ManifestFile {
 	String getFilenameForNode(Node fileNode);
 	
 	byte[] getFileBytesForNode(Node fileNode, String basePath) throws IOException;
+	
+	InputStream getInputStreamForNode(Node fileNode, String basePath) throws IOException;
 	
 	String getTitle(Node fileNode);
 

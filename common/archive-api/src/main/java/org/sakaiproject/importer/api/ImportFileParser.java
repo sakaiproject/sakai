@@ -20,9 +20,10 @@
  **********************************************************************************/
 
 package org.sakaiproject.importer.api;
+import java.io.InputStream;
 
 public interface ImportFileParser {
-	boolean isValidArchive(byte[] fileData);
-	ImportDataSource parse(byte[] fileData, String unArchiveLocation);
+	boolean isValidArchive(InputStream fileData);
+	ImportDataSource parse(InputStream fileData, String unArchiveLocation);
 	ImportFileParser newParser();
 }

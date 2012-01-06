@@ -22,6 +22,7 @@
 package org.sakaiproject.importer.api;
 
 import java.util.Collection;
+import java.io.InputStream;
 
 /**
  *  The ImportService provides a top level framework to handled import data collected from
@@ -33,18 +34,18 @@ public interface ImportService {
 	/**
 	 *  Check the validity of the file data passed.
 	 *
-	 *  @param archiveFileData is a byte array of data gathered from an archive file or package.
+	 *  @param archiveFileData is an input stream of data gathered from an archive file or package.
 	 *  @return true if file data is valid.
 	 */
-	boolean isValidArchive(byte[] archiveFileData);
+	boolean isValidArchive(InputStream archiveFileData);
 
 	/**
 	 *  Parse the archive file data and create an Import Data Source object containing the results.
 	 *
-	 *	@param archiveFileData is a byte array of data gathered from an archive file or package.
+	 *	@param archiveFileData is an input stream of data gathered from an archive file or package.
 	 *  @return ImportDataSource containing parsing results.
 	 */
-	ImportDataSource parseFromFile(byte[] archiveFileData);
+	ImportDataSource parseFromFile(InputStream archiveFileData);
 
 	/**
 	 *  doImportItems

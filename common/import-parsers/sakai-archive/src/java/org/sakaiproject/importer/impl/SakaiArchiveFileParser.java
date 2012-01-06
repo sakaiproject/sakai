@@ -57,7 +57,7 @@ public class SakaiArchiveFileParser extends ZipFileParser {
 	
 	protected Document importMappings;
 	
-	public boolean isValidArchive(byte[] fileData) {
+	public boolean isValidArchive(InputStream fileData) {
 		if (super.isValidArchive(fileData)) {
 			if (!fileExistsInArchive("/import_mappings.xml", fileData)) 
 				return false;
@@ -103,7 +103,7 @@ public class SakaiArchiveFileParser extends ZipFileParser {
 		return new SakaiArchiveFileParser();
 	}
 	
-	public ImportDataSource parse(byte[] fileData, String unArchiveLocation) {
+	public ImportDataSource parse(InputStream fileData, String unArchiveLocation) {
 		this.localArchiveLocation = unzipArchive(fileData, unArchiveLocation);
 		this.pathToData = unArchiveLocation + "/" + localArchiveLocation;
 		awakeFromUnzip(pathToData);

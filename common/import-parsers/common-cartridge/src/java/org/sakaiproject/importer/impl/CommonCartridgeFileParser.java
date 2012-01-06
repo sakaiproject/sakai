@@ -69,7 +69,7 @@ public class CommonCartridgeFileParser extends IMSFileParser {
 		manifestHelper = new CCManifestHelper();
 	}
 
-	public boolean isValidArchive(byte[] fileData) {
+	public boolean isValidArchive(InputStream fileData) {
 		if (super.isValidArchive(fileData)) {
 			Document manifest = extractFileAsDOM("/imsmanifest.xml", fileData);
 			return (enclosingDocumentContainsNamespaceDeclaration(manifest, CC_NAMESPACE_URI));
