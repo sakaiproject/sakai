@@ -277,12 +277,14 @@ public class Category implements Serializable
 				else 
 				{
 					total = total.add(new BigDecimal(score.toString()));
-    			if(assign.getPointsPossible() != null)
+    			if(assign.getPointsPossible() != null && !assign.isExtraCredit())
     			{
     				totalPossible = totalPossible.add(new BigDecimal(assign.getPointsPossible().toString()));
     				numOfAssignments ++;
     			}
-    			numScored++;
+    			if(!assign.isExtraCredit()){
+    				numScored++;
+				}
 				}
 			}
 			//    	}
@@ -344,13 +346,15 @@ public class Category implements Serializable
     				{
     					BigDecimal bdScore = new BigDecimal(score.toString());
     					total = total.add(bdScore);
-    					if(assignment.getPointsPossible() != null)
+    					if(assignment.getPointsPossible() != null && !assignment.isExtraCredit() && !assignCategory.isExtraCredit())
     					{
     						BigDecimal bdPointsPossible = new BigDecimal(assignment.getPointsPossible().toString());
     						totalPossible = totalPossible.add(bdPointsPossible);
     						numOfAssignments ++;
     					}
-    					numScored++;
+    					if(!assignment.isExtraCredit() && !assignCategory.isExtraCredit()){
+    						numScored++;
+    					}
     				}
     			}
 				}
@@ -423,6 +427,17 @@ public class Category implements Serializable
 		this.assignmentCount = assignmentCount;
 	}
 
+	//these two functions are needed to keep the old API and help JSF and RSF play nicely together.  Since isExtraCredit already exists and we can't remove it
+	//and JSF expects Boolean values to be "getExtraCredit", this had to be added for JSF.  Also, since the external GB create item page is in
+	//RSF, you can't name it getExtraCredit and keep isExtraCredit b/c of SAK-14589
+	public Boolean getIsExtraCredit(){
+		return isExtraCredit();
+	}
+	
+	public void setIsExtraCredit(Boolean isExtraCredit){
+		this.setExtraCredit(isExtraCredit);
+	}
+	
 	public Boolean isExtraCredit() {
 		return extraCredit;
 	}

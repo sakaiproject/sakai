@@ -491,7 +491,21 @@ public class Assignment extends GradableObject {
 			this.ungraded = ungraded;
 		}
 		
+		//these two functions are needed to keep the old API and help JSF and RSF play nicely together.  Since isExtraCredit already exists and we can't remove it
+		//and JSF expects Boolean values to be "getExtraCredit", this had to be added for JSF.  Also, since the external GB create item page is in
+		//RSF, you can't name it getExtraCredit and keep isExtraCredit b/c of SAK-14589
+		public Boolean getIsExtraCredit(){
+			return isExtraCredit();
+		}
+		
+		public void setIsExtraCredit(Boolean isExtraCredit){
+			this.setExtraCredit(isExtraCredit);
+		}
+		
 		public Boolean isExtraCredit() {
+			if(extraCredit == null){
+				return Boolean.FALSE;
+			}
 			return extraCredit;
 		}
 		
