@@ -40,7 +40,7 @@ import org.sakaiproject.section.api.coursemanagement.Meeting;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
 import org.sakaiproject.tool.section.jsf.RowGroupable;
 import org.sakaiproject.util.ResourceLoader;
-
+import org.sakaiproject.time.cover.TimeService;
 /**
  * Decorates a CourseSection for use in the instructor's (and TA's) page views.
  *
@@ -485,6 +485,7 @@ public class SectionDecorator implements RowGroupable,Serializable, Comparable{
             // Start time
             ResourceLoader rl = new ResourceLoader();
             DateFormat df = new SimpleDateFormat(JsfUtil.TIME_PATTERN_LONG, rl.getLocale());
+            df.setTimeZone(TimeService.getLocalTimeZone());
             sb.append(" ");
             if(meeting.getStartTime() != null) {
                 sb.append(df.format(new Date(meeting.getStartTime().getTime())).toLowerCase());

@@ -39,7 +39,7 @@ import org.sakaiproject.jsf.util.ConversionUtil;
 import org.sakaiproject.tool.section.jsf.MessagingBean;
 
 import org.sakaiproject.util.ResourceLoader;
-
+import org.sakaiproject.time.cover.TimeService;
 
 /**
  * A utility to help deal with common tasks in JSF.
@@ -196,6 +196,7 @@ public class JsfUtil {
 
 		String pattern = (str.indexOf(':') != -1) ? JsfUtil.TIME_PATTERN_LONG : JsfUtil.TIME_PATTERN_SHORT;
 		SimpleDateFormat sdf = new SimpleDateFormat(pattern, new ResourceLoader().getLocale());
+		sdf.setTimeZone(TimeService.getLocalTimeZone());
 		Date date;
 		try {
 			date = sdf.parse(str);
@@ -210,6 +211,7 @@ public class JsfUtil {
 			return null;
 		}
 		SimpleDateFormat sdf = new SimpleDateFormat(JsfUtil.TIME_PATTERN_DISPLAY, new ResourceLoader().getLocale());
+		sdf.setTimeZone(TimeService.getLocalTimeZone());
 		return sdf.format(time);
 	}
 
