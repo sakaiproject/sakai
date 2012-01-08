@@ -2262,13 +2262,19 @@ public class SimplePageBean {
 					i.setName(selectedObject.getTitle());
 				    }
 				    // reset assignment-specific stuff
-				    i.setDescription("(" + messageLocator.getMessage("simplepage.due") + " " + df.format(selectedObject.getDueDate()) + ")");
+				    if (selectedObject.getDueDate() != null)
+					i.setDescription("(" + messageLocator.getMessage("simplepage.due") + " " + df.format(selectedObject.getDueDate()) + ")");
+				    else
+					i.setDescription(null);
 				    update(i);
 				}
 			    } else {
 				// no, add new item
 				i = appendItem(selectedAssignment, selectedObject.getTitle(), SimplePageItem.ASSIGNMENT);
-				i.setDescription("(" + messageLocator.getMessage("simplepage.due") + " " + df.format(selectedObject.getDueDate()) + ")");
+				if (selectedObject.getDueDate() != null)
+				    i.setDescription("(" + messageLocator.getMessage("simplepage.due") + " " + df.format(selectedObject.getDueDate()) + ")");
+				else
+				    i.setDescription(null);
 				update(i);
 			    }
 			    return "success";
@@ -3760,6 +3766,10 @@ public class SimplePageBean {
 				}
 			}
 		} else if (type == SimplePageItem.ASSIGNMENT) {
+			// assignment 2 uses gradebook, so we have a float value
+			if (submission.getGrade() != null)
+				return submission.getGrade() >= Float.valueOf(requirementString);
+			// otherwise use the String
 			if (Float.valueOf(Integer.valueOf(grade) / 10) >= Float.valueOf(requirementString)) {
 				return true;
 			} else {

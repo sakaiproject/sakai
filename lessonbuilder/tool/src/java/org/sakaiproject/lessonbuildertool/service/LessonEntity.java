@@ -60,6 +60,7 @@ public interface LessonEntity {
     // available but dispatch code may still need to understand
     // 0x is assignment type tools
     public final static int TYPE_ASSIGNMENT=1;
+    public final static int TYPE_ASSIGNMENT2=2;
     // 1x is test type tools
     public final static int TYPE_SAMIGO=11;
     public final static int TYPE_MNEME=12;
@@ -76,6 +77,7 @@ public interface LessonEntity {
 
     // prefixes. Use the /direct prefixes where  possible
     public final static String ASSIGNMENT = "assignment";
+    public final static String ASSIGNMENT2 = "assignment2";
     public final static String SAM_PUB="sam_pub";
     public final static String MNEME="mneme";
     // only topic should be in the database. We need forum objects

@@ -491,10 +491,12 @@ public class JForumEntity implements LessonEntity, ForumInterface {
     // can't be null                                                                                                                         
     public List<UrlItem> createNewUrls(SimplePageBean bean) {
 	ArrayList<UrlItem> list = new ArrayList<UrlItem>();
-	String tool = bean.getCurrentTool("sakai.jforum.tool");
-	if (tool != null) {
-	    tool = "/portal/tool/" + tool + "/forums/list.page";
-	    list.add(new UrlItem(tool, messageLocator.getMessage("simplepage.create_jforum")));
+	if (haveJforum) {
+	    String tool = bean.getCurrentTool("sakai.jforum.tool");
+	    if (tool != null) {
+		tool = "/portal/tool/" + tool + "/forums/list.page";
+		list.add(new UrlItem(tool, messageLocator.getMessage("simplepage.create_jforum")));
+	    }
 	}
 	if (nextEntity != null)
 	    list.addAll(nextEntity.createNewUrls(bean));

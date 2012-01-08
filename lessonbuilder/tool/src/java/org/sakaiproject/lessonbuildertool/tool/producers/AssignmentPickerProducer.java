@@ -171,7 +171,10 @@ public class AssignmentPickerProducer implements ViewComponentProducer, Navigati
 				UILink.make(row, "link", a.getTitle(), a.getUrl());
 				DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, new ResourceLoader().getLocale());		
 				df.setTimeZone(TimeService.getLocalTimeZone());
-				UIOutput.make(row, "due", df.format(a.getDueDate()));
+				if (a.getDueDate() != null)
+				    UIOutput.make(row, "due", df.format(a.getDueDate()));
+				else
+				    UIOutput.make(row, "due", "");
 
 			}
 

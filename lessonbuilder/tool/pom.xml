@@ -42,7 +42,7 @@
         <dependency>
             <groupId>org.sakaiproject.basiclti</groupId>
             <artifactId>basiclti-api</artifactId>
-            <version>${sakai.blti.version}</version>
+            <version>${sakai.basiclti.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -68,7 +68,7 @@
             <groupId>org.sakaiproject.edu-services.gradebook</groupId>
             <artifactId>gradebook-service-api</artifactId>
         </dependency>
-        <dependency>
+	<dependency>
             <groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-api</artifactId>
         </dependency>
@@ -173,10 +173,11 @@
         </dependency>
 
 <!-- 
-  To enable YAFT and MNEME, uncomment the two dependencies and the plugin below.
+  To enable YAFT, MNEME, and Assignments 2, uncomment the two dependencies and the plugin below.
   It would be possible to enable just one of them. To do that remove or comment
   out the one you don't want from opt-applicationContext.xml as well as well as
   uncommenting just the one you want below.
+  NOTE: for recent versions of mneme, the groupid is org.etudes, not org.etudes.mneme
  -->
 
 <!--
@@ -194,8 +195,14 @@
 	  <scope>${sakai.mneme.scope}</scope> 
 	</dependency> 
 
--->
+	<dependency>
+            <groupId>org.sakaiproject.assignment2</groupId>
+            <artifactId>sakai-assignment2-api</artifactId>
+		<version>1.0-rc-1</version>
+            <scope>provided</scope>
+        </dependency>
 
+-->
     </dependencies>
 
     <build>

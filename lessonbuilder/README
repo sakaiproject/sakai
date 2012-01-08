@@ -179,20 +179,21 @@ patch, which should be applied to the file
 portal/portal-impl/impl/src/java/org/sakaiproject/portal/charon/handlers/PDAHandler.java
 in your source tree.
 
-MNEME, JAFT, BASIC LTI AND JFORUM DEPENDENCIES
+MNEME, YAFT, ASSIGNMENT2,  BASIC LTI AND JFORUM DEPENDENCIES
 
 LessonBuilder will support quizes from Mneme, topics from JForum or
-YAFT, and external tools using Basic LTI. If your system doesn't
-use them, you can ignore this section.
+YAFT, assignments from Assignment 2 and external tools using Basic
+LTI. If your system doesn't use them, you can ignore this section.
 
-Mneme and YAFT are commented out in the build, to comply with Sakai
-rules about contrib tools. To enable them, look in tool/pom.xml. It
-should be obvious what needs to be uncommented. That should be the
-only change necessary.
+Mneme, Assignment 2, and YAFT are commented out in the build, to
+comply with Sakai rules about contrib tools. To enable them, look in
+tool/pom.xml. It should be obvious what needs to be uncommented. That
+should be the only change necessary.
 
-The Mneme, Jforum, YAFT and BLTI code starts by checking whether those
-modules are actually present. If not, it disables itself. Thus there's
-no obvious reason to remove any of it, although you can do so.
+The Mneme, Jforum, Assignment 2, YAFT and BLTI code starts by checking
+whether those modules are actually present. If not, it disables
+itself. Thus there's no obvious reason to remove any of it, although
+you can do so.
 
 Note however that the jForum and YAFT interfaces are not currently
 able to create topics when importing Common Cartridge documents, nor
@@ -202,23 +203,23 @@ need to create the topic and choose it in Lesson Builder. The problem
 is that jForum does not have an API that allows another tool to create
 items, and YAFT isn't group-aware.
 
-Note that the version number of Mneme, YAFT, and BLTI are defined in
-the main pom.xml, in the declarations for sakai.mneme.version,
-sakai.yaft.version and sakai.blti.version. If you are using using
-Mneme, YAFT or BLTI in your site, then you will need to change the
-version numbers in the file to match the version number you are using
-locally. Otherwise there could be problems with Lesson Builder using
-the wrong version of the interface code. Of course the Mneme and
-YAFT version numbers are irrelevant unless you uncomment the code
-that uses them.
+Note that the version number of Mneme, YAFT, Assignment 2, and BLTI
+are defined in the main pom.xml, in the declarations for
+sakai.mneme.version, sakai.yaft.version and sakai.blti.version. If you
+are using using Mneme, YAFT or BLTI in your site, then you will need
+to change the version numbers in the file to match the version number
+you are using locally. Otherwise there could be problems with Lesson
+Builder using the wrong version of the interface code. Of course the
+Mneme and YAFT version numbers are irrelevant unless you uncomment the
+code that uses them.
 
-Note that blti.version is set to a version for Sakai 2.9, even with
-the 2.8 build profile. Lesson Builder's LTI support will not work with
-the Sakai 2.8 version, and in fact Lesson Builder won't even build. So
-you'll need to leave the BLTI version number at 2.0 or higher, even if
-you are actually using a lower version of BLTI on your system. If you
-are using an older BLTI, then the BLTI will be built with the 2.9 
-version, but at runtime BLTI support will be disabled.
+Note that basiclti.version is set to a version for Sakai 2.9, even
+with the 2.8 build profile. Lesson Builder's LTI support will not work
+with the Sakai 2.8 version, and in fact Lesson Builder won't even
+build. So you'll need to leave the BLTI version number at 2.0 or
+higher, even if you are actually using a lower version of BLTI on your
+system. If you are using an older BLTI, then the BLTI will be built
+with the 2.9 version, but at runtime BLTI support will be disabled.
 
 
 SAKAI VERSIONS
