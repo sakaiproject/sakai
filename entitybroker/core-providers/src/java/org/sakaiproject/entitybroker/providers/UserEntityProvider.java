@@ -420,6 +420,7 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
             throw new IllegalArgumentException("Cannot get user from a null userId and eid, ensure at least userId or userEid are set");
         }
         String userId = null;
+
         // can use the efficient methods to check if the user Id is valid
         if (currentUserId == null) {
             if (log.isDebugEnabled()) log.debug("currentUserId is null, currentUserEid=" + currentUserEid, new Exception());
@@ -441,14 +442,37 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
                     userId = null;
                 }
             } else {
-                try {
-                    userId = userDirectoryService.getUserId(currentUserEid);
-                } catch (UserNotDefinedException e) {
+                if (userIdExplicitOnly()) {
+                    // only check ID or EID
+                    if (currentUserEid.length() > 3 && currentUserEid.startsWith("id=") ) {
+                        // strip the id marker out
+                        currentUserEid = currentUserEid.substring(3);
+                        // check ID, do not attempt to check by EID as well
+                        try {
+                            userId = userDirectoryService.getUserId(currentUserEid);
+                        } catch (UserNotDefinedException e2) {
+                            userId = null;
+                        }
+                    } else {
+                        // check by EID
+                        try {
+                            userDirectoryService.getUserEid(currentUserEid); // simply here to throw an exception or not
+                            userId = currentUserEid;
+                        } catch (UserNotDefinedException e2) {
+                            userId = null;
+                        }
+                    }
+                } else {
+                    // check for EID and then ID
                     try {
-                        userDirectoryService.getUserEid(currentUserEid); // simply here to throw an exception or not
-                        userId = currentUserEid;
-                    } catch (UserNotDefinedException e2) {
-                        userId = null;
+                        userId = userDirectoryService.getUserId(currentUserEid);
+                    } catch (UserNotDefinedException e) {
+                        try {
+                            userDirectoryService.getUserEid(currentUserEid); // simply here to throw an exception or not
+                            userId = currentUserEid;
+                        } catch (UserNotDefinedException e2) {
+                            userId = null;
+                        }
                     }
                 }
             }
@@ -458,6 +482,7 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
                 // assume the form of "/user/userId" (the UDS method is protected)
                 currentUserId = new EntityReference(currentUserId).getId();
             }
+
             // verify the userId is valid
             if (isUsingSameIdEid()) {
                 // have to actually fetch the user
@@ -470,14 +495,36 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
                     userId = null;
                 }
             } else {
-                try {
-                    userDirectoryService.getUserEid(currentUserId); // simply here to throw an exception or not
-                    userId = currentUserId;
-                } catch (UserNotDefinedException e) {
+                if (userIdExplicitOnly()) {
+                    if (currentUserId.length() > 3 && currentUserId.startsWith("id=") ) {
+                        // strip the id marker out
+                        currentUserId = currentUserId.substring(3);
+                        // check ID, do not attempt to check by EID as well
+                        try {
+                            userDirectoryService.getUserEid(currentUserId); // simply here to throw an exception or not
+                            userId = currentUserId;
+                        } catch (UserNotDefinedException e2) {
+                            userId = null;
+                        }
+                    } else {
+                        // check EID only
+                        try {
+                            userId = userDirectoryService.getUserId(currentUserId);
+                        } catch (UserNotDefinedException e2) {
+                            userId = null;
+                        }
+                    }
+                } else {
+                    // check for ID and then EID
                     try {
-                        userId = userDirectoryService.getUserId(currentUserId);
-                    } catch (UserNotDefinedException e2) {
-                        userId = null;
+                        userDirectoryService.getUserEid(currentUserId); // simply here to throw an exception or not
+                        userId = currentUserId;
+                    } catch (UserNotDefinedException e) {
+                        try {
+                            userId = userDirectoryService.getUserId(currentUserId);
+                        } catch (UserNotDefinedException e2) {
+                            userId = null;
+                        }
                     }
                 }
             }
@@ -523,23 +570,53 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
         return eu;
     }
 
+    /**
+     * Attempt to get a user by EID or ID (if that fails)
+     * 
+     * NOTE: can force this to only attempt the ID lookups if prefixed with "id=" using "user.explicit.id.only=true"
+     * 
+     * @param userEid the user EID (could also be the ID)
+     * @return the populated User object
+     */
     private User getUserByIdEid(String userEid) {
         User user = null;
         if (userEid != null) {
-            try {
-                user = userDirectoryService.getUserByEid(userEid);
-            } catch (UserNotDefinedException e) {
-                String userId = userEid;
-                if (userId.length() > 3 
-                        && userId.startsWith("id=") ) {
-                    userId = userEid.substring(3);
+            boolean doCheckForId = false;
+            boolean doCheckForEid = true;
+            String userId = userEid;
+            // check if the incoming param says this is explicitly an id
+            if (userId.length() > 3 && userId.startsWith("id=") ) {
+                // strip the id marker out
+                userId = userEid.substring(3);
+                doCheckForEid = false; // skip the EID check entirely
+                doCheckForId = true;
+            }
+            // attempt checking both with failover by default (override by property "user.id.failover.check=false")
+            if (doCheckForEid) {
+                try {
+                    user = userDirectoryService.getUserByEid(userEid);
+                } catch (UserNotDefinedException e) {
+                    user = null;
+                    String msg = "Could not find user with eid="+userEid;
+                    if (!userIdExplicitOnly()) {
+                        msg += " (attempting check using user id="+userId+")";
+                        doCheckForId = true;
+                    }
+                    msg += " :: " + e.getMessage();
+                    log.warn(msg);
                 }
+            }
+            if (doCheckForId) {
                 try {
                     user = userDirectoryService.getUser(userId);
-                } catch (UserNotDefinedException e1) {
-                    throw new IllegalArgumentException("Could not find user with eid="+userEid+" or id="+userId+" :: "
-                            + e1.getMessage(), e);
+                } catch (UserNotDefinedException e) {
+                    user = null;
+                    String msg = "Could not find user with id="+userId+" :: " + e.getMessage();
+                    log.warn(msg);
                 }
+            }
+            if (user == null) {
+                throw new IllegalArgumentException("Could not find user with eid="+userEid+" or id="+userId);
             }
         }
         return user;
@@ -589,5 +666,18 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
     	return true;
     }
 
+    /**
+     * Checks the sakai.properties setting for: "user.explicit.id.only",
+     * set this to true to disable id/eid failover checks (this means lookups will only attempt to use 
+     * id or eid as per the exact params which are passed or as per the endpoint API)
+     * 
+     * In other words, the user id must be prefixed with "id=", otherwise it will be treated like an eid
+     * 
+     * @return true if user ID must be passed explicitly (no id/eid failover checks are allowed), default: false
+     */
+    private boolean userIdExplicitOnly() {
+        boolean allowed = developerHelperService.getConfigurationSetting("user.explicit.id.only", false);
+        return allowed;
+    }
 
 }
