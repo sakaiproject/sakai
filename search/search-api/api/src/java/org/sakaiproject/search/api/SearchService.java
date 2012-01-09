@@ -81,12 +81,14 @@ public interface SearchService extends Diagnosable
 	public static final String FIELD_TOOL = "tool";
 
 	/**
-	 * Seadch Field The title of the entity
+	 * Search Field The title of the entity
 	 */
 	public static final String FIELD_TITLE = "title";
 
 	/**
-	 * Searhc Field (term vector, not full contents) The contents of the Entity
+	 * Search Field (term vector, not full contents) The contents of the Entity
+	 * Note the contents of the docuement are not stored in the index so the {@link EntityContentProducer} getContent method should be 
+	 * called to retrieve the content
 	 */
 	public static final String FIELD_CONTENTS = "contents";
 
