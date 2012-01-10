@@ -2385,8 +2385,17 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						.get(aanswerid);
 				AnswerIfc banswer = (AnswerIfc) publishedAnswerHash
 						.get(banswerid);
-				aindex = aanswer.getSequence();
-				bindex = banswer.getSequence();
+
+				if (aanswer != null) {
+					aindex = aanswer.getSequence();
+				} else {
+					return -1;
+				}
+				if (banswer != null) {
+					bindex = banswer.getSequence();
+				} else {
+					return 1;
+				}
 			}
 
 			if (aindex < bindex)
