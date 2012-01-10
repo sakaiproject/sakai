@@ -148,19 +148,32 @@ public class MySearch extends BasePage {
 		connectionsCheckBox = new CheckBox("connectionsCheckBox", new Model<Boolean>(true));
 		connectionsCheckBox.setOutputMarkupId(true);
 		searchForm.add(connectionsCheckBox);
+				
+		final List<Site> worksites = sakaiProxy.getUserSites();
+		final boolean hasWorksites = worksites.size() > 0;
 		
 		searchForm.add(new Label("worksiteLabel", new ResourceModel("text.search.include.worksite")));
 		// model is false (include all worksites by default)
 		worksiteCheckBox = new CheckBox("worksiteCheckBox", new Model<Boolean>(false));
 		worksiteCheckBox.setOutputMarkupId(true);
+		worksiteCheckBox.setEnabled(hasWorksites);
 		searchForm.add(worksiteCheckBox);
 		
-		final List<Site> worksites = sakaiProxy.getUserSites();
-		final String defaultWorksiteId = worksites.get(0).getId();
+		final IModel<String> defaultWorksiteIdModel;
+		if (hasWorksites) {
+			defaultWorksiteIdModel = new Model<String>(worksites.get(0).getId());
+		} else {
+			defaultWorksiteIdModel = new ResourceModel("text.search.no.worksite");
+		}
 		
 		final LinkedHashMap<String, String> worksiteMap = new LinkedHashMap<String, String>();
-		for (Site worksite : worksites) {
-			worksiteMap.put(worksite.getId(), worksite.getTitle());
+		
+		if (hasWorksites) {
+			for (Site worksite : worksites) {
+				worksiteMap.put(worksite.getId(), worksite.getTitle());
+			}
+		} else {
+			worksiteMap.put(defaultWorksiteIdModel.getObject(), defaultWorksiteIdModel.getObject());
 		}
 		
 		IModel worksitesModel = new Model() {
@@ -170,9 +183,10 @@ public class MySearch extends BasePage {
 			}
 		};
 		
-		worksiteChoice = new DropDownChoice("worksiteChoice", new Model(defaultWorksiteId), worksitesModel, new HashMapChoiceRenderer(worksiteMap));
+		worksiteChoice = new DropDownChoice("worksiteChoice", defaultWorksiteIdModel, worksitesModel, new HashMapChoiceRenderer(worksiteMap));
 		worksiteChoice.setOutputMarkupId(true);
 		worksiteChoice.setNullValid(false);
+		worksiteChoice.setEnabled(hasWorksites);
 		searchForm.add(worksiteChoice);
 		
 		/* 
@@ -526,7 +540,7 @@ public class MySearch extends BasePage {
 							
 							if (null == searchTerm.getWorksite()) {
 								worksiteCheckBox.setModel(new Model<Boolean>(false));
-								worksiteChoice.setModel(new Model(defaultWorksiteId));
+								worksiteChoice.setModel(new Model(defaultWorksiteIdModel));
 							} else {
 								worksiteCheckBox.setModel(new Model<Boolean>(true));
 								worksiteChoice.setModel(new Model(searchTerm.getWorksite()));
@@ -662,7 +676,7 @@ public class MySearch extends BasePage {
         	
     		connectionsCheckBox.setModel(new Model<Boolean>(filterConnections));
     		worksiteCheckBox.setModel(new Model<Boolean>(filterWorksite));
-    		worksiteChoice.setModel(new Model((null == worksiteId) ? defaultWorksiteId : worksiteId));
+    		worksiteChoice.setModel(new Model((null == worksiteId) ? defaultWorksiteIdModel : worksiteId));
     		
         	if (searchCookie.getValue().startsWith(ProfileConstants.SEARCH_TYPE_NAME)) {
         		searchTypeRadioGroup.setModel(new Model<String>(ProfileConstants.SEARCH_TYPE_NAME));
