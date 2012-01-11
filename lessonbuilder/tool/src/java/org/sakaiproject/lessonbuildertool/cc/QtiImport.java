@@ -828,7 +828,7 @@ public class QtiImport {
 		Node disfeedback = getFirstByName(respcondl, "displayfeedback");
 		while (disfeedback != null) {
 		    String feedstring = getAttribute(disfeedback, "linkrefid");
-		    if (feedstring != null || feedstring.length() > 0) {
+		    if (feedstring != null && feedstring.length() > 0) {
 			cident.add(feedstring);  // handle general by both correct/incorrect
 			icident.add(feedstring);
 		    }
@@ -838,7 +838,7 @@ public class QtiImport {
 		Node disfeedback = getFirstByName(respcondl, "displayfeedback");
 		while (disfeedback != null) {
 		    String feedstring = getAttribute(disfeedback, "linkrefid");
-		    if (feedstring != null || feedstring.length() > 0)
+		    if (feedstring != null && feedstring.length() > 0)
 			icident.add(feedstring);
 		    disfeedback = getNextByName(disfeedback, "displayfeedback");			
 		}
@@ -1164,7 +1164,7 @@ public class QtiImport {
 		Node disfeedback = getFirstByName(respcondl, "displayfeedback");
 		while (disfeedback != null) {
 		    String feedstring = getAttribute(disfeedback, "linkrefid");
-		    if (feedstring != null || feedstring.length() > 0)
+		    if (feedstring != null && feedstring.length() > 0)
 			fbident.add(feedstring);
 		    disfeedback = getNextByName(disfeedback, "displayfeedback");			
 		}
@@ -1172,7 +1172,7 @@ public class QtiImport {
 		Node disfeedback = getFirstByName(respcondl, "displayfeedback");
 		while (disfeedback != null) {
 		    String feedstring = getAttribute(disfeedback, "linkrefid");
-		    if (feedstring != null || feedstring.length() > 0)
+		    if (feedstring != null && feedstring.length() > 0)
 			icident.add(feedstring);
 		    disfeedback = getNextByName(disfeedback, "displayfeedback");			
 		}
