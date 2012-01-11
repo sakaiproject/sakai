@@ -58,6 +58,7 @@ import org.springframework.web.context.support.ServletContextResource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentTypeImageService;
@@ -140,7 +141,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private FormatAwareDateInputEvolver dateevolver;
 	private TimeService timeService;
 	private HttpServletRequest httpServletRequest;
-	private MemoryService memoryService = null;
+    // have to do it here because we need it in urlCache. It has to happen before Spring initialization
+	private static MemoryService memoryService = (MemoryService)ComponentManager.get(MemoryService.class);
 	private ToolManager toolManager;
 	public TextInputEvolver richTextEvolver;
 	
@@ -165,8 +167,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private static final String DEFAULT_TYPES = "mp4,mov,m2v,3gp,wmv,mp3,swf,wav";
 	private static String[] multimediaTypes = null;
 
-	private static List urlCacheLock = new ArrayList();
-	private static Cache urlCache = null;
+    // WARNING: this must occur after memoryService, for obvious reasons. 
+    // I'm doing it this way because it doesn't appear that Spring can do this kind of initialization
+    // and it's better to let Java's initialization code handle synchronization than do it ourselves in
+    // an init method
+	private static Cache urlCache = memoryService.newCache("org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer.url.cache");
         String browserString = ""; // set by checkIEVersion;
 
 	protected static final int DEFAULT_EXPIRATION = 10 * 60;
@@ -2106,22 +2111,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	public void setBltiEntity(LessonEntity e) {
 	    	if (bltiEntity == null)
 			bltiEntity = e;
-	}
-
-	public void setMemoryService(MemoryService m) {
-		memoryService = m;
-		// do this here rather than in an initializer because we need
-		// memoryservice
-		// slight race condition possible on outer test, so have to test again
-		// when we have the lock
-		if (urlCache == null) {
-			synchronized (urlCacheLock) {
-				if (urlCache == null) {
-					urlCache = memoryService.newCache("org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer.url.cache");
-				}
-			}
-		}
-
 	}
 
 	public void setToolManager(ToolManager m) {

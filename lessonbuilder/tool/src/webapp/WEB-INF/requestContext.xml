@@ -35,7 +35,7 @@
 	       factory-method="getHttpServletResponse" />
 
 	<!-- the producer beans -->
-	<bean name="showPageProducer" class="org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer" >
+	<bean name="showPageProducer" class="org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer">
 		<property name="messageLocator" ref="messageLocator"/>
 		<property name="simplePageBean" ref="simplePageBean" />
 		
@@ -51,7 +51,6 @@
 		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
 		<property name="localeGetter" ref="requestLocaleProxy" />
 		<property name="httpServletRequest" ref="httpServletRequest" />
-		<property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
 		<property name="richTextEvolver" ref="richTextEvolver" />
 		<property name="imageToMimeMap" ref="org.sakaiproject.lessonbuildertool.util.ImageToMimeMap"/>
