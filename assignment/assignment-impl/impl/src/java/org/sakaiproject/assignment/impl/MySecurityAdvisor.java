@@ -21,28 +21,28 @@ public class MySecurityAdvisor implements SecurityAdvisor {
     public MySecurityAdvisor(String userId, String function, String reference) {
         m_userId = userId;
         m_functions.add(function);
-        if (reference != null || !reference.isEmpty())
+        if (reference != null && !reference.isEmpty())
         	m_references.add(reference);
     }
     
     public MySecurityAdvisor(String userId, String function, List<String> references) {
         m_userId = userId;
         m_functions.add(function);
-        if (references != null || !references.isEmpty())
+        if (references != null && !references.isEmpty())
         	m_references = references;
     }
     
     public MySecurityAdvisor(String userId, List<String> functions, String reference) {
         m_userId = userId;
         m_functions = functions;
-        if (reference != null || !reference.isEmpty())
+        if (reference != null && !reference.isEmpty())
         	m_references.add(reference);
     }
     
     public MySecurityAdvisor(String userId, List<String> functions, List<String> references) {
         m_userId = userId;
         m_functions = functions;
-        if (references != null || !references.isEmpty())
+        if (references != null && !references.isEmpty())
         	m_references = references;
     }
     
