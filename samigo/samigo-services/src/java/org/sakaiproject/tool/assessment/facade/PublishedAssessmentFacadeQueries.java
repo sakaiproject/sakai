@@ -225,23 +225,6 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		log.debug("******* published metadata set" + publishedMetaDataSet);
 		publishedAssessment.setAssessmentMetaDataSet(publishedMetaDataSet);
 
-		// let's check if we need a publishedUrl
-		String releaseTo = publishedAccessControl.getReleaseTo();
-		if (releaseTo != null) {
-			boolean anonymousAllowed = ((releaseTo)
-					.indexOf(AuthoringConstantStrings.ANONYMOUS) > -1);
-			if (anonymousAllowed) {
-				// generate an alias to the pub assessment
-				String alias = AgentFacade.getAgentString()
-						+ (new Date()).getTime();
-				PublishedMetaData meta = new PublishedMetaData(
-						publishedAssessment, "ALIAS", alias);
-				publishedMetaDataSet.add(meta);
-				publishedAssessment
-						.setAssessmentMetaDataSet(publishedMetaDataSet);
-			}
-		}
-
 		// IPAddress
 		Set publishedIPSet = preparePublishedSecuredIPSet(publishedAssessment,
 				a.getSecuredIPAddressSet());
