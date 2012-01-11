@@ -659,12 +659,14 @@ public class QtiImport {
 		}
 	    }
 
-	    String tagName = child.getNodeName();
+	    if (child != null) {
+		String tagName = child.getNodeName();
 
-	    if (tagName.equalsIgnoreCase("flow_mat")) {
-		feedback = appString(feedback, feedtext);
-	    } else if (tagName.equalsIgnoreCase("solution")) {
-		model = appString(model, feedtext);
+		if (tagName.equalsIgnoreCase("flow_mat")) {
+		    feedback = appString(feedback, feedtext);
+		} else if (tagName.equalsIgnoreCase("solution")) {
+		    model = appString(model, feedtext);
+		}
 	    }
 
 	    feeditem = getNextByName(feeditem, "itemfeedback");

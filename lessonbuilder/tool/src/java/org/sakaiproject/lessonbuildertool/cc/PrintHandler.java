@@ -463,7 +463,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      String filename = getFileName(resource);
 	      Element ltiXml =  parser.getXML(loader, filename);
 	      XMLOutputter outputter = new XMLOutputter();
-	      String strXml = strXml = outputter.outputString(ltiXml);       
+	      String strXml = outputter.outputString(ltiXml);       
 	      Namespace bltiNs = ns.blti_ns();
 	      String bltiTitle = ltiXml.getChildText(TITLE, bltiNs);
 

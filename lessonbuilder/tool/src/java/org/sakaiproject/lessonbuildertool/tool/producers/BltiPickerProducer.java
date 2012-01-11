@@ -181,16 +181,18 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 
 			ArrayList<String> values = new ArrayList<String>();
 
-			for (LessonEntity blti: plist) {
-			    values.add(blti.getReference());
-			}
+			if (plist != null)
+			    for (LessonEntity blti: plist) {
+				values.add(blti.getReference());
+			    }
 
 			// if no current item, use first
-			if (currentItem == null && plist.size() > 0)
+			if (currentItem == null && plist != null && plist.size() > 0)
 			    currentItem = plist.get(0).getReference();
 
 			UISelect select = UISelect.make(form, "blti-span", values.toArray(new String[1]), "#{simplePageBean.selectedBlti}", currentItem);
-			for (LessonEntity a : plist) {
+			if (plist != null)
+			    for (LessonEntity a : plist) {
 
 				UIBranchContainer row = UIBranchContainer.make(form, "blti:", String.valueOf(plist.indexOf(a)));
 
@@ -198,11 +200,11 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 				    decorate(new UIFreeAttributeDecorator("title", a.getTitle()));
 
 				UILink.make(row, "link", a.getTitle(), a.getUrl());
-			}
+			    }
 
 			UIInput.make(form, "item-id", "#{simplePageBean.itemId}");
 
-			if (plist != null || plist.size() > 0) {
+			if (plist != null && plist.size() > 0) {
 
 			    if (false) {
 				// this code works, but I think the resulting UI is too complex

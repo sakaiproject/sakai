@@ -116,6 +116,7 @@ public class PermissionsHelperProducer implements ViewComponentProducer, ViewPar
 		    site = siteService.getSite(toolManager.getCurrentPlacement().getContext());
                 } catch (Exception impossible) {
 		    impossible.printStackTrace();
+		    return;
                 }
 
 		session.setAttribute(PermissionsHelper.TARGET_REF, site.getReference());
