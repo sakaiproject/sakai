@@ -423,6 +423,7 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
 
         // can use the efficient methods to check if the user Id is valid
         if (currentUserId == null) {
+            // We should assume we will resolve by EID
             if (log.isDebugEnabled()) log.debug("currentUserId is null, currentUserEid=" + currentUserEid, new Exception());
 
             // try to get userId from eid
@@ -477,6 +478,7 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
                 }
             }
         } else {
+            // Assume we will resolve by ID
             // get the id out of a ref
             if (currentUserId.startsWith("/user/")) {
                 // assume the form of "/user/userId" (the UDS method is protected)
@@ -499,20 +501,13 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
                     if (currentUserId.length() > 3 && currentUserId.startsWith("id=") ) {
                         // strip the id marker out
                         currentUserId = currentUserId.substring(3);
-                        // check ID, do not attempt to check by EID as well
-                        try {
-                            userDirectoryService.getUserEid(currentUserId); // simply here to throw an exception or not
-                            userId = currentUserId;
-                        } catch (UserNotDefinedException e2) {
-                            userId = null;
-                        }
-                    } else {
-                        // check EID only
-                        try {
-                            userId = userDirectoryService.getUserId(currentUserId);
-                        } catch (UserNotDefinedException e2) {
-                            userId = null;
-                        }
+                    }
+                    // check ID, do not attempt to check by EID as well
+                    try {
+                        userDirectoryService.getUserEid(currentUserId); // simply here to throw an exception or not
+                        userId = currentUserId;
+                    } catch (UserNotDefinedException e2) {
+                        userId = null;
                     }
                 } else {
                     // check for ID and then EID
