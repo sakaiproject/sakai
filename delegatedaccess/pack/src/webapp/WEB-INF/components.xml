@@ -79,6 +79,7 @@
 		<property name="projectLogic" ref="org.sakaiproject.delegatedaccess.logic.ProjectLogic" />
 		<property name="sakaiProxy" ref="org.sakaiproject.delegatedaccess.logic.SakaiProxy"/>
 		<property name="hierarchyService" ref="org.sakaiproject.hierarchy.HierarchyService" />	
+		<property name="dao" ref="org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao" />
 	</bean>
 	
 	<bean id="DelegatedAccessShoppingPeriodJob"

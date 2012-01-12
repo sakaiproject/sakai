@@ -12,6 +12,7 @@ import org.apache.commons.configuration.reloading.InvariantReloadingStrategy;
 import org.apache.log4j.Logger;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.dao.DataAccessException;
@@ -84,4 +85,37 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 		}
 	}
 
+	public String getSiteProperty(String propertyName, String siteId){
+		try{
+			return (String) getJdbcTemplate().queryForObject(getStatement("select.siteProperty"), new Object[]{propertyName, siteId}, new RowMapper() {
+				
+				 public Object mapRow(ResultSet resultSet, int i) throws SQLException {
+					return resultSet.getString("VALUE");
+				}
+			});
+		}catch (DataAccessException ex) {
+			return null;
+		}
+	}
+	
+	public void addSiteProperty(String siteId, String propertyName, String propertyValue){
+		try {
+			getJdbcTemplate().update(getStatement("insert.siteProperty"),
+				new Object[]{siteId, propertyName, propertyValue}
+			);
+		} catch (DataAccessException ex) {
+           log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+		}
+	}
+	
+	public void updateSiteProperty(String siteId, String propertyName, String propertyValue){
+		try {
+			getJdbcTemplate().update(getStatement("update.siteProperty"),
+				new Object[]{propertyValue, propertyName, siteId}
+			);
+		} catch (DataAccessException ex) {
+           log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+		}
+	}
+	
 }

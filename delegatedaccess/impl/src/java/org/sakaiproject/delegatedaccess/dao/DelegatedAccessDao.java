@@ -5,4 +5,10 @@ import java.util.List;
 public interface DelegatedAccessDao {
 
 	public List<String> getDistinctSiteTerms(String termField);
+	
+	public String getSiteProperty(String propertyName, String siteId);
+	
+	public void updateSiteProperty(String siteId, String propertyName, String propertyValue);
+	
+	public void addSiteProperty(String siteId, String propertyName, String propertyValue);
 }

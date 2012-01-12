@@ -148,7 +148,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 	
 	public String[] getHomeTools(){
-		return serverConfigurationService.getStrings("delegatedaccess.hometools");
+		return serverConfigurationService.getStrings(DelegatedAccessConstants.PROPERTIES_HOME_TOOLS);
 	}
 
 	/**
@@ -240,9 +240,9 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 
 	public Map<String, List<String>> getShoppingRealmOptions(){
-		String[] authzGroups = serverConfigurationService.getStrings("delegatedaccess.realmoptions.shopping");
+		String[] authzGroups = serverConfigurationService.getStrings(DelegatedAccessConstants.PROPERTIES_REALM_OPTIONS_SHOPPING);
 		if(authzGroups != null && authzGroups.length != 0){
-			String[] filterRoles = serverConfigurationService.getStrings("delegatedaccess.roleoptions.shopping");
+			String[] filterRoles = serverConfigurationService.getStrings(DelegatedAccessConstants.PROPERTIES_ROLE_OPTIONS_SHOPPING);
 			return getGroupsById(authzGroups, filterRoles);
 		}else{
 			return getSiteTemplates();
@@ -250,9 +250,9 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 	
 	public Map<String, List<String>> getDelegatedAccessRealmOptions(){
-		String[] authzGroups = serverConfigurationService.getStrings("delegatedaccess.realmoptions.delegatedaccess");
+		String[] authzGroups = serverConfigurationService.getStrings(DelegatedAccessConstants.PROPERTIES_REALM_OPTIONS_ACCESS);
 		if(authzGroups != null && authzGroups.length != 0){
-			String[] filterRoles = serverConfigurationService.getStrings("delegatedaccess.roleoptions.delegatedaccess");
+			String[] filterRoles = serverConfigurationService.getStrings(DelegatedAccessConstants.PROPERTIES_ROLE_OPTIONS_ACCESS);
 			return getGroupsById(authzGroups, filterRoles);
 		}else{
 			return getSiteTemplates();

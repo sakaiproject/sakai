@@ -562,7 +562,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			if (advancedOptions
 					.containsKey(DelegatedAccessConstants.ADVANCED_SEARCH_TERM)) {
 				propsMap = new HashMap<String, String>();
-				propsMap.put("term", advancedOptions
+				propsMap.put(sakaiProxy.getTermField(), advancedOptions
 						.get(DelegatedAccessConstants.ADVANCED_SEARCH_TERM));
 			}
 			// find all user's with this name/id/email
@@ -1283,7 +1283,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 		
 		public String getTerm(){
-			return site.getProperties().getProperty("term");
+			return site.getProperties().getProperty(sakaiProxy.getTermField());
 		}
 	}
 }

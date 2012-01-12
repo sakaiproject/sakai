@@ -21,6 +21,7 @@ import org.quartz.StatefulJob;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
 import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
 import org.sakaiproject.delegatedaccess.logic.SakaiProxy;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
@@ -44,6 +45,8 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 	private SakaiProxy sakaiProxy;
 	@Getter @Setter
 	private HierarchyService hierarchyService;
+	@Getter @Setter
+	private DelegatedAccessDao dao;
 	//old node Id -> new node Id
 	private Map<String,String> migratedHierarchyIds;
 
@@ -63,15 +66,6 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 		long startTime = System.currentTimeMillis();
 		SecurityAdvisor advisor = sakaiProxy.addSiteUpdateSecurityAdvisor();
 		migratedHierarchyIds = new HashMap<String, String>();
-
-		log.info("waiting");
-		 long t0,t1;
-	        t0=System.currentTimeMillis();
-	        do{
-	            t1=System.currentTimeMillis();
-	        }
-	        while (t1-t0<60000);
-	        log.info("done waiting");
 		
 		TreeModel treeModel = projectLogic.getEntireTreePlusUserPerms(DelegatedAccessConstants.SHOPPING_PERIOD_USER);
 		if (treeModel != null && treeModel.getRoot() != null) {
@@ -102,8 +96,13 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 	private void treeModelShoppingPeriodTraverser(DefaultMutableTreeNode node){
 		if(node != null){
 			NodeModel nodeModel = (NodeModel) node.getUserObject();
-			if(nodeModel.getNode().description.startsWith("/site/")){ 
-				shoppingPeriodRoleHelper(nodeModel);			}
+			if(nodeModel.getNode().description.startsWith("/site/")){
+				try{
+					shoppingPeriodRoleHelper(nodeModel);
+				}catch(Exception e){
+					log.error(e);
+				}
+			}
 			for(int i = 0; i < node.getChildCount(); i++){
 				treeModelShoppingPeriodTraverser((DefaultMutableTreeNode) node.getChildAt(i));
 			}
@@ -155,9 +154,10 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 
 		String restrictedToolsList = "";
 
-		Site site = sakaiProxy.getSiteByRef(node.getNode().description);
+		//do substring(6) b/c we need site ID and what is stored is a ref: /site/1231231
+		String siteId = node.getNode().description.substring(6);
 		
-		if(addAuth && (".anon".equals(auth) || ".auth".equals(auth)) && checkTerm(node.getNodeTerms(), site)){
+		if(addAuth && (".anon".equals(auth) || ".auth".equals(auth)) && checkTerm(node.getNodeTerms(), siteId)){
 			//update the restricted tools list, otherwise it will be cleared:			
 			//set the restricted tools list to a non empty string, otherwise, the site property won't be saved
 			//when the string is empty (no tools allowed to view).
@@ -192,24 +192,34 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 			removeAnonAndAuthRoles(node.getNode().description);
 		}
 
+		//Update or Add the site properties
+		String sitePropHierarchyNodeId = dao.getSiteProperty(DelegatedAccessConstants.SITE_PROP_HIERARCHY_NODE_ID, siteId);
+		if (sitePropHierarchyNodeId != null){
+			dao.updateSiteProperty(siteId, DelegatedAccessConstants.SITE_PROP_HIERARCHY_NODE_ID, node.getNode().id);
+		}else{
+			dao.addSiteProperty(siteId, DelegatedAccessConstants.SITE_PROP_HIERARCHY_NODE_ID, node.getNode().id);
+		}
 		
-		if (site != null){
-			site.getPropertiesEdit().addProperty(DelegatedAccessConstants.SITE_PROP_HIERARCHY_NODE_ID, node.getNode().id);
-			site.getPropertiesEdit().addProperty(DelegatedAccessConstants.SITE_PROP_RESTRICTED_TOOLS, restrictedToolsList);
-			sakaiProxy.saveSite(site);
+		String sitePropRestrictedTools = dao.getSiteProperty(DelegatedAccessConstants.SITE_PROP_RESTRICTED_TOOLS, siteId);
+		if(sitePropRestrictedTools != null){
+			dao.updateSiteProperty(siteId, DelegatedAccessConstants.SITE_PROP_RESTRICTED_TOOLS, restrictedToolsList);
+		}else{
+			dao.addSiteProperty(siteId, DelegatedAccessConstants.SITE_PROP_RESTRICTED_TOOLS, restrictedToolsList);
 		}
 	}
 	
-	private boolean checkTerm(String[] terms, Site site){
+	private boolean checkTerm(String[] terms, String site){
 		boolean returnVal = true;
-		String siteTerm = site.getProperties().getProperty(sakaiProxy.getTermField());
-		if(terms != null && terms.length > 0){
-			returnVal = false;
-			if(siteTerm != null && !"".equals(siteTerm)){
-				for(String term : terms){
-					if(term.equals(siteTerm)){
-						returnVal = true;
-						break;
+		String siteTerm = dao.getSiteProperty(sakaiProxy.getTermField(), site);
+		if(siteTerm != null){
+			if(terms != null && terms.length > 0){
+				returnVal = false;
+				if(siteTerm != null && !"".equals(siteTerm)){
+					for(String term : terms){
+						if(term.equals(siteTerm)){
+							returnVal = true;
+							break;
+						}
 					}
 				}
 			}
