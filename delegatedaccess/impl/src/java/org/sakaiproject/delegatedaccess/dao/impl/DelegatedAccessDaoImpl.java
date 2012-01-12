@@ -80,7 +80,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 			        }
 			      });
 		}catch (DataAccessException ex) {
-			log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+			log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage(), ex);
            return null;
 		}
 	}
