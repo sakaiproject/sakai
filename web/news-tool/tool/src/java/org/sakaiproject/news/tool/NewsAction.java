@@ -103,6 +103,9 @@ public class NewsAction extends VelocityPortletPaneledAction
 	 */
 	protected void initState(SessionState state, VelocityPortlet portlet, JetspeedRunData rundata)
 	{
+        // TODO: we might want to keep this from running for each request - but by letting it we get fresh info each time... -ggolden
+        super.initState(state, portlet, rundata);
+
 		PortletConfig config = portlet.getPortletConfig();
 		
 		Placement placement = ToolManager.getCurrentPlacement();
