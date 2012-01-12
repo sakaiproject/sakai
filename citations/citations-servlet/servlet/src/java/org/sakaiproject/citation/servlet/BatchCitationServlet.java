@@ -31,11 +31,8 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.logging.Logger;
 
-import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -44,35 +41,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log; 
 import org.apache.commons.logging.LogFactory;
 
-import net.sf.json.*;
-
 import org.sakaiproject.citation.api.Citation;
-import org.sakaiproject.citation.api.CitationCollection;
-import org.sakaiproject.citation.api.CitationService;
-import org.sakaiproject.citation.api.Schema;
-import org.sakaiproject.citation.cover.ConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.cover.EntityManager;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
-import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.tool.api.ActiveTool;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.api.ToolException;
-import org.sakaiproject.tool.cover.ActiveToolManager;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.BasicAuth;
 import org.sakaiproject.util.ParameterParser;
-import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.Validator;
-import org.sakaiproject.util.Web;
 
 /**
  * 
