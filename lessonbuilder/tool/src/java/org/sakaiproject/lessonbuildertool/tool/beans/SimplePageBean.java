@@ -2400,15 +2400,16 @@ public class SimplePageBean {
 	}
 
         public String getItemGroupString (SimplePageItem i, LessonEntity entity, boolean nocache) {
-	    String ret = "";
+	    StringBuilder ret = new StringBuilder("");
 	    Collection<String> groups = getItemGroups (i, entity, nocache);
 	    if (groups == null)
 		return "";
 	    for (String g: groups) {
-		ret = ret + "," + g;
+		ret.append(",");
+		ret.append(g);
 	    }
-	    if (ret.equals(""))
-		return ret;
+	    if (ret.length() == 0)
+		return "";
 	    return ret.substring(1);
 	}
 

@@ -775,7 +775,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 
 	    ourTopic = discussionForumManager.createTopic(ourForum);
 	    ourTopic.setTitle(topicTitle);
-	    String attachHtml = "";
+	    StringBuilder attachHtml = new StringBuilder("");
 	    if (attachmentHrefs != null && attachmentHrefs.size() > 0) {
 		for (String href: attachmentHrefs) {
 		    String label = href;
@@ -784,15 +784,20 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 			label = label.substring(slash+1);
 		    if (label.equals(""))
 			label = "Attachment";
-		    attachHtml = attachHtml + "<p><a target='_blank' href='" + base + href + "'>" + label + "</a>";
+		    attachHtml.append("<p><a target='_blank' href='");
+		    attachHtml.append(base);
+		    attachHtml.append(href);
+		    attachHtml.append("'>");
+		    attachHtml.append(label);
+		    attachHtml.append("</a>");
 		}
 	    }
 
 	    if (texthtml) {
-		ourTopic.setExtendedDescription(text.replaceAll("\\$IMS-CC-FILEBASE\\$", base) + attachHtml);
+		ourTopic.setExtendedDescription(text.replaceAll("\\$IMS-CC-FILEBASE\\$", base) + attachHtml.toString());
 		ourTopic.setShortDescription(FormattedText.convertFormattedTextToPlaintext(text));
 	    } else {
-		ourTopic.setExtendedDescription(FormattedText.convertPlaintextToFormattedText(text) + attachHtml);
+		ourTopic.setExtendedDescription(FormattedText.convertPlaintextToFormattedText(text) + attachHtml.toString());
 		ourTopic.setShortDescription(text);
 	    }
 	    // there's a better way to do attachments, but it's too complex for now

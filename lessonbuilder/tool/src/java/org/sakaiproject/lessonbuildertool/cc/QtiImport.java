@@ -236,7 +236,7 @@ public class QtiImport {
 
     String getMatText(Node material) {
   
-	String rettext = "";
+	StringBuilder rettext = new StringBuilder("");
   
   	if (material == null) {
   	    System.err.println("<material> is null");
@@ -253,12 +253,16 @@ public class QtiImport {
 	    if (stuff.getNodeName().equalsIgnoreCase("mattext")) {
 		String thistext = getText(stuff);
 		if (thistext != null)
-		    rettext = rettext + thistext;
+		    rettext.append(thistext);
 	    } else if (stuff.getNodeName().equalsIgnoreCase("matimage")) {
 		String uri = getAttribute(stuff, "uri");
-		if (uri != null)
-		    rettext = rettext + "<p><img src=\"" + uri + "\" alt=\"" +
-			uri + "\" />";
+		if (uri != null) {
+		    rettext.append("<p><img src=\"");
+		    rettext.append(uri);
+		    rettext.append("\" alt=\"");
+		    rettext.append(uri);
+		    rettext.append("\" />");
+		}
 	    } else if (stuff.getNodeName().equals("#text")) {
 		// apparently the whitespace is reported as #text nodes;
 		// ignore them
@@ -269,7 +273,7 @@ public class QtiImport {
 	    stuff = stuff.getNextSibling();
 	}
 
-	return rettext;
+	return rettext.toString();
 
     }
 
@@ -300,7 +304,6 @@ public class QtiImport {
 	if (debug) System.err.println("match");
 
 	String title = null;
-	String question = null;
 	List<Pair> pairs = new ArrayList<Pair>();
 	String feedback = null;
 	Double score = 0.0;
@@ -317,14 +320,14 @@ public class QtiImport {
 
 	Node material = getFirstByName(presentation, "material");
 
-	question = getMatText(material);
+	StringBuilder question = new StringBuilder(getMatText(material));
 
 	// optional list of pairs to display before the answers
 	material  = getNextByName(material, "material");
 	if (material != null) {
 	    Node materialr = getNextByName(material, "material");
 	    if (materialr != null) {
-		question = question + "<p><table>";
+		question.append("<p><table>");
 		// have left and right list
 		Node mattextl = null;
 		String textl = null;
@@ -340,18 +343,21 @@ public class QtiImport {
 		    if (textl == null || textr == null)
 			break;
 
-		    question = question + "<tr><td>" + textl +
-			"</td><td>" + textr + "</td></tr>";
+		    question.append("<tr><td>");
+		    question.append(textl);
+		    question.append("</td><td>");
+		    question.append(textr);
+		    question.append("</td></tr>");
 
 		    mattextl = getNextByName(mattextl, "mattext");
 		    mattextr = getNextByName(mattextr, "mattext");
 		}
 
-		question = question + "</table>";
+		question.append("</table>");
 	    }
 	}
 
-	if (debug) System.err.println("question: " + question);
+	if (debug) System.err.println("question: " + question.toString());
 
 	// now build the pairs. we depend upon the specific approach
 	// webct uses
@@ -524,7 +530,7 @@ public class QtiImport {
 	out.println("  <presentation>");
 	out.println("    <flow class=\"Block\">");
 	out.println("      <material>");
-	out.println("        <mattext charset=\"ascii-us\" texttype=\"text/html\" xml:space=\"default\"><![CDATA[" + question + "]]></mattext>");
+	out.println("        <mattext charset=\"ascii-us\" texttype=\"text/html\" xml:space=\"default\"><![CDATA[" + question.toString() + "]]></mattext>");
 	out.println("      </material>");
 	out.println("      <response_grp ident=\"resp_grp\" rcardinality=\"Ordered\" rtiming=\"No\">");
 	out.println("        <render_choice shuffle=\"No\">");
