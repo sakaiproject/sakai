@@ -601,10 +601,13 @@ implements ActionListener
 				evaluation.setAssessmentBase(assessment.getData());
 			}
 			
+			String assessmentName = "";
+			boolean gbItemExists = false;
 			try{
-				String assessmentName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getTitle().trim());
+				assessmentName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getTitle().trim());
+				gbItemExists = gbsHelper.isAssignmentDefined(assessmentName, g);
 				if (assessmentSettings.getToDefaultGradebook()!=null && assessmentSettings.getToDefaultGradebook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString()) &&
-						gbsHelper.isAssignmentDefined(assessmentName, g)){
+						gbItemExists && isTitleChanged){
 					String gbConflict_error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
 					context.addMessage(null,new FacesMessage(gbConflict_error));
 					return false;
@@ -637,50 +640,59 @@ implements ActionListener
 						log.info("Exception thrown in updateGB():" + e1.getMessage());
 					}
 				}
-
-				try{
-					log.debug("before gbsHelper.addToGradebook()");
-					gbsHelper.addToGradebook((PublishedAssessmentData)assessment.getData(), g);
-					
-					// any score to copy over? get all the assessmentGradingData and copy over
-					GradingService gradingService = new GradingService();
-
-					// need to decide what to tell gradebook
-					List list = null;
-
-					if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)){
-						list = gradingService.getHighestSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
-					}
-					else {
-						list = gradingService.getLastSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
-					}
-
-					//ArrayList list = gradingService.getAllSubmissions(assessment.getPublishedAssessmentId().toString());
-					log.debug("list size =" + list.size()	);
-					for (int i=0; i<list.size();i++){
-						try {
-							AssessmentGradingData ag = (AssessmentGradingData)list.get(i);
-							log.debug("ag.scores " + ag.getTotalAutoScore());
-							// Send the average score if average was selected for multiple submissions
-							if (scoringType.equals(EvaluationModelIfc.AVERAGE_SCORE)) {							
-								// status = 5: there is no submission but grader update something in the score page
-								if(ag.getStatus() ==5) {
-									ag.setFinalScore(ag.getFinalScore());
-								} else {
-									Float averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-									getAverageSubmittedAssessmentGrading(Long.valueOf(assessment.getPublishedAssessmentId()), ag.getAgentId());
-									ag.setFinalScore(averageScore);
-								}
-							}
-							gbsHelper.updateExternalAssessmentScore(ag, g);
-						}
-						catch (Exception e) {
-							log.warn("Exception occues in " + i + "th record. Message:" + e.getMessage());
-						}
+				
+				if(gbItemExists && !isTitleChanged){
+					try {
+						gbsHelper.updateGradebook(assessment, g);
+					} catch (Exception e) {
+						log.warn("Exception thrown in updateGB():" + e.getMessage());
 					}
 				}
-				catch(Exception e){
-					log.warn("oh well, must have been added already:"+e.getMessage());
+				else{
+					try{
+						log.debug("before gbsHelper.addToGradebook()");
+						gbsHelper.addToGradebook((PublishedAssessmentData)assessment.getData(), g);
+
+						// any score to copy over? get all the assessmentGradingData and copy over
+						GradingService gradingService = new GradingService();
+
+						// need to decide what to tell gradebook
+						List list = null;
+
+						if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)){
+							list = gradingService.getHighestSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
+						}
+						else {
+							list = gradingService.getLastSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
+						}
+
+						//ArrayList list = gradingService.getAllSubmissions(assessment.getPublishedAssessmentId().toString());
+						log.debug("list size =" + list.size()	);
+						for (int i=0; i<list.size();i++){
+							try {
+								AssessmentGradingData ag = (AssessmentGradingData)list.get(i);
+								log.debug("ag.scores " + ag.getTotalAutoScore());
+								// Send the average score if average was selected for multiple submissions
+								if (scoringType.equals(EvaluationModelIfc.AVERAGE_SCORE)) {							
+									// status = 5: there is no submission but grader update something in the score page
+									if(ag.getStatus() ==5) {
+										ag.setFinalScore(ag.getFinalScore());
+									} else {
+										Float averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+										getAverageSubmittedAssessmentGrading(Long.valueOf(assessment.getPublishedAssessmentId()), ag.getAgentId());
+										ag.setFinalScore(averageScore);
+									}
+								}
+								gbsHelper.updateExternalAssessmentScore(ag, g);
+							}
+							catch (Exception e) {
+								log.warn("Exception occues in " + i + "th record. Message:" + e.getMessage());
+							}
+						}
+					}
+					catch(Exception e){
+						log.warn("oh well, must have been added already:"+e.getMessage());
+					}
 				}
 			}
 			else{ //remove
