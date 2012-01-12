@@ -698,17 +698,19 @@ public class CalendarBean {
 	}
 	
 	private boolean sameDay(Calendar date1, Date date2) {
-		date1.set(Calendar.HOUR_OF_DAY, 0);
-		date1.set(Calendar.MINUTE, 0);
-		date1.set(Calendar.SECOND, 0);
+		Calendar cal1 = Calendar.getInstance(getCurrentUserTimezone(), msgs.getLocale());
+		cal1.setTime(date1.getTime());
+		cal1.set(Calendar.HOUR_OF_DAY, 0);
+		cal1.set(Calendar.MINUTE, 0);
+		cal1.set(Calendar.SECOND, 0);
 
-		Calendar cal = Calendar.getInstance(getCurrentUserTimezone(), msgs.getLocale());
-		cal.setTime(date2);
-		cal.set(Calendar.HOUR_OF_DAY, 0);
-		cal.set(Calendar.MINUTE, 0);
-		cal.set(Calendar.SECOND, 0);
+		Calendar cal2 = Calendar.getInstance(getCurrentUserTimezone(), msgs.getLocale());
+		cal2.setTime(date2);
+		cal2.set(Calendar.HOUR_OF_DAY, 0);
+		cal2.set(Calendar.MINUTE, 0);
+		cal2.set(Calendar.SECOND, 0);
 
-		return (cal.get(Calendar.YEAR) == date1.get(Calendar.YEAR)) && (cal.get(Calendar.MONTH) == date1.get(Calendar.MONTH)) && (cal.get(Calendar.DAY_OF_MONTH) == date1.get(Calendar.DAY_OF_MONTH));
+		return (cal2.get(Calendar.YEAR) == cal1.get(Calendar.YEAR)) && (cal2.get(Calendar.MONTH) == cal1.get(Calendar.MONTH)) && (cal2.get(Calendar.DAY_OF_MONTH) == cal1.get(Calendar.DAY_OF_MONTH));
 	}
 
 	public Date getToday() {
