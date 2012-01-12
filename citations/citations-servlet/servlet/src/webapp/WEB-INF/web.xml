@@ -39,7 +39,7 @@
            sakai.savecite
         </servlet-name>
         <servlet-class>
-            org.sakaiproject.citation.servlet.CitationServlet
+            org.sakaiproject.citation.servlet.BatchCitationServlet
         </servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>

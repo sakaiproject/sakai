@@ -30,8 +30,15 @@
 						opener.citationsHelperFrame.refreshCitationsHelper();
 					  }
 					</script>
-					
-					#parse( "vm/_citation.vm" )
+					#if( $citations )
+						#foreach($citation in $citations)
+							#parse( "vm/_citation.vm" )
+							<hr />
+						#end
+					#else
+						#parse( "vm/_citation.vm" )
+						<hr />
+					#end
 					
 					<h2>$tlang.getFormattedMessage( "title.gscholar", $titleArgs )</h2>
 					
