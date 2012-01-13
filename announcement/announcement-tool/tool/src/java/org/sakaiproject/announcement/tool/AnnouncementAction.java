@@ -1181,51 +1181,26 @@ public class AnnouncementAction extends PagedResourceActionII
 
 	public void buildSortedContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState sstate)
 	{
-		Vector drafts = new Vector();
-		Vector nonDrafts = new Vector();
+		//SAK-21532: making one list of messages in order to allow uniform sorting
+		Vector messageList = new Vector();
 		Vector showMessagesList = new Vector();
 
 		List messages = prepPage(sstate);
 		for (int i = 0; i < messages.size(); i++)
 		{
 			final AnnouncementMessage m = (AnnouncementMessage) messages.get(i);
-
-			if (m.getAnnouncementHeader().getDraft())
-			{
-				drafts.addElement(m);
-			}
-			else
-			{
-				nonDrafts.add(m);
-			}
+			messageList.addElement(m);
 		}
 
 		AnnouncementActionState state = (AnnouncementActionState) getState(portlet, rundata, AnnouncementActionState.class);
 
-		SortedIterator sortedDraftIterator = new SortedIterator(drafts.iterator(), new AnnouncementComparator(state
+		SortedIterator sortedMessageIterator = new SortedIterator(messageList.iterator(), new AnnouncementComparator(state
 				.getCurrentSortedBy(), state.getCurrentSortAsc()));
-		SortedIterator sortedNonDraftIterator = new SortedIterator(nonDrafts.iterator(), new AnnouncementComparator(state
-				.getCurrentSortedBy(), state.getCurrentSortAsc()));
-
-		if (state.getCurrentSortAsc())
-		{
-			while (sortedDraftIterator.hasNext())
-				showMessagesList.add((AnnouncementMessage) sortedDraftIterator.next());
-
-			while (sortedNonDraftIterator.hasNext())
-				showMessagesList.add((AnnouncementMessage) sortedNonDraftIterator.next());
-		}
-		else
-		{
-			while (sortedDraftIterator.hasNext())
-				showMessagesList.add((AnnouncementMessage) sortedDraftIterator.next());
-
-			while (sortedNonDraftIterator.hasNext())
-				showMessagesList.add((AnnouncementMessage) sortedNonDraftIterator.next());
-		}
-
+		
+		while (sortedMessageIterator.hasNext())
+			showMessagesList.add((AnnouncementMessage) sortedMessageIterator.next());
+	
 		context.put("showMessagesList", showMessagesList.iterator());
-		context.put("showMessagesList2", showMessagesList.iterator());
 		context.put("messageListVector", showMessagesList);
 
 		context.put("totalPageNumber", sstate.getAttribute(STATE_TOTAL_PAGENUMBER));
