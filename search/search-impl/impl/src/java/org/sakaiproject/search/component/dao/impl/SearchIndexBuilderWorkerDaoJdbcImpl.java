@@ -406,23 +406,23 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 									}
 									doc.add(new Field(SearchService.FIELD_CONTENTS,
 											filterNull(content),
-											Field.Store.NO, Field.Index.TOKENIZED,
+											Field.Store.NO, Field.Index.ANALYZED,
 											Field.TermVector.YES));
 								}
 
 								doc.add(new Field(SearchService.FIELD_TITLE,
 										filterNull(sep.getTitle(ref)),
-										Field.Store.COMPRESS, Field.Index.TOKENIZED,
+										Field.Store.COMPRESS, Field.Index.ANALYZED,
 										Field.TermVector.YES));
 								doc.add(new Field(SearchService.FIELD_TOOL,
 										filterNull(sep.getTool()), Field.Store.COMPRESS,
-										Field.Index.UN_TOKENIZED));
+										Field.Index.NOT_ANALYZED));
 								doc.add(new Field(SearchService.FIELD_URL, filterUrl(filterNull(sep
 										.getUrl(ref))), Field.Store.COMPRESS,
-										Field.Index.UN_TOKENIZED));
+										Field.Index.NOT_ANALYZED));
 								doc.add(new Field(SearchService.FIELD_SITEID,
 										filterNull(sep.getSiteId(ref)),
-										Field.Store.COMPRESS, Field.Index.UN_TOKENIZED));
+										Field.Store.COMPRESS, Field.Index.NOT_ANALYZED));
 
 								// add the custom properties
 
@@ -461,14 +461,14 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 													doc.add(new Field(key,
 															filterNull(values[i]),
 															Field.Store.COMPRESS,
-															Field.Index.TOKENIZED,Field.TermVector.YES));
+															Field.Index.ANALYZED,Field.TermVector.YES));
 												}
 												else
 												{
 													doc.add(new Field(key,
 															filterNull(values[i]),
 															Field.Store.COMPRESS,
-															Field.Index.UN_TOKENIZED));
+															Field.Index.NOT_ANALYZED));
 												}
 											}
 										}
