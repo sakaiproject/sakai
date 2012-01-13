@@ -371,22 +371,22 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 								if (container == null) container = ""; //$NON-NLS-1$
 								doc.add(new Field(SearchService.DATE_STAMP, String
 										.valueOf(System.currentTimeMillis()),
-										Field.Store.COMPRESS, Field.Index.UN_TOKENIZED));
+										Field.Store.COMPRESS, Field.Index.NOT_ANALYZED));
 								doc.add(new Field(SearchService.FIELD_CONTAINER,
 										filterNull(container), Field.Store.COMPRESS,
-										Field.Index.UN_TOKENIZED));
+										Field.Index.NOT_ANALYZED));
 								doc.add(new Field(SearchService.FIELD_ID, filterNull(sep
 										.getId(ref)), Field.Store.COMPRESS,
 										Field.Index.NO));
 								doc.add(new Field(SearchService.FIELD_TYPE,
 										filterNull(sep.getType(ref)),
-										Field.Store.COMPRESS, Field.Index.UN_TOKENIZED));
+										Field.Store.COMPRESS, Field.Index.NOT_ANALYZED));
 								doc.add(new Field(SearchService.FIELD_SUBTYPE,
 										filterNull(sep.getSubType(ref)),
-										Field.Store.COMPRESS, Field.Index.UN_TOKENIZED));
+										Field.Store.COMPRESS, Field.Index.NOT_ANALYZED));
 								doc.add(new Field(SearchService.FIELD_REFERENCE,
 										filterNull(ref), Field.Store.COMPRESS,
-										Field.Index.UN_TOKENIZED));
+										Field.Index.NOT_ANALYZED));
 
 								
 								if (sep.isContentFromReader(ref))
