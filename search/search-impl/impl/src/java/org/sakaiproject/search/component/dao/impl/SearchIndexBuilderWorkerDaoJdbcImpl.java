@@ -845,9 +845,9 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 				doc
 				.add(new Field(SearchService.DATE_STAMP, String.valueOf(System
 						.currentTimeMillis()), Field.Store.COMPRESS,
-						Field.Index.UN_TOKENIZED));
+						Field.Index.NOT_ANALYZED));
 				doc.add(new Field(SearchService.FIELD_ID, "---INDEX-CREATED---",
-						Field.Store.COMPRESS, Field.Index.UN_TOKENIZED));
+						Field.Store.COMPRESS, Field.Index.NOT_ANALYZED));
 				indexWrite.addDocument(doc);
 			} else {
 				log.error("Couldn't get indexWriter to add document!");
