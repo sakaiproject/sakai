@@ -338,10 +338,7 @@ public class TransactionalIndexWorker implements IndexWorker
 										filterNull(ref), Field.Store.COMPRESS,
 										Field.Index.NOT_ANALYZED));
 
-								doc.add(new Field(SearchService.FIELD_CONTEXT,
-										filterNull(sep.getSiteId(ref)),
-										Field.Store.COMPRESS, Field.Index.NOT_ANALYZED));
-								
+															
 								// add last part of the index as this is the filename
 								String idIndex = sep.getId(ref);
 								if (idIndex != null && idIndex.indexOf("/") > 0) {

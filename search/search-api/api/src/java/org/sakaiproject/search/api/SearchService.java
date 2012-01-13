@@ -93,11 +93,6 @@ public interface SearchService extends Diagnosable
 	public static final String FIELD_CONTENTS = "contents";
 
 	/**
-	 * Search Field The context of the Entity
-	 */
-	public static final String FIELD_CONTEXT = "context";
-
-	/**
 	 * Search Field The tool subtype of the entity
 	 */
 	public static final String FIELD_SUBTYPE = "subtype";

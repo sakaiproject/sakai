@@ -388,9 +388,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 										filterNull(ref), Field.Store.COMPRESS,
 										Field.Index.UN_TOKENIZED));
 
-								doc.add(new Field(SearchService.FIELD_CONTEXT,
-										filterNull(sep.getSiteId(ref)),
-										Field.Store.COMPRESS, Field.Index.UN_TOKENIZED));
+								
 								if (sep.isContentFromReader(ref))
 								{
 									contentReader = sep.getContentReader(ref);
