@@ -59,7 +59,10 @@ import org.sakaiproject.user.api.UserPermissionException;
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 public class UserEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, RESTful, Describeable {
+
     private static Log log = LogFactory.getLog(UserEntityProvider.class);
+
+    private static final String ID_PREFIX = "id=";
 
     private UserDirectoryService userDirectoryService;
     public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
@@ -364,18 +367,24 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
 
     /**
      * Allows for easy retrieval of the user object
-     * @param userId a user Id (can be eid)
+     * @param userId a user ID (must be internal ID only and not EID)
      * @return the user object
      * @throws IllegalArgumentException if the user Id is invalid
      */
     public EntityUser getUserById(String userId) {
         userId = findAndCheckUserId(userId, null);
-        //we could have been passed a Id that no longer referes to a user
+        // we could have been passed a Id that no longer refers to a user
         if (userId == null) {
         	return null;
         }
+        /* Switched this to ID only lookup without failover to EID lookup - SAK-21654
         EntityReference ref = new EntityReference("user", userId);
         EntityUser eu = (EntityUser) getEntity(ref);
+        */
+        // ID only lookup so prefix with "id="
+        User user = getUserByIdEid(ID_PREFIX+userId);
+        // convert
+        EntityUser eu = convertUser(user);
         return eu;
     }
 
@@ -445,9 +454,9 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
             } else {
                 if (userIdExplicitOnly()) {
                     // only check ID or EID
-                    if (currentUserEid.length() > 3 && currentUserEid.startsWith("id=") ) {
+                    if (currentUserEid.length() > ID_PREFIX.length() && currentUserEid.startsWith(ID_PREFIX) ) {
                         // strip the id marker out
-                        currentUserEid = currentUserEid.substring(3);
+                        currentUserEid = currentUserEid.substring(ID_PREFIX.length());
                         // check ID, do not attempt to check by EID as well
                         try {
                             userId = userDirectoryService.getUserId(currentUserEid);
@@ -498,9 +507,9 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
                 }
             } else {
                 if (userIdExplicitOnly()) {
-                    if (currentUserId.length() > 3 && currentUserId.startsWith("id=") ) {
+                    if (currentUserId.length() > ID_PREFIX.length() && currentUserId.startsWith(ID_PREFIX) ) {
                         // strip the id marker out
-                        currentUserId = currentUserId.substring(3);
+                        currentUserId = currentUserId.substring(ID_PREFIX.length());
                     }
                     // check ID, do not attempt to check by EID as well
                     try {
@@ -580,9 +589,9 @@ public class UserEntityProvider extends AbstractEntityProvider implements CoreEn
             boolean doCheckForEid = true;
             String userId = userEid;
             // check if the incoming param says this is explicitly an id
-            if (userId.length() > 3 && userId.startsWith("id=") ) {
+            if (userId.length() > ID_PREFIX.length() && userId.startsWith(ID_PREFIX) ) {
                 // strip the id marker out
-                userId = userEid.substring(3);
+                userId = userEid.substring(ID_PREFIX.length());
                 doCheckForEid = false; // skip the EID check entirely
                 doCheckForId = true;
             }
