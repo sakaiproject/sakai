@@ -865,10 +865,10 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			{
 				if (log.isDebugEnabled())
 				{
-					log.debug("Closing Index Writer With " + indexWrite.docCount()
+					log.debug("Closing Index Writer With " + indexWrite.maxDoc()
 							+ " documents");
 					Directory d = indexWrite.getDirectory();
-					String[] s = d.list();
+					String[] s = d.listAll();
 					log.debug("Directory Contains ");
 					for (int i = 0; i < s.length; i++)
 					{
