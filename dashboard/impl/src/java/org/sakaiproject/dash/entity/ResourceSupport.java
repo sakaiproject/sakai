@@ -365,6 +365,21 @@ public class ResourceSupport {
 		public void processEvent(Event event) {
 			logger.info("\n\n\n=============================================================\n" + event  
 					+ "\n=============================================================\n\n\n");
+			
+			Entity entity = sakaiProxy.getEntity(event.getResource());
+			if(entity != null && entity instanceof ContentResource) {
+				ContentResource resource = (ContentResource) entity;
+				if (resource.isHidden())
+				{
+					// hide the resource, the need to remove all links in dashboard
+					dashboardLogic.removeNewsItem(event.getResource());
+				}
+				else
+				{
+					// add the links to dashboard
+					addContentNewsItem(event, resource);
+				}
+			}
 		}
 	}
 
@@ -392,81 +407,7 @@ public class ResourceSupport {
 			if(entity != null && entity instanceof ContentResource) {
 				ContentResource resource = (ContentResource) entity;
 				
-				if (!sakaiProxy.isAttachmentResource(resource.getId()))
-				{
-					// only when the resource is not attachment
-					Context context = dashboardLogic.getContext(event.getContext());
-					if(context == null) {
-						context = dashboardLogic.createContext(event.getContext());
-					}
-					
-					String labelKey = "resource.added";
-					SourceType sourceType = null;
-					boolean isDropboxResource = sakaiProxy.isDropboxResource(resource.getId());
-					if(isDropboxResource ) {
-						sourceType = dashboardLogic.getSourceType(DROPBOX_TYPE_IDENTIFIER);
-						if(sourceType == null) {
-							sourceType = dashboardLogic.createSourceType(DROPBOX_TYPE_IDENTIFIER, SakaiProxy.PERMIT_DROPBOX_MAINTAIN, EntityLinkStrategy.ACCESS_URL);
-						}
-						labelKey = "dropbox.added";
-					} else {
-						sourceType = dashboardLogic.getSourceType(RESOURCE_TYPE_IDENTIFIER);
-						if(sourceType == null) {
-							sourceType = dashboardLogic.createSourceType(RESOURCE_TYPE_IDENTIFIER, SakaiProxy.PERMIT_RESOURCE_ACCESS, EntityLinkStrategy.ACCESS_URL);
-						}
-					}
-					
-					ResourceProperties props = resource.getProperties();
-					String title = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
-					
-					Date eventTime = null;
-					try {
-						// this.eventTime = original.getEventTime();
-						// the getEventTime() method did not exist before kernel 1.2
-						// so we use reflection
-						Method getEventTimeMethod = event.getClass().getMethod("getEventTime", null);
-						eventTime = (Date) getEventTimeMethod.invoke(event, null);
-					} catch (SecurityException e) {
-						logger.warn("Error getting event time " + e);
-					} catch (NoSuchMethodException e) {
-						logger.warn("Error getting event time " + e);
-					} catch (IllegalArgumentException e) {
-						logger.warn("Error getting event time " + e);
-					} catch (IllegalAccessException e) {
-						logger.warn("Error getting event time " + e);
-					} catch (InvocationTargetException e) {
-						logger.warn("Error getting event time " + e);
-					}
-					
-					if(eventTime == null) {
-						try {
-							eventTime = new Date(props.getTimeProperty(ResourceProperties.PROP_CREATION_DATE).getTime());
-						} catch (EntityPropertyNotDefinedException e) {
-							logger.warn("Error getting event time " + e);
-						} catch (EntityPropertyTypeException e) {
-							logger.warn("Error getting event time " + e);
-						}
-					}
-					
-					if(eventTime == null) {
-						eventTime = new Date();
-					}
-					
-					NewsItem newsItem = dashboardLogic.createNewsItem(title, eventTime, labelKey , resource.getReference(), context, sourceType, resource.getContentType());
-					if(dashboardLogic.isAvailable(newsItem.getEntityReference(), RESOURCE_TYPE_IDENTIFIER)) {
-						dashboardLogic.createNewsLinks(newsItem);
-						Date retractDate = getRetractDate(newsItem.getEntityReference());
-						if(retractDate != null && retractDate.after(new Date())) {
-							dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), RESOURCE_TYPE_IDENTIFIER, retractDate);
-						}
-					} else {
-						
-						Date releaseDate = getReleaseDate(newsItem.getEntityReference());
-						if(releaseDate != null && releaseDate.after(new Date())) {
-							dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), RESOURCE_TYPE_IDENTIFIER, releaseDate);
-						}
-					}
-				}
+				addContentNewsItem(event, resource);
 			}
 		}
 	}
@@ -649,5 +590,86 @@ public class ResourceSupport {
 		}
 
 	}
-
+	/**
+	 * inner class to handle the logic of adding NewsItem for resource.
+	 * @param event
+	 * @param resource
+	 */
+	private void addContentNewsItem(Event event, ContentResource resource) {
+		if (!sakaiProxy.isAttachmentResource(resource.getId()))
+		{
+			// only when the resource is not attachment
+			Context context = dashboardLogic.getContext(event.getContext());
+			if(context == null) {
+				context = dashboardLogic.createContext(event.getContext());
+			}
+			
+			String labelKey = "resource.added";
+			SourceType sourceType = null;
+			boolean isDropboxResource = sakaiProxy.isDropboxResource(resource.getId());
+			if(isDropboxResource ) {
+				sourceType = dashboardLogic.getSourceType(DROPBOX_TYPE_IDENTIFIER);
+				if(sourceType == null) {
+					sourceType = dashboardLogic.createSourceType(DROPBOX_TYPE_IDENTIFIER, SakaiProxy.PERMIT_DROPBOX_MAINTAIN, EntityLinkStrategy.ACCESS_URL);
+				}
+				labelKey = "dropbox.added";
+			} else {
+				sourceType = dashboardLogic.getSourceType(RESOURCE_TYPE_IDENTIFIER);
+				if(sourceType == null) {
+					sourceType = dashboardLogic.createSourceType(RESOURCE_TYPE_IDENTIFIER, SakaiProxy.PERMIT_RESOURCE_ACCESS, EntityLinkStrategy.ACCESS_URL);
+				}
+			}
+			
+			ResourceProperties props = resource.getProperties();
+			String title = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+			
+			Date eventTime = null;
+			try {
+				// this.eventTime = original.getEventTime();
+				// the getEventTime() method did not exist before kernel 1.2
+				// so we use reflection
+				Method getEventTimeMethod = event.getClass().getMethod("getEventTime", null);
+				eventTime = (Date) getEventTimeMethod.invoke(event, null);
+			} catch (SecurityException e) {
+				logger.warn("Error getting event time " + e);
+			} catch (NoSuchMethodException e) {
+				logger.warn("Error getting event time " + e);
+			} catch (IllegalArgumentException e) {
+				logger.warn("Error getting event time " + e);
+			} catch (IllegalAccessException e) {
+				logger.warn("Error getting event time " + e);
+			} catch (InvocationTargetException e) {
+				logger.warn("Error getting event time " + e);
+			}
+			
+			if(eventTime == null) {
+				try {
+					eventTime = new Date(props.getTimeProperty(ResourceProperties.PROP_CREATION_DATE).getTime());
+				} catch (EntityPropertyNotDefinedException e) {
+					logger.warn("Error getting event time " + e);
+				} catch (EntityPropertyTypeException e) {
+					logger.warn("Error getting event time " + e);
+				}
+			}
+			
+			if(eventTime == null) {
+				eventTime = new Date();
+			}
+			
+			NewsItem newsItem = dashboardLogic.createNewsItem(title, eventTime, labelKey , resource.getReference(), context, sourceType, resource.getContentType());
+			if(dashboardLogic.isAvailable(newsItem.getEntityReference(), RESOURCE_TYPE_IDENTIFIER)) {
+				dashboardLogic.createNewsLinks(newsItem);
+				Date retractDate = getRetractDate(newsItem.getEntityReference());
+				if(retractDate != null && retractDate.after(new Date())) {
+					dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), RESOURCE_TYPE_IDENTIFIER, retractDate);
+				}
+			} else {
+				
+				Date releaseDate = getReleaseDate(newsItem.getEntityReference());
+				if(releaseDate != null && releaseDate.after(new Date())) {
+					dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), RESOURCE_TYPE_IDENTIFIER, releaseDate);
+				}
+			}
+		}
+	}
 }
