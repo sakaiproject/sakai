@@ -37,7 +37,8 @@
 				styleClass="listHier printTable" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column>
 				<h:panelGroup styleClass="heading">
-					<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{ForumTool.selectedMessage.message.authorId}/image/thumb" alt="#{ForumTool.selectedMessage.message.author}" styleClass="authorImage" />
+					<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{ForumTool.selectedMessage.message.authorId}/image/thumb" 
+					alt="#{ForumTool.selectedMessage.message.author}" styleClass="authorImage" rendered="#{ForumTool.showProfileInfo}"/>
 						<h:outputText value="#{message.message.title}" styleClass="title" />		          	
 			          	<h:outputText value=" - #{message.message.author}"/>
                         <h:outputText value="#{message.message.created}">
@@ -53,7 +54,8 @@
 						noarrows="true" styleClass="listHier printTable" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column id="_msg_subject">
 						<h:panelGroup styleClass="heading">
-						<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{message.message.authorId}/image/thumb" alt="#{message.message.author}" styleClass="authorImage" />
+						<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{message.message.authorId}/image/thumb" 
+						    alt="#{message.message.author}" styleClass="authorImage" rendered="#{ForumTool.showProfileInfo}"/>
 						<h:outputText value="#{message.message.title}" styleClass="title"/>		          	
 			          	<h:outputText value=" - #{message.message.author}"/>
                         <h:outputText value="#{message.message.created}">
