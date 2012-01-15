@@ -721,7 +721,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 				.add(new Field(SearchService.DATE_STAMP, String.valueOf(System
 						.currentTimeMillis()), Field.Store.COMPRESS,
 						Field.Index.NOT_ANALYZED));
-				doc.add(new Field(SearchService.FIELD_ID, "---INDEX-CREATED---",
+				doc.add(new Field(SearchService.FIELD_REFERENCE, "---INDEX-CREATED---",
 						Field.Store.COMPRESS, Field.Index.NOT_ANALYZED));
 				indexWrite.addDocument(doc);
 			} else {

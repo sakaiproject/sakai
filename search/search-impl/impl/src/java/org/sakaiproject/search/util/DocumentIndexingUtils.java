@@ -23,15 +23,14 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.lucene.document.CompressionTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.StoredDigestContentProducer;
@@ -62,25 +61,49 @@ public class DocumentIndexingUtils {
 		
 		String container = sep.getContainer(ref);
 		if (container == null) container = ""; //$NON-NLS-1$
-		doc.add(new Field(SearchService.DATE_STAMP, String
-				.valueOf(System.currentTimeMillis()),
-				Field.Store.COMPRESS, Field.Index.NOT_ANALYZED));
+		
+		//The reference of the Sakai object stored and index unanalyzed
+				doc.add(new Field(SearchService.FIELD_REFERENCE,
+						CompressionTools.compressString(filterNull(ref)),
+						Field.Store.YES));
+				doc.add(new Field(SearchService.FIELD_REFERENCE,
+						filterNull(ref), Field.Store.NO,
+						Field.Index.NOT_ANALYZED));
+		log.debug("added " + ref + " as the reference field");
+		log.debug("container is:" + container);
+		//The date of indexing
+		String timeStamp = String
+				.valueOf(System.currentTimeMillis());
+		doc.add(new Field(SearchService.DATE_STAMP, timeStamp,
+				Field.Store.NO, Field.Index.NOT_ANALYZED));
+		doc.add(new Field(SearchService.DATE_STAMP, CompressionTools.compressString(timeStamp), Field.Store.YES));
+		
+		
+		//The Container
+		//TODO: check if this is ever used
 		doc.add(new Field(SearchService.FIELD_CONTAINER,
-				filterNull(container), Field.Store.COMPRESS,
+				filterNull(container), Field.Store.NO,
 				Field.Index.NOT_ANALYZED));
-		doc.add(new Field(SearchService.FIELD_ID, filterNull(sep
-				.getId(ref)), Field.Store.COMPRESS,
-				Field.Index.NO));
-		doc.add(new Field(SearchService.FIELD_TYPE,
+		doc.add(new Field(SearchService.FIELD_CONTAINER, 
+				CompressionTools.compressString(filterNull(container)),
+				Field.Store.YES));
+		
+		
+
+		
+		//the type of the object
+		//TODO: check if this is ever used
+		/*doc.add(new Field(SearchService.FIELD_TYPE,
 				filterNull(sep.getType(ref)),
 				Field.Store.COMPRESS, Field.Index.NOT_ANALYZED));
-		doc.add(new Field(SearchService.FIELD_SUBTYPE,
+		*/
+		//the opject subtype
+		//TODO: check if this is ever used
+		/*doc.add(new Field(SearchService.FIELD_SUBTYPE,
 				filterNull(sep.getSubType(ref)),
 				Field.Store.COMPRESS, Field.Index.NOT_ANALYZED));
-		doc.add(new Field(SearchService.FIELD_REFERENCE,
-				filterNull(ref), Field.Store.COMPRESS,
-				Field.Index.NOT_ANALYZED));
-
+		*/
+		
 									
 		// add last part of the index as this is the filename
 		String idIndex = sep.getId(ref);
@@ -98,6 +121,7 @@ public class DocumentIndexingUtils {
 		doc.add(new Field(SearchService.FIELD_CONTENTS,
 				title, Field.Store.NO,
 				Field.Index.ANALYZED, Field.TermVector.YES));
+		
 
 		if (sep.isContentFromReader(ref))
 		{
@@ -126,7 +150,7 @@ public class DocumentIndexingUtils {
 						Field.Index.ANALYZED, Field.TermVector.YES));
 				if (sep instanceof StoredDigestContentProducer) {
 					doc.add(new Field(SearchService.FIELD_DIGEST_COUNT,
-							Integer.valueOf(docCount).toString(), Field.Store.COMPRESS, Field.Index.NO, Field.TermVector.NO));
+							Integer.valueOf(docCount).toString(), Field.Store.YES, Field.Index.NO, Field.TermVector.NO));
 					digestStorageUtil.saveContentToStore(ref, content, docCount);
 					if (docCount > 2) {
 						digestStorageUtil.cleanOldDigests(ref);
@@ -135,20 +159,36 @@ public class DocumentIndexingUtils {
 			}
 		}
 
-		doc.add(new Field(SearchService.FIELD_TITLE,
-				filterNull(sep.getTitle(ref)),
-				Field.Store.COMPRESS, Field.Index.ANALYZED,
-				Field.TermVector.YES));
-		doc.add(new Field(SearchService.FIELD_TOOL,
-				filterNull(sep.getTool()), Field.Store.COMPRESS,
-				Field.Index.NOT_ANALYZED));
-		doc.add(new Field(SearchService.FIELD_URL,
-				filterUrl(filterNull(sep.getUrl(ref)), serverURL),
-				Field.Store.COMPRESS, Field.Index.NOT_ANALYZED));
-		doc.add(new Field(SearchService.FIELD_SITEID,
-				filterNull(sep.getSiteId(ref)),
-				Field.Store.COMPRESS, Field.Index.NOT_ANALYZED));
+		//The document title
+		String docTitle = filterNull(sep.getTitle(ref));
+		doc.add(new Field(SearchService.FIELD_TITLE, docTitle, Field.Store.NO,
+				Field.Index.ANALYZED, Field.TermVector.YES));
 
+		doc.add(new Field(SearchService.FIELD_TITLE, CompressionTools
+				.compressString(docTitle), Field.Store.YES));
+
+		// The tool - used for limiting searches
+		//does not need to be stored
+		doc.add(new Field(SearchService.FIELD_TOOL,
+				filterNull(sep.getTool()), Field.Store.NO,
+				Field.Index.NOT_ANALYZED));
+		doc.add(new Field(SearchService.FIELD_TOOL,
+				CompressionTools.compressString(filterNull(sep.getTool())),
+				Field.Store.YES));		
+		//The document URL - should not be indexed
+		doc.add(new Field(SearchService.FIELD_URL,
+				CompressionTools.compressString(filterUrl(filterNull(sep.getUrl(ref)), serverURL)), 
+				Field.Store.YES));
+		//the owning site
+		String siteId = filterNull(sep.getSiteId(ref));
+		doc.add(new Field(SearchService.FIELD_SITEID,
+				siteId,
+				Field.Store.NO, Field.Index.NOT_ANALYZED));
+
+		doc.add(new Field(SearchService.FIELD_SITEID, 
+				CompressionTools.compressString(siteId),
+				Field.Store.YES));
+		
 		// add the custom properties
 
 		Map<String, ?> m = sep.getCustomProperties(ref);
@@ -185,18 +225,26 @@ public class DocumentIndexingUtils {
 						if (key.startsWith("T"))
 						{
 							key = key.substring(1);
+							String val = (filterNull(values[i]));
 							doc.add(new Field(key,
-									filterNull(values[i]),
-									Field.Store.COMPRESS,
+									val,
+									Field.Store.NO,
 									Field.Index.ANALYZED,
 									Field.TermVector.YES));
+							doc.add(new Field(key,
+									CompressionTools.compressString(val),
+									Field.Store.YES));
 						}
 						else
 						{
+							String val = filterNull(values[i]);
 							doc.add(new Field(key,
-									filterNull(values[i]),
-									Field.Store.COMPRESS,
+									val,
+									Field.Store.NO,
 									Field.Index.NOT_ANALYZED));
+							doc.add(new Field(key, 
+									CompressionTools.compressString(val),
+									Field.Store.YES));
 						}
 					}
 				}

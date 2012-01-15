@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.DataFormatException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -35,6 +36,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.document.CompressionTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.search.Hits;
@@ -107,8 +109,8 @@ public class SearchResultImpl implements SearchResult
 	}
 
 	public String getId()
-	{
-		return doc.get(SearchService.FIELD_ID);
+	{ 
+		return getReference();
 	}
 
 	public String[] getFieldNames()
@@ -155,17 +157,35 @@ public class SearchResultImpl implements SearchResult
 	public String getUrl()
 	{
 		if (url == null)
-			url = doc.get(SearchService.FIELD_URL);
+			try {
+				url = CompressionTools.decompressString(doc.getBinaryValue(SearchService.FIELD_URL));
+			} catch (DataFormatException e) {
+				url = doc.get(SearchService.FIELD_URL);
+			} 
+			
 		return url;
 	}
 
 	public String getTitle()
 	{
+		try {
+			return CompressionTools.decompressString(doc.getBinaryValue(SearchService.FIELD_TITLE));
+		} catch (DataFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return doc.get(SearchService.FIELD_TITLE);
 	}
 
 	public String getTool()
 	{
+		try {
+			return CompressionTools.decompressString(doc.getBinaryValue(SearchService.FIELD_TOOL));
+		} catch (DataFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		return doc.get(SearchService.FIELD_TOOL);
 
 	}
@@ -185,7 +205,7 @@ public class SearchResultImpl implements SearchResult
 			// contents no longer contains the digested contents, so we need to
 			// fetch it from the EntityContentProducer
 
-			String[] references = doc.getValues(SearchService.FIELD_REFERENCE);
+			byte[][] references = doc.getBinaryValues(SearchService.FIELD_REFERENCE);
 			DigestStorageUtil digestStorageUtil = new DigestStorageUtil(searchService);
 			if (references != null && references.length > 0)
 			{
@@ -193,7 +213,7 @@ public class SearchResultImpl implements SearchResult
 				for (int i = 0; i < references.length; i++)
 				{
 					EntityContentProducer sep = searchIndexBuilder
-					.newEntityContentProducer(references[i]);
+					.newEntityContentProducer(CompressionTools.decompressString(references[i]));
 					if ( sep != null ) {
 						//does this ecp store on the FS?
 						if (sep instanceof StoredDigestContentProducer) {
@@ -202,22 +222,22 @@ public class SearchResultImpl implements SearchResult
 								digestCount = "1";
 							}
 							log.debug("This file possibly has FS digests with index of " + digestCount);
-							StringBuilder sb1 = digestStorageUtil.getFileContents(doc.get(SearchService.FIELD_REFERENCE), digestCount);
+							StringBuilder sb1 = digestStorageUtil.getFileContents(CompressionTools.decompressString(doc.getBinaryValue(SearchService.FIELD_REFERENCE)), digestCount);
 							if (sb1.length() > 0) {
 								sb.append(sb1);
 
 							} else {
-								String digest = sep.getContent(references[i]);
+								String digest = sep.getContent(CompressionTools.decompressString(references[i]));
 								sb.append(digest);
 								//we need to save this
-								digestStorageUtil.saveContentToStore(doc.get(SearchService.FIELD_REFERENCE), sb.toString(), 1);
+								digestStorageUtil.saveContentToStore(CompressionTools.decompressString(doc.getBinaryValue(SearchService.FIELD_REFERENCE)), sb.toString(), 1);
 
 							}
 
 
 
 						} else {
-							sb.append(sep.getContent(references[i]));
+							sb.append(CompressionTools.decompressString(references[i]));
 
 						}
 					}
@@ -233,12 +253,22 @@ public class SearchResultImpl implements SearchResult
 			return Messages.getString("SearchResultImpl.2") + e.getMessage(); //$NON-NLS-1$
 		} catch (InvalidTokenOffsetsException e) {
 			return Messages.getString("SearchResultResponseImpl.11") + e.getMessage(); 
+		} catch (DataFormatException e) {
+			e.printStackTrace();
+			return Messages.getString("SearchResultResponseImpl.11") + e.getMessage(); 
 		}
 	}
 
 	public String getReference()
 	{
-		return doc.get(SearchService.FIELD_REFERENCE);
+		try {
+			String ret = CompressionTools.decompressString(doc.getBinaryValue(SearchService.FIELD_REFERENCE));
+			log.debug("returning " + ret);
+			return ret;
+		} catch (DataFormatException e) {
+			return doc.get(SearchService.FIELD_REFERENCE);
+		}
+		
 	}
 
 	public TermFrequency getTerms() throws IOException
@@ -268,6 +298,12 @@ public class SearchResultImpl implements SearchResult
 	}
 
 	public String getSiteId() {
+		try {
+			return CompressionTools.decompressString(doc.getBinaryValue(SearchService.FIELD_SITEID));
+		} catch (DataFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return doc.get(SearchService.FIELD_SITEID);
 	}
 

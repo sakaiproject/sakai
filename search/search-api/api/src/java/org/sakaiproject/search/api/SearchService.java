@@ -95,17 +95,17 @@ public interface SearchService extends Diagnosable
 	/**
 	 * Search Field The tool subtype of the entity
 	 */
-	public static final String FIELD_SUBTYPE = "subtype";
+	//public static final String FIELD_SUBTYPE = "subtype";
 
 	/**
 	 * Search Field The tool type of the entity
 	 */
-	public static final String FIELD_TYPE = "type";
+	//public static final String FIELD_TYPE = "type";
 
 	/**
 	 * Search Field The Sakai id of the entity
 	 */
-	public static final String FIELD_ID = "id";
+	//public static final String FIELD_ID = "id";
 
 	/**
 	 * Search Field the container of the entity

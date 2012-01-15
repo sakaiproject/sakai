@@ -610,6 +610,7 @@ public class ContentHostingContentProducer implements EntityContentProducer, Sto
 
 	public boolean canRead(String ref)
 	{
+		log.debug("canRead(" + ref);
 		try
 		{
 			Reference reference = entityManager.newReference(ref);

@@ -38,6 +38,7 @@ import org.apache.commons.dbcp.cpdsadapter.DriverAdapterCPDS;
 import org.apache.commons.dbcp.datasources.SharedPoolDataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.lucene.document.CompressionTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.search.Hits;
@@ -326,10 +327,10 @@ public class TDataSource
 					else
 					{
 						Document doc = h.doc(0);
-						String value = doc.get(SearchService.FIELD_REFERENCE);
+						String value = CompressionTools.decompressString(doc.getBinaryValue(SearchService.FIELD_REFERENCE));
 						if (!sbi.getName().equals(value))
 						{
-							log.error("Ids Dont Match ");
+							log.error("Ids Dont Match " + sbi.getName() + ":" + value);
 							errors++;
 						}
 						else
@@ -344,7 +345,7 @@ public class TDataSource
 					if (h.length() != 0)
 					{
 						Document doc = h.doc(0);
-						String value = doc.get(SearchService.FIELD_REFERENCE);
+						String value = CompressionTools.decompressString(doc.getBinaryValue(SearchService.FIELD_REFERENCE));
 						log.error("Found " + sbi.getName() + " when should have not  "
 								+ value + " "
 								+ SearchBuilderItem.actions[sbi.getSearchaction()] + " "
