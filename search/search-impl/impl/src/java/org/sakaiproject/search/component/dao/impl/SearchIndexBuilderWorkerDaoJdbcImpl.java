@@ -33,7 +33,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.sql.DataSource;
@@ -48,7 +47,6 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.store.Directory;
 import org.hibernate.HibernateException;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchIndexBuilderWorker;
@@ -63,9 +61,9 @@ import org.sakaiproject.search.model.impl.SearchBuilderItemImpl;
 import org.sakaiproject.search.util.DigestStorageUtil;
 import org.sakaiproject.search.util.DocumentIndexingUtils;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 
 public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWorkerDao
