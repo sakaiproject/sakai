@@ -60,6 +60,8 @@ import org.sakaiproject.search.dao.SearchIndexBuilderWorkerDao;
 import org.sakaiproject.search.index.IndexStorage;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.model.impl.SearchBuilderItemImpl;
+import org.sakaiproject.search.util.DigestStorageUtil;
+import org.sakaiproject.search.util.DocumentIndexingUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService.SelectionType;
@@ -102,6 +104,14 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 	private DataSource dataSource = null;
 
 	private ServerConfigurationService serverConfigurationService;
+	
+	private SearchService searchService = null;
+	
+
+	public void setSearchService(SearchService searchService) {
+		this.searchService = searchService;
+	}
+
 
 	public void init()
 	{
@@ -364,116 +374,10 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 							if (indexDoc && sep != null && sep.isForIndex(ref)
 									&& sep.getSiteId(ref) != null)
 							{
-
-								Document doc = new Document();
-								Reference r;
-								String container = sep.getContainer(ref);
-								if (container == null) container = ""; //$NON-NLS-1$
-								doc.add(new Field(SearchService.DATE_STAMP, String
-										.valueOf(System.currentTimeMillis()),
-										Field.Store.COMPRESS, Field.Index.NOT_ANALYZED));
-								doc.add(new Field(SearchService.FIELD_CONTAINER,
-										filterNull(container), Field.Store.COMPRESS,
-										Field.Index.NOT_ANALYZED));
-								doc.add(new Field(SearchService.FIELD_ID, filterNull(sep
-										.getId(ref)), Field.Store.COMPRESS,
-										Field.Index.NO));
-								doc.add(new Field(SearchService.FIELD_TYPE,
-										filterNull(sep.getType(ref)),
-										Field.Store.COMPRESS, Field.Index.NOT_ANALYZED));
-								doc.add(new Field(SearchService.FIELD_SUBTYPE,
-										filterNull(sep.getSubType(ref)),
-										Field.Store.COMPRESS, Field.Index.NOT_ANALYZED));
-								doc.add(new Field(SearchService.FIELD_REFERENCE,
-										filterNull(ref), Field.Store.COMPRESS,
-										Field.Index.NOT_ANALYZED));
-
 								
-								if (sep.isContentFromReader(ref))
-								{
-									contentReader = sep.getContentReader(ref);
-									if ( log.isDebugEnabled() ) {
-										log.debug("Adding Content for "+ref+" using "+contentReader);
-									}
-									doc.add(new Field(SearchService.FIELD_CONTENTS,
-											contentReader, Field.TermVector.YES));
-								}
-								else
-								{
-									String content = sep.getContent(ref);
-									if ( log.isDebugEnabled() ) {
-										log.debug("Adding Content for "+ref+" as ["+content+"]");
-									}
-									doc.add(new Field(SearchService.FIELD_CONTENTS,
-											filterNull(content),
-											Field.Store.NO, Field.Index.ANALYZED,
-											Field.TermVector.YES));
-								}
-
-								doc.add(new Field(SearchService.FIELD_TITLE,
-										filterNull(sep.getTitle(ref)),
-										Field.Store.COMPRESS, Field.Index.ANALYZED,
-										Field.TermVector.YES));
-								doc.add(new Field(SearchService.FIELD_TOOL,
-										filterNull(sep.getTool()), Field.Store.COMPRESS,
-										Field.Index.NOT_ANALYZED));
-								doc.add(new Field(SearchService.FIELD_URL, filterUrl(filterNull(sep
-										.getUrl(ref))), Field.Store.COMPRESS,
-										Field.Index.NOT_ANALYZED));
-								doc.add(new Field(SearchService.FIELD_SITEID,
-										filterNull(sep.getSiteId(ref)),
-										Field.Store.COMPRESS, Field.Index.NOT_ANALYZED));
-
-								// add the custom properties
-
-								Map m = sep.getCustomProperties(ref);
-								if (m != null)
-								{
-									for (Iterator cprops = m.keySet().iterator(); cprops
-											.hasNext();)
-									{
-										String key = (String) cprops.next();
-										Object value = m.get(key);
-										String[] values = null;
-										if (value instanceof String)
-										{
-											values = new String[1];
-											values[0] = (String) value;
-										}
-										if (value instanceof String[])
-										{
-											values = (String[]) value;
-										}
-										if (values == null)
-										{
-											log
-													.info("Null Custom Properties value has been suppled by " //$NON-NLS-1$
-															+ sep + " in index " //$NON-NLS-1$
-															+ key);
-										}
-										else
-										{
-											for (int i = 0; i < values.length; i++)
-											{
-												if (key.startsWith("T"))
-												{
-													key = key.substring(1);
-													doc.add(new Field(key,
-															filterNull(values[i]),
-															Field.Store.COMPRESS,
-															Field.Index.ANALYZED,Field.TermVector.YES));
-												}
-												else
-												{
-													doc.add(new Field(key,
-															filterNull(values[i]),
-															Field.Store.COMPRESS,
-															Field.Index.NOT_ANALYZED));
-												}
-											}
-										}
-									}
-								}
+								DigestStorageUtil digestStorageUtil = new DigestStorageUtil(searchService);
+								Document doc = DocumentIndexingUtils.createIndexDocument(ref, digestStorageUtil, sep, serverConfigurationService.getServerUrl());
+										//indexDocTMP(ref, sep);
 
 								log.debug("Indexing Document " + doc); //$NON-NLS-1$
 
@@ -561,7 +465,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 				}
 				finally
 				{
-					if (contentReader != null)
+					/*if (contentReader != null)
 					{
 						try
 						{
@@ -571,7 +475,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 						{
 							log.debug(ioex);
 						}
-					}
+					}*/
 				}
 
 			}
@@ -608,35 +512,8 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 
 	}
 
-	/**
-	 * @param string
-	 * @return
-	 */
-	private String filterUrl(String url)
-	{
-		String serverURL = serverConfigurationService.getServerUrl();
-		if ( url != null && url.startsWith(serverURL) ) {
-			String absUrl = url.substring(serverURL.length());
-			if ( !absUrl.startsWith("/") ) {
-				absUrl = "/" + absUrl;
-			}
-			return absUrl;
-		}
-		return url;
-	}
 
-	/**
-	 * @param title
-	 * @return
-	 */
-	private String filterNull(String s)
-	{
-		if (s == null)
-		{
-			return "";
-		}
-		return s;
-	}
+
 
 	private int completeUpdate(SearchIndexBuilderWorker worker, Connection connection,
 			List runtimeToDo) throws Exception

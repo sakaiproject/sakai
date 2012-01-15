@@ -138,7 +138,9 @@
 	If you have an RDF service, you can uncomment this 
     <property name="rdfSearchService"><ref bean="org.sakaiproject.search.api.rdf.RDFSearchService" /></property>
     -->
-    
+    <property name="searchService">
+    	<ref bean="org.sakaiproject.search.api.SearchService"/>
+    </property>
     <property name="dataSource">
       <ref bean="javax.sql.DataSource"/>      
     </property>
