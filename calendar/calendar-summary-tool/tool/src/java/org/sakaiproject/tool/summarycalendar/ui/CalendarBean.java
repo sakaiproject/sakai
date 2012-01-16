@@ -388,6 +388,7 @@ public class CalendarBean {
 			es.setEventRef(e.getId());
 			es.setUrl(e.getUrl());
 			es.setAttachments(e.getAttachments());
+			es.setSite(e.getSiteName());
 			eventList.add(es);
 		}
 		return eventList;

@@ -157,7 +157,7 @@
 				       	<f:param name="calendarRef" value="#{event.calendarRef}"/>
 				       	<f:param name="eventRef" value="#{event.eventRef}"/>
 				    </h:commandLink>
-				    <h:outputText value=" "/>
+                    <h:outputText value=" (#{event.site})"/>
 				    <h:graphicImage value="#{CalBean.imgLocation}/attachments.gif" rendered="#{event.hasAttachments}" alt="#{msgs.attachments}"/>
 				</h:column>		        	
 		    </h:dataTable>
