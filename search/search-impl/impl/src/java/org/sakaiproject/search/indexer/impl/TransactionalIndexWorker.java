@@ -21,6 +21,7 @@
 
 package org.sakaiproject.search.indexer.impl;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -312,7 +313,7 @@ public class TransactionalIndexWorker implements IndexWorker
 							{
 
 								Document doc = DocumentIndexingUtils.createIndexDocument(ref, 
-										digestStorageUtil, sep, serverConfigurationService.getServerUrl());
+										digestStorageUtil, sep, serverConfigurationService.getServerUrl(), contentReader);
 
 								indexWrite = ((IndexUpdateTransaction) transaction)
 										.getIndexWriter();
@@ -372,6 +373,17 @@ public class TransactionalIndexWorker implements IndexWorker
 				}
 				finally
 				{
+					if (contentReader != null)
+					{
+						try
+						{
+							contentReader.close();
+						}
+						catch (IOException ioex)
+						{
+							log.debug(ioex);
+						}
+					}
 					
 					fireEndDocument(ref);
 				}

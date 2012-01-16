@@ -374,7 +374,8 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 							{
 								
 								DigestStorageUtil digestStorageUtil = new DigestStorageUtil(searchService);
-								Document doc = DocumentIndexingUtils.createIndexDocument(ref, digestStorageUtil, sep, serverConfigurationService.getServerUrl());
+								//Reader contentReader = null;
+								Document doc = DocumentIndexingUtils.createIndexDocument(ref, digestStorageUtil, sep, serverConfigurationService.getServerUrl(), contentReader);
 										//indexDocTMP(ref, sep);
 
 								log.debug("Indexing Document " + doc); //$NON-NLS-1$
@@ -463,7 +464,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 				}
 				finally
 				{
-					/*if (contentReader != null)
+					if (contentReader != null)
 					{
 						try
 						{
@@ -473,7 +474,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 						{
 							log.debug(ioex);
 						}
-					}*/
+					}
 				}
 
 			}

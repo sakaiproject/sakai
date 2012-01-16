@@ -55,8 +55,8 @@ public class DocumentIndexingUtils {
 	 * @return The Lucene document suitable for adding to the Index
 	 */
 	public static Document createIndexDocument(String ref, DigestStorageUtil digestStorageUtil,
-			 EntityContentProducer sep, String serverURL) {
-		Reader contentReader = null;
+			 EntityContentProducer sep, String serverURL, Reader contentReader) {
+		 
 		Document doc = new Document();
 		
 		String container = sep.getContainer(ref);
@@ -250,17 +250,7 @@ public class DocumentIndexingUtils {
 				}
 			}
 		}
-		if (contentReader != null)
-		{
-			try
-			{
-				contentReader.close();
-			}
-			catch (IOException ioex)
-			{
-				log.warn("Error closing contentReader", ioex);
-			}
-		}
+		
 		log.debug("Indexing Document " + doc); //$NON-NLS-1$
 		return doc;
 	}
