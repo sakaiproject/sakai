@@ -709,7 +709,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
     }
 
     // returns SakaiId of thing just created
-    public String importObject(String title, String topicTitle, String text, boolean texthtml, String base, String siteId, List<String>attachmentHrefs) {
+    public String importObject(String title, String topicTitle, String text, boolean texthtml, String base, String siteId, List<String>attachmentHrefs, boolean hide) {
 
 	DiscussionForum ourForum = null;
 	DiscussionTopic ourTopic = null;
@@ -802,7 +802,10 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	    }
 	    // there's a better way to do attachments, but it's too complex for now
 
-	    discussionForumManager.saveTopic(ourTopic);
+	    if (hide) 
+		discussionForumManager.saveTopicAsDraft(ourTopic);
+	    else
+		discussionForumManager.saveTopic(ourTopic);
 
 	    // now go back and mmake sure everything is there
 

@@ -360,13 +360,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			canEditPage = simplePageBean.canEditPage();
 		}
 
-		// error from previous operation
-		String errMessage = simplePageBean.errMessage();
-		if (errMessage != null) {
-			UIOutput.make(tofill, "error-div");
-			UIOutput.make(tofill, "error", errMessage);
-		}
-
 		// Find the MSIE version, if we're running it.
 		int ieVersion = checkIEVersion();
 		// as far as I can tell, none of these supports fck or ck
@@ -378,15 +371,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if (userAgent == null)
 		    userAgent = "";
 		boolean noEditor = userAgent.toLowerCase().indexOf("mobile") >= 0;
-
-		if (simplePageBean.getTopRefresh()) {
-			UIOutput.make(tofill, "refresh");
-		}
-
-		if (canEditPage) {
-		    // special instructor-only javascript setup.
-			UIOutput.make(tofill, "instructoronly");
-		}
 
 		// set up locale
 		Locale M_locale = null;
@@ -453,6 +437,28 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// other item and
 		// page references are generated here based on the contents of the page
 		// and items.
+
+		// needed to process path arguments first, so refresh page goes the right page
+		if (simplePageBean.getTopRefresh()) {
+		    UIOutput.make(tofill, "refresh");
+		    return;    // but there's no point doing anything more
+		}
+
+		// error from previous operation
+		// consumes the message, so don't do it if refreshing
+		String errMessage = simplePageBean.errMessage();
+		if (errMessage != null) {
+		    UIOutput.make(tofill, "error-div");
+		    UIOutput.make(tofill, "error", errMessage);
+		}
+
+
+		if (canEditPage) {
+		    // special instructor-only javascript setup.
+		    // but not if we're refreshing
+			UIOutput.make(tofill, "instructoronly");
+		}
+
 
 		if (currentPage == null || pageItem == null) {
 			UIOutput.make(tofill, "error-div");

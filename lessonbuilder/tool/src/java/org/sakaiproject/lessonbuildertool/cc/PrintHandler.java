@@ -44,6 +44,7 @@ package org.sakaiproject.lessonbuildertool.cc;
 import org.jdom.Element;
 import org.jdom.Namespace;
 import org.jdom.output.XMLOutputter;
+import org.jdom.filter.ElementFilter;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
@@ -51,6 +52,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.Iterator;
 import java.io.InputStream;
 import java.io.FileInputStream;
 import java.io.PrintWriter;
@@ -143,6 +145,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private LessonEntity quiztool = null;
   private LessonEntity topictool = null;
   private LessonEntity bltitool = null;
+  private Set<String>roles = null;
 
     // this is the CC file name for all files added
   private Set<String> filesAdded = new HashSet<String>();
@@ -293,6 +296,18 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       String type = resource.getAttributeValue(TYPE);
       boolean isBank = type.equals(CC_QUESTION_BANK0) || type.equals(CC_QUESTION_BANK1);
 
+      boolean hide = false;
+      Iterator mdroles = resource.getDescendants(new ElementFilter("intendedEndUserRole", ns.lom_ns()));
+      if (mdroles != null) {
+	  if (mdroles.hasNext()) // if there are any roles, assume hidden unless learner role
+	      hide = true; 
+	  while (mdroles.hasNext()) {
+	      Element role = (Element)mdroles.next();
+	      if ("Learner".equals(role.getChildText("value",  ns.lom_ns())))
+		  hide = false;
+	  }
+      }	  
+
       // for question banks we don't need a current page, as we don't put banks on a page
       if (pages.size() == 0 && !isBank)
 	  startCCFolder(null);
@@ -308,7 +323,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  title = the_xml.getChildText(CC_ITEM_TITLE, ns.cc_ns());
 
       try {
-	  if (type.equals(CC_WEBCONTENT)) {
+	  if (type.equals(CC_WEBCONTENT) && !hide) {
 	      // note: when this code is called the actual sakai resource hasn't been created yet
 	      String sakaiId = baseName + resource.getAttributeValue(HREF);
 	      String extension = Validator.getFileExtension(sakaiId);
@@ -343,12 +358,14 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		  filesAdded.add(filename);
 	      }
 
-	      // now create the Sakai item
-	      SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.RESOURCE, sakaiId, title);
-	      item.setHtml(simplePageBean.getTypeOfUrl(url));  // checks the web site to see what it actually is
-	      item.setSameWindow(true);
-	      simplePageBean.saveItem(item);
-	      sequences.set(top, seq+1);
+	      if (!hide) {
+		  // now create the Sakai item
+		  SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.RESOURCE, sakaiId, title);
+		  item.setHtml(simplePageBean.getTypeOfUrl(url));  // checks the web site to see what it actually is
+		  item.setSameWindow(true);
+		  simplePageBean.saveItem(item);
+		  sequences.set(top, seq+1);
+	      }
 	      
 	  } else if (topictool != null && ( type.equals(CC_TOPIC0) || type.equals(CC_TOPIC1))) {
 	      String filename = getFileName(resource);
@@ -387,16 +404,18 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      String sakaiId = itemsAdded.get(filename);
 	      if (sakaiId == null) {
 	          if ( f != null ) 
-	              sakaiId = f.importObject(title, topicTitle, text, texthtml, base, siteId, attachmentHrefs);
+	              sakaiId = f.importObject(title, topicTitle, text, texthtml, base, siteId, attachmentHrefs, hide);
 		  if (sakaiId != null)
 		      itemsAdded.put(filename, sakaiId);
 	      }
 
-	      // System.out.println("about to add formum item");
-	      SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.FORUM, sakaiId, title);
-	      simplePageBean.saveItem(item);
-	      sequences.set(top, seq+1);
-	      // System.out.println("finished with forum item");
+	      if (!hide) {
+		  // System.out.println("about to add formum item");
+		  SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.FORUM, sakaiId, title);
+		  simplePageBean.saveItem(item);
+		  sequences.set(top, seq+1);
+		  // System.out.println("finished with forum item");
+	      }
 
 	  } else if (quiztool != null && (
 		     type.equals(CC_ASSESSMENT0) || type.equals(CC_ASSESSMENT1) ||
@@ -439,7 +458,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
 		      QuizEntity q = (QuizEntity)quiztool;
 
-		      sakaiId = q.importObject(document, isBank, siteId);
+		      sakaiId = q.importObject(document, isBank, siteId, hide);
 		      if (sakaiId == null)
 			  sakaiId = SimplePageItem.DUMMY;
 
@@ -451,7 +470,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      }
 
 	      // question banks don't appear on the page
-	      if (!isBank) {
+	      if (!isBank && !hide) {
 		  SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.ASSESSMENT, (sakaiId == null ? SimplePageItem.DUMMY : sakaiId), title);
 		  simplePageBean.saveItem(item);
 		  sequences.set(top, seq+1);
@@ -494,14 +513,16 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      		sakaiId = ((BltiInterface) bltitool).doImportTool(launchUrl, bltiTitle, strXml, custom);
                 }
 
-		if ( sakaiId != null ) {
+		if (!hide) {
+		    if ( sakaiId != null) {
 			// System.out.println("Adding LTI content item "+sakaiId);
 			SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.BLTI, sakaiId, title);
 			item.setHeight(""); // default depends upon format, so it's supplied at runtime
 			simplePageBean.saveItem(item);
 			sequences.set(top, seq+1);
-		} else {
+		    } else {
 			System.out.println("LTI Import Failed..");
+		    }
 		}
 	  } else
 	      System.err.println("implemented type: " + resource.getAttributeValue(TYPE));
@@ -567,6 +588,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   }
 
   public void addFile(String the_file_id) {
+
       if (filesAdded.contains(the_file_id))
 	  return;
 
@@ -585,7 +607,9 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  edit.setContentType(type);
 	  edit.setContent(infile);
 	  edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
-
+	  // if roles specified for this resource and student not in it, hide it
+	  if (roles != null && !roles.contains("Learner"))
+	      edit.setAvailability(true, null, null);
 	  ContentHostingService.commitResource(edit, NotificationService.NOTI_NONE);
 	  filesAdded.add(the_file_id);
 
@@ -755,6 +779,14 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   }
 
   public void setResourceMetadataXml(Element the_md) {
+      Iterator mdroles = the_md.getDescendants(new ElementFilter("intendedEndUserRole", ns.lom_ns()));
+      while (mdroles.hasNext()) {
+	  Element role = (Element)mdroles.next();
+	  if (roles == null)
+	      roles = new HashSet<String>();
+	  roles.add(role.getChildText("value",  ns.lom_ns()));
+      }
+
       if (all)
 	  System.err.println("resource md xml: "+the_md); 
   }
@@ -782,6 +814,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   }
 
   public void startResource(String id, boolean isProtected) {
+
+      roles = null;
       if (all)
 	  System.err.println("start resource: "+id+ " protected: "+isProtected);
   }

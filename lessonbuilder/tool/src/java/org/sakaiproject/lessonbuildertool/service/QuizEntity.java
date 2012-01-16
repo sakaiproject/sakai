@@ -34,6 +34,6 @@ import org.w3c.dom.Document;
  */
 public interface QuizEntity {
 
-    public String importObject(Document d, boolean isBank, String siteId);
+    public String importObject(Document d, boolean isBank, String siteId, boolean hide);
 
 }

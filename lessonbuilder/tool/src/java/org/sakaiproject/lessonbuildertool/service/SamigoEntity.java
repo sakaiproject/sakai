@@ -573,7 +573,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 
     }
 
-    public String importObject(Document document, boolean isBank, String siteId) {
+    public String importObject(Document document, boolean isBank, String siteId, boolean hide) {
 
 	QTIService qtiService = new QTIService();
 	AssessmentFacade assessment = null;
@@ -633,11 +633,13 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 		    return null;
 		}
 
-		publishedAssessment = pService.publishAssessment(assessment);
+		if (!hide) {
+		    publishedAssessment = pService.publishAssessment(assessment);
 
-		String alias = SessionManager.getCurrentSessionUserId() + (new Date()).getTime();
-		PublishedMetaData meta = new PublishedMetaData(publishedAssessment.getData(), "ALIAS", alias);
-		pService.saveOrUpdateMetaData(meta);
+		    String alias = SessionManager.getCurrentSessionUserId() + (new Date()).getTime();
+		    PublishedMetaData meta = new PublishedMetaData(publishedAssessment.getData(), "ALIAS", alias);
+		    pService.saveOrUpdateMetaData(meta);
+		}
 
 	    } catch (Exception e) {
 		log.warn("can't publish assessment after import " + e);
