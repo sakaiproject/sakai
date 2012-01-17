@@ -112,7 +112,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 				UIOutput.make(row, "description", i.getDescription());
 				if (i.getType() == 5) {
 					String text = FormattedText.convertFormattedTextToPlaintext(i.getHtml());
-					if (i.getHtml().length() > 100) {
+					if (text.length() > 100) {
 					    UIOutput.make(row, "text-snippet", text.substring(0,100));
 					} else {
 					    UIOutput.make(row, "text-snippet", text);
