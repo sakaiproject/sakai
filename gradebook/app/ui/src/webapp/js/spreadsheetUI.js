@@ -65,10 +65,10 @@ function gethandles(){
       thisHeight = $(this).height();
       thatHeight = $("#q4 tr:eq(" + i + ")").height();
       if(thisHeight > thatHeight){
-         ie ? $("#q4 tr:eq(" + i + ")").height(thisHeight - 12) 
+         (ie && $.browser.version < 7) ? $("#q4 tr:eq(" + i + ")").height(thisHeight - 12) 
             : $("#q4 tr:eq(" + i + ")").height(thisHeight);
       } else {
-         ie ? $(this).css("height", thatHeight - 12 + "px") 
+         (ie && $.browser.version < 7) ? $(this).css("height", thatHeight - 12 + "px") 
             :$(this).css("height",thatHeight + "px");
       }
    });
