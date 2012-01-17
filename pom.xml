@@ -6,7 +6,7 @@
   	<artifactId>simple-rss-portlet</artifactId>
   	<name>Simple RSS portlet for uPortal</name>
   	
-  	<version>1.1.0</version>
+  	<version>1.1.1-SNAPSHOT</version>
   	<packaging>war</packaging>
   	 	
   	<organization>
@@ -90,8 +90,8 @@
 	</distributionManagement>
   	
   	<scm>
-      	<developerConnection>scm:svn:https://doiweb-repo.anu.edu.au/repositories/es-projects/anu-portlets/simple-rss-portlet/tags/simple-rss-portlet-1.1.0</developerConnection>
-      	<url>https://doiweb-repo.anu.edu.au/repositories/es-projects/anu-portlets/simple-rss-portlet/tags/simple-rss-portlet-1.1.0</url>
+      	<developerConnection>scm:svn:https://doiweb-repo.anu.edu.au/repositories/es-projects/anu-portlets/simple-rss-portlet/trunk</developerConnection>
+      	<url>https://doiweb-repo.anu.edu.au/repositories/es-projects/anu-portlets/simple-rss-portlet/trunk</url>
    	</scm> 
   
     <dependencies>
