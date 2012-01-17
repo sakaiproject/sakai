@@ -29,7 +29,10 @@ public interface MembershipManager {
    * Get filtered members for course all/user/role/group<br>
    * Return hash map for direct access to members via id
    * (used in UI when for selected list items)<br>
-   * Filter roles/groups which do not have members
+   * Filter roles/groups which do not have members. Also
+   * filters out users that the current user is not permitted to
+   * view (ie they have privacy status hidden and the current user does not
+   * have privileges to view hidden users)
    * To ignore hidden groups, pass in a null value
    * @param filterFerpa
    * @param hiddenGroups

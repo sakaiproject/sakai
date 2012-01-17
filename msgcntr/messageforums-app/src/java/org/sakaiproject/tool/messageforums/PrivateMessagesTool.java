@@ -910,49 +910,33 @@ public class PrivateMessagesTool
   
   public List getTotalComposeToList()
   { 
-  	/** just need to refilter */
-    if (totalComposeToList != null) {
-    	
-  		List selectItemList = new ArrayList();
-        
-   		for (Iterator i = totalComposeToList.iterator(); i.hasNext();) {
-   			MembershipItem item = (MembershipItem) i.next();
+      /** just need to refilter */
+      if (totalComposeToList != null) {
+          List<SelectItem> selectItemList = new ArrayList<SelectItem>();
+          for (Iterator i = totalComposeToList.iterator(); i.hasNext();) {
+              MembershipItem item = (MembershipItem) i.next();
+              selectItemList.add(new SelectItem(item.getId(), item.getName()));
+          }
 
-   			if (isInstructor() || item.isViewable() || isEmailPermit()) {
-   				selectItemList.add(new SelectItem(item.getId(), item.getName()));
-   			}
-   		}
-    		
-   		return selectItemList;       
-    }
-    
-    totalComposeToListRecipients = new ArrayList();
- 
-    courseMemberMap = membershipManager.getFilteredCourseMembers(true, getHiddenGroupIds(area.getHiddenGroups()));
-//    courseMemberMap = membershipManager.getAllCourseMembers(true, true, true);
-    List members = membershipManager.convertMemberMapToList(courseMemberMap);
+          return selectItemList;       
+      }
 
-    Set<String> memberIds = new HashSet<String>();
-    
-    for (Iterator i = members.iterator(); i.hasNext();){       
-        MembershipItem item = (MembershipItem) i.next();
-        memberIds.add(item.getId());
-    }
+      totalComposeToListRecipients = new ArrayList();
 
-    totalComposeToList = members;
-    
-    List selectItemList = new ArrayList();
-    
-	for (Iterator i = members.iterator(); i.hasNext();) {
+      courseMemberMap = membershipManager.getFilteredCourseMembers(true, getHiddenGroupIds(area.getHiddenGroups()));
+      //    courseMemberMap = membershipManager.getAllCourseMembers(true, true, true);
+      List members = membershipManager.convertMemberMapToList(courseMemberMap);
 
-		MembershipItem item = (MembershipItem) i.next();
+      totalComposeToList = members;
 
-		if (isInstructor() || item.isViewable() || isEmailPermit()) {
-			selectItemList.add(new SelectItem(item.getId(), item.getName()));//51d20a77----, "Maintain Role"
-		}
-	}
+      List<SelectItem> selectItemList = new ArrayList<SelectItem>();
 
-	return selectItemList;       
+      for (Iterator i = members.iterator(); i.hasNext();) {
+          MembershipItem item = (MembershipItem) i.next();
+          selectItemList.add(new SelectItem(item.getId(), item.getName()));//51d20a77----, "Maintain Role"
+      }
+
+      return selectItemList;       
   }
   
   private List<String> getHiddenGroupIds(Set hiddenGroups){

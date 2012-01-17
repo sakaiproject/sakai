@@ -188,7 +188,7 @@ public interface PrivateMessageManager {
     
     
     public boolean isInstructor();
-    
+    public boolean isSectionTA();
     public boolean isEmailPermit();
     
     public boolean isAllowToFieldGroups();

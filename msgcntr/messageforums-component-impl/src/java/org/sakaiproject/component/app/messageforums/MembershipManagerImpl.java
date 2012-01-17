@@ -156,6 +156,10 @@ public class MembershipManagerImpl implements MembershipManager{
 //    if (filterFerpa) {
 //    	memberMap = setPrivacyStatus(allCourseUsers, memberMap);
 //    }
+    Set<String> viewableUsersForTA = new HashSet<String>();
+    if (prtMsgManager.isSectionTA()) {
+        viewableUsersForTA = getFellowSectionMembers();
+    }
     
     for (Iterator i = memberMap.entrySet().iterator(); i.hasNext();){
       
@@ -175,11 +179,44 @@ public class MembershipManagerImpl implements MembershipManager{
         }
       }   
       else{
-        ;
+        if (!item.isViewable() && !prtMsgManager.isInstructor()) {
+            if (prtMsgManager.isSectionTA() && viewableUsersForTA.contains(item.getUser().getId())) {
+                // if this user is a member of this TA's section, they
+                // are viewable
+            } else {
+                i.remove();
+            }
+        }
       }
     }
     
     return memberMap;
+  }
+  
+  /**
+   * 
+   * @return a non-null set of userIds for all of the members in the current user's section(s). Useful for determining students
+   * who are viewable to a user in a TA role
+   */
+  private Set<String> getFellowSectionMembers() {
+      Set<String> fellowMembers = new HashSet<String>();
+      try {
+          Collection<Group> groups = siteService.getSite(toolManager.getCurrentPlacement().getContext()).getGroupsWithMember(userDirectoryService.getCurrentUser().getId());
+          if (groups != null) {
+              for (Group group : groups) {
+                  Set<Member> groupMembers = group.getMembers();
+                  if (groupMembers != null) {
+                      for (Member groupMember : groupMembers) {
+                          fellowMembers.add(groupMember.getUserId());
+                      }
+                  }
+              }
+          }
+      } catch (IdUnusedException e) {
+          LOG.warn("Unable to retrieve site to determine current user's fellow section members.");
+      }
+      
+      return fellowMembers;
   }
 
   /**
