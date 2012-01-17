@@ -784,13 +784,13 @@ public class AssessmentService {
 				cr_copy = AssessmentService.getContentHostingService().addAttachmentResource(escapedName, 
 						toContext, 
 						ToolManager.getTool("sakai.samigo").getTitle(), cr
-						.getContentType(), cr.getContent(), cr.getProperties());
+						.getContentType(), cr.streamContent(), cr.getProperties());
 			}
 			else {
 				cr_copy = AssessmentService.getContentHostingService().addAttachmentResource(escapedName, 
 						ToolManager.getCurrentPlacement().getContext(), 
 						ToolManager.getTool("sakai.samigo").getTitle(), cr
-						.getContentType(), cr.getContent(), cr.getProperties());
+						.getContentType(), cr.streamContent(), cr.getProperties());
 			}
 		} catch (IdInvalidException e) {
 			log.warn(e.getMessage());
