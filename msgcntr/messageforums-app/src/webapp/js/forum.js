@@ -552,6 +552,20 @@ var setupLongDesc = function(){
         var insertPoint = $(this).parent('.toggle');
         $('<p class=\"trimmedPanelTop\">' + trimmed + '</p>').insertBefore(insertPoint);
     });
+    
+    $('.forumHeader, .topicBloc').each(function(i){
+        var attachList = $(this).find('.attachListTable');
+        var insertPoint='';
+        if ($(this).find('.toggle').length ===1){
+            var insertPoint = $(this).find('.toggle');
+        }
+        else{
+            var insertPoint = $(this).find('.hide');            
+        }
+        var attachList = $(this).find('.attachListTable')
+        $(attachList).insertAfter(insertPoint);
+    });
+     
     $('.moreDescription').live('click', function(e){
         e.preventDefault();
         var trimmedText = $(this).parent();

@@ -159,7 +159,7 @@ $(document).ready(function() {
 				<f:verbatim><div class="toggle" style="display:none;"></f:verbatim>
 					<mf:htmlShowArea value="#{forum.forum.extendedDescription}"  hideBorder="true" />
 					<%-- attachs --%>
-					<h:dataTable  value="#{forum.attachList}" var="eachAttach" rendered="#{!empty forum.attachList}" columnClasses="attach,bogus" style="font-size:.9em;width:auto;margin-left:1em" border="0" cellpadding="3" cellspacing="0">
+					<h:dataTable  styleClass="attachListTable" value="#{forum.attachList}" var="eachAttach" rendered="#{!empty forum.attachList}" columnClasses="attach,bogus" style="font-size:.9em;width:auto;margin-left:1em" border="0" cellpadding="3" cellspacing="0">
 			<h:column>
 			<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
 			<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />				
@@ -282,7 +282,7 @@ $(document).ready(function() {
 							<f:verbatim><div class="toggle" style="display:none;"></f:verbatim>
 					<mf:htmlShowArea  id="topic_fullDescription" hideBorder="true"	 value="#{topic.topic.extendedDescription}" />
 								<%--//desNote:attach list --%>
-								<h:dataTable  value="#{topic.attachList}" var="eachAttach" rendered="#{!empty topic.attachList}" cellpadding="3" cellspacing="0" columnClasses="attach,bogus" style="font-size:.9em;width:auto;margin-left:1em" border="0">
+								<h:dataTable  styleClass="attachListTable" value="#{topic.attachList}" var="eachAttach" rendered="#{!empty topic.attachList}" cellpadding="3" cellspacing="0" columnClasses="attach,bogus" style="font-size:.9em;width:auto;margin-left:1em" border="0">
 					  <h:column>
 										<h:graphicImage url="/images/attachment.gif"/>
 <%--						<h:outputLink value="#{eachAttach.attachmentUrl}" target="_blank">
