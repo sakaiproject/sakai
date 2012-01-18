@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="announcementAbout" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>argc_pt_BR</value></property>
+      <property name="name"><value>Avisos</value></property>
+      <property name="location"><value>/sakai_announcements/argc_pt_BR.html</value></property>
+      <property name="defaultForTool"><value>sakai.announcements</value></property>
+   </bean>
+
+   <bean id="announcementOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqyk_pt_BR</value></property>
+      <property name="name"><value>Avisos: Visão Geral</value></property>
+      <property name="location"><value>/sakai_announcements/aqyk_pt_BR.html</value></property>
+   </bean>
+
+   <bean id="createAnnouncement" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcr_pt_BR</value></property>
+      <property name="name"><value>Criar/Editar/Excluir Aviso</value></property>
+      <property name="location"><value>/sakai_announcements/arcr_pt_BR.html</value></property>
+   </bean>
+   <bean id="postAnnouncement" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbw_pt_BR</value></property>
+      <property name="name"><value>Postar Aviso</value></property>
+      <property name="location"><value>/sakai_announcements/arbw_pt_BR.html</value></property>
+   </bean>
+   <bean id="reviseAnnouncement" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbd_pt_BR</value></property>
+      <property name="name"><value>Ler Aviso</value></property>
+      <property name="location"><value>/sakai_announcements/arbd_pt_BR.html</value></property>
+   </bean>
+   <bean id="deleteAnnouncement" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aram_pt_BR</value></property>
+      <property name="name"><value>Definir Permissões</value></property>
+      <property name="location"><value>/sakai_announcements/aram_pt_BR.html</value></property>
+   </bean>
+    <bean id="mergeAnnouncement" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzq_pt_BR</value></property>
+      <property name="name"><value>Mesclar Aviso</value></property>
+      <property name="location"><value>/sakai_announcements/aqzq_pt_BR.html</value></property>
+   </bean>
+
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="announcementCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Announcements</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="announcementAbout"/>
+                     <ref bean="announcementOverview"/>
+                     <ref bean="createAnnouncement"/>
+                     <ref bean="postAnnouncement"/>
+                     <ref bean="reviseAnnouncement"/>
+                     <ref bean="deleteAnnouncement"/>
+                     <ref bean="mergeAnnouncement"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
