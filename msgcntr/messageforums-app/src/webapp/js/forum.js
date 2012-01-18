@@ -556,13 +556,12 @@ var setupLongDesc = function(){
     $('.forumHeader, .topicBloc').each(function(i){
         var attachList = $(this).find('.attachListTable');
         var insertPoint='';
-        if ($(this).find('.toggle').length ===1){
+        if ($(this).find('.toggle').length){
             var insertPoint = $(this).find('.toggle');
         }
         else{
             var insertPoint = $(this).find('.hide');            
         }
-        var attachList = $(this).find('.attachListTable')
         $(attachList).insertAfter(insertPoint);
     });
      
