@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="menubarAbout" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arga_pt_BR</value></property>
+      <property name="name"><value>Menubar</value></property>
+      <property name="location"><value>/sakai_menubar/arga_pt_BR.html</value></property>
+      <property name="defaultForTool"><value>sakai.menubar</value></property>      
+   </bean>
+
+   <bean id="menubarOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcc_pt_BR</value></property>
+      <property name="name"><value>Menubar Resumo</value></property>
+      <property name="location"><value>/sakai_menubar/arcc_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="addTools" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardx_pt_BR</value></property>
+      <property name="name"><value>Adicionar/Editar/Excluir Ferramentas no Menubar</value></property>
+      <property name="location"><value>/sakai_menubar/ardx_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="worksiteSetupAddTools" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arxx_pt_BR</value></property>
+      <property name="name"><value>Adicionar/Editar/Excluir Ferramentas no Menubar do Worksite Setup</value></property>
+      <property name="location"><value>/sakai_menubar/arbj_pt_BR.html</value></property>
+   </bean>
+         
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="menubarCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Menubar</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="menubarAbout"/>
+                     <ref bean="menubarOverview"/>
+                     <ref bean="addTools"/>
+                     <ref bean="worksiteSetupAddTools"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="permissionsAbout" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arfo_pt_BR</value></property>
+      <property name="name"><value>Permissões/Papéis</value></property>
+      <property name="location"><value>/sakai_permissions/arfo_pt_BR.html</value></property>
+      <property name="defaultForTool"><value>sakai.permissions</value></property>      
+   </bean>
+
+   <bean id="permissionsOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arax_pt_BR</value></property>
+      <property name="name"><value>Permissões/Papéis Visão Geral</value></property>
+      <property name="location"><value>/sakai_permissions/arax_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="siteInfoChangeRoles" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arfb_pt_BR</value></property>
+      <property name="name"><value>Alterar papéis no Site Info</value></property>
+      <property name="location"><value>/sakai_permissions/arfb_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="worksiteSetupChangeRoles" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardq_pt_BR</value></property>
+      <property name="name"><value>Alterar papéis no Worksite Setup</value></property>
+      <property name="location"><value>/sakai_permissions/ardq_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="participantRoles" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbu_pt_BR</value></property>
+      <property name="name"><value>Papéis do Participante</value></property>
+      <property name="location"><value>/sakai_permissions/arbu_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="permissionsRolesTools" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>armh_pt_BR</value></property>
+      <property name="name"><value>Permissões, papéis e ferramentas</value></property>
+      <property name="location"><value>/sakai_permissions/armh_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="worksiteSetupAddParticipants" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqyo_pt_BR</value></property>
+      <property name="name"><value>Adicionar/Editar/Excluir Participantes no Worksite Setup</value></property>
+      <property name="location"><value>/sakai_permissions/aqyo_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="addParticipants" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arav_pt_BR</value></property>
+      <property name="name"><value>Adicionar/Editar/Excluir Participantes</value></property>
+      <property name="location"><value>/sakai_permissions/arav_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="siteInfoControlAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arci_pt_BR</value></property>
+      <property name="name"><value>Controlar Acesso no Site Info</value></property>
+      <property name="location"><value>/sakai_permissions/arci_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="createWorksites" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzr_pt_BR</value></property>
+      <property name="name"><value>Criar/Adicionar/Editar/Excluir Worksites</value></property>
+      <property name="location"><value>/sakai_permissions/aqzr_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="worksiteSetupControlAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzw_pt_BR</value></property>
+      <property name="name"><value>Controlar Acesso no Worksite Setup</value></property>
+      <property name="location"><value>/sakai_permissions/aqzw_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="changePermissions" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardk_pt_BR</value></property>
+      <property name="name"><value>Alterar Permissões para Ferramenta</value></property>
+      <property name="location"><value>/sakai_permissions/ardk_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="permissionsRelationships" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbp_pt_BR</value></property>
+      <property name="name"><value>Relacionamentos Tipos/Realms/Funções/Permissões</value></property>
+      <property name="location"><value>/sakai_permissions/arbp_pt_BR.html</value></property>
+   </bean>
+         
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="permissionsCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Permissions and Roles</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="permissionsAbout"/>
+                     <ref bean="permissionsOverview"/>
+                     <ref bean="siteInfoChangeRoles"/>
+                     <ref bean="worksiteSetupChangeRoles"/>
+					 <ref bean="participantRoles"/>
+					 <ref bean="permissionsRolesTools"/>
+					 <ref bean="worksiteSetupAddParticipants"/>
+					 <ref bean="addParticipants"/>
+					 <ref bean="siteInfoControlAccess"/>
+					 <ref bean="createWorksites"/>
+					 <ref bean="worksiteSetupControlAccess"/>
+					 <ref bean="changePermissions"/>
+					 <ref bean="permissionsRelationships"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>

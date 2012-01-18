@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="adminToolOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arct_pt_BR</value></property>
+      <property name="name"><value>Visão Geral da Ferramenta</value></property>
+      <property name="location"><value>/sakai_admin_tool/arct.html</value></property>
+      <property name="defaultForTool"><value>sakai.admin.tool</value></property>
+   </bean>
+   
+   <bean id="addUser" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arfa_pt_BR</value></property>
+      <property name="name"><value>Adicionar Novo Usu&aacute;rio</value></property>
+      <property name="location"><value>/sakai_admin_tool/arfa_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="deleteUser" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aref_pt_BR</value></property>
+      <property name="name"><value>Excluir Usu&aacute;rio</value></property>
+      <property name="location"><value>/sakai_admin_tool/aref_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="resetPassword" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arac_pt_BR</value></property>
+      <property name="name"><value>Resetar Senha do Usu&aacute;rio</value></property>
+      <property name="location"><value>/sakai_admin_tool/arac_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="changeName" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzz_pt_BR</value></property>
+      <property name="name"><value>Alterar o Nome do Usu&aacute;rio</value></property>
+      <property name="location"><value>/sakai_admin_tool/aqzz_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="changeAccountType" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzo_pt_BR</value></property>
+      <property name="name"><value>Alterar o Tipo da Conta do Usu&aacute;rio</value></property>
+      <property name="location"><value>/sakai_admin_tool/aqzo_pt_BR.html</value></property>
+   </bean>
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="adminToolCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Ferramentas Administrativas</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="adminToolOverview"/>
+					 <ref bean="addUser"/>
+					 <ref bean="deleteUser"/>
+					 <ref bean="resetPassword"/>
+					 <ref bean="changeName"/>
+					 <ref bean="changeAccountType"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>

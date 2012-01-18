@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head>
+<title>Problemas ao colar texto no FCKeditor no Firefox</title>
+<style type="text/css">
+		/* Style for specific inline images */
+		
+		/* Style for specific ordered lists */
+		
+		/* Style for specific table cells */
+		</style>
+<link type="text/css" href="/library/skin/tool_base.css" media="all" rel="stylesheet" />
+<link type="text/css" href="/library/skin/default/tool.css" media="all" rel="stylesheet" />
+</head>
+<body>
+<div class="helpBody">
+<h2>Problemas ao colar texto do FCKeditor para o Firefox</h2>
+<p>Devido a certas configurações de segurança no Firefox, 
+você pode ter problemas ao colar texto no FCKeditor quando você tenta 
+clicar com o botão direito e seleciona <strong><code>Colar</code></strong>. 
+As versões anteriores do Firefox não pode permite que você cole usando
+<code>Ctrl-v</code> também. Para resolver esses
+problemas, escolha uma das soluções abaixo:</p>
+
+<ul><li>No menu <strong><code>Editar</code></strong>, selecione <strong><code>Colar</code></strong>.
+
+<br /><br />
+</li><li>Pressione <code>Ctrl-v</code>. Se isso não funcionar, atualize para a última versão do Firefox.
+
+<br /><br /> </li><li>Alterar as configurações de segurança 
+de modo que o Firefox permita colar com o botão direito do mouse. Para fazer isso no Windows:
+<br /><br />
+<ol><li>Feche todas as janela do Firefox.  
+<br /><br />
+
+</li><li>Navegue para o diretorios abaixo, onde <code>username</code> é o seu
+username e <code>ProfileName</code> é o seu nome completo ou
+uma seqüência de caracteres seguido por ".default":
+
+<p><strong>Windows 7 ou Vista:</strong></p>
+
+<span class="example">  C:\Users\username\AppData\Local\Mozilla\Firefox\Profiles\ProfileName</span>
+
+<p><strong>XP:</strong></p>
+
+<span class="example">  C:\Documents and Settings\username\Application Data\Mozilla\Firefox\Profiles\ProfileName</span>
+
+</li><li>Use um editor de texto, crie um arquivo nomeado
+<code>user.js</code> no directório.
+
+<p><strong>Dica:</strong> Tenha certeza que seu editor de texto <strong>não
+</strong> adiciona uma extensão <code>.txt</code> no final do
+nome do arquivo. O arquivo precisa ter <code>.js</code> como extensão.</p>
+</li><li>No arquivo, digite:
+
+<span class="example">  user_pref("capability.policy.policynames", "allowclipboard");
+  user_pref("capability.policy.allowclipboard.sites", "https://www.samplesite.com");
+  user_pref("capability.policy.allowclipboard.Clipboard.cutcopy", "allAccess");
+  user_pref("capability.policy.allowclipboard.Clipboard.paste", "allAccess");</span>
+
+<p>Substitua <code>https://www.samplesite.com</code> com o nome do site que você deseja permitir 
+o colar. <strong>Não</strong> use <code>/</code> (barra). </p>
+
+
+
+
+</li><li>Reinicie o Firefox.
+</li></ol>
+
+</li></ul>
+
+
+</div>
+</body></html>

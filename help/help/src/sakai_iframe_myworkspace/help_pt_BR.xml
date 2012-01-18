@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="workspaceAbout" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arfy_pt_BR</value></property>
+      <property name="name"><value>Meu Workspace</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arfy_pt_BR.html</value></property>
+      <property name="defaultForTool"><value>sakai.iframe.myworkspace</value></property>
+   </bean>
+
+   <bean id="workspaceOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzy_pt_BR</value></property>
+      <property name="name"><value>Workspace: Visão Geral</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/aqzy_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="customizeTabs" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arox_pt_BR</value></property>
+      <property name="name"><value>Mostrar, ocultar ou ordenar sites</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arox_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="changeNotificationPreferences" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzv_pt_BR</value></property>
+      <property name="name"><value>Alterar Preferências de Notificação</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/aqzv_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="addTools" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbj_pt_BR</value></property>
+      <property name="name"><value>Adicionar/Editar/Excluir Ferramentas</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arbj_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="setMOD" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcw_pt_BR</value></property>
+      <property name="name"><value>Definir opções da Mensagem do Dia</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arcw_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="clickBackButton" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbc_pt_BR</value></property>
+      <property name="name"><value>Clicando no botão Voltar</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arbc_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="changeWorkspace" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arei_pt_BR</value></property>
+      <property name="name"><value>Alterar Aparência das Informações do Meu Workspace</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arei_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="membershipAbout" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arfp_pt_BR</value></property>
+      <property name="name"><value>Membros</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arfp_pt_BR.html</value></property>
+      <property name="defaultForTool"><value>sakai.membership</value></property>
+   </bean>
+
+   <bean id="membershipOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arel_pt_BR</value></property>
+      <property name="name"><value>Membros: Visão Geral</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arel_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="joinSites" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcj_pt_BR</value></property>
+      <property name="name"><value>Participar/Não Participar de Sites</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arcj_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="worksiteSetupAbout" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arfr_pt_BR</value></property>
+      <property name="name"><value>Worksite Setup</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arfr_pt_BR.html</value></property>
+      <property name="defaultForTool"><value>sakai.sitesetup</value></property>
+   </bean>
+
+   <bean id="worksiteSetupOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arer_pt_BR</value></property>
+      <property name="name"><value>Worksite Setup: Visão Geral</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arer_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="worksiteSetupAddParticipants" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqyo_pt_BR</value></property>
+      <property name="name"><value>Adicionar/Editar/Excluir Participantes do Worksite Setup</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/aqyo_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="worksiteSetupControlAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzw_pt_BR</value></property>
+      <property name="name"><value>Controle de Acesso do Worksite Setup</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/aqzw_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="worksiteSetupTextDescription" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzk_pt_BR</value></property>
+      <property name="name"><value>Adicionar Descrição no Worksite Setup</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace_pt_BR/aqzk.html</value></property>
+   </bean>
+   
+   <bean id="worksiteSetupPublish" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arad_pt_BR</value></property>
+      <property name="name"><value>Publicar/Despublicar Site no Worksite Setup</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arad_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="worksiteSetupChangeRoles" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardq</value></property>
+      <property name="name"><value>Alterar Papéis no Worksite Setup</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/ardq.html</value></property>
+   </bean>
+   
+   <bean id="worksiteSetupEditInfo" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aret_pt_BR</value></property>
+      <property name="name"><value>Editar Info no Worksite Setup</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/aret_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="preferencesAbout" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>argi_pt_BR</value></property>
+      <property name="name"><value>Preferências</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/argi_pt_BR.html</value></property>
+      <property name="defaultForTool"><value>sakai.preferences</value></property>
+   </bean>
+
+   <bean id="preferencesOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arce_pt_BR</value></property>
+      <property name="name"><value>Preferências: Visão Geral</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arce_pt_BR.html</value></property>
+   </bean>
+
+   <bean id="adjustTimezone" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>auay_pt_BR</value></property>
+      <property name="name"><value>Ajustando o fuso horário</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/auay_pt_BR.html</value></property>
+   </bean>
+
+   <bean id="privacyStatus" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ausi_pt_BR</value></property>
+      <property name="name"><value>Status de Privacidade</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/ausi_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="whichBrowser" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>asxg_pt_BR</value></property>
+      <property name="name"><value>Browsers suportados</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/asxg_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="pastingFF" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>atzb_pt_BR</value></property>
+      <property name="name"><value>Colando texto no Firefox</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/atzb_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="optionsAttach" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aupf_pt_BR</value></property>
+      <property name="name"><value>Opções para adicionar anexos</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/aupf_pt_BR.html</value></property>
+   </bean>
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="workspaceCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Meu Workspace</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="workspaceAbout"/>
+                     <ref bean="workspaceOverview"/>
+                     <ref bean="clickBackButton"/>
+                     <ref bean="setMOD"/>
+                     <ref bean="changeWorkspace"/>
+                     <ref bean="membershipAbout"/>
+                     <ref bean="membershipOverview"/>
+                     <ref bean="joinSites"/>
+                     <ref bean="worksiteSetupAbout"/>
+                     <ref bean="worksiteSetupOverview"/>
+                     <ref bean="addTools"/>
+                     <ref bean="worksiteSetupAddParticipants"/>
+                     <ref bean="worksiteSetupControlAccess"/>
+                     <ref bean="worksiteSetupTextDescription"/>
+                     <ref bean="worksiteSetupPublish"/>
+                     <ref bean="worksiteSetupChangeRoles"/>
+                     <ref bean="worksiteSetupEditInfo"/>
+                     <ref bean="preferencesAbout"/>
+                     <ref bean="preferencesOverview"/>
+                     <ref bean="adjustTimezone"/>
+                     <ref bean="changeNotificationPreferences"/>
+                     <ref bean="customizeTabs"/>
+                     <ref bean="privacyStatus"/>
+                     <ref bean="whichBrowser"/>
+                     <ref bean="pastingFF"/>
+                     <ref bean="optionsAttach"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+       </property>
+    </bean>
+</beans>
+

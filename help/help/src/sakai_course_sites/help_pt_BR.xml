@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="courseSitesAbout" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arfz_pt_BR</value></property>
+      <property name="name"><value>Sites de Curso/Projeto</value></property>
+      <property name="location"><value>/sakai_course_sites/arfz_pt_BR.html</value></property>
+      <property name="defaultForTool"><value>sakai.course.sites</value></property>      
+   </bean>
+
+   <bean id="courseSitesOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardt_pt_BR</value></property>
+      <property name="name"><value>Sites de Curso/Projeto Visão Geral</value></property>
+      <property name="location"><value>/sakai_course_sites/ardt_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="createWorksites" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzr_pt_BR</value></property>
+      <property name="name"><value>Criar/Adicionar/Editar/Excluir Sites de Trabalho</value></property>
+      <property name="location"><value>/sakai_course_sites/aqzr_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="addParticipants" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqyo_pt_BR</value></property>
+      <property name="name"><value>Adicionar/Editar/Excluir Participantes</value></property>
+      <property name="location"><value>/sakai_course_sites/aqyo_pt_BR.html</value></property>
+   </bean>
+
+   <bean id="controlAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzw_pt_BR</value></property>
+      <property name="name"><value>Controlar Acesso no Worksite Setup</value></property>
+      <property name="location"><value>/sakai_course_sites/aqzw_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="publishSite" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arad_pt_BR</value></property>
+      <property name="name"><value>Publicar/Despublicar Site no Worksite Setup</value></property>
+      <property name="location"><value>/sakai_course_sites/arad_pt_BR.html</value></property>
+   </bean>
+    
+   <bean id="navigation" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzm_pt_BR</value></property>
+      <property name="name"><value>Navegação</value></property>
+      <property name="location"><value>/sakai_course_sites/aqzm_pt_BR.html</value></property>
+   </bean>
+  
+   <bean id="resetButton" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzn_pt_BR</value></property>
+      <property name="name"><value>Botão Reset</value></property>
+      <property name="location"><value>/sakai_course_sites/aqzn_pt_BR.html</value></property>
+   </bean>
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="courseSitesCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Course/Project Sites</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="courseSitesAbout"/>
+                     <ref bean="courseSitesOverview"/>
+                     <ref bean="createWorksites"/>
+                     <ref bean="addParticipants"/>
+                      <ref bean="controlAccess"/>
+                      <ref bean="publishSite"/>
+                     <ref bean="navigation"/>
+					 <ref bean="resetButton"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
