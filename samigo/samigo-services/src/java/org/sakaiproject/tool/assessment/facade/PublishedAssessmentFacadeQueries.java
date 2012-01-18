@@ -1847,8 +1847,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 
 		//final String key = SectionDataIfc.AUTHOR_TYPE;
 		//final String value = SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString();
-		final String query2 = "select s from PublishedAssessmentData p, PublishedSectionData s, PublishedSectionMetaData m "
-				+ " where p.publishedAssessmentId=? and s = m.section and "
+		final String query2 = "select s from PublishedAssessmentData p, PublishedSectionData s "
+				+ " where p.publishedAssessmentId=? and "
 				+ " p.publishedAssessmentId=s.assessment.publishedAssessmentId ";
 
 		final HibernateCallback hcb2 = new HibernateCallback() {
