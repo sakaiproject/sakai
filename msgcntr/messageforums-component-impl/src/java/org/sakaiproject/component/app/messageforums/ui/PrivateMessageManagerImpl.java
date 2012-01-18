@@ -1254,27 +1254,49 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
 	  body.insert(0, "From: " + currentUser.getDisplayName() + "<p/>"); 
 
-	  // need to filter out hidden users if there are any and:
-	  //   a non-instructor (! site.upd)
-	  //   instructor but not the author
-	  // this is tricky now because hidden users are identified by having their
+	  // need to determine if there are "hidden" recipients to this message.
+	  // If so, we need to replace them with "Undisclosed Recipients"
+	  // Identifying them is tricky now because hidden users are identified by having their
 	  // names in parentheses at the end of the list. At some point, the usernames were also added to
 	  // this in parentheses (although this may be overridden via a property). 
 	  // So to fix this going forward, the hidden users will be indicated by brackets [],
 	  // but we still need to handle the old data with hidden users in parens
 	  String sendToString = message.getRecipientsAsText();
-	  if (! isInstructor() || !isEmailPermit()|| (!message.getAuthor().equals(getAuthorString())) ) {
-	      if (sendToString.indexOf(PrivateMessage.HIDDEN_RECIPIENTS_START) > 0) {
-	          sendToString = sendToString.substring(0, sendToString.indexOf(PrivateMessage.HIDDEN_RECIPIENTS_START));
-	      } else {
-	          // we have parens around a list of names with eid in parens
-	          if (ServerConfigurationService.getBoolean("msg.displayEid", true)) {
-	              sendToString = sendToString.replaceAll("\\([^)]+\\(.*", "");
-	          } else {
-	              // the old data just has the hidden users in parens
-	              if (sendToString.indexOf("(") > 0) {
-	                  sendToString = sendToString.substring(0, sendToString.indexOf("("));
+	  
+	  if (sendToString.indexOf(PrivateMessage.HIDDEN_RECIPIENTS_START) > 0) {
+	      sendToString = sendToString.substring(0, sendToString.indexOf(PrivateMessage.HIDDEN_RECIPIENTS_START));
+	      
+	      // add "Undisclosed Recipients" in place of the hidden users
+	      sendToString = sendToString.trim();
+	      if (sendToString.length() > 0) {
+	          sendToString += "; ";
+	      } 
+	      sendToString += getResourceBundleString("pvt_HiddenRecipients");
+	  } else {
+	      // we may have parens around a list of names with eid in parens
+	      if (ServerConfigurationService.getBoolean("msg.displayEid", true)) {
+	          String originalSendTo = sendToString;
+	          sendToString = sendToString.replaceAll("\\([^)]+\\(.*", "");
+	          
+	          // add "Undisclosed Recipients" in place of the hidden users
+	          if (!sendToString.equals(originalSendTo)) {
+	              sendToString = sendToString.trim();
+	              if (sendToString.length() > 0) {
+	                  sendToString += "; ";
 	              }
+	              sendToString += getResourceBundleString("pvt_HiddenRecipients");
+	          }
+	      } else {
+	          // the old data just has the hidden users in parens
+	          if (sendToString.indexOf("(") > 0) {
+	              sendToString = sendToString.substring(0, sendToString.indexOf("("));
+	              
+	              // add "Undisclosed Recipients" in place of the hidden users
+	              sendToString = sendToString.trim();
+	              if (sendToString.length() > 0) {
+	                  sendToString += "; ";
+	              }
+	              sendToString += getResourceBundleString("pvt_HiddenRecipients");
 	          }
 	          
 	      }
