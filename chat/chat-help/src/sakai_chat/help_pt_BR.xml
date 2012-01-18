@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="chatRoomAbout" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arft</value></property>
+      <property name="name"><value>Bate-Papo</value></property>
+      <property name="location"><value>/sakai_chat/arft_pt_BR.html</value></property>
+      <property name="defaultForTool"><value>sakai.chat</value></property>
+   </bean>
+   <bean id="chatRoomOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcz</value></property>
+      <property name="name"><value>Bate-Papo: Resumo</value></property>
+      <property name="location"><value>/sakai_chat/arcz_pt_BR.html</value></property>
+   </bean>
+
+   <bean id="useChatRoom" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>arcv</value></property>
+         <property name="name"><value>	Ler/Postar/Apagar mensagens do Bate-Papo</value></property>
+         <property name="location"><value>/sakai_chat/arcv_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="createNewChat" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>ardp</value></property>
+      <property name="name"><value>	Adicionar Novas Salas de Bate-Papo</value></property>
+      <property name="location"><value>/sakai_chat/ardp_pt_BR.html</value></property>
+   </bean>
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="chatRoomCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Chat Room</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="chatRoomAbout"/>
+                     <ref bean="chatRoomOverview"/>
+                     <ref bean="useChatRoom"/>
+                     <ref bean="createNewChat"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>
