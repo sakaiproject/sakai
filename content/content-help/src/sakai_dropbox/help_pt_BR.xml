@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+   <bean id="dropBoxAbout" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>argb</value></property>
+      <property name="name"><value>Escaninho</value></property>
+      <property name="location"><value>/sakai_dropbox/argb_pt_BR.html</value></property>
+      <property name="defaultForTool"><value>sakai.dropbox</value></property>
+   </bean>
+
+   <bean id="dropBoxOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arfc</value></property>
+      <property name="name"><value>Escaninho: Visão Geral</value></property>
+      <property name="location"><value>/sakai_dropbox/arfc_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="addDropboxFolder" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzb</value></property>
+      <property name="name"><value>Adicionar/Editar/Excluir Pasta de Escaninho</value></property>
+      <property name="location"><value>/sakai_dropbox/aqzb_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="addDropboxItem" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcg</value></property>
+      <property name="name"><value>Adicionar/Editar/Excluir Item de Escaninho</value></property>
+      <property name="location"><value>/sakai_dropbox/arcg_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="reviseDropbox" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzl</value></property>
+      <property name="name"><value>Rever Informação de Escaninho</value></property>
+      <property name="location"><value>/sakai_dropbox/aqzl_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="viewDropbox" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqzd</value></property>
+      <property name="name"><value>Visualizar Escaninhos</value></property>
+      <property name="location"><value>/sakai_dropbox/aqzd_pt_BR.html</value></property>
+   </bean>
+   
+   <bean id="copyDropbox" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardv</value></property>
+      <property name="name"><value>Copiar itens do Escaninhos</value></property>
+      <property name="location"><value>/sakai_dropbox/ardv_pt_BR.html</value></property>
+   </bean>
+
+   <bean id="webdavDropbox" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>auyi</value></property>
+      <property name="name"><value>Upload de arquivos para Escaninho usando WebDAV</value></property>
+      <property name="location"><value>/sakai_dropbox/auyi_pt_BR.html</value></property>
+   </bean>
+   
+    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+          class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+      <property name="name"><value>root</value></property>
+      <property name="categories">
+         <list>
+            <bean id="dropBoxCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+               <property name="name"><value>Drop Box</value></property>
+               <property name="resources">
+                  <list>
+                     <ref bean="dropBoxAbout"/>
+                     <ref bean="dropBoxOverview"/>
+					<ref bean="addDropboxFolder"/>
+					<ref bean="addDropboxItem"/>
+					<ref bean="reviseDropbox"/>
+					<ref bean="viewDropbox"/>
+					<ref bean="copyDropbox"/>
+					<ref bean="webdavDropbox"/>
+                  </list>
+               </property>
+            </bean>
+           </list>
+         </property>
+       </bean>
+</beans>

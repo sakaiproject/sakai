@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head>
+<title>Fazer upload de arquivos ao Repositório utilizando WebDAV com Mac OS X</title>
+<style type="text/css">
+		/* Style for specific inline images */
+		
+		/* Style for specific ordered lists */
+		
+		/* Style for specific table cells */
+		</style>
+<link type="text/css" href="/library/skin/tool_base.css" media="all" rel="stylesheet" />
+<link type="text/css" href="/library/skin/default/tool.css" media="all" rel="stylesheet" />
+</head>
+<body>
+<div class="helpBody">
+<h2>Fazer upload de arquivos ao Repositório utilizando WebDAV com Mac OS X</h2>
+
+
+
+<p>WebDAV significa "Autoria e Versionamento Distribuídos baseados na Web" ("Web-based Distributed Authoring and Versioning")
+ É um conjunto de extensões ao protocolo HTTP que permite ao usuários colaborar, editar e gerenciar arquivos em um servidor web remoto.</p>
+
+
+
+<p>Você pode utilizar o WebDAV para fazer upload e acessar arquivos no Repositório do seu site, se você tiver as permissões necessárias.</p>
+
+
+
+
+<p>Além disso, considere o seguinte:</p>
+
+<ul><li>Antes de você configurar um WebDAV, ao menos um objeto (arquivo ou pasta) deve existir na ferramenta Repositório de destino. 
+Para instruções sobre adicionar arquivos sem utilizar WebDAV, veja  <a href="content.hlp?docId=arfs_pt_BR">Repositório</a>.
+
+<br /><br />
+</li><li>Configurar WebDAV separadamente para cada site.
+
+<br /><br />
+</li><li>Salvar arquivos no seu site diretamente de um aplicativo (Word ou Excel, por exemplo) não funciona corretamente. 
+Para melhores resultados, salve o arquivo primeiramente em seu computador, e então faça o upload para o seu site. 
+</li></ul>
+
+
+<p><strong>Observação:</strong> Nomes de arquivos que incluírem certos caracteres não serão aceitos. 
+Para uma lista de caracteres não suportados, veja <a href="content.hlp?docId=auze_pt_BR">Caracteres não-suportados</a>.</p>
+
+
+
+
+
+
+
+
+<h3>Mac OS X 10.4 (Tiger) ou posterior</h3>
+
+<p>Para utilizar o WebDAV para fazer upload e acessar arquivos no Mac OS X 10.4 (Tiger), siga estes passos:</p>
+
+
+
+<ol><li>No Finder, pressione <code>Command-k </code>. (Alternativamente, a partir do menu  
+ <strong><code>Vá</code></strong>, escolha <strong><code>Conectar ao Servidor</code></strong>.)
+
+<br /><br />
+</li><li>No campo "Endereço do Servidor:" , insira a URL que aponta para a ferramenta Repositório de destino. 
+
+<p>Entre em contato com o administrador do seu site para obter o formato da URL; ele provavelmente incluirá o siteID do seu site. 
+Para instruções sobre como achar seu siteID, veja 
+<a href="content.hlp?docId=atla_pt_BR">Determinar o siteID de seu site</a>.</p>
+</li><li>Digite seu nome de usuário e senha, se solicitado.
+</li></ol>
+
+<p>Você pode agora arrastar e soltar pastas entre seu computador e os sites que você acabou de conectar.</p>
+
+<p>Opcionalmente, você pode clicar no 
+<strong><code>+</code></strong> (sinal de mais) à direita do endereço do servidor logo após você o inserir, 
+e o servidor será adicionado à sua lista de servidores favoritos.</p>
+
+
+
+<p>Quando você realiza o login, você pode escolher ter a senha lembrada. 
+Se você fizer isto, você não será solicitado entrar com uma senha quando você entrar no seu Repositório pessoal 
+ou nos Repositórios para qualquer site ao qual você tem acesso. 
+Não faça isso ao menos que seu computador seja seguro contra o uso por outras pessoas.</p>
+
+<p><strong>Observação:</strong> Quando você utilizar o WebDAV para acessar repositórios utilizando este método, 
+você pode notar que arquivos .DS_store estão sendo criados. 
+A base de conhecimento da Apple fornece instruções para eliminar este comportamento:
+<a href="http://support.apple.com/kb/HT1629" target="new">instruções para eliminar este
+comportamento</a>.</p>
+
+<h3>Mac OS X 10.3 (Panther) e anterior</h3>
+
+
+<p>Utilizar o WebDAV para fazer upload e acessar arquivos no Mac OS X 10.3 (Panther) e anteriores requer um cliente externo chamado Goliath.</p>
+
+<p><strong>Observação:</strong> Goliath possui alguns problemas de performance e pode não funcionar 100% do tempo. 
+Devido a isso, somente suporte limitado está disponivel caso você experimente problemas.  </p>
+
+<p>Você pode baixar uma cópia gratuita do Goliath em: </p>
+
+<span class="example">  <a href="http://www.webdav.org/goliath/#download">http://www.webdav.org/goliath/#download</a></span>
+
+<p>Uma vez baixado o arquivo, clique duas vezes no mesmo para descomprimí-lo. 
+Em seguida, clique duas vezes no arquivo .dmg resultante. 
+Uma imagem de disco chamada GOliath 1.0.1 deve agora estar disponível. Siga estes passos:</p>
+
+
+<br /><br />
+</li><li>Arraste e solte a parta Goliath contida na imagem para o seu disco rígido. 
+
+<br /><br /> 
+</li><li>Abra o aplicativo Goliath. 
+
+<br /><br />
+</li><li>No campo "Endereço do Servidor:", insira a URL que aponta para a ferramenta Repositório de destino. 
+
+<p>Entre em contato com o administrador do seu site para obter o formato do URL; ele provavelmente incluirá o siteID do seu site.</p>
+
+
+
+<p><strong>Observação:</strong> Para instruções sobre como achar seu siteID, veja 
+<a href="content.hlp?docId=atla_pt_BR">Determinar o siteID de seu site</a>.</p>
+</li><li>Digite seu nome de usuário e senha, se solicitado.
+
+<br /><br />
+</li><li>Clique na aba <strong><code>Configurações avançadas</code></strong>, e marque 
+<strong><code>Desabilitar o recurso de codificação de Macintosh</code></strong>.  E, em seguida, clique em <strong><code>OK</code></strong>.
+</li></ol>
+
+<p>Na primeira vez que você tentar conectar, você pode ser solicitado a aceitar um certificado para o site. 
+Clique em <strong><code>OK</code></strong> caso solicitado.</p>
+
+<p>Você pode agora arrastar e soltar pastas entre seu computador e os sites que você acabou de conectar.</p>
+
+</div>
+</body></html>
