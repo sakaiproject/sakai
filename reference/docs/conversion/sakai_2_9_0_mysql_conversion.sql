@@ -493,3 +493,125 @@ DROP TABLE PERMISSIONS_SRC_TEMP;
 alter table MFR_TOPIC_T modify CONTEXT_ID varchar(255)
 
 -- END MSGCNTR Conversion
+
+-- Start Lesson Builder table creation (if no auto.ddl)
+
+    create table IF NOT EXISTS lesson_builder_comments (
+        id bigint not null auto_increment,
+        itemId bigint not null,
+        pageId bigint not null,
+        timePosted datetime not null,
+        author varchar(36) not null,
+        commenttext text,
+        UUID varchar(36) not null,
+        html bit not null,
+        points double precision,
+        primary key (id)
+    );
+
+    create table IF NOT EXISTS lesson_builder_groups (
+        id bigint not null auto_increment,
+        itemId varchar(255) not null,
+        groupId varchar(255) not null,
+        groups text,
+        primary key (id)
+    );
+
+    create table IF NOT EXISTS lesson_builder_items (
+        id bigint not null auto_increment,
+        pageId bigint not null,
+        sequence integer not null,
+        type integer not null,
+        sakaiId varchar(250),
+        name varchar(100),
+        html text,
+        description text,
+        height varchar(8),
+        width varchar(8),
+        alt text,
+        nextPage bit,
+        format varchar(255),
+        required bit,
+        alternate bit,
+        prerequisite bit,
+        subrequirement bit,
+        requirementText varchar(20),
+        sameWindow bit,
+        groups text,
+        anonymous bit,
+        showComments bit,
+        forcedCommentsAnonymous bit,
+        gradebookId varchar(35),
+        gradebookPoints integer,
+        gradebookTitle varchar(200),
+        altGradebook varchar(35),
+        altPoints integer,
+        altGradebookTitle varchar(200),
+        primary key (id)
+    );
+
+    create table IF NOT EXISTS lesson_builder_log (
+        id bigint not null auto_increment,
+        lastViewed datetime not null,
+        itemId bigint not null,
+        userId varchar(255) not null,
+        firstViewed datetime not null,
+        complete bit not null,
+        dummy bit not null,
+        path varchar(255),
+        toolId varchar(250),
+        studentPageId bigint,
+        primary key (id)
+    );
+
+    create table IF NOT EXISTS lesson_builder_pages (
+        pageId bigint not null auto_increment,
+        toolId varchar(250) not null,
+        siteId varchar(250) not null,
+        title varchar(100) not null,
+        parent bigint,
+        topParent bigint,
+        hidden bit,
+        releaseDate datetime,
+        gradebookPoints double precision,
+        owner varchar(36),
+        groupOwned bit,
+        cssSheet varchar(250),
+        primary key (pageId)
+    );
+
+    create table IF NOT EXISTS lesson_builder_student_pages (
+        id bigint not null auto_increment,
+        lastUpdated datetime not null,
+        itemId bigint not null,
+        pageId bigint not null,
+        title varchar(100) not null,
+        owner varchar(36) not null,
+        groupOwned bit not null,
+        commentsSection bigint,
+        lastCommentChange datetime,
+        deleted bit,
+        points double precision,
+        primary key (id)
+    );
+    
+-- End Lesson Builder table creation
+
+-- Start Lesson Builder Index creation
+
+create index lesson_builder_comments_itemid_author on lesson_builder_comments(itemId, author);
+create index lesson_builder_student_pages_pageId on lesson_builder_student_pages(pageId);
+create index lesson_builder_student_pages_itemId on lesson_builder_student_pages(itemId);
+create index lesson_builder_log_index on lesson_builder_log(userId,itemId, studentPageId);
+create index lesson_builder_student_pages_index on lesson_builder_student_pages(itemId, owner, deleted);
+create index lesson_builder_comments_uuid on lesson_builder_comments(UUID);
+create index lesson_builder_comments_author on lesson_builder_comments(pageId, author);
+create index lesson_builder_log_index3 on lesson_builder_log(itemId);
+create index lesson_builder_log_index2 on lesson_builder_log(userId,toolId);
+create index lesson_builder_groups_itemid on lesson_builder_groups(itemId);
+create index lesson_builder_pages_pageid on lesson_builder_pages(pageId);
+create index lesson_builder_pages_toolid on lesson_builder_pages(toolId, parent);
+create index lesson_builder_items_pageid on lesson_builder_items(pageId);
+create index lesson_builder_items_sakaiid on lesson_builder_items(sakaiId);
+
+-- End Lesson Builder Index creation
