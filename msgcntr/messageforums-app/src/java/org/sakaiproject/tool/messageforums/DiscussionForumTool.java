@@ -40,6 +40,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.DecimalFormatSymbols;
+import java.text.SimpleDateFormat;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIData;
@@ -4578,8 +4579,10 @@ public class DiscussionForumTool
 		    String revisedInfo = "<p class=\"lastRevise textPanelFooter\">" + getResourceBundleString(LAST_REVISE_BY);
 	        revisedInfo += getUserNameOrEid();
 	        revisedInfo  += " " + getResourceBundleString(LAST_REVISE_ON);
+	        SimpleDateFormat formatter = new SimpleDateFormat(getResourceBundleString("date_format"), getUserLocale());
+	        formatter.setTimeZone(getUserTimeZone());
 	        Date now = new Date();
-	        revisedInfo += now.toString() + " </p> ";
+	        revisedInfo += formatter.format(now) + " </p> ";
 	        currentBody = revisedInfo.concat(currentBody);
 		} 
 

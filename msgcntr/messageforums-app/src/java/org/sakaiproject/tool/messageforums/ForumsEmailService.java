@@ -26,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -58,9 +59,11 @@ import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.messageforums.ui.DiscussionMessageBean;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.api.app.messageforums.Message;
 
 /**
@@ -186,6 +189,8 @@ public class ForumsEmailService {
 			Topic topic = reply.getTopic();
 			String topictitle = topic.getTitle();
 			String threadtitle = threadhead.getMessage().getTitle();
+			SimpleDateFormat formatter = new SimpleDateFormat(DiscussionForumTool.getResourceBundleString("date_format"), new ResourceLoader().getLocale());
+			formatter.setTimeZone(TimeService.getLocalTimeZone());
 			content.append(DiscussionForumTool
 					.getResourceBundleString("email.body.location")
 					+ " "
@@ -212,7 +217,7 @@ public class ForumsEmailService {
 			content.append(newline);
 			content.append(DiscussionForumTool
 					.getResourceBundleString("email.body.msgposted")
-					+ " " + reply.getCreated().toString());
+					+ " " + formatter.format(reply.getCreated()));
 			content.append(newline);
 			content.append(newline);
 			content.append(reply.getBody());

@@ -23,7 +23,11 @@
 			  
 		<div class="singleMessage">
 			<h:outputText value="#{ForumTool.selectedMessage.message.title}"  styleClass="title"/>
-			<h:outputText	value="#{ForumTool.selectedMessage.message.author} #{msgs.cdfm_openb} #{ForumTool.selectedMessage.message.created} #{msgs.cdfm_closeb}" styleClass="textPanelFooter"/>
+			<h:outputText value="#{ForumTool.selectedMessage.message.author} #{msgs.cdfm_openb} " styleClass="textPanelFooter"/>
+			<h:outputText value="#{ForumTool.selectedMessage.message.created}" styleClass="textPanelFooter">
+				<f:convertDateTime pattern="#{msgs.date_format}" timeZone="#{ForumTool.userTimeZone}" locale="#{ForumTool.userLocale}"/>
+			</h:outputText>
+			<h:outputText value=" #{msgs.cdfm_closeb}" styleClass="textPanelFooter"/>
 					<%-- Attachments --%>
 			<h:dataTable value="#{ForumTool.selectedMessage.attachList}"	var="eachAttach"  cellpadding="3" cellspacing="0" columnClasses="attach,bogus" style="font-size:.9em;width:auto;margin-left:1em" border="0"  rendered="#{!empty ForumTool.selectedMessage.attachList}">
 						<h:column	rendered="#{!empty ForumTool.selectedMessage.message.attachments}">
