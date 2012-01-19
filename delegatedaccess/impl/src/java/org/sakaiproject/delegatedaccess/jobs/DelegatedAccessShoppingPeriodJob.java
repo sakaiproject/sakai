@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
@@ -53,7 +54,7 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 
 	private static boolean semaphore = false;
 	
-	private List<String> errors = new ArrayList<String>();
+	private Map<String, String> errors = new HashMap<String, String>();
 	
 	public void init() { }
 
@@ -66,7 +67,7 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 		semaphore = true;
 		
 		try{
-			errors = new ArrayList<String>();
+			errors = new HashMap<String, String>();
 			
 			long startTime = System.currentTimeMillis();
 			SecurityAdvisor advisor = sakaiProxy.addSiteUpdateSecurityAdvisor();
@@ -93,13 +94,15 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 			log.info("DelegatedAccessShoppingPeriodJob finished in " + (System.currentTimeMillis() - startTime) + " ms");
 			if(errors.size() > 0){
 				String warning = "The following sites had errors: \n\n";
-				for(String error : errors){
-					warning += error + "\n";
+				for(Entry entry : errors.entrySet()){
+					warning += entry.getKey() + ": " + entry.getValue() + "\n";
 				}
 				log.warn(warning);
+				sakaiProxy.sendEmail("DelegatedAccessShoppingPeriodJob error", warning);
 			}
 		}catch (Exception e) {
 			log.error(e);
+			sakaiProxy.sendEmail("DelegatedAccessShoppingPeriodJob error", e.getMessage());
 		}finally{
 			semaphore = false;
 		}
@@ -113,7 +116,7 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 					shoppingPeriodRoleHelper(nodeModel);
 				}catch(Exception e){
 					log.error(e);
-					errors.add(nodeModel.getNode().description);
+					errors.put(nodeModel.getNode().description, e.getMessage());
 				}
 			}
 			for(int i = 0; i < node.getChildCount(); i++){

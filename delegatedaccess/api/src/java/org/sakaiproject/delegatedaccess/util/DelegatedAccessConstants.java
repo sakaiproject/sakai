@@ -64,4 +64,5 @@ public class DelegatedAccessConstants {
 	public static final String PROPERTIES_ROLE_OPTIONS_SHOPPING = "delegatedaccess.roleoptions.shopping";
 	public static final String PROPERTIES_REALM_OPTIONS_ACCESS = "delegatedaccess.realmoptions.delegatedaccess";
 	public static final String PROPERTIES_ROLE_OPTIONS_ACCESS = "delegatedaccess.roleoptions.delegatedaccess";
+	public static final String PROPERTIES_EMAIL_ERRORS = "delegatedaccess.email.errors";
 }

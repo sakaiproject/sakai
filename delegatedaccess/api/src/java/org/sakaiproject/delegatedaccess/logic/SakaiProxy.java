@@ -273,4 +273,12 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public List<String[]> getTerms();
+	
+	/**
+	 * Sends an email
+	 * 
+	 * @param subject
+	 * @param body
+	 */
+	public void sendEmail(String subject, String body);
 }

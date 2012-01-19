@@ -20,6 +20,7 @@
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
 		<property name="cms"><ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/></property>
     	<property name="dao" ref="org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao" />
+    	<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
 	</bean>
 	
 	<!-- ProjectLogic -->

@@ -53,6 +53,10 @@
        <version>1.6.6</version>
        <scope>provided</scope>
     </dependency>
+	<dependency>
+             <groupId>javax.mail</groupId>
+             <artifactId>mail</artifactId>
+        </dependency>
 		
 		<!-- Sakai dependencies -->
         <dependency>

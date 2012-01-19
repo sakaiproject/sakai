@@ -27,6 +27,7 @@ import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
+import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -43,6 +44,9 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
 
 /**
  * Implementation of our SakaiProxy API
@@ -86,7 +90,9 @@ public class SakaiProxyImpl implements SakaiProxy {
 	@Getter @Setter
 	private CourseManagementService cms;
 
-	
+	@Getter @Setter
+	private EmailService emailService;
+
 	//cached variables:
 	private List<String[]> terms;
 	
@@ -477,5 +483,20 @@ public class SakaiProxyImpl implements SakaiProxy {
 			}
 		}
 		return terms;
+	}
+	
+	public void sendEmail(String subject, String body){
+		try{
+			String toAddress = serverConfigurationService.getString(DelegatedAccessConstants.PROPERTIES_EMAIL_ERRORS);
+			String fromAddress = toAddress;
+			if(toAddress != null && !"".equals(toAddress)){
+				List additionalHeaders = new ArrayList(1);
+				additionalHeaders.add("Content-Type: text/html");
+				emailService.sendMail(new InternetAddress(fromAddress), new InternetAddress[]{new InternetAddress(toAddress)}, subject, body, 
+						new InternetAddress[]{new InternetAddress(fromAddress)}, null, additionalHeaders);
+			}
+		}catch (MessagingException e){
+			log.warn(e);
+		}
 	}
 }
