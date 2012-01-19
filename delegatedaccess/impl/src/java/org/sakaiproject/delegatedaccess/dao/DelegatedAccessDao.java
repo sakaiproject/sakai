@@ -11,4 +11,6 @@ public interface DelegatedAccessDao {
 	public void updateSiteProperty(String siteId, String propertyName, String propertyValue);
 	
 	public void addSiteProperty(String siteId, String propertyName, String propertyValue);
+	
+	public void removeSiteProperty(String siteId, String propertyName);
 }

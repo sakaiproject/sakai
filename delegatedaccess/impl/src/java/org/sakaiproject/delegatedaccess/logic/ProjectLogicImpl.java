@@ -1,7 +1,6 @@
 package org.sakaiproject.delegatedaccess.logic;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -21,7 +20,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.apache.log4j.Logger;
-import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
+import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.delegatedaccess.model.HierarchyNodeSerialized;
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
@@ -35,9 +34,6 @@ import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.user.api.User;
-
-import org.sakaiproject.coursemanagement.api.AcademicSession;
-import org.sakaiproject.coursemanagement.api.CourseManagementService;
 
 
 /**
@@ -53,11 +49,6 @@ public class ProjectLogicImpl implements ProjectLogic {
 	private SakaiProxy sakaiProxy;
 	@Getter @Setter
 	private HierarchyService hierarchyService;
-	@Getter @Setter
-	private CourseManagementService cms;
-	@Getter @Setter
-	private DelegatedAccessDao dao;
-
 
 	/**
 	 * init - perform any actions required here for when this bean starts up
@@ -473,23 +464,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 
 	public List<ListOptionSerialized> getEntireTermsList(){
 		List<ListOptionSerialized> returnList = new ArrayList<ListOptionSerialized>();
-		
-		if(!sakaiProxy.useCourseManagementApiForTerms()){
-			//user has set sakai.properties to override the coursemanagement API
-			
-			for(String term : dao.getDistinctSiteTerms(sakaiProxy.getTermField())){
-				returnList.add(new ListOptionSerialized(term, term, false));
-			}
-		}else{
-			//use sakai's coursemanagement API to get the term options
-			
-			for(AcademicSession session : cms.getAcademicSessions()){
-				String termId = session.getEid();
-				if(!"term_eid".equals(sakaiProxy.getTermField())){
-					termId = session.getTitle();
-				}
-				returnList.add(new ListOptionSerialized(termId, session.getTitle(), false));
-			}
+		for(String[] term : sakaiProxy.getTerms()){
+			returnList.add(new ListOptionSerialized(term[0], term[1], false));
 		}
 		return returnList;
 	}

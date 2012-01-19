@@ -2,12 +2,12 @@ package org.sakaiproject.delegatedaccess.logic;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import lombok.Getter;
@@ -23,6 +23,9 @@ import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.coursemanagement.api.AcademicSession;
+import org.sakaiproject.coursemanagement.api.CourseManagementService;
+import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
@@ -76,7 +79,17 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 	@Getter @Setter
 	private ToolManager toolManager;
+	
+	@Getter @Setter
+	private DelegatedAccessDao dao;
+	
+	@Getter @Setter
+	private CourseManagementService cms;
 
+	
+	//cached variables:
+	private List<String[]> terms;
+	
 	/**
 	 * init - perform any actions required here for when this bean starts up
 	 */
@@ -427,5 +440,42 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 	public boolean useCourseManagementApiForTerms(){
 		return serverConfigurationService.getBoolean(DelegatedAccessConstants.PROPERTIES_TERM_USE_CM_API, true);
+	}
+	
+	public List<String[]> getTerms(){
+		if(terms == null){
+			terms = new ArrayList<String[]>();
+			if(!useCourseManagementApiForTerms()){
+				//user has set sakai.properties to override the coursemanagement API
+				List<String> termsList = dao.getDistinctSiteTerms(getTermField());
+				//check for term order if exists:
+				String[] termOrder = serverConfigurationService.getStrings("portal.term.order");
+				List<String> termOrderList = new ArrayList<String>();
+				if(termOrder != null && termOrder.length > 0){
+
+					Collections.addAll(termOrderList, termOrder);
+					for(String term : termOrderList){
+						if(termsList.contains(term)){
+							terms.add(new String[]{term, term});
+						}
+					}
+				}
+				//add the remaining (non ordered) terms
+				for(String term : termsList){
+					if(termOrderList == null || termOrderList.size() == 0 || !termOrderList.contains(term))
+						terms.add(new String[]{term, term});
+				}
+			}else{
+				//use sakai's coursemanagement API to get the term options
+				for(AcademicSession session : cms.getAcademicSessions()){
+					String termId = session.getEid();
+					if(!"term_eid".equals(getTermField())){
+						termId = session.getTitle();
+					}
+					terms.add(new String[]{termId, session.getTitle()});
+				}
+			}
+		}
+		return terms;
 	}
 }

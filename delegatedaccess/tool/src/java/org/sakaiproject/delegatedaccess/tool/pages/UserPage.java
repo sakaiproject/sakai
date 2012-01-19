@@ -2,8 +2,11 @@ package org.sakaiproject.delegatedaccess.tool.pages;
 
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
@@ -12,6 +15,8 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
+import org.apache.wicket.markup.html.form.ChoiceRenderer;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.tree.AbstractTree;
@@ -20,6 +25,7 @@ import org.apache.wicket.markup.html.tree.LinkTree;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
+import org.sakaiproject.delegatedaccess.model.SelectOption;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.site.api.Site;
 
@@ -35,7 +41,7 @@ public class UserPage  extends BaseTreePage{
 	boolean expand = true;
 	private String search = "";
 	private String instructorField = "";
-	private String termField = "";
+	private SelectOption termField;
 	private TreeModel treeModel = null;
 	
 	protected AbstractTree getTree()
@@ -144,13 +150,13 @@ public class UserPage  extends BaseTreePage{
 		//Create Search Form:
 		final PropertyModel<String> messageModel = new PropertyModel<String>(this, "search");
 		final PropertyModel<String> instructorFieldModel = new PropertyModel<String>(this, "instructorField");
-		final PropertyModel<String> termFieldModel = new PropertyModel<String>(this, "termField");
+		final PropertyModel<SelectOption> termFieldModel = new PropertyModel<SelectOption>(this, "termField");
 		Form<?> form = new Form("form"){
 			@Override
 			protected void onSubmit() {	
 				Map<String, String> advancedOptions = new HashMap<String,String>();
-				if(termField != null && !"".equals(termField)){
-					advancedOptions.put(DelegatedAccessConstants.ADVANCED_SEARCH_TERM, termField);
+				if(termField != null && !"".equals(termField.getValue())){
+					advancedOptions.put(DelegatedAccessConstants.ADVANCED_SEARCH_TERM, termField.getValue());
 				}
 				if(instructorField != null && !"".equals(instructorField)){
 					advancedOptions.put(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR, instructorField);
@@ -164,7 +170,15 @@ public class UserPage  extends BaseTreePage{
 		};
 		form.add(new TextField<String>("search", messageModel));
 		form.add(new TextField<String>("instructorField", instructorFieldModel));
-		form.add(new TextField<String>("termField", termFieldModel));
+		List<SelectOption> termOptions = new ArrayList<SelectOption>();
+		for(String[] entry : sakaiProxy.getTerms()){
+			termOptions.add(new SelectOption(entry[1], entry[0]));
+		}
+		ChoiceRenderer choiceRenderer = new ChoiceRenderer("label", "value");
+		DropDownChoice termFieldDropDown = new DropDownChoice("termField", termFieldModel, termOptions, choiceRenderer);
+		//keeps the null option (choose one) after a user selects an option
+		termFieldDropDown.setNullValid(true);
+		form.add(termFieldDropDown);
 		form.add(new WebMarkupContainer("searchHeader"));
 		form.add(new Button("submitButton"));
 
@@ -172,5 +186,4 @@ public class UserPage  extends BaseTreePage{
 
 
 	}
-
 }

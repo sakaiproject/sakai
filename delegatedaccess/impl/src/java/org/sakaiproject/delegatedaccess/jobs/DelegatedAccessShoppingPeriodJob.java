@@ -1,5 +1,6 @@
 package org.sakaiproject.delegatedaccess.jobs;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -52,6 +53,8 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 
 	private static boolean semaphore = false;
 	
+	private List<String> errors = new ArrayList<String>();
+	
 	public void init() { }
 
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
@@ -63,29 +66,38 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 		semaphore = true;
 		
 		try{
-		long startTime = System.currentTimeMillis();
-		SecurityAdvisor advisor = sakaiProxy.addSiteUpdateSecurityAdvisor();
-		migratedHierarchyIds = new HashMap<String, String>();
-		
-		TreeModel treeModel = projectLogic.getEntireTreePlusUserPerms(DelegatedAccessConstants.SHOPPING_PERIOD_USER);
-		if (treeModel != null && treeModel.getRoot() != null) {
-			try{
-				//delete old shopping period hierarchy:
-				hierarchyService.destroyHierarchy(DelegatedAccessConstants.SHOPPING_PERIOD_HIERARCHY_ID);
-			}catch(Exception e){
-				//doesn't exist, don't worry
+			errors = new ArrayList<String>();
+			
+			long startTime = System.currentTimeMillis();
+			SecurityAdvisor advisor = sakaiProxy.addSiteUpdateSecurityAdvisor();
+			migratedHierarchyIds = new HashMap<String, String>();
+
+			TreeModel treeModel = projectLogic.getEntireTreePlusUserPerms(DelegatedAccessConstants.SHOPPING_PERIOD_USER);
+			if (treeModel != null && treeModel.getRoot() != null) {
+				try{
+					//delete old shopping period hierarchy:
+					hierarchyService.destroyHierarchy(DelegatedAccessConstants.SHOPPING_PERIOD_HIERARCHY_ID);
+				}catch(Exception e){
+					//doesn't exist, don't worry
+				}
+				//create new hierarchy:
+				HierarchyNode delegatedRootNode = hierarchyService.getRootNode(DelegatedAccessConstants.HIERARCHY_ID);
+				HierarchyNode rootNode = hierarchyService.createHierarchy(DelegatedAccessConstants.SHOPPING_PERIOD_HIERARCHY_ID);
+				hierarchyService.saveNodeMetaData(rootNode.id, delegatedRootNode.title, delegatedRootNode.description, null);
+				migratedHierarchyIds.put(delegatedRootNode.id, rootNode.id);
+
+				treeModelShoppingPeriodTraverser((DefaultMutableTreeNode) treeModel.getRoot());
 			}
-			//create new hierarchy:
-			HierarchyNode delegatedRootNode = hierarchyService.getRootNode(DelegatedAccessConstants.HIERARCHY_ID);
-			HierarchyNode rootNode = hierarchyService.createHierarchy(DelegatedAccessConstants.SHOPPING_PERIOD_HIERARCHY_ID);
-			hierarchyService.saveNodeMetaData(rootNode.id, delegatedRootNode.title, delegatedRootNode.description, null);
-			migratedHierarchyIds.put(delegatedRootNode.id, rootNode.id);
 
-			treeModelShoppingPeriodTraverser((DefaultMutableTreeNode) treeModel.getRoot());
-		}
-
-		sakaiProxy.popSecurityAdvisor(advisor);		
-		log.info("DelegatedAccessShoppingPeriodJob finished in " + (System.currentTimeMillis() - startTime) + " ms");
+			sakaiProxy.popSecurityAdvisor(advisor);		
+			log.info("DelegatedAccessShoppingPeriodJob finished in " + (System.currentTimeMillis() - startTime) + " ms");
+			if(errors.size() > 0){
+				String warning = "The following sites had errors: \n\n";
+				for(String error : errors){
+					warning += error + "\n";
+				}
+				log.warn(warning);
+			}
 		}catch (Exception e) {
 			log.error(e);
 		}finally{
@@ -101,6 +113,7 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 					shoppingPeriodRoleHelper(nodeModel);
 				}catch(Exception e){
 					log.error(e);
+					errors.add(nodeModel.getNode().description);
 				}
 			}
 			for(int i = 0; i < node.getChildCount(); i++){
@@ -117,18 +130,6 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 		String auth = node.getNodeShoppingPeriodAuth();
 		startDate = node.getNodeShoppingPeriodStartDate();
 		endDate = node.getNodeShoppingPeriodEndDate();
-
-		//we need to grab the updated date of the modification, even if it's inherited
-		//Date updated = node.getNodeUpdatedDate();
-		//we are only interested in this node's process date, not the inheritance
-		//Date processed = node.getProcessedDate();
-		//		if(!node.isDirectAccess()){
-		//			//if the node isn't a direct access node, we need to instantiate the date information
-		//			processed = projectLogic.getShoppingPeriodProccessedDate(DelegatedAccessConstants.SHOPPING_PERIOD_USER, node.getNodeId());
-		//		}
-		//		if (processed == null){
-		//			processed = new Date(0L); // will always be older than other dates
-		//		}
 
 		boolean addAuth = false;
 
@@ -200,11 +201,16 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 			dao.addSiteProperty(siteId, DelegatedAccessConstants.SITE_PROP_HIERARCHY_NODE_ID, node.getNode().id);
 		}
 		
-		String sitePropRestrictedTools = dao.getSiteProperty(DelegatedAccessConstants.SITE_PROP_RESTRICTED_TOOLS, siteId);
-		if(sitePropRestrictedTools != null){
-			dao.updateSiteProperty(siteId, DelegatedAccessConstants.SITE_PROP_RESTRICTED_TOOLS, restrictedToolsList);
+		if(restrictedToolsList == null || "".equals(restrictedToolsList) || ";".equals(restrictedToolsList)){
+			//no need for property if null or blank, just remove it in case it existed before
+			dao.removeSiteProperty(siteId, DelegatedAccessConstants.SITE_PROP_RESTRICTED_TOOLS);
 		}else{
-			dao.addSiteProperty(siteId, DelegatedAccessConstants.SITE_PROP_RESTRICTED_TOOLS, restrictedToolsList);
+			String sitePropRestrictedTools = dao.getSiteProperty(DelegatedAccessConstants.SITE_PROP_RESTRICTED_TOOLS, siteId);
+			if(sitePropRestrictedTools != null){
+				dao.updateSiteProperty(siteId, DelegatedAccessConstants.SITE_PROP_RESTRICTED_TOOLS, restrictedToolsList);
+			}else{
+				dao.addSiteProperty(siteId, DelegatedAccessConstants.SITE_PROP_RESTRICTED_TOOLS, restrictedToolsList);
+			}
 		}
 	}
 	

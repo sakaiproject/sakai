@@ -266,4 +266,11 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public boolean useCourseManagementApiForTerms();
+	
+	/**
+	 * Returns a map (id, title) of terms either by the course management api or by the unique set of site propeties if you unset useCourseManagementApiForTerms
+	 * 
+	 * @return
+	 */
+	public List<String[]> getTerms();
 }

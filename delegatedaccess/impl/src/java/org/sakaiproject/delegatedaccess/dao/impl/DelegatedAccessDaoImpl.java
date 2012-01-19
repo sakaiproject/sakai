@@ -118,4 +118,14 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 		}
 	}
 	
+	public void removeSiteProperty(String siteId, String propertyName){
+		try {
+			getJdbcTemplate().update(getStatement("delete.siteProperty"),
+				new Object[]{propertyName, siteId}
+			);
+		} catch (DataAccessException ex) {
+           log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+		}
+	}
+	
 }

@@ -1,5 +1,6 @@
 package org.sakaiproject.delegatedaccess.tool.pages;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -12,6 +13,8 @@ import javax.swing.tree.TreeModel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.ChoiceRenderer;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.Link;
@@ -25,6 +28,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
+import org.sakaiproject.delegatedaccess.model.SelectOption;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.delegatedaccess.util.NodeModelComparator;
 import org.sakaiproject.site.api.Site;
@@ -43,26 +47,36 @@ public class UserPageSiteSearch extends BasePage {
 	private NodeModelDataProvider provider;
 	private String search = "";
 	private String instructorField = "";
-	private String termField = "";
+	private SelectOption termField;;
 	private TreeModel treeModel;
+	private List<SelectOption> termOptions;
 
 	public UserPageSiteSearch(final String search, final Map<String, String> advancedFields, TreeModel treeModel){
 		this.search = search;
 		this.treeModel = treeModel;
+		termOptions = new ArrayList<SelectOption>();
+		for(String[] entry : sakaiProxy.getTerms()){
+			termOptions.add(new SelectOption(entry[1], entry[0]));
+		}
 		if(advancedFields != null){
 			for(Entry<String, String> entry : advancedFields.entrySet()){
 				if(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR.equals(entry.getKey())){
 					instructorField = entry.getValue();
 				}
 				if(DelegatedAccessConstants.ADVANCED_SEARCH_TERM.equals(entry.getKey())){
-					termField = entry.getValue();
+					for(SelectOption option : termOptions){
+						if(entry.getValue().equals(option.getValue())){
+							termField = option;
+							break;
+						}
+					}
 				}
 			}
 		}
 		//Create Search Form:
 		final PropertyModel<String> searchModel = new PropertyModel<String>(this, "search");
 		final PropertyModel<String> instructorFieldModel = new PropertyModel<String>(this, "instructorField");
-		final PropertyModel<String> termFieldModel = new PropertyModel<String>(this, "termField");
+		final PropertyModel<SelectOption> termFieldModel = new PropertyModel<SelectOption>(this, "termField");
 		final IModel<String> searchStringModel = new IModel<String>() {
 			
 			public void detach() {
@@ -84,7 +98,7 @@ public class UserPageSiteSearch extends BasePage {
 				if(termFieldModel.getObject() != null && !"".equals(termFieldModel.getObject())){
 					if(!"".equals(searchString))
 						searchString += ", ";
-					searchString += new StringResourceModel("termField", null).getString() + " " + termFieldModel.getObject();
+					searchString += new StringResourceModel("termField", null).getString() + " " + termFieldModel.getObject().getLabel();
 				}
 				return searchString;
 			}
@@ -92,7 +106,11 @@ public class UserPageSiteSearch extends BasePage {
 		Form<?> form = new Form("form");
 		form.add(new TextField<String>("search", searchModel));
 		form.add(new TextField<String>("instructorField", instructorFieldModel));
-		form.add(new TextField<String>("termField", termFieldModel));
+		ChoiceRenderer choiceRenderer = new ChoiceRenderer("label", "value");
+		DropDownChoice termFieldDropDown = new DropDownChoice("termField", termFieldModel, termOptions, choiceRenderer);
+		//keeps the null option (choose one) after a user selects an option
+		termFieldDropDown.setNullValid(true);
+		form.add(termFieldDropDown);
 		add(form);
 
 		//show user's search (if not null)
@@ -298,7 +316,7 @@ public class UserPageSiteSearch extends BasePage {
 			if(list == null){
 				Map<String, String> advancedOptions = new HashMap<String,String>();
 				if(termField != null && !"".equals(termField)){
-					advancedOptions.put(DelegatedAccessConstants.ADVANCED_SEARCH_TERM, termField);
+					advancedOptions.put(DelegatedAccessConstants.ADVANCED_SEARCH_TERM, termField.getValue());
 				}
 				if(instructorField != null && !"".equals(instructorField)){
 					advancedOptions.put(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR, instructorField);
