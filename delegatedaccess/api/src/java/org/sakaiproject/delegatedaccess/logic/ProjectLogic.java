@@ -148,4 +148,19 @@ public interface ProjectLogic {
 	 * @return
 	 */
 	public TreeModel getEntireTreePlusUserPerms(String userId);
+	
+	/**
+	 * Returns whether the user has any shopping period admin access
+	 * 
+	 * @param userId
+	 * @return
+	 */
+	public boolean hasShoppingPeriodAdminNodes(String userId);
+	
+	/**
+	 * returns whether the user has any delegated access
+	 * @param userId
+	 * @return
+	 */
+	public boolean hasDelegatedAccessNodes(String userId);
 }

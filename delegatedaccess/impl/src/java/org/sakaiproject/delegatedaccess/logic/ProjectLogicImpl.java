@@ -1262,4 +1262,14 @@ public class ProjectLogicImpl implements ProjectLogic {
 			return site.getProperties().getProperty(sakaiProxy.getTermField());
 		}
 	}
+	
+	public boolean hasShoppingPeriodAdminNodes(String userId){
+		Set<HierarchyNode> shoppingAdminNodes = hierarchyService.getNodesForUserPerm(userId, DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN); 
+		return shoppingAdminNodes != null && shoppingAdminNodes.size() > 0;
+	}
+	
+	public boolean hasDelegatedAccessNodes(String userId){
+		Set<HierarchyNode> delegatedAccessNodes = hierarchyService.getNodesForUserPerm(userId, DelegatedAccessConstants.NODE_PERM_SITE_VISIT); 
+		return delegatedAccessNodes != null && delegatedAccessNodes.size() > 0;
+	}
 }

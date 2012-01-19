@@ -57,6 +57,15 @@ public class UserPage  extends BaseTreePage{
 		if(isShoppingPeriodTool()){
 			userId = DelegatedAccessConstants.SHOPPING_PERIOD_USER;
 		}else{
+			//check if they should even have acces to this page:
+			if(!hasDelegatedAccess){
+				if(hasShoppingAdmin){
+					setResponsePage(new ShoppingEditPage());
+				}else{
+					
+				}
+			}
+			
 			userId = sakaiProxy.getCurrentUserId();
 		}
 

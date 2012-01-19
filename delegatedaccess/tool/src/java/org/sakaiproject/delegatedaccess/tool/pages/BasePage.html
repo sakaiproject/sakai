@@ -35,8 +35,8 @@
 </head>     
 <body>
 	<div class="portletBody">
-		<wicket:enclosure child="firstLink">
 		<ul class="navIntraTool actionToolbar" role="menu">
+			<wicket:enclosure child="firstLink">
 			<li class="firstToolBarItem" role="menuitem">
 				<span>
 					<a wicket:id="firstLink">
@@ -44,6 +44,8 @@
 					</a>
 				</span>
 			</li>
+			</wicket:enclosure>
+			<wicket:enclosure child="secondLink">
 			<li role="menuitem">
 				<span>
 					<a wicket:id="secondLink">
@@ -51,6 +53,8 @@
 					</a>
 				</span>
 			</li>
+			</wicket:enclosure>
+			<wicket:enclosure child="thirdLink">
 			<li role="menuitem">
 				<span>
 					<a wicket:id="thirdLink">
@@ -58,8 +62,8 @@
 					</a>
 				</span>
 			</li>
+			</wicket:enclosure>
 		</ul>
-		</wicket:enclosure>
 		
 		<span wicket:id="feedback">feedbackmessages will be put here</span>
 		

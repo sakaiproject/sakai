@@ -43,6 +43,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	Link<Void> firstLink;
 	Link<Void> secondLink;
 	Link<Void> thirdLink;
+	boolean hasShoppingAdmin;
+	boolean hasDelegatedAccess;
 
 	FeedbackPanel feedbackPanel;
 	
@@ -54,11 +56,17 @@ public class BasePage extends WebPage implements IHeaderContributor {
 
 		shoppingPeriodTool = sakaiProxy.isShoppingTool();
 
+		hasShoppingAdmin = projectLogic.hasShoppingPeriodAdminNodes(sakaiProxy.getCurrentUserId());
+		hasDelegatedAccess = projectLogic.hasDelegatedAccessNodes(sakaiProxy.getCurrentUserId());
 		//first link
 		firstLink = new Link<Void>("firstLink") {
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				setResponsePage(new UserPage());
+			}
+			@Override
+			public boolean isVisible() {
+				return shoppingPeriodTool || (!shoppingPeriodTool && hasDelegatedAccess); 
 			}
 		};
 		if(shoppingPeriodTool){
@@ -80,7 +88,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			}
 			@Override
 			public boolean isVisible() {
-				return !shoppingPeriodTool;
+				return !shoppingPeriodTool && hasShoppingAdmin;
 			}
 		};
 		secondLink.add(new Label("secondLinkLabel",new ResourceModel("link.second")).setRenderBodyOnly(true));
@@ -122,6 +130,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			}
 		};
 		add(feedbackPanel); 
+		
 		
 		
 	}
