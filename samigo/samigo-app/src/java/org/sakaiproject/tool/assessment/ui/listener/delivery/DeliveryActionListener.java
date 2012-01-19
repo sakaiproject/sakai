@@ -1232,9 +1232,10 @@ public class DeliveryActionListener
     // Generate the answer key
     String key = "";
     Iterator key1 = item.getItemTextArraySorted().iterator();
-    int j = 1;
+    int j = 0;
     while (key1.hasNext())
     {
+    	j++;
       // We need to store the answers in an arraylist in case they're
       // randomized -- we assign labels here, and then step through
       // them again later, and we have to make sure the order is the
@@ -1322,7 +1323,7 @@ public class DeliveryActionListener
               String addition = "";
               if (item.getTypeId().equals(TypeIfc.MATCHING))
               {
-                addition = Integer.toString(j++) + ":";
+                addition = Integer.toString(j) + ":";
               }
               if ("".equals(key))
               {
