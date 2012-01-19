@@ -653,7 +653,7 @@ function submitform(id)
 											<td>
 												<div id="clonableUpload"> 
 													<input type="file" name="upload" class="upload" id="clonableUpload" onchange="javascript:showNotif('submitnotifxxx','post','addSubmissionForm');document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUpload" "")';submitform('addSubmissionForm');""/> 
-													<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">Uploading file</span>
+													<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
 												</div>
 											</td>
 											<td>
