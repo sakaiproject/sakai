@@ -1586,7 +1586,7 @@ public class DeliveryActionListener
       
       GradingService gs = new GradingService();
       if (gs.hasDistractors(item)) {
-    	  choices.add(new SelectItem("None of the Above",
+    	  choices.add(new SelectItem("0",
     			  					"None of the Above",
     			  					""));
       }
