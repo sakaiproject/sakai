@@ -1,0 +1,58 @@
+Index: impl/src/java/org/sakaiproject/delegatedaccess/logic/DelegatedAccessObserver.java
+===================================================================
+--- impl/src/java/org/sakaiproject/delegatedaccess/logic/DelegatedAccessObserver.java	(revision 78199)
++++ impl/src/java/org/sakaiproject/delegatedaccess/logic/DelegatedAccessObserver.java	(working copy)
+@@ -39,8 +39,7 @@
+ 		Event event = (Event) arg;
+ 
+ 		// check the event function against the functions we have notifications watching for
+-		if (UsageSessionService.EVENT_LOGIN.equals(event.getEvent())
+-				|| UsageSessionService.EVENT_LOGIN_CONTAINER.equals(event.getEvent())) {
++		if (UsageSessionService.EVENT_LOGIN.equals(event.getEvent())) {
+ 			projectLogic.initializeDelegatedAccessSession();
+ 		}
+ 	}
+Index: impl/src/java/org/sakaiproject/delegatedaccess/logic/SakaiProxyImpl.java
+===================================================================
+--- impl/src/java/org/sakaiproject/delegatedaccess/logic/SakaiProxyImpl.java	(revision 78215)
++++ impl/src/java/org/sakaiproject/delegatedaccess/logic/SakaiProxyImpl.java	(working copy)
+@@ -196,7 +196,7 @@
+ 	 */
+ 	public List<User> searchUsers(String search, int first, int last) {
+ 		List<User> returnList = new ArrayList<User>();
+-		returnList.addAll(userDirectoryService.searchExternalUsers(search, first, last));
++		//returnList.addAll(userDirectoryService.searchExternalUsers(search, first, last));
+ 		returnList.addAll(userDirectoryService.searchUsers(search, first, last));
+ 		return returnList;
+ 	}
+@@ -411,7 +411,7 @@
+ 		} catch (AuthzPermissionException e) {
+ 			log.error(e);
+ 		} finally {
+-			securityService.popAdvisor(yesMan);
++			securityService.popAdvisor();
+ 		}
+ 	}
+ 
+@@ -430,7 +430,7 @@
+ 	}
+ 
+ 	public void popSecurityAdvisor(SecurityAdvisor advisor){
+-		securityService.popAdvisor(advisor);
++		securityService.popAdvisor();
+ 	}
+ 	
+ 	public String getTermField(){
+Index: pom.xml
+===================================================================
+--- pom.xml	(revision 78199)
++++ pom.xml	(working copy)
+@@ -13,7 +13,7 @@
+ 	<parent>
+ 		<groupId>org.sakaiproject.purepoms</groupId>
+ 		<artifactId>sakai-standard-tool</artifactId>
+-		<version>2.9-SNAPSHOT</version>
++		<version>2.7.13</version>
+ 	</parent>
+ 	
+ 	<properties>
