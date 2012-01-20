@@ -721,6 +721,11 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return list;
 	}
 
+	public Date getRepeatingEventHorizon() {
+		
+		return new Date(this.horizon.getTime());
+	}
+
 	public String getString(String key, String dflt, String entityTypeId) {
 		if(dflt == null) {
 			dflt = "";
@@ -940,6 +945,12 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	public void removeAllScheduledAvailabilityChecks(String entityReference) {
 		boolean removed = dao.deleteAvailabilityChecks(entityReference);
 		
+	}
+	
+	public void reviseCalendarItemTime(String entityReference,
+			String labelKey, Integer sequenceNumber, Date newDate) {
+		
+		dao.updateCalendarItemTime(entityReference, labelKey, sequenceNumber, newDate);
 	}
 
 	public void reviseCalendarItems(String entityReference, String newTitle, Date newTime) {

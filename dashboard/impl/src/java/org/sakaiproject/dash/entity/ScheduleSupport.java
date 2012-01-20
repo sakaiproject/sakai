@@ -349,7 +349,9 @@ public class ScheduleSupport{
 	 *
 	 */
 	public class ScheduleNewEventProcessor implements EventProcessor {
-		
+
+		private Log logger = LogFactory.getLog(ScheduleNewEventProcessor.class);
+
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.dash.listener.EventProcessor#getEventIdentifer()
 		 */
@@ -441,6 +443,8 @@ public class ScheduleSupport{
 	 */
 	public class ScheduleRemoveEventProcessor implements EventProcessor {
 		
+		private Log logger = LogFactory.getLog(ScheduleRemoveEventProcessor.class);
+		
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.dash.listener.EventProcessor#getEventIdentifer()
 		 */
@@ -475,6 +479,8 @@ public class ScheduleSupport{
 	 */
 	public class ScheduleUpdateTitleEventProcessor implements EventProcessor {
 		
+		private Log logger = LogFactory.getLog(ScheduleUpdateTitleEventProcessor.class);
+
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.dash.listener.EventProcessor#getEventIdentifer()
 		 */
@@ -544,6 +550,8 @@ public class ScheduleSupport{
 	 */
 	public class ScheduleUpdateTimeEventProcessor implements EventProcessor {
 		
+		private Log logger = LogFactory.getLog(ScheduleUpdateTimeEventProcessor.class);
+		
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.dash.listener.EventProcessor#getEventIdentifer()
 		 */
@@ -590,8 +598,19 @@ public class ScheduleSupport{
 					}
 					dashboardLogic.reviseRepeatingCalendarItemTime(entityReference, newStartTime, null);
 					
-					
-					dashboardLogic.reviseCalendarItemsTime(entityReference, newStartTime);
+					// need to get each item in sequence and update its time
+					Map<Integer, Date> dates = scheduleEntityType.generateRepeatingEventDates(entityReference, newStartTime, dashboardLogic.getRepeatingEventHorizon());
+					for(Map.Entry<Integer, Date> entry : dates.entrySet()) {
+						String msg = entry.getKey().toString() + " ==> " + entry.getValue().toString();
+						CalendarItem oneItem = dashboardLogic.getCalendarItem(entityReference, calendarTimeLabelKey, entry.getKey());
+						if(oneItem != null) {
+							msg += " -----> " + oneItem.getCalendarTime().toString();
+						}
+						logger.info(msg);
+						
+						dashboardLogic.reviseCalendarItemTime(entityReference, calendarTimeLabelKey, entry.getKey(), entry.getValue());
+					}
+					//dashboardLogic.reviseCalendarItemsTime(entityReference, newStartTime);
 					
 				} else {
 					// update calendar item title
@@ -613,7 +632,9 @@ public class ScheduleSupport{
 	 * Inner Class: ScheduleUpdateTypeEventProcessor
 	 */
 	public class ScheduleUpdateTypeEventProcessor implements EventProcessor {
-		
+
+		private Log logger = LogFactory.getLog(ScheduleUpdateTypeEventProcessor.class);
+
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.dash.listener.EventProcessor#getEventIdentifer()
 		 */
@@ -674,6 +695,8 @@ public class ScheduleSupport{
 
 	public class ScheduleReviseEventProcessor implements EventProcessor {
 
+		private Log logger = LogFactory.getLog(ScheduleReviseEventProcessor.class);
+
 		public String getEventIdentifer() {
 			return SakaiProxy.EVENT_SCHEDULE_REVISE_EVENT;
 		}
@@ -692,6 +715,8 @@ public class ScheduleSupport{
 	}
 	
 	public class ScheduleUpdateAccessEventProcessor implements EventProcessor {
+
+		private Log logger = LogFactory.getLog(ScheduleUpdateAccessEventProcessor.class);
 
 		public String getEventIdentifer() {
 			
@@ -730,6 +755,8 @@ public class ScheduleSupport{
 	
 	public class ScheduleUpdateFrequencyEventProcessor implements EventProcessor {
 
+		private Log logger = LogFactory.getLog(ScheduleUpdateFrequencyEventProcessor.class);
+
 		public String getEventIdentifer() {
 			
 			return SakaiProxy.EVENT_MODIFY_CALENDAR_EVENT_FREQUENCY;
@@ -749,6 +776,8 @@ public class ScheduleSupport{
 	}
 	
 	public class ScheduleUpdateExcludedEventProcessor implements EventProcessor {
+
+		private Log logger = LogFactory.getLog(ScheduleUpdateExcludedEventProcessor.class);
 
 		public String getEventIdentifer() {
 			
@@ -814,6 +843,8 @@ public class ScheduleSupport{
 	
 	public class ScheduleUpdateExclusionsEventProcessor implements EventProcessor {
 
+		private Log logger = LogFactory.getLog(ScheduleUpdateExclusionsEventProcessor.class);
+		
 		public String getEventIdentifer() {
 			
 			return SakaiProxy.EVENT_MODIFY_CALENDAR_EVENT_EXCLUSIONS;

@@ -603,6 +603,11 @@ public interface DashboardLogic {
 
 	public List<NewsItem> getMOTD();
 
+	public Date getRepeatingEventHorizon();
+
+	public void reviseCalendarItemTime(String entityReference, String labelKey,
+			Integer sequenceNumber, Date newDate);
+
 	// todo:
 	// add methods to revise news items, calendar items, news links, calendar links, etc.
 	

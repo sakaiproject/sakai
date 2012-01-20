@@ -1427,6 +1427,27 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	
 	/*
 	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#updateCalendarItemTime(java.lang.String, java.lang.String, java.lang.Integer, java.util.Date)
+	 */
+	public boolean updateCalendarItemTime(String entityReference, String labelKey,
+			Integer sequenceNumber, Date newDate) {
+		if(log.isDebugEnabled()) {
+			log.debug("updateCalendarItemTime( " + entityReference + "," + labelKey + "," + sequenceNumber + "," + newDate + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("update.CalendarItem.calendarTime.entityReference.labelKey.sequenceNumber"),
+				new Object[]{newDate, entityReference, labelKey, sequenceNumber }
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("updateCalendarItemTime: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}				
+	}
+
+	/*
+	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#updateCalendarItemSubtype(java.lang.Long, java.lang.String)
 	 */
 	public boolean updateCalendarItemSubtype(Long id, String newSubtype) {
