@@ -914,6 +914,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    case SimplePageItem.RESOURCE:
 						String mimeType = i.getHtml();
 
+						if (mimeType == null || mimeType.equals("")) {
+						    mimeType = ContentTypeImageService.getContentType(i.getSakaiId());
+						}
+
 						String src = null;
 						if (!useSakaiIcons)
 						    src = imageToMimeMap.get(mimeType);
