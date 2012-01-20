@@ -50,6 +50,7 @@
 		<property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
 		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
 		<property name="localeGetter" ref="requestLocaleProxy" />
+		<property name="httpServletResponse" ref="httpServletResponse" />
 		<property name="httpServletRequest" ref="httpServletRequest" />
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
 		<property name="richTextEvolver" ref="richTextEvolver" />

@@ -53,6 +53,7 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.context.support.ServletContextResource;
 
 import org.apache.commons.logging.Log;
@@ -141,6 +142,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private FormatAwareDateInputEvolver dateevolver;
 	private TimeService timeService;
 	private HttpServletRequest httpServletRequest;
+	private HttpServletResponse httpServletResponse;
     // have to do it here because we need it in urlCache. It has to happen before Spring initialization
 	private static MemoryService memoryService = (MemoryService)ComponentManager.get(MemoryService.class);
 	private ToolManager toolManager;
@@ -457,6 +459,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    // special instructor-only javascript setup.
 		    // but not if we're refreshing
 			UIOutput.make(tofill, "instructoronly");
+			// Chome and IE will abort a page if some on it was input from
+			// a previous submit. I.e. if an HTML editor was used. In theory they
+			// only do this if part of it is Javascript, but in practice they do
+			// it for images as well. The protection isn't worthwhile, since it only
+			// protects the first time. Since it will reesult in a garbled page, 
+			// people will just refresh the page, and then they'll get the new
+			// contents. The Chrome guys refuse to fix this so it just applies to Javascript
+			httpServletResponse.setHeader("X-XSS-Protection", "0");
 		}
 
 
@@ -1814,6 +1824,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	public void setHttpServletRequest(HttpServletRequest httpServletRequest) {
 		this.httpServletRequest = httpServletRequest;
+	}
+
+	public void setHttpServletResponse(HttpServletResponse httpServletResponse) {
+		this.httpServletResponse = httpServletResponse;
 	}
 
 	private boolean makeLink(UIContainer container, String ID, SimplePageItem i, boolean canEditPage, SimplePage currentPage, boolean notDone, Status status) {
