@@ -523,6 +523,16 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 
 		URL urlResource;
 		URLConnection urlConnection = null;
+		//For local file override
+		
+		String sakaiHomePath = serverConfigurationService.getSakaiHomePath();
+  		String localHelpPath = sakaiHomePath+serverConfigurationService.getString("help.localpath","/help/");
+		File localFile = new File(localHelpPath+resource.getLocation());
+		boolean localFileIsFile = false;
+		if(localFile.isFile()) { 
+			LOG.debug("Local help file overrides: "+resource.getLocation());
+			localFileIsFile = true;
+		}
 		StringBuilder sb = new StringBuilder();
 		if (resource.getLocation() == null || resource.getLocation().startsWith("/"))
 		{
@@ -562,8 +572,14 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 			}
 			else
 			{
+				// Add the home folder file reading here
+				if(localFileIsFile) { 
+					urlResource = localFile.toURI().toURL();
+				}
+				else {
 				// handle classpath location
-				urlResource = getClass().getResource(resource.getLocation());
+					urlResource = getClass().getResource(resource.getLocation());
+				}
 			}
 		}
 		else
@@ -578,8 +594,11 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 		}
 
 		if (resource.getLocation() != null){
-			// doc.add(Field.Keyword("location", resource.getLocation()));
-			doc.add(new Field("location", resource.getLocation(), Field.Store.YES, Field.Index.NOT_ANALYZED));
+			String resLocation = resource.getLocation();
+			if(localFileIsFile) { 
+				resLocation = localFile.getPath();
+			}
+			doc.add(new Field("location", resLocation, Field.Store.YES, Field.Index.NOT_ANALYZED));
 		}
 
 

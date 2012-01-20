@@ -22,6 +22,7 @@
 package org.sakaiproject.tool.help;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -35,6 +36,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.help.HelpManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
+
 import org.sakaiproject.api.app.help.Resource;
 import org.sakaiproject.component.cover.ComponentManager;
 
@@ -53,6 +56,7 @@ public class ContentServlet extends HttpServlet
   private static final String DOC_ID = "docId";
   private static final String TEXT_HTML = "text/html; charset=UTF-8";
   private HelpManager helpManager;
+  private ServerConfigurationService serverConfigurationService;
 
   /**
    * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
@@ -69,8 +73,18 @@ public class ContentServlet extends HttpServlet
           Resource resource = getHelpManager().getResourceByDocId(docId);
 
           URL url;
+          
           if (resource != null)
           {
+    	  		String sakaiHomePath = getServerConfigurationService().getSakaiHomePath();
+    	  		String localHelpPath = sakaiHomePath+getServerConfigurationService().getString("help.localpath","/help/");
+    	  		File localFile = new File(localHelpPath+resource.getLocation());
+    	  		boolean localFileIsFile = false;
+    	  		if(localFile.isFile()) { 
+    	  			M_log.debug("Local help file overrides: "+resource.getLocation());
+    	  			localFileIsFile = true;
+    	  		}
+
               if (!getHelpManager().getRestConfiguration().getOrganization()
                       .equalsIgnoreCase("sakai"))
               {
@@ -86,7 +100,12 @@ public class ContentServlet extends HttpServlet
                       }
                       else
                       {
-                          url = HelpManager.class.getResource(resource.getLocation());
+                    	  if(localFileIsFile) { 
+                    		  url = localFile.toURI().toURL();
+                    	  }
+                    	  else {
+                    		  url = HelpManager.class.getResource(resource.getLocation());
+                    	  }
                       }
 
                       if (url == null) {
@@ -135,6 +154,19 @@ public class ContentServlet extends HttpServlet
     }
     return helpManager;
   }
-}
 
+  /**
+   * get the component manager through cover
+   * @return serverconfigurationservicer
+   */
+  public ServerConfigurationService getServerConfigurationService()
+  {
+    if (serverConfigurationService == null)
+    {
+    	serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class.getName()); 
+    	return serverConfigurationService;
+    }
+    return serverConfigurationService;
+  }
+}
 
