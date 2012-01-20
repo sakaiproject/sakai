@@ -1,7 +1,10 @@
 package org.sakaiproject.delegatedaccess.jobs;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -49,6 +52,7 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 	private Set<String> newHiearchyNodeIds;
 	
 	private static boolean semaphore = false;
+	private Map<String, String> errors = new HashMap<String, String>();
 
 	public void init() {
 
@@ -61,56 +65,74 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 			return;
 		}
 		semaphore = true;
-		
+
+		errors = new HashMap<String, String>();
+
 		try{
+			log.info("DelegatedAccessSiteHierarchyJob started");
+			long startTime = System.currentTimeMillis();
 
-		long startTime = System.currentTimeMillis();
+			newHiearchyNodeIds = new HashSet<String>();
 
-		newHiearchyNodeIds = new HashSet<String>();
+			HierarchyNode rootNode = hierarchyService.getRootNode(DelegatedAccessConstants.HIERARCHY_ID);
+			if (rootNode == null) {
+				// create the hierarchy if it is not there already
+				rootNode = hierarchyService.createHierarchy(DelegatedAccessConstants.HIERARCHY_ID);
+				String rootTitle = sakaiProxy.getRootName();
+				hierarchyService.saveNodeMetaData(rootNode.id, rootTitle, rootTitle, null);
+				log.info("Created the root node for the delegated access hierarchy: " + DelegatedAccessConstants.HIERARCHY_ID);
+			}
 
-		HierarchyNode rootNode = hierarchyService.getRootNode(DelegatedAccessConstants.HIERARCHY_ID);
-		if (rootNode == null) {
-			// create the hierarchy if it is not there already
-			rootNode = hierarchyService.createHierarchy(DelegatedAccessConstants.HIERARCHY_ID);
-			String rootTitle = sakaiProxy.getRootName();
-			hierarchyService.saveNodeMetaData(rootNode.id, rootTitle, rootTitle, null);
-			log.info("Created the root node for the delegated access hierarchy: " + DelegatedAccessConstants.HIERARCHY_ID);
-		}
+			//get hierarchy structure:
+			String[] hierarchy = sakaiProxy.getServerConfigurationStrings(DelegatedAccessConstants.HIERARCHY_SITE_PROPERTIES);
+			if(hierarchy == null || hierarchy.length == 0){
+				hierarchy = defaultHierarchy;
+			}
 
-		//get hierarchy structure:
-		String[] hierarchy = sakaiProxy.getServerConfigurationStrings(DelegatedAccessConstants.HIERARCHY_SITE_PROPERTIES);
-		if(hierarchy == null || hierarchy.length == 0){
-			hierarchy = defaultHierarchy;
-		}
+			for(Site site : sakaiProxy.getAllSites()){
+				//search through all sites and add it to the hierarchy if the site has information (otherwise skip)
+				try{
+					String siteParentId = rootNode.id;
+					//find lowest hierarchy node:
+					for(String hiearchyProperty : hierarchy){
+						String siteProperty = site.getProperties().getProperty(hiearchyProperty);
+						if(siteProperty != null && !"".equals(siteProperty)){
+							siteParentId = checkAndAddNode(siteParentId, siteProperty, siteProperty, null);
+						}else{
+							//nothing, so break
+							break;
+						}
+					}
 
-		for(Site site : sakaiProxy.getAllSites()){
-			//search through all sites and add it to the hierarchy if the site has information (otherwise skip)
-
-			String siteParentId = rootNode.id;
-			//find lowest hierarchy node:
-			for(String hiearchyProperty : hierarchy){
-				String siteProperty = site.getProperties().getProperty(hiearchyProperty);
-				if(siteProperty != null && !"".equals(siteProperty)){
-					siteParentId = checkAndAddNode(siteParentId, siteProperty, siteProperty, null);
-				}else{
-					//nothing, so break
-					break;
+					if(!rootNode.id.equals(siteParentId)){
+						//save the site under the parent hierarchy if any data was found
+						//Site
+						checkAndAddNode(siteParentId, site.getTitle(), site.getReference(), site.getProperties().getProperty(sakaiProxy.getTermField()));
+					}
+				}catch (Exception e) {
+					log.error(e);
+					errors.put(site.getId(), e.getMessage());
 				}
 			}
 
-			if(!rootNode.id.equals(siteParentId)){
-				//save the site under the parent hierarchy if any data was found
-				//Site
-				checkAndAddNode(siteParentId, site.getTitle(), site.getReference(), site.getProperties().getProperty(sakaiProxy.getTermField()));
+			//report the errors
+			if(errors.size() > 0){
+				String warning = "The following sites had errors: \n\n";
+				for(Entry entry : errors.entrySet()){
+					warning += entry.getKey() + ": " + entry.getValue() + "\n";
+				}
+				log.warn(warning);
+				sakaiProxy.sendEmail("DelegatedAccessShoppingPeriodJob error", warning);
 			}
-		}
 
-		//remove any sites that don't exist in the hierarchy (aka properties changed or site has been deleted):
-		removeMissingNodes(rootNode);
 
-		log.info("PopulateSiteHierarchyJob finished in " + (System.currentTimeMillis() - startTime) + " ms");
+			//remove any sites that don't exist in the hierarchy (aka properties changed or site has been deleted):
+			removeMissingNodes(rootNode);
+
+			log.info("DelegatedAccessSiteHierarchyJob finished in " + (System.currentTimeMillis() - startTime) + " ms");
 		}catch (Exception e) {
 			log.error(e);
+			sakaiProxy.sendEmail("Error occurred in DelegatedAccessSiteHierarchyJob", e.getMessage());
 		}finally{
 			semaphore = false;
 		}
@@ -118,9 +140,13 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 
 	private void removeMissingNodes(HierarchyNode rootNode){
 		for(String child : rootNode.childNodeIds){
-			if(!newHiearchyNodeIds.contains(child)){
-				//this site has either moved or been deleted
-				removeMissingNodesHelper(hierarchyService.getNodeById(child));
+			try{
+				if(!newHiearchyNodeIds.contains(child)){
+					//this site has either moved or been deleted
+					removeMissingNodesHelper(hierarchyService.getNodeById(child));
+				}
+			}catch(Exception e){
+				log.error(e);
 			}
 		}
 	}
