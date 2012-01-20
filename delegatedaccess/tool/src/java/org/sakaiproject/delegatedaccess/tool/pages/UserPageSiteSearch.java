@@ -1,15 +1,19 @@
 package org.sakaiproject.delegatedaccess.tool.pages;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
@@ -26,12 +30,15 @@ import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.model.SelectOption;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.delegatedaccess.util.NodeModelComparator;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.user.api.User;
 
 /**
  * 
@@ -50,10 +57,68 @@ public class UserPageSiteSearch extends BasePage {
 	private SelectOption termField;;
 	private TreeModel treeModel;
 	private List<SelectOption> termOptions;
+	private boolean statistics = false;
+	private SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy");
+	private Map<String, String> toolsMap;
 
-	public UserPageSiteSearch(final String search, final Map<String, String> advancedFields, TreeModel treeModel){
+	public UserPageSiteSearch(final String search, final Map<String, String> advancedFields, TreeModel treeModel, final boolean statistics, final boolean currentStatisticsFlag){
 		this.search = search;
 		this.treeModel = treeModel;
+		this.statistics = statistics;
+		if(statistics){
+			disableLink(shoppingStatsLink);
+		}
+		List<ListOptionSerialized> blankRestrictedTools = projectLogic.getEntireToolsList();
+		toolsMap = new HashMap<String, String>();
+		for(ListOptionSerialized option : blankRestrictedTools){
+			toolsMap.put(option.getId(), option.getName());
+		}
+		
+		//Setup Statistics Links:
+		Link<Void> currentLink = new Link<Void>("currentLink") {
+			private static final long serialVersionUID = 1L;
+			public void onClick() {
+				TreeModel treeModel = projectLogic.getTreeModelForShoppingPeriod(true);
+				if(treeModel != null && ((DefaultMutableTreeNode) treeModel.getRoot()).getChildCount() == 0){
+					treeModel = null;
+				}
+				setResponsePage(new UserPageSiteSearch("", null, treeModel, true, true));
+			}
+			@Override
+			public boolean isVisible() {
+				return statistics;
+			}
+		};
+		currentLink.add(new Label("currentLinkLabel",new ResourceModel("link.current")).setRenderBodyOnly(true));
+		currentLink.add(new AttributeModifier("title", true, new ResourceModel("link.current.tooltip")));
+		add(currentLink);
+		
+		if(currentStatisticsFlag){
+			disableLink(currentLink);
+		}
+		
+		Link<Void> allLink = new Link<Void>("allLink") {
+			private static final long serialVersionUID = 1L;
+			public void onClick() {
+				TreeModel treeModel = projectLogic.createEntireTreeModelForUser(DelegatedAccessConstants.SHOPPING_PERIOD_USER, false, true);
+				if(treeModel != null && ((DefaultMutableTreeNode) treeModel.getRoot()).getChildCount() == 0){
+					treeModel = null;
+				}
+				setResponsePage(new UserPageSiteSearch("", null, treeModel, true, false));
+			}
+			@Override
+			public boolean isVisible() {
+				return statistics;
+			}
+		};
+		allLink.add(new Label("allLinkLabel",new ResourceModel("link.all")).setRenderBodyOnly(true));
+		allLink.add(new AttributeModifier("title", true, new ResourceModel("link.all.tooltip")));
+		add(allLink);
+		if(!currentStatisticsFlag){
+			disableLink(allLink);
+		}
+		
+		
 		termOptions = new ArrayList<SelectOption>();
 		for(String[] entry : sakaiProxy.getTerms()){
 			termOptions.add(new SelectOption(entry[1], entry[0]));
@@ -181,6 +246,43 @@ public class UserPageSiteSearch extends BasePage {
 			}
 		};
 		add(instructorSort);
+		
+		Link<Void> authorizationSort = new Link<Void>("authorizationSortLink"){
+			private static final long serialVersionUID = 1L;
+			public void onClick() {
+				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_AUTHORIZATION);
+			}
+			@Override
+			public boolean isVisible() {
+				//this helps with the wicket:enlosure
+				return statistics;
+			}
+		};
+		add(authorizationSort);
+		
+		Link<Void> shoppersBecomeSort = new Link<Void>("shoppersBecomeSortLink"){
+			private static final long serialVersionUID = 1L;
+			public void onClick() {
+				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_SHOPPERS_BECOME);
+			}
+		};
+		add(shoppersBecomeSort);
+		
+		Link<Void> startDateSort = new Link<Void>("startDateSortLink"){
+			private static final long serialVersionUID = 1L;
+			public void onClick() {
+				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_START_DATE);
+			}
+		};
+		add(startDateSort);
+		
+		Link<Void> endDateSort = new Link<Void>("endDateSortLink"){
+			private static final long serialVersionUID = 1L;
+			public void onClick() {
+				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_END_DATE);
+			}
+		};
+		add(endDateSort);
 
 		//Data:
 		provider = new NodeModelDataProvider();
@@ -211,7 +313,23 @@ public class UserPageSiteSearch extends BasePage {
 
 				item.add(new Label("siteId", siteId));
 				item.add(new Label("term", nodeModel.getSiteTerm()));
-				item.add(new Label("instructor", nodeModel.getSiteInstructors()));
+				item.add(new Label("instructor", nodeModel.getSiteInstructors()){
+					@Override
+					public boolean isVisible() {
+						return instructorField != null && !"".equals(instructorField);
+					}
+				});
+				item.add(new Label("authorization", getAuthString(nodeModel)){
+					@Override
+					public boolean isVisible() {
+						//this helps hide all the extra columns with the wicket:enclosure in the html
+						return statistics;
+					}
+				});
+				item.add(new Label("shoppersBecome", getAccessRealmRoleString(nodeModel)));
+				item.add(new Label("startDate", getDateString(nodeModel, true)));
+				item.add(new Label("endDate", getDateString(nodeModel, false)));
+				item.add(new Label("showTools", getToolsString(nodeModel)));
 			}
 			@Override
 			public boolean isVisible() {
@@ -264,6 +382,53 @@ public class UserPageSiteSearch extends BasePage {
 
 	}
 
+	private String getDateString(NodeModel nodeModel, boolean startDate){
+		Date date = null;
+		if(startDate)
+			date = nodeModel.getNodeShoppingPeriodStartDate();
+		else
+				date = nodeModel.getNodeShoppingPeriodEndDate();
+		if(date == null){
+			return "";
+		}else{
+			return format.format(date);
+		}
+	}
+	
+	private String getAuthString(NodeModel nodeModel){
+		String auth = nodeModel.getNodeShoppingPeriodAuth();
+		if(auth != null && !"".equals(auth)){
+			return new StringResourceModel(auth, null).getString();
+		}else{
+			return "";
+		}
+	}
+	
+	private String getAccessRealmRoleString(NodeModel nodeModel){
+		String[] inheritedAccess;
+		inheritedAccess = nodeModel.getNodeAccessRealmRole();
+		if("".equals(inheritedAccess[0])){
+			return "";
+		}else{
+			return inheritedAccess[0] + " : " + inheritedAccess[1];
+		}
+	}
+	
+	private String getToolsString(NodeModel nodeModel){
+		String restrictedTools = "";
+		for(String tool : nodeModel.getNodeRestrictedTools()){
+			if(!"".equals(restrictedTools)){
+				restrictedTools += ", ";
+			}
+			String toolName = tool;
+			if(toolsMap.containsKey(toolName)){
+				toolName = toolsMap.get(toolName);
+			}
+			restrictedTools += toolName;
+		}
+		return restrictedTools;
+	}
+	
 	/**
 	 * changes order by desc or asc
 	 * 
@@ -321,7 +486,18 @@ public class UserPageSiteSearch extends BasePage {
 				if(instructorField != null && !"".equals(instructorField)){
 					advancedOptions.put(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR, instructorField);
 				}
-				list = projectLogic.searchUserSites(getSearch(), treeModel, advancedOptions.isEmpty() ? null : advancedOptions);
+				if(search == null){
+					search = "";
+				}
+				if(!"".equals(search) || (advancedOptions != null && !advancedOptions.isEmpty())){
+					list = projectLogic.searchUserSites(getSearch(), treeModel, advancedOptions.isEmpty() ? null : advancedOptions);
+				}else {
+					if(treeModel != null && treeModel.getRoot() != null){
+						list = getAllSites((DefaultMutableTreeNode) treeModel.getRoot());
+					}else{
+						list = new ArrayList<NodeModel>();
+					}
+				}
 				sortList();
 			}else if(lastOrderAsc != orderAsc || lastOrderBy != orderBy){
 				sortList();
@@ -339,6 +515,23 @@ public class UserPageSiteSearch extends BasePage {
 		}
 
 	}
+	
+	private List<NodeModel> getAllSites(DefaultMutableTreeNode node){
+		List<NodeModel> returnList = new ArrayList<NodeModel>();
+		if(node != null){
+			NodeModel nodeModel = (NodeModel) node.getUserObject();
+			if(nodeModel.getNode().description.startsWith("/site/")){
+				//don't bother showing the term until they search for it
+				nodeModel.setSiteTerm("-");
+				returnList.add(nodeModel);
+			}
+			for(int i = 0; i < node.getChildCount(); i++){
+				returnList.addAll(getAllSites((DefaultMutableTreeNode) node.getChildAt(i)));
+			}
+		}
+
+		return returnList;
+	}
 
 	public String getSearch() {
 		return search;
@@ -346,6 +539,14 @@ public class UserPageSiteSearch extends BasePage {
 
 	public void setSearch(String search) {
 		this.search = search;
+	}
+
+	public boolean isStatistics() {
+		return statistics;
+	}
+
+	public void setStatistics(boolean statistics) {
+		this.statistics = statistics;
 	}
 
 }

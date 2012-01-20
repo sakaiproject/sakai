@@ -3,6 +3,17 @@
 <body>
 <wicket:extend>
 	<br/>
+	<wicket:enclosure child="currentLink">
+	<a wicket:id="currentLink">
+		<span wicket:id="currentLinkLabel">[currentLink]</span>
+	</a>
+	&nbsp;|&nbsp;
+	<a wicket:id="allLink">
+		<span wicket:id="allLinkLabel">[allLinkLabel]</span>
+	</a>
+	<br/>
+	</wicket:enclosure>
+	<br/>
 	<form wicket:id="form">
 		<h3><wicket:message key="searchSites"/></h3>
 		<table>
@@ -52,13 +63,31 @@
     	<th><a wicket:id="siteTitleSortLink"><wicket:message key="siteTitleHeader"/></a></th>
     	<th><a wicket:id="siteIdSortLink"><wicket:message key="siteIdHeader"/></a></th>
     	<th><a wicket:id="termSortLink"><wicket:message key="termHeader"/></a></th>
-    	<th><a wicket:id="instructorSortLink"><wicket:message key="instructorHeader"/></a></th>
+    	<wicket:enclosure child="instructorSortLink">
+    		<th><a wicket:id="instructorSortLink"><wicket:message key="instructorHeader"/></a></th>
+    	</wicket:enclosure>
+    	<wicket:enclosure child="authorizationSortLink">
+	    	<th><a wicket:id="authorizationSortLink"><wicket:message key="shoppingPeriodAuth"/></a></th>
+	    	<th><a wicket:id="shoppersBecomeSortLink"><wicket:message key="shoppersBecome"/></a></th>
+	    	<th><a wicket:id="startDateSortLink"><wicket:message key="startDate"/></a></th>
+	    	<th><a wicket:id="endDateSortLink"><wicket:message key="endDate"/></a></th>
+	    	<th><wicket:message key="showToolsHeader"/></th>
+    	</wicket:enclosure>
     	</tr>
        <tr wicket:id="searchResult">
        	 <td><a wicket:id="siteTitleLink"><span wicket:id="siteTitle">test</span></a></td>
        	 <td><span wicket:id="siteId">site id</span></td>
        	 <td><span wicket:id="term">term</span></td>
-       	 <td><span wicket:id="instructor">Last, First</span></td>
+       	 <wicket:enclosure child="instructor">
+	       	 <td><span wicket:id="instructor">Last, First</span></td>
+       	 </wicket:enclosure>
+       	 <wicket:enclosure child="authorization">
+	       	 <td><span wicket:id="authorization">Logged In</span></td>
+	       	 <td><span wicket:id="shoppersBecome">!site.course:instructor</span></td>
+	       	 <td><span wicket:id="startDate">1/1/2012</span></td>
+	       	 <td><span wicket:id="endDate">12/21/2012</span></td>
+	       	 <td><span wicket:id="showTools">Syllabus, Home</span></td>
+       	 </wicket:enclosure>
        </tr>
     </tbody>
 	</table>

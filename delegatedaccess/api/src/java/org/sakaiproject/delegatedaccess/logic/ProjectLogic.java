@@ -77,9 +77,11 @@ public interface ProjectLogic {
 
 	/**
 	 * This returns the shopping tree model in the shopping period hierarchy.
+	 * 
+	 * @param includePerms
 	 * @return
 	 */
-	public TreeModel getTreeModelForShoppingPeriod();
+	public TreeModel getTreeModelForShoppingPeriod(boolean includePerms);
 
 	/**
 	 * This returns a full tree model for a user.  It will reference both their access and shopping period admin permissions.

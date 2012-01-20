@@ -38,7 +38,7 @@ public class SearchUsersPage extends BasePage {
 
 	public SearchUsersPage() {
 
-		disableLink(thirdLink);
+		disableLink(searchUsersLink);
 
 		//Create Search Form:
 		final PropertyModel<String> messageModel = new PropertyModel<String>(this, "search");

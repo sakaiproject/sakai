@@ -85,6 +85,10 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 				HierarchyNode delegatedRootNode = hierarchyService.getRootNode(DelegatedAccessConstants.HIERARCHY_ID);
 				HierarchyNode rootNode = hierarchyService.createHierarchy(DelegatedAccessConstants.SHOPPING_PERIOD_HIERARCHY_ID);
 				hierarchyService.saveNodeMetaData(rootNode.id, delegatedRootNode.title, delegatedRootNode.description, null);
+				//copy old node's permissions for the shopping period user
+				for(String perm : hierarchyService.getPermsForUserNodes(DelegatedAccessConstants.SHOPPING_PERIOD_USER, new String[]{delegatedRootNode.id})){
+					hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SHOPPING_PERIOD_USER, rootNode.id, perm, false);
+				}
 				migratedHierarchyIds.put(delegatedRootNode.id, rootNode.id);
 
 				treeModelShoppingPeriodTraverser((DefaultMutableTreeNode) treeModel.getRoot());
@@ -262,7 +266,11 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 			//if this parent/child relationship hasn't been created, create it
 			HierarchyNode newNode = hierarchyService.addNode(DelegatedAccessConstants.SHOPPING_PERIOD_HIERARCHY_ID, migratedHierarchyIds.get(parent.getNodeId()));
 			hierarchyService.saveNodeMetaData(newNode.id, node.getNode().title, node.getNode().description, null);
-			hierarchyService.addChildRelation(migratedHierarchyIds.get(parent.getNodeId()), newNode.id);			
+			hierarchyService.addChildRelation(migratedHierarchyIds.get(parent.getNodeId()), newNode.id);
+			//copy old node's permissions for the shopping period user
+			for(String perm : hierarchyService.getPermsForUserNodes(DelegatedAccessConstants.SHOPPING_PERIOD_USER, new String[]{node.getNodeId()})){
+				hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SHOPPING_PERIOD_USER, newNode.id, perm, false);
+			}
 			migratedHierarchyIds.put(node.getNodeId(), newNode.id);
 		}
 	}

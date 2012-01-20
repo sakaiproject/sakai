@@ -125,7 +125,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 	}
 
 	private void saveShoppingPeriodAdmin(boolean admin, String nodeId, String userId){
-		if(admin){
+		//only save shopping period admin flag for real users
+		if(admin && !DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId)){
 			hierarchyService.assignUserNodePerm(userId, nodeId, DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN, false);
 		}
 	}
@@ -415,7 +416,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	public List<ListOptionSerialized> getEntireToolsList(){
 		List<ListOptionSerialized> returnList = new ArrayList<ListOptionSerialized>();
 		for(Tool tool : sakaiProxy.getAllTools()){
-			returnList.add(new ListOptionSerialized(tool.getId(), tool.getTitle() + "(" + tool.getId() + ")", false));
+			returnList.add(new ListOptionSerialized(tool.getId(), tool.getTitle() + " (" + tool.getId() + ")", false));
 		}
 		//the home tool is special, so add this case
 		String[] homeTools = sakaiProxy.getHomeTools();
@@ -639,6 +640,22 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//Returns a List that represents the tree/node architecture:
 		//  List{ List{node, List<children>}, List{node, List<children>}, ...}.
 		List<List> l1 = getTreeListForUser(userId, addDirectChildren, cascade, getAllNodesForUser(userId));
+		//Remove the shopping period nodes:
+		if(l1 != null){
+			HierarchyNode shoppingRoot = hierarchyService.getRootNode(DelegatedAccessConstants.SHOPPING_PERIOD_HIERARCHY_ID);
+			String shoppingPeriodRootId = "-1";
+			if(shoppingRoot != null){
+				shoppingPeriodRootId = shoppingRoot.id;
+			}
+			for (Iterator iterator = l1.iterator(); iterator.hasNext();) {
+				List list = (List) iterator.next();
+				if(shoppingPeriodRootId.equals(((HierarchyNodeSerialized) list.get(0)).id)){
+					iterator.remove();
+				}
+			}
+		}
+		
+		
 		//order tree model:
 		orderTreeModel(l1);
 
@@ -659,16 +676,20 @@ public class ProjectLogicImpl implements ProjectLogic {
 		return trimTreeForTerms(convertToTreeModel(l1, userId, getEntireToolsList(), getEntireTermsList(), addDirectChildren));
 	}
 
-	public TreeModel getTreeModelForShoppingPeriod(){
+	public TreeModel getTreeModelForShoppingPeriod(boolean includePerms){
 		//Returns a List that represents the tree/node architecture:
 		//  List{ List{node, List<children>}, List{node, List<children>}, ...}.
+		String userId = "";
+		if(includePerms){
+			userId = DelegatedAccessConstants.SHOPPING_PERIOD_USER;
+		}
 		Set<HierarchyNodeSerialized> rootSet = new HashSet<HierarchyNodeSerialized>();
 		rootSet.add(new HierarchyNodeSerialized(hierarchyService.getRootNode(DelegatedAccessConstants.SHOPPING_PERIOD_HIERARCHY_ID)));
-		List<List> l1 = getTreeListForUser("", false, true, rootSet);
+		List<List> l1 = getTreeListForUser(userId, false, true, rootSet);
 		//order tree model:
 		orderTreeModel(l1);
 
-		return convertToTreeModel(l1, "", getEntireToolsList(), getEntireTermsList(), false);
+		return convertToTreeModel(l1, userId, getEntireToolsList(), getEntireTermsList(), false);
 	}
 	
 	//This will search through the tree model and trim out any sites that are restricted b/c of the term value

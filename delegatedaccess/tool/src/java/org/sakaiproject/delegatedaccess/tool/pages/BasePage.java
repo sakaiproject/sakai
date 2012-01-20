@@ -1,5 +1,8 @@
 package org.sakaiproject.delegatedaccess.tool.pages;
 
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeModel;
+
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -40,9 +43,10 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	@SpringBean(name="org.sakaiproject.delegatedaccess.logic.ProjectLogic")
 	protected ProjectLogic projectLogic;
 
-	Link<Void> firstLink;
-	Link<Void> secondLink;
-	Link<Void> thirdLink;
+	Link<Void> accessPageLink;
+	Link<Void> shoppingAdminLink;
+	Link<Void> shoppingStatsLink;
+	Link<Void> searchUsersLink;
 	boolean hasShoppingAdmin;
 	boolean hasDelegatedAccess;
 
@@ -58,8 +62,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 
 		hasShoppingAdmin = projectLogic.hasShoppingPeriodAdminNodes(sakaiProxy.getCurrentUserId());
 		hasDelegatedAccess = projectLogic.hasDelegatedAccessNodes(sakaiProxy.getCurrentUserId());
-		//first link
-		firstLink = new Link<Void>("firstLink") {
+		//access page link
+		accessPageLink = new Link<Void>("accessPageLink") {
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				setResponsePage(new UserPage());
@@ -70,18 +74,18 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			}
 		};
 		if(shoppingPeriodTool){
-			firstLink.add(new Label("firstLinkLabel",new ResourceModel("link.first.shopping")).setRenderBodyOnly(true));
-			firstLink.add(new AttributeModifier("title", true, new ResourceModel("link.first.tooltip.shopping")));
+			accessPageLink.add(new Label("firstLinkLabel",new ResourceModel("link.first.shopping")).setRenderBodyOnly(true));
+			accessPageLink.add(new AttributeModifier("title", true, new ResourceModel("link.first.tooltip.shopping")));
 		}else{
-			firstLink.add(new Label("firstLinkLabel",new ResourceModel("link.first")).setRenderBodyOnly(true));
-			firstLink.add(new AttributeModifier("title", true, new ResourceModel("link.first.tooltip")));
+			accessPageLink.add(new Label("firstLinkLabel",new ResourceModel("link.first")).setRenderBodyOnly(true));
+			accessPageLink.add(new AttributeModifier("title", true, new ResourceModel("link.first.tooltip")));
 		}
-		add(firstLink);
+		add(accessPageLink);
 
 
 
-		//second link
-		secondLink = new Link<Void>("secondLink") {
+		//shopping admin link
+		shoppingAdminLink = new Link<Void>("shoppingAdminLink") {
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				setResponsePage(new ShoppingEditPage());
@@ -91,12 +95,31 @@ public class BasePage extends WebPage implements IHeaderContributor {
 				return !shoppingPeriodTool && hasShoppingAdmin;
 			}
 		};
-		secondLink.add(new Label("secondLinkLabel",new ResourceModel("link.second")).setRenderBodyOnly(true));
-		secondLink.add(new AttributeModifier("title", true, new ResourceModel("link.second.tooltip")));
-		add(secondLink);
+		shoppingAdminLink.add(new Label("secondLinkLabel",new ResourceModel("link.second")).setRenderBodyOnly(true));
+		shoppingAdminLink.add(new AttributeModifier("title", true, new ResourceModel("link.second.tooltip")));
+		add(shoppingAdminLink);
+		
+		//shopping stats link
+		shoppingStatsLink = new Link<Void>("shoppingStatsLink") {
+			private static final long serialVersionUID = 1L;
+			public void onClick() {
+				TreeModel treeModel = projectLogic.getTreeModelForShoppingPeriod(true);
+				if(treeModel != null && ((DefaultMutableTreeNode) treeModel.getRoot()).getChildCount() == 0){
+					treeModel = null;
+				}
+				setResponsePage(new UserPageSiteSearch("", null, treeModel, true, true));
+			}
+			@Override
+			public boolean isVisible() {
+				return !shoppingPeriodTool && hasShoppingAdmin;
+			}
+		};
+		shoppingStatsLink.add(new Label("shoppingStatsLinkLabel",new ResourceModel("link.shoppingStats")).setRenderBodyOnly(true));
+		shoppingStatsLink.add(new AttributeModifier("title", true, new ResourceModel("link.shoppingStats.tooltip")));
+		add(shoppingStatsLink);
 
-		//third link
-		thirdLink = new Link<Void>("thirdLink") {
+		//search users link
+		searchUsersLink = new Link<Void>("searchUsersLink") {
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				setResponsePage(new SearchUsersPage());
@@ -106,9 +129,9 @@ public class BasePage extends WebPage implements IHeaderContributor {
 				return sakaiProxy.isSuperUser() && !shoppingPeriodTool;
 			}
 		};
-		thirdLink.add(new Label("thirdLinkLabel",new ResourceModel("link.third")).setRenderBodyOnly(true));
-		thirdLink.add(new AttributeModifier("title", true, new ResourceModel("link.third.tooltip")));
-		add(thirdLink);
+		searchUsersLink.add(new Label("thirdLinkLabel",new ResourceModel("link.third")).setRenderBodyOnly(true));
+		searchUsersLink.add(new AttributeModifier("title", true, new ResourceModel("link.third.tooltip")));
+		add(searchUsersLink);
 
 		// Add a FeedbackPanel for displaying our messages
 		feedbackPanel = new FeedbackPanel("feedback"){

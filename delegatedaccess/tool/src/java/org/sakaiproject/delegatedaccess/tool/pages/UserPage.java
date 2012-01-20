@@ -50,7 +50,7 @@ public class UserPage  extends BaseTreePage{
 	}
 
 	public UserPage(){
-		disableLink(firstLink);
+		disableLink(accessPageLink);
 
 		//this is the home page so set user as current user
 		String userId;
@@ -93,7 +93,7 @@ public class UserPage  extends BaseTreePage{
 		add(getExpandCollapseLink());
 
 		if(isShoppingPeriodTool()){
-			treeModel = projectLogic.getTreeModelForShoppingPeriod();
+			treeModel = projectLogic.getTreeModelForShoppingPeriod(false);
 			if(treeModel != null && ((DefaultMutableTreeNode) treeModel.getRoot()).getChildCount() == 0){
 				treeModel = null;
 			}
@@ -170,7 +170,7 @@ public class UserPage  extends BaseTreePage{
 				if(instructorField != null && !"".equals(instructorField)){
 					advancedOptions.put(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR, instructorField);
 				}
-				setResponsePage(new UserPageSiteSearch(search, advancedOptions, treeModel));
+				setResponsePage(new UserPageSiteSearch(search, advancedOptions, treeModel, false, false));
 			}
 			@Override
 			public boolean isVisible() {

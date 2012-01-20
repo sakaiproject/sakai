@@ -49,7 +49,7 @@ public class ShoppingEditPage extends BaseTreePage{
 	}
 
 	public ShoppingEditPage(){
-		disableLink(secondLink);
+		disableLink(shoppingAdminLink);
 
 		//Form Feedback (Saved/Error)
 		final Label formFeedback = new Label("formFeedback");

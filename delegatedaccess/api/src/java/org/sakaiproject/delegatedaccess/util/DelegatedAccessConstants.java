@@ -19,6 +19,11 @@ public class DelegatedAccessConstants {
 	public static final int SEARCH_COMPARE_SITE_ID = 2;
 	public static final int SEARCH_COMPARE_TERM = 3;
 	public static final int SEARCH_COMPARE_INSTRUCTOR = 4;
+	public static final int SEARCH_COMPARE_AUTHORIZATION = 5;
+	public static final int SEARCH_COMPARE_SHOPPERS_BECOME = 6;
+	public static final int SEARCH_COMPARE_START_DATE = 7;
+	public static final int SEARCH_COMPARE_END_DATE = 8;
+	public static final int SEARCH_COMPARE_SHOW_TOOLS = 9;
 	public static final String SCHOOL_PROPERTY = "School";
 	public static final String DEPEARTMENT_PROPERTY = "Department";
 	public static final String SUBJECT_PROPERTY = "Subject";
