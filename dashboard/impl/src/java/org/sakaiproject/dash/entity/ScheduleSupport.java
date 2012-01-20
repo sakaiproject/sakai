@@ -601,17 +601,16 @@ public class ScheduleSupport{
 					// need to get each item in sequence and update its time
 					Map<Integer, Date> dates = scheduleEntityType.generateRepeatingEventDates(entityReference, newStartTime, dashboardLogic.getRepeatingEventHorizon());
 					for(Map.Entry<Integer, Date> entry : dates.entrySet()) {
-						String msg = entry.getKey().toString() + " ==> " + entry.getValue().toString();
-						CalendarItem oneItem = dashboardLogic.getCalendarItem(entityReference, calendarTimeLabelKey, entry.getKey());
-						if(oneItem != null) {
-							msg += " -----> " + oneItem.getCalendarTime().toString();
+						if(logger.isDebugEnabled()) {
+							String msg = entry.getKey().toString() + " ==> " + entry.getValue().toString();
+							CalendarItem oneItem = dashboardLogic.getCalendarItem(entityReference, calendarTimeLabelKey, entry.getKey());
+							if(oneItem != null) {
+								msg += " -----> " + oneItem.getCalendarTime().toString();
+							}
+							logger.debug(msg);
 						}
-						logger.info(msg);
-						
 						dashboardLogic.reviseCalendarItemTime(entityReference, calendarTimeLabelKey, entry.getKey(), entry.getValue());
 					}
-					//dashboardLogic.reviseCalendarItemsTime(entityReference, newStartTime);
-					
 				} else {
 					// update calendar item title
 					dashboardLogic.reviseCalendarItemsTime(entityReference, newStartTime);
