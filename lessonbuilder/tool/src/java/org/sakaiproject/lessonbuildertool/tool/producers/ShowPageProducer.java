@@ -915,7 +915,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						String mimeType = i.getHtml();
 
 						if (mimeType == null || mimeType.equals("")) {
-						    mimeType = ContentTypeImageService.getContentType(i.getSakaiId());
+						    String s = i.getSakaiId();
+						    int j = s.lastIndexOf(".");
+						    if (j >= 0)
+							s = s.substring(j+1);
+						    mimeType = ContentTypeImageService.getContentType(s);
+						    // System.out.println("type " + s + ">" + mimeType);
 						}
 
 						String src = null;
