@@ -1538,6 +1538,9 @@ public class DeliveryActionListener
 
   public void populateMatching(ItemDataIfc item, ItemContentsBean bean, HashMap publishedAnswerHash)
   {
+	  // used only for questions with distractors where the user has selected None of the Above
+	  final Long NONE_OF_THE_ABOVE = -1l;
+	  
     Iterator iter = item.getItemTextArraySorted().iterator();
     int j = 1;
     ArrayList beans = new ArrayList();
@@ -1587,7 +1590,7 @@ public class DeliveryActionListener
       
       GradingService gs = new GradingService();
       if (gs.hasDistractors(item)) {
-    	  choices.add(new SelectItem("0",
+    	  choices.add(new SelectItem(NONE_OF_THE_ABOVE.toString(),
     			  					"None of the Above",
     			  					""));
       }
@@ -1620,6 +1623,8 @@ public class DeliveryActionListener
               mbean.setFeedback(pubAnswer.getInCorrectAnswerFeedback());
               mbean.setIsCorrect(false);
             }
+          } else if (NONE_OF_THE_ABOVE.equals(data.getPublishedAnswerId())) {
+        	  mbean.setResponse(data.getPublishedAnswerId().toString());
           }
           break;
         }

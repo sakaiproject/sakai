@@ -37,6 +37,7 @@ import org.sakaiproject.tool.assessment.services.GradingService;
  */
 public class MatchingBean
 {
+	private final String NONE_OF_THE_ABOVE = "-1";
 
   private ItemContentsBean parent;
   private ItemTextIfc itemText;
@@ -101,6 +102,11 @@ public class MatchingBean
     // That is, the "select" selection in dropdown will never be set
     if ("0".equals(newresp)) {
     	data.setPublishedAnswerId(null);
+    }
+    // used for matching questions that have distractors.  If the user chooses the answer
+    // None of the Above, that answer value will be saved in the database.
+    if (NONE_OF_THE_ABOVE.equals(newresp)) {
+    	data.setPublishedAnswerId(Long.parseLong(NONE_OF_THE_ABOVE));
     }
     Iterator iter = itemText.getAnswerSet().iterator();
     while (iter.hasNext())
