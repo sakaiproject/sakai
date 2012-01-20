@@ -412,6 +412,14 @@ so make sure you include those of the default types that you want
 used. However this whole test should only rarely be used, because we
 normally make decisions based on MIME types.
 
+Lesson Builder uses icons for various resource types. It has its own
+list of icons, in sakai-lessonbuildertool-tool/WEB-INF/applicationContext.xml 
+When it doesn't have a specific icon, it will use generic Sakai icons.
+If you prefer to use Sakai icons all the time, you may set
+
+  lessonbuilder.use-sakai-icons=true
+
+in sakai.properties
 
 SECURITY ISSUE:
 

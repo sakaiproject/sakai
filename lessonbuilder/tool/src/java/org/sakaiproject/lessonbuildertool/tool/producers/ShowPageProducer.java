@@ -152,6 +152,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	public void setImageToMimeMap(Map<String,String> map) {
 		this.imageToMimeMap = map;
 	}
+        public boolean useSakaiIcons = ServerConfigurationService.getBoolean("lessonbuilder.use-sakai-icons", false);
 
 	// I don't much like the static, because it opens us to a possible race
 	// condition, but I don't see much option
@@ -912,8 +913,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						break;
 					    case SimplePageItem.RESOURCE:
 						String mimeType = i.getHtml();
-						
-						String src = imageToMimeMap.get(mimeType);
+
+						String src = null;
+						if (!useSakaiIcons)
+						    src = imageToMimeMap.get(mimeType);
 						if (src == null) {
 						    String image = ContentTypeImageService.getContentTypeImage(mimeType);
 						    if (image != null)
