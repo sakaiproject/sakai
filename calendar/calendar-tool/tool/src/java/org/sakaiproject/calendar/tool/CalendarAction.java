@@ -7504,7 +7504,9 @@ extends VelocityPortletStateAction
 		bar.add( new MenuEntry(customizeCalendarPage.getButtonText(), null, allow_modify_calendar_properties, MenuItem.CHECKED_NA, customizeCalendarPage.getButtonHandlerID()) );
 		
 		// add permissions, if allowed
-		if (SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
+		//SAK-21684 don't show in myworkspace site unless super user.
+		String currentSiteId = ToolManager.getCurrentPlacement().getContext();
+		if (SecurityService.isSuperUser() || (SiteService.allowUpdateSite(currentSiteId) && !SiteService.isUserSite(currentSiteId)))
 		{
 			bar.add( new MenuEntry(rb.getString("java.permissions"), "doPermissions") );
 		}
