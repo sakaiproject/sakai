@@ -103,7 +103,7 @@ public class OptimizeTransactionListenerImpl implements OptimizeTransactionListe
 					.getPermanentIndexWriter();
 			// open the temp writer
 
-			pw.addIndexes(new Directory[] { d });
+			pw.addIndexesNoOptimize(new Directory[] { d });
 			pw.optimize();
 			pw.close();
 
@@ -166,7 +166,7 @@ public class OptimizeTransactionListenerImpl implements OptimizeTransactionListe
 			for (File f : optimzableSegments)
 			{
 				
-				directories[i++] = FSDirectory.getDirectory(f, false);
+				directories[i++] = FSDirectory.open(f);
 			}
 			iw.addIndexesNoOptimize(directories);
 			iw.optimize();

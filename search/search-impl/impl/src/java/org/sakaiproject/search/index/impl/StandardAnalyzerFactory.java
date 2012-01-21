@@ -24,12 +24,18 @@ package org.sakaiproject.search.index.impl;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.util.Version;
 import org.sakaiproject.search.index.AnalyzerFactory;
+
 
 /**
  * @author ieb
@@ -64,7 +70,9 @@ public class StandardAnalyzerFactory implements AnalyzerFactory
 
 	public Analyzer newAnalyzer()
 	{
-		return new StandardAnalyzer(stopWords);
+		List<String> words = Arrays.asList(stopWords);
+		Set<String> wordSet = new HashSet<String>(words);
+		return new StandardAnalyzer(Version.LUCENE_29, wordSet);
 	}
 
 }

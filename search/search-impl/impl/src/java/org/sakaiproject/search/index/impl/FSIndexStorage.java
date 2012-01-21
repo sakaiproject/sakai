@@ -98,7 +98,8 @@ public class FSIndexStorage extends BaseIndexStorage
 
 	public IndexWriter getIndexWriter(boolean create) throws IOException
 	{
-		return new IndexWriter(searchIndexDirectory, getAnalyzer(), create);
+		File f = new File(searchIndexDirectory);
+		return new IndexWriter(FSDirectory.open(f), getAnalyzer(), create, IndexWriter.MaxFieldLength.UNLIMITED);
 	}
 
 	public void doPostIndexUpdate() throws IOException
@@ -129,8 +130,9 @@ public class FSIndexStorage extends BaseIndexStorage
 					log.warn("getIdexSearch couldn't create directory " + indexDirectoryFile.getPath());
 				}
 			}
-
-			indexSearcher = new IndexSearcher(searchIndexDirectory);
+			
+			File f = new File(searchIndexDirectory);
+			indexSearcher = new IndexSearcher(FSDirectory.open(f), false);
 			if (indexSearcher == null)
 			{
 				log.warn("No search Index exists at this time");
@@ -150,7 +152,8 @@ public class FSIndexStorage extends BaseIndexStorage
 					+ " Search Index which has become corrupted ", e);
 			if (doIndexRecovery())
 			{
-				indexSearcher = new IndexSearcher(searchIndexDirectory);
+				File f = new File(searchIndexDirectory);
+				indexSearcher = new IndexSearcher(FSDirectory.open(f), false);
 			}
 		}
 		catch (IOException e)
@@ -159,7 +162,8 @@ public class FSIndexStorage extends BaseIndexStorage
 					+ "Search Index which has become corrupted", e);
 			if (doIndexRecovery())
 			{
-				indexSearcher = new IndexSearcher(searchIndexDirectory);
+				Directory dir = FSDirectory.open(new File(searchIndexDirectory));
+				indexSearcher = new IndexSearcher(dir, false);
 			}
 		}
 		return indexSearcher;
@@ -173,7 +177,7 @@ public class FSIndexStorage extends BaseIndexStorage
 			Document doc = new Document();
 			String message = "Index Recovery performed on " + (new Date()).toString();
 			doc.add(new Field(SearchService.FIELD_CONTENTS, message, Field.Store.NO,
-					Field.Index.TOKENIZED));
+					Field.Index.ANALYZED));
 			iw.addDocument(doc);
 			iw.close();
 			log.error("Sucess fully recoverd From a corrupted index, "
@@ -185,7 +189,14 @@ public class FSIndexStorage extends BaseIndexStorage
 
 	public boolean indexExists()
 	{
-		return IndexReader.indexExists(searchIndexDirectory);
+		Directory dir;
+		try {
+			dir = FSDirectory.open(new File(searchIndexDirectory));
+			return IndexReader.indexExists(dir);
+		} catch (IOException e) {
+			return false;
+		}
+		
 	}
 
 	/**

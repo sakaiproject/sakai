@@ -290,7 +290,10 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 				{
 					try
 					{
-						rs.close();
+						if (rs != null)
+						{
+							rs.close();
+						}
 					}
 					catch (Exception ex)
 					{
@@ -1144,7 +1147,10 @@ public class JournaledFSIndexStorage implements JournaledIndex, IndexStorageProv
 			{
 				try
 				{
-					connection.rollback();
+					if (connection != null)
+					{
+						connection.rollback();
+					}
 				}
 				catch (Exception ex2)
 				{

@@ -39,6 +39,7 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.document.CompressionTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
@@ -117,7 +118,7 @@ public class SearchResultImpl implements SearchResult
 			return fieldNames;
 		}
 		HashMap<String, Field> al = new HashMap<String, Field>();
-		List<Field> e = doc.getFields();
+		List<Fieldable> e = doc.getFields();
 		for (int i =0 ; i < e.size(); i++)
 		{
 			Field f = (Field) e.get(i);

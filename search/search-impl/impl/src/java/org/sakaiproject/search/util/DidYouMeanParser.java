@@ -19,6 +19,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.spell.SpellChecker;
 import org.apache.lucene.store.Directory;
+import org.apache.lucene.util.Version;
 
 
 
@@ -42,13 +43,13 @@ public class DidYouMeanParser {
 	}
 
 	public Query parse(String queryString) throws ParseException {
-		QueryParser queryParser = new QueryParser(defaultField, new StandardAnalyzer());
+		QueryParser queryParser = new QueryParser(Version.LUCENE_29, defaultField, new StandardAnalyzer(Version.LUCENE_29));
 		queryParser.setDefaultOperator(QueryParser.Operator.AND);		
 		return queryParser.parse(queryString);
 	}
 
 	public Query suggest(String queryString) throws ParseException {
-		QuerySuggester querySuggester = new QuerySuggester(defaultField, new StandardAnalyzer());
+		QuerySuggester querySuggester = new QuerySuggester(defaultField, new StandardAnalyzer(Version.LUCENE_29));
 		querySuggester.setDefaultOperator(QueryParser.Operator.AND);
 		Query query = querySuggester.parse(queryString);
 		if (querySuggester.hasSuggestedQuery()) {
@@ -62,7 +63,7 @@ public class DidYouMeanParser {
 	private class QuerySuggester extends QueryParser {
 		private boolean suggestedQuery = false;
 		public QuerySuggester(String field, Analyzer analyzer) {
-			super(field, analyzer);
+			super(Version.LUCENE_29, field, analyzer);
 		}
 		protected Query getFieldQuery(String field, String queryText) throws ParseException {
 			// Copied from org.apache.lucene.queryParser.QueryParser
@@ -71,7 +72,7 @@ public class DidYouMeanParser {
 		    TokenStream source = getAnalyzer().tokenStream(field, new StringReader(queryText));
 			Vector<String> v = new Vector<String>();
 			Token t;
-
+			
 			while (true) {
 				try {
 					t = source.next();

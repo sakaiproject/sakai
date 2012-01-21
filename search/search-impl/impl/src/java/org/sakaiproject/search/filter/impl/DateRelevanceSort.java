@@ -31,9 +31,14 @@ import org.sakaiproject.search.api.SearchService;
  */
 public class DateRelevanceSort extends Sort
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 700112401301056129L;
+
 	public DateRelevanceSort() {
 		super(new SortField[] {
-				new SortField(SearchService.DATE_STAMP,true),
+				new SortField(SearchService.DATE_STAMP, SortField.LONG, true),
 				SortField.FIELD_SCORE
 		});
 	}
