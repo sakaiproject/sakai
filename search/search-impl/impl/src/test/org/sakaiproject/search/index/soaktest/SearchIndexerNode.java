@@ -23,7 +23,6 @@ package org.sakaiproject.search.index.soaktest;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Random;
 
@@ -32,9 +31,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TopDocs;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.index.impl.StandardAnalyzerFactory;
 import org.sakaiproject.search.indexer.debug.DebugIndexWorkerListener;
@@ -479,9 +478,9 @@ public class SearchIndexerNode
 			TermQuery tq = new TermQuery(new Term(SearchService.FIELD_CONTENTS, "node"));
 
 			long start = System.currentTimeMillis();
-			Hits h = is.search(tq);
+			TopDocs h = is.search(tq, 1000);
 			long end = System.currentTimeMillis();
-			log.debug("Got " + h.length() + " hits from " + is.getIndexReader().numDocs()
+			log.debug("Got " + h.totalHits + " hits from " + is.getIndexReader().numDocs()
 					+ " for node " + instanceName + " in " + (end - start) + ":"
 					+ (start - start1) + " ms");
 		}
@@ -502,20 +501,21 @@ public class SearchIndexerNode
 
 		long start = System.currentTimeMillis();
 		log.info("Searching with " + is + " and reader " + is.getIndexReader());
-		Hits h = is.search(tq);
+		TopDocs topdocs = is.search(tq, 100000);
 		log.info("Performing Search and Sleeping 500ms with " + is);
 		Thread.sleep(500);
 		log.info("Performing Search and Sleeping 500ms with " + is);
 		long end = System.currentTimeMillis();
-		log.info("Got " + h.length() + " hits from " + is.getIndexReader().numDocs()
+		log.info("Got " + topdocs.totalHits + " hits from " + is.getIndexReader().numDocs()
 				+ " for node " + instanceName + " in " + (end - start) + ":"
 				+ (start - start1) + " ms");
-		for (int i = 0; i < h.length(); i++)
+		for (int i = 0; i < topdocs.totalHits; i++)
 		{
-			Document d = h.doc(i);
-			for (Enumeration<Field> e = d.fields(); e.hasMoreElements();)
+			Document d = is.doc(i);
+			List<Field> e = d.getFields();
+			for (int q = 0;  q < e.size(); q++)
 			{
-				e.nextElement();
+				e.get(q);
 			}
 		}
 	}

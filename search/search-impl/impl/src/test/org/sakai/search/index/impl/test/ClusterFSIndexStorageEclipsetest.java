@@ -1,3 +1,24 @@
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007, 2008, 2009 The Sakai Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+
 package org.sakai.search.index.impl.test;
 
 import java.io.BufferedReader;
@@ -22,9 +43,10 @@ import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.util.Version;
 import org.sakaiproject.search.index.impl.ClusterFSIndexStorage;
 import org.sakaiproject.search.index.impl.JDBCClusterIndexStore;
 import org.sakaiproject.search.index.impl.SnowballAnalyzerFactory;
@@ -192,12 +214,12 @@ public class ClusterFSIndexStorageEclipsetest extends TestCase
 		assertNotNull(is);
 		BooleanQuery query = new BooleanQuery();
 
-		QueryParser qp = new QueryParser("contents", cfs.getAnalyzer());
+		QueryParser qp = new QueryParser(Version.LUCENE_29, "contents", cfs.getAnalyzer());
 		Query textQuery = qp.parse("about");
 		query.add(textQuery, BooleanClause.Occur.MUST);
 		log.info("Query is " + query.toString());
-		Hits h = is.search(query);
-		log.info("Got " + h.length() + " hits");
+		TopDocs topDocs = is.search(query, 1000);
+		log.info("Got " + topDocs.totalHits + " hits");
 
 	}
 
@@ -304,12 +326,12 @@ public class ClusterFSIndexStorageEclipsetest extends TestCase
 		
 		BooleanQuery query = new BooleanQuery();
 
-		QueryParser qp = new QueryParser("contents", cfs.getAnalyzer());
+		QueryParser qp = new QueryParser(Version.LUCENE_29, "contents", cfs.getAnalyzer());
 		Query textQuery = qp.parse("sakai");
 		query.add(textQuery, BooleanClause.Occur.MUST);
 		log.info("Query is " + query.toString());
-		Hits h = is.search(query);
-		log.info("Got " + h.length() + " hits  in "+(System.currentTimeMillis()-start)+" ms");
+		TopDocs topDocs = is.search(query, 1000);
+		log.info("Got " + topDocs.totalHits + " hits  in "+(System.currentTimeMillis()-start)+" ms");
 		
 		log.info("Reopen=================");
 		cfs.doPreIndexUpdate();

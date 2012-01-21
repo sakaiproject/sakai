@@ -41,9 +41,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.document.CompressionTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TopDocs;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.jdbc.WrappingConnection;
 import org.sakaiproject.search.jdbc.WrappingDataSource;
@@ -315,19 +315,29 @@ public class TDataSource
 			{
 				TermQuery tq = new TermQuery(new Term(SearchService.FIELD_REFERENCE, sbi
 						.getName()));
-				Hits h = indexSearcher.search(tq);
+				
+				TopDocs topDocs = indexSearcher.search(tq, 1000000);
 				if (sbi.getSearchaction().equals(SearchBuilderItem.ACTION_ADD))
 				{
 					log.info("====== ADD CHECKING =====");
-					if (h.length() != 1)
+					if (topDocs.totalHits != 1)
 					{
-						log.error("Didnt find " + sbi.getName() + " got " + h.length());
+						log.error("Didnt find " + sbi.getName() + " got " + topDocs.totalHits);
 						errors++;
 					}
 					else
 					{
-						Document doc = h.doc(0);
-						String value = CompressionTools.decompressString(doc.getBinaryValue(SearchService.FIELD_REFERENCE));
+						Document doc = indexSearcher.doc(topDocs.scoreDocs[0].doc); 
+						byte[] binValue = doc.getBinaryValue(SearchService.FIELD_REFERENCE);
+						String value = null;
+						if (binValue == null)
+						{
+							log.warn("Binary Value not found!");
+							value = doc.get(SearchService.FIELD_REFERENCE);
+						} else {
+							value = CompressionTools.decompressString(binValue);
+						}
+						
 						if (!sbi.getName().equals(value))
 						{
 							log.error("Ids Dont Match " + sbi.getName() + ":" + value);
@@ -342,9 +352,9 @@ public class TDataSource
 				else
 				{
 					log.info("====== DELETE CHECKING =====");
-					if (h.length() != 0)
+					if (topDocs.totalHits != 0)
 					{
-						Document doc = h.doc(0);
+						Document doc = indexSearcher.doc(0);
 						String value = CompressionTools.decompressString(doc.getBinaryValue(SearchService.FIELD_REFERENCE));
 						log.error("Found " + sbi.getName() + " when should have not  "
 								+ value + " "
@@ -364,7 +374,7 @@ public class TDataSource
 		}
 		catch (Exception ex)
 		{
-			log.error("Searchng Exception ", ex);
+			log.error("Searching Exception ", ex);
 			return -1;
 		}
 	}
