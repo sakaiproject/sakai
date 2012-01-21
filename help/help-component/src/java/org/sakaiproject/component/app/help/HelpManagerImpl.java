@@ -94,7 +94,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.StringUtil;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
 import org.springframework.orm.hibernate3.HibernateTransactionManager;
@@ -1181,28 +1181,66 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 		URL urlResource = null;
 		String classpathUrl = null;
 
+	    String sakaiHomePath = serverConfigurationService.getSakaiHomePath();
+	    String localHelpPath = sakaiHomePath+serverConfigurationService.getString("help.localpath","/help/");
+	    
+	    File localFile = null;
+	    
 		// find default help file
 		if ( locale.equals(DEFAULT_LOCALE) ) {
 			classpathUrl = path + "/" + HELP_BASENAME + ".xml";
-			urlResource = getClass().getResource(classpathUrl);
+			
+			localFile = new File(localHelpPath+classpathUrl);
+			if(localFile.isFile())
+				try {
+					urlResource = localFile.toURI().toURL();
+				} catch (MalformedURLException e) {
+					urlResource = getClass().getResource(classpathUrl);
+				}
+			else 
+				urlResource = getClass().getResource(classpathUrl);
 		}
 
 		// find localized help file
 		else {
 			classpathUrl = path + "/" + HELP_BASENAME + "_" + locale + ".xml";
-			urlResource = getClass().getResource(classpathUrl);
+			localFile = new File(localHelpPath+classpathUrl);
+			if(localFile.isFile()) 
+				try {
+					urlResource = localFile.toURI().toURL();
+				} catch (MalformedURLException e) {
+					urlResource = getClass().getResource(classpathUrl);
+				}
+			else 
+				urlResource = getClass().getResource(classpathUrl);
 
 			// If language/region help file not found, look for language-only help file
 			if ( urlResource == null ) {
 				Locale nextLocale = getLocaleFromString(locale);
 				classpathUrl = path + "/" + HELP_BASENAME + "_" + nextLocale.getLanguage() + ".xml";
-				urlResource = getClass().getResource(classpathUrl);
+				localFile = new File(localHelpPath+classpathUrl);
+				if(localFile.isFile()) 
+					try {
+						urlResource = localFile.toURI().toURL();
+					} catch (MalformedURLException e) {
+						urlResource = getClass().getResource(classpathUrl);
+					}
+				else 	
+					urlResource = getClass().getResource(classpathUrl);
 			}
 
 			// If language-only help file not found, look for default help file
 			if ( urlResource == null ) {
 				classpathUrl = path + "/" + HELP_BASENAME + ".xml";
-				urlResource = getClass().getResource(classpathUrl);
+				localFile = new File(localHelpPath+classpathUrl);
+				if(localFile.isFile()) 
+					try {
+						urlResource = localFile.toURI().toURL();
+					} catch (MalformedURLException e) {
+						urlResource = getClass().getResource(classpathUrl);
+					}
+				else 
+					urlResource = getClass().getResource(classpathUrl);
 			}
 		}
 
@@ -1215,7 +1253,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 			try
 			{
 				org.springframework.core.io.Resource resource =
-					new ClassPathResource(classpathUrl);  
+					new UrlResource(urlResource);  
 				BeanFactory beanFactory = new XmlBeanFactory(resource);
 				TableOfContents tocTemp = (TableOfContents) beanFactory.getBean(TOC_API);
 				Set<Category> categories = tocTemp.getCategories();
