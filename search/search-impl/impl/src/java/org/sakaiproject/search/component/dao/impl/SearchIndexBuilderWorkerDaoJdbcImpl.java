@@ -39,6 +39,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.lucene.document.CompressionTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexReader;
@@ -718,12 +719,21 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			if (indexWrite != null)
 			{
 				Document doc = new Document();
-				doc
-				.add(new Field(SearchService.DATE_STAMP, String.valueOf(System
-						.currentTimeMillis()), Field.Store.COMPRESS,
+				//The date of indexing
+				String timeStamp = String
+						.valueOf(System.currentTimeMillis());
+				doc.add(new Field(SearchService.DATE_STAMP, timeStamp,
+						Field.Store.NO, Field.Index.NOT_ANALYZED));
+				doc.add(new Field(SearchService.DATE_STAMP, CompressionTools.compressString(timeStamp), Field.Store.YES));
+				
+				String ref= "---INDEX-CREATED---";
+				doc.add(new Field(SearchService.FIELD_REFERENCE,
+						CompressionTools.compressString(ref),
+						Field.Store.YES));
+				doc.add(new Field(SearchService.FIELD_REFERENCE,
+						ref, Field.Store.NO,
 						Field.Index.NOT_ANALYZED));
-				doc.add(new Field(SearchService.FIELD_REFERENCE, "---INDEX-CREATED---",
-						Field.Store.COMPRESS, Field.Index.NOT_ANALYZED));
+				
 				indexWrite.addDocument(doc);
 			} else {
 				log.error("Couldn't get indexWriter to add document!");
