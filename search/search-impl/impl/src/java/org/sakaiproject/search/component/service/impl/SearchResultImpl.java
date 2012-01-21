@@ -39,8 +39,9 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.document.CompressionTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
 import org.apache.lucene.search.highlight.QueryScorer;
@@ -65,7 +66,7 @@ public class SearchResultImpl implements SearchResult
 
 	private static Log log = LogFactory.getLog(SearchResultImpl.class);
 
-	private Hits h;
+	private TopDocs topDocs;
 
 	private int index;
 
@@ -83,29 +84,25 @@ public class SearchResultImpl implements SearchResult
 
 	private String url;
 
-	public SearchResultImpl(Hits h, int index, Query query, Analyzer analyzer,
+	public SearchResultImpl(TopDocs topDocs, Document doc, int index, Query query, Analyzer analyzer,
 			SearchIndexBuilder searchIndexBuilder,
 			SearchService searchService) throws IOException
 			{
-		this.h = h;
+		this.topDocs = topDocs;
 		this.index = index;
-		this.doc = h.doc(index);
+		this.doc =  doc;
 		this.query = query;
 		this.analyzer = analyzer;
 		this.searchIndexBuilder = searchIndexBuilder;
 		this.searchService = searchService;
 			}
 
+	
 	public float getScore()
 	{
-		try
-		{
-			return h.score(index);
-		}
-		catch (IOException e)
-		{
-			throw new RuntimeException("Cant determine score ", e); //$NON-NLS-1$
-		}
+		ScoreDoc scoreDoc = topDocs.scoreDocs[index];
+		return scoreDoc.score;
+
 	}
 
 	public String getId()
@@ -273,7 +270,8 @@ public class SearchResultImpl implements SearchResult
 
 	public TermFrequency getTerms() throws IOException
 	{
-		return searchService.getTerms(h.id(index));
+		ScoreDoc scoreDoc = topDocs.scoreDocs[index];
+		return searchService.getTerms(scoreDoc.doc);
 	}
 
 	public void toXMLString(StringBuilder sb)

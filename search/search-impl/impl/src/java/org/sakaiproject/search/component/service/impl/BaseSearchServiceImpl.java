@@ -54,8 +54,10 @@ import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.Searcher;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.util.Version;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -396,9 +398,10 @@ public abstract class BaseSearchServiceImpl implements SearchService
 			{
 
 				IndexSearcher indexSearcher = getIndexSearcher(false);
+				int MAX_RESULTS = 1000000;
 				if (indexSearcher != null)
 				{
-					Hits h = null;
+					TopDocs topDocs = null;
 					Filter indexFilter = (Filter) luceneFilters.get(filterName);
 					Sort indexSorter = (Sort) luceneSorters.get(sorterName);
 					if (log.isDebugEnabled())
@@ -409,28 +412,28 @@ public abstract class BaseSearchServiceImpl implements SearchService
 					}
 					if (indexFilter != null && indexSorter != null)
 					{
-						h = indexSearcher.search(query, indexFilter, indexSorter);
+						topDocs = indexSearcher.search(query, indexFilter, MAX_RESULTS, indexSorter);
 					}
 					else if (indexFilter != null)
 					{
-						h = indexSearcher.search(query, indexFilter);
+						topDocs = indexSearcher.search(query, indexFilter, MAX_RESULTS);
 					}
 					else if (indexSorter != null)
 					{
-						h = indexSearcher.search(query, indexSorter);
+						topDocs = indexSearcher.search(query, null, MAX_RESULTS, indexSorter);
 					}
 					else
 					{
-						h = indexSearcher.search(query);
+						topDocs = indexSearcher.search(query, MAX_RESULTS);
 					}
 					if (log.isDebugEnabled())
 					{
-						log.debug("Got " + h.length() + " hits"); //$NON-NLS-1$ //$NON-NLS-2$
+						log.debug("Got " + topDocs.totalHits + " hits"); //$NON-NLS-1$ //$NON-NLS-2$
 					}
 					eventTrackingService.post(eventTrackingService.newEvent(EVENT_SEARCH,
 							EVENT_SEARCH_REF + textQuery.toString(), true,
 							NotificationService.PREF_IMMEDIATE));
-					return new SearchListImpl(h, textQuery, start, end, 
+					return new SearchListImpl(topDocs, indexSearcher, textQuery, start, end, 
 							getAnalyzer(), filter, searchIndexBuilder, this);
 				}
 				else
