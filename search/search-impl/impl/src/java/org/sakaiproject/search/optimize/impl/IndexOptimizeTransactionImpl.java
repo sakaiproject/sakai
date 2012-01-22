@@ -49,12 +49,12 @@ public class IndexOptimizeTransactionImpl extends IndexTransactionImpl implement
 	private static final Log log = LogFactory.getLog(IndexOptimizeTransactionImpl.class);
 
 	/**
-	 * The temporary idnex writer
+	 * The temporary index writer
 	 */
 	private IndexWriter indexWriter;
 
 	/**
-	 * A temporta index directory to build the merge item
+	 * A temporary index directory to build the merge item
 	 */
 	private File tempIndex;
 
