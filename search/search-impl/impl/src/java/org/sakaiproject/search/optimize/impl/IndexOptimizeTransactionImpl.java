@@ -28,7 +28,6 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.store.FSDirectory;
 import org.sakaiproject.search.journal.impl.JournalSettings;
 import org.sakaiproject.search.optimize.api.IndexOptimizeTransaction;
 import org.sakaiproject.search.transaction.api.IndexTransaction;
@@ -155,8 +154,8 @@ public class IndexOptimizeTransactionImpl extends IndexTransactionImpl implement
 			{
 				tempIndex = ((OptimizeIndexManager) manager)
 						.getTemporarySegment(transactionId);
-				indexWriter = new IndexWriter(FSDirectory.open(tempIndex), ((OptimizeIndexManager) manager)
-						.getAnalyzer(), true, IndexWriter.MaxFieldLength.UNLIMITED);
+				indexWriter = new IndexWriter(tempIndex, ((OptimizeIndexManager) manager)
+						.getAnalyzer(), true);
 				indexWriter.setUseCompoundFile(true);
 				// indexWriter.setInfoStream(System.out);
 				indexWriter.setMaxMergeDocs(journalSettings.getLocalMaxMergeDocs());
