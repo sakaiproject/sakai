@@ -105,6 +105,7 @@ public class OptimizeTransactionListenerImpl implements OptimizeTransactionListe
 
 			pw.addIndexesNoOptimize(new Directory[] { d });
 			pw.optimize();
+			pw.commit();
 			pw.close();
 
 			iw.close();
@@ -144,7 +145,7 @@ public class OptimizeTransactionListenerImpl implements OptimizeTransactionListe
 
 	/**
 	 * Perform the merge operation on the segments into a temporary segment,
-	 * open the permanent segment to ensure that a writer lock can be aquired
+	 * open the permanent segment to ensure that a writer lock can be acquired
 	 * 
 	 * @see org.sakaiproject.search.transaction.api.TransactionListener#prepare(org.sakaiproject.search.transaction.api.IndexTransaction)
 	 */
@@ -169,6 +170,7 @@ public class OptimizeTransactionListenerImpl implements OptimizeTransactionListe
 				directories[i++] = FSDirectory.open(f);
 			}
 			iw.addIndexesNoOptimize(directories);
+			iw.commit();
 			iw.optimize();
 			log.info("LocalOptimize: Optimized "+optimzableSegments.length+" segments in to local master ");
 			for ( Directory d : directories ) {

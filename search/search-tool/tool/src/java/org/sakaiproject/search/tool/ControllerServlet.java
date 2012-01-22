@@ -45,7 +45,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  */
 public class ControllerServlet extends HttpServlet
 {
-	public static Log log = LogFactory.getLog(ControllerServlet.class);
+	public static final Log log = LogFactory.getLog(ControllerServlet.class);
 
 	/**
 	 * Required for serialization... also to stop eclipse from giving me a
