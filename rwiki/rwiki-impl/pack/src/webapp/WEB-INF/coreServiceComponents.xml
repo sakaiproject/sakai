@@ -241,7 +241,7 @@
     <property name="breadCrumbParameter" ><value>breadcrumb</value></property>
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
-    <property name="feedFormat"><value>&lt;a href="{0}rtf" target="feeds"&gt;&lt;img src="/library/image/sakai/word.gif" border="0"  alt="RTF" /&gt;&lt;/a&gt;</value></property>
+    <property name="feedFormat"><value>&lt;a href="{0}rtf" target="feeds"&gt;&lt;img src="/library/image/sakai/word.gif" border="0"  alt="RTF" /&gt; Rich Text Format (RTF) &lt;/a&gt;</value></property>
     <property name="responseHeaders">
       <map>
         <entry key="content-type"><value>text/rtf</value></entry>
