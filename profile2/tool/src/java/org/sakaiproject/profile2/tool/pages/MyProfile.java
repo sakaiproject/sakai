@@ -470,19 +470,21 @@ public class MyProfile extends BasePage {
 		
 		Cookie tabCookie = getWebRequestCycle().getWebRequest().getCookie(ProfileConstants.TAB_COOKIE);
 		
-		tabs.add(new AbstractTab(new ResourceModel("link.tab.profile")) {
-
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public Panel getPanel(String panelId) {
-
-				setTabCookie(ProfileConstants.TAB_INDEX_PROFILE);
-				return new MyProfilePanel(panelId, userProfile,
-						sakaiProxy.isBusinessProfileEnabled());
-			}
-
-		});
+		if (sakaiProxy.isProfileFieldsEnabled()) {
+			tabs.add(new AbstractTab(new ResourceModel("link.tab.profile")) {
+	
+				private static final long serialVersionUID = 1L;
+	
+				@Override
+				public Panel getPanel(String panelId) {
+	
+					setTabCookie(ProfileConstants.TAB_INDEX_PROFILE);
+					return new MyProfilePanel(panelId, userProfile,
+							sakaiProxy.isBusinessProfileEnabled());
+				}
+	
+			});
+		}
 		
 		if (true == sakaiProxy.isWallEnabledGlobally()) {
 			
@@ -509,7 +511,11 @@ public class MyProfile extends BasePage {
 		}
 		
 		if (null != tabCookie) {
-			tabbedPanel.setSelectedTab(Integer.parseInt(tabCookie.getValue()));
+			try {
+				tabbedPanel.setSelectedTab(Integer.parseInt(tabCookie.getValue()));
+			} catch (IndexOutOfBoundsException e) {
+				//do nothing. This will be thrown if the cookie contains a value > the number of tabs but thats ok.
+			}
 		}
 		
 		add(tabbedPanel);
