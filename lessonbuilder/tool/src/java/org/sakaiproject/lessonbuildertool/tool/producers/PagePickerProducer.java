@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.Map;
 import java.util.HashSet;
 import java.util.HashMap;
+import java.util.Date;
 
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 
@@ -123,6 +124,8 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 	    if (! somePagesHavePrerequisites) {
 	    	SimplePage page = simplePageToolDao.getPage(pageId);
 	    	if (page.isHidden())
+	    		somePagesHavePrerequisites = true;		    
+		if (page.getReleaseDate() != null && page.getReleaseDate().after(new Date()))
 	    		somePagesHavePrerequisites = true;		    
 	    }
 

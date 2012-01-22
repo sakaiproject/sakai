@@ -283,6 +283,7 @@ public class SimplePageBean {
     // these caches would be held in the Items.
 
 	private Map<Long, SimplePageItem> itemCache = new HashMap<Long, SimplePageItem> ();
+	private Map<Long, SimplePage> pageCache = new HashMap<Long, SimplePage> ();
 	private Map<Long, List<SimplePageItem>> itemsCache = new HashMap<Long, List<SimplePageItem>> ();
 	private Map<String, SimplePageLogEntry> logCache = new HashMap<String, SimplePageLogEntry>();
 	private Map<Long, Boolean> completeCache = new HashMap<Long, Boolean>();
@@ -415,6 +416,16 @@ public class SimplePageBean {
 		ret = simplePageToolDao.findItem(itemId);
 		if (ret != null)
 			itemCache.put(itemId, ret);
+		return ret;
+	}
+
+	public SimplePage getPage(Long pageId) {
+		SimplePage ret = pageCache.get(pageId);
+		if (ret != null)
+			return ret;
+		ret = simplePageToolDao.getPage(pageId);
+		if (ret != null)
+			pageCache.put(pageId, ret);
 		return ret;
 	}
 
@@ -1000,7 +1011,7 @@ public class SimplePageBean {
 		// student page, but only if there's something else on the page
 		// already and the instructor has enabled the option.
 		if(items.size() > 0) {
-			SimplePage page = simplePageToolDao.getPage(pageid);
+			SimplePage page = getPage(pageid);
 			if(page.getOwner() != null) {
 				SimpleStudentPage student = simplePageToolDao.findStudentPage(page.getTopParent());
 				if(student != null && student.getCommentsSection() != null) {
@@ -1411,7 +1422,7 @@ public class SimplePageBean {
     // you should do both. Make sure all Producers set the page to the one they will work on
 	public void updatePageObject(long l, boolean save) throws PermissionException {
 		if (l != previousPageId) {
-			currentPage = simplePageToolDao.getPage(l);
+			currentPage = getPage(l);
 			String siteId = getCurrentSiteId();
 			
 			// get a rare error here, trying to debug it
@@ -1549,7 +1560,7 @@ public class SimplePageBean {
 			}
 		}
 		// else must be a top level item
-		SimplePage page = simplePageToolDao.getPage(getCurrentPageId());
+		SimplePage page = getPage(getCurrentPageId());
 		
 		SimplePageItem ret = simplePageToolDao.findTopLevelPageItemBySakaiId(Long.toString(getCurrentPageId()));
 		
@@ -1620,7 +1631,7 @@ public class SimplePageBean {
 	    					log.warn("adjustPath attempt to set invalid path: invalid item: " + op);
 	    					return null;
 	    				}
-	    				SimplePage p = simplePageToolDao.getPage(Long.valueOf(i.getSakaiId()));
+	    				SimplePage p = getPage(Long.valueOf(i.getSakaiId()));
 	    				if (p == null || !currentPage.getSiteId().equals(p.getSiteId())) {
 	    					log.warn("adjustPath attempt to set invalid path: invalid page: " + op);
 	    					return null;
@@ -1736,7 +1747,7 @@ public class SimplePageBean {
 
 		// make sure the page is legit
 		if (!makeNewPage) {
-		    SimplePage p = simplePageToolDao.getPage(Long.valueOf(selectedEntity));
+		    SimplePage p = getPage(Long.valueOf(selectedEntity));
 		    if (p == null || !getCurrentSiteId().equals(p.getSiteId())) {
 			log.warn("addpage tried to add invalid page: " + selectedEntity);
 			return "invalidpage";
@@ -1770,7 +1781,7 @@ public class SimplePageBean {
 		    saveItem(subpage);
 		    selectedEntity = String.valueOf(subpage.getPageId());
 		} else {
-		    subpage = simplePageToolDao.getPage(Long.valueOf(selectedEntity));
+		    subpage = getPage(Long.valueOf(selectedEntity));
 		}
 
 		SimplePageItem i = null;
@@ -1821,7 +1832,7 @@ public class SimplePageBean {
 	    String siteId = getCurrentSiteId();
 
 	    for (int i = 0; i < selectedEntities.length; i++) {
-	    	SimplePage target = simplePageToolDao.getPage(Long.valueOf(selectedEntities[i]));
+	    	SimplePage target = getPage(Long.valueOf(selectedEntities[i]));
 	    	if (target != null) {
 	    		if (!target.getSiteId().equals(siteId)) {
 	    			return "permission-failed";
@@ -1866,7 +1877,7 @@ public class SimplePageBean {
 		
 		//		if (removeId == 0)
 		//		    removeId = getCurrentPageId();
-		SimplePage page = simplePageToolDao.getPage(removeId);
+		SimplePage page = getPage(removeId);
 		
 		if (page == null)
 		    return "no-such-page";
@@ -1996,7 +2007,7 @@ public class SimplePageBean {
 			update(i);
 
 			if (i.getType() == SimplePageItem.PAGE) {
-				SimplePage page = simplePageToolDao.getPage(Long.valueOf(i.getSakaiId()));
+				SimplePage page = getPage(Long.valueOf(i.getSakaiId()));
 				if (page != null) {
 					page.setTitle(name);
 					update(page);
@@ -2412,6 +2423,18 @@ public class SimplePageBean {
 		return "";
 	    return ret.substring(1);
 	}
+
+         public String getReleaseString(SimplePageItem i) {
+	     if (i.getType() == SimplePageItem.PAGE) {
+		 SimplePage page = getPage(Long.valueOf(i.getSakaiId()));
+		 if (page.isHidden())
+		     return messageLocator.getMessage("simplepage.hiddenpage");
+		 if (page.getReleaseDate() != null && page.getReleaseDate().after(new Date()))
+		     return messageLocator.getMessage("simplepage.pagenotreleased");
+	     }
+	     return null;
+	 }
+
 
     //  return GroupEntrys for all groups associated with item
     // need group entries so we can display labels to user
@@ -3005,7 +3028,13 @@ public class SimplePageBean {
 				securityService.popAdvisor();
 			}
 		} else if (pageTitle != null) {
+		    // subpage
 			page.setTitle(pageTitle);
+			page.setHidden(hidePage);
+			if (hasReleaseDate)
+			    page.setReleaseDate(releaseDate);
+			else
+			    page.setReleaseDate(null);
 			update(page);
 		}
 		
@@ -3177,7 +3206,7 @@ public class SimplePageBean {
 		if (getEditPrivs() != 0)
 		    return "permission-failed";
 		
-		SimplePage target = simplePageToolDao.getPage(Long.valueOf(selectedEntity));
+		SimplePage target = getPage(Long.valueOf(selectedEntity));
 		if(target != null)
 			addPage(target.getTitle(), target.getPageId(), false, true);
 		
@@ -3202,7 +3231,7 @@ public class SimplePageBean {
 			page = simplePageToolDao.makePage(toolId, getCurrentSiteId(), title, null, null);
 			saveItem(page);
 		}else {
-			page = simplePageToolDao.getPage(pageId);
+			page = getPage(pageId);
 			page.setToolId(toolId);
 			page.setParent(null);
 			page.setTopParent(null);
@@ -3447,7 +3476,7 @@ public class SimplePageBean {
 				entry.setPath(path);
 				entry.setComplete(true);
 				entry.setToolId(toolId);
-				SimplePage page = simplePageToolDao.getPage(studentPageId);
+				SimplePage page = getPage(studentPageId);
 				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.read", "/lessonbuilder/page/" + page.getPageId(), true));
 			}
 
@@ -3471,7 +3500,7 @@ public class SimplePageBean {
 				entry.setPath(path);
 				entry.setToolId(toolId);
 				entry.setDummy(false);
-				SimplePage page = simplePageToolDao.getPage(studentPageId);
+				SimplePage page = getPage(studentPageId);
 				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.read", "/lessonbuilder/page/" + page.getPageId(), true));
 			}
 
@@ -3532,6 +3561,16 @@ public class SimplePageBean {
         	Boolean ret = visibleCache.get(item.getId());
 		if (ret != null)
 		    return (boolean)ret;
+
+		// item is page, and it is hidden or not released
+		if (item.getType() == SimplePageItem.PAGE) {
+		    SimplePage page = getPage(Long.valueOf(item.getSakaiId()));
+		    if (page.isHidden())
+			return false;
+		    if (page.getReleaseDate() != null && page.getReleaseDate().after(new Date()))
+			return false;
+		}
+
 		Collection<String>itemGroups = getItemGroups(item, null, false);
 		if (itemGroups == null || itemGroups.size() == 0) {
 		    // this includes items for which for which visibility doesn't apply
@@ -3829,7 +3868,7 @@ public class SimplePageBean {
 		if (item.getPageId() > 0) {
 			if (!hasLogEntry(item.getId()) &&
 					!isItemAvailable(item, item.getPageId())) {
-				SimplePage parent = simplePageToolDao.getPage(item.getPageId());
+				SimplePage parent = getPage(item.getPageId());
 				if (parent != null)
 					needed.add(parent.getTitle());
 				else
@@ -4753,7 +4792,7 @@ public class SimplePageBean {
 					boolean add = true;
 					
 					if(comment.getPageId() >= 0) {
-						pageTitle = simplePageToolDao.getPage(comment.getPageId()).getTitle();
+						pageTitle = getPage(comment.getPageId()).getTitle();
 						gradebookId = "lesson-builder:comment:" + comment.getId();
 						
 						add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:comment:" + comment.getId(), null,
@@ -4979,13 +5018,13 @@ public class SimplePageBean {
 				
 				if(page.getGradebookId() == null || !page.getGradebookPoints().equals(points)) {
 					boolean add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null,
-							simplePageToolDao.getPage(page.getPageId()).getTitle() + " Student Pages (item:" + page.getId() + ")", Integer.valueOf(maxPoints), null, "Lesson Builder");
+							getPage(page.getPageId()).getTitle() + " Student Pages (item:" + page.getId() + ")", Integer.valueOf(maxPoints), null, "Lesson Builder");
 					
 					if(!add) {
 						setErrMessage(messageLocator.getMessage("simplepage.no-gradebook"));
 					}else {
 						page.setGradebookId("lesson-builder:page:" + page.getId());
-						page.setGradebookTitle(simplePageToolDao.getPage(page.getPageId()).getTitle() + " Student Pages (item:" + page.getId() + ")");
+						page.setGradebookTitle(getPage(page.getPageId()).getTitle() + " Student Pages (item:" + page.getId() + ")");
 						page.setGradebookPoints(points);
 						regradeStudentPages(page);
 					}
@@ -5011,7 +5050,7 @@ public class SimplePageBean {
 				}
 				
 				if(page.getAltGradebook() == null || !page.getAltPoints().equals(points)) {
-					String title = simplePageToolDao.getPage(page.getPageId()).getTitle() + " Student Page Comments (item:" + page.getId() + ")";
+					String title = getPage(page.getPageId()).getTitle() + " Student Page Comments (item:" + page.getId() + ")";
 					boolean add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page-comment:" + page.getId(), null,
 							title, points, null, "Lesson Builder");
 					

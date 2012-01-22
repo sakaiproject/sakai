@@ -550,6 +550,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 			return;
 		}
+		if (!canEditPage && currentPage.isHidden()) {
+		    // this should actually be caught by isItemVisible above
+			UIOutput.make(tofill, "error-div");
+			UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.not_available_hidden"));
+			return;
+		}
 
 		// put out link to index of pages
 		GeneralViewParameters showAll = new GeneralViewParameters(PagePickerProducer.VIEW_ID);
@@ -1097,11 +1103,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "item-samewindow", Boolean.toString(i.isSameWindow()));
 						}
 
-						if (itemGroupString != null) {
-							itemGroupString = simplePageBean.getItemGroupTitles(itemGroupString);
+						String releaseString = simplePageBean.getReleaseString(i);
+						if (itemGroupString != null || releaseString != null) {
+							if (itemGroupString != null)
+							    itemGroupString = simplePageBean.getItemGroupTitles(itemGroupString);
 							if (itemGroupString != null) {
-							    UIOutput.make(tableRow, (isInline ? "item-group-titles-div" : "item-group-titles"), " [" + itemGroupString + "]");
-							}
+							    itemGroupString = " [" + itemGroupString + "]";
+							    if (releaseString != null)
+								itemGroupString = " " + releaseString + itemGroupString;
+							} else if (releaseString != null)
+							    itemGroupString = " " + releaseString;
+
+							if (itemGroupString != null)
+							    UIOutput.make(tableRow, (isInline ? "item-group-titles-div" : "item-group-titles"), itemGroupString);
 						}
 					}
 					// the following are for the inline item types. Multimedia
@@ -2664,7 +2678,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIOutput.make(form, "pageTitleLabel", messageLocator.getMessage("simplepage.pageTitle_label"));
 		UIInput.make(form, "pageTitle", "#{simplePageBean.pageTitle}");
 
-		if (pageItem.getPageId() == 0 && page.getOwner() == null) {
+		if (page.getOwner() == null) {
 			UIOutput.make(tofill, "hideContainer");
 			UIBoundBoolean.make(form, "hide", "#{simplePageBean.hidePage}", (page.isHidden()));
 
@@ -2680,8 +2694,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			dateevolver.setStyle(FormatAwareDateInputEvolver.DATE_TIME_INPUT);
 			dateevolver.evolveDateInput(releaseForm, page.getReleaseDate());
 
-			UIBoundBoolean.make(form, "page-required", "#{simplePageBean.required}", (pageItem.isRequired()));
-			UIBoundBoolean.make(form, "page-prerequisites", "#{simplePageBean.prerequisite}", (pageItem.isPrerequisite()));
+			if (pageItem.getPageId() == 0) {
+			    UIOutput.make(form, "prereqContainer");
+			    UIBoundBoolean.make(form, "page-required", "#{simplePageBean.required}", (pageItem.isRequired()));
+			    UIBoundBoolean.make(form, "page-prerequisites", "#{simplePageBean.prerequisite}", (pageItem.isPrerequisite()));
+			}
 		}
 
 		UIOutput gradeBook = UIOutput.make(form, "gradeBookDiv");
