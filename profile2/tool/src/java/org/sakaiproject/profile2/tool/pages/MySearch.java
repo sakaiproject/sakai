@@ -310,7 +310,12 @@ public class MySearch extends BasePage {
 		    	item.add(profileLink);
 		    	
 		    	//status component
-		    	ProfileStatusRenderer status = new ProfileStatusRenderer("searchResultStatus", person, "search-result-status-msg", "search-result-status-date");
+		    	ProfileStatusRenderer status = new ProfileStatusRenderer("searchResultStatus", person, "search-result-status-msg", "search-result-status-date") {
+		    		@Override
+					public boolean isVisible(){
+					   return sakaiProxy.isProfileStatusEnabled();
+					}
+		    	};
 				status.setOutputMarkupId(true);
 				item.add(status);
 		    	

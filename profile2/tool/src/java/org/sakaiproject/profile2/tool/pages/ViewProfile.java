@@ -144,9 +144,11 @@ public class ViewProfile extends BasePage {
 		}
 		
 		/*STATUS PANEL */
-		ProfileStatusRenderer status = new ProfileStatusRenderer("status", userUuid, privacy, null, "tiny");
-		status.setOutputMarkupId(true);
-		add(status);
+		if(sakaiProxy.isProfileStatusEnabled()) {
+			add(new ProfileStatusRenderer("status", userUuid, privacy, null, "tiny"));
+		} else {
+			add(new EmptyPanel("status"));
+		}
 		
 		/* TABS */
 		List<ITab> tabs = new ArrayList<ITab>();

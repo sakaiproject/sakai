@@ -93,11 +93,51 @@ public class MyStatusPanel extends Panel {
 		add(profileName);
 		
 		//status component
-		status = new ProfileStatusRenderer("status", userId, null, "tiny");
+		status = new ProfileStatusRenderer("status", userId, null, "tiny") {
+			@Override
+			public boolean isVisible(){
+			   return sakaiProxy.isProfileStatusEnabled();
+			}
+		};
 		status.setOutputMarkupId(true);
 		add(status);
 		
-		WebMarkupContainer statusFormContainer = new WebMarkupContainer("statusFormContainer");
+		 //clear link
+		final AjaxFallbackLink clearLink = new AjaxFallbackLink("clearLink") {
+			private static final long serialVersionUID = 1L;
+
+			public void onClick(AjaxRequestTarget target) {
+				//clear status, hide and repaint
+				if(statusLogic.clearUserStatus(userId)) {
+					status.setVisible(false); //hide status
+					this.setVisible(false); //hide clear link
+					target.addComponent(status);
+					target.addComponent(this);
+				}
+			}
+			
+			@Override
+			public boolean isVisible(){
+			   return sakaiProxy.isProfileStatusEnabled();
+			}
+		};
+		clearLink.setOutputMarkupPlaceholderTag(true);
+		clearLink.add(new Label("clearLabel",new ResourceModel("link.status.clear")));
+	
+		//set visibility of clear link based on status and if it's editable
+		if(!status.isVisible() || !editable) {
+			clearLink.setVisible(false);
+		}
+		add(clearLink);
+        
+        
+		
+		WebMarkupContainer statusFormContainer = new WebMarkupContainer("statusFormContainer") {
+			@Override
+			public boolean isVisible(){
+			   return sakaiProxy.isProfileStatusEnabled();
+			}
+		};
 		
 				
 		//setup SimpleText object to back the single form field 
@@ -123,32 +163,6 @@ public class MyStatusPanel extends Panel {
 				"</script>");
 		add(statusJavascript);
 
-        
-        //clear link
-		final AjaxFallbackLink clearLink = new AjaxFallbackLink("clearLink") {
-			private static final long serialVersionUID = 1L;
-
-			public void onClick(AjaxRequestTarget target) {
-				//clear status, hide and repaint
-				if(statusLogic.clearUserStatus(userId)) {
-					status.setVisible(false); //hide status
-					this.setVisible(false); //hide clear link
-					target.addComponent(status);
-					target.addComponent(this);
-				}
-			}
-		};
-		clearLink.setOutputMarkupPlaceholderTag(true);
-		clearLink.add(new Label("clearLabel",new ResourceModel("link.status.clear")));
-	
-		//set visibility of clear link based on status and if it's editable
-		if(!status.isVisible() || !editable) {
-			clearLink.setVisible(false);
-		}
-		add(clearLink);
-        
-        
-        
         
         
         //submit button
