@@ -2138,7 +2138,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						  Long sequence = null;
 						  if (answerid != null) {
 							  AnswerIfc answer  = (AnswerIfc)publishedAnswerHash.get(answerid);
-							  sequence = answer.getSequence();
+							  if (answer != null) {
+								  sequence = answer.getSequence();
+							  }
 						  }
 
 						  String temptext = grade.getAnswerText();
