@@ -91,6 +91,10 @@
             <version>${sakai.scheduler.version}</version>
             <scope>provided</scope>
         </dependency>
+	<dependency>
+	  <groupId>javax.servlet.jsp</groupId>
+	  <artifactId>jsp-api</artifactId>
+        </dependency>
 	</dependencies>
 	<build>
 		<resources>
