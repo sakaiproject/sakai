@@ -54,6 +54,14 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-dav-common</artifactId>
     </dependency>
+    <dependency>
+      <groupId>javax.servlet.jsp</groupId>
+      <artifactId>jsp-api</artifactId>
+    </dependency> 
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+    </dependency>
   </dependencies>
 <!-- needed so it will compile the java files,
 		process the properties bundles,
