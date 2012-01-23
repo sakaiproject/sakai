@@ -1585,6 +1585,9 @@ ul.topnav li a{
 ul.topnav li a:hover,ul.topnav li a:focus{
     color:#FDBA4E;
 }    
+ul.topnav li a span{
+	vertical-align: bottom;
+}
 ul.topnav li.nav-selected > a{
     color:#F4CB5F
 }

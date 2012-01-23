@@ -385,6 +385,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	background: transparent url(images/tab-right.gif) no-repeat right top;
 	padding: 8px 13px 3px 2px;
 	margin: 0pt;
+	vertical-align: bottom;
 }
 
 /*the current sites' link - consists of the li and a*/
