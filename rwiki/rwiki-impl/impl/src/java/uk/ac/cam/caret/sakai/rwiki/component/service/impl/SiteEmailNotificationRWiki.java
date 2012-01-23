@@ -280,7 +280,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 		String realm = props.getProperty(RWikiEntity.RP_REALM);
 		String localName = NameHelper.localizeName(pageName, realm);
 
-		String subjectHeader = Messages
+		String subjectHeader = "Subject: " + Messages
 				.getString("SiteEmailNotificationRWiki.27") + localName + Messages.getString("SiteEmailNotificationRWiki.28"); //$NON-NLS-1$ //$NON-NLS-2$
 		// the Subject
 		rv.add(subjectHeader);
