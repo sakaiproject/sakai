@@ -78,7 +78,7 @@
 	</div>
 	<div id="rwiki_content" class="${rwikiContentStyle}" >
 	 <div class="rwikirenderedContent">
-	  <table class="listHier lines centerLines" style="width:95%;margin-right:15em;font-size:90%;font-family:Verdana,Geneva,Arial,Helvetica,sans-serif\0/;" summary="${rlb.jsp_history_list_caption}">
+	  <table class="listHier lines centerLines" style="width:95%;margin-right:15em;font-size:90%" summary="${rlb.jsp_history_list_caption}">
 		  <tr>
 			  <th><a href="#" class="rwiki_help_popup_link" name="versionhelp" >${rlb.jsp_history_version}</a></th>
 			  <th><a href="#" class="rwiki_help_popup_link" name="userhelp" >${rlb.jsp_history_user}</a></th>

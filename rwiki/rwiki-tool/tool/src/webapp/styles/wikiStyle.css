@@ -349,8 +349,7 @@ a.rwiki_help_popup_link span{ padding: 0 }
 .pop_body{ line-height: 1.3em; padding: .3em }
 .pop1, .pop2 { width: 30% }
 .red{ color: red !important }
-.pop1 .pop_body{ font-size: .9em; font-family: Verdana, Geneva, Arial, Helvetica, sans-serif\0/; }
-
+.pop1 .pop_body{ font-size: .9em }
 
 /*
 MOOT
