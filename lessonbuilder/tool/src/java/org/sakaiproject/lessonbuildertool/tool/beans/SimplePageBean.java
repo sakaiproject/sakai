@@ -443,6 +443,8 @@ public class SimplePageBean {
 	}
 
 	public void setErrKey(String key, String text ) {
+		if (text == null)
+		    text = "";
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
 		toolSession.setAttribute("lessonbuilder.error", messageLocator.getMessage(key).replace("{}", text));
 	}
@@ -2976,7 +2978,7 @@ public class SimplePageBean {
 					(!currentPoints.equals(newPoints) || !pageTitle.equals(page.getTitle()))) {
 				gradebookIfc.updateExternalAssessment(site.getId(), "lesson-builder:" + page.getPageId(), null,
 							  	pageTitle, newPoints, null);
-				if (currentPoints != newPoints)
+				if (!currentPoints.equals(newPoints))
 					needRecompute = true;
 			}
 			page.setGradebookPoints(newPoints);
@@ -4781,6 +4783,7 @@ public class SimplePageBean {
 					return "failure";
 				}
 				
+				// TODO: should update instead of delete/add
 				if(comment.getGradebookId() != null && !comment.getGradebookPoints().equals(points)) {
 					gradebookIfc.removeExternalAssessment(getCurrentSiteId(), comment.getGradebookId());
 				}
@@ -5012,6 +5015,7 @@ public class SimplePageBean {
 					return "failure";
 				}
 				
+				// TODO: should update instead of delete/add
 				if(page.getGradebookId() != null && !page.getGradebookPoints().equals(points)) {
 					gradebookIfc.removeExternalAssessment(getCurrentSiteId(), page.getGradebookId());
 				}
@@ -5045,7 +5049,8 @@ public class SimplePageBean {
 					return "failure";
 				}
 				
-				if(page.getAltGradebook() != null && !page.getAltGradebook().equals(points)) {
+				// todo: use update instead of delete, add
+				if(page.getAltGradebook() != null && !page.getAltPoints().equals(points)) {
 					gradebookIfc.removeExternalAssessment(getCurrentSiteId(), page.getAltGradebook());
 				}
 				
