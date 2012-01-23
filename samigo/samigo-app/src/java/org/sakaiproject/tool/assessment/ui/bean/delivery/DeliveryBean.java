@@ -2664,6 +2664,9 @@ public class DeliveryBean
   }
 
   public boolean timeExpired(){
+    if (adata == null) {
+    	return false;
+    }
     boolean timeExpired = false;
     TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
     TimedAssessmentGradingModel timedAG = (TimedAssessmentGradingModel)queue.
