@@ -32,13 +32,17 @@
 			<property name="externalInstructorLink" column="EXTERNAL_INSTRUCTOR_LINK" type="string" />
 			<property name="externalId" column="EXTERNAL_ID" type="string" />
 			<property name="externalAppName" column="EXTERNAL_APP_NAME" type="string" />
-			<property name="extraCredit" column="IS_EXTRA_CREDIT" type="boolean" not-null="false"/>
+			<property name="extraCredit" type="java.lang.Boolean">
+				<column name="IS_EXTRA_CREDIT" default="0"/>
+			</property>
 			<property name="assignmentWeighting" column="ASSIGNMENT_WEIGHTING" type="double" not-null="false" />
       <property name="released" column="RELEASED" type="boolean"/>
       <many-to-one name="category" column="CATEGORY_ID" class="org.sakaiproject.tool.gradebook.Category" not-null="false"/>
       <property name="ungraded" column="UNGRADED" type="boolean"/>
       <property name="countNullsAsZeros" column="IS_NULL_ZERO" type="boolean" not-null="false"/>
-      <property name="hideInAllGradesTable" column="HIDE_IN_ALL_GRADES_TABLE" type="boolean"/>
+      <property name="hideInAllGradesTable" type="boolean">
+      		<column name="HIDE_IN_ALL_GRADES_TABLE" default="0"/>
+	  </property>
     </subclass>
 
 		<subclass name="org.sakaiproject.tool.gradebook.CourseGrade" extends="org.sakaiproject.tool.gradebook.GradableObject" discriminator-value="2">

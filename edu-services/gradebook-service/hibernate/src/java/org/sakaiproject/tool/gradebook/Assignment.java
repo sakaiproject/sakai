@@ -74,7 +74,7 @@ public class Assignment extends GradableObject {
     private Category category;
     private Double averageTotal;
     private boolean ungraded;
-    private Boolean extraCredit = false;
+    private Boolean extraCredit = Boolean.FALSE;
 	private Double assignmentWeighting;
 	private Boolean countNullsAsZeros;
 	private String itemType;
@@ -235,6 +235,8 @@ public class Assignment extends GradableObject {
         this.pointsPossible = pointsPossible;
         this.dueDate = dueDate;
         this.released = true;
+        this.extraCredit = Boolean.FALSE;
+        this.hideInAllGradesTable = false;
     }
 
 
@@ -252,10 +254,14 @@ public class Assignment extends GradableObject {
         this.pointsPossible = pointsPossible;
         this.dueDate = dueDate;
         this.released = released;
+        this.extraCredit = Boolean.FALSE;
+        this.hideInAllGradesTable = false;
     }
 
     public Assignment() {
     	super();
+    	this.extraCredit = Boolean.FALSE;
+        this.hideInAllGradesTable = false;
     }
 
 	/**
