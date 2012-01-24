@@ -107,13 +107,13 @@
 								#if (${site.isMyWorkspace})
 <li class="nav-selected nav-menu"><a href="#"><span>${rloader.sit_mywor}</span></a>
 								#else
-<li class="nav-selected nav-menu"><a href="#"><span>${site.siteTitle}</span></a>
+<li class="nav-selected nav-menu"><a href="#" title="${site.fullTitle}"><span>${site.siteTitle}</span></a>
 								#end
 							#else
 								#if (${site.isMyWorkspace})
 <li class="nav-menu"><a href="${site.siteUrl}" title="${rloader.sit_mywor}"><span>${rloader.sit_mywor}</span></a>
 								#else
-<li class="nav-menu"><a href="${site.siteUrl}" title="${site.siteTitle}"><span>${site.siteTitle}</span></a>
+<li class="nav-menu"><a href="${site.siteUrl}" title="${site.fullTitle}"><span>${site.siteTitle}</span></a>
 								#end
 							#end
 <ul class="nav-submenu subnav">
