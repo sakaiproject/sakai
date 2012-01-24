@@ -11,16 +11,40 @@ Index: impl/src/java/org/sakaiproject/hierarchy/impl/HierarchyServiceImpl.java
  import java.util.HashMap;
  import java.util.HashSet;
  import java.util.Iterator;
-@@ -45,6 +47,8 @@
+@@ -36,6 +38,7 @@
+ import org.sakaiproject.hierarchy.dao.model.HierarchyPersistentNode;
+ import org.sakaiproject.hierarchy.impl.utils.HierarchyImplUtils;
+ import org.sakaiproject.hierarchy.model.HierarchyNode;
++import org.sakaiproject.db.api.SqlService;
+ 
+ /**
+  * The default implementation of the Hierarchy interface
+@@ -45,8 +48,12 @@
  public class HierarchyServiceImpl implements HierarchyService {
  
      private static Log log = LogFactory.getLog(HierarchyServiceImpl.class);
 +    
 +    private static int ORACLE_IN_CLAUSE_SIZE_LIMIT = 1000;
++    private boolean oracle = false;
  
      private HierarchyDao dao;
++    private SqlService sqlService;
      public void setDao(HierarchyDao dao) {
-@@ -651,14 +655,26 @@
+         this.dao = dao;
+     }
+@@ -58,6 +65,11 @@
+ 
+     public void init() {
+         log.info("init");
++        
++        if(sqlService != null && "oracle".equals(sqlService.getVendor())){
++        	oracle = true;
++        }
++        
+         // handle any DB migration/cleanup which needs to happen (mostly for upgrades)
+         dao.fixupDatabase();
+     }
+@@ -651,14 +663,26 @@
              if (node != null 
                      && node.childNodeIds != null 
                      && node.childNodeIds.size() > 0) {
@@ -38,7 +62,7 @@ Index: impl/src/java/org/sakaiproject/hierarchy/impl/HierarchyServiceImpl.java
 +                List<HierarchyNodePermission> nodePerms = new ArrayList<HierarchyNodePermission>();
 +                do{ 
 +                	int arraySize = nodeIdsList.size() - i;
-+                	if(arraySize > ORACLE_IN_CLAUSE_SIZE_LIMIT){
++                	if(oracle && arraySize > ORACLE_IN_CLAUSE_SIZE_LIMIT){
 +                		arraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
 +                	}
 +                	// get all the permissions which are related to the nodes under this one
@@ -55,7 +79,7 @@ Index: impl/src/java/org/sakaiproject/hierarchy/impl/HierarchyServiceImpl.java
                  Set<HierarchyNodePermission> allPerms = new HashSet<HierarchyNodePermission>();
                  if (nodePerms.size() == 0) {
                      // add all new ones
-@@ -717,19 +733,27 @@
+@@ -717,19 +741,27 @@
                  if (node.childNodeIds != null 
                          && node.childNodeIds.size() > 0) {
                      nodeIdsSet.addAll(node.childNodeIds);
@@ -77,7 +101,7 @@ Index: impl/src/java/org/sakaiproject/hierarchy/impl/HierarchyServiceImpl.java
 +                int i = 0;
 +                do{
 +                	int arraySize = nodeIdsList.size() - i;
-+                	if(arraySize > ORACLE_IN_CLAUSE_SIZE_LIMIT){
++                	if(oracle && arraySize > ORACLE_IN_CLAUSE_SIZE_LIMIT){
 +                		arraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
 +                	}
 +                	// get all the permissions which are related to the nodes under this one
@@ -96,7 +120,7 @@ Index: impl/src/java/org/sakaiproject/hierarchy/impl/HierarchyServiceImpl.java
              }
          }
      }
-@@ -782,14 +806,23 @@
+@@ -782,14 +814,23 @@
          }
          Set<String> userIds = new HashSet<String>();
          if (nodeIds.length > 0) {
@@ -112,7 +136,7 @@ Index: impl/src/java/org/sakaiproject/hierarchy/impl/HierarchyServiceImpl.java
 +        	int i = 0;
 +        	do{
 +        		int arraySize = nodeIdsList.size() - i;
-+            	if(arraySize > ORACLE_IN_CLAUSE_SIZE_LIMIT){
++            	if(oracle && arraySize > ORACLE_IN_CLAUSE_SIZE_LIMIT){
 +            		arraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
 +            	}
 +        		List<HierarchyNodePermission> nodePerms = dao.findBySearch(HierarchyNodePermission.class, new Search(
@@ -128,7 +152,7 @@ Index: impl/src/java/org/sakaiproject/hierarchy/impl/HierarchyServiceImpl.java
          }
          return userIds;
      }
-@@ -801,14 +834,23 @@
+@@ -801,14 +842,23 @@
          }
          Set<String> perms = new HashSet<String>();
          if (nodeIds.length > 0) {
@@ -144,7 +168,7 @@ Index: impl/src/java/org/sakaiproject/hierarchy/impl/HierarchyServiceImpl.java
 +			int i = 0;
 +			do{
 +				int arraySize = nodeIdsList.size() - i;
-+            	if(arraySize > ORACLE_IN_CLAUSE_SIZE_LIMIT){
++            	if(oracle && arraySize > ORACLE_IN_CLAUSE_SIZE_LIMIT){
 +            		arraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
 +            	}
 +				List<HierarchyNodePermission> nodePerms = dao.findBySearch(HierarchyNodePermission.class, new Search(
@@ -160,7 +184,7 @@ Index: impl/src/java/org/sakaiproject/hierarchy/impl/HierarchyServiceImpl.java
          }
          return perms;
      }
-@@ -821,8 +863,20 @@
+@@ -821,8 +871,20 @@
          for (String nodeId : nodeIds) {
              m.put(nodeId, new HashMap<String, Set<String>>());
          }
@@ -171,7 +195,7 @@ Index: impl/src/java/org/sakaiproject/hierarchy/impl/HierarchyServiceImpl.java
 +		int i = 0;
 +		do{
 +			int arraySize = nodeIdsList.size() - i;
-+        	if(arraySize > ORACLE_IN_CLAUSE_SIZE_LIMIT){
++        	if(oracle && arraySize > ORACLE_IN_CLAUSE_SIZE_LIMIT){
 +        		arraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
 +        	}
 +			List<HierarchyNodePermission> nodePermsItteration = dao.findBySearch(HierarchyNodePermission.class, 
@@ -183,7 +207,7 @@ Index: impl/src/java/org/sakaiproject/hierarchy/impl/HierarchyServiceImpl.java
          // nodeId -> (map of userId -> Set(permission))
          for (HierarchyNodePermission nodePerm : nodePerms) {
              String nodeId = nodePerm.getNodeId();
-@@ -846,8 +900,20 @@
+@@ -846,8 +908,20 @@
          for (String userId : userIds) {
              m.put(userId, new HashMap<String, Set<String>>());
          }
@@ -194,7 +218,7 @@ Index: impl/src/java/org/sakaiproject/hierarchy/impl/HierarchyServiceImpl.java
 +        List<HierarchyNodePermission> nodePerms = new ArrayList<HierarchyNodePermission>();
 +        do{ 
 +        	int arraySize = userIdsList.size() - i;
-+        	if(arraySize > ORACLE_IN_CLAUSE_SIZE_LIMIT){
++        	if(oracle && arraySize > ORACLE_IN_CLAUSE_SIZE_LIMIT){
 +        		arraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
 +        	}
 +        	List<HierarchyNodePermission> nodePermsItteration = dao.findBySearch(HierarchyNodePermission.class, 
@@ -206,7 +230,7 @@ Index: impl/src/java/org/sakaiproject/hierarchy/impl/HierarchyServiceImpl.java
          // userId -> (map of nodeId -> Set(permission))
          for (HierarchyNodePermission nodePerm : nodePerms) {
              String userId = nodePerm.getUserId();
-@@ -941,8 +1007,19 @@
+@@ -941,8 +1015,19 @@
              for (int i = 0; i < nodeIds.length; i++) {
                  pNodeIds[i] = new Long(nodeIds[i]);
              }
@@ -217,7 +241,7 @@ Index: impl/src/java/org/sakaiproject/hierarchy/impl/HierarchyServiceImpl.java
 +			int i = 0;
 +			do{ 
 +            	int arraySize = nodeIdsList.size() - i;
-+            	if(arraySize > ORACLE_IN_CLAUSE_SIZE_LIMIT){
++            	if(oracle && arraySize > ORACLE_IN_CLAUSE_SIZE_LIMIT){
 +            		arraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
 +            	}
 +            	List<HierarchyNodeMetaData> lIterration = dao.findBySearch(HierarchyNodeMetaData.class, 
@@ -228,7 +252,7 @@ Index: impl/src/java/org/sakaiproject/hierarchy/impl/HierarchyServiceImpl.java
          }
          return l;
      }
-@@ -966,8 +1043,19 @@
+@@ -966,8 +1051,19 @@
              for (int i = 0; i < nodeIds.length; i++) {
                  pNodeIds[i] = new Long(nodeIds[i]);
              }
@@ -239,7 +263,7 @@ Index: impl/src/java/org/sakaiproject/hierarchy/impl/HierarchyServiceImpl.java
 +            int i = 0;
 +            do{ 
 +            	int arraySize = nodeIdsList.size() - i;
-+            	if(arraySize > ORACLE_IN_CLAUSE_SIZE_LIMIT){
++            	if(oracle && arraySize > ORACLE_IN_CLAUSE_SIZE_LIMIT){
 +            		arraySize = ORACLE_IN_CLAUSE_SIZE_LIMIT;
 +            	}
 +            	List<HierarchyPersistentNode> lIterration = dao.findBySearch(HierarchyPersistentNode.class, 
@@ -250,3 +274,53 @@ Index: impl/src/java/org/sakaiproject/hierarchy/impl/HierarchyServiceImpl.java
          }
          return l;
      }
+@@ -986,4 +1082,12 @@
+         return parentNodeId;
+     }
+ 
++	public SqlService getSqlService() {
++		return sqlService;
++	}
++
++	public void setSqlService(SqlService sqlService) {
++		this.sqlService = sqlService;
++	}
++
+ }
+Index: impl/pom.xml
+===================================================================
+--- impl/pom.xml	(revision 78244)
++++ impl/pom.xml	(working copy)
+@@ -35,6 +35,12 @@
+             <version>${sakai.generic-dao.version}</version>
+         </dependency>
+ 
++	<!-- sakai dependencies -->
++	<dependency>
++		<groupId>org.sakaiproject</groupId>
++		<artifactId>sakai-db-api</artifactId>
++	</dependency>
++
+         <!-- spring and hibernate -->
+         <dependency>
+             <groupId>org.springframework</groupId>
+@@ -174,4 +180,4 @@
+         </testResources>
+     </build>
+ 
+-</project>
+\ No newline at end of file
++</project>
+Index: pack/src/webapp/WEB-INF/components.xml
+===================================================================
+--- pack/src/webapp/WEB-INF/components.xml	(revision 78244)
++++ pack/src/webapp/WEB-INF/components.xml	(working copy)
+@@ -12,6 +12,7 @@
+    <bean id="org.sakaiproject.hierarchy.HierarchyService" 
+          class="org.sakaiproject.hierarchy.impl.HierarchyServiceImpl" init-method="init">
+       <property name="dao" ref="org.sakaiproject.hierarchy.dao.HierarchyDao" />
++      <property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
+    </bean>
+ 
+ </beans>
+\ No newline at end of file
