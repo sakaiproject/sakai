@@ -99,16 +99,16 @@ public class SameRoleProducer implements ViewComponentProducer, NavigationCaseRe
 	    	{
 			    UIBranchContainer roleRow = UIBranchContainer.make(sameRoleForm,"role-row:", Integer.toString(i));
 	            
-	            UISelectLabel lb = UISelectLabel.make(roleRow, "role-label", selectID, i);
+			    // make radio button and assign role name label to it
 	            UISelectChoice choice =UISelectChoice.make(roleRow, "role-select", selectID, i);
+	            UISelectLabel lb = UISelectLabel.make(roleRow, "role-label", selectID, i);
 	            UILabelTargetDecorator.targetLabel(lb, choice);
+	            
+	            // add role description
+	            UIOutput.make(roleRow, "role-descr-label", StringUtils.trimToEmpty(r.getDescription()));
 	            
 	            roleItems.add(r.getId());
 	            String label = r.getId();
-	            if (StringUtils.trimToNull(r.getDescription()) != null)
-	            {
-	            	label += " (" + StringUtils.trimToNull(r.getDescription()) + ")";
-	            }
 	            roleDescriptions.add(label);
 	    	}
         }
