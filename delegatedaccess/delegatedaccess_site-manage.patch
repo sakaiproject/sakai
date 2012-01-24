@@ -1,6 +1,6 @@
 Index: site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java
 ===================================================================
---- site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java	(revision 101737)
+--- site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java	(revision 102191)
 +++ site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java	(working copy)
 @@ -21,11 +21,15 @@
  
@@ -75,7 +75,7 @@ Index: site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java
 +				context.put("shopping_visibility_start", start);
 +				context.put("shopping_visibility_end", end);
 +				context.put("all_roles", site.getRoles());
-+				context.put("hierarchy_node_id", site.getPropertiesEdit().get("hierarchy-node-id"));
++				context.put("shoppingPeriodInstructorEditable", ServerConfigurationService.getBoolean("delegatedaccess.shopping.instructorEditable", false));
  
  				if (siteType != null && !unJoinableSiteTypes.contains(siteType)) {
  					// site can be set as joinable
@@ -100,7 +100,7 @@ Index: site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java
  		
 Index: site-manage-tool/tool/src/bundle/sitesetupgeneric.properties
 ===================================================================
---- site-manage-tool/tool/src/bundle/sitesetupgeneric.properties	(revision 101737)
+--- site-manage-tool/tool/src/bundle/sitesetupgeneric.properties	(revision 102191)
 +++ site-manage-tool/tool/src/bundle/sitesetupgeneric.properties	(working copy)
 @@ -1056,3 +1056,16 @@
  sitegen.siteinfolist.usermodify = Modified by
@@ -121,13 +121,13 @@ Index: site-manage-tool/tool/src/bundle/sitesetupgeneric.properties
 +shopping.noauth=none
 Index: site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAccess.vm
 ===================================================================
---- site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAccess.vm	(revision 101737)
+--- site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAccess.vm	(revision 102191)
 +++ site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAccess.vm	(working copy)
 @@ -4,6 +4,9 @@
  <script type="text/javascript" src="/library/js/jquery/jquery-ui/js/jquery-ui.js"></script>
  <link type="text/css" href="/library/js/jquery/jquery-ui/css/smoothness/jquery-ui.css" rel="stylesheet" media="screen" />
  <script type="text/javascript" src="/sakai-site-manage-tool/js/site-manage.js"></script>
-+#if ($hierarchy_node_id)
++#if ($shoppingPeriodInstructorEditable)
 +	<script type="text/javascript" src="/sakai-site-manage-tool/js/site-manage-shopping.js"></script>
 +#end
  <script type="text/javascript">
@@ -147,17 +147,16 @@ Index: site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAcce
  			<p/>
  		</div>
 +
-+		
-+		#if ($hierarchy_node_id)
++		<span id="siteId" style="display:none">$site.id</span>
++		#if ($shoppingPeriodInstructorEditable)
++		<div id="shoppingVisibilityDiv" style="display:none">
 +			<!-- easy access for JS -->
-+			<span id="siteId" style="display:none">$site.id</span>
-+			<span id="hierarchyNodeId" style="display:none">$hierarchy_node_id</span>
 +			
 +			<h4>$tlang.getString("shopping.header")</h4>
 +			<p class="instruction">
 +				$tlang.getString("shopping.instructions")
 +			</p>
-+			<div id="shoppingVisibilityDiv" class="indnt1">
++			<div class="indnt1">
 +				<table>
 +				<tr>
 +				<td align="right">
@@ -209,6 +208,7 @@ Index: site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAcce
 +			</div>
 +			</div>
 +
++		</div>
 +		#end
  		<input type="hidden" name="continue" value="$!continue" />
  		<input type="hidden" name="back" value="$!backIndex" />
@@ -221,82 +221,3 @@ Index: site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAcce
  				<input type="submit" accesskey="x"  name="eventSubmit_doCancel" value="$tlang.getString("ediacc.bac")" />
  #else
  				<input type="submit" accesskey="s" class="active" name="eventSubmit_doUpdate_site_access" value="$tlang.getString("ediacc.con")" />
-Index: site-manage-tool/tool/src/webapp/js/site-manage-shopping.js
-===================================================================
---- site-manage-tool/tool/src/webapp/js/site-manage-shopping.js	(revision 0)
-+++ site-manage-tool/tool/src/webapp/js/site-manage-shopping.js	(revision 0)
-@@ -0,0 +1,66 @@
-+// Shopping Period JS
-+$(document).ready(function(){
-+
-+	// Decorate the date inputs
-+	$("#shoppingVisibilityStart").datepicker();
-+	$("#shoppingVisibilityEnd").datepicker();
-+	
-+	// Get the shopping info for this site from a WS
-+	$.getJSON("/direct/delegated_access/" + $('#hierarchyNodeId').html() + ".json",
-+		function(response){
-+            var data = response.data;
-+            $('#shoppingVisibility').val(data.shoppingAuth);
-+            
-+            if (data.shoppingStartDate != undefined && data.shoppingStartDate != ""){
-+                var shoppingStartDate = new Date(parseInt(data.shoppingStartDate));
-+                $('#shoppingVisibilityStart').val($.datepicker.formatDate("mm/dd/yy", shoppingStartDate));
-+            }
-+            if (data.shoppingEndDate != undefined && data.shoppingEndDate != ""){
-+                var shoppingEndDate = new Date(parseInt(data.shoppingEndDate));
-+                $('#shoppingVisibilityEnd').val($.datepicker.formatDate("mm/dd/yy", shoppingEndDate));
-+            }
-+            $('#shoppingRole').val(data.shoppingRole);
-+            $('#shoppingRealm').val(data.shoppingRealm);
-+            
-+            $('#shoppingRoleText').html(data.shoppingRole);
-+            $('#shoppingRealmText').html(data.shoppingRealm);
-+	    }
-+	);
-+	
-+	// Gather the shopping variables and save them to a WS
-+	$("#updateButton").click(function(){
-+        try {
-+	     
-+            var start = "";
-+	    try{
-+		start  = $.datepicker.parseDate("mm/dd/yy", $('#shoppingVisibilityStart').val()).getTime();
-+	    }catch(err){}
-+	    var end = "";
-+	    try{
-+		end   = $.datepicker.parseDate("mm/dd/yy", $('#shoppingVisibilityEnd').val()).getTime();
-+	    }catch(err){}
-+            var data = {
-+                'shoppingAuth'      : $('#shoppingVisibility option:selected').val(),
-+                'shoppingStartDate' : start,
-+                'shoppingEndDate'   : end,
-+                'shoppingRealm'     : '/site/' + $('#siteId').html(),
-+                'shoppingRole'      : $('#shoppingRole option:selected').val(),
-+            };
-+            var form = $('form[name=editParticipantForm]');
-+
-+            $.ajax({
-+                type: 'POST',
-+                url: "/direct/delegated_access/" + $('#hierarchyNodeId').html() + ".json",
-+                data: data,
-+                async:false,
-+                failure: function failure(data){
-+                    // TODO: internationalize
-+                    alert("There was an error saving the shopping period info.");
-+                    },
-+                });
-+        }
-+        catch (error){
-+            console.log(error);
-+        }
-+	});
-+});
-
-Property changes on: site-manage-tool/tool/src/webapp/js/site-manage-shopping.js
-___________________________________________________________________
-Added: svn:keywords
-   + Date Revision Author HeadURL Id
-Added: svn:eol-style
-   + native
-
