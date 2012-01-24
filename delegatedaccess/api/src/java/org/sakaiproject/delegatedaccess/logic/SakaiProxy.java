@@ -79,6 +79,14 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public List<Site> getAllSites();
+	
+	/**
+	 * returns all sites in Sakai, but uses a paging mechanism
+	 * @param page Page to start from (1 based)
+	 * @param pageMax maximum number of sites per page
+	 * @return
+	 */
+	public List<Site> getAllSitesByPages(int page, int pageMax);
 
 	/**
 	 * user's Sakai userDirectoryService to search for users

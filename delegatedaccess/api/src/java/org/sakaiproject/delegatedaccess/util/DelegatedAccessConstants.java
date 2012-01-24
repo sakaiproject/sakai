@@ -69,4 +69,6 @@ public class DelegatedAccessConstants {
 	public static final String PROPERTIES_REALM_OPTIONS_ACCESS = "delegatedaccess.realmoptions.delegatedaccess";
 	public static final String PROPERTIES_ROLE_OPTIONS_ACCESS = "delegatedaccess.roleoptions.delegatedaccess";
 	public static final String PROPERTIES_EMAIL_ERRORS = "delegatedaccess.email.errors";
+	
+	public static final int MAX_SITES_PER_PAGE = 10000;
 }

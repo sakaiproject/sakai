@@ -131,6 +131,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public List<Site> getAllSites(){
 		return siteService.getSites(SelectionType.ANY, null, null, null, null, null);
 	}
+	
+	/**
+    * {@inheritDoc}
+    */
+   public List<Site> getAllSitesByPages(int page, int pageMax){
+      PagingPosition pp = new PagingPosition(page, pageMax);
+      return siteService.getSites(SelectionType.ANY, null, null, null, null, pp);
+   }
 
 
 	/**

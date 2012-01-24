@@ -17,6 +17,7 @@ import org.quartz.JobExecutionException;
 import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
 import org.sakaiproject.delegatedaccess.logic.SakaiProxy;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.hierarchy.HierarchyService;
 import org.sakaiproject.hierarchy.model.HierarchyNode;
 import org.sakaiproject.site.api.Site;
@@ -57,7 +58,6 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 	private Set<String> newHiearchyNodeIds;
 	
 	private static boolean semaphore = false;
-	private Map<String, String> errors = new HashMap<String, String>();
 
 	public void init() {
 
@@ -70,8 +70,6 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 			return;
 		}
 		semaphore = true;
-
-		errors = new HashMap<String, String>();
 
 		try{
 			log.info("DelegatedAccessSiteHierarchyJob started");
@@ -94,47 +92,65 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 				hierarchy = defaultHierarchy;
 			}
 
-			for(Site site : sakaiProxy.getAllSites()){
-				//search through all sites and add it to the hierarchy if the site has information (otherwise skip)
-				try{
-					HierarchyNode siteParentNode = rootNode;
-					//find lowest hierarchy node:
-					for(String hiearchyProperty : hierarchy){
-						String siteProperty = site.getProperties().getProperty(hiearchyProperty);
-						if(siteProperty != null && !"".equals(siteProperty)){
-							siteParentNode = checkAndAddNode(siteParentNode, siteProperty, siteProperty, null);
-						}else{
-							//nothing, so break
-							break;
-						}
-					}
+			int page = 1;
+			int pageFirstRecord = 1;
+			int pageLastRecord = DelegatedAccessConstants.MAX_SITES_PER_PAGE;
+			boolean hasMoreSites = true;
+			int processedSites = 0;
+			String errors = "";
+			while (hasMoreSites) {
+				List<Site> sites = sakaiProxy.getAllSitesByPages(pageFirstRecord, pageLastRecord);
+				for(Site site : sites){
+					//search through all sites and add it to the hierarchy if the site has information (otherwise skip)
+					try{
+						HierarchyNode siteParentNode = rootNode;
+						ResourceProperties props = site.getProperties();
 
-					if(!rootNode.id.equals(siteParentNode.id)){
-						//save the site under the parent hierarchy if any data was found
-						//Site
-						checkAndAddNode(siteParentNode, site.getTitle(), site.getReference(), site.getProperties().getProperty(sakaiProxy.getTermField()));
+						//find lowest hierarchy node:
+						for(String hiearchyProperty : hierarchy){
+							String siteProperty = props.getProperty(hiearchyProperty);
+							if(siteProperty != null && !"".equals(siteProperty)){
+								siteParentNode = checkAndAddNode(siteParentNode, siteProperty, siteProperty, null);
+							}else{
+								//nothing, so break
+								break;
+							}
+						}
+
+
+						if(!rootNode.id.equals(siteParentNode.id)){
+							//save the site under the parent hierarchy if any data was found
+							//Site
+							checkAndAddNode(siteParentNode, site.getTitle(), site.getReference(), props.getProperty(sakaiProxy.getTermField()));
+						}
+						processedSites++;
+					}catch (Exception e) {
+						log.error(e);
+						if("".equals(errors)){
+							errors += "The following sites had errors: \n\n";
+						}
+						errors += site.getId() + ": " + e.getMessage();
 					}
-				}catch (Exception e) {
-					log.error(e);
-					errors.put(site.getId(), e.getMessage());
+				}
+				pageFirstRecord = (DelegatedAccessConstants.MAX_SITES_PER_PAGE * page) + 1;
+				page ++;
+				pageLastRecord = DelegatedAccessConstants.MAX_SITES_PER_PAGE * page;
+				if (sites.isEmpty()) {
+					hasMoreSites = false;
 				}
 			}
 
 			//report the errors
-			if(errors.size() > 0){
-				String warning = "The following sites had errors: \n\n";
-				for(Entry entry : errors.entrySet()){
-					warning += entry.getKey() + ": " + entry.getValue() + "\n";
-				}
-				log.warn(warning);
-				sakaiProxy.sendEmail("DelegatedAccessShoppingPeriodJob error", warning);
+			if(!"".equals(errors)){
+				log.warn(errors);
+				sakaiProxy.sendEmail("DelegatedAccessShoppingPeriodJob error", errors);
 			}
 
 
 			//remove any sites that don't exist in the hierarchy (aka properties changed or site has been deleted):
 			removeMissingNodes(rootNode);
 
-			log.info("DelegatedAccessSiteHierarchyJob finished in " + (System.currentTimeMillis() - startTime) + " ms");
+			log.info("DelegatedAccessSiteHierarchyJob finished in " + (System.currentTimeMillis() - startTime) + " ms and processed " + processedSites + " sites.");		
 		}catch (Exception e) {
 			log.error(e);
 			sakaiProxy.sendEmail("Error occurred in DelegatedAccessSiteHierarchyJob", e.getMessage());
@@ -160,7 +176,7 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 		if(node != null){
 			if(node.childNodeIds != null && !node.childNodeIds.isEmpty()){
 				//we can delete this, otherwise, delete the children first the children
-				for(String childId : node.childNodeIds){
+				for(String childId : node.childNodeIds){I		
 					removeMissingNodesHelper(hierarchyService.getNodeById(childId));
 				}
 			}
