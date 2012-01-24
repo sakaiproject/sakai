@@ -498,7 +498,7 @@ document.links[newindex].onclick();
   <%-- SUBMIT FOR GRADE DURING PAU --%>
   <h:commandButton type="submit" value="#{deliveryMessages.button_submit}"
     action="#{delivery.confirmSubmit}"  id="submitForm1" styleClass="active"
-    rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.continue}"
+    rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.continue && delivery.anonymousLogin}"
     onclick="pauseTiming='false'; disableSubmit1();" />
 
   <%-- SUBMIT FOR GRADE FOR LINEAR ACCESS --%>
