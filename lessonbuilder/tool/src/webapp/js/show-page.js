@@ -1,6 +1,7 @@
 var dropdownViaClick = false;
 var lessonBuilderAnimationLocked = false;
 var oldloc;
+var requirementType = 0;
 
 // in case user includes the URL of a site that replaces top,
 // give them a way out. Handler is set up in the html file.
@@ -603,6 +604,7 @@ $(function() {
 			var format = row.find(".item-format").text();
 			var req = row.find(".requirement-text").text();
 			var type = row.find(".type").text();
+                        requirementType = type;
 			var editurl = row.find(".edit-url").text();
 			var editsettingsurl = row.find(".edit-settings-url").text();
 			
@@ -1237,6 +1239,10 @@ function checkCommentsForm() {
 function checkEditItemForm() {
 	if($('#name').val() == '') {
 		$('#edit-item-error').text(msg("simplepage.item_notblank"));
+		$('#edit-item-error-container').show();
+		return false;
+        } else if ((requirementType == 3 || requirementType == 6) && isNaN(parseFloat($("#assignment-points").val()))) {
+		$('#edit-item-error').text(msg("simplepage.integer-expected"));
 		$('#edit-item-error-container').show();
 		return false;
 	}else {
