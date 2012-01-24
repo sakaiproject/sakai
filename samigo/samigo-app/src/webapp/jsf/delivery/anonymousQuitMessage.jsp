@@ -39,7 +39,7 @@
 <h3> <h:outputText value="#{deliveryMessages.anonymous_quit_warning}"/></h3>
 <h:form id="redirectLoginForm">
  <div class="validation">
-<h:outputText  value="#{deliveryMessages.anonymous_quit_warning_message}" />
+<h:outputText  value="#{deliveryMessages.anonymous_quit_warning_message}" escape="false"/>
  </div>
 
 <p class="act">
