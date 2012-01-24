@@ -98,6 +98,19 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 		}
 	}
 	
+	public List<String> getNodesBySiteRef(String siteRef, String hierarchyId){
+		try{
+			return (List<String>) getJdbcTemplate().query(getStatement("select.hierarchyNode"), new Object[]{siteRef, hierarchyId}, new RowMapper() {
+				
+				 public Object mapRow(ResultSet resultSet, int i) throws SQLException {
+					return resultSet.getString("ID");
+				}
+			});
+		}catch (DataAccessException ex) {
+			return null;
+		}
+	}
+	
 	public void addSiteProperty(String siteId, String propertyName, String propertyValue){
 		try {
 			getJdbcTemplate().update(getStatement("insert.siteProperty"),

@@ -13,4 +13,6 @@ public interface DelegatedAccessDao {
 	public void addSiteProperty(String siteId, String propertyName, String propertyValue);
 	
 	public void removeSiteProperty(String siteId, String propertyName);
+	
+	public List<String> getNodesBySiteRef(String siteRef, String hierarchyId);
 }

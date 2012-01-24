@@ -200,14 +200,6 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 			removeAnonAndAuthRoles(node.getNode().description);
 		}
 
-		//Update or Add the site properties
-		String sitePropHierarchyNodeId = dao.getSiteProperty(DelegatedAccessConstants.SITE_PROP_HIERARCHY_NODE_ID, siteId);
-		if (sitePropHierarchyNodeId != null){
-			dao.updateSiteProperty(siteId, DelegatedAccessConstants.SITE_PROP_HIERARCHY_NODE_ID, node.getNode().id);
-		}else{
-			dao.addSiteProperty(siteId, DelegatedAccessConstants.SITE_PROP_HIERARCHY_NODE_ID, node.getNode().id);
-		}
-		
 		if(restrictedToolsList == null || "".equals(restrictedToolsList) || ";".equals(restrictedToolsList)){
 			//no need for property if null or blank, just remove it in case it existed before
 			dao.removeSiteProperty(siteId, DelegatedAccessConstants.SITE_PROP_RESTRICTED_TOOLS);

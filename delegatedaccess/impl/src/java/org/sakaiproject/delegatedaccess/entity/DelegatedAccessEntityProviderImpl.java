@@ -41,8 +41,8 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 	}
 
 	public boolean entityExists(String id) {
-		HierarchyNodeSerialized node = projectLogic.getNode(id);
-		return node != null && !"".equals(node.id);
+		List<String> nodeIds = projectLogic.getNodesBySiteRef("/site/" + id, DelegatedAccessConstants.HIERARCHY_ID); 
+		return nodeIds != null && nodeIds.size() == 1;
 	}
 
 
@@ -51,7 +51,11 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 	}
 
 	public Map<String, String> getProperties(String reference) {
-		String nodeId = reference.substring(reference.lastIndexOf("/") + 1);
+		List<String> nodeIds = projectLogic.getNodesBySiteRef("/site/" + reference.substring(reference.lastIndexOf("/") + 1), DelegatedAccessConstants.HIERARCHY_ID);		
+		if(nodeIds == null || nodeIds.size() != 1){
+			throw new IllegalArgumentException("NodeId: " + reference + " doesn't exist");
+		}
+		String nodeId = nodeIds.get(0);
 		NodeModel node = projectLogic.getNodeModel(nodeId, DelegatedAccessConstants.SHOPPING_PERIOD_USER);
 		if(node == null){
 			throw new IllegalArgumentException("NodeId: " + nodeId + " doesn't exist");
@@ -91,8 +95,11 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 	public void updateEntity(EntityReference ref, Object entity,
 			Map<String, Object> params) {
 		//TODO: verify user's credentials:
-
-		String nodeId = ref.getId();
+		List<String> nodeIds = projectLogic.getNodesBySiteRef("/site/" + ref.getId(), DelegatedAccessConstants.HIERARCHY_ID);
+		if(nodeIds == null || nodeIds.size() != 1){
+			throw new IllegalArgumentException("Node doesn't exist or has multiple instances: " + ref.getId());
+		}
+		String nodeId = nodeIds.get(0);
 		String shoppingAuth = (String) params.get("shoppingAuth");
 		String shoppingStartDateStr = (String) params.get("shoppingStartDate");
 		String shoppingEndDateStr = (String) params.get("shoppingEndDate");
@@ -134,7 +141,11 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 	}
 
 	public Object getEntity(EntityReference ref) {
-		String nodeId = ref.getId();
+		List<String> nodeIds = projectLogic.getNodesBySiteRef("/site/" + ref.getId(), DelegatedAccessConstants.HIERARCHY_ID);
+		if(nodeIds == null || nodeIds.size() != 1){
+			throw new IllegalArgumentException("NodeId for Site: " + ref + " doesn't exist");
+		}
+		String nodeId = nodeIds.get(0);
 		NodeModel node = projectLogic.getNodeModel(nodeId, DelegatedAccessConstants.SHOPPING_PERIOD_USER);
 		if(node == null){
 			throw new IllegalArgumentException("NodeId: " + nodeId + " doesn't exist");

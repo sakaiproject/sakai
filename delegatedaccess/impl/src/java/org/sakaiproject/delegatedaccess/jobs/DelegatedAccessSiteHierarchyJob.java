@@ -2,6 +2,7 @@ package org.sakaiproject.delegatedaccess.jobs;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -13,6 +14,7 @@ import org.apache.log4j.Logger;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
 import org.sakaiproject.delegatedaccess.logic.SakaiProxy;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.hierarchy.HierarchyService;
@@ -48,6 +50,9 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 	private HierarchyService hierarchyService;
 	@Getter @Setter	
 	private SakaiProxy sakaiProxy;
+	@Getter @Setter
+	private DelegatedAccessDao dao;
+	
 	private static final String[] defaultHierarchy = new String[]{DelegatedAccessConstants.SCHOOL_PROPERTY, DelegatedAccessConstants.DEPEARTMENT_PROPERTY, DelegatedAccessConstants.SUBJECT_PROPERTY};
 	private Set<String> newHiearchyNodeIds;
 	
@@ -92,22 +97,22 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 			for(Site site : sakaiProxy.getAllSites()){
 				//search through all sites and add it to the hierarchy if the site has information (otherwise skip)
 				try{
-					String siteParentId = rootNode.id;
+					HierarchyNode siteParentNode = rootNode;
 					//find lowest hierarchy node:
 					for(String hiearchyProperty : hierarchy){
 						String siteProperty = site.getProperties().getProperty(hiearchyProperty);
 						if(siteProperty != null && !"".equals(siteProperty)){
-							siteParentId = checkAndAddNode(siteParentId, siteProperty, siteProperty, null);
+							siteParentNode = checkAndAddNode(siteParentNode, siteProperty, siteProperty, null);
 						}else{
 							//nothing, so break
 							break;
 						}
 					}
 
-					if(!rootNode.id.equals(siteParentId)){
+					if(!rootNode.id.equals(siteParentNode.id)){
 						//save the site under the parent hierarchy if any data was found
 						//Site
-						checkAndAddNode(siteParentId, site.getTitle(), site.getReference(), site.getProperties().getProperty(sakaiProxy.getTermField()));
+						checkAndAddNode(siteParentNode, site.getTitle(), site.getReference(), site.getProperties().getProperty(sakaiProxy.getTermField()));
 					}
 				}catch (Exception e) {
 					log.error(e);
@@ -176,37 +181,51 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 
 
 
-	private String checkAndAddNode(String parentId, String title, String description, String term){
-		String nodeId = "";
+	private HierarchyNode checkAndAddNode(HierarchyNode parentNode, String title, String description, String term){
+		HierarchyNode node = null;
 		if(title != null && !"".equals(title)){
 
-			nodeId = findChildIdFromReference(parentId, description);
-			if(nodeId == null){
+			List<String> nodeIds = dao.getNodesBySiteRef(description, DelegatedAccessConstants.HIERARCHY_ID);
+			boolean hasChild = false;
+			String childNodeId = "";
+			if(nodeIds != null && nodeIds.size() > 0){
+				for(String id : nodeIds){
+					if(parentNode.directChildNodeIds.contains(id)){
+						hasChild = true;
+						childNodeId = id;
+						break;
+					}
+				}
+			}
+			if(!hasChild){
 				//if this parent/child relationship hasn't been created, create it
-				HierarchyNode newNode = hierarchyService.addNode(DelegatedAccessConstants.HIERARCHY_ID, parentId);
+				HierarchyNode newNode = hierarchyService.addNode(DelegatedAccessConstants.HIERARCHY_ID, parentNode.id);
 				hierarchyService.saveNodeMetaData(newNode.id, title, description, term);
-				hierarchyService.addChildRelation(parentId, newNode.id);
-				nodeId = newNode.id;
+				hierarchyService.addChildRelation(parentNode.id, newNode.id);
+				node = newNode;
+				//since we don't want to keep lookup up the parent id after every child is added,
+				//(b/c the data is stale), just add this id to the set
+				parentNode.directChildNodeIds.add(node.id);
 			}else{
-				//just update the node's metadata
-				hierarchyService.saveNodeMetaData(nodeId, title, description, term);
+				//just grab the node
+				node = hierarchyService.getNodeById(childNodeId);
 			}
-			newHiearchyNodeIds.add(nodeId);
+			newHiearchyNodeIds.add(node.id);
 		}
-		return nodeId;
+		return node;
 	}
-
-	//Only checks direct children b/c we want to ensure hierarchy didn't change (a child could have moved in the hierarchy)
-	private String findChildIdFromReference(String parentId, String childRef){
-		String childId = null;
-		Set<HierarchyNode> directChildred = hierarchyService.getChildNodes(parentId, true);
-		for(HierarchyNode child : directChildred){
-			if(childRef.equals(child.description)){
-				childId = child.id;
-				break;
-			}
-		}
-		return childId;
-	}
+//
+//	//Only checks direct children b/c we want to ensure hierarchy didn't change (a child could have moved in the hierarchy)
+//	private String findChildIdFromReference(HierarchyNode parentNode, String childRef){
+//		String childId = null;
+//		Set<String> directChildred = parentNode.directChildNodeIds;
+//		for(String child : directChildred){
+//			if(childRef.equals(child.description)){
+//				childId = child;
+//				break;
+//			}
+//		}
+//		return childId;
+//	}
 
 }

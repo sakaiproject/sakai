@@ -21,6 +21,7 @@ import lombok.Setter;
 
 import org.apache.log4j.Logger;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
+import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
 import org.sakaiproject.delegatedaccess.model.HierarchyNodeSerialized;
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
@@ -49,6 +50,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 	private SakaiProxy sakaiProxy;
 	@Getter @Setter
 	private HierarchyService hierarchyService;
+	@Getter @Setter
+	private DelegatedAccessDao dao;
 
 	/**
 	 * init - perform any actions required here for when this bean starts up
@@ -1292,5 +1295,9 @@ public class ProjectLogicImpl implements ProjectLogic {
 	public boolean hasDelegatedAccessNodes(String userId){
 		Set<HierarchyNode> delegatedAccessNodes = hierarchyService.getNodesForUserPerm(userId, DelegatedAccessConstants.NODE_PERM_SITE_VISIT); 
 		return delegatedAccessNodes != null && delegatedAccessNodes.size() > 0;
+	}
+	
+	public List<String> getNodesBySiteRef(String siteRef, String hierarchyId){
+		return dao.getNodesBySiteRef(siteRef, hierarchyId);
 	}
 }

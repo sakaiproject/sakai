@@ -54,7 +54,6 @@ public class DelegatedAccessConstants {
 	public static final int TYPE_LISTFIELD_TOOLS = 1;
 	public static final int TYPE_LISTFIELD_TERMS = 2;
 	public static final int TYPE_SHOPPING_PERIOD_ADMIN = 3;
-	public static final String SITE_PROP_HIERARCHY_NODE_ID = "hierarchy-node-id";
 	public static final String SITE_PROP_RESTRICTED_TOOLS = "shopping-period-restricted-tools";
 	public static final String PROP_TOOL_LIST = "delegatedaccess.toolslist";
 	public static final String PROP_TOOL_LIST_TEMPLATE = "delegatedaccess.toolslist.sitetype";

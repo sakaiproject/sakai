@@ -165,4 +165,12 @@ public interface ProjectLogic {
 	 * @return
 	 */
 	public boolean hasDelegatedAccessNodes(String userId);
+	
+	/**
+	 * Returns the node Id for the site Ref and hierarchy Id
+	 * @param siteRef
+	 * @param hierarchyId
+	 * @return
+	 */
+	public List<String> getNodesBySiteRef(String siteRef, String hierarchyId);
 }

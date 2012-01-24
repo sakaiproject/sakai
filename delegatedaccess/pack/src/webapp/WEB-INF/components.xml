@@ -30,6 +30,7 @@
     	
     	<property name="sakaiProxy" ref="org.sakaiproject.delegatedaccess.logic.SakaiProxy" />	
     	<property name="hierarchyService" ref="org.sakaiproject.hierarchy.HierarchyService" />	
+    	<property name="dao" ref="org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao" />
     </bean>
     
     <bean id="org.sakaiproject.delegatedaccess.logic.DelegatedAccessObserver"
@@ -58,6 +59,7 @@
 		init-method="init">
 		<property name="hierarchyService" ref="org.sakaiproject.hierarchy.HierarchyService" />
 		<property name="sakaiProxy" ref="org.sakaiproject.delegatedaccess.logic.SakaiProxy"/>
+		<property name="dao" ref="org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao" />
 	</bean>
 	
 	<bean id="DelegatedAccessSiteHierarchyJob"
