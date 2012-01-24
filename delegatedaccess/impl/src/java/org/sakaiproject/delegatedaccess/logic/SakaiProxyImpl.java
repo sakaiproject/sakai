@@ -494,17 +494,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 	
 	public void sendEmail(String subject, String body){
-		try{
-			String toAddress = serverConfigurationService.getString(DelegatedAccessConstants.PROPERTIES_EMAIL_ERRORS);
-			String fromAddress = toAddress;
-			if(toAddress != null && !"".equals(toAddress)){
-				List additionalHeaders = new ArrayList(1);
-				additionalHeaders.add("Content-Type: text/html");
-				emailService.sendMail(new InternetAddress(fromAddress), new InternetAddress[]{new InternetAddress(toAddress)}, subject, body, 
-						new InternetAddress[]{new InternetAddress(fromAddress)}, null, additionalHeaders);
-			}
-		}catch (MessagingException e){
-			log.warn(e);
+		String toAddress = serverConfigurationService.getString(DelegatedAccessConstants.PROPERTIES_EMAIL_ERRORS);
+		String fromAddress = toAddress;
+		if(toAddress != null && !"".equals(toAddress)){
+			emailService.send(fromAddress, toAddress, subject, body, null, null, null);
 		}
 	}
 }
