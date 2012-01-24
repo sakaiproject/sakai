@@ -176,7 +176,7 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 		if(node != null){
 			if(node.childNodeIds != null && !node.childNodeIds.isEmpty()){
 				//we can delete this, otherwise, delete the children first the children
-				for(String childId : node.childNodeIds){I		
+				for(String childId : node.childNodeIds){		
 					removeMissingNodesHelper(hierarchyService.getNodeById(childId));
 				}
 			}
