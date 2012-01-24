@@ -6,7 +6,6 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.tool.helper.participant.impl.SiteAddParticipantHandler;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
@@ -56,11 +55,6 @@ public class AddProducer implements ViewComponentProducer, NavigationCaseReporte
     public MessageLocator messageLocator;
     public FrameAdjustingProducer frameAdjustingProducer;
     public SessionManager sessionManager;
-    public SiteService siteService = null;
-    public void setSiteService(SiteService siteService)
-	{
-		this.siteService = siteService;
-	}
 
     public String getViewID() {
         return VIEW_ID;
@@ -109,7 +103,7 @@ public class AddProducer implements ViewComponentProducer, NavigationCaseReporte
 		}
     	
 		// non official participant
-    	String allowAddNonOfficialParticipant = handler.getServerConfigurationString("nonOfficialAccount", "true");
+    	String allowAddNonOfficialParticipant = handler.getAllowNonOfficialAccount();
     	if (allowAddNonOfficialParticipant.equalsIgnoreCase("true"))
     	{
     		UIInput.make(participantForm, "nonOfficialAccountParticipant", "#{siteAddParticipantHandler.nonOfficialAccountParticipant}", handler.nonOfficialAccountParticipant);

@@ -1223,5 +1223,31 @@ public class SiteAddParticipantHandler {
 		}
 		return rndbuf.toString();
 	}
+	
+	/**
+	 * get the settings whether non official account users are allowed or not
+	 * site-wide settings can override the system-wide settings
+	 * @return
+	 */
+	public String getAllowNonOfficialAccount()
+	{
+		// get system setting first
+    	String rv = getServerConfigurationString("nonOfficialAccount", "true");
+    	
+    	// get site property, if different, it overrides sakai.properties setting
+    	if (site == null) {
+    	        M_log.error("Could not get site and thus, site properties.");
+    	}
+    	else
+    	{
+    	    String allowThisSiteAddNonOfficialParticipant = site.getProperties().getProperty("nonOfficialAccount");
+    	    M_log.debug("Site non-official allowed? "+allowThisSiteAddNonOfficialParticipant);
+    	    if (allowThisSiteAddNonOfficialParticipant != null && !allowThisSiteAddNonOfficialParticipant.equalsIgnoreCase(rv)) {
+    	        rv = allowThisSiteAddNonOfficialParticipant;
+    	    }
+    	}
+    	
+    	return rv;
+	}
 }
 
