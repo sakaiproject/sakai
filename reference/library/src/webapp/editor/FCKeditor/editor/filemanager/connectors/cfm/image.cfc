@@ -717,7 +717,7 @@
 	<!--- used for jpeg output method --->
 	<cfset var out = "">
 	<cfset var fos = "">
-	<cfset var JPEGCodec = "">
+	<cfset var ImageIO = "">
 	<cfset var encoder = "">
 	<cfset var param = "">
 	<cfset var quality = javacast("float", jpegCompression/100)>
@@ -746,12 +746,8 @@
 			fos = createObject("java", "java.io.FileOutputStream");
 			fos.init(tempOutputFile);
 			out.init(fos);
-			JPEGCodec = createObject("java", "com.sun.image.codec.jpeg.JPEGCodec");
-			encoder = JPEGCodec.createJPEGEncoder(out);
-		    param = encoder.getDefaultJPEGEncodeParam(img);
-		    param.setQuality(quality, false);
-		    encoder.setJPEGEncodeParam(param);
-		    encoder.encode(img);
+			ImageIO = createObject("java", "javax.imageio.ImageIO");
+			ImageIO.write(img, "jpeg", out);
 		    out.close();
 		</cfscript>
 	</cfif>
