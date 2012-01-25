@@ -53,7 +53,9 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolSession;
@@ -514,6 +516,22 @@ public class SyllabusTool
   {
 	  return ServerConfigurationService.getToolUrl() + "-reset/" +
 	  			ToolManager.getCurrentPlacement().getId() + "/?panel=Main";	
+  }
+  
+  public String getSiteTitle(){
+	  String siteTitle = "";
+	  
+	  Placement placement = ToolManager.getCurrentPlacement();
+	  String currentSiteId = placement.getContext();
+	  try {
+		  Site site = SiteService.getSite(currentSiteId);
+		  siteTitle = site.getTitle();
+	  } 
+	  catch (IdUnusedException e) {
+		  logger.info(this + "IdUnusedException getting site title for syllabus: " + e);
+	}
+	  
+	  return siteTitle;
   }
   
   //testing the access to control the "create/edit"

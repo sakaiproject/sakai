@@ -17,7 +17,7 @@
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.tool.syllabus.bundle.Messages"/>
 </jsp:useBean>
 
-	<sakai:view_container title="#{msgs.title_list}">
+	<sakai:view_container title="#{SyllabusTool.siteTitle}">
 	<sakai:stylesheet path="/syllabus/css/syllabus.css" />
 	<sakai:view_content>
 
