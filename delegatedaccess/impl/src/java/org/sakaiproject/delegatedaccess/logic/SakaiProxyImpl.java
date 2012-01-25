@@ -129,7 +129,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 * {@inheritDoc}
 	 */
 	public List<Site> getAllSites(){
-		return siteService.getSites(SelectionType.ANY, null, null, null, null, null);
+		return siteService.getSites(SelectionType.NON_USER, null, null, null, null, null);
 	}
 	
 	/**
@@ -137,7 +137,7 @@ public class SakaiProxyImpl implements SakaiProxy {
     */
    public List<Site> getAllSitesByPages(int page, int pageMax){
       PagingPosition pp = new PagingPosition(page, pageMax);
-      return siteService.getSites(SelectionType.ANY, null, null, null, null, pp);
+      return siteService.getSites(SelectionType.NON_USER, null, null, null, null, pp);
    }
 
 

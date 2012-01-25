@@ -572,7 +572,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 				if (sites.isEmpty()) {
 					// grab all sites in term since there are no other
 					// restrictions
-					for (Site site : sakaiProxy.getSites(SelectionType.ANY,
+					for (Site site : sakaiProxy.getSites(SelectionType.NON_USER,
 							search, propsMap)) {
 						sites.put(site.getId(), new SiteSearchData(site, new ArrayList<User>()));
 					}
@@ -592,7 +592,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			}
 		} else {
 			// search title or id
-			for (Site site : sakaiProxy.getSites(SelectionType.ANY, search,
+			for (Site site : sakaiProxy.getSites(SelectionType.NON_USER, search,
 					null)) {
 				sites.put(site.getId(), new SiteSearchData(site, new ArrayList<User>()));
 			}
