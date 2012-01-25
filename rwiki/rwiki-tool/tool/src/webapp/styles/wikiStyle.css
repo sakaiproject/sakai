@@ -349,7 +349,7 @@ a.rwiki_help_popup_link span{ padding: 0 }
 .pop_body{ line-height: 1.3em; padding: .3em }
 .pop1, .pop2 { width: 30% }
 .red{ color: red !important }
-.pop1 .pop_body{ font-size: .9em }
+.pop1 .pop_body{ font-size: .9em; font-family: Verdana, Geneva, Arial, Helvetica, sans-serif\0/; }
 
 /*
 MOOT
@@ -430,6 +430,7 @@ MOOT
 	border: 1px solid #F4F4F4;
 	-moz-border-radius: 5px
 }*/
+.historyPage .rwiki_renderedContent table { font-family: Verdana, Geneva, Arial, Helvetica, sans-serif\0/; }
 .rwiki_searchForm {
 	/* SAK-2380: Mozilla sticks a margin on the bottom of a form, IE does it to both! */
 	margin-bottom: 0;
