@@ -14,7 +14,7 @@
 	</div>
 	<form action="#toolForm("$action")" method="post">
 		<h4>
-			Role
+			$tlang.getString("realm.role.role")
 		</h4>
 		<p class="shorttext required">
 			<span class="reqStar">*</span>
