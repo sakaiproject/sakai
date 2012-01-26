@@ -3,13 +3,15 @@
 
 <beans>
 	<!-- Bring in the HBM related beans -->
-	<import resource="hibernate-hbms.xml" />
+	<import resource="classpath*:org/sakaiproject/scorm/dao/hibernate/spring-hibernate-hbms.xml" />
 
 	<!-- Bring in the hibernate daos -->
-	<import resource="spring-hibernate-daos.xml" />
+	<import resource="classpath*:org/sakaiproject/scorm/dao/hibernate/spring-hibernate-daos.xml" />
+
 	
 	<!-- Bring in the sakai daos -->
-	<import resource="spring-sakai-daos.xml" />
+	<import resource="classpath*:org/sakaiproject/scorm/dao/sakai/spring-sakai-hbms.xml" />
+	<import resource="classpath*:org/sakaiproject/scorm/dao/sakai/spring-sakai-daos.xml" />
 	
 	<!-- Bring in the sakai implementation service beans -->
 	<import resource="spring-sakai-service.xml" />

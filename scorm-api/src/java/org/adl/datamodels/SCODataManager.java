@@ -87,7 +87,7 @@ public class SCODataManager implements IDataManager {
     /**
      * Describes the set of run-time data models managed for the SCO.
      */
-	public Map mDataModels = null;
+	public Map<String, DataModel> mDataModels = null;
 	
    /**
     * Default constructor required for serialization support. Its only action
@@ -105,7 +105,7 @@ public class SCODataManager implements IDataManager {
 	   this.activityId = activityId;
 	   this.userId = userId;
 	   this.title = title;
-	   this.mDataModels = new Hashtable();
+	   this.mDataModels = new Hashtable<String, DataModel>();
 	   this.beginDate = new Date();
 	   this.lastModifiedDate = new Date();
 	   this.attemptNumber = attemptNumber;
@@ -123,7 +123,7 @@ public class SCODataManager implements IDataManager {
     * 
     * @param iModel  Describes the run-time data model to be added.
     */
-   public void addDM(int iModel)
+   public DataModel addDM(int iModel)
    {
       // Create the indicated data model
       DataModel dm = DMFactory.createDM(iModel, validatorFactory);
@@ -133,7 +133,7 @@ public class SCODataManager implements IDataManager {
          // Make sure this data model isn't already being managed
          if ( mDataModels == null )
          {
-            mDataModels = new Hashtable();
+            mDataModels = new Hashtable<String, DataModel>();
 
             mDataModels.put(dm.getDMBindingString(), dm);
          }
@@ -148,6 +148,8 @@ public class SCODataManager implements IDataManager {
             }
          }
       }
+      
+      return dm;
    }
 
    /**
@@ -285,8 +287,8 @@ public class SCODataManager implements IDataManager {
    {
       if ( mDataModels != null )
       {
-    	 for (Iterator it = mDataModels.values().iterator();it.hasNext();) {
-    		 DataModel dm = (DataModel)it.next();
+    	 for (Iterator<DataModel> it = mDataModels.values().iterator();it.hasNext();) {
+    		 DataModel dm = it.next();
     		 dm.initialize();
          }
       }
@@ -350,7 +352,7 @@ public class SCODataManager implements IDataManager {
    {
       if ( mDataModels != null )
       {
-    	  for (Iterator it = mDataModels.values().iterator();it.hasNext();) {
+    	  for (Iterator<DataModel> it = mDataModels.values().iterator();it.hasNext();) {
      		 DataModel dm = (DataModel)it.next();
      		 dm.terminate();
     	  }
@@ -508,11 +510,11 @@ public class SCODataManager implements IDataManager {
 		this.title = title;
 	}
 
-	public Map getDataModels() {
+	public Map<String, DataModel> getDataModels() {
 		return mDataModels;
 	}
 
-	public void setDataModels(Map dataModels) {
+	public void setDataModels(Map<String, DataModel> dataModels) {
 		this.mDataModels = dataModels;
 	}
 
