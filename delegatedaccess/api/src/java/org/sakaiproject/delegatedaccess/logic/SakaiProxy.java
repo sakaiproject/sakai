@@ -82,11 +82,12 @@ public interface SakaiProxy {
 	
 	/**
 	 * returns all sites in Sakai, but uses a paging mechanism
+	 * @param propsMap can be null or send over props to filter sites on
 	 * @param page Page to start from (1 based)
 	 * @param pageMax maximum number of sites per page
 	 * @return
 	 */
-	public List<Site> getAllSitesByPages(int page, int pageMax);
+	public List<Site> getAllSitesByPages(Map<String, String> propsMap, int page, int pageMax);
 
 	/**
 	 * user's Sakai userDirectoryService to search for users

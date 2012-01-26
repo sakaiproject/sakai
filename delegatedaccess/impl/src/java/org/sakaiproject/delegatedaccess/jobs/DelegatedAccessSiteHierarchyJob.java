@@ -98,8 +98,13 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 			boolean hasMoreSites = true;
 			int processedSites = 0;
 			String errors = "";
+			Map<String,String> propsMap = new HashMap<String, String>();
+			for(String prop : hierarchy){
+				propsMap.put(prop, "");
+			}
+			
 			while (hasMoreSites) {
-				List<Site> sites = sakaiProxy.getAllSitesByPages(pageFirstRecord, pageLastRecord);
+				List<Site> sites = sakaiProxy.getAllSitesByPages(propsMap, pageFirstRecord, pageLastRecord);
 				for(Site site : sites){
 					//search through all sites and add it to the hierarchy if the site has information (otherwise skip)
 					try{
