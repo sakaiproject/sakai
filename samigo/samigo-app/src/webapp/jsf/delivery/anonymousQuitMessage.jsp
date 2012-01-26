@@ -43,9 +43,9 @@
  </div>
 
 <p class="act">
-  <h:commandButton value="#{deliveryMessages.button_return_to_assessment}" type="button"
-     styleClass="active" onclick="javascript:history.go(-1);" onkeypress="javascript:history.go(-1);" />
-
+    <h:commandButton id="returnToAssessment" value="#{deliveryMessages.button_return_to_assessment}" action="#{delivery.validate}" type="submit" styleClass="active" onclick="disableReturnToAssessment();">
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
+    </h:commandButton>
 </p>
 </h:form>
 </div>
