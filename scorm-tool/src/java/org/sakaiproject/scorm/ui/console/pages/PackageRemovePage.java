@@ -35,7 +35,6 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.scorm.exceptions.ResourceNotDeletedException;
 import org.sakaiproject.scorm.model.api.ContentPackage;
@@ -48,7 +47,7 @@ public class PackageRemovePage extends ConsoleBasePage {
 	
 	private static Log log = LogFactory.getLog(PackageRemovePage.class);
 	
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormContentService")
 	ScormContentService contentService;
 
 	private Label alertLabel;

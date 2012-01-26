@@ -200,7 +200,7 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 	@SpringBean
 	LearningManagementSystem lms;
 
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormContentService")
 	ScormContentService contentService;
 	
 	@SpringBean(name = "org.sakaiproject.service.gradebook.GradebookExternalAssessmentService")

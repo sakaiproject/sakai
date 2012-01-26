@@ -23,20 +23,9 @@ package org.sakaiproject.scorm.ui.player.components;
 import java.util.List;
 
 import org.apache.wicket.ResourceReference;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.IHeaderContributor;
-import org.apache.wicket.markup.html.IHeaderResponse;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.html.resources.CompressedResourceReference;
-import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.scorm.model.api.ScoBean;
 import org.sakaiproject.scorm.model.api.SessionBean;
-import org.sakaiproject.scorm.service.api.LearningManagementSystem;
-import org.sakaiproject.scorm.service.api.ScormApplicationService;
-import org.sakaiproject.scorm.service.api.ScormResourceService;
-import org.sakaiproject.scorm.service.api.ScormSequencingService;
-import org.sakaiproject.scorm.ui.player.behaviors.SjaxCall;
 
 public class CommunicationPanel extends Panel { //implements IHeaderContributor {
 	public static final ResourceReference API = new CompressedResourceReference(

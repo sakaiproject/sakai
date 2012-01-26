@@ -17,7 +17,7 @@ public class CMIDataGraph extends Panel {
 
 	private static final long serialVersionUID = 1L;
 
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResultService")
 	ScormResultService resultService;
 	
 	public CMIDataGraph(String id, List<CMIData> cmiData) {

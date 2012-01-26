@@ -65,7 +65,7 @@ public class ScoResultsPage extends BaseResultsPage {
 	private static ResourceReference NEUTRAL_ICON = new ResourceReference(InteractionPanel.class, "res/page_white_text.png");
 
 	
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResultService")
 	ScormResultService resultService;
 	
 	public ScoResultsPage(PageParameters pageParams) {
@@ -259,6 +259,9 @@ public class ScoResultsPage extends BaseResultsPage {
 
 		@Override
 		public Object convertObject(Object object) {
+			if (object == null) {
+				return "";
+			}
 			String key = new StringBuilder("type.").append(object).toString();
 			return getLocalizer().getString(key, ScoResultsPage.this);
 		}

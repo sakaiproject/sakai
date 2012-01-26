@@ -67,7 +67,7 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 	
 	@SpringBean
 	LearningManagementSystem lms;
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormContentService")
 	ScormContentService contentService;
 	
 	public PackageListPage(PageParameters params) {

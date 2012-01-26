@@ -77,7 +77,7 @@ public class FileUploadForm extends Form {
 	private static Log log = LogFactory.getLog(FileUploadForm.class);			
 	private static final String CONTENT_TYPE_APPLICATION_ZIP = "application/zip";
 	
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResourceService")
 	ScormResourceService resourceService;
 	
 	private FileUploadField fileUploadField;

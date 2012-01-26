@@ -72,9 +72,9 @@ public class ActivityTree extends LinkTree {
 	
 	@SpringBean
 	LearningManagementSystem lms;
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResourceService")
 	ScormResourceService resourceService;
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormSequencingService")
 	ScormSequencingService sequencingService;
 	
 	

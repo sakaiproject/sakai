@@ -30,6 +30,18 @@
 	-->
 		
 	<bean id="org.sakaiproject.scorm.adl.ADLConsultant"
+			class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager" 
+			ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="target" 
+			ref="org.sakaiproject.scorm.adl.ADLConsultantTarget" />
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+	<bean id="org.sakaiproject.scorm.adl.ADLConsultantTarget"
 		class="org.sakaiproject.scorm.adl.impl.ADLConsultantImpl"
 		singleton="true">
 		
@@ -39,9 +51,21 @@
 		<lookup-method name="activityTreeHolderDao" bean="org.sakaiproject.scorm.dao.api.ActivityTreeHolderDao" />
 		
 	</bean>
+		<bean id="org.sakaiproject.scorm.service.api.ScormApplicationService"
+			class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager" 
+			ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="target" 
+			ref="org.sakaiproject.scorm.service.api.ScormApplicationServiceTarget" />
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
 	
 	<!-- This bean serves the Scorm API calls -->
-	<bean id="org.sakaiproject.scorm.service.api.ScormApplicationService"
+	<bean id="org.sakaiproject.scorm.service.api.ScormApplicationServiceTarget"
 		class="org.sakaiproject.scorm.service.impl.ScormApplicationServiceImpl"
 		singleton="true">
 		
@@ -54,11 +78,24 @@
 		<!-- Data Access Objects -->
 		<lookup-method name="attemptDao" bean="org.sakaiproject.scorm.dao.api.AttemptDao" />	  
 		<lookup-method name="dataManagerDao" bean="org.sakaiproject.scorm.dao.api.DataManagerDao" />
+		<lookup-method name="gradebookExternalAssessmentService" bean="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService" />
 		<lookup-method name="learnerDao" bean="org.sakaiproject.scorm.dao.LearnerDao" />
 	</bean>
 	
-	<!-- This bean manages content -->
 	<bean id="org.sakaiproject.scorm.service.api.ScormContentService"
+			class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager" 
+			ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="target" 
+			ref="org.sakaiproject.scorm.service.api.ScormContentServiceTarget" />
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>	
+	<!-- This bean manages content -->
+	<bean id="org.sakaiproject.scorm.service.api.ScormContentServiceTarget"
 		class="org.sakaiproject.scorm.service.impl.ScormContentServiceImpl"
 		singleton="true">
 		
@@ -75,6 +112,18 @@
 	</bean>	
 	
 	<bean id="org.sakaiproject.scorm.service.api.ScormResultService"
+			class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager" 
+			ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="target" 
+			ref="org.sakaiproject.scorm.service.api.ScormResultServiceTarget" />
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+	<bean id="org.sakaiproject.scorm.service.api.ScormResultServiceTarget"
 		class="org.sakaiproject.scorm.service.impl.ScormResultServiceImpl"
 		singleton="true">
 		
@@ -89,6 +138,18 @@
 	</bean>
 	
 	<bean id="org.sakaiproject.scorm.service.api.ScormSequencingService"
+			class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager" 
+			ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		<property name="target" 
+			ref="org.sakaiproject.scorm.service.api.ScormSequencingServiceTarget" />
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+	<bean id="org.sakaiproject.scorm.service.api.ScormSequencingServiceTarget"
 		class="org.sakaiproject.scorm.service.impl.ScormSequencingServiceImpl"
 		singleton="true">
 		
@@ -102,6 +163,7 @@
 		<!-- Data Access Objects -->
 		<lookup-method name="activityTreeHolderDao" bean="org.sakaiproject.scorm.dao.api.ActivityTreeHolderDao" />
 		<lookup-method name="attemptDao" bean="org.sakaiproject.scorm.dao.api.AttemptDao" />		
+		<lookup-method name="dataManagerDao" bean="org.sakaiproject.scorm.dao.api.DataManagerDao" />
 	</bean>	
 	
 	<bean id="org.sakaiproject.scorm.service.api.ScormEntityProvider"

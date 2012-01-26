@@ -32,9 +32,9 @@ public class ValidationPage extends ConsoleBasePage {
 	private static final ResourceReference refreshIconReference = new ResourceReference(ValidationPage.class, "res/arrow_refresh.png");
 	
 	
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormContentService")
 	ScormContentService contentService;
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResourceService")
 	ScormResourceService resourceService;
 	
 	private final BasicDataTable table;

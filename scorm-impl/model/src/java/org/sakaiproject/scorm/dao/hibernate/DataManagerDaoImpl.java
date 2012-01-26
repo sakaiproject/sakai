@@ -20,19 +20,12 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.dao.hibernate;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import org.adl.datamodels.DMElement;
-import org.adl.datamodels.DataModel;
 import org.adl.datamodels.IDataManager;
 import org.adl.datamodels.SCODataManager;
-import org.adl.datamodels.ieee.SCORM_2004_DM;
-import org.adl.datamodels.nav.SCORM_2004_NAV_DM;
-import org.adl.datamodels.ssp.SSP_DataModel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.scorm.dao.api.DataManagerDao;
@@ -43,17 +36,17 @@ public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManag
 	private static Log log = LogFactory.getLog(DataManagerDaoImpl.class);
 	
 	public IDataManager load(long id) {
-		//return (IDataManager)getHibernateTemplate().load(SCODataManager.class, id);
-	
-		List r = getHibernateTemplate().find(
-				"from " + SCODataManager.class.getName()
-						+ " where id=? ", 
-						new Object[]{ id });
-	
-		if (r != null && r.size() > 0)
-			return (IDataManager)r.get(0);
-		
-		return null;
+		return (IDataManager)getHibernateTemplate().load(SCODataManager.class, id);
+//	
+//		List r = getHibernateTemplate().find(
+//				"from " + SCODataManager.class.getName()
+//						+ " where id=? ", 
+//						new Object[]{ id });
+//	
+//		if (r != null && r.size() > 0)
+//			return (IDataManager)r.get(0);
+//		
+//		return null;
 	}
 	
 	public List<IDataManager> find(String courseId) {
@@ -155,6 +148,7 @@ public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManag
 	private void saveOrUpdate(IDataManager dataManager, boolean isFirstTime) {
 		dataManager.setLastModifiedDate(new Date());
 		
+		/*
 		Map<String, DataModel> dataModels = dataManager.getDataModels();
 		
 		if (dataModels != null) {
@@ -193,6 +187,7 @@ public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManag
 			}
 
 		}
+		*/
 			
 		
 		saveOrUpdate(isFirstTime, dataManager);
@@ -200,6 +195,7 @@ public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManag
 	}
 	
 	private void merge(DMElement element) {
+		/*
 		if (element.getDescription() != null) {
 			getHibernateTemplate().saveOrUpdate(element.getDescription());
 		}
@@ -210,6 +206,7 @@ public class DataManagerDaoImpl extends HibernateDaoSupport implements DataManag
 	        merge(el);
         }
 		getHibernateTemplate().saveOrUpdate(element);
+		*/
 		
 		/*List<DMDelimiter> delims = element.getDelimiters();
 		

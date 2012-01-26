@@ -48,11 +48,11 @@ public class LazyLaunchPanel extends LazyLoadPanel {
 	private static final long serialVersionUID = 1L;
 	private static Log log = LogFactory.getLog(LazyLaunchPanel.class);
 	
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResourceService")
 	ScormResourceService resourceService;
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResultService")
 	ScormResultService resultService;
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormSequencingService")
 	ScormSequencingService sequencingService;
 	
 	private PlayerPage view;

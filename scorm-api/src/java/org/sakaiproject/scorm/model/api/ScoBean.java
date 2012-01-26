@@ -22,51 +22,49 @@ package org.sakaiproject.scorm.model.api;
 
 import java.io.Serializable;
 
-import org.adl.datamodels.IDataManager;
-
 public interface ScoBean extends Serializable {
 
 	public static final int SCO_VERSION_2 = 2;
 	public static final int SCO_VERSION_3 = 3;
 	
-	public abstract void clearState();
+	public void clearState();
 	
-	public abstract String getScoId();
+	public String getScoId();
 	
-	public abstract boolean isInitialized();
+	public boolean isInitialized();
 	
-	public abstract void setInitialized(boolean isInitialized);
+	public void setInitialized(boolean isInitialized);
 	
-	public abstract boolean isSuspended();
+	public boolean isSuspended();
 	
-	public abstract void setSuspended(boolean isSuspended);
+	public void setSuspended(boolean isSuspended);
 	
-	public abstract boolean isTerminated();
+	public boolean isTerminated();
 	
-	public abstract void setTerminated(boolean isTerminated);
+	public void setTerminated(boolean isTerminated);
 	
-	public abstract void setVersion(int version);
+	public void setVersion(int version);
 	
-	public abstract IDataManager getDataManager();
+	public Long getDataManagerId();
 	
-	public abstract void setDataManager(IDataManager dataManager);
+	public void setDataManagerId(Long id);
 	
-	/*public abstract String Commit(String parameter);
+	/*public String Commit(String parameter);
 
-	public abstract String GetDiagnostic(String iErrorCode);
+	public String GetDiagnostic(String iErrorCode);
 
-	public abstract String GetErrorString(String iErrorCode);
+	public String GetErrorString(String iErrorCode);
 
-	public abstract String GetLastError();
+	public String GetLastError();
 
-	public abstract String GetValue(String parameter);
+	public String GetValue(String parameter);
 
-	public abstract String Initialize(String parameter);
+	public String Initialize(String parameter);
 
-	public abstract String SetValue(String dataModelElement, String value);
+	public String SetValue(String dataModelElement, String value);
 
-	public abstract String Terminate(String iParam);
+	public String Terminate(String iParam);
 
-	public abstract String Terminate(String iParam, IRefreshable agent, Object target);*/
+	public String Terminate(String iParam, IRefreshable agent, Object target);*/
 
 }

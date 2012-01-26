@@ -95,15 +95,6 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 	 * it inside the SjaxCall itself, therefore, we abstract the getter here to avoid having to 
 	 * create a member variable that would then be serialized.
 	 * 
-	 * @return API Service dependency injected at the Component level
-	 */
-	protected abstract GradebookExternalAssessmentService gradebookExternalAssessmentService();
-	
-	/**
-	 * Since Wicket only injects Spring annotations for classes that extend Component, we can't use
-	 * it inside the SjaxCall itself, therefore, we abstract the getter here to avoid having to 
-	 * create a member variable that would then be serialized.
-	 * 
 	 * @return Resource Service dependency injected at the Component level
 	 */
 	protected abstract ScormResourceService resourceService();
@@ -172,11 +163,6 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 			@Override
 			public Object getTarget() {
 				return target;
-			}
-
-			@Override
-			public GradebookExternalAssessmentService getGradebookExternalAssessmentService() {
-				return SjaxCall.this.gradebookExternalAssessmentService();
 			}
 
 		};

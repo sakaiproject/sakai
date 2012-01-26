@@ -60,12 +60,16 @@ public abstract class ADLConsultantImpl implements ADLConsultant {
 	}
 	
 	public IDataManager getDataManager(SessionBean sessionBean, ScoBean scoBean) {
-		if (scoBean.getDataManager() == null)
-			scoBean.setDataManager(dataManagerDao().find(sessionBean.getContentPackage().getContentPackageId(),  sessionBean.getLearnerId(), sessionBean.getAttemptNumber(), scoBean.getScoId()));
-
-		//scoBean.setDataManager(dataManagerDao().find(sessionBean.getContentPackage().getResourceId(), scoBean.getScoId(), sessionBean.getLearnerId(), sessionBean.getAttemptNumber()));
+		IDataManager dataManager;
 		
-		return scoBean.getDataManager();
+		if (scoBean.getDataManagerId() == null) {
+			dataManager = dataManagerDao().find(sessionBean.getContentPackage().getContentPackageId(),  sessionBean.getLearnerId(), sessionBean.getAttemptNumber(), scoBean.getScoId());
+			scoBean.setDataManagerId(dataManager.getId());
+		} else {
+			dataManager = dataManagerDao().load(scoBean.getDataManagerId());
+		}
+
+		return dataManager;
 	}
 	
 

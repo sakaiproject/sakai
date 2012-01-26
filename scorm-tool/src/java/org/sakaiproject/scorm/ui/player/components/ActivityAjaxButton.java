@@ -59,9 +59,9 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 	
 	@SpringBean
 	LearningManagementSystem lms;
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResourceService")
 	ScormResourceService resourceService;
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormSequencingService")
 	ScormSequencingService sequencingService;
 	
 	public ActivityAjaxButton(final ButtonForm form, SessionBean sessionBean, String id, int seqRequest, String rootSrc) {
