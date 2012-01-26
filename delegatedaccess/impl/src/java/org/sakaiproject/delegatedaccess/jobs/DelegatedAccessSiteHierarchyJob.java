@@ -126,7 +126,7 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 						if(!rootNode.id.equals(siteParentNode.id)){
 							//save the site under the parent hierarchy if any data was found
 							//Site
-							checkAndAddNode(siteParentNode, site.getTitle(), site.getReference(), props.getProperty(sakaiProxy.getTermField()));
+							checkAndAddNode(siteParentNode, site.getReference(), site.getTitle(), props.getProperty(sakaiProxy.getTermField()));
 						}
 						processedSites++;
 					}catch (Exception e) {
@@ -206,7 +206,7 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 		HierarchyNode node = null;
 		if(title != null && !"".equals(title)){
 
-			List<String> nodeIds = dao.getNodesBySiteRef(description, DelegatedAccessConstants.HIERARCHY_ID);
+			List<String> nodeIds = dao.getNodesBySiteRef(title, DelegatedAccessConstants.HIERARCHY_ID);
 			boolean hasChild = false;
 			String childNodeId = "";
 			if(nodeIds != null && nodeIds.size() > 0){
@@ -230,6 +230,9 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 			}else{
 				//just grab the node
 				node = hierarchyService.getNodeById(childNodeId);
+				if(!node.description.equals(description) || !node.title.equals(title)){
+					node = hierarchyService.saveNodeMetaData(node.id, title, description, term);
+				}
 			}
 			newHiearchyNodeIds.add(node.id);
 		}

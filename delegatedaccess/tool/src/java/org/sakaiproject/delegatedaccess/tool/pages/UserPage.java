@@ -118,8 +118,8 @@ public class UserPage  extends BaseTreePage{
 					//The user has clicked a leaf and chances are its a site.
 					//all sites are leafs, but there may be non sites as leafs
 					NodeModel nodeModel = (NodeModel) ((DefaultMutableTreeNode) node).getUserObject();
-					if(nodeModel.getNode().description != null && nodeModel.getNode().description.startsWith("/site/")){
-						Site site = sakaiProxy.getSiteByRef(nodeModel.getNode().description);
+					if(nodeModel.getNode().title != null && nodeModel.getNode().title.startsWith("/site/")){
+						Site site = sakaiProxy.getSiteByRef(nodeModel.getNode().title);
 						if(site != null){
 							if(!isShoppingPeriodTool()){
 								//ensure the access for this user has been granted

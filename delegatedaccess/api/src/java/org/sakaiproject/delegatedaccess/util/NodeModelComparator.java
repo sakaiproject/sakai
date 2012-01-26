@@ -22,7 +22,7 @@ public class NodeModelComparator implements Comparator<NodeModel> {
 	public int compare(NodeModel arg0, NodeModel arg1) {
 		switch (compareField) {
 		case DelegatedAccessConstants.SEARCH_COMPARE_SITE_ID:
-			return arg0.getNode().description.compareTo(arg1.getNode().description);
+			return arg0.getNode().title.compareTo(arg1.getNode().title);
 		case DelegatedAccessConstants.SEARCH_COMPARE_TERM:
 			return arg0.getSiteTerm().compareToIgnoreCase(arg1.getSiteTerm());
 		case DelegatedAccessConstants.SEARCH_COMPARE_INSTRUCTOR:
@@ -55,7 +55,7 @@ public class NodeModelComparator implements Comparator<NodeModel> {
 			}
 		case DelegatedAccessConstants.SEARCH_COMPARE_SITE_TITLE:
 		default:
-			return arg0.getNode().title.compareToIgnoreCase(arg1.getNode().title);
+			return arg0.getNode().description.compareToIgnoreCase(arg1.getNode().description);
 		}
 	}
 

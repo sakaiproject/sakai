@@ -293,7 +293,7 @@ public class UserPageSiteSearch extends BasePage {
 				AjaxLink<Void> siteTitleLink = new AjaxLink("siteTitleLink"){
 					private static final long serialVersionUID = 1L;
 					public void onClick(AjaxRequestTarget target) {
-						Site site = sakaiProxy.getSiteByRef(nodeModel.getNode().description);
+						Site site = sakaiProxy.getSiteByRef(nodeModel.getNode().title);
 						if(site != null){
 							if(!isShoppingPeriodTool()){
 								//ensure the access for this user has been granted
@@ -304,9 +304,9 @@ public class UserPageSiteSearch extends BasePage {
 						}
 					}
 				};
-				siteTitleLink.add(new Label("siteTitle", nodeModel.getNode().title));
+				siteTitleLink.add(new Label("siteTitle", nodeModel.getNode().description));
 				item.add(siteTitleLink);
-				String siteId = nodeModel.getNode().description;
+				String siteId = nodeModel.getNode().title;
 				if(siteId.startsWith("/site/")){
 					siteId = siteId.substring(6);
 				}
@@ -520,7 +520,7 @@ public class UserPageSiteSearch extends BasePage {
 		List<NodeModel> returnList = new ArrayList<NodeModel>();
 		if(node != null){
 			NodeModel nodeModel = (NodeModel) node.getUserObject();
-			if(nodeModel.getNode().description.startsWith("/site/")){
+			if(nodeModel.getNode().title.startsWith("/site/")){
 				//don't bother showing the term until they search for it
 				nodeModel.setSiteTerm("-");
 				returnList.add(nodeModel);

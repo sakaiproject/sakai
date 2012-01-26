@@ -223,7 +223,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			if(userTreeModel != null){
 				List<NodeModel> siteNodes = getSiteNodes(((DefaultMutableTreeNode) userTreeModel.getRoot()));
 				for(NodeModel nodeModel : siteNodes){
-					accessMap.put(nodeModel.getNode().description, nodeModel.getNodeAccessRealmRole());
+					accessMap.put(nodeModel.getNode().title, nodeModel.getNodeAccessRealmRole());
 					String[] deniedTools = nodeModel.getNodeRestrictedTools();
 					for(String tool : deniedTools){
 						if("Home".equals(tool)){
@@ -239,7 +239,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 						}
 					}
 					
-					toolMap.put(nodeModel.getNode().description, deniedTools);
+					toolMap.put(nodeModel.getNode().title, deniedTools);
 				}
 			}
 			//only worry about this if there is any delegated access:
@@ -259,7 +259,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	private List<NodeModel> getSiteNodes(DefaultMutableTreeNode treeNode){
 		List<NodeModel> returnList = new ArrayList<NodeModel>();
 		if(treeNode != null){
-			if(((NodeModel) treeNode.getUserObject()).getNode().description.startsWith("/site/")){
+			if(((NodeModel) treeNode.getUserObject()).getNode().title.startsWith("/site/")){
 				returnList.add((NodeModel) treeNode.getUserObject());
 			}
 			//check the rest of the children:
@@ -275,7 +275,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * {@inheritDoc}
 	 */
 	public void grantAccessToSite(NodeModel nodeModel){
-		Site site = sakaiProxy.getSiteByRef(nodeModel.getNode().description);
+		Site site = sakaiProxy.getSiteByRef(nodeModel.getNode().title);
 
 		//only grant access to sites the user isn't a member of
 		if(site != null && site.getUserRole(sakaiProxy.getCurrentUserId()) == null){
@@ -293,10 +293,10 @@ public class ProjectLogicImpl implements ProjectLogic {
 					&& !"".equals(access[1])
 					&& !"null".equals(access[0])
 					&& !"null".equals(access[1])) {
-				delegatedAccessMap.put(nodeModel.getNode().description, access);
+				delegatedAccessMap.put(nodeModel.getNode().title, access);
 			}
 			else{
-				delegatedAccessMap.put(nodeModel.getNode().description, new String[]{"", ""});
+				delegatedAccessMap.put(nodeModel.getNode().title, new String[]{"", ""});
 			}
 			session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_ACCESS_MAP, delegatedAccessMap);
 
@@ -322,9 +322,9 @@ public class ProjectLogicImpl implements ProjectLogic {
 				}
 			}
 			if(deniedTools != null){
-				deniedToolsMap.put(nodeModel.getNode().description, deniedTools);
+				deniedToolsMap.put(nodeModel.getNode().title, deniedTools);
 			}else{
-				deniedToolsMap.put(nodeModel.getNode().description, new String[0]);
+				deniedToolsMap.put(nodeModel.getNode().title, new String[0]);
 			}
 
 			session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DENIED_TOOLS, deniedToolsMap);
@@ -506,8 +506,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 		List<NodeModel> returnList = new ArrayList<NodeModel>();
 		if(node != null && siteSubset != null && !siteSubset.isEmpty()){
 			NodeModel nodeModel = (NodeModel) node.getUserObject();
-			if(nodeModel.getNode().description.startsWith("/site/")){
-				String siteId = nodeModel.getNode().description.substring(6);
+			if(nodeModel.getNode().title.startsWith("/site/")){
+				String siteId = nodeModel.getNode().title.substring(6);
 				if(siteSubset.containsKey(siteId)){
 					String term = siteSubset.get(siteId).getTerm();
 					nodeModel.setSiteTerm(term == null ? "" : term);
@@ -719,7 +719,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 				trimTreeForTermsHelper((DefaultMutableTreeNode) node.getChildAt(i), node, removeMap);
 			}
 			NodeModel nodeModel = (NodeModel) node.getUserObject();
-			if(nodeModel.getNode().description.startsWith("/site/")){
+			if(nodeModel.getNode().title.startsWith("/site/")){
 				String term = nodeModel.getNode().permKey;
 				if(!checkTerm(nodeModel.getNodeTerms(), term)){
 					if(parent != null){

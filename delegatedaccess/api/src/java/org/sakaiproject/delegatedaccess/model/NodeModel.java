@@ -106,7 +106,8 @@ public class NodeModel implements Serializable {
 
 	@Override
 	public String toString() {
-		return node.title;
+		//this is where the display of the node title is set
+		return node.description;
 	}
 
 	public boolean isDirectAccess() {

@@ -115,12 +115,12 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 	private void treeModelShoppingPeriodTraverser(DefaultMutableTreeNode node){
 		if(node != null){
 			NodeModel nodeModel = (NodeModel) node.getUserObject();
-			if(nodeModel.getNode().description.startsWith("/site/")){
+			if(nodeModel.getNode().title.startsWith("/site/")){
 				try{
 					shoppingPeriodRoleHelper(nodeModel);
 				}catch(Exception e){
 					log.error(e);
-					errors.put(nodeModel.getNode().description, e.getMessage());
+					errors.put(nodeModel.getNode().title, e.getMessage());
 				}
 			}
 			for(int i = 0; i < node.getChildCount(); i++){
@@ -163,7 +163,7 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 		String restrictedToolsList = "";
 
 		//do substring(6) b/c we need site ID and what is stored is a ref: /site/1231231
-		String siteId = node.getNode().description.substring(6);
+		String siteId = node.getNode().title.substring(6);
 		
 		if(addAuth && (".anon".equals(auth) || ".auth".equals(auth)) && checkTerm(node.getNodeTerms(), siteId)){
 			//update the restricted tools list, otherwise it will be cleared:			
@@ -189,15 +189,15 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 				}
 			}
 
-			removeAnonAndAuthRoles(node.getNode().description);
+			removeAnonAndAuthRoles(node.getNode().title);
 			//add either .anon or .auth role:
-			copyNewRole(node.getNode().description, nodeAccessRealmRole[0], nodeAccessRealmRole[1], auth);
+			copyNewRole(node.getNode().title, nodeAccessRealmRole[0], nodeAccessRealmRole[1], auth);
 
 			//add node to shopping tree:
 			checkAndAddNode(node);
 		} else{
 			//remove .anon and .auth roles
-			removeAnonAndAuthRoles(node.getNode().description);
+			removeAnonAndAuthRoles(node.getNode().title);
 		}
 
 		if(restrictedToolsList == null || "".equals(restrictedToolsList) || ";".equals(restrictedToolsList)){
