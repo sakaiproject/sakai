@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<hibernate-mapping default-cascade="all" package="org.adl.datamodels" default-lazy="false">
+<hibernate-mapping package="org.adl.datamodels">
 	
 	<class name="org.adl.datamodels.SCODataManager" table="SCORM_DATAMANAGER_T">
-	
+		<cache usage="nonstrict-read-write"/>
 		<id name="id" column="DATAMANAGER_ID" type="long">
             <generator class="native">
                 <param name="sequence">SCORM_UID_S</param>
@@ -29,7 +29,8 @@
 		
 		<property name="lastModifiedDate" column="LAST_MODIFIED_DATE"/>
 		
-		<map name="dataModels" table="SCORM_MAP_DATAMODELS_T">
+		<map name="dataModels" table="SCORM_MAP_DATAMODELS_T" cascade="all">
+			<cache usage="nonstrict-read-write"/>
     		<key column="DATAMANAGER_ID"/>
     		<map-key column="DM_BINDING" type="string"/>
     		<many-to-many column="DATAMODEL_ID" class="org.adl.datamodels.DataModel"/>

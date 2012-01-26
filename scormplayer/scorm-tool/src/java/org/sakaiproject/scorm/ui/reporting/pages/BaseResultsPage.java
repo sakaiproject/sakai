@@ -54,11 +54,11 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 	
 	@SpringBean
 	LearningManagementSystem lms;
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormContentService")
 	ScormContentService contentService;
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResultService")
 	ScormResultService resultService;
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormSequencingService")
 	ScormSequencingService sequencingService;
 	
 	private final RepeatingView attemptNumberLinks;

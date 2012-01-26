@@ -32,12 +32,12 @@ import org.adl.sequencer.ISeqActivityTree;
 import org.adl.sequencer.ISequencer;
 import org.adl.sequencer.IValidRequests;
 import org.adl.sequencer.SeqNavRequests;
-import org.adl.sequencer.impl.ADLLaunch;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.scorm.adl.ADLConsultant;
 import org.sakaiproject.scorm.dao.api.ActivityTreeHolderDao;
 import org.sakaiproject.scorm.dao.api.AttemptDao;
+import org.sakaiproject.scorm.dao.api.DataManagerDao;
 import org.sakaiproject.scorm.model.api.ActivityTreeHolder;
 import org.sakaiproject.scorm.model.api.Attempt;
 import org.sakaiproject.scorm.model.api.ContentPackage;
@@ -63,6 +63,7 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 	// Data access objects (also dependency injected by lookup method)
 	protected abstract ActivityTreeHolderDao activityTreeHolderDao();
 	protected abstract AttemptDao attemptDao();
+	protected abstract DataManagerDao dataManagerDao();
 	
 	
 	public String navigate(int request, SessionBean sessionBean, INavigable agent, Object target) {
@@ -85,9 +86,10 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 			
 			ScoBean displayingSco = sessionBean.getDisplayingSco();
 			if (displayingSco != null) {
-				IDataManager dataManager = displayingSco.getDataManager();
+				IDataManager dataManager = dataManagerDao().load(displayingSco.getDataManagerId());
 				if (dataManager != null) {
 					DMInterface.processSetValue("adl.nav.request", "_none_", true, dataManager);
+					dataManagerDao().update(dataManager);
 				}
 			}
 		}

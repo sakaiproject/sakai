@@ -37,7 +37,7 @@ public class DisplayDesignatedPackage extends SakaiPortletWebPage implements IHe
 
 	@SpringBean
 	LearningManagementSystem lms;
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormContentService")
 	ScormContentService contentService;
 	
 	public DisplayDesignatedPackage() {

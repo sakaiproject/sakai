@@ -26,9 +26,9 @@ public class LaunchPanel extends UISynchronizerPanel implements IHeaderContribut
 	
 	@SpringBean
 	LearningManagementSystem lms;
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResourceService")
 	ScormResourceService resourceService;
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormSequencingService")
 	ScormSequencingService sequencingService;
 	
 	public LaunchPanel(String id, final SessionBean sessionBean, PlayerPage view) {

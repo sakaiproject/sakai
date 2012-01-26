@@ -44,7 +44,7 @@ public class ButtonForm extends Form {
 	private ActivityAjaxButton suspendButton;
 	private PlayerPage view;
 	
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormSequencingService")
 	ScormSequencingService sequencingService;
 	
 	public ButtonForm(String id, final SessionBean sessionBean, PlayerPage view) {

@@ -33,9 +33,9 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 	
 	private static Log log = LogFactory.getLog(FileUploadForm.class);
 	
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormContentService")
 	ScormContentService contentService;
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResourceService")
 	ScormResourceService resourceService;
 	
 	public UploadPage(PageParameters params) {

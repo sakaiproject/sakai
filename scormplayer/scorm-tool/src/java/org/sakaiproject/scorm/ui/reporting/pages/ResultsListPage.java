@@ -57,9 +57,9 @@ public class ResultsListPage extends ConsoleBasePage {
 	@SuppressWarnings("unused")
 	private static Log log = LogFactory.getLog(ResultsListPage.class);
 	
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormContentService")
 	ScormContentService contentService;
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResultService")
 	ScormResultService resultService;
 	
 	public ResultsListPage(PageParameters pageParams) {

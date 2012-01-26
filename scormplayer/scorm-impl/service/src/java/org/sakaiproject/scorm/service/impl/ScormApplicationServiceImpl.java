@@ -3,21 +3,16 @@ package org.sakaiproject.scorm.service.impl;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.Set;
 
 import org.adl.api.ecmascript.APIErrorCodes;
 import org.adl.api.ecmascript.IErrorManager;
-import org.adl.datamodels.DMElement;
 import org.adl.datamodels.DMErrorCodes;
 import org.adl.datamodels.DMFactory;
 import org.adl.datamodels.DMInterface;
 import org.adl.datamodels.DMProcessingInfo;
-import org.adl.datamodels.DataModel;
 import org.adl.datamodels.IDataManager;
 import org.adl.datamodels.SCODataManager;
-import org.adl.datamodels.ieee.SCORM_2004_DM;
 import org.adl.datamodels.ieee.ValidatorFactory;
 import org.adl.datamodels.nav.SCORM_2004_NAV_DM;
 import org.adl.sequencer.ADLObjStatus;
@@ -48,6 +43,9 @@ import org.sakaiproject.scorm.navigation.INavigationEvent;
 import org.sakaiproject.scorm.navigation.impl.NavigationEvent;
 import org.sakaiproject.scorm.service.api.ScormApplicationService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.cover.ToolManager;
 
 public abstract class ScormApplicationServiceImpl implements ScormApplicationService, ScormConstants {
 
@@ -58,6 +56,8 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 	
 	// Local utility bean (also dependency injected by lookup method)
 	protected abstract ADLConsultant adlManager();
+	
+	public abstract GradebookExternalAssessmentService gradebookExternalAssessmentService();
 	
 	// Data access objects (also dependency injected by lookup method)
 	protected abstract AttemptDao attemptDao();
@@ -244,7 +244,9 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 	        DMProcessingInfo dmInfo = new DMProcessingInfo();
 		        
 	        int dmErrorCode = 0;
-	        dmErrorCode = DMInterface.processGetValue(parameter, false, scoBean.getDataManager(), dmInfo);
+	        IDataManager dataManager = getDataManager(scoBean);
+	        dmErrorCode = DMInterface.processGetValue(parameter, false, dataManager, dmInfo);
+	        dataManagerDao().update(dataManager);
 	
 	        // Set the LMS Error Manager from the Data Model Error Manager
 		    errorManager.setCurrentErrorCode(dmErrorCode);
@@ -263,6 +265,10 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 	    }
 	    
 	    return result;
+	}
+
+	private IDataManager getDataManager(ScoBean scoBean) {
+		return dataManagerDao().load(scoBean.getDataManagerId());
 	}
 	
 	
@@ -293,7 +299,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			IDataManager dm = initialize(sessionBean, scoBean);
 	
 			if (dm != null) {
-				scoBean.setDataManager(dm);
+				scoBean.setDataManagerId(dm.getId());
 				
 				scoBean.setInitialized(true);
 				
@@ -348,7 +354,9 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 				
 		// Process 'SET'
 		int dmErrorCode = 0;
-		dmErrorCode = DMInterface.processSetValue(dataModelElement, setValue, false, scoBean.getDataManager());
+		IDataManager dataManager = getDataManager(scoBean);
+		dmErrorCode = DMInterface.processSetValue(dataModelElement, setValue, false, dataManager);
+		dataManagerDao().update(dataManager);
 
 		// Set the LMS Error Manager from the DataModel Manager
 		errorManager.setCurrentErrorCode(dmErrorCode);
@@ -388,7 +396,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			return isSuccessful;
 		}
 
-		IDataManager dataManager = scoBean.getDataManager();
+		IDataManager dataManager = getDataManager(scoBean);
 		
 		// Make sure param is empty string "" - as per the API spec
 		// Check for "null" is a workaround described in "Known Problems"
@@ -469,8 +477,13 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		scoBean.setTerminated(true);
 		
 		if (isSuccessful) {
-			scoBean.setInitialized(false);			
-		} 
+			scoBean.setInitialized(false);	
+			synchResultWithGradebook(sessionBean);
+		}
+		
+		if (dataManager != null) {
+			dataManagerDao().update(dataManager);
+		}
 		
 		if (log.isDebugEnabled())
 			log.debug("API Terminate (result): " + isSuccessful);
@@ -478,6 +491,74 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		return isSuccessful;
 	}
 	
+
+	protected void synchResultWithGradebook(SessionBean sessionBean) {
+		ScoBean displayingSco = sessionBean.getDisplayingSco();
+		IDataManager dataManager = getDataManager(displayingSco); 
+		String mode = getValueAsString("cmi.mode", dataManager); // passed, failed, unknown
+		String credit = getValueAsString("cmi.credit", dataManager); // credit, no_credit 
+		String completionStatus = getValueAsString("cmi.completion_status", dataManager); // (completed, incomplete, not_attempted, unknown)
+		double score = getRealValue("cmi.score.scaled", dataManager) * 100d; // A real number with values that is accurate to seven significant decimal figures. The value shall be in the range of �1.0 to 1.0, inclusive.
+		if ("normal".equals(mode) && "completed".equals(completionStatus) && "credit".equals(credit)) {
+			Placement placement = ToolManager.getCurrentPlacement();
+			String context = placement.getContext();
+			long contentPackageId = sessionBean.getContentPackage().getContentPackageId();
+			String assessmentExternalId = ""+contentPackageId+":"+dataManager.getScoId();
+			updateGradeBook(score, context, sessionBean.getLearnerId(), assessmentExternalId);
+		}
+	}
+	
+	private String getValue(String iDataModelElement, IDataManager dataManager) {
+		// Process 'GET'
+        DMProcessingInfo dmInfo = new DMProcessingInfo();
+        
+        String result;
+        int dmErrorCode = 0;
+        dmErrorCode = DMInterface.processGetValue(iDataModelElement, false, dataManager, dmInfo);
+
+        if ( dmErrorCode == APIErrorCodes.NO_ERROR ) {
+        	result = dmInfo.mValue;
+        } else {
+            result = new String("");
+        }
+        
+        return result;
+	}
+	
+	private double getRealValue(String element, IDataManager dataManager) {
+		String result = getValue(element, dataManager);
+		
+		if (result.trim().length() == 0 || result.equals("unknown"))
+			return -1.0;
+		
+		double d = -1.0;
+		
+		try {
+			d = Double.parseDouble(result);
+			
+				
+		} catch (NumberFormatException nfe) {
+			log.error("Unable to parse " + result + " as a double!");
+		}
+		
+		return d;
+	}
+	
+	private String getValueAsString(String element, IDataManager dataManager) {
+		String result = getValue(element, dataManager);
+		
+		if (result.trim().length() == 0 || result.equals("unknown"))
+			return null;
+			
+        return result;
+	}
+	
+	protected void updateGradeBook(double score, String context, String learnerId, String assessmentExternalId) {
+		GradebookExternalAssessmentService service = gradebookExternalAssessmentService();
+		if (service.isGradebookDefined(context) && service.isExternalAssignmentDefined(context, assessmentExternalId)) {
+			service.updateExternalAssessmentScore(context, assessmentExternalId, learnerId, "" + score);
+		}
+	}
 	
 	public INavigationEvent newNavigationEvent() {
 		return new NavigationEvent();

@@ -33,7 +33,6 @@ public abstract class SCORM13API implements SCORM13APIInterface {
 	public abstract ScormApplicationService getApplicationService();
 	
 	public abstract ScormSequencingService getSequencingService();
-	public abstract GradebookExternalAssessmentService getGradebookExternalAssessmentService();
 	
 	public abstract ScoBean getScoBean();
 	
@@ -122,78 +121,10 @@ public abstract class SCORM13API implements SCORM13APIInterface {
 				getSequencingService().navigate(navigationEvent.getEvent(), getSessionBean(), getAgent(), getTarget());
 			}
 			
-			synchResultWithGradebook();
-			
 		} 
 
 		return result;
 	}
 
-	protected void synchResultWithGradebook() {
-		ScoBean displayingSco = getSessionBean().getDisplayingSco();
-		IDataManager dataManager = displayingSco.getDataManager();
-		String mode = getValueAsString("cmi.mode", dataManager); // passed, failed, unknown
-		String credit = getValueAsString("cmi.credit", dataManager); // credit, no_credit 
-		String completionStatus = getValueAsString("cmi.completion_status", dataManager); // (completed, incomplete, not_attempted, unknown)
-		double score = getRealValue("cmi.score.scaled", dataManager) * 100d; // A real number with values that is accurate to seven significant decimal figures. The value shall be in the range of Ð1.0 to 1.0, inclusive.
-		if ("normal".equals(mode) && "completed".equals(completionStatus) && "credit".equals(credit)) {
-			Placement placement = ToolManager.getCurrentPlacement();
-			String context = placement.getContext();
-			long contentPackageId = getSessionBean().getContentPackage().getContentPackageId();
-			String assessmentExternalId = ""+contentPackageId+":"+dataManager.getScoId();
-			updateGradeBook(score, context, assessmentExternalId);
-		}
-	}
-
-	protected void updateGradeBook(double score, String context, String assessmentExternalId) {
-		GradebookExternalAssessmentService service = getGradebookExternalAssessmentService();
-		if (service.isGradebookDefined(context) && service.isExternalAssignmentDefined(context, assessmentExternalId)) {
-			service.updateExternalAssessmentScore(context, assessmentExternalId, getSessionBean().getLearnerId(), "" + score);
-		}
-	}
-	
-	private String getValueAsString(String element, IDataManager dataManager) {
-		String result = getValue(element, dataManager);
-		
-		if (result.trim().length() == 0 || result.equals("unknown"))
-			return null;
-			
-        return result;
-	}
-	private String getValue(String iDataModelElement, IDataManager dataManager) {
-		// Process 'GET'
-        DMProcessingInfo dmInfo = new DMProcessingInfo();
-        
-        String result;
-        int dmErrorCode = 0;
-        dmErrorCode = DMInterface.processGetValue(iDataModelElement, false, dataManager, dmInfo);
-
-        if ( dmErrorCode == APIErrorCodes.NO_ERROR ) {
-        	result = dmInfo.mValue;
-        } else {
-            result = new String("");
-        }
-        
-        return result;
-	}
-	
-	private double getRealValue(String element, IDataManager dataManager) {
-		String result = getValue(element, dataManager);
-		
-		if (result.trim().length() == 0 || result.equals("unknown"))
-			return -1.0;
-		
-		double d = -1.0;
-		
-		try {
-			d = Double.parseDouble(result);
-			
-				
-		} catch (NumberFormatException nfe) {
-			log.error("Unable to parse " + result + " as a double!");
-		}
-		
-		return d;
-	}
 
 }

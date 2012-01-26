@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<hibernate-mapping default-cascade="all" default-access="field" package="org.adl.datamodels" default-lazy="false">
+<hibernate-mapping default-access="field" package="org.adl.datamodels">
 	
 	
 	<class name="org.adl.datamodels.DMTypeValidator" table="SCORM_TYPE_VALIDATOR_T">
-		
+		<cache usage="nonstrict-read-write"/>
 		<id name="id" column="ID" type="long">
             <generator class="native">
                 <param name="sequence">SCORM_UID_S</param>

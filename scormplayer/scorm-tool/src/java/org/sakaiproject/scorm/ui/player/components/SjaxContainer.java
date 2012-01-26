@@ -55,14 +55,12 @@ public class SjaxContainer extends WebMarkupContainer implements IHeaderContribu
 	
 	@SpringBean
 	LearningManagementSystem lms;
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormApplicationService")
 	ScormApplicationService applicationService;
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResourceService")
 	ScormResourceService resourceService;
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormSequencingService")
 	ScormSequencingService sequencingService;
-	@SpringBean(name="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService")
-	GradebookExternalAssessmentService gradebookExternalAssessmentService;
 	
 	private UISynchronizerPanel synchronizerPanel;
 	private SjaxCall[] calls = new SjaxCall[8]; 
@@ -229,11 +227,6 @@ public class SjaxContainer extends WebMarkupContainer implements IHeaderContribu
 			return applicationService;
 		}
 
-		@Override
-		protected GradebookExternalAssessmentService gradebookExternalAssessmentService() {
-			return gradebookExternalAssessmentService;
-		}
-		
 		@Override
 		protected ScormResourceService resourceService() {
 			return resourceService;

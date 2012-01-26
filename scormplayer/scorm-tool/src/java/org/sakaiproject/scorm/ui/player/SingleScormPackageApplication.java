@@ -15,8 +15,6 @@ public class SingleScormPackageApplication extends SakaiWebApplication {
 
 	private static Log log = LogFactory.getLog(SingleScormPackageApplication.class);
 
-	//ScormResourceService resourceService;
-
 	@Override
 	public void init() {
 		log.info(">>> Initializing singleScormPackageApplication");
