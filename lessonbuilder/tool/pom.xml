@@ -172,15 +172,6 @@
             <type>war</type>
         </dependency>
 
-<!-- 
-  To enable YAFT, MNEME, and Assignments 2, uncomment the two dependencies and the plugin below.
-  It would be possible to enable just one of them. To do that remove or comment
-  out the one you don't want from opt-applicationContext.xml as well as well as
-  uncommenting just the one you want below.
-  NOTE: for recent versions of mneme, the groupid is org.etudes, not org.etudes.mneme
- -->
-
-<!--
         <dependency>
             <groupId>org.sakaiproject.yaft</groupId>
             <artifactId>yaft-api</artifactId>
@@ -202,12 +193,10 @@
             <scope>provided</scope>
         </dependency>
 
--->
     </dependencies>
 
     <build>
 
-<!--
       <plugins>
 	<plugin>
           <groupId>org.codehaus.mojo</groupId>
@@ -244,7 +233,6 @@
           </executions>
 	</plugin>
       </plugins>
--->
 
         <resources>
             <resource>

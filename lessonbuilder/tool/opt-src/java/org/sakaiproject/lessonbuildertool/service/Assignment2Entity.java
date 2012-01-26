@@ -150,7 +150,7 @@ public class Assignment2Entity implements LessonEntity {
 
 
     public void init () {
-	if (ToolManager.getTool("sakai.jforum.tool") != null)
+	if (ToolManager.getTool("sakai.assignment2") != null)
 	    haveA2 = true;
 	System.out.println("Assignment2Entity init: haveA2 = " + haveA2);
 
@@ -300,7 +300,7 @@ public class Assignment2Entity implements LessonEntity {
 	try {
 	    String siteId = ToolManager.getCurrentPlacement().getContext();
 	    connection = SqlService.borrowConnection();
-	    String sql="select context, due_date, gradebook_item_id, title, assignment_id from A2_ASSIGNMENT_T where context = ?";
+	    String sql="select context, due_date, gradebook_item_id, title, assignment_id from A2_ASSIGNMENT_T where context = ? and not draft and not removed";
 	    Object fields[] = new Object[1];
 	    fields[0] = siteId;
 
