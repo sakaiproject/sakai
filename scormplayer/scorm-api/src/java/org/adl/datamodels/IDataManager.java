@@ -58,9 +58,9 @@ public interface IDataManager extends Serializable {
 	
 	public void setAttemptNumber(long attemptNumber);
 	
-	public Map getDataModels();
+	public Map<String, DataModel> getDataModels();
 
-	public void setDataModels(Map dataModels);
+	public void setDataModels(Map<String, DataModel> dataModels);
 	
 	/**
 	 * Adds the identified data model to the set of run-time data models managed
@@ -70,7 +70,7 @@ public interface IDataManager extends Serializable {
 	 * 
 	 * @param iModel  Describes the run-time data model to be added.
 	 */
-	public void addDM(int iModel);
+	public DataModel addDM(int iModel);
 
 	/**
 	 * Processes an equals() request against the SCO's run-time data.
