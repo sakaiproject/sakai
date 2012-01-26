@@ -79,9 +79,6 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	 */
 	public static final int DEFAULT_SEARCH_SCOPE = LDAPConnection.SCOPE_SUB;
 
-	/** Default LDAP user entry cache TTL */
-	public static final long DEFAULT_CACHE_TTL = 5 * 60 * 1000;
-
 	/** Default LDAP use of connection pooling */
 	public static final boolean DEFAULT_POOLING = false;
 
@@ -170,9 +167,6 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	 * is completely isolated on each app node.
 	 */
 	private Cache userCache;
-
-	/** TTL for cachedUsers. Defaults to {@link #DEFAULT_CACHE_TTL} */
-	private long cacheTtl = DEFAULT_CACHE_TTL;
 
 	/** Handles LDAPConnection allocation */
 	private LdapConnectionManager ldapConnectionManager;
@@ -1100,7 +1094,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	}
 
 	/**
-	 * Retieve a user record from the cache, enforcing TTL rules.
+	 * Retrieve a user record from the cache.
 	 * 
 	 * @param eid the cache key
 	 * @return a user cache record, or null if a cache miss
@@ -1114,23 +1108,16 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 			eid = toCaseInsensitiveCacheKey(eid);
 		}
 		LdapUserData cachedUserEntry = (LdapUserData) userCache.get(eid);
-		boolean foundCachedUserEntry = cachedUserEntry != null;
-		boolean cachedUserEntryExpired = 
-			foundCachedUserEntry && 
-			((System.currentTimeMillis() - cachedUserEntry.getTimeStamp()) > cacheTtl);
-
-		if ( M_log.isDebugEnabled() ) {
-			M_log.debug("getCachedUserEntry(): cache access [found entry = " + foundCachedUserEntry + 
-					"][entry expired = " + cachedUserEntryExpired + "]");
+		
+		if (cachedUserEntry != null) {
+			if ( M_log.isDebugEnabled() ) {
+				M_log.debug("getCachedUserEntry(): [found entry = " + cachedUserEntry.toString() + "]");
+			}
+			
+			return cachedUserEntry;
 		}
 
-		if ( cachedUserEntryExpired ) {
-			userCache.remove(eid);
-			return null;
-		}
-
-		return cachedUserEntry;
-
+		return null;
 	}
 
 	/**
@@ -1319,23 +1306,6 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	public void setOperationTimeout(int operationTimeout)
 	{
 		this.operationTimeout = operationTimeout;
-	}
-
-	/**
-	 * @return Returns the user entry cache TTL, in millis
-	 */
-	public long getCacheTTL()
-	{
-		return cacheTtl;
-	}
-
-	/**
-	 * @param timeMs
-	 *        The user entry cache TTL, in millis.
-	 */
-	public void setCacheTTL(long timeMs)
-	{
-		cacheTtl = timeMs;
 	}
 
 	/**

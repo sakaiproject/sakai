@@ -96,11 +96,10 @@
 			<value>2</value>
 		</property -->
 
-		<!-- Optional. User entry cache ttl in millis. Defaults
-			to JLDAPDirectoryProvider.DEFAULT_CACHE_TTL (300000)-->
-		<!-- property name="cacheTTL">
-			<value>300000</value>
-		</property -->
+		<!-- Setting a cacheTTL in jldap-beans.xml is longer supported! 
+			 If you are attempting to modify the JLDAP provider cache, you should use this format in sakai.properties:
+			 memory.edu.amc.sakai.user.JLDAPDirectoryProvider.userCache=timeToLiveSeconds=3600,timeToIdleSeconds=0,maxElementsInMemory=5000
+		-->
 
 		<!-- Optional. Control case-sensitivity of cache keys (User.eid values).
 		     Defaults to false. (Note that this is a departure from historical

@@ -204,6 +204,7 @@ public class LdapUserData
 			.append("lastName",lastName)
 			.append("email",email)
 			.append("type",type)
+			.append("timeStamp", timeStamp)
 			.append("properties",properties)
 			.toString();
 	}
