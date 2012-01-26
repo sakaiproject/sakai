@@ -68,7 +68,7 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 		
 		try{
 			errors = new HashMap<String, String>();
-			
+			log.info("DelegatedAccessShoppingPeriodJob started");
 			long startTime = System.currentTimeMillis();
 			SecurityAdvisor advisor = sakaiProxy.addSiteUpdateSecurityAdvisor();
 			migratedHierarchyIds = new HashMap<String, String>();
@@ -215,9 +215,9 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 	
 	private boolean checkTerm(String[] terms, String site){
 		boolean returnVal = true;
-		String siteTerm = dao.getSiteProperty(sakaiProxy.getTermField(), site);
-		if(siteTerm != null){
-			if(terms != null && terms.length > 0){
+		if(terms != null && terms.length > 0){
+			String siteTerm = dao.getSiteProperty(sakaiProxy.getTermField(), site);
+			if(siteTerm != null){
 				returnVal = false;
 				if(siteTerm != null && !"".equals(siteTerm)){
 					for(String term : terms){
