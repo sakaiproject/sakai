@@ -93,7 +93,7 @@ public class SignupMeetingDaoImpl extends HibernateGeneralGenericDao  implements
 		DetachedCriteria criteria = DetachedCriteria.forClass(
 				SignupMeeting.class).setResultTransformer(
 				Criteria.DISTINCT_ROOT_ENTITY)
-				.add(Restrictions.ge("startTime", startDate))
+				.add(Restrictions.ge("endTime", startDate))
 				.add(Restrictions.lt("startTime", endDate))
 				.addOrder(Order.asc("startTime")).createCriteria("signupSites")
 				.add(Restrictions.eq("siteId", siteId));
@@ -107,7 +107,7 @@ public class SignupMeetingDaoImpl extends HibernateGeneralGenericDao  implements
 		DetachedCriteria criteria = DetachedCriteria.forClass(
 				SignupMeeting.class).setResultTransformer(
 				Criteria.DISTINCT_ROOT_ENTITY)
-				.add(Restrictions.ge("startTime", startDate))
+				.add(Restrictions.ge("endTime", startDate))
 				.add(Restrictions.lt("startTime", endDate))
 				.addOrder(Order.asc("startTime")).createCriteria("signupSites")
 				.add(Restrictions.eq("siteId", siteId));
@@ -124,7 +124,7 @@ public class SignupMeetingDaoImpl extends HibernateGeneralGenericDao  implements
 		DetachedCriteria criteria = DetachedCriteria.forClass(
 				SignupMeeting.class).setResultTransformer(
 				Criteria.DISTINCT_ROOT_ENTITY)
-				.add(Restrictions.ge("startTime", startDate))
+				.add(Restrictions.ge("endTime", startDate))
 				.add(Restrictions.lt("startTime", endDate))
 				.addOrder(Order.asc("startTime")).createCriteria("signupSites")
 				.add(Restrictions.in("siteId", siteIds));
