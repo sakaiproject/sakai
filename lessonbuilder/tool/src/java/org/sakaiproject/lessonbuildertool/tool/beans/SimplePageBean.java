@@ -1910,7 +1910,7 @@ public class SimplePageBean {
 			    httpServletResponse.getWriter().println(
 				"<head>" +
 				"<link rel=\"stylesheet\" href=\"/sakai-lessonbuildertool-tool/css/Simplepagetool.css\" type=\"text/css\" />" +
-				"<link type=\"text/css\" href=\"/sakai-lessonbuildertool-tool/css/simplepage-theme/jquery-ui-1.8.4.custom.css\" rel=\"stylesheet\" />" +
+				"<link type=\"text/css\" href=\"/sakai-lessonbuildertool-tool/css/simplepage-theme/jquery-ui-1.8.17.custom.css\" rel=\"stylesheet\" />" +
 				"</head>" + 
 				"<body>" +
 				"<div class=\"ui-widget\" role=\"alert\">" +
@@ -4720,7 +4720,7 @@ public class SimplePageBean {
 		}
 		
 		StringBuilder error = new StringBuilder();
-		comment = FormattedText.processFormattedText(comment, error);
+		//		comment = FormattedText.processFormattedText(comment, error);
 		
 		if(comment == null || comment.equals("")) {
 			setErrMessage(messageLocator.getMessage("simplepage.empty-comment-error"));

@@ -3,6 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
 <script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
 <script language="JavaScript" src="/sakai-lessonbuildertool-tool/js/SakaiRSFWidgets.js" type="text/javascript" rsf:id="fckScript"></script>
 <script type="text/javascript" language="JavaScript" src="../js/rsf.js"></script>
@@ -10,7 +11,7 @@
 <link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
 <link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css" />
 <link rel="stylesheet" rsf:id="customCSS" type="text/css" />
-<link type="text/css" href="$context/css/simplepage-theme/jquery-ui-1.8.4.custom.css" rel="stylesheet" />	
+<link type="text/css" href="$context/css/simplepage-theme/jquery-ui-1.8.17.custom.css" rel="stylesheet" />	
 <title rsf:id="msg=simplepage.showpage"></title>
 
 <style type="text/css">
@@ -40,11 +41,12 @@ function resizeiframe(id) {
 <body rsf:id="scr=sakai-body">
 <!-- <script type="text/javascript" src="$context/js/jquery-1.4.2.min.js"></script> -->
 <script type="text/javascript" src="$context/js/jquery-1.6.2.min.js"></script>
-<script type="text/javascript" src="$context/js/jquery-ui-1.8.4.custom.min.js"></script>
+<script type="text/javascript" src="$context/js/jquery-ui-1.8.17.custom.min.js"></script>
 <script type="text/javascript" src="../js/simple-page.js" rsf:id="scr=rewrite-url"></script>
 <script type="text/javascript" src="$context/js/hoverIntent.js"></script>
 <script type="text/javascript" src="$context/js/show-page.js"></script>
 <script type="text/javascript" src="$context/js/gradingAjax.js"></script>
+<script type="text/javascript" src="$context/js/jquery.ba-resize.js"></script>
 
 <a href="#" rsf:id="redirect-link" id="redirect-link"></a>
 <script type="text/javascript" language="JavaScript" rsf:id="redirect">
@@ -93,7 +95,7 @@ function resizeiframe(id) {
 		
 		<br rsf:id="breakAfterWarnings" />
 		
-                <div class="neoPortletTitleWrap">
+		<div>
                   <a href="#" rsf:id="resetbutton"><img src="/library/skin/default/images/reload.gif" style="float:left; margin-right:4px; margin-top:3px"/></a>
                   <div style="float:right">
                   <a class="usebutton" href="#" rsf:id="show-pages" id="show-pages" role="note"></a>
@@ -117,8 +119,8 @@ function resizeiframe(id) {
 				<li><a href="#" rsf:id="add-multimedia" class="add-multimedia"><span rsf:id="msg.simplepage.multimedia"></span></a></li>
 				<li><a href="#" rsf:id="add-resource" class="add-resource"><span rsf:id="msg.simplepage.resource"></span></a></li>
 				<li><a href="#" rsf:id="subpage-link" class="subpage-link"><span rsf:id="msg=simplepage.subpage"></span></a></li>
-				<li><a href="#" rsf:id="add-assignment"><span rsf:id="msg.simplepage.assignment"></span></a></li>
-				<li><a href="#" rsf:id="add-quiz"><span rsf:id="msg.simplepage.quiz"></span></a></li>
+				<li><a href="#" class="add-assignment-link" rsf:id="add-assignment"><span rsf:id="msg.simplepage.assignment"></span></a></li>
+				<li><a href="#" class="add-quiz-link" rsf:id="add-quiz"><span rsf:id="msg.simplepage.quiz"></span></a></li>
 				<a href="#" rsf:id="help" target="_blank"></a>
 				
 				<li class="dropdown" style="z-index:900">
@@ -526,7 +528,7 @@ function resizeiframe(id) {
 				</div>
 			
 				<form action="#" rsf:id="edit-form">
-					<div class="border">
+					<div class="">
 
 						<p class="shorttext required">
 							<label rsf:id="name-label" for="name"></label>
@@ -651,7 +653,7 @@ function resizeiframe(id) {
 
 			<div id="add-multimedia-dialog" rsf:id="add-multimedia-dialog">
 				<form action="#" rsf:id="add-multimedia-form" method="post" enctype="multipart/form-data">
-					<div class="border">
+					<div class="">
 			  
 						<p class="shorttext required" rsf:id="msg=simplepage.add_file_instructions"></p>
 
@@ -693,7 +695,7 @@ function resizeiframe(id) {
 
 			<div id="edit-multimedia-dialog" rsf:id="edit-multimedia-dialog">
 				<form action="#" rsf:id="edit-multimedia-form">
-					<div class="border">
+					<div class="">
 						<p class="shorttext required">
 							<label rsf:id="width-label" for="width">Page Title</label>
 					 		<input type="text" name="width" rsf:id="width" id="width" length="30" class="edit-multimedia-input" /><br />
@@ -755,7 +757,7 @@ function resizeiframe(id) {
 			
 			<div id="import-cc-dialog" rsf:id="import-cc-dialog">
 				<form action="#" rsf:id="import-cc-form" method="post" enctype="multipart/form-data">
-					<div class="border">					
+					<div class="">					
 					  <p class="required shorttext">
 					    <label rsf:id="msg=simplepage.import_cc_file" for="cc_file" id="cc-dialog-label">File</label> <br />
 					    <input type="file" name="mm-file" id="cc-file" style="width:95%" class="edit-multimedia-input" /><br />
@@ -916,7 +918,7 @@ function resizeiframe(id) {
 				</div>
 				
 				<form action="#" rsf:id="youtube-form">
-					<div class="border">
+					<div class="">
 						<input type="hidden" rsf:id="youtubeEditId" id="youtubeEditId" />
 						<div align="left">
 						         <p class="shorttext required">
@@ -953,7 +955,7 @@ function resizeiframe(id) {
 			
 			<div id="movie-dialog" rsf:id="movie-dialog">
 				<form action="#" rsf:id="movie-form">
-					<div class="border">
+					<div class="">
 						<input type="hidden" rsf:id="movieEditId" id="movieEditId" />
 						<p class="shorttext required">
 							<label for="movie-width">Width: </label>
@@ -1008,7 +1010,7 @@ function resizeiframe(id) {
 			
 			<div id="comments-dialog" rsf:id="comments-dialog">
 				<form action="#" rsf:id="comments-form">
-					<div class="border">
+					<div class="">
 						<input type="hidden" rsf:id="commentsEditId" id="commentsEditId" />
 						<div align="left">
 							<input type="checkbox" name="comments-anonymous" id="comments-anonymous" rsf:id="comments-anonymous" />
@@ -1051,7 +1053,7 @@ function resizeiframe(id) {
 			
 			<div id="student-dialog" rsf:id="student-dialog">
 				<form action="#" rsf:id="student-form">
-					<div class="border">
+					<div class="">
 						<input type="hidden" rsf:id="studentEditId" id="studentEditId" />
 						<div align="left">
 							<input type="checkbox" name="student-anonymous" id="student-anonymous" rsf:id="student-anonymous" />
@@ -1104,6 +1106,8 @@ function resizeiframe(id) {
 					<input class="bold" type="submit" onclick="return true;" id="update-student" rsf:id="update-student" />
 					<input type="submit" rsf:id="cancel-student" onclick="closeStudentDialog(); return false" />
 
+					<script src="$context/js/ui.js" type="text/javascript"></script>
+
 				</form>
 			</div>
 		</div>
@@ -1120,6 +1124,22 @@ function resizeiframe(id) {
 		<script type="text/javascript" src="$context/js/periodicalupdater.js"></script>
 		<script type="text/javascript" src="$context/js/comments.js"></script>
 	</div>
+
+	<style>
+		#pickerdialog, #ipickerdialog {
+			top: 0;
+			left: 0;
+		}
+	</style>
+
+	
+	<div id="pickerdialog">
+		<div id="pickerdiv" style="border: none; position: absolute; width: auto; padding: 0; overflow: auto;"></div>
+	</div>
+
+	<div id="ipickerdialog">
+	</div>
+
 	<script type="text/javascript" language="JavaScript">
 		spiffyUp();	
 	</script>
