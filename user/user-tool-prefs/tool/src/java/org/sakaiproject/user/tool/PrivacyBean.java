@@ -257,8 +257,12 @@ public class PrivacyBean {
 	 * @return true if there are no sites for the current user OR false otherwise
 	 */
 	public boolean getSitesEmpty() {
-	    // sites has 1 item in it even if there are no sites in it
-	    return (this.sites == null || this.sites.length <= 1);
+		// getSites always adds My Workspace, so we know whether it has run or
+		// not by checking if sites is empty; this avoids an extra query if it has.
+		if (sites == null || sites.length == 0) {
+			getSites();
+		}
+		return (sites == null || sites.length <= 1);
 	}
 
 	/** ========== processes iteraction on UI ========== */
