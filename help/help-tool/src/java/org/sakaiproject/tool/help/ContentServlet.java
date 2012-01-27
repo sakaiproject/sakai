@@ -39,6 +39,7 @@ import org.sakaiproject.api.app.help.HelpManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 
 import org.sakaiproject.api.app.help.Resource;
+
 import org.sakaiproject.component.cover.ComponentManager;
 
 /**
@@ -54,6 +55,7 @@ public class ContentServlet extends HttpServlet
   private static Log M_log = LogFactory.getLog(ContentServlet.class);
 
   private static final String DOC_ID = "docId";
+  
   private static final String TEXT_HTML = "text/html; charset=UTF-8";
   private HelpManager helpManager;
   private ServerConfigurationService serverConfigurationService;
@@ -70,9 +72,21 @@ public class ContentServlet extends HttpServlet
       try {
           res.setContentType(TEXT_HTML);
 
-          Resource resource = getHelpManager().getResourceByDocId(docId);
-
-          URL url;
+          URL url = null;
+          Resource resource = null;
+          
+       	  resource = getHelpManager().getResourceByDocId(docId);
+          //Possibly a fileURL
+          if (resource == null && docId.indexOf('/') > 0) {
+        	  if (M_log.isDebugEnabled())
+        		  M_log.debug("Adding new resource:"+docId);
+        	  resource = getHelpManager().createResource();
+        	  resource.setLocation("/"+docId);
+        	  resource.setDocId(docId);
+        	  url = new URL(req.getScheme(),req.getLocalName(),req.getServerPort(),req.getContextPath()+"/"+docId);
+        	  //Can't save it without a category as is null
+        	  //getHelpManager().storeResource(resource);
+          } 
           
           if (resource != null)
           {
@@ -104,10 +118,14 @@ public class ContentServlet extends HttpServlet
                     		  url = localFile.toURI().toURL();
                     	  }
                     	  else {
-                    		  url = HelpManager.class.getResource(resource.getLocation());
+                    		  //If url hasn't been set yet, look it up in the classpath
+                    		  if (url == null) {
+                    			  url = HelpManager.class.getResource(resource.getLocation());
+                    		  }
                     	  }
-                      }
-
+                	  }
+                      String defaultRepo = "/library/skin/";
+                      String skinRepo = getServerConfigurationService().getString("skin.repo",defaultRepo);
                       if (url == null) {
                     	  M_log.warn("Help document " + docId + " not found at: " + resource.getLocation());
                       } else {
@@ -117,6 +135,8 @@ public class ContentServlet extends HttpServlet
 	                          String sbuf;
 	                          while ((sbuf = br.readLine()) != null)
 	                          {
+	                        	  if (!skinRepo.equals(defaultRepo))
+	                        		  sbuf = sbuf.replaceAll(defaultRepo, skinRepo + "/");
 	                              writer.write( sbuf );
 	                              writer.write( System.getProperty("line.separator") );
 	                          }
