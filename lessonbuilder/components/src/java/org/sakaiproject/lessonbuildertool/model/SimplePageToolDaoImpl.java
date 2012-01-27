@@ -203,6 +203,9 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 	
 	public List<SimplePageComment> findCommentsOnItems(List<Long> commentItemIds) {
+		if ( commentItemIds == null || commentItemIds.size() == 0)
+		    return new ArrayList<SimplePageComment>();
+
 		DetachedCriteria d = DetachedCriteria.forClass(SimplePageComment.class).add(Restrictions.in("itemId", commentItemIds));
 		List<SimplePageComment> list = getHibernateTemplate().findByCriteria(d);
 		
@@ -210,6 +213,9 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 	
 	public List<SimplePageComment> findCommentsOnItemsByAuthor(List<Long> commentItemIds, String author) {
+		if ( commentItemIds == null || commentItemIds.size() == 0)
+		    return new ArrayList<SimplePageComment>();
+
 		DetachedCriteria d = DetachedCriteria.forClass(SimplePageComment.class).add(Restrictions.in("itemId", commentItemIds))
 				.add(Restrictions.eq("author", author));
 		List<SimplePageComment> list = getHibernateTemplate().findByCriteria(d);
