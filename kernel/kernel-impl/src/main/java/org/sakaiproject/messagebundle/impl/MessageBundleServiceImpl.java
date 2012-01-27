@@ -20,6 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.messagebundle.impl;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.messagebundle.api.MessageBundleService;
 import org.sakaiproject.messagebundle.api.MessageBundleProperty;
 
@@ -46,17 +48,33 @@ import java.util.Map.Entry;
  * To change this template use File | Settings | File Templates.
  */
 public class MessageBundleServiceImpl extends HibernateDaoSupport implements MessageBundleService {
+    private static Log logger = LogFactory.getLog(MessageBundleServiceImpl.class);
 
    /**
      * list of bundles that we've already indexed, only want to update once per startup
      */
     private Set<String> indexedList = new HashSet<String>();
-    private long scheduleDelay = 1000;
-    Timer timer = new Timer();
+    /**
+     * number of millis before running saveOrUpdateTask again to clear queue
+     */
+    private long scheduleDelay = 5000;
+    /**
+     * whether or not to save bundle data right away, or queue up for processing in another thread.
+     */
+    private boolean scheduleSaves = true;
+
+    /**
+     * Timer used to schedule processing
+     */
+    private Timer timer = new Timer(true);
+    /**
+     *  Queue of method invocations to save or update message bundle data
+     */
+    private List queue = Collections.synchronizedList(new ArrayList());
 
     public void init() {
+        timer.schedule(new SaveOrUpdateTask(), 0, scheduleDelay);
     }
-
 
     public int getSearchCount(String searchQuery, String module, String baseName, String locale) {
         List<String> values = new ArrayList<String>();
@@ -124,11 +142,13 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
         return 0;
     }
 
-    /**
+   /**
      * schedule timer task to save/update the bundle data.  We are using Timer to offload the work,
-     * otherwise intial loads of tools will appear very slow, this way is happens in the background.
+     * otherwise intial loads of tools will appear very slow, this way it happens in the background.
      * In the original rSmart impl JMS was used, but since the MessageService is in contrib not core
-     * we need another solution to avoid that dependency.
+     * we need another solution to avoid that dependency. Currently we are using a java.util.Timer and
+     * scheduled Timer task to queue up and process the calls to this method.  This is a similar
+     * strategy to that used in BaseDigestService.
      *
      * @param baseName
      * @param moduleName
@@ -142,13 +162,16 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
             return;
         }
 
-        timer.schedule(new SaveOrUpdateTask(baseName, moduleName, convertResourceBundleToMap(newBundle),loc), 
-                scheduleDelay);
+        if (scheduleSaves) {
+            queueBundle(baseName, moduleName, convertResourceBundleToMap(newBundle),loc);
+        } else {
+            saveOrUpdateInternal(baseName, moduleName, convertResourceBundleToMap(newBundle), loc.toString());
+        }
 
     }
 
     public void saveOrUpdate(String baseName, String moduleName, ResourceBundle newBundle, Locale loc, boolean newThread) {
-        if (newThread) {
+        if (newThread && scheduleSaves) {
             saveOrUpdate(baseName, moduleName, newBundle, loc);
         } else {
             saveOrUpdateInternal(baseName, moduleName, convertResourceBundleToMap(newBundle), loc.toString());
@@ -431,30 +454,64 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
 
     }
 
-    @SuppressWarnings("unchecked")
-    public List<String> getLocales() {
-        return getHibernateTemplate().find("select distinct(locale) from MessageBundleProperty");
-    }
+    /**
+        * queues up a call to add or update message bundle data
+        * @param baseName
+        * @param moduleName
+        * @param bundleData
+        * @param loc
+        */
+       protected void queueBundle(String baseName, String moduleName, Map<String,String> bundleData, Locale loc) {
+           SaveOrUpdateCall call = new SaveOrUpdateCall();
+           call.baseName =baseName;
+           call.moduleName = moduleName;
+           call.bundleData = bundleData;
+           call.loc = loc;
+           queue.add(call);
+       }
 
-    public void setScheduleDelay(long scheduleDelay) {
-        this.scheduleDelay = scheduleDelay;
-    }
+       @SuppressWarnings("unchecked")
+       public List<String> getLocales() {
+           return getHibernateTemplate().find("select distinct(locale) from MessageBundleProperty");
+       }
 
-    public class SaveOrUpdateTask extends TimerTask {
-        private String baseName;
-        private String moduleName;
-        private Map<String,String> bundleData;
-        private Locale loc;
-        public SaveOrUpdateTask(String baseName, String moduleName, Map<String,String> bundleData, Locale loc) {
-            this.baseName = baseName;
-            this.moduleName = moduleName;
-            this.bundleData = bundleData;
-            this.loc = loc;
-        }
+       public void setScheduleDelay(long scheduleDelay) {
+           this.scheduleDelay = scheduleDelay;
+       }
 
-        public void run() {
-            saveOrUpdateInternal(baseName, moduleName, bundleData, loc.toString());
-        }
-    }
-}
+       // represents one method call, encapsulate this so we can queue them up
+       class SaveOrUpdateCall {
+               String baseName;
+               String moduleName;
+               Map<String,String> bundleData;
+               Locale loc;
+           }
+
+       /**
+        *
+        */
+       class SaveOrUpdateTask extends TimerTask {
+
+           public SaveOrUpdateTask(){
+           }
+
+           /**
+            * step through queue and call the real saveOrUpdateInternal method to do the work
+            */
+           public void run() {
+               List queueList = new ArrayList(queue);
+               for (Iterator i = queueList.iterator(); i.hasNext(); ) {
+                   SaveOrUpdateCall call = (SaveOrUpdateCall) i.next();
+                   try {
+                       saveOrUpdateInternal(call.baseName, call.moduleName, call.bundleData, call.loc.toString());
+                   } catch (Throwable e) {
+                       logger.error("problem saving bundle data:", e);
+                   } finally {
+                       queue.remove(call);
+                   }
+               }
+
+           }
+       }
+   }
 
