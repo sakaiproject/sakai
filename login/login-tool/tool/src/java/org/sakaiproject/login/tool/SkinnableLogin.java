@@ -119,6 +119,9 @@ public class SkinnableLogin extends HttpServlet implements Login {
 
 		// maybe we don't want to do the container this time
 		boolean skipContainer = false;
+		
+		// flag for whether we should show the auth choice page
+		boolean showAuthChoice = false;
 
 		// if missing, set it to "/login"
 		if ((option == null) || ("/".equals(option)))
@@ -170,7 +173,23 @@ public class SkinnableLogin extends HttpServlet implements Login {
 				 * data is already URL encoded. Had to @SuppressWarnings
 				 * the entire method.
 				 */
-				res.sendRedirect(res.encodeRedirectURL(containerCheckUrl));
+				
+				//SAK-21498 choice page for selecting auth sources
+				showAuthChoice = ServerConfigurationService.getBoolean("login.auth.choice", false);
+				if (showAuthChoice) {
+					String xloginUrl = ServerConfigurationService.getPortalUrl() + "/xlogin";
+					
+					// Present the choice template
+					LoginRenderContext rcontext = startChoiceContext("", req, res);
+					rcontext.put("containerLoginUrl", containerCheckUrl);
+					rcontext.put("xloginUrl", xloginUrl);
+					
+					sendResponse(rcontext, res, "choice", null);
+				
+				} else {
+					//go straight to container check
+					res.sendRedirect(res.encodeRedirectURL(containerCheckUrl));
+				}
 				return;
 			}
 		}
@@ -362,6 +381,35 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		
 		rcontext.put("eid", eid);
 		rcontext.put("password", pw);
+		
+		return rcontext;
+	}
+	
+	public LoginRenderContext startChoiceContext(String skin, HttpServletRequest request, HttpServletResponse response)
+	{
+		LoginRenderEngine rengine = loginService.getRenderEngine(loginContext, request);
+		LoginRenderContext rcontext = rengine.newRenderContext(request);
+
+		if (skin == null || skin.trim().length() == 0)
+		{
+			skin = ServerConfigurationService.getString("skin.default");
+		}
+		String skinRepo = ServerConfigurationService.getString("skin.repo");
+		String uiService = ServerConfigurationService.getString("ui.service");
+		
+		rcontext.put("pageSkinRepo", skinRepo);
+		rcontext.put("pageSkin", skin);
+		rcontext.put("uiService", uiService);
+		rcontext.put("pageScriptPath", getScriptPath());
+		
+		rcontext.put("choiceRequired", rb.getString("log.choicereq"));
+		
+		rcontext.put("containerLoginChoiceIcon", ServerConfigurationService.getString("container.login.choice.icon"));
+		rcontext.put("xloginChoiceIcon", ServerConfigurationService.getString("xlogin.choice.icon"));
+		//the URLs for these are set above, as containerLoginUrl and xloginUrl
+		
+		rcontext.put("containerLoginChoiceText", ServerConfigurationService.getString("container.login.choice.text"));
+		rcontext.put("xloginChoiceText", ServerConfigurationService.getString("xlogin.choice.text"));
 		
 		return rcontext;
 	}
