@@ -679,6 +679,12 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 //		return date;
 //	}
 
+	public int getLastIndexInSequence(String entityReference,
+			String calendarTimeLabelKey) {
+		
+		return dao.getLastIndexInSequence(entityReference, calendarTimeLabelKey);
+	}
+
 	private Map processFormattedText(Map<String,Object> map, int maxDepth) {
 		if(maxDepth <= 0) {
 			return null;
@@ -1043,6 +1049,11 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 	}
 	
+	public boolean reviseRepeatingCalendarItemFrequency(String entityReference,
+			String frequency) {
+		return dao.updateRepeatingCalendarItemFrequency(entityReference, frequency);
+	}
+
 	public void reviseRepeatingCalendarItemsLabelKey(String entityReference, String oldLabelKey, String newLabelKey) {
 		dao.updateRepeatingCalendarItemsLabelKey(entityReference, oldLabelKey, newLabelKey);
 		
@@ -1583,6 +1594,12 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 	protected int getLogModePreferenceEvents() {
 		return dashboardConfig.getConfigValue(DashboardConfig.PROP_LOG_MODE_FOR_PREFERENCE_EVENTS, new Integer(2));
+	}
+
+	public void removeCalendarLinks(String entityReference,
+			String calendarTimeLabelKey, int sequenceNumber) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

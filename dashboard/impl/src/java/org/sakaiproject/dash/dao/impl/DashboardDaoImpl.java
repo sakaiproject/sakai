@@ -1314,6 +1314,27 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getLastIndexInSequence(java.lang.String, java.lang.String)
+	 */
+	public int getLastIndexInSequence(String entityReference,
+			String calendarTimeLabelKey) {
+		if(log.isDebugEnabled()) {
+			log.debug("getLastIndexInSequence(" + entityReference + "," + calendarTimeLabelKey + ")");
+		}
+		
+		try {
+			
+			String sql = getStatement("select.MaxSequenceNumber.entityReference.calendarTimeLabelKey");
+			Object[] args = new Object[]{ entityReference, calendarTimeLabelKey };
+			return getJdbcTemplate().queryForInt(sql, args );
+			
+		} catch (DataAccessException ex) {
+           log.error("getLastIndexInSequence: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return 0;
+		}
+	}
+	
 	public Set<String> getSakaIdsForUserWithCalendarLinks(String entityReference) {
 		if(log.isDebugEnabled()) {
 			log.debug("getSakaIdsForUserWithCalendarLinks(" + entityReference + ")");
@@ -1648,6 +1669,26 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            log.error("updateNewsLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#updateRepeatingCalendarItemFrequency(java.lang.String, java.lang.String)
+	 */
+	public boolean updateRepeatingCalendarItemFrequency(String entityReference,
+			String frequency) {
+		if(log.isDebugEnabled()) {
+			log.debug("updateRepeatingCalendarItemFrequency( " + entityReference + "," + frequency + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("update.RepeatingEventsFrequency.entityReference"),
+				new Object[]{frequency, entityReference}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.error("updateRepeatingCalendarItemFrequency: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}				
 	}
 
 	/*

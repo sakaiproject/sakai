@@ -534,6 +534,9 @@ public interface DashboardLogic {
 	public void reviseRepeatingCalendarItemsLabelKey(String entityReference,
 			String oldType, String newType);
 	
+	public boolean reviseRepeatingCalendarItemFrequency(String entityReference,
+			String frequency);
+
 	/**
 	 * 
 	 * @param entityReference
@@ -607,6 +610,12 @@ public interface DashboardLogic {
 
 	public void reviseCalendarItemTime(String entityReference, String labelKey,
 			Integer sequenceNumber, Date newDate);
+
+	public int getLastIndexInSequence(String entityReference,
+			String calendarTimeLabelKey);
+
+	public void removeCalendarLinks(String entityReference,
+			String calendarTimeLabelKey, int sequenceNumber);
 
 	// todo:
 	// add methods to revise news items, calendar items, news links, calendar links, etc.

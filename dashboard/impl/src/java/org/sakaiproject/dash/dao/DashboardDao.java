@@ -165,6 +165,14 @@ public interface DashboardDao {
 
 	public List<RepeatingCalendarItem> getRepeatingCalendarItems();
 
+	/**
+	 * @param entityReference
+	 * @param calendarTimeLabelKey
+	 * @return
+	 */
+	public int getLastIndexInSequence(String entityReference,
+			String calendarTimeLabelKey);
+
 	public boolean deleteAvailabilityChecks(String entityReference);
 
 	public boolean deleteAvailabilityChecksBeforeTime(Date time);
@@ -312,6 +320,9 @@ public interface DashboardDao {
 
 	public boolean updateCalendarItemTime(String entityReference, String labelKey,
 			Integer sequenceNumber, Date newDate);
+
+	public boolean updateRepeatingCalendarItemFrequency(String entityReference,
+			String frequency);
 
 	public boolean updateRepeatingCalendarItemsSubtype(String entityReference,
 			String labelKey, String newSubtype);

@@ -577,7 +577,7 @@ public class ScheduleSupport{
 			Entity entity = sakaiProxy.getEntity(entityReference );
 			
 			if(entity != null && entity instanceof CalendarEvent) {
-				// get the assignment entity and its new time
+				// get the calendar-event entity and its new time
 				CalendarEvent cEvent = (CalendarEvent) entity;
 				TimeRange range = cEvent.getRange();
 				String calendarTimeLabelKey = scheduleEventTypeMap.get(cEvent.getType());
@@ -613,16 +613,13 @@ public class ScheduleSupport{
 					}
 				} else {
 					// update calendar item title
-					dashboardLogic.reviseCalendarItemsTime(entityReference, newStartTime);
-					
-				}
-				
+					dashboardLogic.reviseCalendarItemsTime(entityReference, newStartTime);	
+				}	
 			}
 			
 			if(logger.isDebugEnabled()) {
 				logger.debug("removing news links and news item for " + event.getResource());
 			}
-
 		}
 
 	}
@@ -768,6 +765,76 @@ public class ScheduleSupport{
 			}
 			if(logger.isDebugEnabled()) {
 				logger.debug("revising calendar item for " + event.getResource());
+			}
+			
+			String entityReference = event.getResource();
+			Entity entity = sakaiProxy.getEntity(entityReference );
+			
+			if(entity != null && entity instanceof CalendarEvent) {
+				// get the calendar-event entity and its new time
+				CalendarEvent cEvent = (CalendarEvent) entity;
+				TimeRange range = cEvent.getRange();
+				String calendarTimeLabelKey = scheduleEventTypeMap.get(cEvent.getType());
+				Date newStartTime = new Date(range.firstTime().getTime());
+				//Date newEndTime = new Date(range.lastTime().getTime());
+				
+				RecurrenceRule rule = cEvent.getRecurrenceRule();
+				if(rule == null) {
+					// remove repeating-event object and all instances?
+					// add single calendar item?
+				} else {
+					// update the repeating-event object
+					RepeatingCalendarItem repeater = dashboardLogic.getRepeatingCalendarItem(entityReference, calendarTimeLabelKey);
+					if(repeater == null) {
+						// create repeating calendar item?
+						
+					} else {
+						String frequency = rule.getFrequency();
+						if(frequency == null) {
+							// what to do?
+							logger.warn("Error trying to revise frequency of repeating event: event.getRecurrenceRule().getFrequency() is null");
+						} else if(! frequency.equalsIgnoreCase(repeater.getFrequency())) {
+							dashboardLogic.reviseRepeatingCalendarItemFrequency(entityReference, frequency);
+						}
+					}	
+					
+					// need to get each item in sequence and update its time
+					Map<Integer, Date> dates = scheduleEntityType.generateRepeatingEventDates(entityReference, newStartTime, dashboardLogic.getRepeatingEventHorizon());
+					int lastNeededIndex = dashboardLogic.getLastIndexInSequence(entityReference, calendarTimeLabelKey);
+					int lastActualIndex = 0;
+					for(Map.Entry<Integer, Date> entry : dates.entrySet()) {
+						if(lastNeededIndex >= entry.getKey().intValue()) {
+							// update each existing calendar-item
+							dashboardLogic.reviseCalendarItemTime(entityReference, calendarTimeLabelKey, entry.getKey(), entry.getValue());
+						} else {
+							// add new calendar-items as needed
+							CalendarItem calendarItem = dashboardLogic.createCalendarItem(repeater.getTitle(), entry.getValue(), calendarTimeLabelKey, entityReference, repeater.getContext(), repeater.getSourceType(), repeater.getSubtype(), repeater, entry.getKey());
+							dashboardLogic.createCalendarLinks(calendarItem);
+						}
+						
+						if(logger.isDebugEnabled()) {
+							String msg = entry.getKey().toString() + " ==> " + entry.getValue().toString();
+							CalendarItem oneItem = dashboardLogic.getCalendarItem(entityReference, calendarTimeLabelKey, entry.getKey());
+							if(oneItem != null) {
+								msg += " -----> " + oneItem.getCalendarTime().toString();
+							}
+							logger.debug(msg);
+						}
+						if(entry.getKey().intValue() > lastActualIndex) {
+							lastActualIndex = entry.getKey().intValue();
+						}
+					}
+						
+					// remove any that would now be beyond the horizon
+					if(lastNeededIndex > lastActualIndex) {
+						for(int i = lastActualIndex; i > lastNeededIndex; i--) {
+							CalendarItem item = dashboardLogic.getCalendarItem(entityReference, calendarTimeLabelKey, i);
+							dashboardLogic.removeCalendarLinks(entityReference, calendarTimeLabelKey, i);
+							dashboardLogic.removeCalendarItem(entityReference, calendarTimeLabelKey, i);
+						}
+					}
+				}
+				
 			}
 
 		}
