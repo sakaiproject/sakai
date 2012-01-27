@@ -300,7 +300,7 @@ public class Assignment2Entity implements LessonEntity {
 	try {
 	    String siteId = ToolManager.getCurrentPlacement().getContext();
 	    connection = SqlService.borrowConnection();
-	    String sql="select context, due_date, gradebook_item_id, title, assignment_id from A2_ASSIGNMENT_T where context = ? and not draft and not removed";
+	    String sql="select context, due_date, gradebook_item_id, title, assignment_id from A2_ASSIGNMENT_T where context = ? and draft=0 and removed=0";
 	    Object fields[] = new Object[1];
 	    fields[0] = siteId;
 
