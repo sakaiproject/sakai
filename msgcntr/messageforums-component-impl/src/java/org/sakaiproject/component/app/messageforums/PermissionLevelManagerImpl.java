@@ -74,6 +74,8 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	private static final String QUERY_BY_AREA_ID_ALL_MEMBERSHIP =	"findAllMembershipItemsForSite";
 	
 	private Boolean autoDdl;
+	
+	public static final int MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST = 999;
 			
 	public void init(){
 		LOG.info("init()");
@@ -673,8 +675,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 				public Object doInHibernate(Session session) throws HibernateException, SQLException 
 				{
 					Query q = session.getNamedQuery(QUERY_BY_TOPIC_IDS_ALL_TOPIC_MEMBERSHIP);
-					q.setParameterList("topicIdList", topicIds);
-					return q.list();
+					return queryWithParameterList(q, "topicIdList", topicIds);
 				}
 			};
 			return (List) getHibernateTemplate().execute(hcb1);
@@ -941,5 +942,38 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		}
 		
 		return defaultLevels;
+	}
+	
+	private List queryWithParameterList(Query query, String queryParamName, List fullList) {
+	    // sql has a limit for the size of a parameter list, so we may need to cycle
+	    // through with sublists
+	    List queryResultList = new ArrayList();
+
+	    if (fullList.size() < MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
+	        query.setParameterList(queryParamName, fullList);
+	        queryResultList = query.list();
+
+	    } else {
+	        // if there are more than MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST, we need to do multiple queries
+	        int begIndex = 0;
+	        int endIndex = 0;
+
+	        while (begIndex < fullList.size()) {
+	            endIndex = begIndex + MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST;
+	            if (endIndex > fullList.size()) {
+	                endIndex = fullList.size();
+	            }
+	            List tempSubList = new ArrayList();
+	            tempSubList.addAll(fullList.subList(begIndex, endIndex));
+
+	            query.setParameterList(queryParamName, tempSubList);
+
+	            queryResultList.addAll(query.list());
+	            begIndex = endIndex;
+	            
+	        }
+	    }
+
+	    return queryResultList;
 	}
  }
