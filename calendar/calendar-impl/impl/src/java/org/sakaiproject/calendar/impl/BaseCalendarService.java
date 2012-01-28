@@ -1369,6 +1369,10 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 						Calendar calendarObj = getCalendar(m_aliasService.getTarget(context));
 						context = calendarObj.getContext();
 					}
+					catch (IdUnusedException ide) {
+							M_log.info(".parseEntityReference():"+ide.toString()); 
+							return false;
+					}
 					catch (Exception e)
 					{
                   M_log.warn(".parseEntityReference(): ", e);
