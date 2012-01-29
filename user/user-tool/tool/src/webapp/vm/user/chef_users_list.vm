@@ -7,7 +7,7 @@
 	#toolbar($menu)
 #end
 	<h3>
-		Users
+		$tlang.getString("uselis.users")
 	</h3>
 
 		#if ($alertMessage)<div class="alertMessage">$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)</div>#end
