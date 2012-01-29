@@ -84,7 +84,7 @@
 				<!--ie-->
 			#end   
 		</ol>
-		<p class="instruction" id="noResultsMessage" style="display:none">No results found for ${rlb.jsp_search_open_q}${util.escapeHtml($searchBean.search)}${rlb.jsp_search_close_q}</p>
+		<p class="instruction" id="noResultsMessage" style="display:none">${rlb.jsp_no_results_found_for}${rlb.jsp_search_open_q}${util.escapeHtml($searchBean.search)}${rlb.jsp_search_close_q}</p>
 		<!--le--> 
 
 				<ol class="searchResultPager bottomPager specialLink">
