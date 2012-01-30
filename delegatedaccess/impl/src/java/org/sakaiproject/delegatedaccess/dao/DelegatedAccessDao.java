@@ -15,4 +15,6 @@ public interface DelegatedAccessDao {
 	public void removeSiteProperty(String siteId, String propertyName);
 	
 	public List<String> getNodesBySiteRef(String siteRef, String hierarchyId);
+	
+	public List<String> getEmptyNonSiteNodes(String hierarchyId);
 }

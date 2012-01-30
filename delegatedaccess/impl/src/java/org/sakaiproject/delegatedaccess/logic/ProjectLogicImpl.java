@@ -154,6 +154,26 @@ public class ProjectLogicImpl implements ProjectLogic {
 			hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SHOPPING_PERIOD_USER, nodeId, DelegatedAccessConstants.NODE_PERM_SHOPPING_UPDATED_DATE + updatedDate.getTime(), false);
 		}
 	}
+	
+	public void saveHierarchyJobLastRunDate(Date runDate, String nodeId){
+		if(runDate != null){
+			hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SITE_HIERARCHY_USER, nodeId, DelegatedAccessConstants.NODE_PERM_SITE_HIERARCHY_JOB_LAST_RUN_DATE + runDate.getTime(), false);
+		}
+	}
+	
+	public Date getHierarchyJobLastRunDate(String nodeId){
+		Date returnDate = null;
+		for(String perm : hierarchyService.getPermsForUserNodes(DelegatedAccessConstants.SITE_HIERARCHY_USER, new String[]{nodeId})){
+			if(perm.startsWith(DelegatedAccessConstants.NODE_PERM_SITE_HIERARCHY_JOB_LAST_RUN_DATE)){
+				try{
+					returnDate = new Date(Long.parseLong(perm.substring(DelegatedAccessConstants.NODE_PERM_SITE_HIERARCHY_JOB_LAST_RUN_DATE.length())));
+				}catch (Exception e) {
+					//wrong format, ignore
+				}
+			}	
+		}
+		return returnDate;
+	}
 
 	private void removeAllUserPermissions(String nodeId, String userId){
 		for(String perm : getPermsForUserNodes(userId, nodeId)){
@@ -1259,6 +1279,40 @@ public class ProjectLogicImpl implements ProjectLogic {
 			}
 		}
 		return returnDate;
+	}
+	
+	public void removeNode(HierarchyNode node){
+		if(node != null){
+			if(node.childNodeIds != null && !node.childNodeIds.isEmpty()){
+				//we can delete this, otherwise, delete the children first the children
+				for(String childId : node.childNodeIds){		
+					removeNode(hierarchyService.getNodeById(childId));
+				}
+			}
+			//all the children nodes have been deleted, now its safe to delete
+			hierarchyService.removeNode(node.id);
+			Set<String> userIds = hierarchyService.getUserIdsForNodesPerm(new String[]{node.id}, DelegatedAccessConstants.NODE_PERM_SITE_VISIT);
+			for(String userId : userIds){
+				removeAllUserPermissions(node.id, userId);
+			}
+			//since the hierarchy service doesn't really delete the nodes,
+			//we need to distinguish between deleted nodes
+			hierarchyService.setNodeDisabled(node.id, true);
+		}
+	}
+	
+	public void deleteEmptyNonSiteNodes(String hierarchyId){
+		List<String> emptyNodes = dao.getEmptyNonSiteNodes(hierarchyId);
+		//I don't like loops, loops shouldn't happen but never say never
+		int loopProtection = 1;
+		while(emptyNodes != null && emptyNodes.size() > 0 && loopProtection < 100){
+			for(String id : emptyNodes){
+				removeNode(hierarchyService.getNodeById(id));
+			}
+			//check again
+			emptyNodes = dao.getEmptyNonSiteNodes(hierarchyId);
+			loopProtection++;
+		}
 	}
 	
 	private class SiteSearchData{

@@ -60,6 +60,7 @@
 		<property name="hierarchyService" ref="org.sakaiproject.hierarchy.HierarchyService" />
 		<property name="sakaiProxy" ref="org.sakaiproject.delegatedaccess.logic.SakaiProxy"/>
 		<property name="dao" ref="org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao" />
+		<property name="projectLogic" ref="org.sakaiproject.delegatedaccess.logic.ProjectLogic" />
 	</bean>
 	
 	<bean id="DelegatedAccessSiteHierarchyJob"

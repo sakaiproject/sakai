@@ -10,6 +10,7 @@ import org.sakaiproject.delegatedaccess.model.HierarchyNodeSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.model.SearchResult;
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
+import org.sakaiproject.hierarchy.model.HierarchyNode;
 
 
 
@@ -173,4 +174,32 @@ public interface ProjectLogic {
 	 * @return
 	 */
 	public List<String> getNodesBySiteRef(String siteRef, String hierarchyId);
+	
+	/**
+	 * Saves the date for the last time the hierarchy job ran successfully
+	 * @param runDate
+	 * @param nodeId
+	 */
+	public void saveHierarchyJobLastRunDate(Date runDate, String nodeId);
+	
+	/**
+	 * returns the hierarchyjoblastrundate date for the node Id and hierarchy user
+	 * @param nodeId
+	 * @return
+	 */
+	public Date getHierarchyJobLastRunDate(String nodeId);
+	
+	/**
+	 * Removes this node and all permissions and children nodes
+	 * @param node
+	 */
+	public void removeNode(HierarchyNode node);
+	
+	/**
+	 * Deletes empty non sites nodes in a hierarchy (nodes that doesn't start with /site/
+	 * and has no children)
+	 * 
+	 * @param hierarchyId
+	 */
+	public void deleteEmptyNonSiteNodes(String hierarchyId);
 }

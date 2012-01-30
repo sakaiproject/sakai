@@ -85,9 +85,10 @@ public interface SakaiProxy {
 	 * @param propsMap can be null or send over props to filter sites on
 	 * @param page Page to start from (1 based)
 	 * @param pageMax maximum number of sites per page
+	 * @param orderByModifiedDate
 	 * @return
 	 */
-	public List<Site> getAllSitesByPages(Map<String, String> propsMap, int page, int pageMax);
+	public List<Site> getAllSitesByPages(Map<String, String> propsMap, int page, int pageMax, boolean orderByModifiedDate);
 
 	/**
 	 * user's Sakai userDirectoryService to search for users

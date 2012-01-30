@@ -111,6 +111,19 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 		}
 	}
 	
+	public List<String> getEmptyNonSiteNodes(String hierarchyId){
+		try{
+			return (List<String>) getJdbcTemplate().query(getStatement("select.emptyNodes"), new Object[]{hierarchyId}, new RowMapper() {
+				
+				 public Object mapRow(ResultSet resultSet, int i) throws SQLException {
+					return resultSet.getString("ID");
+				}
+			});
+		}catch (DataAccessException ex) {
+			return null;
+		}
+	}
+	
 	public void addSiteProperty(String siteId, String propertyName, String propertyValue){
 		try {
 			getJdbcTemplate().update(getStatement("insert.siteProperty"),

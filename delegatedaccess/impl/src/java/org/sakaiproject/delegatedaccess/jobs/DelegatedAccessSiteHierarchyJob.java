@@ -1,5 +1,6 @@
 package org.sakaiproject.delegatedaccess.jobs;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -15,6 +16,7 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
+import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
 import org.sakaiproject.delegatedaccess.logic.SakaiProxy;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -53,9 +55,10 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 	private SakaiProxy sakaiProxy;
 	@Getter @Setter
 	private DelegatedAccessDao dao;
+	@Getter @Setter
+	private ProjectLogic projectLogic;
 	
 	private static final String[] defaultHierarchy = new String[]{DelegatedAccessConstants.SCHOOL_PROPERTY, DelegatedAccessConstants.DEPEARTMENT_PROPERTY, DelegatedAccessConstants.SUBJECT_PROPERTY};
-	private Set<String> newHiearchyNodeIds;
 	
 	private static boolean semaphore = false;
 
@@ -75,15 +78,18 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 			log.info("DelegatedAccessSiteHierarchyJob started");
 			long startTime = System.currentTimeMillis();
 
-			newHiearchyNodeIds = new HashSet<String>();
+//			newHiearchyNodeIds = new HashSet<String>();
 
 			HierarchyNode rootNode = hierarchyService.getRootNode(DelegatedAccessConstants.HIERARCHY_ID);
+			Date hierarchyJobLastRunDate = null;
 			if (rootNode == null) {
 				// create the hierarchy if it is not there already
 				rootNode = hierarchyService.createHierarchy(DelegatedAccessConstants.HIERARCHY_ID);
 				String rootTitle = sakaiProxy.getRootName();
 				hierarchyService.saveNodeMetaData(rootNode.id, rootTitle, rootTitle, null);
 				log.info("Created the root node for the delegated access hierarchy: " + DelegatedAccessConstants.HIERARCHY_ID);
+			}else{
+				hierarchyJobLastRunDate = projectLogic.getHierarchyJobLastRunDate(rootNode.id);
 			}
 
 			//get hierarchy structure:
@@ -98,14 +104,31 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 			boolean hasMoreSites = true;
 			int processedSites = 0;
 			String errors = "";
-			Map<String,String> propsMap = new HashMap<String, String>();
-			for(String prop : hierarchy){
-				propsMap.put(prop, "");
+			Map<String,String> propsMap = null;
+			//only care about modified date if the job has ran at least once (otherwise, we don't want to slow down anything in the search)
+			boolean orderByModifiedDate = hierarchyJobLastRunDate != null;
+			if(!orderByModifiedDate){
+				//we can only limit the sites search to known properties if the job has never ran before,
+				//this is because a site could have been removed from the hierarchy (doesn't have props anymore)
+				//which needs to be removed.  The date will limit the length of the job enough to make this
+				//speed up not matter as much
+				propsMap = new HashMap<String, String>();
+				for(String prop : hierarchy){
+					propsMap.put(prop, "");
+				}
 			}
-			
 			while (hasMoreSites) {
-				List<Site> sites = sakaiProxy.getAllSitesByPages(propsMap, pageFirstRecord, pageLastRecord);
+				//sites are ordered by
+				List<Site> sites = sakaiProxy.getAllSitesByPages(propsMap, pageFirstRecord, pageLastRecord, orderByModifiedDate);
+				log.info("DelegatedAccessSiteHierarchyJob: Processing site results: " + pageFirstRecord + " to " + pageLastRecord);
 				for(Site site : sites){
+					if(orderByModifiedDate){
+						//check the date to see if we can break out:
+						if(hierarchyJobLastRunDate.after(site.getModifiedDate())){
+							hasMoreSites = false;
+							break;
+						}
+					}
 					//search through all sites and add it to the hierarchy if the site has information (otherwise skip)
 					try{
 						HierarchyNode siteParentNode = rootNode;
@@ -127,6 +150,17 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 							//save the site under the parent hierarchy if any data was found
 							//Site
 							checkAndAddNode(siteParentNode, site.getReference(), site.getTitle(), props.getProperty(sakaiProxy.getTermField()));
+						}else{
+							if(orderByModifiedDate){
+								//the job grabs all sites when orderBy is set, so this site was recently updated
+								//we need to make sure it wasn't removed from the hierarchy:
+								List<String> nodeIds = dao.getNodesBySiteRef(site.getReference(), DelegatedAccessConstants.HIERARCHY_ID);
+								if(nodeIds != null){
+									for(String nodeId : nodeIds){
+										projectLogic.removeNode(hierarchyService.getNodeById(nodeId));
+									}
+								}
+							}
 						}
 						processedSites++;
 					}catch (Exception e) {
@@ -145,15 +179,21 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 				}
 			}
 
+			//Deletet empty sites:
+			projectLogic.deleteEmptyNonSiteNodes(DelegatedAccessConstants.HIERARCHY_ID);
+			
 			//report the errors
 			if(!"".equals(errors)){
 				log.warn(errors);
 				sakaiProxy.sendEmail("DelegatedAccessShoppingPeriodJob error", errors);
+			}else{
+				//no errors, so let's save this date so we can save time next run:
+				projectLogic.saveHierarchyJobLastRunDate(new Date(), rootNode.id);
 			}
 
 
 			//remove any sites that don't exist in the hierarchy (aka properties changed or site has been deleted):
-			removeMissingNodes(rootNode);
+	//		removeMissingNodes(rootNode);
 
 			log.info("DelegatedAccessSiteHierarchyJob finished in " + (System.currentTimeMillis() - startTime) + " ms and processed " + processedSites + " sites.");		
 		}catch (Exception e) {
@@ -163,44 +203,6 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 			semaphore = false;
 		}
 	}
-
-	private void removeMissingNodes(HierarchyNode rootNode){
-		for(String child : rootNode.childNodeIds){
-			try{
-				if(!newHiearchyNodeIds.contains(child)){
-					//this site has either moved or been deleted
-					removeMissingNodesHelper(hierarchyService.getNodeById(child));
-				}
-			}catch(Exception e){
-				log.error(e);
-			}
-		}
-	}
-
-	private void removeMissingNodesHelper(HierarchyNode node){
-		if(node != null){
-			if(node.childNodeIds != null && !node.childNodeIds.isEmpty()){
-				//we can delete this, otherwise, delete the children first the children
-				for(String childId : node.childNodeIds){		
-					removeMissingNodesHelper(hierarchyService.getNodeById(childId));
-				}
-			}
-			//all the children nodes have been deleted, no its safe to delete
-			hierarchyService.removeNode(node.id);
-			Set<String> userIds = hierarchyService.getUserIdsForNodesPerm(new String[]{node.id}, DelegatedAccessConstants.NODE_PERM_SITE_VISIT);
-			for(String userId : userIds){
-				removeAllUserPermissions(node.id, userId);
-			}
-		}
-	}
-
-	private void removeAllUserPermissions(String nodeId, String userId){
-		for(String perm : hierarchyService.getPermsForUserNodes(userId, new String[]{nodeId})){
-			hierarchyService.removeUserNodePerm(userId, nodeId, perm, false);
-		}
-	}
-
-
 
 	private HierarchyNode checkAndAddNode(HierarchyNode parentNode, String title, String description, String term){
 		HierarchyNode node = null;
@@ -214,7 +216,10 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 					if(parentNode.directChildNodeIds.contains(id)){
 						hasChild = true;
 						childNodeId = id;
-						break;
+					}else if(title.startsWith("/site/")){
+						//If this is a site, there should (and can only be) 1 parent, delete
+						//delete the other nodes since they are old
+						projectLogic.removeNode(hierarchyService.getNodeById(id));
 					}
 				}
 			}
@@ -234,7 +239,6 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 					node = hierarchyService.saveNodeMetaData(node.id, title, description, term);
 				}
 			}
-			newHiearchyNodeIds.add(node.id);
 		}
 		return node;
 	}

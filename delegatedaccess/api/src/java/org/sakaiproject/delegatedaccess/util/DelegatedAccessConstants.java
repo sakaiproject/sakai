@@ -69,6 +69,7 @@ public class DelegatedAccessConstants {
 	public static final String PROPERTIES_REALM_OPTIONS_ACCESS = "delegatedaccess.realmoptions.delegatedaccess";
 	public static final String PROPERTIES_ROLE_OPTIONS_ACCESS = "delegatedaccess.roleoptions.delegatedaccess";
 	public static final String PROPERTIES_EMAIL_ERRORS = "delegatedaccess.email.errors";
-	
+	public static final String NODE_PERM_SITE_HIERARCHY_JOB_LAST_RUN_DATE = "siteHierarchyJobLastRunDate:";
+	public static final String SITE_HIERARCHY_USER = "777dv0f43bd90sdf012uf";
 	public static final int MAX_SITES_PER_PAGE = 10000;
 }

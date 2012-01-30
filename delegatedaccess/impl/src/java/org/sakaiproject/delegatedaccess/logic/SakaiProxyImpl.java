@@ -135,9 +135,9 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
     * {@inheritDoc}
     */
-   public List<Site> getAllSitesByPages(Map<String, String> propsMap, int page, int pageMax){
+   public List<Site> getAllSitesByPages(Map<String, String> propsMap, int page, int pageMax, boolean orderByModifiedDate){
       PagingPosition pp = new PagingPosition(page, pageMax);
-      return siteService.getSites(SelectionType.NON_USER, null, null, propsMap, null, pp);
+      return siteService.getSites(SelectionType.NON_USER, null, null, propsMap, orderByModifiedDate ? SortType.MODIFIED_ON_DESC : null, pp);
    }
 
 
