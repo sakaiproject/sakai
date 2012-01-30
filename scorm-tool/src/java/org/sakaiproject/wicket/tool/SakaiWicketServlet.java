@@ -1,21 +1,14 @@
 package org.sakaiproject.wicket.tool;
 
 import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.wicket.protocol.http.WicketServlet;
-import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.api.ToolException;
-import org.sakaiproject.tool.cover.ActiveToolManager;
-import org.sakaiproject.util.Web;
 
 public class SakaiWicketServlet extends WicketServlet {
 
@@ -26,7 +19,8 @@ public class SakaiWicketServlet extends WicketServlet {
         
         final String contextPath = req.getContextPath();        
         HttpServletRequest wrappedRequest = new HttpServletRequestWrapper(req) {
-            public String getContextPath() {
+            @Override
+			public String getContextPath() {
                 return contextPath;
             }
         };        

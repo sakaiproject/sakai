@@ -31,32 +31,32 @@ import org.sakaiproject.scorm.model.api.LearnerExperience;
 
 public interface ScormResultService {
 
-	public ActivityReport getActivityReport(long contentPackageId, String learnerId, long attemptNumber, String scoId);
-	
 	public boolean existsActivityReport(long contentPackageId, String learnerId, long attemptNumber, String scoId);
-	
+
+	public ActivityReport getActivityReport(long contentPackageId, String learnerId, long attemptNumber, String scoId);
+
 	public List<ActivitySummary> getActivitySummaries(long contentPackageId, String learnerId, long attemptNumber);
-	
-	public Interaction getInteraction(long contentPackageId, String learnerId, long attemptNumber, String scoId, String interactionId);
-	
-	public String[] getSiblingIds(long contentPackageId, String learnerId, long attemptNumber, String scoId, String interactionId);
-	
+
 	public Attempt getAttempt(long id);
-	
+
 	public Attempt getAttempt(long contentPackageId, String learnerId, long attemptNumber);
 
 	public List<Attempt> getAttempts(long contentPackageId);
-	
+
 	public List<Attempt> getAttempts(long contentPackageId, String learnerId);
-		
+
 	public List<Attempt> getAttempts(String courseId, String learnerId);
-	
-	public int getNumberOfAttempts(long contentPackageId, String learnerId);
-	
-	public List<Learner> getLearners(long contentPackageId);
-	
+
+	public Interaction getInteraction(long contentPackageId, String learnerId, long attemptNumber, String scoId, String interactionId);
+
 	public List<LearnerExperience> getLearnerExperiences(long contentPackageId);
-	
+
+	public List<Learner> getLearners(long contentPackageId);
+
+	public int getNumberOfAttempts(long contentPackageId, String learnerId);
+
+	public String[] getSiblingIds(long contentPackageId, String learnerId, long attemptNumber, String scoId, String interactionId);
+
 	public void saveAttempt(Attempt attempt);
-	
+
 }

@@ -25,46 +25,55 @@ import java.io.Serializable;
 public class Objective implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private String id;
+
 	private Score score;
+
 	private String successStatus;
+
 	private String completionStatus;
+
 	private String description;
-	
-	
-	public String getId() {
-		return id;
-	}
-	public void setId(String id) {
-		this.id = id;
-	}
-	
-	public String getSuccessStatus() {
-		return successStatus;
-	}
-	public void setSuccessStatus(String successStatus) {
-		this.successStatus = successStatus;
-	}
+
 	public String getCompletionStatus() {
 		return completionStatus;
 	}
-	public void setCompletionStatus(String completionStatus) {
-		this.completionStatus = completionStatus;
-	}
+
 	public String getDescription() {
 		return description;
 	}
-	public void setDescription(String description) {
-		this.description = description;
+
+	public String getId() {
+		return id;
 	}
+
 	public Score getScore() {
 		return score;
 	}
+
+	public String getSuccessStatus() {
+		return successStatus;
+	}
+
+	public void setCompletionStatus(String completionStatus) {
+		this.completionStatus = completionStatus;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
 	public void setScore(Score score) {
 		this.score = score;
 	}
-	
-	
-	
+
+	public void setSuccessStatus(String successStatus) {
+		this.successStatus = successStatus;
+	}
+
 }

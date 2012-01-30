@@ -55,6 +55,7 @@ public class LaunchPanel extends UISynchronizerPanel implements IHeaderContribut
 		return view;
 	}
 	
+	@Override
 	public ActivityTree getTree() {
 		return tree;
 	}
@@ -66,6 +67,7 @@ public class LaunchPanel extends UISynchronizerPanel implements IHeaderContribut
 		response.renderOnEventJavascript("window", "resize", "onResize()");
 	}
 
+	@Override
 	public WebMarkupContainer getContentPanel() {
 		return contentPanel;
 	}

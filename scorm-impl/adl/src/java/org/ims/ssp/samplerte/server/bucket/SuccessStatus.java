@@ -55,50 +55,49 @@ package org.ims.ssp.samplerte.server.bucket;
  *
  * @author ADL Technical Team
  */
-public class SuccessStatus
-{
-   /**
-    * Indicates that the SCO's allocation request has failed.
-    * 
-    * <br>Failure
-    *
-    * <br><b>0</b>
-    *
-    * <br>[SCORM SSP SUBSYSTEM CONSTANT]
-    */
-   public static final int FAILURE = 0;
+public class SuccessStatus {
+	/**
+	 * Indicates that the SCO's allocation request has failed.
+	 * 
+	 * <br>Failure
+	 *
+	 * <br><b>0</b>
+	 *
+	 * <br>[SCORM SSP SUBSYSTEM CONSTANT]
+	 */
+	public static final int FAILURE = 0;
 
-   /**
-    * Indicates that the LMS allocated the minimum size for the bucket.
-    *
-    * <br>Minimum
-    *
-    * <br><b>1</b>
-    *
-    * <br>[SCORM SSP SUBSYSTEM CONSTANT]
-    */
-   public static final int MINIMUM = 1;
+	/**
+	 * Indicates that the LMS allocated the minimum size for the bucket.
+	 *
+	 * <br>Minimum
+	 *
+	 * <br><b>1</b>
+	 *
+	 * <br>[SCORM SSP SUBSYSTEM CONSTANT]
+	 */
+	public static final int MINIMUM = 1;
 
-   /**
-    * Indicates that the LMS allocated the requested size for the bucket.
-    *
-    * <br>Requested
-    *
-    * <br><b>2</b>
-    *
-    * <br>[SCORM SSP SUBSYSTEM CONSTANT]
-    */
-   public static final int REQUESTED = 2;
+	/**
+	 * Indicates that the LMS allocated the requested size for the bucket.
+	 *
+	 * <br>Requested
+	 *
+	 * <br><b>2</b>
+	 *
+	 * <br>[SCORM SSP SUBSYSTEM CONSTANT]
+	 */
+	public static final int REQUESTED = 2;
 
-   /**
-    * Indicates that no allocation request has been made for the size of the 
-    * bucket.
-    *
-    * <br>None Requested
-    *
-    * <br><b>3</b>
-    *
-    * <br>[SCORM SSP SUBSYSTEM CONSTANT]
-    */
-   public static final int NONE_REQUESTED = 3;
+	/**
+	 * Indicates that no allocation request has been made for the size of the 
+	 * bucket.
+	 *
+	 * <br>None Requested
+	 *
+	 * <br><b>3</b>
+	 *
+	 * <br>[SCORM SSP SUBSYSTEM CONSTANT]
+	 */
+	public static final int NONE_REQUESTED = 3;
 }

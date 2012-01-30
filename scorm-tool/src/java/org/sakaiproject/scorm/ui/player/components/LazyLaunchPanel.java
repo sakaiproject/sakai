@@ -257,15 +257,11 @@ public class LazyLaunchPanel extends LazyLoadPanel {
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public Object getApplication() {
-			return this.getApplication();
-		}
-		
-		@Override
 		protected ScormResourceService resourceService() {
 			return LazyLaunchPanel.this.resourceService;
 		}
 		
+		@Override
 		public Component getFrameComponent() {
 			if (launchPanel != null)
 				return launchPanel.getContentPanel();

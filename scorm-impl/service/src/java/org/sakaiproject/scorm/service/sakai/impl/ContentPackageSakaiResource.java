@@ -9,8 +9,6 @@ import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.scorm.exceptions.ResourceNotFoundException;
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
 import org.sakaiproject.time.api.Time;
@@ -27,30 +25,17 @@ public class ContentPackageSakaiResource extends ContentPackageResource {
 
 	String mimeType;
 
+	public ContentPackageSakaiResource(String path, ContentResource contentResource) {
+		this(path, contentResource.getId(), contentResource.getContentLength(), contentResource.getContentType());
+		setLastModificationTime(contentResource);
+	}
+
 	public ContentPackageSakaiResource(String path, String contentResourceId, long contentLength, String mimeType) {
 		super(path);
 		this.contentResourceId = contentResourceId;
 		this.mimeType = mimeType;
 		this.setLength(contentLength);
 	}
-
-	public ContentPackageSakaiResource(String path, ContentResource contentResource) {
-		this(path, contentResource.getId(), contentResource.getContentLength(), contentResource.getContentType());
-        setLastModificationTime(contentResource);
-	}
-
-	protected void setLastModificationTime(ContentResource contentResource) {
-	    try {
-        	Time created = contentResource.getProperties().getTimeProperty(contentResource.getProperties().getNamePropCreationDate());
-	        if (created != null) {
-	        	setLastModified(created.getTime());
-	        }
-        } catch (EntityPropertyNotDefinedException e) {
-	        //  ignore
-        } catch (EntityPropertyTypeException e) {
-	        // ignore
-        }
-    }
 
 	@Override
 	public InputStream getInputStream() throws ResourceNotFoundException {
@@ -68,6 +53,19 @@ public class ContentPackageSakaiResource extends ContentPackageResource {
 	@Override
 	public String getMimeType() {
 		return mimeType;
+	}
+
+	protected void setLastModificationTime(ContentResource contentResource) {
+		try {
+			Time created = contentResource.getProperties().getTimeProperty(contentResource.getProperties().getNamePropCreationDate());
+			if (created != null) {
+				setLastModified(created.getTime());
+			}
+		} catch (EntityPropertyNotDefinedException e) {
+			//  ignore
+		} catch (EntityPropertyTypeException e) {
+			// ignore
+		}
 	}
 
 }

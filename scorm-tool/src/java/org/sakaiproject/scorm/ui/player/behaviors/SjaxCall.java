@@ -37,7 +37,6 @@ import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.scorm.ui.player.decorators.SjaxCallDecorator;
 import org.sakaiproject.scorm.ui.player.util.Utils;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 
 /**
  * This class is right at the center of all the action. It provides a wrapper for Synchronous

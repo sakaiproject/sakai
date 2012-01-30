@@ -68,6 +68,7 @@ public class CompressingContentPackageResourceStream extends ContentPackageResou
 		super(resource);
 	}
 
+	@Override
 	public InputStream getInputStream() throws ResourceStreamNotFoundException {
 		return new ByteArrayInputStream(getCompressedContent());
 	}
@@ -100,6 +101,7 @@ public class CompressingContentPackageResourceStream extends ContentPackageResou
 
 	}
 
+	@Override
 	public long length() 
 	{
 		try {

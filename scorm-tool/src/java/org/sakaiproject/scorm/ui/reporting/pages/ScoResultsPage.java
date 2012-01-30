@@ -229,6 +229,7 @@ public class ScoResultsPage extends BaseResultsPage {
 			super(displayModel, pageClass, paramPropertyExpressions, iconProperty);
 		}
 		
+		@Override
 		protected ResourceReference getIconPropertyReference(String iconPropertyValue) {
 			ResourceReference resultIconReference = BLANK_ICON;
 

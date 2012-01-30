@@ -28,53 +28,88 @@ import org.sakaiproject.scorm.model.api.ScoBean;
 import org.sakaiproject.scorm.model.api.SessionBean;
 
 public class ScoBeanImpl implements ScoBean {
-	
+
 	private static final long serialVersionUID = 1L;
 
 	private static Log log = LogFactory.getLog(ScoBeanImpl.class);
-		
+
 	// String value of FALSE for JavaScript returns.
 	protected static final String STRING_FALSE = "false";
+
 	// String value of TRUE for JavaScript returns.
 	protected static final String STRING_TRUE = "true";
-	
+
 	// Indicates if the SCO is in a 'terminated' state.
 	protected boolean mTerminateCalled = false;
-	
+
 	private boolean isInitialized = false;
-	
+
 	private boolean isSuspended = false;
-	
+
 	private boolean isTerminated = false;
-	
+
 	private int version;
-	
+
 	private Long dataManagerId;
 
 	// The public version attribute of the SCORM API.
 	//public static final String version = "1.0";	
-	
-	public Long getDataManagerId() {
-		return dataManagerId;
-	}
-
-	public void setDataManagerId(Long dataManagerId) {
-		this.dataManagerId = dataManagerId;
-	}
 
 	private String scoId;
-	
+
 	private SessionBean sessionBean;
-	
+
 	public ScoBeanImpl(String scoId, SessionBean sessionBean) {
 		this.scoId = scoId;
 		this.sessionBean = sessionBean;
 	}
-	
-	public String getScoId() {
-		return scoId;
+
+	/**
+	 * Clears error codes and sets mInitialedState and mTerminated State to
+	 * default values.
+	 */
+	public void clearState() {
+		setInitialized(false);
+		setTerminated(false);
+		mTerminateCalled = false;
+		IErrorManager errorManager = sessionBean.getErrorManager();
+		if (errorManager != null) {
+			errorManager.clearCurrentErrorCode();
+		}
 	}
-	
+
+	/**
+	 * Insert a backward slash (\) before each double quote (") or backslash (\)
+	 * to allow the character to be displayed in the data model log. Receives
+	 * the value and returns the newly formatted value
+	 */
+	public String formatValue(String baseString) {
+		int indexQuote = baseString.indexOf("\"");
+		int indexSlash = baseString.indexOf("\\");
+
+		if (indexQuote >= 0 || indexSlash >= 0) {
+			int index = 0;
+			String strFirst = "";
+			String strLast = "";
+			char insertValue = '\\';
+
+			while (index < baseString.length()) {
+				if ((baseString.charAt(index) == '\"') || (baseString.charAt(index) == '\\')) {
+					strFirst = baseString.substring(0, index);
+					strLast = baseString.substring(index, baseString.length());
+					baseString = strFirst.concat(Character.toString(insertValue)).concat(strLast);
+					index += 2;
+				} else {
+					index++;
+				}
+			}
+		}
+		return baseString;
+	}
+
+	public Long getDataManagerId() {
+		return dataManagerId;
+	}
 
 	/*public String Commit(String parameter) {
 		if (log.isDebugEnabled())
@@ -309,9 +344,7 @@ public class ScoBeanImpl implements ScoBean {
 
 		return result;
 	}*/
-	
-	
-	
+
 	/*
 	
 	
@@ -416,7 +449,7 @@ public class ScoBeanImpl implements ScoBean {
 	        if ( dmErrorCode == APIErrorCodes.NO_ERROR ) {
 	        	result = dmInfo.mValue;
 	        } else {
-	            result = new String("");
+	            result = "";
 	        }
 	    } else {
 	    	errorManager.setCurrentErrorCode(APIErrorCodes.GET_BEFORE_INIT);
@@ -607,7 +640,7 @@ public class ScoBeanImpl implements ScoBean {
 				if (dmErrorCode == APIErrorCodes.NO_ERROR) {
 					exitValue = dmInfo.mValue;
 				} else {
-					exitValue = new String("");
+					exitValue = "";
 				}
 
 				if (exitValue.equals("time-out") || exitValue.equals("logout")) {
@@ -634,32 +667,28 @@ public class ScoBeanImpl implements ScoBean {
 
 		return result;
 	}*/
-	
-	public void setInitialized(boolean isInitialized) {
-		this.isInitialized = isInitialized;
+
+	public String getScoId() {
+		return scoId;
 	}
-	
+
 	public boolean isInitialized() {
 		IErrorManager errorManager = sessionBean.getErrorManager();
-		if ( ( !isTerminated ) &&  ( version == ScoBean.SCO_VERSION_2 ) )
+		if ((!isTerminated) && (version == ScoBean.SCO_VERSION_2)) {
 			errorManager.setCurrentErrorCode(DMErrorCodes.GEN_GET_FAILURE);
+		}
 
 		return isInitialized;
 	}
-	
-	public void setTerminated(boolean isTerminated) {
-		this.isTerminated = isTerminated;
+
+	public boolean isSuspended() {
+		return isSuspended;
 	}
-	
+
 	public boolean isTerminated() {
 		return isTerminated;
 	}
-	
-	public void setVersion(int version) {
-		this.version = version;
-	}
-	
-	
+
 	/**
 	 * This method implements the interface with the Java Script running on the
 	 * client side of the Sample RTE. <br>
@@ -674,12 +703,44 @@ public class ScoBeanImpl implements ScoBean {
 	 * 
 	 * 
 	 */
-	public void jsCall(String message) {	   
-	    // TODO: Find a way to communicate back to the browser here  
+	public void jsCall(String message) {
+		// TODO: Find a way to communicate back to the browser here  
 		//JSObject.getWindow(this).eval(message);
 		log.warn("Called jsCall with message: " + message);
 	}
-	
+
+	public void setDataManagerId(Long dataManagerId) {
+		this.dataManagerId = dataManagerId;
+	}
+
+	public void setInitialized(boolean isInitialized) {
+		this.isInitialized = isInitialized;
+	}
+
+	/*public void setNumAttempts(long iNumAttempts) {
+		mNumAttempts = iNumAttempts;
+	}
+
+	public void setNumAttempts(String iNumAttempts) {
+		Long tempLong = Long.valueOf(iNumAttempts);
+		mNumAttempts = tempLong.longValue();
+	}*/
+
+	public void setSuspended(boolean isSuspended) {
+		this.isSuspended = isSuspended;
+	}
+
+	public void setTerminated(boolean isTerminated) {
+		this.isTerminated = isTerminated;
+	}
+
+	/*public void suspendButtonPushed() {
+		if (isInitialized()) {
+			sessionBean.setSuspended(true);
+			Terminate("");
+		}
+	}*/
+
 	/**
 	 * Toggles the state of the LMS provided UI controls.
 	 * 
@@ -691,77 +752,9 @@ public class ScoBeanImpl implements ScoBean {
 		String evalCmd = "setUIState(" + iState + ");";
 		jsCall(evalCmd);
 	}
-	
 
-	/*public void setNumAttempts(long iNumAttempts) {
-		mNumAttempts = iNumAttempts;
+	public void setVersion(int version) {
+		this.version = version;
 	}
 
-	public void setNumAttempts(String iNumAttempts) {
-		Long tempLong = new Long(iNumAttempts);
-		mNumAttempts = tempLong.longValue();
-	}*/
-
-	/**
-	 * Clears error codes and sets mInitialedState and mTerminated State to
-	 * default values.
-	 */
-	public void clearState() {
-		setInitialized(false);
-		setTerminated(false);
-		mTerminateCalled = false;
-		IErrorManager errorManager = sessionBean.getErrorManager();
-		if (errorManager != null)
-			errorManager.clearCurrentErrorCode();
-	}
-	
-	/**
-	 * Insert a backward slash (\) before each double quote (") or backslash (\)
-	 * to allow the character to be displayed in the data model log. Receives
-	 * the value and returns the newly formatted value
-	 */
-	public String formatValue(String baseString) {
-		int indexQuote = baseString.indexOf("\"");
-		int indexSlash = baseString.indexOf("\\");
-
-		if (indexQuote >= 0 || indexSlash >= 0) {
-			int index = 0;
-			String temp = new String();
-			String strFirst = new String();
-			String strLast = new String();
-			char insertValue = '\\';
-
-			while (index < baseString.length()) {
-				if ((baseString.charAt(index) == '\"')
-						|| (baseString.charAt(index) == '\\')) {
-					strFirst = baseString.substring(0, index);
-					strLast = baseString.substring(index, baseString.length());
-					baseString = strFirst.concat(
-							Character.toString(insertValue)).concat(strLast);
-					index += 2;
-				} else {
-					index++;
-				}
-			}
-		}
-		return baseString;
-	}
-	
-	
-	/*public void suspendButtonPushed() {
-		if (isInitialized()) {
-			sessionBean.setSuspended(true);
-			Terminate("");
-		}
-	}*/
-
-	public boolean isSuspended() {
-		return isSuspended;
-	}
-
-	public void setSuspended(boolean isSuspended) {
-		this.isSuspended = isSuspended;
-	}	
-	
-	
 }

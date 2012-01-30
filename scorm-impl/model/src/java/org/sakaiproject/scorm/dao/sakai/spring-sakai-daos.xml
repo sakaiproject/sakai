@@ -5,7 +5,7 @@
 
 	<!-- Grab the learner information from Sakai -->
 	<bean id="org.sakaiproject.scorm.dao.LearnerDao"
-		class="org.sakaiproject.scorm.dao.sakai.LearnerDaoImpl"
+		class="org.sakaiproject.scorm.dao.sakai.SakaiLearnerDaoImpl"
 		singleton="true">
 
 		<lookup-method name="cms" bean="org.sakaiproject.coursemanagement.api.CourseManagementService" />

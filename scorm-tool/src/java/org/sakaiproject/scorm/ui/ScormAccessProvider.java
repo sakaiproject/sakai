@@ -269,6 +269,7 @@ System.out.println("F");
 	{
 		return (webApplication.getRequestCycleSettings().getBufferResponse() ? new BufferedWebResponse(
 				servletResponse) {
+			@Override
 			public CharSequence encodeURL(final CharSequence url)
 			{
 				System.out.println("Initial url: " + url);
@@ -301,6 +302,7 @@ System.out.println("F");
 				return buffer.toString();
 			}		
 		} : new WebResponse(servletResponse) {
+					@Override
 					public CharSequence encodeURL(final CharSequence url)
 					{
 						System.out.println("Initial url: " + url);

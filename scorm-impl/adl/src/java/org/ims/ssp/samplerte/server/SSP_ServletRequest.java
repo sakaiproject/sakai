@@ -55,134 +55,137 @@ import java.io.Serializable;
  *
  * @author ADL Technical Team
  */
-public class SSP_ServletRequest implements Serializable
-{
-   /**
-    *
-    * The ID of the bucket associated with this request.
-    *
-    */
-   public String mBucketID = null;
+public class SSP_ServletRequest implements Serializable {
+	/**
+	  * 
+	  */
+	private static final long serialVersionUID = 1L;
 
-   /**
-    *
-    * The ID of the student associated with this request.
-    *
-    */
-   public String mStudentID = null;
+	/**
+	    *
+	    * The ID of the bucket associated with this request.
+	    *
+	    */
+	public String mBucketID = null;
 
-   /**
-    *
-    * The ID of the course associated with this request.
-    *
-    */
-   public String mCourseID = null;
+	/**
+	 *
+	 * The ID of the student associated with this request.
+	 *
+	 */
+	public String mStudentID = null;
 
-   /**
-    *
-    * The ID of the sco associated with this request.
-    *
-    */
-   public String mSCOID = null;
+	/**
+	 *
+	 * The ID of the course associated with this request.
+	 *
+	 */
+	public String mCourseID = null;
 
-   /**
-    *
-    * Indicates number of the current attempt.
-    *
-    */
-   public String mAttemptID = null;
+	/**
+	 *
+	 * The ID of the sco associated with this request.
+	 *
+	 */
+	public String mSCOID = null;
 
-   /**
-    *
-    * Indicates the type of SSP operation.  This value may be one of the
-    * enumerated values described in the <code>SSP_Operation</code> class.
-    *
-    */
-   public int mOperationType = 0;
+	/**
+	 *
+	 * Indicates number of the current attempt.
+	 *
+	 */
+	public String mAttemptID = null;
 
-   /**
-    *
-    * Identifies the minimum acceptable size of the data bucket.  This should
-    * only be set in the case of an allocate operation.
-    *
-    */
-   public String mMinimumSize = null;
+	/**
+	 *
+	 * Indicates the type of SSP operation.  This value may be one of the
+	 * enumerated values described in the <code>SSP_Operation</code> class.
+	 *
+	 */
+	public int mOperationType = 0;
 
-   /**
-    *
-    * Identifies the desired size of the data bucket.  This should
-    * only be set in the case of an allocate operation.
-    *
-    */
-   public String mRequestedSize = null;
+	/**
+	 *
+	 * Identifies the minimum acceptable size of the data bucket.  This should
+	 * only be set in the case of an allocate operation.
+	 *
+	 */
+	public String mMinimumSize = null;
 
-   /**
-    *
-    * Indicates if the size of the data bucket is "reducible" to the value
-    * identified in the mMinimumSize attribute.  This should only be set in the
-    * case of an allocate operation.
-    *
-    */
-   public String mReducible = null;
+	/**
+	 *
+	 * Identifies the desired size of the data bucket.  This should
+	 * only be set in the case of an allocate operation.
+	 *
+	 */
+	public String mRequestedSize = null;
 
-   /**
-    *
-    * Identifies the type (format) of the data bucket's content.  This attribute
-    * shall not be set to empty string ("").  This should only be set in the
-    * case of an allocate operation.
-    *
-    */
-   public String mBucketType = null;
+	/**
+	 *
+	 * Indicates if the size of the data bucket is "reducible" to the value
+	 * identified in the mMinimumSize attribute.  This should only be set in the
+	 * case of an allocate operation.
+	 *
+	 */
+	public String mReducible = null;
 
-   /**
-    *
-    * Indicates the expected persistence of the data bucket.  This value may be
-    * one of the enumerated values described in the <code>Persistence</code>
-    * class.  This should only be set in the case of an allocate operation.
-    *
-    */
-   public int mPersistence = -1;
+	/**
+	 *
+	 * Identifies the type (format) of the data bucket's content.  This attribute
+	 * shall not be set to empty string ("").  This should only be set in the
+	 * case of an allocate operation.
+	 *
+	 */
+	public String mBucketType = null;
 
-   /**
-    *
-    * Identifies the starting (zero-based) octet for the bucket access.  This
-    * should only be set in the case of a set or get operation.
-    *
-    */
-   public String mOffset = null;
+	/**
+	 *
+	 * Indicates the expected persistence of the data bucket.  This value may be
+	 * one of the enumerated values described in the <code>Persistence</code>
+	 * class.  This should only be set in the case of an allocate operation.
+	 *
+	 */
+	public int mPersistence = -1;
 
-   /**
-    *
-    * Identifies the number of octets requested.  This should only be set in the
-    * case of a set or get operation.
-    *
-    */
-   public String mSize = null;
+	/**
+	 *
+	 * Identifies the starting (zero-based) octet for the bucket access.  This
+	 * should only be set in the case of a set or get operation.
+	 *
+	 */
+	public String mOffset = null;
 
-   /**
-    *
-    * The intended value of the SSP datamodel element.  If this is a get
-    * operation, then this value shall be null.  This value shall not contain
-    * delimiters.
-    *
-    */
-   public String mValue = null;
+	/**
+	 *
+	 * Identifies the number of octets requested.  This should only be set in the
+	 * case of a set or get operation.
+	 *
+	 */
+	public String mSize = null;
 
-   /**
-    *
-    * The array position in the managed bucket array.  This value shall be
-    * set to -1 if it is not a manged bucket.
-    *
-    */
-   public int mManagedBucketIndex = -1;
+	/**
+	 *
+	 * The intended value of the SSP datamodel element.  If this is a get
+	 * operation, then this value shall be null.  This value shall not contain
+	 * delimiters.
+	 *
+	 */
+	public String mValue = null;
 
-   /**
-    *
-    * Default constructor
-    *
-    */
-   public SSP_ServletRequest()
-   {
-      // no defined implementation
-   }
+	/**
+	 *
+	 * The array position in the managed bucket array.  This value shall be
+	 * set to -1 if it is not a manged bucket.
+	 *
+	 */
+	public int mManagedBucketIndex = -1;
+
+	/**
+	 *
+	 * Default constructor
+	 *
+	 */
+	public SSP_ServletRequest() {
+		// no defined implementation
+	}
 }

@@ -78,16 +78,19 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 			
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			protected void onSubmit(AjaxRequestTarget target)
 			{
 				ActivityAjaxButton.this.onSubmit(target, form);
 			}
 
+			@Override
 			protected void onError(AjaxRequestTarget target)
 			{
 				ActivityAjaxButton.this.onError(target, form);
 			}
 
+			@Override
 			protected CharSequence getEventHandler()
 			{
 				if (useRelativeUrls)
@@ -97,6 +100,7 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 				return new AppendingStringBuffer(super.getEventHandler()).append("; return false;");
 			}
 
+			@Override
 			protected IAjaxCallDecorator getAjaxCallDecorator()
 			{
 				if (useRelativeUrls)
@@ -105,6 +109,7 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 				return ActivityAjaxButton.this.getAjaxCallDecorator();
 			}
 			
+			@Override
 			public CharSequence getCallbackUrl()
 			{
 				if (useRelativeUrls)
@@ -118,6 +123,7 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 	}
 	
 	
+	@Override
 	public Form getForm()
 	{
 		if (form != null)
@@ -136,6 +142,7 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 		}
 	}
 
+	@Override
 	protected void onSubmit(AjaxRequestTarget target, Form form) {
 		SessionBean sessionBean = (SessionBean)getDefaultModelObject();
 		modelChanging();
@@ -147,16 +154,19 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 		return rootSrc;
 	}
 	
+	@Override
 	protected String getDisabledSrc()
 	{
 		return assembleSrc(getRootSrc(), DISABLED_SUFFIX, IMAGE_EXT);
 	}
 	
+	@Override
 	protected String getInactiveSrc()
 	{
 		return assembleSrc(getRootSrc(), INACTIVE_SUFFIX, IMAGE_EXT);
 	}
 	
+	@Override
 	protected String getActiveSrc()
 	{
 		return assembleSrc(getRootSrc(), ACTIVE_SUFFIX, IMAGE_EXT);
@@ -183,6 +193,7 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 	 * 
 	 * TODO 1.3: Make abstract to be consistent with onSubmit()
 	 */
+	@Override
 	protected void onError(AjaxRequestTarget target, Form form)
 	{
 
@@ -199,10 +210,6 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 		}
 
 		@Override
-		public Object getApplication() {
-			return this.getApplication();
-		}
-		
 		public Component getFrameComponent() {
 			if (form.getLaunchPanel() != null && form.getLaunchPanel().getContentPanel() != null)
 				return form.getLaunchPanel().getContentPanel();

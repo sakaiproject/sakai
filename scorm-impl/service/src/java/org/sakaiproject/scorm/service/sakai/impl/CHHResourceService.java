@@ -21,13 +21,11 @@ public abstract class CHHResourceService extends SakaiResourceService {
 
 	private static final String MANIFEST_RESOURCE_ID_PROPERTY = "manifest_resource_id";
 
-	protected abstract ContentHostingService contentService();
-
-	protected abstract ToolManager toolManager();
-
-	protected abstract ScormCHH scormCHH();
-
+	@Override
 	protected abstract ServerConfigurationService configurationService();
+
+	@Override
+	protected abstract ContentHostingService contentService();
 
 	public String convertArchive(String resourceId) {
 		try {
@@ -71,8 +69,9 @@ public abstract class CHHResourceService extends SakaiResourceService {
 			String baseUrl = sessionBean.getBaseUrl();
 			StringBuffer fullPath = new StringBuffer().append(baseUrl);
 
-			if (!baseUrl.endsWith(Entity.SEPARATOR) && !launchLine.startsWith(Entity.SEPARATOR))
+			if (!baseUrl.endsWith(Entity.SEPARATOR) && !launchLine.startsWith(Entity.SEPARATOR)) {
 				fullPath.append(Entity.SEPARATOR);
+			}
 
 			fullPath.append(launchLine);
 
@@ -80,5 +79,10 @@ public abstract class CHHResourceService extends SakaiResourceService {
 		}
 		return null;
 	}
+
+	protected abstract ScormCHH scormCHH();
+
+	@Override
+	protected abstract ToolManager toolManager();
 
 }

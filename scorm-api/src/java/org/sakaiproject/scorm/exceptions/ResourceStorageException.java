@@ -7,6 +7,11 @@ package org.sakaiproject.scorm.exceptions;
  */
 public class ResourceStorageException extends RuntimeException {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public ResourceStorageException() {
 	}
 
@@ -14,12 +19,12 @@ public class ResourceStorageException extends RuntimeException {
 		super(message);
 	}
 
-	public ResourceStorageException(Throwable cause) {
-		super(cause);
-	}
-
 	public ResourceStorageException(String message, Throwable cause) {
 		super(message, cause);
+	}
+
+	public ResourceStorageException(Throwable cause) {
+		super(cause);
 	}
 
 }

@@ -24,8 +24,9 @@
 
 package org.adl.sequencer;
 
-import org.adl.util.debug.DebugIndicator;
 import java.io.Serializable;
+
+import org.adl.util.debug.DebugIndicator;
 
 /**
  * <strong>Filename:</strong> ADLAuxiliaryResource.java<br><br>
@@ -56,51 +57,74 @@ import java.io.Serializable;
  * 
  * @author ADL Technical Team
  */
-public class ADLAuxiliaryResource implements Serializable 
-{
+public class ADLAuxiliaryResource implements Serializable {
 	private static final long serialVersionUID = 1L;
-	
+
 	private long id;
-	
-   /**
-    * This controls display of log messages to the java console
-    */
-   private static boolean _Debug = DebugIndicator.ON;
 
-   /**
-    * The type of the available auxillary resource.
-    */
-   public String mType = null;
+	/**
+	 * This controls display of log messages to the java console
+	 */
+	private static boolean _Debug = DebugIndicator.ON;
 
-   /**
-    * The resource ID used to deliver the auxillary resource.
-    */
-   public String mResourceID = null;
+	/**
+	 * The type of the available auxillary resource.
+	 */
+	public String mType = null;
 
-   /**
-    * Describes the delivery parameter for the auxillary resource.
-    */
-   public String mParameter = null;
+	/**
+	 * The resource ID used to deliver the auxillary resource.
+	 */
+	public String mResourceID = null;
 
-   
-   public ADLAuxiliaryResource() {}
-   
-   /**
-    * This method provides the state this <code>ADLAuxiliaryResource</code> obje
-    * diagnostic purposes.
-    */
-   public void dumpState()
-   {
-      if ( _Debug )
-      {
-         System.out.println("  :: ADLAuxiliaryResource --> BEGIN - dumpState");
+	/**
+	 * Describes the delivery parameter for the auxillary resource.
+	 */
+	public String mParameter = null;
 
-         System.out.println("  ::--> Type:        " + mType);
-         System.out.println("  ::--> Resource ID: " + mResourceID);
-         System.out.println("  ::--> Parameter:   " + mParameter);
+	public ADLAuxiliaryResource() {
+	}
 
-         System.out.println("  :: ADLAuxiliaryResource --> END   - dumpState");
-      }
-   }
+	/**
+	 * This method provides the state this <code>ADLAuxiliaryResource</code> obje
+	 * diagnostic purposes.
+	 */
+	public void dumpState() {
+		if (_Debug) {
+			System.out.println("  :: ADLAuxiliaryResource --> BEGIN - dumpState");
 
-}  // end ADLAuxiliaryResource
+			System.out.println("  ::--> Type:        " + mType);
+			System.out.println("  ::--> Resource ID: " + mResourceID);
+			System.out.println("  ::--> Parameter:   " + mParameter);
+
+			System.out.println("  :: ADLAuxiliaryResource --> END   - dumpState");
+		}
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ADLAuxiliaryResource other = (ADLAuxiliaryResource) obj;
+		if (id != other.id)
+			return false;
+		return true;
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (id ^ (id >>> 32));
+		return result;
+	}
+
+} // end ADLAuxiliaryResource

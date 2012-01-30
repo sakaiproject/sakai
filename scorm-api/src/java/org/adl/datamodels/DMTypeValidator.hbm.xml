@@ -41,10 +41,6 @@
 		<subclass name="org.adl.datamodels.datatypes.LangStringValidator" 
 			discriminator-value="LANG_STRING">
 			<property name="mAllowEmpty" column="LANG_ALLOW_EMPTY"/>
-			<property name="mIANALangauges" column="IANA_LANGUAGES" type="text"/>
-			<property name="mISOCountries" column="ISO_COUNTRIES" type="text"/>
-			<property name="mISOExLanguages" column="ISO_EX_LANGUAGES" type="text"/>
-			<property name="mISOLanguages" column="ISO_LANGUAGES" type="text"/>
 		</subclass>
 		
 		<subclass name="org.adl.datamodels.datatypes.RealRangeValidator" 

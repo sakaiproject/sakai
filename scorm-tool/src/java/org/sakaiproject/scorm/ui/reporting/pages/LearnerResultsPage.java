@@ -54,6 +54,7 @@ public class LearnerResultsPage extends BaseResultsPage {
 	}
 
 	
+	@Override
 	protected void initializePage(ContentPackage contentPackage, Learner learner, long attemptNumber, PageParameters pageParams) {
 		PageParameters uberparentParams = new PageParameters();
 		uberparentParams.put("contentPackageId", contentPackage.getContentPackageId());
@@ -92,6 +93,7 @@ public class LearnerResultsPage extends BaseResultsPage {
 		presenter.setVisible(summaries != null && summaries.size() > 0);
 	}
 	
+	@Override
 	protected Link newPreviousLink(String previousId, PageParameters pageParams) {
 		PageParameters prevParams = new PageParameters();
 		
@@ -141,6 +143,7 @@ public class LearnerResultsPage extends BaseResultsPage {
 		return link;*/
 	}
 	
+	@Override
 	protected Link newNextLink(String nextId, PageParameters pageParams) {
 		PageParameters nextParams = new PageParameters();
 		
@@ -195,10 +198,12 @@ public class LearnerResultsPage extends BaseResultsPage {
 	}
 	
 	
+	@Override
 	protected BookmarkablePageLabeledLink newAttemptNumberLink(long i, PageParameters params) {
 		return new BookmarkablePageLabeledLink("attemptNumberLink", new Model("" + i), LearnerResultsPage.class, params);
 	}
 	
+	@Override
 	protected ResourceReference getPageIconReference() {
 		return PAGE_ICON;
 	}

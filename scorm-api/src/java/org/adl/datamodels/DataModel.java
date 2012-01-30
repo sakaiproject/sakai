@@ -24,7 +24,6 @@
 
 package org.adl.datamodels;
 
-
 /**
  * Defines the inteface to a run-time data model that is managed for a SCO.
  * <br><br>
@@ -49,151 +48,141 @@ package org.adl.datamodels;
  *  
  * @author ADL Technical Team
  */
-public abstract class DataModel implements IDataModel
-{
+public abstract class DataModel implements IDataModel {
+	/**
+	 * serialVersionUID
+	 */
+	private static final long serialVersionUID = 7206336522684896022L;
+
 	protected Long id;
+
+	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 	
+	 Public Methods
 	
-   /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-   
-    Public Methods
-   
-   -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
+	-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
 
-   /**
-    * Describes this data model's binding string.
-    * 
-    * @return This data model's binding string.
-    */
-   public abstract String getDMBindingString();
+	/**
+	 * Processes an equals() request against this data model. Compares two 
+	 * values of the same data model element for equality.
+	 * 
+	 * @param iRequest The request (<code>DMRequest</code>) being processed.
+	 * 
+	 * @return An abstract data model error code indicating the result of this
+	 *         operation.
+	 */
+	public int equals(DMRequest iRequest) {
+		return equals(iRequest, true);
+	}
 
+	/**
+	 * Processes an equals() request against this data model. Compares two 
+	 * values of the same data model element for equality.
+	 * 
+	 * @param iRequest The request (<code>DMRequest</code>) being processed.
+	 * 
+	 * @param iValidate Indicates if the provided value should be validated.
+	 * 
+	 * @return An abstract data model error code indicating the result of this
+	 *         operation.
+	 */
+	public abstract int equals(DMRequest iRequest, boolean iValidate);
 
-   /**
-    * Provides the requested data model element.
-    * 
-    * @param iElement Describes the requested element's dot-notation bound name.
-    * 
-    * @return The <code>DMElement</code> corresponding to the requested element
-    *         or <code>null</code> if the element does not exist in the data
-    *         model.
-    */
-   public abstract DMElement getDMElement(String iElement);
-
-
-   /**
-    * Performs data model specific initialization.
-    * 
-    * @return An abstract data model error code indicating the result of this
-    *         operation.
-    */
-   public abstract int initialize();
-
-
-   /**
-    * Performs data model specific termination.
-    * 
-    * @return An abstract data model error code indicating the result of this
-    *         operation.
-    */
-   public abstract int terminate();
-
-
-   /**
-    * Processes a SetValue() request against this data model.
-    * 
-    * @param iRequest The request (<code>DMRequest</code>) being processed.
-    * 
-    * @return An abstract data model error code indicating the result of this
-    *         operation.
-    */
-   public abstract int setValue(DMRequest iRequest);
-
-
-   /**
-    * Processes an equals() request against this data model. Compares two 
-    * values of the same data model element for equality.
-    * 
-    * @param iRequest The request (<code>DMRequest</code>) being processed.
-    * 
-    * @param iValidate Indicates if the provided value should be validated.
-    * 
-    * @return An abstract data model error code indicating the result of this
-    *         operation.
-    */
-   public abstract int equals(DMRequest iRequest, boolean iValidate);
-
-
-   /**
-    * Processes an equals() request against this data model. Compares two 
-    * values of the same data model element for equality.
-    * 
-    * @param iRequest The request (<code>DMRequest</code>) being processed.
-    * 
-    * @return An abstract data model error code indicating the result of this
-    *         operation.
-    */
-   public int equals(DMRequest iRequest)
-   {
-      return equals(iRequest, true);
-   }
-
-
-   /**
-    * Processes a validate() request against this data model. Checks the value
-    * provided for validity for the specified element.
-    * 
-    * @param iRequest The request (<code>DMRequest</code>) being processed.
-    * 
-    * @return An abstract data model error code indicating the result of this
-    *         operation.
-    */
-   public abstract int validate(DMRequest iRequest);
-
-
-   /**
-    * Processes a GetValue() request against this data model.
-    * 
-    * @param iRequest The request (<code>DMRequest</code>) being processed.
-    * 
-    * @param oInfo    Provides the value returned by this request.
-    * 
-    * @return An abstract data model error code indicating the result of this
-    *         operation.
-    */
-   public abstract int getValue(DMRequest iRequest, DMProcessingInfo oInfo);
-
-
-   /**
-    * Displays the contents of the entire data model.
-    */
-   public abstract void showAllElements();
-
-
-@Override
-public int hashCode() {
-	final int prime = 31;
-	int result = 1;
-	result = prime * result + ((id == null) ? 0 : id.hashCode());
-	return result;
-}
-
-
-@Override
-public boolean equals(Object obj) {
-	if (this == obj)
-		return true;
-	if (obj == null)
-		return false;
-	if (getClass() != obj.getClass())
-		return false;
-	DataModel other = (DataModel) obj;
-	if (id == null) {
-		if (other.id != null)
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
 			return false;
-	} else if (!id.equals(other.id))
-		return false;
-	return true;
-}
+		if (getClass() != obj.getClass())
+			return false;
+		DataModel other = (DataModel) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
+	}
 
+	/**
+	 * Describes this data model's binding string.
+	 * 
+	 * @return This data model's binding string.
+	 */
+	public abstract String getDMBindingString();
+
+	/**
+	 * Provides the requested data model element.
+	 * 
+	 * @param iElement Describes the requested element's dot-notation bound name.
+	 * 
+	 * @return The <code>DMElement</code> corresponding to the requested element
+	 *         or <code>null</code> if the element does not exist in the data
+	 *         model.
+	 */
+	public abstract DMElement getDMElement(String iElement);
+
+	/**
+	 * Processes a GetValue() request against this data model.
+	 * 
+	 * @param iRequest The request (<code>DMRequest</code>) being processed.
+	 * 
+	 * @param oInfo    Provides the value returned by this request.
+	 * 
+	 * @return An abstract data model error code indicating the result of this
+	 *         operation.
+	 */
+	public abstract int getValue(DMRequest iRequest, DMProcessingInfo oInfo);
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+
+	/**
+	 * Performs data model specific initialization.
+	 * 
+	 * @return An abstract data model error code indicating the result of this
+	 *         operation.
+	 */
+	public abstract int initialize();
+
+	/**
+	 * Processes a SetValue() request against this data model.
+	 * 
+	 * @param iRequest The request (<code>DMRequest</code>) being processed.
+	 * 
+	 * @return An abstract data model error code indicating the result of this
+	 *         operation.
+	 */
+	public abstract int setValue(DMRequest iRequest);
+
+	/**
+	 * Displays the contents of the entire data model.
+	 */
+	public abstract void showAllElements();
+
+	/**
+	    * Performs data model specific termination.
+	    * 
+	    * @return An abstract data model error code indicating the result of this
+	    *         operation.
+	    */
+	public abstract int terminate();
+
+	/**
+	    * Processes a validate() request against this data model. Checks the value
+	    * provided for validity for the specified element.
+	    * 
+	    * @param iRequest The request (<code>DMRequest</code>) being processed.
+	    * 
+	    * @return An abstract data model error code indicating the result of this
+	    *         operation.
+	    */
+	public abstract int validate(DMRequest iRequest);
 
 } // end DataModel

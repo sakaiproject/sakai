@@ -25,6 +25,30 @@ import java.io.Serializable;
 public interface IDataModel extends Serializable {
 
 	/**
+	 * Processes an equals() request against this data model. Compares two 
+	 * values of the same data model element for equality.
+	 * 
+	 * @param iRequest The request (<code>DMRequest</code>) being processed.
+	 * 
+	 * @return An abstract data model error code indicating the result of this
+	 *         operation.
+	 */
+	public int equals(DMRequest iRequest);
+
+	/**
+	 * Processes an equals() request against this data model. Compares two 
+	 * values of the same data model element for equality.
+	 * 
+	 * @param iRequest The request (<code>DMRequest</code>) being processed.
+	 * 
+	 * @param iValidate Indicates if the provided value should be validated.
+	 * 
+	 * @return An abstract data model error code indicating the result of this
+	 *         operation.
+	 */
+	public int equals(DMRequest iRequest, boolean iValidate);
+
+	/**
 	 * Describes this data model's binding string.
 	 * 
 	 * @return This data model's binding string.
@@ -43,67 +67,6 @@ public interface IDataModel extends Serializable {
 	public DMElement getDMElement(String iElement);
 
 	/**
-	 * Performs data model specific initialization.
-	 * 
-	 * @return An abstract data model error code indicating the result of this
-	 *         operation.
-	 */
-	public int initialize();
-
-	/**
-	 * Performs data model specific termination.
-	 * 
-	 * @return An abstract data model error code indicating the result of this
-	 *         operation.
-	 */
-	public int terminate();
-
-	/**
-	 * Processes a SetValue() request against this data model.
-	 * 
-	 * @param iRequest The request (<code>DMRequest</code>) being processed.
-	 * 
-	 * @return An abstract data model error code indicating the result of this
-	 *         operation.
-	 */
-	public int setValue(DMRequest iRequest);
-
-	/**
-	 * Processes an equals() request against this data model. Compares two 
-	 * values of the same data model element for equality.
-	 * 
-	 * @param iRequest The request (<code>DMRequest</code>) being processed.
-	 * 
-	 * @param iValidate Indicates if the provided value should be validated.
-	 * 
-	 * @return An abstract data model error code indicating the result of this
-	 *         operation.
-	 */
-	public int equals(DMRequest iRequest, boolean iValidate);
-
-	/**
-	 * Processes an equals() request against this data model. Compares two 
-	 * values of the same data model element for equality.
-	 * 
-	 * @param iRequest The request (<code>DMRequest</code>) being processed.
-	 * 
-	 * @return An abstract data model error code indicating the result of this
-	 *         operation.
-	 */
-	public int equals(DMRequest iRequest);
-
-	/**
-	 * Processes a validate() request against this data model. Checks the value
-	 * provided for validity for the specified element.
-	 * 
-	 * @param iRequest The request (<code>DMRequest</code>) being processed.
-	 * 
-	 * @return An abstract data model error code indicating the result of this
-	 *         operation.
-	 */
-	public int validate(DMRequest iRequest);
-
-	/**
 	 * Processes a GetValue() request against this data model.
 	 * 
 	 * @param iRequest The request (<code>DMRequest</code>) being processed.
@@ -116,8 +79,45 @@ public interface IDataModel extends Serializable {
 	public int getValue(DMRequest iRequest, DMProcessingInfo oInfo);
 
 	/**
+	 * Performs data model specific initialization.
+	 * 
+	 * @return An abstract data model error code indicating the result of this
+	 *         operation.
+	 */
+	public int initialize();
+
+	/**
+	 * Processes a SetValue() request against this data model.
+	 * 
+	 * @param iRequest The request (<code>DMRequest</code>) being processed.
+	 * 
+	 * @return An abstract data model error code indicating the result of this
+	 *         operation.
+	 */
+	public int setValue(DMRequest iRequest);
+
+	/**
 	 * Displays the contents of the entire data model.
 	 */
 	public void showAllElements();
+
+	/**
+	 * Performs data model specific termination.
+	 * 
+	 * @return An abstract data model error code indicating the result of this
+	 *         operation.
+	 */
+	public int terminate();
+
+	/**
+	 * Processes a validate() request against this data model. Checks the value
+	 * provided for validity for the specified element.
+	 * 
+	 * @param iRequest The request (<code>DMRequest</code>) being processed.
+	 * 
+	 * @return An abstract data model error code indicating the result of this
+	 *         operation.
+	 */
+	public int validate(DMRequest iRequest);
 
 }

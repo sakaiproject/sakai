@@ -1,93 +1,95 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
-        <modelVersion>4.0.0</modelVersion>
-        <parent>
-                <artifactId>scorm</artifactId>
-                <groupId>org.sakaiproject</groupId>
-                <version>1.0-SNAPSHOT</version>
-                <relativePath>../../pom.xml</relativePath>
-        </parent>
-        <name>sakai-scorm-model-impl</name>
-        <groupId>org.sakaiproject.scorm</groupId>
-        <artifactId>sakai-scorm-model-impl</artifactId>
-        <description>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>scorm</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>1.0-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+  <name>sakai-scorm-model-impl</name>
+  <groupId>org.sakaiproject.scorm</groupId>
+  <artifactId>sakai-scorm-model-impl</artifactId>
+  <description>
           This project creates the model implementation used by the Sakai Scorm Tool
         </description>
-        <packaging>jar</packaging>
-
-	<dependencies>
-		<!-- SCORM dependencies -->
-		<dependency>
-			<groupId>org.sakaiproject.scorm</groupId>
-			<artifactId>sakai-scorm-api</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.sakaiproject.scorm</groupId>
-			<artifactId>sakai-scorm-adl-impl</artifactId>
-		</dependency>
-		
-		
-		<!-- Sakai dependencies -->
-		<dependency>
-			<groupId>org.sakaiproject.kernel</groupId>
-			<artifactId>sakai-kernel-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject.kernel</groupId>
-			<artifactId>sakai-kernel-util</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>${sakai.hibernate.groupId}</groupId>
-			<artifactId>${sakai.hibernate.artifactId}</artifactId>
-  	        <version>${sakai.hibernate.version}</version>
-  	        <scope>provided</scope>
-		</dependency>
-		
-		<dependency>
-			<groupId>${sakai.spring.groupId}</groupId>
-			<artifactId>${sakai.spring.artifactId}</artifactId>
-			<version>${sakai.spring.version}</version>
-		</dependency>
-		
-		<dependency>
-		  <groupId>org.sakaiproject.edu-services.course-management</groupId>
-		  <artifactId>coursemanagement-api</artifactId>
-		</dependency>
-
-		<!--this I doubt works DH <dependency>
+  <packaging>jar</packaging>
+  <dependencies>
+    <!-- SCORM dependencies -->
+    <dependency>
+      <groupId>org.sakaiproject.scorm</groupId>
+      <artifactId>sakai-scorm-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.scorm</groupId>
+      <artifactId>sakai-scorm-adl-impl</artifactId>
+    </dependency>
+    <!-- Sakai dependencies -->
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-util</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${sakai.hibernate.groupId}</groupId>
+      <artifactId>${sakai.hibernate.artifactId}</artifactId>
+      <version>${sakai.hibernate.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>${sakai.spring.groupId}</groupId>
+      <artifactId>${sakai.spring.artifactId}</artifactId>
+      <version>${sakai.spring.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.edu-services.course-management</groupId>
+      <artifactId>coursemanagement-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+    <!--this I doubt works DH <dependency>
 			<groupId>generic-dao</groupId>
 			<artifactId>generic-dao</artifactId>
 			<version>0.9</version>
         	<scope>provided</scope>
         </dependency>
 		 -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.18</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
-	<build>
-	    <sourceDirectory>src/java</sourceDirectory>
-	    <resources>
-	      <resource>
-	        <directory>src/java</directory>
-	        <includes>
-	          <include>**/*.xml</include>
-	        </includes>
-	      </resource>
-	    </resources>
-	</build>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <sourceDirectory>src/java</sourceDirectory>
+    <resources>
+      <resource>
+        <directory>src/java</directory>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+    </resources>
+    <testResources>
+      <testResource>
+        <directory>src/test</directory>
+        <includes>
+          <include>**/*.xml</include>
+          <include>**/*.properties</include>
+        </includes>
+      </testResource>
+    </testResources>
+  </build>
 </project>
-

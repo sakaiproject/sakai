@@ -41,52 +41,44 @@ import java.util.logging.SimpleFormatter;
  * 
  * @author ADL Technical Team <br>
  */
-public class ADLSimpleFormatter extends SimpleFormatter
-{
-   /**
-    * A line separator used to separate messages sent to the log.
-    */
-   private String mLineSeparator = java.security.AccessController.doPrivileged(
-	    new java.security.PrivilegedAction<String>() {
-	        public String run() {
-	            return System.getProperty("line.separator");
-	        }
-	    }
-	 );
+public class ADLSimpleFormatter extends SimpleFormatter {
+	/**
+	 * A line separator used to separate messages sent to the log.
+	 */
+	private String mLineSeparator = java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<String>() {
+		public String run() {
+			return System.getProperty("line.separator");
+		}
+	});
 
+	/**
+	 * Overrides SimpleFormatter format function. Writes the output without
+	 * displaying the date/timestamp.
+	 * 
+	 * @param iRecord The log record that needs formatted.
+	 * @return A string formatted for a logging message
+	 */
+	@Override
+	public synchronized String format(LogRecord iRecord) {
+		StringBuffer sb = new StringBuffer();
 
-   /**
-    * Overrides SimpleFormatter format function. Writes the output without
-    * displaying the date/timestamp.
-    * 
-    * @param iRecord The log record that needs formatted.
-    * @return A string formatted for a logging message
-    */
-   public synchronized String format(LogRecord iRecord)
-   {
-      StringBuffer sb = new StringBuffer();
+		if (iRecord.getSourceClassName() != null) {
+			sb.append(iRecord.getSourceClassName());
+		} else {
+			sb.append(iRecord.getLoggerName());
+		}
+		if (iRecord.getSourceMethodName() != null) {
+			sb.append(" ");
+			sb.append(iRecord.getSourceMethodName());
+		}
+		sb.append(" ");
 
-      if( iRecord.getSourceClassName() != null )
-      {
-         sb.append(iRecord.getSourceClassName());
-      }
-      else
-      {
-         sb.append(iRecord.getLoggerName());
-      }
-      if( iRecord.getSourceMethodName() != null )
-      {
-         sb.append(" ");
-         sb.append(iRecord.getSourceMethodName());
-      }
-      sb.append(" ");
+		String message = formatMessage(iRecord);
+		sb.append(iRecord.getLevel().getLocalizedName());
+		sb.append(": ");
+		sb.append(message);
+		sb.append(mLineSeparator);
 
-      String message = formatMessage(iRecord);
-      sb.append(iRecord.getLevel().getLocalizedName());
-      sb.append(": ");
-      sb.append(message);
-      sb.append(mLineSeparator);
-
-      return sb.toString();
-   }
+		return sb.toString();
+	}
 }

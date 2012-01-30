@@ -25,9 +25,9 @@ package org.ims.ssp.samplerte.server;
 
 import java.io.Serializable;
 
+import org.ims.ssp.samplerte.server.bucket.BucketState;
 import org.ims.ssp.samplerte.server.bucket.ManagedBucket;
 import org.ims.ssp.samplerte.server.bucket.StatusInfo;
-import org.ims.ssp.samplerte.server.bucket.BucketState;
 
 /**
  * A serializable object that returns information from the server to the client.
@@ -53,79 +53,82 @@ import org.ims.ssp.samplerte.server.bucket.BucketState;
  * 
  * @author ADL Technical Team
  */
-public class SSP_ServletResponse implements Serializable
-{
-   /**
-    *
-    * The ID of the bucket associated with this request.
-    *
-    */
-   public String mBucketID = null;
+public class SSP_ServletResponse implements Serializable {
+	/**
+	  * 
+	  */
+	private static final long serialVersionUID = 1L;
 
-   /**
-    *
-    * The ID of the student associated with this request.
-    *
-    */
-   public String mStudentID = null;
+	/**
+	    *
+	    * The ID of the bucket associated with this request.
+	    *
+	    */
+	public String mBucketID = null;
 
-   /**
-    *
-    * The ID of the course associated with this request.
-    *
-    */
-   public String mCourseID = null;
+	/**
+	 *
+	 * The ID of the student associated with this request.
+	 *
+	 */
+	public String mStudentID = null;
 
-   /**
-    *
-    * The ID of the sco associated with this request.
-    *
-    */
-   public String mSCOID = null;
+	/**
+	 *
+	 * The ID of the course associated with this request.
+	 *
+	 */
+	public String mCourseID = null;
 
-   /**
-    *
-    * Indicates number of the current attempt.
-    *
-    */
-   public String mAttemptID = null;
+	/**
+	 *
+	 * The ID of the sco associated with this request.
+	 *
+	 */
+	public String mSCOID = null;
 
-   /**
-    *
-    * The information requested.
-    *
-    */
-   public String mReturnValue = null;
+	/**
+	 *
+	 * Indicates number of the current attempt.
+	 *
+	 */
+	public String mAttemptID = null;
 
-   /**
-    *
-    * The allocation success information for this bucket.
-    *
-    */
-   public ManagedBucket mManagedBucketInfo = null;
+	/**
+	 *
+	 * The information requested.
+	 *
+	 */
+	public String mReturnValue = null;
 
-   /**
-    *
-    * Error Information about the last request.
-    *
-    */
-   public StatusInfo mStatusInfo = null;
+	/**
+	 *
+	 * The allocation success information for this bucket.
+	 *
+	 */
+	public ManagedBucket mManagedBucketInfo = null;
 
-   /**
-    *
-    * Describes the current state of the given bucket.  The object if passed
-    * in the event of a call to GetState() - ssp.n.bucket_state or
-    * ssp.bucket_state
-    *
-    */
-   public BucketState mBucketState = null;
+	/**
+	 *
+	 * Error Information about the last request.
+	 *
+	 */
+	public StatusInfo mStatusInfo = null;
 
-   /**
-    *
-    * Default constructor.
-    *
-    */
-   public SSP_ServletResponse()
-   {
-   }
+	/**
+	 *
+	 * Describes the current state of the given bucket.  The object if passed
+	 * in the event of a call to GetState() - ssp.n.bucket_state or
+	 * ssp.bucket_state
+	 *
+	 */
+	public BucketState mBucketState = null;
+
+	/**
+	 *
+	 * Default constructor.
+	 *
+	 */
+	public SSP_ServletResponse() {
+	}
 }

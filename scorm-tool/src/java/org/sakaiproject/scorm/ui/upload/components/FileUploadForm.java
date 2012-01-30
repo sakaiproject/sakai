@@ -108,6 +108,7 @@ public class FileUploadForm extends Form {
 		return false;
 	}
 	
+	@Override
 	protected void onSubmit() {
 		if (fileUploadField != null) {
 			final FileUpload upload = fileUploadField.getFileUpload();

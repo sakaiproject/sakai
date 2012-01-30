@@ -24,10 +24,9 @@
 
 package org.adl.datamodels;
 
-import java.util.List;
-import java.util.Vector;
 import java.io.Serializable;
-
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Encapsulation of information required for processing a data model request.
@@ -56,220 +55,209 @@ import java.io.Serializable;
  * </ul>
  * 
  * @author ADL Technical Team
- */ 
-public class DMElementDescriptor implements Serializable, Cloneable  
-{
+ */
+public class DMElementDescriptor implements Serializable, Cloneable {
 
 	/**
-     * serialVersionUID
-     */
-    private static final long serialVersionUID = 3543841115992404332L;
+	 * serialVersionUID
+	 */
+	private static final long serialVersionUID = 3543841115992404332L;
 
 	private Long id;
-	
-   @Override
-    public int hashCode() {
-	    final int prime = 31;
-	    int result = 1;
-	    result = prime * result + ((id == null) ? 0 : id.hashCode());
-	    return result;
-    }
 
+	/**
+	 * Describes the dot-notation binding of the data model element
+	 */
+	public String mBinding;
+
+	/**
+	    * Describes the children of the element
+	    */
+	public List<DMElementDescriptor> mChildren = null;
+
+	/**
+	    * Describes if the data model element's value can be read
+	    */
+	public boolean mIsReadable = true;
+
+	/**
+	 * Describes if the data model element's valud can be written
+	 */
+	public boolean mIsWriteable = true;
+
+	/**
+	 * Describes the set of delimiters available to this element
+	 */
+	public List<DMDelimiterDescriptor> mDelimiters = null;
+
+	/**
+	 * Describes the initial value for this element
+	 */
+	public String mInitial = null;
+
+	/**
+	 * Describes an order dependency of this data model element in relation to 
+	 * its siblings
+	 */
+	public List<String> mDependentOn = null;
+
+	/** 
+	 * Describes if the value of this data model element is unique within its
+	 * container
+	 */
+	public boolean mIsUnique = false;
+
+	/** 
+	 * Describes if the value of this data model element is 'write_once"
+	 */
+	public boolean mWriteOnce = false;
+
+	/**
+	 * Describes the SPM for the value
+	 */
+	public int mValueSPM = -1;
+
+	/**
+	 * Describes the SPM number of children records that should be allowed
+	 */
+	public int mSPM = -1;
+
+	/**
+	 * Describes the old SPM of the number of child records, after one exists
+	 */
+	public int mOldSPM = -1;
+
+	/**
+	 * Describes the SPM number of children records is an absolute maximum 
+	 **/
+	public boolean mMaximum = false;
+
+	/**
+	 * Describes if the _children keyword should be allowed for this collection 
+	 **/
+	public boolean mShowChildren = true;
+
+	/**
+	 * Describes the method used to validate the value of the data model element
+	 */
+	public DMTypeValidator mValidator = null;
+
+	public DMElementDescriptor() {
+		mBinding = null;
+	}
+
+	/**
+	 * Provides a way to store element information such as dot-notation binding 
+	 * and children.
+	 * 
+	 * @param iBinding  Describes the dot-notation binding of the data model element
+	 * @param iChildren  Describes the children of the element
+	 */
+	public DMElementDescriptor(String iBinding, List<DMElementDescriptor> iChildren) {
+		mBinding = iBinding;
+		mChildren = iChildren;
+	}
+
+	/**
+	 * Provides a way to store element information such as dot-notation binding, 
+	 * children, and SPM number of children.
+	 * 
+	 * @param iBinding  Describes the dot-notation binding of the data model element
+	 * @param iChildren  Describes the children of the element
+	 * @param iSPM  Describes the SPM number of children records that should be allowed
+	 */
+	public DMElementDescriptor(String iBinding, List<DMElementDescriptor> iChildren, int iSPM) {
+		mBinding = iBinding;
+		mChildren = iChildren;
+		mSPM = iSPM;
+	}
+
+	/**
+	 * Provides a way to store element information such as dot-notation binding, 
+	 * initial value and the method used to validate.
+	 * 
+	 * @param iBinding Describes the dot-notation binding of the data model element
+	 * @param iInitial Describes the initial value for this element
+	 * @param iValidator Describes the method used to validate the value of the data model element
+	 */
+	public DMElementDescriptor(String iBinding, String iInitial, DMTypeValidator iValidator) {
+		mBinding = iBinding;
+		mInitial = iInitial;
+		mValidator = iValidator;
+	}
+
+	/**
+	 * Provides a way to store element information such as dot-notation binding, 
+	 * initial value, SPM and the method used to validate.
+	 * 
+	 * @param iBinding Describes the dot-notation binding of the data model element
+	 * @param iInitial Describes the initial value for this element
+	 * @param iValueSPM Describes the SPM for the value
+	 * @param iValidator Describes the method used to validate the value of the data model element
+	 */
+	public DMElementDescriptor(String iBinding, String iInitial, int iValueSPM, DMTypeValidator iValidator) {
+		mBinding = iBinding;
+		mInitial = iInitial;
+		mValueSPM = iValueSPM;
+		mValidator = iValidator;
+	}
+
+	/**
+	 * Makes a copy of the object.
+	 * 
+	 * @return Returns a clone of the current object
+	 */
 	@Override
-    public boolean equals(Object obj) {
-	    if (this == obj)
-		    return true;
-	    if (obj == null)
-		    return false;
-	    if (getClass() != obj.getClass())
-		    return false;
-	    DMElementDescriptor other = (DMElementDescriptor) obj;
-	    if (id == null) {
-		    if (other.id != null)
-			    return false;
-	    } else if (!id.equals(other.id))
-		    return false;
-	    return true;
-    }
-
-/**
-    * Describes the dot-notation binding of the data model element
-    */
-   public String mBinding;
-
-   /**
-    * Describes the children of the element
-    */
-   public List<DMElementDescriptor> mChildren = null;
-
-   /**
-    * Describes if the data model element's value can be read
-    */
-   public boolean mIsReadable = true;
-
-   /**
-    * Describes if the data model element's valud can be written
-    */
-   public boolean mIsWriteable = true;
-
-   /**
-    * Describes the set of delimiters available to this element
-    */
-   public List<DMDelimiterDescriptor> mDelimiters = null;
-
-   /**
-    * Describes the initial value for this element
-    */
-   public String mInitial = null;
-
-   /**
-    * Describes an order dependency of this data model element in relation to 
-    * its siblings
-    */
-   public List<String> mDependentOn = null;
-
-   /** 
-    * Describes if the value of this data model element is unique within its
-    * container
-    */
-   public boolean mIsUnique = false;
-
-   /** 
-    * Describes if the value of this data model element is 'write_once"
-    */
-   public boolean mWriteOnce = false;
-
-   /**
-    * Describes the SPM for the value
-    */
-   public int mValueSPM = -1;
-
-   /**
-    * Describes the SPM number of children records that should be allowed
-    */
-   public int mSPM = -1;
-
-   /**
-    * Describes the old SPM of the number of child records, after one exists
-    */
-   public int mOldSPM = -1;
-
-   /**
-    * Describes the SPM number of children records is an absolute maximum 
-    **/
-   public boolean mMaximum = false;
-
-   /**
-    * Describes if the _children keyword should be allowed for this collection 
-    **/
-   public boolean mShowChildren = true;
-
-   /**
-    * Describes the method used to validate the value of the data model element
-    */
-   public DMTypeValidator mValidator = null;
-
-   public DMElementDescriptor() {mBinding = null;}
-   
-   /**
-    * Provides a way to store element information such as dot-notation binding, 
-    * children, and SPM number of children.
-    * 
-    * @param iBinding  Describes the dot-notation binding of the data model element
-    * @param iChildren  Describes the children of the element
-    * @param iSPM  Describes the SPM number of children records that should be allowed
-    */
-   public DMElementDescriptor(String iBinding, Vector<DMElementDescriptor> iChildren, int iSPM)
-   {
-      mBinding = iBinding;
-      mChildren = iChildren;
-      mSPM = iSPM;
-   }
-
-
-   /**
-    * Provides a way to store element information such as dot-notation binding 
-    * and children.
-    * 
-    * @param iBinding  Describes the dot-notation binding of the data model element
-    * @param iChildren  Describes the children of the element
-    */
-   public DMElementDescriptor(String iBinding, Vector<DMElementDescriptor> iChildren)
-   {
-      mBinding = iBinding;
-      mChildren = iChildren;
-   }
-
-
-   /**
-    * Provides a way to store element information such as dot-notation binding, 
-    * initial value and the method used to validate.
-    * 
-    * @param iBinding Describes the dot-notation binding of the data model element
-    * @param iInitial Describes the initial value for this element
-    * @param iValidator Describes the method used to validate the value of the data model element
-    */
-   public DMElementDescriptor(String iBinding,
-                              String iInitial,
-                              DMTypeValidator iValidator)
-   {
-      mBinding = iBinding;
-      mInitial = iInitial;
-      mValidator = iValidator;
-   }
-
-
-   /**
-    * Provides a way to store element information such as dot-notation binding, 
-    * initial value, SPM and the method used to validate.
-    * 
-    * @param iBinding Describes the dot-notation binding of the data model element
-    * @param iInitial Describes the initial value for this element
-    * @param iValueSPM Describes the SPM for the value
-    * @param iValidator Describes the method used to validate the value of the data model element
-    */
-   public DMElementDescriptor(String iBinding,
-                              String iInitial,
-                              int iValueSPM,
-                              DMTypeValidator iValidator)
-   {
-      mBinding = iBinding;
-      mInitial = iInitial;
-      mValueSPM = iValueSPM;
-      mValidator = iValidator;
-   }
-
-
-   /**
-    * Makes a copy of the object.
-    * 
-    * @return Returns a clone of the current object
-    */
-   public Object clone() {
-      try
-      {
-    	DMElementDescriptor clone = (DMElementDescriptor)super.clone();
-    	clone.mChildren = cloneList(clone.mChildren);
-    	clone.mDelimiters = cloneList(clone.mDelimiters);
-        clone.id = null;
-		return clone;
-      }
-      catch ( CloneNotSupportedException e )
-      {
-         throw new InternalError(e.toString());
-      }
-   }
+	public Object clone() {
+		try {
+			DMElementDescriptor clone = (DMElementDescriptor) super.clone();
+			clone.mChildren = cloneList(clone.mChildren);
+			clone.mDelimiters = cloneList(clone.mDelimiters);
+			clone.id = null;
+			return clone;
+		} catch (CloneNotSupportedException e) {
+			throw new InternalError(e.toString());
+		}
+	}
 
 	private <T> List<T> cloneList(List<T> list) {
-		if (list != null) {
-			return new Vector<T>(list);
-		}
+		if (list != null)
+			return new ArrayList<T>(list);
 		return null;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DMElementDescriptor other = (DMElementDescriptor) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
 	}
 
 	public Long getId() {
 		return id;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
 
-}  // end DMElementDescriptor
+	@Override
+	public String toString() {
+		return "DMElementDescriptor [mBinding=" + mBinding + "]";
+	}
+
+} // end DMElementDescriptor

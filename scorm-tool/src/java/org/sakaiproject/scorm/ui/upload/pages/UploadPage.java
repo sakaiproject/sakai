@@ -17,6 +17,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.lang.Bytes;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.service.api.ScormContentService;
@@ -42,6 +43,7 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 		add(new FileUploadForm("uploadForm"));
 	}
 	
+	@Override
 	protected ResourceReference getPageIconReference() {
 		return PAGE_ICON;
 	}
@@ -105,6 +107,7 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 			add(new CancelButton("cancel", PackageListPage.class));
 		}
 
+		@Override
 		protected void onSubmit() {
 			if (fileUploadField != null) {
 				final FileUpload upload = fileUploadField.getFileUpload();
@@ -112,7 +115,7 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 		            try {
 		            	String resourceId = resourceService.putArchive(upload.getInputStream(), upload.getClientFileName(), upload.getContentType(), isFileHidden(), getPriority());
 		            	
-		            	int status = contentService.validate(resourceId, false, isFileValidated());
+		            	int status = contentService.validate(resourceId, false, isFileValidated(), ServerConfigurationService.getString("scorm.zip.encoding", "UTF-8"));
 		            	
 		            	if (status == VALIDATION_SUCCESS)
 		            		setResponsePage(PackageListPage.class);

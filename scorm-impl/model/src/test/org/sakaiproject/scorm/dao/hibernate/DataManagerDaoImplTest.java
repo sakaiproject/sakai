@@ -1,10 +1,10 @@
 package org.sakaiproject.scorm.dao.hibernate;
 
+import org.adl.datamodels.DMErrorCodes;
 import org.adl.datamodels.DMFactory;
+import org.adl.datamodels.DMProcessingInfo;
 import org.adl.datamodels.DMRequest;
-import org.adl.datamodels.DataModel;
 import org.adl.datamodels.SCODataManager;
-import org.adl.datamodels.ieee.SCORM_2004_DM;
 import org.adl.datamodels.ieee.ValidatorFactory;
 import org.sakaiproject.scorm.dao.api.DataManagerDao;
 
@@ -17,42 +17,20 @@ public class DataManagerDaoImplTest extends AbstractServiceTest {
 		dataManagerDao = (DataManagerDao) getApplicationContext().getBean("org.sakaiproject.scorm.dao.api.DataManagerDao");
 	}
 
-	public void testLoad() {
-	}
+	public void testSimple() {
 
-	public void testFindString() {
-	}
-
-	public void testFindStringStringStringLong() {
-	}
-
-	public void testFindStringStringStringBooleanLong() {
-	}
-
-	public void testFindLongStringLong() {
-	}
-
-	public void testFindLongStringLongString() {
-	}
-
-	public void testFindByActivityId() {
-	}
-
-	public void testSave() {
-	}
-
-	public void testUpdate() {
-		
 		SCODataManager dataManager = new SCODataManager();
 		dataManager.setValidatorFactory(new ValidatorFactory());
-		DataModel dm = dataManager.addDM(DMFactory.DM_SCORM_2004);
+		dataManager.addDM(DMFactory.DM_SCORM_2004);
 		dataManager.addDM(DMFactory.DM_SCORM_NAV);
 		dataManager.addDM(DMFactory.DM_SSP);
 		dataManagerDao.save(dataManager);
-		
-		dataManager.setValue(new DMRequest("cmi.interactions.1.id", "1"));
-		
+		dataManager.setValue(new DMRequest("cmi.interactions.0.id", "1"));
+
 		dataManagerDao.update(dataManager);
+		
+		assertEquals(0, dataManager.getValue(new DMRequest("cmi.interactions.0.id"), new DMProcessingInfo()));
+		assertEquals(DMErrorCodes.OUT_OF_RANGE, dataManager.getValue(new DMRequest("cmi.interactions.1.id"), new DMProcessingInfo()));
 	}
 
 }
