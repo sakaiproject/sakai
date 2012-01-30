@@ -71,6 +71,11 @@
       <artifactId>mysql-connector-java</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <version>2.2.7</version>
+    </dependency>    
   </dependencies>
   <build>
     <sourceDirectory>src/java</sourceDirectory>
