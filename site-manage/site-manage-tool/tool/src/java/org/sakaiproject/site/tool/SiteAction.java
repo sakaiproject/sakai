@@ -1282,37 +1282,29 @@ public class SiteAction extends PagedResourceActionII {
 			// make sure auto-updates are enabled
 			Hashtable views = new Hashtable();
 			if (SecurityService.isSuperUser()) {
-				views.put(rb.getString("java.allmy"), rb
-						.getString("java.allmy"));
-				views.put(rb.getFormattedMessage("java.sites", new Object[]{rb.getString("java.my")}), rb.getString("java.my"));
-				for (int sTypeIndex = 0; sTypeIndex < sTypes.size(); sTypeIndex++) {
-					String type = (String) sTypes.get(sTypeIndex);
-					views.put(rb.getFormattedMessage("java.sites", new Object[]{type}), type);
-				}
-				List<String> moreTypes = siteTypeProvider.getTypesForSiteList();
-				if (!moreTypes.isEmpty())
-				{
-					for(String mType : moreTypes)
-					{
-						views.put(rb.getFormattedMessage("java.sites", new Object[]{mType}), mType);
-					}
-				}
-				
-				if (state.getAttribute(STATE_VIEW_SELECTED) == null) {
-					state.setAttribute(STATE_VIEW_SELECTED, rb
-							.getString("java.allmy"));
-				}
 				context.put("superUser", Boolean.TRUE);
 			} else {
 				context.put("superUser", Boolean.FALSE);
-				views.put(rb.getString("java.allmy"), rb
-						.getString("java.allmy"));
-
-				// default view
-				if (state.getAttribute(STATE_VIEW_SELECTED) == null) {
-					state.setAttribute(STATE_VIEW_SELECTED, rb
-							.getString("java.allmy"));
+			}
+			views.put(rb.getString("java.allmy"), rb
+					.getString("java.allmy"));
+			views.put(rb.getFormattedMessage("java.sites", new Object[]{rb.getString("java.my")}), "myworkspace");
+			for (int sTypeIndex = 0; sTypeIndex < sTypes.size(); sTypeIndex++) {
+				String type = (String) sTypes.get(sTypeIndex);
+				views.put(rb.getFormattedMessage("java.sites", new Object[]{type}), type);
+			}
+			List<String> moreTypes = siteTypeProvider.getTypesForSiteList();
+			if (!moreTypes.isEmpty())
+			{
+				for(String mType : moreTypes)
+				{
+					views.put(rb.getFormattedMessage("java.sites", new Object[]{mType}), mType);
 				}
+			}
+			
+			if (state.getAttribute(STATE_VIEW_SELECTED) == null) {
+				state.setAttribute(STATE_VIEW_SELECTED, rb
+						.getString("java.allmy"));
 			}
 			context.put("views", views);
 
