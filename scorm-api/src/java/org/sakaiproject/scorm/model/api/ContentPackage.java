@@ -40,11 +40,6 @@ public class ContentPackage implements Serializable {
 	 */
 	private String resourceId;
 
-	/**
-	 * The id of the resource the content package was unpacked from
-	 */
-	private String originResourceId;
-
 	private Serializable manifestId;
 
 	private String manifestResourceId;
@@ -150,10 +145,6 @@ public class ContentPackage implements Serializable {
 		return numberOfTries;
 	}
 
-	public String getOriginResourceId() {
-		return originResourceId;
-	}
-
 	public Date getReleaseOn() {
 		return releaseOn;
 	}
@@ -238,10 +229,6 @@ public class ContentPackage implements Serializable {
 
 	public void setNumberOfTries(int numberOfTries) {
 		this.numberOfTries = numberOfTries;
-	}
-
-	public void setOriginResourceId(String scormPackageResourceId) {
-		this.originResourceId = scormPackageResourceId;
 	}
 
 	public void setReleaseOn(Date releaseOn) {
