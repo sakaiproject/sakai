@@ -26,6 +26,7 @@ package org.adl.parsers.dom;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Attr;
@@ -366,20 +367,31 @@ public class DOMTreeUtility {
 		String namespace = iCurrentNode.getNamespaceURI();
 
 		if (namespace == null) {
-			String parentsNamespace = iParentNode.getNamespaceURI();
+			String parentsNamespace = StringUtils.trimToEmpty(iParentNode.getNamespaceURI());
 
 			// Check the parent nodes namespace
-			if ((parentsNamespace.equals(ADLCP_NAMESPACE)) || (parentsNamespace.equals(IMSCP_NAMESPACE)) || (parentsNamespace.equals(ADLNAV_NAMESPACE))
-			        || (parentsNamespace.equals(IEEE_LOM_NAMESPACE)) || (parentsNamespace.equals(ADLSEQ_NAMESPACE))
+			if ((parentsNamespace.equals(ADLCP_NAMESPACE)) 
+					|| (parentsNamespace.equals(IMSCP_NAMESPACE)) 
+					|| (parentsNamespace.equals(ADLNAV_NAMESPACE))
+			        || (parentsNamespace.equals(IEEE_LOM_NAMESPACE)) 
+			        || (parentsNamespace.equals(ADLSEQ_NAMESPACE))
 			        || (parentsNamespace.equals("http://www.w3.org/XML/1998/namespace"))
-			        || (parentsNamespace.equals("http://www.w3.org/2001/XMLSchema-instance")) || (parentsNamespace.equals("http://www.w3.org/2000/xmlns/"))
-			        || (parentsNamespace.equals(IMSSSP_NAMESPACE)) || (parentsNamespace.equals(IMSSS_NAMESPACE))) {
+			        || (parentsNamespace.equals("http://www.w3.org/2001/XMLSchema-instance")) 
+			        || (parentsNamespace.equals("http://www.w3.org/2000/xmlns/"))
+			        || (parentsNamespace.equals(IMSSSP_NAMESPACE)) 
+			        || (parentsNamespace.equals(IMSSS_NAMESPACE))) {
 				result = true;
 			}
-		} else if ((namespace.equals(ADLCP_NAMESPACE)) || (namespace.equals(IMSCP_NAMESPACE)) || (namespace.equals(IEEE_LOM_NAMESPACE))
-		        || (namespace.equals(ADLNAV_NAMESPACE)) || (namespace.equals(ADLSEQ_NAMESPACE)) || (namespace.equals("http://www.w3.org/XML/1998/namespace"))
-		        || (namespace.equals("http://www.w3.org/2001/XMLSchema-instance")) || (namespace.equals("http://www.w3.org/2000/xmlns/"))
-		        || (namespace.equals(IMSSSP_NAMESPACE)) || (namespace.equals(IMSSS_NAMESPACE))) {
+		} else if ((namespace.equals(ADLCP_NAMESPACE)) 
+				|| (namespace.equals(IMSCP_NAMESPACE)) 
+				|| (namespace.equals(IEEE_LOM_NAMESPACE))
+		        || (namespace.equals(ADLNAV_NAMESPACE)) 
+		        || (namespace.equals(ADLSEQ_NAMESPACE)) 
+		        || (namespace.equals("http://www.w3.org/XML/1998/namespace"))
+		        || (namespace.equals("http://www.w3.org/2001/XMLSchema-instance")) 
+		        || (namespace.equals("http://www.w3.org/2000/xmlns/"))
+		        || (namespace.equals(IMSSSP_NAMESPACE)) 
+		        || (namespace.equals(IMSSS_NAMESPACE))) {
 			result = true;
 		}
 
