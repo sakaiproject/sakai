@@ -31,6 +31,7 @@ import org.adl.datamodels.DMElement;
 import org.adl.datamodels.DMErrorCodes;
 import org.adl.datamodels.DMProcessingInfo;
 import org.adl.datamodels.DMRequest;
+import org.adl.datamodels.ieee.IValidatorFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -519,7 +520,7 @@ public class SSP_DataModel extends AbstractSSPDataModel implements Serializable 
 	 *         operation.
 	 */
 	@Override
-	public int setValue(DMRequest iRequest) {
+	public int setValue(DMRequest iRequest, IValidatorFactory validatorFactory) {
 
 		log.info("setValue(" + iRequest.toString() + ")");
 
@@ -953,7 +954,7 @@ public class SSP_DataModel extends AbstractSSPDataModel implements Serializable 
 	 *         operation.
 	 */
 	@Override
-	public int terminate() {
+	public int terminate(IValidatorFactory validatorFactory) {
 		return DMErrorCodes.NO_ERROR;
 	}
 

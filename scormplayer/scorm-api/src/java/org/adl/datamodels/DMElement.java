@@ -33,6 +33,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.adl.datamodels.ieee.IValidatorFactory;
+
 /**
  * <strong>Filename:</strong> DMElement.java<br>
  * <br>
@@ -345,16 +347,16 @@ public abstract class DMElement implements Serializable {
 	 * @param iValue
 	 *            A token (<code>RequestToken</code>) object that provides the
 	 *            value to be set and may include a set of delimiters.
-	 * 
 	 * @param iAdmin
 	 *            Indicates if this operation is administrative or not. If The
 	 *            operation is administrative, read/write and data type
 	 *            characteristics of the data model element should be ignored.
+	 * @param validatorFactory TODO
 	 * 
 	 * @return An abstract data model error code indicating the result of this
 	 *         operation.
 	 */
-	public abstract int setValue(RequestToken iValue, boolean iAdmin);
+	public abstract int setValue(RequestToken iValue, boolean iAdmin, IValidatorFactory validatorFactory);
 
 	@Override
 	public String toString() {

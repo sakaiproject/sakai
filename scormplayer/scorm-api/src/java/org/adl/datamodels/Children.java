@@ -29,6 +29,8 @@ import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import org.adl.datamodels.ieee.IValidatorFactory;
+
 /**
  * <strong>Filename:</strong> Children.java<br>
  * <br>
@@ -320,7 +322,6 @@ public class Children extends DMElement {
 	 * @param iValue
 	 *            A token (<code>RequestToken</code>) object that provides the
 	 *            value to be set and may include a set of delimiters.
-	 * 
 	 * @param iAdmin
 	 *            Indicates if this operation is administrative or not. If The
 	 *            operation is administrative, read/write and data type
@@ -330,7 +331,7 @@ public class Children extends DMElement {
 	 *         operation.
 	 */
 	@Override
-	public int setValue(RequestToken iValue, boolean iAdmin) {
+	public int setValue(RequestToken iValue, boolean iAdmin, IValidatorFactory validatorFactory) {
 		// Never are allowed to set a _children keyword element, even as an
 		// admin action
 		return DMErrorCodes.SET_KEYWORD;

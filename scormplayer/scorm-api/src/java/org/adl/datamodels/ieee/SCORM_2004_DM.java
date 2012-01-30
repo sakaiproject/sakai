@@ -95,8 +95,6 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 	 */
 	public static final int OBJECTIVES_SPM = 100;
 
-	private IValidatorFactory validatorFactory;
-
 	/**
 	 * Describes the dot-notation binding string for this data model.
 	 */
@@ -113,10 +111,14 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 	public SCORM_2004_DM() {
 	}
 
+	@Deprecated
 	public SCORM_2004_DM(IValidatorFactory validatorFactory) {
-		this.validatorFactory = validatorFactory;
 
-		Vector<DMElementDescriptor> children = null;
+		init(validatorFactory);
+	}
+
+	public void init(IValidatorFactory validatorFactory) {
+	    Vector<DMElementDescriptor> children = null;
 		Vector<DMElementDescriptor> subchildren = null;
 		SCORM_2004_DMElement element = null;
 		DMElementDescriptor desc = null;
@@ -559,7 +561,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 		// Create and add this element to the data model
 		element = new SCORM_2004_DMElement(desc, null, this);
 		mElements.put(desc.mBinding, element);
-	}
+    }
 
 	/**
 	 * Determines if the value provided is unique across all instances
@@ -885,9 +887,9 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 		return mElements;
 	}
 
-	public IValidatorFactory getValidatorFactory() {
-		return validatorFactory;
-	}
+//	public IValidatorFactory getValidatorFactory() {
+//		return validatorFactory;
+//	}
 
 	/**
 	 * Processes a GetValue() request against this data model.  Retrieves the 
@@ -938,9 +940,9 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 		return DMErrorCodes.NO_ERROR;
 	}
 
-	public void setValidatorFactory(IValidatorFactory validatorFactory) {
-		this.validatorFactory = validatorFactory;
-	}
+//	public void setValidatorFactory(IValidatorFactory validatorFactory) {
+//		this.validatorFactory = validatorFactory;
+//	}
 
 	/**
 	 * Processes a SetValue() request against this data model.  This includes a check
@@ -952,7 +954,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 	 *         operation.
 	 */
 	@Override
-	public int setValue(DMRequest iRequest) {
+	public int setValue(DMRequest iRequest, IValidatorFactory validatorFactory) {
 
 		// Assume no processing errors
 		int result = DMErrorCodes.NO_ERROR;
@@ -1010,7 +1012,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 					}
 
 					if (result == DMErrorCodes.NO_ERROR) {
-						result = pi.mElement.setValue(tok, iRequest.isAdminRequest());
+						result = pi.mElement.setValue(tok, iRequest.isAdminRequest(), validatorFactory);
 
 						// If new storage was initialized but not used, delete
 						if (pi.mRecords != null) {
@@ -1084,7 +1086,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 	    *         operation.
 	    */
 	@Override
-	public int terminate() {
+	public int terminate(IValidatorFactory validatorFactory) {
 		DMRequest req = null;
 		DMProcessingInfo dmInfo = null;
 
@@ -1108,7 +1110,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 			String addedTime = DMTimeUtility.add(totalTime, sessionTime);
 			req = new DMRequest("cmi.total_time", addedTime, true);
 			req.getNextToken();
-			err = setValue(req);
+			err = setValue(req, validatorFactory);
 		}
 
 		// Update completion status
@@ -1133,12 +1135,12 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 				req = new DMRequest("cmi.completion_status", "completed", true);
 				req.getNextToken();
 
-				err = setValue(req);
+				err = setValue(req, validatorFactory);
 			} else if (Double.parseDouble(progress) < Double.parseDouble(threshold)) {
 				req = new DMRequest("cmi.completion_status", "incomplete", true);
 				req.getNextToken();
 
-				err = setValue(req);
+				err = setValue(req, validatorFactory);
 			}
 		}
 
@@ -1165,19 +1167,19 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 					req = new DMRequest("cmi.success_status", "passed", true);
 					req.getNextToken();
 
-					err = setValue(req);
+					err = setValue(req, validatorFactory);
 				} else {
 					req = new DMRequest("cmi.success_status", "failed", true);
 					req.getNextToken();
 
-					err = setValue(req);
+					err = setValue(req, validatorFactory);
 				}
 			} else {
 				// Reset success_status to unknown
 				req = new DMRequest("cmi.success_status", "unknown", true);
 				req.getNextToken();
 
-				err = setValue(req);
+				err = setValue(req, validatorFactory);
 			}
 		}
 
@@ -1195,7 +1197,7 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 			req = new DMRequest("cmi.entry", "resume", true);
 			req.getNextToken();
 
-			err = setValue(req);
+			err = setValue(req, validatorFactory);
 
 			// Clear the current Learner Session Time by creating a new element
 			DMElementDescriptor desc = new DMElementDescriptor("session_time", null, new DurationValidator());
@@ -1207,14 +1209,14 @@ public class SCORM_2004_DM extends DataModel implements Serializable {
 			req = new DMRequest("cmi.entry", "", true);
 			req.getNextToken();
 
-			err = setValue(req);
+			err = setValue(req, validatorFactory);
 		}
 
 		// This Learner Session is over, clear cmi.exit
 		req = new DMRequest("cmi.exit", "", true);
 		req.getNextToken();
 
-		err = setValue(req);
+		err = setValue(req, validatorFactory);
 
 		return DMErrorCodes.NO_ERROR;
 	}

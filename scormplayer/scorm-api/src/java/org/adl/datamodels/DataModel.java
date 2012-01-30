@@ -24,6 +24,8 @@
 
 package org.adl.datamodels;
 
+import org.adl.datamodels.ieee.IValidatorFactory;
+
 /**
  * Defines the inteface to a run-time data model that is managed for a SCO.
  * <br><br>
@@ -159,7 +161,7 @@ public abstract class DataModel implements IDataModel {
 	 * @return An abstract data model error code indicating the result of this
 	 *         operation.
 	 */
-	public abstract int setValue(DMRequest iRequest);
+	public abstract int setValue(DMRequest iRequest, IValidatorFactory validatorFactory);
 
 	/**
 	 * Displays the contents of the entire data model.
@@ -172,7 +174,7 @@ public abstract class DataModel implements IDataModel {
 	    * @return An abstract data model error code indicating the result of this
 	    *         operation.
 	    */
-	public abstract int terminate();
+	public abstract int terminate(IValidatorFactory validatorFactory);
 
 	/**
 	    * Processes a validate() request against this data model. Checks the value

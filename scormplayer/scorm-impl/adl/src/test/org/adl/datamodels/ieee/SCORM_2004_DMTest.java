@@ -10,6 +10,7 @@ import org.adl.datamodels.DataModel;
 
 public class SCORM_2004_DMTest extends TestCase {
 	DataModel dm;
+	IValidatorFactory validatorFactory;
 
 	private String getElementValue(String element) {
 		DMProcessingInfo oInfo = new DMProcessingInfo();
@@ -23,7 +24,8 @@ public class SCORM_2004_DMTest extends TestCase {
 
 	@Override
 	protected void setUp() throws Exception {
-		dm = DMFactory.createDM(DMFactory.DM_SCORM_2004, new ValidatorFactory());
+		validatorFactory = new ValidatorFactory();
+		dm = DMFactory.createDM(DMFactory.DM_SCORM_2004, validatorFactory);
 	}
 
 	public void testSimple() {
@@ -33,7 +35,7 @@ public class SCORM_2004_DMTest extends TestCase {
 		{
 			DMRequest request = new DMRequest("cmi.comments_from_learner.0.comment", "{lang=en}Characterstring in the English language");
 			request.getNextToken();
-			assertEquals(DMErrorCodes.NO_ERROR, dm.setValue(request));
+			assertEquals(DMErrorCodes.NO_ERROR, dm.setValue(request, validatorFactory));
 		}
 		assertEquals("comments_from_learner", dm.getDMElement("comments_from_learner").getDMElementBindingString());
 		{
@@ -52,7 +54,7 @@ public class SCORM_2004_DMTest extends TestCase {
 		{
 			DMRequest request = new DMRequest("cmi.comments_from_learner.1.comment", "{lang=de}Characterstring in the German language");
 			request.getNextToken();
-			assertEquals(DMErrorCodes.NO_ERROR, dm.setValue(request));
+			assertEquals(DMErrorCodes.NO_ERROR, dm.setValue(request, validatorFactory));
 			assertEquals("2", getElementValue("cmi.comments_from_learner._count"));
 			assertEquals("{lang=de}Characterstring in the German language", getElementValue("cmi.comments_from_learner.1.comment"));
 		}
