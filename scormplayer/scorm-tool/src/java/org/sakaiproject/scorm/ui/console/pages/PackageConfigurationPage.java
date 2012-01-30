@@ -113,6 +113,7 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 			super(modelObject, expression);
 		}
 
+		@Override
 		public Object convertObject(Object object) {
 			String userId = String.valueOf(object);
 
@@ -184,6 +185,7 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 			super();
 		}
 
+		@Override
 		public Object getDisplayValue(Object object) {
 			Integer n = (Integer) object;
 
@@ -235,6 +237,7 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 		Form form = new Form("configurationForm") {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			protected void onSubmit() {
 				if (gradebookSetup.isGradebookDefined()) {
 					List<AssessmentSetup> assessments = gradebookSetup.getAssessments();
@@ -351,6 +354,7 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 		return context;
 	}
 
+	@Override
 	protected ResourceReference getPageIconReference() {
 		return PAGE_ICON;
 	}

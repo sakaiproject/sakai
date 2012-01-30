@@ -20,6 +20,12 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.ui;
 
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.AttributeModifier;
@@ -31,12 +37,6 @@ import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.navigation.INavigable;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 
-import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-
-import javax.servlet.http.HttpServletRequest;
-
 public abstract class ResourceNavigator implements INavigable, Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -44,8 +44,6 @@ public abstract class ResourceNavigator implements INavigable, Serializable {
 	
 	protected abstract ScormResourceService resourceService();
 	
-	public abstract Object getApplication();
-		
 	public boolean useLocationRedirect() {
 		return true;
 	}

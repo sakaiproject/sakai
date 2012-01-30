@@ -48,96 +48,95 @@ package org.ims.ssp.samplerte.server;
  * 
  * @author ADL Technical Team
  */
-public class SSP_Operation
-{
-   /**
-    * Indicates that no SSP operation was defined by the LMS.
-    *
-    * <br>NONE
-    *
-    * <br><b>0</b>
-    *
-    * <br>[SCORM SSP SUBSYSTEM CONSTANT]
-    */
-   public static final int NONE = -1;
+public class SSP_Operation {
+	/**
+	 * Indicates that no SSP operation was defined by the LMS.
+	 *
+	 * <br>NONE
+	 *
+	 * <br><b>0</b>
+	 *
+	 * <br>[SCORM SSP SUBSYSTEM CONSTANT]
+	 */
+	public static final int NONE = -1;
 
-   /**
-    * Indicates that the SCO requests that a bucket be allocated by the LMS.
-    *
-    * <br>Allocate
-    *
-    * <br><b>0</b>
-    *
-    * <br>[SCORM SSP SUBSYSTEM CONSTANT]
-    */
-   public static final int ALLOCATE = 0;
+	/**
+	 * Indicates that the SCO requests that a bucket be allocated by the LMS.
+	 *
+	 * <br>Allocate
+	 *
+	 * <br><b>0</b>
+	 *
+	 * <br>[SCORM SSP SUBSYSTEM CONSTANT]
+	 */
+	public static final int ALLOCATE = 0;
 
-   /**
-    * Indicates that the SCO is requesting whether the LMS's allocation of a
-    * bucket was successful.
-    *
-    * <br>Get Allocation
-    *
-    * <br><b>1</b>
-    *
-    * <br>[SCORM SSP SUBSYSTEM CONSTANT]
-    */
-   public static final int GET_ALLOCATION_SUCCESS = 1;
+	/**
+	 * Indicates that the SCO is requesting whether the LMS's allocation of a
+	 * bucket was successful.
+	 *
+	 * <br>Get Allocation
+	 *
+	 * <br><b>1</b>
+	 *
+	 * <br>[SCORM SSP SUBSYSTEM CONSTANT]
+	 */
+	public static final int GET_ALLOCATION_SUCCESS = 1;
 
-   /**
-    * Indicates that the SCO is requesting the IDs of the buckets that are
-    * accessible to it.
-    *
-    * <br>Get Bucket IDs
-    *
-    * <br><b>2</b>
-    *
-    * <br>[SCORM SSP SUBSYSTEM CONSTANT]
-    */
-   public static final int GET_BUCKET_IDS = 2;
+	/**
+	 * Indicates that the SCO is requesting the IDs of the buckets that are
+	 * accessible to it.
+	 *
+	 * <br>Get Bucket IDs
+	 *
+	 * <br><b>2</b>
+	 *
+	 * <br>[SCORM SSP SUBSYSTEM CONSTANT]
+	 */
+	public static final int GET_BUCKET_IDS = 2;
 
-   /**
-    * Indicates that the SCO requests that data be appended to a bucket.
-    *
-    * <br>Append Data
-    *
-    * <br><b>3</b>
-    *
-    * <br>[SCORM SSP SUBSYSTEM CONSTANT]
-    */
-   public static final int APPEND_DATA = 3;
+	/**
+	 * Indicates that the SCO requests that data be appended to a bucket.
+	 *
+	 * <br>Append Data
+	 *
+	 * <br><b>3</b>
+	 *
+	 * <br>[SCORM SSP SUBSYSTEM CONSTANT]
+	 */
+	public static final int APPEND_DATA = 3;
 
-   /**
-    * Indicates that the SCO requests the data from a bucket.
-    *
-    * <br>Get Data
-    *
-    * <br><b>4</b>
-    *
-    * <br>[SCORM SSP SUBSYSTEM CONSTANT]
-    */
-   public static final int GET_DATA = 4;
+	/**
+	 * Indicates that the SCO requests the data from a bucket.
+	 *
+	 * <br>Get Data
+	 *
+	 * <br><b>4</b>
+	 *
+	 * <br>[SCORM SSP SUBSYSTEM CONSTANT]
+	 */
+	public static final int GET_DATA = 4;
 
-   /**
-    * Indicates that the SCO requests the state of the bucket, including the
-    * total space available, amount used, type definition for the bucket's data.
-    *
-    * <br>Get State
-    *
-    * <br><b>5</b>
-    *
-    * <br>[SCORM SSP SUBSYSTEM CONSTANT]
-    */
-   public static final int GET_STATE = 5;
+	/**
+	 * Indicates that the SCO requests the state of the bucket, including the
+	 * total space available, amount used, type definition for the bucket's data.
+	 *
+	 * <br>Get State
+	 *
+	 * <br><b>5</b>
+	 *
+	 * <br>[SCORM SSP SUBSYSTEM CONSTANT]
+	 */
+	public static final int GET_STATE = 5;
 
-   /**
-    * Indicates that the SCO requests that data be set to the bucket.
-    *
-    * <br>Set Data
-    *
-    * <br><b>6</b>
-    *
-    * <br>[SCORM SSP SUBSYSTEM CONSTANT]
-    */
-   public static final int SET_DATA = 6;
+	/**
+	 * Indicates that the SCO requests that data be set to the bucket.
+	 *
+	 * <br>Set Data
+	 *
+	 * <br><b>6</b>
+	 *
+	 * <br>[SCORM SSP SUBSYSTEM CONSTANT]
+	 */
+	public static final int SET_DATA = 6;
 }

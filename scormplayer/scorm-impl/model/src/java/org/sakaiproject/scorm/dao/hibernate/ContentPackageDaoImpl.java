@@ -32,52 +32,61 @@ public class ContentPackageDaoImpl extends HibernateDaoSupport implements Conten
 
 	public int countContentPackages(String context, String name) {
 		int count = 1;
-		
+
 		List<ContentPackage> contentPackages = find(context);
 
 		for (ContentPackage cp : contentPackages) {
-			
+
 			Pattern p = Pattern.compile(name + "\\s*\\(?\\d*\\)?");
 			Matcher m = p.matcher(cp.getTitle());
-			if (m.matches())
+			if (m.matches()) {
 				count++;
-			
+			}
+
 		}
-		
+
 		return count;
 	}
-	
+
+	public List<ContentPackage> find(String context) {
+		String statement = new StringBuilder("from ").append(ContentPackage.class.getName()).append(" where context = ? and deleted = ? ").toString();
+
+		return getHibernateTemplate().find(statement, new Object[] { context, false });
+	}
+
 	public ContentPackage load(long id) {
-		return (ContentPackage)getHibernateTemplate().load(ContentPackage.class, id);
+		return (ContentPackage) getHibernateTemplate().load(ContentPackage.class, id);
+	}
+
+	public ContentPackage loadByOriginResourceId(String resourceId) {
+		String statement = new StringBuilder("from ").append(ContentPackage.class.getName()).append(" where originResourceId = ? and deleted = ? ").toString();
+
+		List<ContentPackage> result = getHibernateTemplate().find(statement, new Object[] { resourceId, false });
+		if (result.size() == 0)
+			return null;
+		else
+			return result.get(0);
 	}
 
 	/**
 	 * @see org.sakaiproject.scorm.dao.api.ContentPackageDao#loadByResourceId(java.lang.String)
 	 */
 	public ContentPackage loadByResourceId(String resourceId) {
-		String statement = new StringBuilder("from ").append(ContentPackage.class.getName())
-				.append(" where resourceId = ? and deleted = ? ").toString();
-			
+		String statement = new StringBuilder("from ").append(ContentPackage.class.getName()).append(" where resourceId = ? and deleted = ? ").toString();
+
 		List<ContentPackage> result = getHibernateTemplate().find(statement, new Object[] { resourceId, false });
-		if (result.size() == 0) 
+		if (result.size() == 0)
 			return null;
 		else
 			return result.get(0);
 	}
-	
-	public List<ContentPackage> find(String context) {
-		String statement = new StringBuilder("from ").append(ContentPackage.class.getName())
-			.append(" where context = ? and deleted = ? ").toString();
-		
-		return getHibernateTemplate().find(statement, new Object[] { context, false });
-	}
-
-	public void save(ContentPackage contentPackage) {
-		getHibernateTemplate().saveOrUpdate(contentPackage);
-	}
 
 	public void remove(ContentPackage contentPackage) {
 		contentPackage.setDeleted(true);
+		getHibernateTemplate().saveOrUpdate(contentPackage);
+	}
+
+	public void save(ContentPackage contentPackage) {
 		getHibernateTemplate().saveOrUpdate(contentPackage);
 	}
 

@@ -43,6 +43,7 @@ public class CompletionPage extends NotificationPage {
 	}
 	
 	
+	@Override
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
 		

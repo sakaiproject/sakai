@@ -47,107 +47,97 @@ import java.io.Serializable;
  * 
  * @author ADL Technical Team
  */
-public class DMDelimiter implements Serializable
-{
-	@Override
-    public int hashCode() {
-	    final int prime = 31;
-	    int result = 1;
-	    result = prime * result + ((id == null) ? 0 : id.hashCode());
-	    return result;
-    }
-
-
-	@Override
-    public boolean equals(Object obj) {
-	    if (this == obj)
-		    return true;
-	    if (obj == null)
-		    return false;
-	    if (getClass() != obj.getClass())
-		    return false;
-	    DMDelimiter other = (DMDelimiter) obj;
-	    if (id == null) {
-		    if (other.id != null)
-			    return false;
-	    } else if (!id.equals(other.id))
-		    return false;
-	    return true;
-    }
-
+public class DMDelimiter implements Serializable {
+	/**
+	 * serialVersionUID
+	 */
+	private static final long serialVersionUID = -5701735746681930246L;
 
 	private Long id;
+
+	/**
+	    * Describes the properties of this delimiter.
+	    */
+	public DMDelimiterDescriptor mDescription = null;
+
+	/**
+	    * Describes the value of this delimiter.
+	    */
+	public String mValue = null;
+
+	/**
+	 * Default constructor required for serialization support.
+	 */
+	public DMDelimiter() {
+		// Empty constructor - no defined functionallity   
+	}
+
+	/**
+	 * Creates a <code>DMDelimiter</code> object that exhibits the qualities
+	 * described in its <code>DMDelimiterDescriptor</code>.
+	 * 
+	 * @param iDescription Describes this <code>DMDelimiter</code>
+	 */
+	public DMDelimiter(DMDelimiterDescriptor iDescription) {
+		mDescription = iDescription;
+	}
+
+	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 	
+	 Public Methods
+	
+	-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
 
-   /**
-    * Describes the properties of this delimiter.
-    */
-   public DMDelimiterDescriptor mDescription = null;
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DMDelimiter other = (DMDelimiter) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
+	}
 
+	public DMDelimiterDescriptor getDescription() {
+		return mDescription;
+	}
 
-   /**
-    * Describes the value of this delimiter.
-    */
-   public String mValue = null;
+	/**
+	 * Provides the dot-notation binding for this delimiter.
+	 *
+	 * @param iDelimiters Indicates if the data model element's default
+	 *                    delimiters should be included in the return string.    
+	 *
+	 * @return The dot-notation <code>String</code> corresponding to this
+	 *         delimiter.
+	 */
+	public String getDotNotation(boolean iDelimiters) {
+		String dot = "";
 
+		if (mValue != null) {
+			dot = "{" + mDescription.mName + "=" + mValue + "}";
+		} else {
+			if (iDelimiters) {
+				dot = "{" + mDescription.mName + "=" + mDescription.mDefault + "}";
+			}
+		}
 
-   /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-   
-    Public Methods
-   
-   -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
+		return dot;
+	}
 
-   /**
-    * Default constructor required for serialization support.
-    */
-   public DMDelimiter() 
-   {
-      // Empty constructor - no defined functionallity   
-   }
-
-
-   /**
-    * Creates a <code>DMDelimiter</code> object that exhibits the qualities
-    * described in its <code>DMDelimiterDescriptor</code>.
-    * 
-    * @param iDescription Describes this <code>DMDelimiter</code>
-    */
-   public DMDelimiter(DMDelimiterDescriptor iDescription)
-   {
-      mDescription = iDescription;
-   }
-
-   public DMDelimiterDescriptor getDescription() {
-	   return mDescription;
-   }
-   
-
-   /**
-    * Provides the dot-notation binding for this delimiter.
-    *
-    * @param iDelimiters Indicates if the data model element's default
-    *                    delimiters should be included in the return string.    
-    *
-    * @return The dot-notation <code>String</code> corresponding to this
-    *         delimiter.
-    */
-   public String getDotNotation(boolean iDelimiters)
-   {
-      String dot = "";
-
-      if ( mValue != null )
-      {
-         dot = "{" + mDescription.mName + "=" + mValue + "}";
-      }
-      else
-      {
-         if ( iDelimiters )
-         {
-            dot = "{" + mDescription.mName + "=" + mDescription.mDefault + "}";
-         }
-      }
-
-      return dot;
-   }
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
 
 } // end DMDelimiter

@@ -26,7 +26,6 @@ package org.adl.sequencer;
 
 import java.io.Serializable;
 
-
 /**
  * Encapsulation of objective status information associated with an activity.
  * <br><br>
@@ -57,33 +56,31 @@ import java.io.Serializable;
  * 
  * @author ADL Technical Team
  */
-public class ADLObjStatus implements Serializable
-{
+public class ADLObjStatus implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-/**
-    * Identifier of this objective.
-    */
-   public String mObjID = null;
+	/**
+	    * Identifier of this objective.
+	    */
+	public String mObjID = null;
 
-   /** 
-    * Indicates if this objective has a known measure.
-    */
-   public boolean mHasMeasure = false;
+	/** 
+	 * Indicates if this objective has a known measure.
+	 */
+	public boolean mHasMeasure = false;
 
-   /**
-    * Indicates the measure known for this objective.<br><br>
-    * Valid range: <code>[-1.0, 1.0]</code>
-    */
-   public double mMeasure = 1.0;
+	/**
+	 * Indicates the measure known for this objective.<br><br>
+	 * Valid range: <code>[-1.0, 1.0]</code>
+	 */
+	public double mMeasure = 1.0;
 
-   /** 
-    * Indicates if the objective contributes to rollup
-    */
-   public String mStatus = ADLTracking.TRACK_UNKNOWN;
+	/** 
+	 * Indicates if the objective contributes to rollup
+	 */
+	public String mStatus = ADLTracking.TRACK_UNKNOWN;
 
-   
-   public ADLObjStatus() {}
-   
+	public ADLObjStatus() {
+	}
 
-}  // end ADLObjStatus
+} // end ADLObjStatus

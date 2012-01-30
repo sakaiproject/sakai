@@ -25,13 +25,9 @@
 package org.adl.sequencer;
 
 import java.io.Serializable;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
-import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
 
 /**
@@ -65,140 +61,162 @@ import javax.swing.tree.TreeModel;
  * </ul>
  * 
  * @author ADL Technical Team
- */ 
-public class ADLValidRequests implements Serializable, IValidRequests
-{
+ */
+public class ADLValidRequests implements Serializable, IValidRequests {
 	private static final long serialVersionUID = 1L;
-	
+
 	private long id;
-   /**
-    * Should a 'Start' button be enabled before the sequencing session begins
-    */
-   public boolean mStart = false;
 
+	/**
+	 * Should a 'Start' button be enabled before the sequencing session begins
+	 */
+	public boolean mStart = false;
 
-   /**
-    * Should a 'Resume All' button be enabled before the sequencing session begins
-    */
-   public boolean mResume = false;
+	/**
+	 * Should a 'Resume All' button be enabled before the sequencing session begins
+	 */
+	public boolean mResume = false;
 
+	/**
+	 * Should a 'Continue' button be enabled during delivery of the current
+	 * activity.
+	 */
+	public boolean mContinue = false;
 
-   /**
-    * Should a 'Continue' button be enabled during delivery of the current
-    * activity.
-    */
-   public boolean mContinue = false;
+	/**
+	 * Should a 'Continue' button be enabled during delivery of the current
+	 * activity that triggers an Exit navigation request.
+	 */
+	public boolean mContinueExit = false;
 
-   /**
-    * Should a 'Continue' button be enabled during delivery of the current
-    * activity that triggers an Exit navigation request.
-    */
-   public boolean mContinueExit = false;
+	/**
+	 * Should a 'Previous' button be enabled during the delivery of the
+	 * current activity.
+	 */
+	public boolean mPrevious = false;
 
-   /**
-    * Should a 'Previous' button be enabled during the delivery of the
-    * current activity.
-    */
-   public boolean mPrevious = false;
+	/**
+	 * Indictates if the sequencing session has begun and a 'SuspendAll'
+	 * navigation request is valid.
+	 */
+	public boolean mSuspend = false;
 
-   /**
-    * Indictates if the sequencing session has begun and a 'SuspendAll'
-    * navigation request is valid.
-    */
-   public boolean mSuspend = false;
+	/**
+	 * Set of valid targets for a choice navigation request
+	 */
+	public Map<String, ActivityNode> mChoice = null;
 
-   /**
-    * Set of valid targets for a choice navigation request
-    */
-   public Map<String, DefaultMutableTreeNode> mChoice = null;
+	/**
+	 * The currently valid table of contents (list of <code>ADLTOC</code>) to be
+	 * provided during the current activity.
+	 */
+	// TODO: Remove this
+	//public List mTOC = null;
 
-   /**
-    * The currently valid table of contents (list of <code>ADLTOC</code>) to be
-    * provided during the current activity.
-    */
-   // TODO: Remove this
-   //public List mTOC = null;
+	public DefaultTreeModel mTreeModel = null;
 
+	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+	
+	 Public Methods
+	
+	-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
+	public ADLValidRequests() {
+	}
 
-   public TreeModel mTreeModel = null;
-   
-   /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-   
-    Public Methods
-   
-   -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/  
-   public ADLValidRequests() {}
-   
-   
-   public TreeModel getTreeModel() {
-	   return mTreeModel;
-   }
-   
-   
-   public boolean isContinueEnabled() {
-	   return mContinue;
-   }
-   
-   public boolean isContinueExitEnabled() {
-	   return mContinueExit;
-   }
-   
-   public boolean isPreviousEnabled() {
-	   return mPrevious;
-   }
-   
-   public boolean isResumeEnabled() {
-	   return mResume;
-   }
-   
-   public boolean isStartEnabled() {
-	   return mStart;
-   }
-   
-   public boolean isSuspendEnabled() {
-	   return mSuspend;
-   }
-   
-   public Map getChoice() {
-	   return mChoice;
-   }
-   
-   /**
-    * This method provides the state this <code>ADLUIState</code> object for
-    * diagnostic purposes.<br><br>
-    *
-    * NOTE: The table of contents (TOC) is not provided with this method.  For
-    * a dump of the current TOC, call the code>dumpTOC</code> method of on the
-    * <code>ADLSeqUtilities</code> class.
-    * 
-    * @see <code>ADLSeqUtilities</code>
-    */
-/*
-   public void dumpState()
-   {
-      if ( _Debug )
-      {
-         System.out.println("  :: ADLValidRequests   --> BEGIN - dumpState");
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ADLValidRequests other = (ADLValidRequests) obj;
+		if (id != other.id)
+			return false;
+		return true;
+	}
 
-         System.out.println("  ::--> Start         : " + mStart);
-         System.out.println("  ::--> Start         : " + mResume);
-         System.out.println("  ::--> Continue      : " + mContinue);
-         System.out.println("  ::--> Continue Exit : " + mContinueExit);
-         System.out.println("  ::--> Previous      : " + mPrevious);
+	public Map<String, ActivityNode> getChoice() {
+		return mChoice;
+	}
 
-         if ( mTOC != null )
-         {
-            System.out.println("  ::--> TOC:           YES");
-            ADLSeqUtilities.dumpTOC(mTOC);
-         }
-         else
-         {
-            System.out.println("  ::--> TOC:           NO");
-         }
+	public long getId() {
+		return id;
+	}
 
-         System.out.println("  :: ADLValidRequests    --> END   - dumpState");
-      }
-   }
-*/
+	public TreeModel getTreeModel() {
+		return mTreeModel;
+	}
 
-}  // end ADLValidRequests
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (id ^ (id >>> 32));
+		return result;
+	}
+
+	public boolean isContinueEnabled() {
+		return mContinue;
+	}
+
+	public boolean isContinueExitEnabled() {
+		return mContinueExit;
+	}
+
+	public boolean isPreviousEnabled() {
+		return mPrevious;
+	}
+
+	public boolean isResumeEnabled() {
+		return mResume;
+	}
+
+	public boolean isStartEnabled() {
+		return mStart;
+	}
+
+	public boolean isSuspendEnabled() {
+		return mSuspend;
+	}
+
+	/**
+	 * This method provides the state this <code>ADLUIState</code> object for
+	 * diagnostic purposes.<br><br>
+	 *
+	 * NOTE: The table of contents (TOC) is not provided with this method.  For
+	 * a dump of the current TOC, call the code>dumpTOC</code> method of on the
+	 * <code>ADLSeqUtilities</code> class.
+	 * 
+	 * @see <code>ADLSeqUtilities</code>
+	 */
+	/*
+	   public void dumpState()
+	   {
+	      if ( _Debug )
+	      {
+	         System.out.println("  :: ADLValidRequests   --> BEGIN - dumpState");
+
+	         System.out.println("  ::--> Start         : " + mStart);
+	         System.out.println("  ::--> Start         : " + mResume);
+	         System.out.println("  ::--> Continue      : " + mContinue);
+	         System.out.println("  ::--> Continue Exit : " + mContinueExit);
+	         System.out.println("  ::--> Previous      : " + mPrevious);
+
+	         if ( mTOC != null )
+	         {
+	            System.out.println("  ::--> TOC:           YES");
+	            ADLSeqUtilities.dumpTOC(mTOC);
+	         }
+	         else
+	         {
+	            System.out.println("  ::--> TOC:           NO");
+	         }
+
+	         System.out.println("  :: ADLValidRequests    --> END   - dumpState");
+	      }
+	   }
+	*/
+
+} // end ADLValidRequests

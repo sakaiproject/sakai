@@ -57,28 +57,31 @@ import java.io.Serializable;
  *
  * @author ADL Technical Team
  */
-public class StatusInfo implements Serializable
-{
-   /**
-    *
-    * The error code produced from the current operation.
-    *
-    */
-   public Integer mErrorCode = null;
+public class StatusInfo implements Serializable {
+	/**
+	  * 
+	  */
+	private static final long serialVersionUID = 1L;
 
-   /**
-    *
-    * The error description fromt the current operation.
-    *
-    */
-   public String mErrorDescription = null;
+	/**
+	    *
+	    * The error code produced from the current operation.
+	    *
+	    */
+	public Integer mErrorCode = null;
 
-   /**
-    *
-    * Default Constructor.
-    *
-    */
-   public StatusInfo()
-   {
-   }
+	/**
+	 *
+	 * The error description fromt the current operation.
+	 *
+	 */
+	public String mErrorDescription = null;
+
+	/**
+	 *
+	 * Default Constructor.
+	 *
+	 */
+	public StatusInfo() {
+	}
 }

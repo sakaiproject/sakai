@@ -57,131 +57,118 @@ import java.io.Serializable;
  *
  * @author ADL Technical Team
  */
-public class ManagedBucket implements Serializable
-{
-   /**
-    *
-    * The ID of the bucket associated with this request.
-    *
-    */
-   private String mBucketID = null;
+public class ManagedBucket implements Serializable {
+	/**
+	  * 
+	  */
+	private static final long serialVersionUID = 1L;
 
-   /**
-    *
-    * The allocation success status of the bucket.
-    *
-    */
-   private int mSuccessStatus = SuccessStatus.NONE_REQUESTED;
+	/**
+	    *
+	    * The ID of the bucket associated with this request.
+	    *
+	    */
+	private String mBucketID = null;
 
-   /**
-    *
-    * Default Constructor.
-    *
-    */
-   public ManagedBucket()
-   {
-   }
+	/**
+	 *
+	 * The allocation success status of the bucket.
+	 *
+	 */
+	private int mSuccessStatus = SuccessStatus.NONE_REQUESTED;
 
-   /**
-    *
-    * Constructor method.
-    *
-    * @param iBucketID - The data stored in this bucket.
-    */
-   public ManagedBucket( String iBucketID )
-   {
-      mBucketID = iBucketID;
-   }
+	/**
+	 *
+	 * Default Constructor.
+	 *
+	 */
+	public ManagedBucket() {
+	}
 
-   /**
-    *
-    * Constructor method.
-    *
-    * @param iBucketID - The data stored in this bucket.
-    * @param iSuccessStatus - The allocation success of the bucket.
-    * 
-    * @throws IllegalArgumentException Thrown if success status 
-    *                                  value is not one of the
-    *                                  enumerated values (0-3).
-    */
-   public ManagedBucket( String iBucketID, int iSuccessStatus )
-      throws IllegalArgumentException
-   {
-      mBucketID = iBucketID;
+	/**
+	 *
+	 * Constructor method.
+	 *
+	 * @param iBucketID - The data stored in this bucket.
+	 */
+	public ManagedBucket(String iBucketID) {
+		mBucketID = iBucketID;
+	}
 
-      // The range for this enumerated value is 0 - 3 based on the
-      // SuccessStatus enumeration class.  If the value is not in this range
-      // throw an IllegalArgumentException.
-      if( iSuccessStatus >= 4 )
-      {
-         throw new IllegalArgumentException(
-            "The value provided for parameter (iSuccessStatus) is not in the " +
-            "range of valid values provided in the SuccessStatus enumeration " +
-            "class." );
-      }
-      mSuccessStatus = iSuccessStatus;
-   }
+	/**
+	 *
+	 * Constructor method.
+	 *
+	 * @param iBucketID - The data stored in this bucket.
+	 * @param iSuccessStatus - The allocation success of the bucket.
+	 * 
+	 * @throws IllegalArgumentException Thrown if success status 
+	 *                                  value is not one of the
+	 *                                  enumerated values (0-3).
+	 */
+	public ManagedBucket(String iBucketID, int iSuccessStatus) throws IllegalArgumentException {
+		mBucketID = iBucketID;
 
-   /**
-    *
-    * Stores the identifier of the bucket.
-    *
-    * @param iBucketID - The identifier of the bucket.
-    */
-   public void setBucketID( String iBucketID )
-   {
-      mBucketID = iBucketID;
-   }
+		// The range for this enumerated value is 0 - 3 based on the
+		// SuccessStatus enumeration class.  If the value is not in this range
+		// throw an IllegalArgumentException.
+		if (iSuccessStatus >= 4)
+			throw new IllegalArgumentException("The value provided for parameter (iSuccessStatus) is not in the "
+			        + "range of valid values provided in the SuccessStatus enumeration " + "class.");
+		mSuccessStatus = iSuccessStatus;
+	}
 
-   /**
-    *
-    * Retrieves the identifier of the bucket.
-    *
-    * @return - The identifier of the bucket.
-    */
-   public String getBucketID()
-   {
-      return mBucketID;
-   }
+	/**
+	 *
+	 * Retrieves the identifier of the bucket.
+	 *
+	 * @return - The identifier of the bucket.
+	 */
+	public String getBucketID() {
+		return mBucketID;
+	}
 
-   /**
-    *
-    * Sets the allocation success of the bucket.
-    *
-    * @param iSuccessStatus - The allocation success of the bucket.  This value
-    *                         shall be one of the enumerated values described in
-    *                         the <code>SuccessStatus</code> class.
-    * 
-    * @throws IllegalArgumentException Thrown if success status 
-    *                                  value is not one of the
-    *                                  enumerated values (0-3).
-    */
-   public void setSuccessStatus( int iSuccessStatus )
-      throws IllegalArgumentException
-   {
-      // The range for this enumerated value is 0 - 3 based on the
-      // SuccessStatus enumeration class.  If the value is not in this range
-      // throw an IllegalArgumentException.
-      if( iSuccessStatus >= 4 )
-      {
-         throw new IllegalArgumentException(
-            "The value provided for parameter (iSuccessStatus) is not in the " +
-            "range of valid values provided in the SuccessStatus enumeration " +
-            "class." );
-      }
+	/**
+	 *
+	 * Retrieves the allocation success of the bucket.
+	 *
+	 * @return - The allocation success of the bucket based on the enumerated
+	 *           values described in the <code>SuccessStatus</code> class..
+	 */
+	public int getSuccessStatus() {
+		return mSuccessStatus;
+	}
 
-      mSuccessStatus = iSuccessStatus;
-   }
+	/**
+	 *
+	 * Stores the identifier of the bucket.
+	 *
+	 * @param iBucketID - The identifier of the bucket.
+	 */
+	public void setBucketID(String iBucketID) {
+		mBucketID = iBucketID;
+	}
 
-   /**
-    *
-    * Retrieves the allocation success of the bucket.
-    *
-    * @return - The allocation success of the bucket based on the enumerated
-    *           values described in the <code>SuccessStatus</code> class..
-    */
-   public int getSuccessStatus()
-   {
-      return mSuccessStatus;
-   }
+	/**
+	 *
+	 * Sets the allocation success of the bucket.
+	 *
+	 * @param iSuccessStatus - The allocation success of the bucket.  This value
+	 *                         shall be one of the enumerated values described in
+	 *                         the <code>SuccessStatus</code> class.
+	 * 
+	 * @throws IllegalArgumentException Thrown if success status 
+	 *                                  value is not one of the
+	 *                                  enumerated values (0-3).
+	 */
+	public void setSuccessStatus(int iSuccessStatus) throws IllegalArgumentException {
+		// The range for this enumerated value is 0 - 3 based on the
+		// SuccessStatus enumeration class.  If the value is not in this range
+		// throw an IllegalArgumentException.
+		if (iSuccessStatus >= 4)
+			throw new IllegalArgumentException("The value provided for parameter (iSuccessStatus) is not in the "
+			        + "range of valid values provided in the SuccessStatus enumeration " + "class.");
+
+		mSuccessStatus = iSuccessStatus;
+	}
 }

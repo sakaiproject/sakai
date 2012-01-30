@@ -28,27 +28,25 @@ import org.sakaiproject.scorm.navigation.INavigationEvent;
 public interface ScormApplicationService {
 
 	public boolean commit(String parameter, SessionBean sessionBean, ScoBean scoBean);
-	
-	public String getDiagnostic(String errorCode, SessionBean sessionBean);
-	
-	public String getErrorString(String iErrorCode, SessionBean sessionBean);
-	
-	public String getLastError(SessionBean sessionBean);
-	
-	public String getValue(String parameter, SessionBean sessionBean, ScoBean scoBean);
-	
-	public boolean initialize(String parameter, SessionBean sessionBean, ScoBean scoBean);
-	
-	public boolean setValue(String dataModelElement, String value, SessionBean sessionBean, 
-			ScoBean scoBean);
-	
-	public boolean terminate(String iParam, INavigationEvent navigationEvent, SessionBean sessionBean, 
-			ScoBean scoBean);	
-	
-	public INavigationEvent newNavigationEvent();
-	
-	public ScoBean produceScoBean(String scoId, SessionBean sessionBean);
-	
+
 	public void discardScoBean(String scoId, SessionBean sessionBean, INavigable agent);
-	
+
+	public String getDiagnostic(String errorCode, SessionBean sessionBean);
+
+	public String getErrorString(String iErrorCode, SessionBean sessionBean);
+
+	public String getLastError(SessionBean sessionBean);
+
+	public String getValue(String parameter, SessionBean sessionBean, ScoBean scoBean);
+
+	public boolean initialize(String parameter, SessionBean sessionBean, ScoBean scoBean);
+
+	public INavigationEvent newNavigationEvent();
+
+	public ScoBean produceScoBean(String scoId, SessionBean sessionBean);
+
+	public boolean setValue(String dataModelElement, String value, SessionBean sessionBean, ScoBean scoBean);
+
+	public boolean terminate(String iParam, INavigationEvent navigationEvent, SessionBean sessionBean, ScoBean scoBean);
+
 }

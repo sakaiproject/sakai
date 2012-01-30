@@ -25,30 +25,31 @@ import java.io.Serializable;
 public interface ScoBean extends Serializable {
 
 	public static final int SCO_VERSION_2 = 2;
+
 	public static final int SCO_VERSION_3 = 3;
-	
+
 	public void clearState();
-	
-	public String getScoId();
-	
-	public boolean isInitialized();
-	
-	public void setInitialized(boolean isInitialized);
-	
-	public boolean isSuspended();
-	
-	public void setSuspended(boolean isSuspended);
-	
-	public boolean isTerminated();
-	
-	public void setTerminated(boolean isTerminated);
-	
-	public void setVersion(int version);
-	
+
 	public Long getDataManagerId();
-	
+
+	public String getScoId();
+
+	public boolean isInitialized();
+
+	public boolean isSuspended();
+
+	public boolean isTerminated();
+
 	public void setDataManagerId(Long id);
-	
+
+	public void setInitialized(boolean isInitialized);
+
+	public void setSuspended(boolean isSuspended);
+
+	public void setTerminated(boolean isTerminated);
+
+	public void setVersion(int version);
+
 	/*public String Commit(String parameter);
 
 	public String GetDiagnostic(String iErrorCode);

@@ -31,15 +31,13 @@ import org.apache.commons.logging.LogFactory;
  * statements to be sent to the Java Console.  The default is to turn off the 
  * ability to send these statements to the Java Console
  */
-public class DebugIndicator
-{
+public class DebugIndicator {
 	private static Log log = LogFactory.getLog(DebugIndicator.class);
-   
-	
-   /**
-    * This controls display of log messages to the java console 
-    * 
-    * JLR 8/24/2007 -- wiring this up to log4j for consistency's sake.
-    */
-   public static boolean ON = log.isDebugEnabled();
+
+	/**
+	 * This controls display of log messages to the java console 
+	 * 
+	 * JLR 8/24/2007 -- wiring this up to log4j for consistency's sake.
+	 */
+	public static boolean ON = log.isDebugEnabled();
 }

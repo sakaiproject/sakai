@@ -26,7 +26,6 @@ package org.adl.sequencer;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Vector;
 
 import org.adl.util.debug.DebugIndicator;
 
@@ -62,97 +61,93 @@ import org.adl.util.debug.DebugIndicator;
  * 
  * @author ADL Technical Team
  */
-public class SeqObjective implements Serializable
-{
+public class SeqObjective implements Serializable {
 	private static final long serialVersionUID = 1L;
-	
+
 	private long id;
+
+	/**
+	    * This controls display of log messages to the java console
+	    */
+	private static boolean _Debug = DebugIndicator.ON;
+
+	/**
+	 * Identifier of this objective.
+	 */
+	public String mObjID = "_primary_";
+
+	/** 
+	 * Indicates if this objective is satisfied by measure.
+	 */
+	public boolean mSatisfiedByMeasure = false;
+
+	/**
+	 * Indicates if the objective can be satisfied by measure when its activity
+	 * is still active.
+	 */
+	public boolean mActiveMeasure = true;
+
+	/**
+	 * Indicates the minimum measure used to satisfy this objective.<br><br>
+	 * Valid range: <code>[-1.0, 1.0]</code>
+	 */
+	public double mMinMeasure = 1.0;
+
+	/** 
+	 * Indicates if the objective contributes to rollup
+	 */
+	public boolean mContributesToRollup = false;
+
+	/**
+	 * Describes the mapping of local objective information to global objectives
+	 */
+	public List<SeqObjectiveMap> mMaps = null;
+
+	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 	
-   /**
-    * This controls display of log messages to the java console
-    */
-   private static boolean _Debug = DebugIndicator.ON;
+	 Constructors 
+	
+	-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
+	/**
+	 * Default Constructor
+	 */
+	public SeqObjective() {
+	}
 
-   /**
-    * Identifier of this objective.
-    */
-   public String mObjID = "_primary_";
+	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+	
+	 Constructors 
+	
+	-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
+	/**
+	 * This method provides the state this <code>ADLObjective</code> object for
+	 * diagnostic purposes.<br>
+	 */
+	public void dumpState() {
 
-   /** 
-    * Indicates if this objective is satisfied by measure.
-    */
-   public boolean mSatisfiedByMeasure = false;
+		if (_Debug) {
+			System.out.println("  :: ADLObjective  --> BEGIN - dumpState");
 
-   /**
-    * Indicates if the objective can be satisfied by measure when its activity
-    * is still active.
-    */
-   public boolean mActiveMeasure = true;
+			System.out.println("  ::--> ID:                 " + mObjID);
+			System.out.println("  ::--> Satisfy by Measure: " + mSatisfiedByMeasure);
+			System.out.println("  ::--> Active Measure:     " + mActiveMeasure);
+			System.out.println("  ::--> Min Measure:        " + mMinMeasure);
+			System.out.println("  ::--> Contrib to Rollup:  " + mContributesToRollup);
+			System.out.println("  ::--> ------------------- <--::");
 
-   /**
-    * Indicates the minimum measure used to satisfy this objective.<br><br>
-    * Valid range: <code>[-1.0, 1.0]</code>
-    */
-   public double mMinMeasure = 1.0;
+			if (mMaps != null) {
+				for (int i = 0; i < mMaps.size(); i++) {
+					SeqObjectiveMap map = mMaps.get(i);
 
-   /** 
-    * Indicates if the objective contributes to rollup
-    */
-   public boolean mContributesToRollup = false;
+					map.dumpState();
+				}
+			}
 
-   /**
-    * Describes the mapping of local objective information to global objectives
-    */
-   public List mMaps = null;
+			System.out.println("  :: ADLObjective --> END   - dumpState");
+		}
+	}
 
-   /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-   
-    Constructors 
-   
-   -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
-   /**
-    * Default Constructor
-    */
-   public SeqObjective()
-   {
-   }
-
-   /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-   
-    Constructors 
-   
-   -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
-   /**
-    * This method provides the state this <code>ADLObjective</code> object for
-    * diagnostic purposes.<br>
-    */
-   public void dumpState()
-   {
-
-      if ( _Debug )
-      {
-         System.out.println("  :: ADLObjective  --> BEGIN - dumpState");
-
-         System.out.println("  ::--> ID:                 " + mObjID);
-         System.out.println("  ::--> Satisfy by Measure: " +
-                            mSatisfiedByMeasure);
-         System.out.println("  ::--> Active Measure:     " + mActiveMeasure);
-         System.out.println("  ::--> Min Measure:        " + mMinMeasure);
-         System.out.println("  ::--> Contrib to Rollup:  " +
-                            mContributesToRollup);
-         System.out.println("  ::--> ------------------- <--::");
-
-         if ( mMaps != null )
-         {
-            for ( int i = 0 ; i < mMaps.size(); i++ )
-            {
-               SeqObjectiveMap map = (SeqObjectiveMap)mMaps.get(i);
-
-               map.dumpState();
-            }
-         }
-
-         System.out.println("  :: ADLObjective --> END   - dumpState");
-      }
-   }
-}  // end SeqObjective
+	public long getId() {
+		return id;
+	}
+} // end SeqObjective

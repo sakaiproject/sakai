@@ -30,10 +30,9 @@ import java.net.URL;
 
 import org.adl.util.debug.DebugIndicator;
 import org.adl.util.servlet.ServletWriter;
-import org.ims.ssp.samplerte.server.bucket.SuccessStatus;
 import org.ims.ssp.samplerte.server.SSP_ServletRequest;
 import org.ims.ssp.samplerte.server.SSP_ServletResponse;
-
+import org.ims.ssp.samplerte.server.bucket.SuccessStatus;
 
 /**
  * This class encapsulates communication between the API Adapter applet and
@@ -61,89 +60,73 @@ import org.ims.ssp.samplerte.server.SSP_ServletResponse;
  *
  * @author ADL Technical Team
  */
-public class ServletProxy
-{
-   /**
-    * This controls display of log messages to the java console
-    */
-   private static boolean _Debug = DebugIndicator.ON;
+public class ServletProxy {
+	/**
+	 * This controls display of log messages to the java console
+	 */
+	private static boolean _Debug = DebugIndicator.ON;
 
+	/**
+	 * The URL of the target servlet.
+	 */
+	private URL mServletURL = null;
 
-   /**
-    * The URL of the target servlet.
-    */
-   private URL mServletURL = null;
+	/**
+	 * Constructor
+	 *
+	 * @param iURL  The URL of the target servlet.
+	 */
+	public ServletProxy(URL iURL) {
+		mServletURL = iURL;
+	}
 
+	/**
+	 * Reads from the LMS server via the <code>SSP_Servlet</code>; the
+	 * response containing the information requested.
+	 *
+	 * @param iRequest A <code>SSP_ServletRequest</code> object that
+	 *                 provides all the data neccessary to POST a call to
+	 *                 the <code>SSP_Servlet</code>.
+	 *
+	 * @return The <code>LMSCMIServletResponse</code> object provided by the
+	 *         <code>LMSCMIServlet</code>.
+	 */
+	public SSP_ServletResponse postLMSRequest(SSP_ServletRequest iRequest) {
 
-   /**
-    * Constructor
-    *
-    * @param iURL  The URL of the target servlet.
-    */
-   public ServletProxy(URL iURL)
-   {
-      mServletURL = iURL;
-   }
+		if (_Debug) {
+			System.out.println("In ServletProxy::postLMSRequest()");
+		}
 
-   /**
-    * Reads from the LMS server via the <code>SSP_Servlet</code>; the
-    * response containing the information requested.
-    *
-    * @param iRequest A <code>SSP_ServletRequest</code> object that
-    *                 provides all the data neccessary to POST a call to
-    *                 the <code>SSP_Servlet</code>.
-    *
-    * @return The <code>LMSCMIServletResponse</code> object provided by the
-    *         <code>LMSCMIServlet</code>.
-    */
-   public SSP_ServletResponse postLMSRequest(
-      SSP_ServletRequest iRequest )
-   {
+		SSP_ServletResponse response = new SSP_ServletResponse();
 
-      if ( _Debug )
-      {
-         System.out.println( "In ServletProxy::postLMSRequest()" );
-      }
+		try {
+			Serializable[] data = { iRequest };
 
-      SSP_ServletResponse response = new SSP_ServletResponse();
+			if (_Debug) {
+				System.out.println("Before postObjects()");
+			}
 
-      try
-      {
-         Serializable[] data = { iRequest };
+			ObjectInputStream in = ServletWriter.postObjects(mServletURL, data);
 
-         if ( _Debug )
-         {
-            System.out.println("Before postObjects()");
-         }
+			if (_Debug) {
+				System.out.println("Back In " + "ServletProxy::postLMSRequest()");
+				System.out.println("Attempting to read servlet " + "response now...");
+			}
 
-         ObjectInputStream in = ServletWriter.postObjects( mServletURL, data );
+			response = (SSP_ServletResponse) in.readObject();
 
-         if ( _Debug )
-         {
-            System.out.println( "Back In " +
-                                "ServletProxy::postLMSRequest()" );
-            System.out.println( "Attempting to read servlet " +
-                                "response now..." );
-         }
+			in.close();
+		} catch (Exception e) {
+			if (_Debug) {
+				System.out.println("Exception caught in " + "ServletProxy::postLMSRequest()");
+				System.out.println(e.getMessage());
+			}
 
-         response = (SSP_ServletResponse)in.readObject();
+			e.printStackTrace();
+			response.mManagedBucketInfo.setSuccessStatus(SuccessStatus.FAILURE);
+		}
 
-         in.close();
-      }
-      catch ( Exception e )
-      {
-         if ( _Debug )
-         {
-            System.out.println( "Exception caught in " +
-                                "ServletProxy::postLMSRequest()" );
-            System.out.println( e.getMessage() );
-         }
-
-         e.printStackTrace();
-         response.mManagedBucketInfo.setSuccessStatus( SuccessStatus.FAILURE );
-      }
-
-      return response;
-   }
+		return response;
+	}
 
 } // ServletProxy

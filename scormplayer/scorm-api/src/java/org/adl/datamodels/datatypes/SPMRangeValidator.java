@@ -24,10 +24,11 @@
 
 package org.adl.datamodels.datatypes;
 
-import org.adl.datamodels.DMTypeValidator;
-import org.adl.datamodels.DMErrorCodes;
-
 import java.io.Serializable;
+
+import org.adl.datamodels.DMErrorCodes;
+import org.adl.datamodels.DMTypeValidator;
+
 /**
  * Provides support for the Smallest Permitted Maximum (SPM) value, as defined  
  * in the SCORM 2004 RTE Book<br><br>
@@ -51,84 +52,79 @@ import java.io.Serializable;
  * 
  * @author ADL Technical Team
  */
-public class SPMRangeValidator extends DMTypeValidator implements Serializable
-{
-   /**
-    * Specifies the smallest permitted maximum allowed for a string.
-    */
-   private int mSPM = -1;
+public class SPMRangeValidator extends DMTypeValidator implements Serializable {
+	/**
+	  * 
+	  */
+	private static final long serialVersionUID = 1L;
 
-   /**
-    * Default constructor required for serialization.
-    */
-   public SPMRangeValidator()
-   {
-      mType = "characterstring";
-   }
+	/**
+	    * Specifies the smallest permitted maximum allowed for a string.
+	    */
+	private int mSPM = -1;
 
-   /**
-    * Describes the smallest permitted maximum allowed for a string.
-    * 
-    * @param iSPM Defines the initial SPM
-    */
-   public SPMRangeValidator(int iSPM) 
-   { 
-      mSPM = iSPM;
-      mType = "characterstring";
-   }
+	/**
+	 * Default constructor required for serialization.
+	 */
+	public SPMRangeValidator() {
+		mType = "characterstring";
+	}
 
-   /**
-    * Truncates the value to meet the DataType's SPM
-    * 
-    * @param  iValue  The value to be truncated
-    * 
-    * @return Returns the value truncated at the DataType's SPM
-    */
-   public String trunc(String iValue)
-   {
-      String trunc = iValue;
+	/**
+	 * Describes the smallest permitted maximum allowed for a string.
+	 * 
+	 * @param iSPM Defines the initial SPM
+	 */
+	public SPMRangeValidator(int iSPM) {
+		mSPM = iSPM;
+		mType = "characterstring";
+	}
 
-      if ( mSPM > 0 && iValue.length() > mSPM )
-      {
-         trunc = trunc.substring(0, mSPM);
-      }
+	/**
+	 * Truncates the value to meet the DataType's SPM
+	 * 
+	 * @param  iValue  The value to be truncated
+	 * 
+	 * @return Returns the value truncated at the DataType's SPM
+	 */
+	@Override
+	public String trunc(String iValue) {
+		String trunc = iValue;
 
-      return trunc;
-   }
+		if (mSPM > 0 && iValue.length() > mSPM) {
+			trunc = trunc.substring(0, mSPM);
+		}
 
+		return trunc;
+	}
 
-   /**
-    * Validates the provided string against a known format.
-    * 
-    * @param iValue The value being validated.
-    * 
-    * @return An abstract data model error code indicating the result of this
-    *         operation.
-    */
-   public int validate(String iValue)
-   {
-      // Assume the value is valid
-      int valid = DMErrorCodes.NO_ERROR;
+	/**
+	 * Validates the provided string against a known format.
+	 * 
+	 * @param iValue The value being validated.
+	 * 
+	 * @return An abstract data model error code indicating the result of this
+	 *         operation.
+	 */
+	@Override
+	public int validate(String iValue) {
+		// Assume the value is valid
+		int valid = DMErrorCodes.NO_ERROR;
 
-      if ( iValue != null )
-      {
-         int spmLength = iValue.length();
+		if (iValue != null) {
+			int spmLength = iValue.length();
 
-         if ( mSPM > -1 )
-         {
-            if ( spmLength > mSPM )
-            {
-               valid = DMErrorCodes.SPM_EXCEEDED;
-            }
-         }
-      }
-      else
-      {
-         // A null value can never be valid
-         valid = DMErrorCodes.UNKNOWN_EXCEPTION;
-      }
+			if (mSPM > -1) {
+				if (spmLength > mSPM) {
+					valid = DMErrorCodes.SPM_EXCEEDED;
+				}
+			}
+		} else {
+			// A null value can never be valid
+			valid = DMErrorCodes.UNKNOWN_EXCEPTION;
+		}
 
-      return valid;
-   }
+		return valid;
+	}
 
 } // end SPMRangeValidator

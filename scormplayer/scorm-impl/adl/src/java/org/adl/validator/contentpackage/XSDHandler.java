@@ -1,4 +1,3 @@
-
 /*******************************************************************************
 **
 ** Advanced Distributed Learning Co-Laboratory (ADL Co-Lab) Hub grants you 
@@ -24,7 +23,7 @@
 *******************************************************************************/
 package org.adl.validator.contentpackage;
 
-import java.util.logging.*;
+import java.util.logging.Logger;
 
 /**
  *
@@ -40,70 +39,17 @@ import java.util.logging.*;
  * 
  * @author ADL Technical Team
  */
-public class XSDHandler
-{
-   /**
-    * Logger object used for debug logging.
-    */
-   private Logger mLogger;
+public class XSDHandler {
+	/**
+	 * Logger object used for debug logging.
+	 */
+	@SuppressWarnings("unused")
+	private Logger mLogger;
 
-   /**
-    * The Application Profile of the Content Package test subject in question
-    * Valid values include:
-    * <ul>
-    *    <li><code>resource</code></li>
-    *    <li><code>contentaggregation</code></li>
-    * </ul>
-    */
-   private String mApplicationProfileType;
-
-   /**
-    * The location that the content package test subject can be found.
-    */
-   private String mDirectory;
-
-
-   /**
-    * The constructor.
-    */
-   public XSDHandler( String iDirectory,
-                      String iApplicationProfile)
-   {
-      mLogger = Logger.getLogger("org.adl.util.debug.validator");
-
-      mApplicationProfileType = iApplicationProfile;
-      mDirectory = iDirectory;
-   }
-
-  /**
-   * Performs the high-level content package checks, such that the
-   * imsmanifest.xml file along with all required schemas exist
-   * at the root of the package.
-   *
-   * @return - boolean result that shows if schemas referenced in the root
-   * manifest declation as well as the imsmanifest file existed at the
-   * root of the package.  True implies that the schemas and manifest were
-   * located at the root of the pif, false otherwise.
-   */
-    private boolean checkForRequiredFiles()
-    {
-       return true;
-       //move here from CPValidator
-    }
-
-  /**
-   * Performs the cononical compare between the DOM of the provided XSD at the
-   * found at the root of the package and the DOM of the ADL owned XSD.  The
-   * only difference allowed between the two DOM trees is pointing to an
-   * external verses local copy of the ims_xml.xsd imported schema. The DOM
-   * structures are provided by wellformedness parsing with the ADLDOMParser.
-   * 
-   * @return - boolean result that shows if the two doms were compared
-   * successfully, false implies modifications to the schemas at the root of the
-   * package were detected.
-   */
-    private boolean cononicalCompare()
-    {
-       return true;
-    }
+	/**
+	 * The constructor.
+	 */
+	public XSDHandler(String iDirectory, String iApplicationProfile) {
+		mLogger = Logger.getLogger("org.adl.util.debug.validator");
+	}
 }

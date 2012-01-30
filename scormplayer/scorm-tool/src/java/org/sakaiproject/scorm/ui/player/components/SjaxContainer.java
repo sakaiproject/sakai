@@ -43,7 +43,6 @@ import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.scorm.ui.ResourceNavigator;
 import org.sakaiproject.scorm.ui.UISynchronizerPanel;
 import org.sakaiproject.scorm.ui.player.behaviors.SjaxCall;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 
 public class SjaxContainer extends WebMarkupContainer implements IHeaderContributor {
 
@@ -87,6 +86,7 @@ public class SjaxContainer extends WebMarkupContainer implements IHeaderContribu
 		calls[5] = new ScormSjaxCall("Initialize", 1) {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			protected String callMethod(ScoBean blankScoBean, AjaxRequestTarget target, Object... args) {
 				
 				ScoBean scoBean = applicationService().produceScoBean("undefined", getSessionBean());
@@ -110,6 +110,7 @@ public class SjaxContainer extends WebMarkupContainer implements IHeaderContribu
 		calls[7] = new ScormSjaxCall("Terminate", 1) {
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			protected String callMethod(ScoBean scoBean, AjaxRequestTarget target, Object... args) {
 				String result = super.callMethod(scoBean, target, args);
 						
@@ -141,6 +142,7 @@ public class SjaxContainer extends WebMarkupContainer implements IHeaderContribu
 		
 	}
 
+	@Override
 	public void onBeforeRender() {
 		super.onBeforeRender();
 		
@@ -185,6 +187,7 @@ public class SjaxContainer extends WebMarkupContainer implements IHeaderContribu
 			super(event, numArgs);
 		}
 		
+		@Override
 		protected String callMethod(ScoBean scoBean, AjaxRequestTarget target, Object... args) {
 			String result = super.callMethod(scoBean, target, args);
 			if (log.isDebugEnabled()) {
@@ -206,6 +209,7 @@ public class SjaxContainer extends WebMarkupContainer implements IHeaderContribu
 			return result;
 		}
 		
+		@Override
 		protected void onEvent(final AjaxRequestTarget target) {
 			modelChanging();
 			super.onEvent(target);
@@ -254,21 +258,18 @@ public class SjaxContainer extends WebMarkupContainer implements IHeaderContribu
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public Object getApplication() {
-			return SjaxContainer.this.getApplication();
-		}
-		
-		@Override
 		protected ScormResourceService resourceService() {
 			return SjaxContainer.this.resourceService;
 		}
 		
+		@Override
 		public Component getFrameComponent() {
 			if (synchronizerPanel != null && synchronizerPanel.getContentPanel() != null) 
 				return synchronizerPanel.getContentPanel();
 			return null;
 		}
 		
+		@Override
 		public boolean useLocationRedirect() {
 			return false;
 		}

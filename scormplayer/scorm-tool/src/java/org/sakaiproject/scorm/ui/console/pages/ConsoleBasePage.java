@@ -130,6 +130,7 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
 		breadcrumbs.setVisible(breadcrumbs.getNumberOfCrumbs() > 0);
 	}
 	
+	@Override
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
 		response.renderCSSReference(CONSOLE_CSS);

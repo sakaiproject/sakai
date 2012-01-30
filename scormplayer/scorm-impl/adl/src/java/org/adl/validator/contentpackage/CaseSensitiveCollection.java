@@ -26,6 +26,7 @@ package org.adl.validator.contentpackage;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
+
 /**
  * this class extends ArrayList and contains all of the hrefs in the manifest.
  * This collection of hrefs is used to determine if the same file is referenced
@@ -34,28 +35,30 @@ import java.util.Iterator;
  * @author 
  *
  */
-public class CaseSensitiveCollection extends ArrayList implements Serializable
-{
-   /**
-    * iterates through the collection and checks to see if the String objects
-    * stored are equal except for case.  Calls the String.equalsIgnoreCase()
-    * method to check the str argument passed in against the elements in the
-    * collection
-    * @param str String object to check against the collection
-    * @return true if this is in the collection using .equalsIgnoreCase(),
-    * false if it isnt in there at all
-    */
-   public boolean containsIgnoreCase(String str)
-   {
-      Iterator iter = this.iterator();
+public class CaseSensitiveCollection extends ArrayList<String> implements Serializable {
+	/**
+	  * 
+	  */
+	private static final long serialVersionUID = 1L;
 
-      // iterate through the collection and check the String objects
-      while(iter.hasNext())
-      {
-         if(((String)iter.next()).equalsIgnoreCase(str))
-            return true;
-      }
-      return false;
-   }
+	/**
+	    * iterates through the collection and checks to see if the String objects
+	    * stored are equal except for case.  Calls the String.equalsIgnoreCase()
+	    * method to check the str argument passed in against the elements in the
+	    * collection
+	    * @param str String object to check against the collection
+	    * @return true if this is in the collection using .equalsIgnoreCase(),
+	    * false if it isnt in there at all
+	    */
+	public boolean containsIgnoreCase(String str) {
+		Iterator<String> iter = this.iterator();
+
+		// iterate through the collection and check the String objects
+		while (iter.hasNext()) {
+			if ((iter.next()).equalsIgnoreCase(str))
+				return true;
+		}
+		return false;
+	}
 
 }

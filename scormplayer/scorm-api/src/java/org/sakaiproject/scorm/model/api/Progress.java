@@ -25,64 +25,82 @@ import java.io.Serializable;
 public class Progress implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	// cmi.progress_measure
 	private double progressMeasure;
+
 	// cmi.completion_threshold
 	private double completionThreshold;
+
 	// cmi.completion_status
 	private String completionStatus;
+
 	// cmi.success_status
 	private String successStatus;
+
 	// cmi.location
 	private String learnerLocation;
+
 	// cmi.max_time_allowed
 	private long maxSecondsAllowed;
+
 	// cmi.total_time
 	private String totalSessionSeconds;
-	
-	
+
 	public String getCompletionStatus() {
 		return completionStatus;
 	}
-	public void setCompletionStatus(String completionStatus) {
-		this.completionStatus = completionStatus;
-	}
-	public String getSuccessStatus() {
-		return successStatus;
-	}
-	public void setSuccessStatus(String successStatus) {
-		this.successStatus = successStatus;
-	}
-	public String getLearnerLocation() {
-		return learnerLocation;
-	}
-	public void setLearnerLocation(String learnerLocation) {
-		this.learnerLocation = learnerLocation;
-	}
-	public long getMaxSecondsAllowed() {
-		return maxSecondsAllowed;
-	}
-	public void setMaxSecondsAllowed(long maxSecondsAllowed) {
-		this.maxSecondsAllowed = maxSecondsAllowed;
-	}
-	public String getTotalSessionSeconds() {
-		return totalSessionSeconds;
-	}
-	public void setTotalSessionSeconds(String totalSessionSeconds) {
-		this.totalSessionSeconds = totalSessionSeconds;
-	}
-	public double getProgressMeasure() {
-		return progressMeasure;
-	}
-	public void setProgressMeasure(double progressMeasure) {
-		this.progressMeasure = progressMeasure;
-	}
+
 	public double getCompletionThreshold() {
 		return completionThreshold;
 	}
+
+	public String getLearnerLocation() {
+		return learnerLocation;
+	}
+
+	public long getMaxSecondsAllowed() {
+		return maxSecondsAllowed;
+	}
+
+	public double getProgressMeasure() {
+		return progressMeasure;
+	}
+
+	public String getSuccessStatus() {
+		return successStatus;
+	}
+
+	public String getTotalSessionSeconds() {
+		return totalSessionSeconds;
+	}
+
+	public void setCompletionStatus(String completionStatus) {
+		this.completionStatus = completionStatus;
+	}
+
 	public void setCompletionThreshold(double completionThreshold) {
 		this.completionThreshold = completionThreshold;
 	}
-	
+
+	public void setLearnerLocation(String learnerLocation) {
+		this.learnerLocation = learnerLocation;
+	}
+
+	public void setMaxSecondsAllowed(long maxSecondsAllowed) {
+		this.maxSecondsAllowed = maxSecondsAllowed;
+	}
+
+	public void setProgressMeasure(double progressMeasure) {
+		this.progressMeasure = progressMeasure;
+	}
+
+	public void setSuccessStatus(String successStatus) {
+		this.successStatus = successStatus;
+	}
+
+	public void setTotalSessionSeconds(String totalSessionSeconds) {
+		this.totalSessionSeconds = totalSessionSeconds;
+	}
+
 }

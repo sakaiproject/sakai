@@ -12,6 +12,7 @@ public class Icon extends Image {
 		this.reference = reference;
 	}
 
+	@Override
 	protected ResourceReference getImageResourceReference()
 	{
 		return reference;

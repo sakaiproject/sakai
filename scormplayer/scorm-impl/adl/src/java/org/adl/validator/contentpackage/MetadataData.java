@@ -23,6 +23,8 @@
 *******************************************************************************/
 package org.adl.validator.contentpackage;
 
+import java.io.Serializable;
+
 import org.w3c.dom.Node;
 
 /**
@@ -38,164 +40,129 @@ import org.w3c.dom.Node;
  * 
  * @author ADL Technical Team
  */
-public class MetadataData
-{
-   /**
-    * This attribute stores the Application Profile of the metadata found within
-    * the <code>&lt;metadata&gt;</code> tag of the Content Package.  Valid 
-    * values include:
-    * <ul>
-    *    <li><code>adlreg</code></li>
-    * </ul>
-    */
-   private String mApplicationProfileType = "";
+public class MetadataData implements IMetadataData, Serializable {
+	/**
+     * serialVersionUID
+     */
+    private static final long serialVersionUID = 8004994131851149918L;
 
-   /**
-    * This attribute stores the inline metadata, specifically in the form of its
-    * root node.
-    */
-   private Node mRootLOMNode;
+	/**
+	 * This attribute stores the Application Profile of the metadata found within
+	 * the <code>&lt;metadata&gt;</code> tag of the Content Package.  Valid 
+	 * values include:
+	 * <ul>
+	 *    <li><code>adlreg</code></li>
+	 * </ul>
+	 */
+	private String mApplicationProfileType = "";
 
-   /**
-    * This attribute serves as the file location of the external metadata test
-    * subject.  The attribute value "inline" denotes that an inline metadata
-    * lom element exists.  Otherwise, the uri location of the stand alone test
-    * subject is stored here.
-    */
-   private String mLocation = "";
+	/**
+	 * This attribute stores the inline metadata, specifically in the form of its
+	 * root node.
+	 */
+	private Node mRootLOMNode;
 
-   /**
-    * This attribute stores the identifier value of the major elements
-    * (item, orgs, etc/) that house the metadata instance.
-    */
-   private String mIdentifier;
+	/**
+	 * This attribute serves as the file location of the external metadata test
+	 * subject.  The attribute value "inline" denotes that an inline metadata
+	 * lom element exists.  Otherwise, the uri location of the stand alone test
+	 * subject is stored here.
+	 */
+	private String mLocation = "";
 
-   /**
-    * The default constructor. Sets the attributes to their initial values.
-    */
-   public MetadataData()
-   {
-      // no functionality
-   }
+	/**
+	 * This attribute stores the identifier value of the major elements
+	 * (item, orgs, etc/) that house the metadata instance.
+	 */
+	private String mIdentifier;
 
-   /**
-    * This method returns the application profile type of the metadata instance.
-    * Valid values include:
-    * <ul>
-    *    <li><code>adlreg</code></li>
+	/**
+	 * The default constructor. Sets the attributes to their initial values.
+	 */
+	public MetadataData() {
+		// no functionality
+	}
 
-    * </ul>
-    * 
-    * @return the Application Profile Type
-    */
-   public String getApplicationProfileType()
-   {
-      return mApplicationProfileType;
-   }
+	/* (non-Javadoc)
+	 * @see org.adl.validator.contentpackage.IMetadataData#getApplicationProfileType()
+	 */
+	public String getApplicationProfileType() {
+		return mApplicationProfileType;
+	}
 
-   /**
-    * This method returns the uri location value of the external metadata
-    * instance. If the metadata instance is in the form of inline metadata,
-    * then the value returned will be "inline".
-    *
-    * @return String location value of the metadata test subject.
-    */
-   public String getLocation()
-   {
-      return mLocation;
-   }
+	/* (non-Javadoc)
+	 * @see org.adl.validator.contentpackage.IMetadataData#getIdentifier()
+	 */
+	public String getIdentifier() {
+		return mIdentifier;
+	}
 
-   /**
-    * This method retruns the root node of the inline metadata if it exists
-    * in the form of extensions to the imsmanifest file.
-    *
-    * @return Node root lom node of the inline metadata.
-    */
-   public Node getRootLOMNode()
-   {
-      return mRootLOMNode;
-   }
+	/* (non-Javadoc)
+	 * @see org.adl.validator.contentpackage.IMetadataData#getLocation()
+	 */
+	public String getLocation() {
+		return mLocation;
+	}
 
-   /**
-    * This method returns the identifier attribute which stores the identifier
-    * value of the major elements (item, orgs, etc/) that house the metadata
-    * instance.
-    *
-    * @return String The identifier value of the parent of the metadata.
-    */
-   public String getIdentifier()
-   {
-      return mIdentifier;
-   }
+	/* (non-Javadoc)
+	 * @see org.adl.validator.contentpackage.IMetadataData#getRootLOMNode()
+	 */
+	public Node getRootLOMNode() {
+		return mRootLOMNode;
+	}
 
-   /**
-    * This method returns a boolean value based on the form of metadata.  If the
-    * metadata is in the form of inline metadata, than the boolean value
-    * <code>true</code> is returned.  If the metadata is in the form of 
-    * external standalone metadata, than the boolean value of 
-    * <code>false</code> is returned.
-    *
-    * @return boolean 
-    * <ul>
-    *    <li><code>true</code>:  if the metadata is inline</li>
-    *    <li><code>false</code>: otherwises</li>
-    * </ul>
-    */
-   public boolean isInlineMetadata()
-   {
-      boolean result = true;
-      if ( getRootLOMNode() == null )
-      {
-         result = false;
-      }
-      return result;
-   }
+	/* (non-Javadoc)
+	 * @see org.adl.validator.contentpackage.IMetadataData#isInlineMetadata()
+	 */
+	public boolean isInlineMetadata() {
+		boolean result = true;
+		if (getRootLOMNode() == null) {
+			result = false;
+		}
+		return result;
+	}
 
-   /**
-    * This method sets the application profile type of the metadata.
-    * Valid set values include:
-    * <ul>
-    *    <li><code>adlreg</code></li>
-    * </ul>
-    * 
-    * @param iApplicationProfileType the application profile value to be set.
-    */
-   public void setApplicationProfileType( String iApplicationProfileType )
-   {
-      mApplicationProfileType = iApplicationProfileType;
-   }
+	/**
+	 * This method sets the application profile type of the metadata.
+	 * Valid set values include:
+	 * <ul>
+	 *    <li><code>adlreg</code></li>
+	 * </ul>
+	 * 
+	 * @param iApplicationProfileType the application profile value to be set.
+	 */
+	public void setApplicationProfileType(String iApplicationProfileType) {
+		mApplicationProfileType = iApplicationProfileType;
+	}
 
-   /**
-    * This method sets the file location of the external metadata test
-    * subject if the metadata is external to the package. If the metadata is
-    * inline, than the value of "inline" is set.
-    *
-    * @param iLocation the location value to be set.
-    */
-   public void setLocation( String iLocation )
-   {
-      mLocation = iLocation;
-   }
+	/**
+	 * This method sets the identifier value of the major elements
+	 * (item, orgs, etc/) that house the metadata instance.
+	 *
+	 * @param iIdentifier the identifier value to be set.
+	 */
+	public void setIdentifier(String iIdentifier) {
+		mIdentifier = iIdentifier;
+	}
 
-   /**
-    * This method sets the root document node, if the metadata exists in the
-    * form of inline metadata.
-    *
-    * @param iNode the root lom node to be set.
-    */
-   public void setRootLOMNode( Node iNode )
-   {
-      mRootLOMNode = iNode;
-   }
+	/**
+	 * This method sets the file location of the external metadata test
+	 * subject if the metadata is external to the package. If the metadata is
+	 * inline, than the value of "inline" is set.
+	 *
+	 * @param iLocation the location value to be set.
+	 */
+	public void setLocation(String iLocation) {
+		mLocation = iLocation;
+	}
 
-   /**
-    * This method sets the identifier value of the major elements
-    * (item, orgs, etc/) that house the metadata instance.
-    *
-    * @param iIdentifier the identifier value to be set.
-    */
-   public void setIdentifier( String iIdentifier )
-   {
-      mIdentifier = iIdentifier;
-   }
+	/**
+	 * This method sets the root document node, if the metadata exists in the
+	 * form of inline metadata.
+	 *
+	 * @param iNode the root lom node to be set.
+	 */
+	public void setRootLOMNode(Node iNode) {
+		mRootLOMNode = iNode;
+	}
 }

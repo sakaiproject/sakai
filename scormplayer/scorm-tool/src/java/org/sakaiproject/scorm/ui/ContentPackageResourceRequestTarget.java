@@ -57,12 +57,8 @@ import org.apache.wicket.RequestCycle;
 import org.apache.wicket.Resource;
 import org.apache.wicket.Response;
 import org.apache.wicket.WicketRuntimeException;
-import org.apache.wicket.markup.html.DynamicWebResource;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.request.RequestParameters;
-import org.sakaiproject.scorm.exceptions.ResourceNotFoundException;
-import org.sakaiproject.scorm.model.api.ContentPackageResource;
-import org.sakaiproject.scorm.ui.player.ScormTool;
 import org.sakaiproject.scorm.ui.player.pages.PlayerPage;
 import org.sakaiproject.wicket.protocol.http.SakaiWebApplication;
 
@@ -108,6 +104,7 @@ public class ContentPackageResourceRequestTarget implements IRequestTarget {
 		return application.getSharedResources().get(PlayerPage.class, resourceName, null, null, false);
 	}
 	
+	@Override
 	public int hashCode()
 	{
 		int result = "ContentPackageResourceRequestTarget".hashCode();
@@ -169,6 +166,7 @@ public class ContentPackageResourceRequestTarget implements IRequestTarget {
 	}
 
 	
+	@Override
 	public String toString()
 	{
 		return new StringBuilder("[ContentPackageResourceRequestTarget@").append(hashCode()).append(", resourceName=")

@@ -50,69 +50,71 @@ import org.adl.datamodels.DMTypeValidator;
  * 
  * @author ADL Technical Team
  */
-public class DateTimeValidator extends DMTypeValidator implements Serializable
-{
+public class DateTimeValidator extends DMTypeValidator implements Serializable {
 
-   /**
-    * A constant holding the second field upper bound: 59
-    */
-   protected static final int SECOND_UPPER_BOUND = 59;
+	/**
+	  * serialVersionUID
+	  */
+	private static final long serialVersionUID = -4459093724313330749L;
 
-   /**
-    * A constant holding the minute field upper bound: 59
-    */
-   protected static final int MIN_UPPER_BOUND = 59;
+	/**
+	    * A constant holding the second field upper bound: 59
+	    */
+	protected static final int SECOND_UPPER_BOUND = 59;
 
-   /**
-    * A constant holding the hour field upper bound: 23
-    */
-   protected static final int HOUR_UPPER_BOUND = 23;
+	/**
+	 * A constant holding the minute field upper bound: 59
+	 */
+	protected static final int MIN_UPPER_BOUND = 59;
 
-   /**
-    * A constant holding the month field upper bound: 11
-    */
-   protected static final int MONTH_UPPER_BOUND = 11;
+	/**
+	 * A constant holding the hour field upper bound: 23
+	 */
+	protected static final int HOUR_UPPER_BOUND = 23;
 
-   /**
-    * A constant holding the year field lower bound: 1970 
-    */
-   protected static final int YEAR_LOWER_BOUND = 1970;
+	/**
+	 * A constant holding the month field upper bound: 11
+	 */
+	protected static final int MONTH_UPPER_BOUND = 11;
 
-   /**
-    * A constant holding the year field upper bound: 2038
-    */
-   protected static final int YEAR_UPPER_BOUND = 2038;
+	/**
+	 * A constant holding the year field lower bound: 1970 
+	 */
+	protected static final int YEAR_LOWER_BOUND = 1970;
 
+	/**
+	 * A constant holding the year field upper bound: 2038
+	 */
+	protected static final int YEAR_UPPER_BOUND = 2038;
 
-   /**
-    * Indicates if subseconds should be allowed -- and tested
-    */
-   protected boolean mIncludeSubSecs = true;
+	/**
+	 * Indicates if subseconds should be allowed -- and tested
+	 */
+	protected boolean mIncludeSubSecs = true;
 
-   
-   /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-   
-   Constructors
-  
-  -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
+	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+	
+	Constructors
+	
+	-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
 
-  // For hibernate
-  public DateTimeValidator() { }
-  
-  /**
-   * Constructor for this type
-   * 
-   * @param iInclude Indicates if subseconds should be tested for in this 
-   * validator.
-   */
-  public DateTimeValidator(boolean iInclude)
-  {
-     mIncludeSubSecs = iInclude; 
-  }
+	// For hibernate
+	public DateTimeValidator() {
+	}
 
+	/**
+	 * Constructor for this type
+	 * 
+	 * @param iInclude Indicates if subseconds should be tested for in this 
+	 * validator.
+	 */
+	public DateTimeValidator(boolean iInclude) {
+		mIncludeSubSecs = iInclude;
+	}
 
-  public int validate(String value) {
-	  return -1;
-  }   
+	@Override
+	public int validate(String value) {
+		return -1;
+	}
 
 } // end DateTimeValidator

@@ -13,6 +13,7 @@ public class AttemptNumberAction extends Action {
 		super(propertyExpression, pageClass, paramPropertyExpressions);
 	}
 	
+	@Override
 	public Component newLink(String id, Object bean) {
 		String number = String.valueOf(PropertyResolver.getValue(labelPropertyExpression, bean));
 		long numberOfAttempts = 0;

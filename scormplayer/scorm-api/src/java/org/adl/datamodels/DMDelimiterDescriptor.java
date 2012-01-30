@@ -26,7 +26,6 @@ package org.adl.datamodels;
 
 import java.io.Serializable;
 
-
 /**
  * Encapsulation of information required for processing a data model request.
  * <br><br>
@@ -54,100 +53,96 @@ import java.io.Serializable;
  * </ul>
  * 
  * @author ADL Technical Team
- */ 
-public class DMDelimiterDescriptor implements Serializable 
-{
+ */
+public class DMDelimiterDescriptor implements Serializable {
+	/**
+	 * serialVersionUID
+	 */
+	private static final long serialVersionUID = 2275686945066063740L;
+
 	private Long id;
-	
 
-   /**
-    * Describes the name of this delimiter
-    */
-   public String mName = null;
+	/**
+	 * Describes the name of this delimiter
+	 */
+	public String mName = null;
 
+	/**
+	 * Describes if the default value of this delimiter
+	 */
+	public String mDefault = null;
 
-   /**
-    * Describes if the default value of this delimiter
-    */
-   public String mDefault = null;
+	/**
+	 * Describes the SPM for the value.
+	 */
+	public int mValueSPM = -1;
 
+	/**
+	 * Describes the method used to validate the value of this delimiter.
+	 */
+	public DMTypeValidator mValidator = null;
 
-   /**
-    * Describes the SPM for the value.
-    */
-   public int mValueSPM = -1;
+	// For hibernate
+	public DMDelimiterDescriptor() {
+	}
 
+	/**
+	 * Provides a way to store delimiter information such as name, default value,
+	 * and type of validator.
+	 * 
+	 * @param iName  The name of the delimiter
+	 * @param iDefault  The default value for the delimiter
+	 * @param iValidator  The validator associated with the delimiter
+	 */
+	public DMDelimiterDescriptor(String iName, String iDefault, DMTypeValidator iValidator) {
+		mName = iName;
+		mDefault = iDefault;
+		mValidator = iValidator;
+	}
 
-   /**
-    * Describes the method used to validate the value of this delimiter.
-    */
-   public DMTypeValidator mValidator = null;
+	/**
+	 * Provides a way to store delimiter information such as name, default value,
+	 * and type of validator.
+	 * 
+	 * @param iName The name of the delimiter
+	 * 
+	 * @param iDefault The default value for the delimiter
+	 * 
+	 * @param iValueSPM The smallest permitted maximum size allowed for this
+	 *                      delimiter
+	 * 
+	 * @param iValidator The validator associated with the delimiter
+	 */
+	public DMDelimiterDescriptor(String iName, String iDefault, int iValueSPM, DMTypeValidator iValidator) {
+		mName = iName;
+		mDefault = iDefault;
+		mValueSPM = iValueSPM;
+		mValidator = iValidator;
+	}
 
-   // For hibernate
-   public DMDelimiterDescriptor() { }
-   
-   /**
-    * Provides a way to store delimiter information such as name, default value,
-    * and type of validator.
-    * 
-    * @param iName  The name of the delimiter
-    * @param iDefault  The default value for the delimiter
-    * @param iValidator  The validator associated with the delimiter
-    */
-   public DMDelimiterDescriptor(String iName, 
-                                String iDefault,
-                                DMTypeValidator iValidator)
-   {
-      mName = iName;
-      mDefault = iDefault;
-      mValidator = iValidator;
-   }
-
-   /**
-    * Provides a way to store delimiter information such as name, default value,
-    * and type of validator.
-    * 
-    * @param iName The name of the delimiter
-    * 
-    * @param iDefault The default value for the delimiter
-    * 
-    * @param iValueSPM The smallest permitted maximum size allowed for this
-    *                      delimiter
-    * 
-    * @param iValidator The validator associated with the delimiter
-    */
-   public DMDelimiterDescriptor(String iName, 
-                                String iDefault,
-                                int iValueSPM,
-                                DMTypeValidator iValidator)
-   {
-      mName = iName;
-      mDefault = iDefault;
-      mValueSPM = iValueSPM;
-      mValidator = iValidator;
-   }
-
-@Override
-public int hashCode() {
-	final int prime = 31;
-	int result = 1;
-	result = prime * result + (int) (id ^ (id >>> 32));
-	return result;
-}
-
-@Override
-public boolean equals(Object obj) {
-	if (this == obj)
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DMDelimiterDescriptor other = (DMDelimiterDescriptor) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
 		return true;
-	if (obj == null)
-		return false;
-	if (getClass() != obj.getClass())
-		return false;
-	DMDelimiterDescriptor other = (DMDelimiterDescriptor) obj;
-	if (id != other.id)
-		return false;
-	return true;
-}
+	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
 
-}  // end DMDelimiterDescriptor
+} // end DMDelimiterDescriptor

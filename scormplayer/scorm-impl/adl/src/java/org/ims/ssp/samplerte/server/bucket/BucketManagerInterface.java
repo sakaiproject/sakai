@@ -28,87 +28,85 @@ package org.ims.ssp.samplerte.server.bucket;
  * 
  * @author ADL Technical Team
  */
-public interface BucketManagerInterface
-{
-   /**
-    *
-    * Updates the bucket to put a block of data in the bucket, starting at the
-    * end of the current data.
-    *
-    * @param ibucketID - The identifier of the bucket.
-    * @param iData - The data to be stored in this bucket.
-    * @param iBucketAllocation - The bucket allocation information.
-    *
-    * @return - Status or result information about the outcome of this call.
-    */
-   StatusInfo appendData( String ibucketID, byte[] iData, BucketAllocation iBucketAllocation );
+public interface BucketManagerInterface {
+	/**
+	 *
+	 * Updates the bucket to put a block of data in the bucket, starting at the
+	 * end of the current data.
+	 *
+	 * @param ibucketID - The identifier of the bucket.
+	 * @param iData - The data to be stored in this bucket.
+	 * @param iBucketAllocation - The bucket allocation information.
+	 *
+	 * @return - Status or result information about the outcome of this call.
+	 */
+	StatusInfo appendData(String ibucketID, byte[] iData, BucketAllocation iBucketAllocation);
 
-   /**
-    *
-    * Retrieves all data currently stored in the bucket
-    *
-    * @param iBucketID - The identifier of the bucket.
-    * @param oData - The data stored in this bucket.
-    * @param iBucketAllocation - The bucket allocation information.
-    *
-    * @return - Status or result information about the outcome of this call.
-    */
-   StatusInfo getData( String iBucketID, byte[] oData, BucketAllocation iBucketAllocation );
+	/**
+	 *
+	 * Retrieves all data currently stored in the bucket
+	 *
+	 * @param iBucketID - The identifier of the bucket.
+	 * @param oData - The data stored in this bucket.
+	 * @param iBucketAllocation - The bucket allocation information.
+	 *
+	 * @return - Status or result information about the outcome of this call.
+	 */
+	StatusInfo getData(String iBucketID, byte[] oData, BucketAllocation iBucketAllocation);
 
-   /**
-    *
-    * Retrieves the specified amount of data starting at the specified offset
-    * position.
-    *
-    * @param iBucketID - The identifier of the bucket.
-    * @param iOffset - The position in the bucket to start reading.
-    * @param iSize - The amount of data requested.
-    * @param oData - The specified data stored in this bucket starting at the
-    *                specified offset position.
-    * @param iBucketAllocation - The bucket allocation information.
-    *
-    * @return - Status or result information about the outcome of this call.
-    */
-   StatusInfo getData( String iBucketID, int iOffset, int iSize,
-                              byte[] oData, BucketAllocation iBucketAllocation );
+	/**
+	 *
+	 * Retrieves the specified amount of data starting at the specified offset
+	 * position.
+	 *
+	 * @param iBucketID - The identifier of the bucket.
+	 * @param iOffset - The position in the bucket to start reading.
+	 * @param iSize - The amount of data requested.
+	 * @param oData - The specified data stored in this bucket starting at the
+	 *                specified offset position.
+	 * @param iBucketAllocation - The bucket allocation information.
+	 *
+	 * @return - Status or result information about the outcome of this call.
+	 */
+	StatusInfo getData(String iBucketID, int iOffset, int iSize, byte[] oData, BucketAllocation iBucketAllocation);
 
-   /**
-    *
-    * Retrieves the current state of the bucket.
-    *
-    * @param iBucketID - The identifier of the bucket.
-    * @param oState - The current state of the bucket.
-    * @param iBucketAllocation - The bucket allocation information.
-    *
-    * @return - Status or result information about the outcome of this call.
-    */
-   StatusInfo getState( String iBucketID, BucketState oState, BucketAllocation iBucketAllocation );
+	/**
+	 *
+	 * Retrieves the current state of the bucket.
+	 *
+	 * @param iBucketID - The identifier of the bucket.
+	 * @param oState - The current state of the bucket.
+	 * @param iBucketAllocation - The bucket allocation information.
+	 *
+	 * @return - Status or result information about the outcome of this call.
+	 */
+	StatusInfo getState(String iBucketID, BucketState oState, BucketAllocation iBucketAllocation);
 
-   /**
-    *
-    * Updates the bucket to put a block of data in the bucket, replacing all
-    * data currently stored in the bucket
-    *
-    * @param iBucketID - The identifier of the bucket.
-    * @param iData - The data to be stored in this bucket.
-    * @param iBucketAllocation - The bucket allocation information.
-    *
-    * @return - Status or result information about the outcome of this call.
-    */
-   StatusInfo setData( String iBucketID, byte[] iData, BucketAllocation iBucketAllocation );
+	/**
+	 *
+	 * Updates the bucket to put a block of data in the bucket, replacing all
+	 * data currently stored in the bucket
+	 *
+	 * @param iBucketID - The identifier of the bucket.
+	 * @param iData - The data to be stored in this bucket.
+	 * @param iBucketAllocation - The bucket allocation information.
+	 *
+	 * @return - Status or result information about the outcome of this call.
+	 */
+	StatusInfo setData(String iBucketID, byte[] iData, BucketAllocation iBucketAllocation);
 
-   /**
-    *
-    * Updates the bucket to put a block of data in the bucket, replacing any
-    * data currently stored in the bucket starting at the specified offset
-    * position.
-    *
-    * @param iBucketID - The identifier of the bucket.
-    * @param iOffset - The position in the bucket to start reading.
-    * @param iData - The data to be stored in this bucket.
-    * @param iBucketAllocation - The bucket allocation information.
-    *
-    * @return - Status or result information about the outcome of this call.
-    */
-   StatusInfo setData( String iBucketID, int iOffset, byte[] iData, BucketAllocation iBucketAllocation );
+	/**
+	 *
+	 * Updates the bucket to put a block of data in the bucket, replacing any
+	 * data currently stored in the bucket starting at the specified offset
+	 * position.
+	 *
+	 * @param iBucketID - The identifier of the bucket.
+	 * @param iOffset - The position in the bucket to start reading.
+	 * @param iData - The data to be stored in this bucket.
+	 * @param iBucketAllocation - The bucket allocation information.
+	 *
+	 * @return - Status or result information about the outcome of this call.
+	 */
+	StatusInfo setData(String iBucketID, int iOffset, byte[] iData, BucketAllocation iBucketAllocation);
 }

@@ -13,6 +13,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColu
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.scorm.model.api.Archive;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
@@ -57,6 +58,7 @@ public class ValidationPage extends ConsoleBasePage {
 		add(table);
 	}
 	
+	@Override
 	protected ResourceReference getPageIconReference() {
 		return PAGE_ICON;
 	}
@@ -74,7 +76,7 @@ public class ValidationPage extends ConsoleBasePage {
 			final Archive archive = (Archive)bean;
 			
 			try {
-				contentService.validate(archive.getResourceId(), false, true);
+				contentService.validate(archive.getResourceId(), false, true, ServerConfigurationService.getString("scorm.zip.encoding", "UTF-8"));
 				target.addComponent(table);
 				
 			} catch (Exception e) {

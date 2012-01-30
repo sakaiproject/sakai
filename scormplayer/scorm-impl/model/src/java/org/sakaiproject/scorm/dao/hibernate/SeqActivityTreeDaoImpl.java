@@ -32,56 +32,47 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class SeqActivityTreeDaoImpl extends HibernateDaoSupport implements SeqActivityTreeDao {
 	private static Log log = LogFactory.getLog(SeqActivityTreeDaoImpl.class);
-			
+
 	public ISeqActivityTree find(long contentPackageId, String userId) {
-		List r = getHibernateTemplate().find(
-				"from " + SeqActivityTree.class.getName()
-						+ " where contentPackageId=? and mLearnerID=?", 
-						new Object[]{ contentPackageId, userId });
-		
-		
-		if (log.isInfoEnabled())
-			log.info("SeqActivityTreeDAO::find: records: " + r.size());					
-		
-		
+		List r = getHibernateTemplate().find("from " + SeqActivityTree.class.getName() + " where contentPackageId=? and mLearnerID=?",
+		        new Object[] { contentPackageId, userId });
+
+		if (log.isInfoEnabled()) {
+			log.info("SeqActivityTreeDAO::find: records: " + r.size());
+		}
+
 		if (r.size() == 0)
 			return null;
-			
+
 		return (ISeqActivityTree) r.get(0);
 	}
-	
+
 	public SeqActivityTreeSnapshot findSnapshot(String courseId, String userId) {
-		List r = getHibernateTemplate().find(
-				"from " + SeqActivityTreeSnapshot.class.getName()
-						+ " where mCourseID=? and mLearnerID=?", 
-						new Object[]{ courseId, userId });
-		
-		if (log.isInfoEnabled())
-			log.info("SeqActivityTreeDAO::findSnapshot: records: " + r.size());					
-		
-		
+		List r = getHibernateTemplate().find("from " + SeqActivityTreeSnapshot.class.getName() + " where mCourseID=? and mLearnerID=?",
+		        new Object[] { courseId, userId });
+
+		if (log.isInfoEnabled()) {
+			log.info("SeqActivityTreeDAO::findSnapshot: records: " + r.size());
+		}
+
 		if (r.size() == 0)
 			return null;
-			
+
 		return (SeqActivityTreeSnapshot) r.get(0);
 	}
-	
+
 	public List<SeqActivityTreeSnapshot> findUserSnapshots(String userId) {
-		List r = getHibernateTemplate().find(
-				"from " + SeqActivityTreeSnapshot.class.getName()
-						+ " where mLearnerID=?", 
-						new Object[]{ userId });
-		
-		if (log.isInfoEnabled())
-			log.info("SeqActivityTreeDAO::findUserSnapshots: records: " + r.size());					
-		
+		List r = getHibernateTemplate().find("from " + SeqActivityTreeSnapshot.class.getName() + " where mLearnerID=?", new Object[] { userId });
+
+		if (log.isInfoEnabled()) {
+			log.info("SeqActivityTreeDAO::findUserSnapshots: records: " + r.size());
+		}
+
 		return r;
 	}
-	
-	
+
 	public void save(ISeqActivityTree tree) {
 		getHibernateTemplate().saveOrUpdate(tree);
 	}
-	
-	
+
 }

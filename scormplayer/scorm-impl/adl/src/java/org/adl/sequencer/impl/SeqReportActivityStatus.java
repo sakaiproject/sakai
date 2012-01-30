@@ -26,7 +26,6 @@ package org.adl.sequencer.impl;
 
 import org.adl.sequencer.IDuration;
 
-
 /**
  * Provides the mechanism to allow the RTE to communicate runtime activity
  * state and status information to the sequencer.<br><br>
@@ -62,86 +61,74 @@ import org.adl.sequencer.IDuration;
  * 
  * @author ADL Technical Team
  */
-public interface SeqReportActivityStatus
-{
+public interface SeqReportActivityStatus {
 
-   /**
-    * This method is used to inform the sequencer of the suspended state for the
-    * current activity.  This state will take affect when the activity
-    * terminates.
-    * 
-    * @param iID        ID of the activity whose suspended state is being set.
-    * 
-    * @param iSuspended Indicates if the activity is suspended (<code>true
-    *                   </code>) or not (<code>false</code>).
-    */
-   void reportSuspension(String iID, boolean iSuspended);
+	/**
+	 * This method is used to inform the sequencer to clear one of the
+	 * activity's objective's measures -- set it to 'unknown'.
+	 * 
+	 * @param iID    ID of the activity whose measure has changed.
+	 * 
+	 * @param iObjID ID of the objective whose measure has changed.
+	 */
+	void clearAttemptObjMeasure(String iID, String iObjID);
 
+	/**
+	 * This method is used to inform the sequencer of the suspended state for the
+	 * current activity.  This state will take affect when the activity
+	 * terminates.
+	 * 
+	 * @param iID        ID of the activity whose suspended state is being set.
+	 * 
+	 * @param iSuspended Indicates if the activity is suspended (<code>true
+	 *                   </code>) or not (<code>false</code>).
+	 */
+	void reportSuspension(String iID, boolean iSuspended);
 
-   /**
-    * This method is used to inform the sequencer of a change to an activity's
-    * current attempt experienced duration.
-    * 
-    * @param iID    ID of the activity being affected.
-    * 
-    * @param iDur   Indicates the experienced duration of the current attempt.
-    */
-   void setAttemptDuration(String iID, IDuration iDur);
+	/**
+	 * This method is used to inform the sequencer of a change to an activity's
+	 * current attempt experienced duration.
+	 * 
+	 * @param iID    ID of the activity being affected.
+	 * 
+	 * @param iDur   Indicates the experienced duration of the current attempt.
+	 */
+	void setAttemptDuration(String iID, IDuration iDur);
 
+	/**
+	 * This method is used to inform the sequencer of a change to one of the
+	 * activity's objective's measures.
+	 * 
+	 * @param iID      ID of the activity whose measure has changed.
+	 * 
+	 * @param iObjID   ID of the objective whose measure has changed.
+	 * 
+	 * @param iMeasure New value for the objective's measure.
+	 */
+	void setAttemptObjMeasure(String iID, String iObjID, double iMeasure);
 
-   /**
-    * This method is used to inform the sequencer of a change to the activity's
-    * progress status.
-    * 
-    * @param iID       ID of the activity whose progress status has changed.
-    * 
-    * @param iProgress New value for the activity's progress status.
-    *                  Valid values are: 'unknown', 'completed', 'incomplete'.
-    */
-   void setAttemptProgressStatus(String iID, 
-                                        String iProgress);
+	/**
+	 * This method is used to inform the sequencer of a change to one of the
+	 * activity's objective's satisfaction statuses.
+	 * 
+	 * @param iID     ID of the activity whose status has changed.
+	 * 
+	 * @param iObjID  ID of the objective whose satisfaction has changed.
+	 * 
+	 * @param iStatus New value for the objective's satisfaction status.
+	 *                Valid values are 'unknown', 'satisfied, 'notsatisfied'.
+	 */
+	void setAttemptObjSatisfied(String iID, String iObjID, String iStatus);
 
+	/**
+	 * This method is used to inform the sequencer of a change to the activity's
+	 * progress status.
+	 * 
+	 * @param iID       ID of the activity whose progress status has changed.
+	 * 
+	 * @param iProgress New value for the activity's progress status.
+	 *                  Valid values are: 'unknown', 'completed', 'incomplete'.
+	 */
+	void setAttemptProgressStatus(String iID, String iProgress);
 
-   /**
-    * This method is used to inform the sequencer of a change to one of the
-    * activity's objective's measures.
-    * 
-    * @param iID      ID of the activity whose measure has changed.
-    * 
-    * @param iObjID   ID of the objective whose measure has changed.
-    * 
-    * @param iMeasure New value for the objective's measure.
-    */
-   void setAttemptObjMeasure(String iID,
-                                    String iObjID,
-                                    double iMeasure);
-
-   /**
-    * This method is used to inform the sequencer to clear one of the
-    * activity's objective's measures -- set it to 'unknown'.
-    * 
-    * @param iID    ID of the activity whose measure has changed.
-    * 
-    * @param iObjID ID of the objective whose measure has changed.
-    */
-   void clearAttemptObjMeasure(String iID,
-                                      String iObjID);
-
-   /**
-    * This method is used to inform the sequencer of a change to one of the
-    * activity's objective's satisfaction statuses.
-    * 
-    * @param iID     ID of the activity whose status has changed.
-    * 
-    * @param iObjID  ID of the objective whose satisfaction has changed.
-    * 
-    * @param iStatus New value for the objective's satisfaction status.
-    *                Valid values are 'unknown', 'satisfied, 'notsatisfied'.
-    */
-   void setAttemptObjSatisfied(String iID,
-                                      String iObjID,
-                                      String iStatus);
-
-
-
-}  // end SeqReportActivityStatus
+} // end SeqReportActivityStatus

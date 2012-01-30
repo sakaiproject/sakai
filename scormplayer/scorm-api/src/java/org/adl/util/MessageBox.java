@@ -24,9 +24,9 @@
 
 package org.adl.util;
 
-import javax.swing.JPanel;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 /**
  * <strong>Filename:</strong><br>
@@ -59,132 +59,109 @@ import javax.swing.JOptionPane;
  *
  * @author ADL Technical Team
  */
-public class MessageBox extends JPanel
-{
-   /**
-    * Static Variable for a SEVERE ERROR message
-    */
-   public static final int SEVERE  = 0;
-   
-   /**
-    * Static Variable for a ERROR message
-    */
-   public static final int ERROR   = 1;
-   
-   /**
-    * Static Variable for a WARNING message
-    */
-   public static final int WARNING = 2;
-   
-   /**
-    * Static Variable for a INFORMATIONAL message
-    */
-   public static final int INFO    = 3;
+public class MessageBox extends JPanel {
+	/**
+	  * serialVersionUID
+	  */
+	private static final long serialVersionUID = 1514332343427140077L;
 
-   /**
-    * This default constructor is private and shall not be used.
-    */
-   private MessageBox()
-   {
-      // Default constructor - nothing explicitly needed
-   }
+	/**
+	    * Static Variable for a SEVERE ERROR message
+	    */
+	public static final int SEVERE = 0;
 
-   /**
-    * This constructor interprets the type of message wanted and executes the
-    * appropriate dialog box.
-    *
-    * @param iType   The type of dialog box desired to display the message:
-    *                <ol>
-    *                  <li><code>SEVERE</code> dialog box.</li>
-    *                  <li><code>ERROR</code> dialog box.</li>
-    *                  <li><code>WARNING</code> dialog box.</li>
-    *                  <li><code>INFO</code> dialog box.</li>
-    *                </ol>
-    * @param iMsg - The message to be displayed.
-    * @param iTtl - The title of this message.
-    */
-   public MessageBox( int iType, String iMsg, String iTtl )
-   {
-      switch( iType )
-      {
-         case SEVERE:
-         {
-            severeBox( iMsg, iTtl );
-            break;
-         }
-         case ERROR:
-         {
-            errorBox( iMsg, iTtl );
-            break;
-         }
-         case WARNING:
-         {
-            warningBox( iMsg, iTtl );
-            break;
-         }
-         case INFO:
-         {
-            infoBox( iMsg, iTtl );
-            break;
-         }
-         default:
-         {
-            System.out.println("message type was not specified");
-         }
-      }
-   }
+	/**
+	 * Static Variable for a ERROR message
+	 */
+	public static final int ERROR = 1;
 
+	/**
+	 * Static Variable for a WARNING message
+	 */
+	public static final int WARNING = 2;
 
-   /**
-    * This method displays a dialog box with the ERROR_MESSAGE symbol and exits
-    * the program.
-    *
-    * @param iMsg - The message to be displayed.
-    * @param iTtl - The title of this message.
-    */
-   public void severeBox( String iMsg, String iTtl )
-   {
-      JOptionPane.showMessageDialog( new JFrame(), iMsg, iTtl,
-                                     JOptionPane.ERROR_MESSAGE );
-      System.exit(0);
-   }
+	/**
+	 * Static Variable for a INFORMATIONAL message
+	 */
+	public static final int INFO = 3;
 
+	/**
+	 * This constructor interprets the type of message wanted and executes the
+	 * appropriate dialog box.
+	 *
+	 * @param iType   The type of dialog box desired to display the message:
+	 *                <ol>
+	 *                  <li><code>SEVERE</code> dialog box.</li>
+	 *                  <li><code>ERROR</code> dialog box.</li>
+	 *                  <li><code>WARNING</code> dialog box.</li>
+	 *                  <li><code>INFO</code> dialog box.</li>
+	 *                </ol>
+	 * @param iMsg - The message to be displayed.
+	 * @param iTtl - The title of this message.
+	 */
+	public MessageBox(int iType, String iMsg, String iTtl) {
+		switch (iType) {
+		case SEVERE: {
+			severeBox(iMsg, iTtl);
+			break;
+		}
+		case ERROR: {
+			errorBox(iMsg, iTtl);
+			break;
+		}
+		case WARNING: {
+			warningBox(iMsg, iTtl);
+			break;
+		}
+		case INFO: {
+			infoBox(iMsg, iTtl);
+			break;
+		}
+		default: {
+			System.out.println("message type was not specified");
+		}
+		}
+	}
 
-   /**
-    * This method displays a dialog box with the ERROR_MESSAGE symbol.
-    *
-    * @param iMsg - The message to be displayed.
-    * @param iTtl - The title of this message.
-    */
-   public void errorBox( String iMsg, String iTtl )
-   {
-      JOptionPane.showMessageDialog( new JFrame(), iMsg, iTtl,
-                                     JOptionPane.ERROR_MESSAGE );
-   }
+	/**
+	 * This method displays a dialog box with the ERROR_MESSAGE symbol.
+	 *
+	 * @param iMsg - The message to be displayed.
+	 * @param iTtl - The title of this message.
+	 */
+	public void errorBox(String iMsg, String iTtl) {
+		JOptionPane.showMessageDialog(new JFrame(), iMsg, iTtl, JOptionPane.ERROR_MESSAGE);
+	}
 
+	/**
+	 * This method displays a dialog box with the INFORMATION_MESSAGE symbol.
+	 *
+	 * @param iMsg - The message to be displayed.
+	 * @param iTtl - The title of this message.
+	 */
+	public void infoBox(String iMsg, String iTtl) {
+		JOptionPane.showMessageDialog(new JFrame(), iMsg, iTtl, JOptionPane.INFORMATION_MESSAGE);
+	}
 
-   /**
-    * This method displays a dialog box with the WARNING_MESSAGE symbol.
-    *
-    * @param iMsg - The message to be displayed.
-    * @param iTtl - The title of this message.
-    */
-   public void warningBox( String iMsg, String iTtl )
-   {
-      JOptionPane.showMessageDialog( new JFrame(), iMsg, iTtl,
-                                     JOptionPane.WARNING_MESSAGE );
-   }
+	/**
+	 * This method displays a dialog box with the ERROR_MESSAGE symbol and exits
+	 * the program.
+	 *
+	 * @param iMsg - The message to be displayed.
+	 * @param iTtl - The title of this message.
+	 */
+	public void severeBox(String iMsg, String iTtl) {
+		JOptionPane.showMessageDialog(new JFrame(), iMsg, iTtl, JOptionPane.ERROR_MESSAGE);
+		throw new RuntimeException(iMsg);
+	}
 
-
-   /**
-    * This method displays a dialog box with the INFORMATION_MESSAGE symbol.
-    *
-    * @param iMsg - The message to be displayed.
-    * @param iTtl - The title of this message.
-    */
-   public void infoBox( String iMsg, String iTtl )
-   {
-      JOptionPane.showMessageDialog( new JFrame(), iMsg, iTtl,
-                                     JOptionPane.INFORMATION_MESSAGE );
-   }
+	/**
+	 * This method displays a dialog box with the WARNING_MESSAGE symbol.
+	 *
+	 * @param iMsg - The message to be displayed.
+	 * @param iTtl - The title of this message.
+	 */
+	public void warningBox(String iMsg, String iTtl) {
+		JOptionPane.showMessageDialog(new JFrame(), iMsg, iTtl, JOptionPane.WARNING_MESSAGE);
+	}
 }

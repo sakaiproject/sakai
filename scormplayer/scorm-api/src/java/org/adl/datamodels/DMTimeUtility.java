@@ -51,319 +51,261 @@ import org.apache.commons.logging.LogFactory;
  * 
  * @author ADL Technical Team
  */
-public class DMTimeUtility 
-{
+public class DMTimeUtility {
 	static final Log log = LogFactory.getLog(DMTimeUtility.class);
-   /**
-    * This method calls the timeStringParse method to convert a time interval 
-    * string to integers for the year, month, day, hour, minute, second and 
-    * decimal portion of second.  The returned integers are added and then 
-    * converted back to a string which is returned.
-    *
-    * @param iTimeOne The String representation of a datamodel time interval.
-    * 
-    * @param iTimeTwo The String representation of a datamodel time interval.
-    * 
-    * @return A String representing the addition of the two input parameters.
-    * 
-    */
-   public static String add(String iTimeOne, String iTimeTwo)
-   {
-      // Possible formats for input srings
-      // P[yY][mM][dD][T[hH][mM][s[.s]S] 
-      // P1Y3M2DT3H
-      // PT3H5M
 
-      String mTimeString = null;
-      int multiple = 1;
-      int[] mFirstTime = new int[7];
-      int[] mSecondTime = new int[7];
+	/**
+	 * This method calls the timeStringParse method to convert a time interval 
+	 * string to integers for the year, month, day, hour, minute, second and 
+	 * decimal portion of second.  The returned integers are added and then 
+	 * converted back to a string which is returned.
+	 *
+	 * @param iTimeOne The String representation of a datamodel time interval.
+	 * 
+	 * @param iTimeTwo The String representation of a datamodel time interval.
+	 * 
+	 * @return A String representing the addition of the two input parameters.
+	 * 
+	 */
+	public static String add(String iTimeOne, String iTimeTwo) {
+		// Possible formats for input srings
+		// P[yY][mM][dD][T[hH][mM][s[.s]S] 
+		// P1Y3M2DT3H
+		// PT3H5M
 
-      for (int i = 0; i < 7; i++)
-      {
-         mFirstTime[i] = 0;
-         mSecondTime[i] = 0;
-      }
+		String mTimeString = null;
+		int multiple = 1;
+		int[] mFirstTime = new int[7];
+		int[] mSecondTime = new int[7];
 
-      timeStringParse(iTimeOne, mFirstTime); 
-      timeStringParse(iTimeTwo, mSecondTime);
+		for (int i = 0; i < 7; i++) {
+			mFirstTime[i] = 0;
+			mSecondTime[i] = 0;
+		}
 
-      // add first and second time arrays  
-      for (int i = 0; i < 7; i++)
-      {
-         mFirstTime[i] += mSecondTime[i];
-      }
+		timeStringParse(iTimeOne, mFirstTime);
+		timeStringParse(iTimeTwo, mSecondTime);
 
-      // adjust seconds, minutes, hours, and days if addition
-      // results in too large a number
-      if ( mFirstTime[6] > 99 )
-      {
-         multiple = mFirstTime[6] / 100;
-         mFirstTime[6] = mFirstTime[6] % 100;
-         mFirstTime[5] += multiple;
-      }
+		// add first and second time arrays  
+		for (int i = 0; i < 7; i++) {
+			mFirstTime[i] += mSecondTime[i];
+		}
 
-      if ( mFirstTime[5] > 59 )
-      {
-         multiple = mFirstTime[5] / 60;
-         mFirstTime[5] = mFirstTime[5] % 60;
-         mFirstTime[4] += multiple;
-      }
-      if ( mFirstTime[4] > 59 )
-      {
-         multiple = mFirstTime[4] / 60;
-         mFirstTime[4] = mFirstTime[4] % 60;
-         mFirstTime[3] += multiple;
-      }
+		// adjust seconds, minutes, hours, and days if addition
+		// results in too large a number
+		if (mFirstTime[6] > 99) {
+			multiple = mFirstTime[6] / 100;
+			mFirstTime[6] = mFirstTime[6] % 100;
+			mFirstTime[5] += multiple;
+		}
 
-      if ( mFirstTime[3] > 23 )
-      {
-         multiple = mFirstTime[3] / 24;
-         mFirstTime[3] = mFirstTime[3] % 24;
-         mFirstTime[2] += multiple;
-      }
+		if (mFirstTime[5] > 59) {
+			multiple = mFirstTime[5] / 60;
+			mFirstTime[5] = mFirstTime[5] % 60;
+			mFirstTime[4] += multiple;
+		}
+		if (mFirstTime[4] > 59) {
+			multiple = mFirstTime[4] / 60;
+			mFirstTime[4] = mFirstTime[4] % 60;
+			mFirstTime[3] += multiple;
+		}
 
+		if (mFirstTime[3] > 23) {
+			multiple = mFirstTime[3] / 24;
+			mFirstTime[3] = mFirstTime[3] % 24;
+			mFirstTime[2] += multiple;
+		}
 
-      // create the new timeInterval string
-      mTimeString = "P";
-      if ( mFirstTime[0] != 0 )
-      {
-         Integer tempInt = new Integer(mFirstTime[0]);
-         mTimeString +=  tempInt.toString();
-         mTimeString += "Y";
-      }
-      if ( mFirstTime[1] != 0 )
-      {
-         Integer tempInt = new Integer(mFirstTime[1]);
-         mTimeString +=  tempInt.toString();
-         mTimeString +=  "M";
-      }
+		// create the new timeInterval string
+		mTimeString = "P";
+		if (mFirstTime[0] != 0) {
+			Integer tempInt = Integer.valueOf(mFirstTime[0]);
+			mTimeString += tempInt.toString();
+			mTimeString += "Y";
+		}
+		if (mFirstTime[1] != 0) {
+			Integer tempInt = Integer.valueOf(mFirstTime[1]);
+			mTimeString += tempInt.toString();
+			mTimeString += "M";
+		}
 
-      if ( mFirstTime[2] != 0 )
-      {
-         Integer tempInt = new Integer(mFirstTime[2]);
-         mTimeString +=  tempInt.toString();
-         mTimeString += "D";
-      }
+		if (mFirstTime[2] != 0) {
+			Integer tempInt = Integer.valueOf(mFirstTime[2]);
+			mTimeString += tempInt.toString();
+			mTimeString += "D";
+		}
 
-      if ( ( mFirstTime[3] != 0 ) || ( mFirstTime[4] != 0 ) 
-           || ( mFirstTime[5] != 0 ) || (mFirstTime[6] != 0) )
-      {
-         mTimeString +=  "T";
-      }
+		if ((mFirstTime[3] != 0) || (mFirstTime[4] != 0) || (mFirstTime[5] != 0) || (mFirstTime[6] != 0)) {
+			mTimeString += "T";
+		}
 
-      if ( mFirstTime[3] != 0 )
-      {
-         Integer tempInt = new Integer(mFirstTime[3]);
-         mTimeString +=  tempInt.toString();
-         mTimeString +=  "H";
-      }
+		if (mFirstTime[3] != 0) {
+			Integer tempInt = Integer.valueOf(mFirstTime[3]);
+			mTimeString += tempInt.toString();
+			mTimeString += "H";
+		}
 
-      if ( mFirstTime[4] != 0 )
-      {
-         Integer tempInt = new Integer(mFirstTime[4]);
-         mTimeString +=  tempInt.toString();
-         mTimeString += "M";
-      }
+		if (mFirstTime[4] != 0) {
+			Integer tempInt = Integer.valueOf(mFirstTime[4]);
+			mTimeString += tempInt.toString();
+			mTimeString += "M";
+		}
 
-      if ( mFirstTime[5] != 0 )
-      {
-         Integer tempInt = new Integer(mFirstTime[5]);
-         mTimeString +=  tempInt.toString();
-      }
+		if (mFirstTime[5] != 0) {
+			Integer tempInt = Integer.valueOf(mFirstTime[5]);
+			mTimeString += tempInt.toString();
+		}
 
-      if ( mFirstTime[6] != 0 )
-      {
-         if ( mFirstTime[5] == 0 )
-         {
-            mTimeString += "0";
-         }
-         mTimeString += ".";
-         if ( mFirstTime[6] < 10 )
-         {
-            mTimeString += "0";
-         }
-         Integer tempInt2 = new Integer(mFirstTime[6]);
-         mTimeString +=  tempInt2.toString();
-      }
-      if ( ( mFirstTime[5] != 0 ) || ( mFirstTime[6] != 0 ) )
-      {
-         mTimeString += "S";
-      }
+		if (mFirstTime[6] != 0) {
+			if (mFirstTime[5] == 0) {
+				mTimeString += "0";
+			}
+			mTimeString += ".";
+			if (mFirstTime[6] < 10) {
+				mTimeString += "0";
+			}
+			Integer tempInt2 = Integer.valueOf(mFirstTime[6]);
+			mTimeString += tempInt2.toString();
+		}
+		if ((mFirstTime[5] != 0) || (mFirstTime[6] != 0)) {
+			mTimeString += "S";
+		}
 
-      return mTimeString;
+		return mTimeString;
 
-   }
+	}
 
-   /**
-    * This method takes the input String parameter which represents
-    * a datamodel time interval string and converts it to an array of integers.
-    * The array integers represent the years, months, days, hours, minutes, 
-    * seconds and decimal portions of seconds of the input time interval 
-    * string.  Any on of the time interval sections may be missing
-    * 
-    * @param iTime The String representation of a datamodel time interval.
-    * 
-    * @param ioArray An array of integers.
-    * 
-    */
-    private static void timeStringParse(String iTime, int[] ioArray)    
-   {
-      // P[yY][mM][dD][T[hH][mM][s[.s]S] 
-      // P1Y3M2DT3H
-      // PT3H5M
+	/**
+	 * This method takes the input String parameter which represents
+	 * a datamodel time interval string and converts it to an array of integers.
+	 * The array integers represent the years, months, days, hours, minutes, 
+	 * seconds and decimal portions of seconds of the input time interval 
+	 * string.  Any on of the time interval sections may be missing
+	 * 
+	 * @param iTime The String representation of a datamodel time interval.
+	 * 
+	 * @param ioArray An array of integers.
+	 * 
+	 */
+	private static void timeStringParse(String iTime, int[] ioArray) {
+		// P[yY][mM][dD][T[hH][mM][s[.s]S] 
+		// P1Y3M2DT3H
+		// PT3H5M
 
-      String mInitArray[];
-      String mTempArray2[] = { "0", "0", "0" }; 
-      String mDate = "0";
-      String mTime = "0";
+		String mInitArray[];
+		String mTempArray2[] = { "0", "0", "0" };
+		String mDate = "0";
+		String mTime = "0";
 
-      // make sure the string is not null
-      if ( iTime == null )
-      {
-          return;
-      }
-         
-      // make sure that the string has the right format to split
-      if ( ( iTime.length() == 1 ) || ( iTime.indexOf("P") == -1 ) )
-      {
-          return;
-      }
+		// make sure the string is not null
+		if (iTime == null)
+			return;
 
-      try
-      {
-         mInitArray = iTime.split("P");
+		// make sure that the string has the right format to split
+		if ((iTime.length() == 1) || (iTime.indexOf("P") == -1))
+			return;
 
-         // T is present so split into day and time part
-         // when "P" is first character in string, rest of string goes in
-         // array index 1
-         if ( mInitArray[1].indexOf("T") != -1 )
-         {
-            mTempArray2 = mInitArray[1].split("T");
-            mDate =  mTempArray2[0];
-            mTime =  mTempArray2[1];
-         }
-         else
-         {
-            mDate =  mInitArray[1];
-         }
+		try {
+			mInitArray = iTime.split("P");
 
-         // Y is present so get year
-         if ( mDate.indexOf("Y") != -1 )
-         {
-            mInitArray = mDate.split("Y");
-            Integer tempInt = new Integer(mInitArray[0]);
-            ioArray[0] = tempInt.intValue();
-         }
-         else
-         {
-            mInitArray[1] = mDate;
-         }
+			// T is present so split into day and time part
+			// when "P" is first character in string, rest of string goes in
+			// array index 1
+			if (mInitArray[1].indexOf("T") != -1) {
+				mTempArray2 = mInitArray[1].split("T");
+				mDate = mTempArray2[0];
+				mTime = mTempArray2[1];
+			} else {
+				mDate = mInitArray[1];
+			}
 
-         // M is present so get month
-         if ( mDate.indexOf("M") != -1 )
-         {
-            mTempArray2 = mInitArray[1].split("M");
-            Integer tempInt = new Integer(mTempArray2[0]);
-            ioArray[1] = tempInt.intValue();
-         }
-         else
-         {
-            if ( mInitArray.length != 2 )
-            {
-               mTempArray2[1] = "";
-            }
-            else
-            {               
-               mTempArray2[1] = mInitArray[1];
-            }
-         }
+			// Y is present so get year
+			if (mDate.indexOf("Y") != -1) {
+				mInitArray = mDate.split("Y");
+				Integer tempInt = Integer.valueOf(mInitArray[0]);
+				ioArray[0] = tempInt.intValue();
+			} else {
+				mInitArray[1] = mDate;
+			}
 
-         // D is present so get day
-         if ( mDate.indexOf("D") != -1 )
-         {
-            mInitArray = mTempArray2[1].split("D");
-            Integer tempInt = new Integer(mInitArray[0]);
-            ioArray[2] = tempInt.intValue();
-         }
-         else
-         {
-            mInitArray = new String [2];
-         }
+			// M is present so get month
+			if (mDate.indexOf("M") != -1) {
+				mTempArray2 = mInitArray[1].split("M");
+				Integer tempInt = Integer.valueOf(mTempArray2[0]);
+				ioArray[1] = tempInt.intValue();
+			} else {
+				if (mInitArray.length != 2) {
+					mTempArray2[1] = "";
+				} else {
+					mTempArray2[1] = mInitArray[1];
+				}
+			}
 
-         // if string has time portion
-         if ( !mTime.equals("0") )
-         {
-            // H is present so get hour
-            if ( mTime.indexOf("H") != -1 )
-            {
-               mInitArray =  mTime.split("H");
-               Integer tempInt = new Integer(mInitArray[0]);
-               ioArray[3] = tempInt.intValue();
-            }
-            else
-            {
-               mInitArray[1] = mTime;
-            }
+			// D is present so get day
+			if (mDate.indexOf("D") != -1) {
+				mInitArray = mTempArray2[1].split("D");
+				Integer tempInt = Integer.valueOf(mInitArray[0]);
+				ioArray[2] = tempInt.intValue();
+			} else {
+				mInitArray = new String[2];
+			}
 
-            // M is present so get minute
-            if ( mTime.indexOf("M") != -1 )
-            {
-               mTempArray2 = mInitArray[1].split("M");
-               Integer tempInt = new Integer(mTempArray2[0]);
-               ioArray[4] = tempInt.intValue();
-            }
-            else
-            {
-               if ( mInitArray.length != 2 )
-               {
-                  mTempArray2[1] = "";
-               }
-               else
-               {               
-                  mTempArray2[1] = mInitArray[1];
-               }
-            }
+			// if string has time portion
+			if (!mTime.equals("0")) {
+				// H is present so get hour
+				if (mTime.indexOf("H") != -1) {
+					mInitArray = mTime.split("H");
+					Integer tempInt = Integer.valueOf(mInitArray[0]);
+					ioArray[3] = tempInt.intValue();
+				} else {
+					mInitArray[1] = mTime;
+				}
 
-            // S is present so get seconds
-            if ( mTime.indexOf("S") != -1 )
-            {
-               mInitArray = mTempArray2[1].split("S");
+				// M is present so get minute
+				if (mTime.indexOf("M") != -1) {
+					mTempArray2 = mInitArray[1].split("M");
+					Integer tempInt = Integer.valueOf(mTempArray2[0]);
+					ioArray[4] = tempInt.intValue();
+				} else {
+					if (mInitArray.length != 2) {
+						mTempArray2[1] = "";
+					} else {
+						mTempArray2[1] = mInitArray[1];
+					}
+				}
 
-               if ( mTime.indexOf(".") != -1)
-               {
-                  // split requires this regular expression for "."
-                  mTempArray2 = mInitArray[0].split("[.]");
+				// S is present so get seconds
+				if (mTime.indexOf("S") != -1) {
+					mInitArray = mTempArray2[1].split("S");
 
-                  // correct for case such as ".2"
-                  if ( mTempArray2[1].length() == 1 )
-                  {
-                     mTempArray2[1] = mTempArray2[1] + "0";
-                  }
+					if (mTime.indexOf(".") != -1) {
+						// split requires this regular expression for "."
+						mTempArray2 = mInitArray[0].split("[.]");
 
-                  Integer tempInt2 = new Integer(mTempArray2[1]);
-                  ioArray[6] = tempInt2.intValue();
-                  Integer tempInt = new Integer(mTempArray2[0]);
-                  ioArray[5] = tempInt.intValue();
-               }
-               else
-               {
-                  Integer tempInt = new Integer(mInitArray[0]);
-                  ioArray[5] = tempInt.intValue();
-               }
-            }
-         }
-      }
-      catch (Throwable t)
-      {
-    	  if (log.isDebugEnabled()) {
-    		  log.warn(t.getClass() + ": Not able to extract number from " + iTime + ", the exception message is: " + t.getMessage(), t);
-    	  } else {
-    		  log.warn(t.getClass() + ": Not able to extract number from " + iTime + ", the exception message is: " + t.getMessage());
-    	  }
-      }
+						// correct for case such as ".2"
+						if (mTempArray2[1].length() == 1) {
+							mTempArray2[1] = mTempArray2[1] + "0";
+						}
 
-      return;
-   }
+						Integer tempInt2 = Integer.valueOf(mTempArray2[1]);
+						ioArray[6] = tempInt2.intValue();
+						Integer tempInt = Integer.valueOf(mTempArray2[0]);
+						ioArray[5] = tempInt.intValue();
+					} else {
+						Integer tempInt = Integer.valueOf(mInitArray[0]);
+						ioArray[5] = tempInt.intValue();
+					}
+				}
+			}
+		} catch (Throwable t) {
+			if (log.isDebugEnabled()) {
+				log.warn(t.getClass() + ": Not able to extract number from " + iTime + ", the exception message is: " + t.getMessage(), t);
+			} else {
+				log.warn(t.getClass() + ": Not able to extract number from " + iTime + ", the exception message is: " + t.getMessage());
+			}
+		}
+
+		return;
+	}
 
 }

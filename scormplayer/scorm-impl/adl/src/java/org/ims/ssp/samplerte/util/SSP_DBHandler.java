@@ -1,4 +1,3 @@
-
 /*******************************************************************************
 **
 ** Advanced Distributed Learning Co-Laboratory (ADL Co-Lab) Hub grants you
@@ -30,7 +29,6 @@ import java.sql.SQLException;
 
 import org.adl.util.debug.DebugIndicator;
 
-
 /**
  * Provides database connection utility functions to the shared global
  * objective DB.<br><br>
@@ -61,71 +59,59 @@ import org.adl.util.debug.DebugIndicator;
  *
  * @author ADL Technical Team
  */
-public class SSP_DBHandler
-{
+public class SSP_DBHandler {
 
-   /**
-    * This controls display of log messages to the java console
-    */
-   private static boolean _Debug = DebugIndicator.ON;
+	/**
+	 * This controls display of log messages to the java console
+	 */
+	private static boolean _Debug = DebugIndicator.ON;
 
-   /**
-    * Default constructor for the SSP_DBHandler class
-    */
-   public SSP_DBHandler()
-   {
-      //Default Constructor.
-   }
+	/**
+	 * Initializes the database connection.
+	 *
+	 * @return A connection to the DB or <code>null</code> if the connection can
+	 *         not be established.
+	 */
+	public static Connection getConnection() {
+		Connection conn = null;
+		try {
+			if (_Debug) {
+				System.out.println("  ::--> Connecting to the SSP DB");
+			}
 
-   /**
-    * Initializes the database connection.
-    *
-    * @return A connection to the DB or <code>null</code> if the connection can
-    *         not be established.
-    */
-   public static Connection getConnection()
-   {
-      Connection conn = null;
-      try
-      {
-         if ( _Debug )
-         {
-            System.out.println("  ::--> Connecting to the SSP DB");
-         }
+			String driverName = "sun.jdbc.odbc.JdbcOdbcDriver";
+			String connectionURL = "jdbc:odbc:SCORM3RDSSP10";
 
-         String driverName = "sun.jdbc.odbc.JdbcOdbcDriver";
-         String connectionURL = "jdbc:odbc:SCORM3RDSSP10";
-         
-         java.util.Properties prop = new java.util.Properties();
-         prop.put("charSet", "utf-8");
-         
-         Class.forName(driverName).newInstance();
-         conn = DriverManager.getConnection(connectionURL, prop);
+			java.util.Properties prop = new java.util.Properties();
+			prop.put("charSet", "utf-8");
 
-         if ( _Debug )
-         {
-            System.out.println("  ::--> Connection successful");
-         }
-      }
-      catch ( SQLException ex )
-      {
-         if ( _Debug )
-         {
-            System.out.println("  ::--> ERROR:  Could not connect to SSP DB");
-            System.out.println("  ::-->  " + ex.getSQLState());
-         }
-         ex.printStackTrace();
-      }
-      catch ( Exception e )
-      {
-         if ( _Debug )
-         {
-            System.out.println("  ::--> ERROR:  Unexpected exception");
-         }
-         e.printStackTrace();
-      }
- 
-      return conn;
-   }
+			Class.forName(driverName).newInstance();
+			conn = DriverManager.getConnection(connectionURL, prop);
 
-}  // SSP_DBHandler
+			if (_Debug) {
+				System.out.println("  ::--> Connection successful");
+			}
+		} catch (SQLException ex) {
+			if (_Debug) {
+				System.out.println("  ::--> ERROR:  Could not connect to SSP DB");
+				System.out.println("  ::-->  " + ex.getSQLState());
+			}
+			ex.printStackTrace();
+		} catch (Exception e) {
+			if (_Debug) {
+				System.out.println("  ::--> ERROR:  Unexpected exception");
+			}
+			e.printStackTrace();
+		}
+
+		return conn;
+	}
+
+	/**
+	 * Default constructor for the SSP_DBHandler class
+	 */
+	public SSP_DBHandler() {
+		//Default Constructor.
+	}
+
+} // SSP_DBHandler

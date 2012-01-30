@@ -24,8 +24,9 @@
 
 package org.adl.sequencer;
 
-import org.adl.util.debug.DebugIndicator;
 import java.io.Serializable;
+
+import org.adl.util.debug.DebugIndicator;
 
 /**
  * <strong>Filename:</strong> SeqObjectiveMap.java<br><br>
@@ -52,59 +53,82 @@ import java.io.Serializable;
  * 
  * @author ADL Technical Team
  */
-public class SeqObjectiveMap implements Serializable
-{
+public class SeqObjectiveMap implements Serializable {
 	private static final long serialVersionUID = 1L;
-	
+
 	private long id;
-	
-   /**
-    * This controls display of log messages to the java console
-    */
-   private static boolean _Debug = DebugIndicator.ON;
 
-   /**
-    * The target global objective.
-    */
-   public String mGlobalObjID = null;
+	/**
+	 * This controls display of log messages to the java console
+	 */
+	private static boolean _Debug = DebugIndicator.ON;
 
-   /**
-    * Indicates if satisfied status should be read.
-    */
-   public boolean mReadStatus = true;
+	/**
+	 * The target global objective.
+	 */
+	public String mGlobalObjID = null;
 
-   /**
-    * Indicates if measure should be read.
-    */
-   public boolean mReadMeasure = true;
+	/**
+	 * Indicates if satisfied status should be read.
+	 */
+	public boolean mReadStatus = true;
 
-   /**
-    * Indicates if satisfied status should be written.
-    */
-   public boolean mWriteStatus = false;
+	/**
+	 * Indicates if measure should be read.
+	 */
+	public boolean mReadMeasure = true;
 
-   /**
-    * Indicates if measure should be written.
-    */
-   public boolean mWriteMeasure = false;
+	/**
+	 * Indicates if satisfied status should be written.
+	 */
+	public boolean mWriteStatus = false;
 
-   /**
-    * This method provides the state this <code>SeqObjectiveMap</code> object 
-    * for diagnostic purposes.
-    */
-   public void dumpState()
-   {
-      if ( _Debug )
-      {
-         System.out.println("  :: SeqObjectiveMap   --> BEGIN - dumpState");
+	/**
+	 * Indicates if measure should be written.
+	 */
+	public boolean mWriteMeasure = false;
 
-         System.out.println("  ::--> Global ID:       " + mGlobalObjID);
-         System.out.println("  ::--> Read Status?:    " + mReadStatus);
-         System.out.println("  ::--> Read Measure?:   " + mReadMeasure);
-         System.out.println("  ::--> Write Status?:   " + mWriteStatus);
-         System.out.println("  ::--> Write Measure?:  " + mWriteMeasure);
+	/**
+	 * This method provides the state this <code>SeqObjectiveMap</code> object 
+	 * for diagnostic purposes.
+	 */
+	public void dumpState() {
+		if (_Debug) {
+			System.out.println("  :: SeqObjectiveMap   --> BEGIN - dumpState");
 
-         System.out.println("  :: SeqObjectiveMap   --> END   - dumpState");
-      }
-   }
-}  // end SeqObjectiveMap
+			System.out.println("  ::--> Global ID:       " + mGlobalObjID);
+			System.out.println("  ::--> Read Status?:    " + mReadStatus);
+			System.out.println("  ::--> Read Measure?:   " + mReadMeasure);
+			System.out.println("  ::--> Write Status?:   " + mWriteStatus);
+			System.out.println("  ::--> Write Measure?:  " + mWriteMeasure);
+
+			System.out.println("  :: SeqObjectiveMap   --> END   - dumpState");
+		}
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SeqObjectiveMap other = (SeqObjectiveMap) obj;
+		if (id != other.id)
+			return false;
+		return true;
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (id ^ (id >>> 32));
+		return result;
+	}
+} // end SeqObjectiveMap

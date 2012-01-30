@@ -24,12 +24,14 @@
 
 package org.adl.datamodels.datatypes;
 
-import org.adl.datamodels.DMErrorCodes;
-import org.adl.datamodels.DMTypeValidator;
 import java.io.Serializable;
-import java.util.Vector;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.adl.datamodels.DMDelimiter;
+import org.adl.datamodels.DMErrorCodes;
+import org.adl.datamodels.DMTypeValidator;
 
 /** 
  * <strong>Filename:</strong> DurationValidator.java <br><br>
@@ -39,301 +41,252 @@ import java.util.regex.Pattern;
  *  
  * @author ADL Technical Team
  */
-public class DurationValidator extends DMTypeValidator implements Serializable
-{
+public class DurationValidator extends DMTypeValidator implements Serializable {
 
-   /**
-    * Default constructor required for serialization support.
-    */
-   public DurationValidator() 
-   {
-      // The default constructor has no explicit functionallity defined.   
-   }
+	/**
+	  * 
+	  */
+	private static final long serialVersionUID = -8531902029274916749L;
 
-   /**
-    * Compares two valid data model elements for equality.
-    * 
-    * @param iFirst  The first value being compared.
-    * 
-    * @param iSecond The second value being compared.
-    * 
-    * @param iDelimiters The common set of delimiters associated with the
-    *        values being compared.
-    * 
-    * @return <code>true</code> if the two values are equal, otherwise
-    *         <code>false</code>.
-    */
-   public boolean compare(String iFirst, String iSecond, Vector iDelimiters)
-   {
-      boolean equal = true;
+	/**
+	    * Default constructor required for serialization support.
+	    */
+	public DurationValidator() {
+		// The default constructor has no explicit functionallity defined.   
+	}
 
-      // Cannot compare nothing
-      if ( iFirst == null || iSecond == null )
-      {
-         // The first string is an invalid URI
-         equal = false;
-      }
-      else if ( iDelimiters != null)
-      {
-         // There should not be any delimiters for this type
-         equal = false;
-      }
-      else
-      {
-         Double secs1 = numSec(iFirst);
-         Double secs2 = numSec(iSecond);
+	/**
+	 * Compares two valid data model elements for equality.
+	 * 
+	 * @param iFirst  The first value being compared.
+	 * 
+	 * @param iSecond The second value being compared.
+	 * 
+	 * @param iDelimiters The common set of delimiters associated with the
+	 *        values being compared.
+	 * 
+	 * @return <code>true</code> if the two values are equal, otherwise
+	 *         <code>false</code>.
+	 */
+	@Override
+	public boolean compare(String iFirst, String iSecond, List<DMDelimiter> iDelimiters) {
+		boolean equal = true;
 
-         if ( secs1 != null && secs2 != null )
-         {
-            equal =                                                             
-               Double.compare(secs1.doubleValue(), secs2.doubleValue()) == 0;
-         }
-         else
-         {
-            equal = false;
-         }
-      }
+		// Cannot compare nothing
+		if (iFirst == null || iSecond == null) {
+			// The first string is an invalid URI
+			equal = false;
+		} else if (iDelimiters != null) {
+			// There should not be any delimiters for this type
+			equal = false;
+		} else {
+			Double secs1 = numSec(iFirst);
+			Double secs2 = numSec(iSecond);
 
-      return equal;
-   }
+			if (secs1 != null && secs2 != null) {
+				equal = Double.compare(secs1.doubleValue(), secs2.doubleValue()) == 0;
+			} else {
+				equal = false;
+			}
+		}
 
+		return equal;
+	}
 
-   /**
-    * Validates the provided string against a known format.
-    * 
-    * @param iValue The value being validated.
-    * 
-    * @return An abstract data model error code indicating the result of this
-    *         operation.
-    */
-   public int validate(String iValue)
-   {
+	/**
+	 * Provides the number of seconds represented by the given duration.
+	 * The number of seconds does not include leap years.
+	 * 
+	 * @param iValue  Describes the duration being considered
+	 * 
+	 * @return The number of seconds represented by the duration.
+	 */
+	private Double numSec(String iValue) {
+		long secs = 0;
+		Double total = null;
 
-      // Assume the value is valid
-      int valid = DMErrorCodes.TYPE_MISMATCH;
+		// The current index must be 1 -- immediatly following the 'P'
+		int curIdx = 1;
 
-      if ( iValue != null )
-      {
-         String durExp = 
-            "P(([0-9]+Y)?([0-9]+M)?([0-9]+D)?)?" +
-            "(T([0-9]+H)?([0-9]+M)?([0-9]+(\\.[0-9]{1,2})?S)?)?";
+		// Look for the 'T' seperator
+		int tIdx = iValue.indexOf('T');
 
-         Pattern pattern = Pattern.compile(durExp);
-         Matcher matcher = pattern.matcher(iValue);
+		int nextIdx = -1;
+		String val = null;
+		boolean done = false;
 
-         if ( matcher.matches() )
-         {
-            if ( !(iValue.endsWith("P")) && !(iValue.endsWith("T")) &&
-                 iValue.length() != 1 )
-            {
-               valid = DMErrorCodes.NO_ERROR;
-            }
-         }
-      }
-      else
-      {
-         // A null value can never be valid
-         valid = DMErrorCodes.UNKNOWN_EXCEPTION;
-      }
+		// Find the number of years
+		nextIdx = iValue.indexOf('Y');
 
-      return valid;
-   }
+		if (nextIdx != -1) {
+			// Get the value to be added
+			val = iValue.substring(curIdx, nextIdx);
 
-   /**
-    * Provides the number of seconds represented by the given duration.
-    * The number of seconds does not include leap years.
-    * 
-    * @param iValue  Describes the duration being considered
-    * 
-    * @return The number of seconds represented by the duration.
-    */
-   private Double numSec(String iValue)
-   {
-      long secs = 0;
-      Double total = null;
+			// Increment past the seperator
+			curIdx = nextIdx + 1;
 
-      // The current index must be 1 -- immediatly following the 'P'
-      int curIdx = 1;
+			// 31536000 seconds in each year
+			try {
+				secs = secs + Long.parseLong(val, 10) * 31536000L;
+			} catch (NumberFormatException nfe) {
+				done = true;
+			}
+		}
 
-      // Look for the 'T' seperator
-      int tIdx = iValue.indexOf('T');
+		// Find the number of Months if they are included
+		nextIdx = iValue.indexOf('M');
 
-      int nextIdx = -1;
-      String val = null;
-      boolean done = false;
+		if (tIdx > -1 && nextIdx >= tIdx) {
+			nextIdx = -1;
+		}
 
-      // Find the number of years
-      nextIdx = iValue.indexOf('Y');
+		if (!done && nextIdx != -1) {
+			// Get the value to be added
+			val = iValue.substring(curIdx, nextIdx);
 
-      if ( nextIdx != -1 )
-      {
-         // Get the value to be added
-         val = iValue.substring(curIdx, nextIdx);
+			// Increment past the seperator
+			curIdx = nextIdx + 1;
 
-         // Increment past the seperator
-         curIdx = nextIdx + 1;
+			// 2628029 seconds in each month (assumes 30.417 days / month)
+			try {
+				secs = secs + Long.parseLong(val, 10) * 2628029L;
+			} catch (NumberFormatException nfe) {
+				done = true;
+			}
+		}
 
-         // 31536000 seconds in each year
-         try
-         {
-            secs = secs + Long.parseLong (val, 10) * 31536000L;
-         }
-         catch ( NumberFormatException nfe )
-         {
-            done = true;
-         }
-      }
+		// Find the number of Days
+		nextIdx = iValue.indexOf('D');
 
-      // Find the number of Months if they are included
-      nextIdx = iValue.indexOf('M');
+		if (!done && nextIdx != -1) {
+			// Get the value to be added
+			val = iValue.substring(curIdx, nextIdx);
 
-      if ( tIdx > -1 && nextIdx >= tIdx )
-      {
-         nextIdx = -1;
-      }
+			// Increment past the seperator
+			curIdx = nextIdx + 1;
 
-      if ( !done && nextIdx != -1 )
-      {
-         // Get the value to be added
-         val = iValue.substring(curIdx, nextIdx);
+			// 86400 seconds in each day
+			try {
+				secs = secs + Long.parseLong(val, 10) * 86400L;
+			} catch (NumberFormatException nfe) {
+				done = true;
+			}
+		}
 
-         // Increment past the seperator
-         curIdx = nextIdx + 1;
+		// Find the number of Hours
+		nextIdx = iValue.indexOf('H');
 
-         // 2628029 seconds in each month (assumes 30.417 days / month)
-         try
-         {
-            secs = secs + Long.parseLong (val, 10) * 2628029L;
-         }
-         catch ( NumberFormatException nfe )
-         {
-            done = true;
-         }
-      }
+		if (!done && nextIdx != -1) {
+			// Get the value to be added
+			val = iValue.substring(curIdx, nextIdx);
 
-      // Find the number of Days
-      nextIdx = iValue.indexOf('D');
+			// Make sure we removed the 'T'
+			if (val.startsWith("T")) {
+				val = val.substring(1);
+			}
+			// Increment past the seperator
+			curIdx = nextIdx + 1;
 
-      if ( !done && nextIdx != -1 )
-      {
-         // Get the value to be added
-         val = iValue.substring(curIdx, nextIdx);
+			// 3600 seconds in each hour
+			try {
+				secs = secs + Long.parseLong(val, 10) * 3600L;
+			} catch (NumberFormatException e) {
+				done = true;
+			}
+		}
 
-         // Increment past the seperator
-         curIdx = nextIdx + 1;
+		// Find the number of Minutes if they are included
+		nextIdx = -1;
+		if (tIdx != -1) {
+			nextIdx = iValue.indexOf('M', tIdx);
+		}
 
-         // 86400 seconds in each day
-         try
-         {
-            secs = secs + Long.parseLong (val, 10) * 86400L;
-         }
-         catch ( NumberFormatException nfe )
-         {
-            done = true;
-         }
-      }
+		if (!done && nextIdx != -1) {
+			// Get the value to be added
+			val = iValue.substring(curIdx, nextIdx);
 
-      // Find the number of Hours
-      nextIdx = iValue.indexOf('H');
+			// Make sure we removed the 'T'
+			if (val.startsWith("T")) {
+				val = val.substring(1);
+			}
 
-      if ( !done && nextIdx != -1 )
-      {
-         // Get the value to be added
-         val = iValue.substring(curIdx, nextIdx);
+			// Increment past the seperator
+			curIdx = nextIdx + 1;
 
-         // Make sure we removed the 'T'
-         if ( val.startsWith("T") )
-         {
-            val = val.substring(1);
-         }
-         // Increment past the seperator
-         curIdx = nextIdx + 1;
+			// 60 seconds in each Minute
+			try {
+				secs = secs + Long.parseLong(val, 10) * 60L;
+			} catch (NumberFormatException nfe) {
+				done = true;
+			}
+		}
 
-         // 3600 seconds in each hour
-         try
-         {
-            secs = secs + Long.parseLong (val, 10) * 3600L;
-         }
-         catch ( NumberFormatException e )
-         {
-            done = true;
-         }
-      }
+		double subSec = Double.NaN;
+		nextIdx = iValue.indexOf('S');
 
-      // Find the number of Minutes if they are included
-      nextIdx = -1;
-      if ( tIdx != -1 )
-      {
-         nextIdx = iValue.indexOf('M', tIdx);
-      }
+		if (!done && nextIdx != -1) {
+			// Get the value to be added
+			val = iValue.substring(curIdx, nextIdx);
 
-      if ( !done && nextIdx != -1 )
-      {
-         // Get the value to be added
-         val = iValue.substring(curIdx, nextIdx);
+			// Make sure we removed the 'T'
+			if (val.startsWith("T")) {
+				val = val.substring(1);
+			}
 
-         // Make sure we removed the 'T'
-         if ( val.startsWith("T") )
-         {
-            val = val.substring(1);
-         }
+			try {
+				subSec = Double.parseDouble(val);
+			} catch (NumberFormatException nfe) {
+				subSec = Double.NaN;
+				done = true;
+			}
+		}
 
-         // Increment past the seperator
-         curIdx = nextIdx + 1;
+		// Add all of the seconds together
+		if (!done && secs >= 0) {
+			double sec = Double.parseDouble(Long.toString(secs, 10));
 
-         // 60 seconds in each Minute
-         try
-         {
-            secs = secs + Long.parseLong (val, 10) * 60L;
-         }
-         catch ( NumberFormatException nfe )
-         {
-            done = true;
-         }
-      }
+			if (Double.compare(Double.NaN, subSec) != 0) {
+				subSec = Math.floor(subSec * 100.0) / 100.0;
 
-      double subSec = Double.NaN;
-      nextIdx = iValue.indexOf('S');
+				total = new Double(subSec + sec);
+			} else {
+				total = new Double(sec);
+			}
+		}
+		return total;
+	}
 
-      if ( !done && nextIdx != -1 )
-      {
-         // Get the value to be added
-         val = iValue.substring(curIdx, nextIdx);
+	/**
+	 * Validates the provided string against a known format.
+	 * 
+	 * @param iValue The value being validated.
+	 * 
+	 * @return An abstract data model error code indicating the result of this
+	 *         operation.
+	 */
+	@Override
+	public int validate(String iValue) {
 
-         // Make sure we removed the 'T'
-         if ( val.startsWith("T") )
-         {
-            val = val.substring(1);
-         }
+		// Assume the value is valid
+		int valid = DMErrorCodes.TYPE_MISMATCH;
 
-         try
-         {
-            subSec = Double.parseDouble(val);
-         }
-         catch ( NumberFormatException nfe )
-         {
-            subSec = Double.NaN;
-            done = true;
-         }
-      }
+		if (iValue != null) {
+			String durExp = "P(([0-9]+Y)?([0-9]+M)?([0-9]+D)?)?" + "(T([0-9]+H)?([0-9]+M)?([0-9]+(\\.[0-9]{1,2})?S)?)?";
 
-      // Add all of the seconds together
-      if ( !done && secs >= 0 )
-      {
-         double sec = Double.parseDouble(Long.toString(secs, 10));
+			Pattern pattern = Pattern.compile(durExp);
+			Matcher matcher = pattern.matcher(iValue);
 
-         if ( Double.compare(Double.NaN, subSec) != 0 )
-         {
-            subSec = Math.floor(subSec * 100.0) / 100.0;
+			if (matcher.matches()) {
+				if (!(iValue.endsWith("P")) && !(iValue.endsWith("T")) && iValue.length() != 1) {
+					valid = DMErrorCodes.NO_ERROR;
+				}
+			}
+		} else {
+			// A null value can never be valid
+			valid = DMErrorCodes.UNKNOWN_EXCEPTION;
+		}
 
-            total = new Double(subSec + sec);
-         }
-         else
-         {
-            total = new Double(sec);
-         }
-      }
-      return total;
-   }                           
+		return valid;
+	}
 
 }

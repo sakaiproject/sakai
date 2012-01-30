@@ -57,40 +57,43 @@ import java.io.Serializable;
  *
  * @author ADL Technical Team
  */
-public class BucketState implements Serializable
-{
-   /**
-    *
-    * Reference to a type definition for the bucket's data.
-    *
-    */
-   public String mBucketType = null;
+public class BucketState implements Serializable {
+	/**
+	  * 
+	  */
+	private static final long serialVersionUID = 1L;
 
-   /**
-    *
-    * The total amount of space available for this bucket.  This number is
-    * determined once, upon bucket allocation, based on the bucket's allocation
-    * requirements. <b>Note:</b> This element does not necessarily represent the
-    * "allocated" space for the bucket.  Instead, it is the amount of space the
-    * runtime system has committed to the bucket, based on the bucket's
-    * allocation requirements.
-    *
-    */
-   public Integer mTotalSpace = null;
+	/**
+	    *
+	    * Reference to a type definition for the bucket's data.
+	    *
+	    */
+	public String mBucketType = null;
 
-   /**
-    *
-    * Describes the amount of space currently used in the bucket.
-    *
-    */
-   public Integer mUsed = null;
+	/**
+	 *
+	 * The total amount of space available for this bucket.  This number is
+	 * determined once, upon bucket allocation, based on the bucket's allocation
+	 * requirements. <b>Note:</b> This element does not necessarily represent the
+	 * "allocated" space for the bucket.  Instead, it is the amount of space the
+	 * runtime system has committed to the bucket, based on the bucket's
+	 * allocation requirements.
+	 *
+	 */
+	public Integer mTotalSpace = null;
 
-   /**
-    *
-    * Default Constructor.
-    *
-    */
-   public BucketState()
-   {
-   }
+	/**
+	 *
+	 * Describes the amount of space currently used in the bucket.
+	 *
+	 */
+	public Integer mUsed = null;
+
+	/**
+	 *
+	 * Default Constructor.
+	 *
+	 */
+	public BucketState() {
+	}
 }

@@ -20,14 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.ui.player.behaviors;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.wicket.RequestListenerInterface;
 import org.apache.wicket.ajax.AjaxEventBehavior;
-import org.apache.wicket.behavior.IBehaviorListener;
-import org.apache.wicket.protocol.http.WebRequest;
-import org.apache.wicket.util.string.AppendingStringBuffer;
-import org.sakaiproject.scorm.ui.player.util.Utils;
 
 public abstract class ActivityAjaxEventBehavior extends AjaxEventBehavior {
 

@@ -57,271 +57,266 @@ import org.adl.sequencer.ADLDuration;
  * 
  * @author ADL Technical Team
  */
-abstract class SeqActivityTrackingAccess
-{
+abstract class SeqActivityTrackingAccess {
 
-   /**
-    * Retrieves the attempt status of this activity.
-    * 
-    * @return <code>true</code> if the activity has been attempted, otherwise,
-    *         <code>false</code>.
-    */
-   abstract boolean getActivityAttempted();
+	/**
+	 * Clears the value of the primary objective's measure.
+	 *
+	 * @return <code>true</code> if the satisfaction of the objective changed,
+	 *         otherwise <code>false</code>.
+	 */
+	abstract boolean clearObjMeasure();
 
+	/**
+	 * Clears the value of the desintated objective's measure.
+	 * 
+	 * @param iObjID      ID of the objective whose measure has changed.
+	 *
+	 * @return <code>true</code> if the satisfaction of the objective changed,
+	 *         otherwise <code>false</code>.
+	 */
+	abstract boolean clearObjMeasure(String iObjID);
 
-   /**
-    * Retrieves the current attempt's progress status.
-    *
-    * @param iRetry Indicates if this evaluation is occuring during the
-    *                 processing of a 'retry' sequencing request.
-    * 
-    * @return <code>true</code> if the current attempt on the activity is
-    *         completed, otherwise <code>false</code>.
-    */
-   abstract boolean getAttemptCompleted(boolean iRetry);
+	/**
+	 * Retrieves the attempt status of this activity.
+	 * 
+	 * @return <code>true</code> if the activity has been attempted, otherwise,
+	 *         <code>false</code>.
+	 */
+	abstract boolean getActivityAttempted();
 
+	/**
+	 * Retrieves the current attempt's progress status.
+	 *
+	 * @param iRetry Indicates if this evaluation is occuring during the
+	 *                 processing of a 'retry' sequencing request.
+	 * 
+	 * @return <code>true</code> if the current attempt on the activity is
+	 *         completed, otherwise <code>false</code>.
+	 */
+	abstract boolean getAttemptCompleted(boolean iRetry);
 
-   /**
-    * Set the current attempt's progress status to the desired value.<br><br>
-    * Valid values are: <code>unknown</code>, <code>completed</code>, and
-    * <code>incomplete</code>.
-    * 
-    * @param iProgress New value for the attempt's progress status.
-    *
-    * @return <code>true</code> if the progress status of the activty changed,
-    *         otherwise <code>false</code>.
-    */
-   abstract boolean setProgress(String iProgress);
+	/**
+	 * Retrieve this activity's attempt count.
+	 * 
+	 * @return A <code>long</code> value indicating the number attempts on this
+	 *         activity.
+	 */
+	abstract long getNumAttempt();
 
-   /**
-    * Determines if the current attempt's progress status is valid.
-    * 
-    * @param iRetry Indicates if this evaluation is occuring during the
-    *                 processing of a 'retry' sequencing request.
-    * 
-    * @return <code>true</code> if the progress status of the current attempt
-    *         is valid, otherwise <code>false</code>.
-    */
-   abstract boolean getProgressStatus(boolean iRetry);
+	/**
+	 * Retreives the primary objective's measure value.<br><br>
+	 * <b>NOTE:</b> the value returned has no signifigance unless the
+	 * objective's measure status is <code>true</code>.
+	 * 
+	 * @param iIsRetry Indicates if this evaluation is occuring during the
+	 *                 processing of a 'retry' sequencing request.
+	 * 
+	 * @return The measure of the primary objective.
+	 */
+	abstract double getObjMeasure(boolean iIsRetry);
 
-   /**
-    * Retreives the designated objective's minimum measure value.<br><br>
-    * 
-    * @param iObjID ID of the objective whose minimum measure is desired.
-    * 
-    * @return The measure of the designated objective, or <code>-1.0</code>
-    *         if no minimum measure is defined.
-    */
-   abstract double getObjMinMeasure(String iObjID);
+	/**
+	 * Retreives the designated objective's measure value.<br><br>
+	 * <b>NOTE:</b> the value returned has no signifigance unless the
+	 * objective's measure status is <code>true</code>.
+	 * 
+	 * @param iObjID   ID of the objective whose measure is desired.
+	 * 
+	 * @param iIsRetry Indicates if this evaluation is occuring during the
+	 *                 processing of a 'retry' sequencing request.
+	 * 
+	 * @return The measure of the designated objective.
+	 */
+	abstract double getObjMeasure(String iObjID, boolean iIsRetry);
 
-   /**
-    * Retreives the primary objective's minimum measure value.<br><br>
-    * 
-    * @return The measure of the designated objective, or <code>-1.0</code>
-    *         if no minimum measure is defined.
-    
-    */
-   abstract double getObjMinMeasure();
+	/**
+	 * Indicates if the primary objective's measure value is valid.
+	 * 
+	 * @param iIsRetry Indicates if this evaluation is occuring during the
+	 *                 processing of a 'retry' sequencing request.
+	 *
+	 * @return <code>true</code> if the designated objective's measure is valid,
+	 *         otherwise <code>false</code>.
+	 */
+	abstract boolean getObjMeasureStatus(boolean iIsRetry);
 
-   /**
-    * Indicates if the designated objective's measure value is valid.
-    * 
-    * @param iObjID   ID of the objective whose measure is desired.
-    * 
-    * @param iIsRetry Indicates if this evaluation is occuring during the
-    *                 processing of a 'retry' sequencing request.
-    * 
-    * @return <code>true</code> if the designated objective's measure is valid,
-    *         otherwise <code>false</code>.
-    */
-   abstract boolean getObjMeasureStatus(String iObjID, boolean iIsRetry);
+	/**
+	 * Indicates if the designated objective's measure value is valid.
+	 * 
+	 * @param iObjID   ID of the objective whose measure is desired.
+	 * 
+	 * @param iIsRetry Indicates if this evaluation is occuring during the
+	 *                 processing of a 'retry' sequencing request.
+	 * 
+	 * @return <code>true</code> if the designated objective's measure is valid,
+	 *         otherwise <code>false</code>.
+	 */
+	abstract boolean getObjMeasureStatus(String iObjID, boolean iIsRetry);
 
-   /**
-    * Indicates if the primary objective's measure value is valid.
-    * 
-    * @param iIsRetry Indicates if this evaluation is occuring during the
-    *                 processing of a 'retry' sequencing request.
-    *
-    * @return <code>true</code> if the designated objective's measure is valid,
-    *         otherwise <code>false</code>.
-    */
-   abstract boolean getObjMeasureStatus(boolean iIsRetry);
+	/**
+	 * Retreives the primary objective's minimum measure value.<br><br>
+	 * 
+	 * @return The measure of the designated objective, or <code>-1.0</code>
+	 *         if no minimum measure is defined.
+	 
+	 */
+	abstract double getObjMinMeasure();
 
-   /**
-    * Clears the value of the primary objective's measure.
-    *
-    * @return <code>true</code> if the satisfaction of the objective changed,
-    *         otherwise <code>false</code>.
-    */
-   abstract boolean clearObjMeasure();
+	/**
+	 * Retreives the designated objective's minimum measure value.<br><br>
+	 * 
+	 * @param iObjID ID of the objective whose minimum measure is desired.
+	 * 
+	 * @return The measure of the designated objective, or <code>-1.0</code>
+	 *         if no minimum measure is defined.
+	 */
+	abstract double getObjMinMeasure(String iObjID);
 
-   /**
-    * Clears the value of the desintated objective's measure.
-    * 
-    * @param iObjID      ID of the objective whose measure has changed.
-    *
-    * @return <code>true</code> if the satisfaction of the objective changed,
-    *         otherwise <code>false</code>.
-    */
-   abstract boolean clearObjMeasure(String iObjID);
+	/**
+	 * Retrieves the primary objective's status.
+	 * 
+	 * @param iIsRetry Indicates if this evaluation is occuring during the
+	 *                 processing of a 'retry' sequencing request.
+	 *
+	 * @return <code>true</code> if the primary objective is satisfied
+	 *         otherwise <code>false</code>.
+	 */
+	abstract boolean getObjSatisfied(boolean iIsRetry);
 
-   /**
-    * Sets the primary objective's measure to the desired value.
-    * 
-    * @param iMeasure    The value of the objective's measure.
-    *
-    * @return <code>true</code> if the satisfaction of the objective changed,
-    *         otherwise <code>false</code>.
-    */
-   abstract boolean setObjMeasure(double iMeasure);
+	/**
+	 * Retrieves the designated objective's status.
+	 * 
+	 * @param iObjID   ID of the objective.
+	 * 
+	 * @param iIsRetry Indicates if this evaluation is occuring during the
+	 *                 processing of a 'retry' sequencing request.
+	 * 
+	 * @return <code>true</code> if the designated objective is satisfied
+	 *         otherwise <code>false</code>.
+	 */
+	abstract boolean getObjSatisfied(String iObjID, boolean iIsRetry);
 
-   /**
-    * Sets the designated objective's measure to the desired value.
-    * 
-    * @param iObjID      ID of the objective whose measure has changed.
-    * 
-    * @param iMeasure    The value of the objective's measure.
-    * 
-    * @return <code>true</code> if the satisfaction of the objective changed,
-    *         otherwise <code>false</code>.
-    */
-   abstract boolean setObjMeasure(String iObjID, double iMeasure);
+	/**
+	 * Determines if the activity's primary objective is satisfied by measure.
+	 * 
+	 * @return <code>true</code> if the primary objective is satisfied by
+	 *         measure, otherwise <code>false</code>
+	 */
+	abstract boolean getObjSatisfiedByMeasure();
 
+	/**
+	 * Determines if the primary objective's progress status is valid.
+	 * 
+	 * @param iIsRetry Indicates if this evaluation is occuring during the
+	 *                 processing of a 'retry' sequencing request.
+	 * 
+	 * @return <code>true</code> if the primary objective's progress status is
+	 *         valid, otherwise <code>false</code>.
+	 */
+	abstract boolean getObjStatus(boolean iIsRetry);
 
-   /**
-    * Retreives the designated objective's measure value.<br><br>
-    * <b>NOTE:</b> the value returned has no signifigance unless the
-    * objective's measure status is <code>true</code>.
-    * 
-    * @param iObjID   ID of the objective whose measure is desired.
-    * 
-    * @param iIsRetry Indicates if this evaluation is occuring during the
-    *                 processing of a 'retry' sequencing request.
-    * 
-    * @return The measure of the designated objective.
-    */
-   abstract double getObjMeasure(String iObjID, boolean iIsRetry);
+	/**
+	 * Determines if the designated objective's progress status is valid.
+	 * 
+	 * @param iObjID   ID of the objective.
+	 * 
+	 * @param iIsRetry Indicates if this evaluation is occuring during the
+	 *                 processing of a 'retry' sequencing request.
+	 * 
+	 * @return <code>true</code> if the designated objective's progress status is
+	 *         valid, otherwise <code>false</code>.
+	 */
+	abstract boolean getObjStatus(String iObjID, boolean iIsRetry);
 
-   /**
-    * Retreives the primary objective's measure value.<br><br>
-    * <b>NOTE:</b> the value returned has no signifigance unless the
-    * objective's measure status is <code>true</code>.
-    * 
-    * @param iIsRetry Indicates if this evaluation is occuring during the
-    *                 processing of a 'retry' sequencing request.
-    * 
-    * @return The measure of the primary objective.
-    */
-   abstract double getObjMeasure(boolean iIsRetry);
+	/**
+	 * Determines if the current attempt's progress status is valid.
+	 * 
+	 * @param iRetry Indicates if this evaluation is occuring during the
+	 *                 processing of a 'retry' sequencing request.
+	 * 
+	 * @return <code>true</code> if the progress status of the current attempt
+	 *         is valid, otherwise <code>false</code>.
+	 */
+	abstract boolean getProgressStatus(boolean iRetry);
 
-   /**
-    * Determines if the designated objective's progress status is valid.
-    * 
-    * @param iObjID   ID of the objective.
-    * 
-    * @param iIsRetry Indicates if this evaluation is occuring during the
-    *                 processing of a 'retry' sequencing request.
-    * 
-    * @return <code>true</code> if the designated objective's progress status is
-    *         valid, otherwise <code>false</code>.
-    */
-   abstract boolean getObjStatus(String iObjID, boolean iIsRetry);
+	/**
+	 * Increment the attempt count for this activity by one.
+	 */
+	abstract void incrementAttempt();
 
-   /**
-    * Determines if the primary objective's progress status is valid.
-    * 
-    * @param iIsRetry Indicates if this evaluation is occuring during the
-    *                 processing of a 'retry' sequencing request.
-    * 
-    * @return <code>true</code> if the primary objective's progress status is
-    *         valid, otherwise <code>false</code>.
-    */
-   abstract boolean getObjStatus(boolean iIsRetry);
+	/**
+	 * Reset this activity's attempt count.
+	 */
+	abstract void resetNumAttempt();
 
-   /**
-    * Set the designated objective's status to the desired value.
-    * 
-    * @param iObjID  ID of the objective whose satisfaction has changed.
-    * 
-    * @param iStatus New value for the objective's satisfaction status.<br><br>
-    *                Valid values are: <code>unknown</code>,
-    *                <code>satisfied</code>, or <code>notsatisfied</code>.
-    *
-    * @return <code>true</code> if the satisfaction of the objective changed,
-    *         otherwise <code>false</code>.
-    */
-   abstract boolean setObjSatisfied(String iObjID, String iStatus);
+	/**
+	 * Sets the designated objective's experienced duration for the current
+	 * attempt.
+	 * 
+	 * @param iDur   The experienced duration of the current attempt on the
+	 *               activity.
+	 */
+	abstract void setCurAttemptExDur(ADLDuration iDur);
 
-   /**
-    * Set the primary objective's status to the desired value.
-    * 
-    * @param iStatus New value for the objective's satisfaction status.<br><br>
-    *                Valid values are: <code>unknown</code>,
-    *                <code>satisfied</code>, or <code>notsatisfied</code>.
-    * 
-    * @return <code>true</code> if the satisfaction of the objective changed,
-    *         otherwise <code>false</code>.
-    */
-   abstract boolean setObjSatisfied(String iStatus);
+	/**
+	 * Sets the primary objective's measure to the desired value.
+	 * 
+	 * @param iMeasure    The value of the objective's measure.
+	 *
+	 * @return <code>true</code> if the satisfaction of the objective changed,
+	 *         otherwise <code>false</code>.
+	 */
+	abstract boolean setObjMeasure(double iMeasure);
 
-   /**
-    * Retrieves the designated objective's status.
-    * 
-    * @param iObjID   ID of the objective.
-    * 
-    * @param iIsRetry Indicates if this evaluation is occuring during the
-    *                 processing of a 'retry' sequencing request.
-    * 
-    * @return <code>true</code> if the designated objective is satisfied
-    *         otherwise <code>false</code>.
-    */
-   abstract boolean getObjSatisfied(String iObjID, boolean iIsRetry);
+	/**
+	 * Sets the designated objective's measure to the desired value.
+	 * 
+	 * @param iObjID      ID of the objective whose measure has changed.
+	 * 
+	 * @param iMeasure    The value of the objective's measure.
+	 * 
+	 * @return <code>true</code> if the satisfaction of the objective changed,
+	 *         otherwise <code>false</code>.
+	 */
+	abstract boolean setObjMeasure(String iObjID, double iMeasure);
 
-   /**
-    * Retrieves the primary objective's status.
-    * 
-    * @param iIsRetry Indicates if this evaluation is occuring during the
-    *                 processing of a 'retry' sequencing request.
-    *
-    * @return <code>true</code> if the primary objective is satisfied
-    *         otherwise <code>false</code>.
-    */
-   abstract boolean getObjSatisfied(boolean iIsRetry);
+	/**
+	 * Set the primary objective's status to the desired value.
+	 * 
+	 * @param iStatus New value for the objective's satisfaction status.<br><br>
+	 *                Valid values are: <code>unknown</code>,
+	 *                <code>satisfied</code>, or <code>notsatisfied</code>.
+	 * 
+	 * @return <code>true</code> if the satisfaction of the objective changed,
+	 *         otherwise <code>false</code>.
+	 */
+	abstract boolean setObjSatisfied(String iStatus);
 
-   /**
-    * Determines if the activity's primary objective is satisfied by measure.
-    * 
-    * @return <code>true</code> if the primary objective is satisfied by
-    *         measure, otherwise <code>false</code>
-    */
-   abstract boolean getObjSatisfiedByMeasure();
+	/**
+	 * Set the designated objective's status to the desired value.
+	 * 
+	 * @param iObjID  ID of the objective whose satisfaction has changed.
+	 * 
+	 * @param iStatus New value for the objective's satisfaction status.<br><br>
+	 *                Valid values are: <code>unknown</code>,
+	 *                <code>satisfied</code>, or <code>notsatisfied</code>.
+	 *
+	 * @return <code>true</code> if the satisfaction of the objective changed,
+	 *         otherwise <code>false</code>.
+	 */
+	abstract boolean setObjSatisfied(String iObjID, String iStatus);
 
-   /**
-    * Sets the designated objective's experienced duration for the current
-    * attempt.
-    * 
-    * @param iDur   The experienced duration of the current attempt on the
-    *               activity.
-    */
-   abstract void setCurAttemptExDur(ADLDuration iDur);
+	/**
+	 * Set the current attempt's progress status to the desired value.<br><br>
+	 * Valid values are: <code>unknown</code>, <code>completed</code>, and
+	 * <code>incomplete</code>.
+	 * 
+	 * @param iProgress New value for the attempt's progress status.
+	 *
+	 * @return <code>true</code> if the progress status of the activty changed,
+	 *         otherwise <code>false</code>.
+	 */
+	abstract boolean setProgress(String iProgress);
 
-   /**
-    * Increment the attempt count for this activity by one.
-    */
-   abstract void incrementAttempt();
-
-   /**
-    * Reset this activity's attempt count.
-    */ 
-   abstract void resetNumAttempt();
-
-   /**
-    * Retrieve this activity's attempt count.
-    * 
-    * @return A <code>long</code> value indicating the number attempts on this
-    *         activity.
-    */
-   abstract long getNumAttempt();
-
-
-}  // end SeqActivityTrackingAcces
+} // end SeqActivityTrackingAcces

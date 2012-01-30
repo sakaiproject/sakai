@@ -9,16 +9,14 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class ActivityTreeHolderDaoImpl extends HibernateDaoSupport implements ActivityTreeHolderDao {
 
 	public ActivityTreeHolder find(long contentPackageId, String learnerId) {
-		List r = getHibernateTemplate().find(
-				"from " + ActivityTreeHolder.class.getName()
-						+ " where contentPackageId=? and learnerId=?", 
-						new Object[]{ contentPackageId, learnerId });
-		
+		List r = getHibernateTemplate().find("from " + ActivityTreeHolder.class.getName() + " where contentPackageId=? and learnerId=?",
+		        new Object[] { contentPackageId, learnerId });
+
 		if (r.size() == 0)
 			return null;
-			
+
 		ActivityTreeHolder holder = (ActivityTreeHolder) r.get(0);
-		
+
 		return holder;
 	}
 

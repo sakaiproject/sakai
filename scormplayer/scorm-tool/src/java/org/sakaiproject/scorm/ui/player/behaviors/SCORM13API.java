@@ -1,10 +1,6 @@
 package org.sakaiproject.scorm.ui.player.behaviors;
 
-import org.adl.api.ecmascript.APIErrorCodes;
 import org.adl.api.ecmascript.SCORM13APIInterface;
-import org.adl.datamodels.DMInterface;
-import org.adl.datamodels.DMProcessingInfo;
-import org.adl.datamodels.IDataManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.scorm.model.api.ScoBean;
@@ -13,11 +9,6 @@ import org.sakaiproject.scorm.navigation.INavigable;
 import org.sakaiproject.scorm.navigation.INavigationEvent;
 import org.sakaiproject.scorm.service.api.ScormApplicationService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
-import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
-import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
-import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.cover.ToolManager;
 
 public abstract class SCORM13API implements SCORM13APIInterface {
 

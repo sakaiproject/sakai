@@ -7,18 +7,24 @@ import org.adl.datamodels.datatypes.InteractionValidatorImpl;
 
 public class ValidatorFactory implements IValidatorFactory {
 
-	public ValidatorFactory() {}
-	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public ValidatorFactory() {
+	}
+
 	public DateTimeValidator newDateTimeValidator(boolean isTrue) {
 		return new DateTimeValidatorImpl(isTrue);
-	}
-	
-	public InteractionValidator newInteractionValidator(int iType, String iElement) {
-		return new InteractionValidatorImpl(iType, iElement); 
 	}
 
 	public InteractionValidator newInteractionValidator(int iType, boolean iAllowEmpty, String iElement) {
 		return new InteractionValidatorImpl(iType, iAllowEmpty, iElement);
 	}
-	
+
+	public InteractionValidator newInteractionValidator(int iType, String iElement) {
+		return new InteractionValidatorImpl(iType, iElement);
+	}
+
 }

@@ -29,23 +29,19 @@ package org.adl.logging;
  * @author ADL Technical Team
  *
  */
-public final class DetailedLogMessageCollection extends ADLMessageCollection
-{
-   /**
-    * The one and only instance of the DetailedLogMessageCollection
-    */
-   private static final DetailedLogMessageCollection INSTANCE = 
-      new DetailedLogMessageCollection();
+public final class DetailedLogMessageCollection extends ADLMessageCollection {
+	/**
+	 * The one and only instance of the DetailedLogMessageCollection
+	 */
+	private static final DetailedLogMessageCollection INSTANCE = new DetailedLogMessageCollection();
 
-
-   /**
-    * This method returns a reference to the instance of the 
-    * DetailedLogMessageCollection
-    * 
-    * @return DetailedLogMessageCollection reference
-    */
-   public static DetailedLogMessageCollection getInstance()
-   {
-      return INSTANCE;
-   }
+	/**
+	 * This method returns a reference to the instance of the 
+	 * DetailedLogMessageCollection
+	 * 
+	 * @return DetailedLogMessageCollection reference
+	 */
+	public static DetailedLogMessageCollection getInstance() {
+		return INSTANCE;
+	}
 }

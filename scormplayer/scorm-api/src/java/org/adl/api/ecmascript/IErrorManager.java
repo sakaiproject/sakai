@@ -37,6 +37,12 @@ public interface IErrorManager extends Serializable {
 	public static final int SCORM_2004_API = 2;
 
 	/**
+	 * Sets the current error code to No Error 
+	 * (<code>APIErrorCodes.NO_ERROR</code>)
+	 */
+	public void clearCurrentErrorCode();
+
+	/**
 	 * Returns The current avaliable error code.
 	 *
 	 * @return The value of the current error code that was set by the most
@@ -45,17 +51,11 @@ public interface IErrorManager extends Serializable {
 	public String getCurrentErrorCode();
 
 	/**
-	 * Sets the error code (from the predefined list of codes).
+	 * Returns the text associated with the current error code.
 	 *
-	 * @param iCode  The error code being set.
+	 * @return The text associated with the specfied error code.
 	 */
-	public void setCurrentErrorCode(int iCode);
-
-	/**
-	 * Sets the current error code to No Error 
-	 * (<code>APIErrorCodes.NO_ERROR</code>)
-	 */
-	public void clearCurrentErrorCode();
+	public String getErrorDescription();
 
 	/**
 	 * Returns the text associated with a given error code.
@@ -68,11 +68,11 @@ public interface IErrorManager extends Serializable {
 	public String getErrorDescription(String iCode);
 
 	/**
-	 * Returns the text associated with the current error code.
+	 * Returns the diagnostic text associated with the current error code.
 	 *
-	 * @return The text associated with the specfied error code.
+	 * @return The diagnostic text associated with the specificed error code.
 	 */
-	public String getErrorDescription();
+	public String getErrorDiagnostic();
 
 	/**
 	 * Returns the diagnostic text associated with an error code.
@@ -85,13 +85,6 @@ public interface IErrorManager extends Serializable {
 	public String getErrorDiagnostic(String iCode);
 
 	/**
-	 * Returns the diagnostic text associated with the current error code.
-	 *
-	 * @return The diagnostic text associated with the specificed error code.
-	 */
-	public String getErrorDiagnostic();
-
-	/**
 	 * Determines whether or not the Error Code passed in 
 	 * (<code>iErrorCode</code>) is a valid and recognizable SCORM error code.
 	 *
@@ -99,5 +92,12 @@ public interface IErrorManager extends Serializable {
 	 * @return Indicates whether or not the error code is valid.
 	 */
 	public boolean isValidErrorCode(String iErrorCode);
+
+	/**
+	 * Sets the error code (from the predefined list of codes).
+	 *
+	 * @param iCode  The error code being set.
+	 */
+	public void setCurrentErrorCode(int iCode);
 
 }

@@ -56,278 +56,251 @@ import java.io.UnsupportedEncodingException;
  *
  * @author ADL Technical Team
  */
-public class Bucket implements Serializable
-{
-   /**
-    * The UTF-16 character set.
-    */
-   public static final String CHARSET = "UTF-16";
+public class Bucket implements Serializable {
+	/**
+	  * 
+	  */
+	private static final long serialVersionUID = 1L;
 
-   /**
-    *
-    * The identifier of the bucket.
-    *
-    */
-   private String mBucketID = null;
+	/**
+	    * The UTF-16 character set.
+	    */
+	public static final String CHARSET = "UTF-16";
 
-   /**
-    *
-    * Reference to a type definition for the bucket's data.
-    *
-    */
-   private String mBucketType = null;
+	/**
+	 *
+	 * The identifier of the bucket.
+	 *
+	 */
+	private String mBucketID = null;
 
-   /**
-    *
-    * The data stored in this bucket.
-    *
-    */
-   private byte[] mData = null;
+	/**
+	 *
+	 * Reference to a type definition for the bucket's data.
+	 *
+	 */
+	private String mBucketType = null;
 
-   /**
-    *
-    * Describes the minimum amount of space requested.
-    *
-    */
-   private int mMinimum = 0;
+	/**
+	 *
+	 * The data stored in this bucket.
+	 *
+	 */
+	private byte[] mData = null;
 
-   /**
-    *
-    * Describes how long the runtime system should persist the data in the
-    * bucket.  This value may be one of the enumerated values described in the
-    * <code>Persistence</code> class.  If not provided, the default value is
-    * <code>Persistence.LEARNER</code>
-    *
-    */
-   private int mPersistence = Persistence.LEARNER;
+	/**
+	 *
+	 * Describes the minimum amount of space requested.
+	 *
+	 */
+	private int mMinimum = 0;
 
-   /**
-    *
-    * Indicates if the amount of space requested was allowed to be reduced.
-    *
-    */
-   private boolean mReducible = false;
+	/**
+	 *
+	 * Describes how long the runtime system should persist the data in the
+	 * bucket.  This value may be one of the enumerated values described in the
+	 * <code>Persistence</code> class.  If not provided, the default value is
+	 * <code>Persistence.LEARNER</code>
+	 *
+	 */
+	private int mPersistence = Persistence.LEARNER;
 
-   /**
-    *
-    * Describes the amount of space requested.
-    *
-    */
-   private int mRequested = 0;
+	/**
+	 *
+	 * Indicates if the amount of space requested was allowed to be reduced.
+	 *
+	 */
+	private boolean mReducible = false;
 
-   /**
-    *
-    * The total amount of space available for this bucket.  This number is
-    * determined once, upon bucket allocation, based on the bucket's allocation
-    * requirements. <b>Note:</b> This element does not necessarily represent the
-    * "allocated" space for the bucket.  Instead, it is the amount of space the
-    * runtime system has committed to the bucket, based on the bucket's
-    * allocation requirements.
-    *
-    */
-   private int mTotalSpace = 0;
+	/**
+	 *
+	 * Describes the amount of space requested.
+	 *
+	 */
+	private int mRequested = 0;
 
-   /**
-    *
-    * Describes the amount of space currently used in the bucket.
-    *
-    */
-   private int mUsed = 0;
+	/**
+	 *
+	 * The total amount of space available for this bucket.  This number is
+	 * determined once, upon bucket allocation, based on the bucket's allocation
+	 * requirements. <b>Note:</b> This element does not necessarily represent the
+	 * "allocated" space for the bucket.  Instead, it is the amount of space the
+	 * runtime system has committed to the bucket, based on the bucket's
+	 * allocation requirements.
+	 *
+	 */
+	private int mTotalSpace = 0;
 
-   /**
-    *
-    * Default constructor.
-    *
-    */
-   private Bucket()
-   {
-      // Default constructor
-   }
+	/**
+	 *
+	 * Describes the amount of space currently used in the bucket.
+	 *
+	 */
+	private int mUsed = 0;
 
-   /**
-    *
-    * Constructor method.
-    *
-    * Side Effect: This constructor instantiates the amount of space currently
-    * used in the bucket (<code>mUsed</code>) based on the length of the
-    * <code>iData</code> parameter.
-    *
-    * @param iBucketID - The identifier of the bucket.
-    * @param iBucketType - Reference to a type definition for the bucket's data.
-    * @param iMinimum - Describes the minimum amount of space requested.
-    * @param iPersistence - Describes how long the runtime system should persist
-    *                       the data in the bucket.  This value shall be one of
-    *                       the enumerated values described in the
-    *                       <code>Persistence</code> class.
-    * @param iReducible - Indicates if the amount of space requested was allowed
-    *                     to be reduced.
-    * @param iRequested - Describes the amount of space requested.
-    * @param iTotalSpace - The total amount of space available for this bucket.
-    *
-    */
-   public Bucket( String iBucketID, String iBucketType, int iMinimum,
-                  int iPersistence, boolean iReducible, int iRequested,
-                  int iTotalSpace )
-   {
-      mBucketID = iBucketID;
-      mBucketType = iBucketType;
-      mMinimum = iMinimum;
-      mPersistence = iPersistence;
-      mReducible = iReducible;
-      mRequested = iRequested;
-      mTotalSpace = iTotalSpace;
-      mUsed = 0;
-      String empty = "";
+	/**
+	 *
+	 * Constructor method.
+	 *
+	 * Side Effect: This constructor instantiates the amount of space currently
+	 * used in the bucket (<code>mUsed</code>) based on the length of the
+	 * <code>iData</code> parameter.
+	 *
+	 * @param iBucketID - The identifier of the bucket.
+	 * @param iBucketType - Reference to a type definition for the bucket's data.
+	 * @param iMinimum - Describes the minimum amount of space requested.
+	 * @param iPersistence - Describes how long the runtime system should persist
+	 *                       the data in the bucket.  This value shall be one of
+	 *                       the enumerated values described in the
+	 *                       <code>Persistence</code> class.
+	 * @param iReducible - Indicates if the amount of space requested was allowed
+	 *                     to be reduced.
+	 * @param iRequested - Describes the amount of space requested.
+	 * @param iTotalSpace - The total amount of space available for this bucket.
+	 *
+	 */
+	public Bucket(String iBucketID, String iBucketType, int iMinimum, int iPersistence, boolean iReducible, int iRequested, int iTotalSpace) {
+		mBucketID = iBucketID;
+		mBucketType = iBucketType;
+		mMinimum = iMinimum;
+		mPersistence = iPersistence;
+		mReducible = iReducible;
+		mRequested = iRequested;
+		mTotalSpace = iTotalSpace;
+		mUsed = 0;
+		String empty = "";
 
-      try
-      {
-         mData = empty.getBytes( CHARSET );
-      }
-      catch( UnsupportedEncodingException uee )
-      {
-         mData = empty.getBytes();
+		try {
+			mData = empty.getBytes(CHARSET);
+		} catch (UnsupportedEncodingException uee) {
+			mData = empty.getBytes();
 
-         System.out.println( "UnsupportedEncodingException: " + CHARSET +
-                             " is not a supported encoding.  The default " +
-                             "encoding is being used" );
-      }
-   }
+			System.out.println("UnsupportedEncodingException: " + CHARSET + " is not a supported encoding.  The default " + "encoding is being used");
+		}
+	}
 
-   /**
-    * Accessor method to retrieve the ID of the bucket.
-    *
-    * @return - The identifier of the bucket.
-    */
-   public String getBucketID()
-   {
-      return mBucketID;
-   }
+	/**
+	 * Accessor method to retrieve the ID of the bucket.
+	 *
+	 * @return - The identifier of the bucket.
+	 */
+	public String getBucketID() {
+		return mBucketID;
+	}
 
-   /**
-    *
-    * Accessor method to retrieve the Type of the bucket.
-    *
-    * @return - Reference to a type definition for the bucket's data.
-    *
-    */
-   public String getBucketType()
-   {
-      return mBucketType;
-   }
+	/**
+	 *
+	 * Accessor method to retrieve the Type of the bucket.
+	 *
+	 * @return - Reference to a type definition for the bucket's data.
+	 *
+	 */
+	public String getBucketType() {
+		return mBucketType;
+	}
 
-   /**
-    * Accessor method to store the data to be contained in the bucket.
-    *
-    * Side Effect: This method updates the amount of space currently
-    * used in the bucket (<code>mUsed</code>) based on the length of the
-    * <code>iData</code> parameter.
-    *
-    * @param iData - The data stored in this bucket.
-    */
-   public void setData( byte[] iData )
-   {
-      mData = iData;
+	/**
+	 *
+	 * Accessor method to retrieve the data contained in the bucket.
+	 *
+	 * @return - The data stored in this bucket.
+	 *
+	 */
+	public byte[] getData() {
+		return mData;
+	}
 
-      String data;
+	/**
+	 *
+	 * Accessor method to retrieve the minimum size requirement of the bucket.
+	 *
+	 * @return - The minimum amount of space requested.
+	 *
+	 */
+	public int getMinimum() {
+		return mMinimum;
+	}
 
-      try
-      {
-         data = new String( mData, CHARSET );
-      }
-      catch( UnsupportedEncodingException uee )
-      {
-         data = new String( mData );
-      }
+	/**
+	 *
+	 * Accessor method to retrieve the persistence scope of the bucket.
+	 *
+	 * @return - How long the runtime system should persist the data in
+	 *           the bucket.  This value may be one of the enumerated values
+	 *           described in the <code>Persistence</code> class.
+	 *
+	 */
+	public int getPersistence() {
+		return mPersistence;
+	}
 
-      mUsed = data.length() * 2;
+	/**
+	 *
+	 * Accessor method to retrieve the value that indicates if the amount of
+	 * space requested was allowed to be reduced.
+	 *
+	 * @return - An Indicator if the amount of space requested was allowed to be
+	 *           reduced.
+	 *
+	 */
+	public boolean getReducible() {
+		return mReducible;
+	}
 
-   }
+	/**
+	 *
+	 * Accessor method to retrieve the requested size of the bucket.
+	 *
+	 * @return - The amount of space requested.
+	 *
+	 */
+	public int getRequested() {
+		return mRequested;
+	}
 
-   /**
-    *
-    * Accessor method to retrieve the data contained in the bucket.
-    *
-    * @return - The data stored in this bucket.
-    *
-    */
-   public byte[] getData()
-   {
-      return mData;
-   }
+	/**
+	 *
+	 * Accessor method to retrieve the total size of the bucket.
+	 *
+	 * @return - The total amount of space available for this bucket.
+	 *
+	 */
+	public int getTotalSpace() {
+		return mTotalSpace;
+	}
 
-   /**
-    *
-    * Accessor method to retrieve the minimum size requirement of the bucket.
-    *
-    * @return - The minimum amount of space requested.
-    *
-    */
-   public int getMinimum()
-   {
-      return mMinimum;
-   }
+	/**
+	 *
+	 * Accessor method to retrieve the amount of space used of the bucket.
+	 *
+	 * @return - The amount of space currently used in the bucket.
+	 *
+	 */
+	public int getUsed() {
+		return mUsed;
+	}
 
-   /**
-    *
-    * Accessor method to retrieve the persistence scope of the bucket.
-    *
-    * @return - How long the runtime system should persist the data in
-    *           the bucket.  This value may be one of the enumerated values
-    *           described in the <code>Persistence</code> class.
-    *
-    */
-   public int getPersistence()
-   {
-      return mPersistence;
-   }
+	/**
+	 * Accessor method to store the data to be contained in the bucket.
+	 *
+	 * Side Effect: This method updates the amount of space currently
+	 * used in the bucket (<code>mUsed</code>) based on the length of the
+	 * <code>iData</code> parameter.
+	 *
+	 * @param iData - The data stored in this bucket.
+	 */
+	public void setData(byte[] iData) {
+		mData = iData;
 
-   /**
-    *
-    * Accessor method to retrieve the value that indicates if the amount of
-    * space requested was allowed to be reduced.
-    *
-    * @return - An Indicator if the amount of space requested was allowed to be
-    *           reduced.
-    *
-    */
-   public boolean getReducible()
-   {
-      return mReducible;
-   }
+		String data;
 
-   /**
-    *
-    * Accessor method to retrieve the requested size of the bucket.
-    *
-    * @return - The amount of space requested.
-    *
-    */
-   public int getRequested()
-   {
-      return mRequested;
-   }
+		try {
+			data = new String(mData, CHARSET);
+		} catch (UnsupportedEncodingException uee) {
+			data = new String(mData);
+		}
 
-   /**
-    *
-    * Accessor method to retrieve the total size of the bucket.
-    *
-    * @return - The total amount of space available for this bucket.
-    *
-    */
-   public int getTotalSpace()
-   {
-      return mTotalSpace;
-   }
+		mUsed = data.length() * 2;
 
-   /**
-    *
-    * Accessor method to retrieve the amount of space used of the bucket.
-    *
-    * @return - The amount of space currently used in the bucket.
-    *
-    */
-   public int getUsed()
-   {
-      return mUsed;
-   }
+	}
 }

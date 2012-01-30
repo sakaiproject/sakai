@@ -25,7 +25,6 @@
 package org.adl.sequencer;
 
 import java.io.Serializable;
-import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -63,291 +62,257 @@ import org.adl.util.debug.DebugIndicator;
  * 
  * @author ADL Technical Team
  */
-public class ADLTracking implements Serializable
-{
+public class ADLTracking implements Serializable {
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Primary key
+	 */
 	private long id;
+
+	/**
+	    * Enumeration of possible values for tracking elements  -- described in 
+	    * Tracking Model elements 2.1 and 2.2 of the IMS SS Specification.
+	    * <br>unknown
+	    * <br><b>"unknown"</b>
+	    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	    */
+	public static String TRACK_UNKNOWN = "unknown";
+
+	/**
+	 * Enumeration of possible values for tracking elements  -- described in 
+	 * Tracking Model elements 2.1 and 2.2 of the IMS SS Specification.
+	 * <br>satisfied
+	 * <br><b>"satisfied"</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]           
+	 */
+	public static String TRACK_SATISFIED = "satisfied";
+
+	/**
+	 * Enumeration of possible values for tracking elements  -- described in 
+	 * Tracking Model elements 2.1 and 2.2 of the IMS SS Specification.
+	 * <br>notSatisfied
+	 * <br><b>"notSatisfied"</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	 */
+	public static String TRACK_NOTSATISFIED = "notSatisfied";
+
+	/**
+	 * Enumeration of possible values for tracking elements  -- described in 
+	 * Tracking Model elements 2.1 and 2.2 of the IMS SS Specification.
+	 * <br>completed
+	 * <br><b>"completed"</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	 */
+	public static String TRACK_COMPLETED = "completed";
+
+	/**
+	 * Enumeration of possible values for tracking elements  -- described in 
+	 * Tracking Model elements 2.1 and 2.2 of the IMS SS Specification.
+	 * <br>incomplete
+	 * <br><b>"incomplete"</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	 */
+	public static String TRACK_INCOMPLETE = "incomplete";
+
+	/**
+	 * This controls display of log messages to the java console
+	 */
+	private static boolean _Debug = DebugIndicator.ON;
+
+	/**
+	 * Indicates if the recorded Progress status is invalid
+	 */
+	public boolean mDirtyPro = false;
+
+	/**
+	 * The objectives associated with this activity
+	 */
+	public Map<String, SeqObjectiveTracking> mObjectives = null;
+
+	/**
+	 * Describes the ID for the objective that contributes to rollup.
+	 */
+	public String mPrimaryObj = "_primary_";
+
+	/**
+	 * The progress tracking status.
+	 */
+	public String mProgress = ADLTracking.TRACK_UNKNOWN;
+
+	/** 
+	 * This describes the activity's absolute duration.<br>
+	 * Tracking element 1.2.2 Element 4
+	 */
+	public ADLDuration mAttemptAbDur = null;
+
+	/** 
+	 * This describes the activity's experienced duration.<br>
+	 * Tracking element 1.2.2 Element 5
+	 */
+	public ADLDuration mAttemptExDur = null;
+
+	/**
+	 * Represents the attempt number.
+	 */
+	public long mAttempt = 0;
+
+	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 	
-/**
-    * Enumeration of possible values for tracking elements  -- described in 
-    * Tracking Model elements 2.1 and 2.2 of the IMS SS Specification.
-    * <br>unknown
-    * <br><b>"unknown"</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */
-   public static String TRACK_UNKNOWN            = "unknown";
+	 Public Methods
+	
+	-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
+	public ADLTracking() {
 
-   /**
-    * Enumeration of possible values for tracking elements  -- described in 
-    * Tracking Model elements 2.1 and 2.2 of the IMS SS Specification.
-    * <br>satisfied
-    * <br><b>"satisfied"</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]           
-    */
-   public static String TRACK_SATISFIED          = "satisfied";
+		if (mObjectives == null) {
+			mObjectives = new Hashtable<String, SeqObjectiveTracking>();
+		}
 
-   /**
-    * Enumeration of possible values for tracking elements  -- described in 
-    * Tracking Model elements 2.1 and 2.2 of the IMS SS Specification.
-    * <br>notSatisfied
-    * <br><b>"notSatisfied"</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */
-   public static String TRACK_NOTSATISFIED       = "notSatisfied";
+	}
 
-   /**
-    * Enumeration of possible values for tracking elements  -- described in 
-    * Tracking Model elements 2.1 and 2.2 of the IMS SS Specification.
-    * <br>completed
-    * <br><b>"completed"</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */
-   public static String TRACK_COMPLETED          = "completed";
+	/**
+	 * Initializes tracking status information for this attempt on the
+	 * associated activity.
+	 * 
+	 * @param iObjs      A list of local Objectives (<code>SeqObjective</code>).
+	 * 
+	 * @param iLearnerID Identifies the learner this tracking information is
+	 *                   related to.
+	 * 
+	 * @param iScopeID   Identifies the scope this tracking information applies
+	 */
+	public ADLTracking(List<SeqObjective> iObjs, String iLearnerID, String iScopeID) {
 
-   /**
-    * Enumeration of possible values for tracking elements  -- described in 
-    * Tracking Model elements 2.1 and 2.2 of the IMS SS Specification.
-    * <br>incomplete
-    * <br><b>"incomplete"</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */
-   public static String TRACK_INCOMPLETE         = "incomplete";
+		if (iObjs != null) {
 
+			for (int i = 0; i < iObjs.size(); i++) {
+				SeqObjective obj = iObjs.get(i);
 
-   /**
-    * This controls display of log messages to the java console
-    */
-   private static boolean _Debug = DebugIndicator.ON;
+				if (_Debug) {
+					System.out.println("  ::--> Building Objective  :: " + obj.mObjID);
+				}
 
-   /**
-    * Indicates if the recorded Progress status is invalid
-    */
-   public boolean mDirtyPro = false;
+				// Construct an objective for each local objective
+				SeqObjectiveTracking objTrack = new SeqObjectiveTracking(obj, iLearnerID, iScopeID);
 
+				// If the objective is defined, add it to the set of objectives
+				// associated with this activity
+				if (mObjectives == null) {
+					mObjectives = new Hashtable<String, SeqObjectiveTracking>();
+				}
 
-   /**
-    * The objectives associated with this activity
-    */
-   public Map mObjectives = null;
+				mObjectives.put(obj.mObjID, objTrack);
 
-   /**
-    * Describes the ID for the objective that contributes to rollup.
-    */
-   public String mPrimaryObj = "_primary_";
+				// Remember if this objective contributes to rollup
+				if (obj.mContributesToRollup) {
+					mPrimaryObj = obj.mObjID;
+				}
+			}
+		} else {
+			if (_Debug) {
+				System.out.println("  ::--> Making default Obj");
+			}
 
-   /**
-    * The progress tracking status.
-    */
-   public String mProgress = ADLTracking.TRACK_UNKNOWN;
+			// All activities must have at least one objective and that objective
+			// is the primary objective
 
+			SeqObjective def = new SeqObjective();
+			def.mContributesToRollup = true;
 
-   /** 
-    * This describes the activity's absolute duration.<br>
-    * Tracking element 1.2.2 Element 4
-    */
-   public ADLDuration mAttemptAbDur = null;
+			SeqObjectiveTracking objTrack = new SeqObjectiveTracking(def, iLearnerID, iScopeID);
 
-   /** 
-    * This describes the activity's experienced duration.<br>
-    * Tracking element 1.2.2 Element 5
-    */
-   public ADLDuration mAttemptExDur = null;
+			if (mObjectives == null) {
+				mObjectives = new Hashtable<String, SeqObjectiveTracking>();
+			}
 
+			mObjectives.put(def.mObjID, objTrack);
 
-   /**
-    * Represents the attempt number.
-    */
-   public long mAttempt = 0;
+			mPrimaryObj = def.mObjID;
+		}
+	}
 
+	/**
+	 * This method provides the state this <code>ADLTracking</code> object for
+	 * diagnostic purposes.<br>
+	 */
+	public void dumpState() {
 
-   /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-   
-    Public Methods
-   
-   -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
-   public ADLTracking() {
-	   
-	   if ( mObjectives == null )
-       {
-          mObjectives = new Hashtable();
-       }
-	   
-   }
-   
-   
-   /**
-    * Initializes tracking status information for this attempt on the
-    * associated activity.
-    * 
-    * @param iObjs      A list of local Objectives (<code>SeqObjective</code>).
-    * 
-    * @param iLearnerID Identifies the learner this tracking information is
-    *                   related to.
-    * 
-    * @param iScopeID   Identifies the scope this tracking information applies
-    */
-   public ADLTracking(List iObjs, String iLearnerID, String iScopeID) 
-   {
+		if (_Debug) {
+			System.out.println("  :: ADLTracking   --> BEGIN - dumpState");
 
-      if ( iObjs != null )
-      {
+			System.out.println("\t  ::--> Attempt #:   " + mAttempt);
+			System.out.println("\t  ::--> Dirty Pro:   " + mDirtyPro);
 
-         for ( int i = 0; i < iObjs.size(); i++ )
-         {
-            SeqObjective obj = (SeqObjective)iObjs.get(i);
+			if (mObjectives == null) {
+				System.out.println("\t  ::--> Objectives :       NULL");
+			} else {
 
-            if ( _Debug )
-            {
-               System.out.println("  ::--> Building Objective  :: " 
-                                  + obj.mObjID);
-            }
+				System.out.println("\t  ::--> Objectives :       [" + mObjectives.size() + "]");
 
-            // Construct an objective for each local objective
-            SeqObjectiveTracking objTrack = 
-            new SeqObjectiveTracking(obj, iLearnerID, iScopeID);
+				Iterator<String> it = mObjectives.keySet().iterator();
 
+				while (it.hasNext()) {
+					String key = it.next();
 
-            // If the objective is defined, add it to the set of objectives
-            // associated with this activity
-            if ( mObjectives == null )
-            {
-               mObjectives = new Hashtable();
-            }
+					System.out.println("\t\t  :: " + key + " ::");
 
-            mObjectives.put(obj.mObjID, objTrack);
+					SeqObjectiveTracking obj = mObjectives.get(key);
 
-            // Remember if this objective contributes to rollup
-            if ( obj.mContributesToRollup )
-            {
-               mPrimaryObj = obj.mObjID;
-            }
-         }
-      }
-      else
-      {
-         if ( _Debug )
-         {
-            System.out.println("  ::--> Making default Obj");
-         }
+					System.out.println("\t\t  ::--> " + obj.getObjStatus(false));
+					System.out.println("\t\t  ::--> " + obj.getObjMeasure(false));
+				}
 
-         // All activities must have at least one objective and that objective
-         // is the primary objective
+			}
 
-         SeqObjective def = new SeqObjective();
-         def.mContributesToRollup = true;
+			System.out.println("\t  ::--> Primary:       " + mPrimaryObj);
+			System.out.println("\t  ::--> Progress:      " + mProgress);
 
-         SeqObjectiveTracking objTrack =
-         new SeqObjectiveTracking(def, iLearnerID, iScopeID);
+			System.out.println("  :: ADLTracking   --> END   - dumpState");
+		}
+	}
 
-         if ( mObjectives == null )
-         {
-            mObjectives = new Hashtable();
-         }
+	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+	
+	 Public Methods
+	
+	-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
 
-         mObjectives.put(def.mObjID, objTrack);
+	public long getId() {
+		return id;
+	}
 
-         mPrimaryObj = def.mObjID;
-      }
-   }
+	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+	
+	 Package Methods
+	
+	-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
 
+	/**
+	  * Indicates that the current Objective state is invalid due to a new
+	  * attempt on the activity's parent.
+	  */
+	void setDirtyObj() {
+		if (_Debug) {
+			System.out.println("  :: ADLTracking     --> BEGIN - " + "setDirtyObj");
+		}
 
-   /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-   
-    Public Methods
-   
-   -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
+		if (mObjectives != null) {
 
-   /**
-    * This method provides the state this <code>ADLTracking</code> object for
-    * diagnostic purposes.<br>
-    */
-   public void dumpState()
-   {
+			Iterator<String> it = mObjectives.keySet().iterator();
 
-      if ( _Debug )
-      {
-         System.out.println("  :: ADLTracking   --> BEGIN - dumpState");
+			while (it.hasNext()) {
+				String key = it.next();
 
-         System.out.println("\t  ::--> Attempt #:   " + mAttempt);
-         System.out.println("\t  ::--> Dirty Pro:   " + mDirtyPro);
+				SeqObjectiveTracking obj = mObjectives.get(key);
 
-         if ( mObjectives == null )
-         {
-            System.out.println("\t  ::--> Objectives :       NULL");
-         }
-         else
-         {
+				obj.setDirtyObj();
 
-            System.out.println("\t  ::--> Objectives :       [" + 
-                               mObjectives.size() + "]");
+			}
+		}
 
-            Iterator it = mObjectives.keySet().iterator();
+		if (_Debug) {
+			System.out.println("  :: ADLTracking     --> END   - " + "setDirtyObj");
+		}
+	}
 
-            while ( it.hasNext() )
-            {
-               String key = (String)it.next();
-
-               System.out.println("\t\t  :: " + key + " ::");
-
-               SeqObjectiveTracking obj = 
-               (SeqObjectiveTracking)mObjectives.get(key);
-
-               System.out.println("\t\t  ::--> " + 
-                                  obj.getObjStatus(false));
-               System.out.println("\t\t  ::--> " + 
-                                  obj.getObjMeasure(false));
-            }
-
-         }
-
-         System.out.println("\t  ::--> Primary:       " + mPrimaryObj);  
-         System.out.println("\t  ::--> Progress:      " + mProgress);
-
-         System.out.println("  :: ADLTracking   --> END   - dumpState");
-      }
-   }
-
-   /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-   
-    Package Methods
-   
-   -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
-
-   /**
-     * Indicates that the current Objective state is invalid due to a new
-     * attempt on the activity's parent.
-     */
-   void setDirtyObj()
-   {
-      if ( _Debug )
-      {
-         System.out.println("  :: ADLTracking     --> BEGIN - " +
-                            "setDirtyObj");
-      }
-
-      if ( mObjectives != null )
-      {
-
-         Iterator it = mObjectives.keySet().iterator();
-
-         while ( it.hasNext() )
-         {
-            String key = (String)it.next();
-
-            SeqObjectiveTracking obj =
-            (SeqObjectiveTracking)mObjectives.get(key);
-
-            obj.setDirtyObj();
-
-         }
-      }
-
-      if ( _Debug )
-      {
-         System.out.println("  :: ADLTracking     --> END   - " +
-                            "setDirtyObj");
-      }
-   }
-
-}  // end ADLTracking
+} // end ADLTracking

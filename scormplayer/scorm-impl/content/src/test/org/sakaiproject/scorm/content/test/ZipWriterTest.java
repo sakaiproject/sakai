@@ -20,13 +20,10 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.content.test;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-
-import javax.print.DocFlavor.URL;
+import java.net.URLDecoder;
 
 import junit.framework.TestCase;
 
@@ -35,73 +32,76 @@ import org.sakaiproject.scorm.content.impl.ZipWriter;
 public class ZipWriterTest extends TestCase {
 
 	public void testOne() throws Exception {
-		
+
 		boolean testFailure = false;
 		StringBuffer msg = new StringBuffer();
-		
+
 		String testFileName = System.getProperty("testZipFileName"); //defined in pom
 		
-		java.net.URL testURL = this.getClass().getClassLoader().getResource(testFileName);
-		
+		testFileName = (testFileName != null ? testFileName : "testZipFile.zip");
 
-		if(testURL!=null){
+		java.net.URL testURL = this.getClass().getClassLoader().getResource(testFileName);
+
+		if (testURL != null) {
 			FileInputStream contentStream = null;
-			String path = testURL.getPath();
-			FileInputStream in = new FileInputStream(testURL.getPath().substring(path.indexOf(":")+1));
-			String newName= path.substring(path.indexOf(":")+1, path.lastIndexOf("/")+1)+"myresult.zip";
-			
+			String path = testURL.getFile();
+			path = URLDecoder.decode(path, "UTF-8");
+			FileInputStream in = new FileInputStream(path);
+			String newName = path.substring(0, path.lastIndexOf("/") + 1) + "myresult.zip";
+
 			FileOutputStream out = new FileOutputStream(newName);
-			
 
 			ZipWriter writer = new ZipWriter(in, out);
-			
+
 			testFileName = System.getProperty("testAddFileName"); //defined in pom
+			testFileName = (testFileName != null ? testFileName : "applicationContext.xml");
 			testURL = this.getClass().getClassLoader().getResource(testFileName);
-			
-			if(testURL!=null){
-				contentStream = new FileInputStream(testURL.getPath().substring(path.indexOf(":")+1));
-				
+
+			if (testURL != null) {
+				contentStream = new FileInputStream(path);
+
 				try {
 					writer.add("applicationContext.xml", contentStream);
-					
-				}catch (    UnsupportedOperationException wtf) {
+
+				} catch (UnsupportedOperationException wtf) {
 					msg.append("the add method is not supported by this list\n" + wtf.getMessage());
 					System.out.println("the add method is not supported by this list\n");
 					testFailure = true;
-				}catch (    ClassCastException wtf){
+				} catch (ClassCastException wtf) {
 					msg.append("the class of the specified element prevents it from being added to this list\n");
 					System.out.println("the class of the specified element prevents it from being added to this list\n" + wtf.getMessage());
 					testFailure = true;
-				}catch (    NullPointerException npe){
+				} catch (NullPointerException npe) {
 					msg.append("the specified element is null and this list does not support null elements\n");
 					System.out.println("the specified element is null and this list does not support null elements\n" + npe.getMessage());
 					testFailure = true;
-				}catch(    IllegalArgumentException wtf){
+				} catch (IllegalArgumentException wtf) {
 					msg.append("some aspect of this element prevents it from being added to this list\n");
 					System.out.println("some aspect of this element prevents it from being added to this list\n" + wtf.getMessage());
 					testFailure = true;
 				}
 				//writer.add("dir/file4.txt", contentStream);
 				//writer.remove("file.txt");
-				try{
+				try {
 					writer.process();
-				}catch(IOException io){
+				} catch (IOException io) {
 					msg.append("IO Error\n");
 					System.out.println("IO Error\n" + io.getMessage());
 					testFailure = true;
-				}catch(Exception e){
+				} catch (Exception e) {
 					msg.append("General Exception during processing\n");
 					System.out.println("General Exception during processing\n" + e.getMessage());
 					testFailure = true;
 				}
 
-				if (contentStream != null)
+				if (contentStream != null) {
 					contentStream.close();
-			}else{
+				}
+			} else {
 				System.out.println("file not found: " + testFileName + "\n");
 				testFailure = true;
-				}
-		}else{///could not find test zip file
+			}
+		} else {///could not find test zip file
 			msg.append("file not found: " + testFileName + "\n");
 			System.out.println("file not found: " + testFileName + "\n");
 			testFailure = true;
@@ -109,6 +109,5 @@ public class ZipWriterTest extends TestCase {
 
 		assertFalse(msg.toString(), testFailure);
 	}
-	
-	
+
 }

@@ -142,6 +142,7 @@ public class ResultsListPage extends ConsoleBasePage {
 		}
 	}
 	
+	@Override
 	protected ResourceReference getPageIconReference() {
 		return PAGE_ICON;
 	}

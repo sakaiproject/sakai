@@ -195,6 +195,7 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 		}
 	}
 	
+	@Override
 	protected ResourceReference getPageIconReference() {
 		return PAGE_ICON;
 	}

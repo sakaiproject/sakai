@@ -49,6 +49,7 @@ public class ScormAccessProviderApplication extends WebApplication implements Ht
 
 	HttpServletAccessProviderManager providerManager;
 	
+	@Override
 	protected void init()
 	{
 		addComponentInstantiationListener(new SpringComponentInjector(this));
@@ -259,20 +260,24 @@ public class ScormAccessProviderApplication extends WebApplication implements Ht
 		};
 	}*/
 	
+	@Override
 	protected WebRequest newWebRequest(final HttpServletRequest servletRequest) {
 		return new ServletWebRequest(servletRequest) {
+			@Override
 			public String getURL() {
 				String url = super.getURL();
 				
 				return decodeScormURL(url);
 			}
 			
+			@Override
 			public String getPath() {
 				String path = super.getPath();
 				
 				return decodeScormURL(path);
 			}
 			
+			@Override
 			public String getRelativePathPrefixToContextRoot() {
 				String path = super.getRelativePathPrefixToContextRoot();
 				
@@ -281,6 +286,7 @@ public class ScormAccessProviderApplication extends WebApplication implements Ht
 				return path;
 			}
 			
+			@Override
 			public String getRelativePathPrefixToWicketHandler() {
 				String path = super.getRelativePathPrefixToWicketHandler();
 				
@@ -290,6 +296,7 @@ public class ScormAccessProviderApplication extends WebApplication implements Ht
 				return path;
 			}
 			
+			@Override
 			public String getServletPath() {
 				String path = super.getServletPath();
 				
@@ -305,7 +312,7 @@ public class ScormAccessProviderApplication extends WebApplication implements Ht
 	}*/
 	
 	final String decodeScormURL(final String unparsed) {
-		String parsed = new String(unparsed);
+		String parsed = unparsed;
 		
 		System.out.println("Unparsed: " + unparsed);
 		
@@ -353,13 +360,16 @@ public class ScormAccessProviderApplication extends WebApplication implements Ht
 	}
 	
 	
+	@Override
 	protected WebResponse newWebResponse(final HttpServletResponse servletResponse) {
 		return (getRequestCycleSettings().getBufferResponse() ? new BufferedWebResponse(
 				servletResponse) {
+			@Override
 			public CharSequence encodeURL(final CharSequence url) {
 				return super.encodeURL(url);
 			}		
 		} : new WebResponse(servletResponse) {
+			@Override
 			public CharSequence encodeURL(final CharSequence url) {
 				return super.encodeURL(url);
 			}

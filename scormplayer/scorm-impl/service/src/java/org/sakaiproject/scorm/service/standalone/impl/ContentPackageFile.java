@@ -17,10 +17,11 @@ public class ContentPackageFile extends ContentPackageResource {
 	private static final long serialVersionUID = 1L;
 
 	private static Log log = LogFactory.getLog(ContentPackageFile.class);
-	
+
 	private String archiveResourceId;
+
 	private File file;
-	
+
 	public ContentPackageFile(String archiveResourceId, String path, File file) {
 		super(path);
 		this.archiveResourceId = archiveResourceId;
@@ -28,11 +29,11 @@ public class ContentPackageFile extends ContentPackageResource {
 		this.setLength(file.length());
 		this.setLastModified(file.lastModified());
 	}
-	
+
 	@Override
 	public InputStream getInputStream() throws ResourceNotFoundException {
 		InputStream inputStream = null;
-		
+
 		try {
 			inputStream = new FileInputStream(file);
 		} catch (FileNotFoundException e) {
@@ -50,12 +51,13 @@ public class ContentPackageFile extends ContentPackageResource {
 	@Override
 	public String getMimeType() {
 		String mimeType = new MimetypesFileTypeMap().getContentType(file);
-		
-		if (file.getName().endsWith(".css"))
+
+		if (file.getName().endsWith(".css")) {
 			mimeType = "text/css";
-		else if (file.getName().endsWith(".swf"))
+		} else if (file.getName().endsWith(".swf")) {
 			mimeType = "application/x-Shockwave-Flash";
-		
+		}
+
 		return mimeType;
 	}
 }

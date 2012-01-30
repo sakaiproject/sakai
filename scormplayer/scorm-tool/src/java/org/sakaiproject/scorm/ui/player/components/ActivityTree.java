@@ -99,7 +99,7 @@ public class ActivityTree extends LinkTree {
 			setModel(new Model((Serializable)treeModel));
 			isEmpty = false;
 		} else {
-			setModel(new Model((Serializable) new DefaultTreeModel(new DefaultMutableTreeNode())));
+			setModel(new Model(new DefaultTreeModel(new DefaultMutableTreeNode())));
 		}
 	
 		if (!isEmpty && sessionBean != null) {
@@ -177,7 +177,7 @@ public class ActivityTree extends LinkTree {
 		if (isEmpty() && !wasEmpty) {
 			ActivityTree.this.setVisible(false);
 			if (synchronizer != null)
-				target.addComponent((Component)synchronizer);
+				target.addComponent(synchronizer);
 			wasEmpty = true;
 		}
 		
@@ -192,11 +192,13 @@ public class ActivityTree extends LinkTree {
 	
 	private static final LinkType ACTIVITY_AJAX_LinkType = new LinkType("ACTIVITY_AJAX");
 	
+	@Override
 	public LinkType getLinkType()
 	{
 		return ACTIVITY_AJAX_LinkType;
 	}
 	
+	@Override
 	public MarkupContainer newLink(String id, final ILinkCallback callback)
 	{
 		if (getLinkType() == ACTIVITY_AJAX_LinkType)
@@ -205,6 +207,7 @@ public class ActivityTree extends LinkTree {
 			{
 				private static final long serialVersionUID = 1L;
 				
+				@Override
 				public void onClick(AjaxRequestTarget target)
 				{
 					callback.onClick(target);
@@ -273,16 +276,19 @@ public class ActivityTree extends LinkTree {
 				add(new ActivityAjaxEventBehavior("onclick", lms.canUseRelativeUrls()) {
 					private static final long serialVersionUID = 1L;
 	
+					@Override
 					protected void onEvent(AjaxRequestTarget target)
 					{
 						onClick(target);
 					}
 	
+					@Override
 					protected IAjaxCallDecorator getAjaxCallDecorator()
 					{
 						return new CancelEventIfNoAjaxDecorator(ActivityAjaxLink.this.getAjaxCallDecorator());
 					}
 	
+					@Override
 					protected void onComponentTag(ComponentTag tag)
 					{
 						// add the onclick handler only if link is enabled 
@@ -313,11 +319,13 @@ public class ActivityTree extends LinkTree {
 			super(id, model, tree);
 		}
 		
+		@Override
 		protected void onNodeLinkClicked(Object node, BaseTree tree, AjaxRequestTarget target)
 		{
 			ActivityTree.this.onNodeLinkClicked(node, tree, target);
 		}
 		
+		@Override
 		protected Component newContentComponent(String componentId, BaseTree tree, IModel model)
 		{
 			ISeqActivity activity = (ISeqActivity)((DefaultMutableTreeNode)model.getObject()).getUserObject();
@@ -373,21 +381,18 @@ public class ActivityTree extends LinkTree {
 		private static final long serialVersionUID = 1L;
 
 		@Override
-		public Object getApplication() {
-			return this.getApplication();
-		}
-		
-		@Override
 		protected ScormResourceService resourceService() {
 			return ActivityTree.this.resourceService;
 		}
 		
+		@Override
 		public Component getFrameComponent() {
 			if (synchronizer != null && synchronizer.getContentPanel() != null) 
 				return synchronizer.getContentPanel();
 			return null;
 		}
 		
+		@Override
 		public boolean useLocationRedirect() {
 			return false;
 		}

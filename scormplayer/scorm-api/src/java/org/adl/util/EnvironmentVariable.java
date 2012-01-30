@@ -24,8 +24,10 @@
 package org.adl.util;
 
 import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+
+import org.apache.commons.lang.StringUtils;
 
 // xerces imports
 
@@ -41,59 +43,43 @@ import java.io.IOException;
  
  * @author ADL Technical Team
  */
-public final class EnvironmentVariable
-{
-   /**
-    * Retrieves the value of the specified environment variable.
-    *
-    * @param iKey   Name of the environment variable.
-    *
-    * @return Value of the specified environment variable.
-    */
-   public static String getValue( String iKey )
-   {
-      String value = new String();
+public final class EnvironmentVariable {
+	/**
+	 * Retrieves the value of the specified environment variable.
+	 *
+	 * @param iKey   Name of the environment variable.
+	 *
+	 * @return Value of the specified environment variable.
+	 */
+	public static String getValue(String iKey) {
+		String value = "";
 
-      try
-      {
-         Process p;
-         String osName = System.getProperty("os.name");
+		try {
+			Process p;
+			String osName = System.getProperty("os.name");
 
-         if ((osName.equalsIgnoreCase( "Windows 95" )) ||
-             (osName.equalsIgnoreCase( "Windows 98" )) ||
-             (osName.equalsIgnoreCase( "Windows Me" )))
-         {
-            p = Runtime.getRuntime().exec("command.com /c echo %" +
-                                                  iKey + "%");
-         }
-         else
-         {
-            p = Runtime.getRuntime().exec("cmd.exe /c echo %" +
-                                                  iKey + "%");
-         }
+			if ((osName.equalsIgnoreCase("Windows 95")) || (osName.equalsIgnoreCase("Windows 98")) || (osName.equalsIgnoreCase("Windows Me"))) {
+				p = Runtime.getRuntime().exec("command.com /c echo %" + iKey + "%");
+			} else {
+				p = Runtime.getRuntime().exec("cmd.exe /c echo %" + iKey + "%");
+			}
 
-         p.waitFor();
-         BufferedReader br = new BufferedReader
-              ( new InputStreamReader( p.getInputStream() ) );
-         value = br.readLine();
+			p.waitFor();
+			BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			value = br.readLine();
 
-         if ( value.startsWith("%") )
-         {
-            value = "";
-         }
+			if (StringUtils.startsWith(value, "%")) {
+				value = "";
+			}
 
-         br.close();
-         p.destroy();
-      }
-      catch ( IOException ioe )
-      {
-         System.out.println("Could not read environment variable key " + iKey);
-      }
-      catch ( InterruptedException ie )
-      {
-         System.out.println("The process has been interrupted");
-      }
+			br.close();
+			p.destroy();
+		} catch (IOException ioe) {
+			System.out.println("Could not read environment variable key " + iKey);
+		} catch (InterruptedException ie) {
+			System.out.println("The process has been interrupted");
+		}
 
-      return value;
-   }
+		return value;
+	}
 }
