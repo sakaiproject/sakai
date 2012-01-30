@@ -231,7 +231,7 @@
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_label}"/>
 		    </f:facet>
-		     <h:outputText value="#{rcvdItems.msg.label}"/>
+		     <h:outputText value="#{rcvdItems.label}"/>
 		  </h:column>
 		</mf:hierPvtMsgDataTable>
 		
