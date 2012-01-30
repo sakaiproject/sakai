@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>master</artifactId>
@@ -22,16 +23,91 @@
     <sakai.entitybroker.version>1.2.0</sakai.entitybroker.version>
   </properties>
   <packaging>pom</packaging>
-  <modules>
-    <module>scorm-api</module>
-    <module>scorm-impl/adl</module>
-    <module>scorm-impl/client</module>
-    <module>scorm-impl/content</module>
-    <module>scorm-impl/model</module>
-    <module>scorm-impl/service</module>
-    <module>scorm-impl/pack</module>
-    <module>scorm-tool</module>
-  </modules>
+  <profiles>
+    <profile>
+      <id>full</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <modules>
+        <module>scorm-api</module>
+        <module>scorm-impl/adl</module>
+        <module>scorm-impl/client</module>
+        <module>scorm-impl/content</module>
+        <module>scorm-impl/model</module>
+        <module>scorm-impl/service</module>
+        <module>scorm-impl/pack</module>
+        <module>scorm-tool</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>tool</id>
+      <modules>
+        <module>scorm-tool</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>api</id>
+      <modules>
+        <module>scorm-api</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>sakai2.5</id>
+      <modules>
+        <module>scorm-api</module>
+        <module>scorm-impl/adl</module>
+        <module>scorm-impl/client</module>
+        <module>scorm-impl/content</module>
+        <module>scorm-impl/model</module>
+        <module>scorm-impl/service</module>
+        <module>scorm-impl/pack</module>
+        <module>scorm-tool</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>sakai2.6</id>
+      <modules>
+        <module>scorm-api</module>
+        <module>scorm-impl/adl</module>
+        <module>scorm-impl/client</module>
+        <module>scorm-impl/content</module>
+        <module>scorm-impl/model</module>
+        <module>scorm-impl/service</module>
+        <module>scorm-impl/pack</module>
+        <module>scorm-tool</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>sakai2.7</id>
+      <modules>
+        <module>scorm-api</module>
+        <module>scorm-impl/adl</module>
+        <module>scorm-impl/client</module>
+        <module>scorm-impl/content</module>
+        <module>scorm-impl/model</module>
+        <module>scorm-impl/service</module>
+        <module>scorm-impl/pack</module>
+        <module>scorm-tool</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>sakai2.8</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <modules>
+        <module>scorm-api</module>
+        <module>scorm-impl/adl</module>
+        <module>scorm-impl/client</module>
+        <module>scorm-impl/content</module>
+        <module>scorm-impl/model</module>
+        <module>scorm-impl/service</module>
+        <module>scorm-impl/pack</module>
+        <module>scorm-tool</module>
+      </modules>
+    </profile>
+  </profiles>
   <dependencyManagement>
     <dependencies>
       <dependency>

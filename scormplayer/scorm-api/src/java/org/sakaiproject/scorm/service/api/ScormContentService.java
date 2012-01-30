@@ -39,14 +39,6 @@ public interface ScormContentService extends ScormConstants {
 	public ContentPackage getContentPackage(long contentPackageId) throws ResourceStorageException;
 
 	/**
-	 * Gets the content package by the resource it was originally created eg. uploaded.
-	 * @param resourceId
-	 * @return
-	 * @throws ResourceStorageException
-	 */
-	public ContentPackage getContentPackageByOriginResourceId(String resourceId) throws ResourceStorageException;
-
-	/**
 	 * Gets the content package by the resource its represents
 	 * @param resourceId
 	 * @return

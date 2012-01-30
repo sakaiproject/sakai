@@ -32,8 +32,6 @@ public interface ContentPackageDao {
 
 	public ContentPackage load(long id);
 
-	public ContentPackage loadByOriginResourceId(String resourceId);
-
 	public ContentPackage loadByResourceId(String resourceId);
 
 	public void remove(ContentPackage contentPackage);

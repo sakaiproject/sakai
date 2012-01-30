@@ -93,7 +93,6 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 		ContentPackage cp = new ContentPackage(title, archiveId);
 		cp.setContext(context);
 		cp.setManifestId(manifestId);
-		cp.setOriginResourceId(resourceId);
 		cp.setReleaseOn(new Date());
 		cp.setCreatedBy(learnerId);
 		cp.setModifiedBy(learnerId);
@@ -145,14 +144,6 @@ public abstract class ScormContentServiceImpl implements ScormContentService, Sc
 
 	public ContentPackage getContentPackage(long contentPackageId) {
 		return contentPackageDao().load(contentPackageId);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.sakaiproject.scorm.service.api.ScormContentService#getContentPackageByOriginResourceId(java.lang.String)
-	 */
-	public ContentPackage getContentPackageByOriginResourceId(String resourceId) {
-		return contentPackageDao().loadByOriginResourceId(resourceId);
 	}
 
 	/*

@@ -58,16 +58,6 @@ public class ContentPackageDaoImpl extends HibernateDaoSupport implements Conten
 		return (ContentPackage) getHibernateTemplate().load(ContentPackage.class, id);
 	}
 
-	public ContentPackage loadByOriginResourceId(String resourceId) {
-		String statement = new StringBuilder("from ").append(ContentPackage.class.getName()).append(" where originResourceId = ? and deleted = ? ").toString();
-
-		List<ContentPackage> result = getHibernateTemplate().find(statement, new Object[] { resourceId, false });
-		if (result.size() == 0)
-			return null;
-		else
-			return result.get(0);
-	}
-
 	/**
 	 * @see org.sakaiproject.scorm.dao.api.ContentPackageDao#loadByResourceId(java.lang.String)
 	 */
