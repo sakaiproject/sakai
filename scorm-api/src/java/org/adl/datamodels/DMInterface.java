@@ -26,6 +26,7 @@ package org.adl.datamodels;
 
 import java.util.NoSuchElementException;
 
+import org.adl.datamodels.ieee.IValidatorFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -184,18 +185,16 @@ public class DMInterface {
 	 * (<code>SCODataManager</code>.
 	 * 
 	 * @param iRequest  A dot-notation binding of the desired data model element.
-	 * 
 	 * @param iValue    Indicates the value that will be set.
-	 * 
 	 * @param iAdmin    Indicates if this SetValue is an administrative action.
-	 * 
 	 * @param ioSCOData An instance of the <code>SCODataManager</code> that
 	 *                  contains the run-time data for the individual SCO.
+	 * @param validatorFactory TODO
 	 * 
 	 * @return An abstract data model error code indicating the result of this
 	 *         operation.
 	 */
-	public static int processSetValue(String iRequest, String iValue, boolean iAdmin, IDataManager ioSCOData) {
+	public static int processSetValue(String iRequest, String iValue, boolean iAdmin, IDataManager ioSCOData, IValidatorFactory validatorFactory) {
 		// Assume no processing errors
 		int result = DMErrorCodes.NO_ERROR;
 
@@ -209,7 +208,7 @@ public class DMInterface {
 					request = new DMRequest(iRequest, iValue, iAdmin);
 
 					// Process the SetValue() request
-					result = ioSCOData.setValue(request);
+					result = ioSCOData.setValue(request, validatorFactory);
 				} catch (NullPointerException npe) {
 					result = DMErrorCodes.INVALID_REQUEST;
 					log.debug("NullPointerException in processSetValue -> result is INVALID_REQUEST.", npe);

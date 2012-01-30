@@ -22,6 +22,8 @@ package org.adl.datamodels;
 
 import java.io.Serializable;
 
+import org.adl.datamodels.ieee.IValidatorFactory;
+
 public interface IDataModel extends Serializable {
 
 	/**
@@ -90,11 +92,12 @@ public interface IDataModel extends Serializable {
 	 * Processes a SetValue() request against this data model.
 	 * 
 	 * @param iRequest The request (<code>DMRequest</code>) being processed.
+	 * @param validatorFactory TODO
 	 * 
 	 * @return An abstract data model error code indicating the result of this
 	 *         operation.
 	 */
-	public int setValue(DMRequest iRequest);
+	public int setValue(DMRequest iRequest, IValidatorFactory validatorFactory);
 
 	/**
 	 * Displays the contents of the entire data model.
@@ -103,11 +106,12 @@ public interface IDataModel extends Serializable {
 
 	/**
 	 * Performs data model specific termination.
+	 * @param validatorFactory TODO
 	 * 
 	 * @return An abstract data model error code indicating the result of this
 	 *         operation.
 	 */
-	public int terminate();
+	public int terminate(IValidatorFactory validatorFactory);
 
 	/**
 	 * Processes a validate() request against this data model. Checks the value

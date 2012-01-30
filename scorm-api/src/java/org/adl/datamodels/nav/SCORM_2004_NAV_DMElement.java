@@ -41,6 +41,7 @@ import org.adl.datamodels.DMRequest;
 import org.adl.datamodels.RequestDelimiter;
 import org.adl.datamodels.RequestToken;
 import org.adl.datamodels.datatypes.URIValidator;
+import org.adl.datamodels.ieee.IValidatorFactory;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -686,7 +687,6 @@ public class SCORM_2004_NAV_DMElement extends DMElement implements Serializable 
 	 *
 	 * @param iValue A token (<code>RequestToken</code>) object that provides
 	 *               value to be set and may include a set of delimiters.
-	 *
 	 * @param iAdmin Indicates if this operation is administrative or not.  If
 	 *               The operation is administrative, read/write and data type
 	 *               characteristics of the data model element should be
@@ -696,7 +696,7 @@ public class SCORM_2004_NAV_DMElement extends DMElement implements Serializable 
 	 *         operation.
 	 */
 	@Override
-	public int setValue(RequestToken iValue, boolean iAdmin) {
+	public int setValue(RequestToken iValue, boolean iAdmin, IValidatorFactory validatorFactory) {
 
 		// Assume no processing errors
 		int result = DMErrorCodes.NO_ERROR;

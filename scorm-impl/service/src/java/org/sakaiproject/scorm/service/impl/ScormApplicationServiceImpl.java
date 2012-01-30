@@ -13,6 +13,7 @@ import org.adl.datamodels.DMInterface;
 import org.adl.datamodels.DMProcessingInfo;
 import org.adl.datamodels.IDataManager;
 import org.adl.datamodels.SCODataManager;
+import org.adl.datamodels.ieee.IValidatorFactory;
 import org.adl.datamodels.ieee.ValidatorFactory;
 import org.adl.datamodels.nav.SCORM_2004_NAV_DM;
 import org.adl.sequencer.ADLObjStatus;
@@ -82,6 +83,8 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 
 	// Data access objects (also dependency injected by lookup method)
 	protected abstract AttemptDao attemptDao();
+	
+	IValidatorFactory validatorFactory = new ValidatorFactory();
 
 	private IValidRequests commit(SessionBean sessionBean, IDataManager dm, ISequencer sequencer) {
 		log.debug("Service - Commit");
@@ -104,7 +107,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			}
 
 			// Call terminate on the data manager to ensure that we're in the appropriate state
-			dm.terminate();
+			dm.terminate(validatorFactory);
 
 			// Gather information from the data manager
 			CmiData cmiData = lookupCmiData(sessionBean.getActivityId(), dm);
@@ -431,16 +434,15 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		if (dm == null) {
 			// If not, create one, which means this is the 
 			dm = new SCODataManager(contentPackageId, courseId, scoId, activityId, learnerId, title, sessionBean.getAttemptNumber());
-			dm.setValidatorFactory(new ValidatorFactory());
 
 			//  Add a SCORM 2004 Data Model
-			dm.addDM(DMFactory.DM_SCORM_2004);
+			dm.addDM(DMFactory.DM_SCORM_2004, validatorFactory);
 
 			//  Add a SCORM 2004 Nav Data Model
-			dm.addDM(DMFactory.DM_SCORM_NAV);
+			dm.addDM(DMFactory.DM_SCORM_NAV, validatorFactory);
 
 			//  Add a SSP Datamodel
-			dm.addDM(DMFactory.DM_SSP);
+			dm.addDM(DMFactory.DM_SSP, validatorFactory);
 
 			Learner learner = null;
 
@@ -458,8 +460,6 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			initSSPData(dm, courseId, scoId, String.valueOf(sessionBean.getAttemptNumber()), learnerId);
 
 			isNewDataManager = true;
-		} else {
-			dm.setValidatorFactory(new ValidatorFactory());
 		}
 
 		//List mStatusVector = runState.getCurrentObjStatusSet();
@@ -482,15 +482,15 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 					// Set the objectives id
 					obj = "cmi.objectives." + i + ".id";
 
-					err = DMInterface.processSetValue(obj, mObjStatus.mObjID, true, dm);
+					err = DMInterface.processSetValue(obj, mObjStatus.mObjID, true, dm, validatorFactory);
 
 					// Set the objectives success status
 					obj = "cmi.objectives." + i + ".success_status";
 
 					if (mObjStatus.mStatus.equalsIgnoreCase("satisfied")) {
-						err = DMInterface.processSetValue(obj, "passed", true, dm);
+						err = DMInterface.processSetValue(obj, "passed", true, dm, validatorFactory);
 					} else if (mObjStatus.mStatus.equalsIgnoreCase("notSatisfied")) {
-						err = DMInterface.processSetValue(obj, "failed", true, dm);
+						err = DMInterface.processSetValue(obj, "failed", true, dm, validatorFactory);
 					}
 
 					// Set the objectives scaled score
@@ -498,7 +498,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 
 					if (mObjStatus.mHasMeasure) {
 						Double norm = new Double(mObjStatus.mMeasure);
-						err = DMInterface.processSetValue(obj, norm.toString(), true, dm);
+						err = DMInterface.processSetValue(obj, norm.toString(), true, dm, validatorFactory);
 					}
 				}
 			} else {
@@ -534,9 +534,9 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 						obj = "cmi.objectives." + idx + ".success_status";
 
 						if (mObjStatus.mStatus.equalsIgnoreCase("satisfied")) {
-							err = DMInterface.processSetValue(obj, "passed", true, dm);
+							err = DMInterface.processSetValue(obj, "passed", true, dm, validatorFactory);
 						} else if (mObjStatus.mStatus.equalsIgnoreCase("notSatisfied")) {
-							err = DMInterface.processSetValue(obj, "failed", true, dm);
+							err = DMInterface.processSetValue(obj, "failed", true, dm, validatorFactory);
 						}
 
 						// Set the objectives scaled score
@@ -544,7 +544,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 
 						if (mObjStatus.mHasMeasure) {
 							Double norm = new Double(mObjStatus.mMeasure);
-							err = DMInterface.processSetValue(obj, norm.toString(), true, dm);
+							err = DMInterface.processSetValue(obj, norm.toString(), true, dm, validatorFactory);
 						}
 					} else {
 						log.warn("  OBJ NOT FOUND --> " + mObjStatus.mObjID);
@@ -662,49 +662,49 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 			if (null != learner) {
 				// Initialize the learner id
 				element = "cmi.learner_id";
-				DMInterface.processSetValue(element, learner.getId(), true, ioSCOData);
+				DMInterface.processSetValue(element, learner.getId(), true, ioSCOData, validatorFactory);
 
 				// Initialize the learner name
 				element = "cmi.learner_name";
-				DMInterface.processSetValue(element, learner.getDisplayName(), true, ioSCOData);
+				DMInterface.processSetValue(element, learner.getDisplayName(), true, ioSCOData, validatorFactory);
 			}
 
 			// Initialize the cmi.credit value
 			element = "cmi.credit";
-			DMInterface.processSetValue(element, "credit", true, ioSCOData);
+			DMInterface.processSetValue(element, "credit", true, ioSCOData, validatorFactory);
 
 			// Initialize the mode
 			element = "cmi.mode";
-			DMInterface.processSetValue(element, "normal", true, ioSCOData);
+			DMInterface.processSetValue(element, "normal", true, ioSCOData, validatorFactory);
 
 			// Initialize any launch data
 			if (dataFromLMS != null && !dataFromLMS.equals("")) {
 				element = "cmi.launch_data";
-				DMInterface.processSetValue(element, dataFromLMS, true, ioSCOData);
+				DMInterface.processSetValue(element, dataFromLMS, true, ioSCOData, validatorFactory);
 			}
 
 			// Initialize the scaled passing score
 			if (masteryScore != null && !masteryScore.equals("")) {
 				element = "cmi.scaled_passing_score";
-				DMInterface.processSetValue(element, masteryScore, true, ioSCOData);
+				DMInterface.processSetValue(element, masteryScore, true, ioSCOData, validatorFactory);
 			}
 
 			// Initialize the time limit action
 			if (timeLimitAction != null && !timeLimitAction.equals("")) {
 				element = "cmi.time_limit_action";
-				DMInterface.processSetValue(element, timeLimitAction, true, ioSCOData);
+				DMInterface.processSetValue(element, timeLimitAction, true, ioSCOData, validatorFactory);
 			}
 
 			// Initialize the completion_threshold
 			if (completionThreshold != null && !completionThreshold.equals("")) {
 				element = "cmi.completion_threshold";
-				DMInterface.processSetValue(element, completionThreshold, true, ioSCOData);
+				DMInterface.processSetValue(element, completionThreshold, true, ioSCOData, validatorFactory);
 			}
 
 			// Initialize the max time allowed
 			if (maxTime != null && !maxTime.equals("")) {
 				element = "cmi.max_time_allowed";
-				DMInterface.processSetValue(element, maxTime, true, ioSCOData);
+				DMInterface.processSetValue(element, maxTime, true, ioSCOData, validatorFactory);
 			}
 
 			// Initialize the learner preferences based on the SRTE
@@ -712,19 +712,19 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 
 			// audio_level
 			element = "cmi.learner_preference.audio_level";
-			DMInterface.processSetValue(element, audLev, true, ioSCOData);
+			DMInterface.processSetValue(element, audLev, true, ioSCOData, validatorFactory);
 
 			// audio_captioning
 			element = "cmi.learner_preference.audio_captioning";
-			DMInterface.processSetValue(element, audCap, true, ioSCOData);
+			DMInterface.processSetValue(element, audCap, true, ioSCOData, validatorFactory);
 
 			// delivery_speed
 			element = "cmi.learner_preference.delivery_speed";
-			DMInterface.processSetValue(element, delSpd, true, ioSCOData);
+			DMInterface.processSetValue(element, delSpd, true, ioSCOData, validatorFactory);
 
 			// language
 			element = "cmi.learner_preference.language";
-			DMInterface.processSetValue(element, lang, true, ioSCOData);
+			DMInterface.processSetValue(element, lang, true, ioSCOData, validatorFactory);
 
 		} catch (Exception e) {
 			log.error("Caught an exception while trying to initalize the sco data", e);
@@ -737,15 +737,15 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 
 		// Initialize the learner id
 		element = "ssp.init.userid";
-		err = DMInterface.processSetValue(element, iUserID, true, ioSCOData);
+		err = DMInterface.processSetValue(element, iUserID, true, ioSCOData, validatorFactory);
 
 		// Initialize the course id
 		element = "ssp.init.courseid";
-		err = DMInterface.processSetValue(element, iCourseID, true, ioSCOData);
+		err = DMInterface.processSetValue(element, iCourseID, true, ioSCOData, validatorFactory);
 
 		// Initialize the attempt id
 		element = "ssp.init.attemptnum";
-		err = DMInterface.processSetValue(element, iNumAttempt, true, ioSCOData);
+		err = DMInterface.processSetValue(element, iNumAttempt, true, ioSCOData, validatorFactory);
 
 		// FIXME: Figure out where this comes from and what it means...
 		// Initialize the attempt id
@@ -755,7 +755,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 
 		// Initialize the sco id
 		element = "ssp.init.scoID";
-		err = DMInterface.processSetValue(element, iScoID, true, ioSCOData);
+		err = DMInterface.processSetValue(element, iScoID, true, ioSCOData, validatorFactory);
 
 		/*ILaunchData launchData = runState.getCurrentLaunchData();
 		String persistence = launchData.getPersistState();
@@ -1244,7 +1244,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 		// Process 'SET'
 		int dmErrorCode = 0;
 		IDataManager dataManager = getDataManager(scoBean);
-		dmErrorCode = DMInterface.processSetValue(dataModelElement, setValue, false, dataManager);
+		dmErrorCode = DMInterface.processSetValue(dataModelElement, setValue, false, dataManager, validatorFactory);
 		dataManagerDao().update(dataManager);
 
 		// Set the LMS Error Manager from the DataModel Manager
@@ -1324,7 +1324,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 
 				if (check != 0 || !pi.mValue.equals("log-out")) {
 					// Process 'SET' on cmi.exit
-					DMInterface.processSetValue("cmi.exit", "suspend", true, dataManager);
+					DMInterface.processSetValue("cmi.exit", "suspend", true, dataManager, validatorFactory);
 				}
 			}
 

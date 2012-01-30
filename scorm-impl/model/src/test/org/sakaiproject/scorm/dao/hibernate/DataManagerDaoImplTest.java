@@ -21,11 +21,11 @@ public class DataManagerDaoImplTest extends AbstractServiceTest {
 
 		SCODataManager dataManager = new SCODataManager();
 		dataManager.setValidatorFactory(new ValidatorFactory());
-		dataManager.addDM(DMFactory.DM_SCORM_2004);
-		dataManager.addDM(DMFactory.DM_SCORM_NAV);
-		dataManager.addDM(DMFactory.DM_SSP);
+		dataManager.addDM(DMFactory.DM_SCORM_2004, validatorFactory);
+		dataManager.addDM(DMFactory.DM_SCORM_NAV, validatorFactory);
+		dataManager.addDM(DMFactory.DM_SSP, validatorFactory);
 		dataManagerDao.save(dataManager);
-		dataManager.setValue(new DMRequest("cmi.interactions.0.id", "1"));
+		dataManager.setValue(new DMRequest("cmi.interactions.0.id", "1"), validatorFactory);
 
 		dataManagerDao.update(dataManager);
 		

@@ -35,8 +35,9 @@ public interface IDataManager extends Serializable {
 	 * Hashtable.
 	 * 
 	 * @param iModel  Describes the run-time data model to be added.
+	 * @param validatorFactory TODO
 	 */
-	public DataModel addDM(int iModel);
+	public DataModel addDM(int iModel, IValidatorFactory validatorFactory);
 
 	/**
 	 * Processes an equals() request against the SCO's run-time data.
@@ -111,22 +112,24 @@ public interface IDataManager extends Serializable {
 
 	public void setUserId(String userId);
 
-	public void setValidatorFactory(IValidatorFactory validatorFactory);
+//	public void setValidatorFactory(IValidatorFactory validatorFactory);
 
 	/**
 	 * Processes a SetValue() request against the SCO's run-time data.
 	 * 
 	 * @param iRequest The request (<code>DMRequest</code>) being processed.
+	 * @param validatorFactory TODO
 	 * 
 	 * @return A data model error code indicating the result of this
 	 *         operation.
 	 */
-	public int setValue(DMRequest iRequest);
+	public int setValue(DMRequest iRequest, IValidatorFactory validatorFactory);
 
 	/** 
 	 * Terminates all data models being managed for this SCO.
+	 * @param validatorFactory TODO
 	 */
-	public void terminate();
+	public void terminate(IValidatorFactory validatorFactory);
 
 	/**
 	 * Processes a validate() request against the SCO's run-time data.

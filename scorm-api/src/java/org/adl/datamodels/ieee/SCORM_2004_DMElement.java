@@ -418,8 +418,9 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable {
 	 * 
 	 * @param ioChild The <code>DMElementDescriptor</code> for the interaction
 	 *                element whose type is being changed.
+	 * @param validatorFactory TODO
 	 */
-	private void handleCorrectResponses(DMElementDescriptor ioChild) {
+	private void handleCorrectResponses(DMElementDescriptor ioChild, IValidatorFactory validatorFactory) {
 
 		// We know what data model element we will be validating, so inform the
 		// validator.
@@ -451,7 +452,7 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable {
 				pattern.mIsUnique = true;
 				pattern.mValueSPM = -2;
 
-				pattern.mValidator = mDM.getValidatorFactory().newInteractionValidator(InteractionValidator.MULTIPLE_CHOICE, e);
+				pattern.mValidator = validatorFactory.newInteractionValidator(InteractionValidator.MULTIPLE_CHOICE, e);
 			} else if (mValue.equals("fill-in")) {
 				// Add the case_matters delimiter
 				String[] boolVocab = { "true", "false" };
@@ -465,7 +466,7 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable {
 
 				pattern.mValueSPM = -2;
 
-				pattern.mValidator = mDM.getValidatorFactory().newInteractionValidator(InteractionValidator.FILL_IN, e);
+				pattern.mValidator = validatorFactory.newInteractionValidator(InteractionValidator.FILL_IN, e);
 
 				// Set the spm
 				ioChild.mSPM = 5;
@@ -484,7 +485,7 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable {
 
 				pattern.mValueSPM = -2;
 
-				pattern.mValidator = mDM.getValidatorFactory().newInteractionValidator(InteractionValidator.LONG_FILL_IN, e);
+				pattern.mValidator = validatorFactory.newInteractionValidator(InteractionValidator.LONG_FILL_IN, e);
 
 				// Set the patterns spm
 				ioChild.mSPM = 5;
@@ -495,14 +496,14 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable {
 
 				pattern.mValueSPM = -2;
 
-				pattern.mValidator = mDM.getValidatorFactory().newInteractionValidator(InteractionValidator.LIKERT, e);
+				pattern.mValidator = validatorFactory.newInteractionValidator(InteractionValidator.LIKERT, e);
 			} else if (mValue.equals("matching")) {
 				ioChild.mSPM = 5;
 				ioChild.mMaximum = false;
 
 				pattern.mValueSPM = -2;
 
-				pattern.mValidator = mDM.getValidatorFactory().newInteractionValidator(InteractionValidator.MATCHING, false, e);
+				pattern.mValidator = validatorFactory.newInteractionValidator(InteractionValidator.MATCHING, false, e);
 			} else if (mValue.equals("performance")) {
 				// Add the order_matters delimiter
 				String[] boolVocab = { "true", "false" };
@@ -512,7 +513,7 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable {
 
 				pattern.mValueSPM = -2;
 
-				pattern.mValidator = mDM.getValidatorFactory().newInteractionValidator(InteractionValidator.PERFORMANCE, false, e);
+				pattern.mValidator = validatorFactory.newInteractionValidator(InteractionValidator.PERFORMANCE, false, e);
 
 				ioChild.mSPM = 5;
 				ioChild.mMaximum = false;
@@ -524,14 +525,14 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable {
 
 				pattern.mValueSPM = -2;
 
-				pattern.mValidator = mDM.getValidatorFactory().newInteractionValidator(InteractionValidator.SEQUENCING, e);
+				pattern.mValidator = validatorFactory.newInteractionValidator(InteractionValidator.SEQUENCING, e);
 			} else if (mValue.equals("numeric")) {
 				ioChild.mSPM = 1;
 				ioChild.mMaximum = true;
 
 				pattern.mValueSPM = -2;
 
-				pattern.mValidator = mDM.getValidatorFactory().newInteractionValidator(InteractionValidator.NUMERIC, e);
+				pattern.mValidator = validatorFactory.newInteractionValidator(InteractionValidator.NUMERIC, e);
 			} else if (mValue.equals("other")) {
 				ioChild.mSPM = 1;
 				ioChild.mMaximum = true;
@@ -556,8 +557,9 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable {
 	 * 
 	 * @param ioChild The <code>DMElementDescriptor</code> for the interaction
 	 *               element whose type is being changed.
+	 * @param validatorFactory TODO
 	 */
-	private void handleLearnerResponse(DMElementDescriptor ioChild) {
+	private void handleLearnerResponse(DMElementDescriptor ioChild, IValidatorFactory validatorFactory) {
 
 		// We know what data model element we will be validating, so inform the
 		// validator.
@@ -569,11 +571,11 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable {
 			String[] boolVocab = { "true", "false" };
 			ioChild.mValidator = new VocabularyValidator(boolVocab);
 		} else if (mValue.equals("choice")) {
-			ioChild.mValidator = mDM.getValidatorFactory().newInteractionValidator(InteractionValidator.MULTIPLE_CHOICE, e);
+			ioChild.mValidator = validatorFactory.newInteractionValidator(InteractionValidator.MULTIPLE_CHOICE, e);
 		} else if (mValue.equals("fill-in")) {
 			ioChild.mValueSPM = -2;
 
-			ioChild.mValidator = mDM.getValidatorFactory().newInteractionValidator(InteractionValidator.FILL_IN, e);
+			ioChild.mValidator = validatorFactory.newInteractionValidator(InteractionValidator.FILL_IN, e);
 		} else if (mValue.equals("long-fill-in")) {
 			// Add the lang delimiter
 			del = new DMDelimiterDescriptor("lang", "en", SCORM_2004_DM.SHORT_SPM, new LangStringValidator());
@@ -582,27 +584,27 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable {
 
 			ioChild.mValueSPM = -2;
 
-			ioChild.mValidator = mDM.getValidatorFactory().newInteractionValidator(InteractionValidator.LONG_FILL_IN, e);
+			ioChild.mValidator = validatorFactory.newInteractionValidator(InteractionValidator.LONG_FILL_IN, e);
 		} else if (mValue.equals("likert")) {
 			ioChild.mValueSPM = -2;
 
-			ioChild.mValidator = mDM.getValidatorFactory().newInteractionValidator(InteractionValidator.LIKERT, e);
+			ioChild.mValidator = validatorFactory.newInteractionValidator(InteractionValidator.LIKERT, e);
 		} else if (mValue.equals("matching")) {
 			ioChild.mValueSPM = -2;
 
-			ioChild.mValidator = mDM.getValidatorFactory().newInteractionValidator(InteractionValidator.MATCHING, e);
+			ioChild.mValidator = validatorFactory.newInteractionValidator(InteractionValidator.MATCHING, e);
 		} else if (mValue.equals("performance")) {
 			ioChild.mValueSPM = -2;
 
-			ioChild.mValidator = mDM.getValidatorFactory().newInteractionValidator(InteractionValidator.PERFORMANCE, false, e);
+			ioChild.mValidator = validatorFactory.newInteractionValidator(InteractionValidator.PERFORMANCE, false, e);
 		} else if (mValue.equals("sequencing")) {
 			ioChild.mValueSPM = -2;
 
-			ioChild.mValidator = mDM.getValidatorFactory().newInteractionValidator(InteractionValidator.SEQUENCING, e);
+			ioChild.mValidator = validatorFactory.newInteractionValidator(InteractionValidator.SEQUENCING, e);
 		} else if (mValue.equals("numeric")) {
 			ioChild.mValueSPM = -2;
 
-			ioChild.mValidator = mDM.getValidatorFactory().newInteractionValidator(InteractionValidator.NUMERIC, e);
+			ioChild.mValidator = validatorFactory.newInteractionValidator(InteractionValidator.NUMERIC, e);
 		} else if (mValue.equals("other")) {
 			ioChild.mValueSPM = SCORM_2004_DM.LONG_SPM;
 			ioChild.mValidator = new SPMRangeValidator(SCORM_2004_DM.LONG_SPM);
@@ -871,7 +873,6 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable {
 	 * 
 	 * @param iValue A token (<code>RequestToken</code>) object that provides 
 	 *               the value to be set and may include a set of delimiters.
-	 * 
 	 * @param iAdmin Indicates if this operation is administrative or not.  If
 	 *               the operation is administrative, read/write and data type
 	 *               characteristics of the data model element should be
@@ -881,7 +882,7 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable {
 	 *         operation.
 	 */
 	@Override
-	public int setValue(RequestToken iValue, boolean iAdmin) {
+	public int setValue(RequestToken iValue, boolean iAdmin, IValidatorFactory validatorFactory) {
 
 		String oldValue = null;
 
@@ -1029,7 +1030,7 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable {
 							child = (DMElementDescriptor) curChild.clone();
 
 							// Switch the SPM and data type of the correct_responses
-							handleCorrectResponses(child);
+							handleCorrectResponses(child, validatorFactory);
 
 							// Create an element of the appropriate type & replace 
 							SCORM_2004_DMElement element = new SCORM_2004_DMElement(child, mParent, mDM);
@@ -1040,7 +1041,7 @@ public class SCORM_2004_DMElement extends DMElement implements Serializable {
 							child = (DMElementDescriptor) curChild.clone();
 
 							// Switch the SPM and data type of the learner_response
-							handleLearnerResponse(child);
+							handleLearnerResponse(child, validatorFactory);
 
 							// Create an element of the appropriate type & replace 
 							SCORM_2004_DMElement element = new SCORM_2004_DMElement(child, mParent, mDM);

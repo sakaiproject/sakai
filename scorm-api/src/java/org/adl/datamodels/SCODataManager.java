@@ -29,7 +29,6 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import org.adl.datamodels.ieee.IValidatorFactory;
-import org.adl.datamodels.ieee.SCORM_2004_DM;
 
 /**
  * <strong>Filename:</strong>SCODataManager.java<br><br>
@@ -58,7 +57,7 @@ public class SCODataManager implements IDataManager {
 
 	private static final long serialVersionUID = 1L;
 
-	private IValidatorFactory validatorFactory;
+//	private IValidatorFactory validatorFactory;
 
 	private Long id;
 
@@ -119,7 +118,7 @@ public class SCODataManager implements IDataManager {
 	 * 
 	 * @param iModel  Describes the run-time data model to be added.
 	 */
-	public DataModel addDM(int iModel) {
+	public DataModel addDM(int iModel, IValidatorFactory validatorFactory) {
 		// Create the indicated data model
 		DataModel dm = DMFactory.createDM(iModel, validatorFactory);
 
@@ -265,10 +264,6 @@ public class SCODataManager implements IDataManager {
 		return userId;
 	}
 
-	public IValidatorFactory getValidatorFactory() {
-		return validatorFactory;
-	}
-
 	/**
 	    * Processes a GetValue() request against the SCO's run-time data.
 	    * 
@@ -375,18 +370,6 @@ public class SCODataManager implements IDataManager {
 		this.userId = userId;
 	}
 
-	public void setValidatorFactory(IValidatorFactory validatorFactory) {
-		this.validatorFactory = validatorFactory;
-		if (mDataModels != null) {
-			for (Object o : mDataModels.values()) {
-				if (o instanceof SCORM_2004_DM) {
-					SCORM_2004_DM dataModel = (SCORM_2004_DM) o;
-					dataModel.setValidatorFactory(validatorFactory);
-				}
-			}
-		}
-	}
-
 	/**
 	    * Processes a SetValue() request against the SCO's run-time data.
 	    * 
@@ -395,7 +378,7 @@ public class SCODataManager implements IDataManager {
 	    * @return A data model error code indicating the result of this
 	    *         operation.
 	    */
-	public int setValue(DMRequest iRequest) {
+	public int setValue(DMRequest iRequest, IValidatorFactory validatorFactory) {
 		// Assume no processing errors
 		int result = DMErrorCodes.NO_ERROR;
 
@@ -411,7 +394,7 @@ public class SCODataManager implements IDataManager {
 				// Make sure the data model exists
 				if (dm != null) {
 					// Process this request
-					result = dm.setValue(iRequest);
+					result = dm.setValue(iRequest, validatorFactory);
 				} else {
 					// Specified data model element does not exist
 					result = DMErrorCodes.UNDEFINED_ELEMENT;
@@ -431,10 +414,10 @@ public class SCODataManager implements IDataManager {
 	/** 
 	    * Terminates all data models being managed for this SCO.
 	    */
-	public void terminate() {
+	public void terminate(IValidatorFactory validatorFactory) {
 		if (mDataModels != null) {
 			for (DataModel dm : mDataModels.values()) {
-				dm.terminate();
+				dm.terminate(validatorFactory);
 			}
 		}
 	}

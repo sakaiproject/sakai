@@ -114,7 +114,8 @@ public class DMFactory {
 
 		switch (iType) {
 		case DM_SCORM_2004: {
-			dm = new SCORM_2004_DM(validatorFactory);
+			dm = new SCORM_2004_DM();
+			((SCORM_2004_DM)dm).init(validatorFactory);
 			break;
 		}
 		case DM_SCORM_NAV: {

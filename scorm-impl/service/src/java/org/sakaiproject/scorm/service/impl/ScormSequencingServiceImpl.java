@@ -186,7 +186,7 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 			if (displayingSco != null) {
 				IDataManager dataManager = dataManagerDao().load(displayingSco.getDataManagerId());
 				if (dataManager != null) {
-					DMInterface.processSetValue("adl.nav.request", "_none_", true, dataManager);
+					DMInterface.processSetValue("adl.nav.request", "_none_", true, dataManager, validatorFactory);
 					dataManagerDao().update(dataManager);
 				}
 			}

@@ -40,6 +40,7 @@ import org.adl.datamodels.DataModel;
 import org.adl.datamodels.RequestToken;
 import org.adl.datamodels.datatypes.URIValidator;
 import org.adl.datamodels.datatypes.VocabularyValidator;
+import org.adl.datamodels.ieee.IValidatorFactory;
 import org.adl.sequencer.IValidRequests;
 import org.adl.sequencer.SeqNavRequests;
 
@@ -452,7 +453,7 @@ public class SCORM_2004_NAV_DM extends DataModel implements Serializable {
 	 *         operation.
 	 */
 	@Override
-	public int setValue(DMRequest iRequest) {
+	public int setValue(DMRequest iRequest, IValidatorFactory validatorFactory) {
 		// Assume no processing errors
 		int result = DMErrorCodes.NO_ERROR;
 
@@ -472,7 +473,7 @@ public class SCORM_2004_NAV_DM extends DataModel implements Serializable {
 				// Make sure this is a Value token
 				if (tok.getType() == RequestToken.TOKEN_VALUE) {
 					if (result == DMErrorCodes.NO_ERROR) {
-						result = pi.mElement.setValue(tok, iRequest.isAdminRequest());
+						result = pi.mElement.setValue(tok, iRequest.isAdminRequest(), validatorFactory);
 					}
 				} else {
 					// Wrong type of token -- value expected
@@ -502,7 +503,7 @@ public class SCORM_2004_NAV_DM extends DataModel implements Serializable {
 	 *         operation.
 	 */
 	@Override
-	public int terminate() {
+	public int terminate(IValidatorFactory validatorFactory) {
 		// Clear the current nav request
 		DMRequest req = new DMRequest("adl.nav.request", "_none_", true);
 
@@ -513,7 +514,7 @@ public class SCORM_2004_NAV_DM extends DataModel implements Serializable {
 		// Invoke a SetValue() method call sending in the DMRequest.  There is
 		// no need to capture the return from the setValue(), therefore there
 		// is no need to assign it to a local variable
-		setValue(req);
+		setValue(req, validatorFactory);
 
 		mCurRequest = null;
 
