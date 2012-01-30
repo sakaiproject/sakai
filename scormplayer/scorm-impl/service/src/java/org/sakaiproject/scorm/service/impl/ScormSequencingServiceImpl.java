@@ -26,6 +26,8 @@ import org.adl.api.ecmascript.APIErrorManager;
 import org.adl.api.ecmascript.IErrorManager;
 import org.adl.datamodels.DMInterface;
 import org.adl.datamodels.IDataManager;
+import org.adl.datamodels.ieee.IValidatorFactory;
+import org.adl.datamodels.ieee.ValidatorFactory;
 import org.adl.sequencer.ILaunch;
 import org.adl.sequencer.ISeqActivity;
 import org.adl.sequencer.ISeqActivityTree;
@@ -62,6 +64,8 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 	protected abstract AttemptDao attemptDao();
 
 	protected abstract DataManagerDao dataManagerDao();
+	
+	IValidatorFactory validatorFactory = new ValidatorFactory();
 
 	private ISeqActivity getActivity(SessionBean sessionBean) {
 		ISeqActivityTree tree = adlManager().getActivityTree(sessionBean);
