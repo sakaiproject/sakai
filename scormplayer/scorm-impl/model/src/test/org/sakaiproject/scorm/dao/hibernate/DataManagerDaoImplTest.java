@@ -20,7 +20,7 @@ public class DataManagerDaoImplTest extends AbstractServiceTest {
 	public void testSimple() {
 
 		SCODataManager dataManager = new SCODataManager();
-		dataManager.setValidatorFactory(new ValidatorFactory());
+		ValidatorFactory validatorFactory = new ValidatorFactory();
 		dataManager.addDM(DMFactory.DM_SCORM_2004, validatorFactory);
 		dataManager.addDM(DMFactory.DM_SCORM_NAV, validatorFactory);
 		dataManager.addDM(DMFactory.DM_SSP, validatorFactory);
