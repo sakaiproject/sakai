@@ -8679,6 +8679,44 @@ public class DiscussionForumTool
         return groupLevel;
     }
     
+    public boolean getHasTopicAccessPrivileges(String topicIdStr){
+        String userId = getUserId();
+        long topicId = -1;
+        try{
+            topicId = Long.parseLong(topicIdStr);
+        }catch (Exception e) {
+        }
+        if(topicId == -1 || userId == null){
+            return false;
+        }
+        boolean hasOverridingPermissions = false;
+        if(SecurityService.isSuperUser()
+                || isInstructor()){
+            return true;
+        }
+
+        DiscussionTopic topic = forumManager.getTopicById(topicId);
+        if(topic == null){
+            return false;
+        }
+        if(userId.equals(topic.getCreatedBy())){
+            return true;
+        }
+        DiscussionForum forum = forumManager.getForumById(topic.getBaseForum().getId());
+        if(forum == null){
+            return false;
+        }
+        Area area = forumManager.getDiscussionForumArea();
+        if(area == null){
+            return false;
+        }
+
+        return !topic.getDraft() && !forum.getDraft()
+                && topic.getAvailability() 
+                && forum.getAvailability() 
+                && area.getAvailability();
+    }
+    
 	public String getServerUrl() {
 		return ServerConfigurationService.getServerUrl();
 	}

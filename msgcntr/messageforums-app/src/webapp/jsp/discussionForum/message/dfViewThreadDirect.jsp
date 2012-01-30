@@ -23,10 +23,7 @@
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	
-	if (request.getParameter("topicId") == null
+	}else if (request.getParameter("topicId") == null
 			|| "".equals(request.getParameter("topicId"))
 			|| request.getParameter("forumId") == null
 			|| "".equals(request.getParameter("forumId"))) {
@@ -41,20 +38,33 @@
 		}
 		return;
 
-	}
-	target = "/jsp/discussionForum/message/dfViewThread.jsf?messageId="
-			+ request.getParameter("messageId") + "&topicId="
-			+ request.getParameter("topicId") + "&forumId="
-			+ request.getParameter("forumId");
-
-	forumTool.processActionDisplayThread();
-
-	// dispatch to the target
-	RequestDispatcher dispatcher = getServletContext()
-			.getRequestDispatcher(target);
-	try {
-		dispatcher.forward(request, response);
-	} catch (ServletException e) {
-		e.printStackTrace();
+	}else if(forumTool.getHasTopicAccessPrivileges(request.getParameter("topicId"))){
+		target = "/jsp/discussionForum/message/dfViewThread.jsf?messageId="
+				+ request.getParameter("messageId") + "&topicId="
+				+ request.getParameter("topicId") + "&forumId="
+				+ request.getParameter("forumId");
+	
+		forumTool.processActionDisplayThread();
+	
+		// dispatch to the target
+		RequestDispatcher dispatcher = getServletContext()
+				.getRequestDispatcher(target);
+		try {
+			dispatcher.forward(request, response);
+		} catch (ServletException e) {
+			e.printStackTrace();
+		}
+	}else{
+		%>
+	  	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
+	   		<jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
+		</jsp:useBean>
+		<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+	    <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+	    <f:view>
+	    <f:verbatim><br/><br/></f:verbatim>
+	    <h:outputText value="#{msgs.cdfm_insufficient_privileges_view_topic}"/>
+	    </f:view>
+	  	<%
 	}
 %>

@@ -28,6 +28,7 @@
     }
   }
 
+if(forumTool.getHasTopicAccessPrivileges(request.getParameter("topicId"))){
   target = "/jsp/discussionForum/message/dfAllMessages.jsf?topicId="
   	       + request.getParameter("topicId");
 
@@ -42,4 +43,17 @@
     e.printStackTrace();
   }
 
+  }else{
+  	%>
+  	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
+   		<jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
+	</jsp:useBean>
+	<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+    <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+    <f:view>
+    <f:verbatim><br/><br/></f:verbatim>
+    <h:outputText value="#{msgs.cdfm_insufficient_privileges_view_topic}"/>
+    </f:view>
+  	<%
+  }
 %>
