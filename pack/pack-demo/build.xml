@@ -57,20 +57,36 @@
 	
 	<target name="build" depends="move" description="Build and deploy Sakai to Tomcat.">
 	    <echo message="[INFO] Build and deploy Sakai to Tomcat." />
-	    <exec dir="../../" executable="mvn" failonerror="true">
+	    <!-- OS Values from http://mindprod.com/jgloss/properties.html#OSNAME -->
+	    <echo>Your OS name is: ${os.name} If this doesn't do anything you might need to add it to the list of OSes.</echo>
+	    <exec dir="../../" executable="mvn" failonerror="true" os="Mac OS X,Linux,FreeBSD,Solaris">
 	        <!-- <arg value="-B" /> -->
 	    	<arg value="-Dmaven.tomcat.home=${basedir}/target/pack" />
 	        <arg value="-Dmaven.test.skip=${sakai.skip.tests}" />
-	
 	        <!-- 
-	        	<arg value="-Dkeystore=${keystore}" /> 
-	            <arg value="-Dalias=${alias}" />
-	            <arg value="-Dstorepass=${storepass}" /> 
-            -->
+                <arg value="-Dkeystore=${keystore}" /> 
+                <arg value="-Dalias=${alias}" />
+                <arg value="-Dstorepass=${storepass}" />
+                -->
 	        <arg value="clean" />
 	        <arg value="install" />
 	        <arg value="sakai:deploy" />
 	    </exec>
+	    <echo>Tested on Windows Server 2008, (Fill in others)</echo>
+            <exec dir="../../" executable="cmd" failonerror="true" os="Windows 98,Windows NT,Windows 2000,Windows XP,Windows 7,Windows Vista,Windows Server 2008,Windows Server 2005">
+                <arg value="/c" />
+                <arg value="mvn.bat" />
+                <arg value="-Dmaven.tomcat.home=${basedir}\target\pack" />
+                <arg value="-Dmaven.test.skip=${sakai.skip.tests}" />
+                <!-- next 3 lines *may* be optional so leaving them out, add back in if needed for windows build
+                <arg value="-Dkeystore=${keystore}" />
+                <arg value="-Dalias=${alias}" />
+                <arg value="-Dstorepass=${storepass}" />
+                -->
+                <arg value="clean" />
+                <arg value="install" />
+                <arg value="sakai:deploy" />
+            </exec>
 	</target>
 	
 	<target name="delete" depends="build" description="Delete extraneous directories.">
