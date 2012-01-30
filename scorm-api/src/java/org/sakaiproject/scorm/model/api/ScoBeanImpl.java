@@ -18,14 +18,12 @@
  * limitations under the License.
  *
  **********************************************************************************/
-package org.sakaiproject.scorm.model;
+package org.sakaiproject.scorm.model.api;
 
 import org.adl.api.ecmascript.IErrorManager;
 import org.adl.datamodels.DMErrorCodes;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.scorm.model.api.ScoBean;
-import org.sakaiproject.scorm.model.api.SessionBean;
 
 public class ScoBeanImpl implements ScoBean {
 
@@ -51,9 +49,6 @@ public class ScoBeanImpl implements ScoBean {
 	private int version;
 
 	private Long dataManagerId;
-
-	// The public version attribute of the SCORM API.
-	//public static final String version = "1.0";	
 
 	private String scoId;
 
@@ -717,15 +712,6 @@ public class ScoBeanImpl implements ScoBean {
 		this.isInitialized = isInitialized;
 	}
 
-	/*public void setNumAttempts(long iNumAttempts) {
-		mNumAttempts = iNumAttempts;
-	}
-
-	public void setNumAttempts(String iNumAttempts) {
-		Long tempLong = Long.valueOf(iNumAttempts);
-		mNumAttempts = tempLong.longValue();
-	}*/
-
 	public void setSuspended(boolean isSuspended) {
 		this.isSuspended = isSuspended;
 	}
@@ -734,13 +720,6 @@ public class ScoBeanImpl implements ScoBean {
 		this.isTerminated = isTerminated;
 	}
 
-	/*public void suspendButtonPushed() {
-		if (isInitialized()) {
-			sessionBean.setSuspended(true);
-			Terminate("");
-		}
-	}*/
-
 	/**
 	 * Toggles the state of the LMS provided UI controls.
 	 * 
@@ -748,10 +727,11 @@ public class ScoBeanImpl implements ScoBean {
 	 *            <code>true</code> if the controls should be enabled, or
 	 *            <code>false</code> if the controls should be disabled.
 	 */
-	private void setUIState(boolean iState) {
-		String evalCmd = "setUIState(" + iState + ");";
-		jsCall(evalCmd);
-	}
+	
+//	private void setUIState(boolean iState) {
+//		String evalCmd = "setUIState(" + iState + ");";
+//		jsCall(evalCmd);
+//	}
 
 	public void setVersion(int version) {
 		this.version = version;
