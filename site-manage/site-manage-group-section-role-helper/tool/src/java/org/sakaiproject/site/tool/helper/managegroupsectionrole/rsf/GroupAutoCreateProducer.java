@@ -241,7 +241,7 @@ public class GroupAutoCreateProducer implements ViewComponentProducer, ActionRes
  				} else {
  					outString = messageLocator.getMessage(tml.messageAt(i).acquireMessageCode());
  				}
- 				UIMessage.make(errorRow,"error",outString);
+ 				UIOutput.make(errorRow,"error",outString);
  		    		
  			}
          }

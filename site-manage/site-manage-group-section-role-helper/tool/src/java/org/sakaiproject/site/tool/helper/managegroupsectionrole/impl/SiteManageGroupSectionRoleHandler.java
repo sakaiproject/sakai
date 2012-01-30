@@ -833,7 +833,7 @@ public class SiteManageGroupSectionRoleHandler {
     		}else{
     			try {
     				intToSplit = Integer.parseInt(numToSplit);
-    				if(intToSplit < 0){
+    				if(intToSplit <= 0){
     					if(groupSplit){
     	    				messages.addMessage(new TargettedMessage("numToSplit.group.notanumber.alert","numToSplit"));	
     	    			}else{
@@ -1008,10 +1008,14 @@ public class SiteManageGroupSectionRoleHandler {
     		int numOfUsersPerGroup=-1;
     		if(groupSplit){
     			numOfGroups = (unit > usersList.size()) ? usersList.size() : unit;
-    			numOfUsersPerGroup = usersList.size()/numOfGroups;
+				if(numOfGroups > 0){
+	    			numOfUsersPerGroup = usersList.size()/numOfGroups;
+				}
     		}else{
     			numOfUsersPerGroup = (unit > usersList.size()) ? usersList.size() : unit;
-    			numOfGroups = usersList.size()/numOfUsersPerGroup;
+				if(numOfUsersPerGroup > 0){
+	    			numOfGroups = usersList.size()/numOfUsersPerGroup;
+				}
     		}
 
     		int groupCount = 0;
