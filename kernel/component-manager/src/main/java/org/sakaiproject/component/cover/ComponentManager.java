@@ -22,6 +22,8 @@
 package org.sakaiproject.component.cover;
 
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.sakaiproject.component.impl.MockCompMgr;
 import org.sakaiproject.component.impl.SpringCompMgr;
@@ -51,7 +53,7 @@ public class ComponentManager {
 
 	public static java.lang.String SAKAI_COMPONENTS_ROOT_SYS_PROP = org.sakaiproject.component.api.ComponentManager.SAKAI_COMPONENTS_ROOT_SYS_PROP;
 
-	private static Object m_syncObj = new Object();
+	private static Lock m_lock = new ReentrantLock();
 
 	private static boolean lateRefresh = false;
 
@@ -72,11 +74,14 @@ public class ComponentManager {
 	 * WARNING: this is NOT safe to do in a production system 
 	 */
 	public static void shutdown() {
-        synchronized (m_syncObj) {
+		m_lock.lock();
+        try {
             if (m_componentManager != null) {
         	    m_componentManager.close();
         	    m_componentManager = null;
             }
+        } finally {
+        	m_lock.unlock();
         }
 	}
 
@@ -87,7 +92,8 @@ public class ComponentManager {
 	 */
 	public static org.sakaiproject.component.api.ComponentManager getInstance() {
 		// make sure we make only one instance
-		synchronized (m_syncObj) {
+		m_lock.lock();
+		try {
 			// if we do not yet have our component manager instance, create and
 			// init / populate it
 			if (m_componentManager == null) {
@@ -98,6 +104,8 @@ public class ComponentManager {
 			        ((SpringCompMgr) m_componentManager).init(lateRefresh);
 			    }
 			}
+		} finally {
+			m_lock.unlock();
 		}
 
 		return m_componentManager;
@@ -145,8 +153,19 @@ public class ComponentManager {
 		return getInstance().getConfig();
 	}
 
+	/**
+	 * When the component manager this can be called by a background thread to wait until
+	 * the component manager has been configured. If the component manager hasn't yet 
+	 * started it will return straight away. If the component manager fails to start it will
+	 * return. This is to prevent a deadlock between shutdown and startup.
+	 */
 	public static void waitTillConfigured() {
-		getInstance();
+		try {
+			m_lock.lockInterruptibly();
+			m_lock.unlock();
+		} catch (InterruptedException e) {
+			// We got interrupted and so should shutdown.
+		} 
 	}
 
 	public static boolean hasBeenClosed() {
