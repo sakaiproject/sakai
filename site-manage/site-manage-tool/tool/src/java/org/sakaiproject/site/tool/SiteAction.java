@@ -2708,6 +2708,11 @@ public class SiteAction extends PagedResourceActionII {
 			
 			context.put("basedOnTemplate",  state.getAttribute(STATE_TEMPLATE_SITE) != null ? Boolean.TRUE:Boolean.FALSE);
 			
+			context.put("skipCourseSectionSelection", ServerConfigurationService.getBoolean("wsetup.skipCourseSectionSelection", Boolean.FALSE));
+			
+			// Added by bjones86 - determine to skip manual course site create link in worksite setup
+			context.put( "skipManualCourseCreation", ServerConfigurationService.getBoolean( "wsetup.skipManualCourseCreation", Boolean.FALSE));
+			
 			return (String) getContext(data).get("template") + TEMPLATE[36];
 		case 37:
 			/*
@@ -3021,6 +3026,9 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("value_uniqname", state.getAttribute(STATE_SITE_QUEST_UNIQNAME));
 			context.put("basedOnTemplate",  state.getAttribute(STATE_TEMPLATE_SITE) != null ? Boolean.TRUE:Boolean.FALSE);
 
+			// Added by bjones86 - determine to skip manual course site create link in worksite setup
+			context.put( "skipManualCourseCreation", Boolean.valueOf(ServerConfigurationService.getBoolean( "wsetup.skipManualCourseCreation", false)));
+			
 			return (String) getContext(data).get("template") + TEMPLATE[53];
 		}
 		case 54:

@@ -211,11 +211,16 @@
 			</div>
 			<br />
 			<!-- end loop through fields-->
-		 <p>
+		 
+		## Added by bjones86 - determine to skip manual course site create link in worksite setup
+		#if( !$skipManualCourseCreation )
+			<p>
 				<a href="#" onclick="javascript:blur();document.findCourseForm.option.value='manual';document.findCourseForm.submit();">
 					$tlang.getString("nscourse.findCourse.stillNotFound")
 				</a>
 			</p>
+		#end
+		 
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input id="index" type="hidden" name="templateIndex" value="$!templateIndex" />
 		<input type="hidden" name="eventSubmit_doFind_course" value="x" />
