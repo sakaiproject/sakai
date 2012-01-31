@@ -102,6 +102,14 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
         }
     };     
 
+    // part of HibernateDaoSupport; this is the only context in which it is OK                                             
+    // to modify the template configuration                                                                                
+    protected void initDao() throws Exception {
+        super.initDao();
+        getHibernateTemplate().setCacheQueries(true);
+        logger.info("initDao template " + getHibernateTemplate());
+    }
+
     /**
      * Called on after the startup of the singleton.  This sets the global
      * list of functions which will have permission managed by sakai
@@ -842,6 +850,16 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
 
             if (event.getEvent().equals(ChatFunctions.CHAT_FUNCTION_NEW)) {
 
+                // get the actual message and distribute it. Otherwise each
+                // observer will fetch their own copy of the message.
+
+                String id = ref.getId();
+                if (id == null)
+                    return;
+                ChatMessage message = getMessage(ref.getId());
+                if (message == null)
+                    return;
+
                 //String[] messageParams = event.getResource().split(":");
 
                 ArrayList<RoomObserver> observers = (ArrayList<RoomObserver>) roomListeners.get(ref.getContainer());
@@ -858,7 +876,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
                     for(Iterator<RoomObserver> i = observers.iterator(); i.hasNext(); ) {
                         RoomObserver observer = i.next();
 
-                        observer.receivedMessage(ref.getContainer(), ref.getId());
+                        observer.receivedMessage(ref.getContainer(), message);
                     }
                 }
 

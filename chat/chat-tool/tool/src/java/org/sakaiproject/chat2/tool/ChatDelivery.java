@@ -178,6 +178,16 @@ public class ChatDelivery extends BaseDelivery
 
 	} // toString
 
+	public String getMessageId() {
+		if (m_message instanceof String) {
+			return (String)m_message;
+		} else if (m_message instanceof ChatMessage) {
+			return ((ChatMessage)m_message).getId();
+		} else {
+			return "";
+		}
+	}
+
 	/**
 	 * Are these the same?
 	 * 
@@ -188,7 +198,7 @@ public class ChatDelivery extends BaseDelivery
 		if (!super.equals(obj)) return false;
 
 		ChatDelivery cob = (ChatDelivery) obj;
-		if (StringUtil.different(cob.getMessage().getId(), getMessage().getId() )) return false;
+		if (StringUtil.different(cob.getMessageId(), getMessageId())) return false;
 
 		return true;
 	}

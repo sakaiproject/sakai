@@ -1,12 +1,15 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping
-    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
     "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping package="org.sakaiproject.chat2.model"
 	default-lazy="true">
 
 	<class name="ChatChannel" table="CHAT2_CHANNEL" lazy="true">
+
+		<cache usage="nonstrict-read-write" />
+
 		<comment>This table stores chat channels</comment>
 		<id name="id" length="99" column="CHANNEL_ID">
 			<generator class="org.sakaiproject.id.hbm.IdGenerator"/>
@@ -37,6 +40,9 @@
 	</class>
 	
 	<class name="ChatMessage" table="CHAT2_MESSAGE" lazy="true">
+
+		<cache usage="nonstrict-read-write" />
+
 		<comment>This table stores chat messages</comment>
 		<id name="id" length="99" column="MESSAGE_ID">
 			<generator class="org.sakaiproject.id.hbm.IdGenerator"/>
