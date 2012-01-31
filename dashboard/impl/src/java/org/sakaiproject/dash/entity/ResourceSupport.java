@@ -656,18 +656,22 @@ public class ResourceSupport {
 				eventTime = new Date();
 			}
 			
-			NewsItem newsItem = dashboardLogic.createNewsItem(title, eventTime, labelKey , resource.getReference(), context, sourceType, resource.getContentType());
-			if(dashboardLogic.isAvailable(newsItem.getEntityReference(), RESOURCE_TYPE_IDENTIFIER)) {
-				dashboardLogic.createNewsLinks(newsItem);
-				Date retractDate = getRetractDate(newsItem.getEntityReference());
-				if(retractDate != null && retractDate.after(new Date())) {
-					dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), RESOURCE_TYPE_IDENTIFIER, retractDate);
-				}
-			} else {
-				
-				Date releaseDate = getReleaseDate(newsItem.getEntityReference());
-				if(releaseDate != null && releaseDate.after(new Date())) {
-					dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), RESOURCE_TYPE_IDENTIFIER, releaseDate);
+			String resourceReference = resource.getReference();
+			if (dashboardLogic.getNewsItem(resourceReference) == null)
+			{
+				NewsItem newsItem = dashboardLogic.createNewsItem(title, eventTime, labelKey , resourceReference, context, sourceType, resource.getContentType());
+				if(dashboardLogic.isAvailable(newsItem.getEntityReference(), RESOURCE_TYPE_IDENTIFIER)) {
+					dashboardLogic.createNewsLinks(newsItem);
+					Date retractDate = getRetractDate(newsItem.getEntityReference());
+					if(retractDate != null && retractDate.after(new Date())) {
+						dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), RESOURCE_TYPE_IDENTIFIER, retractDate);
+					}
+				} else {
+					
+					Date releaseDate = getReleaseDate(newsItem.getEntityReference());
+					if(releaseDate != null && releaseDate.after(new Date())) {
+						dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), RESOURCE_TYPE_IDENTIFIER, releaseDate);
+					}
 				}
 			}
 		}
