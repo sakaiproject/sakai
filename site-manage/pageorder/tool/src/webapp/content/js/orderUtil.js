@@ -19,15 +19,16 @@ function serialize(s)
 		window.onbeforeunload = function() { };
 	}
 	
-	serial = $.SortSerialize(s);
-	
-	//TODO: replace regexp stuff with a new hidden id item
-	var pageOrder = serial.hash;
-	pageOrder = pageOrder.replace(/:&sort1\[\]=content::page-row:/g, ' ');
-	pageOrder = pageOrder.replace('sort1[]=content::page-row:', '');
-	pageOrder = pageOrder.substring(0, pageOrder.length - 1);
+	var order = [];
+    $('ul.sortable').children('li').each(function(idx, elm) {
+	//pageOrder = pageOrder.replace(/:&sort1\[\]=content::page-row:/g, ' ');
+	//pageOrder = pageOrder.replace('sort1[]=content::page-row:', '');
+	//pageOrder = pageOrder.substring(0, pageOrder.length - 1);
 
-	document.getElementById('content::state-init').value = pageOrder;
+      order.push(elm.id.split(':')[3])
+    });       
+	
+	document.getElementById('content::state-init').value = jQuery.serialize(order);
 }
 
 function doRemovePage(clickedLink) {
