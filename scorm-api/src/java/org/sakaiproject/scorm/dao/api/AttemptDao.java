@@ -20,6 +20,8 @@ public interface AttemptDao {
 
 	public Attempt lookup(long contentPackageId, String learnerId, long attemptNumber);
 
+	public Attempt lookupNewest(long contentPackageId, String learnerId);
+
 	public void save(Attempt attempt);
 
 }

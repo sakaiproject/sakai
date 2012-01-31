@@ -14,7 +14,8 @@
 		<lookup-method name="siteService" bean="org.sakaiproject.site.api.SiteService" />
 		<lookup-method name="toolManager" bean="org.sakaiproject.tool.api.ToolManager" />
 		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />
-
+		<lookup-method name="scormContentService" bean="org.sakaiproject.scorm.service.api.ScormContentService" />
+		<lookup-method name="scormResultService" bean="org.sakaiproject.scorm.service.api.ScormResultService" />
 		<lookup-method name="learnerDao" bean="org.sakaiproject.scorm.dao.LearnerDao" />
 
 	</bean>

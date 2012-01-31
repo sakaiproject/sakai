@@ -29,6 +29,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.PageMap;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ResourceReference;
+import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.markup.html.basic.Label;
@@ -78,10 +79,10 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 		final boolean canConfigure = lms.canConfigure(context);
 		final boolean canGrade = lms.canGrade(context);
         final boolean canViewResults = lms.canViewResults(context);
-		final boolean canLaunch = lms.canLaunch(context);
+//		final boolean canLaunch = lms.canLaunch(context);
 		final boolean canDelete = lms.canDelete(context);
 		
-		List<IColumn> columns = new LinkedList<IColumn>();
+		List<IColumn<ContentPackage>> columns = new LinkedList<IColumn<ContentPackage>>();
 
 		ActionColumn actionColumn = new ActionColumn(new StringResourceModel("column.header.content.package.name", this, null), "title", "title");
 			
@@ -91,12 +92,12 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public Component newLink(String id, Object bean) {
-				IModel labelModel = null;
+				IModel<String> labelModel = null;
 				if (displayModel != null) {
 					labelModel = displayModel;
 		 		} else {
 		 			String labelValue = String.valueOf(PropertyResolver.getValue(labelPropertyExpression, bean));
-		 			labelModel = new Model(labelValue);
+		 			labelModel = new Model<String>(labelValue);
 		 		}
 				
 				PageParameters params = buildPageParameters(paramPropertyExpressions, bean);
@@ -112,14 +113,13 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 		 			link.setPopupSettings(popupSettings);
 				}
 				
-				link.setEnabled(isEnabled(bean));
+				link.setEnabled(isEnabled(bean) && lms.canLaunch((ContentPackage)bean));
 				link.setVisible(isVisible(bean));
 					
 		 		return link;
 			}
 			
 		};
-		launchAction.setEnabled(canLaunch);
 		actionColumn.addAction(launchAction);
 		
 		if (lms.canLaunchNewWindow()) {
@@ -153,19 +153,19 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 	}	
 	
 	
-	public class StatusColumn extends AbstractColumn {
+	public class StatusColumn extends AbstractColumn<ContentPackage> {
 
 		private static final long serialVersionUID = 1L;
 
-		public StatusColumn(IModel displayModel, String sortProperty) {
+		public StatusColumn(IModel<String> displayModel, String sortProperty) {
 			super(displayModel, sortProperty);
 		}
 
-		public void populateItem(Item item, String componentId, IModel model) {
+		public void populateItem(Item<ICellPopulator<ContentPackage>> item, String componentId, IModel<ContentPackage> model) {
 			item.add(new Label(componentId, createLabelModel(model)));
 		}
 		
-		protected IModel createLabelModel(IModel embeddedModel)
+		protected IModel<String> createLabelModel(IModel<ContentPackage> embeddedModel)
 		{
 			String resourceId = "status.unknown";
 			Object target = embeddedModel.getObject();
@@ -193,6 +193,8 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 			
 			return new ResourceModel(resourceId);
 		}
+
+
 	}
 	
 	@Override
