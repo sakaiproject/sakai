@@ -88,7 +88,7 @@
       <h:outputText value="#{msgs.privacy_stmt1}" />
  
 	  <f:verbatim><strong></f:verbatim>
-	  <h:outputText value="#{privacyBean.currentStatus}" />
+	  <h:outputText value="#{privacyBean.displayStatus}" />
 	  <f:verbatim></strong></f:verbatim>
  	        
  	  <h:outputText value="#{msgs.privacy_stmt_show} " rendered="#{privacyBean.show}" />

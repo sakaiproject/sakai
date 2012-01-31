@@ -175,6 +175,10 @@ public class PrivacyBean {
 		this.privacyStatus = privacyStatus;
 	}
 
+	public String getDisplayStatus() {
+		return getMessageBundleString(getCurrentStatus());
+	}
+
 	
 	/**
 	 * Return TRUE if privacy set to visible, FALSE if set to hidden
