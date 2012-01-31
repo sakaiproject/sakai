@@ -19,16 +19,13 @@ function serialize(s)
 		window.onbeforeunload = function() { };
 	}
 	
-	var order = [];
+	var order = "";
     $('ul.sortable').children('li').each(function(idx, elm) {
-	//pageOrder = pageOrder.replace(/:&sort1\[\]=content::page-row:/g, ' ');
-	//pageOrder = pageOrder.replace('sort1[]=content::page-row:', '');
-	//pageOrder = pageOrder.substring(0, pageOrder.length - 1);
-
-      order.push(elm.id.split(':')[3])
+      order += elm.id.split(':')[3] + " ";
     });       
 	
-	document.getElementById('content::state-init').value = jQuery.serialize(order);
+console.log(order);
+	document.getElementById('content::state-init').value = order;
 }
 
 function doRemovePage(clickedLink) {

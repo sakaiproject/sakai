@@ -87,23 +87,14 @@
 		</div>
 	</div>
 	<script type="text/javascript">
-var demo = demo || {};
-(function ($, fluid) {
-    
-    demo.initListReorderer = function () {
-        return fluid.reorderList("ul.sortable", {
-            styles: {
-                defaultStyle: "demo-listReorderer-movable-default",
-                selected: "demo-listReorderer-movable-selected",
-                dragging: "demo-listReorderer-movable-dragging",
-                mouseDrag: "demo-listReorderer-movable-mousedrag",
-                hover: "demo-listReorderer-movable-hover",
-                dropMarker: "demo-listReorderer-dropMarker",
-                avatar: "demo-listReorderer-avatar"
-            }
-        });
+jQuery(document).ready(function () {
+    var opts = {
+        selectors: {
+            movables: ".sortable_item"
+        }
     };
-})(jQuery, fluid);
+    return fluid.reorderList("ul#sort1", opts);
+});
 	</script>
 </body>
 </html>

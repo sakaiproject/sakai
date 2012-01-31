@@ -23,8 +23,8 @@ li.sortable_item
 {
 	cursor: move;
 	width: 100%;
-	margin: 2px;
-	padding: 4px;
+	margin: 5px 2px;
+	padding: 5px;
 	border: 1px solid #666;
 }
 li.editable_item
@@ -105,4 +105,8 @@ a.item_control, a.tool_add_url
 	width: 360px;
 	padding: 5px;
 	vertical-align: top;	
+}
+
+.fl-reorderer-movable-hover{
+    background-color: #bea;
 }
