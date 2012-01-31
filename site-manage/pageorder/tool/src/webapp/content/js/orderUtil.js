@@ -24,18 +24,18 @@ function serialize(s)
       order += elm.id.split(':')[3] + " ";
     });       
 	
-console.log(order);
 	document.getElementById('content::state-init').value = order;
 }
 
 function doRemovePage(clickedLink) {
 	var name = $(clickedLink).parent().parent().find(".item_label_box").text();
 	var conf = confirm($("#del-message").text() + " " + name + "?");
+	var theHref = $(clickedLink).attr('href');
 
 	if (conf == true) {
 		$("#call-results").fadeOut('400');
-		$("#call-results").load(clickedLink, function() {
-			var status = $(this).find("div[@id='value']").text();
+		$("#call-results").load(theHref, function() {
+			var status = $(this).find("div#value").text();
 			if (status == "pass") {
 		    	var target = $(clickedLink).parent().parent();
 				$(this).fadeIn('400');		
@@ -53,20 +53,18 @@ function doRemovePage(clickedLink) {
 
 // When we show a page, it is automatically enabled if it was not before
 function doShowPage(clickedLink) {
-		$(clickedLink).parent().parent().find(".item_control.show_link").hide();
-		$(clickedLink).parent().parent().find(".indicator").show();
+		var theHref = $(clickedLink).attr('href');
 		$("#call-results").fadeOut('10');
-		$("#call-results").load(clickedLink, function() {
+		$("#call-results").load(theHref, function() {
 			var status = $("#call-results").find("#value").text();
-			$(clickedLink).parent().parent().find(".indicator").hide();				
 			if (status == "pass") {
+				$(clickedLink).parent().parent().find(".item_control.show_link").hide();
 				$(clickedLink).parent().parent().find(".item_control.enable_link").hide();
 				$(clickedLink).parent().parent().find(".item_control.disable_link").show();
 				$(clickedLink).parent().parent().find(".item_control.hide_link").show();
 				$("#call-results").fadeIn('400');
 			}
 			else if (status == "fail") {
-				$(clickedLink).parent().parent().find(".item_control.show_link").show();
 				$("#call-results").fadeIn('400');
 			}
 	  	});
@@ -74,18 +72,16 @@ function doShowPage(clickedLink) {
 
 // When we hide a page - it has no effect on enable/disable
 function doHidePage(clickedLink) {
-		$(clickedLink).parent().parent().find(".item_control.hide_link").hide();
-		$(clickedLink).parent().parent().find(".indicator").show();
+		var theHref = $(clickedLink).attr('href');
 		$("#call-results").fadeOut('10');
-		$("#call-results").load(clickedLink, function() {
+		$("#call-results").load(theHref, function() {
 			var status = $("#call-results").find("#value").text();
-			$(clickedLink).parent().parent().find(".indicator").hide();				
 			if (status == "pass") {
+				$(clickedLink).parent().parent().find(".item_control.hide_link").hide();
 				$(clickedLink).parent().parent().find(".item_control.show_link").show();
 				$("#call-results").fadeIn('400');
 			}
 			else if (status == "fail") {
-				$(clickedLink).parent().parent().find(".item_control.hide_link").show();
 				$("#call-results").fadeIn('400');
 			}
 	  	});
@@ -93,13 +89,12 @@ function doHidePage(clickedLink) {
 
 // When we enable a page, we mark it visible automatically
 function doEnablePage(clickedLink) {
-		$(clickedLink).parent().parent().find(".item_control.enable_link").hide();
-		$(clickedLink).parent().parent().find(".indicator").show();
+		var theHref = $(clickedLink).attr('href');
 		$("#call-results").fadeOut('10');
-		$("#call-results").load(clickedLink, function() {
+		$("#call-results").load(theHref, function() {
 			var status = $("#call-results").find("#value").text();
-			$(clickedLink).parent().parent().find(".indicator").hide();				
 			if (status == "pass") {
+				$(clickedLink).parent().parent().find(".item_control.enable_link").hide();
 				$(clickedLink).parent().parent().find(".item_control.disable_link").show();
 				$(clickedLink).parent().parent().find(".item_control.show_link").hide();
 				$(clickedLink).parent().parent().find(".item_control.hide_link").show();
@@ -107,7 +102,6 @@ function doEnablePage(clickedLink) {
 				$("#call-results").fadeIn('400');
 			}
 			else if (status == "fail") {
-				$(clickedLink).parent().parent().find(".item_control.enable_link").show();
 				$("#call-results").fadeIn('400');
 			}
 	  	});
@@ -115,27 +109,26 @@ function doEnablePage(clickedLink) {
 
 // When we disable a page, it is also not visible
 function doDisablePage(clickedLink) {
-		$(clickedLink).parent().parent().find(".item_control.disable_link").hide();
-		$(clickedLink).parent().parent().find(".indicator").show();
+		var theHref = $(clickedLink).attr('href');
 		$("#call-results").fadeOut('10');
-		$("#call-results").load(clickedLink, function() {
+		$("#call-results").load(theHref, function() {
 			var status = $("#call-results").find("#value").text();
-			$(clickedLink).parent().parent().find(".indicator").hide();				
 			if (status == "pass") {
+				$(clickedLink).parent().parent().find(".item_control.disable_link").hide();
 				$(clickedLink).parent().parent().find(".item_control.enable_link").show();
 				$(clickedLink).parent().parent().find(".item_control.hide_link").hide();
 				$(clickedLink).parent().parent().find(".item_control.show_link").show();
 				$("#call-results").fadeIn('400');
 			}
 			else if (status == "fail") {
-				$(clickedLink).parent().parent().find(".item_control.disable_link").show();
 				$("#call-results").fadeIn('400');
 			}
 	  	});
 }
 
 function doEditPage(clickedLink) {
-	$("#call-results").load(clickedLink, function() {
+	var theHref = $(clickedLink).attr('href');
+	$("#call-results").load(theHref, function() {
 		var status = $("#call-results").find("#value").text();
 		if (status == "pass") {
 	    	var target = document.getElementById('content::page-row:' + $("#call-results").find("#pageId").text() + ':');
@@ -149,12 +142,13 @@ function doEditPage(clickedLink) {
 }
 
 function showAddPage(clickedLink, init) {
+	var theHref = $(clickedLink).attr('href');
 	if (init) {
 		$("#add-control").hide();
 		$("#list-label").show();
 		$(".tool_list").css("border", "1px solid #ccc");
 	}
-	$("#add-panel").fadeOut(1, $("#add-panel").load(clickedLink, function() {
+	$("#add-panel").fadeOut(1, $("#add-panel").load(theHref, function() {
 		$("#call-results").fadeOut(200, function() {
 			$("#call-results").html($("#add-panel").find("#message").html());
 			$("#add-panel").fadeIn(200, $("#call-results").fadeIn(200, resetFrame()));
@@ -174,6 +168,7 @@ function showEditPage(clickedLink) {
 }
 
 function doSaveEdit(clickedLink) {
+	var theHref = $(clickedLink).attr('href');
 	li = $(clickedLink).parent().parent();
 	newTitle = $(li).find(".new_title");
 	newConfig = $(li).find(".new_config");
