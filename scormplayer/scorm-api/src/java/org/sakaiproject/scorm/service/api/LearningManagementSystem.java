@@ -1,6 +1,7 @@
 package org.sakaiproject.scorm.service.api;
 
 import org.sakaiproject.scorm.exceptions.LearnerNotDefinedException;
+import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.Learner;
 
 public interface LearningManagementSystem {
@@ -11,7 +12,9 @@ public interface LearningManagementSystem {
 
 	public boolean canGrade(String context);
 
-	public boolean canLaunch(String context);
+	public boolean canLaunch(ContentPackage contentPackage);
+	
+	public boolean canLaunchAttempt(ContentPackage contentPackage, long attemptNumber);
 
 	public boolean canLaunchNewWindow();
 

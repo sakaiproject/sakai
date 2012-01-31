@@ -2,6 +2,7 @@ package org.sakaiproject.scorm.service.sakai.impl;
 
 import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.exceptions.LearnerNotDefinedException;
+import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.Learner;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 
@@ -77,5 +78,13 @@ public class MockLearningManagementSystem implements LearningManagementSystem, S
 		return true;
 
 	}
+
+	public boolean canLaunchAttempt(ContentPackage contentPackage, long attemptNumber) {
+	    return true;
+    }
+
+	public boolean canLaunch(ContentPackage contentPackage) {
+	    return canLaunchAttempt(contentPackage, -1);
+    }
 
 }

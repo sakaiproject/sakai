@@ -36,6 +36,7 @@ import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.navigation.INavigable;
+import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.service.api.ScormResultService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
@@ -54,6 +55,8 @@ public class LazyLaunchPanel extends LazyLoadPanel {
 	ScormResultService resultService;
 	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormSequencingService")
 	ScormSequencingService sequencingService;
+	@SpringBean(name="org.sakaiproject.scorm.service.api.LearningManagementSystem")
+	LearningManagementSystem learningManagementSystem;
 	
 	private PlayerPage view;
 	private LaunchPanel launchPanel;
@@ -85,12 +88,7 @@ public class LazyLaunchPanel extends LazyLoadPanel {
 	private boolean canLaunch(SessionBean sessionBean) {
 		// Verify that the user is allowed to start a new attempt
 		ContentPackage contentPackage = sessionBean.getContentPackage();
-		
-		// If the numberOfTries is not Unlimited then verify that we haven't hit the max
-		if (contentPackage != null && contentPackage.getNumberOfTries() != -1) 	
-			return (sessionBean.getAttemptNumber() <= contentPackage.getNumberOfTries());
-		
-		return true;
+		return learningManagementSystem.canLaunchAttempt(contentPackage, sessionBean.getAttemptNumber());
 	}
 	
 	private int chooseStartOrResume(SessionBean sessionBean, INavigable navigator, AjaxRequestTarget target) {
@@ -101,13 +99,13 @@ public class LazyLaunchPanel extends LazyLoadPanel {
 			navRequest = SeqNavRequests.NAV_START;
 		}
 		
-		List<Attempt> attempts = resultService.getAttempts(sessionBean.getContentPackage().getContentPackageId(), sessionBean.getLearnerId());
+		int attemptsCount = resultService.countAttempts(sessionBean.getContentPackage().getContentPackageId(), sessionBean.getLearnerId());
 		
-		long attemptNumber = 1;
+		long attemptNumber;
 		
-		if (attempts != null && attempts.size() > 0) {
+		if (attemptsCount > 0) {
 			// Since attempts are order by attempt number, descending, then the first one is the max
-			Attempt attempt = attempts.get(0);
+			Attempt attempt = resultService.getNewstAttempt(sessionBean.getContentPackage().getContentPackageId(), sessionBean.getLearnerId());
 			
 			if (attempt.isSuspended()) {
 				// If the user suspended the last attempt, let them return to it.
@@ -131,6 +129,8 @@ public class LazyLaunchPanel extends LazyLoadPanel {
 				// Otherwise, we can start a new one
 				attemptNumber = attempt.getAttemptNumber() + 1;
 			}
+		} else {
+			attemptNumber = 1; // Attempt nr. starts a 1.
 		}
 		
 		sessionBean.setAttemptNumber(attemptNumber);
@@ -153,8 +153,9 @@ public class LazyLaunchPanel extends LazyLoadPanel {
 				navRequest = userNavRequest;
 			
 			// Make sure the user's allowed to launch
-			if (!canLaunch(sessionBean)) 			
+			if (!canLaunch(sessionBean)) {			
 				return new DeniedPanel(lazyId, sessionBean);
+			}
 				
 			result = tryLaunch(sessionBean, navRequest, target);
 						

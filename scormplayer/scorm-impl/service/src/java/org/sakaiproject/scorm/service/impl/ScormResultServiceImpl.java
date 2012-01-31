@@ -171,6 +171,10 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 		return attemptDao().find(contentPackageId, learnerId);
 	}
 
+	public Attempt getNewstAttempt(long contentPackageId, String learnerId) {
+		return attemptDao().lookupNewest(contentPackageId, learnerId);
+	}
+	
 	public List<Attempt> getAttempts(String courseId, String learnerId) {
 		return attemptDao().find(courseId, learnerId);
 	}
@@ -863,6 +867,10 @@ public abstract class ScormResultServiceImpl implements ScormResultService {
 
 	public void saveAttempt(Attempt attempt) {
 		attemptDao().save(attempt);
+	}
+	
+	public int countAttempts(long contentPackageId, String learnerId) {
+	    return attemptDao().count(contentPackageId, learnerId);
 	}
 
 }
