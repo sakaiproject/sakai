@@ -2,7 +2,7 @@
 <!-- chef_resources_reorder.vm, use with org.sakaiproject.tool.content.ResourcesAction.java -->
 <!-- this is the reorder template -->
 <script type="text/javascript"
-  src="/library/js/fluid/1.4/InfusionAll.js"></script>
+  src="/library/js/fluid-latest/InfusionAll.js"></script>
 <script type="text/javascript" src="/library/js/reorderer.js"></script>
 
 <div class="portletBody specialLink">
