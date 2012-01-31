@@ -39,9 +39,10 @@
 <div class="portletBody">
   <!-- content... -->
   <h3><h:outputText value="#{deliveryMessages.is_retracted_title}"/></h3>
-  <h:outputText value="#{deliveryMessages.is_retracted}"/>
+  <h:outputText value="#{deliveryMessages.is_retracted}" rendered="#{delivery.actionString!='takeAssessmentViaUrl'}"/>
+  <h:outputText value="#{deliveryMessages.is_retracted_url}" rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"/>
   <p></p> 
-  <h:panelGroup  rendered="#{delivery.publishedAssessment.assessmentAccessControl.retractDate!=null}">
+  <h:panelGroup  rendered="#{delivery.publishedAssessment.assessmentAccessControl.retractDate!=null}" >
     <h:outputLabel value="#{deliveryMessages.retract_date}:" />
     <h:outputText value="#{delivery.publishedAssessment.assessmentAccessControl.retractDate}" />
   </h:panelGroup> 
@@ -54,10 +55,6 @@
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
        </h:commandButton>
-
-   	   <h:commandButton value="#{deliveryMessages.button_continue}" type="button" 
-	     rendered="#{delivery.actionString=='takeAssessmentViaUrl'}" style="act" onclick="javascript:window.open('#{delivery.selectURL}','_top')" onkeypress="javascript:window.open('#{delivery.selectURL}','_top')" />
-
  </p>
  </h:form>
   <!-- end content -->

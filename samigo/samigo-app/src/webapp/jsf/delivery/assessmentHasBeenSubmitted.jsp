@@ -32,19 +32,20 @@
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{deliveryMessages.time_expired_title}"/></title>
+      <title><h:outputText value="#{deliveryMessages.assessment_has_been_submitted_title}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
 <div class="portletBody">
   <!-- content... -->
   <h3><h:outputText value="#{deliveryMessages.assessment_has_been_submitted_title}"/></h3>
-  <h:outputText value="#{deliveryMessages.assessment_has_been_submitted}"/>
-
+  <h:outputText value="#{deliveryMessages.assessment_has_been_submitted}" rendered="#{delivery.actionString!='takeAssessmentViaUrl'}"/>
+  <h:outputText value="#{deliveryMessages.assessment_has_been_submitted_url}" rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"/>
+ 
  <h:form id="assessment_has_been_submitted">
  <p class="act">
        <h:commandButton value="#{deliveryMessages.button_return}" type="submit"
-         styleClass="active" action="select" >
+         styleClass="active" action="select" rendered="#{delivery.actionString!='takeAssessmentViaUrl'}">
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
        </h:commandButton>

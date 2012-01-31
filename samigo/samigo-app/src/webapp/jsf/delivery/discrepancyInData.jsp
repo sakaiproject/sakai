@@ -52,10 +52,14 @@
 		<f:verbatim></ol></f:verbatim>
 
     <h:outputText value="#{deliveryMessages.data_discrepancy_4}" escape="false"/>
-    <h:outputText value="#{deliveryMessages.data_discrepancy_5} <b>#{deliveryMessages.button_return}</b> #{deliveryMessages.data_discrepancy_6}" escape="false"/>
+    <h:outputFormat value="#{deliveryMessages.data_discrepancy_5}" escape="false" rendered="#{delivery.actionString=='takeAssessment'}"> 		
+		<f:param value="#{deliveryMessages.button_return}"/>
+	</h:outputFormat>
+	<h:outputFormat value="#{deliveryMessages.data_discrepancy_5_url}" escape="false" rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"> 		
+		<f:param value="#{deliveryMessages.button_return}"/>
+	</h:outputFormat>
+  
   </h:panelGrid>
-
-
 
  <h:form id="discrepancyInData">
  <p class="act">
@@ -64,10 +68,6 @@
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
        </h:commandButton>
-
-    <h:commandButton value="#{deliveryMessages.button_return}" type="button" 
-       rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
-       style="act" onclick="javascript:window.open('#{delivery.selectURL}','_top')" onkeypress="javascript:window.open('#{delivery.selectURL}','_top')" />
  </p>
  </h:form>
   <!-- end content -->
