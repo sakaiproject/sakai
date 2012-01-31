@@ -186,7 +186,6 @@ function doSaveEdit(clickedLink) {
 			$(li).find(".item_control_box").attr("style", "display: inline");
 			$(li).addClass("sortable_item");
 			$(li).removeClass("editable_item");
-			makeSortable($(li).parent());
 		}
   	});
 }
@@ -201,7 +200,6 @@ function doCancelEdit(clickedLink) {
 	$(li).addClass("sortable_item");
 	$(li).removeClass("editable_item");
 	$(li).find(".new_title").val($(li).find(".item_label_box").text());
-	makeSortable($(li).parent());
 }
 
 function checkReset() {
@@ -212,46 +210,6 @@ function checkReset() {
 		return false;
 }
 				
-function makeSortable(path) {
-	$(path).Sortable( {
-		accept :        'sortable_item',
-		activeclass :   'sortable_active',
-		hoverclass :    'sortable_hover',
-		helperclass :   'sort_helper',
-		opacity:        0.8,
-		revert:	        true,
-		tolerance:      'intersect',
-		axis:           'vertically',
-		domNode:        $(path).get(0),
-		onStop:	        function () {
-			if (serializationChanged == false) {
-				serializationChanged = true;
-				
-				//Makes the assumption that it is ok to over write the onbeforeexit event on top
-				//which is a safe assumption *most* of the time and it's only needed for Safari
-				if (navigator.userAgent.toLowerCase().indexOf("safari") != -1 && window != top) {
-					top.pageOrderExitMessage = $("#exit-message").text();
-					top.onbeforeunload = function() { return top.pageOrderExitMessage };
-				}
-				else {
-					window.onbeforeunload = function() { return $("#exit-message").text(); };
-				}
-			}
-		}
-	});
-}
-
-function makeDraggable(path) {
-	$(path).Draggable( {
-		revert : true,
-		onStop: function () {
-			if ($(this).parent().attr('id') == 'sort1') {
-				addTool($(this), false);
-			}
-		}
-	});
-}
-
 function addTool(draggable, manual) {
 	if (manual == true) {
 		// we got fired via the add link not a drag and drop..
@@ -271,7 +229,6 @@ function addTool(draggable, manual) {
 		$(li).id("content::" + $("#call-results").find("li").id());
 		$(li).html($("#call-results").find("li").html());
 		$(this).find("li").remove();
-		makeSortable($(li).parent());
 		$("#call-results").fadeIn('200', resetFrame());
 	});
 	return false;
