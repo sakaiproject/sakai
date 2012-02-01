@@ -652,6 +652,7 @@ public class BaseExternalCalendarSubscriptionService implements
 
 			// connect
 			URLConnection conn = _url.openConnection();
+			conn.addRequestProperty("User-Agent", "Sakai/"+ m_configurationService.getString("sakai.version", "?") + " (Calendar Subscription)");
 			conn.setConnectTimeout(TIMEOUT);
 			conn.setReadTimeout(TIMEOUT);
 			InputStream stream = conn.getInputStream();
