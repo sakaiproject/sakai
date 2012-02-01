@@ -645,6 +645,7 @@ public class BaseExternalCalendarSubscriptionService implements
 				url, context, null, INSTITUTIONAL_CONTEXT.equals(context));
 		ExternalCalendarSubscription calendar = null;
 		List<CalendarEvent> events = null;
+		BufferedInputStream stream = null;
 		try
 		{
 			URL _url = new URL(url);
@@ -655,11 +656,10 @@ public class BaseExternalCalendarSubscriptionService implements
 			conn.addRequestProperty("User-Agent", "Sakai/"+ m_configurationService.getString("sakai.version", "?") + " (Calendar Subscription)");
 			conn.setConnectTimeout(TIMEOUT);
 			conn.setReadTimeout(TIMEOUT);
-			InputStream stream = conn.getInputStream();
-			BufferedInputStream buffStream = new BufferedInputStream(stream);
+			stream =  new BufferedInputStream(conn.getInputStream());
 			// import
 			events = m_importerService.doImport(CalendarImporterService.ICALENDAR_IMPORT,
-					buffStream, columnMap, null);
+					stream, columnMap, null);
 
 			String subscriptionId = getIdFromSubscriptionUrl(url);
 			String reference = calendarSubscriptionReference(context, subscriptionId);
@@ -675,8 +675,6 @@ public class BaseExternalCalendarSubscriptionService implements
 			calendar.setName(calendarName);
 			subscription.setCalendar(calendar);
 			m_log.info("Loaded calendar subscription: " + subscription.toString());
-			buffStream.close();
-			stream.close();
 		}
 		catch (ImportException e)
 		{
@@ -707,6 +705,17 @@ public class BaseExternalCalendarSubscriptionService implements
 		{
 			m_log.error("Unknown error occurred while reading calendar subscription '"
 					+ calendarName + "' from URL: " + url, e);
+		}
+		finally
+		{
+			if (stream != null) {
+				// Also closes the underlying InputStream
+				try {
+					stream.close();
+				} catch (IOException e) {
+					// Ignore
+				}
+			}
 		}
 		return subscription;
 	}
