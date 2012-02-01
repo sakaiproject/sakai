@@ -10,7 +10,7 @@
 
     <name>Sakai Roster2 base pom</name>
     <groupId>org.sakaiproject.roster2</groupId>
-    <artifactId>roster-base</artifactId>
+    <artifactId>roster2</artifactId>
     <version>1.1-SNAPSHOT</version>
     <organization>
         <name>Sakai Project</name>
@@ -33,6 +33,7 @@
         <entitybroker.version>1.4.3</entitybroker.version>
         <profile2.api.version>1.4.6</profile2.api.version>
         <sakai.common.version>1.1.5</sakai.common.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <developers>

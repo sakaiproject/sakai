@@ -8,8 +8,8 @@
     <dependencySets>
         <dependencySet>
             <outputDirectory>shared/lib/</outputDirectory>
-            <useTransitiveDependencies>false
-            </useTransitiveDependencies>
+            <useProjectArtifact>false</useProjectArtifact>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
                 <include>org.sakaiproject.roster2:sakai-roster2-help:jar:*</include>
             </includes>
@@ -18,8 +18,7 @@
         <dependencySet>
             <outputDirectory>webapps/</outputDirectory>
             <outputFileNameMapping>${artifact.artifactId}.war</outputFileNameMapping>
-            <!-- <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping> -->
-            <!-- <outputFileNameMapping>imsblti.war</outputFileNameMapping> -->
+            <useProjectArtifact>false</useProjectArtifact>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
                  <include>org.sakaiproject.roster2:sakai-roster2-tool:war:*</include>
