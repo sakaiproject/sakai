@@ -615,3 +615,6 @@ create index lesson_builder_items_pageid on lesson_builder_items(pageId);
 create index lesson_builder_items_sakaiid on lesson_builder_items(sakaiId);
 
 -- End Lesson Builder Index creation
+
+-- SAK-21754
+INSERT INTO SAKAI_SITE_PROPERTY VALUES ('!error', 'display-users-present', 'false');
