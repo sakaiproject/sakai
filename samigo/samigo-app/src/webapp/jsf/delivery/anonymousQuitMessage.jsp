@@ -38,9 +38,9 @@
 <div class="portletBody">
 <h3> <h:outputText value="#{deliveryMessages.anonymous_quit_warning}"/></h3>
 <h:form id="redirectLoginForm">
- <div class="validation">
-<h:outputText  value="#{deliveryMessages.anonymous_quit_warning_message}" escape="false" rendered="#{!delivery.anonymousLogin}"/>
-<h:outputText  value="#{deliveryMessages.non_anonymous_quit_warning_message}" escape="false" rendered="#{delivery.anonymousLogin}"/>
+ <div class="messageSamigo2">
+<h:outputText  value="#{deliveryMessages.non_anonymous_quit_warning_message}" escape="false" rendered="#{!delivery.anonymousLogin}"/>
+<h:outputText  value="#{deliveryMessages.anonymous_quit_warning_message}" escape="false" rendered="#{delivery.anonymousLogin}"/>
  
  </div>
 
