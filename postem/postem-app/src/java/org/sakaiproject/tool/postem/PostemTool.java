@@ -465,11 +465,9 @@ public class PostemTool {
 	
 	public static void populateMessage(FacesMessage.Severity severity,
 			String messageId, Object[] args) {
-		ApplicationFactory factory = (ApplicationFactory) FactoryFinder
-				.getFactory(FactoryFinder.APPLICATION_FACTORY);
-		factory.getApplication().setMessageBundle(messageBundle);
-		FacesContext.getCurrentInstance().addMessage(null,
-				MessageUtils.getMessage(severity, messageId, args));
+		final ResourceLoader rb = new ResourceLoader(messageBundle);
+		FacesContext.getCurrentInstance().addMessage(null, 
+		        new FacesMessage(rb.getFormattedMessage(messageId, args)));
 	}
 	
 	protected static void clearMessages() {
