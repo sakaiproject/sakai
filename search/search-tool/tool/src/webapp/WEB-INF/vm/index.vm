@@ -57,10 +57,10 @@
     </div>
     <div class="searchTabsContainer" >
 	   <div id="results" class="tabHeadOn" >        	
-		  <p class="tabhead" title="Results" ><a href="#" onclick="selectTabs('tagsTab','tabOn','tabOff','resultsTab','tabOff','tabOn','tags','tabHeadOn','tabHeadOff','results','tabHeadOff','tabHeadOn'); setMainFrameHeightNoScroll('${sakai_tool_placement_id}'); return false;" >${rlb.jsp_results}</a></p>
+		  <p class="tabhead" title="${rlb.jsp_results}" ><a href="#" onclick="selectTabs('tagsTab','tabOn','tabOff','resultsTab','tabOff','tabOn','tags','tabHeadOn','tabHeadOff','results','tabHeadOff','tabHeadOn'); setMainFrameHeightNoScroll('${sakai_tool_placement_id}'); return false;" >${rlb.jsp_results}</a></p>
        </div>
 	   <div id="tags" class="tabHeadOff" >        	
-		  <p class="tabhead" title="Tags" ><a href="#" onclick="selectTabs('tagsTab','tabOff','tabOn','resultsTab','tabOn','tabOff','tags','tabHeadOff','tabHeadOn','results','tabHeadOn','tabHeadOff'); setMainFrameHeightNoScroll('${sakai_tool_placement_id}'); return false;" >${rlb.jsp_tags}</a></p>
+		  <p class="tabhead" title="${rlb.jsp_tags}" ><a href="#" onclick="selectTabs('tagsTab','tabOff','tabOn','resultsTab','tabOn','tabOff','tags','tabHeadOff','tabHeadOn','results','tabHeadOn','tabHeadOff'); setMainFrameHeightNoScroll('${sakai_tool_placement_id}'); return false;" >${rlb.jsp_tags}</a></p>
     	</div>
     </div>
     <div class="searchResultsContainer" >
@@ -92,7 +92,7 @@
                   <a href="${result.url}" target="searchresult" class="searchBottonLink" >${result.url}</a>
             #end
 			 #if($searchModel.isScope('MINE'))
-	    			<br/><span class="searchSite">Site: <a href="$result.siteURL" target="_top">${result.siteTitle}</a><span>
+	    			<br/><span class="searchSite">${rlb.jsp_site}: <a href="$result.siteURL" target="_top">${result.siteTitle}</a><span>
 	    		#end
 	    	 #else
 	    	 	<span class="searchTool">${result.title}</span>
