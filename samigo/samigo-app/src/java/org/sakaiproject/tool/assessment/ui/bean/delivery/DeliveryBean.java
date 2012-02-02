@@ -2996,6 +2996,12 @@ public class DeliveryBean
     int maxSubmissionsAllowed = 9999;
     if ( (Boolean.FALSE).equals(publishedAssessment.getAssessmentAccessControl().getUnlimitedSubmissions())){
       maxSubmissionsAllowed = publishedAssessment.getAssessmentAccessControl().getSubmissionsAllowed().intValue();
+      if ("takeAssessmentViaUrl".equals(actionString) && !anonymousLogin && settings == null) {
+    	  SettingsDeliveryBean settingsDeliveryBean = new SettingsDeliveryBean();
+    	  settingsDeliveryBean.setAssessmentAccessControl(publishedAssessment);
+    	  settingsDeliveryBean.setMaxAttempts(maxSubmissionsAllowed);
+    	  settings = settingsDeliveryBean; 
+      }
     }
     if (totalSubmitted < maxSubmissionsAllowed + numberRetake){
       hasSubmissionLeft = true;

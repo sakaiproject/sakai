@@ -41,8 +41,8 @@
   <h3><h:outputText value="#{deliveryMessages.no_submission_left_title}"/></h3>
   <h:outputText value="#{deliveryMessages.no_submission_left}" rendered="#{delivery.actionString!='takeAssessmentViaUrl'}"/>
   <h:outputText value="#{deliveryMessages.no_submission_left_url}" rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"/>
-  <h:outputText value="#{deliveryMessages.num_subs} #{delivery.settings.maxAttempts}"
-       rendered="#{!delivery.settings.unlimitedAttempts && delivery.actionString!='takeAssessmentViaUrl'}" />
+  <h:outputText value="<br/> #{deliveryMessages.num_subs} #{delivery.settings.maxAttempts}"
+       rendered="#{!delivery.settings.unlimitedAttempts}" escape="false"/>
 
 
  <h:form id="noSubmissionLeft">
