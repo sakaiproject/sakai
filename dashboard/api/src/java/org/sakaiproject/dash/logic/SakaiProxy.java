@@ -225,6 +225,11 @@ public interface SakaiProxy {
 
 	public void startAdminSession();
 
+	/**
+	 * Remove from the thread-local cache all items bound to the current thread.
+	 */
+	public void clearThreadLocalCache();
+
 	public List<ContentResource> getAllContentResources(String contentCollectionId);
 	
 	/**
@@ -255,6 +260,5 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public boolean isEventProcessingThreadDisabled();
-
 
 }
