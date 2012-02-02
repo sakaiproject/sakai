@@ -20,7 +20,7 @@
 		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
 		<property name="contentTypeImageService" ref="org.sakaiproject.content.api.ContentTypeImageService" />
-		
+    	<property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
 	</bean>
 	
     <bean id="org.sakaiproject.dash.logic.DashboardConfig" 
@@ -37,7 +37,6 @@
     	<property name="dao" ref="org.sakaiproject.dash.dao.DashboardDao" />	
     	<property name="cache" ref="org.sakaiproject.dash.cache" />	
     	<property name="dashboardConfig" ref="org.sakaiproject.dash.logic.DashboardConfig" />
-    	<property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
     </bean>
     
     <!-- DAO. This uses the DataSource that has already been setup by Sakai  -->

@@ -23,6 +23,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
@@ -292,6 +293,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 		this.sessionManager.setCurrentSession(session);
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.SakaiProxy#clearThreadLocalCache()
+	 */
+	public void clearThreadLocalCache() {
+		this.threadLocalManager.clear();
+	}
+
 	/**
 	 * get the deep link url of schedule event
 	 * @param eventRef
@@ -383,6 +392,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	protected ContentTypeImageService contentTypeImageService;
 	
+	protected ThreadLocalManager threadLocalManager;
+	
 	/**
 	 * @param toolManager the toolManager to set
 	 */
@@ -468,6 +479,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 		this.contentTypeImageService = contentTypeImageService;
 	}
 
+	/**
+	 * @param threadLocalManager
+	 */
+	public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
+		this.threadLocalManager = threadLocalManager;
+	}
+	
 	/************************************************************************
 	 * init() and destroy()
 	 ************************************************************************/

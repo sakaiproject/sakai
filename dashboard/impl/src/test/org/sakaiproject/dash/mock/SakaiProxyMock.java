@@ -193,4 +193,9 @@ public class SakaiProxyMock implements SakaiProxy {
 		return false;
 	}
 
+	public void clearThreadLocalCache() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
