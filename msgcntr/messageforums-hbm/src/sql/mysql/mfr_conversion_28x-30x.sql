@@ -292,5 +292,5 @@ DROP TABLE PERMISSIONS_SRC_TEMP;
 
 
 --MSGCNTR-569
-alter table MFR_TOPIC_T modify CONTEXT_ID varchar(255)
+alter table MFR_TOPIC_T modify CONTEXT_ID varchar(255);
 
