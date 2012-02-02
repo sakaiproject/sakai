@@ -1049,4 +1049,6 @@ span.nil a{
 }
 .fl-reorderer-avatar * {display: none }
 .fl-reorderer-avatar .title {display:block;margin:5px;font-weight: bold;font-size:1.2em }
+.fl-ProgEnhance-enhanced,.fl-progEnhance-enhanced{display:none;}
+.fl-offScreen-hidden{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;}
 .recentMove { background: #def !important;border:1px solid #7bf !important}
