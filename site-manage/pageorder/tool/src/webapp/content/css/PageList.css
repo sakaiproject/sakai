@@ -78,10 +78,6 @@ a.item_control, a.tool_add_url
 {
 	display: none;
 }
-.tool_list
-{
-	padding: 10px;
-}
 .option_list
 {
 	padding: 10px;
@@ -109,4 +105,7 @@ a.item_control, a.tool_add_url
 
 .fl-reorderer-movable-hover{
     background-color: #bea;
+}
+.alertMessageContainer {
+	height: 60px;
 }
