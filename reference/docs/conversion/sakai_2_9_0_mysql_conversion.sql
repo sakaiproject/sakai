@@ -490,7 +490,7 @@ DROP TABLE PERMISSIONS_SRC_TEMP;
 -- END MSGCNTR-438 --
 
 --MSGCNTR-569
-alter table MFR_TOPIC_T modify CONTEXT_ID varchar(255)
+alter table MFR_TOPIC_T modify CONTEXT_ID varchar(255);
 
 -- END MSGCNTR Conversion
 
