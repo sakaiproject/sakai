@@ -24,6 +24,8 @@ package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
 import java.text.Collator;
+import java.text.ParseException;
+import java.text.RuleBasedCollator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -62,7 +64,16 @@ public abstract class EnrollmentTableBean
      * A comparator that sorts enrollments by student sortName
      */
     static final Comparator<EnrollmentRecord> ENROLLMENT_NAME_COMPARATOR = new Comparator<EnrollmentRecord>() {
-		public int compare(EnrollmentRecord o1, EnrollmentRecord o2) {
+		public int compare(EnrollmentRecord o1, EnrollmentRecord o2)
+		{
+			RuleBasedCollator collator_ini = (RuleBasedCollator)Collator.getInstance();
+			try {
+				RuleBasedCollator collator= new RuleBasedCollator(collator_ini.getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
+				return collator.compare(o1.getUser().getSortName(), o2.getUser().getSortName());
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		    return Collator.getInstance().compare(o1.getUser().getSortName(), o2.getUser().getSortName());
 		}
 	};
