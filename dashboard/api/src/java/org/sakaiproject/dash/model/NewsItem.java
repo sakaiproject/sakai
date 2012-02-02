@@ -23,7 +23,6 @@ package org.sakaiproject.dash.model;
 
 import java.io.Serializable;
 import java.text.DateFormat;
-import java.text.FieldPosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 

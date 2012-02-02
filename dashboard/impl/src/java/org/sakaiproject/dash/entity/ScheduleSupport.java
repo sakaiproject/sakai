@@ -10,7 +10,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
 import java.util.TimeZone;
+import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,15 +40,21 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
- * THIS WILL BE MOVED TO THE calendar PROJECT IN SAKAI CORE ONCE THE INTERFACE IS MOVED TO KERNEL
- *
+ * THIS WILL BE MOVED TO THE calendar PROJECT IN SAKAI CORE ONCE THE INTERFACE IS MOVED TO KERNEL.
+ * 
+ * When this moves to calendar project, eliminate references to SakaiProxy and use sakai services instead. 
  */
 public class ScheduleSupport{
 	
 	private Log logger = LogFactory.getLog(ScheduleSupport.class);
 	
 	ResourceLoader rl = new ResourceLoader("dash_entity");
-	
+
+	// TODO: add member variable and setter for defaultImageForEvent that will allow DEFAULT_IMAGE_FOR_EVENT
+	// TODO: to be overridden by spring injection.  Then use DEFAULT_IMAGE_FOR_EVENT only if defaultImageForEvent
+	// TODO: is not set.
+	public static final String DEFAULT_IMAGE_FOR_EVENT = "/library/image/sakai/activity.gif";
+
 	protected SakaiProxy sakaiProxy;
 	public void setSakaiProxy(SakaiProxy sakaiProxy) {
 		this.sakaiProxy = sakaiProxy;
@@ -332,12 +341,11 @@ public class ScheduleSupport{
 	}
 
 		public String getIconUrl(String subtype) {
-			// TODO The param "subtype" will be the "type" of the event.  How does schedule look up icon based on "type"?
 			
 			String url = eventTypeImageUrlMap.get(subtype);
 			if(url == null) {
 				// default url to activity.gif
-				url = "/library/image/sakai/activity.gif";
+				url = DEFAULT_IMAGE_FOR_EVENT;
 			}
 			return url ;
 		}
@@ -800,10 +808,16 @@ public class ScheduleSupport{
 					
 					// need to get each item in sequence and update its time
 					Map<Integer, Date> dates = scheduleEntityType.generateRepeatingEventDates(entityReference, newStartTime, dashboardLogic.getRepeatingEventHorizon());
-					int lastNeededIndex = dashboardLogic.getLastIndexInSequence(entityReference, calendarTimeLabelKey);
-					int lastActualIndex = 0;
+					Integer firstSequenceNumber = findSmallest(dates.keySet());
+					Integer lastSequenceNumber = findLargest(dates.keySet());
+					
+					SortedSet<Integer> futureSequenceNumbers = dashboardLogic.getFutureSequnceNumbers(entityReference, calendarTimeLabelKey, firstSequenceNumber);
+					
+					// lastNeededIndex is the index of the last item in the list of items that are needed when we finish.
+					int lastNeededIndex = 0;
+					
 					for(Map.Entry<Integer, Date> entry : dates.entrySet()) {
-						if(lastNeededIndex >= entry.getKey().intValue()) {
+						if(futureSequenceNumbers.contains(entry.getKey())) {
 							// update each existing calendar-item
 							dashboardLogic.reviseCalendarItemTime(entityReference, calendarTimeLabelKey, entry.getKey(), entry.getValue());
 						} else {
@@ -820,17 +834,19 @@ public class ScheduleSupport{
 							}
 							logger.debug(msg);
 						}
-						if(entry.getKey().intValue() > lastActualIndex) {
-							lastActualIndex = entry.getKey().intValue();
+						if(entry.getKey().intValue() > lastNeededIndex) {
+							lastNeededIndex = entry.getKey().intValue();
 						}
 					}
 						
 					// remove any that would now be beyond the horizon
-					if(lastNeededIndex > lastActualIndex) {
-						for(int i = lastActualIndex; i > lastNeededIndex; i--) {
-							CalendarItem item = dashboardLogic.getCalendarItem(entityReference, calendarTimeLabelKey, i);
-							dashboardLogic.removeCalendarLinks(entityReference, calendarTimeLabelKey, i);
-							dashboardLogic.removeCalendarItem(entityReference, calendarTimeLabelKey, i);
+					if(lastSequenceNumber.intValue() > lastNeededIndex) {
+						for(Integer seqNum : futureSequenceNumbers) {
+							if(seqNum.intValue() > lastNeededIndex) {
+								CalendarItem item = dashboardLogic.getCalendarItem(entityReference, calendarTimeLabelKey, seqNum);
+								dashboardLogic.removeCalendarLinks(entityReference, calendarTimeLabelKey, seqNum.intValue());
+								dashboardLogic.removeCalendarItem(entityReference, calendarTimeLabelKey, seqNum);
+							}
 						}
 					}
 				}
@@ -967,6 +983,16 @@ public class ScheduleSupport{
 			}
 		}
 	
+	}
+
+	public Integer findSmallest(Set<Integer> numbers) {
+		SortedSet<Integer> set = new TreeSet<Integer>(numbers);
+		return set.first();
+	}
+
+	public Integer findLargest(Set<Integer> numbers) {
+		SortedSet<Integer> set = new TreeSet<Integer>(numbers);
+		return set.last();
 	}
 	
 }

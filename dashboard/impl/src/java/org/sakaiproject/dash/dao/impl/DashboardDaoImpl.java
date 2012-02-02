@@ -31,6 +31,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -1335,6 +1337,26 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 	
+	public SortedSet<Integer> getFutureSequenceNumbers(String entityReference,
+			String calendarTimeLabelKey, Integer firstSequenceNumber) {
+		if(log.isDebugEnabled()) {
+			log.debug("getLastIndexInSequence(" + entityReference + "," + calendarTimeLabelKey + "," + firstSequenceNumber + ")");
+		}
+		
+		try {
+			
+			String sql = getStatement("select.SequenceNumbers.entityReference.calendarTimeLabelKey.sequenceNumber");
+				Object[] args = new Object[]{ entityReference, calendarTimeLabelKey, firstSequenceNumber };
+			List items = getJdbcTemplate().queryForList(sql, args, Integer.class);
+			return new TreeSet(items);
+			
+		} catch (DataAccessException ex) {
+           log.error("getLastIndexInSequence: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return new TreeSet();
+		}
+		
+	}
+
 	public Set<String> getSakaIdsForUserWithCalendarLinks(String entityReference) {
 		if(log.isDebugEnabled()) {
 			log.debug("getSakaIdsForUserWithCalendarLinks(" + entityReference + ")");

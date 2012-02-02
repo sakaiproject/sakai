@@ -35,6 +35,7 @@ import org.sakaiproject.util.ResourceLoader;
 /**
  * THIS WILL BE MOVED TO THE content PROJECT IN SAKAI CORE ONCE THE INTERFACE IS MOVED TO KERNEL
  *
+ * When this moves to content project, eliminate references to SakaiProxy and use sakai services instead.
  */
 public class ResourceSupport {
 	

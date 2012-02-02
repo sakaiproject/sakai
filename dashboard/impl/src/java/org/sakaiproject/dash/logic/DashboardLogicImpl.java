@@ -33,6 +33,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Queue;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -678,6 +679,11 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 //		}
 //		return date;
 //	}
+	
+	public SortedSet<Integer> getFutureSequnceNumbers(String entityReference,
+			String calendarTimeLabelKey, Integer firstSequenceNumber) {
+		return dao.getFutureSequenceNumbers(entityReference, calendarTimeLabelKey, firstSequenceNumber);
+	}
 
 	public int getLastIndexInSequence(String entityReference,
 			String calendarTimeLabelKey) {

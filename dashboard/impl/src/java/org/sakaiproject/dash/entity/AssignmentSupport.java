@@ -33,6 +33,11 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
 
+/**
+ * THIS WILL BE MOVED TO THE ASSIGNMENT PROJECT IN SAKAI CORE ONCE THE INTERFACE IS MOVED TO KERNEL
+ *
+ * When this moves to ASSIGNMENT project, eliminate references to SakaiProxy and use sakai services instead.
+ */
 public class AssignmentSupport {
 	
 	private static Logger logger = Logger.getLogger(AssignmentSupport.class);

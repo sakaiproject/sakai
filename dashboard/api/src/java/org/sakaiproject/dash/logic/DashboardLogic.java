@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.SortedSet;
 
 import org.sakaiproject.dash.entity.EntityLinkStrategy;
 import org.sakaiproject.dash.entity.EntityType;
@@ -613,6 +614,9 @@ public interface DashboardLogic {
 
 	public int getLastIndexInSequence(String entityReference,
 			String calendarTimeLabelKey);
+
+	public SortedSet<Integer> getFutureSequnceNumbers(String entityReference,
+			String calendarTimeLabelKey, Integer firstSequenceNumber);
 
 	public void removeCalendarLinks(String entityReference,
 			String calendarTimeLabelKey, int sequenceNumber);

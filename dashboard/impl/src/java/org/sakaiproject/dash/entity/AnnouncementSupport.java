@@ -41,6 +41,7 @@ import org.sakaiproject.util.ResourceLoader;
 /**
  * THIS WILL BE MOVED TO THE ANNOUNCEMENT PROJECT IN SAKAI CORE ONCE THE INTERFACE IS MOVED TO KERNEL
  *
+ * When this moves to ANNOUNCEMENT project, eliminate references to SakaiProxy and use sakai services instead.
  */
 public class AnnouncementSupport{
 	

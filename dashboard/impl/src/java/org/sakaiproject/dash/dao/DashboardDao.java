@@ -24,6 +24,7 @@ package org.sakaiproject.dash.dao;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 
 import org.sakaiproject.dash.model.AvailabilityCheck;
 import org.sakaiproject.dash.model.CalendarItem;
@@ -172,6 +173,15 @@ public interface DashboardDao {
 	 */
 	public int getLastIndexInSequence(String entityReference,
 			String calendarTimeLabelKey);
+
+	/**
+	 * @param entityReference
+	 * @param calendarTimeLabelKey
+	 * @param sequenceNumber TODO
+	 * @return
+	 */
+	public SortedSet<Integer> getFutureSequenceNumbers(String entityReference,
+			String calendarTimeLabelKey, Integer firstSequenceNumber);
 
 	public boolean deleteAvailabilityChecks(String entityReference);
 
