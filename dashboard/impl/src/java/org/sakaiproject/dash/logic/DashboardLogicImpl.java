@@ -58,6 +58,7 @@ import org.sakaiproject.dash.model.RepeatingCalendarItem;
 import org.sakaiproject.dash.model.SourceType;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
@@ -142,6 +143,11 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	protected Cache cache;
 	public void setCache(Cache cache) {
 		this.cache = cache;
+	}
+	
+	protected ThreadLocalManager threadLocalManager;
+	public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
+		this.threadLocalManager = threadLocalManager;
 	}
 	
 	/************************************************************************
@@ -1417,6 +1423,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 						logger.warn("Error processing event: " + event, e);
 					} finally {
 						sakaiProxy.popSecurityAdvisor(advisor);
+						threadLocalManager.clear();
 					}
 				}
 			}
