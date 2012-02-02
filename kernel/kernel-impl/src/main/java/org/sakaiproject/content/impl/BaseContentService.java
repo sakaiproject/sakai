@@ -5683,6 +5683,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		// update the properties for update
 		addLiveUpdateResourceProperties(edit);
 
+		boolean titleUpdated = false;
 		if(edit instanceof BaseResourceEdit) {
 			String oldDisplayName = ((BaseResourceEdit) edit).getOldDisplayName();
 			ResourceProperties props = edit.getProperties();
@@ -5692,22 +5693,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 					// do nothing
 				} else if(! oldDisplayName.equals(newDisplayName)) {
 					// DisplayName has changed -- post event
-					// post EVENT_RESOURCE_UPD_TITLE event
-					this.eventTrackingService.post(this.eventTrackingService.newEvent(EVENT_RESOURCE_UPD_TITLE, edit.getReference(), true, priority));
+					titleUpdated = true;
 				}
 			}
 		}
 
-		if(((BasicGroupAwareEdit) edit).isVisibilityUpdated()) {
-			// post EVENT_RESOURCE_UPD_VISIBILITY event
-			this.eventTrackingService.post(this.eventTrackingService.newEvent(EVENT_RESOURCE_UPD_VISIBILITY, edit.getReference(), true, priority));
-		}
-		
-		if(((BasicGroupAwareEdit) edit).isAccessUpdated()) {
-			// post EVENT_RESOURCE_UPD_ACCESS event
-			this.eventTrackingService.post(this.eventTrackingService.newEvent(EVENT_RESOURCE_UPD_ACCESS, edit.getReference(), true, priority));
-		}
-		
 		// Flag whether we have a body update or not. This will save expensive DB/IO if we don't need to check the encoding.
 		boolean contentUpdated = ((BaseResourceEdit) edit).m_body != null || ((BaseResourceEdit) edit).m_contentStream != null;
 
@@ -5764,6 +5754,21 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		// Post an available event for now or later
 		postAvailableEvent(edit, ref, priority);
 
+		if(titleUpdated) {
+			// post EVENT_RESOURCE_UPD_TITLE event
+			this.eventTrackingService.post(this.eventTrackingService.newEvent(EVENT_RESOURCE_UPD_TITLE, edit.getReference(), true, priority));
+		}
+		
+		if(((BasicGroupAwareEdit) edit).isVisibilityUpdated()) {
+			// post EVENT_RESOURCE_UPD_VISIBILITY event
+			this.eventTrackingService.post(this.eventTrackingService.newEvent(EVENT_RESOURCE_UPD_VISIBILITY, edit.getReference(), true, priority));
+		}
+		
+		if(((BasicGroupAwareEdit) edit).isAccessUpdated()) {
+			// post EVENT_RESOURCE_UPD_ACCESS event
+			this.eventTrackingService.post(this.eventTrackingService.newEvent(EVENT_RESOURCE_UPD_ACCESS, edit.getReference(), true, priority));
+		}
+		
 	} // commitResourceEdit
 
 	/**
