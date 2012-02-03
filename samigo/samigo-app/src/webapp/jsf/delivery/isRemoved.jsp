@@ -38,7 +38,8 @@
 <h3><h:outputText value="#{deliveryMessages.assessment_not_available}"/></h3>
 <h:form id="redirectLoginForm">
  <div class="validation">
-<h:outputText  value="#{deliveryMessages.assessment_no_longer_available_message}" />
+<h:outputText  value="#{deliveryMessages.assessment_no_longer_available_message}" rendered="#{delivery.actionString=='takeAssessment'}"/>
+<h:outputText  value="#{deliveryMessages.assessment_no_longer_available_message_viaURL}" rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"/>
  </div>
 
 <p class="act">
@@ -47,10 +48,6 @@
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
        </h:commandButton>
-
-
-  <h:commandButton value="#{deliveryMessages.button_continue}" type="button" rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
-       style="act" onclick="javascript:window.open('#{delivery.portal}/login','_top')" onkeypress="javascript:window.open('#{delivery.portal}/login','_top')" />
 </p>
 </h:form>
 </div>

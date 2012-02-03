@@ -39,20 +39,17 @@
 <div class="portletBody">
   <!-- content... -->
   <h3><h:outputText value="#{deliveryMessages.is_retracted_title}"/></h3>
-  <h:outputText value="#{deliveryMessages.is_retracted_for_edit}"/>
+  <h:outputText value="#{deliveryMessages.is_retracted_for_edit}" rendered="#{delivery.actionString!='takeAssessmentViaUrl'}"/>
+  <h:outputText value="#{deliveryMessages.is_retracted_for_edit_url}" rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"/>
   <p></p>
 
  <h:form id="isRetracted">
  <p class="act">
        <h:commandButton value="#{deliveryMessages.button_return}" type="submit"
-         styleClass="active" action="select" rendered="#{delivery.actionString!='takeAssessmentViaUrl'">
+         styleClass="active" action="select" rendered="#{delivery.actionString!='takeAssessmentViaUrl'}">
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
        </h:commandButton>
-
-	   <h:commandButton value="#{deliveryMessages.button_continue}" type="button" 
-	     rendered="#{delivery.actionString=='takeAssessmentViaUrl'}" style="act" onclick="javascript:window.open('#{delivery.selectURL}','_top')" onkeypress="javascript:window.open('#{delivery.selectURL}','_top')" />
-
  </p>
  </h:form>
   <!-- end content -->

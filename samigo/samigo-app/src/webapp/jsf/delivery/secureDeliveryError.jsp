@@ -52,10 +52,7 @@
             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
        </h:commandButton>
    <f:verbatim></p></f:verbatim>
-  <h:commandButton accesskey="#{deliveryMessages.a_return}" value="#{deliveryMessages.button_return}" type="button" 
-     rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
-     style="act" onclick="javascript:window.open('login.faces','_top')" onkeypress="javascript:window.open('login.faces','_top')" />
-
+ 
  </h:form>
   <!-- end content -->
 </div>

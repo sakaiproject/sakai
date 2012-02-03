@@ -186,6 +186,30 @@ public class LoginServlet
           path = "/jsf/delivery/beginTakingAssessment_viaurl.faces";
         }
         // Assessment is currently not available (eg., retracted for edit, due date has passed, submission limit has been reached, etc)
+        else if ("assessmentNotAvailable".equals(nextAction)){
+        	path = "/jsf/delivery/assessmentNotAvailable.faces";
+        }
+        else if ("isRetracted".equals(nextAction)){
+        	path = "/jsf/delivery/isRetracted.faces";
+        }
+        else if ("isRetractedForEdit".equals(nextAction)){
+        	path = "/jsf/delivery/isRetractedForEdit.faces";
+        }
+        else if ("discrepancyInData".equals(nextAction)){
+        	path = "/jsf/delivery/discrepancyInData.faces";
+        }
+        else if ("assessmentHasBeenSubmitted".equals(nextAction)){
+        	path = "/jsf/delivery/assessmentHasBeenSubmitted.faces";
+        }
+        else if ("noSubmissionLeft".equals(nextAction)){
+        	path = "/jsf/delivery/noSubmissionLeft.faces";
+        }
+        else if ("noLateSubmission".equals(nextAction)){
+        	path = "/jsf/delivery/noLateSubmission.faces";
+        }
+        else if ("timeExpired".equals(nextAction)){
+        	path = "/jsf/delivery/timeExpired.faces";
+        }
         else {
         	path = "/jsf/delivery/assessmentNotAvailable.faces";
         }

@@ -103,7 +103,7 @@
                     value="#{itemauthor.currentItem.itemType}"
 	                valueChangeListener="#{itemauthor.currentItem.toggleChoiceTypes}" >
     <f:selectItem itemValue="1" itemLabel="#{commonMessages.multiple_choice_sin}" />  
-    <f:selectItem itemValue="12" itemLabel="#{commonMessages.multipl_mc_ss}" />
+    <f:selectItem itemValue="12" itemLabel="#{commonMessages.multipl_mc_ss}" /> 
     <f:selectItem itemValue="2"   itemLabel="#{commonMessages.multipl_mc_ms}" />
   </h:selectOneRadio>
 </div>
@@ -132,6 +132,22 @@
   </h:panelGroup>
   </h:panelGroup>
 </div>
+
+<!-- multiple choice, multiple selection: full or partial credit -->
+<div id="mcms_credit_toggle" class="tier3">
+  <h:panelGroup id="mcms_credit_JSF_toggle" 
+   				rendered="#{itemauthor.currentItem.itemType == 2}">
+    <h:selectOneRadio id="mcms_credit_partial_credit"
+					  layout="pageDirection"
+					  onkeypress="this.form.onsubmit();this.form.submit();"
+					  value="#{itemauthor.currentItem.mcmsPartialCredit}">
+      <f:selectItem itemValue="true" itemLabel="#{commonMessages.mutlipl_mc_ms_partial_credit}"  />
+      <f:selectItem itemValue="false" itemLabel="#{commonMessages.multipl_mc_ms_full_credit}"  />
+    </h:selectOneRadio>
+  </h:panelGroup>
+</div>
+
+
     
 <div id="discountDiv" class="longtext">
   <h:panelGroup id="discountTable"

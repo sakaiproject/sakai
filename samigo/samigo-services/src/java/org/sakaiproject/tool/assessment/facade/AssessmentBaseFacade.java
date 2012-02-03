@@ -728,7 +728,10 @@ public class AssessmentBaseFacade
    * @return
    */
   public String getAssessmentMetaDataByLabel(String label) {
-    return (String)this.assessmentMetaDataMap.get(label);
+	  if (this.assessmentMetaDataMap.get(label) == null) {
+		  return "";
+	  }
+    return (String) this.assessmentMetaDataMap.get(label);
   }
 
   /**

@@ -97,7 +97,9 @@ $Id: fullShortAnswer.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 				<f:verbatim></b></f:verbatim>	
 				</h:panelGroup>
 				<h:outputText value="#{authorMessages.mcms_whats_this_text}" escape="false"/>
-				<h:outputText value="#{authorMessages.mcms_whats_this_note}" escape="false"/>
+				<h:outputText value="#{authorMessages.mcms_whats_this_partial_text}" escape="false"/>
+				<h:outputText value="#{authorMessages.mcms_whats_this_partial_note}" escape="false"/>
+								<h:outputText value="#{authorMessages.mcms_whats_this_full_text}" escape="false"/>
 								
 				<h:outputText value="&nbsp;" escape="false"/>
 				

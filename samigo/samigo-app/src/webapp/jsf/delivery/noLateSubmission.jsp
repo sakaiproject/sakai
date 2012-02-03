@@ -32,14 +32,15 @@
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{deliveryMessages.time_expired_title}"/></title>
+      <title><h:outputText value="#{deliveryMessages.no_late_submission_title}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
 <div class="portletBody">
   <!-- content... -->
   <h3><h:outputText value="#{deliveryMessages.no_late_submission_title}"/></h3>
-  <h:outputText value="#{deliveryMessages.no_late_submission}"/>
+  <h:outputText value="#{deliveryMessages.no_late_submission}" rendered="#{delivery.actionString!='takeAssessmentViaUrl'}"/>
+  <h:outputText value="#{deliveryMessages.no_late_submission_url}" rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"/>
   <p></p>
   <h:panelGroup  rendered="#{delivery.publishedAssessment.assessmentAccessControl.dueDate!=null}">
     <h:outputLabel value="#{deliveryMessages.due_date}: " />
@@ -54,10 +55,6 @@
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
        </h:commandButton>
-
-	   <h:commandButton value="#{deliveryMessages.button_continue}" type="button" 
-	     rendered="#{delivery.actionString=='takeAssessmentViaUrl'}" style="act" onclick="javascript:window.open('#{delivery.selectURL}','_top')" onkeypress="javascript:window.open('#{delivery.selectURL}','_top')" />
-
  </p>
  </h:form>
   <!-- end content -->

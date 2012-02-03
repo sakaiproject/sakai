@@ -664,9 +664,6 @@ public class AuthorBean implements Serializable
   // "Publish" has to be show/hide depending on the question size. So we need to have two ActionList
   public ArrayList<SelectItem> getPendingSelectActionList1()
   {
-	  if (pendingActionList1 != null) {
-		  return pendingActionList1;
-	  }
 
 	  pendingActionList1 = new ArrayList<SelectItem>();
 	  ResourceLoader res = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
@@ -698,9 +695,6 @@ public class AuthorBean implements Serializable
   
   public ArrayList<SelectItem> getPendingSelectActionList2()
   {
-	  if (pendingActionList2 != null) {
-		  return pendingActionList2;
-	  }
 
 	  pendingActionList2 = new ArrayList<SelectItem>();
 	  ResourceLoader res = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
@@ -731,9 +725,6 @@ public class AuthorBean implements Serializable
 
   public ArrayList<SelectItem> getPublishedSelectActionList()
   {
-	  if (publishedActionList != null) {
-		  return publishedActionList;
-	  }
 	  ResourceLoader res = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 	  ResourceLoader com = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
 	  AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");

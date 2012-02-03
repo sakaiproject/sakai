@@ -138,12 +138,11 @@
             <artifactId>mail</artifactId>
             <version>1.4.3</version>
         </dependency>
-		<dependency>
-            <groupId>javax.servlet</groupId>
+	<dependency>
+            <groupId>javax.servlet.jsp</groupId>
             <artifactId>jsp-api</artifactId>
-            <version>2.0</version>
         </dependency>
-		<dependency>
+	<dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
             <version>1.1.2</version>

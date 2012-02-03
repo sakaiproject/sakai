@@ -189,13 +189,12 @@ public class PublishAssessmentListener
 
   private void publish(AssessmentFacade assessment,
                        AssessmentSettingsBean assessmentSettings) {
-	PublishedAssessmentService publishedAssessmentService = new
-        PublishedAssessmentService();
+	PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
     PublishedAssessmentFacade pub = null;
-    String releaseTo = null;
+
     try {
+       assessment.addAssessmentMetaData("ALIAS", assessmentSettings.getAlias());
        pub = publishedAssessmentService.publishAssessment(assessment);
-       releaseTo = pub.getAssessmentAccessControl().getReleaseTo();
        PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
        boolean sendNotification = publishRepublishNotification.getSendNotification();
        String subject = publishRepublishNotification.getNotificationSubject();
@@ -231,15 +230,14 @@ public class PublishAssessmentListener
         throw new AbortProcessingException(e);
     }
 
-    // let's check if we need a publishedUrl
-    if (releaseTo != null) {
+    // Add ALIAS if it doesn't exist
+    if ("".equals(assessment.getAssessmentMetaDataByLabel("ALIAS"))) {
       // generate an alias to the pub assessment
       String alias = assessmentSettings.getAlias();
       PublishedMetaData meta = new PublishedMetaData(pub.getData(),
           AssessmentMetaDataIfc.ALIAS, alias);
       publishedAssessmentService.saveOrUpdateMetaData(meta);
-    }
-    
+    }  
 
   }
 

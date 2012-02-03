@@ -128,6 +128,7 @@ implements ActionListener
 			return;
 		}
 		boolean isTitleChanged = isTitleChanged(assessmentSettings, assessment);
+		boolean isScoringTypeChanged = isScoringTypeChanged(assessmentSettings, assessment);
 		SaveAssessmentSettings saveAssessmentSettings = new SaveAssessmentSettings();
 		setPublishedSettings(assessmentSettings, assessment, retractNow, saveAssessmentSettings);
 		
@@ -137,7 +138,7 @@ implements ActionListener
 			return;
 		}
 
-		boolean gbUpdated = updateGB(assessmentSettings, assessment, isTitleChanged, context);
+		boolean gbUpdated = updateGB(assessmentSettings, assessment, isTitleChanged, isScoringTypeChanged, context);
 		if (!gbUpdated){
 			assessmentSettings.setOutcome("editPublishedAssessmentSettings");
 			return;
@@ -398,6 +399,18 @@ implements ActionListener
 		return false;
 	}
 	
+	// Check if scoring type has been changed. 
+	private boolean isScoringTypeChanged(PublishedAssessmentSettingsBean assessmentSettings, PublishedAssessmentFacade assessment) {
+		if (assessment.getEvaluationModel() != null && assessment.getEvaluationModel().getScoringType() != null && assessmentSettings.getScoringType() != null) {
+			Integer oldScoringType = assessment.getEvaluationModel().getScoringType();
+			String newScoringType = assessmentSettings.getScoringType().trim();
+			if (newScoringType.equals(oldScoringType.toString())) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	private void setPublishedSettings(PublishedAssessmentSettingsBean assessmentSettings, PublishedAssessmentFacade assessment, boolean retractNow, SaveAssessmentSettings saveAssessmentSettings) {
 		// Title is set in isTitleChanged()
 		assessment.setDescription(assessmentSettings.getDescription());
@@ -580,7 +593,7 @@ implements ActionListener
 		return gbError;
 	}
 
-	public boolean updateGB(PublishedAssessmentSettingsBean assessmentSettings, PublishedAssessmentFacade assessment, boolean isTitleChanged, FacesContext context) {
+	public boolean updateGB(PublishedAssessmentSettingsBean assessmentSettings, PublishedAssessmentFacade assessment, boolean isTitleChanged, boolean isScoringTypeChanged, FacesContext context) {
 		//#3 - add or remove external assessment to gradebook
 		// a. if Gradebook does not exists, do nothing, 'cos setting should have been hidden
 		// b. if Gradebook exists, just call addExternal and removeExternal and swallow any exception. The
@@ -601,10 +614,13 @@ implements ActionListener
 				evaluation.setAssessmentBase(assessment.getData());
 			}
 			
+			String assessmentName = "";
+			boolean gbItemExists = false;
 			try{
-				String assessmentName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getTitle().trim());
+				assessmentName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getTitle().trim());
+				gbItemExists = gbsHelper.isAssignmentDefined(assessmentName, g);
 				if (assessmentSettings.getToDefaultGradebook()!=null && assessmentSettings.getToDefaultGradebook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString()) &&
-						gbsHelper.isAssignmentDefined(assessmentName, g)){
+						gbItemExists && isTitleChanged){
 					String gbConflict_error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
 					context.addMessage(null,new FacesMessage(gbConflict_error));
 					return false;
@@ -627,7 +643,7 @@ implements ActionListener
 			Integer scoringType = evaluation.getScoringType();
 			if (evaluation.getToGradeBook()!=null && 
 					evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())){
-				if (isTitleChanged) {
+				if (isTitleChanged || isScoringTypeChanged) {
 					// Because GB use title instead of id, we remove and re-add to GB if title changes.
 					try {
 						log.debug("before gbsHelper.removeGradebook()");
@@ -637,50 +653,59 @@ implements ActionListener
 						log.info("Exception thrown in updateGB():" + e1.getMessage());
 					}
 				}
-
-				try{
-					log.debug("before gbsHelper.addToGradebook()");
-					gbsHelper.addToGradebook((PublishedAssessmentData)assessment.getData(), g);
-					
-					// any score to copy over? get all the assessmentGradingData and copy over
-					GradingService gradingService = new GradingService();
-
-					// need to decide what to tell gradebook
-					List list = null;
-
-					if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)){
-						list = gradingService.getHighestSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
-					}
-					else {
-						list = gradingService.getLastSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
-					}
-
-					//ArrayList list = gradingService.getAllSubmissions(assessment.getPublishedAssessmentId().toString());
-					log.debug("list size =" + list.size()	);
-					for (int i=0; i<list.size();i++){
-						try {
-							AssessmentGradingData ag = (AssessmentGradingData)list.get(i);
-							log.debug("ag.scores " + ag.getTotalAutoScore());
-							// Send the average score if average was selected for multiple submissions
-							if (scoringType.equals(EvaluationModelIfc.AVERAGE_SCORE)) {							
-								// status = 5: there is no submission but grader update something in the score page
-								if(ag.getStatus() ==5) {
-									ag.setFinalScore(ag.getFinalScore());
-								} else {
-									Float averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-									getAverageSubmittedAssessmentGrading(Long.valueOf(assessment.getPublishedAssessmentId()), ag.getAgentId());
-									ag.setFinalScore(averageScore);
-								}
-							}
-							gbsHelper.updateExternalAssessmentScore(ag, g);
-						}
-						catch (Exception e) {
-							log.warn("Exception occues in " + i + "th record. Message:" + e.getMessage());
-						}
+				
+				if(gbItemExists && !(isTitleChanged || isScoringTypeChanged)){
+					try {
+						gbsHelper.updateGradebook(assessment, g);
+					} catch (Exception e) {
+						log.warn("Exception thrown in updateGB():" + e.getMessage());
 					}
 				}
-				catch(Exception e){
-					log.warn("oh well, must have been added already:"+e.getMessage());
+				else{
+					try{
+						log.debug("before gbsHelper.addToGradebook()");
+						gbsHelper.addToGradebook((PublishedAssessmentData)assessment.getData(), g);
+
+						// any score to copy over? get all the assessmentGradingData and copy over
+						GradingService gradingService = new GradingService();
+
+						// need to decide what to tell gradebook
+						List list = null;
+
+						if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)){
+							list = gradingService.getHighestSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
+						}
+						else {
+							list = gradingService.getLastSubmittedOrGradedAssessmentGradingList(assessment.getPublishedAssessmentId());
+						}
+
+						//ArrayList list = gradingService.getAllSubmissions(assessment.getPublishedAssessmentId().toString());
+						log.debug("list size =" + list.size()	);
+						for (int i=0; i<list.size();i++){
+							try {
+								AssessmentGradingData ag = (AssessmentGradingData)list.get(i);
+								log.debug("ag.scores " + ag.getTotalAutoScore());
+								// Send the average score if average was selected for multiple submissions
+								if (scoringType.equals(EvaluationModelIfc.AVERAGE_SCORE)) {							
+									// status = 5: there is no submission but grader update something in the score page
+									if(ag.getStatus() ==5) {
+										ag.setFinalScore(ag.getFinalScore());
+									} else {
+										Float averageScore = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+										getAverageSubmittedAssessmentGrading(Long.valueOf(assessment.getPublishedAssessmentId()), ag.getAgentId());
+										ag.setFinalScore(averageScore);
+									}
+								}
+								gbsHelper.updateExternalAssessmentScore(ag, g);
+							}
+							catch (Exception e) {
+								log.warn("Exception occues in " + i + "th record. Message:" + e.getMessage());
+							}
+						}
+					}
+					catch(Exception e){
+						log.warn("oh well, must have been added already:"+e.getMessage());
+					}
 				}
 			}
 			else{ //remove

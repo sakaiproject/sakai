@@ -225,23 +225,6 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		log.debug("******* published metadata set" + publishedMetaDataSet);
 		publishedAssessment.setAssessmentMetaDataSet(publishedMetaDataSet);
 
-		// let's check if we need a publishedUrl
-		String releaseTo = publishedAccessControl.getReleaseTo();
-		if (releaseTo != null) {
-			boolean anonymousAllowed = ((releaseTo)
-					.indexOf(AuthoringConstantStrings.ANONYMOUS) > -1);
-			if (anonymousAllowed) {
-				// generate an alias to the pub assessment
-				String alias = AgentFacade.getAgentString()
-						+ (new Date()).getTime();
-				PublishedMetaData meta = new PublishedMetaData(
-						publishedAssessment, "ALIAS", alias);
-				publishedMetaDataSet.add(meta);
-				publishedAssessment
-						.setAssessmentMetaDataSet(publishedMetaDataSet);
-			}
-		}
-
 		// IPAddress
 		Set publishedIPSet = preparePublishedSecuredIPSet(publishedAssessment,
 				a.getSecuredIPAddressSet());
@@ -1677,6 +1660,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			PublishedAssessmentData p = (PublishedAssessmentData) l.get(0);
 			p.setSectionSet(getSectionSetForAssessment(p));
 			PublishedAssessmentFacade f = new PublishedAssessmentFacade(p);
+			f.setFeedbackComponentOption(p.getAssessmentFeedback().getFeedbackComponentOption());
 			return f;
 		} else {
 			return null;
@@ -1863,8 +1847,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 
 		//final String key = SectionDataIfc.AUTHOR_TYPE;
 		//final String value = SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString();
-		final String query2 = "select s from PublishedAssessmentData p, PublishedSectionData s, PublishedSectionMetaData m "
-				+ " where p.publishedAssessmentId=? and s = m.section and "
+		final String query2 = "select s from PublishedAssessmentData p, PublishedSectionData s "
+				+ " where p.publishedAssessmentId=? and "
 				+ " p.publishedAssessmentId=s.assessment.publishedAssessmentId ";
 
 		final HibernateCallback hcb2 = new HibernateCallback() {
