@@ -216,10 +216,8 @@
 		</td>
 		<td>
 			<span class="instruction">
-				<span class="rosterRoleTopLine">${participants}</span><br />
-				<span class="rosterRoleBottomLine">
-				{for frag in roleFragments}${frag}{/for}
-				</span>
+				<div class="rosterRoleTopLine">${participants}</div>
+				<div class="rosterRoleBottomLine">({for frag in roleFragments}${frag}{/for})</div>
 			</span>
 		</td>
 	</tr>
@@ -284,10 +282,8 @@
 			</td>
 			<td>
 				<span class="instruction">
-					<span class="rosterRoleTopLine">${participants}</span><br />
-					<span class="rosterRoleBottomLine">
-					{for frag in roleFragments}${frag}{/for}
-					</span>
+					<div class="rosterRoleTopLine">${participants}</div>
+					<div class="rosterRoleBottomLine">({for frag in roleFragments}${frag}{/for})</div>
 				</span>
 			</td>
 		</tr>
@@ -314,7 +310,7 @@
 			</td>
 			<td>
 				<span class="instruction">
-					<span class ="rosterRoleTopLine">${students}</span>
+					<div class ="rosterRoleTopLine">${students}</div>
 				</span>
 			</td>
 		</tr>
@@ -325,10 +321,8 @@
 
 <div id="roster_participants_template" style="display:none"><!--
 <span class="instruction">
-	<span class="rosterRoleTopLine">${participants}</span><br />
-	<span class="rosterRoleBottomLine">
-	{for frag in roleFragments}${frag}{/for}
-	</span>
+	<div class="rosterRoleTopLine">${participants}</div>
+	<div class="rosterRoleBottomLine">({for frag in roleFragments}${frag}{/for})</div>
 </span>
 -->
 </div>
@@ -611,10 +605,8 @@
 						<td><h3>${siteGroup.title}</h3></td>
 						<td>
 							<div class="instruction rosterRoleGrouped">
-								<span class="rosterRoleTopLineGrouped">${rolesText[siteGroup.id].participants}</span><br />
-								<span class="rosterRoleBottomLineGrouped">
-									{for role in rolesText[siteGroup.id].roles}${role.frag}{/for}
-								</span>
+								<div class="rosterRoleTopLineGrouped">${rolesText[siteGroup.id].participants}</div>
+								<div class="rosterRoleBottomLineGrouped">({for role in rolesText[siteGroup.id].roles}${role.frag}{/for})</div>
 							</div>
 						</td>
 						</tr>
