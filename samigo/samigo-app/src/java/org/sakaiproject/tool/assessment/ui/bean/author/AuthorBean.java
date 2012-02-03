@@ -725,9 +725,6 @@ public class AuthorBean implements Serializable
 
   public ArrayList<SelectItem> getPublishedSelectActionList()
   {
-	  if (publishedActionList != null) {
-		  return publishedActionList;
-	  }
 	  ResourceLoader res = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 	  ResourceLoader com = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
 	  AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
