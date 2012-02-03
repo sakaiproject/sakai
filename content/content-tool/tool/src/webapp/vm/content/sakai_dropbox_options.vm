@@ -37,14 +37,14 @@
 		</h4>
 		
 		<p class="checkbox  indnt2">
-			<input type="radio" name="$!name_dropbox_instructor_notifications" id="sendnotif" value="$!value_dropbox_instructor_notifications_always" #if($!value_dropbox_instructor_notifications.equals($!value_dropbox_instructor_notifications_always))checked="checked" #end />
-			<label for="sendnotif">$tlang.getString('receive.confirm.dropbox.email.always')</label>
+			<input type="radio" name="$!name_dropbox_instructor_notifications" id="alwaysnotify" value="$!value_dropbox_instructor_notifications_always" #if($!value_dropbox_instructor_notifications.equals($!value_dropbox_instructor_notifications_always))checked="checked" #end />
+			<label for="alwaysnotify">$tlang.getString('receive.confirm.dropbox.email.always')</label>
 			<br/>
-			<input type="radio" name="$!name_dropbox_instructor_notifications" id="sendnotif" value="$!value_dropbox_instructor_notifications_allow" #if($!value_dropbox_instructor_notifications.equals($!value_dropbox_instructor_notifications_allow))checked="checked" #end />
-			<label for="sendnotif">$tlang.getString('receive.confirm.dropbox.email.allow')</label>
+			<input type="radio" name="$!name_dropbox_instructor_notifications" id="allownotify" value="$!value_dropbox_instructor_notifications_allow" #if($!value_dropbox_instructor_notifications.equals($!value_dropbox_instructor_notifications_allow))checked="checked" #end />
+			<label for="allownotify">$tlang.getString('receive.confirm.dropbox.email.allow')</label>
 			<br/>
-			<input type="radio" name="$!name_dropbox_instructor_notifications" id="notsendnotif" value="$!value_dropbox_instructor_notifications_none" #if($!value_dropbox_instructor_notifications.equals($!value_dropbox_instructor_notifications_none))checked="checked" #end />
-			<label for="notsendnotif">$tlang.getString('receive.confirm.dropbox.email.none')</label>
+			<input type="radio" name="$!name_dropbox_instructor_notifications" id="nonotify" value="$!value_dropbox_instructor_notifications_none" #if($!value_dropbox_instructor_notifications.equals($!value_dropbox_instructor_notifications_none))checked="checked" #end />
+			<label for="nonotify">$tlang.getString('receive.confirm.dropbox.email.none')</label>
 		</p>
 		
 		<p class="act">
