@@ -47,6 +47,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.validator.EmailValidator;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
@@ -318,9 +319,6 @@ public class PrivateMessagesTool
   public static final String SORT_ATTACHMENT_DESC = "attachment_desc";
   
   private boolean selectedComposedlistequalCurrentuser=false;
-  //simplified RFC 2822 standard for email address.
-  private static final Pattern VALID_EMAIL_PATTERN_MATCH = Pattern.compile("[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?");
-  
   
   /** sort member */
   private String sortType = SORT_DATE_DESC;
@@ -3705,11 +3703,8 @@ private   int   getNum(char letter,   String   a)
     String sendEmailOut=getSendEmailOut();
     String activate=getActivatePvtMsg() ;
     String forward=getForwardPvtMsg() ;
-    Matcher emailMatcher = null;
-    if(email != null)
-    	emailMatcher = VALID_EMAIL_PATTERN_MATCH.matcher(email);
-    
-    if (email != null && (!SET_AS_NO.equals(forward)) && emailMatcher != null && (!emailMatcher.matches())){
+    if (email != null && (!SET_AS_NO.equals(forward)) 
+            && EmailValidator.getInstance().isValid(email) ) {
       setValidEmail(false);
       setErrorMessage(getResourceBundleString(PROVIDE_VALID_EMAIL));
       setActivatePvtMsg(activate);
