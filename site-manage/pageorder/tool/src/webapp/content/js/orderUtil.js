@@ -19,25 +19,23 @@ function serialize(s)
 		window.onbeforeunload = function() { };
 	}
 	
-	serial = $.SortSerialize(s);
+	var order = "";
+    $('ul.sortable').children('li').each(function(idx, elm) {
+      order += elm.id.split(':')[3] + " ";
+    });       
 	
-	//TODO: replace regexp stuff with a new hidden id item
-	var pageOrder = serial.hash;
-	pageOrder = pageOrder.replace(/:&sort1\[\]=content::page-row:/g, ' ');
-	pageOrder = pageOrder.replace('sort1[]=content::page-row:', '');
-	pageOrder = pageOrder.substring(0, pageOrder.length - 1);
-
-	document.getElementById('content::state-init').value = pageOrder;
+	document.getElementById('content::state-init').value = order;
 }
 
 function doRemovePage(clickedLink) {
 	var name = $(clickedLink).parent().parent().find(".item_label_box").text();
 	var conf = confirm($("#del-message").text() + " " + name + "?");
+	var theHref = $(clickedLink).attr('href');
 
 	if (conf == true) {
 		$("#call-results").fadeOut('400');
-		$("#call-results").load(clickedLink, function() {
-			var status = $(this).find("div[@id='value']").text();
+		$("#call-results").load(theHref, function() {
+			var status = $(this).find("div#value").text();
 			if (status == "pass") {
 		    	var target = $(clickedLink).parent().parent();
 				$(this).fadeIn('400');		
@@ -55,20 +53,18 @@ function doRemovePage(clickedLink) {
 
 // When we show a page, it is automatically enabled if it was not before
 function doShowPage(clickedLink) {
-		$(clickedLink).parent().parent().find(".item_control.show_link").hide();
-		$(clickedLink).parent().parent().find(".indicator").show();
+		var theHref = $(clickedLink).attr('href');
 		$("#call-results").fadeOut('10');
-		$("#call-results").load(clickedLink, function() {
+		$("#call-results").load(theHref, function() {
 			var status = $("#call-results").find("#value").text();
-			$(clickedLink).parent().parent().find(".indicator").hide();				
 			if (status == "pass") {
+				$(clickedLink).parent().parent().find(".item_control.show_link").hide();
 				$(clickedLink).parent().parent().find(".item_control.enable_link").hide();
 				$(clickedLink).parent().parent().find(".item_control.disable_link").show();
 				$(clickedLink).parent().parent().find(".item_control.hide_link").show();
 				$("#call-results").fadeIn('400');
 			}
 			else if (status == "fail") {
-				$(clickedLink).parent().parent().find(".item_control.show_link").show();
 				$("#call-results").fadeIn('400');
 			}
 	  	});
@@ -76,18 +72,16 @@ function doShowPage(clickedLink) {
 
 // When we hide a page - it has no effect on enable/disable
 function doHidePage(clickedLink) {
-		$(clickedLink).parent().parent().find(".item_control.hide_link").hide();
-		$(clickedLink).parent().parent().find(".indicator").show();
+		var theHref = $(clickedLink).attr('href');
 		$("#call-results").fadeOut('10');
-		$("#call-results").load(clickedLink, function() {
+		$("#call-results").load(theHref, function() {
 			var status = $("#call-results").find("#value").text();
-			$(clickedLink).parent().parent().find(".indicator").hide();				
 			if (status == "pass") {
+				$(clickedLink).parent().parent().find(".item_control.hide_link").hide();
 				$(clickedLink).parent().parent().find(".item_control.show_link").show();
 				$("#call-results").fadeIn('400');
 			}
 			else if (status == "fail") {
-				$(clickedLink).parent().parent().find(".item_control.hide_link").show();
 				$("#call-results").fadeIn('400');
 			}
 	  	});
@@ -95,13 +89,12 @@ function doHidePage(clickedLink) {
 
 // When we enable a page, we mark it visible automatically
 function doEnablePage(clickedLink) {
-		$(clickedLink).parent().parent().find(".item_control.enable_link").hide();
-		$(clickedLink).parent().parent().find(".indicator").show();
+		var theHref = $(clickedLink).attr('href');
 		$("#call-results").fadeOut('10');
-		$("#call-results").load(clickedLink, function() {
+		$("#call-results").load(theHref, function() {
 			var status = $("#call-results").find("#value").text();
-			$(clickedLink).parent().parent().find(".indicator").hide();				
 			if (status == "pass") {
+				$(clickedLink).parent().parent().find(".item_control.enable_link").hide();
 				$(clickedLink).parent().parent().find(".item_control.disable_link").show();
 				$(clickedLink).parent().parent().find(".item_control.show_link").hide();
 				$(clickedLink).parent().parent().find(".item_control.hide_link").show();
@@ -109,7 +102,6 @@ function doEnablePage(clickedLink) {
 				$("#call-results").fadeIn('400');
 			}
 			else if (status == "fail") {
-				$(clickedLink).parent().parent().find(".item_control.enable_link").show();
 				$("#call-results").fadeIn('400');
 			}
 	  	});
@@ -117,27 +109,26 @@ function doEnablePage(clickedLink) {
 
 // When we disable a page, it is also not visible
 function doDisablePage(clickedLink) {
-		$(clickedLink).parent().parent().find(".item_control.disable_link").hide();
-		$(clickedLink).parent().parent().find(".indicator").show();
+		var theHref = $(clickedLink).attr('href');
 		$("#call-results").fadeOut('10');
-		$("#call-results").load(clickedLink, function() {
+		$("#call-results").load(theHref, function() {
 			var status = $("#call-results").find("#value").text();
-			$(clickedLink).parent().parent().find(".indicator").hide();				
 			if (status == "pass") {
+				$(clickedLink).parent().parent().find(".item_control.disable_link").hide();
 				$(clickedLink).parent().parent().find(".item_control.enable_link").show();
 				$(clickedLink).parent().parent().find(".item_control.hide_link").hide();
 				$(clickedLink).parent().parent().find(".item_control.show_link").show();
 				$("#call-results").fadeIn('400');
 			}
 			else if (status == "fail") {
-				$(clickedLink).parent().parent().find(".item_control.disable_link").show();
 				$("#call-results").fadeIn('400');
 			}
 	  	});
 }
 
 function doEditPage(clickedLink) {
-	$("#call-results").load(clickedLink, function() {
+	var theHref = $(clickedLink).attr('href');
+	$("#call-results").load(theHref, function() {
 		var status = $("#call-results").find("#value").text();
 		if (status == "pass") {
 	    	var target = document.getElementById('content::page-row:' + $("#call-results").find("#pageId").text() + ':');
@@ -151,12 +142,13 @@ function doEditPage(clickedLink) {
 }
 
 function showAddPage(clickedLink, init) {
+	var theHref = $(clickedLink).attr('href');
 	if (init) {
 		$("#add-control").hide();
 		$("#list-label").show();
 		$(".tool_list").css("border", "1px solid #ccc");
 	}
-	$("#add-panel").fadeOut(1, $("#add-panel").load(clickedLink, function() {
+	$("#add-panel").fadeOut(1, $("#add-panel").load(theHref, function() {
 		$("#call-results").fadeOut(200, function() {
 			$("#call-results").html($("#add-panel").find("#message").html());
 			$("#add-panel").fadeIn(200, $("#call-results").fadeIn(200, resetFrame()));
@@ -176,6 +168,7 @@ function showEditPage(clickedLink) {
 }
 
 function doSaveEdit(clickedLink) {
+	var theHref = $(clickedLink).attr('href');
 	li = $(clickedLink).parent().parent();
 	newTitle = $(li).find(".new_title");
 	newConfig = $(li).find(".new_config");
@@ -193,7 +186,6 @@ function doSaveEdit(clickedLink) {
 			$(li).find(".item_control_box").attr("style", "display: inline");
 			$(li).addClass("sortable_item");
 			$(li).removeClass("editable_item");
-			makeSortable($(li).parent());
 		}
   	});
 }
@@ -208,7 +200,6 @@ function doCancelEdit(clickedLink) {
 	$(li).addClass("sortable_item");
 	$(li).removeClass("editable_item");
 	$(li).find(".new_title").val($(li).find(".item_label_box").text());
-	makeSortable($(li).parent());
 }
 
 function checkReset() {
@@ -219,46 +210,6 @@ function checkReset() {
 		return false;
 }
 				
-function makeSortable(path) {
-	$(path).Sortable( {
-		accept :        'sortable_item',
-		activeclass :   'sortable_active',
-		hoverclass :    'sortable_hover',
-		helperclass :   'sort_helper',
-		opacity:        0.8,
-		revert:	        true,
-		tolerance:      'intersect',
-		axis:           'vertically',
-		domNode:        $(path).get(0),
-		onStop:	        function () {
-			if (serializationChanged == false) {
-				serializationChanged = true;
-				
-				//Makes the assumption that it is ok to over write the onbeforeexit event on top
-				//which is a safe assumption *most* of the time and it's only needed for Safari
-				if (navigator.userAgent.toLowerCase().indexOf("safari") != -1 && window != top) {
-					top.pageOrderExitMessage = $("#exit-message").text();
-					top.onbeforeunload = function() { return top.pageOrderExitMessage };
-				}
-				else {
-					window.onbeforeunload = function() { return $("#exit-message").text(); };
-				}
-			}
-		}
-	});
-}
-
-function makeDraggable(path) {
-	$(path).Draggable( {
-		revert : true,
-		onStop: function () {
-			if ($(this).parent().attr('id') == 'sort1') {
-				addTool($(this), false);
-			}
-		}
-	});
-}
-
 function addTool(draggable, manual) {
 	if (manual == true) {
 		// we got fired via the add link not a drag and drop..
@@ -278,7 +229,6 @@ function addTool(draggable, manual) {
 		$(li).id("content::" + $("#call-results").find("li").id());
 		$(li).html($("#call-results").find("li").html());
 		$(this).find("li").remove();
-		makeSortable($(li).parent());
 		$("#call-results").fadeIn('200', resetFrame());
 	});
 	return false;

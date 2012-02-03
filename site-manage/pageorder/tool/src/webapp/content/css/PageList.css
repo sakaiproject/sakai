@@ -10,10 +10,9 @@ ul.not_sortabl
 }
 ul.sortable
 {
-	width: 320px;
+	width: 330px;
 	list-style: none;
-	margin: 4px;
-	padding: 6px;
+	padding: 0;
 }
 ul.sortable a
 {
@@ -21,10 +20,9 @@ ul.sortable a
 } 
 li.sortable_item
 {
-	cursor: move;
-	width: 100%;
-	margin: 2px;
-	padding: 4px;
+	width: 325px;
+	margin: 5px 0;
+	padding: 5px 0 5px 5px;
 	border: 1px solid #666;
 }
 li.editable_item
@@ -36,7 +34,6 @@ li.editable_item
 }
 li.sortable_active
 {
-	cursor: move;
 	width: 100%;
 	margin: 2px;
 	padding: 4px;
@@ -45,7 +42,6 @@ li.sortable_active
 }
 li.sortable_hover
 {
-	cursor: move;
 	width: 100%;
 	margin: 2px;
 	padding: 4px;
@@ -70,17 +66,9 @@ li.sortable_hover
 	display: inline;
 	width: 245px;
 }
-a.item_control, a.tool_add_url
-{
-	cursor: pointer;
-}
 .hidden
 {
 	display: none;
-}
-.tool_list
-{
-	padding: 10px;
 }
 .option_list
 {
@@ -105,4 +93,11 @@ a.item_control, a.tool_add_url
 	width: 360px;
 	padding: 5px;
 	vertical-align: top;	
+}
+
+.fl-reorderer-movable-hover{
+    background-color: #bea;
+}
+.alertMessageContainer {
+	height: 60px;
 }

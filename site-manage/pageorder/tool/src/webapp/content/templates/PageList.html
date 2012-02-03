@@ -6,14 +6,9 @@
 	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
 	<link href="../css/PageList.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" rsf:id="resize"/>
-	<script type="text/javascript" src="/library/js/lib/jquery-1.1.2.js"></script>
-	<script type="text/javascript" src="../js/jquery/iutil.js" rsf:id="scr=rewrite-url"></script>
-	<script type="text/javascript" src="../js/jquery/idrag.js" rsf:id="scr=rewrite-url"></script>
-	<script type="text/javascript" src="../js/jquery/idrop.js" rsf:id="scr=rewrite-url"></script>
-	<script type="text/javascript" src="../js/jquery/isortables.js" rsf:id="scr=rewrite-url"></script>
-	<script type="text/javascript" src="../js/jquery/ikey.js" rsf:id="scr=rewrite-url"></script>
+	<script type="text/javascript" src="/library/js/fluid/1.4/MyInfusion.js"></script>
 	<script type="text/javascript" src="../js/orderUtil.js" rsf:id="scr=rewrite-url"></script>
-	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+	<script type="text/javascript" src="/library/js/headscripts.js"></script>
 </head>
 
 <body>
@@ -21,8 +16,10 @@
 		<a href="#" rsf:id="redirect">go back</a>
 		<div rsf:id="content:">
 			<h3 rsf:id="msg=page_title">page_title</h3>
-			<div class="alertMessage" id="call-results">
-				<span rsf:id="msg=welcome">Note: Changes to page ordering will not take effect until you click 'Save'. Deleting, Adding or Editing a Page is saved immediately</span>
+			<div class="alertMessageContainer">
+				<div class="alertMessage" id="call-results">
+					<span rsf:id="msg=welcome">Note: Changes to page ordering will not take effect until you click 'Save'. Deleting, Adding or Editing a Page is saved immediately</span>
+				</div>
 			</div>
 			<form rsf:id="pages-form" class="order_action_form">
 	 			<table id="page-list">
@@ -92,7 +89,14 @@
 		</div>
 	</div>
 	<script type="text/javascript">
-		makeSortable('ul.sortable');	
+jQuery(document).ready(function () {
+    var opts = {
+        selectors: {
+            movables: ".sortable_item"
+        }
+    };
+    return fluid.reorderList("ul#sort1", opts);
+});
 	</script>
 </body>
 </html>
