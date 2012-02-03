@@ -355,7 +355,7 @@ document.links[newindex].onclick();
             <%@ include file="/jsf/delivery/item/deliverMatching.jsp" %>
            </f:subview>
           </h:panelGroup>
-          <h:panelGroup rendered="#{question.itemData.typeId == 14}"><!-- // CALCULATED_QUESTION -->
+          <h:panelGroup rendered="#{question.itemData.typeId == 15}"><!-- // CALCULATED_QUESTION -->
            <f:subview id="deliverCalculatedQuestion">
             <%@ include file="/jsf/delivery/item/deliverCalculatedQuestion.jsp" %>
            </f:subview>

@@ -269,7 +269,7 @@ public class ItemModifyListener implements ActionListener
                 	    itemauthorbean.setItemTypeString("Matrix Choices Survey");  //  need to get it from properties file
                 	    nextpage = "matrixChoicesSurveyItem";
                 	    break;
-                case 14: // CALCULATED_QUESTION
+                case 15: // CALCULATED_QUESTION
                     itemauthorbean.setItemTypeString("Calculated Question");  //  need to get it from properties file
                     MatchItemBean variableItem = new MatchItemBean();
                     bean.setCurrentMatchPair(variableItem);

@@ -347,7 +347,7 @@ document.links[newindex].onclick();
      <h:outputText rendered="#{question.itemData.typeId== 9}" value=" #{authorMessages.matching}"/>
      <h:outputText rendered="#{question.itemData.typeId== 7}" value=" #{authorMessages.audio_recording}"/>
      <h:outputText rendered="#{question.itemData.typeId== 6}" value=" #{authorMessages.file_upload}"/>
-     <h:outputText rendered="#{question.itemData.typeId== 14}" value=" #{authorMessages.calculated_question}"/><!-- CALCULATED_QUESTION -->
+     <h:outputText rendered="#{question.itemData.typeId== 15}" value=" #{authorMessages.calculated_question}"/><!-- CALCULATED_QUESTION -->
 
      <h:outputText value=" #{authorMessages.dash} " />
      <h:inputText id="answerptr" value="#{question.updatedScore}" required="true" size="6" onkeydown="inIt()" onchange="toPoint(this.id);" rendered="#{question.itemData.typeId!= 3}">
@@ -428,7 +428,7 @@ document.links[newindex].onclick();
             <%@ include file="/jsf/author/preview_item/MatrixChoicesSurvey.jsp" %>
           </h:panelGroup>
 
-          <h:panelGroup rendered="#{question.itemData.typeId == 14}"><!-- CALCULATED_QUESTION -->
+          <h:panelGroup rendered="#{question.itemData.typeId == 15}"><!-- CALCULATED_QUESTION -->
                 <%@ include file="/jsf/author/preview_item/CalculatedQuestion.jsp" %>
           </h:panelGroup>          
 <f:verbatim> </div></f:verbatim>

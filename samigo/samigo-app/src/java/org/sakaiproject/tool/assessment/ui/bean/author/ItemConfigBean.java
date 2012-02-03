@@ -316,7 +316,7 @@ if (showFillInNumeric)
       list.add(new SelectItem("10", getResourceDisplayName("import_from_q")));
 
     if (showCalculatedQuestion)
-        list.add(new SelectItem("14", getResourceDisplayName("calculated_question"))); // CALCULATED_QUESTION
+        list.add(new SelectItem("15", getResourceDisplayName("calculated_question"))); // CALCULATED_QUESTION
 
     if (isSelectFromQuestionBank()) {
     	// Check if the question bank tool is installed and not stealthed or hidden

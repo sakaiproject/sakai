@@ -142,7 +142,7 @@
             <%@ include file="/jsf/author/preview_item/MatrixChoicesSurvey.jsp" %>
           </h:panelGroup>
 
-          <h:panelGroup rendered="#{question.itemData.typeId == 14}"><!-- // CALCULATED_QUESTION -->
+          <h:panelGroup rendered="#{question.itemData.typeId == 15"><!-- // CALCULATED_QUESTION -->
             <%@ include file="/jsf/author/preview_item/CalculatedQuestion.jsp" %>
           </h:panelGroup>
 

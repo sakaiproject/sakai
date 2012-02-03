@@ -1115,10 +1115,10 @@ public class GradingService
                 totalItems.put(itemId, Float.valueOf(accumelateScore));
               }
               break;
-      case 14:  // CALCULATED_QUESTION
+      case 15:  // CALCULATED_QUESTION
       case 11: // FIN
     	  try {
-    	      if (type == 14) {  // CALCULATED_QUESTION
+    	      if (type == 15) {  // CALCULATED_QUESTION
 	              HashMap calculatedAnswersMap = getCalculatedAnswersMap(itemGrading, item);
 	              int numAnswers = calculatedAnswersMap.size();
 	              autoScore = getCalcQScore(itemGrading, item, calculatedAnswersMap, calcQuestionAnswerSequence ) / (float) numAnswers;

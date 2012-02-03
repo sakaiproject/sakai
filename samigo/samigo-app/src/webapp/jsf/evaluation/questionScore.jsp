@@ -204,7 +204,7 @@ function toPoint(id)
      <h:panelGroup rendered="#{questionScores.typeId == '12'}">
     <h:outputText value="#{evaluationMessages.question}#{question.sequence} - #{commonMessages.multipl_mc_ss}"/>
       </h:panelGroup>
-    <h:panelGroup rendered="#{questionScores.typeId == '14'}"><!-- // CALCULATED_QUESTION -->
+    <h:panelGroup rendered="#{questionScores.typeId == '15'}"><!-- // CALCULATED_QUESTION -->
       <h:outputText value="#{evaluationMessages.question}#{question.sequence} - #{evaluationMessages.q_cq}"/>
     </h:panelGroup>
  </h:column>
@@ -275,7 +275,7 @@ function toPoint(id)
     <%@ include file="/jsf/evaluation/item/displayMatrixSurvey.jsp" %>
     </f:subview>
   </h:panelGroup>
-  <h:panelGroup rendered="#{questionScores.typeId == '14'}"><!-- // CALCULATED_QUESTION -->
+  <h:panelGroup rendered="#{questionScores.typeId == '15'}"><!-- // CALCULATED_QUESTION -->
     <f:subview id="calculatedQuestion">
     <%@ include file="/jsf/evaluation/item/displayCalculatedQuestion.jsp" %>
     </f:subview>

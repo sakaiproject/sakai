@@ -218,7 +218,7 @@ log.debug("after getting item.getItemType() ");
       			item.setMatchItemBeanList(new ArrayList());
                         nextpage = "matchingItem";
                         break;
-                case 14: // CALCULATED_QUESTION
+                case 15: // CALCULATED_QUESTION
                     CalculatedQuestionBean bean = new CalculatedQuestionBean();
                     item.setCalculatedQuestion(bean);
                     nextpage = "calculatedQuestionVariableItem";

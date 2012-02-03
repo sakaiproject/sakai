@@ -691,7 +691,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 			}
 			break;			
 		case 8: // FIB
-		case 14: // CALCULATED_QUESTION
+		case 15: // CALCULATED_QUESTION
 		case 11: // FIN
 			boolean addedToAdds = false;
 			for (int m = 0; m < grading.size(); m++) {
