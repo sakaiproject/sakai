@@ -74,6 +74,9 @@ public class SeqNavRequests {
 	/**
 	 * Enumeration of possible navigation requests -- described in Navigation
 	 * Behavior (Section NB of the IMS SS Specification).
+	 * <p>
+	 * This event indicates a desire to identify the first or “starting” activity available in the activity tree. This event is typically generated automatically by the LMS when the learner begins a new attempt on the root activity of the activity tree.
+	 * </p>
 	 * <br>Start
 	 * <br><b>1</b>
 	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
@@ -82,6 +85,9 @@ public class SeqNavRequests {
 
 	/**
 	 * Enumeration of possible navigation requests -- described in Navigation
+	 * <p>
+	 * ￼￼￼This event indicates a desire to resume a previously suspended attempt on the root activity of the activity tree. This event is typically generated automatically by the LMS when the learner resumes a previously suspended attempt on an activity tree.
+	 * </p>
 	 * Behavior (Section NB of the IMS SS Specification).
 	 * <br>Resume All
 	 * <br><b>2</b>
@@ -91,6 +97,9 @@ public class SeqNavRequests {
 
 	/**
 	 * Enumeration of possible navigation requests -- described in Navigation
+	 * <p>
+	 * This event indicates a desire to identify the “next” (in relation to the Current Activity) logical learning activity available in the activity tree.
+	 * </p>
 	 * Behavior (Section NB of the IMS SS Specification).
 	 * <br>Continue
 	 * <br><b>3</b>
@@ -100,6 +109,9 @@ public class SeqNavRequests {
 
 	/**
 	 * Enumeration of possible navigation requests -- described in Navigation
+	 * <p>
+	 * This event indicates a desire to identify the “previous” (in relation to the current activity) logical learning activity available in the activity tree.
+	 * </p>
 	 * Behavior (Section NB of the IMS SS Specification).
 	 * <br>Previous
 	 * <br><b>4</b>
@@ -110,6 +122,9 @@ public class SeqNavRequests {
 	/**
 	 * Enumeration of possible navigation requests -- described in Navigation
 	 * Behavior (Section NB of the IMS SS Specification).
+	 * ￼<p>
+	 * ￼The current attempt on the current activity is terminated abnormally and the activity is not complete. The attempt may not be resumed. There is no rollback of any tracking data.
+	 * </p>
 	 * <br>Abandon
 	 * <br><b>5</b>
 	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
@@ -119,6 +134,11 @@ public class SeqNavRequests {
 	/**
 	 * Enumeration of possible navigation requests -- described in Navigation
 	 * Behavior (Section NB of the IMS SS Specification).
+	 * 
+	 * ￼<p>
+	 * The current attempts on the active activities (from the root to the current activity, inclusive) are terminated abnormally and the activities are not complete. Attempts on any abandoned activity may not be resumed. There is no rollback of any tracking data.
+	 * </p>
+	 * 
 	 * <br>AbandonAll
 	 * <br><b>6</b>
 	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
@@ -128,6 +148,10 @@ public class SeqNavRequests {
 	/**
 	 * Enumeration of possible navigation requests -- described in Navigation
 	 * Behavior (Section NB of the IMS SS Specification).
+	 * 
+	 * ￼<p>
+	 * The current attempts on the active activities (from the root to the current activity, inclusive) are terminated normally; the attempts are over.
+	 * 
 	 * <br>SuspendAll
 	 * <br><b>7</b>
 	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
@@ -135,6 +159,12 @@ public class SeqNavRequests {
 	public static final int NAV_SUSPENDALL = 7;
 
 	/**
+	 * The current attempt on the current activity is terminated normally; the attempt is over.
+	 * 
+	 * ￼<p>
+	 * The current attempts on the active activities (from the root to the current activity, inclusive) are suspended. The attempt on the current activity may be resumed.
+	 * </p>
+	 * 
 	 * Enumeration of possible navigation requests -- described in Navigation
 	 * Behavior (Section NB of the IMS SS Specification).
 	 * <br>Exit
@@ -145,6 +175,8 @@ public class SeqNavRequests {
 
 	/**
 	 * Enumeration of possible navigation requests -- described in Navigation
+	 * <p>This event indicates that the current attempt on the root activity of the activity tree has finished normally.</p>
+	 * <p>This event ends the current attempt on the activity tree’s root activity and all active learning activities.</p>
 	 * Behavior (Section NB of the IMS SS Specification).
 	 * <br>ExitAll
 	 * <br><b>9</b>
