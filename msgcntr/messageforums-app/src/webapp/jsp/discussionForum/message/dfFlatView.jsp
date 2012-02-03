@@ -74,8 +74,10 @@
 		  			
       			<sakai:tool_bar_item value="#{msgs.cdfm_thread_view}" action="#{ForumTool.processActionDisplayThreadedView}" />
       			
-        		<sakai:tool_bar_item action="#{ForumTool.processActionTopicSettings}" id="topic_setting" value="#{msgs.cdfm_topic_settings}" 
-					rendered="#{ForumTool.selectedTopic.changeSettings}" />
+        		<h:commandLink action="#{ForumTool.processActionTopicSettings}" id="topic_setting" value="#{msgs.cdfm_topic_settings}" 
+					rendered="#{ForumTool.selectedTopic.changeSettings}">
+					<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+        		</h:commandLink>
 					
 										<h:commandLink action="#{ForumTool.processActionDeleteTopicConfirm}" id="delete_confirm" 
 								value="#{msgs.cdfm_button_bar_delete_topic}" accesskey="d" rendered="#{!ForumTool.selectedTopic.markForDeletion && ForumTool.displayTopicDeleteOption}">
