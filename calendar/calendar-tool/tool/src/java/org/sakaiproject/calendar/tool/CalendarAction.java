@@ -3747,15 +3747,16 @@ extends VelocityPortletStateAction
 		context.put("config",configProps);
 		context.put("message",state.getState());
 
-		DateFormat formatter = DateFormat.getDateInstance(DateFormat.FULL, new ResourceLoader().getLocale());			
+		DateFormat formatter = DateFormat.getDateInstance(DateFormat.FULL, new ResourceLoader().getLocale());
+		formatter.setTimeZone(TimeService.getLocalTimeZone());
 		try{
-			context.put("beginWeek", formatter.format(calObj.getPrevTime(calObj.getFirstDayOfWeek())));
+			context.put("beginWeek", formatter.format(calObj.getPrevTime(calObj.getDay_Of_Week(true)-1)));
 		}catch(Exception e){
 			context.put("beginWeek", calObj.getTodayDate());
 		}
 		try{
 			calObj.setNextWeek();
-			context.put("endWeek",formatter.format(calObj.getPrevTime(dayofweek)));
+			context.put("endWeek",formatter.format(calObj.getPrevTime(1)));
 		}catch(Exception e){
 			context.put("endWeek", calObj.getTodayDate());
 		}
