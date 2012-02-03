@@ -2138,7 +2138,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						  Long sequence = null;
 						  if (answerid != null) {
 							  AnswerIfc answer  = (AnswerIfc)publishedAnswerHash.get(answerid);
-							  sequence = answer.getSequence();
+							  if (answer != null) {
+								  sequence = answer.getSequence();
+							  }
 						  }
 
 						  String temptext = grade.getAnswerText();
@@ -2385,8 +2387,22 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						.get(aanswerid);
 				AnswerIfc banswer = (AnswerIfc) publishedAnswerHash
 						.get(banswerid);
-				aindex = aanswer.getSequence();
-				bindex = banswer.getSequence();
+
+				if (aanswer == null || banswer == null) {
+					return 0;
+				}
+				else {
+					if (aanswer != null) {
+						aindex = aanswer.getSequence();
+					} else {
+						return -1;
+					}
+					if (banswer != null) {
+						bindex = banswer.getSequence();
+					} else {
+						return 1;
+					}
+				}
 			}
 
 			if (aindex < bindex)

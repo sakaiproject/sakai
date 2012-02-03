@@ -121,8 +121,8 @@ window.close();
         <h:outputText value="#{delivery.url}" escape="false"/>
     </h:outputLink>
     
-    <h:outputLabel value="<b>#{deliveryMessages.anonymousScore}</b>" rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin && delivery.feedbackComponentOption=='1'}"/>
-    <h:outputText value="<b>#{delivery.roundedRawScoreViaURL}</b>" rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin && delivery.feedbackComponentOption=='1'}" escape="false"/>
+    <h:outputLabel value="<b>#{deliveryMessages.anonymousScore}</b>" rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin && (delivery.feedbackComponent.showImmediate || delivery.feedbackComponent.showOnSubmission || delivery.feedbackOnDate) && delivery.feedbackComponentOption=='1'}"/>
+    <h:outputText value="<b>#{delivery.roundedRawScoreViaURL}</b>" rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin && (delivery.feedbackComponent.showImmediate || delivery.feedbackComponent.showOnSubmission || delivery.feedbackOnDate) && delivery.feedbackComponentOption=='1'}" escape="false"/>
   </h:panelGrid>  
 
 </div>
@@ -133,15 +133,11 @@ window.close();
     <h:commandButton type="submit" value="#{deliveryMessages.button_continue}" action="select"
        rendered="#{delivery.actionString=='takeAssessment'}" />
 
-    <h:commandButton value="#{deliveryMessages.button_continue}" type="button" 
-       rendered="#{delivery.actionString=='takeAssessmentViaUrl' && !delivery.anonymousLogin}"
-       style="act" onclick="javascript:window.open('#{delivery.selectURL}','_top')" onkeypress="javascript:window.open('#{delivery.selectURL}','_top')" />
-
     <h:commandButton value="#{deliveryMessages.review_results}" type="button" id="reviewAssessment"
-       rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin && delivery.feedbackComponentOption=='2'}" 
+       rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin && (delivery.feedbackComponent.showImmediate || delivery.feedbackComponent.showOnSubmission || delivery.feedbackOnDate) && delivery.feedbackComponentOption=='2'}" 
        style="act" onclick="reviewAssessment(this);" onkeypress="reviewAssessment(this);" />
 
-    <h:commandLink id="hiddenlink" action="takeAssessment" rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin && delivery.feedbackComponentOption=='2'}">
+    <h:commandLink id="hiddenlink" action="takeAssessment" rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin && (delivery.feedbackComponent.showImmediate || delivery.feedbackComponent.showOnSubmission || delivery.feedbackOnDate) && delivery.feedbackComponentOption=='2'}">
       <f:param name="publishedId" value="#{delivery.assessmentId}" />
       <f:param name="nofeedback" value="false"/>
       <f:param name="actionString" value="reviewAssessment"/>

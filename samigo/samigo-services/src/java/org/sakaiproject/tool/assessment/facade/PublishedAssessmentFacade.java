@@ -660,6 +660,12 @@ public class PublishedAssessmentFacade
   {
     return feedbackComponentOption;
   }
+  
+  public void setFeedbackComponentOption(Integer feedbackComponentOption)
+  {
+    this.feedbackComponentOption = feedbackComponentOption;
+  }
+  
  public Integer getFeedbackAuthoring()
   {
     return feedbackAuthoring;

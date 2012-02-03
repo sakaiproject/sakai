@@ -27,13 +27,13 @@ import java.util.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.SectionAwareServiceHelper;
@@ -103,12 +103,24 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 	public List getGroupReleaseEnrollments(String siteid, String userUid, String publishedAssessmentId) {
 		List availEnrollments = getAvailableEnrollments(siteid, userUid);
 		List enrollments = new ArrayList();
+
+		HashSet<String> membersInReleaseGroups = new HashSet<String>(0);
+		try {
+		    Set<String> availableEnrollments = new HashSet<String>(availEnrollments);
+		    Site site = siteService.getInstance().getSite(siteid); // this follows the way the service is already written but it is a bad practice
+			membersInReleaseGroups = new HashSet<String>( site.getMembersInGroups(availableEnrollments) );
+		} catch (IdUnusedException ex) {
+			// no site found, just log a warning
+		    log.warn("Unable to find a site with id ("+siteid+") in order to get the enrollments, will return 0 enrollments");
+		}
+
 		for (Iterator eIter = availEnrollments.iterator(); eIter.hasNext(); ) {
 			EnrollmentRecord enr = (EnrollmentRecord)eIter.next();
-			if (isUserInReleaseGroup(enr.getUser().getUserUid(), AgentFacade.getCurrentSiteId(), publishedAssessmentId)) {
+			if (membersInReleaseGroups.contains( enr.getUser().getUserUid())) {
 				enrollments.add(enr);
 			}
 		}
+
 		return enrollments;
 	}
 	

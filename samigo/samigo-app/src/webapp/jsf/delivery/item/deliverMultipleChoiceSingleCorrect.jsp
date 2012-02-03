@@ -43,13 +43,12 @@ should be included in file importing DeliveryMessages
     <h:column rendered="#{delivery.feedback eq 'true' &&
        delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}">
       <h:graphicImage id="image"
-        rendered="#{(selection.answer.isCorrect eq 'true' || selection.answer.partialCredit gt 0) && selection.response}"
+        rendered="#{(selection.answer.isCorrect eq 'true' || (question.itemData.partialCreditFlag && selection.answer.partialCredit gt 0)) && selection.response}"
         alt="#{deliveryMessages.alt_correct}" url="/images/checkmark.gif" >
       </h:graphicImage>
       <h:graphicImage id="image2"
-        rendered="#{selection.answer.isCorrect != null && !selection.answer.isCorrect && selection.response && (selection.answer.partialCredit == null || selection.answer.partialCredit le 0)}"
-        width="16" height="16"
-        alt="#{deliveryMessages.alt_incorrect}" url="/images/crossmark.gif">
+        rendered="#{((question.itemData.partialCreditFlag && (selection.answer.partialCredit le 0 || selection.answer.partialCredit == null)) || (selection.answer.isCorrect != null && !selection.answer.isCorrect)) && selection.response}"
+        width="16" height="16" alt="#{deliveryMessages.alt_incorrect}" url="/images/crossmark.gif">
       </h:graphicImage>
     </h:column>
     <h:column>

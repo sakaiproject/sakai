@@ -735,7 +735,7 @@ public class GradingService
 		  HashMap publishedItemHash, HashMap publishedItemTextHash,
 		  HashMap publishedAnswerHash, boolean persistToDB) throws GradebookServiceException, FinFormatException {
 	  log.debug("storeGrades (not persistToDB) : data.getSubmittedDate()" + data.getSubmittedDate());
-	  storeGrades(data, false, pub, publishedItemHash, publishedItemTextHash, publishedAnswerHash, persistToDB, null, null);
+	  storeGrades(data, regrade, pub, publishedItemHash, publishedItemTextHash, publishedAnswerHash, persistToDB, null, null);
   }
 
   /**
@@ -803,6 +803,11 @@ public class GradingService
         	}
         }
         
+        if (itemType == 8 && itemGrading.getAnswerText() != null) {
+        	String processedAnswerText = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, itemGrading.getAnswerText().trim());
+        	itemGrading.setAnswerText(processedAnswerText);
+        }
+        
         // note that totalItems & fibAnswersMap would be modified by the following method
         try {
         	autoScore = getScoreByQuestionType(itemGrading, item, itemType, publishedItemTextHash, 
@@ -849,12 +854,20 @@ public class GradingService
       // the following procedure ensure total score awarded per question is no less than 0
       // this probably only applies to MCMR question type - daisyf
       iter = itemGradingSet.iterator();
+      float totalAutoScoreCheck = 0;
+      //get item information to check if it's MCMS and Not Partial Credit
+      Long itemType2 = -1l;
+      String mcmsPartialCredit = "";
+      float itemScore = -1;
       while(iter.hasNext())
       {
         ItemGradingIfc itemGrading = (ItemGradingIfc) iter.next();
         Long itemId = itemGrading.getPublishedItemId();
         ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(itemId);
-        Long itemType2 = item.getTypeId();
+        itemType2 = item.getTypeId();
+        //get item information to check if it's MCMS and Not Partial Credit
+        mcmsPartialCredit = item.getItemMetaDataByLabel(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT);
+        itemScore = item.getScore();
         //float autoScore = (float) 0;
 
         float eachItemScore = ((Float) totalItems.get(itemId)).floatValue();
@@ -862,7 +875,19 @@ public class GradingService
         {
         	itemGrading.setAutoScore( Float.valueOf(0));
         }
+        totalAutoScoreCheck += itemGrading.getAutoScore();
       }
+      //if it's MCMS and Not Partial Credit and the score isn't 100%, that means the user didn't
+      //answer all of the correct answers only.  We need to set their score to 0 for all ItemGrading items
+      if(TypeIfc.MULTIPLE_CORRECT.equals(itemType2) && "false".equals(mcmsPartialCredit) && totalAutoScoreCheck != itemScore){
+    	  //reset all scores to 0 since the user didn't get all correct answers
+    	  iter = itemGradingSet.iterator();
+    	  while(iter.hasNext()){
+    		  ItemGradingIfc itemGrading = (ItemGradingIfc) iter.next();
+    		  itemGrading.setAutoScore(Float.valueOf(0));
+    	  }
+      }
+      
       log.debug("****x4. "+(new Date()).getTime());
 
       // save#1: this itemGrading Set is a partial set of answers submitted. it contains new answers and
@@ -1298,7 +1323,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
         String answer = st.nextToken().trim();
         if ("true".equalsIgnoreCase(casesensitive)) {
           if (data.getAnswerText() != null){
-        	  studentanswer= TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, data.getAnswerText().trim());
+        	  studentanswer= data.getAnswerText().trim();
             matchresult = fibmatch(answer, studentanswer, true);
              
           }
@@ -1306,7 +1331,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
         else {
         // case insensitive , if casesensitive is false, or null, or "".
           if (data.getAnswerText() != null){
-        	  studentanswer= TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, data.getAnswerText().trim());
+        	  studentanswer= data.getAnswerText().trim();
     	    matchresult = fibmatch(answer, studentanswer, false);
            }
         }  // else , case insensitive

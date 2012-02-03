@@ -205,6 +205,7 @@ public class Item extends ASIBaseClass
     
     if(item !=null && (item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE) || item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) ||item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION))) {
     	setFieldentry("RANDOMIZE", item.getItemMetaDataByLabel(ItemMetaDataIfc.RANDOMIZE ));
+    	setFieldentry("MCMS_PARTIAL_CREDIT", item.getItemMetaDataByLabel(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT ));
     }
     
     String instruction = item.getInstruction();

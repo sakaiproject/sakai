@@ -91,6 +91,7 @@ public class ItemBean
   private String multipleCorrectString;
   private String randomized = "false";
   private String rationale = "false";
+  private String mcmsPartialCredit;
 
 // for matching only
   private String instruction;  // matching's question text
@@ -1767,5 +1768,17 @@ public class ItemBean
 				}	
 			} 
 		}
+	}
+
+	public String getMcmsPartialCredit() {
+		if(mcmsPartialCredit == null){
+			//set default (true by default)
+			mcmsPartialCredit = ServerConfigurationService.getString("samigo.mcmsPartialCredit", "true");
+		}
+		return mcmsPartialCredit;
+	}
+
+	public void setMcmsPartialCredit(String mcmsPartialCredit) {
+		this.mcmsPartialCredit = mcmsPartialCredit;
 	}
 }

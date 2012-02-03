@@ -78,6 +78,24 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
       setShowStudentQuestionScore(delivery, publishedAssessment);
       setDeliverySettings(delivery, publishedAssessment);
       
+      if (ae != null && ae.getComponent().getId().startsWith("beginAssessment")) {
+    	  // #1. check password
+    	  if (!delivery.getSettings().getUsername().equals(""))
+    	  {
+    		  if ("passwordAccessError".equals(delivery.validatePassword())) {
+    			  return;
+    		  }
+    	  }
+
+    	  // #2. check IP
+    	  if (delivery.getSettings().getIpAddresses() != null && !delivery.getSettings().getIpAddresses().isEmpty())
+    	  {
+    		  if ("ipAccessError".equals(delivery.validateIP())) {
+    			  return;
+    		  }
+    	  }
+      }
+      
       // itemGradingHash will end up with 
       // (Long publishedItemId, ArrayList itemGradingDatas) and
       // (String "sequence"+itemId, Integer sequence) and

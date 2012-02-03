@@ -155,9 +155,9 @@
  							cols="48"
  							onkeydown="javascript:textCounter(document.getElementById('itemForm:commentField'),document.getElementById('itemForm:remLen2'), 200);"
  							onkeyup="javascript:textCounter(document.getElementById('itemForm:commentField'),document.getElementById('itemForm:remLen2'), 200);"
- 							onclick="javascript:if(this.value=='200 character limit') this.value='';"/>
+ 							onclick="javascript:if(this.value=='#{authorMessages.character_limit}') this.value='';"/>
  				<h:panelGroup>
- 					<h:outputText  value="Character Count: " style="font-weight:bold;color:red;"/>
+ 					<h:outputText  value="#{authorMessages.character_count}" style="font-weight:bold;color:red;"/>
  					<h:inputText readonly="true" id="remLen2" size="2" maxlength="3" value="200"/>
  				</h:panelGroup>
  			</h:panelGrid>

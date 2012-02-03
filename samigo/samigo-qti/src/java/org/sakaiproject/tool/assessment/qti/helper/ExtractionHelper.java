@@ -507,7 +507,8 @@ public class ExtractionHelper
     {
       feedback.setShowQuestionText(Boolean.TRUE);
     }
-    else
+    else if ("FALSE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+    	"FEEDBACK_SHOW_QUESTION")))
     {
       feedback.setShowQuestionText(Boolean.FALSE);
     }
@@ -517,7 +518,8 @@ public class ExtractionHelper
     {
       feedback.setShowStudentResponse(Boolean.TRUE);
     }
-    else
+    else if ("FALSE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+    	"FEEDBACK_SHOW_RESPONSE")))
     {
       feedback.setShowStudentResponse(Boolean.FALSE);
     }
@@ -527,8 +529,8 @@ public class ExtractionHelper
     {
       feedback.setShowCorrectResponse(Boolean.TRUE);
     }
-    else
-    {
+    else if ("FALSE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+        "FEEDBACK_SHOW_CORRECT_RESPONSE"))){
       feedback.setShowCorrectResponse(Boolean.FALSE);
     }
 
@@ -537,7 +539,8 @@ public class ExtractionHelper
     {
       feedback.setShowStudentScore(Boolean.TRUE);
     }
-    else
+    else if ("FALSE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+        "FEEDBACK_SHOW_STUDENT_SCORE")))
     {
       feedback.setShowStudentScore(Boolean.FALSE);
     }
@@ -547,7 +550,8 @@ public class ExtractionHelper
     {
       feedback.setShowStudentQuestionScore(Boolean.TRUE);
     }
-    else
+    else if ("FALSE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+        "FEEDBACK_SHOW_STUDENT_QUESTIONSCORE")))
     {
       feedback.setShowStudentQuestionScore(Boolean.FALSE);
     }
@@ -557,7 +561,8 @@ public class ExtractionHelper
     {
       feedback.setShowQuestionLevelFeedback(Boolean.TRUE);
     }
-    else
+    else if ("FALSE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+       "FEEDBACK_SHOW_ITEM_LEVEL")))
     {
       feedback.setShowQuestionLevelFeedback(Boolean.FALSE);
     }
@@ -567,7 +572,8 @@ public class ExtractionHelper
     {
       feedback.setShowSelectionLevelFeedback(Boolean.TRUE);
     }
-    else
+    else if ("FALSE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+       "FEEDBACK_SHOW_SELECTION_LEVEL")))
     {
       feedback.setShowSelectionLevelFeedback(Boolean.FALSE);
     }
@@ -577,7 +583,8 @@ public class ExtractionHelper
     {
       feedback.setShowGraderComments(Boolean.TRUE);
     }
-    else
+    else if ("FALSE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+        "FEEDBACK_SHOW_GRADER_COMMENT")))
     {
       feedback.setShowGraderComments(Boolean.FALSE);
     }
@@ -587,7 +594,8 @@ public class ExtractionHelper
     {
       feedback.setShowStatistics(Boolean.TRUE);
     }
-    else
+    else if ("FALSE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+        "FEEDBACK_SHOW_STATS")))
     {
       feedback.setShowStatistics(Boolean.FALSE);
     }
@@ -606,11 +614,12 @@ public class ExtractionHelper
       feedback.setFeedbackDelivery(feedback.IMMEDIATE_FEEDBACK);
     }
     else if ("ON_SUBMISSION".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
-    "FEEDBACK_DELIVERY")))
+    	"FEEDBACK_DELIVERY")))
     {
       feedback.setFeedbackDelivery(feedback.FEEDBACK_ON_SUBMISSION);
     }
-    else
+    else if ("NO_FEEDBACK".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+    	"FEEDBACK_DELIVERY")))
     {
       feedback.setFeedbackDelivery(feedback.NO_FEEDBACK);
     }
@@ -619,7 +628,8 @@ public class ExtractionHelper
     {
     	feedback.setFeedbackComponentOption(feedback.SELECT_COMPONENTS);
     }
-    else {
+    else if ("SHOW_TOTALSCORE_ONLY".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel("FEEDBACK_COMPONENT_OPTION")))
+    {
     	feedback.setFeedbackComponentOption(feedback.SHOW_TOTALSCORE_ONLY);
     }
 
@@ -634,7 +644,8 @@ public class ExtractionHelper
     {
       feedback.setFeedbackAuthoring(feedback.SECTIONLEVEL_FEEDBACK);
     }
-    else
+    else if ("BOTH".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+        "FEEDBACK_AUTHORING")))
     {
       feedback.setFeedbackAuthoring(feedback.BOTH_FEEDBACK);
     }
@@ -865,7 +876,8 @@ public class ExtractionHelper
       control.setAutoSubmit(AssessmentAccessControl.AUTO_SUBMIT);
       assessment.getData().addAssessmentMetaData("hasAutoSubmit", "true");
     }
-    else
+    else if("FALSE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+        "AUTO_SUBMIT")))
     {
       control.setAutoSubmit(AssessmentAccessControl.DO_NOT_AUTO_SUBMIT);
     }
@@ -877,7 +889,8 @@ public class ExtractionHelper
     {
       control.setItemNavigation(control.LINEAR_ACCESS);
     }
-    else
+    else if ("RANDOM".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+        "NAVIGATION")))
     {
       control.setItemNavigation(control.RANDOM_ACCESS);
     }
@@ -905,7 +918,8 @@ public class ExtractionHelper
     {
       control.setAssessmentFormat(control.BY_PART);
     }
-    else
+    else if ("A".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+       	"QUESTION_LAYOUT")))
     {
       control.setAssessmentFormat(control.BY_ASSESSMENT);
     }
@@ -916,7 +930,8 @@ public class ExtractionHelper
     {
       control.setMarkForReview(control.MARK_FOR_REVIEW);
     }
-    else
+    else if ("False".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+        "MARK_FOR_REVIEW")))
     {
       control.setMarkForReview(control.NOT_MARK_FOR_REVIEW);
     }
@@ -937,7 +952,7 @@ public class ExtractionHelper
       control.setSubmissionsAllowed(AssessmentAccessControlIfc.
                                     UNLIMITED_SUBMISSIONS);
     }
-    else
+    else if(maxAttempts != null && !"".equals(maxAttempts) && !"null".equals(maxAttempts))
     {
       control.setUnlimitedSubmissions(Boolean.FALSE);
       try
@@ -959,7 +974,8 @@ public class ExtractionHelper
     {
       control.setLateHandling(control.NOT_ACCEPT_LATE_SUBMISSION);
     }
-    else
+    else if ("TRUE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+        "LATE_HANDLING")))
     {
       control.setLateHandling(Integer.valueOf(1));
 
