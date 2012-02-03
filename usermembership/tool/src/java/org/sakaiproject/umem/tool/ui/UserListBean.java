@@ -29,6 +29,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.Collator;
+import java.text.ParseException;
+import java.text.RuleBasedCollator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -109,7 +111,7 @@ public class UserListBean {
 	private String							newAuthority		= USER_AUTH_ALL;
 
 	/** Private vars */
-	private transient Collator				collator			= Collator.getInstance();																// use
+	private static RuleBasedCollator				collator;																// use
 	private String							message				= "";
 	// system
 	/** Sakai services vars */
@@ -133,6 +135,14 @@ public class UserListBean {
 		private String				authority;
 		private String              createdOn;
 		private String              modifiedOn;
+
+		static {
+			try{
+				collator= new RuleBasedCollator(((RuleBasedCollator)Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
+			}catch(ParseException e){
+				collator = (RuleBasedCollator)Collator.getInstance();
+			}
+		}
 
 		public UserRow() {
 		}

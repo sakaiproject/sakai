@@ -27,6 +27,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.Collator;
+import java.text.ParseException;
+import java.text.RuleBasedCollator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -98,7 +100,7 @@ public class SiteListBean {
 	private Authz						authz				= (Authz) ComponentManager.get(Authz.class.getName());
 	private ServerConfigurationService			M_scf				= (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class.getName());
 	/** Private vars */
-	private Collator					collator			= Collator.getInstance();
+	private RuleBasedCollator					collator;
 	private long						timeSpentInGroups	= 0;
 	private String						portalURL			= M_scf.getPortalUrl();
 	private String						message				= "";
@@ -120,6 +122,13 @@ public class SiteListBean {
 		private String				userStatus;
 		private String				siteTerm;
 
+		{
+			try{
+				collator= new RuleBasedCollator(((RuleBasedCollator)Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
+			}catch(ParseException e){
+				collator = (RuleBasedCollator)Collator.getInstance();
+			}
+		}
 		public UserSitesRow() {
 		}
 
