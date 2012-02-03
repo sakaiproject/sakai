@@ -32,7 +32,7 @@
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{deliveryMessages.time_expired_title}"/></title>
+      <title><h:outputText value="#{deliveryMessages.data_discrepancy_title}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
