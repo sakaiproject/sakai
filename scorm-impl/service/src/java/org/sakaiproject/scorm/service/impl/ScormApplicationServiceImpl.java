@@ -83,7 +83,7 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 
 	// Data access objects (also dependency injected by lookup method)
 	protected abstract AttemptDao attemptDao();
-	
+
 	IValidatorFactory validatorFactory = new ValidatorFactory();
 
 	private IValidRequests commit(SessionBean sessionBean, IDataManager dm, ISequencer sequencer) {
@@ -208,11 +208,12 @@ public abstract class ScormApplicationServiceImpl implements ScormApplicationSer
 
 		if (sessionBean.isCloseOnNextTerminate()) {
 			scormSequencingService().navigate(SeqNavRequests.NAV_SUSPENDALL, sessionBean, agent, null);
-
 			Attempt attempt = sessionBean.getAttempt();
-			attempt.setSuspended(true);
-
-			attemptDao().save(attempt);
+			if (attempt != null) {
+				attempt.setSuspended(true);
+				attempt.setNotExited(true);
+				attemptDao().save(attempt);
+			}
 		}
 	}
 

@@ -34,6 +34,8 @@ import org.adl.sequencer.ISeqActivityTree;
 import org.adl.sequencer.ISequencer;
 import org.adl.sequencer.IValidRequests;
 import org.adl.sequencer.SeqNavRequests;
+import org.adl.sequencer.impl.ADLLaunch;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.scorm.adl.ADLConsultant;
@@ -64,7 +66,7 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 	protected abstract AttemptDao attemptDao();
 
 	protected abstract DataManagerDao dataManagerDao();
-	
+
 	IValidatorFactory validatorFactory = new ValidatorFactory();
 
 	private ISeqActivity getActivity(SessionBean sessionBean) {
@@ -202,37 +204,70 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 
 		update(sessionBean, sequencer, launch, manifest);
 
-		//		if (request == SeqNavRequests.NAV_EXITALL) {
-		//			Attempt attempt = sessionBean.getAttempt();
-		//			if (attempt != null) {
-		//				attempt.setNotExited(false);
-		//				attempt.setSuspended(false);
-		//				attemptDao().save(attempt);
-		//			}
-		//			sessionBean.setSuspended(false);
-		//			sessionBean.setEnded(true);
-		//			sessionBean.setStarted(false);
-		//			sessionBean.setRestart(true);
-		//			
-		//		}  
-		if (request == SeqNavRequests.NAV_SUSPENDALL) {
-			Attempt attempt = sessionBean.getAttempt();
-			if (attempt != null) {
-				attempt.setSuspended(true);
-				attemptDao().save(attempt);
+		String result = launch.getLaunchStatusNoContent();
+
+		// Get the attempt
+		Attempt attempt = sessionBean.getAttempt();
+		// Manage start 
+		if (request == SeqNavRequests.NAV_START || request == SeqNavRequests.NAV_RESUMEALL) {
+			// Possible correct outcomes are null or _TOC_
+			if (StringUtils.isEmpty(result) || StringUtils.equals(result, ADLLaunch.LAUNCH_TOC)
+			        || (StringUtils.equals(result, ADLLaunch.LAUNCH_SEQ_BLOCKED) && launch.getNavState().isContinueEnabled())) {
+				if (attempt != null) {
+					attempt.setNotExited(true);
+					attempt.setSuspended(false);
+				}
+				sessionBean.setSuspended(false);
+				sessionBean.setStarted(true);
+				sessionBean.setEnded(false);
 			}
-			sessionBean.setSuspended(true);
-			sessionBean.setEnded(true);
-			sessionBean.setStarted(false);
-		} else if (request == SeqNavRequests.NAV_RESUMEALL) {
-			sessionBean.setSuspended(false);
+		}
+		// The user selects to end & stop
+		if (request == SeqNavRequests.NAV_EXITALL || request == SeqNavRequests.NAV_ABANDONALL) {
+			// Possible outcomes are exit or complete 
+			if (StringUtils.equals(result, ADLLaunch.LAUNCH_EXITSESSION) || StringUtils.equals(result, ADLLaunch.LAUNCH_COURSECOMPLETE)) {
+				if (attempt != null) {
+					attempt.setNotExited(false);
+					attempt.setSuspended(false);
+				}
+				sessionBean.setSuspended(false);
+				sessionBean.setEnded(true);
+				sessionBean.setStarted(false);
+			}
+
+		} else if (request == SeqNavRequests.NAV_SUSPENDALL) {
+			// Possible outcome is _ENDSESSION_
+			if (StringUtils.equals(result, ADLLaunch.LAUNCH_EXITSESSION)) {
+				if (attempt != null) {
+					attempt.setSuspended(true);
+					attempt.setNotExited(false);
+				}
+				sessionBean.setSuspended(true);
+				sessionBean.setEnded(true);
+				sessionBean.setStarted(false);
+			}
+		} else {
+			// This is the fallback. If the sequencer legally decided that the session is over, just check the result for such a state.
+			if (StringUtils.equals(result, ADLLaunch.LAUNCH_EXITSESSION) || StringUtils.equals(result, ADLLaunch.LAUNCH_COURSECOMPLETE)
+			        || StringUtils.equals(result, ADLLaunch.LAUNCH_COURSECOMPLETE)) {
+				if (attempt != null) {
+					attempt.setSuspended(false);
+					attempt.setNotExited(false);
+				}
+				sessionBean.setSuspended(false);
+				sessionBean.setEnded(true);
+				sessionBean.setStarted(true);
+			}
 		}
 
+		if (attempt != null) {
+			attemptDao().save(attempt);
+		}
+		// Very important, call AFTER session bean values are set!
 		if (agent != null) {
 			agent.displayResource(sessionBean, target);
 		}
 
-		String result = launch.getLaunchStatusNoContent();
 		//		if ((request == SeqNavRequests.NAV_NONE || request == SeqNavRequests.NAV_START || request == SeqNavRequests.NAV_RESUMEALL)) { // Start flag, check if the result is OK
 		//			if (result == null || result.contains("_TOC_")) { // Result is null, so OK
 		//				sessionBean.setStarted(true);
@@ -324,11 +359,6 @@ public abstract class ScormSequencingServiceImpl implements ScormSequencingServi
 
 			if (log.isDebugEnabled()) {
 				log.debug("Status is " + status + " -- ending course!");
-			}
-			if (!sessionBean.isRestart()) {
-				sessionBean.setEnded(true);
-			} else {
-				sessionBean.setRestart(false);
 			}
 		}
 

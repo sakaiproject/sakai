@@ -5218,4 +5218,9 @@ public class SeqActivity extends SeqActivityTrackingAccess implements SeqActivit
 		}
 	}
 
+	@Override
+	public String toString() {
+		return "SeqActivity [mActivityID=" + mActivityID + ", mResourceID=" + mResourceID + ", mLearnerID=" + mLearnerID + "]";
+	}
+
 } // end SeqActivity

@@ -120,4 +120,9 @@ public class ActivityNode extends DefaultMutableTreeNode implements TreeNode {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return "ActivityNode [activity=" + getActivity() + "]";
+	}
+
 }
