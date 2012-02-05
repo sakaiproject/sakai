@@ -456,7 +456,7 @@ document.links[newindex].onclick();
 
   <%-- SAVE --%>
   <h:panelGrid columns="1" border="0" >
-  <h:commandButton id="save" type="submit" value="#{deliveryMessages.button_save}"
+  <h:commandButton id="save" type="submit" value="#{commonMessages.action_save}"
     action="#{delivery.save_work}" onclick="disableSave();" rendered="#{delivery.actionString=='previewAssessment'
                  || delivery.actionString=='takeAssessment'
                  || delivery.actionString=='takeAssessmentViaUrl'}" />

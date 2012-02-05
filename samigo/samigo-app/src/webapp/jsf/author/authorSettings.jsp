@@ -1000,7 +1000,7 @@ function setBlockDivs()
       action="#{assessmentSettings.getOutcomePublish}" disabled="true" />
       
 <!-- save -->
-  <h:commandButton type="submit" value="#{assessmentSettingsMessages.button_save_settings}" action="#{assessmentSettings.getOutcomeSave}"  onclick="setBlockDivs();updateItemNavigation(false);">
+  <h:commandButton type="submit" value="#{commonMessages.action_save}" action="#{assessmentSettings.getOutcomeSave}"  onclick="setBlockDivs();updateItemNavigation(false);">
       <f:param name="assessmentId" value="#{assessmentSettings.assessmentId}"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentSettingsListener"/>
   </h:commandButton>
