@@ -53,7 +53,9 @@ public class ComponentManager {
 
 	public static java.lang.String SAKAI_COMPONENTS_ROOT_SYS_PROP = org.sakaiproject.component.api.ComponentManager.SAKAI_COMPONENTS_ROOT_SYS_PROP;
 
-	private static Lock m_lock = new ReentrantLock();
+	// Making this non-fair works around a bug in JDK-1.5 in which the current thread can't reaquire the lock
+	// correctly and so deadlocks.
+	private static Lock m_lock = new ReentrantLock(false);
 
 	private static boolean lateRefresh = false;
 
