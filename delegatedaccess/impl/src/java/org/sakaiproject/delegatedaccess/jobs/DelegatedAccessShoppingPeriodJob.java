@@ -233,10 +233,9 @@ public class DelegatedAccessShoppingPeriodJob implements StatefulJob{
 	}
 
 	private void removeAnonAndAuthRoles(String siteRef){
-		Site site = sakaiProxy.getSiteByRef(siteRef);
 		AuthzGroup ag = sakaiProxy.getAuthzGroup(siteRef);
 		log.debug("Removing .auth and.anon roles for " + siteRef);
-		for (Role role: site.getRoles()){
+		for (Role role: ag.getRoles()){
 			if (role.getId().equals(".auth") || role.getId().equals(".anon")){
 				sakaiProxy.removeRoleFromAuthzGroup(ag, role);
 			}
