@@ -27,7 +27,8 @@ import java.io.Serializable;
 public class MatchItemBean implements Serializable {
 
   private static final long serialVersionUID = 7526471155622776147L;
-
+  public static final String CONTROLLING_SEQUENCE_DEFAULT = "*new*";
+  public static final String CONTROLLING_SEQUENCE_DISTRACTOR = "*distractor*";
 //  private String text;
   private Long sequence;
 //  private String corrfeedback;
@@ -38,12 +39,14 @@ public class MatchItemBean implements Serializable {
   private String corrMatchFeedback;
   private String incorrMatchFeedback;
   private String sequenceStr;
+  private String controllingSequence;
 
 
   public MatchItemBean() {
 	// sequence = -1 for new items
 	sequence =  Long.valueOf(-1);
 	sequenceStr = "-1";
+	controllingSequence = CONTROLLING_SEQUENCE_DEFAULT;
   }
 /*
   public String getText() {
@@ -55,6 +58,22 @@ public class MatchItemBean implements Serializable {
   }
 */
 
+  /**
+   * controllingSequence determines if the choice for this matching bean is defined
+   * within the bean or within another bean in a list of beans.  If the controllingSequence
+   * is "Self", the choice comes from within this bean.  If the controllingSequence is 
+   * "Distractor", there is no choice for this bean.  Otherwise, use the value of 
+   * controllingSequence to locate the bean that has the choice test.
+   * @param controllingSequence
+   */
+  public void setControllingSequence(String controllingSequence) {
+	  this.controllingSequence = controllingSequence;
+  }
+  
+  public String getControllingSequence() {
+	  return this.controllingSequence;
+  }
+  
   public Long getSequence() {
     return sequence;
   }

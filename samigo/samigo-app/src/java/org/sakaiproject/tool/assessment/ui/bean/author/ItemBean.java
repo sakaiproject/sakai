@@ -37,8 +37,10 @@ import org.sakaiproject.util.ResourceLoader;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
+import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
+import javax.faces.model.SelectItemGroup;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
@@ -667,6 +669,41 @@ public class ItemBean
     this.matchItemBeanList= list;
   }
 
+  /**
+   * getSelfSequenceList examines the MatchItemBean list and returns a list of SelectItemOptions that
+   * correspond to beans that have a controlling sequence of "Self", meaning that they do not depend 
+   * upon any other beans for their choice value.
+   * @return a list of SelectItems, to be used to build a dropdown list in matching.jsp
+   * @TODO - this may not belong here.  May belong in a helper class that just takes the MatchItemBean list
+   */
+  public List<SelectItem> getSelfSequenceList() {
+	  List options = new ArrayList();
+	  String selfSequence = MatchItemBean.CONTROLLING_SEQUENCE_DEFAULT;
+	  String distractorSequence = MatchItemBean.CONTROLLING_SEQUENCE_DISTRACTOR;
+	  
+	  SelectItem selfOption = new SelectItem(selfSequence, selfSequence, selfSequence);
+	  options.add(selfOption);
+	  SelectItem distractorOption = new SelectItem(distractorSequence, distractorSequence, distractorSequence);
+	  options.add(distractorOption);
+	  
+	  List<SelectItem> subOptions = new ArrayList<SelectItem>();
+	  Iterator<MatchItemBean> iter = matchItemBeanList.iterator();
+	  while (iter.hasNext()) {
+		  MatchItemBean bean = iter.next();
+		  if (MatchItemBean.CONTROLLING_SEQUENCE_DEFAULT.equals(bean.getControllingSequence()) &&
+				  bean.getSequence() != this.currentMatchPair.getSequence()) {
+			  SelectItem option = new SelectItem(bean.getSequenceStr(), bean.getSequenceStr(), bean.getSequenceStr());
+			  subOptions.add(option);
+		  }
+	  }
+	  if (subOptions.size() > 0) {
+		  SelectItem[] selectItems = subOptions.toArray(new SelectItem[]{});
+		  SelectItemGroup group = new SelectItemGroup("Existing");
+		  group.setSelectItems(selectItems);
+		  options.add(group);
+	  }
+	  return options;
+  }
 
   public ArrayList getMatchItemBeanList()
   {
@@ -1162,7 +1199,10 @@ public class ItemBean
 	String choice=(currentMatchPair.getChoice().replaceAll("<^[^(img)(IMG)]*?>", "")).trim();
 	String match=(currentMatchPair.getMatch().replaceAll("<^[^(img)(IMG)]*?>", "")).trim();
     
-	if(choice==null ||choice.equals("")|| match==null || match.equals("")){
+	// choice cannot be blank or null
+	// match cannot be blank or null if controllingSequence is the default
+	if(choice==null ||choice.equals("")|| 
+			((match==null || match.equals("")) && MatchItemBean.CONTROLLING_SEQUENCE_DEFAULT.equals(currentMatchPair.getControllingSequence()))) {
 	    FacesContext context=FacesContext.getCurrentInstance();
 	    ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 	    context.addMessage(null,new FacesMessage(rb.getString("match_error")));
@@ -1173,57 +1213,56 @@ public class ItemBean
 
   public String addMatchPair() {
       if (!isMatchError()){
-
-    /*
-    Iterator biter = this.getMatchItemBeanList().iterator();
-    while(biter.hasNext())
-    {
-      MatchItemBean apair = (MatchItemBean) biter.next();
-    }
-    */
-
-    // get existing list
-    ArrayList list = getMatchItemBeanList();
-    MatchItemBean currpair = this.getCurrentMatchPair();
-    if (!currpair.getSequence().equals( Long.valueOf(-1))) {
-      // for modify
-      int seqno =  currpair.getSequence().intValue()-1;
-      MatchItemBean newpair= (MatchItemBean)  this.getMatchItemBeanList().get(seqno);
-      newpair.setSequence(currpair.getSequence());
-      newpair.setChoice(currpair.getChoice());
-      newpair.setMatch(currpair.getMatch());
-      newpair.setCorrMatchFeedback(currpair.getCorrMatchFeedback());
-      newpair.setIncorrMatchFeedback(currpair.getIncorrMatchFeedback());
-      newpair.setIsCorrect(Boolean.TRUE);
-    }
-    else {
-      // for new pair
-      MatchItemBean newpair = new MatchItemBean();
-      newpair.setChoice(currpair.getChoice());
-      newpair.setMatch(currpair.getMatch());
-      newpair.setCorrMatchFeedback(currpair.getCorrMatchFeedback());
-      newpair.setIncorrMatchFeedback(currpair.getIncorrMatchFeedback());
-      newpair.setIsCorrect(Boolean.TRUE);
-      newpair.setSequence( Long.valueOf(list.size()+1));
-
-    list.add(newpair);
-    }
-
-
-
-    this.setMatchItemBeanList(list); // get existing list
-
-    //debugging
-    /*
-    Iterator iter = list.iterator();
-    while(iter.hasNext())
-    {
-      MatchItemBean apair = (MatchItemBean) iter.next();
-    }
-    */
-    
-    MatchItemBean matchitem = new MatchItemBean();
-    this.setCurrentMatchPair(matchitem);
+	    // get existing list
+	    ArrayList<MatchItemBean> list = getMatchItemBeanList();
+	    MatchItemBean newpair = null;
+	    MatchItemBean currpair = this.getCurrentMatchPair();
+	    if (!currpair.getSequence().equals( Long.valueOf(-1))) {
+	      // for modify
+	      int seqno =  currpair.getSequence().intValue()-1;
+	      newpair= (MatchItemBean)  this.getMatchItemBeanList().get(seqno);
+	      newpair.setSequence(currpair.getSequence());
+	    }
+	    else {
+	      // for new pair
+	      newpair = new MatchItemBean();
+	      newpair.setSequence( Long.valueOf(list.size()+1));
+	      list.add(newpair);
+	    }
+	    
+	    // update the bean with the new values, now that is has been retrieved/created
+	    newpair.setChoice(currpair.getChoice());
+	    newpair.setMatch(currpair.getMatch());
+	    newpair.setCorrMatchFeedback(currpair.getCorrMatchFeedback());
+	    newpair.setIncorrMatchFeedback(currpair.getIncorrMatchFeedback());
+	    newpair.setIsCorrect(Boolean.TRUE);
+	    newpair.setControllingSequence(currpair.getControllingSequence());
+	    if (MatchItemBean.CONTROLLING_SEQUENCE_DISTRACTOR.equals(newpair.getControllingSequence())) {
+	  	  newpair.setMatch(MatchItemBean.CONTROLLING_SEQUENCE_DISTRACTOR);
+	    } else if (!MatchItemBean.CONTROLLING_SEQUENCE_DEFAULT.equals(newpair.getControllingSequence())) {
+	  	  Iterator<MatchItemBean> listIter = list.iterator();
+	  	  while (listIter.hasNext()) {
+	  		  MatchItemBean curBean = listIter.next();
+	  		  if (newpair.getControllingSequence().equals(curBean.getSequenceStr())) {
+	  			  newpair.setMatch(curBean.getMatch());
+	  			  break;
+	  		  }
+	  	  }
+	    }
+		
+	    this.setMatchItemBeanList(list); // get existing list
+	
+	    //debugging
+	    /*
+	    Iterator iter = list.iterator();
+	    while(iter.hasNext())
+	    {
+	      MatchItemBean apair = (MatchItemBean) iter.next();
+	    }
+	    */
+	    
+	    MatchItemBean matchitem = new MatchItemBean();
+	    this.setCurrentMatchPair(matchitem);
       }
     return "matchingItem";
   }

@@ -76,7 +76,7 @@
         <xsl:for-each select="//respcondition/conditionvar/varequal">
           <xsl:variable name="curr-ident"><xsl:value-of select="." /></xsl:variable>
            <xsl:if test="$src-ident=$curr-ident">
-             <itemMatchIndex type="list"><xsl:value-of select="@index" /></itemMatchIndex>
+             <itemMatchIndex type="list"><xsl:value-of select="../../displayfeedback/@linkrefid" /></itemMatchIndex>
            </xsl:if>
         </xsl:for-each>
       </xsl:when>

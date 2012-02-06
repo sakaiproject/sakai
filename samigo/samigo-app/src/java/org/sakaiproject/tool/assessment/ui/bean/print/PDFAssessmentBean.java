@@ -465,7 +465,13 @@ public class PDFAssessmentBean implements Serializable {
 					ArrayList question = item.getMatchingArray();
 					for (int k=0; k<question.size(); k++) {
 						MatchingBean matching = (MatchingBean)question.get(k);
-						String answer = (String)item.getAnswers().get(k);
+						
+						// if there are distractors or shared matches, answers will
+						// have fewer answers that matches.
+						String answer = "";
+						if (k < item.getAnswers().size()) {
+							answer = (String)item.getAnswers().get(k);
+						}
 
 						if (matching.getText() == null) break;
 						

@@ -417,8 +417,10 @@ public class ItemHelper12Impl extends ItemHelperBase
         if (Boolean.TRUE.equals(correct))
         {
           log.debug("Matching: matched.");
-          allIdents.add(respIdent); // put in global (ewww) ident list
-          allTargets.put(respIdent, answerText);
+          if (!allIdents.contains(respIdent)) {
+        	  allIdents.add(respIdent); // put in global (ewww) ident list
+          }
+       	  allTargets.put(respIdent, answerText);
           addMatchingRespcondition(true, itemXml, respCondNo, respIdent,
                              responseLabelIdent, responseFeedback);
         }
@@ -445,7 +447,6 @@ public class ItemHelper12Impl extends ItemHelperBase
       addMatchingResponseLabelTarget(itemXml, responseNo, respIdent, answerText);
 
     }
-    updateAllSourceMatchGroup(itemXml);
   }
 
   private void setItemTextMatrix(List itemTextList, Item itemXml)

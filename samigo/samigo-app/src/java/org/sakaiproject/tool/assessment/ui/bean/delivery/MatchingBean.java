@@ -29,6 +29,7 @@ import java.util.Iterator;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+import org.sakaiproject.tool.assessment.services.GradingService;
 
 /**
  * @author rgollub@stanford.edu
@@ -36,6 +37,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
  */
 public class MatchingBean
 {
+	private final String NONE_OF_THE_ABOVE = "-1";
 
   private ItemContentsBean parent;
   private ItemTextIfc itemText;
@@ -101,6 +103,11 @@ public class MatchingBean
     if ("0".equals(newresp)) {
     	data.setPublishedAnswerId(null);
     }
+    // used for matching questions that have distractors.  If the user chooses the answer
+    // None of the Above, that answer value will be saved in the database.
+    if (NONE_OF_THE_ABOVE.equals(newresp)) {
+    	data.setPublishedAnswerId(Long.parseLong(NONE_OF_THE_ABOVE));
+    }
     Iterator iter = itemText.getAnswerSet().iterator();
     while (iter.hasNext())
     {
@@ -165,6 +172,11 @@ public class MatchingBean
     return false;
       */
     return isCorrect;
+  }
+  
+  public boolean getIsDistractor() {
+	  GradingService gs = new GradingService();
+	  return gs.isDistractor(this.getItemText());
   }
 
 }
