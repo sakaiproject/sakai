@@ -814,6 +814,10 @@ public class AssignmentAction extends PagedResourceActionII
 		boolean allowUpdateSite = SiteService.allowUpdateSite((String) state.getAttribute(STATE_CONTEXT_STRING));
 		context.put("allowUpdateSite", Boolean.valueOf(allowUpdateSite));
 		
+		//group related settings
+		context.put("siteAccess", Assignment.AssignmentAccess.SITE);
+		context.put("groupAccess", Assignment.AssignmentAccess.GROUPED);
+		
 		// allow all.groups?
 		boolean allowAllGroups = AssignmentService.allowAllGroups(contextString);
 		context.put("allowAllGroups", Boolean.valueOf(allowAllGroups));
