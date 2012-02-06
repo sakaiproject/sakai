@@ -127,7 +127,7 @@ public class SakaiMailet extends GenericMailet
 		}
 		catch (UserNotDefinedException e)
 		{
-			M_log.warn("service: no postmaster");
+			M_log.warn("service(): no postmaster, incoming mail will not be processed until a postmaster user (id="+POSTMASTER+") exists in this Sakai instance");
 			mail.setState(Mail.GHOST);
 			return;
 		}
