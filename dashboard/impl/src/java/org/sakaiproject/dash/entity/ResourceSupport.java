@@ -373,7 +373,7 @@ public class ResourceSupport {
 				if (resource.isHidden())
 				{
 					// hide the resource, the need to remove all links in dashboard
-					dashboardLogic.removeNewsItem(event.getResource());
+					//dashboardLogic.removeNewsItem(event.getResource());
 				}
 				else
 				{
