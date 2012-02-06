@@ -881,76 +881,83 @@ public class ItemAddListener
       // sorry, i need this for item attachment, used by SaveItemAttachmentListener. 
       itemauthor.setItemId(item.getItemId().toString());
   }
+  
+/**
+ * for the current choice, loop through all answers and add unique matches to the list of valid matches for the choice. 
+ * @param choicebean current choice
+ * @param matchItemBeanList
+ * @param item
+ * @param bean
+ * @return
+ */
+  private ItemText selectAnswers(MatchItemBean choicebean, ArrayList<MatchItemBean> matchItemBeanList, ItemFacade item, ItemBean bean) {
+	  
+	  // Create a list of valid answers to loop through.  Ignore answers that are distractors
+	  // or are controlled by another MatchItemBean
+	  List<MatchItemBean> validAnswers = new ArrayList<MatchItemBean>();
+	  Iterator<MatchItemBean>validAnswerIter = matchItemBeanList.iterator();
+	  while (validAnswerIter.hasNext()) {
+		  MatchItemBean validAnswer = validAnswerIter.next();
+		  if (MatchItemBean.CONTROLLING_SEQUENCE_DEFAULT.equals(validAnswer.getControllingSequence())) {
+			  validAnswers.add(validAnswer);
+		  }
+	  }
+	  
+	  ItemText choicetext = new ItemText();
+	  choicetext.setItem(item.getData()); // all set to the same
+	  choicetext.setSequence(choicebean.getSequence());
+	  choicetext.setText(stripPtags(choicebean.getChoice()));
+
+	  // loop through matches for in validAnswers list and add all to this choice
+	  Iterator<MatchItemBean>answeriter = validAnswers.iterator();	  
+	  HashSet<Answer> answerSet = new HashSet<Answer>();
+	  while (answeriter.hasNext()) {
+		  Answer answer = null;
+		  MatchItemBean answerbean = (MatchItemBean) answeriter.next();
+		  if (answerbean.getSequence().equals(choicebean.getSequence()) ||
+				  answerbean.getSequenceStr().equals(choicebean.getControllingSequence())) {
+			  // correct answers
+			  answer = new Answer(choicetext, stripPtags(answerbean
+					  .getMatch()), answerbean.getSequence(), AnswerBean
+					  .getChoiceLabels()[answerbean.getSequence()
+					                     .intValue() - 1], Boolean.TRUE, null, Float.valueOf(
+					                    		 bean.getItemScore()), Float.valueOf(0f), Float.valueOf(bean.getItemDiscount()));
+
+		  } else {
+			  // incorrect answers
+			  answer = new Answer(choicetext, stripPtags(answerbean
+					  .getMatch()), answerbean.getSequence(), AnswerBean
+					  .getChoiceLabels()[answerbean.getSequence()
+					                     .intValue() - 1], Boolean.FALSE, null,  Float.valueOf(
+					                    		 bean.getItemScore()), Float.valueOf(0f), Float.valueOf(bean.getItemDiscount()));
+		  }
+
+		  // record answers for all combination of pairs
+		  HashSet<AnswerFeedback> answerFeedbackSet = new HashSet<AnswerFeedback>();
+		  answerFeedbackSet.add(new AnswerFeedback(answer,
+				  AnswerFeedbackIfc.CORRECT_FEEDBACK,
+				  stripPtags(answerbean.getCorrMatchFeedback())));
+		  answerFeedbackSet.add(new AnswerFeedback(answer,
+				  AnswerFeedbackIfc.INCORRECT_FEEDBACK,
+				  stripPtags(answerbean.getIncorrMatchFeedback())));
+		  answer.setAnswerFeedbackSet(answerFeedbackSet);
+		  answerSet.add(answer);
+	  }
+	  choicetext.setAnswerSet(answerSet);
+	  return choicetext;
+
+  }
 
   private HashSet prepareTextForMatching(ItemFacade item, ItemBean bean,
 		  ItemAuthorBean itemauthor) {
-	  // looping through matchItemBean
-	  ArrayList matchItemBeanList = bean.getMatchItemBeanList();
-	  HashSet textSet = new HashSet();
-	  Iterator choiceiter = matchItemBeanList.iterator();
+	  ArrayList<MatchItemBean>matchItemBeanList = bean.getMatchItemBeanList();
+	  HashSet<ItemText> textSet = new HashSet<ItemText>();
+	  
+	  Iterator<MatchItemBean> choiceiter = matchItemBeanList.iterator();
 	  while (choiceiter.hasNext()) {
-
-		  MatchItemBean choicebean = (MatchItemBean) choiceiter.next();
-
-		  ItemText choicetext = new ItemText();
-		  choicetext.setItem(item.getData()); // all set to the same
-		  // ItemFacade
-		  choicetext.setSequence(choicebean.getSequence());
-
-		  choicetext.setText(stripPtags(choicebean.getChoice()));
-
-		  // need to loop through matches for in matchItemBean list
-		  // and add all possible matches to this choice
-
-		  // log.info(
-		  Iterator answeriter = matchItemBeanList.iterator();
-		  HashSet answerSet = new HashSet();
-		  Answer answer = null;
-		  while (answeriter.hasNext()) {
-
-			  MatchItemBean answerbean = (MatchItemBean) answeriter.next();
-
-			  if (answerbean.getSequence().equals(choicebean.getSequence())) {
-				  answer = new Answer(choicetext, stripPtags(answerbean
-						  .getMatch()), answerbean.getSequence(), AnswerBean
-						  .getChoiceLabels()[answerbean.getSequence()
-						                     .intValue() - 1], Boolean.TRUE, null, Float.valueOf(
-						                    		 bean.getItemScore()), Float.valueOf(0f), Float.valueOf(bean.getItemDiscount()));
-
-				  // only add feedback for correct pairs
-				  HashSet answerFeedbackSet = new HashSet();
-				  answerFeedbackSet.add(new AnswerFeedback(answer,
-						  AnswerFeedbackIfc.CORRECT_FEEDBACK,
-						  stripPtags(answerbean.getCorrMatchFeedback())));
-				  answerFeedbackSet.add(new AnswerFeedback(answer,
-						  AnswerFeedbackIfc.INCORRECT_FEEDBACK,
-						  stripPtags(answerbean.getIncorrMatchFeedback())));
-				  answer.setAnswerFeedbackSet(answerFeedbackSet);
-
-			  } else {
-				  answer = new Answer(choicetext, stripPtags(answerbean
-						  .getMatch()), answerbean.getSequence(), AnswerBean
-						  .getChoiceLabels()[answerbean.getSequence()
-						                     .intValue() - 1], Boolean.FALSE, null,  Float.valueOf(
-						                    		 bean.getItemScore()), Float.valueOf(0f), Float.valueOf(bean.getItemDiscount()));
-			  }
-
-			  // record answers for all combination of pairs
-
-			  HashSet answerFeedbackSet = new HashSet();
-			  answerFeedbackSet.add(new AnswerFeedback(answer,
-					  AnswerFeedbackIfc.CORRECT_FEEDBACK,
-					  stripPtags(answerbean.getCorrMatchFeedback())));
-			  answerFeedbackSet.add(new AnswerFeedback(answer,
-					  AnswerFeedbackIfc.INCORRECT_FEEDBACK,
-					  stripPtags(answerbean.getIncorrMatchFeedback())));
-			  answer.setAnswerFeedbackSet(answerFeedbackSet);
-			  answerSet.add(answer);
-
-		  }
-		  choicetext.setAnswerSet(answerSet);
-		  textSet.add(choicetext);
-
+		  MatchItemBean choicebean = choiceiter.next();
+		  ItemText choicetext = selectAnswers(choicebean, matchItemBeanList, item, bean);
+		  textSet.add(choicetext);  
 	  }
 	  return textSet;
   }
