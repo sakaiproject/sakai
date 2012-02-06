@@ -142,7 +142,8 @@ public class SakaiMailet extends GenericMailet
 			}
 			else
 			{
-				M_log.warn("service - no SessionManager.getCurrentSession, cannot set to postmaser user");
+				M_log.warn("service - no SessionManager.getCurrentSession, cannot set to postmaser user, attempting to use the current user ("
+				        +SessionManager.getCurrentSessionUserId()+") and session ("+SessionManager.getCurrentSession().getId()+")");
 			}
 
 			MimeMessage msg = mail.getMessage();
@@ -194,8 +195,10 @@ public class SakaiMailet extends GenericMailet
                mailHeaders.add(MailArchiveService.HEADER_SUBJECT + ": <"+ rb.getString("err_no_subject") +">");
 			}
 
-			M_log.debug(id + " : mail: from:" + from + " sent: " + TimeService.newTime(sent.getTime()).toStringLocalFull() + " subject: "
-					+ subject);
+            if (M_log.isDebugEnabled()) {
+                M_log.debug(id + " : mail: from:" + from + " sent: " + TimeService.newTime(sent.getTime()).toStringLocalFull() 
+                        + " subject: " + subject);
+            }
 
 			// process for each recipient
 			Iterator<MailAddress> it = to.iterator();
@@ -205,7 +208,9 @@ public class SakaiMailet extends GenericMailet
 				try
 				{
 					MailAddress recipient = (MailAddress) it.next();
-					M_log.debug(id + " : checking to: " + recipient);
+                    if (M_log.isDebugEnabled()) {
+                        M_log.debug(id + " : checking to: " + recipient);
+                    }
 
 					// the recipient's mail id
 					mailId = recipient.getUser();
@@ -227,9 +232,15 @@ public class SakaiMailet extends GenericMailet
 					try
 					{
 						channel = MailArchiveService.getMailArchiveChannel(channelRef);
+                        if (M_log.isDebugEnabled()) {
+                            M_log.debug("Incoming message mailId ("+mailId+") IS a valid site channel reference");
+                        }
 					}
-					catch (IdUnusedException goOn)
-					{
+					catch (IdUnusedException goOn) {
+					    // INDICATES the incoming message is NOT for a currently valid site
+					    if (M_log.isDebugEnabled()) {
+					        M_log.debug("Incoming message mailId ("+mailId+") is NOT a valid site channel reference, will attempt more matches");
+					    }
 					}
 
 					// next, if not a site, see if it's an alias to a site or channel
@@ -238,51 +249,55 @@ public class SakaiMailet extends GenericMailet
 						// if not an alias, it will throw the IdUnusedException caught below
 						Reference ref = EntityManager.newReference(AliasService.getTarget(mailId));
 
-						// if ref is a site
-						if (ref.getType().equals(SiteService.APPLICATION_ID))
-						{
+						if (ref.getType().equals(SiteService.APPLICATION_ID)) {
+						    // ref is a site
 							// now we have a site reference, try for it's channel
 							channelRef = MailArchiveService.channelReference(ref.getId(), SiteService.MAIN_CONTAINER);
-						}
-
-						// if ref is a channel
-						else if (ref.getType().equals(MailArchiveService.APPLICATION_ID))
-						{
+                            if (M_log.isDebugEnabled()) {
+                                M_log.debug("Incoming message mailId ("+mailId+") IS a valid site reference ("+ref.getId()+")");
+                            }
+						} else if (ref.getType().equals(MailArchiveService.APPLICATION_ID)) {
 							// ref is a channel
 							channelRef = ref.getReference();
-						}
-
-						// ref is something else
-						else
-						{
-							M_log.info(id + " : mail rejected: unknown address: " + mailId);
-
+                            if (M_log.isDebugEnabled()) {
+                                M_log.debug("Incoming message mailId ("+mailId+") IS a valid channel reference ("+ref.getId()+")");
+                            }
+						} else {
+						    // ref cannot be be matched
+	                        if (M_log.isInfoEnabled()) {
+	                            M_log.info(id + " : mail rejected: unknown address: " + mailId + " : mailId ("+mailId+") does NOT match site, alias, or other current channel");
+	                        }
+	                        if (M_log.isDebugEnabled()) {
+	                            M_log.debug("Incoming message mailId ("+mailId+") is NOT a valid does NOT match site, alias, or other current channel reference ("+ref.getId()+"), message rejected");
+	                        }
 							throw new IdUnusedException(mailId);
 						}
 
 						// if there's no channel for this site, it will throw the IdUnusedException caught below
 						channel = MailArchiveService.getMailArchiveChannel(channelRef);
+                        if (M_log.isDebugEnabled()) {
+                            M_log.debug("Incoming message mailId ("+mailId+") IS a valid channel ("+channelRef+"), found channel: "+channel);
+                        }
 					}
 
 					// skip disabled channels
 					if (!channel.getEnabled())
 					{
-						if (from.startsWith(POSTMASTER))
-						{
+                        // INDICATES that the channel is NOT currently enabled so no messages can be received
+						if (from.startsWith(POSTMASTER)) {
 							mail.setState(Mail.GHOST);
-						}
-						else
-						{
+						} else {
 							String errMsg = rb.getString("err_email_off") + "\n\n";
 							String mailSupport = StringUtils.trimToNull( ServerConfigurationService.getString("mail.support") );
-							if ( mailSupport != null )
+							if ( mailSupport != null ) {
 								errMsg +=(String) rb.getFormattedMessage("err_questions",  new Object[]{mailSupport})+"\n";
-
+							}
 							mail.setErrorMessage(errMsg);
 						}
 
-						M_log.info(id + " : mail rejected: channel not enabled: " + mailId);
-
+                        if (M_log.isInfoEnabled()) {
+                            M_log.info(id + " : mail rejected: channel ("+channelRef+") not enabled: " + mailId);
+                        }
 						continue;
 					}
 
@@ -292,12 +307,15 @@ public class SakaiMailet extends GenericMailet
 						// see if our fromAddr is the email address of any of the users who are permitted to add messages to the channel.
 						if (!fromValidUser(fromAddr, channel))
 						{
-							M_log.info(id + " : mail rejected: from: " + fromAddr + " not authorized for site: " + mailId);
-
+						    // INDICATES user is not allowed to send messages to this group
+		                    if (M_log.isInfoEnabled()) {
+		                        M_log.info(id + " : mail rejected: from: " + fromAddr + " not authorized for site: " + mailId + " and channel ("+channelRef+")");
+		                    }
 							String errMsg = rb.getString("err_not_member") + "\n\n";
 							String mailSupport = StringUtils.trimToNull( ServerConfigurationService.getString("mail.support") );
-							if ( mailSupport != null )
+							if ( mailSupport != null ) {
 								errMsg +=(String) rb.getFormattedMessage("err_questions",  new Object[]{mailSupport})+"\n";
+							}
 							mail.setErrorMessage(errMsg);
 							continue;
 						}
@@ -358,7 +376,9 @@ public class SakaiMailet extends GenericMailet
 							mailHost = mail.getRemoteHost();
                   
 						MailAddress replyTo = new MailAddress( mailId, mailHost );
-						M_log.debug("Set Reply-To address to "+ replyTo.toString());
+                        if (M_log.isDebugEnabled()) {
+                            M_log.debug("Set Reply-To address to "+ replyTo.toString());
+                        }
 						modifiedHeaders.add("Reply-To: "+ replyTo.toString());
   
 						// post the message to the group's channel
@@ -371,15 +391,19 @@ public class SakaiMailet extends GenericMailet
 						channel.addMailArchiveMessage(subject, from.toString(), TimeService.newTime(sent.getTime()), mailHeaders,
 								attachments, body);
 					}
-															
-					M_log.debug(id + " : delivered to:" + mailId);
+
+                    if (M_log.isDebugEnabled()) {
+                        M_log.debug(id + " : delivered to:" + mailId);
+                    }
 
 					// all is happy - ghost the message to stop further processing
 					mail.setState(Mail.GHOST);
 				}
 				catch (IdUnusedException goOn)
 				{
-					// if this is to the postmaster, and there's no site, channel or alias for the postmaster, then quietly eat the message
+					// INDICATES that the channelReference found above was actually invalid OR that no channel reference could be identified
+
+				    // if this is to the postmaster, and there's no site, channel or alias for the postmaster, then quietly eat the message
 					if (POSTMASTER.equals(mailId))
 					{
 						mail.setState(Mail.GHOST);
@@ -392,20 +416,27 @@ public class SakaiMailet extends GenericMailet
 						continue;
 					}
 
-					M_log.info(id + " : mail rejected: " + goOn.toString());
+					if (M_log.isInfoEnabled()) {
+					    M_log.info("mailarchive invalid or unusable channel reference ("+mailId+"): "+id + " : mail rejected: " + goOn.toString());
+					}
 					String errMsg = rb.getString("err_addr_unknown") + "\n\n";
 					String mailSupport = StringUtils.trimToNull( ServerConfigurationService.getString("mail.support") );
-					if ( mailSupport != null )
+					if ( mailSupport != null ) {
 						errMsg +=(String) rb.getFormattedMessage("err_questions",  new Object[]{mailSupport})+"\n";
+					}
 					mail.setErrorMessage(errMsg);
 				}
 				catch (PermissionException e)
 				{
-					M_log.info(id + " : " + e);
+                    // INDICATES that the current user does not have permission to add or get the mail archive message from the current channel
+				    // This generally should not happen because the current user should be the postmaster
+					M_log.warn("mailarchive PermissionException message service failure: (id="+id+") (mailId="+mailId+") : " + e, e);
 				}
 				catch (Exception  ex)
 				{
-					M_log.info(id + " : " + ex);
+                    // INDICATES that some general exception has occurred which we did not except
+			        // This definitely should NOT happen
+					M_log.error("mailarchive General message service exception: (id="+id+") (mailId="+mailId+") : " + ex, ex);
 				}
 			}
 		}
