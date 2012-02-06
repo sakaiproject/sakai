@@ -190,7 +190,7 @@
 
 
   <p class="act">
-     <h:commandButton value="#{authorMessages.button_save}" type="submit" 
+     <h:commandButton value="#{commonMessages.action_save}" type="submit" 
        styleClass="active" action="#{sectionBean.getOutcome}" >
         <f:actionListener
           type="org.sakaiproject.tool.assessment.ui.listener.author.SavePartListener" />

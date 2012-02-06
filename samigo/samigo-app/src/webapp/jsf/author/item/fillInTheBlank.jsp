@@ -44,11 +44,11 @@
 <%@ include file="/jsf/author/item/itemHeadings.jsp" %>
 <h:form id="itemForm">
 <p class="act">
- <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{authorMessages.button_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
+ <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
-  <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{authorMessages.button_save}" action="#{itemauthor.currentItem.getPoolOutcome}" styleClass="active">
+  <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getPoolOutcome}" styleClass="active">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
@@ -190,11 +190,11 @@
 <%-- BUTTONS --%>
 <p class="act">
 
- <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{authorMessages.button_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
+ <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
-  <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{authorMessages.button_save}" action="#{itemauthor.currentItem.getPoolOutcome}" styleClass="active">
+  <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getPoolOutcome}" styleClass="active">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>

@@ -961,7 +961,7 @@ function uncheckOther(field){
 <p class="act">
 
   <!-- Save button -->
-  <h:commandButton type="submit" value="#{assessmentSettingsMessages.button_save_settings}" action="#{publishedSettings.getOutcome}"  styleClass="active" onclick="setBlockDivs();updateItemNavigation(false);" >
+  <h:commandButton type="submit" value="#{commonMessages.action_save}" action="#{publishedSettings.getOutcome}"  styleClass="active" onclick="setBlockDivs();updateItemNavigation(false);" >
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SavePublishedSettingsListener" />
   </h:commandButton>
   
