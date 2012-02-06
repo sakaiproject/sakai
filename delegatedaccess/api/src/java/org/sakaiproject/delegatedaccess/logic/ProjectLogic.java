@@ -202,4 +202,9 @@ public interface ProjectLogic {
 	 * @param hierarchyId
 	 */
 	public void deleteEmptyNonSiteNodes(String hierarchyId);
+	
+	/**
+	 * clears DelegatedAccess's own node cache
+	 */
+	public void clearNodeCache();
 }

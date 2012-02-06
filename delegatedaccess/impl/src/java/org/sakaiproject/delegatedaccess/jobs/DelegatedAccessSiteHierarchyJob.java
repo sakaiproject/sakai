@@ -191,7 +191,7 @@ public class DelegatedAccessSiteHierarchyJob implements Job{
 				projectLogic.saveHierarchyJobLastRunDate(new Date(), rootNode.id);
 			}
 
-
+			projectLogic.clearNodeCache();
 			//remove any sites that don't exist in the hierarchy (aka properties changed or site has been deleted):
 	//		removeMissingNodes(rootNode);
 

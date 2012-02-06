@@ -19,6 +19,9 @@ import javax.swing.tree.TreeModel;
 import lombok.Getter;
 import lombok.Setter;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.Element;
+
 import org.apache.log4j.Logger;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
@@ -52,7 +55,9 @@ public class ProjectLogicImpl implements ProjectLogic {
 	private HierarchyService hierarchyService;
 	@Getter @Setter
 	private DelegatedAccessDao dao;
-
+	//NodeCache stores HierarchyNodeSerialed nodes for faster lookups
+	@Getter @Setter
+	private Cache nodeCache;
 	/**
 	 * init - perform any actions required here for when this bean starts up
 	 */
@@ -657,8 +662,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 
 	//TREE MODEL FUNCTIONS:
 
-	//NodeCache stores HierarchyNodeSerialed nodes for faster lookups
-	private Map<String,HierarchyNodeSerialized> nodeCache = new HashMap<String, HierarchyNodeSerialized>();
+
 	private List<String> accessNodes = new ArrayList<String>();
 	private List<String> shoppingPeriodAdminNodes = new ArrayList<String>();
 	/**
@@ -1064,10 +1068,13 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * @return
 	 */
 	private HierarchyNodeSerialized getCachedNode(String id){
-		HierarchyNodeSerialized node = nodeCache.get(id);
-		if(node == null){
+		Element el = nodeCache.get(id);
+		HierarchyNodeSerialized node = null;
+		if(el == null){
 			node = getNode(id);
-			nodeCache.put(id, node);
+			nodeCache.put(new Element(id, node));
+		}else if(el.getObjectValue() instanceof HierarchyNodeSerialized){
+			node = (HierarchyNodeSerialized) el.getObjectValue();
 		}
 		return node;
 	}
@@ -1361,5 +1368,9 @@ public class ProjectLogicImpl implements ProjectLogic {
 	
 	public List<String> getNodesBySiteRef(String siteRef, String hierarchyId){
 		return dao.getNodesBySiteRef(siteRef, hierarchyId);
+	}
+	
+	public void clearNodeCache(){
+		nodeCache.removeAll();
 	}
 }

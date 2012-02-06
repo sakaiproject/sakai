@@ -31,6 +31,7 @@
     	<property name="sakaiProxy" ref="org.sakaiproject.delegatedaccess.logic.SakaiProxy" />	
     	<property name="hierarchyService" ref="org.sakaiproject.hierarchy.HierarchyService" />	
     	<property name="dao" ref="org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao" />
+    	<property name="nodeCache" ref="org.sakaiproject.delegatedaccess.logic.ProjectLogic.nodeCache"/>
     </bean>
     
     <bean id="org.sakaiproject.delegatedaccess.logic.DelegatedAccessObserver"
@@ -120,5 +121,15 @@
             class="org.sakaiproject.delegatedaccess.entity.DelegatedAccessEntityProviderImpl">
             <property name="projectLogic" ref="org.sakaiproject.delegatedaccess.logic.ProjectLogic" />
     </bean>
+
+	<bean id="org.sakaiproject.delegatedaccess.logic.ProjectLogic.nodeCache"
+	    class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+	  <property name="cacheManager">
+	    <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
+	  </property>
+	  <property name="cacheName">
+	    <value>org.sakaiproject.delegatedaccess.logic.ProjectLogic.nodeCache</value>
+	  </property>
+	</bean>
 
 </beans>
