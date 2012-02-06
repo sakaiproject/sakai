@@ -182,7 +182,7 @@ listener set selectFromQuestionPool, eliminating the rendered attribute
  <%--
   temporily comment put Preview link for a specific question in Author. It will not be the feature in Sam 1.5.
   <h:commandLink id="preview" immediate="true" action="preview">
-          <h:outputText value="#{authorMessages.t_preview}" />
+          <h:outputText value="#{commonMessages.action_preview}" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemModifyListener" />
   </h:commandLink>

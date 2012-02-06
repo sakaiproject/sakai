@@ -675,20 +675,20 @@ public class AuthorBean implements Serializable
 	  boolean isDeleteAnyAssessment = authorizationBean.getDeleteAnyAssessment();
 	  boolean isDeleteOwnAssessment = authorizationBean.getDeleteOwnAssessment();
 
-	  pendingActionList1.add(new SelectItem("select", res.getString("select_action")));
+	  pendingActionList1.add(new SelectItem("select", com.getString("action_select")));
 	  if (isEditAnyAssessment || isEditOwnAssessment) {
 		  pendingActionList1.add(new SelectItem("edit_pending", com.getString("edit_action")));
-		  pendingActionList1.add(new SelectItem("preview_pending", res.getString("t_preview")));
+		  pendingActionList1.add(new SelectItem("preview_pending", com.getString("action_preview")));
 		  if (Boolean.parseBoolean(ServerConfigurationService.getString("samigo.printAssessment"))) {
-			  pendingActionList1.add(new SelectItem("print_pending", res.getString("action_print")));
+			  pendingActionList1.add(new SelectItem("print_pending", com.getString("action_print")));
 		  }
 		  pendingActionList1.add(new SelectItem("settings_pending", com.getString("settings_action")));
 		  pendingActionList1.add(new SelectItem("publish", com.getString("publish_action")));
-		  pendingActionList1.add(new SelectItem("duplicate", res.getString("copy_action")));
+		  pendingActionList1.add(new SelectItem("duplicate", com.getString("action_duplicate")));
 		  pendingActionList1.add(new SelectItem("export", com.getString("export_action")));
 	  }
 	  if (isDeleteAnyAssessment || isDeleteOwnAssessment) {
-		  pendingActionList1.add(new SelectItem("remove_pending", res.getString("action_remove")));
+		  pendingActionList1.add(new SelectItem("remove_pending", com.getString("remove_action")));
 	  }
 	  return pendingActionList1;
   }
@@ -706,19 +706,19 @@ public class AuthorBean implements Serializable
 	  boolean isDeleteAnyAssessment = authorizationBean.getDeleteAnyAssessment();
 	  boolean isDeleteOwnAssessment = authorizationBean.getDeleteOwnAssessment();
 
-	  pendingActionList2.add(new SelectItem("select", res.getString("select_action")));
+	  pendingActionList2.add(new SelectItem("select", com.getString("action_select")));
 	  if (isEditAnyAssessment || isEditOwnAssessment) {
 		  pendingActionList2.add(new SelectItem("edit_pending", com.getString("edit_action")));
-		  pendingActionList2.add(new SelectItem("preview_pending", res.getString("t_preview")));
+		  pendingActionList2.add(new SelectItem("preview_pending", com.getString("action_preview")));
 		  if (Boolean.parseBoolean(ServerConfigurationService.getString("samigo.printAssessment"))) {
-			  pendingActionList2.add(new SelectItem("print_pending", res.getString("action_print")));
+			  pendingActionList2.add(new SelectItem("print_pending", com.getString("action_print")));
 		  }
 		  pendingActionList2.add(new SelectItem("settings_pending", com.getString("settings_action")));
-		  pendingActionList2.add(new SelectItem("duplicate", res.getString("copy_action")));
+		  pendingActionList2.add(new SelectItem("duplicate", com.getString("action_duplicate")));
 		  pendingActionList2.add(new SelectItem("export", com.getString("export_action")));
 	  }
 	  if (isDeleteAnyAssessment || isDeleteOwnAssessment) {
-		  pendingActionList2.add(new SelectItem("remove_pending", res.getString("action_remove")));
+		  pendingActionList2.add(new SelectItem("remove_pending", com.getString("remove_action")));
 	  }
 	  return pendingActionList2;
   }
@@ -737,14 +737,14 @@ public class AuthorBean implements Serializable
 
 
 	  if (isEditAnyAssessment || isEditOwnAssessment) {
-		  publishedActionList.add(new SelectItem("preview_published", res.getString("t_preview")));
+		  publishedActionList.add(new SelectItem("preview_published", com.getString("action_preview")));
 		  if (Boolean.parseBoolean(ServerConfigurationService.getString("samigo.printAssessment"))) {
-			  publishedActionList.add(new SelectItem("print_published", res.getString("action_print")));
+			  publishedActionList.add(new SelectItem("print_published", com.getString("action_print")));
 		  }
 		  publishedActionList.add(new SelectItem("settings_published", com.getString("settings_action")));
 	  }
 	  if (isDeleteAnyAssessment || isDeleteOwnAssessment) {
-		  publishedActionList.add(new SelectItem("remove_published", res.getString("action_remove")));
+		  publishedActionList.add(new SelectItem("remove_published", com.getString("remove_action")));
 	  }
 
 	  return publishedActionList;

@@ -55,7 +55,7 @@
 </h:panelGrid>
 
 <p class="act">
-<h:commandButton type="submit"  action="#{itemauthor.doit}" value="#{authorMessages.button_save}" styleClass="active">
+<h:commandButton type="submit"  action="#{itemauthor.doit}" value="#{commonMessages.action_save}" styleClass="active">
    <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
    <f:param name="poolId" value="#{questionpool.currentPool.id}"/>

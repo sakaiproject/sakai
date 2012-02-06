@@ -126,8 +126,8 @@ document.links[newindex].onclick();
 
  </div>
   <p class="navViewAction">
-      <h:commandLink  title="#{authorMessages.t_preview}" action="beginAssessment">
-        <h:outputText value="#{authorMessages.t_preview}"/>
+      <h:commandLink  title="#{commonMessages.action_preview}" action="beginAssessment">
+        <h:outputText value="#{commonMessages.action_preview}"/>
         <f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
         <f:param name="actionString" value="previewAssessment" />
         <f:param name="fromEdit" value="true" />
@@ -267,7 +267,7 @@ document.links[newindex].onclick();
 
         <h:commandLink title="#{authorMessages.t_removeP}" action="confirmRemovePart" immediate="true"
           rendered="#{partBean.number ne 1 && author.isEditPendingAssessmentFlow}">
-          <h:outputText value="#{authorMessages.remove_part}" />
+          <h:outputText value="#{commonMessages.remove_action}" />
           <!-- use this to set the sectionBean.sectionId in ConfirmRemovePartListener -->
           <f:param name="sectionId" value="#{partBean.sectionId}"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRemovePartListener" />
