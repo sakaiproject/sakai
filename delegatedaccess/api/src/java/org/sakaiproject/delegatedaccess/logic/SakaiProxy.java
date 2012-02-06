@@ -291,4 +291,20 @@ public interface SakaiProxy {
 	 * @param body
 	 */
 	public void sendEmail(String subject, String body);
+	
+	/**
+	 * returns the setting for
+	 * delegatedaccess.disable.user.tree.view
+	 * 
+	 * @return
+	 */
+	
+	public boolean getDisableUserTreeView();
+	
+	/**
+	 * returns a sakai.property for
+	 * delegatedaccess.disable.shopping.tree.view
+	 * @return
+	 */
+	public boolean getDisableShoppingTreeView();
 }

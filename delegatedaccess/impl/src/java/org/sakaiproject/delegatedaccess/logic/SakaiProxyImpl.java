@@ -500,4 +500,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 			emailService.send(fromAddress, toAddress, subject, body, null, null, null);
 		}
 	}
+	
+	public boolean getDisableUserTreeView(){
+		return serverConfigurationService.getBoolean(DelegatedAccessConstants.PROP_DISABLE_USER_TREE_VIEW, false);
+	}
+	
+	public boolean getDisableShoppingTreeView(){
+		return serverConfigurationService.getBoolean(DelegatedAccessConstants.PROP_DISABLE_SHOPPING_TREE_VIEW, false);
+	}
+	
 }

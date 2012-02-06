@@ -72,4 +72,6 @@ public class DelegatedAccessConstants {
 	public static final String NODE_PERM_SITE_HIERARCHY_JOB_LAST_RUN_DATE = "siteHierarchyJobLastRunDate:";
 	public static final String SITE_HIERARCHY_USER = "777dv0f43bd90sdf012uf";
 	public static final int MAX_SITES_PER_PAGE = 10000;
+	public static final String PROP_DISABLE_USER_TREE_VIEW = "delegatedaccess.disable.user.tree.view";
+	public static final String PROP_DISABLE_SHOPPING_TREE_VIEW = "delegatedaccess.disable.shopping.tree.view";
 }

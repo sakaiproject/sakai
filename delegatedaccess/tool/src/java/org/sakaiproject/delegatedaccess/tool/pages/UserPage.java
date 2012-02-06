@@ -87,11 +87,6 @@ public class UserPage  extends BaseTreePage{
 		}
 		add(description);
 		
-		//tree:
-
-		//Expand/Collapse Link
-		add(getExpandCollapseLink());
-
 		if(isShoppingPeriodTool()){
 			treeModel = projectLogic.getTreeModelForShoppingPeriod(false);
 			if(treeModel != null && ((DefaultMutableTreeNode) treeModel.getRoot()).getChildCount() == 0){
@@ -105,7 +100,9 @@ public class UserPage  extends BaseTreePage{
 		tree = new LinkTree("tree", treeModel){
 			@Override
 			public boolean isVisible() {
-				return treeModel != null;
+				return treeModel != null
+						&& ((!sakaiProxy.getDisableUserTreeView() && !isShoppingPeriodTool()) || 
+								(!sakaiProxy.getDisableShoppingTreeView() && isShoppingPeriodTool()));
 			}
 			protected void onNodeLinkClicked(Object node, BaseTree tree, AjaxRequestTarget target) {
 				if(!tree.getTreeState().isNodeExpanded(node)){
@@ -126,7 +123,7 @@ public class UserPage  extends BaseTreePage{
 								projectLogic.grantAccessToSite(nodeModel);
 							}
 							//redirect the user to the site
-							target.appendJavascript("top.location='" + site.getUrl() + "'");
+							target.appendJavascript("window.open('" + site.getUrl() + "')");
 						}
 					}
 				}

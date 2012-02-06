@@ -154,10 +154,18 @@ public class ProjectLogicImpl implements ProjectLogic {
 			hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SHOPPING_PERIOD_USER, nodeId, DelegatedAccessConstants.NODE_PERM_SHOPPING_UPDATED_DATE + updatedDate.getTime(), false);
 		}
 	}
-	
+		
 	public void saveHierarchyJobLastRunDate(Date runDate, String nodeId){
 		if(runDate != null){
+			clearHierarchyJobLastRunDate(nodeId);
 			hierarchyService.assignUserNodePerm(DelegatedAccessConstants.SITE_HIERARCHY_USER, nodeId, DelegatedAccessConstants.NODE_PERM_SITE_HIERARCHY_JOB_LAST_RUN_DATE + runDate.getTime(), false);
+		}
+	}
+	private void clearHierarchyJobLastRunDate(String nodeId){
+		for(String perm : hierarchyService.getPermsForUserNodes(DelegatedAccessConstants.SITE_HIERARCHY_USER, new String[]{nodeId})){
+			if(perm.startsWith(DelegatedAccessConstants.NODE_PERM_SITE_HIERARCHY_JOB_LAST_RUN_DATE)){
+				hierarchyService.removeUserNodePerm(DelegatedAccessConstants.SITE_HIERARCHY_USER, nodeId, perm, false);
+			}	
 		}
 	}
 	

@@ -300,7 +300,7 @@ public class UserPageSiteSearch extends BasePage {
 								projectLogic.grantAccessToSite(nodeModel);
 							}
 							//redirect the user to the site
-							target.appendJavascript("top.location='" + site.getUrl() + "'");
+							target.appendJavascript("window.open('" + site.getUrl() + "')");
 						}
 					}
 				};
