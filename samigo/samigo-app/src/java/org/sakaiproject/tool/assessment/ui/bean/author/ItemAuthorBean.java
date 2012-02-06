@@ -94,6 +94,7 @@ public class ItemAuthorBean
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 8266438770394956874L;
 
+  private final static int MAX_DECIMAL_PLACES = 10;
   public final static String FROM_QUESTIONPOOL= "questionpool";
   public final static String FROM_ASSESSMENT= "assessment";
   private String assessTitle;
@@ -673,6 +674,14 @@ public class ItemAuthorBean
    * @return ArrayList of model SelectItems
    */
 
+  public List<SelectItem> getDecimalPlaceList() {
+	  List<SelectItem> options = new ArrayList<SelectItem>();
+	  for (int i = 0; i <= MAX_DECIMAL_PLACES; i++) {
+		  SelectItem item = new SelectItem(i+"", i+"", "");
+		  options.add(item);
+	  }
+	  return options;
+  }
 // TODO use sectionBean.getsectionNumberList when its ready
 
   public ArrayList getSectionSelectList() {

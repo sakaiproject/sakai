@@ -63,6 +63,7 @@ private static final String msgResource =
   private boolean selectFromQuestionPool;
   private boolean selectFromQuestionBank;
   private boolean showMatrixSurvey;
+  private boolean showCalculatedQuestion; // CALCULATED_QUESTION
 
   /**
    * Should we show file upload question?
@@ -249,6 +250,23 @@ private static final String msgResource =
   }
 
   /**
+   * Should we show CalculatedQuestion?
+   * @return if true
+   */
+  public boolean isCalculatedQuestion()
+  {
+    return showCalculatedQuestion;
+  }
+  /**
+   * Set whether matching should be shown.
+   * @param showMatching if this type should be shown
+   */
+  public void setShowCalculatedQuestion(boolean showCalculatedQuestion)
+  {
+    this.showCalculatedQuestion = showCalculatedQuestion;
+  }
+  
+  /**
    * Derived property.  Get arraylist of item type SelectItems.
    * We are not lazy loading this so that we can change these dynamically.
    * Most are being injected from the faces-config, but whether we select from
@@ -296,6 +314,9 @@ if (showFillInNumeric)
 
     if (selectFromQuestionPool)
       list.add(new SelectItem("10", getResourceDisplayName("import_from_q")));
+
+    if (showCalculatedQuestion)
+        list.add(new SelectItem("15", getResourceDisplayName("calculated_question"))); // CALCULATED_QUESTION
 
     if (isSelectFromQuestionBank()) {
     	// Check if the question bank tool is installed and not stealthed or hidden

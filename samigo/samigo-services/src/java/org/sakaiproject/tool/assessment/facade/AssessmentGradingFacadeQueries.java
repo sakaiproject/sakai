@@ -2129,7 +2129,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 					  ItemDataIfc publishedItemData = (ItemDataIfc) publishedItemHash.get(publishedItemId);
 					  Long typeId = publishedItemData.getTypeId();
                       questionNumber = publishedItemData.getSequence();
-					  if (typeId.equals(TypeIfc.FILL_IN_BLANK) || typeId.equals(TypeIfc.FILL_IN_NUMERIC)) {
+					  if (typeId.equals(TypeIfc.FILL_IN_BLANK) || typeId.equals(TypeIfc.FILL_IN_NUMERIC) || typeId.equals(TypeIfc.CALCULATED_QUESTION)) {
 						  log.debug("FILL_IN_BLANK, FILL_IN_NUMERIC");
 						  isFinFib = true;
 						  String thistext = "";

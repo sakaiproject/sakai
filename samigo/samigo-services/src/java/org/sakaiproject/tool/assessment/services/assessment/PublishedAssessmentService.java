@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.Collection;
 
@@ -47,6 +48,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
@@ -508,6 +510,28 @@ public class PublishedAssessmentService extends AssessmentService{
 	      }
 	    }
 	    return map;
+  }
+
+  /**
+   * CALCULATED_QUESTION
+   * @param publishedAssessment
+   * @return the map of item id -> item for calc questions in this map
+   */
+  public Map<Long, ItemDataIfc> prepareCalcQuestionItemHash(PublishedAssessmentIfc publishedAssessment){
+      // CALCULATED_QUESTION
+      Map<Long, ItemDataIfc> map = new HashMap<Long, ItemDataIfc>();
+      List<SectionDataIfc> sectionArray = publishedAssessment.getSectionArray();
+      for (int i=0;i<sectionArray.size(); i++) {
+          SectionDataIfc section = sectionArray.get(i);
+          List<ItemDataIfc> itemArray = section.getItemArray();
+          for (int j=0;j<itemArray.size(); j++) {
+              ItemDataIfc item = itemArray.get(j);
+              if (item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION)) { // CALCULATED_QUESTION
+                  map.put(item.getItemId(), item);
+              }
+          }
+      }
+      return map;
   }
   
   public HashMap prepareMCMRItemHash(PublishedAssessmentIfc publishedAssessment){

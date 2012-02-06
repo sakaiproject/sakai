@@ -84,6 +84,11 @@ public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacade
      * @return org.osid.shared.Type
      */
     public Type getTypeById(Long typeId){
+    	//pbd hack
+    	List typeList = getAllTypes();
+    	this.typeFacadeMap = createTypeFacadeMapById(typeList);
+    	
+    	// end pbd hack
 	TypeFacade typeFacade = getTypeFacadeById(typeId);
 	TypeExtension type = new TypeExtension(typeFacade.getAuthority(),
 					       typeFacade.getDomain(),

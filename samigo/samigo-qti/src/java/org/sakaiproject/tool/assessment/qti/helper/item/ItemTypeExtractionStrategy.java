@@ -256,12 +256,21 @@ public class ItemTypeExtractionStrategy
     }
     // place holder for numerical responses questions
     else if (toGuess.indexOf("numerical") != -1 ||
-            toGuess.indexOf("calculate") != -1 ||
+            (toGuess.indexOf("calculate") != -1 && toGuess.indexOf("question") == -1) ||
             toGuess.indexOf("math") != -1
             )
    {
      itemType = AuthoringConstantStrings.FIN;
    }
+    // CALCULATED_QUESTION
+    else if (toGuess.indexOf("calcq") != -1 ||
+            toGuess.indexOf("c.q.") != -1 ||
+            toGuess.indexOf("cq") != -1 ||
+            (toGuess.indexOf("calculate") != -1 && toGuess.indexOf("question") != -1)
+            )
+    {
+        itemType = AuthoringConstantStrings.CALCQ;
+    }
     else if (toGuess.indexOf("essay") != -1 ||
              toGuess.indexOf("short") != -1)
     {

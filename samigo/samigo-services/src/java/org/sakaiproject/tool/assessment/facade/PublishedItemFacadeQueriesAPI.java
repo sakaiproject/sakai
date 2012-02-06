@@ -15,4 +15,6 @@ public interface PublishedItemFacadeQueriesAPI {
 	public PublishedItemFacade getItem(String itemId);
 	
 	public void deleteItemContent(Long itemId, String agent);
+    
+    public PublishedItemFacade saveItem(PublishedItemFacade item);
 }

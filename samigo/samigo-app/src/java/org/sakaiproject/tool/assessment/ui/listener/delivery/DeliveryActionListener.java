@@ -25,6 +25,7 @@ package org.sakaiproject.tool.assessment.ui.listener.delivery;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -108,6 +109,7 @@ public class DeliveryActionListener
   private static Log log = LogFactory.getLog(DeliveryActionListener.class);
   //private static ContextUtil cu;
   private boolean resetPageContents = true;
+  private long previewGradingId = (long)(Math.random() * 1000);
 
   /**
    * ACTION.
@@ -1249,6 +1251,7 @@ public class DeliveryActionListener
       if (randomize && !(item.getTypeId().equals(TypeIfc.FILL_IN_BLANK)||
     		  item.getTypeId().equals(TypeIfc.FILL_IN_NUMERIC) || 
     		  item.getTypeId().equals(TypeIfc.MATRIX_CHOICES_SURVEY)) ||
+    		  item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION) || // CALCULATED_QUESTION
     		  item.getTypeId().equals(TypeIfc.MATCHING))
       {
             ArrayList shuffled = new ArrayList();
@@ -1385,6 +1388,11 @@ public class DeliveryActionListener
             {
               key += ", " + answer.getText();
             }
+          }
+          // CALCULATED_QUESTION
+          if (item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION))
+          {
+                key = commaDelimtedCalcQuestionAnswers(item, delivery, itemBean);
           }
           //myanswers will get the answer even for matrix and multiple choices survey
           myanswers.add(answer);
@@ -1531,6 +1539,11 @@ public class DeliveryActionListener
     else if (item.getTypeId().equals(TypeIfc.MATRIX_CHOICES_SURVEY))
     {
     	populateMatrixChoices(item, itemBean, publishedAnswerHash);
+    }
+    // CALCULATED_QUESTION
+    else if (item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION))
+    {
+        populateCalculatedQuestion(item, itemBean, delivery);
     }
     
     return itemBean;
@@ -2023,6 +2036,111 @@ public class DeliveryActionListener
   }
 */
   
+  /**
+   * CALCULATED_QUESTION
+   * This method essentially will convert a CalculatedQuestion item which is initially structured
+   * like a Matching item and reshape it into something more akin to a Fill-in-the-blank numeric
+   * item.
+   */
+  public void populateCalculatedQuestion(ItemDataIfc item, ItemContentsBean bean, DeliveryBean delivery)
+  {
+	long gradingId = determineCalcQGradingId(delivery);
+	String agentId = determineCalcQAgentId(delivery, bean);
+	  
+	HashMap answersMap = new HashMap();
+	GradingService service = new GradingService();
+	// texts is the display text that will show in the question. AnswersMap gets populated with
+	// pairs such as key:x, value:42.0
+	ArrayList<String> texts = service.extractCalcQAnswersArray(answersMap, item, gradingId, agentId);
+	String questionText = texts.get(0);
+	
+	ItemTextIfc text = (ItemTextIfc) item.getItemTextArraySorted().toArray()[0];
+    List<FinBean> fins = new ArrayList<FinBean>();
+    bean.setInstruction(questionText); // will be referenced in table of contents
+    
+    int numOfAnswers = answersMap.size();
+    
+    int i = 0;
+    ArrayList calcQuestionEntities = text.getAnswerArraySorted();
+    
+    // Here's where I had to do it a little messy, so I'll explain. The variable are like
+    // matching pairs so they are stored as answers. But this question has real answers
+    // too. So I recycle the answer object I stored the variables in again to represent
+    // answers too.
+    // I sort this list by answer id so that it will come back from the student in a 
+    // predictable order.
+    Collections.sort(calcQuestionEntities, new Comparator<AnswerIfc>(){
+    	public int compare(AnswerIfc a1, AnswerIfc a2) {
+    		return a1.getId().compareTo(a2.getId());
+    	}
+    });
+    
+    Iterator<AnswerIfc> iter = calcQuestionEntities.iterator();
+    while (iter.hasNext())
+    {
+    	if (i == numOfAnswers) break; // AnswerArray holds the vars so there may be more than we need
+    	
+      AnswerIfc answer = iter.next();
+      
+      answer.setIsCorrect(true);
+      
+      FinBean fbean = new FinBean();
+      fbean.setItemContentsBean(bean);
+      fbean.setAnswer(answer);
+      if(texts.toArray().length>i)
+        fbean.setText( (String) texts.toArray()[i++]);
+      else
+        fbean.setText("");
+      fbean.setHasInput(true); // input box
+
+      ArrayList<ItemGradingData> datas = bean.getItemGradingDataArray();
+      if (datas == null || datas.isEmpty())
+      {
+        fbean.setIsCorrect(false);
+      }
+      else
+      {
+        for (ItemGradingData data : datas) {
+          
+          if ((data.getPublishedAnswerId()!=null) && (data.getPublishedAnswerId().equals(answer.getId())))
+          {
+        	fbean.setItemGradingData(data);
+            fbean.setResponse(FormattedText.convertFormattedTextToPlaintext(data.getAnswerText()));
+            fbean.setIsCorrect(false);
+            if (answer.getText() == null)
+            {
+              answer.setText("");
+            }
+            StringTokenizer st2 = new StringTokenizer(answer.getText(), "|");
+            while (st2.hasMoreTokens())
+            {
+              String nextT = st2.nextToken();
+              log.debug("nextT = " + nextT);
+              //  mark answer as correct if autoscore > 0
+
+              if (data.getAutoScore() != null &&
+                  data.getAutoScore().floatValue() > 0.0)
+               {
+                fbean.setIsCorrect(true);
+              }
+            }
+          }
+        }
+      }
+      fins.add(fbean);
+    }
+
+    FinBean fbean = new FinBean();
+    if(texts.toArray().length>i)
+      fbean.setText( (String) texts.toArray()[i]);
+     else
+      fbean.setText("");
+    fbean.setHasInput(false);
+    fins.add(fbean);
+
+    bean.setFinArray((ArrayList) fins);
+	    
+  }
   
   public String getAgentString(){
     PersonBean person = (PersonBean) ContextUtil.lookupBean("person");
@@ -2436,4 +2554,77 @@ public class DeliveryActionListener
 	Integer status = pubService.getPublishedAssessmentStatus(publishedAssessmentId);
 	delivery.getPublishedAssessment().setStatus(status);
   }
+  
+  /**
+   * CALCULATED_QUESTION
+   * This returns the comma delimted answer key for display such as "42.1,23.19"
+   */
+  private String commaDelimtedCalcQuestionAnswers(ItemDataIfc item, DeliveryBean delivery, ItemContentsBean itemBean) {
+	  long gradingId = determineCalcQGradingId(delivery);
+	  String agentId = determineCalcQAgentId(delivery, itemBean);
+	  
+	  String keysString = "";
+	  GradingService service = new GradingService();
+	
+	HashMap answersMap = new HashMap();
+	ArrayList texts = service.extractCalcQAnswersArray(answersMap, item, gradingId, agentId);
+	
+	int answerSequence = 1; // this corresponds to the sequence value assigned in extractCalcQAnswersArray()
+	while(answerSequence <= answersMap.size()) {
+			String answer = (String)answersMap.get(answerSequence);
+		  answer = answer.substring(0, answer.indexOf("|")); // cut off extra data e.g. "|2,3"
+		  keysString = keysString.concat(answer + ",");
+		  answerSequence++;
+	  }
+	  if (keysString.length() > 2) {
+		  keysString = keysString.substring(0, keysString.length()-1); // truncating the comma on the end
+	  }
+	  return keysString;
+  }
+  
+  /**
+   * CALCULATED_QUESTION
+   * We need the agentIds in order to properly set the pseudorandom seed
+   * for calculated questions.
+   */
+  private String determineCalcQAgentId(DeliveryBean delivery, ItemContentsBean itemBean) {
+	  String agentId = "";
+	  if (delivery.getAssessmentGradingId() != null) { //not a preview
+		  	if (delivery.getAssessmentGrading() != null) {
+		  		agentId = delivery.getAssessmentGrading().getAgentId();
+		  	}
+		  	else { // Instructor or TA is accessing the data
+		  		if (itemBean.getItemGradingDataArray().size() == 0) {
+		  			return "error";
+		  		}
+		  		Iterator iterForAgent = itemBean.getItemGradingDataArray().iterator();
+		  		ItemGradingIfc dataForAgent = (ItemGradingIfc) iterForAgent.next();
+		  		agentId = dataForAgent.getAgentId();
+		  	}
+	  }
+	  else { // preview
+	  	// give the instructor a random value each time for this
+	  	agentId = "instructor_preview"; // doesn't really matter for preview
+	  }
+	  return agentId;
+  }
+  
+  /**
+   * CALCULATED_QUESTION
+   * We need the gradingIds in order to properly set the pseudorandom seed
+   * for calculated questions.
+   */
+  private long determineCalcQGradingId(DeliveryBean delivery) {
+	  long gradingId = 0;
+	  if (delivery.getAssessmentGradingId() != null) { //not a preview
+		  	gradingId = delivery.getAssessmentGradingId();
+	  }
+	  else { // preview
+	  	// give the instructor a random value each time for this
+	  	gradingId = previewGradingId;
+	  }
+	  return gradingId;
+  }
+  
 }
+

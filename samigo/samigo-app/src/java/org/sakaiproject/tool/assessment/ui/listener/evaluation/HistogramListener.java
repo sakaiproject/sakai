@@ -667,6 +667,7 @@ public class HistogramListener
         qbean.getQuestionType().equals("9") || // matching
         qbean.getQuestionType().equals("8") || // Fill in the blank
     	qbean.getQuestionType().equals("11") ||  //  Numeric Response
+        qbean.getQuestionType().equals("15") || // CALCULATED_QUESTION
     	qbean.getQuestionType().equals("13"))  // matrix survey 
       doAnswerStatistics(pub, qbean, itemScores);
     if (qbean.getQuestionType().equals("5") || // essay
@@ -721,6 +722,8 @@ public class HistogramListener
     //    getFINMCMCScores(publishedItemHash, publishedAnswerHash, scores, qbean, answers);
     else if (qbean.getQuestionType().equals("9"))
       getMatchingScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
+    else if (qbean.getQuestionType().equals("15")) // CALCULATED_QUESTION
+        getCalculatedQuestionScores(scores, qbean, text);
     else if (qbean.getQuestionType().equals("13")) // matrix survey question
       getMatrixSurveyScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
   }
@@ -1172,6 +1175,72 @@ public class HistogramListener
 
 
 
+private void getCalculatedQuestionScores(List<ItemGradingData> scores, HistogramQuestionScoresBean qbean, ArrayList labels) {
+    final String CORRECT = "Correct";
+    final String INCORRECT = "Incorrect";
+    final int COLUMN_MAX_HEIGHT = 600;
+    
+    ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
+    ResourceLoader rc = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
+    
+    // count incorrect and correct to support column height calculation
+    Map<String, Integer> results = new HashMap<String, Integer>();
+    results.put(CORRECT, Integer.valueOf(0));
+    results.put(INCORRECT, Integer.valueOf(0));
+    
+    for (ItemGradingData score : scores) {
+        if (score.getAutoScore() > 0) {
+            Integer value = results.get(CORRECT);
+            results.put(CORRECT, ++value);
+        } else {
+            Integer value = results.get(INCORRECT);
+            results.put(INCORRECT, ++value);
+        }
+    }
+    
+    // build the histogram bar for correct/incorrect answers
+    List<HistogramBarBean> barList = new ArrayList<HistogramBarBean>();    
+    for (Map.Entry<String, Integer> entry : results.entrySet()) {
+        HistogramBarBean bar = new HistogramBarBean();
+        bar.setLabel(entry.getKey());
+        bar.setNumStudents(entry.getValue());
+        if (entry.getValue() > 1) {
+            bar.setNumStudentsText(entry.getValue() + " " + rb.getString("correct_responses"));
+        } else {
+            bar.setNumStudentsText(entry.getValue() + " " + rc.getString("correct_response"));
+        }
+        bar.setNumStudentsText(entry.getValue() + " " + entry.getKey());
+        bar.setIsCorrect(entry.getKey().equals(CORRECT));
+        int height = 0;
+        if (scores.size() > 0) {
+            height = COLUMN_MAX_HEIGHT * entry.getValue() / scores.size();
+        }
+        bar.setColumnHeight(Integer.toString(height));
+        barList.add(bar);
+    }    
+    
+    HistogramBarBean[] bars = new HistogramBarBean[barList.size()];
+    bars = barList.toArray(bars);
+    qbean.setHistogramBars(bars);
+    
+    // store any assessment grading ID's that are incorrect.
+    // this will allow us to calculate % Students All correct by giving
+    // us a count of assessmnets that had an incorrect answer 
+    Set<Long> assessmentQuestionIncorrect = new HashSet<Long>();
+    for (ItemGradingData score : scores) {
+        if (score.getAutoScore() == 0) {
+            assessmentQuestionIncorrect.add(score.getAssessmentGradingId());
+        }
+    }
+    
+    if (qbean.getNumResponses() > 0) {
+        int correct = qbean.getNumResponses() - assessmentQuestionIncorrect.size();
+        int total = qbean.getNumResponses();
+        float percentCorrect = ((float) correct / (float) total) * 100;
+        String percentCorrectStr = Float.toString(percentCorrect);
+        qbean.setPercentCorrect(percentCorrectStr);
+    }
+}
 
   private void getMatchingScores(HashMap publishedItemTextHash, HashMap publishedAnswerHash,
     ArrayList scores, HistogramQuestionScoresBean qbean, ArrayList labels)

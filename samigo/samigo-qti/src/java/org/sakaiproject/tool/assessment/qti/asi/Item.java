@@ -209,7 +209,7 @@ public class Item extends ASIBaseClass
     }
     
     String instruction = item.getInstruction();
-    if (this.isMatching() || this.isFIB() || this.isFIN() || this.isMXSURVEY())
+    if (this.isMatching() || this.isFIB() || this.isFIN() || this.isMXSURVEY() || this.isCalculatedQuestion())
     {
       if ( instruction != null)
         {
@@ -387,6 +387,11 @@ public class Item extends ASIBaseClass
     return AuthoringConstantStrings.TF.equals(this.getItemType()) ? true : false;
   }
 
+  // CALCULATED_QUESTION
+  public boolean isCalculatedQuestion()
+  {
+    return AuthoringConstantStrings.CALCQ.equals(this.getItemType()) ? true : false;
+  }
 
 
   /**

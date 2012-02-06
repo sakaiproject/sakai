@@ -34,10 +34,12 @@ import javax.faces.event.ValueChangeListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.MatchItemBean;
@@ -216,6 +218,11 @@ log.debug("after getting item.getItemType() ");
       			item.setMatchItemBeanList(new ArrayList());
                         nextpage = "matchingItem";
                         break;
+                case 15: // CALCULATED_QUESTION
+                    CalculatedQuestionBean bean = new CalculatedQuestionBean();
+                    item.setCalculatedQuestion(bean);
+                    nextpage = "calculatedQuestionVariableItem";
+                    break;
                 case 10:
     			QuestionPoolBean qpoolBean= (QuestionPoolBean) ContextUtil.lookupBean("questionpool");
 			qpoolBean.setImportToAuthoring(true);

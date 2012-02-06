@@ -229,6 +229,21 @@ function editorCheck(){
    }
 }
 
+//display a prompt if the user tries to save the question but has not edited 
+//any formulas or variables.  Called on document.ready() for Calculated questions
+function initCalcQuestion() {
+ var dirty = false;
+ $(".changeWatch").change(function() {
+         dirty = true;
+ });
+ $(".saveButton").click(function() {
+     if (!dirty) {
+         if (!confirm("You have not changed variables or formulas.  Are you sure that you want to Save?")) {
+             return false;
+         }
+     }           
+ });
+}
 
 // this is to disable the 'copy' button when importing questions from pool to assessement. itemtype =10
 

@@ -1592,6 +1592,9 @@ public class ExtractionHelper
     {
     	addMatrixSurveyTextAndAnswers(item, itemMap);
     }
+    else if (TypeIfc.CALCULATED_QUESTION.longValue() == typeId.longValue()) {
+        addCalculatedQuestionAnswers(item, itemMap);
+    }
     else
     {
     	if (isRespondus) {
@@ -1617,7 +1620,11 @@ public class ExtractionHelper
       if (item.getTypeId().equals(TypeIfc.ESSAY_QUESTION)) {
     	score = "1";
       }
-      else if (item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) || item.getTypeId().equals(TypeIfc.FILL_IN_BLANK) || item.getTypeId().equals(TypeIfc.MATCHING)) {
+      else if (item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) 
+              || item.getTypeId().equals(TypeIfc.FILL_IN_BLANK) 
+              || item.getTypeId().equals(TypeIfc.MATCHING)
+              || item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION) // CALCULATED_QUESTION
+              ) {
         score = (String) itemMap.get("score");
       }
       else {
@@ -2734,6 +2741,137 @@ public class ExtractionHelper
     }
 
     return newList;
+  }
+
+  /**
+   * CALCULATED Questions ONLY
+   * @param item
+   * @param itemMap
+   */
+  private void addCalculatedQuestionAnswers(ItemFacade item, Map itemMap) {
+      // we do not have access to the raw XML data, so this was the easiest way
+      // that I could think of to return the variable and formula information
+      // in the itemMap.  The transform could do more, but XmlMapper.map function
+      // is limited.  The variable lists should all be the same size, and the 
+      // formula lists should all be the same size
+      List<String> variableNames = (List) itemMap.get("variableNames");
+      List<String> variableMins = (List) itemMap.get("variableMins");
+      List<String> variableMaxs = (List) itemMap.get("variableMaxs");
+      List<String> variableDecimalPlaces = (List) itemMap.get("variableDecimalPlaces");
+      
+      List<String> formulaNames = (List) itemMap.get("formulaNames");
+      List<String> formulaTexts = (List) itemMap.get("formulaTexts");
+      List<String> formulaTolerances = (List) itemMap.get("formulaTolerances");
+      List<String> formulaDecimalPlaces = (List) itemMap.get("formulaDecimalPlaces");
+      
+      List<String> instructions = (List) itemMap.get("itemText");
+      if (instructions.size() > 0) {
+          String instruction = instructions.get(0);
+          if (instruction != null && instruction.length() > 0) {
+              instruction = XmlUtil.processFormattedText(log, (String) instructions.get(0));
+              instruction = instruction.replaceAll("\\?\\?"," ");//SAK-2298
+              item.setInstruction(instruction);
+          }
+      }
+      
+      // loops through variablenames and formulanames creates the entries for sam_itemtext_t
+      // within those loops, create the entries for sam_answer_t
+      // setIsCorrect() for variables will only be correct in the inner variable loop
+      // setIsCorrect() for formulas will only be correct in the inner formula loop
+      // this feels kludgy.  
+      Set itemTextSet = new HashSet<ItemText>();
+      
+      // variable outer loop
+      for (int i = 0; i < variableNames.size(); i++) {
+          char answerLabel = 'A';
+          ItemText itemText = new ItemText();
+          itemText.setText(variableNames.get(i));
+          itemText.setItem(item.getData());
+          itemText.setSequence(Long.valueOf(i + 1));
+          
+          // associate answers with the text
+          Set<Answer> answerSet = new HashSet<Answer>();
+          for (int j = 0; j < variableNames.size(); j++) {
+              String varMin = variableMins.get(j);
+              String varMax = variableMaxs.get(j);
+              String varDecimalPlaces = variableDecimalPlaces.get(j);
+              
+              Answer answer = new Answer();
+              answer.setItem(item.getData());
+              answer.setItemText(itemText);
+              answer.setLabel("" + answerLabel++);
+              answer.setText(varMin + "|" + varMax + "," + varDecimalPlaces);
+              answer.setSequence(Long.valueOf(j + 1));
+              // only a variable can be correct here, since we're comparing variables
+              answer.setIsCorrect(i == j);
+              answerSet.add(answer);
+          }
+          
+          for (int j = 0; j < formulaNames.size(); j++) {
+              String forText = formulaTexts.get(j);
+              String forTolerance = formulaTolerances.get(j);
+              String forDecimalPlaces = formulaDecimalPlaces.get(j);
+              
+              Answer answer = new Answer();
+              answer.setItem(item.getData());
+              answer.setItemText(itemText);
+              answer.setLabel("" + answerLabel++);
+              answer.setText(forText + "|" + forTolerance + "," + forDecimalPlaces);
+              answer.setSequence(Long.valueOf(variableNames.size() + j + 1));
+              // no formulas will ever match here
+              answer.setIsCorrect(Boolean.FALSE);
+              answerSet.add(answer);              
+          }
+          itemText.setAnswerSet(answerSet);          
+          itemTextSet.add(itemText);
+      }
+      
+      // formula outer loop
+      for (int i = 0; i < formulaNames.size(); i++) {          
+          char answerLabel = 'A';
+          ItemText itemText = new ItemText();
+          itemText.setText(formulaNames.get(i));
+          itemText.setItem(item.getData());
+          itemText.setSequence(Long.valueOf(variableNames.size() + i + 1));
+          
+          // associate answers with the text
+          Set<Answer> answerSet = new HashSet<Answer>();
+          for (int j = 0; j < variableNames.size(); j++) {
+              String varMin = variableMins.get(j);
+              String varMax = variableMaxs.get(j);
+              String varDecimalPlaces = variableDecimalPlaces.get(j);
+              
+              Answer answer = new Answer();
+              answer.setItem(item.getData());
+              answer.setItemText(itemText);
+              answer.setLabel("" + answerLabel++);
+              answer.setText(varMin + "|" + varMax + "," + varDecimalPlaces);
+              answer.setSequence(Long.valueOf(j + 1));
+              // no variables will ever match here
+              answer.setIsCorrect(Boolean.FALSE);
+              answerSet.add(answer);
+          }
+          
+          for (int j = 0; j < formulaNames.size(); j++) {
+              String forText = formulaTexts.get(j);
+              String forTolerance = formulaTolerances.get(j);
+              String forDecimalPlaces = formulaDecimalPlaces.get(j);
+              
+              Answer answer = new Answer();
+              answer.setItem(item.getData());
+              answer.setItemText(itemText);
+              answer.setLabel("" + answerLabel++);
+              answer.setText(forText + "|" + forTolerance + "," + forDecimalPlaces);
+              answer.setSequence(Long.valueOf(variableNames.size() + j + 1));
+              // only a formula can be correct here, since we're comparing formulas
+              answer.setIsCorrect(i == j);
+              answerSet.add(answer);              
+          }
+          itemText.setAnswerSet(answerSet);          
+          itemTextSet.add(itemText);
+      }
+      
+      item.setItemTextSet(itemTextSet);
   }
 
   /**

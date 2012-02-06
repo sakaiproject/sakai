@@ -101,48 +101,45 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 			}
 		}
 	}
-	
-/*
-	 public PublishedItemFacade saveItem(PublishedItemFacade item) throws DataFacadeException {
-	    try{
-	    	ItemDataIfc publishedItemdata = (ItemDataIfc) item.getData();
-	      publishedItemdata.setLastModifiedDate(new Date());
-	      publishedItemdata.setLastModifiedBy(AgentFacade.getAgentString());
-	    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
-	    while (retryCount > 0){
-	      try {
-	        getHibernateTemplate().saveOrUpdate(publishedItemdata);
-	        item.setItemId(publishedItemdata.getItemId());
-	        retryCount = 0;
-	      }
-	      catch (Exception e) {
-	        log.warn("problem save or update itemdata: "+e.getMessage());
-	        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
-	      }
+
+	public PublishedItemFacade saveItem(PublishedItemFacade item) {
+	    try {
+	        ItemDataIfc publishedItemdata = (ItemDataIfc) item.getData();
+	        publishedItemdata.setLastModifiedDate(new Date());
+	        publishedItemdata.setLastModifiedBy(AgentFacade.getAgentString());
+	        int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+	        while (retryCount > 0){
+	            try {
+	                getHibernateTemplate().saveOrUpdate(publishedItemdata);
+	                item.setItemId(publishedItemdata.getItemId());
+	                retryCount = 0;
+	            }
+	            catch (Exception e) {
+	                log.warn("problem save or update itemdata: "+e.getMessage());
+	                retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+	            }
+	        }
+	        if ((item.getData()!= null) && (item.getData().getSection()!= null)) {
+	            AssessmentIfc assessment = item.getData().getSection().getAssessment();
+	            assessment.setLastModifiedBy(AgentFacade.getAgentString());
+	            assessment.setLastModifiedDate(new Date());
+	            retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+	            while (retryCount > 0){
+	                try {
+	                    getHibernateTemplate().update(assessment);
+	                    retryCount = 0;
+	                }
+	                catch (Exception e) {
+	                    log.warn("problem updating asssessment: "+e.getMessage());
+	                    retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+	                }
+	            }
+	        }
+	        return item;
+	    } catch(Exception e) {
+	        e.printStackTrace();
+	        return null;
 	    }
-	    if ((item.getData()!= null) && (item.getData().getSection()!= null)) {
-	    AssessmentIfc assessment = item.getData().getSection().getAssessment();
-	    assessment.setLastModifiedBy(AgentFacade.getAgentString());
-	    assessment.setLastModifiedDate(new Date());
-	    retryCount = PersistenceService.getInstance().getRetryCount().intValue();
-	    while (retryCount > 0){
-	    	try {
-	    		getHibernateTemplate().update(assessment);
-	    		retryCount = 0;
-	    	}
-	    	catch (Exception e) {
-	    		log.warn("problem updating asssessment: "+e.getMessage());
-	    		retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
-	    	}
-	    }
-	    }
-	    return item;
-	    }
-	    catch(Exception e){
-		e.printStackTrace();
-		return null;
-	    }
-	 }
-	 */
+	}
 
 }

@@ -72,9 +72,13 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.ui.bean.author.AnswerBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionAnswerIfc;
+import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionFormulaBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionVariableBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.MatchItemBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolDataBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -121,13 +125,14 @@ public class ItemAddListener
    
     // SAK-6050
     // if((!iType.equals(TypeFacade.MATCHING.toString())&&((iText==null)||(iText.replaceAll("<.*?>", "").trim().equals(""))))|| (iType.equals(TypeFacade.MATCHING.toString()) && ((iInstruction==null)||(iInstruction.replaceAll("<.*?>", "").trim().equals(""))))){
-    if((!iType.equals(TypeFacade.MATCHING.toString())&&((iText==null)||(iText.toLowerCase().replaceAll("<^[^(img)]*?>", "").trim().equals(""))))|| (iType.equals(TypeFacade.MATCHING.toString()) && ((iInstruction==null)||(iInstruction.toLowerCase().replaceAll("<^[^(img)]*?>", "").trim().equals(""))))){ 
-	
- 
-	String emptyText_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","emptyText_error");     
-	context.addMessage(null,new FacesMessage(emptyText_err));
-	return;
-
+    if( (!iType.equals(TypeFacade.MATCHING.toString())&&((iText==null) ||(iText.toLowerCase().replaceAll("<^[^(img)]*?>", "").trim().equals(""))))|| (iType.equals(TypeFacade.MATCHING.toString()) && ((iInstruction==null)||(iInstruction.toLowerCase().replaceAll("<^[^(img)]*?>", "").trim().equals(""))))){
+    	
+    	// Like Matching CaculatedQuestion will also use Instruction instead of itemText
+    	if (!iType.equals(TypeFacade.CALCULATED_QUESTION.toString())) {
+			String emptyText_err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","emptyText_error");     
+			context.addMessage(null,new FacesMessage(emptyText_err));
+			return;
+    	}
     }   
    
     if(iType.equals(TypeFacade.MULTIPLE_CHOICE.toString()))
@@ -231,6 +236,44 @@ public class ItemAddListener
     		return;
     	}
     } 
+
+    // CALCULATED_QUESTION
+    if (iType.equals(TypeFacade.CALCULATED_QUESTION.toString())) {
+        
+        // make sure any last minute updates to instructions are handles
+        // this also does the standard validations
+        CalculatedQuestionExtractListener extractListener = new CalculatedQuestionExtractListener();
+        List<String> errors = extractListener.validate(item);
+        if (errors.size() > 0) {
+            for (String curError : errors) {
+                context.addMessage(null, new FacesMessage(curError));
+            }
+            error = true;
+        }
+                
+        if(error) {
+            item.setOutcome("calculatedQuestion");
+            item.setPoolOutcome("calculatedQuestion");
+            return;
+        }
+        
+        // if no errors remove disabled variables and formulas before saving
+        CalculatedQuestionBean question = item.getCalculatedQuestion();
+        Iterator<CalculatedQuestionVariableBean> variableIter = question.getVariables().values().iterator();        
+        while (variableIter.hasNext()) {
+            CalculatedQuestionVariableBean variable = variableIter.next();
+            if (!variable.getActive()) {
+                variableIter.remove();
+            }
+        }
+        Iterator<CalculatedQuestionFormulaBean> formulaIter = question.getFormulas().values().iterator();
+        while (formulaIter.hasNext()) {
+            CalculatedQuestionFormulaBean formula = formulaIter.next();
+            if (!formula.getActive()) {
+                formulaIter.remove();
+            }
+        }
+    }
 
 	try {
 		saveItem(itemauthorbean);
@@ -614,6 +657,8 @@ public class ItemAddListener
     	  //prepare itemText, including answers
     	  if (item.getTypeId().equals(TypeFacade.MATCHING)) {
     		  item.setItemTextSet(prepareTextForMatching(item, bean, itemauthor));
+    	  } else if(item.getTypeId().equals(TypeFacade.CALCULATED_QUESTION)) {
+              item.setItemTextSet(prepareTextForCalculatedQuestion(item, bean, itemauthor));
     	  }
     	  else if(item.getTypeId().equals(TypeFacade.MATRIX_CHOICES_SURVEY)) {
     		  item.setItemTextSet(prepareTextForMatrixChoice(item, bean, itemauthor));
@@ -1164,6 +1209,73 @@ public class ItemAddListener
 		return textSet;
 	} 
 
+	  /**
+	   * prepareTextForCalculatedqQestion takes the formulas and variables that are 
+	   * stored in CalculatedQuestionFormulaBeans and CalculatedQuestionVariableBeans
+	   * and translates them into ItemTextIfc and AnswerIfc objects.  The only difference
+	   * between the formula and the variable is what information is actually kept in
+	   * the answer.text field.  ItemText has the name of the formula or variable in ItemTextIfc.text
+	   * AnswerIfc.text stores either a formula as (formula string)|(tolerance),(decimal places) or a
+	   * variable as (min)|(max),(decimal places).
+	   * <p>Unlike matching answers, answerfeedback is not kept here; only the feedback associated with the entire
+	   * question is persisted.
+	   * @param item
+	   * @param bean
+	   * @param itemauthor
+	   * @return
+	   */
+	  private Set<ItemText> prepareTextForCalculatedQuestion(ItemFacade item, ItemBean bean,
+	          ItemAuthorBean itemauthor) {
+	      CalculatedQuestionBean calcBean = bean.getCalculatedQuestion();      
+	      Set<ItemText> textSet = new HashSet<ItemText>();
+	      float score = Float.valueOf(bean.getItemScore());
+	      float partialCredit = 0f;
+	      float discount = Float.valueOf(bean.getItemDiscount());
+	      String grade = null;            
+	      
+	      // Variables and formulas are very similar, and both have entries in the 
+	      // sam_itemtext_t table.  Because of the way the data is structured, every 
+	      // answer stored in sam_answer_t is a possible match to every ItemText 
+	      // stored in sam_itemtext_t.   If there is one variable and one formula, 
+	      // there are 2 entries in sam_itemtext_t and 4 entries in sam_answer_t.  
+	      // 2 variables and 2 formulas has 4 entries in sam_itemtext_t and 16 entries 
+	      // in sam_answer_t.  This is required for the current design (which makes 
+	      // more sense for other question types; we're just trying to work within 
+	      // that structure.  We loop through each formula and variable to create 
+	      // an entry in sam_itemtext_t (ItemText choiceText).  Then for each 
+	      // choicetext, we loop through all variables and formulas to create the 
+	      // answer objects.
+	      List<CalculatedQuestionAnswerIfc> list = new ArrayList<CalculatedQuestionAnswerIfc>();
+	      list.addAll(calcBean.getFormulas().values());
+	      list.addAll(calcBean.getVariables().values());
+	      
+	      // loop through all variables and formulas to create ItemText objects
+	      for (CalculatedQuestionAnswerIfc varFormula : list) {
+	          ItemText choiceText = new ItemText();
+	          choiceText.setItem(item.getData());
+	          choiceText.setText(varFormula.getName());
+	          Long sequence = varFormula.getSequence();
+	          choiceText.setSequence(sequence);
+	          
+	          HashSet<Answer> answerSet = new HashSet<Answer>();
+	          
+	          // loop through all variables and formulas to create all answers for the ItemText object
+	          for (CalculatedQuestionAnswerIfc curVarFormula : list) {
+	              String match = curVarFormula.getMatch();
+	              Long curSequence = curVarFormula.getSequence();
+	              boolean isCorrect = curSequence.equals(sequence);
+	              String choiceLabel = curVarFormula.getName();
+	              Answer answer = new Answer(choiceText, match, curSequence, choiceLabel,
+	                      isCorrect, grade, score, partialCredit, discount);
+	              answerSet.add(answer);
+	          }
+	          choiceText.setAnswerSet(answerSet);
+	          textSet.add(choiceText);          
+	      }
+	            
+	      return textSet;
+	  }
+	  
   private Set preparePublishedText(ItemFacade item, ItemBean bean, ItemService delegate) throws FinFormatException{
 
 	  if (item.getTypeId().equals(TypeFacade.TRUE_FALSE)) {
@@ -1188,6 +1300,9 @@ public class ItemAddListener
 	  }
 	  else if (item.getTypeId().equals(TypeFacade.MATCHING)) {
 		  preparePublishedTextForMatching(item, bean, delegate);
+	  }
+	  else if (item.getTypeId().equals(TypeFacade.CALCULATED_QUESTION)) {
+	      preparePublishedTextForCalculatedQueston(item, bean, delegate);
 	  }
 	  else if(item.getTypeId().equals(TypeFacade.MATRIX_CHOICES_SURVEY)) {
 		  preparePublishedTextForMatrixSurvey(item,bean,delegate);
@@ -1410,6 +1525,102 @@ public class ItemAddListener
 			delegate.deleteSet(toBeRemovedSet);
 		}
   }
+  
+  private void preparePublishedTextForCalculatedQueston(ItemFacade item, ItemBean bean, ItemService delegate) {
+      Set<ItemTextIfc> itemTextSet = item.getItemTextSet();            
+      CalculatedQuestionBean calcBean = bean.getCalculatedQuestion();      
+      float score = Float.valueOf(bean.getItemScore());
+      float partialCredit = 0f;
+      float discount = Float.valueOf(bean.getItemDiscount());
+      String grade = null;            
+      
+      // Variables and formulas are very similar, and both have entries in the 
+      // sam_itemtext_t table.  Because of the way the data is structured, every 
+      // answer stored in sam_answer_t is a possible match to every ItemText 
+      // stored in sam_itemtext_t.   If there is one variable and one formula, 
+      // there are 2 entries in sam_itemtext_t and 4 entries in sam_answer_t.  
+      // 2 variables and 2 formulas has 4 entries in sam_itemtext_t and 16 entries 
+      // in sam_answer_t.  This is required for the current design (which makes 
+      // more sense for other question types; we're just trying to work within 
+      // that structure.  We loop through each formula and variable to create 
+      // an entry in sam_itemtext_t (ItemText choiceText).  Then for each 
+      // choicetext, we loop through all variables and formulas to create the 
+      // answer objects.
+      List<CalculatedQuestionAnswerIfc> list = new ArrayList<CalculatedQuestionAnswerIfc>();
+      list.addAll(calcBean.getFormulas().values());
+      list.addAll(calcBean.getVariables().values());
+      
+      // loop through all variables and formulas to create ItemText objects
+      for (CalculatedQuestionAnswerIfc varFormula : list) {
+          ItemTextIfc choiceText = null;
+          for (ItemTextIfc itemText : itemTextSet) {
+              if (itemText.getSequence().equals(varFormula.getSequence())) {
+                  choiceText = itemText;
+              }
+          }
+          if (choiceText == null) {
+              choiceText = new PublishedItemText();
+              choiceText.setItem(item.getData());
+              choiceText.setSequence(varFormula.getSequence());
+              itemTextSet.add(choiceText);
+          }
+          choiceText.setText(varFormula.getName());
+          Long sequence = choiceText.getSequence();
+          
+          Set<AnswerIfc> answerSet = choiceText.getAnswerSet();
+          if (answerSet == null) {
+              answerSet = new HashSet<AnswerIfc>();
+              choiceText.setAnswerSet(answerSet);
+          }
+          
+          // loop through all variables and formulas to create all answers for the ItemText object
+          for (CalculatedQuestionAnswerIfc curVarFormula : list) {
+              String match = curVarFormula.getMatch();
+              Long curSequence = curVarFormula.getSequence();
+              boolean isCorrect = curSequence.equals(sequence);
+              String choiceLabel = AnswerBean.getChoiceLabels()[curSequence.intValue()];
+              boolean foundAnswer = false;
+              for (AnswerIfc curAnswer : answerSet) {
+                  if (curAnswer.getSequence().equals(sequence)) {
+                      curAnswer.setText(varFormula.getMatch());
+                      foundAnswer = true;
+                      break;
+                  }
+              }
+              if (!foundAnswer) {
+                  AnswerIfc answer = new PublishedAnswer(choiceText, match, curSequence, choiceLabel,
+                          isCorrect, grade, score, partialCredit, discount);
+                  answerSet.add(answer);
+              }
+          }
+      }
+      
+      // If we're saving fewer variables/formulas than are currently in  the 
+      // itemtext/answer list, we need to delete the extra ones.
+      // ASSUMPTION - that sequences in sam_itemtext_t and sam_answer_t have no gaps.  If
+      // there are 3 entries in sam_itemtext_t, they are numbered 1, 2, and 3 
+      // (not 1, 2, 4 for example).  This assumption should be verified
+      if (list.size() < itemTextSet.size()) {
+          Set<ItemTextIfc> toBeRemovedTextSet = new HashSet<ItemTextIfc>();
+          Set<AnswerIfc> toBeRemovedAnswerSet = new HashSet<AnswerIfc>();
+          for (ItemTextIfc curItemText : itemTextSet) {
+              Set<AnswerIfc> answerSet = curItemText.getAnswerSet();
+              for (AnswerIfc curAnswer : answerSet) {
+                  if (curAnswer.getSequence() > list.size()) {
+                      toBeRemovedAnswerSet.add(curAnswer);
+                  }
+              }
+              answerSet.removeAll(toBeRemovedAnswerSet);
+              delegate.deleteSet(toBeRemovedAnswerSet);
+              if (curItemText.getSequence() > list.size()) {
+                  toBeRemovedTextSet.add(curItemText);
+              }
+          }
+          itemTextSet.removeAll(toBeRemovedTextSet);
+          delegate.deleteSet(toBeRemovedTextSet);          
+      }
+  }
+
   
   private void preparePublishedTextForMatching(ItemFacade item,
 			ItemBean bean, ItemService delegate) {

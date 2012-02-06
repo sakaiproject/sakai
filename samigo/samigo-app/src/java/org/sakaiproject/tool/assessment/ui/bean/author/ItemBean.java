@@ -26,7 +26,6 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -82,6 +81,7 @@ public class ItemBean
   private ArrayList multipleChoiceAnswers;  // store List of answers multiple choice items, ArrayList of AnswerBean
   private String additionalChoices = "0";  // additonal multiple choice answers to be add. for the select menu
   private int totalMCAsnwers;
+  private CalculatedQuestionBean calculatedQuestion;
   
   private boolean[] choiceCorrectArray;
   private String maxRecordingTime;
@@ -93,7 +93,7 @@ public class ItemBean
   private String rationale = "false";
   private String mcmsPartialCredit;
 
-// for matching only
+// for matching and calculated questions only
   private String instruction;  // matching's question text
   private ArrayList matchItemBeanList;  // store List of MatchItemBean, used for Matching only
   private MatchItemBean currentMatchPair;  // do not need this ?   store List of MatchItemBeans, used for Matching only
@@ -1770,6 +1770,14 @@ public class ItemBean
 		}
 	}
 
+	public void setCalculatedQuestion(CalculatedQuestionBean calculatedQuestion) {
+	    this.calculatedQuestion = calculatedQuestion;
+	}
+
+	public CalculatedQuestionBean getCalculatedQuestion() {
+	    return this.calculatedQuestion;
+	}
+
 	public String getMcmsPartialCredit() {
 		if(mcmsPartialCredit == null){
 			//set default (true by default)
@@ -1781,4 +1789,5 @@ public class ItemBean
 	public void setMcmsPartialCredit(String mcmsPartialCredit) {
 		this.mcmsPartialCredit = mcmsPartialCredit;
 	}
+
 }
