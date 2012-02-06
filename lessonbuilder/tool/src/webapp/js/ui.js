@@ -13,17 +13,24 @@ winW = $(parent.document).width();
 
 var picker = picker(); // True if the popup should be displayed (if we're not in pda mode on a screen shorter than 600px)
 
+var w = $(window).width() - 10;
+
+$(window).resize()
+
 $('#pickerdialog').dialog({
 	autoOpen: false,
-	width: 600,
-	resizable: false,
+	minWidth: 600,
+	maxWidth: w,
 	draggable: false,
 	position: ['left', 'top']
 });
 
 $('#ipickerdialog').dialog({
 	autoOpen: false,
-	width: $(window).width() - 10,
+	minWidth: 600,
+	width: w,
+	maxWidth: w,
+	resizable: true,
 	draggable: false,
 	position: ['left', 'top']
 });
@@ -71,7 +78,7 @@ $('.add-quiz-link').click(function(event){
 });
 
 
-$('#mm-choose').click(function(event){
+$('#mm-choose').click(function(){
 	if (!picker) return true;
 
 	event.preventDefault();
@@ -81,8 +88,32 @@ $('#mm-choose').click(function(event){
 	openDialog(title, true, pageToRequest);
 });
 
+$('#subpage-choose').click(function(){
+	if (!picker) return true;
+
+	event.preventDefault();
+
+	var title = $(this).text();
+	var pageToRequest = $(this).attr("href");
+	$('#ipickerdialog').dialog('option', 'width', 700);
+	openDialog(title, true, pageToRequest)
+});
+
+$('.add-text-link').click(function(){
+	if (!picker) return true;
+
+	event.preventDefault();
+
+	var title = $(this).text();
+	var pageToRequest = $(this).attr("href");
+	$('#ipickerdialog').dialog('option', 'width', 850);
+	openDialog(title, true, pageToRequest);
+});
+
 // this will also be called by child pages to update the div
 function loadpicker(address) {
+	address += "&time=" + new Date().getTime();
+
 	$('#pickerdiv').load(address);
 	setTimeout(divsize, 250);
 	setTimeout(divsize, 1000);
@@ -111,7 +142,7 @@ function divsize() {
 // for the resources, an iframe is necessary. this resizes the iframe after something
 // has been added to the resource list
 // it uses the resize() function from jquery.ba-resize.js
-function framesize(full) {
+function framesize() {
 	var i = $('#pickerframe');
 	i.load(function(){
 		var contents = i.contents().find('body');
@@ -178,16 +209,23 @@ function openDialog(title, iframe, src, event) {
 	if (event && !$.browser.msie) {
 		event.preventDefault();
 	}
+
 	$('div.ui-dialog:visible').dialog('close');
 	if (!iframe){
 		$('#pickerdialog').dialog('option','title', title);
 		$('#pickerdialog').dialog('open');
+		$('#pickerdialog').dialog({
+			beforeClose: function(event, ui){ $('#pickerdialog').dialog('option', 'width', 600);  }
+		 });
 	} else {
 		$('#ipickerdialog').html('<iframe id="pickerframe" width="100%" height="99%" marginWidth="0" marginHeight="0" frameBorder="0" scrolling="auto" />');
 		$('#pickerframe').attr('src',src);
 		$('#pickerframe').load();
 		$('#ipickerdialog').dialog('option','title', title);
 		$('#ipickerdialog').dialog('open');
+		$('#ipickerdialog').dialog({
+			beforeClose: function(event, ui){ $('#ipickerdialog').dialog('option', 'width', w);  }
+		 });
 	}
 
 	if (iframe && event) {

@@ -95,7 +95,7 @@ function resizeiframe(id) {
 		
 		<br rsf:id="breakAfterWarnings" />
 		
-		<div>
+		<div class="lessonsHeader">
                   <a href="#" rsf:id="resetbutton"><img src="/library/skin/default/images/reload.gif" style="float:left; margin-right:4px; margin-top:3px"/></a>
                   <div style="float:right">
                   <a class="usebutton" href="#" rsf:id="show-pages" id="show-pages" role="note"></a>
@@ -115,7 +115,7 @@ function resizeiframe(id) {
 			<h3 id="toolbar-label" rsf:id="msg=simplepage.toolbar" class="offscreen"></h3>
 			<ul id="toolbar" style="padding:2px; margin:0px">
 				<li><a href="#" rsf:id="reorder"><span rsf:id="msg.simplepage.reorder"></span></a></li>
-				<li><a href="#" rsf:id="add-text"><span rsf:id="msg.simplepage.text"></span></a></li>
+				<li><a href="#" class="add-text-link" rsf:id="add-text" onclick="return openDialog('' , true, this.href, event);"><span rsf:id="msg.simplepage.text"></span></a></li>
 				<li><a href="#" rsf:id="add-multimedia" class="add-multimedia"><span rsf:id="msg.simplepage.multimedia"></span></a></li>
 				<li><a href="#" rsf:id="add-resource" class="add-resource"><span rsf:id="msg.simplepage.resource"></span></a></li>
 				<li><a href="#" rsf:id="subpage-link" class="subpage-link"><span rsf:id="msg=simplepage.subpage"></span></a></li>
@@ -505,7 +505,7 @@ function resizeiframe(id) {
 					</p>
 				
 					<p class="shorttext required" style="margin-top: 1em; margin-bottom:1em">
-					  <a href="#" id="subpage-choose" rsf:id="subpage-choose" ><span rsf:id="msg=simplepage.choose_existing_page"></span></a>
+					  <a href="#" id="subpage-choose" rsf:id="subpage-choose" onclick="return openDialog('' , true, this.href, event);"><span rsf:id="msg=simplepage.choose_existing_page"></span></a>
 					</p>
 
 					<input type="checkbox" name="subpage-next" id="subpage-next" rsf:id="subpage-next" />
@@ -679,7 +679,7 @@ function resizeiframe(id) {
 						</p>
 
 						<p class="shorttext required" style="margin-top: 1em; margin-bottom:1em">
-							<a href="#" id="mm-choose" rsf:id="mm-choose" ><span rsf:id="msg=simplepage.choose_existing"></span></a>
+							<a href="#" id="mm-choose" rsf:id="mm-choose" onclick="return openDialog('' , true, this.href, event);"><span rsf:id="msg=simplepage.choose_existing"></span></a>
 						</p>
 
 					<input class="bold" type="submit" id="mm-add-item" rsf:id="mm-add-item" />

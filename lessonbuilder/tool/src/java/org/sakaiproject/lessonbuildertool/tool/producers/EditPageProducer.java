@@ -37,6 +37,7 @@ import java.util.Collection;
 
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
+import org.sakaiproject.lessonbuildertool.tool.view.CloseViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer;
 
 import org.sakaiproject.lessonbuildertool.SimplePage;
@@ -170,9 +171,9 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 
 	public List reportNavigationCases() {
 		List<NavigationCase> togo = new ArrayList<NavigationCase>();
-		togo.add(new NavigationCase(null, new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
-		togo.add(new NavigationCase("success", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
-		togo.add(new NavigationCase("cancel", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
+		//togo.add(new NavigationCase(null, new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
+		togo.add(new NavigationCase("cancel", new CloseViewParameters(ClosePageProducer.VIEW_ID, false)));
+		togo.add(new NavigationCase("success", new CloseViewParameters(ClosePageProducer.VIEW_ID, true)));
 
 		return togo;
 	}
