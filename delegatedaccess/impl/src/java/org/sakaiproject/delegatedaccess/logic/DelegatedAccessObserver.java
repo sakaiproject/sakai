@@ -7,9 +7,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.apache.log4j.Logger;
+import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.site.api.SiteService;
 
 /**
  * This is an Observer for Delegated Access.  It listens for a user to login and checks
@@ -42,6 +44,17 @@ public class DelegatedAccessObserver implements Observer {
 		if (UsageSessionService.EVENT_LOGIN.equals(event.getEvent())
 				|| UsageSessionService.EVENT_LOGIN_CONTAINER.equals(event.getEvent())) {
 			projectLogic.initializeDelegatedAccessSession();
+		}else if(SiteService.SECURE_REMOVE_SITE.equals(event.getEvent())){
+			//Site has been deleted, check if it exists and remove all nodes:
+			boolean deleted = false;
+			for(String nodeId : projectLogic.getNodesBySiteRef(event.getResource(), DelegatedAccessConstants.HIERARCHY_ID)){
+				projectLogic.removeNode(nodeId);
+				deleted = true;
+			}
+			if(deleted){
+				projectLogic.clearNodeCache();
+			}
+			
 		}
 	}
 

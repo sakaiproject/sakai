@@ -190,6 +190,12 @@ public interface ProjectLogic {
 	public Date getHierarchyJobLastRunDate(String nodeId);
 	
 	/**
+	 * Removes this node an all permissions and children nodes
+	 * @param nodeId
+	 */
+	public void removeNode(String nodeId);
+	
+	/**
 	 * Removes this node and all permissions and children nodes
 	 * @param node
 	 */

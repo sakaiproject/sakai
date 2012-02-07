@@ -16,6 +16,6 @@ public class DelegatedAccessMutableTreeNode extends DefaultMutableTreeNode{
 
 	@Override
 	public boolean isLeaf() {
-		return ((NodeModel) this.getUserObject()).getNode().childNodeIds.isEmpty();
+		return ((NodeModel) this.getUserObject()).getNode().childNodeIds.isEmpty() && ((NodeModel) this.getUserObject()).getNode().title.startsWith("/site/");
 	}
 }

@@ -1296,6 +1296,10 @@ public class ProjectLogicImpl implements ProjectLogic {
 		return returnDate;
 	}
 	
+	public void removeNode(String nodeId){
+		removeNode(hierarchyService.getNodeById(nodeId));
+	}
+	
 	public void removeNode(HierarchyNode node){
 		if(node != null){
 			if(node.childNodeIds != null && !node.childNodeIds.isEmpty()){
@@ -1320,7 +1324,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		List<String> emptyNodes = dao.getEmptyNonSiteNodes(hierarchyId);
 		//I don't like loops, loops shouldn't happen but never say never
 		int loopProtection = 1;
-		while(emptyNodes != null && emptyNodes.size() > 0 && loopProtection < 100){
+		while(emptyNodes != null && emptyNodes.size() > 0 && loopProtection < 1000000){
 			for(String id : emptyNodes){
 				removeNode(hierarchyService.getNodeById(id));
 			}
