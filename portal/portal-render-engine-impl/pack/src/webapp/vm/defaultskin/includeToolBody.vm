@@ -44,7 +44,8 @@
 								 target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
 								  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
 							#end
-									<img src="/library/image/transparent.gif"  alt="${rloader.sit_helpfor} ${tool.toolRenderResult.getTitle()}" border="0" /></a>
+									<img src="/library/image/transparent.gif"  alt="${rloader.sit_helpfor} ${tool.toolRenderResult.getTitle()}" border="0" />
+										<span class="skip">${rloader.site_newwindow}</span> </a>
 						#end
 									</div>
 								</div>
@@ -64,7 +65,8 @@
 								<a href="${tool.toolHelpActionUrl}" title="${rloader.sit_helpfor} ${tool.toolTitle}" 
 								 target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
 								  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
-									<img src="/library/image/transparent.gif"  alt="${rloader.sit_helpfor} ${tool.toolTitle}" border="0" /></a>
+									<img src="/library/image/transparent.gif"  alt="${rloader.sit_helpfor} ${tool.toolTitle}" border="0" />
+										<span class="skip">${rloader.site_newwindow}</span> </a>
 						#end
 									</div>
 								</div>

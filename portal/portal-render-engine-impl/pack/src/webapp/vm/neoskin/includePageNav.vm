@@ -50,6 +50,7 @@
 									'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); 
 									return false" title="${rloader.sit_help}">
 								<span class="toolMenuIcon ${sitePages.helpMenuClass}">${rloader.sit_help}</span>
+								<span class="skip">${rloader.site_newwindow}</span> </a>
 								</a>
 						 </li>
 			#end

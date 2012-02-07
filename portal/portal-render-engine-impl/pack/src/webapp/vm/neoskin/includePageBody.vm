@@ -42,8 +42,10 @@
 								<a href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)" 
 								 target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
 								  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
+								
 							#end
-									<img src="/library/image/transparent.gif"  alt="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)" border="0" /></a>
+									<img src="/library/image/transparent.gif"  alt="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)" border="0" />
+									<span class="skip">${rloader.site_newwindow}</span> </a>
 						#end
 									</div>
 								</div>
@@ -63,7 +65,8 @@
 								<a href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolTitle)" 
 								 target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
 								  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
-									<img src="/library/image/transparent.gif"  alt="$rloader.getFormattedMessage("sit_helpfor", $tool.toolTitle)" border="0" /></a>
+									<img src="/library/image/transparent.gif"  alt="$rloader.getFormattedMessage("sit_helpfor", $tool.toolTitle)" border="0" />
+										<span class="skip">${rloader.site_newwindow}</span> </a>
 						#end
 									</div>
 								</div>
@@ -124,7 +127,9 @@
 								 target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
 								  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
 							#end
-									<img src="/library/image/transparent.gif"  alt="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)"  border="0" /></a>
+									<img src="/library/image/transparent.gif"  alt="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)"  border="0" />
+										<span class="skip">${rloader.site_newwindow}</span> </a>
+
 						#end
 									</div>
 								</div>
@@ -144,7 +149,8 @@
 								<a href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolTitle)" 
 								 target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
 								  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
-									<img src="/library/image/transparent.gif"  alt="$rloader.getFormattedMessage("sit_helpfor", $tool.toolTitle)"  border="0" /></a>
+									<img src="/library/image/transparent.gif"  alt="$rloader.getFormattedMessage("sit_helpfor", $tool.toolTitle)"  border="0" />
+										<span class="skip">${rloader.site_newwindow}</span> </a>
 						#end
 									</div>
 								</div>

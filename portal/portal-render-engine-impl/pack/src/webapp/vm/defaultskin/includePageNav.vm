@@ -52,7 +52,7 @@
 									'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); 
 									return false" title="${rloader.sit_help}">
 									<span>${rloader.sit_help}</span>
-								</a>
+										<span class="skip">${rloader.site_newwindow}</span> </a>
 						 </li>
 			#end
 					</ul>
