@@ -456,7 +456,9 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	// Update thread related methods
 	// ################################################################	
 	/** Method called whenever an new event is generated from EventTrackingService: do not call this method! */
-	public void update(Observable obs, Object o) {		
+	public void update(Observable obs, Object o) {
+		// At the moment this isn't threadsafe, but as sakai event handling is single threaded this shoudn't be a problem,
+		// but it's not a formal contract.
 		if(o instanceof Event){
 			Event e = (Event) o;
 			Event eventWithPreciseDate = buildEvent(getToday(), e.getEvent(), e.getResource(), e.getContext(), e.getUserId(), e.getSessionId());
@@ -1508,6 +1510,10 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		return M_ers.getEventIdToolMap();
 	}	
 	
+	/**
+	 * Get the date for today (time of 00:00:00).
+	 * This is used when we are grouping event by day.
+	 */
 	private Date getToday() {
 		return new Date();
 	}
