@@ -1,22 +1,24 @@
 package org.sakaiproject.delegatedaccess.tool.pages;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.tree.TreeNode;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.PropertyModel;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
-import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
+import org.sakaiproject.delegatedaccess.model.SelectOption;
 
 /**
  * Creates the dropdown panel for the "Role" column in TreeTable
@@ -30,54 +32,54 @@ public class EditablePanelDropdown extends Panel
 	private NodeModel nodeModel;
 	private TreeNode node;
 
-	public EditablePanelDropdown(String id, IModel inputModel, final NodeModel nodeModel, final TreeNode node, final Map<String, List<String>> realmMap, final int type)
+	public EditablePanelDropdown(String id, IModel inputModel, final NodeModel nodeModel, final TreeNode node, final  Map<String, String> roleMap, final int type)
 	{
 		super(id);
 
 		this.nodeModel = nodeModel;
 		this.node = node;
 
-		//Create two simple models that will update the list options based on realmMap and the user's choice of realm
-		IModel<List<? extends String>> realmChoicesModel = new AbstractReadOnlyModel<List<? extends String>>(){
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public List<? extends String> getObject() {
-				return new ArrayList<String>(realmMap.keySet());
+		SelectOption[] options = new SelectOption[roleMap.size()];
+		int i = 0;
+		//now sort the map
+		List<String> sortList = new ArrayList<String>(roleMap.values());
+		Collections.sort(sortList, new Comparator<String>() {
+			public int compare(String o1, String o2) {
+				return o1.compareToIgnoreCase(o2);
 			}
-
-		};
-
-		IModel<List<? extends String>> roleChoicesModel = new AbstractReadOnlyModel<List<? extends String>>(){
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public List<? extends String> getObject() {
-				List<String> roles = realmMap.get(nodeModel.getRealm());
-				if(roles == null){
-					roles = Collections.emptyList();
+		});
+		Map<String, String> sortedReturnMap = new HashMap<String, String>();
+		for(String value : sortList){
+			for(Entry<String, String> entry : roleMap.entrySet()){
+				if(value.equals(entry.getValue())){
+					options[i] = new SelectOption(entry.getValue(), entry.getKey());
+					if(entry.getKey().equals(nodeModel.getRealm() + ":" + nodeModel.getRole())){
+						nodeModel.setRoleOption(options[i]);
+					}
+					i++;
+					break;
 				}
-				return roles;
 			}
-
-		};
-
-		final DropDownChoice<String> roleChoices = new DropDownChoice<String>("roleChoices", new PropertyModel<String>(nodeModel, "role"), roleChoicesModel){
+		}
+		ChoiceRenderer choiceRenderer = new ChoiceRenderer("label", "value");
+		final DropDownChoice choice=new DropDownChoice("roleChoices", inputModel, Arrays.asList(options), choiceRenderer){
 			@Override
 			public boolean isVisible() {
-				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
-					return nodeModel.isDirectAccess() && nodeModel.getNodeShoppingPeriodAdmin();
-				}else{
-					return nodeModel.isDirectAccess();
-				}
+				return nodeModel.isDirectAccess() && nodeModel.getNodeShoppingPeriodAdmin();
 			}
 		};
-		roleChoices.setOutputMarkupId(true);
-		roleChoices.add(new AjaxFormComponentUpdatingBehavior("onchange") {
-			private static final long serialVersionUID = 1L;
-
+		choice.add(new AjaxFormComponentUpdatingBehavior("onchange")
+		{
 			@Override
-			protected void onUpdate(AjaxRequestTarget target) {
+			protected void onUpdate(AjaxRequestTarget target)
+			{
+				String value = ((SelectOption) choice.getModelObject()).getValue();
+				String[] realmRoleSplit = value.split(":");
+				if(realmRoleSplit.length == 2){
+					nodeModel.setRealm(realmRoleSplit[0]);
+					nodeModel.setRole(realmRoleSplit[1]);
+				}
+
 				//In order for the models to refresh, you have to call "expand" or "collapse" then "updateTree",
 				//since I don't want to expand or collapse, I just call whichever one the node is already
 				//Refreshing the tree will update all the models and information (like role) will be generated onClick
@@ -88,41 +90,9 @@ public class EditablePanelDropdown extends Panel
 				}
 				((BaseTreePage)target.getPage()).getTree().updateTree(target);
 			}
+
 		});
-		add(roleChoices);
-
-
-		final DropDownChoice realmChoices = new DropDownChoice("realmChoices", new PropertyModel<String>(nodeModel, "realm"), realmChoicesModel){
-			@Override
-			public boolean isVisible() {
-				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
-					return nodeModel.isDirectAccess() && nodeModel.getNodeShoppingPeriodAdmin();
-				}else{
-					return nodeModel.isDirectAccess();
-				}
-			}
-		};
-		realmChoices.add(new AjaxFormComponentUpdatingBehavior("onchange") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onUpdate(AjaxRequestTarget target) {
-				//clear role choice since realm has changed
-				nodeModel.setRole("");
-				//re-add component in order for the list to re-populate
-				target.addComponent(roleChoices);
-				//In order for the models to refresh, you have to call "expand" or "collapse" then "updateTree",
-				//since I don't want to expand or collapse, I just call whichever one the node is already
-				//Refreshing the tree will update all the models and information (like role) will be generated onClick
-				if(((BaseTreePage)target.getPage()).getTree().getTreeState().isNodeExpanded(node)){
-					((BaseTreePage)target.getPage()).getTree().getTreeState().expandNode(node);
-				}else{
-					((BaseTreePage)target.getPage()).getTree().getTreeState().collapseNode(node);
-				}
-				((BaseTreePage)target.getPage()).getTree().updateTree(target);
-			}
-		});
-		add(realmChoices);
+		add(choice);
 	}
 
 

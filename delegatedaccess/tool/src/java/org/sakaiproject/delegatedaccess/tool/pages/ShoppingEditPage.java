@@ -73,12 +73,29 @@ public class ShoppingEditPage extends BaseTreePage{
 		//tree:
 
 		//create a map of the realms and their roles for the Role column
-		final Map<String, List<String>> realmMap = sakaiProxy.getShoppingRealmOptions();
+		final Map<String, String> roleMap = projectLogic.getRealmRoleDisplay(true);
+		String largestRole = "";
+		for(String role : roleMap.values()){
+			if(role.length() > largestRole.length()){
+				largestRole = role;
+			}
+		}
+		//set the size of the role Column (shopper becomes)
+		int roleColumnSize = 40 + largestRole.length() * 6;
+		if(roleColumnSize < 115){
+			roleColumnSize = 115;
+		}
 		boolean singleRoleOptions = false;
-		if(realmMap.size() == 1 && ((List<String>) realmMap.values().toArray()[0]).size() == 1){
-			//only one option for role, so don't bother showing it in the table
-			singleRoleOptions = true;
-			defaultRole = new String[]{(String) realmMap.keySet().toArray()[0], ((List<String>) realmMap.values().toArray()[0]).get(0)};
+		if(roleMap.size() == 1){
+			String[] split = null;
+			for(String key : roleMap.keySet()){
+				split = key.split(":");
+			}
+			if(split != null && split.length == 2){
+				//only one option for role, so don't bother showing it in the table
+				singleRoleOptions = true;
+				defaultRole = split;
+			}
 		}
 		final TreeModel treeModel = projectLogic.createTreeModelForShoppingPeriod(sakaiProxy.getCurrentUserId());
 
@@ -87,8 +104,8 @@ public class ShoppingEditPage extends BaseTreePage{
 		columnsList.add(new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 100, Unit.PROPORTIONAL),	"", "userObject.node.description"));
 		columnsList.add(new PropertyEditableColumnAuthDropdown(new ColumnLocation(Alignment.RIGHT, 115, Unit.PX), new StringResourceModel("shoppingPeriodAuth", null).getString(), "userObject.shoppingPeriodAuthOption"));
 		if(!singleRoleOptions){
-			columnsList.add(new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.RIGHT, 360, Unit.PX), new StringResourceModel("shoppersBecome", null).getString(),
-					"userObject.realmModel", realmMap, DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER));
+			columnsList.add(new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.RIGHT, roleColumnSize, Unit.PX), new StringResourceModel("shoppersBecome", null).getString(),
+					"userObject.roleOption", roleMap, DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER));
 		}
 		columnsList.add(new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 100, Unit.PX), new StringResourceModel("startDate", null).getString(), "userObject.shoppingPeriodStartDate", true));
 		columnsList.add(new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 100, Unit.PX), new StringResourceModel("endDate", null).getString(), "userObject.shoppingPeriodEndDate", false));

@@ -213,4 +213,14 @@ public interface ProjectLogic {
 	 * clears DelegatedAccess's own node cache
 	 */
 	public void clearNodeCache();
+	
+	/**
+	 * returns a map of all role options and their realm/role ids separated by a ':'.  For example:
+	 * 
+	 * Instructor => !site.template.course:Instructor
+	 * 
+	 * @param shopping
+	 * @return
+	 */
+	public Map<String, String> getRealmRoleDisplay(boolean shopping);
 }

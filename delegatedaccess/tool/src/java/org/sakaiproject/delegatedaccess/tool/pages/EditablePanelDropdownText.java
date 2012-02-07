@@ -14,7 +14,7 @@ import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 
 public class EditablePanelDropdownText extends Panel{
 	
-	public EditablePanelDropdownText(String id, IModel inputModel, final NodeModel nodeModel, final TreeNode node, final Map<String, List<String>> realmMap, final int type)
+	public EditablePanelDropdownText(String id, IModel inputModel, final NodeModel nodeModel, final TreeNode node, final Map<String, String> realmMap, final int type)
 	{
 		super(id);
 		
@@ -31,7 +31,12 @@ public class EditablePanelDropdownText extends Panel{
 				if("".equals(inheritedAccess[0])){
 					return "";
 				}else{
-					return inheritedAccess[0] + " : " + inheritedAccess[1];
+					String realmRole = inheritedAccess[0] + ":" + inheritedAccess[1];
+					if(realmMap.containsKey(realmRole)){
+						return realmMap.get(realmRole);
+					}else{
+						return realmRole;
+					}
 				}
 			}
 		};

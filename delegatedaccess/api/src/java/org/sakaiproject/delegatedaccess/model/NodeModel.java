@@ -43,6 +43,7 @@ public class NodeModel implements Serializable {
 	private String siteTerm;
 	private String siteInstructors;
 	private SelectOption shoppingPeriodAuthOption;
+	private SelectOption roleOption;
 
 	public NodeModel(String nodeId, HierarchyNodeSerialized node,
 			boolean directAccess, String realm, String role, NodeModel parentNode,
@@ -591,5 +592,13 @@ public class NodeModel implements Serializable {
 				break;
 			}
 		}
+	}
+
+	public SelectOption getRoleOption() {
+		return roleOption;
+	}
+
+	public void setRoleOption(SelectOption roleOption) {
+		this.roleOption = roleOption;
 	}
 }

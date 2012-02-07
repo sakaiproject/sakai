@@ -1333,6 +1333,47 @@ public class ProjectLogicImpl implements ProjectLogic {
 			loopProtection++;
 		}
 	}
+	public Map<String, String> getRealmRoleDisplay(boolean shopping){
+		if(shopping){
+			return convertRealmRoleToSingleList(sakaiProxy.getShoppingRealmOptions());
+		}else{
+			return convertRealmRoleToSingleList(sakaiProxy.getDelegatedAccessRealmOptions());
+		}
+	}
+	
+	private Map<String, String> convertRealmRoleToSingleList(Map<String, List<String>> realmMap){
+		//First get a list of all roles:
+		List<String> allRoles = new ArrayList<String>();
+		for(Entry<String, List<String>> entry : realmMap.entrySet()){
+			for(String role : entry.getValue()){
+				allRoles.add(role);
+			}
+		}
+		//convert this map to a single role dropdown representation:
+		Map<String, String> returnMap = new HashMap<String, String>();
+		for(Entry<String, List<String>> entry : realmMap.entrySet()){
+			String realm = entry.getKey();
+			for(String role : entry.getValue()){
+				String roleTitle = role;
+				if(countNumOfOccurances(allRoles, role) > 1){
+					roleTitle += " (" + realm + ")";
+				}
+				returnMap.put(realm + ":" + role, roleTitle);
+			}
+		}
+
+		return returnMap;
+	}
+	
+	private int countNumOfOccurances(List<String> list, String str){
+		int i = 0;
+		for(String check : list){
+			if(check.equals(str)){
+				i++;
+			}
+		}
+		return i;
+	}
 	
 	private class SiteSearchData{
 		private Site site;

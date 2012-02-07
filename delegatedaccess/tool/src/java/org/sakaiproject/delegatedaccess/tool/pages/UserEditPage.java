@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
@@ -81,20 +82,38 @@ public class UserEditPage  extends BaseTreePage{
 		//tree:
 
 		//create a map of the realms and their roles for the Role column
-		final Map<String, List<String>> realmMap = sakaiProxy.getDelegatedAccessRealmOptions();
+		final Map<String, String> roleMap = projectLogic.getRealmRoleDisplay(false);
+		String largestRole = "";
+		for(String role : roleMap.values()){
+			if(role.length() > largestRole.length()){
+				largestRole = role;
+			}
+		}
+		//set the size of the role Column (shopper becomes)
+		int roleColumnSize = 40 + largestRole.length() * 6;
+		if(roleColumnSize < 115){
+			//for "Choose One" default option
+			roleColumnSize = 115;
+		}
 		boolean singleRoleOptions = false;
-		if(realmMap.size() == 1 && ((List<String>) realmMap.values().toArray()[0]).size() == 1){
-			//only one option for role, so don't bother showing it in the table
-			singleRoleOptions = true;
-			defaultRole = new String[]{(String) realmMap.keySet().toArray()[0], ((List<String>) realmMap.values().toArray()[0]).get(0)};
+		if(roleMap.size() == 1){
+			String[] split = null;
+			for(String key : roleMap.keySet()){
+				split = key.split(":");
+			}
+			if(split != null && split.length == 2){
+				//only one option for role, so don't bother showing it in the table
+				singleRoleOptions = true;
+				defaultRole = split;
+			}
 		}
 		List<IColumn> columnsList = new ArrayList<IColumn>();
 		columnsList.add(new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 100, Unit.PROPORTIONAL),	"", "userObject.node.description"));
 		columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 70, Unit.PX), new StringResourceModel("shoppingPeriodAdmin", null).getString(), "userObject.shoppingPeriodAdmin", DelegatedAccessConstants.TYPE_SHOPPING_PERIOD_ADMIN));
 		columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 55, Unit.PX), new StringResourceModel("siteAccess", null).getString(), "userObject.directAccess", DelegatedAccessConstants.TYPE_ACCESS));
 		if(!singleRoleOptions){
-			columnsList.add(new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.RIGHT, 360, Unit.PX), new StringResourceModel("userBecomes", null).getString(),
-					"userObject.realmModel", realmMap, DelegatedAccessConstants.TYPE_ACCESS));
+			columnsList.add(new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.RIGHT, roleColumnSize, Unit.PX), new StringResourceModel("userBecomes", null).getString(),
+					"userObject.roleOption", roleMap, DelegatedAccessConstants.TYPE_ACCESS));
 		}
 		columnsList.add(new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 96, Unit.PX), new StringResourceModel("restrictedToolsHeader", null).getString(),
 				"userObject.restrictedTools", DelegatedAccessConstants.TYPE_ACCESS, DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS));

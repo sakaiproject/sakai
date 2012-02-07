@@ -26,13 +26,13 @@ import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelDropdownText;
 public class PropertyEditableColumnDropdown extends PropertyRenderableColumn
 {
 
-	private Map<String, List<String>> realmMap;
+	private Map<String, String> roleMap;
 	private int type;
 	
-	public PropertyEditableColumnDropdown(ColumnLocation location, String header, String propertyExpression, Map<String, List<String>> realmMap, int type)
+	public PropertyEditableColumnDropdown(ColumnLocation location, String header, String propertyExpression, Map<String, String> roleMap, int type)
 	{
 		super(location, header, propertyExpression);
-		this.realmMap = realmMap;
+		this.roleMap = roleMap;
 		this.type = type;
 	}
 
@@ -42,9 +42,9 @@ public class PropertyEditableColumnDropdown extends PropertyRenderableColumn
 	public Component newCell(MarkupContainer parent, String id, TreeNode node, int level)
 	{
 		if(((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isDirectAccess()){
-			return new EditablePanelDropdown(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, realmMap, type);
+			return new EditablePanelDropdown(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, roleMap, type);
 		}else{
-			return new EditablePanelDropdownText(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, realmMap, type);
+			return new EditablePanelDropdownText(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, roleMap, type);
 		}
 	}
 
