@@ -1233,6 +1233,7 @@ below they are contextually defined depending on the column as an example,as you
     overflow: hidden !important;
     top:0px !important;
     left:0px; 
+		padding:0px 0px 0px 0px !important;
 } 
 /*jump-to links, tabbing into  */
 #skipNav a.internalSkip:focus, #skipNav a.internalSkip:active {
