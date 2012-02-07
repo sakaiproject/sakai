@@ -25,6 +25,7 @@ public class SakaiFCKTextEvolver implements TextInputEvolver {
 	public static final String COMPONENT_ID = "sakai-FCKEditor:";
 	private String context;
 	private ContentHostingService contentHostingService;
+        private static boolean newEditor = isNewEditor();
 
 	/*
 	 * Default height and width, can be set at the tool level in the requestContext.xml bean def or
@@ -43,6 +44,49 @@ public class SakaiFCKTextEvolver implements TextInputEvolver {
 	
 	public UIJointContainer evolveTextInput(UIInput toevolve) {
 		return evolveTextInput(toevolve, "1");
+	}
+
+        private static boolean isNewEditor() {
+	    // 2.8 and later are new editor calling 
+
+	    String sakaiVersion = ServerConfigurationService.getString("version.sakai", "2.6");
+
+	    boolean isNew = false;
+	    int cle = 2;
+	    int major = 6;
+	    int minor = 0;
+	    if (sakaiVersion != null) {
+		String []parts = sakaiVersion.split("\\.");
+		if (parts.length >= 1) {
+		    try {
+			cle = Integer.parseInt(parts[0]);
+		    } catch (Exception e) {
+		    };
+		}
+		if (parts.length >= 2) {
+		    try {
+			major = Integer.parseInt(parts[1]);
+		    } catch (Exception e) {
+		    };
+		}
+		// may be something like 2.8.1-foo, so must terminate on non-digit
+		if (parts.length >= 3) {
+		    try {
+			String[] s = parts[2].split("\\D");
+			minor = Integer.parseInt(s[0]);
+		    } catch (Exception e) {
+		    };
+		}
+
+		//System.out.println("EditPage thinks CLE is " + cle + " major " + major);
+
+		// samigo starting with 2.8.0 has the new editor calling protocol
+		if (cle == 2 && major >= 8)
+		    isNew = true;
+
+	    }
+	    //System.out.println("isnew " + isNew);
+	    return isNew;
 	}
 
 	public UIJointContainer evolveTextInput(UIInput toevolve, String index) {
@@ -85,7 +129,7 @@ public class SakaiFCKTextEvolver implements TextInputEvolver {
 		joint.addComponent(toevolve);
 		String js = null;
 
-		if ("ckeditor".equals(editor)) {
+		if (newEditor || "ckeditor".equals(editor)) {
 		    js = HTMLUtil.emitJavascriptCall("sakai.editor.launch", new String[] { toevolve.getFullID(), null, "800px", "200px"});
 		} else {
 		    String collectionID = context.equals("") ? "" : contentHostingService.getSiteCollection(context);
