@@ -254,10 +254,17 @@ public class SakaiMailet extends GenericMailet
 					if ("no-reply".equalsIgnoreCase(mailId))
 					{
 						mail.setState(Mail.GHOST);
+                        if (M_log.isInfoEnabled()) {
+                            M_log.info("Incoming message mailId ("+mailId+") set to no-reply, mail processing cancelled");
+                        }
+                        /* NOTE: this doesn't make a lot of sense to me, once the mail is ghosted 
+                         * then it won't be processed anymore so continuing is kind of a waste of time,
+                         * shouldn't this just break instead?
+                         */
 						continue;
 					}
 
-					// find the channel (mailbox) that this is adressed to
+					// find the channel (mailbox) that this is addressed to
 					// for now, check only for it being a site or alias to a site.
 					// %%% - add user and other later -ggolden
 					MailArchiveChannel channel = null;
@@ -276,11 +283,26 @@ public class SakaiMailet extends GenericMailet
 					    if (M_log.isDebugEnabled()) {
 					        M_log.debug("Incoming message mailId ("+mailId+") is NOT a valid site channel reference, will attempt more matches");
 					    }
-					}
+					} catch (PermissionException e) {
+					    // INDICATES the channel is valid but the user has no permission to access it
+	                    // This generally should not happen because the current user should be the postmaster
+	                    M_log.warn("mailarchive failure: message processing cancelled: PermissionException with channelRef ("+channelRef
+	                            +") - user not allowed to get this mail archive channel: (id="+id+") (mailId="+mailId+") (user="
+                                +sessionManager.getCurrentSessionUserId()+") (session="+sessionManager.getCurrentSession().getId()+"): " + e, e);
+	                    // TODO send the not member message - not really completely accurate here though
+	                    // BOUNCE REPLY - send a message back to the user to let them know their email failed
+                        String errMsg = rb.getString("err_not_member") + "\n\n";
+                        String mailSupport = StringUtils.trimToNull( ServerConfigurationService.getString("mail.support") );
+                        if ( mailSupport != null ) {
+                            errMsg +=(String) rb.getFormattedMessage("err_questions",  new Object[]{mailSupport})+"\n";
+                        }
+                        mail.setErrorMessage(errMsg);
+                        mail.setState(Mail.ERROR);
+                        continue;
+                    }
 
 					// next, if not a site, see if it's an alias to a site or channel
-					if (channel == null)
-					{
+					if (channel == null) {
 						// if not an alias, it will throw the IdUnusedException caught below
 						Reference ref = entityManager.newReference(aliasService.getTarget(mailId));
 
@@ -309,25 +331,52 @@ public class SakaiMailet extends GenericMailet
 						}
 
 						// if there's no channel for this site, it will throw the IdUnusedException caught below
-						channel = MailArchiveService.getMailArchiveChannel(channelRef);
+						try {
+                            channel = MailArchiveService.getMailArchiveChannel(channelRef);
+                        } catch (PermissionException e) {
+                            // INDICATES the channel is valid but the user has no permission to access it
+                            // This generally should not happen because the current user should be the postmaster
+                            M_log.warn("mailarchive failure: message processing cancelled: PermissionException with channelRef ("+channelRef
+                                    +") - user not allowed to get this mail archive channel: (id="+id+") (mailId="+mailId+") (user="
+                                    +sessionManager.getCurrentSessionUserId()+") (session="+sessionManager.getCurrentSession().getId()+"): " + e, e);
+                            // TODO send the not member message - not really completely accurate here though
+                            // BOUNCE REPLY - send a message back to the user to let them know their email failed
+                            String errMsg = rb.getString("err_not_member") + "\n\n";
+                            String mailSupport = StringUtils.trimToNull( ServerConfigurationService.getString("mail.support") );
+                            if ( mailSupport != null ) {
+                                errMsg +=(String) rb.getFormattedMessage("err_questions",  new Object[]{mailSupport})+"\n";
+                            }
+                            mail.setErrorMessage(errMsg);
+                            mail.setState(Mail.ERROR);
+                            continue;
+                        }
                         if (M_log.isDebugEnabled()) {
                             M_log.debug("Incoming message mailId ("+mailId+") IS a valid channel ("+channelRef+"), found channel: "+channel);
                         }
 					}
+                    if (channel == null) {
+                        if (M_log.isDebugEnabled()) {
+                            M_log.debug("Incoming message mailId ("+mailId+"), channelRef ("+channelRef+") could not be resolved and is null: "+channel);
+                        }
+                        // this should never happen but it is here just in case
+                        throw new IdUnusedException(mailId);
+                    }
 
-					// skip disabled channels
+                    // skip disabled channels
 					if (!channel.getEnabled())
 					{
                         // INDICATES that the channel is NOT currently enabled so no messages can be received
 						if (from.startsWith(POSTMASTER)) {
 							mail.setState(Mail.GHOST);
 						} else {
+		                    // BOUNCE REPLY - send a message back to the user to let them know their email failed
 							String errMsg = rb.getString("err_email_off") + "\n\n";
 							String mailSupport = StringUtils.trimToNull( ServerConfigurationService.getString("mail.support") );
 							if ( mailSupport != null ) {
 								errMsg +=(String) rb.getFormattedMessage("err_questions",  new Object[]{mailSupport})+"\n";
 							}
 							mail.setErrorMessage(errMsg);
+                            mail.setState(Mail.ERROR);
 						}
 
                         if (M_log.isInfoEnabled()) {
@@ -346,12 +395,14 @@ public class SakaiMailet extends GenericMailet
 		                    if (M_log.isInfoEnabled()) {
 		                        M_log.info(id + " : mail rejected: from: " + fromAddr + " not authorized for site: " + mailId + " and channel ("+channelRef+")");
 		                    }
+		                    // BOUNCE REPLY - send a message back to the user to let them know their email failed
 							String errMsg = rb.getString("err_not_member") + "\n\n";
 							String mailSupport = StringUtils.trimToNull( ServerConfigurationService.getString("mail.support") );
 							if ( mailSupport != null ) {
 								errMsg +=(String) rb.getFormattedMessage("err_questions",  new Object[]{mailSupport})+"\n";
 							}
 							mail.setErrorMessage(errMsg);
+		                    mail.setState(Mail.ERROR);
 							continue;
 						}
 					}
@@ -360,7 +411,7 @@ public class SakaiMailet extends GenericMailet
 					StringBuilder bodyBuf[] = new StringBuilder[2];
 					bodyBuf[0] = new StringBuilder();
 					bodyBuf[1] = new StringBuilder();
-					List attachments = entityManager.newReferenceList();
+					List<Reference> attachments = entityManager.newReferenceList();
 					String siteId = null;
 					if (siteService.siteExists(channel.getContext())) {
 						siteId = channel.getContext();
@@ -369,7 +420,7 @@ public class SakaiMailet extends GenericMailet
 					try
 					{
 						StringBuilder bodyContentType = new StringBuilder();
-						Integer embedCount = parseParts(siteId, msg, id, bodyBuf, bodyContentType, attachments, Integer.valueOf(-1));
+						parseParts(siteId, msg, id, bodyBuf, bodyContentType, attachments, Integer.valueOf(-1));
 						
 						if (bodyContentType.length() > 0)
 						{
@@ -380,13 +431,15 @@ public class SakaiMailet extends GenericMailet
 					}
 					catch (MessagingException e)
 					{
-					    e.printStackTrace();
-						M_log.warn("service(): msg.getContent() threw: " + e);
+					    // NOTE: if this happens it just means we don't get the extra header, not the end of the world
+					    //e.printStackTrace();
+						M_log.warn("MessagingException: service(): msg.getContent() threw: " + e, e);
 					}
 					catch (IOException e)
 					{
-					    e.printStackTrace();
-						M_log.warn("service(): msg.getContent() threw: " + e);
+                        // NOTE: if this happens it just means we don't get the extra header, not the end of the world
+					    //e.printStackTrace();
+						M_log.warn("IOException: service(): msg.getContent() threw: " + e, e);
 					}
 					
 					mailHeaders.add("List-Id: <"+ channel.getId()+ ".localhost>");
@@ -395,37 +448,44 @@ public class SakaiMailet extends GenericMailet
 					body[0] = bodyBuf[0].toString(); // plain/text
 					body[1] = bodyBuf[1].toString(); // html/text
 					
-					if (channel.getReplyToList())
-					{
-						List<String> modifiedHeaders = new Vector<String>();
-						for (String header: (List<String>)mailHeaders) 
-						{
-							if (header != null && !header.startsWith("Reply-To:"))
-							{
-								modifiedHeaders.add(header);
-							}
-						}
-						// Note: can't use recipient, since it's host may be configured as mailId@myhost.james
-						String mailHost = ServerConfigurationService.getServerName();
-						if ( mailHost == null || mailHost.trim().equals("") )
-							mailHost = mail.getRemoteHost();
-                  
-						MailAddress replyTo = new MailAddress( mailId, mailHost );
-                        if (M_log.isDebugEnabled()) {
-                            M_log.debug("Set Reply-To address to "+ replyTo.toString());
-                        }
-						modifiedHeaders.add("Reply-To: "+ replyTo.toString());
+					try {
+                        if (channel.getReplyToList())
+                        {
+                        	List<String> modifiedHeaders = new Vector<String>();
+                        	for (String header: (List<String>)mailHeaders) 
+                        	{
+                        		if (header != null && !header.startsWith("Reply-To:"))
+                        		{
+                        			modifiedHeaders.add(header);
+                        		}
+                        	}
+                        	// Note: can't use recipient, since it's host may be configured as mailId@myhost.james
+                        	String mailHost = ServerConfigurationService.getServerName();
+                        	if ( mailHost == null || mailHost.trim().equals("") )
+                        		mailHost = mail.getRemoteHost();
+              
+                        	MailAddress replyTo = new MailAddress( mailId, mailHost );
+                            if (M_log.isDebugEnabled()) {
+                                M_log.debug("Set Reply-To address to "+ replyTo.toString());
+                            }
+                        	modifiedHeaders.add("Reply-To: "+ replyTo.toString());
   
-						// post the message to the group's channel
-						channel.addMailArchiveMessage(subject, from.toString(), timeService.newTime(sent.getTime()), modifiedHeaders,
-								attachments, body);
-					}
-					else
-					{
-						// post the message to the group's channel
-						channel.addMailArchiveMessage(subject, from.toString(), timeService.newTime(sent.getTime()), mailHeaders,
-								attachments, body);
-					}
+                        	// post the message to the group's channel
+                        	channel.addMailArchiveMessage(subject, from.toString(), timeService.newTime(sent.getTime()), modifiedHeaders,
+                        			attachments, body);
+                        }
+                        else
+                        {
+                        	// post the message to the group's channel
+                        	channel.addMailArchiveMessage(subject, from.toString(), timeService.newTime(sent.getTime()), mailHeaders,
+                        			attachments, body);
+                        }
+                    } catch (PermissionException pe) {
+                        // INDICATES that the current user does not have permission to add or get the mail archive message from the current channel
+                        // This generally should not happen because the current user should be the postmaster
+                        M_log.warn("mailarchive PermissionException message service failure: (id="+id+") (mailId="+mailId+") : " + pe, pe);
+                        mail.setState(Mail.GHOST); // ghost the message to stop it from being further processed
+                    }
 
                     if (M_log.isDebugEnabled()) {
                         M_log.debug(id + " : delivered to:" + mailId);
@@ -439,18 +499,13 @@ public class SakaiMailet extends GenericMailet
 					// INDICATES that the channelReference found above was actually invalid OR that no channel reference could be identified
 
 				    // if this is to the postmaster, and there's no site, channel or alias for the postmaster, then quietly eat the message
-					if (POSTMASTER.equals(mailId))
+					if (POSTMASTER.equals(mailId) || from.startsWith(POSTMASTER + "@"))
 					{
 						mail.setState(Mail.GHOST);
 						continue;
 					}
 
-					if (from.startsWith(POSTMASTER + "@"))
-					{
-						mail.setState(Mail.GHOST);
-						continue;
-					}
-
+					// BOUNCE REPLY - send a message back to the user to let them know their email failed
 					if (M_log.isInfoEnabled()) {
 					    M_log.info("mailarchive invalid or unusable channel reference ("+mailId+"): "+id + " : mail rejected: " + goOn.toString());
 					}
@@ -460,18 +515,14 @@ public class SakaiMailet extends GenericMailet
 						errMsg +=(String) rb.getFormattedMessage("err_questions",  new Object[]{mailSupport})+"\n";
 					}
 					mail.setErrorMessage(errMsg);
+                    mail.setState(Mail.ERROR);
 				}
-				catch (PermissionException e)
-				{
-                    // INDICATES that the current user does not have permission to add or get the mail archive message from the current channel
-				    // This generally should not happen because the current user should be the postmaster
-					M_log.warn("mailarchive PermissionException message service failure: (id="+id+") (mailId="+mailId+") : " + e, e);
-				}
-				catch (Exception  ex)
+				catch (Exception ex)
 				{
                     // INDICATES that some general exception has occurred which we did not except
 			        // This definitely should NOT happen
 					M_log.error("mailarchive General message service exception: (id="+id+") (mailId="+mailId+") : " + ex, ex);
+                    mail.setState(Mail.GHOST); // ghost the message to stop it from being further processed
 				}
 			}
 		}
@@ -565,14 +616,14 @@ public class SakaiMailet extends GenericMailet
 		byte[] buff = new byte[10000];
 		try
 		{
-			int lenRead = 0;
+			//int lenRead = 0;
 			int count = 0;
 			while (count >= 0)
 			{
 				count = stream.read(buff, 0, buff.length);
 				if (count <= 0) break;
 				baos.write(buff, 0, count);
-				lenRead += count;
+				//lenRead += count;
 			}
 		}
 		catch (IOException e)
