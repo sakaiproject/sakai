@@ -3,7 +3,7 @@
  */
 /*SECTION 1 GENERIC SELECTORS*/
 body {
- font-family: Arial,Helvetica,sans-serif;
+    font-family: Arial,Helvetica,sans-serif;
     line-height: 120%;
     font-size: 80%;
 }
@@ -140,6 +140,15 @@ tr.selectedMove .itemAction a:link, tr.selectedMove .itemAction a:visited {
     padding: 0 5px !important;
 }
 
+#homeLink, #viewLink, #editLink, #infoLink, #historyLink, #watchLink{
+    background-image:none;
+    line-height: 21px;
+    padding-left: 5px !important;
+}
+#rssLink, #printerFriendlyLink{
+    width:20px !important;
+    background-position:50%
+}
 .navIntraTool span, .navIntraTool span.current, .navIntraTool span.inactive {
     padding: 0 !important;
     margin: 0 !important;
@@ -391,49 +400,55 @@ table.calendar .event {
 
 /*SECTION 4 TABULAR DATA*/
 .listHier{
-    border-collapse:collapse;
+       border-collapse: separate
 }
 
 .listHier th {
     background-color: #eee;
     border-top: 1px solid #ccc;
+    padding:7px 5px !important;
     box-shadow: 1px 1px 1px rgba(50, 50, 50, 0.5);
 }
 
+#rwiki_container .listHier{
+} 
+#rwiki_container .listHier th {
+    background-color: #eee;
+    border-top: 1px solid #ccc;
+    padding:7px 5px !important;
+}
+
+
 .listHier th:first-child {
-    -webkit-border-top-left-radius: 3px;
-    -webkit-border-bottom-left-radius: 3px;
-    -moz-border-radius-topleft: 3px;
-    -moz-border-radius-bottomleft: 3px;
-    border-top-left-radius: 3px;
-    border-bottom-left-radius: 3px;
+    -webkit-border-top-left-radius: 5px;
+    -webkit-border-bottom-left-radius: 5px;
+    -moz-border-radius-topleft: 5px;
+    -moz-border-radius-bottomleft: 5px;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
     border-left: 1px solid #ddd;
-    box-shadow: 1px 1px 1px rgba(50, 50, 50, 0.5);
 }
 
 .listHier th:last-child {
-    -webkit-border-top-right-radius: 3px;
-    -webkit-border-bottom-right-radius: 3px;
-    -moz-border-radius-topright: 3px;
-    -moz-border-radius-bottomright: 3px;
-    border-top-right-radius: 3px;
-    border-bottom-right-radius: 3px;
-    -webkit-box-shadow: 1px 1px 1px rgba(50, 50, 50, 0.5);
-    -moz-box-shadow: 1px 1px 1px rgba(50, 50, 50, 0.5);
-    box-shadow: 1px 1px 1px rgba(50, 50, 50, 0.5);
+    -webkit-border-top-right-radius: 5px;
+    -webkit-border-bottom-right-radius: 5px;
+    -moz-border-radius-topright: 5px;
+    -moz-border-radius-bottomright: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
 }
 
 /*skinned cell of standard tab. data table*/
 .listHier td {
     vertical-align: top;
-    padding: .8em .4em !important;
+    padding: .8em .5em !important;
     font-size: 12px;
     border-bottom: 1px dotted #ccc;
 }
 
 /*lines - provides rules and hover effects on some tables*/
 table.lines {
-    border-collapse: separate;
+ 
 }
 
 .listHier tr:hover {
@@ -628,6 +643,10 @@ label {
     border: 1px solid #000;
 }
 
+.shorttext input[type="text"] {
+    border: 1px solid #888888;
+    padding:0.3em ;
+}
 textarea {
     padding: .1em .3em;
     border: 1px solid #bbb;
