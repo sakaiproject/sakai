@@ -43,32 +43,34 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeUtility;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
-import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.alias.api.AliasService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.mailarchive.api.MailArchiveChannel;
 import org.sakaiproject.mailarchive.cover.MailArchiveService;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
-import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
@@ -92,12 +94,45 @@ public class SakaiMailet extends GenericMailet
 	// used when parsing email header parts
 	private static final String NAME_PREFIX = "name=";
 
+	private AliasService aliasService = null;
+	private ContentHostingService contentHostingService = null;
+	private EntityManager entityManager = null;
+	private SiteService siteService = null;
+	private ThreadLocalManager threadLocalManager = null;
+	private TimeService timeService = null;
+	private SessionManager sessionManager = null;
+	private UserDirectoryService userDirectoryService = null;
+
 	/**
 	 * Called when created.
 	 */
 	public void init() throws MessagingException
 	{
 		M_log.info("init()");
+		// load the services
+		aliasService = requireService(AliasService.class);
+		contentHostingService = requireService(ContentHostingService.class);
+		entityManager = requireService(EntityManager.class);
+		siteService = requireService(SiteService.class);
+		threadLocalManager = requireService(ThreadLocalManager.class);
+		timeService = requireService(TimeService.class);
+		sessionManager = requireService(SessionManager.class);
+		userDirectoryService = requireService(UserDirectoryService.class);
+	}
+
+	/**
+	 * Get the service for a class or die
+	 * @param serviceClass
+	 * @return the service class
+	 * @throws IllegalStateException if the service cannot be found
+	 */
+	@SuppressWarnings({"unchecked"})
+    private <T> T requireService(Class<T> serviceClass) {
+	    Object service = ComponentManager.get(serviceClass);
+	    if (service == null) {
+	        throw new IllegalStateException("Unable to get service ("+serviceClass+") from Sakai ComponentManager");
+	    }
+	    return (T) service;
 	}
 
 	/**
@@ -123,7 +158,7 @@ public class SakaiMailet extends GenericMailet
 		User postmaster = null;
 		try
 		{
-			postmaster = UserDirectoryService.getUser(POSTMASTER);
+			postmaster = userDirectoryService.getUser(POSTMASTER);
 		}
 		catch (UserNotDefinedException e)
 		{
@@ -135,7 +170,7 @@ public class SakaiMailet extends GenericMailet
 		try
 		{
 			// set the current user to postmaster
-			Session s = SessionManager.getCurrentSession();
+			Session s = sessionManager.getCurrentSession();
 			if (s != null)
 			{
 				s.setUserId(postmaster.getId());
@@ -143,7 +178,7 @@ public class SakaiMailet extends GenericMailet
 			else
 			{
 				M_log.warn("service - no SessionManager.getCurrentSession, cannot set to postmaser user, attempting to use the current user ("
-				        +SessionManager.getCurrentSessionUserId()+") and session ("+SessionManager.getCurrentSession().getId()+")");
+				        +sessionManager.getCurrentSessionUserId()+") and session ("+sessionManager.getCurrentSession().getId()+")");
 			}
 
 			MimeMessage msg = mail.getMessage();
@@ -196,7 +231,7 @@ public class SakaiMailet extends GenericMailet
 			}
 
             if (M_log.isDebugEnabled()) {
-                M_log.debug(id + " : mail: from:" + from + " sent: " + TimeService.newTime(sent.getTime()).toStringLocalFull() 
+                M_log.debug(id + " : mail: from:" + from + " sent: " + timeService.newTime(sent.getTime()).toStringLocalFull() 
                         + " subject: " + subject);
             }
 
@@ -247,7 +282,7 @@ public class SakaiMailet extends GenericMailet
 					if (channel == null)
 					{
 						// if not an alias, it will throw the IdUnusedException caught below
-						Reference ref = EntityManager.newReference(AliasService.getTarget(mailId));
+						Reference ref = entityManager.newReference(aliasService.getTarget(mailId));
 
 						if (ref.getType().equals(SiteService.APPLICATION_ID)) {
 						    // ref is a site
@@ -325,9 +360,9 @@ public class SakaiMailet extends GenericMailet
 					StringBuilder bodyBuf[] = new StringBuilder[2];
 					bodyBuf[0] = new StringBuilder();
 					bodyBuf[1] = new StringBuilder();
-					List attachments = EntityManager.newReferenceList();
+					List attachments = entityManager.newReferenceList();
 					String siteId = null;
-					if (SiteService.siteExists(channel.getContext())) {
+					if (siteService.siteExists(channel.getContext())) {
 						siteId = channel.getContext();
 					}
 					
@@ -382,13 +417,13 @@ public class SakaiMailet extends GenericMailet
 						modifiedHeaders.add("Reply-To: "+ replyTo.toString());
   
 						// post the message to the group's channel
-						channel.addMailArchiveMessage(subject, from.toString(), TimeService.newTime(sent.getTime()), modifiedHeaders,
+						channel.addMailArchiveMessage(subject, from.toString(), timeService.newTime(sent.getTime()), modifiedHeaders,
 								attachments, body);
 					}
 					else
 					{
 						// post the message to the group's channel
-						channel.addMailArchiveMessage(subject, from.toString(), TimeService.newTime(sent.getTime()), mailHeaders,
+						channel.addMailArchiveMessage(subject, from.toString(), timeService.newTime(sent.getTime()), mailHeaders,
 								attachments, body);
 					}
 
@@ -443,7 +478,7 @@ public class SakaiMailet extends GenericMailet
 		finally
 		{
 			// clear out any current current bindings
-			ThreadLocalManager.clear();
+			threadLocalManager.clear();
 		}
 	}
 
@@ -461,7 +496,7 @@ public class SakaiMailet extends GenericMailet
 		if ((fromAddr == null) || (fromAddr.length() == 0)) return false;
 
 		// find the users with this email address
-		Collection<User> users = UserDirectoryService.findUsersByEmail(fromAddr);
+		Collection<User> users = userDirectoryService.findUsersByEmail(fromAddr);
 
 		// if none found
 		if ((users == null) || (users.isEmpty())) return false;
@@ -482,11 +517,11 @@ public class SakaiMailet extends GenericMailet
 	protected Reference createAttachment(String siteId, List attachments, String type, String fileName, byte[] body, String id)
 	{
 		// we just want the file name part - strip off any drive and path stuff
-		String name = Validator.getFileName(fileName);
+		String name = FilenameUtils.getName(fileName);  //Validator.getFileName(fileName);
 		String resourceName = Validator.escapeResourceName(fileName);
 
 		// make a set of properties to add for the new resource
-		ResourcePropertiesEdit props = ContentHostingService.newResourceProperties();
+		ResourcePropertiesEdit props = contentHostingService.newResourceProperties();
 		props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
 		props.addProperty(ResourceProperties.PROP_DESCRIPTION, fileName);
 
@@ -495,14 +530,14 @@ public class SakaiMailet extends GenericMailet
 		{
 			ContentResource attachment;
 			if (siteId == null) {
-				attachment = ContentHostingService.addAttachmentResource(resourceName, type, body, props);
+				attachment = contentHostingService.addAttachmentResource(resourceName, type, body, props);
 			} else {
-				attachment = ContentHostingService.addAttachmentResource(
+				attachment = contentHostingService.addAttachmentResource(
 						resourceName, siteId, null, type, body, props);
 			}
 
 			// add a dereferencer for this to the attachments
-			Reference ref = EntityManager.newReference(attachment.getReference());
+			Reference ref = entityManager.newReference(attachment.getReference());
 			attachments.add(ref);
 
 			M_log.debug(id + " : attachment: " + ref.getReference() + " size: " + body.length);
