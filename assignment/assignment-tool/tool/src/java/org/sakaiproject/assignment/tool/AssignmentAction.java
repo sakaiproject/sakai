@@ -4088,6 +4088,9 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 
 			String sReference = sEdit.getReference();
+			
+			// save a timestamp for this grading process
+			sEdit.getPropertiesEdit().addProperty(AssignmentConstants.PROP_LAST_GRADED_DATE, TimeService.newTime().toStringLocalFull());
 
 			AssignmentService.commitEdit(sEdit);
 
@@ -4262,6 +4265,15 @@ public class AssignmentAction extends PagedResourceActionII
 						Time now = TimeService.newTime();
 						if (sEdit.getGraded() && sEdit.getReturned() && sEdit.getGradeReleased())
 						{
+							// get the previous graded date
+							String prevGradedDate = sEdit.getProperties().getProperty(AssignmentConstants.PROP_LAST_GRADED_DATE);
+							if (prevGradedDate == null)
+							{
+								// since this is a newly added property, if no value is set, get the default as the submission last modified date
+								prevGradedDate = sEdit.getTimeLastModified().toStringLocalFull();
+								sEdit.getProperties().addProperty(AssignmentConstants.PROP_LAST_GRADED_DATE, prevGradedDate);
+							}
+							
 							// add the current grade into previous grade histroy
 							String previousGrades = (String) sEdit.getProperties().getProperty(
 									ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES);
@@ -4302,10 +4314,12 @@ public class AssignmentAction extends PagedResourceActionII
 									previousGrades = "";
 								}
 							}
-							previousGrades =  "<h4>" + now.toStringLocalFull() + "</h4>" + "<div style=\"margin:0;padding:0\">" + sEdit.getGradeDisplay() + "</div>" +previousGrades;
-
-							sPropertiesEdit.addProperty(ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES,
-									previousGrades);
+							
+							if (StringUtil.trimToNull(sEdit.getGradeDisplay()) != null)
+							{
+								previousGrades =  "<h4>" + prevGradedDate + "</h4>" + "<div style=\"margin:0;padding:0\">" + sEdit.getGradeDisplay() + "</div>" +previousGrades;
+								sPropertiesEdit.addProperty(ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES, previousGrades);
+							}
 
 							// clear the current grade and make the submission ungraded
 							sEdit.setGraded(false);
@@ -4317,23 +4331,29 @@ public class AssignmentAction extends PagedResourceActionII
 							sEdit.setReviewScore(0); // default to be 0?
 							sEdit.setReviewStatus(null);
 
-							// keep the history of assignment feed back text
-							String feedbackTextHistory = sPropertiesEdit
-									.getProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT) != null ? sPropertiesEdit
-									.getProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT)
-									: "";
-							feedbackTextHistory =  "<h4>" + now.toStringLocalFull() + "</h4>" + "<div style=\"margin:0;padding:0\">" + sEdit.getFeedbackText() + "</div>" + feedbackTextHistory;
-							sPropertiesEdit.addProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT,
-									feedbackTextHistory);
+							if (StringUtils.trimToNull(sEdit.getFeedbackFormattedText()) != null)
+							{
+								// keep the history of assignment feed back text
+								String feedbackTextHistory = sPropertiesEdit
+										.getProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT) != null ? sPropertiesEdit
+										.getProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT)
+										: "";
+								feedbackTextHistory =  "<h4>" + prevGradedDate + "</h4>" + "<div style=\"margin:0;padding:0\">" + sEdit.getFeedbackText() + "</div>" + feedbackTextHistory;
+								sPropertiesEdit.addProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT,
+										feedbackTextHistory);
+							}
 
-							// keep the history of assignment feed back comment
-							String feedbackCommentHistory = sPropertiesEdit
-									.getProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT) != null ? sPropertiesEdit
-									.getProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT)
-									: "";
-							feedbackCommentHistory = "<h4>" + now.toStringLocalFull() + "</h4>" + "<div style=\"margin:0;padding:0\">" + sEdit.getFeedbackComment() + "</div>" + feedbackCommentHistory;
-							sPropertiesEdit.addProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT,
-									feedbackCommentHistory);
+							if (StringUtils.trimToNull(sEdit.getFeedbackComment()) != null)
+							{
+								// keep the history of assignment feed back comment
+								String feedbackCommentHistory = sPropertiesEdit
+										.getProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT) != null ? sPropertiesEdit
+										.getProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT)
+										: "";
+								feedbackCommentHistory = "<h4>" + prevGradedDate + "</h4>" + "<div style=\"margin:0;padding:0\">" + sEdit.getFeedbackComment() + "</div>" + feedbackCommentHistory;
+								sPropertiesEdit.addProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_COMMENT,
+										feedbackCommentHistory);
+							}
 							
 							// keep the history of assignment feed back comment
 							String feedbackAttachmentHistory = sPropertiesEdit

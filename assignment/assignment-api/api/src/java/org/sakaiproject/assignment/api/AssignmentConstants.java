@@ -107,4 +107,6 @@ public class AssignmentConstants {
 
 	/** the String for all choice in dropdown menu */
 	public static final String ALL = "all";
+	
+	public static final String PROP_LAST_GRADED_DATE = "last_graded_date";
 }
