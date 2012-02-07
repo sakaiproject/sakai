@@ -27,6 +27,7 @@ import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -673,6 +674,7 @@ public class Validator
 	 * @param fullName
 	 *        The full file name from a local os file system (mac, unix, windoze)
 	 * @return Just the name (and extension) of the file, without the drive or path.
+	 * @deprecated use commons-io FilenameUtils.getName() instead
 	 */
 	public static String getFileName(String fullName)
 	{
