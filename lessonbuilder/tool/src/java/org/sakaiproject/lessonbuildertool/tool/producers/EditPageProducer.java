@@ -137,13 +137,13 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 			if (page.getOwner() == null)
 			    showPageProducer.createGroupList(form, groups);
 
-			UICommand.make(form, "save", "#{simplePageBean.submit}").decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.save_message")));
+			UICommand.make(form, "save", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.submit}").decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.save_message")));
 
-			UICommand.make(form, "cancel", "#{simplePageBean.cancel}").decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.cancel_message")));
+			UICommand.make(form, "cancel", messageLocator.getMessage("simplepage.cancel_message"), "#{simplePageBean.cancel}").decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.cancel_message")));
 
 			if (itemId != null && itemId != -1) {
 				form.parameters.add(new UIELBinding("#{simplePageBean.itemId}", gparams.getItemId()));
-				UICommand.make(form, "delete", "#{simplePageBean.deleteItem}");
+				UICommand.make(form, "delete", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
 				UIOutput.make(form, "delete-div");
 			}
 		} else {
