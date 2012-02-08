@@ -185,9 +185,9 @@
 			  </h:column>
 			</h:dataTable>   
 			<p style="padding:0" class="act">
-				<sakai:button_bar_item action="#{ForumTool.processAddAttachmentRedirect}" value="#{msgs.cdfm_button_bar_add_attachment_redirect}" immediate="true"
+				<sakai:button_bar_item action="#{ForumTool.processAddAttachmentRedirect}" value="#{msgs.cdfm_button_bar_add_attachment_redirect}" 
 					rendered="#{empty ForumTool.attachments}" style="font-size:95%"/>
-				<sakai:button_bar_item action="#{ForumTool.processAddAttachmentRedirect}" value="#{msgs.cdfm_button_bar_add_attachment_more_redirect}" immediate="true"
+				<sakai:button_bar_item action="#{ForumTool.processAddAttachmentRedirect}" value="#{msgs.cdfm_button_bar_add_attachment_more_redirect}" 
 					rendered="#{!empty ForumTool.attachments}" style="font-size:95%"/>
 			</p>
 		</div>

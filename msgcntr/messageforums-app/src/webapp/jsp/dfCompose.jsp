@@ -140,9 +140,9 @@
 						</h:dataTable>   
         		
 			<p style="padding:0" class="act">
-				<h:commandButton action="#{ForumTool.processAddAttachmentRedirect}" value="#{msgs.cdfm_button_bar_add_attachment_redirect}" immediate="true" accesskey="a" 
+				<h:commandButton action="#{ForumTool.processAddAttachmentRedirect}" value="#{msgs.cdfm_button_bar_add_attachment_redirect}" accesskey="a" 
 					style="font-size:96%"  rendered="#{empty ForumTool.attachments}"/>
-				<h:commandButton action="#{ForumTool.processAddAttachmentRedirect}" value="#{msgs.cdfm_button_bar_add_attachment_more_redirect}" immediate="true" accesskey="a" 
+				<h:commandButton action="#{ForumTool.processAddAttachmentRedirect}" value="#{msgs.cdfm_button_bar_add_attachment_more_redirect}" accesskey="a" 
 					style="font-size:96%"  rendered="#{!empty ForumTool.attachments}"/>
 			</p>
 

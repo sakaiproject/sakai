@@ -160,13 +160,11 @@
 			<p class="act" style="padding:0 0 1em 0;">
 				<sakai:button_bar_item action="#{ForumTool.processAddAttachmentRedirect}" 
 					value="#{msgs.cdfm_button_bar_add_attachment_more_redirect}" 
-					immediate="true"
 					accesskey="a" 
 					 rendered="#{!empty ForumTool.attachments}"
 					 style="font-size:95%"/>
 				<sakai:button_bar_item action="#{ForumTool.processAddAttachmentRedirect}" 
 					value="#{msgs.cdfm_button_bar_add_attachment_redirect}" 
-					immediate="true"
 					accesskey="a" 
 					 rendered="#{empty ForumTool.attachments}" 
 					 style="font-size:95%"/>

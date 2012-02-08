@@ -162,13 +162,11 @@
 			</div>
 			<p class="act" style="padding:0 0 1em 0;">
 				<h:commandButton  action="#{ForumTool.processAddAttachmentRedirect}"
-					value="#{msgs.cdfm_button_bar_add_attachment_more_redirect}" 
-					immediate="true" 
+					value="#{msgs.cdfm_button_bar_add_attachment_more_redirect}"  
 					style="font-size:96%"
 					rendered="#{!empty ForumTool.attachments}"/>
 				<h:commandButton  action="#{ForumTool.processAddAttachmentRedirect}"
-					value="#{msgs.cdfm_button_bar_add_attachment_redirect}" 
-					immediate="true" 
+					value="#{msgs.cdfm_button_bar_add_attachment_redirect}"  
 					style="font-size:96%"
 					rendered="#{empty ForumTool.attachments}"
 					/>

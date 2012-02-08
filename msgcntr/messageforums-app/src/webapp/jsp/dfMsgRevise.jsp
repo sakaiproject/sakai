@@ -112,14 +112,12 @@
 					rendered="#{empty ForumTool.attachments}"
 						action="#{ForumTool.processAddAttachmentRedirect}" 
 						value="#{msgs.cdfm_button_bar_add_attachment_redirect}" 
-						immediate="true" 
 						accesskey="a" 
 						style="font-size:95%"/>
 				<sakai:button_bar_item
 					rendered="#{!empty ForumTool.attachments}"
 						action="#{ForumTool.processAddAttachmentRedirect}"
 						value="#{msgs.cdfm_button_bar_add_attachment_more_redirect}"
-						immediate="true"
 						accesskey="a"
 						style="font-size:95%"/>
 			 </p>
