@@ -15,12 +15,7 @@ public class EditablePanelAuthDropdownText extends Panel{
 		IModel<String> labelModel = new AbstractReadOnlyModel<String>() {
 			@Override
 			public String getObject() {
-				String auth = null;
-				if(nodeModel.isDirectAccess()){
-					auth = nodeModel.getNodeShoppingPeriodAuth();
-				}else{
-					auth = nodeModel.getInheritedShoppingPeriodAuth();
-				}
+				String auth = nodeModel.getNodeShoppingPeriodAuth();
 				if(auth != null && !"".equals(auth)){
 					return new StringResourceModel(auth, null).getString();
 				}else{

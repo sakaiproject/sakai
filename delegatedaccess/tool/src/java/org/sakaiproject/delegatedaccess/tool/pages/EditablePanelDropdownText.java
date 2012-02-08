@@ -22,12 +22,8 @@ public class EditablePanelDropdownText extends Panel{
 		IModel<String> labelModel = new AbstractReadOnlyModel<String>() {
 			@Override
 			public String getObject() {
-				String[] inheritedAccess;
-				if(nodeModel.isDirectAccess()){
-					inheritedAccess = nodeModel.getNodeAccessRealmRole();
-				}else{
-					inheritedAccess = nodeModel.getInheritedAccessRealmRole();
-				}
+				String[] inheritedAccess = nodeModel.getNodeAccessRealmRole();
+				
 				if("".equals(inheritedAccess[0])){
 					return "";
 				}else{

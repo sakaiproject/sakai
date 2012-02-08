@@ -1,19 +1,26 @@
 package org.sakaiproject.delegatedaccess.entity;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
-import org.sakaiproject.delegatedaccess.model.HierarchyNodeSerialized;
+import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.PropertyProvideable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
@@ -103,8 +110,18 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		String shoppingAuth = (String) params.get("shoppingAuth");
 		String shoppingStartDateStr = (String) params.get("shoppingStartDate");
 		String shoppingEndDateStr = (String) params.get("shoppingEndDate");
-		//String role = (String) params.get("shoppingRole");
-		//String realm = (String) params.get("shoppingRealm");
+		String role = (String) params.get("shoppingRole");
+		String realm = (String) params.get("shoppingRealm");
+		Object toolList = params.get("shoppingShowTools");
+		String[] tools = null;
+		if(toolList != null){
+			if(toolList instanceof String[]){
+				tools = (String[]) params.get("shoppingShowTools");
+			}else if(toolList instanceof String && !"".equals(toolList)){
+				tools = new String[]{(String) toolList};
+			}
+		};
+		
 		Date shoppingStartDate = null;
 		Date shoppingEndDate = null;
 		if(shoppingStartDateStr != null && !"".equals(shoppingStartDateStr)){
@@ -124,22 +141,42 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 
 		//get the node to store the information:
 		NodeModel node = projectLogic.getNodeModel(nodeId, DelegatedAccessConstants.SHOPPING_PERIOD_USER);
+		//Get Original Settings before we modify it
+		String authOrig = node.getNodeShoppingPeriodAuth();
+		Date startDateOrig = node.getNodeShoppingPeriodStartDate();
+		Date endDateOrig = node.getNodeShoppingPeriodEndDate();
+		String realmOrig = node.getNodeAccessRealmRole()[0];
+		String roleOrig = node.getNodeAccessRealmRole()[1];
+		String[] toolsOrig = node.getNodeRestrictedTools();
+		String[] termsOrig = node.getNodeTerms();
+		//modify the setting to the new settings
 		node.setShoppingPeriodAuth(shoppingAuth);
 		node.setShoppingPeriodStartDate(shoppingStartDate);
 		node.setShoppingPeriodEndDate(shoppingEndDate);
-
-		//to enable these settings, you must set the direct access to true, disabled = false
-		if((shoppingAuth == null || "".equals(shoppingAuth)) && shoppingStartDate == null && shoppingEndDate == null){
-			//user wants to remove information, so make the direct access == false:
-			node.setDirectAccess(false);
-		}else{
-			//user is adding/updating information, so make sure direct access is true
-			node.setDirectAccess(true);
+		node.setRealm(realm);
+		node.setRole(role);
+		node.setRestrictedTools(projectLogic.getEntireToolsList());
+		if(tools != null){
+			for(String toolId : tools){
+				node.setToolRestricted(toolId, true);
+			}
 		}
-
-		projectLogic.updateNodePermissionsForUser(node, DelegatedAccessConstants.SHOPPING_PERIOD_USER);
+		node.setDirectAccess(true);
+		//Get new modified settings
+		String authNew = node.getNodeShoppingPeriodAuth();
+		Date startDateNew = node.getNodeShoppingPeriodStartDate();
+		Date endDateNew = node.getNodeShoppingPeriodEndDate();
+		String realmNew = node.getNodeAccessRealmRole()[0];
+		String roleNew = node.getNodeAccessRealmRole()[1];
+		String[] toolsNew = node.getNodeRestrictedTools();
+		String[] termsNew = node.getNodeTerms();
+		//only update if there were true modifications
+		if(node.isModified(authOrig, authNew, startDateOrig, startDateNew, endDateOrig, endDateNew,
+				realmOrig, realmNew, roleOrig, roleNew, toolsOrig, toolsNew, termsOrig, termsNew)){
+			projectLogic.updateNodePermissionsForUser(node, DelegatedAccessConstants.SHOPPING_PERIOD_USER);
+		}
 	}
-
+	
 	public Object getEntity(EntityReference ref) {
 		List<String> nodeIds = projectLogic.getNodesBySiteRef("/site/" + ref.getId(), DelegatedAccessConstants.HIERARCHY_ID);
 		if(nodeIds == null || nodeIds.size() != 1){
@@ -157,10 +194,68 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		valuesMap.put("shoppingEndDate", node.getNodeShoppingPeriodEndDate());
 		valuesMap.put("shoppingRealm", node.getNodeAccessRealmRole()[0]);
 		valuesMap.put("shoppingRole", node.getNodeAccessRealmRole()[1]);
+//		List<String> selectedRestrictedTools = new ArrayList<String>();
+//		for(ListOptionSerialized tool : node.getNodeRestrictedTools()){
+//			selectedRestrictedTools.add(tool.getId());
+//		}
+		valuesMap.put("shoppingShowTools", node.getNodeRestrictedTools());
 
 		return valuesMap;
 	}
 
+	/**
+	 * shoppingOptions/roles
+	 * shoppingOptions/tools
+	 * shoppingOptions/authorization
+	 * 
+	 * @param view
+	 * @param params
+	 * @return
+	 */
+	@EntityCustomAction(action="shoppingOptions",viewKey=EntityView.VIEW_LIST)
+    public List<?> getShoppingOptions(EntityView view, Map<String, Object> params) {
+        String option = view.getPathSegment(2);
+        if(option == null || "".equals(option)){
+        	throw new IllegalArgumentException("An option is required:  shoppingOptions/roles, shoppingOptions/tools, shoppingOptions/authorization");
+        }
+        if("roles".equals(option)){
+        	return convertMapToSerializedList(projectLogic.getRealmRoleDisplay(true));
+        }else if("tools".equals(option)){
+        	return convertListToSerializedList(projectLogic.getEntireToolsList());
+        }else if("authorization".equals(option)){
+        	return convertListToSerializedList(projectLogic.getAuthorizationOptions());
+        }else{
+        	throw new IllegalArgumentException("A valid option is required:  shoppingOptions/roles, shoppingOptions/tools, shoppingOptions/authorization");
+        }
+	}
+	
+	private List<GenericOutputSerialized> convertListToSerializedList(List<ListOptionSerialized> list){
+		List<GenericOutputSerialized> returnList = new ArrayList<GenericOutputSerialized>();
+		for(ListOptionSerialized l : list){
+    		returnList.add(new GenericOutputSerialized(l.getId(), l.getName()));
+    	}
+		sortGenericOutputList(returnList);
+    	return returnList;
+	}
+	
+	private List<GenericOutputSerialized> convertMapToSerializedList(Map<String, String> map){
+		List<GenericOutputSerialized> returnList = new ArrayList<GenericOutputSerialized>();
+		for(Entry<String, String> entry : map.entrySet()){
+    		returnList.add(new GenericOutputSerialized(entry.getKey(), entry.getValue()));
+    	}
+		sortGenericOutputList(returnList);
+    	return returnList;
+	}
+	
+	private void sortGenericOutputList(List<GenericOutputSerialized> l){
+		Collections.sort(l, new Comparator<GenericOutputSerialized>() {
+    		public int compare(GenericOutputSerialized arg0,
+    				GenericOutputSerialized arg1) {
+    			return arg0.getValue().compareToIgnoreCase(arg1.getValue());
+    		}
+		});
+	}
+	
 	public void deleteEntity(EntityReference ref, Map<String, Object> params) {
 		// TODO Auto-generated method stub
 
@@ -188,5 +283,27 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 	public void setRequestStorage(RequestStorage requestStorage) {
 		// TODO Auto-generated method stub
 
+	}
+	
+	public class GenericOutputSerialized implements Serializable{
+		public String key;
+		public String value;
+		public GenericOutputSerialized(String key, String value){
+			this.key = key;
+			this.value = value;
+		}
+		public String getKey() {
+			return key;
+		}
+		public void setKey(String key) {
+			this.key = key;
+		}
+		public String getValue() {
+			return value;
+		}
+		public void setValue(String value) {
+			this.value = value;
+		}
+		
 	}
 }

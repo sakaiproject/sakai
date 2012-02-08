@@ -1375,6 +1375,13 @@ public class ProjectLogicImpl implements ProjectLogic {
 		return i;
 	}
 	
+	public List<ListOptionSerialized> getAuthorizationOptions(){
+		List<ListOptionSerialized> returnList = new ArrayList<ListOptionSerialized>();
+		returnList.add(new ListOptionSerialized(".auth", "Logged In", false));
+		returnList.add(new ListOptionSerialized(".anon", "Public", false));
+		return returnList;
+	}
+	
 	private class SiteSearchData{
 		private Site site;
 		private List<User> instructors = new ArrayList();

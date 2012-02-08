@@ -1,18 +1,17 @@
 package org.sakaiproject.delegatedaccess.tool.pages;
 
 import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.tree.TreeNode;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.StringResourceModel;
+import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.model.SelectOption;
 
@@ -24,10 +23,16 @@ import org.sakaiproject.delegatedaccess.model.SelectOption;
  */
 public class EditablePanelAuthDropdown extends Panel{
 
-	public EditablePanelAuthDropdown(String id, IModel model, final NodeModel nodeModel, final TreeNode node) {
+	public EditablePanelAuthDropdown(String id, IModel model, final NodeModel nodeModel, final TreeNode node, List<ListOptionSerialized> authorizationOptions) {
 		super(id, model);
 
-		SelectOption[] options = new SelectOption[] {new SelectOption("Logged In", ".auth"), new SelectOption("Public", ".anon")};
+		SelectOption[] options = new SelectOption[authorizationOptions.size()];
+		int i=0;
+		for(ListOptionSerialized option : authorizationOptions){
+			options[i] = new SelectOption(option.getName(), option.getId());
+			i++;
+		}
+		
 		ChoiceRenderer choiceRenderer = new ChoiceRenderer("label", "value");
 		final DropDownChoice choice=new DropDownChoice("dropDownChoice", model, Arrays.asList(options), choiceRenderer){
 			@Override

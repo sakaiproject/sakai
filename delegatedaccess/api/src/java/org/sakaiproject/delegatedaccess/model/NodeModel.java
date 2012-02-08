@@ -2,8 +2,10 @@ package org.sakaiproject.delegatedaccess.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -129,55 +131,94 @@ public class NodeModel implements Serializable {
 		}
 		//only worry about modifications to a direct access node
 		if(directAccess){
-			if(realm != null && realmOrig != null){
-				if(!realm.equals(realmOrig))
-					return true;
-			}else if(realm == null || realmOrig == null){
-				return true;
-			}
-			if(shoppingPeriodStartDate != null && shoppingPeriodStartDateOrig != null){
-				if(!shoppingPeriodStartDate.equals(shoppingPeriodStartDateOrig))
-					return true;
-			}else if(shoppingPeriodStartDate == null || shoppingPeriodStartDateOrig == null){
-				return true;
-			}
-			if(shoppingPeriodEndDate != null && shoppingPeriodEndDateOrig != null){
-				if(!shoppingPeriodEndDate.equals(shoppingPeriodEndDateOrig))
-					return true;
-			}else if(shoppingPeriodEndDate == null || shoppingPeriodEndDateOrig == null){
-				return true;
-			}
-
-
-			if(role != null && roleOrig != null){
-				if(!role.equals(roleOrig))
-					return true;
-			}else if(role == null || roleOrig == null){
-				return true;
-			}
-
-			if(getShoppingPeriodAuth() != null && shoppingPeriodAuthOrig != null){
-				if(!getShoppingPeriodAuth().equals(shoppingPeriodAuthOrig))
-					return true;
-			}else if(getShoppingPeriodAuth() == null || shoppingPeriodAuthOrig == null){
-				return true;
-			}
-
-
-
-
-
-			if(isRestrictedToolsModified()){
-				return true;
-			}
-			if(isTermsModified()){
-				return true;
-			}
+			return isModified(getShoppingPeriodAuth(), shoppingPeriodAuthOrig, shoppingPeriodStartDate, shoppingPeriodStartDateOrig, shoppingPeriodEndDate, shoppingPeriodEndDateOrig,
+					realm, realmOrig, role, roleOrig, convertListToArray(getSelectedRestrictedTools()), convertListToArray(getSelectedRestrictedToolsOrig()), 
+					convertListToArray(getSelectedTerms()), convertListToArray(getSelectedTermsOrig()));
 		}
 
 		return false;
 	}
 
+	public boolean isModified(String shoppingAuthOld, String shoppingAuthNew, Date shoppingStartDateOld, Date shoppingStartDateNew,
+			Date shoppingEndDateOld, Date shoppingEndDateNew, String realmOld, String realmNew, String roleOld, String roleNew,
+			String[] toolsOld, String[] toolsNew, String[] termsOld, String[] termsNew){
+		if(realmOld != null && realmNew != null){
+			if(!realmOld.equals(realmNew))
+				return true;
+		}else if((realmOld == null || realmNew == null) && !(realmOld == null && realmNew == null)){
+			return true;
+		}
+		if(shoppingStartDateOld != null && shoppingStartDateNew != null){
+			if(!shoppingStartDateOld.equals(shoppingStartDateNew))
+				return true;
+		}else if((shoppingStartDateOld == null || shoppingStartDateNew == null) && !(shoppingStartDateOld == null && shoppingStartDateNew == null)){
+			return true;
+		}
+		if(shoppingEndDateOld != null && shoppingEndDateNew != null){
+			if(!shoppingEndDateOld.equals(shoppingEndDateNew))
+				return true;
+		}else if((shoppingEndDateOld == null || shoppingEndDateNew == null) && !(shoppingEndDateOld == null && shoppingEndDateNew == null)){
+			return true;
+		}
+
+
+		if(roleOld != null && roleNew != null){
+			if(!roleOld.equals(roleNew))
+				return true;
+		}else if((roleOld == null || roleNew == null) && !(roleOld == null && roleNew == null)){
+			return true;
+		}
+
+		if(shoppingAuthOld != null && shoppingAuthNew != null){
+			if(!shoppingAuthOld.equals(shoppingAuthNew))
+				return true;
+		}else if((shoppingAuthOld == null || shoppingAuthNew == null) && !(shoppingAuthOld == null && shoppingAuthNew == null)){
+			return true;
+		}
+		if(toolsOld != null && toolsNew != null){
+			if(toolsOld.length != toolsNew.length){
+				return true;
+			}else{
+				for(int i = 0; i < toolsOld.length; i++){
+					boolean found = false;
+					for(int j = 0; j < toolsNew.length; j++){
+						if(toolsOld[i].equals(toolsNew[j])){
+							found = true;
+							break;
+						}
+					}
+					if(!found){
+						return true;
+					}
+				}
+			}
+		}else if((toolsOld == null || toolsNew == null) && !(toolsOld == null && toolsNew == null)){
+			return true;
+		}
+		
+		if(termsOld != null && termsNew != null){
+			if(termsOld.length != termsNew.length){
+				return true;
+			}else{
+				for(int i = 0; i < termsOld.length; i++){
+					boolean found = false;
+					for(int j = 0; j < termsNew.length; j++){
+						if(termsOld[i].equals(termsNew[j])){
+							found = true;
+							break;
+						}
+					}
+					if(!found){
+						return true;
+					}
+				}
+			}
+		}else if((termsOld == null || termsNew == null) && !(termsOld == null && termsNew == null)){
+			return true;
+		}
+		
+		return false;
+	}
 
 	private boolean isRestrictedToolsModified(){
 		for(ListOptionSerialized origTool : restrictedToolsOrig){
@@ -227,7 +268,7 @@ public class NodeModel implements Serializable {
 	 */
 	public String[] getNodeAccessRealmRole(){
 		String[] myAccessRealmRole = new String[]{getRealm(), getRole()};
-		if(myAccessRealmRole == null || "".equals(myAccessRealmRole[0]) || "".equals(myAccessRealmRole[1])){
+		if(!isDirectAccess()){
 			myAccessRealmRole = getInheritedAccessRealmRole();
 		}
 		if(myAccessRealmRole == null || "".equals(myAccessRealmRole[0]) || "".equals(myAccessRealmRole[1])){
@@ -238,7 +279,7 @@ public class NodeModel implements Serializable {
 	}
 
 	public String getNodeShoppingPeriodAuth(){
-		if(getShoppingPeriodAuth() != null && !"".equals(getShoppingPeriodAuth()) && !"none".equals(getShoppingPeriodAuth())){
+		if(isDirectAccess()){
 			return getShoppingPeriodAuth();
 		}else{
 			return getInheritedShoppingPeriodAuth();
@@ -246,7 +287,7 @@ public class NodeModel implements Serializable {
 	}
 
 	public Date getNodeShoppingPeriodStartDate(){
-		if(getShoppingPeriodStartDate() != null){
+		if(isDirectAccess()){
 			return getShoppingPeriodStartDate();
 		}else{
 			return getInheritedShoppingPeriodStartDate();
@@ -254,7 +295,7 @@ public class NodeModel implements Serializable {
 	}
 
 	public Date getNodeShoppingPeriodEndDate(){
-		if(getShoppingPeriodEndDate() != null){
+		if(isDirectAccess()){
 			return getShoppingPeriodEndDate();
 		}else{
 			return getInheritedShoppingPeriodEndDate();
@@ -268,10 +309,7 @@ public class NodeModel implements Serializable {
 	private String[] getInheritedAccessRealmRoleHelper(NodeModel parent){
 		if(parent == null){
 			return new String[]{"",""};
-		} else if (parent.isDirectAccess() && !"null".equals(parent.getRealm())
-				&& !"".equals(parent.getRealm())
-				&& !"".equals(parent.getRole())
-				&& !"null".equals(parent.getRole())) {
+		} else if (parent.isDirectAccess()) {
 			return new String[]{parent.getRealm(), parent.getRole()};
 		}else{
 			return getInheritedAccessRealmRoleHelper(parent.getParentNode());
@@ -338,21 +376,25 @@ public class NodeModel implements Serializable {
 
 	public String[] getNodeRestrictedTools(){
 		List<ListOptionSerialized> myRestrictedTools = getSelectedRestrictedTools();
-		if(myRestrictedTools == null || myRestrictedTools.size() == 0){
+		if(!isDirectAccess()){
 			myRestrictedTools = getInheritedRestrictedTools();
 		}
 
 		if(myRestrictedTools == null || myRestrictedTools.size() == 0){
 			return new String[0];
 		}else{
-			String[] restrictedToolsArray = new String[myRestrictedTools.size()];
-			int i = 0;
-			for(ListOptionSerialized tool : myRestrictedTools){
-				restrictedToolsArray[i] = tool.getId();
-				i++;
-			}
-			return restrictedToolsArray;
+			return convertListToArray(myRestrictedTools);
 		}
+	}
+	
+	private String[] convertListToArray(List<ListOptionSerialized> list){
+		String[] restrictedToolsArray = new String[list.size()];
+		int i = 0;
+		for(ListOptionSerialized tool : list){
+			restrictedToolsArray[i] = tool.getId();
+			i++;
+		}
+		return restrictedToolsArray;
 	}
 
 	public List<ListOptionSerialized> getInheritedRestrictedTools(){
@@ -362,7 +404,7 @@ public class NodeModel implements Serializable {
 	private List<ListOptionSerialized> getInheritedRestrictedToolsHelper(NodeModel parent){
 		if(parent == null){
 			return Collections.emptyList();
-		}else if(parent.isDirectAccess() && parent.hasAnyRestrictedToolsSelected()){
+		}else if(parent.isDirectAccess()){
 			return parent.getSelectedRestrictedTools();
 		}else{
 			return getInheritedRestrictedToolsHelper(parent.getParentNode());
@@ -372,6 +414,15 @@ public class NodeModel implements Serializable {
 	public List<ListOptionSerialized> getSelectedRestrictedTools(){
 		List<ListOptionSerialized> returnList = new ArrayList<ListOptionSerialized>();
 		for(ListOptionSerialized tool : restrictedTools){
+			if(tool.isSelected())
+				returnList.add(tool);
+		}
+		return returnList;
+	}
+	
+	public List<ListOptionSerialized> getSelectedRestrictedToolsOrig(){
+		List<ListOptionSerialized> returnList = new ArrayList<ListOptionSerialized>();
+		for(ListOptionSerialized tool : restrictedToolsOrig){
 			if(tool.isSelected())
 				returnList.add(tool);
 		}
@@ -432,7 +483,7 @@ public class NodeModel implements Serializable {
 	}
 
 	public Date getNodeUpdatedDate(){
-		if(updatedDate != null){
+		if(isDirectAccess()){
 			return updatedDate;
 		}else{
 			return getInheritedUpdatedDate();
@@ -537,7 +588,7 @@ public class NodeModel implements Serializable {
 	
 	public String[] getNodeTerms(){
 		List<ListOptionSerialized> myTerms = getSelectedTerms();
-		if(myTerms == null || myTerms.size() == 0){
+		if(!isDirectAccess()){
 			myTerms = getInheritedTerms();
 		}
 
@@ -561,7 +612,7 @@ public class NodeModel implements Serializable {
 	private List<ListOptionSerialized> getInheritedTermsHelper(NodeModel parent){
 		if(parent == null){
 			return Collections.emptyList();
-		}else if(parent.isDirectAccess() && parent.hasAnyTermsSelected()){
+		}else if(parent.isDirectAccess()){
 			return parent.getSelectedTerms();
 		}else{
 			return getInheritedTermsHelper(parent.getParentNode());
@@ -571,6 +622,15 @@ public class NodeModel implements Serializable {
 	public List<ListOptionSerialized> getSelectedTerms(){
 		List<ListOptionSerialized> returnList = new ArrayList<ListOptionSerialized>();
 		for(ListOptionSerialized tool : terms){
+			if(tool.isSelected())
+				returnList.add(tool);
+		}
+		return returnList;
+	}
+	
+	public List<ListOptionSerialized> getSelectedTermsOrig(){
+		List<ListOptionSerialized> returnList = new ArrayList<ListOptionSerialized>();
+		for(ListOptionSerialized tool : termsOrig){
 			if(tool.isSelected())
 				returnList.add(tool);
 		}

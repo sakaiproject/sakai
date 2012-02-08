@@ -19,6 +19,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.model.SelectOption;
+import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 
 /**
  * Creates the dropdown panel for the "Role" column in TreeTable
@@ -65,7 +66,11 @@ public class EditablePanelDropdown extends Panel
 		final DropDownChoice choice=new DropDownChoice("roleChoices", inputModel, Arrays.asList(options), choiceRenderer){
 			@Override
 			public boolean isVisible() {
-				return nodeModel.isDirectAccess() && nodeModel.getNodeShoppingPeriodAdmin();
+				if(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER == type){
+					return nodeModel.isDirectAccess() && nodeModel.getNodeShoppingPeriodAdmin();
+				}else{
+					return nodeModel.isDirectAccess();
+				}
 			}
 		};
 		choice.add(new AjaxFormComponentUpdatingBehavior("onchange")

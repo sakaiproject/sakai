@@ -21,15 +21,10 @@ public class EditablePanelDateText extends Panel{
 			public String getObject() {
 				Date date = null;
 				if(startDate)
-					if(nodeModel.isDirectAccess())
-						date = nodeModel.getNodeShoppingPeriodStartDate();
-					else
-						date = nodeModel.getInheritedShoppingPeriodStartDate();
+					date = nodeModel.getNodeShoppingPeriodStartDate();
 				else
-					if(nodeModel.isDirectAccess())
-						date = nodeModel.getNodeShoppingPeriodEndDate();
-					else
-						date = nodeModel.getInheritedShoppingPeriodEndDate();
+					date = nodeModel.getNodeShoppingPeriodEndDate();
+				
 				if(date == null){
 					return "";
 				}else{

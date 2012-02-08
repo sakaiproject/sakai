@@ -13,6 +13,7 @@ import org.apache.wicket.extensions.markup.html.tree.table.IColumn;
 import org.apache.wicket.extensions.markup.html.tree.table.IRenderable;
 import org.apache.wicket.extensions.markup.html.tree.table.PropertyRenderableColumn;
 import org.apache.wicket.model.PropertyModel;
+import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelAuthDropdown;
 import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelAuthDropdownText;
@@ -20,12 +21,11 @@ import org.sakaiproject.delegatedaccess.tool.pages.EditablePanelAuthDropdownText
 public class PropertyEditableColumnAuthDropdown extends PropertyRenderableColumn
 {
 
-	private Map<String, List<String>> realmMap;
-
-	public PropertyEditableColumnAuthDropdown(ColumnLocation location, String header, String propertyExpression)
+	private List<ListOptionSerialized> authorizationOptions;
+	public PropertyEditableColumnAuthDropdown(ColumnLocation location, String header, String propertyExpression, List<ListOptionSerialized> authorizationOptions)
 	{
 		super(location, header, propertyExpression);
-		this.realmMap = realmMap;
+		this.authorizationOptions = authorizationOptions;
 	}
 
 	/**
@@ -34,7 +34,7 @@ public class PropertyEditableColumnAuthDropdown extends PropertyRenderableColumn
 	public Component newCell(MarkupContainer parent, String id, TreeNode node, int level)
 	{
 		if(((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isDirectAccess()){
-			return new EditablePanelAuthDropdown(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node);
+			return new EditablePanelAuthDropdown(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node, authorizationOptions);
 		}else{
 			return new EditablePanelAuthDropdownText(id, new PropertyModel(node, getPropertyExpression()), (NodeModel) ((DefaultMutableTreeNode) node).getUserObject(), node);
 		}

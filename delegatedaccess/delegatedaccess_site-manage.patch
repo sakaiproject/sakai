@@ -1,6 +1,6 @@
 Index: site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java
 ===================================================================
---- site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java	(revision 102191)
+--- site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java	(revision 104522)
 +++ site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java	(working copy)
 @@ -21,11 +21,15 @@
  
@@ -79,7 +79,7 @@ Index: site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java
  
  				if (siteType != null && !unJoinableSiteTypes.contains(siteType)) {
  					// site can be set as joinable
-@@ -6563,7 +6592,7 @@
+@@ -6571,7 +6600,7 @@
  					}
  				}
  			}
@@ -88,7 +88,7 @@ Index: site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java
  		}
  		catch (Exception e)
  		{
-@@ -7205,6 +7234,9 @@
+@@ -7213,6 +7242,9 @@
  		readInputAndUpdateStateVariable(state, params, "include", STATE_SITE_ACCESS_INCLUDE, true);
  		readInputAndUpdateStateVariable(state, params, "joinable", STATE_JOINABLE, true);
  		readInputAndUpdateStateVariable(state, params, "joinerRole", STATE_JOINERROLE, false);
@@ -100,28 +100,26 @@ Index: site-manage-tool/tool/src/java/org/sakaiproject/site/tool/SiteAction.java
  		
 Index: site-manage-tool/tool/src/bundle/sitesetupgeneric.properties
 ===================================================================
---- site-manage-tool/tool/src/bundle/sitesetupgeneric.properties	(revision 102191)
+--- site-manage-tool/tool/src/bundle/sitesetupgeneric.properties	(revision 104522)
 +++ site-manage-tool/tool/src/bundle/sitesetupgeneric.properties	(working copy)
-@@ -1056,3 +1056,16 @@
+@@ -1057,3 +1057,14 @@
  sitegen.siteinfolist.usermodify = Modified by
  
  useOfficialDescription=Use Official Description
 +
 +## Site Shopping Period
 +shopping.header = Shopping Period Access
-+shopping.public = public
-+shopping.authenticated = Logged in Users
-+shopping.start.label = Shopping Period Start Date
-+shopping.end.label = Shopping Period End Date
-+shopping.visibility.label = Shopping Period Visibility
-+shopping.realm.label = Shoppers realm
-+shopping.role.label = Shoppers role
++shopping.start.label = Start Date
++shopping.end.label = End Date
++shopping.visibility.label = Visibility
++shopping.role.label = Role
 +shopping.role.instructions = Shoppers have the same access as this realm/role.
 +shopping.instructions=You have the ability to add, update, or remove your site's shopping access.  To add or update, just fill in the fields below.  To remove, clear all fields and set all options to none.
 +shopping.noauth=none
++shopping.showTools.label=Show Tools
 Index: site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAccess.vm
 ===================================================================
---- site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAccess.vm	(revision 102191)
+--- site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAccess.vm	(revision 104522)
 +++ site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAccess.vm	(working copy)
 @@ -4,6 +4,9 @@
  <script type="text/javascript" src="/library/js/jquery/jquery-ui/js/jquery-ui.js"></script>
@@ -165,8 +163,6 @@ Index: site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAcce
 +				<td>
 +				<select name="shoppingVisibility" id="shoppingVisibility">
 +					<option value="">$tlang.getString("shopping.noauth")</option>
-+					<option value=".anon" #if (".anon" == $shopping_visibility) selected="selected" #end >$tlang.getString("shopping.public")</option>
-+					<option value=".auth" #if (".auth" == $shopping_visibility) selected="selected" #end >$tlang.getString("shopping.authenticated")</option>
 +				</select>
 +				</td>
 +				</tr>
@@ -185,26 +181,28 @@ Index: site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAcce
 +                                <td>
 +				<input type="text" id="shoppingVisibilityEnd" name="shoppingVisibilityEnd" value="$shopping_visibility_end"/>
 +				</td>
-+                                </tr>
-+                                <tr>
-+                                <td align="right">
-+				<label for="shoppingRealm">$tlang.getString("shopping.realm.label"): </label> 
-+				</td>
-+				<td>
-+				<span id="shoppingRealmText"></span>
-+				</td>
 +				</tr>
 +				<tr>
 +				<td align="right">
 +				<label for="shoppingRole">$tlang.getString("shopping.role.label"): </label>
 +				</td>
 +				<td>
-+				<span id="shoppingRoleText"></span>
++				<select name="shoppingRole" id="shoppingRole">
++					<option value="">$tlang.getString("shopping.noauth")</option>
++				</select>
 +				</td>
 +				</tr>
++				<tr>
++					<td>
++						<label for="showTools">$tlang.getString("shopping.showTools.label"): </label>
++					</td>
++					<td>
++						<select name="showTools" id="showTools" multiple="multiple" style="height: 100px">
++							<option value=""></option>
++						</select>
++					</td>
++				</tr>
 +				</table>
-+				<input type="hidden" name="shoppingRealm" id="shoppingRealm" value=""/>
-+				<input type="hidden" name="shoppingRole" id="shoppingRole" value=""/>
 +			</div>
 +			</div>
 +

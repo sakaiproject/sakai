@@ -223,4 +223,12 @@ public interface ProjectLogic {
 	 * @return
 	 */
 	public Map<String, String> getRealmRoleDisplay(boolean shopping);
+	
+	/**
+	 * returns a map of the authorization options
+	 * ex: .anon => Public
+	 * 
+	 * @return
+	 */
+	public List<ListOptionSerialized> getAuthorizationOptions();
 }
