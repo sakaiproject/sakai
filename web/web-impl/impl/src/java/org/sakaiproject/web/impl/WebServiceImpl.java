@@ -410,7 +410,30 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 							String pageTitle = currPage.getTitle();
 							String height = toolConfig.getPlacementConfig().getProperty(HEIGHT_PROP);
 
-							if(toolTitle != null && toolTitle.length() >0 && pageTitle !=null && pageTitle.length() > 0)
+
+							// in some cases the new site already has all of this. so make
+							// sure we don't make a duplicate
+
+							boolean skip = false;
+
+							String[] toolIds = {TOOL_ID};
+							Collection<ToolConfiguration> toolConfs = toSite.getTools(TOOL_ID);
+							if (toolConfs != null && !toolConfs.isEmpty())  {
+							    for (ToolConfiguration config: toolConfs) {
+								if (config.getToolId().equals(TOOL_ID)) {
+								    SitePage p = config.getContainingPage();
+								    if (pageTitle != null &&
+									pageTitle.equals(p.getTitle()) &&
+									contentUrl != null &&
+									contentUrl.equals(config.getPlacementConfig().getProperty(WEB_CONTENT_URL_PROP))) {
+									skip = true;
+									break;
+								    }
+								}
+							    }
+							}
+
+							if(!skip && toolTitle != null && toolTitle.length() >0 && pageTitle !=null && pageTitle.length() > 0)
 							{
 								Tool tr = ToolManager.getTool(TOOL_ID);
 								SitePage page = toSite.addPage(); 
