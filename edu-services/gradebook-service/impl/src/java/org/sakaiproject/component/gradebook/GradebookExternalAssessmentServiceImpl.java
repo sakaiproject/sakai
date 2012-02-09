@@ -755,6 +755,12 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 	    Double scoreAsDouble = null;
 	    if (doubleAsString != null) {
 	        try {
+				// check if grade uses a comma as separator because of number format and change to a comma y the external app sends a point as separator
+				DecimalFormat dcformat = (DecimalFormat) getNumberFormat();
+				String decSeparator = dcformat.getDecimalFormatSymbols().getDecimalSeparator() + "";
+				if (",".equals(decSeparator)) {
+					doubleAsString = doubleAsString.replace(".", ",");
+				}
 				Number numericScore = getNumberFormat().parse(doubleAsString.trim());
 				scoreAsDouble = numericScore.doubleValue();
 			} catch (ParseException e) {
