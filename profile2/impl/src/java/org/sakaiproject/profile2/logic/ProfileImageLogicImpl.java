@@ -549,7 +549,8 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		//or get thumbnail
 		if(size == ProfileConstants.PROFILE_IMAGE_THUMBNAIL) {
 			mtba = sakaiProxy.getResource(profileImage.getThumbnailResource());
-			if(mtba.getBytes() == null) {
+			//PRFL-706, if the file is deleted, catch any possible NPE
+			if(mtba == null || mtba.getBytes() == null) {
 				mtba = sakaiProxy.getResource(profileImage.getMainResource());
 			}
 		}
