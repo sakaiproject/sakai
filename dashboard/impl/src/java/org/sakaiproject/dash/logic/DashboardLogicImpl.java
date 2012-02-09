@@ -90,6 +90,8 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 	protected static boolean timeToQuit = false;
 	
+	protected static long dashboardEventProcessorThreadId = 0L;
+	
 	public static final Set<String> NAVIGATION_EVENTS = new HashSet<String>();
 	public static final Set<String> DASH_NAV_EVENTS = new HashSet<String>();
 	public static final Set<String> ITEM_DETAIL_EVENTS = new HashSet<String>();
@@ -1382,7 +1384,8 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 
 		public void run() {
-			logger.info("Started Dashboard Event Processing Thread");
+			dashboardEventProcessorThreadId = Thread.currentThread().getId();
+			logger.info("Started Dashboard Event Processing Thread: " + dashboardEventProcessorThreadId);
 			boolean timeToHandleAvailabilityChecks = true;
 			sakaiProxy.startAdminSession();
 			while(! timeToQuit) {
@@ -1409,8 +1412,8 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 					}
 					EventProcessor eventProcessor = eventProcessors.get(event.getEvent());
 					
-					SecurityAdvisor advisor = new DashboardLogicSecurityAdvisor(event.getResource());
-					sakaiProxy.pushSecurityAdvisor(advisor );
+					SecurityAdvisor advisor = new DashboardLogicSecurityAdvisor();
+					sakaiProxy.pushSecurityAdvisor(advisor);
 					try {
 						eventProcessor.processEvent(event);
 					} catch (Exception e) {
@@ -1449,14 +1452,10 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	
 	public class DashboardLogicSecurityAdvisor implements SecurityAdvisor 
 	{
-		protected String entityReference;
-		
 		/**
-		 * @param entityReference
 		 */
-		public DashboardLogicSecurityAdvisor(String entityReference) {
+		public DashboardLogicSecurityAdvisor() {
 			super();
-			this.entityReference = entityReference;
 		}
 
 		/*
@@ -1465,10 +1464,13 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		 */
 		public SecurityAdvice isAllowed(String userId, String function,
 				String reference) {
-			if(reference != null && reference.equalsIgnoreCase(entityReference)) {
+			
+			long threadId = Thread.currentThread().getId();
+			
+			if(threadId == DashboardLogicImpl.dashboardEventProcessorThreadId) {
 				return SecurityAdvice.ALLOWED;
 			}
-			return SecurityAdvice.NOT_ALLOWED;
+			return SecurityAdvice.PASS;
 		}
 		
 	}
