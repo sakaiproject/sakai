@@ -51,6 +51,7 @@ import org.sakaiproject.dash.model.Realm;
 import org.sakaiproject.dash.model.RepeatingCalendarItem;
 import org.sakaiproject.dash.model.SourceType;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
@@ -91,10 +92,10 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-            log.error("addAvailabilityCheck: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+            log.warn("addAvailabilityCheck: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
             return false;
 		} catch (Exception e) {
-	        log.error("addAvailabilityCheck: Error executing query: " + e.getClass() + ":" + e.getMessage());
+	        log.warn("addAvailabilityCheck: Error executing query: " + e.getClass() + ":" + e.getMessage());
 	        return false;
 		}
 	}
@@ -130,11 +131,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			template.update(sql,params);
 			return true;
 		} catch (DataAccessException ex) {
-            log.error("addCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+            log.warn("addCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
 	        //System.out.println("addCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
             return false;
 		} catch (Exception e) {
-	        log.error("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
+	        log.warn("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
 	        //System.out.println("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
 	        return false;
 		}
@@ -158,7 +159,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("addCalendarLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("addCalendarLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}
 	}
@@ -182,10 +183,10 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("addContext: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("addContext: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		} catch (Exception e) {
-	        log.error("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
+	        log.warn("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
 	        return false;
 		}
 	}
@@ -208,7 +209,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("addNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("addNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}
 	}
@@ -231,7 +232,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("addNewsLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("addNewsLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}
 	}
@@ -253,7 +254,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("addPerson: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("addPerson: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
 			return false;
 		}
 	}
@@ -280,7 +281,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			getJdbcTemplate().update(sql, params);
 			return true;
 		} catch (DataAccessException ex) {
-			log.error("addRepeatingCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+			log.warn("addRepeatingCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
 			//System.out.println("addRepeatingCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
 			return false;
 		}
@@ -304,7 +305,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("addSourceType: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("addSourceType: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}
 	}
@@ -320,7 +321,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("deleteAllAvailabilityChecks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("deleteAllAvailabilityChecks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}		
 		
@@ -337,7 +338,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return true;
 			
 		} catch (DataAccessException ex) {
-           log.error("deleteAvailabilityChecksBeforeTime: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("deleteAvailabilityChecksBeforeTime: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}
 	}
@@ -353,7 +354,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("deleteCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("deleteCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}		
 	}
@@ -369,7 +370,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("deleteNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("deleteNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}		
 	}
@@ -385,7 +386,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("deleteCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("deleteCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}		
 	}
@@ -405,7 +406,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("deleteCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("deleteCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}		
 	}
@@ -421,7 +422,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("deleteCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("deleteCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}		
 	}
@@ -437,7 +438,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("deleteNewsLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("deleteNewsLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}		
 	}
@@ -457,7 +458,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("deleteNewsLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("deleteNewsLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}		
 	}
@@ -473,7 +474,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("deleteCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("deleteCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}		
 	}
@@ -489,7 +490,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				new AvailabilityCheckMapper()
 			);
 		} catch (DataAccessException ex) {
-           log.error("getAvailabilityChecksBeforeTime: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getAvailabilityChecksBeforeTime: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return new ArrayList<AvailabilityCheck>();
 		}
 	}
@@ -505,7 +506,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				new RepeatingCalendarItemMapper()
 			);
 		} catch (DataAccessException ex) {
-           log.error("getRepeatingCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getRepeatingCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return null;
 		}
 	}
@@ -522,7 +523,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				new RepeatingCalendarItemMapper()
 			);
 		} catch (DataAccessException ex) {
-           log.error("getRepeatingCalendarItems: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getRepeatingCalendarItems: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return new ArrayList<RepeatingCalendarItem>();
 		}
 	}
@@ -537,8 +538,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				new Object[]{sourceTypeId},
 				new SourceTypeMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getSourceType: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return null;
 		} catch (DataAccessException ex) {
-           log.error("getSourceType: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getSourceType: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return null;
 		}
 	}
@@ -558,8 +562,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				new Object[]{sourceTypeName},
 				new SourceTypeMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getSourceType: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return null;
 		} catch (DataAccessException ex) {
-           log.error("getSourceType: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getSourceType: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return null;
 		}
 	}
@@ -578,8 +585,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				new Object[]{id},
 				new CalendarItemMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getCalendarItem: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return null;
 		} catch (DataAccessException ex) {
-           log.error("getCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return null;
 		}
 
@@ -607,12 +617,15 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				params,
 				new CalendarItemMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getCalendarItem: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return null;
 		} catch (DataAccessException e) {
-           log.error("getCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
+           log.warn("getCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
 	        //System.out.println("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
            return null;
 		} catch (Exception e) {
-	        log.error("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
+	        log.warn("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
 	        //System.out.println("addCalendarItem: Error executing query: " + e.getClass() + ":" + e.getMessage());
 	        return null;
 		}
@@ -632,8 +645,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				new Object[]{entityReference},
 				new CalendarItemMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getCalendarItems: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return null;
 		} catch (DataAccessException ex) {
-           log.error("getCalendarItems: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getCalendarItems: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return null;
 		}
 
@@ -673,8 +689,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return (List<CalendarItem>) getJdbcTemplate().query(sql,params,
 				new CalendarItemMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getCalendarItems: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return null;
 		} catch (DataAccessException ex) {
-           log.error("getCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getCalendarItems: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return new ArrayList<CalendarItem>();
 		}
 	}
@@ -697,8 +716,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return (List<CalendarItem>) getJdbcTemplate().query(sql,params,
 				new CalendarItemMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getCalendarItems: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return null;
 		} catch (DataAccessException ex) {
-           log.error("getCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getCalendarItems: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return new ArrayList<CalendarItem>();
 		}
 	}
@@ -721,8 +743,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return (List<CalendarItem>) getJdbcTemplate().query(sql,params,
 				new CalendarItemMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getCalendarItems: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return null;
 		} catch (DataAccessException ex) {
-           log.error("getCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getCalendarItems: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return new ArrayList<CalendarItem>();
 		}
 	}
@@ -748,8 +773,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return (List<CalendarItem>) getJdbcTemplate().query(sql,params,
 				new CalendarItemMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getCalendarItemsByContext: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return null;
 		} catch (DataAccessException ex) {
-           log.error("getCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return new ArrayList<CalendarItem>();
 		}
 	}
@@ -764,8 +792,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				new Object[]{calendarItemId, personId},
 				new CalendarLinkMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getCalendarLink: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return null;
 		} catch (DataAccessException ex) {
-           log.error("getCalendarLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getCalendarLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return null;
 		}
 	}
@@ -780,8 +811,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				new Object[]{id},
 				new CalendarLinkMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getCalendarLink: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return null;
 		} catch (DataAccessException ex) {
-           log.error("getCalendarLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getCalendarLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return null;
 		}
 	}
@@ -811,8 +845,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				params,
 				new CalendarLinkMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getFutureCalendarLinks: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return null;
 		} catch (DataAccessException ex) {
-           log.error("getFutureCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getFutureCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return null;
 		}
 	}
@@ -842,8 +879,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				params,
 				new CalendarLinkMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getPastCalendarLinks: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return null;
 		} catch (DataAccessException ex) {
-           log.error("getPastCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getPastCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return null;
 		}
 	}
@@ -873,8 +913,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				params,
 				new CalendarLinkMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getStarredCalendarLinks: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return null;
 		} catch (DataAccessException ex) {
-           log.error("getStarredCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getStarredCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return null;
 		}
 	}
@@ -907,8 +950,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				new Object[]{Long.valueOf(id)},
 				new ContextMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getContext: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return null;
 		} catch (DataAccessException ex) {
-           log.error("getContext: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getContext: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return null;
 		}
 	}
@@ -929,11 +975,14 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				new Object[]{contextId},
 				new ContextMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getContext: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return null;
 		} catch (DataAccessException ex) {
-           log.error("getContext: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getContext: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return null;
 		}  catch (Exception e) {
-			log.error("getContext: Error executing query: " + e.getClass() + ":" + e.getMessage());
+			log.warn("getContext: Error executing query: " + e.getClass() + ":" + e.getMessage());
 	        return null;
 		}
 	}
@@ -952,8 +1001,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return (List<NewsItem>) getJdbcTemplate().query(sql,params,
 				new NewsItemMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getMOTD: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return null;
 		} catch (DataAccessException ex) {
-           log.error("getMOTD: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getMOTD: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return new ArrayList<NewsItem>();
 		}
 		
@@ -973,8 +1025,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				new Object[]{id},
 				new NewsItemMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getNewsItem: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return null;
 		} catch (DataAccessException ex) {
-           log.error("getNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return null;
 		}
 	}
@@ -993,8 +1048,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				new Object[]{entityReference},
 				new NewsItemMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getNewsItem: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return null;
 		} catch (DataAccessException ex) {
-           log.error("getNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return null;
 		}
 	}
@@ -1024,10 +1082,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return (List<NewsItem>) getJdbcTemplate().query(sql,params,
 				new NewsItemMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getNewsItem: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return new ArrayList<NewsItem>();
 		} catch (DataAccessException ex) {
-			System.out.println("\n\ngetNewsItems() " + ex + "\n\n");
-		
-        	log.error("getNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+        	log.warn("getNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
         	return new ArrayList<NewsItem>();
 		}
 	}
@@ -1066,8 +1125,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return (List<NewsItem>) getJdbcTemplate().query(sql,params,
 				new NewsItemMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getNewsItems: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return new ArrayList<NewsItem>();
 		} catch (DataAccessException ex) {
-           log.error("getNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return new ArrayList<NewsItem>();
 		}
 	}
@@ -1093,8 +1155,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return (List<NewsItem>) getJdbcTemplate().query(sql,params,
 				new NewsItemMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getNewsItemsByContext: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return new ArrayList<NewsItem>();
 		} catch (DataAccessException ex) {
-           log.error("getNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return new ArrayList<NewsItem>();
 		}
 	}
@@ -1109,8 +1174,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				new Object[]{newsItemId, personId},
 				new NewsLinkMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getNewsLink: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return null;
 		} catch (DataAccessException ex) {
-           log.error("getNewsLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getNewsLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return null;
 		}
 	}
@@ -1125,8 +1193,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				new Object[]{id},
 				new NewsLinkMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getNewsLink: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+			return null;
 		} catch (DataAccessException ex) {
-           log.error("getNewsLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getNewsLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return null;
 		}
 	}
@@ -1152,8 +1223,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return (List<NewsLink>) getJdbcTemplate().query(sql,params,
 				new NewsLinkMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getCurrentNewsLinks: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+	        return new ArrayList<NewsLink>();
 		} catch (DataAccessException ex) {
-           log.error("getCurrentNewsLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getCurrentNewsLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return new ArrayList<NewsLink>();
 		}
 	}
@@ -1178,8 +1252,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return (List<NewsLink>) getJdbcTemplate().query(sql,params,
 				new NewsLinkMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getStarredNewsLinks: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+	        return new ArrayList<NewsLink>();
 		} catch (DataAccessException ex) {
-           log.error("getStarredNewsLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getStarredNewsLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return new ArrayList<NewsLink>();
 		}
 	}
@@ -1204,8 +1281,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return (List<NewsLink>) getJdbcTemplate().query(sql,params,
 				new NewsLinkMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getHiddenNewsLinks: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+	        return new ArrayList<NewsLink>();
 		} catch (DataAccessException ex) {
-           log.error("getHiddenNewsLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getHiddenNewsLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return new ArrayList<NewsLink>();
 		}
 	}
@@ -1221,8 +1301,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		Object[] params = new Object[]{sakaiUserId, groupId};
 		try {
 			return getJdbcTemplate().queryForInt(sql,params);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("countNewsLinksByGroupId: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+	        return 0;
 		} catch (DataAccessException ex) {
-           log.error("getNewsItemsByGroupId: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("countNewsLinksByGroupId: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return 0;
 		}
 	}
@@ -1249,8 +1332,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			return (List<NewsLink>) getJdbcTemplate().query(sql,params,
 				new NewsLinkMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getNewsLinksByGroupId: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+	        return new ArrayList<NewsLink>();
 		} catch (DataAccessException ex) {
-           log.error("getNewsItemsByGroupId: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getNewsLinksByGroupId: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return new ArrayList<NewsLink>();
 		}
 	}
@@ -1270,8 +1356,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				new Object[]{sakaiId},
 				new PersonMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getPersonBySakaiId: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+	        return null;
 		} catch (DataAccessException ex) {
-           log.error("getPersonBySakaiId: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getPersonBySakaiId: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return null;
 		}
 	}
@@ -1290,8 +1379,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				new Object[]{realmId},
 				new RealmMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getRealm: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+	        return null;
 		} catch (DataAccessException ex) {
-           log.error("getRealm: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getRealm: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return null;
 		}
 	}
@@ -1310,8 +1402,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				new Object[]{Long.valueOf(id)},
 				new RealmMapper()
 			);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getRealm: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+	        return null;
 		} catch (DataAccessException ex) {
-           log.error("getRealm: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getRealm: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return null;
 		}
 	}
@@ -1331,8 +1426,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			Object[] args = new Object[]{ entityReference, calendarTimeLabelKey };
 			return getJdbcTemplate().queryForInt(sql, args );
 			
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getLastIndexInSequence: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+	        return 0;
 		} catch (DataAccessException ex) {
-           log.error("getLastIndexInSequence: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getLastIndexInSequence: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return 0;
 		}
 	}
@@ -1350,9 +1448,12 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			List items = getJdbcTemplate().queryForList(sql, args, Integer.class);
 			return new TreeSet(items);
 			
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getFutureSequenceNumbers: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+	        return new TreeSet<Integer>();
 		} catch (DataAccessException ex) {
-           log.error("getLastIndexInSequence: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return new TreeSet();
+           log.warn("getFutureSequenceNumbers: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return new TreeSet<Integer>();
 		}
 		
 	}
@@ -1374,8 +1475,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				
 			});
 			return new HashSet<String>(userIds);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getSakaIdsForUserWithCalendarLinks: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+	        return new HashSet<String>();
 		} catch (DataAccessException ex) {
-           log.error("getSakaIdsForUserWithCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getSakaIdsForUserWithCalendarLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return new HashSet<String>();
 		}
 	}
@@ -1397,8 +1501,11 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 				
 			});
 			return new HashSet<String>(userIds);
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getSakaIdsForUserWithNewsLinks: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
+	        return new HashSet<String>();
 		} catch (DataAccessException ex) {
-           log.error("getSakaIdsForUserWithNewsLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("getSakaIdsForUserWithNewsLinks: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return new HashSet<String>();
 		}
 	}
@@ -1419,7 +1526,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			getJdbcTemplate().update(sql, params);
 			return true;
 		} catch (DataAccessException ex) {
-			log.error("saveEvent: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+			log.warn("saveEvent: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
 			//System.out.println("addRepeatingCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
 			return false;
 		}
@@ -1443,7 +1550,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("updateCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("updateCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}				
 	}
@@ -1463,7 +1570,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("updateCalendarItemTime: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("updateCalendarItemTime: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}				
 	}
@@ -1484,7 +1591,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("updateCalendarItemTime: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("updateCalendarItemTime: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}				
 	}
@@ -1504,7 +1611,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("updateCalendarItemSubtype: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("updateCalendarItemSubtype: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}				
 	}
@@ -1520,7 +1627,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("updateCalendarsItemLabelKey: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("updateCalendarsItemLabelKey: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}				
 	}
@@ -1540,7 +1647,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("updateCalendarItemTitle: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("updateCalendarItemTitle: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}				
 	}
@@ -1559,7 +1666,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("updateCalendarLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("updateCalendarLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}
 	}
@@ -1575,7 +1682,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("updateContextTitle: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("updateContextTitle: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}		
 		
@@ -1591,7 +1698,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 		
 		if(id == null || newSubtype == null || newNewsTime == null || newLabelKey == null) {
-			log.error("updateNewsItemSubtype() called with null values");
+			log.warn("updateNewsItemSubtype() called with null values");
 			return false;
 		}
 		
@@ -1601,7 +1708,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("updateNewsItemSubtype: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("updateNewsItemSubtype: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}		
 		
@@ -1622,7 +1729,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("updateNewsItemTime: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("updateNewsItemTime: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}		
 	}
@@ -1637,7 +1744,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 		
 		if(id == null || newTitle == null || newNewsTime == null || newLabelKey == null) {
-			log.error("updateNewsItemTitle() called with null values");
+			log.warn("updateNewsItemTitle() called with null values");
 			return false;
 		}
 		
@@ -1647,7 +1754,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("updateNewsItemTitle: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("updateNewsItemTitle: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}		
 		
@@ -1668,7 +1775,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("updateNewsItemLabelKey: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("updateNewsItemLabelKey: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}		
 		
@@ -1688,7 +1795,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("updateNewsLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("updateNewsLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}
 	}
@@ -1708,7 +1815,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("updateRepeatingCalendarItemFrequency: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("updateRepeatingCalendarItemFrequency: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}				
 	}
@@ -1728,7 +1835,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("updateRepeatingCalendarItemsLabelKey: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("updateRepeatingCalendarItemsLabelKey: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}				
 	}
@@ -1748,7 +1855,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("updateRepeatingCalendarItemsSubtype: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("updateRepeatingCalendarItemsSubtype: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}				
 	}
@@ -1765,7 +1872,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("updateRepeatingCalendarItemTime: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("updateRepeatingCalendarItemTime: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}
 	}
@@ -1781,7 +1888,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			);
 			return true;
 		} catch (DataAccessException ex) {
-           log.error("updateRepeatingCalendarItemTitle: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           log.warn("updateRepeatingCalendarItemTitle: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}				
 	}
@@ -1796,7 +1903,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		try {
 			return statements.getString(key);
 		} catch (NoSuchElementException e) {
-			log.error("Statement: '" + key + "' could not be found in: " + statements.getFileName());
+			log.warn("Statement: '" + key + "' could not be found in: " + statements.getFileName());
 			return null;
 		}
 	}
@@ -1836,7 +1943,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			statements.setDelimiterParsingDisabled(true); //don't split properties
 			statements.load(url); //now load our file
 		} catch (ConfigurationException e) {
-			log.error(e.getClass() + ": " + e.getMessage());
+			log.warn(e.getClass() + ": " + e.getMessage());
 			return;
 		}
 	}
@@ -1910,9 +2017,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		try {
 			value = jdbcTemplate.queryForInt(sql, params);
 		} catch (DataAccessException ex) {
-            log.error("getConfigProperty: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+            log.warn("getConfigProperty: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
 		} catch (Exception ex) {
-	        log.error("getConfigProperty: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+	        log.warn("getConfigProperty: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
 		}
 		
 		return value ;
@@ -1944,9 +2051,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	        try {
 	        	jdbcTemplate.update(sql_update, params_update);
 	        } catch (DataAccessException ex) {
-	            log.error("setConfigProperty: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+	            log.warn("setConfigProperty: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
 			} catch (Exception ex) {
-		        log.error("setConfigProperty: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+		        log.warn("setConfigProperty: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
 			}
 		}
 		

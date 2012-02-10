@@ -48,6 +48,7 @@
 				<constructor-arg type="javax.sql.DataSource">
 					<ref bean="javax.sql.DataSource" />
 				</constructor-arg>
+				<property name="ignoreWarnings" value="false" />
 			</bean>
 		</property>
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />	
