@@ -252,10 +252,14 @@ public class NewsLinksPanel extends Panel {
                 }));
                 item.add(icon);
                 String newsItemLabel = dashboardLogic.getString(nItem.getNewsTimeLabelKey(), "", itemType);
-                if(newsItemLabel == null) {
+                if(newsItemLabel == null || hideActionLinks) {
                 	newsItemLabel = "";
                 }
-				item.add(new Label("itemLabel", newsItemLabel));
+                Label itemLabel = new Label("itemLabel", newsItemLabel);
+                if(! "".equals(newsItemLabel)) {
+                	itemLabel.add(new SimpleAttributeModifier("class", "itemLabel"));
+                }
+				item.add(itemLabel);
                 item.add(new ExternalLink("siteLink", nItem.getContext().getContextUrl(), siteTitle));
                 Component timeLabel = new Label("newsTime", DateUtil.getNewsTimeString(nItem.getNewsTime()));
                 timeLabel.add(new AttributeModifier("title", true, new AbstractReadOnlyModel(){
