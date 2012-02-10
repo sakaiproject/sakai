@@ -83,8 +83,8 @@ window.close();
 <h:form id="submittedForm">
 <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 
-	<h:outputText value="#{deliveryMessages.submission_confirmation_message_1}" rendered="#{!delivery.actionString=='takeAssessmentViaUrl' || !delivery.anonymousLogin}"/>
-    <h:outputText value="#{deliveryMessages.submission_confirmation_message_4}" rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin}"/>
+	<h:outputText value="#{deliveryMessages.submission_confirmation_message_1}" rendered="#{!delivery.actionString=='takeAssessmentViaUrl'}"/>
+    <h:outputText value="#{deliveryMessages.submission_confirmation_message_4}" rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"/>
     <h:outputText escape="false" value="<br /> #{delivery.submissionMessage}" />
 
   <f:verbatim><p/></f:verbatim>
