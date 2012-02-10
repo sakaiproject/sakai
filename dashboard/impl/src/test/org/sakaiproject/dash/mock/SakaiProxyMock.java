@@ -22,7 +22,9 @@
 package org.sakaiproject.dash.mock;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Observer;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -37,6 +39,18 @@ import org.sakaiproject.user.api.User;
  *
  */
 public class SakaiProxyMock implements SakaiProxy {
+
+	public static final String VALID_SITE_ID = "valid_site_id";
+	public static final String VALID_SITE_TITLE = "valid_site_title";
+	public static final String VALID_SITE_URL = "valid_site_url";
+	public static final String BOGUS_SITE_ID = "bogus_site_id";
+	public static final String BOGUS_SITE_TITLE = "bogus_site_title";
+	public static final String BOGUS_SITE_URL = "bogus_site_url";
+
+	public static final Map<String,Site> VALID_SITES = new HashMap<String,Site>();
+	static {
+		VALID_SITES.put(VALID_SITE_ID, new SiteMock(VALID_SITE_ID, VALID_SITE_TITLE, VALID_SITE_URL));
+	};
 
 	public void addLocalEventListener(Observer observer) {
 		// TODO Auto-generated method stub
@@ -80,8 +94,11 @@ public class SakaiProxyMock implements SakaiProxy {
 	}
 
 	public Site getSite(String siteId) {
-		// TODO Auto-generated method stub
-		return null;
+		Site site = null;
+		if(siteId != null && VALID_SITE_ID.equals(siteId)) {
+			site = VALID_SITES.get(VALID_SITE_ID);
+		}
+		return site;
 	}
 
 	public String getSkinRepoProperty() {

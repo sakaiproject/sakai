@@ -378,7 +378,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		{
 			// get the site id, title and url
 			Site site = this.sakaiProxy.getSite(contextId);
-			context = new Context(site.getId(), site.getTitle(), site.getUrl());
+			if(site != null) {
+				context = new Context(site.getId(), site.getTitle(), site.getUrl());
+			}
 		}
 		if (context != null)
 		{

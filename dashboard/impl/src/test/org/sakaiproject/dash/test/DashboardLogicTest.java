@@ -4,9 +4,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.sakaiproject.dash.dao.DashboardDao;
 import org.sakaiproject.dash.entity.EntityLinkStrategy;
 import org.sakaiproject.dash.listener.EventProcessor;
+import org.sakaiproject.dash.logic.DashboardLogic;
+import org.sakaiproject.dash.logic.DashboardLogicImpl;
 import org.sakaiproject.dash.logic.SakaiProxy;
+import org.sakaiproject.dash.mock.DashboardDaoMock;
+import org.sakaiproject.dash.mock.SakaiProxyMock;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.NewsItem;
@@ -20,7 +25,6 @@ import org.springframework.test.AbstractTransactionalSpringContextTests;
  */
 public class DashboardLogicTest extends AbstractTransactionalSpringContextTests 
 {
-	protected SakaiProxy sakaiProxy;
 
 	protected static AtomicInteger counter = new AtomicInteger(999);
 	
@@ -28,6 +32,24 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 	private static final long ONE_HOUR = ONE_MINUTE * 60L;
 	private static final long ONE_DAY = ONE_HOUR * 24L;
 	private static final long ONE_WEEK = ONE_DAY * 7L;
+
+	protected SakaiProxy sakaiProxy;
+	protected DashboardLogic dashboardLogic;
+	protected DashboardDao dashboardDao;
+
+	/**
+	 * @param sakaiProxy the sakaiProxy to set
+	 */
+	public void setSakaiProxy(SakaiProxy sakaiProxy) {
+		this.sakaiProxy = sakaiProxy;
+	}
+
+	/**
+	 * @param dashboardLogic the dashboardLogic to set
+	 */
+	public void setDashboardLogic(DashboardLogic dashboardLogic) {
+		this.dashboardLogic = dashboardLogic;
+	}
 
 	public DashboardLogicTest() {
 		super();
@@ -81,11 +103,33 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 	}
 
 	public void testCreateContext() {
-		String contextId;
+		this.sakaiProxy = new SakaiProxyMock();
+		this.dashboardDao = new DashboardDaoMock();
+		this.dashboardLogic = new DashboardLogicImpl();
+		((DashboardLogicImpl) this.dashboardLogic).setSakaiProxy(sakaiProxy);
+		((DashboardLogicImpl) this.dashboardLogic).setDao(this.dashboardDao);
 		
-		// create and save a Context object
+		String validContextId = SakaiProxyMock.VALID_SITE_ID;
+		
+		// create and save a Context object for a valid siteId
+		Context validContext = this.dashboardLogic.createContext(validContextId);
+		assertNotNull(validContext);
 		// retrieve the Context object
+		Context c1 = this.dashboardLogic.getContext(validContextId);
 		// confirm that its properties are correct
+		assertNotNull(c1);
+		assertEquals(validContextId, c1.getContextId());
+		
+		String bogusContextId = SakaiProxyMock.BOGUS_SITE_ID;
+		
+		// try creating and saving a Context object for an invalid siteId
+		Context bogusContext = this.dashboardLogic.createContext(bogusContextId);
+		
+		assertNull(bogusContext);
+		
+		Context c2 = this.dashboardLogic.getContext(bogusContextId);
+		
+		assertNull(c2);
 	}
 
 	public void testCreateNewsItem() {
