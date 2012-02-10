@@ -351,7 +351,7 @@ public class AssignmentSupport {
 				
 				NewsItem newsItem = dashboardLogic.createNewsItem(assn.getTitle(), event.getEventTime(), "assignment.added", assnReference, context, sourceType, null);
 				CalendarItem calendarDueDateItem = null;
-				if (assn.getProperties().getProperty(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE)  == null)
+				if (assn.getProperties().getProperty(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE)  == null || assn.getProperties().getProperty(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE).equalsIgnoreCase(Boolean.toString(false)))
 				{
 					// don't create calendar item now, if the assignment is posting to schedule tool, dashboard will get the calendar item from schedule tool post event
 					calendarDueDateItem = dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getDueTime().getTime()), "assignment.due.date", assnReference, context, sourceType, (String) null, (RepeatingCalendarItem) null, (Integer) null);
