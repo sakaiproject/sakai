@@ -36,6 +36,7 @@ $Id: fullShortAnswer.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 			<title><h:outputText value="#{assessmentSettingsMessages.mark_for_review}" /></title>
 		</head>
 		<body onload="<%= request.getAttribute("html.body.onload") %>">
+		<h:form>
 		    <h:panelGrid columns="1" border="0">
 				<h:outputText value="#{assessmentSettingsMessages.mark_for_review_pop_up_text_1}"/>
 				<h:outputText value="&nbsp;" escape="false"/>
@@ -47,6 +48,7 @@ $Id: fullShortAnswer.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 				<h:outputText value="&nbsp;" escape="false"/>
 				<h:commandButton id="close" onclick="window.close();" onkeypress="window.close();" value="#{assessmentSettingsMessages.button_close}"/>
 		    </h:panelGrid>
+		</h:form>
 		</body>
 	</html>
 </f:view>

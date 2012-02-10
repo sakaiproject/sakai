@@ -36,6 +36,7 @@ $Id: fullShortAnswer.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 			<title><h:outputText value="#{evaluationMessages.comment_for_student}" /></title>
 		</head>
 		<body onload="<%= request.getAttribute("html.body.onload") %>">
+		<h:form>
 		    <h:panelGrid columns="1" border="0">
 			  <h:panelGrid columns="1" border="0">
 				<h:panelGroup>
@@ -90,6 +91,7 @@ $Id: fullShortAnswer.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 
 			  <h:commandButton id="close" onclick="window.close();" onkeypress="window.close();" value="#{evaluationMessages.close}"/>
 		    </h:panelGrid>
+		</h:form>    
 		</body>
 	</html>
 </f:view>

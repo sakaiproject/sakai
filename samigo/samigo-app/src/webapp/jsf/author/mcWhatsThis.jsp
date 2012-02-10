@@ -36,6 +36,7 @@ $Id: fullShortAnswer.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 			<title><h:outputText value="#{authorMessages.multiple_choice_type}" escape="false"/></title>
 		</head>
 		<body onload="<%= request.getAttribute("html.body.onload") %>">
+		<h:form>
 		    <h:panelGrid columns="1" border="0">
 				<h:outputText value="#{authorMessages.mc_whats_this_main_text}" escape="false"/>
 				<h:outputText value="&nbsp;" escape="false"/>
@@ -105,6 +106,7 @@ $Id: fullShortAnswer.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 				
 				<h:commandButton id="close" onclick="window.close();" onkeypress="window.close();" value="#{authorMessages.button_close}"/>
 		    </h:panelGrid>
+		</h:form>
 		</body>
 	</html>
 </f:view>
