@@ -42,7 +42,7 @@
        <h:outputText value="#{authorMessages.copy_assessment_conf_info_1}#{assessmentBean.title}#{authorMessages.copy_assessment_conf_info_2}" />
      </div>
        <p class="act">
-       <h:commandButton id="copy" value="#{commonMessages.action_copy}" type="submit" styleClass="active" action="author" >
+       <h:commandButton id="copy" value="#{commonMessages.action_duplicate}" type="submit" styleClass="active" action="author" >
          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.CopyAssessmentListener" />
          <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
        </h:commandButton>
