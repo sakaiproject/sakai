@@ -358,7 +358,7 @@ $(document).ready(function() {
 			#set($resubmitStyle="display:none")
 		#end
 		<p class="checkbox" id="tempAllowRes" #if ($value_SubmissionType == 4) style = "display:none"#end>
-			<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber && $value_SubmissionType != 4) checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').style.display = 'block';document.getElementById('allowResubmitTime').style.display = 'block';resizeFrame();}else{document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none'}" /> 
+			<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber && $value_SubmissionType != 4) checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').style.display = 'block';document.getElementById('allowResubmitTime').style.display = 'block';document.getElementById('resubmitNotification').style.display = 'block';resizeFrame();}else{document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none';document.getElementById('resubmitNotification').style.display = 'none';}" /> 
 			<label for="allowResToggle">$tlang.getString("allowResubmit")</label>
 	    </p>
 		<p class="shorttext" id="allowResubmitNumber" style="$!resubmitStyle">
@@ -405,6 +405,17 @@ $(document).ready(function() {
 								#end
 							</select>
 						</p>
+		<p class="shorttext" id="resubmitNotification" style="$!resubmitStyle">
+			## whether to notify student about released grade and resubmission is available
+			<label for="notsendreleasereturnnotif">
+				$tlang.getString("send.submission.releasereturn.email.options")
+			</label>
+			<input type="radio" name="$!name_assignment_releasereturn_notification" id="notsendreleasereturnnotif" value="$!value_assignment_releasereturn_notification_none" #if($!value_assignment_releasereturn_notification.equals($!value_assignment_releasereturn_notification_none))checked="checked" #end />
+			$tlang.getString('send.submission.releasereturn.email.none')
+			<br/>
+			<input type="radio" name="$!name_assignment_releasereturn_notification" id="sendreleasereturnnotif" value="$!value_assignment_releasereturn_notification_each" #if($!value_assignment_releasereturn_notification.equals($!value_assignment_releasereturn_notification_each))checked="checked" #end />
+			$tlang.getString('send.submission.releasereturn.email')
+		</p>
 		#if ($withGrade)
 			<p class="shorttext" style="clear:both">
 				<span class="reqStar">*</span>

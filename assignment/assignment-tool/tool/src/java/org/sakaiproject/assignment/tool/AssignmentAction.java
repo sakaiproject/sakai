@@ -711,6 +711,7 @@ public class AssignmentAction extends PagedResourceActionII
 	
 	// name for release grade notification
 	private static final String ASSIGNMENT_RELEASEGRADE_NOTIFICATION = "assignment.releasegrade.notification";
+	private static final String ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION = "assignment.releasereturn.notification";
 	
 	/****************************** Upload all screen ***************************/
 	private static final String UPLOAD_ALL_HAS_SUBMISSION_TEXT = "upload_all_has_submission_text";
@@ -2033,7 +2034,10 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		// release grade notification option
 		putReleaseGradeNotificationOptionIntoContext(state, context);
-		
+
+		// release grade notification option
+		putReleaseResubmissionNotificationOptionIntoContext(state, context, a);		
+
 		// the supplement information
 		// model answers		
 		context.put("modelanswer", state.getAttribute(MODELANSWER) != null?Boolean.TRUE:Boolean.FALSE);
@@ -2221,7 +2225,27 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("value_assignment_releasegrade_notification_none", Assignment.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_NONE);
 		context.put("value_assignment_releasegrade_notification_each", Assignment.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_EACH);
 	}
-	
+	/**
+	* put the release resubmission grade notification options into context
+	* @param state
+	* @param context
+	*/
+	private void putReleaseResubmissionNotificationOptionIntoContext(SessionState state, Context context, Assignment a) {
+		if (state.getAttribute(Assignment.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE) == null && a != null){
+			// get the assignment property for notification setting first
+			state.setAttribute(Assignment.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE, a.getProperties().getProperty(Assignment.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE));
+		}
+		if (state.getAttribute(Assignment.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE) == null){
+			// set the notification value using site default to be none: no email will be sent to student when the grade is released
+			state.setAttribute(Assignment.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE, Assignment.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_NONE);
+		}
+		// input fields
+		context.put("name_assignment_releasereturn_notification", ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION);
+		context.put("value_assignment_releasereturn_notification", state.getAttribute(Assignment.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE));
+		// the option values
+		context.put("value_assignment_releasereturn_notification_none", Assignment.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_NONE);
+		context.put("value_assignment_releasereturn_notification_each", Assignment.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_EACH);
+	}	
 	/**
 	 * build the instructor view of create a new assignment
 	 */
@@ -4896,7 +4920,11 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			state.setAttribute(Assignment.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE, releaseGradeOption);
 		}
-		
+		// release resubmission notification option
+		String releaseResubmissionOption = params.getString(ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION);
+		if (releaseResubmissionOption != null){
+			state.setAttribute(Assignment.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE, releaseResubmissionOption);
+		}
 		// read inputs for supplement items
 		setNewAssignmentParametersSupplementItems(validify, state, params);
 		
@@ -5587,7 +5615,10 @@ public class AssignmentAction extends PagedResourceActionII
 				{
 					aPropertiesEdit.addProperty(Assignment.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE, (String) state.getAttribute(Assignment.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE));
 				}
-				
+
+				if (state.getAttribute(Assignment.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE) != null){
+					aPropertiesEdit.addProperty(Assignment.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE, (String) state.getAttribute(Assignment.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE));
+				}	
 				// comment the changes to Assignment object
 				commitAssignmentEdit(state, post, ac, a, title, openTime, dueTime, closeTime, enableCloseDate, section, range, groups);
 
@@ -9048,6 +9079,8 @@ public class AssignmentAction extends PagedResourceActionII
 
 		// remove content-review setting
 		state.removeAttribute(NEW_ASSIGNMENT_USE_REVIEW_SERVICE);
+		
+		state.removeAttribute(Assignment.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE);
 
 	} // resetNewAssignment
 

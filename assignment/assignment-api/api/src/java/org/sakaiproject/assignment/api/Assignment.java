@@ -117,6 +117,9 @@ public interface Assignment extends Entity, Comparable
 	// send student email notification when the grade is released
 	public static final String ASSIGNMENT_RELEASEGRADE_NOTIFICATION_EACH = "assignment_releasegrade_notification_each";
 
+	public static final String ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE = "assignment_releasereturn_notification_value";
+	public static final String ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_NONE = "assignment_releasereturn_notification_none";
+	public static final String ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_EACH = "assignment_releasereturn_notification_each";	
 	/**
 	 * Access the AssignmentContent of this Assignment.
 	 * 

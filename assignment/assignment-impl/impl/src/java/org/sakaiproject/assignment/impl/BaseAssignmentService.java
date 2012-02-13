@@ -2289,7 +2289,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			
 			Time returnedTime = s.getTimeReturned();
 			Time submittedTime = s.getTimeSubmitted();
-			
+			String resubmitNumber = s.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
 			// track it
 			if (!s.getSubmitted())
 			{
@@ -2320,6 +2320,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				
 				// if this is releasing grade, depending on the release grade notification setting, send email notification to student
 				sendGradeReleaseNotification(s.getGradeReleased(), a.getProperties().getProperty(Assignment.ASSIGNMENT_RELEASEGRADE_NOTIFICATION_VALUE), s.getSubmitters(), s);
+				if(resubmitNumber!=null)
+					sendGradeReleaseNotification(s.getGradeReleased(), a.getProperties().getProperty(Assignment.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_VALUE), s.getSubmitters(), s);
 			}
 			else if (submittedTime == null) /*grading non-submission*/
 			{
@@ -2364,6 +2366,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			{
 				// send the message immidiately
 				EmailService.sendToUsers(new ArrayList(Arrays.asList(submitters)), getHeaders(null, "releasegrade"),  getNotificationMessage(s, "releasegrade"));
+			}
+		}
+		if (notificationSetting != null && notificationSetting.equals(Assignment.ASSIGNMENT_RELEASERESUBMISSION_NOTIFICATION_EACH)){
+			// send email to every submitters
+			if (submitters != null){
+				// send the message immidiately
+				EmailService.sendToUsers(new ArrayList(Arrays.asList(submitters)), getHeaders(null, "releaseresumbission"),  getNotificationMessage(s, "releaseresumbission"));
 			}
 		}
 	}
@@ -2486,7 +2495,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	
 	protected String getSubject(String submissionOrReleaseGrade)
 	{
-		String subject = "submission".equals(submissionOrReleaseGrade)?rb.getString("noti.subject.content"):rb.getString("noti.releasegrade.subject.content");
+		String subject = "";
+		if("submission".equals(submissionOrReleaseGrade))
+			subject = rb.getString("noti.subject.content");
+		else if ("releasegrade".equals(submissionOrReleaseGrade))
+			subject = rb.getString("noti.releasegrade.subject.content");
+		else
+			subject = rb.getString("noti.releaseresubmission.subject.content");
 		return "Subject: " + subject ;
 	}
 	
@@ -2517,7 +2532,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		message.append(BOUNDARY_LINE);
 		message.append(htmlHeaders());
 		message.append(htmlPreamble(submissionOrReleaseGrade));
-		message.append("submission".equals(submissionOrReleaseGrade) ? htmlContent(s) : htmlContentReleaseGrade(s));
+		if("submission".equals(submissionOrReleaseGrade))
+			message.append(htmlContent(s));
+		else if ("releasegrade".equals(submissionOrReleaseGrade))
+			message.append(htmlContentReleaseGrade(s));
+		else
+			message.append(htmlContentReleaseResubmission(s));
 		message.append(htmlEnd());
 		message.append(TERMINATION_LINE);
 		return message.toString();
@@ -2528,7 +2548,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	}
 	
 	protected String plainTextContent(AssignmentSubmission s, String submissionOrReleaseGrade) {
-		return FormattedText.convertFormattedTextToPlaintext("submission".equals(submissionOrReleaseGrade) ? htmlContent(s) : htmlContentReleaseGrade(s));
+		if("submission".equals(submissionOrReleaseGrade))
+			return FormattedText.convertFormattedTextToPlaintext(htmlContent(s));
+		else if ("releasegrade".equals(submissionOrReleaseGrade))
+			return FormattedText.convertFormattedTextToPlaintext(htmlContentReleaseGrade(s));
+		else
+			return FormattedText.convertFormattedTextToPlaintext(htmlContentReleaseResubmission(s));
 	}
 	
 	protected String htmlHeaders() {
@@ -2736,7 +2761,30 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		
 		return buffer.toString();
 	}
-
+	private String htmlContentReleaseResubmission(AssignmentSubmission s){
+		String newline = "<br />\n";
+		Assignment a = s.getAssignment();
+		String context = s.getContext();
+			
+		String siteTitle = "";
+		String siteId = "";
+		try {
+			Site site = SiteService.getSite(context);
+			siteTitle = site.getTitle();
+			siteId = site.getId();
+		}catch (Exception ee){
+			M_log.warn(this + " htmlContentReleaseResubmission(), site id =" + context + " " + ee.getMessage());
+		}
+	
+		StringBuilder buffer = new StringBuilder();
+		// site title and id
+		buffer.append(rb.getString("noti.site.title") + " " + siteTitle + newline);
+		buffer.append(rb.getString("noti.site.id") + " " + siteId +newline + newline);
+		// notification text
+		buffer.append(rb.getFormattedMessage("noti.releaseresubmission.text", new String[]{a.getTitle(), siteTitle}));
+	 		
+	 		return buffer.toString();
+	}
 	/**
 	 * Cancel the changes made to a AssignmentSubmissionEdit object, and release the lock.
 	 * 
