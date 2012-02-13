@@ -367,14 +367,16 @@ var reportError= function(){
  * See: DASH-152
  */
 var setupDismissMOTD = function(){
-    if (utils_readCookie('motdHide')) {
+    var hiddenMOTD = utils_readCookie('motdHide');
+    var currentMOTD =  $('.motdPanel .motdId').text();
+	if (hiddenMOTD && currentMOTD && hiddenMOTD === currentMOTD) {
         $('.motdPanel').css('display', 'none');
     }
     else {
         $('.motdPanel').css('display', 'block');
     }
     $('#motdTextDivDismiss').click(function(){
-        dismissMessage('.motdPanel');
+        dismissMessage('.motdPanel', currentMOTD);
     });
 };
 
@@ -385,8 +387,8 @@ var setupDismissMOTD = function(){
  * TODO: ability to just collapse/expand them them and show them in that state for the
  * session
  */
-function dismissMessage(target){
-    utils_createCookie('motdHide', 'true');
+function dismissMessage(target, msgId){
+    utils_createCookie('motdHide', msgId);
     $(target).fadeToggle(1000, 0);
     // report that MOTD has been hidden
     reportEvent(target, '/dashboard/MOTD', 'MOTD', 'dash.hide.motd');

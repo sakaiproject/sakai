@@ -93,6 +93,7 @@ public class MOTDPanel extends Panel {
 		
 		List<NewsItem> motdList = dashboardLogic.getMOTD();
 		if(motdList == null || motdList.isEmpty()) {
+			motdDiv.add(new Label("motdId", "0@0"));
 			motdDiv.add(new Label("motdText", "No new messages"));
 			RepeatingView attachments = new RepeatingView("attachments");
 			motdDiv.add(attachments);
@@ -102,6 +103,7 @@ public class MOTDPanel extends Panel {
 			attachments.setVisible(false);
 		} else {
 			NewsItem motd = motdList.get(0);
+			motdDiv.add(new Label("motdId", motd.getId() + "@" + motd.getNewsTime().getTime()));
 			Map<String, Object> info = dashboardLogic.getEntityMapping(motd.getSourceType().getIdentifier(), motd.getEntityReference(), getLocale());
 			motdDiv.add(new Label("motdTitle", (String) info.get(EntityType.VALUE_TITLE)));
 			Label motdText = new Label("motdText", (String) info.get(EntityType.VALUE_DESCRIPTION));
