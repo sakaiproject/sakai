@@ -81,7 +81,8 @@
 		#else
 			$tlang.getString('uploadall.instruction')<span class="reqStarInline">*</span>
 			<br />
-			$tlang.getString('uploadall.instruction2')(<a href="$accessPointUrl" title="$!tlang.getString('downall')">$tlang.getString('uploadall.instruction3')</a>) $tlang.getString('uploadall.instruction4')
+			#set($downloadTemplateUrl="$accessPointUrl?contextString=" + $contextString + "&studentSubmissionText=true&studentSubmissionAttachment=true&gradeFile=true&feedbackTexts=true&feedbackComments=true&feedbackAttachments=true")
+			$tlang.getString('uploadall.instruction2')(<a href="$downloadTemplateUrl" title="$!tlang.getString('downall')">$tlang.getString('uploadall.instruction3')</a>) $tlang.getString('uploadall.instruction4')
 		#end
 	</p>
 	<form id="uploadAllForm" name="uploadAllForm" action="#toolForm('AssignmentAction')" method="post" onsubmit="return true;" enctype="multipart/form-data">
