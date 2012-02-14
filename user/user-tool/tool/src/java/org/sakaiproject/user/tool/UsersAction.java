@@ -21,8 +21,11 @@
 
 package org.sakaiproject.user.tool;
 
-import java.util.List;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,6 +38,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.EmailValidator;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
+import org.sakaiproject.cheftool.ControllerState;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.PagedResourceActionII;
 import org.sakaiproject.cheftool.PortletConfig;
@@ -45,10 +49,15 @@ import org.sakaiproject.cheftool.api.MenuItem;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.AuthenticationException;
@@ -67,6 +76,10 @@ import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 
+import au.com.bytecode.opencsv.CSVReader;
+import au.com.bytecode.opencsv.bean.CsvToBean;
+import au.com.bytecode.opencsv.bean.HeaderColumnNameTranslateMappingStrategy;
+
 /**
  * <p>
  * UsersAction is the Sakai users editor.
@@ -75,6 +88,9 @@ import org.sakaiproject.util.StringUtil;
 public class UsersAction extends PagedResourceActionII
 {
 	private static ResourceLoader rb = new ResourceLoader("admin");
+		
+	//private static final String XLS_MIME_TYPE="application/vnd.ms-excel";
+	private static final String CSV_MIME_TYPE="text/csv";
 
 	/**
 	 * {@inheritDoc}
@@ -169,6 +185,9 @@ public class UsersAction extends PagedResourceActionII
 		context.put("tlang", rb);
 		boolean singleUser = ((Boolean) state.getAttribute("single-user")).booleanValue();
 		boolean createUser = ((Boolean) state.getAttribute("create-user")).booleanValue();
+		
+		UsersActionState sstate = (UsersActionState)getState(context, rundata, UsersActionState.class);
+		String status = sstate.getStatus();
 
 		// if not logged in as the super user, we won't do anything
 		if ((!singleUser) && (!createUser) && (!SecurityService.isSuperUser()))
@@ -200,6 +219,10 @@ public class UsersAction extends PagedResourceActionII
 		// put $action into context for menus, forms and links
 		context.put(Menu.CONTEXT_ACTION, state.getAttribute(STATE_ACTION));
 
+		//put successMessage into context and remove from state
+	    context.put("successMessage", state.getAttribute("successMessage"));
+	    state.removeAttribute("successMessage");
+		
 		// check mode and dispatch
 		String mode = (String) state.getAttribute("mode");
 
@@ -233,6 +256,14 @@ public class UsersAction extends PagedResourceActionII
 		{
 			template = buildConfirmRemoveContext(state, context);
 		}
+		else if (mode.equals("import"))
+		{
+			template = buildImportContext(state, context);
+		}
+		else if (mode.equals("mode_helper") && StringUtils.equals(status, "processImport")) {
+			//returning from helper after uploading file
+			template = buildProcessImportContext(state, rundata, context);
+		}
 		else
 		{
 			Log.warn("chef", "UsersAction: mode: " + mode);
@@ -260,6 +291,7 @@ public class UsersAction extends PagedResourceActionII
 		if (UserDirectoryService.allowAddUser())
 		{
 			bar.add(new MenuEntry(rb.getString("useact.newuse"), null, true, MenuItem.CHECKED_NA, "doNew"));
+			bar.add(new MenuEntry(rb.getString("import.user.file"), null, true, MenuItem.CHECKED_NA, "doImport"));
 		}
 
 		// add the paging commands
@@ -522,6 +554,32 @@ public class UsersAction extends PagedResourceActionII
 	} // buildConfirmRemoveContext
 
 	/**
+	 * Build the context for the import mode.
+	 */
+	private String buildImportContext(SessionState state, Context context) {
+		
+		//render the template		
+		return "_import";
+
+	} // buildImportContext
+	
+	/**
+	 * Build the context for processing the files
+	 */
+	private String buildProcessImportContext(SessionState state, RunData data, Context context) {
+		
+		//process the attachments (there will be only one)
+		UsersActionState sstate = (UsersActionState)getState(context, data, UsersActionState.class);
+		Reference attachment = (Reference)sstate.getAttachments().get(0);
+		
+		processImportedUserFile(state, context, attachment);
+				
+		//render the template		
+		return "_import";
+
+	} // buildProcessImportContext
+	
+	/**
 	 * doNew called when "eventSubmit_doNew" is in the request parameters to add a new user
 	 */
 	public void doNew(RunData data, Context context)
@@ -537,6 +595,54 @@ public class UsersAction extends PagedResourceActionII
 
 	} // doNew
 
+	/**
+	 * doImport called when "eventSubmit_doImport" is clicked. This actuall imports the users that were uploaded.
+	 */
+	public void doImport(RunData data, Context context)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		UsersActionState sstate = (UsersActionState)getState(context, data, UsersActionState.class);
+		
+		state.setAttribute("mode", "import");
+				
+		Log.debug("chef", "doImport");
+			
+		List<ImportedUser> users = (List<ImportedUser>)state.getAttribute("importedUsers");
+		if(users !=null && users.size() > 0) {
+		
+			for(ImportedUser user: users) {
+				try {
+					User newUser = UserDirectoryService.addUser(null, user.getEid(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(), user.getType(), null);
+				}
+				catch (UserAlreadyDefinedException e){
+					//ok, just skip
+					continue;
+				}
+				catch (UserIdInvalidException e) {
+					addAlert(state, rb.getString("useact.theuseid2") + ": " + user.getEid());
+					Log.error("chef", "Import user error: " + e.getClass() + ":" + e.getMessage());
+					//try to import the rest
+					continue;
+				}
+				catch (UserPermissionException e){
+					addAlert(state, rb.getString("useact.youdonot3"));
+					Log.error("chef", "Import user error: " + e.getClass() + ":" + e.getMessage());
+					//this is bad so return
+					return;
+				} 
+			}
+			
+			//set a message to show it was successful
+			state.setAttribute("successMessage", rb.getString("import.success"));
+			state.removeAttribute("mode");
+			// make sure auto-updates are enabled
+			enableObserver(state);
+		}
+		
+	} // doImport
+	
+	
+	
 	/**
 	 * doEdit called when "eventSubmit_doEdit" is in the request parameters to edit a user
 	 */
@@ -769,6 +875,34 @@ public class UsersAction extends PagedResourceActionII
 		enableObserver(state);
 
 	} // doCancel
+	
+	/**
+	 * doCancelImport called when "eventSubmit_doCancelImport" is in the request parameters to cancel user imports
+	 */
+	public void doCancelImport(RunData data, Context context)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
+		//cleanup session
+		state.removeAttribute("importedUsers");
+		
+		//also cleanup our state handler (I think this should be combined into SessionState)
+		UsersActionState sstate = (UsersActionState)getState(context, data, UsersActionState.class);
+		sstate.setAttachments(new ArrayList());
+		sstate.setStatus(null);
+
+		// return to main mode
+		state.removeAttribute("mode");
+		state.removeAttribute("importedUsers");
+
+		// make sure auto-updates are enabled
+		enableObserver(state);
+
+	} // doCancelImport
 
 	/**
 	 * doRemove called when "eventSubmit_doRemove" is in the request par ameters to confirm removal of the user
@@ -1052,4 +1186,231 @@ public class UsersAction extends PagedResourceActionII
 
 		return true;
 	}
+	
+	public void doAttachments(RunData rundata, Context context) {
+		
+		// use special form of the helper for the admin workspace
+		ToolSession session = SessionManager.getCurrentToolSession();
+        session.setAttribute(FilePickerHelper.FILE_PICKER_ATTACH_LINKS, new Boolean(true).toString());
+		
+		// use the helper
+		startHelper(rundata.getRequest(), "sakai.filepicker");
+		
+		// setup the parameters for the helper
+		SessionState state = ((JetspeedRunData) rundata).getPortletSessionState(((JetspeedRunData) rundata).getJs_peid());
+		UsersActionState sstate = (UsersActionState)getState( context, rundata, UsersActionState.class );
+		
+		state.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, sstate.getAttachments());
+		state.setAttribute(FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS, FilePickerHelper.CARDINALITY_SINGLE);
+		
+		//set return status
+		sstate.setStatus("processImport");
+	}
+	
+	
+	
+	
+	
+	
+	
+	// ********
+	// ******** functions copied from VelocityPortletStateAction ********
+	// ********
+	/**
+	 * Get the proper state for this instance (if portlet is not known, only context).
+	 * 
+	 * @param context
+	 *        The Template Context (it contains a reference to the portlet).
+	 * @param rundata
+	 *        The Jetspeed (Turbine) rundata associated with the request.
+	 * @param stateClass
+	 *        The Class of the ControllerState to find / create.
+	 * @return The proper state object for this instance.
+	 */
+	protected ControllerState getState(Context context, RunData rundata, Class stateClass)
+	{
+		return getState(((JetspeedRunData) rundata).getJs_peid(), rundata, stateClass);
+
+	} // getState
+
+	/**
+	 * Get the proper state for this instance (if portlet is known).
+	 * 
+	 * @param portlet
+	 *        The portlet being rendered.
+	 * @param rundata
+	 *        The Jetspeed (Turbine) rundata associated with the request.
+	 * @param stateClass
+	 *        The Class of the ControllerState to find / create.
+	 * @return The proper state object for this instance.
+	 */
+	protected ControllerState getState(VelocityPortlet portlet, RunData rundata, Class stateClass)
+	{
+		if (portlet == null)
+		{
+			Log.warn("chef", ".getState(): portlet null");
+			return null;
+		}
+
+		return getState(portlet.getID(), rundata, stateClass);
+
+	} // getState
+
+	/**
+	 * Get the proper state for this instance (if portlet id is known).
+	 * 
+	 * @param peid
+	 *        The portlet id.
+	 * @param rundata
+	 *        The Jetspeed (Turbine) rundata associated with the request.
+	 * @param stateClass
+	 *        The Class of the ControllerState to find / create.
+	 * @return The proper state object for this instance.
+	 */
+	protected ControllerState getState(String peid, RunData rundata, Class stateClass)
+	{
+		if (peid == null)
+		{
+			Log.warn("chef", ".getState(): peid null");
+			return null;
+		}
+
+		try
+		{
+			// get the PortletSessionState
+			SessionState ss = ((JetspeedRunData) rundata).getPortletSessionState(peid);
+
+			// get the state object
+			ControllerState state = (ControllerState) ss.getAttribute("state");
+
+			if (state != null) return state;
+
+			// if there's no "state" object in there, make one
+			state = (ControllerState) stateClass.newInstance();
+			state.setId(peid);
+
+			// remember it!
+			ss.setAttribute("state", state);
+
+			return state;
+		}
+		catch (Exception e)
+		{
+			Log.warn("chef", "getState: " + e.getClass() + ":" + e.getMessage());
+		}
+
+		return null;
+
+	} // getState
+
+	/**
+	 * Release the proper state for this instance (if portlet is not known, only context).
+	 * 
+	 * @param context
+	 *        The Template Context (it contains a reference to the portlet).
+	 * @param rundata
+	 *        The Jetspeed (Turbine) rundata associated with the request.
+	 */
+	protected void releaseState(Context context, RunData rundata)
+	{
+		releaseState(((JetspeedRunData) rundata).getJs_peid(), rundata);
+
+	} // releaseState
+
+	/**
+	 * Release the proper state for this instance (if portlet is known).
+	 * 
+	 * @param portlet
+	 *        The portlet being rendered.
+	 * @param rundata
+	 *        The Jetspeed (Turbine) rundata associated with the request.
+	 */
+	protected void releaseState(VelocityPortlet portlet, RunData rundata)
+	{
+		releaseState(portlet.getID(), rundata);
+
+	} // releaseState
+
+	/**
+	 * Release the proper state for this instance (if portlet id is known).
+	 * 
+	 * @param peid
+	 *        The portlet id being rendered.
+	 * @param rundata
+	 *        The Jetspeed (Turbine) rundata associated with the request.
+	 */
+	protected void releaseState(String peid, RunData rundata)
+	{
+		try
+		{
+			// get the PortletSessionState
+			SessionState ss = ((JetspeedRunData) rundata).getPortletSessionState(peid);
+
+			// get the state object
+			ControllerState state = (ControllerState) ss.getAttribute("state");
+
+			// recycle the state object
+			state.recycle();
+
+			// clear out the SessionState for this Portlet
+			ss.removeAttribute("state");
+
+			ss.clear();
+
+		}
+		catch (Exception e)
+		{
+			Log.warn("chef", "releaseState: " + e.getClass() + ":" + e.getMessage());
+		}
+
+	} // releaseState
+
+	// ******* end of copy from VelocityPortletStateAction
+	
+	
+	private void processImportedUserFile(SessionState state, Context context, Reference file) {
+		
+		try{
+			ContentResource resource = ContentHostingService.getResource(file.getId());
+			String contentType = resource.getContentType();
+			
+			//check mime type
+			if(!StringUtils.equals(contentType, CSV_MIME_TYPE)) {
+				addAlert(state, rb.getString("import.error"));
+				return;
+			}
+			
+			HeaderColumnNameTranslateMappingStrategy<ImportedUser> strat = new HeaderColumnNameTranslateMappingStrategy<ImportedUser>();
+			strat.setType(ImportedUser.class);
+
+			//map the column headers to the field names in the ImportedUser class
+			Map<String, String> map = new HashMap<String, String>();
+			map.put("user id", "eid");
+			map.put("first name", "firstName");
+			map.put("last name", "lastName");
+			map.put("email", "email");
+			map.put("password", "password");
+			map.put("type", "type");
+			
+			strat.setColumnMapping(map);
+
+			CsvToBean<ImportedUser> csv = new CsvToBean<ImportedUser>();
+			List<ImportedUser> list = new ArrayList<ImportedUser>();
+					
+			list = csv.parse(strat, new CSVReader(new InputStreamReader(resource.streamContent())));
+			
+			state.setAttribute("importedUsers", list);
+			context.put("importedUsers", list);
+			
+		} catch (Exception e) {
+			Log.error("chef", "Error reading imported file: " + e.getClass() + " : " + e.getMessage());
+			addAlert(state, rb.getString("import.error"));
+			return;
+		}
+		
+		return;
+
+	}
+	
+	
 }
