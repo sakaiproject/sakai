@@ -61,8 +61,8 @@ function reEnableLimits(component) {
 
 function updateOptionBoxes(externallyManaged) {
 	if(externallyManaged == null) {
-		var external = document.optionsForm[3];
-		var internal = document.optionsForm[4];
+		var external = document.optionsForm[0];
+		var internal = document.optionsForm[1];
 		if(external.checked) {
 			externallyManaged = external;
 		} else {
@@ -73,6 +73,7 @@ function updateOptionBoxes(externallyManaged) {
 	var selfSwitch = document.getElementById("optionsForm:selfSwitch");
 	var openSwitch = document.getElementById("optionsForm:openSwitch");
 	var openDate = document.getElementById("optionsForm:openDate");
+	var calendar = document.getElementById("calendar");
 
 	if(externallyManaged.value=='external') {
 		// Automatic section management is selected
@@ -84,6 +85,7 @@ function updateOptionBoxes(externallyManaged) {
 		openSwitch.disabled = true;
 		openDate.value = "";
 		openDate.disabled = true;
+		calendar.disabled = true;
 	} else {
 		// Manual section management is selected
 		selfJoin.disabled = false;
