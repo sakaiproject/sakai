@@ -28,7 +28,15 @@ public class AttachmentByCreatedDateDesc implements Comparator<Attachment> {
     } else {
       int rval = o2.getCreated().compareTo(o1.getCreated());
       if (rval == 0) {
-        return o2.getId().compareTo(o1.getId());
+        if (o1.getId() == null || o2.getId() == null) {
+          if (o1.getUuid().equals(o2.getUuid())) {
+            return 0; // This is the exact same attachment object
+          } else {
+            return -1; // Attachments probably haven't been saved.  Sort arbitrarily since we don't have tie-breaker.
+          }
+        } else {
+          return o2.getId().compareTo(o1.getId());
+        }
       } else {
         return rval;
       }
