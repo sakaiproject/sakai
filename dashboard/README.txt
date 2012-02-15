@@ -4,3 +4,5 @@ The course, "Open Source Software Development", was organized by Chuck Severance
 
 The students primarily responsible for defining requirements and developing the initial design for the dashboard were Caitlin Holman and Nikola Collins.
 
+Thanks to Tiffany Chow and Shwetangi Savant for their assistance with usability and quality assurance testing.
+
