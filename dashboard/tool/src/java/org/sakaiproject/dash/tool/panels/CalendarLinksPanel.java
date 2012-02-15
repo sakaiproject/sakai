@@ -129,6 +129,7 @@ public class CalendarLinksPanel extends Panel {
 		        initPanel();
 				target.addComponent(CalendarLinksPanel.this);
 				target.appendJavascript("resizeFrame('grow');");
+				target.appendJavascript("$('#schedPanel').focus();");
 				dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_TABBING, "/dashboard/calendar/upcoming");
 			}
         	
@@ -161,6 +162,7 @@ public class CalendarLinksPanel extends Panel {
 		        initPanel();
 				target.addComponent(CalendarLinksPanel.this);
 				target.appendJavascript("resizeFrame('grow');");
+				target.appendJavascript("$('#schedPanel').focus();");
 				dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_TABBING, "/dashboard/calendar/past");
 			}
         	
@@ -192,6 +194,7 @@ public class CalendarLinksPanel extends Panel {
 		        initPanel();
 				target.addComponent(CalendarLinksPanel.this);
 				target.appendJavascript("resizeFrame('grow');");
+				target.appendJavascript("$('#schedPanel').focus();");
 				dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_TABBING, "/dashboard/calendar/starred");
 			}
         	
@@ -223,6 +226,7 @@ public class CalendarLinksPanel extends Panel {
 		        initPanel();
 				target.addComponent(CalendarLinksPanel.this);
 				target.appendJavascript("resizeFrame('grow');");
+				target.appendJavascript("$('#schedPanel').focus();");
 				dashboardLogic.recordDashboardActivity(DashboardLogic.EVENT_DASH_TABBING, "/dashboard/calendar/hidden");
 			}
         	

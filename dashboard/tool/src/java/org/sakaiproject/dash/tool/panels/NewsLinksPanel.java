@@ -137,6 +137,7 @@ public class NewsLinksPanel extends Panel {
 				// refresh newsLinksDiv
 				target.addComponent(NewsLinksPanel.this);
 				target.appendJavascript("resizeFrame('grow');");
+				target.appendJavascript("$('#newsPanel').focus();");
 			}
         	
         };
@@ -168,6 +169,7 @@ public class NewsLinksPanel extends Panel {
 				// refresh newsLinksDiv
 				target.addComponent(NewsLinksPanel.this);
 				target.appendJavascript("resizeFrame('grow');");
+				target.appendJavascript("$('#newsPanel').focus();");
 			}
         	
         };
@@ -198,6 +200,7 @@ public class NewsLinksPanel extends Panel {
 				// refresh newsLinksDiv
 				target.addComponent(NewsLinksPanel.this);
 				target.appendJavascript("resizeFrame('grow');");
+				target.appendJavascript("$('#newsPanel').focus();");				
 			}
         	
         };

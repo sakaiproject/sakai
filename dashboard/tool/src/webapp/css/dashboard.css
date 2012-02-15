@@ -47,9 +47,12 @@ table tr td {
 .activeCell, .results {
     margin-bottom:5px
 }
- .results {
+.results {
      border:2px  solid #b3d9ff;
  }
+.results:focus {
+    outline:none
+}
 .newRow td {
     padding: 00;
     background: #fff;
@@ -447,6 +450,12 @@ ul.tabPanel{
 }
 .panel{
     padding:5px;
+}
+/*
+wrappers for all panels - receive the focus after a tab click
+*/
+#newsPanel:focus,#schedPanel:focus{
+    outline:none;
 }
 #messagePanel,#messageError{
     position:absolute;

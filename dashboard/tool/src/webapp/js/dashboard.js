@@ -16,10 +16,6 @@ var setupLinks = function(){
      */
     $(".itemLink").live("click", function(e){
         e.preventDefault();
-        //var actionLink = "";
-        //var action = "";
-        //var link = $(this).attr('href');
-        //var title = $(this).text();
         var parentRow = $(this).closest('tr');
         var colCount = $(parentRow).find('td').length;
         var parentCell = $(this).closest('td');
@@ -55,7 +51,7 @@ var setupLinks = function(){
                         delimitLeft = "{";
                         delimitRight = "}";
                         
-                        var results = '<div class=\"results\" style=\"display:none\">';
+                        var results = '<div class=\"results\" tabindex=\"-1\" style=\"display:none\">';
                         if (json.order.length !== 0) {
                             $(json.order).each(function(i){
                                 var o = this;
@@ -137,10 +133,11 @@ var setupLinks = function(){
                         $('<tr class=\"newRow\"><td colspan=\"' + colCount + '\">' + results + '</td></tr>').insertAfter(parentRow);
                         $(parentRow).next('tr.newRow').find('.results').slideDown('slow', function(){
                             resizeFrame('grow');
+                            $(parentRow).next('tr.newRow').find('.results').focus();
                         });
                     },
-                    error:function(xhr, status, error){
-                        reportError (error)
+                    error: function(xhr, status, error){
+                        reportError(error)
                     }
                 });
             }
@@ -162,14 +159,12 @@ var setupLinks = function(){
             'itemCount': $(paramContainer).find('.itemCount').text(),
             'offset': $(parentRow).next('tr.newRow').find('tr').length
         };
-        
         var initChunk = false;
         renderCollection(callBackUrl, params, parentRow, colCount, initChunk);
     });
 };
 
 var renderCollection = function(callBackUrl, params, parentRow, colCount, initChunk){
-
     jQuery.ajax({
         url: callBackUrl,
         type: 'post',
@@ -219,19 +214,21 @@ var renderCollection = function(callBackUrl, params, parentRow, colCount, initCh
             
             //need to just add rows if it is a "get More" action, otherwise add below
             if (initChunk) {
-                $('<tr class=\"newRow\";a><td colspan=\"' + colCount + '\"><div class=\"results newList\" style=\"display:none\"><table class=\"itemCollection\" cellpadding=\"0\" cellspacing=\"0\">' + results + '</td></tr></table></div>').insertAfter(parentRow);
+                $('<tr class=\"newRow\"><td colspan=\"' + colCount + '\"><div class=\"results newList\" tabindex="-1" style=\"display:none\"><table class=\"itemCollection\" cellpadding=\"0\" cellspacing=\"0\">' + results + '</td></tr></table></div>').insertAfter(parentRow);
+                $(parentRow).next('tr.newRow').find('.results').focus();
             }
             else {
-                $(results).css('display','none').insertAfter((parentRow).next('tr').find('table').find('tr:last')).fadeIn('slow');
+                $(results).css('display', 'none').insertAfter((parentRow).next('tr').find('table').find('tr:last')).fadeIn('slow');
+                $(parentRow).next('tr').find('table').find('tr').eq(params.offset).attr('tabindex', '-1').focus();
             }
             //this needs to be conditional on if being a "get More" action
             var showingRows = $(parentRow).next('tr.newRow').find('tr').length
-
-           if (showingRows < totalCount) {
+            
+            if (showingRows < totalCount) {
                 if ($(parentRow).next('tr.newRow').find('.getMore').length === 0) {
-                    $('<div class="getMore"><a href="#">' +  json['more-link'] + '</a><span class=\"showingCount instruction textPanelFooter"></span></div>').insertAfter((parentRow).next('tr.newRow').find('.itemCollection'));
+                    $('<div class="getMore"><a href="#">' + json['more-link'] + '</a><span class=\"showingCount instruction textPanelFooter"></span></div>').insertAfter((parentRow).next('tr.newRow').find('.itemCollection'));
                 }
-                $(parentRow).next('tr.newRow').find('.getMore').find('.showingCount').text(updateCount(json['more-status-last'],showingRows,totalCount,parentRow))
+                $(parentRow).next('tr.newRow').find('.getMore').find('.showingCount').text(updateCount(json['more-status-last'], showingRows, totalCount, parentRow))
             }
             else {
                 $(parentRow).next('tr.newRow').find('.getMore').fadeOut('slow').remove();
@@ -257,10 +254,14 @@ var renderCollection = function(callBackUrl, params, parentRow, colCount, initCh
             
             $(parentRow).next('tr.newRow').find('.results').slideDown('slow', function(){
                 resizeFrame('grow');
+                if (initChunk) {
+                    $(parentRow).next('tr.newRow').find('.results').focus();
+                }
             });
         },
         error: function(XMLHttpRequest, textStatus, errorThrown){
-            reportError()        }
+            reportError()
+        }
     });
 };
 function updateItemStatus(element, dashAction, itemId){
@@ -294,7 +295,7 @@ function updateItemStatus(element, dashAction, itemId){
             }
         },
         error: function(XMLHttpRequest, textStatus, errorThrown){
-           reportError();
+            reportError();
         }
     });
 }
@@ -321,10 +322,10 @@ function reportEvent(element, entityRef, entityType, dashEvent){
 }
 
 
-var updateCount = function (label,showingRows,totalCount,rowId){
-  var repLabel = label.replace('{0}',showingRows).replace('{1}',totalCount);
-  return(repLabel)  
- // $(parentRow).next('tr.newRow').find('.getMore').find('.showingCount').text(showingRows);
+var updateCount = function(label, showingRows, totalCount, rowId){
+    var repLabel = label.replace('{0}', showingRows).replace('{1}', totalCount);
+    return (repLabel)
+    // $(parentRow).next('tr.newRow').find('.getMore').find('.showingCount').text(showingRows);
 
 
 }
@@ -347,10 +348,10 @@ var reportSuccess = function(msg, item, url){
 /*
  * There has been an error
  *
- *  
-*/
-var reportError= function(){
-    var genericErrorMsg =$('#genericErrorMessage').text();
+ *
+ */
+var reportError = function(){
+    var genericErrorMsg = $('#genericErrorMessage').text();
     $('#messageError').html(genericErrorMsg).fadeTo("slow", 1).animate({
         opacity: 1.0
     }, 5000).fadeTo(3000, 0);
@@ -368,8 +369,8 @@ var reportError= function(){
  */
 var setupDismissMOTD = function(){
     var hiddenMOTD = utils_readCookie('motdHide');
-    var currentMOTD =  $('.motdPanel .motdId').text();
-	if (hiddenMOTD && currentMOTD && hiddenMOTD === currentMOTD) {
+    var currentMOTD = $('.motdPanel .motdId').text();
+    if (hiddenMOTD && currentMOTD && hiddenMOTD === currentMOTD) {
         $('.motdPanel').css('display', 'none');
     }
     else {
