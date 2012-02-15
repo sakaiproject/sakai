@@ -1123,20 +1123,13 @@ public class DiscussionForumTool
     
     setEditMode(true);
     setPermissionMode(PERMISSION_MODE_FORUM);
-    
-    String contextId = getSiteId();
         
     if (getNewForum())
     {
       DiscussionForum forum = forumManager.createForum();
-      forum.setModerated(areaManager.getDiscussionArea(contextId).getModerated()); // default to template setting
-      forum.setAutoMarkThreadsRead(areaManager.getDiscussionArea(contextId).getAutoMarkThreadsRead()); // default to template setting
-      forum.setPostFirst(areaManager.getDiscussionArea(contextId).getPostFirst()); // default to template setting
-      if (areaManager.getDiscussionArea(contextId).getAvailabilityRestricted()) {
-          forum.setAvailabilityRestricted(true);
-          forum.setOpenDate(areaManager.getDiscussionArea(contextId).getOpenDate());
-          forum.setCloseDate(areaManager.getDiscussionArea(contextId).getCloseDate());
-      }
+      forum.setModerated(areaManager.getDiscusionArea().getModerated()); // default to template setting
+      forum.setAutoMarkThreadsRead(areaManager.getDiscusionArea().getAutoMarkThreadsRead()); // default to template setting
+      forum.setPostFirst(areaManager.getDiscusionArea().getPostFirst()); // default to template setting
       selectedForum = null;
       selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
       if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
@@ -3335,12 +3328,7 @@ public class DiscussionForumTool
     selectedTopic.setModerated(selectedForum.getModerated()); // default to parent forum's setting
     selectedTopic.setPostFirst(selectedForum.getPostFirst()); // default to parent forum's setting
     selectedTopic.setAutoMarkThreadsRead(selectedForum.getAutoMarkThreadsRead()); // default to parent forum's setting
-    if (selectedForum.getForum().getAvailabilityRestricted()) {
-        selectedTopic.setAvailabilityRestricted(selectedForum.getAvailabilityRestricted());
-        selectedTopic.setOpenDate(selectedForum.getOpenDate());
-        selectedTopic.setCloseDate(selectedForum.getCloseDate());
-    }
-    
+
     setNewTopicBeanAssign();
     
     DiscussionTopicBean thisDTB = new DiscussionTopicBean(topic, forum, uiPermissionsManager, forumManager);
