@@ -300,6 +300,7 @@ public class NewsLinksPanel extends Panel {
 									target.appendJavascript(javascript );
 								}
 								target.appendJavascript("resizeFrame('grow');");
+								//target.appendJavascript("$('#newsPanel').focus();");
 							}
 						}
 	                	
@@ -316,7 +317,7 @@ public class NewsLinksPanel extends Panel {
 						}
 						
 					}));
-					starringActionIcon.add(new AttributeModifier("title", true, new AbstractReadOnlyModel(){
+					starringActionIcon.add(new AttributeModifier("alt", true, new AbstractReadOnlyModel(){
 
 						@Override
 						public Object getObject() {
@@ -356,6 +357,7 @@ public class NewsLinksPanel extends Panel {
 								//target.appendJavascript(javascript );
 							}
 							target.appendJavascript("resizeFrame('grow');");
+							//target.appendJavascript("$('#newsPanel').focus();");
 						}
 						
 	                };
@@ -368,7 +370,7 @@ public class NewsLinksPanel extends Panel {
 						}
 						
 					}));
-					starringActionIcon.add(new AttributeModifier("title", true, new AbstractReadOnlyModel(){
+					starringActionIcon.add(new AttributeModifier("alt", true, new AbstractReadOnlyModel(){
 
 						@Override
 						public Object getObject() {
@@ -413,6 +415,7 @@ public class NewsLinksPanel extends Panel {
 								target.appendJavascript(javascript );
 							}
 							target.appendJavascript("resizeFrame('grow');");
+							target.appendJavascript("$('#newsPanel').focus();");
 						}
 	                	
 	                };
@@ -428,7 +431,7 @@ public class NewsLinksPanel extends Panel {
 						}
 						
 					}));
-					hidingActionIcon.add(new AttributeModifier("title", true, new AbstractReadOnlyModel(){
+					hidingActionIcon.add(new AttributeModifier("alt", true, new AbstractReadOnlyModel(){
 
 						@Override
 						public Object getObject() {
@@ -471,6 +474,7 @@ public class NewsLinksPanel extends Panel {
 								target.appendJavascript(javascript );
 							}
 							target.appendJavascript("resizeFrame('grow');");
+							target.appendJavascript("$('#newsPanel').focus();");
 						}
 	                	
 	                };
@@ -487,7 +491,7 @@ public class NewsLinksPanel extends Panel {
 						}
 						
 					}));
-					hidingActionIcon.add(new AttributeModifier("title", true, new AbstractReadOnlyModel(){
+					hidingActionIcon.add(new AttributeModifier("alt", true, new AbstractReadOnlyModel(){
 
 						@Override
 						public Object getObject() {

@@ -355,7 +355,7 @@ public class CalendarLinksPanel extends Panel {
 							}
 							
 						}));
-						starringActionIcon.add(new AttributeModifier("title", true, new AbstractReadOnlyModel(){
+						starringActionIcon.add(new AttributeModifier("alt", true, new AbstractReadOnlyModel(){
 
 							@Override
 							public Object getObject() {
@@ -409,7 +409,7 @@ public class CalendarLinksPanel extends Panel {
 							}
 							
 						}));
-						starringActionIcon.add(new AttributeModifier("title", true, new AbstractReadOnlyModel(){
+						starringActionIcon.add(new AttributeModifier("alt", true, new AbstractReadOnlyModel(){
 
 							@Override
 							public Object getObject() {
@@ -471,7 +471,7 @@ public class CalendarLinksPanel extends Panel {
 							}
 							
 						}));
-						hidingActionIcon.add(new AttributeModifier("title", true, new AbstractReadOnlyModel(){
+						hidingActionIcon.add(new AttributeModifier("alt", true, new AbstractReadOnlyModel(){
 
 							@Override
 							public Object getObject() {
@@ -533,7 +533,7 @@ public class CalendarLinksPanel extends Panel {
 							}
 							
 						}));
-						hidingActionIcon.add(new AttributeModifier("title", true, new AbstractReadOnlyModel(){
+						hidingActionIcon.add(new AttributeModifier("alt", true, new AbstractReadOnlyModel(){
 
 							@Override
 							public Object getObject() {
