@@ -392,4 +392,12 @@ public class BasicLTIConstants {
 		TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL, TOOL_CONSUMER_INSTANCE_DESCRIPTION,
 		TOOL_CONSUMER_INSTANCE_GUID, TOOL_CONSUMER_INSTANCE_NAME,
 		TOOL_CONSUMER_INSTANCE_URL, USER_ID };
+	
+	/**
+	 * The default site type to use if a site needs to be created. Can be overriden in sakai.properties or as part of the launch.
+	 * This contains a number of preconfigured roles, so that the IMS role vocabulary can be used.
+	 * See BLTI-151
+	 */
+	public static final String NEW_SITE_TYPE = "lti";
+	
 }

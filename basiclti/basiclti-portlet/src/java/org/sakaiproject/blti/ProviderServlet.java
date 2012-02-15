@@ -469,11 +469,20 @@ public class ProviderServlet extends HttpServlet {
 					doError(request, response, "launch.site.invalid", "siteId="+siteId, null);
 					return;
 				} else {
-					final String context_type = request.getParameter(BasicLTIConstants.CONTEXT_TYPE);
-					String sakai_type = "project";
-					if (BasicLTIUtil.equalsIgnoreCase(context_type, "course")) {
-						sakai_type = "course";
+					
+					//BLTI-151 allow site type to be configurable
+					
+					//If the new site type has been specified in sakai.properties, use it.
+					String sakai_type = ServerConfigurationService.getString("basiclti.provider.newsitetype", null);
+					if(BasicLTIUtil.isBlank(sakai_type)) {
+						final String context_type = request.getParameter(BasicLTIConstants.CONTEXT_TYPE);
+						if (BasicLTIUtil.equalsIgnoreCase(context_type, "course")) {
+							sakai_type = "course";
+						} else {
+							sakai_type = BasicLTIConstants.NEW_SITE_TYPE;
+						}
 					}
+					
 					final String context_title = request.getParameter(BasicLTIConstants.CONTEXT_TITLE);
 					final String context_label = request.getParameter(BasicLTIConstants.CONTEXT_LABEL);
                                         pushAdvisor();
@@ -541,25 +550,56 @@ public class ProviderServlet extends HttpServlet {
 					try {
 						site = SiteService.getSite(siteId);
 						Set<Role> roles = site.getRoles();
-						String maintainRole = site.getMaintainRole();
-						String joinerRole = site.getJoinerRole();
-
+						
+						//BLTI-151 see if we can directly map the incoming role to the list of site roles
+						String newRole = null;
+						if (M_log.isDebugEnabled()) {
+							M_log.debug("Incoming userrole:" + userrole);
+						}
 						for (Role r : roles) {
 							String roleId = r.getId();
-							if (maintainRole == null && (roleId.equalsIgnoreCase("maintain") || roleId.equalsIgnoreCase("instructor"))) {
-								maintainRole = roleId;
-							}
-
-							if (joinerRole == null && (roleId.equalsIgnoreCase("access") || roleId.equalsIgnoreCase("student"))) {
-								joinerRole = roleId;
+														
+							if(BasicLTIUtil.equalsIgnoreCase(roleId, userrole)) {
+								newRole = roleId;
+								if (M_log.isDebugEnabled()) {
+									M_log.debug("Matched incoming role to role in site:" + roleId);
+								}
+								break;
 							}
 						}
-
-						boolean isInstructor = userrole.indexOf("instructor") >= 0;
-						String newRole = joinerRole;
-						if (isInstructor && maintainRole != null)
-							newRole = maintainRole;
-
+						
+						//if we haven't mapped a role, check against the standard roles and fallback
+						if(BasicLTIUtil.isBlank(newRole)) {
+						
+							if (M_log.isDebugEnabled()) {
+								M_log.debug("No match, falling back to determine role");
+							}
+							
+							String maintainRole = site.getMaintainRole();
+							String joinerRole = site.getJoinerRole();
+	
+							for (Role r : roles) {
+								String roleId = r.getId();
+								if (maintainRole == null && (roleId.equalsIgnoreCase("maintain") || roleId.equalsIgnoreCase("instructor"))) {
+									maintainRole = roleId;
+								}
+	
+								if (joinerRole == null && (roleId.equalsIgnoreCase("access") || roleId.equalsIgnoreCase("student"))) {
+									joinerRole = roleId;
+								}
+							}
+	
+							boolean isInstructor = userrole.indexOf("instructor") >= 0;
+							newRole = joinerRole;
+							if (isInstructor && maintainRole != null) {
+								newRole = maintainRole;
+							}
+							
+							if (M_log.isDebugEnabled()) {
+								M_log.debug("Determined newRole as: " + newRole);
+							}
+						}
+						
 						if (newRole == null) {
 							M_log.warn("Could not find Sakai role, role=" + userrole+ " user=" + user_id + " site=" + siteId);
 							doError(request, response, "launch.role.missing", "siteId="+siteId, null);
