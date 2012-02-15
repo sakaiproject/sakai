@@ -55,7 +55,11 @@
                                 <span wicket:id="newsTime">[news time]</span>
                             </td>
                             <td class="tab three">
-                                <img wicket:id="icon" class="itemIcon"/><a href="#" wicket:id="itemLink" class="itemLink" target="_top">[item title]</a>
+                                <img wicket:id="icon" class="itemIcon"/>
+                                <a href="#" wicket:id="itemLink" class="itemLink" target="_top">
+                                	<span wicket:id="itemTitle">[ Item Title ]</span>
+                                	<span wicket:id="itemClick" class="skip">[ (click to view details) ]</span>
+                                </a>
                                 <span wicket:id="itemLabel">[Item Label]</span>
                                 <!-- class="itemLabel" will be added programmatically unless label is empty -->
                             </td>

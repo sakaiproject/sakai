@@ -255,6 +255,8 @@ public class CalendarLinksPanel extends Panel {
 			public void populateItem(final Item item) {
 				if(item != null && item.getModelObject() != null) {
 					item.setOutputMarkupId(true);
+					ResourceLoader rl = new ResourceLoader("dash_entity");
+					
 	                final CalendarLink cLink = (CalendarLink) item.getModelObject();
 	                final CalendarItem cItem = cLink.getCalendarItem();
 	                
@@ -295,7 +297,11 @@ public class CalendarLinksPanel extends Panel {
 					if(errorMessages != null && errorMessages.length() > 0) {
 						logger.warn("Error(s) encountered while cleaning calendarItem title:\n" + errorMessages);
 					}
-					item.add(new ExternalLink("itemLink", "#", title ));
+					ExternalLink itemLink = new ExternalLink("itemLink", "#");
+					itemLink.add(new Label("itemTitle",title));
+					itemLink.add(new Label("itemClick",rl.getString("dash.details")));
+					item.add(itemLink);
+					
 	                String calendarItemLabel = dashboardLogic.getString(cItem.getCalendarTimeLabelKey(), "", itemType);
 	                if(calendarItemLabel == null) {
 	                	calendarItemLabel = "";

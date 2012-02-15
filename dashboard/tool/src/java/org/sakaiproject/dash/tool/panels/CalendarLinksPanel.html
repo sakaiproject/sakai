@@ -52,7 +52,11 @@
                                 <span wicket:id="entityReference" class="entityReference" style="display:none;">[entity reference]</span>
                             </td>
                             <td class="tab two">
-                                <img wicket:id="icon" class="itemIcon"/><a href="#" wicket:id="itemLink" class="itemLink" target="_top">[Item Title]</a>
+                                <img wicket:id="icon" class="itemIcon"/>
+                                <a href="#" wicket:id="itemLink" class="itemLink" target="_top">
+                                	<span wicket:id="itemTitle">[ Item Title ]</span>
+                                	<span wicket:id="itemClick" class="skip">[ (click to view details) ]</span>
+                                </a>
                                 <span wicket:id="itemLabel" class="itemLabel">[Item Label]</span>
                             </td>
                             <td class="three">

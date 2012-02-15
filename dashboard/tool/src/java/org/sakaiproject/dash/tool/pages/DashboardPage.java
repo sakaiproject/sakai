@@ -110,6 +110,7 @@ public class DashboardPage extends BasePage {
                 Locale locale = hsr.getLocale();
  				if(entityReference != null && ! entityReference.trim().equals("") && entityType != null && ! entityType.trim().equals("")) {
  					if(itemCount > 1) {
+ 						ResourceLoader rl = new ResourceLoader("dash_entity");
  						int limit = dashboardConfig.getConfigValue(DashboardConfig.PROP_DEFAULT_ITEMS_IN_DISCLOSURE, 20);
  						if(offset < 0) {
  							offset = 0;
@@ -127,8 +128,9 @@ public class DashboardPage extends BasePage {
 							results.put("items", items);
 							results.put("count", items.size());
 						}
+						results.put("details", rl.getString("dash.details"));
 						results.put("offset", offset);
-						ResourceLoader rl = new ResourceLoader("dash_entity");
+						
 						results.put("more-link", rl.getString("dash.grouped.more.link", "[[ Show more ... ]]"));
 						results.put("more-status", rl.getString("dash.grouped.more.status", "[[ Showing {0} of {1} items ]]"));
 						results.put("more-status-last", rl.getString("dash.news.linksCount2", "[[ Showing item {0} of {1} items ]]"));
