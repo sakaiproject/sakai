@@ -55,8 +55,8 @@ should be included in file importing DeliveryMessages
       <f:verbatim><br /></f:verbatim>
       <h:outputText value="#{deliveryMessages.open_bracket}"/>
       <f:verbatim><span id="</f:verbatim><h:outputText value="details#{question.itemData.itemId}" /><f:verbatim>"></f:verbatim>
-      <h:outputText value="#{question.mediaArray[0].duration} sec, recorded on " rendered="#{!question.mediaArray[0].durationIsOver}" />
-      <h:outputText value="#{question.mediaArray[0].duration} sec, recorded on " rendered="#{question.mediaArray[0].durationIsOver}" />
+		<h:outputText value="#{question.mediaArray[0].duration} #{deliveryMessages.secs}, #{deliveryMessages.recorded_on} " rendered="#{!question.mediaArray[0].durationIsOver}" />
+		<h:outputText value="#{question.mediaArray[0].duration} #{deliveryMessages.secs}, #{deliveryMessages.recorded_on} " rendered="#{question.mediaArray[0].durationIsOver}" />
       <h:outputText value="#{question.mediaArray[0].createdDate}">
         <f:convertDateTime pattern="#{deliveryMessages.delivery_date_format}" />
       </h:outputText>

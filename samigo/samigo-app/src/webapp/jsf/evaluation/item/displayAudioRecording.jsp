@@ -41,8 +41,8 @@ should be included in file importing DeliveryMessages
         
       <f:verbatim><br /></f:verbatim>
       <h:outputText value="#{evaluationMessages.open_bracket}"/>
-      <h:outputText value="#{media.duration} sec, recorded on " rendered="#{!media.durationIsOver}" />
-      <h:outputText value="#{question.duration} sec, recorded on " rendered="#{media.durationIsOver}" />
+		<h:outputText value="#{media.duration} #{deliveryMessages.secs}, #{deliveryMessages.recorded_on} " rendered="#{!media.durationIsOver}" />
+		<h:outputText value="#{question.duration} #{deliveryMessages.secs}, #{deliveryMessages.recorded_on} " rendered="#{media.durationIsOver}" />
       <h:outputText value="#{media.createdDate}">
         <f:convertDateTime pattern="#{evaluationMessages.grading_date_no_time_format}" />
       </h:outputText>
