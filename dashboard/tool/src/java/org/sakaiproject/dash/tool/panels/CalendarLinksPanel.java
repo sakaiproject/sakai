@@ -337,6 +337,7 @@ public class CalendarLinksPanel extends Panel {
 										String javascript = "reportSuccess('" + rl.getString("dash.ajax.unstar.success") + "'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
 										target.appendJavascript(javascript);
 										target.appendJavascript("resizeFrame('grow');");
+										target.appendJavascript("$('#schedPanel').focus();");
 									}
 								}
 							}
@@ -396,6 +397,7 @@ public class CalendarLinksPanel extends Panel {
 									//String javascript = "alert('success. (" + thisRow.getMarkupId() + ")');";
 									//target.appendJavascript(javascript );
 									target.appendJavascript("resizeFrame('grow');");
+									target.appendJavascript("$('#schedPanel').focus();");
 								}
 							}
 							
@@ -455,6 +457,7 @@ public class CalendarLinksPanel extends Panel {
 									String javascript = "reportSuccess('" + rl.getString("dash.ajax.show.success") + "'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
 									target.appendJavascript(javascript );
 									target.appendJavascript("resizeFrame('grow');");
+									target.appendJavascript("$('#schedPanel').focus();");
 								}
 							}
 		                	
@@ -516,6 +519,7 @@ public class CalendarLinksPanel extends Panel {
 									String javascript = "reportSuccess('" + rl.getString("dash.ajax.hide.success") + "'," + jsonStr + ",'" + "not-sure-about-url-yet" + "');";
 									target.appendJavascript(javascript );
 									target.appendJavascript("resizeFrame('grow');");
+									target.appendJavascript("$('#schedPanel').focus();");
 								}
 							}
 		                	

@@ -300,7 +300,7 @@ public class NewsLinksPanel extends Panel {
 									target.appendJavascript(javascript );
 								}
 								target.appendJavascript("resizeFrame('grow');");
-								//target.appendJavascript("$('#newsPanel').focus();");
+								target.appendJavascript("$('#newsPanel').focus();");
 							}
 						}
 	                	
@@ -357,7 +357,7 @@ public class NewsLinksPanel extends Panel {
 								//target.appendJavascript(javascript );
 							}
 							target.appendJavascript("resizeFrame('grow');");
-							//target.appendJavascript("$('#newsPanel').focus();");
+							target.appendJavascript("$('#newsPanel').focus();");
 						}
 						
 	                };
