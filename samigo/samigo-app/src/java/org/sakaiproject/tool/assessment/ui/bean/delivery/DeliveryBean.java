@@ -926,6 +926,39 @@ public class DeliveryBean
    */
   public SettingsDeliveryBean getSettings()
   {
+    // SAM-1438 - We occasionally see the settings bean as null during
+    // submission, within a JSF phase of deliverAssessment.jsp but it is
+    // generally not reproducible. This block protects against the bug
+    // by loading up the settings for this assessment. They are not assigned
+    // to the local settings variable as to avoid changing any more behavior
+    // than is needed. This is effectively a failsafe and diagnostic that
+    // should not really be necessary.
+    if (settings == null) {
+      Session session = SessionManager.getCurrentSession();
+      StringBuilder sb = new StringBuilder(400);
+      sb.append("SAM-1438 - Delivery settings bean is null.\n");
+      if (session != null) {
+        sb.append("         - User EID  : ").append(session.getUserEid()).append("\n");
+        sb.append("         - User ID   : ").append(session.getUserId()).append("\n");
+        sb.append("         - Session ID: ").append(session.getId()).append("\n");
+      } else {
+        sb.append("         - Session is null. Cannot determine user.\n");
+      }
+      sb.append("         - Published Assessment ID: ");
+      SettingsDeliveryBean tempSettings = new SettingsDeliveryBean();
+      if (publishedAssessment == null) {
+        sb.append("<null>\n");
+      }
+      else {
+        sb.append(publishedAssessment.getPublishedAssessmentId()).append("\n");
+        sb.append("         - Assessment Title       : ").append(publishedAssessment.getTitle()).append("\n");
+        sb.append("         - Assessment Site ID     : ").append(publishedAssessment.getOwnerSiteId());
+        settings.setAssessmentAccessControl(publishedAssessment);
+      }
+      log.warn(sb.toString());
+      return tempSettings;
+    }
+
     return settings;
   }
 
