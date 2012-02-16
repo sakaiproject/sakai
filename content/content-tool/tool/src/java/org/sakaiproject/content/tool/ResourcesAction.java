@@ -55,6 +55,8 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.alias.api.AliasEdit;
+import org.sakaiproject.alias.cover.AliasService;
 import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.cover.AuthzGroupService;
@@ -775,6 +777,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	public static final String TYPE_URL = "Url";
 	
 	public static final String UTF_8_ENCODING = "UTF-8";
+	
+	/** Configuration: allow use of alias for site id in references. */
+	protected boolean m_siteAlias = true;
 	
 	// may need to distinguish permission on entity vs permission on its containing collection
 	static
@@ -5112,6 +5117,48 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{
 				context.put("isWinIEBrowser", Boolean.TRUE.toString());
 			}
+		}
+		
+		String siteId = ToolManager.getCurrentPlacement().getContext();
+		boolean changed = false;
+
+		if (!inMyWorkspace && !dropboxMode && m_siteAlias)
+		{
+			// find site alias first
+			List target = AliasService.getAliases("/site/" + siteId);		
+	
+			if (!target.isEmpty()) {
+				// take the first alias only
+				AliasEdit alias = (AliasEdit) target.get(0);
+				siteId = alias.getId();
+	
+				// if there is no a site id exists that matches the alias name
+				if (!SiteService.siteExists(siteId))
+				{
+					changed = true;
+				}
+			} else {
+				// use mail archive alias
+				target = AliasService.getAliases("/mailarchive/channel/" + siteId + "/main");
+	
+				if (!target.isEmpty()) {
+					// take the first alias only
+					AliasEdit alias = (AliasEdit) target.get(0);
+					siteId = alias.getId();
+	
+					// if there is no a site id exists that matches the alias name
+					if (!SiteService.siteExists(siteId))
+					{
+						changed = true;
+					}
+				}
+			}
+		}
+		
+		if (changed) {
+			context.put("site_alias", siteId);						
+		} else {
+			context.put("site_alias", "");								
 		}
 
 		return TEMPLATE_DAV;

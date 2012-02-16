@@ -85,6 +85,9 @@
 		#elseif("$!dropboxMode" == "true")
 			<strong>${server_url}${dav_group_user}$site_id/$user_id</strong>
 		#else
+			#if("${site_alias}" != "")
+				<strong>${server_url}${dav_group}${site_alias}</strong><br><br>
+			#end     
 			<strong>${server_url}${dav_group}$site_id</strong>
 		#end
 	</p>
