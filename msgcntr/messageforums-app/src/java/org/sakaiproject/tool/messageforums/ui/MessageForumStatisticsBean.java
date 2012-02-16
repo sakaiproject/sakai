@@ -1608,7 +1608,14 @@ public class MessageForumStatisticsBean {
 			public int compare(Object item, Object anotherItem){
 				int authored1 = ((DecoratedCompiledMessageStatistics) item).getAuthoredForumsAmt();
 				int authored2 = ((DecoratedCompiledMessageStatistics) anotherItem).getAuthoredForumsAmt();
-				return authored1 - authored2;
+				if(authored1 - authored2 == 0){
+					//we can't have descrepancies on how the order happens, otherwise jsf will scramble the scores
+					//with other scores that are equal to this (jsp submits twice, causing "sort" to happen between when
+					//the user enters the data and when it gets submitted in JSP (behind the scenes)
+					return nameComparatorAsc.compare(item, anotherItem);
+				}else{
+					return authored1 - authored2;
+				}
 			}
 		};
 		
@@ -1616,7 +1623,14 @@ public class MessageForumStatisticsBean {
 			public int compare(Object item, Object anotherItem){
 				int read1 = ((DecoratedCompiledMessageStatistics) item).getReadForumsAmt();
 				int read2 = ((DecoratedCompiledMessageStatistics) anotherItem).getReadForumsAmt();
-				return read1 - read2;
+				if(read1 - read2 == 0){
+					//we can't have descrepancies on how the order happens, otherwise jsf will scramble the scores
+					//with other scores that are equal to this (jsp submits twice, causing "sort" to happen between when
+					//the user enters the data and when it gets submitted in JSP (behind the scenes)
+					return nameComparatorAsc.compare(item, anotherItem);
+				}else{
+					return read1 - read2;
+				}
 			}
 		};
 		
@@ -1624,7 +1638,14 @@ public class MessageForumStatisticsBean {
 			public int compare(Object item, Object anotherItem){
 				int unread1 = ((DecoratedCompiledMessageStatistics) item).getUnreadForumsAmt();
 				int unread2 = ((DecoratedCompiledMessageStatistics) anotherItem).getUnreadForumsAmt();
-				return unread1 - unread2;
+				if(unread1 - unread2 == 0){
+					//we can't have descrepancies on how the order happens, otherwise jsf will scramble the scores
+					//with other scores that are equal to this (jsp submits twice, causing "sort" to happen between when
+					//the user enters the data and when it gets submitted in JSP (behind the scenes)
+					return nameComparatorAsc.compare(item, anotherItem);
+				}else{
+					return unread1 - unread2;
+				}
 			}
 		};
 		
@@ -1633,7 +1654,10 @@ public class MessageForumStatisticsBean {
 				double percentRead1 = ((DecoratedCompiledMessageStatistics) item).getPercentReadForumsAmt();
 				double percentRead2 = ((DecoratedCompiledMessageStatistics) anotherItem).getPercentReadForumsAmt();
 				if(percentRead1 == percentRead2){
-					return 0;
+					//we can't have descrepancies on how the order happens, otherwise jsf will scramble the scores
+					//with other scores that are equal to this (jsp submits twice, causing "sort" to happen between when
+					//the user enters the data and when it gets submitted in JSP (behind the scenes)
+					return nameComparatorAsc.compare(item, anotherItem);
 				}
 				else if(percentRead1 < percentRead2){
 					return -1;
@@ -1687,7 +1711,14 @@ public class MessageForumStatisticsBean {
 			public int compare(Object item, Object anotherItem){
 				int authored1 = ((DecoratedCompiledMessageStatistics) item).getAuthoredForumsAmt();
 				int authored2 = ((DecoratedCompiledMessageStatistics) anotherItem).getAuthoredForumsAmt();
-				return authored2 - authored1;
+				if(authored1 - authored2 == 0){
+					//we can't have descrepancies on how the order happens, otherwise jsf will scramble the scores
+					//with other scores that are equal to this (jsp submits twice, causing "sort" to happen between when
+					//the user enters the data and when it gets submitted in JSP (behind the scenes)
+					return nameComparatorAsc.compare(item, anotherItem);
+				}else{
+					return authored2 - authored1;
+				}
 			}
 		};
 		
@@ -1695,7 +1726,14 @@ public class MessageForumStatisticsBean {
 			public int compare(Object item, Object anotherItem){
 				int read1 = ((DecoratedCompiledMessageStatistics) item).getReadForumsAmt();
 				int read2 = ((DecoratedCompiledMessageStatistics) anotherItem).getReadForumsAmt();
-				return read2 - read1;
+				if(read1 - read2 == 0){
+					//we can't have descrepancies on how the order happens, otherwise jsf will scramble the scores
+					//with other scores that are equal to this (jsp submits twice, causing "sort" to happen between when
+					//the user enters the data and when it gets submitted in JSP (behind the scenes)
+					return nameComparatorAsc.compare(item, anotherItem);
+				}else{
+					return read2 - read1;
+				}
 			}
 		};
 		
@@ -1703,7 +1741,14 @@ public class MessageForumStatisticsBean {
 			public int compare(Object item, Object anotherItem){
 				int unread1 = ((DecoratedCompiledMessageStatistics) item).getUnreadForumsAmt();
 				int unread2 = ((DecoratedCompiledMessageStatistics) anotherItem).getUnreadForumsAmt();
-				return unread2 - unread1;
+				if(unread1 - unread2 == 0){
+					//we can't have descrepancies on how the order happens, otherwise jsf will scramble the scores
+					//with other scores that are equal to this (jsp submits twice, causing "sort" to happen between when
+					//the user enters the data and when it gets submitted in JSP (behind the scenes)
+					return nameComparatorAsc.compare(item, anotherItem);
+				}else{
+					return unread2 - unread1;
+				}
 			}
 		};
 		
@@ -1712,7 +1757,10 @@ public class MessageForumStatisticsBean {
 				double percentRead1 = ((DecoratedCompiledMessageStatistics) item).getPercentReadForumsAmt();
 				double percentRead2 = ((DecoratedCompiledMessageStatistics) anotherItem).getPercentReadForumsAmt();
 				if(percentRead1 == percentRead2){
-					return 0;
+					//we can't have descrepancies on how the order happens, otherwise jsf will scramble the scores
+					//with other scores that are equal to this (jsp submits twice, causing "sort" to happen between when
+					//the user enters the data and when it gets submitted in JSP (behind the scenes)
+					return nameComparatorAsc.compare(item, anotherItem);
 				}
 				else if(percentRead1 < percentRead2){
 					return 1;
@@ -1880,7 +1928,10 @@ public class MessageForumStatisticsBean {
 				}catch(NumberFormatException e){					
 				}
 				
-				return 0;
+				//we can't have descrepancies on how the order happens, otherwise jsf will scramble the scores
+				//with other scores that are equal to this (jsp submits twice, causing "sort" to happen between when
+				//the user enters the data and when it gets submitted in JSP (behind the scenes)
+				return nameComparatorAsc.compare(item, anotherItem);
 			}
 		};
 		
@@ -1917,7 +1968,11 @@ public class MessageForumStatisticsBean {
 				}catch(NumberFormatException e){
 				}
 				
-				return 0;
+				//we can't have descrepancies on how the order happens, otherwise jsf will scramble the scores
+				//with other scores that are equal to this (jsp submits twice, causing "sort" to happen between when
+				//the user enters the data and when it gets submitted in JSP (behind the scenes)
+				return nameComparatorAsc.compare(item, anotherItem);
+				
 			}
 		};
 	}
