@@ -205,6 +205,7 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
+            <checksumPolicy>ignore</checksumPolicy>
         </repository>
         <repository>
             <id>sakai-maven2-snapshots</id>
@@ -214,6 +215,7 @@
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
+            <checksumPolicy>ignore</checksumPolicy>
         </repository>
         <repository>
             <id>default</id>
@@ -223,6 +225,7 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
+            <checksumPolicy>ignore</checksumPolicy>
         </repository>
         <!--
             This is not needed now that pluto have been released
