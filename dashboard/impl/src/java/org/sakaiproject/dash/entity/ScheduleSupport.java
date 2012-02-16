@@ -809,17 +809,14 @@ public class ScheduleSupport{
 					// need to get each item in sequence and update its time
 					Map<Integer, Date> dates = scheduleEntityType.generateRepeatingEventDates(entityReference, newStartTime, dashboardLogic.getRepeatingEventHorizon());
 					Integer firstSequenceNumber = findSmallest(dates.keySet());
-					Integer lastSequenceNumber = findLargest(dates.keySet());
 					
 					SortedSet<Integer> futureSequenceNumbers = dashboardLogic.getFutureSequnceNumbers(entityReference, calendarTimeLabelKey, firstSequenceNumber);
-					
-					// lastNeededIndex is the index of the last item in the list of items that are needed when we finish.
-					int lastNeededIndex = 0;
 					
 					for(Map.Entry<Integer, Date> entry : dates.entrySet()) {
 						if(futureSequenceNumbers.contains(entry.getKey())) {
 							// update each existing calendar-item
 							dashboardLogic.reviseCalendarItemTime(entityReference, calendarTimeLabelKey, entry.getKey(), entry.getValue());
+							futureSequenceNumbers.remove(entry.getKey());
 						} else {
 							// add new calendar-items as needed
 							CalendarItem calendarItem = dashboardLogic.createCalendarItem(repeater.getTitle(), entry.getValue(), calendarTimeLabelKey, entityReference, repeater.getContext(), repeater.getSourceType(), repeater.getSubtype(), repeater, entry.getKey());
@@ -834,17 +831,13 @@ public class ScheduleSupport{
 							}
 							logger.debug(msg);
 						}
-						if(entry.getKey().intValue() > lastNeededIndex) {
-							lastNeededIndex = entry.getKey().intValue();
-						}
 					}
-						
+					
+					// futureSequenceNumbers now contains only the id's of existing calendar-items that need to be removed
 					for(Integer seqNum : futureSequenceNumbers) {
-						if(! dates.keySet().contains(seqNum)) {
-							CalendarItem item = dashboardLogic.getCalendarItem(entityReference, calendarTimeLabelKey, seqNum);
-							dashboardLogic.removeCalendarLinks(entityReference, calendarTimeLabelKey, seqNum.intValue());
-							dashboardLogic.removeCalendarItem(entityReference, calendarTimeLabelKey, seqNum);
-						}
+						CalendarItem item = dashboardLogic.getCalendarItem(entityReference, calendarTimeLabelKey, seqNum);
+						dashboardLogic.removeCalendarLinks(entityReference, calendarTimeLabelKey, seqNum.intValue());
+						dashboardLogic.removeCalendarItem(entityReference, calendarTimeLabelKey, seqNum);
 					}
 				}
 				
