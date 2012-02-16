@@ -4345,11 +4345,15 @@ public abstract class BaseCitationService implements CitationService
 	 */
 	public Collection getEntityAuthzGroups(Reference ref, String userId)
 	{
-		// entities that are actually in /content use the /content authz groups
+		Collection azGroups = null;
+		
+		// entities that are actually in /content use the /content authz groups 
+		if(ref != null && ref.getReference() != null && ref.getReference().startsWith("/citation/content/")) {
+			String altRef = ref.getReference().substring("/citation".length());
+			azGroups = m_contentHostingService.getEntityAuthzGroups(m_entityManager.newReference(altRef), userId);
+		}
 
-		// those in /citation are open?
-
-		return null;
+		return azGroups;
 	}
 
 	/*
