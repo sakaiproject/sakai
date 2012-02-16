@@ -2612,7 +2612,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		public String findGroupSiteId(String id);
 
 		/**
-		 * Read site pages from storage into the site's pages.
+		 * Read site groups from storage into the site's groups.
 		 * 
 		 * @param site
 		 *        The site for which groups are desired.
