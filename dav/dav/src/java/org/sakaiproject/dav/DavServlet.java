@@ -122,6 +122,7 @@ import org.apache.catalina.util.RequestUtil;
 import org.apache.catalina.util.XMLWriter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.alias.cover.AliasService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
@@ -132,8 +133,10 @@ import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
@@ -148,6 +151,7 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.cover.TimeService;
@@ -270,6 +274,9 @@ public class DavServlet extends HttpServlet
 	 */
 	protected static final int STREAM_BUFFER_SIZE = 102400;
 
+	/** Configuration: allow use of alias for site id in references. */
+	protected boolean m_siteAlias = true;        
+
         // can be called on id with or withing adjustid, since
         // the prefixes we check for are not adjusted
         protected boolean prohibited(String id) {
@@ -325,9 +332,8 @@ public class DavServlet extends HttpServlet
 			}
 		}
 
-		// TODO: alias for site
-
 		// recognize /user/EID and makeit /user/ID
+		// change /group/alias_name and make it /group/site_id
 		String parts[] = StringUtil.split(id, Entity.SEPARATOR);
 		if (parts.length >= 3)
 		{
@@ -359,6 +365,56 @@ public class DavServlet extends HttpServlet
 						// if context was not a valid EID, leave it alone
 					}
 				}
+				
+			} 
+			else if (parts[1].equals("group"))
+			{
+				String context = parts[2];
+
+ 				// recognize alias for site id - but if a site id exists that matches the requested site id, that's what we will use
+ 				if (m_siteAlias && (context != null) && (context.length() > 0))
+ 				{
+ 					if (!SiteService.siteExists(context))
+ 					{
+ 						try
+ 						{
+ 							String target = AliasService.getTarget(context);
+							Reference targetRef = EntityManager.newReference(target);
+ 							boolean changed = false;
+
+ 							// for a site reference
+ 							if (SiteService.APPLICATION_ID.equals(targetRef.getType()))
+ 							{
+ 								// use the ref's id, i.e. the site id
+ 								context = targetRef.getId();
+ 								changed = true;
+ 							}
+
+ 							// for mail archive reference
+ 							// TODO: taken from MailArchiveService.APPLICATION_ID to (fake) reduce a dependency -ggolden
+ 							else if ("sakai:mailarchive".equals(targetRef.getType()))
+ 							{
+ 								// use the ref's context as the site id
+ 								context = targetRef.getContext();
+ 								changed = true;
+ 							}
+
+ 							// if changed, update the id
+ 							if (changed)
+ 							{
+ 								parts[2] = context;
+ 								String newId = StringUtil.unsplit(parts, Entity.SEPARATOR);
+			
+								// add the trailing separator if needed
+ 								if (id.endsWith(Entity.SEPARATOR)) newId += Entity.SEPARATOR;
+ 								id = newId;
+ 							}
+ 						}
+ 						catch (IdUnusedException noAlias)
+ 						{
+ 						}
+ 					}
+ 				}         
 			}
 		}
 		// recognize /group-user/SITE_ID/USER_EID and make it /group-user/SITE_ID/USER_ID 
