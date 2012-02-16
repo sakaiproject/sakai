@@ -52,7 +52,7 @@ a.lastBreadCrumb{
         display:inline;
 }
 #siteHierarchy li a, #siteHierarchy li a:visited{
-        color:#09c;
+        color:#15a;
 }
 
 /*wrapper for site content (includes as children #toolMenuWrap,#content and #footer)*/
@@ -218,7 +218,7 @@ that can be used or hidden,can also use a background:url(images/<image name>.<ex
 
 /*login links for CAS,logout link*/
 #mastLogin a,#mastLogin a:visited{
-	color: #09c;
+	color: #15a;
 	margin-top: 0;
 }
 
@@ -581,7 +581,7 @@ also hide if are going to be using icon links (as background of <a> nad <li>
 #subSites li a:link,#subSites li a{
 	display: block;
 	text-decoration: underline;
-	color: #09c;
+	color: #15a;
 	padding-bottom : 2px;
     padding-right : 23px !important;
     padding-top : 2px;
@@ -951,7 +951,7 @@ below they are contextually defined depending on the column as an example,as you
 
 /*a third wrapper - reserved for copyright blurbs*/
 .sakaiCopyrightInfo{
-	color: #09c;
+	color: #15a;
 }
 
 /*PART 8 - CONVENIENCE*/

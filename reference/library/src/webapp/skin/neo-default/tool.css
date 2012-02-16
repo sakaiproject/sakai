@@ -739,7 +739,7 @@ visibility gets toggled*/
 you loose the native buttonishness affordance of the os/browser */
 /*create any item - like an announcement*/
 .act .active {
-	color:#27d
+	color:#15a
 }
 .act .active[disabled="disabled"] {
 	color:gray
