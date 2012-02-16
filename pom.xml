@@ -36,6 +36,7 @@
         <profile>
             <id>pack</id>
             <modules>
+		<module>master</module>
                 <module>pack/pack-src</module>
                 <module>pack/pack-bin</module>
                 <module>pack/pack-demo</module>
@@ -44,18 +45,21 @@
         <profile>
             <id>pack-bin</id>
             <modules>
+	        <module>master</module>
                 <module>pack/pack-bin</module>
             </modules>
         </profile>
         <profile>
             <id>pack-demo</id>
             <modules>
+                <module>master</module>
                 <module>pack/pack-demo</module>
             </modules>
         </profile>
         <profile>
             <id>pack-src</id>
             <modules>
+                <module>master</module>
                 <module>pack/pack-src</module>
             </modules>
         </profile>
@@ -63,7 +67,7 @@
             <id>framework</id>
             <modules>
                 <module>kernel-deploy</module>
-		        <module>framework-shared-deploy</module>
+                <module>framework-shared-deploy</module>
                 <module>jstl-shared-deploy</module>
                 <module>access</module>
                 <module>alias</module>
