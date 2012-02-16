@@ -839,14 +839,11 @@ public class ScheduleSupport{
 						}
 					}
 						
-					// remove any that would now be beyond the horizon
-					if(lastSequenceNumber.intValue() > lastNeededIndex) {
-						for(Integer seqNum : futureSequenceNumbers) {
-							if(seqNum.intValue() > lastNeededIndex) {
-								CalendarItem item = dashboardLogic.getCalendarItem(entityReference, calendarTimeLabelKey, seqNum);
-								dashboardLogic.removeCalendarLinks(entityReference, calendarTimeLabelKey, seqNum.intValue());
-								dashboardLogic.removeCalendarItem(entityReference, calendarTimeLabelKey, seqNum);
-							}
+					for(Integer seqNum : futureSequenceNumbers) {
+						if(! dates.keySet().contains(seqNum)) {
+							CalendarItem item = dashboardLogic.getCalendarItem(entityReference, calendarTimeLabelKey, seqNum);
+							dashboardLogic.removeCalendarLinks(entityReference, calendarTimeLabelKey, seqNum.intValue());
+							dashboardLogic.removeCalendarItem(entityReference, calendarTimeLabelKey, seqNum);
 						}
 					}
 				}
