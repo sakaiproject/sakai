@@ -27,7 +27,8 @@
 	
 	<target name="deploy" depends="prep" description="Build and deploy to target directory.">
 	    <echo message="[INFO] build and deploy Sakai artifacts to /target/pack (faux Tomcat deployment)." />
-	    <exec dir="../../" executable="mvn" failonerror="true">
+    	    <echo>Your OS name is: ${os.name}. If sakai doesn't start to install you might need to add it to the list of OSes.</echo>
+	    <exec dir="../../" executable="mvn" failonerror="true" os="Mac OS X,Linux,FreeBSD,Solaris">
 	        <arg value="-Dmaven.tomcat.home=${basedir}/target/pack" />
 	        <arg value="-Dmaven.test.skip=${sakai.skip.tests}" />
 	        <!-- 
@@ -39,6 +40,22 @@
 	        <arg value="install" />
 	        <arg value="sakai:deploy" />
 	    </exec>
+	    <!-- osfamily Tested on Windows 7 , (Fill in others) -->
+            <exec dir="../../" executable="cmd" failonerror="true" osfamily="windows">
+                <arg value="/c" />
+                <arg value="mvn.bat" />
+                <arg value="-Dmaven.tomcat.home=${basedir}\target\pack" />
+                <arg value="-Dmaven.test.skip=${sakai.skip.tests}" />
+                <!-- next 3 lines *may* be optional so leaving them out, add back in if needed for windows build
+                <arg value="-Dkeystore=${keystore}" />
+                <arg value="-Dalias=${alias}" />
+                <arg value="-Dstorepass=${storepass}" />
+                -->
+                <arg value="clean" />
+                <arg value="install" />
+                <arg value="sakai:deploy" />
+	    </exec>
+
 	</target>
 	
 	<target name="delete" depends="deploy" description="Delete extraneous directories.">

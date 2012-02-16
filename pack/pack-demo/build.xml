@@ -58,7 +58,7 @@
 	<target name="build" depends="move" description="Build and deploy Sakai to Tomcat.">
 	    <echo message="[INFO] Build and deploy Sakai to Tomcat." />
 	    <!-- OS Values from http://mindprod.com/jgloss/properties.html#OSNAME -->
-	    <echo>Your OS name is: ${os.name} If this doesn't do anything you might need to add it to the list of OSes.</echo>
+	    <echo>Your OS name is: ${os.name}. If sakai doesn't start to install you might need to add it to the list of OSes.</echo>
 	    <exec dir="../../" executable="mvn" failonerror="true" os="Mac OS X,Linux,FreeBSD,Solaris">
 	        <!-- <arg value="-B" /> -->
 	    	<arg value="-Dmaven.tomcat.home=${basedir}/target/pack" />
@@ -72,8 +72,8 @@
 	        <arg value="install" />
 	        <arg value="sakai:deploy" />
 	    </exec>
-	    <echo>Tested on Windows Server 2008, (Fill in others)</echo>
-            <exec dir="../../" executable="cmd" failonerror="true" os="Windows 98,Windows NT,Windows 2000,Windows XP,Windows 7,Windows Vista,Windows Server 2008,Windows Server 2005">
+	    <!-- osfamily tested on Windows 7 , (Fill in others) -->
+            <exec dir="../../" executable="cmd" failonerror="true" osfamily="windows">
                 <arg value="/c" />
                 <arg value="mvn.bat" />
                 <arg value="-Dmaven.tomcat.home=${basedir}\target\pack" />
