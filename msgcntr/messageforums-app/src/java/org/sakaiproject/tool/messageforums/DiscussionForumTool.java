@@ -7797,6 +7797,7 @@ public class DiscussionForumTool
 		 DiscussionTopic topic = forumManager.getTopicById(Long.valueOf(topicId));
 		 setSelectedForumForCurrentTopic(topic);		
 		 selectedTopic = getDecoratedTopic(topic);
+		 selectedForum = getDecoratedForum(forum);
 
 		 if (uiPermissionsManager.isRead((DiscussionTopic)topic, forum)) {
 			 List messageList = messageManager.findMessagesByTopicId(topic.getId());
