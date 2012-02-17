@@ -71,8 +71,7 @@ public abstract class EnrollmentTableBean
 				RuleBasedCollator collator= new RuleBasedCollator(collator_ini.getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
 				return collator.compare(o1.getUser().getSortName(), o2.getUser().getSortName());
 			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("ERROR: EnrollmentTableBean had an issue parsing users: " + o1.getUser().getSortName() + " and " + o2.getUser().getSortName(),e);
 			}
 		    return Collator.getInstance().compare(o1.getUser().getSortName(), o2.getUser().getSortName());
 		}
