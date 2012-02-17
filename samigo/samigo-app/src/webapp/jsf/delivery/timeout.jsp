@@ -40,7 +40,7 @@
   <!-- content... -->
   <h3><h:outputText value="#{deliveryMessages.timeout}"/></h3>
  <h:form id="removeTemplateForm">
-  <div class="validation">
+  <div class="messageSamigo">
        <h:outputText value="#{deliveryMessages.timeout_save}" escape="false"
          rendered="#{!delivery.settings.autoSubmit}" />
        <h:outputText value="#{deliveryMessages.timeout_submit}" escape="false"
