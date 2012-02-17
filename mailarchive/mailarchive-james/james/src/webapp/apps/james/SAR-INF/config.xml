@@ -457,9 +457,8 @@ Regards, Postmaster XXX.YYY
          <!--CHANGED: enabled -->
          <mailet match="All" class="Bounce"/>
          <!-- If you want to notify the postmaster that a message generated an error, uncomment this  -->
-         <!--
+         <!-- SAKAI: uncommented -->
          <mailet match="All" class="NotifyPostmaster"/>
-         -->
 
          <!-- Logs any messages to the repository specified -->
          <!-- CHANGED: no logging
@@ -705,24 +704,25 @@ Regards, Postmaster XXX.YYY
 
          <!-- To notify the sender the address was invalid, uncomment this matcher/mailet configuration -->
          <!-- The original message is not attached to keep the bounce processor from deliverying spam -->
-         <!--
+         <!--  SAKAI: uncommented -->
          <mailet match="All" class="Bounce">
             <attachment>none</attachment>
          </mailet>
-         -->
 
          <!-- To notify the postmaster that a message had an invalid address, uncomment this matcher/mailet configuration -->
          <!--
          <mailet match="All" class="NotifyPostmaster"/>
          -->
 
+         <!--  SAKAI: commented
          <mailet match="All" class="ToRepository">
-            <repositoryPath> file://var/mail/address-error/</repositoryPath>
+            <repositoryPath> file://var/mail/address-error/</repositoryPath> -->
             <!-- An alternative database repository example follows. -->
             <!--
             <repositoryPath> db://maildb/deadletter/address-error </repositoryPath>
             -->
-         </mailet>
+         <!--  SAKAI: commented
+         </mailet> -->
       </processor>
 
       <!-- This processor handles messages that are for foreign domains, where relaying is denied -->

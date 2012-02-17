@@ -25,6 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
@@ -51,8 +52,8 @@ import org.apache.mailet.GenericMailet;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.sakaiproject.alias.api.AliasService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.EntityManager;
@@ -94,6 +95,43 @@ public class SakaiMailet extends GenericMailet
 	// used when parsing email header parts
 	private static final String NAME_PREFIX = "name=";
 
+    private static String PROCESSOR_ROOT = "root";
+    private static String PROCESSOR_ERROR = Mail.ERROR;
+    private static String PROCESSOR_TRANSPORT = Mail.TRANSPORT;
+	/* 
+	 * root processor is first (redirects to transport mostly), then error, then transport (which is where the SakaiMailet is engaged)
+	 * then the processors in the order listed below
+	 * 
+	 * From: http://james.apache.org/server/2.3.0/spoolmanager_configuration.html
+	 * The James SpoolManager creates a correspondence between processor names and the "state" of a mail as defined in the Mailet API. 
+	 * Specifically, after each mailet processes a mail, the state of the message is examined. 
+	 * If the state has been changed, the message does not continue in the current processor. 
+	 * If the new state is "ghost" then processing of that message terminates completely. 
+	 * If the new state is anything else, the message is re-routed to the processor with the name matching the new state.
+	 */
+    private static String PROCESSOR_SPAM = "spam";
+    private static String PROCESSOR_VIRUS = "virus";
+    private static String PROCESSOR_LOCAL_ADDRESS_ERROR = "local-address-error";
+    private static String PROCESSOR_RELAY_DENIED = "relay-denied";
+    private static String PROCESSOR_BOUNCES = "bounces";
+    // indicates no more processing should occur
+    private static String PROCESSOR_GHOST = Mail.GHOST;
+    /**
+     * The james processor order - NOTE: this MUST match with the config in:
+     * /sakai-mailarchive-james/src/webapp/apps/james/SAR-INF/config.xml
+     */
+    private static String[] PROCESSORS = {
+        PROCESSOR_ROOT,
+        PROCESSOR_ERROR,
+        PROCESSOR_TRANSPORT,
+        PROCESSOR_SPAM,
+        PROCESSOR_VIRUS,
+        PROCESSOR_LOCAL_ADDRESS_ERROR,
+        PROCESSOR_RELAY_DENIED,
+        PROCESSOR_BOUNCES,
+        PROCESSOR_GHOST
+    };
+
 	private AliasService aliasService = null;
 	private ContentHostingService contentHostingService = null;
 	private EntityManager entityManager = null;
@@ -102,8 +140,13 @@ public class SakaiMailet extends GenericMailet
 	private TimeService timeService = null;
 	private SessionManager sessionManager = null;
 	private UserDirectoryService userDirectoryService = null;
+	private ServerConfigurationService serverConfigurationService = null;
 
-	/**
+    private String courseMailArchiveDisabledProcessor = null;
+	private String courseMailArchiveNotExistsProcessor = null;
+    private String userNotAllowedToPostProcessor = null;
+
+    /**
 	 * Called when created.
 	 */
 	public void init() throws MessagingException
@@ -118,6 +161,28 @@ public class SakaiMailet extends GenericMailet
 		timeService = requireService(TimeService.class);
 		sessionManager = requireService(SessionManager.class);
 		userDirectoryService = requireService(UserDirectoryService.class);
+		serverConfigurationService = requireService(ServerConfigurationService.class);
+
+		// load up the configuration options for the sakai mailet processor
+        courseMailArchiveDisabledProcessor = serverConfigurationService.getString("smtp.archive.disabled.processor", PROCESSOR_GHOST);
+        if (courseMailArchiveDisabledProcessor == null 
+                || "none".equalsIgnoreCase(courseMailArchiveDisabledProcessor)
+                || !Arrays.asList(PROCESSORS).contains(courseMailArchiveDisabledProcessor)) {
+            courseMailArchiveDisabledProcessor = PROCESSOR_GHOST; // DEFAULT
+        }
+		courseMailArchiveNotExistsProcessor = serverConfigurationService.getString("smtp.archive.address.invalid.processor", PROCESSOR_GHOST);
+        if (courseMailArchiveNotExistsProcessor == null 
+                || "none".equalsIgnoreCase(courseMailArchiveNotExistsProcessor)
+                || !Arrays.asList(PROCESSORS).contains(courseMailArchiveNotExistsProcessor)) {
+            courseMailArchiveNotExistsProcessor = PROCESSOR_GHOST; // DEFAULT
+        }
+		userNotAllowedToPostProcessor = serverConfigurationService.getString("smtp.user.not.allowed.processor", PROCESSOR_GHOST);
+        if (userNotAllowedToPostProcessor == null 
+                || "none".equalsIgnoreCase(userNotAllowedToPostProcessor)
+                || !Arrays.asList(PROCESSORS).contains(userNotAllowedToPostProcessor)) {
+            userNotAllowedToPostProcessor = PROCESSOR_GHOST; // DEFAULT
+        }
+        M_log.info("MailArchiveDisabledProcessor="+courseMailArchiveDisabledProcessor+", MailArchiveNotExistsProcessor="+courseMailArchiveNotExistsProcessor+", UserNotAllowedToPostProcessor"+userNotAllowedToPostProcessor);
 	}
 
 	/**
@@ -289,15 +354,14 @@ public class SakaiMailet extends GenericMailet
 	                    M_log.warn("mailarchive failure: message processing cancelled: PermissionException with channelRef ("+channelRef
 	                            +") - user not allowed to get this mail archive channel: (id="+id+") (mailId="+mailId+") (user="
                                 +sessionManager.getCurrentSessionUserId()+") (session="+sessionManager.getCurrentSession().getId()+"): " + e, e);
-	                    // TODO send the not member message - not really completely accurate here though
 	                    // BOUNCE REPLY - send a message back to the user to let them know their email failed
                         String errMsg = rb.getString("err_not_member") + "\n\n";
-                        String mailSupport = StringUtils.trimToNull( ServerConfigurationService.getString("mail.support") );
+                        String mailSupport = StringUtils.trimToNull( serverConfigurationService.getString("mail.support") );
                         if ( mailSupport != null ) {
                             errMsg +=(String) rb.getFormattedMessage("err_questions",  new Object[]{mailSupport})+"\n";
                         }
                         mail.setErrorMessage(errMsg);
-                        mail.setState(Mail.ERROR);
+                        mail.setState(userNotAllowedToPostProcessor);
                         continue;
                     }
 
@@ -339,15 +403,14 @@ public class SakaiMailet extends GenericMailet
                             M_log.warn("mailarchive failure: message processing cancelled: PermissionException with channelRef ("+channelRef
                                     +") - user not allowed to get this mail archive channel: (id="+id+") (mailId="+mailId+") (user="
                                     +sessionManager.getCurrentSessionUserId()+") (session="+sessionManager.getCurrentSession().getId()+"): " + e, e);
-                            // TODO send the not member message - not really completely accurate here though
                             // BOUNCE REPLY - send a message back to the user to let them know their email failed
                             String errMsg = rb.getString("err_not_member") + "\n\n";
-                            String mailSupport = StringUtils.trimToNull( ServerConfigurationService.getString("mail.support") );
+                            String mailSupport = StringUtils.trimToNull( serverConfigurationService.getString("mail.support") );
                             if ( mailSupport != null ) {
                                 errMsg +=(String) rb.getFormattedMessage("err_questions",  new Object[]{mailSupport})+"\n";
                             }
                             mail.setErrorMessage(errMsg);
-                            mail.setState(Mail.ERROR);
+                            mail.setState(userNotAllowedToPostProcessor);
                             continue;
                         }
                         if (M_log.isDebugEnabled()) {
@@ -371,12 +434,12 @@ public class SakaiMailet extends GenericMailet
 						} else {
 		                    // BOUNCE REPLY - send a message back to the user to let them know their email failed
 							String errMsg = rb.getString("err_email_off") + "\n\n";
-							String mailSupport = StringUtils.trimToNull( ServerConfigurationService.getString("mail.support") );
+							String mailSupport = StringUtils.trimToNull( serverConfigurationService.getString("mail.support") );
 							if ( mailSupport != null ) {
 								errMsg +=(String) rb.getFormattedMessage("err_questions",  new Object[]{mailSupport})+"\n";
 							}
 							mail.setErrorMessage(errMsg);
-                            mail.setState(Mail.ERROR);
+                            mail.setState(courseMailArchiveDisabledProcessor);
 						}
 
                         if (M_log.isInfoEnabled()) {
@@ -397,12 +460,12 @@ public class SakaiMailet extends GenericMailet
 		                    }
 		                    // BOUNCE REPLY - send a message back to the user to let them know their email failed
 							String errMsg = rb.getString("err_not_member") + "\n\n";
-							String mailSupport = StringUtils.trimToNull( ServerConfigurationService.getString("mail.support") );
+							String mailSupport = StringUtils.trimToNull( serverConfigurationService.getString("mail.support") );
 							if ( mailSupport != null ) {
 								errMsg +=(String) rb.getFormattedMessage("err_questions",  new Object[]{mailSupport})+"\n";
 							}
 							mail.setErrorMessage(errMsg);
-		                    mail.setState(Mail.ERROR);
+		                    mail.setState(userNotAllowedToPostProcessor);
 							continue;
 						}
 					}
@@ -460,7 +523,7 @@ public class SakaiMailet extends GenericMailet
                         		}
                         	}
                         	// Note: can't use recipient, since it's host may be configured as mailId@myhost.james
-                        	String mailHost = ServerConfigurationService.getServerName();
+                        	String mailHost = serverConfigurationService.getServerName();
                         	if ( mailHost == null || mailHost.trim().equals("") )
                         		mailHost = mail.getRemoteHost();
               
@@ -484,7 +547,7 @@ public class SakaiMailet extends GenericMailet
                         // INDICATES that the current user does not have permission to add or get the mail archive message from the current channel
                         // This generally should not happen because the current user should be the postmaster
                         M_log.warn("mailarchive PermissionException message service failure: (id="+id+") (mailId="+mailId+") : " + pe, pe);
-                        mail.setState(Mail.GHOST); // ghost the message to stop it from being further processed
+                        mail.setState(Mail.GHOST); // ghost out the message because this should not happen
                     }
 
                     if (M_log.isDebugEnabled()) {
@@ -510,16 +573,16 @@ public class SakaiMailet extends GenericMailet
 					    M_log.info("mailarchive invalid or unusable channel reference ("+mailId+"): "+id + " : mail rejected: " + goOn.toString());
 					}
 					String errMsg = rb.getString("err_addr_unknown") + "\n\n";
-					String mailSupport = StringUtils.trimToNull( ServerConfigurationService.getString("mail.support") );
+					String mailSupport = StringUtils.trimToNull( serverConfigurationService.getString("mail.support") );
 					if ( mailSupport != null ) {
 						errMsg +=(String) rb.getFormattedMessage("err_questions",  new Object[]{mailSupport})+"\n";
 					}
 					mail.setErrorMessage(errMsg);
-                    mail.setState(Mail.ERROR);
+                    mail.setState(courseMailArchiveNotExistsProcessor);
 				}
 				catch (Exception ex)
 				{
-                    // INDICATES that some general exception has occurred which we did not except
+                    // INDICATES that some general exception has occurred which we did not expect
 			        // This definitely should NOT happen
 					M_log.error("mailarchive General message service exception: (id="+id+") (mailId="+mailId+") : " + ex, ex);
                     mail.setState(Mail.GHOST); // ghost the message to stop it from being further processed
