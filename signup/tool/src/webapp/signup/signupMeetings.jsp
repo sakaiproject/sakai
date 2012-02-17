@@ -195,14 +195,14 @@
 							<f:facet name="header">
 								<h:outputText value="#{msgs.tab_event_remove}" escape="false"/>
 							</f:facet>
-							<h:selectBooleanCheckbox value="#{wrapper.selected}" rendered="#{wrapper.meeting.permission.delete}"/>
+							<h:selectBooleanCheckbox value="#{wrapper.selected}" rendered="#{wrapper.meeting.permission.delete}" onclick="determineDeleteMessage(this, #{wrapper.recurEventsSize >1});"/>							
 						</t:column>				
 						
 					</t:dataTable>
 					
 					<h:panelGrid columns="1">
 						<h:outputText value="&nbsp;" escape="false"/>
-						<h:commandButton id="removeMeetings" action="#{SignupMeetingsBean.removeMeetings}" value="#{msgs.event_removeButton}" onclick='return confirm("#{msgs.meeting_confirmation_to_remove}");' rendered="#{SignupMeetingsBean.allowedToDelete}"/>
+						<h:commandButton id="removeMeetings" action="#{SignupMeetingsBean.removeMeetings}" value="#{msgs.event_removeButton}" onclick='return confirm(getDeleteMessage());' rendered="#{SignupMeetingsBean.allowedToDelete}"/>
 					</h:panelGrid>
 				</h:panelGroup>
 			 </h:form>
@@ -320,6 +320,31 @@
 				}
 				
 				return false;
+			}
+			
+			/* Determines what delete message to use in the confirm box. 
+			 * If we are only deleting singles then you get the normal message, but if any of the selections are the first one in a recurring meeting
+			 * then the msg changes.
+			 */
+			var deleteMultipleCount = 0;
+			function determineDeleteMessage(elem, multiple) {
+				
+				if(multiple) {
+					if (elem.checked == true) {
+						deleteMultipleCount++;
+					} else {
+						deleteMultipleCount--;
+					}
+				}
+			}
+			
+			/* If we have selected one or more checkboxes that contain multiples to delete, then return the appropriate message */
+			function getDeleteMessage() {
+				
+				if(deleteMultipleCount > 0) {
+					return '<h:outputText value="#{msgs.meeting_confirmation_to_remove_multiple}" />';
+				}
+				return '<h:outputText value="#{msgs.meeting_confirmation_to_remove}" />';
 			}
 
 			
