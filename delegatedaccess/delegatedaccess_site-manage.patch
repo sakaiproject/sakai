@@ -102,7 +102,7 @@ Index: site-manage-tool/tool/src/bundle/sitesetupgeneric.properties
 ===================================================================
 --- site-manage-tool/tool/src/bundle/sitesetupgeneric.properties	(revision 104522)
 +++ site-manage-tool/tool/src/bundle/sitesetupgeneric.properties	(working copy)
-@@ -1057,3 +1057,14 @@
+@@ -1057,3 +1057,20 @@
  sitegen.siteinfolist.usermodify = Modified by
  
  useOfficialDescription=Use Official Description
@@ -114,9 +114,15 @@ Index: site-manage-tool/tool/src/bundle/sitesetupgeneric.properties
 +shopping.visibility.label = Visibility
 +shopping.role.label = Role
 +shopping.role.instructions = Shoppers have the same access as this realm/role.
-+shopping.instructions=You have the ability to add, update, or remove your site's shopping access.  To add or update, just fill in the fields below.  To remove, clear all fields and set all options to none.
++shopping.instructions=You have the ability to add, update, or remove your site's shopping access.\
++<ul><li>To add or update, check the box to override inherited settings and just fill in the fields below.</li>\
++<li>To remove, you can click the opt out link and save or check the override inherited settings checkbox and clear all fields and set all options to none.</li>\
++<li>To reset to inherited settings, just uncheck the override inherited settings checkbox and save.</li>\
++</ul>Please allow up to 24 hours for these settings to take into affect.
 +shopping.noauth=none
 +shopping.showTools.label=Show Tools
++shopping.override.label=Override inherited settings
++shopping.optout.label=Opt My Site Out of Shopping Period
 Index: site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAccess.vm
 ===================================================================
 --- site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAccess.vm	(revision 104522)
@@ -140,7 +146,7 @@ Index: site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAcce
  // -->	
  </script>
  <link type="text/css" href="/sakai-site-manage-tool/css/site-manage.css" rel="stylesheet" media="screen" />
-@@ -212,12 +217,77 @@
+@@ -212,12 +217,85 @@
  			</p>
  			<p/>
  		</div>
@@ -151,17 +157,25 @@ Index: site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAcce
 +			<!-- easy access for JS -->
 +			
 +			<h4>$tlang.getString("shopping.header")</h4>
-+			<p class="instruction">
++			<div class="instruction">
 +				$tlang.getString("shopping.instructions")
-+			</p>
++			</div>
 +			<div class="indnt1">
++				<a href="#" onclick="optOutOfShoppingPeriod(); return false;">
++					$tlang.getString("shopping.optout.label")
++				</a>
++				<br/>
++				<br/>
++				<input type="checkbox" name="shoppingPeriodOverride" id="shoppingPeriodOverride" onclick="setShoppingSettingsDisabled(!this.checked);"/>
++				<label for"shoppingPeriodOverride">$tlang.getString("shopping.override.label"): </label>
++				
 +				<table>
 +				<tr>
 +				<td align="right">
 +			 	<label for="shoppingVisibility">$tlang.getString("shopping.visibility.label"): </label>
 +				</td>
 +				<td>
-+				<select name="shoppingVisibility" id="shoppingVisibility">
++				<select name="shoppingVisibility" id="shoppingVisibility" class="shoppingSetting">
 +					<option value="">$tlang.getString("shopping.noauth")</option>
 +				</select>
 +				</td>
@@ -171,7 +185,7 @@ Index: site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAcce
 +				<label for="shoppingVisibilityStart">$tlang.getString("shopping.start.label"): </label>
 +				</td>
 +				<td>
-+				<input type="text" id="shoppingVisibilityStart" name="shoppingVisibilityStart" value="$shopping_visibility_start"/>
++				<input type="text" id="shoppingVisibilityStart" name="shoppingVisibilityStart" class="shoppingSetting" value="$shopping_visibility_start"/>
 +				</td>
 +				</tr>
 +                                <tr>
@@ -179,7 +193,7 @@ Index: site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAcce
 +				<label for="shoppingVisibilityEnd">$tlang.getString("shopping.end.label"): </label>
 +				</td>
 +                                <td>
-+				<input type="text" id="shoppingVisibilityEnd" name="shoppingVisibilityEnd" value="$shopping_visibility_end"/>
++				<input type="text" id="shoppingVisibilityEnd" name="shoppingVisibilityEnd" class="shoppingSetting" value="$shopping_visibility_end"/>
 +				</td>
 +				</tr>
 +				<tr>
@@ -187,7 +201,7 @@ Index: site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAcce
 +				<label for="shoppingRole">$tlang.getString("shopping.role.label"): </label>
 +				</td>
 +				<td>
-+				<select name="shoppingRole" id="shoppingRole">
++				<select name="shoppingRole" id="shoppingRole" class="shoppingSetting">
 +					<option value="">$tlang.getString("shopping.noauth")</option>
 +				</select>
 +				</td>
@@ -197,7 +211,7 @@ Index: site-manage-tool/tool/src/webapp/vm/sitesetup/chef_site-siteInfo-editAcce
 +						<label for="showTools">$tlang.getString("shopping.showTools.label"): </label>
 +					</td>
 +					<td>
-+						<select name="showTools" id="showTools" multiple="multiple" style="height: 100px">
++						<select name="showTools" id="showTools" multiple="multiple" class="shoppingSetting" style="height: 100px">
 +							<option value=""></option>
 +						</select>
 +					</td>

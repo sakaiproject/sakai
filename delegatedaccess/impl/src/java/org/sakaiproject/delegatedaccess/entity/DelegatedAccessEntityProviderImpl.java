@@ -73,6 +73,7 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		valuesMap.put("shoppingEndDate", Long.toString(node.getNodeShoppingPeriodEndDate().getTime()));
 		valuesMap.put("shoppingRealm", node.getNodeAccessRealmRole()[0]);
 		valuesMap.put("shoppingRole", node.getNodeAccessRealmRole()[1]);
+		valuesMap.put("directAccess", "" + node.isDirectAccess());
 
 		return valuesMap;
 	}
@@ -113,6 +114,10 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		String role = (String) params.get("shoppingRole");
 		String realm = (String) params.get("shoppingRealm");
 		Object toolList = params.get("shoppingShowTools");
+		boolean directAccess = true;
+		if(params.get("directAccess") != null){
+			directAccess = Boolean.valueOf("" + params.get("directAccess"));
+		}
 		String[] tools = null;
 		if(toolList != null){
 			if(toolList instanceof String[]){
@@ -141,6 +146,15 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 
 		//get the node to store the information:
 		NodeModel node = projectLogic.getNodeModel(nodeId, DelegatedAccessConstants.SHOPPING_PERIOD_USER);
+		
+		if(!directAccess){
+			//no need to continue, just set direct access to false and save (will clear out the rest and cause
+			//the node to inherrit it's settings
+			node.setDirectAccess(false);
+			projectLogic.updateNodePermissionsForUser(node, DelegatedAccessConstants.SHOPPING_PERIOD_USER);
+			return;
+		}
+		
 		//Get Original Settings before we modify it
 		String authOrig = node.getNodeShoppingPeriodAuth();
 		Date startDateOrig = node.getNodeShoppingPeriodStartDate();
@@ -161,7 +175,8 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 				node.setToolRestricted(toolId, true);
 			}
 		}
-		node.setDirectAccess(true);
+		//user could have checked overrideDirectAccess and changed nothing else
+		node.setDirectAccess(directAccess);
 		//Get new modified settings
 		String authNew = node.getNodeShoppingPeriodAuth();
 		Date startDateNew = node.getNodeShoppingPeriodStartDate();
@@ -194,6 +209,7 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		valuesMap.put("shoppingEndDate", node.getNodeShoppingPeriodEndDate());
 		valuesMap.put("shoppingRealm", node.getNodeAccessRealmRole()[0]);
 		valuesMap.put("shoppingRole", node.getNodeAccessRealmRole()[1]);
+		valuesMap.put("directAccess", node.isDirectAccess());
 //		List<String> selectedRestrictedTools = new ArrayList<String>();
 //		for(ListOptionSerialized tool : node.getNodeRestrictedTools()){
 //			selectedRestrictedTools.add(tool.getId());
