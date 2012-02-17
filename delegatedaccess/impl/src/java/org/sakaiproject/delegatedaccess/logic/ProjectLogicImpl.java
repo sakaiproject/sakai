@@ -1409,11 +1409,17 @@ public class ProjectLogicImpl implements ProjectLogic {
 	}
 	
 	public boolean hasShoppingPeriodAdminNodes(String userId){
+		if(userId == null || "".equals(userId)){
+			return false;
+		}
 		Set<HierarchyNode> shoppingAdminNodes = hierarchyService.getNodesForUserPerm(userId, DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN); 
 		return shoppingAdminNodes != null && shoppingAdminNodes.size() > 0;
 	}
 	
 	public boolean hasDelegatedAccessNodes(String userId){
+		if(userId == null || "".equals(userId)){
+			return false;
+		}
 		Set<HierarchyNode> delegatedAccessNodes = hierarchyService.getNodesForUserPerm(userId, DelegatedAccessConstants.NODE_PERM_SITE_VISIT); 
 		return delegatedAccessNodes != null && delegatedAccessNodes.size() > 0;
 	}
