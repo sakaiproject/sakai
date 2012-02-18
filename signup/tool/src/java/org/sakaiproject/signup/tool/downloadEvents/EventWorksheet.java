@@ -855,6 +855,8 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 		StringBuffer sb = new StringBuffer();
 		for (SignupAttendee att : attendees) {
 			sb.append(sakaiFacade.getUserDisplayName(att.getAttendeeUserId()));
+			sb.append(";");
+			sb.append(sakaiFacade.getUser(att.getAttendeeUserId()).getEid());
 			sb.append("\n");
 		}
 		/* remove the last'\n' one */
