@@ -331,6 +331,25 @@ public class CalendarService
 
 		return service.archive(param0, param1, param2, param3, param4);
 	}
+	
+	public static java.lang.String calendarOpaqueUrlReference(org.sakaiproject.entity.api.Reference param0)
+	{
+		org.sakaiproject.calendar.api.CalendarService service = getInstance();
+		if (service == null)
+			return null;
+		
+		return service.calendarOpaqueUrlReference(param0);
+}
+
+	public static boolean allowSubscribeThisCalendar(java.lang.String param0)
+	{
+		org.sakaiproject.calendar.api.CalendarService service = getInstance();
+		if (service == null)
+			return false;
+
+		return service.allowSubscribeThisCalendar(param0);
+	}
+
 }
 
 

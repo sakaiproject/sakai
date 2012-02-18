@@ -726,6 +726,9 @@ public class BaseExternalCalendarSubscriptionService implements
 	 */
 	private boolean isOnWorkspaceTab()
 	{
+		org.sakaiproject.tool.api.Placement p = ToolManager.getCurrentPlacement();
+		if (p == null) return false;
+		String c = p.getContext();
 		return m_siteService.isUserSite(ToolManager.getCurrentPlacement().getContext());
 	}
 

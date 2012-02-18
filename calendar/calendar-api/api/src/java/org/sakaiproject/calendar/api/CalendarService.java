@@ -172,7 +172,12 @@ public interface CalendarService
    /** session attribute for list of all calendars user can reference */   
    public static final String SESSION_CALENDAR_LIST = "calendar.ref.list";
 
-
+	/** Security lock for subscribing to the implicit calendar. */
+	public static final String AUTH_SUBSCRIBE_CALENDAR_THIS = "calendar.subscribe.this";
+	
+	/** The Reference type for an "Opaque URL" URL. */
+	public static final String REF_TYPE_CALENDAR_OPAQUEURL = "opaq";
+	
 	/**
 	* Return a List of all the defined calendars.
 	* @return a List of Calendar objects (may be empty)
@@ -383,6 +388,20 @@ public interface CalendarService
 	 */
 	RecurrenceRule newRecurrence(String frequency, int interval, Time until);
 
+ 	/**
+ 	 * check permissions for subscribing to the implicit calendar.
+ 	 * @param ref The calendar reference.
+ 	 * @return true if the user is allowed to subscribe to the implicit calendar, false if not.
+ 	 */
+	public boolean allowSubscribeThisCalendar(String ref);
+	
+	/**
+	 * Access the internal reference which can be used to access the calendar in iCal format from within the system, via an opaque URL.
+	 * @param ref The calendar reference
+	 * @return The the internal reference which can be used to access the calendar-in-pdf format from within the system.
+	 */
+	public String calendarOpaqueUrlReference(Reference ref);
+	
 }	// CalendarService
 
 

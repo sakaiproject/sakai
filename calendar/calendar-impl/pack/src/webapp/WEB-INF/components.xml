@@ -40,4 +40,24 @@
 		<property name="calendarImporterService"><ref bean="org.sakaiproject.calendar.api.CalendarImporterService"/></property>
 	</bean>
 
+	<bean id="org.sakaiproject.calendar.api.OpaqueUrlDao" 
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
+		singleton="true">
+		<property name="transactionManager">
+			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		</property>
+		<property name="target">
+			<bean class="org.sakaiproject.calendar.impl.OpaqueUrlDaoHbm">
+				<property name="sessionFactory"
+					ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+			</bean>
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+	<import resource="hibernate-hbms.xml"/>
+
 </beans>
