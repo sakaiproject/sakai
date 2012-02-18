@@ -1373,6 +1373,9 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 							M_log.info(".parseEntityReference():"+ide.toString()); 
 							return false;
 					}
+          catch (PermissionException pe) {
+              M_log.info(".parseEntityReference():"+pe.toString());
+          }
 					catch (Exception e)
 					{
                   M_log.warn(".parseEntityReference(): ", e);
