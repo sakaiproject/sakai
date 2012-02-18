@@ -29,8 +29,17 @@ sakai.editor.editors.ckeditor = {};
 // The w and h parameters should be removed as soon as their uses can be migrated.
 sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
     var folder = "";
-    if (sakai.editor.collectionId) {
-        folder = "&CurrentFolder=" + sakai.editor.collectionId;
+
+    var collectionId = "";
+    if (config != null && config.collectionId) {
+        collectionId=config.collectionId;
+    }
+    else if (sakai.editor.collectionId) {
+        collectionId=sakai.editor.collectionId
+    }
+
+    if (collectionId) {
+        folder = "&CurrentFolder=" + collectionId
     }
 
     var ckconfig = {
