@@ -24,6 +24,7 @@ package org.sakaiproject.signup.tool.jsf;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -128,14 +129,29 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	 * @return an action outcome string.
 	 */
 	public String removeMeetings() {
-		List<SignupMeeting> meetings = new ArrayList<SignupMeeting>();
+		Set<SignupMeeting> meetingsSet = new HashSet<SignupMeeting>();
 
 		try {
 			for (SignupMeetingWrapper mWrapper : getSignupMeetings()) {
 				if (mWrapper.isSelected()) {
-					meetings.add(mWrapper.getMeeting());
+					
+					//SIGNUP-139 
+					//if this meeting wrapper is the first one in a set of recurring meetings
+					//and we have recurring meetings
+					//then get all meetings have the same meeting.recurrenceId (as they are part of the set) and add to the list for removal
+					if(mWrapper.isFirstOneRecurMeeting() && mWrapper.getRecurEventsSize() > 1) {
+						SignupMeeting topLevel = mWrapper.getMeeting();
+					
+						List<SignupMeeting> recurrentMeetings = signupMeetingService.getRecurringSignupMeetings(sakaiFacade.getCurrentLocationId(), sakaiFacade.getCurrentUserId(), topLevel.getRecurrenceId(), topLevel.getStartTime());
+						
+						meetingsSet.addAll(recurrentMeetings);
+					} 
+					meetingsSet.add(mWrapper.getMeeting());
 				}
 			}
+			
+			List<SignupMeeting> meetings = new ArrayList<SignupMeeting>(meetingsSet);
+			
 			signupMeetingService.removeMeetings(meetings);
 			/* record the logs of the removed meetings */
 			for (SignupMeeting meeting : meetings) {
