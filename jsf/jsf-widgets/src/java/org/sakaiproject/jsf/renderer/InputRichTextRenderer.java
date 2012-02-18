@@ -206,6 +206,11 @@ public class InputRichTextRenderer extends Renderer
 	ServerConfigurationService serverConfigurationService = (ServerConfigurationService)ComponentManager.get(ServerConfigurationService.class.getName());
     String editor = serverConfigurationService.getString("wysiwyg.editor");
     
+    String collectionBase = (String) RendererUtil.getAttribute(context, component, "collectionBase");
+    String collectionId = "";
+    if (collectionBase != null) {
+        collectionId="collectionId: '"+collectionBase.replaceAll("\"","\\\"")+"'";
+    }
     
     writer.write("<table border=\"0\"><tr><td>");
     writer.write("<textarea name=\"" + clientId + "_inputRichText\" id=\"" + clientId + "_inputRichText\"");
@@ -218,7 +223,7 @@ public class InputRichTextRenderer extends Renderer
     
     if (!"true".equals(textareaOnly))
     {
-    writer.write("<script type=\"text/javascript\">sakai.editor.launch('" + clientId + "_inputRichText', '', '" + widthPx + "','" + heightPx + "');</script>");
+    writer.write("<script type=\"text/javascript\">sakai.editor.launch('" + clientId + "_inputRichText', {"+collectionId+"}, '" + widthPx + "','" + heightPx + "');</script>");
     }
 
     writer.write("</td></tr></table>\n");
