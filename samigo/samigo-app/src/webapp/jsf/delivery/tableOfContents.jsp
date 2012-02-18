@@ -208,7 +208,7 @@ function clickSubmitForGrade(){
   </h:panelGroup>
 
 <!-- SUBMIT BUTTON FOR TAKE ASSESSMENT VIA URL ONLY -->
-  <h:commandButton id="submitForGradeTOC2" type="submit" value="#{deliveryMessages.button_submit}"
+  <h:commandButton id="submitForGradeTOC2" type="submit" value="#{deliveryMessages.button_submit_grading}"
     action="#{delivery.confirmSubmitTOC}" styleClass="active" onclick="disableSubmitForGradeTOC2();"
     rendered="#{delivery.actionString=='takeAssessmentViaUrl'}" />
 
