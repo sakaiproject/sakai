@@ -25,9 +25,12 @@ package org.sakaiproject.signup.tool.jsf;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.LogFactoryImpl;
 import org.sakaiproject.signup.logic.SakaiFacade;
@@ -650,6 +653,35 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		}
 		
 		return uuids;
+	}
+
+	
+	/**
+	 * Helper to get a formatted string of all attendee email addresses for all tineslots
+	 * so we can use them in a mailto link
+	 * @return String of all email addresses
+	 */
+	public String getAllAttendeesEmailAddressesFormatted() {
+		
+		Set<String> emails = new HashSet<String>();
+		
+		StringBuilder sb = new StringBuilder();
+		for (TimeslotWrapper tsWrapper : timeslotWrappers) {
+			for(AttendeeWrapper atWrapper : tsWrapper.getAttendeeWrappers()) {
+				String email = atWrapper.getAttendeeEmail();
+				if(StringUtils.isNotBlank(email)){
+					emails.add(email);
+				}
+			}
+		}
+		
+		for(String e: emails) {
+			sb.append(e);
+			sb.append(',');
+		}
+		
+		//trim off last , and return
+		return StringUtils.removeEnd(sb.toString(), ",");
 	}
 
 }

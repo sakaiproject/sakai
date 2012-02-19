@@ -323,7 +323,27 @@
 					   		
 					   		<h:column>		   
 								<f:facet name="header">
-									<h:outputText value="#{msgs.tab_attendees}"/>
+									<h:panelGroup>
+										<h:outputText value="#{msgs.tab_attendees}"/>
+										
+										<%-- SIGNUP-86 allow all attendees to be mailed. To is self, bcc is the attendees --%>
+										<h:panelGroup rendered="#{OrganizerSignupMBean.showEmailAllAttendeesLink}">
+											<f:verbatim>
+												&nbsp;&nbsp;(
+											</f:verbatim>
+										
+											<h:outputLink 
+												value="mailto:#{OrganizerSignupMBean.currentUserEmailAddress}?bcc=#{OrganizerSignupMBean.allAttendeesEmailAddressesFormatted}&subject=#{OrganizerSignupMBean.meetingWrapper.meeting.title}" 
+												title="#{msgs.organizer_mailto_all}">
+												<h:outputText value="#{msgs.organizer_mailto_all_short}"/>
+											</h:outputLink>
+										
+											<f:verbatim>
+												)
+											</f:verbatim>
+										</h:panelGroup>
+										
+									</h:panelGroup>
 								</f:facet>
 								
 								<h:panelGroup rendered="#{timeSlotWrapper.timeSlot.canceled}">

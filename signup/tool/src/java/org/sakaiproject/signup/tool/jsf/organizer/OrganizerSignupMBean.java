@@ -1351,5 +1351,21 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 		}
 		return nextPage;
 	}
-
+	
+	/**
+	 * Helper to check if we need to show the email link
+	 * If we have email addresses, then the link shows up.
+	 * @return true/false
+	 */
+	public boolean isShowEmailAllAttendeesLink() {
+		return StringUtils.isNotBlank(getAllAttendeesEmailAddressesFormatted());
+	}
+	
+	/**
+	 * Helper to get the email address for the current user
+	 * @return
+	 */
+	public String getCurrentUserEmailAddress() {
+		return sakaiFacade.getUser(sakaiFacade.getCurrentUserId()).getEmail();
+	}
 }
