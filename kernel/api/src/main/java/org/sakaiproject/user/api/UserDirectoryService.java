@@ -261,8 +261,10 @@ public interface UserDirectoryService extends EntityProducer
 	Collection<User> findUsersByEmail(String email);
 
 	/**
-	 * Access the anonymous user object.
+	 * Access the anonymous user object. This is useful for testing if the current
+	 * user is logged in or not.
 	 * 
+	 * @see #getCurrentUser()
 	 * @return the anonymous user object.
 	 */
 	User getAnonymousUser();
@@ -270,6 +272,7 @@ public interface UserDirectoryService extends EntityProducer
 	/**
 	 * Access the user object associated with the "current" request.
 	 * 
+	 * @see #getAnonymousUser()
 	 * @return The current user (may be anon).
 	 */
 	User getCurrentUser();
