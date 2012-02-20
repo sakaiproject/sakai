@@ -1085,7 +1085,6 @@ $(function() {
 	$('#edit-title-error-container').hide();
 	$('#new-page-error-container').hide();
 	$('#edit-item-error-container').hide();
-	$('#youtube-error-container').hide();
 	$('#movie-error-container').hide();
 	$('#subpage-error-container').hide();
 	$("#require-label2").hide();
@@ -1167,12 +1166,12 @@ function closeRemovePageDialog() {
 
 function closeYoutubeDialog() {
 	$('#edit-youtube-error-container').hide();
-	$('#youtube-error-container').hide();
 	$('#youtube-dialog').dialog('close');
 	oldloc.focus();
 }
 
 function closeMovieDialog() {
+	$('#movie-error-container').hide();
 	$('#movie-dialog').dialog('close');
 	oldloc.focus();
 }
@@ -1246,7 +1245,7 @@ function checkMovieForm(w, h, y) {
 		var eitem, econtainer;			// the span and div, respectively, for each dialog's error message
 		var pre;
 		if (y) {						// determine which dialog we're in and which error span/div to populate if there's an error
-			pre = '#youtube';
+			pre = '#edit-youtube';
 		} else {
 			pre = '#movie';
 		}
