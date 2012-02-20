@@ -17,7 +17,7 @@
     <licenses>
         <license>
             <name>ECL-2.0</name>
-            <url>http://www.osedu.org/licenses/ECL-2.0</url>
+            <url>http://www.opensource.org/licenses/ecl2.txt</url>
             <distribution>repo</distribution>
             <comments>Copyright 2003-2010 Sakai Foundation</comments>
         </license>
