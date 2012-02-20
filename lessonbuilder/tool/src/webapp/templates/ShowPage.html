@@ -487,6 +487,8 @@ function resizeiframe(id) {
 			  <p rsf:id="msg=simplepage.site" id="simplepage.site"></p>
 			  <p rsf:id="msg=simplepage.system" id="simplepage.system"></p>
 			  <p rsf:id="msg=simplepage.integer-expected" id="simplepage.integer-expected"></p>
+			  <p rsf:id="msg=simplepage.width-height" id="simplepage.width-height"></p>
+			  <p rsf:id="msg=simplepage.nothing-over-100-percent" id="simplepage.nothing-over-100-percent"></p>
 			</div>
 
 			<div id="subpage-dialog" rsf:id="subpage-dialog">
@@ -918,6 +920,12 @@ function resizeiframe(id) {
 				</div>
 				
 				<form action="#" rsf:id="youtube-form">
+					<div class="ui-widget" id="youtube-error-container">
+						<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
+							<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
+							<strong rsf:id="msg=simplepage.error_colon"></strong> <span id="youtube-error"></span></p>
+						</div>
+					</div>
 					<div class="">
 						<input type="hidden" rsf:id="youtubeEditId" id="youtubeEditId" />
 						<div align="left">
@@ -948,12 +956,19 @@ function resizeiframe(id) {
 						</div>
 					</div>
 		
-					<input class="bold" type="submit" onclick="event.returnValue = checkYoutubeForm(); return checkYoutubeForm();" id="update-youtube" rsf:id="update-youtube" />
+					<input class="bold" type="submit" onclick="event.returnValue = checkYoutubeForm($('#youtubeWidth').val().trim(), $('#youtubeHeight').val().trim()); return checkYoutubeForm($('#youtubeWidth').val().trim(), $('#youtubeHeight').val().trim());" id="update-youtube" rsf:id="update-youtube" />
 					<input type="submit" rsf:id="cancel-youtube" onclick="closeYoutubeDialog(); return false" />
 				</form>
 			</div>
 			
 			<div id="movie-dialog" rsf:id="movie-dialog">
+				<div class="ui-widget" id="movie-error-container">
+					<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
+						<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
+						<strong rsf:id="msg=simplepage.error_colon"></strong> <span id="movie-error"></span></p>
+					</div>
+				</div>
+
 				<form action="#" rsf:id="movie-form">
 					<div class="">
 						<input type="hidden" rsf:id="movieEditId" id="movieEditId" />
@@ -986,7 +1001,7 @@ function resizeiframe(id) {
 						</div>
 					</div>
 		
-					<input class="bold" type="submit" onclick="event.returnValue = checkMovieForm(); return checkMovieForm();" id="update-movie" rsf:id="update-movie" />
+					<input class="bold" type="submit" onclick="event.returnValue = checkMovieForm($('#movie-width').val().trim(), $('#movie-height').val().trim()); return checkMovieForm($('#movie-width').val().trim(), $('#movie-height').val().trim());" id="update-movie" rsf:id="update-movie" />
 					<input type="submit" rsf:id="movie-cancel" onclick="closeMovieDialog(); return false" />
 
 					<div class="expert" id="expert-movie-toggle-div">

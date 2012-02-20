@@ -1085,6 +1085,8 @@ $(function() {
 	$('#edit-title-error-container').hide();
 	$('#new-page-error-container').hide();
 	$('#edit-item-error-container').hide();
+	$('#youtube-error-container').hide();
+	$('#movie-error-container').hide();
 	$('#subpage-error-container').hide();
 	$("#require-label2").hide();
 	$("#item-required2").hide();
@@ -1132,6 +1134,7 @@ function closeEditItemDialog() {
 
 function closeMultimediaEditDialog() {
 	$("#edit-multimedia-dialog").dialog("close");
+	$('#movie-error-container').hide();
 	oldloc.focus();
 }
 
@@ -1164,6 +1167,7 @@ function closeRemovePageDialog() {
 
 function closeYoutubeDialog() {
 	$('#edit-youtube-error-container').hide();
+	$('#youtube-error-container').hide();
 	$('#youtube-dialog').dialog('close');
 	oldloc.focus();
 }
@@ -1218,7 +1222,11 @@ function checkNewPageForm() {
 
 }
 
-function checkYoutubeForm() {
+function checkYoutubeForm(w, h) {
+	if(w && h && !checkMovieForm(w, h, true)) {
+		return false;
+	}
+
 	if($('#youtubeURL').val().contains('youtube.com')) {
 		return true;
 	}else {
@@ -1228,8 +1236,84 @@ function checkYoutubeForm() {
 	}
 }
 
-function checkMovieForm() {
-	return true;
+//this checks the width and height fields in the Edit dialog to validate the input
+function checkMovieForm(w, h, y) {
+		var wmatch = checkPercent(w); 	// use a regex to check if the input is of the form ###%
+		var hmatch = checkPercent(h);
+		var wvalid = false; 			// these hold whether the width or height input has been validated
+		var hvalid = false;
+
+		var eitem, econtainer;			// the span and div, respectively, for each dialog's error message
+		var pre;
+		if (y) {						// determine which dialog we're in and which error span/div to populate if there's an error
+			pre = '#youtube';
+		} else {
+			pre = '#movie';
+		}
+
+		eitem = $(pre + '-error');
+		econtainer = $(pre + '-error-container');
+
+		if (w.trim() == "") {			// empty input is ok
+			wvalid = true;
+		} 
+
+		if (h.trim() == "") {
+			hvalid = true;
+		}
+
+		if (wmatch !== null && !wvalid) {	// if it's of the form ###%, check if the ### is between 0 and 100
+			var nw = Number(w.substring(0, w.length-1));
+			if (nw < 1 || nw > 100) {
+				// paint error message
+				eitem.text(msg("simplepage.nothing-over-100-percent"));
+				econtainer.show();
+				return false;
+			} else {
+				wvalid = true;
+			}
+		}
+		
+		if (hmatch !== null && !hvalid) {
+			var nh = Number(h.substring(0, h.length-1));
+			if (nh > 100) {
+				// paint error message
+				eitem.text(msg("simplepage.nothing-over-100-percent"));
+				econtainer.show();
+				return false;
+			} else {
+				hvalid = true;
+			}
+		}
+
+		wmatch = checkWidthHeight(w);	// if it's not a percentage, check to make sure it's of the form ### or ###px
+		hmatch = checkWidthHeight(h);
+
+		if (wmatch == null && !wvalid) {
+			// paint error message
+			eitem.text(msg("simplepage.width-height"));
+			econtainer.show();
+			return false;
+		}
+
+		if (hmatch == null && !hvalid) {
+			// paint error message
+			eitem.text(msg("simplepage.width-height"));
+			econtainer.show();
+			return false;
+		}
+		econtainer.hide();
+		return true;
+}
+
+function checkWidthHeight(x) {
+	var regex = /^[0-9]+$|^[0-9]+px$/;
+	return (x.match(regex));
+}
+
+function checkPercent(x) {
+	var regex = /^[0-9]+\%$/;
+	return (x.match(regex));
 }
 
 function checkCommentsForm() {
