@@ -118,7 +118,7 @@
                     <xrefLocation>${project.reporting.outputDirectory}/../xref</xrefLocation>
                     <sourceEncoding>utf-8</sourceEncoding>
                     <minimumTokens>20</minimumTokens>
-                    <targetJdk>1.5</targetJdk>
+                    <targetJdk>${sakai.jdk.version}</targetJdk>
                     <rulesets>
                         <ruleset>/rulesets/basic.xml</ruleset>
                         <ruleset>/rulesets/braces.xml</ruleset>
