@@ -34,6 +34,7 @@
     </ciManagement>
     <inceptionYear>2003</inceptionYear>
     <properties>
+         <sakai.jdk.version>1.7</sakai.jdk.version>
 	 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
     </properties>
     <mailingLists>
@@ -825,7 +826,7 @@
                     <xrefLocation>${project.reporting.outputDirectory}/../xref</xrefLocation>
                     <sourceEncoding>utf-8</sourceEncoding>
                     <minimumTokens>20</minimumTokens>
-                    <targetJdk>1.5</targetJdk>
+                    <targetJdk>${sakai.jdk.version}</targetJdk>
                     <rulesets>
                         <ruleset>/rulesets/basic.xml</ruleset>
                         <ruleset>/rulesets/braces.xml</ruleset>
@@ -1005,8 +1006,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
 		        <version>2.3.2</version>
                 <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
+                    <source>${sakai.jdk.version}</source>
+                    <target>${sakai.jdk.version}</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -1058,8 +1059,8 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>2.7</version>
                     <configuration>
-                        <source>1.5</source>
-                        <target>1.5</target>
+                        <source>${sakai.jdk.version}</source>
+                        <target>${sakai.jdk.version}</target>
                     </configuration>
                 </plugin>
                 <plugin>
