@@ -37,9 +37,9 @@ import java.util.List;
 
 /**
  * After the Service class from Sun and the Apache project. With help from
- * Frdric Miserey.
+ * FrÂdÂric Miserey.
  * 
- * @credits Frdric Miserey, Joseph Oettinger
+ * @credits FrÂdÂric Miserey, Joseph Oettinger
  * @author Matthias L. Jugel
  * @version $id$
  */

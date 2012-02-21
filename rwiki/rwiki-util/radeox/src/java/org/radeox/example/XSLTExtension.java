@@ -30,10 +30,10 @@ import org.radeox.engine.context.BaseRenderContext;
  * An xslt extension function to render snip content using radeox. Example
  * usage: <xsl:stylesheet version="1.0"
  * xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
- * xmlns:radeox="http://snipsnap.org/org.radeox.example.XSLTExtension"> É
+ * xmlns:radeox="http://snipsnap.org/org.radeox.example.XSLTExtension"> Ã‰
  * <xsl:template match="content"> <content><xsl:value-of
  * select="radeox:render(.)" disable-output-escaping="yes"/></content>
- * </xsl:template> É </xsl:stylesheet>
+ * </xsl:template> Ã‰ </xsl:stylesheet>
  * 
  * @author Micah Dubinko
  * @version $Id: XSLTExtension.java 7707 2006-04-12 17:30:19Z
