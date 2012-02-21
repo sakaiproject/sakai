@@ -123,9 +123,10 @@
         <sakai.taggable.version>2.10-SNAPSHOT</sakai.taggable.version>
         <sakai.velocity-tool.version>2.10-SNAPSHOT</sakai.velocity-tool.version>
         <sakai.warehouse.version>2.10-SNAPSHOT</sakai.warehouse.version>
-	    <sakai.webservices.version>1.2-SNAPSHOT</sakai.webservices.version>
+	<sakai.webservices.version>1.2-SNAPSHOT</sakai.webservices.version>
         <!-- Set the source encoding to avoid maven warnings -->
-	    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
+	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
+	<sakai.jdk.version>1.7</sakai.jdk.version> 
         <sakai.build.directory>target</sakai.build.directory>
     </properties>
     
@@ -874,7 +875,7 @@
                 <artifactId>maven-pmd-plugin</artifactId>
                 <version>2.5</version>
                 <configuration>
-                    <targetjdk>1.5</targetjdk>
+                    <targetjdk>${sakai.jdk.version}</targetjdk>
                     <rulesets>
                         <ruleset>/rulesets/basic.xml</ruleset>
                         <ruleset>/rulesets/codesize.xml</ruleset>
@@ -998,8 +999,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.2</version>
                 <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
+                    <source>${sakai.jdk.version}</source>
+                    <target>${sakai.jdk.version}</target>
                 </configuration>
             </plugin>
             <plugin>
