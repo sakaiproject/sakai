@@ -1434,6 +1434,15 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// check security (throws if not permitted)
 		unlock(SECURE_ADD_USER, userFromXml.getReference());
 
+		// Check if this user is a provided one:
+		if (getProvidedUserByEid(userFromXml.getId(), userFromXml.getEid()) != null) {
+			// This doesn't mean we have a mapping from ID to EID mapping
+			if (m_storage.checkMapForId(userFromXml.getEid()) == null) {
+				m_storage.putMap(userFromXml.getId(), userFromXml.getEid());
+			}
+			throw new UserAlreadyDefinedException("Provided user: "+ userFromXml.getId() + " - " + userFromXml.getEid());
+		}
+		
 		// reserve a user with this id from the info store - if it's in use, this will return null
 		UserEdit user = m_storage.put(userFromXml.getId(), userFromXml.getEid());
 		if (user == null)
