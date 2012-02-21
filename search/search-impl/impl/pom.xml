@@ -54,6 +54,26 @@
                 <bouncycastle.artifact.version>jdk16</bouncycastle.artifact.version>
             </properties>
         </profile>
+        <profile>
+            <id>1.7</id>
+            <activation>
+                <jdk>1.7</jdk>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.sakaiproject.search</groupId>
+                    <artifactId>search-test-1.6</artifactId>
+                    <version>${project.version}</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+            <properties>
+                <maven.test.jvmargs />
+                <poi.version>3.7</poi.version>
+                <lucene.version>2.9.4</lucene.version>
+                <bouncycastle.artifact.version>jdk16</bouncycastle.artifact.version>
+            </properties>
+        </profile>
     </profiles>
 
   <build>
