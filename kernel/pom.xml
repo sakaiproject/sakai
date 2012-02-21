@@ -34,7 +34,7 @@
     </ciManagement>
     <inceptionYear>2003</inceptionYear>
     <properties>
-         <sakai.jdk.version>1.7</sakai.jdk.version>
+         <sakai.jdk.version>1.6</sakai.jdk.version>
 	 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
     </properties>
     <mailingLists>
