@@ -820,27 +820,27 @@ public class AssessmentService {
 	/** These characters are not allowed in a resource id */
 	public static final String INVALID_CHARS_IN_RESOURCE_ID = "^/\\{}[]()%*?#&=\n\r\t\b\f";
 
-	protected static final String MAP_TO_A = "‰ŠˆŒ€?‡‡";
+	protected static final String MAP_TO_A = "Â‰ÂŠÂˆÂŒÂ€?Â‡Â‡";
 
-	protected static final String MAP_TO_B = "§§";
+	protected static final String MAP_TO_B = "Â§Â§";
 
-	protected static final String MAP_TO_C = "‚?¢¢";
+	protected static final String MAP_TO_C = "Â‚?Â¢Â¢";
 
-	protected static final String MAP_TO_E = "Ž?‘?ƒ¾®®";
+	protected static final String MAP_TO_E = "ÂŽ?Â‘?ÂƒÂ¾Â®Â®";
 
-	protected static final String MAP_TO_I = "•”“’’";
+	protected static final String MAP_TO_I = "Â•Â”Â“Â’Â’";
 
-	protected static final String MAP_TO_L = "££";
+	protected static final String MAP_TO_L = "Â£Â£";
 
-	protected static final String MAP_TO_N = "–„„";
+	protected static final String MAP_TO_N = "Â–Â„Â„";
 
-	protected static final String MAP_TO_O = "™š˜…——";
+	protected static final String MAP_TO_O = "Â™ÂšÂ˜Â…Â—Â—";
 
-	protected static final String MAP_TO_U = "Ÿž?†œœ";
+	protected static final String MAP_TO_U = "ÂŸÂž?Â†ÂœÂœ";
 
-	protected static final String MAP_TO_Y = "Ø´??";
+	protected static final String MAP_TO_Y = "Ã˜Â´??";
 
-	protected static final String MAP_TO_X = "???¤©»¨±?«µ¦À?";
+	protected static final String MAP_TO_X = "???Â¤Â©Â»Â¨Â±?Â«ÂµÂ¦Ã€?";
 
 	/**
 	 * These characters are allowed; but if escapeResourceName() is called, they are escaped (actually, removed) Certain characters cause problems with filenames in certain OSes - so get rid of these characters in filenames
