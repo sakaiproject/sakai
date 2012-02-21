@@ -126,7 +126,7 @@
 	<sakai.webservices.version>1.2-SNAPSHOT</sakai.webservices.version>
         <!-- Set the source encoding to avoid maven warnings -->
 	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
-	<sakai.jdk.version>1.7</sakai.jdk.version> 
+	<sakai.jdk.version>1.6</sakai.jdk.version> 
         <sakai.build.directory>target</sakai.build.directory>
     </properties>
     
