@@ -327,8 +327,8 @@
                     <artifactId>maven-site-plugin</artifactId>
                     <configuration>
                         <outputEncoding>UTF-8</outputEncoding>
-                        <source>1.5</source>
-                        <target>1.5</target>
+                        <source>${sakai.jdk.version}</source>
+                        <target>${sakai.jdk.version}</target>
                     </configuration>
                 </plugin>
             </plugins>
