@@ -623,7 +623,7 @@ public class MySearch extends BasePage {
 				if(target != null) {
 					//get the model and text entered
 					StringModel model = (StringModel) form.getModelObject();
-					String searchText = ProfileUtils.stripHtml(model.getString());
+					String searchText = ProfileUtils.stripAndCleanHtml(model.getString());
 					
 					//get search type
 					String searchType = searchTypeRadioGroup.getModelObject();
