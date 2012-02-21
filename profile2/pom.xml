@@ -204,7 +204,7 @@
     	<commons.codec.version>1.4</commons.codec.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<yuicompressor.plugin.version>1.2</yuicompressor.plugin.version>
-		<lombok.version>0.9.3</lombok.version>
+		<lombok.version>0.10.6</lombok.version>
 	</properties>
     
     <!-- Profile2 related dependencies -->
@@ -398,9 +398,9 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<compilerVersion>1.6</compilerVersion>
-					<source>1.6</source>
-					<target>1.6</target>
+					<compilerVersion>${sakai.jdk.version}</compilerVersion>
+					<source>${sakai.jdk.version}</source>
+					<target>${sakai.jdk.version}</target>
 				</configuration>
 			</plugin>
             
