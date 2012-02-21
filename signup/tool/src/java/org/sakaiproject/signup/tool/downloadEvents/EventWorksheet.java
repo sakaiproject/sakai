@@ -634,6 +634,8 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 		cell.setCellValue(currentTabTitles[2]);
 		cell = row.getCell(6);
 		cell.setCellValue(currentTabTitles[3]);
+		cell = row.getCell(7);
+		cell.setCellValue(currentTabTitles[4]);
 
 		// Table schedule Info
 		int rowNum = cur_rowNum + 1;
@@ -648,7 +650,7 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 				row = sheet.createRow(rowNum);
 				int rowHighNum = 1;
 				rowNum++;
-				for (int i = 1; i <= 6; i++) {
+				for (int i = 1; i <= 7; i++) {
 					row.createCell(i).setCellStyle(styles.get("tabItem_fields"));
 				}
 				// timeslot period
@@ -677,9 +679,11 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 					cell.setCellValue(value);
 				}
 
-				// attendee
-				cell = row.getCell(5);
+				
 				List<SignupAttendee> attendees = getValidAttendees(tsItem.getAttendees());
+				
+				// attendee names
+				cell = row.getCell(5);
 				String aNames = rb.getString("event_show_no_attendee_info");
 				if (isDisplayNames(wrapper.getMeeting())) {
 					if (attendees != null && attendees.size() > rowHighNum) {
@@ -692,9 +696,25 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 				}
 				cell.setCellValue(aNames);
 				cell.setCellStyle(styles.get("attendee_layout"));
+				
+				// attendee userids
+				// without completely reformatting the way the table is constructed, this gives the userids in a separate column
+				cell = row.getCell(6);
+				String aEids = rb.getString("event_show_no_attendee_info");
+				if (isDisplayNames(wrapper.getMeeting())) {
+					if (attendees != null && attendees.size() > rowHighNum) {
+						rowHighNum = attendees.size();
+					}
+					aEids = getEids(attendees);
+				}
+				if (tsItem.isCanceled() && isOrganizer(wrapper.getMeeting())) {
+					aEids = rb.getString("event_is_canceled");
+				}
+				cell.setCellValue(aEids);
+				cell.setCellStyle(styles.get("attendee_layout"));
 
 				// waiters
-				cell = row.getCell(6);
+				cell = row.getCell(7);
 				String fieldValue = "";
 				if (isOrganizer(wrapper.getMeeting())) {
 					List<SignupAttendee> waiters = tsItem.getWaitingList();
@@ -855,13 +875,25 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 		StringBuffer sb = new StringBuffer();
 		for (SignupAttendee att : attendees) {
 			sb.append(sakaiFacade.getUserDisplayName(att.getAttendeeUserId()));
-			sb.append(";");
+			sb.append("\n");
+		}
+		/* remove the last'\n' one */
+		return sb.length() > 1 ? sb.substring(0, sb.length() - 1) : "";
+	}
+	
+	private String getEids(List<SignupAttendee> attendees) {
+		if (attendees == null)
+			return "";
+
+		StringBuffer sb = new StringBuffer();
+		for (SignupAttendee att : attendees) {
 			sb.append(sakaiFacade.getUser(att.getAttendeeUserId()).getEid());
 			sb.append("\n");
 		}
 		/* remove the last'\n' one */
 		return sb.length() > 1 ? sb.substring(0, sb.length() - 1) : "";
 	}
+	
 
 	private String getAvailableSitesGroups(SignupMeeting sm) {
 		StringBuffer sb = new StringBuffer();
@@ -1005,17 +1037,19 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 	}
 
 	private void initTableThRow() {
-		tabTitles_Organizor = new String[4];
+		tabTitles_Organizor = new String[5];
 		tabTitles_Organizor[0] = rb.getString("tab_time_slot", "Time Slot");
 		tabTitles_Organizor[1] = rb.getString("tab_max_attendee", "Max # of Participants");
 		tabTitles_Organizor[2] = rb.getString("tab_attendees", "Participants");
-		tabTitles_Organizor[3] = rb.getString("tab_waiting_list", "Wait List");
+		tabTitles_Organizor[3] = rb.getString("tab_attendees_eids", "Participants User IDs");
+		tabTitles_Organizor[4] = rb.getString("tab_waiting_list", "Wait List");
 
-		tabTitles_Participant = new String[4];
+		tabTitles_Participant = new String[5];
 		tabTitles_Participant[0] = rb.getString("tab_time_slot", "Time Slot");
 		tabTitles_Participant[1] = rb.getString("tab_event_available_slots", "Available Slots");
 		tabTitles_Participant[2] = rb.getString("tab_attendees", "Participants");
-		tabTitles_Participant[3] = rb.getString("tab_event_your_status", "Your Status");
+		tabTitles_Participant[3] = rb.getString("tab_attendees_eids", "Participants User IDs");
+		tabTitles_Participant[4] = rb.getString("tab_event_your_status", "Your Status");
 
 		tabTitles_shortVersion = new String[7];
 		tabTitles_shortVersion[0] = rb.getString("tab_event_name", "Meeting Title");
