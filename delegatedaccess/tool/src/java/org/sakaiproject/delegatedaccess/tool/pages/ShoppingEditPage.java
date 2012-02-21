@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 
@@ -25,6 +26,8 @@ import org.apache.wicket.markup.html.tree.AbstractTree;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
+import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnAuthDropdown;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnCheckbox;
@@ -65,9 +68,6 @@ public class ShoppingEditPage extends BaseTreePage{
 		//FORM:
 		Form form = new Form("form");
 		add(form);
-
-		//Expand Collapse Link:
-		form.add(getExpandCollapseLink());
 
 
 		//tree:
@@ -117,6 +117,9 @@ public class ShoppingEditPage extends BaseTreePage{
 		}
 		IColumn columns[] = columnsList.toArray(new IColumn[columnsList.size()]);
 
+		final List<ListOptionSerialized> blankRestrictedTools = projectLogic.getEntireToolsList();
+		final List<ListOptionSerialized> blankTerms = projectLogic.getEntireTermsList();
+		
 		//a null model means the tree is empty
 		tree = new TreeTable("treeTable", treeModel, columns){
 			@Override
@@ -125,12 +128,33 @@ public class ShoppingEditPage extends BaseTreePage{
 			}
 			protected void onNodeLinkClicked(AjaxRequestTarget target, TreeNode node) {
 				tree.getTreeState().selectNode(node, false);
-				if(!tree.getTreeState().isNodeExpanded(node)){
+				
+				boolean anyAdded = false;
+				if(!tree.getTreeState().isNodeExpanded(node) && !((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isAddedDirectChildrenFlag()){
+					anyAdded = projectLogic.addChildrenNodes(node, DelegatedAccessConstants.SHOPPING_PERIOD_USER, blankRestrictedTools, blankTerms);
+					((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).setAddedDirectChildrenFlag(true);
+				}
+				if(anyAdded){
+					collapseEmptyFoldersHelper((DefaultMutableTreeNode) node);
+				}
+				if(!tree.getTreeState().isNodeExpanded(node) || anyAdded){
 					tree.getTreeState().expandNode(node);
 				}else{
 					tree.getTreeState().collapseNode(node);
 				}
 			}
+			protected void onJunctionLinkClicked(AjaxRequestTarget target, TreeNode node) {
+				//the nodes are generated on the fly with ajax.  This will add any child nodes that 
+				//are missing in the tree.  Expanding and collapsing will refresh the tree node
+				if(tree.getTreeState().isNodeExpanded(node) && !((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isAddedDirectChildrenFlag()){
+					boolean anyAdded = projectLogic.addChildrenNodes(node, DelegatedAccessConstants.SHOPPING_PERIOD_USER, blankRestrictedTools, blankTerms);
+					((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).setAddedDirectChildrenFlag(true);
+					if(anyAdded){
+						collapseEmptyFoldersHelper((DefaultMutableTreeNode) node);
+					}
+				}
+			}
+			
 			@Override
 			protected boolean isForceRebuildOnSelectionChange() {
 				return true;

@@ -803,7 +803,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//Returns a List that represents the tree/node architecture:
 		//  List{ List{node, List<children>}, List{node, List<children>}, ...}.
 
-		List<List> l1 = getTreeListForUser(DelegatedAccessConstants.SHOPPING_PERIOD_USER, false, true, getShoppingPeriodAdminNodesForUser(userId));
+		List<List> l1 = getTreeListForUser(DelegatedAccessConstants.SHOPPING_PERIOD_USER, false, false, getShoppingPeriodAdminNodesForUser(userId));
 
 		//order tree model:
 		orderTreeModel(l1);
@@ -1213,8 +1213,24 @@ public class ProjectLogicImpl implements ProjectLogic {
 			Date updated= null;
 			Date processed = null;
 			boolean shoppingPeriodAdmin = false;
+			boolean directAccess = false;
 			DefaultMutableTreeNode child = new DelegatedAccessMutableTreeNode();
-			child.setUserObject(new NodeModel(childNode.id, childNode, false, realm, role,
+			if(DelegatedAccessConstants.SHOPPING_PERIOD_USER.equals(userId)){
+				Set<String> perms = getPermsForUserNodes(userId, childNode.id);
+				String[] realmRole = getAccessRealmRole(perms);
+				realm = realmRole[0];
+				role = realmRole[1];
+				startDate = getShoppingStartDate(perms);
+				endDate = getShoppingEndDate(perms);
+				shoppingPeriodAuth = getShoppingPeriodAuth(perms);
+				restrictedTools = getRestrictedToolSerializedList(perms, restrictedTools);
+				terms = getTermSerializedList(perms, terms);
+				directAccess = getIsDirectAccess(perms);
+				updated = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_UPDATED_DATE);
+				processed = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_PROCESSED_DATE);
+			}
+			
+			child.setUserObject(new NodeModel(childNode.id, childNode, directAccess, realm, role,
 					((NodeModel) parentNode.getUserObject()), restrictedTools, startDate, endDate, 
 					shoppingPeriodAuth, false, shoppingPeriodAdmin, updated, processed, terms));
 
