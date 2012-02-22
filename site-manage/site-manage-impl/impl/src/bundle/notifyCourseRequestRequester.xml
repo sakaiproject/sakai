@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<emailTemplates>
+<emailTemplate>
+<subject>Site Request from ${currentUserDisplayName} for ${termTitle}</subject>
+<message>
+ 
+Your request is being processed. You will receive email when the class roster has been added to your site. In the meantime, you can continue with the site setup process and add course materials to your site.
+
+This is a copy of the Course Site request that you made.
+
+${supportEmailContent}
+
+If you wish to provide additional information, please send email to ${requestEmail}.
+
+</message>
+<locale></locale>
+</emailTemplate>
+</emailTemplates>

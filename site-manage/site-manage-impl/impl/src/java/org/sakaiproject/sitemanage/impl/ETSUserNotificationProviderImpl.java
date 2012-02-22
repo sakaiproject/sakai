@@ -3,6 +3,8 @@ package org.sakaiproject.sitemanage.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -21,11 +23,13 @@ import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
 import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitemanage.api.UserNotificationProvider;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.ResourceLoader;
 
 
 
@@ -36,6 +40,19 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 	private static String NOTIFY_ADDED_PARTICIPANT ="sitemange.notifyAddedParticipant";
 
 	private static String NOTIFY_NEW_USER ="sitemanage.notifyNewUserEmail"; 
+	
+	private static String NOTIFY_TEMPLATE_USE = "sitemanage.notifyTemplateUse";
+	
+	// to send an email to course authorizer based on course site request
+	private static String NOTITY_COURSE_REQUEST_AUTHORIZER = "sitemanage.notifyCourseRequestAuthorizer";
+	
+	// to send an email to course site requestor
+	private static String NOTIFY_COURSE_REQUEST_REQUESTER = "sitemanage.notifyCourseRequestRequester";
+	
+	// to send an email to support team about course request
+	private static String NOTIFY_COURSE_REQUEST_SUPPORT = "sitemanage.notifyCourseRequestSupport";
+	
+	private static String NOTIFY_SITE_CREATION = "sitemanage.notifySiteCreation";
 	
 	private static final String ADMIN = "admin";
 	
@@ -88,9 +105,13 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
         replacementValues.put("newPassword", "");
         replacementValues.put("productionSiteName", "");
         
-        loadAddedParticipantMail();
-        
-        loadNewUserMail();
+    	loadTemplate("notifyAddedParticipants.xml", NOTIFY_ADDED_PARTICIPANT);
+    	loadTemplate("notifyNewuser.xml", NOTIFY_NEW_USER);
+    	loadTemplate("notifyTemplateUse.xml", NOTIFY_TEMPLATE_USE);
+    	loadTemplate("notifyCourseRequestAuthorizer.xml", NOTITY_COURSE_REQUEST_AUTHORIZER);
+    	loadTemplate("notifyCourseRequestRequester.xml", NOTIFY_COURSE_REQUEST_REQUESTER);
+    	loadTemplate("notifyCourseRequestSupport.xml", NOTIFY_COURSE_REQUEST_SUPPORT);
+    	loadTemplate("notifySiteCreation.xml", NOTIFY_SITE_CREATION);
 			
 	}
 	
@@ -122,36 +143,22 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 			 * $localSakaiUrl
 			 */
 			 Map<String, String> replacementValues = new HashMap<String, String>();
-	            replacementValues.put("userName", user.getDisplayName());
-	            replacementValues.put("userEid", user.getEid());
-	            replacementValues.put("localSakaiName",serverConfigurationService.getString(
+			 replacementValues.put("userName", user.getDisplayName());
+			 replacementValues.put("userEid", user.getEid());
+			 replacementValues.put("localSakaiName",serverConfigurationService.getString(
 	    				"ui.service", ""));
-	            replacementValues.put("currentUserName",userDirectoryService.getCurrentUser().getDisplayName());
-	            replacementValues.put("localSakaiUrl", serverConfigurationService.getPortalUrl());
-	            String nonOfficialAccountUrl = serverConfigurationService.getString("nonOfficialAccount.url", null);
-	            replacementValues.put("hasNonOfficialAccountUrl", nonOfficialAccountUrl!=null?Boolean.TRUE.toString().toLowerCase():Boolean.FALSE.toString().toLowerCase());
-	            replacementValues.put("nonOfficialAccountUrl",nonOfficialAccountUrl);
-	            replacementValues.put("siteName", siteTitle);
-	            replacementValues.put("productionSiteName", productionSiteName);
-	            replacementValues.put("newNonOfficialAccount", Boolean.valueOf(newNonOfficialAccount).toString().toLowerCase());
-	         
-	            M_log.debug("getting template: sitemange.notifyAddedParticipant");
-	            RenderedTemplate template = null;
-	           try { 
-				template = emailTemplateService.getRenderedTemplateForUser(NOTIFY_ADDED_PARTICIPANT, user.getReference(), replacementValues); 
-				if (template == null)
-					return;	
-	           }
-	           catch (Exception e) {
-	        	   e.printStackTrace();
-	        	   return;
-	           }
-			List<String> headers = new ArrayList<String>();
-			headers.add("Precedence: bulk");
-			
-			content = template.getRenderedMessage();	
-			emailService.send(from, to, template.getRenderedSubject(), content, headerTo,
-					replyTo, headers);
+			 replacementValues.put("currentUserName",userDirectoryService.getCurrentUser().getDisplayName());
+			 replacementValues.put("localSakaiUrl", serverConfigurationService.getPortalUrl());
+			 String nonOfficialAccountUrl = serverConfigurationService.getString("nonOfficialAccount.url", null);
+			 replacementValues.put("hasNonOfficialAccountUrl", nonOfficialAccountUrl!=null?Boolean.TRUE.toString().toLowerCase():Boolean.FALSE.toString().toLowerCase());
+			 replacementValues.put("nonOfficialAccountUrl",nonOfficialAccountUrl);
+			 replacementValues.put("siteName", siteTitle);
+			 replacementValues.put("productionSiteName", productionSiteName);
+			 replacementValues.put("newNonOfficialAccount", Boolean.valueOf(newNonOfficialAccount).toString().toLowerCase());
+			 
+			 // send email
+			 emailTemplateServiceSend(NOTIFY_ADDED_PARTICIPANT, null, user, from, to, headerTo, replyTo, replacementValues);
+				
 
 		} // if
 
@@ -168,16 +175,8 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		String to = newUserEmail;
 		String headerTo = newUserEmail;
 		String replyTo = from;
-		
-		
-		
-		
-		 
 		String content = "";
 
-		
-	
-		
 		if (from != null && newUserEmail != null) {
 			/*
 			 * $userName
@@ -185,29 +184,201 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 			 * $currentUserName
 			 * $localSakaiUrl
 			 */
-			 Map<String, String> replacementValues = new HashMap<String, String>();
-	            replacementValues.put("userName", user.getDisplayName());
-	            replacementValues.put("localSakaiName",serverConfigurationService.getString(
-	    				"ui.service", ""));
-	            replacementValues.put("currentUserName",userDirectoryService.getCurrentUser().getDisplayName());
-	            replacementValues.put("userEid", user.getEid());
-	            replacementValues.put("localSakaiUrl", serverConfigurationService.getPortalUrl());
-	            replacementValues.put("newPassword",newUserPassword);
-	            replacementValues.put("siteName", siteTitle);
-	            replacementValues.put("productionSiteName", productionSiteName);
-	        RenderedTemplate template = emailTemplateService.getRenderedTemplateForUser(NOTIFY_NEW_USER, user.getReference(), replacementValues);    		
-	    	if (template == null)
-				return;
-	        content = template.getRenderedMessage();
-			
-			String message_subject = template.getRenderedSubject();
-			List<String> headers = new ArrayList<String>();
-			headers.add("Precedence: bulk");
-			emailService.send(from, to, message_subject, content, headerTo,
-					replyTo, headers);
+			Map<String, String> replacementValues = new HashMap<String, String>();
+			replacementValues.put("userName", user.getDisplayName());
+			replacementValues.put("localSakaiName",serverConfigurationService.getString("ui.service", ""));
+			replacementValues.put("currentUserName",userDirectoryService.getCurrentUser().getDisplayName());
+			replacementValues.put("userEid", user.getEid());
+			replacementValues.put("localSakaiUrl", serverConfigurationService.getPortalUrl());
+			replacementValues.put("newPassword",newUserPassword);
+			replacementValues.put("siteName", siteTitle);
+			replacementValues.put("productionSiteName", productionSiteName);
+
+			// send email
+			emailTemplateServiceSend(NOTIFY_NEW_USER, null, user, from, to, headerTo, replyTo, replacementValues);
 		}
 	}
+	
+	public void notifyTemplateUse(Site templateSite, User currentUser, Site site) {
+		// send an email to track who are using the template
+		String from = getSetupRequestEmailAddress();
+		// send it to the email archive of the template site
+		// TODO: need a better way to get the email archive address
+		//String domain = from.substring(from.indexOf('@'));
+		String templateEmailArchive = templateSite.getId() + "@" + serverConfigurationService.getServerName();
+		String to = templateEmailArchive;
+		String headerTo = templateEmailArchive;
+		String replyTo = templateEmailArchive;
+		String content = "";					
 
+		if (from != null && templateEmailArchive != null) {
+			Map<String, String> replacementValues = new HashMap<String, String>();
+			replacementValues.put("templateSiteTitle", templateSite.getTitle());
+			replacementValues.put("templateSiteId", templateSite.getId());
+			replacementValues.put("currentUserDisplayName", currentUser.getDisplayName());
+			replacementValues.put("currentUserDisplayId", currentUser.getDisplayId());
+
+			replacementValues.put("newSiteId", site.getId());
+			replacementValues.put("newSiteTitle", site.getTitle());
+			
+			emailTemplateServiceSend(NOTIFY_TEMPLATE_USE, (new ResourceLoader()).getLocale(), currentUser, from, to, headerTo, replyTo, replacementValues);
+		}
+	}
+	
+	public boolean notifyCourseRequestAuthorizer(String instructorId, String requestEmail, String termTitle, String requestSectionInfo, String siteTitle, String siteId, String additionalInfo, String serverName)
+	{
+		try {
+			User instructor = userDirectoryService.getUserByEid(instructorId);
+			ResourceLoader rb = new ResourceLoader(instructorId, "UserNotificationProvider");
+			StringBuffer buf = new StringBuffer();
+			String to = instructor.getEmail();	
+			String from = requestEmail;
+			String headerTo = to;
+			String replyTo = requestEmail;
+			User currentUser = userDirectoryService.getCurrentUser();
+			String currentUserDisplayName = currentUser!=null?currentUser.getDisplayName():"";
+			
+			Map<String, String> replacementValues = new HashMap<String, String>();
+			replacementValues.put("currentUserDisplayName", currentUserDisplayName);
+			replacementValues.put("termTitle", termTitle);
+			replacementValues.put("requestSectionInfo", requestSectionInfo);
+			replacementValues.put("siteTitle", siteTitle);
+			replacementValues.put("siteId", siteId);
+			replacementValues.put("specialInstruction", additionalInfo);
+			replacementValues.put("serverName", serverName);
+			
+			return emailTemplateServiceSend(NOTITY_COURSE_REQUEST_AUTHORIZER, null, instructor, from, to, headerTo, replyTo, replacementValues) == null? true:false;
+			
+		}
+		catch (Exception e)
+		{
+			M_log.warn(this + " cannot find user " + instructorId);
+			return false;
+		}
+	}
+	
+	public String notifyCourseRequestSupport(String requestEmail, String serverName, String request, String termTitle, int requestListSize, String requestSectionInfo,
+			String officialAccountName, String siteTitle, String siteId, String additionalInfo, boolean requireAuthorizer, String authorizerNotified, String authorizerNotNotified)
+	{
+		ResourceLoader rb = new ResourceLoader("UserNotificationProvider");
+		
+
+		User currentUser = userDirectoryService.getCurrentUser();
+		String currentUserDisplayName = currentUser!=null?currentUser.getDisplayName():"";
+		String currentUserDisplayId = currentUser!=null?currentUser.getDisplayId():"";
+		String currentUserEmail = currentUser!=null?currentUser.getEmail():"";
+			
+			
+		// To Support
+		String from = currentUserEmail;
+		String to = requestEmail;
+		String headerTo = requestEmail;
+		String replyTo = currentUserEmail;
+		
+		Map<String, String> replacementValues = new HashMap<String, String>();
+		replacementValues.put("currentUserDisplayName", currentUserDisplayName);
+		replacementValues.put("termTitle", termTitle);
+		replacementValues.put("requestSectionInfo", requestSectionInfo);
+		replacementValues.put("requestListSize", String.valueOf(requestListSize));
+		replacementValues.put("siteTitle", siteTitle);
+		replacementValues.put("siteId", siteId);
+		replacementValues.put("specialInstruction", additionalInfo);
+		replacementValues.put("serverName", serverName);
+		
+		SimpleDateFormat dform = ((SimpleDateFormat) DateFormat.getDateInstance());
+        dform.applyPattern("yyyy-MM-dd HH:mm:ss");
+        String dateDisplay = dform.format(new Date());
+		replacementValues.put("dateDisplay", dateDisplay);
+		
+		replacementValues.put("requireAuthorizer", String.valueOf(requireAuthorizer));
+		replacementValues.put("authorizerNotified", authorizerNotified);
+		replacementValues.put("authorizerNotNotified", authorizerNotNotified);
+		
+		try
+		{
+			return emailTemplateServiceSend(NOTIFY_COURSE_REQUEST_SUPPORT, (new ResourceLoader()).getLocale(), currentUser, from, to, headerTo, replyTo, replacementValues);
+		}
+		catch (Exception e)
+		{
+			M_log.warn(this + " problem in send site request email to support for " + currentUserDisplayName );
+			return "";
+		}
+	}
+	
+	public void notifyCourseRequestRequester(String requestEmail, String supportEmailContent, String termTitle)
+	{
+		User currentUser = userDirectoryService.getCurrentUser();
+		String currentUserDisplayName = currentUser!=null?currentUser.getDisplayName():"";
+		String currentUserDisplayId = currentUser!=null?currentUser.getDisplayId():"";
+		String currentUserId = currentUser!=null?currentUser.getId():"";
+		String currentUserEmail = currentUser!=null?currentUser.getEmail():"";
+		
+
+		ResourceLoader rb = new ResourceLoader(currentUserId, "UserNotificationProvider");
+		
+		String from = requestEmail;
+		String to = currentUserEmail;
+		String headerTo = to;
+		String replyTo = to;
+		Map<String, String> replacementValues = new HashMap<String, String>();
+		replacementValues.put("currentUserDisplayName", currentUserDisplayName);
+		replacementValues.put("currentUserDisplayId", currentUserDisplayId);
+		replacementValues.put("currentUserEmail", currentUserEmail);
+		replacementValues.put("termTitle", termTitle);
+		replacementValues.put("supportEmailContent", supportEmailContent);
+		replacementValues.put("requestEmail", requestEmail);
+		
+		emailTemplateServiceSend(NOTIFY_COURSE_REQUEST_REQUESTER, (new ResourceLoader()).getLocale(), currentUser, from, to, headerTo, replyTo, replacementValues);
+	}
+	
+	public void notifySiteCreation(Site site, List notifySites, boolean courseSite, String termTitle, String requestEmail) {
+		User currentUser = userDirectoryService.getCurrentUser();
+		String currentUserDisplayName = currentUser!=null?currentUser.getDisplayName():"";
+		String currentUserDisplayId = currentUser!=null?currentUser.getDisplayId():"";
+		String currentUserId = currentUser!=null?currentUser.getId():"";
+		String currentUserEmail = currentUser!=null?currentUser.getEmail():"";
+		
+		SimpleDateFormat dform = ((SimpleDateFormat) DateFormat.getDateInstance());
+        dform.applyPattern("yyyy-MM-dd HH:mm:ss");
+        String dateDisplay = dform.format(new Date());
+		
+		ResourceLoader rb = new ResourceLoader("UserNotificationProvider");
+		
+		String from = requestEmail;
+		String to = currentUserEmail;
+		String headerTo = to;
+		String replyTo = to;
+		Map<String, String> replacementValues = new HashMap<String, String>();
+		replacementValues.put("currentUserDisplayName", currentUserDisplayName);
+		replacementValues.put("currentUserDisplayId", currentUserDisplayId);
+		replacementValues.put("currentUserEmail", currentUserEmail);
+		replacementValues.put("dateDisplay", dateDisplay);
+		replacementValues.put("termTitle", termTitle);
+		replacementValues.put("serverName", serverConfigurationService.getServerName());
+		replacementValues.put("siteTitle", site!=null?site.getTitle():"");
+		replacementValues.put("siteId", site!=null?site.getId():"");
+		replacementValues.put("courseSite", String.valueOf(courseSite));
+		
+		StringBuffer buf = new StringBuffer();
+		if (notifySites!= null)
+		{
+			int nbr_sections = notifySites.size();
+			replacementValues.put("numSections", String.valueOf(nbr_sections));
+			for (int i = 0; i < nbr_sections; i++) {
+				String course = (String) notifySites.get(i);
+				buf.append(course + "\n");
+			}
+		}
+		else
+		{
+			replacementValues.put("numSections", "0");
+		}
+		replacementValues.put("sections", buf.toString());
+		
+		emailTemplateServiceSend(NOTIFY_SITE_CREATION, (new ResourceLoader()).getLocale(), currentUser, from, to, headerTo, replyTo, replacementValues);
+	
+	}
+	
 	/*
 	 *  Private methods
 	 */
@@ -223,21 +394,22 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		return from;
 	}
 
-
 	@SuppressWarnings("unchecked")
-	private void loadAddedParticipantMail() {
+	private void loadTemplate(String templateFileName, String templateRegistrationString) 
+	{
+		M_log.info(this + " loading tempalte " + templateFileName);
 		//we need a user session to avoid potential NPE's
 		Session sakaiSession = sessionManager.getCurrentSession();
 		try {
 			sakaiSession.setUserId(ADMIN);
 		    sakaiSession.setUserEid(ADMIN);
-			InputStream in = ETSUserNotificationProviderImpl.class.getClassLoader().getResourceAsStream("notifyAddedParticipants.xml");
+			InputStream in = ETSUserNotificationProviderImpl.class.getClassLoader().getResourceAsStream(templateFileName);
 			Document document = new SAXBuilder(  ).build(in);
 			List<Element> it = document.getRootElement().getChildren("emailTemplate");
 			
 			for (int i =0; i < it.size(); i++) {
 				Element xmlTemplate = (Element)it.get(i);
-				xmlToTemplate(xmlTemplate, NOTIFY_ADDED_PARTICIPANT);
+				xmlToTemplate(xmlTemplate, templateRegistrationString);
 			}
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
@@ -254,36 +426,6 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 			sakaiSession.setUserId(null);
 		    sakaiSession.setUserEid(null);
 		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private void loadNewUserMail() {
-		try {
-			//we need a user session to avoind potential NPE's
-			Session sakaiSession = sessionManager.getCurrentSession();
-			sakaiSession.setUserId(ADMIN);
-		    sakaiSession.setUserEid(ADMIN);
-			InputStream in = ETSUserNotificationProviderImpl.class.getClassLoader().getResourceAsStream("notifyNewuser.xml");
-			Document document = new SAXBuilder(  ).build(in);
-			List<Element> it = document.getRootElement().getChildren("emailTemplate");
-			
-			for (int i =0; i < it.size(); i++) {
-				Element xmlTemplate = (Element)it.get(i);
-				xmlToTemplate(xmlTemplate, NOTIFY_NEW_USER);
-			}
-			sakaiSession.setUserId(null);
-		    sakaiSession.setUserEid(null);
-
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JDOMException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
 	}
 
 	private void xmlToTemplate(Element xmlTemplate, String key) {
@@ -334,7 +476,46 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		}
 		return email;
 	}
-
-
 	
+	/**
+	 * use EmailTemplateService to send email
+	 * @param templateName
+	 * @param user
+	 * @param from
+	 * @param to
+	 * @param headerTo
+	 * @param replyTo
+	 * @param replacementValues
+	 * @return the email content
+	 */
+	private String emailTemplateServiceSend(String templateName, Locale locale, User user, String from, String to, String headerTo, String replyTo, Map<String, String> replacementValues) {
+		M_log.debug("getting template: " + templateName);
+		RenderedTemplate template = null;
+		try { 
+			if (locale == null)
+			{
+				// use user's locale
+				template = emailTemplateService.getRenderedTemplateForUser(templateName, user!=null?user.getReference():"", replacementValues);
+			}
+			else
+			{
+				// use local
+				template = emailTemplateService.getRenderedTemplate(templateName, locale, replacementValues);
+			}
+			if (template != null)
+			{
+				List<String> headers = new ArrayList<String>();
+				headers.add("Precedence: bulk");
+				
+				String content = template.getRenderedMessage();	
+				emailService.send(from, to, template.getRenderedSubject(), content, headerTo, replyTo, headers);
+				return content;
+			}
+       }
+       catch (Exception e) {
+    	   M_log.warn(this + e.getMessage());
+    	   return null;
+       }
+       return null;
+	}
 }

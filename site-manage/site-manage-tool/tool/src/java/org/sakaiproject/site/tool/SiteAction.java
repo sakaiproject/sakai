@@ -118,6 +118,7 @@ import org.sakaiproject.sitemanage.api.model.SiteSetupQuestion;
 import org.sakaiproject.sitemanage.api.model.SiteSetupQuestionAnswer;
 import org.sakaiproject.sitemanage.api.model.SiteSetupUserAnswer;
 import org.sakaiproject.sitemanage.api.model.SiteTypeQuestions;
+import org.sakaiproject.sitemanage.api.UserNotificationProvider;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
@@ -180,6 +181,9 @@ public class SiteAction extends PagedResourceActionII {
 	
 	private static org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService questionService = (org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService) ComponentManager
 	.get(org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService.class);
+	
+	private static org.sakaiproject.sitemanage.api.UserNotificationProvider userNotificationProvider = (org.sakaiproject.sitemanage.api.UserNotificationProvider) ComponentManager
+	.get(org.sakaiproject.sitemanage.api.UserNotificationProvider.class);
 	
 	private static final String SITE_MODE_SITESETUP = "sitesetup";
 
@@ -5145,7 +5149,7 @@ public class SiteAction extends PagedResourceActionII {
 				// publish the site or not based on the template choice
 				site.setPublished(state.getAttribute(STATE_TEMPLATE_PUBLISH) != null?true:false);
 				
-				sendTemplateUseNotification(site, UserDirectoryService.getCurrentUser(), templateSite);	
+				userNotificationProvider.notifyTemplateUse(templateSite, UserDirectoryService.getCurrentUser(), site);	
 			}
 				
 			ResourcePropertiesEdit rp = site.getPropertiesEdit();
@@ -5549,7 +5553,7 @@ public class SiteAction extends PagedResourceActionII {
 		User cUser = UserDirectoryService.getCurrentUser();
 		String sendEmailToRequestee = null;
 		StringBuilder buf = new StringBuilder();
-		Boolean requireAuthorizer = ServerConfigurationService.getString("wsetup.requireAuthorizer", "true").equals("true")?Boolean.TRUE:Boolean.FALSE;
+		boolean requireAuthorizer = ServerConfigurationService.getString("wsetup.requireAuthorizer", "true").equals("true")?true:false;
 
 		// get the request email from configuration
 		String requestEmail = getSetupRequestEmailAddress();
@@ -5581,7 +5585,6 @@ public class SiteAction extends PagedResourceActionII {
 			String to = NULL_STRING;
 			String headerTo = NULL_STRING;
 			String replyTo = NULL_STRING;
-			String message_subject = NULL_STRING;
 			String content = NULL_STRING;
 
 			String sessionUserName = cUser.getDisplayName();
@@ -5598,16 +5601,6 @@ public class SiteAction extends PagedResourceActionII {
 							.getAttribute(STATE_FUTURE_TERM_SELECTED))
 							.booleanValue()) {
 				isFutureTerm = true;
-			}
-
-			// message subject
-			if (termExist) {
-				message_subject = rb.getString("java.sitereqfrom") + " "
-						+ sessionUserName + " " + rb.getString("java.for")
-						+ " " + term.getEid();
-			} else {
-				message_subject = rb.getString("java.official") + " "
-						+ sessionUserName;
 			}
 
 			// there is no offical instructor for future term sites
@@ -5634,173 +5627,50 @@ public class SiteAction extends PagedResourceActionII {
                     authorizerList.add(instructorId);
 				}
             }
- 			
-			if (!isFutureTerm) {
-				// To site quest account - the instructor of record's
-				//if (requestId != null) {
-					//List instructors = new ArrayList(Arrays.asList(requestId.split(",")));
-					for (Iterator iInstructors = authorizerList.iterator(); iInstructors.hasNext();)
-					{
-						String instructorId = (String) iInstructors.next();
-						try {
-							User instructor = UserDirectoryService.getUserByEid(instructorId);
-							
-							rb.setContextLocale(rb.getLocale(instructor.getId()));
-							
-							// reset 
-							buf.setLength(0);
-							
-							to = instructor.getEmail();	
-							from = requestEmail;
-							headerTo = to;
-							replyTo = requestEmail;
-							buf.append(rb.getString("java.hello") + " \n\n");
-							buf.append(rb.getString("java.receiv") + " "
-									+ sessionUserName + ", ");
-							buf.append(rb.getString("java.who") + "\n");
-							if (termExist) {
-								buf.append(term.getTitle() + "\n");
-							}
-	
-							// requested sections
-							if ("manual".equals(fromContext))
-							{
-								addRequestedSectionIntoNotification(state, requestFields, buf);
-							}
-							else if ("cmRequest".equals(fromContext))
-							{
-								addRequestedCMSectionIntoNotification(state, requestFields, buf);
-							}
-							
-							buf.append(rb.getString("java.sitetitle") + "\t"
-									+ title + "\n");
-							buf.append(rb.getString("java.siteid") + "\t" + id + "\n\n");			
-							buf.append(rb.getString("java.siteinstr") + "\n" + additional
-									+ "\n\n");
-							buf.append(rb.getString("java.according")
-									+ " " + sessionUserName + " "
-									+ rb.getString("java.record"));
-							buf.append(" " + rb.getString("java.canyou") + " "
-									+ sessionUserName + " "
-									+ rb.getString("java.assoc") + "\n\n");
-							buf.append(rb.getString("java.respond") + " "
-									+ sessionUserName
-									+ rb.getString("java.appoint") + "\n\n");
-							buf.append(rb.getString("java.thanks") + "\n");
-							buf.append(productionSiteName + " "
-									+ rb.getString("java.support"));
-							content = buf.toString();
-	
-							// send the email
-							if (requireAuthorizer) {
-							  EmailService.send(from, to, message_subject, content,
-									headerTo, replyTo, null);
-							}
-							// revert back the local setting to default
-							
-							rb.setContextLocale(Locale.getDefault());
-						}
-						catch (Exception e)
-						{
-							sendEmailToRequestee = sendEmailToRequestee == null?instructorId:sendEmailToRequestee.concat(", ").concat(instructorId);
-						}
-				//	}
-				}
-			}
-
-			// To Support
-			from = cUser.getEmail();
-			// set locale to system default			
-			rb.setContextLocale(Locale.getDefault());
-			to = requestEmail;
-			headerTo = requestEmail;
-			replyTo = cUser.getEmail();
-			buf.setLength(0);
-			buf.append(rb.getString("java.to") + "\t\t" + productionSiteName
-					+ " " + rb.getString("java.supp") + "\n");
-			buf.append("\n" + rb.getString("java.from") + "\t"
-					+ sessionUserName + "\n");
-			if ("new".equals(request)) {
-				buf.append(rb.getString("java.subj") + "\t"
-						+ rb.getString("java.sitereq") + "\n");
-			} else {
-				buf.append(rb.getString("java.subj") + "\t"
-						+ rb.getString("java.sitechreq") + "\n");
-			}
-			buf.append(rb.getString("java.date") + "\t" + local_date + " "
-					+ local_time + "\n\n");
-			if ("new".equals(request)) {
-				buf.append(rb.getString("java.approval") + " "
-						+ productionSiteName + " "
-						+ rb.getString("java.coursesite") + " ");
-			} else {
-				buf.append(rb.getString("java.approval2") + " "
-						+ productionSiteName + " "
-						+ rb.getString("java.coursesite") + " ");
-			}
-			if (termExist) {
-				buf.append(term.getTitle());
-			}
-			if (requestListSize > 1) {
-				buf.append(" " + rb.getString("java.forthese") + " "
-						+ requestListSize + " " + rb.getString("java.sections")
-						+ "\n\n");
-			} else {
-				buf.append(" " + rb.getString("java.forthis") + "\n\n");
-			}
-
+            
+            String requestSectionInfo = "";
 			// requested sections
 			if ("manual".equals(fromContext))
 			{
-				addRequestedSectionIntoNotification(state, requestFields, buf);
+				requestSectionInfo = addRequestedSectionIntoNotification(state, requestFields);
 			}
 			else if ("cmRequest".equals(fromContext))
 			{
-				addRequestedCMSectionIntoNotification(state, requestFields, buf);
+				requestSectionInfo = addRequestedCMSectionIntoNotification(state, requestFields);
 			}
-			
-			buf.append(rb.getString("java.name") + "\t" + sessionUserName
-					+ " (" + officialAccountName + " " + cUser.getEid()
-					+ ")\n");
-			buf.append(rb.getString("java.email") + "\t" + replyTo + "\n");
-			buf.append(rb.getString("java.sitetitle") + "\t" + title + "\n");
-			buf.append(rb.getString("java.siteid") + "\t" + id + "\n\n");
-			buf.append(rb.getString("java.siteinstr") + "\n" + additional
-					+ "\n\n");
-
+ 			
+			String authorizerNotified = "";
+			String authorizerNotNotified = "";
 			if (!isFutureTerm) {
-				if (sendEmailToRequestee == null) {
-					buf.append(rb.getString("java.authoriz") + " " + requestId
-							+ " " + rb.getString("java.asreq"));
-				} else {
-					buf.append(rb.getString("java.thesiteemail") + " "
-							+ sendEmailToRequestee + " " + rb.getString("java.asreq"));
+				for (Iterator iInstructors = authorizerList.iterator(); iInstructors.hasNext();)
+				{
+					String instructorId = (String) iInstructors.next();
+					if (requireAuthorizer)
+					{
+						// 1. email to course site authorizer
+						boolean result = userNotificationProvider.notifyCourseRequestAuthorizer(instructorId, requestEmail, term != null? term.getTitle():"", requestSectionInfo, title, id, additional, productionSiteName);
+						if (!result)
+						{
+							// append authorizer who doesn't received an notification
+							authorizerNotNotified += instructorId + ", ";
+						}
+						else
+						{
+							// append authorizer who does received an notification
+							authorizerNotified += instructorId + ", ";
+						}
+						
+					}
 				}
 			}
-			content = buf.toString();
-			if (requireAuthorizer) {
-			  EmailService.send(from, to, message_subject, content, headerTo,
-					replyTo, null);
-			}
 
-			// To the Instructor
-			from = requestEmail;
-			to = cUser.getEmail();
-			// set the locale to individual receipient's setting			
-			rb.setContextLocale(rb.getLocale(cUser.getId()));
-			headerTo = to;
-			replyTo = to;
-			buf.setLength(0);
-			buf.append(rb.getString("java.isbeing") + " ");
-			buf.append(rb.getString("java.meantime") + "\n\n");
-			buf.append(rb.getString("java.copy") + "\n\n");
-			buf.append(content);
-			buf.append("\n" + rb.getString("java.wish") + " " + requestEmail);
-			content = buf.toString();
-			if (requireAuthorizer) {
-			  EmailService.send(from, to, message_subject, content, headerTo,
-					replyTo, null);
-			}
+			// 2. email to system support team
+			String supportEmailContent = userNotificationProvider.notifyCourseRequestSupport(requestEmail, productionSiteName, request, term != null?term.getTitle():"", requestListSize, requestSectionInfo,
+						officialAccountName, title, id, additional, requireAuthorizer, authorizerNotified, authorizerNotNotified);
+			
+			// 3. email to site requeser
+			userNotificationProvider.notifyCourseRequestRequester(requestEmail, supportEmailContent, term != null?term.getTitle():"");
+			
 			// revert the locale to system default			
 			rb.setContextLocale(Locale.getDefault());
 			state.setAttribute(REQUEST_SENT, Boolean.valueOf(true));
@@ -5812,7 +5682,8 @@ public class SiteAction extends PagedResourceActionII {
 
 	} // sendSiteRequest
 
-	private void addRequestedSectionIntoNotification(SessionState state, List requestFields, StringBuilder buf) {
+	private String addRequestedSectionIntoNotification(SessionState state, List requestFields) {
+		StringBuffer buf = new StringBuffer();
 		// what are the required fields shown in the UI
 		List requiredFields = state.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS) != null ?(List) state.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS):new Vector();
 		for (int i = 0; i < requiredFields.size(); i++) {
@@ -5825,10 +5696,13 @@ public class SiteAction extends PagedResourceActionII {
 				buf.append(requiredField.getLabelKey() + "\t"
 						+ requiredField.getValue() + "\n");
 			}
+			buf.append("\n");
 		}
+		return buf.toString();
 	}
 	
-	private void addRequestedCMSectionIntoNotification(SessionState state, List cmRequestedSections, StringBuilder buf) {
+	private String addRequestedCMSectionIntoNotification(SessionState state, List cmRequestedSections) {
+		StringBuffer buf = new StringBuffer();
 		// what are the required fields shown in the UI
 		for (int i = 0; i < cmRequestedSections.size(); i++) {
 			SectionObject so = (SectionObject) cmRequestedSections.get(i);
@@ -5836,6 +5710,7 @@ public class SiteAction extends PagedResourceActionII {
 			buf.append(so.getTitle() + "(" + so.getEid()
 					+ ")" + so.getCategory() + "\n");
 		}
+		return buf.toString();
 	}
 
 	/**
@@ -5844,83 +5719,17 @@ public class SiteAction extends PagedResourceActionII {
 	 */
 	private void sendSiteNotification(SessionState state, Site site, List notifySites) {
 		boolean courseSite = site.getType() != null && site.getType().equals((String) state.getAttribute(STATE_COURSE_SITE_TYPE));
-		Boolean requireAuthorizer = ServerConfigurationService.getString("wsetup.requireAuthorizer", "true").equals("true")?Boolean.TRUE:Boolean.FALSE;
 		
+		String term_name = "";
+		if (state.getAttribute(STATE_TERM_SELECTED) != null) {
+			term_name = ((AcademicSession) state
+					.getAttribute(STATE_TERM_SELECTED)).getEid();
+		}
 		// get the request email from configuration
 		String requestEmail = getSetupRequestEmailAddress();
-		if (requestEmail != null) {
-			// send emails
-			String id = site.getId();
-			String title = site.getTitle();
-			Time time = TimeService.newTime();
-			String local_time = time.toStringLocalTime();
-			String local_date = time.toStringLocalDate();
-			String term_name = "";
-			if (state.getAttribute(STATE_TERM_SELECTED) != null) {
-				term_name = ((AcademicSession) state
-						.getAttribute(STATE_TERM_SELECTED)).getEid();
-			}
-			String message_subject = courseSite ? rb.getString("java.official") + " "
-					+ UserDirectoryService.getCurrentUser().getDisplayName()
-					+ " " + rb.getString("java.for") + " " + term_name : rb.getString("java.site.createdBy") + " " + UserDirectoryService.getCurrentUser().getDisplayName();
-
-			String from = NULL_STRING;
-			String to = NULL_STRING;
-			String headerTo = NULL_STRING;
-			String replyTo = NULL_STRING;
-			String sender = UserDirectoryService.getCurrentUser()
-					.getDisplayName();
-			String userId = StringUtils.trimToEmpty(SessionManager
-					.getCurrentSessionUserId());
-			try {
-				userId = UserDirectoryService.getUserEid(userId);
-			} catch (UserNotDefinedException e) {
-				M_log.warn(this + ".sendSiteNotification:" + rb.getString("user.notdefined") + " " + userId, e);
-			}
-
-			// To Support
-			//set local to default			
-			rb.setContextLocale(Locale.getDefault());
-			from = UserDirectoryService.getCurrentUser().getEmail();
-			to = requestEmail;
-			headerTo = requestEmail;
-			replyTo = UserDirectoryService.getCurrentUser().getEmail();
-			StringBuilder buf = new StringBuilder();
-			buf.append("\n" + rb.getString("java.fromwork") + " "
-					+ ServerConfigurationService.getServerName() + " "
-					+ rb.getString("java.supp") + ":\n\n");
-			buf.append(courseSite ? rb.getString("java.off") : rb.getString("java.site"));
-			buf.append(" '" + title + "' (id " + id
-					+ "), " + rb.getString("java.wasset") + " ");
-			buf.append(sender + " (" + userId + ", "
-					+ rb.getString("java.email2") + " " + replyTo + ") ");
-			buf.append(rb.getString("java.on") + " " + local_date + " "
-					+ rb.getString("java.at") + " " + local_time + " ");
-			if (courseSite)
-			{
-				buf.append(rb.getString("java.for") + " " + term_name + ", ");
-			}
-			if (notifySites!= null)
-			{
-				int nbr_sections = notifySites.size();
-				if (nbr_sections > 1) {
-					buf.append(rb.getString("java.withrost") + " "
-							+ Integer.toString(nbr_sections) + " "
-							+ rb.getString("java.sections") + "\n\n");
-				} else {
-					buf.append(" " + rb.getString("java.withrost2") + "\n\n");
-				}
-	
-				for (int i = 0; i < nbr_sections; i++) {
-					String course = (String) notifySites.get(i);
-					buf.append(rb.getString("java.course2") + " " + course + "\n");
-				}
-			}
-			String content = buf.toString();
-			if (requireAuthorizer) {
-			  EmailService.send(from, to, message_subject, content, headerTo,
-					replyTo, null);
-			}
+		User currentUser = UserDirectoryService.getCurrentUser();
+		if (requestEmail != null && currentUser != null) {
+			userNotificationProvider.notifySiteCreation(site, notifySites, courseSite, term_name, requestEmail);
 		} // if
 
 		// reset locale to user default
@@ -9721,47 +9530,6 @@ public class SiteAction extends PagedResourceActionII {
 			}
 		}
 	} // addNewSite
-
-	private void sendTemplateUseNotification(Site site, User currentUser,
-			Site templateSite) {
-		// send an email to track who are using the template
-		String from = getSetupRequestEmailAddress();
-		Boolean requireAuthorizer = ServerConfigurationService.getString("wsetup.requireAuthorizer", "true").equals("true")?Boolean.TRUE:Boolean.FALSE;
- 
-		// send it to the email archive of the template site
-		// TODO: need a better way to get the email archive address
-		//String domain = from.substring(from.indexOf('@'));
-		String templateEmailArchive = templateSite.getId() 
-			+ "@" + ServerConfigurationService.getServerName();
-		String to = templateEmailArchive;
-		String headerTo = templateEmailArchive;
-		String replyTo = templateEmailArchive;
-		String message_subject = templateSite.getId() + ": copied by " + currentUser.getDisplayId ();					
-
-		if (from != null && templateEmailArchive != null) {
-			StringBuffer buf = new StringBuffer();
-			buf.setLength(0);
-
-			// email body
-			buf.append("Dear template maintainer,\n\n");
-			buf.append("Congratulations!\n\n");
-			buf.append("The following user just created a new site based on your template.\n\n");
-			buf.append("Template name: " + templateSite.getTitle() + "\n");
-			buf.append("User         : " + currentUser.getDisplayName() + " (" 
-					+ currentUser.getDisplayId () + ")\n");
-			buf.append("Date         : " + new java.util.Date() + "\n");
-			buf.append("New site Id  : " + site.getId() + "\n");
-			buf.append("New site name: " + site.getTitle() + "\n\n");
-			buf.append("Cheers,\n");
-			buf.append("Alliance Team\n");
-			String content = buf.toString();
-			
-			if (requireAuthorizer) {
-			  EmailService.send(from, to, message_subject, content, headerTo,
-					replyTo, null);
-			}
-		}
-	}
 	
 	/**
 	 * created based on setTermListForContext - Denny
