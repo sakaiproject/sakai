@@ -96,6 +96,10 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 	
 	public void testSaveRetriveFolder() {
 		ContentHostingService ch = org.sakaiproject.content.cover.ContentHostingService.getInstance();
+		SessionManager sm = org.sakaiproject.tool.cover.SessionManager.getInstance();
+		Session session = sm.getCurrentSession();
+		session.setUserEid("admin");
+		session.setUserId("admin");
 		
 		try {
 			ContentCollectionEdit ce = ch.addCollection(SIMPLE_FOLDER1);
@@ -180,6 +184,11 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 	public void testUtfFolders() {
 		//lets test saving a utf8
 		ContentHostingService ch = org.sakaiproject.content.cover.ContentHostingService.getInstance();
+		SessionManager sm = org.sakaiproject.tool.cover.SessionManager.getInstance();
+		Session session = sm.getCurrentSession();
+		session.setUserEid("admin");
+		session.setUserId("admin");
+
 		String utf8Folder = String.valueOf("\u6c92\u6709\u5df2\u9078\u8981\u522a\u9664\u7684\u9644\u4ef6");
 		String utfId = "/admin/" + utf8Folder + "/";
 		String resId = null;

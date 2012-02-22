@@ -164,16 +164,19 @@ public class SiteServiceTest extends SakaiKernelTestBase {
 		group1.setTitle("group1");
 		siteService.save(site);
 		
-		//This should get an exception
+		//This should get an IllegalArgumentException
 		try {
 			Group group = site.addGroup();
 			siteService.save(site);
 			fail("Should not be able to save a group without a title");
 		}
-		catch (RuntimeException e) {
+		catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		}
-		
+		catch (RuntimeException e) {
+			e.printStackTrace();
+			fail();
+		}
 		
 	}
 	
