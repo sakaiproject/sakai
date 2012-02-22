@@ -194,7 +194,7 @@ function redirectBasedOnSelection(){
 	#end		
 
 			#if ($!termCourseList && $!termCourseList.size() > 0)
-				#if ($!providerCourseList.size() != 0 || $!requestedCourseList.size() != 0)
+				#if (($!providerCourseList && $!providerCourseList.size() != 0) || ($!requestedCourseList && $!requestedCourseList.size() != 0))
 					<p class="instruction">$tlang.getString("nscourse.youmay")</p>
 				#end
 				
