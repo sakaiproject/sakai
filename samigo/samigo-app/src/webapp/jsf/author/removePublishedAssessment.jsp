@@ -40,7 +40,7 @@
    <h:inputHidden id="assessmentId" value="#{publishedassessment.assessmentId}"/>
    <h3><h:outputText  value="#{authorMessages.remove_assessment_co}" /></h3>
    <div class="validation tier1">
-   		  <h:outputFormat value="#{authorMessages.cert_rem_assmt} escape="false">
+   		  <h:outputFormat value="#{authorMessages.cert_rem_assmt}" escape="false">
    		  	<f:param value="#{publishedassessment.title}"></f:param>
    		  </h:outputFormat>
   </div>
