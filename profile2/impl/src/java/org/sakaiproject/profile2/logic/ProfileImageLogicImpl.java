@@ -299,7 +299,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean setExternalProfileImage(String userUuid, String url, String thumbnail) {
+	public boolean setExternalProfileImage(String userUuid, String fullSizeUrl, String thumbnailUrl) {
 		
 		//check auth and get currentUserUuid
 		String currentUserUuid = sakaiProxy.getCurrentUserId();
@@ -319,7 +319,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		}
 		
 		//save
-		ProfileImageExternal externalImage = new ProfileImageExternal(userUuid, url, thumbnail);
+		ProfileImageExternal externalImage = new ProfileImageExternal(userUuid, fullSizeUrl, thumbnailUrl);
 		if(dao.saveExternalImage(externalImage)) {
 			log.info("Updated external image record for user: " + userUuid); 
 			return true;

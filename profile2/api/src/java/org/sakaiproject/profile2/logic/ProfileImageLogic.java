@@ -94,12 +94,12 @@ public interface ProfileImageLogic {
 	 * <p>Will work, but not have visible effect if the setting for the image type used in sakai.properties is not url. ie its using an uploaded image instead
 	 * 
 	 * @param userUuid - uuid for the user
-	 * @param url - url for main image
-	 * @param thumbnail - thumbnail for main image to be used when thumbnail sizes are requested. 
+	 * @param fullSizeUrl - url for main image
+	 * @param thumbnailUrl - thumbnail for main image to be used when thumbnail sizes are requested. 
 	 * Leave blank or null for none and when a thumbnail is requested it will return the full image which can be scaled in the markup.
 	 * @return
 	 */
-	public boolean setExternalProfileImage(String userUuid, String url, String thumbnail);
+	public boolean setExternalProfileImage(String userUuid, String fullSizeUrl, String thumbnailUrl);
 	
 	/**
 	 * Get the full URL to the default unavailable image defined in ProfileConstants
