@@ -186,7 +186,7 @@ public class CharonPortal extends HttpServlet
 		// error and we cannot use the error site...
 
 		// form a context sensitive title
-		String title = ServerConfigurationService.getString("ui.service") + " : Portal";
+		String title = ServerConfigurationService.getString("ui.service","Sakai") + " : Portal";
 
 		// start the response
 		PrintWriter out = startResponse(res, title, null, false);
@@ -284,7 +284,7 @@ public class CharonPortal extends HttpServlet
 		session.setAttribute(ATTR_SITE_PAGE + siteId, page.getId());
 
 		// form a context sensitive title
-		String title = ServerConfigurationService.getString("ui.service") + " : "
+		String title = ServerConfigurationService.getString("ui.service","Sakai") + " : "
 				+ site.getTitle() + " : " + page.getTitle();
 
 		// start the response
@@ -1006,7 +1006,7 @@ public class CharonPortal extends HttpServlet
 		}
 
 		// form a context sensitive title
-		String title = ServerConfigurationService.getString("ui.service") + " : "
+		String title = ServerConfigurationService.getString("ui.service","Sakai") + " : "
 				+ site.getTitle() + " : " + page.getTitle();
 
 		// start the response
@@ -1290,7 +1290,7 @@ public class CharonPortal extends HttpServlet
 		session.setAttribute(ATTR_SITE_PAGE + siteId, page.getId());
 
 		// form a context sensitive title
-		String title = ServerConfigurationService.getString("ui.service") + " : "
+		String title = ServerConfigurationService.getString("ui.service","Sakai") + " : "
 				+ site.getTitle() + " : " + page.getTitle();
 
 		// start the response
@@ -1712,7 +1712,7 @@ public class CharonPortal extends HttpServlet
 		session.setAttribute(ATTR_SITE_PAGE + siteId, page.getId());
 
 		// form a context sensitive title
-		String title = ServerConfigurationService.getString("ui.service") + " : "
+		String title = ServerConfigurationService.getString("ui.service","Sakai") + " : "
 				+ site.getTitle() + " : " + page.getTitle();
 
 		// start the response
