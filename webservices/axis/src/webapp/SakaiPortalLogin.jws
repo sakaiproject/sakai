@@ -1,0 +1,180 @@
+import java.util.Date;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.SessionManager;
+
+import org.sakaiproject.id.cover.IdManager;
+
+import org.sakaiproject.component.cover.ServerConfigurationService;
+
+
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.site.cover.SiteService;
+
+import org.apache.axis.AxisFault;
+import org.apache.axis.Constants;
+import org.apache.axis.MessageContext;
+
+import org.sakaiproject.event.cover.UsageSessionService;
+
+/**
+ * Web service endpoints to support obtaining a Sakai session by using a Sakai user ID and a shared
+ * portal secret.
+ * <p>
+ * <em>Note: also see {@link https://confluence.sakaiproject.org/display/DOC/Sakai+Admin+Guide+-+Advanced+Configuration+Topics}</em>
+ * </p>
+ * <p>
+ * These web service endpoints can be used to login as a specific user by supplying a Sakai user ID
+ * with a shared key rather than a password. This approach to authentication can be useful when the
+ * user authenticates with an external provider such as CAS. This can allow external portals to
+ * retrieve information from Sakai.
+ * <p>
+ * The parameters of interest when configuration this web service are:
+ * <table>
+ * <th>
+ * <td colspan="2">Configuration Properties</td>
+ * </th>
+ * <tr>
+ * <td>webservices.allowlogin</td>
+ * <td>Set to true to allow logging in through web services.</td>
+ * </tr>
+ * <tr>
+ * <td>webservice.portalsecret</td>
+ * <td>The portal secret that is shared to external integration points.</td>
+ * </tr>
+ * <tr>
+ * <td>session.parameter.allow</td>
+ * <td>Set to true in your properties file to enable this web service to work without a
+ *     password.</td>
+ * </tr>
+ * </table>
+ *
+ * <table>
+ * <th>
+ * <td colspan="2">Request Parameters</td>
+ * </th>
+ * <tr>
+ * <td>sakai.session</td>
+ * <td>Set as a <strong>request</strong> parameter to the value returned from SakaiPortalLogin.login
+ *     or SakaiPortalLogin.loginAndCreate</td>
+ * </tr>
+ * </table>
+ * </p>
+ */
+public class SakaiPortalLogin {
+
+    private static final Log LOG = LogFactory.getLog("org.sakaiproject.axis.SakaiPortalLogin");
+
+    private User getSakaiUser(String id) {
+        User user = null ;
+
+        try {
+            user = UserDirectoryService.getUserByEid(id);
+        } catch (Exception e) {
+            user = null;
+        }
+        return user;
+    }
+
+    /**
+     * Login to an existing Sakai account with the Sakai user ID and shared portal secret. If the
+     * account doesn't exist it will be created.
+     *
+     * @param id Sakai user ID.
+     * @param pw Shared portal secret.
+     * @param firstName The first name to use when creating the account.
+     * @param lastName The last name to use when creating the account.
+     * @param eMail The email to use when create that account.
+     * @return Session ID of successful login.
+     * @throws AxisFault if there are any problems logging in.
+     */
+    public String loginAndCreate(String id, String pw, String firstName, String lastName,
+            String eMail) throws AxisFault {
+        MessageContext messageContext = MessageContext.getCurrentContext();
+        String ipAddress = messageContext.getStrProp(Constants.MC_REMOTE_ADDR);
+
+        String portalSecret = ServerConfigurationService.getString("webservice.portalsecret");
+        String portalIPs = ServerConfigurationService.getString("webservice.portalIP");
+        String ipCheck = ServerConfigurationService.getString("webservice.IPCheck");
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("SakaiPortalLogin.loginAndCreate id="+id);
+            LOG.debug("SakaiPortalLogin.loginAndCreate ip="+ipAddress+" portalIP="+portalIPs+" IPCheck="+ipCheck);
+            LOG.debug("        fn="+firstName+" ln="+lastName+" em="+eMail+" ip="+ipAddress);
+        }
+
+        if ( portalSecret == null || pw == null || portalSecret.equals("") || ! portalSecret.equals(pw) ) {
+            LOG.info("SakaiPortalLogin secret mismatch ip="+ipAddress);
+                    throw new AxisFault("Failed login");
+        }
+
+        // Verify that this IP address matches our string
+        if ( "true".equalsIgnoreCase(ipCheck) ) {
+            if (  portalIPs == null || portalIPs.equals("") ||  portalIPs.indexOf(ipAddress) == -1 ) {
+                LOG.info("SakaiPortalLogin Trusted IP not found");
+                        throw new AxisFault("Failed login");
+            }
+        }
+
+        User user = getSakaiUser(id);
+
+        if ( user == null && firstName != null && lastName != null && eMail != null ) {
+            LOG.debug("Creating Sakai Account...");
+            try {
+                // Set password to something unguessable - they can set a new PW once they are logged in
+                String hiddenPW = IdManager.createUuid();
+                UserDirectoryService.addUser(null,id,firstName,lastName,eMail,hiddenPW,"registered", null);
+                            LOG.debug("User Created...");
+            } catch(Exception e) {
+                LOG.error("Unable to create user...");
+                    throw new AxisFault("Failed login");
+            }
+                user = getSakaiUser(id);
+        }
+
+        if ( user != null ) {
+            LOG.debug("Have User");
+            Session s = SessionManager.startSession();
+            SessionManager.setCurrentSession(s);
+            if (s == null) {
+                LOG.warn("Web Services Login failed to establish session for id="+id+" ip="+ipAddress);
+                throw new AxisFault("Unable to establish session");
+            } else {
+                // We do not care too much on the off-chance that this fails - folks simply won't show up in presense
+                // and events won't be trackable back to people / IP Addresses - but if it fails - there is nothing
+                // we can do anyways.
+
+                UsageSessionService.login(user.getId(), id, ipAddress, "SakaiPortalLogin.jws", UsageSessionService.EVENT_LOGIN_WS);
+
+                try {
+                    String siteId = SiteService.getUserSiteId(s.getUserId());
+                    LOG.debug("Site exists..."+siteId);
+                } catch(Exception e) {
+                    LOG.debug("Site does not exist...");
+                        throw new AxisFault("Failed login");
+                }
+                if ( LOG.isDebugEnabled() ) LOG.debug("Sakai Portal Login id="+id+" ip="+ipAddress+" session="+s.getId());
+                    return s.getId();
+            }
+        }
+        LOG.info("SakaiPortalLogin Failed ip="+ipAddress);
+            throw new AxisFault("Failed login");
+    }
+
+    /**
+     * Login to an existing Sakai account with the Sakai user ID and shared portal secret.
+     *
+     * @param id Sakai user ID.
+     * @param pw Shared portal secret.
+     * @return Session ID of successful login.
+     * @throws AxisFault if there are any problems logging in.
+     */
+    public String login(String id,String pw) throws AxisFault {
+        LOG.debug("SakaiPortalLogin.login()");
+        return loginAndCreate(id, pw, null, null, null);
+    }
+}
