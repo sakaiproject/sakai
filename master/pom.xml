@@ -159,7 +159,7 @@
         <profile>
             <id>sakai-release</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <distributionManagement>
                 <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
