@@ -301,7 +301,29 @@ public class NodeModel implements Serializable {
 			return getInheritedShoppingPeriodEndDate();
 		}
 	}
+	
+	public boolean getNodeAccess(){
+		if(isDirectAccess()){
+			return true;
+		}else{
+			return getInheritedNodeAccess();
+		}
+	}
 
+	public boolean getInheritedNodeAccess(){
+		return getInheritedNodeAccessHelper(parentNode);
+	}
+	
+	public boolean getInheritedNodeAccessHelper(NodeModel parent){
+		if(parent == null){
+			return false;
+		} else if (parent.isDirectAccess()) {
+			return true;
+		}else{
+			return getInheritedNodeAccessHelper(parent.getParentNode());
+		}
+	}
+	
 	public String[] getInheritedAccessRealmRole(){
 		return getInheritedAccessRealmRoleHelper(parentNode);
 	}

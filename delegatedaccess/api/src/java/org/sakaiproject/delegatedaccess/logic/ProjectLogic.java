@@ -109,9 +109,10 @@ public interface ProjectLogic {
 	 * @param userId
 	 * @param blankRestrictedTools
 	 * @param blankTerms
+	 * @param onlyAccessNodes
 	 * @return
 	 */
-	public boolean addChildrenNodes(Object node, String userId, List<ListOptionSerialized> blankRestrictedTools, List<ListOptionSerialized> blankTerms);
+	public boolean addChildrenNodes(Object node, String userId, List<ListOptionSerialized> blankRestrictedTools, List<ListOptionSerialized> blankTerms, boolean onlyAccessNodes);
 
 	/**
 	 * returns a blank (unselected) list of all the tool options for restricting tools

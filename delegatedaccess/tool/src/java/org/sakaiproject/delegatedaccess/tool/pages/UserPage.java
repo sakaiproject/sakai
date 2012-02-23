@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreeNode;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -24,6 +25,7 @@ import org.apache.wicket.markup.html.tree.BaseTree;
 import org.apache.wicket.markup.html.tree.LinkTree;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.model.SelectOption;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
@@ -43,6 +45,7 @@ public class UserPage  extends BaseTreePage{
 	private String instructorField = "";
 	private SelectOption termField;
 	private TreeModel treeModel = null;
+	private String userId;
 	
 	protected AbstractTree getTree()
 	{
@@ -53,7 +56,6 @@ public class UserPage  extends BaseTreePage{
 		disableLink(accessPageLink);
 
 		//this is the home page so set user as current user
-		String userId;
 		if(isShoppingPeriodTool()){
 			userId = DelegatedAccessConstants.SHOPPING_PERIOD_USER;
 		}else{
@@ -87,15 +89,16 @@ public class UserPage  extends BaseTreePage{
 		}
 		add(description);
 		
-		if(isShoppingPeriodTool()){
-			treeModel = projectLogic.getTreeModelForShoppingPeriod(false);
-			if(treeModel != null && ((DefaultMutableTreeNode) treeModel.getRoot()).getChildCount() == 0){
-				treeModel = null;
+		setTreeMode(userId, false);
+		
+		final List<ListOptionSerialized> blankRestrictedTools = projectLogic.getEntireToolsList();
+		final List<ListOptionSerialized> blankTerms = projectLogic.getEntireTermsList();
+		if(treeModel != null && !isShoppingPeriodTool()){
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode) treeModel.getRoot();
+			if(((NodeModel) node.getUserObject()).isDirectAccess()){
+				projectLogic.addChildrenNodes(node, DelegatedAccessConstants.SHOPPING_PERIOD_USER, blankRestrictedTools, blankTerms, true);
 			}
-		}else{
-			treeModel = projectLogic.createAccessTreeModelForUser(userId, false, true);
 		}
-
 		//a null model means the user doesn't have any associations
 		tree = new LinkTree("tree", treeModel){
 			@Override
@@ -105,12 +108,6 @@ public class UserPage  extends BaseTreePage{
 								(!sakaiProxy.getDisableShoppingTreeView() && isShoppingPeriodTool()));
 			}
 			protected void onNodeLinkClicked(Object node, BaseTree tree, AjaxRequestTarget target) {
-				if(!tree.getTreeState().isNodeExpanded(node)){
-					tree.getTreeState().expandNode(node);
-				}else{
-					tree.getTreeState().collapseNode(node);
-				}
-
 				if(tree.isLeaf(node)){
 					//The user has clicked a leaf and chances are its a site.
 					//all sites are leafs, but there may be non sites as leafs
@@ -126,8 +123,39 @@ public class UserPage  extends BaseTreePage{
 							target.appendJavascript("window.open('" + site.getUrl() + "')");
 						}
 					}
+				}else{
+					boolean anyAdded = false;
+					if(!isShoppingPeriodTool()){
+						if(!tree.getTreeState().isNodeExpanded(node) && !((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isAddedDirectChildrenFlag()){
+							anyAdded = projectLogic.addChildrenNodes(node, DelegatedAccessConstants.SHOPPING_PERIOD_USER, blankRestrictedTools, blankTerms, true);
+							((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).setAddedDirectChildrenFlag(true);
+						}
+						if(anyAdded){
+							collapseEmptyFoldersHelper((DefaultMutableTreeNode) node);
+						}
+					}
+					if(!tree.getTreeState().isNodeExpanded(node) || anyAdded){
+						tree.getTreeState().expandNode(node);
+					}else{
+						tree.getTreeState().collapseNode(node);
+					}
 				}
 			};
+			
+			protected void onJunctionLinkClicked(AjaxRequestTarget target, TreeNode node) {
+				//the nodes are generated on the fly with ajax.  This will add any child nodes that 
+				//are missing in the tree.  Expanding and collapsing will refresh the tree node
+				if(!isShoppingPeriodTool()){
+					if(tree.getTreeState().isNodeExpanded(node) && !((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isAddedDirectChildrenFlag()){
+						boolean anyAdded = projectLogic.addChildrenNodes(node, DelegatedAccessConstants.SHOPPING_PERIOD_USER, blankRestrictedTools, blankTerms, true);
+						((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).setAddedDirectChildrenFlag(true);
+						if(anyAdded){
+							collapseEmptyFoldersHelper((DefaultMutableTreeNode) node);
+						}
+					}
+				}
+			}
+			
 			@Override
 			protected boolean isForceRebuildOnSelectionChange() {
 				return false;
@@ -167,6 +195,8 @@ public class UserPage  extends BaseTreePage{
 				if(instructorField != null && !"".equals(instructorField)){
 					advancedOptions.put(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR, instructorField);
 				}
+				//need to set the tree model so that is is the full model
+				setTreeMode(userId, true);
 				setResponsePage(new UserPageSiteSearch(search, advancedOptions, treeModel, false, false));
 			}
 			@Override
@@ -191,5 +221,16 @@ public class UserPage  extends BaseTreePage{
 		add(form);
 
 
+	}
+	
+	private void setTreeMode(String userId, boolean cascade){
+		if(isShoppingPeriodTool()){
+			treeModel = projectLogic.getTreeModelForShoppingPeriod(false);
+			if(treeModel != null && ((DefaultMutableTreeNode) treeModel.getRoot()).getChildCount() == 0){
+				treeModel = null;
+			}
+		}else{
+			treeModel = projectLogic.createAccessTreeModelForUser(userId, false, cascade);
+		}
 	}
 }

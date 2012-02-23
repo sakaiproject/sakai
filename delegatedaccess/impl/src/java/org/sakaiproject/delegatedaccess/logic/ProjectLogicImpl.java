@@ -1173,7 +1173,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * @param userId
 	 * @return
 	 */
-	public boolean addChildrenNodes(Object node, String userId, List<ListOptionSerialized> blankRestrictedTools, List<ListOptionSerialized> blankTerms){
+	public boolean addChildrenNodes(Object node, String userId, List<ListOptionSerialized> blankRestrictedTools, List<ListOptionSerialized> blankTerms, boolean onlyAccessNodes){
 		boolean anyAdded = false;
 		DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) node;
 		NodeModel nodeModel = (NodeModel) ((DefaultMutableTreeNode) node).getUserObject();
@@ -1181,7 +1181,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 			List<List> childrenNodes = getDirectChildren(nodeModel.getNode());
 			Collections.sort(childrenNodes, new NodeListComparator());
 			for(List childList : childrenNodes){
-				boolean newlyAdded = addChildNodeToTree((HierarchyNodeSerialized) childList.get(0), parentNode, userId, blankRestrictedTools, blankTerms);
+				boolean newlyAdded = addChildNodeToTree((HierarchyNodeSerialized) childList.get(0), parentNode, userId, blankRestrictedTools, blankTerms, onlyAccessNodes);
 				anyAdded = anyAdded || newlyAdded;
 			}
 		}
@@ -1197,7 +1197,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * @param userId
 	 * @return
 	 */
-	private boolean addChildNodeToTree(HierarchyNodeSerialized childNode, DefaultMutableTreeNode parentNode, String userId, List<ListOptionSerialized> blankRestrictedTools, List<ListOptionSerialized> blankTerms){
+	private boolean addChildNodeToTree(HierarchyNodeSerialized childNode, DefaultMutableTreeNode parentNode, String userId, List<ListOptionSerialized> blankRestrictedTools, List<ListOptionSerialized> blankTerms, boolean onlyAccessNodes){
 		boolean added = false;
 		if(!doesChildExist(childNode.id, parentNode)){
 			//just create a blank child since the user should already have all the nodes with information in the db
@@ -1229,13 +1229,15 @@ public class ProjectLogicImpl implements ProjectLogic {
 				updated = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_UPDATED_DATE);
 				processed = getPermDate(perms, DelegatedAccessConstants.NODE_PERM_SHOPPING_PROCESSED_DATE);
 			}
-			
-			child.setUserObject(new NodeModel(childNode.id, childNode, directAccess, realm, role,
+			NodeModel node = new NodeModel(childNode.id, childNode, directAccess, realm, role,
 					((NodeModel) parentNode.getUserObject()), restrictedTools, startDate, endDate, 
-					shoppingPeriodAuth, false, shoppingPeriodAdmin, updated, processed, terms));
+					shoppingPeriodAuth, false, shoppingPeriodAdmin, updated, processed, terms);
+			child.setUserObject(node);
 
-			parentNode.add(child);
-			added = true;
+			if(!onlyAccessNodes || node.getNodeAccess()){
+				parentNode.add(child);
+				added = true;
+			}
 		}
 		return added;
 	}

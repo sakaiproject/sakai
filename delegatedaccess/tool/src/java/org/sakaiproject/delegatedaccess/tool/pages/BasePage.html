@@ -31,15 +31,29 @@
 			}
 			show = !show;
 		}
-		
+		var loadSemaphore = false;
 		function wicketGlobalPreCallHandler() {
-		  $(".loading").show();
+			//wait half a second
+			loadSemaphore = true;
+			setTimeout("showLoading()", 500);
 		}
 		function wicketGlobalPostCallHandler() {
-		  $(".loading").hide();
+			hideLoading();
 		}
 		function wicketGlobalFailureHandler() {
-		  $(".loading").hide();
+			hideLoading();
+		}
+		
+		
+		function showLoading(){
+			if(loadSemaphore){
+				$(".loading").show();
+			}
+		}
+		
+		function hideLoading(){
+			loadSemaphore = false;
+			$(".loading").hide();
 		}
 	</script>
 </head>     
