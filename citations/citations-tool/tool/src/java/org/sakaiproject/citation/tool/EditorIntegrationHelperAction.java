@@ -224,7 +224,7 @@ public class EditorIntegrationHelperAction extends CitationHelperAction
  		/*
  		 * Get the local brand (eg Oncourse, CTools, etc)
  		 */
- 		sakaiInstance = ServerConfigurationService.getString("ui.service");
+ 		sakaiInstance = ServerConfigurationService.getString("ui.service", "Sakai");
  		if (!isNull(sakaiInstance))
  		{
  		  pageTitle.append(sakaiInstance);
