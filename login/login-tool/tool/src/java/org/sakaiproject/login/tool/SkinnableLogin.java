@@ -352,7 +352,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 			skin = ServerConfigurationService.getString("skin.default");
 		}
 		String skinRepo = ServerConfigurationService.getString("skin.repo");
-		String uiService = ServerConfigurationService.getString("ui.service");
+		String uiService = ServerConfigurationService.getString("ui.service", "Sakai");
 		
 		String eidWording = rb.getString("userid");
 		String pwWording = rb.getString("log.pass");
@@ -395,7 +395,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 			skin = ServerConfigurationService.getString("skin.default");
 		}
 		String skinRepo = ServerConfigurationService.getString("skin.repo");
-		String uiService = ServerConfigurationService.getString("ui.service");
+		String uiService = ServerConfigurationService.getString("ui.service","Sakai");
 		
 		rcontext.put("pageSkinRepo", skinRepo);
 		rcontext.put("pageSkin", skin);
