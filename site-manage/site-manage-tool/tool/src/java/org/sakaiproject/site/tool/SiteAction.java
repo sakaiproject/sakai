@@ -1286,38 +1286,33 @@ public class SiteAction extends PagedResourceActionII {
 			// make sure auto-updates are enabled
 			Hashtable views = new Hashtable();
 			if (SecurityService.isSuperUser()) {
-				views.put(rb.getString("java.allmy"), rb
-						.getString("java.allmy"));
-				views.put(rb.getFormattedMessage("java.sites", new Object[]{rb.getString("java.my")}), rb.getString("java.my"));
-				for (int sTypeIndex = 0; sTypeIndex < sTypes.size(); sTypeIndex++) {
-					String type = (String) sTypes.get(sTypeIndex);
-					views.put(rb.getFormattedMessage("java.sites", new Object[]{type}), type);
-				}
-				List<String> moreTypes = siteTypeProvider.getTypesForSiteList();
-				if (!moreTypes.isEmpty())
-				{
-					for(String mType : moreTypes)
-					{
-						views.put(rb.getFormattedMessage("java.sites", new Object[]{mType}), mType);
-					}
-				}
-				
-				if (state.getAttribute(STATE_VIEW_SELECTED) == null) {
-					state.setAttribute(STATE_VIEW_SELECTED, rb
-							.getString("java.allmy"));
-				}
 				context.put("superUser", Boolean.TRUE);
 			} else {
 				context.put("superUser", Boolean.FALSE);
-				views.put(rb.getString("java.allmy"), rb
-						.getString("java.allmy"));
-
-				// default view
-				if (state.getAttribute(STATE_VIEW_SELECTED) == null) {
-					state.setAttribute(STATE_VIEW_SELECTED, rb
-							.getString("java.allmy"));
+			}
+			views.put(SiteConstants.SITE_TYPE_ALL, rb.getString("java.allmy"));
+			views.put(SiteConstants.SITE_TYPE_MYWORKSPACE, rb.getFormattedMessage("java.sites", new Object[]{rb.getString("java.my")}));
+			for (int sTypeIndex = 0; sTypeIndex < sTypes.size(); sTypeIndex++) {
+				String type = (String) sTypes.get(sTypeIndex);
+				views.put(type, rb.getFormattedMessage("java.sites", new Object[]{type}));
+			}
+			List<String> moreTypes = siteTypeProvider.getTypesForSiteList();
+			if (!moreTypes.isEmpty())
+			{
+				for(String mType : moreTypes)
+				{
+					views.put(mType, rb.getFormattedMessage("java.sites", new Object[]{mType}));
 				}
 			}
+			// default view
+			if (state.getAttribute(STATE_VIEW_SELECTED) == null) {
+				state.setAttribute(STATE_VIEW_SELECTED, SiteConstants.SITE_TYPE_ALL);
+			}
+			
+			// sort the keys in the views lookup
+			List<String> viewKeys = Collections.list(views.keys());
+			Collections.sort(viewKeys);
+			context.put("viewKeys", viewKeys);
 			context.put("views", views);
 
 			if (state.getAttribute(STATE_VIEW_SELECTED) != null) {
@@ -3794,14 +3789,14 @@ public class SiteAction extends PagedResourceActionII {
 				// admin-type of user
 				String view = (String) state.getAttribute(STATE_VIEW_SELECTED);
 				if (view != null) {
-					if (view.equals(rb.getString("java.allmy"))) {
+					if (view.equals(SiteConstants.SITE_TYPE_ALL)) {
 						// search for non-user sites, using
 						// the criteria
 						size = SiteService
 								.countSites(
 										org.sakaiproject.site.api.SiteService.SelectionType.NON_USER,
 										null, search, null);
-					} else if (view.equals(rb.getString("java.my"))) {
+					} else if (view.equals(SiteConstants.SITE_TYPE_MYWORKSPACE)) {
 						// search for a specific user site
 						// for the particular user id in the
 						// criteria - exact match only
@@ -3832,7 +3827,7 @@ public class SiteAction extends PagedResourceActionII {
 
 				String view = (String) state.getAttribute(STATE_VIEW_SELECTED);
 				if (view != null) {
-					if (view.equals(rb.getString("java.allmy"))) {
+					if (view.equals(SiteConstants.SITE_TYPE_ALL)) {
 						view = null;
 						// add my workspace if any
 						if (userWorkspaceSite != null) {
@@ -3848,6 +3843,14 @@ public class SiteAction extends PagedResourceActionII {
 								.countSites(
 										org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
 										null, search, null);
+					} else if (view.equals(SiteConstants.SITE_TYPE_MYWORKSPACE)) {
+						// get the current user MyWorkspace site
+						try {
+							SiteService.getSite(SiteService
+									.getUserSiteId(userId));
+							size++;
+						} catch (IdUnusedException e) {
+						}
 					} else {
 						// search for specific type of sites
 						size += SiteService
@@ -3901,7 +3904,7 @@ public class SiteAction extends PagedResourceActionII {
 				// admin-type of user
 				String view = (String) state.getAttribute(STATE_VIEW_SELECTED);
 				if (view != null) {
-					if (view.equals(rb.getString("java.allmy"))) {
+					if (view.equals(SiteConstants.SITE_TYPE_ALL)) {
 						// search for non-user sites, using the
 						// criteria
 						return SiteService
@@ -3909,7 +3912,7 @@ public class SiteAction extends PagedResourceActionII {
 										org.sakaiproject.site.api.SiteService.SelectionType.NON_USER,
 										null, search, null, sortType,
 										new PagingPosition(first, last));
-					} else if (view.equalsIgnoreCase(rb.getString("java.my"))) {
+					} else if (view.equalsIgnoreCase(SiteConstants.SITE_TYPE_MYWORKSPACE)) {
 						// search for a specific user site for
 						// the particular user id in the
 						// criteria - exact match only
@@ -3944,7 +3947,7 @@ public class SiteAction extends PagedResourceActionII {
 				}
 				String view = (String) state.getAttribute(STATE_VIEW_SELECTED);
 				if (view != null) {
-					if (view.equals(rb.getString("java.allmy"))) {
+					if (view.equals(SiteConstants.SITE_TYPE_ALL)) {
 						view = null;
 						// add my workspace if any
 						if (userWorkspaceSite != null) {
@@ -3962,9 +3965,15 @@ public class SiteAction extends PagedResourceActionII {
 												org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
 												null, search, null, sortType,
 												new PagingPosition(first, last)));
+					}
+					else if (view.equals(SiteConstants.SITE_TYPE_MYWORKSPACE)) {
+						// get the current user MyWorkspace site
+						try {
+							rv.add(SiteService.getSite(SiteService.getUserSiteId(userId)));
+						} catch (IdUnusedException e) {
+						}
 					} else {
-						rv
-								.addAll(SiteService
+						rv.addAll(SiteService
 										.getSites(
 												org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
 												view, search, null, sortType,

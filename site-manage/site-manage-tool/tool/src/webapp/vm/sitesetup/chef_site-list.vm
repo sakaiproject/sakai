@@ -54,10 +54,10 @@
 				<input type="hidden" name="eventSubmit_doView_sites" value="view" />
 				<label for="view">$tlang.getString("list.view")</label>
 				<select id="view" name="view" size="1" onchange="document.viewForm.submit();">
-					#foreach($view in $views.keys())
-						<option value ="$views.get($view)"
-						#if($views.get($view) == $viewSelected) selected="selected" #end
-						> $view </option>
+					#foreach($view in $viewKeys)
+						<option value ="$view"
+						#if($view == $viewSelected) selected="selected" #end
+						> $views.get($view) </option>
 					#end
 				</select>
 				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
@@ -278,7 +278,7 @@
 			#if ($!searchString && !$searchString.equals(""))
 				$tlang.getString("list.thatmatch") $validator.escapeHtml($!searchString)
 			#end
-			$tlang.getString("list.inthe") $validator.escapeHtml($!viewSelected).
+			$tlang.getString("list.inthe") $validator.escapeHtml($views.get($!viewSelected)).
 		</div>	
 	#end
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />

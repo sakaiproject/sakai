@@ -46,4 +46,8 @@ public class SiteConstants {
 	
 	// site property variable to override the above settings. If true, the PageOrder tab will be shown.
 	public final static String SITE_PROPERTY_OVERRIDE_HIDE_PAGEORDER_SITE_TYPES = "site.override.hide.pageorder.site.types";
+	
+	public final static String SITE_TYPE_MYWORKSPACE = "site_type_myworkspace";
+	
+	public final static String SITE_TYPE_ALL = "site_type_all";
 }
