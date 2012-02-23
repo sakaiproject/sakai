@@ -27,9 +27,7 @@
       <groupId>org.sakaiproject.scorm</groupId>
       <artifactId>sakai-scorm-adl-impl</artifactId>
     </dependency>
-    <!-- EDIA dependencies -->
-    <!-- <dependency> <artifactId>edia-sakai-utils-base</artifactId> <groupId>nl.edia</groupId> 
-			<version>1.2.2</version> </dependency> -->
+
     <!-- Sakai dependencies -->
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
@@ -57,11 +55,6 @@
       <type>jar</type>
       <scope>compile</scope>
     </dependency>
-    <!-- XML Beans -->
-    <!--dependency> <groupId>ims</groupId> <artifactId>imscp</artifactId> <version>1.1</version> 
-			</dependency> <dependency> <groupId>commons-xmlbeans</groupId> <artifactId>xbean</artifactId> 
-			<version>2.2</version> </dependency> <dependency> <groupId>commons-xmlbeans</groupId> 
-			<artifactId>jsr173</artifactId> <jar>jsr173_1.0_api.jar</jar> </dependency -->
     <!-- Other dependencies -->
     <dependency>
       <groupId>javax.activation</groupId>
@@ -92,7 +85,6 @@
     <dependency>
       <groupId>${sakai.hibernate.groupId}</groupId>
       <artifactId>${sakai.hibernate.artifactId}</artifactId>
-      <version>${sakai.hibernate.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -108,11 +100,6 @@
     <dependency>
       <groupId>org.sakaiproject.scorm</groupId>
       <artifactId>sakai-scorm-service-impl</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
