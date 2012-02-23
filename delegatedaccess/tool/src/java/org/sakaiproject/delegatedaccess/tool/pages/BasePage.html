@@ -31,6 +31,16 @@
 			}
 			show = !show;
 		}
+		
+		function wicketGlobalPreCallHandler() {
+		  $(".loading").show();
+		}
+		function wicketGlobalPostCallHandler() {
+		  $(".loading").hide();
+		}
+		function wicketGlobalFailureHandler() {
+		  $(".loading").hide();
+		}
 	</script>
 </head>     
 <body>
@@ -79,5 +89,10 @@
 		<wicket:child />
 	
 	</div>
+	<div class="loading" style="display: none; position: absolute; overflow: hidden; z-index: 1001; outline: 0px none; height: 100%; width: 100%; top: 0px; left: 0px;background-color:grey;filter:alpha(opacity=10);opacity:.1;">
+	</div>
+	<div class="loading" style="display: none; position:absolute; width:100%; text-align:center; top:300px; overflow: hidden; z-index: 1002;">
+		<img src="images/loading.gif" border=0>
+	</div> 
 </body>
 </html>
