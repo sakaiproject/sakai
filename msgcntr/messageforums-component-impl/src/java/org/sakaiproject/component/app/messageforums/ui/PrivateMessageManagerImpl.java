@@ -1336,7 +1336,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 	  }
 
 	  String footer = "<p>----------------------<br>" +
-	  getResourceBundleString(EMAIL_FOOTER1) + " " + ServerConfigurationService.getString("ui.service") +
+	      getResourceBundleString(EMAIL_FOOTER1) + " " + ServerConfigurationService.getString("ui.service","Sakai") +
 	  " " + getResourceBundleString(EMAIL_FOOTER2) + " \"" +
 	  siteTitle + "\" " + getResourceBundleString(EMAIL_FOOTER3) + "\n" +
 	  getResourceBundleString(EMAIL_FOOTER4) +

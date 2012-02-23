@@ -1239,7 +1239,7 @@ public class DiscussionForumTool
   {
     LOG.debug("processActionSaveForumAndAddTopic()");
     if(forumClickCount != 0 || topicClickCount != 0) {
-    	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
+    	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service","Sakai")}));
     	return FORUM_SETTING_REVISE;
     }
     
@@ -1315,7 +1315,7 @@ public class DiscussionForumTool
   {
     LOG.debug("processActionSaveForumSettings()");
     if(forumClickCount != 0 || topicClickCount != 0) {
-    	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
+    	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service","Sakai")}));
     	return FORUM_SETTING_REVISE;
     }
     
@@ -1369,7 +1369,7 @@ public class DiscussionForumTool
   {
     LOG.debug("processActionSaveForumAsDraft()");
     if(forumClickCount != 0 || topicClickCount != 0) {
-    	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
+    	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service","Sakai")}));
     	return FORUM_SETTING_REVISE;
     }
     
@@ -1721,7 +1721,7 @@ public class DiscussionForumTool
     }
     
     if(topicClickCount != 0 || forumClickCount != 0) {
-    	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
+    	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service","Sakai")}));
     	return TOPIC_SETTING_REVISE;
     }
     if(selectedTopic!=null && selectedTopic.getTopic()!=null &&
@@ -1800,7 +1800,7 @@ public class DiscussionForumTool
     }
     
     if(topicClickCount != 0 || forumClickCount != 0) {
-    	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
+    	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service","Sakai")}));
     	return TOPIC_SETTING_REVISE;
     }
     
@@ -1883,7 +1883,7 @@ public class DiscussionForumTool
     }
     
     if(topicClickCount != 0 || forumClickCount != 0) {
-    	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
+    	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service","Sakai")}));
     	return TOPIC_SETTING_REVISE;
     }
     if(selectedTopic!=null && selectedTopic.getTopic()!=null &&

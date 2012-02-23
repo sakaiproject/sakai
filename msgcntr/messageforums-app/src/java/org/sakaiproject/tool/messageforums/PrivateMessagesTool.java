@@ -2583,7 +2583,7 @@ private   int   getNum(char letter,   String   a)
  
  private PrivateMessage getPvtMsgReplyMessage(PrivateMessage currentMessage, boolean isDraft){
     if (setDetailMsgCount != 1) {
-    	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
+    	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service","Sakai")}));
     	return null;
     } else {
     
@@ -2760,7 +2760,7 @@ private   int   getNum(char letter,   String   a)
  public String processPvtMsgForwardSend() {
     LOG.debug("processPvtMsgForwardSend()");
     if (setDetailMsgCount != 1) {
-    	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
+    	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service","Sakai")}));
     	return null;
     } else {
     	PrivateMessage pvtMsg = getPvtMsgForward(getDetailMsg().getMsg(), false);
@@ -2776,7 +2776,7 @@ private   int   getNum(char letter,   String   a)
  public String processPvtMsgForwardSaveDraft(){
 	 LOG.debug("processPvtMsgForwardSaveDraft()");
 	 if (setDetailMsgCount != 1) {
-		 setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
+	     setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service","Sakai")}));
 		 return null;
 	 } else {
 		 PrivateMessage pvtMsg = getPvtMsgForward(getDetailMsg().getMsg(), true);
@@ -2964,7 +2964,7 @@ private   int   getNum(char letter,   String   a)
  public String processPvtMsgReplyAllSaveDraft(){
 	 LOG.debug("processPvtMsgReply All Send()");
 	 if (setDetailMsgCount != 1) {
-		 setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
+	     setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service","Sakai")}));
 		 return null;
 	 } else {
 		 PrivateMessage pvtMsg = processPvtMsgReplyAllSendHelper(false, Boolean.TRUE);
@@ -2979,7 +2979,7 @@ private   int   getNum(char letter,   String   a)
   public String processPvtMsgReplyAllSend() {
     LOG.debug("processPvtMsgReply All Send()");
     if (setDetailMsgCount != 1) {
-    	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service")}));
+    	setErrorMessage(getResourceBundleString(MULTIPLE_WINDOWS , new Object[] {ServerConfigurationService.getString("ui.service","Sakai")}));
     	return null;
     } else {
     	PrivateMessage pvtMsg = processPvtMsgReplyAllSendHelper(false, Boolean.FALSE);
