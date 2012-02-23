@@ -658,6 +658,10 @@ public class ResourceSupport {
 			}
 			
 			String resourceReference = resource.getReference();
+			// treat citation resources as normal content resource
+			if(resourceReference != null && resourceReference.startsWith("/citation/content/")) {
+				resourceReference = resourceReference.substring("/citation".length());
+			}
 			if (dashboardLogic.getNewsItem(resourceReference) == null)
 			{
 				NewsItem newsItem = dashboardLogic.createNewsItem(title, eventTime, labelKey , resourceReference, context, sourceType, resource.getContentType());
