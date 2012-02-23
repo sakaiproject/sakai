@@ -69,7 +69,7 @@ public class ButtonForm extends Form {
 	
 	public void synchronizeState(SessionBean sessionBean, AjaxRequestTarget target) {
 		boolean isContinueEnabled = sequencingService.isContinueEnabled(sessionBean);
-		//boolean isContinueExitEnabled = sequencingService.isContinueExitEnabled(sessionBean);
+		boolean isContinueExitEnabled = sequencingService.isContinueExitEnabled(sessionBean);
 		boolean isPreviousEnabled = sequencingService.isPreviousEnabled(sessionBean);
 		boolean isStartEnabled = sequencingService.isStartEnabled(sessionBean);
 		boolean isSuspendEnabled = sequencingService.isSuspendEnabled(sessionBean);
@@ -78,7 +78,7 @@ public class ButtonForm extends Form {
 		setPrevButtonVisible(isPreviousEnabled, target);
 		setStartButtonVisible(isStartEnabled, target);
 		setSuspendButtonVisible(isSuspendEnabled, target);
-		setQuitButtonVisible(false, target);
+		setQuitButtonVisible(isContinueExitEnabled, target);
 	}
 
 	public void setPrevButtonVisible(boolean isVisible, AjaxRequestTarget target) {
