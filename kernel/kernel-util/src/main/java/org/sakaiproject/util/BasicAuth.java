@@ -261,7 +261,7 @@ public class BasicAuth {
 	public boolean doAuth(HttpServletRequest req, HttpServletResponse res)
 			throws IOException {
 		if (doBasicAuth(req)) {
-			String uiService = ServerConfigurationService.getString("ui.service");
+		    String uiService = ServerConfigurationService.getString("ui.service", "Sakai");
 			res.addHeader("WWW-Authenticate", "Basic realm=\"" + uiService + "\"");
 			res.sendError(HttpServletResponse.SC_UNAUTHORIZED,
 					"Authorization Required");
