@@ -1,5 +1,11 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+      <groupId>org.sonatype.oss</groupId>
+      <artifactId>oss-parent</artifactId>
+      <version>7</version>
+  </parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.sakaiproject</groupId>
 	<artifactId>kernel</artifactId>
@@ -367,28 +373,7 @@
 		</developerConnection>
         <url>https://source.sakaiproject.org/svn/kernel/trunk</url>
     </scm>
-    <distributionManagement>
-        <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
-        <snapshotRepository>
-            <uniqueVersion>false</uniqueVersion>
-			<id>sakai-maven-snapshots-scp</id>
-			<name>Sakai snapshot Repo</name>
-			<url>scpexe://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
-			<layout>default</layout>
-        </snapshotRepository>
-        <repository>
-            <uniqueVersion>false</uniqueVersion>
-			<id>sakai-maven2-scp</id>
-			<name>Sakai maven2 repository</name>
-			<url>scpexe://source.sakaiproject.org/var/www/html/maven2</url>
-			<layout>default</layout>
-        </repository>
-        <site>
-            <id>sakai-site</id>
-            <name>Sakai release Site</name>
-            <url>scpexe://source.sakaiproject.org/var/www/html/release/kernel/${project.version}</url>
-        </site>
-    </distributionManagement>
+
     <pluginRepositories>
         <pluginRepository>
             <id>default</id>
@@ -1177,6 +1162,35 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+        <profile>
+            <id>sakai-release</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+
+            <distributionManagement>
+                <downloadUrl>http://source.sakaiproject.org/maven2/</downloadUrl>
+                <snapshotRepository>
+                    <uniqueVersion>false</uniqueVersion>
+                    <id>sakai-maven-snapshots-scp</id>
+                    <name>Sakai snapshot Repo</name>
+                    <url>scpexe://source.sakaiproject.org/var/www/html/maven2-snapshots</url>
+                    <layout>default</layout>
+                </snapshotRepository>
+                <repository>
+                    <uniqueVersion>false</uniqueVersion>
+                    <id>sakai-maven2-scp</id>
+                    <name>Sakai maven2 repository</name>
+                    <url>scpexe://source.sakaiproject.org/var/www/html/maven2</url>
+                    <layout>default</layout>
+                </repository>
+                <site>
+                    <id>sakai-site</id>
+                    <name>Sakai release Site</name>
+                    <url>scpexe://source.sakaiproject.org/var/www/html/release/kernel/${project.version}</url>
+                </site>
+            </distributionManagement>
         </profile>
     </profiles>
 </project>
