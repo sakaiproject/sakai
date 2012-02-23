@@ -145,7 +145,7 @@ public class WorksiteHandler extends PageHandler
 		session.setAttribute(Portal.ATTR_SITE_PAGE + siteId, page.getId());
 
 		// form a context sensitive title
-		String title = ServerConfigurationService.getString("ui.service") + " : "
+		String title = ServerConfigurationService.getString("ui.service","Sakai") + " : "
 				+ site.getTitle() + " : " + page.getTitle();
 
 		// start the response

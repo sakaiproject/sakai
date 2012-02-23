@@ -243,7 +243,7 @@ public class SiteHandler extends WorksiteHandler
 		session.removeAttribute(Portal.ATTR_SITE_PAGE + siteId);
 
 		// form a context sensitive title
-		String title = ServerConfigurationService.getString("ui.service") + " : "
+		String title = ServerConfigurationService.getString("ui.service","Sakai") + " : "
 				+ site.getTitle();
 
 		// Lookup the page in the site - enforcing access control

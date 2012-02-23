@@ -198,7 +198,7 @@ public class ToolHandler extends BasePortalHandler
 	                String siteType = portal.calcSiteType(siteTool.getSiteId());
 
        			// form a context sensitive title
-	                String title = ServerConfigurationService.getString("ui.service") + " : "
+	                String title = ServerConfigurationService.getString("ui.service","Sakai") + " : "
                                 + site.getTitle() + " : " + siteTool.getTitle();
 
                 	PortalRenderContext rcontext = portal.startPageContext(siteType, title, 

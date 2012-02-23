@@ -274,7 +274,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// error and we cannot use the error site...
 
 		// form a context sensitive title
-		String title = ServerConfigurationService.getString("ui.service") + " : Portal";
+		String title = ServerConfigurationService.getString("ui.service","Sakai") + " : Portal";
 
 		// start the response
 		PortalRenderContext rcontext = startPageContext("", title, null, req);
@@ -488,7 +488,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 
 		// form a context sensitive title
-		String title = ServerConfigurationService.getString("ui.service");
+		String title = ServerConfigurationService.getString("ui.service","Sakai");
 		if (site != null)
 		{
 			title = title + ":" + site.getTitle();
