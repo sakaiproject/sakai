@@ -224,43 +224,32 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	 **/
 	public Locale getLocale()
 	{			 
-		 Locale loc = null;
-		 try
-		 {
-			 // check if locale is requested for specific user
-			 if ( this.userId != null )
-			 {
-				 loc = getLocale( this.userId );
-			 }
-			 
-			 else
-			 {
-				 loc = (Locale) getSessionManager().getCurrentSession().getAttribute(LOCALE_SESSION_KEY+getSessionManager().getCurrentSessionUserId());
-				 
-				 // The locale is not in the session. 
-				 // Look for it and set in session
-				 if (loc == null) 
-					 loc = setContextLocale(null);
-			 }
-		 }
-		 //FIXME NPE's should not be explicitly caught - rather check the session above for null
-		 catch(NullPointerException e) 
-		 {
-			if (M_log.isWarnEnabled()) {
-				M_log.warn("getLocale() swallowing NPE");
-				e.printStackTrace();
-			}
-			 // The locale is not in the session. 
-			 // Look for it and set in session
-			 loc = setContextLocale(null);
-		 } 
+	    Locale loc = null;
+	    // check if locale is requested for specific user
+	    if ( this.userId != null ) {
+	        loc = getLocale( this.userId );
+	    } else {
+	        try {
+	            loc = (Locale) getSessionManager().getCurrentSession().getAttribute(LOCALE_SESSION_KEY+getSessionManager().getCurrentSessionUserId());
+	        } catch (NullPointerException e) {
+                loc = null;
+	            if (M_log.isWarnEnabled()) {
+	                M_log.warn("getLocale() swallowing NPE - caused by a null sessionmanager or null session, OK for tests, problem if production");
+	                //e.printStackTrace();
+	            }
+	        }
+            // The locale is not in the session so set in session
+            if (loc == null) {
+                loc = setContextLocale(null);
+            }
+	    }
 
-		if (loc == null) {
-			M_log.info("getLocale() Locale not found in preferences or session, returning default");
-			loc = Locale.getDefault();
-		}
+	    if (loc == null) {
+	        M_log.info("getLocale() Locale not found in preferences or session, returning default");
+	        loc = Locale.getDefault();
+	    }
 
-		 return loc;
+	    return loc;
 	}
 	
 	/**
