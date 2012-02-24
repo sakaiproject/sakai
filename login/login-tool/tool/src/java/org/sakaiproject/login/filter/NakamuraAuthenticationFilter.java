@@ -237,9 +237,9 @@ public class NakamuraAuthenticationFilter implements Filter {
 			 * (typically on the top).
 			 */
 			final boolean topLogin = serverConfigurationService.getBoolean(
-					"top.login", false);
+	                       "top.login", true); // default is enabled
 			if (topLogin) {
-				LOG.warn("top.login is usually disabled in sakai.properties for container authentication scenarios");
+				LOG.warn("top.login and container.login are both enabled, top.login is usually disabled in sakai.properties for container authentication scenarios");
 			}
 
 			if (nakamuraAuthenticationHelper == null) { // may be in a test case
