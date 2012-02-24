@@ -44,10 +44,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
+import org.imgscalr.Scalr;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
-import com.thebuzzmedia.imgscalr.Scalr;
 
 public class ProfileUtils {
 
@@ -531,5 +531,96 @@ public class ProfileUtils {
 		return DigestUtils.md5Hex(s);
 	}
 	
+	/**
+	 * Creates a square avatar image by taking a segment out of the centre of the original image and resizing to the appropriate dimensions
+	 * 
+	 * @param imageData		original bytes of the image
+	 * @param mimeType		mimetype of image
+	 * @return
+	 */
+	public static byte[] createAvatar(byte[] imageData, String mimeType) {
+		
+		InputStream in = null;
+		byte[] outputBytes = null;
+		try {
+			//convert original image to inputstream
+			in = new ByteArrayInputStream(imageData);
+			
+			//original buffered image
+			BufferedImage originalImage = ImageIO.read(in);
+			
+			//OPTION 1
+			//determine the smaller side of the image and use that as the size of the cropped square
+			//to be taken out of the centre
+			//then resize to the avatar size =80 square.
+			
+			int smallestSide = originalImage.getWidth();
+			if(originalImage.getHeight() < originalImage.getWidth()) {
+				smallestSide = originalImage.getHeight();
+			}
+			
+			if(log.isDebugEnabled()){
+				log.debug("smallestSide:" + smallestSide);
+			}
+			
+			int startX = (originalImage.getWidth() / 2) - (smallestSide/2);
+			int startY = (originalImage.getHeight() / 2) - (smallestSide/2);
+			
+			//OPTION 2 (unused)
+			//determine a percentage of the original image which we want to keep, say 90%.
+			//then figure out the dimensions of the box and crop to that.
+			//then resize to the avatar size =80 square.
+					
+			//int percentWidth = (originalImage.getWidth() / 100) * 90;
+			//int startX = (originalImage.getWidth() / 2) - (percentWidth/2);
+			//int percentHeight = (originalImage.getHeight() / 100) * 90;
+			//int startY = (originalImage.getHeight() / 2) - (percentHeight/2);
+			//log.debug("percentWidth:" + percentWidth);
+			//log.debug("percentHeight:" + percentHeight);
+			//so it is square, we can only use one dimension for both side, so choose the smaller one
+			//int croppedSize = percentWidth;
+			//if(percentHeight < percentWidth) {
+			//	croppedSize = percentHeight;
+			//}
+			//log.debug("croppedSize:" + croppedSize);
+		
+			if(log.isDebugEnabled()){
+				log.debug("originalImage.getWidth():" + originalImage.getWidth());
+				log.debug("originalImage.getHeight():" + originalImage.getHeight());
+				log.debug("startX:" + startX);
+				log.debug("startY:" + startY);	
+			}
+			
+			//crop to these bounds and starting positions
+			BufferedImage croppedImage = Scalr.crop(originalImage, startX, startY, smallestSide, smallestSide);
+
+			//now resize it to the desired avatar size
+			BufferedImage scaledImage = Scalr.resize(croppedImage, 80);
+			
+			//convert BufferedImage to byte array
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ImageIO.write(scaledImage, getInformalFormatForMimeType(mimeType), baos);
+			baos.flush();
+			outputBytes = baos.toByteArray();
+			baos.close();
+			
+		} catch (Exception e) {
+			log.error("Cropping and scaling image failed.", e);
+		}
+		
+		finally {
+			if (in != null) {
+				try {
+					in.close();
+					log.debug("Image stream closed."); 
+				}
+				catch (IOException e) {
+					log.error("Error closing image stream: ", e); 
+				}
+			}
+		}
+		
+		return outputBytes;
+	}
 	
 }

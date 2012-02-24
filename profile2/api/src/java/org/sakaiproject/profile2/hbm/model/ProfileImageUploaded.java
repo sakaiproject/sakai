@@ -40,15 +40,17 @@ public class ProfileImageUploaded implements Serializable {
 	private String userUuid;
 	private String mainResource;
 	private String thumbnailResource;
+	private String avatarResource;
 	private boolean current;
 	
 	/** 
 	 * Additional constructor to create a ProfileImage record in one go
 	 */
-	public ProfileImageUploaded(String userUuid, String mainResource, String thumbnailResource, boolean current) {
+	public ProfileImageUploaded(String userUuid, String mainResource, String thumbnailResource, String avatarResource, boolean current) {
 		this.userUuid = userUuid;
 		this.mainResource = mainResource;
 		this.thumbnailResource = thumbnailResource;
+		this.avatarResource=avatarResource;
 		this.current = current;
 	}
 

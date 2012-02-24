@@ -303,9 +303,9 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>com.thebuzzmedia</groupId>
+				<groupId>org.imgscalr</groupId>
 				<artifactId>imgscalr-lib</artifactId>
-				<version>3.2</version>
+				<version>4.2</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>

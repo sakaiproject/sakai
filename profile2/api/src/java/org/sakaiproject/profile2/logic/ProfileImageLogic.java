@@ -97,9 +97,10 @@ public interface ProfileImageLogic {
 	 * @param fullSizeUrl - url for main image
 	 * @param thumbnailUrl - thumbnail for main image to be used when thumbnail sizes are requested. 
 	 * Leave blank or null for none and when a thumbnail is requested it will return the full image which can be scaled in the markup.
+	 * @param avatar - avatar for main image to be used when avatar sizes are requested. Can be blank and it will fallback as per thumbnail
 	 * @return
 	 */
-	public boolean setExternalProfileImage(String userUuid, String fullSizeUrl, String thumbnailUrl);
+	public boolean setExternalProfileImage(String userUuid, String fullSizeUrl, String thumbnailUrl,  String avatar);
 	
 	/**
 	 * Get the full URL to the default unavailable image defined in ProfileConstants

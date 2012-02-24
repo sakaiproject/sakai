@@ -173,7 +173,7 @@ public class ChangeProfilePictureUrl extends Panel{
         		String url = stringModel.getString();
         		
         		//save via ProfileImageService
-				if(imageLogic.setExternalProfileImage(userUuid, url, null)) {
+				if(imageLogic.setExternalProfileImage(userUuid, url, null, null)) {
 					//log it
 					log.info("User " + userUuid + " successfully changed profile picture by url.");
 					

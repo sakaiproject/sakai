@@ -156,7 +156,10 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 			}
 		}
 		
-		log.debug("imageType: " + imageType);
+		if(log.isDebugEnabled()){
+			log.debug("imageType: " + imageType);
+			log.debug("size: " + size);
+		}
 		
 		//get the image based on the global type/preference
 		switch (imageType) {
@@ -255,13 +258,13 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		 * MAIN PROFILE IMAGE
 		 */
 		//scale image
-		imageBytes = ProfileUtils.scaleImage(imageBytes, ProfileConstants.MAX_IMAGE_XY, mimeType);
+		byte[] mainImageBytes = ProfileUtils.scaleImage(imageBytes, ProfileConstants.MAX_IMAGE_XY, mimeType);
 		 
 		//create resource ID
 		String mainResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileConstants.PROFILE_IMAGE_MAIN);
 		
 		//save, if error, log and return.
-		if(!sakaiProxy.saveFile(mainResourceId, userUuid, fileName, mimeType, imageBytes)) {
+		if(!sakaiProxy.saveFile(mainResourceId, userUuid, fileName, mimeType, mainImageBytes)) {
 			log.error("Couldn't add main image to CHS. Aborting.");
 			return false;
 		}
@@ -270,23 +273,39 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		 * THUMBNAIL PROFILE IMAGE
 		 */
 		//scale image
-		imageBytes = ProfileUtils.scaleImage(imageBytes, ProfileConstants.MAX_THUMBNAIL_IMAGE_XY, mimeType);
+		byte[] thumbnailImageBytes = ProfileUtils.scaleImage(imageBytes, ProfileConstants.MAX_THUMBNAIL_IMAGE_XY, mimeType);
 		 
 		//create resource ID
 		String thumbnailResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileConstants.PROFILE_IMAGE_THUMBNAIL);
 		log.debug("Profile.ChangeProfilePicture.onSubmit thumbnailResourceId: " + thumbnailResourceId);
 		
 		//save, if error, warn, erase thumbnail reference, and continue (we really only need the main image)
-		if(!sakaiProxy.saveFile(thumbnailResourceId, userUuid, fileName, mimeType, imageBytes)) {
+		if(!sakaiProxy.saveFile(thumbnailResourceId, userUuid, fileName, mimeType, thumbnailImageBytes)) {
 			log.warn("Couldn't add thumbnail image to CHS. Main image will be used instead.");
 			thumbnailResourceId = null;
+		}
+		
+		/*
+		 * AVATAR PROFILE IMAGE
+		 */
+		//scale image
+		byte[] avatarImageBytes = ProfileUtils.createAvatar(imageBytes, mimeType);
+		 
+		//create resource ID
+		String avatarResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileConstants.PROFILE_IMAGE_AVATAR);
+		log.debug("Profile.ChangeProfilePicture.onSubmit avatarResourceId: " + avatarResourceId);
+		
+		//save, if error, warn, erase avatar reference, and continue (we really only need the main image)
+		if(!sakaiProxy.saveFile(avatarResourceId, userUuid, fileName, mimeType, avatarImageBytes)) {
+			log.warn("Couldn't add avatar image to CHS. Main image will be used instead.");
+			avatarResourceId = null;
 		}
 		
 		/*
 		 * SAVE IMAGE RESOURCE IDS
 		 */
 		//save
-		ProfileImageUploaded profileImage = new ProfileImageUploaded(userUuid, mainResourceId, thumbnailResourceId, true);
+		ProfileImageUploaded profileImage = new ProfileImageUploaded(userUuid, mainResourceId, thumbnailResourceId, avatarResourceId, true);
 		if(dao.addNewProfileImage(profileImage)){
 			log.info("Added a new profile image for user: " + userUuid);
 			return true;
@@ -299,7 +318,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean setExternalProfileImage(String userUuid, String fullSizeUrl, String thumbnailUrl) {
+	public boolean setExternalProfileImage(String userUuid, String fullSizeUrl, String thumbnailUrl, String avatar) {
 		
 		//check auth and get currentUserUuid
 		String currentUserUuid = sakaiProxy.getCurrentUserId();
@@ -319,7 +338,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		}
 		
 		//save
-		ProfileImageExternal externalImage = new ProfileImageExternal(userUuid, fullSizeUrl, thumbnailUrl);
+		ProfileImageExternal externalImage = new ProfileImageExternal(userUuid, fullSizeUrl, thumbnailUrl, avatar);
 		if(dao.saveExternalImage(externalImage)) {
 			log.info("Updated external image record for user: " + userUuid); 
 			return true;
@@ -555,6 +574,14 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 			}
 		}
 		
+		if(size == ProfileConstants.PROFILE_IMAGE_AVATAR) {
+			mtba = sakaiProxy.getResource(profileImage.getAvatarResource());
+			//PRFL-706, if the file is deleted, catch any possible NPE
+			if(mtba == null || mtba.getBytes() == null) {
+				mtba = sakaiProxy.getResource(profileImage.getMainResource());
+			}
+		}
+		
 		return mtba;
 	}
 	
@@ -577,29 +604,43 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		
 		//if none, return null
     	if(externalImage == null) {
-    		return getUnavailableImageURL();
+    		return defaultImageUrl;
     	}
     	
-    	//else return the url for the type they requested
+    	//otherwise get the url for the type they requested
+    	String url = null;
     	if(size == ProfileConstants.PROFILE_IMAGE_MAIN) {
-    		String url = externalImage.getMainUrl();
-    		if(StringUtils.isBlank(url)) {
-    			return defaultImageUrl;
+    		if(log.isDebugEnabled()) {
+    			log.debug("Returning main image url for userId: " + userUuid);
     		}
-    		return url;
+    		url = externalImage.getMainUrl();
     	}
     	
     	if(size == ProfileConstants.PROFILE_IMAGE_THUMBNAIL) {
-    		String url = externalImage.getThumbnailUrl();
-    		if(StringUtils.isBlank(url)) {
-    			url = externalImage.getMainUrl();
-    			if(StringUtils.isBlank(url)) {
-    				return defaultImageUrl;
-    			}
+    		if(log.isDebugEnabled()) {
+    			log.debug("Returning thumb image url for userId: " + userUuid);
     		}
-    		return url;
+    		url = externalImage.getThumbnailUrl();
     	}
     	
+    	if(size == ProfileConstants.PROFILE_IMAGE_AVATAR) {
+    		if(log.isDebugEnabled()) {
+    			log.debug("Returning avatar image url for userId: " + userUuid);
+    		}
+    		url = externalImage.getAvatarUrl();
+    	}
+    	
+    	//if we have a url, return it,
+    	if(StringUtils.isNotBlank(url)){
+    		return url;
+    	} else {
+    		//otherwise fallback
+    		url = externalImage.getMainUrl();
+			if(StringUtils.isBlank(url)) {
+				url = defaultImageUrl;
+			}
+    	}
+    	    	
     	//no url	
     	log.info("ProfileLogic.getExternalProfileImageUrl. No URL for userId: " + userUuid + ", imageType: " + size + ". Returning default.");  
     	return defaultImageUrl;

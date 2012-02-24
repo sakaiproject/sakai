@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Data;
+import lombok.Getter;
 import lombok.Setter;
 
 import org.apache.commons.lang.StringUtils;
@@ -24,6 +26,7 @@ import org.sakaiproject.profile2.hbm.model.ProfileImageUploaded;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.ImportableUserProfile;
+import org.sakaiproject.profile2.model.MimeTypeByteArray;
 import org.sakaiproject.profile2.model.UserProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -54,6 +57,11 @@ public class ProfileConverter {
 	@Setter
 	private ProfileImageLogic imageLogic;
 	
+	ConvertedImage ci = null;
+	
+	private final static String DEFAULT_FILE_NAME = "Profile Image";
+	private final static String DEFAULT_MIME_TYPE = "image/jpeg";
+	
 	public void init() {
 		log.info("Profile2: ==============================="); 
 		log.info("Profile2: Conversion utility starting up."); 
@@ -76,68 +84,63 @@ public class ProfileConverter {
 		for(Iterator<String> i = allUsers.iterator(); i.hasNext();) {
 			String userUuid = (String)i.next();
 			
+			//
+			// Process iamge bytes
+			//
+			
 			//get image record from dao directly, we don't need privacy/prefs here
 			ProfileImageUploaded uploadedProfileImage = dao.getCurrentProfileImageRecord(userUuid);
 			
-			if(uploadedProfileImage != null) {
-				log.info("Profile2 image converter: ProfileImage record exists for " + userUuid + ". Nothing to do here, skipping to next section...");
-			} else {
-				log.info("Profile2 image converter: No existing ProfileImage record for " + userUuid + ". Processing...");
+			ci = new ConvertedImage();
+			ci.setUserUuid(userUuid);
+			
+			//if no record, we need to run all conversions
+			if(uploadedProfileImage == null) {
+				//main
+				convertSakaiPersonImage();
 				
-				//get photo from SakaiPerson
-				byte[] image = sakaiProxy.getSakaiPersonJpegPhoto(userUuid);
-				
-				//if none, nothing to do
-				if(image == null || image.length == 0) {
-					log.info("Profile2 image converter: No image binary to convert for " + userUuid + ". Skipping to next section...");
-				} else {
-					
-					//set some defaults for the image we are adding to ContentHosting
-					String fileName = "Profile Image";
-					String mimeType = "image/jpeg";
-					
-					//scale the main image
-					byte[] imageMain = ProfileUtils.scaleImage(image, ProfileConstants.MAX_IMAGE_XY, mimeType);
-					
-					//create resource ID
-					String mainResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileConstants.PROFILE_IMAGE_MAIN);
-					log.info("Profile2 image converter: mainResourceId: " + mainResourceId);
-					
-					//save, if error, log and return.
-					if(!sakaiProxy.saveFile(mainResourceId, userUuid, fileName, mimeType, imageMain)) {
-						log.error("Profile2 image converter: Saving main profile image failed.");
-						continue;
-					}
-	
-					/*
-					 * THUMBNAIL PROFILE IMAGE
-					 */
-					//scale image
-					byte[] imageThumbnail = ProfileUtils.scaleImage(image, ProfileConstants.MAX_THUMBNAIL_IMAGE_XY, mimeType);
-					 
-					//create resource ID
-					String thumbnailResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileConstants.PROFILE_IMAGE_THUMBNAIL);
-	
-					log.info("Profile2 image converter: thumbnailResourceId:" + thumbnailResourceId);
-					
-					//save, if error, log and return.
-					if(!sakaiProxy.saveFile(thumbnailResourceId, userUuid, fileName, mimeType, imageThumbnail)) {
-						log.warn("Profile2 image converter: Saving thumbnail profile image failed. Main image will be used instead.");
-						thumbnailResourceId = null;
-					}
-	
-					/*
-					 * SAVE IMAGE RESOURCE IDS
-					 */
-					uploadedProfileImage = new ProfileImageUploaded(userUuid, mainResourceId, thumbnailResourceId, true);
-					if(dao.addNewProfileImage(uploadedProfileImage)){
-						log.info("Profile2 image converter: Binary image converted and saved for " + userUuid);
-					} else {
-						log.warn("Profile2 image converter: Binary image conversion failed for " + userUuid);
-					}					
-					
+				if(StringUtils.isNotBlank(ci.getMainResourceId())) {
+					//thumbnail
+					generateAndPersistThumbnail();
+					//avatar
+					generateAndPersistAvatar();
 				}
-			} 
+			} else {
+				
+				//get any existing values and set into object so we know if we need to generate or save anything
+				ci.setMainResourceId(uploadedProfileImage.getMainResource());
+				ci.setThumbnailResourceId(uploadedProfileImage.getThumbnailResource());
+				ci.setAvatarResourceId(uploadedProfileImage.getAvatarResource());
+				
+				//get the existing profile image
+				MimeTypeByteArray mtba = sakaiProxy.getResource(ci.getMainResourceId());
+				
+				ci.setImage(mtba.getBytes());
+				ci.setMimeType(mtba.getMimeType());
+
+				//if we need thumb or avatar, create as necessary
+				if(ci.needsThumb()){
+					generateAndPersistThumbnail();
+				}
+				if(ci.needsAvatar()){
+					generateAndPersistAvatar();
+				}
+			}
+		
+			//save image resource IDs
+			if(ci.isNeedsSaving()){
+				ProfileImageUploaded convertedProfileImage = new ProfileImageUploaded(userUuid, ci.getMainResourceId(), ci.getThumbnailResourceId(), ci.getAvatarResourceId(), true);
+			
+				if(dao.addNewProfileImage(convertedProfileImage)){
+					log.info("Profile2 image converter: Binary image converted and saved for " + userUuid);
+				} else {
+					log.warn("Profile2 image converter: Binary image conversion failed for " + userUuid);
+				}	
+			}
+			
+			//
+			// Process external image urls
+			//
 			
 			//process any image URLs, if they don't already have a valid record.
 			ProfileImageExternal externalProfileImage = dao.getExternalImageRecordForUser(userUuid);
@@ -152,7 +155,7 @@ public class ProfileConverter {
 				if(StringUtils.isBlank(url)) {
 					log.info("Profile2 image converter: No url image to convert for " + userUuid + ". Skipping...");
 				} else {
-					externalProfileImage = new ProfileImageExternal(userUuid, url, null);
+					externalProfileImage = new ProfileImageExternal(userUuid, url, null, null);
 					if(dao.saveExternalImage(externalProfileImage)) {
 						log.info("Profile2 image converter: Url image converted and saved for " + userUuid);
 					} else {
@@ -411,6 +414,121 @@ public class ProfileConverter {
 	 */
 	private void disableSecurityAdvisor(SecurityAdvisor advisor){
 		securityService.popAdvisor(advisor);
+	}
+	
+	/**
+	 * Helper to convert an image stored in SakaiPerson into a main image
+	 * @return 
+	 */
+	private void convertSakaiPersonImage(){
+		
+		String userUuid = ci.getUserUuid();
+		
+		//get photo from SakaiPerson
+		byte[] image = sakaiProxy.getSakaiPersonJpegPhoto(userUuid);
+		
+		//if none, nothing to do
+		if(image == null || image.length == 0) {
+			log.info("Profile2 image converter: No image binary to convert for " + userUuid + ". Skipping user...");
+		} else {
+			
+			//scale the main image
+			byte[] imageMain = ProfileUtils.scaleImage(image, ProfileConstants.MAX_IMAGE_XY, DEFAULT_MIME_TYPE);
+			
+			//create resource ID
+			String mainResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileConstants.PROFILE_IMAGE_MAIN);
+			log.info("Profile2 image converter: mainResourceId: " + mainResourceId);
+			
+			//save, if error, log and return.
+			if(!sakaiProxy.saveFile(mainResourceId, userUuid, DEFAULT_FILE_NAME, DEFAULT_MIME_TYPE, imageMain)) {
+				log.error("Profile2 image converter: Saving main profile image failed.");
+			} else {
+				ci.setImage(imageMain);
+				ci.setMimeType(DEFAULT_MIME_TYPE);
+				ci.setFileName(DEFAULT_FILE_NAME);
+				ci.setMainResourceId(mainResourceId);
+				ci.setNeedsSaving(true);
+			}
+		}
+	}
+	
+	/**
+	 * Helper to convert an image into a thumbnail
+	 * @return 
+	 */
+	private void generateAndPersistThumbnail() {
+		
+		String userUuid = ci.getUserUuid();
+		
+		byte[] imageThumbnail = ProfileUtils.scaleImage(ci.getImage(), ProfileConstants.MAX_THUMBNAIL_IMAGE_XY, ci.getMimeType());
+		 
+		//create resource ID
+		String thumbnailResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileConstants.PROFILE_IMAGE_THUMBNAIL);
+		log.info("Profile2 image converter: thumbnailResourceId:" + thumbnailResourceId);
+		
+		//save, if error, log and return.
+		if(!sakaiProxy.saveFile(thumbnailResourceId, userUuid, DEFAULT_FILE_NAME, ci.getMimeType(), imageThumbnail)) {
+			log.warn("Profile2 image converter: Saving thumbnail profile image failed. Main image will be used instead.");
+		} else {
+			ci.setThumbnailResourceId(thumbnailResourceId);
+			ci.setNeedsSaving(true);
+		}
+	}
+	
+	/**
+	 * Helper to convert an image into a thumbnail
+	 * @return 
+	 */
+	private void generateAndPersistAvatar() {
+
+		String userUuid = ci.getUserUuid();
+		
+		byte[] imageAvatar = ProfileUtils.createAvatar(ci.getImage(), ci.getMimeType());
+		 
+		//create resource ID
+		String avatarResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileConstants.PROFILE_IMAGE_THUMBNAIL);
+		log.info("Profile2 image converter: avatarResourceId:" + avatarResourceId);
+		
+		//save, if error, log and return.
+		if(!sakaiProxy.saveFile(avatarResourceId, userUuid, DEFAULT_FILE_NAME, ci.getMimeType(), imageAvatar)) {
+			log.warn("Profile2 image converter: Saving avatar profile image failed. Main image will be used instead.");
+		} else {
+			ci.setAvatarResourceId(avatarResourceId);
+			ci.setNeedsSaving(true);
+		}
+	}
+	
+	
+	/**
+	 * Private class to store some info while we perform the conversions
+	 * 
+	 * @author Steve Swinsburg (steve.swinsburg@gmail.com)
+	 *
+	 */
+	
+	class ConvertedImage {
+		@Getter @Setter private String mainResourceId;
+		@Getter @Setter private String thumbnailResourceId;
+		@Getter @Setter private String avatarResourceId;
+		@Getter @Setter private byte[] image;
+		@Getter @Setter private String mimeType;
+		@Getter @Setter private String userUuid;
+		@Getter @Setter private String fileName;
+		//only want to save if we have to, otherwise we will be duplicating records
+		@Getter @Setter private boolean needsSaving = false;
+		
+		public boolean needsThumb() {
+			return (validBytes() && StringUtils.isBlank(thumbnailResourceId));
+		}
+		
+		public boolean needsAvatar() {
+			return (validBytes() && StringUtils.isBlank(avatarResourceId));
+		}
+		
+		public boolean validBytes() {
+			return (image != null && image.length > 0);
+		}
+		
 	}
 	
 }

@@ -59,6 +59,7 @@ public class ProfileConstants {
 	//also used by ProfileImageExternal
 	public static final int PROFILE_IMAGE_MAIN = 1;		
 	public static final int PROFILE_IMAGE_THUMBNAIL = 2;
+	public static final int PROFILE_IMAGE_AVATAR = 3;
 	
 	//should images be marked up in a way that a browser can cache them?
 	public static final boolean PROFILE_IMAGE_CACHE = true;

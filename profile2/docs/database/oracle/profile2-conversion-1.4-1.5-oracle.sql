@@ -38,3 +38,8 @@ alter table PROFILE_WALL_ITEM_COMMENTS_T
 /* add the show online status column, default to 1, (PRFL-350) */
 alter table PROFILE_PREFERENCES_T add SHOW_ONLINE_STATUS number(1,0) default 1;
 alter table PROFILE_PRIVACY_T add SHOW_ONLINE_STATUS number(1,0) default 0;
+
+
+/* add avatar image url to uploaded and external image records (PRFL-612) */
+alter table PROFILE_IMAGES_T add RESOURCE_AVATAR varchar2(4000);
+alter table PROFILE_IMAGES_EXTERNAL_T add URL_AVATAR varchar2(4000);

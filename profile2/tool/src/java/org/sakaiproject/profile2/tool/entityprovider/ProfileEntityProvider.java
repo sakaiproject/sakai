@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.Setter;
+import lombok.extern.apachecommons.CommonsLog;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -66,6 +67,7 @@ import org.sakaiproject.profile2.util.ProfileUtils;
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
  */
+@CommonsLog
 public class ProfileEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, AutoRegisterEntityProvider, Outputable, Resolvable, Sampleable, Describeable, Redirectable, ActionsExecutable, RequestAware {
 
 	public final static String ENTITY_PREFIX = "profile";
@@ -115,7 +117,17 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		}
 		
 		ProfileImage image = null;
-		boolean wantsThumbnail = "thumb".equals(view.getPathSegment(3)) ? true : false;
+		boolean wantsThumbnail = StringUtils.equals("thumb", view.getPathSegment(3)) ? true : false;
+		
+		boolean wantsAvatar = false;
+		if(!wantsThumbnail) {
+			wantsAvatar = StringUtils.equals("avatar", view.getPathSegment(3)) ? true : false;
+		}
+		
+		if(log.isDebugEnabled()) {
+			log.debug("wantsThumbnail:" + wantsThumbnail);
+			log.debug("wantsAvatar:" + wantsAvatar);
+		}
 		
 		//optional siteid
 		String siteId = (String)params.get("siteId");
@@ -123,10 +135,14 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			throw new EntityNotFoundException("Invalid siteId: " + siteId, ref.getReference());
 		}
 		
-		//get thumb if requested - will fallback by default
+		//get thumb or avatar if requested - or fallback
 		if(wantsThumbnail) {
 			image = imageLogic.getProfileImage(uuid, null, null, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, siteId);
-		} else {
+		} 
+		if(!wantsThumbnail && wantsAvatar) {
+			image = imageLogic.getProfileImage(uuid, null, null, ProfileConstants.PROFILE_IMAGE_AVATAR, siteId);
+		}
+		if(!wantsThumbnail && !wantsAvatar) {
 			image = imageLogic.getProfileImage(uuid, null, null, ProfileConstants.PROFILE_IMAGE_MAIN, siteId);
 		}
 		

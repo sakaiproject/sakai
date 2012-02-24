@@ -17,6 +17,7 @@
 		<property name="userUuid" column="USER_UUID" length="99" not-null="true" index="PROFILE_IMAGES_USER_UUID_I" />
 		<property name="mainResource" column="RESOURCE_MAIN" type="string" length="4000" not-null="true" />
 		<property name="thumbnailResource" column="RESOURCE_THUMB" type="string" length="4000" not-null="true" />
+		<property name="avatarResource" column="RESOURCE_AVATAR" type="string" length="4000" not-null="true" />
 		<property name="current" column="IS_CURRENT" not-null="true" index="PROFILE_IMAGES_IS_CURRENT_I" />
 
   	</class>

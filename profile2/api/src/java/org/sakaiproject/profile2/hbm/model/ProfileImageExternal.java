@@ -39,5 +39,6 @@ public class ProfileImageExternal implements Serializable {
 	private String userUuid;
 	private String mainUrl;
 	private String thumbnailUrl; 
-
+	private String avatarUrl;
+	
 }

@@ -33,7 +33,7 @@
       		<artifactId>commons-codec</artifactId>
    		</dependency>
    		<dependency>
-			<groupId>com.thebuzzmedia</groupId>
+			<groupId>org.imgscalr</groupId>
 			<artifactId>imgscalr-lib</artifactId>
 		</dependency>
 		
