@@ -1924,10 +1924,8 @@ public class CharonPortal extends HttpServlet
 
 		// check for the top.login (where the login fields are present instead
 		// of a login link, but ignore it if container.login is set
-		boolean topLogin = Boolean.TRUE.toString().equalsIgnoreCase(
-				ServerConfigurationService.getString("top.login"));
-		boolean containerLogin = Boolean.TRUE.toString().equalsIgnoreCase(
-				ServerConfigurationService.getString("container.login"));
+		boolean topLogin = ServerConfigurationService.getBoolean("top.login", true);
+		boolean containerLogin = ServerConfigurationService.getBoolean("container.login", false);
 		if (containerLogin) topLogin = false;
 
 		// if not logged in they get login
