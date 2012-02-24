@@ -1290,6 +1290,9 @@ background-image: url(../../image/silk/comment.png);
 .icon-sakai-signup {
     background-image: url(../../image/silk/date.png);
 }
+.icon-sakai-site-roster2 { 
+	background-image: url(../../image/silk/vcard.png); 
+}
 
 /** Privacy Popup Styles **/
 div#privacy_tool_popup {
