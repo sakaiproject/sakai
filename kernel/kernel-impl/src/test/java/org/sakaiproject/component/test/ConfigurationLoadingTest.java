@@ -71,7 +71,7 @@ public class ConfigurationLoadingTest extends SakaiKernelTestBase {
 	public void testSakaiProperties() throws Exception {
 		// Check that the test sakai-configuration.xml and sakai.properties files have been loaded.
 		Assert.assertTrue(serverConfigurationService.getString("loadedTomcatSakaiProperties").equals("true"));
-		Assert.assertTrue(serverConfigurationService.getString("gatewaySiteId").equals("!gateway"));
+		Assert.assertTrue(serverConfigurationService.getString("kernel.test.key").equals("kernel"));
 		ITestComponent testComponent = (ITestComponent)getService(ITestComponent.class.getName());
 		Assert.assertTrue(testComponent.getOverrideString1().equals("nondefault"));
 		Assert.assertTrue(testComponent.getPlaceholderString1().equals("nondefault"));
