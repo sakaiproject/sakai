@@ -72,6 +72,10 @@
 						$tlang.getString("feat.forv")
 					</td>
 				</tr>
+				## list those extra tools (added outside Site Info tool with tool id not listed as the allowed tool for current site type) as hidded input
+				#foreach($tool in $!extraSelectedToolList)
+					<input type="hidden" name="selectedTools" value="$tool" />
+				#end
 				#set ($rowCount=0)
 				#foreach($tool in $toolRegistrationList)
 				#set ($rowCount=$rowCount + 1)

@@ -37,6 +37,9 @@
 					#set($found=true)
 				#end
 			#end
+			#if(!$found && $!extraSelectedToolList.contains($newTool))
+				#set($found=true)
+			#end
 			#if (!$found)
 				<script type="text/javascript">
 					document.getElementById('removedInstruction').style.display='block'
@@ -93,6 +96,9 @@
 				#if ($oldTool.equals($newTool))
 					#set($found=true)
 				#end
+			#end
+			#if(!$found && $!extraSelectedToolList.contains($newTool))
+				#set($found=true)
 			#end
 			#if (!$found)
 				<span class="highlight">
