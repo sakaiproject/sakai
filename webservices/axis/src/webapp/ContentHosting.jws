@@ -670,5 +670,47 @@ public class ContentHosting {
 		return item;
 	}
 	
+	// Return XML document listing all resources user has in default (My Workspace) site
+	public String getMyWorkspaceResources (String sessionid) throws AxisFault {
+		return getUserResources( sessionid, null );
+ 	}
+
+	// Return XML document listing all resources user has in (optional) site
+	public String getUserResources (String sessionid, String siteId) throws AxisFault {
+		Session session = establishSession(sessionid);
+		String collectionId = null;
 	
+		if ( siteId == null || siteId.equals("") ) {
+			collectionId = "/user/" + session.getUserId() + "/";
+   		} 
+		else {
+		collectionId = "/group/" + siteId + "/";
+		}
+   
+		try {
+			List allResources = contentHostingService.getAllResources( collectionId );
+
+			if ( allResources == null || allResources.size() == 0 ) {
+					return "<list/>";
+			}
+
+			Document dom = Xml.createDocument();
+			Node list = dom.createElement("list");
+			dom.appendChild(list);
+
+			for (Iterator i = allResources.iterator(); i.hasNext();) {
+					ContentEntity entity = (ContentEntity)i.next();
+					Node item = dom.createElement("item");
+					String url = entity.getUrl().replaceFirst("/access/content/","/web/");
+					item.appendChild( dom.createTextNode(url) );
+					list.appendChild(item);
+			}
+
+			return Xml.writeDocumentToString(dom);
+		}
+		catch (Exception e) {
+			return "failure";
+		}
+	}
+
 }
