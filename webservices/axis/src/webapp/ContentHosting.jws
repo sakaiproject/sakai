@@ -320,6 +320,72 @@ public class ContentHosting {
 
 
 	/**
+	 *	Update the contents of a resource.  The resource is passed either as text or encoded using Base64 flagged
+	 *	using the binary parameter.
+	 *
+	 *	TODO:  Add a message notifying the Resource tool that a resource has been updated.
+	 *
+	 *	@param sessionid a valid sessionid
+	 *	@param resourceId of the resource
+	 *	@param contentMime content string
+	 *	@param type content type string
+	 *	@param binary if true, content is encoded using Base64, if false content is assumed to be text.
+	 *	@return 'Success' or 'Failure'
+	 *
+	 *	@author David Horwitz
+	 */
+	public String updateContentItem(String sessionid, String resourceId, String contentMime, String type, boolean binary) {
+	
+		try {
+			//establish the session
+			Session s = establishSession(sessionid);
+
+			//  Extract content.
+			byte[] content = null;
+			if (binary) {
+				content = Base64.decode(contentMime);
+			}
+			else {
+				content = contentMime.getBytes();
+			}
+			
+			contentHostingService.updateResource(resourceId, type, content);
+			
+			return "success";
+		}
+	
+		catch (Exception e) {
+			LOG.error("updateContentItem(): " + e.getClass().getName() + " : " + e.getMessage());
+		}
+		return "failure";
+	}
+
+	/**
+	 *	Delete the content resource given by an id (with full path).
+	 *
+	 *	TODO:  Add a message notifying the Resource tool that a root.has been added to a site.
+	 *
+	 *	@param sessionid a valid sessionid
+	 *	@return the id of the resource to be deleted.
+	 *
+	 *	@author Mark Norton
+	 */
+	public String deleteResource(String sessionId, String resourceId) {			
+		try {
+			//establish the session
+			Session s = establishSession(sessionId);
+
+			contentHostingService.removeResource(resourceId);
+			return "success";
+		}
+	
+		catch (Exception e) {
+			LOG.error("deleteResource(): " + e.getClass().getName() + " : " + e.getMessage());
+		}
+		return "failure";
+	}
+
+	/**
 	 *	Get the data associated with a resource id.  This is actually an alternative way to get a resource, since
 	 *	most browsers will download a file by clicking on a link.  URLs are given by getResources() and getItem()
 	 *	using the binary parameter.  It is provided for appications other than browsers that may wish to access
