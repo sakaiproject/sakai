@@ -18,7 +18,7 @@
  * limitations under the License.
 *
 **********************************************************************************/
-package test.org.sakaiproject.tool.assessment.business.entity.helper;
+package org.sakaiproject.tool.assessment.business.entity.helper;
 import java.io.File;
 import java.util.List;
 import java.util.Map;

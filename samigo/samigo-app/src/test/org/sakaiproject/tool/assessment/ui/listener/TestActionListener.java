@@ -18,7 +18,7 @@
  * limitations under the License.
 *
 **********************************************************************************/
-package test.org.sakaiproject.tool.assessment.ui.listener;
+package org.sakaiproject.tool.assessment.ui.listener;
 
 import java.util.Map;
 

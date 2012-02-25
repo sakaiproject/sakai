@@ -1,4 +1,4 @@
-package test.org.sakaiproject.tool.assessment.ui.bean.evaluation;
+package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

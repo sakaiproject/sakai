@@ -19,7 +19,7 @@
 *
 **********************************************************************************/
 
-package test.org.sakaiproject.tool.assessment.ui.listener;
+package org.sakaiproject.tool.assessment.ui.listener;
 
 import java.util.Date;
 import javax.faces.event.AbortProcessingException;

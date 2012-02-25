@@ -18,7 +18,7 @@
  * limitations under the License.
 *
 **********************************************************************************/
-package test.org.sakaiproject.tool.assessment.jsf;
+package org.sakaiproject.tool.assessment.jsf;
 
 import java.io.Serializable;
 
