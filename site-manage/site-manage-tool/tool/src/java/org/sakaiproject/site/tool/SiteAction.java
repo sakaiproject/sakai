@@ -328,6 +328,10 @@ public class SiteAction extends PagedResourceActionII {
 	
 	private static final String STATE_SITE_ADD_COURSE = "canAddCourse";
 	
+	private static final String STATE_SITE_ADD_PORTFOLIO = "canAddPortfolio";
+	
+	private static final String STATE_PORTFOLIO_SITE_TYPE = "portfolio";
+	
 
 	// %%% get rid of the IdAndText tool lists and just use ToolConfiguration or
 	// ToolRegistration lists
@@ -1268,6 +1272,11 @@ public class SiteAction extends PagedResourceActionII {
 		
 		//can the user create course sites?
 		context.put(STATE_SITE_ADD_COURSE, SiteService.allowAddCourseSite());
+		
+		// can the user create portfolio sites?
+		context.put("portfolioSiteType", STATE_PORTFOLIO_SITE_TYPE);
+		context.put(STATE_SITE_ADD_PORTFOLIO, SiteService.allowAddPortfolioSite());
+		
 
 		
 		Site site = getStateSite(state);
