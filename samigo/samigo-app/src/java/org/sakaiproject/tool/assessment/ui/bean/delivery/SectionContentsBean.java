@@ -34,6 +34,11 @@ import java.util.Random;
 import java.util.Set;
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -51,8 +56,9 @@ public class SectionContentsBean
 	 * 
 	 */
 	private static final long serialVersionUID = 5959692528847396966L;
-private String text;
-  private String nonDefaultText;
+	private static Log log = LogFactory.getLog(SectionContentsBean.class);
+	private String text;
+	private String nonDefaultText;
   private java.util.ArrayList itemContents;
   private String sectionId;
   private String number;
@@ -421,12 +427,16 @@ private String text;
 
           String randomDrawDate = section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_RANDOM_DRAW_DATE);
           if(randomDrawDate != null && !"".equals(randomDrawDate)){
-        	  try{          
-        		  Date drawDate = DateFormat.getDateTimeInstance().parse(randomDrawDate);
-        		  setRandomQuestionsDrawDate(DateFormat.getDateInstance().format(drawDate));
-        		  setRandomQuestionsDrawTime(DateFormat.getTimeInstance().format(drawDate));
+
+        	  try{
+        		  //The Date Time is in ISO format
+        		  DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
+        		  DateTime drawDate = fmt.parseDateTime(randomDrawDate);
+        		  setRandomQuestionsDrawDate(fmt.print(drawDate));
+        		  setRandomQuestionsDrawTime(fmt.print(drawDate));
+
         	  }catch(Exception e){
-        		  e.printStackTrace();
+        		  log.error("Unable to parse date text: " + randomDrawDate, e);
         	  }         
           }
         }

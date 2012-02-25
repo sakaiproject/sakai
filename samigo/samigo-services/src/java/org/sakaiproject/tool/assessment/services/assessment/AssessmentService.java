@@ -21,7 +21,9 @@
 
 package org.sakaiproject.tool.assessment.services.assessment;
 
+
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -66,7 +68,6 @@ import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.tool.assessment.facade.FavoriteColChoicesFacadeQueries;
 
 /**
  * The AssessmentService calls the service locator to reach the manager on the
@@ -497,7 +498,9 @@ public class AssessmentService {
 				}
 
 				//update meta data for date:
-				section.addSectionMetaData(SectionDataIfc.QUESTIONS_RANDOM_DRAW_DATE, DateFormat.getDateTimeInstance().format(new Date()));
+				//We need this in a standard format so it can be parsed later. This is ISO8601 format -DH
+				DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
+				section.addSectionMetaData(SectionDataIfc.QUESTIONS_RANDOM_DRAW_DATE, df.format(new Date()));
 
 				saveOrUpdateSection(section);
 			}else{

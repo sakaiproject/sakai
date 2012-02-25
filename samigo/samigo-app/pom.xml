@@ -241,7 +241,14 @@
             <artifactId>junit</artifactId>
             <version>3.8.2</version>
         </dependency>
-    </dependencies>
+        <dependency>
+        	<groupId>joda-time</groupId>
+        	<artifactId>joda-time</artifactId>
+        	<version>2.1</version>
+        	<type>jar</type>
+        	<scope>compile</scope>
+        </dependency>
+	</dependencies>
     
 	<build>
 		<plugins>
