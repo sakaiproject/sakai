@@ -102,7 +102,7 @@
   </bean>
   
   <bean id="uk.ac.cam.caret.sakai.rwiki.service.api.radeox.RenderCache.cache" 
-  			class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+  			class="org.sakaiproject.memory.impl.EhCacheFactoryBean">
   	<property name="cacheManager"><ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/></property>
     <property name="cacheName"><value>uk.ac.cam.caret.sakai.rwiki.service.api.radeox.RenderCache</value></property>
     <property name="maxElementsInMemory" ><value>10000</value></property>
