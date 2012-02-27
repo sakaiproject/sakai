@@ -6,11 +6,26 @@
     <artifactId>master</artifactId>
     <groupId>org.sakaiproject</groupId>
     <relativePath>../master/pom.xml</relativePath>
-    <version>2.8.0</version>
+    <!-- The <version> property binds this library to a specific Sakai version 
+      ranging from from 2.7 to 2.8. In order to build this library for any other 
+      version than the Sakai version defined below, 2 steps are required. 
+      
+      1) Edit the <version> tag below to hold the version you intent to build for.
+      2) Add the appropriate profile to your build command using the -P<profile> 
+      tag. So If you intend to build for a 2.7.1 sakai version, use -Psakai2.7. 
+      The available profiles are: 
+        -Psakai2.7 : all Sakai 2.7 versions 
+        -Psakai2.8 : all Sakai 2.8 versions 
+        
+       This project is known to work with the following Sakai versions: 
+        2.7.1 
+        2.8.0 
+     -->
+    <version>2.7.1</version>
   </parent>
-  <artifactId>scorm</artifactId>
+  <artifactId>sakai-scorm-base</artifactId>
   <name>Sakai Scorm Project</name>
-  <version>1.0-SNAPSHOT</version>
+  <version>3.0.0</version>
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/contrib/scorm/SCORM.2004.3ED.RTE/trunk/
 		</connection>
@@ -21,6 +36,7 @@
   </scm>
   <properties>
     <sakai.entitybroker.version>1.2.0</sakai.entitybroker.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <packaging>pom</packaging>
   <profiles>
@@ -34,32 +50,6 @@
       <id>api</id>
       <modules>
         <module>scorm-api</module>
-      </modules>
-    </profile>
-    <profile>
-      <id>sakai2.5</id>
-      <modules>
-        <module>scorm-api</module>
-        <module>scorm-impl/adl</module>
-        <module>scorm-impl/client</module>
-        <module>scorm-impl/content</module>
-        <module>scorm-impl/model</module>
-        <module>scorm-impl/service</module>
-        <module>scorm-impl/pack</module>
-        <module>scorm-tool</module>
-      </modules>
-    </profile>
-    <profile>
-      <id>sakai2.6</id>
-      <modules>
-        <module>scorm-api</module>
-        <module>scorm-impl/adl</module>
-        <module>scorm-impl/client</module>
-        <module>scorm-impl/content</module>
-        <module>scorm-impl/model</module>
-        <module>scorm-impl/service</module>
-        <module>scorm-impl/pack</module>
-        <module>scorm-tool</module>
       </modules>
     </profile>
     <profile>
@@ -78,7 +68,7 @@
         <dependencies>
           <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>${sakai.spring.test.artifactId}</artifactId>
+            <artifactId>spring-test</artifactId>
             <version>${sakai.spring.test.version}</version>
             <scope>test</scope>
           </dependency>
@@ -107,42 +97,42 @@
       <dependency>
         <groupId>org.sakaiproject.scorm</groupId>
         <artifactId>sakai-scorm-adl-impl</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>3.0.0</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.scorm</groupId>
         <artifactId>sakai-scorm-content-impl</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>3.0.0</version>
         <type>jar</type>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.scorm</groupId>
         <artifactId>sakai-scorm-client-impl</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>3.0.0</version>
         <type>jar</type>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.scorm</groupId>
         <artifactId>sakai-scorm-model-impl</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>3.0.0</version>
         <type>jar</type>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.scorm</groupId>
         <artifactId>sakai-scorm-service-impl</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>3.0.0</version>
         <type>jar</type>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.scorm</groupId>
         <artifactId>sakai-scorm-api</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>3.0.0</version>
         <type>jar</type>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-wicket-for-scorm</artifactId>
-        <version>2.8.0</version>
+        <artifactId>sakai-wicket-for-scorm-tool</artifactId>
+        <version>3.0.0</version>
         <type>jar</type>
         <scope>compile</scope>
       </dependency>
