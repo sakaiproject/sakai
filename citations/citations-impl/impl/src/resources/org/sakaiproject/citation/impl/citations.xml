@@ -158,7 +158,7 @@
 
 	<!-- cache definitions -->
 	<bean id="org.sakaiproject.citation.api.SearchManager.sessionContextCache"
-		class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+		class="org.sakaiproject.memory.impl.EhCacheFactoryBean">
 		<property name="cacheManager">
 			<ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager" />
 		</property>
@@ -184,7 +184,7 @@
 
 	<bean
 		id="org.sakaiproject.citation.api.SearchManager.metasearchSessionManagerCache"
-		class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+		class="org.sakaiproject.memory.impl.EhCacheFactoryBean">
 		<property name="cacheManager">
 			<ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager" />
 		</property>
