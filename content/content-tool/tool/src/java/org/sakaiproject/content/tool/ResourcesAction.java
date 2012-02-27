@@ -4987,6 +4987,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		conditionsHelper.buildConditionContext(context, state);
 		
+		context.put("shortUrlEnabled", ServerConfigurationService.getBoolean("shortenedurl.enabled", false));
+		
 		return TEMPLATE_REVISE_METADATA;
 	}
 

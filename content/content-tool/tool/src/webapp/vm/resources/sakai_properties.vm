@@ -540,7 +540,15 @@
 					<div>
 						<a class="textPanelFooter" href="javascript:document.getElementById('fileURLHolder').style.overflow='auto';
 						document.getElementById('fileURLHolder').focus();document.getElementById('fileURLHolder').select();alert('$tlang.getString("props.select.help")');">$tlang.getString("props.select")</a>
-						| <a class="textPanelFooter" href="$model.accessUrl" target ="_blank">$tlang.getString("props.open")</a>
+						|
+						<a class="textPanelFooter" href="$model.accessUrl" target ="_blank">$tlang.getString("props.open")</a>
+						#if($shortUrlEnabled)
+						|
+						<span class="textPanelFooter">
+							<input type="checkbox" id="doShortUrl" onclick="javascript:toggleShortUrlOutput('$model.accessUrl');" />
+							<span>$tlang.getString("props.shorturl")</span>
+						</span>
+						#end
 					</div>
 					<textarea id="fileURLHolder" rows="3" cols="50" style="overflow:auto">$model.accessUrl</textarea>						
 
