@@ -27,17 +27,25 @@ import org.sakaiproject.entity.api.Reference;
 import java.util.List;
 
 /**
- * Created by IntelliJ IDEA.
- * User: johnellis
- * Date: Jan 26, 2007
- * Time: 10:33:57 AM
- * To change this template use File | Settings | File Templates.
+ * A basic implementation of InteractionAction which means for simple cases
+ * subclassing isn't needed.
+ * @see InteractionAction
  */
 public class BaseInteractionAction extends BaseResourceAction implements InteractionAction {
 
    private String helperId;
    private List<String> requiredPropertyKeys;
 
+   /**
+    * Create a useful BaseInteractionAction.
+    */
+   public BaseInteractionAction(String id, ActionType actionType, String typeId,
+                                String helperId, Localizer localizer) {
+	   super(id, actionType, typeId);
+	   this.helperId = helperId;
+	   setLocalizer(localizer);
+   }
+   
    public BaseInteractionAction(String id, ActionType actionType, String typeId,
                                 String helperId, List<String> requiredPropertyKeys) {
       super(id, actionType, typeId);
@@ -64,6 +72,14 @@ public class BaseInteractionAction extends BaseResourceAction implements Interac
     */
    public List<String> getRequiredPropertyKeys() {
       return requiredPropertyKeys;
+   }
+   
+   /**
+    * Set a list of properties that should be provided to the helper if they are defined.
+    * @param requiredPropertyKeys A List String property values to send.
+    */
+   public void setRequiredPropertyKeys(List<String> requiredPropertyKeys) {
+	   this.requiredPropertyKeys = requiredPropertyKeys;
    }
 
    /**

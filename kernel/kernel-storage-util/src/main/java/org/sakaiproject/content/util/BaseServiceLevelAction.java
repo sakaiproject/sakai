@@ -25,17 +25,22 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.content.api.ServiceLevelAction;
 
 /**
- * Created by IntelliJ IDEA.
- * User: johnellis
- * Date: Jan 26, 2007
- * Time: 10:17:14 AM
- * To change this template use File | Settings | File Templates.
+ * A basic implementation of ServiceLevelAction which means for simple cases
+ * subclassing isn't needed.
+ * @see ServiceLevelAction
  */
 public class BaseServiceLevelAction extends BaseResourceAction implements ServiceLevelAction 
 {
 
    private boolean multipleItemAction;
 
+   public BaseServiceLevelAction(String id, ActionType actionType, String typeId, boolean multipleItemAction, Localizer localizer) 
+   {
+      super(id, actionType, typeId);
+      this.multipleItemAction = multipleItemAction;
+      setLocalizer(localizer);
+   }
+   
    public BaseServiceLevelAction(String id, ActionType actionType, String typeId, boolean multipleItemAction) 
    {
       super(id, actionType, typeId);
