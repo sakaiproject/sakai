@@ -21,6 +21,8 @@
 
 package org.sakaiproject.content.types;
 
+import static org.sakaiproject.content.api.ResourceToolAction.*;
+
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -29,20 +31,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentEntity;
-import org.sakaiproject.content.api.InteractionAction;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceType;
-import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.api.ResourceToolAction.ActionType;
 import org.sakaiproject.content.util.BaseInteractionAction;
 import org.sakaiproject.content.util.BaseResourceType;
+import org.sakaiproject.content.util.BaseResourceAction.Localizer;
+import org.sakaiproject.content.util.BaseServiceLevelAction;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -60,29 +60,35 @@ public class TextDocumentType extends BaseResourceType
 	private String resourceClass = ServerConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
 	private String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
 	private ResourceLoader rb = new Resource().getLoader(resourceClass, resourceBundle);
-	// private static ResourceLoader rb = new ResourceLoader("types");
 	
-	protected EnumMap<ResourceToolAction.ActionType, List<ResourceToolAction>> actionMap = new EnumMap<ResourceToolAction.ActionType, List<ResourceToolAction>>(ResourceToolAction.ActionType.class);
+	protected EnumMap<ActionType, List<ResourceToolAction>> actionMap = new EnumMap<ActionType, List<ResourceToolAction>>(ActionType.class);
 	protected Map<String, ResourceToolAction> actions = new HashMap<String, ResourceToolAction>();	
-	protected UserDirectoryService userDirectoryService;
+	
+	private Localizer localizer(final String string) {
+		return new Localizer() {
+
+			public String getLabel() {
+				return rb.getString(string);
+			}
+
+		};
+	}
 	
 	public TextDocumentType()
 	{
-		this.userDirectoryService = (UserDirectoryService) ComponentManager.get("org.sakaiproject.user.api.UserDirectoryService");
-
-		actions.put(ResourceToolAction.CREATE, new TextDocumentCreateAction());
-		// actions.put(ResourceToolAction.ACCESS_CONTENT, new TextDocumentAccessAction());
-		actions.put(ResourceToolAction.REVISE_CONTENT, new TextDocumentReviseAction());
-		actions.put(ResourceToolAction.REPLACE_CONTENT, new TextDocumentReplaceAction());
-		actions.put(ResourceToolAction.ACCESS_PROPERTIES, new TextDocumentViewPropertiesAction());
-		actions.put(ResourceToolAction.REVISE_METADATA, new TextDocumentPropertiesAction());
-		actions.put(ResourceToolAction.COPY, new TextDocumentCopyAction());
-		actions.put(ResourceToolAction.DUPLICATE, new TextDocumentDuplicateAction());
-		actions.put(ResourceToolAction.MOVE, new TextDocumentMoveAction());
-		actions.put(ResourceToolAction.DELETE, new TextDocumentDeleteAction());
+		actions.put(CREATE, new TextDocumentCreateAction(CREATE, ActionType.CREATE, typeId, helperId, localizer("create.text")));
+		// actions.put(ACCESS_CONTENT, new TextDocumentAccessAction());
+		actions.put(REVISE_CONTENT, new TextDocumentReviseAction(REVISE_CONTENT, ActionType.REVISE_CONTENT, typeId, helperId, localizer("action.revise")));
+		actions.put(REPLACE_CONTENT, new TextDocumentReplaceAction(REPLACE_CONTENT, ActionType.REPLACE_CONTENT, typeId, helperId, localizer("action.replace")));
+		actions.put(ACCESS_PROPERTIES, new BaseServiceLevelAction(ACCESS_PROPERTIES, ActionType.VIEW_METADATA, typeId, false, localizer("action.access")));
+		actions.put(REVISE_METADATA, new BaseServiceLevelAction(REVISE_METADATA, ActionType.REVISE_METADATA, typeId, false, localizer("action.props")));
+		actions.put(COPY, new BaseServiceLevelAction(COPY, ActionType.COPY, typeId, true, localizer("action.copy")));
+		actions.put(DUPLICATE, new BaseServiceLevelAction(DUPLICATE, ActionType.DUPLICATE, typeId, false, localizer("action.duplicate")));
+		actions.put(MOVE, new BaseServiceLevelAction(MOVE, ActionType.MOVE, typeId, true, localizer("action.move")));
+		actions.put(DELETE, new BaseServiceLevelAction(DELETE, ActionType.DELETE, typeId, true, localizer("action.delete")));
 
 		// initialize actionMap with an empty List for each ActionType
-		for(ResourceToolAction.ActionType type : ResourceToolAction.ActionType.values())
+		for(ActionType type : ActionType.values())
 		{
 			actionMap.put(type, new ArrayList<ResourceToolAction>());
 		}
@@ -104,787 +110,55 @@ public class TextDocumentType extends BaseResourceType
 		
 	}
 
-	public class TextDocumentReplaceAction implements InteractionAction 
+	public class TextDocumentReplaceAction extends BaseInteractionAction 
 	{
 
-		public boolean available(ContentEntity entity) 
-		{
-			return true;
+		public TextDocumentReplaceAction(String id, ActionType actionType,
+				String typeId, String helperId, Localizer localizer) {
+			super(id, actionType, typeId, helperId, localizer);
 		}
 
-		public ActionType getActionType() 
-		{
-			return ResourceToolAction.ActionType.REPLACE_CONTENT;
-		}
-
-		public String getId() 
-		{
-			return ResourceToolAction.REPLACE_CONTENT;
-		}
-
-		public String getLabel() 
-		{
-			return rb.getString("action.replace"); 
-		}
-
-		public String getTypeId() 
-		{
-			return typeId;
-		}
-
-		public void cancelAction(Reference reference, String initializationId) 
-		{
-			
-		}
-
-		public void finalizeAction(Reference reference, String initializationId) 
-		{
-			
-		}
-
-		public String getHelperId() 
-		{
-			return helperId;
-		}
-
-		public List getRequiredPropertyKeys() 
+		@Override
+		public List<String> getRequiredPropertyKeys() 
 		{
 			List<String> rv = new ArrayList<String>();
 			rv.add(ResourceProperties.PROP_CONTENT_ENCODING);
 			return rv;
 		}
-
-		public String initializeAction(Reference reference) 
-		{
-			return BaseInteractionAction.getInitializationId(reference.getReference(), this.getTypeId(), this.getId());
-		}
 	}
 
-	public class TextDocumentPropertiesAction implements ServiceLevelAction
+	public class TextDocumentCreateAction extends BaseInteractionAction
 	{
-		/* (non-Javadoc)
-         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
-         */
-        public boolean available(ContentEntity entity)
-        {
-	        return true;
-        }
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void cancelAction(Reference reference)
-		{
-			// TODO Auto-generated method stub
-			
+		public TextDocumentCreateAction(String id, ActionType actionType,
+				String typeId, String helperId, Localizer localizer) {
+			super(id, actionType, typeId, helperId, localizer);
 		}
 
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#finalizeAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void finalizeAction(Reference reference)
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#initializeAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void initializeAction(Reference reference)
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#isMultipleItemAction()
-		 */
-		public boolean isMultipleItemAction()
-		{
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
-		 */
-		public ActionType getActionType()
-		{
-			// TODO Auto-generated method stub
-			return ResourceToolAction.ActionType.REVISE_METADATA;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getId()
-		 */
-		public String getId()
-		{
-			// TODO Auto-generated method stub
-			return ResourceToolAction.REVISE_METADATA;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getLabel()
-		 */
-		public String getLabel()
-		{
-			// TODO Auto-generated method stub
-			return rb.getString("action.props");
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getTypeId()
-		 */
-		public String getTypeId()
-		{
-			// TODO Auto-generated method stub
-			return typeId;
-		}
-		
-	}
-
-	public class TextDocumentViewPropertiesAction implements ServiceLevelAction
-	{
-		/* (non-Javadoc)
-         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
-         */
-        public boolean available(ContentEntity entity)
-        {
-	        return true;
-        }
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void cancelAction(Reference reference)
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#finalizeAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void finalizeAction(Reference reference)
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#initializeAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void initializeAction(Reference reference)
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#isMultipleItemAction()
-		 */
-		public boolean isMultipleItemAction()
-		{
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
-		 */
-		public ActionType getActionType()
-		{
-			// TODO Auto-generated method stub
-			return ResourceToolAction.ActionType.VIEW_METADATA;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getId()
-		 */
-		public String getId()
-		{
-			// TODO Auto-generated method stub
-			return ResourceToolAction.ACCESS_PROPERTIES;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getLabel()
-		 */
-		public String getLabel()
-		{
-			// TODO Auto-generated method stub
-			return rb.getString("action.access");
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getTypeId()
-		 */
-		public String getTypeId()
-		{
-			// TODO Auto-generated method stub
-			return typeId;
-		}
-		
-	}
-
-	public class TextDocumentCopyAction implements ServiceLevelAction
-	{
-		/* (non-Javadoc)
-         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
-         */
-        public boolean available(ContentEntity entity)
-        {
-	        return true;
-        }
-
-		public String getId() 
-		{
-			return ResourceToolAction.COPY;
-		}
-
-		public String getLabel() 
-		{
-			return rb.getString("action.copy");
-		}
-
-		public boolean isMultipleItemAction() 
-		{
-			return true;
-		}
-
-		public String getTypeId() 
-		{
-			return typeId;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
-		 */
-		public ActionType getActionType()
-		{
-			return ResourceToolAction.ActionType.COPY;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void cancelAction(Reference reference)
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#finalizeAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void finalizeAction(Reference reference)
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#initializeAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void initializeAction(Reference reference)
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-	}
-
-	public class TextDocumentCreateAction implements InteractionAction
-	{
-		/* (non-Javadoc)
-         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
-         */
-        public boolean available(ContentEntity entity)
-        {
-	        return true;
-        }
-
-		public void cancelAction(Reference reference, String initializationId) 
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		public void finalizeAction(Reference reference, String initializationId) 
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
-		 */
-		public ActionType getActionType()
-		{
-			return ResourceToolAction.ActionType.CREATE;
-		}
-
-		public String getId() 
-		{
-			return ResourceToolAction.CREATE;
-		}
-
-		public String getLabel() 
-		{
-			return rb.getString("create.text");
-		}
-
-		public String getTypeId() 
-		{
-			return typeId;
-		}
-
-		public String getHelperId() 
-		{
-			return helperId;
-		}
-
-		public List getRequiredPropertyKeys() 
+		@Override
+		public List<String> getRequiredPropertyKeys() 
 		{
 			List<String> rv = new ArrayList<String>();
 			rv.add(ResourceProperties.PROP_CONTENT_ENCODING);
 			return rv;
 		}
-
-		public String initializeAction(Reference reference) 
-		{
-			return BaseInteractionAction.getInitializationId(reference.getReference(), this.getTypeId(), this.getId());
-			
-		}
-
 	}
 
-	public class TextDocumentDeleteAction implements ServiceLevelAction
+	public class TextDocumentReviseAction extends BaseInteractionAction
 	{
-		/* (non-Javadoc)
-         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
-         */
-        public boolean available(ContentEntity entity)
-        {
-	        return true;
-        }
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
-		 */
-		public ActionType getActionType()
-		{
-			return ResourceToolAction.ActionType.DELETE;
+		public TextDocumentReviseAction(String id, ActionType actionType,
+				String typeId, String helperId, Localizer localizer) {
+			super(id, actionType, typeId, helperId, localizer);
 		}
 
-		public String getId() 
-		{
-			return ResourceToolAction.DELETE;
-		}
-
-		public String getLabel() 
-		{
-			return rb.getString("action.delete"); 
-		}
-
-		public boolean isMultipleItemAction() 
-		{
-			return true;
-		}
-
-		public String getTypeId() 
-		{
-			return typeId;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void cancelAction(Reference reference)
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#finalizeAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void finalizeAction(Reference reference)
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#initializeAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void initializeAction(Reference reference)
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-	}
-
-	public class TextDocumentDuplicateAction implements ServiceLevelAction
-	{
-		/* (non-Javadoc)
-         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
-         */
-        public boolean available(ContentEntity entity)
-        {
-	        return true;
-        }
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
-		 */
-		public ActionType getActionType()
-		{
-			return ResourceToolAction.ActionType.DUPLICATE;
-		}
-
-		public String getId() 
-		{
-			return ResourceToolAction.DUPLICATE;
-		}
-
-		public String getLabel() 
-		{
-			return rb.getString("action.duplicate"); 
-		}
-
-		public boolean isMultipleItemAction() 
-		{
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		public String getTypeId() 
-		{
-			return typeId;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void cancelAction(Reference reference)
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#finalizeAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void finalizeAction(Reference reference)
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#initializeAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void initializeAction(Reference reference)
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-	}
-
-	public class TextDocumentMoveAction implements ServiceLevelAction
-	{
-		/* (non-Javadoc)
-         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
-         */
-        public boolean available(ContentEntity entity)
-        {
-	        return true;
-        }
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
-		 */
-		public ActionType getActionType()
-		{
-			return ResourceToolAction.ActionType.MOVE;
-		}
-
-		public String getId() 
-		{
-			return ResourceToolAction.MOVE;
-		}
-
-		public String getLabel() 
-		{
-			return rb.getString("action.move"); 
-		}
-
-		public boolean isMultipleItemAction() 
-		{
-			return true;
-		}
-
-		public String getTypeId() 
-		{
-			return typeId;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void cancelAction(Reference reference)
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#finalizeAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void finalizeAction(Reference reference)
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#initializeAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void initializeAction(Reference reference)
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-	}
-
-	public class TextDocumentReviseAction implements InteractionAction
-	{
-		/* (non-Javadoc)
-         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
-         */
-        public boolean available(ContentEntity entity)
-        {
-	        return true;
-        }
-
-		public void cancelAction(Reference reference, String initializationId) 
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		public void finalizeAction(Reference reference, String initializationId) 
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
-		 */
-		public ActionType getActionType()
-		{
-			return ResourceToolAction.ActionType.REVISE_CONTENT;
-		}
-		
-		public String getId() 
-		{
-			return ResourceToolAction.REVISE_CONTENT;
-		}
-
-		public String getLabel() 
-		{
-			return rb.getString("action.revise"); 
-		}
-
-		public String getTypeId() 
-		{
-			return typeId;
-		}
-
-		public String getHelperId() 
-		{
-			return helperId;
-		}
-
-		public List getRequiredPropertyKeys() 
+		@Override
+		public List<String> getRequiredPropertyKeys() 
 		{
 			List<String> rv = new ArrayList<String>();
 			rv.add(ResourceProperties.PROP_CONTENT_ENCODING);
 			return rv;
 		}
-
-		public String initializeAction(Reference reference) 
-		{
-			return  BaseInteractionAction.getInitializationId(reference.getReference(), this.getTypeId(), this.getId());
-		}
-
 	}
 	
-	public class TextDocumentAccessAction implements InteractionAction
-	{
-		/* (non-Javadoc)
-         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
-         */
-        public boolean available(ContentEntity entity)
-        {
-	        return true;
-        }
-
-		public void cancelAction(Reference reference, String initializationId) 
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		public void finalizeAction(Reference reference, String initializationId) 
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
-		 */
-		public ActionType getActionType()
-		{
-			return ResourceToolAction.ActionType.VIEW_CONTENT;
-		}
-
-		public String getId() 
-		{
-			return ResourceToolAction.ACCESS_CONTENT;
-		}
-
-		public String getLabel() 
-		{
-			return rb.getString("action.access"); 
-		}
-
-		public String getTypeId() 
-		{
-			return typeId;
-		}
-
-		public String getHelperId() 
-		{
-			return helperId;
-		}
-
-		public List getRequiredPropertyKeys() 
-		{
-			return null;
-		}
-
-		public String initializeAction(Reference reference) 
-		{
-			return BaseInteractionAction.getInitializationId(reference.getReference(), this.getTypeId(), this.getId());
-		}
-
-	}
-	
-	public class ReviseMetadataAction implements ServiceLevelAction
-	{
-		/* (non-Javadoc)
-         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
-         */
-        public boolean available(ContentEntity entity)
-        {
-	        return true;
-        }
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
-		 */
-		public ActionType getActionType()
-		{
-			return ResourceToolAction.ActionType.REVISE_METADATA;
-		}
-
-		public String getId() 
-		{
-			return ResourceToolAction.REVISE_METADATA;
-		}
-
-		public boolean isMultipleItemAction() 
-		{
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		public String getLabel() 
-		{
-			return rb.getString("xxxxxxxxx.xxxxxxxxx");
-		}
-
-		public String getTypeId() 
-		{
-			return typeId;
-		}
-
-		public String getHelperId() 
-		{
-			return helperId;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void cancelAction(Reference reference)
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#finalizeAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void finalizeAction(Reference reference)
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#initializeAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void initializeAction(Reference reference)
-		{
-			// TODO Auto-generated method stub
-			
-		}
-		
-	}
-
-	public abstract class ViewMetadataAction implements ServiceLevelAction
-	{
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
-		 */
-		public ActionType getActionType()
-		{
-			return ResourceToolAction.ActionType.VIEW_METADATA;
-		}
-
-		public String getId() 
-		{
-			return ResourceToolAction.ACCESS_PROPERTIES;
-		}
-
-		public boolean isMultipleItemAction() 
-		{
-			// TODO Auto-generated method stub
-			return false;
-		}
-		
-	}
-
-
 	
 	public ResourceToolAction getAction(String actionId) 
 	{

@@ -21,29 +21,29 @@
 
 package org.sakaiproject.content.types;
 
+import static org.sakaiproject.content.api.ResourceToolAction.*;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
-
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.api.InteractionAction;
+import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceType;
-import org.sakaiproject.content.api.ServiceLevelAction;
-import org.sakaiproject.content.api.ResourceToolAction.ActionType;
-import org.sakaiproject.content.cover.ContentTypeImageService;
+import org.sakaiproject.content.util.BaseServiceLevelAction;
 import org.sakaiproject.content.util.ZipContentUtil;
 import org.sakaiproject.content.util.BaseInteractionAction;
 import org.sakaiproject.content.util.BaseResourceType;
+import org.sakaiproject.content.util.BaseResourceAction.Localizer;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.user.api.User;
@@ -66,38 +66,43 @@ public class FileUploadType extends BaseResourceType
 	private ResourceLoader rb = new Resource().getLoader(resourceClass, resourceBundle);
 	// private static ResourceLoader rb = new ResourceLoader("types");
 	
-	protected EnumMap<ResourceToolAction.ActionType, List<ResourceToolAction>> actionMap = new EnumMap<ResourceToolAction.ActionType, List<ResourceToolAction>>(ResourceToolAction.ActionType.class);
+	private Localizer localizer(final String string) {
+		return new Localizer() {
+
+			public String getLabel() {
+				return rb.getString(string);
+			}
+			
+		};
+	}
+	
+	protected EnumMap<ActionType, List<ResourceToolAction>> actionMap = new EnumMap<ActionType, List<ResourceToolAction>>(ActionType.class);
 
 	protected Map<String, ResourceToolAction> actions = new HashMap<String, ResourceToolAction>();	
 	protected UserDirectoryService userDirectoryService;
+	protected ContentTypeImageService contentTypeImageService;
 	
 	public FileUploadType()
 	{
 		this.userDirectoryService = (UserDirectoryService) ComponentManager.get("org.sakaiproject.user.api.UserDirectoryService");
+		this.contentTypeImageService = (ContentTypeImageService) ComponentManager.get("org.sakaiproject.content.api.ContentTypeImageService");
 		
-		actions.put(ResourceToolAction.CREATE, new FileUploadCreateAction());
-		//actions.put(ResourceToolAction.ACCESS_CONTENT, new FileUploadAccessAction());
-		actions.put(ResourceToolAction.REVISE_CONTENT, new FileUploadReviseAction());
-		actions.put(ResourceToolAction.REPLACE_CONTENT, new FileUploadReplaceAction());
-		actions.put(ResourceToolAction.ACCESS_PROPERTIES, new FileUploadViewPropertiesAction());
-		actions.put(ResourceToolAction.REVISE_METADATA, new FileUploadPropertiesAction());
-		actions.put(ResourceToolAction.DUPLICATE, new FileUploadDuplicateAction());
-		actions.put(ResourceToolAction.COPY, new FileUploadCopyAction());
-		actions.put(ResourceToolAction.MOVE, new FileUploadMoveAction());
-		actions.put(ResourceToolAction.DELETE, new FileUploadDeleteAction());
+		BaseInteractionAction createAction = new BaseInteractionAction(CREATE, ActionType.NEW_UPLOAD, typeId, helperId, localizer("create.uploads"));
+		createAction.setRequiredPropertyKeys(Collections.singletonList(ResourceProperties.PROP_CONTENT_ENCODING));
+		actions.put(CREATE, createAction);
+		actions.put(REVISE_CONTENT, new FileUploadReviseAction(REVISE_CONTENT, ActionType.REPLACE_CONTENT, typeId, helperId, localizer("action.revise")));
+		actions.put(REPLACE_CONTENT, new BaseInteractionAction(REPLACE_CONTENT, ActionType.REPLACE_CONTENT, typeId, helperId, localizer("action.replace")));
+		actions.put(ACCESS_PROPERTIES, new BaseServiceLevelAction(ACCESS_PROPERTIES, ActionType.VIEW_METADATA, typeId, false, localizer("action.access")));
+		actions.put(REVISE_METADATA, new BaseServiceLevelAction(REVISE_METADATA, ActionType.REVISE_METADATA, typeId, false, localizer("action.props")));
+		actions.put(DUPLICATE, new BaseServiceLevelAction(DUPLICATE, ActionType.DUPLICATE, typeId, false, localizer("action.duplicate")));
+		actions.put(COPY, new BaseServiceLevelAction(COPY, ActionType.COPY, typeId, true, localizer("action.copy")));
+		actions.put(MOVE, new BaseServiceLevelAction(MOVE, ActionType.MOVE, typeId, true, localizer("action.move")));
+		actions.put(DELETE, new BaseServiceLevelAction(DELETE, ActionType.DELETE, typeId, true, localizer("action.delete")));
 		
-		// [WARN] Archive file handling compress/decompress feature contains bugs; exclude action item.
-		// Disable property setting masking problematic code per will of the Community.
-		// See Jira KNL-155/SAK-800 for more details.
-		// also https://jira.sakaiproject.org/browse/KNL-273
-		if (ServerConfigurationService.getBoolean(ContentHostingService.RESOURCES_ZIP_ENABLE, false) ||
-				ServerConfigurationService.getBoolean(ContentHostingService.RESOURCES_ZIP_ENABLE_EXPAND, false)) {
-			actions.put(ResourceToolAction.EXPAND_ZIP_ARCHIVE, new FileUploadExpandAction());
-		}
-		
+		actions.put(EXPAND_ZIP_ARCHIVE, new FileUploadExpandAction(EXPAND_ZIP_ARCHIVE, ActionType.EXPAND_ZIP_ARCHIVE, typeId, false, localizer("action.expandziparchive")));
 		
 		// initialize actionMap with an empty List for each ActionType
-		for(ResourceToolAction.ActionType type : ResourceToolAction.ActionType.values())
+		for(ActionType type : ActionType.values())
 		{
 			actionMap.put(type, new ArrayList<ResourceToolAction>());
 		}
@@ -119,280 +124,19 @@ public class FileUploadType extends BaseResourceType
 		
 	}
 
-	public class FileUploadPropertiesAction implements ServiceLevelAction
+	/**
+	 * Cless for handling the Revising of HTML and TXT files through the web interface.
+	 *
+	 */
+	private class FileUploadReviseAction extends BaseInteractionAction
 	{
 
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void cancelAction(Reference reference)
-		{
-			
+		public FileUploadReviseAction(String id, ActionType actionType,
+				String typeId, String helperId, Localizer localizer) {
+			super(id, actionType, typeId, helperId, localizer);
 		}
 
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#finalizeAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void finalizeAction(Reference reference)
-		{
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#initializeAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void initializeAction(Reference reference)
-		{
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#isMultipleItemAction()
-		 */
-		public boolean isMultipleItemAction()
-		{
-			return false;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
-		 */
-		public ActionType getActionType()
-		{
-			return ResourceToolAction.ActionType.REVISE_METADATA;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getId()
-		 */
-		public String getId()
-		{
-			return ResourceToolAction.REVISE_METADATA;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getLabel()
-		 */
-		public String getLabel()
-		{
-			return rb.getString("action.props");
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getTypeId()
-		 */
-		public String getTypeId()
-		{
-			return typeId;
-		}
-
-		/* (non-Javadoc)
-         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
-         */
-        public boolean available(ContentEntity entity)
-        {
-	        return true;
-        }
-		
-	}
-	
-	public class FileUploadViewPropertiesAction implements ServiceLevelAction
-	{
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void cancelAction(Reference reference)
-		{
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#finalizeAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void finalizeAction(Reference reference)
-		{
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#initializeAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void initializeAction(Reference reference)
-		{
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#isMultipleItemAction()
-		 */
-		public boolean isMultipleItemAction()
-		{
-			return false;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
-		 */
-		public ActionType getActionType()
-		{
-			return ResourceToolAction.ActionType.VIEW_METADATA;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getId()
-		 */
-		public String getId()
-		{
-			return ResourceToolAction.ACCESS_PROPERTIES;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getLabel()
-		 */
-		public String getLabel()
-		{
-			return rb.getString("action.access");
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getTypeId()
-		 */
-		public String getTypeId()
-		{
-			return typeId;
-		}
-
-		/* (non-Javadoc)
-         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
-         */
-        public boolean available(ContentEntity entity)
-        {
-	        return true;
-        }
-		
-	}
-	
-	public class FileUploadCopyAction implements ServiceLevelAction
-	{
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
-		 */
-		public ActionType getActionType()
-		{
-			return ResourceToolAction.ActionType.COPY;
-		}
-
-
-		public String getId() 
-		{
-			return ResourceToolAction.COPY;
-		}
-
-		public String getLabel() 
-		{
-			return rb.getString("action.copy");
-		}
-
-		public boolean isMultipleItemAction() 
-		{
-			return true;
-		}
-
-		public String getTypeId() 
-		{
-			return typeId;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getPermission()
-		 */
-		public Set getPermission()
-		{
-			Set rv = new TreeSet();
-			rv.add(ContentHostingService.AUTH_RESOURCE_READ);
-			rv.add(ContentHostingService.AUTH_RESOURCE_ALL_GROUPS);
-			rv.add(ContentHostingService.AUTH_RESOURCE_HIDDEN);
-			return rv;
-		}
-
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void cancelAction(Reference reference)
-		{
-			
-		}
-
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#finalizeAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void finalizeAction(Reference reference)
-		{
-			
-		}
-
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#initializeAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void initializeAction(Reference reference)
-		{
-			
-		}
-
-		/* (non-Javadoc)
-         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
-         */
-        public boolean available(ContentEntity entity)
-        {
-	        return true;
-        }
-	}
-
-	public class FileUploadCreateAction implements InteractionAction
-	{
-
-		public void cancelAction(Reference reference, String initializationId) 
-		{
-			
-		}
-
-		public void finalizeAction(Reference reference, String initializationId) 
-		{
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
-		 */
-		public ActionType getActionType()
-		{
-			return ResourceToolAction.ActionType.NEW_UPLOAD;
-		}
-
-		public String getId() 
-		{
-			return ResourceToolAction.CREATE;
-		}
-
-		public String getLabel() 
-		{
-			return rb.getString("create.uploads"); 
-		}
-
-		public String getTypeId() 
-		{
-			return typeId;
-		}
-
-		public String getHelperId() 
-		{
-			return helperId;
-		}
-
+		@Override
 		public List<String> getRequiredPropertyKeys() 
 		{
 			List<String> rv = new ArrayList<String>();
@@ -400,292 +144,9 @@ public class FileUploadType extends BaseResourceType
 			return rv;
 		}
 
-		public String initializeAction(Reference reference) 
+		@Override
+		public boolean available(ContentEntity entity)
 		{
-			return BaseInteractionAction.getInitializationId(reference.getReference(), this.getTypeId(), this.getId());
-		}
-
-		/* (non-Javadoc)
-         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
-         */
-        public boolean available(ContentEntity entity)
-        {
-	        return true;
-        }
-	}
-	
-	public class FileUploadDeleteAction implements ServiceLevelAction
-	{
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
-		 */
-		public ActionType getActionType()
-		{
-			return ResourceToolAction.ActionType.DELETE;
-		}
-
-		public String getId() 
-		{
-			return ResourceToolAction.DELETE;
-		}
-
-		public String getLabel() 
-		{
-			return rb.getString("action.delete"); 
-		}
-
-		public boolean isMultipleItemAction() 
-		{
-			return true;
-		}
-		
-		public String getTypeId() 
-		{
-			return typeId;
-		}
-		
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getPermission()
-		 */
-		public Set<String> getPermission()
-		{
-			Set<String> rv = new TreeSet<String>();
-			rv.add(ContentHostingService.AUTH_RESOURCE_REMOVE_ANY);
-			rv.add(ContentHostingService.AUTH_RESOURCE_REMOVE_OWN);
-			rv.add(ContentHostingService.AUTH_RESOURCE_ALL_GROUPS);
-			rv.add(ContentHostingService.AUTH_RESOURCE_HIDDEN);
-			return rv;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void cancelAction(Reference reference)
-		{
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#finalizeAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void finalizeAction(Reference reference)
-		{
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#initializeAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void initializeAction(Reference reference)
-		{
-			
-		}
-
-		/* (non-Javadoc)
-         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
-         */
-        public boolean available(ContentEntity entity)
-        {
-	        return true;
-        }
-	}
-
-	public class FileUploadDuplicateAction implements ServiceLevelAction
-	{
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
-		 */
-		public ActionType getActionType()
-		{
-			return ResourceToolAction.ActionType.DUPLICATE;
-		}
-
-		public String getId() 
-		{
-			return ResourceToolAction.DUPLICATE;
-		}
-
-		public String getLabel() 
-		{
-			return rb.getString("action.duplicate"); 
-		}
-
-		public boolean isMultipleItemAction() 
-		{
-			return false;
-		}
-		
-		public String getTypeId() 
-		{
-			return typeId;
-		}
-		
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getPermission()
-		 */
-		public Set<String> getPermission()
-		{
-			Set<String> rv = new TreeSet<String>();
-			rv.add(ContentHostingService.AUTH_RESOURCE_ADD);
-			rv.add(ContentHostingService.AUTH_RESOURCE_ALL_GROUPS);
-			rv.add(ContentHostingService.AUTH_RESOURCE_HIDDEN);
-			return rv;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void cancelAction(Reference reference)
-		{
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#finalizeAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void finalizeAction(Reference reference)
-		{
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#initializeAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void initializeAction(Reference reference)
-		{
-			
-		}
-
-		/* (non-Javadoc)
-         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
-         */
-        public boolean available(ContentEntity entity)
-        {
-	        return true;
-        }
-	}
-
-	public class FileUploadMoveAction implements ServiceLevelAction
-	{
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
-		 */
-		public ActionType getActionType()
-		{
-			return ResourceToolAction.ActionType.MOVE;
-		}
-
-		public String getId() 
-		{
-			return ResourceToolAction.MOVE;
-		}
-
-		public String getLabel() 
-		{
-			return rb.getString("action.move"); 
-		}
-
-		public boolean isMultipleItemAction() 
-		{
-			return true;
-		}
-		
-		public String getTypeId() 
-		{
-			return typeId;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void cancelAction(Reference reference)
-		{
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#finalizeAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void finalizeAction(Reference reference)
-		{
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ServiceLevelAction#initializeAction(org.sakaiproject.entity.api.Reference)
-		 */
-		public void initializeAction(Reference reference)
-		{
-			
-		}
-
-		/* (non-Javadoc)
-         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
-         */
-        public boolean available(ContentEntity entity)
-        {
-	        return true;
-        }
-	}
-
-	public class FileUploadReviseAction implements InteractionAction
-	{
-
-		public void cancelAction(Reference reference, String initializationId) 
-		{
-			
-		}
-
-		public void finalizeAction(Reference reference, String initializationId) 
-		{
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
-		 */
-		public ActionType getActionType()
-		{
-			return ResourceToolAction.ActionType.REVISE_CONTENT;
-		}
-
-		public String getId() 
-		{
-			return ResourceToolAction.REVISE_CONTENT;
-		}
-
-		public String getLabel() 
-		{
-			return rb.getString("action.revise"); 
-		}
-		
-		public String getTypeId() 
-		{
-			return typeId;
-		}
-
-		public String getHelperId() 
-		{
-			return helperId;
-		}
-
-		public List<String> getRequiredPropertyKeys() 
-		{
-			List<String> rv = new ArrayList<String>();
-			rv.add(ResourceProperties.PROP_CONTENT_ENCODING);
-			return rv;
-		}
-
-		public String initializeAction(Reference reference) 
-		{
-			return BaseInteractionAction.getInitializationId(reference.getReference(), this.getTypeId(), this.getId());
-		}
-
-		/* (non-Javadoc)
-         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
-         */
-        public boolean available(ContentEntity entity)
-        {
 			boolean available = false;
 			if(entity instanceof ContentResource)
 			{
@@ -696,87 +157,33 @@ public class FileUploadType extends BaseResourceType
 				}
 				available = (mimetype != null) && (ResourceType.MIME_TYPE_HTML.equals(mimetype) || ResourceType.MIME_TYPE_TEXT.equals(mimetype));
 			}
-	        return available;
-        }
+			return available;
+		}
 	}
 	
-	public class FileUploadAccessAction implements InteractionAction
-	{
-		public String initializeAction(Reference reference) 
-		{
-			return BaseInteractionAction.getInitializationId(reference.getReference(), this.getTypeId(), this.getId());
-		}
 
-		public void cancelAction(Reference reference, String initializationId) 
-		{
-			
-		}
+	/**
+	 * Class for handling the Expanding of ZIP items.
+	 */
+	private class FileUploadExpandAction extends BaseServiceLevelAction {
 
-		public void finalizeAction(Reference reference, String initializationId) 
-		{
-			
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
-		 */
-		public ActionType getActionType()
-		{
-			return ResourceToolAction.ActionType.VIEW_CONTENT;
-		}
-
-		public String getId() 
-		{
-			return ResourceToolAction.ACCESS_CONTENT;
-		}
-
-		public String getLabel() 
-		{
-			return rb.getString("action.access"); 
-		}
+		// [WARN] Archive file handling compress/decompress feature contains bugs; exclude action item.
+		// Disable property setting masking problematic code per will of the Community.
+		// See Jira KNL-155/SAK-800 for more details.
+		// also https://jira.sakaiproject.org/browse/KNL-273
 		
-		public String getTypeId() 
-		{
-			return typeId;
+		public FileUploadExpandAction(String id, ActionType actionType,
+				String typeId, boolean multipleItemAction, Localizer localizer) {
+			super(id, actionType, typeId, multipleItemAction, localizer);
 		}
 
-		public String getHelperId() 
-		{
-			return helperId;
-		}
-
-		public List getRequiredPropertyKeys() 
-		{
-			return null;
-		}
-
-		/* (non-Javadoc)
-         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
-         */
-        public boolean available(ContentEntity entity)
-        {
-	        return true;
-        }
-	}
-		
-	public class FileUploadExpandAction implements ServiceLevelAction {
-						
 		private ZipContentUtil extractZipArchive = new ZipContentUtil();
-			
-		public void cancelAction(Reference reference) {
-			// TODO Auto-generated method stub
-			
-		}
-		
-		public void finalizeAction(Reference reference) {
-			// TODO Auto-generated method stub
-			
-		}
-		
-		public void initializeAction(Reference reference) {			
+
+		@Override
+		public void initializeAction(Reference reference) {
 			try {
 				if(extractZipArchive.getZipManifest(reference.getId()) != null 
-				        && extractZipArchive.getZipManifest(reference.getId()).size() < ZipContentUtil.getMaxZipExtractFiles()){
+						&& extractZipArchive.getZipManifest(reference.getId()).size() < ZipContentUtil.getMaxZipExtractFiles()){
 					extractZipArchive.extractArchive(reference.getId());
 				}
 			} catch (Exception e) {
@@ -784,50 +191,31 @@ public class FileUploadType extends BaseResourceType
 			}
 		}
 		
-		public boolean isMultipleItemAction() {
-			// TODO Auto-generated method stub
-			return false;
-		}
-		
+		@Override
 		public boolean available(ContentEntity entity) {
-			return entity.getId().toLowerCase().endsWith(".zip");
+			boolean enabled = ServerConfigurationService.getBoolean(ContentHostingService.RESOURCES_ZIP_ENABLE, false) ||
+			ServerConfigurationService.getBoolean(ContentHostingService.RESOURCES_ZIP_ENABLE_EXPAND, false);
+			return enabled && entity.getId().toLowerCase().endsWith(".zip");
 		}
-		
-		public ActionType getActionType() {
-			return ResourceToolAction.ActionType.EXPAND_ZIP_ARCHIVE;
-		}
-		
-		public String getId() {
-			return ResourceToolAction.EXPAND_ZIP_ARCHIVE;
-		}
-		
-		public String getLabel() {
-			return rb.getString("action.expandziparchive"); 
-		}
-		
-		public String getTypeId() {
-			return typeId;
-		}
-			
 	}
 	
 	public ResourceToolAction getAction(String actionId) 
 	{
-		return (ResourceToolAction) actions.get(actionId);
+		return actions.get(actionId);
 	}
 
-	public List getActions(Reference entityRef, Set permissions) 
+	public List<ResourceToolAction> getActions(Reference entityRef, Set permissions) 
 	{
 		// TODO: use entityRef to filter actions
-		List rv = new ArrayList();
+		List<ResourceToolAction> rv = new ArrayList<ResourceToolAction>();
 		rv.addAll(actions.values());
 		return rv;
 	}
 
-	public List getActions(Reference entityRef, User user, Set permissions) 
+	public List<ResourceToolAction> getActions(Reference entityRef, User user, Set permissions) 
 	{
 		// TODO: use entityRef and user to filter actions
-		List rv = new ArrayList();
+		List<ResourceToolAction> rv = new ArrayList<ResourceToolAction>();
 		rv.addAll(actions.values());
 		return rv;
 	}
@@ -840,7 +228,7 @@ public class FileUploadType extends BaseResourceType
 			String mimetype = ((ContentResource) entity).getContentType();
 			if(mimetype != null && ! "".equals(mimetype.trim()))
 			{
-				iconLocation = ContentTypeImageService.getContentTypeImage(mimetype);
+				iconLocation = contentTypeImageService.getContentTypeImage(mimetype);
 			}
 		}
 		return iconLocation;
@@ -867,7 +255,7 @@ public class FileUploadType extends BaseResourceType
 			String mimetype = ((ContentResource) entity).getContentType();
 			if(mimetype != null && ! "".equals(mimetype.trim()))
 			{
-				hoverText = ContentTypeImageService.getContentTypeDisplayName(mimetype);
+				hoverText = contentTypeImageService.getContentTypeDisplayName(mimetype);
 			}
 		}
 		return hoverText;
@@ -909,62 +297,6 @@ public class FileUploadType extends BaseResourceType
 			}
 		}
 		return list;
-	}
-
-	public class FileUploadReplaceAction implements InteractionAction 
-	{
-
-		public boolean available(ContentEntity entity) 
-		{
-			return true;
-		}
-
-		public ActionType getActionType() 
-		{
-			return ResourceToolAction.ActionType.REPLACE_CONTENT;
-		}
-
-		public String getId() 
-		{
-			return ResourceToolAction.REPLACE_CONTENT;
-		}
-
-		public String getLabel() 
-		{
-			return rb.getString("action.replace"); 
-		}
-
-		public String getTypeId() 
-		{
-			return typeId;
-		}
-
-		public void cancelAction(Reference reference, String initializationId) 
-		{
-			
-		}
-
-		public void finalizeAction(Reference reference, String initializationId) 
-		{
-			
-		}
-
-		public String getHelperId() 
-		{
-			return helperId;
-		}
-
-		public List getRequiredPropertyKeys() 
-		{
-			List<String> rv = new ArrayList<String>();
-			rv.add(ResourceProperties.PROP_CONTENT_ENCODING);
-			return rv;
-		}
-
-		public String initializeAction(Reference reference) 
-		{
-			return BaseInteractionAction.getInitializationId(reference.getReference(), this.getTypeId(), this.getId());
-		}
 	}
 
 }
