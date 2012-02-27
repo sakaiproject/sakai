@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>scorm</artifactId>
+    <artifactId>sakai-scorm-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>1.0-SNAPSHOT</version>
+    <version>3.0.0</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-scorm-content-impl</name>
@@ -24,15 +25,6 @@
     <dependency>
       <groupId>org.sakaiproject.scorm</groupId>
       <artifactId>sakai-scorm-adl-impl</artifactId>
-    </dependency>
-    <!-- Sakai dependencies -->
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-util</artifactId>
     </dependency>
     <!-- External dependencies -->
     <dependency>
@@ -97,4 +89,35 @@
       </testResource>
     </testResources>
   </build>
+  <profiles>
+    <profile>
+      <id>sakai2.7</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.sakaiproject.kernel</groupId>
+          <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.sakaiproject.kernel</groupId>
+          <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>sakai2.8</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.sakaiproject.kernel</groupId>
+          <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.sakaiproject.kernel</groupId>
+          <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
+      </dependencies>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+    </profile>
+  </profiles>
 </project>
