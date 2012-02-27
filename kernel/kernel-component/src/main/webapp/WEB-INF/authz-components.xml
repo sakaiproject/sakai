@@ -66,7 +66,7 @@
 			singleton="true">
 	</bean>
 
-	<bean id="org.sakaiproject.authz.impl.DbAuthzGroupService.realmRoleGroupCache" class="org.sakaiproject.memory.impl.EhCacheFactoryBean">
+	<bean id="org.sakaiproject.authz.impl.DbAuthzGroupService.realmRoleGroupCache" class="org.sakaiproject.memory.util.EhCacheFactoryBean">
 	 		<property name="cacheManager">
     		<ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
   		</property>

@@ -58,7 +58,7 @@
  * and activated.
  */
 
-package org.sakaiproject.memory.impl;
+package org.sakaiproject.memory.util;
 
 import java.io.IOException;
 import java.util.Set;

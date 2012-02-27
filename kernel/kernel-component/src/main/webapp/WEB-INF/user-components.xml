@@ -99,7 +99,7 @@
 
 	<!-- Memory cache for user authentication. -->
 	<bean id="org.sakaiproject.user.api.AuthenticationManager.cache"
-		class="org.sakaiproject.memory.impl.EhCacheFactoryBean">
+		class="org.sakaiproject.memory.util.EhCacheFactoryBean">
 		<property name="cacheManager">
 			<ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
 		</property>
@@ -118,7 +118,7 @@
 
 	<!-- Memory cache for user ID/EID lookup. -->
 	<bean id="org.sakaiproject.user.api.UserDirectoryService.idEidCache"
-	     class="org.sakaiproject.memory.impl.EhCacheFactoryBean">
+	     class="org.sakaiproject.memory.util.EhCacheFactoryBean">
  		<property name="cacheManager">
     		<ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
   		</property>

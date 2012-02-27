@@ -267,7 +267,7 @@
 	</bean>
 	
 	<bean id="org.sakaiproject.springframework.orm.hibernate.L2Cache" 
-  			class="org.sakaiproject.memory.impl.EhCacheFactoryBean">
+  			class="org.sakaiproject.memory.util.EhCacheFactoryBean">
   		<property name="cacheManager"><ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/></property>
     	<property name="cacheName"><value>org.sakaiproject.springframework.orm.hibernate.L2Cache</value></property>
     	<property name="maxElementsInMemory" ><value>100000</value></property>
@@ -279,37 +279,37 @@
 
     <!-- beans for use in caching DB flat (uses defaults) -->
     <bean id="db.cache.SAKAI_ALIAS_PROPERTY"
-           class="org.sakaiproject.memory.impl.EhCacheFactoryBean">
+           class="org.sakaiproject.memory.util.EhCacheFactoryBean">
        <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager" />
        <property name="cacheName" value="org.sakaiproject.db.BaseDbFlatStorage.SAKAI_ALIAS_PROPERTY" />
     </bean>
 
     <bean id="db.cache.SAKAI_SITE_PROPERTY"
-           class="org.sakaiproject.memory.impl.EhCacheFactoryBean">
+           class="org.sakaiproject.memory.util.EhCacheFactoryBean">
        <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager" />
        <property name="cacheName" value="org.sakaiproject.db.BaseDbFlatStorage.SAKAI_SITE_PROPERTY" />
     </bean>
 
     <bean id="db.cache.SAKAI_SITE_PAGE_PROPERTY"
-           class="org.sakaiproject.memory.impl.EhCacheFactoryBean">
+           class="org.sakaiproject.memory.util.EhCacheFactoryBean">
        <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager" />
        <property name="cacheName" value="org.sakaiproject.db.BaseDbFlatStorage.SAKAI_SITE_PAGE_PROPERTY" />
     </bean>
 
     <bean id="db.cache.SAKAI_REALM_PROPERTY"
-           class="org.sakaiproject.memory.impl.EhCacheFactoryBean">
+           class="org.sakaiproject.memory.util.EhCacheFactoryBean">
        <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager" />
        <property name="cacheName" value="org.sakaiproject.db.BaseDbFlatStorage.SAKAI_REALM_PROPERTY" />
     </bean>
 
     <bean id="db.cache.SAKAI_SITE_GROUP_PROPERTY"
-           class="org.sakaiproject.memory.impl.EhCacheFactoryBean">
+           class="org.sakaiproject.memory.util.EhCacheFactoryBean">
        <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager" />
        <property name="cacheName" value="org.sakaiproject.db.BaseDbFlatStorage.SAKAI_SITE_GROUP_PROPERTY" />
     </bean>
 
     <bean id="db.cache.SAKAI_USER_PROPERTY"
-           class="org.sakaiproject.memory.impl.EhCacheFactoryBean">
+           class="org.sakaiproject.memory.util.EhCacheFactoryBean">
        <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager" />
        <property name="cacheName" value="org.sakaiproject.db.BaseDbFlatStorage.SAKAI_USER_PROPERTY" />
     </bean>
