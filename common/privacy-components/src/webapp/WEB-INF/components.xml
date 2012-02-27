@@ -61,7 +61,7 @@
 
 	<!-- Cache is used to reduce the number of privacy lookups (IU observed roughly 1.5 million lookups per hour) -->
 	<bean id="org.sakaiproject.api.privacy.PrivacyManager.PrivacyQueryCache" 
-  		class="org.sakaiproject.memory.impl.EhCacheFactoryBean">
+  		class="org.sakaiproject.memory.util.EhCacheFactoryBean">
 	  	<property name="cacheManager"><ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/></property>
     	<property name="cacheName"><value>org.sakaiproject.api.privacy.PrivacyManager.PrivacyQueryCache.queryGetPrivacy</value></property>
 		<!-- should be sized to max sessions per app server -->
