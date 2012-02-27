@@ -49,6 +49,7 @@ public class NameValuePair implements Serializable {
 		this.name = name;
 	}
 	
+	@Override
 	public boolean equals(Object object) {
 		if (object instanceof NameValuePair) {
 			NameValuePair nvp = (NameValuePair)object;
@@ -58,6 +59,12 @@ public class NameValuePair implements Serializable {
 		return false;
 	}
 	
+	@Override
+	public int hashCode() {
+	    return (name != null ? name.hashCode() : super.hashCode());
+	}
+	
+	@Override
 	public String toString() {
 		return name;
 	}

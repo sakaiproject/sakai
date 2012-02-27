@@ -1,16 +1,50 @@
 package org.adl.sequencer;
 
 import java.util.List;
-import java.util.Vector;
 
 public interface ISeqActivityTree {
 
 	/**
-	 * Sets the ID of the learner associated with this activity tree.
-	 * 
-	 * @param iLearnerID The ID of the student associated with this tree
+	 * Clears the current state of the activity tree, except for its SuspsendAll
+	 * state.
 	 */
-	public void setLearnerID(String iLearnerID);
+	public void clearSessionState();
+
+	/**
+	 * This method provides the state this <code>SeqActivityTree</code> object
+	 * for diagnostic purposes.
+	 */
+	public void dumpState();
+
+	/**
+	 * Retrieves the activity (<code>SeqActivity</code>) associated with the
+	 * ID requested
+	 * 
+	 * @param iActivityID The activity id
+	 * 
+	 * @return The activity (<code>SeqActivity</code>) associated with the ID
+	 *         request or <code>null</code> if no activity with that ID exists in
+	 *         current activity tree.
+	 */
+	public ISeqActivity getActivity(String iActivityID);
+
+	public long getContentPackageId();
+
+	/**
+	 * Retrieves ID of the course associated with this activity tree.
+	 * 
+	 * @return The ID (<code>String</code>) of the course associated with this
+	 *         activity tree or <code>null</code> if none has been assigned.
+	 */
+	public String getCourseID();
+
+	/**
+	 * Retrieves the set of global objective IDs used in this activity tree.
+	 * 
+	 * @return The set of global objective IDs <code>Vector</code> or <code>
+	 *         null</code> if none exist.
+	 */
+	public List<String> getGlobalObjectives();
 
 	/**
 	 * Retrieves ID of the learner associated with this activity tree.
@@ -21,33 +55,15 @@ public interface ISeqActivityTree {
 	public String getLearnerID();
 
 	/**
-	 * Sets the ID of the course associated with this activity tree.
+	 * Retrieves the set of activities in the activity tree that read from a
+	 * specified global shared objective
 	 * 
-	 * @param iCourseID Describes the course ID
-	 */
-	public void setCourseID(String iCourseID);
-
-	/**
-	 * Retrieves ID of the course associated with this activity tree.
+	 * @param iObjID objective id
 	 * 
-	 * @return The ID (<code>String</code>) of the course associated with this
-	 *         activity tree or <code>null</code> if none has been assigned.
+	 * @return The set of activity IDs <code>Vector</code> or <code>null</code>
+	 *         if none exist.
 	 */
-	public String getCourseID();
-
-	
-	public long getContentPackageId();
-
-	public void setContentPackageId(long contentPackageId);
-	
-	/**
-	 * Sets the scope of the global objectives managed by this activity tree.
-	 * 
-	 * @param iScopeID Indicates the ID of the scope associated with this
-	 *                 activity tree's objectives, or <code>null</code> of the
-	 *                 objectives are global to the system.
-	 */
-	public void setScopeID(String iScopeID);
+	public List<String> getObjMap(String iObjID);
 
 	/**
 	 * Retrieves ID of the course associated with the scope of this activity
@@ -60,10 +76,22 @@ public interface ISeqActivityTree {
 	public String getScopeID();
 
 	/**
-	 * This method provides the state this <code>SeqActivityTree</code> object
-	 * for diagnostic purposes.
+	 * Retrieves the activity (<code>SeqActivity</code>) associated with the
+	 * last attempted activity before a 'SuspendAll' sequencing request.
+	 * 
+	 * @return The activity (<code>SeqActivity</code>) associated with the last
+	 *         attempted activity or <code>null</code> if none exists.
 	 */
-	public void dumpState();
+	public ISeqActivity getSuspendAll();
+
+	public void setContentPackageId(long contentPackageId);
+
+	/**
+	 * Sets the ID of the course associated with this activity tree.
+	 * 
+	 * @param iCourseID Describes the course ID
+	 */
+	public void setCourseID(String iCourseID);
 
 	/**
 	 * Sets 'current' activity for this activity tree.  The determination of
@@ -84,50 +112,20 @@ public interface ISeqActivityTree {
 	public void setFirstCandidate(ISeqActivity iFirst);
 
 	/**
-	 * Retrieves the activity (<code>SeqActivity</code>) associated with the
-	 * last attempted activity before a 'SuspendAll' sequencing request.
+	 * Sets the ID of the learner associated with this activity tree.
 	 * 
-	 * @return The activity (<code>SeqActivity</code>) associated with the last
-	 *         attempted activity or <code>null</code> if none exists.
+	 * @param iLearnerID The ID of the student associated with this tree
 	 */
-	public ISeqActivity getSuspendAll();
+	public void setLearnerID(String iLearnerID);
 
 	/**
-	 * Retrieves the activity (<code>SeqActivity</code>) associated with the
-	 * ID requested
+	 * Sets the scope of the global objectives managed by this activity tree.
 	 * 
-	 * @param iActivityID The activity id
-	 * 
-	 * @return The activity (<code>SeqActivity</code>) associated with the ID
-	 *         request or <code>null</code> if no activity with that ID exists in
-	 *         current activity tree.
+	 * @param iScopeID Indicates the ID of the scope associated with this
+	 *                 activity tree's objectives, or <code>null</code> of the
+	 *                 objectives are global to the system.
 	 */
-	public ISeqActivity getActivity(String iActivityID);
-
-	/**
-	 * Retrieves the set of activities in the activity tree that read from a
-	 * specified global shared objective
-	 * 
-	 * @param iObjID objective id
-	 * 
-	 * @return The set of activity IDs <code>Vector</code> or <code>null</code>
-	 *         if none exist.
-	 */
-	public Vector getObjMap(String iObjID);
-
-	/**
-	 * Retrieves the set of global objective IDs used in this activity tree.
-	 * 
-	 * @return The set of global objective IDs <code>Vector</code> or <code>
-	 *         null</code> if none exist.
-	 */
-	public List getGlobalObjectives();
-
-	/**
-	 * Clears the current state of the activity tree, except for its SuspsendAll
-	 * state.
-	 */
-	public void clearSessionState();
+	public void setScopeID(String iScopeID);
 
 	/**
 	 * Set the count of all activities in the activity tree.

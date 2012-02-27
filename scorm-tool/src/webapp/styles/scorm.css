@@ -35,7 +35,7 @@ div.my-tree div.wicket-tree {
 }
 #scormNavPanel {
     position: absolute;
-    top: 44px;
+    top: 40px;
     left: 0px;
     width: 280px;
     overflow: auto;
@@ -43,9 +43,13 @@ div.my-tree div.wicket-tree {
 
 #scormContentPanel {
     position: absolute;
-    top: 44px;
+    top: 40px;
     left: 280px;
     overflow: hidden;
+}
+
+#scormContentPanel iframe {
+	margin-top: 0px;
 }
 
 #scormContent {

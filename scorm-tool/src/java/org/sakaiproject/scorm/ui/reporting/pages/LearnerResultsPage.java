@@ -35,7 +35,8 @@ import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.scorm.model.api.ActivitySummary;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.Learner;
-import org.sakaiproject.scorm.ui.Icon;
+import org.sakaiproject.scorm.ui.console.pages.DisplayDesignatedPackage;
+import org.sakaiproject.scorm.ui.console.pages.PackageListPage;
 import org.sakaiproject.scorm.ui.reporting.util.SummaryProvider;
 import org.sakaiproject.wicket.markup.html.link.BookmarkablePageLabeledLink;
 import org.sakaiproject.wicket.markup.html.repeater.data.presenter.EnhancedDataPresenter;
@@ -53,6 +54,7 @@ public class LearnerResultsPage extends BaseResultsPage {
 	}
 
 	
+	@Override
 	protected void initializePage(ContentPackage contentPackage, Learner learner, long attemptNumber, PageParameters pageParams) {
 		PageParameters uberparentParams = new PageParameters();
 		uberparentParams.put("contentPackageId", contentPackage.getContentPackageId());
@@ -63,7 +65,23 @@ public class LearnerResultsPage extends BaseResultsPage {
 		parentParams.put("attemptNumber", attemptNumber);
 		
 		IModel breadcrumbModel = new StringResourceModel("parent.breadcrumb", this, new Model(contentPackage));
-		addBreadcrumb(breadcrumbModel, ResultsListPage.class, uberparentParams, true);	
+		// MvH
+		if (isSinglePackageTool()) {
+			if (lms.canGrade(lms.currentContext())) {
+				addBreadcrumb(breadcrumbModel, ResultsListPage.class, uberparentParams, true);
+			}
+			else {
+				addBreadcrumb(breadcrumbModel, DisplayDesignatedPackage.class, uberparentParams, true);
+			}
+		}
+		else {
+			if (lms.canGrade(lms.currentContext())) {
+				addBreadcrumb(breadcrumbModel, ResultsListPage.class, uberparentParams, true);
+			}
+			else {
+				addBreadcrumb(breadcrumbModel, PackageListPage.class, uberparentParams, true);
+			}
+		}
 		addBreadcrumb(new Model(learner.getDisplayName()), LearnerResultsPage.class, parentParams, false);
 		
 		List<ActivitySummary> summaries = resultService.getActivitySummaries(contentPackage.getContentPackageId(), learner.getId(), attemptNumber);
@@ -75,6 +93,7 @@ public class LearnerResultsPage extends BaseResultsPage {
 		presenter.setVisible(summaries != null && summaries.size() > 0);
 	}
 	
+	@Override
 	protected Link newPreviousLink(String previousId, PageParameters pageParams) {
 		PageParameters prevParams = new PageParameters();
 		
@@ -124,6 +143,7 @@ public class LearnerResultsPage extends BaseResultsPage {
 		return link;*/
 	}
 	
+	@Override
 	protected Link newNextLink(String nextId, PageParameters pageParams) {
 		PageParameters nextParams = new PageParameters();
 		
@@ -178,10 +198,12 @@ public class LearnerResultsPage extends BaseResultsPage {
 	}
 	
 	
+	@Override
 	protected BookmarkablePageLabeledLink newAttemptNumberLink(long i, PageParameters params) {
 		return new BookmarkablePageLabeledLink("attemptNumberLink", new Model("" + i), LearnerResultsPage.class, params);
 	}
 	
+	@Override
 	protected ResourceReference getPageIconReference() {
 		return PAGE_ICON;
 	}

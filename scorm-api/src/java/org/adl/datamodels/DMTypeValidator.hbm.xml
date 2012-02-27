@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<hibernate-mapping default-cascade="all" default-access="field" package="org.adl.datamodels" default-lazy="false">
+<hibernate-mapping default-access="field" package="org.adl.datamodels">
 	
 	
 	<class name="org.adl.datamodels.DMTypeValidator" table="SCORM_TYPE_VALIDATOR_T">
-		
+		<cache usage="nonstrict-read-write"/>
 		<id name="id" column="ID" type="long">
             <generator class="native">
                 <param name="sequence">SCORM_UID_S</param>
@@ -41,10 +41,6 @@
 		<subclass name="org.adl.datamodels.datatypes.LangStringValidator" 
 			discriminator-value="LANG_STRING">
 			<property name="mAllowEmpty" column="LANG_ALLOW_EMPTY"/>
-			<property name="mIANALangauges" column="IANA_LANGUAGES" type="text"/>
-			<property name="mISOCountries" column="ISO_COUNTRIES" type="text"/>
-			<property name="mISOExLanguages" column="ISO_EX_LANGUAGES" type="text"/>
-			<property name="mISOLanguages" column="ISO_LANGUAGES" type="text"/>
 		</subclass>
 		
 		<subclass name="org.adl.datamodels.datatypes.RealRangeValidator" 

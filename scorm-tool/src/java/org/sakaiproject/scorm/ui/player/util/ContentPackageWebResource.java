@@ -6,19 +6,21 @@ import org.apache.wicket.markup.html.WebResource;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.util.resource.IResourceStream;
+import org.apache.wicket.util.time.Time;
+import org.apache.wicket.util.watch.IModifiable;
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
 
-public class ContentPackageWebResource extends WebResource {
+public class ContentPackageWebResource extends WebResource implements IModifiable {
 	
 	private static final long serialVersionUID = 1L;
 
-	private static final String[] candidateCompressionContentTypes = { /*"text/html"*/ };
+	private static final String[] candidateCompressionContentTypes = { "text/html", "text/javascript", "text/css"  };
 	
 	private ContentPackageResource resource;
 	private ContentPackageResourceStream resourceStream;
 	
 	public ContentPackageWebResource(ContentPackageResource resource) {
-		setCacheable(false);
+		setCacheable(true);
 		this.resource = resource;
 		this.resourceStream = new ContentPackageResourceStream(resource);
 	}
@@ -26,8 +28,9 @@ public class ContentPackageWebResource extends WebResource {
 	@Override
 	public IResourceStream getResourceStream() {
 		
-		if (canCompress())
+		if (canCompress()) {
 			return new CompressingContentPackageResourceStream(resource);
+		}
 		
 		return resourceStream;
 	}
@@ -49,7 +52,7 @@ public class ContentPackageWebResource extends WebResource {
 		
 		if (contentType != null)
 			for (int i=0;i<candidateCompressionContentTypes.length;i++) 
-				if (contentType.equals(candidateCompressionContentTypes[i]))
+				if (contentType.startsWith(candidateCompressionContentTypes[i]))
 					return true;
 		
 		return false;
@@ -74,4 +77,8 @@ public class ContentPackageWebResource extends WebResource {
 			return s.indexOf("gzip") >= 0;
 		}
 	}
+
+	public Time lastModifiedTime() {
+	    return resourceStream.lastModifiedTime();
+    }
 }

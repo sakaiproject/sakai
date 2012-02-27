@@ -14,8 +14,10 @@ import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.lang.Bytes;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.service.api.ScormContentService;
@@ -32,15 +34,16 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 	
 	private static Log log = LogFactory.getLog(FileUploadForm.class);
 	
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormContentService")
 	ScormContentService contentService;
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResourceService")
 	ScormResourceService resourceService;
 	
 	public UploadPage(PageParameters params) {
 		add(new FileUploadForm("uploadForm"));
 	}
 	
+	@Override
 	protected ResourceReference getPageIconReference() {
 		return PAGE_ICON;
 	}
@@ -50,10 +53,19 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 		private static final long serialVersionUID = 1L;
 		
 		private FileUploadField fileUploadField;
-		private boolean fileHidden = true;
+		private boolean fileHidden = false;
 		private int priority = NotificationService.NOTI_NONE;
 		private boolean fileValidated = false;
+		private FileUpload fileInput;
 		
+		public FileUpload getFileInput() {
+        	return fileInput;
+        }
+
+		public void setFileInput(FileUpload fileUpload) {
+        	this.fileInput = fileUpload;
+        }
+
 		public FileUploadForm(String id) {
 			super(id);
 			
@@ -95,6 +107,7 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 			add(new CancelButton("cancel", PackageListPage.class));
 		}
 
+		@Override
 		protected void onSubmit() {
 			if (fileUploadField != null) {
 				final FileUpload upload = fileUploadField.getFileUpload();
@@ -102,7 +115,7 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 		            try {
 		            	String resourceId = resourceService.putArchive(upload.getInputStream(), upload.getClientFileName(), upload.getContentType(), isFileHidden(), getPriority());
 		            	
-		            	int status = contentService.validate(resourceId, false, isFileValidated());
+		            	int status = contentService.validate(resourceId, false, isFileValidated(), ServerConfigurationService.getString("scorm.zip.encoding", "UTF-8"));
 		            	
 		            	if (status == VALIDATION_SUCCESS)
 		            		setResponsePage(PackageListPage.class);
@@ -114,7 +127,7 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 			            	setResponsePage(ConfirmPage.class, params);
 		            	}
 		            } catch (Exception e) {
-		            	UploadPage.this.warn(getLocalizer().getString("upload.failed", UploadPage.this));
+		            	UploadPage.this.warn(getLocalizer().getString("upload.failed", UploadPage.this, new Model(e)));
 		                log.error("Failed to upload file", e);
 		            }
 		        }

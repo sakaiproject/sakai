@@ -69,33 +69,30 @@ package org.adl.sequencer.impl;
  * 
  * @author ADL Technical Team
  */
-public interface SeqNavigation
-{
-   /**
-    * This method is used to inform the sequencer that a navigation request,
-    * other than 'Choice' has occured.
-    * 
-    * @param iRequest Indicates which navigation request should be processed.
-    * 
-    * @return Information about the 'Next' activity to delivery or a processing
-    *         error.
-    * @see org.adl.sequencer.SeqNavRequests
-    * @see org.adl.sequencer.impl.ADLLaunch
-    */
-   ADLLaunch navigate(int iRequest);
+public interface SeqNavigation {
+	/**
+	 * This method is used to inform the sequencer that a navigation request,
+	 * other than 'Choice' has occured.
+	 * 
+	 * @param iRequest Indicates which navigation request should be processed.
+	 * 
+	 * @return Information about the 'Next' activity to delivery or a processing
+	 *         error.
+	 * @see org.adl.sequencer.SeqNavRequests
+	 * @see org.adl.sequencer.impl.ADLLaunch
+	 */
+	ADLLaunch navigate(int iRequest);
 
+	/**
+	 * This method is used to inform the sequencer that a 'Choice' navigation
+	 * request has occured.
+	 * 
+	 * @param iTarget ID (<code>String</code>) of the target activity.
+	 * 
+	 * @return Information about the 'Next' activity to delivery or a processing
+	 *         error.
+	 * @see org.adl.sequencer.impl.ADLLaunch
+	 */
+	ADLLaunch navigate(String iTarget);
 
-   /**
-    * This method is used to inform the sequencer that a 'Choice' navigation
-    * request has occured.
-    * 
-    * @param iTarget ID (<code>String</code>) of the target activity.
-    * 
-    * @return Information about the 'Next' activity to delivery or a processing
-    *         error.
-    * @see org.adl.sequencer.impl.ADLLaunch
-    */
-   ADLLaunch navigate(String iTarget);
-
-
-}  // end SeqNavigation
+} // end SeqNavigation

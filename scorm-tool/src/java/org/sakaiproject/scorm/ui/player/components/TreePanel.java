@@ -35,11 +35,11 @@ public class TreePanel extends Panel {
 	private LaunchPanel launchPanel;
 		
 	@SpringBean
-	transient LearningManagementSystem lms;
-	@SpringBean
-	transient ScormResourceService resourceService;
-	@SpringBean
-	transient ScormSequencingService sequencingService;
+	LearningManagementSystem lms;
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResourceService")
+	ScormResourceService resourceService;
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormSequencingService")
+	ScormSequencingService sequencingService;
 	
 	public TreePanel(String id, final SessionBean sessionBean, LaunchPanel launchPanel) {
 		super(id);

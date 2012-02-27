@@ -53,37 +53,35 @@ package org.ims.ssp.samplerte.server.bucket;
  *
  * @author ADL Technical Team
  */
-public interface BucketCollectionManagerInterface
-{
-   /**
-    *
-    * Creates a bucket.
-    *
-    * @param iDescription - Requirements for the bucket to be created.
-    *
-    * @return - Status or result information about the outcome of this call.
-    */
-   StatusInfo allocate( BucketAllocation iDescription );
+public interface BucketCollectionManagerInterface {
+	/**
+	 *
+	 * Creates a bucket.
+	 *
+	 * @param iDescription - Requirements for the bucket to be created.
+	 *
+	 * @return - Status or result information about the outcome of this call.
+	 */
+	StatusInfo allocate(BucketAllocation iDescription);
 
-   /**
-    *
-    * Retrieves the success status of the specified bucket.
-    *
-    * @param iBucketID - The identifier of the bucket.
-    * @param oSuccessStatus - The information requested.
-    *
-    * @return - Status or result information about the outcome of this call.
-    */
-   StatusInfo getAllocationSuccess( String iBucketID,
-                                           Integer oSuccessStatus );
+	/**
+	 *
+	 * Retrieves the success status of the specified bucket.
+	 *
+	 * @param iBucketID - The identifier of the bucket.
+	 * @param oSuccessStatus - The information requested.
+	 *
+	 * @return - Status or result information about the outcome of this call.
+	 */
+	StatusInfo getAllocationSuccess(String iBucketID, Integer oSuccessStatus);
 
-   /**
-    *
-    * Retrieves an array of bucketIDs.
-    *
-    * @param oBucketIDs - The array ov bucketIDs requested.
-    *
-    * @return - Status or result information about the outcome of this call.
-    */
-   StatusInfo getBucketIDs( String[] oBucketIDs );
+	/**
+	 *
+	 * Retrieves an array of bucketIDs.
+	 *
+	 * @param oBucketIDs - The array ov bucketIDs requested.
+	 *
+	 * @return - Status or result information about the outcome of this call.
+	 */
+	StatusInfo getBucketIDs(String[] oBucketIDs);
 }

@@ -106,14 +106,16 @@ public abstract class SCORM13API implements SCORM13APIInterface {
 		if (isSuccessful) {
 			result = STRING_TRUE;
 
-			if (navigationEvent.isChoiceEvent()) 
+			if (navigationEvent.isChoiceEvent()) { 
 				getSequencingService().navigate(navigationEvent.getChoiceEvent(), getSessionBean(), getAgent(), getTarget());
-			else 
+			} else { 
 				getSequencingService().navigate(navigationEvent.getEvent(), getSessionBean(), getAgent(), getTarget());
+			}
 			
 		} 
 
 		return result;
 	}
+
 
 }

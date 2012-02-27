@@ -20,27 +20,28 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.dao.api;
 
-import org.adl.datamodels.IDataManager;
 import java.util.List;
+
+import org.adl.datamodels.IDataManager;
 
 public interface DataManagerDao {
 
-	public IDataManager load(long id);
-	
-	//public List<IDataManager> find(String courseId);
-	
-	public IDataManager find(String courseId, String scoId, String userId, long attemptNumber);
-	
-	public IDataManager find(String courseId, String scoId, String userId, boolean fetchAll, long attemptNumber);
-	
 	public List<IDataManager> find(long contentPackageId, String learnerId, long attemptNumber);
-	
+
+	//public List<IDataManager> find(String courseId);
+
 	public IDataManager find(long contentPackageId, String learnerId, long attemptNumber, String scoId);
-	
+
+	public IDataManager find(String courseId, String scoId, String userId, boolean fetchAll, long attemptNumber);
+
+	public IDataManager find(String courseId, String scoId, String userId, long attemptNumber);
+
 	public IDataManager findByActivityId(long contentPackageId, String activityId, String userId, long attemptNumber);
-	
+
+	public IDataManager load(long id);
+
 	public void save(IDataManager dataManager);
-	
+
 	public void update(IDataManager dataManager);
-	
+
 }

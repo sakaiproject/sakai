@@ -27,15 +27,11 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.Page;
 import org.apache.wicket.protocol.http.SecondLevelCacheSessionStore;
 import org.apache.wicket.protocol.http.pagestore.DiskPageStore;
-import org.apache.wicket.request.target.coding.BookmarkablePageRequestTargetUrlCodingStrategy;
 import org.apache.wicket.session.ISessionStore;
-import org.apache.wicket.session.pagemap.IPageMapEntry;
 import org.apache.wicket.util.file.Folder;
-import org.apache.wicket.util.lang.Objects;
 import org.sakaiproject.scorm.service.api.ScormResourceService;
 import org.sakaiproject.scorm.ui.ContentPackageResourceMountStrategy;
 import org.sakaiproject.scorm.ui.console.pages.PackageListPage;
-import org.sakaiproject.scorm.ui.player.pages.PlayerPage;
 import org.sakaiproject.wicket.protocol.http.SakaiWebApplication;
 
 public class ScormTool extends SakaiWebApplication {
@@ -48,26 +44,7 @@ public class ScormTool extends SakaiWebApplication {
 	public void init() {
 		super.init();
 
-		Objects.setObjectStreamFactory(new org.apache.wicket.util.io.WicketObjectStreamFactory());
-		
-		/*mount(new BookmarkablePageRequestTargetUrlCodingStrategy("scormplayer", PlayerPage.class, null) {
-			public boolean matches(String path)
-			{
-				String mountPath = getMountPath();
-				if (path.startsWith(mountPath) && !path.contains("/contentPackages"))
-				{
-					String remainder = path.substring(mountPath.length());
-					if (remainder.length() == 0 || remainder.startsWith("/"))
-					{
-						return true;
-					}
-				}
-				return false;
-			}
-		});*/
-		
 		mount(new ContentPackageResourceMountStrategy("contentpackages"));
-		
 	}
 	
 	@Override
@@ -79,14 +56,20 @@ public class ScormTool extends SakaiWebApplication {
 		Folder folder = new Folder(System.getProperty("java.io.tmpdir"), "scorm-uploads");
 	
 		// Make sure that this directory exists.
-		folder.mkdirs();
+		if (!folder.exists()) {
+			if (!folder.mkdirs()) {
+				log.error("Cannot create temp dir: " + folder);
+			}
+		}
 		
 		return folder;
 	}
 	
+	@Override
 	protected ISessionStore newSessionStore() {
 		return new SecondLevelCacheSessionStore(this, new DiskPageStore() {
 			
+			@Override
 			public Page getPage(String sessionId, String pagemap, int id, int versionNumber,
 					int ajaxVersionNumber)
 				{
@@ -129,11 +112,13 @@ public class ScormTool extends SakaiWebApplication {
 					return null;
 				}
 			
+			@Override
 			public void storePage(String sessionId, Page page)
 			{
 				super.storePage(sessionId, page);
 			}
 			
+			@Override
 			protected boolean isSynchronous()
 			{
 				return false;

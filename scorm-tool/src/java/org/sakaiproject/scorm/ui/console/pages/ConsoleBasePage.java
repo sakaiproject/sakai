@@ -24,20 +24,22 @@ import org.apache.wicket.PageParameters;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.resources.CompressedResourceReference;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.ui.Icon;
 import org.sakaiproject.scorm.ui.console.components.BreadcrumbPanel;
+import org.sakaiproject.scorm.ui.console.components.SakaiFeedbackPanel;
 import org.sakaiproject.scorm.ui.upload.pages.UploadPage;
 import org.sakaiproject.scorm.ui.validation.pages.ValidationPage;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.wicket.markup.html.SakaiPortletWebPage;
 import org.sakaiproject.wicket.markup.html.link.NavIntraLink;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 
 public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContributor {
@@ -57,6 +59,8 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
 	
 	@SpringBean
 	private LearningManagementSystem lms;
+	@SpringBean
+	private ToolManager toolManager;
 
 	
 	public ConsoleBasePage() {
@@ -69,33 +73,41 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
 		final boolean canUpload = lms.canUpload(context);
 		final boolean canValidate = lms.canValidate(context);
 		
+		WebMarkupContainer wmc = new MaydayWebMarkupContainer("toolbar-administration");
+		if (isSinglePackageTool()) {
+	        wmc.setVisible(false);
+		}
+		
+        NavIntraLink listLink = new NavIntraLink("listLink", new ResourceModel("link.list"), PackageListPage.class);
+        NavIntraLink uploadLink = new NavIntraLink("uploadLink", new ResourceModel("link.upload"), UploadPage.class);
+        NavIntraLink validateLink = new NavIntraLink("validateLink", new ResourceModel("link.validate"), ValidationPage.class);
+        
+        listLink.setVisible(canUpload || canValidate);
+        uploadLink.setVisible(canUpload);
+        validateLink.setVisible(canValidate);
+        
+        wmc.add(listLink);
+        wmc.add(uploadLink);
+        wmc.add(validateLink);
+        
+        Icon listIcon = new Icon("listIcon", LIST_ICON);
+        Icon uploadIcon = new Icon("uploadIcon", UPLOAD_ICON);
+        Icon validateIcon = new Icon("validateIcon", VALIDATE_ICON);
+        
+        listIcon.setVisible(canUpload || canValidate);
+        uploadIcon.setVisible(canUpload);
+        validateIcon.setVisible(canValidate);
+        
+        wmc.add(listIcon);
+        wmc.add(uploadIcon);
+        wmc.add(validateIcon);
+
+        // add the toolbar container
+        add(wmc);
+        
 		add(newPageTitleLabel(params));
-		add(feedback = new FeedbackPanel("feedback"));
+		add(feedback = new SakaiFeedbackPanel("feedback"));
 		add(breadcrumbs = new BreadcrumbPanel("breadcrumbs"));
-		
-		NavIntraLink listLink = new NavIntraLink("listLink", new ResourceModel("link.list"), PackageListPage.class);
-		NavIntraLink uploadLink = new NavIntraLink("uploadLink", new ResourceModel("link.upload"), UploadPage.class);
-		NavIntraLink validateLink = new NavIntraLink("validateLink", new ResourceModel("link.validate"), ValidationPage.class);
-		
-		listLink.setVisible(canUpload || canValidate);
-		uploadLink.setVisible(canUpload);
-		validateLink.setVisible(canValidate);
-		
-		add(listLink);
-		add(uploadLink);
-		add(validateLink);
-		
-		Icon listIcon = new Icon("listIcon", LIST_ICON);
-		Icon uploadIcon = new Icon("uploadIcon", UPLOAD_ICON);
-		Icon validateIcon = new Icon("validateIcon", VALIDATE_ICON);
-		
-		listIcon.setVisible(canUpload || canValidate);
-		uploadIcon.setVisible(canUpload);
-		validateIcon.setVisible(canValidate);
-		
-		add(listIcon);
-		add(uploadIcon);
-		add(validateIcon);
 		
 		Icon pageIcon = new Icon("pageIcon", getPageIconReference());
 		pageIcon.setVisible(getPageIconReference() != null);
@@ -118,6 +130,7 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
 		breadcrumbs.setVisible(breadcrumbs.getNumberOfCrumbs() > 0);
 	}
 	
+	@Override
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
 		response.renderCSSReference(CONSOLE_CSS);
@@ -125,6 +138,12 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
 	
 	protected ResourceReference getPageIconReference() {
 		return null;
+	}
+	
+	protected boolean isSinglePackageTool() {
+		return toolManager != null && 
+				toolManager.getCurrentTool() != null && 
+				"sakai.scorm.singlepackage.tool".equals(toolManager.getCurrentTool().getId());
 	}
 	
 }

@@ -37,11 +37,15 @@ public class ButtonForm extends Form {
 	private static final String QUITBTN_ROOT_SRC = "/sakai-scorm-tool/images/quitBtn";
 	private static final String SUSPENDBTN_ROOT_SRC = "/sakai-scorm-tool/images/suspendBtn";
 
-	private ActivityAjaxButton prevButton, nextButton, startButton, quitButton, suspendButton;
+	private ActivityAjaxButton prevButton;
+	private ActivityAjaxButton nextButton;
+	private ActivityAjaxButton startButton;
+	private ActivityAjaxButton quitButton;
+	private ActivityAjaxButton suspendButton;
 	private PlayerPage view;
 	
-	@SpringBean
-	transient ScormSequencingService sequencingService;
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormSequencingService")
+	ScormSequencingService sequencingService;
 	
 	public ButtonForm(String id, final SessionBean sessionBean, PlayerPage view) {
 		super(id);
@@ -65,7 +69,7 @@ public class ButtonForm extends Form {
 	
 	public void synchronizeState(SessionBean sessionBean, AjaxRequestTarget target) {
 		boolean isContinueEnabled = sequencingService.isContinueEnabled(sessionBean);
-		//boolean isContinueExitEnabled = sequencingService.isContinueExitEnabled(sessionBean);
+		boolean isContinueExitEnabled = sequencingService.isContinueExitEnabled(sessionBean);
 		boolean isPreviousEnabled = sequencingService.isPreviousEnabled(sessionBean);
 		boolean isStartEnabled = sequencingService.isStartEnabled(sessionBean);
 		boolean isSuspendEnabled = sequencingService.isSuspendEnabled(sessionBean);
@@ -74,7 +78,7 @@ public class ButtonForm extends Form {
 		setPrevButtonVisible(isPreviousEnabled, target);
 		setStartButtonVisible(isStartEnabled, target);
 		setSuspendButtonVisible(isSuspendEnabled, target);
-		setQuitButtonVisible(sessionBean.isStarted() && !sessionBean.isEnded(), target);
+		setQuitButtonVisible(isContinueExitEnabled, target);
 	}
 
 	public void setPrevButtonVisible(boolean isVisible, AjaxRequestTarget target) {

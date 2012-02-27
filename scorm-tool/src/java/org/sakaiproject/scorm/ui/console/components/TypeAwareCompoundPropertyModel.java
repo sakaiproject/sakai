@@ -21,11 +21,13 @@ public class TypeAwareCompoundPropertyModel extends CompoundPropertyModel {
 		this.dateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
 	}
 	
+	@Override
 	public IModel bind(String property)
 	{
 		return new TypeAwarePropertyModel(this, property);
 	}
 	
+	@Override
 	public IWrapModel wrapOnInheritance(Component component)
 	{
 		return new AttachedCompoundPropertyModel(component);
@@ -40,6 +42,7 @@ public class TypeAwareCompoundPropertyModel extends CompoundPropertyModel {
 			super(modelObject, expression);
 		}
 		
+		@Override
 		public Object getObject() {
 			Object obj = super.getObject();
 			
@@ -72,6 +75,7 @@ public class TypeAwareCompoundPropertyModel extends CompoundPropertyModel {
 		/**
 		 * @see org.apache.wicket.model.AbstractPropertyModel#propertyExpression()
 		 */
+		@Override
 		protected String propertyExpression()
 		{
 			return TypeAwareCompoundPropertyModel.this.propertyExpression(owner);
@@ -88,12 +92,14 @@ public class TypeAwareCompoundPropertyModel extends CompoundPropertyModel {
 		/**
 		 * @see org.apache.wicket.model.AbstractPropertyModel#detach()
 		 */
+		@Override
 		public void detach()
 		{
 			super.detach();
 			TypeAwareCompoundPropertyModel.this.detach();
 		}
 
+		@Override
 		public Object getObject() {
 			Object obj = super.getObject();
 			

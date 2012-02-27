@@ -46,14 +46,12 @@ import java.net.URLEncoder;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.Application;
 import org.apache.wicket.IRequestTarget;
-import org.apache.wicket.protocol.http.UnitTestSettings;
 import org.apache.wicket.request.RequestParameters;
 import org.apache.wicket.request.target.coding.AbstractRequestTargetUrlCodingStrategy;
 import org.apache.wicket.util.string.AppendingStringBuffer;
@@ -139,19 +137,12 @@ public class ContentPackageResourceMountStrategy extends AbstractRequestTargetUr
 		return path.contains(getMountPath() + "/");
 	}
 	
+	@Override
 	protected void appendParameters(AppendingStringBuffer url, Map parameters)
 	{
 		if (parameters != null && parameters.size() > 0)
 		{
-			final Iterator entries;
-			if (UnitTestSettings.getSortUrlParameters())
-			{
-				entries = new TreeMap(parameters).entrySet().iterator();
-			}
-			else
-			{
-				entries = parameters.entrySet().iterator();
-			}
+			final Iterator entries = parameters.entrySet().iterator();
 			while (entries.hasNext())
 			{
 				Map.Entry entry = (Entry)entries.next();
@@ -190,6 +181,7 @@ public class ContentPackageResourceMountStrategy extends AbstractRequestTargetUr
 		}
 	}
 	
+	@Override
 	protected ValueMap decodeParameters(String urlFragment, Map urlParameters)
 	{
 		// Hack off any leading slash
@@ -223,9 +215,9 @@ public class ContentPackageResourceMountStrategy extends AbstractRequestTargetUr
 			if (log.isDebugEnabled()) {
 				for (Iterator keyIterator = urlParameters.keySet().iterator();keyIterator.hasNext();) {
 					String key = (String)keyIterator.next();
-					String value = (String)urlParameters.get(key);
+					Object value = urlParameters.get(key);
 					
-					log.debug("URL PARAMS KEY: " + key + " VALUE: " + value);
+					log.debug("URL PARAMS KEY: " + key + " VALUE: " + value.toString());
 				}
 			}
 			
@@ -236,6 +228,7 @@ public class ContentPackageResourceMountStrategy extends AbstractRequestTargetUr
 		return parameters;
 	}
 	
+	@Override
 	protected String urlDecode(String value)
 	{
 		try
@@ -251,6 +244,7 @@ public class ContentPackageResourceMountStrategy extends AbstractRequestTargetUr
 	}
 
 
+	@Override
 	protected String urlEncode(String string)
 	{
 		try

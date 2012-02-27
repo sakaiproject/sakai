@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.ui.reporting.pages;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -28,7 +29,6 @@ import org.apache.wicket.ResourceReference;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.link.PageLink;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
@@ -38,6 +38,8 @@ import org.sakaiproject.scorm.model.api.ActivityReport;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.Interaction;
 import org.sakaiproject.scorm.model.api.Learner;
+import org.sakaiproject.scorm.model.api.Progress;
+import org.sakaiproject.scorm.model.api.Score;
 import org.sakaiproject.scorm.service.api.ScormResultService;
 import org.sakaiproject.scorm.ui.reporting.components.InteractionPanel;
 import org.sakaiproject.scorm.ui.reporting.components.ProgressPanel;
@@ -63,8 +65,8 @@ public class ScoResultsPage extends BaseResultsPage {
 	private static ResourceReference NEUTRAL_ICON = new ResourceReference(InteractionPanel.class, "res/page_white_text.png");
 
 	
-	@SpringBean
-	transient ScormResultService resultService;
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResultService")
+	ScormResultService resultService;
 	
 	public ScoResultsPage(PageParameters pageParams) {
 		super(pageParams);
@@ -88,18 +90,33 @@ public class ScoResultsPage extends BaseResultsPage {
 		parentParams.put("learnerId", learner.getId());
 		parentParams.put("attemptNumber", attemptNumber);
 		
-		ActivityReport report = resultService.getActivityReport(contentPackage.getContentPackageId(), learner.getId(), attemptNumber, scoId);
-		
-		add(new ScorePanel("scorePanel", report.getScore()));
-		
-		add(new ProgressPanel("progressPanel", report.getProgress()));
-		
 		IModel breadcrumbModel = new StringResourceModel("uberparent.breadcrumb", this, new Model(contentPackage));
 		addBreadcrumb(breadcrumbModel, ResultsListPage.class, uberparentParams, true);	
 		addBreadcrumb(new Model(learner.getDisplayName()), LearnerResultsPage.class, parentParams, true);
-		addBreadcrumb(new Model(report.getTitle()), ScoResultsPage.class, pageParams, false);
+
+		ActivityReport report = resultService.getActivityReport(contentPackage.getContentPackageId(), learner.getId(), attemptNumber, scoId);
 		
-		List<Interaction> interactions = report.getInteractions();
+		List<Interaction> interactions = null;
+		
+		if (report != null) {
+			addBreadcrumb(new Model(report.getTitle()), ScoResultsPage.class, pageParams, false);
+			
+			add(new ScorePanel("scorePanel", report.getScore()));
+			add(new ProgressPanel("progressPanel", report.getProgress()));
+
+			interactions = report.getInteractions();
+		}
+		
+		else {
+			addBreadcrumb(new Model("[no module]"), ScoResultsPage.class, pageParams, false);
+			
+			add(new ScorePanel("scorePanel", new Score()));
+			add(new ProgressPanel("progressPanel", new Progress()));
+			
+			interactions = new ArrayList<Interaction>();
+			
+		}
+		
 		InteractionProvider dataProvider = new InteractionProvider(interactions);
 		dataProvider.setTableTitle("Interactions");
 		EnhancedDataPresenter presenter = new EnhancedDataPresenter("interactionPresenter", getColumns(), dataProvider);
@@ -125,6 +142,16 @@ public class ScoResultsPage extends BaseResultsPage {
 		link.setVisible(previousId.trim().length() > 0);
 		return link;
 	}
+
+	@Override
+	protected boolean attemptExists(long attemptId, String scoId, String learnerId, long contentPackageId) {
+	    return resultService.existsActivityReport(contentPackageId, learnerId, attemptId, scoId);
+    }
+	
+	@Override
+	protected boolean isPreviousLinkVisible(String[] siblingIds) {
+		return siblingIds[0] != null && !siblingIds[0].equals("");
+	}
 	
 	@Override
 	protected Link newNextLink(String nextId, PageParameters pageParams) {
@@ -143,6 +170,11 @@ public class ScoResultsPage extends BaseResultsPage {
 
 		link.setVisible(nextId.trim().length() > 0);
 		return link;
+	}
+	
+	@Override
+	protected boolean isNextLinkVisible(String[] siblingIds) {
+		return siblingIds[1] != null && !siblingIds[1].equals("");
 	}
 	
 	@Override
@@ -197,6 +229,7 @@ public class ScoResultsPage extends BaseResultsPage {
 			super(displayModel, pageClass, paramPropertyExpressions, iconProperty);
 		}
 		
+		@Override
 		protected ResourceReference getIconPropertyReference(String iconPropertyValue) {
 			ResourceReference resultIconReference = BLANK_ICON;
 
@@ -227,6 +260,9 @@ public class ScoResultsPage extends BaseResultsPage {
 
 		@Override
 		public Object convertObject(Object object) {
+			if (object == null) {
+				return "";
+			}
 			String key = new StringBuilder("type.").append(object).toString();
 			return getLocalizer().getString(key, ScoResultsPage.this);
 		}

@@ -38,6 +38,7 @@ public final class SjaxCallDecorator extends AjaxPostprocessingCallDecorator {
 		super(delegate);
 	}
 
+	@Override
 	public CharSequence postDecorateScript(CharSequence script)
 	{
 		StringBuffer buffer = new StringBuffer();

@@ -1,16 +1,12 @@
 package org.sakaiproject.scorm.ui.console.components;
 
-import java.util.Date;
-
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.scorm.api.ScormConstants;
-import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.model.api.LearnerExperience;
-import org.sakaiproject.wicket.markup.html.repeater.data.table.DecoratedPropertyColumn;
 
 public class AccessStatusColumn extends AbstractColumn implements ScormConstants {
 

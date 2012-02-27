@@ -27,12 +27,14 @@ import org.sakaiproject.scorm.model.api.ContentPackage;
 public interface ContentPackageDao {
 
 	public int countContentPackages(String context, String name);
-	
-	public ContentPackage load(long id);
-	
+
 	public List<ContentPackage> find(String context);
-	
-	public void save(ContentPackage contentPackage);
-	
+
+	public ContentPackage load(long id);
+
+	public ContentPackage loadByResourceId(String resourceId);
+
 	public void remove(ContentPackage contentPackage);
+
+	public void save(ContentPackage contentPackage);
 }

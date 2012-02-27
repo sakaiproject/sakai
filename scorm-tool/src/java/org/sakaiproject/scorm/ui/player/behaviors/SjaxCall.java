@@ -163,7 +163,7 @@ public abstract class SjaxCall extends AjaxEventBehavior {
 			public Object getTarget() {
 				return target;
 			}
-			
+
 		};
 		
 		try {

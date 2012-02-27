@@ -50,7 +50,6 @@ import java.lang.ref.SoftReference;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.wicket.util.io.Streams;
-import org.apache.wicket.util.resource.IResourceStream;
 import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
 import org.apache.wicket.util.time.Time;
 import org.sakaiproject.scorm.model.api.ContentPackageResource;
@@ -64,12 +63,12 @@ public class CompressingContentPackageResourceStream extends ContentPackageResou
 
 	/** Timestamp of the cache */
 	private Time timeStamp = null;
-	
-	
+
 	public CompressingContentPackageResourceStream(ContentPackageResource resource) {
 		super(resource);
 	}
-	
+
+	@Override
 	public InputStream getInputStream() throws ResourceStreamNotFoundException {
 		return new ByteArrayInputStream(getCompressedContent());
 	}
@@ -77,7 +76,7 @@ public class CompressingContentPackageResourceStream extends ContentPackageResou
 	private byte[] getCompressedContent() throws ResourceStreamNotFoundException {
 		InputStream stream = super.getInputStream();
 		try {
-			byte ret[] = (byte[])cache.get();
+			byte ret[] = (byte[]) cache.get();
 			if (ret != null && timeStamp != null)
 			{
 				if (timeStamp.equals(lastModifiedTime()))
@@ -95,12 +94,22 @@ public class CompressingContentPackageResourceStream extends ContentPackageResou
 			timeStamp = lastModifiedTime();
 			cache = new SoftReference(ret);
 			return ret;
-		}
-		catch (IOException e)
+		} catch (IOException e)
 		{
 			throw new RuntimeException(e);
 		}
 
 	}
-	
+
+	@Override
+	public long length() 
+	{
+		try {
+	        return getCompressedContent().length;
+        } catch (ResourceStreamNotFoundException e) {
+        	// No content, return null
+	        return 0;
+        }
+	}
+
 }

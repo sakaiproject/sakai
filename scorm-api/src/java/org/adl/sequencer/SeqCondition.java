@@ -24,9 +24,9 @@
 
 package org.adl.sequencer;
 
-import org.adl.util.debug.DebugIndicator;
-
 import java.io.Serializable;
+
+import org.adl.util.debug.DebugIndicator;
 
 /**
  * <strong>Filename:</strong> SeqCondition.java<br><br>
@@ -55,193 +55,214 @@ import java.io.Serializable;
  * 
  * @author ADL Technical Team
  */
-public class SeqCondition implements Serializable
-{
+public class SeqCondition implements Serializable {
 	private static final long serialVersionUID = 1L;
-	
+
 	private long id;
-	
-   /**
-    * Enumeration of possible evaluation criteria -- described in Sequencing
-    * Rule Description (element 2.2.1) and Rollup Rule Description 
-    * (element 3.2.1) of the IMS SS Specification.
-    * <br>Satisfied
-    * <br><b>"satisfied"</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */
-   public static String SATISFIED         = "satisfied";
 
+	/**
+	 * Enumeration of possible evaluation criteria -- described in Sequencing
+	 * Rule Description (element 2.2.1) and Rollup Rule Description 
+	 * (element 3.2.1) of the IMS SS Specification.
+	 * <br>Satisfied
+	 * <br><b>"satisfied"</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	 */
+	public static String SATISFIED = "satisfied";
 
-   /**
-    * Enumeration of possible evaluation criteria -- described in Sequencing
-    * Rule Description (element 2.2.1) and Rollup Rule Description 
-    * (element 3.2.1) of the IMS SS Specification.
-    * <br>Objective Status Known
-    * <br><b>"objectiveStatusKnown"</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */
-   public static String OBJSTATUSKNOWN    = "objectiveStatusKnown";
+	/**
+	 * Enumeration of possible evaluation criteria -- described in Sequencing
+	 * Rule Description (element 2.2.1) and Rollup Rule Description 
+	 * (element 3.2.1) of the IMS SS Specification.
+	 * <br>Objective Status Known
+	 * <br><b>"objectiveStatusKnown"</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	 */
+	public static String OBJSTATUSKNOWN = "objectiveStatusKnown";
 
-   /**
-    * Enumeration of possible evaluation criteria -- described in Sequencing
-    * Rule Description (element 2.2.1) and Rollup Rule Description 
-    * (element 3.2.1) of the IMS SS Specification.
-    * <br>Objective Measure Known
-    * <br><b>"objectiveMeasureKnown"</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */
-   public static String OBJMEASUREKNOWN   = "objectiveMeasureKnown";
+	/**
+	 * Enumeration of possible evaluation criteria -- described in Sequencing
+	 * Rule Description (element 2.2.1) and Rollup Rule Description 
+	 * (element 3.2.1) of the IMS SS Specification.
+	 * <br>Objective Measure Known
+	 * <br><b>"objectiveMeasureKnown"</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	 */
+	public static String OBJMEASUREKNOWN = "objectiveMeasureKnown";
 
-   /**
-    * Enumeration of possible evaluation criteria -- described in Sequencing
-    * Rule Description (element 2.2.1) and Rollup Rule Description 
-    * (element 3.2.1) of the IMS SS Specification.
-    * <br>Objective Measure Greater Than
-    * <br><b>"objectiveMeasureGreaterThan"</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */
-   public static String OBJMEASUREGRTHAN  = "objectiveMeasureGreaterThan";
+	/**
+	 * Enumeration of possible evaluation criteria -- described in Sequencing
+	 * Rule Description (element 2.2.1) and Rollup Rule Description 
+	 * (element 3.2.1) of the IMS SS Specification.
+	 * <br>Objective Measure Greater Than
+	 * <br><b>"objectiveMeasureGreaterThan"</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	 */
+	public static String OBJMEASUREGRTHAN = "objectiveMeasureGreaterThan";
 
-   /**
-    * Enumeration of possible evaluation criteria -- described in Sequencing
-    * Rule Description (element 2.2.1) and Rollup Rule Description 
-    * (element 3.2.1) of the IMS SS Specification.
-    * <br>Objective Measure Less Than
-    * <br><b>"objectiveMeasureLessThan"</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */
-   public static String OBJMEASURELSTHAN  = "objectiveMeasureLessThan";
+	/**
+	 * Enumeration of possible evaluation criteria -- described in Sequencing
+	 * Rule Description (element 2.2.1) and Rollup Rule Description 
+	 * (element 3.2.1) of the IMS SS Specification.
+	 * <br>Objective Measure Less Than
+	 * <br><b>"objectiveMeasureLessThan"</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	 */
+	public static String OBJMEASURELSTHAN = "objectiveMeasureLessThan";
 
-   /**
-    * Enumeration of possible evaluation criteria -- described in Sequencing
-    * Rule Description (element 2.2.1) and Rollup Rule Description 
-    * (element 3.2.1) of the IMS SS Specification.
-    * <br>Completed
-    * <br><b>"completed"</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */
-   public static String COMPLETED         = "completed";
+	/**
+	 * Enumeration of possible evaluation criteria -- described in Sequencing
+	 * Rule Description (element 2.2.1) and Rollup Rule Description 
+	 * (element 3.2.1) of the IMS SS Specification.
+	 * <br>Completed
+	 * <br><b>"completed"</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	 */
+	public static String COMPLETED = "completed";
 
-   /**
-    * Enumeration of possible evaluation criteria -- described in Sequencing
-    * Rule Description (element 2.2.1) and Rollup Rule Description 
-    * (element 3.2.1) of the IMS SS Specification.
-    * <br>Progress Known
-    * <br><b>"progressKnown"</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */
-   public static String PROGRESSKNOWN     = "activityProgressKnown";
+	/**
+	 * Enumeration of possible evaluation criteria -- described in Sequencing
+	 * Rule Description (element 2.2.1) and Rollup Rule Description 
+	 * (element 3.2.1) of the IMS SS Specification.
+	 * <br>Progress Known
+	 * <br><b>"progressKnown"</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	 */
+	public static String PROGRESSKNOWN = "activityProgressKnown";
 
-   /**
-    * Enumeration of possible evaluation criteria -- described in Sequencing
-    * Rule Description (element 2.2.1) and Rollup Rule Description 
-    * (element 3.2.1) of the IMS SS Specification.
-    * <br>Attempted
-    * <br><b>"attempted"</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */
-   public static String ATTEMPTED         = "attempted";
+	/**
+	 * Enumeration of possible evaluation criteria -- described in Sequencing
+	 * Rule Description (element 2.2.1) and Rollup Rule Description 
+	 * (element 3.2.1) of the IMS SS Specification.
+	 * <br>Attempted
+	 * <br><b>"attempted"</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	 */
+	public static String ATTEMPTED = "attempted";
 
-   /**
-    * Enumeration of possible evaluation criteria -- described in Sequencing
-    * Rule Description (element 2.2.1) and Rollup Rule Description 
-    * (element 3.2.1) of the IMS SS Specification.
-    * <br>Attempt Limit Exceeded
-    * <br><b>"attemptLimitExeeded"</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */
-   public static String ATTEMPTSEXCEEDED  = "attemptLimitExceeded";
+	/**
+	 * Enumeration of possible evaluation criteria -- described in Sequencing
+	 * Rule Description (element 2.2.1) and Rollup Rule Description 
+	 * (element 3.2.1) of the IMS SS Specification.
+	 * <br>Attempt Limit Exceeded
+	 * <br><b>"attemptLimitExeeded"</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	 */
+	public static String ATTEMPTSEXCEEDED = "attemptLimitExceeded";
 
-   /**
-    * Enumeration of possible evaluation criteria -- described in Sequencing
-    * Rule Description (element 2.2.1) and Rollup Rule Description 
-    * (element 3.2.1) of the IMS SS Specification.
-    * <br>Time Limit Exceeded
-    * <br><b>"timeLimitExceeded"</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */
-   public static String TIMELIMITEXCEEDED = "timeLimitExceeded";
+	/**
+	 * Enumeration of possible evaluation criteria -- described in Sequencing
+	 * Rule Description (element 2.2.1) and Rollup Rule Description 
+	 * (element 3.2.1) of the IMS SS Specification.
+	 * <br>Time Limit Exceeded
+	 * <br><b>"timeLimitExceeded"</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	 */
+	public static String TIMELIMITEXCEEDED = "timeLimitExceeded";
 
-   /**
-    * Enumeration of possible evaluation criteria -- described in Sequencing
-    * Rule Description (element 2.2.1) and Rollup Rule Description 
-    * (element 3.2.1) of the IMS SS Specification.
-    * <br>Outside Avaliable Time Range
-    * <br><b>"outsideAvailableTimeRange"</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */
-   public static String OUTSIDETIME       = "outsideAvailableTimeRange";
+	/**
+	 * Enumeration of possible evaluation criteria -- described in Sequencing
+	 * Rule Description (element 2.2.1) and Rollup Rule Description 
+	 * (element 3.2.1) of the IMS SS Specification.
+	 * <br>Outside Avaliable Time Range
+	 * <br><b>"outsideAvailableTimeRange"</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	 */
+	public static String OUTSIDETIME = "outsideAvailableTimeRange";
 
-   /**
-    * Enumeration of possible evaluation criteria -- described in Sequencing
-    * Rule Description (element 2.2.1) and Rollup Rule Description 
-    * (element 3.2.1) of the IMS SS Specification.
-    * <br>Always
-    * <br><b>"always"</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */
-   public static String ALWAYS       = "always";
+	/**
+	 * Enumeration of possible evaluation criteria -- described in Sequencing
+	 * Rule Description (element 2.2.1) and Rollup Rule Description 
+	 * (element 3.2.1) of the IMS SS Specification.
+	 * <br>Always
+	 * <br><b>"always"</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	 */
+	public static String ALWAYS = "always";
 
-   /**
-    * Enumeration of possible evaluation criteria -- described in Sequencing
-    * Rule Description (element 2.2.1) and Rollup Rule Description 
-    * (element 3.2.1) of the IMS SS Specification.
-    * <br>Never
-    * <br><b>"never"</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */
-   public static String NEVER       = "never";
+	/**
+	 * Enumeration of possible evaluation criteria -- described in Sequencing
+	 * Rule Description (element 2.2.1) and Rollup Rule Description 
+	 * (element 3.2.1) of the IMS SS Specification.
+	 * <br>Never
+	 * <br><b>"never"</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	 */
+	public static String NEVER = "never";
 
-   /**
-    * This controls display of log messages to the java console
-    */
-   private static boolean _Debug = DebugIndicator.ON;
-   
-   /**
-    * The condition to be evaluated
-    */
-   public String mCondition = null;
+	/**
+	 * This controls display of log messages to the java console
+	 */
+	private static boolean _Debug = DebugIndicator.ON;
 
-   /**
-    * Indicates if the condition evaluation should be negated
-    */
-   public boolean mNot = false;
+	/**
+	 * The condition to be evaluated
+	 */
+	public String mCondition = null;
 
-   /** 
-    * Indicates the objective being tested
-    */
-   public String mObjID = null;
+	/**
+	 * Indicates if the condition evaluation should be negated
+	 */
+	public boolean mNot = false;
 
-   /**
-    * Indicates the measure threshold being tested
-    */
-   public double mThreshold = 0.0;
+	/** 
+	 * Indicates the objective being tested
+	 */
+	public String mObjID = null;
 
-   /**
-    *  Default constructor 
-    */
-   public SeqCondition()
-   {
-      // Default constructor does nothing explicitly 
-   }
+	/**
+	 * Indicates the measure threshold being tested
+	 */
+	public double mThreshold = 0.0;
 
-   /**
-    * This method provides the state this <code>SeqCondition</code> object for
-    * diagnostic purposes.
-    */
-   public void dumpState()
-   {
-      if ( _Debug )
-      {
-         System.out.println("  :: SeqCondition  --> BEGIN - dumpState");
+	/**
+	 *  Default constructor 
+	 */
+	public SeqCondition() {
+		// Default constructor does nothing explicitly 
+	}
 
-         System.out.println("  ::--> Condition :  " + mCondition);
-         System.out.println("  ::--> Not?      :  " + mNot);
-         System.out.println("  ::--> Obj ID    :  " + mObjID);
-         System.out.println("  ::--> Threshold :  " + mThreshold);
+	/**
+	 * This method provides the state this <code>SeqCondition</code> object for
+	 * diagnostic purposes.
+	 */
+	public void dumpState() {
+		if (_Debug) {
+			System.out.println("  :: SeqCondition  --> BEGIN - dumpState");
 
-         System.out.println("  :: SeqCondition  --> END   - dumpState");
-      }
-   }
+			System.out.println("  ::--> Condition :  " + mCondition);
+			System.out.println("  ::--> Not?      :  " + mNot);
+			System.out.println("  ::--> Obj ID    :  " + mObjID);
+			System.out.println("  ::--> Threshold :  " + mThreshold);
 
-}  // end SeqCondition
+			System.out.println("  :: SeqCondition  --> END   - dumpState");
+		}
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SeqCondition other = (SeqCondition) obj;
+		if (id != other.id)
+			return false;
+		return true;
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (id ^ (id >>> 32));
+		return result;
+	}
+
+} // end SeqCondition

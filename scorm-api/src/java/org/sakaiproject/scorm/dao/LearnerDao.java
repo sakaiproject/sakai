@@ -7,9 +7,8 @@ import org.sakaiproject.scorm.model.api.Learner;
 
 public interface LearnerDao {
 
-	public Learner load(String id) throws LearnerNotDefinedException;
-	
 	public List<Learner> find(String context);
-	
-	
+
+	public Learner load(String id) throws LearnerNotDefinedException;
+
 }

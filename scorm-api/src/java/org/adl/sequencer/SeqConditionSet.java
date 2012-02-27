@@ -25,7 +25,6 @@ package org.adl.sequencer;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Vector;
 
 import org.adl.util.debug.DebugIndicator;
 
@@ -60,432 +59,364 @@ import org.adl.util.debug.DebugIndicator;
  * 
  * @author ADL Technical Team
  */
-public class SeqConditionSet implements Serializable
-{
+public class SeqConditionSet implements Serializable {
 
 	private long id;
-	
+
 	static final long serialVersionUID = 1L; // -8248834341813485224L;
+
+	/**
+	 * Enumeration of possible evaluation results.
+	 * <br>unknown
+	 * <br><b>0</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	 */
+	public static final int EVALUATE_UNKNOWN = 0;
+
+	/**
+	 * Enumeration of possible evaluation results.
+	 * <br>true
+	 * <br><b>1</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	 */
+	public static final int EVALUATE_TRUE = 1;
+
+	/**
+	 * Enumeration of possible evaluation results.
+	 * <br>false
+	 * <br><b>-1</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	 */
+	public static final int EVALUATE_FALSE = -1;
+
+	/**
+	 * Enumeration of possible evaluation criteria -- described in Sequencing
+	 * Rule Description (element 2.1) and Rollup Rule Description (element 5.2)
+	 * of the IMS SS Specification.
+	 * <br>All
+	 * <br><b>"all"</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	 */
+	public static String COMBINATION_ALL = "all";
+
+	/**
+	 * Enumeration of possible evaluation criteria -- described in Sequencing
+	 * Rule Description (element 2.1) and Rollup Rule Description (element 5.2)
+	 * of the IMS SS Specification.
+	 * <br>Any
+	 * <br><b>"any"</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	 */
+	public static String COMBINATION_ANY = "any";
+
+	/**
+	 * This controls display of log messages to the java console
+	 */
+	private static boolean _Debug = DebugIndicator.ON;
+
+	/**
+	 * Describes the evaluation criteria for this set of conditions.
+	 */
+	public String mCombination = null;
+
+	/**
+	 * Describes the set of conditions required for this rule's action to take
+	 * effect.
+	 */
+	public List<SeqCondition> mConditions = null;
+
+	/**
+	 * Describes if the current condition evaluation is part of a 'retry' 
+	 * sequencing request.
+	 */
+	private boolean mRetry = false;
+
+	/**
+	 * Describes if these conditions are being evaluated in a Rollup Rule
+	 */
+	private boolean mRollup = false;
+
+	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 	
-   /**
-    * Enumeration of possible evaluation results.
-    * <br>unknown
-    * <br><b>0</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */  
-   public static final int EVALUATE_UNKNOWN           = 0;
+	Constructors 
+	
+	-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
+	/**
+	 * Default constructor
+	 */
+	public SeqConditionSet() {
+	}
 
-   /**
-    * Enumeration of possible evaluation results.
-    * <br>true
-    * <br><b>1</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */  
-   public static final int EVALUATE_TRUE              = 1;
+	public SeqConditionSet(boolean iRollup) {
+		mRollup = iRollup;
+	}
 
-   /**
-    * Enumeration of possible evaluation results.
-    * <br>false
-    * <br><b>-1</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */  
-   public static final int EVALUATE_FALSE             = -1;
-   
-   /**
-    * Enumeration of possible evaluation criteria -- described in Sequencing
-    * Rule Description (element 2.1) and Rollup Rule Description (element 5.2)
-    * of the IMS SS Specification.
-    * <br>All
-    * <br><b>"all"</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */
-   public static String COMBINATION_ALL        = "all";
+	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+	
+	 Public Methods 
+	
+	-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
 
-   /**
-    * Enumeration of possible evaluation criteria -- described in Sequencing
-    * Rule Description (element 2.1) and Rollup Rule Description (element 5.2)
-    * of the IMS SS Specification.
-    * <br>Any
-    * <br><b>"any"</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */  
-   public static String COMBINATION_ANY        = "any";
-   
-   /**
-    * This controls display of log messages to the java console
-    */
-   private static boolean _Debug = DebugIndicator.ON;
+	/**
+	 * This method provides the state this <code>SeqConditionSet</code> object
+	 * for diagnostic purposes.
+	 */
+	public void dumpState() {
+		if (_Debug) {
+			System.out.println("  :: SeqConditionSet  --> BEGIN - dumpState");
 
-   /**
-    * Describes the evaluation criteria for this set of conditions.
-    */
-   public String mCombination = null;
+			System.out.println("  ::--> Set : " + mCombination);
 
-   /**
-    * Describes the set of conditions required for this rule's action to take
-    * effect.
-    */
-   public List mConditions = null;
+			if (mConditions != null) {
+				System.out.println("  ::-->   [" + mConditions.size() + "]");
+				System.out.println("  ::----------------::");
 
-   /**
-    * Describes if the current condition evaluation is part of a 'retry' 
-    * sequencing request.
-    */
-   private boolean mRetry =  false;
+				for (int i = 0; i < mConditions.size(); i++) {
+					SeqCondition cond = mConditions.get(i);
 
+					cond.dumpState();
+				}
 
-   /**
-    * Describes if these conditions are being evaluated in a Rollup Rule
-    */
-   private boolean mRollup = false;
+			} else {
+				System.out.println("         NULL");
+				System.out.println("  ::----------------::");
+			}
 
+			System.out.println("  :: SeqConditionSet --> END   - dumpState");
+		}
+	}
 
-   /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-   
-   Constructors 
-   
-   -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
-   /**
-    * Default constructor
-    */
-   public SeqConditionSet()
-   {
-   }
+	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+	
+	 Package Methods 
+	
+	-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
 
-   public SeqConditionSet(boolean iRollup)
-   {
-      mRollup = iRollup;
-   }
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SeqConditionSet other = (SeqConditionSet) obj;
+		if (id != other.id)
+			return false;
+		return true;
+	}
 
-   /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-   
-    Public Methods 
-   
-   -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
+	/**
+	 * Evaluates this condition set
+	 * 
+	 * @param iThisActivity The activity being evaluated
+	 * 
+	 * @return The result of the condition set evaluation
+	 */
+	int evaluate(ISeqActivity iThisActivity) {
 
-   /**
-    * This method provides the state this <code>SeqConditionSet</code> object
-    * for diagnostic purposes.
-    */
-   public void dumpState()
-   {
-      if ( _Debug )
-      {
-         System.out.println("  :: SeqConditionSet  --> BEGIN - dumpState");
+		if (_Debug) {
+			System.out.println("  :: SeqConditionSet --> BEGIN - evaluate");
+			System.out.println("  :: --> RETRY == " + mRetry);
+		}
 
-         System.out.println("  ::--> Set : " + mCombination);
+		int result = EVALUATE_UNKNOWN;
 
-         if ( mConditions != null )
-         {
-            System.out.println("  ::-->   [" + mConditions.size() + "]");
-            System.out.println("  ::----------------::");
+		// Make sure we have a valid target activity  
+		if (iThisActivity != null) {
 
-            for ( int i = 0; i < mConditions.size(); i++ )
-            {
-               SeqCondition cond = (SeqCondition)mConditions.get(i);
+			if (_Debug) {
+				System.out.println("  ::-->  Set - " + mCombination);
 
-               cond.dumpState();
-            }
+				if (mConditions != null) {
+					System.out.println("  ::-->  [" + mConditions.size() + "]");
+				} else {
+					System.out.println("  ::-->  NULL");
+				}
+			}
 
-         }
-         else
-         {
-            System.out.println("         NULL");
-            System.out.println("  ::----------------::");
-         }
+			if (mConditions != null) {
+				// Evaluate this rule's conditions
+				if (mCombination.equals(COMBINATION_ALL)) {
+					result = EVALUATE_TRUE;
 
-         System.out.println("  :: SeqConditionSet --> END   - dumpState");
-      }
-   }
+					for (int i = 0; i < mConditions.size(); i++) {
+						int thisEval = evaluateCondition(i, (SeqActivity) iThisActivity);
 
-   /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-   
-    Package Methods 
-   
-   -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
+						if (thisEval != EVALUATE_TRUE) {
+							result = thisEval;
 
-   /**
-    * Evaluates this condition set
-    * 
-    * @param iThisActivity The activity being evaluated
-    * 
-    * @param iIsRetry      Indicates if this evaluation is occuring during the
-    *                      processing of a 'retry' sequencing request.
-    * 
-    * @return The result of the condition set evaluation
-    */
-   int evaluate(ISeqActivity iThisActivity, boolean iIsRetry)
-   {
-      mRetry = iIsRetry;
+							// done with this evaluation
+							break;
+						}
+					}
+				} else if (mCombination.equals(COMBINATION_ANY)) {
+					// Assume we have enought information to evaluate
+					result = EVALUATE_FALSE;
 
-      return evaluate(iThisActivity);
-   }
+					for (int i = 0; i < mConditions.size(); i++) {
+						int thisEval = evaluateCondition(i, (SeqActivity) iThisActivity);
 
-   /**
-    * Evaluates this condition set
-    * 
-    * @param iThisActivity The activity being evaluated
-    * 
-    * @return The result of the condition set evaluation
-    */
-   int evaluate(ISeqActivity iThisActivity)
-   {
+						if (thisEval == EVALUATE_TRUE) {
+							result = EVALUATE_TRUE;
 
-      if ( _Debug )
-      {
-         System.out.println("  :: SeqConditionSet --> BEGIN - evaluate");
-         System.out.println("  :: --> RETRY == " + mRetry);
-      }
+							// done with this evaluation
+							break;
+						} else if (thisEval == EVALUATE_UNKNOWN) {
+							// Something is missing...
+							result = EVALUATE_UNKNOWN;
+						}
 
-      int result = EVALUATE_UNKNOWN;
+					}
+				}
+			}
+		}
 
-      // Make sure we have a valid target activity  
-      if ( iThisActivity != null )
-      {
+		// Reset the 'retry' flag
+		mRetry = false;
 
-         if ( _Debug )
-         {
-            System.out.println("  ::-->  Set - " + mCombination);
+		if (_Debug) {
+			System.out.println("  ::-->  " + result);
+			System.out.println("  :: SeqConditionSet --> END   - evaluate");
+		}
 
-            if ( mConditions != null )
-            {
-               System.out.println("  ::-->  [" + mConditions.size() + "]");
-            }
-            else
-            {
-               System.out.println("  ::-->  NULL");
-            }
-         }
+		return result;
 
-         if ( mConditions != null )
-         {
-            // Evaluate this rule's conditions
-            if ( mCombination.equals(COMBINATION_ALL) )
-            {
-               result = EVALUATE_TRUE;
+	}
 
-               for ( int i = 0; i < mConditions.size(); i++ )
-               {
-                  int thisEval = evaluateCondition(i, (SeqActivity)iThisActivity);
+	/**
+	 * Evaluates this condition set
+	 * 
+	 * @param iThisActivity The activity being evaluated
+	 * 
+	 * @param iIsRetry      Indicates if this evaluation is occuring during the
+	 *                      processing of a 'retry' sequencing request.
+	 * 
+	 * @return The result of the condition set evaluation
+	 */
+	int evaluate(ISeqActivity iThisActivity, boolean iIsRetry) {
+		mRetry = iIsRetry;
 
-                  if ( thisEval != EVALUATE_TRUE )
-                  {
-                     result = thisEval;
+		return evaluate(iThisActivity);
+	}
 
-                     // done with this evaluation
-                     break;
-                  }
-               }
-            }
-            else if ( mCombination.equals(COMBINATION_ANY) )
-            {
-               // Assume we have enought information to evaluate
-               result = EVALUATE_FALSE;
+	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+	   
+	    Private Methods 
+	   
+	   -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
+	/**
+	 * Evaluates one condition of this condition set.
+	 * 
+	 * @param iIndex  Index of the the condition to be evaluated.
+	 * 
+	 * @param iTarget The activity this condition is associated with.
+	 * 
+	 * @return <code>true</code> if the condition evaluates to 'true, othewise
+	 *         <code>false</code>.
+	 */
+	private int evaluateCondition(int iIndex, SeqActivity iTarget) {
 
-               for ( int i = 0; i < mConditions.size(); i++ )
-               {
-                  int thisEval = evaluateCondition(i, (SeqActivity)iThisActivity);
+		if (_Debug) {
+			System.out.println("  :: SeqConditionSet --> BEGIN - " + "evaluateCondition");
+			System.out.println("  ::-->  " + iIndex);
+		}
 
-                  if ( thisEval == EVALUATE_TRUE )
-                  {
-                     result = EVALUATE_TRUE;
+		int result = EVALUATE_UNKNOWN;
 
-                     // done with this evaluation
-                     break;
-                  }
-                  else if ( thisEval == EVALUATE_UNKNOWN )
-                  {
-                     // Something is missing...
-                     result = EVALUATE_UNKNOWN;
-                  }
+		// Make sure this condition exists
+		if (iIndex < mConditions.size()) {
 
-               }
-            }
-         }
-      }
+			SeqCondition cond = mConditions.get(iIndex);
 
-      // Reset the 'retry' flag
-      mRetry = false;
+			if (_Debug) {
+				System.out.println("  ::--> Evaluate :: " + cond.mCondition);
+			}
 
-      if ( _Debug )
-      {
-         System.out.println("  ::-->  " + result); 
-         System.out.println("  :: SeqConditionSet --> END   - evaluate");
-      }
+			// evaluate the current condtion
+			if (cond.mCondition.equals(SeqCondition.ALWAYS)) {
+				result = EVALUATE_TRUE;
+			} else if (cond.mCondition.equals(SeqCondition.NEVER)) {
+				result = EVALUATE_FALSE;
+			} else if (cond.mCondition.equals(SeqCondition.SATISFIED)) {
+				if (iTarget.getObjStatus(cond.mObjID, mRollup)) {
+					result = (iTarget.getObjSatisfied(cond.mObjID, mRollup)) ? EVALUATE_TRUE : EVALUATE_FALSE;
+				} else {
+					result = EVALUATE_UNKNOWN;
+				}
+			} else if (cond.mCondition.equals(SeqCondition.OBJSTATUSKNOWN)) {
+				result = iTarget.getObjStatus(cond.mObjID, mRollup) ? EVALUATE_TRUE : EVALUATE_FALSE;
+			} else if (cond.mCondition.equals(SeqCondition.OBJMEASUREKNOWN)) {
+				result = iTarget.getObjMeasureStatus(cond.mObjID, mRollup) ? EVALUATE_TRUE : EVALUATE_FALSE;
+			} else if (cond.mCondition.equals(SeqCondition.OBJMEASUREGRTHAN)) {
+				if (iTarget.getObjMeasureStatus(cond.mObjID, mRollup)) {
+					result = (iTarget.getObjMeasure(cond.mObjID, mRollup) > cond.mThreshold) ? EVALUATE_TRUE : EVALUATE_FALSE;
+				} else {
+					result = EVALUATE_UNKNOWN;
+				}
+			} else if (cond.mCondition.equals(SeqCondition.OBJMEASURELSTHAN)) {
+				if (iTarget.getObjMeasureStatus(cond.mObjID, mRollup)) {
 
-      return result;
+					result = (iTarget.getObjMeasure(cond.mObjID, mRollup) < cond.mThreshold) ? EVALUATE_TRUE : EVALUATE_FALSE;
+				} else {
+					result = EVALUATE_UNKNOWN;
+				}
+			} else if (cond.mCondition.equals(SeqCondition.COMPLETED)) {
+				if (iTarget.getProgressStatus(mRollup)) {
+					result = iTarget.getAttemptCompleted(mRollup) ? EVALUATE_TRUE : EVALUATE_FALSE;
+				} else {
+					result = EVALUATE_UNKNOWN;
+				}
+			} else if (cond.mCondition.equals(SeqCondition.PROGRESSKNOWN)) {
+				result = iTarget.getProgressStatus(mRollup) ? EVALUATE_TRUE : EVALUATE_FALSE;
+			} else if (cond.mCondition.equals(SeqCondition.ATTEMPTED)) {
+				result = iTarget.getActivityAttempted() ? EVALUATE_TRUE : EVALUATE_FALSE;
+			} else if (cond.mCondition.equals(SeqCondition.ATTEMPTSEXCEEDED)) {
+				if (iTarget.getAttemptLimitControl()) {
+					long maxAttempt = iTarget.getAttemptLimit();
 
-   }
+					// Check if this limit condition exists
+					if (maxAttempt >= 0) {
+						result = (iTarget.getNumAttempt() >= maxAttempt) ? EVALUATE_TRUE : EVALUATE_FALSE;
+					}
+				}
+			} else if (cond.mCondition.equals(SeqCondition.TIMELIMITEXCEEDED)) {
+				// add later with other time tracking implementation...
+				// -+- TODO -+-
+			} else if (cond.mCondition.equals(SeqCondition.OUTSIDETIME)) {
 
-   /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-   
-    Private Methods 
-   
-   -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
-   /**
-    * Evaluates one condition of this condition set.
-    * 
-    * @param iIndex  Index of the the condition to be evaluated.
-    * 
-    * @param iTarget The activity this condition is associated with.
-    * 
-    * @return <code>true</code> if the condition evaluates to 'true, othewise
-    *         <code>false</code>.
-    */
-   private int evaluateCondition(int iIndex, SeqActivity iTarget)
-   {
+				// add later with other time tracking implementation...
+				// -+- TODO -+-
+			}
 
-      if ( _Debug )
-      {
-         System.out.println("  :: SeqConditionSet --> BEGIN - " +
-                            "evaluateCondition");
-         System.out.println("  ::-->  " + iIndex);
-      }
+			// Account for condition operator
+			if (cond.mNot && result != EVALUATE_UNKNOWN) {
+				if (_Debug) {
+					System.out.println("  ::--> Negate Result");
+				}
 
-      int result = EVALUATE_UNKNOWN;
+				result = (result == EVALUATE_FALSE) ? EVALUATE_TRUE : EVALUATE_FALSE;
+			}
+		}
 
-      // Make sure this condition exists
-      if ( iIndex < mConditions.size() )
-      {
+		if (_Debug) {
+			System.out.println("  ::-->  " + ((result == 1) ? "True" : "False"));
+			System.out.println("  :: SeqConditionSet --> END   - " + "evaluateCondition");
+		}
 
-         SeqCondition cond = (SeqCondition)mConditions.get(iIndex);
+		return result;
+	}
 
-         if ( _Debug )
-         {
-            System.out.println("  ::--> Evaluate :: " + cond.mCondition);
-         }
+	public long getId() {
+		return id;
+	}
 
-         // evaluate the current condtion
-         if ( cond.mCondition.equals(SeqCondition.ALWAYS) )
-         {
-            result = EVALUATE_TRUE;
-         }
-         else if ( cond.mCondition.equals(SeqCondition.NEVER) )
-         {
-            result = EVALUATE_FALSE;
-         }
-         else if ( cond.mCondition.equals(SeqCondition.SATISFIED) )
-         {
-            if ( ((SeqActivity)iTarget).getObjStatus(cond.mObjID, mRollup) )
-            {
-               result = 
-                  (((SeqActivity)iTarget).getObjSatisfied(cond.mObjID, mRollup)) ?
-                  EVALUATE_TRUE : EVALUATE_FALSE;
-            }
-            else
-            {
-               result = EVALUATE_UNKNOWN;
-            }
-         }
-         else if ( cond.mCondition.equals(SeqCondition.OBJSTATUSKNOWN) )
-         {
-            result = ((SeqActivity)iTarget).getObjStatus(cond.mObjID, mRollup) ?
-               EVALUATE_TRUE : EVALUATE_FALSE;
-         }
-         else if ( cond.mCondition.equals(SeqCondition.OBJMEASUREKNOWN) )
-         {
-            result = ((SeqActivity)iTarget).getObjMeasureStatus(cond.mObjID, mRollup) ?
-               EVALUATE_TRUE : EVALUATE_FALSE;
-         }
-         else if ( cond.mCondition.equals(SeqCondition.OBJMEASUREGRTHAN) )
-         {
-            if ( ((SeqActivity)iTarget).getObjMeasureStatus(cond.mObjID, mRollup) )
-            {
-               result = ( ((SeqActivity)iTarget).getObjMeasure(cond.mObjID, mRollup) >
-                          cond.mThreshold ) ?
-                  EVALUATE_TRUE : EVALUATE_FALSE;           
-            }
-            else
-            {
-               result = EVALUATE_UNKNOWN;
-            }
-         }
-         else if ( cond.mCondition.equals(SeqCondition.OBJMEASURELSTHAN) )
-         {
-            if ( ((SeqActivity)iTarget).getObjMeasureStatus(cond.mObjID, mRollup) )
-            {
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (id ^ (id >>> 32));
+		return result;
+	}
 
-               result = ( ((SeqActivity)iTarget).getObjMeasure(cond.mObjID, mRollup) <
-                          cond.mThreshold ) ?
-                  EVALUATE_TRUE : EVALUATE_FALSE;
-            }
-            else
-            {
-               result = EVALUATE_UNKNOWN;
-            }
-         }
-         else if ( cond.mCondition.equals(SeqCondition.COMPLETED) )
-         {
-            if ( ((SeqActivity)iTarget).getProgressStatus(mRollup) )
-            {
-               result = iTarget.getAttemptCompleted(mRollup) ?
-                  EVALUATE_TRUE : EVALUATE_FALSE;
-            }
-            else
-            {
-               result = EVALUATE_UNKNOWN;
-            }
-         }
-         else if ( cond.mCondition.equals(SeqCondition.PROGRESSKNOWN) )
-         {
-            result = iTarget.getProgressStatus(mRollup) ?
-               EVALUATE_TRUE : EVALUATE_FALSE;
-         }
-         else if ( cond.mCondition.equals(SeqCondition.ATTEMPTED) )
-         {
-            result = iTarget.getActivityAttempted() ?
-               EVALUATE_TRUE : EVALUATE_FALSE;
-         }
-         else if ( cond.mCondition.equals(SeqCondition.ATTEMPTSEXCEEDED) )
-         {
-            if ( iTarget.getAttemptLimitControl() )
-            {
-               long maxAttempt = iTarget.getAttemptLimit();
-   
-               // Check if this limit condition exists
-               if ( maxAttempt >= 0 )
-               {
-                  result = ( iTarget.getNumAttempt() >= maxAttempt ) ?
-                     EVALUATE_TRUE : EVALUATE_FALSE;
-               }
-            }
-         }
-         else if ( cond.mCondition.equals(SeqCondition.TIMELIMITEXCEEDED) )
-         {
-            // add later with other time tracking implementation...
-            // -+- TODO -+-
-         }
-         else if ( cond.mCondition.equals(SeqCondition.OUTSIDETIME) )
-         {
-
-            // add later with other time tracking implementation...
-            // -+- TODO -+-
-         }
-
-         // Account for condition operator
-         if ( cond.mNot && result != EVALUATE_UNKNOWN )
-         {
-            if ( _Debug )
-            {
-               System.out.println("  ::--> Negate Result");
-            }
-
-            result = (result == EVALUATE_FALSE) ?
-               EVALUATE_TRUE : EVALUATE_FALSE;
-         }
-      }
-
-      if ( _Debug )
-      {
-         System.out.println("  ::-->  " + 
-                            ((result == 1) ? "True" : "False"));
-         System.out.println("  :: SeqConditionSet --> END   - " +
-                            "evaluateCondition");
-      }
-
-      return result;
-   }
-
-
-
-}  // end SeqConditionSet
+} // end SeqConditionSet

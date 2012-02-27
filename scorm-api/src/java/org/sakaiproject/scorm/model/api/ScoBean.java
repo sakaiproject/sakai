@@ -22,51 +22,50 @@ package org.sakaiproject.scorm.model.api;
 
 import java.io.Serializable;
 
-import org.adl.datamodels.IDataManager;
-
 public interface ScoBean extends Serializable {
 
 	public static final int SCO_VERSION_2 = 2;
+
 	public static final int SCO_VERSION_3 = 3;
-	
-	public abstract void clearState();
-	
-	public abstract String getScoId();
-	
-	public abstract boolean isInitialized();
-	
-	public abstract void setInitialized(boolean isInitialized);
-	
-	public abstract boolean isSuspended();
-	
-	public abstract void setSuspended(boolean isSuspended);
-	
-	public abstract boolean isTerminated();
-	
-	public abstract void setTerminated(boolean isTerminated);
-	
-	public abstract void setVersion(int version);
-	
-	public abstract IDataManager getDataManager();
-	
-	public abstract void setDataManager(IDataManager dataManager);
-	
-	/*public abstract String Commit(String parameter);
 
-	public abstract String GetDiagnostic(String iErrorCode);
+	public void clearState();
 
-	public abstract String GetErrorString(String iErrorCode);
+	public Long getDataManagerId();
 
-	public abstract String GetLastError();
+	public String getScoId();
 
-	public abstract String GetValue(String parameter);
+	public boolean isInitialized();
 
-	public abstract String Initialize(String parameter);
+	public boolean isSuspended();
 
-	public abstract String SetValue(String dataModelElement, String value);
+	public boolean isTerminated();
 
-	public abstract String Terminate(String iParam);
+	public void setDataManagerId(Long id);
 
-	public abstract String Terminate(String iParam, IRefreshable agent, Object target);*/
+	public void setInitialized(boolean isInitialized);
+
+	public void setSuspended(boolean isSuspended);
+
+	public void setTerminated(boolean isTerminated);
+
+	public void setVersion(int version);
+
+	/*public String Commit(String parameter);
+
+	public String GetDiagnostic(String iErrorCode);
+
+	public String GetErrorString(String iErrorCode);
+
+	public String GetLastError();
+
+	public String GetValue(String parameter);
+
+	public String Initialize(String parameter);
+
+	public String SetValue(String dataModelElement, String value);
+
+	public String Terminate(String iParam);
+
+	public String Terminate(String iParam, IRefreshable agent, Object target);*/
 
 }

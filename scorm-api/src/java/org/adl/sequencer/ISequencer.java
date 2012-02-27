@@ -1,9 +1,34 @@
 package org.adl.sequencer;
 
 import java.io.Serializable;
-import java.util.Vector;
+import java.util.List;
 
 public interface ISequencer extends Serializable {
+
+	/**
+	 * This method is used to inform the sequencer to clear one of the
+	 * activity's objective's measures -- set it to 'unknown'.
+	 * 
+	 * @param iID
+	 *            ID of the activity whose measure has changed.
+	 * 
+	 * @param iObjID
+	 *            ID of the objective whose measure has changed.
+	 * 
+	 */
+	public void clearAttemptObjMeasure(String iID, String iObjID);
+
+	/**
+	 * Clear the current activity; this is done unconditionally.
+	 */
+	public void clearSeqState();
+
+	/**
+	 * Gets the current active activity tree.
+	 * 
+	 * @return The current activity tree (<code>SeqActivityTree</code>).
+	 */
+	public ISeqActivityTree getActivityTree();
 
 	/**
 	 * Retrieves the set of objective status records associated with an
@@ -12,11 +37,18 @@ public interface ISequencer extends Serializable {
 	 * @param iActivityID
 	 *            The ID of the activity whose objectives are requested.
 	 * 
-	 * @return A <code>Vector</code> of <code>ADLObjStatus</code> objects
+	 * @return A <code>List</code> of <code>ADLObjStatus</code> objects
 	 *         for the requested activity or <code>null</code> if none are
 	 *         defined.
 	 */
-	public Vector getObjStatusSet(String iActivityID);
+	public List<ADLObjStatus> getObjStatusSet(String iActivityID);
+
+	/**
+	 * Gets the root of the current activity tree.
+	 * 
+	 * @return The root activity of the current activity tree (<code>SeqActivity</code>).
+	 */
+	public ISeqActivity getRoot();
 
 	/**
 	 * Retrieves the current set of valid navigation requests.
@@ -27,31 +59,28 @@ public interface ISequencer extends Serializable {
 	public void getValidRequests(IValidRequests oValid);
 
 	/**
-	 * Sets the active activity tree for this sequencer to act on.
+	 * This method is used to inform the sequencer that a navigation request,
+	 * other than 'Choice' has occured.
 	 * 
-	 * @param iTree
-	 *            The activty tree for this sequencer to act on.
+	 * @param iRequest
+	 *            Indicates which navigation request should be processed.
+	 * 
+	 * @return Information about the 'Next' activity to delivery or a processing
+	 *         error.
 	 */
-	public void setActivityTree(ISeqActivityTree iTree);
+	public ILaunch navigate(int iRequest);
 
 	/**
-	 * Gets the current active activity tree.
+	 * This method is used to inform the sequencer that a 'Choice' navigation
+	 * request has occured.
 	 * 
-	 * @return The current activity tree (<code>SeqActivityTree</code>).
-	 */
-	public ISeqActivityTree getActivityTree();
-
-	/**
-	 * Gets the root of the current activity tree.
+	 * @param iTarget
+	 *            ID (<code>String</code>) of the target activity.
 	 * 
-	 * @return The root activity of the current activity tree (<code>SeqActivity</code>).
+	 * @return Information about the 'Next' activity to delivery or a processing
+	 *         error.
 	 */
-	public ISeqActivity getRoot();
-
-	/**
-	 * Clear the current activity; this is done unconditionally.
-	 */
-	public void clearSeqState();
+	public ILaunch navigate(String iTarget);
 
 	/**
 	 * This method is used to inform the sequencer of the suspended state for
@@ -69,6 +98,14 @@ public interface ISequencer extends Serializable {
 	public void reportSuspension(String iID, boolean iSuspended);
 
 	/**
+	 * Sets the active activity tree for this sequencer to act on.
+	 * 
+	 * @param iTree
+	 *            The activty tree for this sequencer to act on.
+	 */
+	public void setActivityTree(ISeqActivityTree iTree);
+
+	/**
 	 * This method is used to inform the sequencer of a change to an activity's
 	 * current attempt experienced duration.
 	 * 
@@ -80,19 +117,6 @@ public interface ISequencer extends Serializable {
 	 * 
 	 */
 	public void setAttemptDuration(String iID, IDuration iDur);
-
-	/**
-	 * This method is used to inform the sequencer to clear one of the
-	 * activity's objective's measures -- set it to 'unknown'.
-	 * 
-	 * @param iID
-	 *            ID of the activity whose measure has changed.
-	 * 
-	 * @param iObjID
-	 *            ID of the objective whose measure has changed.
-	 * 
-	 */
-	public void clearAttemptObjMeasure(String iID, String iObjID);
 
 	/**
 	 * This method is used to inform the sequencer of a change to one of the
@@ -141,30 +165,6 @@ public interface ISequencer extends Serializable {
 	 */
 	public void setAttemptProgressStatus(String iID, String iProgress);
 
-	/**
-	 * This method is used to inform the sequencer that a 'Choice' navigation
-	 * request has occured.
-	 * 
-	 * @param iTarget
-	 *            ID (<code>String</code>) of the target activity.
-	 * 
-	 * @return Information about the 'Next' activity to delivery or a processing
-	 *         error.
-	 */
-	public ILaunch navigate(String iTarget);
-
-	/**
-	 * This method is used to inform the sequencer that a navigation request,
-	 * other than 'Choice' has occured.
-	 * 
-	 * @param iRequest
-	 *            Indicates which navigation request should be processed.
-	 * 
-	 * @return Information about the 'Next' activity to delivery or a processing
-	 *         error.
-	 */
-	public ILaunch navigate(int iRequest);
-
 	/*
 	 * This is a method inserted for the Sakai SCORM implementation
 	 * 
@@ -172,6 +172,4 @@ public interface ISequencer extends Serializable {
 	 */
 	//public TreeModel getTreeModel(ISeqActivity iStart);
 
-	
-	
 }
