@@ -1,4 +1,5 @@
 /**********************************************************************************
+
  * $URL$
  * $Id$
  ***********************************************************************************
@@ -1456,7 +1457,17 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			context.put("myworkspace_site", Boolean.valueOf(myworkspace_site));
 			
-			context.put(STATE_TOOL_REGISTRATION_LIST, state.getAttribute(STATE_TOOL_REGISTRATION_LIST));
+			toolRegistrationList = (List) state.getAttribute(STATE_TOOL_REGISTRATION_LIST);
+			context.put(STATE_TOOL_REGISTRATION_LIST, toolRegistrationList);
+			
+			if (toolRegistrationSelectedList != null && toolRegistrationList != null)
+			{
+				// see if any tool is added outside of Site Info tool, which means the tool is outside of the allowed tool set for this site type
+				List extraSelectedToolList = new ArrayList(toolRegistrationSelectedList);
+				extraSelectedToolList.removeAll(toolRegistrationList);
+				context.put("extraSelectedToolList", extraSelectedToolList);
+			}
+			
 			// put tool title into context if PageOrderHelper is enabled
 			pageOrderToolTitleIntoContext(context, state, type, (site == null), site==null?null:site.getProperties().getProperty(SiteConstants.SITE_PROPERTY_OVERRIDE_HIDE_PAGEORDER_SITE_TYPES));
 
@@ -2256,15 +2267,22 @@ public class SiteAction extends PagedResourceActionII {
 				}
 			}
 
-			context.put(STATE_TOOL_REGISTRATION_LIST, state
-					.getAttribute(STATE_TOOL_REGISTRATION_LIST));
+			toolRegistrationSelectedList = (List) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
+			toolRegistrationList = (List) state.getAttribute(STATE_TOOL_REGISTRATION_LIST);
+			context.put(STATE_TOOL_REGISTRATION_LIST, toolRegistrationList);
+			if (toolRegistrationSelectedList != null && toolRegistrationList != null)
+			{
+				// see if any tool is added outside of Site Info tool, which means the tool is outside of the allowed tool set for this site type
+				List extraSelectedToolList = new ArrayList(toolRegistrationSelectedList);
+				extraSelectedToolList.removeAll(toolRegistrationList);
+				context.put("extraSelectedToolList", extraSelectedToolList);
+			}
 			// put tool title into context if PageOrderHelper is enabled
 			pageOrderToolTitleIntoContext(context, state, site_type, false, site.getProperties().getProperty(SiteConstants.SITE_PROPERTY_OVERRIDE_HIDE_PAGEORDER_SITE_TYPES));
 
 			context.put("check_home", state
 					.getAttribute(STATE_TOOL_HOME_SELECTED));
-			context.put("selectedTools", orderToolIds(state, checkNullSiteType(state, site), (List) state
-					.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST), false));
+			context.put("selectedTools", orderToolIds(state, checkNullSiteType(state, site), toolRegistrationSelectedList, false));
 			context.put("oldSelectedTools", state
 					.getAttribute(STATE_TOOL_REGISTRATION_OLD_SELECTED_LIST));
 			context.put("oldSelectedHome", state
