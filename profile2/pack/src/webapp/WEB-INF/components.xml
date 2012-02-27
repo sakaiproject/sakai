@@ -292,7 +292,7 @@
     
     <!-- kudos cache: ttl=12 hours -->
     <bean id="org.sakaiproject.profile2.cache.kudos"
-        class="org.sakaiproject.memory.impl.EhCacheFactoryBean">
+        class="org.sakaiproject.memory.util.EhCacheFactoryBean">
         <property name="cacheManager">
             <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
         </property>
@@ -308,7 +308,7 @@
     
     <!--  preferences cache -->
     <bean id="org.sakaiproject.profile2.cache.preferences"
-        class="org.sakaiproject.memory.impl.EhCacheFactoryBean">
+        class="org.sakaiproject.memory.util.EhCacheFactoryBean">
         <property name="cacheManager">
             <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
         </property>
@@ -324,7 +324,7 @@
     
     <!--  privacy cache -->
     <bean id="org.sakaiproject.profile2.cache.privacy"
-        class="org.sakaiproject.memory.impl.EhCacheFactoryBean">
+        class="org.sakaiproject.memory.util.EhCacheFactoryBean">
         <property name="cacheManager">
             <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
         </property>
@@ -340,7 +340,7 @@
     
     <!--  search cache -->
     <bean id="org.sakaiproject.profile2.cache.search"
-        class="org.sakaiproject.memory.impl.EhCacheFactoryBean">
+        class="org.sakaiproject.memory.util.EhCacheFactoryBean">
         <property name="cacheManager">
             <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
         </property>
@@ -354,7 +354,7 @@
     
     <!--  connections cache: ttl=6 hours-->
     <bean id="org.sakaiproject.profile2.cache.connections"
-        class="org.sakaiproject.memory.impl.EhCacheFactoryBean">
+        class="org.sakaiproject.memory.util.EhCacheFactoryBean">
         <property name="cacheManager">
             <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
         </property>
