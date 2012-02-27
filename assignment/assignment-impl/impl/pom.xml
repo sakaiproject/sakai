@@ -86,9 +86,8 @@
         </dependency>
         <!-- required for the schema conversion utility -->
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.0.1</version>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
