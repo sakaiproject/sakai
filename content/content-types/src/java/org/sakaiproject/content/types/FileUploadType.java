@@ -100,6 +100,7 @@ public class FileUploadType extends BaseResourceType
 		actions.put(DELETE, new BaseServiceLevelAction(DELETE, ActionType.DELETE, typeId, true, localizer("action.delete")));
 		
 		actions.put(EXPAND_ZIP_ARCHIVE, new FileUploadExpandAction(EXPAND_ZIP_ARCHIVE, ActionType.EXPAND_ZIP_ARCHIVE, typeId, false, localizer("action.expandziparchive")));
+		actions.put(MAKE_SITE_PAGE, new MakeSitePageAction(MAKE_SITE_PAGE, ActionType.MAKE_SITE_PAGE, typeId, helperId, localizer("action.makesitepage")));
 		
 		// initialize actionMap with an empty List for each ActionType
 		for(ActionType type : ActionType.values())

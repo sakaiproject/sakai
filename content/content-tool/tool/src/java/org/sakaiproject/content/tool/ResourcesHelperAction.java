@@ -61,7 +61,10 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
@@ -116,6 +119,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	protected  static final String REVISE_URL_TEMPLATE = "resources/sakai_revise_url";
 	
 	protected static final String REPLACE_CONTENT_TEMPLATE = "resources/sakai_replace_file";
+	
+	protected static final String MAKE_SITE_PAGE_TEMPLATE = "resources/sakai_make_site_page";
 
 	/** The content type image lookup service in the State. */
 	private static final String STATE_CONTENT_TYPE_IMAGE_SERVICE = PREFIX + "content_type_image_service";
@@ -147,6 +152,9 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	
 	/** name of state attribute for the default retract time */
 	protected static final String STATE_DEFAULT_RETRACT_TIME = PREFIX + "default_retract_time";
+	
+	/** The title of the new page to be created in the site */
+	protected static final String STATE_PAGE_TITLE = PREFIX + "page_title";
 
 	public String buildAccessContext(VelocityPortlet portlet,
 			Context context,
@@ -334,12 +342,79 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		case NEW_URLS:
 			template = buildNewUrlsContext(portlet, context, data, state);
 			break;
+		case MAKE_SITE_PAGE:
+			template = buildMakeSitePageContext(portlet, context, data, state);
+			break;
 		default:
 			// hmmmm
 			break;
 		}
 		
 		return template;
+	}
+
+	public String buildMakeSitePageContext(VelocityPortlet portlet, Context context,
+			RunData data, SessionState state) {
+		logger.debug(this + ".buildMakeSitePage()");
+
+		int requestStateId = ResourcesAction.preserveRequestState(state, new String[]{ResourcesAction.PREFIX + ResourcesAction.REQUEST});
+		context.put("requestStateId", requestStateId);
+		
+		context.put("page", state.getAttribute(STATE_PAGE_TITLE));
+		
+		return MAKE_SITE_PAGE_TEMPLATE;
+	}
+	
+	public void doMakeSitePage(RunData data) {
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		ParameterParser params = data.getParameters ();
+
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+
+		String url = pipe.getContentEntity().getUrl();
+		String title = params.getString("page");
+		if (title == null || title.trim().length() == 0)
+		{
+			addAlert(state, rb.getString("alert.page.empty"));
+			return;
+		}
+		state.setAttribute(STATE_PAGE_TITLE, title);
+		
+		Placement placement = ToolManager.getCurrentPlacement();
+		String context = null;
+		if (placement != null)
+		{
+			context = placement.getContext();
+			try {
+				Tool tr = ToolManager.getTool("sakai.iframe");
+				
+				Site site = SiteService.getSite(context);
+				for (SitePage page: (List<SitePage>)site.getPages()) {
+					if (title.equals(page.getTitle())) {
+						addAlert(state, rb.getString("alert.page.exists"));
+						return;
+					}
+				}
+				SitePage newPage = site.addPage();
+				newPage.setTitle(title);
+				ToolConfiguration tool = newPage.addTool();
+				tool.setTool("sakai.iframe", tr);
+				tool.setTitle(title);
+				tool.getPlacementConfig().setProperty("source", url);
+				SiteService.save(site);
+				
+				scheduleTopRefresh();
+				toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
+
+			} catch (IdUnusedException e) {
+				logger.warn("Somehow we couldn't find the site.", e);
+			} catch (PermissionException e) {
+				logger.info("No permission to add page.", e);
+				addAlert(state, rb.getString("alert.page.permission"));
+			}
+		}
+		
 	}
 
 	protected String buildNewUrlsContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
@@ -1718,6 +1793,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		}
 
 		state.setAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE, org.sakaiproject.content.cover.ContentTypeImageService.getInstance());
+		state.removeAttribute(STATE_PAGE_TITLE);
 	}
 	
 	protected void toolModeDispatch(String methodBase, String methodExt, HttpServletRequest req, HttpServletResponse res)
@@ -1734,6 +1810,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		if (done != null)
 		{
 			toolSession.removeAttribute(ResourceToolAction.STARTED);
+			sstate.removeAttribute(STATE_PAGE_TITLE);
 			Tool tool = ToolManager.getCurrentTool();
 		
 			String url = (String) SessionManager.getCurrentToolSession().getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
