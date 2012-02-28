@@ -618,6 +618,13 @@
                     <classifier>tomcat-overlay</classifier>
                     <type>zip</type>
                 </dependency>
+		<dependency>
+                    <groupId>org.sakaiproject.portal</groupId>
+                    <artifactId>sakai-portal-assembly</artifactId>
+                    <version>${sakai.portal.version}</version>
+                    <classifier>tomcat-overlay</classifier>
+                    <type>zip</type>
+                </dependency>
                 <dependency>
                     <groupId>org.sakaiproject.presence</groupId>
                     <artifactId>sakai-presence-assembly</artifactId>
