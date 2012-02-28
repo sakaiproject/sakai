@@ -15,7 +15,7 @@
 		<property name="learnerId" column="LEARNER_ID" />
 		
 		<property type="serializable" name="seqActivityTree">
-			<column name="ACT_TREE" sql-type="blob" length="16777216"/>
+			<column name="ACT_TREE" length="16777216"/>
 			<!-- ALTER TABLE `SCORM_ACTIVITY_TREE_HOLDER_T` MODIFY COLUMN `ACT_TREE` LONGBLOB DEFAULT NULL; -->
 		</property>
 		
