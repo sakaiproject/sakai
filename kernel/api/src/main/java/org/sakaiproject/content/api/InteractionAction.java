@@ -59,7 +59,7 @@ public interface InteractionAction extends ResourceToolAction
 	 * Returning null or empty list indicates no properties are needed by the helper.
 	 * @return a List of Strings if property values are required. 
 	 */
-	public List getRequiredPropertyKeys();
+	public List<String> getRequiredPropertyKeys();
 	
 	/**
 	 * ResourcesAction calls this method before starting the helper. This is intended to give
