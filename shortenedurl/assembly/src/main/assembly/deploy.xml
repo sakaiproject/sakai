@@ -10,6 +10,7 @@
 		<!-- shared -->
 		<dependencySet>
 			<outputDirectory>shared/lib</outputDirectory>
+			<useProjectArtifact>false</useProjectArtifact>
 			<useTransitiveDependencies>false</useTransitiveDependencies>
 			<includes>
 				<include>org.sakaiproject.shortenedurl:shortenedurl-api:jar:*</include>
@@ -19,6 +20,7 @@
 		<!-- components -->
 		<dependencySet>
 			<outputDirectory>components/shortenedurl-pack</outputDirectory>
+			<useProjectArtifact>false</useProjectArtifact>
 			<useTransitiveDependencies>false</useTransitiveDependencies>
 			<includes>
 				<include>org.sakaiproject.shortenedurl:shortenedurl-pack:war:*</include>
@@ -30,6 +32,7 @@
 		<dependencySet>
             <outputDirectory>webapps/</outputDirectory>
             <outputFileNameMapping>${artifact.artifactId}.war</outputFileNameMapping>
+			<useProjectArtifact>false</useProjectArtifact>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <includes>
                  <include>org.sakaiproject.shortenedurl:x:war:*</include>
@@ -37,15 +40,5 @@
             <unpack>false</unpack>
         </dependencySet>
 	</dependencySets>
-	
-	<!-- additional files -->
-	<fileSets>
-		<fileSet>
-			<outputDirectory></outputDirectory>
-			<includes>
-				<include>${project.basedir}/README*</include>
-			</includes>
-		</fileSet>
-	</fileSets>
 	
 </assembly>

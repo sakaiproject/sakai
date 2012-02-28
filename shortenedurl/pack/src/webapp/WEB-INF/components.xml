@@ -75,6 +75,7 @@
 	<bean id="org.sakaiproject.shortenedurl.entityprovider.ShortenedUrlServiceEntityProvider"
 		class="org.sakaiproject.shortenedurl.entityprovider.ShortenedUrlServiceEntityProviderImpl">
 		<property name="shortenedUrlService" ref="org.sakaiproject.shortenedurl.api.ShortenedUrlService" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 	</bean>
 	
 	<!--  Cache -->

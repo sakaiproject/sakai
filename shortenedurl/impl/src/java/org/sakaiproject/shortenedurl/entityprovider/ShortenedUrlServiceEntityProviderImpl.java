@@ -3,17 +3,21 @@ package org.sakaiproject.shortenedurl.entityprovider;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
+import lombok.Setter;
+import lombok.extern.apachecommons.CommonsLog;
+
 import org.apache.commons.lang.StringUtils;
-import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entitybroker.EntityView;
-import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
-import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 
@@ -23,7 +27,8 @@ import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class ShortenedUrlServiceEntityProviderImpl implements ShortenedUrlServiceEntityProvider, CoreEntityProvider, AutoRegisterEntityProvider, RESTful  {
+@CommonsLog
+public class ShortenedUrlServiceEntityProviderImpl implements ShortenedUrlServiceEntityProvider,  EntityProvider, AutoRegisterEntityProvider, Describeable, ActionsExecutable {
 
 	
 	public String getEntityPrefix() {
@@ -36,6 +41,34 @@ public class ShortenedUrlServiceEntityProviderImpl implements ShortenedUrlServic
 		String path = (String)params.get("path");
 		if(StringUtils.isBlank(path)){
 			throw new EntityException("Invalid path.", path);
+		}
+		
+		//SHORTURL-38 check if eternal urls are allowed to be shortened, defaults to false (only internal urls are allowed)
+		//if external not allowed then we need to check the host and the url to be shortened, otherwise we don't care
+		boolean externalAllowed = serverConfigurationService.getBoolean("shortenedurl.external.enabled", false);
+		if(!externalAllowed) {
+			String serverUrl = serverConfigurationService.getServerUrl();
+			
+			//decode path
+			String pathDecoded;
+			try {
+				pathDecoded = URLDecoder.decode(path, "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				throw new EntityException("Unable to decode path.", path);
+			}
+			
+			//path could be a relative fragment (ie /portal/site/abc), if so, create full url and check
+			String fullUrl = pathDecoded;
+			if(StringUtils.startsWith(pathDecoded, "/")) {
+				fullUrl = serverUrl + pathDecoded;
+				log.debug("Path: " + pathDecoded + ", full URL: " + fullUrl);
+			}
+						
+			//now have full url so check they start with the same value. otherwise it is external and it should be blocked.
+			if(!StringUtils.startsWith(fullUrl, serverUrl)) {
+				log.error("Attempted to shorten:" + pathDecoded + ", but this does not have the same prefix as the current server: " + serverUrl);
+				throw new EntityException("Couldn't shorten URL as external URLs are not permitted. The path parameter must contain either a relative path or a full URL that is for the same host.", path, HttpServletResponse.SC_FORBIDDEN);
+			}
 		}
 		
 		boolean secure = Boolean.parseBoolean((String)params.get("secure"));
@@ -52,44 +85,10 @@ public class ShortenedUrlServiceEntityProviderImpl implements ShortenedUrlServic
 	
 	}
 	
-	
+	@Setter
 	private ShortenedUrlService shortenedUrlService;
-	public void setShortenedUrlService(ShortenedUrlService shortenedUrlService) {
-		this.shortenedUrlService = shortenedUrlService;
-	}
 	
+	@Setter
+	private ServerConfigurationService serverConfigurationService;
 	
-	public boolean entityExists(String eid) {
-		return true;
-	}
-
-	public Object getSampleEntity() {
-		return null;
-	}
-	
-	public Object getEntity(EntityReference ref) {
-		return null;
-	}
-	
-	public String[] getHandledOutputFormats() {
-		return new String[] {};
-	}
-
-	public String[] getHandledInputFormats() {
-		return new String[] {};
-	}
-	
-	public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
-		return null;
-	}
-
-	public void updateEntity(EntityReference ref, Object entity,Map<String, Object> params) {
-	}
-
-	public void deleteEntity(EntityReference ref, Map<String, Object> params) {
-	}
-
-	public List<?> getEntities(EntityReference ref, Search search) {
-		return null;
-	}
 }
