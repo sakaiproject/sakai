@@ -181,7 +181,12 @@ public interface ResourceToolAction
 		/**
 		 * Expands a zip file into serveral folders and archives 
 		 */
-		EXPAND_ZIP_ARCHIVE
+		EXPAND_ZIP_ARCHIVE,
+
+		/**
+		 * Create a page in the site linking to the content.
+		 */
+		MAKE_SITE_PAGE
 	}
 	
 	public static final String CREATE = "create";
@@ -202,6 +207,8 @@ public interface ResourceToolAction
 	public static final String COLLAPSE = "collapse";
 	public static final String COMPRESS_ZIP_FOLDER = "compress_zip_folder";
 	public static final String EXPAND_ZIP_ARCHIVE = "expand_zip_archive";
+	public static final String MAKE_SITE_PAGE = "make_site_page";
+
 	
 	public static final String ACTION_DELIMITER = ":";
 		
