@@ -64,22 +64,6 @@
 	    <dispatcher>INCLUDE</dispatcher>
 	</filter-mapping>
   	
-  	<filter-mapping>
-	    <filter-name>security.filter</filter-name>
-	    <servlet-name>sakai.scorm.access</servlet-name>
-	    <dispatcher>REQUEST</dispatcher>
-	    <dispatcher>FORWARD</dispatcher>
-	    <dispatcher>INCLUDE</dispatcher>
-	</filter-mapping>
-  	
-  	<filter-mapping>
-	    <filter-name>sakai.request</filter-name>
-	    <servlet-name>sakai.scorm.access</servlet-name>
-	    <dispatcher>REQUEST</dispatcher>
-	    <dispatcher>FORWARD</dispatcher>
-	    <dispatcher>INCLUDE</dispatcher>
-	</filter-mapping>
-  	
   	<servlet>
 	    <servlet-name>sakai.scorm.tool</servlet-name>
 	    <servlet-class>org.apache.wicket.protocol.http.WicketServlet</servlet-class>
@@ -116,20 +100,6 @@
 			</init-param>
   	</servlet>
   	
-  	<servlet>
-	    <servlet-name>sakai.scorm.access</servlet-name>
-	    <servlet-class>org.apache.wicket.protocol.http.WicketServlet</servlet-class>
-	    
-	    <init-param>
-	      	<param-name>applicationFactoryClassName</param-name>
-	      	<param-value>org.apache.wicket.spring.SpringWebApplicationFactory</param-value>
-	    </init-param>
-	    <init-param>
-			<param-name>applicationBean</param-name>
-			<param-value>scormAccessProviderApplication</param-value>
-		</init-param>
-  	</servlet>
-
 	<servlet-mapping>
 		<servlet-name>sakai.scorm.tool</servlet-name>
 		<url-pattern>/tool/*</url-pattern>		
@@ -140,13 +110,6 @@
 		<url-pattern>/tool-single/*</url-pattern>		
 	</servlet-mapping>
 		
-	<servlet-mapping>
-		<servlet-name>sakai.scorm.access</servlet-name>
-		<url-pattern>/access/*</url-pattern>		
-	</servlet-mapping>
-  	
-  	
-
 	<!--  The ToolListener causes this tool to be registered with Sakai.  -->
   	<listener>
     	<listener-class>org.sakaiproject.util.ToolListener</listener-class>

@@ -68,6 +68,11 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
     </dependency>
@@ -153,10 +158,6 @@
           <artifactId>gradebook-service-api</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.sakaiproject.entitybroker</groupId>
-          <artifactId>entitybroker-api</artifactId>
-        </dependency>
-        <dependency>
           <groupId>org.sakaiproject.kernel</groupId>
           <artifactId>sakai-kernel-util</artifactId>
         </dependency>
@@ -176,10 +177,6 @@
         <dependency>
           <groupId>org.sakaiproject.edu-services.gradebook</groupId>
           <artifactId>gradebook-service-api</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.sakaiproject.entitybroker</groupId>
-          <artifactId>entitybroker-api</artifactId>
         </dependency>
         <dependency>
           <groupId>org.sakaiproject.kernel</groupId>
