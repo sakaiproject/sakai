@@ -583,6 +583,13 @@
                     <version>${sakai.common.version}</version>
                     <type>zip</type>
                 </dependency>
+		<dependency>
+                    <groupId>org.sakaiproject.common</groupId>
+                    <artifactId>sakai-common-assembly</artifactId>
+                    <classifier>tomcat-overlay</classifier>
+                    <version>${sakai.common.version}</version>
+                    <type>zip</type>
+                </dependency>
                 <dependency>
                     <groupId>org.sakaiproject.contentreview</groupId>
                     <artifactId>sakai-contentreview-assembly</artifactId>
