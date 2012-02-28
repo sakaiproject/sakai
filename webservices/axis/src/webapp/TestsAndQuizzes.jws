@@ -46,7 +46,7 @@ public class TestsAndQuizzes {
 	private static final Log LOG = LogFactory.getLog(TestsAndQuizzes.class);
 
 	public TestsAndQuizzes() {
-		samLiteService = (SamLiteService) ComponentManager.get(SamLiteService.class.getName()); 
+		samLiteService = (SamLiteService) ComponentManager.get("org_sakaiproject_tool_assessment_services_samlite_SamLiteService"); 
 		siteService = (SiteService) ComponentManager.get(SiteService.class.getName());
 		//eventTrackingService = (EventTrackingService) ComponentManager.get(EventTrackingService.class.getName());
 		sessionManager = (SessionManager) ComponentManager.get(SessionManager.class.getName());
