@@ -568,10 +568,12 @@ Regards, Postmaster XXX.YYY
          <!-- -->
          <!-- If you are using SMTP authentication then you can (and generally -->
          <!-- should) disable this matcher/mailet pair. -->
+         <!-- SAKAI COMMENTED
          <mailet match="RemoteAddrNotInNetwork=127.0.0.1" class="ToProcessor">
             <processor> relay-denied </processor>
             <notice>550 - Requested action not taken: relaying denied</notice>
          </mailet>
+         -->
 
          <!-- Attempt remote delivery using the specified repository for the spool, -->
          <!-- using delay time to retry delivery and the maximum number of retries -->
