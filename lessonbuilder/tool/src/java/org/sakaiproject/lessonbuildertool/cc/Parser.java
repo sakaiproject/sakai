@@ -92,6 +92,8 @@ public class Parser extends AbstractParser {
   private static final String WEBCONTENT="webcontent";
   private static final String QUESTION_BANK0="imsqti_xmlv1p2/imscc_xmlv1p0/question-bank";
   private static final String QUESTION_BANK1="imsqti_xmlv1p2/imscc_xmlv1p1/question-bank";
+  private static final String CC_BLTI0="imsbasiclti_xmlv1p0";
+  private static final String CC_BLTI1="imsbasiclti_xmlv1p1";
   
   private static final String AUTH_QUERY="/ims:manifest/auth:authorizations";
   private static final String ITEM_QUERY="/ims:manifest/ims:organizations/ims:organization/ims:item";
@@ -132,6 +134,9 @@ public class Parser extends AbstractParser {
     parsers.put(WEBLINK0, new WebLinkParser());
     parsers.put(WEBLINK1, new WebLinkParser());
     parsers.put(WEBCONTENT, new WebContentParser());
+    parsers.put(CC_BLTI0, new BLTIParser());
+    parsers.put(CC_BLTI1, new BLTIParser());
+
   }
   
   private

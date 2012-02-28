@@ -443,6 +443,8 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 		props.setProperty(LTIService.LTI_SECRET, LTIService.LTI_SECRET_INCOMPLETE);
 		props.setProperty(LTIService.LTI_ALLOWCUSTOM, "1");
 		props.setProperty(LTIService.LTI_XMLIMPORT,strXml);
+		if (custom != null)
+		    props.setProperty(LTIService.LTI_CUSTOM, custom);
 		Object result = ltiService.insertTool(props);
 		if ( result instanceof String ) {
 			System.out.println("Could not insert tool - "+result);
