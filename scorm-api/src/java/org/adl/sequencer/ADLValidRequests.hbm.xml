@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<hibernate-mapping default-cascade="all" default-access="field" package="org.adl.sequencer" default-lazy="false">
+<hibernate-mapping default-access="field" package="org.adl.sequencer">
 
 	<class name="org.adl.sequencer.ADLValidRequests" table="SCORM_ADL_VALID_REQUESTS_T">
 	

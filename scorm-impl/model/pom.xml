@@ -1,50 +1,32 @@
-<?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>scorm-base</artifactId>
+    <artifactId>sakai-scorm-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>2.6.0RC1-SNAPSHOT</version>
+    <version>3.0.0</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-scorm-model-impl</name>
-  <groupId>org.sakaiproject</groupId>
+  <groupId>org.sakaiproject.scorm</groupId>
   <artifactId>sakai-scorm-model-impl</artifactId>
   <description>
           This project creates the model implementation used by the Sakai Scorm Tool
         </description>
   <packaging>jar</packaging>
-  <dependencies> 
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-api</artifactId>
-    </dependency>
+  <dependencies>
     <!-- SCORM dependencies -->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.scorm</groupId>
       <artifactId>sakai-scorm-api</artifactId>
-      <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.scorm</groupId>
       <artifactId>sakai-scorm-adl-impl</artifactId>
-      <version>${sakai.version}</version>
     </dependency>
     <!-- Sakai dependencies -->
-    <!--org.sakaiprojectsakai-authz-api${sakai.version}provided-->
-    <!--org.sakaiprojectsakai-content-api${sakai.version}provided-->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-coursemanagement-api</artifactId>
-      <version>${sakai.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <!--org.sakaiprojectsakai-entity-api${sakai.version}provided-->
-    <!--org.sakaiprojectsakai-site-api${sakai.version}provided-->
-    <!--org.sakaiprojectsakai-tool-api${sakai.version}provided-->
-    <!--org.sakaiprojectsakai-user-api${sakai.version}provided-->
-    <!--org.sakaiprojectsakai-util-api${sakai.version}provided-->
     <dependency>
       <groupId>${sakai.hibernate.groupId}</groupId>
       <artifactId>${sakai.hibernate.artifactId}</artifactId>
@@ -56,11 +38,85 @@
       <artifactId>${sakai.spring.artifactId}</artifactId>
       <version>${sakai.spring.version}</version>
     </dependency>
+    <!-- 
     <dependency>
-      <groupId>generic-dao</groupId>
-      <artifactId>generic-dao</artifactId>
-      <version>0.9</version>
-      <scope>provided</scope>
+      <groupId>org.sakaiproject.edu-services.course-management</groupId>
+      <artifactId>coursemanagement-api</artifactId>
+    </dependency>
+     -->
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <version>2.2.7</version>
     </dependency>
   </dependencies>
+  <build>
+    <sourceDirectory>src/java</sourceDirectory>
+    <resources>
+      <resource>
+        <directory>src/java</directory>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+    </resources>
+    <testResources>
+      <testResource>
+        <directory>src/test</directory>
+        <includes>
+          <include>**/*.xml</include>
+          <include>**/*.properties</include>
+        </includes>
+      </testResource>
+    </testResources>
+  </build>
+  <profiles>
+    <profile>
+      <id>sakai2.7</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.sakaiproject.kernel</groupId>
+          <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.sakaiproject.kernel</groupId>
+          <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.sakaiproject.edu-services.course-management</groupId>
+          <artifactId>coursemanagement-api</artifactId>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>sakai2.8</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.sakaiproject.kernel</groupId>
+          <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.sakaiproject.kernel</groupId>
+          <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.sakaiproject.edu-services.course-management</groupId>
+          <artifactId>coursemanagement-api</artifactId>
+        </dependency>
+      </dependencies>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+    </profile>
+  </profiles>
 </project>

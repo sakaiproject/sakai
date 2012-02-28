@@ -23,10 +23,10 @@
 *******************************************************************************/
 package org.adl.sequencer.impl;
 
+import java.io.Serializable;
+
 import org.adl.sequencer.IDuration;
 import org.adl.util.debug.DebugIndicator;
-
-import java.io.Serializable;
 
 /**
  * <strong>Filename:</strong> ADLDuration.java<br><br>
@@ -37,261 +37,227 @@ import java.io.Serializable;
  * 
  * @author ADL Technical Team
  */
-public class ADLDuration implements Serializable, IDuration
-{
+public class ADLDuration implements Serializable, IDuration {
 
-   /**
-    * This controls display of log messages to the java console
-    */
-   private static boolean _Debug = DebugIndicator.ON;
+	/**
+	  * 
+	  */
+	private static final long serialVersionUID = 1L;
 
+	/**
+	    * This controls display of log messages to the java console
+	    */
+	private static boolean _Debug = DebugIndicator.ON;
 
-   /**
-    * The duration being tracked in milliseconds
-    */
-   public long mDuration = 0;
+	/**
+	 * The duration being tracked in milliseconds
+	 */
+	public long mDuration = 0;
 
-   /**
-    * Default constructor for the <code>ADLDuration</code> class.  Sets the 
-    * duration to zero.
-    *
-    */
-   public ADLDuration()
-   {
-      mDuration = 0;
-   }
+	/**
+	 * Default constructor for the <code>ADLDuration</code> class.  Sets the 
+	 * duration to zero.
+	 *
+	 */
+	public ADLDuration() {
+		mDuration = 0;
+	}
 
-   /**
-    * Constructor for the <code>ADLDuration</code> class.  Based on the format 
-    * (<code>iFormat</code> to be used, this constructor takes the string 
-    * representation of the duration (<code>iValue</code>) and creates an
-    * <code>ADLDuration</code>.
-    * 
-    * @param iFormat Indicates the format for the duration
-    * @param iValue String value that holds the duration to be used
-    */
-   public ADLDuration(int iFormat, String iValue)
-   {
+	/**
+	 * Constructor for the <code>ADLDuration</code> class.  Based on the format 
+	 * (<code>iFormat</code> to be used, this constructor takes the string 
+	 * representation of the duration (<code>iValue</code>) and creates an
+	 * <code>ADLDuration</code>.
+	 * 
+	 * @param iFormat Indicates the format for the duration
+	 * @param iValue String value that holds the duration to be used
+	 */
+	public ADLDuration(int iFormat, String iValue) {
 
-      String hours = null;
-      String min = null;
-      String sec = null;
+		String hours = null;
+		String min = null;
+		String sec = null;
 
-      switch ( iFormat )
-      {
-         
-         case FORMAT_SECONDS:
-         {
-            double secs = 0.0;
+		switch (iFormat) {
 
-            try
-            {
-               secs = (new Double(iValue)).doubleValue();
-            }
-            catch ( Exception e )
-            {
-               if ( _Debug )
-               {
-                  System.out.print("  Invalid Format ::  " + iFormat +  
-                                   " // " + iValue);
-               }
-            }
+		case FORMAT_SECONDS: {
+			double secs = 0.0;
 
-            mDuration = (long)(secs * 1000.0);
+			try {
+				secs = (new Double(iValue)).doubleValue();
+			} catch (Exception e) {
+				if (_Debug) {
+					System.out.print("  Invalid Format ::  " + iFormat + " // " + iValue);
+				}
+			}
 
-            break;
+			mDuration = (long) (secs * 1000.0);
 
-         }
-         case FORMAT_SCHEMA:
-         {
-            int locStart = iValue.indexOf('T');
-            int loc = 0;
+			break;
 
-            if ( locStart != -1 )
-            {
-               locStart++;
+		}
+		case FORMAT_SCHEMA: {
+			int locStart = iValue.indexOf('T');
+			int loc = 0;
 
-               loc = iValue.indexOf("H", locStart);
+			if (locStart != -1) {
+				locStart++;
 
-               if ( loc != -1 )
-               {
-                  hours = iValue.substring(locStart, loc);
-                  mDuration = (new Long(hours)).longValue() * 3600;
+				loc = iValue.indexOf("H", locStart);
 
-                  locStart = loc + 1;
-               }
+				if (loc != -1) {
+					hours = iValue.substring(locStart, loc);
+					mDuration = (Long.valueOf(hours)).longValue() * 3600;
 
-               loc = iValue.indexOf("M", locStart);
-               if ( loc != -1 )
-               {
-                  min = iValue.substring(locStart, loc);
-                  mDuration += (new Long(min)).longValue() * 60;
+					locStart = loc + 1;
+				}
 
-                  locStart = loc + 1;
-               }
+				loc = iValue.indexOf("M", locStart);
+				if (loc != -1) {
+					min = iValue.substring(locStart, loc);
+					mDuration += (Long.valueOf(min)).longValue() * 60;
 
-               loc = iValue.indexOf("S", locStart);
-               if ( loc != -1 )
-               {
-                  sec = iValue.substring(locStart, loc);
-                  mDuration += (new Long(sec)).longValue();
-               }
-            }
-            else
-            {
-               if ( _Debug )
-               {
-                  System.out.println(" ERROR : Invalid format  --> " +
-                                     iValue);
-               }
-            }
+					locStart = loc + 1;
+				}
 
-            break;
+				loc = iValue.indexOf("S", locStart);
+				if (loc != -1) {
+					sec = iValue.substring(locStart, loc);
+					mDuration += (Long.valueOf(sec)).longValue();
+				}
+			} else {
+				if (_Debug) {
+					System.out.println(" ERROR : Invalid format  --> " + iValue);
+				}
+			}
 
-         }
-         default:
-         {
-            // Do nothing
-         }
-      }
-   }
+			break;
 
-   /**
-    * This method formats the duration value according to the format type
-    * passed in (<code>iFormat</code>).
-    * 
-    * @param iFormat Indicates the format for which this method should convert
-    * the duration value to.
-    * 
-    * @return Returns a string representation of the duration, formatted
-    * accordingly.
-    */
-   public String format(int iFormat)
-   {
+		}
+		default: {
+			// Do nothing
+		}
+		}
+	}
 
-      String out = null;
+	/**
+	 * This method adds the duration value passed in (<code>iDur</code>) to the
+	 * duration value being held by <code>mDuration</code>.
+	 * 
+	 * @param iDur The duration value to add.
+	 */
+	public void add(IDuration durArg) {
+		ADLDuration iDur = (ADLDuration) durArg;
+		mDuration += iDur.mDuration;
+	}
 
-      long countHours = 0;
-      long countMin = 0;
-      long countSec = 0;
+	/**
+	 * This method compares to duration values.  The input duration value 
+	 * (<code>iDur</code> is compared against the <code>mDuration</code> value.
+	 * 
+	 * @param iDur The duration value to compare.
+	 * 
+	 * @return Returns an integer value that represents the following:
+	 * <ul>
+	 *  <li> -1 if <code>mDuration</code> is less than <code>iDur</code></li>
+	 *  <li> 0 if <code>mDuration</code> is equal to <code>iDur</code></li>
+	 *  <li> 1 if <code>mDuration</code> is greater than <code>iDur</code></li>
+	 *  <li> -999 if unknown</li>
+	 * </ul>
+	 */
+	public int compare(IDuration durArg) {
+		ADLDuration iDur = (ADLDuration) durArg;
+		int relation = IDuration.UNKNOWN;
 
-      long temp = 0;
+		if (mDuration < iDur.mDuration) {
+			relation = IDuration.LT;
+		} else if (mDuration == iDur.mDuration) {
+			relation = IDuration.EQ;
+		} else if (mDuration > iDur.mDuration) {
+			relation = IDuration.GT;
+		}
 
-      switch ( iFormat )
-      {
-         
-         case FORMAT_SECONDS:
-         {
-            double sec = mDuration / 1000.0;
+		return relation;
+	}
 
-            out = (new Double(sec)).toString();
+	/**
+	 * This method formats the duration value according to the format type
+	 * passed in (<code>iFormat</code>).
+	 * 
+	 * @param iFormat Indicates the format for which this method should convert
+	 * the duration value to.
+	 * 
+	 * @return Returns a string representation of the duration, formatted
+	 * accordingly.
+	 */
+	public String format(int iFormat) {
 
-            break;
+		String out = null;
 
-         }
-         case FORMAT_SCHEMA:
-         {
-            out = "";
+		long countHours = 0;
+		long countMin = 0;
+		long countSec = 0;
 
-            countHours = 0;
-            countMin = 0;
-            countSec = 0;
+		long temp = 0;
 
-            temp = mDuration / 1000;
+		switch (iFormat) {
 
-            if ( temp >= 1000 )
-            {
-               if ( temp >= 3600 )
-               {
-                  countHours = temp / 3600;
-                  temp %= 3600;
-               }
+		case FORMAT_SECONDS: {
+			double sec = mDuration / 1000.0;
 
-               if ( temp > 60 )
-               {
-                  countMin = temp / 60;
-                  temp %= 60;
-               }
+			out = (new Double(sec)).toString();
 
-               countSec = temp;
-            }
+			break;
 
-            out = "PT";
+		}
+		case FORMAT_SCHEMA: {
+			out = "";
 
-            if ( countHours > 0 )
-            {
-               out += Long.toString(countHours, 10);
-               out +="H";
-            }
+			countHours = 0;
+			countMin = 0;
+			countSec = 0;
 
-            if ( countMin > 0 )
-            {
-               out += Long.toString(countMin, 10);
-               out +="M";
-            }
+			temp = mDuration / 1000;
 
-            if ( countSec > 0 )
-            {
-               out += Long.toString(countSec, 10);
-               out +="S";
-            }
+			if (temp >= 1000) {
+				if (temp >= 3600) {
+					countHours = temp / 3600;
+					temp %= 3600;
+				}
 
-            break;
+				if (temp > 60) {
+					countMin = temp / 60;
+					temp %= 60;
+				}
 
-         }
-         default:
-         {
-            // Do nothing
-         }
-      }
+				countSec = temp;
+			}
 
-      return out;
-   }
+			out = "PT";
 
-   /**
-    * This method adds the duration value passed in (<code>iDur</code>) to the
-    * duration value being held by <code>mDuration</code>.
-    * 
-    * @param iDur The duration value to add.
-    */
-   public void add(IDuration durArg)
-   {
-	  ADLDuration iDur = (ADLDuration)durArg;
-      mDuration += iDur.mDuration;
-   }
+			if (countHours > 0) {
+				out += Long.toString(countHours, 10);
+				out += "H";
+			}
 
-   /**
-    * This method compares to duration values.  The input duration value 
-    * (<code>iDur</code> is compared against the <code>mDuration</code> value.
-    * 
-    * @param iDur The duration value to compare.
-    * 
-    * @return Returns an integer value that represents the following:
-    * <ul>
-    *  <li> -1 if <code>mDuration</code> is less than <code>iDur</code></li>
-    *  <li> 0 if <code>mDuration</code> is equal to <code>iDur</code></li>
-    *  <li> 1 if <code>mDuration</code> is greater than <code>iDur</code></li>
-    *  <li> -999 if unknown</li>
-    * </ul>
-    */
-   public int compare(IDuration durArg)
-   {
-	   ADLDuration iDur = (ADLDuration)durArg;
-      int relation = ADLDuration.UNKNOWN;
+			if (countMin > 0) {
+				out += Long.toString(countMin, 10);
+				out += "M";
+			}
 
-      if ( mDuration < iDur.mDuration )
-      {
-         relation = ADLDuration.LT;
-      }
-      else if ( mDuration == iDur.mDuration )
-      {
-         relation = ADLDuration.EQ;
-      }
-      else if ( mDuration > iDur.mDuration )
-      {
-         relation = ADLDuration.GT;
-      }
+			if (countSec > 0) {
+				out += Long.toString(countSec, 10);
+				out += "S";
+			}
 
-      return relation;
-   }
-}  // end ADLDuration
+			break;
+
+		}
+		default: {
+			// Do nothing
+		}
+		}
+
+		return out;
+	}
+} // end ADLDuration

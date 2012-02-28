@@ -21,11 +21,8 @@
 package org.sakaiproject.scorm.content.impl;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Vector;
 
 import org.sakaiproject.content.api.ContentCollection;
@@ -33,20 +30,15 @@ import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.CustomToolAction;
 import org.sakaiproject.content.api.ExpandableResourceType;
 import org.sakaiproject.content.api.ResourceToolAction;
+import org.sakaiproject.content.api.ResourceToolAction.ActionType;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ServiceLevelAction;
-import org.sakaiproject.content.api.ResourceToolAction.ActionType;
 import org.sakaiproject.content.util.BaseInteractionAction;
 import org.sakaiproject.content.util.BaseServiceLevelAction;
 import org.sakaiproject.entity.api.ResourceProperties;
 
-public class ZipCollectionType extends BaseResourceType implements ExpandableResourceType {	
-	public static final String ZIP_COLLECTION_LABEL="Zip Archive";
-	public static final String ZIP_COLLECTION_TYPE_ID="org.sakaiproject.content.types.zipArchive";
-	public static final String ZIP_UPLOAD_HELPER_ID="sakai.ziparchive.helper";
-	
-	
-	public class UploadZipArchiveAction extends BaseInteractionAction implements CustomToolAction {
+public class ZipCollectionType extends BaseResourceType implements ExpandableResourceType {
+	public static class UploadZipArchiveAction extends BaseInteractionAction implements CustomToolAction {
 
 		public UploadZipArchiveAction(String id, ActionType actionType, String typeId, String helperId, List requiredPropertyKeys) {
 			super(id, actionType, typeId, helperId, requiredPropertyKeys);
@@ -56,36 +48,47 @@ public class ZipCollectionType extends BaseResourceType implements ExpandableRes
 			return true;
 		}
 	}
-	
+
+	public static final String ZIP_COLLECTION_LABEL = "Zip Archive";
+
+	public static final String ZIP_COLLECTION_TYPE_ID = "org.sakaiproject.content.types.zipArchive";
+
+	public static final String ZIP_UPLOAD_HELPER_ID = "sakai.ziparchive.helper";
+
 	public ZipCollectionType() {
 		List<String> requiredKeys = new ArrayList<String>();
-	    requiredKeys.add(ResourceProperties.PROP_STRUCTOBJ_TYPE);
-		
-	    ResourceToolAction create = new BaseInteractionAction(ResourceToolAction.CREATE, 
-	    		ResourceToolAction.ActionType.NEW_UPLOAD, ZIP_COLLECTION_TYPE_ID, 
-	    		ZIP_UPLOAD_HELPER_ID, requiredKeys) {
+		requiredKeys.add(ResourceProperties.PROP_STRUCTOBJ_TYPE);
 
-	    	public String getLabel() {
-	    		return "Upload Zip Archive";
-	    	}
-	    	
-	    }; 
+		ResourceToolAction create = new BaseInteractionAction(ResourceToolAction.CREATE, ResourceToolAction.ActionType.NEW_UPLOAD, ZIP_COLLECTION_TYPE_ID,
+		        ZIP_UPLOAD_HELPER_ID, requiredKeys) {
 
-	    ResourceToolAction remove = new BaseServiceLevelAction(ResourceToolAction.DELETE, 
-	    		ResourceToolAction.ActionType.DELETE, ZIP_COLLECTION_TYPE_ID, false);
+			@Override
+			public String getLabel() {
+				return "Upload Zip Archive";
+			}
 
-	    actionMap.put(create.getActionType(), makeList(create));
-	    actionMap.put(remove.getActionType(), makeList(remove));
-	    
-	    actions.put(create.getId(), create);
-	    actions.put(remove.getId(), remove);
-	    
+		};
+
+		ResourceToolAction remove = new BaseServiceLevelAction(ResourceToolAction.DELETE, ResourceToolAction.ActionType.DELETE, ZIP_COLLECTION_TYPE_ID, false);
+
+		actionMap.put(create.getActionType(), makeList(create));
+		actionMap.put(remove.getActionType(), makeList(remove));
+
+		actions.put(create.getId(), create);
+		actions.put(remove.getId(), remove);
+
 	}
-	
+
+	public boolean allowAddAction(ResourceToolAction action, ContentEntity entity) {
+		return action.getTypeId().equals(CompressedResourceType.COMPRESSED_ITEM_TYPE_ID);
+	}
+
+	@Override
 	public ResourceToolAction getAction(String actionId) {
 		return actions.get(actionId);
 	}
 
+	@Override
 	public List<ResourceToolAction> getActions(ActionType type) {
 		List<ResourceToolAction> list = actionMap.get(type);
 		if (list == null) {
@@ -95,69 +98,65 @@ public class ZipCollectionType extends BaseResourceType implements ExpandableRes
 		return new Vector<ResourceToolAction>(list);
 	}
 
+	@Override
 	public List<ResourceToolAction> getActions(List<ActionType> types) {
-		 List<ResourceToolAction> list = new Vector<ResourceToolAction>();
-			if (types != null) {
-				Iterator<ResourceToolAction.ActionType> it = types.iterator();
-				while (it.hasNext()) {
-					ResourceToolAction.ActionType type = it.next();
-					List<ResourceToolAction> sublist = actionMap.get(type);
-					if (sublist == null) {
-						sublist = new Vector<ResourceToolAction>();
-						actionMap.put(type, sublist);
-					}
-					list.addAll(sublist);
+		List<ResourceToolAction> list = new Vector<ResourceToolAction>();
+		if (types != null) {
+			Iterator<ResourceToolAction.ActionType> it = types.iterator();
+			while (it.hasNext()) {
+				ResourceToolAction.ActionType type = it.next();
+				List<ResourceToolAction> sublist = actionMap.get(type);
+				if (sublist == null) {
+					sublist = new Vector<ResourceToolAction>();
+					actionMap.put(type, sublist);
 				}
+				list.addAll(sublist);
 			}
-			return list;
+		}
+		return list;
 	}
 
-	public String getIconLocation(ContentEntity entity, boolean expanded)
-    {
+	public ServiceLevelAction getCollapseAction() {
+		return (ServiceLevelAction) this.actions.get(ResourceToolAction.COLLAPSE);
+	}
+
+	public ServiceLevelAction getExpandAction() {
+		return (ServiceLevelAction) this.actions.get(ResourceToolAction.EXPAND);
+	}
+
+	@Override
+	public String getIconLocation(ContentEntity entity) {
 		String iconLocation = "sakai/dir_openroot.gif";
-		if(entity.isCollection())
-		{
+		if (entity != null && entity.isCollection()) {
 			ContentCollection collection = (ContentCollection) entity;
 			int memberCount = collection.getMemberCount();
-			if(memberCount == 0)
-			{
+			if (memberCount == 0) {
 				iconLocation = "sakai/dir_closed.gif";
-			}
-			else if(memberCount > ResourceType.EXPANDABLE_FOLDER_SIZE_LIMIT)
-			{
+			} else if (memberCount > ResourceType.EXPANDABLE_FOLDER_SIZE_LIMIT) {
 				iconLocation = "sakai/dir_unexpand.gif";
 			}
-			else if(expanded) 
-			{
+		}
+		return iconLocation;
+	}
+
+	public String getIconLocation(ContentEntity entity, boolean expanded) {
+		String iconLocation = "sakai/dir_openroot.gif";
+		if (entity.isCollection()) {
+			ContentCollection collection = (ContentCollection) entity;
+			int memberCount = collection.getMemberCount();
+			if (memberCount == 0) {
+				iconLocation = "sakai/dir_closed.gif";
+			} else if (memberCount > ResourceType.EXPANDABLE_FOLDER_SIZE_LIMIT) {
+				iconLocation = "sakai/dir_unexpand.gif";
+			} else if (expanded) {
 				iconLocation = "sakai/dir_openminus.gif";
-			}
-			else 
-			{
+			} else {
 				iconLocation = "sakai/dir_closedplus.gif";
 			}
 		}
 		return iconLocation;
-    }
-	
-	public String getIconLocation(ContentEntity entity) 
-	{
-		String iconLocation = "sakai/dir_openroot.gif";
-		if(entity != null && entity.isCollection())
-		{
-			ContentCollection collection = (ContentCollection) entity;
-			int memberCount = collection.getMemberCount();
-			if(memberCount == 0)
-			{
-				iconLocation = "sakai/dir_closed.gif";
-			}
-			else if(memberCount > ResourceType.EXPANDABLE_FOLDER_SIZE_LIMIT)
-			{
-				iconLocation = "sakai/dir_unexpand.gif";
-			}
-		}
-		return iconLocation;
-	}	
-	
+	}
+
 	public String getId() {
 		return ZIP_COLLECTION_TYPE_ID;
 	}
@@ -172,30 +171,19 @@ public class ZipCollectionType extends BaseResourceType implements ExpandableRes
 
 	public String getLocalizedHoverText(ContentEntity entity, boolean expanded) {
 		return ZIP_COLLECTION_LABEL;
-	}	
-
-	public boolean isExpandable() {
-		return true;
 	}
 
-	public boolean allowAddAction(ResourceToolAction action, ContentEntity entity) {
-		return action.getTypeId().equals(CompressedResourceType.COMPRESSED_ITEM_TYPE_ID);
-	}
-
-	public ServiceLevelAction getCollapseAction() {
-		return (ServiceLevelAction) this.actions.get(ResourceToolAction.COLLAPSE);
-	}
-
-	public ServiceLevelAction getExpandAction() {
-		return (ServiceLevelAction) this.actions.get(ResourceToolAction.EXPAND);
-	}
-	
 	public String getLongSizeLabel(ContentEntity entity) {
 		return "files";
 	}
 
 	public String getSizeLabel(ContentEntity entity) {
 		return "files";
+	}
+
+	@Override
+	public boolean isExpandable() {
+		return true;
 	}
 
 }

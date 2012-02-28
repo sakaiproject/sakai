@@ -13,14 +13,14 @@ public class ContentPackageExistsException extends Exception {
 		// TODO Auto-generated constructor stub
 	}
 
+	public ContentPackageExistsException(String message, Throwable cause) {
+		super(message, cause);
+		// TODO Auto-generated constructor stub
+	}
+
 	public ContentPackageExistsException(Throwable cause) {
 		super(cause);
 		// TODO Auto-generated constructor stub
 	}
 
-	public ContentPackageExistsException(String message, Throwable cause) {
-		super(message, cause);
-		// TODO Auto-generated constructor stub
-	}
-	
 }

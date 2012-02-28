@@ -49,18 +49,6 @@ public interface IDuration {
 	public static final int FORMAT_SCHEMA = 1;
 
 	/**
-	 * This method formats the duration value according to the format type
-	 * passed in (<code>iFormat</code>).
-	 * 
-	 * @param iFormat Indicates the format for which this method should convert
-	 * the duration value to.
-	 * 
-	 * @return Returns a string representation of the duration, formatted
-	 * accordingly.
-	 */
-	public String format(int iFormat);
-
-	/**
 	 * This method adds the duration value passed in (<code>iDur</code>) to the
 	 * duration value being held by <code>mDuration</code>.
 	 * 
@@ -83,5 +71,17 @@ public interface IDuration {
 	 * </ul>
 	 */
 	public int compare(IDuration iDur);
+
+	/**
+	 * This method formats the duration value according to the format type
+	 * passed in (<code>iFormat</code>).
+	 * 
+	 * @param iFormat Indicates the format for which this method should convert
+	 * the duration value to.
+	 * 
+	 * @return Returns a string representation of the duration, formatted
+	 * accordingly.
+	 */
+	public String format(int iFormat);
 
 }

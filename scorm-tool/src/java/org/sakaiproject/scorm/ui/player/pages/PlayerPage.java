@@ -22,6 +22,7 @@ package org.sakaiproject.scorm.ui.player.pages;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -49,11 +50,11 @@ public class PlayerPage extends BaseToolPage {
 	private static final long serialVersionUID = 1L;
 
 	@SpringBean
-	transient LearningManagementSystem lms;
-	@SpringBean
-	transient ScormContentService contentService;
-	@SpringBean
-	transient ScormSequencingService sequencingService;
+	LearningManagementSystem lms;
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormContentService")
+	ScormContentService scormContentService;
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormSequencingService")
+	ScormSequencingService scormSequencingService;
 	
 	// Components
 	private LazyLaunchPanel lazyLaunchPanel;
@@ -74,9 +75,9 @@ public class PlayerPage extends BaseToolPage {
 		if (pageParams.containsKey("navRequest"))
 			userNavRequest = pageParams.getInt("navRequest");
 		
-		ContentPackage contentPackage = contentService.getContentPackage(contentPackageId);
+		ContentPackage contentPackage = scormContentService.getContentPackage(contentPackageId);
 		
-		final SessionBean sessionBean = sequencingService.newSessionBean(contentPackage);
+		final SessionBean sessionBean = scormSequencingService.newSessionBean(contentPackage);
 		sessionBean.setCompletionUrl(getCompletionUrl());
 		
 		buttonForm = new ButtonForm("buttonForm", sessionBean, this);
@@ -86,6 +87,7 @@ public class PlayerPage extends BaseToolPage {
 		
 		closeWindowBehavior = new CloseWindowBehavior(sessionBean, lms.canUseRelativeUrls());
 		add(closeWindowBehavior);
+		
 	}
 	
 	
@@ -96,7 +98,7 @@ public class PlayerPage extends BaseToolPage {
 		HttpServletRequest servletRequest = webRequest.getHttpServletRequest();
 		String toolUrl = servletRequest.getContextPath();
 		
-		Class<?> pageClass = PackageListPage.class;
+		Class<? extends Page> pageClass = PackageListPage.class;
 		
 		if (lms.canLaunchNewWindow())
 			pageClass = CompletionPage.class;
@@ -112,10 +114,10 @@ public class PlayerPage extends BaseToolPage {
 		buttonForm.synchronizeState(sessionBean, target);
 	}
 	
+	@Override
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
-		
-		response.renderOnEventJavacript("window", "beforeunload", closeWindowBehavior.getCall());
+		response.renderOnEventJavascript("window", "beforeunload", closeWindowBehavior.getCall());
 	}
 	
 	public ButtonForm getButtonForm() {

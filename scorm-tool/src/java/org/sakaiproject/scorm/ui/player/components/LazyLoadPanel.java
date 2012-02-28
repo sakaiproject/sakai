@@ -53,6 +53,8 @@ import org.apache.wicket.model.IModel;
 
 public abstract class LazyLoadPanel extends Panel {
 	
+	private static final long serialVersionUID = 1L;
+
 	public LazyLoadPanel(String id, IModel model) {
 		super(id, model);
 		setOutputMarkupId(true);
@@ -63,6 +65,7 @@ public abstract class LazyLoadPanel extends Panel {
 		{
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			protected void respond(AjaxRequestTarget target)
 			{
 				Component component = getLazyLoadComponent("content", target);
@@ -70,12 +73,14 @@ public abstract class LazyLoadPanel extends Panel {
 				target.addComponent(LazyLoadPanel.this);
 			}
 
+			@Override
 			public void renderHead(IHeaderResponse response)
 			{
 				super.renderHead(response);
 				response.renderOnDomReadyJavascript(getCallbackScript().toString());
 			}
 
+			@Override
 			public boolean isEnabled(Component component)
 			{
 				return get("content") == loadingComponent;

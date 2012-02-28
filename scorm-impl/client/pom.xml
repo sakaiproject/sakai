@@ -1,86 +1,79 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>scorm-base</artifactId>
+    <artifactId>sakai-scorm-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>2.6.0RC1-SNAPSHOT</version>
+    <version>3.0.0</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-scorm-client-impl</name>
-  <groupId>org.sakaiproject</groupId>
+  <groupId>org.sakaiproject.scorm</groupId>
   <artifactId>sakai-scorm-client-impl</artifactId>
   <description>
           This project creates the client implementation used by the Sakai Scorm Tool
         </description>
   <packaging>jar</packaging>
   <dependencies>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-component-manager</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.kernel</groupId>
-      <artifactId>sakai-kernel-util</artifactId>
-      <version>1.0RC2-SNAPSHOT</version>
-    </dependency>
     <!-- SCORM dependencies -->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.scorm</groupId>
       <artifactId>sakai-scorm-api</artifactId>
-      <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.scorm</groupId>
       <artifactId>sakai-scorm-adl-impl</artifactId>
-      <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.scorm</groupId>
       <artifactId>sakai-scorm-content-impl</artifactId>
-      <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
+      <groupId>org.sakaiproject.scorm</groupId>
       <artifactId>sakai-scorm-model-impl</artifactId>
-      <version>${sakai.version}</version>
     </dependency>
-    <!-- Sakai dependencies -->
-    <!--org.sakaiprojectsakai-entity-api${sakai.version}provided-->
-    <!--org.sakaiprojectsakai-component-api${sakai.version}provided-->
-    <!--org.sakaiprojectsakai-content-api${sakai.version}provided-->
-    <!--org.sakaiprojectsakai-content-util${sakai.version}-->
-    <!--org.sakaiprojectsakai-tool-api${sakai.version}provided-->
-    <!--org.sakaiprojectsakai-user-api${sakai.version}provided-->
-    <!--org.sakaiprojectsakai-util-api${sakai.version}provided-->
     <!-- External dependencies -->
-    <dependency>
+<!--     <dependency>
       <groupId>${sakai.spring.groupId}</groupId>
       <artifactId>${sakai.spring.artifactId}</artifactId>
       <version>${sakai.spring.version}</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
+ -->    <dependency>
       <groupId>javax.activation</groupId>
       <artifactId>activation</artifactId>
-      <version>1.0.2</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>1.0.4</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
-      <version>2.4</version>
     </dependency>
   </dependencies>
+  <profiles>
+    <profile>
+      <id>sakai2.7</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.sakaiproject.kernel</groupId>
+          <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>sakai2.8</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.sakaiproject.kernel</groupId>
+          <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+      </dependencies>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+    </profile>
+  </profiles>
 </project>

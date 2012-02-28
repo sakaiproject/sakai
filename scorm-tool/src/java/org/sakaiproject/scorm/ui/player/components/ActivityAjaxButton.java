@@ -58,11 +58,11 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 	private String rootSrc;
 	
 	@SpringBean
-	transient LearningManagementSystem lms;
-	@SpringBean
-	transient ScormResourceService resourceService;
-	@SpringBean
-	transient ScormSequencingService sequencingService;
+	LearningManagementSystem lms;
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResourceService")
+	ScormResourceService resourceService;
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormSequencingService")
+	ScormSequencingService sequencingService;
 	
 	public ActivityAjaxButton(final ButtonForm form, SessionBean sessionBean, String id, int seqRequest, String rootSrc) {
 		super(id, form);
@@ -78,16 +78,19 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 			
 			private static final long serialVersionUID = 1L;
 
+			@Override
 			protected void onSubmit(AjaxRequestTarget target)
 			{
 				ActivityAjaxButton.this.onSubmit(target, form);
 			}
 
+			@Override
 			protected void onError(AjaxRequestTarget target)
 			{
 				ActivityAjaxButton.this.onError(target, form);
 			}
 
+			@Override
 			protected CharSequence getEventHandler()
 			{
 				if (useRelativeUrls)
@@ -97,6 +100,7 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 				return new AppendingStringBuffer(super.getEventHandler()).append("; return false;");
 			}
 
+			@Override
 			protected IAjaxCallDecorator getAjaxCallDecorator()
 			{
 				if (useRelativeUrls)
@@ -105,6 +109,7 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 				return ActivityAjaxButton.this.getAjaxCallDecorator();
 			}
 			
+			@Override
 			public CharSequence getCallbackUrl()
 			{
 				if (useRelativeUrls)
@@ -113,11 +118,12 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 				return Utils.generateUrl(this, null, getComponent(), useRelativeUrls);
 			}
 		
-		}.setThrottleDelay(Duration.ONE_SECOND));
+		}.setThrottleDelay(Duration.milliseconds(50)));
 			
 	}
 	
 	
+	@Override
 	public Form getForm()
 	{
 		if (form != null)
@@ -136,8 +142,9 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 		}
 	}
 
+	@Override
 	protected void onSubmit(AjaxRequestTarget target, Form form) {
-		SessionBean sessionBean = (SessionBean)getModelObject();
+		SessionBean sessionBean = (SessionBean)getDefaultModelObject();
 		modelChanging();
 		doNavigate(sessionBean, seqRequest, target);
 		modelChanged();
@@ -147,16 +154,19 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 		return rootSrc;
 	}
 	
+	@Override
 	protected String getDisabledSrc()
 	{
 		return assembleSrc(getRootSrc(), DISABLED_SUFFIX, IMAGE_EXT);
 	}
 	
+	@Override
 	protected String getInactiveSrc()
 	{
 		return assembleSrc(getRootSrc(), INACTIVE_SUFFIX, IMAGE_EXT);
 	}
 	
+	@Override
 	protected String getActiveSrc()
 	{
 		return assembleSrc(getRootSrc(), ACTIVE_SUFFIX, IMAGE_EXT);
@@ -183,6 +193,7 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 	 * 
 	 * TODO 1.3: Make abstract to be consistent with onSubmit()
 	 */
+	@Override
 	protected void onError(AjaxRequestTarget target, Form form)
 	{
 
@@ -199,10 +210,6 @@ public class ActivityAjaxButton extends AjaxRolloverImageButton {
 		}
 
 		@Override
-		public Object getApplication() {
-			return this.getApplication();
-		}
-		
 		public Component getFrameComponent() {
 			if (form.getLaunchPanel() != null && form.getLaunchPanel().getContentPanel() != null)
 				return form.getLaunchPanel().getContentPanel();

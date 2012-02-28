@@ -26,7 +26,6 @@ package org.adl.sequencer;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Vector;
 
 import org.adl.util.debug.DebugIndicator;
 
@@ -63,189 +62,200 @@ import org.adl.util.debug.DebugIndicator;
  * </ul>
  * 
  * @author ADL Technical Team
- */           
-public class SeqRuleset implements Serializable, ISeqRuleset
-{
+ */
+public class SeqRuleset implements Serializable, ISeqRuleset {
 	static final long serialVersionUID = 1L; //-1546682264123089317L;
 
 	private long id;
 
-   /**
-    * Enumeration of the possible types of rules that may be evaluated.
-    * <br>All
-    * <br><b>1</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */
-	public static final int RULE_TYPE_ANY               =  1;
+	/**
+	 * Enumeration of the possible types of rules that may be evaluated.
+	 * <br>All
+	 * <br><b>1</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	 */
+	public static final int RULE_TYPE_ANY = 1;
 
-   /**
-    * Enumeration of the possible types of rules that may be evaluated.
-    * <br>Exit Rules
-    * <br><b>2</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */
-	public static final int RULE_TYPE_EXIT              =  2;
+	/**
+	 * Enumeration of the possible types of rules that may be evaluated.
+	 * <br>Exit Rules
+	 * <br><b>2</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	 */
+	public static final int RULE_TYPE_EXIT = 2;
 
-   /**
-    * Enumeration of the possible types of rules that may be evaluated.
-    * <br>Post Condition Rules
-    * <br><b>3</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */
-	public static final int RULE_TYPE_POST              =  3;
+	/**
+	 * Enumeration of the possible types of rules that may be evaluated.
+	 * <br>Post Condition Rules
+	 * <br><b>3</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	 */
+	public static final int RULE_TYPE_POST = 3;
 
-   /**
-    * Enumeration of the possible types of rules that may be evaluated.
-    * <br>Skipped Rules
-    * <br><b>5</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */
-	public static final int RULE_TYPE_SKIPPED           =  4;
+	/**
+	 * Enumeration of the possible types of rules that may be evaluated.
+	 * <br>Skipped Rules
+	 * <br><b>5</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	 */
+	public static final int RULE_TYPE_SKIPPED = 4;
 
-   /**
-    * Enumeration of the possible types of rules that may be evaluated.
-    * <br>Disabled Rules
-    * <br><b>6</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */
-	public static final int RULE_TYPE_DISABLED          =  5;
+	/**
+	 * Enumeration of the possible types of rules that may be evaluated.
+	 * <br>Disabled Rules
+	 * <br><b>6</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	 */
+	public static final int RULE_TYPE_DISABLED = 5;
 
-   /**
-    * Enumeration of the possible types of rules that may be evaluated.
-    * <br>Hide from Choice Rules
-    * <br><b>7</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */
-	public static final int RULE_TYPE_HIDDEN            =  6;
+	/**
+	 * Enumeration of the possible types of rules that may be evaluated.
+	 * <br>Hide from Choice Rules
+	 * <br><b>7</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	 */
+	public static final int RULE_TYPE_HIDDEN = 6;
 
-   /**
-    * Enumeration of the possible types of rules that may be evaluated.
-    * <br>Stop Forward Progress Rules
-    * <br><b>8</b>
-    * <br>[SEQUENCING SUBSYSTEM CONSTANT]
-    */
-	public static final int RULE_TYPE_FORWARDBLOCK      =  7;
-   
-   /**
-    * This controls display of log messages to the java console
-    */
-   private static boolean _Debug = DebugIndicator.ON;
+	/**
+	 * Enumeration of the possible types of rules that may be evaluated.
+	 * <br>Stop Forward Progress Rules
+	 * <br><b>8</b>
+	 * <br>[SEQUENCING SUBSYSTEM CONSTANT]
+	 */
+	public static final int RULE_TYPE_FORWARDBLOCK = 7;
 
-   /**
-    * This is the set of sequencing rules defined for an activity
-    */
-   private List mRules = null;
+	/**
+	 * This controls display of log messages to the java console
+	 */
+	private static boolean _Debug = DebugIndicator.ON;
 
-   
-   /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-   
-   Constructors 
-   
-   -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
-   // Default constructor, does nothing explicitly
-   public SeqRuleset() {}
-   
-   /**
-    * Initializes a set of sequencing rules.
-    * 
-    * @param iRules      Set of preconstructed sequencing rules (<code>SeqRule
-    *                    </code>).
-    */
-   public SeqRuleset(List iRules)
-   {
+	/**
+	 * This is the set of sequencing rules defined for an activity
+	 */
+	private List<ISeqRule> mRules = null;
 
-      if ( _Debug )
-      {
-         System.out.println("  :: SeqRuleset  --> BEGIN - constructor");
+	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+	
+	Constructors 
+	
+	-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
+	// Default constructor, does nothing explicitly
+	public SeqRuleset() {
+	}
 
-         for ( int i = 0; i < iRules.size(); i++ )
-         {
-            ISeqRule temp = (ISeqRule)iRules.get(i);
+	/**
+	 * Initializes a set of sequencing rules.
+	 * 
+	 * @param iRules      Set of preconstructed sequencing rules (<code>SeqRule
+	 *                    </code>).
+	 */
+	public SeqRuleset(List<ISeqRule> iRules) {
 
-            temp.dumpState();
-         }
-      }
+		if (_Debug) {
+			System.out.println("  :: SeqRuleset  --> BEGIN - constructor");
 
-      mRules = iRules;
+			for (int i = 0; i < iRules.size(); i++) {
+				ISeqRule temp = iRules.get(i);
 
-      if ( _Debug )
-      {
-         System.out.println("  :: SeqRuleset  --> END   - constructor");
-      }
-   }
+				temp.dumpState();
+			}
+		}
 
-   /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-   
-    Public Methods 
-   
-   -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
-   /**
-    * Evaluates this set of sequencing rules for the target activity and the
-    * desired time of evaluation.
-    * 
-    * @param iType          Indicates the type of sequencing rules to be evaluat
-    * 
-    * @param iThisActivity The target activity of the rule evaluation.
-    * 
-    * @param iRetry         Indicates that this rule is being evaluated during
-    *                       a Retry sequencing request process.
-    * 
-    * @return A sequencing request (<code>String</code>) or <code>null</code>.
-    * @see org.adl.sequencer.SeqRuleset
-    */
-   public String evaluate(int iType, ISeqActivity iThisActivity, boolean iRetry)
-   {
-      if ( _Debug )
-      {
-         System.out.println("  :: SeqRuleset   --> BEGIN - evaluate");
-         System.out.println("  ::-->  " + iType);
-      }
+		mRules = iRules;
 
-      String action = null;
+		if (_Debug) {
+			System.out.println("  :: SeqRuleset  --> END   - constructor");
+		}
+	}
 
-      // Evaluate all sequencing rules of type 'iType'.
-      // Evaluation stops at the first rule that evaluates to true 
-      if ( mRules != null )
-      {
-         boolean cont = true;
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SeqRuleset other = (SeqRuleset) obj;
+		if (id != other.id)
+			return false;
+		return true;
+	}
 
-         for ( int i = 0; i < mRules.size() && cont; i++ )
-         {
+	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+	
+	 Public Methods 
+	
+	-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
+	/**
+	 * Evaluates this set of sequencing rules for the target activity and the
+	 * desired time of evaluation.
+	 * 
+	 * @param iType          Indicates the type of sequencing rules to be evaluat
+	 * 
+	 * @param iThisActivity The target activity of the rule evaluation.
+	 * 
+	 * @param iRetry         Indicates that this rule is being evaluated during
+	 *                       a Retry sequencing request process.
+	 * 
+	 * @return A sequencing request (<code>String</code>) or <code>null</code>.
+	 * @see org.adl.sequencer.SeqRuleset
+	 */
+	public String evaluate(int iType, ISeqActivity iThisActivity, boolean iRetry) {
+		if (_Debug) {
+			System.out.println("  :: SeqRuleset   --> BEGIN - evaluate");
+			System.out.println("  ::-->  " + iType);
+		}
 
-            SeqRule rule = (SeqRule)mRules.get(i);
-            String result = rule.evaluate(iType, iThisActivity, iRetry);
+		String action = null;
 
-            if ( !result.equals(SeqRule.SEQ_ACTION_NOACTION) )
-            {
-               cont = false;
-               action = result;
-            }
-         }
-      }
+		// Evaluate all sequencing rules of type 'iType'.
+		// Evaluation stops at the first rule that evaluates to true 
+		if (mRules != null) {
+			boolean cont = true;
 
-      if ( _Debug )
-      {
-         System.out.println("  ::--> " + action);
-         System.out.println("  :: SeqRuleset   --> END   - evaluate");
-      }
+			for (int i = 0; i < mRules.size() && cont; i++) {
 
-      return action;
-   }
+				SeqRule rule = (SeqRule) mRules.get(i);
+				String result = rule.evaluate(iType, iThisActivity, iRetry);
 
+				if (!result.equals(SeqRule.SEQ_ACTION_NOACTION)) {
+					cont = false;
+					action = result;
+				}
+			}
+		}
 
-   /**
-    * Describes the number of rollup rules in this set
-    * 
-    * @return The count of rollup rules in this set.
-    */
-   public int size()
-   {
-      if ( mRules != null )
-      {
-         return mRules.size();
-      }
+		if (_Debug) {
+			System.out.println("  ::--> " + action);
+			System.out.println("  :: SeqRuleset   --> END   - evaluate");
+		}
 
-      return 0;
-   }
+		return action;
+	}
 
-}  // end SeqRuleset
+	public long getId() {
+		return id;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (id ^ (id >>> 32));
+		return result;
+	}
+
+	/**
+	    * Describes the number of rollup rules in this set
+	    * 
+	    * @return The count of rollup rules in this set.
+	    */
+	public int size() {
+		if (mRules != null)
+			return mRules.size();
+
+		return 0;
+	}
+
+} // end SeqRuleset

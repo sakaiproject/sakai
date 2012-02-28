@@ -29,6 +29,7 @@ import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.link.PageLink;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.scorm.exceptions.LearnerNotDefinedException;
 import org.sakaiproject.scorm.model.api.ContentPackage;
@@ -39,6 +40,7 @@ import org.sakaiproject.scorm.service.api.ScormResultService;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
 import org.sakaiproject.scorm.ui.Icon;
 import org.sakaiproject.scorm.ui.console.pages.ConsoleBasePage;
+import org.sakaiproject.scorm.ui.reporting.components.LearnerDetailsPanel;
 import org.sakaiproject.wicket.markup.html.link.BookmarkablePageLabeledLink;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.DecoratedPropertyColumn;
 
@@ -51,27 +53,33 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 	private static ResourceReference PREV_ICON = new ResourceReference(BaseResultsPage.class, "res/arrow_left.png");
 	
 	@SpringBean
-	transient LearningManagementSystem lms;
-	@SpringBean
-	transient ScormContentService contentService;
-	@SpringBean
-	transient ScormResultService resultService;
-	@SpringBean
-	transient ScormSequencingService sequencingService;
+	LearningManagementSystem lms;
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormContentService")
+	ScormContentService contentService;
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResultService")
+	ScormResultService resultService;
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormSequencingService")
+	ScormSequencingService sequencingService;
 	
 	private final RepeatingView attemptNumberLinks;
 	
 	public BaseResultsPage(PageParameters pageParams) {
+        super(pageParams);
+        
 		long contentPackageId = pageParams.getLong("contentPackageId");
 		String learnerId = pageParams.getString("learnerId");
+		
+		if (learnerId == null) { // this is a student coming directly from the package list.
+			learnerId = lms.currentLearnerId();
+		}
 		
 		String learnerName = "[name unavailable]";
 		
 		Learner learner = null;
-		
+		boolean learnerFound = false;
 		try {
 			learner = lms.getLearner(learnerId);
-			
+			learnerFound = true;
 			learnerName = new StringBuilder(learner.getDisplayName()).append(" (")
 				.append(learner.getDisplayId()).append(")").toString();
 			
@@ -80,13 +88,20 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 			
 			learner = new Learner(learnerId, learnerName, "[id unavailable]");
 		}
+		
+		LearnerDetailsPanel learnerDetailsPanel = new LearnerDetailsPanel("learnerDetails", new Model<Learner>(learner));
+		add(learnerDetailsPanel);
+		learnerDetailsPanel.setVisible(learnerFound);
 
 		ContentPackage contentPackage = contentService.getContentPackage(contentPackageId);
+		String scoId = pageParams.getString("scoId");
+		String interactionId = pageParams.getString("interactionId");
 						
 		int numberOfAttempts = resultService.getNumberOfAttempts(contentPackageId, learnerId);
 		
 		long attemptNumber = 0;
-		
+
+		/** @NOTE hide unnecessary bits */
 		if (pageParams.containsKey("attemptNumber")) 
 			attemptNumber = pageParams.getLong("attemptNumber");
 		
@@ -97,13 +112,11 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 		add(attemptNumberLinks);
 		
 		for (long i=1;i<=numberOfAttempts;i++) {
-			this.addAttemptNumberLink(i, pageParams, attemptNumberLinks, attemptNumber);
+			addAttemptNumberLink(i, pageParams, attemptNumberLinks, attemptNumber, contentPackage, scoId, learner);
 		}
 		
 		initializePage(contentPackage, learner, attemptNumber, pageParams);
 		
-		String scoId = pageParams.getString("scoId");
-		String interactionId = pageParams.getString("interactionId");
 		
 		String[] siblingIds = resultService.getSiblingIds(contentPackageId, learnerId, attemptNumber, scoId, interactionId);
 		
@@ -113,6 +126,9 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 		Icon previousIcon = new Icon("previousIcon", PREV_ICON);
 		Icon nextIcon = new Icon("nextIcon", NEXT_ICON);
 		
+		previousLink.setVisible(isPreviousLinkVisible(siblingIds));
+		nextLink.setVisible(isNextLinkVisible(siblingIds));
+
 		previousIcon.setVisible(previousLink.isVisible());
 		nextIcon.setVisible(nextLink.isVisible());
 
@@ -129,10 +145,20 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 		return link;
 	}
 	
+	protected boolean isPreviousLinkVisible(String[] siblingIds) {
+		boolean canGrade = lms.canGrade(lms.currentContext());
+		return canGrade && siblingIds[0] != null && !siblingIds[0].equals("");
+	}
+	
 	protected Link newNextLink(String nextId, PageParameters pageParams) {
 		Link link = new PageLink("nextLink", BaseResultsPage.class);
 		link.setVisible(false);
 		return link;
+	}
+	
+	protected boolean isNextLinkVisible(String[] siblingIds) {
+		boolean canGrade = lms.canGrade(lms.currentContext());
+		return canGrade && siblingIds[1] != null && !siblingIds[1].equals("");
 	}
 	
 	protected abstract void initializePage(ContentPackage contentPackage, Learner learner, long attemptNumber, PageParameters pageParams);
@@ -145,14 +171,17 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 	 * 	org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable
 	 * originally authored by Igor Vaynberg (ivaynberg)
 	 */
-	protected void addAttemptNumberLink(long i, PageParameters params, RepeatingView container, long current)
+	protected void addAttemptNumberLink(long i, PageParameters params, RepeatingView container, long current, ContentPackage contentPackage, String scoId, Learner learner)
 	{
-		params.put("attemptNumber", i);
+		PageParameters newParams = new PageParameters(params);
+		newParams.put("attemptNumber", i);
 		
-		BookmarkablePageLabeledLink link = newAttemptNumberLink(i, params);
+		BookmarkablePageLabeledLink link = newAttemptNumberLink(i, newParams);
 
 		if (i == current) {
 			link.setEnabled(false);
+		} else {
+			link.setVisible(attemptExists(i, scoId, learner.getId(), contentPackage.getContentPackageId()));
 		}
 			
 		WebMarkupContainer item = new WebMarkupContainer(container.newChildId());
@@ -162,8 +191,9 @@ public abstract class BaseResultsPage extends ConsoleBasePage {
 		container.add(item);
 	}
 	
-	
-	
+	protected boolean attemptExists(long attemptId, String scoId, String learnerId, long contentPackageId) {
+		return true;
+	}
 	
 	public class PercentageColumn extends DecoratedPropertyColumn {
 

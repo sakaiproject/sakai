@@ -23,12 +23,9 @@ package org.sakaiproject.scorm.ui.player.components;
 import org.adl.sequencer.SeqNavRequests;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.scorm.model.api.SessionBean;
 import org.sakaiproject.scorm.service.api.ScormSequencingService;
-import org.sakaiproject.scorm.ui.player.components.ActivityAjaxButton;
-import org.sakaiproject.scorm.ui.player.components.LaunchPanel;
 import org.sakaiproject.scorm.ui.player.pages.PlayerPage;
 
 public class ButtonForm extends Form {
@@ -40,11 +37,15 @@ public class ButtonForm extends Form {
 	private static final String QUITBTN_ROOT_SRC = "/sakai-scorm-tool/images/quitBtn";
 	private static final String SUSPENDBTN_ROOT_SRC = "/sakai-scorm-tool/images/suspendBtn";
 
-	private ActivityAjaxButton prevButton, nextButton, startButton, quitButton, suspendButton;
+	private ActivityAjaxButton prevButton;
+	private ActivityAjaxButton nextButton;
+	private ActivityAjaxButton startButton;
+	private ActivityAjaxButton quitButton;
+	private ActivityAjaxButton suspendButton;
 	private PlayerPage view;
 	
-	@SpringBean
-	transient ScormSequencingService sequencingService;
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormSequencingService")
+	ScormSequencingService sequencingService;
 	
 	public ButtonForm(String id, final SessionBean sessionBean, PlayerPage view) {
 		super(id);
@@ -77,7 +78,7 @@ public class ButtonForm extends Form {
 		setPrevButtonVisible(isPreviousEnabled, target);
 		setStartButtonVisible(isStartEnabled, target);
 		setSuspendButtonVisible(isSuspendEnabled, target);
-		setQuitButtonVisible(sessionBean.isStarted() && !sessionBean.isEnded(), target);
+		setQuitButtonVisible(isContinueExitEnabled, target);
 	}
 
 	public void setPrevButtonVisible(boolean isVisible, AjaxRequestTarget target) {

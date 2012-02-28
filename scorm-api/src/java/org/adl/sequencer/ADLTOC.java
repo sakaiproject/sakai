@@ -58,100 +58,124 @@ import java.io.Serializable;
  * 
  * @author ADL Technical Team
  */
-public class ADLTOC implements Serializable
-{
+public class ADLTOC implements Serializable {
 	private static final long serialVersionUID = 1L;
-	
+
 	private long id;
+
+	/**
+	 * The title of this entry in the TOC.
+	 */
+	public String mTitle = "";
+
+	/**
+	 * The depth of this entry in the TOC.
+	 */
+	public int mDepth = -1;
+
+	/**
+	 * The relative position of this entry in the TOC.
+	 */
+	public int mCount = -1;
+
+	/** 
+	 * Identifies if the activity is a leaf
+	 */
+	public boolean mLeaf = false;
+
+	/**
+	 * Identifies the parent of this activity in the TOC
+	 */
+	public int mParent = -1;
+
+	/**
+	 * Identifies if the parent of this activity has choice = true
+	 */
+	public boolean mInChoice = false;
+
+	/**
+	 * Indicates if the activity is enabled.
+	 */
+	public boolean mIsEnabled = true;
+
+	/**
+	 * Indicates if the activity is visible.
+	 */
+	public boolean mIsVisible = true;
+
+	/**
+	 * Indicates if the activity is the current activity.
+	 */
+	public boolean mIsCurrent = false;
+
+	/**
+	 * Indicates if the activity is a valid target of choice
+	 */
+	public boolean mIsSelectable = true;
+
+	/**
+	 * The activity ID of this entry in the TOC.
+	 */
+	public String mID = null;
+
+	/*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
 	
-   /**
-    * The title of this entry in the TOC.
-    */
-   public String mTitle = "";
+	 Public Methods
+	
+	-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
 
-   /**
-    * The depth of this entry in the TOC.
-    */
-   public int mDepth = -1;
+	public ADLTOC() {
+	}
 
-   /**
-    * The relative position of this entry in the TOC.
-    */
-   public int mCount = -1;
+	/**
+	 * This method provides the state this <code>ADLTOC</code> object for
+	 * diagnostic purposes.
+	 */
+	public void dumpState() {
+		/*if ( _Debug )
+		{
+		   System.out.println("  :: ADLTOC       --> BEGIN - dumpState");
 
-   /** 
-    * Identifies if the activity is a leaf
-    */
-   public boolean mLeaf = false;
+		   System.out.println("  ::--> Title:       " + mTitle);
+		   System.out.println("  ::--> Depth:       " + mDepth);
+		   System.out.println("  ::--> Count:       " + mCount);
+		   System.out.println("  ::--> Activity ID: " + mID);
+		   System.out.println("  ::--> Leaf?        " + mLeaf);
+		   System.out.println("  ::--> In Choice?   " + mInChoice);
+		   System.out.println("  ::--> Parent:      " + mParent);
+		   System.out.println("  ::--> Enabled:     " + mIsEnabled);
+		   System.out.println("  ::--> Visible:     " + mIsVisible);
+		   System.out.println("  ::--> Current:     " + mIsCurrent);
+		   System.out.println("  ::--> Selectable:  " + mIsSelectable);
 
-   /**
-    * Identifies the parent of this activity in the TOC
-    */
-   public int mParent = -1;
+		   System.out.println("  :: ADLTOC       --> END   - dumpState");
+		}*/
+	}
 
-   /**
-    * Identifies if the parent of this activity has choice = true
-    */
-   public boolean mInChoice = false;
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ADLTOC other = (ADLTOC) obj;
+		if (id != other.id)
+			return false;
+		return true;
+	}
 
-   /**
-    * Indicates if the activity is enabled.
-    */
-   public boolean mIsEnabled = true;
+	public long getId() {
+		return id;
+	}
 
-   /**
-    * Indicates if the activity is visible.
-    */
-   public boolean mIsVisible = true;
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (id ^ (id >>> 32));
+		return result;
+	}
 
-   /**
-    * Indicates if the activity is the current activity.
-    */
-   public boolean mIsCurrent = false;
-
-   /**
-    * Indicates if the activity is a valid target of choice
-    */
-   public boolean mIsSelectable = true;
-
-   /**
-    * The activity ID of this entry in the TOC.
-    */
-   public String mID = null;
-
-
-   /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
-   
-    Public Methods
-   
-   -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
-
-   public ADLTOC() {}
-   
-   /**
-    * This method provides the state this <code>ADLTOC</code> object for
-    * diagnostic purposes.
-    */
-   public void dumpState()
-   {
-      /*if ( _Debug )
-      {
-         System.out.println("  :: ADLTOC       --> BEGIN - dumpState");
-
-         System.out.println("  ::--> Title:       " + mTitle);
-         System.out.println("  ::--> Depth:       " + mDepth);
-         System.out.println("  ::--> Count:       " + mCount);
-         System.out.println("  ::--> Activity ID: " + mID);
-         System.out.println("  ::--> Leaf?        " + mLeaf);
-         System.out.println("  ::--> In Choice?   " + mInChoice);
-         System.out.println("  ::--> Parent:      " + mParent);
-         System.out.println("  ::--> Enabled:     " + mIsEnabled);
-         System.out.println("  ::--> Visible:     " + mIsVisible);
-         System.out.println("  ::--> Current:     " + mIsCurrent);
-         System.out.println("  ::--> Selectable:  " + mIsSelectable);
-
-         System.out.println("  :: ADLTOC       --> END   - dumpState");
-      }*/
-   }
-
-}  // end ADLTOC
+} // end ADLTOC

@@ -10,11 +10,11 @@ import org.sakaiproject.scorm.model.api.SessionBean;
 public interface ADLConsultant {
 
 	public ISeqActivityTree getActivityTree(SessionBean sessionBean);
-	
+
 	public IDataManager getDataManager(SessionBean sessionBean, ScoBean scoBean);
 
 	public ContentPackageManifest getManifest(SessionBean sessionBean);
-	
+
 	public ISequencer getSequencer(ISeqActivityTree tree);
-	
+
 }

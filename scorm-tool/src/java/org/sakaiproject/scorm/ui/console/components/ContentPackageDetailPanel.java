@@ -36,6 +36,8 @@ public class ContentPackageDetailPanel extends Panel {
 		
 		add(new Label("title"));
 		add(new Label("releaseOn"));
+//		add(new Label("numberOffPoints"));
+//		add(new Label("synchronizeSCOWithGradebook"));
 		add(new Label("dueOn"));
 		add(new Label("acceptUntil"));
 		add(new Label("numberOfTries", new TriesDecoratedPropertyModel(contentPackage, "numberOfTries")));

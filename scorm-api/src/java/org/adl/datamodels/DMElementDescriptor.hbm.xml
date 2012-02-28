@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<hibernate-mapping default-cascade="all" default-access="field" package="org.adl.datamodels" default-lazy="false">
+<hibernate-mapping default-access="field" package="org.adl.datamodels">
 	
 	<class name="org.adl.datamodels.DMElementDescriptor" table="SCORM_ELEMENT_DESC_T">
-	
+		<cache usage="nonstrict-read-write"/>
 		<id name="id" column="ELEM_DESC_ID" type="long">
             <generator class="native">
                 <param name="sequence">SCORM_UID_S</param>
@@ -13,7 +13,7 @@
 	
 		<property name="mBinding" column="ED_BINDING" type="string" />
 	
-		<list name="mChildren" table="SCORM_LIST_ELEM_DESC_T">
+		<list name="mChildren" table="SCORM_LIST_ELEM_DESC_T" cascade="all">
 			<key column="ELEM_DESC_ID" />
 			<list-index column="SORT_ORDER"/>
 			<many-to-many column="CHILD_ID" class="org.adl.datamodels.DMElementDescriptor"/>
@@ -23,7 +23,7 @@
 	
 		<property name="mIsWriteable" column="IS_WRITABLE" />
 	
-		<list name="mDelimiters" table="SCORM_LIST_DELIM_DESC_T">
+		<list name="mDelimiters" table="SCORM_LIST_DELIM_DESC_T" cascade="all">
 			<key column="ELEM_DESC_ID" />
 			<list-index column="SORT_ORDER"/>
 			<many-to-many column="DELIM_DESC_ID" class="org.adl.datamodels.DMDelimiterDescriptor"/>

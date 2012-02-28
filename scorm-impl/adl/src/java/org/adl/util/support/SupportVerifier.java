@@ -24,11 +24,11 @@
 
 package org.adl.util.support;
 
-import java.security.PrivilegedAction;
 import java.security.AccessController;
+import java.security.PrivilegedAction;
 
-import org.adl.util.MessageBox;
 import org.adl.util.EnvironmentVariable;
+import org.adl.util.MessageBox;
 
 /**
  * <strong>Filename:</strong>SupportVerifier.java<br><br>
@@ -60,277 +60,219 @@ import org.adl.util.EnvironmentVariable;
  *
  * @author ADL Technical Team
  */
-public class SupportVerifier
-{
+public class SupportVerifier {
 
-   /**
-    * Array of supported Java Versions.
-    */
-   private static final String[] mSupportedJRE = { "1.5.0_09",
-                                                   "1.5.0_08",
-                                                   "1.5.0_07",
-                                                   "1.5.0_06",
-                                                   "1.5.0_05",
-                                                   "1.5.0_04",
-                                                   "1.5.0_03",
-                                                   "1.5.0_02",
-                                                   "1.5.0_01",
-                                                   "1.5.0",
-                                                   "1.4.2_12",
-                                                   "1.4.2_11",
-                                                   "1.4.2_10",
-                                                   "1.4.2_09",
-                                                   "1.4.2_08",
-                                                   "1.4.2_07",
-                                                   "1.4.2_06",
-                                                   "1.4.2_05",
-                                                   "1.4.2_04",
-                                                   "1.4.2_03",
-                                                   "1.4.2_02",
-                                                   "1.4.2_01",
-                                                   "1.4.2"  };
+	/**
+	 *
+	 * <strong>Description:</strong><br>This is a inner class that permits
+	 * the ability to retrieve information about the system.
+	 *
+	 */
+	private class PrivilegedGetSP implements PrivilegedAction<Object> {
+		/**
+		 * The string representation of the service pack
+		 */
+		String mSPKey;
 
+		/**
+		 * The value of the service pack
+		 */
+		Object mSPValue;
 
-   /**
-    * Array of supported Operating Systems.
-    */
-   private static final String[] mSupportedOS = { "Windows XP",
-                                                  "Windows 2000" };
-   
-   /**
-    * Default constructor.  The default constructor does nothing explicitly
-    *
-    */
-   public SupportVerifier()
-   {
-      // Does nothing explicitly
-   }
+		/**
+		 * Constructor for the inner class
+		 * 
+		 * @param iSPKey The service pack key
+		 */
+		PrivilegedGetSP(String iSPKey) {
+			mSPKey = iSPKey;
+		}
 
-   /**
-    * This method is the default constructor of the <code>SupportVerifer</code>
-    * class.  It controls all support verification sequences.
-    */
-   public void verifySupport()
-   {
-      verifyOSSupport();
-      verifyJRESupport();
-   }
+		/**
+		 * This run method grants privileged applet code access to write
+		 * to the summary log.  This allows the applet to work in Netscape 6.
+		 *
+		 * @return Object
+		 *
+		 */
+		public Object run() {
+			try {
+				mSPValue = System.getProperty(mSPKey);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 
-   /**
-    * This method handles all Java Version support verification sequences.
-    */
-   private void verifyJRESupport()
-   {
-      String jreVersion = System.getProperty("java.version");
+			return mSPValue;
+		}
+	}
 
-      boolean jreSupported = false;
-      int arrayLength = mSupportedJRE.length;
+	/**
+	 * Array of supported Java Versions.
+	 */
+	private static final String[] mSupportedJRE = { "1.5.0_09", "1.5.0_08", "1.5.0_07", "1.5.0_06", "1.5.0_05", "1.5.0_04", "1.5.0_03", "1.5.0_02", "1.5.0_01",
+	        "1.5.0", "1.4.2_12", "1.4.2_11", "1.4.2_10", "1.4.2_09", "1.4.2_08", "1.4.2_07", "1.4.2_06", "1.4.2_05", "1.4.2_04", "1.4.2_03", "1.4.2_02",
+	        "1.4.2_01", "1.4.2" };
 
-      for ( int i = 0; i < arrayLength; i++ )
-      {
-         if ( jreVersion.equals( mSupportedJRE[i] ) )
-         {
-            jreSupported = true;
-            break;
-         }
-      }
+	/**
+	 * Array of supported Operating Systems.
+	 */
+	private static final String[] mSupportedOS = { "Windows XP", "Windows 2000" };
 
-      if ( ! jreSupported )
-      {
-         String title = new String("Environment Error");
-         String messageText = "This software has NOT been tested with the " +
-                       "installed Java Runtime Environment (JRE) Version:  " +
-                       jreVersion + ".  \nThere is no guarantee that the software " +
-                       "will function properly.  \nSee the Readme for " +
-                       "detailed installation instructions and tested JREs " +
-                       "prior to operating this software.";
-         
-         MessageBox mb = new MessageBox( MessageBox.WARNING, messageText,
-                                         title );
-      }
-   }
+	/**
+	 * Default constructor.  The default constructor does nothing explicitly
+	 *
+	 */
+	public SupportVerifier() {
+		// Does nothing explicitly
+	}
 
-   /**
-    * This method handles all Operating System support verification sequences.
-    */
-   private void verifyOSSupport()
-   {
-      String osName = System.getProperty("os.name");
-      
-      boolean osSupported = false;
-      int arrayLength = mSupportedOS.length;
+	/**
+	 * This method handles all Java Version support verification sequences.
+	 * 
+	 * @return A string representing the current Java Run-Time Environment that
+	 * the system is using.
+	 */
+	public String getCurrentJRE() {
+		String jreVersion = System.getProperty("java.version");
 
-      for ( int i = 0; i < arrayLength; i++ )
-      {
-         if ( osName.equalsIgnoreCase( mSupportedOS[i] ) )
-         {
-            osSupported = true;
-            break;
-         }
-      }
+		return jreVersion;
+	}
 
-      if ( ! osSupported )
-      {
-         String title = new String("Environment Warning");
-         String messageText = "This software has NOT been tested with the Operating System: " 
-             + osName + ".  \nThere is no guarantee that the software will function properly.  " +
-             "\nSee the Readme for detailed installation instructions " +
-             "and support information prior to operating the software.";
-         MessageBox mb = new MessageBox( MessageBox.WARNING, messageText, title );
-      }
-   }
+	/**
+	 * This method handles all Operating System support verification sequences.
+	 * 
+	 * @return A string representing the current Operating System that the 
+	 * system is running on.
+	 */
+	public String getCurrentOS() {
+		String osName = System.getProperty("os.name");
+		PrivilegedGetSP psp = new PrivilegedGetSP("sun.os.patch.level");
 
-   /**
-    * This method verifies that the environment variable was set up properly.
-    * If not a messages is sent to the user.
-    * 
-    * @param iKey The environment variable that is being verified.
-    */
-   public void verifyEnvironmentVariable( String iKey )
-   {
-      String value = EnvironmentVariable.getValue( iKey );
+		String patch = (AccessController.doPrivileged(psp)).toString();
+		String abbreviatedPatch = patch.replaceAll("Service Pack", "SP");
+		String os = osName + " - " + abbreviatedPatch;
 
-      if ( value.equals("") )
-      {
-         String title = new String("Environment Error");
-         String messageText = "The \"" + iKey + "\" Environment Variable could " +
-                              "not be detected.  This Environment\n Variable " +
-                              "must be set correctly for successful " +
-                              "operation of this software.";
-         MessageBox mb = new MessageBox( MessageBox.ERROR, messageText, title );
-      }
-   }
+		return os;
+	}
 
+	/**
+	 * This method verifies that the environment variable was set up properly.
+	 * If not a messages is sent to the user.
+	 * 
+	 * @param iKey The environment variable that is being verified.
+	 */
+	public void verifyEnvironmentVariable(String iKey) {
+		String value = EnvironmentVariable.getValue(iKey);
 
-   /**
-    * This method handles all Java Version support verification sequences.
-    * 
-    * @return A boolean that indicates whether or not the appropriate Java 
-    * Run-Time Environment is being used.
-    */
-   public boolean verifyJRESupportBoolean()
-   {
-      String jreVersion = System.getProperty("java.version");
+		if (value.equals("")) {
+			String title = "Environment Error";
+			String messageText = "The \"" + iKey + "\" Environment Variable could " + "not be detected.  This Environment\n Variable "
+			        + "must be set correctly for successful " + "operation of this software.";
+			new MessageBox(MessageBox.ERROR, messageText, title);
+		}
+	}
 
-      boolean jreSupported = false;
-      int arrayLength = mSupportedJRE.length;
+	/**
+	 * This method handles all Java Version support verification sequences.
+	 */
+	private void verifyJRESupport() {
+		String jreVersion = System.getProperty("java.version");
 
-      for ( int i = 0; i < arrayLength; i++ )
-      {
-         if ( jreVersion.equals( mSupportedJRE[i] ) )
-         {
-            jreSupported = true;
-            break;
-         }
-      }
+		boolean jreSupported = false;
+		int arrayLength = mSupportedJRE.length;
 
-      return jreSupported;
-   }
+		for (int i = 0; i < arrayLength; i++) {
+			if (jreVersion.equals(mSupportedJRE[i])) {
+				jreSupported = true;
+				break;
+			}
+		}
 
-   /**
-    * This method handles all Operating System support verification sequences.
-    * 
-    * @return A boolean that indicates whether or not the operating system
-    * being used is one that is supported.
-    */
-   public boolean verifyOSSupportBoolean()
-   {
-      String osName = System.getProperty("os.name");
+		if (!jreSupported) {
+			String title = "Environment Error";
+			String messageText = "This software has NOT been tested with the " + "installed Java Runtime Environment (JRE) Version:  " + jreVersion
+			        + ".  \nThere is no guarantee that the software " + "will function properly.  \nSee the Readme for "
+			        + "detailed installation instructions and tested JREs " + "prior to operating this software.";
 
-      boolean osSupported = false;
-      int arrayLength = mSupportedOS.length;
+			new MessageBox(MessageBox.WARNING, messageText, title);
+		}
+	}
 
-      for ( int i = 0; i < arrayLength; i++ )
-      {
-         if ( osName.equalsIgnoreCase( mSupportedOS[i] ) )
-         {
-            osSupported = true;
-            break;
-         }
-      }
+	/**
+	 * This method handles all Java Version support verification sequences.
+	 * 
+	 * @return A boolean that indicates whether or not the appropriate Java 
+	 * Run-Time Environment is being used.
+	 */
+	public boolean verifyJRESupportBoolean() {
+		String jreVersion = System.getProperty("java.version");
 
-      return osSupported;
-   }
+		boolean jreSupported = false;
+		int arrayLength = mSupportedJRE.length;
 
-   /**
-    * This method handles all Operating System support verification sequences.
-    * 
-    * @return A string representing the current Operating System that the 
-    * system is running on.
-    */
-   public String getCurrentOS()
-   {
-      String osName = System.getProperty("os.name");
-      PrivilegedGetSP psp = new PrivilegedGetSP("sun.os.patch.level");
-      
-      String patch = (AccessController.doPrivileged(psp)).toString();
-      String abbreviatedPatch = patch.replaceAll("Service Pack", "SP");
-      String os = osName + " - " + abbreviatedPatch;
-      
+		for (int i = 0; i < arrayLength; i++) {
+			if (jreVersion.equals(mSupportedJRE[i])) {
+				jreSupported = true;
+				break;
+			}
+		}
 
-      return os;
-   }
+		return jreSupported;
+	}
 
-   /**
-    * This method handles all Java Version support verification sequences.
-    * 
-    * @return A string representing the current Java Run-Time Environment that
-    * the system is using.
-    */
-   public String getCurrentJRE()
-   {
-      String jreVersion = System.getProperty("java.version");
+	/**
+	 * This method handles all Operating System support verification sequences.
+	 */
+	private void verifyOSSupport() {
+		String osName = System.getProperty("os.name");
 
-      return jreVersion;
-   }
-   
-   /**
-    *
-    * <strong>Description:</strong><br>This is a inner class that permits
-    * the ability to retrieve information about the system.
-    *
-    */
-   private class PrivilegedGetSP implements PrivilegedAction
-   {
-      /**
-       * The string representation of the service pack
-       */
-      String mSPKey;
-      
-      /**
-       * The value of the service pack
-       */
-      Object mSPValue;
-      
-      /**
-       * Constructor for the inner class
-       * 
-       * @param iSPKey The service pack key
-       */
-      PrivilegedGetSP( String iSPKey )
-      {
-         mSPKey     = iSPKey;
-      }
+		boolean osSupported = false;
+		int arrayLength = mSupportedOS.length;
 
-      /**
-       * This run method grants privileged applet code access to write
-       * to the summary log.  This allows the applet to work in Netscape 6.
-       *
-       * @return Object
-       *
-       */
-      public Object run()
-      {
-         try
-         {
-            mSPValue = System.getProperty(mSPKey);
-         }
-         catch(Exception e)
-         {
-            e.printStackTrace();
-         }
+		for (int i = 0; i < arrayLength; i++) {
+			if (osName.equalsIgnoreCase(mSupportedOS[i])) {
+				osSupported = true;
+				break;
+			}
+		}
 
-         return mSPValue;
-      }
-   }
+		if (!osSupported) {
+			String title = "Environment Warning";
+			String messageText = "This software has NOT been tested with the Operating System: " + osName
+			        + ".  \nThere is no guarantee that the software will function properly.  " + "\nSee the Readme for detailed installation instructions "
+			        + "and support information prior to operating the software.";
+			new MessageBox(MessageBox.WARNING, messageText, title);
+		}
+	}
+
+	/**
+	 * This method handles all Operating System support verification sequences.
+	 * 
+	 * @return A boolean that indicates whether or not the operating system
+	 * being used is one that is supported.
+	 */
+	public boolean verifyOSSupportBoolean() {
+		String osName = System.getProperty("os.name");
+
+		boolean osSupported = false;
+		int arrayLength = mSupportedOS.length;
+
+		for (int i = 0; i < arrayLength; i++) {
+			if (osName.equalsIgnoreCase(mSupportedOS[i])) {
+				osSupported = true;
+				break;
+			}
+		}
+
+		return osSupported;
+	}
+
+	/**
+	 * This method is the default constructor of the <code>SupportVerifer</code>
+	 * class.  It controls all support verification sequences.
+	 */
+	public void verifySupport() {
+		verifyOSSupport();
+		verifyJRESupport();
+	}
 }

@@ -30,16 +30,16 @@ import java.util.Vector;
 
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ResourceToolAction;
-import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceToolAction.ActionType;
+import org.sakaiproject.content.api.ResourceType;
 
 public abstract class BaseResourceType implements ResourceType {
 
-	protected EnumMap<ResourceToolAction.ActionType, List<ResourceToolAction>> actionMap =
-	      new EnumMap<ResourceToolAction.ActionType, List<ResourceToolAction>>(ResourceToolAction.ActionType.class);
+	protected EnumMap<ResourceToolAction.ActionType, List<ResourceToolAction>> actionMap = new EnumMap<ResourceToolAction.ActionType, List<ResourceToolAction>>(
+	        ResourceToolAction.ActionType.class);
+
 	protected Map<String, ResourceToolAction> actions = new Hashtable<String, ResourceToolAction>();
 
-	
 	public ResourceToolAction getAction(String actionId) {
 		return actions.get(actionId);
 	}
@@ -54,26 +54,26 @@ public abstract class BaseResourceType implements ResourceType {
 	}
 
 	public List<ResourceToolAction> getActions(List<ActionType> types) {
-		 List<ResourceToolAction> list = new Vector<ResourceToolAction>();
-			if (types != null) {
-				Iterator<ResourceToolAction.ActionType> it = types.iterator();
-				while (it.hasNext()) {
-					ResourceToolAction.ActionType type = it.next();
-					List<ResourceToolAction> sublist = actionMap.get(type);
-					if (sublist == null) {
-						sublist = new Vector<ResourceToolAction>();
-						actionMap.put(type, sublist);
-					}
-					list.addAll(sublist);
+		List<ResourceToolAction> list = new Vector<ResourceToolAction>();
+		if (types != null) {
+			Iterator<ResourceToolAction.ActionType> it = types.iterator();
+			while (it.hasNext()) {
+				ResourceToolAction.ActionType type = it.next();
+				List<ResourceToolAction> sublist = actionMap.get(type);
+				if (sublist == null) {
+					sublist = new Vector<ResourceToolAction>();
+					actionMap.put(type, sublist);
 				}
+				list.addAll(sublist);
 			}
-			return list;
+		}
+		return list;
 	}
-	
+
 	public String getIconLocation(ContentEntity entity) {
 		return null;
 	}
-	
+
 	public boolean hasAvailabilityDialog() {
 		return false;
 	}
@@ -105,11 +105,11 @@ public abstract class BaseResourceType implements ResourceType {
 	public boolean isExpandable() {
 		return false;
 	}
-	
+
 	protected List<ResourceToolAction> makeList(ResourceToolAction create) {
-	      List<ResourceToolAction> returned = new ArrayList<ResourceToolAction>();
-	      returned.add(create);
-	      return returned;
+		List<ResourceToolAction> returned = new ArrayList<ResourceToolAction>();
+		returned.add(create);
+		return returned;
 	}
 
 }

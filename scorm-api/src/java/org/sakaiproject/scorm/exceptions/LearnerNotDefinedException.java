@@ -11,12 +11,12 @@ public class LearnerNotDefinedException extends Exception {
 		super(message);
 	}
 
-	public LearnerNotDefinedException(Throwable cause) {
-		super(cause);
-	}
-
 	public LearnerNotDefinedException(String message, Throwable cause) {
 		super(message, cause);
+	}
+
+	public LearnerNotDefinedException(Throwable cause) {
+		super(cause);
 	}
 
 }

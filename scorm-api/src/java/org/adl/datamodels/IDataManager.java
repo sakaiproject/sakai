@@ -28,40 +28,6 @@ import org.adl.datamodels.ieee.IValidatorFactory;
 
 public interface IDataManager extends Serializable {
 
-	public long getId();
-	
-	public void setId(long id);
-	
-	public String getCourseId();
-	
-	public String getUserId();
-	
-	public String getScoId();
-	
-	public void setCourseId(String courseId);
-	
-	public void setUserId(String userId);
-	
-	public void setScoId(String scoId);
-	
-	public String getTitle();
-	
-	public Date getBeginDate();
-	
-	public void setBeginDate(Date beginDate);
-	
-	public Date getLastModifiedDate();
-	
-	public void setLastModifiedDate(Date lastModifiedDate);
-	
-	public long getAttemptNumber();
-	
-	public void setAttemptNumber(long attemptNumber);
-	
-	public Map getDataModels();
-
-	public void setDataModels(Map dataModels);
-	
 	/**
 	 * Adds the identified data model to the set of run-time data models managed
 	 * for this SCO.  First checks the current set of managed data models
@@ -69,8 +35,9 @@ public interface IDataManager extends Serializable {
 	 * Hashtable.
 	 * 
 	 * @param iModel  Describes the run-time data model to be added.
+	 * @param validatorFactory TODO
 	 */
-	public void addDM(int iModel);
+	public DataModel addDM(int iModel, IValidatorFactory validatorFactory);
 
 	/**
 	 * Processes an equals() request against the SCO's run-time data.
@@ -81,6 +48,12 @@ public interface IDataManager extends Serializable {
 	 *         operation.
 	 */
 	public int equals(DMRequest iRequest);
+
+	public long getAttemptNumber();
+
+	public Date getBeginDate();
+
+	public String getCourseId();
 
 	/**
 	 * Retrieves a specific Data Model managed by this 
@@ -93,6 +66,18 @@ public interface IDataManager extends Serializable {
 	 *         requested data model.
 	 */
 	public DataModel getDataModel(String iDataModel);
+
+	public Map<String, DataModel> getDataModels();
+
+	public Long getId();
+
+	public Date getLastModifiedDate();
+
+	public String getScoId();
+
+	public String getTitle();
+
+	public String getUserId();
 
 	/**
 	 * Processes a GetValue() request against the SCO's run-time data.
@@ -111,23 +96,40 @@ public interface IDataManager extends Serializable {
 	 */
 	public void initialize();
 
-	
-	public void setValidatorFactory(IValidatorFactory validatorFactory);
-	
+	public void setAttemptNumber(long attemptNumber);
+
+	public void setBeginDate(Date beginDate);
+
+	public void setCourseId(String courseId);
+
+	public void setDataModels(Map<String, DataModel> dataModels);
+
+	public void setId(Long id);
+
+	public void setLastModifiedDate(Date lastModifiedDate);
+
+	public void setScoId(String scoId);
+
+	public void setUserId(String userId);
+
+//	public void setValidatorFactory(IValidatorFactory validatorFactory);
+
 	/**
 	 * Processes a SetValue() request against the SCO's run-time data.
 	 * 
 	 * @param iRequest The request (<code>DMRequest</code>) being processed.
+	 * @param validatorFactory TODO
 	 * 
 	 * @return A data model error code indicating the result of this
 	 *         operation.
 	 */
-	public int setValue(DMRequest iRequest);
+	public int setValue(DMRequest iRequest, IValidatorFactory validatorFactory);
 
 	/** 
 	 * Terminates all data models being managed for this SCO.
+	 * @param validatorFactory TODO
 	 */
-	public void terminate();
+	public void terminate(IValidatorFactory validatorFactory);
 
 	/**
 	 * Processes a validate() request against the SCO's run-time data.

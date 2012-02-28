@@ -13,7 +13,7 @@ public class ConfirmPage extends ConsoleBasePage implements ScormConstants {
 
 	private static final long serialVersionUID = 1L;
 
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResourceService")
 	ScormResourceService resourceService;
 	
 	public ConfirmPage(PageParameters params) {
@@ -23,7 +23,7 @@ public class ConfirmPage extends ConsoleBasePage implements ScormConstants {
 		Archive archive = resourceService.getArchive(resourceId);
 		
 		if (archive != null) {
-			setModel(new CompoundPropertyModel(archive));
+			setDefaultModel(new CompoundPropertyModel(archive));
 		}
 	
 		info(getNotification(status));

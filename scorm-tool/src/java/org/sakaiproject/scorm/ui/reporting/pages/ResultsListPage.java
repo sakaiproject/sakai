@@ -54,11 +54,12 @@ public class ResultsListPage extends ConsoleBasePage {
 
 	private static ResourceReference PAGE_ICON = new ResourceReference(LearnerResultsPage.class, "res/report.png");
 	
+	@SuppressWarnings("unused")
 	private static Log log = LogFactory.getLog(ResultsListPage.class);
 	
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormContentService")
 	ScormContentService contentService;
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormResultService")
 	ScormResultService resultService;
 	
 	public ResultsListPage(PageParameters pageParams) {
@@ -87,6 +88,7 @@ public class ResultsListPage extends ConsoleBasePage {
 		IModel attemptedHeader = new ResourceModel("column.header.attempted");
 		IModel statusHeader = new ResourceModel("column.header.status");
 		IModel numberOfAttemptsHeader = new ResourceModel("column.header.attempt.number");
+		@SuppressWarnings("unused")
 		IModel scoreHeader = new ResourceModel("column.header.score");
 	
 		List<IColumn> columns = new LinkedList<IColumn>();
@@ -122,7 +124,7 @@ public class ResultsListPage extends ConsoleBasePage {
 			this.learnerExperiences = resultService.getLearnerExperiences(contentPackageId);
 		}
 		
-		public Iterator iterator(int first, int last) {
+		public Iterator<LearnerExperience> iterator(int first, int last) {
 			return learnerExperiences.subList(first, last).iterator();
 		}
 
@@ -131,7 +133,7 @@ public class ResultsListPage extends ConsoleBasePage {
 		}
 		
 		@Override
-		public List getFilterList() {
+		public List<NameValuePair> getFilterList() {
 			List<NameValuePair> list = new LinkedList<NameValuePair>();
 					
 			list.add(new NameValuePair("All Groups / Sections", "ALL_GROUPS"));
@@ -140,6 +142,7 @@ public class ResultsListPage extends ConsoleBasePage {
 		}
 	}
 	
+	@Override
 	protected ResourceReference getPageIconReference() {
 		return PAGE_ICON;
 	}

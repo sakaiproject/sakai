@@ -1,0 +1,19 @@
+	dl dt {
+		font-size: 1.35em;
+		font-weight: bold;
+	}
+	
+	dl dd {
+		margin: 0;
+		padding:0;
+	}
+	
+	ul.navlist ul {
+		list-style-type: none;
+	}
+	
+	.navlist li {
+		display: inline;
+		list-style-type: none;
+		margin-right: 12px;
+	}

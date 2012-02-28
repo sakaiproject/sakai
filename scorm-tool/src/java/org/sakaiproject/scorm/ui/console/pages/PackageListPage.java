@@ -25,24 +25,32 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.wicket.Component;
+import org.apache.wicket.PageMap;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ResourceReference;
+import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.link.PopupSettings;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.util.lang.PropertyResolver;
 import org.sakaiproject.scorm.api.ScormConstants;
 import org.sakaiproject.scorm.model.api.ContentPackage;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.scorm.ui.console.components.DecoratedDatePropertyColumn;
 import org.sakaiproject.scorm.ui.player.pages.PlayerPage;
+import org.sakaiproject.scorm.ui.reporting.pages.LearnerResultsPage;
 import org.sakaiproject.scorm.ui.reporting.pages.ResultsListPage;
+import org.sakaiproject.wicket.markup.html.link.BookmarkablePageLabeledLink;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.Action;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.ActionColumn;
 import org.sakaiproject.wicket.markup.html.repeater.data.table.BasicDataTable;
@@ -52,6 +60,7 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 
 	private static final long serialVersionUID = 1L;
 
+	@SuppressWarnings("unused")
 	private static Log log = LogFactory.getLog(PackageListPage.class);
 	
 	private static ResourceReference PAGE_ICON = new ResourceReference(PackageListPage.class, "res/table.png");
@@ -59,7 +68,7 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 	
 	@SpringBean
 	LearningManagementSystem lms;
-	@SpringBean
+	@SpringBean(name="org.sakaiproject.scorm.service.api.ScormContentService")
 	ScormContentService contentService;
 	
 	public PackageListPage(PageParameters params) {
@@ -68,37 +77,72 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 		
 		final String context = lms.currentContext();
 		final boolean canConfigure = lms.canConfigure(context);
-		final boolean canViewResults = lms.canViewResults(context);
-		final boolean canLaunch = lms.canLaunch(context);
+		final boolean canGrade = lms.canGrade(context);
+        final boolean canViewResults = lms.canViewResults(context);
+//		final boolean canLaunch = lms.canLaunch(context);
 		final boolean canDelete = lms.canDelete(context);
 		
-		List<IColumn> columns = new LinkedList<IColumn>();
+		List<IColumn<ContentPackage>> columns = new LinkedList<IColumn<ContentPackage>>();
 
 		ActionColumn actionColumn = new ActionColumn(new StringResourceModel("column.header.content.package.name", this, null), "title", "title");
 			
 		String[] paramPropertyExpressions = {"contentPackageId", "resourceId", "title"};
 		
-		Action launchAction = new Action("title", PlayerPage.class, paramPropertyExpressions);
-		launchAction.setEnabled(canLaunch);
+		Action launchAction = new Action("title", PlayerPage.class, paramPropertyExpressions){
+			private static final long serialVersionUID = 1L;
+			@Override
+			public Component newLink(String id, Object bean) {
+				IModel<String> labelModel = null;
+				if (displayModel != null) {
+					labelModel = displayModel;
+		 		} else {
+		 			String labelValue = String.valueOf(PropertyResolver.getValue(labelPropertyExpression, bean));
+		 			labelModel = new Model<String>(labelValue);
+		 		}
+				
+				PageParameters params = buildPageParameters(paramPropertyExpressions, bean);
+				Link link = new BookmarkablePageLabeledLink(id, labelModel, pageClass, params);
+
+				if (popupWindowName != null) {
+					PopupSettings popupSettings = new PopupSettings(PageMap.forName(popupWindowName), PopupSettings.RESIZABLE);
+					popupSettings.setWidth(1020);
+					popupSettings.setHeight(740);
+					
+					popupSettings.setWindowName(popupWindowName);
+					
+		 			link.setPopupSettings(popupSettings);
+				}
+				
+				link.setEnabled(isEnabled(bean) && lms.canLaunch((ContentPackage)bean));
+				link.setVisible(isVisible(bean));
+					
+		 		return link;
+			}
+			
+		};
 		actionColumn.addAction(launchAction);
 		
-		if (lms.canLaunchNewWindow())
+		if (lms.canLaunchNewWindow()) {
 			launchAction.setPopupWindowName("ScormPlayer");
-		
+		}
+
 		if (canConfigure)
 			actionColumn.addAction(new Action(new ResourceModel("column.action.edit.label"), PackageConfigurationPage.class, paramPropertyExpressions));
 			
-		if (canViewResults)
+		if (canGrade) {
 			actionColumn.addAction(new Action(new StringResourceModel("column.action.grade.label", this, null), ResultsListPage.class, paramPropertyExpressions));
-				
-		columns.add(actionColumn);
+		}
+		else if (canViewResults) {
+            actionColumn.addAction(new Action(new StringResourceModel("column.action.grade.label", this, null), LearnerResultsPage.class, paramPropertyExpressions));
+        }
 		
+		columns.add(actionColumn);
+
 		columns.add(new StatusColumn(new StringResourceModel("column.header.status", this, null), "status"));
 		
 		columns.add(new DecoratedDatePropertyColumn(new StringResourceModel("column.header.releaseOn", this, null), "releaseOn", "releaseOn"));
 
 		columns.add(new DecoratedDatePropertyColumn(new StringResourceModel("column.header.dueOn", this, null), "dueOn", "dueOn"));
-
 		
 		if (canDelete)
 			columns.add(new ImageLinkColumn(new Model("Remove"), PackageRemovePage.class, paramPropertyExpressions, deleteIconReference));
@@ -109,19 +153,19 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 	}	
 	
 	
-	public class StatusColumn extends AbstractColumn {
+	public class StatusColumn extends AbstractColumn<ContentPackage> {
 
 		private static final long serialVersionUID = 1L;
 
-		public StatusColumn(IModel displayModel, String sortProperty) {
+		public StatusColumn(IModel<String> displayModel, String sortProperty) {
 			super(displayModel, sortProperty);
 		}
 
-		public void populateItem(Item item, String componentId, IModel model) {
+		public void populateItem(Item<ICellPopulator<ContentPackage>> item, String componentId, IModel<ContentPackage> model) {
 			item.add(new Label(componentId, createLabelModel(model)));
 		}
 		
-		protected IModel createLabelModel(IModel embeddedModel)
+		protected IModel<String> createLabelModel(IModel<ContentPackage> embeddedModel)
 		{
 			String resourceId = "status.unknown";
 			Object target = embeddedModel.getObject();
@@ -149,8 +193,11 @@ public class PackageListPage extends ConsoleBasePage implements ScormConstants {
 			
 			return new ResourceModel(resourceId);
 		}
+
+
 	}
 	
+	@Override
 	protected ResourceReference getPageIconReference() {
 		return PAGE_ICON;
 	}

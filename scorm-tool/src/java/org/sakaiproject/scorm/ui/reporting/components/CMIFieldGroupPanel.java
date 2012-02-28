@@ -23,11 +23,8 @@ package org.sakaiproject.scorm.ui.reporting.components;
 import java.util.List;
 
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.RepeatingView;
-import org.apache.wicket.model.Model;
 import org.sakaiproject.scorm.model.api.CMIField;
 import org.sakaiproject.scorm.model.api.CMIFieldGroup;
 

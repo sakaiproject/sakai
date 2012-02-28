@@ -28,19 +28,35 @@ import org.sakaiproject.scorm.exceptions.ResourceNotFoundException;
 
 public abstract class ContentPackageResource implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private String path;
+
 	private long length;
+
 	private long lastModified;
-	
-	public ContentPackageResource() {}
-	
+
+	public ContentPackageResource() {
+	}
+
 	public ContentPackageResource(String path) {
 		this.path = path;
 		this.length = -1;
 		this.lastModified = new Date().getTime();
 	}
-	
+
 	public abstract InputStream getInputStream() throws ResourceNotFoundException;
+
+	public long getLastModified() {
+		return lastModified;
+	}
+
+	public long getLength() {
+		return length;
+	}
 
 	public abstract String getMimeType();
 
@@ -48,24 +64,16 @@ public abstract class ContentPackageResource implements Serializable {
 		return path;
 	}
 
-	public void setPath(String path) {
-		this.path = path;
-	}
-
-	public long getLength() {
-		return length;
+	public void setLastModified(long lastModified) {
+		this.lastModified = lastModified;
 	}
 
 	public void setLength(long length) {
 		this.length = length;
 	}
 
-	public long getLastModified() {
-		return lastModified;
-	}
-
-	public void setLastModified(long lastModified) {
-		this.lastModified = lastModified;
+	public void setPath(String path) {
+		this.path = path;
 	}
 
 }

@@ -47,41 +47,40 @@ package org.ims.ssp.samplerte.server.bucket;
  * 
  * @author ADL Technical Team
  */
-public class Persistence
-{
-   /**
-    * 
-    *
-    * Indicates that the bucket is persisted until the learner is removed
-    * from the LMS.
-    *
-    * <br><b>0</b>
-    *
-    * <br>[SCORM SSP SUBSYSTEM CONSTANT]
-    */
-   public static final int LEARNER = 0;
+public class Persistence {
+	/**
+	 * 
+	 *
+	 * Indicates that the bucket is persisted until the learner is removed
+	 * from the LMS.
+	 *
+	 * <br><b>0</b>
+	 *
+	 * <br>[SCORM SSP SUBSYSTEM CONSTANT]
+	 */
+	public static final int LEARNER = 0;
 
-   /**
-    * Indicates that the bucket is persisted until the activity tree containing
-    * the SCO is removed from the LMS.
-    *
-    * <br>Course
-    *
-    * <br><b>1</b>
-    *
-    * <br>[SCORM SSP SUBSYSTEM CONSTANT]
-    */
-   public static final int COURSE = 1;
+	/**
+	 * Indicates that the bucket is persisted until the activity tree containing
+	 * the SCO is removed from the LMS.
+	 *
+	 * <br>Course
+	 *
+	 * <br><b>1</b>
+	 *
+	 * <br>[SCORM SSP SUBSYSTEM CONSTANT]
+	 */
+	public static final int COURSE = 1;
 
-   /**
-    * Indicates that the bucket is persisted until the current learner attempt
-    * on the SCO ends.
-    *
-    * <br>Session
-    *
-    * <br><b>2</b>
-    *
-    * <br>[SCORM SSP SUBSYSTEM CONSTANT]
-    */
-   public static final int SESSION = 2;
+	/**
+	 * Indicates that the bucket is persisted until the current learner attempt
+	 * on the SCO ends.
+	 *
+	 * <br>Session
+	 *
+	 * <br><b>2</b>
+	 *
+	 * <br>[SCORM SSP SUBSYSTEM CONSTANT]
+	 */
+	public static final int SESSION = 2;
 }
