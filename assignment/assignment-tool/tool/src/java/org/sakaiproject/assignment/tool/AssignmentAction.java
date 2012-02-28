@@ -6193,18 +6193,21 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			AnnouncementChannel channel = (AnnouncementChannel) state.getAttribute(ANNOUNCEMENT_CHANNEL);
 			if (channel != null)
-			{
+			{	
 				// whether the assignment's title or open date has been updated
 				boolean updatedTitle = false;
 				boolean updatedOpenDate = false;
+				boolean updateAccess = false;
 				
 				String openDateAnnounced = StringUtils.trimToNull(a.getProperties().getProperty(NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED));
 				String openDateAnnouncementId = StringUtils.trimToNull(a.getPropertiesEdit().getProperty(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID));
 				if (openDateAnnounced != null && openDateAnnouncementId != null)
 				{
+					AnnouncementMessage message = null;
+					
 					try
 					{
-						AnnouncementMessage message = channel.getAnnouncementMessage(openDateAnnouncementId);
+						message = channel.getAnnouncementMessage(openDateAnnouncementId);
 						if (!message.getAnnouncementHeader().getSubject().contains(title))/*whether title has been changed*/
 						{
 							updatedTitle = true;
@@ -6212,6 +6215,19 @@ public class AssignmentAction extends PagedResourceActionII
 						if (!message.getBody().contains(openTime.toStringLocalFull())) /*whether open date has been changed*/
 						{
 							updatedOpenDate = true;
+						}
+						if (!message.getAnnouncementHeader().getAccess().equals(a.getAccess()))
+						{
+							updateAccess = true;
+						}
+						else if (a.getAccess() == Assignment.AssignmentAccess.GROUPED)
+						{
+							Collection<String> assnGroups = a.getGroups();
+							Collection<String> anncGroups = message.getAnnouncementHeader().getGroups();
+							if (!assnGroups.equals(anncGroups))
+							{
+								updateAccess = true;
+							}
 						}
 					}
 					catch (IdUnusedException e)
@@ -6222,10 +6238,23 @@ public class AssignmentAction extends PagedResourceActionII
 					{
 						M_log.warn(this + ":integrateWithAnnouncement " + e.getMessage());
 					}
+					
+					if (updateAccess  && message != null)
+					{
+						try
+						{
+							// if the access level has changed in assignment, remove the original announcement
+							channel.removeAnnouncementMessage(message.getId());
+						}
+						catch (PermissionException e)
+						{
+							M_log.warn(this + ":integrateWithAnnouncement PermissionException for remove message id=" + message.getId() + " for assignment id=" + a.getId() + " " + e.getMessage());
+						}
+					}
 				}
 
 				// need to create announcement message if assignment is added or assignment has been updated
-				if (openDateAnnounced == null || updatedTitle || updatedOpenDate)
+				if (openDateAnnounced == null || updatedTitle || updatedOpenDate || updateAccess)
 				{
 					try
 					{
