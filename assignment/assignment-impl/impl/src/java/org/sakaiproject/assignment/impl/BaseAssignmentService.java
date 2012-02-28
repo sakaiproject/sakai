@@ -2128,7 +2128,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 		else
 		{
-			M_log.debug(this + " ADD SUBMISSION: null submission object with attempted id " + submissionId);
+			M_log.warn(this + " ADD SUBMISSION: cannot add submission object with submission id=" + submissionId + ", assignment id=" + assignmentId + ", and submitter id=" + submitterId);
 		}
 		return submission;
 	}

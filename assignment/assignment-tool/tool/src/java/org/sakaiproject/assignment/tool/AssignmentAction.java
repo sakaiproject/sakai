@@ -4452,39 +4452,42 @@ public class AssignmentAction extends PagedResourceActionII
 					try
 					{
 						AssignmentSubmissionEdit edit = AssignmentService.addSubmission(contextString, assignmentId, SessionManager.getCurrentSessionUserId());
-						edit.setSubmittedText(text);
-						edit.setHonorPledgeFlag(Boolean.valueOf(honorPledgeYes).booleanValue());
-						edit.setTimeSubmitted(TimeService.newTime());
-						edit.setSubmitted(post);
-						edit.setAssignment(a);
-                        ResourcePropertiesEdit sPropertiesEdit = edit.getPropertiesEdit();
-
-						// add attachments
-						List attachments = (List) state.getAttribute(ATTACHMENTS);
-						if (attachments != null)
+						if (edit != null)
 						{
- 							// add each attachment
-							if ((!attachments.isEmpty()) && a.getContent().getAllowReviewService()) 
-								edit.postAttachment(attachments);								
-							
-							// add each attachment
-							Iterator it = attachments.iterator();
-							while (it.hasNext())
+							edit.setSubmittedText(text);
+							edit.setHonorPledgeFlag(Boolean.valueOf(honorPledgeYes).booleanValue());
+							edit.setTimeSubmitted(TimeService.newTime());
+							edit.setSubmitted(post);
+							edit.setAssignment(a);
+	                        ResourcePropertiesEdit sPropertiesEdit = edit.getPropertiesEdit();
+	
+							// add attachments
+							List attachments = (List) state.getAttribute(ATTACHMENTS);
+							if (attachments != null)
 							{
-								edit.addSubmittedAttachment((Reference) it.next());
+	 							// add each attachment
+								if ((!attachments.isEmpty()) && a.getContent().getAllowReviewService()) 
+									edit.postAttachment(attachments);								
+								
+								// add each attachment
+								Iterator it = attachments.iterator();
+								while (it.hasNext())
+								{
+									edit.addSubmittedAttachment((Reference) it.next());
+								}
 							}
+							
+							// set the resubmission properties
+							setResubmissionProperties(a, edit);
+							if (submitter != null) {
+	                            sPropertiesEdit.addProperty(AssignmentSubmission.SUBMITTER_USER_ID, submitter.getId());
+	                            state.setAttribute(STATE_SUBMITTER, u.getId());
+	                        } else {
+	                            sPropertiesEdit.removeProperty(AssignmentSubmission.SUBMITTER_USER_ID);
+	                        }
+	
+							AssignmentService.commitEdit(edit);
 						}
-						
-						// set the resubmission properties
-						setResubmissionProperties(a, edit);
-						if (submitter != null) {
-                            sPropertiesEdit.addProperty(AssignmentSubmission.SUBMITTER_USER_ID, submitter.getId());
-                            state.setAttribute(STATE_SUBMITTER, u.getId());
-                        } else {
-                            sPropertiesEdit.removeProperty(AssignmentSubmission.SUBMITTER_USER_ID);
-                        }
-
-						AssignmentService.commitEdit(edit);
 					}
 					catch (PermissionException e)
 					{
@@ -6030,10 +6033,13 @@ public class AssignmentAction extends PagedResourceActionII
 				{
 					// construct fake submissions for grading purpose
 					AssignmentSubmissionEdit submission = AssignmentService.addSubmission(a.getContext(), a.getId(), userId);
-					submission.setTimeSubmitted(TimeService.newTime());
-					submission.setSubmitted(true);
-					submission.setAssignment(a);
-					AssignmentService.commitEdit(submission);
+					if (submission != null)
+					{
+						submission.setTimeSubmitted(TimeService.newTime());
+						submission.setSubmitted(true);
+						submission.setAssignment(a);
+						AssignmentService.commitEdit(submission);
+					}
 				}
 			}
 			catch (Exception e)
