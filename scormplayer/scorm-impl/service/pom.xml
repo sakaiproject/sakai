@@ -76,10 +76,6 @@
           <artifactId>gradebook-service-api</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.sakaiproject.entitybroker</groupId>
-          <artifactId>entitybroker-api</artifactId>
-        </dependency>
-        <dependency>
           <groupId>org.sakaiproject.kernel</groupId>
           <artifactId>sakai-kernel-util</artifactId>
         </dependency>
@@ -99,10 +95,6 @@
         <dependency>
           <groupId>org.sakaiproject.edu-services.gradebook</groupId>
           <artifactId>gradebook-service-api</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.sakaiproject.entitybroker</groupId>
-          <artifactId>entitybroker-api</artifactId>
         </dependency>
         <dependency>
           <groupId>org.sakaiproject.kernel</groupId>

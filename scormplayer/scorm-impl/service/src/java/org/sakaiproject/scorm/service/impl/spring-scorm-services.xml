@@ -103,8 +103,4 @@
 		<lookup-method name="dataManagerDao" bean="org.sakaiproject.scorm.dao.api.DataManagerDao" />
 	</bean>
 
-	<bean id="org.sakaiproject.scorm.service.api.ScormEntityProvider" class="org.sakaiproject.scorm.service.impl.ScormEntityProviderImpl">
-
-	</bean>
-
 </beans>
