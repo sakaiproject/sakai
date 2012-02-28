@@ -35,7 +35,6 @@
 		</url>
   </scm>
   <properties>
-    <sakai.entitybroker.version>1.2.0</sakai.entitybroker.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <packaging>pom</packaging>
