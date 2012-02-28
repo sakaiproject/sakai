@@ -31,7 +31,7 @@ public interface ContentResourceFilter
 	 * Implementation should inspect the actions in the list and include
 	 * them in the returned list if they are can result in creation of 
 	 * resources that can be selected. Otherwise they should not be 
-	 * inclided.
+	 * included.
 	 * @param actions A collection of actions to test
 	 * @return A list of actions that should be shown in the filepicker
 	 * 	for each collection.
