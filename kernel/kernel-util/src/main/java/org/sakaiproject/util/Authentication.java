@@ -21,13 +21,17 @@
 
 package org.sakaiproject.util;
 
+import java.io.Serializable;
+
 /**
  * <p>
  * Authentication is a utility class that implements the Authentication interface.
  * </p>
  */
-public class Authentication implements org.sakaiproject.user.api.Authentication
+public class Authentication implements org.sakaiproject.user.api.Authentication, Serializable
 {
+	private static final long serialVersionUID = 1L;
+
 	/** The UUID identifier string. */
 	protected String m_uid = null;
 

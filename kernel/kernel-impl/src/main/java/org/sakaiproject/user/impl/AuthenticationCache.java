@@ -19,6 +19,7 @@
 
 package org.sakaiproject.user.impl;
 
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -171,7 +172,10 @@ public class AuthenticationCache {
 		if (log.isWarnEnabled()) log.warn("failureThrottleTimeoutMs property set but no longer used; should switch to timeToLive seconds property instead");
 	}
 
-	static class AuthenticationRecord {
+	static class AuthenticationRecord implements Serializable {
+
+		private static final long serialVersionUID = 1L;
+
 		byte[] encodedPassword;
 		Authentication authentication;	// Null for failed authentication
 
