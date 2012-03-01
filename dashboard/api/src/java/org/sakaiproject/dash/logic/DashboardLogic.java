@@ -73,16 +73,6 @@ public interface DashboardLogic {
 	public void addCalendarLinks(String sakaiUserId, String contextId);
 	
 	/**
-	 * Add link to a previously persisted news item for a particular user. Creates "Person" 
-	 * record for user if it doesn't exist (provided sakaiUserId identifies a valid sakai
-	 * user).  Does not check permissions before adding the link.
-	 * @param sakaiUserId
-	 * @param newsItem
-	 * @return
-	 */
-	public NewsLink addNewsLink(String sakaiUserId, NewsItem newsItem);
-
-	/**
 	 * Add links to news items in a context for a particular user. Links
 	 * will be limited to items referencing entities for which the user has 
 	 * access permission. This action may be limited by time or number, depending 
@@ -189,44 +179,6 @@ public interface DashboardLogic {
 	 */
 	public CalendarItem getCalendarItem(String entityReference, String calendarTimeLabelKey, Integer sequenceNumber);
 
-//	/**
-//	 * 
-//	 * @param sakaiUserId
-//	 * @param showFuture If true, the results will include items in the future. Otherwise they will not.
-//	 * @param showPast If true, the results will include items in the past. Otherwise they will not.
-//	 * @param saved If true, the results will include only items that have sticky true for 
-//	 * 		the user. Otherwise the results will not include items with sticky true.
-//	 * @param hidden If true, the results will include items that are individually marked 
-//	 * 		with hidden true. Otherwise, the results will not include items that are 
-//	 * 		individually hidden or hidden because they have a source-type that is hidden 
-//	 * 		for the user or because they are from a context that is hidden for the user. 
-//	 * @return
-//	 */
-//	public List<CalendarItem> getCalendarItems(String sakaiUserId, boolean showFuture, boolean showPast, boolean saved, boolean hidden);
-
-//	/**
-//	 * Returns a list (possibly empty) of calendar-items for the specified user in the specified context.  
-//	 * If contextId is null, the list will include items from all of the user's sites. If showFuture is true, 
-//	 * the other three boolean parameters are ignored, and the results will include only non-sticky, 
-//	 * non-hidden items with calendar-times in the future, in ascending order by calendar-time (i.e. 
-//	 * earlier items before later items). Otherwise, if showPast is true, the other two boolean parameters 
-//	 * will be ignored and the results will include only non-sticky, non-hidden items with calendar-times 
-//	 * in the past, in descending order by calendar-time (i.e. items with most recent calendar-time first). 
-//	 * Otherwise, if sticky is true, the results will include only items that have sticky true for the user. 
-//	 * And if hidden is true, the results will include items that are individually marked with hidden true. 
-//	 * If hidden is false, the results will not include items that are individually hidden or hidden because 
-//	 * they have a source-type that is hidden for the user or because they are from a context that is hidden 
-//	 * for the user. 
-//	 * @param sakaiUserId
-//	 * @param contextId
-//	 * @param showFuture 
-//	 * @param showPast 
-//	 * @param saved 
-//	 * @param hidden 
-//	 * @return
-//	 */
-//	public List<CalendarItem> getCalendarItems(String sakaiUserId, String contextId, boolean showFuture, boolean showPast, boolean saved, boolean hidden);
-	
 	/**
 	 * Returns the CalendarLink object based on the the unique integer identifer assigned to it when it was persisted.
 	 * @param id
@@ -290,12 +242,6 @@ public interface DashboardLogic {
 	 */
 	public NewsItem getNewsItem(String entityReference);
 	
-	//public List<NewsItem> getNewsItems(String sakaiUserId, String contextId, int collapseCount);
-	
-	//public List<NewsItem> getNewsItems(String sakaiUserId, boolean saved, boolean hidden);
-	
-	//public List<NewsItem> getNewsItems(String sakaiUserId, String contextId, boolean saved, boolean hidden);
-	
 	/**
 	 * Returns the number on NewsLink objects representing items in a "group" that the specified person 
 	 * has permission to access and has not "hidden". A group is a set of items of the same source type 
@@ -322,13 +268,6 @@ public interface DashboardLogic {
 	public List<NewsLink> getNewsLinksByGroupId(String sakaiUserId,
 			String groupId, int limit, int offset);
 	
-	/**
-	 * Returns the NewsLink object based on the the unique integer identifer assigned to it when it was persisted.
-	 * @param id
-	 * @return
-	 */
-	public NewsLink getNewsLink(Long id);
-
 	/**
 	 * Returns a list of NewsLink objects which the specified person has permission to access and has not hidden. 
 	 * If the contextId is not null, the results will be limited to the site indicated by that value. 
@@ -503,8 +442,16 @@ public interface DashboardLogic {
 	 */
 	public void removeNewsLinks(String sakaiUserId, String contextId);
 
-	public void reviseCalendarItems(String entityReference, String newTitle, Date newTime);
+	/**
+	 * @param entityReference
+	 * @param newTime
+	 */
 	public void reviseCalendarItemsTime(String entityReference, Date newTime);
+	
+	/**
+	 * @param entityReference
+	 * @param newTitle
+	 */
 	public void reviseCalendarItemsTitle(String entityReference, String newTitle);
 	
 	/**
@@ -516,14 +463,20 @@ public interface DashboardLogic {
 	 */
 	public void reviseCalendarItemsLabelKey(String entityReference, String oldLabelKey, String newLabelKey);
 	
-	public void reviseContextTitle(String contextId, String newContextTitle);
-	
-	public void reviseNewsItemLabelKey(String entityReference, String newLabelKey, String newGroupingIdentifier);
-	
-	public void reviseNewsItemSubtype(String entityReference, String newSubtype, Date newNewsTime, String newLabelKey, String newGroupingIdentifier);
-
+	/**
+	 * @param entityReference
+	 * @param newTime
+	 * @param newGroupingIdentifier
+	 */
 	public void reviseNewsItemTime(String entityReference, Date newTime, String newGroupingIdentifier);
 	
+	/**
+	 * @param entityReference
+	 * @param newTitle
+	 * @param newNewsTime
+	 * @param newLabelKey
+	 * @param newGroupingIdentifier
+	 */
 	public void reviseNewsItemTitle(String entityReference, String newTitle, Date newNewsTime, String newLabelKey, String newGroupingIdentifier);
 
 	/**
@@ -535,20 +488,25 @@ public interface DashboardLogic {
 	public void reviseRepeatingCalendarItemsLabelKey(String entityReference,
 			String oldType, String newType);
 	
+	/**
+	 * @param entityReference
+	 * @param frequency
+	 * @return
+	 */
 	public boolean reviseRepeatingCalendarItemFrequency(String entityReference,
 			String frequency);
 
 	/**
-	 * 
 	 * @param entityReference
-	 * @param labelKey
-	 * @param newSubtype
+	 * @param newFirstTime
+	 * @param newLastTime
 	 */
-	public void reviseRepeatingCalendarItemSubtype(String entityReference,
-			String labelKey, String newSubtype);
-
 	public void reviseRepeatingCalendarItemTime(String entityReference, Date newFirstTime, Date newLastTime);
 
+	/**
+	 * @param entityReference
+	 * @param newTitle
+	 */
 	public void reviseRepeatingCalendarItemTitle(String entityReference, String newTitle);
 
 	/**
@@ -599,32 +557,57 @@ public interface DashboardLogic {
 	 */
 	public boolean unkeepNewsItem(String sakaiUserId, long newsItemId);
 
+	/**
+	 * @param entityReference
+	 */
 	public void updateNewsLinks(String entityReference);
 
+	/**
+	 * @param entityReference
+	 */
 	public void updateCalendarLinks(String entityReference);
 
+	/**
+	 * @param type
+	 * @param subtype
+	 * @return
+	 */
 	public String getEntityIconUrl(String type, String subtype);
 
+	/**
+	 * @return
+	 */
 	public List<NewsItem> getMOTD();
 
+	/**
+	 * @return
+	 */
 	public Date getRepeatingEventHorizon();
 
+	/**
+	 * @param entityReference
+	 * @param labelKey
+	 * @param sequenceNumber
+	 * @param newDate
+	 */
 	public void reviseCalendarItemTime(String entityReference, String labelKey,
 			Integer sequenceNumber, Date newDate);
 
-	public int getLastIndexInSequence(String entityReference,
-			String calendarTimeLabelKey);
-
+	/**
+	 * @param entityReference
+	 * @param calendarTimeLabelKey
+	 * @param firstSequenceNumber
+	 * @return
+	 */
 	public SortedSet<Integer> getFutureSequnceNumbers(String entityReference,
 			String calendarTimeLabelKey, Integer firstSequenceNumber);
 
+	/**
+	 * @param entityReference
+	 * @param calendarTimeLabelKey
+	 * @param sequenceNumber
+	 */
 	public void removeCalendarLinks(String entityReference,
 			String calendarTimeLabelKey, int sequenceNumber);
 
-	// todo:
-	// add methods to revise news items, calendar items, news links, calendar links, etc.
-	
-	
-	// add methods to delete news items, calendar items, news links, calendar links, etc.
-	
 }

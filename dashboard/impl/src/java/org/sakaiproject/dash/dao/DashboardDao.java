@@ -44,54 +44,93 @@ import org.sakaiproject.dash.model.SourceType;
  */
 public interface DashboardDao {
 	
+	/**
+	 * @param availabilityCheck
+	 * @return
+	 */
 	public boolean addAvailabilityCheck(AvailabilityCheck availabilityCheck);
 	
+	/**
+	 * @param calendarItem
+	 * @return
+	 */
 	public boolean addCalendarItem(CalendarItem calendarItem);
 	
+	/**
+	 * @param calendarLink
+	 * @return
+	 */
 	public boolean addCalendarLink(CalendarLink calendarLink);
 	
+	/**
+	 * @param context
+	 * @return
+	 */
 	public boolean addContext(Context context);
 	
+	/**
+	 * @param newsItem
+	 * @return
+	 */
 	public boolean addNewsItem(NewsItem newsItem);
 	
+	/**
+	 * @param newsLink
+	 * @return
+	 */
 	public boolean addNewsLink(NewsLink newsLink);
 	
+	/**
+	 * @param person
+	 * @return
+	 */
 	public boolean addPerson(Person person);
 		
+	/**
+	 * @param repeatingCalendarItem
+	 * @return
+	 */
 	public boolean addRepeatingCalendarItem(RepeatingCalendarItem repeatingCalendarItem);
 
+	/**
+	 * @param sourceType
+	 * @return
+	 */
 	public boolean addSourceType(SourceType sourceType);
 	
-	public SourceType getSourceType(long sourceTypeId);
-
+	/**
+	 * @param identifier
+	 * @return
+	 */
 	public SourceType getSourceType(String identifier);
 
+	/**
+	 * @param entityReference
+	 * @param calendarTimeLabelKey
+	 * @param sequenceNumber
+	 * @return
+	 */
 	public CalendarItem getCalendarItem(String entityReference, String calendarTimeLabelKey, Integer sequenceNumber);
 	
+	/**
+	 * @param entityReference
+	 * @return
+	 */
 	public List<CalendarItem> getCalendarItems(String entityReference);
 	
+	/**
+	 * @param sakaiUserId
+	 * @param contextId
+	 * @param saved
+	 * @param hidden
+	 * @return
+	 */
 	public List<CalendarItem> getCalendarItems(String sakaiUserId, String contextId, boolean saved, boolean hidden);
 
 	/**
-	 * Access a list of non-sticky, non-hidden calendar items for a user in which
-	 * the calendar-time is in the future. The list will be sorted in ascending order 
-	 * by calendar-time (i.e. item with earliest calendar-time first).
-	 * @param sakaiUserId
 	 * @param contextId
 	 * @return
 	 */
-	public List<CalendarItem> getFutureCalendarItems(String sakaiUserId, String contextId);
-
-	/**
-	 * Access a list of non-sticky, non-hidden calendar items for a user in which
-	 * the calendar-time is in the past. The list will be sorted in descending order 
-	 * by calendar-time (i.e. item with most recent calendar-time first).
-	 * @param sakaiUserId
-	 * @param contextId
-	 * @return
-	 */
-	public List<CalendarItem> getPastCalendarItems(String sakaiUserId, String contextId);
-
 	public List<CalendarItem> getCalendarItemsByContext(String contextId);
 	
 	/**
@@ -127,52 +166,97 @@ public interface DashboardDao {
 	 */
 	public List<CalendarLink> getStarredCalendarLinks(String sakaiUserId, String contextId);
 	
-	public Context getContext(long id);
-	
+	/**
+	 * @param contextId
+	 * @return
+	 */
 	public Context getContext(String contextId);
 
+	/**
+	 * @param motdContextId
+	 * @return
+	 */
 	public List<NewsItem> getMOTD(String motdContextId);
 
+	/**
+	 * @param sakaiId
+	 * @return
+	 */
 	public Person getPersonBySakaiId(String sakaiId);
 
-	public Realm getRealm(long id);
-	
+	/**
+	 * @param entityReference
+	 * @return
+	 */
 	public NewsItem getNewsItem(String entityReference);
 	
-	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId, int collapseCount);
-
-	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId, boolean saved, boolean hidden);
-
+	/**
+	 * @param contextId
+	 * @return
+	 */
 	public List<NewsItem> getNewsItemsByContext(String contextId);
 
+	/**
+	 * @param id
+	 * @return
+	 */
 	public NewsItem getNewsItem(long id);
 
-	public NewsLink getNewsLink(long id);
-
+	/**
+	 * @param sakaiId
+	 * @param siteId
+	 * @return
+	 */
 	public List<NewsLink> getCurrentNewsLinks(String sakaiId, String siteId);
 
+	/**
+	 * @param sakaiId
+	 * @param siteId
+	 * @return
+	 */
 	public List<NewsLink> getStarredNewsLinks(String sakaiId, String siteId);
 
+	/**
+	 * @param sakaiId
+	 * @param siteId
+	 * @return
+	 */
 	public List<NewsLink> getHiddenNewsLinks(String sakaiId, String siteId);
 
+	/**
+	 * @param id
+	 * @return
+	 */
 	public CalendarItem getCalendarItem(long id);
 
+	/**
+	 * @param sakaiUserId
+	 * @param groupId
+	 * @return
+	 */
 	public int countNewsLinksByGroupId(String sakaiUserId, String groupId);
 
+	/**
+	 * @param sakaiUserId
+	 * @param groupId
+	 * @param limit
+	 * @param offset
+	 * @return
+	 */
 	public List<NewsLink> getNewsLinksByGroupId(String sakaiUserId,
 			String groupId, int limit, int offset);
-
-	public RepeatingCalendarItem getRepeatingCalendarItem(String entityReference, String calendarTimeLabelKey);
-
-	public List<RepeatingCalendarItem> getRepeatingCalendarItems();
 
 	/**
 	 * @param entityReference
 	 * @param calendarTimeLabelKey
 	 * @return
 	 */
-	public int getLastIndexInSequence(String entityReference,
-			String calendarTimeLabelKey);
+	public RepeatingCalendarItem getRepeatingCalendarItem(String entityReference, String calendarTimeLabelKey);
+
+	/**
+	 * @return
+	 */
+	public List<RepeatingCalendarItem> getRepeatingCalendarItems();
 
 	/**
 	 * @param entityReference
@@ -183,8 +267,16 @@ public interface DashboardDao {
 	public SortedSet<Integer> getFutureSequenceNumbers(String entityReference,
 			String calendarTimeLabelKey, Integer firstSequenceNumber);
 
+	/**
+	 * @param entityReference
+	 * @return
+	 */
 	public boolean deleteAvailabilityChecks(String entityReference);
 
+	/**
+	 * @param time
+	 * @return
+	 */
 	public boolean deleteAvailabilityChecksBeforeTime(Date time);
 
 	/**
@@ -259,14 +351,6 @@ public interface DashboardDao {
 			String contextId, String sessionId, String eventCode);
 
 	/**
-	 * Revise the title property of one CalendarItem, if it exists.
-	 * @param id
-	 * @param newTitle
-	 * @return true if any items are revised, false otherwise.
-	 */
-	public boolean updateCalendarItem(Long id, String newTitle, Date newTime);
-	
-	/**
 	 * Revise the calendarTime property of one CalendarItem, if it exists.
 	 * @param id
 	 * @param newTime
@@ -302,49 +386,118 @@ public interface DashboardDao {
 	 */
 	public boolean updateNewsItemTitle(Long id, String newTitle, Date newNewsTime, String newLabelKey, String newGroupingIdentifier);
 
+	/**
+	 * @param entityReference
+	 * @param oldLabelKey
+	 * @param newLabelKey
+	 * @return
+	 */
 	public boolean updateRepeatingCalendarItemsLabelKey(String entityReference, String oldLabelKey, String newLabelKey);
 	
+	/**
+	 * @param time
+	 * @return
+	 */
 	public abstract List<AvailabilityCheck> getAvailabilityChecksBeforeTime(Date time);
 
+	/**
+	 * @param entityReference
+	 * @return
+	 */
 	public Set<String> getSakaIdsForUserWithCalendarLinks(String entityReference);
 
+	/**
+	 * @param entityReference
+	 * @return
+	 */
 	public Set<String> getSakaiIdsForUserWithNewsLinks(String entityReference);
 
+	/**
+	 * @param calendarItemId
+	 * @param personId
+	 * @return
+	 */
 	public CalendarLink getCalendarLink(long calendarItemId, long personId);
 
+	/**
+	 * @param link
+	 * @return
+	 */
 	public boolean updateCalendarLink(CalendarLink link);
 
+	/**
+	 * @param contextId
+	 * @param newContextTitle
+	 * @return
+	 */
 	public boolean updateContextTitle(String contextId, String newContextTitle);
 
+	/**
+	 * @param newsItemId
+	 * @param personId
+	 * @return
+	 */
 	public NewsLink getNewsLink(long newsItemId, long personId);
 
+	/**
+	 * @param link
+	 * @return
+	 */
 	public boolean updateNewsLink(NewsLink link);
 
+	/**
+	 * @param id
+	 * @param newTime
+	 * @param newGroupingIdentifier
+	 * @return
+	 */
 	public boolean updateNewsItemTime(Long id, Date newTime, String newGroupingIdentifier);
 
-	public boolean updateNewsItemLabelKey(Long id, String labelKey, String newGroupingIdentifier);
-
-	public boolean updateNewsItemSubtype(Long id, String newSubtype, Date newNewsTime, String newLabelKey, String newGroupingIdentifier);
-
-	public boolean updateCalendarItemSubtype(Long id, String newSubtype);
-
+	/**
+	 * @param entityReference
+	 * @param labelKey
+	 * @param sequenceNumber
+	 * @param newDate
+	 * @return
+	 */
 	public boolean updateCalendarItemTime(String entityReference, String labelKey,
 			Integer sequenceNumber, Date newDate);
 
+	/**
+	 * @param entityReference
+	 * @param frequency
+	 * @return
+	 */
 	public boolean updateRepeatingCalendarItemFrequency(String entityReference,
 			String frequency);
 
-	public boolean updateRepeatingCalendarItemsSubtype(String entityReference,
-			String labelKey, String newSubtype);
-
+	/**
+	 * @param entityReference
+	 * @param newFirstTime
+	 * @param newLastTime
+	 * @return
+	 */
 	public boolean updateRepeatingCalendarItemTime(String entityReference,
 			Date newFirstTime, Date newLastTime);
 
+	/**
+	 * @param entityReference
+	 * @param newTitle
+	 * @return
+	 */
 	public boolean updateRepeatingCalendarItemTitle(String entityReference,
 			String newTitle);
 
+	/**
+	 * @param propertyName
+	 * @return
+	 */
 	public Integer getConfigProperty(String propertyName);
 
+	/**
+	 * @param propertyName
+	 * @param propertyValue
+	 */
 	public void setConfigProperty(String propertyName,
 			Integer propertyValue);
 

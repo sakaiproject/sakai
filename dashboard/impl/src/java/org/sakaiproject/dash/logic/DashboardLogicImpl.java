@@ -66,6 +66,10 @@ import org.sakaiproject.util.ResourceLoader;
  * 
  *
  */
+/**
+ * @author jimeng
+ *
+ */
 public class DashboardLogicImpl implements DashboardLogic, Observer 
 {
 	private static Logger logger = Logger.getLogger(DashboardLogicImpl.class);
@@ -231,6 +235,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#addCalendarLinks(java.lang.String, java.lang.String)
+	 */
 	public void addCalendarLinks(String sakaiUserId, String contextId) {
 		if(logger.isDebugEnabled()) {
 			logger.debug("addCalendarLinks(" + sakaiUserId + "," + contextId + ") ");
@@ -263,29 +270,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 	}
 	
-	public NewsLink addNewsLink(String sakaiUserId, NewsItem newsItem) {
-		if(logger.isDebugEnabled()) {
-			logger.debug("addNewsLink(" + sakaiUserId + "," + newsItem + ") ");
-		}
-		NewsLink link = null;
-		Person person = this.getOrCreatePerson(sakaiUserId);
-		if(person == null) {
-			logger.warn("Attempting to add news link for non-existent user: " + sakaiUserId);
-		} else if(newsItem == null || newsItem.getId() == null || newsItem.getId().longValue() < 1L) {
-			logger.warn("Attempting to add news link for unsaved news item : " + newsItem);
-		} else {
-			SourceType sourceType = newsItem.getSourceType();
-			EntityType entityType = this.entityTypes.get(sourceType.getIdentifier());
-			NewsLink newsLink = new NewsLink(person, newsItem, newsItem.getContext(), false, false);
-			if(dao.addNewsLink(newsLink)) {
-				link = dao.getNewsLink(newsItem.getId(), person.getId());
-			}
-		}
-		return link;
-	}
-
-
-
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#addNewsLinks(java.lang.String, java.lang.String)
+	 */
 	public void addNewsLinks(String sakaiUserId, String contextId) {
 		if(logger.isDebugEnabled()) {
 			logger.debug("addNewsLinks(" + sakaiUserId + "," + contextId + ") ");
@@ -317,6 +304,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#createCalendarItem(java.lang.String, java.util.Date, java.lang.String, java.lang.String, org.sakaiproject.dash.model.Context, org.sakaiproject.dash.model.SourceType, java.lang.String, org.sakaiproject.dash.model.RepeatingCalendarItem, java.lang.Integer)
+	 */
 	public CalendarItem createCalendarItem(String title, Date calendarTime,
 			String calendarTimeLabelKey, String entityReference, Context context,
 			SourceType sourceType, String subtype, RepeatingCalendarItem repeatingCalendarItem, Integer sequenceNumber) {
@@ -329,6 +319,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return dao.getCalendarItem(entityReference, calendarTimeLabelKey, sequenceNumber);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#createRepeatingCalendarItem(java.lang.String, java.util.Date, java.util.Date, java.lang.String, java.lang.String, org.sakaiproject.dash.model.Context, org.sakaiproject.dash.model.SourceType, java.lang.String, int)
+	 */
 	public RepeatingCalendarItem createRepeatingCalendarItem(String title, Date firstTime,
 			Date lastTime, String calendarTimeLabelKey, String entityReference, Context context, 
 			SourceType sourceType, String frequency, int count) {
@@ -345,8 +338,7 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return repeatingCalendarItem;
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#createCalendarLinks(org.sakaiproject.dash.model.CalendarItem)
 	 */
 	public void createCalendarLinks(CalendarItem calendarItem) {
@@ -367,6 +359,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#createContext(java.lang.String)
+	 */
 	public Context createContext(String contextId) { 
 		Context context = null;
 		if (contextId.equals(MOTD_CONTEXT))
@@ -390,6 +385,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return context;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#createNewsItem(java.lang.String, java.util.Date, java.lang.String, java.lang.String, org.sakaiproject.dash.model.Context, org.sakaiproject.dash.model.SourceType, java.lang.String)
+	 */
 	public NewsItem createNewsItem(String title, Date newsTime,
 			String labelKey, String entityReference, Context context, SourceType sourceType, String subtype) {
 		
@@ -402,6 +400,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#createNewsLinks(org.sakaiproject.dash.model.NewsItem)
+	 */
 	public void createNewsLinks(NewsItem newsItem) {
 		if(logger.isDebugEnabled()) {
 			logger.debug("createNewsLinks(" + newsItem + ")");
@@ -425,28 +426,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 
 
-	public Realm createRealm(String entityReference, String contextId) {
-		
-//		String realmId = null;
-//		Collection<String> groups = this.sakaiProxy.getRealmId(entityReference, contextId);
-//		if(groups != null && groups.size() > 0) {
-//			List<String> authzGroups = new ArrayList<String>(groups );
-//			if(authzGroups != null && authzGroups.size() > 0) {
-//				realmId = authzGroups.get(0);
-//			}
-//			if(realmId != null) {
-//				Realm realm = dao.getRealm(realmId);
-//				if(realm == null) {
-//					realm = new Realm(realmId);
-//					dao.addRealm(realm);
-//				}
-//				return realm;
-//			}
-//		}
-		
-		return null;
-	}
-
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#createSourceType(java.lang.String, java.lang.String, org.sakaiproject.dash.entity.EntityLinkStrategy)
+	 */
 	public SourceType createSourceType(String identifier, String accessPermission, EntityLinkStrategy entityLinkStrategy) {
 		
 		SourceType sourceType = new SourceType(identifier, accessPermission, entityLinkStrategy); 
@@ -454,69 +436,67 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return dao.getSourceType(identifier);
 	}
 	
-	/**
-	 * @param sakaiId
-	 * @return
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getCalendarItem(long)
 	 */
-	public Person getOrCreatePerson(String sakaiId) {
-		Person person = dao.getPersonBySakaiId(sakaiId);
-		if(person == null) {
-			User userObj = this.sakaiProxy.getUser(sakaiId);
-			person = new Person(sakaiId, userObj.getEid());
-			dao.addPerson(person);
-			person = dao.getPersonBySakaiId(sakaiId);
-		}
-		return person;
-	}
-	
-	public List<AvailabilityCheck> getAvailabilityChecksBeforeTime(Date time) {
-		
-		return dao.getAvailabilityChecksBeforeTime(time);
-	}
-
 	public CalendarItem getCalendarItem(long id) {
 		
 		return dao.getCalendarItem(id);
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getEntityIconUrl(java.lang.String, java.lang.String)
+	 */
+	public String getEntityIconUrl(String type, String subtype) {
+		String url = "#"; 
+		if(type != null) {
+			EntityType typeObj = this.entityTypes.get(type);
+			if(typeObj != null) {
+				url = typeObj.getIconUrl(subtype);
+			}
+		}
+		return url;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getCalendarItem(java.lang.String, java.lang.String, java.lang.Integer)
+	 */
 	public CalendarItem getCalendarItem(String entityReference, String calendarTimeLabelKey, Integer sequenceNumber) {
 		
 		return dao.getCalendarItem(entityReference, calendarTimeLabelKey, sequenceNumber);
 	}
 
-//	public List<CalendarItem> getCalendarItems(String sakaiUserId,
-//			String contextId, boolean showFuture, boolean showPast, boolean saved, boolean hidden) {
-//		if(showFuture) {
-//			return dao.getFutureCalendarItems(sakaiUserId, contextId);
-//		} else if(showPast) {
-//			return dao.getPastCalendarItems(sakaiUserId, contextId);
-//		}
-//		return dao.getCalendarItems(sakaiUserId, contextId, saved, hidden);
-//	}
-//
-//	public List<CalendarItem> getCalendarItems(String sakaiUserId, boolean showFuture, boolean showPast, boolean saved, boolean hidden) {
-//		
-//		return this.getCalendarItems(sakaiUserId, null, showFuture, showPast, saved, hidden);
-//	}
-	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getCalendarLink(java.lang.Long)
+	 */
 	public CalendarLink getCalendarLink(Long id) {
 		return dao.getCalendarLink(id);
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getFutureCalendarLinks(java.lang.String, java.lang.String, boolean)
+	 */
 	public List<CalendarLink> getFutureCalendarLinks(String sakaiUserId, String contextId, boolean hidden) {
 		return dao.getFutureCalendarLinks(sakaiUserId, contextId, hidden);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getPastCalendarLinks(java.lang.String, java.lang.String, boolean)
+	 */
 	public List<CalendarLink> getPastCalendarLinks(String sakaiUserId, String contextId, boolean hidden) {
 		return dao.getPastCalendarLinks(sakaiUserId, contextId, hidden);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getStarredCalendarLinks(java.lang.String, java.lang.String)
+	 */
 	public List<CalendarLink> getStarredCalendarLinks(String sakaiUserId, String contextId) {
 		return dao.getStarredCalendarLinks(sakaiUserId, contextId);
 	}
 	
-
-
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getContext(java.lang.String)
+	 */
 	public Context getContext(String contextId) {
 		try {
 			return dao.getContext(contextId);
@@ -528,68 +508,48 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return null;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getMOTD()
+	 */
 	public List<NewsItem> getMOTD() {
 		return dao.getMOTD(MOTD_CONTEXT);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getNewsItem(long)
+	 */
 	public NewsItem getNewsItem(long id) {
 		
 		return dao.getNewsItem(id);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getNewsItem(java.lang.String)
+	 */
 	public NewsItem getNewsItem(String entityReference) {
 		
 		return dao.getNewsItem(entityReference);
 	}
 	
-//	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId, int collapseCount) {
-//		List<NewsItem> items = dao.getNewsItems(sakaiUserId, contextId, collapseCount);
-//		if(items != null) {
-//			for(NewsItem item : items) {
-//				if(item != null && item.getItemCount() > 1) {
-//					int itemCount = item.getItemCount();
-//					SourceType sourceType = item.getSourceType();
-//					if(sourceType != null) {
-//						EntityType typeObj = this.entityTypes.get(sourceType.getIdentifier());
-//						if(typeObj == null) {
-//							ResourceLoader rl = new ResourceLoader("dash_entity");
-//							Object[] args = new Object[]{itemCount, sourceType.getIdentifier(), item.getContext().getContextTitle()};
-//							rl.getFormattedMessage("dash.grouped.title", args );
-//						} else {
-//							item.setTitle(typeObj.getGroupTitle(itemCount, item.getContext().getContextTitle(), item.getNewsTimeLabelKey()));
-//						}
-//					}
-//				}
-//			}
-//		}
-//		return items;
-//	}
-//
-//	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId, boolean saved, boolean hidden) {
-//		
-//		return dao.getNewsItems(sakaiUserId, contextId, saved, hidden);
-//	}
-//
-//	public List<NewsItem> getNewsItems(String sakaiUserId, boolean saved, boolean hidden) {
-//		
-//		return dao.getNewsItems(sakaiUserId, null, saved, hidden);
-//	}
-	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#countNewsLinksByGroupId(java.lang.String, java.lang.String)
+	 */
 	public int countNewsLinksByGroupId(String sakaiUserId,
 			String groupId) {
-		// TODO Auto-generated method stub
 		return dao.countNewsLinksByGroupId(sakaiUserId,groupId);
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getNewsLinksByGroupId(java.lang.String, java.lang.String, int, int)
+	 */
 	public List<NewsLink> getNewsLinksByGroupId(String sakaiUserId,
 			String groupId, int limit, int offset) {
 		return dao.getNewsLinksByGroupId(sakaiUserId, groupId, limit, offset);
 	}
 	
-	public NewsLink getNewsLink(Long id) {
-		return dao.getNewsLink(id);
-	}
-
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getCurrentNewsLinks(java.lang.String, java.lang.String)
+	 */
 	public List<NewsLink> getCurrentNewsLinks(String sakaiId, String siteId) {
 		List<NewsLink> links = dao.getCurrentNewsLinks(sakaiId, siteId);
 		
@@ -616,18 +576,30 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return links;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getStarredNewsLinks(java.lang.String, java.lang.String)
+	 */
 	public List<NewsLink> getStarredNewsLinks(String sakaiId, String siteId) {
 		return dao.getStarredNewsLinks(sakaiId, siteId);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getHiddenNewsLinks(java.lang.String, java.lang.String)
+	 */
 	public List<NewsLink> getHiddenNewsLinks(String sakaiId, String siteId) {
 		return dao.getHiddenNewsLinks(sakaiId, siteId);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getRepeatingCalendarItem(java.lang.String, java.lang.String)
+	 */
 	public RepeatingCalendarItem getRepeatingCalendarItem(String entityReference, String calendarTimeLabelKey) {
 		return dao.getRepeatingCalendarItem(entityReference, calendarTimeLabelKey);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getSourceType(java.lang.String)
+	 */
 	public SourceType getSourceType(String identifier) {
 		try {
 			return dao.getSourceType(identifier);
@@ -638,6 +610,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return null ;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getEntityMapping(java.lang.String, java.lang.String, java.util.Locale)
+	 */
 	public Map<String, Object> getEntityMapping(String entityType, String entityReference, Locale locale) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		logger.info("getEntityMapping(" + entityType + "," + entityReference + "," + locale + ")");
@@ -654,94 +629,25 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return map;
 	}
 
-//	public Date getReleaseDate(String entityReference, String entityTypeId) {
-//		Date date = null;
-//		if(entityReference == null || entityTypeId == null) {
-//			logger.warn("getReleaseDate() invoked with null parameter: " + entityReference + " :: " + entityTypeId);
-//		} else {
-//			EntityType entityType = this.entityTypes.get(entityTypeId);
-//			if(entityType == null) {
-//				logger.warn("getReleaseDate() invalid entityTypeId: " + entityTypeId);
-//			} else {
-//				date = entityType.getReleaseDate(entityReference);
-//			}
-//		}
-//		return date;
-//	}
-//	
-//	public Date getRetractDate(String entityReference, String entityTypeId) {
-//		Date date = null;
-//		if(entityReference == null || entityTypeId == null) {
-//			logger.warn("getRetractDate() invoked with null parameter: " + entityReference + " :: " + entityTypeId);
-//		} else {
-//			EntityType entityType = this.entityTypes.get(entityTypeId);
-//			if(entityType == null) {
-//				logger.warn("getRetractDate() invalid entityTypeId: " + entityTypeId);
-//			} else {
-//				date = entityType.getRetractDate(entityReference);
-//			}
-//		}
-//		return date;
-//	}
-	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getFutureSequnceNumbers(java.lang.String, java.lang.String, java.lang.Integer)
+	 */
 	public SortedSet<Integer> getFutureSequnceNumbers(String entityReference,
 			String calendarTimeLabelKey, Integer firstSequenceNumber) {
 		return dao.getFutureSequenceNumbers(entityReference, calendarTimeLabelKey, firstSequenceNumber);
 	}
 
-	public int getLastIndexInSequence(String entityReference,
-			String calendarTimeLabelKey) {
-		
-		return dao.getLastIndexInSequence(entityReference, calendarTimeLabelKey);
-	}
-
-	private Map processFormattedText(Map<String,Object> map, int maxDepth) {
-		if(maxDepth <= 0) {
-			return null;
-		}
-		for(Map.Entry<String,Object> entry : map.entrySet()) {
-			Object val = entry.getValue();
-			if(val instanceof String) {
-				StringBuilder errorMessages = new StringBuilder();
-				entry.setValue(FormattedText.processFormattedText((String) val, errorMessages , true, false));
-				if(errorMessages != null && errorMessages.length() > 0) {
-					logger.warn("Error encountered while processing values map:\n" + errorMessages);
-				}
-			} else if(val instanceof Map) {
-				entry.setValue(processFormattedText((Map) val, maxDepth - 1));
-			} else if(val instanceof List) {
-				entry.setValue(processFormattedText((List) val, maxDepth - 1));
-			}
-		}
-		return map;
-	}
-
-	private List processFormattedText(List list, int maxDepth) {
-		if(maxDepth <= 0) {
-			return null;
-		}
-		for(int i = 0; i < list.size(); i++) {
-			Object item = list.get(i);
-			if(item instanceof String) {
-				StringBuilder errorMessages = new StringBuilder();
-				list.set(i, FormattedText.processFormattedText((String) item, errorMessages , true, false));
-				if(errorMessages != null && errorMessages.length() > 0) {
-					logger.warn("Error encountered while processing values map:\n" + errorMessages);
-				}
-			} else if(item instanceof Map) {
-				processFormattedText((Map) item, maxDepth - 1);
-			} else if(item instanceof List) {
-				processFormattedText((List) item, maxDepth - 1);
-			}
-		}
-		return list;
-	}
-
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getRepeatingEventHorizon()
+	 */
 	public Date getRepeatingEventHorizon() {
 		
 		return new Date(this.horizon.getTime());
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#getString(java.lang.String, java.lang.String, java.lang.String)
+	 */
 	public String getString(String key, String dflt, String entityTypeId) {
 		if(dflt == null) {
 			dflt = "";
@@ -760,6 +666,89 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return str;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#hideCalendarItem(java.lang.String, long)
+	 */
+	public boolean hideCalendarItem(String sakaiUserId, long calendarItemId) {
+		Person person = dao.getPersonBySakaiId(sakaiUserId);
+		CalendarLink link = dao.getCalendarLink(calendarItemId, person.getId().longValue());
+		link.setHidden(true);
+		return dao.updateCalendarLink(link);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#hideNewsItem(java.lang.String, long)
+	 */
+	public boolean hideNewsItem(String sakaiUserId, long newsItemId) {
+		Person person = dao.getPersonBySakaiId(sakaiUserId);
+		NewsLink link = dao.getNewsLink(newsItemId, person.getId().longValue());
+		link.setHidden(true);
+		return dao.updateNewsLink(link);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#keepCalendarItem(java.lang.String, long)
+	 */
+	public boolean keepCalendarItem(String sakaiUserId, long calendarItemId) {
+		Person person = dao.getPersonBySakaiId(sakaiUserId);
+		CalendarLink link = dao.getCalendarLink(calendarItemId, person.getId().longValue());
+		link.setSticky(true);
+		return dao.updateCalendarLink(link);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#keepNewsItem(java.lang.String, long)
+	 */
+	public boolean keepNewsItem(String sakaiUserId, long newsItemId) {
+		Person person = dao.getPersonBySakaiId(sakaiUserId);
+		NewsLink link = dao.getNewsLink(newsItemId, person.getId().longValue());
+		link.setSticky(true);
+		return dao.updateNewsLink(link);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#unhideCalendarItem(java.lang.String, long)
+	 */
+	public boolean unhideCalendarItem(String sakaiUserId, long calendarItemId) {
+		Person person = dao.getPersonBySakaiId(sakaiUserId);
+		CalendarLink link = dao.getCalendarLink(calendarItemId, person.getId().longValue());
+		link.setHidden(false);
+		return dao.updateCalendarLink(link);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#unhideNewsItem(java.lang.String, long)
+	 */
+	public boolean unhideNewsItem(String sakaiUserId, long newsItemId) {
+		Person person = dao.getPersonBySakaiId(sakaiUserId);
+		NewsLink link = dao.getNewsLink(newsItemId, person.getId().longValue());
+		link.setHidden(false);
+		return dao.updateNewsLink(link);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#unkeepCalendarItem(java.lang.String, long)
+	 */
+	public boolean unkeepCalendarItem(String sakaiUserId, long calendarItemId) {
+		Person person = dao.getPersonBySakaiId(sakaiUserId);
+		CalendarLink link = dao.getCalendarLink(calendarItemId, person.getId().longValue());
+		link.setSticky(false);
+		return dao.updateCalendarLink(link);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#unkeepNewsItem(java.lang.String, long)
+	 */
+	public boolean unkeepNewsItem(String sakaiUserId, long newsItemId) {
+		Person person = dao.getPersonBySakaiId(sakaiUserId);
+		NewsLink link = dao.getNewsLink(newsItemId, person.getId().longValue());
+		link.setSticky(false);
+		return dao.updateNewsLink(link);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#isAvailable(java.lang.String, java.lang.String)
+	 */
 	public boolean isAvailable(String entityReference, String entityTypeId) {
 		// assume entity is unavailable unless entityType callback says otherwise
 		boolean isAvailable = false;
@@ -776,17 +765,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		return isAvailable;
 	}
 
-	protected void saveEventLocally(String event, String itemRef, boolean b) {
-		// event_date timestamp, event varchar (32), itemRef varchar (255), 
-		// contextId varchar (255), session_id varchar (163), event_code varchar (1)
-		Date eventDate = new Date();
-		String contextId = sakaiProxy.getCurrentSiteId();
-		String sessionId = sakaiProxy.getCurrentSessionId();
-		String eventCode = "X";
-		
-		boolean success = dao.addEvent(eventDate, event, itemRef, contextId, sessionId, eventCode);
-	}
-
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#recordDashboardActivity(java.lang.String, java.lang.String)
+	 */
 	public void recordDashboardActivity(String event, String itemRef) {
 		if(event == null) {
 			// log error and return
@@ -823,12 +804,18 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#registerEntityType(org.sakaiproject.dash.entity.EntityType)
+	 */
 	public void registerEntityType(EntityType entityType) {
 		if(entityType != null && entityType.getIdentifier() != null) {
 			this.entityTypes.put(entityType.getIdentifier(), entityType);
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#registerEventProcessor(org.sakaiproject.dash.listener.EventProcessor)
+	 */
 	public void registerEventProcessor(EventProcessor eventProcessor) {
 		
 		if(eventProcessor != null && eventProcessor.getEventIdentifer() != null) {
@@ -837,12 +824,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 	}
 	
-	public void removeAvailabilityChecksBeforeTime(Date time) {
-		
-		dao.deleteAvailabilityChecksBeforeTime(time);
-		
-	}
-
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeCalendarItem(java.lang.String, java.lang.String, java.lang.Integer)
+	 */
 	public void removeCalendarItem(String entityReference,
 			String calendarTimeLabelKey, Integer sequenceNumber) {
 		
@@ -867,6 +851,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeCalendarItems(java.lang.String)
+	 */
 	public void removeCalendarItems(String entityReference) {
 		
 		if(logger.isDebugEnabled()) {
@@ -891,6 +878,18 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeCalendarLinks(java.lang.String, java.lang.String, int)
+	 */
+	public void removeCalendarLinks(String entityReference,
+			String calendarTimeLabelKey, int sequenceNumber) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeNewsItem(java.lang.String)
+	 */
 	public void removeNewsItem(String entityReference) {
 
 		if(logger.isDebugEnabled()) {
@@ -914,6 +913,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeCalendarLinks(java.lang.String)
+	 */
 	public void removeCalendarLinks(String entityReference) {
 		
 		List<CalendarItem> items = dao.getCalendarItems(entityReference);
@@ -924,6 +926,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 	}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeCalendarLinks(java.lang.String, java.lang.String)
+	 */
 	public void removeCalendarLinks(String sakaiUserId, String contextId) {
 		if(logger.isDebugEnabled()) {
 			logger.info("removeCalendarLinks(" + sakaiUserId + "," + contextId + ") ");
@@ -937,6 +942,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeNewsLinks(java.lang.String)
+	 */
 	public void removeNewsLinks(String entityReference) {
 		
 		NewsItem item = dao.getNewsItem(entityReference);
@@ -945,6 +953,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeNewsLinks(java.lang.String, java.lang.String)
+	 */
 	public void removeNewsLinks(String sakaiUserId, String contextId) {
 		if(logger.isDebugEnabled()) {
 			logger.info("removeNewsLinks(" + sakaiUserId + "," + contextId + ") ");
@@ -958,28 +969,26 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeAllScheduledAvailabilityChecks(java.lang.String)
+	 */
 	public void removeAllScheduledAvailabilityChecks(String entityReference) {
 		boolean removed = dao.deleteAvailabilityChecks(entityReference);
 		
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseCalendarItemTime(java.lang.String, java.lang.String, java.lang.Integer, java.util.Date)
+	 */
 	public void reviseCalendarItemTime(String entityReference,
 			String labelKey, Integer sequenceNumber, Date newDate) {
 		
 		dao.updateCalendarItemTime(entityReference, labelKey, sequenceNumber, newDate);
 	}
 
-	public void reviseCalendarItems(String entityReference, String newTitle, Date newTime) {
-		
-		List<CalendarItem> items = dao.getCalendarItems(entityReference);
-		if(items != null) {
-			for(CalendarItem item : items) {
-				dao.updateCalendarItem(item.getId(), newTitle, newTime);
-			}
-		}
-				
-	}
-	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseCalendarItemsTime(java.lang.String, java.util.Date)
+	 */
 	public void reviseCalendarItemsTime(String entityReference, Date newTime) {
 		
 		List<CalendarItem> items = dao.getCalendarItems(entityReference);
@@ -991,6 +1000,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 				
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseCalendarItemsTitle(java.lang.String, java.lang.String)
+	 */
 	public void reviseCalendarItemsTitle(String entityReference, String newTitle) {
 		
 		List<CalendarItem> items = dao.getCalendarItems(entityReference);
@@ -1001,12 +1013,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 	}
 
-	public void reviseCalendarItemsSubtype(String entityReference, String labelKey, Integer sequenceNumber, String newSubtype) {
-		
-		CalendarItem item = dao.getCalendarItem(entityReference, labelKey, sequenceNumber);
-		dao.updateCalendarItemSubtype(item.getId(), newSubtype);
-	}
-
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseCalendarItemsLabelKey(java.lang.String, java.lang.String, java.lang.String)
+	 */
 	public void reviseCalendarItemsLabelKey(String entityReference, String oldLabelKey, String newLabelKey) {
 		if(entityReference == null || oldLabelKey == null || newLabelKey == null) {
 			return;
@@ -1015,11 +1024,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		dao.updateCalendarItemsLabelKey(entityReference, oldLabelKey, newLabelKey);
 	}
 	
-	public void reviseContextTitle(String contextId, String newContextTitle) {
-		boolean updated = dao.updateContextTitle(contextId, newContextTitle);
-		
-	}
-	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseNewsItemTime(java.lang.String, java.util.Date, java.lang.String)
+	 */
 	public void reviseNewsItemTime(String entityReference, Date newTime, String newGroupingIdentifier) {
 		NewsItem item = dao.getNewsItem(entityReference);
 		item.setNewsTime(newTime);
@@ -1030,6 +1037,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseNewsItemTitle(java.lang.String, java.lang.String, java.util.Date, java.lang.String, java.lang.String)
+	 */
 	public void reviseNewsItemTitle(String entityReference, String newTitle, Date newNewsTime, String newLabelKey, String newGroupingIdentifier) {
 		
 		NewsItem item = dao.getNewsItem(entityReference);
@@ -1041,55 +1051,47 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		
 	}
 	
-	public void reviseNewsItemLabelKey(String entityReference, String newLabelKey, String newGroupingIdentifier) {
-		
-		NewsItem item = dao.getNewsItem(entityReference);
-		if(item != null) {
-			dao.updateNewsItemLabelKey(item.getId(), newLabelKey, newGroupingIdentifier);
-		}
-		
-	}
-	
-	public void reviseNewsItemSubtype(String entityReference, String newSubtype, Date newNewsTime, String newLabelKey, String newGroupingIdentifier) {
-		
-		NewsItem item = dao.getNewsItem(entityReference);
-		if(item != null) {
-			dao.updateNewsItemSubtype(item.getId(), newSubtype, newNewsTime, newLabelKey, newGroupingIdentifier);
-		}
-		
-	}
-	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseRepeatingCalendarItemFrequency(java.lang.String, java.lang.String)
+	 */
 	public boolean reviseRepeatingCalendarItemFrequency(String entityReference,
 			String frequency) {
 		return dao.updateRepeatingCalendarItemFrequency(entityReference, frequency);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseRepeatingCalendarItemsLabelKey(java.lang.String, java.lang.String, java.lang.String)
+	 */
 	public void reviseRepeatingCalendarItemsLabelKey(String entityReference, String oldLabelKey, String newLabelKey) {
 		dao.updateRepeatingCalendarItemsLabelKey(entityReference, oldLabelKey, newLabelKey);
 		
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseRepeatingCalendarItemSubtype(java.lang.String, java.lang.String, java.lang.String)
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseRepeatingCalendarItemTime(java.lang.String, java.util.Date, java.util.Date)
 	 */
-	public void reviseRepeatingCalendarItemSubtype(String entityReference, String labelKey, String newSubtype) {
-		dao.updateRepeatingCalendarItemsSubtype(entityReference, labelKey, newSubtype);
-	}
-	
 	public void reviseRepeatingCalendarItemTime(String entityReference, Date newFirstTime, Date newLastTime) {
 		boolean done = dao.updateRepeatingCalendarItemTime(entityReference, newFirstTime, newLastTime);
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseRepeatingCalendarItemTitle(java.lang.String, java.lang.String)
+	 */
 	public void reviseRepeatingCalendarItemTitle(String entityReference, String newTitle) {
 		dao.updateRepeatingCalendarItemTitle(entityReference, newTitle);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#scheduleAvailabilityCheck(java.lang.String, java.lang.String, java.util.Date)
+	 */
 	public void scheduleAvailabilityCheck(String entityReference, String entityTypeId, Date scheduledTime) {
 		AvailabilityCheck availabilityCheck = new AvailabilityCheck(entityReference, entityTypeId, scheduledTime);
 		boolean added = dao.addAvailabilityCheck(availabilityCheck);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#updateCalendarLinks(java.lang.String)
+	 */
 	public void updateCalendarLinks(String entityReference) {
 		List<CalendarItem> items = dao.getCalendarItems(entityReference);
 		if(items != null && items.size() > 0) {
@@ -1130,6 +1132,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#updateNewsLinks(java.lang.String)
+	 */
 	public void updateNewsLinks(String entityReference) {
 		NewsItem item = dao.getNewsItem(entityReference);
 		if(item == null) {
@@ -1169,6 +1174,34 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 		}
 	}
 	
+	/**
+	 * @return
+	 */
+	protected int getLogModeNavigationEvents() {
+		return dashboardConfig.getConfigValue(DashboardConfig.PROP_LOG_MODE_FOR_NAVIGATION_EVENTS, new Integer(2));
+	}
+	
+	/**
+	 * @return
+	 */
+	protected int getLogModeDashboardNavigationEvents() {
+		return dashboardConfig.getConfigValue(DashboardConfig.PROP_LOG_MODE_FOR_DASH_NAV_EVENTS, new Integer(2));
+	}
+	
+	/**
+	 * @return
+	 */
+	protected int getLogModeItemDetailEvents() {
+		return dashboardConfig.getConfigValue(DashboardConfig.PROP_LOG_MODE_FOR_ITEM_DETAIL_EVENTS, new Integer(2));
+	}
+	
+	/**
+	 * @return
+	 */
+	protected int getLogModePreferenceEvents() {
+		return dashboardConfig.getConfigValue(DashboardConfig.PROP_LOG_MODE_FOR_PREFERENCE_EVENTS, new Integer(2));
+	}
+	
 	/*
 	 * 
 	 */
@@ -1205,6 +1238,107 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 				removeAvailabilityChecksBeforeTime(currentTime);
 			}
 		}
+	}
+	
+	/**
+	 * @param sakaiId
+	 * @return
+	 */
+	protected Person getOrCreatePerson(String sakaiId) {
+		Person person = dao.getPersonBySakaiId(sakaiId);
+		if(person == null) {
+			User userObj = this.sakaiProxy.getUser(sakaiId);
+			person = new Person(sakaiId, userObj.getEid());
+			dao.addPerson(person);
+			person = dao.getPersonBySakaiId(sakaiId);
+		}
+		return person;
+	}
+	
+	/**
+	 * @param time
+	 * @return
+	 */
+	protected List<AvailabilityCheck> getAvailabilityChecksBeforeTime(Date time) {
+		
+		return dao.getAvailabilityChecksBeforeTime(time);
+	}
+
+	/**
+	 * @param map
+	 * @param maxDepth
+	 * @return
+	 */
+	protected Map processFormattedText(Map<String,Object> map, int maxDepth) {
+		if(maxDepth <= 0) {
+			return null;
+		}
+		for(Map.Entry<String,Object> entry : map.entrySet()) {
+			Object val = entry.getValue();
+			if(val instanceof String) {
+				StringBuilder errorMessages = new StringBuilder();
+				entry.setValue(FormattedText.processFormattedText((String) val, errorMessages , true, false));
+				if(errorMessages != null && errorMessages.length() > 0) {
+					logger.warn("Error encountered while processing values map:\n" + errorMessages);
+				}
+			} else if(val instanceof Map) {
+				entry.setValue(processFormattedText((Map) val, maxDepth - 1));
+			} else if(val instanceof List) {
+				entry.setValue(processFormattedText((List) val, maxDepth - 1));
+			}
+		}
+		return map;
+	}
+
+	/**
+	 * @param list
+	 * @param maxDepth
+	 * @return
+	 */
+	protected List processFormattedText(List list, int maxDepth) {
+		if(maxDepth <= 0) {
+			return null;
+		}
+		for(int i = 0; i < list.size(); i++) {
+			Object item = list.get(i);
+			if(item instanceof String) {
+				StringBuilder errorMessages = new StringBuilder();
+				list.set(i, FormattedText.processFormattedText((String) item, errorMessages , true, false));
+				if(errorMessages != null && errorMessages.length() > 0) {
+					logger.warn("Error encountered while processing values map:\n" + errorMessages);
+				}
+			} else if(item instanceof Map) {
+				processFormattedText((Map) item, maxDepth - 1);
+			} else if(item instanceof List) {
+				processFormattedText((List) item, maxDepth - 1);
+			}
+		}
+		return list;
+	}
+
+	/**
+	 * @param event
+	 * @param itemRef
+	 * @param b
+	 */
+	protected void saveEventLocally(String event, String itemRef, boolean b) {
+		// event_date timestamp, event varchar (32), itemRef varchar (255), 
+		// contextId varchar (255), session_id varchar (163), event_code varchar (1)
+		Date eventDate = new Date();
+		String contextId = sakaiProxy.getCurrentSiteId();
+		String sessionId = sakaiProxy.getCurrentSessionId();
+		String eventCode = "X";
+		
+		boolean success = dao.addEvent(eventDate, event, itemRef, contextId, sessionId, eventCode);
+	}
+
+	/**
+	 * @param time
+	 */
+	protected void removeAvailabilityChecksBeforeTime(Date time) {
+		
+		dao.deleteAvailabilityChecksBeforeTime(time);
+		
 	}
 
 	/************************************************************************
@@ -1428,6 +1562,9 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			}
 		}
 
+		/**
+		 * 
+		 */
 		protected void updateRepeatingEvents() {
 			
 			if(nextHorizonUpdate != null && System.currentTimeMillis() > nextHorizonUpdate.getTime()) {
@@ -1452,6 +1589,10 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 
 	}
 	
+	/**
+	 * 
+	 *
+	 */
 	public class DashboardLogicSecurityAdvisor implements SecurityAdvisor 
 	{
 		/**
@@ -1474,142 +1615,6 @@ public class DashboardLogicImpl implements DashboardLogic, Observer
 			}
 			return SecurityAdvice.PASS;
 		}
-		
-	}
-
-	public boolean hideCalendarItem(String sakaiUserId, long calendarItemId) {
-		Person person = dao.getPersonBySakaiId(sakaiUserId);
-		CalendarLink link = dao.getCalendarLink(calendarItemId, person.getId().longValue());
-		link.setHidden(true);
-		return dao.updateCalendarLink(link);
-	}
-
-	public boolean hideNewsItem(String sakaiUserId, long newsItemId) {
-		Person person = dao.getPersonBySakaiId(sakaiUserId);
-		NewsLink link = dao.getNewsLink(newsItemId, person.getId().longValue());
-		link.setHidden(true);
-		return dao.updateNewsLink(link);
-	}
-
-	public boolean keepCalendarItem(String sakaiUserId, long calendarItemId) {
-		Person person = dao.getPersonBySakaiId(sakaiUserId);
-		CalendarLink link = dao.getCalendarLink(calendarItemId, person.getId().longValue());
-		link.setSticky(true);
-		return dao.updateCalendarLink(link);
-	}
-
-	public boolean keepNewsItem(String sakaiUserId, long newsItemId) {
-		Person person = dao.getPersonBySakaiId(sakaiUserId);
-		NewsLink link = dao.getNewsLink(newsItemId, person.getId().longValue());
-		link.setSticky(true);
-		return dao.updateNewsLink(link);
-	}
-
-	public boolean unhideCalendarItem(String sakaiUserId, long calendarItemId) {
-		Person person = dao.getPersonBySakaiId(sakaiUserId);
-		CalendarLink link = dao.getCalendarLink(calendarItemId, person.getId().longValue());
-		link.setHidden(false);
-		return dao.updateCalendarLink(link);
-	}
-
-	public boolean unhideNewsItem(String sakaiUserId, long newsItemId) {
-		Person person = dao.getPersonBySakaiId(sakaiUserId);
-		NewsLink link = dao.getNewsLink(newsItemId, person.getId().longValue());
-		link.setHidden(false);
-		return dao.updateNewsLink(link);
-	}
-
-	public boolean unkeepCalendarItem(String sakaiUserId, long calendarItemId) {
-		Person person = dao.getPersonBySakaiId(sakaiUserId);
-		CalendarLink link = dao.getCalendarLink(calendarItemId, person.getId().longValue());
-		link.setSticky(false);
-		return dao.updateCalendarLink(link);
-	}
-
-	public boolean unkeepNewsItem(String sakaiUserId, long newsItemId) {
-		Person person = dao.getPersonBySakaiId(sakaiUserId);
-		NewsLink link = dao.getNewsLink(newsItemId, person.getId().longValue());
-		link.setSticky(false);
-		return dao.updateNewsLink(link);
-	}
-
-//	public boolean hideCalendarItemsByContext(String sakaiUserId,
-//			long contextId) {
-//		Person person = dao.getPersonBySakaiId(sakaiUserId);
-//		Context context = dao.getContext(contextId);
-//		PersonContext personContext = new PersonContext(ItemType.CALENDAR_ITEM, person, context);
-//		return dao.addPersonContext(personContext);
-//	}
-//
-//	public boolean hideCalendarItemsByContextSourceType(String sakaiUserId,
-//			long contextId, long sourceTypeId) {
-//		Person person = dao.getPersonBySakaiId(sakaiUserId);
-//		Context context = dao.getContext(contextId);
-//		SourceType sourceType = dao.getSourceType(sourceTypeId);
-//		PersonContextSourceType personContextSourceType = new PersonContextSourceType(ItemType.CALENDAR_ITEM, person, context, sourceType);
-//		return dao.addPersonContextSourceType(personContextSourceType);
-//	}
-//
-//	public boolean hideCalendarItemsBySourceType(String sakaiUserId,
-//			long sourceTypeId) {
-//		Person person = dao.getPersonBySakaiId(sakaiUserId);
-//		SourceType sourceType = dao.getSourceType(sourceTypeId);
-//		PersonSourceType personSourceType = new PersonSourceType(ItemType.CALENDAR_ITEM, person, sourceType);
-//		return dao.addPersonSourceType(personSourceType);
-//	}
-//
-//	public boolean hideNewsItemsByContext(String sakaiUserId,
-//			long contextId) {
-//		Person person = dao.getPersonBySakaiId(sakaiUserId);
-//		Context context = dao.getContext(contextId);
-//		PersonContext personContext = new PersonContext(ItemType.NEWS_ITEM, person, context);
-//		return dao.addPersonContext(personContext);
-//	}
-//
-//	public boolean hideNewsItemsByContextSourceType(String sakaiUserId,
-//			long contextId, long sourceTypeId) {
-//		Person person = dao.getPersonBySakaiId(sakaiUserId);
-//		Context context = dao.getContext(contextId);
-//		SourceType sourceType = dao.getSourceType(sourceTypeId);
-//		PersonContextSourceType personContextSourceType = new PersonContextSourceType(ItemType.NEWS_ITEM, person, context, sourceType);
-//		return dao.addPersonContextSourceType(personContextSourceType);
-//	}
-//
-//	public boolean hideNewsItemsBySourceType(String sakaiUserId,
-//			long sourceTypeId) {
-//		Person person = dao.getPersonBySakaiId(sakaiUserId);
-//		SourceType sourceType = dao.getSourceType(sourceTypeId);
-//		PersonSourceType personSourceType = new PersonSourceType(ItemType.NEWS_ITEM, person, sourceType);
-//		return dao.addPersonSourceType(personSourceType);
-//	}
-
-	public String getEntityIconUrl(String type, String subtype) {
-		String url = "#"; 
-		if(type != null) {
-			EntityType typeObj = this.entityTypes.get(type);
-			if(typeObj != null) {
-				url = typeObj.getIconUrl(subtype);
-			}
-		}
-		return url;
-	}
-
-	protected int getLogModeNavigationEvents() {
-		return dashboardConfig.getConfigValue(DashboardConfig.PROP_LOG_MODE_FOR_NAVIGATION_EVENTS, new Integer(2));
-	}
-	public int getLogModeDashboardNavigationEvents() {
-		return dashboardConfig.getConfigValue(DashboardConfig.PROP_LOG_MODE_FOR_DASH_NAV_EVENTS, new Integer(2));
-	}
-	protected int getLogModeItemDetailEvents() {
-		return dashboardConfig.getConfigValue(DashboardConfig.PROP_LOG_MODE_FOR_ITEM_DETAIL_EVENTS, new Integer(2));
-	}
-	protected int getLogModePreferenceEvents() {
-		return dashboardConfig.getConfigValue(DashboardConfig.PROP_LOG_MODE_FOR_PREFERENCE_EVENTS, new Integer(2));
-	}
-
-	public void removeCalendarLinks(String entityReference,
-			String calendarTimeLabelKey, int sequenceNumber) {
-		// TODO Auto-generated method stub
 		
 	}
 

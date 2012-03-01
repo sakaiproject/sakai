@@ -75,6 +75,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 
 	protected String databaseVendor;
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#addAvailabilityCheck(org.sakaiproject.dash.model.AvailabilityCheck)
+	 */
 	public boolean addAvailabilityCheck(AvailabilityCheck availabilityCheck) {
 		if(log.isDebugEnabled()) {
 			log.debug("addAvailabilityCheck( " + availabilityCheck.toString() + ")");
@@ -100,8 +103,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#addCalendarItem(org.sakaiproject.dash.model.CalendarItem)
 	 */
 	public boolean addCalendarItem(CalendarItem calendarItem) {
@@ -141,8 +143,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#addCalendarLink(org.sakaiproject.dash.model.CalendarLink)
 	 */
 	public boolean addCalendarLink(CalendarLink calendarLink) {
@@ -164,8 +165,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#addContext(org.sakaiproject.dash.model.Context)
 	 */
 	public boolean addContext(Context context) {
@@ -191,8 +191,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#addNewsItem(org.sakaiproject.dash.model.NewsItem)
 	 */
 	public boolean addNewsItem(NewsItem newsItem) {
@@ -214,8 +213,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#addNewsLink(org.sakaiproject.dash.model.NewsLink)
 	 */
 	public boolean addNewsLink(NewsLink newsLink) {
@@ -237,8 +235,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#addPerson(org.sakaiproject.dash.model.Person)
 	 */
 	public boolean addPerson(Person person) {
@@ -259,6 +256,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#addRepeatingCalendarItem(org.sakaiproject.dash.model.RepeatingCalendarItem)
+	 */
 	public boolean addRepeatingCalendarItem(RepeatingCalendarItem repeatingCalendarItem) {
 		if(log.isDebugEnabled()) {
 			log.debug("addRepeatingCalendarItem( " + repeatingCalendarItem.toString() + ")");
@@ -287,8 +287,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#addSourceType(org.sakaiproject.dash.model.SourceType)
 	 */
 	public boolean addSourceType(SourceType sourceType) {
@@ -310,6 +309,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#deleteAvailabilityChecks(java.lang.String)
+	 */
 	public boolean deleteAvailabilityChecks(String entityReference) {
 		if(log.isDebugEnabled()) {
 			log.debug("deleteAllAvailabilityChecks( " + entityReference + ")");
@@ -327,6 +329,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#deleteAvailabilityChecksBeforeTime(java.util.Date)
+	 */
 	public boolean deleteAvailabilityChecksBeforeTime(Date time) {
 		if(log.isDebugEnabled()) {
 			log.debug("deleteAvailabilityChecksBeforeTime(" + time + ")");
@@ -343,6 +348,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#deleteCalendarItem(java.lang.Long)
+	 */
 	public boolean deleteCalendarItem(Long id) {
 		if(log.isDebugEnabled()) {
 			log.debug("deleteCalendarItem( " + id + ")");
@@ -359,6 +367,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}		
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#deleteNewsItem(java.lang.Long)
+	 */
 	public boolean deleteNewsItem(Long id) {
 		if(log.isDebugEnabled()) {
 			log.debug("deleteNewsItem( " + id + ")");
@@ -375,6 +386,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}		
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#deleteCalendarLink(java.lang.Long, java.lang.Long)
+	 */
 	public boolean deleteCalendarLink(Long personId, Long calendarItemId) {
 		if(log.isDebugEnabled()) {
 			log.debug("deleteCalendarLink(" + personId + "," + calendarItemId + ")");
@@ -391,8 +405,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}		
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#deleteCalendarLinks(java.lang.Long)
 	 */
 	public boolean deleteCalendarLinks(Long calendarItemId) {
@@ -411,6 +424,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}		
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#deleteCalendarLinks(java.lang.Long, java.lang.Long)
+	 */
 	public boolean deleteCalendarLinks(Long personId, Long contextId) {
 		if(log.isDebugEnabled()) {
 			log.debug("deleteCalendarLinks( " + personId + "," + contextId + ")");
@@ -427,6 +443,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}		
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#deleteNewsLink(java.lang.Long, java.lang.Long)
+	 */
 	public boolean deleteNewsLink(Long personId, Long newsItemId) {
 		if(log.isDebugEnabled()) {
 			log.debug("deleteNewsLink(" + personId + "," + newsItemId + ")");
@@ -443,8 +462,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}		
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#deleteNewsLinks(java.lang.Long)
 	 */
 	public boolean deleteNewsLinks(Long newsItemId) {
@@ -463,6 +481,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}		
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#deleteNewsLinks(java.lang.Long, java.lang.Long)
+	 */
 	public boolean deleteNewsLinks(Long personId, Long contextId) {
 		if(log.isDebugEnabled()) {
 			log.debug("deleteNewsLinks( " + personId + "," + contextId + ")");
@@ -479,6 +500,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}		
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getAvailabilityChecksBeforeTime(java.util.Date)
+	 */
 	public List<AvailabilityCheck> getAvailabilityChecksBeforeTime(Date time) {
 		if(log.isDebugEnabled()) {
 			log.debug("getAvailabilityChecksBeforeTime(" + time + ")");
@@ -495,6 +519,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getRepeatingCalendarItem(java.lang.String, java.lang.String)
+	 */
 	public RepeatingCalendarItem getRepeatingCalendarItem(String entityReference, String calendarTimeLabelKey) {
 		if(log.isDebugEnabled()) {
 			log.debug("getRepeatingCalendarItem(" + entityReference + "," + calendarTimeLabelKey + ")");
@@ -513,6 +540,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 
 
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getRepeatingCalendarItems()
+	 */
 	public List<RepeatingCalendarItem> getRepeatingCalendarItems() {
 		if(log.isDebugEnabled()) {
 			log.debug("getRepeatingCalendarItems()");
@@ -528,28 +558,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
-	public SourceType getSourceType(long sourceTypeId) {
-		if(log.isDebugEnabled()) {
-			log.debug("getSourceType( " + sourceTypeId + ")");
-		}
-		
-		try {
-			return (SourceType) getJdbcTemplate().queryForObject(getStatement("select.SourceType.by.id"),
-				new Object[]{sourceTypeId},
-				new SourceTypeMapper()
-			);
-		} catch (EmptyResultDataAccessException ex) {
-			log.debug("getSourceType: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
-			return null;
-		} catch (DataAccessException ex) {
-           log.warn("getSourceType: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return null;
-		}
-	}
-
-
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#getSourceType(java.lang.String)
 	 */
 	public SourceType getSourceType(String sourceTypeName) {
@@ -571,8 +580,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 	
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#getCalendarItem(long)
 	 */
 	public CalendarItem getCalendarItem(long id) {
@@ -595,6 +603,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getCalendarItem(java.lang.String, java.lang.String, java.lang.Integer)
+	 */
 	public CalendarItem getCalendarItem(String entityReference, String calendarTimeLabelKey, Integer sequenceNumber) {
 		if(log.isDebugEnabled()) {
 			log.debug("getCalendarItem(" + entityReference + "," + calendarTimeLabelKey + "," + sequenceNumber + ")");
@@ -631,9 +642,8 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.dao.DashboardDao#getCalendarItem(java.lang.String)
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getCalendarItems(java.lang.String)
 	 */
 	public List<CalendarItem> getCalendarItems(String entityReference) {
 		if(log.isDebugEnabled()) {
@@ -655,9 +665,8 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.dao.DashboardDao#getCalendarItems(java.lang.String, java.lang.String)
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getCalendarItems(java.lang.String, java.lang.String, boolean, boolean)
 	 */
 	public List<CalendarItem> getCalendarItems(String sakaiUserId, String contextId, boolean saved, boolean hidden) {
 		if(log.isDebugEnabled()) {
@@ -698,62 +707,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 	
-	public List<CalendarItem> getFutureCalendarItems(String sakaiUserId, String contextId) {
-		if(log.isDebugEnabled()) {
-			log.debug("getFutureCalendarItems(" + sakaiUserId + "," + contextId + ")");
-		}
-		String sql = null;
-		Object[] params = null;
-		if(contextId == null) {
-			sql = getStatement("select.CalendarItems.by.sakaiId.future");
-			params = new Object[]{sakaiUserId};
-		} else {
-			sql = getStatement("select.CalendarItems.by.sakaiId.contextId.future");
-			params = new Object[]{sakaiUserId, contextId};
-		}
-		//log.info("getCalendarItems(" + sakaiUserId + "," + contextId + ") sql = " + sql);
-		try {
-			return (List<CalendarItem>) getJdbcTemplate().query(sql,params,
-				new CalendarItemMapper()
-			);
-		} catch (EmptyResultDataAccessException ex) {
-			log.debug("getCalendarItems: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
-			return null;
-		} catch (DataAccessException ex) {
-           log.warn("getCalendarItems: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return new ArrayList<CalendarItem>();
-		}
-	}
-
-	public List<CalendarItem> getPastCalendarItems(String sakaiUserId, String contextId) {
-		if(log.isDebugEnabled()) {
-			log.debug("getCalendarItems(" + sakaiUserId + "," + contextId + ")");
-		}
-		String sql = null;
-		Object[] params = null;
-		if(contextId == null) {
-			sql = getStatement("select.CalendarItems.by.sakaiId.past");
-			params = new Object[]{sakaiUserId};
-		} else {
-			sql = getStatement("select.CalendarItems.by.sakaiId.contextId.past");
-			params = new Object[]{sakaiUserId, contextId};
-		}
-		log.info("getCalendarItems(" + sakaiUserId + "," + contextId + ") sql = " + sql);
-		try {
-			return (List<CalendarItem>) getJdbcTemplate().query(sql,params,
-				new CalendarItemMapper()
-			);
-		} catch (EmptyResultDataAccessException ex) {
-			log.debug("getCalendarItems: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
-			return null;
-		} catch (DataAccessException ex) {
-           log.warn("getCalendarItems: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return new ArrayList<CalendarItem>();
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#getCalendarItemsByContext(java.lang.String)
 	 */
 	public List<CalendarItem> getCalendarItemsByContext(String contextId) {
@@ -782,6 +736,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getCalendarLink(long, long)
+	 */
 	public CalendarLink getCalendarLink(long calendarItemId, long personId) {
 		if(log.isDebugEnabled()) {
 			log.debug("getCalendarLink(" + calendarItemId + ", " + personId + ")");
@@ -801,6 +758,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getCalendarLink(long)
+	 */
 	public CalendarLink getCalendarLink(long id) {
 		if(log.isDebugEnabled()) {
 			log.debug("getCalendarLink(" + id + ")");
@@ -820,6 +780,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getFutureCalendarLinks(java.lang.String, java.lang.String, boolean)
+	 */
 	public List<CalendarLink> getFutureCalendarLinks(String sakaiUserId, String contextId, boolean hidden) {
 		if(log.isDebugEnabled()) {
 			log.debug("getFutureCalendarLinks(" + sakaiUserId + "," + contextId + "," + hidden + ")");
@@ -854,6 +817,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getPastCalendarLinks(java.lang.String, java.lang.String, boolean)
+	 */
 	public List<CalendarLink> getPastCalendarLinks(String sakaiUserId, String contextId, boolean hidden) {
 		if(log.isDebugEnabled()) {
 			log.debug("getPastCalendarLinks(" + sakaiUserId + "," + contextId + "," + hidden + ")");
@@ -888,6 +854,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getStarredCalendarLinks(java.lang.String, java.lang.String)
+	 */
 	public List<CalendarLink> getStarredCalendarLinks(String sakaiUserId, String contextId) {
 		if(log.isDebugEnabled()) {
 			log.debug("getStarredCalendarLinks(" + sakaiUserId + "," + contextId + ")");
@@ -922,45 +891,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
-	/**
-	 * @return
-	 */
-	protected Date getPreviousMidnight() {
-		Date thisAM = null;
-		Calendar midnight = Calendar.getInstance();
-		midnight.set(Calendar.MILLISECOND, 0);
-		midnight.set(Calendar.SECOND, 0);
-		midnight.set(Calendar.MINUTE, 0);
-		midnight.set(Calendar.HOUR, 0);
-		thisAM = midnight.getTime();
-		return thisAM;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.dao.DashboardDao#getContext(long)
-	 */
-	public Context getContext(long id) {
-		if(log.isDebugEnabled()) {
-			log.debug("getContext(" + id + ")");
-		}
-		
-		try {
-			return (Context) getJdbcTemplate().queryForObject(getStatement("select.Context.by.id"),
-				new Object[]{Long.valueOf(id)},
-				new ContextMapper()
-			);
-		} catch (EmptyResultDataAccessException ex) {
-			log.debug("getContext: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
-			return null;
-		} catch (DataAccessException ex) {
-           log.warn("getContext: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return null;
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#getContext(java.lang.String)
 	 */
 	public Context getContext(String contextId) {
@@ -987,6 +918,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getMOTD(java.lang.String)
+	 */
 	public List<NewsItem> getMOTD(String motdContextId) {
 		if(log.isDebugEnabled()) {
 			log.debug("getMOTD()");
@@ -1011,8 +945,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#getNewsItem(long)
 	 */
 	public NewsItem getNewsItem(long id) {
@@ -1034,8 +967,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#getNewsItem(java.lang.String)
 	 */
 	public NewsItem getNewsItem(String entityReference) {
@@ -1057,85 +989,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.dao.DashboardDao#getNewsItems(java.lang.String, java.lang.String, int)
-	 */
-	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId, int collapseCount) {
-		if(log.isDebugEnabled()) {
-			log.debug("getNewsItems(" + sakaiUserId + "," + contextId + "," + collapseCount + ")");
-		}
-		System.out.println("getNewsItems(" + sakaiUserId + "," + contextId + "," + collapseCount + ")");
-		String sql = null; 
-		Object[] params = null;
-		if(contextId == null) {
-			sql = getStatement("select.NewsItems.sakaiId.collapseCount");
-			//params = new Object[]{sakaiUserId, collapseCount, sakaiUserId, collapseCount};
-			params = new Object[]{sakaiUserId, collapseCount, sakaiUserId, sakaiUserId, collapseCount};
-		} else {
-			sql = getStatement("select.NewsItems.sakaiId.contextId.collapseCount");
-			params = new Object[]{sakaiUserId, contextId, collapseCount, sakaiUserId, sakaiUserId, contextId, collapseCount};
-		}
-		//System.out.println("getNewsItems() " + sql + " " + params);
-		
-		try {
-			return (List<NewsItem>) getJdbcTemplate().query(sql,params,
-				new NewsItemMapper()
-			);
-		} catch (EmptyResultDataAccessException ex) {
-			log.debug("getNewsItem: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
-			return new ArrayList<NewsItem>();
-		} catch (DataAccessException ex) {
-        	log.warn("getNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-        	return new ArrayList<NewsItem>();
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.dao.DashboardDao#getNewsItems(java.lang.String, java.lang.String)
-	 */
-	public List<NewsItem> getNewsItems(String sakaiUserId, String contextId, boolean saved, boolean hidden) {
-		if(log.isDebugEnabled()) {
-			log.debug("getNewsItems(" + sakaiUserId + "," + contextId + ")");
-		}
-		String sql = null;
-		Object[] params = null;
-		if(contextId == null) {
-			if(saved) {
-				sql = getStatement("select.NewsItems.by.sakaiId.sticky");
-			} else if(hidden) {
-				sql = getStatement("select.NewsItems.by.sakaiId.hidden");
-			} else {
-				sql = getStatement("select.NewsItems.by.sakaiId");
-			}
-			params = new Object[]{sakaiUserId};
-		} else {
-			if(saved) {
-				sql = getStatement("select.NewsItems.by.sakaiId.contextId.sticky");
-			} else if(hidden) {
-				sql = getStatement("select.NewsItems.by.sakaiId.contextId.hidden");
-			} else {
-				sql = getStatement("select.NewsItems.by.sakaiId.contextId");
-			}
-			params = new Object[]{sakaiUserId, contextId};
-		}
-		log.info("getNewsItems(" + sakaiUserId + "," + contextId + ") sql = " + sql);
-		try {
-			return (List<NewsItem>) getJdbcTemplate().query(sql,params,
-				new NewsItemMapper()
-			);
-		} catch (EmptyResultDataAccessException ex) {
-			log.debug("getNewsItems: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
-			return new ArrayList<NewsItem>();
-		} catch (DataAccessException ex) {
-           log.warn("getNewsItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return new ArrayList<NewsItem>();
-		}
-	}
-	
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#getNewsItemsByContext(java.lang.String)
 	 */
 	public List<NewsItem> getNewsItemsByContext(String contextId) {
@@ -1164,6 +1018,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getNewsLink(long, long)
+	 */
 	public NewsLink getNewsLink(long newsItemId, long personId) {
 		if(log.isDebugEnabled()) {
 			log.debug("getNewsLink(" + newsItemId + ", " + personId + ")");
@@ -1183,25 +1040,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 	
-	public NewsLink getNewsLink(long id) {
-		if(log.isDebugEnabled()) {
-			log.debug("getNewsLink(" + id + ")");
-		}
-		
-		try {
-			return (NewsLink) getJdbcTemplate().queryForObject(getStatement("select.NewsLink.by.id"),
-				new Object[]{id},
-				new NewsLinkMapper()
-			);
-		} catch (EmptyResultDataAccessException ex) {
-			log.debug("getNewsLink: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
-			return null;
-		} catch (DataAccessException ex) {
-           log.warn("getNewsLink: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return null;
-		}
-	}
-
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getCurrentNewsLinks(java.lang.String, java.lang.String)
+	 */
 	public List<NewsLink> getCurrentNewsLinks(String sakaiUserId, String contextId) {
 		if(log.isDebugEnabled()) {
 			log.debug("getCurrentNewsLinks(" + sakaiUserId + "," + contextId + ")");
@@ -1232,6 +1073,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getStarredNewsLinks(java.lang.String, java.lang.String)
+	 */
 	public List<NewsLink> getStarredNewsLinks(String sakaiUserId, String contextId) {
 		if(log.isDebugEnabled()) {
 			log.debug("getStarredNewsLinks(" + sakaiUserId + "," + contextId + ")");
@@ -1261,6 +1105,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getHiddenNewsLinks(java.lang.String, java.lang.String)
+	 */
 	public List<NewsLink> getHiddenNewsLinks(String sakaiUserId, String contextId) {
 		if(log.isDebugEnabled()) {
 			log.debug("getHiddenNewsLinks(" + sakaiUserId + "," + contextId + ")");
@@ -1290,6 +1137,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#countNewsLinksByGroupId(java.lang.String, java.lang.String)
+	 */
 	public int countNewsLinksByGroupId(String sakaiUserId, String groupId) {
 		if(log.isDebugEnabled()) {
 			log.debug("getNewsItemsByGroupId(" + sakaiUserId + "," + groupId + ")");
@@ -1311,6 +1161,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	}
 
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getNewsLinksByGroupId(java.lang.String, java.lang.String, int, int)
+	 */
 	public List<NewsLink> getNewsLinksByGroupId(String sakaiUserId,
 			String groupId, int limit, int offset) {
 		List<NewsItem> items = null;
@@ -1341,9 +1194,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
-
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#getPersonBySakaiId(java.lang.String)
 	 */
 	public Person getPersonBySakaiId(String sakaiId) {
@@ -1364,77 +1215,10 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            return null;
 		}
 	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.dao.DashboardDao#getRealm(java.lang.String)
-	 */
-	public Realm getRealm(String realmId) {
-		if(log.isDebugEnabled()) {
-			log.debug("getRealm(" + realmId + ")");
-		}
 		
-		try {
-			return (Realm) getJdbcTemplate().queryForObject(getStatement("select.Realm.by.realmId"),
-				new Object[]{realmId},
-				new RealmMapper()
-			);
-		} catch (EmptyResultDataAccessException ex) {
-			log.debug("getRealm: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
-	        return null;
-		} catch (DataAccessException ex) {
-           log.warn("getRealm: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return null;
-		}
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.dao.DashboardDao#getRealm(long)
-	 */
-	public Realm getRealm(long id) {
-		if(log.isDebugEnabled()) {
-			log.debug("getRealm(" + id + ")");
-		}
-		
-		try {
-			return (Realm) getJdbcTemplate().queryForObject(getStatement("select.Realm.by.id"),
-				new Object[]{Long.valueOf(id)},
-				new RealmMapper()
-			);
-		} catch (EmptyResultDataAccessException ex) {
-			log.debug("getRealm: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
-	        return null;
-		} catch (DataAccessException ex) {
-           log.warn("getRealm: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return null;
-		}
-	}
-	
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.dash.dao.DashboardDao#getLastIndexInSequence(java.lang.String, java.lang.String)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getFutureSequenceNumbers(java.lang.String, java.lang.String, java.lang.Integer)
 	 */
-	public int getLastIndexInSequence(String entityReference,
-			String calendarTimeLabelKey) {
-		if(log.isDebugEnabled()) {
-			log.debug("getLastIndexInSequence(" + entityReference + "," + calendarTimeLabelKey + ")");
-		}
-		
-		try {
-			
-			String sql = getStatement("select.MaxSequenceNumber.entityReference.calendarTimeLabelKey");
-			Object[] args = new Object[]{ entityReference, calendarTimeLabelKey };
-			return getJdbcTemplate().queryForInt(sql, args );
-			
-		} catch (EmptyResultDataAccessException ex) {
-			log.debug("getLastIndexInSequence: Empty result executing query: " + ex.getClass() + ":" + ex.getMessage());
-	        return 0;
-		} catch (DataAccessException ex) {
-           log.warn("getLastIndexInSequence: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return 0;
-		}
-	}
-	
 	public SortedSet<Integer> getFutureSequenceNumbers(String entityReference,
 			String calendarTimeLabelKey, Integer firstSequenceNumber) {
 		if(log.isDebugEnabled()) {
@@ -1458,6 +1242,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getSakaIdsForUserWithCalendarLinks(java.lang.String)
+	 */
 	public Set<String> getSakaIdsForUserWithCalendarLinks(String entityReference) {
 		if(log.isDebugEnabled()) {
 			log.debug("getSakaIdsForUserWithCalendarLinks(" + entityReference + ")");
@@ -1484,6 +1271,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getSakaiIdsForUserWithNewsLinks(java.lang.String)
+	 */
 	public Set<String> getSakaiIdsForUserWithNewsLinks(String entityReference) {
 		if(log.isDebugEnabled()) {
 			log.debug("getSakaIdsForUserWithNewsLinks(" + entityReference + ")");
@@ -1510,6 +1300,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#addEvent(java.util.Date, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+	 */
 	public boolean addEvent(Date eventDate, String event, String itemRef,
 			String contextId, String sessionId, String eventCode) {
 		if(log.isDebugEnabled()) {
@@ -1533,30 +1326,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		
 	}
 
-
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.dao.DashboardDao#updateCalendarItem(java.lang.Long, java.lang.String, java.util.Date)
-	 */
-	public boolean updateCalendarItem(Long id, String newTitle, Date newTime) {
-		if(log.isDebugEnabled()) {
-			log.debug("updateCalendarItem( " + id + "," + newTitle + "," + newTitle + ")");
-		}
-		
-		try {
-			getJdbcTemplate().update(getStatement("update.CalendarItem.title.calendarTime"),
-				new Object[]{newTitle, newTime, id}
-			);
-			return true;
-		} catch (DataAccessException ex) {
-           log.warn("updateCalendarItem: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return false;
-		}				
-	}
-	
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#updateCalendarItemTime(java.lang.Long, java.util.Date)
 	 */
 	public boolean updateCalendarItemTime(Long id, Date newTime) {
@@ -1575,8 +1345,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}				
 	}
 	
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#updateCalendarItemTime(java.lang.String, java.lang.String, java.lang.Integer, java.util.Date)
 	 */
 	public boolean updateCalendarItemTime(String entityReference, String labelKey,
@@ -1596,26 +1365,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}				
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.dao.DashboardDao#updateCalendarItemSubtype(java.lang.Long, java.lang.String)
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#updateCalendarItemsLabelKey(java.lang.String, java.lang.String, java.lang.String)
 	 */
-	public boolean updateCalendarItemSubtype(Long id, String newSubtype) {
-		if(log.isDebugEnabled()) {
-			log.debug("updateCalendarItemSubtype( " + id + "," + newSubtype + ")");
-		}
-		
-		try {
-			getJdbcTemplate().update(getStatement("update.CalendarItem.subtype"),
-				new Object[]{newSubtype, id}
-			);
-			return true;
-		} catch (DataAccessException ex) {
-           log.warn("updateCalendarItemSubtype: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return false;
-		}				
-	}
-	
 	public boolean updateCalendarItemsLabelKey(String entityReference, String oldLabelKey, String newLabelKey) {
 		if(log.isDebugEnabled()) {
 			log.debug("updateCalendarItemTime( " + entityReference + "," + oldLabelKey + "," + newLabelKey + ")");
@@ -1632,8 +1384,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}				
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#updateCalendarItemTitle(java.lang.Long, java.lang.String)
 	 */
 	public boolean updateCalendarItemTitle(Long id, String newTitle) {
@@ -1652,6 +1403,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}				
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#updateCalendarLink(org.sakaiproject.dash.model.CalendarLink)
+	 */
 	public boolean updateCalendarLink(CalendarLink calendarLink) {
 		if(log.isDebugEnabled()) {
 			log.debug("updateCalendarLink( " + calendarLink.toString() + ")");
@@ -1671,6 +1425,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#updateContextTitle(java.lang.String, java.lang.String)
+	 */
 	public boolean updateContextTitle(String contextId, String newContextTitle) {
 		if(log.isDebugEnabled()) {
 			log.debug("updateContextTitle( " + contextId + "," + newContextTitle + ")");
@@ -1688,35 +1445,8 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.dao.DashboardDao#updateNewsItemSubtype(java.lang.Long, java.lang.String)
-	 */
-	public boolean updateNewsItemSubtype(Long id, String newSubtype, Date newNewsTime, String newLabelKey, String newGroupingIdentifier) {
-		if(log.isDebugEnabled()) {
-			log.debug("updateNewsItemSubtype( " + id + "," + newSubtype + ")");
-		}
-		
-		if(id == null || newSubtype == null || newNewsTime == null || newLabelKey == null) {
-			log.warn("updateNewsItemSubtype() called with null values");
-			return false;
-		}
-		
-		try {
-			getJdbcTemplate().update(getStatement("update.NewsItem.subtype"),
-				new Object[]{newSubtype, newNewsTime, newLabelKey, newGroupingIdentifier, id}
-			);
-			return true;
-		} catch (DataAccessException ex) {
-           log.warn("updateNewsItemSubtype: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return false;
-		}		
-		
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.dao.DashboardDao#updateNewsItemTime(java.lang.Long, java.util.Date)
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#updateNewsItemTime(java.lang.Long, java.util.Date, java.lang.String)
 	 */
 	public boolean updateNewsItemTime(Long id, Date newTime, String newGroupingIdentifier) {
 		if(log.isDebugEnabled()) {
@@ -1734,9 +1464,8 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}		
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.dao.DashboardDao#updateNewsItemTitle(java.lang.Long, java.lang.String)
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#updateNewsItemTitle(java.lang.Long, java.lang.String, java.util.Date, java.lang.String, java.lang.String)
 	 */
 	public boolean updateNewsItemTitle(Long id, String newTitle, Date newNewsTime, String newLabelKey, String newGroupingIdentifier) {
 		if(log.isDebugEnabled()) {
@@ -1760,27 +1489,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.dao.DashboardDao#updateNewsItemLabelKey(java.lang.Long, java.lang.String)
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#updateNewsLink(org.sakaiproject.dash.model.NewsLink)
 	 */
-	public boolean updateNewsItemLabelKey(Long id, String labelKey, String newGroupingIdentifier) {
-		if(log.isDebugEnabled()) {
-			log.debug("updateNewsItemLabelKey( " + id + "," + labelKey + ")");
-		}
-		
-		try {
-			getJdbcTemplate().update(getStatement("update.NewsItem.newsTimeLabelKey"),
-				new Object[]{labelKey, newGroupingIdentifier, id}
-			);
-			return true;
-		} catch (DataAccessException ex) {
-           log.warn("updateNewsItemLabelKey: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return false;
-		}		
-		
-	}
-
 	public boolean updateNewsLink(NewsLink newsLink) {
 		if(log.isDebugEnabled()) {
 			log.debug("updateNewsLink( " + newsLink.toString() + ")");
@@ -1820,8 +1531,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}				
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.dao.DashboardDao#updateRepeatingCalendarItemsLabelKey(java.lang.String, java.lang.String, java.lang.String)
 	 */
 	public boolean updateRepeatingCalendarItemsLabelKey(String entityReference, String oldLabelKey, String newLabelKey) {
@@ -1840,26 +1550,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}				
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see org.sakaiproject.dash.dao.DashboardDao#updateRepeatingCalendarItemsSubtype(java.lang.String, java.lang.String, java.lang.String)
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#updateRepeatingCalendarItemTime(java.lang.String, java.util.Date, java.util.Date)
 	 */
-	public boolean updateRepeatingCalendarItemsSubtype(String entityReference, String labelKey, String newSubtype) {
-		if(log.isDebugEnabled()) {
-			log.debug("updateRepeatingCalendarItemsSubtype( " + entityReference + "," + labelKey + "," + newSubtype + ")");
-		}
-		
-		try {
-			getJdbcTemplate().update(getStatement("update.RepeatingEventsSubtype.entityReference.labelKey"),
-				new Object[]{newSubtype, entityReference, labelKey}
-			);
-			return true;
-		} catch (DataAccessException ex) {
-           log.warn("updateRepeatingCalendarItemsSubtype: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
-           return false;
-		}				
-	}
-
 	public boolean updateRepeatingCalendarItemTime(String entityReference,
 			Date newFirstTime, Date newLastTime) {
 		if(log.isDebugEnabled()) {
@@ -1877,6 +1570,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#updateRepeatingCalendarItemTitle(java.lang.String, java.lang.String)
+	 */
 	public boolean updateRepeatingCalendarItemTitle(String entityReference, String newTitle) {
 		if(log.isDebugEnabled()) {
 			log.debug("updateRepeatingCalendarItemTitle( " + entityReference + "," + newTitle + ")");
@@ -2001,6 +1697,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getConfigProperty(java.lang.String)
+	 */
 	public Integer getConfigProperty(String propertyName) {
 		
 		if(log.isDebugEnabled()) {
@@ -2025,6 +1724,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		return value ;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#setConfigProperty(java.lang.String, java.lang.Integer)
+	 */
 	public void setConfigProperty(String propertyName, Integer propertyValue) {
 		
 		if(log.isDebugEnabled()) {
@@ -2057,6 +1759,20 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 			}
 		}
 		
+	}
+
+	/**
+	 * @return
+	 */
+	protected Date getPreviousMidnight() {
+		Date thisAM = null;
+		Calendar midnight = Calendar.getInstance();
+		midnight.set(Calendar.MILLISECOND, 0);
+		midnight.set(Calendar.SECOND, 0);
+		midnight.set(Calendar.MINUTE, 0);
+		midnight.set(Calendar.HOUR, 0);
+		thisAM = midnight.getTime();
+		return thisAM;
 	}
 
 }
