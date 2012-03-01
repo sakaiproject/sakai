@@ -2,6 +2,7 @@ var dropdownViaClick = false;
 var lessonBuilderAnimationLocked = false;
 var oldloc;
 var requirementType = 0;
+var importccactive = false;
 
 // in case user includes the URL of a site that replaces top,
 // give them a way out. Handler is set up in the html file.
@@ -176,12 +177,17 @@ $(function() {
 			var position =  $(this).position();
 			$("#import-cc-dialog").dialog("option", "position", [position.left, position.top]);
 			oldloc = $(".dropdown a");
+			importccactive = true;
 			$('#import-cc-dialog').dialog('open');
 			checksize($('#import-cc-dialog'));
 			return false;
 		});
 		
 		$('#import-cc-submit').click(function() {
+			// prevent double clicks
+			if (!importccactive)
+			    return false;
+			importccactive = false;
 			$('#loading').show();
 			return true;
 	    	});
