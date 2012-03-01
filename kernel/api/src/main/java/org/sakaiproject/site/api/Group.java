@@ -33,6 +33,9 @@ import org.sakaiproject.entity.api.Edit;
  */
 public interface Group extends Edit, Serializable, AuthzGroup
 {
+	/** The property to indicate whether the group is created by Worksite Setup or not */
+	static final String GROUP_PROP_WSETUP_CREATED = "group_prop_wsetup_created";
+    
 	/** @return a human readable short title of this group. */
 	String getTitle();
 
