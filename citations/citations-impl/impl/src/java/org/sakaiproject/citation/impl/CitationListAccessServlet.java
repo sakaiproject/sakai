@@ -53,7 +53,9 @@ import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.cheftool.VmServlet;
@@ -228,19 +230,11 @@ public class CitationListAccessServlet implements HttpAccess
 	protected void handleViewRequest(HttpServletRequest req, HttpServletResponse res, Reference ref) 
 			throws EntityPermissionException, EntityAccessOverloadException, EntityNotDefinedException
 	{
-		if(! ContentHostingService.allowGetResource(ref.getId()))
-		{
-			String user = "";
-			if(req.getUserPrincipal() != null)
-			{
-				user = req.getUserPrincipal().getName();
-			}
-			throw new EntityPermissionException(user, ContentHostingService.EVENT_RESOURCE_READ, ref.getReference());
-		}
-
         try
         {
-    		ContentResource resource = (ContentResource) ref.getEntity(); // ContentHostingService.getResource(ref.getId());
+        	// We get the resource as this checks permissions and throws exceptions if the user doesn't have access
+    		ContentResource resource = ContentHostingService.getResource(ref.getId());
+    		
     		ResourceProperties properties = resource.getProperties();
    
     		String title = properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
@@ -439,6 +433,11 @@ public class CitationListAccessServlet implements HttpAccess
         }
         catch (IdUnusedException e)
         {
+        	throw new EntityNotDefinedException(ref.getReference());
+        } catch (PermissionException e) {
+        	throw new EntityPermissionException(e.getUser(), ContentHostingService.EVENT_RESOURCE_READ, ref.getReference());
+        } catch (TypeException e) {
+        	// This doesn't seem right but it's probably the best fit.
         	throw new EntityNotDefinedException(ref.getReference());
         }
 	}
