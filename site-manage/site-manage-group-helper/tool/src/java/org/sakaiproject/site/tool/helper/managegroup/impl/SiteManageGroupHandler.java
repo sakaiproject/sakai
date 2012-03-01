@@ -157,8 +157,7 @@ public class SiteManageGroupHandler {
                Collection allGroups = (Collection) site.getGroups();
                for (Iterator gIterator = allGroups.iterator(); gIterator.hasNext();) {
                   Group gNext = (Group) gIterator.next();
-                  String gProp = gNext.getProperties().getProperty(
-                     SiteConstants.GROUP_PROP_WSETUP_CREATED);
+                  String gProp = gNext.getProperties().getProperty(gNext.GROUP_PROP_WSETUP_CREATED);
                   if (gProp != null && gProp.equals(Boolean.TRUE.toString())) {
                      groups.add(gNext);
                   }
@@ -368,7 +367,7 @@ public class SiteManageGroupHandler {
 		{
 			// adding a new group
 	        group= site.addGroup();
-	        group.getProperties().addProperty(SiteConstants.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
+	        group.getProperties().addProperty(group.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
 		}
 		
 		if (group != null)

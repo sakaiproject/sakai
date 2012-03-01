@@ -225,7 +225,7 @@ public class RoleGroupEventWatcher implements Observer
 						for (Object g : site.getGroups())
 						{
 							ResourceProperties properties = ((Group) g).getProperties();
-							if (properties.getProperty(SiteConstants.GROUP_PROP_WSETUP_CREATED) != null && properties.getProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID) != null)
+							if (properties.getProperty(((Group) g).GROUP_PROP_WSETUP_CREATED) != null && properties.getProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID) != null)
 							{
 								needSave = true;
 								

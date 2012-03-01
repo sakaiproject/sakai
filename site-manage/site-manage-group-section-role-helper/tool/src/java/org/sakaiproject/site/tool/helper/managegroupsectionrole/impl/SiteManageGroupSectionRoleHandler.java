@@ -208,7 +208,7 @@ public class SiteManageGroupSectionRoleHandler {
     			for (Iterator gIterator = allGroups.iterator(); gIterator.hasNext();) {
     				Group gNext = (Group) gIterator.next();
     				String gProp = gNext.getProperties().getProperty(
-    						SiteConstants.GROUP_PROP_WSETUP_CREATED);
+    						gNext.GROUP_PROP_WSETUP_CREATED);
     				if (gProp != null && gProp.equals(Boolean.TRUE.toString())) {
     					groups.add(gNext);
     				}
@@ -601,7 +601,7 @@ public class SiteManageGroupSectionRoleHandler {
 		{
 			// adding a new group
 	        group= site.addGroup();
-	        group.getProperties().addProperty(SiteConstants.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
+	        group.getProperties().addProperty(group.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
 		}
 		
 		if (group != null)
@@ -896,7 +896,7 @@ public class SiteManageGroupSectionRoleHandler {
 	    		for (String roster:rosterList)
 	    		{
 	    			Group group = site.addGroup();
-        			group.getProperties().addProperty(SiteConstants.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
+        			group.getProperties().addProperty(group.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
 		        		
 		        	// roster provider string
 		        	group.setProviderGroupId(roster);
@@ -915,7 +915,7 @@ public class SiteManageGroupSectionRoleHandler {
 	        			Group group = site.addGroup();
 	        			// make the provider id as of SITEID_ROLEID
 	        			//group.setProviderGroupId(site.getId() + "_" + role);
-	        			group.getProperties().addProperty(SiteConstants.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
+	        			group.getProperties().addProperty(group.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
 	        			group.getProperties().addProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID, role);
 	
 			        	String title = truncateGroupTitle(role);
@@ -1021,7 +1021,7 @@ public class SiteManageGroupSectionRoleHandler {
     		int groupCount = 0;
     		while(usersList.size() > 0){
     			Group group = site.addGroup();
-    			group.getProperties().addProperty(SiteConstants.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
+    			group.getProperties().addProperty(group.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
 
     			//Title
     			StringBuffer title = new StringBuffer();
@@ -1162,7 +1162,7 @@ public class SiteManageGroupSectionRoleHandler {
     	for(Group group:groups)
     	{
     		// check if there is one group with this roster id already
-    		String groupWSetupCreated = group.getProperties().getProperty(SiteConstants.GROUP_PROP_WSETUP_CREATED);
+    		String groupWSetupCreated = group.getProperties().getProperty(group.GROUP_PROP_WSETUP_CREATED);
 			if (groupWSetupCreated != null && groupWSetupCreated.equalsIgnoreCase(Boolean.TRUE.toString()))
 			{
 				if (group.getProviderGroupId() != null && group.getProviderGroupId().equals(rosterId))
@@ -1190,7 +1190,7 @@ public class SiteManageGroupSectionRoleHandler {
     	for(Group group:groups)
     	{
     		// check if there is one group with this roster id already
-    		String groupWSetupCreated = group.getProperties().getProperty(SiteConstants.GROUP_PROP_WSETUP_CREATED);
+    		String groupWSetupCreated = group.getProperties().getProperty(group.GROUP_PROP_WSETUP_CREATED);
 			if (groupWSetupCreated != null && groupWSetupCreated.equalsIgnoreCase(Boolean.TRUE.toString()))
 			{
 				String groupRole = group.getProperties().getProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID);
@@ -1363,7 +1363,7 @@ public class SiteManageGroupSectionRoleHandler {
 			if(group == null){
         		//create new group
     	        group= site.addGroup();
-    	        group.getProperties().addProperty(SiteConstants.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
+    	        group.getProperties().addProperty(group.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
     	        group.setTitle(importedGroup.getGroupTitle());
 			}
 			

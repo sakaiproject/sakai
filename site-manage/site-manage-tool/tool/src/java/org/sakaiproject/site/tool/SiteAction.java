@@ -2001,7 +2001,7 @@ public class SiteAction extends PagedResourceActionII {
 					Collection<Group> filteredGroups = new ArrayList<Group>();
 					for (Group g : groups)
 					{
-						Object gProp = g.getProperties().getProperty(SiteConstants.GROUP_PROP_WSETUP_CREATED);
+						Object gProp = g.getProperties().getProperty(g.GROUP_PROP_WSETUP_CREATED);
 						if (gProp != null && gProp.equals(Boolean.TRUE.toString()))
 						{
 							filteredGroups.add(g);
@@ -6998,7 +6998,7 @@ public class SiteAction extends PagedResourceActionII {
 								else
 								{
 									// check for Site Info-managed groups: don't change roles for other groups (e.g. section-managed groups)
-									String gProp = g.getProperties().getProperty(SiteConstants.GROUP_PROP_WSETUP_CREATED);
+									String gProp = g.getProperties().getProperty(g.GROUP_PROP_WSETUP_CREATED);
 									
 									// if there is a difference between the role setting, remove the entry from group and add it back with correct role, all are marked "not provided"
 									Role groupRole = g.getUserRole(gMemberId);
