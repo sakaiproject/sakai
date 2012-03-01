@@ -4661,7 +4661,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			
 			// the buffer used to store grade information
 			StringBuilder gradesBuffer = new StringBuilder(assignmentTitle + "," + gradeTypeString + "\n\n");
-			gradesBuffer.append(rb.getString("grades.id") + "," + rb.getString("grades.eid") + "," + rb.getString("grades.lastname") + "," + rb.getString("grades.firstname") + "," + rb.getString("grades.grade") + "\n");
+			gradesBuffer.append(rb.getString("grades.id") + "\t" + rb.getString("grades.eid") + "\t" + rb.getString("grades.lastname") + "\t" + rb.getString("grades.firstname") + "\t" + rb.getString("grades.grade") + "\n");
 
 			// allow add assignment members
 			List allowAddSubmissionUsers = allowAddSubmissionUsers(assignmentReference);
@@ -4712,7 +4712,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 								}
 								submittersString = escapeInvalidCharsEntry(submittersString);
 								// in grades file, Eid is used
-								gradesBuffer.append(submitters[i].getDisplayId() + "," + submitters[i].getEid() + "," + fullName + "," + s.getGradeDisplay() + "\n");
+								gradesBuffer.append(submitters[i].getDisplayId() + "\t" + submitters[i].getEid() + "\t" + submitters[i].getLastName() + "\t" + submitters[i].getFirstName() + "\t" + s.getGradeDisplay() + "\n");
 							}
 							
 							if (StringUtils.trimToNull(submittersString) != null)
