@@ -46,6 +46,11 @@ public interface AssessmentGradingFacadeQueriesAPI
 
   public List getTotalScores(String publishedId, String which, boolean getSubmittedOnly);
   
+  /**
+   * Get all submissions that are flagged for grading
+   * @param publishedId the published assesment id
+   * @return
+   */
   public List getAllSubmissions(String publishedId);
   
   public List getAllAssessmentGradingData(Long publishedId);

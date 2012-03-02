@@ -244,6 +244,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
   }
 
+  @SuppressWarnings("unchecked")
   public List getAllSubmissions(final String publishedId)
   {
 //      Object[] objects = new Object[1];
