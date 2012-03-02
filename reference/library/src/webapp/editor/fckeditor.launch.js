@@ -51,7 +51,7 @@ sakai.editor.editors.fckeditor.launch = function(targetId, config, w, h) {
         collectionId=sakai.editor.collectionId
     }
 
-    if (currentFolder) {
+    if (collectionId) {
         folder = '&CurrentFolder=' + collectionId;
         oFCKeditor.Config['CurrentFolder'] = collectionId 
     }
