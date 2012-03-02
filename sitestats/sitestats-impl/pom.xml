@@ -159,11 +159,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>jta</groupId>
-            <artifactId>jta</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-nodep</artifactId>
             <scope>test</scope>
