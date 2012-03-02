@@ -110,6 +110,7 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractTransactionalSpr
 		data.setIsLate(false);
 		data.setForGrade(false);
 		data.setStatus(Integer.valueOf(0));
+		queries.saveOrUpdateAssessmentGrading(data);
 		
 		ItemGradingData item1 = new ItemGradingData();
 		item1.setAgentId(data.getAgentId());
@@ -131,7 +132,7 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractTransactionalSpr
 		queries.saveOrUpdateAssessmentGrading(data);
 		
 		savedId = data.getAssessmentGradingId();
-		System.out.println("got id of" + savedId);
+		
 	}
 	
 }
