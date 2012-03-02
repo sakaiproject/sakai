@@ -41,8 +41,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 import java.util.TreeSet;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,7 +54,6 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
-import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -63,7 +62,6 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -73,7 +71,6 @@ import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -2364,7 +2361,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	 separate with each user, so we need to use the hash to find the
 	 published answer
 	 */
-	class AnswerComparator implements Comparator {
+  private static class AnswerComparator implements Comparator {
 
 		HashMap publishedAnswerHash;
 
@@ -2423,7 +2420,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	 separate with each user, so we need to use the hash to find the
 	 published question
 	 */
-	class QuestionComparator implements Comparator {
+	private static class QuestionComparator implements Comparator {
 
 		HashMap publishedItemHash;
 
@@ -2469,7 +2466,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	 separate with each user, so we need to use the hash to find the
 	 published question
 	 */
-	class ResponsesComparator implements Comparator {
+	private static class ResponsesComparator implements Comparator {
 		boolean anonymous;
 		public ResponsesComparator(boolean anony) {
 			anonymous = anony;
@@ -2521,7 +2518,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
          * A comparator to sort the items first by section sequence
          * and then by item sequence.
          */
-        class ItemComparator implements Comparator {
+        private static class ItemComparator implements Comparator {
 
             public int compare(Object o1, Object o2) {
                 PublishedItemData a = (PublishedItemData) o1;
@@ -2614,36 +2611,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    return al;
   }
 	
-	private SiteService siteService;
 	
-	/**
-	 * added by gopalrc - Nov 2007
-`	 * TODO: should perhaps be moved to SiteService
-	 * @param siteId
-	 * @return
-	 */
-/*	
-	private ArrayList getSiteGroupIds(final String siteId) {
-		Collection siteGroups = null;
-		try {
-			siteGroups = siteService.getSite(siteId).getGroups();
-		}
-		catch (IdUnusedException ex) {
-			// no site found
-		}
-		Iterator groupsIter = siteGroups.iterator();
-		final ArrayList groupIds = new ArrayList();
-		// To accomodate the problem with Hibernate and empty array parameters 
-		// TODO: this should probably be handled in a more efficient way
-		groupIds.add("none");  
-		while (groupsIter.hasNext()) {
-			Group group = (Group) groupsIter.next(); 
-			groupIds.add(group.getId());
-		}
-		return groupIds;
-	}
-*/
-
+	
 	public String getFilename(Long itemGradingId, String agentId, String filename) {
 		int dotIndex = filename.lastIndexOf(".");
    	    if (dotIndex < 0) {
@@ -2808,10 +2777,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    HashMap sectionSetMap = new HashMap();
 	    HashMap gradebookMap = new HashMap();
 	    HashMap studentUidsToScores = new HashMap();
-	    ArrayList toGradebookAssessmentsList = new ArrayList();
+	  
 	    
 	    // SAM-1088 getting the assessment so we can check to see if last user attempt was after due date
-	    PublishedAssessmentService assessmentService = new PublishedAssessmentService();
 	    PublishedAssessmentFacade assessment = null;
 	    while (iter.hasNext()) {
 	    	AssessmentGradingData adata = (AssessmentGradingData) iter.next();
@@ -2906,7 +2874,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		Entry entry = null;
 		AssessmentGradingData assessmentGradingData = null;
 		Long publishedAssessmentId = null;
-		GradingService gradingService = new GradingService();
 		GradebookService g = null;
 		if (IntegrationContextFactory.getInstance() != null) {
 			boolean integrated = IntegrationContextFactory.getInstance().isIntegrated();
