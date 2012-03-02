@@ -445,14 +445,42 @@ public class DbAssignmentService extends BaseAssignmentService
 		 * @param assignmentId assignment id relating to query
 		 * @return
 		 */
-		private int getSubmissionsCountWhere(String sqlWhere, String assignmentRef) {
+		private int getSubmissionsCountWhere(String queryType, String assignmentRef) {
 			int count = 0;
 			Site site = null;
-			
 			Collection asgGroups = null;
+			String sqlWhere = null;
 			
 			try {
 				Assignment a = AssignmentService.getAssignment(assignmentRef);
+				
+				// is this a non-electronice submission type assignment
+				boolean isNonElectronicSubmission = a.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION == a.getContent().getTypeOfSubmission();
+				
+				if ("submitted".equals(queryType))
+				{
+					if (isNonElectronicSubmission)
+					{
+						sqlWhere ="where context='" + assignmentId(assignmentRef) + "' AND " + SUBMISSION_FIELDS[3] + "='" + Boolean.TRUE.toString() + "'";
+					}
+					else
+					{
+						sqlWhere ="where context='" + assignmentId(assignmentRef) + "' AND " + SUBMISSION_FIELDS[2] + " IS NOT NULL AND " + SUBMISSION_FIELDS[3] + "='" + Boolean.TRUE.toString() + "'";
+					}
+					
+				}
+				else if ("ungraded".equals(queryType))
+				{
+					if (isNonElectronicSubmission)
+					{
+						sqlWhere = "where context='" + assignmentId(assignmentRef) + "' AND " + SUBMISSION_FIELDS[3] + "='" + Boolean.TRUE.toString() + "' AND " + SUBMISSION_FIELDS[4] + "='" + Boolean.FALSE.toString() + "'";
+					}
+					else
+					{
+						sqlWhere ="where context='" + assignmentId(assignmentRef) + "' AND " + SUBMISSION_FIELDS[2] + " IS NOT NULL AND " + SUBMISSION_FIELDS[3] + "='" + Boolean.TRUE.toString() + "' AND " + SUBMISSION_FIELDS[4] + "='" + Boolean.FALSE.toString() + "'";
+					}
+				}
+				
 				if (a.getAccess().equals(Assignment.AssignmentAccess.GROUPED))
 				{
 					asgGroups = a.getGroups();
@@ -511,7 +539,7 @@ public class DbAssignmentService extends BaseAssignmentService
 		 */
 		public int getSubmittedSubmissionsCount(String assignmentRef)
 		{
-			return getSubmissionsCountWhere("where context='" + assignmentId(assignmentRef) + "' AND " + SUBMISSION_FIELDS[2] + " IS NOT NULL AND " + SUBMISSION_FIELDS[3] + "='" + Boolean.TRUE.toString() + "'", assignmentRef);
+			return getSubmissionsCountWhere("submitted", assignmentRef);
 		}
 		
 		/**
@@ -519,7 +547,7 @@ public class DbAssignmentService extends BaseAssignmentService
 		 */
 		public int getUngradedSubmissionsCount(String assignmentRef)
 		{
-			return getSubmissionsCountWhere("where context='" + assignmentId(assignmentRef) + "' AND " + SUBMISSION_FIELDS[2] + " IS NOT NULL AND " + SUBMISSION_FIELDS[3] + "='" + Boolean.TRUE.toString() + "' AND " + SUBMISSION_FIELDS[4] + "='" + Boolean.FALSE.toString() + "'", assignmentRef );
+			return getSubmissionsCountWhere("ungraded", assignmentRef );
 		}
 		
 
