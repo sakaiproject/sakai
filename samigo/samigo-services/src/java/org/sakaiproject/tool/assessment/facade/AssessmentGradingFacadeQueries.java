@@ -55,7 +55,7 @@ import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -86,18 +86,48 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
 import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
+import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implements AssessmentGradingFacadeQueriesAPI{
   private static Log log = LogFactory.getLog(AssessmentGradingFacadeQueries.class);
 
+  /**
+   * Default empty Constructor
+   */
   public AssessmentGradingFacadeQueries () {
   }
 
+  /**
+   * Injected Services
+   */
+  private ContentHostingService contentHostingService; 
+  
+  public void setContentHostingService(ContentHostingService contentHostingService) {
+	  this.contentHostingService = contentHostingService;
+  }
+
+  private UserDirectoryService userDirectoryService;
+
+
+  public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+	  this.userDirectoryService = userDirectoryService;
+  }
+
+  
+  private PersistenceHelper persistenceHelper;
+  public void setPersistenceHelper(PersistenceHelper persistenceHelper) {
+	this.persistenceHelper = persistenceHelper;
+  }
+
+/**
+   * Class Methods
+   */
+  
   public List getTotalScores(final String publishedId, String which) {
 	  return getTotalScores(publishedId, which, true);
   }
@@ -504,7 +534,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
   public Long add(AssessmentGradingData a) {
-    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    int retryCount = persistenceHelper.getRetryCount().intValue();
     while (retryCount > 0){ 
       try {
         getHibernateTemplate().save(a);
@@ -512,7 +542,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       }
       catch (Exception e) {
         log.warn("problem adding assessmentGrading: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+        retryCount = persistenceHelper.retryDeadlock(e, retryCount);
       }
     }
     return a.getAssessmentGradingId();
@@ -535,7 +565,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   public Long saveMedia(byte[] media, String mimeType){
     log.debug("****"+AgentFacade.getAgentString()+"saving media...size="+media.length+" "+(new Date()));
     MediaData mediaData = new MediaData(media, mimeType);
-    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    int retryCount = persistenceHelper.getRetryCount().intValue();
     while (retryCount > 0){ 
       try {
         getHibernateTemplate().save(mediaData);
@@ -543,7 +573,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       }
       catch (Exception e) {
         log.warn("problem saving media with mimeType: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+        retryCount = persistenceHelper.retryDeadlock(e, retryCount);
       }
     }
     log.debug("****"+AgentFacade.getAgentString()+"saved media."+(new Date()));
@@ -552,7 +582,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
   public Long saveMedia(MediaData mediaData){
     log.debug("****"+mediaData.getFilename()+" saving media...size="+mediaData.getFileSize()+" "+(new Date()));
-    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    int retryCount = persistenceHelper.getRetryCount().intValue();
     while (retryCount > 0){ 
       try {
         getHibernateTemplate().save(mediaData);
@@ -560,7 +590,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       }
       catch (Exception e) {
         log.warn("problem saving media: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+        retryCount = persistenceHelper.retryDeadlock(e, retryCount);
       }
     }
     log.debug("****"+mediaData.getFilename()+" saved media."+(new Date()));
@@ -927,7 +957,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
 
   public void saveItemGrading(ItemGradingIfc item) {
-    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    int retryCount = persistenceHelper.getRetryCount().intValue();
     while (retryCount > 0){ 
       try {
         getHibernateTemplate().saveOrUpdate((ItemGradingData)item);
@@ -935,13 +965,13 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       }
       catch (Exception e) {
         log.warn("problem saving itemGrading: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+        retryCount = persistenceHelper.retryDeadlock(e, retryCount);
       }
     }
   }
 
   public void saveOrUpdateAssessmentGrading(AssessmentGradingIfc assessment) {
-    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    int retryCount = persistenceHelper.getRetryCount().intValue();
     while (retryCount > 0){ 
       try {
         /* for testing the catch block - daisyf 
@@ -953,7 +983,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       }
       catch (Exception e) {
         log.warn("problem inserting/updating assessmentGrading: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+        retryCount = persistenceHelper.retryDeadlock(e, retryCount);
       }
     }
   }
@@ -1428,7 +1458,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
   public void deleteAll(Collection c){
-    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    int retryCount = persistenceHelper.getRetryCount().intValue();
     while (retryCount > 0){ 
       try {
         getHibernateTemplate().deleteAll(c);
@@ -1436,14 +1466,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       }
       catch (Exception e) {
         log.warn("problem inserting assessmentGrading: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+        retryCount = persistenceHelper.retryDeadlock(e, retryCount);
       }
     }
   }
 
 
   public void saveOrUpdateAll(Collection c) {
-    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    int retryCount = persistenceHelper.getRetryCount().intValue();
     while (retryCount > 0){ 
       try {
         getHibernateTemplate().saveOrUpdateAll(c);
@@ -1451,7 +1481,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       }
       catch (Exception e) {
         log.warn("problem inserting assessmentGrading: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+        retryCount = persistenceHelper.retryDeadlock(e, retryCount);
       }
     }
   }
@@ -1900,7 +1930,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
   
   public void saveStudentGradingSummaryData(StudentGradingSummaryIfc studentGradingSummaryData) {
-	    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+	    int retryCount = persistenceHelper.getRetryCount().intValue();
 	    while (retryCount > 0){ 
 	      try {
 	        getHibernateTemplate().saveOrUpdate((StudentGradingSummaryData) studentGradingSummaryData);
@@ -1908,7 +1938,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	      }
 	      catch (Exception e) {
 	        log.warn("problem saving studentGradingSummaryData: "+e.getMessage());
-	        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+	        retryCount = persistenceHelper.retryDeadlock(e, retryCount);
 	      }
 	    }
 	  }
@@ -2011,9 +2041,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 				  useridSet.remove(assessmentGradingData.getAgentId());
 				  canBeExported = true;
 				  try {
-					  agentEid = UserDirectoryService.getUser(assessmentGradingData.getAgentId()).getEid();
-					  firstName = UserDirectoryService.getUser(assessmentGradingData.getAgentId()).getFirstName();
-					  lastName = UserDirectoryService.getUser(assessmentGradingData.getAgentId()).getLastName();
+					  agentEid = userDirectoryService.getUser(assessmentGradingData.getAgentId()).getEid();
+					  firstName = userDirectoryService.getUser(assessmentGradingData.getAgentId()).getFirstName();
+					  lastName = userDirectoryService.getUser(assessmentGradingData.getAgentId()).getLastName();
 				  } catch (Exception e) {
 					  log.error("Cannot get user");
 				  }
@@ -2307,9 +2337,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  while (iter.hasNext()) {
 			  String id = (String) iter.next();
 			  try {
-				  agentEid = UserDirectoryService.getUser(id).getEid();
-				  firstName = UserDirectoryService.getUser(id).getFirstName();
-				  lastName = UserDirectoryService.getUser(id).getLastName();
+				  agentEid = userDirectoryService.getUser(id).getEid();
+				  firstName = userDirectoryService.getUser(id).getFirstName();
+				  lastName = userDirectoryService.getUser(id).getLastName();
 			  } catch (Exception e) {
 				  log.error("Cannot get user");
 			  }
@@ -2892,7 +2922,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 				}
 				String currentSiteId = (String) toGradebookPublishedAssessmentSiteIdMap.get(publishedAssessmentId);
 				if (gbsHelper.gradebookExists(GradebookFacade.getGradebookUId(currentSiteId), g)){
-					int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+					int retryCount = persistenceHelper.getRetryCount().intValue();
 					while (retryCount > 0){
 						try {
 							gbsHelper.updateExternalAssessmentScores(publishedAssessmentId, (HashMap) entry.getValue(), g);
@@ -2900,7 +2930,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						}
 						catch (Exception e) {
 							log.warn("problem delete assessmentAttachment: " + e.getMessage());
-							retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+							retryCount = persistenceHelper.retryDeadlock(e, retryCount);
 						}
 					}
 				} else {
@@ -2914,7 +2944,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		ItemGradingAttachment attach = null;
 		Boolean isLink = Boolean.FALSE;
 		try {
-			ContentResource cr = ContentHostingService.getResource(resourceId);
+			ContentResource cr = contentHostingService.getResource(resourceId);
 			if (cr != null) {
 				AssessmentFacadeQueries assessmentFacadeQueries = new AssessmentFacadeQueries();
 				ResourceProperties p = cr.getProperties();
@@ -2959,7 +2989,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 				.load(ItemGradingAttachment.class, attachmentId);
 		ItemGradingIfc itemGrading = itemGradingAttachment.getItemGrading();
 		// String resourceId = assessmentAttachment.getResourceId();
-		int retryCount = PersistenceService.getInstance().getRetryCount()
+		int retryCount = persistenceHelper.getRetryCount()
 				.intValue();
 		while (retryCount > 0) {
 			try {
@@ -2972,7 +3002,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 			} catch (Exception e) {
 				log.warn("problem delete assessmentAttachment: "
 						+ e.getMessage());
-				retryCount = PersistenceService.getInstance().retryDeadlock(e,
+				retryCount = persistenceHelper.retryDeadlock(e,
 						retryCount);
 			}
 		}

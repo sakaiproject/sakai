@@ -48,7 +48,6 @@ import org.sakaiproject.tool.assessment.facade.FavoriteColChoicesFacadeQueriesAP
  */
 public class PersistenceService{
 
-	private static Log log = LogFactory.getLog(PersistenceService.class);
 	private QuestionPoolFacadeQueriesAPI questionPoolFacadeQueries;
 	private TypeFacadeQueriesAPI typeFacadeQueries;
 	private SectionFacadeQueriesAPI sectionFacadeQueries;
@@ -63,31 +62,17 @@ public class PersistenceService{
 	private AuthzQueriesFacadeAPI authzQueriesFacade;
 	private SectionAwareness sectionAwareness;
 	private FavoriteColChoicesFacadeQueriesAPI favoriteColChoicesFacadeQueries;
-
+	private PersistenceHelper persistenceHelper;
+	
+	
 
 	public static PersistenceService getInstance(){
 	    return (PersistenceService)ComponentManager.get("PersistenceService");
 	}
 
-        private Integer deadlockInterval; // in ms
+        
 
-        public void setDeadlockInterval(Integer deadlockInterval){
-          this.deadlockInterval = deadlockInterval;
-        }
-
-        public Integer getDeadlockInterval(){
-          return deadlockInterval;
-        }
-
-        private Integer retryCount; // in ms
-
-        public void setRetryCount(Integer retryCount){
-          this.retryCount = retryCount;
-        }
-
-        public Integer getRetryCount(){
-          return retryCount;
-        }
+        
 
 
 	public QuestionPoolFacadeQueriesAPI getQuestionPoolFacadeQueries(){
@@ -122,6 +107,14 @@ public class PersistenceService{
 	    this.itemFacadeQueries = itemFacadeQueries;
 	}
 
+	public PersistenceHelper getPersistenceHelper() {
+		return persistenceHelper;
+	}
+
+	public void setPersistenceHelper(PersistenceHelper persistenceHelper) {
+		this.persistenceHelper = persistenceHelper;
+	}
+	
 	public AssessmentFacadeQueriesAPI getAssessmentFacadeQueries(){
 	    return assessmentFacadeQueries;
 	    //return (AssessmentFacadeQueriesAPI)ComponentManager.get(org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI.class);
@@ -201,26 +194,7 @@ public class PersistenceService{
 	}
 
 
-	public int retryDeadlock(Exception e, int retryCount){
-		log.warn("Error saving to db...retry again....");
-		String errorMessage = e.getMessage();
-		log.warn(errorMessage);
-		int index = errorMessage.indexOf("ORA-00060"); // deadlock
-		int index2 = errorMessage.indexOf("SQL state [61000]"); // oracle deadlock
-		int index3 = errorMessage.indexOf("SQL state [41000]"); // mysql deadlock
-		if (index > -1 || index2 > -1 || index3 > -1){
-			retryCount--;
-			try {
-				int ideadlockInterval = deadlockInterval.intValue();
-				Thread.currentThread().sleep(ideadlockInterval);
-			}
-			catch(InterruptedException ex){
-				log.warn(ex.getMessage());
-			}
-		}
-		else retryCount = 0;
-		return retryCount;
-	}
+	
 
 	public void setFavoriteColChoicesFacadeQueries(FavoriteColChoicesFacadeQueriesAPI favoriteColChoicesFacadeQueries){
 		this.favoriteColChoicesFacadeQueries = favoriteColChoicesFacadeQueries;

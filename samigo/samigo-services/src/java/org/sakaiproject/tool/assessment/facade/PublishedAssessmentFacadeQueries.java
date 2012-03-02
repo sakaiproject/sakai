@@ -1100,7 +1100,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	}
 
 	public void deleteAllSecuredIP(PublishedAssessmentIfc assessment) {
-		int retryCount = PersistenceService.getInstance().getRetryCount()
+		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount()
 				.intValue();
 		while (retryCount > 0) {
 			try {
@@ -1119,7 +1119,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 					retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem deleting ip address: " + e.getMessage());
-				retryCount = PersistenceService.getInstance().retryDeadlock(e,
+				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e,
 						retryCount);
 			}
 		}
@@ -1134,7 +1134,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		else
 			data = (PublishedAssessmentData) assessment;
 
-		int retryCount = PersistenceService.getInstance().getRetryCount()
+		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount()
 				.intValue();
 		while (retryCount > 0) {
 			try {
@@ -1144,7 +1144,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				log
 						.warn("problem save or update assessment: "
 								+ e.getMessage());
-				retryCount = PersistenceService.getInstance().retryDeadlock(e,
+				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e,
 						retryCount);
 				if (retryCount == 0)
 					throw e;
@@ -1668,7 +1668,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	}
 
 	public void saveOrUpdateMetaData(PublishedMetaData meta) {
-		int retryCount = PersistenceService.getInstance().getRetryCount()
+		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount()
 				.intValue();
 		while (retryCount > 0) {
 			try {
@@ -1676,7 +1676,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem save or update meta data: " + e.getMessage());
-				retryCount = PersistenceService.getInstance().retryDeadlock(e,
+				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e,
 						retryCount);
 			}
 		}
@@ -2010,7 +2010,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		else
 			data = (PublishedAssessmentData) assessment;
 
-		int retryCount = PersistenceService.getInstance().getRetryCount()
+		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount()
 				.intValue();
 		while (retryCount > 0) {
 			try {
@@ -2019,7 +2019,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			} catch (Exception e) {
 				log.warn("problem removing publishedAssessment: "
 						+ e.getMessage());
-				retryCount = PersistenceService.getInstance().retryDeadlock(e,
+				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e,
 						retryCount);
 			}
 		}
@@ -2486,12 +2486,12 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 
 	public void updateAssessmentLastModifiedInfo(
 			PublishedAssessmentFacade publishedAssessmentFacade) {
-		int retryCount = PersistenceService.getInstance().getRetryCount()
+		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount()
 				.intValue();
 		AssessmentBaseIfc data = publishedAssessmentFacade.getData();
 		data.setLastModifiedBy(AgentFacade.getAgentString());
 		data.setLastModifiedDate(new Date());
-		retryCount = PersistenceService.getInstance().getRetryCount()
+		retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount()
 				.intValue();
 		while (retryCount > 0) {
 			try {
@@ -2499,14 +2499,14 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem update assessment: " + e.getMessage());
-				retryCount = PersistenceService.getInstance().retryDeadlock(e,
+				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e,
 						retryCount);
 			}
 		}
 	}
 
 	public void saveOrUpdateSection(SectionFacade section) {
-		int retryCount = PersistenceService.getInstance().getRetryCount()
+		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount()
 				.intValue();
 		while (retryCount > 0) {
 			try {
@@ -2514,7 +2514,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem save or update section: " + e.getMessage());
-				retryCount = PersistenceService.getInstance().retryDeadlock(e,
+				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e,
 						retryCount);
 			}
 		}
@@ -2524,7 +2524,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		PublishedItemAttachment itemAttachment = (PublishedItemAttachment) getHibernateTemplate()
 				.load(PublishedItemAttachment.class, itemAttachmentId);
 		ItemDataIfc item = itemAttachment.getItem();
-		int retryCount = PersistenceService.getInstance().getRetryCount()
+		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount()
 				.intValue();
 		while (retryCount > 0) {
 			try {
@@ -2537,7 +2537,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				}
 			} catch (Exception e) {
 				log.warn("problem delete itemAttachment: " + e.getMessage());
-				retryCount = PersistenceService.getInstance().retryDeadlock(e,
+				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e,
 						retryCount);
 			}
 		}
@@ -2572,7 +2572,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				SectionDataIfc.AS_LISTED_ON_ASSESSMENT_PAGE.toString());
 
 		sectionSet.add(section);
-		int retryCount = PersistenceService.getInstance().getRetryCount()
+		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount()
 				.intValue();
 		while (retryCount > 0) {
 			try {
@@ -2582,7 +2582,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				log
 						.warn("problem save or update assessment: "
 								+ e.getMessage());
-				retryCount = PersistenceService.getInstance().retryDeadlock(e,
+				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e,
 						retryCount);
 			}
 		}
@@ -2609,7 +2609,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 
 	public void saveOrUpdatePublishedAccessControl(
 			AssessmentAccessControlIfc publishedAccessControl) {
-		int retryCount = PersistenceService.getInstance().getRetryCount()
+		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount()
 				.intValue();
 		while (retryCount > 0) {
 			try {
@@ -2618,7 +2618,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			} catch (Exception e) {
 				log.warn("problem save or update publishedAccessControl data: "
 						+ e.getMessage());
-				retryCount = PersistenceService.getInstance().retryDeadlock(e,
+				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e,
 						retryCount);
 			}
 		}
@@ -2857,7 +2857,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				.load(PublishedAssessmentAttachment.class, assessmentAttachmentId);
 		AssessmentIfc assessment = assessmentAttachment.getAssessment();
 		// String resourceId = assessmentAttachment.getResourceId();
-		int retryCount = PersistenceService.getInstance().getRetryCount()
+		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount()
 				.intValue();
 		while (retryCount > 0) {
 			try {
@@ -2872,7 +2872,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			} catch (Exception e) {
 				log.warn("problem delete publishedAssessmentAttachment: "
 						+ e.getMessage());
-				retryCount = PersistenceService.getInstance().retryDeadlock(e,
+				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e,
 						retryCount);
 			}
 		}
@@ -2930,7 +2930,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				.load(PublishedSectionAttachment.class, sectionAttachmentId);
 		SectionDataIfc section = sectionAttachment.getSection();
 		// String resourceId = sectionAttachment.getResourceId();
-		int retryCount = PersistenceService.getInstance().getRetryCount()
+		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount()
 				.intValue();
 		while (retryCount > 0) {
 			try {
@@ -2943,7 +2943,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				}
 			} catch (Exception e) {
 				log.warn("problem delete sectionAttachment: " + e.getMessage());
-				retryCount = PersistenceService.getInstance().retryDeadlock(e,
+				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e,
 						retryCount);
 			}
 		}

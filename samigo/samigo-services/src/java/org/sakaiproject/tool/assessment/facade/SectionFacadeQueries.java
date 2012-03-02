@@ -116,7 +116,7 @@ public class SectionFacadeQueries  extends HibernateDaoSupport implements Sectio
   
   public void remove(Long sectionId) {
       SectionFacade section = (SectionFacade) getHibernateTemplate().load(SectionData.class, sectionId);
-    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
     while (retryCount > 0){
       try {
         getHibernateTemplate().delete(section);
@@ -124,7 +124,7 @@ public class SectionFacadeQueries  extends HibernateDaoSupport implements Sectio
       }
       catch (Exception e) {
         log.warn("problem removing section: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+        retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
       }
     }
   }
@@ -144,7 +144,7 @@ public class SectionFacadeQueries  extends HibernateDaoSupport implements Sectio
     if (section != null) {
 
       SectionMetaData sectionmetadata = new SectionMetaData(section, label, value);
-    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
     while (retryCount > 0){
       try {
         getHibernateTemplate().save(sectionmetadata);
@@ -152,7 +152,7 @@ public class SectionFacadeQueries  extends HibernateDaoSupport implements Sectio
       }
       catch (Exception e) {
         log.warn("problem add section metadata: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+        retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
       }
     }
     }
@@ -174,7 +174,7 @@ public class SectionFacadeQueries  extends HibernateDaoSupport implements Sectio
 //    List sectionmetadatalist = getHibernateTemplate().find(query,
 //        new Object[] { sectionId, label },
 //        new org.hibernate.type.Type[] { Hibernate.LONG , Hibernate.STRING });
-    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
     while (retryCount > 0){
       try {
         getHibernateTemplate().deleteAll(sectionmetadatalist);
@@ -182,7 +182,7 @@ public class SectionFacadeQueries  extends HibernateDaoSupport implements Sectio
       }
       catch (Exception e) {
         log.warn("problem delete section metadata: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+        retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
       }
     }
   }

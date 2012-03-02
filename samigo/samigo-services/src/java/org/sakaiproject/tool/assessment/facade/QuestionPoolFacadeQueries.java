@@ -571,7 +571,7 @@ public class QuestionPoolFacadeQueries
    * @param poolId DOCUMENTATION PENDING
    */
   public void addItemToPool(QuestionPoolItemData qpi) {
-    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
     while (retryCount > 0){
       try {
         getHibernateTemplate().save(qpi);
@@ -579,7 +579,7 @@ public class QuestionPoolFacadeQueries
       }
       catch (Exception e) {
         log.warn("problem saving item to pool: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+        retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
       }
     }
 
@@ -601,7 +601,7 @@ public class QuestionPoolFacadeQueries
       // lydial:  getting list of items that only belong to this pool and not linked to any assessments. 
       List itemList = getAllItemsInThisPoolOnlyAndDetachFromAssessment(poolId);
 
-      int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+      int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
       while (retryCount > 0){
         try {
           getHibernateTemplate().deleteAll(itemList); // delete all AssetBeanie
@@ -609,13 +609,13 @@ public class QuestionPoolFacadeQueries
         }
         catch (DataAccessException e) {
           log.warn("problem delete all items in pool: "+e.getMessage());
-          retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+          retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
         }
       }
 
 
       // #2. delete question and questionpool map.
-      retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+      retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
       while (retryCount > 0){
         try {
           final HibernateCallback hcb = new HibernateCallback(){
@@ -646,7 +646,7 @@ public class QuestionPoolFacadeQueries
 	  }
           catch (DataAccessException e) {
             log.warn("problem delete question and questionpool map inside itemMetaData: "+e.getMessage());
-            retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+            retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
           }
 
           // b. delete item and pool association in SAM_QUESTIONPOOLITEM_T
@@ -659,7 +659,7 @@ public class QuestionPoolFacadeQueries
         }
         catch (DataAccessException e) {
           log.warn("problem delete question and questionpool map: "+e.getMessage());
-          retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+          retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
         }
       }
 
@@ -678,7 +678,7 @@ public class QuestionPoolFacadeQueries
     	};
       };
       List qpaList = getHibernateTemplate().executeFind(hcb);
-      retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+      retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
       while (retryCount > 0){
         try {
           getHibernateTemplate().deleteAll(qpaList);
@@ -686,7 +686,7 @@ public class QuestionPoolFacadeQueries
         }
         catch (DataAccessException e) {
           log.warn("problem delete question pool access data: "+e.getMessage());
-          retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+          retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
         }
       }
 
@@ -699,7 +699,7 @@ public class QuestionPoolFacadeQueries
     	};
       };
       List qppList = getHibernateTemplate().executeFind(hcb2);
-      retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+      retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
       while (retryCount > 0){
         try {
           getHibernateTemplate().deleteAll(qppList);
@@ -707,7 +707,7 @@ public class QuestionPoolFacadeQueries
         }
         catch (DataAccessException e) {
           log.warn("problem delete all pools: "+e.getMessage());
-          retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+          retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
         }
       }
 
@@ -732,7 +732,7 @@ public class QuestionPoolFacadeQueries
       if (destPoolId.equals(QuestionPoolFacade.ROOT_POOL) &&
           !sourcePoolId.equals(QuestionPoolFacade.ROOT_POOL)) {
         sourcePool.setParentPoolId(QuestionPoolFacade.ROOT_POOL);
-    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
     while (retryCount > 0){
       try {
         getHibernateTemplate().update( (QuestionPoolData) sourcePool.getData());
@@ -740,14 +740,14 @@ public class QuestionPoolFacadeQueries
       }
       catch (DataAccessException e) {
         log.warn("problem moving pool: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+        retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
       }
     }
       }
       else {
         QuestionPoolFacade destPool = getPool(destPoolId, agentId);
         sourcePool.setParentPoolId(destPool.getQuestionPoolId());
-    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
     while (retryCount > 0){
       try {
         getHibernateTemplate().update( (QuestionPoolData) sourcePool.getData());
@@ -755,7 +755,7 @@ public class QuestionPoolFacadeQueries
       }
       catch (DataAccessException e) {
         log.warn("problem update source pool: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+        retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
       }
     }
       }
@@ -798,7 +798,7 @@ public class QuestionPoolFacadeQueries
    */
   public void removeItemFromPool(String itemId, Long poolId) {
     QuestionPoolItemData qpi = new QuestionPoolItemData(poolId, itemId);
-    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
     while (retryCount > 0){
       try {
         getHibernateTemplate().delete(qpi);
@@ -806,7 +806,7 @@ public class QuestionPoolFacadeQueries
       }
       catch (Exception e) {
         log.warn("problem delete item from pool: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+        retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
       }
     }
   }
@@ -819,7 +819,7 @@ public class QuestionPoolFacadeQueries
    */
   public void moveItemToPool(String itemId, Long sourceId, Long destId) {
     QuestionPoolItemData qpi = new QuestionPoolItemData(sourceId, itemId);
-    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
     while (retryCount > 0){
       try {
         getHibernateTemplate().delete(qpi);
@@ -827,11 +827,11 @@ public class QuestionPoolFacadeQueries
       }
       catch (Exception e) {
         log.warn("problem delete old mapping: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+        retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
       }
     }
     QuestionPoolItemData qpi2 = new QuestionPoolItemData(destId, itemId);
-    retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
     while (retryCount > 0){
       try {
         getHibernateTemplate().save(qpi2);
@@ -839,7 +839,7 @@ public class QuestionPoolFacadeQueries
       }
       catch (Exception e) {
         log.warn("problem saving new mapping: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+        retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
       }
     }
   }
@@ -855,7 +855,7 @@ public class QuestionPoolFacadeQueries
       QuestionPoolData qpp = (QuestionPoolData) pool.getData();
       qpp.setLastModified(new Date());
       qpp.setLastModifiedById(AgentFacade.getAgentString());
-      int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+      int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
       if (qpp.getQuestionPoolId() == null ||
           qpp.getQuestionPoolId().equals(new Long("0"))) { // indicate a new pool
         insert = true;
@@ -867,7 +867,7 @@ public class QuestionPoolFacadeQueries
         }
         catch (DataAccessException e) {
           log.warn("problem saving Or Update pool: "+e.getMessage());
-          retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+          retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
         }
       }
 
@@ -875,7 +875,7 @@ public class QuestionPoolFacadeQueries
         // add a QuestionPoolAccessData record for the owner who should have ADMIN access to the pool
         QuestionPoolAccessData qpa = new QuestionPoolAccessData(qpp.
             getQuestionPoolId(), qpp.getOwnerId(), QuestionPoolData.ADMIN);
-        retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+        retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
         while (retryCount > 0){
           try {
             getHibernateTemplate().save(qpa);
@@ -883,7 +883,7 @@ public class QuestionPoolFacadeQueries
           }
           catch (DataAccessException e) {
             log.warn("problem saving pool: "+e.getMessage());
-            retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+            retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
           }
         }
         
@@ -904,7 +904,7 @@ public class QuestionPoolFacadeQueries
         		QuestionPoolAccessData(qpp.getQuestionPoolId(),
         				questioPoolData.getAgentId(), QuestionPoolData.READ_COPY);
         		retryCount =
-        			PersistenceService.getInstance().getRetryCount().intValue();
+        			PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
         		while (retryCount > 0){
         			try {
         				getHibernateTemplate().save(qpa);
@@ -913,7 +913,7 @@ public class QuestionPoolFacadeQueries
         			catch (DataAccessException e) {
         				log.warn("problem saving pool: "+e.getMessage());
         				retryCount =
-        					PersistenceService.getInstance().retryDeadlock(e, retryCount);
+        					PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
         			}
         		}
         	}

@@ -49,7 +49,7 @@ public class FavoriteColChoicesFacadeQueries extends HibernateDaoSupport
 					getHibernateTemplate().delete(fChoice);
 				}
 			}
-				int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+				int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
 				while (retryCount > 0){
 					try {
 
@@ -58,7 +58,7 @@ public class FavoriteColChoicesFacadeQueries extends HibernateDaoSupport
 					}
 					catch (Exception e) {
 						log.warn("problem saving favoriteColChoices: "+e.getMessage());
-						retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+						retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
 					}
 				}
 			

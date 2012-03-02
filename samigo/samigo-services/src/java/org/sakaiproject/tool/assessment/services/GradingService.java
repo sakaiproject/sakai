@@ -1224,7 +1224,7 @@ public class GradingService
     // add retry logic to resolve deadlock problem while sending grades to gradebook
 
     Float originalFinalScore = data.getFinalScore();
-    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
     while (retryCount > 0){
     	try {
     		// Send the average score if average was selected for multiple submissions
@@ -1271,7 +1271,7 @@ public class GradingService
 	  log.warn("retry....");
       retryCount--;
       try {
-    	  int deadlockInterval = PersistenceService.getInstance().getDeadlockInterval().intValue();
+    	  int deadlockInterval = PersistenceService.getInstance().getPersistenceHelper().getDeadlockInterval().intValue();
     	  Thread.sleep(deadlockInterval);
       }
       catch(InterruptedException ex){
