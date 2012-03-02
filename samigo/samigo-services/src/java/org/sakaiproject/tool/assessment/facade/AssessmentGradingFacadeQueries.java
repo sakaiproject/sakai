@@ -862,7 +862,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
   public AssessmentGradingData load(Long id) {
     AssessmentGradingData gdata = (AssessmentGradingData) getHibernateTemplate().load(AssessmentGradingData.class, id);
-    gdata.setItemGradingSet(getItemGradingSet(gdata.getAssessmentGradingId()));
+    //This causes errors and is unnecessary as these objects aren't lazy loaded -DH
+    //gdata.setItemGradingSet(getItemGradingSet(gdata.getAssessmentGradingId()));
     return gdata;
   }
 

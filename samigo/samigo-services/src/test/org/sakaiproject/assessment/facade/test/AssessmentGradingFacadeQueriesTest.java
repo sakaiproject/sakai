@@ -13,20 +13,32 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractTransactionalSpr
 		return new String[] {"/spring-hibernate.xml"};
 	}
 
-	
-	public void testSaveAssesmentGradingData() {
-		AssessmentGradingFacadeQueries queries = new AssessmentGradingFacadeQueries();
+	/** our query object */
+	AssessmentGradingFacadeQueries queries = null;
+	Long savedId = null;
+		
+	protected void onSetUpInTransaction() throws Exception {
+		queries = new AssessmentGradingFacadeQueries();
 		queries.setSessionFactory((SessionFactory)applicationContext.getBean("sessionFactory"));
+		//Set the persistance helper
 		PersistenceHelper persistenceHelper = new PersistenceHelper();
 		persistenceHelper.setDeadlockInterval(3500);
 		persistenceHelper.setRetryCount(5);
-		
 		queries.setPersistenceHelper(persistenceHelper);
 		
 		
+
+	}
+	
+	
+	
+	public void testSaveAssesmentGradingData() {
+		//A AssemementGradingData to work with
 		AssessmentGradingData data = new AssessmentGradingData();
+		
 		//we expect a failure on this one
 		/*FIXME this test should fail with an exception
+		 * currently the exceptionis quietly swallowed
 		try {
 			queries.saveOrUpdateAssessmentGrading(data);
 			fail();
@@ -78,5 +90,48 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractTransactionalSpr
 		
 		
 	}
+	
+	public void testLoad() {
+		loadData();
+		
+		AssessmentGradingData result = queries.load(savedId);
+		assertNotNull(result);
+		assertEquals(result.getItemGradingSet().size(), 2);
+	}
 
+	/**
+	 * Load some test data
+	 */
+	private void loadData() {
+		//set up some data
+		AssessmentGradingData data = new AssessmentGradingData();
+		data.setPublishedAssessmentId(Long.valueOf(1));
+		data.setAgentId("agent");
+		data.setIsLate(false);
+		data.setForGrade(false);
+		data.setStatus(Integer.valueOf(0));
+		
+		ItemGradingData item1 = new ItemGradingData();
+		item1.setAgentId(data.getAgentId());
+		item1.setAssessmentGradingId(data.getAssessmentGradingId());
+		item1.setPublishedItemId(1L);
+		item1.setPublishedItemTextId(1L);
+		
+		
+		ItemGradingData item2 = new ItemGradingData();
+		item2.setAgentId(data.getAgentId());
+		item2.setAssessmentGradingId(data.getAssessmentGradingId());
+		item2.setPublishedItemId(2L);
+		item2.setPublishedItemTextId(2L);
+		
+		
+		data.getItemGradingSet().add(item2);
+		data.getItemGradingSet().add(item1);
+		
+		queries.saveOrUpdateAssessmentGrading(data);
+		
+		savedId = data.getAssessmentGradingId();
+		System.out.println("got id of" + savedId);
+	}
+	
 }
