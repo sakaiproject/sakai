@@ -1683,9 +1683,27 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	}
 
 	public HashMap getFeedbackHash() {
+		final List listAgentId = new ArrayList();
 		String siteId = AgentFacade.getCurrentSiteId();
+		listAgentId.add(siteId);
+
+		try {
+			Site site = SiteService.getSite(siteId);
+				Collection groups = site.getGroups();
+				if (groups != null && groups.size() > 0) {
+					Iterator groupIter = groups.iterator();
+					while (groupIter.hasNext()) {
+						Group group = (Group) groupIter.next();
+						listAgentId.add(group.getId());
+					}
+				}
+			}
+		catch (IdUnusedException ex) {
+			// No site available
+		}
+
 		HashMap h = new HashMap();
-		String query = "select new PublishedFeedback("
+		final String query = "select new PublishedFeedback("
 				+ " p.assessment.publishedAssessmentId,"
 				+ " p.feedbackDelivery,p.feedbackComponentOption,  p.feedbackAuthoring, p.editComponents, p.showQuestionText,"
 				+ " p.showStudentResponse, p.showCorrectResponse,"
@@ -1693,9 +1711,20 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				+ " p.showQuestionLevelFeedback, p.showSelectionLevelFeedback,"
 				+ " p.showGraderComments, p.showStatistics)"
 				+ " from PublishedFeedback p, AuthorizationData az"
-				+ " where az.qualifierId = p.assessment.publishedAssessmentId and az.agentIdString=? and az.functionId=?";
-		Object [] values = {siteId, "TAKE_PUBLISHED_ASSESSMENT"};
-		List l = getHibernateTemplate().find(query, values);
+				+ " where az.qualifierId = p.assessment.publishedAssessmentId "
+				+ " and (az.agentIdString in (:agentIdString)) "
+				+ " and az.functionId=:functionId ";
+		final HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				Query q = session.createQuery(query);
+				q.setParameterList("agentIdString", listAgentId);
+				q.setString("functionId", "TAKE_PUBLISHED_ASSESSMENT");
+				return q.list();
+			};
+		};
+		
+		List l = getHibernateTemplate().executeFind(hcb);
 		for (int i = 0; i < l.size(); i++) {
 			PublishedFeedback f = (PublishedFeedback) l.get(i);
 			h.put(f.getAssessmentId(), f);
