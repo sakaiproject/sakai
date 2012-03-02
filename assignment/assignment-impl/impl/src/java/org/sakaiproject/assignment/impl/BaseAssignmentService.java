@@ -6192,7 +6192,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			// return true if resubmission is allowed and current time is before resubmission close time
 			// get the resubmit settings from submission object first
 			String allowResubmitNumString = submission != null?submission.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER):null;
-			if (allowResubmitNumString != null)
+			if (allowResubmitNumString != null  && submission.getTimeSubmitted() != null)
 			{
 				try
 				{
