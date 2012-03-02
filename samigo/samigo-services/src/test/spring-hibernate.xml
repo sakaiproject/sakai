@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="samDataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName"><value>${hibernate.connection.driver_class}</value></property>
+		<property name="url"><value>${hibernate.connection.url}</value></property>
+		<property name="username"><value>${hibernate.connection.username}</value></property>
+		<property name="password"><value>${hibernate.connection.password}</value></property>
+	</bean>
+    
+    <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+        <property name="sessionFactory"><ref bean="sessionFactory"/></property>
+    </bean>
+    
+    <!--     <property name="dataSource"><ref bean="cmDataSource"/></property> -->
+
+    <bean id="sessionFactory"
+        class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+    <property name="mappingResources">
+      <list>
+        <value>org/sakaiproject/tool/assessment/data/dao/assessment/AssessmentBase.hbm.xml</value>
+        <value>org/sakaiproject/tool/assessment/data/dao/assessment/ItemData.hbm.xml</value>
+        <value>org/sakaiproject/tool/assessment/data/dao/shared/TypeData.hbm.xml</value>
+        <value>org/sakaiproject/tool/assessment/data/dao/questionpool/QuestionPoolData.hbm.xml</value>
+        <value>org/sakaiproject/tool/assessment/data/dao/assessment/PublishedAssessment.hbm.xml</value>
+        <value>org/sakaiproject/tool/assessment/data/dao/assessment/PublishedItemData.hbm.xml</value>
+        <value>org/sakaiproject/tool/assessment/data/dao/grading/GradingData.hbm.xml</value>
+        <value>org/sakaiproject/tool/assessment/data/dao/grading/MediaData.hbm.xml</value>
+        <value>org/sakaiproject/tool/assessment/data/dao/authz/AuthorizationData.hbm.xml</value>
+        <value>org/sakaiproject/tool/assessment/data/dao/assessment/FavoriteColChoices.hbm.xml</value>
+      </list>
+    </property>
+  </bean>
+  
+ </beans>
