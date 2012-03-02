@@ -235,6 +235,16 @@ public class CitationListAccessServlet implements HttpAccess
         	// We get the resource as this checks permissions and throws exceptions if the user doesn't have access
     		ContentResource resource = ContentHostingService.getResource(ref.getId());
     		
+    		if (!CitationService.CITATION_LIST_ID.equals(resource.getResourceType())) {
+    			// Don't do anything unless it's a citation list
+    			throw new EntityNotDefinedException("Couldn't find citation list");
+    		}
+    		
+    		if (resource.getContentLength() > 1024) {
+    			// Only convert small byte arrays to string.
+    			throw new EntityAccessOverloadException(ref.getId());
+    		}
+    		
     		ResourceProperties properties = resource.getProperties();
    
     		String title = properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
