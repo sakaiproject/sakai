@@ -55,7 +55,7 @@ import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -88,14 +88,33 @@ import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implements AssessmentGradingFacadeQueriesAPI{
   private static Log log = LogFactory.getLog(AssessmentGradingFacadeQueries.class);
 
+  /**
+   * Default empty Constructor
+   */
   public AssessmentGradingFacadeQueries () {
+  }
+
+  /**
+   * Injected Services
+   */
+  private ContentHostingService contentHostingService; 
+  
+  public void setContentHostingService(ContentHostingService contentHostingService) {
+	  this.contentHostingService = contentHostingService;
+  }
+
+  private UserDirectoryService userDirectoryService;
+
+
+  public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+	  this.userDirectoryService = userDirectoryService;
   }
 
   public List getTotalScores(final String publishedId, String which) {
@@ -2011,9 +2030,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 				  useridSet.remove(assessmentGradingData.getAgentId());
 				  canBeExported = true;
 				  try {
-					  agentEid = UserDirectoryService.getUser(assessmentGradingData.getAgentId()).getEid();
-					  firstName = UserDirectoryService.getUser(assessmentGradingData.getAgentId()).getFirstName();
-					  lastName = UserDirectoryService.getUser(assessmentGradingData.getAgentId()).getLastName();
+					  agentEid = userDirectoryService.getUser(assessmentGradingData.getAgentId()).getEid();
+					  firstName = userDirectoryService.getUser(assessmentGradingData.getAgentId()).getFirstName();
+					  lastName = userDirectoryService.getUser(assessmentGradingData.getAgentId()).getLastName();
 				  } catch (Exception e) {
 					  log.error("Cannot get user");
 				  }
@@ -2307,9 +2326,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  while (iter.hasNext()) {
 			  String id = (String) iter.next();
 			  try {
-				  agentEid = UserDirectoryService.getUser(id).getEid();
-				  firstName = UserDirectoryService.getUser(id).getFirstName();
-				  lastName = UserDirectoryService.getUser(id).getLastName();
+				  agentEid = userDirectoryService.getUser(id).getEid();
+				  firstName = userDirectoryService.getUser(id).getFirstName();
+				  lastName = userDirectoryService.getUser(id).getLastName();
 			  } catch (Exception e) {
 				  log.error("Cannot get user");
 			  }
@@ -2914,7 +2933,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		ItemGradingAttachment attach = null;
 		Boolean isLink = Boolean.FALSE;
 		try {
-			ContentResource cr = ContentHostingService.getResource(resourceId);
+			ContentResource cr = contentHostingService.getResource(resourceId);
 			if (cr != null) {
 				AssessmentFacadeQueries assessmentFacadeQueries = new AssessmentFacadeQueries();
 				ResourceProperties p = cr.getProperties();

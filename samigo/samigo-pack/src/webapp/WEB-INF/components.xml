@@ -176,6 +176,8 @@
       <property name="target">
         <bean class="org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueries">
           <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
+          <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+          <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 	</bean>
       </property>
       <property name="transactionAttributes">
