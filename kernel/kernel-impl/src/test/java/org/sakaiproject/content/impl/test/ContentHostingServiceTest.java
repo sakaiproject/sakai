@@ -45,6 +45,9 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 			{
 				log.debug("starting oneTimeSetup");
 				oneTimeSetup(null);
+				// This sleep shouldn't be needed but it seems these tests are starting before
+				// ThreadLocal has finished its startup.
+				Thread.sleep(500);
 				log.debug("finished oneTimeSetup");
 			}
 			protected void tearDown() throws Exception 
