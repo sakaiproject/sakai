@@ -5,7 +5,6 @@ import java.util.List;
 import org.hibernate.SessionFactory;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
-import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueries;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import org.springframework.test.AbstractTransactionalSpringContextTests;
