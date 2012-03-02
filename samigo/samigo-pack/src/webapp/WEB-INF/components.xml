@@ -26,11 +26,16 @@
       </list>
     </property>
   </bean>
+  
+  <bean id="persistenceHelper" class="org.sakaiproject.tool.assessment.services.PersistenceHelper">
+  	<property name="deadlockInterval"><value>3500</value></property>
+  	<property name="retryCount"><value>5</value></property>
+  </bean>
 
    <bean id="PersistenceService"
         class="org.sakaiproject.tool.assessment.services.PersistenceService">
-     <property name="deadlockInterval"><value>3500</value></property>
-     <property name="retryCount"><value>5</value></property>
+     
+     <property name="persistenceHelper" ref="persistenceHelper"/>
      <property name="typeFacadeQueries"> <ref bean="TypeFacadeQueries" /> </property>
      <property name="questionPoolFacadeQueries"><ref bean="QuestionPoolFacadeQueries" /> </property>
      <property name="sectionFacadeQueries"> <ref bean="SectionFacadeQueries" /> </property>
@@ -178,6 +183,7 @@
           <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
           <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
           <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+          <property name="persistenceHelper" ref="persistenceHelper"/>
 	</bean>
       </property>
       <property name="transactionAttributes">

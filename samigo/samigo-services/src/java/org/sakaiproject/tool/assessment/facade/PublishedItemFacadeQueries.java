@@ -47,7 +47,7 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 		PublishedItemData item = (PublishedItemData) getHibernateTemplate().load(PublishedItemData.class,
 				itemId);
 
-		int retryCount = PersistenceService.getInstance().getRetryCount()
+		int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount()
 				.intValue();
 		while (retryCount > 0) {
 			try {
@@ -60,12 +60,12 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 					retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem deleteItemTextSet: " + e.getMessage());
-				retryCount = PersistenceService.getInstance().retryDeadlock(e,
+				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e,
 						retryCount);
 			}
 		}
 
-		retryCount = PersistenceService.getInstance().getRetryCount()
+		retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount()
 				.intValue();
 		while (retryCount > 0) {
 			try {
@@ -78,12 +78,12 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 					retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem deleteItemMetaDataSet: " + e.getMessage());
-				retryCount = PersistenceService.getInstance().retryDeadlock(e,
+				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e,
 						retryCount);
 			}
 		}
 
-		retryCount = PersistenceService.getInstance().getRetryCount()
+		retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount()
 				.intValue();
 		while (retryCount > 0) {
 			try {
@@ -96,7 +96,7 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 					retryCount = 0;
 			} catch (Exception e) {
 				log.warn("problem deleting ItemFeedbackSet: " + e.getMessage());
-				retryCount = PersistenceService.getInstance().retryDeadlock(e,
+				retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e,
 						retryCount);
 			}
 		}
@@ -107,7 +107,7 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 	        ItemDataIfc publishedItemdata = (ItemDataIfc) item.getData();
 	        publishedItemdata.setLastModifiedDate(new Date());
 	        publishedItemdata.setLastModifiedBy(AgentFacade.getAgentString());
-	        int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+	        int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
 	        while (retryCount > 0){
 	            try {
 	                getHibernateTemplate().saveOrUpdate(publishedItemdata);
@@ -116,14 +116,14 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 	            }
 	            catch (Exception e) {
 	                log.warn("problem save or update itemdata: "+e.getMessage());
-	                retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+	                retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
 	            }
 	        }
 	        if ((item.getData()!= null) && (item.getData().getSection()!= null)) {
 	            AssessmentIfc assessment = item.getData().getSection().getAssessment();
 	            assessment.setLastModifiedBy(AgentFacade.getAgentString());
 	            assessment.setLastModifiedDate(new Date());
-	            retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+	            retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
 	            while (retryCount > 0){
 	                try {
 	                    getHibernateTemplate().update(assessment);
@@ -131,7 +131,7 @@ public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 	                }
 	                catch (Exception e) {
 	                    log.warn("problem updating asssessment: "+e.getMessage());
-	                    retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+	                    retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
 	                }
 	            }
 	        }

@@ -114,7 +114,7 @@ public class AuthorizationFacadeQueries
     else
       data = (AuthorizationData)a;
 
-    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
     while (retryCount > 0){ 
       try {
        getHibernateTemplate().save(data);
@@ -122,7 +122,7 @@ public class AuthorizationFacadeQueries
       }
       catch (Exception e) {
         log.warn("problem adding authorization: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+        retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
       }
     }
   }
@@ -134,7 +134,7 @@ public class AuthorizationFacadeQueries
     else
       data = (QualifierData) q;
 
-    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+    int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
     while (retryCount > 0){ 
       try {
         getHibernateTemplate().save(data);
@@ -142,7 +142,7 @@ public class AuthorizationFacadeQueries
       }
       catch (Exception e) {
         log.warn("problem adding Qualifier: "+e.getMessage());
-        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+        retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
       }
     }
   }
