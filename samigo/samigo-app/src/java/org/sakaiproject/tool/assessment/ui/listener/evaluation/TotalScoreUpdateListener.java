@@ -40,6 +40,7 @@ import javax.faces.event.ActionListener;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
@@ -258,6 +259,12 @@ public class TotalScoreUpdateListener
       GradingService delegate = new GradingService();
       try {
     	  delegate.saveTotalScores(grading, bean.getPublishedAssessment());
+    	  StringBuffer logString = new StringBuffer();
+    	  logString.append("gradedBy=");
+          logString.append(AgentFacade.getAgentString());
+    	  logString.append(", publishedAssessmentId=");
+    	  logString.append(bean.getPublishedAssessment().getPublishedAssessmentId());
+    	  EventTrackingService.post(EventTrackingService.newEvent("sam.total.score.update", "siteId=" + AgentFacade.getCurrentSiteId() + ", " + logString.toString(), true));
     	  log.debug("Saved total scores.");
       } catch (GradebookServiceException ge) {
     	  FacesContext context = FacesContext.getCurrentInstance();

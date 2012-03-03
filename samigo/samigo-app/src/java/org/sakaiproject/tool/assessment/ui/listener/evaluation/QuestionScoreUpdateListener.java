@@ -177,7 +177,7 @@ public class QuestionScoreUpdateListener
           if (newAutoScore != oldAutoScore || !newComments.equals(oldComments)){
             data.setGradedBy(AgentFacade.getAgentString());
             data.setGradedDate(new Date());
-            EventTrackingService.post(EventTrackingService.newEvent("sam.question.score.update", "siteId=" + AgentFacade.getCurrentSiteId() + ", " + logString.toString(), true));
+            EventTrackingService.post(EventTrackingService.newEvent("sam.question.score.update", "siteId=" + AgentFacade.getCurrentSiteId() + ", " + logString.toString().substring(0, 254), true));
             delegate.updateItemScore(data, newAutoScore-oldAutoScore, tbean.getPublishedAssessment());
           }
           
