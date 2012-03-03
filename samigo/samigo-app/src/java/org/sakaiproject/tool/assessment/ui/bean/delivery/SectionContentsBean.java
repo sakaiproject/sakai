@@ -24,19 +24,20 @@
 package org.sakaiproject.tool.assessment.ui.bean.delivery;
 
 import java.io.Serializable;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
+
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
@@ -44,6 +45,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * <p>This bean represents a Part in an assessment </p>
@@ -424,7 +426,7 @@ public class SectionContentsBean
           String poolname = section.getSectionMetaDataByLabel(
             SectionDataIfc.POOLNAME_FOR_RANDOM_DRAW);
           setPoolNameToBeDrawn(poolname);
-
+          
           String randomDrawDate = section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_RANDOM_DRAW_DATE);
           if(randomDrawDate != null && !"".equals(randomDrawDate)){
 
@@ -432,8 +434,12 @@ public class SectionContentsBean
         		  //The Date Time is in ISO format
         		  DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
         		  DateTime drawDate = fmt.parseDateTime(randomDrawDate);
-        		  setRandomQuestionsDrawDate(fmt.print(drawDate));
-        		  setRandomQuestionsDrawTime(fmt.print(drawDate));
+        		  //We need the locale to localize the output string
+        		  Locale loc = new ResourceLoader().getLocale();
+        		  String drawDateString = DateTimeFormat.fullDate().withLocale(loc).print(drawDate);
+        		  String drawTimeString = DateTimeFormat.fullTime().withLocale(loc).print(drawDate);
+        		  setRandomQuestionsDrawDate(drawDateString);
+        		  setRandomQuestionsDrawTime(drawTimeString);
 
         	  }catch(Exception e){
         		  log.error("Unable to parse date text: " + randomDrawDate, e);
