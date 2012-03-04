@@ -2,7 +2,7 @@
 <registration>
 	<tool id="sakai.lessonbuildertool"
 		title="Lessons"
-		description="Create content modules and sequences; can be organized by week or unit" >
+		description="[Lessons] Create content modules and sequences; can be organized by week or unit" >
 		<category name="course" />
 		<category name="project" />
 		<!-- <category name="myworkspace" /> -->
