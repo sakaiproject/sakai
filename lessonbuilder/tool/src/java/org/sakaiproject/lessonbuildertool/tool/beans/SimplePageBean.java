@@ -151,9 +151,9 @@ public class SimplePageBean {
     // from ResourceProperites. This isn't in 2.7.1, so define it here. Let's hope it doesn't change...
         public static final String PROP_ALLOW_INLINE = "SAKAI:allow_inline";
 
-	public static final Pattern YOUTUBE_PATTERN = Pattern.compile("v[=/_][\\w-]{11}");
-	public static final Pattern YOUTUBE2_PATTERN = Pattern.compile("embed/[\\w-]{11}");
-	public static final Pattern SHORT_YOUTUBE_PATTERN = Pattern.compile("[\\w-]{11}");
+	public static final Pattern YOUTUBE_PATTERN = Pattern.compile("v[=/_]([\\w-]{11}([\\?\\&][\\w\\.\\=\\&]*)?)");
+	public static final Pattern YOUTUBE2_PATTERN = Pattern.compile("embed/([\\w-]{11}([\\?\\&][\\w\\.\\=\\&]*)?)");
+	public static final Pattern SHORT_YOUTUBE_PATTERN = Pattern.compile("([\\w-]{11}([\\?\\&][\\w\\.\\=\\&]*)?)");
 	public static final String GRADES[] = { "A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "D-", "E", "F" };
 	public static final String FILTERHTML = "lessonbuilder.filterhtml";
 	public static final String LESSONBUILDER_ITEMID = "lessonbuilder.itemid";
@@ -3964,21 +3964,32 @@ public class SimplePageBean {
 			return null;
 	}
 		
+    // we allow both ? and &. The key may be the value of something like ?v=, so we don't know
+    // whether the next thing is & or ?. To be safe, use & except for the first param, which
+    // uses ?. Note that RSF will turn & into &amp; in the src= attribute. THis appears to be correct,
+    // as HTML is an SGML dialect.
+    // If you run into trouble with &amp;, you can use ; in the following. Google seems to 
+    // process it correctly. ; is a little-known alterantive to & that the RFCs do permit
+       private String normalizeParams(String URL) {
+	   URL = URL.replaceAll("[\\?\\&\\;]", "&");
+	   return URL.replaceFirst("\\&", "?");
+       }
+
        private String getYoutubeKeyFromUrl(String URL) {
 	   // 	see if it has a Youtube ID
 	   if (URL.startsWith("http://www.youtube.com/") || URL.startsWith("http://youtube.com/")) {
 	       Matcher match = YOUTUBE_PATTERN.matcher(URL);
 	       if (match.find()) {
-		   return match.group().substring(2);
+		   return normalizeParams(match.group(1));
 	       }
 	       match = YOUTUBE2_PATTERN.matcher(URL);
 	       if (match.find()) {
-		   return match.group().substring(6);
+		   return normalizeParams(match.group(1));
 	       }
 	   }else if(URL.startsWith("http://youtu.be/")) {
 	       Matcher match = SHORT_YOUTUBE_PATTERN.matcher(URL);
 	       if(match.find()) {
-		   return match.group();
+		   return normalizeParams(match.group(1));
 	       }
 	   }
 	   return null;
