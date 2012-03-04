@@ -90,7 +90,7 @@ public class FileUploadType extends BaseResourceType
 		BaseInteractionAction createAction = new BaseInteractionAction(CREATE, ActionType.NEW_UPLOAD, typeId, helperId, localizer("create.uploads"));
 		createAction.setRequiredPropertyKeys(Collections.singletonList(ResourceProperties.PROP_CONTENT_ENCODING));
 		actions.put(CREATE, createAction);
-		actions.put(REVISE_CONTENT, new FileUploadReviseAction(REVISE_CONTENT, ActionType.REPLACE_CONTENT, typeId, helperId, localizer("action.revise")));
+		actions.put(REVISE_CONTENT, new FileUploadReviseAction(REVISE_CONTENT, ActionType.REVISE_CONTENT, typeId, helperId, localizer("action.revise")));
 		actions.put(REPLACE_CONTENT, new BaseInteractionAction(REPLACE_CONTENT, ActionType.REPLACE_CONTENT, typeId, helperId, localizer("action.replace")));
 		actions.put(ACCESS_PROPERTIES, new BaseServiceLevelAction(ACCESS_PROPERTIES, ActionType.VIEW_METADATA, typeId, false, localizer("action.access")));
 		actions.put(REVISE_METADATA, new BaseServiceLevelAction(REVISE_METADATA, ActionType.REVISE_METADATA, typeId, false, localizer("action.props")));
