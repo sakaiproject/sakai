@@ -2191,3 +2191,25 @@ pc_go_off_ctrl{
    -khtml-border-radius: 3px;
    border-radius: 3px;
 }
+
+
+.portletTitle .action a.tool-directurl{
+	padding: 2px;
+	background: url(/library/image/silk/link.png) center right no-repeat;
+}
+        
+.portletTitle .action a.tool-directurl:hover{
+	background: url(/library/image/silk/link.png) center right no-repeat;
+}
+
+.direct-url-wrap {
+	font-size: 85%;
+	color: #555;
+}
+
+.direct-url-wrap textarea {
+	color: #000;
+	overflow: auto;
+	width: 250px;
+	display:block;
+}
