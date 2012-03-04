@@ -46,7 +46,9 @@ ${tool.toolRenderResult.getTitle()}
     <title>${pageTitle}</title>
 ${sakai_html_head_css}
      <script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
-     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery.js"></script>
+     ##<script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery.js"></script>
+	 <script type="text/javascript" language="JavaScript" src="${pageScriptPath}/jquery/1.4.2/jquery-1.4.2.min.js"></script>
+
 #end
 
 <script type="text/javascript" language="JavaScript" src="/portal/scripts/portalscripts.js"></script>
@@ -78,5 +80,10 @@ ${sakai_html_head_css}
 	</script>
     #end
 #end
+<script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery/cluetip/1.2.5/jquery.cluetip.min.js"></script>
+
+## required CSS for cluetip, bundled with the release
+<link href="${pageScriptPath}jquery/cluetip/1.2.5/css/jquery.cluetip.css" type="text/css" rel="stylesheet" media="all" />
+
 </head>
 <!-- END from includeStandardHead.vm -->

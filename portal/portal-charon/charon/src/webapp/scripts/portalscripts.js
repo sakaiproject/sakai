@@ -134,6 +134,18 @@ jQuery(document).ready(function(){
 	if (portal.loggedIn && portal.timeoutDialog ) {
 		setTimeout('setup_timeout_config();', 60000);
 	}
+	
+	//bind directurl checkboxes
+    jQuery('a.tool-directurl').cluetip({
+    	local: true,
+    	arrows: true,
+		cluetipClass: 'jtip',
+		sticky: true,
+		cursor: 'pointer',
+		activation: 'click',
+		closePosition: 'title',
+		closeText: '<img src="/library/image/silk/cross.png" alt="close" />'
+    });
 });
 
 var setup_timeout_config = function() {
@@ -459,3 +471,19 @@ var setupSkipNav = function(){
      });
 };
 
+//handles showing either the short url or the full url, depending on the state of the checkbox 
+//(if configured, otherwise returns url as-is as according to the url shortening entity provder)
+function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {		
+	
+	if($(checkbox).is(':checked')) {
+		
+		$.ajax({
+			url:'/direct/url/shorten?path='+encodeURI(defaultUrl),
+			success: function(shortUrl) {
+				$('.'+textbox).val(shortUrl);
+			}
+		}); 
+	} else {
+		$('.'+textbox).val(defaultUrl);
+	}
+}

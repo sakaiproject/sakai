@@ -156,6 +156,12 @@ public interface Portal
         public static final String SAKAI_PORTAL_BREADCRUMBS = "sakai-portal:breadcrumbs";
         public static final String SAKAI_PORTAL_SUPPRESSTITLE = "sakai-portal:suppresstitle";
 	
+
+	/**
+	 * Tool property to allow the enabling/disabling of the direct url linking UI
+	 */
+	public static final String TOOL_DIRECTURL_ENABLED_PROP = "sakai:tool-directurl-enabled";
+        
 	/**
 	 * prepare the response and send it to the render engine
 	 * 

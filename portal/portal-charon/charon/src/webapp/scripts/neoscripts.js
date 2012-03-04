@@ -417,7 +417,20 @@ jQuery(document).ready(function(){
     $('.trayPopupClose').click(function(e){
         e.preventDefault();
         $(this).closest('.trayPopup').hide();
-    })
+    });
+    
+    //bind directurl checkboxes
+    jQuery('a.tool-directurl').cluetip({
+    	local: true,
+    	arrows: true,
+		cluetipClass: 'jtip',
+		sticky: true,
+		cursor: 'pointer',
+		activation: 'click',
+		closePosition: 'title',
+		closeText: '<img src="/library/image/silk/cross.png" alt="close" />'
+    });
+
 });
 
 var setupSiteNav = function(){
@@ -521,3 +534,20 @@ var setupSkipNav = function(){
         $(target).attr('tabindex','-1').focus();
      });
 };
+
+//handles showing either the short url or the full url, depending on the state of the checkbox 
+//(if configured, otherwise returns url as-is as according to the url shortening entity provder)
+function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {		
+	
+	if($(checkbox).is(':checked')) {
+		
+		$.ajax({
+			url:'/direct/url/shorten?path='+encodeURI(defaultUrl),
+			success: function(shortUrl) {
+				$('.'+textbox).val(shortUrl);
+			}
+		}); 
+	} else {
+		$('.'+textbox).val(defaultUrl);
+	}
+}

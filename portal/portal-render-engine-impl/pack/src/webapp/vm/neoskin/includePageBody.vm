@@ -35,6 +35,18 @@
 						                   title="${rloader.sit_edit}"><img src="/library/image/transparent.gif"  
 						                    alt="${rloader.sit_edit}" border="0"></a>
 						#end 
+						#if ($toolDirectUrlEnabled && ${tool.showDirectToolUrl})
+							<a class="tool-directurl" href="#${tool.toolPlacementIDJS}_directurl" rel="#${tool.toolPlacementIDJS}_directurl" title="${rloader.tool_direct_link}">
+								<img src="/library/image/transparent.gif" alt="${rloader.tool_direct_link}" border="0"/>
+							</a>
+							<div id="${tool.toolPlacementIDJS}_directurl" class="direct-url-wrap">
+								#if($toolShortUrlEnabled)
+									<input type="checkbox" onclick="toggleShortUrlOutput('${tool.directToolUrl}', this, '${tool.toolPlacementIDJS}_urlholder');" />
+									<span>${rloader.short_url}</span>
+								#end
+								<textarea class="${tool.toolPlacementIDJS}_urlholder" rows="3" cols="50">${tool.directToolUrl}</textarea>						
+							</div>
+						#end
 						#if (${tool.toolShowHelpButton})
 							#if (${tool.toolJSR168Help} )
 						             <a accesskey="h" href="${tool.toolJSR168Help}" title="${rloader.sit_help}">
@@ -119,6 +131,18 @@
 						                   title="${rloader.sit_edit}"><img src="/library/image/transparent.gif"  
 						                    alt="${rloader.sit_edit}" border="0"></a>
 						#end 
+						#if ($toolDirectUrlEnabled && ${tool.showDirectToolUrl})
+							<a class="tool-directurl" href="#${tool.toolPlacementIDJS}_directurl" rel="#${tool.toolPlacementIDJS}_directurl" title="${rloader.tool_direct_link}">
+								<img src="/library/image/transparent.gif" alt="${rloader.tool_direct_link}" border="0"/>
+							</a>
+							<div id="${tool.toolPlacementIDJS}_directurl" class="direct-url-wrap">
+								#if($toolShortUrlEnabled)
+									<input type="checkbox" onclick="toggleShortUrlOutput('${tool.directToolUrl}', this, '${tool.toolPlacementIDJS}_urlholder');" />
+									<span>${rloader.short_url}</span>
+								#end
+								<textarea class="${tool.toolPlacementIDJS}_urlholder" rows="3" cols="50">${tool.directToolUrl}</textarea>						
+							</div>
+						#end
 						#if (${tool.toolShowHelpButton})
 							#if (${tool.toolJSR168Help} )
 						             <a accesskey="h" href="${tool.toolJSR168Help}" title="${rloader.sit_help}">
