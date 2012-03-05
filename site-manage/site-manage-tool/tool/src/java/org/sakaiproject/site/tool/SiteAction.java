@@ -1004,7 +1004,13 @@ public class SiteAction extends PagedResourceActionII {
 		state.removeAttribute(STATE_IMPORT);
 		state.removeAttribute(STATE_IMPORT_SITES);
 		state.removeAttribute(STATE_IMPORT_SITE_TOOL);
-
+		// remove the state attributes related to multi-tool selection
+		state.removeAttribute(STATE_WORKSITE_SETUP_PAGE_LIST);
+		state.removeAttribute(STATE_MULTIPLE_TOOL_ID_SET);
+		state.removeAttribute(STATE_MULTIPLE_TOOL_ID_TITLE_MAP);
+		state.removeAttribute(STATE_MULTIPLE_TOOL_CONFIGURATION);
+		state.removeAttribute(STATE_TOOL_REGISTRATION_LIST);
+		state.removeAttribute(STATE_TOOL_REGISTRATION_TITLE_LIST);
 		// remove those state attributes related to course site creation
 		state.removeAttribute(STATE_TERM_COURSE_LIST);
 		state.removeAttribute(STATE_TERM_COURSE_HASH);
