@@ -26,16 +26,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * <p>Title: </p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2004</p>
- * <p>Company: </p>
- * @author not attributable
- * @version 1.0
+ * Represents a students response on a particualar quizz
+ * 
+ * 
  */
-
-public class AssessmentGradingData
-implements java.io.Serializable
+public class AssessmentGradingData implements java.io.Serializable
 // need to implement org.osid.assessment.ItemTaken in the future
 // - daisyf 10/11/04
 {
@@ -43,7 +38,7 @@ implements java.io.Serializable
 
 	private Long assessmentGradingId;
 	private String agentId;
-	//private PublishedAssessmentIfc publishedAssessment;
+	// private PublishedAssessmentIfc publishedAssessment;
 	private Date submittedDate;
 	private Boolean isLate;
 	private Boolean forGrade;
@@ -54,7 +49,7 @@ implements java.io.Serializable
 	private Integer status;
 	private String gradedBy;
 	private Date gradedDate;
-	private Set itemGradingSet = new HashSet();
+	private Set<ItemGradingData> itemGradingSet = new HashSet<ItemGradingData>();
 	private Date attemptDate;
 	private Integer timeElapsed;
 	private int totalSubmitted;
@@ -64,14 +59,9 @@ implements java.io.Serializable
 	private Integer lastVisitedPart = 0;
 	private Integer lastVisitedQuestion = 0;
 
-
-
-
-
-
-	// Because of SAK-16456, we no longer need to show the auto/human graded status per submission, I don't think we 
+	// Because of SAK-16456, we no longer need to show the auto/human graded
+	// status per submission, I don't think we
 	// need to distinguish status 2 and 3 anymore. But I just leave them here...
-
 
 	/**
 	 * status = 1: submit but not grade yet
@@ -83,38 +73,42 @@ implements java.io.Serializable
 	public static final Integer AUTO_GRADED = Integer.valueOf(2);
 
 	/**
-	 * status = 3: grader has went to total score page and graded + at least one question NEED_HUMAN_ATTENTION
+	 * status = 3: grader has went to total score page and graded + at least one
+	 * question NEED_HUMAN_ATTENTION
 	 */
 	public static final Integer NEED_HUMAN_ATTENTION = Integer.valueOf(3);
 
 	/**
-	 * status = 4: the assessment has be republished. This assessment has been submitted. Therefore, this it needs to be resubmit
+	 * status = 4: the assessment has be republished. This assessment has been
+	 * submitted. Therefore, this it needs to be resubmit
 	 */
-	public static final Integer ASSESSMENT_UPDATED_NEED_RESUBMIT = Integer.valueOf(4);
+	public static final Integer ASSESSMENT_UPDATED_NEED_RESUBMIT = Integer
+			.valueOf(4);
 
 	/**
-	 * status = 5: there is no submission but grader update something in the score page
+	 * status = 5: there is no submission but grader update something in the
+	 * score page
 	 */
 	public static final Integer NO_SUBMISSION = Integer.valueOf(5);
 
 	/**
-	 *  status = 6: the assessment has be republished. This assessment has begun but not yet been submitted (saved/in progress). Therefore, just warn the student about the update ("resubmit" is not applicable here).
+	 * status = 6: the assessment has be republished. This assessment has begun
+	 * but not yet been submitted (saved/in progress). Therefore, just warn the
+	 * student about the update ("resubmit" is not applicable here).
 	 */
 	public static final Integer ASSESSMENT_UPDATED = Integer.valueOf(6);
-
-
 
 	public AssessmentGradingData() {
 	}
 
 	// this constructor do not contains Set of ItemGradingData
 	public AssessmentGradingData(Long assessmentGradingId,
-			Long publishedAssessmentId, String publishedAssessmentTitle, String agentId,
-			Date submittedDate, Boolean isLate,
+			Long publishedAssessmentId, String publishedAssessmentTitle,
+			String agentId, Date submittedDate, Boolean isLate,
 			Boolean forGrade, Float totalAutoScore, Float totalOverrideScore,
 			Float finalScore, String comments, Integer status, String gradedBy,
-			Date gradedDate,  Date attemptDate, Integer timeElapsed, Boolean isAutoSubmitted
-	){
+			Date gradedDate, Date attemptDate, Integer timeElapsed,
+			Boolean isAutoSubmitted) {
 		this.assessmentGradingId = assessmentGradingId;
 		this.publishedAssessmentId = publishedAssessmentId;
 		this.publishedAssessmentTitle = publishedAssessmentTitle;
@@ -135,22 +129,24 @@ implements java.io.Serializable
 	}
 
 	public AssessmentGradingData(Long assessmentGradingId,
-			Long publishedAssessmentId, String publishedAssessmentTitle, String agentId,
-			Date submittedDate, Boolean isLate,
+			Long publishedAssessmentId, String publishedAssessmentTitle,
+			String agentId, Date submittedDate, Boolean isLate,
 			Boolean forGrade, Float totalAutoScore, Float totalOverrideScore,
 			Float finalScore, String comments, Integer status, String gradedBy,
-			Date gradedDate,  Date attemptDate, Integer timeElapsed){
-		this(assessmentGradingId, publishedAssessmentId, publishedAssessmentTitle, agentId,
-				submittedDate, isLate, forGrade, totalAutoScore, totalOverrideScore, finalScore, 
-				comments, status, gradedBy, gradedDate, attemptDate, timeElapsed, Boolean.valueOf(false));
+			Date gradedDate, Date attemptDate, Integer timeElapsed) {
+		this(assessmentGradingId, publishedAssessmentId,
+				publishedAssessmentTitle, agentId, submittedDate, isLate,
+				forGrade, totalAutoScore, totalOverrideScore, finalScore,
+				comments, status, gradedBy, gradedDate, attemptDate,
+				timeElapsed, Boolean.valueOf(false));
 	}
 
 	public AssessmentGradingData(Long assessmentGradingId,
-			Long publishedAssessmentId, String agentId,
-			Date submittedDate, Boolean isLate,
-			Boolean forGrade, Float totalAutoScore, Float totalOverrideScore,
-			Float finalScore, String comments, Integer status, String gradedBy,
-			Date gradedDate,  Date attemptDate, Integer timeElapsed){
+			Long publishedAssessmentId, String agentId, Date submittedDate,
+			Boolean isLate, Boolean forGrade, Float totalAutoScore,
+			Float totalOverrideScore, Float finalScore, String comments,
+			Integer status, String gradedBy, Date gradedDate, Date attemptDate,
+			Integer timeElapsed) {
 		this.assessmentGradingId = assessmentGradingId;
 		this.publishedAssessmentId = publishedAssessmentId;
 		this.agentId = agentId;
@@ -168,7 +164,7 @@ implements java.io.Serializable
 		this.timeElapsed = timeElapsed;
 	}
 
-	public AssessmentGradingData(Long publishedAssessmentId, int totalSubmitted){
+	public AssessmentGradingData(Long publishedAssessmentId, int totalSubmitted) {
 		this.publishedAssessmentId = publishedAssessmentId;
 		this.totalSubmitted = totalSubmitted;
 	}
@@ -176,21 +172,15 @@ implements java.io.Serializable
 	public Long getAssessmentGradingId() {
 		return assessmentGradingId;
 	}
+
 	public void setAssessmentGradingId(Long assessmentGradingId) {
 		this.assessmentGradingId = assessmentGradingId;
 	}
-	/*
-  public PublishedAssessmentIfc getPublishedAssessment() {
-    return publishedAssessment;
-  }
-  public void setPublishedAssessment(PublishedAssessmentIfc publishedAssessment) {
-    this.publishedAssessment = publishedAssessment;
-  }
-	 */
 
 	public Long getPublishedAssessmentId() {
 		return publishedAssessmentId;
 	}
+
 	public void setPublishedAssessmentId(Long publishedAssessmentId) {
 		this.publishedAssessmentId = publishedAssessmentId;
 	}
@@ -198,40 +188,48 @@ implements java.io.Serializable
 	public String getAgentId() {
 		return agentId;
 	}
+
 	public void setAgentId(String agentId) {
 		this.agentId = agentId;
 	}
+
 	public Date getSubmittedDate() {
 		return submittedDate;
 	}
+
 	public void setSubmittedDate(Date submittedDate) {
 		this.submittedDate = submittedDate;
 	}
+
 	public Boolean getIsLate() {
 		return isLate;
 	}
+
 	public void setIsLate(Boolean isLate) {
 		this.isLate = isLate;
 	}
+
 	public Boolean getForGrade() {
 		return forGrade;
 	}
+
 	public void setForGrade(Boolean forGrade) {
 		this.forGrade = forGrade;
 	}
+
 	public Float getTotalAutoScore() {
 		return this.totalAutoScore;
 	}
 
 	public void setTotalAutoScore(Float totalAutoScore) {
-		if (totalAutoScore != null){
-			if (totalAutoScore.floatValue()< 0){
-				this.totalAutoScore=new Float("0");
-			}else{
+		if (totalAutoScore != null) {
+			if (totalAutoScore.floatValue() < 0) {
+				this.totalAutoScore = new Float("0");
+			} else {
 				this.totalAutoScore = totalAutoScore;
 			}
-		}else{
-			this.totalAutoScore =  null ;
+		} else {
+			this.totalAutoScore = null;
 		}
 	}
 
@@ -242,75 +240,79 @@ implements java.io.Serializable
 	public void setTotalOverrideScore(Float totalOverrideScore) {
 		this.totalOverrideScore = totalOverrideScore;
 	}
+
 	public Float getFinalScore() {
 		/*
-    if (this.totalAutoScore != null && this.totalOverrideScore != null ){
-      float total = 0;
-      if (this.totalAutoScore != null)
-         total += this.totalAutoScore.floatValue();
-      if (this.totalOverrideScore != null)
-         total += this.totalOverrideScore.floatValue();
-      this.finalScore = new Float(total);
-    }
-
-    // remove rounding , SAK-2848 
-    // Round to the nearest 1/10th.
-    if (this.finalScore !=null ){
-      float alignment = this.finalScore.floatValue();
-      int tmp = Math.round(alignment * 10.0f);
-      alignment = (float)tmp / 10.0f;
-      this.finalScore = new Float(alignment);
-    }
+		 * if (this.totalAutoScore != null && this.totalOverrideScore != null ){
+		 * float total = 0; if (this.totalAutoScore != null) total +=
+		 * this.totalAutoScore.floatValue(); if (this.totalOverrideScore !=
+		 * null) total += this.totalOverrideScore.floatValue(); this.finalScore
+		 * = new Float(total); }
+		 * 
+		 * // remove rounding , SAK-2848 // Round to the nearest 1/10th. if
+		 * (this.finalScore !=null ){ float alignment =
+		 * this.finalScore.floatValue(); int tmp = Math.round(alignment *
+		 * 10.0f); alignment = (float)tmp / 10.0f; this.finalScore = new
+		 * Float(alignment); }
 		 */
 		return this.finalScore;
 	}
+
 	public void setFinalScore(Float finalScore) {
 		this.finalScore = finalScore;
 	}
+
 	public String getComments() {
 		return comments;
 	}
+
 	public void setComments(String comments) {
 		this.comments = comments;
 	}
+
 	public String getGradedBy() {
 		return gradedBy;
 	}
+
 	public void setGradedBy(String gradedBy) {
 		this.gradedBy = gradedBy;
 	}
+
 	public Date getGradedDate() {
 		return gradedDate;
 	}
+
 	public void setGradedDate(Date gradedDate) {
 		this.gradedDate = gradedDate;
 	}
 
 	/**
-	 * In some cases, students are allowed to submit multiple assessment
-	 * for grading. However, the grader has the choice to select one to
-	 * represent how well the student does overall. status = 1 means
-	 * this submitted assessment is selected.
+	 * In some cases, students are allowed to submit multiple assessment for
+	 * grading. However, the grader has the choice to select one to represent
+	 * how well the student does overall. status = 1 means this submitted
+	 * assessment is selected.
 	 */
 	// daisy's comment: I am not sure Integer(1) is being used at all. 11/18/05
 	public Integer getStatus() {
 		return status;
 	}
+
 	public void setStatus(Integer status) {
 		this.status = status;
 	}
 
-	public Set getItemGradingSet() {
+	public Set<ItemGradingData> getItemGradingSet() {
 		return itemGradingSet;
 	}
 
-	public void setItemGradingSet(Set itemGradingSet) {
+	public void setItemGradingSet(Set<ItemGradingData> itemGradingSet) {
 		this.itemGradingSet = itemGradingSet;
 	}
 
 	public Date getAttemptDate() {
 		return attemptDate;
 	}
+
 	public void setAttemptDate(Date attemptDate) {
 		this.attemptDate = attemptDate;
 	}
@@ -318,6 +320,7 @@ implements java.io.Serializable
 	public Integer getTimeElapsed() {
 		return timeElapsed;
 	}
+
 	public void setTimeElapsed(Integer timeElapsed) {
 		this.timeElapsed = timeElapsed;
 	}
@@ -325,12 +328,12 @@ implements java.io.Serializable
 	public int getTotalSubmitted() {
 		return totalSubmitted;
 	}
+
 	public void setTotalSubmitted(int totalSubmitted) {
 		this.totalSubmitted = totalSubmitted;
 	}
 
-	public String getPublishedAssessmentTitle()
-	{
+	public String getPublishedAssessmentTitle() {
 		return publishedAssessmentTitle;
 	}
 
@@ -349,11 +352,12 @@ implements java.io.Serializable
 	}
 
 	public void setItemGradingId(Long publishedItemId) {
-		this.publishedItemId =  publishedItemId;
+		this.publishedItemId = publishedItemId;
 	}
 
-	public AssessmentGradingData(Long assessmentGradingId, Long publishedItemId,
-			String agentId, Float finalScore, Date submittedDate) {
+	public AssessmentGradingData(Long assessmentGradingId,
+			Long publishedItemId, String agentId, Float finalScore,
+			Date submittedDate) {
 		this.assessmentGradingId = assessmentGradingId;
 		this.publishedItemId = publishedItemId;
 		this.agentId = agentId;
@@ -369,8 +373,7 @@ implements java.io.Serializable
 		this.isAutoSubmitted = isAutoSubmitted;
 	}
 
-	public Integer getLastVisitedPart()
-	{
+	public Integer getLastVisitedPart() {
 		return lastVisitedPart;
 	}
 
@@ -378,8 +381,7 @@ implements java.io.Serializable
 		this.lastVisitedPart = lastVisitedPart;
 	}
 
-	public Integer getLastVisitedQuestion()
-	{
+	public Integer getLastVisitedQuestion() {
 		return lastVisitedQuestion;
 	}
 
@@ -394,6 +396,5 @@ implements java.io.Serializable
 	public void setIsRecorded(boolean isRecorded) {
 		this.isRecorded = isRecorded;
 	}
-
 
 }

@@ -25,274 +25,255 @@ import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.Date;
 
-
-
-
-
-public class MediaData
-    implements Serializable
-{
-  /**
+/**
+ * 
+ *
+ *
+ */
+public class MediaData implements Serializable {
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -437737678404198607L;
-private Long mediaId;
-  private ItemGradingData itemGradingData;
-  private byte[] media;
-  private Long fileSize; // in kilobyte
-  private String mimeType;
-  private String description;
-  private String location;
-  private String filename;
-  private boolean isLink;
-  private boolean isHtmlInline;
-  private Integer status;
-  private String createdBy;
-  private Date createdDate;
-  private String lastModifiedBy;
-  private Date lastModifiedDate;
-  private String duration;
+	private Long mediaId;
+	private ItemGradingData itemGradingData;
+	private byte[] media;
+	private Long fileSize; // in kilobyte
+	private String mimeType;
+	private String description;
+	private String location;
+	private String filename;
+	private boolean isLink;
+	private boolean isHtmlInline;
+	private Integer status;
+	private String createdBy;
+	private Date createdDate;
+	private String lastModifiedBy;
+	private Date lastModifiedDate;
+	private String duration;
 
-  public MediaData()
-  {
-  }
+	public MediaData() {
+	}
 
-  public MediaData(ItemGradingData itemGradingData, byte[] media, Long fileSize,
-                   String mimeType, String description, String location,
-                   String filename, boolean isLink, boolean isHtmlInline,
-                   Integer status, String createdBy, Date createdDate,
-                   String lastModifiedBy, Date lastModifiedDate, String duration){
-    this.itemGradingData = itemGradingData;
-    this.media = media;
-    this.fileSize = fileSize;
-    this.mimeType = mimeType;
-    this.description = description;
-    this.location = location;
-    this.filename = filename;
-    this.isLink = isLink;
-    this.isHtmlInline = isHtmlInline;
-    this.status = status;
-    this.createdBy = createdBy;
-    this.createdDate = createdDate;
-    this.lastModifiedBy = lastModifiedBy;
-    this.lastModifiedDate = lastModifiedDate;
-    this.duration = duration;
-  }
+	public MediaData(ItemGradingData itemGradingData, byte[] media,
+			Long fileSize, String mimeType, String description,
+			String location, String filename, boolean isLink,
+			boolean isHtmlInline, Integer status, String createdBy,
+			Date createdDate, String lastModifiedBy, Date lastModifiedDate,
+			String duration) {
+		this.itemGradingData = itemGradingData;
+		this.media = media;
+		this.fileSize = fileSize;
+		this.mimeType = mimeType;
+		this.description = description;
+		this.location = location;
+		this.filename = filename;
+		this.isLink = isLink;
+		this.isHtmlInline = isHtmlInline;
+		this.status = status;
+		this.createdBy = createdBy;
+		this.createdDate = createdDate;
+		this.lastModifiedBy = lastModifiedBy;
+		this.lastModifiedDate = lastModifiedDate;
+		this.duration = duration;
+	}
 
-  public MediaData(Long mediaId, ItemGradingData itemGradingData, Long fileSize,
-                   String mimeType, String description, String location,
-                   String filename, boolean isLink, boolean isHtmlInline,
-                   Integer status, String createdBy, Date createdDate,
-                   String lastModifiedBy, Date lastModifiedDate, String duration){
-    this.mediaId = mediaId;
-    this.itemGradingData = itemGradingData;
-    this.fileSize = fileSize;
-    this.mimeType = mimeType;
-    this.description = description;
-    this.location = location;
-    this.filename = filename;
-    this.isLink = isLink;
-    this.isHtmlInline = isHtmlInline;
-    this.status = status;
-    this.createdBy = createdBy;
-    this.createdDate = createdDate;
-    this.lastModifiedBy = lastModifiedBy;
-    this.lastModifiedDate = lastModifiedDate;
-    this.duration = duration;
-  }
+	public MediaData(Long mediaId, ItemGradingData itemGradingData,
+			Long fileSize, String mimeType, String description,
+			String location, String filename, boolean isLink,
+			boolean isHtmlInline, Integer status, String createdBy,
+			Date createdDate, String lastModifiedBy, Date lastModifiedDate,
+			String duration) {
+		this.mediaId = mediaId;
+		this.itemGradingData = itemGradingData;
+		this.fileSize = fileSize;
+		this.mimeType = mimeType;
+		this.description = description;
+		this.location = location;
+		this.filename = filename;
+		this.isLink = isLink;
+		this.isHtmlInline = isHtmlInline;
+		this.status = status;
+		this.createdBy = createdBy;
+		this.createdDate = createdDate;
+		this.lastModifiedBy = lastModifiedBy;
+		this.lastModifiedDate = lastModifiedDate;
+		this.duration = duration;
+	}
 
+	public MediaData(byte[] media, String mimeType) {
+		setMimeType(mimeType);
+		setMedia(media);
+		setFileSize(Long.valueOf(media.length));
+	}
 
-  public MediaData(byte[] media, String mimeType)
-  {
-    setMimeType(mimeType);
-    setMedia(media);
-    setFileSize( Long.valueOf(media.length));
-  }
+	public MediaData(Long mediaId, String filename, Long fileSize,
+			String duration, Date createdDate) {
+		this.mediaId = mediaId;
+		this.filename = filename;
+		this.fileSize = fileSize;
+		this.duration = duration;
+		this.createdDate = createdDate;
+	}
 
-  public MediaData(Long mediaId, String filename, Long fileSize, String duration, Date createdDate){
-      this.mediaId = mediaId;
-      this.filename = filename;
-      this.fileSize = fileSize;
-      this.duration = duration;
-      this.createdDate = createdDate;
-  }
-  
-  public Long getMediaId()
-  {
-    return mediaId;
-  }
+	public Long getMediaId() {
+		return mediaId;
+	}
 
-  public void setMediaId(Long mediaId)
-  {
-    this.mediaId = mediaId;
-  }
+	public void setMediaId(Long mediaId) {
+		this.mediaId = mediaId;
+	}
 
-  public ItemGradingData getItemGradingData() {
-    return itemGradingData;
-  }
+	public ItemGradingData getItemGradingData() {
+		return itemGradingData;
+	}
 
-  public void setItemGradingData(ItemGradingData itemGradingData) {
-    this.itemGradingData = itemGradingData;
-  }
+	public void setItemGradingData(ItemGradingData itemGradingData) {
+		this.itemGradingData = itemGradingData;
+	}
 
-  public byte[] getMedia()
-  {
-    return media;
-  }
+	public byte[] getMedia() {
+		return media;
+	}
 
-  public void setMedia(byte[] media)
-  {
-    this.media = media;
-  }
+	public void setMedia(byte[] media) {
+		this.media = media;
+	}
 
-  public Long getFileSize()
-  {
-    return fileSize;
-  }
-  
-  public String getFileSizeKBFormat()
-  {
-	  String fileSizeKBStr = "";
-	  if (fileSize!=null)
-	  {
-		  double fileSizeKB = fileSize.doubleValue()/1000;
-		  DecimalFormat nf = new DecimalFormat(); 
-		  nf.setMaximumFractionDigits(2);
-		  nf.setDecimalSeparatorAlwaysShown(true);
-		  fileSizeKBStr = nf.format(fileSizeKB);
-	  }
-	  return fileSizeKBStr;
-  }
-  
+	public Long getFileSize() {
+		return fileSize;
+	}
 
-  public void setFileSize(Long fileSize)
-  {
-    this.fileSize = fileSize;
-  }  
-  
+	public String getFileSizeKBFormat() {
+		String fileSizeKBStr = "";
+		if (fileSize != null) {
+			double fileSizeKB = fileSize.doubleValue() / 1000;
+			DecimalFormat nf = new DecimalFormat();
+			nf.setMaximumFractionDigits(2);
+			nf.setDecimalSeparatorAlwaysShown(true);
+			fileSizeKBStr = nf.format(fileSizeKB);
+		}
+		return fileSizeKBStr;
+	}
 
-  public void setMimeType(String mimeType)
-  {
-    this.mimeType = mimeType;
-  }
+	public void setFileSize(Long fileSize) {
+		this.fileSize = fileSize;
+	}
 
-  public String getMimeType()
-  {
-    return mimeType;
-  }
+	public void setMimeType(String mimeType) {
+		this.mimeType = mimeType;
+	}
 
-  public String getDescription()
-  {
-    return description;
-  }
+	public String getMimeType() {
+		return mimeType;
+	}
 
-  public void setDescription(String pdescription)
-  {
-    description = pdescription;
-  }
+	public String getDescription() {
+		return description;
+	}
 
-  public String getLocation()
-  {
-    return location;
-  }
+	public void setDescription(String pdescription) {
+		description = pdescription;
+	}
 
-  public void setLocation(String location)
-  {
-    this.location = location;
-  }
+	public String getLocation() {
+		return location;
+	}
 
-  public String getFilename()
-  {
-    return filename;
-  }
+	public void setLocation(String location) {
+		this.location = location;
+	}
 
-  public void setFilename(String filename)
-  {
-    this.filename = filename;
-  }
+	public String getFilename() {
+		return filename;
+	}
 
- public boolean getIsLink()
- {
-   return isLink;
- }
+	public void setFilename(String filename) {
+		this.filename = filename;
+	}
 
- public void setIsLink(boolean isLink)
- {
-   this.isLink = isLink;
- }
+	public boolean getIsLink() {
+		return isLink;
+	}
 
-  public boolean getIsHtmlInline()
-  {
-    return isHtmlInline;
-  }
+	public void setIsLink(boolean isLink) {
+		this.isLink = isLink;
+	}
 
-  public void setIsHtmlInline(boolean isHtmlInline)
-  {
-    this.isHtmlInline = isHtmlInline;
-  }
+	public boolean getIsHtmlInline() {
+		return isHtmlInline;
+	}
 
-  public Integer getStatus() {
-    return this.status;
-  }
+	public void setIsHtmlInline(boolean isHtmlInline) {
+		this.isHtmlInline = isHtmlInline;
+	}
 
-  public void setStatus(Integer status) {
-    this.status = status;
-  }
+	public Integer getStatus() {
+		return this.status;
+	}
 
-  public String getCreatedBy() {
-    return this.createdBy;
-  }
+	public void setStatus(Integer status) {
+		this.status = status;
+	}
 
-  public void setCreatedBy(String createdBy) {
-    this.createdBy = createdBy;
-  }
+	public String getCreatedBy() {
+		return this.createdBy;
+	}
 
-  public Date getCreatedDate() {
-    return this.createdDate;
-  }
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
 
-  public void setCreatedDate(Date createdDate) {
-    this.createdDate = createdDate;
-  }
+	public Date getCreatedDate() {
+		return this.createdDate;
+	}
 
-  public String getLastModifiedBy() {
-    return this.lastModifiedBy;
-  }
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
+	}
 
-  public void setLastModifiedBy(String lastModifiedBy) {
-    this.lastModifiedBy = lastModifiedBy;
-  }
+	public String getLastModifiedBy() {
+		return this.lastModifiedBy;
+	}
 
-  public Date getLastModifiedDate() {
-    return this.lastModifiedDate;
-  }
+	public void setLastModifiedBy(String lastModifiedBy) {
+		this.lastModifiedBy = lastModifiedBy;
+	}
 
-  public void setLastModifiedDate(Date lastModifiedDate) {
-    this.lastModifiedDate = lastModifiedDate;
-  }
+	public Date getLastModifiedDate() {
+		return this.lastModifiedDate;
+	}
 
-  public String getDuration() {
-    return duration;
-  }
-  public void setDuration(String duration) {
-    this.duration = duration;
-  }
+	public void setLastModifiedDate(Date lastModifiedDate) {
+		this.lastModifiedDate = lastModifiedDate;
+	}
 
-  // convenient method
-  private boolean durationIsOver;
-  public boolean getDurationIsOver() {
-    return durationIsOver;
-  }
-  public void setDurationIsOver(boolean durationIsOver) {
-    this.durationIsOver = durationIsOver;
-  }
+	public String getDuration() {
+		return duration;
+	}
 
-  private String timeAllowed;
-  public String getTimeAllowed() {
-	  return timeAllowed;
-  }
-  
-  public void setTimeAllowed(String timeAllowed) {
-	  this.timeAllowed = timeAllowed;  
-  }
+	public void setDuration(String duration) {
+		this.duration = duration;
+	}
+
+	// convenient method
+	private boolean durationIsOver;
+
+	public boolean getDurationIsOver() {
+		return durationIsOver;
+	}
+
+	public void setDurationIsOver(boolean durationIsOver) {
+		this.durationIsOver = durationIsOver;
+	}
+
+	private String timeAllowed;
+
+	public String getTimeAllowed() {
+		return timeAllowed;
+	}
+
+	public void setTimeAllowed(String timeAllowed) {
+		this.timeAllowed = timeAllowed;
+	}
 }
