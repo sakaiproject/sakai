@@ -21,40 +21,25 @@
 
 package org.sakaiproject.tool.assessment.ui.queue.delivery;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.TimerTask;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
-import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
-import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
-import org.sakaiproject.tool.assessment.ui.listener.delivery.SubmitToGradingActionListener;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
 import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
-import java.util.TimerTask;
 
 /**
  * <p>Title: Samigo</p>
@@ -94,7 +79,7 @@ public class SubmitTimedAssessmentThread extends TimerTask
           if (!ag.getForGrade().booleanValue()) {
             ag.setForGrade(Boolean.TRUE);
             ag.setTimeElapsed(Integer.valueOf(timedAG.getTimeLimit()));
-            ag.setStatus(AssessmentGradingIfc.SUBMITTED); // this will change status 0 -> 1
+            ag.setStatus(AssessmentGradingData.SUBMITTED); // this will change status 0 -> 1
             ag.setIsLate(islate(ag.getPublishedAssessmentId()));
             ag.setSubmittedDate(new Date());
             // SAK-7302, users taking a timed assessment may exit without completing the assessment
@@ -135,14 +120,14 @@ public class SubmitTimedAssessmentThread extends TimerTask
 		return Boolean.FALSE;
   }
 
-  private void notifyGradebookByScoringType(AssessmentGradingIfc ag, PublishedAssessmentFacade publishedAssessment){
+  private void notifyGradebookByScoringType(AssessmentGradingData ag, PublishedAssessmentFacade publishedAssessment){
 	  if (publishedAssessment == null || publishedAssessment.getEvaluationModel() == null) {
 		  // should not come to here
 		  log.debug("publishedAssessment is null or publishedAssessment.getEvaluationModel() is null");
 		  return;
 	  }
 	  if (publishedAssessment.getEvaluationModel().getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
-		  AssessmentGradingIfc assessmentGrading = ag; // data is the last submission
+		  AssessmentGradingData assessmentGrading = ag; // data is the last submission
 		  GradingService g = new GradingService();
 		  // need to decide what to tell gradebook
 		  if (publishedAssessment.getEvaluationModel().getScoringType().equals(EvaluationModelIfc.HIGHEST_SCORE)) {

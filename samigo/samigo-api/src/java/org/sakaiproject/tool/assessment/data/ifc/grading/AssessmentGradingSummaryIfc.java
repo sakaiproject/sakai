@@ -25,6 +25,7 @@ package org.sakaiproject.tool.assessment.data.ifc.grading;
 
 import java.util.Date;
 
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 
 /**
@@ -48,8 +49,8 @@ public interface AssessmentGradingSummaryIfc
   void setTotalSubmitted(Integer totalSubmitted);
   Integer getTotalSubmittedForGrade();
   void setTotalSubmittedForGrade(Integer totalSubmittedForGrade);
-  AssessmentGradingIfc getLastSubmittedAssessmentGrading();
-  void setLastSubmittedAssessmentGrading(AssessmentGradingIfc lastSubmittedAssessmentGrading);
+  AssessmentGradingData getLastSubmittedAssessmentGrading();
+  void setLastSubmittedAssessmentGrading(AssessmentGradingData lastSubmittedAssessmentGrading);
   Date getLastSubmittedDate();
   void setLastSubmittedDate(Date lastSubmittedDate);
   Boolean getLastSubmittedAssessmentIsLate();
@@ -76,8 +77,8 @@ public interface AssessmentGradingSummaryIfc
   void setLast_overrideScoreForGrade(Float last_overrideScoreForGrade);
   Integer getScoringType();
   void setScoringType(Integer scoringType);
-  AssessmentGradingIfc getAcceptedAssessmentGrading();
-  void setAcceptedAssessmentGrading(AssessmentGradingIfc acceptedAssessmentGrading);
+  AssessmentGradingData getAcceptedAssessmentGrading();
+  void setAcceptedAssessmentGrading(AssessmentGradingData acceptedAssessmentGrading);
   Boolean getAcceptedAssessmentIsLate();
   void setAcceptedAssessmentIsLate(Boolean acceptedAssessmentIsLate);
   Float getFinalAssessmentScore();

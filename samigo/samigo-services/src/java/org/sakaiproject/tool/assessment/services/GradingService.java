@@ -22,6 +22,10 @@
 
 package org.sakaiproject.tool.assessment.services;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,47 +42,37 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.math.BigDecimal;
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.event.cover.EventTrackingService;
 import org.apache.commons.math.complex.Complex;
 import org.apache.commons.math.complex.ComplexFormat;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
-import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
-import org.sakaiproject.tool.assessment.util.SamigoExpressionParser;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacadeQueriesAPI;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.util.FormatException;
+import org.sakaiproject.tool.assessment.util.SamigoExpressionError;
+import org.sakaiproject.tool.assessment.util.SamigoExpressionParser;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 
 
@@ -314,7 +308,7 @@ public class GradingService
     return scoringType;
   }
 
-  private boolean updateGradebook(AssessmentGradingIfc data, PublishedAssessmentIfc pub){
+  private boolean updateGradebook(AssessmentGradingData data, PublishedAssessmentIfc pub){
     // no need to notify gradebook if this submission is not for grade
     boolean forGrade = (Boolean.TRUE).equals(data.getForGrade());
 
@@ -512,7 +506,7 @@ public class GradingService
     }
   }
 
-  public AssessmentGradingIfc getLastAssessmentGradingByAgentId(String publishedAssessmentId, String agentIdString) {
+  public AssessmentGradingData getLastAssessmentGradingByAgentId(String publishedAssessmentId, String agentIdString) {
     try{
       return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
           getLastAssessmentGradingByAgentId(Long.valueOf(publishedAssessmentId), agentIdString);
@@ -565,7 +559,7 @@ public class GradingService
     }
   }
 
-  public void saveOrUpdateAssessmentGrading(AssessmentGradingIfc assessment)
+  public void saveOrUpdateAssessmentGrading(AssessmentGradingData assessment)
   {
     try {
       /*	
@@ -597,7 +591,7 @@ public class GradingService
   }
   
   // This API only touch SAM_ASSESSMENTGRADING_T. No data gets inserted/updated in SAM_ITEMGRADING_T
-  public void saveOrUpdateAssessmentGradingOnly(AssessmentGradingIfc assessment)
+  public void saveOrUpdateAssessmentGradingOnly(AssessmentGradingData assessment)
   {
 	  Set origItemGradingSet = assessment.getItemGradingSet();
 	  HashSet h = new HashSet(origItemGradingSet);
@@ -630,7 +624,7 @@ public class GradingService
     }
   }
 
-  public AssessmentGradingIfc getHighestAssessmentGrading(String publishedAssessmentId, String agentId){
+  public AssessmentGradingData getHighestAssessmentGrading(String publishedAssessmentId, String agentId){
     try{
       return PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
 	      getHighestAssessmentGrading(Long.valueOf(publishedAssessmentId), agentId);
@@ -641,8 +635,8 @@ public class GradingService
     }
   }
   
-  public AssessmentGradingIfc getHighestSubmittedAssessmentGrading(String publishedAssessmentId, String agentId, String assessmentGradingId){
-	  AssessmentGradingIfc assessmentGrading = null;
+  public AssessmentGradingData getHighestSubmittedAssessmentGrading(String publishedAssessmentId, String agentId, String assessmentGradingId){
+	  AssessmentGradingData assessmentGrading = null;
 	  try {
 		  if (assessmentGradingId != null) {
 			  assessmentGrading = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
@@ -661,7 +655,7 @@ public class GradingService
 	  return  assessmentGrading;
   }
   
-  public AssessmentGradingIfc getHighestSubmittedAssessmentGrading(String publishedAssessmentId, String agentId){
+  public AssessmentGradingData getHighestSubmittedAssessmentGrading(String publishedAssessmentId, String agentId){
 	  return getHighestSubmittedAssessmentGrading(publishedAssessmentId, agentId, null);
   }
   
@@ -728,7 +722,7 @@ public class GradingService
   /**
    * Assume this is a new item.
    */
-  public void storeGrades(AssessmentGradingIfc data, PublishedAssessmentIfc pub,
+  public void storeGrades(AssessmentGradingData data, PublishedAssessmentIfc pub,
                           HashMap publishedItemHash, HashMap publishedItemTextHash,
                           HashMap publishedAnswerHash, HashMap invalidFINMap, ArrayList invalidSALengthList) throws GradebookServiceException, FinFormatException
   {
@@ -739,7 +733,7 @@ public class GradingService
   /**
    * Assume this is a new item.
    */
-  public void storeGrades(AssessmentGradingIfc data, PublishedAssessmentIfc pub,
+  public void storeGrades(AssessmentGradingData data, PublishedAssessmentIfc pub,
                           HashMap publishedItemHash, HashMap publishedItemTextHash,
                           HashMap publishedAnswerHash, boolean persistToDB, HashMap invalidFINMap, ArrayList invalidSALengthList) throws GradebookServiceException, FinFormatException
   {
@@ -747,7 +741,7 @@ public class GradingService
 	  storeGrades(data, false, pub, publishedItemHash, publishedItemTextHash, publishedAnswerHash, persistToDB, invalidFINMap, invalidSALengthList);
   }
   
-  public void storeGrades(AssessmentGradingIfc data, boolean regrade, PublishedAssessmentIfc pub,
+  public void storeGrades(AssessmentGradingData data, boolean regrade, PublishedAssessmentIfc pub,
 		  HashMap publishedItemHash, HashMap publishedItemTextHash,
 		  HashMap publishedAnswerHash, boolean persistToDB) throws GradebookServiceException, FinFormatException {
 	  log.debug("storeGrades (not persistToDB) : data.getSubmittedDate()" + data.getSubmittedDate());
@@ -762,7 +756,7 @@ public class GradingService
    * If regrade is true, we just recalculate the graded score.  If it's
    * false, we do everything from scratch.
    */
-  public void storeGrades(AssessmentGradingIfc data, boolean regrade, PublishedAssessmentIfc pub,
+  public void storeGrades(AssessmentGradingData data, boolean regrade, PublishedAssessmentIfc pub,
                           HashMap publishedItemHash, HashMap publishedItemTextHash,
                           HashMap publishedAnswerHash, boolean persistToDB, HashMap invalidFINMap, ArrayList invalidSALengthList) 
          throws GradebookServiceException, FinFormatException {
@@ -1006,10 +1000,10 @@ public class GradingService
     return totalAutoScore;
   }
 
-  private void notifyGradebookByScoringType(AssessmentGradingIfc data, PublishedAssessmentIfc pub){
+  private void notifyGradebookByScoringType(AssessmentGradingData data, PublishedAssessmentIfc pub){
     Integer scoringType = pub.getEvaluationModel().getScoringType();
     if (updateGradebook(data, pub)){
-      AssessmentGradingIfc d = data; // data is the last submission
+      AssessmentGradingData d = data; // data is the last submission
       // need to decide what to tell gradebook
       if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE))
         d = getHighestSubmittedAssessmentGrading(pub.getPublishedAssessmentId().toString(), data.getAgentId());
@@ -1200,7 +1194,7 @@ public class GradingService
     return answer.getScore().floatValue();
   }
 
-  public void notifyGradebook(AssessmentGradingIfc data, PublishedAssessmentIfc pub) throws GradebookServiceException {
+  public void notifyGradebook(AssessmentGradingData data, PublishedAssessmentIfc pub) throws GradebookServiceException {
     // If the assessment is published to the gradebook, make sure to update the scores in the gradebook
     String toGradebook = pub.getEvaluationModel().getToGradeBook();
 
@@ -1709,7 +1703,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     return answer.getScore().floatValue();
   }
 
-  private void setIsLate(AssessmentGradingIfc data, PublishedAssessmentIfc pub){
+  private void setIsLate(AssessmentGradingData data, PublishedAssessmentIfc pub){
     if (pub.getAssessmentAccessControl() != null
       && pub.getAssessmentAccessControl().getDueDate() != null &&
           pub.getAssessmentAccessControl().getDueDate().before(new Date()))
@@ -1735,7 +1729,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   /* Note:
    * assessmentGrading contains set of itemGrading that are not saved in the DB yet
    */
-  public void updateAssessmentGradingScore(AssessmentGradingIfc adata, PublishedAssessmentIfc pub){
+  public void updateAssessmentGradingScore(AssessmentGradingData adata, PublishedAssessmentIfc pub){
     try {
       Set itemGradingSet = adata.getItemGradingSet();
       Iterator iter = itemGradingSet.iterator();
@@ -2021,7 +2015,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	    return list;
   }
   
-  private void removeUnsubmittedAssessmentGradingData(AssessmentGradingIfc data){
+  private void removeUnsubmittedAssessmentGradingData(AssessmentGradingData data){
 	  try {
 	      PersistenceService.getInstance().
 	        getAssessmentGradingFacadeQueries().removeUnsubmittedAssessmentGradingData(data);

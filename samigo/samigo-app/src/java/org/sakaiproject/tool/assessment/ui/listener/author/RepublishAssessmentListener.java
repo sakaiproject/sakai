@@ -5,10 +5,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
-import javax.faces.context.FacesContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -20,11 +20,11 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationM
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
@@ -35,9 +35,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificationBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentSettingsBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.tool.assessment.ui.bean.author.PublishRepublishNotificationBean;
 
 public class RepublishAssessmentListener implements ActionListener {
 
@@ -126,10 +124,10 @@ public class RepublishAssessmentListener implements ActionListener {
 				if (!currentAgent.equals(adata.getAgentId())){
 					if (adata.getForGrade().booleanValue()) {
 						adata.setForGrade(Boolean.FALSE);
-						adata.setStatus(AssessmentGradingIfc.ASSESSMENT_UPDATED_NEED_RESUBMIT);
+						adata.setStatus(AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT);
 					}
 					else {
-						adata.setStatus(AssessmentGradingIfc.ASSESSMENT_UPDATED);
+						adata.setStatus(AssessmentGradingData.ASSESSMENT_UPDATED);
 					}
 					currentAgent = adata.getAgentId();
 				}

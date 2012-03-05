@@ -76,7 +76,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIfc;
@@ -168,7 +167,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       			q.setLong(0, Long.parseLong(publishedId));
       			q.setBoolean(1, true);
       			q.setBoolean(2, false);
-      			q.setInteger(3, AssessmentGradingIfc.NO_SUBMISSION.intValue());
+      			q.setInteger(3, AssessmentGradingData.NO_SUBMISSION.intValue());
       		}
       		return q.list();
       	};
@@ -200,7 +199,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	      			q.setLong(0, Long.parseLong(publishedId));
 	      			q.setBoolean(1, true);
 	      			q.setBoolean(2, false);
-	      			q.setInteger(3, AssessmentGradingIfc.NO_SUBMISSION.intValue());
+	      			q.setInteger(3, AssessmentGradingData.NO_SUBMISSION.intValue());
 	      		}
 	    		return q.list();
     	    };
@@ -273,7 +272,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       		Query q = session.createQuery(
       				"from AssessmentGradingData a where a.publishedAssessmentId=? and a.status <> ? order by a.agentId asc, a.submittedDate desc");
       		q.setLong(0, publishedId.longValue());
-    		q.setInteger(1, AssessmentGradingIfc.NO_SUBMISSION.intValue());
+    		q.setInteger(1, AssessmentGradingData.NO_SUBMISSION.intValue());
       		return q.list();
       	};
       };
@@ -395,7 +394,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       		q.setLong(0, publishedId.longValue());
       		q.setString(1, agentId);
       		q.setBoolean(2, false);
-    		q.setInteger(3, AssessmentGradingIfc.NO_SUBMISSION.intValue());
+    		q.setInteger(3, AssessmentGradingData.NO_SUBMISSION.intValue());
       		return q.list();
       	};
       };
@@ -881,7 +880,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     		q.setLong(0, publishedAssessmentId.longValue());
     		q.setString(1, agentIdString);
     		q.setBoolean(2, false);
-    		q.setInteger(3, AssessmentGradingIfc.NO_SUBMISSION.intValue());
+    		q.setInteger(3, AssessmentGradingData.NO_SUBMISSION.intValue());
     		return q.list();
     	};
     };
@@ -931,7 +930,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    return ag;
   }
   
-  public AssessmentGradingIfc getLastAssessmentGradingByAgentId(final Long publishedAssessmentId, final String agentIdString) {
+  public AssessmentGradingData getLastAssessmentGradingByAgentId(final Long publishedAssessmentId, final String agentIdString) {
     AssessmentGradingData ag = null;
 
     final HibernateCallback hcb = new HibernateCallback(){
@@ -971,7 +970,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     }
   }
 
-  public void saveOrUpdateAssessmentGrading(AssessmentGradingIfc assessment) {
+  public void saveOrUpdateAssessmentGrading(AssessmentGradingData assessment) {
     int retryCount = persistenceHelper.getRetryCount().intValue();
     while (retryCount > 0){ 
       try {
@@ -1083,7 +1082,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 //         new org.hibernate.type.Type[] { Hibernate.LONG });
   }
 
-  public AssessmentGradingIfc getHighestAssessmentGrading(
+  public AssessmentGradingData getHighestAssessmentGrading(
          final Long publishedAssessmentId, final String agentId)
   {
     AssessmentGradingData ag = null;
@@ -1111,7 +1110,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     return ag;
   }
   
-  public AssessmentGradingIfc getHighestSubmittedAssessmentGrading(
+  public AssessmentGradingData getHighestSubmittedAssessmentGrading(
 	         final Long publishedAssessmentId, final String agentId, Long assessmentGradingId)
 	  {
 	    AssessmentGradingData ag = null;
@@ -1211,7 +1210,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    		q.setLong(0, publishedAssessmentId.longValue());
 	    		q.setBoolean(1, true);
 	    		q.setBoolean(2, false);
-	    		q.setInteger(3, AssessmentGradingIfc.NO_SUBMISSION.intValue());
+	    		q.setInteger(3, AssessmentGradingData.NO_SUBMISSION.intValue());
 	    		return q.list();
 	    	};
 	    };
@@ -1267,7 +1266,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    		q.setLong(0, publishedAssessmentId.longValue());
 	    		q.setBoolean(1, true);
 	    		q.setBoolean(2, false);
-	    		q.setInteger(3, AssessmentGradingIfc.NO_SUBMISSION.intValue());
+	    		q.setInteger(3, AssessmentGradingData.NO_SUBMISSION.intValue());
 	    		return q.list();
 	    	};
 	    };
@@ -1971,7 +1970,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       		q.setLong(0, Long.parseLong(publishedId));
       		q.setBoolean(1, true);
       		q.setBoolean(2, false);
-    		q.setInteger(3, AssessmentGradingIfc.NO_SUBMISSION.intValue());
+    		q.setInteger(3, AssessmentGradingData.NO_SUBMISSION.intValue());
       		return q.list();
       	};
       };
@@ -2564,7 +2563,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
             }
         }
 
-	  public void removeUnsubmittedAssessmentGradingData(final AssessmentGradingIfc data) {
+	  public void removeUnsubmittedAssessmentGradingData(final AssessmentGradingData data) {
 		    final HibernateCallback hcb = new HibernateCallback(){
 		    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
 		    		Query q = session.createQuery(
@@ -2574,7 +2573,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		    		q.setLong(0, data.getPublishedAssessmentId().longValue());
 		    		q.setString(1, data.getAgentId());
 		    		q.setBoolean(2, false);
-		    		q.setInteger(3, AssessmentGradingIfc.NO_SUBMISSION.intValue());
+		    		q.setInteger(3, AssessmentGradingData.NO_SUBMISSION.intValue());
 		    		return q.list();
 		    	};
 		    };
@@ -2752,7 +2751,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		ArrayList updatedAssessmentList = new ArrayList();
 		ArrayList updatedAssessmentNeedResubmitListList = new ArrayList();
 		
-		Object[] values = { agentId, siteId, "OWN_PUBLISHED_ASSESSMENT", false, AssessmentGradingIfc.ASSESSMENT_UPDATED, AssessmentGradingIfc.ASSESSMENT_UPDATED_NEED_RESUBMIT};
+		Object[] values = { agentId, siteId, "OWN_PUBLISHED_ASSESSMENT", false, AssessmentGradingData.ASSESSMENT_UPDATED, AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT};
 
 		List list = getHibernateTemplate()
 				.find("select a.publishedAssessmentId, a.status from AssessmentGradingData a, AuthorizationData az " +
@@ -2767,7 +2766,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		Iterator iter = list.iterator();
 		while (iter.hasNext()) {
 			Object o[] = (Object[]) iter.next();
-			if (AssessmentGradingIfc.ASSESSMENT_UPDATED_NEED_RESUBMIT.compareTo((Integer) o[1]) == 0) {
+			if (AssessmentGradingData.ASSESSMENT_UPDATED_NEED_RESUBMIT.compareTo((Integer) o[1]) == 0) {
 				updatedAssessmentNeedResubmitListList.add(o[0]);
 			}
 			else {

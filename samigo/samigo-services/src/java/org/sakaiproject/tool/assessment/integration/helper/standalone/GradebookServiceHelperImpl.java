@@ -25,11 +25,10 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 
 /**
@@ -119,7 +118,7 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 	 *        the Gradebook Service
 	 * @throws java.lang.Exception
 	 */
-	public void updateExternalAssessmentScore(AssessmentGradingIfc ag, GradebookService g) throws Exception
+	public void updateExternalAssessmentScore(AssessmentGradingData ag, GradebookService g) throws Exception
 	{
 	}
 

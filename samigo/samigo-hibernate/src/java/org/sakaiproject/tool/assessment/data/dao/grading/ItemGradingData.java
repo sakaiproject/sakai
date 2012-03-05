@@ -29,8 +29,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 
 /**
@@ -48,7 +46,7 @@ public class ItemGradingData
   private static final long serialVersionUID = 7526471155622776147L;
   private Long itemGradingId;
   private Long assessmentGradingId;
-  private AssessmentGradingIfc assessmentGrading;
+  private AssessmentGradingData assessmentGrading;
   private Long publishedItemId;
   private Long publishedItemTextId;
     // private ItemDataIfc publishedItem;
@@ -108,10 +106,10 @@ public class ItemGradingData
   }
 
     /*
-  public AssessmentGradingIfc getAssessmentGrading() {
+  public AssessmentGradingData getAssessmentGrading() {
     return assessmentGrading;
   }
-  public void setAssessmentGrading(AssessmentGradingIfc assessmentGrading) {
+  public void setAssessmentGrading(AssessmentGradingData assessmentGrading) {
     this.assessmentGrading = assessmentGrading;
     setAssessmentGradingId(assessmentGrading.getAssessmentGradingId());
   }

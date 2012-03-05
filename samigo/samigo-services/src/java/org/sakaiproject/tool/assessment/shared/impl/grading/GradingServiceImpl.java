@@ -25,19 +25,17 @@ package org.sakaiproject.tool.assessment.shared.impl.grading;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.MediaIfc;
 import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI;
 import org.sakaiproject.tool.assessment.services.GradingServiceException;
+import org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI;
 
 /**
  *
@@ -68,7 +66,7 @@ public class GradingServiceImpl implements GradingServiceAPI
 
   /**
    * Get all submissions for a published assessment from the back end.
-   * @return List of AssessmentGradingIfcIfs
+   * @return List of AssessmentGradingDataIfs
    */
   public List getAllSubmissions(String publishedId)
   {
@@ -209,7 +207,7 @@ public class GradingServiceImpl implements GradingServiceAPI
    * @param data
    */
     /*
-  public void storeGrades(AssessmentGradingIfc data)
+  public void storeGrades(AssessmentGradingData data)
   {
     try
     {
@@ -382,7 +380,7 @@ public class GradingServiceImpl implements GradingServiceAPI
  * @param assessmentGradingId
  * @return
  */
-  public AssessmentGradingIfc load(String assessmentGradingId)
+  public AssessmentGradingData load(String assessmentGradingId)
   {
     try
     {
@@ -401,7 +399,7 @@ public class GradingServiceImpl implements GradingServiceAPI
    * @param agentIdString
    * @return
    */
-  public AssessmentGradingIfc getLastAssessmentGradingByAgentId(String publishedAssessmentId, String agentIdString)
+  public AssessmentGradingData getLastAssessmentGradingByAgentId(String publishedAssessmentId, String agentIdString)
   {
     try
     {
@@ -436,7 +434,7 @@ public class GradingServiceImpl implements GradingServiceAPI
    * Save assesment grading.
    * @param assessment
    */
-  public void saveOrUpdateAssessmentGrading(AssessmentGradingIfc assessment)
+  public void saveOrUpdateAssessmentGrading(AssessmentGradingData assessment)
   {
     try
     {

@@ -23,10 +23,8 @@
 package org.sakaiproject.tool.assessment.services.gradebook;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
-import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 
 /**
  * The GradingService calls the back end to get grading information from
@@ -55,7 +53,7 @@ public class GradebookServiceHelper
 	return false;
     }
 
-    public static void updateExternalAssessmentScore(AssessmentGradingIfc ag) throws Exception {
+    public static void updateExternalAssessmentScore(AssessmentGradingData ag) throws Exception {
     }
 
 }
