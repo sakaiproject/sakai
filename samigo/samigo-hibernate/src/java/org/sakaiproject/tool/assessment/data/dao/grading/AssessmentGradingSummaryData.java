@@ -24,7 +24,6 @@ package org.sakaiproject.tool.assessment.data.dao.grading;
 import java.util.Date;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingSummaryIfc;
 
 /**
  * <p>Title: </p>
@@ -36,7 +35,7 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingSummar
  */
 
 public class AssessmentGradingSummaryData
-    implements AssessmentGradingSummaryIfc
+    
 // need to implement org.osid.assessment.ItemTaken in the future
 // - daisyf 10/11/04
 {
