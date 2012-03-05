@@ -13,6 +13,17 @@
 		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
  		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
 		<property name="idManager"><ref bean="org.sakaiproject.id.api.IdManager"/></property>
+		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+		<property name="aliasService"><ref bean="org.sakaiproject.alias.api.AliasService"/></property>
+		<property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
+		<property name="functionManager"><ref bean="org.sakaiproject.authz.api.FunctionManager"/></property>
+		<property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
+		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+		<property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
+		<property name="timeService"><ref bean="org.sakaiproject.time.api.TimeService"/></property>
+		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
+		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
  		<property name="containerTableName"><value>CALENDAR_CALENDAR</value></property>
  		<property name="resourceTableName"><value>CALENDAR_EVENT</value></property>
  		<property name="caching"><value>false</value></property>
@@ -38,6 +49,11 @@
 		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
 		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
 		<property name="calendarImporterService"><ref bean="org.sakaiproject.calendar.api.CalendarImporterService"/></property>
+		<property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
+		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+		<property name="timeService"><ref bean="org.sakaiproject.time.api.TimeService"/></property>
+		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
+		<property name="idManager"><ref bean="org.sakaiproject.id.api.IdManager"/></property>
 	</bean>
 
 </beans>

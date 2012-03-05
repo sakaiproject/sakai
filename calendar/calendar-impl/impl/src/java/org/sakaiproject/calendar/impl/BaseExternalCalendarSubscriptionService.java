@@ -23,7 +23,6 @@ package org.sakaiproject.calendar.impl;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -48,7 +47,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
@@ -76,9 +75,9 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
-import org.sakaiproject.time.cover.TimeService;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.FormattedText;
 import org.w3c.dom.Document;
@@ -135,45 +134,108 @@ public class BaseExternalCalendarSubscriptionService implements
 	/** Dependency: CalendarService. */
 	protected CalendarService m_calendarService = null;
 
+	/** Dependency: SecurityService */
+	protected SecurityService m_securityService = null;
+
+	/** Dependency: SessionManager */
+	protected SessionManager m_sessionManager = null;
+	
+	/** Dependency: TimeService */
+	protected TimeService m_timeService = null;
+
+	/** Dependency: ToolManager */
+	protected ToolManager m_toolManager = null;
+
+	/** Dependency: IdManager. */
+	protected IdManager m_idManager;
+
+	/** Dependency: CalendarImporterService. */
+	protected CalendarImporterService m_importerService = null;
+
+	/** Dependency: ServerConfigurationService. */
+	protected ServerConfigurationService m_configurationService = null;
+
+	/** Dependency: EntityManager. */
+	protected EntityManager m_entityManager = null;
+
+	/** Dependency: SiteService. */
+	protected SiteService m_siteService = null;
+
 	public void setCalendarService(CalendarService service)
 	{
 		this.m_calendarService = service;
 	}
-
-	/** Dependency: ServerConfigurationService. */
-	protected ServerConfigurationService m_configurationService = null;
 
 	public void setServerConfigurationService(ServerConfigurationService service)
 	{
 		this.m_configurationService = service;
 	}
 
-	/** Dependency: CalendarImporterService. */
-	protected CalendarImporterService m_importerService = null;
-
 	public void setCalendarImporterService(CalendarImporterService service)
 	{
 		this.m_importerService = service;
 	}
-
-	/** Dependency: EntityManager. */
-	protected EntityManager m_entityManager = null;
 
 	public void setEntityManager(EntityManager service)
 	{
 		this.m_entityManager = service;
 	}
 
-	/** Dependency: SiteService. */
-	protected SiteService m_siteService = null;
-
 	public void setSiteService(SiteService service)
 	{
 		this.m_siteService = service;
 	}
 
-	/** Dependency: IdManager (COVER). */
-	protected IdManager m_idManager = org.sakaiproject.id.cover.IdManager.getInstance();
+	/**
+	 * Dependency: SecurityService.
+	 * 
+	 * @param securityService
+	 *        The SecurityService.
+	 */
+	public void setSecurityService(SecurityService securityService)
+	{
+		m_securityService = securityService;
+	}
+
+	/**
+	 * Dependency: SessionManager.
+	 * @param sessionManager
+	 *        The SessionManager.
+	 */
+	public void setSessionManager(SessionManager sessionManager)
+	{
+		this.m_sessionManager = sessionManager;
+	}
+
+	/**
+	 * Dependency: TimeService.
+	 * @param timeService
+	 *        The TimeService.
+	 */
+	public void setTimeService(TimeService timeService)
+	{
+		this.m_timeService = timeService;
+	}
+
+	/**
+	 * Dependency: ToolManager.
+	 * @param toolManager
+	 *        The ToolManager.
+	 */
+	public void setToolManager(ToolManager toolManager)
+	{
+		this.m_toolManager = toolManager;
+	}
+
+	/**
+	 * Dependency: IdManager.
+	 * @param idManager
+	 *        The IdManager.
+	 */
+	public void setIdManager(IdManager idManager)
+	{
+		this.m_idManager = idManager;
+	}
 
 	public void init()
 	{
@@ -349,7 +411,7 @@ public class BaseExternalCalendarSubscriptionService implements
 	{
 		Set<String> subscriptionChannels = new HashSet<String>();
 		Set<String> subscriptionUrlsAdded = new HashSet<String>();
-		if(isOnWorkspaceTab() && (!mergeIntoMyworkspace || SecurityService.isSuperUser())) {
+		if(isOnWorkspaceTab() && (!mergeIntoMyworkspace || m_securityService.isSuperUser())) {
 			channels = new ArrayList<Object>();
 			channels.add(primaryCalendarReference);
 		}
@@ -726,7 +788,7 @@ public class BaseExternalCalendarSubscriptionService implements
 	 */
 	private boolean isOnWorkspaceTab()
 	{
-		return m_siteService.isUserSite(ToolManager.getCurrentPlacement().getContext());
+		return m_siteService.isUserSite(m_toolManager.getCurrentPlacement().getContext());
 	}
 
 	// ######################################################
@@ -1052,7 +1114,7 @@ public class BaseExternalCalendarSubscriptionService implements
 
 		public Time getModified()
 		{
-			return TimeService.newTimeGmt(modifiedDateStr);
+			return m_timeService.newTimeGmt(modifiedDateStr);
 		}
 
 		public CalendarEventEdit mergeEvent(Element el) throws PermissionException,
@@ -1387,7 +1449,7 @@ public class BaseExternalCalendarSubscriptionService implements
 			// after the storage has registered the event and it's id.
 			if (m_range == null)
 			{
-				return TimeService.newTimeRange(TimeService.newTime(0));
+				return m_timeService.newTimeRange(m_timeService.newTime(0));
 			}
 
 			// return (TimeRange) m_range.clone();
@@ -1424,7 +1486,7 @@ public class BaseExternalCalendarSubscriptionService implements
 			else
 			{
 				List instances = m_singleRule.generateInstances(this.getRange(), range,
-						TimeService.getLocalTimeZone());
+						m_timeService.getLocalTimeZone());
 
 				// remove any excluded
 				getExclusionRule().excludeInstances(instances);
@@ -1524,8 +1586,8 @@ public class BaseExternalCalendarSubscriptionService implements
 
 		public void setCreator()
 		{
-			String currentUser = SessionManager.getCurrentSessionUserId();
-			String now = TimeService.newTime().toString();
+			String currentUser = m_sessionManager.getCurrentSessionUserId();
+			String now = m_timeService.newTime().toString();
 			m_properties.addProperty(ResourceProperties.PROP_CREATOR, currentUser);
 			m_properties.addProperty(ResourceProperties.PROP_CREATION_DATE, now);
 		}
