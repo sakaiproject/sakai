@@ -570,9 +570,13 @@ public class UsersAction extends PagedResourceActionII
 		
 		//process the attachments (there will be only one)
 		UsersActionState sstate = (UsersActionState)getState(context, data, UsersActionState.class);
-		Reference attachment = (Reference)sstate.getAttachments().get(0);
 		
-		processImportedUserFile(state, context, attachment);
+		try {
+			Reference attachment = (Reference)sstate.getAttachments().get(0);
+			processImportedUserFile(state, context, attachment);
+		} catch (IndexOutOfBoundsException e) {
+			//no attachment, carry on, will render correctly
+		}
 				
 		//render the template		
 		return "_import";
@@ -612,7 +616,7 @@ public class UsersAction extends PagedResourceActionII
 		
 			for(ImportedUser user: users) {
 				try {
-					User newUser = UserDirectoryService.addUser(null, user.getEid(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(), user.getType(), null);
+					User newUser = UserDirectoryService.addUser(null, user.getEid(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(), user.getType(), user.getProperties());
 				}
 				catch (UserAlreadyDefinedException e){
 					//ok, just skip
@@ -634,7 +638,11 @@ public class UsersAction extends PagedResourceActionII
 			
 			//set a message to show it was successful
 			state.setAttribute("successMessage", rb.getString("import.success"));
+			
+			//cleanup
+			state.removeAttribute("importedUsers");
 			state.removeAttribute("mode");
+			
 			// make sure auto-updates are enabled
 			enableObserver(state);
 		}
@@ -897,7 +905,6 @@ public class UsersAction extends PagedResourceActionII
 
 		// return to main mode
 		state.removeAttribute("mode");
-		state.removeAttribute("importedUsers");
 
 		// make sure auto-updates are enabled
 		enableObserver(state);
@@ -1391,12 +1398,13 @@ public class UsersAction extends PagedResourceActionII
 			map.put("email", "email");
 			map.put("password", "password");
 			map.put("type", "type");
+			map.put("properties", "rawProps"); //specially formatted string, see ImportedUser class.
 			
 			strat.setColumnMapping(map);
 
 			CsvToBean<ImportedUser> csv = new CsvToBean<ImportedUser>();
 			List<ImportedUser> list = new ArrayList<ImportedUser>();
-					
+			
 			list = csv.parse(strat, new CSVReader(new InputStreamReader(resource.streamContent())));
 			
 			state.setAttribute("importedUsers", list);

@@ -21,6 +21,7 @@
 			<li>$tlang.getString("import.instr.req.1")</li>
 			<li>$tlang.getString("import.instr.req.2")</li>
 			<li>$tlang.getString("import.instr.req.3")</li>
+			<li>$tlang.getString("import.instr.req.4")</li>
 		</ul>
 
 		<form name="importForm" action="#toolForm("$action")" method="post">
@@ -51,6 +52,7 @@
 							<th id="Email">$tlang.getString("useconrem.ema")</th>
 							<th id="Password">$tlang.getString("useconrem.pass")</th>
 							<th id="Type">$tlang.getString("usecre.typ")</th>
+							<th id="Type">$tlang.getString("import.user.properties")</th>
     					</tr>
 					</thead>
 					<tbody>
@@ -62,6 +64,7 @@
 							<td headers="Email">$validator.escapeHtml($user.email)</td>
 							<td headers="Password">$validator.escapeHtml($user.password)</td>
 							<td headers="Type">$validator.escapeHtml($user.type)</td>
+							<td headers="Properties">$validator.escapeHtml($user.rawProps)</td>
 						</tr>
 					#end
                     </tbody>
