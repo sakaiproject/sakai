@@ -65,4 +65,30 @@ public class ItemGradingAttachment extends GradingAttachmentData implements
 
 	public void setAttachmentType(Long attachmentType) {
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((itemGrading == null) ? 0 : itemGrading.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ItemGradingAttachment other = (ItemGradingAttachment) obj;
+		if (itemGrading == null) {
+			if (other.itemGrading != null)
+				return false;
+		} else if (!itemGrading.equals(other.itemGrading))
+			return false;
+		return true;
+	}
 }
