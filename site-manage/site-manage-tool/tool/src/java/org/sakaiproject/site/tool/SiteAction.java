@@ -3214,10 +3214,10 @@ public class SiteAction extends PagedResourceActionII {
 							providerSectionListTitles.put(s.getEid(), s.getTitle()); 
 						}
 					}
-					catch (Exception e)
+					catch (IdNotFoundException e)
 					{
 						providerSectionListTitles.put(providerSectionId, providerSectionId);
-						M_log.warn(this + ".putSelectedProviderCourseIntoContext " + e.getMessage() + " sectionId=" + providerSectionId, e);
+						M_log.warn("putSelectedProviderCourseIntoContext Cannot find section " + providerSectionId);
 					}
 				}
 				context.put("size", Integer.valueOf(providerSectionList.size() - 1));
@@ -3710,10 +3710,10 @@ public class SiteAction extends PagedResourceActionII {
 						sectionTitles.put(sectionId, s.getTitle());
 					}
 				}
-				catch (Exception e)
+				catch (IdNotFoundException e)
 				{
 					sectionTitles.put(sectionId, sectionId);
-					M_log.warn(this + ".coursesIntoContext " + e.getMessage() + " sectionId=" + sectionId, e);
+					M_log.warn("coursesIntoContext: Cannot find section " + sectionId);
 				}
 			}
 			context.put("providerCourseTitles", sectionTitles);
@@ -3767,9 +3767,9 @@ public class SiteAction extends PagedResourceActionII {
 							soList.add(new SectionObject(s));
 						}
 					}
-					catch (Exception e)
+					catch (IdNotFoundException e)
 					{
-						M_log.warn(this + ": cannot find section " + courseEid, e);
+						M_log.warn("courseListFromStringIntoContext: cannot find section " + courseEid);
 					}
 				}
 				if (soList.size() > 0)
@@ -4788,8 +4788,7 @@ public class SiteAction extends PagedResourceActionII {
 					Section s = cms.getSection(sectionEid);
 					title = s != null?s.getTitle():title;
 				} catch (IdNotFoundException e) {
-					// cannot find section, use the default title 
-					M_log.warn(this + ":readCourseSectionInfo: cannot find section with eid=" + sectionEid);
+					M_log.warn("readCourseSectionInfo: Cannot find section " + sectionEid);
 				}
 				siteInfo.title = title;
 				state.setAttribute(STATE_SITE_INFO, siteInfo);
@@ -7714,9 +7713,9 @@ public class SiteAction extends PagedResourceActionII {
 							}
 							if (soFound != null) cmRequestedCourseList.remove(soFound);
 						}
-						catch (Exception e)
+						catch (IdNotFoundException e)
 						{
-							M_log.warn( this + e.getMessage() + sectionId, e);
+							M_log.warn("actionForTemplate 43 editClass: Cannot find section " + sectionId);
 						}
 					}
 					state.setAttribute(STATE_CM_REQUESTED_SECTIONS, cmRequestedCourseList);
@@ -11118,7 +11117,7 @@ public class SiteAction extends PagedResourceActionII {
 		try {
 			section = cms.getSection(sectionEid);
 		} catch (IdNotFoundException e) {
-			M_log.warn(this + ".getCourseOfferingAndSectionMap:" + " cannot find section id=" + sectionEid, e);
+			M_log.warn("getCourseOfferingAndSectionMap: cannot find section " + sectionEid);
 		}
 		if (section != null) {
 			String courseOfferingEid = section.getCourseOfferingEid();
@@ -11616,9 +11615,9 @@ public class SiteAction extends PagedResourceActionII {
 								}
 							}
 						}
-						catch (Exception e)
+						catch (IdNotFoundException e)
 						{
-							M_log.warn(this + ".collectNewSiteInfo: cannot find section Id=" + providerSectionId, e);
+							M_log.warn("collectNewSiteInfo: cannot find section " + providerSectionId);
 						}
 					}
 				}
@@ -11677,11 +11676,18 @@ public class SiteAction extends PagedResourceActionII {
 			return null;
 
 		if (cms != null) {
-			Set sections = cms.getSections(offeringEid);
-			if (sections != null)
+			try
 			{
-				Collection c = sortCmObject(new ArrayList(sections));
-				return (List) c;
+				Set sections = cms.getSections(offeringEid);
+				if (sections != null)
+				{
+					Collection c = sortCmObject(new ArrayList(sections));
+					return (List) c;
+				}
+			}
+			catch (IdNotFoundException e)
+			{
+				M_log.warn("getCMSections: Cannot find sections for " + offeringEid);
 			}
 		}
 
@@ -11791,11 +11797,18 @@ public class SiteAction extends PagedResourceActionII {
 					String string = (String) selections.get(k);
 					if (string != null && string.length() > 0)
 					{
-						Section sect = cms.getSection(string);
-						if (sect != null)
+						try
 						{
-							SectionObject so = new SectionObject(sect);
-							soList.add(so);
+							Section sect = cms.getSection(string);
+							if (sect != null)
+							{
+								SectionObject so = new SectionObject(sect);
+								soList.add(so);
+							}
+						}
+						catch (IdNotFoundException e)
+						{
+							M_log.warn("prepFindPage: Cannot find section " + string);
 						}
 					}
 				}
@@ -12092,12 +12105,19 @@ public class SiteAction extends PagedResourceActionII {
 		if (sectionList != null) {
 			for (int i = 0; i < sectionList.size(); i++) {
 				String sectionEid = (String) sectionList.get(i);
-				Section s = cms.getSection(sectionEid);
-				if (s != null)
+				try
 				{
-					SectionObject so = new SectionObject(s);
-					so.setAuthorizer(new ArrayList(Arrays.asList(userId.split(","))));
-					list.add(so);
+					Section s = cms.getSection(sectionEid);
+					if (s != null)
+					{
+						SectionObject so = new SectionObject(s);
+						so.setAuthorizer(new ArrayList(Arrays.asList(userId.split(","))));
+						list.add(so);
+					}
+				}
+				catch (IdNotFoundException e)
+				{
+					M_log.warn("prepareSectionObject: Cannot find section " + sectionEid);
 				}
 			}
 		}
