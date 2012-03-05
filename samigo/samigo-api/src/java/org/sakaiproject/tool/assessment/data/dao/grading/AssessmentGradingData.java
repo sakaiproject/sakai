@@ -26,7 +26,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Represents a students response on a particualar quizz
+ * Represents a students response on a particular quiz
  * 
  * 
  */
