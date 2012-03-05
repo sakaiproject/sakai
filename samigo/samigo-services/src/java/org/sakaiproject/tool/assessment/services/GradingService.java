@@ -51,6 +51,7 @@ import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
@@ -60,8 +61,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingAttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -549,7 +548,7 @@ public class GradingService
 	  return assessmentGranding;
   }
   
-  public void saveItemGrading(ItemGradingIfc item)
+  public void saveItemGrading(ItemGradingData item)
   {
     try {
       PersistenceService.getInstance().
@@ -689,7 +688,7 @@ public class GradingService
       float totalAutoScore = 0;
       float totalOverrideScore = adata.getTotalOverrideScore().floatValue();
       while (iter.hasNext()){
-        ItemGradingIfc i = (ItemGradingIfc)iter.next();
+        ItemGradingData i = (ItemGradingData)iter.next();
         if (i.getItemGradingId().equals(gdata.getItemGradingId())){
 	  i.setAutoScore(gdata.getAutoScore());
           i.setComments(gdata.getComments());
@@ -778,8 +777,8 @@ public class GradingService
       if (isCalcQuestion(tempItemGradinglist, publishedItemHash)) {
 	      Collections.sort(tempItemGradinglist, new Comparator(){
 	    	  public int compare(Object o1, Object o2) {
-	    		  ItemGradingIfc gradeData1 = (ItemGradingIfc) o1;
-	    		  ItemGradingIfc gradeData2 = (ItemGradingIfc) o2;
+	    		  ItemGradingData gradeData1 = (ItemGradingData) o1;
+	    		  ItemGradingData gradeData2 = (ItemGradingData) o2;
 	    		  
 	    		  // protect against blank ones in samigo initial setup.
 	    		  if (gradeData1 == null) return -1; 
@@ -810,7 +809,7 @@ public class GradingService
       int calcQuestionAnswerSequence = 1; // sequence of answers for CALCULATED_QUESTION
       while(iter.hasNext())
       {
-        ItemGradingIfc itemGrading = (ItemGradingIfc) iter.next();
+        ItemGradingData itemGrading = (ItemGradingData) iter.next();
         
         // CALCULATED_QUESTION - We increment this so we that calculated 
         // questions can know where we are in the sequence of answers.
@@ -903,7 +902,7 @@ public class GradingService
       float itemScore = -1;
       while(iter.hasNext())
       {
-        ItemGradingIfc itemGrading = (ItemGradingIfc) iter.next();
+        ItemGradingData itemGrading = (ItemGradingData) iter.next();
         itemId = itemGrading.getPublishedItemId();
         ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(itemId);
         itemType2 = item.getTypeId();
@@ -925,7 +924,7 @@ public class GradingService
     	  //reset all scores to 0 since the user didn't get all correct answers
     	  iter = itemGradingSet.iterator();
     	  while(iter.hasNext()){
-    		  ItemGradingIfc itemGrading = (ItemGradingIfc) iter.next();
+    		  ItemGradingData itemGrading = (ItemGradingData) iter.next();
     		  itemGrading.setAutoScore(Float.valueOf(0));
     	  }
       }
@@ -992,7 +991,7 @@ public class GradingService
     float totalAutoScore =0;
     Iterator iter = itemGradingSet.iterator();
     while (iter.hasNext()){
-      ItemGradingIfc i = (ItemGradingIfc)iter.next();
+      ItemGradingData i = (ItemGradingData)iter.next();
       //log.debug(i.getItemGradingId()+"->"+i.getAutoScore());
       if (i.getAutoScore()!=null)
 	totalAutoScore += i.getAutoScore().floatValue();
@@ -1011,7 +1010,7 @@ public class GradingService
     }
   }
   
-  private float getScoreByQuestionType(ItemGradingIfc itemGrading, ItemDataIfc item,
+  private float getScoreByQuestionType(ItemGradingData itemGrading, ItemDataIfc item,
                                        Long itemType, HashMap publishedItemTextHash, 
                                        HashMap totalItems, HashMap fibAnswersMap,
                                        HashMap publishedAnswerHash, boolean regrade,
@@ -1168,12 +1167,12 @@ public class GradingService
 
   /**
    * This grades multiple choice and true false questions.  Since
-   * multiple choice/multiple select has a separate ItemGradingIfc for
+   * multiple choice/multiple select has a separate ItemGradingData for
    * each choice, they're graded the same way the single choice are.
    * Choices should be given negative score values if one wants them
    * to lose points for the wrong choice.
    */
-  public float getAnswerScore(ItemGradingIfc data, HashMap publishedAnswerHash)
+  public float getAnswerScore(ItemGradingData data, HashMap publishedAnswerHash)
   {
     AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
     if (answer == null || answer.getScore() == null) {
@@ -1345,7 +1344,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 
   */
   
-  public float getFIBScore(ItemGradingIfc data, HashMap fibmap,  ItemDataIfc itemdata, HashMap publishedAnswerHash)
+  public float getFIBScore(ItemGradingData data, HashMap fibmap,  ItemDataIfc itemdata, HashMap publishedAnswerHash)
   {
     String studentanswer = "";
     boolean matchresult = false;
@@ -1423,7 +1422,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     return totalScore;
   }
 
-  public boolean getFIBResult(ItemGradingIfc data, HashMap fibmap,  ItemDataIfc itemdata, HashMap publishedAnswerHash)
+  public boolean getFIBResult(ItemGradingData data, HashMap fibmap,  ItemDataIfc itemdata, HashMap publishedAnswerHash)
   {
 	  // this method is similiar to getFIBScore(), except it returns true/false for the answer, not scores.  
 	  // may be able to refactor code out to be reused, but totalscores for mutually exclusive case is a bit tricky. 
@@ -1503,7 +1502,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   }
   
   
-  public float getFINScore(ItemGradingIfc data,  ItemDataIfc itemdata, HashMap publishedAnswerHash) throws FinFormatException
+  public float getFINScore(ItemGradingData data,  ItemDataIfc itemdata, HashMap publishedAnswerHash) throws FinFormatException
   {
 	  float totalScore = (float) 0;
 	  boolean matchresult = getFINResult(data, itemdata, publishedAnswerHash);
@@ -1514,7 +1513,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  
   }
 	  
-  public boolean getFINResult (ItemGradingIfc data,  ItemDataIfc itemdata, HashMap publishedAnswerHash) throws FinFormatException
+  public boolean getFINResult (ItemGradingData data,  ItemDataIfc itemdata, HashMap publishedAnswerHash) throws FinFormatException
   {
 	  String studentanswer = "";
 	  boolean range;
@@ -1653,7 +1652,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @param calcQuestionAnswerSequence the order of answers in the list
    * @return score for the item.
    */
-  public float getCalcQScore(ItemGradingIfc data,  ItemDataIfc itemdata, HashMap calculatedAnswersMap, int calcQuestionAnswerSequence)
+  public float getCalcQScore(ItemGradingData data,  ItemDataIfc itemdata, HashMap calculatedAnswersMap, int calcQuestionAnswerSequence)
   {
 	  float totalScore = (float) 0;
 	  
@@ -1695,7 +1694,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   }
   
   
-  public float getTotalCorrectScore(ItemGradingIfc data, HashMap publishedAnswerHash)
+  public float getTotalCorrectScore(ItemGradingData data, HashMap publishedAnswerHash)
   {
     AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
     if (answer == null || answer.getScore() == null)
@@ -1736,7 +1735,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
       float totalAutoScore = 0;
       float totalOverrideScore = adata.getTotalOverrideScore().floatValue();
       while (iter.hasNext()){
-        ItemGradingIfc i = (ItemGradingIfc)iter.next();
+        ItemGradingData i = (ItemGradingData)iter.next();
         if (i.getAutoScore()!=null)
           totalAutoScore += i.getAutoScore().floatValue();
         }
@@ -2043,7 +2042,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * @param item
    * @return map of calc answers
    */
-  private HashMap getCalculatedAnswersMap(ItemGradingIfc itemGrading, ItemDataIfc item) {
+  private HashMap getCalculatedAnswersMap(ItemGradingData itemGrading, ItemDataIfc item) {
 	  HashMap calculatedAnswersMap = new HashMap();
 	  
 	  List<String> texts = extractCalcQAnswersArray(calculatedAnswersMap, item, itemGrading.getAssessmentGradingId(), itemGrading.getAgentId());
@@ -2495,7 +2494,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  if (tempItemGradinglist.size() == 0) return false;
 	  
 	  Iterator iter = tempItemGradinglist.iterator();
-	  ItemGradingIfc itemCheck = (ItemGradingIfc) iter.next();
+	  ItemGradingData itemCheck = (ItemGradingData) iter.next();
 	  Long itemId = itemCheck.getPublishedItemId();
       ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(itemId);
       if (item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION)) {
@@ -2559,10 +2558,10 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  }
   }
   
-  public ItemGradingAttachmentIfc createItemGradingAttachment(
-		  ItemGradingIfc itemGrading, String resourceId, String filename,
+  public ItemGradingAttachment createItemGradingAttachment(
+		  ItemGradingData itemGrading, String resourceId, String filename,
 			String protocol) {
-	  ItemGradingAttachmentIfc attachment = null;
+	  ItemGradingAttachment attachment = null;
 		try {
 			attachment = PersistenceService.getInstance().
 	        getAssessmentGradingFacadeQueries().createItemGradingtAttachment(itemGrading,
@@ -2600,13 +2599,13 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   
   /**
    * This grades multiple choice and true false questions.  Since
-   * multiple choice/multiple select has a separate ItemGradingIfc for
+   * multiple choice/multiple select has a separate ItemGradingData for
    * each choice, they're graded the same way the single choice are.
    * BUT since we have Partial Credit stuff around we have to have a separate method here  --mustansar
    * Choices should be given negative score values if one wants them
    * to lose points for the wrong choice.
    */
-  public float getAnswerScoreMCQ(ItemGradingIfc data, HashMap publishedAnswerHash)
+  public float getAnswerScoreMCQ(ItemGradingData data, HashMap publishedAnswerHash)
   {
 	  AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
 	  if (answer == null || answer.getScore() == null) {

@@ -21,25 +21,23 @@
 
 package org.sakaiproject.tool.assessment.data.dao.grading;
 
-import org.sakaiproject.tool.assessment.data.ifc.grading.MediaIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import java.io.Serializable;
-import java.util.Date;
 import java.text.DecimalFormat;
+import java.util.Date;
 
 
 
 
 
 public class MediaData
-    implements Serializable, MediaIfc
+    implements Serializable
 {
   /**
 	 * 
 	 */
 	private static final long serialVersionUID = -437737678404198607L;
 private Long mediaId;
-  private ItemGradingIfc itemGradingData;
+  private ItemGradingData itemGradingData;
   private byte[] media;
   private Long fileSize; // in kilobyte
   private String mimeType;
@@ -59,7 +57,7 @@ private Long mediaId;
   {
   }
 
-  public MediaData(ItemGradingIfc itemGradingData, byte[] media, Long fileSize,
+  public MediaData(ItemGradingData itemGradingData, byte[] media, Long fileSize,
                    String mimeType, String description, String location,
                    String filename, boolean isLink, boolean isHtmlInline,
                    Integer status, String createdBy, Date createdDate,
@@ -81,7 +79,7 @@ private Long mediaId;
     this.duration = duration;
   }
 
-  public MediaData(Long mediaId, ItemGradingIfc itemGradingData, Long fileSize,
+  public MediaData(Long mediaId, ItemGradingData itemGradingData, Long fileSize,
                    String mimeType, String description, String location,
                    String filename, boolean isLink, boolean isHtmlInline,
                    Integer status, String createdBy, Date createdDate,
@@ -129,11 +127,11 @@ private Long mediaId;
     this.mediaId = mediaId;
   }
 
-  public ItemGradingIfc getItemGradingData() {
+  public ItemGradingData getItemGradingData() {
     return itemGradingData;
   }
 
-  public void setItemGradingData(ItemGradingIfc itemGradingData) {
+  public void setItemGradingData(ItemGradingData itemGradingData) {
     this.itemGradingData = itemGradingData;
   }
 

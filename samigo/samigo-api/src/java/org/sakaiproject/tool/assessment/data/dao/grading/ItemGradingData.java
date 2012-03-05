@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 
 /**
  * <p>Title: </p>
@@ -41,7 +40,7 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
  */
 
 public class ItemGradingData
-    implements java.io.Serializable, ItemGradingIfc {
+    implements java.io.Serializable {
 
   private static final long serialVersionUID = 7526471155622776147L;
   private Long itemGradingId;

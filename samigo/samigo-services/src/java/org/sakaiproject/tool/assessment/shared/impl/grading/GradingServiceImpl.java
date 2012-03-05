@@ -30,9 +30,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
+import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.MediaIfc;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.GradingServiceException;
 import org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI;
@@ -262,7 +261,7 @@ public class GradingServiceImpl implements GradingServiceAPI
    * @param mediaData
    * @return
    */
-  public Long saveMedia(MediaIfc mediaData)
+  public Long saveMedia(MediaData mediaData)
   {
     try
     {
@@ -281,7 +280,7 @@ public class GradingServiceImpl implements GradingServiceAPI
    * @param mediaId
    * @return
    */
-  public MediaIfc getMedia(String mediaId)
+  public MediaData getMedia(String mediaId)
   {
     try
     {
@@ -317,7 +316,7 @@ public class GradingServiceImpl implements GradingServiceAPI
    * @param i
    * @return
    */
-  public List getMediaArray(ItemGradingIfc itemGrading)
+  public List getMediaArray(ItemGradingData itemGrading)
   {
     try
     {
@@ -341,7 +340,7 @@ public class GradingServiceImpl implements GradingServiceAPI
    * @param agentId
    * @return
    */
-  public ItemGradingIfc getLastItemGradingByAgent(String publishedItemId, String agentId)
+  public ItemGradingData getLastItemGradingByAgent(String publishedItemId, String agentId)
   {
     try
     {
@@ -360,7 +359,7 @@ public class GradingServiceImpl implements GradingServiceAPI
    * @param publishedItemId
    * @return
    */
-  public ItemGradingIfc getItemGrading(String assessmentGradingId, String publishedItemId)
+  public ItemGradingData getItemGrading(String assessmentGradingId, String publishedItemId)
   {
     try
     {
@@ -417,7 +416,7 @@ public class GradingServiceImpl implements GradingServiceAPI
    * Save item grading information.
    * @param item
    */
-  public void saveItemGrading(ItemGradingIfc item)
+  public void saveItemGrading(ItemGradingData item)
   {
     try
     {

@@ -59,7 +59,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -1146,7 +1145,7 @@ public class DeliveryActionListener
     	while (iterAnswer.hasNext())
     	{
     		
-    		ItemGradingIfc data = (ItemGradingIfc) iterAnswer.next();
+    		ItemGradingData data = (ItemGradingData) iterAnswer.next();
     		
     		  AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
     		  
@@ -2599,7 +2598,7 @@ public class DeliveryActionListener
 		  			return "error";
 		  		}
 		  		Iterator iterForAgent = itemBean.getItemGradingDataArray().iterator();
-		  		ItemGradingIfc dataForAgent = (ItemGradingIfc) iterForAgent.next();
+		  		ItemGradingData dataForAgent = (ItemGradingData) iterForAgent.next();
 		  		agentId = dataForAgent.getAgentId();
 		  	}
 	  }

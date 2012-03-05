@@ -17,9 +17,9 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingAttachmentIfc;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -35,7 +35,7 @@ public class AttachmentUtil {
 		if (attachmentSet !=null ){
 			Iterator iter = attachmentSet.iterator();
 			while (iter.hasNext()){
-				ItemGradingAttachmentIfc attach = (ItemGradingAttachmentIfc) iter.next();
+				ItemGradingAttachment attach = (ItemGradingAttachment) iter.next();
 				map.put(attach.getResourceId(), attach);
 			}
 		}
@@ -61,7 +61,7 @@ public class AttachmentUtil {
 						// new attachment, add 
 						log.debug("**** ref.Id="+ref.getId());
 						log.debug("**** ref.name="+ref.getProperties().getProperty(ref.getProperties().getNamePropDisplayName()));
-						ItemGradingAttachmentIfc newAttach = gradingService.createItemGradingAttachment(
+						ItemGradingAttachment newAttach = gradingService.createItemGradingAttachment(
 								itemGradingData,
 								ref.getId(), ref.getProperties().getProperty(
 										ref.getProperties().getNamePropDisplayName()),
@@ -70,7 +70,7 @@ public class AttachmentUtil {
 					}
 					else{ 
 						// attachment already exist, let's add it to new list and check it off from map
-						newAttachmentList.add((ItemGradingAttachmentIfc)map.get(resourceId));
+						newAttachmentList.add((ItemGradingAttachment)map.get(resourceId));
 						map.remove(resourceId);
 					}
 				}

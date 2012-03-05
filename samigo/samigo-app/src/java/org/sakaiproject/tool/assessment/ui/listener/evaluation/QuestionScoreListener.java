@@ -40,12 +40,12 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessCont
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
+import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
-import org.sakaiproject.tool.assessment.data.ifc.grading.MediaIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -828,7 +828,7 @@ public class QuestionScoreListener implements ActionListener,
 		try {
 			int maxDurationAllowed = item.getDuration().intValue();
 			for (int i = 0; i < mediaList.size(); i++) {
-				MediaIfc m = (MediaIfc) mediaList.get(i);
+				MediaData m = (MediaData) mediaList.get(i);
 				float duration = (Float.valueOf(m.getDuration())).floatValue();
 				if (duration > maxDurationAllowed) {
 					m.setDurationIsOver(true);
