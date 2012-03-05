@@ -123,7 +123,7 @@
    		     <h:commandLink value="#{msgs.pvt_to}"
 		                      title="#{msgs.sort_to}">
 		         <h:graphicImage value="/images/sortascending.gif" style="border:0" 
-    	                       title="#{msgs.sort_author_asc}" alt="#{msgs.sort_to_asc}"
+    	                       title="#{msgs.sort_to_asc}" alt="#{msgs.sort_to_asc}"
     	                       rendered="#{PrivateMessagesTool.sortType == 'to_asc'}"/>
     	       <h:graphicImage value="/images/sortdescending.gif" style="border:0" 
     	                       title="#{msgs.sort_to_desc}" alt="#{msgs.sort_to_desc}"
