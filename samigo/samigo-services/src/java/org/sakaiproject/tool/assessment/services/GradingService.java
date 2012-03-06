@@ -547,7 +547,7 @@ public class GradingService
 
 	  return assessmentGranding;
   }
-  /*
+  
   public void saveItemGrading(ItemGradingData item)
   {
     try {
@@ -557,7 +557,7 @@ public class GradingService
       e.printStackTrace();
     }
   }
-*/
+
   public void saveOrUpdateAssessmentGrading(AssessmentGradingData assessment)
   {
     try {

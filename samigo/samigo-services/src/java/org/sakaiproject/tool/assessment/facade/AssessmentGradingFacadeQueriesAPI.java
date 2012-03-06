@@ -148,7 +148,7 @@ public interface AssessmentGradingFacadeQueriesAPI
   
   public List getLastSubmittedOrGradedAssessmentGradingList(Long publishedAssessmentId);
 
- // public void saveItemGrading(ItemGradingData item);
+  public void saveItemGrading(ItemGradingData item);
 
   public void saveOrUpdateAssessmentGrading(AssessmentGradingData assessment);
 

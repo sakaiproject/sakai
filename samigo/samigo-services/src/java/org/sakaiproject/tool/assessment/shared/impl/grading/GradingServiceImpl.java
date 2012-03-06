@@ -412,25 +412,9 @@ public class GradingServiceImpl implements GradingServiceAPI
     }
   }
 
-  /**
-   * Save item grading information.
-   * @param item
-   */
-  public void saveItemGrading(ItemGradingData item)
-  {
-    try
-    {
-      GradingService service = new GradingService();
-      service.saveItemGrading(item);
-    }
-    catch (Exception ex)
-    {
-      throw new GradingServiceException(ex);
-    }
-  }
 
   /**
-   * Save assesment grading.
+   * Save assessment grading.
    * @param assessment
    */
   public void saveOrUpdateAssessmentGrading(AssessmentGradingData assessment)
@@ -444,5 +428,18 @@ public class GradingServiceImpl implements GradingServiceAPI
     {
       throw new GradingServiceException(ex);
     }
+  }
+
+
+  public void saveItemGrading(ItemGradingData item) {
+	  try {
+		  GradingService service = new GradingService();
+		  service.saveItemGrading(item);
+	  }
+	  catch (Exception e)
+	  {
+		  throw new GradingServiceException(e);
+	  }
+
   }
 }

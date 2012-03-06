@@ -3137,6 +3137,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  Long itemTextId = itemService.getItemTextId(publishedItemId);
 		  log.debug("itemTextId = " + itemTextId);
 		  itemGradingData.setPublishedItemTextId(itemTextId);
+		  //we're in the DAO su we can use the DAO method directly
 		  saveItemGrading(itemGradingData);
 	  }
 	  
