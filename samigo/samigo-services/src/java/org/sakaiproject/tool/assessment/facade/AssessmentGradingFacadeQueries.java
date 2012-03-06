@@ -81,7 +81,6 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
 import org.sakaiproject.tool.assessment.services.GradebookServiceException;
-import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -3138,8 +3137,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  Long itemTextId = itemService.getItemTextId(publishedItemId);
 		  log.debug("itemTextId = " + itemTextId);
 		  itemGradingData.setPublishedItemTextId(itemTextId);
-		  GradingService gradingService = new GradingService();
-		  gradingService.saveItemGrading(itemGradingData);
+		  saveItemGrading(itemGradingData);
 	  }
 	  
 	  /***
