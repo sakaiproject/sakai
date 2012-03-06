@@ -47,7 +47,7 @@
 							<label for="emailId">
 								$tlang.getString("multipleTools.site")
 							</label>
-							<input type="text" title="$tlang.getString('multipleTools.emailreq')" name="emailId" id="emailId" value="$!emailId" size="15" maxlength="32" />@$serverName
+							<input type="text" title="$tlang.getString('multipleTools.emailreq')" name="emailId" id="emailId" value="$!emailId" size="32" maxlength="32" />@$serverName
 						</p>
 					</div>
 				#end

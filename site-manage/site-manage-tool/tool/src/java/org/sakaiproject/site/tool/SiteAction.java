@@ -2443,7 +2443,24 @@ public class SiteAction extends PagedResourceActionII {
 			multipleToolIntoContext(context, state);
 			
 			context.put("toolManager", ToolManager.getInstance());
-			String emailId = (String) state.getAttribute(STATE_TOOL_EMAIL_ADDRESS);
+
+      AcademicSession thisAcademicSession = (AcademicSession) state.getAttribute(STATE_TERM_SELECTED);
+      String emailId = null;
+
+	    boolean prePopulateEmail = ServerConfigurationService.getBoolean("wsetup.mailarchive.prepopulate.email",true);
+      if(prePopulateEmail == true && state.getAttribute(STATE_TOOL_EMAIL_ADDRESS)==null){
+          if(thisAcademicSession!=null){
+              String siteTitle1 = siteInfo.title.replaceAll("[(].*[)]", "");
+              siteTitle1 = siteTitle1.trim();
+              siteTitle1 = siteTitle1.replaceAll(" ", "-");
+              emailId = siteTitle1;
+          }else{
+              emailId = StringUtils.deleteWhitespace(siteInfo.title);
+          }
+      }else{
+          emailId = (String) state.getAttribute(STATE_TOOL_EMAIL_ADDRESS);
+      }
+
 			if (emailId != null) {
 				context.put("emailId", emailId);
 			}
