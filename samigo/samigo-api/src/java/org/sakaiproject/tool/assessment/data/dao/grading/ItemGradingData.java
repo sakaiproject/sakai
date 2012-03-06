@@ -28,8 +28,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
-
 /**
  * A response to a specific question and its associated data
  * 
@@ -44,7 +42,6 @@ public class ItemGradingData implements java.io.Serializable {
 	private Long publishedItemTextId;
 	private String agentId;
 	private Long publishedAnswerId;
-	private AnswerIfc publishedAnswer;
 	private String rationale;
 	private String answerText;
 	private Date submittedDate;
@@ -114,14 +111,6 @@ public class ItemGradingData implements java.io.Serializable {
 
 	public void setPublishedAnswerId(Long publishedAnswerId) {
 		this.publishedAnswerId = publishedAnswerId;
-	}
-
-	public AnswerIfc getPublishedAnswer() {
-		return publishedAnswer;
-	}
-
-	public void setPublishedAnswer(AnswerIfc publishedAnswer) {
-		this.publishedAnswer = publishedAnswer;
 	}
 
 	public String getRationale() {
@@ -252,4 +241,167 @@ public class ItemGradingData implements java.io.Serializable {
 				itemGradingAttachmentList);
 		this.itemGradingAttachmentSet = itemGradingAttachmentSet;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((agentId == null) ? 0 : agentId.hashCode());
+		result = prime * result
+				+ ((answerText == null) ? 0 : answerText.hashCode());
+		result = prime
+				* result
+				+ ((assessmentGradingId == null) ? 0 : assessmentGradingId
+						.hashCode());
+		result = prime
+				* result
+				+ ((attemptsRemaining == null) ? 0 : attemptsRemaining
+						.hashCode());
+		result = prime * result
+				+ ((autoScore == null) ? 0 : autoScore.hashCode());
+		result = prime * result
+				+ ((comments == null) ? 0 : comments.hashCode());
+		result = prime * result
+				+ ((gradedBy == null) ? 0 : gradedBy.hashCode());
+		result = prime * result
+				+ ((gradedDate == null) ? 0 : gradedDate.hashCode());
+		result = prime
+				* result
+				+ ((itemGradingAttachmentSet == null) ? 0
+						: itemGradingAttachmentSet.hashCode());
+		result = prime * result
+				+ ((itemGradingId == null) ? 0 : itemGradingId.hashCode());
+		result = prime * result
+				+ ((lastDuration == null) ? 0 : lastDuration.hashCode());
+		result = prime * result
+				+ ((mediaArray == null) ? 0 : mediaArray.hashCode());
+		result = prime * result
+				+ ((overrideScore == null) ? 0 : overrideScore.hashCode());
+		result = prime
+				* result
+				+ ((publishedAnswerId == null) ? 0 : publishedAnswerId
+						.hashCode());
+		result = prime * result
+				+ ((publishedItemId == null) ? 0 : publishedItemId.hashCode());
+		result = prime
+				* result
+				+ ((publishedItemTextId == null) ? 0 : publishedItemTextId
+						.hashCode());
+		result = prime * result
+				+ ((rationale == null) ? 0 : rationale.hashCode());
+		result = prime * result + ((review == null) ? 0 : review.hashCode());
+		result = prime * result
+				+ ((submittedDate == null) ? 0 : submittedDate.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ItemGradingData other = (ItemGradingData) obj;
+		if (agentId == null) {
+			if (other.agentId != null)
+				return false;
+		} else if (!agentId.equals(other.agentId))
+			return false;
+		if (answerText == null) {
+			if (other.answerText != null)
+				return false;
+		} else if (!answerText.equals(other.answerText))
+			return false;
+		if (assessmentGradingId == null) {
+			if (other.assessmentGradingId != null)
+				return false;
+		} else if (!assessmentGradingId.equals(other.assessmentGradingId))
+			return false;
+		if (attemptsRemaining == null) {
+			if (other.attemptsRemaining != null)
+				return false;
+		} else if (!attemptsRemaining.equals(other.attemptsRemaining))
+			return false;
+		if (autoScore == null) {
+			if (other.autoScore != null)
+				return false;
+		} else if (!autoScore.equals(other.autoScore))
+			return false;
+		if (comments == null) {
+			if (other.comments != null)
+				return false;
+		} else if (!comments.equals(other.comments))
+			return false;
+		if (gradedBy == null) {
+			if (other.gradedBy != null)
+				return false;
+		} else if (!gradedBy.equals(other.gradedBy))
+			return false;
+		if (gradedDate == null) {
+			if (other.gradedDate != null)
+				return false;
+		} else if (!gradedDate.equals(other.gradedDate))
+			return false;
+		if (itemGradingAttachmentSet == null) {
+			if (other.itemGradingAttachmentSet != null)
+				return false;
+		} else if (!itemGradingAttachmentSet
+				.equals(other.itemGradingAttachmentSet))
+			return false;
+		if (itemGradingId == null) {
+			if (other.itemGradingId != null)
+				return false;
+		} else if (!itemGradingId.equals(other.itemGradingId))
+			return false;
+		if (lastDuration == null) {
+			if (other.lastDuration != null)
+				return false;
+		} else if (!lastDuration.equals(other.lastDuration))
+			return false;
+		if (mediaArray == null) {
+			if (other.mediaArray != null)
+				return false;
+		} else if (!mediaArray.equals(other.mediaArray))
+			return false;
+		if (overrideScore == null) {
+			if (other.overrideScore != null)
+				return false;
+		} else if (!overrideScore.equals(other.overrideScore))
+			return false;
+		if (publishedAnswerId == null) {
+			if (other.publishedAnswerId != null)
+				return false;
+		} else if (!publishedAnswerId.equals(other.publishedAnswerId))
+			return false;
+		if (publishedItemId == null) {
+			if (other.publishedItemId != null)
+				return false;
+		} else if (!publishedItemId.equals(other.publishedItemId))
+			return false;
+		if (publishedItemTextId == null) {
+			if (other.publishedItemTextId != null)
+				return false;
+		} else if (!publishedItemTextId.equals(other.publishedItemTextId))
+			return false;
+		if (rationale == null) {
+			if (other.rationale != null)
+				return false;
+		} else if (!rationale.equals(other.rationale))
+			return false;
+		if (review == null) {
+			if (other.review != null)
+				return false;
+		} else if (!review.equals(other.review))
+			return false;
+		if (submittedDate == null) {
+			if (other.submittedDate != null)
+				return false;
+		} else if (!submittedDate.equals(other.submittedDate))
+			return false;
+		return true;
+	}
+	
+	
 }

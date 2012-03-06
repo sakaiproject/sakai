@@ -199,4 +199,120 @@ public class GradingAttachmentData implements Serializable, AttachmentIfc {
 
 	public void setAttachmentType(Long attachmentType) {
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((attachmentId == null) ? 0 : attachmentId.hashCode());
+		result = prime * result
+				+ ((attachmentType == null) ? 0 : attachmentType.hashCode());
+		result = prime * result
+				+ ((createdBy == null) ? 0 : createdBy.hashCode());
+		result = prime * result
+				+ ((createdDate == null) ? 0 : createdDate.hashCode());
+		result = prime * result
+				+ ((description == null) ? 0 : description.hashCode());
+		result = prime * result
+				+ ((fileSize == null) ? 0 : fileSize.hashCode());
+		result = prime * result
+				+ ((filename == null) ? 0 : filename.hashCode());
+		result = prime * result + ((isLink == null) ? 0 : isLink.hashCode());
+		result = prime * result
+				+ ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
+		result = prime
+				* result
+				+ ((lastModifiedDate == null) ? 0 : lastModifiedDate.hashCode());
+		result = prime * result
+				+ ((location == null) ? 0 : location.hashCode());
+		result = prime * result
+				+ ((mimeType == null) ? 0 : mimeType.hashCode());
+		result = prime * result
+				+ ((resourceId == null) ? 0 : resourceId.hashCode());
+		result = prime * result + ((status == null) ? 0 : status.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		GradingAttachmentData other = (GradingAttachmentData) obj;
+		if (attachmentId == null) {
+			if (other.attachmentId != null)
+				return false;
+		} else if (!attachmentId.equals(other.attachmentId))
+			return false;
+		if (attachmentType == null) {
+			if (other.attachmentType != null)
+				return false;
+		} else if (!attachmentType.equals(other.attachmentType))
+			return false;
+		if (createdBy == null) {
+			if (other.createdBy != null)
+				return false;
+		} else if (!createdBy.equals(other.createdBy))
+			return false;
+		if (createdDate == null) {
+			if (other.createdDate != null)
+				return false;
+		} else if (!createdDate.equals(other.createdDate))
+			return false;
+		if (description == null) {
+			if (other.description != null)
+				return false;
+		} else if (!description.equals(other.description))
+			return false;
+		if (fileSize == null) {
+			if (other.fileSize != null)
+				return false;
+		} else if (!fileSize.equals(other.fileSize))
+			return false;
+		if (filename == null) {
+			if (other.filename != null)
+				return false;
+		} else if (!filename.equals(other.filename))
+			return false;
+		if (isLink == null) {
+			if (other.isLink != null)
+				return false;
+		} else if (!isLink.equals(other.isLink))
+			return false;
+		if (lastModifiedBy == null) {
+			if (other.lastModifiedBy != null)
+				return false;
+		} else if (!lastModifiedBy.equals(other.lastModifiedBy))
+			return false;
+		if (lastModifiedDate == null) {
+			if (other.lastModifiedDate != null)
+				return false;
+		} else if (!lastModifiedDate.equals(other.lastModifiedDate))
+			return false;
+		if (location == null) {
+			if (other.location != null)
+				return false;
+		} else if (!location.equals(other.location))
+			return false;
+		if (mimeType == null) {
+			if (other.mimeType != null)
+				return false;
+		} else if (!mimeType.equals(other.mimeType))
+			return false;
+		if (resourceId == null) {
+			if (other.resourceId != null)
+				return false;
+		} else if (!resourceId.equals(other.resourceId))
+			return false;
+		if (status == null) {
+			if (other.status != null)
+				return false;
+		} else if (!status.equals(other.status))
+			return false;
+		return true;
+	}
 }

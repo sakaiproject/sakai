@@ -23,6 +23,7 @@ package org.sakaiproject.tool.assessment.data.dao.grading;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -275,5 +276,133 @@ public class MediaData implements Serializable {
 
 	public void setTimeAllowed(String timeAllowed) {
 		this.timeAllowed = timeAllowed;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((createdBy == null) ? 0 : createdBy.hashCode());
+		result = prime * result
+				+ ((createdDate == null) ? 0 : createdDate.hashCode());
+		result = prime * result
+				+ ((description == null) ? 0 : description.hashCode());
+		result = prime * result
+				+ ((duration == null) ? 0 : duration.hashCode());
+		result = prime * result + (durationIsOver ? 1231 : 1237);
+		result = prime * result
+				+ ((fileSize == null) ? 0 : fileSize.hashCode());
+		result = prime * result
+				+ ((filename == null) ? 0 : filename.hashCode());
+		result = prime * result + (isHtmlInline ? 1231 : 1237);
+		result = prime * result + (isLink ? 1231 : 1237);
+		result = prime * result
+				+ ((itemGradingData == null) ? 0 : itemGradingData.hashCode());
+		result = prime * result
+				+ ((lastModifiedBy == null) ? 0 : lastModifiedBy.hashCode());
+		result = prime
+				* result
+				+ ((lastModifiedDate == null) ? 0 : lastModifiedDate.hashCode());
+		result = prime * result
+				+ ((location == null) ? 0 : location.hashCode());
+		result = prime * result + Arrays.hashCode(media);
+		result = prime * result + ((mediaId == null) ? 0 : mediaId.hashCode());
+		result = prime * result
+				+ ((mimeType == null) ? 0 : mimeType.hashCode());
+		result = prime * result + ((status == null) ? 0 : status.hashCode());
+		result = prime * result
+				+ ((timeAllowed == null) ? 0 : timeAllowed.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		MediaData other = (MediaData) obj;
+		if (createdBy == null) {
+			if (other.createdBy != null)
+				return false;
+		} else if (!createdBy.equals(other.createdBy))
+			return false;
+		if (createdDate == null) {
+			if (other.createdDate != null)
+				return false;
+		} else if (!createdDate.equals(other.createdDate))
+			return false;
+		if (description == null) {
+			if (other.description != null)
+				return false;
+		} else if (!description.equals(other.description))
+			return false;
+		if (duration == null) {
+			if (other.duration != null)
+				return false;
+		} else if (!duration.equals(other.duration))
+			return false;
+		if (durationIsOver != other.durationIsOver)
+			return false;
+		if (fileSize == null) {
+			if (other.fileSize != null)
+				return false;
+		} else if (!fileSize.equals(other.fileSize))
+			return false;
+		if (filename == null) {
+			if (other.filename != null)
+				return false;
+		} else if (!filename.equals(other.filename))
+			return false;
+		if (isHtmlInline != other.isHtmlInline)
+			return false;
+		if (isLink != other.isLink)
+			return false;
+		if (itemGradingData == null) {
+			if (other.itemGradingData != null)
+				return false;
+		} else if (!itemGradingData.equals(other.itemGradingData))
+			return false;
+		if (lastModifiedBy == null) {
+			if (other.lastModifiedBy != null)
+				return false;
+		} else if (!lastModifiedBy.equals(other.lastModifiedBy))
+			return false;
+		if (lastModifiedDate == null) {
+			if (other.lastModifiedDate != null)
+				return false;
+		} else if (!lastModifiedDate.equals(other.lastModifiedDate))
+			return false;
+		if (location == null) {
+			if (other.location != null)
+				return false;
+		} else if (!location.equals(other.location))
+			return false;
+		if (!Arrays.equals(media, other.media))
+			return false;
+		if (mediaId == null) {
+			if (other.mediaId != null)
+				return false;
+		} else if (!mediaId.equals(other.mediaId))
+			return false;
+		if (mimeType == null) {
+			if (other.mimeType != null)
+				return false;
+		} else if (!mimeType.equals(other.mimeType))
+			return false;
+		if (status == null) {
+			if (other.status != null)
+				return false;
+		} else if (!status.equals(other.status))
+			return false;
+		if (timeAllowed == null) {
+			if (other.timeAllowed != null)
+				return false;
+		} else if (!timeAllowed.equals(other.timeAllowed))
+			return false;
+		return true;
 	}
 }
