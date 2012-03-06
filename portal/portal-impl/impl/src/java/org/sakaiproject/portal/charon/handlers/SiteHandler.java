@@ -523,7 +523,8 @@ public class SiteHandler extends WorksiteHandler
 		}
 		String templates = ServerConfigurationService.getString("portal.templates", "neoskin");
 		String prefix = ServerConfigurationService.getString("portal.neoprefix", "neo-");
-		if ( "neoskin".equals(templates) ) skin = prefix + skin;
+        // Don't add the prefix twice
+        if ( "neoskin".equals(templates) && ! skin.startsWith(prefix) ) skin = prefix + skin;
 		return skin;
 	}
 
