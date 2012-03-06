@@ -250,49 +250,19 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	
 	//Style it like a Sakai tool
 	public void renderHead(IHeaderResponse response) {
-		//get Sakai skin
+		//Sakai skin
 		String skinRepo = sakaiProxy.getSkinRepoProperty();
 		String toolCSS = sakaiProxy.getToolSkinCSS(skinRepo);
 		String toolBaseCSS = skinRepo + "/tool_base.css";
 		
 		//Sakai additions
-		response.renderJavascriptReference("/library/js/headscripts.js");
 		response.renderCSSReference(toolBaseCSS);
 		response.renderCSSReference(toolCSS);
 		response.renderOnLoadJavascript("setMainFrameHeight( window.name )");
 		
-		//for jQuery
-		response.renderJavascriptReference("javascript/jquery-1.4.4.min.js");
-			
-		//for datepicker
-		response.renderCSSReference("css/flora.datepicker.css");
-		response.renderJavascriptReference("javascript/jquery.ui.core-1.5.2.min.js");
-		response.renderJavascriptReference("javascript/jquery.datepicker-1.5.2.min.js");
-
-		//for cluetip
-		response.renderCSSReference("css/jquery.cluetip.css");
-		response.renderJavascriptReference("javascript/jquery.dimensions.js");
-		response.renderJavascriptReference("javascript/jquery.hoverIntent.min.js");
-		response.renderJavascriptReference("javascript/jquery.cluetip.js");
-		
-		//for color plugin
-		//response.renderJavascriptReference("javascript/jquery.color.js");
-		
 		//wicketstuff TinyMCE
 		response.renderJavascriptReference(TinyMCESettings.javaScriptReference());
 
-		//response.renderJavascriptReference("javascript/iframe.js");
-		//resize the iframe to fit the contents
-		//response.renderOnLoadJavascript("setMainFrameHeight(window.name);");
-		
-		//add live plugin to listen for markup added after the DOM is ready
-		//response.renderJavascriptReference("javascript/jquery.livequery.js");
-		
-		//for i18n plugin
-		response.renderJavascriptReference("javascript/jquery.i18n.properties-min.js");
-		
-		//for text counter
-		response.renderJavascriptReference("javascript/jquery.apTextCounter.min.js");
 		
 		//Tool additions (at end so we can override if required)
 		response.renderString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");

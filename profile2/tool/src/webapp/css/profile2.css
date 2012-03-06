@@ -885,9 +885,10 @@ h2 {
 
 
 
-/* overrides cluetip's text color */
-#cluetip-inner {
+/* overrides cluetip's text color and border that jquery-ui sets */
+.cluetip-inner {
 	color: #5D5D5D;
+	border: 0 !important;
 }
 
 
@@ -1509,3 +1510,9 @@ main-profile-tabpanel .tab-row a:visited.active,
 	clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
 	clip: rect(1px, 1px, 1px, 1px);
 }
+
+/* center the datepicker icon */
+img.ui-datepicker-trigger {
+	vertical-align: middle;
+}
+

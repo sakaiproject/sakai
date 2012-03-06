@@ -106,11 +106,12 @@
 		/*
 		ranged from current year minus 100 years and cannot be past today
 		defaults to today if none set
-		http://docs.jquery.com/UI/Datepicker/datepicker#options
+		http://jqueryui.com/demos/datepicker/
 		*/
 		$(document).ready(function(){
 
 			$('.datePicker').datepicker({
+				changeYear: true,
 				yearRange: '-100:+1',
 				dateFormat: 'dd MM yy',
 				defaultDate: new Date(),
