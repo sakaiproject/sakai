@@ -142,7 +142,7 @@ public class UserPage  extends BaseTreePage{
 				}
 			};
 			
-			protected void onJunctionLinkClicked(AjaxRequestTarget target, TreeNode node) {
+			protected void onJunctionLinkClicked(AjaxRequestTarget target, Object node) {
 				//the nodes are generated on the fly with ajax.  This will add any child nodes that 
 				//are missing in the tree.  Expanding and collapsing will refresh the tree node
 				if(!isShoppingPeriodTool()){
