@@ -1430,8 +1430,9 @@ public class RequestFilter implements Filter
 	}
 
 	/**
-	 * Compute the URL that would return to this server based on the current request. Note: this method is a duplicate of one in the
-	 * util/Web.java
+	 * Compute the URL that would return to this server based on the current request. 
+	 * 
+	 * Note: this method is used by the one in /sakai-kernel-util/src/main/java/org/sakaiproject/util/Web.java
 	 * 
 	 * @param req
 	 *        The request.
@@ -1445,16 +1446,21 @@ public class RequestFilter implements Filter
 
 		// if force.url.secure is set (to a https port number), use https and this port
 		String forceSecure = System.getProperty("sakai.force.url.secure");
-		if (forceSecure != null)
-		{
-			transport = "https";
-			port = Integer.parseInt(forceSecure);
-			secure = true;
-		}
-
-		// otherwise use the request scheme and port
-		else
-		{
+		if (forceSecure != null && !"".equals(forceSecure)) {
+		    // allow the value to be forced to 0 or blank to disable this
+            int portNum;
+            try {
+                portNum = Integer.parseInt(forceSecure);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("force.url.secure must be set to the port number which should be a numeric value > 0 (or set it to 0 to disable secure urls)", e);
+            }
+            if (portNum > 0) {
+                transport = "https";
+                port = portNum;
+                secure = true;
+            }
+		} else {
+	        // otherwise use the request scheme and port
 			transport = req.getScheme();
 			port = req.getServerPort();
 			secure = req.isSecure();

@@ -356,46 +356,18 @@ public class Web
 	}
 
 	/**
-	 * Compute the URL that would return to this server based on the current request. Note: this method is duplicated in the kernel/request RequestFilter.java
+	 * Compute the URL that would return to this server based on the current request. 
+	 * 
+	 * Note: this method is duplicated in the /sakai-kernel-api/src/main/java/org/sakaiproject/util/RequestFilter.java
 	 * 
 	 * @param req
 	 *        The request.
 	 * @return The URL back to this server based on the current request.
+	 * @deprecated use RequestFilter.serverUrl
 	 */
 	public static String serverUrl(HttpServletRequest req)
 	{
-		String transport = null;
-		int port = 0;
-		boolean secure = false;
-
-		// if force.url.secure is set (to a https port number), use https and this port
-		String forceSecure = System.getProperty("sakai.force.url.secure");
-		if (forceSecure != null)
-		{
-			transport = "https";
-			port = Integer.parseInt(forceSecure);
-			secure = true;
-		}
-
-		// otherwise use the request scheme and port
-		else
-		{
-			transport = req.getScheme();
-			port = req.getServerPort();
-			secure = req.isSecure();
-		}
-
-		StringBuilder url = new StringBuilder();
-		url.append(transport);
-		url.append("://");
-		url.append(req.getServerName());
-		if (((port != 80) && (!secure)) || ((port != 443) && secure))
-		{
-			url.append(":");
-			url.append(port);
-		}
-
-		return url.toString();
+	    return RequestFilter.serverUrl(req);
 	}
 
 	public static String snoop(PrintWriter out, boolean html, ServletConfig config, HttpServletRequest req)
